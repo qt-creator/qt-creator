@@ -89,14 +89,37 @@ bool SymbolGroupValue::isValid() const
     return m_node != 0 && m_context.dataspaces != 0;
 }
 
+// Debug helper
+static void formatNodeError(const AbstractSymbolGroupNode *n, std::ostream &os)
+{
+    const AbstractSymbolGroupNode::AbstractSymbolGroupNodePtrVector &children = n->children();
+    const VectorIndexType size = children.size();
+    if (const SymbolGroupNode *sn = n->asSymbolGroupNode()) {
+        os << "type: " << sn->type() << ", raw value: \"" << wStringToString(sn->symbolGroupRawValue())
+           << "\", 0x" << std::hex << sn->address() << ", " << std::dec;
+    }
+    if (size) {
+        os << "children (" << size << "): [";
+        for (VectorIndexType i = 0; i < size; i++)
+            os << ' ' << children.at(i)->name();
+        os << ']';
+    } else {
+        os << "No children";
+    }
+}
+
 SymbolGroupValue SymbolGroupValue::operator[](unsigned index) const
 {
     if (ensureExpanded())
         if (index < m_node->children().size())
             if (SymbolGroupNode *n = m_node->childAt(index)->asSymbolGroupNode())
                 return SymbolGroupValue(n, m_context);
-    if (isValid() && SymbolGroupValue::verbose)
-        DebugPrint() << name() << "::operator[" << index << "](const char*) failed.";
+    if (isValid() && SymbolGroupValue::verbose) {
+        DebugPrint dp;
+        dp << name() << "::operator[](#" << index << ") failed. ";
+        if (m_node)
+            formatNodeError(m_node, dp);
+    }
     return SymbolGroupValue(m_errorMessage);
 }
 
@@ -125,8 +148,12 @@ SymbolGroupValue SymbolGroupValue::operator[](const char *name) const
         if (AbstractSymbolGroupNode *child = m_node->childByIName(name))
             if (SymbolGroupNode *n = child->asSymbolGroupNode())
                 return SymbolGroupValue(n, m_context);
-    if (isValid() && SymbolGroupValue::verbose) // Do not report subsequent errors
-        DebugPrint() << this->name() << "::operator[](" << name << ") failed.";
+    if (isValid() && SymbolGroupValue::verbose) { // Do not report subsequent errors
+        DebugPrint dp;
+        dp << this->name() << "::operator[](\"" << name << "\") failed. ";
+        if (m_node)
+            formatNodeError(m_node, dp);
+    }
     return SymbolGroupValue(m_errorMessage);
 }
 
@@ -1217,7 +1244,7 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
         if (const SymbolGroupValue sizeValue = d["size"]) {
             const int size = sizeValue.intValue();
             if (size >= 0) {
-                str << d["data"].wcharPointerData(size);
+                str << L'"' << d["data"].wcharPointerData(size) << L'"';
                 return true;
             }
         }
@@ -1434,9 +1461,7 @@ static inline bool dumpQWidget(const SymbolGroupValue &v, std::wostream &str, vo
         return false;
     if (specialInfoIn)
         *specialInfoIn = qwPrivate.node();
-    str << L'"';
     dumpQString(oName, str);
-    str << L'"';
     return true;
 }
 
@@ -1448,9 +1473,7 @@ static inline bool dumpQObject(const SymbolGroupValue &v, std::wostream &str, vo
         if (SymbolGroupValue oName = qoPrivate["objectName"]) {
             if (specialInfoIn)
                 *specialInfoIn = qoPrivate.node();
-            str << L'"';
             dumpQString(oName, str);
-            str << L'"';
             return true;
         }
     }
@@ -1573,10 +1596,9 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
     }
         break;
     case 10: // String
-        str << L"(QString) \"";
+        str << L"(QString) ";
         if (const SymbolGroupValue sv = dataV.typeCast(qtInfo.prependQtCoreModule("QString *").c_str())) {
             dumpQString(sv, str);
-            str << L'"';
         }
         break;
     case 11: //StringList: Dump container size

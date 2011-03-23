@@ -114,7 +114,6 @@
 
 #include <qdeclarativetester.h>
 
-#include <qt_private/qdeclarativedebughelper_p.h>
 #include "jsdebuggeragent.h"
 
 QT_BEGIN_NAMESPACE
@@ -759,13 +758,12 @@ void QDeclarativeViewer::createMenu()
     connect(recordOptions, SIGNAL(triggered()), this, SLOT(chooseRecordingOptions()));
 
     QMenu *playSpeedMenu = new QMenu(tr("Animation Speed"), this);
-    QActionGroup *playSpeedMenuActions = new QActionGroup(this);
+    playSpeedMenuActions = new QActionGroup(this);
     playSpeedMenuActions->setExclusive(true);
 
     QAction *speedAction = playSpeedMenu->addAction(tr("1x"), this, SLOT(changeAnimationSpeed()));
     speedAction->setCheckable(true);
     speedAction->setChecked(true);
-    animationSpeed = 1.0f;
     speedAction->setData(1.0f);
     playSpeedMenuActions->addAction(speedAction);
 
@@ -775,7 +773,6 @@ void QDeclarativeViewer::createMenu()
     playSpeedMenuActions->addAction(speedAction);
 
     speedAction = playSpeedMenu->addAction(tr("0.25x"), this, SLOT(changeAnimationSpeed()));
-    speedAction->setCheckable(true);
     speedAction->setCheckable(true);
     speedAction->setData(4.0f);
     playSpeedMenuActions->addAction(speedAction);
@@ -790,7 +787,7 @@ void QDeclarativeViewer::createMenu()
     speedAction->setData(10.0f);
     playSpeedMenuActions->addAction(speedAction);
 
-    pauseAnimationsAction = playSpeedMenu->addAction(tr("Pause"), this, SLOT(setAnimationsPaused(bool)));
+    pauseAnimationsAction = playSpeedMenu->addAction(tr("Pause"), observer, SLOT(setAnimationPaused(bool)));
     pauseAnimationsAction->setCheckable(true);
     pauseAnimationsAction->setShortcut(QKeySequence("Ctrl+."));
 
@@ -802,6 +799,9 @@ void QDeclarativeViewer::createMenu()
 
     QAction *playSpeedAction = new QAction(tr("Animations"), this);
     playSpeedAction->setMenu(playSpeedMenu);
+
+    connect(observer, SIGNAL(animationSpeedChanged(qreal)), SLOT(animationSpeedChanged(qreal)));
+    connect(observer, SIGNAL(animationPausedChanged(bool)), pauseAnimationsAction, SLOT(setChecked(bool)));
 
     showWarningsWindow = new QAction(tr("Show Warnings"), this);
     showWarningsWindow->setCheckable((true));
@@ -1078,24 +1078,15 @@ void QDeclarativeViewer::toggleRecording()
 #endif
 }
 
-void QDeclarativeViewer::setAnimationsPaused(bool enable)
+void QDeclarativeViewer::pauseAnimations()
 {
-   if (enable) {
-       setAnimationSpeed(0.0);
-   } else {
-       setAnimationSpeed(animationSpeed);
-   }
-}
-
-void QDeclarativeViewer::pauseAnimations() {
-   pauseAnimationsAction->setChecked(true);
-   setAnimationsPaused(true);
+    observer->setAnimationPaused(true);
 }
 
 void QDeclarativeViewer::stepAnimations()
 {
-   setAnimationSpeed(1.0);
-   QTimer::singleShot(m_stepSize, this, SLOT(pauseAnimations()));
+    observer->setAnimationPaused(false);
+    QTimer::singleShot(m_stepSize, this, SLOT(pauseAnimations()));
  }
 
 void QDeclarativeViewer::setAnimationStep()
@@ -1108,13 +1099,8 @@ void QDeclarativeViewer::setAnimationStep()
 
 void QDeclarativeViewer::changeAnimationSpeed()
 {
-   QAction *action = qobject_cast<QAction*>(sender());
-   if (action) {
-       float f = action->data().toFloat();
-       animationSpeed = f;
-       if (!pauseAnimationsAction->isChecked())
-           setAnimationSpeed(animationSpeed);
-   }
+   if (QAction *action = qobject_cast<QAction*>(sender()))
+       observer->setAnimationSpeed(action->data().toFloat());
 }
 
 void QDeclarativeViewer::addLibraryPath(const QString& lib)
@@ -1574,6 +1560,16 @@ void QDeclarativeViewer::orientationChanged()
     updateSizeHints();
 }
 
+void QDeclarativeViewer::animationSpeedChanged(qreal factor)
+{
+    foreach (QAction *action, playSpeedMenuActions->actions()) {
+        if (action->data().toFloat() == factor) {
+            action->setChecked(true);
+            break;
+        }
+    }
+}
+
 void QDeclarativeViewer::setDeviceKeys(bool on)
 {
     devicemode = on;
@@ -1623,11 +1619,6 @@ void QDeclarativeViewer::setSizeToView(bool sizeToView)
 void QDeclarativeViewer::setStayOnTop(bool stayOnTop)
 {
     appOnTopAction->setChecked(stayOnTop);
-}
-
-void QDeclarativeViewer::setAnimationSpeed(float f)
-{
-    QDeclarativeDebugHelper::setAnimationSlowDownFactor(f);
 }
 
 void QDeclarativeViewer::updateSizeHints(bool initial)

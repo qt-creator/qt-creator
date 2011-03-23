@@ -130,7 +130,6 @@ public slots:
     void proxySettingsChanged ();
     void rotateOrientation();
     void statusChanged();
-    void setAnimationsPaused(bool);
     void pauseAnimations();
     void stepAnimations();
     void setAnimationStep();
@@ -154,12 +153,13 @@ private slots:
     void changeOrientation(QAction*);
     void orientationChanged();
 
+    void animationSpeedChanged(qreal factor);
+
     void showWarnings(bool show);
     void warningsWidgetOpened();
     void warningsWidgetClosed();
 
 private:
-    void setAnimationSpeed(float f);
     void updateSizeHints(bool initial = false);
 
     QString getVideoFileName();
@@ -192,8 +192,8 @@ private:
     bool ffmpegAvailable;
     bool convertAvailable;
 
-    float animationSpeed;
     int m_stepSize;
+    QActionGroup *playSpeedMenuActions;
     QAction *pauseAnimationsAction;
     QAction *animationStepAction;
     QAction *animationSetStepAction;

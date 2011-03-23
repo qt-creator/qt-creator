@@ -40,6 +40,7 @@
 #include <QtGui/QIcon>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
+QT_FORWARD_DECLARE_CLASS(QActionGroup)
 QT_FORWARD_DECLARE_CLASS(QColor)
 QT_FORWARD_DECLARE_CLASS(QToolButton)
 
@@ -84,7 +85,10 @@ public slots:
     void activateColorPicker();
     void activateSelectTool();
     void activateZoomTool();
-    void setAnimationSpeed(qreal slowdownFactor);
+
+    void setAnimationSpeed(qreal slowDownFactor);
+    void setAnimationPaused(bool paused);
+
     void setDesignModeBehavior(bool inDesignMode);
     void setShowAppOnTop(bool showAppOnTop);
     void setSelectedColor(const QColor &color);
@@ -99,7 +103,9 @@ signals:
     void zoomToolSelected();
 
     void showAppOnTopSelected(bool isChecked);
-    void animationSpeedChanged(qreal slowdownFactor = 1.0f);
+
+    void animationSpeedChanged(qreal slowdownFactor);
+    void animationPausedChanged(bool paused);
 
 private slots:
     void activateDesignModeOnClick();
@@ -110,16 +116,11 @@ private slots:
 
     void showAppOnTopClick();
 
-    void changeToDefaultAnimSpeed();
-    void changeToHalfAnimSpeed();
-    void changeToFourthAnimSpeed();
-    void changeToEighthAnimSpeed();
-    void changeToTenthAnimSpeed();
+    void changeAnimationSpeed();
 
     void activateFromQml();
 
     void updatePlayAction();
-    void updatePauseAction();
 
     void activeDebugLanguagesChanged(Debugger::DebuggerLanguages languages);
 
@@ -135,12 +136,7 @@ private:
 
     QAction *m_showAppOnTopAction;
 
-    QAction *m_defaultAnimSpeedAction;
-    QAction *m_halfAnimSpeedAction;
-    QAction *m_fourthAnimSpeedAction;
-    QAction *m_eighthAnimSpeedAction;
-    QAction *m_tenthAnimSpeedAction;
-    QAction *m_menuPauseAction;
+    QActionGroup *m_playSpeedMenuActions;
 
     QToolButton *m_playButton;
     QIcon m_playIcon;
@@ -149,9 +145,8 @@ private:
     ToolBarColorBox *m_colorBox;
 
     bool m_emitSignals;
-    bool m_isRunning;
+    bool m_paused;
     qreal m_animationSpeed;
-    qreal m_previousAnimationSpeed;
 
     DesignTool m_activeTool;
 

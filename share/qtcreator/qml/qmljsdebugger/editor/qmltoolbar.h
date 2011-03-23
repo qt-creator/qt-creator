@@ -39,6 +39,8 @@
 
 #include "qmlobserverconstants.h"
 
+QT_FORWARD_DECLARE_CLASS(QActionGroup)
+
 namespace QmlJSDebugger {
 
 class ToolBarColorBox;
@@ -58,10 +60,13 @@ public slots:
     void activateSelectTool();
     void activateMarqueeSelectTool();
     void activateZoom();
-    void setAnimationSpeed(qreal slowdownFactor = 0.0f);
+
+    void setAnimationSpeed(qreal slowDownFactor);
+    void setAnimationPaused(bool paused);
 
 signals:
-    void animationSpeedChanged(qreal slowdownFactor = 1.0f);
+    void animationSpeedChanged(qreal factor);
+    void animationPausedChanged(bool paused);
 
     void designModeBehaviorChanged(bool inDesignMode);
     void colorPickerSelected();
@@ -83,14 +88,9 @@ private slots:
     void activateFromQml();
     void activateToQml();
 
-    void changeToDefaultAnimSpeed();
-    void changeToHalfAnimSpeed();
-    void changeToFourthAnimSpeed();
-    void changeToEighthAnimSpeed();
-    void changeToTenthAnimSpeed();
+    void changeAnimationSpeed();
 
     void updatePlayAction();
-    void updatePauseAction();
 
 private:
     class Ui {
@@ -107,18 +107,12 @@ private:
         QIcon pauseIcon;
         ToolBarColorBox *colorBox;
 
-        QAction *defaultAnimSpeedAction;
-        QAction *halfAnimSpeedAction;
-        QAction *fourthAnimSpeedAction;
-        QAction *eighthAnimSpeedAction;
-        QAction *tenthAnimSpeedAction;
-        QAction *menuPauseAction;
+        QActionGroup *playSpeedMenuActions;
     };
 
     bool m_emitSignals;
-    bool m_isRunning;
+    bool m_paused;
     qreal m_animationSpeed;
-    qreal m_previousAnimationSpeed;
 
     Constants::DesignTool m_activeTool;
 

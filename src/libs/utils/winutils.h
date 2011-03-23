@@ -55,12 +55,10 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
                                                 QString *errorMessage);
 
 // Return the short (8.3) file name
-QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name,
-                                                QString *errorMessage);
+QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name);
 
 // Returns long name
-QTCREATOR_UTILS_EXPORT QString getLongPathName(const QString &name,
-                                               QString *errorMessage);
+QTCREATOR_UTILS_EXPORT QString getLongPathName(const QString &name);
 
 QTCREATOR_UTILS_EXPORT unsigned long winQPidToPid(const Q_PID qpid);
 

@@ -46,9 +46,8 @@ namespace QmlJSDebugger {
 QmlToolBar::QmlToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_emitSignals(true)
-    , m_isRunning(false)
+    , m_paused(false)
     , m_animationSpeed(1.0f)
-    , m_previousAnimationSpeed(0.0f)
     , ui(new Ui)
 {
     ui->playIcon = QIcon(QLatin1String(":/qml/images/play-24.png"));
@@ -99,40 +98,35 @@ QmlToolBar::QmlToolBar(QWidget *parent)
     setWindowFlags(Qt::Tool);
 
     QMenu *playSpeedMenu = new QMenu(this);
-    QActionGroup *playSpeedMenuActions = new QActionGroup(this);
-    playSpeedMenuActions->setExclusive(true);
-    playSpeedMenu->addAction(tr("Animation Speed"));
-    playSpeedMenu->addSeparator();
-    ui->defaultAnimSpeedAction = playSpeedMenu->addAction(tr("1x"), this,
-                                                          SLOT(changeToDefaultAnimSpeed()));
-    ui->defaultAnimSpeedAction->setCheckable(true);
-    ui->defaultAnimSpeedAction->setChecked(true);
-    playSpeedMenuActions->addAction(ui->defaultAnimSpeedAction);
+    ui->playSpeedMenuActions = new QActionGroup(this);
+    ui->playSpeedMenuActions->setExclusive(true);
 
-    ui->halfAnimSpeedAction = playSpeedMenu->addAction(tr("0.5x"), this,
-                                                       SLOT(changeToHalfAnimSpeed()));
-    ui->halfAnimSpeedAction->setCheckable(true);
-    playSpeedMenuActions->addAction(ui->halfAnimSpeedAction);
+    QAction *speedAction = playSpeedMenu->addAction(tr("1x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setChecked(true);
+    speedAction->setData(1.0f);
+    ui->playSpeedMenuActions->addAction(speedAction);
 
-    ui->fourthAnimSpeedAction = playSpeedMenu->addAction(tr("0.25x"), this,
-                                                         SLOT(changeToFourthAnimSpeed()));
-    ui->fourthAnimSpeedAction->setCheckable(true);
-    playSpeedMenuActions->addAction(ui->fourthAnimSpeedAction);
+    speedAction = playSpeedMenu->addAction(tr("0.5x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setData(2.0f);
+    ui->playSpeedMenuActions->addAction(speedAction);
 
-    ui->eighthAnimSpeedAction = playSpeedMenu->addAction(tr("0.125x"), this,
-                                                         SLOT(changeToEighthAnimSpeed()));
-    ui->eighthAnimSpeedAction->setCheckable(true);
-    playSpeedMenuActions->addAction(ui->eighthAnimSpeedAction);
+    speedAction = playSpeedMenu->addAction(tr("0.25x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setData(4.0f);
+    ui->playSpeedMenuActions->addAction(speedAction);
 
-    ui->tenthAnimSpeedAction = playSpeedMenu->addAction(tr("0.1x"), this,
-                                                        SLOT(changeToTenthAnimSpeed()));
-    ui->tenthAnimSpeedAction->setCheckable(true);
-    playSpeedMenuActions->addAction(ui->tenthAnimSpeedAction);
+    speedAction = playSpeedMenu->addAction(tr("0.125x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setData(8.0f);
+    ui->playSpeedMenuActions->addAction(speedAction);
 
-    ui->menuPauseAction = playSpeedMenu->addAction(tr("Pause"), this, SLOT(updatePauseAction()));
-    ui->menuPauseAction->setCheckable(true);
-    ui->menuPauseAction->setIcon(ui->pauseIcon);
-    playSpeedMenuActions->addAction(ui->menuPauseAction);
+    speedAction = playSpeedMenu->addAction(tr("0.1x"), this, SLOT(changeAnimationSpeed()));
+    speedAction->setCheckable(true);
+    speedAction->setData(10.0f);
+    ui->playSpeedMenuActions->addAction(speedAction);
+
     ui->play->setMenu(playSpeedMenu);
 
     connect(ui->designmode, SIGNAL(toggled(bool)), SLOT(setDesignModeBehaviorOnClick(bool)));
@@ -183,62 +177,39 @@ void QmlToolBar::activateZoom()
     m_emitSignals = true;
 }
 
-void QmlToolBar::setAnimationSpeed(qreal slowdownFactor)
+void QmlToolBar::setAnimationSpeed(qreal slowDownFactor)
 {
-    m_emitSignals = false;
-    if (slowdownFactor != 0) {
-        m_animationSpeed = slowdownFactor;
+    if (m_animationSpeed == slowDownFactor)
+        return;
 
-        if (slowdownFactor == 1.0f) {
-            ui->defaultAnimSpeedAction->setChecked(true);
-        } else if (slowdownFactor == 2.0f) {
-            ui->halfAnimSpeedAction->setChecked(true);
-        } else if (slowdownFactor == 4.0f) {
-            ui->fourthAnimSpeedAction->setChecked(true);
-        } else if (slowdownFactor == 8.0f) {
-            ui->eighthAnimSpeedAction->setChecked(true);
-        } else if (slowdownFactor == 10.0f) {
-            ui->tenthAnimSpeedAction->setChecked(true);
+    m_emitSignals = false;
+    m_animationSpeed = slowDownFactor;
+
+    foreach (QAction *action, ui->playSpeedMenuActions->actions()) {
+        if (action->data().toReal() == slowDownFactor) {
+            action->setChecked(true);
+            break;
         }
-        updatePlayAction();
-    } else {
-        ui->menuPauseAction->setChecked(true);
-        updatePauseAction();
     }
 
     m_emitSignals = true;
 }
 
-void QmlToolBar::changeToDefaultAnimSpeed()
+void QmlToolBar::setAnimationPaused(bool paused)
 {
-    m_animationSpeed = 1.0f;
+    if (m_paused == paused)
+        return;
+
+    m_paused = paused;
     updatePlayAction();
 }
 
-void QmlToolBar::changeToHalfAnimSpeed()
+void QmlToolBar::changeAnimationSpeed()
 {
-    m_animationSpeed = 2.0f;
-    updatePlayAction();
+    QAction *action = qobject_cast<QAction*>(sender());
+    m_animationSpeed = action->data().toReal();
+    emit animationSpeedChanged(m_animationSpeed);
 }
-
-void QmlToolBar::changeToFourthAnimSpeed()
-{
-    m_animationSpeed = 4.0f;
-    updatePlayAction();
-}
-
-void QmlToolBar::changeToEighthAnimSpeed()
-{
-    m_animationSpeed = 8.0f;
-    updatePlayAction();
-}
-
-void QmlToolBar::changeToTenthAnimSpeed()
-{
-    m_animationSpeed = 10.0f;
-    updatePlayAction();
-}
-
 
 void QmlToolBar::setDesignModeBehavior(bool inDesignMode)
 {
@@ -268,30 +239,14 @@ void QmlToolBar::setColorBoxColor(const QColor &color)
 
 void QmlToolBar::activatePlayOnClick()
 {
-    if (m_isRunning) {
-        updatePauseAction();
-    } else {
-        updatePlayAction();
-    }
+    m_paused = !m_paused;
+    emit animationPausedChanged(m_paused);
+    updatePlayAction();
 }
 
 void QmlToolBar::updatePlayAction()
 {
-    m_isRunning = true;
-    ui->play->setIcon(ui->pauseIcon);
-    if (m_animationSpeed != m_previousAnimationSpeed)
-        m_previousAnimationSpeed = m_animationSpeed;
-
-    if (m_emitSignals)
-        emit animationSpeedChanged(m_animationSpeed);
-}
-
-void QmlToolBar::updatePauseAction()
-{
-    m_isRunning = false;
-    ui->play->setIcon(ui->playIcon);
-    if (m_emitSignals)
-        emit animationSpeedChanged(0.0f);
+    ui->play->setIcon(m_paused ? ui->playIcon : ui->pauseIcon);
 }
 
 void QmlToolBar::activateColorPickerOnClick()

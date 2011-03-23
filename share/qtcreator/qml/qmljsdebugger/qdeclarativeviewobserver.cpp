@@ -105,8 +105,8 @@ QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeVie
     q(q),
     designModeBehavior(false),
     showAppOnTop(false),
-    executionPaused(false),
-    slowdownFactor(1.0f),
+    animationPaused(false),
+    slowDownFactor(1.0f),
     toolBox(0)
 {
 }
@@ -147,7 +147,9 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     connect(data->debugService, SIGNAL(currentObjectsChanged(QList<QObject*>)),
             data.data(), SLOT(_q_onCurrentObjectsChanged(QList<QObject*>)));
     connect(data->debugService, SIGNAL(animationSpeedChangeRequested(qreal)),
-            SLOT(changeAnimationSpeed(qreal)));
+            SLOT(animationSpeedChangeRequested(qreal)));
+    connect(data->debugService, SIGNAL(executionPauseChangeRequested(bool)),
+            SLOT(animationPausedChangeRequested(bool)));
     connect(data->debugService, SIGNAL(colorPickerToolRequested()),
             data.data(), SLOT(_q_changeToColorPickerTool()));
     connect(data->debugService, SIGNAL(selectMarqueeToolRequested()),
@@ -384,11 +386,7 @@ bool QDeclarativeViewObserver::keyReleaseEvent(QKeyEvent *event)
             data->subcomponentEditorTool->setCurrentItem(data->selectedItems().first());
         break;
     case Qt::Key_Space:
-        if (data->executionPaused) {
-            continueExecution(data->slowdownFactor);
-        } else {
-            pauseExecution();
-        }
+        setAnimationPaused(!data->animationPaused);
         break;
     default:
         break;
@@ -757,43 +755,47 @@ void QDeclarativeViewObserverPrivate::_q_changeContextPathIndex(int index)
     subcomponentEditorTool->setContext(index);
 }
 
-void QDeclarativeViewObserver::changeAnimationSpeed(qreal slowdownFactor)
+void QDeclarativeViewObserver::setAnimationSpeed(qreal slowDownFactor)
 {
-    data->slowdownFactor = slowdownFactor;
+    Q_ASSERT(slowDownFactor > 0);
+    if (data->slowDownFactor == slowDownFactor)
+        return;
 
-    if (data->slowdownFactor != 0)
-        continueExecution(data->slowdownFactor);
-    else
-        pauseExecution();
+    animationSpeedChangeRequested(slowDownFactor);
+    data->debugService->setAnimationSpeed(slowDownFactor);
 }
 
-void QDeclarativeViewObserver::continueExecution(qreal slowdownFactor)
+void QDeclarativeViewObserver::setAnimationPaused(bool paused)
 {
-    Q_ASSERT(slowdownFactor > 0);
+    if (data->animationPaused == paused)
+        return;
 
-    data->slowdownFactor = slowdownFactor;
-    static const qreal animSpeedSnapDelta = 0.01f;
+    animationPausedChangeRequested(paused);
+    data->debugService->setAnimationPaused(paused);
+}
 
-    qreal slowDownFactor = data->slowdownFactor;
-    if (qAbs(1.0f - slowDownFactor) < animSpeedSnapDelta) {
-        slowDownFactor = 1.0f;
+void QDeclarativeViewObserver::animationSpeedChangeRequested(qreal factor)
+{
+    if (data->slowDownFactor != factor) {
+        data->slowDownFactor = factor;
+        emit animationSpeedChanged(factor);
     }
 
-    QDeclarativeDebugHelper::setAnimationSlowDownFactor(slowDownFactor);
-    data->executionPaused = false;
-
-    emit executionStarted(data->slowdownFactor);
-    data->debugService->setAnimationSpeed(data->slowdownFactor);
+    const float effectiveFactor = data->animationPaused ? 0 : factor;
+    QDeclarativeDebugHelper::setAnimationSlowDownFactor(effectiveFactor);
 }
 
-void QDeclarativeViewObserver::pauseExecution()
+void QDeclarativeViewObserver::animationPausedChangeRequested(bool paused)
 {
-    QDeclarativeDebugHelper::setAnimationSlowDownFactor(0.0f);
-    data->executionPaused = true;
+    if (data->animationPaused != paused) {
+        data->animationPaused = paused;
+        emit animationPausedChanged(paused);
+    }
 
-    emit executionPaused();
-    data->debugService->setAnimationSpeed(0);
+    const float effectiveFactor = paused ? 0 : data->slowDownFactor;
+    QDeclarativeDebugHelper::setAnimationSlowDownFactor(effectiveFactor);
 }
+
 
 void QDeclarativeViewObserverPrivate::_q_applyChangesFromClient()
 {
@@ -850,8 +852,6 @@ void QDeclarativeViewObserverPrivate::_q_onStatusChanged(QDeclarativeView::Statu
             if (subcomponentEditorTool->contextIndex() != -1)
                 subcomponentEditorTool->clear();
             subcomponentEditorTool->pushContext(view->rootObject());
-            emit q->executionStarted(1.0f);
-
         }
         debugService->reloaded();
     }
@@ -917,8 +917,8 @@ void QDeclarativeViewObserverPrivate::createToolBox()
 
     QObject::connect(toolBar, SIGNAL(designModeBehaviorChanged(bool)),
                      q, SLOT(setDesignModeBehavior(bool)));
-    QObject::connect(toolBar, SIGNAL(animationSpeedChanged(qreal)),
-                     q, SLOT(changeAnimationSpeed(qreal)));
+    QObject::connect(toolBar, SIGNAL(animationSpeedChanged(qreal)), q, SLOT(setAnimationSpeed(qreal)));
+    QObject::connect(toolBar, SIGNAL(animationPausedChanged(bool)), q, SLOT(setAnimationPaused(bool)));
     QObject::connect(toolBar, SIGNAL(colorPickerSelected()), this, SLOT(_q_changeToColorPickerTool()));
     QObject::connect(toolBar, SIGNAL(zoomToolSelected()), this, SLOT(_q_changeToZoomTool()));
     QObject::connect(toolBar, SIGNAL(selectToolSelected()), this, SLOT(_q_changeToSingleSelectTool()));
@@ -928,8 +928,8 @@ void QDeclarativeViewObserverPrivate::createToolBox()
     QObject::connect(toolBar, SIGNAL(applyChangesFromQmlFileSelected()),
                      this, SLOT(_q_applyChangesFromClient()));
 
-    QObject::connect(q, SIGNAL(executionStarted(qreal)), toolBar, SLOT(setAnimationSpeed(qreal)));
-    QObject::connect(q, SIGNAL(executionPaused()), toolBar, SLOT(setAnimationSpeed()));
+    QObject::connect(q, SIGNAL(animationSpeedChanged(qreal)), toolBar, SLOT(setAnimationSpeed(qreal)));
+    QObject::connect(q, SIGNAL(animationPausedChanged(bool)), toolBar, SLOT(setAnimationPaused(bool)));
 
     QObject::connect(q, SIGNAL(selectToolActivated()), toolBar, SLOT(activateSelectTool()));
 

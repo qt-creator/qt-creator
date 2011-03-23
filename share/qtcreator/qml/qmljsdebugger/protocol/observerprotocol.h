@@ -48,24 +48,26 @@ class ObserverProtocol : public QObject
 
 public:
     enum Message {
-        AnimationSpeedChanged,
-        ChangeTool,
-        ClearComponentCache,
-        ColorChanged,
-        ContextPathUpdated,
-        CreateObject,
-        CurrentObjectsChanged,
-        DestroyObject,
-        MoveObject,
-        ObjectIdList,
-        Reload,
-        Reloaded,
-        SetAnimationSpeed,
-        SetContextPathIdx,
-        SetCurrentObjects,
-        SetDesignMode,
-        ShowAppOnTop,
-        ToolChanged
+        AnimationSpeedChanged  = 0,
+        AnimationPausedChanged = 19, // highest value
+        ChangeTool             = 1,
+        ClearComponentCache    = 2,
+        ColorChanged           = 3,
+        ContextPathUpdated     = 4,
+        CreateObject           = 5,
+        CurrentObjectsChanged  = 6,
+        DestroyObject          = 7,
+        MoveObject             = 8,
+        ObjectIdList           = 9,
+        Reload                 = 10,
+        Reloaded               = 11,
+        SetAnimationSpeed      = 12,
+        SetAnimationPaused     = 18,
+        SetContextPathIdx      = 13,
+        SetCurrentObjects      = 14,
+        SetDesignMode          = 15,
+        ShowAppOnTop           = 16,
+        ToolChanged            = 17
     };
 
     enum Tool {
@@ -77,12 +79,12 @@ public:
 
     static inline QString toString(Message message)
     {
-        return staticMetaObject.enumerator(0).key(message);
+        return staticMetaObject.enumerator(0).valueToKey(message);
     }
 
     static inline QString toString(Tool tool)
     {
-        return staticMetaObject.enumerator(1).key(tool);
+        return staticMetaObject.enumerator(1).valueToKey(tool);
     }
 };
 

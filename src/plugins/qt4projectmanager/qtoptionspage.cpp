@@ -230,7 +230,7 @@ bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
     const int index = indexForTreeItem(item);
     if (index == -1)
         return false;
-    const QString tooltip = m_versions.at(index)->toHtml();
+    const QString tooltip = m_versions.at(index)->toHtml(true);
     QToolTip::showText(helpEvent->globalPos(), tooltip, m_ui->qtdirList);
     helpEvent->accept();
     return true;
@@ -575,10 +575,14 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         const bool hasLog = currentItem && !currentItem->data(0, BuildLogRole).toString().isEmpty();
         m_debuggingHelperUi->showLogButton->setEnabled(hasLog);
 
-        m_debuggingHelperUi->rebuildButton->setEnabled(!isBuildingGdbHelper
-                                                       && !isBuildingQmlDumper
-                                                       && !isBuildingQmlDebuggingLib
-                                                       && !isBuildingQmlObserver);
+        m_debuggingHelperUi->rebuildButton->setEnabled((!isBuildingGdbHelper
+                                                        && !isBuildingQmlDumper
+                                                        && !isBuildingQmlDebuggingLib
+                                                        && !isBuildingQmlObserver)
+                                                       && (canBuildGdbHelper
+                                                           || canBuildQmlDumper
+                                                           || canBuildQmlDebuggingLib
+                                                           || canBuildQmlObserver));
 
         m_ui->debuggingHelperWidget->setVisible(true);
     }

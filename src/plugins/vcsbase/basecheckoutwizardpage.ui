@@ -94,12 +94,12 @@
          <string>The path in which the directory containing the checkout will be created.</string>
         </property>
         <property name="text">
-         <string>Checkout Path:</string>
+         <string>Checkout path:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="pathChooser"/>
+       <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="checkoutDirectoryLabel">
@@ -107,7 +107,7 @@
          <string>The local directory that will contain the code after the checkout.</string>
         </property>
         <property name="text">
-         <string>Checkout Directory:</string>
+         <string>Checkout directory:</string>
         </property>
        </widget>
       </item>

@@ -236,6 +236,9 @@ private slots:
 
     void testGccAbiGuessing_data();
     void testGccAbiGuessing();
+
+    void testAbiOfBinary_data();
+    void testAbiOfBinary();
 #endif
 
 private:

@@ -188,8 +188,8 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
      }
 
      foreach (FormEditorItem *item, m_scene->allFormEditorItems()) {
-         delete item;
          m_scene->removeItemFromHash(item);
+         delete item;
      }
 
      QmlModelView::rootNodeTypeChanged(type, majorVersion, minorVersion);

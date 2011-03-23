@@ -100,6 +100,12 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         emit animationSpeedChangeRequested(speed);
         break;
     }
+    case ObserverProtocol::SetAnimationPaused: {
+        bool paused;
+        ds >> paused;
+        emit executionPauseChangeRequested(paused);
+        break;
+    }
     case ObserverProtocol::ChangeTool: {
         ObserverProtocol::Tool tool;
         ds >> tool;
@@ -222,14 +228,24 @@ void QDeclarativeObserverService::setCurrentTool(QmlJSDebugger::Constants::Desig
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::setAnimationSpeed(qreal slowdownFactor)
+void QDeclarativeObserverService::setAnimationSpeed(qreal slowDownFactor)
 {
-
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
     ds << ObserverProtocol::AnimationSpeedChanged
-       << slowdownFactor;
+       << slowDownFactor;
+
+    sendMessage(message);
+}
+
+void QDeclarativeObserverService::setAnimationPaused(bool paused)
+{
+    QByteArray message;
+    QDataStream ds(&message, QIODevice::WriteOnly);
+
+    ds << ObserverProtocol::AnimationPausedChanged
+       << paused;
 
     sendMessage(message);
 }

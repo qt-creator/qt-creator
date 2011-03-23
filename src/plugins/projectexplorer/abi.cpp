@@ -141,6 +141,9 @@ static QList<Abi> abiOf(const QByteArray &data)
         case 21: // EM_PPC64
             result.append(Abi(Abi::PowerPCArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
             break;
+        case 40: // EM_ARM
+            result.append(Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
+            break;
         case 62: // EM_X86_64
             result.append(Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
             break;
@@ -171,6 +174,10 @@ static QList<Abi> abiOf(const QByteArray &data)
             result.append(macAbiForCpu(type));
             pos += 20;
         }
+    } else if (data.size() >= 20
+               && static_cast<unsigned char>(data.at(16)) == 'E' && static_cast<unsigned char>(data.at(17)) == 'P'
+               && static_cast<unsigned char>(data.at(18)) == 'O' && static_cast<unsigned char>(data.at(19)) == 'C') {
+        result.append(Abi(Abi::ArmArchitecture, Abi::SymbianOS, Abi::SymbianDeviceFlavor, Abi::ElfFormat, 32));
     } else {
         // Windows PE
         // Windows can have its magic bytes everywhere...
@@ -492,13 +499,13 @@ Abi Abi::hostAbi()
 
 QList<Abi> Abi::abisOfBinary(const QString &path)
 {
-    QList<Abi> result;
+    QList<Abi> tmp;
     if (path.isEmpty())
-        return result;
+        return tmp;
 
     QFile f(path);
     if (!f.exists())
-        return result;
+        return tmp;
 
     bool windowsStatic = path.endsWith(QLatin1String(".lib"));
 
@@ -509,7 +516,7 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
             && static_cast<unsigned char>(data.at(2)) == 'a' && static_cast<unsigned char>(data.at(3)) == 'r'
             && static_cast<unsigned char>(data.at(4)) == 'c' && static_cast<unsigned char>(data.at(5)) == 'h'
             && static_cast<unsigned char>(data.at(6)) == '>' && static_cast<unsigned char>(data.at(7)) == 0x0a) {
-        // We got an ar file: possibly a static lib for ELF or Mach-O
+        // We got an ar file: possibly a static lib for ELF, PE or Mach-O
 
         data = data.mid(8); // Cut of ar file magic
         quint64 offset = 8;
@@ -530,22 +537,123 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
             offset += fileLength.toInt() + 60 /* header */;
             if (windowsStatic) {
                 if (fileName == QLatin1String("/0              "))
-                    result = parseCoffHeader(data.mid(toSkip, 20));
+                    tmp = parseCoffHeader(data.mid(toSkip, 20));
             } else {
-                result = abiOf(data.mid(toSkip));
+                tmp.append(abiOf(data.mid(toSkip)));
             }
-            if (!result.isEmpty())
+            if (!tmp.isEmpty()
+                    && tmp.at(0).binaryFormat() != Abi::MachOFormat)
                 break;
 
             f.seek(offset + (offset % 2)); // ar is 2 byte alligned
             data = f.read(1024);
         }
     } else {
-        result = abiOf(data);
+        tmp = abiOf(data);
     }
     f.close();
+
+    // Remove duplicates:
+    QList<Abi> result;
+    foreach (const Abi &a, tmp) {
+        if (!result.contains(a))
+            result.append(a);
+    }
 
     return result;
 }
 
 } // namespace ProjectExplorer
+
+// Unit tests:
+#ifdef WITH_TESTS
+#   include <QTest>
+#   include <QtCore/QFileInfo>
+
+#   include "projectexplorer.h"
+
+void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
+{
+    QTest::addColumn<QString>("file");
+    QTest::addColumn<QStringList>("abis");
+
+    QTest::newRow("no file")
+            << QString()
+            << (QStringList());
+    QTest::newRow("non existing file")
+            << QString::fromLatin1("/does/not/exist")
+            << (QStringList());
+
+    // Set up prefix for test data now that we can be sure to have some tests to run:
+    QString prefix = qgetenv("QTC_TEST_EXTRADATALOCATION");
+    if (prefix.isEmpty())
+        return;
+    QFileInfo fi(prefix);
+    if (!fi.exists() || !fi.isDir())
+        return;
+    prefix = fi.absoluteFilePath();
+
+    QTest::newRow("text file")
+            << QString::fromLatin1("%1/broken/text.txt").arg(prefix)
+            << (QStringList());
+
+    QTest::newRow("static QtCore: win msvc2008")
+            << QString::fromLatin1("%1/abi/static/win_msvc2008_release.lib").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
+    QTest::newRow("static QtCore: win msvc2008 (debug)")
+            << QString::fromLatin1("%1/abi/static/win_msvc2008_debug.lib").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
+    QTest::newRow("static QtCore: mac (debug)")
+            << QString::fromLatin1("%1/abi/static/mac-32bit-debug.a").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-macos-generic-mach_o-32bit"));
+    QTest::newRow("static QtCore: linux 32bit")
+            << QString::fromLatin1("%1/abi/static/linux-32bit-release.a").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-linux-generic-elf-32bit"));
+    QTest::newRow("static QtCore: linux 64bit")
+            << QString::fromLatin1("%1/abi/static/linux-64bit-release.a").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-linux-generic-elf-64bit"));
+
+    QTest::newRow("static stdc++: mac fat")
+            << QString::fromLatin1("%1/abi/static/mac-fat.a").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-macos-generic-mach_o-32bit")
+                              << QString::fromLatin1("ppc-macos-generic-mach_o-32bit")
+                              << QString::fromLatin1("x86-macos-generic-mach_o-64bit"));
+
+    QTest::newRow("dynamic QtCore: symbian")
+            << QString::fromLatin1("%1/abi/dynamic/symbian.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("arm-symbian-device-elf-32bit"));
+    QTest::newRow("dynamic QtCore: win msvc2010 64bit")
+            << QString::fromLatin1("%1/abi/dynamic/win-msvc2010-64bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msvc2010-pe-64bit"));
+    QTest::newRow("dynamic QtCore: win msvc2008 32bit")
+            << QString::fromLatin1("%1/abi/dynamic/win-msvc2008-32bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msvc2008-pe-32bit"));
+    QTest::newRow("dynamic QtCore: win msvc2005 32bit")
+            << QString::fromLatin1("%1/abi/dynamic/win-msvc2005-32bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msvc2005-pe-32bit"));
+    QTest::newRow("dynamic QtCore: win msys 32bit")
+            << QString::fromLatin1("%1/abi/dynamic/win-mingw-32bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
+    QTest::newRow("dynamic QtCore: win msys 32bit")
+            << QString::fromLatin1("%1/abi/dynamic/win-mingw-32bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
+    QTest::newRow("static stdc++: mac fat")
+            << QString::fromLatin1("%1/abi/dynamic/mac-fat.dylib").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-macos-generic-mach_o-32bit")
+                              << QString::fromLatin1("ppc-macos-generic-mach_o-32bit")
+                              << QString::fromLatin1("x86-macos-generic-mach_o-64bit"));
+
+}
+
+void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()
+{
+    QFETCH(QString, file);
+    QFETCH(QStringList, abis);
+
+    QList<ProjectExplorer::Abi> result = Abi::abisOfBinary(file);
+    QCOMPARE(result.count(), abis.count());
+    for (int i = 0; i < abis.count(); ++i)
+        QCOMPARE(result.at(i).toString(), abis.at(i));
+}
+
+#endif

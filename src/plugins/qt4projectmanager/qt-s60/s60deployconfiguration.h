@@ -130,7 +130,9 @@ private:
     QString symbianTarget() const;
     QString createPackageName(const QString &baseName) const;
     bool isDebug() const;
+    bool isDeployable(const Qt4ProFileNode &projectNode) const;
     bool isStaticLibrary(const Qt4ProFileNode &projectNode) const;
+    bool isApplication(const Qt4ProFileNode &projectNode) const;
     bool hasSisPackage(const Qt4ProFileNode &projectNode) const;
 
 private:

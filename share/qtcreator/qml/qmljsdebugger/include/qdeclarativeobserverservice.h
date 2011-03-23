@@ -65,7 +65,8 @@ public:
 
     void setDesignModeBehavior(bool inDesignMode);
     void setCurrentObjects(QList<QObject*> items);
-    void setAnimationSpeed(qreal slowdownFactor);
+    void setAnimationSpeed(qreal slowDownFactor);
+    void setAnimationPaused(bool paused);
     void setCurrentTool(QmlJSDebugger::Constants::DesignTool toolId);
     void reloaded();
     void setShowAppOnTop(bool showAppOnTop);
@@ -95,9 +96,9 @@ Q_SIGNALS:
     void objectReparentRequested(QObject *object, QObject *newParent);
 
     // 1 = normal speed,
-    // 0 = paused,
     // 1 < x < 16 = slowdown by some factor
     void animationSpeedChangeRequested(qreal speedFactor);
+    void executionPauseChangeRequested(bool paused);
 
     void contextPathIndexChanged(int contextPathIndex);
     void clearComponentCacheRequested();

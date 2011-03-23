@@ -73,9 +73,8 @@ public Q_SLOTS:
 
     void setShowAppOnTop(bool appOnTop);
 
-    void changeAnimationSpeed(qreal slowdownFactor);
-    void continueExecution(qreal slowdownFactor = 1.0f);
-    void pauseExecution();
+    void setAnimationSpeed(qreal factor);
+    void setAnimationPaused(bool paused);
 
     void setObserverContext(int contextIndex);
 
@@ -89,8 +88,8 @@ Q_SIGNALS:
     void colorPickerActivated();
     void selectedColorChanged(const QColor &color);
 
-    void executionStarted(qreal slowdownFactor);
-    void executionPaused();
+    void animationSpeedChanged(qreal factor);
+    void animationPausedChanged(bool paused);
 
     void inspectorContextCleared();
     void inspectorContextPushed(const QString &contextTitle);
@@ -109,6 +108,10 @@ protected:
     bool wheelEvent(QWheelEvent *event);
 
     void setSelectedItemsForTools(QList<QGraphicsItem *> items);
+
+private slots:
+    void animationSpeedChangeRequested(qreal factor);
+    void animationPausedChangeRequested(bool paused);
 
 private:
     Q_DISABLE_COPY(QDeclarativeViewObserver)

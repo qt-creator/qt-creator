@@ -258,6 +258,7 @@ void NodeInstanceServer::clearScene(const ClearSceneCommand &/*command*/)
 
 void NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
 {
+    ServerNodeInstance oldState = activeStateInstance();
     if (activeStateInstance().isValid())
         activeStateInstance().deactivateState();
 
@@ -265,9 +266,8 @@ void NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
         removeInstanceRelationsip(instanceId);
     }
 
-    if (activeStateInstance().isValid())
-        activeStateInstance().activateState();
-
+    if (oldState.isValid())
+        oldState.activateState();
 
     refreshBindings();
     startRenderTimer();

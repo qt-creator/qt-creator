@@ -35,7 +35,7 @@
         <translation>&amp;Core-Datei:</translation>
     </message>
     <message>
-        <source>&amp;Toolchain:</source>
+        <source>&amp;Tool chain:</source>
         <translation>&amp;Toolchain:</translation>
     </message>
 </context>
@@ -50,7 +50,7 @@
         <translation>&amp;Prozess-ID:</translation>
     </message>
     <message>
-        <source>&amp;Toolchain:</source>
+        <source>&amp;Tool chain:</source>
         <translation>&amp;Toolchain:</translation>
     </message>
 </context>
@@ -331,10 +331,6 @@
         <translation> Der Pfad  %1 ist keine gültige CMake-Installation.</translation>
     </message>
     <message>
-        <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments or change the used toolchain here and rerun CMake. Or simply finish the wizard directly.</source>
-        <translation>Das Verzeichnis %1 enthält bereits eine hinreichend aktuelle cbp-Datei. Sie können spezielle Argumente angeben oder die Toolchain ändern und cmake noch einmal ausführen. Oder beenden Sie den Wizard an dieser Stelle</translation>
-    </message>
-    <message>
         <source>The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. Some projects require command line arguments to the initial CMake call.</source>
         <translation>Das Verzeichnis %1 enthält keine cbp-Datei. Qt Creator muss die Datei durch einen cmake-Aufruf erzeugen. Für einige Projekte sind dazu Kommandozeilenargumente erforderlich.</translation>
     </message>
@@ -361,6 +357,10 @@
     <message>
         <source>NMake Generator (%1)</source>
         <translation>NMake-Generator (%1)</translation>
+    </message>
+    <message>
+        <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments or change the used tool chain here and rerun CMake. Or simply finish the wizard directly.</source>
+        <translation>Der Ordner %1 enthält bereits eine hinreichend aktuelle cbp-Datei. Sie können spezielle Argumente angeben oder die Toolchain ändern und cmake noch einmal ausführen. Oder,. beenden Sie den Wizard an dieser Stelle.</translation>
     </message>
     <message>
         <source>No valid CMake executable specified.</source>
@@ -409,7 +409,7 @@
         <translation>Make</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Unknown Toolchain&lt;/b&gt;</source>
+        <source>&lt;b&gt;Unknown tool chain&lt;/b&gt;</source>
         <translation>&lt;b&gt;Unbekannte Toolchain&lt;/b&gt;</translation>
     </message>
 </context>
@@ -970,14 +970,6 @@
         <source>Behavior</source>
         <translation>Verhalten</translation>
     </message>
-    <message>
-        <source>Sources</source>
-        <translation type="obsolete">Quelldateien</translation>
-    </message>
-    <message>
-        <source>Qt Sources:</source>
-        <translation type="obsolete">Qt-Quellen:</translation>
-    </message>
 </context>
 <context>
     <name>CompletionSettingsPage</name>
@@ -1193,6 +1185,10 @@ Sollen sie überschrieben werden?</translation>
         <translation>Alle Teilungen aufheben</translation>
     </message>
     <message>
+        <source>Ad&amp;vanced</source>
+        <translation>Er&amp;weitert</translation>
+    </message>
+    <message>
         <source>Full path of the current document including file name.</source>
         <translation>Vollständiger Pfad des aktuellen Dokuments einschließlich Dateiname.</translation>
     </message>
@@ -1215,10 +1211,6 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <source>Save %1 &amp;As...</source>
         <translation>Speichere &apos;%1&apos; &amp;unter...</translation>
-    </message>
-    <message>
-        <source>&amp;Advanced</source>
-        <translation>&amp;Weitere</translation>
     </message>
     <message>
         <source>Opening File</source>
@@ -1540,7 +1532,7 @@ Sollen sie überschrieben werden?</translation>
         <translation>&amp;Einfügen</translation>
     </message>
     <message>
-        <source>&amp;Select All</source>
+        <source>Select &amp;All</source>
         <translation>Alles Aus&amp;wählen</translation>
     </message>
     <message>
@@ -2296,18 +2288,6 @@ Qt Creator kann sich nicht anhängen.</translation>
         <translation>&lt;ungültiger Zustand&gt;</translation>
     </message>
     <message>
-        <source>Breakpoint at &quot;main&quot;</source>
-        <translation type="obsolete">Halte bei &quot;main&quot;</translation>
-    </message>
-    <message>
-        <source>Break when catching exceptions</source>
-        <translation type="obsolete">Beim Fangen von Ausnahmen anhalten</translation>
-    </message>
-    <message>
-        <source>Break when throwing exceptions</source>
-        <translation type="obsolete">Beim Auslösen von Ausnahmen anhalten</translation>
-    </message>
-    <message>
         <source>Breakpoint by File and Line</source>
         <translation>Halte bei Erreichen von Datei/Zeile</translation>
     </message>
@@ -2318,14 +2298,6 @@ Qt Creator kann sich nicht anhängen.</translation>
     <message>
         <source>Breakpoint by Address</source>
         <translation>Halte bei Erreichen einer Adresse</translation>
-    </message>
-    <message>
-        <source>Breakpoint at &quot;throw&quot;</source>
-        <translation type="obsolete">Halte bei &quot;throw&quot;</translation>
-    </message>
-    <message>
-        <source>Breakpoint at &quot;catch&quot;</source>
-        <translation type="obsolete">Halte bei &quot;catch&quot;</translation>
     </message>
     <message>
         <source>Breakpoint at Function &quot;main()&quot;</source>
@@ -2484,10 +2456,6 @@ Qt Creator kann sich nicht anhängen.</translation>
         <translation>Spaltenbreite an Inhalt anpassen</translation>
     </message>
     <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation>Spaltenbreite immer an Inhalt anpassen</translation>
-    </message>
-    <message>
         <source>Synchronize Breakpoints</source>
         <translation>Haltepunkte synchronisieren</translation>
     </message>
@@ -2510,14 +2478,6 @@ Qt Creator kann sich nicht anhängen.</translation>
     <message>
         <source>Add Breakpoint...</source>
         <translation>Haltepunkt setzen...</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at &quot;throw&quot;</source>
-        <translation type="obsolete">Haltepunkt bei &quot;throw&quot; setzen</translation>
-    </message>
-    <message>
-        <source>Set Breakpoint at &quot;catch&quot;</source>
-        <translation type="obsolete">Haltepunkt bei &quot;catch&quot; setzen</translation>
     </message>
     <message>
         <source>Add Breakpoint</source>
@@ -2588,10 +2548,6 @@ Qt Creator kann sich nicht anhängen.</translation>
     <message>
         <source>Debugger Properties...</source>
         <translation>Debugger-Einstellungen...</translation>
-    </message>
-    <message>
-        <source>Adjust Column Widths to Contents</source>
-        <translation>Spaltenbreite an Inhalt anpassen</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -3259,10 +3215,6 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
         <source>Adjust Column Widths to Contents</source>
         <translation>Spaltenbreite an Inhalt anpassen</translation>
     </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation>Spaltenbreite immer an Inhalt anpassen</translation>
-    </message>
 </context>
 <context>
     <name>Debugger::Internal::OutputCollector</name>
@@ -3327,10 +3279,6 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation>Spaltenbreite an Inhalt anpassen</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation>Spaltenbreite immer an Inhalt anpassen</translation>
     </message>
 </context>
 <context>
@@ -3448,10 +3396,6 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
         <source>Adjust Column Widths to Contents</source>
         <translation>Spaltenbreite an Inhalt anpassen</translation>
     </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation>Spaltenbreite immer an Inhalt anpassen</translation>
-    </message>
 </context>
 <context>
     <name>Debugger::Internal::StartExternalDialog</name>
@@ -3551,10 +3495,6 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation>Spaltenbreite an Inhalt anpassen</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation>Spaltenbreite immer an Inhalt anpassen</translation>
     </message>
 </context>
 <context>
@@ -3876,10 +3816,6 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation>Spaltenbreite an Inhalt anpassen</translation>
-    </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation>Spaltenbreite immer an Inhalt anpassen</translation>
     </message>
 </context>
 <context>
@@ -5099,7 +5035,7 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Generische Verwaltung</translation>
     </message>
     <message>
-        <source>&lt;Invalid Toolchain&gt;</source>
+        <source>&lt;Invalid tool chain&gt;</source>
         <translation>&lt;Ungültige Toolchain&gt;</translation>
     </message>
 </context>
@@ -6196,20 +6132,20 @@ rückgängig machen?</translation>
 <context>
     <name>Help::Internal::HelpPlugin</name>
     <message>
-        <source>Contents</source>
-        <translation>Inhalt</translation>
-    </message>
-    <message>
-        <source>Index</source>
-        <translation>Index</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Suche</translation>
     </message>
     <message>
         <source>Bookmarks</source>
         <translation>Lesezeichen</translation>
+    </message>
+    <message>
+        <source>&amp;Index</source>
+        <translation>&amp;Index</translation>
+    </message>
+    <message>
+        <source>&amp;Contents</source>
+        <translation>&amp;Inhalt</translation>
     </message>
     <message>
         <source>Home</source>
@@ -8120,10 +8056,6 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
         <translation>Alle Projekte schließen</translation>
     </message>
     <message>
-        <source>Session</source>
-        <translation type="obsolete">Sitzung</translation>
-    </message>
-    <message>
         <source>Build All</source>
         <translation>Alles erstellen</translation>
     </message>
@@ -9078,7 +9010,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
 <context>
     <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
     <message>
-        <source>Project setup</source>
+        <source>Project Setup</source>
         <translation>Projekt einrichten</translation>
     </message>
 </context>
@@ -9174,7 +9106,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>verwende Qt-Version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;mit Toolchain &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;Erstellung in &lt;b&gt;%3&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;Invalid ToolChain&gt;</source>
+        <source>&lt;Invalid tool chain&gt;</source>
         <translation>&lt;Ungültige Toolchain&gt;</translation>
     </message>
     <message>
@@ -9202,10 +9134,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <source>An incompatible build exists in %1, which will be overwritten.</source>
         <comment>%1 build directory</comment>
         <translation>Im Ordner %1 existiert ein inkompatibler Build, der überschrieben wird.</translation>
-    </message>
-    <message>
-        <source>&lt;Invalid Toolchain&gt;</source>
-        <translation>&lt;Ungültige Toolchain&gt;</translation>
     </message>
     <message>
         <source>Manage</source>
@@ -9381,6 +9309,10 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>&lt;i&gt;Noch nicht erstellt.&lt;/i&gt;</translation>
     </message>
     <message>
+        <source>&lt;i&gt;Not needed.&lt;/i&gt;</source>
+        <translation>&lt;i&gt;Nicht erforderlich.&lt;/i&gt;</translation>
+    </message>
+    <message>
         <source>&lt;i&gt;Cannot be compiled.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Kann nicht erstellt werden.&lt;/i&gt;</translation>
     </message>
@@ -9448,41 +9380,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>Arguments:</source>
         <translation>Argumente:</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60DevicesPreferencePane</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formular</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Aktualisieren</translation>
-    </message>
-    <message>
-        <source>S60 SDKs</source>
-        <translation type="obsolete">S60 SDKs</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="obsolete">Fehler</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Change Qt version</source>
-        <translation type="obsolete">Qt-Version ändern</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Entfernen</translation>
-    </message>
-    <message>
-        <source>Change Qt Version</source>
-        <translation type="obsolete">Qt-Version ändern</translation>
     </message>
 </context>
 <context>
@@ -10130,7 +10027,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>Haltepunkt bei &apos;&amp;main&apos;:</translation>
     </message>
     <message>
-        <source>&amp;ToolChain:</source>
+        <source>&amp;Tool chain:</source>
         <translation>&amp;Toolchain:</translation>
     </message>
 </context>
@@ -11464,11 +11361,6 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Datei wählen</translation>
     </message>
     <message>
-        <source>&lt;not valid&gt;</source>
-        <extracomment>Selected path is not valid:</extracomment>
-        <translation type="obsolete">&lt;ungültig&gt;</translation>
-    </message>
-    <message>
         <source>The path must not be empty.</source>
         <translation>Der Pfad darf nicht leer sein.</translation>
     </message>
@@ -11673,10 +11565,6 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>WizardPage</translation>
     </message>
     <message>
-        <source>Checkout Directory:</source>
-        <translation>Verzeichnis:</translation>
-    </message>
-    <message>
         <source>...</source>
         <translation>...</translation>
     </message>
@@ -11709,12 +11597,16 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Der Pfad, unter dem der Ordner mit dem Checkout erstellt wird.</translation>
     </message>
     <message>
-        <source>Checkout Path:</source>
+        <source>The local directory that will contain the code after the checkout.</source>
+        <translation>Der lokale Ordner, welcher nach dem Checkout den Code enthalten wird.</translation>
+    </message>
+    <message>
+        <source>Checkout path:</source>
         <translation>Checkout-Pfad:</translation>
     </message>
     <message>
-        <source>The local directory that will contain the code after the checkout.</source>
-        <translation>Der lokale Ordner, welcher nach dem Checkout den Code enthalten wird.</translation>
+        <source>Checkout directory:</source>
+        <translation>Verzeichnis:</translation>
     </message>
 </context>
 <context>
@@ -12090,29 +11982,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Expected token `%1&apos;</source>
         <translation>Es wird das Token &apos;%1&apos; erwartet</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60Devices::Device</name>
-    <message>
-        <source>Id:</source>
-        <translation type="obsolete">ID:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Name:</translation>
-    </message>
-    <message>
-        <source>EPOC:</source>
-        <translation type="obsolete">EPOC:</translation>
-    </message>
-    <message>
-        <source>Tools:</source>
-        <translation type="obsolete">Tools:</translation>
-    </message>
-    <message>
-        <source>Qt:</source>
-        <translation type="obsolete">Qt:</translation>
     </message>
 </context>
 <context>
@@ -12879,10 +12748,6 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <source>Adjust Column Widths to Contents</source>
         <translation>Spaltenbreite an Inhalt anpassen</translation>
     </message>
-    <message>
-        <source>Always Adjust Column Widths to Contents</source>
-        <translation>Spaltenbreite immer an Inhalt anpassen</translation>
-    </message>
 </context>
 <context>
     <name>FakeVim::Internal::FakeVimExCommandsPage</name>
@@ -13171,10 +13036,6 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>Unable to create an editor for the commit.</source>
         <translation>Es konnte kein Editor für die Abgabe angelegt werden.</translation>
-    </message>
-    <message>
-        <source>Unable to create a commit editor.</source>
-        <translation type="obsolete">Es konnte kein Editor für die Abgabe angelegt werden.</translation>
     </message>
     <message>
         <source>Commit changes for &quot;%1&quot;.</source>
@@ -13974,6 +13835,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Es ist keine qmake-Pfad gesetzt</translation>
     </message>
     <message>
+        <source>qmake does not exist or is not executable</source>
+        <translation>Die qmake-Datei existiert nicht oder ist nicht ausführbar</translation>
+    </message>
+    <message>
         <source>Qt version has no name</source>
         <translation>Die Qt-Version hat keinen Namen</translation>
     </message>
@@ -13992,6 +13857,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>Failed to detect the ABI(s) used by the Qt version.</source>
         <translation>Die ABI(s) der Qt-Version konnten nicht bestimmt werden.</translation>
+    </message>
+    <message>
+        <source>The &quot;Open C/C++ plugin&quot; is not installed in the Symbian SDK or the Symbian SDK path is misconfigured</source>
+        <translation>Das Plugin &quot;Open C/C++&quot; ist im Symbian SDK nicht installiert oder der Pfad des Symbian SDKs ist falsch konfiguriert</translation>
     </message>
     <message>
         <source>Desktop</source>
@@ -14037,7 +13906,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Der Installationsordner der Qt-Version &apos;%1&apos; kann nicht bestimmt werden.</translation>
     </message>
     <message>
-        <source>The Qt Version has no toolchain.</source>
+        <source>The Qt Version has no tool chain.</source>
         <translation>Dieser Qt-Version ist keine Toolchain zugeordnet.</translation>
     </message>
 </context>
@@ -15508,13 +15377,8 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Ziele des Projekts einrichten</translation>
     </message>
     <message>
-        <source>Target setup</source>
-        <translation>Ziel einrichten</translation>
-    </message>
-    <message>
-        <source>Qt Creator can set up the following targets for project &lt;b&gt;%1&lt;/b&gt;:</source>
-        <comment>%1: Project name</comment>
-        <translation>Qt Creator kann für das Projekt&lt;b&gt;%1&lt;/b&gt; die folgenden Ziele anlegen:</translation>
+        <source>&lt;b&gt;No valid qt versions found.&lt;/b&gt;&lt;br&gt; Please add a qt version in Tools/Options or via the maintenance tool of the SDK.</source>
+        <translation>&lt;b&gt;Es konnten keine gültigen Qt-Versionen gefunden werden.&lt;/b&gt;&lt;br&gt;Bitte fügen Sie eine gültige Version unter Extras/Einstellungen oder mit dem SDK-Installationswerkzug hinzu.</translation>
     </message>
 </context>
 <context>
@@ -16059,51 +15923,6 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DevicesBaseWidget</name>
-    <message>
-        <source>Default</source>
-        <translation type="obsolete">Vorgabe</translation>
-    </message>
-    <message>
-        <source>SDK Location</source>
-        <translation type="obsolete">SDK-Pfad</translation>
-    </message>
-    <message>
-        <source>Qt Location</source>
-        <translation type="obsolete">Qt-Pfad</translation>
-    </message>
-    <message>
-        <source>Choose Qt folder</source>
-        <translation type="obsolete">Qt-Ordner</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60DevicesModel</name>
-    <message>
-        <source>No Qt installed</source>
-        <translation type="obsolete">Qt ist nicht installiert</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::GnuPocS60DevicesWidget</name>
-    <message>
-        <source>Step 1 of 2: Choose GnuPoc folder</source>
-        <translation type="obsolete">Schritt 1 von 2: GnuPoc-Ordner wählen</translation>
-    </message>
-    <message>
-        <source>Step 2 of 2: Choose Qt folder</source>
-        <translation type="obsolete">Schritt 2 von 2: Qt-Ordner wählen</translation>
-    </message>
-    <message>
-        <source>Adding GnuPoc</source>
-        <translation type="obsolete">GnuPoc hinzufügen</translation>
-    </message>
-    <message>
-        <source>GnuPoc and Qt folders must not be identical.</source>
-        <translation type="obsolete">GnuPoc-Ordner und Qt-Ordner müssen sich unterscheiden.</translation>
-    </message>
-</context>
-<context>
     <name>CodePaster::FileShareProtocolSettingsWidget</name>
     <message>
         <source>Form</source>
@@ -16334,20 +16153,12 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
         <translation>Das Symbian-SDK und das Projekt müssen sich auf demselben Laufwerk befinden.</translation>
     </message>
     <message>
-        <source>The Symbian SDK was not found for Qt version %1.</source>
-        <translation>Es konnte kein Symbian-SDK für die Qt-Version %1 gefunden werden.</translation>
+        <source>The Symbian tool chain does not handle spaces in the project path &apos;%1&apos;.</source>
+        <translation>Bei der Symbian-Toolchain sind keine Leerzeichen in der Pfadangabe des Projektes &apos;%1&apos; zulässig.</translation>
     </message>
     <message>
-        <source>The &quot;Open C/C++ plugin&quot; is not installed in the Symbian SDK or the Symbian SDK path is misconfigured for Qt version %1.</source>
-        <translation>Das Plugin &quot;Open C/C++&quot; ist im Symbian SDK nicht installiert oder der Pfad des Symbian SDKs ist bei der Qt-Version %1 falsch konfiguriert.</translation>
-    </message>
-    <message>
-        <source>The Symbian toolchain does not handle spaces in the project path &apos;%1&apos;.</source>
-        <translation>Bei der Symbian-Toolchain sind keine Leerzeichen in der Pfadangabe &apos;%1&apos; zulässig.</translation>
-    </message>
-    <message>
-        <source>The Symbian toolchain does not handle special characters in the project name &apos;%1&apos; well.</source>
-        <translation>Die Sonderzeichen in der Pfadangabe &apos;%1&apos; können bei der Symbian-Toolchain zu Problemen führen.</translation>
+        <source>The Symbian tool chain does not handle special characters in the project name &apos;%1&apos; well.</source>
+        <translation>Die Sonderzeichen im Projektnamen &apos;%1&apos; können bei der Symbian-Toolchain zu Problemen führen.</translation>
     </message>
 </context>
 <context>
@@ -16472,6 +16283,10 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <message>
         <source>Only select items with content (S)</source>
         <translation>Nur Elemente mit Inhalt auswählen (S)</translation>
+    </message>
+    <message>
+        <source>Reset view (R)</source>
+        <translation>Ansicht zurücksetzen (R)</translation>
     </message>
 </context>
 <context>
@@ -16832,10 +16647,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Limit to prefix</source>
         <translation>Auf Präfix beschränken</translation>
-    </message>
-    <message>
-        <source>Double click to edit item.</source>
-        <translation type="obsolete">&lt;Doppelklick zum Bearbeiten&gt;</translation>
     </message>
     <message>
         <source>Add</source>
@@ -17452,22 +17263,6 @@ Details: %3</source>
 Es wird stattdesen der Debugger-Engine &apos;%2&apos; benutzt.
 Details: %3</translation>
     </message>
-    <message>
-        <source>The debugger engine &apos;%1&apos; preferred for debugging binaries of type %2 is disabled.</source>
-        <translation type="obsolete">Der für zum Debuggen von ausführbaren Dateien des Typs &apos;%2&apos; erforderliche Debugger-Engine %1 ist gegenwärtig deaktiviert.</translation>
-    </message>
-    <message>
-        <source>This configuration requires the debugger engine %1, which is disabled.</source>
-        <translation type="obsolete">Diese Konfiguration erfordert den Debugger-Engine &apos;%1&apos;, der gegenwärtig deaktiviert ist.</translation>
-    </message>
-    <message>
-        <source>The debugger engine &apos;%1&apos; preferred for debugging binaries of type %2 is not set up correctly: %3</source>
-        <translation type="obsolete">Der für zum Debuggen von ausführbaren Dateien des Typs &apos;%2&apos; erforderliche Debugger-Engine %1 ist nicht richtig konfiguriert: %3</translation>
-    </message>
-    <message>
-        <source>The debugger engine required for this configuration is not correctly configured.</source>
-        <translation type="obsolete">Der für diese Konfiguration erforderliche Debugger-Engine ist nicht richtig konfiguriert.</translation>
-    </message>
 </context>
 <context>
     <name>Debugger::DebuggerRunControl</name>
@@ -17640,10 +17435,6 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
 <context>
     <name>Help::Internal::RemoteHelpFilter</name>
     <message>
-        <source>Online Documentation</source>
-        <translation type="obsolete">Online-Dokumentation</translation>
-    </message>
-    <message>
         <source>Web Search</source>
         <translation>Web-Suche</translation>
     </message>
@@ -17683,16 +17474,16 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
         <translation>Ctrl+=</translation>
     </message>
     <message>
-        <source>Switch background</source>
+        <source>Switch Background</source>
         <translation>Hintergrund umschalten</translation>
+    </message>
+    <message>
+        <source>Switch Outline</source>
+        <translation>Umriss umschalten</translation>
     </message>
     <message>
         <source>Ctrl+[</source>
         <translation>Ctrl+[</translation>
-    </message>
-    <message>
-        <source>Switch outline</source>
-        <translation>Umriss umschalten</translation>
     </message>
     <message>
         <source>Ctrl+]</source>
@@ -17847,12 +17638,6 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     <message>
         <source>Using Old Project Settings File</source>
         <translation>Projekteinstellungsdatei einer Vorgängerversion verwenden</translation>
-    </message>
-    <message>
-        <source>A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.
-Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.</source>
-        <translation type="obsolete">Es wird eine versionierte Sicherungskopie der .user-Datei benutzt, da die aktuelle Datei von einer neuen, inkompatiblen Version von Qt Creator erzeugt wurde.
-Änderungen der Projekteinstellungen, die nach der letzten Benutzung dieser Version von Qt Creator für dieses Projekt vorgenommen wurden, werden nicht berücksichtigt, und die jetzt folgenden Änderungen werden &lt;b&gt;nicht&lt;/b&gt; auf die neue Version übertragen.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -18674,24 +18459,12 @@ Fehlerausgabe: %1</translation>
         <translation>Fehler beim Lesen der QtMobility-Version</translation>
     </message>
     <message>
-        <source>CODA version:</source>
-        <translation type="obsolete">CODA-Version:</translation>
-    </message>
-    <message>
         <source>Screen size:</source>
         <translation>Bildschirmgröße:</translation>
     </message>
     <message>
-        <source>OS version: </source>
-        <translation type="obsolete">Betriebssystem-Version: </translation>
-    </message>
-    <message>
         <source>unknown</source>
         <translation>unbekannt</translation>
-    </message>
-    <message>
-        <source>ROM version: </source>
-        <translation type="obsolete">ROM-Version:</translation>
     </message>
     <message>
         <source>Release:</source>
@@ -18704,14 +18477,6 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>Error reading CODA version</source>
         <translation>Fehler beim Bestimmen der CODA-Version</translation>
-    </message>
-    <message>
-        <source>Screen size: </source>
-        <translation type="obsolete">Bildschirmgröße:</translation>
-    </message>
-    <message>
-        <source>Information about the device is not available when using CODA.</source>
-        <translation type="obsolete">Bei Verwendung von CODA kann keine Information zum Mobilgerät angezeigt werden.</translation>
     </message>
     <message>
         <source>Queries the device for information</source>
@@ -18728,10 +18493,6 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>Address:</source>
         <translation>Adresse:</translation>
-    </message>
-    <message>
-        <source>Connecting...</source>
-        <translation type="obsolete">Verbinde...</translation>
     </message>
 </context>
 <context>
@@ -18858,10 +18619,6 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
     <message>
         <source>Installation has finished</source>
         <translation>Installation beendet</translation>
-    </message>
-    <message>
-        <source>Installation failed: %1</source>
-        <translation type="obsolete">Die Installation schlug fehl: %1</translation>
     </message>
     <message>
         <source>Installation</source>
@@ -19700,25 +19457,6 @@ Bei gdb kann eine durch &apos;\n&apos; getrennte Kommandosequenz angegeben werde
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::AbstractMobileAppWizardDialog</name>
-    <message>
-        <source>Qt Versions</source>
-        <translation>Qt-Versionen</translation>
-    </message>
-    <message>
-        <source>Mobile Options</source>
-        <translation>Einstellungen für Mobilgeräte</translation>
-    </message>
-    <message>
-        <source>Symbian Specific</source>
-        <translation>Symbian-spezifisch</translation>
-    </message>
-    <message>
-        <source>Maemo Specific</source>
-        <translation>Maemo-spezifisch</translation>
-    </message>
-</context>
-<context>
     <name>MobileLibraryWizardOptionPage</name>
     <message>
         <source>WizardPage</source>
@@ -19879,7 +19617,7 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>The project files listed below do not contain Maemo deployment information, which means the respective targets cannot be deployed to and/or run on a device. Qt Creator will add the missing information to these files if you check the respective rows below.</source>
-        <translation type="unfinished">Die unten aufgeführten Projektdateien enthalten nicht die erforderliche Maemo-Deployment-Information, das heißt, für die betreffenden Ziele kann kein Deployment durchgeführt werden und/oder sie können nicht auf einem Mobilgerät ausgeführt werden. Bitte wählen Sie die Projekte aus, in denen Qt Creator die fehlenden Informationen hinzufügen soll.</translation>
+        <translation>Die unten aufgeführten Projektdateien enthalten nicht die erforderliche Maemo-Deployment-Information, das heißt, für die betreffenden Ziele kann kein Deployment durchgeführt werden und/oder sie können nicht auf einem Mobilgerät ausgeführt werden. Bitte wählen Sie die Projekte aus, in denen Qt Creator die fehlenden Informationen hinzufügen soll.</translation>
     </message>
     <message>
         <source>&amp;Check all</source>
@@ -20431,16 +20169,16 @@ Fehler: %2</translation>
         <translation>OpenGL-Modus</translation>
     </message>
     <message>
-        <source>&amp;Hardware Acceleration</source>
+        <source>&amp;Auto-detect</source>
+        <translation>&amp;Automatisch bestimmen</translation>
+    </message>
+    <message>
+        <source>&amp;Hardware acceleration</source>
         <translation>&amp;Hardware-Beschleunigung</translation>
     </message>
     <message>
-        <source>&amp;Software Rendering</source>
-        <translation>&amp;Software Rendering</translation>
-    </message>
-    <message>
-        <source>&amp;Auto-detect</source>
-        <translation>&amp;Automatisch bestimmen</translation>
+        <source>&amp;Software rendering</source>
+        <translation>&amp;Software-Rendering</translation>
     </message>
 </context>
 <context>
@@ -20517,6 +20255,18 @@ Fehler: %2</translation>
     <message>
         <source>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main HTML file are deployed. You can modify the contents of the directory any time before deploying.</source>
         <translation>Hinweis: Wenn Sie keinen URL angeben, werden alle Dateien die sich im selben Ordner wie die HTML-Hauptdatei befinden, zum Deployment vorgesehen. Der Inhalt des Ordners kann vor dem Deployment-Vorgang jederzeit modifiziert werden.</translation>
+    </message>
+    <message>
+        <source>Touch optimized navigation</source>
+        <translation>Für Touch-Bedienung optimierte Navigation</translation>
+    </message>
+    <message>
+        <source>Enable touch optimized navigation</source>
+        <translation>Für Touch-Bedienung optimierte Navigation aktivieren</translation>
+    </message>
+    <message>
+        <source>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If you use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</source>
+        <translation>Für Touch-Bedienung optimierte Navigation bewirkt, dass die HTML-Seite mittels &apos;Flick&apos; bedient werden kann und der Bereich der Touch-empfindlichen Elemente vergrößert wird. Lassen Sie die Einstellung deaktiviert, wenn Sie bereits ein auf Optimierung der Touch-Interaktion ausgelegtes JavaScript-Framework benutzen.</translation>
     </message>
 </context>
 <context>
@@ -21058,16 +20808,6 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
         <translation>Die Verbindung zum CODA-Server-Adapter schlug fehl:
 </translation>
     </message>
-    <message>
-        <source>The reported code segment address (0x%1) might be invalid. Symbol resolution or setting breakoints may not work.</source>
-        <translation type="obsolete">Die erhaltene Startadresse des Codesegments (%0x1) ist eventuell ungültig. Bei Auflösen von Symbolen oder beim Setzen von Haltpunkten könnten Probleme auftreten.</translation>
-    </message>
-    <message>
-        <source>Connecting to TRK server adapter failed:
-</source>
-        <translation type="obsolete">Die Verbindung zum TRK-Server-Adapter schlug fehl:
-</translation>
-    </message>
 </context>
 <context>
     <name>Debugger::Internal::IPCEngineHost</name>
@@ -21572,10 +21312,6 @@ auf Instanzen von QML-Komponenten-Objekten und Eigenschaften zugreifen.</transla
         <translation>Farbauswahl</translation>
     </message>
     <message>
-        <source>Animation Speed</source>
-        <translation>Animationsgeschwindigkeit</translation>
-    </message>
-    <message>
         <source>1x</source>
         <translation>1x</translation>
     </message>
@@ -21594,10 +21330,6 @@ auf Instanzen von QML-Komponenten-Objekten und Eigenschaften zugreifen.</transla
     <message>
         <source>0.1x</source>
         <translation>0.1x</translation>
-    </message>
-    <message>
-        <source>Pause</source>
-        <translation>Pause</translation>
     </message>
 </context>
 <context>
@@ -22422,10 +22154,6 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <translation>Qt Creator wartet auf eine Verbindung zur CODA-Anwendung.&lt;br&gt;Bitte starten Sie die Anwendung auf dem Mobiltelefon und prüfen Sie die Einstellung der IP-Adresse und des Ports in der Projektkonfiguration.</translation>
     </message>
     <message>
-        <source>Qt Creator is waiting for the CODA application to connect.&lt;br&gt;Please make sure the application is running on your mobile phone and the right IP address and port are configured in the project settings.</source>
-        <translation type="obsolete">Qt Creator wartet auf eine Verbindung zur CODA-Anwendung.&lt;br&gt;Bitte starten Sie die Anwendung auf dem Mobiltelefon und prüfen Sie die Einstellung der IP-Adresse und des Ports in der Projektkonfiguration.</translation>
-    </message>
-    <message>
         <source>Canceled.</source>
         <translation>Abgebrochen.</translation>
     </message>
@@ -22618,8 +22346,8 @@ Bitte prüfen Sie, ob das Gerät verbunden ist und die Anwendung &apos;TRK&apos;
         <translation>Dieser Wizard erstellt ein HTML5-Anwendungsprojekt.</translation>
     </message>
     <message>
-        <source>HTML Sources</source>
-        <translation>HTML-Quellen</translation>
+        <source>HTML Options</source>
+        <translation>HTML-Einstellungen</translation>
     </message>
 </context>
 <context>
@@ -22635,13 +22363,6 @@ You can build the application and deploy it on desktop and mobile target platfor
         <translation>Erstellt ein HTML5-Projekt, welches HTML5- und C++-Code enthält und WebKit zur Anzeige verwendet.
 
 Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen ausführen. Dieser Projekttyp ermöglicht zum Beispiel die Estellung eines signierten Symbian Installation System (SIS)-Paketes.</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizardSourcesPage</name>
-    <message>
-        <source>Select HTML File</source>
-        <translation>HTML-Datei auswählen</translation>
     </message>
 </context>
 <context>
@@ -23113,20 +22834,8 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <translation>Dialog</translation>
     </message>
     <message>
-        <source>Branch location</source>
-        <translation>Branch</translation>
-    </message>
-    <message>
-        <source>Default Location</source>
-        <translation>Vorgabe</translation>
-    </message>
-    <message>
         <source>Local filesystem:</source>
         <translation>Dateisystem:</translation>
-    </message>
-    <message>
-        <source>Specify Url:</source>
-        <translation>URL:</translation>
     </message>
     <message>
         <source>Options</source>
@@ -23189,6 +22898,18 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt</translatio
 This flag will allow push to proceed</source>
         <translation>Normalerweise schlägt eine Branch-Operation fehl, wenn der Zielordner vorhanden ist und keinen Versionskontroll-Ordner hat.
 Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
+    </message>
+    <message>
+        <source>Branch Location</source>
+        <translation>Branch</translation>
+    </message>
+    <message>
+        <source>Default location</source>
+        <translation>Vorgabe</translation>
+    </message>
+    <message>
+        <source>Specify URL:</source>
+        <translation>URL:</translation>
     </message>
 </context>
 <context>
@@ -23261,14 +22982,6 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <translation>Unterdrücken</translation>
     </message>
     <message>
-        <source>Show in pane</source>
-        <translation>In Panel anzeigen</translation>
-    </message>
-    <message>
-        <source>Replace selection</source>
-        <translation>Ausgewählten Text ersetzen</translation>
-    </message>
-    <message>
         <source>Error output:</source>
         <translation>Fehlerausgabe:</translation>
     </message>
@@ -23317,6 +23030,14 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
 &lt;p&gt;Behandlung der Fehlerausgabe des Werkzeugs.
 &lt;ul&gt;&lt;li&gt;Unterdrücken: Ausgabe nicht behandeln&lt;/li&gt;&lt;li&gt;In Panel anzeigen: Im Panel &apos;Allgemeine Ausgaben&apos; anzeigen &lt;/li&gt;&lt;li&gt;Ausgewählten Text ersetzen: Der im aktuellen Dokument ausgewählte Text wird durch die Ausgabe ersetzt&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </translation>
+    </message>
+    <message>
+        <source>Show in Pane</source>
+        <translation>In Panel anzeigen</translation>
+    </message>
+    <message>
+        <source>Replace Selection</source>
+        <translation>Ausgewählten Text ersetzen</translation>
     </message>
 </context>
 <context>
@@ -23846,20 +23567,12 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Diff für &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Alt+B,Alt+D</source>
-        <translation>&apos;Alt+B,Alt+D</translation>
-    </message>
-    <message>
         <source>Log Current File</source>
         <translation>Filelog für Datei</translation>
     </message>
     <message>
         <source>Log &quot;%1&quot;</source>
         <translation>Log für &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Alt+B,Alt+L</source>
-        <translation>Alt+B,Alt+L</translation>
     </message>
     <message>
         <source>Status Current File</source>
@@ -23870,8 +23583,16 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Status von &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Alt+B,Alt+S</source>
-        <translation>Alt+B,Alt+S</translation>
+        <source>ALT+Z,Alt+D</source>
+        <translation>ALT+Z,Alt+D</translation>
+    </message>
+    <message>
+        <source>ALT+Z,Alt+L</source>
+        <translation>ALT+Z,Alt+L</translation>
+    </message>
+    <message>
+        <source>ALT+Z,Alt+S</source>
+        <translation>ALT+Z,Alt+S</translation>
     </message>
     <message>
         <source>Add</source>
@@ -23930,8 +23651,8 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Abgeben...</translation>
     </message>
     <message>
-        <source>Alt+B,Alt+C</source>
-        <translation>Alt+B,Alt+C</translation>
+        <source>ALT+Z,Alt+C</source>
+        <translation>ALT+Z,Alt+C</translation>
     </message>
     <message>
         <source>Create Repository...</source>
@@ -23997,7 +23718,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Erstellt einen Clone eines Bazaar-Branches und versucht, das darin enthaltene Projekt zu laden.</translation>
     </message>
     <message>
-        <source>Bazaar Clone (or branch)</source>
+        <source>Bazaar Clone (Or Branch)</source>
         <translation>Bazaar Clone (bzw. Branch)</translation>
     </message>
 </context>
@@ -24040,10 +23761,6 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
 <context>
     <name>Core::Internal::ExternalToolModel</name>
     <message>
-        <source>External Tools Menu</source>
-        <translation type="obsolete">Menü für externe Werkzeuge</translation>
-    </message>
-    <message>
         <source>Uncategorized</source>
         <translation>keine</translation>
     </message>
@@ -24052,11 +23769,11 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Werkzeuge, die direkt unter dem Menü Externe Werkzeuge erscheinen.</translation>
     </message>
     <message>
-        <source>New category</source>
+        <source>New Category</source>
         <translation>Neue Kategorie</translation>
     </message>
     <message>
-        <source>New tool</source>
+        <source>New Tool</source>
         <translation>Neues Werkzeug</translation>
     </message>
     <message>
@@ -24085,6 +23802,12 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
 </context>
 <context>
     <name>Core::Internal::ExternalToolRunner</name>
+    <message>
+        <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
+</source>
+        <translation>Die ausführbare Datei von &apos;%1&apos; (expandiert: &apos;%2&apos;) konnte nicht gefunden werden
+</translation>
+    </message>
     <message>
         <source>Starting external tool &apos;%1&apos; %2</source>
         <translation>Starte externes Werkzeug &apos;%1&apos; %2</translation>
@@ -24209,10 +23932,6 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <source>&amp;ABI:</source>
         <translation>&amp;ABI:</translation>
     </message>
-    <message>
-        <source>&amp;Force 32bit compilation:</source>
-        <translation type="obsolete">32bit-Kompilierung:</translation>
-    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
@@ -24299,7 +24018,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
 <context>
     <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
-        <source>Toolchains</source>
+        <source>Tool Chains</source>
         <translation>Toolchains</translation>
     </message>
     <message>
@@ -24418,8 +24137,8 @@ Fehler: %2</translation>
 <context>
     <name>Qt4ProjectManager::Qt4DefaultTargetSetupWidget</name>
     <message>
-        <source>Import build from:</source>
-        <translation>Build importieren aus:</translation>
+        <source>Add build from:</source>
+        <translation>Build hinzufügen aus:</translation>
     </message>
     <message>
         <source>Add Build</source>
@@ -24533,16 +24252,6 @@ Fehler: %2</translation>
         <translation>Form</translation>
     </message>
     <message>
-        <source>Choose a build configuration</source>
-        <translation type="obsolete">Build-Konfiguration wählen</translation>
-    </message>
-    <message>
-        <source>Only Qt versions above 4.6.3 are made available in this wizard.
-This is because previous Qt Versions have limitations in building suitable sis files.</source>
-        <translation type="obsolete">Dieser Wizard zeigt nur Qt-Versionen nach Version 4.6.3 an, da in den vorangegangenen Versionen
-Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translation>
-    </message>
-    <message>
         <source>Choose a build configuration:</source>
         <translation>Build-Konfiguration wählen:</translation>
     </message>
@@ -24567,28 +24276,12 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
         <translation>Form</translation>
     </message>
     <message>
-        <source>Global Vendor Name</source>
-        <translation type="obsolete">Eindeutiger Anbietername</translation>
-    </message>
-    <message>
-        <source>Qt Version used in builds</source>
-        <translation type="obsolete">Bei Erstellung verwendete Qt-Version</translation>
-    </message>
-    <message>
         <source>Current Qt Version</source>
         <translation>Aktuelle Qt-Version</translation>
     </message>
     <message>
-        <source>App UID</source>
-        <translation type="obsolete">UID der Anwendung</translation>
-    </message>
-    <message>
         <source>Current UID3</source>
         <translation>Aktuelle UID3</translation>
-    </message>
-    <message>
-        <source>Capabilities</source>
-        <translation type="obsolete">Berechtigungen:</translation>
     </message>
     <message>
         <source>Current set of capabilities</source>
@@ -24671,34 +24364,6 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
 <context>
     <name>Qt4ProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
     <message>
-        <source>%1 is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot be, or contain, the name &apos;Nokia&apos; in it. &lt;br&gt;It is recommended to also not use the default name of &apos;Vendor&apos;/&apos;Vendor-EN&apos;, or to leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation type="obsolete">%1 ist ein zum Testen und zur Entwicklung vorgegebener Anbietername. &lt;br&gt;Das Feld Vendor_Name darf nicht aus dem Namen &apos;Nokia&apos; bestehen oder diesen enthalten. &lt;br&gt;Es davon abgeraten, den Vorgabenamen &apos;Vendor&apos;/&apos;Vendor-EN&apos; zu verwenden oder das Feld leerzulassen. &lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>%1 are default vendor names used for testing and development. &lt;br&gt;The Vendor_Name field cannot be, or contain, the name &apos;Nokia&apos; in it. &lt;br&gt;It is recommended to also not use the default name of &apos;Vendor&apos;/&apos;Vendor-EN&apos;, or to leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation type="obsolete">%1 sind zum Testen und zur Entwicklung vorgegebene Anbieternamen. &lt;br&gt;Das Feld Vendor_Name darf nicht aus dem Namen &apos;Nokia&apos; bestehen oder diesen enthalten. &lt;br&gt;Es davon abgeraten, den Vorgabenamen &apos;Vendor&apos;/&apos;Vendor-EN&apos; zu verwenden oder das Feld leerzulassen. &lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The App UID %1 is only for testing and development.&lt;br&gt;SIS packages built with it, cannot be distributed via the OVI Store.&lt;br&gt;</source>
-        <translation type="obsolete">Die Anwendungs-UID %1 kann nur zum Testen und zur Entwicklung verwendet werden.&lt;br&gt;Damit erstellte SIS-Pakete können nicht über den Ovi Store verbreitet werden.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The App UID %1 is a symbiansigned.com UID. &lt;br&gt;Apps with this UID will be rejected by Ovi Sign.&lt;br&gt;If you want to continue with this UID, sign your app on symbiansigned.com and upload the signed app to Ovi.&lt;br&gt;</source>
-        <translation type="obsolete">Die Anwendungs-UID %1 wurde von symbiansigned.com vergeben.&lt;br&gt;Anwendungen mit dieser UID werden von Ovi Sign nicht akzeptiert.&lt;br&gt;Wenn Sie diese UID weiter verwenden möchten, signieren Sie bitte Ihre Anwendungauf symbiansigned.com und laden Sie die signierte Anwendung zu Ovi hoch.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The App UID %1 is not an acceptable UID.&lt;br&gt; SIS packages built with it, cannot be signed by Ovi.&lt;br&gt;</source>
-        <translation type="obsolete">Die Anwendungs-UID %1 ist ungültig.&lt;br&gt;Damit erstellte SIS-Pakete können nicht von Ovi signiert werden.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The App UID is a global unique indentifier of the SIS package.&lt;br&gt;</source>
-        <translation type="obsolete">Die Anwendungs-UID ist ein global eindeutiger Bezeichner eines SIS-Paketes.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>To get a unique App UID for your package file,&lt;br&gt;please register at &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</source>
-        <translation type="obsolete">Um eine eindeutige Anwendungs-UID für Ihre Paketdatei zu erhalten,&lt;br&gt;registrieren Sie sich bitte bei &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</translation>
-    </message>
-    <message>
         <source>%1 is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
         <translation>%1 ist ein zum Testen und zur Entwicklung vorgegebener Anbietername. &lt;br&gt;Das Feld Vendor_Name darf den Namen &apos;Nokia&apos; nicht enthalten.&lt;br&gt;Es davon abgeraten, die Vorgabenamen &apos;Vendor&apos; oder &apos;Vendor-EN&apos; zu verwenden.&lt;br&gt;Das Feld sollte auch nicht leer sein.&lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
     </message>
@@ -24754,32 +24419,6 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
 <context>
     <name>Qt4ProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
     <message>
-        <source>Publish for Qt Symbian Application on Ovi Store </source>
-        <translation type="obsolete">Veröffentlichen als Qt Symbian-Anwendung im Ovi-Store</translation>
-    </message>
-    <message>
-        <source>This wizard will check your resulting sis file and some of your meta data to make sure it complies with Ovi Store submission regulations.
-
-This wizard is used to create sis files which can be submitted to publish to Ovi.
-
-It cannot be used if you are using UID3s from Symbian Signed.
-
-You cannot use it for the Certified Signed and Manufacturer level capabilities:
-i.e. NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB
-
-Your application will also be rejected by Ovi QA if it uses an unreleased Qt Version.</source>
-        <translation type="obsolete">Dieser Wizard prüft Ihr SIS-Paketdatei und deren Metadaten um sicherzustellen, dass sie den Bestimmungen von Ovi Store entsprechen.
-
-Dieser Wizard erstellt SIS-Paketdateien, die zur Veröffentlichung auf Ovi eingereicht werden können.
-
-Er kann nicht im Zusammenhang mit UID3s von Symbian Signed verwendet werden.
-
-Zertifikatssignierte oder Herstellerberechtigungen werden ebenfalls nicht unterstützt, zum Beispiel:
-NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM und TCB
-
-Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version zurückgewiesen.</translation>
-    </message>
-    <message>
         <source>Publish Qt Symbian Applications to Ovi Store</source>
         <translation>Veröffentlichen als Qt Symbian-Anwendung im Ovi-Store</translation>
     </message>
@@ -24823,14 +24462,6 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
     <message>
         <source>Creating an Uploadable SIS File</source>
         <translation>Erzeuge hochladbare SIS-Datei</translation>
-    </message>
-    <message>
-        <source>.Pro File Checks</source>
-        <translation type="obsolete">Überprüfung der .Pro-Dateien</translation>
-    </message>
-    <message>
-        <source>Creating Uploadable Sis File</source>
-        <translation type="obsolete">Erzeuge hochladbare SIS-Datei</translation>
     </message>
 </context>
 <context>
@@ -25173,8 +24804,19 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sie versuchen, das Werkzeug &apos;%1&apos; mit einer Anwendung im Modus %2 zu betreiben. Das Werkzeug ist zur Verwendung im Modus %3 vorgesehen.&lt;/p&gt;&lt;p&gt;Möchten Sie trotzdem fortsetzen und es im Modus %2 laufen lassen?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Run %1 in %2 mode?</source>
-        <translation type="obsolete">Soll %1 im Modus %2 ausgeführt werden?</translation>
+        <source>Tool &apos;%1&apos; started...</source>
+        <translation>Das Werkzeug &quot;%1&quot; wurde gestartet...</translation>
+    </message>
+    <message numerus="yes">
+        <source>Tool &apos;%1&apos; finished, %n issues were found.</source>
+        <translation>
+            <numerusform>Das Werkzeug &apos;%1&apos; wurde beendet; ein Fehler wurde gefunden.</numerusform>
+            <numerusform>Das Werkzeug &apos;%1&apos; wurde beendet; %n Fehler wurden gefunden.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Tool &apos;%1&apos; finished, no issues were found.</source>
+        <translation>Das Werkzeug &apos;%1&apos; wurde beendet; es wurden keine Fehler gefunden.</translation>
     </message>
     <message>
         <source>&amp;Do not ask again</source>
@@ -25349,18 +24991,6 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
         <translation>Speicheranalyse</translation>
     </message>
     <message>
-        <source>Clear</source>
-        <translation type="obsolete">Löschen</translation>
-    </message>
-    <message>
-        <source>Previous Item</source>
-        <translation type="obsolete">Vorangehender Eintrag</translation>
-    </message>
-    <message>
-        <source>Next Item</source>
-        <translation type="obsolete">Nächster Eintrag</translation>
-    </message>
-    <message>
         <source>Error Filter</source>
         <translation>Fehlerfilter</translation>
     </message>
@@ -25490,6 +25120,46 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
         <source>Port unreachable</source>
         <translation>Port nicht erreichbar</translation>
     </message>
+    <message>
+        <source>The port %1 could not be opened: %2</source>
+        <translation>Der Port %1 konnte nicht geöffnet werden: %2</translation>
+    </message>
+    <message>
+        <source>An error occurred while waiting for read notifications from %1: %2</source>
+        <translation>Beim Lesen von %1 ist ein Fehler aufgetreten: %2</translation>
+    </message>
+    <message>
+        <source>An error occurred while reading from %1: %2</source>
+        <translation>Beim Lesen von %1 ist ein Fehler aufgetreten: %2</translation>
+    </message>
+    <message>
+        <source>An error occurred while writing to %1: %2</source>
+        <translation>Beim Schreiben zu %1 ist ein Fehler aufgetreten: %2</translation>
+    </message>
+    <message>
+        <source>An error occurred while syncing on waitForBytesWritten for %1: %2</source>
+        <translation>Beim Schreiben zu %1 ist ein Fehler aufgetreten: %2</translation>
+    </message>
+    <message>
+        <source>The port %1 could not be opened: %2 (POSIX error %3)</source>
+        <translation>Der Port %1 konnte nicht geöffnet werden: %2 (POSIX-Fehler %3)</translation>
+    </message>
+    <message>
+        <source>Unable to retrieve terminal settings of port %1: %2 (POSIX error %3)</source>
+        <translation>Die Terminal-Einstellungen von Port %1 konnten nicht abgefragt werden: %3 (POSIX-Fehler %3)</translation>
+    </message>
+    <message>
+        <source>Unable to apply terminal settings to port %1: %2 (POSIX error %3)</source>
+        <translation>Die Terminal-Einstellungen von Port %1 konnten nicht gesetzt werden: %3 (POSIX-Fehler %3)</translation>
+    </message>
+    <message>
+        <source>Cannot write to port %1: %2 (POSIX error %3)</source>
+        <translation>Es konnte nicht zu Port %1 geschrieben werden: %2 (POSIX-Fehler %3)</translation>
+    </message>
+    <message>
+        <source>The function select() returned an error on port %1: %2 (POSIX error %3)</source>
+        <translation>Bei Port %1 gab die Funktion select() einen Fehler zurück: %2 (POSIX-Fehler %3)</translation>
+    </message>
 </context>
 <context>
     <name>Analyzer::Internal::AnalyzerOutputPane</name>
@@ -25500,6 +25170,57 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
     <message>
         <source>Analysis</source>
         <translation>Analyse</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4DefaultTargetSetupWidget</name>
+    <message>
+        <source>&lt;b&gt;Error:&lt;/b&gt; </source>
+        <comment>Severity is Task::Error</comment>
+        <translation>&lt;b&gt;Fehler:&lt;/b&gt; </translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
+        <comment>Severity is Task::Warning</comment>
+        <translation>&lt;b&gt;Warnung:&lt;/b&gt; </translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::AbstractMobileAppWizardDialog</name>
+    <message>
+        <source>Qt Versions</source>
+        <translation>Qt-Versionen</translation>
+    </message>
+    <message>
+        <source>Mobile Options</source>
+        <translation>Einstellungen für Mobilgeräte</translation>
+    </message>
+    <message>
+        <source>Symbian Specific</source>
+        <translation>Symbian-spezifisch</translation>
+    </message>
+    <message>
+        <source>Maemo Specific</source>
+        <translation>Maemo-spezifisch</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::TargetSetupPage</name>
+    <message>
+        <source>Target Setup</source>
+        <translation>Ziel einrichten</translation>
+    </message>
+    <message>
+        <source>Qt Creator can set up the following targets for project &lt;b&gt;%1&lt;/b&gt;:</source>
+        <comment>%1: Project name</comment>
+        <translation>Qt Creator kann für das Projekt &lt;b&gt;%1&lt;/b&gt; die folgenden Ziele anlegen:</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Html5AppWizardOptionsPage</name>
+    <message>
+        <source>Select HTML File</source>
+        <translation>HTML-Datei auswählen</translation>
     </message>
 </context>
 </TS>

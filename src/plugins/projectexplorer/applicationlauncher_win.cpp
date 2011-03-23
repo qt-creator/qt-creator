@@ -71,11 +71,9 @@ ApplicationLauncher::~ApplicationLauncher()
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)
 {
-    QString fixedPath = dir;
-    QString error;
-
     // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
-    const QString longPath = Utils::getLongPathName(dir, &error);
+    QString fixedPath = dir;
+    const QString longPath = Utils::getLongPathName(dir);
     if (!longPath.isEmpty())
         fixedPath = longPath;
 

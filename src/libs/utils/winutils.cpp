@@ -132,67 +132,35 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
     return rc;
 }
 
-QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name, QString *errorMessage)
+QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name)
 {
-    typedef DWORD (APIENTRY *GetShortPathNameProtoType)(LPCTSTR, LPTSTR, DWORD);
-
     if (name.isEmpty())
         return name;
 
-    const char *kernel32DLLC = "kernel32.dll";
-
-    QLibrary kernel32Lib(kernel32DLLC, 0);
-    if (!kernel32Lib.isLoaded() && !kernel32Lib.load()) {
-        *errorMessage = msgCannotLoad(kernel32DLLC, kernel32Lib.errorString());
-        return QString();
-    }
-
-    // MinGW requires old-style casts
-    GetShortPathNameProtoType getShortPathNameW = (GetShortPathNameProtoType)(kernel32Lib.resolve("GetShortPathNameW"));
-    if (!getShortPathNameW) {
-        *errorMessage = msgCannotResolve(kernel32DLLC);
-        return QString();
-    }
     // Determine length, then convert.
     const LPCTSTR nameC = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGW
-    const DWORD length = (*getShortPathNameW)(nameC, NULL, 0);
+    const DWORD length = GetShortPathNameW(nameC, NULL, 0);
     if (length == 0)
         return name;
     QScopedArrayPointer<TCHAR> buffer(new TCHAR[length]);
-    (*getShortPathNameW)(nameC, buffer.data(), length);
-    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length);
+    GetShortPathNameW(nameC, buffer.data(), length);
+    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length - 1);
     return rc;
 }
 
-QTCREATOR_UTILS_EXPORT QString getLongPathName(const QString &name, QString *errorMessage)
+QTCREATOR_UTILS_EXPORT QString getLongPathName(const QString &name)
 {
-    typedef DWORD (APIENTRY *GetLongPathNameProtoType)(LPCTSTR, LPTSTR, DWORD);
-
     if (name.isEmpty())
         return name;
 
-    const char *kernel32DLLC = "kernel32.dll";
-
-    QLibrary kernel32Lib(kernel32DLLC, 0);
-    if (!kernel32Lib.isLoaded() && !kernel32Lib.load()) {
-        *errorMessage = msgCannotLoad(kernel32DLLC, kernel32Lib.errorString());
-        return QString();
-    }
-
-    // MinGW requires old-style casts
-    GetLongPathNameProtoType getLongPathNameW = (GetLongPathNameProtoType)(kernel32Lib.resolve("GetLongPathNameW"));
-    if (!getLongPathNameW) {
-        *errorMessage = msgCannotResolve(kernel32DLLC);
-        return QString();
-    }
     // Determine length, then convert.
     const LPCTSTR nameC = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGW
-    const DWORD length = (*getLongPathNameW)(nameC, NULL, 0);
+    const DWORD length = GetLongPathNameW(nameC, NULL, 0);
     if (length == 0)
         return name;
     QScopedArrayPointer<TCHAR> buffer(new TCHAR[length]);
-    (*getLongPathNameW)(nameC, buffer.data(), length);
-    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length);
+    GetLongPathNameW(nameC, buffer.data(), length);
+    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length - 1);
     return rc;
 }
 

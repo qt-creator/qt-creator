@@ -88,8 +88,8 @@ public:
     bool designModeBehavior;
     bool showAppOnTop;
 
-    bool executionPaused;
-    qreal slowdownFactor;
+    bool animationPaused;
+    qreal slowDownFactor;
 
     ToolBox *toolBox;
 

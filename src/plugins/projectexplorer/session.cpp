@@ -873,26 +873,6 @@ void SessionManager::removeProjects(QList<Project *> remove)
         emit aboutToRemoveProject(pro);
     }
 
-    // TODO: Clear m_modelProjectHash
-
-    // Delete projects
-    foreach (Project *pro, remove) {
-        pro->saveSettings();
-        m_file->m_projects.removeOne(pro);
-
-        if (pro == m_file->m_startupProject)
-            setStartupProject(0);
-
-        disconnect(pro, SIGNAL(fileListChanged()),
-                this, SLOT(clearProjectFileCache()));
-        m_projectFileCache.remove(pro);
-
-        if (debug)
-            qDebug() << "SessionManager - emitting projectRemoved(" << pro->displayName() << ")";
-        m_sessionNode->removeProjectNode(pro->rootProjectNode());
-        emit projectRemoved(pro);
-        delete pro;
-    }
 
     // Refresh dependencies
     QSet<QString> projectFiles;
@@ -914,6 +894,27 @@ void SessionManager::removeProjects(QList<Project *> remove)
     }
 
     m_file->m_depMap = resMap;
+
+    // TODO: Clear m_modelProjectHash
+
+    // Delete projects
+    foreach (Project *pro, remove) {
+        pro->saveSettings();
+        m_file->m_projects.removeOne(pro);
+
+        if (pro == m_file->m_startupProject)
+            setStartupProject(0);
+
+        disconnect(pro, SIGNAL(fileListChanged()),
+                this, SLOT(clearProjectFileCache()));
+        m_projectFileCache.remove(pro);
+
+        if (debug)
+            qDebug() << "SessionManager - emitting projectRemoved(" << pro->displayName() << ")";
+        m_sessionNode->removeProjectNode(pro->rootProjectNode());
+        emit projectRemoved(pro);
+        delete pro;
+    }
 
     if (startupProject() == 0)
         if (!m_file->m_projects.isEmpty())

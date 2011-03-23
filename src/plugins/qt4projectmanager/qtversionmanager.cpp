@@ -698,7 +698,7 @@ QtVersion::~QtVersion()
 {
 }
 
-QString QtVersion::toHtml() const
+QString QtVersion::toHtml(bool verbose) const
 {
     QString rc;
     QTextStream str(&rc);
@@ -729,11 +729,13 @@ QString QtVersion::toHtml() const
         } // default config.
         str << "<tr><td><b>" << QtVersionManager::tr("Version:")
             << "</b></td><td>" << qtVersionString() << "</td></tr>";
-        const QHash<QString,QString> vInfo = versionInfo();
-        if (!vInfo.isEmpty()) {
-            const QHash<QString,QString>::const_iterator vcend = vInfo.constEnd();
-            for (QHash<QString,QString>::const_iterator it = vInfo.constBegin(); it != vcend; ++it)
-                str << "<tr><td><pre>" << it.key() <<  "</pre></td><td>" << it.value() << "</td></tr>";
+        if (verbose) {
+            const QHash<QString,QString> vInfo = versionInfo();
+            if (!vInfo.isEmpty()) {
+                const QHash<QString,QString>::const_iterator vcend = vInfo.constEnd();
+                for (QHash<QString,QString>::const_iterator it = vInfo.constBegin(); it != vcend; ++it)
+                    str << "<tr><td><pre>" << it.key() <<  "</pre></td><td>" << it.value() << "</td></tr>";
+            }
         }
     }
     str << "</table></body></html>";

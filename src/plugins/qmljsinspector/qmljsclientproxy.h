@@ -106,7 +106,8 @@ signals:
     void selectToolActivated();
     void selectMarqueeToolActivated();
     void zoomToolActivated();
-    void animationSpeedChanged(qreal slowdownFactor);
+    void animationSpeedChanged(qreal slowDownFactor);
+    void animationPausedChanged(bool paused);
     void designModeBehaviorChanged(bool inDesignMode);
     void showAppOnTopChanged(bool showAppOnTop);
     void serverReloaded();
@@ -120,7 +121,8 @@ public slots:
     void reloadQmlViewer();
 
     void setDesignModeBehavior(bool inDesignMode);
-    void setAnimationSpeed(qreal slowdownFactor = 1.0f);
+    void setAnimationSpeed(qreal slowDownFactor);
+    void setAnimationPaused(bool paused);
     void changeToColorPickerTool();
     void changeToZoomTool();
     void changeToSelectTool();

@@ -12,6 +12,8 @@ General
    * Moved toolchain definitions out of Qt versions.
       * You can now define toolchains in Tools->Options->ToolChains
       * Creator now supports more than one instance of each kind of toolchain
+   * Support for MIME type customization through editing of patterns and
+     magic matchers.
 
 Editing
    * Add new Inkpot color scheme
@@ -23,6 +25,8 @@ Editing
      - code completion
    * Add 'expand/collapse all' context menu entry to Outline pane
    * Support for user defined macros was contributed by Nicolas Arnaud-Cormos
+   * Snippet editor with syntax highlighting, indentation, and basic auto
+     completion for C++ and QML.
 
 Project Support
    * QMake project support should be more robust against syntax errors
@@ -36,6 +40,7 @@ Project Support
    * CMake: Add Ui completion, changes in .ui files are picked up without
      a rebuild.
    * Syntax highlighting and completion for QMake project files
+   * Text editor behavior settings now avaiable on a per-project basis.
 
 Debugging
    * Rewrote debugging engine using the Microsoft Console Debugger (CDB)
@@ -89,7 +94,6 @@ C++ Support
    * Fix indentation of labels
    * Highlighting for virtual functions
    * Navigate to correct overloaded function/method
-   * Snippets for class/struct/loops
 
 QML/JS Support
    * Add wizard for creating JavaScript files, QTCREATORBUG-3070

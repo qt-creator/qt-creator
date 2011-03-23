@@ -418,7 +418,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
     ActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
     medit->addMenu(advancedMenu, Constants::G_EDIT_ADVANCED);
-    advancedMenu->menu()->setTitle(tr("&Advanced"));
+    advancedMenu->menu()->setTitle(tr("Ad&vanced"));
     advancedMenu->appendGroup(Constants::G_EDIT_FORMAT);
     advancedMenu->appendGroup(Constants::G_EDIT_COLLAPSING);
     advancedMenu->appendGroup(Constants::G_EDIT_BLOCKS);
