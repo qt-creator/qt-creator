@@ -72,9 +72,33 @@ QList<ServerNodeInstance> GraphicsObjectNodeInstance::childItems() const
         QGraphicsObject *childObject = item->toGraphicsObject();
         if (childObject && nodeInstanceServer()->hasInstanceForObject(childObject)) {
             instanceList.append(nodeInstanceServer()->instanceForObject(childObject));
+        } else { //there might be an item in between the parent instance
+                 //and the child instance.
+                 //Popular example is flickable which has a viewport item between
+                 //the flickable item and the flickable children
+            instanceList.append(childItemsForChild(item)); //In such a case we go deeper inside the item and
+                                                           //search for child items with instances.
         }
     }
 
+    return instanceList;
+}
+
+QList<ServerNodeInstance> GraphicsObjectNodeInstance::childItemsForChild(QGraphicsItem *childItem) const
+{
+    QList<ServerNodeInstance> instanceList;
+    if (childItem) {
+
+        foreach(QGraphicsItem *item, childItem->childItems())
+        {
+            QGraphicsObject *childObject = item->toGraphicsObject();
+            if (childObject && nodeInstanceServer()->hasInstanceForObject(childObject)) {
+                instanceList.append(nodeInstanceServer()->instanceForObject(childObject));
+            } else {
+                instanceList.append(childItemsForChild(item));
+            }
+        }
+    }
     return instanceList;
 }
 

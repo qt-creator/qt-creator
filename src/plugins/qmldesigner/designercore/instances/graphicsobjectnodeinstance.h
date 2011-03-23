@@ -76,6 +76,7 @@ public:
     bool hasContent() const;
 
     QList<ServerNodeInstance> childItems() const;
+    QList<ServerNodeInstance> childItemsForChild(QGraphicsItem *childItem) const;
 
     void paintUpdate();
 
