@@ -699,11 +699,12 @@ qint64 OstChannel::writeData(const char *data, qint64 maxSize)
 {
     static const qint64 KMaxOstPayload = 1024;
     // If necessary, split the packet up
-    while (maxSize) {
-        QByteArray dataBuf = QByteArray::fromRawData(data, qMin(KMaxOstPayload, maxSize));
+    qint64 remainder = maxSize;
+    while (remainder) {
+        QByteArray dataBuf = QByteArray::fromRawData(data, qMin(KMaxOstPayload, remainder));
         d->m_codaPtr->writeCustomData(d->m_channelId, dataBuf);
         data += dataBuf.length();
-        maxSize -= dataBuf.length();
+        remainder -= dataBuf.length();
     }
     return maxSize;
 }

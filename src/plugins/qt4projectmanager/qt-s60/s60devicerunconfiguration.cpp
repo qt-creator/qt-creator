@@ -470,7 +470,10 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     if (rc->useQmlDebugger()) {
         if (sp.processArgs.length())
             sp.processArgs.prepend(" ");
-        sp.processArgs.prepend(QString("-qmljsdebugger=port:%1").arg(sp.qmlServerPort));
+        if (activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection)
+            sp.processArgs.prepend(QString("-qmljsdebugger=port:%1").arg(sp.qmlServerPort));
+        else
+            sp.processArgs.prepend(QString("-qmljsdebugger=ost"));
     }
 
     sp.communicationChannel = activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection?

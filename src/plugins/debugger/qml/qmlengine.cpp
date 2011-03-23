@@ -300,9 +300,9 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
         QString status = msg;
         status.remove(0, index + qddserver.length()); // chop of 'QDeclarativeDebugServer: '
 
-        static QString waitingForConnection = QLatin1String("Waiting for connection on port");
-        static QString unableToListen = QLatin1String("Unable to listen on port");
-        static QString debuggingNotEnabled = QLatin1String("Ignoring \"-qmljsdebugger=port:");
+        static QString waitingForConnection = QLatin1String("Waiting for connection ");
+        static QString unableToListen = QLatin1String("Unable to listen ");
+        static QString debuggingNotEnabled = QLatin1String("Ignoring \"-qmljsdebugger=");
         static QString connectionEstablished = QLatin1String("Connection established");
 
         QString errorMessage;
