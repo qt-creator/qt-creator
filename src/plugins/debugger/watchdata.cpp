@@ -94,13 +94,14 @@ bool isIntType(const QByteArray &type)
             return type == "int" || type == "int64";
         case 'l':
             return type == "long"
-                || type == "long long";
+                || type.startsWith("long ");
         case 'p':
             return type == "ptrdiff_t";
         case 'q':
             return type == "qint16" || type == "quint16"
                 || type == "qint32" || type == "quint32"
-                || type == "qint64" || type == "quint64";
+                || type == "qint64" || type == "quint64"
+                || type == "qlonglong" || type == "qulonglong";
         case 's':
             return type == "short"
                 || type == "signed"
