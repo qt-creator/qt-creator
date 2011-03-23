@@ -49,10 +49,13 @@ public:
     void setProjectDirectory(const QString &absoluteProjectPath);
     QString projectDirectory() const;
 
+    void setProjectFiles(const QStringList &projectFiles);
+
     QString findFile(const QString &originalPath, bool *success = 0) const;
 
 private:
     QString m_projectDir;
+    QStringList m_projectFiles;
     mutable QHash<QString,QString> m_cache;
 };
 

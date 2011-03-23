@@ -60,12 +60,16 @@ struct LinkResult
 class QT4PROJECTMANAGER_EXPORT QtOutputFormatter
     : public ProjectExplorer::OutputFormatter
 {
+    Q_OBJECT
 public:
     QtOutputFormatter(ProjectExplorer::Project *project);
 
     virtual void appendMessage(const QString &text,
         ProjectExplorer::OutputFormat format);
     virtual void handleLink(const QString &href);
+
+private slots:
+    void updateProjectFileList();
 
 private:
     LinkResult matchLine(const QString &line) const;
