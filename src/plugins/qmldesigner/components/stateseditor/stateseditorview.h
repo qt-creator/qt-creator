@@ -57,7 +57,7 @@ public:
     // AbstractView
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
-    void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
+    void propertiesRemoved(const QList<AbstractProperty>& propertyList);
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
 
     void nodeAboutToBeRemoved(const ModelNode &removedNode);

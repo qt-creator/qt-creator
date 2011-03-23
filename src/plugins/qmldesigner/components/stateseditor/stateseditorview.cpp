@@ -241,11 +241,11 @@ void StatesEditorView::modelAboutToBeDetached(Model *model)
     resetModel();
 }
 
-void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
+void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
     foreach (const AbstractProperty &property, propertyList) {
         if (property.name() == "states" && property.parentModelNode().isRootNode())
-            m_statesEditorModel->reset();
+            resetModel();
     }
 }
 
