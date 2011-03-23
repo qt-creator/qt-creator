@@ -135,6 +135,7 @@
                 \o \l{Launching the Debugger in Different Modes}
                 \o \l{Using Debugging Helpers}
                 \o \l{Debugging Qt Quick Projects}
+                \o \l{Detecting Memory Leaks}
                 \o \l{Troubleshooting Debugger}
             \endlist
        \o \l{Using the Maemo Emulator}
@@ -7020,24 +7021,34 @@
 
     \list
 
-        \o \l{Debugging the Example Application} uses an example application to illustrate
-        how to debug Qt C++ applications in the \gui Debug mode.
+        \o  \l{Debugging the Example Application} uses an example application
+            to illustrate how to debug Qt C++ applications in the \gui Debug
+            mode.
 
-        \o \l{Interacting with the Debugger} describes the views and functions available
-        in the \gui Debug mode.
+        \o  \l{Interacting with the Debugger} describes the views and functions
+            available in the \gui Debug mode.
 
-        \o \l{Setting Up Debugger} summarizes the support for debugging C++ code and
-        requirements for installation. Typically, the interaction between Qt Creator
-        and the native debugger is set up automatically and you do not need to do anything.
+        \o  \l{Setting Up Debugger} summarizes the support for debugging C++
+            code and requirements for installation. Typically, the interaction
+            between Qt Creator and the native debugger is set up automatically
+            and you do not need to do anything.
 
-        \o \l{Launching the Debugger in Different Modes} describes the operating modes in which the
-        debugger plugin runs, depending on where and how the process is started and run.
+        \o  \l{Launching the Debugger in Different Modes} describes the
+            operating modes in which the debugger plugin runs, depending on
+            where and how the process is started and run.
 
-        \o \l{Using Debugging Helpers} describes how to get more detailed data
-        on complex data.
+        \o  \l{Using Debugging Helpers} describes how to get more detailed data
+            on complex data.
 
 
-        \o \l{Debugging Qt Quick Projects} describes how to debug Qt Quick projects.
+        \o  \l{Debugging Qt Quick Projects} describes how to debug Qt Quick
+            projects.
+
+        \o  \l{Detecting Memory Leaks} describes how to use the Valgrind
+            Memcheck tool to detect problems in memory management.
+
+        \o  \l{Troubleshooting Debugger} lists some typical problems that you
+            might encounter while debugging and solutions to them.
 
     \endlist
 
@@ -11149,7 +11160,7 @@
     \title Troubleshooting Debugger
 
     This section lists some typical problems that you might encounter while
-    debugging and solutions for them.
+    debugging and solutions to them.
 
    \section1 Debugger Does Not Hit Breakpoints
 
@@ -11204,5 +11215,33 @@
     is unclear why and when this happens, but if it happens, the debugging
     helpers operate on wrong data and come to wrong conclusions. Most likely,
     they find garbage and declare the variable to be <not in scope>.
+
+    */
+
+
+    /*!
+    \contentspage index.html
+    \previouspage creator-debugging-qml.html
+    \page creator-analyzer.html
+    \nextpage creator-maemo-emulator.html
+
+    \title Detecting Memory Leaks
+
+    You can use the Memcheck tool included in the
+    \l{http://valgrind.org/info/tools.html}{Valgrind tool suite} to detect
+    problems that are related to memory management in applications.
+
+    \note Memcheck is supported on Linux and Mac OS.
+
+    After you download and install Memcheck, you can use it from Qt Creator.
+    To analyze applications, select \gui {Debug > Start Analyzer > Start}.
+    While the application is running, Memcheck checks all reads and writes of
+    memory and intercepts calls that allocate or free memory or create or
+    delete memory blocks.
+
+    If problems are found, they are listed in the \gui Analysis output pane.
+    Select a link to move to the problematic code.
+
+    \image analyzer_issues.png "Analysis output pane"
 
     */
