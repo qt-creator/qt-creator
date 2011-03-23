@@ -1058,7 +1058,9 @@ const BreakpointResponse &BreakHandler::response(BreakpointId id) const
 {
     static BreakpointResponse dummy;
     ConstIterator it = m_storage.find(id);
-    QTC_ASSERT(it != m_storage.end(), qDebug() << id; return dummy);
+    //QTC_ASSERT(it != m_storage.end(), qDebug() << id; return dummy);
+    if (it == m_storage.end())
+        return dummy;
     return it->response;
 }
 
