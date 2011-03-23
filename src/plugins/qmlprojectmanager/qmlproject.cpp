@@ -89,6 +89,7 @@ QString QmlProject::filesFileName() const
 
 void QmlProject::parseProject(RefreshOptions options)
 {
+    Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
     if (options & Files) {
         if (options & ProjectFile)
             delete m_projectItem.data();
@@ -103,10 +104,11 @@ void QmlProject::parseProject(RefreshOptions options)
                     connect(m_projectItem.data(), SIGNAL(qmlFilesChanged(QSet<QString>, QSet<QString>)),
                             this, SLOT(refreshFiles(QSet<QString>, QSet<QString>)));
                 } else {
-                    Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
-                    messageManager->printToOutputPane(tr("Error while loading project file!"));
+                    messageManager->printToOutputPane(tr("Error while loading project file %1.").arg(m_fileName));
                     messageManager->printToOutputPane(component->errorString(), true);
                 }
+            } else {
+                messageManager->printToOutputPane(tr("Error while loading `project file %1.").arg(m_fileName), true);
             }
         }
         if (m_projectItem) {
