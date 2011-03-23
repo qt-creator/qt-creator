@@ -40,7 +40,7 @@
 
 namespace Utils {
 class SshConnection;
-class SshConnectionParameters;
+struct SshConnectionParameters;
 namespace Internal { class SshConnectionManagerPrivate; }
 
 class QTCREATOR_UTILS_EXPORT SshConnectionManager
