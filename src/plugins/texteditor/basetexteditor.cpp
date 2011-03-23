@@ -3576,7 +3576,8 @@ int BaseTextEditorWidget::extraAreaWidth(int *markWidthPtr) const
     int markWidth = 0;
 
     if (d->m_marksVisible) {
-        markWidth += fm.lineSpacing();
+        markWidth += documentLayout->maxMarkWidthFactor * fm.lineSpacing();
+
 //     if (documentLayout->doubleMarkCount)
 //         markWidth += fm.lineSpacing() / 3;
         space += markWidth;

@@ -393,6 +393,7 @@ BaseTextDocumentLayout::BaseTextDocumentLayout(QTextDocument *doc)
     :QPlainTextDocumentLayout(doc) {
     lastSaveRevision = 0;
     hasMarks = 0;
+    maxMarkWidthFactor = 1.0;
     m_requiredWidth = 0;
 }
 

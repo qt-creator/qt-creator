@@ -189,6 +189,7 @@ public:
     void emitDocumentSizeChanged() { emit documentSizeChanged(documentSize()); }
     int lastSaveRevision;
     bool hasMarks;
+    double maxMarkWidthFactor;
 
     int m_requiredWidth;
     void setRequiredWidth(int width);
