@@ -8,7 +8,6 @@
     <itemlibraryentry name="BusyIndicator" category="Components MeeGo" libraryIcon=":/meegoplugin/images/button.png" version="1.0" requiredImport="com.meego">
       <property name="width" type="int" value="180"/>
       <property name="height" type="int" value="30"/>
-      <property name="text" type="QString" value="CheckBox"/>
     </itemlibraryentry>
   </node>
   <node name="Button" icon=":/meegoplugin/images/button16.png">
@@ -86,12 +85,6 @@
   </node>
   <node name="ToolBar" icon=":/meegoplugin/images/window16.png">
     <itemlibraryentry name="ToolBar" category="Components MeeGo" libraryIcon=":/meegoplugin/images/window.png"  version="1.0" requiredImport="com.meego">
-      <property name="width" type="int" value="360"/>
-      <property name="height" type="int" value="140"/>
-    </itemlibraryentry>
-  </node>
-  <node name="StatusBar" icon=":/meegoplugin/images/window16.png">
-    <itemlibraryentry name="StatusBar" category="Components MeeGo" libraryIcon=":/meegoplugin/images/window.png"  version="1.0" requiredImport="com.meego">
       <property name="width" type="int" value="360"/>
       <property name="height" type="int" value="140"/>
     </itemlibraryentry>
