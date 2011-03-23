@@ -1244,7 +1244,7 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
         if (const SymbolGroupValue sizeValue = d["size"]) {
             const int size = sizeValue.intValue();
             if (size >= 0) {
-                str << d["data"].wcharPointerData(size);
+                str << L'"' << d["data"].wcharPointerData(size) << L'"';
                 return true;
             }
         }
@@ -1461,9 +1461,7 @@ static inline bool dumpQWidget(const SymbolGroupValue &v, std::wostream &str, vo
         return false;
     if (specialInfoIn)
         *specialInfoIn = qwPrivate.node();
-    str << L'"';
     dumpQString(oName, str);
-    str << L'"';
     return true;
 }
 
@@ -1475,9 +1473,7 @@ static inline bool dumpQObject(const SymbolGroupValue &v, std::wostream &str, vo
         if (SymbolGroupValue oName = qoPrivate["objectName"]) {
             if (specialInfoIn)
                 *specialInfoIn = qoPrivate.node();
-            str << L'"';
             dumpQString(oName, str);
-            str << L'"';
             return true;
         }
     }
@@ -1600,10 +1596,9 @@ static bool dumpQVariant(const SymbolGroupValue &v, std::wostream &str, void **s
     }
         break;
     case 10: // String
-        str << L"(QString) \"";
+        str << L"(QString) ";
         if (const SymbolGroupValue sv = dataV.typeCast(qtInfo.prependQtCoreModule("QString *").c_str())) {
             dumpQString(sv, str);
-            str << L'"';
         }
         break;
     case 11: //StringList: Dump container size
