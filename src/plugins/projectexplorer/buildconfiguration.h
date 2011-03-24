@@ -123,6 +123,7 @@ protected:
 private slots:
     void handleToolChainRemovals(ProjectExplorer::ToolChain *tc);
     void handleToolChainAddition(ProjectExplorer::ToolChain *tc);
+    void handleToolChainUpdates(ProjectExplorer::ToolChain*);
 
 private:
     bool m_clearSystemEnvironment;
