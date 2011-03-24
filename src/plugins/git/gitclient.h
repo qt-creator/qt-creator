@@ -306,6 +306,8 @@ public:
                            const QStringList &args);
 
     virtual QStringList arguments() const = 0;
+
+public slots:
     virtual void redoCommand() = 0;
 
 protected slots:

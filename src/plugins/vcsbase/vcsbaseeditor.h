@@ -86,6 +86,16 @@ struct VCSBASE_EXPORT VCSBaseEditorParameters
     const char *extension;
 };
 
+class VCSBASE_EXPORT DiffChunk
+{
+public:
+    bool isValid() const;
+    QByteArray asPatch() const;
+
+    QString fileName;
+    QByteArray chunk;
+};
+
 // Base class for editors showing version control system output
 // of the type enumerated by EditorContentType.
 // The source property should contain the file or directory the log
@@ -99,6 +109,7 @@ class VCSBASE_EXPORT VCSBaseEditorWidget : public TextEditor::BaseTextEditorWidg
     Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
     Q_PROPERTY(QString copyRevisionTextFormat READ copyRevisionTextFormat WRITE setCopyRevisionTextFormat)
     Q_PROPERTY(bool isFileLogAnnotateEnabled READ isFileLogAnnotateEnabled WRITE setFileLogAnnotateEnabled)
+    Q_PROPERTY(bool revertDiffChunkEnabled READ isRevertDiffChunkEnabled WRITE setRevertDiffChunkEnabled)
     Q_OBJECT
 
 protected:
@@ -145,6 +156,10 @@ public:
     // Base directory for diff views
     QString diffBaseDirectory() const;
     void setDiffBaseDirectory(const QString &d);
+
+    // Diff: Can revert?
+    bool isRevertDiffChunkEnabled() const;
+    void setRevertDiffChunkEnabled(bool e);
 
     bool isModified() const;
 
@@ -194,6 +209,7 @@ signals:
     // for LogOutput/AnnotateOutput content types.
     void describeRequested(const QString &source, const QString &change);
     void annotateRevisionRequested(const QString &source, const QString &change, int lineNumber);
+    void diffChunkReverted(const VCSBase::DiffChunk &dc);
 
 public slots:
     // Convenience slot to set data read from stdout, will use the
@@ -220,12 +236,17 @@ private slots:
     void slotDiffCursorPositionChanged();
     void slotAnnotateRevision();
     void slotCopyRevision();
+    void slotRevertDiffChunk();
 
 protected:
     /* A helper that can be used to locate a file in a diff in case it
      * is relative. Tries to derive the directory from base directory,
      * source and version control. */
     QString findDiffFile(const QString &f, Core::IVersionControl *control = 0) const;
+
+    virtual bool canRevertDiffChunk(const DiffChunk &dc) const;
+    // Revert a patch chunk. Default implemenation uses patch.exe
+    virtual bool revertDiffChunk(const DiffChunk &dc) const;
 
 private:
     // Implement to return a set of change identifiers in
@@ -242,6 +263,8 @@ private:
     // Implement to return the previous version[s] of an annotation change
     // for "Annotate previous version"
     virtual QStringList annotationPreviousVersions(const QString &revision) const;
+    // cut out chunk and determine file name.
+    DiffChunk diffChunk(QTextCursor cursor) const;
 
     void jumpToChangeFromDiff(QTextCursor cursor);
     QAction *createDescribeAction(const QString &change);
@@ -252,5 +275,7 @@ private:
 };
 
 } // namespace VCSBase
+
+Q_DECLARE_METATYPE(VCSBase::DiffChunk)
 
 #endif // VCSBASE_BASEEDITOR_H

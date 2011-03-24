@@ -521,6 +521,8 @@ void GitClient::diff(const QString &workingDirectory,
 
         editor = createVCSEditor(editorId, title,
                                  workingDirectory, true, "originalFileName", workingDirectory, argWidget);
+        connect(editor, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)), argWidget, SLOT(redoCommand()));
+        editor->setRevertDiffChunkEnabled(true);
     }
     editor->setDiffBaseDirectory(workingDirectory);
 
@@ -575,6 +577,8 @@ void GitClient::diff(const QString &workingDirectory,
         userDiffArgs = argWidget->arguments();
 
         editor = createVCSEditor(editorId, title, sourceFile, true, "originalFileName", sourceFile, argWidget);
+        connect(editor, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)), argWidget, SLOT(redoCommand()));
+        editor->setRevertDiffChunkEnabled(true);
     }
 
     QStringList cmdArgs;

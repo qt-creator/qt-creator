@@ -2,15 +2,10 @@
 <ui version="4.0">
  <class>CommonSettingsPage</class>
  <widget class="QWidget" name="CommonSettingsPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>338</width>
-    <height>166</height>
-   </rect>
-  </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
    <item row="0" column="0">
     <widget class="QCheckBox" name="lineWrapCheckBox">
      <property name="text">
@@ -56,12 +51,15 @@
       <string>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</string>
      </property>
      <property name="text">
-      <string>Submit message check script:</string>
+      <string>Submit message &amp;check script:</string>
+     </property>
+     <property name="buddy">
+      <cstring>submitMessageCheckScriptChooser</cstring>
      </property>
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="Utils::PathChooser" name="submitMessageCheckScriptChooser" native="true"/>
+    <widget class="Utils::PathChooser" name="submitMessageCheckScriptChooser"/>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="nickNameMailMapLabel">
@@ -70,12 +68,15 @@
 name &lt;email&gt; alias &lt;email&gt;</string>
      </property>
      <property name="text">
-      <string>User/alias configuration file:</string>
+      <string>User/&amp;alias configuration file:</string>
+     </property>
+     <property name="buddy">
+      <cstring>nickNameMailMapChooser</cstring>
      </property>
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="Utils::PathChooser" name="nickNameMailMapChooser" native="true"/>
+    <widget class="Utils::PathChooser" name="nickNameMailMapChooser"/>
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="nickNameFieldsFileLabel">
@@ -83,12 +84,18 @@ name &lt;email&gt; alias &lt;email&gt;</string>
       <string>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</string>
      </property>
      <property name="text">
-      <string>User fields configuration file:</string>
+      <string>User &amp;fields configuration file:</string>
+     </property>
+     <property name="buddy">
+      <cstring>nickNameFieldsFileChooser</cstring>
      </property>
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="Utils::PathChooser" name="nickNameFieldsFileChooser" native="true"/>
+    <widget class="Utils::PathChooser" name="nickNameFieldsFileChooser"/>
+   </item>
+   <item row="5" column="1">
+    <widget class="Utils::PathChooser" name="sshPromptChooser"/>
    </item>
    <item row="6" column="0" colspan="2">
     <spacer name="verticalSpacer">
@@ -106,6 +113,19 @@ name &lt;email&gt; alias &lt;email&gt;</string>
      </property>
     </spacer>
    </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="patchCommandLabel">
+     <property name="text">
+      <string>&amp;Patch command:</string>
+     </property>
+     <property name="buddy">
+      <cstring>patchChooser</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="Utils::PathChooser" name="patchChooser"/>
+   </item>
    <item row="5" column="0">
     <widget class="QLabel" name="sshPromptLabel">
      <property name="toolTip">
@@ -113,12 +133,12 @@ name &lt;email&gt; alias &lt;email&gt;</string>
 should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</string>
      </property>
      <property name="text">
-      <string>SSH prompt command:</string>
+      <string>&amp;SSH prompt command:</string>
+     </property>
+     <property name="buddy">
+      <cstring>sshPromptChooser</cstring>
      </property>
     </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="Utils::PathChooser" name="sshPromptChooser" native="true"/>
    </item>
   </layout>
  </widget>

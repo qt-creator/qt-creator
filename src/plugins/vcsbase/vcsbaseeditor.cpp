@@ -36,6 +36,8 @@
 #include "baseannotationhighlighter.h"
 #include "vcsbasetextdocument.h"
 #include "vcsbaseconstants.h"
+#include "vcsbaseoutputwindow.h"
+#include "vcsbaseplugin.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/ifile.h>
@@ -53,6 +55,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
+#include <QtCore/QFile>
 #include <QtCore/QProcess>
 #include <QtCore/QRegExp>
 #include <QtCore/QSet>
@@ -69,8 +72,26 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QClipboard>
 #include <QtGui/QApplication>
+#include <QtGui/QMessageBox>
 
 namespace VCSBase {
+
+bool DiffChunk::isValid() const
+{
+    return !fileName.isEmpty() && !chunk.isEmpty();
+}
+
+QByteArray DiffChunk::asPatch() const
+{
+    const QByteArray fileNameBA = QFile::encodeName(fileName);
+    QByteArray rc = "--- ";
+    rc += fileNameBA;
+    rc += "\n+++ ";
+    rc += fileNameBA;
+    rc += '\n';
+    rc += chunk;
+    return rc;
+}
 
 // VCSBaseEditor: An editor with no support for duplicates.
 // Creates a browse combo in the toolbar for diff output.
@@ -161,6 +182,7 @@ struct VCSBaseEditorWidgetPrivate
     bool m_fileLogAnnotateEnabled;
     TextEditor::BaseTextEditor *m_editor;
     QWidget *m_configurationWidget;
+    bool m_revertChunkEnabled;
 };
 
 VCSBaseEditorWidgetPrivate::VCSBaseEditorWidgetPrivate(const VCSBaseEditorParameters *type)  :
@@ -170,7 +192,8 @@ VCSBaseEditorWidgetPrivate::VCSBaseEditorWidgetPrivate(const VCSBaseEditorParame
     m_copyRevisionTextFormat(VCSBaseEditorWidget::tr("Copy \"%1\"")),
     m_fileLogAnnotateEnabled(false),
     m_editor(0),
-    m_configurationWidget(0)
+    m_configurationWidget(0),
+    m_revertChunkEnabled(false)
 {
 }
 
@@ -444,7 +467,9 @@ void VCSBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
     // 'click on change-interaction'
-    if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
+    switch (d->m_parameters->type) {
+    case LogOutput:
+    case AnnotateOutput:
         d->m_currentChange = changeUnderCursor(cursorForPosition(e->pos()));
         if (!d->m_currentChange.isEmpty()) {
             switch (d->m_parameters->type) {
@@ -471,6 +496,18 @@ void VCSBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
                 break;
             }         // switch type
         }             // has current change
+        break;
+    case DiffOutput: {
+        menu->addSeparator();
+        QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
+        const DiffChunk chunk = diffChunk(cursorForPosition(e->pos()));
+        revertAction->setEnabled(canRevertDiffChunk(chunk));
+        revertAction->setData(qVariantFromValue(chunk));
+        connect(revertAction, SIGNAL(triggered()), this, SLOT(slotRevertDiffChunk()));
+    }
+        break;
+    default:
+        break;
     }
     menu->exec(e->globalPos());
     delete menu;
@@ -641,6 +678,40 @@ void VCSBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     Core::IEditor *ed = em->openEditor(fileName, QString(), Core::EditorManager::ModeSwitch);
     if (TextEditor::ITextEditor *editor = qobject_cast<TextEditor::ITextEditor *>(ed))
         editor->gotoLine(chunkStart + lineCount);
+}
+
+// cut out chunk and determine file name.
+DiffChunk VCSBaseEditorWidget::diffChunk(QTextCursor cursor) const
+{
+    QTC_ASSERT(d->m_parameters->type == DiffOutput, return DiffChunk(); )
+    DiffChunk rc;
+    // Search back for start of chunk.
+    QTextBlock block = cursor.block();
+    int chunkStart = 0;
+    for ( ; block.isValid() ; block = block.previous()) {
+        if (checkChunkLine(block.text(), &chunkStart)) {
+            break;
+        }
+    }
+    if (!chunkStart || !block.isValid())
+        return rc;
+    rc.fileName = fileNameFromDiffSpecification(block);
+    if (rc.fileName.isEmpty())
+        return rc;
+    // Concatenate chunk and convert
+    QString unicode = block.text();
+    for (block = block.next() ; block.isValid() ; block = block.next()) {
+        const QString line = block.text();
+        if (checkChunkLine(line, &chunkStart)) {
+            break;
+        } else {
+            unicode += line;
+            unicode += QLatin1Char('\n');
+        }
+    }
+    const QTextCodec *cd = textCodec();
+    rc.chunk = cd ? cd->fromUnicode(unicode) : unicode.toLocal8Bit();
+    return rc;
 }
 
 void VCSBaseEditorWidget::setPlainTextData(const QByteArray &data)
@@ -899,6 +970,46 @@ void VCSBaseEditorWidget::slotCopyRevision()
 QStringList VCSBaseEditorWidget::annotationPreviousVersions(const QString &) const
 {
     return QStringList();
+}
+
+bool VCSBaseEditorWidget::isRevertDiffChunkEnabled() const
+{
+    return d->m_revertChunkEnabled;
+}
+
+void VCSBaseEditorWidget::setRevertDiffChunkEnabled(bool e)
+{
+    d->m_revertChunkEnabled = e;
+}
+
+bool VCSBaseEditorWidget::canRevertDiffChunk(const DiffChunk &dc) const
+{
+    if (!isRevertDiffChunkEnabled() || !dc.isValid())
+        return false;
+    const QFileInfo fi(dc.fileName);
+    // Default implementation using patch.exe relies on absolute paths.
+    return fi.isFile() && fi.isAbsolute() && fi.isWritable();
+}
+
+// Default implementation of revert: Revert a chunk by piping it into patch
+// with '-R', assuming we got absolute paths from the VCS plugins.
+bool VCSBaseEditorWidget::revertDiffChunk(const DiffChunk &dc) const
+{
+    return VCSBasePlugin::runPatch(dc.asPatch(), QString(), 0, true);
+}
+
+void VCSBaseEditorWidget::slotRevertDiffChunk()
+{
+    const QAction *a = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(a, return ; )
+    const DiffChunk chunk = qvariant_cast<DiffChunk>(a->data());
+    if (QMessageBox::No == QMessageBox::question(this, tr("Revert Chunk"),
+                                                  tr("Would you like to revert the chunk?"),
+                                                  QMessageBox::Yes|QMessageBox::No))
+        return;
+
+    if (revertDiffChunk(chunk))
+        emit diffChunkReverted(chunk);
 }
 
 } // namespace VCSBase
