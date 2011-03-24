@@ -60,6 +60,29 @@ Rectangle {
 
     }
 
+    // Elapsed
+    property real elapsedTime;
+    signal updateTimer;
+    Timer {
+        property date startDate
+        property bool reset:  true
+        running: connection.recording
+        repeat: true
+        onRunningChanged: if (running) reset = true
+        interval:  100
+        triggeredOnStart: true
+        onTriggered: {
+            if (reset) {
+                startDate = new Date()
+                reset = false
+            }
+            var time = (new Date() - startDate)/1000
+            //elapsed.text = time.toFixed(1) + "s"
+            root.elapsedTime = time.toFixed(1);
+            root.updateTimer();
+        }
+    }
+
     //timeline background
     Item {
         anchors.fill: flick
@@ -244,19 +267,6 @@ Rectangle {
         id: rangeMover
         opacity: 0
         anchors.top: canvas.top
-    }
-
-    Rectangle {
-        width: 50
-        height: 30
-        anchors.right: root.right
-        anchors.top: root.top
-        radius: 4
-        color: "#606085"
-        Elapsed {
-            anchors.centerIn: parent
-            horizontalAlignment: Text.AlignHCenter
-        }
     }
 
 }

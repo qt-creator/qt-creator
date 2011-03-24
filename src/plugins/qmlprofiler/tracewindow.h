@@ -60,10 +60,12 @@ public:
 
 public slots:
     void updateCursorPosition();
+    void updateTimer();
 
 signals:
     void viewUpdated();
     void gotoSourceLocation(const QString &fileName, int lineNumber);
+    void timeChanged(qreal newTime);
 
 private:
     TracePlugin *m_plugin;

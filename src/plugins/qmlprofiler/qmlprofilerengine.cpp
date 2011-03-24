@@ -3,6 +3,9 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilertool.h"
 
+#include <analyzerbase/analyzermanager.h>
+#include <analyzerbase/analyzerconstants.h>
+
 #include <projectexplorer/applicationrunconfiguration.h>
 
 #include <private/qdeclarativedebugclient_p.h>
@@ -83,16 +86,27 @@ void QmlProfilerEngine::stop()
     emit stopRecording();
 }
 
+void QmlProfilerEngine::spontaneousStop()
+{
+    AnalyzerManager::instance()->stopTool();
+}
+
 void QmlProfilerEngine::viewUpdated()
 {
-    d->m_process->terminate();
-    if (!d->m_process->waitForFinished(1000)) {
-        d->m_process->kill();
-        d->m_process->waitForFinished();
+    if (d->m_process) {
+        disconnect(d->m_process,SIGNAL(finished(int)),this,SLOT(spontaneousStop()));
+        if (d->m_process->state() == QProcess::Running) {
+            d->m_process->terminate();
+            if (!d->m_process->waitForFinished(1000)) {
+                d->m_process->kill();
+                d->m_process->waitForFinished();
+            }
+        }
+        delete d->m_process;
+        d->m_process = 0;
     }
 
     emit processTerminated();
-    delete d->m_process;
 }
 
 bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
@@ -113,15 +127,17 @@ bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
 
     m_process->setProcessChannelMode(QProcess::ForwardedChannels);
     m_process->setWorkingDirectory(m_workingDirectory);
+    connect(m_process,SIGNAL(finished(int)),q,SLOT(spontaneousStop()));
     m_process->start(m_executable, arguments);
+
+    // give the process time to start
+    sleep(1);
 
     if (!m_process->waitForStarted()) {
         if (QmlProfilerPlugin::debugOutput)
             qWarning("QmlProfiler: %s failed to start", qPrintable(m_executable));
         return false;
     }
-
-    sleep(1);
 
     if (QmlProfilerPlugin::debugOutput)
         qWarning("QmlProfiler: Connecting to %s:%d", qPrintable(QmlProfilerTool::host), QmlProfilerTool::port);

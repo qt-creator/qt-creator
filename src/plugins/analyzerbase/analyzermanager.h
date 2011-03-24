@@ -96,10 +96,10 @@ public:
 public slots:
     void showStatusMessage(const QString &message, int timeoutMS = 10000);
     void showPermanentStatusMessage(const QString &message);
-
-private slots:
     void startTool();
     void stopTool();
+
+private slots:
     void handleToolFinished();
     void toolSelected(int);
     void toolSelected(QAction *);

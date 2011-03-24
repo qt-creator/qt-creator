@@ -14,15 +14,16 @@ public:
     explicit QmlProfilerEngine(ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerEngine();
 
-    void start();
-    void stop();
-
 signals:
     void processRunning();
     void processTerminated();
     void stopRecording();
 
 public slots:
+    void start();
+    void stop();
+    void spontaneousStop();
+
     void viewUpdated();
 
 private:

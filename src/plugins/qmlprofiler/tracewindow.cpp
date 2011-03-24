@@ -288,12 +288,18 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     m_view->setSource(QUrl("qrc:/qml/MainView.qml"));
 
     connect(m_view->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
+    connect(m_view->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
 }
 
 void TraceWindow::updateCursorPosition()
 {
     emit gotoSourceLocation(m_view->rootObject()->property("fileName").toString(),
                             m_view->rootObject()->property("lineNumber").toInt());
+}
+
+void TraceWindow::updateTimer()
+{
+    emit timeChanged(m_view->rootObject()->property("elapsedTime").toDouble());
 }
 
 void TraceWindow::setRecordAtStart(bool record)

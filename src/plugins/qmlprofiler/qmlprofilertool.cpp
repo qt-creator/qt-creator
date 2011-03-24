@@ -25,12 +25,15 @@
 
 #include <QtCore/QFile>
 
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
+
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;
 
 QString QmlProfilerTool::host = QLatin1String("localhost");
-quint16 QmlProfilerTool::port = 33455;
+quint16 QmlProfilerTool::port = 33456;
 
 
 // Adapter for output pane.
@@ -112,6 +115,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(ProjectExplorer::RunConfiguration
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(viewUpdated()));
     connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
 
     return engine;
 
@@ -142,7 +146,23 @@ IAnalyzerOutputPaneAdapter *QmlProfilerTool::outputPaneAdapter()
 QWidget *QmlProfilerTool::createToolBarWidget()
 {
     // custom toolbar (TODO)
-    return 0;
+    QWidget *toolbarWidget = new QWidget;
+    toolbarWidget->setObjectName(QLatin1String("QmlProfilerToolBarWidget"));
+
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->setMargin(0);
+    layout->setSpacing(0);
+
+    QLabel *timeLabel = new QLabel(tr("elapsed:      0 s"));
+    QPalette palette = timeLabel->palette();
+    palette.setColor(QPalette::WindowText, Qt::white);
+    timeLabel->setPalette(palette);
+
+    connect(this,SIGNAL(setTimeLabel(QString)),timeLabel,SLOT(setText(QString)));
+    layout->addWidget(timeLabel);
+    toolbarWidget->setLayout(layout);
+
+    return toolbarWidget;
 }
 
 QWidget *QmlProfilerTool::createTimeLineWidget()
@@ -202,4 +222,11 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileName, int lineNumber
         textEditor->gotoLine(lineNumber);
         textEditor->widget()->setFocus();
     }
+}
+
+void QmlProfilerTool::updateTimer(qreal elapsedSeconds)
+{
+    QString timeString = QString::number(elapsedSeconds,'f',1);
+    timeString = QString("      ").left(6-timeString.length()) + timeString;
+    emit setTimeLabel(tr("elapsed: ")+timeString+QLatin1String(" s"));
 }
