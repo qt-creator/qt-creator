@@ -114,7 +114,7 @@ RvctToolChain::RvctVersion RvctToolChain::version(const QString &rvctPath)
 
     QProcess armcc;
     const QString binary = rvctPath;
-    armcc.start(binary, QStringList());
+    armcc.start(binary, QStringList() << "--version_number");
     if (!armcc.waitForStarted()) {
         qWarning("Unable to run rvct binary '%s' when trying to determine version.", qPrintable(binary));
         return v;
@@ -131,7 +131,7 @@ RvctToolChain::RvctVersion RvctToolChain::version(const QString &rvctPath)
     }
     QString versionLine = QString::fromLocal8Bit(armcc.readAllStandardOutput());
     versionLine += QString::fromLocal8Bit(armcc.readAllStandardError());
-    const QRegExp versionRegExp(QLatin1String("RVCT(\\d*)\\.(\\d*).*\\[Build.(\\d*)\\]"),
+    const QRegExp versionRegExp(QLatin1String("^(\\d)(\\d)0*([1-9]\\d*)"),
                                 Qt::CaseInsensitive);
     Q_ASSERT(versionRegExp.isValid());
 
