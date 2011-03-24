@@ -46,7 +46,7 @@ class RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
 
 public:
     friend class RemoteGdbProcess;
-    explicit RemotePlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit RemotePlainGdbAdapter(GdbEngine *engine);
 
 private slots:
     void handleGdbStarted();

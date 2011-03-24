@@ -54,8 +54,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-LocalPlainGdbAdapter::LocalPlainGdbAdapter(GdbEngine *engine, QObject *parent)
-    : AbstractPlainGdbAdapter(engine, parent)
+LocalPlainGdbAdapter::LocalPlainGdbAdapter(GdbEngine *engine)
+    : AbstractPlainGdbAdapter(engine)
 {
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),

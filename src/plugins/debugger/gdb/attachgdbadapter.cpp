@@ -55,8 +55,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-AttachGdbAdapter::AttachGdbAdapter(GdbEngine *engine, QObject *parent)
-    : AbstractGdbAdapter(engine, parent)
+AttachGdbAdapter::AttachGdbAdapter(GdbEngine *engine)
+    : AbstractGdbAdapter(engine)
 {
 }
 

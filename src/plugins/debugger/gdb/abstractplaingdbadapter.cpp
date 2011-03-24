@@ -52,9 +52,8 @@ namespace Internal {
     static_cast<GdbEngine::AdapterCallback>(&AbstractPlainGdbAdapter::callback), \
     STRINGIFY(callback)
 
-AbstractPlainGdbAdapter::AbstractPlainGdbAdapter(GdbEngine *engine,
-                                                 QObject *parent)
-    : AbstractGdbAdapter(engine, parent)
+AbstractPlainGdbAdapter::AbstractPlainGdbAdapter(GdbEngine *engine)
+    : AbstractGdbAdapter(engine)
 {
 }
 

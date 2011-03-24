@@ -67,7 +67,7 @@ public:
         DumperLoadedByGdb
     };
 
-    explicit AbstractGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit AbstractGdbAdapter(GdbEngine *engine);
     virtual ~AbstractGdbAdapter();
 
     virtual void write(const QByteArray &data);
@@ -99,6 +99,7 @@ public:
 
 protected:
     DebuggerState state() const;
+    GdbEngine *engine() const { return m_engine; }
     const DebuggerStartParameters &startParameters() const;
     DebuggerStartParameters &startParameters();
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = 1);

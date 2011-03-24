@@ -63,8 +63,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-TermGdbAdapter::TermGdbAdapter(GdbEngine *engine, QObject *parent)
-    : AbstractGdbAdapter(engine, parent)
+TermGdbAdapter::TermGdbAdapter(GdbEngine *engine)
+    : AbstractGdbAdapter(engine)
 {
     m_stubProc.setMode(Utils::ConsoleProcess::Debug);
 #ifdef Q_OS_UNIX

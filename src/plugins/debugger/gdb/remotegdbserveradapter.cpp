@@ -59,11 +59,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine,
-                                               const ProjectExplorer::Abi &abi,
-                                               QObject *parent) :
-    AbstractGdbAdapter(engine, parent),
-    m_abi(abi)
+RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine)
+    : AbstractGdbAdapter(engine)
 {
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(uploadProcError(QProcess::ProcessError)));
@@ -77,9 +74,11 @@ RemoteGdbServerAdapter::RemoteGdbServerAdapter(GdbEngine *engine,
 
 AbstractGdbAdapter::DumperHandling RemoteGdbServerAdapter::dumperHandling() const
 {
-    if (m_abi.os() == ProjectExplorer::Abi::SymbianOS
-            || m_abi.os() == ProjectExplorer::Abi::WindowsOS
-            || m_abi.binaryFormat() == ProjectExplorer::Abi::ElfFormat)
+    using namespace ProjectExplorer;
+    const Abi abi = startParameters().toolChainAbi;
+    if (abi.os() == Abi::SymbianOS
+            || abi.os() == Abi::WindowsOS
+            || abi.binaryFormat() == Abi::ElfFormat)
         return DumperLoadedByGdb;
     return DumperLoadedByGdbPreload;
 }

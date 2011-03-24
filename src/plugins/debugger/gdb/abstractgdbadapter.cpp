@@ -44,8 +44,8 @@
 namespace Debugger {
 namespace Internal {
 
-AbstractGdbAdapter::AbstractGdbAdapter(GdbEngine *engine, QObject *parent)
-  : QObject(parent), m_engine(engine)
+AbstractGdbAdapter::AbstractGdbAdapter(GdbEngine *engine)
+  : m_engine(engine)
 {
 }
 

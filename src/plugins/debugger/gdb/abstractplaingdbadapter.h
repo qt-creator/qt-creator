@@ -45,7 +45,7 @@ class AbstractPlainGdbAdapter : public AbstractGdbAdapter
     Q_OBJECT
 
 public:
-    explicit AbstractPlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit AbstractPlainGdbAdapter(GdbEngine *engine);
 
     virtual void setupInferior();
     void runEngine();

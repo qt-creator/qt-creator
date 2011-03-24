@@ -51,7 +51,7 @@ class AttachGdbAdapter : public AbstractGdbAdapter
     Q_OBJECT
 
 public:
-    explicit AttachGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit AttachGdbAdapter(GdbEngine *engine);
 
 private:
     DumperHandling dumperHandling() const { return DumperLoadedByGdb; }

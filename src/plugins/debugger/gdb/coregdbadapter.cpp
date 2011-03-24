@@ -65,8 +65,8 @@ static QByteArray coreName(const DebuggerStartParameters &sp)
     return fi.absoluteFilePath().toLocal8Bit();
 }
 
-CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine, QObject *parent)
-  : AbstractGdbAdapter(engine, parent),
+CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine)
+  : AbstractGdbAdapter(engine),
     m_executable(startParameters().executable),
     m_coreName(coreName(startParameters()))
 {}

@@ -52,7 +52,7 @@ class LocalPlainGdbAdapter : public AbstractPlainGdbAdapter
     Q_OBJECT
 
 public:
-    explicit LocalPlainGdbAdapter(GdbEngine *engine, QObject *parent = 0);
+    explicit LocalPlainGdbAdapter(GdbEngine *engine);
 
 private:
     void startAdapter();

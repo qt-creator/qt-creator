@@ -1832,7 +1832,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     case AttachCore:
         return new CoreGdbAdapter(this);
     case AttachToRemote:
-        return new RemoteGdbServerAdapter(this, sp.toolChainAbi);
+        return new RemoteGdbServerAdapter(this);
     case StartRemoteGdb:
         return new RemotePlainGdbAdapter(this);
     case AttachExternal:
