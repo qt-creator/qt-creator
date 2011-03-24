@@ -2112,14 +2112,7 @@ void ProjectExplorerPlugin::openRecentProject()
         return;
     QString fileName = a->data().toString();
     if (!fileName.isEmpty()) {
-        if (!openProject(fileName)) {
-            QMessageBox box(QMessageBox::Warning,
-                            tr("Failed to open project"),
-                            tr("Failed to open project:\n%1").arg(fileName),
-                            QMessageBox::Ok,
-                            Core::ICore::instance()->mainWindow());
-            box.exec();
-        }
+        openProject(fileName);
     }
 }
 
