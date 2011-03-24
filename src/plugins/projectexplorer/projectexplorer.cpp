@@ -1181,6 +1181,7 @@ bool ProjectExplorerPlugin::openProject(const QString &fileName)
     QList<Project *> list = openProjects(QStringList() << fileName);
     if (!list.isEmpty()) {
         addToRecentProjects(fileName, list.first()->displayName());
+        d->m_session->setStartupProject(list.first());
         return true;
     }
     return false;
