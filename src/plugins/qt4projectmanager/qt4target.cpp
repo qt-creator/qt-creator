@@ -492,7 +492,7 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     }
     BuildConfigurationInfo info = BuildConfigurationInfo::checkForBuild(m_importLinePath->path(), m_proFilePath);
     if (!info.isValid()) {
-        QMessageBox::critical(Core::ICore::instance()->mainWindow(),
+        QMessageBox::critical(this,
                               tr("No build found"),
                               tr("No Build found in %1 matching project %2.").arg(m_importLinePath->path()).arg(m_proFilePath));
         return;
