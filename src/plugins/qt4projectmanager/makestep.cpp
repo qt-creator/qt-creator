@@ -43,6 +43,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcprocess.h>
 
@@ -129,6 +130,14 @@ bool MakeStep::fromMap(const QVariantMap &map)
 bool MakeStep::init()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+
+    if (!bc->toolChain()) {
+        m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
+                                             tr("Qt Creator needs a tool chain set up to build. Please configure a tool chain in Project mode."),
+                                             QString(), -1,
+                                             QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    }
+
     ProjectExplorer::ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
 
@@ -204,6 +213,20 @@ void MakeStep::run(QFutureInterface<bool> & fi)
         fi.reportResult(true);
         return;
     }
+
+    // Warn on common error conditions:
+    bool canContinue = true;
+    foreach (const ProjectExplorer::Task &t, m_tasks) {
+        addTask(t);
+        if (t.type == ProjectExplorer::Task::Error)
+            canContinue = false;
+    }
+    if (!canContinue) {
+        emit addOutput(tr("Configuration is faulty, please check the Build Issues view for details."), BuildStep::MessageOutput);
+        fi.reportResult(false);
+        return;
+    }
+
 
     AbstractProcessStep::run(fi);
 }

@@ -36,6 +36,7 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/task.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -116,6 +117,7 @@ private:
     bool m_clean;
     QString m_userArgs;
     QString m_makeCmd;
+    QList<ProjectExplorer::Task> m_tasks;
 };
 
 class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
