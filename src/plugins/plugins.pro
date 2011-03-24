@@ -44,8 +44,7 @@ SUBDIRS   = plugin_coreplugin \
 
 !win32 {
      SUBDIRS += plugin_valgrindtoolbase \
-                plugin_memcheck \
-		plugin_qmlprofiler
+                plugin_memcheck
 }
 
 linux-* {
@@ -64,6 +63,7 @@ contains(QT_CONFIG, declarative) {
 
         minQtVersion(4, 7, 1) {
             SUBDIRS += plugin_qmldesigner
+	    !win32:SUBDIRS += plugin_qmlprofiler
         } else {
             warning()
             warning("QmlDesigner plugin has been disabled.")
@@ -262,11 +262,11 @@ plugin_analyzerbase.depends += plugin_projectexplorer
     plugin_memcheck.depends = plugin_coreplugin
     plugin_memcheck.depends += plugin_analyzerbase
     plugin_memcheck.depends += plugin_valgrindtoolbase
-}
 
-plugin_qmlprofiler.subdir = qmlprofiler
-plugin_qmlprofiler.depends = plugin_coreplugin
-plugin_qmlprofiler.depends = plugin_analyzerbase
+    plugin_qmlprofiler.subdir = qmlprofiler
+    plugin_qmlprofiler.depends = plugin_coreplugin
+    plugin_qmlprofiler.depends = plugin_analyzerbase
+}
 
 plugin_qmljstools.subdir = qmljstools
 plugin_qmljstools.depends = plugin_projectexplorer
