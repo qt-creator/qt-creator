@@ -112,12 +112,17 @@ GroupBox {
 
             backendColor: backendValues.border_color
 
-            property variant backendColorValue: backendValues.border_color.vlaue
+            property bool backendColorValue: backendValues.border_color.isInModel
             enabled: isBaseState || hasBorder
 
             onBackendColorValueChanged: {
-                if (backendValues.border_color.isInModel)
+                if (backendValues.border_color.isInModel) {
+                    borderColorBox.setSolidButtonChecked = true;
+                    hasBorder = true;
+                } else {
                     borderColorBox.setNoneButtonChecked = true;
+                    hasBorder = false;
+                }
             }
 
             onNoneButtonCheckedChanged: {
