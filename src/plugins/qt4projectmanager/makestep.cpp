@@ -131,6 +131,7 @@ bool MakeStep::init()
 {
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
 
+    m_tasks.clear();
     if (!bc->toolChain()) {
         m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                              tr("Qt Creator needs a tool chain set up to build. Please configure a tool chain in Project mode."),
