@@ -66,6 +66,13 @@ public:
         bool isNull() { return majorVersion == 0 && minorVersion == 0 && build == 0; }
         void reset() { majorVersion = 0; minorVersion = 0; build = 0; }
 
+        bool operator ==(const RvctVersion &other) const
+        {
+            return majorVersion == other.majorVersion
+                    && minorVersion == other.minorVersion
+                    && build == other.build;
+        }
+
         int majorVersion;
         int minorVersion;
         int build;
@@ -101,8 +108,6 @@ public:
     void setArmVersion(ArmVersion);
     ArmVersion armVersion() const;
 
-    void setVersion(const RvctVersion &v) const;
-
     ProjectExplorer::ToolChainConfigWidget *configurationWidget();
     ProjectExplorer::ToolChain *clone() const;
 
@@ -111,6 +116,7 @@ public:
 
 private:
     void updateId();
+    void setVersion(const RvctVersion &v) const;
 
     explicit RvctToolChain(bool autodetected = false);
     RvctToolChain(const RvctToolChain &);

@@ -435,7 +435,10 @@ QString MsvcToolChain::makeCommand() const
 
 void MsvcToolChain::setDebuggerCommand(const QString &d)
 {
+    if (m_debuggerCommand == d)
+        return;
     m_debuggerCommand = d;
+    toolChainUpdated();
 }
 
 QString MsvcToolChain::debuggerCommand() const

@@ -78,6 +78,8 @@ signals:
     void toolChainAdded(ProjectExplorer::ToolChain *);
     // Tool chain is still valid when this call happens!
     void toolChainRemoved(ProjectExplorer::ToolChain *);
+    // Tool chain was updated.
+    void toolChainUpdated(ProjectExplorer::ToolChain *);
 
 private:
     explicit ToolChainManager(QObject *parent = 0);
@@ -87,12 +89,15 @@ private:
     void restoreToolChains();
     void restoreToolChains(const QString &fileName, bool autoDetected = false);
 
+    void notifyAboutUpdate(ProjectExplorer::ToolChain *);
+
 
     Internal::ToolChainManagerPrivate *const m_d;
 
     static ToolChainManager *m_instance;
 
     friend class ProjectExplorerPlugin;
+    friend class ToolChain;
 };
 
 } // namespace ProjectExplorer

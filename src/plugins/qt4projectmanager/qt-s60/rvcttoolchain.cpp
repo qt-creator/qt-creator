@@ -248,7 +248,10 @@ bool RvctToolChain::operator ==(const ToolChain &other) const
 
 void RvctToolChain::setEnvironmentChanges(const QList<Utils::EnvironmentItem> &changes)
 {
+    if (m_environmentChanges == changes)
+        return;
     m_environmentChanges = changes;
+    toolChainUpdated();
 }
 
 QList<Utils::EnvironmentItem> RvctToolChain::environmentChanges() const
@@ -263,7 +266,7 @@ void RvctToolChain::setCompilerPath(const QString &path)
 
     m_compilerPath = path;
     m_version.reset();
-    updateId();
+    updateId(); // Will trigger toolChainUpdated()!
 }
 
 QString RvctToolChain::compilerPath() const
@@ -273,7 +276,10 @@ QString RvctToolChain::compilerPath() const
 
 void RvctToolChain::setDebuggerCommand(const QString &d)
 {
+    if (m_debuggerCommand == d)
+        return;
     m_debuggerCommand = d;
+    toolChainUpdated();
 }
 
 QString RvctToolChain::debuggerCommand() const
@@ -283,7 +289,10 @@ QString RvctToolChain::debuggerCommand() const
 
 void RvctToolChain::setArmVersion(RvctToolChain::ArmVersion av)
 {
+    if (m_armVersion == av)
+        return;
     m_armVersion = av;
+    toolChainUpdated();
 }
 
 RvctToolChain::ArmVersion RvctToolChain::armVersion() const
@@ -293,7 +302,10 @@ RvctToolChain::ArmVersion RvctToolChain::armVersion() const
 
 void RvctToolChain::setVersion(const RvctVersion &v) const
 {
+    if (m_version == v)
+        return;
     m_version = v;
+    // Internal use only! No need to call toolChainUpdated()!
 }
 
 ProjectExplorer::ToolChainConfigWidget *RvctToolChain::configurationWidget()

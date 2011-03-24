@@ -67,7 +67,7 @@ public:
     virtual ~ToolChain();
 
     QString displayName() const;
-    void setDisplayName(const QString &name) const;
+    void setDisplayName(const QString &name);
 
     bool isAutoDetected() const;
     QString id() const;
@@ -105,6 +105,8 @@ protected:
     explicit ToolChain(const ToolChain &);
 
     void setId(const QString &id);
+
+    void toolChainUpdated();
 
     // Make sure to call this method when deriving!
     virtual bool fromMap(const QVariantMap &data);

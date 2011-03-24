@@ -250,7 +250,10 @@ bool WinscwToolChain::fromMap(const QVariantMap &data)
 
 void WinscwToolChain::setSystemIncludePathes(const QStringList &pathes)
 {
+    if (m_systemIncludePathes == pathes)
+        return;
     m_systemIncludePathes = pathes;
+    toolChainUpdated();
 }
 
 QStringList WinscwToolChain::systemIncludePathes() const
@@ -260,7 +263,10 @@ QStringList WinscwToolChain::systemIncludePathes() const
 
 void WinscwToolChain::setSystemLibraryPathes(const QStringList &pathes)
 {
+    if (m_systemLibraryPathes == pathes)
+        return;
     m_systemLibraryPathes = pathes;
+    toolChainUpdated();
 }
 
 QStringList WinscwToolChain::systemLibraryPathes() const
@@ -274,7 +280,7 @@ void WinscwToolChain::setCompilerPath(const QString &path)
         return;
 
     m_compilerPath = path;
-    updateId();
+    updateId(); // Will trigger topolChainUpdated()!
 }
 
 QString WinscwToolChain::compilerPath() const

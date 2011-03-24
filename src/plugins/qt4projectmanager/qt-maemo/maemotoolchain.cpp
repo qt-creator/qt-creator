@@ -171,7 +171,7 @@ void MaemoToolChain::setQtVersionId(int id)
     if (id < 0) {
         m_targetAbi = ProjectExplorer::Abi();
         m_qtVersionId = -1;
-        updateId();
+        updateId(); // Will trigger toolChainUpdated()!
         return;
     }
 
@@ -192,7 +192,7 @@ void MaemoToolChain::setQtVersionId(int id)
     Q_ASSERT(version->qtAbis().count() == 1);
     m_targetAbi = version->qtAbis().at(0);
 
-    updateId();
+    updateId(); // Will trigger toolChainUpdated()!
     setDisplayName(MaemoToolChainFactory::tr("Maemo GCC for %1").arg(version->displayName()));
 }
 
