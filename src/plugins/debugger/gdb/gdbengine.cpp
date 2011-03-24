@@ -1003,15 +1003,13 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         //  (response->resultClass == GdbResultDone && (cmd.flags & RunRequest));
 
     if (!isExpectedResult) {
-#ifdef Q_OS_WIN
-        // Ignore spurious 'running' responses to 'attach'
-        const bool warning = !((startParameters().startMode == AttachExternal
-                               || startParameters().useTerminal)
-                               && cmd.command.startsWith("attach"));
-#else
-        const bool warning = true;
-#endif
-        if (warning) {
+        const DebuggerStartParameters &sp = startParameters();
+        if (sp.toolChainAbi.os() == Abi::WindowsOS
+            && cmd.command.startsWith("attach")
+            && (sp.startMode == AttachExternal || sp.useTerminal))
+        {
+            // Ignore spurious 'running' responses to 'attach'.
+        } else {
             QByteArray rsp = GdbResponse::stringFromResultClass(response->resultClass);
             rsp = "UNEXPECTED RESPONSE '" + rsp + "' TO COMMAND '" + cmd.command + "'";
             qWarning() << rsp << " AT " __FILE__ ":" STRINGIFY(__LINE__);
@@ -1194,14 +1192,6 @@ void GdbEngine::handleAqcuiredInferior()
 }
 #endif
 
-#ifdef Q_OS_UNIX
-# define STOP_SIGNAL "SIGINT"
-# define CROSS_STOP_SIGNAL "SIGTRAP"
-#else
-# define STOP_SIGNAL "SIGTRAP"
-# define CROSS_STOP_SIGNAL "SIGINT"
-#endif
-
 void GdbEngine::handleStopResponse(const GdbMi &data)
 {
     // This is gdb 7+'s initial *stopped in response to attach.
@@ -1307,9 +1297,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         notifyInferiorStopOk();
     }
 
-    // FIXME: Replace the #ifdef by the "target" architecture.
-#ifdef Q_OS_LINUX
-    if (!m_entryPoint.isEmpty()) {
+    if (startParameters().toolChainAbi.os() == Abi::LinuxOS && !m_entryPoint.isEmpty()) {
         // This is needed as long as we support stock gdb 6.8.
         if (frame.findChild("addr").data() == m_entryPoint) {
             // There are two expected reasons for getting here:
@@ -1330,14 +1318,16 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // We are past the initial stop(s). No need to waste time on further checks.
         m_entryPoint.clear();
     }
-#endif
-
-    //qDebug() << "STOP: " << m_qmlBreakpointNumbers;
 
     if (isQmlStepBreakpoint1(bkptno))
         return;
 
     handleStop0(data);
+}
+
+static QByteArray stopSignal(Abi abi)
+{
+    return (abi.os() == Abi::WindowsOS) ? QByteArray("SIGTRAP") : QByteArray("SIGINT");
 }
 
 void GdbEngine::handleStop0(const GdbMi &data)
@@ -1435,10 +1425,9 @@ void GdbEngine::handleStop0(const GdbMi &data)
     if (initHelpers
             && m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperLoadedByGdbPreload
             && reason == "signal-received") {
-        QByteArray name = data.findChild("signal-name").data();
-        if (name != STOP_SIGNAL
-            && (startParameters().startMode != AttachToRemote
-                || name != CROSS_STOP_SIGNAL))
+        const QByteArray name = data.findChild("signal-name").data();
+        const DebuggerStartParameters &sp = startParameters();
+        if (name != stopSignal(sp.toolChainAbi))
             initHelpers = false;
     }
     if (isSynchronous())
@@ -1467,17 +1456,20 @@ void GdbEngine::handleStop1(const GdbMi &data)
         return;
     }
 
-    QByteArray reason = data.findChild("reason").data();
+    const QByteArray reason = data.findChild("reason").data();
+    const DebuggerStartParameters &sp = startParameters();
+    const Abi abi = sp.toolChainAbi;
 
-#ifdef Q_OS_WIN
-    if (startParameters().useTerminal && reason == "signal-received"
-        && data.findChild("signal-name").data() == "SIGTRAP") {
+    if (abi.os() == Abi::WindowsOS
+            && sp.useTerminal
+            && reason == "signal-received"
+            && data.findChild("signal-name").data() == "SIGTRAP")
+    {
         // Command line start up trap
         showMessage(_("INTERNAL CONTINUE"), LogMisc);
         continueInferiorInternal();
         return;
     }
-#endif
 
     // This is for display only.
     if (m_modulesListOutdated)
@@ -1528,11 +1520,8 @@ void GdbEngine::handleStop1(const GdbMi &data)
             QByteArray meaning = data.findChild("signal-meaning").data();
             // Ignore these as they are showing up regularly when
             // stopping debugging.
-            if (name == STOP_SIGNAL) {
-                showMessage(_(STOP_SIGNAL " CONSIDERED HARMLESS. CONTINUING."));
-            } else if (startParameters().startMode == AttachToRemote
-                    && name == CROSS_STOP_SIGNAL) {
-                showMessage(_(CROSS_STOP_SIGNAL " CONSIDERED HARMLESS. CONTINUING."));
+            if (name == stopSignal(sp.toolChainAbi)) {
+                showMessage(_(name + " CONSIDERED HARMLESS. CONTINUING."));
             } else {
                 showMessage(_("HANDLING SIGNAL" + name));
                 if (debuggerCore()->boolSetting(UseMessageBoxForSignals))
@@ -1640,20 +1629,19 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
 void GdbEngine::pythonDumpersFailed()
 {
     m_hasPython = false;
-    if (m_gdbAdapter->dumperHandling()
-                == AbstractGdbAdapter::DumperLoadedByGdbPreload
+    const DebuggerStartParameters &sp = startParameters();
+    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperLoadedByGdbPreload
             && checkDebuggingHelpersClassic()) {
-#ifdef Q_OS_MAC
-        const char * const LD_PRELOAD_ENV_VAR = "DYLD_INSERT_LIBRARIES";
-#else
-        const char * const LD_PRELOAD_ENV_VAR = "LD_PRELOAD";
-#endif
         QByteArray cmd = "set environment ";
-        cmd += LD_PRELOAD_ENV_VAR;
+        if (sp.toolChainAbi.os() == Abi::MacOS)
+            cmd += "DYLD_INSERT_LIBRARIES";
+        else
+            cmd += "LD_PRELOAD";
         cmd += ' ';
-        cmd += startParameters().startMode == StartRemoteGdb
-           ? startParameters().remoteDumperLib
-           : qtDumperLibraryName().toLocal8Bit();
+        if (sp.startMode == StartRemoteGdb)
+            cmd += sp.remoteDumperLib;
+        else
+            cmd += qtDumperLibraryName().toLocal8Bit();
         postCommand(cmd);
         m_debuggingHelperState = DebuggingHelperLoadTried;
     }
@@ -1704,14 +1692,16 @@ QString GdbEngine::fullName(const QString &fileName)
 QString GdbEngine::cleanupFullName(const QString &fileName)
 {
     QString cleanFilePath = fileName;
-#ifdef Q_OS_WIN
-    QTC_ASSERT(!fileName.isEmpty(), return QString())
-    // Gdb on windows often delivers "fullnames" which
-    // (a) have no drive letter and (b) are not normalized.
-    QFileInfo fi(fileName);
-    if (fi.isReadable())
-        cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
-#endif
+
+    const Abi abi = startParameters().toolChainAbi;
+    if (abi.os() == Abi::WindowsOS) {
+        QTC_ASSERT(!fileName.isEmpty(), return QString())
+        // Gdb on windows often delivers "fullnames" which
+        // (a) have no drive letter and (b) are not normalized.
+        QFileInfo fi(fileName);
+        if (fi.isReadable())
+            cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
+    }
     if (startMode() == StartRemoteGdb) {
         cleanFilePath.replace(0, startParameters().remoteMountPoint.length(),
             startParameters().localMountDir);
@@ -1821,7 +1811,7 @@ int GdbEngine::currentFrame() const
     return stackHandler()->currentIndex();
 }
 
-QString msgNoGdbBinaryForToolChain(const ProjectExplorer::Abi &tc)
+QString msgNoGdbBinaryForToolChain(const Abi &tc)
 {
     return GdbEngine::tr("There is no gdb binary available for binaries in format '%1'")
         .arg(tc.toString());
@@ -1830,7 +1820,7 @@ QString msgNoGdbBinaryForToolChain(const ProjectExplorer::Abi &tc)
 AbstractGdbAdapter *GdbEngine::createAdapter()
 {
     const DebuggerStartParameters &sp = startParameters();
-    if (sp.toolChainAbi.os() == ProjectExplorer::Abi::SymbianOS) {
+    if (sp.toolChainAbi.os() == Abi::SymbianOS) {
         // FIXME: 1 of 3 testing hacks.
         if (sp.debugClient == DebuggerStartParameters::DebugClientCoda)
             return new CodaGdbAdapter(this);
@@ -2259,13 +2249,10 @@ QByteArray GdbEngine::breakpointLocation(BreakpointId id)
         return "__cxa_throw";
     if (data.type == BreakpointAtCatch)
         return "__cxa_begin_catch";
-    if (data.type == BreakpointAtMain)
-#ifdef Q_OS_WIN
-        // FIXME: Should be target specific.
-        return "qMain";
-#else
-        return "main";
-#endif
+    if (data.type == BreakpointAtMain) {
+        const Abi abi = startParameters().toolChainAbi;
+        return (abi.os() == Abi::WindowsOS) ? "qMain" : "main";
+    }
     if (data.type == BreakpointByFunction)
         return data.functionName.toUtf8();
     if (data.type == BreakpointByAddress)
@@ -2944,7 +2931,7 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
     Modules modules;
     if (response.resultClass == GdbResultDone) {
         // That's console-based output, likely Linux or Windows,
-        // but we can avoid the #ifdef here.
+        // but we can avoid the target dependency here.
         QString data = QString::fromLocal8Bit(
             response.data.findChild("consolestreamoutput").data());
         QTextStream ts(&data, QIODevice::ReadOnly);
@@ -4309,14 +4296,9 @@ static QString gdbBinary(const DebuggerStartParameters &sp)
         return QString::fromLocal8Bit(envBinary);
     // 2) Command explicitly specified.
     if (!sp.debuggerCommand.isEmpty()) {
-#ifdef Q_OS_WIN
         // Do not use a CDB binary if we got started for a project with MSVC runtime.
-        const bool abiMatch = sp.toolChainAbi.os() != ProjectExplorer::Abi::WindowsOS
-                || sp.toolChainAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor;
-#else
-        const bool abiMatch = true;
-#endif
-        if (abiMatch)
+        const Abi abi = sp.toolChainAbi;
+        if (abi.os() != Abi::WindowsOS || abi.osFlavor() == Abi::WindowsMSysFlavor)
             return sp.debuggerCommand;
     }
     // 3) Find one from tool chains.
@@ -4328,20 +4310,18 @@ bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
     const QString binary = gdbBinary(sp);
     if (gdbBinary(sp).isEmpty()) {
         check->errorDetails.push_back(msgNoGdbBinaryForToolChain(sp.toolChainAbi));
-        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
-        check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsCategory = _(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsPage = _(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
         return false;
     }
-#ifdef Q_OS_WIN
+    if (sp.toolChainAbi.os() == Abi::WindowsOS &&  !QFileInfo(binary).isAbsolute()) {
     // See initialization below, we need an absolute path to be able to locate Python on Windows.
-    if (!QFileInfo(binary).isAbsolute()) {
         check->errorDetails.push_back(GdbEngine::tr("The gdb location must be given as an "
-                                                    "absolute path in the debugger settings (%1).").arg(binary));
-        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
-        check->settingsPage = QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+                "absolute path in the debugger settings (%1).").arg(binary));
+        check->settingsCategory = _(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
+        check->settingsPage = _(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_CATEGORY);
         return false;
     }
-#endif
     return true;
 }
 
@@ -4368,46 +4348,46 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
         gdbArgs << _("-n");
     gdbArgs += args;
 
-#ifdef Q_OS_WIN
-    // Set python path. By convention, python is located below gdb executable.
-    // Extend the environment set on the process in startAdapter().
-    const QFileInfo fi(m_gdb);
-    QTC_ASSERT(fi.isAbsolute(), return false; )
+    if (sp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
+        // Set python path. By convention, python is located below gdb executable.
+        // Extend the environment set on the process in startAdapter().
+        const QFileInfo fi(m_gdb);
+        QTC_ASSERT(fi.isAbsolute(), return false; )
 
-    const QString winPythonVersion = _(winPythonVersionC);
-    const QDir dir = fi.absoluteDir();
+        const QString winPythonVersion = _(winPythonVersionC);
+        const QDir dir = fi.absoluteDir();
 
-    QProcessEnvironment environment = gdbProc()->processEnvironment();
-    const QString pythonPathVariable = _("PYTHONPATH");
-    QString pythonPath;
+        QProcessEnvironment environment = gdbProc()->processEnvironment();
+        const QString pythonPathVariable = _("PYTHONPATH");
+        QString pythonPath;
 
-    const QString environmentPythonPath = environment.value(pythonPathVariable);
-    if (dir.exists(winPythonVersion)) {
-        pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
-    } else if (dir.exists(_("lib"))) {
-        // Needed for our gdb 7.2 packages
-        pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(_("lib")));
-    } else {
-        pythonPath = environmentPythonPath;
+        const QString environmentPythonPath = environment.value(pythonPathVariable);
+        if (dir.exists(winPythonVersion)) {
+            pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
+        } else if (dir.exists(_("lib"))) {
+            // Needed for our gdb 7.2 packages
+            pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(_("lib")));
+        } else {
+            pythonPath = environmentPythonPath;
+        }
+        if (pythonPath.isEmpty()) {
+            const QString nativeGdb = QDir::toNativeSeparators(m_gdb);
+            showMessage(_("GDB %1 CANNOT FIND THE PYTHON INSTALLATION.").arg(nativeGdb));
+            showStatusMessage(_("%1 cannot find python").arg(nativeGdb));
+            const QString msg = tr("The gdb installed at %1 cannot "
+               "find a valid python installation in its %2 subdirectory.\n"
+               "You may set the environment variable PYTHONPATH to point to your installation.")
+                    .arg(nativeGdb).arg(winPythonVersion);
+            handleAdapterStartFailed(msg, settingsIdHint);
+            return false;
+        }
+        showMessage(_("Python path: %1").arg(pythonPath), LogMisc);
+        // Apply to process
+        if (pythonPath != environmentPythonPath) {
+            environment.insert(pythonPathVariable, pythonPath);
+            gdbProc()->setProcessEnvironment(environment);
+        }
     }
-    if (pythonPath.isEmpty()) {
-        const QString nativeGdb = QDir::toNativeSeparators(m_gdb);
-        showMessage(_("GDB %1 CANNOT FIND THE PYTHON INSTALLATION.").arg(nativeGdb));
-        showStatusMessage(_("%1 cannot find python").arg(nativeGdb));
-        const QString msg = tr("The gdb installed at %1 cannot "
-           "find a valid python installation in its %2 subdirectory.\n"
-           "You may set the environment variable PYTHONPATH to point to your installation.")
-                .arg(nativeGdb).arg(winPythonVersion);
-        handleAdapterStartFailed(msg, settingsIdHint);
-        return false;
-    }
-    showMessage(_("Python path: %1").arg(pythonPath), LogMisc);
-    // Apply to process
-    if (pythonPath != environmentPythonPath) {
-        environment.insert(pythonPathVariable, pythonPath);
-        gdbProc()->setProcessEnvironment(environment);
-    }
-#endif
 
     connect(gdbProc(), SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleGdbError(QProcess::ProcessError)));
