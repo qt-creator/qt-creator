@@ -550,7 +550,9 @@ std::string gdbmiRegisters(CIDebugRegisters *regs,
     return str.str();
 }
 
-std::string memoryToBase64(CIDebugDataSpaces *ds, ULONG64 address, ULONG length, std::string *errorMessage)
+// Read memory and return allocated array
+unsigned char *readMemory(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
+                          std::string *errorMessage = 0)
 {
     unsigned char *buffer = new unsigned char[length];
     std::fill(buffer, buffer + length, 0);
@@ -558,22 +560,43 @@ std::string memoryToBase64(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
     const HRESULT hr = ds->ReadVirtual(address, buffer, length, &received);
     if (FAILED(hr)) {
         delete [] buffer;
-        std::ostringstream estr;
-        estr << "Cannot read " << length << " bytes from " << address << ": "
-                << msgDebugEngineComFailed("ReadVirtual", hr);
-        *errorMessage = estr.str();
-        return std::string();
+        if (errorMessage) {
+            std::ostringstream estr;
+            estr << "Cannot read " << length << " bytes from " << address << ": "
+                 << msgDebugEngineComFailed("ReadVirtual", hr);
+            *errorMessage = estr.str();
+        }
+        return 0;
     }
-    if (received < length) {
+    if (received < length && errorMessage) {
         std::ostringstream estr;
         estr << "Warning: Received only " << received << " bytes of " << length << " requested at " << address << '.';
         *errorMessage = estr.str();
     }
+    return buffer;
+}
 
-    std::ostringstream str;
-    base64Encode(str, buffer, length);
-    delete [] buffer;
-    return str.str();
+std::string memoryToBase64(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
+                           std::string *errorMessage /* = 0 */)
+{
+    if (const unsigned char *buffer = readMemory(ds, address, length, errorMessage)) {
+        std::ostringstream str;
+        base64Encode(str, buffer, length);
+        delete [] buffer;
+        return str.str();
+    }
+    return std::string();
+}
+
+std::wstring memoryToHexW(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
+                          std::string *errorMessage /* = 0 */)
+{
+    if (const unsigned char *buffer = readMemory(ds, address, length, errorMessage)) {
+        const std::wstring hex = dataToHexW(buffer, buffer + length);
+        delete [] buffer;
+        return hex;
+    }
+    return std::wstring();
 }
 
 // Format stack as GDBMI
@@ -676,13 +699,29 @@ static inline void formatGdbmiFlag(std::ostream &str, const char *name, bool v)
     str << name << "=\"" << (v ? "true" : "false") << '"';
 }
 
+std::pair<ULONG64, ULONG> breakPointMemoryRange(IDebugBreakpoint *bp)
+{
+    // Get address. Can fail for deferred breakpoints.
+    std::pair<ULONG64, ULONG> result = std::pair<ULONG64, ULONG>(0, 0);
+    if (FAILED(bp->GetOffset(&result.first)) || result.first == 0)
+        return result;
+    // Fill 'size' only for data breakpoints
+    ULONG breakType = DEBUG_BREAKPOINT_CODE;
+    ULONG cpuType = 0;
+    if (FAILED(bp->GetType(&breakType, &cpuType)) || breakType != DEBUG_BREAKPOINT_DATA)
+        return result;
+    ULONG accessType = 0;
+    bp->GetDataParameters(&result.second, &accessType);
+    return result;
+}
+
 static bool gdbmiFormatBreakpoint(std::ostream &str,
                                   IDebugBreakpoint *bp,
                                   CIDebugSymbols *symbols  /* = 0 */,
+                                  CIDebugDataSpaces *dataSpaces /* = 0 */,
                                   unsigned verbose, std::string *errorMessage)
 {
     enum { BufSize = 512 };
-    ULONG64 offset = 0;
     ULONG flags = 0;
     ULONG id = 0;
     if (SUCCEEDED(bp->GetId(&id)))
@@ -706,15 +745,26 @@ static bool gdbmiFormatBreakpoint(std::ostream &str,
             str << ",passcount=\"" << passCount << '"';
     }
     // Offset: Fails for deferred ones
-    if (!deferred && SUCCEEDED(bp->GetOffset(&offset))) {
-        str << ",address=\"" << std::hex << std::showbase << offset
-            << std::dec << std::noshowbase << '"';
-        if (symbols) {
-            const std::string module = moduleNameByOffset(symbols, offset);
-            if (!module.empty())
-                str << ",module=\"" << module << '"';
-        }
-    }
+    if (!deferred) {
+        const std::pair<ULONG64, ULONG> memoryRange = breakPointMemoryRange(bp);
+        if (memoryRange.first) {
+            str << ",address=\"" << std::hex << std::showbase << memoryRange.first
+                << std::dec << std::noshowbase << '"';
+            // Resolve module to be specified in next run for speed-up.
+            if (symbols) {
+                const std::string module = moduleNameByOffset(symbols, memoryRange.first);
+                if (!module.empty())
+                    str << ",module=\"" << module << '"';
+            } // symbols
+            // Report the memory of watchpoints for comparing bitfields
+            if (dataSpaces && memoryRange.second > 0) {
+                str << ",size=\"" << memoryRange.second << '"';
+                const std::wstring memoryHex = memoryToHexW(dataSpaces, memoryRange.first, memoryRange.second);
+                if (!memoryHex.empty())
+                    str << ",memory=\"" << gdbmiWStringFormat(memoryHex) << '"';
+            }
+        } // Got address
+    } // !deferred
     // Expression
     if (verbose > 1) {
         char buf[BufSize];
@@ -727,6 +777,7 @@ static bool gdbmiFormatBreakpoint(std::ostream &str,
 // Format breakpoints as GDBMI
 std::string gdbmiBreakpoints(CIDebugControl *ctrl,
                              CIDebugSymbols *symbols /* = 0 */,
+                             CIDebugDataSpaces *dataSpaces /* = 0 */,
                              bool humanReadable, unsigned verbose, std::string *errorMessage)
 {
     ULONG breakPointCount = 0;
@@ -747,7 +798,7 @@ std::string gdbmiBreakpoints(CIDebugControl *ctrl,
             *errorMessage = msgDebugEngineComFailed("GetBreakpointByIndex", hr);
             return std::string();
         }
-        if (!gdbmiFormatBreakpoint(str, bp, symbols, verbose, errorMessage))
+        if (!gdbmiFormatBreakpoint(str, bp, symbols, dataSpaces, verbose, errorMessage))
             return std::string();
         str << '}';
         if (humanReadable)

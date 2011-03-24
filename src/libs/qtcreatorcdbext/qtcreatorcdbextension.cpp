@@ -1043,7 +1043,8 @@ extern "C" HRESULT CALLBACK breakpoints(CIDebugClient *client, PCSTR argsIn)
         }
         tokens.pop_front();
     }
-    const std::string bp = gdbmiBreakpoints(exc.control(), exc.symbols(), humanReadable, verbose, &errorMessage);
+    const std::string bp = gdbmiBreakpoints(exc.control(), exc.symbols(), exc.dataSpaces(),
+                                            humanReadable, verbose, &errorMessage);
     if (bp.empty()) {
         ExtensionContext::instance().report('N', token, 0, "breakpoints", errorMessage.c_str());
     } else {

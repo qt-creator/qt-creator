@@ -107,6 +107,8 @@ public:
     // Execute a function call and record the output.
     bool call(const std::string &functionCall, std::wstring *output, std::string *errorMessage);
 
+    CIDebugClient *hookedClient() const { return m_hookedClient; }
+
 private:
     bool isInitialized() const;
 

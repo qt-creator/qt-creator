@@ -50,6 +50,8 @@ enum { winExceptionCppException = 0xe06d7363,
        winExceptionAppInitFailed = 0xc0000143
 };
 
+typedef ExtensionContext::StopReasonMap StopReasonMap;
+
 /*!
     \class IDebugEventCallbacks
 
@@ -109,20 +111,41 @@ STDMETHODIMP EventCallback::GetInterestMask(THIS_ __out PULONG mask)
     return S_OK;
 }
 
+// Fill a map with parameters to be reported for a breakpoint stop.
+static StopReasonMap breakPointStopReasonParameters(PDEBUG_BREAKPOINT b)
+{
+    typedef StopReasonMap::value_type StopReasonMapValue;
+
+    StopReasonMap rc;
+    ULONG uId = 0;
+    if (FAILED(b->GetId(&uId)))
+        return rc;
+    rc.insert(StopReasonMapValue(std::string("breakpointId"), toString(uId)));
+    const std::pair<ULONG64, ULONG> memoryRange = breakPointMemoryRange(b);
+    if (!memoryRange.first)
+        return rc;
+    rc.insert(StopReasonMapValue(std::string("breakpointAddress"), toString(memoryRange.first)));
+    // Report the memory for data breakpoints allowing for watching for changed bits
+    // on the client side.
+    if (!memoryRange.second)
+        return rc;
+    // Try to grab a IDataSpace from somewhere to get the memory
+    if (CIDebugClient *client = ExtensionContext::instance().hookedClient()) {
+        IInterfacePointer<CIDebugDataSpaces> dataSpaces(client);
+        if (dataSpaces) {
+            const std::wstring memoryHex = memoryToHexW(dataSpaces.data(), memoryRange.first, memoryRange.second);
+            if (!memoryHex.empty())
+                rc.insert(StopReasonMapValue("memory", wStringToString(memoryHex)));
+        } // dataSpaces
+    } // client
+    return rc;
+}
+
 STDMETHODIMP EventCallback::Breakpoint(THIS_ __in PDEBUG_BREAKPOINT b)
 {
     // Breakpoint hit - Set the stop reason parameters on the extension context.
-    typedef ExtensionContext::StopReasonMap StopReasonMap;
-    typedef ExtensionContext::StopReasonMap::value_type StopReasonMapValue;
-
-    ULONG uId = 0;
-    ULONG64 address = 0;
-    StopReasonMap stopReason;
-    if (SUCCEEDED(b->GetId(&uId)))
-        stopReason.insert(StopReasonMapValue(std::string("breakpointId"), toString(uId)));
-    if (SUCCEEDED(b->GetOffset(&address)))
-        stopReason.insert(StopReasonMapValue(std::string("breakpointAddress"), toString(address)));
-    ExtensionContext::instance().setStopReason(stopReason, ExtensionContext::breakPointStopReasonC);
+    ExtensionContext::instance().setStopReason(breakPointStopReasonParameters(b),
+                                               ExtensionContext::breakPointStopReasonC);
     return m_wrapped ? m_wrapped->Breakpoint(b) : S_OK;
 }
 
