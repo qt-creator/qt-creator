@@ -479,7 +479,7 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     outlineView->header()->hide();
     outlineView->setItemsExpandable(false);
     m_outlineCombo->setView(outlineView);
-    m_outlineCombo->setMaxVisibleItems(20);
+    m_outlineCombo->setMaxVisibleItems(40);
 
     m_outlineModel = new OverviewModel(this);
     m_proxyModel = new OverviewProxyModel(m_outlineModel, this);
