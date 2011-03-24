@@ -120,6 +120,10 @@ protected:
 
     virtual bool fromMap(const QVariantMap &map);
 
+private slots:
+    void handleToolChainRemovals(ProjectExplorer::ToolChain *tc);
+    void handleToolChainAddition(ProjectExplorer::ToolChain *tc);
+
 private:
     bool m_clearSystemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;

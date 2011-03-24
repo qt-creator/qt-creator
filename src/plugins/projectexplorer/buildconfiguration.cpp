@@ -72,6 +72,11 @@ BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
     //: Display name of the clean build step list. Used as part of the labels in the project window.
     bsl->setDefaultDisplayName(tr("Clean"));
     m_stepLists.append(bsl);
+
+    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
+            this, SLOT(handleToolChainRemovals(ProjectExplorer::ToolChain*)));
+    connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
+            this, SLOT(handleToolChainAddition(ProjectExplorer::ToolChain*)));
 }
 
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
@@ -85,6 +90,11 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     // Do not clone stepLists here, do that in the derived constructor instead
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
+
+    connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
+            this, SLOT(handleToolChainRemovals(ProjectExplorer::ToolChain*)));
+    connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
+            this, SLOT(handleToolChainAddition(ProjectExplorer::ToolChain*)));
 }
 
 BuildConfiguration::~BuildConfiguration()
@@ -154,6 +164,22 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
 
     return ProjectConfiguration::fromMap(map);
 }
+
+void BuildConfiguration::handleToolChainRemovals(ProjectExplorer::ToolChain *tc)
+{
+    if (m_toolChain != tc)
+        return;
+    setToolChain(target()->preferredToolChain(this));
+}
+
+void BuildConfiguration::handleToolChainAddition(ProjectExplorer::ToolChain *tc)
+{
+    Q_UNUSED(tc);
+    if (m_toolChain != 0)
+        return;
+    setToolChain(target()->preferredToolChain(this));
+}
+
 
 Target *BuildConfiguration::target() const
 {

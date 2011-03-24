@@ -369,8 +369,7 @@ void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
 void Qt4BuildConfiguration::setToolChain(ProjectExplorer::ToolChain *tc)
 {
     Q_ASSERT(qtVersion());
-    if (!qt4Target()->possibleToolChains(this).contains(tc)
-            || tc->restrictedToTargets().contains(target()->id()))
+    if (tc != 0 && !qt4Target()->possibleToolChains(this).contains(tc))
         return;
 
     BuildConfiguration::setToolChain(tc);
