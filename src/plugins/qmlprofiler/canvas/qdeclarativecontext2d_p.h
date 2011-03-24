@@ -52,8 +52,6 @@
 #include <QtCore/qvariant.h>
 #include <QtScript/qscriptvalue.h>
 
-QT_BEGIN_HEADER
-
 QT_BEGIN_NAMESPACE
 
 QT_MODULE(Declarative)
@@ -73,9 +71,6 @@ public slots:
 public:
     QGradient m_gradient;
 };
-
-Q_DECLARE_METATYPE(CanvasGradient*)
-
 
 class CanvasImage: public QObject
 {
@@ -102,8 +97,6 @@ private:
     QPixmap m_image;
     QString m_src;
 };
-
-Q_DECLARE_METATYPE(CanvasImage*)
 
 
 class ImageData {
@@ -337,6 +330,7 @@ private:
 
 QT_END_NAMESPACE
 
-QT_END_HEADER
+Q_DECLARE_METATYPE(CanvasImage*)
+Q_DECLARE_METATYPE(CanvasGradient*)
 
 #endif // QDECLARATIVECONTEXT2D_P_H

@@ -34,6 +34,7 @@
 #include <QtCore/qpointer.h>
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_NAMESPACE
 class QTabWidget;
 class QSlider;
 class QGroupBox;
@@ -41,6 +42,7 @@ class QLabel;
 class QSpinBox;
 class QPushButton;
 class QDeclarativeView;
+QT_END_NAMESPACE
 
 class TracePlugin;
 

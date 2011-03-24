@@ -20,6 +20,10 @@
 #include <QProcess>
 #include "tracewindow.h"
 
+#ifdef Q_OS_UNIX
+#include <unistd.h> // sleep
+#endif
+
 using namespace Analyzer::Internal;
 
 class QmlProfilerEngine::QmlProfilerEnginePrivate
