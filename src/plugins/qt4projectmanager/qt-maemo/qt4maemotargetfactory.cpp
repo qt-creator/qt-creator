@@ -44,6 +44,7 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
+#include <utils/qtcassert.h>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -147,7 +148,8 @@ QString Qt4MaemoTargetFactory::shadowBuildDirectory(const QString &profilePath, 
 {
     //TODO why?
 #if defined(Q_OS_WIN)
-    return projectDirectory;
+    // return projectDirectory;
+    QTC_ASSERT(false, return QString(); )
 #endif
     return Qt4BaseTargetFactory::shadowBuildDirectory(profilePath, id, suffix);
 }
