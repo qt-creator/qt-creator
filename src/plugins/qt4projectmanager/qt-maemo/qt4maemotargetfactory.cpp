@@ -148,8 +148,7 @@ QString Qt4MaemoTargetFactory::shadowBuildDirectory(const QString &profilePath, 
 {
     //TODO why?
 #if defined(Q_OS_WIN)
-    // return projectDirectory;
-    QTC_ASSERT(false, return QString(); )
+    return profilePath;
 #endif
     return Qt4BaseTargetFactory::shadowBuildDirectory(profilePath, id, suffix);
 }
