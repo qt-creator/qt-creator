@@ -144,9 +144,13 @@ static inline QString msgCoreLoadFailure(const QString &why)
     return QCoreApplication::translate("Application", "Failed to load core: %1").arg(why);
 }
 
-static inline QString msgSendArgumentFailed()
+static inline int askMsgSendFailed()
 {
-    return QCoreApplication::translate("Application", "Unable to send command line arguments to the already running instance. It appears to be not responding.");
+    return QMessageBox::question(0, QApplication::translate("Application","Could not send message"),
+                                 QCoreApplication::translate("Application", "Unable to send command line arguments to the already running instance."
+                                                             "It appears to be not responding. Do you want to start a new instance of Creator?"),
+                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Retry,
+                                 QMessageBox::Retry);
 }
 
 static inline QStringList getPluginPaths()
@@ -317,11 +321,24 @@ int main(int argc, char **argv)
 
     const bool isFirstInstance = !app.isRunning();
     if (!isFirstInstance && foundAppOptions.contains(QLatin1String(CLIENT_OPTION))) {
-        if (!app.sendMessage(pluginManager.serializedArguments())) {
-            displayError(msgSendArgumentFailed());
-            return -1;
+        if (app.sendMessage(pluginManager.serializedArguments()))
+            return 0;
+
+        // Message could not be send, maybe it was in the process of quitting
+        if (app.isRunning()) {
+            // Nah app is still running, ask the user
+            int button = askMsgSendFailed();
+            while(button == QMessageBox::Retry) {
+                if (app.sendMessage(pluginManager.serializedArguments()))
+                    return 0;
+                if (!app.isRunning()) // App quit while we were trying so start a new creator
+                    button = QMessageBox::Yes;
+                else
+                    button = askMsgSendFailed();
+            }
+            if (button == QMessageBox::No)
+                return -1;
         }
-        return 0;
     }
 
     pluginManager.loadPlugins();
