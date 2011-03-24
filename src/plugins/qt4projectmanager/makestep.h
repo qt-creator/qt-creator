@@ -115,6 +115,7 @@ protected:
 private:
     void ctor();
     bool m_clean;
+    bool m_makeFileExists;
     QString m_userArgs;
     QString m_makeCmd;
     QList<ProjectExplorer::Task> m_tasks;

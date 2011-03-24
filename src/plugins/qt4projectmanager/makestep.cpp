@@ -166,14 +166,23 @@ bool MakeStep::init()
 
     ProjectExplorer::ToolChain *toolchain = bc->toolChain();
 
-    if (bc->subNodeBuild()){
-        if(!bc->subNodeBuild()->makefile().isEmpty()) {
+    if (bc->subNodeBuild()) {
+        QString makefile = bc->subNodeBuild()->makefile();
+        if(!makefile.isEmpty()) {
             Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
-            Utils::QtcProcess::addArg(&args, bc->subNodeBuild()->makefile());
+            Utils::QtcProcess::addArg(&args, makefile);
+            m_makeFileExists = QDir(workingDirectory).exists(makefile);
+        } else {
+            m_makeFileExists = QDir(workingDirectory).exists("Makefile");
         }
-    } else if (!bc->makefile().isEmpty()) {
-        Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
-        Utils::QtcProcess::addArg(&args, bc->makefile());
+    } else {
+        if (!bc->makefile().isEmpty()) {
+            Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
+            Utils::QtcProcess::addArg(&args, bc->makefile());
+            m_makeFileExists = QDir(workingDirectory).exists(bc->makefile());
+        } else {
+            m_makeFileExists = QDir(workingDirectory).exists("Makefile");
+        }
     }
 
     Utils::QtcProcess::addArgs(&args, m_userArgs);
@@ -215,6 +224,13 @@ void MakeStep::run(QFutureInterface<bool> & fi)
         return;
     }
 
+    if (!m_makeFileExists) {
+        if (!m_clean)
+            emit addOutput(tr("Makefile not found. Please check your build settings"), BuildStep::MessageOutput);
+        fi.reportResult(m_clean);
+        return;
+    }
+
     // Warn on common error conditions:
     bool canContinue = true;
     foreach (const ProjectExplorer::Task &t, m_tasks) {
@@ -227,7 +243,6 @@ void MakeStep::run(QFutureInterface<bool> & fi)
         fi.reportResult(false);
         return;
     }
-
 
     AbstractProcessStep::run(fi);
 }
