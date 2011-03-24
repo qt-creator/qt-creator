@@ -38,14 +38,14 @@ SUBDIRS   = plugin_coreplugin \
             plugin_classview \
             plugin_tasklist \
             plugin_analyzerbase \
-            plugin_qmlprofiler \
             plugin_qmljstools \
             plugin_macros \
             debugger/dumper.pro
 
 !win32 {
      SUBDIRS += plugin_valgrindtoolbase \
-                plugin_memcheck
+                plugin_memcheck \
+		plugin_qmlprofiler
 }
 
 linux-* {
