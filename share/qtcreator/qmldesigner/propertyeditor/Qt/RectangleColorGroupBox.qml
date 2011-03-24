@@ -13,6 +13,31 @@ GroupBox {
 
     property bool hasBorder
 
+    property variant colorAlpha: colorGroupBox.alpha
+    property bool hasGradient: backendValues.gradient.isInModel
+
+    onHasGradientChanged: {
+        print("onGradientInModelChanged")
+        if (backendValues.gradient.isInModel) {
+            print("inmodel")
+            colorGroupBox.setGradientButtonChecked = true;
+        } else {
+            print("else")
+            if (colorGroupBox.alpha == 0)
+                colorGroupBox.setNoneButtonChecked = true;
+            else
+                colorGroupBox.setSolidButtonChecked = true;
+        }
+    }
+
+    onColorAlphaChanged: {
+          if (backendValues.gradient.isInModel)
+              return
+        if (colorGroupBox.alpha == 0)
+            colorGroupBox.setNoneButtonChecked = true;
+        else
+            colorGroupBox.setSolidButtonChecked = true;
+    }
 
     onSelectionFlagChanged: {
         isSetup = true;
