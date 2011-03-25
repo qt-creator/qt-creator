@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-import QtQuick 1.1
+import QtQuick 1.0
 import Monitor 1.0
 import "MainView.js" as Plotter
 

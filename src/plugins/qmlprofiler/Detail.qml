@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-import QtQuick 1.1
+import QtQuick 1.0
 import Monitor 1.0
 import "MainView.js" as Plotter
 
@@ -61,7 +61,7 @@ Item {
         font.pixelSize: 12
         anchors.baseline: lbl.baseline
         anchors.left: guideline.right
-        maximumLineCount: maxLines
+        // maximumLineCount: maxLines
         onLinkActivated: detail.linkActivated(link)
     }
 }

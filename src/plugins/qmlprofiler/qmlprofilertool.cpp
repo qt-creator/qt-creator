@@ -155,13 +155,13 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(ProjectExplorer::RunConfiguration
 
 void QmlProfilerTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
 {
-    qmlRegisterType<Canvas>("QtQuick",1,1, "Canvas");
-    qmlRegisterType<TiledCanvas>("QtQuick",1,1, "TiledCanvas");
+    qmlRegisterType<Canvas>("th Monitor", 1, 0, "Canvas");
+    qmlRegisterType<TiledCanvas>("Monitor", 1, 0, "TiledCanvas");
     qmlRegisterType<Context2D>();
     qmlRegisterType<CanvasImage>();
     qmlRegisterType<CanvasGradient>();
 
-    qmlRegisterType<TimelineView>("Monitor",1,0,"TimelineView");
+    qmlRegisterType<TimelineView>("Monitor", 1, 0,"TimelineView");
 
     d->m_client = new QDeclarativeDebugConnection;
     d->m_traceWindow = new TraceWindow();
