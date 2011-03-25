@@ -207,17 +207,18 @@ ToolChain *ToolChainManager::findToolChain(const QString &id) const
     return 0;
 }
 
-void ToolChainManager::registerToolChain(ToolChain *tc)
+bool ToolChainManager::registerToolChain(ToolChain *tc)
 {
     if (!tc || m_d->m_toolChains.contains(tc))
-        return;
+        return true;
     foreach (ToolChain *current, m_d->m_toolChains) {
         if (*tc == *current)
-            return;
+            return false;
     }
 
     m_d->m_toolChains.append(tc);
     emit toolChainAdded(tc);
+    return true;
 }
 
 void ToolChainManager::deregisterToolChain(ToolChain *tc)

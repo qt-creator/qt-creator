@@ -69,7 +69,7 @@ public:
     ToolChain *findToolChain(const QString &id) const;
 
 public slots:
-    void registerToolChain(ProjectExplorer::ToolChain *tc);
+    bool registerToolChain(ProjectExplorer::ToolChain *tc);
     void deregisterToolChain(ProjectExplorer::ToolChain *tc);
 
     void saveToolChains();
