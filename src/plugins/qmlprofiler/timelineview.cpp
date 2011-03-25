@@ -2,7 +2,6 @@
 
 #include <qdeclarativecontext.h>
 #include <qdeclarativeproperty.h>
-#include <private/qperformancetimer_p.h>
 
 TimelineView::TimelineView(QDeclarativeItem *parent) :
     QDeclarativeItem(parent), m_delegate(0), m_startTime(0), m_endTime(0), m_startX(0),
