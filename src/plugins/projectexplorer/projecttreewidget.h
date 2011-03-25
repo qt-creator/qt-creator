@@ -84,7 +84,13 @@ private slots:
     void foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &);
     void filesAboutToBeRemoved(FolderNode *, const QList<FileNode*> &);
 
+    void loadExpandData();
+    void saveExpandData();
+    void disableAutoExpand();
+
 private:
+    void recursiveLoadExpandData(const QModelIndex &index, const QSet<QString> &data);
+    void recursiveSaveExpandData(const QModelIndex &index, QStringList *data);
     ProjectExplorerPlugin *m_explorer;
     QTreeView *m_view;
     FlatModel *m_model;
@@ -95,6 +101,7 @@ private:
     QModelIndex m_subIndex;
     QString m_modelId;
     bool m_autoSync;
+    bool m_autoExpand;
     Node *m_currentItemLocked;
     friend class ProjectTreeWidgetFactory;
 };

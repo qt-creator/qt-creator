@@ -556,9 +556,6 @@ bool SessionManager::createImpl(const QString &fileName)
     if (debug)
         qDebug() << "SessionManager - creating new session returns " << success;
 
-    if (success)
-        emit sessionLoaded();
-
     return success;
 }
 
@@ -967,8 +964,10 @@ QString SessionManager::sessionNameToFileName(const QString &session) const
 
 void SessionManager::createAndLoadNewDefaultSession()
 {
+    emit aboutToLoadSession();
     updateName("default");
     createImpl(sessionNameToFileName(m_sessionName));
+    emit sessionLoaded();
 }
 
 bool SessionManager::createSession(const QString &session)
@@ -1025,6 +1024,7 @@ bool SessionManager::loadSession(const QString &session)
 
     if (!sessions().contains(session))
         return false;
+    emit aboutToLoadSession();
     QString fileName = sessionNameToFileName(session);
     if (QFileInfo(fileName).exists()) {
         if (loadImpl(fileName)) {

@@ -101,6 +101,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
           m_model(0),
           m_filterProjectsAction(0),
           m_autoSync(false),
+          m_autoExpand(true),
           m_currentItemLocked(0)
 {
     m_model = new FlatModel(m_explorer->session()->sessionNode(), this);
@@ -150,6 +151,13 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     connect(m_explorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(startupProjectChanged(ProjectExplorer::Project *)));
 
+    connect(m_explorer->session(), SIGNAL(aboutToLoadSession()),
+            this, SLOT(disableAutoExpand()));
+    connect(m_explorer->session(), SIGNAL(sessionLoaded()),
+            this, SLOT(loadExpandData()));
+    connect(m_explorer->session(), SIGNAL(aboutToSaveSession()),
+            this, SLOT(saveExpandData()));
+
     m_toggleSync = new QToolButton;
     m_toggleSync->setIcon(QIcon(QLatin1String(Core::Constants::ICON_LINK)));
     m_toggleSync->setCheckable(true);
@@ -158,6 +166,47 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
     connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
 
     setAutoSynchronization(true);
+}
+
+void ProjectTreeWidget::disableAutoExpand()
+{
+    m_autoExpand = false;
+}
+
+void ProjectTreeWidget::loadExpandData()
+{
+    m_autoExpand = true;
+    QStringList data = m_explorer->session()->value("ProjectTree.ExpandData").toStringList();
+    recursiveLoadExpandData(m_view->rootIndex(), data.toSet());
+}
+
+void ProjectTreeWidget::recursiveLoadExpandData(const QModelIndex &index, const QSet<QString> &data)
+{
+    if (data.contains(m_model->nodeForIndex(index)->path())) {
+        m_view->expand(index);
+        int count = m_model->rowCount(index);
+        for (int i = 0; i < count; ++i)
+            recursiveLoadExpandData(index.child(i, 0), data);
+    }
+}
+
+void ProjectTreeWidget::saveExpandData()
+{
+    QStringList data;
+    recursiveSaveExpandData(m_view->rootIndex(), &data);
+    // TODO if there are multiple ProjectTreeWidgets, the last one saves the data
+    m_explorer->session()->setValue("ProjectTree.ExpandData", data);
+}
+
+void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStringList *data)
+{
+    Q_ASSERT(data);
+    if (m_view->isExpanded(index)) {
+        data->append(m_model->nodeForIndex(index)->path());
+        int count = m_model->rowCount(index);
+        for (int i = 0; i < count; ++i)
+            recursiveSaveExpandData(index.child(i, 0), data);
+    }
 }
 
 void ProjectTreeWidget::foldersAboutToBeRemoved(FolderNode *, const QList<FolderNode*> &list)
@@ -284,7 +333,8 @@ void ProjectTreeWidget::handleProjectAdded(ProjectExplorer::Project *project)
 
     Node *node = project->rootProjectNode();
     QModelIndex idx = m_model->indexForNode(node);
-    m_view->setExpanded(idx, true);
+    if (m_autoExpand) // disabled while session restoring
+        m_view->setExpanded(idx, true);
     m_view->setCurrentIndex(idx);
 }
 

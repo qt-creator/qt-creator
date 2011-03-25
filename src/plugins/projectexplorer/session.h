@@ -150,6 +150,7 @@ signals:
 
     void startupProjectChanged(ProjectExplorer::Project *project);
 
+    void aboutToLoadSession();
     void sessionLoaded();
     void aboutToUnloadSession();
     void aboutToSaveSession();
