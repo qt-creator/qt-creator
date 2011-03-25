@@ -523,6 +523,7 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
 
     createImportWidget(info, m_importEnabled.size() - 1);
     emit newImportBuildConfiguration(info);
+    emit selectedToggled();
 }
 
 QList<BuildConfigurationInfo> Qt4DefaultTargetSetupWidget::usedImportInfos()
