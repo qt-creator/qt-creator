@@ -171,17 +171,17 @@ bool MakeStep::init()
         if(!makefile.isEmpty()) {
             Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
             Utils::QtcProcess::addArg(&args, makefile);
-            m_makeFileExists = QDir(workingDirectory).exists(makefile);
+            m_makeFileToCheck = QDir(workingDirectory).filePath(makefile);
         } else {
-            m_makeFileExists = QDir(workingDirectory).exists("Makefile");
+            m_makeFileToCheck = QDir(workingDirectory).filePath("Makefile");
         }
     } else {
         if (!bc->makefile().isEmpty()) {
             Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
             Utils::QtcProcess::addArg(&args, bc->makefile());
-            m_makeFileExists = QDir(workingDirectory).exists(bc->makefile());
+            m_makeFileToCheck = QDir(workingDirectory).filePath(bc->makefile());
         } else {
-            m_makeFileExists = QDir(workingDirectory).exists("Makefile");
+            m_makeFileToCheck = QDir(workingDirectory).filePath("Makefile");
         }
     }
 
@@ -224,7 +224,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
         return;
     }
 
-    if (!m_makeFileExists) {
+    if (!QFileInfo(m_makeFileToCheck).exists()) {
         if (!m_clean)
             emit addOutput(tr("Makefile not found. Please check your build settings"), BuildStep::MessageOutput);
         fi.reportResult(m_clean);
