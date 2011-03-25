@@ -28,9 +28,8 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
 
-
 using namespace Analyzer;
-using namespace Analyzer::Internal;
+using namespace QmlProfiler::Internal;
 
 QString QmlProfilerTool::host = QLatin1String("localhost");
 quint16 QmlProfilerTool::port = 33456;

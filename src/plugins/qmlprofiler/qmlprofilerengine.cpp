@@ -27,7 +27,7 @@
 #include <unistd.h> // sleep
 #endif
 
-using namespace Analyzer::Internal;
+using namespace QmlProfiler::Internal;
 
 class QmlProfilerEngine::QmlProfilerEnginePrivate
 {
@@ -88,7 +88,7 @@ void QmlProfilerEngine::stop()
 
 void QmlProfilerEngine::spontaneousStop()
 {
-    AnalyzerManager::instance()->stopTool();
+    Analyzer::AnalyzerManager::instance()->stopTool();
 }
 
 void QmlProfilerEngine::viewUpdated()

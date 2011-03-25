@@ -29,10 +29,11 @@
 #ifndef CANVASFRAMERATE_H
 #define CANVASFRAMERATE_H
 
-#include <private/qdeclarativedebugclient_p.h>
-
 #include <QtCore/qpointer.h>
 #include <QtGui/qwidget.h>
+
+#include <QtDeclarative/private/qdeclarativedebugclient_p.h>
+
 
 QT_BEGIN_NAMESPACE
 class QTabWidget;
@@ -43,6 +44,9 @@ class QSpinBox;
 class QPushButton;
 class QDeclarativeView;
 QT_END_NAMESPACE
+
+namespace QmlProfiler {
+namespace Internal {
 
 class TracePlugin;
 
@@ -74,6 +78,9 @@ private:
 
     QDeclarativeView *m_view;
 };
+
+} // namespace Internal
+} // namespace QmlProfiler
 
 #endif // CANVASFRAMERATE_H
 

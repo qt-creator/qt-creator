@@ -1,13 +1,12 @@
 #ifndef QMLPROFILERENGINE_H
 #define QMLPROFILERENGINE_H
 
-#include "ianalyzerengine.h"
+#include <analyzerbase/ianalyzerengine.h>
 
-namespace Analyzer {
+namespace QmlProfiler {
 namespace Internal {
 
-
-class QmlProfilerEngine : public IAnalyzerEngine
+class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
 {
     Q_OBJECT
 public:
@@ -31,7 +30,7 @@ private:
     QmlProfilerEnginePrivate *d;
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler
 
 #endif // QMLPROFILERENGINE_H

@@ -52,6 +52,9 @@
 
 #define GAP_TIME 150
 
+namespace QmlProfiler {
+namespace Internal {
+
 struct Location
 {
     Location() : line(-1) {}
@@ -130,6 +133,11 @@ private:
     qint64 m_maximumTime;
     bool m_recording;
 };
+
+} // namespace Internal
+} // namespace QmlProfiler
+
+using namespace QmlProfiler::Internal;
 
 TracePlugin::TracePlugin(QDeclarativeDebugConnection *client)
     : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client), m_inProgressRanges(0), m_maximumTime(0), m_recording(false)
@@ -252,7 +260,7 @@ TraceWindow::TraceWindow(QWidget *parent)
 
     m_view = new QDeclarativeView(this);
 
-    if (Analyzer::Internal::QmlProfilerPlugin::debugOutput) {
+    if (QmlProfilerPlugin::debugOutput) {
         //new QmlJSDebugger::JSDebuggerAgent(m_view->engine());
         //new QmlJSDebugger::QDeclarativeViewObserver(m_view, m_view);
     }

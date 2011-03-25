@@ -1,13 +1,13 @@
 #ifndef QMLPROFILERTOOL_H
 #define QMLPROFILERTOOL_H
 
-#include "ianalyzertool.h"
-#include "ianalyzerengine.h"
+#include <analyzerbase/ianalyzertool.h>
+#include <analyzerbase/ianalyzerengine.h>
 
-namespace Analyzer {
+namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerTool : public IAnalyzerTool
+class QmlProfilerTool : public Analyzer::IAnalyzerTool
 {
     Q_OBJECT
 public:
@@ -20,9 +20,9 @@ public:
 
     void initialize(ExtensionSystem::IPlugin *plugin);
 
-    IAnalyzerEngine *createEngine(ProjectExplorer::RunConfiguration *runConfiguration);
+    Analyzer::IAnalyzerEngine *createEngine(ProjectExplorer::RunConfiguration *runConfiguration);
 
-    IAnalyzerOutputPaneAdapter *outputPaneAdapter();
+    Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();
     QWidget *createToolBarWidget();
     QWidget *createTimeLineWidget();
 
@@ -48,7 +48,7 @@ private:
     QmlProfilerToolPrivate *d;
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler
 
 #endif // QMLPROFILERTOOL_H

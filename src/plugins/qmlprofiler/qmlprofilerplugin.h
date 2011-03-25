@@ -5,7 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Analyzer {
+namespace QmlProfiler {
 namespace Internal {
 
 class QmlProfilerPlugin : public ExtensionSystem::IPlugin
@@ -32,7 +32,7 @@ private:
 };
 
 } // namespace Internal
-} // namespace Analyzer
+} // namespace QmlProfiler
 
 #endif // QMLPROFILERPLUGIN_H
 

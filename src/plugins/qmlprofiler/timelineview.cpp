@@ -3,6 +3,8 @@
 #include <qdeclarativecontext.h>
 #include <qdeclarativeproperty.h>
 
+using namespace QmlProfiler::Internal;
+
 TimelineView::TimelineView(QDeclarativeItem *parent) :
     QDeclarativeItem(parent), m_delegate(0), m_startTime(0), m_endTime(0), m_startX(0),
     prevMin(0), prevMax(0), m_totalWidth(0)

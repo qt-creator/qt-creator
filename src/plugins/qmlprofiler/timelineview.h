@@ -1,8 +1,11 @@
 #ifndef TIMELINEVIEW_H
 #define TIMELINEVIEW_H
 
-#include <QDeclarativeItem>
-#include <QScriptValue>
+#include <QtDeclarative/QDeclarativeItem>
+#include <QtScript/QScriptValue>
+
+namespace QmlProfiler {
+namespace Internal {
 
 class TimelineView : public QDeclarativeItem
 {
@@ -104,6 +107,9 @@ private:
     qreal m_totalWidth;
 };
 
-QML_DECLARE_TYPE(TimelineView)
+} // namespace Internal
+} // namespace QmlProfiler
+
+QML_DECLARE_TYPE(QmlProfiler::Internal::TimelineView)
 
 #endif // TIMELINEVIEW_H

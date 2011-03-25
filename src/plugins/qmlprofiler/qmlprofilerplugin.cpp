@@ -20,7 +20,7 @@
 #include "qmlprofilertool.h"
 
 using namespace Analyzer;
-using namespace Analyzer::Internal;
+using namespace QmlProfiler::Internal;
 
 QmlProfilerPlugin *QmlProfilerPlugin::m_instance = 0;
 bool QmlProfilerPlugin::debugOutput = false;
