@@ -27,8 +27,7 @@ HEADERS += \
     qmlprofilertool.h \
     qmlprofilerengine.h \
     tracewindow.h \
-    timelineview.h \
-    mac_p.h
+    timelineview.h
 
 RESOURCES += \
     qmlprofiler.qrc
