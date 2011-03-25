@@ -66,6 +66,7 @@ namespace Internal {
 
 class SubversionSubmitEditor;
 class SubversionControl;
+struct SubversionDiffParameters;
 
 struct SubversionResponse
 {
@@ -113,6 +114,7 @@ public:
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
+    void svnDiff(const Subversion::Internal::SubversionDiffParameters &p);
 
 private slots:
     void addCurrentFile();

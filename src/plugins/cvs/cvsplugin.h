@@ -64,7 +64,7 @@ namespace Locator {
 
 namespace CVS {
 namespace Internal {
-
+struct CvsDiffParameters;
 class CVSSubmitEditor;
 class CVSControl;
 
@@ -132,6 +132,7 @@ private slots:
     void editCurrentFile();
     void uneditCurrentFile();
     void uneditCurrentRepository();
+    void cvsDiff(const CVS::Internal::CvsDiffParameters &p);
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);

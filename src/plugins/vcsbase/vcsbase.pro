@@ -30,7 +30,8 @@ HEADERS += vcsbase_global.h \
     vcsbaseoptionspage.h \
     vcsjobrunner.h \
     vcsbaseclient.h \
-    vcsbaseclientsettings.h
+    vcsbaseclientsettings.h \
+    vcsbaseeditorparameterwidget.h
 
 SOURCES += vcsplugin.cpp \
     vcsbaseplugin.cpp \
@@ -57,7 +58,8 @@ SOURCES += vcsplugin.cpp \
     vcsbaseoptionspage.cpp \
     vcsjobrunner.cpp \
     vcsbaseclient.cpp \
-    vcsbaseclientsettings.cpp
+    vcsbaseclientsettings.cpp \
+    vcsbaseeditorparameterwidget.cpp
 
 RESOURCES += vcsbase.qrc
 

@@ -45,6 +45,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsbaseeditorparameterwidget.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 
@@ -80,7 +81,8 @@
 #include <QtXml/QXmlStreamReader>
 #include <limits.h>
 
-using namespace Subversion::Internal;
+namespace Subversion {
+namespace Internal {
 
 static const char * const CMD_ID_SUBVERSION_MENU    = "Subversion.Menu";
 static const char * const CMD_ID_ADD                = "Subversion.Add";
@@ -534,6 +536,55 @@ void SubversionPlugin::diffCommitFiles(const QStringList &files)
     svnDiff(m_commitRepository, files);
 }
 
+// Collect all parameters required for a diff to be able to associate them
+// with a diff editor and re-run the diff with parameters.
+struct SubversionDiffParameters
+{
+    SubversionDiffParameters() : reUseEditor(false) {}
+
+    QString workingDir;
+    QStringList arguments;
+    QStringList files;
+    QString diffName;
+    bool reUseEditor;
+};
+
+// Parameter widget controlling whitespace diff mode, associated with a parameter
+class SubversionDiffParameterWidget : public VCSBase::VCSBaseEditorParameterWidget
+{
+    Q_OBJECT
+public:
+    explicit SubversionDiffParameterWidget(const SubversionDiffParameters &p, QWidget *parent = 0);
+
+signals:
+    void reRunDiff(const Subversion::Internal::SubversionDiffParameters &);
+
+private slots:
+    void triggerReRun();
+
+private:
+    const SubversionDiffParameters m_parameters;
+};
+
+SubversionDiffParameterWidget::SubversionDiffParameterWidget(const SubversionDiffParameters &p, QWidget *parent) :
+    VCSBase::VCSBaseEditorParameterWidget(parent), m_parameters(p)
+{
+    setBaseArguments(p.arguments);
+    addIgnoreWhiteSpaceButton(QString(QLatin1Char('w')));
+    connect(this, SIGNAL(argumentsChanged()), this, SLOT(triggerReRun()));
+}
+
+void SubversionDiffParameterWidget::triggerReRun()
+{
+    SubversionDiffParameters effectiveParameters = m_parameters;
+    effectiveParameters.reUseEditor = true;
+    // Subversion wants" -x -<ext-args>", default being -u
+    const QStringList a = arguments();
+    if (!a.isEmpty())
+        effectiveParameters.arguments << QLatin1String("-x") << (QLatin1String("-u") + a.join(QString()));
+    emit reRunDiff(effectiveParameters);
+}
+
 static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db)
 {
     if (VCSBase::VCSBaseEditorWidget *ve = qobject_cast<VCSBase::VCSBaseEditorWidget*>(editor->widget()))
@@ -542,38 +593,59 @@ static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db
 
 void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &files, QString diffname)
 {
+    SubversionDiffParameters p;
+    p.workingDir = workingDir;
+    p.files = files;
+    p.diffName = diffname;
+    svnDiff(p);
+}
+
+void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParameters &p)
+{
     if (Subversion::Constants::debug)
-        qDebug() << Q_FUNC_INFO << files << diffname;
-    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
+        qDebug() << Q_FUNC_INFO << p.files << p.diffName;
+    const QString source = VCSBase::VCSBaseEditorWidget::getSource(p.workingDir, p.files);
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VCSBase::VCSBaseEditorWidget::getCodec(source);
 
-    if (files.count() == 1 && diffname.isEmpty())
-        diffname = QFileInfo(files.front()).fileName();
+    const QString diffName = p.files.count() == 1 && p.diffName.isEmpty() ?
+                             QFileInfo(p.files.front()).fileName() : p.diffName;
 
     QStringList args(QLatin1String("diff"));
-    args << files;
+    args.append(p.arguments);
+    args << p.files;
 
     const SubversionResponse response =
-            runSvn(workingDir, args, m_settings.timeOutMS(), 0, codec);
+            runSvn(p.workingDir, args, m_settings.timeOutMS(), 0, codec);
     if (response.error)
         return;
 
     // diff of a single file? re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    if (files.count() == 1) {
+    if (p.files.count() == 1 || p.reUseEditor) {
         // Show in the same editor if diff has been executed before
-        if (Core::IEditor *editor = locateEditor("originalFileName", files.front())) {
+        if (Core::IEditor *editor = locateEditor("originalFileName", p.files.front())) {
             editor->createNew(response.stdOut);
             Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
-            setDiffBaseDirectory(editor, workingDir);
+            setDiffBaseDirectory(editor, p.workingDir);
             return;
         }
     }
-    const QString title = QString::fromLatin1("svn diff %1").arg(diffname);
+    const QString title = QString::fromLatin1("svn diff %1").arg(diffName);
     Core::IEditor *editor = showOutputInEditor(title, response.stdOut, VCSBase::DiffOutput, source, codec);
-    setDiffBaseDirectory(editor, workingDir);
-    if (files.count() == 1)
-        editor->setProperty("originalFileName", files.front());
+    setDiffBaseDirectory(editor, p.workingDir);
+    editor->setProperty("originalFileName", p.files.front());
+    SubversionEditor *diffEditorWidget = qobject_cast<SubversionEditor *>(editor->widget());
+    QTC_ASSERT(diffEditorWidget, return ; )
+
+    // Wire up the parameter widget to trigger a re-run on
+    // parameter change and 'revert' from inside the diff editor.
+    diffEditorWidget->setRevertDiffChunkEnabled(true);
+    SubversionDiffParameterWidget *pw = new SubversionDiffParameterWidget(p);
+    connect(pw, SIGNAL(reRunDiff(Subversion::Internal::SubversionDiffParameters)),
+            this, SLOT(svnDiff(Subversion::Internal::SubversionDiffParameters)));
+    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)),
+            pw, SLOT(triggerReRun()));
+    diffEditorWidget->setConfigurationWidget(pw);
 }
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
@@ -1350,4 +1422,9 @@ SubversionControl *SubversionPlugin::subVersionControl() const
     return static_cast<SubversionControl *>(versionControl());
 }
 
-Q_EXPORT_PLUGIN(SubversionPlugin)
+} // Internal
+} // Subversion
+
+Q_EXPORT_PLUGIN(Subversion::Internal::SubversionPlugin)
+
+#include "subversionplugin.moc"
