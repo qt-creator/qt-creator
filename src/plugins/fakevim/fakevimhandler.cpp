@@ -510,21 +510,25 @@ class History
 {
 public:
     History() : m_index(0) {}
-    void append(const QString &item)
-        { //qDebug() << "APP: " << item << m_items;
-            m_items.removeAll(item);
-            m_items.append(item); m_index = m_items.size() - 1;  }
+    void append(const QString &item);
     void down() { m_index = qMin(m_index + 1, m_items.size()); }
     void up() { m_index = qMax(m_index - 1, 0); }
-    //void clear() { m_items.clear(); m_index = 0; }
     void restart() { m_index = m_items.size(); }
     QString current() const { return m_items.value(m_index, QString()); }
     QStringList items() const { return m_items; }
+
 private:
     QStringList m_items;
     int m_index;
 };
 
+void History::append(const QString &item)
+{
+    if (item.isEmpty())
+        return;
+    m_items.removeAll(item);
+    m_items.append(item); m_index = m_items.size() - 1;
+}
 
 // Mappings for a specific mode.
 class ModeMapping : public QList<QPair<Inputs, Inputs> >
@@ -2945,6 +2949,7 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
 {
     if (input.isEscape()) {
         m_commandBuffer.clear();
+        g.searchHistory.append(m_searchCursor.selectedText());
         m_searchCursor = QTextCursor();
         updateSelection();
         enterCommandMode();
