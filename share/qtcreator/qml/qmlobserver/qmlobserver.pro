@@ -60,8 +60,9 @@ symbian {
         LIBS += -lavkon -lcone
     }
 }
+OTHER_FILES+=Info.plist
 mac {
-    QMAKE_INFO_PLIST=Info_mac.plist
+    QMAKE_INFO_PLIST=Info.plist
     TARGET=QMLObserver
     ICON=qml.icns
 } else {

@@ -96,3 +96,13 @@ QMAKE_EXTRA_COMPILERS += unconditionalCopy2build
         INSTALLS += $$data_dir
     }
 }
+
+# do version magic for app bundles
+macx {
+   dumpinfo.input = qml/qmldump/Info.plist.in
+   dumpinfo.output = $$IDE_DATA_PATH/qml/qmldump/Info.plist
+   QMAKE_SUBSTITUTES += dumpinfo
+   observerinfo.input = qml/qmlobserver/Info.plist.in
+   observerinfo.output = $$IDE_DATA_PATH/qml/qmlobserver/Info.plist
+   QMAKE_SUBSTITUTES += observerinfo
+}
