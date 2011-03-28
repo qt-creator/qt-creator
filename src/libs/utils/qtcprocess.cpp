@@ -34,10 +34,7 @@
 #include "qtcprocess.h"
 #include "stringutils.h"
 
-#ifdef Q_OS_WIN
 #include <QtCore/QDir>
-#endif
-
 #include <QtCore/QDebug>
 
 using namespace Utils;
@@ -311,6 +308,16 @@ QStringList QtcProcess::splitArgs(const QString &args, bool abortOnMeta, SplitEr
         } while (c.isSpace());
         QString cret;
         bool hadWord = false;
+        if (c == QLatin1Char('~')) {
+            if (pos >= args.length()
+                || args.unicode()[pos].isSpace() || args.unicode()[pos] == QLatin1Char('/')) {
+                cret = QDir::homePath();
+                hadWord = true;
+                goto getc;
+            } else if (abortOnMeta) {
+                goto metaerr;
+            }
+        }
         do {
             if (c == QLatin1Char('\'')) {
                 int spos = pos;
@@ -449,6 +456,7 @@ QStringList QtcProcess::splitArgs(const QString &args, bool abortOnMeta, SplitEr
                 cret += c;
                 hadWord = true;
             }
+          getc:
             if (pos >= args.length())
                 break;
             c = args.unicode()[pos++];
