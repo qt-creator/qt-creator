@@ -28,6 +28,7 @@
 #include "SymbolVisitor.h"
 #include "NameVisitor.h"
 #include "Scope.h"
+#include "Templates.h"
 #include <cassert>
 
 using namespace CPlusPlus;
@@ -100,6 +101,24 @@ Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const 
 {
     setSourceLocation(sourceLocation, translationUnit);
     setName(name);
+}
+
+Symbol::Symbol(Clone *clone, Subst *subst, Symbol *original)
+    : _name(clone->name(original->_name, subst)),
+      _scope(0),
+      _next(0),
+      _fileId(clone->control()->stringLiteral(original->fileName(), original->fileNameLength())),
+      _sourceLocation(original->_sourceLocation),
+      _hashCode(original->_hashCode),
+      _storage(original->_storage),
+      _visibility(original->_visibility),
+      _index(0),
+      _line(original->_line),
+      _column(original->_column),
+      _isGenerated(original->_isGenerated),
+      _isDeprecated(original->_isDeprecated),
+      _isUnavailable(original->_isUnavailable)
+{
 }
 
 Symbol::~Symbol()

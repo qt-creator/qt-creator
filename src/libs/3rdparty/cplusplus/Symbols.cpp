@@ -24,12 +24,17 @@
 #include "SymbolVisitor.h"
 #include "TypeMatcher.h"
 #include "Scope.h"
+#include "Templates.h"
 
 using namespace CPlusPlus;
 
 UsingNamespaceDirective::UsingNamespaceDirective(TranslationUnit *translationUnit,
                                                  unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
+{ }
+
+UsingNamespaceDirective::UsingNamespaceDirective(Clone *clone, Subst *subst, UsingNamespaceDirective *original)
+    : Symbol(clone, subst, original)
 { }
 
 UsingNamespaceDirective::~UsingNamespaceDirective()
@@ -44,6 +49,11 @@ void UsingNamespaceDirective::visitSymbol0(SymbolVisitor *visitor)
 NamespaceAlias::NamespaceAlias(TranslationUnit *translationUnit,
                                unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name), _namespaceName(0)
+{ }
+
+NamespaceAlias::NamespaceAlias(Clone *clone, Subst *subst, NamespaceAlias *original)
+    : Symbol(clone, subst, original)
+    , _namespaceName(clone->name(original->_namespaceName, subst))
 { }
 
 NamespaceAlias::~NamespaceAlias()
@@ -67,6 +77,10 @@ UsingDeclaration::UsingDeclaration(TranslationUnit *translationUnit,
     : Symbol(translationUnit, sourceLocation, name)
 { }
 
+UsingDeclaration::UsingDeclaration(Clone *clone, Subst *subst, UsingDeclaration *original)
+    : Symbol(clone, subst, original)
+{ }
+
 UsingDeclaration::~UsingDeclaration()
 { }
 
@@ -78,6 +92,11 @@ void UsingDeclaration::visitSymbol0(SymbolVisitor *visitor)
 
 Declaration::Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
+{ }
+
+Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
+    : Symbol(clone, subst, original)
+    , _type(clone->type(original->_type, subst))
 { }
 
 Declaration::~Declaration()
@@ -111,6 +130,12 @@ Argument::Argument(TranslationUnit *translationUnit, unsigned sourceLocation, co
       _initializer(0)
 { }
 
+Argument::Argument(Clone *clone, Subst *subst, Argument *original)
+    : Symbol(clone, subst, original)
+    , _initializer(clone->stringLiteral(original->_initializer))
+    , _type(clone->type(original->_type, subst))
+{ }
+
 Argument::~Argument()
 { }
 
@@ -136,6 +161,11 @@ TypenameArgument::TypenameArgument(TranslationUnit *translationUnit, unsigned so
     : Symbol(translationUnit, sourceLocation, name)
 { }
 
+TypenameArgument::TypenameArgument(Clone *clone, Subst *subst, TypenameArgument *original)
+    : Symbol(clone, subst, original)
+    , _type(clone->type(original->_type, subst))
+{ }
+
 TypenameArgument::~TypenameArgument()
 { }
 
@@ -151,6 +181,12 @@ void TypenameArgument::visitSymbol0(SymbolVisitor *visitor)
 Function::Function(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name),
       _flags(0)
+{ }
+
+Function::Function(Clone *clone, Subst *subst, Function *original)
+    : Scope(clone, subst, original)
+    , _returnType(clone->type(original->_returnType, subst))
+    , _flags(original->_flags)
 { }
 
 Function::~Function()
@@ -376,6 +412,10 @@ Block::Block(TranslationUnit *translationUnit, unsigned sourceLocation)
     : Scope(translationUnit, sourceLocation, /*name = */ 0)
 { }
 
+Block::Block(Clone *clone, Subst *subst, Block *original)
+    : Scope(clone, subst, original)
+{ }
+
 Block::~Block()
 { }
 
@@ -393,6 +433,10 @@ void Block::visitSymbol0(SymbolVisitor *visitor)
 
 Enum::Enum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name)
+{ }
+
+Enum::Enum(Clone *clone, Subst *subst, Enum *original)
+    : Scope(clone, subst, original)
 { }
 
 Enum::~Enum()
@@ -437,6 +481,10 @@ void Enum::visitSymbol0(SymbolVisitor *visitor)
 
 Template::Template(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name)
+{ }
+
+Template::Template(Clone *clone, Subst *subst, Template *original)
+    : Scope(clone, subst, original)
 { }
 
 Template::~Template()
@@ -496,6 +544,10 @@ Namespace::Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, 
     : Scope(translationUnit, sourceLocation, name)
 { }
 
+Namespace::Namespace(Clone *clone, Subst *subst, Namespace *original)
+    : Scope(clone, subst, original)
+{ }
+
 Namespace::~Namespace()
 { }
 
@@ -539,6 +591,12 @@ BaseClass::BaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, 
       _isVirtual(false)
 { }
 
+BaseClass::BaseClass(Clone *clone, Subst *subst, BaseClass *original)
+    : Symbol(clone, subst, original)
+    , _isVirtual(original->_isVirtual)
+    , _type(clone->type(original->_type, subst))
+{ }
+
 BaseClass::~BaseClass()
 { }
 
@@ -560,6 +618,10 @@ void BaseClass::visitSymbol0(SymbolVisitor *visitor)
 ForwardClassDeclaration::ForwardClassDeclaration(TranslationUnit *translationUnit,
                                                  unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
+{ }
+
+ForwardClassDeclaration::ForwardClassDeclaration(Clone *clone, Subst *subst, ForwardClassDeclaration *original)
+    : Symbol(clone, subst, original)
 { }
 
 ForwardClassDeclaration::~ForwardClassDeclaration()
@@ -599,6 +661,14 @@ Class::Class(TranslationUnit *translationUnit, unsigned sourceLocation, const Na
     : Scope(translationUnit, sourceLocation, name),
       _key(ClassKey)
 { }
+
+Class::Class(Clone *clone, Subst *subst, Class *original)
+    : Scope(clone, subst, original)
+    , _key(original->_key)
+{
+    for (size_t i = 0; i < original->_baseClasses.size(); ++i)
+        addBaseClass(clone->symbol(original->_baseClasses.at(i), subst)->asBaseClass());
+}
 
 Class::~Class()
 { }
@@ -672,6 +742,12 @@ QtPropertyDeclaration::QtPropertyDeclaration(TranslationUnit *translationUnit, u
     , _flags(NoFlags)
 { }
 
+QtPropertyDeclaration::QtPropertyDeclaration(Clone *clone, Subst *subst, QtPropertyDeclaration *original)
+    : Symbol(clone, subst, original)
+    , _type(clone->type(original->_type, subst))
+    , _flags(original->_flags)
+{ }
+
 QtPropertyDeclaration::~QtPropertyDeclaration()
 { }
 
@@ -695,6 +771,10 @@ QtEnum::QtEnum(TranslationUnit *translationUnit, unsigned sourceLocation, const 
     : Symbol(translationUnit, sourceLocation, name)
 { }
 
+QtEnum::QtEnum(Clone *clone, Subst *subst, QtEnum *original)
+    : Symbol(clone, subst, original)
+{ }
+
 QtEnum::~QtEnum()
 { }
 
@@ -709,6 +789,10 @@ ObjCBaseClass::ObjCBaseClass(TranslationUnit *translationUnit, unsigned sourceLo
     : Symbol(translationUnit, sourceLocation, name)
 { }
 
+ObjCBaseClass::ObjCBaseClass(Clone *clone, Subst *subst, ObjCBaseClass *original)
+    : Symbol(clone, subst, original)
+{ }
+
 ObjCBaseClass::~ObjCBaseClass()
 { }
 
@@ -720,6 +804,10 @@ void ObjCBaseClass::visitSymbol0(SymbolVisitor *visitor)
 
 ObjCBaseProtocol::ObjCBaseProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
+{ }
+
+ObjCBaseProtocol::ObjCBaseProtocol(Clone *clone, Subst *subst, ObjCBaseProtocol *original)
+    : Symbol(clone, subst, original)
 { }
 
 ObjCBaseProtocol::~ObjCBaseProtocol()
@@ -736,7 +824,18 @@ ObjCClass::ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, 
     _categoryName(0),
     _baseClass(0),
     _isInterface(false)
+{ }
+
+ObjCClass::ObjCClass(Clone *clone, Subst *subst, ObjCClass *original)
+    : Scope(clone, subst, original)
+    , _categoryName(clone->name(original->_categoryName, subst))
+    , _baseClass(0)
+    , _isInterface(original->_isInterface)
 {
+    if (original->_baseClass)
+        _baseClass = clone->symbol(original->_baseClass, subst)->asObjCBaseClass();
+    for (size_t i = 0; i < original->_protocols.size(); ++i)
+        addProtocol(clone->symbol(original->_protocols.at(i), subst)->asObjCBaseProtocol());
 }
 
 ObjCClass::~ObjCClass()
@@ -819,6 +918,13 @@ ObjCProtocol::ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLoca
 {
 }
 
+ObjCProtocol::ObjCProtocol(Clone *clone, Subst *subst, ObjCProtocol *original)
+    : Scope(clone, subst, original)
+{
+    for (size_t i = 0; i < original->_protocols.size(); ++i)
+        addProtocol(clone->symbol(original->_protocols.at(i), subst)->asObjCBaseProtocol());
+}
+
 ObjCProtocol::~ObjCProtocol()
 {}
 
@@ -873,6 +979,10 @@ ObjCForwardClassDeclaration::ObjCForwardClassDeclaration(TranslationUnit *transl
 {
 }
 
+ObjCForwardClassDeclaration::ObjCForwardClassDeclaration(Clone *clone, Subst *subst, ObjCForwardClassDeclaration *original)
+    : Symbol(clone, subst, original)
+{ }
+
 ObjCForwardClassDeclaration::~ObjCForwardClassDeclaration()
 {}
 
@@ -913,6 +1023,10 @@ ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(TranslationUnit *
 {
 }
 
+ObjCForwardProtocolDeclaration::ObjCForwardProtocolDeclaration(Clone *clone, Subst *subst, ObjCForwardProtocolDeclaration *original)
+    : Symbol(clone, subst, original)
+{ }
+
 ObjCForwardProtocolDeclaration::~ObjCForwardProtocolDeclaration()
 {}
 
@@ -950,6 +1064,12 @@ bool ObjCForwardProtocolDeclaration::matchType0(const Type *otherType, TypeMatch
 ObjCMethod::ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Scope(translationUnit, sourceLocation, name),
      _flags(0)
+{ }
+
+ObjCMethod::ObjCMethod(Clone *clone, Subst *subst, ObjCMethod *original)
+    : Scope(clone, subst, original)
+    , _returnType(clone->type(original->_returnType, subst))
+    , _flags(original->_flags)
 { }
 
 ObjCMethod::~ObjCMethod()
@@ -1047,6 +1167,14 @@ ObjCPropertyDeclaration::ObjCPropertyDeclaration(TranslationUnit *translationUni
     _setterName(0),
     _propertyAttributes(None)
 {}
+
+ObjCPropertyDeclaration::ObjCPropertyDeclaration(Clone *clone, Subst *subst, ObjCPropertyDeclaration *original)
+    : Symbol(clone, subst, original)
+    , _getterName(clone->name(original->_getterName, subst))
+    , _setterName(clone->name(original->_setterName, subst))
+    , _type(clone->type(original->_type, subst))
+    , _propertyAttributes(original->_propertyAttributes)
+{ }
 
 ObjCPropertyDeclaration::~ObjCPropertyDeclaration()
 {}

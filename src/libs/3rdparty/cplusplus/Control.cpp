@@ -799,3 +799,8 @@ void Control::setTopLevelDeclarationProcessor(CPlusPlus::TopLevelDeclarationProc
 {
     d->processor = processor;
 }
+
+void Control::addSymbol(Symbol *symbol)
+{
+    d->symbols.push_back(symbol);
+}

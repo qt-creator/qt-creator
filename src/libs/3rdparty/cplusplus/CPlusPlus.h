@@ -51,5 +51,6 @@
 #include "Type.h"
 #include "TypeMatcher.h"
 #include "TypeVisitor.h"
+#include "Templates.h"
 
 #endif // CPLUSPLUS_CPLUSPLUS_H

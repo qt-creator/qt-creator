@@ -34,6 +34,7 @@ class CPLUSPLUS_EXPORT UsingNamespaceDirective: public Symbol
 {
 public:
     UsingNamespaceDirective(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    UsingNamespaceDirective(Clone *clone, Subst *subst, UsingNamespaceDirective *original);
     virtual ~UsingNamespaceDirective();
 
     // Symbol's interface
@@ -53,6 +54,7 @@ class CPLUSPLUS_EXPORT UsingDeclaration: public Symbol
 {
 public:
     UsingDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    UsingDeclaration(Clone *clone, Subst *subst, UsingDeclaration *original);
     virtual ~UsingDeclaration();
 
     // Symbol's interface
@@ -72,6 +74,7 @@ class CPLUSPLUS_EXPORT NamespaceAlias: public Symbol
 {
 public:
     NamespaceAlias(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    NamespaceAlias(Clone *clone, Subst *subst, NamespaceAlias *original);
     virtual ~NamespaceAlias();
 
     const Name *namespaceName() const;
@@ -97,6 +100,7 @@ class CPLUSPLUS_EXPORT Declaration: public Symbol
 {
 public:
     Declaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Declaration(Clone *clone, Subst *subst, Declaration *original);
     virtual ~Declaration();
 
     void setType(const FullySpecifiedType &type);
@@ -146,6 +150,7 @@ class CPLUSPLUS_EXPORT Argument: public Symbol
 {
 public:
     Argument(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Argument(Clone *clone, Subst *subst, Argument *original);
     virtual ~Argument();
 
     void setType(const FullySpecifiedType &type);
@@ -176,6 +181,7 @@ class CPLUSPLUS_EXPORT TypenameArgument: public Symbol
 {
 public:
     TypenameArgument(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    TypenameArgument(Clone *clone, Subst *subst, TypenameArgument *original);
     virtual ~TypenameArgument();
 
     void setType(const FullySpecifiedType &type);
@@ -200,6 +206,7 @@ class CPLUSPLUS_EXPORT Block: public Scope
 {
 public:
     Block(TranslationUnit *translationUnit, unsigned sourceLocation);
+    Block(Clone *clone, Subst *subst, Block *original);
     virtual ~Block();
 
     // Symbol's interface
@@ -219,6 +226,7 @@ class CPLUSPLUS_EXPORT ForwardClassDeclaration: public Symbol, public Type
 {
 public:
     ForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    ForwardClassDeclaration(Clone *clone, Subst *subst, ForwardClassDeclaration *original);
     virtual ~ForwardClassDeclaration();
 
     virtual FullySpecifiedType type() const;
@@ -247,6 +255,7 @@ class CPLUSPLUS_EXPORT Enum: public Scope, public Type
 {
 public:
     Enum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Enum(Clone *clone, Subst *subst, Enum *original);
     virtual ~Enum();
 
     // Symbol's interface
@@ -285,6 +294,7 @@ public:
 
 public:
     Function(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Function(Clone *clone, Subst *subst, Function *original);
     virtual ~Function();
 
     bool isNormal() const;
@@ -375,6 +385,7 @@ class CPLUSPLUS_EXPORT Template: public Scope, public Type
 {
 public:
     Template(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Template(Clone *clone, Subst *subst, Template *original);
     virtual ~Template();
 
     unsigned templateParameterCount() const;
@@ -410,6 +421,7 @@ class CPLUSPLUS_EXPORT Namespace: public Scope, public Type
 {
 public:
     Namespace(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Namespace(Clone *clone, Subst *subst, Namespace *original);
     virtual ~Namespace();
 
     // Symbol's interface
@@ -440,6 +452,7 @@ class CPLUSPLUS_EXPORT BaseClass: public Symbol
 {
 public:
     BaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    BaseClass(Clone *clone, Subst *subst, BaseClass *original);
     virtual ~BaseClass();
 
     bool isVirtual() const;
@@ -467,6 +480,7 @@ class CPLUSPLUS_EXPORT Class: public Scope, public Type
 {
 public:
     Class(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Class(Clone *clone, Subst *subst, Class *original);
     virtual ~Class();
 
     enum Key {
@@ -531,11 +545,12 @@ public:
         UserFlag = 1 << 10,
         UserFunction = 1 << 11,
         ConstantFlag = 1 << 12,
-        FinalFlag = 1 << 13,
+        FinalFlag = 1 << 13
     };
 
 public:
     QtPropertyDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    QtPropertyDeclaration(Clone *clone, Subst *subst, QtPropertyDeclaration *original);
     virtual ~QtPropertyDeclaration();
 
     void setType(const FullySpecifiedType &type);
@@ -564,6 +579,7 @@ class CPLUSPLUS_EXPORT QtEnum: public Symbol
 {
 public:
     QtEnum(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    QtEnum(Clone *clone, Subst *subst, QtEnum *original);
     virtual ~QtEnum();
 
     // Symbol's interface
@@ -583,6 +599,7 @@ class CPLUSPLUS_EXPORT ObjCBaseClass: public Symbol
 {
 public:
     ObjCBaseClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    ObjCBaseClass(Clone *clone, Subst *subst, ObjCBaseClass *original);
     virtual ~ObjCBaseClass();
 
     // Symbol's interface
@@ -602,6 +619,7 @@ class CPLUSPLUS_EXPORT ObjCBaseProtocol: public Symbol
 {
 public:
     ObjCBaseProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    ObjCBaseProtocol(Clone *clone, Subst *subst, ObjCBaseProtocol *original);
     virtual ~ObjCBaseProtocol();
 
     // Symbol's interface
@@ -621,6 +639,7 @@ class CPLUSPLUS_EXPORT ObjCForwardProtocolDeclaration: public Symbol, public Typ
 {
 public:
     ObjCForwardProtocolDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    ObjCForwardProtocolDeclaration(Clone *clone, Subst *subst, ObjCForwardProtocolDeclaration *original);
     virtual ~ObjCForwardProtocolDeclaration();
 
     virtual FullySpecifiedType type() const;
@@ -649,6 +668,7 @@ class CPLUSPLUS_EXPORT ObjCProtocol: public Scope, public Type
 {
 public:
     ObjCProtocol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    ObjCProtocol(Clone *clone, Subst *subst, ObjCProtocol *original);
     virtual ~ObjCProtocol();
 
     unsigned protocolCount() const;
@@ -686,6 +706,7 @@ class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol, public Type
 {
 public:
     ObjCForwardClassDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    ObjCForwardClassDeclaration(Clone *clone, Subst *subst, ObjCForwardClassDeclaration *original);
     virtual ~ObjCForwardClassDeclaration();
 
     virtual FullySpecifiedType type() const;
@@ -714,6 +735,7 @@ class CPLUSPLUS_EXPORT ObjCClass: public Scope, public Type
 {
 public:
     ObjCClass(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    ObjCClass(Clone *clone, Subst *subst, ObjCClass *original);
     virtual ~ObjCClass();
 
     bool isInterface() const;
@@ -764,6 +786,7 @@ class CPLUSPLUS_EXPORT ObjCMethod: public Scope, public Type
 {
 public:
     ObjCMethod(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    ObjCMethod(Clone *clone, Subst *subst, ObjCMethod *original);
     virtual ~ObjCMethod();
 
     FullySpecifiedType returnType() const;
@@ -837,6 +860,7 @@ public:
     ObjCPropertyDeclaration(TranslationUnit *translationUnit,
                             unsigned sourceLocation,
                             const Name *name);
+    ObjCPropertyDeclaration(Clone *clone, Subst *subst, ObjCPropertyDeclaration *original);
     virtual ~ObjCPropertyDeclaration();
 
     bool hasAttribute(int attribute) const;

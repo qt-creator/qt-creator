@@ -208,6 +208,7 @@ public:
     Symbol **lastSymbol() const;
 
     bool hasSymbol(Symbol *symbol) const;
+    void addSymbol(Symbol *symbol);
 
     void squeeze();
 

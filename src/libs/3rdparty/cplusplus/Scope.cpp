@@ -22,6 +22,7 @@
 #include "Symbols.h"
 #include "Names.h"
 #include "Literals.h"
+#include "Templates.h"
 #include <cassert>
 #include <cstring>
 
@@ -227,6 +228,16 @@ Scope::Scope(TranslationUnit *translationUnit, unsigned sourceLocation, const Na
       _startOffset(0),
       _endOffset(0)
 { }
+
+Scope::Scope(Clone *clone, Subst *subst, Scope *original)
+    : Symbol(clone, subst, original)
+    , _members(0)
+    , _startOffset(original->_startOffset)
+    , _endOffset(original->_endOffset)
+{
+    for (iterator it = original->firstMember(), end = original->lastMember(); it != end; ++it)
+        addMember(clone->symbol(*it, subst));
+}
 
 Scope::~Scope()
 { delete _members; }

@@ -55,6 +55,7 @@ public:
 public:
     /// Constructs a Symbol with the given source location, name and translation unit.
     Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Symbol(Clone *clone, Subst *subst, Symbol *original);
 
     /// Destroy this Symbol.
     virtual ~Symbol();

@@ -33,7 +33,8 @@ HEADERS += \
     $$PWD/Type.h \
     $$PWD/TypeVisitor.h \
     $$PWD/ObjectiveCTypeQualifiers.h \
-    $$PWD/QtContextKeywords.h
+    $$PWD/QtContextKeywords.h \
+    $$PWD/Templates.h
 
 SOURCES += \
     $$PWD/AST.cpp \
@@ -68,4 +69,5 @@ SOURCES += \
     $$PWD/TranslationUnit.cpp \
     $$PWD/Type.cpp \
     $$PWD/TypeVisitor.cpp \
-    $$PWD/QtContextKeywords.cpp
+    $$PWD/QtContextKeywords.cpp \
+    $$PWD/Templates.cpp

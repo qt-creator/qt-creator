@@ -79,6 +79,9 @@ class ArrayType;
 class NamedType;
 
 // symbols
+class Clone;
+class Subst;
+
 class SymbolVisitor;
 class Symbol;
 class Scope;

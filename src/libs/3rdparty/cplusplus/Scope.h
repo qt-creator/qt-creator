@@ -31,6 +31,7 @@ class CPLUSPLUS_EXPORT Scope: public Symbol
 {
 public:
     Scope(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Scope(Clone *clone, Subst *subst, Scope *original);
     virtual ~Scope();
 
     /// Adds a Symbol to this Scope.
