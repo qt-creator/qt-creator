@@ -146,11 +146,14 @@ QString Qt4MaemoTargetFactory::buildNameForId(const QString &id) const
 
 QString Qt4MaemoTargetFactory::shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix)
 {
-    //TODO why?
 #if defined(Q_OS_WIN)
-    return profilePath;
-#endif
+    // No shadowbuilding for windows!
+    Q_UNUSED(id);
+    Q_UNUSED(suffix);
+    return QFileInfo(profilePath).absolutePath();
+#else
     return Qt4BaseTargetFactory::shadowBuildDirectory(profilePath, id, suffix);
+#endif
 }
 
 bool Qt4MaemoTargetFactory::isMobileTarget(const QString &id)

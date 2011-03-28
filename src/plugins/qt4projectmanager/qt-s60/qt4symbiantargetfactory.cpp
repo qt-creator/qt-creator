@@ -127,12 +127,11 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::restore(ProjectExplorer::Proje
     return 0;
 }
 
-QString Qt4SymbianTargetFactory::shadowBuildDirectory(const QString &projectDirectory, const QString &id, const QString &suffix)
+QString Qt4SymbianTargetFactory::shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix)
 {
-    Q_UNUSED(projectDirectory);
     Q_UNUSED(id);
     Q_UNUSED(suffix);
-    return projectDirectory;
+    return QFileInfo(profilePath).absolutePath();
 }
 
 QList<ProjectExplorer::Task> Qt4SymbianTargetFactory::reportIssues(const QString &proFile)
