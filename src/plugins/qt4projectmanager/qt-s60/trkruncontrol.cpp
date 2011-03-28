@@ -45,6 +45,7 @@
 #include <symbianutils/bluetoothlistener_gui.h>
 #include <symbianutils/launcher.h>
 #include <symbianutils/symbiandevicemanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
 
@@ -97,7 +98,11 @@ bool TrkRunControl::isRunning() const
     return m_launcher && (m_launcher->state() == trk::Launcher::Connecting
                           || m_launcher->state() == trk::Launcher::Connected
                           || m_launcher->state() == trk::Launcher::WaitingForTrk);
+}
 
+QIcon TrkRunControl::icon() const
+{
+    return QIcon(ProjectExplorer::Constants::ICON_DEBUG_SMALL);
 }
 
 bool TrkRunControl::setupLauncher()

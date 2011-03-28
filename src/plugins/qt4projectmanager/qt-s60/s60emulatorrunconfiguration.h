@@ -146,6 +146,7 @@ public:
     void start();
     virtual StopResult stop();
     bool isRunning() const;
+    QIcon icon() const;
 
 private slots:
     void processExited(int exitCode);

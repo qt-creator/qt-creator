@@ -140,6 +140,11 @@ bool MaemoRunControl::isRunning() const
     return m_running;
 }
 
+QIcon MaemoRunControl::icon() const
+{
+    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
+}
+
 void MaemoRunControl::handleError(const QString &errString)
 {
     stop();

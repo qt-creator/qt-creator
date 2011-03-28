@@ -54,6 +54,7 @@ public:
     virtual void start();
     virtual StopResult stop();
     virtual bool isRunning() const;
+    virtual QIcon icon() const;
 
 private slots:
     void processExited(int exitCode);

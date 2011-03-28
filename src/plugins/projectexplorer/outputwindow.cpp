@@ -88,11 +88,8 @@ OutputPane::OutputPane() :
     m_reRunButton(new QToolButton),
     m_stopButton(new QToolButton)
 {
-    m_runIcon.addFile(Constants::ICON_RUN);
-    m_runIcon.addFile(Constants::ICON_RUN_SMALL);
-
     // Rerun
-    m_reRunButton->setIcon(m_runIcon);
+    m_reRunButton->setIcon(QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL));
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
     m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
@@ -396,7 +393,7 @@ void OutputPane::tabChanged(int i)
         RunControl *rc = m_runControlTabs.at(index).runControl;
         m_stopAction->setEnabled(rc->isRunning());
         m_reRunButton->setEnabled(!rc->isRunning());
-        m_reRunButton->setIcon(m_runIcon);
+        m_reRunButton->setIcon(rc->icon());
     }
 }
 
@@ -406,7 +403,7 @@ void OutputPane::runControlStarted()
     if (current && current == sender()) {
         m_reRunButton->setEnabled(false);
         m_stopAction->setEnabled(true);
-        m_reRunButton->setIcon(m_runIcon);
+        m_reRunButton->setIcon(current->icon());
     }
 }
 
@@ -427,7 +424,7 @@ void OutputPane::runControlFinished()
     if (current && current == sender()) {
         m_reRunButton->setEnabled(true);
         m_stopAction->setEnabled(false);
-        m_reRunButton->setIcon(m_runIcon);
+        m_reRunButton->setIcon(current->icon());
     }
     // Check for asynchronous close. Close the tab.
     if (m_runControlTabs.at(senderIndex).asyncClosing)

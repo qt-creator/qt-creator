@@ -169,6 +169,11 @@ QString AnalyzerRunControl::displayName() const
     return AnalyzerManager::instance()->currentTool()->displayName();
 }
 
+QIcon AnalyzerRunControl::icon() const
+{
+    return QIcon(QLatin1String(":/images/analyzer_start_small.png"));
+}
+
 void AnalyzerRunControl::receiveStandardOutput(const QString &text)
 {
     appendMessage(text, ProjectExplorer::StdOutFormat);

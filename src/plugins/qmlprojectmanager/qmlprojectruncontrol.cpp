@@ -113,6 +113,11 @@ bool QmlRunControl::isRunning() const
     return m_applicationLauncher.isRunning();
 }
 
+QIcon QmlRunControl::icon() const
+{
+    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
+}
+
 void QmlRunControl::slotBringApplicationToForeground(qint64 pid)
 {
     bringApplicationToForeground(pid);

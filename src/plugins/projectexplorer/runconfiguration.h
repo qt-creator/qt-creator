@@ -42,6 +42,7 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QWeakPointer>
 #include <QtGui/QWidget>
+#include <QtGui/QIcon>
 
 namespace ProjectExplorer {
 
@@ -252,6 +253,10 @@ public:
     virtual StopResult stop() = 0;
     virtual bool isRunning() const = 0;
     virtual QString displayName() const;
+    /// \returns the icon to be shown in the outputwindow
+    // TODO the icon differs currently only per "mode"
+    // so this is more flexibel then it needs to be
+    virtual QIcon icon() const = 0;
 
     bool sameRunConfiguration(const RunControl *other) const;
 

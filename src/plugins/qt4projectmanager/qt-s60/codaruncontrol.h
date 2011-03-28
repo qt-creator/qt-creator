@@ -63,6 +63,7 @@ public:
     virtual ~CodaRunControl();
 
     virtual bool isRunning() const;
+    virtual QIcon icon() const;
 
     static QMessageBox *createCodaWaitingMessageBox(QWidget *parent = 0);
 

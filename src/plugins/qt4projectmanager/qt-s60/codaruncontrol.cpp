@@ -47,6 +47,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <symbianutils/symbiandevicemanager.h>
 
@@ -108,6 +109,11 @@ bool CodaRunControl::doStart()
 bool CodaRunControl::isRunning() const
 {
     return m_state >= StateConnecting;
+}
+
+QIcon CodaRunControl::icon() const
+{
+    return QIcon(ProjectExplorer::Constants::ICON_DEBUG_SMALL);
 }
 
 bool CodaRunControl::setupLauncher()

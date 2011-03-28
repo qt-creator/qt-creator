@@ -60,6 +60,7 @@ public:
     TrkRunControl(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
     ~TrkRunControl();
     virtual bool isRunning() const;
+    virtual QIcon icon() const;
 
     static QMessageBox *createTrkWaitingMessageBox(const QString &port, QWidget *parent = 0);
 

@@ -96,6 +96,7 @@ public:
     StopResult stop(); // Called from SnapshotWindow.
     bool isRunning() const;
     QString displayName() const;
+    QIcon icon() const;
 
     void setCustomEnvironment(Utils::Environment env);
     void startFailed();

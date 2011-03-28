@@ -122,6 +122,11 @@ bool LocalApplicationRunControl::isRunning() const
     return m_applicationLauncher.isRunning();
 }
 
+QIcon LocalApplicationRunControl::icon() const
+{
+    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
+}
+
 void LocalApplicationRunControl::slotAppendMessage(const QString &err,
                                                    OutputFormat format)
 {

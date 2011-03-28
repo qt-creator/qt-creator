@@ -40,6 +40,8 @@
 #include "qt4projectmanagerconstants.h"
 #include "qtoutputformatter.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
 
@@ -367,6 +369,11 @@ RunControl::StopResult S60EmulatorRunControl::stop()
 bool S60EmulatorRunControl::isRunning() const
 {
     return m_applicationLauncher.isRunning();
+}
+
+QIcon S60EmulatorRunControl::icon() const
+{
+    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
 }
 
 void S60EmulatorRunControl::slotError(const QString & err)

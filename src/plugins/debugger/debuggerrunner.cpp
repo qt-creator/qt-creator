@@ -227,6 +227,11 @@ QString DebuggerRunControl::displayName() const
     return d->m_engine->startParameters().displayName;
 }
 
+QIcon DebuggerRunControl::icon() const
+{
+    return QIcon(ProjectExplorer::Constants::ICON_DEBUG_SMALL);
+}
+
 void DebuggerRunControl::setCustomEnvironment(Utils::Environment env)
 {
     QTC_ASSERT(d->m_engine, return);
