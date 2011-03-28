@@ -49,6 +49,7 @@ public:
 protected:
     void focusInEvent(QFocusEvent *event);
     void focusOutEvent(QFocusEvent *event);
+    void resizeEvent(QResizeEvent *event);
 
 #ifdef Q_WS_MAC
     void keyPressEvent(QKeyEvent *event);
