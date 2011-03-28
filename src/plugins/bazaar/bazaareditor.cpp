@@ -107,16 +107,22 @@ VCSBase::BaseAnnotationHighlighter *BazaarEditor::createAnnotationHighlighter(co
     return new BazaarAnnotationHighlighter(changes);
 }
 
-QString BazaarEditor::fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const
+QString BazaarEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
 {
-    const QString filechangeId(QLatin1String("+++ b/"));
-    QTextBlock::iterator iterator;
-    for (iterator = diffFileSpec.begin(); !(iterator.atEnd()); iterator++) {
-        QTextFragment fragment = iterator.fragment();
-        if(fragment.isValid()) {
-            if (fragment.text().startsWith(filechangeId)) {
-                const QString filename = fragment.text().remove(0, filechangeId.size());
-                return findDiffFile(filename, BazaarPlugin::instance()->versionControl());
+    // Check for:
+    // === modified file 'mainwindow.cpp'
+    // --- mainwindow.cpp<tab>2011-03-28 08:12:28 +0000
+    // +++ mainwindow.cpp<tab>2011-03-28 08:53:55 +0000
+    const QString newFileIndicator = QLatin1String("+++ ");
+    const QChar tab = QLatin1Char('\t');
+    for (QTextBlock  block = inBlock; block.isValid(); block = block.previous()) {
+        const QString line = block.text();
+        if (line.startsWith(newFileIndicator)) {
+            const int tabIndex = line.indexOf(tab);
+            if (tabIndex != -1) {
+                const QString diffFileName = line.mid(newFileIndicator.size(),
+                                                      tabIndex - newFileIndicator.size());
+                return findDiffFile(diffFileName);
             }
         }
     }

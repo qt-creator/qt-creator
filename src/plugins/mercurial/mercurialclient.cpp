@@ -36,14 +36,17 @@
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseeditorparameterwidget.h>
 #include <vcsbase/vcsjobrunner.h>
 #include <utils/synchronousprocess.h>
+#include <utils/qtcassert.h>
 
-#include <QDir>
-#include <QFileInfo>
-#include <QTextCodec>
-#include <QTextStream>
-#include <QVariant>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTextCodec>
+#include <QtCore/QTextStream>
+#include <QtCore/QVariant>
 
 namespace Mercurial {
 namespace Internal  {
@@ -429,10 +432,24 @@ QStringList MercurialClient::annotateArguments(const QString &file,
     return args << file;
 }
 
-QStringList MercurialClient::diffArguments(const QStringList &files) const
+QStringList MercurialClient::diffArguments(const QStringList &files,
+                                           const ExtraCommandOptions &extraOptions) const
 {
     QStringList args;
     args << QLatin1String("-g") << QLatin1String("-p") << QLatin1String("-U 8");
+    foreach (const QVariant &extraOption, extraOptions) {
+        switch (extraOption.type()) {
+        case QVariant::String:
+            args.append(extraOption.toString());
+            break;
+        case QVariant::StringList:
+            args.append(extraOption.toStringList());
+            break;
+        default:
+            QTC_ASSERT(false, continue; )
+            break;
+        }
+    }
     if (!files.isEmpty())
         args.append(files);
     return args;
@@ -487,5 +504,72 @@ QPair<QString, QString> MercurialClient::parseStatusLine(const QString &line) co
     return status;
 }
 
+// Collect all parameters required for a diff to be able to associate them
+// with a diff editor and re-run the diff with parameters.
+struct MercurialDiffParameters
+{
+    QString workingDir;
+    QStringList files;
+    VCSBase::VCSBaseClient::ExtraCommandOptions extraOptions;
+};
+
+// Parameter widget controlling whitespace diff mode, associated with a parameter
+class MercurialDiffParameterWidget : public VCSBase::VCSBaseEditorParameterWidget
+{
+    Q_OBJECT
+public:
+    explicit MercurialDiffParameterWidget(const MercurialDiffParameters &p, QWidget *parent = 0);
+
+signals:
+    void reRunDiff(const Mercurial::Internal::MercurialDiffParameters &);
+
+private slots:
+    void triggerReRun();
+
+private:
+    const MercurialDiffParameters m_parameters;
+};
+
+MercurialDiffParameterWidget::MercurialDiffParameterWidget(const MercurialDiffParameters &p, QWidget *parent) :
+    VCSBase::VCSBaseEditorParameterWidget(parent), m_parameters(p)
+{
+    addIgnoreWhiteSpaceButton(QLatin1String("-w"));
+    addIgnoreBlankLinesButton(QLatin1String("-B"));
+    connect(this, SIGNAL(argumentsChanged()), this, SLOT(triggerReRun()));
+}
+
+void MercurialDiffParameterWidget::triggerReRun()
+{
+    MercurialDiffParameters effectiveParameters = m_parameters;
+    effectiveParameters.extraOptions.insert(42, QVariant(arguments()));
+    emit reRunDiff(effectiveParameters);
+}
+
+void MercurialClient::mercurialDiff(const Mercurial::Internal::MercurialDiffParameters &p)
+{
+    diff(p.workingDir, p.files, p.extraOptions);
+}
+
+void MercurialClient::initializeDiffEditor(const QString &workingDir, const QStringList &files,
+                                           const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
+                                           VCSBase::VCSBaseEditorWidget *diffEditorWidget)
+{
+    // Wire up the parameter widget to trigger a re-run on
+    // parameter change and 'revert' from inside the diff editor.
+    MercurialDiffParameters parameters;
+    parameters.workingDir = workingDir;
+    parameters.files = files;
+    parameters.extraOptions = extra;
+    diffEditorWidget->setRevertDiffChunkEnabled(true);
+    MercurialDiffParameterWidget *pw = new MercurialDiffParameterWidget(parameters);
+    connect(pw, SIGNAL(reRunDiff(Mercurial::Internal::MercurialDiffParameters)),
+            this, SLOT(mercurialDiff(Mercurial::Internal::MercurialDiffParameters)));
+    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)),
+            pw, SLOT(triggerReRun()));
+    diffEditorWidget->setConfigurationWidget(pw);
+}
+
 } // namespace Internal
 } // namespace Mercurial
+
+#include "mercurialclient.moc"

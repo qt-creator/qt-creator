@@ -700,6 +700,8 @@ DiffChunk VCSBaseEditorWidget::diffChunk(QTextCursor cursor) const
         return rc;
     // Concatenate chunk and convert
     QString unicode = block.text();
+    if (!unicode.endsWith(QLatin1Char('\n'))) // Missing in case of hg.
+        unicode.append(QLatin1Char('\n'));
     for (block = block.next() ; block.isValid() ; block = block.next()) {
         const QString line = block.text();
         if (checkChunkLine(line, &chunkStart)) {

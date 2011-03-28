@@ -262,11 +262,12 @@ void VCSBaseClient::annotate(const QString &workingDir, const QString &file,
     enqueueJob(job);
 }
 
-void VCSBaseClient::diff(const QString &workingDir, const QStringList &files)
+void VCSBaseClient::diff(const QString &workingDir, const QStringList &files,
+                         const ExtraCommandOptions &extraOptions)
 {
     const QString vcsCmdString = vcsCommandString(DiffCommand);
     QStringList args;
-    args << vcsCmdString << diffArguments(files);
+    args << vcsCmdString << diffArguments(files, extraOptions);
     const QString kind = vcsEditorKind(DiffCommand);
     const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
@@ -274,6 +275,7 @@ void VCSBaseClient::diff(const QString &workingDir, const QStringList &files)
     VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, source, true,
                                                            vcsCmdString.toLatin1().constData(), id);
     editor->setDiffBaseDirectory(workingDir);
+    initializeDiffEditor(workingDir, files, extraOptions, editor);
 
     QSharedPointer<VCSJob> job(new VCSJob(workingDir, args, editor));
     enqueueJob(job);
@@ -442,6 +444,12 @@ void VCSBaseClient::settingsChanged()
                                      d->m_clientSettings.timeoutMilliSeconds());
         d->m_jobManager->restart();
     }
+}
+
+void VCSBaseClient::initializeDiffEditor(const QString & /* workingDir */, const QStringList & /* files */,
+                                         const ExtraCommandOptions & /* extraOptions */,
+                                         VCSBaseEditorWidget *)
+{
 }
 
 QString VCSBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const

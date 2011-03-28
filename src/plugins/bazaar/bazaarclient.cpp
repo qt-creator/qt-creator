@@ -36,6 +36,10 @@
 
 #include <vcsbase/vcsbaseclientsettings.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseeditorparameterwidget.h>
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -314,9 +318,23 @@ QStringList BazaarClient::annotateArguments(const QString &file,
     return args << file;
 }
 
-QStringList BazaarClient::diffArguments(const QStringList &files) const
+QStringList BazaarClient::diffArguments(const QStringList &files,
+                                        const ExtraCommandOptions &extraOptions) const
 {
     QStringList args;
+    foreach (const QVariant &extraOption, extraOptions) {
+        switch (extraOption.type()) {
+        case QVariant::String:
+            args.append(extraOption.toString());
+            break;
+        case QVariant::StringList:
+            args.append(extraOption.toStringList());
+            break;
+        default:
+            QTC_ASSERT(false, continue; )
+            break;
+        }
+    }
     if (!files.isEmpty())
         args.append(files);
     return args;
@@ -324,7 +342,7 @@ QStringList BazaarClient::diffArguments(const QStringList &files) const
 
 QStringList BazaarClient::logArguments(const QStringList &files) const
 {
-    return diffArguments(files);
+    return diffArguments(files, ExtraCommandOptions());
 }
 
 QStringList BazaarClient::statusArguments(const QString &file) const
@@ -410,5 +428,78 @@ QStringList BazaarClient::commonPullOrPushArguments(const ExtraCommandOptions &e
     return args;
 }
 
+// Collect all parameters required for a diff to be able to associate them
+// with a diff editor and re-run the diff with parameters.
+struct BazaarDiffParameters
+{
+    QString workingDir;
+    QStringList files;
+    VCSBase::VCSBaseClient::ExtraCommandOptions extraOptions;
+};
+
+// Parameter widget controlling whitespace diff mode, associated with a parameter
+class BazaarDiffParameterWidget : public VCSBase::VCSBaseEditorParameterWidget
+{
+    Q_OBJECT
+public:
+    explicit BazaarDiffParameterWidget(const BazaarDiffParameters &p, QWidget *parent = 0);
+
+signals:
+    void reRunDiff(const Bazaar::Internal::BazaarDiffParameters &);
+
+private slots:
+    void triggerReRun();
+
+private:
+    const BazaarDiffParameters m_parameters;
+};
+
+BazaarDiffParameterWidget::BazaarDiffParameterWidget(const BazaarDiffParameters &p, QWidget *parent) :
+    VCSBase::VCSBaseEditorParameterWidget(parent), m_parameters(p)
+{
+    addIgnoreWhiteSpaceButton(QLatin1String("-w"));
+    addIgnoreBlankLinesButton(QLatin1String("-B"));
+    connect(this, SIGNAL(argumentsChanged()), this, SLOT(triggerReRun()));
+}
+
+void BazaarDiffParameterWidget::triggerReRun()
+{
+    BazaarDiffParameters effectiveParameters = m_parameters;
+    // Bazaar wants "--diff-options=-w -B.."
+    const QStringList formatArguments = arguments();
+    if (!formatArguments.isEmpty()) {
+        const QString a = QLatin1String("--diff-options=")
+                          + formatArguments.join(QString(QLatin1Char(' ')));
+        effectiveParameters.extraOptions.insert(42, QVariant(a));
+    }
+    emit reRunDiff(effectiveParameters);
+}
+
+void BazaarClient::bazaarDiff(const Bazaar::Internal::BazaarDiffParameters &p)
+{
+    diff(p.workingDir, p.files, p.extraOptions);
+}
+
+void BazaarClient::initializeDiffEditor(const QString &workingDir, const QStringList &files,
+                                        const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
+                                        VCSBase::VCSBaseEditorWidget *diffEditorWidget)
+{
+    // Wire up the parameter widget to trigger a re-run on
+    // parameter change and 'revert' from inside the diff editor.
+    BazaarDiffParameters parameters;
+    parameters.workingDir = workingDir;
+    parameters.files = files;
+    parameters.extraOptions = extra;
+    diffEditorWidget->setRevertDiffChunkEnabled(true);
+    BazaarDiffParameterWidget *pw = new BazaarDiffParameterWidget(parameters);
+    connect(pw, SIGNAL(reRunDiff(Bazaar::Internal::BazaarDiffParameters)),
+            this, SLOT(bazaarDiff(Bazaar::Internal::BazaarDiffParameters)));
+    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)),
+            pw, SLOT(triggerReRun()));
+    diffEditorWidget->setConfigurationWidget(pw);
+}
+
 } //namespace Internal
 } // namespace Bazaar
+
+#include "bazaarclient.moc"

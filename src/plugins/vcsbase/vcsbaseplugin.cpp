@@ -927,7 +927,7 @@ bool VCSBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
         return false;
     }
     if (patchProcess.exitCode() != 0) {
-        ow->appendError(tr("'%1' failed (exit code %2).").arg(patchProcess.exitCode()));
+        ow->appendError(tr("'%1' failed (exit code %2).").arg(patch).arg(patchProcess.exitCode()));
         return false;
     }
     return true;

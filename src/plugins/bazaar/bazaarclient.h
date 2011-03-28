@@ -39,9 +39,11 @@
 
 namespace Bazaar {
 namespace Internal {
+struct BazaarDiffParameters;
 
 class BazaarClient : public VCSBase::VCSBaseClient
 {
+    Q_OBJECT
 public:
     enum ExtraOptionId
     {
@@ -75,6 +77,9 @@ public:
     BranchInfo synchronousBranchQuery(const QString &repositoryRoot) const;
     virtual QString findTopLevelForFile(const QFileInfo &file) const;
 
+private slots:
+    void bazaarDiff(const Bazaar::Internal::BazaarDiffParameters &p);
+
 protected:
     virtual QString vcsEditorKind(VCSCommand cmd) const;
 
@@ -94,7 +99,11 @@ protected:
     virtual QStringList revertAllArguments(const QString &revision) const;
     virtual QStringList annotateArguments(const QString &file,
                                           const QString &revision, int lineNumber) const;
-    virtual QStringList diffArguments(const QStringList &files) const;
+    virtual QStringList diffArguments(const QStringList &files,
+                                      const ExtraCommandOptions &extraOptions) const;
+    virtual void initializeDiffEditor(const QString &workingDir, const QStringList &files,
+                                      const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
+                                      VCSBase::VCSBaseEditorWidget *diffEditorWidget);
     virtual QStringList logArguments(const QStringList &files) const;
     virtual QStringList statusArguments(const QString &file) const;
     virtual QStringList viewArguments(const QString &revision) const;

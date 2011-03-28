@@ -102,18 +102,18 @@ VCSBase::BaseAnnotationHighlighter *MercurialEditor::createAnnotationHighlighter
     return new MercurialAnnotationHighlighter(changes);
 }
 
-QString MercurialEditor::fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const
+QString MercurialEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
 {
-   const QString filechangeId(QLatin1String("+++ b/"));
-    QTextBlock::iterator iterator;
-    for (iterator = diffFileSpec.begin(); !(iterator.atEnd()); iterator++) {
-        QTextFragment fragment = iterator.fragment();
-        if(fragment.isValid()) {
-            if (fragment.text().startsWith(filechangeId)) {
-                const QString filename = fragment.text().remove(0, filechangeId.size());
-                return findDiffFile(filename, MercurialPlugin::instance()->versionControl());
-            }
+    // git-compatible format: check for "+++ b/src/plugins/git/giteditor.cpp" (blame and diff)
+    // Go back chunks.
+    const QString newFileIndicator = QLatin1String("+++ b/");
+    for (QTextBlock  block = inBlock; block.isValid(); block = block.previous()) {
+        QString diffFileName = block.text();
+        if (diffFileName.startsWith(newFileIndicator)) {
+            diffFileName.remove(0, newFileIndicator.size());
+            return findDiffFile(diffFileName, MercurialPlugin::instance()->versionControl());
         }
+
     }
     return QString();
 }

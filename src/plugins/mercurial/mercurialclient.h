@@ -38,6 +38,7 @@
 
 namespace Mercurial {
 namespace Internal {
+struct MercurialDiffParameters;
 
 class MercurialClient : public VCSBase::VCSBaseClient
 {
@@ -71,6 +72,9 @@ public:
     void outgoing(const QString &repositoryRoot);
     QString vcsGetRepositoryURL(const QString &directory);
 
+private slots:
+    void mercurialDiff(const Mercurial::Internal::MercurialDiffParameters &);
+
 public:
     virtual QString findTopLevelForFile(const QFileInfo &file) const;
 
@@ -93,7 +97,11 @@ protected:
     virtual QStringList revertAllArguments(const QString &revision) const;
     virtual QStringList annotateArguments(const QString &file,
                                           const QString &revision, int lineNumber) const;
-    virtual QStringList diffArguments(const QStringList &files) const;
+    virtual QStringList diffArguments(const QStringList &files,
+                                      const ExtraCommandOptions &extraOptions) const;
+    virtual void initializeDiffEditor(const QString &workingDir, const QStringList &files,
+                                      const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
+                                      VCSBase::VCSBaseEditorWidget *ed);
     virtual QStringList logArguments(const QStringList &files) const;
     virtual QStringList statusArguments(const QString &file) const;
     virtual QStringList viewArguments(const QString &revision) const;
