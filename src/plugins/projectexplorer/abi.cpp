@@ -351,11 +351,20 @@ bool Abi::operator == (const Abi &other) const
 
 bool Abi::isCompatibleWith(const Abi &other) const
 {
-    return (architecture() == other.architecture() || other.architecture() == Abi::UnknownArchitecture)
-            && (os() == other.os() || other.os() == Abi::UnknownOS)
-            && (osFlavor() == other.osFlavor() || other.osFlavor() == Abi::UnknownFlavor)
-            && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == Abi::UnknownFormat)
-            && ((wordWidth() == other.wordWidth() && wordWidth() != 0) || other.wordWidth() == 0);
+    bool isCompat = (architecture() == other.architecture() || other.architecture() == Abi::UnknownArchitecture)
+                     && (os() == other.os() || other.os() == Abi::UnknownOS)
+                     && (osFlavor() == other.osFlavor() || other.osFlavor() == Abi::UnknownFlavor)
+                     && (binaryFormat() == other.binaryFormat() || other.binaryFormat() == Abi::UnknownFormat)
+                     && ((wordWidth() == other.wordWidth() && wordWidth() != 0) || other.wordWidth() == 0);
+    // *-linux-generic-* is compatible with *-linux-*:
+    if (!isCompat && architecture() == other.architecture()
+                 && os() == other.os()
+                 && osFlavor() == GenericLinuxFlavor
+                 && other.os() == LinuxOS
+                 && binaryFormat() == other.binaryFormat()
+                 && wordWidth() == other.wordWidth())
+        isCompat = true;
+    return isCompat;
 }
 
 bool Abi::isValid() const
