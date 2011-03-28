@@ -182,7 +182,8 @@ QString MaemoRpmPackageInstaller::installCommand() const
 
 QStringList MaemoRpmPackageInstaller::installCommandArguments() const
 {
-    return QStringList() << QLatin1String("-Uhv");
+    // --replacepkgs to re-install package, even if the same version is already installed
+    return QStringList() << QLatin1String("-Uhv") << QLatin1String("--replacepkgs");
 }
 
 
