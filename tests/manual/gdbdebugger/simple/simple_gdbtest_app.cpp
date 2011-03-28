@@ -35,6 +35,8 @@
 
 //template <typename T> class B;  B foo() {}
 
+#include "simple_gdbtest_app.h"
+
 #include <QtCore/QDebug>
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>
@@ -593,6 +595,7 @@ void testQDateTime()
 
 QFileInfo testQFileInfo()
 {
+    QFile file("/tmp/t");
     QFileInfo fi("/tmp/t");
     QString s = fi.absoluteFilePath();
     s = fi.bundleName();
@@ -2531,8 +2534,21 @@ void testMPI()
 
 }
 
+void testInlineBreakpoints()
+{
+    SomeClassWithInlineConstructor a;
+    SomeBaseClassWithInlineConstructor b;
+    SomeDerivedClassWithInlineConstructor c;
+    SomeTemplatedClassWithInlineConstructor<int> d;
+    SomeTemplatedBaseClassWithInlineConstructor<int> e;
+    SomeTemplatedDerivedClassWithInlineConstructor<int> f;
+    int i = a.a + b.a + c.a + d.a + e.a + f.a;
+    ++i;
+}
+
 int main(int argc, char *argv[])
 {
+    testInlineBreakpoints();
     testLongEvaluation();
     testMPI();
     testStuffA();
