@@ -1866,7 +1866,7 @@ QString QtVersion::description() const
     else if (targets.contains(Constants::QT_SIMULATOR_TARGET_ID))
         envs = QCoreApplication::translate("QtVersion", "Qt Simulator", "Qt Version is meant for Qt Simulator");
     else
-        envs = QCoreApplication::translate("QtVersion", "unkown", "No idea what this Qt Version is meant for!");
+        envs = QCoreApplication::translate("QtVersion", "unknown", "No idea what this Qt Version is meant for!");
     return QCoreApplication::translate("QtVersion", "Qt version %1, using mkspec %2 (%3)")
            .arg(qtVersionString(), mkspec(), envs);
 }
