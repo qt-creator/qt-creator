@@ -867,6 +867,7 @@ public:
     QString selectText(const Range &range) const;
     void setCurrentRange(const Range &range);
     Range currentRange() const { return Range(position(), anchor(), m_rangemode); }
+    Range rangeFromCurrentLine() const;
 
     void yankText(const Range &range, int toregister = '"');
 
@@ -3088,6 +3089,15 @@ void FakeVimHandler::Private::setCurrentRange(const Range &range)
     m_rangemode = range.rangemode;
 }
 
+Range FakeVimHandler::Private::rangeFromCurrentLine() const
+{
+    Range range;
+    int line = cursorLine() + 1;
+    range.beginPos = firstPositionInLine(line);
+    range.endPos = lastPositionInLine(line) + 1;
+    return range;
+}
+
 // use handleExCommand for invoking commands that might move the cursor
 void FakeVimHandler::Private::handleCommand(const QString &cmd)
 {
@@ -3141,8 +3151,9 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     if (flags.contains('i'))
         pattern.setCaseSensitivity(Qt::CaseInsensitive);
     const bool global = flags.contains('g');
-    const int beginLine = lineForPosition(cmd.range.beginPos);
-    const int endLine = lineForPosition(cmd.range.endPos);
+    const Range range = cmd.range.endPos == 0 ? rangeFromCurrentLine() : cmd.range;
+    const int beginLine = lineForPosition(range.beginPos);
+    const int endLine = lineForPosition(range.endPos);
     beginEditBlock();
     for (int line = endLine; line >= beginLine; --line) {
         QString origText = lineContents(line);
@@ -3357,9 +3368,10 @@ bool FakeVimHandler::Private::handleExDeleteCommand(const ExCommand &cmd)
     if (!cmd.matches("d", "delete"))
         return false;
 
-    setCurrentRange(cmd.range);
+    Range range = cmd.range.endPos == 0 ? rangeFromCurrentLine() : cmd.range;
+    setCurrentRange(range);
     QString reg = cmd.args;
-    QString text = selectText(cmd.range);
+    QString text = selectText(range);
     removeText(currentRange());
     if (!reg.isEmpty()) {
         Register &r = g.registers[reg.at(0).unicode()];
@@ -3487,15 +3499,20 @@ bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
     if (cmd.cmd != "<" && cmd.cmd != ">")
         return false;
 
-    setCurrentRange(cmd.range);
-    int count = qMin(1, cmd.args.toInt());
+    Range range = cmd.range;
+    if (cmd.range.endPos == 0) {
+        range = rangeFromCurrentLine();
+        --range.endPos;
+    }
+    setCurrentRange(range);
+    int count = qMax(1, cmd.args.toInt());
     if (cmd.cmd == "<")
         shiftRegionLeft(count);
     else
         shiftRegionRight(count);
     leaveVisualMode();
-    const int beginLine = lineForPosition(cmd.range.beginPos);
-    const int endLine = lineForPosition(cmd.range.endPos);
+    const int beginLine = lineForPosition(range.beginPos);
+    const int endLine = lineForPosition(range.endPos);
     showBlackMessage(FakeVimHandler::tr("%n lines %1ed %2 time", 0,
         (endLine - beginLine + 1)).arg(cmd.cmd).arg(count));
     return true;
