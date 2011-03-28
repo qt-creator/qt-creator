@@ -622,7 +622,7 @@ void SearchResultWindow::setTextEditorFont(const QFont &font)
 }
 
 /*!
-    \fn void SearchResultWindow::handleJumpToSearchResult(int index, bool)
+    \fn void SearchResultWindow::handleJumpToSearchResult(const SearchResultItem &item)
     \internal
 */
 void SearchResultWindow::handleJumpToSearchResult(const SearchResultItem &item)
@@ -658,7 +658,7 @@ void SearchResultWindow::addResult(const QString &fileName, int lineNumber, cons
 }
 
 /*!
-    \fn void SearchResultWindow::addResults(QList<SearchResultItem> &items)
+    \fn void SearchResultWindow::addResults(QList<SearchResultItem> &items, AddMode mode)
     \brief Adds all of the given search result \a items to the search
     results window.
 

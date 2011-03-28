@@ -53,7 +53,7 @@ enum { winExceptionCppException = 0xe06d7363,
 typedef ExtensionContext::StopReasonMap StopReasonMap;
 
 /*!
-    \class IDebugEventCallbacks
+    \class EventCallback
 
     Event handler wrapping the original IDebugEventCallbacks
     to catch and store exceptions (report crashes as stop reasons).

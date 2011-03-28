@@ -158,7 +158,7 @@ uint ExtensionSystem::qHash(const ExtensionSystem::PluginDependency &value)
 }
 
 /*!
-    \fn bool PluginDependency::operator==(const PluginDependency &other)
+    \fn bool PluginDependency::operator==(const PluginDependency &other) const
     \internal
 */
 bool PluginDependency::operator==(const PluginDependency &other) const

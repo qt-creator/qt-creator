@@ -146,7 +146,7 @@ namespace {
 */
 
 /*!
-    \fn ActionContainer *ActionManager::createMenu(const QString &id)
+    \fn ActionContainer *ActionManager::createMenu(const Id &id)
     \brief Creates a new menu with the given string \a id.
 
     Returns a new ActionContainer that you can use to get the QMenu instance
@@ -157,7 +157,7 @@ namespace {
 */
 
 /*!
-    \fn ActionContainer *ActionManager::createMenuBar(const QString &id)
+    \fn ActionContainer *ActionManager::createMenuBar(const Id &id)
     \brief Creates a new menu bar with the given string \a id.
 
     Returns a new ActionContainer that you can use to get the QMenuBar instance
@@ -166,7 +166,7 @@ namespace {
 */
 
 /*!
-    \fn Command *ActionManager::registerAction(QAction *action, const QString &id, const Context &context, bool scriptable)
+    \fn Command *ActionManager::registerAction(QAction *action, const Id &id, const Context &context, bool scriptable)
     \brief Makes an \a action known to the system under the specified string \a id.
 
     Returns a command object that represents the action in the application and is
@@ -192,7 +192,7 @@ namespace {
 */
 
 /*!
-    \fn Command *ActionManager::command(const QString &id) const
+    \fn Command *ActionManager::command(const Id &id) const
     \brief Returns the Command object that is known to the system
     under the given string \a id.
 
@@ -200,7 +200,7 @@ namespace {
 */
 
 /*!
-    \fn ActionContainer *ActionManager::actionContainer(const QString &id) const
+    \fn ActionContainer *ActionManager::actionContainer(const Id &id) const
     \brief Returns the IActionContainter object that is know to the system
     under the given string \a id.
 
@@ -209,7 +209,7 @@ namespace {
 */
 
 /*!
-    \fn Command *ActionManager::unregisterAction(QAction *action, const QString &id)
+    \fn Command *ActionManager::unregisterAction(QAction *action, const Id &id)
     \brief Removes the knowledge about an \a action under the specified string \a id.
 
     Usually you do not need to unregister actions. The only valid use case for unregistering

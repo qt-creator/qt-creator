@@ -1177,8 +1177,8 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
 }
 
 /*!
-    \fn void PluginManager::getObjectByName()
-    Retrieves one object with a given name from the object pool.
+    \fn void PluginManager::getObjectByName(const QString &name) const
+    \brief Retrieves one object with a given name from the object pool.
     \sa addObject()
 */
 
@@ -1194,7 +1194,7 @@ QObject *PluginManager::getObjectByName(const QString &name) const
 }
 
 /*!
-    \fn void PluginManager::getObjectByClassName()
+    \fn void PluginManager::getObjectByClassName(const QString &className) const
     Retrieves one object inheriting a class with a given name from the object pool.
     \sa addObject()
 */

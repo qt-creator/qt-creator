@@ -106,7 +106,7 @@
 */
 
 /*!
-    \fn QString IWizard::name() const
+    \fn QString IWizard::displayName() const
     Returns the translated name of the wizard, how it should appear in the
     dialog.
 */

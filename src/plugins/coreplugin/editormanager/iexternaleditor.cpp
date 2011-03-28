@@ -57,11 +57,6 @@
 */
 
 /*!
-    \fn QString IExternalEditor::kind() const
-    Returns the editor kind (identifying string).
-*/
-
-/*!
 
     \fn bool IExternalEditor::startEditor(const QString &fileName, QString *errorMessage) = 0;
 

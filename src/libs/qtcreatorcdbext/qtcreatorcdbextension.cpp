@@ -64,6 +64,7 @@
     \o Hook up with output/event callbacks and produce formatted output
     \o Provide some extension commands that produce output in a standardized (GDBMI)
        format that ends up in handleExtensionMessage().
+    \endlist
 */
 
 // Data struct and helpers for formatting help

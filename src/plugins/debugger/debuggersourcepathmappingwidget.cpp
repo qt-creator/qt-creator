@@ -73,7 +73,7 @@ typedef QPair<QString, QString> Mapping;
 typedef DebuggerSourcePathMappingWidget::SourcePathMap SourcePathMap;
 
 /*!
-    \class SourcePathMappingModel
+    \class Debugger::Internal::SourcePathMappingModel
 
     \brief Model for DebuggerSourcePathMappingWidget.
 
@@ -194,7 +194,7 @@ void SourcePathMappingModel::setTarget(int row, const QString &t)
 }
 
 /*!
-    \class DebuggerSourcePathMappingWidget
+    \class Debugger::Internal::DebuggerSourcePathMappingWidget
 
     \brief Widget for maintaining a set of source path mappings for the debugger.
 

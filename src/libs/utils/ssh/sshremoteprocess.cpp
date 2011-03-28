@@ -42,7 +42,7 @@
 #include <QtCore/QTimer>
 
 /*!
-    \class SshRemoteProcess
+    \class Utils::SshRemoteProcess
 
     \brief This class implements an SSH channel for running a remote process.
 

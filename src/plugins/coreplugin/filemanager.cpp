@@ -306,7 +306,7 @@ void FileManager::dump()
 }
 
 /*!
-    \fn void FileManager::renamedFile(const QString &from, QString &to)
+    \fn void FileManager::renamedFile(const QString &from, const QString &to)
     \brief Tells the file manager that a file has been renamed on disk from within Qt Creator.
 
     Needs to be called right after the actual renaming on disk (i.e. before the file system
@@ -703,7 +703,7 @@ QString FileManager::getSaveFileNameWithExtension(const QString &title, const QS
 }
 
 /*!
-    \fn QString FileManager::getSaveAsFileName(IFile *file)
+    \fn QString FileManager::getSaveAsFileName(IFile *file, const QString &filter, QString *selectedFilter)
 
     Asks the user for a new file name (Save File As) for /arg file.
 */
@@ -739,7 +739,9 @@ QString FileManager::getSaveAsFileName(IFile *file, const QString &filter, QStri
 }
 
 /*!
-    \fn QString FileManager::getOpenFileNames(const QString &filters, const QString &pathIn, QString *selectedFilter) const
+    \fn QStringList FileManager::getOpenFileNames(const QString &filters,
+                                                  const QString pathIn,
+                                                  QString *selectedFilter)
 
     Asks the user for a set of file names to be opened. The \a filters
     and \a selectedFilter parameters is interpreted like in
@@ -1038,7 +1040,7 @@ void FileManager::syncWithEditor(Core::IContext *context)
 }
 
 /*!
-    \fn void FileManager::addToRecentFiles(const QString &fileName, , const QString &editorId)
+    \fn void FileManager::addToRecentFiles(const QString &fileName, const QString &editorId)
 
     Adds the \a fileName to the list of recent files. Associates the file to
     be reopened with an editor of the given \a editorId, if possible.

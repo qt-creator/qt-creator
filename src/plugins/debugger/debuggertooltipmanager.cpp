@@ -443,7 +443,7 @@ private:
 };
 
 /*!
-    \class PinnableToolTipWidget
+    \class Debugger::Internal::PinnableToolTipWidget
 
     A pinnable tooltip that goes from State 'Unpinned' (button showing
     'Pin') to 'Pinned' (button showing 'Close').
@@ -572,7 +572,7 @@ void DraggableLabel::mouseMoveEvent(QMouseEvent * event)
 }
 
 /*!
-    \class DebuggerToolTipContext
+    \class Debugger::Internal::DebuggerToolTipContext
 
     File name and position where the tooltip is anchored. Redundant position/line column
     information is used to detect if the underlying file has been changed
@@ -606,7 +606,7 @@ QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 }
 
 /*!
-    \class AbstractDebuggerToolTipWidget
+    \class Debugger::Internal::AbstractDebuggerToolTipWidget
 
     Base class for a tool tip widget associated with file name
     and position with functionality to
@@ -890,7 +890,7 @@ bool DebuggerToolTipExpressionFilterModel::filterAcceptsRow(int sourceRow, const
 }
 
 /*!
-    \class DebuggerToolTipTreeView
+    \class Debugger::Internal::DebuggerToolTipTreeView
 
     A treeview that adapts its size to the model contents (also while expanding)
     to be used within DebuggerTreeViewToolTipWidget.
@@ -987,7 +987,7 @@ void DebuggerToolTipTreeView::computeSize()
 }
 
 /*!
-    \class DebuggerTreeViewToolTipWidget
+    \class Debugger::Internal::DebuggerTreeViewToolTipWidget
 
     Tool tip widget for tree views with functionality to save/restore tree
     model contents to XML.
@@ -1124,7 +1124,7 @@ QString DebuggerTreeViewToolTipWidget::clipboardContents() const
 }
 
 /*!
-    \class DebuggerToolTipManager
+    \class Debugger::Internal::DebuggerToolTipManager
 
     Manages the pinned tooltip widgets, listens on editor scroll and main window move
     events and takes care of repositioning the tooltips.

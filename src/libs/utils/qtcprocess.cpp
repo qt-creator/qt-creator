@@ -239,8 +239,8 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
     If \a abortOnMeta is \c true, cmd shell semantics are applied before
     proceeding with word splitting:
     \list
-    \i Cmd ignores \em all special chars between double quotes.
-        Note that the quotes are \em not removed at this stage - the
+    \i Cmd ignores \e all special chars between double quotes.
+        Note that the quotes are \e not removed at this stage - the
         tokenization rules described above still apply.
     \i The \c circumflex is the escape char for everything including itself.
     \endlist
@@ -251,7 +251,7 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
     \param cmd the command to split
     \param abortOnMeta see above
     \param err if not NULL, a status code will be stored at the pointer
-    target, see \ref SplitError
+    target, see \l SplitError
     \param env if not NULL, perform variable substitution with the
     given environment.
    \return a list of unquoted words or an empty list if an error occurred

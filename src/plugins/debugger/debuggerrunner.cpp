@@ -523,8 +523,7 @@ static inline bool canUseEngine(DebuggerEngineType et,
 }
 
 /*!
-    \fn ConfigurationCheck checkDebugConfiguration(unsigned cmdLineEnabledEngines,
-                                                   const DebuggerStartParameters &sp)
+    \fn Debugger::ConfigurationCheck Debugger::checkDebugConfiguration(const DebuggerStartParameters &sp)
 
     This is the master engine detection function that returns the
     engine types for a given set of start parameters and checks their

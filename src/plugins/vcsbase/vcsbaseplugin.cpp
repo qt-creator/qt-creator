@@ -69,12 +69,12 @@ enum { debug = 0, debugRepositorySearch = 0, debugExecution = 0 };
 
 /*!
     \namespace VCSBase
-    VCSBase plugin namespace
+    \brief VCSBase plugin namespace
 */
 
 /*!
     \namespace VCSBase::Internal
-    Internal namespace of the VCSBase plugin
+    \brief Internal namespace of the VCSBase plugin
     \internal
 */
 
