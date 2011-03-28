@@ -762,11 +762,12 @@ QString QmlEngine::toFileInProject(const QString &fileUrl)
     if (fileUrl.isEmpty())
         return fileUrl;
 
-    const QString path = QUrl(fileUrl).path();
+    const QString path = QUrl(fileUrl).toLocalFile();
+    if (path.isEmpty())
+        return fileUrl;
 
     // Try to find shadow-build file in source dir first
-    if (!QUrl(fileUrl).toLocalFile().isEmpty()
-            && isShadowBuildProject()) {
+    if (isShadowBuildProject()) {
         const QString sourcePath = fromShadowBuildFilename(path);
         if (QFileInfo(sourcePath).exists())
             return sourcePath;
