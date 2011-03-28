@@ -159,7 +159,11 @@ QList<BuildConfigurationInfo> Qt4MaemoTargetFactory::availableBuildConfiguration
         if (!version->isValid() || !version->toolChainAvailable())
             continue;
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
+#ifdef Q_OS_WIN
+        QString dir = QFileInfo(proFilePath).absolutePath();
+#else
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);
+#endif
         infos.append(BuildConfigurationInfo(version, config, QString(), dir));
         infos.append(BuildConfigurationInfo(version, config ^ QtVersion::DebugBuild, QString(), dir));
     }

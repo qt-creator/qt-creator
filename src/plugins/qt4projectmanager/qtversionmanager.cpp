@@ -751,6 +751,10 @@ bool QtVersion::supportsShadowBuilds() const
         // We can not support shadow building with the ABLD system
         return false;
     }
+#ifdef Q_OS_WIN
+    if (targets.contains(Constants::MEEGO_DEVICE_TARGET_ID))
+        return false;
+#endif
     return true;
 }
 
