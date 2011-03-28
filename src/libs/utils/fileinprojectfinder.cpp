@@ -80,6 +80,12 @@ QString FileInProjectFinder::projectDirectory() const
     return m_projectDir;
 }
 
+void FileInProjectFinder::setProjectFiles(const QStringList &projectFiles)
+{
+    m_projectFiles = projectFiles;
+    m_cache.clear();
+}
+
 /**
   Returns the best match for the given originalPath in the project directory.
 
@@ -87,6 +93,8 @@ QString FileInProjectFinder::projectDirectory() const
   If not, the leading directory in the path is stripped, and the - now shorter - path is
   checked for existence. This continues until either the file is found, or the relative path
   does not contain any directories any more: In this case the originalPath is returned.
+
+  Second, we walk the list of project files, and search for a file name match there.
   */
 QString FileInProjectFinder::findFile(const QString &originalPath, bool *success) const
 {
@@ -122,6 +130,16 @@ QString FileInProjectFinder::findFile(const QString &originalPath, bool *success
                 m_cache.insert(originalPath, candidate);
                 return candidate;
             }
+        }
+    }
+
+    const QString fileName = QFileInfo(originalPath).fileName();
+    foreach (const QString &f, m_projectFiles) {
+        if (QFileInfo(f).fileName() == fileName) {
+            m_cache.insert(originalPath, f);
+            if (success)
+                *success = true;
+            return f;
         }
     }
 

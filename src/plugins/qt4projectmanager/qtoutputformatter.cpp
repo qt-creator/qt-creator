@@ -58,8 +58,13 @@ QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     , m_qtTestFail(QLatin1String("^   Loc: \\[(.*)\\]$"))
     , m_project(project)
 {
-    if(project)
+    if(project) {
+        m_projectFinder.setProjectFiles(project->files(Qt4Project::ExcludeGeneratedFiles));
         m_projectFinder.setProjectDirectory(project->projectDirectory());
+
+        connect(project, SIGNAL(fileListChanged()),
+                this, SLOT(updateProjectFileList()));
+    }
 }
 
 LinkResult QtOutputFormatter::matchLine(const QString &line) const
@@ -196,6 +201,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             const QString fileName = QUrl(qmlLineColumnLink.cap(1)).toLocalFile();
             const int line = qmlLineColumnLink.cap(2).toInt();
             const int column = qmlLineColumnLink.cap(3).toInt();
+
             TextEditor::BaseTextEditorWidget::openEditorAt(m_projectFinder.findFile(fileName), line, column - 1);
 
             return;
@@ -255,4 +261,10 @@ void QtOutputFormatter::handleLink(const QString &href)
             return;
         }
     }
+}
+
+void QtOutputFormatter::updateProjectFileList()
+{
+    if (m_project)
+        m_projectFinder.setProjectFiles(m_project.data()->files(Qt4Project::ExcludeGeneratedFiles));
 }

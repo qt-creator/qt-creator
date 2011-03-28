@@ -637,12 +637,14 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("dynamic QtCore: win msys 32bit")
             << QString::fromLatin1("%1/abi/dynamic/win-mingw-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
-    QTest::newRow("static stdc++: mac fat")
+    QTest::newRow("dynamic stdc++: mac fat")
             << QString::fromLatin1("%1/abi/dynamic/mac-fat.dylib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-macos-generic-mach_o-32bit")
                               << QString::fromLatin1("ppc-macos-generic-mach_o-32bit")
                               << QString::fromLatin1("x86-macos-generic-mach_o-64bit"));
-
+    QTest::newRow("dynamic QtCore: arm linux 32bit")
+            << QString::fromLatin1("%1/abi/dynamic/arm-linux.so").arg(prefix)
+            << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()

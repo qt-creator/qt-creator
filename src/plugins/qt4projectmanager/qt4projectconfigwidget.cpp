@@ -456,15 +456,20 @@ void Qt4ProjectConfigWidget::toolChainChanged()
 {
     if (m_ignoreChange)
         return;
-    for (int i=0; i < m_ui->toolChainComboBox->count(); ++i) {
+    for (int i = 0; i < m_ui->toolChainComboBox->count(); ++i) {
         ProjectExplorer::ToolChain *tc =
                 static_cast<ProjectExplorer::ToolChain *>(m_ui->toolChainComboBox->itemData(i, Qt::UserRole).value<void *>());
         if (tc == m_buildConfiguration->toolChain()) {
             m_ignoreChange = true;
             m_ui->toolChainComboBox->setCurrentIndex(i);
             m_ignoreChange = false;
+            return;
         }
     }
+    m_ignoreChange = true;
+    m_ui->toolChainComboBox->addItem(tr("<No tool chain selected>"), qVariantFromValue(static_cast<void *>(0)));
+    m_ui->toolChainComboBox->setCurrentIndex(m_ui->toolChainComboBox->count() - 1);
+    m_ignoreChange = false;
 }
 
 void Qt4ProjectConfigWidget::updateToolChainCombo()
@@ -476,20 +481,8 @@ void Qt4ProjectConfigWidget::updateToolChainCombo()
     foreach (ProjectExplorer::ToolChain *toolchain, toolchains)
         m_ui->toolChainComboBox->addItem(toolchain->displayName(),
                                          qVariantFromValue(static_cast<void *>(toolchain)));
-    m_ignoreChange = true;
-    if (!m_buildConfiguration->toolChain() || toolchains.isEmpty()) {
-        m_ui->toolChainComboBox->addItem(tr("<Invalid tool chain>"), qVariantFromValue(static_cast<void *>(0)));
-        m_ui->toolChainComboBox->setCurrentIndex(m_ui->toolChainComboBox->count() - 1);
-    } else if (toolchains.contains(m_buildConfiguration->toolChain())) {
-        m_ui->toolChainComboBox->setCurrentIndex(toolchains.indexOf(m_buildConfiguration->toolChain()));
-    } else { // reset to some sensible tool chain
-        ToolChain *tc = 0;
-        if (!toolchains.isEmpty())
-            tc = toolchains.at(0);
-        m_buildConfiguration->setToolChain(tc);
-    }
-    m_ignoreChange = false;
     m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);
+    toolChainChanged();
 }
 
 void Qt4ProjectConfigWidget::toolChainSelected(int index)

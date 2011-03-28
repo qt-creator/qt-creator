@@ -136,7 +136,7 @@ bool QmlAnchors::isValid() const
 
 void QmlAnchors::beautify()
 {
-
+    return;
     if ((instanceHasAnchor(AnchorLine::Left) &&
          instanceHasAnchor(AnchorLine::Right) &&
          instanceHasAnchor(AnchorLine::Top) &&

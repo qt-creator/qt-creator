@@ -707,8 +707,8 @@ void PropertyEditor::resetView()
         ctxt->setContextProperty("finishedNotify", QVariant(false));
         if (specificQmlData.isEmpty())
             type->m_contextObject->setSpecificQmlData(specificQmlData);
-        
-        type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
+        QString currentStateName = currentState().isValid() ? currentState().name() : QLatin1String("invalid state");
+        type->setup(fxObjectNode, currentStateName, qmlSpecificsFile, this);
         type->m_contextObject->setGlobalBaseUrl(qmlFile);
         type->m_contextObject->setSpecificQmlData(specificQmlData);
     }

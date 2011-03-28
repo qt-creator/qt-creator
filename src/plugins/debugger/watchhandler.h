@@ -163,6 +163,7 @@ public:
     void loadSessionData();
     void saveSessionData();
     void removeTooltip();
+    void rebuildModel();
 
     bool isExpandedIName(const QByteArray &iname) const
         { return m_expandedINames.contains(iname); }

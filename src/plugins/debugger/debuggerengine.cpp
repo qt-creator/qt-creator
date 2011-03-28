@@ -1292,6 +1292,16 @@ unsigned DebuggerEngine::debuggerCapabilities() const
     return 0;
 }
 
+bool DebuggerEngine::canWatchWidgets() const
+{
+    return false;
+}
+
+bool DebuggerEngine::acceptsWatchesWhileRunning() const
+{
+    return false;
+}
+
 bool DebuggerEngine::isSynchronous() const
 {
     return false;

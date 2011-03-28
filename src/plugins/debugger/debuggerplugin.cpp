@@ -482,7 +482,7 @@ public:
     void runEngine() {}
     void shutdownEngine() {}
     void shutdownInferior() {}
-    unsigned debuggerCapabilities() const { return 0; }
+    unsigned debuggerCapabilities() const { return AddWatcherCapability; }
     bool acceptsBreakpoint(BreakpointId) const { return false; }
     bool acceptsDebuggerCommands() const { return false; }
 };
@@ -1844,6 +1844,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_threadBox->setModel(engine->threadsModel());
     m_threadBox->setModelColumn(ThreadData::NameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
+    engine->watchHandler()->rebuildModel();
 }
 
 static void changeFontSize(QWidget *widget, qreal size)

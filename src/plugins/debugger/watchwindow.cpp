@@ -59,6 +59,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
+#include <QtGui/QInputDialog>
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -301,32 +302,31 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *showUnprintableOctal = 0;
     QAction *showUnprintableHexadecimal = 0;
     formatMenu.setTitle(tr("Change Display Format..."));
-    if (true /*idx.isValid() && !alternativeFormats.isEmpty() */) {
-        showUnprintableUnicode =
-            formatMenu.addAction(tr("Treat All Characters as Printable"));
-        showUnprintableUnicode->setCheckable(true);
-        showUnprintableUnicode->setChecked(unprintableBase == 0);
-        showUnprintableOctal =
-            formatMenu.addAction(tr("Show Unprintable Characters as Octal"));
-        showUnprintableOctal->setCheckable(true);
-        showUnprintableOctal->setChecked(unprintableBase == 8);
-        showUnprintableHexadecimal =
-            formatMenu.addAction(tr("Show Unprintable Characters as Hexadecimal"));
-        showUnprintableHexadecimal->setCheckable(true);
-        showUnprintableHexadecimal->setChecked(unprintableBase == 16);
+    showUnprintableUnicode =
+        formatMenu.addAction(tr("Treat All Characters as Printable"));
+    showUnprintableUnicode->setCheckable(true);
+    showUnprintableUnicode->setChecked(unprintableBase == 0);
+    showUnprintableOctal =
+        formatMenu.addAction(tr("Show Unprintable Characters as Octal"));
+    showUnprintableOctal->setCheckable(true);
+    showUnprintableOctal->setChecked(unprintableBase == 8);
+    showUnprintableHexadecimal =
+        formatMenu.addAction(tr("Show Unprintable Characters as Hexadecimal"));
+    showUnprintableHexadecimal->setCheckable(true);
+    showUnprintableHexadecimal->setChecked(unprintableBase == 16);
+    if (idx.isValid() /*&& !alternativeFormats.isEmpty() */) {
+        const QString spacer = QLatin1String("     ");
         formatMenu.addSeparator();
         QAction *dummy = formatMenu.addAction(
-            tr("Change Display for Type \"%1\"").arg(type));
+            tr("Change Display for Type \"%1\":").arg(type));
         dummy->setEnabled(false);
-        formatMenu.addSeparator();
-        clearTypeFormatAction = formatMenu.addAction(tr("Automatic"));
+        clearTypeFormatAction = formatMenu.addAction(spacer + tr("Automatic"));
         //clearTypeFormatAction->setEnabled(typeFormat != -1);
         //clearTypeFormatAction->setEnabled(individualFormat != -1);
         clearTypeFormatAction->setCheckable(true);
         clearTypeFormatAction->setChecked(typeFormat == -1);
-        formatMenu.addSeparator();
         for (int i = 0; i != alternativeFormats.size(); ++i) {
-            const QString format = alternativeFormats.at(i);
+            const QString format = spacer + alternativeFormats.at(i);
             QAction *act = new QAction(format, &formatMenu);
             act->setCheckable(true);
             //act->setEnabled(individualFormat != -1);
@@ -337,17 +337,15 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         }
         formatMenu.addSeparator();
         dummy = formatMenu.addAction(
-            tr("Change Display for Object Named \"%1\"").arg(mi0.data().toString()));
+            tr("Change Display for Object Named \"%1\":").arg(mi0.data().toString()));
         dummy->setEnabled(false);
-        formatMenu.addSeparator();
         clearIndividualFormatAction
-            = formatMenu.addAction(tr("Use Display Format Based on Type"));
+            = formatMenu.addAction(spacer + tr("Use Display Format Based on Type"));
         //clearIndividualFormatAction->setEnabled(individualFormat != -1);
         clearIndividualFormatAction->setCheckable(true);
         clearIndividualFormatAction->setChecked(effectiveIndividualFormat == -1);
-        formatMenu.addSeparator();
         for (int i = 0; i != alternativeFormats.size(); ++i) {
-            const QString format = alternativeFormats.at(i);
+            const QString format = spacer + alternativeFormats.at(i);
             QAction *act = new QAction(format, &formatMenu);
             act->setCheckable(true);
             if (i == effectiveIndividualFormat)
@@ -356,20 +354,22 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             individualFormatActions.append(act);
         }
     } else {
-        formatMenu.setEnabled(false);
+        QAction *dummy = formatMenu.addAction(
+            tr("Change Display for Type or Item..."));
+        dummy->setEnabled(false);
     }
 
     const bool actionsEnabled = engine->debuggerActionsEnabled();
     const unsigned engineCapabilities = engine->debuggerCapabilities();
-    const bool canHandleWatches =
-        actionsEnabled && (engineCapabilities & AddWatcherCapability);
+    const bool canHandleWatches = engineCapabilities & AddWatcherCapability;
     const DebuggerState state = engine->state();
+    const bool canInsertWatches = (state==InferiorStopOk) || ((state==InferiorRunOk) && engine->acceptsWatchesWhileRunning());
 
     QMenu menu;
     QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
-    actInsertNewWatchItem->setEnabled(canHandleWatches);
+    actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
-    actSelectWidgetToWatch->setEnabled(canHandleWatches);
+    actSelectWidgetToWatch->setEnabled(canHandleWatches && (engine->canWatchWidgets()));
 
     // Offer to open address pointed to or variable address.
     const bool createPointerActions = pointerValue && pointerValue != address;
@@ -497,7 +497,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     if (act == actAdjustColumnWidths) {
         resizeColumnsToContents();
     } else if (act == actInsertNewWatchItem) {
-        watchExpression(QString());
+        bool ok;
+        QString newExp = QInputDialog::getText(this, tr("Enter watch expression"),
+                                   tr("Expression:"), QLineEdit::Normal,
+                                   QString(), &ok);
+        if (ok && !newExp.isEmpty()) {
+            watchExpression(newExp);
+        }
     } else if (act == actOpenMemoryEditAtVariableAddress) {
         currentEngine()->openMemoryView(address);
     } else if (act == actOpenMemoryEditAtPointerValue) {

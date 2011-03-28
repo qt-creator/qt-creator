@@ -140,7 +140,7 @@ void FileWidget::setupComboBox()
     QDir dir;
 
     if (m_itemNode.isValid())
-        dir = QDir(m_itemNode.modelNode().model()->fileUrl().toLocalFile());
+        dir = QFileInfo(m_itemNode.modelNode().model()->fileUrl().toLocalFile()).dir();
     else if (m_path.isValid())
         dir = QDir(m_path.toLocalFile());
 

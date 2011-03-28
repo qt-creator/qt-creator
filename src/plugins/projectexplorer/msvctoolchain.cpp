@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "msvctoolchain.h"
+
 #include "msvcparser.h"
 #include "projectexplorerconstants.h"
 #include "headerpath.h"
@@ -42,9 +43,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
-#ifdef Q_OS_WIN
-#    include <utils/winutils.h>
-#endif
+#include <utils/winutils.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -436,7 +435,10 @@ QString MsvcToolChain::makeCommand() const
 
 void MsvcToolChain::setDebuggerCommand(const QString &d)
 {
+    if (m_debuggerCommand == d)
+        return;
     m_debuggerCommand = d;
+    toolChainUpdated();
 }
 
 QString MsvcToolChain::debuggerCommand() const
@@ -745,13 +747,14 @@ QString MsvcToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /* 
     if (!outPath.isEmpty())
         return QString();
 #else
-    // A 32bit process on 64 bit sees "ProgramFiles\Debg.. (x64)"
+    // A 32bit process on 64 bit sees "ProgramFiles\Debg.. (x64)".
     if (programDir.endsWith(QLatin1String(" (x86)"))) {
-        outPath = checkCdbExecutable(programDir.left(programDir.size() - 6),
-                                     QLatin1String(" (x64)"), checkedDirectories);
-
-        if (!outPath.isEmpty())
-            return QString();
+        const QString programDir64 = programDir.left(programDir.size() - 6);
+        for (unsigned i = 0; i < sizeof(postFixes)/sizeof(const char*); i++) {
+            outPath = checkCdbExecutable(programDir64, QLatin1String(postFixes[i]), checkedDirectories);
+            if (!outPath.isEmpty())
+                return outPath;
+        }
     }
 #endif
     return QString();

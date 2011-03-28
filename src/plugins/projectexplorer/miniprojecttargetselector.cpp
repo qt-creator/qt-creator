@@ -143,11 +143,14 @@ ProjectExplorer::Project *ProjectListWidget::project() const
 QSize ProjectListWidget::sizeHint() const
 {
     int height = 0;
-    for (int itemPos = 0; itemPos < count(); ++itemPos)
+    int width = 0;
+    for (int itemPos = 0; itemPos < count(); ++itemPos) {
         height += item(itemPos)->sizeHint().height();
+        width = qMax(width, item(itemPos)->sizeHint().width());
+    }
 
     // We try to keep the height of the popup equal to the actionbar
-    QSize size(QListWidget::sizeHint().width(), height);
+    QSize size(width, height);
     static QStatusBar *statusBar = Core::ICore::instance()->statusBar();
     static QWidget *actionBar = Core::ICore::instance()->mainWindow()->findChild<QWidget*>("actionbar");
     Q_ASSERT(actionBar);
@@ -525,8 +528,7 @@ void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool 
     MiniTargetWidget *targetWidget = new MiniTargetWidget(target);
     connect(targetWidget, SIGNAL(changed()), this, SLOT(updateAction()));
     targetWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    // width==0 size hint to avoid horizontal scrolling in list widget
-    lwi->setSizeHint(QSize(0, targetWidget->sizeHint().height()));
+    lwi->setSizeHint(targetWidget->sizeHint());
     plw->setItemWidget(lwi, targetWidget);
 
     if (activeTarget)

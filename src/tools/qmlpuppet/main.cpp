@@ -42,6 +42,10 @@
 #include <qtsystemexceptionhandler.h>
 #endif
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
@@ -59,6 +63,10 @@ int main(int argc, char *argv[])
 #endif
 
     new QmlDesigner::NodeInstanceClientProxy(&application);
+
+#if defined(Q_OS_WIN) && defined(QT_NO_DEBUG)
+    SetErrorMode(SEM_NOGPFAULTERRORBOX); //We do not want to see any message boxes
+#endif
 
     return application.exec();
 }

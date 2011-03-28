@@ -302,9 +302,14 @@ Abi GccToolChain::targetAbi() const
 
 void GccToolChain::setTargetAbi(const Abi &abi)
 {
+    if (abi == m_targetAbi)
+        return;
+
     updateSupportedAbis();
-    if (m_supportedAbis.contains(abi))
+    if (m_supportedAbis.contains(abi)) {
         m_targetAbi = abi;
+        toolChainUpdated();
+    }
 }
 
 QList<Abi> GccToolChain::supportedAbis() const
@@ -348,7 +353,10 @@ void GccToolChain::addToEnvironment(Utils::Environment &env) const
 
 void GccToolChain::setDebuggerCommand(const QString &d)
 {
+    if (m_debuggerCommand == d)
+        return;
     m_debuggerCommand = d;
+    toolChainUpdated();
 }
 
 QString GccToolChain::debuggerCommand() const
@@ -385,7 +393,7 @@ void GccToolChain::setCompilerPath(const QString &path)
         if (displayName() == typeName())
             setDisplayName(defaultDisplayName());
     }
-    updateId();
+    updateId(); // Will trigger toolChainUpdated()!
 }
 
 QString GccToolChain::compilerPath() const

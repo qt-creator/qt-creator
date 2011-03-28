@@ -1885,6 +1885,11 @@ unsigned GdbEngine::debuggerCapabilities() const
     return caps | SnapshotCapability;
 }
 
+bool GdbEngine::canWatchWidgets() const
+{
+    return true;
+}
+
 void GdbEngine::continueInferiorInternal()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());

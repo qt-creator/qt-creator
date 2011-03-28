@@ -197,9 +197,12 @@ void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode, c
         if (propertyName == "clip")
             item->setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode.instanceValue("clip").toBool());
 
-        if (propertyName == "visible")
-            item->setContentVisible(qmlItemNode.instanceValue("visible").toBool());
-
+        if (!qmlItemNode.isRootNode()) {
+            if (propertyName == "visible")
+                item->setContentVisible(qmlItemNode.instanceValue("visible").toBool());
+        } else {
+            item->setContentVisible(true);
+        }
     }
 }
 
@@ -268,7 +271,9 @@ QList<QGraphicsItem *> FormEditorScene::removeLayerItems(const QList<QGraphicsIt
 
 void FormEditorScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    currentTool()->mousePressEvent(removeLayerItems(items(event->scenePos())), event);
+    if (editorView() && editorView()->model()) {
+        currentTool()->mousePressEvent(removeLayerItems(items(event->scenePos())), event);
+    }
 }
 
 void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -283,26 +288,34 @@ void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void FormEditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    currentTool()->mouseReleaseEvent(removeLayerItems(items(event->scenePos())), event);
+    if (editorView() && editorView()->model()) {
+        currentTool()->mouseReleaseEvent(removeLayerItems(items(event->scenePos())), event);
 
-    event->accept();
+        event->accept();
+    }
  }
 
 void FormEditorScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-    currentTool()->mouseDoubleClickEvent(removeLayerItems(items(event->scenePos())), event);
+    if (editorView() && editorView()->model()) {
+        currentTool()->mouseDoubleClickEvent(removeLayerItems(items(event->scenePos())), event);
 
-    event->accept();
+        event->accept();
+    }
 }
 
 void FormEditorScene::keyPressEvent(QKeyEvent *keyEvent)
 {
-    currentTool()->keyPressEvent(keyEvent);
+    if (editorView() && editorView()->model()) {
+        currentTool()->keyPressEvent(keyEvent);
+    }
 }
 
 void FormEditorScene::keyReleaseEvent(QKeyEvent *keyEvent)
 {
-    currentTool()->keyReleaseEvent(keyEvent);
+    if (editorView() && editorView()->model()) {
+        currentTool()->keyReleaseEvent(keyEvent);
+    }
 }
 
 FormEditorView *FormEditorScene::editorView() const

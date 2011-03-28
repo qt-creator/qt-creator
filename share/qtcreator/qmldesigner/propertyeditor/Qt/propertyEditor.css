@@ -180,6 +180,7 @@ QToolButton
      background: none;
      border: none;
      background-color: none;
+     color: #dedede;
 }
 
 QToolButton::pressed

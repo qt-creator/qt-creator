@@ -80,12 +80,6 @@
       <property name="height" type="int" value="640"/>
     </itemlibraryentry>
   </node>
-  <node name="Frame" icon=":/symbianplugin/images/window16.png">
-    <itemlibraryentry name="Frame" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="360"/>
-      <property name="height" type="int" value="640"/>
-    </itemlibraryentry>
-  </node>
   <node name="Page" icon=":/symbianplugin/images/window16.png">
     <itemlibraryentry name="Page" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="360"/>

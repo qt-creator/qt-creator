@@ -207,6 +207,13 @@ ToolChain *ToolChainManager::findToolChain(const QString &id) const
     return 0;
 }
 
+void ToolChainManager::notifyAboutUpdate(ProjectExplorer::ToolChain *tc)
+{
+    if (!tc || !m_d->m_toolChains.contains(tc))
+        return;
+    emit toolChainUpdated(tc);
+}
+
 bool ToolChainManager::registerToolChain(ToolChain *tc)
 {
     if (!tc || m_d->m_toolChains.contains(tc))

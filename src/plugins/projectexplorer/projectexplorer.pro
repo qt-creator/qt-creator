@@ -12,7 +12,6 @@ INCLUDEPATH += $$PWD/../../libs/utils
 HEADERS += projectexplorer.h \
     abi.h \
     gcctoolchain.h \
-    msvctoolchain.h \
     projectexplorer_export.h \
     projectwindow.h \
     buildmanager.h \
@@ -79,7 +78,6 @@ HEADERS += projectexplorer.h \
     userfileaccessor.h \
     cesdkhandler.h \
     gccparser.h \
-    msvcparser.h \
     filewatcher.h \
     debugginghelper.h \
     projectexplorersettingspage.h \
@@ -112,7 +110,6 @@ HEADERS += projectexplorer.h \
 SOURCES += projectexplorer.cpp \
     abi.cpp \
     gcctoolchain.cpp \
-    msvctoolchain.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
     buildsteplist.cpp \
@@ -172,7 +169,6 @@ SOURCES += projectexplorer.cpp \
     cesdkhandler.cpp \
     userfileaccessor.cpp \
     gccparser.cpp \
-    msvcparser.cpp \
     filewatcher.cpp \
     debugginghelper.cpp \
     projectexplorersettingspage.cpp \
@@ -219,8 +215,12 @@ equals(TEST, 1) {
 
 win32 {
     SOURCES += applicationlauncher_win.cpp \
-        winguiprocess.cpp
-    HEADERS += winguiprocess.h
+        winguiprocess.cpp \
+        msvcparser.cpp \
+        msvctoolchain.cpp
+    HEADERS += winguiprocess.h \
+        msvcparser.h \
+        msvctoolchain.h
 } else {
     SOURCES += applicationlauncher_x11.cpp
     macx:LIBS += -framework Carbon

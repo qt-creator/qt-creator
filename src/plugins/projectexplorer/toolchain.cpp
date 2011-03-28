@@ -32,6 +32,9 @@
 **************************************************************************/
 
 #include "toolchain.h"
+
+#include "toolchainmanager.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <utils/environment.h>
 
@@ -90,9 +93,13 @@ QString ToolChain::displayName() const
     return m_d->m_displayName;
 }
 
-void ToolChain::setDisplayName(const QString &name) const
+void ToolChain::setDisplayName(const QString &name)
 {
+    if (m_d->m_displayName == name)
+        return;
+
     m_d->m_displayName = name;
+    toolChainUpdated();
 }
 
 bool ToolChain::isAutoDetected() const
@@ -143,12 +150,24 @@ QVariantMap ToolChain::toMap() const
 void ToolChain::setId(const QString &id)
 {
     Q_ASSERT(!id.isEmpty());
+    if (m_d->m_id == id)
+        return;
+
     m_d->m_id = id;
+    toolChainUpdated();
+}
+
+void ToolChain::toolChainUpdated()
+{
+    ToolChainManager::instance()->notifyAboutUpdate(this);
 }
 
 void ToolChain::setAutoDetected(bool autodetect)
 {
+    if (m_d->m_autodetect == autodetect)
+        return;
     m_d->m_autodetect = autodetect;
+    toolChainUpdated();
 }
 
 bool ToolChain::fromMap(const QVariantMap &data)

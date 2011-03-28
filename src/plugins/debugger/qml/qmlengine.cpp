@@ -231,6 +231,8 @@ void QmlEngine::connectionEstablished()
 
     showMessage(tr("QML Debugger connected."), StatusBar);
 
+    synchronizeWatchers();
+
     notifyEngineRunAndInferiorRunOk();
 
 }
@@ -349,6 +351,11 @@ void QmlEngine::showMessage(const QString &msg, int channel, int timeout) const
         const_cast<QmlEngine*>(this)->filterApplicationMessage(msg, channel);
     }
     DebuggerEngine::showMessage(msg, channel, timeout);
+}
+
+bool QmlEngine::acceptsWatchesWhileRunning() const
+{
+    return true;
 }
 
 void QmlEngine::closeConnection()
@@ -687,22 +694,29 @@ void QmlEngine::updateWatchData(const WatchData &data,
     }
 
     if (!data.name.isEmpty() && data.isChildrenNeeded()
-            && watchHandler()->isExpandedIName(data.iname))
+            && watchHandler()->isExpandedIName(data.iname)) {
         expandObject(data.iname, data.id);
+    }
 
-    {
+    synchronizeWatchers();
+
+    if (!data.isSomethingNeeded())
+        watchHandler()->insertData(data);
+}
+
+void QmlEngine::synchronizeWatchers()
+{
+    if (!watchHandler()->watcherNames().isEmpty()) {
+        // send watchers list
         QByteArray reply;
         QDataStream rs(&reply, QIODevice::WriteOnly);
         QByteArray cmd = "WATCH_EXPRESSIONS";
         rs << cmd;
         rs << watchHandler()->watchedExpressions();
         logMessage(LogSend, QString("%1 %2").arg(
-                             QString(cmd), watchHandler()->watchedExpressions().join(", ")));
+                       QString(cmd), watchHandler()->watchedExpressions().join(", ")));
         sendMessage(reply);
     }
-
-    if (!data.isSomethingNeeded())
-        watchHandler()->insertData(data);
 }
 
 void QmlEngine::expandObject(const QByteArray &iname, quint64 objectId)

@@ -122,22 +122,22 @@
 
     \list 1
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install Qt 4.7.2 for
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install Qt 4.7.3 for
         Symbian^3 on Device}. Follow the instructions on the screen to install Qt
         libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install QtMobility 1.1.0 for
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install QtMobility 1.1.2 for
         Symbian^3 on Device}
         and follow the instructions on the screen to install Qt
         mobility libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install TRK
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install TRK
         (Debug Agent) for Symbian^3 on Device} and follow the
         instructions on the screen to install
         the App TRK debugging agent to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.2 > Install QtWebKit
-        for for Qt 4.7.2 on Symbian^3 Device} and follow the
+        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install QtWebKit
+        for for Qt 4.7.3 on Symbian^3 Device} and follow the
         instructions on the screen to install QtWebKit to the device.
 
     \endlist
@@ -152,21 +152,21 @@
 
     \list 1
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install Qt 4.7.1
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install Qt 4.7.3
         for Symbian^1 on Device}. Follow the instructions on the screen to install Qt
         libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install QtMobility 1.1.0
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install QtMobility 1.1.2
         for Symbian^1 on Device} and follow the instructions on the screen to install Qt
         mobility libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install TRK
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install TRK
         (Debug Agent)} for the type of the connected device and follow the
         instructions on the screen to install
         the App TRK debugging agent to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.2 > Install QtWebKit
-        for for Qt 4.7.2 on Symbian^1 Device} and follow the
+        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install QtWebKit
+        for for Qt 4.7.3 on Symbian^1 Device} and follow the
         instructions on the screen to install QtWebKit to the device.
 
     \endlist
@@ -237,8 +237,7 @@
         \o \l{http://www.forum.nokia.com/info/sw.nokia.com/id/ec866fab-4b76-49f6-b5a5-af0631419e9c/S60_All_in_One_SDKs.html}
            {S60 Platform SDK 3rd Edition FP1 or higher}.
         \o Either the GCCE ARM Toolchain that is included in the Symbian
-           SDKs, or RVCT 2.2 [build 686] or later (which is not available free
-           of charge)(Your environment needs to find the compiler in the PATH).
+           SDKs, or RVCT 2.2 [build 686] or later (which requires a license).
         \o Qt for Symbian 4.6.2 or later, installed into the Symbian SDKs you want
            to use.
 
@@ -252,21 +251,11 @@
     is made in the Qt version management settings in \gui{Tools} >
     \gui{Options...} > \gui{Qt4} > \gui{Qt Versions}.
 
-    \note If you manually add a Qt version for Symbian, you must
+    If you manually add a Qt version for Symbian, you must
     also manually specify the Symbian SDK to use for this version.
 
-    \image qtcreator-qt4-qtversions-win-symbian.png
-
-    If you want to run your applications in the Symbian emulator, you need to
-    point Qt Creator to the Metrowerks Compiler that you want to use, by
-    setting the \gui{Carbide directory} of the Qt version to the corresponding
-    Carbide.c++ installation directory.
-
-    You can check which Symbian SDKs and corresponding Qt versions are found in the
-    \gui{Tools} > \gui{Options...} > \gui{Qt4} > \gui{S60 SDKs} preference
-    page.
-
-    \image qtcreator-qt4-s60sdks.png
+    For more information about adding Qt versions and tool chains, see
+    \l{Setting Up Qt for Symbian Versions} and \l{Adding Tool Chains}.
 
     \else
 

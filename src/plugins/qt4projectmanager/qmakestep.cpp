@@ -257,7 +257,6 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
     }
 
     // Warn on common error conditions:
-
     bool canContinue = true;
     foreach (const ProjectExplorer::Task &t, m_tasks) {
         addTask(t);

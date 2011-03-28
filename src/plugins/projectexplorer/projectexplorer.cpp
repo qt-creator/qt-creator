@@ -36,7 +36,6 @@
 #include "buildsteplist.h"
 #include "deployconfiguration.h"
 #include "gcctoolchainfactories.h"
-#include "msvctoolchain.h"
 #include "project.h"
 #include "projectexplorersettings.h"
 #include "target.h"
@@ -85,6 +84,10 @@
 #include "taskhub.h"
 #include "publishing/ipublishingwizardfactory.h"
 #include "publishing/publishingwizardselectiondialog.h"
+
+#ifdef Q_OS_WIN
+#    include "msvctoolchain.h"
+#endif
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/filemanager.h>
@@ -288,12 +291,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addObject(this);
 
     // Add ToolChainFactories:
-#ifndef Q_OS_WIN
-    addAutoReleasedObject(new Internal::GccToolChainFactory);
-    addAutoReleasedObject(new Internal::LinuxIccToolChainFactory);
-#else
+#ifdef Q_OS_WIN
     addAutoReleasedObject(new Internal::MingwToolChainFactory);
     addAutoReleasedObject(new Internal::MsvcToolChainFactory);
+#else
+    addAutoReleasedObject(new Internal::GccToolChainFactory);
+    addAutoReleasedObject(new Internal::LinuxIccToolChainFactory);
 #endif
 
     d->m_toolChainManager = new ToolChainManager(this);
@@ -2114,14 +2117,7 @@ void ProjectExplorerPlugin::openRecentProject()
         return;
     QString fileName = a->data().toString();
     if (!fileName.isEmpty()) {
-        if (!openProject(fileName)) {
-            QMessageBox box(QMessageBox::Warning,
-                            tr("Failed to open project"),
-                            tr("Failed to open project:\n%1").arg(fileName),
-                            QMessageBox::Ok,
-                            Core::ICore::instance()->mainWindow());
-            box.exec();
-        }
+        openProject(fileName);
     }
 }
 
