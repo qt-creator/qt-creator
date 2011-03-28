@@ -134,6 +134,7 @@ void WinGuiProcess::run()
         if (!started) {
             emit processMessage(tr("The process could not be started: %1").
                                 arg(Utils::winErrorMessage(GetLastError())), true);
+            emit processFinished(0);
             break;
         }
 
