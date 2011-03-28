@@ -4228,11 +4228,11 @@ QString FakeVimHandler::Private::selectText(const Range &range) const
         QTextCursor tc = cursor();
         int firstPos = firstPositionInLine(lineForPosition(range.beginPos));
         int lastLine = lineForPosition(range.endPos);
-        int lastPos = lastLine == document()->lastBlock().blockNumber() + 1
-            ? lastPositionInDocument() : firstPositionInLine(lastLine + 1);
+        bool endOfDoc = lastLine == document()->lastBlock().blockNumber() + 1;
+        int lastPos = endOfDoc ? lastPositionInDocument()  : firstPositionInLine(lastLine + 1);
         tc.setPosition(firstPos, MoveAnchor);
         tc.setPosition(lastPos, KeepAnchor);
-        return tc.selection().toPlainText();
+        return tc.selection().toPlainText() + QString((endOfDoc? "\n" : ""));
     }
     // FIXME: Performance?
     int beginLine = lineForPosition(range.beginPos);
@@ -4436,14 +4436,30 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
         case RangeLineModeExclusive: {
             moveToStartOfLine();
             m_targetColumn = 0;
+            beginEditBlock();
+            QTextCursor tc = cursor();
             for (int i = count(); --i >= 0; ) {
-                if (afterCursor)
+                bool lastLine = document()->lastBlock() == this->block();
+                if (afterCursor) {
+                    if (lastLine) {
+                        tc.movePosition(EndOfLine, MoveAnchor);
+                        tc.insertBlock();
+                    }
                     moveDown();
+                }
                 setAnchor();
                 insertText(text);
-                moveUp(lines.size() - 1);
+                if (afterCursor && lastLine) {
+                    tc.movePosition(Left, KeepAnchor);
+                    tc.removeSelectedText();
+                    setAnchor();
+                    moveUp(lines.size() - 2);
+                } else {
+                    moveUp(lines.size() - 1);
+                }
             }
             moveToFirstNonBlankOnLine();
+            endEditBlock();
             break;
         }
         case RangeBlockAndTailMode:
