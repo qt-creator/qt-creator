@@ -30,6 +30,7 @@ Thumbs.db
 
 # qtcreator generated files
 *.pro.user*
+*.qmlproject.user*
 *.pluginspec
 src/app/Info.plist
 src/plugins/coreplugin/ide_version.h
