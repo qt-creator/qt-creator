@@ -104,7 +104,7 @@ namespace Utils {
             QWidget(parent),
             d(new DetailsWidgetPrivate(this))
     {
-        d->m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        d->m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
         d->m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         d->m_summaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
 
@@ -128,6 +128,8 @@ namespace Utils {
                 this, SLOT(setExpanded(bool)));
         connect(d->m_summaryCheckBox, SIGNAL(toggled(bool)),
                 this, SIGNAL(checked(bool)));
+        connect(d->m_summaryLabel, SIGNAL(linkActivated(QString)),
+                this, SIGNAL(linkActivated(QString)));
         updateControls();
     }
 

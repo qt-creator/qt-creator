@@ -147,6 +147,9 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     connect(d->m_environmentView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(environmentCurrentIndexChanged(QModelIndex)));
 
+    connect(d->m_detailsContainer, SIGNAL(linkActivated(QString)),
+            this, SLOT(linkActivated(QString)));
+
     connect(d->m_model, SIGNAL(userChangesChanged()), this, SLOT(updateSummaryText()));
 }
 
@@ -199,9 +202,9 @@ void EnvironmentWidget::updateSummaryText()
         if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
             text.append("<br>");
             if (item.unset)
-                text.append(tr("Unset <b>%1</b>").arg(Qt::escape(item.name)));
+                text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(Qt::escape(item.name)));
             else
-                text.append(tr("Set <b>%1</b> to <b>%2</b>").arg(Qt::escape(item.name), Qt::escape(item.value)));
+                text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(Qt::escape(item.name), Qt::escape(item.value)));
         }
     }
 
@@ -211,6 +214,13 @@ void EnvironmentWidget::updateSummaryText()
         text.prepend(tr("Using <b>%1</b> and").arg(d->m_baseEnvironmentText));
 
     d->m_detailsContainer->setSummaryText(text);
+}
+
+void EnvironmentWidget::linkActivated(const QString &link)
+{
+    d->m_detailsContainer->setState(Utils::DetailsWidget::Expanded);
+    QModelIndex idx = d->m_model->variableToIndex(link);
+    focusIndex(idx);
 }
 
 void EnvironmentWidget::updateButtons()

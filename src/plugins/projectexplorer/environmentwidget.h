@@ -75,6 +75,7 @@ private slots:
     void updateSummaryText();
     void focusIndex(const QModelIndex &index);
     void updateButtons();
+    void linkActivated(const QString &link);
 
 private:
     QScopedPointer<EnvironmentWidgetPrivate> d;
