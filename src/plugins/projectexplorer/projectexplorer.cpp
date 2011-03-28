@@ -1575,7 +1575,8 @@ void ProjectExplorerPlugin::updateActions()
     d->m_rebuildProjectOnlyAction->setEnabled(enableBuildActions);
     d->m_cleanProjectOnlyAction->setEnabled(enableBuildActions);
 
-    d->m_clearSession->setEnabled(hasProjects && enabledSessionBuildActions);
+    d->m_clearSession->setEnabled(hasProjects);
+
     d->m_buildSessionAction->setEnabled(hasProjects && enabledSessionBuildActions);
     d->m_rebuildSessionAction->setEnabled(hasProjects && enabledSessionBuildActions);
     d->m_cleanSessionAction->setEnabled(hasProjects && enabledSessionBuildActions);
