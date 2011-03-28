@@ -30,7 +30,7 @@ HEADERS += \
     timelineview.h
 
 RESOURCES += \
-    qmlprofiler.qrc
+    qml/qml.qrc
 
 OTHER_FILES += \
     Detail.qml \
