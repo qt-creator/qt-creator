@@ -1549,6 +1549,16 @@ void testQUrl()
     (void) url;
 }
 
+void testLongEvaluation()
+{
+    QDateTime time = QDateTime::currentDateTime();
+    QVector<QDateTime> bigv;
+    for (int i = 0; i < 10000; ++i)
+        bigv.append(time);
+    int s = bigv.size();
+    ++s;
+}
+
 
 #ifdef FOP
 
@@ -2523,6 +2533,7 @@ void testMPI()
 
 int main(int argc, char *argv[])
 {
+    testLongEvaluation();
     testMPI();
     testStuffA();
     testPrivate();
