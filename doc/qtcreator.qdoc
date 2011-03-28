@@ -1589,7 +1589,8 @@
 
     As you write code, Qt Creator suggests properties, IDs, and code
     snippets to complete the code. It provides a list of context-sensitive
-    suggestions to the statement currently under your cursor.
+    suggestions to the statement currently under your cursor. Press \key Tab
+    or \key Enter to accept the selected suggestion and complete the code.
 
     \image qtcreator-codecompletion.png
 
