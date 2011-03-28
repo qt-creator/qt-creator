@@ -100,7 +100,7 @@ const char * const SELECTTARGET         = "ProjectExplorer.SelectTarget";
 
 // action priorities
 const int          P_ACTION_RUN            = 100;
-const int          P_ACTION_BUILDSESSION   = 80;
+const int          P_ACTION_BUILDPROJECT   = 80;
 
 // context
 const char * const C_PROJECTEXPLORER    = "Project Explorer";
