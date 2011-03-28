@@ -2630,6 +2630,7 @@ int main(int argc, char *argv[])
     testBoostOptional();
     testBoostSharedPtr();
 
+    //*(int *)0 = 0;
     testFork();
 
     testQObject(argc, argv);
