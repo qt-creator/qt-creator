@@ -43,6 +43,16 @@
 #include <utils/qtcassert.h>
 
 enum { debug = 0 };
+
+/*!
+    \class  VCSBase::AbstractCheckoutJob
+
+    \brief Abstract base class for a job creating an initial project checkout.
+           It should be something that runs in the background producing log messages.
+
+    \sa VCSBase::BaseCheckoutWizard
+*/
+
 namespace VCSBase {
 
 AbstractCheckoutJob::AbstractCheckoutJob(QObject *parent) :
@@ -81,6 +91,12 @@ static inline QSharedPointer<QProcess> createProcess()
         flags = Utils::SynchronousProcess::UnixTerminalDisabled;
     return Utils::SynchronousProcess::createProcess(flags);
 }
+
+/*!
+    \class VCSBase::ProcessCheckoutJob
+
+    \brief Convenience implementation of a VCSBase::AbstractCheckoutJob using a QProcess.
+*/
 
 ProcessCheckoutJobPrivate::ProcessCheckoutJobPrivate() :
     process(createProcess())

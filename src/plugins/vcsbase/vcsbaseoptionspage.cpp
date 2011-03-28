@@ -38,6 +38,12 @@
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>
 
+/*!
+    \class VCSBase::VCSBaseOptionsPage
+
+    \brief Base class for VCS options pages providing common category/icon.
+ */
+
 namespace VCSBase {
 
 VCSBaseOptionsPage::VCSBaseOptionsPage(QObject *parent) :

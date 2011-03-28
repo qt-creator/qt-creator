@@ -40,6 +40,13 @@
 
 #include <QtGui/QPushButton>
 
+/*!
+    \class VCSBase::Internal::CheckoutWizardDialog
+
+    Dialog used by \sa VCSBase::BaseCheckoutWizard. Overwrites reject() to first
+    kill the checkout and then close.
+ */
+
 namespace VCSBase {
 namespace Internal {
 

@@ -56,21 +56,6 @@ namespace Internal {
 class DiffHighlighterPrivate;
 } // namespace Internal
 
-/* A highlighter for diffs. Parametrizable by the file indicator,
- *  which is for example '^====' in case of p4:
- * \code
-   ==== //depot/research/main/qdynamicmainwindow3/qdynamicdockwidgetlayout_p.h#34 (text) ====
- * \endcode
- * Or  '--- a/|'+++ b/' in case of git:
- * \code
-   diff --git a/src/plugins/plugins.pro b/src/plugins/plugins.pro
-   index 9401ee7..ef35c3b 100644
-   --- a/src/plugins/plugins.pro
-   +++ b/src/plugins/plugins.pro
-   @@ -10,6 +10,7 @@ SUBDIRS   = plugin_coreplugin \
- * \endcode
- * */
-
 class VCSBASE_EXPORT DiffHighlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT

@@ -95,8 +95,6 @@ private:
     bool m_unixTerminalDisabled;
 };
 
-/* A job queue running in a separate thread, executing commands
- * and emitting status/log  signals. */
 class VCSBASE_EXPORT VCSJobRunner : public QThread
 {
     Q_OBJECT

@@ -46,9 +46,6 @@ namespace Ui {
     class CheckoutProgressWizardPage;
 }
 
-/* Page showing the progress of an initial project
- * checkout. Turns complete when the job succeeds. */
-
 class CheckoutProgressWizardPage : public QWizardPage {
     Q_OBJECT
     Q_DISABLE_COPY(CheckoutProgressWizardPage)

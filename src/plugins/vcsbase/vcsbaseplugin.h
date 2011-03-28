@@ -65,34 +65,7 @@ struct VCSBasePluginPrivate;
 class VCSBasePluginStateData;
 class VCSBasePlugin;
 
-/* VCSBasePlugin and VCSBasePluginState: Provide a base class for
- * VCS plugins. It mainly takes care of maintaining the
- * VCS-relevant state of Qt Creator which is a tuple of
- *
- * 1) Current file    and it's version system control/top level
- * 2) Current project and it's version system control/top level
- *
- * (reflected in VCSBasePluginState). The plugin connects to the
- * relevant change signals in Qt Creator and calls the virtual
- * updateActions() for the plugins to update their menu actions
- * according to the new state. This is done centrally to avoid
- * single plugins repeatedly invoking searches/QFileInfo on files,
- * etc.
- * Independently, there are accessors for current patch files, which return
- * a file name if the current file could be a patch file which could be applied
- * and a repository exists.
- *
- * If current file/project are managed
- * by different version controls, the project is discarded and only
- * the current file is taken into account, allowing to do a diff
- * also when the project of a file is not opened.
- *
- * When triggering an action, a copy of the state should be made to
- * keep it, as it may rapidly change due to context changes, etc.
- *
- * The class also detects the VCS plugin submit editor closing and calls
- * the virtual submitEditorAboutToClose() to trigger the submit process. */
-
+// Documentation inside.
 class VCSBASE_EXPORT VCSBasePluginState
 {
 public:

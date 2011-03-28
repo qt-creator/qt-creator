@@ -40,9 +40,6 @@
 
 namespace VCSBase {
 
-/**
- * An abstract options page in the Version Control category.
- */
 class VCSBASE_EXPORT VCSBaseOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT

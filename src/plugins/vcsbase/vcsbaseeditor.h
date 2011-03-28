@@ -56,26 +56,14 @@ struct VCSBaseEditorWidgetPrivate;
 class DiffHighlighter;
 class BaseAnnotationHighlighter;
 
-// Contents of a VCSBaseEditor and its interaction.
+// Documentation inside
 enum EditorContentType {
-    // No special handling.
     RegularCommandOutput,
-    // Log of a file under revision control. Provide  'click on change'
-    // description and 'Annotate' if is the log of a single file.
     LogOutput,
-    // <change description>: file line
-    // Color per change number and provide 'click on change' description.
-    // Context menu offers "Annotate previous version".
     AnnotateOutput,
-    // Diff output. Might includes describe output, which consists of a
-    // header and diffs. Interaction is 'double click in  hunk' which
-    // opens the file
     DiffOutput
 };
 
-// Helper struct used to parametrize an editor with mime type, context
-// and id. The extension is currently only a suggestion when running
-// VCS commands with redirection.
 struct VCSBASE_EXPORT VCSBaseEditorParameters
 {
     EditorContentType type;
@@ -96,11 +84,6 @@ public:
     QByteArray chunk;
 };
 
-// Base class for editors showing version control system output
-// of the type enumerated by EditorContentType.
-// The source property should contain the file or directory the log
-// refers to and will be emitted with describeRequested().
-// This is for VCS that need a current directory.
 class VCSBASE_EXPORT VCSBaseEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_PROPERTY(QString source READ source WRITE setSource)

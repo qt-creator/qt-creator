@@ -39,6 +39,14 @@ using namespace VCSBase;
 
 enum { timeOutDefaultSeconds = 30 };
 
+/*!
+    \class VCSBase::VCSBaseClientSettings
+
+    \brief Settings used in VCSBaseClient.
+
+    \sa VCSBase::VCSBaseClient
+*/
+
 VCSBaseClientSettings::VCSBaseClientSettings() :
    m_binary(),
     m_logCount(0),

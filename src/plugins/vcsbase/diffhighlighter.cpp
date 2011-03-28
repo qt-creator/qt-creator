@@ -42,6 +42,28 @@
 #include <QtCore/QRegExp>
 #include <QtGui/QBrush>
 
+/*!
+    \class VCSBase::DiffHighlighter
+
+    \brief A highlighter for diffs.
+
+    Parametrizable by the file indicator, which is for example '^====' in case of p4:
+    \code
+    ==== //depot/research/main/qdynamicmainwindow3/qdynamicdockwidgetlayout_p.h#34 (text) ====
+    \endcode
+
+    Or  '--- a/|'+++ b/' in case of git:
+    \code
+    diff --git a/src/plugins/plugins.pro b/src/plugins/plugins.pro
+    index 9401ee7..ef35c3b 100644
+    --- a/src/plugins/plugins.pro
+    +++ b/src/plugins/plugins.pro
+    @@ -10,6 +10,7 @@ SUBDIRS   = plugin_coreplugin
+    \endcode
+
+    Also highlights trailing blanks.
+ */
+
 static const int BASE_LEVEL = 0;
 static const int FILE_LEVEL = 1;
 static const int LOCATION_LEVEL = 2;

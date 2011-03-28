@@ -36,6 +36,12 @@
 using namespace VCSBase;
 using namespace VCSBase::Internal;
 
+/*!
+    \class VCSBase::Internal::SubmitEditorFile
+
+    \brief A non-saveable IFile for submit editor files.
+*/
+
 SubmitEditorFile::SubmitEditorFile(const QString &mimeType, QObject *parent) :
     Core::IFile(parent),
     m_mimeType(mimeType),

@@ -53,6 +53,17 @@
 #include <QtCore/QFuture>
 #include <QtCore/QtConcurrentRun>
 
+/*!
+    \class VCSBase::CleanDialog
+
+    \brief File selector dialog for files not under version control.
+
+    Completely clean a directory under version control
+    from all files that are not under version control based on a list
+    generated from the version control system. Presents the user with
+    a checkable list of files and/or directories. Double click opens a file.
+*/
+
 enum { nameColumn, columnCount };
 enum { fileNameRole = Qt::UserRole, isDirectoryRole = Qt::UserRole + 1 };
 

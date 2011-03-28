@@ -42,11 +42,6 @@ class VCSBaseSubmitEditor;
 
 namespace Internal {
 
-// Catch the closing of a submit editor to trigger the submit.
-// One instance of this class exists, connected to the instances
-// of VCSBasePlugin, which dispatch if the editor kind matches theirs
-// (which is why the approach of passing the bool result was chosen).
-
 class CoreListener : public Core::ICoreListener
 {
     Q_OBJECT
@@ -58,6 +53,6 @@ signals:
     void submitEditorAboutToClose(VCSBaseSubmitEditor *e, bool *result);
 };
 
-}
-}
+} // Internal
+} // VCSBase
 #endif // CORELISTENER_H

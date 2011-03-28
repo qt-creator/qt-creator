@@ -39,7 +39,6 @@
 namespace VCSBase {
 namespace Internal {
 
-// A non-saveable IFile for submit editor files.
 class SubmitEditorFile : public Core::IFile
 {
     Q_OBJECT

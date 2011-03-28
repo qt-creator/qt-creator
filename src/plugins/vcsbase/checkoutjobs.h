@@ -70,8 +70,6 @@ signals:
     void output(const QString &what);
 };
 
-/* Convenience implementation using a QProcess. */
-
 class VCSBASE_EXPORT ProcessCheckoutJob : public AbstractCheckoutJob
 {
     Q_OBJECT

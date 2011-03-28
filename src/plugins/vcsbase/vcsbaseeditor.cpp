@@ -74,7 +74,33 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMessageBox>
 
+/*!
+    \enum VCSBase::EditorContentType
+
+    \brief Contents of a VCSBaseEditor and its interaction.
+
+    \value RegularCommandOutput  No special handling.
+    \value LogOutput  Log of a file under revision control. Provide  'click on change'
+           description and 'Annotate' if is the log of a single file.
+    \value AnnotateOutput  Color contents per change number and provide 'click on change' description.
+           Context menu offers "Annotate previous version". Expected format:
+           \code
+           <change description>: file line
+           \endcode
+    \value DiffOutput  Diff output. Might includes describe output, which consists of a
+           header and diffs. Interaction is 'double click in  hunk' which
+           opens the file. Context menu offers 'Revert chunk'.
+
+    \sa VCSBase::VCSBaseEditorWidget
+*/
+
 namespace VCSBase {
+
+/*!
+    \class VCSBase::DiffChunk
+
+    \brief A diff chunk consisting of file name and chunk data.
+*/
 
 bool DiffChunk::isValid() const
 {
@@ -93,10 +119,16 @@ QByteArray DiffChunk::asPatch() const
     return rc;
 }
 
-// VCSBaseEditor: An editor with no support for duplicates.
-// Creates a browse combo in the toolbar for diff output.
-// It also mirrors the signals of the VCSBaseEditor since the editor
-// manager passes the editor around.
+/*!
+    \class VCSBase::VCSBaseEditor
+
+    \brief An editor with no support for duplicates.
+
+    Creates a browse combo in the toolbar for diff output.
+    It also mirrors the signals of the VCSBaseEditor since the editor
+    manager passes the editor around.
+*/
+
 class VCSBaseEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
@@ -197,7 +229,29 @@ VCSBaseEditorWidgetPrivate::VCSBaseEditorWidgetPrivate(const VCSBaseEditorParame
 {
 }
 
-// ------------ VCSBaseEditor
+/*!
+    \struct VCSBase::VCSBaseEditorParameters
+
+    \brief Helper struct used to parametrize an editor with mime type, context
+    and id. The extension is currently only a suggestion when running
+    VCS commands with redirection.
+
+    \sa VCSBase::VCSBaseEditorWidget, VCSBase::BaseVCSEditorFactory, VCSBase::EditorContentType
+*/
+
+/*!
+    \class VCSBase::VCSBaseEditorWidget
+
+    \brief Base class for editors showing version control system output
+    of the type enumerated by EditorContentType.
+
+    The source property should contain the file or directory the log
+    refers to and will be emitted with describeRequested().
+    This is for VCS that need a current directory.
+
+    \sa VCSBase::BaseVCSEditorFactory, VCSBase::VCSBaseEditorParameters, VCSBase::EditorContentType
+*/
+
 VCSBaseEditorWidget::VCSBaseEditorWidget(const VCSBaseEditorParameters *type, QWidget *parent)
   : BaseTextEditorWidget(parent),
     d(new VCSBaseEditorWidgetPrivate(type))

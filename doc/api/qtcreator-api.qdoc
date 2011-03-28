@@ -108,6 +108,10 @@
     \o \l{Debugger}
     \o Debugging functionality.
 
+    \row
+    \o \l{VCSBase}
+    \o Base classes for version control support.
+
     \endtable
 */
 

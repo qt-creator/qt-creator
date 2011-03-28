@@ -78,6 +78,40 @@
 enum { debug = 0 };
 enum { wantToolBar = 0 };
 
+/*!
+    \struct VCSBase::VCSBaseSubmitEditorParameters
+
+    \brief Utility struct to parametrize a VCSBaseSubmitEditor.
+*/
+
+/*!
+    \class  VCSBase::VCSBaseSubmitEditor
+
+    \brief Base class for a submit editor based on the Utils::SubmitEditorWidget.
+
+    Presents the commit message in a text editor and an
+    checkable list of modified files in a list window. The user can delete
+    files from the list by pressing unchecking them or diff the selection
+    by doubleclicking.
+
+    The action matching the the ids (unless 0) of the parameter struct will be
+    registered with the EditorWidget and submit/diff actions will be added to
+    a toolbar.
+
+    For the given context, there must be only one instance of the editor
+    active.
+    To start a submit, set the submit template on the editor and the output
+    of the VCS status command listing the modified files as fileList and open
+    it.
+
+    The submit process is started by listening on the editor close
+    signal and then asking the IFile interface of the editor to save the file
+    within a IFileManager::blockFileChange() section
+    and to launch the submit process. In addition, the action registered
+    for submit should be connected to a slot triggering the close of the
+    current editor in the editor manager.
+*/
+
 namespace VCSBase {
 
 static inline QString submitMessageCheckScript()

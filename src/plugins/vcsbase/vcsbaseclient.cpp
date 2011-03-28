@@ -56,6 +56,16 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QMetaType>
 
+/*!
+    \class VCSBase::VCSBaseClient
+
+    \brief Base class for Mercurial and Bazaar 'clients'.
+
+    Provides base functionality for common commands (diff, log, etc).
+
+    \sa VCSBase::VCSJobRunner
+*/
+
 Q_DECLARE_METATYPE(QVariant)
 
 inline Core::IEditor *locateEditor(const Core::ICore *core, const char *property, const QString &entry)

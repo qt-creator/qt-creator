@@ -40,6 +40,15 @@
 #include <QtGui/QApplication>
 #include <QtGui/QCursor>
 
+/*!
+    \class VCSBase::CheckoutProgressWizardPage
+
+    \brief Page showing the progress of an initial project checkout. Turns complete when the job
+           succeeds.
+
+    \sa VCSBase::BaseCheckoutWizard
+*/
+
 namespace VCSBase {
 namespace Internal {
 

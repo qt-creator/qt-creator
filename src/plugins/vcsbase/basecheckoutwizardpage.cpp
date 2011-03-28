@@ -36,6 +36,18 @@
 
 #include <QtGui/QIcon>
 
+/*!
+    \class VCSBase::BaseCheckoutWizardPage
+
+    \brief Base class for a parameter page of a checkout wizard.
+
+    Lets the user specify the repository, a checkout directory and
+    the path. Contains a virtual to derive the checkout directory
+    from the repository as it is entered.
+
+    \sa VCSBase::BaseCheckoutWizard
+*/
+
 namespace VCSBase {
 
 struct BaseCheckoutWizardPagePrivate {

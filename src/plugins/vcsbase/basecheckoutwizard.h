@@ -49,20 +49,6 @@ namespace VCSBase {
 class AbstractCheckoutJob;
 struct BaseCheckoutWizardPrivate;
 
-/* A Core::IWizard implementing a wizard for initially checking
- * out a project using a version control system.
- * Implements all of Core::IWizard with the exception of
- * name()/description() and icon().
- * Pops up a QWizard consisting of a Parameter Page which is created
- * by a virtual factory function and a progress
- * page containing a log text. The factory function createJob()
- * creates a job with the output connected to the log window,
- * returning the path to the checkout.
- * On success, the wizard tries to locate a project file
- * and open it.
- * BaseCheckoutWizardPage is provided as a convenience base class
- * for parameter wizard pages. */
-
 class VCSBASE_EXPORT BaseCheckoutWizard : public Core::IWizard
 {
     Q_OBJECT

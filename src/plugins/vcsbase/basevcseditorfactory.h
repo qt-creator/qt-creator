@@ -45,8 +45,6 @@ namespace VCSBase {
 
 struct BaseVCSEditorFactoryPrivate;
 
-// Base class for editor factories creating instances of VCSBaseEditor
-//  subclasses.
 class VCSBASE_EXPORT BaseVCSEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT

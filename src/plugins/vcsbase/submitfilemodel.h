@@ -40,9 +40,6 @@
 
 namespace VCSBase {
 
-/* A 2-column (checkable, state, file name) model to be used to list the files-
- * in the submit editor. Provides header items and a convience to add files. */
-
 class VCSBASE_EXPORT SubmitFileModel : public QStandardItemModel
 {
     Q_OBJECT

@@ -44,10 +44,6 @@ class AbstractCheckoutJob;
 namespace Internal {
 class CheckoutProgressWizardPage;
 
-/* See BaseCheckoutWizard.
- * Overwrites reject() to first kill the checkout
- * and then close. */
-
 class CheckoutWizardDialog : public Utils::Wizard {
     Q_OBJECT
 public:

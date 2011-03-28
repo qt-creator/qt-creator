@@ -41,6 +41,14 @@
 
 #include <QtCore/QCoreApplication>
 
+/*!
+    \class VCSBase::BaseVCSEditorFactory
+
+    \brief Base class for editor factories creating instances of VCSBaseEditor subclasses.
+
+    \sa VCSBase::VCSBaseEditorWidget
+*/
+
 namespace VCSBase {
 
 struct BaseVCSEditorFactoryPrivate

@@ -46,11 +46,6 @@ namespace Ui {
 
 struct BaseCheckoutWizardPagePrivate;
 
-/* Base class for a parameter page of a checkout wizard.
- * Let's the user specify the repository, a checkout directory and
- * the path. Contains a virtual to derive the checkout directory
- * from the repository as it is entered. */
-
 class VCSBASE_EXPORT BaseCheckoutWizardPage : public QWizardPage {
     Q_OBJECT
     Q_PROPERTY(bool isBranchSelectorVisible READ isBranchSelectorVisible WRITE setBranchSelectorVisible)

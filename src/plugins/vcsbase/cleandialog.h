@@ -45,11 +45,6 @@ QT_END_NAMESPACE
 namespace VCSBase {
 struct CleanDialogPrivate;
 
-/* CleanDialog: Completely clean a directory under version control
- * from all files that are not under version control based on a list
- * generated from the version control system. Presents the user with
- * a checkable list of files and/or directories. Double click opens a file. */
-
 class VCSBASE_EXPORT CleanDialog : public QDialog {
     Q_OBJECT
 public:

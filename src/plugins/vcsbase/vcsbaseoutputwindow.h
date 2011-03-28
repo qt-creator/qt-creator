@@ -42,15 +42,6 @@ namespace VCSBase {
 
 struct VCSBaseOutputWindowPrivate;
 
-/* Common OutputWindow for Version Control System command and other output.
- * Installed by the base plugin and accessible for the other plugins
- * via static instance()-accessor. Provides slots to append output with
- * special formatting.
- * It is possible to associate a repository with plain log text, enabling
- * an "Open" context menu action over relative file name tokens in the text
- * (absolute paths will also work). This can be used for "status" logs,
- * showing modified file names, allowing the user to open them. */
-
 class VCSBASE_EXPORT VCSBaseOutputWindow : public Core::IOutputPane
 {
     Q_OBJECT
