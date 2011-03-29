@@ -48,7 +48,7 @@ DATA_DIRS = \
         for(file, files):!exists($$file/*):FILES += $$file
     }
 
-    macx:OTHER_FILES += $$FILES
+    OTHER_FILES += $$FILES
     copy2build.input = FILES
     copy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcDir}
     isEmpty(vcproj):copy2build.variable_out = PRE_TARGETDEPS
@@ -101,7 +101,7 @@ unix {
     DATA_FILES_SRC += externaltools/notepad_win.xml
 }
 for(file, DATA_FILES_SRC):DATA_FILES += $${SRCRESOURCEDIR}$$file
-macx:OTHER_FILES += $$DATA_FILES
+OTHER_FILES += $$DATA_FILES
 unconditionalCopy2build.input = DATA_FILES
 unconditionalCopy2build.output = $$IDE_DATA_PATH/${QMAKE_FUNC_FILE_IN_stripSrcResourceDir}
 isEmpty(vcproj):unconditionalCopy2build.variable_out = PRE_TARGETDEPS
