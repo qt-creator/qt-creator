@@ -121,7 +121,8 @@ public:
     quint64 address(BreakpointId id) const;
     void setAddress(BreakpointId id, const quint64 &address);
     int lineNumber(BreakpointId id) const;
-    void setBreakpointData(BreakpointId id, const BreakpointParameters &data);
+    void changeBreakpointData(BreakpointId id, const BreakpointParameters &data,
+        BreakpointParts parts);
     const BreakpointParameters &breakpointData(BreakpointId id) const;
     BreakpointState state(BreakpointId id) const;
     bool isEnabled(BreakpointId id) const;

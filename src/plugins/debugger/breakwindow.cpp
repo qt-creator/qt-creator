@@ -71,7 +71,7 @@ class BreakpointDialog : public QDialog
     Q_OBJECT
 public:
     explicit BreakpointDialog(unsigned engineCapabilities, QWidget *parent = 0);
-    bool showDialog(BreakpointParameters *data);
+    bool showDialog(BreakpointParameters *data, BreakpointParts *parts);
 
     void setParameters(const BreakpointParameters &data);
     BreakpointParameters parameters() const;
@@ -385,7 +385,8 @@ void BreakpointDialog::typeChanged(int)
     }
 }
 
-bool BreakpointDialog::showDialog(BreakpointParameters *data)
+bool BreakpointDialog::showDialog(BreakpointParameters *data,
+    BreakpointParts *parts)
 {
     setParameters(*data);
     if (exec() != QDialog::Accepted)
@@ -393,7 +394,8 @@ bool BreakpointDialog::showDialog(BreakpointParameters *data)
 
     // Check if changed.
     const BreakpointParameters newParameters = parameters();
-    if (data->equals(newParameters))
+    *parts = data->differencesTo(newParameters);
+    if (!*parts)
         return false;
 
     *data = newParameters;
@@ -651,17 +653,19 @@ void BreakWindow::editBreakpoint(BreakpointId id, QWidget *parent)
     unsigned engineCapabilities = AllDebuggerCapabilities;
     if (const DebuggerEngine *engine = breakHandler()->engine(id))
         engineCapabilities = engine->debuggerCapabilities();
+    BreakpointParts parts = NoParts;
     BreakpointDialog dialog(engineCapabilities, parent);
-    if (dialog.showDialog(&data))
-        breakHandler()->setBreakpointData(id, data);
+    if (dialog.showDialog(&data, &parts))
+        breakHandler()->changeBreakpointData(id, data, parts);
 }
 
 void BreakWindow::addBreakpoint()
 {
     BreakpointParameters data(BreakpointByFileAndLine);
+    BreakpointParts parts = NoParts;
     BreakpointDialog dialog(AllDebuggerCapabilities, this);
     dialog.setWindowTitle(tr("Add Breakpoint"));
-    if (dialog.showDialog(&data))
+    if (dialog.showDialog(&data, &parts))
         breakHandler()->appendBreakpoint(data);
 }
 

@@ -58,21 +58,42 @@ BreakpointParameters::BreakpointParameters(BreakpointType t)
     tracepoint(false)
 {}
 
+BreakpointParts BreakpointParameters::differencesTo
+    (const BreakpointParameters &rhs) const
+{
+    BreakpointParts parts = BreakpointParts();
+    if (type != rhs.type)
+        parts |= TypePart;
+    if (enabled != rhs.enabled)
+        parts |= EnabledPart;
+    if (pathUsage != rhs.pathUsage)
+        parts |= PathUsagePart;
+    if (fileName != rhs.fileName)
+        parts |= FileAndLinePart;
+    if (conditionsMatch(rhs.condition))
+        parts |= ConditionPart;
+    if (ignoreCount != rhs.ignoreCount)
+        parts |= IgnoreCountPart;
+    if (lineNumber != rhs.lineNumber)
+        parts |= FileAndLinePart;
+    if (address != rhs.address)
+        parts |= AddressPart;
+    if (threadSpec != rhs.threadSpec)
+        parts |= ThreadSpecPart;
+    if (functionName != rhs.functionName)
+        parts |= FunctionPart;
+    if (tracepoint != rhs.tracepoint)
+        parts |= TracePointPart;
+    if (module != rhs.module)
+        parts |= ModulePart;
+    if (command != rhs.command)
+        parts |= CommandPart;
+    return parts;
+}
+
 bool BreakpointParameters::equals(const BreakpointParameters &rhs) const
 {
-    return type == rhs.type
-        && enabled == rhs.enabled
-        && pathUsage == rhs.pathUsage
-        && fileName == rhs.fileName
-        && conditionsMatch(rhs.condition)
-        && ignoreCount == rhs.ignoreCount
-        && lineNumber == rhs.lineNumber
-        && address == rhs.address
-        && threadSpec == rhs.threadSpec
-        && functionName == rhs.functionName
-        && tracepoint == rhs.tracepoint
-        && module == rhs.module
-        && command == rhs.command;
+    return !differencesTo(rhs);
 }
 
 bool BreakpointParameters::conditionsMatch(const QByteArray &other) const

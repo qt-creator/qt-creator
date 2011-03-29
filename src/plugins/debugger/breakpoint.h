@@ -88,10 +88,40 @@ enum BreakpointPathUsage
     BreakpointUseShortPath            //!< Use filename only, in case source files are relocated.
 };
 
+enum BreakpointParts
+{
+    NoParts = 0,
+    FileAndLinePart = 0x1,
+    FunctionPart = 0x2,
+    AddressPart = 0x4,
+    ConditionPart = 0x8,
+    IgnoreCountPart = 0x10,
+    ThreadSpecPart = 0x20,
+    AllConditionParts = ConditionPart|IgnoreCountPart|ThreadSpecPart,
+    ModulePart = 0x40,
+    TracePointPart = 0x80,
+
+    EnabledPart = 0x100,
+    TypePart = 0x200,
+    PathUsagePart = 0x400,
+    CommandPart = 0x400,
+
+    AllParts = FileAndLinePart|FunctionPart|AddressPart|ConditionPart
+               |IgnoreCountPart|ThreadSpecPart|ModulePart|TracePointPart
+               |EnabledPart|TypePart|PathUsagePart|CommandPart
+};
+
+inline void operator|=(BreakpointParts &p, BreakpointParts r)
+{
+    p = BreakpointParts(int(p) | int(r));
+}
+
+
 class BreakpointParameters
 {
 public:
     explicit BreakpointParameters(BreakpointType = UnknownType);
+    BreakpointParts differencesTo(const BreakpointParameters &rhs) const;
     bool equals(const BreakpointParameters &rhs) const;
     bool conditionsMatch(const QByteArray &other) const;
     bool isWatchpoint() const { return type == Watchpoint; }

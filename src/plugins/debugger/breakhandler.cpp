@@ -1092,21 +1092,21 @@ void BreakHandler::setResponse(BreakpointId id,
     updateMarker(id);
 }
 
-void BreakHandler::setBreakpointData(BreakpointId id,
-    const BreakpointParameters &data)
+void BreakHandler::changeBreakpointData(BreakpointId id,
+    const BreakpointParameters &data, BreakpointParts parts)
 {
     Iterator it = m_storage.find(id);
     QTC_ASSERT(it != m_storage.end(), return);
     if (data == it->data)
         return;
     it->data = data;
-    if (it->needsChange() && it->engine && it->state != BreakpointNew) {
-        setState(id, BreakpointChangeRequested);
-        scheduleSynchronization();
-    } else {
+    if (parts == NoParts) {
         it->destroyMarker();
         updateMarker(id);
         layoutChanged();
+    } else if (it->needsChange() && it->engine && it->state != BreakpointNew) {
+        setState(id, BreakpointChangeRequested);
+        scheduleSynchronization();
     }
 }
 
