@@ -207,7 +207,7 @@ void MaemoToolChain::updateId()
 }
 
 // --------------------------------------------------------------------------
-// ToolChainConfigWidget
+// MaemoToolChainConfigWidget
 // --------------------------------------------------------------------------
 
 MaemoToolChainConfigWidget::MaemoToolChainConfigWidget(MaemoToolChain *tc) :
@@ -239,7 +239,7 @@ bool MaemoToolChainConfigWidget::isDirty() const
 }
 
 // --------------------------------------------------------------------------
-// ToolChainFactory
+// MaemoToolChainFactory
 // --------------------------------------------------------------------------
 
 MaemoToolChainFactory::MaemoToolChainFactory() :
