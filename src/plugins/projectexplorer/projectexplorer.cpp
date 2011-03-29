@@ -629,6 +629,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
+    // Add to mode bar
+    modeManager->addAction(cmd->action(), Constants::P_ACTION_BUILDSESSION);
 
     // rebuild session action
     QIcon rebuildIcon(Constants::ICON_REBUILD);
@@ -660,9 +662,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultText(d->m_buildAction->text());
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_PROJECT);
-
-    // Add to mode bar
-    modeManager->addAction(cmd->action(), Constants::P_ACTION_BUILDPROJECT);
 
     // rebuild action
     d->m_rebuildAction = new Utils::ParameterAction(tr("Rebuild Project"), tr("Rebuild Project \"%1\""),
