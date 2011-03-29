@@ -471,14 +471,14 @@ public:
 
     virtual void initializePage()
     {
-        QString infoText = tr("The new device configuration will now be "
-            "created and a test procedure will be run to check whether "
-            "Qt Creator can connect to the device and to provide some "
-            "information about its features.");
-        if (m_wizardData.deviceType == MaemoDeviceConfig::Emulator) {
-            infoText += QLatin1Char('\n')
-                + tr("Please make sure that Qemu is running, otherwise "
-                     "the test will fail.");
+        QString infoText;
+        if (m_wizardData.deviceType == MaemoDeviceConfig::Physical) {
+            infoText = tr("The new device configuration will now be "
+                "created and a test procedure will be run to check whether "
+                "Qt Creator can connect to the device and to provide some "
+                "information about its features.");
+        } else {
+            infoText = tr("The new device configuration will now be created.");
         }
         m_infoLabel->setText(infoText);
     }

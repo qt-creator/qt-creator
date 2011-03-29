@@ -181,7 +181,8 @@ void MaemoDeviceConfigurationsSettingsWidget::addConfig()
         wizard.createDeviceConfig();
         m_ui->removeConfigButton->setEnabled(true);
         m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
-        testConfig();
+        if (currentConfig()->type() != MaemoDeviceConfig::Emulator)
+            testConfig();
     }
 }
 
