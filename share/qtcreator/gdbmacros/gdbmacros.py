@@ -1200,6 +1200,19 @@ def qdump__QRectF(d, item):
             d.putSubItem(Item(h, None, None, "h"))
 
 
+def qdump__QRegExp(d, item):
+    d.putStringValue(item.value["priv"]["engineKey"]["pattern"])
+    d.putNumChild(1)
+    if d.isExpanded(item):
+        with Children(d, 1):
+            # FIXME: Remove need to call
+            call(item.value, "capturedTexts") # create cache
+            caps = item.value["priv"]["capturedCache"]
+            syntax = item.value["priv"]["engineKey"]["patternSyntax"]
+            d.putSubItem(Item(syntax, None, None, "syntax"))
+            d.putSubItem(Item(caps, item.iname, "captures", "captures"))
+
+
 def qdump__QRegion(d, item):
     p = item.value["d"].dereference()["qt_rgn"]
     if isNull(p):
