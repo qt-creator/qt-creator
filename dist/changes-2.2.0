@@ -153,6 +153,11 @@ Symbian Target
    * Added support for the new on-device debugging agent (CODA)
 
 Maemo Target
+   * Added Meego support.
+   * Added a device configuration wizard.
+   * Added a publishing wizard for Fremantle/extras-devel.
+   * On-demand creation of Desktop files.
+   * For Fremantle, it's possible to disable packaging again.
 
 Designer
 
