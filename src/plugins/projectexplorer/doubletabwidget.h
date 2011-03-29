@@ -55,8 +55,8 @@ public:
     void setTitle(const QString &title);
     QString title() const { return m_title; }
 
-    void addTab(const QString &name, const QStringList &subTabs);
-    void insertTab(int index, const QString &name, const QStringList &subTabs);
+    void addTab(const QString &name, const QString &fullName, const QStringList &subTabs);
+    void insertTab(int index, const QString &name, const QString &fullName, const QStringList &subTabs);
     void removeTab(int index);
     int tabCount() const;
 
@@ -77,9 +77,16 @@ protected:
 private:
     struct Tab {
         QString name;
+        QString fullName;
+        bool nameIsUnique;
         QStringList subTabs;
         int currentSubTab;
+        QString displayName() const {
+            return nameIsUnique ? name : fullName;
+        }
     };
+    void updateNameIsUniqueAdd(Tab *tab);
+    void updateNameIsUniqueRemove(const Tab &tab);
 
     const QPixmap m_left;
     const QPixmap m_mid;

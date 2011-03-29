@@ -137,22 +137,57 @@ QSize DoubleTabWidget::minimumSizeHint() const
     return QSize(0, Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT + 1);
 }
 
-void DoubleTabWidget::addTab(const QString &name, const QStringList &subTabs)
+void DoubleTabWidget::updateNameIsUniqueAdd(Tab *tab)
+{
+    tab->nameIsUnique = true;
+    for (int i=0; i < m_tabs.size(); ++i) {
+        if (m_tabs.at(i).name == tab->name) {
+            m_tabs[i].nameIsUnique = false;
+            tab->nameIsUnique = false;
+            break;
+        }
+    }
+}
+
+void DoubleTabWidget::updateNameIsUniqueRemove(const Tab &tab)
+{
+    if (tab.nameIsUnique)
+        return;
+    int index;
+    int count = 0;
+    for (int i=0; i < m_tabs.size(); ++i) {
+        if (m_tabs.at(i).name == tab.name) {
+            ++count;
+            index = i;
+        }
+    }
+
+    if (count == 1)
+        m_tabs[index].nameIsUnique = true;
+}
+
+void DoubleTabWidget::addTab(const QString &name, const QString &fullName, const QStringList &subTabs)
 {
     Tab tab;
     tab.name = name;
+    tab.fullName = fullName;
     tab.subTabs = subTabs;
     tab.currentSubTab = tab.subTabs.isEmpty() ? -1 : 0;
+    updateNameIsUniqueAdd(&tab);
+
     m_tabs.append(tab);
     update();
 }
 
-void DoubleTabWidget::insertTab(int index, const QString &name, const QStringList &subTabs)
+void DoubleTabWidget::insertTab(int index, const QString &name, const QString &fullName, const QStringList &subTabs)
 {
     Tab tab;
     tab.name = name;
+    tab.fullName = fullName;
     tab.subTabs = subTabs;
     tab.currentSubTab = tab.subTabs.isEmpty() ? -1 : 0;
+    updateNameIsUniqueAdd(&tab);
+
     m_tabs.insert(index, tab);
     if (m_currentIndex >= index) {
         ++m_currentIndex;
@@ -163,7 +198,8 @@ void DoubleTabWidget::insertTab(int index, const QString &name, const QStringLis
 
 void DoubleTabWidget::removeTab(int index)
 {
-    m_tabs.removeAt(index);
+    Tab t = m_tabs.takeAt(index);
+    updateNameIsUniqueRemove(t);
     if (index <= m_currentIndex) {
         --m_currentIndex;
         if (m_currentIndex < 0 && m_tabs.size() > 0)
@@ -196,7 +232,7 @@ void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
         int i;
         for (i = 0; i <= m_lastVisibleIndex; ++i) {
             int otherX = x + 2 * MARGIN + fm.width(m_tabs.at(
-                    m_currentTabIndices.at(i)).name);
+                    m_currentTabIndices.at(i)).displayName());
             if (eventX > x && eventX < otherX) {
                 break;
             }
@@ -216,7 +252,7 @@ void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
                 QMenu overflowMenu;
                 QList<QAction *> actions;
                 for (int i = m_lastVisibleIndex + 1; i < m_tabs.size(); ++i) {
-                    actions << overflowMenu.addAction(m_tabs.at(m_currentTabIndices.at(i)).name);
+                    actions << overflowMenu.addAction(m_tabs.at(m_currentTabIndices.at(i)).displayName());
                 }
                 if (QAction *action = overflowMenu.exec(mapToGlobal(QPoint(x+1, 1)))) {
                     int index = m_currentTabIndices.at(actions.indexOf(action) + m_lastVisibleIndex + 1);
@@ -317,7 +353,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
     int indexSmallerThanWidth = -1;
     for (int i = 0; i < m_tabs.size(); ++i) {
         const Tab &tab = m_tabs.at(i);
-        int w = fm.width(tab.name);
+        int w = fm.width(tab.displayName());
         nameWidth << w;
         width += 2 * MARGIN + w;
         if (width < r.width())
@@ -381,7 +417,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
             painter.setPen(Utils::StyleHelper::borderColor());
             painter.drawLine(x - 1, 0, x - 1, r.height() - 1);
             painter.fillRect(QRect(x, 0,
-                                   2 * MARGIN + fm.width(tab.name),
+                                   2 * MARGIN + fm.width(tab.displayName()),
                                    r.height() + 1),
                              grad);
 
@@ -391,7 +427,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
             }
             x += MARGIN;
             painter.setPen(Qt::black);
-            painter.drawText(x, baseline, tab.name);
+            painter.drawText(x, baseline, tab.displayName());
             x += nameWidth.at(actualIndex);
             x += MARGIN;
             painter.setPen(Utils::StyleHelper::borderColor());
@@ -405,7 +441,7 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
                 drawFirstLevelSeparator(&painter, QPoint(x, 0), QPoint(x, r.height()-1));
             x += MARGIN;
             painter.setPen(Utils::StyleHelper::panelTextColor());
-            painter.drawText(x + 1, baseline, tab.name);
+            painter.drawText(x + 1, baseline, tab.displayName());
             x += nameWidth.at(actualIndex);
             x += MARGIN;
             drawFirstLevelSeparator(&painter, QPoint(x, 0), QPoint(x, r.height()-1));

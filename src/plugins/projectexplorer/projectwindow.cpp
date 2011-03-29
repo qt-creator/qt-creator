@@ -349,7 +349,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     }
 
     m_tabIndexToProject.insert(index, project);
-    m_tabWidget->insertTab(index, project->displayName(), subtabs);
+    m_tabWidget->insertTab(index, project->displayName(), project->file()->fileName(), subtabs);
 }
 
 void ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
