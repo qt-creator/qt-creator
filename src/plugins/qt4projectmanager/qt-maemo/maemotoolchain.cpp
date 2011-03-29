@@ -87,6 +87,11 @@ bool MaemoToolChain::isValid() const
     return GccToolChain::isValid() && m_qtVersionId >= 0 && m_targetAbi.isValid();
 }
 
+bool MaemoToolChain::canClone() const
+{
+    return false;
+}
+
 void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
 {
     QtVersion *v = QtVersionManager::instance()->version(m_qtVersionId);

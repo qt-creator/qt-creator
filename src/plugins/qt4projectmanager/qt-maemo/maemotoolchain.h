@@ -55,6 +55,7 @@ public:
     ProjectExplorer::Abi targetAbi() const;
 
     bool isValid() const;
+    bool canClone() const;
 
     void addToEnvironment(Utils::Environment &env) const;
     QString sysroot() const;
