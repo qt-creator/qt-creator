@@ -453,12 +453,21 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
 
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
 
-    ProjectExplorer::Project *pro = pe->startupProject();
     // ### not sure if we're supposed to check if the RunConFiguration isEnabled
-    if (!pro || !pro->activeTarget()->activeRunConfiguration()->isEnabled())
+    ProjectExplorer::Project *pro = pe->startupProject();
+    const ProjectExplorer::RunConfiguration *runConfig = 0;
+    ProjectExplorer::BuildConfiguration::BuildType buildType = ProjectExplorer::BuildConfiguration::Unknown;
+    if (pro) {
+        if (const ProjectExplorer::Target *target = pro->activeTarget()) {
+            runConfig = target->activeRunConfiguration();
+            // Build configuration is 0 for QML projects.
+            if (const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration())
+                buildType = buildConfig->buildType();
+        }
+    }
+    if (!runConfig || !runConfig->isEnabled())
         return;
 
-    ProjectExplorer::BuildConfiguration::BuildType buildType = pro->activeTarget()->activeBuildConfiguration()->buildType();
     IAnalyzerTool::ToolMode toolMode = q->currentTool()->mode();
 
     // check the project for whether the build config is in the correct mode
