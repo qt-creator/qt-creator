@@ -7345,6 +7345,8 @@
             For a custom target, you can build your own Python-enabled gdb.
             Follow the instructions on
             \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}{Building Gdb}.
+            You must use at least Python version 2.5, but we recommend that you
+            use version 2.6.
 
         \row
             \o Debugging tools for Windows
