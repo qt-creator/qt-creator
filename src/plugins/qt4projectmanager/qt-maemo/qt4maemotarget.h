@@ -180,6 +180,7 @@ private:
 
     QString changeLogFilePath() const;
     QString controlFilePath() const;
+    QString rulesFilePath() const;
     QByteArray controlFileFieldValue(const QString &key, bool multiLine) const;
     bool setControlFieldValue(const QByteArray &fieldName,
         const QByteArray &fieldValue);

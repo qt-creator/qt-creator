@@ -539,7 +539,7 @@ void MaemoPackageCreationStep::adaptRulesFile(const QString &rulesFilePath)
     if (makeInstallEol == -1)
         return;
     QString desktopFileDir = QFileInfo(rulesFile).dir().path()
-        + QLatin1Char('/') + projectName()
+        + QLatin1Char('/') + maemoTarget()->packageName()
         + QLatin1String("/usr/share/applications/");
     const Qt4BuildConfiguration * const bc = qt4BuildConfiguration();
     const MaemoGlobal::MaemoVersion version

@@ -540,21 +540,39 @@ QString AbstractDebBasedQt4MaemoTarget::packageName() const
 
 bool AbstractDebBasedQt4MaemoTarget::setPackageNameInternal(const QString &packageName)
 {
+    const QString oldPackageName = this->packageName();
+
     if (!setControlFieldValue(NameFieldName, packageName.toUtf8()))
         return false;
     if (!setControlFieldValue("Source", packageName.toUtf8()))
         return false;
-    QSharedPointer<QFile> file
+
+    QSharedPointer<QFile> changelogFile
         = openFile(changeLogFilePath(), QIODevice::ReadWrite, 0);
-    if (!file)
+    if (!changelogFile)
         return false;
-    QString contents = QString::fromUtf8(file->readAll());
+    QString changelogContents = QString::fromUtf8(changelogFile->readAll());
     QRegExp pattern(QLatin1String("[^\\s]+( \\(\\d\\.\\d\\.\\d\\))"));
-    contents.replace(pattern, packageName + QLatin1String("\\1"));
-    if (!file->resize(0))
+    changelogContents.replace(pattern, packageName + QLatin1String("\\1"));
+    if (!changelogFile->resize(0))
         return false;
-    const QByteArray &baContents = contents.toUtf8();
-    return file->write(baContents) == baContents.count();
+    changelogFile->write(changelogContents.toUtf8());
+
+    QSharedPointer<QFile> rulesFile
+        = openFile(rulesFilePath(), QIODevice::ReadWrite, 0);
+    if (!rulesFile)
+        return false;
+    QByteArray rulesContents = rulesFile->readAll();
+    const QString oldString = QLatin1String("debian/") + oldPackageName;
+    const QString newString = QLatin1String("debian/") + packageName;
+    rulesContents.replace(oldString.toUtf8(), newString.toUtf8());
+    rulesFile->resize(0);
+    rulesFile->write(rulesContents);
+    if (rulesFile->error() != QFile::NoError
+            || changelogFile->error() != QFile::NoError) {
+        return false;
+    }
+    return true;
 }
 
 QString AbstractDebBasedQt4MaemoTarget::packageManagerName() const
@@ -620,6 +638,11 @@ QString AbstractDebBasedQt4MaemoTarget::changeLogFilePath() const
 QString AbstractDebBasedQt4MaemoTarget::controlFilePath() const
 {
     return debianDirPath() + QLatin1String("/control");
+}
+
+QString AbstractDebBasedQt4MaemoTarget::rulesFilePath() const
+{
+    return debianDirPath() + QLatin1String("/rules");
 }
 
 QByteArray AbstractDebBasedQt4MaemoTarget::controlFileFieldValue(const QString &key,
@@ -775,11 +798,10 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
 
 bool AbstractDebBasedQt4MaemoTarget::adaptRulesFile()
 {
-    const QString rulesFilePath = debianDirPath() + "/rules";
-    QFile rulesFile(rulesFilePath);
+    QFile rulesFile(rulesFilePath());
     if (!rulesFile.open(QIODevice::ReadWrite)) {
         raiseError(tr("Packaging Error: Cannot open file '%1'.")
-                   .arg(QDir::toNativeSeparators(rulesFilePath)));
+                   .arg(QDir::toNativeSeparators(rulesFilePath())));
         return false;
     }
     QByteArray rulesContents = rulesFile.readAll();
@@ -799,7 +821,7 @@ bool AbstractDebBasedQt4MaemoTarget::adaptRulesFile()
     rulesFile.close();
     if (rulesFile.error() != QFile::NoError) {
         raiseError(tr("Packaging Error: Cannot write file '%1'.")
-                   .arg(QDir::toNativeSeparators(rulesFilePath)));
+                   .arg(QDir::toNativeSeparators(rulesFilePath())));
         return false;
     }
     return true;
