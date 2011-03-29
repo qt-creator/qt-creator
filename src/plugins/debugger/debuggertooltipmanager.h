@@ -228,6 +228,7 @@ protected:
     virtual QString clipboardContents() const;
 
 private:
+    QAbstractItemModel *swapModel(QAbstractItemModel *newModel);
     static void restoreTreeModel(QXmlStreamReader &r, QStandardItemModel *m);
 
     int m_debuggerModel;

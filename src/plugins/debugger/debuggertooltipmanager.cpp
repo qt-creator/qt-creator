@@ -852,8 +852,18 @@ void AbstractDebuggerToolTipWidget::saveSessionData(QXmlStreamWriter &w) const
     w.writeEndElement();
 }
 
-// Model for tooltips filtering a local variable using the locals model,
-// taking the expression. Suppress the tooltip data.
+/*!
+    \class Debugger::Internal::DebuggerToolTipExpressionFilterModel
+
+    \brief Model for tooltips filtering a local variable using the locals or tooltip model,
+    matching on the name.
+
+    Expressions/names can either be flat ('foo' will match at the root level)
+    or nested ('this.m_foo' will match 'this' at root level and 'm_foo' at level 1).
+
+    In addition, suppress the model's tooltip data to avoid a tooltip on a tooltip.
+*/
+
 class DebuggerToolTipExpressionFilterModel : public QSortFilterProxyModel
 {
 public:
@@ -863,13 +873,14 @@ public:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 private:
-    const QString m_expression;
+    const QStringList m_expressions;
 };
 
 DebuggerToolTipExpressionFilterModel::DebuggerToolTipExpressionFilterModel(QAbstractItemModel *model,
                                                                            const QString &exp,
                                                                            QObject *parent) :
-    QSortFilterProxyModel(parent), m_expression(exp)
+    QSortFilterProxyModel(parent),
+    m_expressions(exp.split(QLatin1Char('.')))
 {
     setSourceModel(model);
 }
@@ -880,13 +891,23 @@ QVariant DebuggerToolTipExpressionFilterModel::data(const QModelIndex &index, in
         QSortFilterProxyModel::data(index, role) : QVariant();
 }
 
+// Return depth of a model index, that is, 0 for root index, 1 for level-1 children, etc.
+static inline int indexDepth(QModelIndex index)
+{
+    int depth = 0;
+    for ( ; index.isValid() ; index = index.parent())
+        depth++;
+    return depth;
+}
+
 bool DebuggerToolTipExpressionFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     // Match on expression for top level, else pass through.
-    if (sourceParent.isValid())
+    const int depth = indexDepth(sourceParent);
+    if (depth >= m_expressions.size()) // No filters at this level
         return true;
-    const QModelIndex expIndex = sourceModel()->index(sourceRow, 0, sourceParent);
-    return expIndex.data().toString() == m_expression;
+    const QModelIndex nameIndex = sourceModel()->index(sourceRow, 0, sourceParent);
+    return nameIndex.data().toString() == m_expressions.at(depth);
 }
 
 /*!
@@ -1025,7 +1046,21 @@ void DebuggerTreeViewToolTipWidget::doAcquireEngine(Debugger::DebuggerEngine *en
     QTC_ASSERT(model, return);
     DebuggerToolTipExpressionFilterModel *filterModel =
             new DebuggerToolTipExpressionFilterModel(model, m_expression);
-    m_treeView->swapModel(filterModel);
+    swapModel(filterModel);
+}
+
+QAbstractItemModel *DebuggerTreeViewToolTipWidget::swapModel(QAbstractItemModel *newModel)
+{
+    QAbstractItemModel *oldModel = m_treeView->swapModel(newModel);
+    // When looking at some 'this.m_foo.x', expand all items
+    if (newModel) {
+        if (const int level = m_expression.count(QLatin1Char('.'))) {
+            QModelIndex index = newModel->index(0, 0);
+            for (int i = 0; i < level && index.isValid(); i++, index = index.child(0, 0))
+                m_treeView->setExpanded(index, true);
+        }
+    }
+    return oldModel;
 }
 
 void DebuggerTreeViewToolTipWidget::doReleaseEngine()
@@ -1036,7 +1071,7 @@ void DebuggerTreeViewToolTipWidget::doReleaseEngine()
         TreeModelCopyVisitor v(model, m_defaultModel);
         v.run();
     }
-    delete m_treeView->swapModel(m_defaultModel);
+    delete swapModel(m_defaultModel);
 }
 
 void DebuggerTreeViewToolTipWidget::restoreTreeModel(QXmlStreamReader &r, QStandardItemModel *m)

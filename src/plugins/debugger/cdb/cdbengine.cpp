@@ -528,17 +528,25 @@ bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
     int line;
     int column;
     DebuggerToolTipContext context = contextIn;
-    const QString exp = cppExpressionAt(editor, context.position, &line, &column, &context.function);
+    QString exp = cppExpressionAt(editor, context.position, &line, &column, &context.function);
     // Are we in the current stack frame
     if (context.function.isEmpty() || exp.isEmpty() || context.function != stackHandler()->currentFrame().function)
         return false;
     // No numerical or any other expressions [yet]
     if (!(exp.at(0).isLetter() || exp.at(0) == QLatin1Char('_')))
         return false;
-    const QByteArray iname = QByteArray(localsPrefixC) + exp.toAscii();
-    const QModelIndex index = watchHandler()->itemIndex(iname);
-    if (!index.isValid())
-        return false;
+    // Can this be found as a local variable?
+    const QByteArray localsPrefix(localsPrefixC);
+    QByteArray iname = localsPrefix + exp.toAscii();
+    QModelIndex index = watchHandler()->itemIndex(iname);
+    if (!index.isValid()) {
+        // Nope, try a 'local.this.m_foo'.
+        exp.prepend(QLatin1String("this."));
+        iname.insert(localsPrefix.size(), "this.");
+        index = watchHandler()->itemIndex(iname);
+        if (!index.isValid())
+            return false;
+    }
     DebuggerTreeViewToolTipWidget *tw = new DebuggerTreeViewToolTipWidget;
     tw->setContext(context);
     tw->setDebuggerModel(LocalsWatch);
