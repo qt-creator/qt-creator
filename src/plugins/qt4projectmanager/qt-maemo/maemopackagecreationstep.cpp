@@ -313,10 +313,12 @@ void MaemoPackageCreationStep::handleBuildOutput()
     QProcess * const buildProc = qobject_cast<QProcess *>(sender());
     if (!buildProc)
         return;
-    const QByteArray &stdOut = buildProc->readAllStandardOutput();
+    QByteArray stdOut = buildProc->readAllStandardOutput();
+    stdOut.replace('\0', QByteArray()); // Output contains NUL characters.
     if (!stdOut.isEmpty())
         emit addOutput(QString::fromLocal8Bit(stdOut), BuildStep::NormalOutput);
-    const QByteArray &errorOut = buildProc->readAllStandardError();
+    QByteArray errorOut = buildProc->readAllStandardError();
+    errorOut.replace('\0', QByteArray());
     if (!errorOut.isEmpty()) {
         emit addOutput(QString::fromLocal8Bit(errorOut), BuildStep::ErrorOutput);
     }
