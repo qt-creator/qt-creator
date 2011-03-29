@@ -41,6 +41,7 @@
 #include <QtGui/QFont>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QMenu>
+#include <QtGui/QToolTip>
 
 #include <QtDebug>
 
@@ -218,17 +219,20 @@ int DoubleTabWidget::tabCount() const
     return m_tabs.size();
 }
 
-void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
+/// Converts a position to the tab/subtab that is undeneath
+/// If HitArea is tab or subtab, then the second part of the pair
+/// is the tab or subtab number
+QPair<DoubleTabWidget::HitArea, int> DoubleTabWidget::convertPosToTab(QPoint pos)
 {
-    if (event->y() < Utils::StyleHelper::navigationWidgetHeight()) {
-        int eventX = event->x();
-        // clicked on the top level part of the bar
+    if (pos.y() < Utils::StyleHelper::navigationWidgetHeight()) {
+        // on the top level part of the bar
+        int eventX = pos.x();
         QFontMetrics fm(font());
         int x = m_title.isEmpty() ? 0 :
                 2 * MARGIN + qMax(fm.width(m_title), MIN_LEFT_MARGIN);
 
         if (eventX <= x)
-            return;
+            return qMakePair(HITNOTHING, -1);
         int i;
         for (i = 0; i <= m_lastVisibleIndex; ++i) {
             int otherX = x + 2 * MARGIN + fm.width(m_tabs.at(
@@ -239,45 +243,27 @@ void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
             x = otherX;
         }
         if (i <= m_lastVisibleIndex) {
-            if (m_currentIndex != m_currentTabIndices.at(i)) {
-                m_currentIndex = m_currentTabIndices.at(i);
-                update();
-                emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
-            }
-            event->accept();
-            return;
+            return qMakePair(HITTAB, i);
         } else if (m_lastVisibleIndex < m_tabs.size() - 1) {
             // handle overflow menu
             if (eventX > x && eventX < x + OVERFLOW_DROPDOWN_WIDTH) {
-                QMenu overflowMenu;
-                QList<QAction *> actions;
-                for (int i = m_lastVisibleIndex + 1; i < m_tabs.size(); ++i) {
-                    actions << overflowMenu.addAction(m_tabs.at(m_currentTabIndices.at(i)).displayName());
-                }
-                if (QAction *action = overflowMenu.exec(mapToGlobal(QPoint(x+1, 1)))) {
-                    int index = m_currentTabIndices.at(actions.indexOf(action) + m_lastVisibleIndex + 1);
-                    if (m_currentIndex != index) {
-                        m_currentIndex = index;
-                        update();
-                        emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
-                    }
-                }
+                return qMakePair(HITOVERFLOW, -1);
             }
         }
-    } else if (event->y() < Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT) {
+    } else if (pos.y() < Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT) {
         int diff = (OTHER_HEIGHT - SELECTION_IMAGE_HEIGHT) / 2;
-        if (event->y() < Utils::StyleHelper::navigationWidgetHeight() + diff
-                || event->y() > Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT - diff)
-            return;
+        if (pos.y() < Utils::StyleHelper::navigationWidgetHeight() + diff
+                || pos.y() > Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT - diff)
+            return qMakePair(HITNOTHING, -1);
+        // on the lower level part of the bar
         if (m_currentIndex == -1)
-            return;
+            return qMakePair(HITNOTHING, -1);
         Tab currentTab = m_tabs.at(m_currentIndex);
         QStringList subTabs = currentTab.subTabs;
         if (subTabs.isEmpty())
-            return;
-        int eventX = event->x();
+            return qMakePair(HITNOTHING, -1);
+        int eventX = pos.x();
         QFontMetrics fm(font());
-        // clicked on the lower level part of the bar
         int x = MARGIN;
         int i;
         for (i = 0; i < subTabs.size(); ++i) {
@@ -288,10 +274,50 @@ void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
             x = otherX + 2 * MARGIN;
         }
         if (i < subTabs.size()) {
-            if (m_tabs[m_currentIndex].currentSubTab != i) {
-                m_tabs[m_currentIndex].currentSubTab = i;
+            return qMakePair(HITSUBTAB, i);
+        }
+    }
+    return qMakePair(HITNOTHING, -1);
+}
+
+void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
+{
+    // todo:
+    // the even wasn't accepted/ignored in a consistent way
+    // now the event is accepted everywhere were it hitted something interesting
+    // and otherwise ignored
+    // should not make any difference
+    QPair<HitArea, int> hit = convertPosToTab(event->pos());
+    if (hit.first == HITTAB) {
+        if (m_currentIndex != m_currentTabIndices.at(hit.second)) {
+            m_currentIndex = m_currentTabIndices.at(hit.second);
+            update();
+            event->accept();
+            emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
+            return;
+        }
+    } else if (hit.first == HITOVERFLOW) {
+        QMenu overflowMenu;
+        QList<QAction *> actions;
+        for (int i = m_lastVisibleIndex + 1; i < m_tabs.size(); ++i) {
+            actions << overflowMenu.addAction(m_tabs.at(m_currentTabIndices.at(i)).displayName());
+        }
+        if (QAction *action = overflowMenu.exec(event->globalPos())) { // todo used different position before
+            int index = m_currentTabIndices.at(actions.indexOf(action) + m_lastVisibleIndex + 1);
+            if (m_currentIndex != index) {
+                m_currentIndex = index;
                 update();
+                event->accept();
+                emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
+                return;
             }
+        }
+    } else if (hit.first == HITSUBTAB) {
+        if (m_tabs[m_currentIndex].currentSubTab != hit.second) {
+            m_tabs[m_currentIndex].currentSubTab = hit.second;
+            update();
+            // todo next two lines were outside the if leading to
+            // unecessary (?) signal emissions?
             event->accept();
             emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
             return;
@@ -497,4 +523,17 @@ void DoubleTabWidget::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+bool DoubleTabWidget::event(QEvent *event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        QHelpEvent *helpevent = static_cast<QHelpEvent*>(event);
+        QPair<HitArea, int> hit = convertPosToTab(helpevent->pos());
+        if (hit.first == HITTAB && m_tabs.at(m_currentTabIndices.at(hit.second)).nameIsUnique)
+            QToolTip::showText(helpevent->globalPos(), m_tabs.at(m_currentTabIndices.at(hit.second)).fullName, this);
+        else
+            QToolTip::showText(helpevent->globalPos(), "", this);
+    }
+    return QWidget::event(event);
 }

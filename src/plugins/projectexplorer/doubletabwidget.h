@@ -72,6 +72,7 @@ protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void changeEvent(QEvent *e);
+    bool event(QEvent *event);
     QSize minimumSizeHint() const;
 
 private:
@@ -87,6 +88,9 @@ private:
     };
     void updateNameIsUniqueAdd(Tab *tab);
     void updateNameIsUniqueRemove(const Tab &tab);
+
+    enum HitArea { HITNOTHING, HITOVERFLOW, HITTAB, HITSUBTAB };
+    QPair<DoubleTabWidget::HitArea, int> convertPosToTab(QPoint pos);
 
     const QPixmap m_left;
     const QPixmap m_mid;
