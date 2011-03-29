@@ -390,7 +390,7 @@ int ShortcutSettings::translateModifiers(Qt::KeyboardModifiers state,
     // that is only reachable using the shift key anyway
     if ((state & Qt::ShiftModifier) && (text.size() == 0
                                         || !text.at(0).isPrint()
-                                        || text.at(0).isLetter()
+                                        || text.at(0).isLetterOrNumber()
                                         || text.at(0).isSpace()))
         result |= Qt::SHIFT;
     if (state & Qt::ControlModifier)
