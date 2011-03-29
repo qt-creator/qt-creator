@@ -91,6 +91,7 @@ public:
     void apply();
     void discard() { setFromToolchain(); }
     bool isDirty() const;
+    void makeReadOnly();
 
 private slots:
     void handlePathChange();

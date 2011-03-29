@@ -147,6 +147,7 @@ public:
     void apply();
     void discard() { setFromToolChain(); }
     bool isDirty() const;
+    void makeReadOnly();
 
 private:
     void setFromToolChain();

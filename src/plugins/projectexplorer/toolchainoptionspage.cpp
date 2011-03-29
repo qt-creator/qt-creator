@@ -63,7 +63,8 @@ public:
             p->childNodes.append(this);
         widget = tc ? tc->configurationWidget() : 0;
         if (widget) {
-            widget->setEnabled(tc ? !tc->isAutoDetected() : false);
+            if (tc && tc->isAutoDetected())
+                widget->makeReadOnly();
             widget->setVisible(false);
         }
     }

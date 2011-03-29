@@ -83,6 +83,12 @@ ToolChain *ToolChainConfigWidget::toolChain() const
     return m_d->m_toolChain;
 }
 
+void ToolChainConfigWidget::makeReadOnly()
+{
+    if (m_d->m_debuggerPathChooser)
+        m_d->m_debuggerPathChooser->setEnabled(false);
+}
+
 void ToolChainConfigWidget::emitDirty()
 {
     emit dirty(toolChain());

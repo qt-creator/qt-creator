@@ -626,6 +626,13 @@ bool Internal::GccToolChainConfigWidget::isDirty() const
             || m_abiList.at(m_abiComboBox->currentIndex()) != tc->targetAbi();
 }
 
+void Internal::GccToolChainConfigWidget::makeReadOnly()
+{
+    m_compilerPath->setEnabled(false);
+    m_abiComboBox->setEnabled(false);
+    ToolChainConfigWidget::makeReadOnly();
+}
+
 void Internal::GccToolChainConfigWidget::handlePathChange()
 {
     QString path = m_compilerPath->path();

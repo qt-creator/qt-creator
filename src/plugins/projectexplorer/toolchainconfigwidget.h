@@ -68,6 +68,8 @@ public:
 
     virtual bool isDirty() const = 0;
 
+    virtual void makeReadOnly();
+
 signals:
     void dirty(ProjectExplorer::ToolChain *);
 

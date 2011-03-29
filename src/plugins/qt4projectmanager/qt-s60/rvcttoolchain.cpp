@@ -421,6 +421,14 @@ bool RvctToolChainConfigWidget::isDirty() const
             || tc->debuggerCommand() != debuggerCommand();
 }
 
+void RvctToolChainConfigWidget::makeReadOnly()
+{
+    m_ui->versionComboBox->setEnabled(false);
+    m_ui->compilerPath->setEnabled(false);
+    m_ui->environmentView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ProjectExplorer::ToolChainConfigWidget::makeReadOnly();
+}
+
 QList<Utils::EnvironmentItem> RvctToolChainConfigWidget::environmentChanges() const
 {
     Utils::Environment baseEnv;
