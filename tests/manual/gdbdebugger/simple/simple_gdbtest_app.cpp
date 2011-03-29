@@ -47,6 +47,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QPointer>
 #include <QtCore/QProcess>
+#include <QtCore/QRegExp>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QSettings>
@@ -1102,6 +1103,16 @@ void testQPixmap()
     Q_UNUSED(i);
 }
 
+void testQRegExp()
+{
+    QRegExp re(QString("a(.*)b(.*)c"));
+    QString str1 = "a1121b344c";
+    QString str2 = "Xa1121b344c";
+    int pos2 = re.indexIn(str2);
+    int pos1 = re.indexIn(str1);
+    pos1 += pos2;
+}
+
 void testQRegion()
 {
     // only works with Python dumper
@@ -1581,8 +1592,6 @@ void xxxx()
 
 void testQString()
 {
-    QImage im;
-
     QString str = "Hello ";
     str += " big, ";
     str += " fat ";
@@ -2434,6 +2443,7 @@ public:
 
 void A::doSomething(CVoidPtr cp) const
 {
+    Q_UNUSED(cp);
     std::cout << test << std::endl;
 }
 
@@ -2442,6 +2452,7 @@ void testStuffA()
     A a;
     VoidPtr p = &a;
     CVoidPtr cp = &a;
+    Q_UNUSED(p);
     a.doSomething(cp);
 }
 
@@ -2534,20 +2545,9 @@ void testMPI()
 
 }
 
-void testInlineBreakpoints()
-{
-    SomeClassWithInlineConstructor a;
-    SomeBaseClassWithInlineConstructor b;
-    SomeDerivedClassWithInlineConstructor c;
-    SomeTemplatedClassWithInlineConstructor<int> d;
-    SomeTemplatedBaseClassWithInlineConstructor<int> e;
-    SomeTemplatedDerivedClassWithInlineConstructor<int> f;
-    int i = a.a + b.a + c.a + d.a + e.a + f.a;
-    ++i;
-}
-
 int main(int argc, char *argv[])
 {
+    testQRegExp();
     testInlineBreakpoints();
     testLongEvaluation();
     testMPI();
