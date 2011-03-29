@@ -1456,12 +1456,12 @@
 
     \image qmldesigner-preview-size.png "Canvas width and height"
 
-    \section2 Specifying Canvas Size
+    \section1 Specifying Canvas Size
 
     To change the canvas size, select \gui {Tools > Options... > Qt Quick} and
     specify the canvas width and height in the \gui Canvas group.
 
-    \section2 Refreshing the Canvas
+    \section1 Refreshing the Canvas
 
     When you open QML files in \QMLD, the QML elements in the file are drawn on
     the canvas. When you edit the element properties in \QMLD, the QML file and
