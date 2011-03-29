@@ -655,6 +655,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // build action
     d->m_buildAction = new Utils::ParameterAction(tr("Build Project"), tr("Build Project \"%1\""),
                                                      Utils::ParameterAction::AlwaysEnabled, this);
+    d->m_buildAction->setIcon(buildIcon);
     cmd = am->registerAction(d->m_buildAction, Constants::BUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(d->m_buildAction->text());
