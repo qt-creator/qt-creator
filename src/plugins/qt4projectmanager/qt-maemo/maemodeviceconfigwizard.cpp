@@ -264,8 +264,6 @@ public:
         m_ui->setupUi(this);
         setTitle(tr("Key Creation"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        connect(m_ui->keyDirPathChooser, SIGNAL(changed(QString)),
-            SLOT(enableOrDisableButton()));
         connect(m_ui->createKeysButton, SIGNAL(clicked()), SLOT(createKeys()));
     }
 
@@ -289,20 +287,20 @@ public:
     virtual bool isComplete() const { return m_isComplete; }
 
 private:
-    Q_SLOT void enableOrDisableButton()
-    {
-        m_ui->createKeysButton->setEnabled(m_ui->keyDirPathChooser->isValid());
-    }
 
     Q_SLOT void createKeys()
     {
         const QString &dirPath = m_ui->keyDirPathChooser->path();
-        QDir dir(dirPath);
-        QDir parentDir = QDir(dirPath + QLatin1String("/.."));
-        if ((!dir.exists() && !parentDir.mkdir(dir.dirName()))
-                || !QFileInfo(dirPath).isWritable()) {
+        QFileInfo fi(dirPath);
+        if (fi.exists() && !fi.isDir()) {
             QMessageBox::critical(this, tr("Cannot Create Keys"),
-                tr("You have not entered a writable directory."));
+                tr("The path you have entered is not a directory."));
+            return;
+        }
+        if (!fi.exists() && !QDir::root().mkpath(dirPath)) {
+            QMessageBox::critical(this, tr("Cannot Create Keys"),
+                tr("The directory you have entered does not exist and "
+                   "cannot be created."));
             return;
         }
 
@@ -346,7 +344,7 @@ private:
     void enableInput()
     {
         m_ui->keyDirPathChooser->setEnabled(true);
-        enableOrDisableButton();
+        m_ui->createKeysButton->setEnabled(true);
         m_ui->statusLabel->clear();
     }
 
