@@ -543,7 +543,8 @@ AnalyzerManager * AnalyzerManager::instance()
 
 void AnalyzerManager::modeChanged(IMode *mode)
 {
-    QTC_ASSERT(d->m_mainWindow, return; )
+    if (!d->m_mainWindow)
+        return;
     const bool makeVisible = mode->id() == Constants::MODE_ANALYZE;
     if (!makeVisible)
         return;
