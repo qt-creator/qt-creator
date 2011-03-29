@@ -182,8 +182,13 @@ QString MaemoRpmPackageInstaller::installCommand() const
 
 QStringList MaemoRpmPackageInstaller::installCommandArguments() const
 {
-    // --replacepkgs to re-install package, even if the same version is already installed
-    return QStringList() << QLatin1String("-Uhv") << QLatin1String("--replacepkgs");
+    // rpm -U does not allow to re-install a package with the same version
+    // number, so we need --replacepkgs. Even then, it inexplicably reports
+    // a conflict if the files are not identical to the installed version,
+    // so we need --replacefiles as well.
+    // TODO: --replacefiles is dangerous. Is there perhaps a way around it
+    // after all?
+    return QStringList() << QLatin1String("-Uhv") << QLatin1String("--replacepkgs") << QLatin1String("--replacefiles");
 }
 
 
