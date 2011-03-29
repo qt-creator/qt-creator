@@ -319,6 +319,8 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.
     connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
+            this, SLOT(ensureAllCategoryWidgets()));
+    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
                 m_proxyModel, SLOT(setFilterFixedString(QString)));
     connect(m_filterLineEdit, SIGNAL(filterChanged(QString)), this, SLOT(filter(QString)));
     m_categoryList->setFocus();

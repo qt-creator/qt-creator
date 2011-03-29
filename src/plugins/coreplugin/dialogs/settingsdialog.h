@@ -88,6 +88,7 @@ private slots:
     void currentChanged(const QModelIndex &current);
     void currentTabChanged(int);
     void filter(const QString &text);
+    void ensureAllCategoryWidgets();
 
 private:
     SettingsDialog(QWidget *parent);
@@ -98,7 +99,6 @@ private:
     void showPage(const QString &categoryId, const QString &pageId);
     void updateEnabledTabs(Category *category, const QString &searchText);
     void ensureCategoryWidget(Category *category);
-    void ensureAllCategoryWidgets();
     void disconnectTabWidgets();
 
     const QList<Core::IOptionsPage*> m_pages;
