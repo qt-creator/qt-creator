@@ -88,6 +88,8 @@ defineReplace(stripSrcResourceDir) {
 }
 
 # files that are to be unconditionally "deployed" to the build dir from src/share to share
+DATA_DIRS = \
+    externaltools
 DATA_FILES_SRC = \
     externaltools/lrelease.xml \
     externaltools/lupdate.xml \
@@ -108,3 +110,12 @@ unix:unconditionalCopy2build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FI
 unconditionalCopy2build.name = COPY ${QMAKE_FILE_IN}
 unconditionalCopy2build.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += unconditionalCopy2build
+
+!macx {
+    for(data_dir, DATA_DIRS) {
+        eval($${data_dir}.files = $$IDE_DATA_PATH/$$data_dir)
+        eval($${data_dir}.path = /share/qtcreator)
+        eval($${data_dir}.CONFIG += no_check_exist)
+        INSTALLS += $$data_dir
+    }
+}
