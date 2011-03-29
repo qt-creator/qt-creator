@@ -729,7 +729,7 @@ void MaemoDeployStep::runPackageInstaller(const QString &packageFilePath)
 
     writeOutput(tr("Installing package to device..."));
     const QByteArray installCommand = packagingStep()->debBasedMaemoTarget()
-        ? "dpkg -i --no-force-downgrade" : "rpm -Uhv";
+        ? "dpkg -i --no-force-downgrade" : "rpm -Uhv --replacepkgs";
     QByteArray cmd = MaemoGlobal::remoteSudo().toUtf8() + ' '
         + installCommand + ' ' + packageFilePath.toUtf8();
     if (removeAfterInstall)
