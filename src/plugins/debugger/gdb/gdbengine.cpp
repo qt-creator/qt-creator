@@ -2470,10 +2470,9 @@ void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     const BreakpointId id = response.cookie.toInt();
-    BreakHandler *handler = breakHandler();
-    BreakpointResponse br = handler->response(id);
-    br.addresses.append(0);
-    handler->setResponse(id, br);
+    const QString str = QString::fromLocal8Bit(
+        response.data.findChild("consolestreamoutput").data());
+    extractDataFromInfoBreak(str, id);
 }
 
 void GdbEngine::handleBreakDisable(const GdbResponse &response)
