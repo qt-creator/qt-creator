@@ -35,7 +35,7 @@
 
 //template <typename T> class B;  B foo() {}
 
-#include "simple_gdbtest_app.h"
+#include "../deeper/simple_gdbtest_app.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDateTime>
@@ -75,6 +75,8 @@
 
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValue>
+
+#include <QtXml/QXmlAttributes>
 
 #include <QtNetwork/QHostAddress>
 
@@ -1235,6 +1237,16 @@ void testQSharedPointer()
     QWeakPointer<Foo> wfptr3 = wfptr;
 }
 #endif
+
+void testQXmlAttributes()
+{
+    QXmlAttributes atts;
+    atts.append("name1", "uri1", "localPart1", "value1");
+    atts.append("name2", "uri2", "localPart2", "value2");
+    atts.append("name3", "uri3", "localPart3", "value3");
+    int n = atts.count();
+    ++n;
+}
 
 void stringRefTest(const QString &refstring)
 {
@@ -2547,6 +2559,7 @@ void testMPI()
 
 int main(int argc, char *argv[])
 {
+    testQXmlAttributes();
     testQRegExp();
     testInlineBreakpoints();
     testLongEvaluation();

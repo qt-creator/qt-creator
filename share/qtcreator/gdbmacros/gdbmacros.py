@@ -1688,6 +1688,8 @@ def qdump__QWeakPointer(d, item):
             d.putIntItem("strongref", strongref)
 
 
+def qdump__QxXmlAttributes(d, item):
+    pass
 
 #######################################################################
 #
