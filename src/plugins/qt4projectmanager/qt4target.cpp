@@ -428,7 +428,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     layout->addWidget(m_spacerTopWidget);
 
     m_buildConfigurationLabel = new QLabel;
-    m_buildConfigurationLabel->setText("Create build Configurations");
+    m_buildConfigurationLabel->setText("Create Build Configurations:");
     m_buildConfigurationLabel->setVisible(false);
 
     m_buildConfigurationComboBox = new QComboBox;
