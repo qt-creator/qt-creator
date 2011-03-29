@@ -2283,7 +2283,7 @@ bool CdbEngine::acceptsBreakpoint(BreakpointId id) const
     switch (data.type) {
     case UnknownType:
     case BreakpointAtFork:
-    case BreakpointAtVFork:
+    //case BreakpointAtVFork:
     case BreakpointAtSysCall:
         return false;
     case Watchpoint:

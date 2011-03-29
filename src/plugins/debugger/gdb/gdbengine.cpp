@@ -2685,13 +2685,15 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
     if (type == BreakpointAtFork) {
         postCommand("catch fork", NeedsStop | RebuildBreakpointModel,
             CB(handleCatchInsert), id);
-        return;
-    }
-    if (type == BreakpointAtVFork) {
         postCommand("catch vfork", NeedsStop | RebuildBreakpointModel,
             CB(handleCatchInsert), id);
         return;
     }
+    //if (type == BreakpointAtVFork) {
+    //    postCommand("catch vfork", NeedsStop | RebuildBreakpointModel,
+    //        CB(handleCatchInsert), id);
+    //    return;
+    //}
     if (type == BreakpointAtExec) {
         postCommand("catch exec", NeedsStop | RebuildBreakpointModel,
             CB(handleCatchInsert), id);

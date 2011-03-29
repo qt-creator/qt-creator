@@ -122,12 +122,16 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
     // Match BreakpointType (omitting unknown type).
     m_ui.setupUi(this);
     QStringList types;
-    types << tr("File and Line Number") << tr("Function Name") << tr("Address")
-          << tr("throw") << tr("catch")
-          << tr("Function \"main()\"")
-          << tr("fork") << tr("exec")
-          << tr("vfork") << tr("syscall")
-          << tr("Address (Watchpoint)");
+    types << tr("File and Line Number")
+          << tr("Function Name")
+          << tr("Address")
+          << tr("Break when C++ Exception is Thrown")
+          << tr("Break when C++ Exception is Caught")
+          << tr("Break when Function \"main()\" Starts")
+          << tr("Break when a new Process is Forked")
+          << tr("Break when a new Process is Executed")
+          << tr("Break when a System Call is Executed")
+          << tr("Break on Data Access (Watchpoint)");
     QTC_ASSERT(types.size() == Watchpoint, return; )
     m_ui.comboBoxType->addItems(types);
     m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
@@ -339,7 +343,7 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointAtMain:
     case BreakpointAtFork:
     case BreakpointAtExec:
-    case BreakpointAtVFork:
+    //case BreakpointAtVFork:
     case BreakpointAtSysCall:
         break;
     case BreakpointByAddress:
@@ -366,7 +370,7 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointAtCatch:
     case BreakpointAtFork:
     case BreakpointAtExec:
-    case BreakpointAtVFork:
+    //case BreakpointAtVFork:
     case BreakpointAtSysCall:
         clearOtherParts(AllConditionParts|ModulePart|TracePointPart);
         setPartsEnabled(AllConditionParts|TracePointPart);

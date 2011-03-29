@@ -102,7 +102,7 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
     case BreakpointByFunction:
     case BreakpointByAddress:
     case BreakpointAtFork:
-    case BreakpointAtVFork:
+    //case BreakpointAtVFork:
     case BreakpointAtSysCall:
     case Watchpoint:
         break;
@@ -144,7 +144,8 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
         str << '~' << bp.threadSpec << ' ';
 
     // Currently use 'bu' so that the offset expression (including file name)
-    // is kept when reporting back breakpoints (which is otherwise discarded when resolving).
+    // is kept when reporting back breakpoints (which is otherwise discarded
+    // when resolving).
     str << (bp.type == Watchpoint ? "ba" : "bu");
     if (id != BreakpointId(-1))
         str << id;
@@ -154,7 +155,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     switch (bp.type) {
     case BreakpointAtFork:
     case BreakpointAtExec:
-    case BreakpointAtVFork:
+    //case BreakpointAtVFork:
     case BreakpointAtSysCall:
     case UnknownType:
     case BreakpointAtCatch:
