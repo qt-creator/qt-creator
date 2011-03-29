@@ -376,6 +376,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
       m_ignoreChange(false),
       m_showImport(importEnabled),
       m_buildConfigurationTemplateUnchanged(true),
+      m_shadowBuildCheckBoxVisible(false),
       m_selected(0),
       m_qtVersionId(-1)
 {
@@ -568,6 +569,7 @@ void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
 
 void Qt4DefaultTargetSetupWidget::setShadowBuildCheckBoxVisible(bool b)
 {
+    m_shadowBuildCheckBoxVisible = b;
     m_shadowBuildEnabled->setVisible(b);
     bool anythingVisible = b || m_buildConfigurationComboBox->isVisible();
     m_spacerTopWidget->setVisible(anythingVisible && !m_importInfos.isEmpty());
@@ -938,7 +940,7 @@ void Qt4DefaultTargetSetupWidget::updateWidgetVisibility()
         m_versionComboBox->setVisible(true);
         qtVersionChanged();
     }
-    m_shadowBuildEnabled->setVisible(state != NONE);
+    m_shadowBuildEnabled->setVisible(m_shadowBuildCheckBoxVisible && (state != NONE));
     emit selectedToggled();
 }
 

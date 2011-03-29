@@ -190,6 +190,7 @@ private:
     bool m_ignoreChange;
     bool m_showImport;
     bool m_buildConfigurationTemplateUnchanged;
+    bool m_shadowBuildCheckBoxVisible;
     int m_selected; // Number of selected buildconfiguartions
     int m_qtVersionId; // version id for "One Qt" entry
 };
