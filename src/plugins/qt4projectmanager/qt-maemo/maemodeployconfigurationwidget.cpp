@@ -120,11 +120,7 @@ void MaemoDeployConfigurationWidget::addDesktopFile()
         return;
     MaemoDeployableListModel *const model
         = m_deployConfig->deployables()->modelAt(modelRow);
-    QString error;
-    if (!model->addDesktopFile(error)) {
-        QMessageBox::warning(this, tr("Could not create desktop file"),
-             tr("Error creating desktop file: %1").arg(error));
-    }
+    model->addDesktopFile();
     ui->addDesktopFileButton->setEnabled(model->canAddDesktopFile());
     ui->tableView->resizeRowsToContents();
 }
@@ -161,11 +157,7 @@ void MaemoDeployConfigurationWidget::addIcon()
         return;
     }
 
-    QString error;
-    if (!model->addIcon(newFileName, error)) {
-        QMessageBox::critical(this, tr("Could Not Add Icon"),
-             tr("Error adding icon: %1").arg(error));
-    }
+    model->addIcon(newFileName);
     ui->addIconButton->setEnabled(model->canAddIcon());
     ui->tableView->resizeRowsToContents();
 }

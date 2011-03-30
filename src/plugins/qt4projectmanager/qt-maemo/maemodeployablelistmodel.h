@@ -75,9 +75,9 @@ public:
     bool canAddDesktopFile() const { return isApplicationProject() && !hasDesktopFile(); }
     QString localDesktopFilePath() const;
     bool hasDesktopFile() const { return !localDesktopFilePath().isEmpty(); }
-    bool addDesktopFile(QString &error);
+    bool addDesktopFile();
     bool canAddIcon() const { return isApplicationProject() && remoteIconFilePath().isEmpty(); }
-    bool addIcon(const QString &fileName, QString &error);
+    bool addIcon(const QString &fileName);
     QString remoteIconFilePath() const;
     ProFileUpdateSetting proFileUpdateSetting() const {
         return m_proFileUpdateSetting;

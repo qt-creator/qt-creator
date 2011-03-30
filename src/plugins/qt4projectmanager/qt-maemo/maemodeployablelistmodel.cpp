@@ -35,17 +35,20 @@
 #include "maemoglobal.h"
 #include "qt4maemotarget.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4target.h>
 
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QBrush>
 #include <QtGui/QImageReader>
+#include <QtGui/QMainWindow>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -224,35 +227,21 @@ QString MaemoDeployableListModel::localDesktopFilePath() const
     return QString();
 }
 
-bool MaemoDeployableListModel::addDesktopFile(QString &error)
+bool MaemoDeployableListModel::addDesktopFile()
 {
     if (!canAddDesktopFile())
         return true;
     const QString desktopFilePath = QFileInfo(m_proFilePath).path()
         + QLatin1Char('/') + m_projectName + QLatin1String(".desktop");
-    MaemoGlobal::FileUpdate update(desktopFilePath);
-    QFile desktopFile(desktopFilePath);
-    const bool existsAlready = desktopFile.exists();
-    if (!desktopFile.open(QIODevice::ReadWrite)) {
-        error = tr("Failed to open '%1': %2")
-            .arg(desktopFilePath, desktopFile.errorString());
-        return false;
-    }
-
-    const QByteArray desktopTemplate("[Desktop Entry]\nEncoding=UTF-8\n"
-        "Version=1.0\nType=Application\nTerminal=false\nName=%1\nExec=%2\n"
-        "Icon=%1\nX-Window-Icon=\nX-HildonDesk-ShowInToolbar=true\n"
-        "X-Osso-Type=application/x-executable\n");
-    const QString contents = existsAlready
-        ? QString::fromUtf8(desktopFile.readAll())
-        : QString::fromLocal8Bit(desktopTemplate)
-              .arg(m_projectName, remoteExecutableFilePath());
-    desktopFile.resize(0);
-    const QByteArray &contentsAsByteArray = contents.toUtf8();
-    if (desktopFile.write(contentsAsByteArray) != contentsAsByteArray.count()
-            || !desktopFile.flush()) {
-        error = tr("Could not write '%1': %2")
-            .arg(desktopFilePath, desktopFile.errorString());
+    if (!QFile::exists(desktopFilePath)) {
+        const QByteArray desktopTemplate("[Desktop Entry]\nEncoding=UTF-8\n"
+            "Version=1.0\nType=Application\nTerminal=false\nName=%1\nExec=%2\n"
+            "Icon=%1\nX-Window-Icon=\nX-HildonDesk-ShowInToolbar=true\n"
+            "X-Osso-Type=application/x-executable\n");
+        Utils::FileSaver saver(desktopFilePath);
+        saver.write(QString::fromLatin1(desktopTemplate)
+                    .arg(m_projectName, remoteExecutableFilePath()).toUtf8());
+        if (!saver.finalize(Core::ICore::instance()->mainWindow()))
             return false;
     }
 
@@ -265,10 +254,8 @@ bool MaemoDeployableListModel::addDesktopFile(QString &error)
     const QString pathLine = QLatin1String("desktopfile.path = ") + remoteDir;
     const QLatin1String installsLine("INSTALLS += desktopfile");
     if (!addLinesToProFile(QStringList() << filesLine << pathLine
-            << installsLine)) {
-        error = tr("Error writing project file.");
+            << installsLine))
         return false;
-    }
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_deployables << MaemoDeployable(desktopFilePath, remoteDir);
@@ -276,7 +263,7 @@ bool MaemoDeployableListModel::addDesktopFile(QString &error)
     return true;
 }
 
-bool MaemoDeployableListModel::addIcon(const QString &fileName, QString &error)
+bool MaemoDeployableListModel::addIcon(const QString &fileName)
 {
     if (!canAddIcon())
         return true;
@@ -285,10 +272,8 @@ bool MaemoDeployableListModel::addIcon(const QString &fileName, QString &error)
     const QString pathLine = QLatin1String("icon.path = ") + RemoteIconPath;
     const QLatin1String installsLine("INSTALLS += icon");
     if (!addLinesToProFile(QStringList() << filesLine << pathLine
-            << installsLine)) {
-        error = tr("Error writing project file.");
+            << installsLine))
         return false;
-    }
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     const QString filePath = QFileInfo(m_proFilePath).path()
@@ -316,23 +301,15 @@ QString MaemoDeployableListModel::remoteIconFilePath() const
 
 bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
 {
-    QFile projectFile(m_proFilePath);
     MaemoGlobal::FileUpdate update(m_proFilePath);
-    if (!projectFile.open(QIODevice::WriteOnly | QIODevice::Append)) {
-        qWarning("Error opening .pro file for writing.");
-        return false;
-    }
+
     const QLatin1String separator("\n    ");
     const QString proFileString = QString(QLatin1Char('\n') + proFileScope()
         + QLatin1String(" {") + separator + lines.join(separator)
         + QLatin1String("\n}\n"));
-    const QByteArray &proFileByteArray = proFileString.toLocal8Bit();
-    if (projectFile.write(proFileByteArray) != proFileByteArray.count()
-            || !projectFile.flush()) {
-        qWarning("Error updating .pro file.");
-        return false;
-    }
-    return true;
+    Utils::FileSaver saver(m_proFilePath, QIODevice::Append);
+    saver.write(proFileString.toLocal8Bit());
+    return saver.finalize(Core::ICore::instance()->mainWindow());
 }
 
 const QtVersion *MaemoDeployableListModel::qtVersion() const
