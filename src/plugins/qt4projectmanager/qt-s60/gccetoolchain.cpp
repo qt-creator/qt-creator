@@ -33,6 +33,7 @@
 
 #include "gccetoolchain.h"
 #include "qt4projectmanagerconstants.h"
+#include "qtversionmanager.h"
 
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
@@ -148,6 +149,21 @@ QString GcceToolChainFactory::id() const
 QList<ProjectExplorer::ToolChain *> GcceToolChainFactory::autoDetect()
 {
     QList<ProjectExplorer::ToolChain *> result;
+
+    // Compatibility to pre-2.2:
+    while (true) {
+        const QString path = QtVersionManager::instance()->popPendingGcceUpdate();
+        if (path.isNull())
+            break;
+
+        QFileInfo fi(path + QLatin1String("/bin/arm-none-symbianelf-g++.exe"));
+        if (fi.exists() && fi.isExecutable()) {
+            GcceToolChain *tc = new GcceToolChain(false);
+            tc->setCompilerPath(fi.absoluteFilePath());
+            tc->setDisplayName(tr("GCCE from Qt version"));
+            result.append(tc);
+        }
+    }
 
     QString fullPath = Utils::Environment::systemEnvironment().searchInPath(QLatin1String("arm-none-symbianelf-gcc"));
     if (!fullPath.isEmpty()) {
