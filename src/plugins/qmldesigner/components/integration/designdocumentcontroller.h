@@ -128,7 +128,6 @@ public slots:
 
 private slots:
     void doRealSaveAs(const QString &fileName);
-    void showError(const QString &message, QWidget *parent = 0) const;
     void changeCurrentModelTo(const ModelNode &node);
 
 private:

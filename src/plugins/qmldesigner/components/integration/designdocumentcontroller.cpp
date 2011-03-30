@@ -718,19 +718,6 @@ void DesignDocumentController::selectAll()
     view.setSelectedModelNodes(allNodesExceptRootNode);
 }
 
-void DesignDocumentController::showError(const QString &message, QWidget *parent) const
-{
-    if (!parent)
-        parent = m_d->stackedWidget.data();
-
-    QMessageBox msgBox(parent);
-    msgBox.setWindowFlags(Qt::Sheet | Qt::MSWindowsFixedSizeDialogHint);
-    msgBox.setWindowTitle("Invalid qml");
-    msgBox.setText(message);
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.exec();
-}
-
 RewriterView *DesignDocumentController::rewriterView() const
 {
     return m_d->rewriterView.data();
@@ -773,10 +760,8 @@ bool DesignDocumentController::save(QWidget *parent)
     Utils::FileSaver saver(m_d->fileName, QIODevice::Text);
     if (m_d->model)
         saver.write(m_d->textEdit->toPlainText().toLatin1());
-    if (!saver.finalize()) {
-        showError(saver.errorString(), parent);
+    if (!saver.finalize(parent ? parent : m_d->stackedWidget.data()))
         return false;
-    }
     if (m_d->model)
         m_d->textEdit->setPlainText(m_d->textEdit->toPlainText()); // clear undo/redo history
 
