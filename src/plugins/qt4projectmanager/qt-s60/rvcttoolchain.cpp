@@ -373,6 +373,12 @@ RvctToolChainConfigWidget::RvctToolChainConfigWidget(RvctToolChain *tc) :
     m_ui->environmentView->setModel(m_model);
     m_ui->environmentView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     m_ui->environmentView->horizontalHeader()->setStretchLastSection(true);
+    m_ui->environmentView->setGridStyle(Qt::NoPen);
+    m_ui->environmentView->horizontalHeader()->setHighlightSections(false);
+    m_ui->environmentView->verticalHeader()->hide();
+    QFontMetrics fm(font());
+    m_ui->environmentView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
+
     connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(emitDirty()));
 
     m_ui->compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
