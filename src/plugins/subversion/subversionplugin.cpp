@@ -633,7 +633,8 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
     const QString title = QString::fromLatin1("svn diff %1").arg(diffName);
     Core::IEditor *editor = showOutputInEditor(title, response.stdOut, VCSBase::DiffOutput, source, codec);
     setDiffBaseDirectory(editor, p.workingDir);
-    editor->setProperty("originalFileName", p.files.front());
+    if (p.files.count() == 1)
+        editor->setProperty("originalFileName", p.files.front());
     SubversionEditor *diffEditorWidget = qobject_cast<SubversionEditor *>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return ; )
 
