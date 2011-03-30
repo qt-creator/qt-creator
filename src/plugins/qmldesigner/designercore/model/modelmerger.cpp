@@ -172,11 +172,11 @@ ModelNode ModelMerger::insertModel(const ModelNode &modelNode)
 
 void ModelMerger::replaceModel(const ModelNode &modelNode)
 {
-    try {
-        RewriterTransaction transaction(view()->beginRewriterTransaction());
-
         view()->model()->changeImports(modelNode.model()->imports(), QList<Import>());
         view()->model()->setFileUrl(modelNode.model()->fileUrl());
+
+    try {
+        RewriterTransaction transaction(view()->beginRewriterTransaction());
 
         ModelNode rootNode(view()->rootModelNode());
 

@@ -662,16 +662,18 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
         }
 
-        Check check(doc, snapshot, m_lookupContext->context());
-        check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
-        foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check())
-            if (diagnosticMessage.isError())
-            errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+        if (view()->checkSemanticErrors()) {
+            Check check(doc, snapshot, m_lookupContext->context());
+            check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
+            foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check())
+                if (diagnosticMessage.isError())
+                    errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
 
-        if (!errors.isEmpty()) {
-            m_rewriterView->setErrors(errors);
-            setActive(false);
-            return false;
+            if (!errors.isEmpty()) {
+                m_rewriterView->setErrors(errors);
+                setActive(false);
+                return false;
+            }
         }
 
         setupImports(doc, differenceHandler);

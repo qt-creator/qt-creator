@@ -187,6 +187,12 @@ public:
     QmlJS::LookupContext *lookupContext() const;
     QmlJS::Document *document() const;
 
+    bool checkSemanticErrors() const
+    { return m_checkErrors; }
+
+    void setCheckSemanticErrors(bool b)
+    { m_checkErrors = b; }
+
 signals:
     void errorsChanged(const QList<RewriterView::Error> &errors);
 
@@ -213,6 +219,7 @@ private: //variables
     RewriterTransaction m_removeDefaultPropertyTransaction;
     QString m_rewritingErrorMessage;
     QString lastCorrectQmlSource;
+    bool m_checkErrors;
 };
 
 } //QmlDesigner

@@ -507,7 +507,7 @@ void DesignDocumentController::deleteSelected()
 
 void DesignDocumentController::copySelected()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 1, 0));
     model->setMetaInfo(m_d->model->metaInfo());
     model->setFileUrl(m_d->model->fileUrl());
     model->changeImports(m_d->model->imports(), QList<Import>());
@@ -552,7 +552,7 @@ void DesignDocumentController::copySelected()
         foreach (ModelNode node, view.rootModelNode().allDirectSubModelNodes()) {
             node.destroy();
         }
-        view.changeRootNodeType("Qt/Rectangle", 4, 7);
+        view.changeRootNodeType("QtQuick.Rectangle", 1, 0);
         view.rootModelNode().setId("designer__Selection");
 
         foreach (const ModelNode &selectedNode, selectedNodes) {
