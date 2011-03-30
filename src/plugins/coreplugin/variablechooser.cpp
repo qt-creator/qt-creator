@@ -144,7 +144,16 @@ void VariableChooser::createIconButton()
     m_iconButton->setPixmap(QPixmap(QLatin1String(":/core/images/replace.png")));
     m_iconButton->setToolTip(tr("Insert variable"));
     m_iconButton->hide();
-    connect(m_iconButton, SIGNAL(clicked()), this, SLOT(show()));
+    connect(m_iconButton, SIGNAL(clicked()), this, SLOT(updatePositionAndShow()));
+}
+
+void VariableChooser::updatePositionAndShow()
+{
+    if (parentWidget()) {
+        QPoint parentCenter = parentWidget()->mapToGlobal(parentWidget()->geometry().center());
+        move(parentCenter.x() - width()/2, parentCenter.y() - height()/2);
+    }
+    show();
 }
 
 void VariableChooser::handleItemActivated(QListWidgetItem *item)

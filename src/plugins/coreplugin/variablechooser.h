@@ -64,6 +64,7 @@ private slots:
     void updateCurrentEditor(QWidget *old, QWidget *widget);
     void handleItemActivated(QListWidgetItem *item);
     void insertVariable(const QString &variable);
+    void updatePositionAndShow();
 
 private:
     void createIconButton();
