@@ -706,6 +706,14 @@ bool AbstractDebBasedQt4MaemoTarget::adaptControlFileField(QByteArray &document,
 
 void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
 {
+    if (controlFileFieldValue(IconFieldName, true).isEmpty()) {
+        // Such a file is created by the mobile wizards.
+        const QString iconPath = project()->projectDirectory()
+            + QLatin1Char('/') + project()->displayName()
+            + QLatin1String(".png");
+        if (QFileInfo(iconPath).exists())
+            setPackageManagerIcon(iconPath);
+    }
     m_filesWatcher->addPath(debianDirPath());
     m_filesWatcher->addPath(changeLogFilePath());
     m_filesWatcher->addPath(controlFilePath());
