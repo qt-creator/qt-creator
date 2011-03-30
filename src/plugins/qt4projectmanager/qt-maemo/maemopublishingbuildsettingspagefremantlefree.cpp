@@ -87,6 +87,11 @@ void MaemoPublishingBuildSettingsPageFremantleFree::collectBuildConfigurations(c
     }
 }
 
+void MaemoPublishingBuildSettingsPageFremantleFree::initializePage()
+{
+    ui->skipUploadCheckBox->setChecked(true);
+}
+
 bool MaemoPublishingBuildSettingsPageFremantleFree::validatePage()
 {
     m_publisher->setBuildConfiguration(m_buildConfigs.at(ui->buildConfigComboBox->currentIndex()));

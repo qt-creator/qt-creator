@@ -55,7 +55,14 @@ public:
     ~MaemoPublishingUploadSettingsPageFremantleFree();
 
 private:
+    virtual void initializePage();
+    virtual bool isComplete() const;
     virtual bool validatePage();
+
+    QString garageAccountName() const;
+    QString privateKeyFilePath() const;
+    QString serverName() const;
+    QString directoryOnServer() const;
 
     MaemoPublisherFremantleFree * const m_publisher;
     Ui::MaemoPublishingUploadSettingsPageFremantleFree *ui;
