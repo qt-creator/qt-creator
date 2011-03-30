@@ -42,6 +42,7 @@
 #include <QtCore/QSet>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFutureInterface>
+#include <QtCore/QStringList>
 
 namespace Utils {
 class Environment;
