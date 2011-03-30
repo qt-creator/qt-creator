@@ -786,7 +786,7 @@ bool DesignDocumentController::save(QIODevice *device, QString * /*errorMessage*
     if (m_d->model) {
         QByteArray data = m_d->textEdit->toPlainText().toLatin1();
         device->write(data);
-        m_d->textEdit->setPlainText(data); // clear undo/redo history
+        m_d->textEdit->setPlainText(m_d->textEdit->toPlainText()); // clear undo/redo history
     }
     return false;
 }
