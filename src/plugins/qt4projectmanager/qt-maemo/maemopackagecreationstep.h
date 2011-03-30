@@ -137,7 +137,7 @@ private:
         int &insertPos, const MaemoDeployableListModel *model,
         const QString &desktopFileDir);
     void checkProjectName();
-    void adaptRulesFile(const QString &rulesFilePath);
+    bool adaptRulesFile(const QString &templatePath, const QString &rulesFilePath);
 
     static const QString CreatePackageId;
 };

@@ -44,6 +44,7 @@
 #include <qt4project.h>
 #include <qt4target.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QProcess>
@@ -440,15 +441,15 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
                 = templatesDirPath + QLatin1Char('/') + fileName;
         const QString destFile
                 = debianDirPath + QLatin1Char('/') + fileName;
-        if (!QFile::copy(srcFile, destFile)) {
+        if (fileName == QLatin1String("rules")) {
+            if (!adaptRulesFile(srcFile, destFile))
+                return false;
+        } else if (!QFile::copy(srcFile, destFile)) {
             raiseError(tr("Could not copy file '%1' to '%2'")
                        .arg(QDir::toNativeSeparators(srcFile),
                             QDir::toNativeSeparators(destFile)));
             return false;
         }
-
-        if (fileName == QLatin1String("rules"))
-            adaptRulesFile(destFile);
     }
 
     QFile magicFile(magicFilePath);
@@ -484,22 +485,22 @@ void MaemoDebianPackageCreationStep::ensureShlibdeps(QByteArray &rulesContent)
     rulesContent = contentAsString.toLocal8Bit();
 }
 
-void MaemoDebianPackageCreationStep::adaptRulesFile(const QString &rulesFilePath)
+bool MaemoDebianPackageCreationStep::adaptRulesFile(
+    const QString &templatePath, const QString &rulesFilePath)
 {
-    QFile rulesFile(rulesFilePath);
-    rulesFile.setPermissions(rulesFile.permissions() | QFile::ExeUser);
-    if (!rulesFile.open(QIODevice::ReadWrite)) {
-        qWarning("Cannot open rules file for Maemo6 icon path adaptation.");
-        return;
+    Utils::FileReader reader;
+    if (!reader.fetch(templatePath)) {
+        raiseError(reader.errorString());
+        return false;
     }
-    QByteArray content = rulesFile.readAll();
+    QByteArray content = reader.data();
     const int makeInstallLine = content.indexOf("\t$(MAKE) INSTALL_ROOT");
     if (makeInstallLine == -1)
-        return;
+        return true;
     const int makeInstallEol = content.indexOf('\n', makeInstallLine);
     if (makeInstallEol == -1)
-        return;
-    QString desktopFileDir = QFileInfo(rulesFile).dir().path()
+        return true;
+    QString desktopFileDir = QFileInfo(rulesFilePath).path()
         + QLatin1Char('/') + maemoTarget()->packageName()
         + QLatin1String("/usr/share/applications/");
     const Qt4BuildConfiguration * const bc = qt4BuildConfiguration();
@@ -539,8 +540,15 @@ void MaemoDebianPackageCreationStep::adaptRulesFile(const QString &rulesFilePath
     if (!(bc->qmakeBuildConfiguration() & QtVersion::DebugBuild))
         ensureShlibdeps(content);
 
-    rulesFile.resize(0);
-    rulesFile.write(content);
+    Utils::FileSaver saver(rulesFilePath);
+    saver.write(content);
+    if (!saver.finalize()) {
+        raiseError(saver.errorString());
+        return false;
+    }
+    QFile rulesFile(rulesFilePath);
+    rulesFile.setPermissions(rulesFile.permissions() | QFile::ExeUser);
+    return true;
 }
 
 void MaemoDebianPackageCreationStep::addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,

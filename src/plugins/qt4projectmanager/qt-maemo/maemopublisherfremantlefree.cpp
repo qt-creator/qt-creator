@@ -43,6 +43,7 @@
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qmakestep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -203,28 +204,32 @@ bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
                 return false;
         }
     } else {
-        if (!QFile::copy(srcFilePath, tgtFilePath)) {
-            emit progressReport(tr("Could not copy file '%1' to '%2'.")
-                .arg(QDir::toNativeSeparators(srcFilePath),
-                     QDir::toNativeSeparators(tgtFilePath)));
-            return false;
-        }
-        QCoreApplication::processEvents();
-
         if (tgtFilePath == m_tmpProjectDir + QLatin1String("/debian/rules")) {
-            QFile rulesFile(tgtFilePath);
-            if (!rulesFile.open(QIODevice::ReadWrite)) {
-                emit progressReport(tr("Error: Cannot open file '%1'.")
-                    .arg(QDir::toNativeSeparators(tgtFilePath)));
+            Utils::FileReader reader;
+            if (!reader.fetch(srcFilePath)) {
+                emit progressReport(reader.errorString(), ErrorOutput);
                 return false;
             }
-            QByteArray rulesContents = rulesFile.readAll();
+            QByteArray rulesContents = reader.data();
             rulesContents.replace("$(MAKE) clean", "# $(MAKE) clean");
             rulesContents.replace("# Add here commands to configure the package.",
                 "qmake " + QFileInfo(m_project->file()->fileName()).fileName().toLocal8Bit());
             MaemoDebianPackageCreationStep::ensureShlibdeps(rulesContents);
-            rulesFile.resize(0);
-            rulesFile.write(rulesContents);
+            Utils::FileSaver saver(tgtFilePath);
+            saver.write(rulesContents);
+            if (!saver.finalize()) {
+                emit progressReport(saver.errorString(), ErrorOutput);
+                return false;
+            }
+        } else {
+            QFile srcFile(srcFilePath);
+            if (!srcFile.copy(tgtFilePath)) {
+                emit progressReport(tr("Could not copy file '%1' to '%2': %3.")
+                    .arg(QDir::toNativeSeparators(srcFilePath),
+                         QDir::toNativeSeparators(tgtFilePath),
+                         srcFile.errorString()));
+                return false;
+            }
         }
     }
     return true;
@@ -235,16 +240,19 @@ bool MaemoPublisherFremantleFree::fixNewlines()
     QDir debianDir(m_tmpProjectDir + QLatin1String("/debian"));
     const QStringList &fileNames = debianDir.entryList(QDir::Files);
     foreach (const QString &fileName, fileNames) {
-        QFile file(debianDir.filePath(fileName));
-        if (!file.open(QIODevice::ReadWrite))
+        QString filePath = debianDir.filePath(fileName);
+        Utils::FileReader reader;
+        if (!reader.fetch(filePath))
             return false;
-        QByteArray contents = file.readAll();
+        QByteArray contents = reader.data();
         const QByteArray crlf("\r\n");
         if (!contents.contains(crlf))
             continue;
         contents.replace(crlf, "\n");
-        file.resize(0);
-        file.write(contents);
+        Utils::FileSaver saver(filePath);
+        saver.write(contents);
+        if (!saver.finalize())
+            return false;
     }
     return true;
 }
@@ -529,27 +537,25 @@ bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
         if (desktopFilePath.isEmpty())
             continue;
         desktopFilePath.replace(model->projectDir(), m_tmpProjectDir);
-        QFile desktopFile(desktopFilePath);
         const QString executableFilePath = model->remoteExecutableFilePath();
         if (executableFilePath.isEmpty()) {
             qDebug("%s: Skipping subproject %s with missing deployment information.",
                 Q_FUNC_INFO, qPrintable(model->proFilePath()));
             continue;
         }
-        if (!desktopFile.exists() || !desktopFile.open(QIODevice::ReadWrite)) {
+        Utils::FileReader reader;
+        if (!reader.fetch(desktopFilePath, error)) {
             success = false;
-            if (error) {
-                *error = tr("Failed to adapt desktop file '%1'.")
-                    .arg(desktopFilePath);
-            }
             continue;
         }
-        QByteArray desktopFileContents = desktopFile.readAll();
+        QByteArray desktopFileContents = reader.data();
         bool fileNeedsUpdate = addOrReplaceDesktopFileValue(desktopFileContents,
             "Exec", executableFilePath.toUtf8());
         if (fileNeedsUpdate) {
-            desktopFile.resize(0);
-            desktopFile.write(desktopFileContents);
+            Utils::FileSaver saver(desktopFilePath);
+            saver.write(desktopFileContents);
+            if (!saver.finalize(error))
+                success = false;
         }
     }
     return success;

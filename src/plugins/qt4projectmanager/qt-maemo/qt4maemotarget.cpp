@@ -50,6 +50,7 @@
 #include <utils/fileutils.h>
 
 #include <utils/filesystemwatcher.h>
+#include <utils/fileutils.h>
 
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
@@ -411,27 +412,16 @@ bool AbstractDebBasedQt4MaemoTarget::setProjectVersionInternal(const QString &ve
     QString *error)
 {
     const QString filePath = changeLogFilePath();
-    MaemoGlobal::FileUpdate update(filePath);
-    QSharedPointer<QFile> changeLog
-        = openFile(filePath, QIODevice::ReadWrite, error);
-    if (!changeLog)
+    Utils::FileReader reader;
+    if (!reader.fetch(filePath, error))
         return false;
-
-    QString content = QString::fromUtf8(changeLog->readAll());
+    QString content = QString::fromUtf8(reader.data());
     content.replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
         QLatin1Char('(') + version + QLatin1Char(')'));
-    changeLog->resize(0);
-    changeLog->write(content.toUtf8());
-    changeLog->close();
-    if (changeLog->error() != QFile::NoError) {
-        if (error) {
-            *error = tr("Error writing Debian changelog file '%1': %2")
-                .arg(QDir::toNativeSeparators(changeLog->fileName()),
-                     changeLog->errorString());
-        }
-        return false;
-    }
-    return true;
+    MaemoGlobal::FileUpdate update(filePath);
+    Utils::FileSaver saver(filePath);
+    saver.write(content.toUtf8());
+    return saver.finalize(error);
 }
 
 QIcon AbstractDebBasedQt4MaemoTarget::packageManagerIcon(QString *error) const
@@ -452,10 +442,8 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIconInternal(const QString
     QString *error)
 {
     const QString filePath = controlFilePath();
-    MaemoGlobal::FileUpdate update(filePath);
-    const QSharedPointer<QFile> controlFile
-        = openFile(filePath, QIODevice::ReadWrite, error);
-    if (!controlFile)
+    Utils::FileReader reader;
+    if (!reader.fetch(filePath, error))
         return false;
     const QPixmap pixmap(iconFilePath);
     if (pixmap.isNull()) {
@@ -475,7 +463,7 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIconInternal(const QString
     }
     buffer.close();
     iconAsBase64 = iconAsBase64.toBase64();
-    QByteArray contents = controlFile->readAll();
+    QByteArray contents = reader.data();
     const QByteArray iconFieldNameWithColon = IconFieldName + ':';
     const int iconFieldPos = contents.startsWith(iconFieldNameWithColon)
         ? 0 : contents.indexOf('\n' + iconFieldNameWithColon);
@@ -498,17 +486,10 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIconInternal(const QString
         contents.replace(oldIconStartPos, nextEolPos - oldIconStartPos,
             ' ' + iconAsBase64);
     }
-    controlFile->resize(0);
-    controlFile->write(contents);
-    if (controlFile->error() != QFile::NoError) {
-        if (error) {
-            *error = tr("Error writing file '%1': %2")
-                .arg(QDir::toNativeSeparators(controlFile->fileName()),
-                    controlFile->errorString());
-        }
-        return false;
-    }
-    return true;
+    MaemoGlobal::FileUpdate update(filePath);
+    Utils::FileSaver saver(filePath);
+    saver.write(contents);
+    return saver.finalize(error);
 }
 
 QString AbstractDebBasedQt4MaemoTarget::packageName() const
@@ -525,32 +506,26 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageNameInternal(const QString &packa
     if (!setControlFieldValue("Source", packageName.toUtf8()))
         return false;
 
-    QSharedPointer<QFile> changelogFile
-        = openFile(changeLogFilePath(), QIODevice::ReadWrite, 0);
-    if (!changelogFile)
+    Utils::FileReader reader;
+    if (!reader.fetch(changeLogFilePath()))
         return false;
-    QString changelogContents = QString::fromUtf8(changelogFile->readAll());
+    QString changelogContents = QString::fromUtf8(reader.data());
     QRegExp pattern(QLatin1String("[^\\s]+( \\(\\d\\.\\d\\.\\d\\))"));
     changelogContents.replace(pattern, packageName + QLatin1String("\\1"));
-    if (!changelogFile->resize(0))
+    Utils::FileSaver saver(changeLogFilePath());
+    saver.write(changelogContents.toUtf8());
+    if (!saver.finalize())
         return false;
-    changelogFile->write(changelogContents.toUtf8());
 
-    QSharedPointer<QFile> rulesFile
-        = openFile(rulesFilePath(), QIODevice::ReadWrite, 0);
-    if (!rulesFile)
+    if (!reader.fetch(rulesFilePath()))
         return false;
-    QByteArray rulesContents = rulesFile->readAll();
+    QByteArray rulesContents = reader.data();
     const QString oldString = QLatin1String("debian/") + oldPackageName;
     const QString newString = QLatin1String("debian/") + packageName;
     rulesContents.replace(oldString.toUtf8(), newString.toUtf8());
-    rulesFile->resize(0);
-    rulesFile->write(rulesContents);
-    if (rulesFile->error() != QFile::NoError
-            || changelogFile->error() != QFile::NoError) {
-        return false;
-    }
-    return true;
+    Utils::FileSaver rulesSaver(changeLogFilePath());
+    rulesSaver.write(rulesContents);
+    return rulesSaver.finalize();
 }
 
 QString AbstractDebBasedQt4MaemoTarget::packageManagerName() const
@@ -627,10 +602,10 @@ QByteArray AbstractDebBasedQt4MaemoTarget::controlFileFieldValue(const QString &
     bool multiLine) const
 {
     QByteArray value;
-    QFile controlFile(controlFilePath());
-    if (!controlFile.open(QIODevice::ReadOnly))
+    Utils::FileReader reader;
+    if (!reader.fetch(controlFilePath()))
         return value;
-    const QByteArray &contents = controlFile.readAll();
+    const QByteArray &contents = reader.data();
     const int keyPos = contents.indexOf(key.toUtf8() + ':');
     if (keyPos == -1)
         return value;
@@ -664,14 +639,15 @@ QByteArray AbstractDebBasedQt4MaemoTarget::controlFileFieldValue(const QString &
 bool AbstractDebBasedQt4MaemoTarget::setControlFieldValue(const QByteArray &fieldName,
     const QByteArray &fieldValue)
 {
-    QFile controlFile(controlFilePath());
-    MaemoGlobal::FileUpdate update(controlFile.fileName());
-    if (!controlFile.open(QIODevice::ReadWrite))
+    Utils::FileReader reader;
+    if (!reader.fetch(controlFilePath()))
         return false;
-    QByteArray contents = controlFile.readAll();
+    QByteArray contents = reader.data();
     if (adaptControlFileField(contents, fieldName, fieldValue)) {
-        controlFile.resize(0);
-        controlFile.write(contents);
+        MaemoGlobal::FileUpdate update(controlFilePath());
+        Utils::FileSaver saver(changeLogFilePath());
+        saver.write(contents);
+        return saver.finalize();
     }
     return true;
 }
@@ -784,13 +760,12 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
 
 bool AbstractDebBasedQt4MaemoTarget::adaptRulesFile()
 {
-    QFile rulesFile(rulesFilePath());
-    if (!rulesFile.open(QIODevice::ReadWrite)) {
-        raiseError(tr("Packaging Error: Cannot open file '%1'.")
-                   .arg(QDir::toNativeSeparators(rulesFilePath())));
+    Utils::FileReader reader;
+    if (!reader.fetch(rulesFilePath())) {
+        raiseError(reader.errorString());
         return false;
     }
-    QByteArray rulesContents = rulesFile.readAll();
+    QByteArray rulesContents = reader.data();
     const QByteArray comment("# Uncomment this line for use without Qt Creator");
     rulesContents.replace("DESTDIR", "INSTALL_ROOT");
     rulesContents.replace("dh_shlibdeps", "# dh_shlibdeps " + comment);
@@ -802,12 +777,10 @@ bool AbstractDebBasedQt4MaemoTarget::adaptRulesFile()
     // because dpkg-genchanges doesn't know about it (and can't be told).
     // rulesContents.replace("dh_builddeb", "dh_builddeb --destdir=.");
 
-    rulesFile.resize(0);
-    rulesFile.write(rulesContents);
-    rulesFile.close();
-    if (rulesFile.error() != QFile::NoError) {
-        raiseError(tr("Packaging Error: Cannot write file '%1'.")
-                   .arg(QDir::toNativeSeparators(rulesFilePath())));
+    Utils::FileSaver saver(rulesFilePath());
+    saver.write(rulesContents);
+    if (!saver.finalize()) {
+        raiseError(saver.errorString());
         return false;
     }
     return true;
@@ -815,14 +788,12 @@ bool AbstractDebBasedQt4MaemoTarget::adaptRulesFile()
 
 bool AbstractDebBasedQt4MaemoTarget::adaptControlFile()
 {
-    QFile controlFile(controlFilePath());
-    if (!controlFile.open(QIODevice::ReadWrite)) {
-        raiseError(tr("Packaging Error: Cannot open file '%1'.")
-                   .arg(QDir::toNativeSeparators(controlFilePath())));
+    Utils::FileReader reader;
+    if (!reader.fetch(controlFilePath())) {
+        raiseError(reader.errorString());
         return false;
     }
-
-    QByteArray controlContents = controlFile.readAll();
+    QByteArray controlContents = reader.data();
 
     adaptControlFileField(controlContents, "Section", defaultSection());
     adaptControlFileField(controlContents, "Priority", "optional");
@@ -843,12 +814,10 @@ bool AbstractDebBasedQt4MaemoTarget::adaptControlFile()
     }
 
     addAdditionalControlFileFields(controlContents);
-    controlFile.resize(0);
-    controlFile.write(controlContents);
-    controlFile.close();
-    if (controlFile.error() != QFile::NoError) {
-        raiseError(tr("Packaging Error: Cannot write file '%1'.")
-                   .arg(QDir::toNativeSeparators(controlFilePath())));
+    Utils::FileSaver saver(controlFilePath());
+    saver.write(controlContents);
+    if (!saver.finalize()) {
+        raiseError(saver.errorString());
         return false;
     }
     return true;
@@ -1038,11 +1007,10 @@ bool AbstractRpmBasedQt4MaemoTarget::initAdditionalPackagingSettingsFromOtherTar
 QByteArray AbstractRpmBasedQt4MaemoTarget::getValueForTag(const QByteArray &tag,
     QString *error) const
 {
-    QSharedPointer<QFile> specFile
-        = openFile(specFilePath(), QIODevice::ReadOnly, error);
-    if (!specFile)
+    Utils::FileReader reader;
+    if (!reader.fetch(specFilePath(), error))
         return QByteArray();
-    const QByteArray &content = specFile->readAll();
+    const QByteArray &content = reader.data();
     const QByteArray completeTag = tag.toLower() + ':';
     int index = content.toLower().indexOf(completeTag);
     if (index == -1)
@@ -1057,14 +1025,14 @@ QByteArray AbstractRpmBasedQt4MaemoTarget::getValueForTag(const QByteArray &tag,
 bool AbstractRpmBasedQt4MaemoTarget::setValueForTag(const QByteArray &tag,
     const QByteArray &value, QString *error)
 {
-    QSharedPointer<QFile> specFile
-        = openFile(specFilePath(), QIODevice::ReadWrite, error);
-    if (!specFile)
+    Utils::FileReader reader;
+    if (!reader.fetch(specFilePath(), error))
         return false;
-    QByteArray content = specFile->readAll();
+    QByteArray content = reader.data();
     if (adaptTagValue(content, tag, value, false)) {
-        specFile->resize(0);
-        specFile->write(content);
+        Utils::FileSaver saver(specFilePath());
+        saver.write(content);
+        return saver.finalize(error);
     }
     return true;
 }
