@@ -42,6 +42,7 @@
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 #include <utils/stylehelper.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDirIterator>
@@ -50,6 +51,7 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QLabel>
+#include <QtGui/QMainWindow>
 #include <QtGui/QPushButton>
 #include <QtGui/QTextBlock>
 
@@ -346,25 +348,22 @@ QStringList BaseFileFind::replaceAll(const QString &text,
             applyChanges(textEditor->document(), text, changeItems);
             tc.endEditBlock();
         } else {
-            QFile file(fileName);
-
-            if (file.open(QFile::ReadOnly)) {
-                QTextStream stream(&file);
-                // ### set the encoding
-                const QString plainText = stream.readAll();
-                file.close();
-
+            Utils::FileReader reader;
+            if (reader.fetch(fileName, Core::ICore::instance()->mainWindow())) {
                 QTextDocument doc;
-                doc.setPlainText(plainText);
+                // ### set the encoding
+                doc.setPlainText(QString::fromLocal8Bit(reader.data()));
 
                 applyChanges(&doc, text, changeItems);
 
-                QFile newFile(fileName);
-                if (newFile.open(QFile::WriteOnly)) {
-                    QTextStream stream(&newFile);
+                Utils::FileSaver saver(fileName);
+                if (!saver.hasError()) {
+                    QTextStream stream(saver.file());
                     // ### set the encoding
                     stream << doc.toPlainText();
+                    saver.setResult(&stream);
                 }
+                saver.finalize(Core::ICore::instance()->mainWindow());
             }
         }
     }

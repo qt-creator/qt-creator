@@ -39,6 +39,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -176,16 +177,11 @@ static QByteArray msvcPredefinedMacros(const Utils::Environment &env)
                       "#define __ptr32\n"
                       "#define __ptr64\n";
 
-    QString tmpFilePath;
-    {
-        // QTemporaryFile is buggy and will not unlock the file for cl.exe
-        QTemporaryFile tmpFile(QDir::tempPath()+"/envtestXXXXXX.cpp");
-        tmpFile.setAutoRemove(false);
-        if (!tmpFile.open())
-            return predefinedMacros;
-        tmpFilePath = QFileInfo(tmpFile).canonicalFilePath();
-        tmpFile.write(msvcCompilationFile());
-        tmpFile.close();
+    Utils::TempFileSaver saver(QDir::tempPath()+"/envtestXXXXXX.cpp");
+    saver.write(msvcCompilationFile());
+    if (!saver.finalize()) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
+        return predefinedMacros;
     }
     QProcess cpp;
     cpp.setEnvironment(env.toStringList());
@@ -197,7 +193,7 @@ static QByteArray msvcPredefinedMacros(const Utils::Environment &env)
         return predefinedMacros;
     }
 
-    arguments << QLatin1String("/EP") << QDir::toNativeSeparators(tmpFilePath);
+    arguments << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
     cpp.start(binary, arguments);
     if (!cpp.waitForStarted()) {
         qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(binary),
@@ -231,7 +227,6 @@ static QByteArray msvcPredefinedMacros(const Utils::Environment &env)
             predefinedMacros += '\n';
         }
     }
-    QFile::remove(tmpFilePath);
     if (debug)
         qDebug() << "msvcPredefinedMacros" << predefinedMacros;
     return predefinedMacros;
@@ -269,13 +264,7 @@ static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
         return result;
 
     const QString tempOutputFileName = QDir::tempPath() + QLatin1String("\\qtcreator-msvc-environment.txt");
-    QTemporaryFile tf(QDir::tempPath() + "\\XXXXXX.bat");
-    tf.setAutoRemove(true);
-    if (!tf.open())
-        return result;
-
-    const QString filename = tf.fileName();
-
+    Utils::TempFileSaver saver(QDir::tempPath() + "\\XXXXXX.bat");
     QByteArray call = "call ";
     call += Utils::QtcProcess::quoteArg(varsBat).toLocal8Bit();
     if (!args.isEmpty()) {
@@ -283,19 +272,21 @@ static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
         call += args.toLocal8Bit();
     }
     call += "\r\n";
-    tf.write(call);
+    saver.write(call);
     const QByteArray redirect = "set > " + Utils::QtcProcess::quoteArg(
                 QDir::toNativeSeparators(tempOutputFileName)).toLocal8Bit() + "\r\n";
-    tf.write(redirect);
-    tf.flush();
-    tf.waitForBytesWritten(30000);
+    saver.write(redirect);
+    if (!saver.finalize()) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
+        return result;
+    }
 
     Utils::QtcProcess run;
     run.setEnvironment(env);
     const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     // Windows SDK setup scripts require command line switches for environment expansion.
     QString cmdArguments = QLatin1String(" /E:ON /V:ON /c \"");
-    cmdArguments += QDir::toNativeSeparators(filename);
+    cmdArguments += QDir::toNativeSeparators(saver.fileName());
     cmdArguments += QLatin1Char('"');
     run.setCommand(cmdPath, cmdArguments);
     if (debug)
@@ -313,7 +304,6 @@ static Utils::Environment msvcReadEnvironmentSetting(const QString &varsBat,
         Utils::SynchronousProcess::stopProcess(run);
         return result;
     }
-    tf.close();
 
     QFile varsFile(tempOutputFileName);
     if (!varsFile.open(QIODevice::ReadOnly|QIODevice::Text))

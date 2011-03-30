@@ -42,6 +42,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtGui/QTextCharFormat>
 #include <QtGui/QFont>
+#include <QtGui/QMainWindow>
 
 static const char *fontFamilyKey = "FontFamily";
 static const char *fontSizeKey = "FontSize";
@@ -315,7 +316,7 @@ bool FontSettings::loadColorScheme(const QString &fileName,
 
 bool FontSettings::saveColorScheme(const QString &fileName)
 {
-    const bool saved = m_scheme.save(fileName);
+    const bool saved = m_scheme.save(fileName, Core::ICore::instance()->mainWindow());
     if (saved)
         m_schemeFileName = fileName;
     return saved;

@@ -38,6 +38,10 @@
 #include <QtCore/QMap>
 #include <QtCore/QVariant>
 
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT PersistentSettingsReader
@@ -57,7 +61,7 @@ class PROJECTEXPLORER_EXPORT PersistentSettingsWriter
 public:
     PersistentSettingsWriter();
     void saveValue(const QString & variable, const QVariant &value);
-    bool save(const QString & fileName, const QString & docType) const;
+    bool save(const QString &fileName, const QString &docType, QWidget *parent) const;
 
 private:
     QMap<QString, QVariant> m_valueMap;

@@ -34,6 +34,7 @@
 #include "maemodeviceconfigurations.h"
 
 #include <utils/ssh/sshkeygenerator.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QDir>
 #include <QtGui/QApplication>
@@ -124,17 +125,10 @@ void MaemoSshConfigDialog::saveKey(bool publicKey)
     if (fileName.isEmpty())
         return;
 
-    QFile file(fileName);
-    const bool canOpen = file.open(QIODevice::WriteOnly);
-    if (canOpen)
-        file.write(publicKey
+    Utils::FileSaver saver(fileName);
+    saver.write(publicKey
             ? m_keyGenerator->publicKey()
             : m_keyGenerator->privateKey());
-    if (!canOpen || file.error() != QFile::NoError) {
-        QMessageBox::critical(this, tr("Error writing file"),
-                              tr("Could not write file '%1':\n %2")
-                              .arg(fileName, file.errorString()));
-    } else if (!publicKey) {
+    if (saver.finalize(this) && !publicKey)
         emit privateKeyGenerated(fileName);
-    }
 }

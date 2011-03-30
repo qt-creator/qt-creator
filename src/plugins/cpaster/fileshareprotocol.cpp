@@ -38,6 +38,7 @@
 #include <coreplugin/messageoutputwindow.h>
 
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamAttribute>
@@ -195,27 +196,29 @@ void FileShareProtocol::paste(const QString &text,
                               const QString &description)
 {
     // Write out temp XML file
-    QTemporaryFile tempFile(m_settings->path + QLatin1Char('/') + QLatin1String(tempPatternC));
-    tempFile.setAutoRemove(false);
-    if (!tempFile.open()) {
-        const QString msg = tr("Unable to open a file for writing in %1: %2").arg(m_settings->path, tempFile.errorString());
-        Core::ICore::instance()->messageManager()->printToOutputPanePopup(msg);
+    Utils::TempFileSaver saver(m_settings->path + QLatin1Char('/') + QLatin1String(tempPatternC));
+    saver.setAutoRemove(false);
+    if (!saver.hasError()) {
+        // Flat text sections embedded into pasterElement
+        QXmlStreamWriter writer(saver.file());
+        writer.writeStartDocument();
+        writer.writeStartElement(QLatin1String(pasterElementC));
+
+        writer.writeTextElement(QLatin1String(userElementC), username);
+        writer.writeTextElement(QLatin1String(descriptionElementC), description);
+        writer.writeTextElement(QLatin1String(textElementC), text);
+
+        writer.writeEndElement();
+        writer.writeEndDocument();
+
+        saver.setResult(&writer);
+    }
+    if (!saver.finalize()) {
+        Core::ICore::instance()->messageManager()->printToOutputPanePopup(saver.errorString());
         return;
     }
-    // Flat text sections embedded into pasterElement
-    QXmlStreamWriter writer(&tempFile);
-    writer.writeStartDocument();
-    writer.writeStartElement(QLatin1String(pasterElementC));
 
-    writer.writeTextElement(QLatin1String(userElementC), username);
-    writer.writeTextElement(QLatin1String(descriptionElementC), description);
-    writer.writeTextElement(QLatin1String(textElementC), text);
-
-    writer.writeEndElement();
-    writer.writeEndDocument();
-    tempFile.close();
-
-    const QString msg = tr("Pasted: %1").arg(tempFile.fileName());
+    const QString msg = tr("Pasted: %1").arg(saver.fileName());
     Core::ICore::instance()->messageManager()->printToOutputPanePopup(msg);
 }
 } // namespace CodePaster

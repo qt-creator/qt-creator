@@ -33,6 +33,7 @@
 #include "itemlibrarywidget.h"
 
 #include <utils/filterlineedit.h>
+#include <utils/fileutils.h>
 #include <coreplugin/coreconstants.h>
 #include "itemlibrarycomponents.h"
 #include "itemlibrarymodel.h"
@@ -227,19 +228,9 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     setSearchFilter(QString());
 
     /* style sheets */
-    {
-        QFile file(":/qmldesigner/stylesheet.css");
-        file.open(QFile::ReadOnly);
-        QString styleSheet = QLatin1String(file.readAll());
-        setStyleSheet(styleSheet);
-    }
-
-    {
-        QFile file(":/qmldesigner/scrollbar.css");
-        file.open(QFile::ReadOnly);
-        QString styleSheet = QLatin1String(file.readAll());
-        m_d->m_resourcesView->setStyleSheet(styleSheet);
-    }
+    setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
+    m_d->m_resourcesView->setStyleSheet(
+            QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 }
 
 ItemLibraryWidget::~ItemLibraryWidget()

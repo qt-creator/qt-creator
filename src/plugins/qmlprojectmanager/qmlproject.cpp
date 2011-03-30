@@ -44,6 +44,7 @@
 #include <qt4projectmanager/qmldumptool.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <utils/fileutils.h>
 
 #include <utils/filesystemwatcher.h>
 
@@ -99,10 +100,10 @@ void QmlProject::parseProject(RefreshOptions options)
         if (options & ProjectFile)
             delete m_projectItem.data();
         if (!m_projectItem) {
-            QFile file(m_fileName);
-            if (file.open(QFile::ReadOnly)) {
+            Utils::FileReader reader;
+            if (reader.fetch(m_fileName)) {
                 QDeclarativeComponent *component = new QDeclarativeComponent(&m_engine, this);
-                component->setData(file.readAll(), QUrl::fromLocalFile(m_fileName));
+                component->setData(reader.data(), QUrl::fromLocalFile(m_fileName));
                 if (component->isReady()
                     && qobject_cast<QmlProjectItem*>(component->create())) {
                     m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
@@ -113,7 +114,7 @@ void QmlProject::parseProject(RefreshOptions options)
                     messageManager->printToOutputPane(component->errorString(), true);
                 }
             } else {
-                messageManager->printToOutputPane(tr("Error while loading project file %1.").arg(m_fileName), true);
+                messageManager->printToOutputPane(tr("QML project: %1").arg(reader.errorString()), true);
             }
         }
         if (m_projectItem) {

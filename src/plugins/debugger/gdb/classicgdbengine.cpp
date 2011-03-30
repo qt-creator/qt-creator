@@ -44,6 +44,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -1085,11 +1086,8 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
     PRECONDITION;
     if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
         // Load at least gdb macro based dumpers.
-        QFile file(_(":/gdb/gdbmacros.txt"));
-        file.open(QIODevice::ReadOnly);
-        QByteArray contents = file.readAll();
         m_debuggingHelperState = DebuggingHelperLoadTried;
-        postCommand(contents);
+        postCommand(Utils::FileReader::fetchQrc(_(":/gdb/gdbmacros.txt")));
         return;
     }
 

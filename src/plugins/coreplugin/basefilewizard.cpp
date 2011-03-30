@@ -42,6 +42,7 @@
 #include <utils/filewizarddialog.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -179,23 +180,15 @@ bool GeneratedFile::write(QString *errorMessage) const
             return false;
         }
     }
-    // Write out
-    QFile file(m_d->path);
 
+    // Write out
     QIODevice::OpenMode flags = QIODevice::WriteOnly|QIODevice::Truncate;
     if (!isBinary())
         flags |= QIODevice::Text;
 
-    if (!file.open(flags)) {
-        *errorMessage = BaseFileWizard::tr("Unable to open %1 for writing: %2").arg(m_d->path, file.errorString());
-        return false;
-    }
-    if (file.write(m_d->contents) == -1) {
-        *errorMessage =  BaseFileWizard::tr("Error while writing to %1: %2").arg(m_d->path, file.errorString());
-        return false;
-    }
-    file.close();
-    return true;
+    Utils::FileSaver saver(m_d->path, flags);
+    saver.write(m_d->contents);
+    return saver.finalize(errorMessage);
 }
 
 GeneratedFile::Attributes GeneratedFile::attributes() const

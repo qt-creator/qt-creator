@@ -34,13 +34,18 @@
 #include "helpconstants.h"
 #include "localhelpmanager.h"
 
+#include <coreplugin/icore.h>
+
+#include <utils/fileutils.h>
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringBuilder>
-#include <QtCore/QTemporaryFile>
+#include <QtCore/QDir>
 #include <QtCore/QUrl>
 
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopServices>
+#include <QtGui/QMainWindow>
 #include <QtGui/QMouseEvent>
 
 #include <QtHelp/QHelpEngine>
@@ -131,19 +136,12 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
 
         const QString& path = resolvedUrl.path();
         if (!canOpenPage(path)) {
-            QTemporaryFile tmpTmpFile;
-            if (!tmpTmpFile.open())
-                return false;
-
-            const QString &extension = QFileInfo(path).completeSuffix();
-            QFile actualTmpFile(tmpTmpFile.fileName() % QLatin1String(".")
-                % extension);
-            if (!actualTmpFile.open(QIODevice::ReadWrite | QIODevice::Truncate))
-                return false;
-
-            actualTmpFile.write(helpEngine.fileData(resolvedUrl));
-            actualTmpFile.close();
-            return QDesktopServices::openUrl(QUrl(actualTmpFile.fileName()));
+            Utils::TempFileSaver saver(QDir::tempPath()
+                + QLatin1String("/qtchelp_XXXXXX.") + QFileInfo(path).completeSuffix());
+            if (!saver.hasError())
+                saver.write(helpEngine.fileData(resolvedUrl));
+            if (saver.finalize(Core::ICore::instance()->mainWindow()))
+                return QDesktopServices::openUrl(QUrl(saver.fileName()));
         }
     }
     return false;

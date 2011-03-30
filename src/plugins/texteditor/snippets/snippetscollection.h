@@ -97,7 +97,7 @@ public:
     QList<QString> groupIds() const;
 
     void reload();
-    void synchronize();
+    bool synchronize(QString *errorString);
 
 private slots:
     void identifyGroups();

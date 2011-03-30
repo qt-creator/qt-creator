@@ -55,6 +55,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseplugin.h>
@@ -1784,9 +1785,10 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     // Read description
     const QString descriptionFile = gitDir.absoluteFilePath(QLatin1String("description"));
     if (QFileInfo(descriptionFile).isFile()) {
-        QFile file(descriptionFile);
-        if (file.open(QIODevice::ReadOnly|QIODevice::Text))
-            commitData->panelInfo.description = commandOutputFromLocal8Bit(file.readAll()).trimmed();
+        Utils::FileReader reader;
+        if (!reader.fetch(descriptionFile, QIODevice::Text, errorMessage))
+            return false;
+        commitData->panelInfo.description = commandOutputFromLocal8Bit(reader.data()).trimmed();
     }
 
     // Run status. Note that it has exitcode 1 if there are no added files.
@@ -1868,14 +1870,10 @@ bool GitClient::getCommitData(const QString &workingDirectory,
             const QFileInfo templateFileInfo(templateFilename);
             if (templateFileInfo.isRelative())
                 templateFilename = repoDirectory + QLatin1Char('/') + templateFilename;
-            QFile templateFile(templateFilename);
-            if (templateFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-                *commitTemplate = QString::fromLocal8Bit(templateFile.readAll());
-            } else {
-                qWarning("Unable to read commit template %s: %s",
-                         qPrintable(templateFilename),
-                         qPrintable(templateFile.errorString()));
-            }
+            Utils::FileReader reader;
+            if (!reader.fetch(templateFilename, QIODevice::Text, errorMessage))
+                return false;
+            *commitTemplate = QString::fromLocal8Bit(reader.data());
         }
     }
     return true;

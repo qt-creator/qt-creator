@@ -45,6 +45,7 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/pathchooser.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFile>
@@ -187,13 +188,12 @@ void SuppressionDialog::accept()
     QTC_ASSERT(!path.isEmpty(), return);
     QTC_ASSERT(!m_ui->suppressionEdit->toPlainText().trimmed().isEmpty(), return);
 
-    QFile file(path);
-    bool opened = file.open(QIODevice::WriteOnly | QIODevice::Append);
-    QTC_ASSERT(opened, return);
-
-    QTextStream stream(&file);
+    Utils::FileSaver saver(path, QIODevice::Append);
+    QTextStream stream(saver.file());
     stream << m_ui->suppressionEdit->toPlainText();
-    file.close();
+    saver.setResult(&stream);
+    if (!saver.finalize(this))
+        return;
 
     // add file to project (if there is a project that contains this file on the file system)
     ProjectExplorer::SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();

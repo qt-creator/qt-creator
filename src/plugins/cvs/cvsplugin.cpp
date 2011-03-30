@@ -60,6 +60,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/stringutils.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -68,7 +69,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextCodec>
 #include <QtCore/QtPlugin>
-#include <QtCore/QTemporaryFile>
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenu>
@@ -805,19 +805,17 @@ void CVSPlugin::startCommit(const QString &workingDir, const QStringList &files)
     m_commitRepository = workingDir;
 
     // Create a new submit change file containing the submit template
-    QTemporaryFile changeTmpFile;
-    changeTmpFile.setAutoRemove(false);
-    if (!changeTmpFile.open()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file: %1").arg(changeTmpFile.errorString()));
-        return;
-    }
+    Utils::TempFileSaver saver;
+    saver.setAutoRemove(false);
     // TODO: Retrieve submit template from
     const QString submitTemplate;
-    m_commitMessageFileName = changeTmpFile.fileName();
     // Create a submit
-    changeTmpFile.write(submitTemplate.toUtf8());
-    changeTmpFile.flush();
-    changeTmpFile.close();
+    saver.write(submitTemplate.toUtf8());
+    if (!saver.finalize()) {
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(saver.errorString());
+        return;
+    }
+    m_commitMessageFileName = saver.fileName();
     // Create a submit editor and set file list
     CVSSubmitEditor *editor = openCVSSubmitEditor(m_commitMessageFileName);
     editor->setCheckScriptWorkingDirectory(m_commitRepository);

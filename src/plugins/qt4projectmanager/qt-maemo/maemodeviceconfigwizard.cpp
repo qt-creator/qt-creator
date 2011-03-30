@@ -40,6 +40,7 @@
 #include "maemodeviceconfigurations.h"
 #include "maemokeydeployer.h"
 
+#include <utils/fileutils.h>
 #include <utils/ssh/sshkeygenerator.h>
 
 #include <QtCore/QDir>
@@ -421,13 +422,10 @@ private:
 
     bool saveFile(const QString &filePath, const QByteArray &data)
     {
-        QFile file(filePath);
-        const bool canOpen = file.open(QIODevice::WriteOnly);
-        if (canOpen)
-            file.write(data);
-        if (!canOpen || file.error() != QFile::NoError) {
-            QMessageBox::critical(this, tr("Could Not Save File"),
-                tr("Failed to save key file %1: %2").arg(filePath, file.errorString()));
+        Utils::FileSaver saver(filePath);
+        saver.write(data);
+        if (!saver.finalize()) {
+            QMessageBox::critical(this, tr("Could Not Save Key File"), saver.errorString());
             return false;
         }
         return true;

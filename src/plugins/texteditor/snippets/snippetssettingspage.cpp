@@ -49,6 +49,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QHash>
 #include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
 
 namespace TextEditor {
 namespace Internal {
@@ -390,8 +391,12 @@ void SnippetsSettingsPagePrivate::apply()
         setSnippetContent();
 
     if (m_snippetsCollectionChanged) {
-        SnippetsCollection::instance()->synchronize();
-        m_snippetsCollectionChanged = false;
+        QString errorString;
+        if (SnippetsCollection::instance()->synchronize(&errorString))
+            m_snippetsCollectionChanged = false;
+        else
+            QMessageBox::critical(Core::ICore::instance()->mainWindow(),
+                    tr("Error While Saving Snippet Collection"), errorString);
     }
 }
 

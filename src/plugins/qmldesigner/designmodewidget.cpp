@@ -56,6 +56,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/parameteraction.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QSettings>
@@ -634,17 +635,10 @@ void DesignModeWidget::setup()
         }
 
         if (navigationView.widget)
-        {
-            QFile file(":/qmldesigner/stylesheet.css");
-            file.open(QFile::ReadOnly);
-            QFile file2(":/qmldesigner/scrollbar.css");
-            file2.open(QFile::ReadOnly);
-
-            QString labelStyle = QLatin1String("QLabel { background-color: #4f4f4f; }");
-
-            QString styleSheet = file.readAll() + file2.readAll() + labelStyle;
-            navigationView.widget->setStyleSheet(styleSheet);
-        }
+            navigationView.widget->setStyleSheet(QLatin1String(
+                    Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")
+                    + Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")
+                    + "QLabel { background-color: #4f4f4f; }"));
     }
 
     m_nodeInstanceView = new NodeInstanceView(this);

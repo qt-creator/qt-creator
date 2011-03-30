@@ -45,6 +45,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 
@@ -141,15 +142,15 @@ static QStringList readLines(const QString &absoluteFileName)
 bool GenericProject::saveRawFileList(const QStringList &rawFileList)
 {
     // Make sure we can open the file for writing
-    QFile file(filesFileName());
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    Utils::FileSaver saver(filesFileName(), QIODevice::Text);
+    if (!saver.hasError()) {
+        QTextStream stream(saver.file());
+        foreach (const QString &filePath, rawFileList)
+            stream << filePath << QLatin1Char('\n');
+        saver.setResult(&stream);
+    }
+    if (!saver.finalize(Core::ICore::instance()->mainWindow()))
         return false;
-
-    QTextStream stream(&file);
-    foreach (const QString &filePath, rawFileList)
-        stream << filePath << QLatin1Char('\n');
-
-    file.close();
     refresh(GenericProject::Files);
     return true;
 }

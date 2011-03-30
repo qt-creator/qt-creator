@@ -279,7 +279,7 @@ bool SessionFile::save()
     writer.saveValue("valueKeys", keys);
 
 
-    if (writer.save(m_fileName, "QtCreatorSession"))
+    if (writer.save(m_fileName, "QtCreatorSession", Core::ICore::instance()->mainWindow()))
         return true;
 
     return false;

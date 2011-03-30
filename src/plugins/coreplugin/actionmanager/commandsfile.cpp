@@ -39,6 +39,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QFile>
 #include <QtCore/QXmlStreamAttributes>
 #include <QtCore/QXmlStreamWriter>
@@ -134,37 +136,37 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
 {
     const UniqueIDManager *idmanager = UniqueIDManager::instance();
 
-    QFile file(m_filename);
-    if (!file.open(QIODevice::WriteOnly|QIODevice::Text))
-        return false;
-
-    const Context ctx;
-    QXmlStreamWriter w(&file);
-    w.setAutoFormatting(true);
-    w.setAutoFormattingIndent(1); // Historical, used to be QDom.
-    w.writeStartDocument();
-    w.writeDTD(QLatin1String("<!DOCTYPE KeyboardMappingScheme>"));
-    w.writeComment(QString::fromAscii(" Written by Qt Creator %1, %2. ").
-                   arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
-                       QDateTime::currentDateTime().toString(Qt::ISODate)));
-    w.writeStartElement(ctx.mappingElement);
-    foreach (const ShortcutItem *item, items) {
-        const QString id = idmanager->stringForUniqueIdentifier(item->m_cmd->id());
-        if (item->m_key.isEmpty()) {
-            w.writeEmptyElement(ctx.shortCutElement);
-            w.writeAttribute(ctx.idAttribute, id);
-        } else {
-            w.writeStartElement(ctx.shortCutElement);
-            w.writeAttribute(ctx.idAttribute, id);
-            w.writeEmptyElement(ctx.keyElement);
-            w.writeAttribute(ctx.valueAttribute, item->m_key.toString());
-            w.writeEndElement(); // Shortcut
+    Utils::FileSaver saver(m_filename, QIODevice::Text);
+    if (!saver.hasError()) {
+        const Context ctx;
+        QXmlStreamWriter w(saver.file());
+        w.setAutoFormatting(true);
+        w.setAutoFormattingIndent(1); // Historical, used to be QDom.
+        w.writeStartDocument();
+        w.writeDTD(QLatin1String("<!DOCTYPE KeyboardMappingScheme>"));
+        w.writeComment(QString::fromAscii(" Written by Qt Creator %1, %2. ").
+                       arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
+                           QDateTime::currentDateTime().toString(Qt::ISODate)));
+        w.writeStartElement(ctx.mappingElement);
+        foreach (const ShortcutItem *item, items) {
+            const QString id = idmanager->stringForUniqueIdentifier(item->m_cmd->id());
+            if (item->m_key.isEmpty()) {
+                w.writeEmptyElement(ctx.shortCutElement);
+                w.writeAttribute(ctx.idAttribute, id);
+            } else {
+                w.writeStartElement(ctx.shortCutElement);
+                w.writeAttribute(ctx.idAttribute, id);
+                w.writeEmptyElement(ctx.keyElement);
+                w.writeAttribute(ctx.valueAttribute, item->m_key.toString());
+                w.writeEndElement(); // Shortcut
+            }
         }
+        w.writeEndElement();
+        w.writeEndDocument();
+
+        saver.setResult(&w);
     }
-    w.writeEndElement();
-    w.writeEndDocument();
-    file.close();
-    return true;
+    return saver.finalize();
 }
 
 } // namespace Internal

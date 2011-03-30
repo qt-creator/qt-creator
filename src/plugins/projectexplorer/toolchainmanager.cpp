@@ -42,6 +42,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
+#include <QtGui/QMainWindow>
 
 static const char *const TOOLCHAIN_DATA_KEY = "ToolChain.";
 static const char *const TOOLCHAIN_COUNT_KEY = "ToolChain.Count";
@@ -150,7 +151,7 @@ void ToolChainManager::saveToolChains()
         }
     }
     writer.saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
-    writer.save(settingsFileName(), "QtCreatorToolChains");
+    writer.save(settingsFileName(), "QtCreatorToolChains", Core::ICore::instance()->mainWindow());
 
     // Do not save default debuggers! Those are set by the SDK!
 }

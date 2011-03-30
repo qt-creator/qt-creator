@@ -34,6 +34,8 @@
 
 #include <coreplugin/coreconstants.h>
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QVariant>
@@ -376,31 +378,32 @@ void PersistentSettingsWriter::saveValue(const QString & variable, const QVarian
     m_valueMap.insert(variable, value);
 }
 
-bool PersistentSettingsWriter::save(const QString & fileName, const QString &docType) const
+bool PersistentSettingsWriter::save(const QString & fileName, const QString &docType,
+                                    QWidget *parent) const
 {
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly|QIODevice::Text))
-        return false;
+    Utils::FileSaver saver(fileName, QIODevice::Text);
+    if (!saver.hasError()) {
+        const Context ctx;
+        QXmlStreamWriter w(saver.file());
+        w.setAutoFormatting(true);
+        w.setAutoFormattingIndent(1); // Historical, used to be QDom.
+        w.writeStartDocument();
+        w.writeDTD(QLatin1String("<!DOCTYPE ") + docType + QLatin1Char('>'));
+        w.writeComment(QString::fromAscii(" Written by Qt Creator %1, %2. ").
+                       arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
+                           QDateTime::currentDateTime().toString(Qt::ISODate)));
+        w.writeStartElement(ctx.qtCreatorElement);
+        const QVariantMap::const_iterator cend = m_valueMap.constEnd();
+        for (QVariantMap::const_iterator it =  m_valueMap.constBegin(); it != cend; ++it) {
+            w.writeStartElement(ctx.dataElement);
+            w.writeTextElement(ctx.variableElement, it.key());
+            writeVariantValue(w, ctx, it.value());
+            w.writeEndElement();
+        }
+        w.writeEndDocument();
 
-    const Context ctx;
-    QXmlStreamWriter w(&file);
-    w.setAutoFormatting(true);
-    w.setAutoFormattingIndent(1); // Historical, used to be QDom.
-    w.writeStartDocument();
-    w.writeDTD(QLatin1String("<!DOCTYPE ") + docType + QLatin1Char('>'));
-    w.writeComment(QString::fromAscii(" Written by Qt Creator %1, %2. ").
-                   arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
-                       QDateTime::currentDateTime().toString(Qt::ISODate)));
-    w.writeStartElement(ctx.qtCreatorElement);
-    const QVariantMap::const_iterator cend = m_valueMap.constEnd();
-    for (QVariantMap::const_iterator it =  m_valueMap.constBegin(); it != cend; ++it) {
-        w.writeStartElement(ctx.dataElement);
-        w.writeTextElement(ctx.variableElement, it.key());
-        writeVariantValue(w, ctx, it.value());
-        w.writeEndElement();
+        saver.setResult(&w);
     }
-    w.writeEndDocument();
-    file.close();
-    return true;
+    return saver.finalize(parent);
 }
 } // namespace ProjectExplorer

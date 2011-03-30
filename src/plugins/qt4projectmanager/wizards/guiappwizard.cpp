@@ -41,6 +41,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/invoker.h>
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
@@ -258,12 +260,10 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
     QString fileName = templatePath;
     fileName += QDir::separator();
     fileName += templateName;
-    QFile inFile(fileName);
-    if (!inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        *errorMessage = tr("The template file '%1' could not be opened for reading: %2").arg(fileName, inFile.errorString());
+    Utils::FileReader reader;
+    if (!reader.fetch(fileName, QIODevice::Text, errorMessage))
         return false;
-    }
-    QString contents = QString::fromUtf8(inFile.readAll());
+    QString contents = QString::fromUtf8(reader.data());
 
     contents.replace(QLatin1String("%QAPP_INCLUDE%"), QLatin1String("QtGui/QApplication"));
     contents.replace(QLatin1String("%INCLUDE%"), params.headerFileName);

@@ -136,7 +136,6 @@ private:
     void attachNodeInstanceView();
     QWidget *centralWidget() const;
     class DesignDocumentControllerPrivate *m_d;
-    bool save(QIODevice *device, QString *errorMessage);
 };
 
 } // namespace QmlDesigner

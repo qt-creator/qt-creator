@@ -57,6 +57,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/fileutils.h>
 #include <algorithm>
 
 #include <QtCore/QDebug>
@@ -1090,18 +1091,15 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     {
         QString contents;
         {
-            QFile qfile(m_projectFilePath);
-            if (qfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                contents = QString::fromLocal8Bit(qfile.readAll());
-                qfile.close();
-                lines = contents.split(QLatin1Char('\n'));
-                while (!lines.isEmpty() && lines.last().isEmpty())
-                    lines.removeLast();
-            } else {
-                m_project->proFileParseError(tr("Error while reading .pro file %1: %2")
-                                             .arg(m_projectFilePath, qfile.errorString()));
+            Utils::FileReader reader;
+            if (!reader.fetch(m_projectFilePath, QIODevice::Text)) {
+                m_project->proFileParseError(reader.errorString());
                 return;
             }
+            contents = QString::fromLocal8Bit(reader.data());
+            lines = contents.split(QLatin1Char('\n'));
+            while (!lines.isEmpty() && lines.last().isEmpty())
+                lines.removeLast();
         }
 
         ProMessageHandler handler;
@@ -1148,14 +1146,12 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
 
 void Qt4PriFileNode::save(const QStringList &lines)
 {
-    QFile qfile(m_projectFilePath);
-    if (qfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        foreach (const QString &str, lines) {
-            qfile.write(str.toLocal8Bit());
-            qfile.write("\n");
-        }
-        qfile.close();
+    Utils::FileSaver saver(m_projectFilePath, QIODevice::Text);
+    foreach (const QString &str, lines) {
+        saver.write(str.toLocal8Bit());
+        saver.write("\n", 1);
     }
+    saver.finalize(Core::ICore::instance()->mainWindow());
 
     m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
 }

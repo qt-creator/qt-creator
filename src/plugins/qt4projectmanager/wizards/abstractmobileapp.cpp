@@ -41,6 +41,8 @@
 #include <coreplugin/icore.h>
 #endif // CREATORLESSTEST
 
+#include <utils/fileutils.h>
+
 namespace Qt4ProjectManager {
 
 AbstractGeneratedFileInfo::AbstractGeneratedFileInfo()
@@ -173,28 +175,29 @@ QString AbstractMobileApp::path(int fileType) const
     return QString();
 }
 
+bool AbstractMobileApp::readTemplate(int fileType, QByteArray *data, QString *errorMessage) const
+{
+    Utils::FileReader reader;
+    if (!reader.fetch(path(fileType), errorMessage))
+        return false;
+    *data = reader.data();
+    return true;
+}
+
 QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage) const
 {
-    QFile desktopTemplate(path(DesktopOrigin));
-    if (!desktopTemplate.open(QIODevice::ReadOnly)) {
-        *errorMessage = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
-            "Could not open desktop file template");
+    QByteArray desktopFileContent;
+    if (!readTemplate(DesktopOrigin, &desktopFileContent, errorMessage))
         return QByteArray();
-    }
-    QByteArray desktopFileContent = desktopTemplate.readAll();
     return desktopFileContent.replace("thisApp", projectName().toUtf8());
 }
 
 QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
 {
-    QFile sourceFile(path(MainCppOrigin));
-    if (!sourceFile.open(QIODevice::ReadOnly)) {
-        *errorMessage = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
-                                                    "Could not open main.cpp template '%1'.")
-            .arg(sourceFile.fileName());
+    QByteArray mainCppInput;
+    if (!readTemplate(MainCppOrigin, &mainCppInput, errorMessage))
         return QByteArray();
-    }
-    QTextStream in(&sourceFile);
+    QTextStream in(&mainCppInput);
 
     QByteArray mainCppContent;
     QTextStream out(&mainCppContent, QIODevice::WriteOnly);
@@ -236,14 +239,10 @@ QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
 QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
 {
     const QChar comment = QLatin1Char('#');
-    QFile proFile(path(AppProOrigin));
-    if (!proFile.open(QIODevice::ReadOnly)) {
-        *errorMessage = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
-                                                    "Could not open project file template '%1'.")
-            .arg(proFile.fileName());
+    QByteArray proFileInput;
+    if (!readTemplate(AppProOrigin, &proFileInput, errorMessage))
         return QByteArray();
-    }
-    QTextStream in(&proFile);
+    QTextStream in(&proFileInput);
 
     QByteArray proFileContent;
     QTextStream out(&proFileContent, QIODevice::WriteOnly);
@@ -346,14 +345,10 @@ bool AbstractMobileApp::updateFiles(const QList<AbstractGeneratedFileInfo> &list
         const QByteArray data = generateFile(info.fileType, &error);
         if (!error.isEmpty())
             return false;
-        QFile file(info.fileInfo.absoluteFilePath());
-        if (!file.open(QIODevice::WriteOnly) || file.write(data) == -1) {
-            error = QCoreApplication::translate(
-                        "Qt4ProjectManager::Internal::QtQuickApp",
-                        "Could not write file '%1'.").
-                    arg(QDir::toNativeSeparators(info.fileInfo.canonicalFilePath()));
+        Utils::FileSaver saver(QDir::cleanPath(info.fileInfo.absoluteFilePath()));
+        saver.write(data);
+        if (!saver.finalize(&error))
             return false;
-        }
     }
     return true;
 }
@@ -397,13 +392,10 @@ QString AbstractMobileApp::error() const
 QByteArray AbstractMobileApp::readBlob(const QString &filePath,
     QString *errorMsg) const
 {
-    QFile sourceFile(filePath);
-    if (!sourceFile.open(QIODevice::ReadOnly)) {
-        *errorMsg = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
-            "Could not open template file '%1'.").arg(filePath);
+    Utils::FileReader reader;
+    if (!reader.fetch(filePath, errorMsg))
         return QByteArray();
-    }
-    return sourceFile.readAll();
+    return reader.data();
 }
 
 QByteArray AbstractMobileApp::generateFile(int fileType,

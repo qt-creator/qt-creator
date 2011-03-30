@@ -35,6 +35,8 @@
 
 #include <coreplugin/basefilewizard.h>
 
+#include <utils/fileutils.h>
+
 #include <cpptools/abstracteditorsupport.h>
 
 #include <QtCore/QFileInfo>
@@ -60,14 +62,11 @@ struct ProjectContents {
 static inline Core::GeneratedFile  generateIconFile(const QString &source, const QString &target, QString *errorMessage)
 {
     // Read out source
-    QFile iconFile(source);
-    if (!iconFile.open(QIODevice::ReadOnly)) {
-        *errorMessage = PluginGenerator::tr("Cannot open icon file %1.").arg(source);
+    Utils::FileReader reader;
+    if (!reader.fetch(source, errorMessage))
         return Core::GeneratedFile();
-    }
-    const QByteArray iconData = iconFile.readAll();
     Core::GeneratedFile rc(target);
-    rc.setBinaryContents(iconData);
+    rc.setBinaryContents(reader.data());
     rc.setBinary(true);
     return rc;
 }
@@ -307,13 +306,11 @@ QString PluginGenerator::processTemplate(const QString &tmpl,
                                          const SubstitutionMap &substMap,
                                          QString *errorMessage)
 {
-    QFile tpl(tmpl);
-    if (!tpl.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        *errorMessage = tr("Cannot open %1: %2").arg(tmpl, tpl.errorString());
+    Utils::FileReader reader;
+    if (!reader.fetch(tmpl, errorMessage))
         return QString();
-    }
 
-    QString cont = QString::fromUtf8(tpl.readAll());
+    QString cont = QString::fromUtf8(reader.data());
     const QChar atChar = QLatin1Char('@');
     int offset = 0;
     for (;;) {

@@ -57,6 +57,8 @@
 #include <variantproperty.h>
 #include <rewritingexception.h>
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -768,27 +770,17 @@ bool DesignDocumentController::save(QWidget *parent)
         saveAs(parent);
         return true;
     }
-    QFile file(m_d->fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        showError(tr("Cannot write file: \"%1\".").arg(m_d->fileName), parent);
+    Utils::FileSaver saver(m_d->fileName, QIODevice::Text);
+    if (m_d->model)
+        saver.write(m_d->textEdit->toPlainText().toLatin1());
+    if (!saver.finalize()) {
+        showError(saver.errorString(), parent);
         return false;
     }
-
-    QString errorMessage;
-    bool result = save(&file, &errorMessage);
-    if (!result)
-        showError(errorMessage, parent);
-    return result;
-}
-
-bool DesignDocumentController::save(QIODevice *device, QString * /*errorMessage*/)
-{
-    if (m_d->model) {
-        QByteArray data = m_d->textEdit->toPlainText().toLatin1();
-        device->write(data);
+    if (m_d->model)
         m_d->textEdit->setPlainText(m_d->textEdit->toPlainText()); // clear undo/redo history
-    }
-    return false;
+
+    return true;
 }
 
 

@@ -39,6 +39,7 @@
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 #include <vcsbase/vcsjobrunner.h>
 #include <utils/synchronousprocess.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
@@ -105,10 +106,12 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
         }
 
         // By now, there is no hgrc file -> create it
-        QFile hgrc(workingDirectory.path()+"/.hg/hgrc");
-        hgrc.open(QIODevice::WriteOnly);
-        hgrc.write(QString("[paths]\ndefault = %1\n").arg(dstLocation).toUtf8());
-        hgrc.close();
+        Utils::FileSaver saver(workingDirectory.path()+"/.hg/hgrc");
+        saver.write(QString("[paths]\ndefault = %1\n").arg(dstLocation).toUtf8());
+        if (!saver.finalize()) {
+            VCSBase::VCSBaseOutputWindow::instance()->appendError(saver.errorString());
+            return false;
+        }
 
         // And last update repository
         arguments.clear();

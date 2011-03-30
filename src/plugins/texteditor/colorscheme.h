@@ -39,6 +39,10 @@
 #include <QtCore/QString>
 #include <QtGui/QColor>
 
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
+
 namespace TextEditor {
 
 /*! Format for a particular piece of text (text/comment, etc). */
@@ -101,7 +105,7 @@ public:
 
     void clear();
 
-    bool save(const QString &fileName) const;
+    bool save(const QString &fileName, QWidget *parent) const;
     bool load(const QString &fileName);
 
     inline bool equals(const ColorScheme &cs) const

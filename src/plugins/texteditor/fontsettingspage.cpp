@@ -51,6 +51,7 @@
 #include <QtGui/QInputDialog>
 #include <QtGui/QListWidget>
 #include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
 #include <QtGui/QPalette>
 #include <QtGui/QTextCharFormat>
 #include <QtGui/QTextEdit>
@@ -492,8 +493,8 @@ void FontSettingsPage::copyColorScheme(const QString &name)
 
         ColorScheme scheme = d_ptr->m_value.colorScheme();
         scheme.setDisplayName(name);
-        scheme.save(fileName);
-        d_ptr->m_value.setColorSchemeFileName(fileName);
+        if (scheme.save(fileName, Core::ICore::instance()->mainWindow()))
+            d_ptr->m_value.setColorSchemeFileName(fileName);
 
         refreshColorSchemeList();
     }
@@ -559,7 +560,7 @@ void FontSettingsPage::maybeSaveColorScheme()
 
     if (messageBox->exec() == QMessageBox::Save) {
         const ColorScheme &scheme = d_ptr->m_ui->schemeEdit->colorScheme();
-        scheme.save(d_ptr->m_value.colorSchemeFileName());
+        scheme.save(d_ptr->m_value.colorSchemeFileName(), Core::ICore::instance()->mainWindow());
     }
 }
 
@@ -618,7 +619,7 @@ void FontSettingsPage::apply()
         // Update the scheme and save it under the name it already has
         d_ptr->m_value.setColorScheme(d_ptr->m_ui->schemeEdit->colorScheme());
         const ColorScheme &scheme = d_ptr->m_value.colorScheme();
-        scheme.save(d_ptr->m_value.colorSchemeFileName());
+        scheme.save(d_ptr->m_value.colorSchemeFileName(), Core::ICore::instance()->mainWindow());
     }
 
     int index = d_ptr->m_ui->schemeComboBox->currentIndex();

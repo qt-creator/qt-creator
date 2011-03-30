@@ -40,6 +40,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -182,23 +183,19 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
     // Read contents of source file
     const QFile::OpenMode openMode
             = cwFile.binary ? QIODevice::ReadOnly : (QIODevice::ReadOnly|QIODevice::Text);
-    QFile file(sourcePath);
-    if (!file.open(openMode)) {
-        *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(sourcePath, file.errorString());
+    Utils::FileReader reader;
+    if (!reader.fetch(sourcePath, openMode, errorMessage))
         return false;
-    }
-    const QByteArray contentData = file.readAll();
-    file.close();
 
     Core::GeneratedFile generatedFile;
     generatedFile.setPath(targetPath);
     if (cwFile.binary) {
         // Binary file: Set data.
         generatedFile.setBinary(true);
-        generatedFile.setBinaryContents(contentData);
+        generatedFile.setBinaryContents(reader.data());
     } else {
         // Template file: Preprocess.
-        const QString contentsIn = QString::fromLocal8Bit(contentData);
+        const QString contentsIn = QString::fromLocal8Bit(reader.data());
         generatedFile.setContents(Internal::CustomWizardContext::processFile(fm, contentsIn));
     }
 

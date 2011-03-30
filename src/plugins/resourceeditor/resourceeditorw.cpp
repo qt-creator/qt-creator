@@ -39,6 +39,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/reloadpromptutils.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QFileInfo>
@@ -97,18 +98,15 @@ ResourceEditorW::~ResourceEditorW()
 
 bool ResourceEditorW::createNew(const QString &contents)
 {
-    QTemporaryFile tempFile(0);
-    tempFile.setAutoRemove(true);
-    if (!tempFile.open())
+    Utils::TempFileSaver saver;
+    saver.write(contents.toUtf8());
+    if (!saver.finalize(Core::ICore::instance()->mainWindow()))
         return false;
-    const QString tempFileName =  tempFile.fileName();
-    tempFile.write(contents.toUtf8());
-    tempFile.close();
 
-    const bool rc = m_resourceEditor->load(tempFileName);
+    const bool rc = m_resourceEditor->load(saver.fileName());
     m_resourceEditor->setFileName(QString());
     if (debugResourceEditorW)
-        qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << tempFileName << ") returns " << rc;
+        qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.fileName() << ") returns " << rc;
     return rc;
 }
 

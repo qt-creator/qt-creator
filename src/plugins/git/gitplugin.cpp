@@ -58,6 +58,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
+#include <utils/fileutils.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -693,18 +694,15 @@ void GitPlugin::startCommit(bool amend)
         qDebug() << Q_FUNC_INFO << data << commitTemplate;
 
     // Start new temp file with message template
-    QTemporaryFile changeTmpFile;
-    changeTmpFile.setAutoRemove(false);
-    if (!changeTmpFile.open()) {
-        VCSBase::VCSBaseOutputWindow::instance()->append(tr("Cannot create temporary file: %1").arg(changeTmpFile.errorString()));
+    Utils::TempFileSaver saver;
+    // Keep the file alive, else it removes self and forgets its name
+    saver.setAutoRemove(false);
+    saver.write(commitTemplate.toLocal8Bit());
+    if (!saver.finalize()) {
+        VCSBase::VCSBaseOutputWindow::instance()->append(saver.errorString());
         return;
     }
-    m_commitMessageFileName = changeTmpFile.fileName();
-    changeTmpFile.write(commitTemplate.toLocal8Bit());
-    changeTmpFile.flush();
-    // Keep the file alive, else it removes self and forgets
-    // its name
-    changeTmpFile.close();
+    m_commitMessageFileName = saver.fileName();
     openSubmitEditor(m_commitMessageFileName, data, amend);
 }
 

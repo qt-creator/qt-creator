@@ -38,6 +38,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QDir>
 
@@ -235,19 +236,15 @@ void PluginDumper::dump(const Plugin &plugin)
             return;
 
         const QString &path = plugin.predumpedQmlTypesFilePath();
-        QFile libraryQmlTypesFile(path);
-        if (!libraryQmlTypesFile.open(QFile::ReadOnly | QFile::Text)) {
-            libraryInfo.setDumpStatus(LibraryInfo::DumpError,
-                                      tr("Could not open file '%1' for reading.").arg(path));
+        Utils::FileReader reader;
+        if (!reader.fetch(path, QFile::Text)) {
+            libraryInfo.setDumpStatus(LibraryInfo::DumpError, reader.errorString());
             m_modelManager->updateLibraryInfo(plugin.qmldirPath, libraryInfo);
             return;
         }
 
-        const QByteArray qmlTypeDescriptions = libraryQmlTypesFile.readAll();
-        libraryQmlTypesFile.close();
-
         QString error;
-        const QList<FakeMetaObject::ConstPtr> objectsList = parseHelper(qmlTypeDescriptions, &error);
+        const QList<FakeMetaObject::ConstPtr> objectsList = parseHelper(reader.data(), &error);
 
         if (error.isEmpty()) {
             libraryInfo.setMetaObjects(objectsList);

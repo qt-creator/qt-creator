@@ -43,6 +43,8 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSettings>
 #include <QtCore/QTextStream>
@@ -267,10 +269,15 @@ void GeneralSettingsPage::exportBookmarks()
     if (!fileName.endsWith(suffix))
         fileName.append(suffix);
 
-    QFile file(fileName);
-    if (file.open(QIODevice::WriteOnly)) {
+    Utils::FileSaver saver(fileName);
+    if (!saver.hasError()) {
         XbelWriter writer(LocalHelpManager::bookmarkManager().treeBookmarkModel());
-        writer.writeToFile(&file);
+        writer.writeToFile(saver.file());
+        saver.setResult(&writer);
+    }
+    if (!saver.finalize()) {
+        m_ui->errorLabel->setVisible(true);
+        m_ui->errorLabel->setText(saver.errorString());
     }
 }
 

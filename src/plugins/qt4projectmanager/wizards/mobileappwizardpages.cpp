@@ -35,6 +35,7 @@
 #include "ui_mobileappwizardmaemooptionspage.h"
 #include "ui_mobileappwizardsymbianoptionspage.h"
 #include <coreplugin/coreconstants.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QTemporaryFile>
 #include <QtGui/QDesktopServices>
@@ -205,15 +206,17 @@ void MobileAppWizardMaemoOptionsPage::setPngIcon(const QString &icon)
         if (button != QMessageBox::Ok)
             return;
         iconPixmap = iconPixmap.scaled(iconSize);
-        QTemporaryFile tmpFile;
-        tmpFile.setAutoRemove(false);
-        const char * const format = QFileInfo(icon).suffix().toAscii().data();
-        if (!tmpFile.open() || !iconPixmap.save(&tmpFile, format)) {
+        Utils::TempFileSaver saver;
+        saver.setAutoRemove(false);
+        if (!saver.hasError())
+            saver.setResult(iconPixmap.save(
+                    saver.file(), QFileInfo(icon).suffix().toAscii().constData()));
+        if (!saver.finalize()) {
             QMessageBox::critical(this, tr("File Error"),
-                tr("Could not copy icon file."));
+                tr("Could not copy icon file: %1").arg(saver.errorString()));
             return;
         }
-        actualIconPath = tmpFile.fileName();
+        actualIconPath = saver.fileName();
     }
 
     m_d->ui.pngIconButton->setIcon(iconPixmap);

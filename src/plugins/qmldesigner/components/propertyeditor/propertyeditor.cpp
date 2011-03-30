@@ -59,6 +59,8 @@
 #include "propertyeditortransaction.h"
 #include "originwidget.h"
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileSystemWatcher>
@@ -278,10 +280,8 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
     m_updateShortcut = new QShortcut(QKeySequence("F5"), m_stackedWidget);
     connect(m_updateShortcut, SIGNAL(activated()), this, SLOT(reloadQml()));
 
-    QFile file(":/qmldesigner/stylesheet.css");
-    file.open(QFile::ReadOnly);
-    QString styleSheet = QLatin1String(file.readAll());
-    m_stackedWidget->setStyleSheet(styleSheet);
+    m_stackedWidget->setStyleSheet(
+            QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
     m_stackedWidget->setMinimumWidth(300);
     m_stackedWidget->move(0, 0);
     connect(m_stackedWidget, SIGNAL(resized()), this, SLOT(updateSize()));

@@ -32,6 +32,7 @@
 #include "maemokeydeployer.h"
 
 #include <utils/ssh/sshremoteprocessrunner.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QFile>
 
@@ -56,13 +57,9 @@ void MaemoKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
     cleanup();
     m_deployProcess = SshRemoteProcessRunner::create(sshParams);
 
-    QFile keyFile(keyFilePath);
-    QByteArray key;
-    const bool keyFileAccessible = keyFile.open(QIODevice::ReadOnly);
-    if (keyFileAccessible)
-        key = keyFile.readAll();
-    if (!keyFileAccessible || keyFile.error() != QFile::NoError) {
-        emit error(tr("Could not read public key file '%1'.").arg(keyFilePath));
+    Utils::FileReader reader;
+    if (!reader.fetch(keyFilePath)) {
+        emit error(tr("Public key error: %1").arg(reader.errorString()));
         return;
     }
 
@@ -72,7 +69,7 @@ void MaemoKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
         SLOT(handleKeyUploadFinished(int)));
     const QByteArray command = "test -d .ssh "
         "|| mkdir .ssh && chmod 0700 .ssh && echo '"
-        + key + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
+        + reader.data() + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
     m_deployProcess->run(command);
 }
 

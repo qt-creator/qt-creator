@@ -47,6 +47,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/toolchain.h>
 #include <qt4projectmanager/qt4project.h>
+#include <utils/fileutils.h>
 
 #include <utils/filesystemwatcher.h>
 
@@ -965,10 +966,6 @@ AbstractQt4MaemoTarget::ActionStatus AbstractRpmBasedQt4MaemoTarget::createSpeci
 {
     if (QFileInfo(specFilePath()).exists())
         return NoActionRequired;
-    QSharedPointer<QFile> specFile
-        = openFile(specFilePath(), QIODevice::WriteOnly, 0);
-    if (!specFile)
-        return ActionFailed;
     QByteArray initialContent(
         "Name: %%name%%\n"
         "Summary: <insert short description here>\n"
@@ -1010,8 +1007,9 @@ AbstractQt4MaemoTarget::ActionStatus AbstractRpmBasedQt4MaemoTarget::createSpeci
         "# Add post-uninstall scripts here."
         );
     initialContent.replace("%%name%%", project()->displayName().toUtf8());
-    return specFile->write(initialContent) == initialContent.count()
-        ? ActionSuccessful : ActionFailed;
+    Utils::FileSaver saver(specFilePath());
+    saver.write(initialContent);
+    return saver.finalize() ? ActionSuccessful : ActionFailed;
 }
 
 void AbstractRpmBasedQt4MaemoTarget::handleTargetAddedSpecial()

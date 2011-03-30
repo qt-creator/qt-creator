@@ -48,6 +48,7 @@
 #include <projectexplorer/buildstep.h>
 
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QProcess>
 
@@ -276,25 +277,23 @@ void S60PublisherOvi::updateProFile(const QString &var, const QString &values)
     QStringList lines;
     ProFile *profile = m_reader->parsedProFile(m_qt4project->rootProjectNode()->path());
 
-    QFile qfile(m_qt4project->rootProjectNode()->path());
-    if (qfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        lines = QString::fromLocal8Bit(qfile.readAll()).split(QLatin1Char('\n'));
-        qfile.close();
-        while (!lines.isEmpty() && lines.last().isEmpty())
-            lines.removeLast();
-    } else {
-        m_qt4project->proFileParseError(tr("Error while reading .pro file %1: %2").arg(m_qt4project->rootProjectNode()->path(), qfile.errorString()));
+    Utils::FileReader reader;
+    if (!reader.fetch(m_qt4project->rootProjectNode()->path(), QIODevice::Text)) {
+        emit progressReport(reader.errorString(), m_errorColor);
         return;
     }
+    lines = QString::fromLocal8Bit(reader.data()).split(QLatin1Char('\n'));
+    while (!lines.isEmpty() && lines.last().isEmpty())
+        lines.removeLast();
 
     ProWriter::putVarValues(profile, &lines, QStringList() << values, var,
                             ProWriter::ReplaceValues | ProWriter::OneLine | ProWriter::AppendOperator,
                             "symbian");
 
-    if (qfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qfile.write(lines.join("\n").toLocal8Bit());
-        qfile.close();
-    }
+    Utils::FileSaver saver(m_qt4project->rootProjectNode()->path(), QIODevice::Text);
+    saver.write(lines.join("\n").toLocal8Bit());
+    if (!saver.finalize())
+        emit progressReport(saver.errorString(), m_errorColor);
 }
 
 void S60PublisherOvi::updateProFile()

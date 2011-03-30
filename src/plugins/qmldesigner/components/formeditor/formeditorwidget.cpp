@@ -49,16 +49,15 @@
 #include <formeditorview.h>
 #include <lineeditaction.h>
 
+#include <utils/fileutils.h>
+
 namespace QmlDesigner {
 
 FormEditorWidget::FormEditorWidget(FormEditorView *view)
     : QWidget(),
     m_formEditorView(view)
 {
-    QFile file(":/qmldesigner/formeditorstylesheet.css");
-    file.open(QFile::ReadOnly);
-    QString styleSheet = QLatin1String(file.readAll());
-    setStyleSheet(styleSheet);
+    setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/formeditorstylesheet.css")));
 
     QVBoxLayout *fillLayout = new QVBoxLayout(this);
     fillLayout->setMargin(0);
@@ -152,11 +151,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_graphicsView = new FormEditorGraphicsView(this);
     fillLayout->addWidget(m_graphicsView.data());
 
-    {
-        QFile file(":/qmldesigner/scrollbar.css");
-        file.open(QFile::ReadOnly);
-        m_graphicsView.data()->setStyleSheet(file.readAll());
-    }
+    m_graphicsView.data()->setStyleSheet(
+            QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 
     QList<QAction*> lowerActions;
 

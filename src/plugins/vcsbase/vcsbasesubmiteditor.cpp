@@ -232,13 +232,11 @@ static inline QStringList fieldTexts(const QString &fileContents)
 
 void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
 {
-    QFile fieldFile(fieldConfigFile);
-    if (!fieldFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        qWarning("%s: Unable to open %s: %s", Q_FUNC_INFO, qPrintable(fieldConfigFile), qPrintable(fieldFile.errorString()));
+    Utils::FileReader reader;
+    if (!reader.fetch(fieldConfigFile, QIODevice::Text, Core::ICore::instance()->mainWindow()))
         return;
-    }
     // Parse into fields
-    const QStringList fields = fieldTexts(QString::fromUtf8(fieldFile.readAll()));
+    const QStringList fields = fieldTexts(QString::fromUtf8(reader.data()));
     if (fields.empty())
         return;
     // Create a completer on user names
@@ -613,24 +611,17 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     if (!tempFilePattern.endsWith(QDir::separator()))
         tempFilePattern += QDir::separator();
     tempFilePattern += QLatin1String("msgXXXXXX.txt");
-    QTemporaryFile messageFile(tempFilePattern);
-    messageFile.setAutoRemove(true);
-    if (!messageFile.open()) {
-        *errorMessage = tr("Unable to open '%1': %2").
-                        arg(QDir::toNativeSeparators(messageFile.fileName()),
-                            messageFile.errorString());
+    Utils::TempFileSaver saver(tempFilePattern);
+    saver.write(fileContents().toUtf8());
+    if (!saver.finalize(errorMessage))
         return false;
-    }
-    const QString messageFileName = messageFile.fileName();
-    messageFile.write(fileContents().toUtf8());
-    messageFile.close();
     // Run check process
     VCSBaseOutputWindow *outputWindow = VCSBaseOutputWindow::instance();
     outputWindow->appendCommand(msgCheckScript(m_d->m_checkScriptWorkingDirectory, checkScript));
     QProcess checkProcess;
     if (!m_d->m_checkScriptWorkingDirectory.isEmpty())
         checkProcess.setWorkingDirectory(m_d->m_checkScriptWorkingDirectory);
-    checkProcess.start(checkScript, QStringList(messageFileName));
+    checkProcess.start(checkScript, QStringList(saver.fileName()));
     checkProcess.closeWriteChannel();
     if (!checkProcess.waitForStarted()) {
         *errorMessage = tr("The check script '%1' could not be started: %2").arg(checkScript, checkProcess.errorString());

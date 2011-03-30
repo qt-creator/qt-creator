@@ -36,6 +36,7 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QLatin1String>
 #include <QtCore/QFile>
@@ -312,30 +313,37 @@ void SnippetsCollection::reload()
         insertSnippet(snippet);
 }
 
-void SnippetsCollection::synchronize()
+bool SnippetsCollection::synchronize(QString *errorString)
 {
-    if (QFile::exists(m_userSnippetsPath) || QDir().mkpath(m_userSnippetsPath)) {
-        QFile file(m_userSnippetsPath + m_userSnippetsFile);
-        if (file.open(QFile::WriteOnly | QFile::Truncate)) {
-            QXmlStreamWriter writer(&file);
-            writer.setAutoFormatting(true);
-            writer.writeStartDocument();
-            writer.writeStartElement(kSnippets);
-            foreach (const QString &groupId, m_groupIndexById.keys()) {
-                const int size = m_snippets.at(groupIndex(groupId)).size();
-                for (int i = 0; i < size; ++i) {
-                    const Snippet &current = snippet(i, groupId);
-                    if (!current.isBuiltIn() || current.isRemoved() || current.isModified())
-                        writeSnippetXML(current, &writer);
-                }
-            }
-            writer.writeEndElement();
-            writer.writeEndDocument();
-            file.close();
-        }
+    if (!QFile::exists(m_userSnippetsPath) && !QDir().mkpath(m_userSnippetsPath)) {
+        *errorString = tr("Cannot create user snippet directory %1").arg(
+                QDir::toNativeSeparators(m_userSnippetsPath));
+        return false;
     }
+    Utils::FileSaver saver(m_userSnippetsPath + m_userSnippetsFile);
+    if (!saver.hasError()) {
+        QXmlStreamWriter writer(saver.file());
+        writer.setAutoFormatting(true);
+        writer.writeStartDocument();
+        writer.writeStartElement(kSnippets);
+        foreach (const QString &groupId, m_groupIndexById.keys()) {
+            const int size = m_snippets.at(groupIndex(groupId)).size();
+            for (int i = 0; i < size; ++i) {
+                const Snippet &current = snippet(i, groupId);
+                if (!current.isBuiltIn() || current.isRemoved() || current.isModified())
+                    writeSnippetXML(current, &writer);
+            }
+        }
+        writer.writeEndElement();
+        writer.writeEndDocument();
+
+        saver.setResult(&writer);
+    }
+    if (!saver.finalize(errorString))
+        return false;
 
     reload();
+    return true;
 }
 
 void SnippetsCollection::writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer) const

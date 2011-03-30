@@ -34,6 +34,8 @@
 
 #include "texteditorconstants.h"
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QFile>
 #include <QtCore/QCoreApplication>
 #include <QtXml/QXmlStreamWriter>
@@ -132,42 +134,42 @@ void ColorScheme::clear()
     m_formats.clear();
 }
 
-bool ColorScheme::save(const QString &fileName) const
+bool ColorScheme::save(const QString &fileName, QWidget *parent) const
 {
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly))
-        return false;
+    Utils::FileSaver saver(fileName);
+    if (!saver.hasError()) {
+        QXmlStreamWriter w(saver.file());
+        w.setAutoFormatting(true);
+        w.setAutoFormattingIndent(2);
 
-    QXmlStreamWriter w(&file);
-    w.setAutoFormatting(true);
-    w.setAutoFormattingIndent(2);
+        w.writeStartDocument();
+        w.writeStartElement(QLatin1String("style-scheme"));
+        w.writeAttribute(QLatin1String("version"), QLatin1String("1.0"));
+        if (!m_displayName.isEmpty())
+            w.writeAttribute(QLatin1String("name"), m_displayName);
 
-    w.writeStartDocument();
-    w.writeStartElement(QLatin1String("style-scheme"));
-    w.writeAttribute(QLatin1String("version"), QLatin1String("1.0"));
-    if (!m_displayName.isEmpty())
-        w.writeAttribute(QLatin1String("name"), m_displayName);
+        QMapIterator<QString, Format> i(m_formats);
+        while (i.hasNext()) {
+            const Format &format = i.next().value();
+            w.writeStartElement(QLatin1String("style"));
+            w.writeAttribute(QLatin1String("name"), i.key());
+            if (format.foreground().isValid())
+                w.writeAttribute(QLatin1String("foreground"), format.foreground().name().toLower());
+            if (format.background().isValid())
+                w.writeAttribute(QLatin1String("background"), format.background().name().toLower());
+            if (format.bold())
+                w.writeAttribute(QLatin1String("bold"), QLatin1String(trueString));
+            if (format.italic())
+                w.writeAttribute(QLatin1String("italic"), QLatin1String(trueString));
+            w.writeEndElement();
+        }
 
-    QMapIterator<QString, Format> i(m_formats);
-    while (i.hasNext()) {
-        const Format &format = i.next().value();
-        w.writeStartElement(QLatin1String("style"));
-        w.writeAttribute(QLatin1String("name"), i.key());
-        if (format.foreground().isValid())
-            w.writeAttribute(QLatin1String("foreground"), format.foreground().name().toLower());
-        if (format.background().isValid())
-            w.writeAttribute(QLatin1String("background"), format.background().name().toLower());
-        if (format.bold())
-            w.writeAttribute(QLatin1String("bold"), QLatin1String(trueString));
-        if (format.italic())
-            w.writeAttribute(QLatin1String("italic"), QLatin1String(trueString));
         w.writeEndElement();
+        w.writeEndDocument();
+
+        saver.setResult(&w);
     }
-
-    w.writeEndElement();
-    w.writeEndDocument();
-
-    return true;
+    return saver.finalize(parent);
 }
 
 namespace {

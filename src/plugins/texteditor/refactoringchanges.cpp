@@ -33,11 +33,15 @@
 #include "refactoringchanges.h"
 #include "basetexteditor.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QFile>
 #include <QtCore/QSet>
+#include <QtGui/QMainWindow>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextDocument>
@@ -126,10 +130,11 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
     }
 
     if (!editor) {
-        QFile file(fileName);
-        file.open(QFile::WriteOnly);
-        file.write(document->toPlainText().toUtf8());
+        Utils::FileSaver saver(fileName);
+        saver.write(document->toPlainText().toUtf8());
         delete document;
+        if (!saver.finalize(Core::ICore::instance()->mainWindow()))
+            return false;
     }
 
     fileChanged(fileName);
@@ -229,10 +234,9 @@ RefactoringFile::~RefactoringFile()
 
         // if this document doesn't have an editor, write the result to a file
         if (!m_editor && !m_fileName.isEmpty()) {
-            const QByteArray &newContents = doc->toPlainText().toUtf8();
-            QFile file(m_fileName);
-            file.open(QFile::WriteOnly);
-            file.write(newContents);
+            Utils::FileSaver saver(m_fileName);
+            saver.write(doc->toPlainText().toUtf8());
+            saver.finalize(Core::ICore::instance()->mainWindow());
         }
 
         if (!m_fileName.isEmpty())
@@ -259,9 +263,9 @@ QTextDocument *RefactoringFile::mutableDocument() const
     else if (!m_document) {
         QString fileContents;
         if (!m_fileName.isEmpty()) {
-            QFile file(m_fileName);
-            if (file.open(QIODevice::ReadOnly))
-                fileContents = file.readAll();
+            Utils::FileReader reader;
+            if (reader.fetch(m_fileName, Core::ICore::instance()->mainWindow()))
+                fileContents = QString::fromUtf8(reader.data());
         }
         m_document = new QTextDocument(fileContents);
     }

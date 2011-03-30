@@ -41,6 +41,7 @@
 #include "sshkeyexchange_p.h"
 
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #include <botan/exceptn.h>
 #include <botan/init.h>
@@ -410,18 +411,12 @@ void SshConnectionPrivate::handleServiceAcceptPacket()
         m_sendFacility.sendUserAuthByPwdRequestPacket(m_connParams.userName.toUtf8(),
             SshCapabilities::SshConnectionService, m_connParams.password.toUtf8());
     } else {
-        QFile privKeyFile(m_connParams.privateKeyFile);
-        bool couldOpen = privKeyFile.open(QIODevice::ReadOnly);
-        QByteArray contents;
-        if (couldOpen)
-            contents = privKeyFile.readAll();
-        if (!couldOpen || privKeyFile.error() != QFile::NoError) {
+        Utils::FileReader reader;
+        if (!reader.fetch(m_connParams.privateKeyFile))
             throw SshClientException(SshKeyFileError,
-                tr("Could not read private key file: %1")
-                .arg(privKeyFile.errorString()));
-        }
+                tr("Private key error: %1").arg(reader.errorString()));
 
-        m_sendFacility.createAuthenticationKey(contents);
+        m_sendFacility.createAuthenticationKey(reader.data());
         m_sendFacility.sendUserAuthByKeyRequestPacket(m_connParams.userName.toUtf8(),
             SshCapabilities::SshConnectionService);
     }

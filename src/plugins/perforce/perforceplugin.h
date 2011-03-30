@@ -54,6 +54,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
     class ParameterAction;
+    class TempFileSaver;
 }
 
 namespace Locator {
@@ -190,7 +191,8 @@ private:
                  bool enableAnnotationContextMenu = false);
     void cleanCommitMessageFile();
     bool isCommitEditorOpen() const;
-    QSharedPointer<QTemporaryFile> createTemporaryArgumentFile(const QStringList &extraArgs) const;
+    QSharedPointer<Utils::TempFileSaver> createTemporaryArgumentFile(const QStringList &extraArgs,
+                                                                     QString *errorString) const;
     void getTopLevel();
     QString pendingChangesData();
 

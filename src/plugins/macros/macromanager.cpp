@@ -152,8 +152,10 @@ void MacroManager::MacroManagerPrivate::initialize()
     foreach (const QString &name, files) {
         QString fileName = dir.absolutePath() + '/' + name;
         Macro *macro = new Macro;
-        macro->loadHeader(fileName);
-        addMacro(macro);
+        if (macro->loadHeader(fileName))
+            addMacro(macro);
+        else
+            delete macro;
     }
 }
 
@@ -190,9 +192,10 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
 
 void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, const QString &description)
 {
-    macro->load();
+    if (!macro->load())
+        return;
     macro->setDescription(description);
-    macro->save(macro->fileName());
+    macro->save(macro->fileName(), Core::ICore::instance()->mainWindow());
 
     // Change shortcut what's this
     Core::ICore *core = Core::ICore::instance();
@@ -205,9 +208,10 @@ void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, con
 
 bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
 {
-    macro->load();
-    bool error = false;
+    bool error = !macro->load();
     foreach (const MacroEvent &macroEvent, macro->events()) {
+        if (error)
+            break;
         foreach (IMacroHandler *handler, handlers) {
             if (handler->canExecuteEvent(macroEvent)) {
                 if (!handler->executeEvent(macroEvent))
@@ -215,8 +219,6 @@ bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
                 break;
             }
         }
-        if (error)
-            break;
     }
 
     if (error) {
@@ -246,7 +248,7 @@ void MacroManager::MacroManagerPrivate::showSaveDialog()
         QString fileName = q->macrosDirectory() + '/' + dialog.name()
                            + '.' + Constants::M_EXTENSION;
         currentMacro->setDescription(dialog.description());
-        currentMacro->save(fileName);
+        currentMacro->save(fileName, mainWindow);
         addMacro(currentMacro);
     }
 }

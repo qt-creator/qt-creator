@@ -32,6 +32,8 @@
 
 #include "definitiondownloader.h"
 
+#include <utils/fileutils.h>
+
 #include <QtCore/QLatin1Char>
 #include <QtCore/QEventLoop>
 #include <QtCore/QFile>
@@ -88,14 +90,9 @@ void DefinitionDownloader::saveData(QNetworkReply *reply)
     const QString &urlPath = m_url.path();
     const QString &fileName =
         urlPath.right(urlPath.length() - urlPath.lastIndexOf(QLatin1Char('/')) - 1);
-    QFile file(m_localPath + fileName);
-    if (file.open(QIODevice::Text | QIODevice::WriteOnly)) {
-        file.write(reply->readAll());
-        file.close();
-        m_status = Ok;
-    } else {
-        m_status = WriteError;
-    }
+    Utils::FileSaver saver(m_localPath + fileName, QIODevice::Text);
+    saver.write(reply->readAll());
+    m_status = saver.finalize() ? Ok: WriteError;
 }
 
 DefinitionDownloader::Status DefinitionDownloader::status() const

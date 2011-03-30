@@ -38,6 +38,7 @@
 #include <find/searchresultwindow.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filesearch.h>
+#include <utils/fileutils.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -76,11 +77,11 @@ static QString getSource(const QString &fileName,
     if (workingCopy.contains(fileName)) {
         return workingCopy.source(fileName);
     } else {
-        QFile file(fileName);
-        if (! file.open(QFile::ReadOnly))
+        Utils::FileReader reader;
+        if (!reader.fetch(fileName)) // ### FIXME error reporting
             return QString();
 
-        return QTextStream(&file).readAll(); // ### FIXME
+        return QString::fromLocal8Bit(reader.data()); // ### FIXME encoding
     }
 }
 

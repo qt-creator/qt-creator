@@ -33,10 +33,11 @@
 #include <QtGui/QBoxLayout>
 #include <QtGui/QTreeView>
 #include <QtGui/QHeaderView>
-#include <QFile>
 #include <model.h>
 
 #include "navigatorwidget.h"
+
+#include <utils/fileutils.h>
 
 
 namespace QmlDesigner {
@@ -63,17 +64,9 @@ NavigatorWidget::NavigatorWidget(QWidget* parent) :
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
-    {
-        QFile file(":/qmldesigner/stylesheet.css");
-        file.open(QFile::ReadOnly);
-        setStyleSheet(file.readAll());
-    }
-
-    {
-        QFile file(":/qmldesigner/scrollbar.css");
-        file.open(QFile::ReadOnly);
-        m_treeView->setStyleSheet(file.readAll());
-    }
+    setStyleSheet(QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")));
+    m_treeView->setStyleSheet(
+            QLatin1String(Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")));
 }
 
 NavigatorWidget::~NavigatorWidget()

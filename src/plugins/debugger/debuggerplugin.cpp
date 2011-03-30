@@ -106,6 +106,7 @@
 #include <utils/styledbar.h>
 #include <utils/proxyaction.h>
 #include <utils/statuslabel.h>
+#include <utils/fileutils.h>
 
 #include <qml/scriptconsole.h>
 
@@ -2100,13 +2101,15 @@ void DebuggerPluginPrivate::dumpLog()
         tr("Save Debugger Log"), QDir::tempPath());
     if (fileName.isEmpty())
         return;
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly))
-        return;
-    QTextStream ts(&file);
-    ts << m_logWindow->inputContents();
-    ts << "\n\n=======================================\n\n";
-    ts << m_logWindow->combinedContents();
+    Utils::FileSaver saver(fileName);
+    if (!saver.hasError()) {
+        QTextStream ts(saver.file());
+        ts << m_logWindow->inputContents();
+        ts << "\n\n=======================================\n\n";
+        ts << m_logWindow->combinedContents();
+        saver.setResult(&ts);
+    }
+    saver.finalize(mainWindow());
 }
 
 /*! Activates the previous mode when the current mode is the debug mode. */

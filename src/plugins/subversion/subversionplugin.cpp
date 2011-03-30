@@ -47,6 +47,7 @@
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
+#include <utils/fileutils.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -808,19 +809,17 @@ void SubversionPlugin::startCommit(const QString &workingDir, const QStringList 
     }
     m_commitRepository = workingDir;
     // Create a new submit change file containing the submit template
-    QTemporaryFile changeTmpFile;
-    changeTmpFile.setAutoRemove(false);
-    if (!changeTmpFile.open()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file: %1").arg(changeTmpFile.errorString()));
-        return;
-    }
-    m_commitMessageFileName = changeTmpFile.fileName();
-    // TODO: Regitctrieve submit template from
+    Utils::TempFileSaver saver;
+    saver.setAutoRemove(false);
+    // TODO: Retrieve submit template from
     const QString submitTemplate;
     // Create a submit
-    changeTmpFile.write(submitTemplate.toUtf8());
-    changeTmpFile.flush();
-    changeTmpFile.close();
+    saver.write(submitTemplate.toUtf8());
+    if (!saver.finalize()) {
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(saver.errorString());
+        return;
+    }
+    m_commitMessageFileName = saver.fileName();
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_commitMessageFileName);
     editor->setStatusList(statusOutput);

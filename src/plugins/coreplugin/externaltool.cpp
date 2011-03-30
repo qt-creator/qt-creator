@@ -43,6 +43,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QXmlStreamWriter>
@@ -432,21 +433,15 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
 
 ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *errorMessage, const QString &locale)
 {
-    QFileInfo info(fileName);
-    QFile file(info.absoluteFilePath());
-    if (!file.open(QIODevice::ReadOnly)) {
-        if (errorMessage)
-            *errorMessage = tr("Could not open tool specification %1 for reading: %2").
-                            arg(fileName, file.errorString());
+    QString absFileName = QFileInfo(fileName).absoluteFilePath();
+    Utils::FileReader reader;
+    if (!reader.fetch(absFileName, errorMessage))
         return 0;
-    }
-    const QByteArray &bytes = file.readAll();
-    file.close();
-    ExternalTool *tool = ExternalTool::createFromXml(bytes, errorMessage, locale);
+    ExternalTool *tool = ExternalTool::createFromXml(reader.data(), errorMessage, locale);
     if (!tool) {
         return 0;
     }
-    tool->m_fileName = file.fileName();
+    tool->m_fileName = absFileName;
     return tool;
 }
 
@@ -467,43 +462,40 @@ bool ExternalTool::save(QString *errorMessage) const
 {
     if (m_fileName.isEmpty())
         return false;
-    QFile file(m_fileName);
-    if (!file.open(QIODevice::WriteOnly)) {
-        if (errorMessage)
-            *errorMessage = tr("Could not write tool specification %1: %2").
-                            arg(m_fileName, file.errorString());
-        return false;
+    Utils::FileSaver saver(m_fileName);
+    if (!saver.hasError()) {
+        QXmlStreamWriter out(saver.file());
+        out.setAutoFormatting(true);
+        out.writeStartDocument(QLatin1String("1.0"));
+        out.writeComment(QString::fromLatin1("Written on %1 by Qt Creator %2")
+                         .arg(QDateTime::currentDateTime().toString(), QLatin1String(Constants::IDE_VERSION_LONG)));
+        out.writeStartElement(QLatin1String(kExternalTool));
+        out.writeAttribute(QLatin1String(kId), m_id);
+        out.writeTextElement(QLatin1String(kDescription), m_description);
+        out.writeTextElement(QLatin1String(kDisplayName), m_displayName);
+        out.writeTextElement(QLatin1String(kCategory), m_displayCategory);
+        if (m_order != -1)
+            out.writeTextElement(QLatin1String(kOrder), QString::number(m_order));
+
+        out.writeStartElement(QLatin1String(kExecutable));
+        out.writeAttribute(QLatin1String(kOutput), stringForOutputHandling(m_outputHandling));
+        out.writeAttribute(QLatin1String(kError), stringForOutputHandling(m_errorHandling));
+        out.writeAttribute(QLatin1String(kModifiesDocument), m_modifiesCurrentDocument ? QLatin1String(kYes) : QLatin1String(kNo));
+        foreach (const QString &executable, m_executables)
+            out.writeTextElement(QLatin1String(kPath), executable);
+        if (!m_arguments.isEmpty())
+            out.writeTextElement(QLatin1String(kArguments), m_arguments);
+        if (!m_input.isEmpty())
+            out.writeTextElement(QLatin1String(kInput), m_input);
+        if (!m_workingDirectory.isEmpty())
+            out.writeTextElement(QLatin1String(kWorkingDirectory), m_workingDirectory);
+        out.writeEndElement();
+
+        out.writeEndDocument();
+
+        saver.setResult(&out);
     }
-    QXmlStreamWriter out(&file);
-    out.setAutoFormatting(true);
-    out.writeStartDocument(QLatin1String("1.0"));
-    out.writeComment(QString::fromLatin1("Written on %1 by Qt Creator %2")
-                     .arg(QDateTime::currentDateTime().toString(), QLatin1String(Constants::IDE_VERSION_LONG)));
-    out.writeStartElement(QLatin1String(kExternalTool));
-    out.writeAttribute(QLatin1String(kId), m_id);
-    out.writeTextElement(QLatin1String(kDescription), m_description);
-    out.writeTextElement(QLatin1String(kDisplayName), m_displayName);
-    out.writeTextElement(QLatin1String(kCategory), m_displayCategory);
-    if (m_order != -1)
-        out.writeTextElement(QLatin1String(kOrder), QString::number(m_order));
-
-    out.writeStartElement(QLatin1String(kExecutable));
-    out.writeAttribute(QLatin1String(kOutput), stringForOutputHandling(m_outputHandling));
-    out.writeAttribute(QLatin1String(kError), stringForOutputHandling(m_errorHandling));
-    out.writeAttribute(QLatin1String(kModifiesDocument), m_modifiesCurrentDocument ? QLatin1String(kYes) : QLatin1String(kNo));
-    foreach (const QString &executable, m_executables)
-        out.writeTextElement(QLatin1String(kPath), executable);
-    if (!m_arguments.isEmpty())
-        out.writeTextElement(QLatin1String(kArguments), m_arguments);
-    if (!m_input.isEmpty())
-        out.writeTextElement(QLatin1String(kInput), m_input);
-    if (!m_workingDirectory.isEmpty())
-        out.writeTextElement(QLatin1String(kWorkingDirectory), m_workingDirectory);
-    out.writeEndElement();
-
-    out.writeEndDocument();
-    file.close();
-    return true;
+    return saver.finalize(errorMessage);
 }
 
 bool ExternalTool::operator==(const ExternalTool &other) const

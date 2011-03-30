@@ -144,6 +144,7 @@ protected:
     static void insertParameter(QString &line, const QString &parameter);
 
     QByteArray readBlob(const QString &filePath, QString *errorMsg) const;
+    bool readTemplate(int fileType, QByteArray *data, QString *errorMessage) const;
     QByteArray generateFile(int fileType, QString *errorMessage) const;
     QString outputPathBase() const;
 

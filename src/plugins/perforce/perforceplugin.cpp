@@ -55,6 +55,7 @@
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
+#include <utils/fileutils.h>
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -66,7 +67,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
-#include <QtCore/QTemporaryFile>
 #include <QtCore/QTextCodec>
 
 #include <QtGui/QAction>
@@ -625,13 +625,6 @@ void PerforcePlugin::startSubmitProject()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return)
 
-    QTemporaryFile changeTmpFile;
-    changeTmpFile.setAutoRemove(false);
-    if (!changeTmpFile.open()) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot create temporary file."));
-        cleanCommitMessageFile();
-        return;
-    }
     // Revert all unchanged files.
     if (!revertProject(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state), true))
         return;
@@ -646,9 +639,15 @@ void PerforcePlugin::startSubmitProject()
         return;
     }
 
-    m_commitMessageFileName = changeTmpFile.fileName();
-    changeTmpFile.write(result.stdOut.toAscii());
-    changeTmpFile.close();
+    Utils::TempFileSaver saver;
+    saver.setAutoRemove(false);
+    saver.write(result.stdOut.toAscii());
+    if (!saver.finalize()) {
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(saver.errorString());
+        cleanCommitMessageFile();
+        return;
+    }
+    m_commitMessageFileName = saver.fileName();
 
     args.clear();
     args << QLatin1String("fstat");
@@ -949,11 +948,12 @@ bool PerforcePlugin::vcsMove(const QString &workingDir, const QString &from, con
 }
 
 // Write extra args to temporary file
-QSharedPointer<QTemporaryFile>
-        PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs) const
+QSharedPointer<Utils::TempFileSaver>
+        PerforcePlugin::createTemporaryArgumentFile(const QStringList &extraArgs,
+                                                    QString *errorString) const
 {
     if (extraArgs.isEmpty())
-        return QSharedPointer<QTemporaryFile>();
+        return QSharedPointer<Utils::TempFileSaver>();
     // create pattern
     if (m_tempFilePattern.isEmpty()) {
         m_tempFilePattern = QDir::tempPath();
@@ -961,20 +961,16 @@ QSharedPointer<QTemporaryFile>
             m_tempFilePattern += QDir::separator();
         m_tempFilePattern += QLatin1String("qtc_p4_XXXXXX.args");
     }
-    QSharedPointer<QTemporaryFile> rc(new QTemporaryFile(m_tempFilePattern));
+    QSharedPointer<Utils::TempFileSaver> rc(new Utils::TempFileSaver(m_tempFilePattern));
     rc->setAutoRemove(true);
-    if (!rc->open()) {
-        qWarning("Could not create temporary file: %s. Appending all file names to command line.",
-                 qPrintable(rc->errorString()));
-        return QSharedPointer<QTemporaryFile>();
-    }
     const int last = extraArgs.size() - 1;
     for (int i = 0; i <= last; i++) {
         rc->write(extraArgs.at(i).toLocal8Bit());
         if (i != last)
-            rc->write("\n");
+            rc->write("\n", 1);
     }
-    rc->close();
+    if (!rc->finalize(errorString))
+        return QSharedPointer<Utils::TempFileSaver>();
     return rc;
 }
 
@@ -1153,9 +1149,16 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
         return invalidConfigResponse;
     }
     QStringList actualArgs = m_settings.commonP4Arguments(workingDir);
-    QSharedPointer<QTemporaryFile> tempFile = createTemporaryArgumentFile(extraArgs);
-    if (!tempFile.isNull())
+    QString errorMessage;
+    QSharedPointer<Utils::TempFileSaver> tempFile = createTemporaryArgumentFile(extraArgs, &errorMessage);
+    if (!tempFile.isNull()) {
         actualArgs << QLatin1String("-x") << tempFile->fileName();
+    } else if (!errorMessage.isEmpty()) {
+        PerforceResponse tempFailResponse;
+        tempFailResponse.error = true;
+        tempFailResponse.message = errorMessage;
+        return tempFailResponse;
+    }
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
@@ -1372,19 +1375,17 @@ bool PerforcePlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *subm
         return true;
     }
     // Pipe file into p4 submit -i
-    QFile commitMessageFile(m_commitMessageFileName);
-    if (!commitMessageFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("Cannot open temporary file."));
+    Utils::FileReader reader;
+    if (!reader.fetch(m_commitMessageFileName, QIODevice::Text)) {
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(reader.errorString());
         return false;
     }
 
-    const QByteArray changeDescription = commitMessageFile.readAll();
-    commitMessageFile.close();
     QStringList submitArgs;
     submitArgs << QLatin1String("submit") << QLatin1String("-i");
     const PerforceResponse submitResponse = runP4Cmd(m_settings.topLevelSymLinkTarget(), submitArgs,
                                                      LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
-                                                     QStringList(), changeDescription);
+                                                     QStringList(), reader.data());
     if (submitResponse.error) {
         VCSBase::VCSBaseOutputWindow::instance()->appendError(tr("p4 submit failed: %1").arg(submitResponse.message));
         return false;

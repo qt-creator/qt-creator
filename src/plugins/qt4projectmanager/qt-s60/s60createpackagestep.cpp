@@ -46,6 +46,7 @@
 #include <coreplugin/coreconstants.h>
 
 #include <utils/checkablemessagebox.h>
+#include <utils/fileutils.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -622,12 +623,14 @@ QString S60CreatePackageStep::generateKeyId(const QString &keyPath) const
     if (keyPath.isEmpty())
         return QString();
 
-    QFile file(keyPath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    Utils::FileReader reader;
+    if (!reader.fetch(keyPath, QIODevice::Text)) {
+        emit addOutput(reader.errorString(), BuildStep::ErrorOutput);
         return QString();
+    }
 
     //key file is quite small in size
-    return QCryptographicHash::hash(file.readAll(),
+    return QCryptographicHash::hash(reader.data(),
                                     QCryptographicHash::Md5).toHex();
 }
 

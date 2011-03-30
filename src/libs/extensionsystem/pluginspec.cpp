@@ -489,10 +489,9 @@ bool PluginSpecPrivate::read(const QString &fileName)
     errorString = "";
     dependencies.clear();
     QFile file(fileName);
-    if (!file.exists())
-        return reportError(tr("File does not exist: %1").arg(file.fileName()));
     if (!file.open(QIODevice::ReadOnly))
-        return reportError(tr("Could not open file for read: %1").arg(file.fileName()));
+        return reportError(tr("Could not open file %1 for read: %2")
+                           .arg(QDir::toNativeSeparators(file.fileName()), file.errorString()));
     QFileInfo fileInfo(file);
     location = fileInfo.absolutePath();
     filePath = fileInfo.absoluteFilePath();

@@ -527,7 +527,7 @@ bool UserFileAccessor::saveSettings(Project *project, const QVariantMap &map)
 
     QString fileName = project->property(USERFILE_PROP).toString();
     return writer.save(fileName.isEmpty() ? fileNameFor(project->file()->fileName()) : fileName,
-                       "QtCreatorProject");
+                       "QtCreatorProject", Core::ICore::instance()->mainWindow());
 }
 
 void UserFileAccessor::addVersionHandler(UserFileVersionHandler *handler)

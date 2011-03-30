@@ -57,6 +57,7 @@
 #include <find/basetextfind.h>
 
 #include <utils/savedaction.h>
+#include <utils/fileutils.h>
 
 namespace Debugger {
 namespace Internal {
@@ -501,16 +502,10 @@ bool LogWindow::writeLogContents(const QPlainTextEdit *editor, QWidget *parent)
         const QString fileName = QFileDialog::getSaveFileName(parent, tr("Log File"));
         if (fileName.isEmpty())
             break;
-        QFile file(fileName);
-        if (file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate)) {
-            file.write(editor->toPlainText().toUtf8());
-            file.close();
+        Utils::FileSaver saver(fileName, QIODevice::Text);
+        saver.write(editor->toPlainText().toUtf8());
+        if (saver.finalize(parent))
             success = true;
-        } else {
-            QMessageBox::warning(parent, tr("Write Failure"),
-                                 tr("Unable to write log contents to '%1': %2").
-                                 arg(fileName, file.errorString()));
-        }
     }
     return success;
 }

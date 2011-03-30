@@ -52,6 +52,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QtCore/QtPlugin>
@@ -277,23 +278,6 @@ static inline QString tempFilePattern(const QString &prefix, const QString &exte
     return pattern;
 }
 
-typedef QSharedPointer<QTemporaryFile> TemporaryFilePtr;
-
-// Write an a temporary file.
-TemporaryFilePtr writeTemporaryFile(const QString &namePattern,
-                                    const QString &contents,
-                                    QString *errorMessage)
-{
-    TemporaryFilePtr tempFile(new QTemporaryFile(namePattern));
-    if (!tempFile->open()) {
-        *errorMessage = QString::fromLatin1("Unable to open temporary file %1").arg(tempFile->errorString());
-        return TemporaryFilePtr();
-    }
-    tempFile->write(contents.toUtf8());
-    tempFile->close();
-    return tempFile;
-}
-
 void CodepasterPlugin::finishFetch(const QString &titleDescription,
                                    const QString &content,
                                    bool error)
@@ -313,23 +297,21 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // for the user and also to be able to tell a patch or diff in the VCS plugins
     // by looking at the file name of FileManager::currentFile() without expensive checking.
     // Default to "txt".
+    QByteArray byteContent = content.toUtf8();
     QString suffix;
-    if (const Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByData(content.toUtf8()))
+    if (const Core::MimeType mimeType = Core::ICore::instance()->mimeDatabase()->findByData(byteContent))
         suffix = mimeType.preferredSuffix();
     if (suffix.isEmpty())
          suffix = QLatin1String("txt");
     const QString filePrefix = filePrefixFromTitle(titleDescription);
-    QString errorMessage;
-    TemporaryFilePtr tempFile = writeTemporaryFile(tempFilePattern(filePrefix, suffix), content, &errorMessage);
-    if (tempFile.isNull()) {
-        messageManager->printToOutputPane(errorMessage);
+    Utils::TempFileSaver saver(tempFilePattern(filePrefix, suffix));
+    saver.setAutoRemove(false);
+    saver.write(byteContent);
+    if (!saver.finalize()) {
+        messageManager->printToOutputPane(saver.errorString());
         return;
     }
-    // Keep the file and store in list of files to be removed.
-    tempFile->setAutoRemove(false);
-    const QString fileName = tempFile->fileName();
-    // Discard to temporary file to make sure it is closed and no changes are triggered.
-    tempFile = TemporaryFilePtr();
+    const QString fileName = saver.fileName();
     m_fetchedSnippets.push_back(fileName);
     // Open editor with title.
     Core::IEditor* editor = EditorManager::instance()->openEditor(fileName, QString(), EditorManager::ModeSwitch);

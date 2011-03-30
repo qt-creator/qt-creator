@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "basicwidgets.h"
+#include <utils/fileutils.h>
 #include <qlayoutobject.h>
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
@@ -442,13 +443,11 @@ public:
             fileName = (QLatin1Char(':') + _styleSheetFile.toLocalFile().split(QLatin1Char(':')).last()); //try if it is a resource
         else
             fileName = (_styleSheetFile.toLocalFile());
-        QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly)) {
-            QString styleSheet(file.readAll());
-            q->setStyleSheet(styleSheet);
-        } else {
-            qWarning() << QString::fromLatin1("setStyleSheetFile: %1: %2").arg(fileName, file.errorString());
-        }
+        Utils::FileReader reader;
+        if (reader.fetch(fileName))
+            q->setStyleSheet(QString::fromLatin1(reader.data()));
+        else
+            qWarning() << QString::fromLatin1("setStyleSheetFile: %1").arg(reader.errorString());
 
     }
 

@@ -60,6 +60,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
@@ -488,9 +489,9 @@ static Document::Ptr getParsedDocument(const QString &fileName, CppModelManagerI
     if (workingCopy.contains(fileName)) {
         src = workingCopy.source(fileName);
     } else {
-        QFile file(fileName);
-        if (file.open(QFile::ReadOnly))
-            src = QTextStream(&file).readAll(); // ### FIXME
+        Utils::FileReader reader;
+        if (reader.fetch(fileName)) // ### FIXME error reporting
+            src = QString::fromLocal8Bit(reader.data()); // ### FIXME encoding
     }
 
     QByteArray source = snapshot.preprocessedCode(src, fileName);
