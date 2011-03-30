@@ -31,7 +31,14 @@ symbian {
         target = $$replace(target, /, \\)
         !isEqual(source,$$target) {
             !isEmpty(copyCommand):copyCommand += &&
-            copyCommand += $(COPY_DIR) \"$$source\" \"$$target\"
+            isEmpty(QMAKE_SH) {
+                copyCommand += $(COPY_DIR) \"$$source\" \"$$target\"
+            } else {
+                source = $$replace(source, \\\\, /)
+                target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
+                target = $$replace(target, \\\\, /)
+                copyCommand += test -d \"$$target\" || mkdir -p \"$$target\" && cp -r \"$$source\" \"$$target\"
+            }
         }
     }
     !isEmpty(copyCommand) {
