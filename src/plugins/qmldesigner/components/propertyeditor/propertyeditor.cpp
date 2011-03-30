@@ -368,12 +368,17 @@ void PropertyEditor::changeValue(const QString &propertyName)
         PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(propertyName)));
         const QString newId = value->value().toString();
 
-        if (m_selectedNode.isValidId(newId)) {
+        if (newId == m_selectedNode.id())
+            return;
+
+        if (m_selectedNode.isValidId(newId)  && !modelNodeForId(newId).isValid() ) {
             if (m_selectedNode.id().isEmpty() || newId.isEmpty()) { //no id
                 try {
                     m_selectedNode.setId(newId);
                 } catch (InvalidIdException &e) { //better save then sorry
+                    m_locked = true;
                     value->setValue(m_selectedNode.id());
+                    m_locked = false;
                     QMessageBox::warning(0, tr("Invalid Id"), e.description());
                 }
             } else { //there is already an id, so we refactor
@@ -381,8 +386,13 @@ void PropertyEditor::changeValue(const QString &propertyName)
                     rewriterView()->renameId(m_selectedNode.id(), newId);
             }
         } else {
+            m_locked = true;
             value->setValue(m_selectedNode.id());
-            QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(newId));
+            m_locked = false;
+            if (!m_selectedNode.isValidId(newId))
+                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(newId));
+            else
+                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 already exists").arg(newId));
         }
         return;
     }
