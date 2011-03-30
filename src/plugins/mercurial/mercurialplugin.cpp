@@ -664,9 +664,7 @@ bool MercurialPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *sub
     const QStringList files = commitEditor->checkedFiles();
     if (!files.empty()) {
         //save the commit message
-        core->fileManager()->blockFileChange(editorFile);
-        editorFile->save();
-        core->fileManager()->unblockFileChange(editorFile);
+        core->fileManager()->saveFile(editorFile);
 
         QHash<int, QVariant> extraOptions;
         extraOptions[MercurialClient::AuthorCommitOptionId] = commitEditor->committerInfo();

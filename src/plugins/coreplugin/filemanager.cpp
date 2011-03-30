@@ -497,39 +497,6 @@ QList<IFile *> FileManager::modifiedFiles() const
 }
 
 /*!
-    \fn void FileManager::blockFileChange(IFile *file)
-
-    Blocks the monitoring of the file the \a file argument points to.
-*/
-void FileManager::blockFileChange(IFile *file)
-{
-    // Nothing to do
-    Q_UNUSED(file);
-}
-
-/*!
-    \fn void FileManager::unblockFileChange(IFile *file)
-
-    Enables the monitoring of the file the \a file argument points to, and update the status of the corresponding IFile's.
-*/
-void FileManager::unblockFileChange(IFile *file)
-{
-    // We are updating the lastUpdated time to the current modification time
-    // in changedFile we'll compare the modification time with the last updated
-    // time, and if they are the same, then we don't deliver that notification
-    // to corresponding IFile
-    //
-    // Also we are updating the expected time of the file
-    // in changedFile we'll check if the modification time
-    // is the same as the saved one here
-    // If so then it's a expected change
-
-    updateFileInfo(file);
-    foreach (const QString &fileName, d->m_filesWithWatch.value(file))
-        updateExpectedState(fileName);
-}
-
-/*!
     \fn void FileManager::expectFileChange(const QString &fileName)
 
     Any subsequent change to \a fileName is treated as a expected file change.
@@ -669,6 +636,26 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
         }
     }
     return notSaved;
+}
+
+bool FileManager::saveFile(IFile *file, const QString &fileName)
+{
+    const bool success = file->save(fileName);
+
+    // We are updating the lastUpdated time to the current modification time
+    // in changedFile we'll compare the modification time with the last updated
+    // time, and if they are the same, then we don't deliver that notification
+    // to corresponding IFile
+    //
+    // Also we are updating the expected time of the file
+    // in changedFile we'll check if the modification time
+    // is the same as the saved one here
+    // If so then it's a expected change
+    updateFileInfo(file);
+    foreach (const QString &fileName, d->m_filesWithWatch.value(file))
+        updateExpectedState(fileName);
+
+    return success;
 }
 
 QString FileManager::getSaveFileName(const QString &title, const QString &pathIn,
@@ -1041,9 +1028,7 @@ void FileManager::checkForReload()
     QMapIterator<IFile *, QString> it(filesToSave);
     while (it.hasNext()) {
         it.next();
-        blockFileChange(it.key());
-        it.key()->save(it.value());
-        unblockFileChange(it.key());
+        saveFile(it.key(), it.value());
         it.key()->checkPermissions();
     }
 

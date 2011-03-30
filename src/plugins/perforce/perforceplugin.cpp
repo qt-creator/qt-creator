@@ -1365,10 +1365,7 @@ bool PerforcePlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *subm
         m_settings.setPromptToSubmit(wantsPrompt);
         m_settings.toSettings(Core::ICore::instance()->settings());
     }
-    Core::FileManager *fileManager = Core::ICore::instance()->fileManager();
-    fileManager->blockFileChange(fileIFace);
-    fileIFace->save();
-    fileManager->unblockFileChange(fileIFace);
+    Core::ICore::instance()->fileManager()->saveFile(fileIFace);
     if (answer == VCSBase::VCSBaseSubmitEditor::SubmitDiscarded) {
         cleanCommitMessageFile();
         return true;

@@ -1375,9 +1375,7 @@ bool EditorManager::saveFile(IFile *fileParam)
     bool success = false;
 
     // try saving, no matter what isReadOnly tells us
-    m_d->m_core->fileManager()->blockFileChange(file);
-    success = file->save(fileName);
-    m_d->m_core->fileManager()->unblockFileChange(file);
+    success = m_d->m_core->fileManager()->saveFile(file);
 
     if (!success) {
         MakeWritableResult answer =
@@ -1389,9 +1387,7 @@ bool EditorManager::saveFile(IFile *fileParam)
 
         file->checkPermissions();
 
-        m_d->m_core->fileManager()->blockFileChange(file);
-        success = file->save(fileName);
-        m_d->m_core->fileManager()->unblockFileChange(file);
+        success = m_d->m_core->fileManager()->saveFile(file);
     }
 
     if (success) {
@@ -1460,9 +1456,7 @@ bool EditorManager::saveFileAs(IFile *fileParam)
         }
     }
 
-    m_d->m_core->fileManager()->blockFileChange(file);
-    const bool success = file->save(absoluteFilePath);
-    m_d->m_core->fileManager()->unblockFileChange(file);
+    const bool success = m_d->m_core->fileManager()->saveFile(file, absoluteFilePath);
     file->checkPermissions();
 
     // @todo: There is an issue to be treated here. The new file might be of a different mime

@@ -79,9 +79,6 @@ public:
 
     void renamedFile(const QString &from, const QString &to);
 
-    void blockFileChange(IFile *file);
-    void unblockFileChange(IFile *file);
-
     void expectFileChange(const QString &fileName);
     void unexpectFileChange(const QString &fileName);
 
@@ -96,6 +93,8 @@ public:
 
     // helper methods
     static QString fixFileName(const QString &fileName, FixMode fixmode);
+
+    bool saveFile(IFile *file, const QString &fileName = QString());
 
     QStringList getOpenFileNames(const QString &filters,
                                  const QString path = QString(),

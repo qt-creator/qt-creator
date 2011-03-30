@@ -512,9 +512,7 @@ bool SubversionPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *su
     bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
-        Core::ICore::instance()->fileManager()->blockFileChange(fileIFace);
-        fileIFace->save();
-        Core::ICore::instance()->fileManager()->unblockFileChange(fileIFace);
+        Core::ICore::instance()->fileManager()->saveFile(fileIFace);
         closeEditor= commit(m_commitMessageFileName, fileList);
     }
     if (closeEditor)

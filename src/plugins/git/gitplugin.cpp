@@ -781,9 +781,7 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     bool closeEditor = true;
     if (!fileList.empty() || !m_commitAmendSHA1.isEmpty()) {
         // get message & commit
-        m_core->fileManager()->blockFileChange(fileIFace);
-        fileIFace->save();
-        m_core->fileManager()->unblockFileChange(fileIFace);
+        m_core->fileManager()->saveFile(fileIFace);
 
         closeEditor = m_gitClient->addAndCommit(m_submitRepository,
                                                 editor->panelData(),
