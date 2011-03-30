@@ -66,7 +66,6 @@ public:
     explicit FormEditorStack(QWidget *parent = 0);
 
     void add(const EditorData &d);
-    bool removeFormWindowEditor(Core::IEditor *xmlEditor);
 
     bool setVisibleEditor(Core::IEditor *xmlEditor);
     SharedTools::WidgetHost *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
@@ -74,14 +73,17 @@ public:
 
     EditorData activeEditor() const;
 
+public slots:
+    void removeFormWindowEditor(QObject *);
+
 private slots:
     void updateFormWindowSelectionHandles();
     void modeAboutToChange(Core::IMode *);
     void formSizeChanged(int w, int h);
 
 private:
-    inline int indexOf(const QDesignerFormWindowInterface *) const;
-    inline int indexOf(const Core::IEditor *xmlEditor) const;
+    inline int indexOfFormWindow(const QDesignerFormWindowInterface *) const;
+    inline int indexOfFormEditor(const QObject *xmlEditor) const;
 
     QList<EditorData> m_formEditors;
     QDesignerFormEditorInterface *m_designerCore;
