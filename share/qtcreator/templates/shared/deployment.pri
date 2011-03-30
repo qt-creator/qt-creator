@@ -57,13 +57,13 @@ symbian {
         copyCommand =
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
             source = $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source)
-            source = $$replace(source, \\, /)
+            source = $$replace(source, \\\\, /)
             macx {
                 target = $$OUT_PWD/$${TARGET}.app/Contents/Resources/$$eval($${deploymentfolder}.target)
             } else {
                 target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
             }
-            target = $$replace(target, \\, /)
+            target = $$replace(target, \\\\, /)
             sourcePathSegments = $$split(source, /)
             targetFullPath = $$target/$$last(sourcePathSegments)
             !isEqual(source,$$targetFullPath) {
