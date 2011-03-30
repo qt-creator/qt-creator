@@ -1466,7 +1466,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         const QString fileName = handler->currentFileName();
         if (editor && editor->file()->fileName() == fileName) {
             // Handle that as a special case for nicer interaction with core
-            Core::ICore::instance()->fileManager()->saveFile(editor->file(), fileName);
+            Core::ICore::instance()->fileManager()->saveFile(editor->file());
             // Check result by reading back.
             QFile file3(fileName);
             file3.open(QIODevice::ReadOnly);
