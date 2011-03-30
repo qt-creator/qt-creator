@@ -105,7 +105,7 @@ on slow machines. In this case, the value should be increased.</string>
       <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxAdjustBreakpointLocations">
         <property name="toolTip">
-         <string>Gdb allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.</string>
+         <string>GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.</string>
         </property>
         <property name="text">
          <string>Adjust breakpoint locations</string>
@@ -132,7 +132,7 @@ on slow machines. In this case, the value should be increased.</string>
       <item row="7" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
         <property name="toolTip">
-         <string>Enable reverse debugging Selecting this enables reverse debugging.  NOTE: This feature is very slow and unstable on the gdb side.  It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.</string>
+         <string>Enable reverse debugging Selecting this enables reverse debugging. NOTE: This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.</string>
         </property>
         <property name="text">
          <string>Enable reverse debugging</string>
