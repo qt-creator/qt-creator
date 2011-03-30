@@ -110,7 +110,6 @@ SOURCES += breakhandler.cpp \
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
-    attachtcfdialog.ui \
     breakcondition.ui \
     breakpoint.ui \
     dumperoptionpage.ui \
@@ -140,5 +139,4 @@ include(pdb/pdb.pri)
 include(lldb/lldbhost.pri)
 include(qml/qml.pri)
 
-include(tcf/tcf.pri)
 include(shared/shared.pri)

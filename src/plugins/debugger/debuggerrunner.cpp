@@ -89,7 +89,6 @@ DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp,
 
 DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &sp);
-DebuggerEngine *createTcfEngine(const DebuggerStartParameters &sp);
 QmlEngine *createQmlEngine(const DebuggerStartParameters &sp,
     DebuggerEngine *masterEngine);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp,
@@ -771,9 +770,6 @@ DebuggerEngine *
         break;
     case PdbEngineType:
         return createPdbEngine(sp);
-        break;
-    case TcfEngineType:
-        return createTcfEngine(sp);
         break;
     case QmlEngineType:
         return createQmlEngine(sp, masterEngine);

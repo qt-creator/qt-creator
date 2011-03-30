@@ -371,7 +371,6 @@ const char * const M_DEBUG_START_DEBUGGING = "QtCreator.Menu.Debug.StartDebuggin
 const char * const STARTEXTERNAL            = "Debugger.StartExternal";
 const char * const ATTACHEXTERNAL           = "Debugger.AttachExternal";
 const char * const ATTACHCORE               = "Debugger.AttachCore";
-const char * const ATTACHTCF                = "Debugger.AttachTcf";
 const char * const ATTACHREMOTE             = "Debugger.AttachRemote";
 const char * const ATTACHREMOTECDB          = "Debugger.AttachRemoteCDB";
 const char * const STARTREMOTELLDB          = "Debugger.StartRemoteLLDB";
@@ -700,7 +699,6 @@ public slots:
                     const ProjectExplorer::Abi &abi = ProjectExplorer::Abi(),
                     const QString &debuggerCommand = QString());
     void attachRemote(const QString &spec);
-    void attachRemoteTcf();
 
     void enableReverseDebuggingTriggered(const QVariant &value);
     void languagesChanged();
@@ -988,7 +986,6 @@ public:
     QAction *m_startRemoteLldbAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
-    QAction *m_attachTcfAction;
     QAction *m_detachAction;
     QAction *m_continueAction;
     QAction *m_exitAction; // On application output button if "Stop" is possible
@@ -1104,7 +1101,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_startRemoteLldbAction = 0;
     m_attachExternalAction = 0;
     m_attachCoreAction = 0;
-    m_attachTcfAction = 0;
     m_detachAction = 0;
 
     m_commonOptionsPage = 0;
@@ -1580,37 +1576,6 @@ void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &valu
     m_reverseToolButton->setVisible(value.toBool());
     m_reverseDirectionAction->setChecked(false);
     m_reverseDirectionAction->setEnabled(value.toBool());
-}
-
-void DebuggerPluginPrivate::attachRemoteTcf()
-{
-    DebuggerStartParameters sp;
-    AttachTcfDialog dlg(mainWindow());
-    QStringList arches;
-    arches.append(_("i386:x86-64:intel"));
-    dlg.setRemoteArchitectures(arches);
-    dlg.setRemoteChannel(
-            configValue(_("LastTcfRemoteChannel")).toString());
-    dlg.setRemoteArchitecture(
-            configValue(_("LastTcfRemoteArchitecture")).toString());
-    dlg.setServerStartScript(
-            configValue(_("LastTcfServerStartScript")).toString());
-    dlg.setUseServerStartScript(
-            configValue(_("LastTcfUseServerStartScript")).toBool());
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-    setConfigValue(_("LastTcfRemoteChannel"), dlg.remoteChannel());
-    setConfigValue(_("LastTcfRemoteArchitecture"), dlg.remoteArchitecture());
-    setConfigValue(_("LastTcfServerStartScript"), dlg.serverStartScript());
-    setConfigValue(_("LastTcfUseServerStartScript"), dlg.useServerStartScript());
-    sp.remoteChannel = dlg.remoteChannel();
-    sp.remoteArchitecture = dlg.remoteArchitecture();
-    sp.serverStartScript = dlg.serverStartScript();
-    sp.startMode = AttachTcf;
-    if (dlg.useServerStartScript())
-        sp.serverStartScript = dlg.serverStartScript();
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::runScheduled()
@@ -2755,12 +2720,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Attach to Core..."));
     connect(act, SIGNAL(triggered()), SLOT(attachCore()));
 
-    act = m_attachTcfAction = new QAction(this);
-    act->setText(tr("Attach to Running Tcf Agent..."));
-    act->setToolTip(tr("This attaches to a running "
-        "'Target Communication Framework' agent."));
-    connect(act, SIGNAL(triggered()), SLOT(attachRemoteTcf()));
-
     act = m_startRemoteAction = new QAction(this);
     act->setText(tr("Start and Attach to Remote Application..."));
     connect(act, SIGNAL(triggered()), SLOT(startRemoteApplication()));
@@ -2806,10 +2765,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
         Constants::ATTACHCORE, globalcontext);
 
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, CC::G_DEFAULT_ONE);
-
-    cmd = am->registerAction(m_attachTcfAction,
-        Constants::ATTACHTCF, globalcontext);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_startRemoteAction,
