@@ -40,6 +40,7 @@
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 
+#include <coreplugin/ifile.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 
@@ -398,7 +399,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_projectsBox->setFixedHeight(panelHeight);
     m_projectsBox->setProperty("hideborder", true);
     m_projectsBox->setObjectName(QString::fromUtf8("ProjectsBox"));
-    m_projectsBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    m_projectsBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    m_projectsBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
     toolLayout->addWidget(lbl);
     toolLayout->addWidget(new Utils::StyledSeparator);
@@ -441,7 +443,12 @@ void MiniProjectTargetSelector::mousePressEvent(QMouseEvent *e)
     QWidget::mousePressEvent(e);
 }
 
-void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
+QString MiniProjectTargetSelector::fullName(ProjectExplorer::Project *project)
+{
+    return project->displayName() + " (" + project->file()->fileName() + ")";
+}
+
+void MiniProjectTargetSelector::addProject(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
     ProjectListWidget *targetList = new ProjectListWidget(project);
@@ -450,14 +457,28 @@ void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
 
     m_ignoreIndexChange = true;
 
+    QString sortName = fullName(project);
     int pos = 0;
-    for (int i=0; i < m_projectsBox->count(); ++i)
-        if (m_projectsBox->itemText(i) > project->displayName())
+    for (int i=0; i < m_projectsBox->count(); ++i) {
+        Project *p = m_projectsBox->itemData(i).value<Project*>();
+        QString itemSortName = fullName(p);
+        if (itemSortName > sortName)
             pos = i;
+    }
 
     m_widgetStack->insertWidget(pos, targetList);
 
-    m_projectsBox->insertItem(pos, project->displayName(), QVariant::fromValue(project));
+    bool useFullName = false;
+    for (int i = 0; i < m_projectsBox->count(); ++i) {
+        Project *p = m_projectsBox->itemData(i).value<Project*>();
+        if (p->displayName() == project->displayName()) {
+            useFullName = true;
+            m_projectsBox->setItemText(i, fullName(p));
+        }
+    }
+
+    QString displayName = useFullName ? fullName(project) : project->displayName();
+    m_projectsBox->insertItem(pos, displayName, QVariant::fromValue(project));
 
     connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             SLOT(updateAction()));
@@ -480,6 +501,7 @@ void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
         addTarget(t, t == project->activeTarget());
 
     m_projectsBox->setEnabled(m_projectsBox->count() > 1);
+    m_projectsBox->parentWidget()->layout()->activate();
 }
 
 void MiniProjectTargetSelector::removeProject(ProjectExplorer::Project* project)
@@ -495,7 +517,25 @@ void MiniProjectTargetSelector::removeProject(ProjectExplorer::Project* project)
     m_projectsBox->removeItem(index);
     m_projectsBox->setEnabled(m_projectsBox->count() > 1);
     delete plw;
+
+    // Update display names
+    QString name = project->displayName();
+    int count = 0;
+    int otherIndex;
+    for (int i = 0; i < m_projectsBox->count(); ++i) {
+        Project *p = m_projectsBox->itemData(i).value<Project*>();
+        if (p->displayName() == name) {
+            ++count;
+            otherIndex = i;
+        }
+    }
+    if (count == 1) {
+        Project *p = m_projectsBox->itemData(otherIndex).value<Project*>();
+        m_projectsBox->setItemText(otherIndex, p->displayName());
+    }
+
     m_ignoreIndexChange = false;
+    m_projectsBox->parentWidget()->layout()->activate();
 }
 
 void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool activeTarget)

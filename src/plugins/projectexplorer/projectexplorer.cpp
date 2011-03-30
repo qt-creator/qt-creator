@@ -847,7 +847,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             d->m_targetSelector, SLOT(addProject(ProjectExplorer::Project*)));
-    connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+    connect(d->m_session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             d->m_targetSelector, SLOT(removeProject(ProjectExplorer::Project*)));
     connect(d->m_targetSelector, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(setStartupProject(ProjectExplorer::Project*)));

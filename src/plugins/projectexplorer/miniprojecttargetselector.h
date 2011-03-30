@@ -136,6 +136,7 @@ private slots:
     void mousePressEvent(QMouseEvent *);
 
 private:
+    QString fullName(ProjectExplorer::Project *project);
     int indexFor(ProjectExplorer::Project *project) const;
 
     QAction *m_projectAction;
