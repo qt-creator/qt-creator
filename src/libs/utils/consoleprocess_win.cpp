@@ -157,6 +157,16 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         foreach (const QString &var, fixWinEnvironment(env))
             out << var << QChar(0);
         out << QChar(0);
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+        out.flush();
+        if (out.status() != QTextStream::Ok) {
+            stubServerShutdown();
+            emit processMessage(msgCannotWriteTempFile(), true);
+            delete d->m_tempFile;
+            d->m_tempFile = 0;
+            return false;
+        }
+#endif
     }
 
     STARTUPINFO si;

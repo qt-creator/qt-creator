@@ -65,6 +65,11 @@ QString ConsoleProcess::msgCannotCreateTempFile(const QString &why)
     return tr("Cannot create temporary file: %1").arg(why);
 }
 
+QString ConsoleProcess::msgCannotWriteTempFile()
+{
+    return tr("Cannot write temporary file. Disk full?");
+}
+
 QString ConsoleProcess::msgCannotCreateTempDir(const QString & dir, const QString &why)
 {
     return tr("Cannot create temporary directory '%1': %2").arg(dir, why);

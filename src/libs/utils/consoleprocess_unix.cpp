@@ -173,11 +173,18 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
             d->m_tempFile = 0;
             return false;
         }
+        QByteArray contents;
         foreach (const QString &var, env) {
-            d->m_tempFile->write(var.toLocal8Bit());
-            d->m_tempFile->write("", 1);
+            QByteArray l8b = var.toLocal8Bit();
+            contents.append(l8b.constData(), l8b.size() + 1);
         }
-        d->m_tempFile->flush();
+        if (d->m_tempFile->write(contents) != contents.size() || !d->m_tempFile->flush()) {
+            stubServerShutdown();
+            emit processMessage(msgCannotWriteTempFile(), true);
+            delete d->m_tempFile;
+            d->m_tempFile = 0;
+            return false;
+        }
     }
 
     xtermArgs
