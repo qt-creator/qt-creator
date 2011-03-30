@@ -501,8 +501,9 @@ bool CVSPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
     bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & commit
-        Core::ICore::instance()->fileManager()->saveFile(fileIFace);
-        closeEditor= commit(m_commitMessageFileName, fileList);
+        closeEditor = Core::ICore::instance()->fileManager()->saveFile(fileIFace);
+        if (closeEditor)
+            closeEditor = commit(m_commitMessageFileName, fileList);
     }
     if (closeEditor)
         cleanCommitMessageFile();
