@@ -29,7 +29,7 @@ qmldir.files = qmldir
 symbian {
     # ...
 } else:unix {
-    installPath = /usr/lib/qt4/imports/$$replace(uri, \., /)
+    installPath = /usr/lib/qt4/imports/$$replace(uri, \\., /)
     qmldir.path = $$installPath
     target.path = $$installPath
     INSTALLS += target qmldir
