@@ -91,8 +91,8 @@ public:
     AbstractFormEditorTool *currentTool() const;
     FormEditorScene *scene() const;
 
-    void changeToMoveTool();
-    void changeToMoveTool(const QPointF &beginPoint);
+    bool changeToMoveTool();
+    bool changeToMoveTool(const QPointF &beginPoint);
     void changeToDragTool();
     void changeToSelectionTool();
     void changeToItemCreatorTool();

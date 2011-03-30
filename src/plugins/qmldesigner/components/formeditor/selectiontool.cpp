@@ -210,8 +210,8 @@ void SelectionTool::keyPressEvent(QKeyEvent *event)
         case Qt::Key_Right:
         case Qt::Key_Up:
         case Qt::Key_Down:
-            view()->changeToMoveTool();
-            view()->currentTool()->keyPressEvent(event);
+            if (view()->changeToMoveTool())
+                view()->currentTool()->keyPressEvent(event);
             break;
     }
 }

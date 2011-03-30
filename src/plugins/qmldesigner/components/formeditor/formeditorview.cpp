@@ -285,13 +285,13 @@ AbstractFormEditorTool* FormEditorView::currentTool() const
     return m_currentTool;
 }
 
-void FormEditorView::changeToMoveTool()
+bool FormEditorView::changeToMoveTool()
 {
     if (m_currentTool == m_moveTool)
-        return;
+        return true;
 
     if (!isMoveToolAvailable())
-        return;
+        return false;
 
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
@@ -300,6 +300,7 @@ void FormEditorView::changeToMoveTool()
     m_currentTool = m_moveTool;
     m_currentTool->clear();
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
+    return true;
 }
 
 void FormEditorView::changeToDragTool()
@@ -317,13 +318,13 @@ void FormEditorView::changeToDragTool()
 }
 
 
-void FormEditorView::changeToMoveTool(const QPointF &beginPoint)
+bool FormEditorView::changeToMoveTool(const QPointF &beginPoint)
 {
     if (m_currentTool == m_moveTool)
-        return;
+        return true;
 
     if (!isMoveToolAvailable())
-        return;
+        return false;
 
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
@@ -333,6 +334,7 @@ void FormEditorView::changeToMoveTool(const QPointF &beginPoint)
     m_currentTool->clear();
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
     m_moveTool->beginWithPoint(beginPoint);
+    return true;
 }
 
 void FormEditorView::changeToSelectionTool()
