@@ -370,7 +370,7 @@
 
     \list
 
-        \o GNU Symbolic Debugger (gdb)
+        \o GNU Symbolic Debugger (GDB)
 
         \o Microsoft Console Debugger (CDB)
 
@@ -406,7 +406,7 @@
     plugin understands the internal layout of several Qt classes, for
     example, QString, the Qt containers, and most importantly QObject
     (and classes derived from it), as well as most containers of the C++
-    Standard Library and some gcc and Symbian extensions. This
+    Standard Library and some GCC and Symbian extensions. This
     deeper understanding is used to present objects of such classes in
     a useful way.
 
@@ -4591,9 +4591,9 @@
 
     By default, Qt Creator runs the remote gdbserver daemon on the device for
     debugging. However, if the sysroot does not match that of the device, you
-    can run remote gdb, instead. Select the \gui {Run remote gdb} option in
+    can run remote GDB, instead. Select the \gui {Run remote GDB} option in
     \gui {Debugging details}. Select the \gui {Set debugger} link to specify
-    settings for gdb.
+    settings for GDB.
 
     When you run the application on the \gui{Maemo} target, Qt Creator generates
     a Debian installation package in the build directory by default. You can deliver
@@ -7042,7 +7042,7 @@
 
     Qt Creator provides a debugger plugin that acts
     as an interface between the Qt Creator core and external native debuggers
-    such as the GNU Symbolic Debugger (gdb), the Microsoft Console Debugger (CDB),
+    such as the GNU Symbolic Debugger (GDB), the Microsoft Console Debugger (CDB),
     and a QML/JavaScript debugger.
 
     The following sections describe debugging with Qt Creator:
@@ -7203,7 +7203,7 @@
 
     Typically, the interaction between Qt Creator and the native debugger is set
     up automatically and you do not need to do anything. However, you might have an
-    unsupported gdb version installed, your Linux environment might not have gdb
+    unsupported GDB version installed, your Linux environment might not have GDB
     installed at all, or you might want to use the debugging tools for Windows.
 
     \note To use the debugging tools for Windows, you must install them and add the
@@ -7216,7 +7216,7 @@
 
     \section1 Supported Native Debugger Versions
 
-    The debugger plugin supports different builds of the gdb debugger, both
+    The debugger plugin supports different builds of the GDB debugger, both
     with and without the ability to use Python scripting. The Python enabled
     versions are preferred, but they are not available on Mac and on older
     versions of Linux.
@@ -7229,7 +7229,7 @@
     The Python version uses a script version of the debugging helpers
     that does not need any special setup.
 
-    The CDB native debugger has similar funtionality to the non-Python gdb debugger
+    The CDB native debugger has similar funtionality to the non-Python GDB debugger
     engine. Specifically, it also uses compiled C++ code for the debugging
     helper library.
 
@@ -7244,26 +7244,26 @@
             \o Debugger Modes
         \row
             \o Linux
-            \o gcc
-            \o gdb
+            \o GCC
+            \o GDB
             \o Yes
             \o Plain, Terminal, Attach, Remote, Core
         \row
             \o Unix
-            \o gcc
-            \o gdb
+            \o GCC
+            \o GDB
             \o Yes
             \o Plain, Terminal, Attach, Remote, Core
         \row
             \o Mac OS
-            \o gcc
-            \o gdb
+            \o GCC
+            \o GDB
             \o No
             \o Plain, Terminal, Attach, Core
         \row
             \o Windows/MinGW
-            \o gcc
-            \o gdb
+            \o GCC
+            \o GDB
             \o Yes
             \o Plain, Terminal, Attach, Remote, Core
         \row
@@ -7274,14 +7274,14 @@
             \o Plain, Terminal, Attach, Post-Mortem
         \row
             \o Symbian
-            \o gcc
-            \o gdb
+            \o GCC
+            \o GDB
             \o Yes
             \o On-device
         \row
             \o Maemo
-            \o gcc
-            \o gdb
+            \o GCC
+            \o GDB
             \o Yes
             \o On-device
     \endtable
@@ -7294,9 +7294,9 @@
 
     [Advanced Topic]
 
-    The gdb native debugger used internally by the debugger plugin runs in
+    The GDB native debugger used internally by the debugger plugin runs in
     different adapter modes to cope with the variety
-    of supported platforms and environments. All gdb adapters inherit from
+    of supported platforms and environments. All GDB adapters inherit from
     AbstractGdbAdapter:
 
     \list
@@ -7314,8 +7314,8 @@
 
        \o RemoteGdbAdapter interacts with the gdbserver running on Linux.
 
-       \o CodaGdbAdapter interacts with Symbian devices. The gdb protocol and
-       the gdb serial protocol are used between gdb and the adapter. The
+       \o CodaGdbAdapter interacts with Symbian devices. The GDB protocol and
+       the GDB serial protocol are used between GDB and the adapter. The
        target communication framework (TCF) protocol is used between the
        adapter and the CODA debugging agent running on the device.
 
@@ -7339,10 +7339,10 @@
             \o Notes
         \row
             \o Gdb
-            \o On Linux and Windows, use the Python-enabled gdb versions that
+            \o On Linux and Windows, use the Python-enabled GDB versions that
             are installed when you install Qt Creator and Qt SDK. On Mac OS X,
-            use the gdb provided with Xcode.
-            For a custom target, you can build your own Python-enabled gdb.
+            use the GDB provided with Xcode.
+            For a custom target, you can build your own Python-enabled GDB.
             Follow the instructions on
             \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}{Building Gdb}.
             You must use at least Python version 2.5, but we recommend that you
@@ -7626,7 +7626,7 @@
                 causing the \gui{Locals and Watchers} view to show unexpected
                 data.
         \row
-            \i  The debug information provided by gcc does not include enough
+            \i  The debug information provided by GCC does not include enough
                 information about the time when a variable is initialized.
                 Therefore, Qt Creator can not tell whether the contents of a
                 local variable contains "real data", or "initial noise". If a
@@ -7679,7 +7679,7 @@
 
     \note Usually, you do not need this feature, because Qt Creator provides
     you with better ways to handle the task. For example, instead of using the
-    gdb \c print command from the command line, you can create a watcher item
+    GDB \c print command from the command line, you can create a watcher item
     in the \gui{Locals and Watchers} view and examine the expression there.
 
     \section1 Debugging C++ Based Applications
@@ -7902,7 +7902,7 @@
 
     \section1 Debugging Helpers Based on Python
 
-    Qt Creator uses gdb builds that enable Python scripting to display
+    Qt Creator uses GDB builds that enable Python scripting to display
     information in the \gui {Locals and Watchers} view. When Python scripting
     is used, code (Debugging helpers) does not need to be injected into the
     debugged process to nicely display QStringList or \c std::map contents, for
@@ -7917,14 +7917,14 @@
 
     \list
 
-        \o  There is no Python-enabled gdb for Mac OS. Mac OS continues
+        \o  There is no Python-enabled GDB for Mac OS. Mac OS continues
             injection with C++ based debugging helpers.
 
         \o  On the Symbian platform, an on-device debugging agent restricts the
-            communication between gdb and the device. Therefore, extracting
+            communication between GDB and the device. Therefore, extracting
             QObject properties, for example, is not possible.
 
-        \o  There is no gdb to communicate with MSVC compiled applications on
+        \o  There is no GDB to communicate with MSVC compiled applications on
             Windows. So information can be displayed nicely only in a limited
             fashion by using a cdb extension DLL.
 
@@ -7932,7 +7932,7 @@
 
     \section2 Extending the Python Based Debugging Helpers
 
-    On platforms featuring a Python-enabled version of the gdb debugger,
+    On platforms featuring a Python-enabled version of the GDB debugger,
     the data extraction is done by a Python script. This is more robust
     as the script execution is separated from the debugged process. It
     is also easier to extend as the script is less dependent on the
@@ -7940,7 +7940,7 @@
 
     To extend the shipped Python based debugging helpers for custom types,
     define one Python function per user defined type in the
-    gdb startup file. By default, the following startup file is used:
+    GDB startup file. By default, the following startup file is used:
     \c{~/.gdbinit}. To use another file, select \gui {Tools > Options... > Gdb}
     and specify a filename in the \gui {Gdb startup script} field.
 
@@ -8148,7 +8148,7 @@
         raise an exception.
 
     \o \gui{putCallItem(self, name, item, func)} -
-        Uses gdb to call the function \c func on the value specified by
+        Uses GDB to call the function \c func on the value specified by
         \a {item.value} and output the resulting item. This function is
         not available when debugging core dumps and it is not available
         on the Symbian platform due to restrictions imposed by the on-device
@@ -11077,7 +11077,7 @@
 
         \row
             \o -disable-gdb
-            \o Debugger plugin: disable the GNU Symbolic Debugger (gdb) engine.
+            \o Debugger plugin: disable the GNU Symbolic Debugger (GDB) engine.
 
         \row
             \o -disable-sdb
@@ -11230,18 +11230,18 @@
 
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 
-    The Qt Creator for Windows installation packages install gdb from MinGW.
-    Unfortunately, gdb is quite slow on Windows. Qt Creator does not cause
-    this, as it interacts with gdb and adds custom dumpers for Qt types.
+    The Qt Creator for Windows installation packages install GDB from MinGW.
+    Unfortunately, GDB is quite slow on Windows. Qt Creator does not cause
+    this, as it interacts with GDB and adds custom dumpers for Qt types.
 
     \note You can use Qt Creator with MSVC on Windows for debugging.
 
     \section1 Debugger Displays <not in scope> Message
 
     The message is created by the debugging helpers. Qt Creator posts an
-    expression to the gdb command line to invoke the debugging helpers.
+    expression to the GDB command line to invoke the debugging helpers.
     The expression includes the address of the object to examine. This
-    address might be modified by gdb before the helper function is called. It
+    address might be modified by GDB before the helper function is called. It
     is unclear why and when this happens, but if it happens, the debugging
     helpers operate on wrong data and come to wrong conclusions. Most likely,
     they find garbage and declare the variable to be <not in scope>.
