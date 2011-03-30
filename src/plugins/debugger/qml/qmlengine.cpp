@@ -384,7 +384,11 @@ void QmlEngine::runEngine()
 void QmlEngine::startApplicationLauncher()
 {
     if (!d->m_applicationLauncher.isRunning()) {
-        appendMessage(tr("Starting %1 %2").arg(QDir::toNativeSeparators(startParameters().executable), startParameters().processArgs), NormalMessageFormat);
+        appendMessage(tr("Starting %1 %2").arg(
+                          QDir::toNativeSeparators(startParameters().executable),
+                          startParameters().processArgs)
+                      + QLatin1Char('\n')
+                     , NormalMessageFormat);
         d->m_applicationLauncher.start(ApplicationLauncher::Gui,
                                     startParameters().executable,
                                     startParameters().processArgs);

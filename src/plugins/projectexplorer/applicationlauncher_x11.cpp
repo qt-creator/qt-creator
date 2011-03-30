@@ -166,7 +166,7 @@ void ApplicationLauncher::guiProcessError()
     default:
         error = tr("Some error has occurred while running the program.");
     }
-    emit appendMessage(error, ErrorMessageFormat);
+    emit appendMessage(error + QLatin1Char('\n'), ErrorMessageFormat);
     emit processExited(d->m_guiProcess.exitCode());
 }
 
