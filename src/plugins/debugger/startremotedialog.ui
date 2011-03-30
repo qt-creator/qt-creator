@@ -79,7 +79,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="gnuTargetLabel">
        <property name="text">
-        <string>&amp;GNU target</string>
+        <string>&amp;GNU target:</string>
        </property>
        <property name="buddy">
         <cstring>gnuTargetComboBox</cstring>
@@ -122,7 +122,7 @@
      <item row="7" column="0">
       <widget class="QLabel" name="serverStartScriptLabel">
        <property name="text">
-        <string>Server st&amp;art script:</string>
+        <string>&amp;Server start script:</string>
        </property>
        <property name="buddy">
         <cstring>serverStartScript</cstring>

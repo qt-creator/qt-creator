@@ -193,7 +193,7 @@ void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
     QFormLayout *debugLayout = new QFormLayout(debugWidget);
     QHBoxLayout *debugRadioButtonsLayout = new QHBoxLayout;
     debugLayout->addRow(debugRadioButtonsLayout);
-    QRadioButton *gdbButton = new QRadioButton(tr("Use remote gdb"));
+    QRadioButton *gdbButton = new QRadioButton(tr("Use remote GDB"));
     QRadioButton *gdbServerButton = new QRadioButton(tr("Use remote gdbserver"));
     debugRadioButtonsLayout->addWidget(gdbButton);
     debugRadioButtonsLayout->addWidget(gdbServerButton);
@@ -428,7 +428,7 @@ void MaemoRunConfigurationWidget::handleDebuggingTypeChanged(bool useGdb)
 {
     m_runConfiguration->setUseRemoteGdb(useGdb);
     const QString detailsText = useGdb ?
-                tr("<b>Debugging details:</b> Use gdb") :
+                tr("<b>Debugging details:</b> Use GDB") :
                 tr("<b>Debugging details:</b> Use gdbserver");
     m_debugDetailsContainer->setSummaryText(detailsText);
 }

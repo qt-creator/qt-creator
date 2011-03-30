@@ -108,7 +108,7 @@ void QmlProject::parseProject(RefreshOptions options)
                     messageManager->printToOutputPane(component->errorString(), true);
                 }
             } else {
-                messageManager->printToOutputPane(tr("Error while loading `project file %1.").arg(m_fileName), true);
+                messageManager->printToOutputPane(tr("Error while loading project file %1.").arg(m_fileName), true);
             }
         }
         if (m_projectItem) {

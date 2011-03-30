@@ -29,7 +29,7 @@
       <item>
        <widget class="QCheckBox" name="gdbEmu">
         <property name="text">
-         <string>Use Gdb python dumpers</string>
+         <string>Use GDB python dumpers</string>
         </property>
         <property name="checked">
          <bool>false</bool>

@@ -14,7 +14,7 @@
    <item>
     <widget class="QGroupBox" name="groupBoxLocations">
      <property name="title">
-      <string>Gdb</string>
+      <string>GDB</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="fieldGrowthPolicy">
@@ -32,10 +32,10 @@
       <item row="0" column="0">
        <widget class="QLabel" name="labelGdbStartupScript">
         <property name="toolTip">
-         <string>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</string>
+         <string>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</string>
         </property>
         <property name="text">
-         <string>Gdb startup script:</string>
+         <string>GDB startup script:</string>
         </property>
        </widget>
       </item>
@@ -52,7 +52,7 @@ loading big libraries or listing source files takes much longer than that
 on slow machines. In this case, the value should be increased.</string>
         </property>
         <property name="text">
-         <string>Gdb timeout:</string>
+         <string>GDB timeout:</string>
         </property>
        </widget>
       </item>

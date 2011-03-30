@@ -144,7 +144,7 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
     m_ui.lineEditModule->setToolTip(moduleToolTip);
     const QString commandToolTip =
         tr("Debugger command to be executed when the breakpoint is hit.\n"
-           "gdb allows for specifying a sequence of commands separated by "
+           "GDB allows for specifying a sequence of commands separated by "
            "the delimiter '\\n'.");
     m_ui.lineEditCommand->setToolTip(commandToolTip);
     m_ui.labelCommand->setToolTip(commandToolTip);
@@ -161,7 +161,7 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
            "<li><i>Use File Name</i>: Pass the file name only. This is "
                 "useful when using a source tree whose location does "
                 "not match the one used when building the modules. "
-                "It is the engine default for gdb as using full paths can "
+                "It is the engine default for GDB as using full paths can "
                 "be slow with this engine.</li>"
            "</ul></body></html>");
     m_ui.labelUseFullPath->setToolTip(pathToolTip);

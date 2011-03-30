@@ -100,7 +100,7 @@ bool AbstractGdbAdapter::prepareCommand()
 
 QString AbstractGdbAdapter::msgGdbStopFailed(const QString &why)
 {
-    return tr("The Gdb process could not be stopped:\n%1").arg(why);
+    return tr("The gdb process could not be stopped:\n%1").arg(why);
 }
 
 QString AbstractGdbAdapter::msgInferiorStopFailed(const QString &why)
