@@ -214,8 +214,8 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage()
     if (from <= pc && pc <= to) {
         //to = qMax(to - 4, from);
         //to = qMax(to - 4, from);
-        showMessage("STEP IN " + hexxNumber(from) + ' ' + hexxNumber(to)
-            + " INSTEAD OF " + hexxNumber(pc));
+        showMessage(_("STEP IN ") + hexxNumber(from) + ' ' + hexxNumber(to)
+            + _(" INSTEAD OF ") + hexxNumber(pc));
     } else {
         from = pc;
         to = pc;
@@ -301,7 +301,7 @@ void TrkGdbAdapter::readGdbServerCommand()
 
     logMessage("gdb: -> " + currentTime() + ' ' + QString::fromAscii(packet));
     if (packet != m_gdbReadBuffer)
-        logMessage("buffer: " + m_gdbReadBuffer);
+        logMessage(QLatin1String("buffer: ") + m_gdbReadBuffer);
 
     QByteArray &ba = m_gdbReadBuffer;
     while (ba.size()) {
@@ -781,7 +781,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             const QByteArray ba = trkBreakpointMessage(addrLen.first, addrLen.second, armMode);
             sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, QVariant(addrLen.first));
         } else {
-            logMessage("MISPARSED BREAKPOINT '" + cmd + "')", LogError);
+            logMessage(QLatin1String("MISPARSED BREAKPOINT '") + cmd + "')", LogError);
         }
     }
 
@@ -1015,14 +1015,14 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         case TrkNotifyException: { // 0x91 Notify Exception (obsolete)
             showMessage(_("RESET SNAPSHOT (NOTIFY EXCEPTION)"));
             m_snapshot.reset();
-            logMessage(prefix + "NOTE: EXCEPTION  " + str, AppError);
+            logMessage(prefix + _("NOTE: EXCEPTION  ") + str, AppError);
             sendTrkAck(result.token);
             break;
         }
         case 0x92: { //
             showMessage(_("RESET SNAPSHOT (NOTIFY INTERNAL ERROR)"));
             m_snapshot.reset();
-            logMessage(prefix + "NOTE: INTERNAL ERROR: " + str, LogError);
+            logMessage(prefix + _("NOTE: INTERNAL ERROR: ") + str, LogError);
             sendTrkAck(result.token);
             break;
         }
@@ -1105,22 +1105,22 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             break;
         }
         case 0xa2: { // NotifyProcessorStarted
-            logMessage(prefix + "NOTE: PROCESSOR STARTED: " + str);
+            logMessage(prefix + _("NOTE: PROCESSOR STARTED: ") + str);
             sendTrkAck(result.token);
             break;
         }
         case 0xa6: { // NotifyProcessorStandby
-            logMessage(prefix + "NOTE: PROCESSOR STANDBY: " + str);
+            logMessage(prefix + _("NOTE: PROCESSOR STANDBY: ") + str);
             sendTrkAck(result.token);
             break;
         }
         case 0xa7: { // NotifyProcessorReset
-            logMessage(prefix + "NOTE: PROCESSOR RESET: " + str);
+            logMessage(prefix + _("NOTE: PROCESSOR RESET: ") + str);
             sendTrkAck(result.token);
             break;
         }
         default: {
-            logMessage(prefix + "INVALID: " + str, LogError);
+            logMessage(prefix + _("INVALID: ") + str, LogError);
             break;
         }
     }
@@ -1133,8 +1133,8 @@ void TrkGdbAdapter::handleCpuType(const TrkResult &result)
     //    Error: 0x00
     // [80 03 00  04 00 00 04 00 00 00]
     if (result.data.size() < 7) {
-        logMessage("ERROR: CPUTYPE RESULT " + result.errorString()
-            + " NOT PARSABLE", LogError);
+        logMessage(_("ERROR: CPUTYPE RESULT ") + result.errorString()
+            + _(" NOT PARSABLE"), LogError);
         return;
     }
     m_session.cpuMajor = result.data[1];
@@ -1250,7 +1250,7 @@ static QString msgMemoryReadError(int code, uint addr, uint len = 0)
 void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
 {
     if (extractShort(result.data.data() + 1) + 3 != result.data.size())
-        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + '\n', LogError);
+        logMessage(_("\n BAD MEMORY RESULT: ") + result.data.toHex() + '\n', LogError);
     const MemoryRange range = result.cookie.value<MemoryRange>();
     MEMORY_DEBUG("HANDLE READ MEMORY ***BUFFERED*** FOR " << range);
     if (const int errorCode = result.errorCode()) {
@@ -1270,7 +1270,7 @@ void TrkGdbAdapter::handleReadMemoryBuffered(const TrkResult &result)
 void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
 {
     if (extractShort(result.data.data() + 1) + 3 != result.data.size())
-        logMessage("\n BAD MEMORY RESULT: " + result.data.toHex() + '\n', LogError);
+        logMessage(_("\n BAD MEMORY RESULT: ") + result.data.toHex() + '\n', LogError);
     const MemoryRange range = result.cookie.value<MemoryRange>();
     MEMORY_DEBUG("HANDLE READ MEMORY UNBUFFERED FOR " << range);
     if (const int errorCode = result.errorCode()) {
@@ -1451,7 +1451,7 @@ void TrkGdbAdapter::handleSupportMask(const TrkResult &result)
         if (data[i] & (1 << j))
             str.append(QByteArray::number(i * 8 + j, 16));
     }
-    logMessage("SUPPORTED: " + str);
+    logMessage(_("SUPPORTED: ") + str);
  }
 
 void TrkGdbAdapter::handleTrkVersionsStartGdb(const TrkResult &result)
@@ -1776,7 +1776,7 @@ void TrkGdbAdapter::handleDirectWrite1(const TrkResult &response)
     } else {
         oldMem = response.data.mid(3);
         oldPC = m_snapshot.registerValue(m_session.tid, RegisterPC);
-        logMessage("READ MEM: " + oldMem.toHex());
+        logMessage(_("READ MEM: ") + oldMem.toHex());
         //qDebug("READ MEM: " + oldMem.toHex());
         QByteArray ba;
         appendByte(&ba, 0xaa);

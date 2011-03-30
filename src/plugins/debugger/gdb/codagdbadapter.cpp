@@ -433,7 +433,7 @@ void CodaGdbAdapter::readGdbServerCommand()
 
     logMessage("gdb: -> " + currentTime() + ' ' + QString::fromAscii(packet));
     if (packet != m_gdbReadBuffer)
-        logMessage("buffer: " + m_gdbReadBuffer);
+        logMessage(_("buffer: ") + m_gdbReadBuffer);
 
     QByteArray &ba = m_gdbReadBuffer;
     while (ba.size()) {
@@ -926,7 +926,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                 CodaCallback(this, &CodaGdbAdapter::handleAndReportSetBreakpoint),
                 bp);
         } else {
-            logMessage("MISPARSED BREAKPOINT '" + cmd + "'')" , LogError);
+            logMessage(_("MISPARSED BREAKPOINT '") + cmd + "'')" , LogError);
         }
     }
 

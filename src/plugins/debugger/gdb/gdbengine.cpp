@@ -3922,7 +3922,7 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
             const QByteArray addr = ba.mid(pos0x);
             if (addr.toULongLong(0, 0)) { // Non-null pointer
                 const QByteArray ns = qtNamespace();
-                const QByteArray type = ns.isEmpty() ? "QWidget*" : ("'" + ns + "QWidget'*");
+                const QByteArray type = ns.isEmpty() ? "QWidget*" : QByteArray("'" + ns + "QWidget'*");
                 const QString exp = _("(*(struct %1)%2)").arg(_(type)).arg(_(addr));
                 // qDebug() << posNs << posWidget << pos0x << addr << ns << type;
                 watchHandler()->watchExpression(exp);
