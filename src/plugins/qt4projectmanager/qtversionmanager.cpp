@@ -752,7 +752,9 @@ bool QtVersion::supportsShadowBuilds() const
         return false;
     }
 #ifdef Q_OS_WIN
-    if (targets.contains(Constants::MEEGO_DEVICE_TARGET_ID))
+    if (targets.contains(Constants::MEEGO_DEVICE_TARGET_ID)
+        || targets.contains(Constants::MAEMO5_DEVICE_TARGET_ID)
+        || targets.contains(Constants::HARMATTAN_DEVICE_TARGET_ID))
         return false;
 #endif
     return true;
