@@ -45,7 +45,7 @@ DATA_DIRS = \
     for(data_dir, DATA_DIRS) {
         files = $$files($$PWD/$$data_dir/*, true)
         win32:files ~= s|\\\\|/|g
-        for(file, files):!exists($$file/*):FILES += $$file
+        for(file, files):!contains(file, ".*/Info\\.plist\\.in$"):!exists($$file/*):FILES += $$file
     }
 
     OTHER_FILES += $$FILES
