@@ -35,6 +35,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <utils/fileutils.h>
 
 #include <QtCore/QByteArrayMatcher>
 #include <QtCore/QDebug>
@@ -337,7 +338,7 @@ bool BinEditor::isReadOnly() const
     return m_readOnly;
 }
 
-bool BinEditor::save(const QString &oldFileName, const QString &newFileName)
+bool BinEditor::save(QString *errorString, const QString &oldFileName, const QString &newFileName)
 {
     if (oldFileName != newFileName) {
         QString tmpName;
@@ -354,21 +355,26 @@ bool BinEditor::save(const QString &oldFileName, const QString &newFileName)
         if (!QFile::rename(tmpName, newFileName))
             return false;
     }
-    QFile output(newFileName);
-    if (!output.open(QIODevice::ReadWrite)) // QtBug: WriteOnly truncates.
-        return false;
-    const qint64 size = output.size();
-    for (BlockMap::const_iterator it = m_modifiedData.constBegin();
-        it != m_modifiedData.constEnd(); ++it) {
-        if (!output.seek(it.key() * m_blockSize))
-            return false;
-        if (output.write(it.value()) < m_blockSize)
-            return false;
-    }
+    Utils::FileSaver saver(newFileName, QIODevice::ReadWrite); // QtBug: WriteOnly truncates.
+    if (!saver.hasError()) {
+        QFile *output = saver.file();
+        const qint64 size = output->size();
+        for (BlockMap::const_iterator it = m_modifiedData.constBegin();
+            it != m_modifiedData.constEnd(); ++it) {
+            if (!saver.setResult(output->seek(it.key() * m_blockSize)))
+                break;
+            if (!saver.write(it.value()))
+                break;
+            if (!saver.setResult(output->flush()))
+                break;
+        }
 
-    // We may have padded the displayed data, so we have to make sure
-    // changes to that area are not actually written back to disk.
-    if (!output.resize(size))
+        // We may have padded the displayed data, so we have to make sure
+        // changes to that area are not actually written back to disk.
+        if (!saver.hasError())
+            saver.setResult(output->resize(size));
+    }
+    if (!saver.finalize(errorString))
         return false;
 
     setModified(false);

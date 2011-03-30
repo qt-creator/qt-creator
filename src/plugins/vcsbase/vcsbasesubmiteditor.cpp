@@ -48,6 +48,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/synchronousprocess.h>
 #include <utils/submitfieldwidget.h>
+#include <utils/fileutils.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -164,7 +165,7 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
 
     m_d->m_file->setModified(false);
     // We are always clean to prevent the editor manager from asking to save.
-    connect(m_d->m_file, SIGNAL(saveMe(QString)), this, SLOT(save(QString)));
+    connect(m_d->m_file, SIGNAL(saveMe(QString*, QString)), this, SLOT(save(QString*, QString)));
 
     connect(m_d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVCSFiles(QStringList)));
     connect(m_d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
@@ -457,18 +458,13 @@ void VCSBaseSubmitEditor::slotDiffSelectedVCSFiles(const QStringList &rawList)
      emit diffSelectedFiles(rawList);
 }
 
-bool VCSBaseSubmitEditor::save(const QString &fileName)
+bool VCSBaseSubmitEditor::save(QString *errorString, const QString &fileName)
 {
     const QString fName = fileName.isEmpty() ? m_d->m_file->fileName() : fileName;
-    QFile file(fName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
-        qWarning("Unable to open %s: %s", qPrintable(fName), qPrintable(file.errorString()));
+    Utils::FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+    saver.write(fileContents().toLocal8Bit());
+    if (!saver.finalize(errorString))
         return false;
-    }
-    file.write(fileContents().toLocal8Bit());
-    if (!file.flush())
-        return false;
-    file.close();
     const QFileInfo fi(fName);
     m_d->m_file->setFileName(fi.absoluteFilePath());
     m_d->m_file->setModified(false);

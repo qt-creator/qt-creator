@@ -86,8 +86,9 @@ void ImageViewerFile::reload(Core::IFile::ReloadFlag flag,
     }
 }
 
-bool ImageViewerFile::save(const QString &fileName)
+bool ImageViewerFile::save(QString *errorString, const QString &fileName)
 {
+    Q_UNUSED(errorString)
     Q_UNUSED(fileName);
     return false;
 }

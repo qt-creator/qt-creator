@@ -182,7 +182,7 @@ Qt4ProjectFile::Qt4ProjectFile(Qt4Project *project, const QString &filePath, QOb
 {
 }
 
-bool Qt4ProjectFile::save(const QString &)
+bool Qt4ProjectFile::save(QString *, const QString &)
 {
     // This is never used
     return false;

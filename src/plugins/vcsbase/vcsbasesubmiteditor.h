@@ -159,7 +159,7 @@ signals:
 
 private slots:
     void slotDiffSelectedVCSFiles(const QStringList &rawList);
-    bool save(const QString &fileName);
+    bool save(QString *errorString, const QString &fileName);
     void slotDescriptionChanged();
     void slotCheckSubmitMessage();
     void slotInsertNickName();

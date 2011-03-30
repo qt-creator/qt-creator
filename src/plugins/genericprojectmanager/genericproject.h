@@ -159,7 +159,7 @@ public:
     GenericProjectFile(GenericProject *parent, QString fileName);
     virtual ~GenericProjectFile();
 
-    virtual bool save(const QString &fileName = QString());
+    virtual bool save(QString *errorString, const QString &fileName = QString());
     virtual QString fileName() const;
 
     virtual QString defaultPath() const;

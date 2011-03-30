@@ -138,7 +138,7 @@ bool ResourceEditorW::open(const QString &fileName /* = QString() */)
     return true;
 }
 
-bool ResourceEditorFile::save(const QString &name /* = QString() */)
+bool ResourceEditorFile::save(QString *errorString, const QString &name /* = QString() */)
 {
     if (debugResourceEditorW)
         qDebug(">ResourceEditorW::save: %s", qPrintable(name));
@@ -150,6 +150,7 @@ bool ResourceEditorFile::save(const QString &name /* = QString() */)
 
     m_parent->m_resourceEditor->setFileName(actualName);
     if (!m_parent->m_resourceEditor->save()) {
+        *errorString = m_parent->m_resourceEditor->errorMessage();
         m_parent->m_resourceEditor->setFileName(oldFileName);
         return false;
     }

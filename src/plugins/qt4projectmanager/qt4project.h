@@ -79,7 +79,7 @@ class Qt4ProjectFile : public Core::IFile
 public:
     Qt4ProjectFile(Qt4Project *project, const QString &filePath, QObject *parent = 0);
 
-    bool save(const QString &fileName = QString());
+    bool save(QString *errorString, const QString &fileName = QString());
     QString fileName() const;
     virtual void rename(const QString &newName);
 

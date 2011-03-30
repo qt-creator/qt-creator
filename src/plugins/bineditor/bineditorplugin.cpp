@@ -199,10 +199,11 @@ public:
         return QLatin1String(Constants::C_BINEDITOR_MIMETYPE);
     }
 
-    bool save(const QString &fileName = QString()) {
+    bool save(QString *errorString, const QString &fileName = QString())
+    {
         const QString fileNameToUse
             = fileName.isEmpty() ? m_fileName : fileName;
-        if (m_editor->save(m_fileName, fileNameToUse)) {
+        if (m_editor->save(errorString, m_fileName, fileNameToUse)) {
             m_fileName = fileNameToUse;
             m_editor->editor()->setDisplayName(QFileInfo(fileNameToUse).fileName());
             emit changed();

@@ -200,7 +200,13 @@ bool ResourceFile::save()
 
     QTextStream stream(&file);
     doc.save(stream, 4);
-
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+    stream.flush();
+    if (stream.status() != QTextStream::Ok) {
+        m_error_message = QCoreApplication::translate("Designer", "Cannot write file. Disk full?");
+        return false;
+    }
+#endif
     return true;
 }
 

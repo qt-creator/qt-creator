@@ -199,7 +199,7 @@ class CMakeFile : public Core::IFile
 public:
     CMakeFile(CMakeProject *parent, QString fileName);
 
-    bool save(const QString &fileName = QString());
+    bool save(QString *errorString, const QString &fileName = QString());
     QString fileName() const;
 
     QString defaultPath() const;

@@ -53,7 +53,7 @@ public:
     explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
 
     // IFile
-    virtual bool save(const QString &fileName = QString());
+    virtual bool save(QString *errorString, const QString &fileName = QString());
     virtual QString fileName() const;
     virtual bool isModified() const;
     virtual bool isReadOnly() const;
@@ -68,8 +68,7 @@ public:
     // Internal
     void setSuggestedFileName(const QString &fileName);
 
-    bool writeFile(const QString &fileName, QString &errorString) const;
-    bool writeFile(QFile &file, QString &errorString) const;
+    bool writeFile(const QString &fileName, QString *errorString) const;
 
     QDesignerFormWindowInterface *formWindow() const;
 

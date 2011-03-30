@@ -113,7 +113,7 @@ public:
     ProjectFilesDocument(Manager *manager);
     virtual ~ProjectFilesDocument();
 
-    virtual bool save(const QString &name);
+    virtual bool save(QString *errorString, const QString &name);
 
 private:
     Manager *m_manager;

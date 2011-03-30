@@ -49,7 +49,7 @@ public:
     QmlProjectFile(QmlProject *parent, QString fileName);
     virtual ~QmlProjectFile();
 
-    virtual bool save(const QString &fileName = QString());
+    virtual bool save(QString *errorString, const QString &fileName = QString());
     virtual QString fileName() const;
     virtual void rename(const QString &newName);
 

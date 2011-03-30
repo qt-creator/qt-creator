@@ -70,7 +70,7 @@ public:
     ITextMarkable *documentMarker() const;
 
     // IFile implementation.
-    virtual bool save(const QString &fileName = QString());
+    virtual bool save(QString *errorString, const QString &fileName = QString());
     virtual QString fileName() const;
     virtual bool isReadOnly() const;
     virtual bool isModified() const;

@@ -1373,11 +1373,12 @@ bool EditorManager::saveFile(IFile *fileParam)
         return saveFileAs(file);
 
     bool success = false;
+    bool isReadOnly;
 
     // try saving, no matter what isReadOnly tells us
-    success = m_d->m_core->fileManager()->saveFile(file);
+    success = m_d->m_core->fileManager()->saveFile(file, QString(), &isReadOnly);
 
-    if (!success) {
+    if (!success && isReadOnly) {
         MakeWritableResult answer =
                 makeFileWritable(file);
         if (answer == Failed)

@@ -565,7 +565,7 @@ GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName)
 GenericProjectFile::~GenericProjectFile()
 { }
 
-bool GenericProjectFile::save(const QString &)
+bool GenericProjectFile::save(QString *, const QString &)
 {
     return false;
 }

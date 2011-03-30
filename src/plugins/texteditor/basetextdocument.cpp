@@ -55,6 +55,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 #include <utils/reloadpromptutils.h>
 
 namespace {
@@ -362,7 +363,7 @@ ITextMarkable *BaseTextDocument::documentMarker() const
     return d->m_documentMarker;
 }
 
-bool BaseTextDocument::save(const QString &fileName)
+bool BaseTextDocument::save(QString *errorString, const QString &fileName)
 {
     QTextCursor cursor(d->m_document);
 
@@ -386,26 +387,24 @@ bool BaseTextDocument::save(const QString &fileName)
     if (!fileName.isEmpty())
         fName = fileName;
 
-    QFile file(fName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-        return false;
+    Utils::FileSaver saver(fName);
+    if (!saver.hasError()) {
+        QString plainText = d->m_document->toPlainText();
 
-    QString plainText = d->m_document->toPlainText();
+        if (d->m_lineTerminatorMode == BaseTextDocumentPrivate::CRLFLineTerminator)
+            plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
 
-    if (d->m_lineTerminatorMode == BaseTextDocumentPrivate::CRLFLineTerminator)
-        plainText.replace(QLatin1Char('\n'), QLatin1String("\r\n"));
+        if (d->m_codec->name() == "UTF-8"
+                && (d->m_extraEncodingSettings.m_utf8BomSetting == ExtraEncodingSettings::AlwaysAdd
+                    || (d->m_extraEncodingSettings.m_utf8BomSetting == ExtraEncodingSettings::OnlyKeep
+                        && d->m_fileHasUtf8Bom))) {
+            saver.write("\xef\xbb\xbf", 3);
+        }
 
-    if (d->m_codec->name() == "UTF-8"
-            && (d->m_extraEncodingSettings.m_utf8BomSetting == ExtraEncodingSettings::AlwaysAdd
-                || (d->m_extraEncodingSettings.m_utf8BomSetting == ExtraEncodingSettings::OnlyKeep
-                    && d->m_fileHasUtf8Bom))) {
-        file.write("\xef\xbb\xbf", 3);
+        saver.write(d->m_codec->fromUnicode(plainText));
     }
-
-    file.write(d->m_codec->fromUnicode(plainText));
-    if (!file.flush())
+    if (!saver.finalize(errorString))
         return false;
-    file.close();
 
     const QFileInfo fi(fName);
     d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());

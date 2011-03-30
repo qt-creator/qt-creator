@@ -72,7 +72,7 @@ public:
     Q_INVOKABLE void addData(quint64 block, const QByteArray &data);
     Q_INVOKABLE void setNewWindowRequestAllowed();
     Q_INVOKABLE void updateContents();
-    bool save(const QString &oldFileName, const QString &newFileName);
+    bool save(QString *errorString, const QString &oldFileName, const QString &newFileName);
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);

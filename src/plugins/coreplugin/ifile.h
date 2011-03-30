@@ -83,7 +83,7 @@ public:
     IFile(QObject *parent = 0) : QObject(parent) {}
     virtual ~IFile() {}
 
-    virtual bool save(const QString &fileName = QString()) = 0;
+    virtual bool save(QString *errorString, const QString &fileName = QString()) = 0;
     virtual QString fileName() const = 0;
 
     virtual QString defaultPath() const = 0;

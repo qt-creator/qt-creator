@@ -175,8 +175,9 @@ Qt4PriFile::Qt4PriFile(Qt4PriFileNode *qt4PriFile)
 
 }
 
-bool Qt4PriFile::save(const QString &fileName)
+bool Qt4PriFile::save(QString *errorString, const QString &fileName)
 {
+    Q_UNUSED(errorString);
     Q_UNUSED(fileName);
     return false;
 }

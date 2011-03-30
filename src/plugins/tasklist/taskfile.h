@@ -48,7 +48,7 @@ public:
     TaskFile(QObject *parent);
     ~TaskFile();
 
-    bool save(const QString &fileName = QString());
+    bool save(QString *errorString, const QString &fileName = QString());
     QString fileName() const;
 
     QString defaultPath() const;

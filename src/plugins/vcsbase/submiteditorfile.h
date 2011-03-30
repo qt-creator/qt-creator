@@ -53,7 +53,7 @@ public:
     virtual QString mimeType() const;
     bool isReadOnly() const { return false; }
     bool isSaveAsAllowed() const { return false; }
-    bool save(const QString &fileName);
+    bool save(QString *errorString, const QString &fileName);
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     void reload(ReloadFlag flag, ChangeType type);
     void rename(const QString &newName);
@@ -62,7 +62,7 @@ public:
     void setModified(bool modified = true);
 
 signals:
-    void saveMe(const QString &fileName);
+    void saveMe(QString *errorString, const QString &fileName);
 
 private:
     const QString m_mimeType;

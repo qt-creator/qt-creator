@@ -94,7 +94,7 @@ public:
     // helper methods
     static QString fixFileName(const QString &fileName, FixMode fixmode);
 
-    bool saveFile(IFile *file, const QString &fileName = QString());
+    bool saveFile(IFile *file, const QString &fileName = QString(), bool *isReadOnly = 0);
 
     QStringList getOpenFileNames(const QString &filters,
                                  const QString path = QString(),

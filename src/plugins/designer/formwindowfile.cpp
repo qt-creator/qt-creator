@@ -35,6 +35,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/reloadpromptutils.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
@@ -62,7 +63,7 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
             this, SLOT(slotFormWindowRemoved(QDesignerFormWindowInterface*)));
 }
 
-bool FormWindowFile::save(const QString &name /* = QString() */)
+bool FormWindowFile::save(QString *errorString, const QString &name /* = QString() */)
 {
     const QString actualName = name.isEmpty() ? fileName() : name;
 
@@ -79,12 +80,10 @@ bool FormWindowFile::save(const QString &name /* = QString() */)
     const QString formName = fi.absoluteFilePath();
     m_formWindow->setFileName(formName);
 
-    QString errorString;
     const bool warningsEnabled = qdesigner_internal::QSimpleResource::setWarningsEnabled(false);
     const bool writeOK = writeFile(actualName, errorString);
     qdesigner_internal::QSimpleResource::setWarningsEnabled(warningsEnabled);
     if (!writeOK) {
-        QMessageBox::critical(0, tr("Error saving %1").arg(formName), errorString);
         m_formWindow->setFileName(oldFormName);
         return false;
     }
@@ -178,29 +177,14 @@ QString FormWindowFile::mimeType() const
     return m_mimeType;
 }
 
-bool FormWindowFile::writeFile(const QString &fileName, QString &errorString) const
+bool FormWindowFile::writeFile(const QString &fileName, QString *errorString) const
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << m_fileName << fileName;
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        errorString = tr("Unable to open %1: %2").arg(fileName, file.errorString());
-        return false;
-    }
-    const bool rc = writeFile(file, errorString);
-    file.close();
-    return rc;
-}
-
-bool FormWindowFile::writeFile(QFile &file, QString &errorString) const
-{
-    const QByteArray content = m_formWindow->contents().toUtf8();
-    if (!file.write(content)) {
-        errorString = tr("Unable to write to %1: %2").arg(file.fileName(), file.errorString());
-        return false;
-    }
-    return true;
+    Utils::FileSaver saver(fileName, QIODevice::Text);
+    saver.write(m_formWindow->contents().toUtf8());
+    return saver.finalize(errorString);
 }
 
 void FormWindowFile::setFileName(const QString &fname)

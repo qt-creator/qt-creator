@@ -173,9 +173,9 @@ ProjectFilesDocument::ProjectFilesDocument(Manager *manager)
 ProjectFilesDocument::~ProjectFilesDocument()
 { }
 
-bool ProjectFilesDocument::save(const QString &name)
+bool ProjectFilesDocument::save(QString *errorString, const QString &name)
 {
-    if (! BaseTextDocument::save(name))
+    if (! BaseTextDocument::save(errorString, name))
         return false;
 
     m_manager->notifyChanged(name);
