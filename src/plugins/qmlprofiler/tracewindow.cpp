@@ -44,7 +44,6 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qstack.h>
 
-#include <QtOpenGL/QGLWidget>
 #include <QGraphicsObject>
 
 #include <QtDeclarative/qdeclarativeview.h>
@@ -270,7 +269,6 @@ TraceWindow::TraceWindow(QWidget *parent)
         //new QmlJSDebugger::QDeclarativeViewObserver(m_view, m_view);
     }
 
-    m_view->setViewport(new QGLWidget());
     m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     m_view->setFocus();
     groupLayout->addWidget(m_view);
@@ -278,8 +276,7 @@ TraceWindow::TraceWindow(QWidget *parent)
     setLayout(groupLayout);
 
     // Maximum height: 5 rows of 50 pixels + scrollbar of 50 pixels
-    setMinimumHeight(300);
-    setMaximumHeight(300);
+    setFixedHeight(300);
 }
 
 TraceWindow::~TraceWindow()

@@ -8,7 +8,7 @@ include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/analyzerbase/analyzerbase.pri)
 
 
-QT += network script opengl declarative
+QT += network script declarative
 
 include(canvas/canvas.pri)
 #include($$QMLJSDEBUGGER_PATH/qmljsdebugger-lib.pri)
