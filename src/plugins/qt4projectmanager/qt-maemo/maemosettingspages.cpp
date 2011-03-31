@@ -181,20 +181,20 @@ public:
         : m_settingsPage(settingsPage)
     {
         setWindowTitle(tr("Qemu error"));
-        QString message = tr("Qemu crashed.");
+        QString message = tr("Qemu crashed.") + QLatin1String(" <p>");
         const MaemoQemuSettings::OpenGlMode openGlMode
             = MaemoQemuSettings::openGlMode();
-        const QString linkString = QLatin1String("<p><a href=\"dummy\">")
+        const QString linkString = QLatin1String("</p><a href=\"dummy\">")
             + tr("Click here to change the OpenGL mode.")
             + QLatin1String("</a>");
         if (openGlMode == MaemoQemuSettings::HardwareAcceleration) {
-            message += tr("<p>You have configured Qemu to use OpenGL "
+            message += tr("You have configured Qemu to use OpenGL "
                 "hardware acceleration, which might not be supported by "
                 "your system. You could try using software rendering instead.");
             message += linkString;
         } else if (openGlMode == MaemoQemuSettings::AutoDetect) {
-            message += tr("<p>Qemu is currently configured to auto-detect the "
-                "OpenGL mode, which is known to not work in some cases."
+            message += tr("Qemu is currently configured to auto-detect the "
+                "OpenGL mode, which is known to not work in some cases. "
                 "You might want to use software rendering instead.");
             message += linkString;
         }

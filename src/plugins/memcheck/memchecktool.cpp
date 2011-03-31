@@ -238,7 +238,7 @@ MemcheckTool::MemcheckTool(QObject *parent) :
     m_filterProjectAction->setCheckable(true);
 
     m_suppressionSeparator->setSeparator(true);
-    m_suppressionSeparator->setToolTip(tr("These suppression files where used in the last memory analyzer run."));
+    m_suppressionSeparator->setToolTip(tr("These suppression files were used in the last memory analyzer run."));
 }
 
 void MemcheckTool::settingsDestroyed(QObject *settings)

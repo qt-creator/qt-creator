@@ -585,7 +585,7 @@ QStringList MaemoPublisherFremantleFree::findProblems() const
         = qobject_cast<Qt4Maemo5Target *>(m_buildConfig->target());
     const QString &description = target->shortDescription();
     if (description.trimmed().isEmpty()) {
-        problems << tr("The package description is empty. You must set one  "
+        problems << tr("The package description is empty. You must set one "
             "in Projects -> Run -> Create Package -> Details.");
     } else if (description.contains(QLatin1String("insert up to"))) {
         problems << tr("The package description is '%1', which is probably "

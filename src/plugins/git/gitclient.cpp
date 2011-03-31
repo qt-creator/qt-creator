@@ -108,7 +108,7 @@ public:
         layout->setContentsMargins(3, 0, 3, 0);
         layout->setSpacing(2);
 
-        m_patience->setToolTip(tr("Use the patience algorithmn for calculating the diff"));
+        m_patience->setToolTip(tr("Use the patience algorithm for calculating the diff"));
         m_patience->setText(tr("Patience"));
         layout->addWidget(m_patience);
         m_patience->setCheckable(true);
