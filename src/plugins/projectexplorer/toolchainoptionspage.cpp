@@ -476,7 +476,7 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
 
     m_ui->toolChainView->setModel(m_model);
     m_ui->toolChainView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
-    m_ui->toolChainView->header()->setResizeMode(1, QHeaderView::ResizeToContents);
+    m_ui->toolChainView->header()->setResizeMode(1, QHeaderView::Stretch);
     m_ui->toolChainView->expandAll();
 
     m_selectionModel = m_ui->toolChainView->selectionModel();
