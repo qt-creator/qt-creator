@@ -11208,6 +11208,9 @@
 
         \o  Make sure you use at least Qt Creator 2.1.
 
+        \o  Make sure the debugger is set up properly. For more information,
+            see \l{Setting Up Debugger}.
+
         \o  In the \gui Debug mode, select \gui {Windows > Views > Debugger
             Log} to open the \gui {Debugger Log} view. Browse the contents of
             the pane on the right hand side to find out what went wrong.
