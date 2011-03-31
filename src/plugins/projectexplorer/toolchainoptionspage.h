@@ -144,7 +144,6 @@ private:
     Ui::ToolChainOptionsPage *m_ui;
     QWidget *m_configWidget;
     QString m_searchKeywords;
-    QAction *m_cloneAction;
 
     ToolChainModel *m_model;
     QList<ToolChainFactory *> m_factories;

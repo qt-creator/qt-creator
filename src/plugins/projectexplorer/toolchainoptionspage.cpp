@@ -432,7 +432,7 @@ void ToolChainModel::removeToolChain(ToolChain *tc)
 // --------------------------------------------------------------------------
 
 ToolChainOptionsPage::ToolChainOptionsPage() :
-    m_ui(0), m_cloneAction(0), m_model(0), m_selectionModel(0), m_currentTcWidget(0)
+    m_ui(0), m_model(0), m_selectionModel(0), m_currentTcWidget(0)
 { }
 
 QString ToolChainOptionsPage::id() const
@@ -501,14 +501,9 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
             addMenu->addAction(action);
         }
     }
-    m_cloneAction = new QAction(addMenu);
-    m_cloneAction->setText(tr("Clone ..."));
-    connect(m_cloneAction, SIGNAL(triggered()), mapper, SLOT(map()));
-    mapper->setMapping(m_cloneAction, static_cast<QObject *>(0));
+    connect(m_ui->cloneButton, SIGNAL(clicked()), mapper, SLOT(map()));
+    mapper->setMapping(m_ui->cloneButton, static_cast<QObject *>(0));
 
-    if (!addMenu->isEmpty())
-        addMenu->addSeparator();
-    addMenu->addAction(m_cloneAction);
     m_ui->addButton->setMenu(addMenu);
 
     connect(m_ui->delButton, SIGNAL(clicked()), this, SLOT(removeToolChain()));
@@ -599,7 +594,7 @@ void ToolChainOptionsPage::updateState()
         canDelete = !tc->isAutoDetected();
     }
 
-    m_cloneAction->setEnabled(canCopy);
+    m_ui->cloneButton->setEnabled(canCopy);
     m_ui->delButton->setEnabled(canDelete);
 }
 
