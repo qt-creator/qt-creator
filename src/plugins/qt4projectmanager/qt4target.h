@@ -143,6 +143,7 @@ private slots:
     void shadowBuildingToggled();
     void buildConfigurationComboBoxChanged();
     void qtVersionChanged();
+    void targetCheckBoxToggled(bool b);
 
 private:
     void updateWidgetVisibility();

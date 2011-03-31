@@ -511,9 +511,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
             this, SLOT(addImportClicked()));
 
     connect(m_detailsWidget, SIGNAL(checked(bool)),
-            this, SIGNAL(selectedToggled()));
-    connect(m_detailsWidget, SIGNAL(checked(bool)),
-            widget, SLOT(setEnabled(bool)));
+            this, SLOT(targetCheckBoxToggled(bool)));
     connect(m_shadowBuildEnabled, SIGNAL(toggled(bool)),
             this, SLOT(shadowBuildingToggled()));
     connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
@@ -539,11 +537,29 @@ void Qt4DefaultTargetSetupWidget::setTargetSelected(bool b)
 {
     // Only check target if there are build configurations possible
     b == b && !buildConfigurationInfos().isEmpty();
+    m_ignoreChange = true;
     m_detailsWidget->setChecked(b);
+    m_ignoreChange = false;
     // We want the shadow build option to be visible
     if (b && (m_shadowBuildEnabled->isVisibleTo(m_shadowBuildEnabled->parentWidget())
               || m_buildConfigurationComboBox->isVisibleTo(m_buildConfigurationComboBox->parentWidget())))
         m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
+}
+
+void Qt4DefaultTargetSetupWidget::targetCheckBoxToggled(bool b)
+{
+    if (m_ignoreChange)
+        return;
+    m_detailsWidget->widget()->setEnabled(b);
+    if (b) {
+        foreach (bool error, m_issues) {
+            if (error) {
+                m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
+                break;
+            }
+        }
+    }
+    emit selectedToggled();
 }
 
 QString Qt4DefaultTargetSetupWidget::displayNameFrom(const BuildConfigurationInfo &info)
@@ -742,7 +758,7 @@ void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(const QList<BuildCo
             foundIssues |= reportIssues(i);
         }
         m_ignoreChange = false;
-        if (foundIssues)
+        if (foundIssues && isTargetSelected())
             m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
     }
 
@@ -828,7 +844,7 @@ void Qt4DefaultTargetSetupWidget::setupWidgets()
         bool issue = reportIssues(i);
         foundIssues |= issue;
     }
-    if (foundIssues)
+    if (foundIssues && isTargetSelected())
         m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
     m_ignoreChange = false;
 }
