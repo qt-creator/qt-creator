@@ -612,13 +612,15 @@ QString OutputWindow::doNewlineEnfocement(const QString &out)
 {
     m_scrollToBottom = true;
     QString s = out;
-    if (m_enforceNewline)
+    if (m_enforceNewline) {
         s.prepend(QLatin1Char('\n'));
+        m_enforceNewline = false;
+    }
 
-    m_enforceNewline = true; // make appendOutputInline put in a newline next time
-
-    if (s.endsWith(QLatin1Char('\n')))
+    if (s.endsWith(QLatin1Char('\n'))) {
+        m_enforceNewline = true; // make appendOutputInline put in a newline next time
         s.chop(1);
+    }
 
     return s;
 }
