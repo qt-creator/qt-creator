@@ -4591,7 +4591,7 @@
 
     By default, Qt Creator runs the remote gdbserver daemon on the device for
     debugging. However, if the sysroot does not match that of the device, you
-    can run remote GDB, instead. Select the \gui {Run remote GDB} option in
+    can run remote GDB, instead. Select the \gui {Use remote GDB} option in
     \gui {Debugging details}. Select the \gui {Set debugger} link to specify
     settings for GDB.
 
