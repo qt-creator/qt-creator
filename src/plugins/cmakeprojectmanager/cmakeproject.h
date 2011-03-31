@@ -46,9 +46,11 @@
 #include <projectexplorer/filewatcher.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/ifile.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QtCore/QXmlStreamReader>
+#include <QtCore/QFileSystemWatcher>
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
 
@@ -105,6 +107,8 @@ public:
 
     QString uicCommand() const;
 
+    bool isProjectFile(const QString &fileName);
+
 signals:
     /// emitted after parsing
     void buildTargetsChanged();
@@ -142,8 +146,7 @@ private:
     CMakeProjectNode *m_rootNode;
     QStringList m_files;
     QList<CMakeBuildTarget> m_buildTargets;
-    ProjectExplorer::FileWatcher *m_watcher;
-    bool m_insideFileChanged;
+    QFileSystemWatcher *m_watcher;
     QSet<QString> m_watchedFiles;
     QFuture<void> m_codeModelFuture;
 

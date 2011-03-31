@@ -1690,6 +1690,12 @@ void ProjectExplorerPlugin::buildProjectOnly()
     queue(QList<Project *>() << session()->startupProject(), QStringList() << Constants::BUILDSTEPS_BUILD);
 }
 
+void ProjectExplorerPlugin::buildProject(ProjectExplorer::Project *p)
+{
+    queue(d->m_session->projectOrder(p),
+          QStringList() << Constants::BUILDSTEPS_BUILD);
+}
+
 void ProjectExplorerPlugin::buildProject()
 {
     queue(d->m_session->projectOrder(session()->startupProject()),

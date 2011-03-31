@@ -53,6 +53,7 @@ class CMakeManager;
 
 class CMakeEditor : public TextEditor::BaseTextEditor
 {
+    Q_OBJECT
 public:
     CMakeEditor(CMakeEditorWidget *);
     Core::Context context() const;
@@ -61,6 +62,9 @@ public:
     Core::IEditor *duplicate(QWidget *parent);
     QString id() const;
     bool isTemporary() const { return false; }
+private slots:
+    void markAsChanged();
+    void build();
 private:
     const Core::Context m_context;
 };
