@@ -435,6 +435,20 @@ QList<Utils::EnvironmentItem> RvctToolChainConfigWidget::environmentChanges() co
     return baseEnv.diff(resultEnv);
 }
 
+void RvctToolChainConfigWidget::changeEvent(QEvent *ev)
+{
+    if (ev->type() == QEvent::EnabledChange) {
+        if (isEnabled()) {
+            m_ui->environmentView->horizontalHeader()->setVisible(true);
+            m_ui->environmentView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        } else {
+            m_ui->environmentView->horizontalHeader()->setVisible(false);
+            m_ui->environmentView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        }
+    }
+    ToolChainConfigWidget::changeEvent(ev);
+}
+
 // ==========================================================================
 // RvctToolChainFactory
 // ==========================================================================
