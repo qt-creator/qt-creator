@@ -288,7 +288,9 @@ void GccToolChain::updateId()
 {
     QString i = id();
     i = i.left(i.indexOf(QLatin1Char(':')));
-    setId(QString::fromLatin1("%1:%2.%3").arg(i).arg(m_compilerPath).arg(m_targetAbi.toString()));
+    setId(QString::fromLatin1("%1:%2.%3.%4")
+          .arg(i).arg(m_compilerPath)
+          .arg(m_targetAbi.toString()).arg(m_debuggerCommand));
 }
 
 QString GccToolChain::typeName() const

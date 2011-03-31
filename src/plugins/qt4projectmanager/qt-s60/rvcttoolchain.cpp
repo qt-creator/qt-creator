@@ -91,6 +91,19 @@ static Utils::Environment baseEnvironment(RvctToolChain *tc)
     return result;
 }
 
+static QString toString(const RvctToolChain::ArmVersion &v)
+{
+    switch (v)
+    {
+    case RvctToolChain::ARMv5:
+        return QString::fromAscii("armv5");
+    case RvctToolChain::ARMv6:
+        return QString::fromAscii("armv6");
+    default:
+        return QString::fromAscii("unknown");
+    }
+}
+
 // ==========================================================================
 // RvctToolChain
 // ==========================================================================
@@ -349,7 +362,8 @@ bool RvctToolChain::fromMap(const QVariantMap &data)
 
 void RvctToolChain::updateId()
 {
-    setId(QString::fromLatin1("%1:%2").arg(Constants::RVCT_TOOLCHAIN_ID).arg(m_compilerPath));
+    setId(QString::fromLatin1("%1:%2.%3.%4").arg(Constants::RVCT_TOOLCHAIN_ID)
+          .arg(m_compilerPath).arg(toString(m_armVersion)).arg(m_debuggerCommand));
 }
 
 QString RvctToolChain::varName(const QString &postFix) const

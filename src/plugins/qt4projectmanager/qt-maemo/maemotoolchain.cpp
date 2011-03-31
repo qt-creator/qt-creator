@@ -208,7 +208,8 @@ int MaemoToolChain::qtVersionId() const
 
 void MaemoToolChain::updateId()
 {
-    setId(QString::fromLatin1("%1:%2").arg(Constants::MAEMO_TOOLCHAIN_ID).arg(m_qtVersionId));
+    setId(QString::fromLatin1("%1:%2.%3").arg(Constants::MAEMO_TOOLCHAIN_ID)
+          .arg(m_qtVersionId).arg(debuggerCommand()));
 }
 
 // --------------------------------------------------------------------------
