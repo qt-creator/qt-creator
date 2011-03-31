@@ -222,9 +222,13 @@ MaemoToolChainConfigWidget::MaemoToolChainConfigWidget(MaemoToolChain *tc) :
     QLabel *label = new QLabel;
     QtVersion *v = QtVersionManager::instance()->version(tc->qtVersionId());
     Q_ASSERT(v);
-    label->setText(tr("MADDE Root: %1<br>Target Root: %2")
-                   .arg(MaemoGlobal::maddeRoot(v))
-                   .arg(MaemoGlobal::targetRoot(v)));
+    label->setText(tr("<html><head/><body><table>"
+                      "<tr><td>Path to MADDE:</td><td>%1</td></tr>"
+                      "<tr><td>Path to MADDE target:</td><td>%2</td></tr>"
+                      "<tr><td>Debugger:</td/><td>%3</td></tr></body></html>")
+                   .arg(QDir::toNativeSeparators(MaemoGlobal::maddeRoot(v)),
+                        QDir::toNativeSeparators(MaemoGlobal::targetRoot(v)),
+                        QDir::toNativeSeparators(tc->debuggerCommand())));
     layout->addWidget(label);
 }
 
