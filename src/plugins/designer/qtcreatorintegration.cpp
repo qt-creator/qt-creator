@@ -510,6 +510,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                                           const QStringList &parameterNames,
                                           QString *errorMessage)
 {
+    typedef QMap<int, Document::Ptr> DocumentMap;
+
     const EditorData ed = m_few->activeEditor();
     QTC_ASSERT(ed, return false)
     const QString currentUiFile = ed.formWindowEditor->file()->fileName();
@@ -522,6 +524,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     // be generating the ui_<>.h file for it, and the .pro file knows what the generated file's name and its absolute path will be.
     // So we should somehow get that info from project manager (?)
     const QFileInfo fi(currentUiFile);
+    const QString uiFolder = fi.absolutePath();
     const QString uicedName = QLatin1String("ui_") + fi.completeBaseName() + QLatin1String(".h");
 
     // Retrieve code model snapshot restricted to project of ui file.
@@ -542,11 +545,18 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     docTable = newDocTable;
 
     // take all docs, find the ones that include the ui_xx.h.
-    QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
+    // Sort into a map, putting the ones whose path closely matches the ui-folder path
+    // first in case there are project subdirectories that contain identical file names.
+    const QList<Document::Ptr> docList = findDocumentsIncluding(docTable, uicedName, true); // change to false when we know the absolute path to generated ui_<>.h file
+    DocumentMap docMap;
+    foreach (const Document::Ptr &d, docList) {
+        const QFileInfo docFi(d->fileName());
+        docMap.insert(qAbs(docFi.absolutePath().compare(uiFolder, Qt::CaseInsensitive)), d);
+    }
 
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << objectName << signalSignature << "Looking for " << uicedName << " returned " << docList.size();
-    if (docList.isEmpty()) {
+    if (docMap.isEmpty()) {
         *errorMessage = tr("No documents matching '%1' could be found.\nRebuilding the project might help.").arg(uicedName);
         return false;
     }
@@ -564,7 +574,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const Class *cl = 0;
     Document::Ptr doc;
 
-    foreach (const Document::Ptr &d, docList) {
+    foreach (const Document::Ptr &d, docMap) {
         const ClassDocumentPtrPair cd = findClassRecursively(docTable, d, uiClass, 1u , &namespaceName);
         if (cd.first) {
             cl = cd.first;
