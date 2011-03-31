@@ -134,6 +134,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     , m_ui(new Internal::Ui::QtVersionManager())
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_debuggingHelperUi(new Internal::Ui::DebuggingHelper())
+    , m_invalidVersionIcon(":/projectexplorer/images/compile_error.png")
 {
     // Initialize m_versions
     foreach(QtVersion *version, versions)
@@ -141,6 +142,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     QWidget *versionInfoWidget = new QWidget();
     m_versionUi->setupUi(versionInfoWidget);
+
     m_versionUi->qmakePath->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_versionUi->qmakePath->setPromptDialogTitle(tr("Select qmake Executable"));
     m_versionUi->s60SDKPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
@@ -554,7 +556,6 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         m_debuggingHelperUi->qmlDebuggingLibBuildButton->setEnabled(canBuildQmlDebuggingLib
                                                                     && !isBuildingQmlDebuggingLib);
 
-
         QString qmlObserverStatusText;
         Qt::TextInteractionFlags qmlObserverStatusTextFlags = Qt::NoTextInteraction;
         if (hasQmlObserver) {
@@ -591,6 +592,17 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
 
 void QtOptionsPageWidget::updateState()
 {
+    for (int i = 0; i < m_versions.count(); ++i) {
+        QTreeWidgetItem *item = treeItemForIndex(i);
+        if (!m_versions.at(i)->isValid()) {
+            if (item)
+                item->setIcon(0, m_invalidVersionIcon);
+        } else {
+            if (item)
+                item->setIcon(0, m_validVersionIcon);
+        }
+    }
+
     const QtVersion *version  = currentVersion();
     const bool enabled = version != 0;
     const bool isAutodetected = enabled && version->isAutodetected();

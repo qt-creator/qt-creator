@@ -30,6 +30,7 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
+
 #ifndef QTOPTIONSPAGE_H
 #define QTOPTIONSPAGE_H
 
@@ -86,6 +87,8 @@ private:
     Internal::Ui::DebuggingHelper *m_debuggingHelperUi;
     QList<QtVersion *> m_versions;
     int m_defaultVersion;
+    QIcon m_invalidVersionIcon;
+    QIcon m_validVersionIcon;
 
 private slots:
     void versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old);
