@@ -153,14 +153,6 @@ static inline QString debugCodec(const QTextCodec *c)
     return c ? QString::fromAscii(c->name()) : QString::fromAscii("Null codec");
 }
 
-Core::IEditor* locateEditor(const char *property, const QString &entry)
-{
-    foreach (Core::IEditor *ed, Core::EditorManager::instance()->openedEditors())
-        if (ed->property(property).toString() == entry)
-            return ed;
-    return 0;
-}
-
 // Parse "svn status" output for added/modified/deleted files
 // "M<7blanks>file"
 typedef QList<SubversionSubmitEditor::StatusFilePair> StatusList;
@@ -540,13 +532,10 @@ void SubversionPlugin::diffCommitFiles(const QStringList &files)
 // with a diff editor and re-run the diff with parameters.
 struct SubversionDiffParameters
 {
-    SubversionDiffParameters() : reUseEditor(false) {}
-
     QString workingDir;
     QStringList arguments;
     QStringList files;
     QString diffName;
-    bool reUseEditor;
 };
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
@@ -577,7 +566,6 @@ SubversionDiffParameterWidget::SubversionDiffParameterWidget(const SubversionDif
 void SubversionDiffParameterWidget::triggerReRun()
 {
     SubversionDiffParameters effectiveParameters = m_parameters;
-    effectiveParameters.reUseEditor = true;
     // Subversion wants" -x -<ext-args>", default being -u
     const QStringList a = arguments();
     if (!a.isEmpty())
@@ -621,20 +609,18 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
 
     // diff of a single file? re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    if (p.files.count() == 1 || p.reUseEditor) {
-        // Show in the same editor if diff has been executed before
-        if (Core::IEditor *editor = locateEditor("originalFileName", p.files.front())) {
-            editor->createNew(response.stdOut);
-            Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
-            setDiffBaseDirectory(editor, p.workingDir);
-            return;
-        }
+    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::DiffOutput, p.workingDir, p.files);
+    // Show in the same editor if diff has been executed before
+    if (Core::IEditor *existingEditor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
+        existingEditor->createNew(response.stdOut);
+        Core::EditorManager::instance()->activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
+        setDiffBaseDirectory(existingEditor, p.workingDir);
+        return;
     }
     const QString title = QString::fromLatin1("svn diff %1").arg(diffName);
     Core::IEditor *editor = showOutputInEditor(title, response.stdOut, VCSBase::DiffOutput, source, codec);
     setDiffBaseDirectory(editor, p.workingDir);
-    if (p.files.count() == 1)
-        editor->setProperty("originalFileName", p.files.front());
+    VCSBase::VCSBaseEditorWidget::tagEditor(editor, tag);
     SubversionEditor *diffEditorWidget = qobject_cast<SubversionEditor *>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return ; )
 
@@ -938,14 +924,15 @@ void SubversionPlugin::filelog(const QString &workingDir,
     // the common usage pattern of continuously changing and diffing a file
 
     const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files);
-    if (Core::IEditor *editor = locateEditor("logFileName", id)) {
+    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::LogOutput, workingDir, files);
+    if (Core::IEditor *editor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("svn log %1").arg(id);
         const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, source, /*codec*/0);
-        newEditor->setProperty("logFileName", id);
+        VCSBase::VCSBaseEditorWidget::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
             VCSBase::VCSBaseEditorWidget::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
     }
@@ -1012,16 +999,17 @@ void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &fil
     if (lineNumber <= 0)
         lineNumber = VCSBase::VCSBaseEditorWidget::lineNumberOfCurrentEditor(source);
     // Determine id
-    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, QStringList(file), revision);
-
-    if (Core::IEditor *editor = locateEditor("annotateFileName", id)) {
+    const QStringList files = QStringList(file);
+    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files, revision);
+    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::AnnotateOutput, workingDir, files);
+    if (Core::IEditor *editor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
         VCSBase::VCSBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, source, codec);
-        newEditor->setProperty("annotateFileName", id);
+        VCSBase::VCSBaseEditorWidget::tagEditor(newEditor, tag);
         VCSBase::VCSBaseEditorWidget::gotoLineOfEditor(newEditor, lineNumber);
     }
 }
@@ -1079,13 +1067,14 @@ void SubversionPlugin::describe(const QString &source, const QString &changeNr)
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     const QString id = diffArg + source;
-    if (Core::IEditor *editor = locateEditor("describeChange", id)) {
+    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::DiffOutput, source, QStringList(), changeNr);
+    if (Core::IEditor *editor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(description);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("svn describe %1#%2").arg(fi.fileName(), changeNr);
         Core::IEditor *newEditor = showOutputInEditor(title, description, VCSBase::DiffOutput, source, codec);
-        newEditor->setProperty("describeChange", id);
+        VCSBase::VCSBaseEditorWidget::tagEditor(newEditor, tag);
     }
 }
 

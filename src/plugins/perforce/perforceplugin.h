@@ -63,7 +63,7 @@ namespace Locator {
 
 namespace Perforce {
 namespace Internal {
-
+struct PerforceDiffParameters;
 class PerforceVersionControl;
 
 struct PerforceResponse
@@ -111,6 +111,7 @@ public:
 public slots:
     void describe(const QString &source, const QString &n);
     void vcsAnnotate(const QString &file, const QString &revision /* = QString() */, int lineNumber);
+    void p4Diff(const Perforce::Internal::PerforceDiffParameters &p);
 
 private slots:
     void openCurrentFile();

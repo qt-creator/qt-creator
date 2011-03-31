@@ -60,6 +60,7 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/vcsbaseeditorparameterwidget.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
@@ -1213,32 +1214,74 @@ void PerforcePlugin::slotSubmitDiff(const QStringList &files)
     p4Diff(m_commitWorkingDirectory, files);
 }
 
+struct PerforceDiffParameters
+{
+    QString workingDir;
+    QStringList diffArguments;
+    QStringList files;
+};
+
+// Parameter widget controlling whitespace diff mode, associated with a parameter
+class PerforceDiffParameterWidget : public VCSBase::VCSBaseEditorParameterWidget
+{
+    Q_OBJECT
+public:
+    explicit PerforceDiffParameterWidget(const PerforceDiffParameters &p, QWidget *parent = 0);
+
+signals:
+    void reRunDiff(const Perforce::Internal::PerforceDiffParameters &);
+
+private slots:
+    void triggerReRun();
+
+private:
+    const PerforceDiffParameters m_parameters;
+};
+
+PerforceDiffParameterWidget::PerforceDiffParameterWidget(const PerforceDiffParameters &p, QWidget *parent) :
+    VCSBase::VCSBaseEditorParameterWidget(parent), m_parameters(p)
+{
+    setBaseArguments(p.diffArguments);
+    addIgnoreWhiteSpaceButton(QString(QLatin1Char('w')));
+    connect(this, SIGNAL(argumentsChanged()), this, SLOT(triggerReRun()));
+}
+
+void PerforceDiffParameterWidget::triggerReRun()
+{
+    PerforceDiffParameters effectiveParameters = m_parameters;
+    effectiveParameters.diffArguments = arguments();
+    emit reRunDiff(effectiveParameters);
+}
+
 void PerforcePlugin::p4Diff(const QString &workingDir, const QStringList &files)
 {
-    Core::IEditor *existingEditor = 0;
+    PerforceDiffParameters p;
+    p.workingDir = workingDir;
+    p.files = files;
+    p.diffArguments.push_back(QString(QLatin1Char('u')));
+    p4Diff(p);
+}
 
-    QTextCodec *codec = VCSBase::VCSBaseEditorWidget::getCodec(workingDir, files);
-    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files);
-    const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
-
+void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
+{
+    QTextCodec *codec = VCSBase::VCSBaseEditorWidget::getCodec(p.workingDir, p.files);
+    const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(p.workingDir, p.files);
     // Reuse existing editors for that id
-    foreach (Core::IEditor *ed, Core::EditorManager::instance()->openedEditors()) {
-        if (ed->file()->property("originalFileName").toString() == id) {
-            existingEditor = ed;
-            break;
-        }
-    }
+    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::DiffOutput, p.workingDir, p.files);
+    Core::IEditor *existingEditor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag);
     // Split arguments according to size
     QStringList args;
-    args << QLatin1String("diff") << QLatin1String("-du");
+    args << QLatin1String("diff");
+    if (!p.diffArguments.isEmpty()) // -duw..
+        args << (QLatin1String("-d") + p.diffArguments.join(QString()));
     QStringList extraArgs;
-    if (files.size() > 1) {
-        extraArgs = files;
+    if (p.files.size() > 1) {
+        extraArgs = p.files;
     } else {
-        args.append(files);
+        args.append(p.files);
     }
     const unsigned flags = CommandToWindow|StdErrToWindow|ErrorToWindow|OverrideDiffEnvironment;
-    const PerforceResponse result = runP4Cmd(workingDir, args, flags,
+    const PerforceResponse result = runP4Cmd(p.workingDir, args, flags,
                                              extraArgs, QByteArray(), codec);
     if (result.error)
         return;
@@ -1246,12 +1289,23 @@ void PerforcePlugin::p4Diff(const QString &workingDir, const QStringList &files)
     if (existingEditor) {
         existingEditor->createNew(result.stdOut);
         Core::EditorManager::instance()->activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
-    } else {
-        Core::IEditor *editor = showOutputInEditor(tr("p4 diff %1").arg(id), result.stdOut, VCSBase::DiffOutput,
-                                                   VCSBase::VCSBaseEditorWidget::getSource(workingDir, files),
-                                                   codec);
-        editor->file()->setProperty("originalFileName", id);
+        return;
     }
+    // Create new editor
+    Core::IEditor *editor = showOutputInEditor(tr("p4 diff %1").arg(id), result.stdOut, VCSBase::DiffOutput,
+                                               VCSBase::VCSBaseEditorWidget::getSource(p.workingDir, p.files),
+                                               codec);
+    VCSBase::VCSBaseEditorWidget::tagEditor(editor, tag);
+    VCSBase::VCSBaseEditorWidget *diffEditorWidget = qobject_cast<VCSBase::VCSBaseEditorWidget *>(editor->widget());
+    // Wire up the parameter widget to trigger a re-run on
+    // parameter change and 'revert' from inside the diff editor.
+    diffEditorWidget->setRevertDiffChunkEnabled(true);
+    PerforceDiffParameterWidget *pw = new PerforceDiffParameterWidget(p);
+    connect(pw, SIGNAL(reRunDiff(Perforce::Internal::PerforceDiffParameters)),
+            this, SLOT(p4Diff(Perforce::Internal::PerforceDiffParameters)));
+    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)),
+            pw, SLOT(triggerReRun()));
+    diffEditorWidget->setConfigurationWidget(pw);
 }
 
 void PerforcePlugin::describe(const QString & source, const QString &n)
@@ -1498,3 +1552,5 @@ void PerforcePlugin::getTopLevel()
 }
 
 Q_EXPORT_PLUGIN(Perforce::Internal::PerforcePlugin)
+
+#include "perforceplugin.moc"

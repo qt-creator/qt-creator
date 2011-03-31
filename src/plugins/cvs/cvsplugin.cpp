@@ -155,14 +155,6 @@ static inline QString debugCodec(const QTextCodec *c)
     return c ? QString::fromAscii(c->name()) : QString::fromAscii("Null codec");
 }
 
-Core::IEditor* locateEditor(const char *property, const QString &entry)
-{
-    foreach (Core::IEditor *ed, Core::EditorManager::instance()->openedEditors())
-        if (ed->property(property).toString() == entry)
-            return ed;
-    return 0;
-}
-
 static inline bool messageBoxQuestion(const QString &title, const QString &question, QWidget *parent = 0)
 {
     return QMessageBox::question(parent, title, question, QMessageBox::Yes|QMessageBox::No) == QMessageBox::Yes;
@@ -535,12 +527,9 @@ static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db
 // with a diff editor and re-run the diff with parameters.
 struct CvsDiffParameters
 {
-    CvsDiffParameters() : reUseEditor(false) {}
-
     QString workingDir;
     QStringList arguments;
     QStringList files;
-    bool reUseEditor;
 };
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
@@ -574,7 +563,6 @@ CvsDiffParameterWidget::CvsDiffParameterWidget(const CvsDiffParameters &p, QWidg
 void CvsDiffParameterWidget::triggerReRun()
 {
     CvsDiffParameters effectiveParameters = m_parameters;
-    effectiveParameters.reUseEditor = true;
     effectiveParameters.arguments = arguments();
     emit reRunDiff(effectiveParameters);
 }
@@ -617,18 +605,17 @@ void CVSPlugin::cvsDiff(const CvsDiffParameters &p)
         output = tr("The files do not differ.");
     // diff of a single file? re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    if (p.files.count() == 1 || p.reUseEditor) {
-        // Show in the same editor if diff has been executed before
-        if (Core::IEditor *editor = locateEditor("originalFileName", id)) {
-            editor->createNew(output);
-            Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
-            setDiffBaseDirectory(editor, p.workingDir);
-            return;
-        }
+    // Show in the same editor if diff has been executed before
+    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::DiffOutput, p.workingDir, p.files);
+    if (Core::IEditor *existingEditor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
+        existingEditor->createNew(output);
+        Core::EditorManager::instance()->activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
+        setDiffBaseDirectory(existingEditor, p.workingDir);
+        return;
     }
     const QString title = QString::fromLatin1("cvs diff %1").arg(id);
     Core::IEditor *editor = showOutputInEditor(title, output, VCSBase::DiffOutput, source, codec);
-    editor->setProperty("originalFileName", id);
+    VCSBase::VCSBaseEditorWidget::tagEditor(editor, tag);
     setDiffBaseDirectory(editor, p.workingDir);
     CVSEditor *diffEditorWidget = qobject_cast<CVSEditor*>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return ; )
@@ -893,13 +880,14 @@ void CVSPlugin::filelog(const QString &workingDir,
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    if (Core::IEditor *editor = locateEditor("logFileName", id)) {
+    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::LogOutput, workingDir, files);
+    if (Core::IEditor *editor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::LogOutput, source, codec);
-        newEditor->setProperty("logFileName", id);
+        VCSBase::VCSBaseEditorWidget::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
             VCSBase::VCSBaseEditorWidget::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
     }
@@ -1034,14 +1022,15 @@ void CVSPlugin::annotate(const QString &workingDir, const QString &file,
     if (lineNumber < 1)
         lineNumber = VCSBase::VCSBaseEditorWidget::lineNumberOfCurrentEditor(file);
 
-    if (Core::IEditor *editor = locateEditor("annotateFileName", id)) {
+    const QString tag = VCSBase::VCSBaseEditorWidget::editorTag(VCSBase::AnnotateOutput, workingDir, QStringList(file), revision);
+    if (Core::IEditor *editor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(tag)) {
         editor->createNew(response.stdOut);
         VCSBase::VCSBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
     } else {
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, source, codec);
-        newEditor->setProperty("annotateFileName", id);
+        VCSBase::VCSBaseEditorWidget::tagEditor(newEditor, tag);
         VCSBase::VCSBaseEditorWidget::gotoLineOfEditor(newEditor, lineNumber);
     }
 }
@@ -1230,14 +1219,14 @@ bool CVSPlugin::describe(const QString &repositoryPath,
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     const QString commitId = entries.front().revisions.front().commitId;
-    if (Core::IEditor *editor = locateEditor("describeChange", commitId)) {
+    if (Core::IEditor *editor = VCSBase::VCSBaseEditorWidget::locateEditorByTag(commitId)) {
         editor->createNew(output);
         Core::EditorManager::instance()->activateEditor(editor, Core::EditorManager::ModeSwitch);
         setDiffBaseDirectory(editor, repositoryPath);
     } else {
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
         Core::IEditor *newEditor = showOutputInEditor(title, output, VCSBase::DiffOutput, entries.front().file, codec);
-        newEditor->setProperty("describeChange", commitId);
+        VCSBase::VCSBaseEditorWidget::tagEditor(newEditor, commitId);
         setDiffBaseDirectory(newEditor, repositoryPath);
     }
     return true;

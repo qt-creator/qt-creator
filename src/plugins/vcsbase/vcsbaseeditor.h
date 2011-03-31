@@ -186,6 +186,14 @@ public:
     bool setConfigurationWidget(QWidget *w);
     QWidget *configurationWidget() const;
 
+    /* Tagging editors: Sometimes, an editor should be re-used, for example, when showing
+     * a diff of the same file with different diff-options. In order to be able to find
+     * the editor, they get a 'tag' containing type and parameters (dynamic property string). */
+    static void tagEditor(Core::IEditor *e, const QString &tag);
+    static Core::IEditor* locateEditorByTag(const QString &tag);
+    static QString editorTag(EditorContentType t, const QString &workingDirectory, const QStringList &files,
+                             const QString &revision = QString());
+
 signals:
     // These signals also exist in the opaque editable (IEditor) that is
     // handled by the editor manager for convenience. They are emitted

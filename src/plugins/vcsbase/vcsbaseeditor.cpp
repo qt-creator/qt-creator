@@ -1068,6 +1068,49 @@ void VCSBaseEditorWidget::slotRevertDiffChunk()
         emit diffChunkReverted(chunk);
 }
 
+// Tagging of editors for re-use.
+QString VCSBaseEditorWidget::editorTag(EditorContentType t,
+                                       const QString &workingDirectory,
+                                       const QStringList &files,
+                                       const QString &revision)
+{
+    const QChar colon = QLatin1Char(':');
+    QString rc = QString::number(t);
+    rc += colon;
+    if (!revision.isEmpty()) {
+        rc += revision;
+        rc += colon;
+    }
+    rc += workingDirectory;
+    if (!files.isEmpty()) {
+        rc += colon;
+        rc += files.join(QString(colon));
+    }
+    return rc;
+}
+
+static const char tagPropertyC[] = "_q_VCSBaseEditorTag";
+
+void VCSBaseEditorWidget::tagEditor(Core::IEditor *e, const QString &tag)
+{
+    e->setProperty(tagPropertyC, QVariant(tag));
+}
+
+Core::IEditor* VCSBaseEditorWidget::locateEditorByTag(const QString &tag)
+{
+    Core::IEditor *rc = 0;
+    foreach (Core::IEditor *ed, Core::EditorManager::instance()->openedEditors()) {
+        const QVariant tagPropertyValue = ed->property(tagPropertyC);
+        if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag) {
+            rc = ed;
+            break;
+        }
+    }
+    if (VCSBase::Constants::Internal::debug)
+        qDebug() << "locateEditorByTag " << tag << rc;
+    return rc;
+}
+
 } // namespace VCSBase
 
 #include "vcsbaseeditor.moc"
