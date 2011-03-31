@@ -89,7 +89,8 @@ protected:
     BaseState baseState() const { return m_baseState; }
 
     void raiseError(const QString &error);
-    void writeOutput(const QString &text, OutputFormat = MessageOutput);
+    void writeOutput(const QString &text, OutputFormat format = MessageOutput,
+        OutputNewlineSetting newlineSetting = DoAppendNewline);
     void setDeploymentFinished();
     const AbstractMaemoPackageCreationStep *packagingStep() const;
     QString deployMountPoint() const;

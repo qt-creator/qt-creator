@@ -147,7 +147,7 @@ void AbstractMaemoDeployByMountStep::handleMountDebugOutput(const QString &outpu
     ASSERT_BASE_STATE(QList<BaseState>() << Deploying << StopRequested);
 
     if (m_extendedState != Inactive)
-        writeOutput(output, ErrorOutput);
+        writeOutput(output, ErrorOutput, DontAppendNewline);
 }
 
 void AbstractMaemoDeployByMountStep::mount()
