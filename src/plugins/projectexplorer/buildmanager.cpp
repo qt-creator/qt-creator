@@ -136,6 +136,7 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     pm->addObject(d->m_taskWindow);
 
     qRegisterMetaType<ProjectExplorer::BuildStep::OutputFormat>();
+    qRegisterMetaType<ProjectExplorer::BuildStep::OutputNewlineSetting>();
 
     connect(d->m_taskWindow, SIGNAL(tasksChanged()),
             this, SLOT(updateTaskCount()));
@@ -198,10 +199,7 @@ void BuildManager::cancel()
         // (And we want those to be before the cancel message.)
         QTimer::singleShot(0, this, SLOT(emitCancelMessage()));
 
-        disconnect(d->m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::Task)),
-                   this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-        disconnect(d->m_currentBuildStep, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
-                   this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
+        disconnectOutput(d->m_currentBuildStep);
         decrementActiveBuildSteps(d->m_currentBuildStep->buildConfiguration()->target()->project());
 
         d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Build canceled")); //TODO NBS fix in qtconcurrent
@@ -229,17 +227,14 @@ void BuildManager::finish()
 
 void BuildManager::emitCancelMessage()
 {
-    emit addToOutputWindow(tr("Canceled build."), BuildStep::ErrorMessageOutput);
+    addToOutputWindow(tr("Canceled build."), BuildStep::ErrorMessageOutput);
 }
 
 void BuildManager::clearBuildQueue()
 {
     foreach (BuildStep *bs, d->m_buildQueue) {
         decrementActiveBuildSteps(bs->buildConfiguration()->target()->project());
-        disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
-                   this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-        disconnect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
-                   this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
+        disconnectOutput(bs);
     }
 
     d->m_buildQueue.clear();
@@ -329,9 +324,13 @@ void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
     d->m_taskHub->addTask(task);
 }
 
-void BuildManager::addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
+void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFormat format,
+    BuildStep::OutputNewlineSetting newLineSetting)
 {
-    d->m_outputWindow->appendText(string, format);
+    QString stringToWrite = string;
+    if (newLineSetting == BuildStep::DoAppendNewline)
+        stringToWrite += QLatin1Char('\n');
+    d->m_outputWindow->appendText(stringToWrite, format);
 }
 
 void BuildManager::nextBuildQueue()
@@ -339,11 +338,7 @@ void BuildManager::nextBuildQueue()
     if (d->m_canceling)
         return;
 
-    disconnect(d->m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::Task)),
-               this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-    disconnect(d->m_currentBuildStep, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
-               this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
-
+    disconnectOutput(d->m_currentBuildStep);
     ++d->m_progress;
     d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, msgProgress(d->m_progress, d->m_maxProgress));
     decrementActiveBuildSteps(d->m_currentBuildStep->buildConfiguration()->target()->project());
@@ -420,8 +415,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
         BuildStep *bs = steps.at(i);
         connect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
                 this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-        connect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
-                this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
+        connect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat, ProjectExplorer::BuildStep::OutputNewlineSetting)),
+                this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat, ProjectExplorer::BuildStep::OutputNewlineSetting)));
         init = bs->init();
         if (!init)
             break;
@@ -437,13 +432,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
         addToOutputWindow(tr("When executing build step '%1'").arg(bs->displayName()), BuildStep::ErrorOutput);
 
         // disconnect the buildsteps again
-        for (int j = 0; j <= i; ++j) {
-            BuildStep *bs = steps.at(j);
-            disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
-                       this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
-            disconnect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat)),
-                       this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat)));
-        }
+        for (int j = 0; j <= i; ++j)
+            disconnectOutput(steps.at(j));
         return false;
     }
 
@@ -533,6 +523,16 @@ void BuildManager::decrementActiveBuildSteps(Project *pro)
     } else {
         --*it;
     }
+}
+
+void BuildManager::disconnectOutput(BuildStep *bs)
+{
+    disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
+               this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
+    disconnect(bs, SIGNAL(addOutput(QString, ProjectExplorer::BuildStep::OutputFormat,
+        ProjectExplorer::BuildStep::OutputNewlineSetting)),
+        this, SLOT(addToOutputWindow(QString, ProjectExplorer::BuildStep::OutputFormat,
+            ProjectExplorer::BuildStep::OutputNewlineSetting)));
 }
 
 } // namespace ProjectExplorer

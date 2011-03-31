@@ -142,11 +142,14 @@ void AbstractMaemoPackageCreationStep::handleBuildOutput()
     if (!buildProc)
         return;
     const QByteArray &stdOut = buildProc->readAllStandardOutput();
-    if (!stdOut.isEmpty())
-        emit addOutput(QString::fromLocal8Bit(stdOut), BuildStep::NormalOutput);
+    if (!stdOut.isEmpty()) {
+        emit addOutput(QString::fromLocal8Bit(stdOut), BuildStep::NormalOutput,
+            BuildStep::DontAppendNewline);
+    }
     const QByteArray &errorOut = buildProc->readAllStandardError();
     if (!errorOut.isEmpty()) {
-        emit addOutput(QString::fromLocal8Bit(errorOut), BuildStep::ErrorOutput);
+        emit addOutput(QString::fromLocal8Bit(errorOut), BuildStep::ErrorOutput,
+            BuildStep::DontAppendNewline);
     }
 }
 

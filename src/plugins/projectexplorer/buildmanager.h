@@ -85,7 +85,8 @@ signals:
 
 private slots:
     void addToTaskWindow(const ProjectExplorer::Task &task);
-    void addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat);
+    void addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat,
+        ProjectExplorer::BuildStep::OutputNewlineSetting = BuildStep::DoAppendNewline);
 
     void nextBuildQueue();
     void progressChanged();
@@ -102,6 +103,7 @@ private:
     bool buildQueueAppend(QList<BuildStep *> steps);
     void incrementActiveBuildSteps(Project *pro);
     void decrementActiveBuildSteps(Project *pro);
+    void disconnectOutput(BuildStep *bs);
 
     QScopedPointer<BuildManagerPrivate> d;
 };

@@ -583,7 +583,7 @@ void S60CreatePackageStep::stdOutput(const QString &line)
 {
     if (m_outputParserChain)
         m_outputParserChain->stdOutput(line);
-    emit addOutput(line, BuildStep::NormalOutput);
+    emit addOutput(line, BuildStep::NormalOutput, BuildStep::DontAppendNewline);
 }
 
 void S60CreatePackageStep::processReadyReadStdError()
@@ -599,7 +599,7 @@ void S60CreatePackageStep::stdError(const QString &line)
 {
     if (m_outputParserChain)
         m_outputParserChain->stdError(line);
-    emit addOutput(line, BuildStep::ErrorOutput);
+    emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
 }
 
 void S60CreatePackageStep::checkForCancel()
