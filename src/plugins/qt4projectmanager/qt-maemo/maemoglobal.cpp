@@ -187,6 +187,12 @@ QString MaemoGlobal::madCommand(const QtVersion *qtVersion)
     return maddeRoot(qtVersion) + QLatin1String("/bin/mad");
 }
 
+QString MaemoGlobal::madDeveloperUiName(MaemoVersion maemoVersion)
+{
+    return maemoVersion == Maemo6
+        ? tr("SDK Connectivity") : tr("Mad Developer");
+}
+
 MaemoGlobal::MaemoVersion MaemoGlobal::version(const QtVersion *qtVersion)
 {
     const QString &name = targetName(qtVersion);

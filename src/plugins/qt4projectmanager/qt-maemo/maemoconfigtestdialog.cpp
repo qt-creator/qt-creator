@@ -160,9 +160,15 @@ void MaemoConfigTestDialog::handleMadDeveloperTestResult(int exitStatus)
         m_ui->testResultEdit->setPlainText(tr("Remote process failed: %1")
             .arg(m_testProcessRunner->process()->errorString()));
     } else if (m_testProcessRunner->process()->exitCode() != 0) {
-        m_ui->errorLabel->setText(m_ui->errorLabel->text()
-            + QLatin1String("<br>") + tr("Mad Developer is not installed.<br>"
-                  "You will not be able to deploy to this device."));
+        QString errorMsg = m_ui->errorLabel->text() + QLatin1String("<br>")
+            + tr("%1 is not installed.<br>You will not be able to deploy "
+                 "to this device.")
+                .arg(MaemoGlobal::madDeveloperUiName(m_config->osVersion()));
+        if (m_config->osVersion() == MaemoGlobal::Maemo6) {
+            errorMsg += QLatin1String("<br>")
+                + tr("Please switch the device to developer mode via Settings -> Security.");
+        }
+        m_ui->errorLabel->setText(errorMsg);
     }
     if (m_config->freePorts().hasMore())
         m_portsGatherer->start(m_testProcessRunner->connection(),

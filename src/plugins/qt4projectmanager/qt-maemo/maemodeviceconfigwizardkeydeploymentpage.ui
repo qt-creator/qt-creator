@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>452</width>
-    <height>235</height>
+    <width>470</width>
+    <height>322</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,9 +20,9 @@
       <string>To deploy the public key to your device, please execute the following steps:
 &lt;ul&gt;
 &lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
-&lt;li&gt;On the device, start the &quot;Mad Developer&quot; application.&lt;/li&gt;
-&lt;li&gt;In &quot;Mad Developer&quot;, configure the device's IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
-&lt;li&gt;In &quot;Mad Developer&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
+&lt;li&gt;On the device, start the &quot;%%%maddev%%%&quot; application.&lt;/li&gt;
+&lt;li&gt;In &quot;%%%maddev%%%&quot;, configure the device's IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
+&lt;li&gt;In &quot;%%%maddev%%%&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
 &lt;li&gt;Click &quot;Deploy Key&quot;&lt;/li&gt;
 </string>
      </property>

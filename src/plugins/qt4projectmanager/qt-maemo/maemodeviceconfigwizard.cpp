@@ -364,6 +364,7 @@ public:
               m_keyDeployer(new MaemoKeyDeployer(this))
     {
         m_ui->setupUi(this);
+        m_instructionTextTemplate = m_ui->instructionLabel->text();
         setTitle(tr("Key Deployment"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
         connect(m_ui->deviceAddressLineEdit, SIGNAL(textChanged(QString)),
@@ -381,6 +382,9 @@ public:
     {
         m_isComplete = false;
         m_ui->deviceAddressLineEdit->setText(m_wizardData.hostName);
+        m_ui->instructionLabel->setText(QString(m_instructionTextTemplate)
+            .replace(QLatin1String("%%%maddev%%%"),
+                MaemoGlobal::madDeveloperUiName(m_wizardData.maemoVersion)));
         m_ui->passwordLineEdit->clear();
         enableInput();
     }
@@ -425,7 +429,8 @@ private:
     {
         QMessageBox::information(this, tr("Key Deployment Success"),
             tr("The key was successfully deployed. You may now close "
-               "the \"Mad Developer\" application and continue."));
+               "the \"%1\" application and continue.")
+               .arg(MaemoGlobal::madDeveloperUiName(m_wizardData.maemoVersion)));
         m_ui->statusLabel->setText(m_ui->statusLabel->text() + tr("Done."));
         m_isComplete = true;
         emit completeChanged();
@@ -448,6 +453,7 @@ private:
     bool m_isComplete;
     const WizardData &m_wizardData;
     MaemoKeyDeployer * const m_keyDeployer;
+    QString m_instructionTextTemplate;
 };
 
 class MaemoDeviceConfigWizardFinalPage : public QWizardPage
