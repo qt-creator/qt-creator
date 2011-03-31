@@ -37,6 +37,7 @@
 #include "linuxiccparser.h"
 #include "headerpath.h"
 #include "projectexplorerconstants.h"
+#include "toolchainmanager.h"
 
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
@@ -521,11 +522,13 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
     if (!abiList.contains(requiredAbi))
         return result;
 
-    QString debuggerPath; // Find the first debugger
-    foreach (const QString &debugger, debuggers) {
-        debuggerPath = systemEnvironment.searchInPath(debugger);
-        if (!debuggerPath.isEmpty())
-            break;
+    QString debuggerPath = ToolChainManager::instance()->defaultDebugger(requiredAbi); // Find the first debugger
+    if (debuggerPath.isEmpty()) {
+        foreach (const QString &debugger, debuggers) {
+            debuggerPath = systemEnvironment.searchInPath(debugger);
+            if (!debuggerPath.isEmpty())
+                break;
+        }
     }
 
     foreach (const Abi &abi, abiList) {

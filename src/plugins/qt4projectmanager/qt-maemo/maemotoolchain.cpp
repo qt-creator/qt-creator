@@ -321,6 +321,9 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
                 target = "Meego";
             mTc->setDisplayName(tr("%1 GCC (%2)").arg(target).arg(MaemoGlobal::maddeRoot(v)));
             mTc->setCompilerPath(MaemoGlobal::targetRoot(v) + QLatin1String("/bin/gcc"));
+            mTc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(v->qtAbis().at(0)));
+            if (mTc->debuggerCommand().isEmpty())
+                mTc->setDebuggerCommand(MaemoGlobal::targetRoot(v) + QLatin1String("/bin/gdb"));
             result.append(mTc);
         }
     }
