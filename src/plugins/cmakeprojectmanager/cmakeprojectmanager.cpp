@@ -79,13 +79,13 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     Core::ActionContainer *msubproject =
             am->actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
-    m_runCMakeAction = new QAction(QIcon(), tr("Run cmake"), this);
+    m_runCMakeAction = new QAction(QIcon(), tr("Run CMake"), this);
     Core::Command *command = am->registerAction(m_runCMakeAction, Constants::RUNCMAKE, m_projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PROJECT);
     connect(m_runCMakeAction, SIGNAL(triggered()), this, SLOT(runCMake()));
 
-    m_runCMakeActionContextMenu = new QAction(QIcon(), tr("Run cmake"), this);
+    m_runCMakeActionContextMenu = new QAction(QIcon(), tr("Run CMake"), this);
     command = am->registerAction(m_runCMakeActionContextMenu, Constants::RUNCMAKECONTEXTMENU, m_projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
