@@ -60,6 +60,7 @@
 #include <QtGui/QHelpEvent>
 #include <QtGui/QToolTip>
 #include <QtGui/QMenu>
+#include <QtGui/QMessageBox>
 
 enum ModelRoles { VersionIdRole = Qt::UserRole, BuildLogRole, BuildRunningRole};
 
@@ -214,6 +215,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     connect(m_debuggingHelperUi->showLogButton, SIGNAL(clicked()),
             this, SLOT(slotShowDebuggingBuildLog()));
 
+    connect(m_ui->cleanUpButton, SIGNAL(clicked()), this, SLOT(cleanUpQtVersions()));
     showEnvironmentPage(0);
     updateState();
 }
@@ -298,6 +300,36 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, Debuggin
     }
     if (!success)
         showDebuggingBuildLog(item);
+}
+
+void QtOptionsPageWidget::cleanUpQtVersions()
+{
+    QStringList toRemove;
+    foreach (const QtVersion *v, m_versions) {
+        if (!v->isValid())
+            toRemove.append(v->displayName());
+    }
+
+    if (toRemove.isEmpty())
+        return;
+
+    if (QMessageBox::warning(0, tr("Remove invalid Qt Versions"),
+                             tr("Do you want to remove all invalid Qt Versions?<br>"
+                                "<ul><li>%1</li></ul><br>"
+                                "will be removed.").arg(toRemove.join(QLatin1String("</li><li>"))),
+                             QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+        return;
+
+    for (int i = m_versions.count() - 1; i >= 0; --i) {
+        if (!m_versions.at(i)->isValid()) {
+            QTreeWidgetItem *item = treeItemForIndex(i);
+            delete item;
+
+            delete m_versions.at(i);
+            m_versions.removeAt(i);
+        }
+    }
+    updateState();
 }
 
 void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools)
@@ -592,11 +624,13 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
 
 void QtOptionsPageWidget::updateState()
 {
+    bool hasInvalidVersion = false;
     for (int i = 0; i < m_versions.count(); ++i) {
         QTreeWidgetItem *item = treeItemForIndex(i);
         if (!m_versions.at(i)->isValid()) {
             if (item)
                 item->setIcon(0, m_invalidVersionIcon);
+            hasInvalidVersion = true;
         } else {
             if (item)
                 item->setIcon(0, m_validVersionIcon);
@@ -607,6 +641,7 @@ void QtOptionsPageWidget::updateState()
     const bool enabled = version != 0;
     const bool isAutodetected = enabled && version->isAutodetected();
     m_ui->delButton->setEnabled(enabled && !isAutodetected);
+    m_ui->cleanUpButton->setEnabled(hasInvalidVersion);
     m_versionUi->nameEdit->setEnabled(enabled && !isAutodetected);
     m_versionUi->qmakePath->setEnabled(enabled && !isAutodetected);
     bool s60SDKPathEnabled = enabled &&

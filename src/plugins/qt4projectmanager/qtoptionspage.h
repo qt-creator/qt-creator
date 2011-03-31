@@ -110,6 +110,7 @@ private slots:
     void buildQmlObserver();
     void slotShowDebuggingBuildLog();
     void debuggingHelperBuildFinished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output);
+    void cleanUpQtVersions();
 
 private:
     void updateDescriptionLabel();
