@@ -409,7 +409,13 @@ public:
 
     bool is(int c) const
     {
-        return m_xkey == c && m_modifiers != Qt::ControlModifier;
+        return m_xkey == c && m_modifiers !=
+#ifdef Q_WS_MAC
+                Qt::MetaModifier
+#else
+                Qt::ControlModifier
+#endif
+        ;
     }
 
     bool isControl(int c) const
