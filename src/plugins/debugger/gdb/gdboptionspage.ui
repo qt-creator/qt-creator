@@ -60,7 +60,7 @@ on slow machines. In this case, the value should be increased.</string>
        <widget class="QSpinBox" name="spinBoxGdbWatchdogTimeout">
         <property name="toolTip">
          <string>This is the number of seconds Qt Creator will wait before
-it terminates non-responsive gdb process. The default value of 20 seconds
+it terminates non-responsive GDB process. The default value of 20 seconds
 should be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than that
 on slow machines. In this case, the value should be increased.</string>
@@ -85,7 +85,8 @@ on slow machines. In this case, the value should be increased.</string>
       <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
         <property name="toolTip">
-         <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
+         <string>Allows 'Step Into' to compress several steps into one step for less noisy debugging. For example, the atomic reference
+ counting code is skipped, and a single 'Step Into' for a signal emission ends up directly in the slot connected to it.</string>
         </property>
         <property name="text">
          <string>Skip known frames when stepping</string>
@@ -154,7 +155,7 @@ on slow machines. In this case, the value should be increased.</string>
          <string>This is the slowest but safest option.</string>
         </property>
         <property name="text">
-         <string>Try to set breakpoints in plugins always automatically.</string>
+         <string>Try to set breakpoints in plugins always automatically</string>
         </property>
        </widget>
       </item>
