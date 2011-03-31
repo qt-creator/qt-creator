@@ -38,7 +38,6 @@
 
 #include "ui_attachcoredialog.h"
 #include "ui_attachexternaldialog.h"
-#include "ui_attachtcfdialog.h"
 #include "ui_startexternaldialog.h"
 #include "ui_startremotedialog.h"
 #include "ui_startremoteenginedialog.h"
