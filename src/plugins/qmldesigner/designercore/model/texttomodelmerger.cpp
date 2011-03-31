@@ -43,6 +43,7 @@
 #include "texttomodelmerger.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
+#include "nodemetainfo.h"
 
 #include <languageutils/componentversion.h>
 #include <qmljs/qmljsevaluate.h>
@@ -727,6 +728,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     int majorVersion;
     int minorVersion;
     context->lookup(astObjectType, typeName, majorVersion, minorVersion, defaultPropertyName);
+    if (defaultPropertyName.isEmpty()) //fallback and use the meta system of the model
+        defaultPropertyName = modelNode.metaInfo().defaultPropertyName();
 
     if (typeName.isEmpty()) {
         qWarning() << "Skipping node with unknown type" << flatten(astObjectType);

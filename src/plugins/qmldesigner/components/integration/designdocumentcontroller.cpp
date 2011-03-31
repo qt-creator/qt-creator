@@ -507,8 +507,7 @@ void DesignDocumentController::deleteSelected()
 
 void DesignDocumentController::copySelected()
 {
-    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 1, 0));
-    model->setMetaInfo(m_d->model->metaInfo());
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 1, 0, model()));
     model->setFileUrl(m_d->model->fileUrl());
     model->changeImports(m_d->model->imports(), QList<Import>());
 
@@ -603,8 +602,7 @@ static void scatterItem(ModelNode pastedNode, const ModelNode targetNode, int of
 
 void DesignDocumentController::paste()
 {
-    QScopedPointer<Model> model(Model::create("empty"));
-    model->setMetaInfo(m_d->model->metaInfo());
+    QScopedPointer<Model> model(Model::create("empty", 1, 0, model()));
     model->setFileUrl(m_d->model->fileUrl());
     model->changeImports(m_d->model->imports(), QList<Import>());
 

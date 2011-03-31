@@ -121,10 +121,11 @@ void ModelPrivate::detachAllViews()
     }
 }
 
-Model *ModelPrivate::create(QString type, int major, int minor)
+Model *ModelPrivate::create(QString type, int major, int minor, Model *metaInfoPropxyModel)
 {
     Model *model = new Model;
 
+    model->m_d->m_metaInfoProxyModel = metaInfoPropxyModel;
     model->m_d->rootNode()->setType(type);
     model->m_d->rootNode()->setMajorVersion(major);
     model->m_d->rootNode()->setMinorVersion(minor);
@@ -1628,9 +1629,9 @@ Model::~Model()
 }
 
 
-Model *Model::create(QString type, int major, int minor)
+Model *Model::create(QString type, int major, int minor, Model *metaInfoPropxyModel)
 {
-    return Internal::ModelPrivate::create(type, major, minor);
+    return Internal::ModelPrivate::create(type, major, minor, metaInfoPropxyModel);
 }
 
 
@@ -1684,6 +1685,18 @@ void Model::changeImports(const QList<Import> &importsToBeAdded, const QList<Imp
 RewriterView *Model::rewriterView() const
 {
     return m_d->rewriterView();
+}
+
+/*!
+ \brief Returns the model that is used for metainfo
+ \return Return itself if not other metaInfoProxyModel does exist
+*/
+Model *Model::metaInfoProxyModel()
+{
+    if (m_d->m_metaInfoProxyModel)
+        return m_d->m_metaInfoProxyModel->metaInfoProxyModel();
+    else
+        return this;
 }
 
 #if 0
@@ -1744,15 +1757,6 @@ bool Model::hasNodeMetaInfo(const QString &typeName, int majorVersion, int minor
 NodeMetaInfo Model::metaInfo(const QString &typeName, int majorVersion, int minorVersion)
 {
     return NodeMetaInfo(this, typeName, majorVersion, minorVersion);
-}
-
-/*!
-  \brief Sets a specific Metainfo on this Model
-  */
-void Model::setMetaInfo(const MetaInfo &metaInfo)
-{
-    Internal::WriteLocker locker(m_d);
-    m_d->setMetaInfo(metaInfo);
 }
 
 /*!

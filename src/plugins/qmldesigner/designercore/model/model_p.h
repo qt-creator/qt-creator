@@ -97,7 +97,7 @@ public:
      ModelPrivate(Model *model);
     ~ModelPrivate();
 
-    static Model *create(QString type, int major, int minor);
+    static Model *create(QString type, int major, int minor, Model *metaInfoPropxyModel);
 
     QUrl fileUrl() const;
     void setFileUrl(const QUrl &url);
@@ -240,6 +240,8 @@ private:
     QWeakPointer<Model> m_masterModel;
     QWeakPointer<RewriterView> m_rewriterView;
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
+    QWeakPointer<Model> m_metaInfoProxyModel;
+
     bool m_writeLock;
     qint32 m_internalIdCounter;
 };
