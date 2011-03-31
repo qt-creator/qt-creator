@@ -36,12 +36,39 @@
 #include "command_p.h"
 
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/coreconstants.h>
+
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFile>
-#include <QtXml/QDomDocument>
+#include <QtCore/QXmlStreamAttributes>
+#include <QtCore/QXmlStreamWriter>
+#include <QtCore/QXmlStreamReader>
+#include <QtCore/QDebug>
+#include <QtCore/QDateTime>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
+
+struct Context // XML parsing context with strings.
+{
+    Context();
+
+    const QString mappingElement;
+    const QString shortCutElement;
+    const QString idAttribute;
+    const QString keyElement;
+    const QString valueAttribute;
+};
+
+Context::Context() :
+    mappingElement(QLatin1String("mapping")),
+    shortCutElement(QLatin1String("shortcut")),
+    idAttribute(QLatin1String("id")),
+    keyElement(QLatin1String("key")),
+    valueAttribute(QLatin1String("value"))
+{
+}
 
 /*!
     \class CommandsFile
@@ -66,29 +93,36 @@ QMap<QString, QKeySequence> CommandsFile::importCommands() const
     QMap<QString, QKeySequence> result;
 
     QFile file(m_filename);
-    if (!file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
         return result;
 
-    QDomDocument doc("KeyboardMappingScheme");
-    if (!doc.setContent(&file))
-        return result;
+    Context ctx;
+    QXmlStreamReader r(&file);
 
-    QDomElement root = doc.documentElement();
-    if (root.nodeName() != QLatin1String("mapping"))
-        return result;
+    QString currentId;
 
-    QDomElement ks = root.firstChildElement();
-    for (; !ks.isNull(); ks = ks.nextSiblingElement()) {
-        if (ks.nodeName() == QLatin1String("shortcut")) {
-            QString id = ks.attribute(QLatin1String("id"));
-            QKeySequence shortcutkey;
-            QDomElement keyelem = ks.firstChildElement("key");
-            if (!keyelem.isNull())
-                shortcutkey = QKeySequence(keyelem.attribute("value"));
-            result.insert(id, shortcutkey);
-        }
-    }
-
+    while (!r.atEnd()) {
+        switch (r.readNext()) {
+        case QXmlStreamReader::StartElement: {
+            const QStringRef name = r.name();
+            if (name == ctx.shortCutElement) {
+                currentId = r.attributes().value(ctx.idAttribute).toString();
+            } else if (name == ctx.keyElement) {
+                QTC_ASSERT(!currentId.isEmpty(), return result; )
+                const QXmlStreamAttributes attributes = r.attributes();
+                if (attributes.hasAttribute(ctx.valueAttribute)) {
+                    const QString keyString = attributes.value(ctx.valueAttribute).toString();
+                    result.insert(currentId, QKeySequence(keyString));
+                } else {
+                    result.insert(currentId, QKeySequence());
+                }
+                currentId.clear();
+            } // if key element
+        } // case QXmlStreamReader::StartElement
+        default:
+            break;
+        } // switch
+    } // while !atEnd
     file.close();
     return result;
 }
@@ -96,29 +130,43 @@ QMap<QString, QKeySequence> CommandsFile::importCommands() const
 /*!
     ...
 */
+
 bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
 {
-    UniqueIDManager *idmanager = UniqueIDManager::instance();
+    const UniqueIDManager *idmanager = UniqueIDManager::instance();
 
     QFile file(m_filename);
-    if (!file.open(QIODevice::WriteOnly))
+    if (!file.open(QIODevice::WriteOnly|QIODevice::Text))
         return false;
 
-    QDomDocument doc("KeyboardMappingScheme");
-    QDomElement root = doc.createElement("mapping");
-    doc.appendChild(root);
-
+    const Context ctx;
+    QXmlStreamWriter w(&file);
+    w.setAutoFormatting(true);
+    w.setAutoFormattingIndent(1); // Historical, used to be QDom.
+    w.writeStartDocument();
+    w.writeDTD(QLatin1String("<!DOCTYPE KeyboardMappingScheme>"));
+    w.writeComment(QString::fromAscii(" Written by Qt Creator %1, %2. ").
+                   arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
+                       QDateTime::currentDateTime().toString(Qt::ISODate)));
+    w.writeStartElement(ctx.mappingElement);
     foreach (const ShortcutItem *item, items) {
-        QDomElement ctag = doc.createElement("shortcut");
-        ctag.setAttribute(QLatin1String("id"), idmanager->stringForUniqueIdentifier(item->m_cmd->id()));
-        root.appendChild(ctag);
-
-        QDomElement ktag = doc.createElement("key");
-        ktag.setAttribute(QLatin1String("value"), item->m_key.toString());
-        ctag.appendChild(ktag);
+        const QString id = idmanager->stringForUniqueIdentifier(item->m_cmd->id());
+        if (item->m_key.isEmpty()) {
+            w.writeEmptyElement(ctx.shortCutElement);
+            w.writeAttribute(ctx.idAttribute, id);
+        } else {
+            w.writeStartElement(ctx.shortCutElement);
+            w.writeAttribute(ctx.idAttribute, id);
+            w.writeEmptyElement(ctx.keyElement);
+            w.writeAttribute(ctx.valueAttribute, item->m_key.toString());
+            w.writeEndElement(); // Shortcut
+        }
     }
-
-    file.write(doc.toByteArray());
+    w.writeEndElement();
+    w.writeEndDocument();
     file.close();
     return true;
 }
+
+} // namespace Internal
+} // namespace Core

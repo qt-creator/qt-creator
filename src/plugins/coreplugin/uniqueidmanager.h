@@ -81,7 +81,7 @@ public:
 
     bool hasUniqueIdentifier(const Id &id) const;
     int uniqueIdentifier(const Id &id);
-    QString stringForUniqueIdentifier(int uid);
+    QString stringForUniqueIdentifier(int uid) const;
 
 private:
     QHash<Id, int> m_uniqueIdentifiers;

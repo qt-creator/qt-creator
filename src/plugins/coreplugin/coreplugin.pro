@@ -1,8 +1,7 @@
 TEMPLATE = lib
 TARGET = Core
 DEFINES += CORE_LIBRARY
-QT += xml \
-    network \
+QT += network \
     script \
     sql
 CONFIG += help

@@ -63,7 +63,7 @@ int UniqueIDManager::uniqueIdentifier(const Id &id)
     return uid;
 }
 
-QString UniqueIDManager::stringForUniqueIdentifier(int uid)
+QString UniqueIDManager::stringForUniqueIdentifier(int uid) const
 {
     return m_uniqueIdentifiers.key(uid);
 }

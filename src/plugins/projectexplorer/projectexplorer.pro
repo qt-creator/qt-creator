@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = ProjectExplorer
-QT += xml \
-    script \
+QT += script \
     network
 include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)
