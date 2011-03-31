@@ -36,12 +36,27 @@
 
 #include <coreplugin/ioutputpane.h>
 
-QT_BEGIN_NAMESPACE
-class QTextEdit;
-QT_END_NAMESPACE
+#include <QtGui/QShowEvent>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QTextEdit>
 
 namespace Core {
 namespace Internal {
+
+class TextView : public QTextEdit
+{
+    Q_OBJECT
+
+public:
+    TextView(QWidget *parent = 0) : QTextEdit(parent) {}
+
+    void showEvent(QShowEvent *);
+    void scrollToBottom();
+    bool isScrollbarAtBottom() const;
+
+protected:
+    void resizeEvent(QResizeEvent *e);
+};
 
 class MessageOutputWindow : public Core::IOutputPane
 {
@@ -71,7 +86,7 @@ public:
     bool canNavigate();
 
 private:
-    QTextEdit *m_widget;
+    TextView *m_widget;
 };
 
 } // namespace Internal

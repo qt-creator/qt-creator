@@ -33,13 +33,13 @@
 
 #include "messageoutputwindow.h"
 
-#include <QtGui/QTextEdit>
+#include <QtGui/QScrollBar>
 
 using namespace Core::Internal;
 
 MessageOutputWindow::MessageOutputWindow()
 {
-    m_widget = new QTextEdit;
+    m_widget = new TextView;
     m_widget->setReadOnly(true);
     m_widget->setFrameStyle(QFrame::NoFrame);
 }
@@ -86,7 +86,10 @@ void MessageOutputWindow::visibilityChanged(bool /*b*/)
 
 void MessageOutputWindow::append(const QString &text)
 {
+    bool scroll = m_widget->isScrollbarAtBottom() || !m_widget->isVisible();
     m_widget->append(text);
+    if (scroll)
+        m_widget->scrollToBottom();
 }
 
 int MessageOutputWindow::priorityInStatusBar() const
@@ -118,3 +121,34 @@ bool MessageOutputWindow::canNavigate()
 {
     return false;
 }
+
+// -------- Copied from OutputWindow which should be shared instead
+
+bool TextView::isScrollbarAtBottom() const
+{
+    return verticalScrollBar()->value() == verticalScrollBar()->maximum();
+}
+
+void TextView::scrollToBottom()
+{
+    verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+}
+
+void TextView::showEvent(QShowEvent *e)
+{
+    bool atBottom = isScrollbarAtBottom();
+    QTextEdit::showEvent(e);
+    if (atBottom)
+        scrollToBottom();
+}
+
+void TextView::resizeEvent(QResizeEvent *e)
+{
+    //Keep scrollbar at bottom of window while resizing, to ensure we keep scrolling
+    //This can happen if window is resized while building, or if the horizontal scrollbar appears
+    bool atBottom = isScrollbarAtBottom();
+    QTextEdit::resizeEvent(e);
+    if (atBottom)
+        scrollToBottom();
+}
+
