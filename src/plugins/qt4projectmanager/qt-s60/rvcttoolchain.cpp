@@ -87,7 +87,7 @@ static QString armVersionString(RvctToolChain::ArmVersion av)
 static Utils::Environment baseEnvironment(RvctToolChain *tc)
 {
     Utils::Environment result;
-    tc->addToEnvironment(result);
+    result.modify(tc->environmentChanges());
     return result;
 }
 
