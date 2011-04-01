@@ -165,7 +165,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(ProjectExplorer::RunConfiguration
 
 void QmlProfilerTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
 {
-    qmlRegisterType<Canvas>("th Monitor", 1, 0, "Canvas");
+    qmlRegisterType<Canvas>("Monitor", 1, 0, "Canvas");
     qmlRegisterType<TiledCanvas>("Monitor", 1, 0, "TiledCanvas");
     qmlRegisterType<Context2D>();
     qmlRegisterType<CanvasImage>();
