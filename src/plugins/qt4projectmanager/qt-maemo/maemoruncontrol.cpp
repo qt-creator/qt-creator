@@ -98,7 +98,7 @@ void MaemoRunControl::handleSshError(const QString &error)
 
 void MaemoRunControl::startExecution()
 {
-    appendMessage(tr("Starting remote process ..."), NormalMessageFormat);
+    appendMessage(tr("Starting remote process ...\n"), NormalMessageFormat);
     m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3 %4")
         .arg(MaemoGlobal::remoteCommandPrefix(m_runner->remoteExecutable()))
         .arg(MaemoGlobal::remoteEnvironment(m_runner->userEnvChanges()))
@@ -109,7 +109,7 @@ void MaemoRunControl::startExecution()
 void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)
 {
     if (exitCode != MaemoSshRunner::InvalidExitCode) {
-        appendMessage(tr("Finished running remote process. Exit code was %1.")
+        appendMessage(tr("Finished running remote process. Exit code was %1.\n")
             .arg(exitCode), NormalMessageFormat);
     }
     setFinished();
@@ -127,7 +127,7 @@ void MaemoRunControl::handleRemoteErrorOutput(const QByteArray &output)
 
 void MaemoRunControl::handleProgressReport(const QString &progressString)
 {
-    appendMessage(progressString, NormalMessageFormat);
+    appendMessage(progressString + QLatin1Char('\n'), NormalMessageFormat);
 }
 
 void MaemoRunControl::handleMountDebugOutput(const QString &output)
