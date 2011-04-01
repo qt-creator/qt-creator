@@ -74,9 +74,15 @@ void SiblingComboBox::setup()
     connect(this, SIGNAL(currentIndexChanged (int)), this, SLOT(changeSelection(int)));
     if (!m_itemNode.isValid())
         return;
-    m_itemList = m_itemNode.instanceParent().toQmlItemNode().children();
+
+    if (m_itemNode.instanceParent().modelNode().isValid())
+        m_itemList = toQmlItemNodeList(m_itemNode.instanceParent().modelNode().allDirectSubModelNodes());
     m_itemList.removeOne(m_itemNode);
-    
+    //We currently have no instanceChildren().
+    //So we double check here if the instanceParents are equal.
+    foreach (const QmlItemNode &node, m_itemList)
+        if (node.instanceParent().modelNode() != m_itemNode.instanceParent().modelNode())
+            m_itemList.removeAll(node);
 
     disconnect(this, SIGNAL(currentIndexChanged (int)), this, SLOT(changeSelection(int)));
     clear();
