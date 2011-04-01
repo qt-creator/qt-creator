@@ -65,7 +65,7 @@ public slots:
 
     void stopRecording();
 
-    void gotoSourceLocation(const QString &fileName, int lineNumber);
+    void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void updateTimer(qreal elapsedSeconds);
 
 signals:

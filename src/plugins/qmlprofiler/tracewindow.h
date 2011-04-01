@@ -73,7 +73,7 @@ public slots:
 
 signals:
     void viewUpdated();
-    void gotoSourceLocation(const QString &fileName, int lineNumber);
+    void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void timeChanged(qreal newTime);
 
 private:

@@ -242,12 +242,13 @@ void QmlProfilerTool::stopRecording()
     d->m_traceWindow->setRecording(false);
 }
 
-void QmlProfilerTool::gotoSourceLocation(const QString &fileName, int lineNumber)
+void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
 {
-    if (lineNumber < 0 || !QFile::exists(QUrl(fileName).toLocalFile()))
+    if (lineNumber < 0 || fileUrl.isEmpty())
         return;
 
-    QString projectFileName = d->m_projectFinder.findFile(fileName);
+    const QString fileName = QUrl(fileUrl).toLocalFile();
+    const QString projectFileName = d->m_projectFinder.findFile(fileName);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->openEditor(projectFileName);
