@@ -190,9 +190,10 @@ void AbstractMaemoDeployStep::raiseError(const QString &errorString)
     emit error();
 }
 
-void AbstractMaemoDeployStep::writeOutput(const QString &text, OutputFormat format)
+void AbstractMaemoDeployStep::writeOutput(const QString &text, OutputFormat format,
+    OutputNewlineSetting newlineSetting)
 {
-    emit addOutput(text, format);
+    emit addOutput(text, format, newlineSetting);
 }
 
 void AbstractMaemoDeployStep::stop()
@@ -377,7 +378,7 @@ void AbstractMaemoDeployStep::handleRemoteStdout(const QString &output)
     switch (m_baseState) {
     case Deploying:
     case StopRequested:
-        writeOutput(output, NormalOutput);
+        writeOutput(output, NormalOutput, DontAppendNewline);
         break;
     default:
         break;
@@ -391,7 +392,7 @@ void AbstractMaemoDeployStep::handleRemoteStderr(const QString &output)
     switch (m_baseState) {
     case Deploying:
     case StopRequested:
-        writeOutput(output, ErrorOutput);
+        writeOutput(output, ErrorOutput, DontAppendNewline);
         break;
     default:
         break;

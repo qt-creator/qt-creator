@@ -175,7 +175,7 @@ void AbstractProcessStep::run(QFutureInterface<bool> &fi)
 
 void AbstractProcessStep::processStarted()
 {
-    emit addOutput(tr("Starting: \"%1\" %2\n")
+    emit addOutput(tr("Starting: \"%1\" %2")
                    .arg(QDir::toNativeSeparators(m_param.effectiveCommand()),
                         m_param.prettyArguments()),
                    BuildStep::MessageOutput);
@@ -222,7 +222,7 @@ void AbstractProcessStep::stdOutput(const QString &line)
 {
     if (m_outputParserChain)
         m_outputParserChain->stdOutput(line);
-    emit addOutput(line, BuildStep::NormalOutput);
+    emit addOutput(line, BuildStep::NormalOutput, BuildStep::DontAppendNewline);
 }
 
 void AbstractProcessStep::processReadyReadStdError()
@@ -238,7 +238,7 @@ void AbstractProcessStep::stdError(const QString &line)
 {
     if (m_outputParserChain)
         m_outputParserChain->stdError(line);
-    emit addOutput(line, BuildStep::ErrorOutput);
+    emit addOutput(line, BuildStep::ErrorOutput, BuildStep::DontAppendNewline);
 }
 
 void AbstractProcessStep::checkForCancel()
@@ -301,7 +301,7 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
 
 void AbstractProcessStep::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
 {
-    emit addOutput(string, format);
+    emit addOutput(string, format, BuildStep::DontAppendNewline);
 }
 
 void AbstractProcessStep::slotProcessFinished(int, QProcess::ExitStatus)

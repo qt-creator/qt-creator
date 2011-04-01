@@ -124,6 +124,8 @@ public:
     void addExistingFiles(ProjectExplorer::ProjectNode *projectNode, const QStringList &filePaths);
     void addExistingFiles(const QStringList &filePaths);
 
+    void buildProject(ProjectExplorer::Project *p);
+
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);

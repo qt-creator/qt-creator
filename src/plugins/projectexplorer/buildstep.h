@@ -106,14 +106,17 @@ public:
     Target *target() const;
 
     enum OutputFormat { NormalOutput, ErrorOutput, MessageOutput, ErrorMessageOutput };
+    enum OutputNewlineSetting { DoAppendNewline, DontAppendNewline };
 
 signals:
     // Add a task.
     void addTask(const ProjectExplorer::Task &task);
+
     // The string is added to the generated output, usually in the output
     // window.
     // It should be in plain text, with the format in the parameter
-    void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
+    void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
+        ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline);
 };
 
 class PROJECTEXPLORER_EXPORT IBuildStepFactory :
@@ -175,5 +178,6 @@ signals:
 } // namespace ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::BuildStep::OutputFormat)
+Q_DECLARE_METATYPE(ProjectExplorer::BuildStep::OutputNewlineSetting)
 
 #endif // BUILDSTEP_H

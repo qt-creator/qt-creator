@@ -36,7 +36,10 @@
 #include "cmakehighlighter.h"
 #include "cmakeeditorfactory.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeproject.h"
 
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
@@ -55,7 +58,10 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
   : BaseTextEditor(editor),
     m_context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
               TextEditor::Constants::C_TEXTEDITOR)
-{ }
+{
+    connect (this, SIGNAL(changed()),
+             this, SLOT(markAsChanged()));
+}
 
 Core::Context CMakeEditor::context() const
 {
@@ -74,6 +80,30 @@ Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
 QString CMakeEditor::id() const
 {
     return QLatin1String(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
+}
+
+void CMakeEditor::markAsChanged()
+{
+    Core::EditorManager::instance()->
+            showEditorInfoBar(QLatin1String("CMakeEditor.RunCMake"),
+                              tr("Changes to cmake files are shown in the project tree after building."),
+                              tr("Build now"),
+                              this, SLOT(build()));
+}
+
+void CMakeEditor::build()
+{
+    QList<ProjectExplorer::Project *> projects =
+            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects();
+    foreach (ProjectExplorer::Project *p, projects) {
+        CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
+        if (cmakeProject) {
+            if (cmakeProject->isProjectFile(file()->fileName())) {
+                ProjectExplorer::ProjectExplorerPlugin::instance()->buildProject(cmakeProject);
+                break;
+            }
+        }
+    }
 }
 
 //
