@@ -42,6 +42,7 @@
 #include <QtCore/QFutureInterface>
 
 #include <QtGui/QWidget>
+#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
