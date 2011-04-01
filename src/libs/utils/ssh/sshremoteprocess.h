@@ -44,6 +44,7 @@ class QByteArray;
 QT_END_NAMESPACE
 
 namespace Utils {
+class SshPseudoTerminal;
 namespace Internal {
 class SshChannelManager;
 class SshRemoteProcessPrivate;
@@ -84,6 +85,7 @@ public:
      */
     void addToEnvironment(const QByteArray &var, const QByteArray &value);
 
+    void requestTerminal(const SshPseudoTerminal &terminal);
     void start();
     void closeChannel();
 

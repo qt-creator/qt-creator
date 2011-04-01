@@ -39,6 +39,8 @@
 
 #include <botan/exceptn.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QTimer>
 
 /*!
@@ -57,8 +59,8 @@
 
     Therefore, the only sensible use case for calling closeChannel() is to
     get rid of an SshRemoteProces object before the process is actually started.
-    Note that the process does not have a terminal, so you can't use it
-    for applications that require one.
+    If the process needs a pseudo terminal, you can request one
+    via requestTerminal() before calling start().
  */
 
 namespace Utils {
@@ -103,6 +105,13 @@ void SshRemoteProcess::addToEnvironment(const QByteArray &var, const QByteArray 
 {
     if (d->channelState() == Internal::SshRemoteProcessPrivate::Inactive)
         d->m_env << qMakePair(var, value); // Cached locally and sent on start()
+}
+
+void SshRemoteProcess::requestTerminal(const SshPseudoTerminal &terminal)
+{
+    QTC_ASSERT(d->channelState() == Internal::SshRemoteProcessPrivate::Inactive, return);
+    d->m_useTerminal = true;
+    d->m_terminal = terminal;
 }
 
 void SshRemoteProcess::start()
@@ -154,7 +163,8 @@ namespace Internal {
 SshRemoteProcessPrivate::SshRemoteProcessPrivate(const QByteArray &command,
     quint32 channelId, SshSendFacility &sendFacility, SshRemoteProcess *proc)
     : AbstractSshChannel(channelId, sendFacility), m_procState(NotYetStarted),
-      m_wasRunning(false), m_exitCode(0), m_command(command), m_proc(proc)
+      m_wasRunning(false), m_exitCode(0), m_command(command),
+      m_useTerminal(false), m_proc(proc)
 {
 }
 
@@ -187,6 +197,10 @@ void SshRemoteProcessPrivate::handleOpenSuccessInternal()
    foreach (const EnvVar &envVar, m_env) {
        m_sendFacility.sendEnvPacket(remoteChannel(), envVar.first,
            envVar.second);
+   }
+
+   if (m_useTerminal) {
+       // TODO: Encode m_terminal
    }
 
    m_sendFacility.sendExecPacket(remoteChannel(), m_command);

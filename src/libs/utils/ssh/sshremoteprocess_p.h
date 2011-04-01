@@ -34,6 +34,8 @@
 #ifndef SSHREMOTEPROCESS_P_H
 #define SSHREMOTEPROCESS_P_H
 
+#include "sshpseudoterminal.h"
+
 #include "sshchannel_p.h"
 
 #include <QtCore/QList>
@@ -88,6 +90,8 @@ private:
 
     typedef QPair<QByteArray, QByteArray> EnvVar;
     QList<EnvVar> m_env;
+    bool m_useTerminal;
+    SshPseudoTerminal m_terminal;
 
     SshRemoteProcess *m_proc;
 };
