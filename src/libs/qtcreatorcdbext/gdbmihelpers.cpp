@@ -550,36 +550,10 @@ std::string gdbmiRegisters(CIDebugRegisters *regs,
     return str.str();
 }
 
-// Read memory and return allocated array
-unsigned char *readMemory(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
-                          std::string *errorMessage = 0)
-{
-    unsigned char *buffer = new unsigned char[length];
-    std::fill(buffer, buffer + length, 0);
-    ULONG received = 0;
-    const HRESULT hr = ds->ReadVirtual(address, buffer, length, &received);
-    if (FAILED(hr)) {
-        delete [] buffer;
-        if (errorMessage) {
-            std::ostringstream estr;
-            estr << "Cannot read " << length << " bytes from " << address << ": "
-                 << msgDebugEngineComFailed("ReadVirtual", hr);
-            *errorMessage = estr.str();
-        }
-        return 0;
-    }
-    if (received < length && errorMessage) {
-        std::ostringstream estr;
-        estr << "Warning: Received only " << received << " bytes of " << length << " requested at " << address << '.';
-        *errorMessage = estr.str();
-    }
-    return buffer;
-}
-
 std::string memoryToBase64(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
                            std::string *errorMessage /* = 0 */)
 {
-    if (const unsigned char *buffer = readMemory(ds, address, length, errorMessage)) {
+    if (const unsigned char *buffer = SymbolGroupValue::readMemory(ds, address, length, errorMessage)) {
         std::ostringstream str;
         base64Encode(str, buffer, length);
         delete [] buffer;
@@ -591,7 +565,7 @@ std::string memoryToBase64(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
 std::wstring memoryToHexW(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
                           std::string *errorMessage /* = 0 */)
 {
-    if (const unsigned char *buffer = readMemory(ds, address, length, errorMessage)) {
+    if (const unsigned char *buffer = SymbolGroupValue::readMemory(ds, address, length, errorMessage)) {
         const std::wstring hex = dataToHexW(buffer, buffer + length);
         delete [] buffer;
         return hex;

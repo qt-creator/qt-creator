@@ -218,21 +218,50 @@ ULONG64 SymbolGroupValue::pointerValue(ULONG64 defaultValue) const
     return defaultValue;
 }
 
+ULONG64 SymbolGroupValue::readPointerValue(CIDebugDataSpaces *ds, ULONG64 address,
+                                           std::string *errorMessage /* = 0 */)
+{
+    ULONG64 v = 0;
+    if (const unsigned ps = SymbolGroupValue::pointerSize())
+        if (const unsigned char *buffer = SymbolGroupValue::readMemory(ds, address, ps, errorMessage)) {
+            memcpy(&v, buffer, ps);
+            delete [] buffer;
+    }
+    return v;
+}
+
+// Read memory and return allocated array
+unsigned char *SymbolGroupValue::readMemory(CIDebugDataSpaces *ds, ULONG64 address, ULONG length,
+                                            std::string *errorMessage /* = 0 */)
+{
+    unsigned char *buffer = new unsigned char[length];
+    std::fill(buffer, buffer + length, 0);
+    ULONG received = 0;
+    const HRESULT hr = ds->ReadVirtual(address, buffer, length, &received);
+    if (FAILED(hr)) {
+        delete [] buffer;
+        if (errorMessage) {
+            std::ostringstream estr;
+            estr << "Cannot read " << length << " bytes from " << address << ": "
+                 << msgDebugEngineComFailed("ReadVirtual", hr);
+            *errorMessage = estr.str();
+        }
+        return 0;
+    }
+    if (received < length && errorMessage) {
+        std::ostringstream estr;
+        estr << "Warning: Received only " << received << " bytes of " << length << " requested at " << address << '.';
+        *errorMessage = estr.str();
+    }
+    return buffer;
+}
+
 // Return allocated array of data
 unsigned char *SymbolGroupValue::pointerData(unsigned length) const
 {
-    if (isValid()) {
-        if (const ULONG64 ptr = pointerValue()) {
-            unsigned char *data = new unsigned char[length];
-            std::fill(data, data + length, 0);
-            const HRESULT hr = m_context.dataspaces->ReadVirtual(ptr, data, length, NULL);
-            if (FAILED(hr)) {
-                delete [] data;
-                return 0;
-            }
-            return data;
-        }
-    }
+    if (isValid())
+        if (const ULONG64 ptr = pointerValue())
+            return SymbolGroupValue::readMemory(m_context.dataspaces, ptr, length);
     return 0;
 }
 
@@ -993,6 +1022,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QRect;
         if (!type.compare(qPos, 5, "QIcon"))
             return KT_QIcon;
+        if (!type.compare(qPos, 5, "QFile"))
+            return KT_QFile;
         break;
     case 6:
         if (!type.compare(qPos, 6, "QColor"))
@@ -1281,6 +1312,134 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
     return false;
 }
 
+/* Pad a memory offset to align with pointer size */
+static inline unsigned padOffset(unsigned offset)
+{
+    const unsigned ps = SymbolGroupValue::pointerSize();
+    return (offset % ps) ? (1 + offset / ps) * ps : offset;
+}
+
+/* Return the offset to be accounted for "QSharedData" to access
+ * the first member of a QSharedData-derived class */
+static unsigned qSharedDataOffset(const SymbolGroupValueContext &ctx)
+{
+    unsigned offset = 0;
+    if (!offset) {
+        // As of 4.X, a QAtomicInt, which will be padded to 8 on a 64bit system.
+        const std::string qSharedData = QtInfo::get(ctx).prependQtCoreModule("QSharedData");
+        offset = padOffset(SymbolGroupValue::sizeOf(qSharedData.c_str()));
+    }
+    return offset;
+}
+
+/* Return the size of a QString */
+static unsigned qStringSize(const SymbolGroupValueContext &ctx)
+{
+    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QString").c_str());
+    return size;
+}
+
+/* Return the size of a QByteArray */
+static unsigned qByteArraySize(const SymbolGroupValueContext &ctx)
+{
+    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QByteArray").c_str());
+    return size;
+}
+
+/* Return the size of a QAtomicInt */
+static unsigned qAtomicIntSize(const SymbolGroupValueContext &ctx)
+{
+    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QAtomicInt").c_str());
+    return size;
+}
+
+// Dump a QByteArray
+static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
+{
+    // TODO: More sophisticated dumping of binary data?
+    if (const  SymbolGroupValue data = v["d"]["data"]) {
+        str << data.value();
+        return true;
+    }
+    return false;
+}
+
+/* Dump QFileInfo: Works by poking around in raw memory: Dereference the d-ptr and
+ * obtain the QFileInfoPrivate. Access the right string past its QSharedData base class. */
+static bool dumpQFileInfo(const SymbolGroupValue &v, std::wostream &str)
+{
+    std::string errorMessage;
+    // Dererence d-Ptr.
+    const ULONG64 dptr = SymbolGroupValue::readPointerValue(v.context().dataspaces,
+                                                            v.address(), &errorMessage);
+    if (!dptr)
+        return false;
+    // Get address of string, obtain value by dumping a QString at address
+    const ULONG64 stringAddress = dptr  + qSharedDataOffset(v.context()) + qStringSize(v.context());
+    const std::string qStringType = QtInfo::get(v.context()).prependQtCoreModule("QString");
+    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , qStringType);
+    SymbolGroupNode *fileNameNode =
+        v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
+    if (!fileNameNode)
+        return false;
+    return dumpQString(SymbolGroupValue(fileNameNode, v.context()), str);
+}
+
+/* Dump QFile: Works by poking around in raw memory: Dereference the d-ptr and
+ * obtain the QFilePrivate. Access the right string past its QIODevicePrivate base class. */
+static bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
+{
+    std::string errorMessage;
+    // Dererence d-Ptr (past virtual function table).
+    const ULONG64 dptr = SymbolGroupValue::readPointerValue(v.context().dataspaces,
+                                                            v.address() + SymbolGroupValue::pointerSize(),
+                                                            &errorMessage);
+    if (!dptr)
+        return false;
+    // Get address of the file name string, obtain value by dumping a QString at address
+    static unsigned qIoDevicePrivateSize = 0;
+    if (!qIoDevicePrivateSize) {
+        const std::string qIoDevicePrivateType = QtInfo::get(v.context()).prependQtCoreModule("QIODevicePrivate");
+        qIoDevicePrivateSize = padOffset(SymbolGroupValue::sizeOf(qIoDevicePrivateType.c_str()));
+    }
+    if (!qIoDevicePrivateSize)
+        return false;
+    const ULONG64 stringAddress = dptr  + qIoDevicePrivateSize;
+    const std::string qStringType = QtInfo::get(v.context()).prependQtCoreModule("QString");
+    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , qStringType);
+    SymbolGroupNode *fileNameNode =
+        v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
+    if (!fileNameNode)
+        return false;
+    return dumpQString(SymbolGroupValue(fileNameNode, v.context()), str);
+}
+
+/* Dump QUrl: Works by poking around in raw memory: Dereference the d-ptr and
+ * obtain the QUrlPrivate. Access the 'originally encoded' byte array. */
+static bool dumpQUrl(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn)
+{
+    std::string errorMessage;
+    // Dererence d-Ptr (past virtual function table).
+    const ULONG64 dptr = SymbolGroupValue::readPointerValue(v.context().dataspaces,
+                                                            v.address(),
+                                                            &errorMessage);
+    if (!dptr)
+        return false;
+    if (specialInfoIn)
+        *specialInfoIn = reinterpret_cast<void *>(intptr_t(dptr));
+    // Get address of the original-encoded byte array, obtain value by dumping at address
+    const ULONG64 origBA_Address = dptr + padOffset(qAtomicIntSize(v.context()))
+                                   + 6 * qStringSize(v.context())
+                                  + qByteArraySize(v.context());
+    const std::string qByteArrayType = QtInfo::get(v.context()).prependQtCoreModule("QByteArray");
+    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(origBA_Address, qByteArrayType);
+    SymbolGroupNode *origEncodedBANode =
+        v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
+    if (!origEncodedBANode)
+        return false;
+    return dumpQByteArray(SymbolGroupValue(origEncodedBANode, v.context()), str);
+}
+
 // Dump QColor
 static bool dumpQColor(const SymbolGroupValue &v, std::wostream &str)
 {
@@ -1392,17 +1551,6 @@ static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str)
             formatMilliSeconds(str, milliSecs);
             return true;
         }
-    }
-    return false;
-}
-
-// Dump a QByteArray
-static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
-{
-    // TODO: More sophisticated dumping of binary data?
-    if (const  SymbolGroupValue data = v["d"]["data"]) {
-        str << data.value();
-        return true;
     }
     return false;
 }
@@ -1795,6 +1943,15 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         break;
     case KT_QByteArray:
         rc = dumpQByteArray(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QFileInfo:
+        rc = dumpQFileInfo(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QFile:
+        rc = dumpQFile(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QUrl:
+        rc = dumpQUrl(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QString:
         rc = dumpQString(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;

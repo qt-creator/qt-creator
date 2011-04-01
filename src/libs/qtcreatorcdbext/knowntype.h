@@ -79,7 +79,7 @@ enum KnownType
     KT_QSharedPointer = KT_Qt_Type + KT_HasSimpleDumper + KT_HasComplexDumper + 22,
     // Types: Various QT movable types
     KT_QPen = KT_Qt_Type + KT_Qt_MovableType + 30,
-    KT_QUrl = KT_Qt_Type + KT_Qt_MovableType + 31,
+    KT_QUrl = KT_Qt_Type + KT_Qt_MovableType + 31 + KT_HasSimpleDumper,
     KT_QIcon = KT_Qt_Type + KT_Qt_MovableType + 32,
     KT_QBrush = KT_Qt_Type + KT_Qt_MovableType + 33,
     KT_QImage = KT_Qt_Type + KT_Qt_MovableType + 35,
@@ -91,7 +91,7 @@ enum KnownType
     KT_QXmlName = KT_Qt_Type + KT_Qt_MovableType + 41,
     KT_QBitArray = KT_Qt_Type + KT_Qt_MovableType + 42,
     KT_QDateTime = KT_Qt_Type + KT_Qt_MovableType + 43,
-    KT_QFileInfo = KT_Qt_Type + KT_Qt_MovableType + 44,
+    KT_QFileInfo = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 44,
     KT_QMetaEnum = KT_Qt_Type + KT_Qt_MovableType + 45,
     KT_QVector2D = KT_Qt_Type + KT_Qt_MovableType + 46,
     KT_QVector3D = KT_Qt_Type + KT_Qt_MovableType + 47,
@@ -136,6 +136,7 @@ enum KnownType
     KT_QPatternist_ItemSequenceCacheCell = KT_Qt_Type + KT_Qt_MovableType + 86,
     KT_QNetworkHeadersPrivate_RawHeaderPair = KT_Qt_Type + KT_Qt_MovableType + 87,
     KT_QPatternist_AccelTree_BasicNodeData = KT_Qt_Type + KT_Qt_MovableType + 88,
+    KT_QFile = KT_Qt_Type + KT_HasSimpleDumper + 89,
     // Types: Qt primitive types
     KT_QFixed = KT_Qt_Type + KT_Qt_PrimitiveType + 90,
     KT_QTextItem = KT_Qt_Type + KT_Qt_PrimitiveType + 91,
