@@ -38,7 +38,7 @@
 
 #include <iostream>
 
-using namespace Core;
+using namespace Utils;
 
 RemoteProcessTest::RemoteProcessTest(const SshConnectionParameters &params)
     : m_timeoutTimer(new QTimer(this)),
@@ -53,7 +53,7 @@ RemoteProcessTest::~RemoteProcessTest() { }
 
 void RemoteProcessTest::run()
 {
-    connect(m_remoteRunner.data(), SIGNAL(connectionError(Core::SshError)),
+    connect(m_remoteRunner.data(), SIGNAL(connectionError(Utils::SshError)),
         SLOT(handleConnectionError()));
     connect(m_remoteRunner.data(), SIGNAL(processStarted()),
         SLOT(handleProcessStarted()));
@@ -88,7 +88,7 @@ void RemoteProcessTest::handleProcessStarted()
     } else {
         m_started = true;
         if (m_state == TestingCrash) {
-            Core::SshRemoteProcess::Ptr killer
+            Utils::SshRemoteProcess::Ptr killer
                 = m_remoteRunner->connection()->createRemoteProcess("pkill -9 sleep");
             killer->start();
         }

@@ -41,7 +41,7 @@
 
 #include <iostream>
 
-using namespace Core;
+using namespace Utils;
 
 SftpTest::SftpTest(const Parameters &params)
     : m_parameters(params), m_state(Inactive), m_error(false),
@@ -61,7 +61,7 @@ void SftpTest::run()
     m_connection = SshConnection::create();
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
+    connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
         SLOT(handleError()));
     connect(m_connection.data(), SIGNAL(disconnected()), this,
         SLOT(handleDisconnected()));
@@ -84,8 +84,8 @@ void SftpTest::handleConnected()
            SLOT(handleChannelInitialized()));
         connect(m_channel.data(), SIGNAL(initializationFailed(QString)), this,
             SLOT(handleChannelInitializationFailure(QString)));
-        connect(m_channel.data(), SIGNAL(finished(Core::SftpJobId, QString)),
-            this, SLOT(handleJobFinished(Core::SftpJobId, QString)));
+        connect(m_channel.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
+            this, SLOT(handleJobFinished(Utils::SftpJobId, QString)));
         connect(m_channel.data(), SIGNAL(closed()), this,
             SLOT(handleChannelClosed()));
         m_state = InitializingChannel;
@@ -192,7 +192,7 @@ void SftpTest::handleChannelClosed()
     m_connection->disconnectFromHost();
 }
 
-void SftpTest::handleJobFinished(Core::SftpJobId job, const QString &error)
+void SftpTest::handleJobFinished(Utils::SftpJobId job, const QString &error)
 {
     switch (m_state) {
     case UploadingSmall:

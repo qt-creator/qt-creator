@@ -36,8 +36,8 @@
 
 #include "parameters.h"
 
-#include <coreplugin/ssh/sftpchannel.h>
-#include <coreplugin/ssh/sshconnection.h>
+#include <utils/ssh/sftpchannel.h>
+#include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QHash>
@@ -61,11 +61,11 @@ private slots:
     void handleDisconnected();
     void handleChannelInitialized();
     void handleChannelInitializationFailure(const QString &reason);
-    void handleJobFinished(Core::SftpJobId job, const QString &error);
+    void handleJobFinished(Utils::SftpJobId job, const QString &error);
     void handleChannelClosed();
 
 private:
-    typedef QHash<Core::SftpJobId, QString> JobMap;
+    typedef QHash<Utils::SftpJobId, QString> JobMap;
     typedef QSharedPointer<QFile> FilePtr;
     enum State { Inactive, Connecting, InitializingChannel, UploadingSmall,
         DownloadingSmall, RemovingSmall, UploadingBig, DownloadingBig,
@@ -77,25 +77,25 @@ private:
     QString cmpFileName(const QString &localFileName) const;
     QString remoteFilePath(const QString &localFileName) const;
     void earlyDisconnectFromHost();
-    bool handleJobFinished(Core::SftpJobId job, JobMap &jobMap,
+    bool handleJobFinished(Utils::SftpJobId job, JobMap &jobMap,
         const QString &error, const char *activity);
-    bool handleBigJobFinished(Core::SftpJobId job, Core::SftpJobId expectedJob,
+    bool handleBigJobFinished(Utils::SftpJobId job, Utils::SftpJobId expectedJob,
         const QString &error, const char *activity);
     bool compareFiles(QFile *orig, QFile *copy);
 
     const Parameters m_parameters;
     State m_state;
     bool m_error;
-    Core::SshConnection::Ptr m_connection;
-    Core::SftpChannel::Ptr m_channel;
+    Utils::SshConnection::Ptr m_connection;
+    Utils::SftpChannel::Ptr m_channel;
     QList<FilePtr> m_localSmallFiles;
     JobMap m_smallFilesUploadJobs;
     JobMap m_smallFilesDownloadJobs;
     JobMap m_smallFilesRemovalJobs;
     FilePtr m_localBigFile;
-    Core::SftpJobId m_bigFileUploadJob;
-    Core::SftpJobId m_bigFileDownloadJob;
-    Core::SftpJobId m_bigFileRemovalJob;
+    Utils::SftpJobId m_bigFileUploadJob;
+    Utils::SftpJobId m_bigFileDownloadJob;
+    Utils::SftpJobId m_bigFileRemovalJob;
     QElapsedTimer m_bigJobTimer;
 };
 
