@@ -164,10 +164,10 @@ void SshOutgoingPacket::generatePtyRequestPacket(quint32 remoteChannel,
     QByteArray modeString;
     for (SshPseudoTerminal::ModeMap::ConstIterator it = terminal.modes.constBegin();
          it != terminal.modes.constEnd(); ++it) {
-        modeString += static_cast<quint8>(it.key());
+        modeString += char(it.key());
         modeString += encodeInt(it.value());
     }
-    modeString += encodeInt(static_cast<quint8>(0)); // TTY_OP_END
+    modeString += char(0); // TTY_OP_END
     appendString(modeString).finalize();
 }
 
