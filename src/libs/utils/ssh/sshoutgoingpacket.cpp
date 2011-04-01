@@ -151,7 +151,7 @@ void SshOutgoingPacket::generateEnvPacket(quint32 remoteChannel,
     const QByteArray &var, const QByteArray &value)
 {
     init(SSH_MSG_CHANNEL_REQUEST).appendInt(remoteChannel).appendString("env")
-        .appendBool(false).appendString(var).appendString(value);
+        .appendBool(false).appendString(var).appendString(value).finalize();
 }
 
 void SshOutgoingPacket::generateExecPacket(quint32 remoteChannel,
