@@ -96,17 +96,14 @@ enum {
     TextMatchPriority
 };
 
-/* Parse sth like (<mime-info> being optional):
- *\code
-?xml version="1.0" encoding="UTF-8"?>
-<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-  <!-- Mime types must match the desktop file associations -->
-  <mime-type type="application/vnd.nokia.qt.qmakeprofile">
-    <comment xml:lang="en">Qt qmake Profile</comment>
-    <glob pattern="*.pro" weight="50"/>
-  </mime-type>
-</mime-info>
- *\endcode
+/*!
+    \class Core::IMagicMatcher
+
+    \brief Interface for a Mime type magic matcher (examinig file contents).
+
+    \sa Core::MimeType, Core::MimeDatabase, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
 */
 
 namespace Core {
@@ -115,10 +112,18 @@ typedef QSharedPointer<MagicRuleMatcher> MagicRuleMatcherPtr;
 
 namespace Internal {
 
-// FileMatchContext: Passed on to the mimetypes from the database
-// when looking for a file match. It exists to enable reading the file
-// contents "on demand" (as opposed to each mime type trying to open
-// and read while checking).
+/*!
+    \class Core::Internal::FileMatchContext
+
+    \brief Context passed on to the mime types when looking for a file match.
+
+    It exists to enable reading the file contents "on demand"
+    (as opposed to each mime type trying to open and read while checking).
+
+    \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+*/
 
 class FileMatchContext {
     Q_DISABLE_COPY(FileMatchContext)
@@ -170,7 +175,15 @@ QByteArray FileMatchContext::data()
     return m_data;
 }
 
-// The binary fallback matcher for "application/octet-stream".
+/*!
+    \class Core::Internal::BinaryMatcher
+    \brief The binary fallback matcher for mime type "application/octet-stream".
+
+    \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+*/
+
 class BinaryMatcher : public IMagicMatcher {
     Q_DISABLE_COPY(BinaryMatcher)
 public:
@@ -179,8 +192,18 @@ public:
     virtual int priority() const  { return BinaryMatchPriority; }
 };
 
-// A heuristic text file matcher: If the data do not contain any character
-// below tab (9), detect as text.
+/*!
+    \class Core::Internal::HeuristicTextMagicMatcher
+    \brief Heuristic text file matcher for mime types.
+
+    If the data do not contain any character below tab (9), detect as text.
+    Additionally, check on UTF16 byte order markers.
+
+    \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+*/
+
 class HeuristicTextMagicMatcher : public IMagicMatcher {
     Q_DISABLE_COPY(HeuristicTextMagicMatcher)
 public:
@@ -214,7 +237,20 @@ bool HeuristicTextMagicMatcher::matches(const QByteArray &data) const
 
 } // namespace Internal
 
-// MagicRule
+/*!
+    \class Core::MagicRule
+    \brief Base class for standard Magic match rules based on contents
+    and offset specification.
+
+    Stores the offset and provides conversion helpers.
+    Base class for implementations for "string" and "byte".
+    (Others like little16, big16, etc. can be created whenever there is a need.)
+
+    \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+ */
+
 const QChar MagicRule::kColon(QLatin1Char(':'));
 
 MagicRule::MagicRule(int startPos, int endPos) : m_startPos(startPos), m_endPos(endPos)
@@ -246,6 +282,15 @@ QPair<int, int> MagicRule::fromOffset(const QString &offset)
     Q_ASSERT(startEnd.size() == 2);
     return qMakePair(startEnd.at(0).toInt(), startEnd.at(1).toInt());
 }
+
+/*!
+    \class Core::MagicStringRule
+    \brief Match on a string.
+
+    \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+ */
 
 const QString MagicStringRule::kMatchType("string");
 
@@ -283,6 +328,20 @@ bool MagicStringRule::matches(const QByteArray &data) const
         qDebug() << "Checking " << m_pattern << startPos() << endPos() << " returns " << rc;
     return rc;
 }
+
+/*!
+    \class Core::MagicByteRule
+    \brief Match on a sequence of binary data.
+
+    Format:
+    \code
+    \0x7f\0x45\0x4c\0x46
+    \endcode
+
+    \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+ */
 
 const QString MagicByteRule::kMatchType(QLatin1String("byte"));
 
@@ -352,7 +411,18 @@ bool MagicByteRule::matches(const QByteArray &data) const
     return false;
 }
 
-// List matcher
+/*!
+    \class Core::MagicRuleMatcher
+
+    \brief A Magic matcher that checks a number of rules based on operator "or".
+
+    It is used for rules parsed from XML files.
+
+    \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+*/
+
 MagicRuleMatcher::MagicRuleMatcher() :
      m_priority(65535)
 {
@@ -406,7 +476,15 @@ IMagicMatcher::IMagicMatcherList MagicRuleMatcher::createMatchers(
     return matchers;
 }
 
-// GlobPattern
+/*!
+    \class Core::GlobPattern
+    \brief Glob pattern for file names for mime type matching.
+
+    \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+*/
+
 MimeGlobPattern::MimeGlobPattern(const QRegExp &regExp, unsigned weight) :
     m_regExp(regExp), m_weight(weight)
 {
@@ -426,7 +504,38 @@ unsigned MimeGlobPattern::weight() const
     return m_weight;
 }
 
-// ---------- MimeTypeData
+/*!
+    \class Core::MimeType
+
+    \brief Mime type data used in Qt Creator.
+
+    Contains most information from standard mime type XML database files.
+
+    Currently, magic of types "string", "bytes" is supported. In addition,
+    C++ classes, derived from Core::IMagicMatcher can be added to check
+    on contents.
+
+    In addition, the class provides a list of suffixes and a concept of the
+    'preferred suffix' (derived from glob patterns). This is used for example
+    to be able to configure the suffix used for C++-files in Qt Creator.
+
+    Mime XML looks like:
+    \code
+    <?xml version="1.0" encoding="UTF-8"?>
+    <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <!-- Mime types must match the desktop file associations -->
+      <mime-type type="application/vnd.nokia.qt.qmakeprofile">
+        <comment xml:lang="en">Qt qmake Profile</comment>
+        <glob pattern="*.pro" weight="50"/>
+      </mime-type>
+    </mime-info>
+    \endcode
+
+    \sa Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+*/
+
 class MimeTypeData : public QSharedData {
 public:
     typedef QHash<QString,QString> LocaleHash;
@@ -796,8 +905,17 @@ QDebug operator<<(QDebug d, const MimeType &mt)
 
 namespace Internal {
 
-//  MimeDatabase helpers: Generic parser for a sequence of <mime-type>.
-//  Calls abstract handler function process for MimeType it finds.
+/*!
+    \class Core::Internal::BaseMimeTypeParser
+    \brief Generic parser for a sequence of <mime-type>.
+
+    Calls abstract handler function process for MimeType it finds.
+
+    \sa Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::MimeTypeParser
+*/
+
 class BaseMimeTypeParser {
     Q_DISABLE_COPY(BaseMimeTypeParser)
 public:
@@ -1059,28 +1177,50 @@ MimeMapEntry::MimeMapEntry(const MimeType &t, int aLevel) :
 {
 }
 
-/* MimeDatabasePrivate: Requirements for storage:
- * - Must be robust in case of incomplete hierachies, dangling entries
- * - Plugins will not load and register their mime types in order
- *   of inheritance.
- * - Multiple inheritance (several subClassesOf) can occur
- * - Provide quick lookup by name
- * - Provide quick lookup by file type.
- * This basically rules out some pointer-based tree, so the structure chosen
- * is:
- * - An alias map QString->QString for mapping aliases to types
- * - A Map QString->MimeMapEntry for the types (MimeMapEntry being a pair of
- *   MimeType and (hierarchy) level.
- * - A map  QString->QString representing parent->child relations (enabling
- *   recursing over children)
- * Using strings avoids dangling pointers.
- * The hierarchy level is used for mapping by file types. When findByFile()
- * is first called after addMimeType() it recurses over the hierarchy and sets
- * the hierarchy level of the entries accordingly (0 toplevel, 1 first
- * order...). It then does several passes over the type map, checking the
- * globs for maxLevel, maxLevel-1....until it finds a match (idea being to
- * to check the most specific types first). Starting a recursion from the
- * leaves is not suitable since it will hit parent nodes several times. */
+/*!
+    \class Core::MimeDatabase
+    \brief Mime data base to which the plugins can add the mime types they handle.
+
+    The class is protected by a QMutex and can therefore be accessed by threads.
+
+    A good testcase is to run it over \c '/usr/share/mime/<*>/<*>.xml' on Linux.
+
+    When adding a "text/plain" to it, the mimetype will receive a magic matcher
+    that checks for text files that do not match the globs by heuristics.
+
+    \section1 Design Considerations
+
+    Storage requirements:
+    \list
+    \o Must be robust in case of incomplete hierarchies, dangling entries
+    \o Plugins will not load and register their mime types in order of inheritance.
+    \o Multiple inheritance (several subClassesOf) can occur
+    \o Provide quick lookup by name
+    \o Provide quick lookup by file type.
+    \endlist
+
+    This basically rules out some pointer-based tree, so the structure chosen is:
+    \list
+    \o An alias map QString->QString for mapping aliases to types
+    \o A Map QString->MimeMapEntry for the types (MimeMapEntry being a pair of
+       MimeType and (hierarchy) level.
+    \o A map  QString->QString representing parent->child relations (enabling
+       recursing over children)
+    \o Using strings avoids dangling pointers.
+    \endlist
+
+    The hierarchy level is used for mapping by file types. When findByFile()
+    is first called after addMimeType() it recurses over the hierarchy and sets
+    the hierarchy level of the entries accordingly (0 toplevel, 1 first
+    order...). It then does several passes over the type map, checking the
+    globs for maxLevel, maxLevel-1....until it finds a match (idea being to
+    to check the most specific types first). Starting a recursion from the
+    leaves is not suitable since it will hit parent nodes several times.
+
+    \sa Core::MimeType, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
+*/
 
 class MimeDatabasePrivate
 {
@@ -1154,6 +1294,17 @@ MimeDatabasePrivate::MimeDatabasePrivate() :
     // Assign here to avoid non-local static data initialization issues.
     kModifiedMimeTypesPath = ICore::instance()->userResourcePath() + QLatin1String("/mimetypes/");
 }
+
+/*!
+    \class Core::Internal::MimeTypeParser
+    \brief Mime type parser
+
+    Populates Core::MimeDataBase
+
+    \sa Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
+    \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
+    \sa Core::Internal::MimeTypeParser
+*/
 
 namespace Internal {
     // Parser that builds MimeDB hierarchy by adding to MimeDatabasePrivate
@@ -1637,7 +1788,6 @@ void MimeDatabasePrivate::debug(QTextStream &str) const
     str << "<MimeDatabase\n";
 }
 
-// --------------- MimeDatabase
 MimeDatabase::MimeDatabase() :
     m_d(new MimeDatabasePrivate)
 {

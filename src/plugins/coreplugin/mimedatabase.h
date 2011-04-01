@@ -45,9 +45,7 @@
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
-class QRegExp;
 class QDebug;
-class QFileInfo;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -60,7 +58,6 @@ namespace Internal {
     class FileMatchContext;
 }
 
-/* Magic (file contents) matcher interface. */
 class CORE_EXPORT IMagicMatcher
 {
     Q_DISABLE_COPY(IMagicMatcher)
@@ -77,9 +74,6 @@ public:
     virtual ~IMagicMatcher() {}
 };
 
-/* Utility class: A standard Magic match rule based on contents. Currently there are
- * implementations for "string" and "byte". (Others like little16, big16, etc. can be
- * created whenever there is a need.) */
 class CORE_EXPORT MagicRule
 {
     Q_DISABLE_COPY(MagicRule)
@@ -139,8 +133,6 @@ private:
     QList<int> m_bytes;
 };
 
-/* Utility class: A Magic matcher that checks a number of rules based on
- * operator "or". It is used for rules parsed from XML files. */
 class CORE_EXPORT MagicRuleMatcher : public IMagicMatcher
 {
     Q_DISABLE_COPY(MagicRuleMatcher)
@@ -184,15 +176,6 @@ private:
     int m_weight;
 };
 
-/* Mime type data used in Qt Creator. Contains most information from
- * standard mime type XML database files.
- * Omissions:
- * - Only magic of type "string" is supported. In addition, C++ classes
- *   derived from IMagicMatcher can be added to check on contents
- * - acronyms, language-specific comments
- * Extensions:
- * - List of suffixes and preferred suffix (derived from glob patterns).
- */
 class CORE_EXPORT MimeType
 {
 public:
@@ -267,12 +250,6 @@ private:
     friend class MimeDatabasePrivate;
     QSharedDataPointer<MimeTypeData> m_d;
 };
-
-/* A Mime data base to which the plugins can add the mime types they handle.
- * When adding a "text/plain" to it, the mimetype will receive a magic matcher
- * that checks for text files that do not match the globs by heuristics.
- * The class is protected by a QMutex and can therefore be accessed by threads.
- * A good testcase is to run it over '/usr/share/mime/<*>/<*>.xml' on Linux. */
 
 class CORE_EXPORT MimeDatabase
 {
