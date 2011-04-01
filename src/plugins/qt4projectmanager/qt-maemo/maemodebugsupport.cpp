@@ -338,7 +338,7 @@ void MaemoDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 
 void MaemoDebugSupport::handleProgressReport(const QString &progressOutput)
 {
-    showMessage(progressOutput, AppStuff);
+    showMessage(progressOutput + QLatin1Char('\n'), AppStuff);
 }
 
 void MaemoDebugSupport::handleAdapterSetupFailed(const QString &error)

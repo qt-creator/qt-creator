@@ -151,7 +151,24 @@ void SshOutgoingPacket::generateEnvPacket(quint32 remoteChannel,
     const QByteArray &var, const QByteArray &value)
 {
     init(SSH_MSG_CHANNEL_REQUEST).appendInt(remoteChannel).appendString("env")
-        .appendBool(false).appendString(var).appendString(value);
+        .appendBool(false).appendString(var).appendString(value).finalize();
+}
+
+void SshOutgoingPacket::generatePtyRequestPacket(quint32 remoteChannel,
+    const SshPseudoTerminal &terminal)
+{
+    init(SSH_MSG_CHANNEL_REQUEST).appendInt(remoteChannel)
+        .appendString("pty-req").appendBool(false)
+        .appendString(terminal.termType).appendInt(terminal.columnCount)
+        .appendInt(terminal.rowCount);
+    QByteArray modeString;
+    for (SshPseudoTerminal::ModeMap::ConstIterator it = terminal.modes.constBegin();
+         it != terminal.modes.constEnd(); ++it) {
+        modeString += encodeInt(static_cast<quint8>(it.key()));
+        modeString += encodeInt(it.value());
+    }
+    modeString += encodeInt(static_cast<quint8>(0)); // TTY_OP_END
+    appendString(modeString).finalize();
 }
 
 void SshOutgoingPacket::generateExecPacket(quint32 remoteChannel,

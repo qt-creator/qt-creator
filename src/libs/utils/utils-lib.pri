@@ -172,6 +172,7 @@ HEADERS += $$PWD/environment.h \
     $$PWD/ssh/sftpchannel_p.h \
     $$PWD/ssh/sshremoteprocessrunner.h \
     $$PWD/ssh/sshconnectionmanager.h \
+    $$PWD/ssh/sshpseudoterminal.h \
     $$PWD/statuslabel.h
 
 FORMS += $$PWD/filewizardpage.ui \

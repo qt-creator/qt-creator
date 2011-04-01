@@ -36,6 +36,8 @@
 
 #include "sshpacket_p.h"
 
+#include "sshpseudoterminal.h"
+
 namespace Utils {
 namespace Internal {
 
@@ -65,6 +67,8 @@ public:
         quint32 maxPacketSize);
     void generateEnvPacket(quint32 remoteChannel, const QByteArray &var,
         const QByteArray &value);
+    void generatePtyRequestPacket(quint32 remoteChannel,
+        const SshPseudoTerminal &terminal);
     void generateExecPacket(quint32 remoteChannel, const QByteArray &command);
     void generateSftpPacket(quint32 remoteChannel);
     void generateWindowAdjustPacket(quint32 remoteChannel, quint32 bytesToAdd);
