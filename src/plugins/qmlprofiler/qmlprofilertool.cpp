@@ -52,6 +52,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
 
 #include <texteditor/itexteditor.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -103,6 +104,8 @@ public:
     QDeclarativeDebugConnection *m_client;
     TraceWindow *m_traceWindow;
     QmlProfilerOutputPaneAdapter *m_outputPaneAdapter;
+    ProjectExplorer::Project *m_project;
+    Utils::FileInProjectFinder m_projectFinder;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
@@ -111,6 +114,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
      d->m_client = 0;
      d->m_traceWindow = 0;
      d->m_outputPaneAdapter = 0;
+     d->m_project = 0;
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -142,6 +146,13 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(ProjectExplorer::RunConfiguration
 {
     QmlProfilerEngine *engine = new QmlProfilerEngine(runConfiguration);
 
+    d->m_project = runConfiguration->target()->project();
+    if (d->m_project) {
+        d->m_projectFinder.setProjectDirectory(d->m_project->projectDirectory());
+        updateProjectFileList();
+        connect(d->m_project, SIGNAL(fileListChanged()), this, SLOT(updateProjectFileList()));
+    }
+
     connect(engine, SIGNAL(processRunning()), this, SLOT(connectClient()));
     connect(engine, SIGNAL(processTerminated()), this, SLOT(disconnectClient()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
@@ -150,7 +161,6 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(ProjectExplorer::RunConfiguration
     connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
 
     return engine;
-
 }
 
 void QmlProfilerTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
@@ -237,13 +247,7 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileName, int lineNumber
     if (lineNumber < 0 || !QFile::exists(QUrl(fileName).toLocalFile()))
         return;
 
-    Utils::FileInProjectFinder m_projectFinder;
-    ProjectExplorer::Project *m_debugProject;
-    m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    m_projectFinder.setProjectDirectory(m_debugProject->projectDirectory());
-
-    QString projectFileName = m_projectFinder.findFile(fileName);
-
+    QString projectFileName = d->m_projectFinder.findFile(fileName);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->openEditor(projectFileName);
@@ -261,4 +265,10 @@ void QmlProfilerTool::updateTimer(qreal elapsedSeconds)
     QString timeString = QString::number(elapsedSeconds,'f',1);
     timeString = QString("      ").left(6-timeString.length()) + timeString;
     emit setTimeLabel(tr("elapsed: ")+timeString+QLatin1String(" s"));
+}
+
+void QmlProfilerTool::updateProjectFileList()
+{
+    d->m_projectFinder.setProjectFiles(
+                d->m_project->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
 }

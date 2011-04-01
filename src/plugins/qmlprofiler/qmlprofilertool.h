@@ -76,6 +76,9 @@ public:
     static QString host;
     static quint16 port;
 
+private slots:
+    void updateProjectFileList();
+
 private:
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;
