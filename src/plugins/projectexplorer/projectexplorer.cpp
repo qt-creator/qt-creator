@@ -1662,10 +1662,10 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
         return -1;
 
     QList<BuildStepList *> stepLists;
-    foreach (Project *pro, projects) {
-        if (!pro || !pro->activeTarget())
-            continue;
-        foreach (const QString id, stepIds) {
+    foreach (const QString id, stepIds) {
+        foreach (Project *pro, projects) {
+            if (!pro || !pro->activeTarget())
+                continue;
             BuildStepList *bsl = 0;
             if (id == Core::Id(Constants::BUILDSTEPS_DEPLOY)
                 && pro->activeTarget()->activeDeployConfiguration())
