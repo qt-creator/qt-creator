@@ -65,6 +65,7 @@ class QmlAnchorBindingProxy : public QObject
     Q_PROPERTY(QVariant horizontalTarget READ horizontalTarget WRITE setHorizontalTarget NOTIFY horizontalTargetChanged)
 
     Q_PROPERTY(bool hasAnchors READ hasAnchors NOTIFY anchorsChanged)
+    Q_PROPERTY(bool isFilled READ isFilled NOTIFY anchorsChanged)
 
     Q_PROPERTY(bool horizontalCentered READ horizontalCentered WRITE setHorizontalCentered NOTIFY centeredHChanged)
     Q_PROPERTY(bool verticalCentered READ verticalCentered WRITE setVerticalCentered NOTIFY centeredVChanged)
@@ -85,6 +86,7 @@ public:
     bool rightAnchored();
 
     bool hasParent();
+    bool isFilled();
 
     void removeTopAnchor();
     void removeBottomAnchor();

@@ -131,6 +131,7 @@ QWidget {
         styleSheetFile: "anchorfill.css";
         toolTip: enabled ? qsTr("Fill to parent") : qsTr("Setting anchors in states is not supported.")
         checkable: true
+        checked: anchorBackend.isFilled;
 
         onReleased: {              
             if (checked) {

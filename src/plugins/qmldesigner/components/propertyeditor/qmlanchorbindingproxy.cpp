@@ -152,6 +152,15 @@ bool QmlAnchorBindingProxy::hasParent()
     return m_fxItemNode.isValid() && m_fxItemNode.hasNodeParent();
 }
 
+bool QmlAnchorBindingProxy::isFilled()
+{
+    return m_fxItemNode.isValid() && hasAnchors() && topAnchored() && bottomAnchored() && leftAnchored() && rightAnchored()
+            && (m_fxItemNode.instanceValue("anchors.topMargin").toInt() == 0)
+            && (m_fxItemNode.instanceValue("anchors.bottomMargin").toInt() == 0)
+            && (m_fxItemNode.instanceValue("anchors.leftMargin").toInt() == 0)
+            && (m_fxItemNode.instanceValue("anchors.rightMargin").toInt() == 0);
+}
+
 bool QmlAnchorBindingProxy::topAnchored()
 {
     return m_fxItemNode.isValid() && m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::Top);
