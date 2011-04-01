@@ -814,10 +814,9 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
     if (currentItemIndex < 0)
         return;
     QtVersion *version = m_versions.at(currentItemIndex);
-    QFileInfo fi(m_versionUi->qmakePath->path());
-    if (!fi.exists() || !fi.isFile() || version->qmakeCommand() == fi.absoluteFilePath())
+    if (version->qmakeCommand() == m_versionUi->qmakePath->path())
         return;
-    version->setQMakeCommand(fi.absoluteFilePath());
+    version->setQMakeCommand(m_versionUi->qmakePath->path());
     currentItem->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
     showEnvironmentPage(currentItem);
 
