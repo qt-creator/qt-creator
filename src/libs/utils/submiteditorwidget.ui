@@ -43,6 +43,16 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
+       <widget class="QCheckBox" name="checkAllCheckBox">
+        <property name="text">
+         <string>Check &amp;all</string>
+        </property>
+        <property name="tristate">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QTreeView" name="fileView"/>
       </item>
      </layout>

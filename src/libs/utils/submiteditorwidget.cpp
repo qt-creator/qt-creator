@@ -176,6 +176,7 @@ struct SubmitEditorWidgetPrivate
     int m_lineWidth;
 
     bool m_commitEnabled;
+    bool m_ignoreChange;
 };
 
 SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
@@ -185,7 +186,8 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_emptyFileListEnabled(false),
     m_fieldLayout(0),
     m_lineWidth(defaultLineWidth),
-    m_commitEnabled(false)
+    m_commitEnabled(false),
+    m_ignoreChange(false)
 {
 }
 
@@ -210,6 +212,9 @@ SubmitEditorWidget::SubmitEditorWidget(QWidget *parent) :
     m_d->m_ui.fileView->setRootIsDecorated(false);
     connect(m_d->m_ui.fileView, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(diffActivated(QModelIndex)));
+
+    connect(m_d->m_ui.checkAllCheckBox, SIGNAL(stateChanged(int)),
+            this, SLOT(checkAllToggled()));
 
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(m_d->m_ui.description);
@@ -402,6 +407,10 @@ void SubmitEditorWidget::setFileModel(QAbstractItemModel *model)
             this, SLOT(updateSubmitAction()));
     connect(model, SIGNAL(modelReset()),
             this, SLOT(updateSubmitAction()));
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(updateCheckAllComboBox()));
+    connect(model, SIGNAL(modelReset()),
+            this, SLOT(updateCheckAllComboBox()));
     connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(updateSubmitAction()));
     connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
@@ -473,6 +482,7 @@ void SubmitEditorWidget::updateActions()
 {
     updateSubmitAction();
     updateDiffAction();
+    updateCheckAllComboBox();
 }
 
 // Enable submit depending on having checked files
@@ -503,6 +513,19 @@ void SubmitEditorWidget::updateDiffAction()
         m_d->m_filesSelected = filesSelected;
         emit fileSelectionChanged(m_d->m_filesSelected);
     }
+}
+
+void SubmitEditorWidget::updateCheckAllComboBox()
+{
+    m_d->m_ignoreChange = true;
+    unsigned checkedCount = checkedFilesCount();
+    if (checkedCount == 0)
+        m_d->m_ui.checkAllCheckBox->setCheckState(Qt::Unchecked);
+    else if (checkedCount == m_d->m_ui.fileView->model()->rowCount())
+        m_d->m_ui.checkAllCheckBox->setCheckState(Qt::Checked);
+    else
+        m_d->m_ui.checkAllCheckBox->setCheckState(Qt::PartiallyChecked);
+    m_d->m_ignoreChange = false;
 }
 
 bool SubmitEditorWidget::hasSelection() const
@@ -598,6 +621,20 @@ void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
         }
     }
     menu->exec(m_d->m_ui.description->mapToGlobal(pos));
+}
+
+void SubmitEditorWidget::checkAllToggled()
+{
+    if (m_d->m_ignoreChange)
+        return;
+    if (m_d->m_ui.checkAllCheckBox->checkState() == Qt::Checked
+            || m_d->m_ui.checkAllCheckBox->checkState() == Qt::PartiallyChecked) {
+        setListModelChecked(m_d->m_ui.fileView->model(), true, checkableColumn);
+    } else {
+        setListModelChecked(m_d->m_ui.fileView->model(), false, checkableColumn);
+    }
+    // Reset that again, so that the user can't do it
+    m_d->m_ui.checkAllCheckBox->setTristate(false);
 }
 
 void SubmitEditorWidget::checkAll()

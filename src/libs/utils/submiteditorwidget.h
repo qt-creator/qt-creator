@@ -120,7 +120,9 @@ signals:
     void submitActionTextChanged(const QString &);
     void submitActionEnabledChanged(const bool);
 
-public slots:
+private slots:
+    void updateCheckAllComboBox();
+    void checkAllToggled();
     void checkAll();
     void uncheckAll();
 
