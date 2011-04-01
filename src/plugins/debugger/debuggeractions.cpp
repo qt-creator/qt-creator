@@ -177,6 +177,13 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(UseAlternatingRowColors, item);
 
     item = new SavedAction(this);
+    item->setText(tr("Debugger Font Size Follows Main Editor"));
+    item->setSettingsKey(debugModeGroup, QLatin1String("FontSizeFollowsEditor"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    insertItem(FontSizeFollowsEditor, item);
+
+    item = new SavedAction(this);
     item->setText(tr("Show a Message Box When Receiving a Signal"));
     item->setSettingsKey(debugModeGroup, QLatin1String("UseMessageBoxForSignals"));
     item->setCheckable(true);

@@ -25,13 +25,23 @@
        </widget>
       </item>
       <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxFontSizeFollowsEditor">
+        <property name="text">
+         <string>Debugger font size follows main editor</string>
+        </property>
+        <property name="toolTip">
+         <string>Selecting this results in font size changes in the debugger views whenever the font size in the main editor changes.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseToolTipsInMainEditor">
         <property name="text">
          <string>Use tooltips in main editor while debugging</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxListSourceFiles">
         <property name="toolTip">
          <string>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</string>
@@ -41,7 +51,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxRegisterForPostMortem">
         <property name="toolTip">
          <string>Register Qt Creator for debugging crashed applications.</string>
@@ -51,7 +61,7 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
+      <item row="6" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxCloseBuffersOnExit">
         <property name="toolTip">
          <string>Close temporary buffers on debugger exit.</string>
@@ -61,7 +71,7 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
+      <item row="7" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxSwitchModeOnExit">
         <property name="toolTip">
          <string>Switch to previous mode on debugger exit.</string>
@@ -71,7 +81,7 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
+      <item row="8" column="0">
        <widget class="QLabel" name="labelMaximalStackDepth">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -84,7 +94,7 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
+      <item row="9" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QSpinBox" name="spinBoxMaximalStackDepth">

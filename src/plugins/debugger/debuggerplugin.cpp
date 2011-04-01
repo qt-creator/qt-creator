@@ -1822,6 +1822,8 @@ static void changeFontSize(QWidget *widget, qreal size)
 void DebuggerPluginPrivate::fontSettingsChanged
     (const TextEditor::FontSettings &settings)
 {
+    if (!boolSetting(FontSizeFollowsEditor))
+        return;
     qreal size = settings.fontZoom() * settings.fontSize() / 100.;
     changeFontSize(m_breakWindow, size);
     changeFontSize(m_logWindow, size);

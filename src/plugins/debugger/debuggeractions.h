@@ -91,6 +91,7 @@ enum DebuggerActionCode
     // General
     SettingsDialog,
     UseAlternatingRowColors,
+    FontSizeFollowsEditor,
     UseMessageBoxForSignals,
     AutoQuit,
     LockView,
