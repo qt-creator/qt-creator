@@ -76,10 +76,19 @@ private slots:
 private:
     Environment env;
     MacroMapExpander mx;
+#ifdef Q_OS_UNIX
+    QString homeStr;
+    QString home;
+#endif
 };
 
 void tst_QtcProcess::initTestCase()
 {
+#ifdef Q_OS_UNIX
+    homeStr = QLatin1String("@HOME@");
+    home = QDir::homePath();
+#endif
+
     env.set("empty", "");
     env.set("word", "hi");
     env.set("words", "hi ho");
@@ -161,12 +170,20 @@ void tst_QtcProcess::splitArgs_data()
         { "hi'", "", QtcProcess::BadQuoting },
         { "hi\"dood", "", QtcProcess::BadQuoting },
         { "$var", "'$var'", QtcProcess::SplitOk },
+        { "~", "@HOME@", QtcProcess::SplitOk },
+        { "~ foo", "@HOME@ foo", QtcProcess::SplitOk },
+        { "foo ~", "foo @HOME@", QtcProcess::SplitOk },
+        { "~/foo", "@HOME@/foo", QtcProcess::SplitOk },
+        { "~foo", "'~foo'", QtcProcess::SplitOk },
 #endif
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
         QTest::newRow(vals[i].in) << QString::fromLatin1(vals[i].in)
                                   << QString::fromLatin1(vals[i].out)
+#ifdef Q_OS_UNIX
+                                     .replace(homeStr, home)
+#endif
                                   << vals[i].err;
 }
 
@@ -221,12 +238,19 @@ void tst_QtcProcess::prepareArgs_data()
         { "hi'", "", QtcProcess::BadQuoting },
         { "hi\"dood", "", QtcProcess::BadQuoting },
         { "$var", "", QtcProcess::FoundMeta },
+        { "~", "@HOME@", QtcProcess::SplitOk },
+        { "~ foo", "@HOME@ foo", QtcProcess::SplitOk },
+        { "~/foo", "@HOME@/foo", QtcProcess::SplitOk },
+        { "~foo", "", QtcProcess::FoundMeta },
 #endif
     };
 
     for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
         QTest::newRow(vals[i].in) << QString::fromLatin1(vals[i].in)
                                   << QString::fromLatin1(vals[i].out)
+#ifdef Q_OS_UNIX
+                                     .replace(homeStr, home)
+#endif
                                   << vals[i].err;
 }
 

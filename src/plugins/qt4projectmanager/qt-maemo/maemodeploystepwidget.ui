@@ -33,7 +33,7 @@
      <item>
       <widget class="QLabel" name="manageDevConfsLabel">
        <property name="text">
-        <string>&lt;a href=irrelevant&gt;Manage device configurations&lt;/a&gt;</string>
+        <string>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</string>
        </property>
       </widget>
      </item>

@@ -389,6 +389,31 @@ std::string SymbolGroupValue::stripClassPrefixes(const std::string &type)
     return rc;
 }
 
+// Strip " const" from end of type ("XX const", "XX const *[*]"
+std::string SymbolGroupValue::stripConst(const std::string &type)
+{
+    const std::string::size_type constPos = type.rfind(" const");
+    if (constPos == std::string::npos)
+        return type;
+    // Strip 'const' only if it is at the end 'QString const'
+    // or of some pointer like 'foo ***'
+    std::string rc = type;
+    const std::string::size_type size = rc.size();
+    std::string::size_type nextPos = constPos + 6;
+    if (nextPos == size) { // Ends with - easy.
+        rc.erase(constPos, nextPos - constPos);
+        return rc;
+    }
+    // Ensure it ends with ' ****'.
+    if (rc.at(nextPos) != ' ')
+        return rc;
+    for (std::string::size_type i = nextPos + 1; i < size; ++i)
+        if (rc.at(i) != '*')
+            return rc;
+    rc.erase(constPos, nextPos - constPos);
+    return rc;
+}
+
 std::string SymbolGroupValue::addPointerType(const std::string &t)
 {
     // 'char' -> 'char *' -> 'char **'

@@ -47,6 +47,9 @@
 static const char *const TOOLCHAIN_DATA_KEY = "ToolChain.";
 static const char *const TOOLCHAIN_COUNT_KEY = "ToolChain.Count";
 static const char *const TOOLCHAIN_FILE_VERSION_KEY = "Version";
+static const char *const DEFAULT_DEBUGGER_COUNT_KEY = "DefaultDebugger.Count";
+static const char *const DEFAULT_DEBUGGER_ABI_KEY = "DefaultDebugger.Abi.";
+static const char *const DEFAULT_DEBUGGER_PATH_KEY = "DefaultDebugger.Path.";
 static const char *const TOOLCHAIN_FILENAME = "/toolChains.xml";
 
 static QString settingsFileName()
@@ -70,6 +73,7 @@ class ToolChainManagerPrivate
 {
 public:
     QList<ToolChain *> m_toolChains;
+    QMap<QString, QString> m_abiToDebugger;
 };
 
 } // namespace Internal
@@ -96,6 +100,11 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 
 void ToolChainManager::restoreToolChains()
 {
+    // Restore SDK settings first
+    restoreToolChains(Core::ICore::instance()->resourcePath()
+                      + QLatin1String("/Nokia") + QLatin1String(TOOLCHAIN_FILENAME), true);
+
+    // Then auto detect
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<ToolChainFactory *> factories = pm->getObjects<ToolChainFactory>();
     // Autodetect tool chains:
@@ -105,9 +114,8 @@ void ToolChainManager::restoreToolChains()
             registerToolChain(tc);
     }
 
+    // Then restore user settings
     restoreToolChains(settingsFileName(), false);
-    restoreToolChains(Core::ICore::instance()->resourcePath()
-                      + QLatin1String("/Nokia") + QLatin1String(TOOLCHAIN_FILENAME), true);
 }
 
 ToolChainManager::~ToolChainManager()
@@ -138,6 +146,8 @@ void ToolChainManager::saveToolChains()
     }
     writer.saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
     writer.save(settingsFileName(), "QtCreatorToolChains");
+
+    // Do not save default debuggers! Those are set by the SDK!
 }
 
 void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetected)
@@ -152,10 +162,22 @@ void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetec
     if (version < 1)
         return;
 
+    // Read default debugger settings (if any)
+    int count = data.value(QLatin1String(DEFAULT_DEBUGGER_COUNT_KEY)).toInt();
+    for (int i = 0; i < count; ++i) {
+        const QString abiKey = QString::fromLatin1(DEFAULT_DEBUGGER_ABI_KEY) + QString::number(i);
+        if (!data.contains(abiKey))
+            continue;
+        const QString pathKey = QString::fromLatin1(DEFAULT_DEBUGGER_PATH_KEY) + QString::number(i);
+        if (!data.contains(abiKey))
+            continue;
+        m_d->m_abiToDebugger.insert(data.value(abiKey).toString(), data.value(pathKey).toString());
+    }
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList<ToolChainFactory *> factories = pm->getObjects<ToolChainFactory>();
 
-    int count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
+    count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
     for (int i = 0; i < count; ++i) {
         const QString key = QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(i);
         if (!data.contains(key))
@@ -205,6 +227,11 @@ ToolChain *ToolChainManager::findToolChain(const QString &id) const
             return tc;
     }
     return 0;
+}
+
+QString ToolChainManager::defaultDebugger(const Abi &abi) const
+{
+    return m_d->m_abiToDebugger.value(abi.toString());
 }
 
 void ToolChainManager::notifyAboutUpdate(ProjectExplorer::ToolChain *tc)

@@ -292,23 +292,23 @@ void CMakeRunPage::initWidgets()
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
         m_cmakeExecutable = 0;
     } else {
-        QString text = tr("Please specify the path to the CMake executable. No CMake executable was found in the path.");
+        QString text = tr("Please specify the path to the cmake executable. No cmake executable was found in the path.");
         QString cmakeExecutable = m_cmakeWizard->cmakeManager()->cmakeExecutable();
         if (!cmakeExecutable.isEmpty()) {
             QFileInfo fi(cmakeExecutable);
             if (!fi.exists())
-                text += tr(" The CMake executable (%1) does not exist.").arg(cmakeExecutable);
+                text += tr(" The cmake executable (%1) does not exist.").arg(cmakeExecutable);
             else if (!fi.isExecutable())
                 text += tr(" The path %1 is not a executable.").arg(cmakeExecutable);
             else
-                text += tr(" The path %1 is not a valid CMake.").arg(cmakeExecutable);
+                text += tr(" The path %1 is not a valid cmake.").arg(cmakeExecutable);
         }
 
         fl->addRow(new QLabel(text, this));
         // Show a field for the user to enter
         m_cmakeExecutable = new Utils::PathChooser(this);
         m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-        fl->addRow("CMake Executable", m_cmakeExecutable);
+        fl->addRow("cmake Executable", m_cmakeExecutable);
     }
 
     // Run CMake Line (with arguments)
@@ -479,7 +479,7 @@ void CMakeRunPage::runCMake()
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);
         m_generatorComboBox->setEnabled(true);
-        m_output->appendPlainText(tr("No valid CMake executable specified."));
+        m_output->appendPlainText(tr("No valid cmake executable specified."));
     }
 }
 
@@ -523,7 +523,7 @@ void CMakeRunPage::cmakeFinished()
 
     if (m_cmakeProcess->exitCode() != 0) {
         m_exitCodeLabel->setVisible(true);
-        m_exitCodeLabel->setText(tr("CMake exited with errors. Please check cmake output."));
+        m_exitCodeLabel->setText(tr("CMake exited with errors. Please check CMake output."));
         m_complete = false;
     } else {
         m_exitCodeLabel->setVisible(false);

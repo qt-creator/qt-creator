@@ -599,7 +599,7 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const QString &propertyName) const
         if (objectInfo->isValid())
             return objectInfo->isPropertyEnum(rawPropertyName);
         else
-            return true;
+            return false;
     }
 
     QList<const Interpreter::ObjectValue *> objects;

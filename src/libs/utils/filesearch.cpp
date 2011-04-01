@@ -178,7 +178,8 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
         }
 
         ++numFilesSearched;
-        if (future.isProgressUpdateNeeded()) {
+        if (future.isProgressUpdateNeeded()
+                || future.progressValue() == 0 /*workaround for regression in Qt*/) {
             if (!results.isEmpty()) {
                 future.reportResult(results);
                 results.clear();
@@ -256,7 +257,8 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
             ++lineNr;
         }
         ++numFilesSearched;
-        if (future.isProgressUpdateNeeded()) {
+        if (future.isProgressUpdateNeeded()
+                || future.progressValue() == 0 /*workaround for regression in Qt*/) {
             if (!results.isEmpty()) {
                 future.reportResult(results);
                 results.clear();

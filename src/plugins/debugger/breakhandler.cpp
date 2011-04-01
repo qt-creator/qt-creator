@@ -106,8 +106,8 @@ static QString typeToString(BreakpointType type)
             return msgBreakpointAtSpecialFunc("fork");
         case BreakpointAtExec:
             return msgBreakpointAtSpecialFunc("exec");
-        case BreakpointAtVFork:
-            return msgBreakpointAtSpecialFunc("vfork");
+        //case BreakpointAtVFork:
+        //    return msgBreakpointAtSpecialFunc("vfork");
         case BreakpointAtSysCall:
             return msgBreakpointAtSpecialFunc("syscall");
         case BreakpointAtMain:
@@ -512,7 +512,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                         || data.type == BreakpointAtCatch
                         || data.type == BreakpointAtFork
                         || data.type == BreakpointAtExec
-                        || data.type == BreakpointAtVFork
+                        //|| data.type == BreakpointAtVFork
                         || data.type == BreakpointAtSysCall)
                     return typeToString(data.type);
                 if (data.type == Watchpoint)

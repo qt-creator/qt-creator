@@ -84,7 +84,7 @@ public:
 
     virtual ~Model();
 
-    static Model *create(QString type, int major = 4, int minor = 7);
+    static Model *create(QString type, int major = 4, int minor = 7, Model *metaInfoPropxyModel = 0);
 
     Model *masterModel() const;
     void setMasterModel(Model *model);
@@ -96,7 +96,6 @@ public:
     MetaInfo metaInfo();
     NodeMetaInfo metaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
     bool hasNodeMetaInfo(const QString &typeName, int majorVersion = -1, int minorVersion = -1);
-    void setMetaInfo(const MetaInfo &metaInfo);
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);
@@ -108,6 +107,8 @@ public:
     void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved);
 
     RewriterView *rewriterView() const;
+
+    Model *metaInfoProxyModel();
 
 protected:
     Model();

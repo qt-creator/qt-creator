@@ -259,12 +259,12 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
 {
     switch (error) {
         case QProcess::FailedToStart:
-            return tr("The Gdb process failed to start. Either the "
+            return tr("The gdb process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.\n%2")
                 .arg(m_gdb, gdbProc()->errorString());
         case QProcess::Crashed:
-            return tr("The Gdb process crashed some time after starting "
+            return tr("The gdb process crashed some time after starting "
                 "successfully.");
         case QProcess::Timedout:
             return tr("The last waitFor...() function timed out. "
@@ -272,13 +272,13 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
                 "waitFor...() again.");
         case QProcess::WriteError:
             return tr("An error occurred when attempting to write "
-                "to the Gdb process. For example, the process may not be running, "
+                "to the gdb process. For example, the process may not be running, "
                 "or it may have closed its input channel.");
         case QProcess::ReadError:
             return tr("An error occurred when attempting to read from "
-                "the Gdb process. For example, the process may not be running.");
+                "the gdb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the Gdb process occurred. ");
+            return tr("An unknown error in the gdb process occurred. ");
     }
 }
 
@@ -619,7 +619,7 @@ void GdbEngine::readGdbStandardError()
         return;
     if (err.startsWith("BFD: reopening"))
         return;
-    qWarning() << "Unexpected gdb stderr:" << err;
+    qWarning() << "Unexpected GDB stderr:" << err;
 }
 
 void GdbEngine::readGdbStandardOutput()
@@ -870,9 +870,9 @@ void GdbEngine::commandTimeout()
             "the operation.\nYou can choose between waiting "
             "longer or abort debugging.").arg(timeOut / 1000);
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
-            tr("Gdb not responding"), msg,
+            tr("GDB not responding"), msg,
             QMessageBox::Ok | QMessageBox::Cancel);
-        mb->button(QMessageBox::Cancel)->setText(tr("Give gdb more time"));
+        mb->button(QMessageBox::Cancel)->setText(tr("Give GDB more time"));
         mb->button(QMessageBox::Ok)->setText(tr("Stop debugging"));
         if (mb->exec() == QMessageBox::Ok) {
             showMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
@@ -918,7 +918,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 //shutdown();
                 notifyInferiorIll();
             } else if (msg == "\"finish\" not meaningful in the outermost frame.") {
-                // Handle a case known to appear on gdb 6.4 symbianelf when
+                // Handle a case known to appear on GDB 6.4 symbianelf when
                 // the stack is cut due to access to protected memory.
                 //showMessage(_("APPLYING WORKAROUND #2"));
                 notifyInferiorStopOk();
@@ -2672,13 +2672,15 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
     if (type == BreakpointAtFork) {
         postCommand("catch fork", NeedsStop | RebuildBreakpointModel,
             CB(handleCatchInsert), id);
-        return;
-    }
-    if (type == BreakpointAtVFork) {
         postCommand("catch vfork", NeedsStop | RebuildBreakpointModel,
             CB(handleCatchInsert), id);
         return;
     }
+    //if (type == BreakpointAtVFork) {
+    //    postCommand("catch vfork", NeedsStop | RebuildBreakpointModel,
+    //        CB(handleCatchInsert), id);
+    //    return;
+    //}
     if (type == BreakpointAtExec) {
         postCommand("catch exec", NeedsStop | RebuildBreakpointModel,
             CB(handleCatchInsert), id);
@@ -3908,7 +3910,7 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
             const QByteArray addr = ba.mid(pos0x);
             if (addr.toULongLong(0, 0)) { // Non-null pointer
                 const QByteArray ns = qtNamespace();
-                const QByteArray type = ns.isEmpty() ? "QWidget*" : ("'" + ns + "QWidget'*");
+                const QByteArray type = ns.isEmpty() ? "QWidget*" : QByteArray("'" + ns + "QWidget'*");
                 const QString exp = _("(*(struct %1)%2)").arg(_(type)).arg(_(addr));
                 // qDebug() << posNs << posWidget << pos0x << addr << ns << type;
                 watchHandler()->watchExpression(exp);
@@ -4379,7 +4381,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
             const QString nativeGdb = QDir::toNativeSeparators(m_gdb);
             showMessage(_("GDB %1 CANNOT FIND THE PYTHON INSTALLATION.").arg(nativeGdb));
             showStatusMessage(_("%1 cannot find python").arg(nativeGdb));
-            const QString msg = tr("The gdb installed at %1 cannot "
+            const QString msg = tr("The GDB installed at %1 cannot "
                "find a valid python installation in its %2 subdirectory.\n"
                "You may set the environment variable PYTHONPATH to point to your installation.")
                     .arg(nativeGdb).arg(winPythonVersion);
@@ -4530,7 +4532,7 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
     default:
         //gdbProc()->kill();
         //notifyEngineIll();
-        showMessageBox(QMessageBox::Critical, tr("Gdb I/O Error"), msg);
+        showMessageBox(QMessageBox::Critical, tr("GDB I/O Error"), msg);
         break;
     }
 }
@@ -4558,7 +4560,7 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
         const QString msg = type == QProcess::CrashExit ?
                     tr("The gdb process crashed.") :
                     tr("The gdb process exited unexpectedly (code %1)").arg(code);
-        showMessageBox(QMessageBox::Critical, tr("Unexpected Gdb Exit"), msg);
+        showMessageBox(QMessageBox::Critical, tr("Unexpected GDB Exit"), msg);
         break;
     }
     }

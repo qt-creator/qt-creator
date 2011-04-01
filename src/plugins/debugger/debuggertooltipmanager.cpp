@@ -1245,12 +1245,27 @@ void DebuggerToolTipManager::moveToolTipsBy(const QPoint &distance)
             tw->move (tw->pos() + distance);
 }
 
-bool DebuggerToolTipManager::eventFilter(QObject *, QEvent *e)
+bool DebuggerToolTipManager::eventFilter(QObject *o, QEvent *e)
 {
-    // Move along with parent (toplevel)
-    if (e->type() == QEvent::Move && hasToolTips()) {
+    if (!hasToolTips())
+        return false;
+    switch (e->type()) {
+    case QEvent::Move: { // Move along with parent (toplevel)
         const QMoveEvent *me = static_cast<const QMoveEvent *>(e);
         moveToolTipsBy(me->pos() - me->oldPos());
+    }
+        break;
+    case QEvent::WindowStateChange: { // Hide/Show along with parent (toplevel)
+        const QWindowStateChangeEvent *se = static_cast<const QWindowStateChangeEvent *>(e);
+        const bool wasMinimized = se->oldState() & Qt::WindowMinimized;
+        const bool isMinimized  = static_cast<const QWidget *>(o)->windowState() & Qt::WindowMinimized;
+        if (wasMinimized ^ isMinimized)
+            foreach (const QPointer<AbstractDebuggerToolTipWidget> &tw, purgeClosedToolTips())
+                tw->setVisible(!isMinimized);
+    }
+        break;
+    default:
+        break;
     }
     return false;
 }

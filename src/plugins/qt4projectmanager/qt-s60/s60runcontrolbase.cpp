@@ -149,7 +149,7 @@ bool S60RunControlBase::promptToStop(bool *optionalPrompt) const
     // We override the settings prompt
     QTC_ASSERT(isRunning(), return true;)
 
-    const QString question = tr("<html><head/><body><center><i>%1</i> is still running on the device.<center/>"
+    const QString question = tr("<html><head/><body><center><i>%1</i> is still running on the device.</center>"
                                         "<center>Terminating it can leave the target in an inconsistent state.</center>"
                                         "<center>Would you still like to terminate it?</center></body></html>").arg(displayName());
     return showPromptToStopDialog(tr("Application Still Running"), question,

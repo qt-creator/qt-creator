@@ -127,10 +127,10 @@
      <item row="4" column="0">
       <widget class="QLabel" name="gdbHelperLabel">
        <property name="toolTip">
-        <string>Helps showing content of Qt types. Only used in older versions of gdb.</string>
+        <string>Helps showing content of Qt types. Only used in older versions of GDB.</string>
        </property>
        <property name="text">
-        <string>Gdb Helper:</string>
+        <string>GDB Helper:</string>
        </property>
       </widget>
      </item>

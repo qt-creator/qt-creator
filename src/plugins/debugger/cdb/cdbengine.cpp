@@ -740,7 +740,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     arguments << QLatin1String("-lines") << QLatin1String("-G")
     // register idle (debuggee stop) notification
               << QLatin1String("-c")
-              << QString::fromAscii(".idle_cmd " + m_extensionCommandPrefixBA + "idle");
+              << QLatin1String(".idle_cmd ") + QString::fromAscii(m_extensionCommandPrefixBA) + QLatin1String("idle");
     if (sp.useTerminal) // Separate console
         arguments << QLatin1String("-2");
     if (!m_options->symbolPaths.isEmpty())
@@ -2336,7 +2336,7 @@ bool CdbEngine::acceptsBreakpoint(BreakpointId id) const
     switch (data.type) {
     case UnknownType:
     case BreakpointAtFork:
-    case BreakpointAtVFork:
+    //case BreakpointAtVFork:
     case BreakpointAtSysCall:
         return false;
     case Watchpoint:

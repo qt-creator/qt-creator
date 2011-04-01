@@ -1095,9 +1095,11 @@ extern "C" HRESULT CALLBACK test(CIDebugClient *client, PCSTR argsIn)
             break;
         case TestType: {
             const KnownType kt = knownType(testType, 0);
-            str << testType << ' ' << kt << " [";
+            const std::string fixed = SymbolGroupValue::stripConst(testType);
+            const unsigned size = SymbolGroupValue::sizeOf(fixed.c_str());
+            str << '"' << testType <<  "\" (" << fixed << ") " << kt << " [";
             formatKnownTypeFlags(str, kt);
-            str << ']';
+            str << "] size=" << size;
         }
             break;
         case TestFixWatchExpression:

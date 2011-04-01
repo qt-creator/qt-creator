@@ -155,13 +155,22 @@ void DesignDocumentControllerView::fromClipboard()
 
 QString DesignDocumentControllerView::toText() const
 {
-    QScopedPointer<Model> outputModel(Model::create("QtQuick.Rectangle", 1, 0));
-    outputModel->setMetaInfo(model()->metaInfo());
+    QScopedPointer<Model> outputModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
     QPlainTextEdit textEdit;
-    textEdit.setPlainText("import Qt 4.7; Item {}");
+
+    QString imports;
+    foreach (const Import &import, model()->imports()) {
+        if (import.isFileImport())
+            imports += QLatin1String("import ") + QLatin1String("\"") + import.file() + QLatin1String("\"")+ QLatin1String(";\n");
+        else
+            imports += QLatin1String("import ") + import.url() + QLatin1String(" ") + import.version() + QLatin1String(";\n");
+    }
+
+    textEdit.setPlainText(imports +  QLatin1String("Item {\n}\n"));
     NotIndentingTextEditModifier modifier(&textEdit);
 
     QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
+    rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     outputModel->attachView(rewriterView.data());
 
@@ -177,8 +186,7 @@ QString DesignDocumentControllerView::toText() const
 
 void DesignDocumentControllerView::fromText(QString text)
 {
-    QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0));
-    inputModel->setMetaInfo(model()->metaInfo());
+    QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
     inputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;
     QString imports;
@@ -189,6 +197,7 @@ void DesignDocumentControllerView::fromText(QString text)
     NotIndentingTextEditModifier modifier(&textEdit);
 
     QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
+    rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     inputModel->attachView(rewriterView.data());
 

@@ -740,7 +740,7 @@ const NodeMetaInfo ModelNode::metaInfo() const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    return NodeMetaInfo(model(), type(), majorVersion(), minorVersion());
+    return NodeMetaInfo(model()->metaInfoProxyModel(), type(), majorVersion(), minorVersion());
 }
 
 /*! \brief has a node the selection of the model

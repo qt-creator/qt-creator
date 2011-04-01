@@ -105,6 +105,9 @@ public:
     static std::string stripPointerType(const std::string &);
     // Strip "class ", "struct "
     static std::string stripClassPrefixes(const std::string &);
+    // Strip " const" from "char const*", (map key), "QString const", etc.
+    // which otherwise causes GetTypeSize to fail.
+    static std::string stripConst(const std::string &type);
     static std::string addPointerType(const std::string &);
     static std::string stripArrayType(const std::string &);
     static std::string stripModuleFromType(const std::string &type);

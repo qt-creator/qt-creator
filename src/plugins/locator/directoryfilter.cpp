@@ -203,7 +203,8 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     QStringList filesFound;
     while (!future.isCanceled() && it.hasNext()) {
         filesFound << it.next();
-        if (future.isProgressUpdateNeeded()) {
+        if (future.isProgressUpdateNeeded()
+                || future.progressValue() == 0 /*workaround for regression in Qt*/) {
             future.setProgressValueAndText(it.currentProgress(),
                                            tr("%1 filter update: %n files", 0, filesFound.size()).arg(m_name));
         }

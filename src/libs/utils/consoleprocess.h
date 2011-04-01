@@ -104,6 +104,7 @@ private:
     static QString msgCommChannelFailed(const QString &error);
     static QString msgPromptToClose();
     static QString msgCannotCreateTempFile(const QString &why);
+    static QString msgCannotWriteTempFile();
     static QString msgCannotCreateTempDir(const QString & dir, const QString &why);
     static QString msgUnexpectedOutput(const QByteArray &what);
     static QString msgCannotChangeToWorkDir(const QString & dir, const QString &why);

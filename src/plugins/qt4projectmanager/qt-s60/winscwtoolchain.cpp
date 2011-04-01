@@ -34,6 +34,7 @@
 #include "winscwtoolchain.h"
 
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
+#include "qtversionmanager.h"
 
 #include "ui_winscwtoolchainconfigwidget.h"
 #include "winscwparser.h"
@@ -44,6 +45,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QStringList>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -377,6 +379,22 @@ QString WinscwToolChainFactory::id() const
 QList<ProjectExplorer::ToolChain *> WinscwToolChainFactory::autoDetect()
 {
     QList<ProjectExplorer::ToolChain *> result;
+
+    // Compatibility to pre-2.2:
+    while (true) {
+        const QString path = QtVersionManager::instance()->popPendingMwcUpdate();
+        if (path.isNull())
+            break;
+
+        QFileInfo fi(path + QLatin1String("/x86Build/Symbian_Tools/Command_Line_Tools/mwwinrc.exe"));
+        if (fi.exists() && fi.isExecutable()) {
+            WinscwToolChain *tc = new WinscwToolChain(false);
+            tc->setCompilerPath(fi.absoluteFilePath());
+            tc->setDisplayName(tr("WINSCW from Qt version"));
+            result.append(tc);
+        }
+    }
+
     QString cc = Utils::Environment::systemEnvironment().searchInPath(QLatin1String("mwwinrc"));
     if (!cc.isEmpty()) {
         WinscwToolChain *tc = new WinscwToolChain(true);

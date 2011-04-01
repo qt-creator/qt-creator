@@ -1097,6 +1097,9 @@
     applications: predefined QML elements, your own QML components, and other
     resources.
 
+    \o \gui Canvas is the working area where you create QML components and
+    design applications.
+
     \o \gui {Properties} pane organizes the properties of the selected QML element
     or QML component. You can also change the properties in the code editor.
 
@@ -1168,11 +1171,13 @@
     The \gui Items pane displays the QML elements grouped by type: your own QML
     components, basic elements, interaction elements, views, and widgets.
 
+    \omit
     Sets of UI components with the MeeGo and Symbian look and feel have been
     defined for Qt Quick. They are based on standard QML elements. To view the
     UI components in \gui {QML Components}, click
     \inlineimage qtcreator-filter.png
     and select \gui {MeeGo Components} or \gui {Symbian Components}.
+    \endomit
 
     \image qmldesigner-qml-components.png "QML Components pane"
 
@@ -1437,13 +1442,35 @@
     \section2 Previewing Element Size
 
     The width and height of the root item in a QML file determine the size of
-    the QML element. To experiment with different sizes, enter values in the
+    the QML element. You can reuse elements, such as buttons, in different
+    sizes in other QML files and design screens for use with different device
+    profiles, screen resolution, or screen orientation. The component size
+    might also be zero (0,0) if its final size is determined by property
+    bindings.
+
+    To experiment with different element sizes, enter values in the
     \gui Height and \gui Width fields on the canvas toolbar. The changes are
     displayed in the \gui States pane and on the canvas, but the property
     values are not changed permanently in the QML file. You can permanently
     change the property values in the \gui Properties pane.
 
     \image qmldesigner-preview-size.png "Canvas width and height"
+
+    \section1 Specifying Canvas Size
+
+    To change the canvas size, select \gui {Tools > Options... > Qt Quick} and
+    specify the canvas width and height in the \gui Canvas group.
+
+    \section1 Refreshing the Canvas
+
+    When you open QML files in \QMLD, the QML elements in the file are drawn on
+    the canvas. When you edit the element properties in \QMLD, the QML file and
+    the image on the canvas might get out of sync. For example, when you change
+    the position of an item within a column or a row, the new position might
+    not be displayed correctly on the canvas.
+
+    To refresh the image on the canvas, press \key R or select the \gui {Reset
+    View} button on the canvas toolbar.
 
 */
 
@@ -1589,7 +1616,8 @@
 
     As you write code, Qt Creator suggests properties, IDs, and code
     snippets to complete the code. It provides a list of context-sensitive
-    suggestions to the statement currently under your cursor.
+    suggestions to the statement currently under your cursor. Press \key Tab
+    or \key Enter to accept the selected suggestion and complete the code.
 
     \image qtcreator-codecompletion.png
 
@@ -7317,6 +7345,8 @@
             For a custom target, you can build your own Python-enabled gdb.
             Follow the instructions on
             \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}{Building Gdb}.
+            You must use at least Python version 2.5, but we recommend that you
+            use version 2.6.
 
         \row
             \o Debugging tools for Windows

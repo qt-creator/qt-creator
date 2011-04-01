@@ -2,11 +2,19 @@
 <ui version="4.0">
  <class>GdbOptionsPage</class>
  <widget class="QWidget" name="GdbOptionsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>398</width>
+    <height>412</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBoxLocations">
      <property name="title">
-      <string>Gdb</string>
+      <string>GDB</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="fieldGrowthPolicy">
@@ -24,20 +32,27 @@
       <item row="0" column="0">
        <widget class="QLabel" name="labelGdbStartupScript">
         <property name="toolTip">
-         <string>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</string>
+         <string>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</string>
         </property>
         <property name="text">
-         <string>Gdb startup script:</string>
+         <string>GDB startup script:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="scriptFileChooser"/>
+       <widget class="Utils::PathChooser" name="scriptFileChooser" native="true"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="labelGdbWatchdogTimeout">
+        <property name="toolTip">
+         <string>This is the number of seconds Qt Creator will wait before
+it terminates non-responsive gdb process. The default value of 20 seconds
+should be sufficient for most applications, but there are situations when
+loading big libraries or listing source files takes much longer than that
+on slow machines. In this case, the value should be increased.</string>
+        </property>
         <property name="text">
-         <string>Gdb timeout:</string>
+         <string>GDB timeout:</string>
         </property>
        </widget>
       </item>
@@ -68,48 +83,59 @@ on slow machines. In this case, the value should be increased.</string>
        </widget>
       </item>
       <item row="2" column="0" colspan="2">
-       <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
-        <property name="text">
-         <string>Enable reverse debugging</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxSkipKnownFrames">
         <property name="toolTip">
-         <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic
- reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
+         <string>When this option is checked, 'Step Into' compresses several steps into one in certain situations, leading to 'less noisy' debugging. So will, e.g., the atomic reference counting code be skipped, and a single 'Step Into' for a signal emission will end up directly in the slot connected to it.</string>
         </property>
         <property name="text">
          <string>Skip known frames when stepping</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxUseMessageBoxForSignals">
+        <property name="toolTip">
+         <string>This will show a message box as soon as your application receives a signal like SIGSEGV during debugging.</string>
+        </property>
         <property name="text">
          <string>Show a message box when receiving a signal</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="2">
+      <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxAdjustBreakpointLocations">
+        <property name="toolTip">
+         <string>GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.</string>
+        </property>
         <property name="text">
          <string>Adjust breakpoint locations</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxLoadGdbInit">
+        <property name="toolTip">
+         <string>This allows or inhibits reading the user's default .gdbinit file on debugger startup.</string>
+        </property>
         <property name="text">
          <string>Load .gdbinit file on startup</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="2">
+      <item row="6" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxTargetAsync">
         <property name="text">
          <string>Use asynchronous mode to control the inferior</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2">
+       <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
+        <property name="toolTip">
+         <string>Enable reverse debugging Selecting this enables reverse debugging. NOTE: This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.</string>
+        </property>
+        <property name="text">
+         <string>Enable reverse debugging</string>
         </property>
        </widget>
       </item>

@@ -68,7 +68,7 @@ public:
 
     // Form editor stack API
     void add(const EditorData &d);
-    bool removeFormWindowEditor(Core::IEditor *xmlEditor);
+    void removeFormWindowEditor(Core::IEditor *xmlEditor);
     bool setVisibleEditor(Core::IEditor *xmlEditor);
     SharedTools::WidgetHost *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
     SharedTools::WidgetHost *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;

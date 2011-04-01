@@ -49,13 +49,20 @@ MaemoPublishingUploadSettingsPageFremantleFree::MaemoPublishingUploadSettingsPag
     ui(new Ui::MaemoPublishingUploadSettingsPageFremantleFree)
 {
     ui->setupUi(this);
+    ui->serverAddressLabel->hide();
+    ui->serverAddressLineEdit->hide();
+    ui->targetDirectoryOnServerLabel->hide();
+    ui->targetDirectoryOnServerLineEdit->hide();
     setTitle(tr("Publishing to Fremantle's \"Extras-devel/free\" Repository"));
     setSubTitle(tr("Upload options"));
-    ui->privateKeyPathChooser->setExpectedKind(Utils::PathChooser::File);
-    ui->privateKeyPathChooser->setPromptDialogTitle(tr("Choose a private key file"));
-    ui->privateKeyPathChooser->setPath(QDir::toNativeSeparators(QDir::homePath() + QLatin1String("/.ssh/id_rsa")));
-    ui->serverAddressLineEdit->setText(QLatin1String("drop.maemo.org"));
-    ui->targetDirectoryOnServerLineEdit->setText(QLatin1String("/var/www/extras-devel/incoming-builder/fremantle/"));
+    connect(ui->garageAccountLineEdit, SIGNAL(textChanged(QString)),
+        SIGNAL(completeChanged()));
+    connect(ui->privateKeyPathChooser, SIGNAL(changed(QString)),
+        SIGNAL(completeChanged()));
+    connect(ui->serverAddressLineEdit, SIGNAL(textChanged(QString)),
+        SIGNAL(completeChanged()));
+    connect(ui->targetDirectoryOnServerLineEdit, SIGNAL(textChanged(QString)),
+        SIGNAL(completeChanged()));
 }
 
 MaemoPublishingUploadSettingsPageFremantleFree::~MaemoPublishingUploadSettingsPageFremantleFree()
@@ -63,11 +70,46 @@ MaemoPublishingUploadSettingsPageFremantleFree::~MaemoPublishingUploadSettingsPa
     delete ui;
 }
 
+void MaemoPublishingUploadSettingsPageFremantleFree::initializePage()
+{
+    ui->garageAccountLineEdit->clear();
+    ui->privateKeyPathChooser->setExpectedKind(Utils::PathChooser::File);
+    ui->privateKeyPathChooser->setPromptDialogTitle(tr("Choose a private key file"));
+    ui->privateKeyPathChooser->setPath(QDir::toNativeSeparators(QDir::homePath() + QLatin1String("/.ssh/id_rsa")));
+    ui->serverAddressLineEdit->setText(QLatin1String("drop.maemo.org"));
+    ui->targetDirectoryOnServerLineEdit->setText(QLatin1String("/var/www/extras-devel/incoming-builder/fremantle/"));
+}
+
+bool MaemoPublishingUploadSettingsPageFremantleFree::isComplete() const
+{
+    return !garageAccountName().isEmpty() && !privateKeyFilePath().isEmpty()
+        && !serverName().isEmpty() && !directoryOnServer().isEmpty();
+}
+
+QString MaemoPublishingUploadSettingsPageFremantleFree::garageAccountName() const
+{
+    return ui->garageAccountLineEdit->text().trimmed();
+}
+
+QString MaemoPublishingUploadSettingsPageFremantleFree::privateKeyFilePath() const
+{
+    return ui->privateKeyPathChooser->path();
+}
+
+QString MaemoPublishingUploadSettingsPageFremantleFree::serverName() const
+{
+    return ui->serverAddressLineEdit->text().trimmed();
+}
+
+QString MaemoPublishingUploadSettingsPageFremantleFree::directoryOnServer() const
+{
+    return ui->targetDirectoryOnServerLineEdit->text().trimmed();
+}
+
 bool MaemoPublishingUploadSettingsPageFremantleFree::validatePage()
 {
-    m_publisher->setSshParams(ui->serverAddressLineEdit->text(),
-        ui->garageAccountLineEdit->text(), ui->privateKeyPathChooser->path(),
-        ui->targetDirectoryOnServerLineEdit->text());
+    m_publisher->setSshParams(serverName(), garageAccountName(),
+        privateKeyFilePath(), directoryOnServer());
     return true;
 }
 

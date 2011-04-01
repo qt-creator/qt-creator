@@ -585,14 +585,17 @@ QStringList MaemoPublisherFremantleFree::findProblems() const
         = qobject_cast<Qt4Maemo5Target *>(m_buildConfig->target());
     const QString &description = target->shortDescription();
     if (description.trimmed().isEmpty()) {
-        problems << tr("The package description is empty.");
+        problems << tr("The package description is empty. You must set one "
+            "in Projects -> Run -> Create Package -> Details.");
     } else if (description.contains(QLatin1String("insert up to"))) {
         problems << tr("The package description is '%1', which is probably "
-                       "not what you want.").arg(description);
+            "not what you want. Please change it in "
+            "Projects -> Run -> Create Package -> Details.").arg(description);
     }
     QString dummy;
     if (target->packageManagerIcon(&dummy).isNull())
-        problems << tr("You have not set an icon for the package manager.");
+        problems << tr("You have not set an icon for the package manager. "
+            "The icon must be set in Projects -> Run -> Create Package -> Details.");
     return problems;
 }
 

@@ -95,7 +95,9 @@ public:
     static QString targetRoot(const QtVersion *qtVersion);
     static QString targetName(const QtVersion *qtVersion);
     static QString madCommand(const QtVersion *qtVersion);
+    static QString madDeveloperUiName(OsVersion maemoVersion);
     static OsVersion version(const QtVersion *qtVersion);
+
     // TODO: IS this still needed with Qt Version having an Abi?
     static QString architecture(const QtVersion *version);
 

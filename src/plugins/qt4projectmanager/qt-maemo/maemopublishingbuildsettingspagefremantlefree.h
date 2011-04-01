@@ -61,6 +61,7 @@ public:
 
 private:
     Q_SLOT void handleNoUploadSettingChanged();
+    virtual void initializePage();
     virtual bool validatePage();
     void collectBuildConfigurations(const ProjectExplorer::Project *project);
     bool skipUpload() const;

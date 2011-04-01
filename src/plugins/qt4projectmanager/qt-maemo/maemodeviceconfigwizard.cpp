@@ -356,8 +356,6 @@ public:
         m_ui->setupUi(this);
         setTitle(tr("Key Creation"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        connect(m_ui->keyDirPathChooser, SIGNAL(changed(QString)),
-            SLOT(enableOrDisableButton()));
         connect(m_ui->createKeysButton, SIGNAL(clicked()), SLOT(createKeys()));
     }
 
@@ -381,20 +379,20 @@ public:
     virtual bool isComplete() const { return m_isComplete; }
 
 private:
-    Q_SLOT void enableOrDisableButton()
-    {
-        m_ui->createKeysButton->setEnabled(m_ui->keyDirPathChooser->isValid());
-    }
 
     Q_SLOT void createKeys()
     {
         const QString &dirPath = m_ui->keyDirPathChooser->path();
-        QDir dir(dirPath);
-        QDir parentDir = QDir(dirPath + QLatin1String("/.."));
-        if ((!dir.exists() && !parentDir.mkdir(dir.dirName()))
-                || !QFileInfo(dirPath).isWritable()) {
+        QFileInfo fi(dirPath);
+        if (fi.exists() && !fi.isDir()) {
             QMessageBox::critical(this, tr("Cannot Create Keys"),
-                tr("You have not entered a writable directory."));
+                tr("The path you have entered is not a directory."));
+            return;
+        }
+        if (!fi.exists() && !QDir::root().mkpath(dirPath)) {
+            QMessageBox::critical(this, tr("Cannot Create Keys"),
+                tr("The directory you have entered does not exist and "
+                   "cannot be created."));
             return;
         }
 
@@ -438,7 +436,7 @@ private:
     void enableInput()
     {
         m_ui->keyDirPathChooser->setEnabled(true);
-        enableOrDisableButton();
+        m_ui->createKeysButton->setEnabled(true);
         m_ui->statusLabel->clear();
     }
 
@@ -458,6 +456,7 @@ public:
               m_keyDeployer(new MaemoKeyDeployer(this))
     {
         m_ui->setupUi(this);
+        m_instructionTextTemplate = m_ui->instructionLabel->text();
         setTitle(tr("Key Deployment"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
         connect(m_ui->deviceAddressLineEdit, SIGNAL(textChanged(QString)),
@@ -475,6 +474,9 @@ public:
     {
         m_isComplete = false;
         m_ui->deviceAddressLineEdit->setText(m_wizardData.hostName);
+        m_ui->instructionLabel->setText(QString(m_instructionTextTemplate)
+            .replace(QLatin1String("%%%maddev%%%"),
+                MaemoGlobal::madDeveloperUiName(m_wizardData.osVersion)));
         m_ui->passwordLineEdit->clear();
         enableInput();
     }
@@ -519,7 +521,8 @@ private:
     {
         QMessageBox::information(this, tr("Key Deployment Success"),
             tr("The key was successfully deployed. You may now close "
-               "the \"Mad Developer\" application and continue."));
+               "the \"%1\" application and continue.")
+               .arg(MaemoGlobal::madDeveloperUiName(m_wizardData.osVersion)));
         m_ui->statusLabel->setText(m_ui->statusLabel->text() + tr("Done."));
         m_isComplete = true;
         emit completeChanged();
@@ -542,6 +545,7 @@ private:
     bool m_isComplete;
     const WizardData &m_wizardData;
     MaemoKeyDeployer * const m_keyDeployer;
+    QString m_instructionTextTemplate;
 };
 
 class MaemoDeviceConfigWizardFinalPage : public QWizardPage
@@ -563,14 +567,14 @@ public:
 
     virtual void initializePage()
     {
-        QString infoText = tr("The new device configuration will now be "
-            "created and a test procedure will be run to check whether "
-            "Qt Creator can connect to the device and to provide some "
-            "information about its features.");
-        if (m_wizardData.deviceType == MaemoDeviceConfig::Emulator) {
-            infoText += QLatin1Char('\n')
-                + tr("Please make sure that Qemu is running, otherwise "
-                     "the test will fail.");
+        QString infoText;
+        if (m_wizardData.deviceType == MaemoDeviceConfig::Physical) {
+            infoText = tr("The new device configuration will now be "
+                "created and a test procedure will be run to check whether "
+                "Qt Creator can connect to the device and to provide some "
+                "information about its features.");
+        } else {
+            infoText = tr("The new device configuration will now be created.");
         }
         m_infoLabel->setText(infoText);
     }

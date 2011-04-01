@@ -429,9 +429,6 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("SkipKnownFrames"));
     item->setText(tr("Skip Known Frames"));
-    item->setToolTip(tr("Selecting this results in well-known but usually "
-      "not interesting frames belonging to reference counting and "
-      "signal emission being skipped while single-stepping."));
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(SkipKnownFrames, item);

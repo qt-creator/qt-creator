@@ -68,6 +68,8 @@ public:
     QList<ToolChain *> findToolChains(const Abi &abi) const;
     ToolChain *findToolChain(const QString &id) const;
 
+    QString defaultDebugger(const Abi &abi) const;
+
 public slots:
     bool registerToolChain(ProjectExplorer::ToolChain *tc);
     void deregisterToolChain(ProjectExplorer::ToolChain *tc);

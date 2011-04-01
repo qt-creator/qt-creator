@@ -363,8 +363,8 @@ MsvcToolChain::MsvcToolChain(const QString &name, const Abi &abi,
     Q_ASSERT(abi.binaryFormat() == Abi::PEFormat);
     Q_ASSERT(abi.osFlavor() != Abi::WindowsMSysFlavor);
 
-    setId(QString::fromLatin1("%1:%2.%3").arg(Constants::MSVC_TOOLCHAIN_ID).arg(m_varsBat)
-            .arg(m_varsBatArg));
+    setId(QString::fromLatin1("%1:%2.%3.%4").arg(Constants::MSVC_TOOLCHAIN_ID).arg(m_varsBat)
+            .arg(m_varsBatArg).arg(m_debuggerCommand));
 
     setDisplayName(name);
 }

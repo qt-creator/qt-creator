@@ -31,7 +31,14 @@ symbian {
         target = $$replace(target, /, \\)
         !isEqual(source,$$target) {
             !isEmpty(copyCommand):copyCommand += &&
-            copyCommand += $(COPY_DIR) \"$$source\" \"$$target\"
+            isEmpty(QMAKE_SH) {
+                copyCommand += $(COPY_DIR) \"$$source\" \"$$target\"
+            } else {
+                source = $$replace(source, \\\\, /)
+                target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
+                target = $$replace(target, \\\\, /)
+                copyCommand += test -d \"$$target\" || mkdir -p \"$$target\" && cp -r \"$$source\" \"$$target\"
+            }
         }
     }
     !isEmpty(copyCommand) {
@@ -50,13 +57,13 @@ symbian {
         copyCommand =
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
             source = $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source)
-            source = $$replace(source, \\, /)
+            source = $$replace(source, \\\\, /)
             macx {
                 target = $$OUT_PWD/$${TARGET}.app/Contents/Resources/$$eval($${deploymentfolder}.target)
             } else {
                 target = $$OUT_PWD/$$eval($${deploymentfolder}.target)
             }
-            target = $$replace(target, \\, /)
+            target = $$replace(target, \\\\, /)
             sourcePathSegments = $$split(source, /)
             targetFullPath = $$target/$$last(sourcePathSegments)
             !isEqual(source,$$targetFullPath) {

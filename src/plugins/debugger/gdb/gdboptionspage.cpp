@@ -57,7 +57,7 @@ QString GdbOptionsPage::settingsId()
 
 QString GdbOptionsPage::displayName() const
 {
-    return tr("Gdb");
+    return tr("GDB");
 }
 
 QString GdbOptionsPage::category() const

@@ -148,6 +148,7 @@ public:
     void discard() { setFromToolChain(); }
     bool isDirty() const;
     void makeReadOnly();
+    void changeEvent(QEvent *ev);
 
 private:
     void setFromToolChain();

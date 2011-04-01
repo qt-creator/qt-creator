@@ -645,7 +645,7 @@ void IPCEngineHost::readyRead()
     char terminator;
     m_device->getChar(&terminator);
     if (terminator != 'T') {
-        showStatusMessage(tr("Fatal engine shutdown. Incompatible binary or ipc error."));
+        showStatusMessage(tr("Fatal engine shutdown. Incompatible binary or IPC error."));
         showMessage(QLatin1String("IPC Error: terminator missing"));
         nuke();
         return;

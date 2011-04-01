@@ -43,6 +43,7 @@
 #include "texttomodelmerger.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
+#include "nodemetainfo.h"
 
 #include <languageutils/componentversion.h>
 #include <qmljs/qmljsevaluate.h>
@@ -662,16 +663,18 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
         }
 
-        Check check(doc, snapshot, m_lookupContext->context());
-        check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
-        foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check())
-            if (diagnosticMessage.isError())
-            errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+        if (view()->checkSemanticErrors()) {
+            Check check(doc, snapshot, m_lookupContext->context());
+            check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
+            foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check())
+                if (diagnosticMessage.isError())
+                    errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
 
-        if (!errors.isEmpty()) {
-            m_rewriterView->setErrors(errors);
-            setActive(false);
-            return false;
+            if (!errors.isEmpty()) {
+                m_rewriterView->setErrors(errors);
+                setActive(false);
+                return false;
+            }
         }
 
         setupImports(doc, differenceHandler);
@@ -725,6 +728,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     int majorVersion;
     int minorVersion;
     context->lookup(astObjectType, typeName, majorVersion, minorVersion, defaultPropertyName);
+    if (defaultPropertyName.isEmpty()) //fallback and use the meta system of the model
+        defaultPropertyName = modelNode.metaInfo().defaultPropertyName();
 
     if (typeName.isEmpty()) {
         qWarning() << "Skipping node with unknown type" << flatten(astObjectType);

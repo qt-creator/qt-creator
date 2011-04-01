@@ -5,7 +5,7 @@ within the logs of Qt Creator sources. Simply check it out from the public git
 repository. For example:
 
 git clone git://gitorious.org/qt-creator/qt-creator.git
-git log --cherry-pick --pretty=oneline origin/master...origin/2.1
+git log --cherry-pick --pretty=oneline origin/2.1...origin/2.2
 
 General
    * Added support for running user defined external tools (Tools->External)
@@ -153,6 +153,11 @@ Symbian Target
    * Added support for the new on-device debugging agent (CODA)
 
 Maemo Target
+   * Added Meego support.
+   * Added a device configuration wizard.
+   * Added a publishing wizard for Fremantle/extras-devel.
+   * On-demand creation of Desktop files.
+   * For Fremantle, it's possible to disable packaging again.
 
 Designer
 

@@ -133,7 +133,8 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
         m_modelToTextMerger(new Internal::ModelToTextMerger(this)),
         m_textToModelMerger(new Internal::TextToModelMerger(this)),
         m_textModifier(0),
-        transactionLevel(0)
+        transactionLevel(0),
+        m_checkErrors(true)
 {
 }
 

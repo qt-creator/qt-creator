@@ -37,6 +37,7 @@
 #include "linuxiccparser.h"
 #include "headerpath.h"
 #include "projectexplorerconstants.h"
+#include "toolchainmanager.h"
 
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
@@ -287,7 +288,9 @@ void GccToolChain::updateId()
 {
     QString i = id();
     i = i.left(i.indexOf(QLatin1Char(':')));
-    setId(QString::fromLatin1("%1:%2.%3").arg(i).arg(m_compilerPath).arg(m_targetAbi.toString()));
+    setId(QString::fromLatin1("%1:%2.%3.%4")
+          .arg(i).arg(m_compilerPath)
+          .arg(m_targetAbi.toString()).arg(m_debuggerCommand));
 }
 
 QString GccToolChain::typeName() const
@@ -521,11 +524,13 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
     if (!abiList.contains(requiredAbi))
         return result;
 
-    QString debuggerPath; // Find the first debugger
-    foreach (const QString &debugger, debuggers) {
-        debuggerPath = systemEnvironment.searchInPath(debugger);
-        if (!debuggerPath.isEmpty())
-            break;
+    QString debuggerPath = ToolChainManager::instance()->defaultDebugger(requiredAbi); // Find the first debugger
+    if (debuggerPath.isEmpty()) {
+        foreach (const QString &debugger, debuggers) {
+            debuggerPath = systemEnvironment.searchInPath(debugger);
+            if (!debuggerPath.isEmpty())
+                break;
+        }
     }
 
     foreach (const Abi &abi, abiList) {

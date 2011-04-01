@@ -42,6 +42,7 @@
 #include <QtCore/QSet>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFutureInterface>
+#include <QtCore/QStringList>
 
 namespace Utils {
 class Environment;
@@ -294,6 +295,10 @@ public:
     static QString findQMakeBinaryFromMakefile(const QString &directory);
     bool isValidId(int id) const;
 
+    // Compatibility with pre-2.2:
+    QString popPendingMwcUpdate();
+    QString popPendingGcceUpdate();
+
 signals:
     void qtVersionsChanged(const QList<int> &uniqueIds);
     void updateExamples(QString, QString, QString);
@@ -328,6 +333,10 @@ private:
     int m_idcount;
     // managed by QtProjectManagerPlugin
     static QtVersionManager *m_self;
+
+    // Compatibility with pre-2.2:
+    QStringList m_pendingMwcUpdates;
+    QStringList m_pendingGcceUpdates;
 };
 
 } // namespace Qt4ProjectManager

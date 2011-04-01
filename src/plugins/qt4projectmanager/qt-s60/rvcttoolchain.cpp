@@ -91,6 +91,19 @@ static Utils::Environment baseEnvironment(RvctToolChain *tc)
     return result;
 }
 
+static QString toString(const RvctToolChain::ArmVersion &v)
+{
+    switch (v)
+    {
+    case RvctToolChain::ARMv5:
+        return QString::fromAscii("armv5");
+    case RvctToolChain::ARMv6:
+        return QString::fromAscii("armv6");
+    default:
+        return QString::fromAscii("unknown");
+    }
+}
+
 // ==========================================================================
 // RvctToolChain
 // ==========================================================================
@@ -349,7 +362,8 @@ bool RvctToolChain::fromMap(const QVariantMap &data)
 
 void RvctToolChain::updateId()
 {
-    setId(QString::fromLatin1("%1:%2").arg(Constants::RVCT_TOOLCHAIN_ID).arg(m_compilerPath));
+    setId(QString::fromLatin1("%1:%2.%3.%4").arg(Constants::RVCT_TOOLCHAIN_ID)
+          .arg(m_compilerPath).arg(toString(m_armVersion)).arg(m_debuggerCommand));
 }
 
 QString RvctToolChain::varName(const QString &postFix) const
@@ -373,6 +387,12 @@ RvctToolChainConfigWidget::RvctToolChainConfigWidget(RvctToolChain *tc) :
     m_ui->environmentView->setModel(m_model);
     m_ui->environmentView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     m_ui->environmentView->horizontalHeader()->setStretchLastSection(true);
+    m_ui->environmentView->setGridStyle(Qt::NoPen);
+    m_ui->environmentView->horizontalHeader()->setHighlightSections(false);
+    m_ui->environmentView->verticalHeader()->hide();
+    QFontMetrics fm(font());
+    m_ui->environmentView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
+
     connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(emitDirty()));
 
     m_ui->compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
@@ -435,6 +455,20 @@ QList<Utils::EnvironmentItem> RvctToolChainConfigWidget::environmentChanges() co
     Utils::Environment resultEnv = baseEnvironment(static_cast<RvctToolChain *>(toolChain()));
     resultEnv.modify(m_model->userChanges());
     return baseEnv.diff(resultEnv);
+}
+
+void RvctToolChainConfigWidget::changeEvent(QEvent *ev)
+{
+    if (ev->type() == QEvent::EnabledChange) {
+        if (isEnabled()) {
+            m_ui->environmentView->horizontalHeader()->setVisible(true);
+            m_ui->environmentView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        } else {
+            m_ui->environmentView->horizontalHeader()->setVisible(false);
+            m_ui->environmentView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        }
+    }
+    ToolChainConfigWidget::changeEvent(ev);
 }
 
 // ==========================================================================

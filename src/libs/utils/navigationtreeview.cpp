@@ -61,8 +61,8 @@ NavigationTreeView::NavigationTreeView(QWidget *parent)
     setAttribute(Qt::WA_MacShowFocusRect, false);
 
     setHeaderHidden(true);
-
-    // show horizontal scrollbar
+    // We let the column adjust to contents, but note
+    // the setting of a minimum size in resizeEvent()
     header()->setResizeMode(QHeaderView::ResizeToContents);
     header()->setStretchLastSection(false);
 }
@@ -80,6 +80,12 @@ void NavigationTreeView::focusOutEvent(QFocusEvent *event)
 {
     if (event->reason() != Qt::PopupFocusReason)
         QTreeView::focusOutEvent(event);
+}
+
+void NavigationTreeView::resizeEvent(QResizeEvent *event)
+{
+    header()->setMinimumSectionSize(viewport()->width());
+    QTreeView::resizeEvent(event);
 }
 
 #ifdef Q_WS_MAC

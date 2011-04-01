@@ -10,7 +10,7 @@
 	     rule for C++ as we want diffs to take preference when looking
 	     at a C++ patch.
 	  -->
-        <magic priority="10">
+        <magic priority="60">
            <match value="&#x0a;+++ " type="string" offset="0:10000"/>
         </magic>
     </mime-type>

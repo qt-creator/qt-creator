@@ -128,7 +128,7 @@ QString BreakpointParameters::toString() const
     case BreakpointAtMain:
     case BreakpointAtFork:
     case BreakpointAtExec:
-    case BreakpointAtVFork:
+    //case BreakpointAtVFork:
     case BreakpointAtSysCall:
     case UnknownType:
         break;

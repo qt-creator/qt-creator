@@ -156,7 +156,7 @@ void PropertyEditorValue::setExpression(const QString &expression)
 bool PropertyEditorValue::isInSubState() const
 {
     const QmlDesigner::QmlObjectNode objectNode(modelNode());
-    return objectNode.isValid() && objectNode.propertyAffectedByCurrentState(name());
+    return objectNode.isValid() && objectNode.currentState().isValid() && objectNode.propertyAffectedByCurrentState(name());
 }
 
 bool PropertyEditorValue::isBound() const

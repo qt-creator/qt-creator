@@ -141,10 +141,12 @@ void AbstractMaemoPackageCreationStep::handleBuildOutput()
     QProcess * const buildProc = qobject_cast<QProcess *>(sender());
     if (!buildProc)
         return;
-    const QByteArray &stdOut = buildProc->readAllStandardOutput();
+    QByteArray stdOut = buildProc->readAllStandardOutput();
+    stdOut.replace('\0', QByteArray()); // Output contains NUL characters.
     if (!stdOut.isEmpty())
         emit addOutput(QString::fromLocal8Bit(stdOut), BuildStep::NormalOutput);
-    const QByteArray &errorOut = buildProc->readAllStandardError();
+    QByteArray errorOut = buildProc->readAllStandardError();
+    errorOut.replace('\0', QByteArray());
     if (!errorOut.isEmpty()) {
         emit addOutput(QString::fromLocal8Bit(errorOut), BuildStep::ErrorOutput);
     }
@@ -504,7 +506,7 @@ void MaemoDebianPackageCreationStep::adaptRulesFile(const QString &rulesFilePath
     if (makeInstallEol == -1)
         return;
     QString desktopFileDir = QFileInfo(rulesFile).dir().path()
-        + QLatin1Char('/') + projectName()
+        + QLatin1Char('/') + maemoTarget()->packageName()
         + QLatin1String("/usr/share/applications/");
     const Qt4BuildConfiguration * const bc = qt4BuildConfiguration();
     const MaemoGlobal::OsVersion version

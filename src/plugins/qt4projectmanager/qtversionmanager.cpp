@@ -176,8 +176,8 @@ QtVersionManager::QtVersionManager()
         version->setSystemRoot(s->value("S60SDKDirectory").toString());
         version->setSbsV2Directory(s->value(QLatin1String("SBSv2Directory")).toString());
 
-        // Update from 2.1 or earlier:
-        QString mingwDir = s->value(QLatin1String("MingwDirectory")).toString();
+        // Update from pre-2.2:
+        const QString mingwDir = s->value(QLatin1String("MingwDirectory")).toString();
         if (!mingwDir.isEmpty()) {
             QFileInfo fi(mingwDir + QLatin1String("/bin/g++.exe"));
             if (fi.exists() && fi.isExecutable()) {
@@ -189,30 +189,12 @@ QtVersionManager::QtVersionManager()
                 }
             }
         }
-        QString mwcDir = s->value(QLatin1String("MwcDirectory")).toString();
-        if (!mwcDir.isEmpty()) {
-            QFileInfo fi(mwcDir + QLatin1String("/x86Build/Symbian_Tools/Command_Line_Tools/mwwinrc.exe"));
-            if (fi.exists() && fi.isExecutable()) {
-                WinscwToolChain *tc = createToolChain<WinscwToolChain>(Constants::WINSCW_TOOLCHAIN_ID);
-                if (tc) {
-                    tc->setCompilerPath(fi.absoluteFilePath());
-                    tc->setDisplayName(tr("WINSCW from %1").arg(version->displayName()));
-                    ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
-                }
-            }
-        }
-        QString gcceDir = s->value(QLatin1String("GcceDirectory")).toString();
-        if (!gcceDir.isEmpty()) {
-            QFileInfo fi(gcceDir + QLatin1String("/bin/arm-none-symbianelf-g++.exe"));
-            if (fi.exists() && fi.isExecutable()) {
-                GcceToolChain *tc = createToolChain<GcceToolChain>(Constants::GCCE_TOOLCHAIN_ID);
-                if (tc) {
-                    tc->setCompilerPath(fi.absoluteFilePath());
-                    tc->setDisplayName(tr("GCCE from %1").arg(version->displayName()));
-                    ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
-                }
-            }
-        }
+        const QString mwcDir = s->value(QLatin1String("MwcDirectory")).toString();
+        if (!mwcDir.isEmpty())
+            m_pendingMwcUpdates.append(mwcDir);
+        const QString gcceDir = s->value(QLatin1String("GcceDirectory")).toString();
+        if (!gcceDir.isEmpty())
+            m_pendingGcceUpdates.append(gcceDir);
 
         m_versions.insert(version->uniqueId(), version);
     }
@@ -411,6 +393,20 @@ QList<QtVersion *> QtVersionManager::validVersions() const
 bool QtVersionManager::isValidId(int id) const
 {
     return m_versions.contains(id);
+}
+
+QString QtVersionManager::popPendingMwcUpdate()
+{
+    if (m_pendingMwcUpdates.isEmpty())
+        return QString();
+    return m_pendingMwcUpdates.takeFirst();
+}
+
+QString QtVersionManager::popPendingGcceUpdate()
+{
+    if (m_pendingGcceUpdates.isEmpty())
+        return QString();
+    return m_pendingGcceUpdates.takeFirst();
 }
 
 QtVersion *QtVersionManager::version(int id) const
@@ -751,6 +747,12 @@ bool QtVersion::supportsShadowBuilds() const
         // We can not support shadow building with the ABLD system
         return false;
     }
+#ifdef Q_OS_WIN
+    if (targets.contains(Constants::MEEGO_DEVICE_TARGET_ID)
+        || targets.contains(Constants::MAEMO5_DEVICE_TARGET_ID)
+        || targets.contains(Constants::HARMATTAN_DEVICE_TARGET_ID))
+        return false;
+#endif
     return true;
 }
 

@@ -384,7 +384,11 @@ void QmlEngine::runEngine()
 void QmlEngine::startApplicationLauncher()
 {
     if (!d->m_applicationLauncher.isRunning()) {
-        appendMessage(tr("Starting %1 %2").arg(QDir::toNativeSeparators(startParameters().executable), startParameters().processArgs), NormalMessageFormat);
+        appendMessage(tr("Starting %1 %2").arg(
+                          QDir::toNativeSeparators(startParameters().executable),
+                          startParameters().processArgs)
+                      + QLatin1Char('\n')
+                     , NormalMessageFormat);
         d->m_applicationLauncher.start(ApplicationLauncher::Gui,
                                     startParameters().executable,
                                     startParameters().processArgs);
@@ -762,11 +766,12 @@ QString QmlEngine::toFileInProject(const QString &fileUrl)
     if (fileUrl.isEmpty())
         return fileUrl;
 
-    const QString path = QUrl(fileUrl).path();
+    const QString path = QUrl(fileUrl).toLocalFile();
+    if (path.isEmpty())
+        return fileUrl;
 
     // Try to find shadow-build file in source dir first
-    if (!QUrl(fileUrl).toLocalFile().isEmpty()
-            && isShadowBuildProject()) {
+    if (isShadowBuildProject()) {
         const QString sourcePath = fromShadowBuildFilename(path);
         if (QFileInfo(sourcePath).exists())
             return sourcePath;

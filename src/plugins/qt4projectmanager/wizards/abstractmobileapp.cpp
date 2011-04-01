@@ -58,7 +58,7 @@ const QString AbstractMobileApp::ProFileComment(QLatin1String("#"));
 const QString AbstractMobileApp::DeploymentPriFileName(QLatin1String("deployment.pri"));
 const QString AbstractMobileApp::FileChecksum(QLatin1String("checksum"));
 const QString AbstractMobileApp::FileStubVersion(QLatin1String("version"));
-const int AbstractMobileApp::StubVersion = 3;
+const int AbstractMobileApp::StubVersion = 4;
 
 AbstractMobileApp::AbstractMobileApp()
     : m_orientation(ScreenOrientationAuto)

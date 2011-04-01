@@ -35,6 +35,8 @@
 #include "formeditorw.h"
 #include "formeditorstack.h"
 
+#include <coreplugin/editormanager/ieditor.h>
+
 #include <utils/qtcassert.h>
 
 #include <QtGui/QVBoxLayout>
@@ -109,9 +111,9 @@ void EditorWidget::add(const EditorData &d)
     m_stack->add(d);
 }
 
-bool EditorWidget::removeFormWindowEditor(Core::IEditor *xmlEditor)
+void EditorWidget::removeFormWindowEditor(Core::IEditor *xmlEditor)
 {
-    return m_stack->removeFormWindowEditor(xmlEditor);
+    m_stack->removeFormWindowEditor(xmlEditor);
 }
 
 bool EditorWidget::setVisibleEditor(Core::IEditor *xmlEditor)

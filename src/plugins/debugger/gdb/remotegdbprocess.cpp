@@ -193,12 +193,12 @@ void RemoteGdbProcess::handleGdbFinished(int exitStatus)
 
     switch (exitStatus) {
     case Utils::SshRemoteProcess::FailedToStart:
-        m_error = tr("Remote gdb failed to start.");
+        m_error = tr("Remote GDB failed to start.");
         setState(Inactive);
         emit startFailed();
         break;
     case Utils::SshRemoteProcess::KilledBySignal:
-        emitErrorExit(tr("Remote gdb crashed."));
+        emitErrorExit(tr("Remote GDB crashed."));
         break;
     case Utils::SshRemoteProcess::ExitedNormally:
         const int exitCode = m_gdbProc->exitCode();

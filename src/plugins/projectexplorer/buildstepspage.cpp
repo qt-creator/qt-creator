@@ -112,11 +112,6 @@ void BuildStepListWidget::init(BuildStepList *bsl)
 
     m_addButton->setText(tr("Add %1 Step").arg(m_buildStepList->displayName()));
 
-    // make sure widget is updated
-    foreach(BuildStepsWidgetStruct s, m_buildSteps) {
-        s.widget->init();
-        s.detailsWidget->setSummaryText(s.widget->summaryText());
-    }
     updateBuildStepButtonsState();
 
     static QLatin1String buttonStyle(

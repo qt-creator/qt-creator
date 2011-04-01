@@ -255,15 +255,18 @@ int main(int argc, char **argv)
     }
 
     // Make sure we honor the system's proxy settings
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+#if defined(Q_OS_UNIX)
     QUrl proxyUrl(QString::fromLatin1(qgetenv("http_proxy")));
     if (proxyUrl.isValid()) {
         QNetworkProxy proxy(QNetworkProxy::HttpProxy, proxyUrl.host(),
                             proxyUrl.port(), proxyUrl.userName(), proxyUrl.password());
         QNetworkProxy::setApplicationProxy(proxy);
     }
-#else
-    QNetworkProxyFactory::setUseSystemConfiguration(true);
+#if defined(Q_OS_MAC)
+    else {
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+    }
+#endif
 #endif
     // Load
     const QStringList pluginPaths = getPluginPaths();

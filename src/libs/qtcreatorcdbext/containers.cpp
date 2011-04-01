@@ -81,7 +81,8 @@ static inline void dump64bitPointerArray(std::ostream &os, const void *a, int co
 static inline std::string fixInnerType(std::string type,
                                        const SymbolGroupValue &container)
 {
-    const std::string stripped = SymbolGroupValue::stripClassPrefixes(type);
+    const std::string stripped
+        = SymbolGroupValue::stripConst(SymbolGroupValue::stripClassPrefixes(type));
     const KnownType kt = knownType(stripped, 0);
     // Resolve types unless they are POD or pointers to POD (that is, qualify 'Foo' and 'Foo*')
     const bool needResolve = kt == KT_Unknown || kt ==  KT_PointerType || !(kt & KT_POD_Type);

@@ -315,7 +315,7 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
 
     ItemRow itemRow = itemRowForNode(node);
     if (item == itemRow.idItem) {
-         if (node.isValidId(item->text())) {
+         if (node.isValidId(item->text())  && !node.view()->modelNodeForId(item->text()).isValid()) {
              if (node.id().isEmpty() || item->text().isEmpty()) { //no id
                  try {
                      node.setId(item->text());
@@ -327,8 +327,14 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
                      node.view()->rewriterView()->renameId(node.id(), item->text());
              }
         } else {
-            QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(item->text()));
-            item->setText(node.id());
+
+             if (!node.isValidId(item->text()))
+                 QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(item->text()));
+             else
+                 QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 already exists").arg(item->text()));
+             bool blockSingals = blockItemChangedSignal(true);
+             item->setText(node.id());
+             blockItemChangedSignal(blockSingals);
         }
     } else if (item == itemRow.visibilityItem) {
         bool invisible = (item->checkState() == Qt::Unchecked);
