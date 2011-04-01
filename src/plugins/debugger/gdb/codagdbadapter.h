@@ -199,6 +199,7 @@ private:
     bool m_registerRequestPending;
     QByteArray m_tcfProcessId;
     LocalGdbProcess m_gdbProc;
+    bool m_firstHelloEvent;
 };
 
 } // namespace Internal
