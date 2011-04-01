@@ -74,6 +74,7 @@ public:
     QString remoteExecutable() const { return m_remoteExecutable; }
     QString arguments() const { return m_appArguments; }
     QList<Utils::EnvironmentItem> userEnvChanges() const { return m_userEnvChanges; }
+    const QSharedPointer<const MaemoDeviceConfig> devConfig() const { return m_devConfig; }
 
     static const qint64 InvalidExitCode;
 
