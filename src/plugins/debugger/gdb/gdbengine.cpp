@@ -1890,7 +1890,9 @@ unsigned GdbEngine::debuggerCapabilities() const
         | WatchpointByExpressionCapability
         | AddWatcherCapability
         | ShowModuleSymbolsCapability
-        | CatchCapability;
+        | CatchCapability
+        | OperateByInstructionCapability
+        | RunToLineCapability;
 
     if (startParameters().startMode == AttachCore)
         return caps;

@@ -1073,7 +1073,9 @@ unsigned CdbEngine::debuggerCapabilities() const
            |ReloadModuleCapability
            |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
            |BreakConditionCapability|TracePointCapability
-           |BreakModuleCapability;
+           |BreakModuleCapability
+           |OperateByInstructionCapability
+           |RunToLineCapability;
 }
 
 void CdbEngine::executeStep()

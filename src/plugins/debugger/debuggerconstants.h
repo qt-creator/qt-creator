@@ -151,6 +151,8 @@ enum DebuggerCapabilities
     WatchpointByExpressionCapability = 0x20000,
     ShowModuleSymbolsCapability = 0x40000,
     CatchCapability = 0x80000, //!< fork, vfork, syscall
+    OperateByInstructionCapability = 0x100000,
+    RunToLineCapability = 0x200000,
     AllDebuggerCapabilities = 0xFFFFFFFF
 };
 

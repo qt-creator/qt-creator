@@ -1704,19 +1704,20 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     // Run to, jump to line below in stopped state.
     if (currentEngine()->state() == InferiorStopOk && contextUsable) {
         menu->addSeparator();
-        const QString runText = args.address
-            ? DebuggerEngine::tr("Run to Address 0x%1").arg(args.address, 0, 16)
-            : DebuggerEngine::tr("Run to Line %1").arg(args.lineNumber);
-        QAction *runToLineAction  = new QAction(runText, menu);
-        runToLineAction->setData(QVariant::fromValue(args));
-        connect(runToLineAction, SIGNAL(triggered()), SLOT(slotRunToLine()));
-        menu->addAction(runToLineAction);
+        if (currentEngine()->debuggerCapabilities() & RunToLineCapability) {
+            const QString runText = args.address
+                ? DebuggerEngine::tr("Run to Address 0x%1").arg(args.address, 0, 16)
+                : DebuggerEngine::tr("Run to Line %1").arg(args.lineNumber);
+            QAction *runToLineAction  = new QAction(runText, menu);
+            runToLineAction->setData(QVariant::fromValue(args));
+            connect(runToLineAction, SIGNAL(triggered()), SLOT(slotRunToLine()));
+            menu->addAction(runToLineAction);
+        }
         if (currentEngine()->debuggerCapabilities() & JumpToLineCapability) {
             const QString jumpText = args.address
                 ? DebuggerEngine::tr("Jump to Address 0x%1").arg(args.address, 0, 16)
                 : DebuggerEngine::tr("Jump to Line %1").arg(args.lineNumber);
             QAction *jumpToLineAction  = new QAction(jumpText, menu);
-            menu->addAction(runToLineAction);
             jumpToLineAction->setData(QVariant::fromValue(args));
             connect(jumpToLineAction, SIGNAL(triggered()), SLOT(slotJumpToLine()));
             menu->addAction(jumpToLineAction);
@@ -2057,7 +2058,9 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_watchAction2->setEnabled(true);
     m_breakAction->setEnabled(true);
 
-    action(OperateByInstruction)->setEnabled(stopped || isCore);
+    const bool canOperateByInstruction = (caps & OperateByInstructionCapability)
+            && (stopped || isCore);
+    action(OperateByInstruction)->setEnabled(canOperateByInstruction);
 
     m_resetAction->setEnabled(state != DebuggerNotReady
                                       && state != DebuggerFinished);
@@ -2066,7 +2069,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_nextAction->setEnabled(stopped || state == DebuggerNotReady);
 
     m_stepOutAction->setEnabled(stopped);
-    m_runToLineAction->setEnabled(stopped);
+    m_runToLineAction->setEnabled(stopped && (caps & RunToLineCapability));
     m_runToSelectedFunctionAction->setEnabled(stopped);
     m_returnFromFunctionAction->
         setEnabled(stopped && (caps & ReturnFromFunctionCapability));
