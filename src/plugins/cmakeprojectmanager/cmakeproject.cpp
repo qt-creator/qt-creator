@@ -794,10 +794,12 @@ Core::IFile::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, Chang
     return BehaviorSilent;
 }
 
-void CMakeFile::reload(ReloadFlag flag, ChangeType type)
+bool CMakeFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
+    Q_UNUSED(errorString)
     Q_UNUSED(flag)
     Q_UNUSED(type)
+    return true;
 }
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeTarget *target)

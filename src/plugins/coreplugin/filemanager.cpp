@@ -912,6 +912,7 @@ void FileManager::checkForReload()
     }
 
     // handle the IFiles
+    QStringList errorStrings;
     foreach (IFile *file, changedIFiles) {
         IFile::ChangeTrigger behavior = IFile::TriggerInternal;
         IFile::ChangeType type = IFile::TypePermissions;
@@ -958,21 +959,23 @@ void FileManager::checkForReload()
         // handle it!
         d->m_blockedIFile = file;
 
+        bool success = true;
+        QString errorString;
         // we've got some modification
         // check if it's contents or permissions:
         if (type == IFile::TypePermissions) {
             // Only permission change
-            file->reload(IFile::FlagReload, IFile::TypePermissions);
+            success = file->reload(&errorString, IFile::FlagReload, IFile::TypePermissions);
         // now we know it's a content change or file was removed
         } else if (defaultBehavior == IFile::ReloadUnmodified
                    && type == IFile::TypeContents && !file->isModified()) {
             // content change, but unmodified (and settings say to reload in this case)
-            file->reload(IFile::FlagReload, type);
+            success = file->reload(&errorString, IFile::FlagReload, type);
         // file was removed or it's a content change and the default behavior for
         // unmodified files didn't kick in
         } else if (defaultBehavior == IFile::IgnoreAll) {
             // content change or removed, but settings say ignore
-            file->reload(IFile::FlagIgnore, type);
+            success = file->reload(&errorString, IFile::FlagIgnore, type);
         // either the default behavior is to always ask,
         // or the ReloadUnmodified default behavior didn't kick in,
         // so do whatever the IFile wants us to do
@@ -980,27 +983,27 @@ void FileManager::checkForReload()
             // check if IFile wants us to ask
             if (file->reloadBehavior(behavior, type) == IFile::BehaviorSilent) {
                 // content change or removed, IFile wants silent handling
-                file->reload(IFile::FlagReload, type);
+                success = file->reload(&errorString, IFile::FlagReload, type);
             // IFile wants us to ask
             } else if (type == IFile::TypeContents) {
                 // content change, IFile wants to ask user
                 if (previousAnswer == Utils::ReloadNone) {
                     // answer already given, ignore
-                    file->reload(IFile::FlagIgnore, IFile::TypeContents);
+                    success = file->reload(&errorString, IFile::FlagIgnore, IFile::TypeContents);
                 } else if (previousAnswer == Utils::ReloadAll) {
                     // answer already given, reload
-                    file->reload(IFile::FlagReload, IFile::TypeContents);
+                    success = file->reload(&errorString, IFile::FlagReload, IFile::TypeContents);
                 } else {
                     // Ask about content change
                     previousAnswer = Utils::reloadPrompt(file->fileName(), file->isModified(), QApplication::activeWindow());
                     switch (previousAnswer) {
                     case Utils::ReloadAll:
                     case Utils::ReloadCurrent:
-                        file->reload(IFile::FlagReload, IFile::TypeContents);
+                        success = file->reload(&errorString, IFile::FlagReload, IFile::TypeContents);
                         break;
                     case Utils::ReloadSkipCurrent:
                     case Utils::ReloadNone:
-                        file->reload(IFile::FlagIgnore, IFile::TypeContents);
+                        success = file->reload(&errorString, IFile::FlagIgnore, IFile::TypeContents);
                         break;
                     }
                 }
@@ -1031,12 +1034,21 @@ void FileManager::checkForReload()
                 }
             }
         }
+        if (!success) {
+            if (errorString.isEmpty())
+                errorStrings << tr("Cannot reload %1").arg(QDir::toNativeSeparators(file->fileName()));
+            else
+                errorStrings << errorString;
+        }
 
         // update file info, also handling if e.g. link target has changed
         removeFileInfo(file);
         addFileInfo(file);
         d->m_blockedIFile = 0;
     }
+    if (!errorStrings.isEmpty())
+        QMessageBox::critical(d->m_mainWindow, tr("File Error"),
+                              errorStrings.join(QLatin1String("\n")));
 
     // handle deleted files
     EditorManager::instance()->closeEditors(editorsToClose, false);

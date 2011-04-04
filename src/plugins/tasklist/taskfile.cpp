@@ -97,15 +97,17 @@ Core::IFile::ReloadBehavior TaskFile::reloadBehavior(ChangeTrigger state, Change
     return BehaviorSilent;
 }
 
-void TaskFile::reload(ReloadFlag flag, ChangeType type)
+bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(flag);
 
     if (type == TypePermissions)
-        return;
-    open(m_fileName);
-    if (type == TypeRemoved)
+        return true;
+    if (type == TypeRemoved) {
         deleteLater();
+        return true;
+    }
+    return open(errorString, m_fileName);
 }
 
 void TaskFile::rename(const QString &newName)
@@ -113,10 +115,10 @@ void TaskFile::rename(const QString &newName)
     Q_UNUSED(newName);
 }
 
-bool TaskFile::open(const QString &fileName)
+bool TaskFile::open(QString *errorString, const QString &fileName)
 {
     m_fileName = fileName;
-    return TaskList::TaskListPlugin::instance()->loadFile(m_context, m_fileName);
+    return TaskList::TaskListPlugin::instance()->loadFile(errorString, m_context, m_fileName);
 }
 
 ProjectExplorer::Project *TaskFile::context() const

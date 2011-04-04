@@ -73,11 +73,14 @@ TaskListPlugin *TaskListPlugin::m_instance = 0;
 
 class Internal::TaskListPluginPrivate {
 public:
-    bool parseTaskFile(ProjectExplorer::Project *context, const QString &name)
+    bool parseTaskFile(QString *errorString, ProjectExplorer::Project *context, const QString &name)
     {
         QFile tf(name);
-        if (!tf.open(QIODevice::ReadOnly))
+        if (!tf.open(QIODevice::ReadOnly)) {
+            *errorString = TaskListPlugin::tr("Cannot open task file %1: %2").arg(
+                    QDir::toNativeSeparators(name), tf.errorString());
             return false;
+        }
 
         while (!tf.atEnd())
         {
@@ -211,10 +214,10 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
 void TaskListPlugin::extensionsInitialized()
 { }
 
-bool TaskListPlugin::loadFile(ProjectExplorer::Project *context, const QString &fileName)
+bool TaskListPlugin::loadFile(QString *errorString, ProjectExplorer::Project *context, const QString &fileName)
 {
     clearTasks();
-    return d->parseTaskFile(context, fileName);
+    return d->parseTaskFile(errorString, context, fileName);
 }
 
 bool TaskListPlugin::monitorFile(ProjectExplorer::Project *context, const QString &fileName)

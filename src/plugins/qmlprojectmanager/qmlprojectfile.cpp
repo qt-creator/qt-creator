@@ -100,10 +100,12 @@ Core::IFile::ReloadBehavior QmlProjectFile::reloadBehavior(ChangeTrigger state, 
     return BehaviorSilent;
 }
 
-void QmlProjectFile::reload(ReloadFlag flag, ChangeType type)
+bool QmlProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
+    Q_UNUSED(errorString)
     Q_UNUSED(flag)
     Q_UNUSED(type)
+    return true;
 }
 
 } // namespace Internal

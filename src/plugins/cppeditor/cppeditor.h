@@ -152,7 +152,7 @@ public:
     QString id() const;
 
     bool isTemporary() const { return false; }
-    virtual bool open(const QString & fileName);
+    virtual bool open(QString *errorString, const QString & fileName);
 };
 
 class CPPEditorWidget : public TextEditor::BaseTextEditorWidget

@@ -454,7 +454,7 @@ void BaseTextDocument::checkPermissions()
         emit changed();
 }
 
-bool BaseTextDocument::open(const QString &fileName)
+bool BaseTextDocument::open(QString *errorString, const QString &fileName)
 {
     QString title = tr("untitled");
     if (!fileName.isEmpty()) {
@@ -462,16 +462,16 @@ bool BaseTextDocument::open(const QString &fileName)
         d->m_fileIsReadOnly = !fi.isWritable();
         d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
 
-        QFile file(fileName);
-        if (!file.open(QIODevice::ReadOnly))
-            return false;
-
         title = fi.fileName();
 
         QByteArray buf;
         try {
-            buf = file.readAll();
+            Utils::FileReader reader;
+            if (!reader.fetch(fileName, errorString))
+                return false;
+            buf = reader.data();
         } catch (std::bad_alloc) {
+            *errorString = tr("Out of memory");
             return false;
         }
         int bytesRead = buf.size();
@@ -591,20 +591,22 @@ bool BaseTextDocument::open(const QString &fileName)
     return true;
 }
 
-void BaseTextDocument::reload(QTextCodec *codec)
+bool BaseTextDocument::reload(QString *errorString, QTextCodec *codec)
 {
-    QTC_ASSERT(codec, return);
+    QTC_ASSERT(codec, return false);
     d->m_codec = codec;
-    reload();
+    return reload(errorString);
 }
 
-void BaseTextDocument::reload()
+bool BaseTextDocument::reload(QString *errorString)
 {
     emit aboutToReload();
     documentClosing(); // removes text marks non-permanently
 
-    if (open(d->m_fileName))
-        emit reloaded();
+    if (!open(errorString, d->m_fileName))
+        return false;
+    emit reloaded();
+    return true;
 }
 
 Core::IFile::ReloadBehavior BaseTextDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -619,14 +621,15 @@ Core::IFile::ReloadBehavior BaseTextDocument::reloadBehavior(ChangeTrigger state
     return BehaviorAsk;
 }
 
-void BaseTextDocument::reload(ReloadFlag flag, ChangeType type)
+bool BaseTextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore)
-        return;
+        return true;
     if (type == TypePermissions) {
         checkPermissions();
+        return true;
     } else {
-        reload();
+        return reload(errorString);
     }
 }
 

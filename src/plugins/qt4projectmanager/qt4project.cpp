@@ -238,10 +238,12 @@ Core::IFile::ReloadBehavior Qt4ProjectFile::reloadBehavior(ChangeTrigger state, 
     return BehaviorSilent;
 }
 
-void Qt4ProjectFile::reload(ReloadFlag flag, ChangeType type)
+bool Qt4ProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
+    Q_UNUSED(errorString)
     Q_UNUSED(flag)
     Q_UNUSED(type)
+    return true;
 }
 
 /*!

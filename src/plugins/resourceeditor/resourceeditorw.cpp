@@ -112,7 +112,7 @@ bool ResourceEditorW::createNew(const QString &contents)
     return rc;
 }
 
-bool ResourceEditorW::open(const QString &fileName /* = QString() */)
+bool ResourceEditorW::open(QString *errorString, const QString &fileName /* = QString() */)
 {
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::open: " << fileName;
@@ -126,11 +126,10 @@ bool ResourceEditorW::open(const QString &fileName /* = QString() */)
 
     const QString absFileName = fi.absoluteFilePath();
 
-    if (!fi.isReadable())
+    if (!m_resourceEditor->load(absFileName)) {
+        *errorString = m_resourceEditor->errorMessage();
         return false;
-
-    if (!m_resourceEditor->load(absFileName))
-        return false;
+    }
 
     setDisplayName(fi.fileName());
 
@@ -208,17 +207,19 @@ Core::IFile::ReloadBehavior ResourceEditorFile::reloadBehavior(ChangeTrigger sta
     return BehaviorAsk;
 }
 
-void ResourceEditorFile::reload(ReloadFlag flag, ChangeType type)
+bool ResourceEditorFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore)
-        return;
+        return true;
     if (type == TypePermissions) {
         emit changed();
     } else {
         emit aboutToReload();
-        if (m_parent->open(m_parent->m_resourceEditor->fileName()))
-            emit reloaded();
+        if (!m_parent->open(errorString, m_parent->m_resourceEditor->fileName()))
+            return false;
+        emit reloaded();
     }
+    return true;
 }
 
 QString ResourceEditorFile::defaultPath() const

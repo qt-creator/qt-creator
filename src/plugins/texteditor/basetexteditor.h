@@ -138,7 +138,7 @@ public:
     // EditorInterface
     Core::IFile * file();
     bool createNew(const QString &contents);
-    virtual bool open(const QString &fileName = QString());
+    virtual bool open(QString *errorString, const QString &fileName = QString());
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     QString displayName() const;
@@ -560,7 +560,7 @@ public:
     //QWidget *widget() { return e; }
     Core::IFile * file() { return e->file(); }
     bool createNew(const QString &contents) { return e->createNew(contents); }
-    bool open(const QString &fileName = QString()) { return e->open(fileName); }
+    bool open(QString *errorString, const QString &fileName = QString()) { return e->open(errorString, fileName); }
     QString displayName() const { return e->displayName(); }
     void setDisplayName(const QString &title) { e->setDisplayName(title); emit changed(); }
 

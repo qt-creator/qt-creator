@@ -740,9 +740,9 @@ QString QmlJSEditorEditable::id() const
     return QLatin1String(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 }
 
-bool QmlJSEditorEditable::open(const QString &fileName)
+bool QmlJSEditorEditable::open(QString *errorString, const QString &fileName)
 {
-    bool b = TextEditor::BaseTextEditor::open(fileName);
+    bool b = TextEditor::BaseTextEditor::open(errorString, fileName);
     editorWidget()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
     return b;
 }

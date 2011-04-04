@@ -46,6 +46,7 @@
 #include <texteditor/plaintexteditor.h>
 
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 
@@ -79,7 +80,7 @@ FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditor *editor,
 
     connect(form, SIGNAL(changed()), this, SIGNAL(changed()));
     // Revert to saved/load externally modified files.
-    connect(&d->m_file, SIGNAL(reload(QString)), this, SLOT(slotOpen(QString)));
+    connect(&d->m_file, SIGNAL(reload(QString*,QString)), this, SLOT(slotOpen(QString*,QString)));
     // Force update of open editors model.
     connect(&d->m_file, SIGNAL(saved()), this, SIGNAL(changed()));
     connect(&d->m_file, SIGNAL(changed()), this, SIGNAL(changed()));
@@ -126,12 +127,12 @@ bool FormWindowEditor::createNew(const QString &contents)
     return true;
 }
 
-void FormWindowEditor::slotOpen(const QString &fileName)
+void FormWindowEditor::slotOpen(QString *errorString, const QString &fileName)
 {
-    open(fileName);
+    open(errorString, fileName);
 }
 
-bool FormWindowEditor::open(const QString &fileName)
+bool FormWindowEditor::open(QString *errorString, const QString &fileName)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowEditor::open" << fileName;
@@ -147,15 +148,14 @@ bool FormWindowEditor::open(const QString &fileName)
     const QFileInfo fi(fileName);
     const QString absfileName = fi.absoluteFilePath();
 
-    QFile file(absfileName);
-    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
+    Utils::FileReader reader;
+    if (!reader.fetch(absfileName, QIODevice::Text, errorString))
         return false;
 
     form->setFileName(absfileName);
 
-    const QString contents = QString::fromUtf8(file.readAll());
+    const QString contents = QString::fromUtf8(reader.data());
     form->setContents(contents);
-    file.close();
     if (!form->mainContainer())
         return false;
     form->setDirty(false);

@@ -60,10 +60,10 @@ public:
     bool isSaveAsAllowed() const;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    void reload(ReloadFlag flag, ChangeType type);
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     void rename(const QString &newName);
 
-    bool open(const QString &fileName);
+    bool open(QString *errorString, const QString &fileName);
 
     ProjectExplorer::Project *context() const;
     void setContext(ProjectExplorer::Project *context);

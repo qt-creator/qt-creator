@@ -88,8 +88,10 @@ Core::IFile::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state
     return BehaviorSilent;
 }
 
-void SubmitEditorFile::reload(ReloadFlag flag, ChangeType type)
+bool SubmitEditorFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
+    Q_UNUSED(errorString)
     Q_UNUSED(flag)
     Q_UNUSED(type)
+    return true;
 }

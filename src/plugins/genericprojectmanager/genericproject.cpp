@@ -619,8 +619,10 @@ Core::IFile::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger sta
     return BehaviorSilent;
 }
 
-void GenericProjectFile::reload(ReloadFlag flag, ChangeType type)
+bool GenericProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
+    Q_UNUSED(errorString)
     Q_UNUSED(flag)
     Q_UNUSED(type)
+    return true;
 }

@@ -231,13 +231,14 @@ Core::IFile::ReloadBehavior Qt4PriFile::reloadBehavior(ChangeTrigger state, Chan
     return BehaviorSilent;
 }
 
-void Qt4PriFile::reload(ReloadFlag flag, ChangeType type)
+bool Qt4PriFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
+    Q_UNUSED(errorString)
     Q_UNUSED(flag)
-    Q_UNUSED(type)
     if (type == TypePermissions)
-        return;
+        return true;
     m_priFile->scheduleUpdate();
+    return true;
 }
 
 /*!
@@ -1130,11 +1131,17 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     // So the modification time might not change between those two saves.
     // We manually tell each editor to reload it's file.
     // (The .pro files are notified by the file system watcher.)
+    QStringList errorStrings;
     foreach (Core::IEditor *editor, Core::ICore::instance()->editorManager()->editorsForFileName(m_projectFilePath)) {
         if (Core::IFile *editorFile = editor->file()) {
-            editorFile->reload(Core::IFile::FlagReload, Core::IFile::TypeContents);
+            QString errorString;
+            if (!editorFile->reload(&errorString, Core::IFile::FlagReload, Core::IFile::TypeContents))
+                errorStrings << errorString;
         }
     }
+    if (!errorStrings.isEmpty())
+        QMessageBox::warning(Core::ICore::instance()->mainWindow(), tr("File Error"),
+                             errorStrings.join(QLatin1String("\n")));
 
     includeFile->deref();
 }

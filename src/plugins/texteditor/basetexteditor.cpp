@@ -90,6 +90,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
+#include <QtGui/QMessageBox>
 
 //#define DO_FOO
 
@@ -520,14 +521,18 @@ void BaseTextEditorWidget::selectEncoding()
     CodecSelector codecSelector(this, doc);
 
     switch (codecSelector.exec()) {
-    case CodecSelector::Reload:
-        doc->reload(codecSelector.selectedCodec());
+    case CodecSelector::Reload: {
+        QString errorString;
+        if (!doc->reload(&errorString, codecSelector.selectedCodec())) {
+            QMessageBox::critical(this, tr("File Error"), errorString);
+            break;
+        }
         setReadOnly(d->m_document->hasDecodingError());
         if (doc->hasDecodingError())
             currentEditorChanged(Core::EditorManager::instance()->currentEditor());
         else
             Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String(Constants::SELECT_ENCODING));
-        break;
+        break; }
     case CodecSelector::Save:
         doc->setCodec(codecSelector.selectedCodec());
         Core::EditorManager::instance()->saveEditor(editor());
@@ -555,9 +560,9 @@ bool BaseTextEditorWidget::createNew(const QString &contents)
     return true;
 }
 
-bool BaseTextEditorWidget::open(const QString &fileName)
+bool BaseTextEditorWidget::open(QString *errorString, const QString &fileName)
 {
-    if (d->m_document->open(fileName)) {
+    if (d->m_document->open(errorString, fileName)) {
         moveCursor(QTextCursor::Start);
         setReadOnly(d->m_document->hasDecodingError());
         return true;

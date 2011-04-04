@@ -141,17 +141,20 @@ Core::IFile::ReloadBehavior FormWindowFile::reloadBehavior(ChangeTrigger state, 
     return BehaviorAsk;
 }
 
-void FormWindowFile::reload(ReloadFlag flag, ChangeType type)
+bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore)
-        return;
+        return true;
     if (type == TypePermissions) {
         emit changed();
     } else {
         emit aboutToReload();
-        emit reload(m_fileName);
+        emit reload(errorString, m_fileName);
+        if (!errorString->isEmpty())
+            return false;
         emit reloaded();
     }
+    return true;
 }
 
 QString FormWindowFile::defaultPath() const

@@ -330,26 +330,20 @@ bool VCSBaseSubmitEditor::createNew(const QString &contents)
     return true;
 }
 
-bool VCSBaseSubmitEditor::open(const QString &fileName)
+bool VCSBaseSubmitEditor::open(QString *errorString, const QString &fileName)
 {
     if (fileName.isEmpty())
         return false;
 
-    const QFileInfo fi(fileName);
-    if (!fi.isFile() || !fi.isReadable())
+    Utils::FileReader reader;
+    if (!reader.fetch(fileName, QIODevice::Text, errorString))
         return false;
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        qWarning("Unable to open %s: %s", qPrintable(fileName), qPrintable(file.errorString()));
-        return false;
-    }
-
-    const QString text = QString::fromLocal8Bit(file.readAll());
+    const QString text = QString::fromLocal8Bit(reader.data());
     if (!createNew(text))
         return false;
 
-    m_d->m_file->setFileName(fi.absoluteFilePath());
+    m_d->m_file->setFileName(QFileInfo(fileName).absoluteFilePath());
     return true;
 }
 

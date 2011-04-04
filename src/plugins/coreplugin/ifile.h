@@ -95,7 +95,7 @@ public:
     virtual bool isSaveAsAllowed() const = 0;
 
     virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const = 0;
-    virtual void reload(ReloadFlag flag, ChangeType type) = 0;
+    virtual bool reload(QString *errorString, ReloadFlag flag, ChangeType type) = 0;
     virtual void rename(const QString &newName) = 0;
 
     virtual void checkPermissions() {}

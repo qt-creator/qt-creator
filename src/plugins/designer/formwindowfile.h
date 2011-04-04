@@ -59,7 +59,7 @@ public:
     virtual bool isReadOnly() const;
     virtual bool isSaveAsAllowed() const;
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    void reload(ReloadFlag flag, ChangeType type);
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     virtual QString defaultPath() const;
     virtual QString suggestedFileName() const;
     virtual QString mimeType() const;
@@ -75,7 +75,7 @@ public:
 signals:
     // Internal
     void saved();
-    void reload(const QString &);
+    void reload(QString *errorString, const QString &);
     void setDisplayName(const QString &);
 
 public slots:

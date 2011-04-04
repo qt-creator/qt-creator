@@ -1217,9 +1217,10 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     // back to the default editor:
     if (!editor)
         editor = createEditor(QString(), fn);
-    if (!editor || !editor->open(fn)) {
+    QString errorString;
+    if (!editor || !editor->open(&errorString, fn)) {
         QApplication::restoreOverrideCursor();
-        QMessageBox::critical(m_d->m_core->mainWindow(), tr("Opening File"), tr("Cannot open file %1!").arg(QDir::toNativeSeparators(fn)));
+        QMessageBox::critical(m_d->m_core->mainWindow(), tr("File Error"), errorString);
         delete editor;
         editor = 0;
         return 0;
@@ -1843,7 +1844,9 @@ void EditorManager::revertToSaved()
             return;
 
     }
-    currEditor->file()->reload(IFile::FlagReload, IFile::TypeContents);
+    QString errorString;
+    if (!currEditor->file()->reload(&errorString, IFile::FlagReload, IFile::TypeContents))
+        QMessageBox::critical(m_d->m_core->mainWindow(), tr("File Error"), errorString);
 }
 
 void EditorManager::showEditorInfoBar(const QString &id,

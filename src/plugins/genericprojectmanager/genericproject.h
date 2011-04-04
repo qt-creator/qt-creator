@@ -172,7 +172,7 @@ public:
     virtual void rename(const QString &newName);
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    void reload(ReloadFlag flag, ChangeType type);
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
 private:
     GenericProject *m_project;

@@ -55,7 +55,7 @@ public:
     bool isSaveAsAllowed() const { return false; }
     bool save(QString *errorString, const QString &fileName);
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    void reload(ReloadFlag flag, ChangeType type);
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     void rename(const QString &newName);
 
     void setFileName(const QString name);

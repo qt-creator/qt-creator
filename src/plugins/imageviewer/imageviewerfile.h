@@ -62,7 +62,7 @@ public:
     bool isSaveAsAllowed() const;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    void reload(ReloadFlag flag, ChangeType type);
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
     void setMimetype(const QString &mimetype);
     void setFileName(const QString &filename);

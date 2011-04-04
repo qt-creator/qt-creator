@@ -119,7 +119,7 @@ public:
 
     // Core::IEditor
     virtual bool createNew(const QString &contents);
-    virtual bool open(const QString &fileName);
+    virtual bool open(QString *errorString, const QString &fileName);
     virtual Core::IFile *file();
     virtual QString displayName() const;
     virtual void setDisplayName(const QString &title);

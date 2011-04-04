@@ -71,7 +71,7 @@ public:
 
     // IEditor
     virtual bool createNew(const QString &contents = QString());
-    virtual bool open(const QString &fileName = QString());
+    virtual bool open(QString *errorString, const QString &fileName = QString());
     virtual Core::IFile *file();
     virtual QString id() const;
     virtual QString displayName() const;
@@ -100,7 +100,7 @@ public slots:
     void configureXmlEditor() const;
 
 private slots:
-    void slotOpen(const QString &fileName);
+    void slotOpen(QString *errorString, const QString &fileName);
 
 private:
     void syncXmlEditor(const QString &contents);

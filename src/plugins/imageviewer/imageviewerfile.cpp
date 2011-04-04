@@ -74,15 +74,17 @@ Core::IFile::ReloadBehavior ImageViewerFile::reloadBehavior(Core::IFile::ChangeT
     return BehaviorAsk;
 }
 
-void ImageViewerFile::reload(Core::IFile::ReloadFlag flag,
+bool ImageViewerFile::reload(QString *errorString,
+                             Core::IFile::ReloadFlag flag,
                              Core::IFile::ChangeType type)
 {
     if (flag == FlagIgnore)
-        return;
+        return true;
     if (type == TypePermissions) {
         emit changed();
+        return true;
     } else {
-        d_ptr->editor->open(d_ptr->fileName);
+        return d_ptr->editor->open(errorString, d_ptr->fileName);
     }
 }
 

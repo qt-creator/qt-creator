@@ -34,6 +34,9 @@
 #include "bineditor.h"
 #include "bineditorconstants.h"
 
+#include <coreplugin/icore.h>
+
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
@@ -43,6 +46,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QRegExpValidator>
@@ -219,16 +223,23 @@ public:
         emit changed();
     }
 
-    bool open(const QString &fileName, quint64 offset = 0) {
+    bool open(QString *errorString, const QString &fileName, quint64 offset = 0) {
         QFile file(fileName);
-        if (offset < static_cast<quint64>(file.size())
-            && file.open(QIODevice::ReadOnly)) {
+        if (offset >= static_cast<quint64>(file.size()))
+            return false;
+        if (file.open(QIODevice::ReadOnly)) {
             m_fileName = fileName;
             m_editor->setSizes(offset, file.size());
             m_editor->editor()->setDisplayName(QFileInfo(fileName).fileName());
             file.close();
             return true;
         }
+        QString errStr = tr("Cannot open %1: %2").arg(
+                QDir::toNativeSeparators(fileName), file.errorString());
+        if (errorString)
+            *errorString = errStr;
+        else
+            QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("File Error"), errStr);
         return false;
     }
 
@@ -246,19 +257,23 @@ private slots:
                 data += QByteArray(blockSize - dataSize, 0);
             m_editor->addData(block, data);
             file.close();
+        } else {
+            QMessageBox::critical(Core::ICore::instance()->mainWindow(), tr("File Error"),
+                                  tr("Cannot open %1: %2").arg(
+                                        QDir::toNativeSeparators(m_fileName), file.errorString()));
         }
     }
 
     void provideNewRange(Core::IEditor *, quint64 offset) {
-        open(m_fileName, offset);
+        open(0, m_fileName, offset);
     }
 
     void handleStartOfFileRequested(Core::IEditor *) {
-        open(m_fileName, 0);
+        open(0, m_fileName, 0);
     }
 
     void handleEndOfFileRequested(Core::IEditor *) {
-        open(m_fileName, QFileInfo(m_fileName).size() - 1);
+        open(0, m_fileName, QFileInfo(m_fileName).size() - 1);
     }
 
 public:
@@ -295,16 +310,18 @@ public:
         return BehaviorAsk;
     }
 
-    void reload(ReloadFlag flag, ChangeType type) {
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) {
         if (flag == FlagIgnore)
-            return;
+            return true;
         if (type == TypePermissions) {
             emit changed();
         } else {
             emit aboutToReload();
-            if (open(m_fileName))
-                emit reloaded();
+            if (!open(errorString, m_fileName))
+                return false;
+            emit reloaded();
         }
+        return true;
     }
 
 private:
@@ -357,8 +374,8 @@ public:
         m_file->setFilename(QString());
         return true;
     }
-    bool open(const QString &fileName = QString()) {
-        return m_file->open(fileName);
+    bool open(QString *errorString, const QString &fileName = QString()) {
+        return m_file->open(errorString, fileName);
     }
     Core::IFile *file() { return m_file; }
     QString id() const { return QLatin1String(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID); }

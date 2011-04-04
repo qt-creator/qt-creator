@@ -58,7 +58,7 @@ public:
 
     void extensionsInitialized();
 
-    bool loadFile(ProjectExplorer::Project *context, const QString &fileName);
+    bool loadFile(QString *errorString, ProjectExplorer::Project *context, const QString &fileName);
     bool monitorFile(ProjectExplorer::Project *context, const QString &fileName);
 
     void stopMonitoring();

@@ -205,10 +205,10 @@ QString GLSLEditorEditable::id() const
     return QLatin1String(GLSLEditor::Constants::C_GLSLEDITOR_ID);
 }
 
-bool GLSLEditorEditable::open(const QString &fileName)
+bool GLSLEditorEditable::open(QString *errorString, const QString &fileName)
 {
     editorWidget()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
-    bool b = TextEditor::BaseTextEditor::open(fileName);
+    bool b = TextEditor::BaseTextEditor::open(errorString, fileName);
     return b;
 }
 

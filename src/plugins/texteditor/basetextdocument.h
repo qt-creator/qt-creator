@@ -77,7 +77,7 @@ public:
     virtual bool isSaveAsAllowed() const;
     virtual void checkPermissions();
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    void reload(ReloadFlag flag, ChangeType type);
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     virtual QString mimeType() const;
     void setMimeType(const QString &mt);
     virtual void rename(const QString &newName);
@@ -88,8 +88,8 @@ public:
     void setDefaultPath(const QString &defaultPath);
     void setSuggestedFileName(const QString &suggestedFileName);
 
-    virtual bool open(const QString &fileName = QString());
-    virtual void reload();
+    virtual bool open(QString *errorString, const QString &fileName = QString());
+    virtual bool reload(QString *errorString);
 
     QTextDocument *document() const;
     void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
@@ -100,7 +100,7 @@ public:
     void setCodec(QTextCodec *c);
     QByteArray decodingErrorSample() const;
 
-    void reload(QTextCodec *codec);
+    bool reload(QString *errorString, QTextCodec *codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
 signals:

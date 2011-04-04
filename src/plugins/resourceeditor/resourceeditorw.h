@@ -63,7 +63,7 @@ public:
     bool isReadOnly() const;
     bool isSaveAsAllowed() const;
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    void reload(ReloadFlag flag, ChangeType type);
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     QString defaultPath() const;
     QString suggestedFileName() const;
     virtual QString mimeType() const;
@@ -86,7 +86,7 @@ public:
 
     // IEditor
     bool createNew(const QString &contents);
-    bool open(const QString &fileName = QString());
+    bool open(QString *errorString, const QString &fileName = QString());
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget *) { return 0; }
     Core::IFile *file() { return m_resourceFile; }
