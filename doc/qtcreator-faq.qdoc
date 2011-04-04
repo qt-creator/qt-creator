@@ -1,0 +1,276 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** No Commercial Usage
+**
+** This file contains pre-release code and may not be distributed.
+** You may use this file in accordance with the terms and conditions
+** contained in the Technology Preview License Agreement accompanying
+** this package.
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-os-supported-platforms.html
+    \page creator-faq.html
+    \nextpage creator-getting-started.html
+
+    \title FAQ
+
+    This section contains answers to some frequently asked questions about Qt
+    Creator. You might also find answers to your questions in the
+    \l{Known Issues} and \l{Tips and Tricks} sections, or the Troubleshooting
+    sections for a special area, such as
+    \l{Troubleshooting Debugger}{debugging}.
+
+    \section1 General Questions
+
+    \bold {How do I reset all Qt Creator settings?}
+
+    Qt Creator creates two files and a directory:
+
+    \list
+
+        \o  QtCreator.db
+
+        \o  QtCreator.ini
+
+        \o  qtcreator
+
+    \endlist
+
+    The location depends on the platform. On Linux, Unix, and Mac OS, the files
+    are located in \c{~/.config/Nokia}.
+
+    On Windows XP, the files are located in
+    \c{<drive>:\Documents and Settings\<username>\Application Data\Nokia}, and
+    on Windows Vista and Windows 7 in
+    \c {<drive>:\Users\<username>\AppData\Roaming\Nokia}.
+    For all versions, try the path \c{APPDATA\Nokia}.
+
+    \bold {Qt Creator comes with MinGW, should I use this version with Qt?}
+
+    Use the version that was built against the Qt version.
+
+    \bold {Qt Creator does not find a helper application, such as Git or a
+    compiler. What should I do?}
+
+    Make sure that the application is in your system PATH when starting Qt
+    Creator. Also select \gui {Tools > Options} to check the settings specified
+    for the application. Many plugins specify either the path to the tool they
+    need or the environment they run in.
+
+    This is especially relevant for the Mac OS where \c {/usr/local/bin} might
+    not be in the path when Qt Creator is started.
+
+    \bold {How do I change the interface language for Qt Creator?}
+
+    Qt Creator has been localized into several languages. If the system
+    language is one of the supported languages, it is automatically selected.
+    To change the language, select \gui {Tools > Options > Environment} and
+    select a language in the \gui Language field. The change takes effect after
+    you restart Qt Creator.
+
+    \bold {Has a reported issue been addressed?}
+
+    You can look up any issue in the
+    \l{http://bugreports.qt.nokia.com/}{Qt bug tracker}.
+
+    \section1 Qt Designer Integration Questions
+
+    \bold {Why are custom widgets not loaded in Design mode even though it
+    works in standalone Qt Designer?}
+
+    Qt Designer fetches plugins from standard locations and loads the plugins
+    that match its build key. The locations are different for standalone and
+    integrated Qt Designer.
+
+    For more information, see \l{Adding Qt Designer Plugins}.
+
+    \section1 Help Questions
+
+    \bold {The Qt API Reference Documentation is missing and context help does
+    not find topics. What can I do?}
+
+    Qt Creator comes fully integrated with Qt documentation and examples using
+    the Qt Help plugin. The integrated Qt Reference Documentation is available
+    for Qt 4.4 and later. Qt Creator, \QSDK, and other Qt deliverables contain
+    documentation as .qch files. All the documentation is accessible in the
+    \gui Help mode.
+
+    To view the documentation that is available and to add documentation,
+    select \gui {Tools > Options... > Help > Documentation}. For more
+    information, see \l{Adding External Documentation}.
+
+    \section1 Debugger Questions
+
+    For information on troubleshooting debugger, see
+    \l{Troubleshooting Debugger}.
+
+    \bold {If I have a choice of GDB versions, which should I use?}
+
+    On Linux and Windows, use the Python-enabled GDB versions that are
+    installed when you install Qt Creator and Qt SDK. On Mac OS X, use the GDB
+    provided with Xcode. For a custom target, you can build your own
+    Python-enabled GDB. Follow the instructions in
+    \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}{Building GDB}.
+
+    You must use at least Python version 2.5, but we recommend that you use
+    version 2.6.
+
+    For more information on setting up debugger, see \l{Setting Up Debugger}.
+
+    \section1 Code Editor Questions
+
+    \bold {How can I get code-completion to work on the standard headers and
+    phonon?}
+
+    Install a build from March 31, 2009, or later.
+
+    \section1 Compiler Questions
+
+    \bold {How can I make use of my multi-core CPU with Qt Creator?}
+
+    On Linux and Mac OS X, go to \gui Project mode, select your configuration
+    in the \gui {Build Settings}, locate the \gui {Build Steps}, and add the
+    following value, where \c{<num>} is the amount of cores in your CPU:
+    \c{-j <num>}
+
+    On Windows, nmake does not support the \c{-j} parameter. Instead, we
+    provide a drop-in replacement called jom. You can download a precompiled
+    version of jom from \l{ftp://ftp.qt.nokia.com/jom/}{Qt FTP server}.
+    Put jom.exe in a location in the %PATH%. Go to the \gui {Build Settings}
+    and set jom.exe as the make command.
+
+    \note: Unlike GNU make, jom automatically detects your cores and spawns as
+    many parallel processes as your CPU has cores. You can override this
+    behavior by using the \c{-j} parameter as described above.
+
+    \section1 Qt SDK Questions
+
+    \bold {I cannot use QSslSocket with the SDK. What should I do?}
+
+    The Qt build in the SDK is built with QT_NO_OPENSSL defined. Rebuilding it
+     is possible. For more information, see
+     \l{http://www.qtcentre.org/forum/f-qt-programming-2/t-qssl-19222-post94842.html}.
+
+    \bold {Which development packages from the distribution are needed on
+    Ubuntu or Debian?}
+
+    \code
+    @
+    sudo apt-get install libglib2.0-dev libSM-dev libxrender-dev libfontconfig1-dev libxext-dev
+    @
+    \endcode
+
+    If you use QtOpenGL, you also need:
+
+    \code
+    @
+    sudo apt-get install libgl-dev libglu-dev
+    @
+    \endcode
+
+    \section1 Platform Releated Questions
+
+    \bold {Can I develop Qt for Symbian applications with Qt Creator?}
+
+    Qt Creator comes with support for developing Qt applications that target
+    the Symbian platform. For more information, see
+    \l{Creating a Mobile Application with Qt SDK}.
+
+    \section1 Questions about New Features
+
+    \bold {Will a requested feature be implemented?}
+
+    If it is a scheduled feature, you can see this in the task tracker. If a
+    feature already has been implemented, it is mentioned in the
+    \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/dist}{changes file}
+    for the upcoming release.
+
+    \bold {Why does Qt Creator not use tabs for editors?}
+
+    This question comes up from time to time, so we have considered it
+    carefully. Here are our main reasons for not using tabs:
+
+    \list
+
+        \o  Tabs do not scale. They work fine if you have 5 to 6 editors open,
+            they become cumbersome with 10, and if you need more horizontal
+            space than the tab bar, the interface does not work at all.
+
+        \o  Tabs do not adapt to your working set.
+
+        \o  The common solution is to give the user the ability to reorder
+            tabs. Now user has to manage tabs instead of writing code.
+
+        \o  Tabs force you to limit the amount of open editors, because
+            otherwise you get confused.
+
+    \endlist
+
+    Consider the following use case: \e {Developers want to switch editors.}
+
+    In fact, developers do not want to switch editors, but might have to do so
+    to accomplish their tasks. We need to figure out what the tasks are to
+    provide developers with better ways to navigate while performing the tasks.
+
+    One common factor in many use cases is switching editors while working on a
+    set of open files. While working on files A and B, users sometimes need to
+    look at file C. They can press \key Ctrl+Tab to move between the files and
+    have the files open in the correct editor according to file type. The list
+    is sorted by last used.
+
+    Typically, users also work on multiple classes or functions that are
+    related, even though they are defined or declared in different files.
+    Qt Creator provides two shortcuts for that: \key F2 to follow the symbol
+    and \key Ctrl+Shift+U to find usages.
+
+    In addition, developers can:
+
+    \list
+
+        \o  Press \key F4 to switch between header and source.
+
+        \o  Press \key Alt+Left to move backwards in the navigation history.
+
+        \o  Use the locator (Ctrl+K) to simply tell Qt Creator where to go.
+
+    \endlist
+
+    The locator can be used to open files, but opening files is also just a
+    step on the way to accomplish a task. For example, consider the following
+    use case: \e {Fix AMethod in SomeClass which comes from
+    someclass.cpp/someclass.h}.
+
+    With a tabbed user interface, developers would search for someclass.cpp in
+    the tab bar, and then search for \c {::AMethod}, only to find out that the
+    method is not located in that file. They would then search for someclass.h
+    in the tab bar, find our that the function is inline, fix the problem, and
+    forget where they came from.
+
+    With Qt Creator, developers can type \c {Ctrl+K m AMet} to find the method.
+    Typically, they only need to type 3 to 4 characters of the method name.
+    They can then fix the problem and press \key Alt+Back to go back to where
+    they were.
+
+    Other locator filters include \c c for classes, \c : for all symbols, and
+    (thanks to a community contribution) \c . for symbols in the current file.
+
+*/

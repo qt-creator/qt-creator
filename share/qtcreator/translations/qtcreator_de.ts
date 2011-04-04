@@ -319,18 +319,6 @@
         <translation>Argumente</translation>
     </message>
     <message>
-        <source>Please specify the path to the CMake executable. No CMake executable was found in the path.</source>
-        <translation>Bitte geben Sie den Pfad zu der ausführbaren Datei von cmake an. Sie konnte nicht im Pfad gefunden werden.</translation>
-    </message>
-    <message>
-        <source> The CMake executable (%1) does not exist.</source>
-        <translation> Die ausführbaren Datei von cmake (%1) existiert nicht.</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a valid CMake.</source>
-        <translation> Der Pfad  %1 ist keine gültige CMake-Installation.</translation>
-    </message>
-    <message>
         <source>The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. Some projects require command line arguments to the initial CMake call.</source>
         <translation>Das Verzeichnis %1 enthält keine cbp-Datei. Qt Creator muss die Datei durch einen cmake-Aufruf erzeugen. Für einige Projekte sind dazu Kommandozeilenargumente erforderlich.</translation>
     </message>
@@ -355,20 +343,32 @@
         <translation>MinGW-Generator (%1)</translation>
     </message>
     <message>
+        <source>No valid cmake executable specified.</source>
+        <translation>Es wurde keine ausführbare cmake-Datei angegeben.</translation>
+    </message>
+    <message>
+        <source>CMake exited with errors. Please check CMake output.</source>
+        <translation>CMake wurde mit einem Fehler beendet. Bitte prüfen Sie die Ausgabe von CMake.</translation>
+    </message>
+    <message>
         <source>NMake Generator (%1)</source>
         <translation>NMake-Generator (%1)</translation>
     </message>
     <message>
+        <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
+        <translation>Bitte geben Sie den Pfad zu der ausführbaren Datei von cmake an. Sie konnte nicht im Pfad gefunden werden.</translation>
+    </message>
+    <message>
+        <source> The cmake executable (%1) does not exist.</source>
+        <translation> Die ausführbaren Datei von cmake (%1) existiert nicht.</translation>
+    </message>
+    <message>
+        <source> The path %1 is not a valid cmake.</source>
+        <translation> Der Pfad  %1 ist keine gültige CMake-Installation.</translation>
+    </message>
+    <message>
         <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments or change the used tool chain here and rerun CMake. Or simply finish the wizard directly.</source>
         <translation>Der Ordner %1 enthält bereits eine hinreichend aktuelle cbp-Datei. Sie können spezielle Argumente angeben oder die Toolchain ändern und cmake noch einmal ausführen. Oder,. beenden Sie den Wizard an dieser Stelle.</translation>
-    </message>
-    <message>
-        <source>No valid CMake executable specified.</source>
-        <translation>Es wurde keine ausführbare cmake-Datei angegeben.</translation>
-    </message>
-    <message>
-        <source>CMake exited with errors. Please check cmake output.</source>
-        <translation>CMake wurde mit einem Fehler beendet. Bitte prüfen Sie die Ausgabe von cmake.</translation>
     </message>
 </context>
 <context>
@@ -2646,10 +2646,6 @@ Qt Creator kann sich nicht anhängen.</translation>
         <translation>Bekannte Stellen überspringen</translation>
     </message>
     <message>
-        <source>Selecting this results in well-known but usually not interesting frames belonging to reference counting and signal emission being skipped while single-stepping.</source>
-        <translation>Bewirkt, dass nicht relevante Aufrufe (wie zum Beispiel zur Referenzzählung und zur Signalübermittlung gehörige Aufrufe) beim Einzelschritt übersprungen werden.</translation>
-    </message>
-    <message>
         <source>Enable Reverse Debugging</source>
         <translation>Rückwärts Debuggen aktivieren</translation>
     </message>
@@ -2697,20 +2693,8 @@ Qt Creator kann sich nicht anhängen.</translation>
 <context>
     <name>Debugger::Internal::GdbEngine</name>
     <message>
-        <source>The Gdb process crashed some time after starting successfully.</source>
-        <translation>Der Gdb-Prozess ist einige Zeit nach dem Start abgestürzt.</translation>
-    </message>
-    <message>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
         <translation>Zeitüberschreitung bei der letzten waitFor...()-Funktion. Der Status des QProcess ist unverändert, und waitFor...() kann noch einmal gerufen.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>Ein Fehler trat beim Versuch des Schreibens zum Gdb-Prozess auf. Wahrscheinlich läuft der Prozess nicht, oder hat seinen Eingabekanal geschlossen.</translation>
-    </message>
-    <message>
-        <source>An error occurred when attempting to read from the Gdb process. For example, the process may not be running.</source>
-        <translation>Ein Fehler trat beim Versuch des Lesens vom Gdb-Prozess auf. Wahrscheinlich läuft der Prozess nicht.</translation>
     </message>
     <message>
         <source>Reading %1...</source>
@@ -2739,6 +2723,36 @@ Qt Creator kann sich nicht anhängen.</translation>
     <message>
         <source>Execution Error</source>
         <translation>Fehler bei der Ausführung</translation>
+    </message>
+    <message>
+        <source>The gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.
+%2</source>
+        <translation>Der Start des Gdb-Prozesses schlug fehl. Entweder fehlt die ausführbare Datei &apos;%1&apos; oder die Berechtigungen sind nicht ausreichend.
+%2</translation>
+    </message>
+    <message>
+        <source>The gdb process crashed some time after starting successfully.</source>
+        <translation>Der Gdb-Prozess ist einige Zeit nach dem Start abgestürzt.</translation>
+    </message>
+    <message>
+        <source>An error occurred when attempting to write to the gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
+        <translation>Ein Fehler trat beim Versuch des Schreibens zum Gdb-Prozess auf. Wahrscheinlich läuft der Prozess nicht, oder hat seinen Eingabekanal geschlossen.</translation>
+    </message>
+    <message>
+        <source>An error occurred when attempting to read from the gdb process. For example, the process may not be running.</source>
+        <translation>Ein Fehler trat beim Versuch des Lesens vom gdb-Prozess auf. Wahrscheinlich läuft der Prozess nicht.</translation>
+    </message>
+    <message>
+        <source>An unknown error in the gdb process occurred. </source>
+        <translation>Im gdb-Prozess trat ein unbekannter Fehler auf.</translation>
+    </message>
+    <message>
+        <source>GDB not responding</source>
+        <translation>GDB antwortet nicht</translation>
+    </message>
+    <message>
+        <source>Give GDB more time</source>
+        <translation>GDB mehr Zeit geben</translation>
     </message>
     <message>
         <source>Cannot continue debugged process:
@@ -2799,10 +2813,6 @@ This might yield incorrect results.</source>
         </translation>
     </message>
     <message>
-        <source>An unknown error in the Gdb process occurred. </source>
-        <translation>Im Gdb-Prozess trat ein unbekannter Fehler auf.</translation>
-    </message>
-    <message>
         <source>An exception was triggered.</source>
         <translation>Eine Ausnahme wurde ausgelöst.</translation>
     </message>
@@ -2855,14 +2865,6 @@ This might yield incorrect results.</source>
 You can choose between waiting longer or abort debugging.</source>
         <translation>Der Gdb-Prozess hat nach %1 Sekunde nicht auf das Kommando reagiert. Das könnte bedeuten, dass er sich in einer Endlosschleife befinded oder für die Operation mehr Zeit benötigt.
 Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
-    </message>
-    <message>
-        <source>Gdb not responding</source>
-        <translation>Gdb antwortet nicht</translation>
-    </message>
-    <message>
-        <source>Give gdb more time</source>
-        <translation>Fortsetzen</translation>
     </message>
     <message>
         <source>Stop debugging</source>
@@ -2935,12 +2937,6 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
     <message>
         <source>Running requested...</source>
         <translation>Fortsetzung angefordert...</translation>
-    </message>
-    <message>
-        <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.
-%2</source>
-        <translation>Der Start des Gdb-Prozesses schlug fehl. Entweder fehlt die ausführbare Datei &apos;%1&apos; oder die Berechtigungen sind nicht ausreichend.
-%2</translation>
     </message>
     <message>
         <source>Raw structure</source>
@@ -3017,12 +3013,26 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Es konnte kein Widget gefunden werden.</translation>
     </message>
     <message>
+        <source>The GDB installed at %1 cannot find a valid python installation in its %2 subdirectory.
+You may set the environment variable PYTHONPATH to point to your installation.</source>
+        <translation>Der GDB aus %1 konnte keine Python-Installation in dem Unterverzeichnis %2 finden.
+Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu verweisen.</translation>
+    </message>
+    <message>
+        <source>GDB I/O Error</source>
+        <translation>GDB Ein/Ausgabefehler</translation>
+    </message>
+    <message>
         <source>The gdb process crashed.</source>
         <translation>Der gdb-Prozess ist abgestürzt.</translation>
     </message>
     <message>
         <source>The gdb process exited unexpectedly (code %1)</source>
         <translation>Der Gdb-Prozess wurde plötzlich beendet (%1)</translation>
+    </message>
+    <message>
+        <source>Unexpected GDB Exit</source>
+        <translation>GDB unerwartet beendet</translation>
     </message>
     <message>
         <source>Failed to start application: </source>
@@ -3063,20 +3073,6 @@ Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
         <translation>Es muss ein absoluter Pfad für die ausführbare gdb-Datei in den Debugger-Einstellungen angegeben werden (%1).</translation>
     </message>
     <message>
-        <source>The gdb installed at %1 cannot find a valid python installation in its %2 subdirectory.
-You may set the environment variable PYTHONPATH to point to your installation.</source>
-        <translation>Der gdb aus %1 konnte keine Python-Installation in dem Unterverzeichnis %2 finden.
-Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu verweisen.</translation>
-    </message>
-    <message>
-        <source>Gdb I/O Error</source>
-        <translation>Gdb Ein/Ausgabefehler</translation>
-    </message>
-    <message>
-        <source>Unexpected Gdb Exit</source>
-        <translation>Gdb unerwartet beendet</translation>
-    </message>
-    <message>
         <source>Adapter start failed</source>
         <translation>Der Start des Adapters schlug fehl</translation>
     </message>
@@ -3096,8 +3092,8 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
 <context>
     <name>Debugger::Internal::GdbOptionsPage</name>
     <message>
-        <source>Gdb</source>
-        <translation>Gdb</translation>
+        <source>GDB</source>
+        <translation>GDB</translation>
     </message>
     <message>
         <source>Choose Location of Startup Script File</source>
@@ -3698,8 +3694,16 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
         <translation>Lokale Variablen und Überwachte Ausdrücke</translation>
     </message>
     <message>
+        <source>Change Display for Type &quot;%1&quot;:</source>
+        <translation>Anzeigeformat für den Typ &apos;%1&apos; ändern:</translation>
+    </message>
+    <message>
         <source>Automatic</source>
         <translation>Automatisch</translation>
+    </message>
+    <message>
+        <source>Change Display for Object Named &quot;%1&quot;:</source>
+        <translation>Format der Anzeige für das Objekt mit dem Namen &quot;%1&quot; ändern:</translation>
     </message>
     <message>
         <source>Insert New Watch Item</source>
@@ -3754,16 +3758,12 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
         <translation>Nicht druckbare Zeichen hexadezimal anzeigen</translation>
     </message>
     <message>
-        <source>Change Display for Type &quot;%1&quot;</source>
-        <translation>Anzeigeformat für den Typ &apos;%1&apos; ändern</translation>
-    </message>
-    <message>
-        <source>Change Display for Object Named &quot;%1&quot;</source>
-        <translation>Format der Anzeige für das Objekt mit dem Namen &quot;%1&quot; ändern</translation>
-    </message>
-    <message>
         <source>Use Display Format Based on Type</source>
         <translation>Anzeigeformat per Typ verwenden&apos;</translation>
+    </message>
+    <message>
+        <source>Change Display for Type or Item...</source>
+        <translation>Anzeigeformat für Typ oder Element ändern...</translation>
     </message>
     <message>
         <source>Add Watchpoint at Object&apos;s Address (0x%1)</source>
@@ -3808,6 +3808,14 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
     <message>
         <source>Close Editor Tooltips</source>
         <translation>Editor-Tooltips schließen</translation>
+    </message>
+    <message>
+        <source>Enter watch expression</source>
+        <translation>Überwachten Ausdruck eingeben</translation>
+    </message>
+    <message>
+        <source>Expression:</source>
+        <translation>Ausdruck:</translation>
     </message>
     <message>
         <source>Locals &amp; Watchers</source>
@@ -4806,20 +4814,12 @@ Add, modify, and remove document filters, which determine the documentation set 
 <context>
     <name>GdbOptionsPage</name>
     <message>
-        <source>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</source>
-        <translation>Ein Skript mit Kommandos, die unmittelbar nach dem Gdb-Start ausgeführt werden (optional).</translation>
-    </message>
-    <message>
-        <source>Gdb startup script:</source>
-        <translation>Gdb-Startskript:</translation>
-    </message>
-    <message>
         <source>This is the slowest but safest option.</source>
         <translation>Die sicherste Einstellung, zugleich aber auch die langsamste.</translation>
     </message>
     <message>
         <source>Try to set breakpoints in plugins always automatically.</source>
-        <translation>Versuche, Haltepunkte in Plugins automatisch zu setzen.</translation>
+        <translation type="obsolete">Versuche, Haltepunkte in Plugins automatisch zu setzen.</translation>
     </message>
     <message>
         <source>Try to set breakpoints in selected plugins</source>
@@ -4834,29 +4834,16 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Haltepunkte in Plugins niemals automatisch setzen</translation>
     </message>
     <message>
-        <source>Gdb timeout:</source>
-        <translation>Gdb-Timeout:</translation>
-    </message>
-    <message>
         <source>This is the number of seconds Qt Creator will wait before
 it terminates non-responsive gdb process. The default value of 20 seconds
 should be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than that
 on slow machines. In this case, the value should be increased.</source>
-        <translation>Anzahl der Sekunden, die Qt Creator abwartet, bevor gdb-Prozesse abgebrochen werden, die nicht mehr reagieren. Die Vorgabe von 20 Sekunden sollte für die meisten Anwendungsfälle ausreichen, aber es können Situationen auftreten, in denen das Laden großer Bibliotheken oder das Auflisten der Quelldateien viel länger dauert (auf langsamen Maschinen). In diesem Falle sollte der Wert erhöht werden.</translation>
-    </message>
-    <message>
-        <source>Gdb</source>
-        <translation>Gdb</translation>
+        <translation type="obsolete">Anzahl der Sekunden, die Qt Creator abwartet, bevor gdb-Prozesse abgebrochen werden, die nicht mehr reagieren. Die Vorgabe von 20 Sekunden sollte für die meisten Anwendungsfälle ausreichen, aber es können Situationen auftreten, in denen das Laden großer Bibliotheken oder das Auflisten der Quelldateien viel länger dauert (auf langsamen Maschinen). In diesem Falle sollte der Wert erhöht werden.</translation>
     </message>
     <message>
         <source>Enable reverse debugging</source>
         <translation>Rückwärts Debuggen aktivieren</translation>
-    </message>
-    <message>
-        <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
- reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation>Diese Option bewirkt, dass &apos;Einzelschritt in&apos; in bestimmten Situationen mehrere Schritte zusammenfasst, was das Debuggen beschleunigt. Zum Beispiel wird der Code des atomaren Referenzzählung übersprungen; und bei der Emission eines Signals gelangt man zum verbundenen Slot.</translation>
     </message>
     <message>
         <source>Skip known frames when stepping</source>
@@ -4881,6 +4868,59 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Use asynchronous mode to control the inferior</source>
         <translation>Asynchronen Modus zur Steuerung des zu debuggenden Prozesses verwenden</translation>
+    </message>
+    <message>
+        <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
+        <translation type="obsolete">Diese Option bewirkt, dass &apos;Einzelschritt in&apos; in bestimmten Situationen mehrere Schritte zusammenfasst, was das Debuggen beschleunigt. Zum Beispiel wird der Code des atomaren Referenzzählung übersprungen; und bei der Emission eines Signals gelangt man direkt zum verbundenen Slot.</translation>
+    </message>
+    <message>
+        <source>This will show a message box as soon as your application receives a signal like SIGSEGV during debugging.</source>
+        <translation>Zeigt ein Benachrichtigungsfenster an, wenn die Anwendung während des Debuggens ein Signal wie SIGSEGV erhält.</translation>
+    </message>
+    <message>
+        <source>This allows or inhibits reading the user&apos;s default .gdbinit file on debugger startup.</source>
+        <translation>Gestattet oder unterdrückt das Lesen der Vorgabe-.gdbinit-Datei des Nutzers beim Starten des Debuggers.</translation>
+    </message>
+    <message>
+        <source>GDB</source>
+        <translation>GDB</translation>
+    </message>
+    <message>
+        <source>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</source>
+        <translation>Ein Skript mit Kommandos, die unmittelbar nach dem GDB-Start ausgeführt werden (optional).</translation>
+    </message>
+    <message>
+        <source>GDB startup script:</source>
+        <translation>GDB-Startskript:</translation>
+    </message>
+    <message>
+        <source>GDB timeout:</source>
+        <translation>GDB-Timeout:</translation>
+    </message>
+    <message>
+        <source>GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.</source>
+        <translation>Nicht alle Quellcode-Zeilen bewirken die Erzeugung von ausführbarem Code. GDB gestattet es dennoch, auf solche Zeilen einen Haltepunkt zu setzen. Dieser wird dann auf die nächste Zeile, für die Code erzeugt wurde, verschoben. Diese Einstellung bewirkt, dass die Haltepunkt-Marke im Quellcode-Editor entsprechend verschoben wird.</translation>
+    </message>
+    <message>
+        <source>Enable reverse debugging Selecting this enables reverse debugging. NOTE: This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.</source>
+        <translation>Rückwärts-Debuggen aktivieren. Hinweis: Diese Funktionalität ist sehr instabil und langsam auf der GDB-Seite. Es kann unvorhersehbares Verhalten auftreten, wenn man rückwärts über einen Systemaufruf geht, und die Debugger-Sitzung kann leicht zerstört werden.</translation>
+    </message>
+    <message>
+        <source>This is the number of seconds Qt Creator will wait before
+it terminates a non-responsive GDB process. The default value of 20 seconds
+should be sufficient for most applications, but there are situations when
+loading big libraries or listing source files takes much longer than that
+on slow machines. In this case, the value should be increased.</source>
+        <translation>Anzahl der Sekunden, die Qt Creator abwartet, bevor GDB-Prozesse abgebrochen werden, die nicht mehr reagieren. Die Vorgabe von 20 Sekunden sollte für die meisten Anwendungsfälle ausreichen, aber es können Situationen auftreten, in denen das Laden großer Bibliotheken oder das Auflisten der Quelldateien viel länger dauert (auf langsamen Maschinen). In diesem Falle sollte der Wert erhöht werden.</translation>
+    </message>
+    <message>
+        <source>Allows &apos;Step Into&apos; to compress several steps into one step for less noisy debugging. For example, the atomic reference
+ counting code is skipped, and a single &apos;Step Into&apos; for a signal emission ends up directly in the slot connected to it.</source>
+        <translation>Diese Option bewirkt, dass &apos;Einzelschritt in&apos; in bestimmten Situationen mehrere Schritte zusammenfasst, was das Debuggen beschleunigt. Zum Beispiel wird der Code des atomaren Referenzzählung übersprungen; und bei der Emission eines Signals gelangt man direkt zum verbundenen Slot.</translation>
+    </message>
+    <message>
+        <source>Try to set breakpoints in plugins always automatically</source>
+        <translation>Versuche, Haltepunkte in Plugins automatisch zu setzen.</translation>
     </message>
 </context>
 <context>
@@ -6140,14 +6180,6 @@ rückgängig machen?</translation>
         <translation>Lesezeichen</translation>
     </message>
     <message>
-        <source>&amp;Index</source>
-        <translation>&amp;Index</translation>
-    </message>
-    <message>
-        <source>&amp;Contents</source>
-        <translation>&amp;Inhalt</translation>
-    </message>
-    <message>
         <source>Home</source>
         <translation>Startseite</translation>
     </message>
@@ -6202,6 +6234,14 @@ rückgängig machen?</translation>
     <message>
         <source>Next</source>
         <translation>Nächste</translation>
+    </message>
+    <message>
+        <source>Index</source>
+        <translation>Index</translation>
+    </message>
+    <message>
+        <source>Contents</source>
+        <translation>Inhalt</translation>
     </message>
     <message>
         <source>Add Bookmark</source>
@@ -7663,10 +7703,6 @@ Fehler: %2</translation>
         <translation>Alle Dateien vor Erstellen speichern</translation>
     </message>
     <message>
-        <source>Show compiler output on building</source>
-        <translation>Compiler-Ausgabe beim Erstellen anzeigen</translation>
-    </message>
-    <message>
         <source>Clear old application output on a new run</source>
         <translation>Ausgabe vorangegangener Ausführungen löschen</translation>
     </message>
@@ -7695,8 +7731,12 @@ Fehler: %2</translation>
         <translation>Nachfrage beim Stoppen von Anwendungen</translation>
     </message>
     <message>
-        <source>Pop up application output pane on running</source>
-        <translation>Ausgabepanel bei der Ausgeführung von Anwendungen zeigen</translation>
+        <source>Open compiler output pane when building</source>
+        <translation>Compiler-Ausgabe beim Erstellen anzeigen</translation>
+    </message>
+    <message>
+        <source>Open application output pane when running</source>
+        <translation>Ausgabepanel bei der Ausführung von Anwendungen zeigen</translation>
     </message>
 </context>
 <context>
@@ -8187,16 +8227,6 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
         <source>New Project</source>
         <comment>Title of dialog</comment>
         <translation>Neues Projekt</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation>Das Projekt konnte nicht geöffnet werden</translation>
-    </message>
-    <message>
-        <source>Failed to open project:
-%1</source>
-        <translation>Das Projekt konnte nicht geöffnet werden:
-%1</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Close</source>
@@ -9136,6 +9166,10 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Im Ordner %1 existiert ein inkompatibler Build, der überschrieben wird.</translation>
     </message>
     <message>
+        <source>&lt;No tool chain selected&gt;</source>
+        <translation>&lt;Keine Toolchain ausgewählt&gt;</translation>
+    </message>
+    <message>
         <source>Manage</source>
         <translation>Verwaltung</translation>
     </message>
@@ -9444,6 +9478,18 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <comment>Qt4 MakeStep display name.</comment>
         <translation>Make</translation>
     </message>
+    <message>
+        <source>Qt Creator needs a tool chain set up to build. Please configure a tool chain in Project mode.</source>
+        <translation>Qt Creator benötigt eine Toolchain zum Erstellen des Projekts. Bitte richten Sie eine Toolchain im Projektmodus ein.</translation>
+    </message>
+    <message>
+        <source>Makefile not found. Please check your build settings</source>
+        <translation>Die Makefile-Datei konnte nicht gefunden werden. Bitte überprüfen Sie die Einstellungen zur Erstellung.</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty, please check the Build Issues view for details.</source>
+        <translation>Die Konfiguration ist fehlerhaft. Details befinden sich in der Ansicht &quot;Build-Probleme&quot;.</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::MakeStepConfigWidget</name>
@@ -9527,14 +9573,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>MinGW from %1</source>
         <translation>MinGW aus %1</translation>
-    </message>
-    <message>
-        <source>WINSCW from %1</source>
-        <translation>WINSCW aus %1</translation>
-    </message>
-    <message>
-        <source>GCCE from %1</source>
-        <translation>GCCE aus %1</translation>
     </message>
     <message>
         <source>&lt;not found&gt;</source>
@@ -10054,10 +10092,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>&amp;Architektur:</translation>
     </message>
     <message>
-        <source>&amp;GNU target</source>
-        <translation>&amp;GNU-Zielplattform</translation>
-    </message>
-    <message>
         <source>Sys&amp;root:</source>
         <translation>Sys&amp;root:</translation>
     </message>
@@ -10066,8 +10100,12 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>Server-Startskript &amp;benutzen:</translation>
     </message>
     <message>
-        <source>Server st&amp;art script:</source>
-        <translation>Server-&amp;Startskript:</translation>
+        <source>&amp;GNU target:</source>
+        <translation>&amp;GNU-Zielplattform:</translation>
+    </message>
+    <message>
+        <source>&amp;Server start script:</source>
+        <translation>&amp;Server-Startskript:</translation>
     </message>
 </context>
 <context>
@@ -11180,6 +11218,10 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Es konnte keine temporäre Datei erstellt werden: %1</translation>
     </message>
     <message>
+        <source>Cannot write temporary file. Disk full?</source>
+        <translation>Es konnte keine temporäre Datei erstellt werden. Möglicherweise ist kein Speicherplatz mehr auf der Festplatte vorhanden?</translation>
+    </message>
+    <message>
         <source>Unexpected output from helper program (%1).</source>
         <translation>Die Ausgabe des Hilfsprogrammes (%1) kann nicht ausgewertet werden.</translation>
     </message>
@@ -11895,9 +11937,9 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Debugger::Internal::AbstractGdbAdapter</name>
     <message>
-        <source>The Gdb process could not be stopped:
+        <source>The gdb process could not be stopped:
 %1</source>
-        <translation>Der Gdb-Prozess konnte nicht angehalten werden:
+        <translation>Der gdb-Prozess konnte nicht angehalten werden:
 %1</translation>
     </message>
     <message>
@@ -13376,6 +13418,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>%1 ist keine gültige ID</translation>
     </message>
     <message>
+        <source>%1 already exists</source>
+        <translation>%1 existiert bereits</translation>
+    </message>
+    <message>
         <source>Warning</source>
         <translation>Warnung</translation>
     </message>
@@ -13702,12 +13748,8 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation> Debuggen:</translation>
     </message>
     <message>
-        <source>Use remote gdb</source>
-        <translation>gdb-Kommandozeilenprogramm benutzen</translation>
-    </message>
-    <message>
         <source>Use remote gdbserver</source>
-        <translation>Gdb-Server benutzen</translation>
+        <translation type="obsolete">Gdb-Server benutzen</translation>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
@@ -13730,12 +13772,8 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Ordner für mount-Vorgang auswählen</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use gdb</source>
-        <translation>&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze gdb</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use gdbserver</source>
-        <translation>&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze Gdb-Server</translation>
+        <translation type="obsolete">&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze Gdb-Server</translation>
     </message>
     <message>
         <source>Cancel Fetch Operation</source>
@@ -13760,6 +13798,22 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>No local directories to be mounted on the device.</source>
         <translation>Es existieren keine lokalen Ordner, die auf dem Mobilgerät angehängt werden können (mount).</translation>
+    </message>
+    <message>
+        <source>Use remote GDB</source>
+        <translation>Entfernten GDB benutzen</translation>
+    </message>
+    <message>
+        <source>Use remote GDB server</source>
+        <translation>GDB-Server benutzen</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use GDB</source>
+        <translation>&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze GDB</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use GDB server</source>
+        <translation>&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze GDB-Server</translation>
     </message>
     <message>
         <source>One local directory to be mounted on the device.</source>
@@ -14288,8 +14342,8 @@ Vorheriger vorzeichenbehafteter Dezimalwert (Big Endian): %4</translation>
 <context>
     <name>QmlProjectManager::QmlProject</name>
     <message>
-        <source>Error while loading project file!</source>
-        <translation>Fehler beim Laden der Projektdatei!</translation>
+        <source>Error while loading project file %1.</source>
+        <translation>Fehler beim Laden der Projektdatei %1.</translation>
     </message>
 </context>
 <context>
@@ -14699,8 +14753,12 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Die Überprüfung der Qt-Version schlug fehl! Auf dem Gerät muss Qt-Version 4.6.2 oder neuer installiert sein.</translation>
     </message>
     <message>
-        <source>Mad Developer is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
-        <translation>Mad Developer ist nicht installiert.&lt;br&gt;Ein Deployment auf dieses Mobilgerät ist nicht möglich.</translation>
+        <source>%1 is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
+        <translation>%1 ist nicht installiert.&lt;br&gt;Ein Deployment auf dieses Mobilgerät ist nicht möglich.</translation>
+    </message>
+    <message>
+        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
+        <translation>Bitte schalten sie das Mobilgerät über Einstellungen -&gt; Sicherheit in den Entwicklermodus.</translation>
     </message>
     <message>
         <source>Error retrieving list of used ports: %1</source>
@@ -16262,6 +16320,10 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
         <source>%1 is an invalid id</source>
         <translation>%1 ist keine gültige ID</translation>
     </message>
+    <message>
+        <source>%1 already exists</source>
+        <translation>%1 existiert bereits</translation>
+    </message>
 </context>
 <context>
     <name>emptyPane</name>
@@ -16612,29 +16674,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
 </context>
 <context>
-    <name>AttachTcfDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Debugger starten</translation>
-    </message>
-    <message>
-        <source>Host and port:</source>
-        <translation>Host und Portnummer:</translation>
-    </message>
-    <message>
-        <source>Architecture:</source>
-        <translation>Architektur:</translation>
-    </message>
-    <message>
-        <source>Use server start script:</source>
-        <translation>Server-Startskript benutzen:</translation>
-    </message>
-    <message>
-        <source>Server start script:</source>
-        <translation>Server-Startskript:</translation>
-    </message>
-</context>
-<context>
     <name>Help::Internal::RemoteFilterOptions</name>
     <message>
         <source>Filter configuration</source>
@@ -16817,10 +16856,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>&lt;b&gt;Zu installierende Dateien des Unterprojektes:&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;a href=irrelevant&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation>&lt;a href=irrelevant&gt;Gerätekonfigurationen verwalten&lt;/a&gt;</translation>
-    </message>
-    <message>
         <source>Edit the project file to add or remove entries.</source>
         <translation>Projektdatei bearbeiten, um Einträge hinzuzufügen oder zu löschen.</translation>
     </message>
@@ -16831,6 +16866,10 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Add Launcher Icon ...</source>
         <translation>Icon für Starter hinzufügen...</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
+        <translation>&lt;a href=irrelevant&gt;Gerätekonfigurationen verwalten&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -17211,13 +17250,6 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::AttachTcfDialog</name>
-    <message>
-        <source>Select Executable</source>
-        <translation>Ausführbare Datei auswählen</translation>
-    </message>
-</context>
-<context>
     <name>Debugger::DebuggerPlugin</name>
     <message>
         <source>Debug</source>
@@ -17319,12 +17351,12 @@ Das Setzen von Haltepunkten nach Dateinamen und Zeilennummern könnte nicht funk
         <translation>Das Lesen der Ausgabe der Anwendung wurde plötzlich abgebrochen.</translation>
     </message>
     <message>
-        <source>Remote gdb failed to start.</source>
-        <translation>Der entfernte gdb-Prozess konnte nicht gestartet werden.</translation>
+        <source>Remote GDB failed to start.</source>
+        <translation>Der entfernte GDB-Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <source>Remote gdb crashed.</source>
-        <translation>Der entfernte gdb-Prozess ist abgestürzt.</translation>
+        <source>Remote GDB crashed.</source>
+        <translation>Der entfernte GDB-Prozess ist abgestürzt.</translation>
     </message>
 </context>
 <context>
@@ -17353,21 +17385,6 @@ Das Setzen von Haltepunkten nach Dateinamen und Zeilennummern könnte nicht funk
     <message>
         <source>Full name</source>
         <translation>Vollständiger Name</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::TcfEngine</name>
-    <message>
-        <source>%1.</source>
-        <translation>%1.</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Fortsetzung angefordert...</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Angehalten.</translation>
     </message>
 </context>
 <context>
@@ -19233,36 +19250,32 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
         <translation>Funktionsname:</translation>
     </message>
     <message>
-        <source>Function &quot;main()&quot;</source>
-        <translation>Funktion &quot;main()&quot;</translation>
+        <source>Break when C++ Exception is Thrown</source>
+        <translation>Halte beim Auftreten einer C++-Ausnahme an</translation>
     </message>
     <message>
-        <source>throw</source>
-        <translation>throw</translation>
+        <source>Break when C++ Exception is Caught</source>
+        <translation>Halte beim der Behandlung einer C++-Ausnahme an</translation>
     </message>
     <message>
-        <source>catch</source>
-        <translation>catch</translation>
+        <source>Break when Function &quot;main()&quot; Starts</source>
+        <translation>Halte bei Erreichen der Funktion &quot;main()&quot; an</translation>
     </message>
     <message>
-        <source>fork</source>
-        <translation>fork</translation>
+        <source>Break when a new Process is Forked</source>
+        <translation>Halte beim Starten eines neuen Prozesses an</translation>
     </message>
     <message>
-        <source>exec</source>
-        <translation>exec</translation>
+        <source>Break when a new Process is Executed</source>
+        <translation>Halte beim Beginn der Ausführung eines neuen Prozesses an</translation>
     </message>
     <message>
-        <source>vfork</source>
-        <translation>vfork</translation>
+        <source>Break when a System Call is Executed</source>
+        <translation>Halte bei Systemaufruf an</translation>
     </message>
     <message>
-        <source>syscall</source>
-        <translation>syscall</translation>
-    </message>
-    <message>
-        <source>Address (Watchpoint)</source>
-        <translation>Adresse (Watchpoint)</translation>
+        <source>Break on Data Access (Watchpoint)</source>
+        <translation>Halte bei Datenzugriff an (Watchpoint)</translation>
     </message>
     <message>
         <source>Specifying the module (base name of the library or executable)
@@ -19274,13 +19287,13 @@ erheblich reduzieren (CDB, LLDB).</translation>
     </message>
     <message>
         <source>Debugger command to be executed when the breakpoint is hit.
-gdb allows for specifying a sequence of commands separated by the delimiter &apos;\n&apos;.</source>
+GDB allows for specifying a sequence of commands separated by the delimiter &apos;\n&apos;.</source>
         <translation>Debugger-Kommando zur Ausführung beim Auslösen des Haltepunkts.
-Bei gdb kann eine durch &apos;\n&apos; getrennte Kommandosequenz angegeben werden.</translation>
+Bei GDB kann eine durch &apos;\n&apos; getrennte Kommandosequenz angegeben werden.</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Determines how the path is specified when setting breakpoints:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Use Engine Default&lt;/i&gt;: Preferred setting of the debugger engine.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use Full Path&lt;/i&gt;: Pass full path, avoiding ambiguities should files of the same name exist in several modules. This is the engine default for CDB and LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use File Name&lt;/i&gt;: Pass the file name only. This is useful when using a source tree whose location does not match the one used when building the modules. It is the engine default for gdb as using full paths can be slow with this engine.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bestimmt, wie der Pfad beim Setzen von Haltepunkten angegeben wird:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Engine-Vorgabe verwenden&lt;/i&gt;: Vorgabeeinstellung des Engine.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Vollständigen Pfad verwenden&lt;/i&gt;: Der vollständige Pfadname wird übergeben. Dadurch werden Zweideutigkeiten vermieden, wenn in verschiedenenen Modulen Quelldateien gleichen Namens vorkommen. Dies ist die Vorgabeeinstellung bei CDB und LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Dateinamen verwenden&lt;/i&gt;: Es wird lediglich der Dateiname übergeben. Diese Einstellung kann verwendet werden, wenn sich die Quellen in einem anderen Verzeichnisbaum befinden, als es beim Erstellen der Module der Fall war. Es ist die Vorgabeeinstellung beim gdb-Engine, da die Verwendung vollständiger Pfade bei diesem Engine unter Umständen langsam ist.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Determines how the path is specified when setting breakpoints:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Use Engine Default&lt;/i&gt;: Preferred setting of the debugger engine.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use Full Path&lt;/i&gt;: Pass full path, avoiding ambiguities should files of the same name exist in several modules. This is the engine default for CDB and LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use File Name&lt;/i&gt;: Pass the file name only. This is useful when using a source tree whose location does not match the one used when building the modules. It is the engine default for GDB as using full paths can be slow with this engine.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bestimmt, wie der Pfad beim Setzen von Haltepunkten angegeben wird:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Engine-Vorgabe verwenden&lt;/i&gt;: Vorgabeeinstellung des Engine.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Vollständigen Pfad verwenden&lt;/i&gt;: Der vollständige Pfadname wird übergeben. Dadurch werden Zweideutigkeiten vermieden, wenn in verschiedenenen Modulen Quelldateien gleichen Namens vorkommen. Dies ist die Vorgabeeinstellung bei CDB und LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Dateinamen verwenden&lt;/i&gt;: Es wird lediglich der Dateiname übergeben. Diese Einstellung kann verwendet werden, wenn sich die Quellen in einem anderen Verzeichnisbaum befinden, als es beim Erstellen der Module der Fall war. Es ist die Vorgabeeinstellung beim GDB-Engine, da die Verwendung vollständiger Pfade bei diesem Engine unter Umständen langsam ist.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Address</source>
@@ -19657,8 +19670,12 @@ Fehler: %2</translation>
         <translation>LLDB aktivieren</translation>
     </message>
     <message>
-        <source>Use Gdb python dumpers</source>
-        <translation>Gdb Python Dumper verwenden</translation>
+        <source>Use GDB python dumpers</source>
+        <translation type="obsolete">GDB-Python Dumper verwenden</translation>
+    </message>
+    <message>
+        <source>Use GDB Python dumpers</source>
+        <translation>GDB-Python Dumper verwenden</translation>
     </message>
 </context>
 <context>
@@ -19760,14 +19777,6 @@ Fehler: %2</translation>
 <context>
     <name>Qt4ProjectManager::Internal::DebuggingHelper</name>
     <message>
-        <source>Helps showing content of Qt types. Only used in older versions of gdb.</source>
-        <translation>Hilft bei der Anzeige des Inhalts von Qt-Datentypen. Wird nur von älteren Versionen von gdb benutzt.</translation>
-    </message>
-    <message>
-        <source>Gdb Helper:</source>
-        <translation>Gdb-Hilfsbibliothek:</translation>
-    </message>
-    <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>Wird zur Bestimmung von QML-Typinformationen für bibliotheksbasierte Plugins benutzt.</translation>
     </message>
@@ -19806,6 +19815,14 @@ Fehler: %2</translation>
     <message>
         <source>QML Debugging Library:</source>
         <translation>QML-Debugbibliothek:</translation>
+    </message>
+    <message>
+        <source>Helps showing content of Qt types. Only used in older versions of GDB.</source>
+        <translation>Hilft bei der Anzeige des Inhalts von Qt-Datentypen. Wird nur von älteren Versionen von GDB benutzt.</translation>
+    </message>
+    <message>
+        <source>GDB Helper:</source>
+        <translation>GDB-Hilfsbibliothek:</translation>
     </message>
 </context>
 <context>
@@ -19965,24 +19982,6 @@ Fehler: %2</translation>
         <translation>WizardPage</translation>
     </message>
     <message>
-        <source>To deploy the public key to your device, please execute the following steps:
-&lt;ul&gt;
-&lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
-&lt;li&gt;On the device, start the &quot;Mad Developer&quot; application.&lt;/li&gt;
-&lt;li&gt;In &quot;Mad Developer&quot;, configure the device&apos;s IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
-&lt;li&gt;In &quot;Mad Developer&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
-&lt;li&gt;Click &quot;Deploy Key&quot;&lt;/li&gt;
-</source>
-        <translation>Um den Schlüssel zum Mobilgerät zu senden, führen Sie bitte die folgenden Schritte aus:
-&lt;ul&gt;
-&lt;li&gt;Verbinden Sie das Mobilgerät mit dem Computer (sofern kein WLAN verwendet wird).&lt;/li&gt;
-&lt;li&gt;Starten Sie den Anwendung &quot;Mad Developer&quot; auf dem Mobilgerät.&lt;/li&gt;
-&lt;li&gt;Stellen Sie die unten angezeigte IP-Adresse in der Anwendung &quot;Mad Developer&quot; ein (oder passen Sie die unten angezeigte Adresse der von Ihnen konfigurierten Adresse an).&lt;/li&gt;
-&lt;li&gt;Betätigen Sie &quot;Developer Password&quot; in der Anwendung &quot;Mad Developer&quot; und tragen Sie es in das unten gezeigte Feld &quot;Passwort&quot; ein.&lt;/li&gt;
-&lt;li&gt;Betätigen Sie &quot;Schlüssel senden&quot;.&lt;/li&gt;
-</translation>
-    </message>
-    <message>
         <source>Device address:</source>
         <translation>Adresse des Geräts:</translation>
     </message>
@@ -19993,6 +19992,24 @@ Fehler: %2</translation>
     <message>
         <source>Deploy Key</source>
         <translation>Schlüssel senden</translation>
+    </message>
+    <message>
+        <source>To deploy the public key to your device, please execute the following steps:
+&lt;ul&gt;
+&lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
+&lt;li&gt;On the device, start the &quot;%%%maddev%%%&quot; application.&lt;/li&gt;
+&lt;li&gt;In &quot;%%%maddev%%%&quot;, configure the device&apos;s IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
+&lt;li&gt;In &quot;%%%maddev%%%&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
+&lt;li&gt;Click &quot;Deploy Key&quot;&lt;/li&gt;
+</source>
+        <translation>Um den Schlüssel zum Mobilgerät zu senden, führen Sie bitte die folgenden Schritte aus:
+&lt;ul&gt;
+&lt;li&gt;Verbinden Sie das Mobilgerät mit dem Computer (sofern kein WLAN verwendet wird).&lt;/li&gt;
+&lt;li&gt;Starten Sie den Anwendung &quot;%%%maddev%%%&quot; auf dem Mobilgerät.&lt;/li&gt;
+&lt;li&gt;Stellen Sie die unten angezeigte IP-Adresse in der Anwendung &quot;%%%maddev%%%&quot; ein (oder passen Sie die unten angezeigte Adresse der von Ihnen konfigurierten Adresse an).&lt;/li&gt;
+&lt;li&gt;Betätigen Sie &quot;Developer Password&quot; in der Anwendung &quot;%%%maddev%%%&quot; und tragen Sie es in das unten gezeigte Feld &quot;Passwort&quot; ein.&lt;/li&gt;
+&lt;li&gt;Betätigen Sie &quot;Schlüssel senden&quot;.&lt;/li&gt;
+</translation>
     </message>
 </context>
 <context>
@@ -20346,6 +20363,38 @@ Fehler: %2</translation>
     <message>
         <source>Flickable</source>
         <translation>Flickable</translation>
+    </message>
+    <message>
+        <source>Content Size</source>
+        <translation>Größe des Inhalts</translation>
+    </message>
+    <message>
+        <source>Flickable Direction</source>
+        <translation>Richtung der Flickable-Interaktion</translation>
+    </message>
+    <message>
+        <source>Bounds Behavior</source>
+        <translation>Verhalten der Begrenzungen</translation>
+    </message>
+    <message>
+        <source>Interactive</source>
+        <translation>Interaktiv</translation>
+    </message>
+    <message>
+        <source>Max. Velocity</source>
+        <translation>Maximale Geschwindigkeit</translation>
+    </message>
+    <message>
+        <source>Maximum Flick Velocity</source>
+        <translation>Maximale Geschwindigkeit der Flick-Interaktion</translation>
+    </message>
+    <message>
+        <source>Deceleration</source>
+        <translation>Abbremsung</translation>
+    </message>
+    <message>
+        <source>Flick Deceleration</source>
+        <translation>Abbremsung der Flick-Interaktion</translation>
     </message>
 </context>
 <context>
@@ -20707,14 +20756,6 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
         <translation>Debugge core-Datei</translation>
     </message>
     <message>
-        <source>Attach to Running Tcf Agent...</source>
-        <translation>Verbinde zu Tcf-Agent...</translation>
-    </message>
-    <message>
-        <source>This attaches to a running &apos;Target Communication Framework&apos; agent.</source>
-        <translation>Verbindet zu einem laufenden Agenten, der das  &apos;Target Communication Framework&apos;-Protokoll verwendet.</translation>
-    </message>
-    <message>
         <source>Start and Attach to Remote Application...</source>
         <translation>An entfernte Anwendung anhängen...</translation>
     </message>
@@ -20813,10 +20854,6 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
     <name>Debugger::Internal::IPCEngineHost</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
-        <translation>Die Engine wurde wegen einem kritischen Fehler gestoppt (inkompatible ausführbare Datei oder IPC-Fehler).</translation>
-    </message>
-    <message>
-        <source>Fatal engine shutdown. Incompatible binary or ipc error.</source>
         <translation>Die Engine wurde wegen einem kritischen Fehler gestoppt (inkompatible ausführbare Datei oder IPC-Fehler).</translation>
     </message>
 </context>
@@ -20972,7 +21009,7 @@ Soll es noch einmal versucht werden?</translation>
 <context>
     <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
     <message>
-        <source>Use the patience algorithmn for calculating the diff</source>
+        <source>Use the patience algorithm for calculating the diff</source>
         <translation>&quot;patience diff&quot;-Algorithmus verwenden</translation>
     </message>
     <message>
@@ -21545,12 +21582,16 @@ Bitte erstellen Sie die Debugger-Hilfskomponenten auf der Einstellungsseite der 
         <translation>Schlüssel erzeugen</translation>
     </message>
     <message>
-        <source>You have not entered a writable directory.</source>
-        <translation>Der angegebene Ordner ist nicht schreibbar.</translation>
-    </message>
-    <message>
         <source>Cannot Create Keys</source>
         <translation>Fehler beim Erzeugen der Schlüssel</translation>
+    </message>
+    <message>
+        <source>The path you have entered is not a directory.</source>
+        <translation>Der angegebene Pfad ist kein Ordner.</translation>
+    </message>
+    <message>
+        <source>The directory you have entered does not exist and cannot be created.</source>
+        <translation>Der angegebene Ordner existiert nicht und kann nicht angelegt werden.</translation>
     </message>
     <message>
         <source>Creating keys ... </source>
@@ -21592,8 +21633,8 @@ Bitte erstellen Sie die Debugger-Hilfskomponenten auf der Einstellungsseite der 
         <translation>Schlüssel gesendet</translation>
     </message>
     <message>
-        <source>The key was successfully deployed. You may now close the &quot;Mad Developer&quot; application and continue.</source>
-        <translation>Der Schlüssel wurde erfolgreich gesendet. Sie können nun die Anwendung &quot;Mad Developer&quot; schließen und fortfahren.</translation>
+        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
+        <translation>Der Schlüssel wurde erfolgreich gesendet. Sie können nun die Anwendung &quot;%1&quot; schließen und fortfahren.</translation>
     </message>
     <message>
         <source>Done.</source>
@@ -21611,8 +21652,8 @@ Bitte erstellen Sie die Debugger-Hilfskomponenten auf der Einstellungsseite der 
         <translation>Die neue Gerätekonfiguration wird nun erstellt und eine Testprozedur ausgeführt, die prüft, ob Qt Creator eine Verbindung zum Gerät herstellen kann und einige Informationen zum Gerät bereitstellt.</translation>
     </message>
     <message>
-        <source>Please make sure that Qemu is running, otherwise the test will fail.</source>
-        <translation>Bitte stellen Sie sicher, dass Qemu läuft, da andernfalls der Test fehlschlägt.</translation>
+        <source>The new device configuration will now be created.</source>
+        <translation>Die neue Gerätekonfiguration wird nun erzeugt.</translation>
     </message>
 </context>
 <context>
@@ -21643,6 +21684,14 @@ Ist das Gerät verbunden und für Netzwerkzugriff eingerichtet?</translation>
     <message>
         <source>(No device)</source>
         <translation>(Kein Gerät)</translation>
+    </message>
+    <message>
+        <source>SDK Connectivity</source>
+        <translation>SDK-Verbindungen</translation>
+    </message>
+    <message>
+        <source>Mad Developer</source>
+        <translation>Mad Developer</translation>
     </message>
     <message>
         <source>Failed to remove directory &apos;%1&apos;.</source>
@@ -21827,16 +21876,16 @@ Ist das Gerät verbunden und für Netzwerkzugriff eingerichtet?</translation>
         <translation>Die Desktop-Datei &apos;%1&apos; konnte nicht angepasst werden.</translation>
     </message>
     <message>
-        <source>The package description is empty.</source>
-        <translation>Die Beschreibung des Pakets ist leer.</translation>
+        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>Die Paketbeschreibung ist leer. Sie muss unter Projekte -&gt; Ausführung -&gt; Paketerzeugung -&gt; Details angegeben werden.</translation>
     </message>
     <message>
-        <source>The package description is &apos;%1&apos;, which is probably not what you want.</source>
-        <translation>Die Beschreibung des Pakets lautet &apos;%1&apos;, was wahrscheinlich nicht beabsichtigt war.</translation>
+        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>Die Paketbeschreibung ist gegenwärtig &apos;%1&apos;, was wahrscheinlich nicht beabsichtigt ist. Bitte ändern Sie sie unter Projekte -&gt; Ausführung -&gt; Paketerzeugung -&gt; Details.</translation>
     </message>
     <message>
-        <source>You have not set an icon for the package manager.</source>
-        <translation>Sie haben noch kein Icon für die Paketverwaltung gesetzt.</translation>
+        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
+        <translation>Sie haben kein Icon für die Paketverwaltung angegeben werden. Es muss unter Projekte -&gt; Ausführung -&gt; Paketerzeugung -&gt; Details angegeben werden.</translation>
     </message>
 </context>
 <context>
@@ -21953,12 +22002,12 @@ Fehlerausgabe: %1</translation>
         <translation>Klicken Sie hier, um den OpenGL-Modus zu ändern.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation>&lt;p&gt;Sie haben in Qemu OpenGL-Hardwarebeschleunigung eingestellt, was von Ihrem System nicht unterstützt sein könnte. Sie könnten stattdessen Software-Rendering verwenden.</translation>
+        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
+        <translation>Sie haben in Qemu OpenGL-Hardwarebeschleunigung eingestellt, was von Ihrem System nicht unterstützt sein könnte. Sie könnten stattdessen Software-Rendering verwenden.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases.You might want to use software rendering instead.</source>
-        <translation>&lt;p&gt;Sie haben in Qemu die automatische Bestimmung des OpenGL-Modus eingestellt, was nicht immer funktioniert. Sie könnten stattdessen Software-Rendering verwenden.</translation>
+        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
+        <translation>Sie haben in Qemu die automatische Bestimmung des OpenGL-Modus eingestellt, was nicht immer funktioniert. Sie könnten stattdessen Software-Rendering verwenden.</translation>
     </message>
 </context>
 <context>
@@ -22266,7 +22315,7 @@ Verwenden Sie ein Entwicklerzertifikat oder eine andere Form der Signierung, um 
         <translation>Bitte beenden Sie die Installation auf dem Mobilgerät.</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running on the device.&lt;center/&gt;&lt;center&gt;Terminating it can leave the target in an inconsistent state.&lt;/center&gt;&lt;center&gt;Would you still like to terminate it?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running on the device.&lt;/center&gt;&lt;center&gt;Terminating it can leave the target in an inconsistent state.&lt;/center&gt;&lt;center&gt;Would you still like to terminate it?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; läuft noch auf dem Mobilgerät.&lt;center/&gt;&lt;center&gt;Ein Abbruch kann zu einem inkonsistenten Zustand des Gerätes führen.&lt;/center&gt;&lt;center&gt;Möchten Sie dennoch abbrechen?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -23163,6 +23212,10 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <source>Remove</source>
         <translation>Löschen</translation>
     </message>
+    <message>
+        <source>Clone</source>
+        <translation>Klonen</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::RvctToolChainConfigWidget</name>
@@ -23754,7 +23807,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
 <context>
     <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
-        <source>Run cmake</source>
+        <source>Run CMake</source>
         <translation>CMake ausführen</translation>
     </message>
 </context>
@@ -24021,10 +24074,6 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <source>Tool Chains</source>
         <translation>Toolchains</translation>
     </message>
-    <message>
-        <source>Clone ...</source>
-        <translation>Kopie erstellen...</translation>
-    </message>
 </context>
 <context>
     <name>QmlJSEditor::QmlJSTextEditorWidget</name>
@@ -24092,8 +24141,8 @@ Fehler: %2</translation>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoToolChainConfigWidget</name>
     <message>
-        <source>MADDE Root: %1&lt;br&gt;Target Root: %2</source>
-        <translation>MADDE Wurzelverzeichnis: %1&lt;br&gt;Wurzelverzeichnis des Ziels: %2</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Pfad zu MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Pfad zu MADDE-Ziel:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -24101,6 +24150,10 @@ Fehler: %2</translation>
     <message>
         <source>GCCE</source>
         <translation>GCCE</translation>
+    </message>
+    <message>
+        <source>GCCE from Qt version</source>
+        <translation>GCCE aus Qt-Version</translation>
     </message>
     <message>
         <source>GCCE (%1)</source>
@@ -24132,6 +24185,10 @@ Fehler: %2</translation>
     <message>
         <source>WINSCW</source>
         <translation>WINSCW</translation>
+    </message>
+    <message>
+        <source>WINSCW from Qt version</source>
+        <translation>WINSCW aus Qt-Version</translation>
     </message>
 </context>
 <context>
@@ -25011,6 +25068,10 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
         <translation>Ungültige Verwendung von free</translation>
     </message>
     <message>
+        <source>These suppression files were used in the last memory analyzer run.</source>
+        <translation>Die Ausschlussdateien wurden beim letzten Lauf der Speicheranalyse verwendet.</translation>
+    </message>
+    <message>
         <source>External Errors</source>
         <translation>Externe Fehler</translation>
     </message>
@@ -25021,10 +25082,6 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
     <message>
         <source>Suppressions</source>
         <translation>Ausschlüsse</translation>
-    </message>
-    <message>
-        <source>These suppression files where used in the last memory analyzer run.</source>
-        <translation>Die Ausschlussdateien wurden beim letzten Lauf der Speicheranalyse verwendet.</translation>
     </message>
     <message>
         <source>Internal Error</source>
