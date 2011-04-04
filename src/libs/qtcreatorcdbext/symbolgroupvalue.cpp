@@ -1006,6 +1006,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QPen;
         if (!type.compare(qPos, 4, "QUrl"))
             return KT_QUrl;
+        if (!type.compare(qPos, 4, "QDir"))
+            return KT_QDir;
         break;
     case 5:
         if (!type.compare(qPos, 5, "QChar"))
@@ -1364,38 +1366,103 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
     return false;
 }
 
-/* Dump QFileInfo: Works by poking around in raw memory: Dereference the d-ptr and
- * obtain the QFileInfoPrivate. Access the right string past its QSharedData base class. */
-static bool dumpQFileInfo(const SymbolGroupValue &v, std::wostream &str)
+/* Below are some helpers for simple dumpers for some Qt classes accessing their
+ * private classes without the debugger's symbolic information (applicable to non-exported
+ * private classes such as QFileInfoPrivate, etc). This is done by dereferencing the
+ * d-ptr and obtaining the address of the variable (considering some offsets depending on type)
+ * and adding a symbol for that QString or QByteArray (basically using raw memory).
+ */
+
+enum QPrivateDumpMode // Enumeration determining the offsets to be taken into consideration
+{
+    QPDM_None,
+    QPDM_qVirtual, // For classes with virtual functions (QObject-based): Skip vtable for d-address
+    QPDM_qSharedData // Private class is based on QSharedData.
+};
+
+// Determine the address of private class member by dereferencing the d-ptr and using offsets.
+static ULONG64 addressOfQPrivateMember(const SymbolGroupValue &v, QPrivateDumpMode mode,
+                                       unsigned additionalOffset = 0)
 {
     std::string errorMessage;
     // Dererence d-Ptr.
+    ULONG64 dAddress = v.address();
+    if (mode == QPDM_qVirtual) // Skip vtable.
+        dAddress += SymbolGroupValue::pointerSize();
     const ULONG64 dptr = SymbolGroupValue::readPointerValue(v.context().dataspaces,
-                                                            v.address(), &errorMessage);
+                                                            dAddress, &errorMessage);
     if (!dptr)
-        return false;
-    // Get address of string, obtain value by dumping a QString at address
-    const ULONG64 stringAddress = dptr  + qSharedDataOffset(v.context()) + qStringSize(v.context());
-    const std::string qStringType = QtInfo::get(v.context()).prependQtCoreModule("QString");
-    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , qStringType);
-    SymbolGroupNode *fileNameNode =
-        v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
-    if (!fileNameNode)
-        return false;
-    return dumpQString(SymbolGroupValue(fileNameNode, v.context()), str);
+        return 0;
+    // Get address of type to be dumped.
+    ULONG64 dumpAddress = dptr  + additionalOffset;
+    if (mode == QPDM_qSharedData) // Based on QSharedData
+        dumpAddress += qSharedDataOffset(v.context());
+    return dumpAddress;
 }
 
-/* Dump QFile: Works by poking around in raw memory: Dereference the d-ptr and
- * obtain the QFilePrivate. Access the right string past its QIODevicePrivate base class. */
-static bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
+// Convenience to dump a QString from the unexported private class of a Qt class.
+static bool dumpQStringFromQPrivateClass(const SymbolGroupValue &v,
+                                         QPrivateDumpMode mode,
+                                         unsigned additionalOffset,
+                                         std::wostream &str)
 {
     std::string errorMessage;
-    // Dererence d-Ptr (past virtual function table).
-    const ULONG64 dptr = SymbolGroupValue::readPointerValue(v.context().dataspaces,
-                                                            v.address() + SymbolGroupValue::pointerSize(),
-                                                            &errorMessage);
-    if (!dptr)
+    const ULONG64 stringAddress = addressOfQPrivateMember(v, mode, additionalOffset);
+    if (!stringAddress)
         return false;
+    const std::string dumpType = QtInfo::get(v.context()).prependQtCoreModule("QString");
+    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , dumpType);
+    SymbolGroupNode *stringNode =
+            v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
+    if (!stringNode)
+        return false;
+    return dumpQString(SymbolGroupValue(stringNode, v.context()), str);
+}
+
+// Convenience to dump a QByteArray from the unexported private class of a Qt class.
+static bool dumpQByteArrayFromQPrivateClass(const SymbolGroupValue &v,
+                                            QPrivateDumpMode mode,
+                                            unsigned additionalOffset,
+                                            std::wostream &str)
+{
+    std::string errorMessage;
+    const ULONG64 byteArrayAddress = addressOfQPrivateMember(v, mode, additionalOffset);
+    if (!byteArrayAddress)
+        return false;
+    const std::string dumpType = QtInfo::get(v.context()).prependQtCoreModule("QByteArray");
+    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(byteArrayAddress , dumpType);
+    SymbolGroupNode *byteArrayNode =
+            v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
+    if (!byteArrayNode)
+        return false;
+    return dumpQByteArray(SymbolGroupValue(byteArrayNode, v.context()), str);
+}
+
+/* Dump QFileInfo, for whose private class no debugging information is available.
+ * Dump 2nd string past its QSharedData base class. */
+static inline bool dumpQFileInfo(const SymbolGroupValue &v, std::wostream &str)
+{
+    return dumpQStringFromQPrivateClass(v, QPDM_qSharedData, qStringSize(v.context()),  str);
+}
+
+/* Dump QDir, for whose private class no debugging information is available.
+ * Dump 1st string past its QSharedData base class. */
+static bool inline dumpQDir(const SymbolGroupValue &v, std::wostream &str)
+{
+    return dumpQStringFromQPrivateClass(v, QPDM_qSharedData, 0,  str);
+}
+
+/* Dump QRegExp, for whose private class no debugging information is available.
+ * Dump 1st string past of its base class. */
+static inline bool dumpQRegExp(const SymbolGroupValue &v, std::wostream &str)
+{
+    return dumpQStringFromQPrivateClass(v, QPDM_qSharedData, 0,  str);
+}
+
+/* Dump QFile, for whose private class no debugging information is available.
+ * Dump the 1st string first past its QIODevicePrivate base class. */
+static inline bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
+{
     // Get address of the file name string, obtain value by dumping a QString at address
     static unsigned qIoDevicePrivateSize = 0;
     if (!qIoDevicePrivateSize) {
@@ -1404,40 +1471,17 @@ static bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
     }
     if (!qIoDevicePrivateSize)
         return false;
-    const ULONG64 stringAddress = dptr  + qIoDevicePrivateSize;
-    const std::string qStringType = QtInfo::get(v.context()).prependQtCoreModule("QString");
-    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , qStringType);
-    SymbolGroupNode *fileNameNode =
-        v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
-    if (!fileNameNode)
-        return false;
-    return dumpQString(SymbolGroupValue(fileNameNode, v.context()), str);
+    return dumpQStringFromQPrivateClass(v, QPDM_qVirtual, qIoDevicePrivateSize,  str);
 }
 
-/* Dump QUrl: Works by poking around in raw memory: Dereference the d-ptr and
- * obtain the QUrlPrivate. Access the 'originally encoded' byte array. */
-static bool dumpQUrl(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn)
+/* Dump QUrl for whose private class no debugging information is available.
+ * Dump the 'originally encoded' byte array of its private class. */
+static inline bool dumpQUrl(const SymbolGroupValue &v, std::wostream &str)
 {
-    std::string errorMessage;
-    // Dererence d-Ptr (past virtual function table).
-    const ULONG64 dptr = SymbolGroupValue::readPointerValue(v.context().dataspaces,
-                                                            v.address(),
-                                                            &errorMessage);
-    if (!dptr)
-        return false;
-    if (specialInfoIn)
-        *specialInfoIn = reinterpret_cast<void *>(intptr_t(dptr));
     // Get address of the original-encoded byte array, obtain value by dumping at address
-    const ULONG64 origBA_Address = dptr + padOffset(qAtomicIntSize(v.context()))
-                                   + 6 * qStringSize(v.context())
-                                  + qByteArraySize(v.context());
-    const std::string qByteArrayType = QtInfo::get(v.context()).prependQtCoreModule("QByteArray");
-    const std::string symbolName = SymbolGroupValue::pointedToSymbolName(origBA_Address, qByteArrayType);
-    SymbolGroupNode *origEncodedBANode =
-        v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
-    if (!origEncodedBANode)
-        return false;
-    return dumpQByteArray(SymbolGroupValue(origEncodedBANode, v.context()), str);
+    const ULONG offset = padOffset(qAtomicIntSize(v.context()))
+                         + 6 * qStringSize(v.context()) + qByteArraySize(v.context());
+    return dumpQByteArrayFromQPrivateClass(v, QPDM_None, offset, str);
 }
 
 // Dump QColor
@@ -1950,8 +1994,14 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     case KT_QFile:
         rc = dumpQFile(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
+    case KT_QDir:
+        rc = dumpQDir(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QRegExp:
+        rc = dumpQRegExp(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
     case KT_QUrl:
-        rc = dumpQUrl(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        rc = dumpQUrl(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QString:
         rc = dumpQString(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;

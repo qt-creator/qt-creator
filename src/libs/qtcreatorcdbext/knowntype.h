@@ -85,7 +85,7 @@ enum KnownType
     KT_QImage = KT_Qt_Type + KT_Qt_MovableType + 35,
     KT_QLocale = KT_Qt_Type + KT_Qt_MovableType + 36,
     KT_QMatrix = KT_Qt_Type + KT_Qt_MovableType + 37,
-    KT_QRegExp = KT_Qt_Type + KT_Qt_MovableType + 38,
+    KT_QRegExp = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 38,
     KT_QMargins = KT_Qt_Type + KT_Qt_MovableType + 39,
     KT_QXmltem = KT_Qt_Type + KT_Qt_MovableType + 40,
     KT_QXmlName = KT_Qt_Type + KT_Qt_MovableType + 41,
@@ -137,6 +137,7 @@ enum KnownType
     KT_QNetworkHeadersPrivate_RawHeaderPair = KT_Qt_Type + KT_Qt_MovableType + 87,
     KT_QPatternist_AccelTree_BasicNodeData = KT_Qt_Type + KT_Qt_MovableType + 88,
     KT_QFile = KT_Qt_Type + KT_HasSimpleDumper + 89,
+    KT_QDir  = KT_Qt_Type + KT_HasSimpleDumper + 90,
     // Types: Qt primitive types
     KT_QFixed = KT_Qt_Type + KT_Qt_PrimitiveType + 90,
     KT_QTextItem = KT_Qt_Type + KT_Qt_PrimitiveType + 91,
