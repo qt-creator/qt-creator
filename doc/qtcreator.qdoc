@@ -1720,7 +1720,7 @@
     and remove snippets in the snippet editor. To open the editor, select
     \gui {Tools > Options... > Text Editor > Snippets}.
 
-    \image qtcreator-edit-code-snippets "Snippet options"
+    \image qtcreator-edit-code-snippets.png "Snippet options"
 
     Qt Creator provides you with built-in snippets in the following categories:
 
