@@ -516,7 +516,7 @@ void SftpChannelPrivate::handleMkdirStatus(const JobMap::Iterator &it,
             op->parentJob->setError();
             emit finished(op->parentJob->jobId,
                 tr("Could not open local file '%1': %2")
-                .arg(fileInfo.absoluteFilePath(), localFile->error()));
+                .arg(fileInfo.absoluteFilePath(), localFile->errorString()));
             m_jobs.erase(it);
             return;
         }
