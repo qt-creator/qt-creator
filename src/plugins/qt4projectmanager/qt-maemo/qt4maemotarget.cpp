@@ -246,11 +246,7 @@ QSharedPointer<QFile> AbstractQt4MaemoTarget::openFile(const QString &filePath,
 {
     const QString nativePath = QDir::toNativeSeparators(filePath);
     QSharedPointer<QFile> file(new QFile(filePath));
-    if (mode == QIODevice::ReadOnly && !file->exists()) {
-        if (error)
-            *error = tr("File '%1' does not exist").arg(nativePath);
-        file.clear();
-    } else if (!file->open(mode)) {
+    if (!file->open(mode)) {
         if (error) {
             *error = tr("Cannot open file '%1': %2")
                 .arg(nativePath, file->errorString());
