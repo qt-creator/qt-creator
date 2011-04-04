@@ -4,8 +4,6 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
-**
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** No Commercial Usage
@@ -33,31 +31,42 @@
 **
 **************************************************************************/
 
-#include "ianalyzertool.h"
+#ifndef ANALYZERRUNCONTROLFACTORY_H
+#define ANALYZERRUNCONTROLFACTORY_H
+
+#include <projectexplorer/runconfiguration.h>
 
 namespace Analyzer {
 
-QString IAnalyzerTool::modeString(ToolMode mode)
-{
-    switch (mode) {
-        case IAnalyzerTool::DebugMode:
-            return tr("Debug");
-        case IAnalyzerTool::ReleaseMode:
-            return tr("Release");
-        case IAnalyzerTool::AnyMode:
-            break;
-    }
-    return QString();
-}
+class AnalyzerRunControl;
+class AnalyzerStartParameters;
 
-IAnalyzerOutputPaneAdapter *IAnalyzerTool::outputPaneAdapter()
-{
-    return 0;
-}
+namespace Internal {
 
-QWidget *IAnalyzerTool::createControlWidget()
+class AnalyzerRunControlFactory: public ProjectExplorer::IRunControlFactory
 {
-    return 0;
-}
+    Q_OBJECT
 
+public:
+    AnalyzerRunControlFactory(QObject *parent = 0);
+
+    typedef ProjectExplorer::RunConfiguration RunConfiguration;
+    typedef ProjectExplorer::RunControl RunControl;
+
+    // virtuals from IRunControlFactory
+    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
+    RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
+    AnalyzerRunControl *create(const AnalyzerStartParameters &sp, RunConfiguration *rc = 0);
+    QString displayName() const;
+
+    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
+
+signals:
+    void runControlCreated(Analyzer::AnalyzerRunControl *);
+};
+
+} // namespace Internal
 } // namespace Analyzer
+
+#endif // ANALYZERRUNCONTROLFACTORY_H

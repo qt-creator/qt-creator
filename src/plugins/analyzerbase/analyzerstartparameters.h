@@ -4,8 +4,6 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
-**
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** No Commercial Usage
@@ -33,31 +31,46 @@
 **
 **************************************************************************/
 
-#include "ianalyzertool.h"
+#ifndef ANALYZERSTARTPARAMETERS_H
+#define ANALYZERSTARTPARAMETERS_H
+
+#include "analyzerbase_global.h"
+#include "analyzerconstants.h"
+
+#include <QtCore/QMetaType>
+
+#include <utils/ssh/sshconnection.h>
+#include <utils/environment.h>
 
 namespace Analyzer {
 
-QString IAnalyzerTool::modeString(ToolMode mode)
-{
-    switch (mode) {
-        case IAnalyzerTool::DebugMode:
-            return tr("Debug");
-        case IAnalyzerTool::ReleaseMode:
-            return tr("Release");
-        case IAnalyzerTool::AnyMode:
-            break;
-    }
-    return QString();
-}
+// Note: This is part of the "soft interface" of the analyzer plugin.
+// Do not add anything that needs implementation in a .cpp file.
 
-IAnalyzerOutputPaneAdapter *IAnalyzerTool::outputPaneAdapter()
+class ANALYZER_EXPORT AnalyzerStartParameters
 {
-    return 0;
-}
+public:
+    AnalyzerStartParameters()
+    : startMode(StartLocal)
+    , connParams(Utils::SshConnectionParameters::NoProxy)
+    { }
 
-QWidget *IAnalyzerTool::createControlWidget()
-{
-    return 0;
-}
+    AnalyzerStartMode startMode;
+    Utils::SshConnectionParameters connParams;
+
+    QString debuggee;
+    QString debuggeeArgs;
+    QString analyzerCmdPrefix;
+    QString remoteMountPoint;
+    QString localMountDir;
+    QString remoteSourcesDir;
+    QString displayName;
+    Utils::Environment environment;
+    QString workingDirectory;
+};
 
 } // namespace Analyzer
+
+Q_DECLARE_METATYPE(Analyzer::AnalyzerStartParameters)
+
+#endif // ANALYZERSTARTPARAMETERS_H

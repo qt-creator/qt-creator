@@ -40,9 +40,6 @@
 
 #include <QtCore/QObject>
 
-QT_FORWARD_DECLARE_CLASS(QAbstractItemView)
-QT_FORWARD_DECLARE_CLASS(QAbstractItemModel)
-
 namespace ProjectExplorer {
 class RunConfiguration;
 }
@@ -52,79 +49,36 @@ class IPlugin;
 }
 
 namespace Analyzer {
+
+class AnalyzerStartParameters;
+class IAnalyzerOutputPaneAdapter;
 class IAnalyzerEngine;
 
-class ANALYZER_EXPORT IAnalyzerOutputPaneAdapter : public QObject
-{
-    Q_OBJECT
-public:
-    explicit IAnalyzerOutputPaneAdapter(QObject *parent = 0);
-    virtual ~IAnalyzerOutputPaneAdapter();
-
-    virtual QWidget *toolBarWidget() = 0;
-    virtual QWidget *paneWidget() = 0;
-    virtual void clearContents() = 0;
-    virtual void setFocus() = 0;
-    virtual bool hasFocus() const = 0;
-    virtual bool canFocus() const = 0;
-    virtual bool canNavigate() const = 0;
-    virtual bool canNext() const = 0;
-    virtual bool canPrevious() const = 0;
-    virtual void goToNext() = 0;
-    virtual void goToPrev() = 0;
-
-signals:
-    void popup(bool withFocus);
-    void navigationStatusChanged();
-};
-
-class ANALYZER_EXPORT ListItemViewOutputPaneAdapter : public IAnalyzerOutputPaneAdapter
-{
-    Q_OBJECT
-public:
-    explicit ListItemViewOutputPaneAdapter(QObject *parent = 0);
-
-    virtual QWidget *paneWidget();
-    virtual void setFocus();
-    virtual bool hasFocus() const;
-    virtual bool canFocus() const;
-    virtual bool canNavigate() const;
-    virtual bool canNext() const;
-    virtual bool canPrevious() const;
-    virtual void goToNext();
-    virtual void goToPrev();
-
-    bool showOnRowsInserted() const;
-    void setShowOnRowsInserted(bool v);
-
-protected:
-    int currentRow() const;
-    void setCurrentRow(int);
-    int rowCount() const;
-    void connectNavigationSignals(QAbstractItemModel *);
-    virtual QAbstractItemView *createItemView() = 0;
-
-private slots:
-    void slotRowsInserted();
-
-private:
-    QAbstractItemView *m_listView;
-    bool m_showOnRowsInserted;
-};
-
+/**
+ * This class represents an analyzation tool, e.g. "Valgrind Memcheck".
+ * @code
+ * bool YourPlugin::initialize(const QStringList &arguments, QString *errorString)
+ * {
+ *    AnalyzerManager::instance()->addTool(new MemcheckTool(this));
+ *    return true;
+ * }
+ * @endcode
+ */
 class ANALYZER_EXPORT IAnalyzerTool : public QObject
 {
     Q_OBJECT
 public:
     explicit IAnalyzerTool(QObject *parent = 0);
 
+    /// @return unique ID for this tool
     virtual QString id() const = 0;
+    /// @return user readable display name for this tool
     virtual QString displayName() const = 0;
 
     /**
      * The mode in which this tool should be run preferrably
      *
-     * e.g. memcheck requires debug symbols, hence DebugMode is prefferred.
+     * memcheck, for example, requires debug symbols, hence DebugMode is preferred.
      * otoh callgrind should look at optimized code, hence ReleaseMode.
      */
     enum ToolMode {
@@ -134,13 +88,27 @@ public:
     };
     virtual ToolMode mode() const = 0;
 
-    QString modeString();
+    static QString modeString(ToolMode mode);
 
+    /**
+     * The implementation should setup widgets for the output pane here and optionally add
+     * dock widgets in the analyzation mode if wanted.
+     */
     virtual void initialize(ExtensionSystem::IPlugin *plugin) = 0;
+    /// gets called after all analyzation tools where initialized.
+    virtual void extensionsInitialized() = 0;
 
     virtual IAnalyzerOutputPaneAdapter *outputPaneAdapter();
+    /// subclass to return a control widget which will be shown
+    /// in the output pane when this tool is selected
+    virtual QWidget *createControlWidget();
 
-    virtual IAnalyzerEngine *createEngine(ProjectExplorer::RunConfiguration *runConfiguration) = 0;
+    /// @return a new engine for the given start parameters. Called each time the tool is launched.
+    virtual IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
+                                          ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
+
+    /// @return true when this tool can be run remotely, e.g. on a meego or maemo device
+    virtual bool canRunRemotely() const = 0;
 };
 
 } // namespace Analyzer

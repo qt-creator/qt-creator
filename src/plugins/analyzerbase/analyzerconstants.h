@@ -39,6 +39,13 @@
 #include <QtCore/QtGlobal>
 
 namespace Analyzer {
+
+enum AnalyzerStartMode
+{
+    StartLocal,
+    StartRemote
+};
+
 namespace Constants {
 
 // modes and their priorities
@@ -49,9 +56,10 @@ const int          P_MODE_ANALYZE = 76;
 const char * const C_ANALYZEMODE = "Analyzer.AnalyzeMode";
 
 // menu
-const char * const M_TOOLS_ANALYZER = "Analyzer.Tools.Menu";
+const char * const M_DEBUG_ANALYZER = "Analyzer.Menu.StartAnalyzer";
 
 const char * const START = "Analyzer.Start";
+const char * const STARTREMOTE = "Analyzer.StartRemote";
 const char * const STOP = "Analyzer.Stop";
 
 // options dialog
@@ -61,7 +69,16 @@ const char * const ANALYZER_SETTINGS_TR_CATEGORY =
 const char * const ANALYZER_SETTINGS_CATEGORY_ICON =
     ":/images/analyzer_category.png";
 
+// manager controls
+const char * const ANALYZER_CONTROL_START_ICON =
+    ":/images/analyzer_start_small.png";
+const char * const ANALYZER_CONTROL_STOP_ICON =
+    ":/debugger/images/debugger_stop_small.png";
+
 const char * const ANALYZERTASK_ID = "Analyzer.TaskId";
+
+// private
+const char * const ANALYZER_DUMMYWIDGET_ID = "Analyzer.DummyWidget";
 
 } // namespace Constants
 } // namespace Analyzer

@@ -36,54 +36,26 @@
 #ifndef ANALYZERRUNCONTROL_H
 #define ANALYZERRUNCONTROL_H
 
-#include "analyzerconstants.h"
+#include "analyzerbase_global.h"
 
-#include <valgrind/xmlprotocol/parser.h>
+#include <utils/ssh/sshconnection.h>
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/task.h>
 
-#include <QtCore/QScopedPointer>
-
 namespace Analyzer {
 
 class IAnalyzerEngine;
+class AnalyzerStartParameters;
 
-namespace Internal {
-
-class AnalyzerRunControl;
-
-class AnalyzerRunControlFactory: public ProjectExplorer::IRunControlFactory
-{
-    Q_OBJECT
-
-public:
-    AnalyzerRunControlFactory(QObject *parent = 0);
-
-    typedef ProjectExplorer::RunConfiguration RunConfiguration;
-    typedef ProjectExplorer::RunControl RunControl;
-
-    // virtuals from IRunControlFactory
-    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
-    RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
-    QString displayName() const;
-
-    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
-
-signals:
-    void runControlCreated(Analyzer::Internal::AnalyzerRunControl *);
-};
-
-
-class AnalyzerRunControl: public ProjectExplorer::RunControl
+class ANALYZER_EXPORT AnalyzerRunControl: public ProjectExplorer::RunControl
 {
     Q_OBJECT
 
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
     // the constructor is likely to gain more arguments later
-    explicit AnalyzerRunControl(RunConfiguration *runConfiguration);
+    explicit AnalyzerRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration);
     ~AnalyzerRunControl();
 
     // pure virtuals from ProjectExplorer::RunControl
@@ -103,12 +75,10 @@ private slots:
     void engineFinished();
 
 private:
-    bool m_isRunning;
-    IAnalyzerEngine *m_engine;
+    class Private;
+    QScopedPointer<Private> d;
 };
 
-
-} // namespace Internal
 } // namespace Analyzer
 
 #endif // ANALYZERRUNCONTROL_H

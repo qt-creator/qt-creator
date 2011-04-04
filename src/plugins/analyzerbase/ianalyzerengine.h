@@ -37,8 +37,10 @@
 #define IANALYZERENGINE_H
 
 #include "analyzerbase_global.h"
+#include "analyzerstartparameters.h"
 
 #include <projectexplorer/task.h>
+#include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -49,28 +51,48 @@ class RunConfiguration;
 
 namespace Analyzer {
 
+/**
+ * An IAnalyzerEngine instance handles the launch of an analyzation tool.
+ *
+ * It gets created for each launch and deleted when the launch is stopped or ended.
+ */
 class ANALYZER_EXPORT IAnalyzerEngine : public QObject
 {
     Q_OBJECT
-public:
-    explicit IAnalyzerEngine(ProjectExplorer::RunConfiguration *runConfiguration);
 
+public:
+    explicit IAnalyzerEngine(const AnalyzerStartParameters &sp,
+                             ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    virtual ~IAnalyzerEngine();
+
+    /// start analyzation process
     virtual void start() = 0;
-    /// trigger async stop
+    /// trigger async stop of the analyzation process
     virtual void stop() = 0;
 
+    /// the active run configuration for this engine, might be zero
     ProjectExplorer::RunConfiguration *runConfiguration() const;
 
+    /// the start parameters for this engine
+    AnalyzerStartParameters startParameters() const;
+
 signals:
+    /// should be emitted when the debuggee outputted something
     void standardOutputReceived(const QString &);
+    /// should be emitted when the debuggee outputted an error
     void standardErrorReceived(const QString &);
+    /// can be emitted when you want to show a task, e.g. to display an error
     void taskToBeAdded(ProjectExplorer::Task::TaskType type, const QString &description,
                        const QString &file, int line);
+
+    /// must be emitted when the engine finished
     void finished();
-    void starting(const IAnalyzerEngine *);
+    /// must be emitted when the engine is starting
+    void starting(const Analyzer::IAnalyzerEngine *);
 
 private:
     ProjectExplorer::RunConfiguration *m_runConfig;
+    AnalyzerStartParameters m_sp;
 };
 
 } // namespace Analyzer

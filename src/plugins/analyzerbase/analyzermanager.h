@@ -53,10 +53,16 @@ namespace Utils {
 class FancyMainWindow;
 }
 
+namespace ProjectExplorer {
+class RunConfiguration;
+}
+
 namespace Analyzer {
 class IAnalyzerTool;
-namespace Internal {
 class AnalyzerRunControl;
+class AnalyzerStartParameters;
+
+namespace Internal {
 class AnalyzerOutputPane;
 } // namespace Internal
 
@@ -88,23 +94,27 @@ public:
 
     void selectTool(IAnalyzerTool *tool);
 
-    void addOutputPaneToolBarWidgets(QList<QWidget *>  *) const;
-
     static QString msgToolStarted(const QString &name);
     static QString msgToolFinished(const QString &name, int issuesFound);
 
+    // Used by Maemo analyzer support.
+    AnalyzerRunControl *createAnalyzer(const AnalyzerStartParameters &sp,
+                                       ProjectExplorer::RunConfiguration *rc = 0);
+
 public slots:
+    void startTool();
+    void startToolRemote();
+    void stopTool();
+
     void showStatusMessage(const QString &message, int timeoutMS = 10000);
     void showPermanentStatusMessage(const QString &message);
-    void startTool();
-    void stopTool();
 
 private slots:
     void handleToolFinished();
     void toolSelected(int);
     void toolSelected(QAction *);
     void modeChanged(Core::IMode *mode);
-    void runControlCreated(Analyzer::Internal::AnalyzerRunControl *);
+    void runControlCreated(Analyzer::AnalyzerRunControl *);
     void resetLayout();
     void saveToolSettings(Analyzer::IAnalyzerTool *tool);
     void loadToolSettings(Analyzer::IAnalyzerTool *tool);

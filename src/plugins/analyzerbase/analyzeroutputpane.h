@@ -57,7 +57,7 @@ public:
     void setTool(IAnalyzerTool *t);
     // IOutputPane
     virtual QWidget *outputWidget(QWidget *parent);
-    virtual QList<QWidget*> toolBarWidgets() const;
+    virtual QList<QWidget *> toolBarWidgets() const;
     virtual QString displayName() const;
 
     virtual int priorityInStatusBar() const;
@@ -93,6 +93,8 @@ private:
     QList<IAnalyzerOutputPaneAdapter *> m_adapters;
     QStackedWidget *m_toolbarStackedWidget;
     Utils::StyledSeparator *m_toolBarSeparator;
+    // tracks selected index during !isInitialized() state
+    int m_delayedCurrentIndex;
 };
 
 } // namespace Internal

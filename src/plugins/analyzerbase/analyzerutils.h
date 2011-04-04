@@ -4,8 +4,6 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Author: Nicolas Arnaud-Cormos, KDAB (nicolas.arnaud-cormos@kdab.com)
-**
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 ** No Commercial Usage
@@ -33,31 +31,25 @@
 **
 **************************************************************************/
 
-#include "ianalyzertool.h"
+#ifndef ANALYZERUTILS_H
+#define ANALYZERUTILS_H
 
-namespace Analyzer {
+#include "analyzerbase_global.h"
 
-QString IAnalyzerTool::modeString(ToolMode mode)
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
+
+namespace CPlusPlus
 {
-    switch (mode) {
-        case IAnalyzerTool::DebugMode:
-            return tr("Debug");
-        case IAnalyzerTool::ReleaseMode:
-            return tr("Release");
-        case IAnalyzerTool::AnyMode:
-            break;
-    }
-    return QString();
+class Symbol;
 }
 
-IAnalyzerOutputPaneAdapter *IAnalyzerTool::outputPaneAdapter()
+namespace AnalyzerUtils
 {
-    return 0;
+    ANALYZER_EXPORT CPlusPlus::Symbol *findSymbolUnderCursor();
+
+    ANALYZER_EXPORT QWidget *createDummyWidget();
 }
 
-QWidget *IAnalyzerTool::createControlWidget()
-{
-    return 0;
-}
-
-} // namespace Analyzer
+#endif // ANALYZERUTILS_H

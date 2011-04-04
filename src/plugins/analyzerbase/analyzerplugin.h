@@ -50,10 +50,11 @@ public:
     static AnalyzerPlugin *instance();
 
     AnalyzerPlugin();
-    ~AnalyzerPlugin();
+    virtual ~AnalyzerPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
+
     ShutdownFlag aboutToShutdown();
 
 private:

@@ -37,7 +37,9 @@
 #include "analyzerconstants.h"
 #include "analyzermanager.h"
 #include "analyzeroutputpane.h"
+#include "ianalyzertool.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -54,6 +56,7 @@
 using namespace Analyzer;
 using namespace Analyzer::Internal;
 
+static const QLatin1String lastActiveToolC("Analyzer.Plugin.LastActiveTool");
 
 AnalyzerPlugin *AnalyzerPlugin::m_instance = 0;
 
@@ -117,9 +120,6 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
     //: Category under which Analyzer tasks are listed in build issues view
     hub->addCategory(QLatin1String(Constants::ANALYZERTASK_ID), tr("Analyzer"));
 
-    ///TODO: select last used tool or default tool
-//     d->m_manager->selectTool(memcheckTool);
-
     return true;
 }
 
@@ -128,14 +128,33 @@ void AnalyzerPlugin::extensionsInitialized()
     // Retrieve objects from the plugin manager's object pool
     // "In the extensionsInitialized method, a plugin can be sure that all
     //  plugins that depend on it are completely initialized."
+
+    // notify tools about the extensions initialized state
+    foreach(IAnalyzerTool *tool, d->m_manager->tools()) {
+        tool->extensionsInitialized();
+    }
+
+    // load the last active tool
+    QSettings *settings = Core::ICore::instance()->settings();
+    const QString lastActiveTool = settings->value(lastActiveToolC, QString()).toString();
+    foreach(IAnalyzerTool *tool, d->m_manager->tools()) {
+        if (tool->id() == lastActiveTool) {
+            d->m_manager->selectTool(tool);
+            break;
+        }
+    }
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag AnalyzerPlugin::aboutToShutdown()
 {
-    d->m_manager->shutdown();
     // Save settings
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)
+
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->setValue(lastActiveToolC, d->m_manager->currentTool()->id());
+
+    d->m_manager->shutdown();
     return SynchronousShutdown;
 }
 

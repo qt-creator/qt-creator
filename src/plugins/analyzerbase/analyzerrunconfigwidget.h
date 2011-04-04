@@ -41,10 +41,6 @@
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
-
-namespace Ui {
-class AnalyzerConfigWidget;
-}
 QT_END_NAMESPACE
 
 namespace Utils {

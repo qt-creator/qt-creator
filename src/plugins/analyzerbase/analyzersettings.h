@@ -59,6 +59,9 @@ template <typename T> static void setIfPresent(const QVariantMap &map, const QSt
 
 /**
  * Subclass this to add configuration to your analyzer tool.
+ *
+ * If global and project-specific settings differ for your tool,
+ * create one subclass for each.
  */
 class ANALYZER_EXPORT AbstractAnalyzerSubConfig : public QObject
 {
@@ -67,12 +70,18 @@ public:
     AbstractAnalyzerSubConfig(QObject *parent);
     virtual ~AbstractAnalyzerSubConfig();
 
+    /// return a list of default values
     virtual QVariantMap defaults() const = 0;
+    /// convert current configuration into map for storage
     virtual QVariantMap toMap() const = 0;
+    /// read configuration from @p map
     virtual bool fromMap(const QVariantMap &map) = 0;
 
+    /// unique ID for this configuration
     virtual QString id() const = 0;
+    /// user readable display name for this configuration
     virtual QString displayName() const = 0;
+    /// create a configuration widget for this configuration
     virtual QWidget *createConfigWidget(QWidget *parent) = 0;
 };
 
@@ -84,17 +93,21 @@ class ANALYZER_EXPORT AbstractAnalyzerSubConfigFactory
 {
 public:
     AbstractAnalyzerSubConfigFactory(){}
-    ~AbstractAnalyzerSubConfigFactory(){}
+    virtual ~AbstractAnalyzerSubConfigFactory(){}
 
     virtual AbstractAnalyzerSubConfig *createGlobalSubConfig(QObject *parent) = 0;
     virtual AbstractAnalyzerSubConfig *createProjectSubConfig(QObject *parent) = 0;
 };
 
 /**
- * Makes it easy to register configuration for a tool:
+ * Makes it easy to register custom configuration for a tool:
  *
  * @code
- * manager->registerSubConfigFactory(new AnalyzerSubConfigFactory<MemcheckGlobalSettings, MemcheckProjectSettings>);
+ * bool MemcheckPlugin::initialize(const QStringList &arguments, QString *errorString)
+ * {
+ *   typedef AnalyzerSubConfigFactory<YourGlobalSettings, YourProjectSettings> YourConfigFactory;
+ *   AnalyzerGlobalSettings::instance()->registerSubConfigFactory(new YourConfigFactory);
+ * }
  * @endcode
  */
 template<class GlobalConfigT, class ProjectConfigT>
@@ -126,7 +139,7 @@ public:
     virtual ~AnalyzerSettings();
 
     template<class T>
-    T* subConfig() const
+    T *subConfig() const
     {
         return findChild<T *>();
     }
@@ -155,6 +168,11 @@ protected:
 // differently.
 /**
  * Global settings
+ *
+ * To access your custom configuration use:
+ * @code
+ * AnalyzerGlobalSettings::instance()->subConfig<YourGlobalConfig>()->...
+ * @endcode
  */
 class ANALYZER_EXPORT AnalyzerGlobalSettings : public AnalyzerSettings
 {
@@ -177,6 +195,12 @@ private:
 
 /**
  * Settings associated with a single project/run configuration
+ *
+ * To access your custom configuration use:
+ * @code
+ * ProjectExplorer::RunConfiguration *rc = ...;
+ * rc->extraAspect<AnalyzerProjectSettings>()->subConfig<YourProjectConfig>()->...
+ * @endcode
  */
 class ANALYZER_EXPORT AnalyzerProjectSettings : public AnalyzerSettings, public ProjectExplorer::IRunConfigurationAspect
 {

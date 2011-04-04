@@ -37,13 +37,23 @@
 
 using namespace Analyzer;
 
-IAnalyzerEngine::IAnalyzerEngine(ProjectExplorer::RunConfiguration *runConfig)
-    : QObject(),
-      m_runConfig(runConfig)
+IAnalyzerEngine::IAnalyzerEngine(const AnalyzerStartParameters &sp,
+                                 ProjectExplorer::RunConfiguration *runConfiguration)
+    : m_runConfig(runConfiguration)
+    , m_sp(sp)
+{
+}
+
+IAnalyzerEngine::~IAnalyzerEngine()
 {
 }
 
 ProjectExplorer::RunConfiguration *IAnalyzerEngine::runConfiguration() const
 {
     return m_runConfig;
+}
+
+AnalyzerStartParameters IAnalyzerEngine::startParameters() const
+{
+    return m_sp;
 }

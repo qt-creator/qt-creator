@@ -50,7 +50,7 @@ using namespace Analyzer::Internal;
 AnalyzerRunConfigWidget::AnalyzerRunConfigWidget()
     : m_detailsWidget(new Utils::DetailsWidget(this))
 {
-    QWidget* mainWidget = new QWidget(this);
+    QWidget *mainWidget = new QWidget(this);
     new QVBoxLayout(mainWidget);
     m_detailsWidget->setWidget(mainWidget);
 
@@ -79,11 +79,11 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
     m_detailsWidget->setSummaryText(tr("Available settings: %1").arg(tools.join(", ")));
 
     // add group boxes for each sub config
-    QLayout* layout = m_detailsWidget->widget()->layout();
+    QLayout *layout = m_detailsWidget->widget()->layout();
     foreach(AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
-        QGroupBox* box = new QGroupBox(config->displayName());
+        QGroupBox *box = new QGroupBox(config->displayName());
         Q_UNUSED(box)
-        QWidget* widget = config->createConfigWidget(this);
+        QWidget *widget = config->createConfigWidget(this);
         layout->addWidget(widget);
     }
 }

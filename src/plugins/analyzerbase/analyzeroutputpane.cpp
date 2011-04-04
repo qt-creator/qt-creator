@@ -32,8 +32,12 @@
 **************************************************************************/
 
 #include "analyzeroutputpane.h"
+
+#include "analyzerconstants.h"
 #include "analyzermanager.h"
+#include "analyzerutils.h"
 #include "ianalyzertool.h"
+#include "ianalyzeroutputpaneadapter.h"
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -46,20 +50,13 @@
 #include <QtGui/QLabel>
 #include <QtGui/QStackedWidget>
 
-static const char dummyWidgetPropertyC[] = "dummyWidget";
 
 enum { debug = 0 };
-enum { dummyIndex = 0 };
 
 namespace Analyzer {
 namespace Internal {
 
-static inline QWidget *createDummyWidget()
-{
-    QWidget *widget = new QWidget;
-    widget->setProperty(dummyWidgetPropertyC, QVariant(true));
-    return widget;
-}
+static const int dummyWidgetIndex = 0;
 
 /*!
   \class AnalyzerPane::Internal::AnalyzerOutputPane
@@ -97,7 +94,8 @@ AnalyzerOutputPane::AnalyzerOutputPane(QObject *parent) :
     m_paneWidget(0),
     m_paneStackedLayout(0),
     m_toolbarStackedWidget(0),
-    m_toolBarSeparator(0)
+    m_toolBarSeparator(0),
+    m_delayedCurrentIndex(-1)
 {
     setObjectName(QLatin1String("AnalyzerOutputPane"));
 }
@@ -106,8 +104,8 @@ void AnalyzerOutputPane::clearTool()
 {
     // No tool. Show dummy label, which is the last widget.
     if (m_paneWidget) {
-        m_paneStackedLayout->setCurrentIndex(dummyIndex);
-        m_toolbarStackedWidget->setCurrentIndex(dummyIndex);
+        m_paneStackedLayout->setCurrentIndex(dummyWidgetIndex);
+        m_toolbarStackedWidget->setCurrentIndex(dummyWidgetIndex);
         emit navigateStateChanged();
     }
     hide();
@@ -115,27 +113,27 @@ void AnalyzerOutputPane::clearTool()
 
 int AnalyzerOutputPane::currentIndex() const
 {
-    return m_paneStackedLayout ? m_paneStackedLayout->currentIndex() : -1;
+    return isInitialized() ? m_paneStackedLayout->currentIndex() : m_delayedCurrentIndex;
 }
 
 IAnalyzerOutputPaneAdapter *AnalyzerOutputPane::currentAdapter() const
 {
     const int index = currentIndex(); // Rule out leading dummy widget
-    if (index != dummyIndex && index < m_adapters.size())
+    if (index != dummyWidgetIndex && index < m_adapters.size())
         return m_adapters.at(index);
     return 0;
 }
 
 void AnalyzerOutputPane::setCurrentIndex(int i)
 {
-    QTC_ASSERT(isInitialized(), return )
-
-    if (i != currentIndex()) {
+    if (!isInitialized()) {
+        m_delayedCurrentIndex = i;
+    } else if (i != currentIndex()) {
         // Show up pane widget and optional toolbar widget. Hide
         // the toolbar if the toolbar widget is a dummy.
         m_paneStackedLayout->setCurrentIndex(i);
         m_toolbarStackedWidget->setCurrentIndex(i);
-        const bool hasToolBarWidget = !m_toolbarStackedWidget->currentWidget()->property(dummyWidgetPropertyC).toBool();
+        const bool hasToolBarWidget = !m_toolbarStackedWidget->currentWidget()->property(Constants::ANALYZER_DUMMYWIDGET_ID).toBool();
         m_toolbarStackedWidget->setVisible(hasToolBarWidget);
         m_toolBarSeparator->setVisible(hasToolBarWidget);
         navigateStateChanged();
@@ -160,7 +158,7 @@ void AnalyzerOutputPane::addToWidgets(IAnalyzerOutputPaneAdapter *adapter)
     QTC_ASSERT(toolPaneWidget, return; )
     m_paneStackedLayout->addWidget(toolPaneWidget);
     QWidget *toolBarWidget = adapter->toolBarWidget(); // Might be 0
-    m_toolbarStackedWidget->addWidget(toolBarWidget ? toolBarWidget : createDummyWidget());
+    m_toolbarStackedWidget->addWidget(toolBarWidget ? toolBarWidget : AnalyzerUtils::createDummyWidget());
 }
 
 void AnalyzerOutputPane::setTool(IAnalyzerTool *t)
@@ -174,13 +172,12 @@ void AnalyzerOutputPane::setTool(IAnalyzerTool *t)
     if (adapter) {
         int index = m_adapters.indexOf(adapter);
         if (index == -1) {
-            index = m_adapters.size();
             add(adapter);
+            index = m_adapters.size();
         }
-        if (isInitialized()) {
+        setCurrentIndex(index);
+        if (isInitialized())
             popup(false);
-            setCurrentIndex(index);
-        }
     } else {
         clearTool();
     }
@@ -208,17 +205,19 @@ void AnalyzerOutputPane::createWidgets(QWidget *paneParent)
     // Temporarily assign to (wrong) parent to suppress flicker in conjunction with QStackedWidget.
     m_toolbarStackedWidget = new QStackedWidget(paneParent);
     m_toolbarStackedWidget->setObjectName(objectName() + QLatin1String("ToolBarStackedWidget"));
-    m_toolbarStackedWidget->addWidget(createDummyWidget()); // placeholder
+    m_toolbarStackedWidget->addWidget(AnalyzerUtils::createDummyWidget()); // placeholder
     m_toolBarSeparator = new Utils::StyledSeparator(paneParent);
     m_toolBarSeparator->setObjectName(objectName() + QLatin1String("ToolBarSeparator"));
 
     // Add adapters added before.
     const int adapterCount = m_adapters.size();
-    const int firstAdapter = dummyIndex + 1;
+    const int firstAdapter = dummyWidgetIndex + 1;
     for (int i = firstAdapter; i < adapterCount; i++)
         addToWidgets(m_adapters.at(i));
-    // Make last one current
-    if (adapterCount > firstAdapter)
+
+    if (m_delayedCurrentIndex != -1) // setTool was called before initialization
+        setCurrentIndex(m_delayedCurrentIndex);
+    else if (adapterCount > firstAdapter) // default: Make last one current
         setCurrentIndex(adapterCount - 1);
 }
 
@@ -230,7 +229,6 @@ QWidgetList AnalyzerOutputPane::toolBarWidgets() const
 
     QWidgetList list;
     list << m_toolBarSeparator << m_toolbarStackedWidget;
-    AnalyzerManager::instance()->addOutputPaneToolBarWidgets(&list);
     return list;
 }
 

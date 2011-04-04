@@ -37,10 +37,8 @@
 #include "analyzerconstants.h"
 #include "ianalyzerengine.h"
 #include "ianalyzertool.h"
-#include "analyzerplugin.h"
 #include "analyzermanager.h"
-#include "analyzerrunconfigwidget.h"
-#include "analyzersettings.h"
+#include "analyzerstartparameters.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/applicationrunconfiguration.h>
@@ -50,88 +48,54 @@
 #include <coreplugin/ioutputpane.h>
 
 #include <QtCore/QDebug>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QMessageBox>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;
 
-// AnalyzerRunControlFactory ////////////////////////////////////////////////////
-AnalyzerRunControlFactory::AnalyzerRunControlFactory(QObject *parent)
-    : IRunControlFactory(parent)
+// AnalyzerRunControl::Private ///////////////////////////////////////////
+
+class AnalyzerRunControl::Private {
+public:
+    Private();
+
+    bool m_isRunning;
+    IAnalyzerEngine *m_engine;
+};
+
+AnalyzerRunControl::Private::Private()
+: m_isRunning(false)
+, m_engine(0)
 {
+
 }
 
-bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
-{
-    if (!qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration))
-        return false;
-    return mode == Constants::MODE_ANALYZE;
-}
-
-ProjectExplorer::RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,
-                                                               const QString &mode)
-{
-    if (!qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration) ||
-         mode != Constants::MODE_ANALYZE) {
-        return 0;
-    }
-    AnalyzerRunControl *rc = new AnalyzerRunControl(runConfiguration);
-    emit runControlCreated(rc);
-    return rc;
-}
-
-QString AnalyzerRunControlFactory::displayName() const
-{
-    return tr("Analyzer");
-}
-
-ProjectExplorer::IRunConfigurationAspect *AnalyzerRunControlFactory::createRunConfigurationAspect()
-{
-    return new AnalyzerProjectSettings;
-}
-
-ProjectExplorer::RunConfigWidget *AnalyzerRunControlFactory::createConfigurationWidget(RunConfiguration
-                                                                                       *runConfiguration)
-{
-    ProjectExplorer::LocalApplicationRunConfiguration *localRc =
-        qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration);
-    if (!localRc)
-        return 0;
-    AnalyzerProjectSettings *settings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
-    if (!settings)
-        return 0;
-
-    AnalyzerRunConfigWidget *ret = new AnalyzerRunConfigWidget;
-    ret->setRunConfiguration(runConfiguration);
-    return ret;
-}
 
 // AnalyzerRunControl ////////////////////////////////////////////////////
-AnalyzerRunControl::AnalyzerRunControl(RunConfiguration *runConfiguration)
+AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
+                                       RunConfiguration *runConfiguration)
     : RunControl(runConfiguration, Constants::MODE_ANALYZE),
-      m_isRunning(false),
-      m_engine(0)
+      d(new Private)
 {
     IAnalyzerTool *tool = AnalyzerManager::instance()->currentTool();
-    m_engine = tool->createEngine(runConfiguration);
+    d->m_engine = tool->createEngine(sp, runConfiguration);
 
-    connect(m_engine, SIGNAL(standardErrorReceived(QString)),
+    connect(d->m_engine, SIGNAL(standardErrorReceived(QString)),
             SLOT(receiveStandardError(QString)));
-    connect(m_engine, SIGNAL(standardOutputReceived(QString)),
+    connect(d->m_engine, SIGNAL(standardOutputReceived(QString)),
             SLOT(receiveStandardOutput(QString)));
-    connect(m_engine, SIGNAL(taskToBeAdded(ProjectExplorer::Task::TaskType,QString,QString,int)),
+    connect(d->m_engine, SIGNAL(taskToBeAdded(ProjectExplorer::Task::TaskType,QString,QString,int)),
             SLOT(addTask(ProjectExplorer::Task::TaskType,QString,QString,int)));
-    connect(m_engine, SIGNAL(finished()),
+    connect(d->m_engine, SIGNAL(finished()),
             SLOT(engineFinished()));
 }
 
 AnalyzerRunControl::~AnalyzerRunControl()
 {
-    if (m_isRunning)
+    if (d->m_isRunning)
         stop();
-    delete m_engine;
+
+    delete d->m_engine;
+    d->m_engine = 0;
 }
 
 void AnalyzerRunControl::start()
@@ -141,32 +105,35 @@ void AnalyzerRunControl::start()
     ProjectExplorer::TaskHub *hub = pm->getObject<ProjectExplorer::TaskHub>();
     hub->clearTasks(Constants::ANALYZERTASK_ID);
 
-    m_isRunning = true;
+    d->m_isRunning = true;
     emit started();
-    m_engine->start();
+    d->m_engine->start();
 }
 
 ProjectExplorer::RunControl::StopResult AnalyzerRunControl::stop()
 {
-    m_engine->stop();
-    m_isRunning = false;
+    if (!d->m_isRunning)
+        return StoppedSynchronously;
+
+    d->m_engine->stop();
+    d->m_isRunning = false;
     return AsynchronousStop;
 }
 
 void AnalyzerRunControl::engineFinished()
 {
-    m_isRunning = false;
+    d->m_isRunning = false;
     emit finished();
 }
 
 bool AnalyzerRunControl::isRunning() const
 {
-    return m_isRunning;
+    return d->m_isRunning;
 }
 
 QString AnalyzerRunControl::displayName() const
 {
-    return AnalyzerManager::instance()->currentTool()->displayName();
+    return d->m_engine->startParameters().displayName;
 }
 
 QIcon AnalyzerRunControl::icon() const
