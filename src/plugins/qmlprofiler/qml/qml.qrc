@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/qml">
+    <qresource prefix="/qmlprofiler">
         <file>Detail.qml</file>
         <file>Label.qml</file>
         <file>lock.png</file>

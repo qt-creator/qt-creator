@@ -295,7 +295,7 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
         m_plugin->setRecording(true);
 
     m_view->rootContext()->setContextProperty("connection", m_plugin);
-    m_view->setSource(QUrl("qrc:/qml/MainView.qml"));
+    m_view->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));
 
     connect(m_view->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
     connect(m_view->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
