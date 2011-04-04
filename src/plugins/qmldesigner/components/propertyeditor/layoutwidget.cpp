@@ -98,7 +98,8 @@ LayoutWidget::~LayoutWidget()
                 QPixmap pixmap(url.toLocalFile());
                 button->setIcon(pixmap);
             } else {
-                qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
+                qWarning() << QString::fromLatin1("setIconFromFile: %1: %2").arg(
+                                  file.fileName(), file.errorString());
             }
         }
  }

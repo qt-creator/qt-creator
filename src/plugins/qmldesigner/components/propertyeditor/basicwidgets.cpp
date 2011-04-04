@@ -447,7 +447,7 @@ public:
             QString styleSheet(file.readAll());
             q->setStyleSheet(styleSheet);
         } else {
-            qWarning() << QLatin1String("setStyleSheetFile: ") << url << QLatin1String(" not found!");
+            qWarning() << QString::fromLatin1("setStyleSheetFile: %1: %2").arg(fileName, file.errorString());
         }
 
     }
@@ -636,10 +636,10 @@ private:
         if (file.open(QIODevice::ReadOnly)) {
             QPixmap pixmap(path);
             if (pixmap.isNull())
-                qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
+                qWarning() << "setIconFromFile: failed to load" << path;
             pb->setIcon(pixmap);
         } else {
-            qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
+            qWarning() << QString::fromLatin1("setIconFromFile: %1: %2").arg(path, file.errorString());
         }
 
     }
@@ -701,10 +701,10 @@ private:
         if (file.open(QIODevice::ReadOnly)) {
             QPixmap pixmap(path);
             if (pixmap.isNull())
-                qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
+                qWarning() << "setIconFromFile: failed to load" << path;
             lb->setPixmap(pixmap);
         } else {
-            qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
+            qWarning() << QString::fromLatin1("setIconFromFile: %1: %2").arg(path, file.errorString());
         }
 
     }
@@ -773,10 +773,10 @@ private:
         if (file.open(QIODevice::ReadOnly)) {
             QPixmap pixmap(path);
             if (pixmap.isNull())
-                qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
+                qWarning() << "setIconFromFile: failed to load" << path;
             pb->setIcon(pixmap);
         } else {
-            qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
+            qWarning() << QString::fromLatin1("setIconFromFile: %1: %2").arg(path, file.errorString());
         }
 
     }
