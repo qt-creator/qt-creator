@@ -80,7 +80,7 @@ signals:
     void addTask(const ProjectExplorer::Task &task);
 
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
-        ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline);
+        ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline) const;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildStepFactory :
