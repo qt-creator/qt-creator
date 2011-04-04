@@ -275,7 +275,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
     // Expression precompiler buffer.
     QString xprBuff;
     xprBuff.reserve(tokBuff.capacity()); // Excessive, but simple
-    ushort *buf = (ushort *)xprBuff.constData();
+    ushort * const buf = (ushort *)xprBuff.constData();
 
     // Parser state
     m_blockstack.clear();
