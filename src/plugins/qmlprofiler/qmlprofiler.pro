@@ -35,15 +35,15 @@ RESOURCES += \
     qml/qml.qrc
 
 OTHER_FILES += \
-    Detail.qml \
-    Elapsed.qml \
-    Label.qml \
-    MainView.qml \
-    RangeDetails.qml \
-    RangeMover.qml \
-    RecordButton.qml \
-    ToolButton.qml \
-    MainView.js
+    qml/Detail.qml \
+    qml/Elapsed.qml \
+    qml/Label.qml \
+    qml/MainView.qml \
+    qml/RangeDetails.qml \
+    qml/RangeMover.qml \
+    qml/RecordButton.qml \
+    qml/ToolButton.qml \
+    qml/MainView.js
 
 FORMS += \
     qmlprofilerattachdialog.ui
