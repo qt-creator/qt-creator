@@ -264,7 +264,7 @@ void TestRunner::testLeak4()
     {
         const Frame frame = stack.frames().at(2);
         QCOMPARE(frame.functionName(), QString("main"));
-        QCOMPARE(frame.line(), 13);
+        QCOMPARE(frame.line(), 14);
 
         QCOMPARE(frame.object(), binary);
         QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -272,8 +272,8 @@ void TestRunner::testLeak4()
     }
     {
         const Frame frame = stack.frames().at(1);
-        QCOMPARE(frame.functionName(), QString("foo::foo()"));
-        QCOMPARE(frame.line(), 5);
+        QCOMPARE(frame.functionName(), QString("Foo::Foo()"));
+        QCOMPARE(frame.line(), 6);
 
         QCOMPARE(frame.object(), binary);
         QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -282,7 +282,7 @@ void TestRunner::testLeak4()
     {
         const Frame frame = stack.frames().at(2);
         QCOMPARE(frame.functionName(), QString("main"));
-        QCOMPARE(frame.line(), 13);
+        QCOMPARE(frame.line(), 14);
 
         QCOMPARE(frame.object(), binary);
         QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -306,7 +306,7 @@ void TestRunner::testLeak4()
     {
         const Frame frame = stack.frames().at(1);
         QCOMPARE(frame.functionName(), QString("main"));
-        QCOMPARE(frame.line(), 13);
+        QCOMPARE(frame.line(), 14);
 
         QCOMPARE(frame.object(), binary);
         QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -444,7 +444,7 @@ void TestRunner::uninit3()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QString("main"));
-    QCOMPARE(frame.line(), 3);
+    QCOMPARE(frame.line(), 4);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -458,7 +458,7 @@ void TestRunner::uninit3()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QString("main"));
-    QCOMPARE(frame.line(), 1);
+    QCOMPARE(frame.line(), 2);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));
@@ -477,7 +477,7 @@ void TestRunner::uninit3()
 
     const Frame frame = stack.frames().first();
     QCOMPARE(frame.functionName(), QString("main"));
-    QCOMPARE(frame.line(), 3);
+    QCOMPARE(frame.line(), 4);
 
     QCOMPARE(frame.object(), binary);
     QCOMPARE(frame.file(), QLatin1String("main.cpp"));

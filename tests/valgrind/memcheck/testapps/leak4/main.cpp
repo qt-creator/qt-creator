@@ -11,7 +11,7 @@ struct Foo
 
 int main()
 {
-    Foo *f = new Foo;
+    new Foo;
 
     return 0;
 }
