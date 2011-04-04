@@ -4819,7 +4819,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Try to set breakpoints in plugins always automatically.</source>
-        <translation>Versuche, Haltepunkte in Plugins automatisch zu setzen.</translation>
+        <translation type="obsolete">Versuche, Haltepunkte in Plugins automatisch zu setzen.</translation>
     </message>
     <message>
         <source>Try to set breakpoints in selected plugins</source>
@@ -4839,7 +4839,7 @@ it terminates non-responsive gdb process. The default value of 20 seconds
 should be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than that
 on slow machines. In this case, the value should be increased.</source>
-        <translation>Anzahl der Sekunden, die Qt Creator abwartet, bevor gdb-Prozesse abgebrochen werden, die nicht mehr reagieren. Die Vorgabe von 20 Sekunden sollte für die meisten Anwendungsfälle ausreichen, aber es können Situationen auftreten, in denen das Laden großer Bibliotheken oder das Auflisten der Quelldateien viel länger dauert (auf langsamen Maschinen). In diesem Falle sollte der Wert erhöht werden.</translation>
+        <translation type="obsolete">Anzahl der Sekunden, die Qt Creator abwartet, bevor gdb-Prozesse abgebrochen werden, die nicht mehr reagieren. Die Vorgabe von 20 Sekunden sollte für die meisten Anwendungsfälle ausreichen, aber es können Situationen auftreten, in denen das Laden großer Bibliotheken oder das Auflisten der Quelldateien viel länger dauert (auf langsamen Maschinen). In diesem Falle sollte der Wert erhöht werden.</translation>
     </message>
     <message>
         <source>Enable reverse debugging</source>
@@ -4871,7 +4871,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation>Diese Option bewirkt, dass &apos;Einzelschritt in&apos; in bestimmten Situationen mehrere Schritte zusammenfasst, was das Debuggen beschleunigt. Zum Beispiel wird der Code des atomaren Referenzzählung übersprungen; und bei der Emission eines Signals gelangt man direkt zum verbundenen Slot.</translation>
+        <translation type="obsolete">Diese Option bewirkt, dass &apos;Einzelschritt in&apos; in bestimmten Situationen mehrere Schritte zusammenfasst, was das Debuggen beschleunigt. Zum Beispiel wird der Code des atomaren Referenzzählung übersprungen; und bei der Emission eines Signals gelangt man direkt zum verbundenen Slot.</translation>
     </message>
     <message>
         <source>This will show a message box as soon as your application receives a signal like SIGSEGV during debugging.</source>
@@ -4904,6 +4904,23 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Enable reverse debugging Selecting this enables reverse debugging. NOTE: This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.</source>
         <translation>Rückwärts-Debuggen aktivieren. Hinweis: Diese Funktionalität ist sehr instabil und langsam auf der GDB-Seite. Es kann unvorhersehbares Verhalten auftreten, wenn man rückwärts über einen Systemaufruf geht, und die Debugger-Sitzung kann leicht zerstört werden.</translation>
+    </message>
+    <message>
+        <source>This is the number of seconds Qt Creator will wait before
+it terminates a non-responsive GDB process. The default value of 20 seconds
+should be sufficient for most applications, but there are situations when
+loading big libraries or listing source files takes much longer than that
+on slow machines. In this case, the value should be increased.</source>
+        <translation>Anzahl der Sekunden, die Qt Creator abwartet, bevor GDB-Prozesse abgebrochen werden, die nicht mehr reagieren. Die Vorgabe von 20 Sekunden sollte für die meisten Anwendungsfälle ausreichen, aber es können Situationen auftreten, in denen das Laden großer Bibliotheken oder das Auflisten der Quelldateien viel länger dauert (auf langsamen Maschinen). In diesem Falle sollte der Wert erhöht werden.</translation>
+    </message>
+    <message>
+        <source>Allows &apos;Step Into&apos; to compress several steps into one step for less noisy debugging. For example, the atomic reference
+ counting code is skipped, and a single &apos;Step Into&apos; for a signal emission ends up directly in the slot connected to it.</source>
+        <translation>Diese Option bewirkt, dass &apos;Einzelschritt in&apos; in bestimmten Situationen mehrere Schritte zusammenfasst, was das Debuggen beschleunigt. Zum Beispiel wird der Code des atomaren Referenzzählung übersprungen; und bei der Emission eines Signals gelangt man direkt zum verbundenen Slot.</translation>
+    </message>
+    <message>
+        <source>Try to set breakpoints in plugins always automatically</source>
+        <translation>Versuche, Haltepunkte in Plugins automatisch zu setzen.</translation>
     </message>
 </context>
 <context>
@@ -13732,7 +13749,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>Use remote gdbserver</source>
-        <translation>Gdb-Server benutzen</translation>
+        <translation type="obsolete">Gdb-Server benutzen</translation>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
@@ -13756,7 +13773,7 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use gdbserver</source>
-        <translation>&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze Gdb-Server</translation>
+        <translation type="obsolete">&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze Gdb-Server</translation>
     </message>
     <message>
         <source>Cancel Fetch Operation</source>
@@ -13787,8 +13804,16 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Entfernten GDB benutzen</translation>
     </message>
     <message>
+        <source>Use remote GDB server</source>
+        <translation>GDB-Server benutzen</translation>
+    </message>
+    <message>
         <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use GDB</source>
         <translation>&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze GDB</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use GDB server</source>
+        <translation>&lt;b&gt;Debuggereinstellung:&lt;/b&gt; Benutze GDB-Server</translation>
     </message>
     <message>
         <source>One local directory to be mounted on the device.</source>
@@ -19646,6 +19671,10 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>Use GDB python dumpers</source>
+        <translation type="obsolete">GDB-Python Dumper verwenden</translation>
+    </message>
+    <message>
+        <source>Use GDB Python dumpers</source>
         <translation>GDB-Python Dumper verwenden</translation>
     </message>
 </context>
