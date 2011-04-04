@@ -256,7 +256,7 @@ TraceWindow::TraceWindow(QWidget *parent)
 : QWidget(parent),
   m_plugin(0), m_recordAtStart(false)
 {
-    setObjectName(tr("Qml Perfomance Monitor"));
+    setObjectName(tr("Qml Performance Monitor"));
 
     QVBoxLayout *groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0, 0, 0, 0);
