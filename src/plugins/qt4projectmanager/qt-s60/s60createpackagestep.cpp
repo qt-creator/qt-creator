@@ -609,10 +609,12 @@ void S60CreatePackageStep::checkForCancel()
         m_timer->stop();
         if (m_process) {
             m_process->terminate();
-            m_process->waitForFinished(5000);
-            m_process->kill();
+            m_process->waitForFinished(5000); //while waiting, the process can be killed
+            if (m_process)
+                m_process->kill();
         }
-        m_eventLoop->exit(false);
+        if (m_eventLoop)
+            m_eventLoop->exit(false);
     }
 }
 
