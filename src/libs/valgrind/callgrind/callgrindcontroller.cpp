@@ -140,7 +140,7 @@ void CallgrindController::run(Option option)
                    QString(), QString());
 }
 
-void CallgrindController::processError(QProcess::ProcessError processError)
+void CallgrindController::processError(QProcess::ProcessError)
 {
     QTC_ASSERT(m_process, return)
     const QString error = m_process->errorString();
