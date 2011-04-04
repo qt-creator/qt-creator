@@ -495,6 +495,7 @@ void S60DeployStep::initFileSending()
 {
     QTC_ASSERT(m_currentFileIndex < m_signedPackages.count(), return);
     QTC_ASSERT(m_currentFileIndex >= 0, return);
+    QTC_ASSERT(m_codaDevice, return);
 
     const unsigned flags =
             Coda::CodaDevice::FileSystem_TCF_O_WRITE
@@ -513,6 +514,7 @@ void S60DeployStep::initFileInstallation()
 {
     QTC_ASSERT(m_currentFileIndex < m_signedPackages.count(), return);
     QTC_ASSERT(m_currentFileIndex >= 0, return);
+    QTC_ASSERT(m_codaDevice, return);
 
     QString packageName(QFileInfo(m_signedPackages.at(m_currentFileIndex)).fileName());
     QString remoteFileLocation = QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(packageName);
@@ -583,6 +585,8 @@ void S60DeployStep::handleSymbianInstall(const Coda::CodaCommandResult &result)
 
 void S60DeployStep::putSendNextChunk()
 {
+    QTC_ASSERT(m_codaDevice, return);
+
     // Read and send off next chunk
     const quint64 pos = m_putFile->pos();
     const QByteArray data = m_putFile->read(m_putChunkSize);
@@ -605,6 +609,8 @@ void S60DeployStep::putSendNextChunk()
 
 void S60DeployStep::closeRemoteFile()
 {
+    QTC_ASSERT(m_codaDevice, return);
+
     m_codaDevice->sendFileSystemCloseCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemClose),
                                             m_remoteFileHandle);
 }
