@@ -146,6 +146,7 @@ plugin_qt4projectmanager.depends += plugin_projectexplorer
 plugin_qt4projectmanager.depends += plugin_cpptools
 plugin_qt4projectmanager.depends += plugin_debugger
 plugin_qt4projectmanager.depends += plugin_qmljseditor
+plugin_qt4projectmanager.depends += analyzerbase
 
 plugin_locator.subdir = locator
 plugin_locator.depends = plugin_coreplugin
