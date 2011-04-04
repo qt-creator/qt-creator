@@ -46,7 +46,7 @@
        <widget class="QLabel" name="labelGdbWatchdogTimeout">
         <property name="toolTip">
          <string>This is the number of seconds Qt Creator will wait before
-it terminates non-responsive gdb process. The default value of 20 seconds
+it terminates a non-responsive gdb process. The default value of 20 seconds
 should be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than that
 on slow machines. In this case, the value should be increased.</string>
