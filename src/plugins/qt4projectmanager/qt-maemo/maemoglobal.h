@@ -83,9 +83,10 @@ public:
     static bool isValidMeegoQtVersion(const Qt4ProjectManager::QtVersion *version);
 
     static QString homeDirOnDevice(const QString &uname);
-    static QString remoteSudo();
-    static QString remoteCommandPrefix(MaemoVersion maemoVersion,
-        const QString &commandFilePath);
+    static QString devrootshPath();
+    static QString remoteSudo(const QString &uname);
+    static QString remoteCommandPrefix(OsVersion osVersion,
+        const QString &userName, const QString &commandFilePath);
     static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);
     static QString remoteSourceProfilesCommand();
     static QString failedToConnectToServerMessage(const QSharedPointer<Utils::SshConnection> &connection,

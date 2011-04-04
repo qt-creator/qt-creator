@@ -66,7 +66,7 @@ void MaemoUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connection,
         SLOT(handleRemoteStdOut(QByteArray)));
     connect(m_procRunner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdErr(QByteArray)));
-    const QString command = MaemoGlobal::remoteSudo()
+    const QString command = MaemoGlobal::remoteSudo(m_procRunner->connection()->connectionParameters().userName)
         + QLatin1String(" lsof -nPi4tcp:") + portList.toString()
         + QLatin1String(" -F n |grep '^n' |sed -r 's/[^:]*:([[:digit:]]+).*/\\1/g' |sort -n |uniq");
     m_procRunner->run(command.toUtf8());

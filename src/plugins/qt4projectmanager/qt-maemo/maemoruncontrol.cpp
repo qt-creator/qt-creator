@@ -101,6 +101,7 @@ void MaemoRunControl::startExecution()
     appendMessage(tr("Starting remote process ...\n"), NormalMessageFormat);
     m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3 %4")
         .arg(MaemoGlobal::remoteCommandPrefix(m_runner->devConfig()->osVersion(),
+            m_runner->connection()->connectionParameters().userName,
             m_runner->remoteExecutable()))
         .arg(MaemoGlobal::remoteEnvironment(m_runner->userEnvChanges()))
         .arg(m_runner->remoteExecutable())

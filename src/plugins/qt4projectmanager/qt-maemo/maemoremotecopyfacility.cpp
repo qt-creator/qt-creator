@@ -137,8 +137,8 @@ void MaemoRemoteCopyFacility::copyNextFile()
 #endif
 
     QString command = QString::fromLatin1("%1 cp -r %2 %3")
-        .arg(MaemoGlobal::remoteSudo(), sourceFilePath,
-            d.remoteDir + QLatin1Char('/'));
+        .arg(MaemoGlobal::remoteSudo(m_copyRunner->connection()->connectionParameters().userName),
+            sourceFilePath, d.remoteDir + QLatin1Char('/'));
     emit progress(tr("Copying file '%1' to directory '%2' on the device...")
         .arg(d.localFilePath, d.remoteDir));
     m_copyRunner->run(command.toUtf8());

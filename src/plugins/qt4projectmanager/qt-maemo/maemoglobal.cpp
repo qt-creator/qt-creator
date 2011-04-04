@@ -124,17 +124,22 @@ QString MaemoGlobal::homeDirOnDevice(const QString &uname)
         : QLatin1String("/home/") + uname;
 }
 
-QString MaemoGlobal::remoteSudo()
+QString MaemoGlobal::devrootshPath()
 {
     return QLatin1String("/usr/lib/mad-developer/devrootsh");
 }
 
-QString MaemoGlobal::remoteCommandPrefix(MaemoVersion maemoVersion,
-    const QString &commandFilePath)
+QString MaemoGlobal::remoteSudo(const QString &uname)
+{
+    return uname == QLatin1String("root") ? QString() : devrootshPath();
+}
+
+QString MaemoGlobal::remoteCommandPrefix(OsVersion osVersion,
+    const QString &userName, const QString &commandFilePath)
 {
     QString prefix = QString::fromLocal8Bit("%1 chmod a+x %2; %3; ")
-        .arg(remoteSudo(), commandFilePath, remoteSourceProfilesCommand());
-    if (maemoVersion != Maemo5 && maemoVersion != Maemo6)
+        .arg(remoteSudo(userName), commandFilePath, remoteSourceProfilesCommand());
+    if (osVersion != Maemo5 && osVersion != Maemo6)
         prefix += QLatin1String("DISPLAY=:0.0 ");
     return prefix;
 }
@@ -207,9 +212,9 @@ QString MaemoGlobal::madCommand(const QtVersion *qtVersion)
     return maddeRoot(qtVersion) + QLatin1String("/bin/mad");
 }
 
-QString MaemoGlobal::madDeveloperUiName(OsVersion maemoVersion)
+QString MaemoGlobal::madDeveloperUiName(OsVersion osVersion)
 {
-    return maemoVersion == Maemo6
+    return osVersion == Maemo6
         ? tr("SDK Connectivity") : tr("Mad Developer");
 }
 

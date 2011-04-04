@@ -54,9 +54,9 @@ RunControl *MaemoAnalyzerSupport::createAnalyzerRunControl(MaemoRunConfiguration
     const MaemoDeviceConfig::ConstPtr &devConf = runConfig->deviceConfig();
     params.debuggee = runConfig->remoteExecutableFilePath();
     params.debuggeeArgs = runConfig->arguments();
-    params.analyzerCmdPrefix
-        = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
-            + MaemoGlobal::remoteEnvironment(runConfig->userEnvironmentChanges());
+    params.analyzerCmdPrefix = MaemoGlobal::remoteCommandPrefix(devConf->osVersion(),
+        devConf->sshParameters().userName, runConfig->remoteExecutableFilePath())
+        + MaemoGlobal::remoteEnvironment(runConfig->userEnvironmentChanges());
     params.startMode = StartRemote;
     params.connParams = devConf->sshParameters();
     params.localMountDir = runConfig->localDirToMountForRemoteGdb();

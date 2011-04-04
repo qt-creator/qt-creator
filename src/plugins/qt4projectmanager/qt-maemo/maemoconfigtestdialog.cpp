@@ -163,7 +163,7 @@ void MaemoConfigTestDialog::handleGeneralTestResult(int exitStatus)
     disconnect(m_testProcessRunner.data(),
         SIGNAL(processOutputAvailable(QByteArray)), this,
         SLOT(processSshOutput(QByteArray)));
-    const QByteArray command = "test -x " + MaemoGlobal::remoteSudo().toUtf8();
+    const QByteArray command = "test -x " + MaemoGlobal::devrootshPath().toUtf8();
     m_testProcessRunner->run(command);
 }
 

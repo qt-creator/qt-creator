@@ -67,7 +67,8 @@ void AbstractMaemoPackageInstaller::installPackage(const SshConnection::Ptr &con
         SLOT(handleInstallationFinished(int)));
 
     const QString space = QLatin1String(" ");
-    QString cmdLine = MaemoGlobal::remoteSudo() + space + installCommand()
+    QString cmdLine = MaemoGlobal::remoteSudo(m_installer->connection()->connectionParameters().userName)
+        + space + installCommand()
         + space + installCommandArguments().join(space) + space
         + packageFilePath;
     if (removePackageFile) {

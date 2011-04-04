@@ -124,7 +124,7 @@ void MaemoRemoteMounter::unmount()
     QString remoteCall;
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
         remoteCall += QString::fromLocal8Bit("%1 umount %2 && %1 rmdir %2;")
-            .arg(MaemoGlobal::remoteSudo(),
+            .arg(MaemoGlobal::remoteSudo(m_connection->connectionParameters().userName),
                 m_mountSpecs.at(i).mountSpec.remoteMountPoint);
     }
 
@@ -183,8 +183,9 @@ void MaemoRemoteMounter::stop()
 
 void MaemoRemoteMounter::startUtfsClients()
 {
-    const QString chmodFuse
-        = MaemoGlobal::remoteSudo() + QLatin1String(" chmod a+r+w /dev/fuse");
+    const QString userName = m_connection->connectionParameters().userName;
+    const QString chmodFuse = MaemoGlobal::remoteSudo(userName)
+        + QLatin1String(" chmod a+r+w /dev/fuse");
     const QString chmodUtfsClient
         = QLatin1String("chmod a+x ") + utfsClientOnDevice();
     const QLatin1String andOp(" && ");
@@ -201,15 +202,15 @@ void MaemoRemoteMounter::startUtfsClients()
 
         const MaemoMountSpecification &mountSpec = mountInfo.mountSpec;
         const QString mkdir = QString::fromLocal8Bit("%1 mkdir -p %2")
-            .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
+            .arg(MaemoGlobal::remoteSudo(userName), mountSpec.remoteMountPoint);
         const QString chmod = QString::fromLocal8Bit("%1 chmod a+r+w+x %2")
-            .arg(MaemoGlobal::remoteSudo(), mountSpec.remoteMountPoint);
+            .arg(MaemoGlobal::remoteSudo(userName), mountSpec.remoteMountPoint);
         QString utfsClient
             = QString::fromLocal8Bit("%1 -l %2 -r %2 -b %2 %4 -o nonempty")
                   .arg(utfsClientOnDevice()).arg(mountInfo.remotePort)
                   .arg(mountSpec.remoteMountPoint);
         if (mountInfo.mountAsRoot)
-            utfsClient.prepend(MaemoGlobal::remoteSudo() + QLatin1Char(' '));
+            utfsClient.prepend(MaemoGlobal::remoteSudo(userName) + QLatin1Char(' '));
         QLatin1String seqOp("; ");
         remoteCall += seqOp + MaemoGlobal::remoteSourceProfilesCommand()
             + seqOp + mkdir + andOp + chmod + andOp + utfsClient;
