@@ -214,7 +214,7 @@ public:
     QAction *m_startAction;
     QAction *m_startRemoteAction;
     QAction *m_stopAction;
-    QMenu *m_menu;
+    ActionContainer *m_menu;
     QComboBox *m_toolBox;
     QStackedWidget *m_controlsWidget;
     ActionContainer *m_viewsMenu;
@@ -280,7 +280,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
     Core::ActionContainer *mtools = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
-    Core::ActionContainer *mAnalyzermenu = am->createMenu(Constants::M_DEBUG_ANALYZER);
+    m_menu = am->createMenu(Constants::M_DEBUG_ANALYZER);
 
     const Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Command *command = 0;
@@ -292,10 +292,13 @@ void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
     mtools->addAction(command);
 
     // Menus
-    m_menu = mAnalyzermenu->menu();
-    m_menu->setTitle(tr("Start &Analyzer"));
-    m_menu->setEnabled(true);
-    mtools->addMenu(mAnalyzermenu);
+    m_menu->menu()->setTitle(tr("Start &Analyzer"));
+    m_menu->menu()->setEnabled(true);
+
+    m_menu->appendGroup(Constants::G_ANALYZER_STARTSTOP);
+    m_menu->appendGroup(Constants::G_ANALYZER_TOOLS);
+
+    mtools->addMenu(m_menu);
 
     m_toolGroup = new QActionGroup(m_menu);
     connect(m_toolGroup, SIGNAL(triggered(QAction*)),
@@ -305,7 +308,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
     m_startAction->setIcon(QIcon(Constants::ANALYZER_CONTROL_START_ICON));
     command = am->registerAction(m_startAction,
                                                 Constants::START, globalcontext);
-    mAnalyzermenu->addAction(command);
+    m_menu->addAction(command, Constants::G_ANALYZER_STARTSTOP);
     connect(m_startAction, SIGNAL(triggered()), q, SLOT(startTool()));
 
     m_startRemoteAction = new QAction(tr("Start Remote"), m_menu);
@@ -313,17 +316,21 @@ void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
 //     m_startRemoteAction->setIcon(QIcon(QLatin1String(":/images/analyzer_start_remote_small.png")));
     command = am->registerAction(m_startRemoteAction,
                                  Constants::STARTREMOTE, globalcontext);
-    mAnalyzermenu->addAction(command);
+    m_menu->addAction(command, Constants::G_ANALYZER_STARTSTOP);
     connect(m_startRemoteAction, SIGNAL(triggered()), q, SLOT(startToolRemote()));
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
     m_stopAction->setIcon(QIcon(Constants::ANALYZER_CONTROL_STOP_ICON));
     command = am->registerAction(m_stopAction, Constants::STOP, globalcontext);
-    mAnalyzermenu->addAction(command);
+    m_menu->addAction(command, Constants::G_ANALYZER_STARTSTOP);
     connect(m_stopAction, SIGNAL(triggered()), q, SLOT(stopTool()));
 
-    m_menu->addSeparator();
+
+    QAction *separatorAction = new QAction(m_menu);
+    separatorAction->setSeparator(true);
+    command = am->registerAction(separatorAction, Constants::ANALYZER_TOOLS_SEPARATOR, globalcontext);
+    m_menu->addAction(command, Constants::G_ANALYZER_TOOLS);
 
     m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
 }
@@ -688,7 +695,12 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
     action->setData(d->m_tools.count());
     action->setCheckable(true);
 
-    d->m_menu->addAction(action);
+    ActionManager *am = Core::ICore::instance()->actionManager();
+
+    QString actionId = QString(Constants::ANALYZER_TOOLS) + QString::number(d->m_toolGroup->actions().count());
+    Core::Command *command = am->registerAction(action, actionId, Core::Context(Core::Constants::C_GLOBAL));
+    d->m_menu->addAction(command, Constants::G_ANALYZER_TOOLS);
+
     d->m_toolGroup->setVisible(d->m_toolGroup->actions().count() > 1);
     d->m_tools.append(tool);
     d->m_toolBox->addItem(tool->displayName());

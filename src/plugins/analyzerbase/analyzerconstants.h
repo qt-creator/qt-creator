@@ -58,9 +58,14 @@ const char * const C_ANALYZEMODE = "Analyzer.AnalyzeMode";
 // menu
 const char * const M_DEBUG_ANALYZER = "Analyzer.Menu.StartAnalyzer";
 
+const char * const G_ANALYZER_STARTSTOP = "Menu.Group.Analyzer.StartStop";
+const char * const G_ANALYZER_TOOLS = "Menu.Group.Analyzer.Tools";
+
 const char * const START = "Analyzer.Start";
 const char * const STARTREMOTE = "Analyzer.StartRemote";
 const char * const STOP = "Analyzer.Stop";
+const char * const ANALYZER_TOOLS = "Menu.Action.Analyzer.Tools.";
+const char * const ANALYZER_TOOLS_SEPARATOR = "Menu.Action.Analyzer.Tools.Separator";
 
 // options dialog
 const char * const ANALYZER_SETTINGS_CATEGORY = "T.Analyzer";
