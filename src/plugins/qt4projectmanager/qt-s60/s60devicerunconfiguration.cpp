@@ -241,34 +241,6 @@ QString S60DeviceRunConfiguration::symbianTarget() const
     return isDebug() ? QLatin1String("udeb") : QLatin1String("urel");
 }
 
-/* Grep a package file for the '.exe' file. Currently for use on Linux only
- * as the '.pkg'-files on Windows do not contain drive letters, which is not
- * handled here. \code
-; Executable and default resource files
-"./foo.exe"    - "!:\sys\bin\foo.exe"
-\endcode  */
-
-static inline QString executableFromPackageUnix(const QString &packageFileName)
-{
-    QFile packageFile(packageFileName);
-    if (!packageFile.open(QIODevice::ReadOnly|QIODevice::Text))
-        return QString();
-    QRegExp pattern(QLatin1String("^\"(.*.exe)\" *- \"!:.*.exe\"$"));
-    QTC_ASSERT(pattern.isValid(), return QString());
-    foreach(const QString &line, QString::fromLocal8Bit(packageFile.readAll()).split(QLatin1Char('\n')))
-        if (pattern.exactMatch(line)) {
-            // Expand relative paths by package file paths
-            QString rc = pattern.cap(1);
-            if (rc.startsWith(QLatin1String("./")))
-                rc.remove(0, 2);
-            const QFileInfo fi(rc);
-            if (fi.isAbsolute())
-                return rc;
-            return QFileInfo(packageFileName).absolutePath() + QLatin1Char('/') + rc;
-        }
-    return QString();
-}
-
 // ABLD/Raptor: Return executable from device/EPOC
 static inline QString localExecutableFromVersion(const QtVersion *qtv,
                                                 const QString &symbianTarget, /* udeb/urel */
