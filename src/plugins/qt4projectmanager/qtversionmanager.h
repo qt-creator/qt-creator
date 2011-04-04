@@ -201,7 +201,6 @@ private:
     void updateVersionInfo() const;
     QString findQtBinary(const QStringList &possibleName) const;
     void updateAbiAndMkspec() const;
-    QString resolveLink(const QString &path) const;
     QString qtCorePath() const;
 
     QString m_displayName;

@@ -1487,7 +1487,7 @@ void QtVersion::updateAbiAndMkspec() const
                         mkspecFullPath = baseMkspecDir + "/macx-g++";
                     }
                     //resolve mkspec link
-                    mkspecFullPath = resolveLink(mkspecFullPath);
+                    mkspecFullPath = QFileInfo(mkspecFullPath).canonicalFilePath();
                 }
                 break;
             }
@@ -1495,7 +1495,7 @@ void QtVersion::updateAbiAndMkspec() const
         f2.close();
     }
 #else
-    mkspecFullPath =resolveLink(mkspecFullPath);
+    mkspecFullPath = QFileInfo(mkspecFullPath).canonicalFilePath();
 #endif
 
 #ifdef Q_OS_WIN
@@ -1648,17 +1648,6 @@ void QtVersion::updateAbiAndMkspec() const
     } else {
         m_systemRoot = QLatin1String("");
     }
-}
-
-QString QtVersion::resolveLink(const QString &path) const
-{
-    QFileInfo f(path);
-    int links = 16;
-    while (links-- && f.isSymLink())
-        f.setFile(f.symLinkTarget());
-    if (links <= 0)
-        return QString();
-    return f.filePath();
 }
 
 QString QtVersion::qtCorePath() const
