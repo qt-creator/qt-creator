@@ -1427,7 +1427,7 @@ def qdump__QTextDocument(d, item):
 def qdump__QUrl(d, item):
     try:
         data = item.value["d"].dereference()
-        d.putStringValue(data["encodedOriginal"])
+        d.putByteArrayValue(data["encodedOriginal"])
     except:
         d.putPlainChildren(item)
         return
