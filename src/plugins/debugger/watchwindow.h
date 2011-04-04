@@ -79,7 +79,7 @@ private:
 
     void editItem(const QModelIndex &idx);
     void resetHelper(const QModelIndex &idx);
-    void setWatchpoint(quint64 address);
+    void setWatchpoint(quint64 address, unsigned size);
 
     void setModelData(int role, const QVariant &value = QVariant(),
         const QModelIndex &index = QModelIndex());

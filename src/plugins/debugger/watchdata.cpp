@@ -145,6 +145,7 @@ WatchData::WatchData() :
     state(InitialState),
     editformat(0),
     address(0),
+    size(0),
     bitpos(0),
     bitsize(0),
     generation(-1),
@@ -170,6 +171,7 @@ bool WatchData::isEqual(const WatchData &other) const
       && displayedType == other.displayedType
       && variable == other.variable
       && address == other.address
+      && size == other.size
       && hasChildren == other.hasChildren
       && valueEnabled == other.valueEnabled
       && valueEditable == other.valueEditable
@@ -370,6 +372,9 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Value"), val);
     formatToolTipRow(str, tr("Object Address"),
                      QString::fromAscii(hexAddress()));
+    if (size)
+        formatToolTipRow(str, tr("Size"),
+                         QString::number(size));
     formatToolTipRow(str, tr("Internal ID"), iname);
     formatToolTipRow(str, tr("Generation"),
         QString::number(generation));

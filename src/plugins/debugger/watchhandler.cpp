@@ -735,6 +735,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case LocalsAddressRole:
             return data.coreAddress();
+        case LocalsSizeRole:
+            return QVariant(data.size);
 
         case LocalsIsWatchpointAtPointerValueRole:
             if (isPointerType(data.type)) {

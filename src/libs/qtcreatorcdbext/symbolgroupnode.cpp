@@ -987,7 +987,8 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
 
     if (addr)
         str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec << '"';
-
+    if (const ULONG s = size())
+        str << ",size=\"" << s << '"';
     const bool uninitialized = flags() & Uninitialized;
     bool valueEditable = !uninitialized;
     bool valueEnabled = !uninitialized;

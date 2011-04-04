@@ -279,6 +279,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const QModelIndex mi1 = idx.sibling(idx.row(), 1);
     const QModelIndex mi2 = idx.sibling(idx.row(), 2);
     const quint64 address = mi0.data(LocalsAddressRole).toULongLong();
+    const uint size = mi0.data(LocalsSizeRole).toUInt();
     const quint64 pointerValue = mi0.data(LocalsPointerValueRole).toULongLong();
     const QString exp = mi0.data(LocalsExpressionRole).toString();
     const QString type = mi2.data().toString();
@@ -513,9 +514,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         if (dialog.exec() == QDialog::Accepted)
             currentEngine()->openMemoryView(dialog.address());
     } else if (act == actSetWatchpointAtVariableAddress) {
-        setWatchpoint(address);
+        setWatchpoint(address, size);
     } else if (act == actSetWatchpointAtPointerValue) {
-        setWatchpoint(pointerValue);
+        setWatchpoint(pointerValue, 1);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
@@ -661,10 +662,11 @@ void WatchWindow::setModelData
     model()->setData(index, value, role);
 }
 
-void WatchWindow::setWatchpoint(quint64 address)
+void WatchWindow::setWatchpoint(quint64 address, unsigned size)
 {
     BreakpointParameters data(Watchpoint);
     data.address = address;
+    data.size = size;
     BreakpointId id = breakHandler()->findWatchpoint(data);
     if (id) {
         qDebug() << "WATCHPOINT EXISTS";

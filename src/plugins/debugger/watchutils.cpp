@@ -1349,6 +1349,16 @@ void setWatchDataAddress(WatchData &data, const GdbMi &mi)
         setWatchDataAddressHelper(data, mi.data());
 }
 
+void setWatchDataSize(WatchData &data, const GdbMi &mi)
+{
+    if (mi.isValid()) {
+        bool ok = false;
+        const unsigned size = mi.data().toUInt(&ok);
+        if (ok)
+            data.size = size;
+    }
+}
+
 void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr)
 {
     if (addr.startsWith("0x")) { // Item model dumpers pull tricks
@@ -1408,6 +1418,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
 
     setWatchDataValue(data, item);
     setWatchDataAddress(data, item.findChild("addr"));
+    setWatchDataSize(data, item.findChild("size"));
     setWatchDataExpression(data, item.findChild("exp"));
     setWatchDataValueEnabled(data, item.findChild("valueenabled"));
     setWatchDataValueEditable(data, item.findChild("valueeditable"));
