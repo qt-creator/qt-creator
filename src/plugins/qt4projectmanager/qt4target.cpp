@@ -390,7 +390,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_detailsWidget = new Utils::DetailsWidget(this);
     m_detailsWidget->setSummaryText(factory->displayNameForId(id));
     m_detailsWidget->setUseCheckBox(true);
-    m_detailsWidget->setChecked(true);
+    m_detailsWidget->setChecked(false);
     m_detailsWidget->setSummaryFontBold(true);
     m_detailsWidget->setIcon(factory->iconForId(id));
     m_detailsWidget->setAdditionalSummaryText(issuesListToString(factory->reportIssues(m_proFilePath)));
@@ -479,6 +479,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_spacerTopWidget->setVisible(false);
     m_spacerBottomWidget->setVisible(false);
 
+    widget->setEnabled(false);
     m_detailsWidget->setWidget(widget);
 
     for (int i = 0; i < m_importInfos.size(); ++i) {
@@ -539,6 +540,7 @@ void Qt4DefaultTargetSetupWidget::setTargetSelected(bool b)
     b == b && !buildConfigurationInfos().isEmpty();
     m_ignoreChange = true;
     m_detailsWidget->setChecked(b);
+    m_detailsWidget->widget()->setEnabled(b);
     m_ignoreChange = false;
     // We want the shadow build option to be visible
     if (b && (m_shadowBuildEnabled->isVisibleTo(m_shadowBuildEnabled->parentWidget())
