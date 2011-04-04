@@ -117,9 +117,9 @@ void TargetSetupPage::setImportSearch(bool b)
 void TargetSetupPage::setupWidgets()
 {
     QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
+    bool atLeastOneTargetSelected = false;
     foreach (Qt4BaseTargetFactory *factory, factories) {
         QStringList ids = factory->supportedTargetIds(0);
-        bool atLeastOneTargetSelected = false;
         foreach (const QString &id, ids) {
             QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::filterBuildConfigurationInfos(m_importInfos, id);
             Qt4TargetSetupWidget *widget =
@@ -138,11 +138,11 @@ void TargetSetupPage::setupWidgets()
                         this, SLOT(newImportBuildConfiguration(BuildConfigurationInfo)));
             }
         }
-        if (!atLeastOneTargetSelected) {
-            Qt4TargetSetupWidget *widget = m_widgets.value(Constants::DESKTOP_TARGET_ID);
-            if (widget)
-                widget->setTargetSelected(true);
-        }
+    }
+    if (!atLeastOneTargetSelected) {
+        Qt4TargetSetupWidget *widget = m_widgets.value(Constants::DESKTOP_TARGET_ID);
+        if (widget)
+            widget->setTargetSelected(true);
     }
 
 
