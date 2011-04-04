@@ -39,14 +39,12 @@
 
 #include <QtGui/QWidget>
 
-QT_BEGIN_NAMESPACE
+namespace Valgrind {
+namespace Internal {
+
 namespace Ui {
 class ValgrindConfigWidget;
 }
-QT_END_NAMESPACE
-
-namespace Analyzer {
-namespace Internal {
 
 class ValgrindSettings;
 
@@ -64,7 +62,6 @@ private:
 };
 
 }
-
 }
 
 #endif // ANALYZER_INTERNAL_VALGRINDCONFIGWIDGET_H

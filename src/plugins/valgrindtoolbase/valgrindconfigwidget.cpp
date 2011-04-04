@@ -41,7 +41,7 @@
 
 #include <QtCore/QDebug>
 
-using namespace Analyzer::Internal;
+using namespace Valgrind::Internal;
 
 ValgrindConfigWidget::ValgrindConfigWidget(ValgrindSettings *settings, QWidget *parent)
     : QWidget(parent),

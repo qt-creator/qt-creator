@@ -46,26 +46,21 @@
 #define VALGRIND_DEBUG_OUTPUT 0
 
 using namespace Analyzer;
-using namespace Analyzer::Internal;
+using namespace Valgrind::Internal;
 using namespace Utils;
 
-ValgrindEngine::ValgrindEngine(ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(runConfiguration),
+ValgrindEngine::ValgrindEngine(const AnalyzerStartParameters &sp,
+                               ProjectExplorer::RunConfiguration *runConfiguration)
+    : IAnalyzerEngine(sp, runConfiguration),
       m_settings(0),
       m_progress(new QFutureInterface<void>()) ,
       m_isStopping(false)
 {
-    ProjectExplorer::LocalApplicationRunConfiguration *localAppConfig =
-            qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration);
+    if (runConfiguration)
+        m_settings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
 
-    m_settings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
-    if (!localAppConfig || !m_settings)
-        return;
-
-    m_workingDirectory = localAppConfig->workingDirectory();
-    m_executable = localAppConfig->executable();
-    m_commandLineArguments = localAppConfig->commandLineArguments();
-    m_environment = localAppConfig->environment();
+    if  (!m_settings)
+        m_settings = AnalyzerGlobalSettings::instance();
 }
 
 ValgrindEngine::~ValgrindEngine()
@@ -77,7 +72,7 @@ void ValgrindEngine::start()
 {
     emit starting(this);
 
-    Core::FutureProgress* fp = Core::ICore::instance()->progressManager()->addTask(m_progress->future(),
+    Core::FutureProgress *fp = Core::ICore::instance()->progressManager()->addTask(m_progress->future(),
                                                         progressTitle(), "valgrind");
     fp->setKeepOnFinish(Core::FutureProgress::DontKeepOnFinish);
     m_progress->reportStarted();
@@ -88,13 +83,16 @@ void ValgrindEngine::start()
     emit standardOutputReceived(tr("Command-line arguments: %1").arg(m_commandLineArguments));
 #endif
 
-    runner()->setWorkingDirectory(m_workingDirectory);
-    runner()->setValgrindExecutable(m_settings->subConfig<ValgrindSettings>()->valgrindExecutable());
+    const AnalyzerStartParameters &sp = startParameters();
+    runner()->setWorkingDirectory(sp.workingDirectory);
+    QString valgrindExe = m_settings->subConfig<ValgrindSettings>()->valgrindExecutable();
+    if (!sp.analyzerCmdPrefix.isEmpty())
+        valgrindExe = sp.analyzerCmdPrefix + ' ' + valgrindExe;
+    runner()->setValgrindExecutable(valgrindExe);
     runner()->setValgrindArguments(toolArguments());
-    runner()->setDebuggeeExecutable(m_executable);
-    // note that m_commandLineArguments may contain several arguments in one string
-    runner()->setDebuggeeArguments(m_commandLineArguments);
-    runner()->setEnvironment(m_environment);
+    runner()->setDebuggeeExecutable(sp.debuggee);
+    runner()->setDebuggeeArguments(sp.debuggeeArgs);
+    runner()->setEnvironment(sp.environment);
 
     connect(runner(), SIGNAL(standardOutputReceived(QByteArray)),
             SLOT(receiveStandardOutput(QByteArray)));
@@ -105,7 +103,10 @@ void ValgrindEngine::start()
     connect(runner(), SIGNAL(finished()),
             SLOT(runnerFinished()));
 
-    runner()->start();
+    if (sp.startMode == StartRemote)
+        runner()->startRemotely(sp.connParams);
+    else
+        runner()->start();
 }
 
 void ValgrindEngine::stop()
@@ -116,12 +117,12 @@ void ValgrindEngine::stop()
 
 QString ValgrindEngine::executable() const
 {
-    return m_executable;
+    return startParameters().debuggee;
 }
 
 void ValgrindEngine::runnerFinished()
 {
-    emit standardOutputReceived(tr("** Analysing finished **"));
+    emit standardOutputReceived(tr("** Analyzing finished **"));
     emit finished();
 
     m_progress->reportFinished();

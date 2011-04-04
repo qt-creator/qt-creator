@@ -43,13 +43,13 @@
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 
-namespace Analyzer {
+namespace Valgrind {
 namespace Internal {
 
 /**
  * Generic Valgrind settings shared by all tools.
  */
-class VALGRINDTOOLBASE_EXPORT ValgrindSettings : public AbstractAnalyzerSubConfig
+class VALGRINDTOOLBASE_EXPORT ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
 {
     Q_OBJECT
 public:

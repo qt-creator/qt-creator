@@ -38,7 +38,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Analyzer {
+namespace Valgrind {
 namespace Internal {
 
 class ValgrindToolbasePlugin : public ExtensionSystem::IPlugin

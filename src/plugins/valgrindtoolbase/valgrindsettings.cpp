@@ -42,7 +42,7 @@
 
 #include <QtCore/QSettings>
 
-using namespace Analyzer::Internal;
+using namespace Valgrind::Internal;
 using namespace Analyzer;
 
 static const QLatin1String groupC("Analyzer");

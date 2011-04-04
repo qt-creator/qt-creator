@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ValgrindConfigWidget</class>
- <widget class="QWidget" name="ValgrindConfigWidget">
+ <class>Valgrind::Internal::ValgrindConfigWidget</class>
+ <widget class="QWidget" name="Valgrind::Internal::ValgrindConfigWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,7 +20,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Common Valgrind Options</string>
+      <string>Generic Settings</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="fieldGrowthPolicy">

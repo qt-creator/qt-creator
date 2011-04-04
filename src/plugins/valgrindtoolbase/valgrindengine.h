@@ -36,6 +36,8 @@
 #ifndef VALGRINDENGINE_H
 #define VALGRINDENGINE_H
 
+#include <analyzerbase/ianalyzerengine.h>
+
 #include "valgrindtoolbase_global.h"
 
 #include <analyzerbase/ianalyzerengine.h>
@@ -49,16 +51,18 @@
 #include <QtCore/QFutureInterface>
 
 namespace Analyzer {
-
 class AnalyzerSettings;
+}
 
+namespace Valgrind {
 namespace Internal {
 
-class VALGRINDTOOLBASE_EXPORT ValgrindEngine : public IAnalyzerEngine
+class VALGRINDTOOLBASE_EXPORT ValgrindEngine : public Analyzer::IAnalyzerEngine
 {
     Q_OBJECT
 public:
-    explicit ValgrindEngine(ProjectExplorer::RunConfiguration *runConfiguration);
+    explicit ValgrindEngine(const Analyzer::AnalyzerStartParameters &sp,
+                            ProjectExplorer::RunConfiguration *runConfiguration);
     virtual ~ValgrindEngine();
 
     void start();
@@ -71,7 +75,7 @@ protected:
     virtual QStringList toolArguments() const = 0;
     virtual Valgrind::ValgrindRunner *runner() = 0;
 
-    AnalyzerSettings *m_settings;
+    Analyzer::AnalyzerSettings *m_settings;
     QFutureInterface<void> *m_progress;
 
 private slots:
@@ -82,14 +86,10 @@ private slots:
     void receiveProcessError(const QString &, QProcess::ProcessError);
 
 private:
-    QString m_workingDirectory;
-    QString m_executable;
-    QString m_commandLineArguments;
-    Utils::Environment m_environment;
     bool m_isStopping;
 };
 
 } // namespace Internal
-} // namespace Analyzer
+} // namespace Valgrind
 
 #endif // VALGRINDENGINE_H
