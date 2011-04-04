@@ -82,6 +82,8 @@ public:
 
 private slots:
     void updateProjectFileList();
+    void attach();
+    void updateAttachAction();
 
 private:
     class QmlProfilerToolPrivate;

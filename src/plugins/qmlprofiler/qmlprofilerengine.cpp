@@ -69,6 +69,7 @@ public:
     ~QmlProfilerEnginePrivate() {}
 
     bool launchperfmonitor();
+    bool attach(const QString &address, uint port);
 
     QmlProfilerEngine *q;
 
@@ -178,3 +179,21 @@ bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
 
     return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

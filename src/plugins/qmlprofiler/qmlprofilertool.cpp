@@ -34,6 +34,8 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilerengine.h"
 #include "qmlprofilerplugin.h"
+#include "qmlprofilerconstants.h"
+#include "qmlprofilerattachdialog.h"
 
 #include "tracewindow.h"
 #include <private/qdeclarativedebugclient_p.h>
@@ -56,7 +58,11 @@
 #include <projectexplorer/target.h>
 
 #include <texteditor/itexteditor.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QFile>
 
@@ -107,6 +113,9 @@ public:
     QmlProfilerOutputPaneAdapter *m_outputPaneAdapter;
     ProjectExplorer::Project *m_project;
     Utils::FileInProjectFinder m_projectFinder;
+    ProjectExplorer::RunConfiguration *m_runConfiguration;
+    bool m_isAttached;
+    QAction *m_attachAction;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
@@ -116,6 +125,9 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
      d->m_traceWindow = 0;
      d->m_outputPaneAdapter = 0;
      d->m_project = 0;
+     d->m_runConfiguration = 0;
+     d->m_isAttached = false;
+     d->m_attachAction = 0;
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -148,6 +160,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
 {
     QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
 
+    d->m_runConfiguration = runConfiguration;
     d->m_project = runConfiguration->target()->project();
     if (d->m_project) {
         d->m_projectFinder.setProjectDirectory(d->m_project->projectDirectory());
@@ -159,8 +172,6 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     connect(engine, SIGNAL(processTerminated()), this, SLOT(disconnectClient()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(viewUpdated()));
-    connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
-    connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
 
     return engine;
 }
@@ -178,6 +189,22 @@ void QmlProfilerTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
     d->m_client = new QDeclarativeDebugConnection;
     d->m_traceWindow = new TraceWindow();
     d->m_traceWindow->reset(d->m_client);
+
+    connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
+
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
+    Core::ActionContainer *manalyzer = am->actionContainer(Analyzer::Constants::M_DEBUG_ANALYZER);
+    const Core::Context globalcontext(Core::Constants::C_GLOBAL);
+
+    d->m_attachAction = new QAction(tr("Attach ..."), manalyzer);
+    Core::Command *command = am->registerAction(d->m_attachAction,
+                                                Constants::ATTACH, globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    manalyzer->addAction(command, Analyzer::Constants::G_ANALYZER_STARTSTOP);
+    connect(d->m_attachAction, SIGNAL(triggered()), this, SLOT(attach()));
+    updateAttachAction();
 }
 
 void QmlProfilerTool::extensionsInitialized()
@@ -284,4 +311,37 @@ bool QmlProfilerTool::canRunRemotely() const
 {
     // TODO: Is this correct?
     return true;
+}
+
+void QmlProfilerTool::attach()
+{
+    if (!d->m_isAttached) {
+        QmlProfilerAttachDialog dialog;
+        int result = dialog.exec();
+
+        if (result == QDialog::Rejected)
+            return;
+
+        port = dialog.port();
+        host = dialog.address();
+
+        connectClient();
+        AnalyzerManager::instance()->showMode();
+    } else {
+        stopRecording();
+    }
+
+    d->m_isAttached = !d->m_isAttached;
+    updateAttachAction();
+}
+
+void QmlProfilerTool::updateAttachAction()
+{
+    if (d->m_attachAction) {
+        if (d->m_isAttached) {
+            d->m_attachAction->setText(tr("Detach"));
+        } else {
+            d->m_attachAction->setText(tr("Attach..."));
+        }
+    }
 }

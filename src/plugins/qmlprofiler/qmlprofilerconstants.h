@@ -37,11 +37,9 @@
 namespace QmlProfiler {
 namespace Constants {
 
-    const char * const ACTION_ID = "QmlProfilerPlugin.Action";
-    const char * const MENU_ID = "QmlProfilerPlugin.Menu";
+const char * const ATTACH = "Menu.Analyzer.Attach";
 
-} // namespace QmlProfiler
 } // namespace Constants
+} // namespace QmlProfiler
 
 #endif // QMLPROFILERCONSTANTS_H
-
