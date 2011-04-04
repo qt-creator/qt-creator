@@ -677,6 +677,8 @@ void AnalyzerManager::toolSelected(int idx)
     updateRunActions();
 
     selectingTool = false;
+
+    emit currentToolChanged(newTool);
 }
 
 void AnalyzerManager::toolSelected(QAction *action)

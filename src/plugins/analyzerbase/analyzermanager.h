@@ -121,6 +121,9 @@ private slots:
     void loadToolSettings(Analyzer::IAnalyzerTool *tool);
     void updateRunActions();
 
+signals:
+    void currentToolChanged(Analyzer::IAnalyzerTool *tool);
+
 private:
     class AnalyzerManagerPrivate;
     friend class AnalyzerManagerPrivate;

@@ -204,6 +204,11 @@ void QmlProfilerTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
     command->setAttribute(Core::Command::CA_UpdateText);
     manalyzer->addAction(command, Analyzer::Constants::G_ANALYZER_STARTSTOP);
     connect(d->m_attachAction, SIGNAL(triggered()), this, SLOT(attach()));
+
+    Analyzer::AnalyzerManager *analyzerMgr = Analyzer::AnalyzerManager::instance();
+    connect(analyzerMgr, SIGNAL(currentToolChanged(Analyzer::IAnalyzerTool*)),
+            this, SLOT(updateAttachAction()));
+
     updateAttachAction();
 }
 
@@ -344,4 +349,7 @@ void QmlProfilerTool::updateAttachAction()
             d->m_attachAction->setText(tr("Attach..."));
         }
     }
+
+    d->m_attachAction->setEnabled(Analyzer::AnalyzerManager::instance()->currentTool() == this);
 }
+
