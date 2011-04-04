@@ -35,8 +35,8 @@
 
 
 #include "suppressiondialog.h"
-
 #include "ui_suppressiondialog.h"
+
 #include "memcheckerrorview.h"
 #include "memchecksettings.h"
 
@@ -57,8 +57,10 @@
 #include <valgrind/xmlprotocol/frame.h>
 
 using namespace Analyzer;
-using namespace Analyzer::Internal;
+using namespace Memcheck;
 using namespace Valgrind::XmlProtocol;
+
+using namespace Memcheck::Internal;
 
 namespace {
 QString suppressionText(const Error &error)

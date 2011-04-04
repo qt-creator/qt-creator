@@ -38,7 +38,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Analyzer {
+namespace Memcheck {
 namespace Internal {
 
 class MemcheckPlugin : public ExtensionSystem::IPlugin
@@ -54,6 +54,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace Analyzer
+} // namespace Memcheck
 
 #endif // MEMCHECKPLUGIN_H

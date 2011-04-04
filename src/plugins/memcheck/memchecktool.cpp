@@ -40,6 +40,7 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
+#include <analyzerbase/ianalyzeroutputpaneadapter.h>
 
 #include <valgrind/xmlprotocol/errorlistmodel.h>
 #include <valgrind/xmlprotocol/stackmodel.h>
@@ -91,9 +92,10 @@
 #include <QtGui/QCheckBox>
 #include <utils/stylehelper.h>
 
+using namespace Analyzer;
 using namespace Valgrind::XmlProtocol;
 
-namespace Analyzer {
+namespace Memcheck {
 namespace Internal {
 
 // Adapter for output pane.
@@ -243,7 +245,7 @@ MemcheckTool::MemcheckTool(QObject *parent) :
 
 void MemcheckTool::settingsDestroyed(QObject *settings)
 {
-    Q_ASSERT(m_settings == settings);
+    QTC_ASSERT(m_settings == settings, return);
     m_settings = AnalyzerGlobalSettings::instance();
 }
 
@@ -331,14 +333,16 @@ public:
             return Frame();
 
         //find the first frame belonging to the project
-        foreach(const Frame &frame, frames) {
-            if (frame.directory().isEmpty() || frame.file().isEmpty())
-                continue;
+        if (!m_projectFiles.isEmpty()) {
+            foreach(const Frame &frame, frames) {
+                if (frame.directory().isEmpty() || frame.file().isEmpty())
+                    continue;
 
-            //filepaths can contain "..", clean them:
-            const QString f = QFileInfo(frame.directory() + QLatin1Char('/') + frame.file()).absoluteFilePath();
-            if (m_projectFiles.contains(f))
-                return frame;
+                //filepaths can contain "..", clean them:
+                const QString f = QFileInfo(frame.directory() + QLatin1Char('/') + frame.file()).absoluteFilePath();
+                if (m_projectFiles.contains(f))
+                    return frame;
+            }
         }
 
         //if no frame belonging to the project was found, return the first one that is not malloc/new
@@ -418,14 +422,15 @@ void MemcheckTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
     maybeActiveRunConfigurationChanged();
 }
 
-IAnalyzerEngine *MemcheckTool::createEngine(ProjectExplorer::RunConfiguration *runConfiguration)
+IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
+                                            ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    m_frameFinder->setFiles(runConfiguration->target()->project()->files(ProjectExplorer::Project::AllFiles));
+    m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()->project()->files(ProjectExplorer::Project::AllFiles) : QStringList());
 
-    MemcheckEngine *engine = new MemcheckEngine(runConfiguration);
+    MemcheckEngine *engine = new MemcheckEngine(sp, runConfiguration);
 
-    connect(engine, SIGNAL(starting(const IAnalyzerEngine*)),
-            this, SLOT(engineStarting(const IAnalyzerEngine*)));
+    connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
+            this, SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
     connect(engine, SIGNAL(parserError(Valgrind::XmlProtocol::Error)),
             this, SLOT(parserError(Valgrind::XmlProtocol::Error)));
     connect(engine, SIGNAL(internalParserError(QString)),
@@ -439,12 +444,15 @@ void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)
 {
     clearErrorView();
 
-    const QString dir = engine->runConfiguration()->target()->project()->projectDirectory();
-    const MemcheckEngine *mEngine = dynamic_cast<const MemcheckEngine*>(engine);
+    QString dir;
+    if (ProjectExplorer::RunConfiguration *rc = engine->runConfiguration())
+        dir = rc->target()->project()->projectDirectory() + QDir::separator();
+
+    const MemcheckEngine *mEngine = dynamic_cast<const MemcheckEngine *>(engine);
     QTC_ASSERT(mEngine, return);
     const QString name = QFileInfo(mEngine->executable()).fileName();
 
-    m_errorView->setDefaultSuppressionFile(dir + QDir::separator() + name + QLatin1String(".supp"));
+    m_errorView->setDefaultSuppressionFile(dir + name + QLatin1String(".supp"));
 
     QMenu *menu = filterMenu();
     QTC_ASSERT(menu, return);
@@ -462,14 +470,14 @@ QMenu *MemcheckTool::filterMenu() const
 {
     QTC_ASSERT(m_suppressionSeparator, return 0; )
     foreach (QWidget *w, m_suppressionSeparator->associatedWidgets())
-        if (QMenu *menu = qobject_cast<QMenu*>(w))
+        if (QMenu *menu = qobject_cast<QMenu *>(w))
             return menu;
     return 0;
 }
 
 void MemcheckTool::suppressionActionTriggered()
 {
-    QAction *action = qobject_cast<QAction*>(sender());
+    QAction *action = qobject_cast<QAction *>(sender());
     QTC_ASSERT(action, return);
     const QString file = action->data().toString();
     QTC_ASSERT(!file.isEmpty(), return);
@@ -531,5 +539,10 @@ void MemcheckTool::finished()
     AnalyzerManager::instance()->showStatusMessage(msg);
 }
 
+bool MemcheckTool::canRunRemotely() const
+{
+    return true;
+}
+
 } // namespace Internal
-} // namespace Analyzer
+} // namespace Memcheck

@@ -41,14 +41,15 @@
 
 #include <valgrindtoolbase/valgrindengine.h>
 
-namespace Analyzer {
+namespace Memcheck {
 namespace Internal {
 
-class MemcheckEngine : public ValgrindEngine
+class MemcheckEngine : public Valgrind::Internal::ValgrindEngine
 {
     Q_OBJECT
 public:
-    explicit MemcheckEngine(ProjectExplorer::RunConfiguration *runConfiguration);
+    explicit MemcheckEngine(const Analyzer::AnalyzerStartParameters &sp,
+                            ProjectExplorer::RunConfiguration *runConfiguration);
 
     void start();
     void stop();
@@ -60,20 +61,21 @@ signals:
     void parserError(const Valgrind::XmlProtocol::Error &error);
     void suppressionCount(const QString &name, qint64 count);
 
+protected:
+    virtual QString progressTitle() const;
+    virtual QStringList toolArguments() const;
+    virtual Valgrind::ValgrindRunner *runner();
+
 private slots:
     void receiveLogMessage(const QByteArray &);
     void status(const Valgrind::XmlProtocol::Status &status);
 
 private:
-    QString progressTitle() const;
-    QStringList toolArguments() const;
-    Valgrind::ValgrindRunner *runner();
-
     Valgrind::XmlProtocol::ThreadedParser m_parser;
     Valgrind::Memcheck::MemcheckRunner m_runner;
 };
 
 } // namespace Internal
-} // namespace Analyzer
+} // namespace Memcheck
 
 #endif // MEMCHECKENGINE_H

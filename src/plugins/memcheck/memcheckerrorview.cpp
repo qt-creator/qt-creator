@@ -68,8 +68,8 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMenu>
 
-using namespace Analyzer;
-using namespace Analyzer::Internal;
+using namespace Memcheck;
+using namespace Memcheck::Internal;
 using namespace Valgrind::XmlProtocol;
 
 MemcheckErrorDelegate::MemcheckErrorDelegate(QListView *parent)
@@ -152,7 +152,7 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
     }
 
     if (!fn.isEmpty())
-        return QCoreApplication::translate("Analyzer::Internal", "%1 in %2").arg(Qt::escape(fn), path);
+        return QCoreApplication::translate("Memcheck::Internal", "%1 in %2").arg(Qt::escape(fn), path);
     else if (!path.isEmpty())
         return path;
     else
@@ -176,14 +176,14 @@ QString errorLocation(const QModelIndex &index, const Error &error,
                       bool link = false, const QString &linkAttr = QString())
 {
     const ErrorListModel *model = 0;
-    const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel*>(index.model());
+    const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel *>(index.model());
     while(!model && proxy) {
-        model = qobject_cast<const ErrorListModel*>(proxy->sourceModel());
-        proxy = qobject_cast<const QAbstractProxyModel*>(proxy->sourceModel());
+        model = qobject_cast<const ErrorListModel *>(proxy->sourceModel());
+        proxy = qobject_cast<const QAbstractProxyModel *>(proxy->sourceModel());
     };
     QTC_ASSERT(model, return QString());
 
-    return QCoreApplication::translate("Analyzer::Internal", "in %1").
+    return QCoreApplication::translate("Memcheck::Internal", "in %1").
             arg(makeFrameName(model->findRelevantFrame(error), relativeToPath(),
                               link, linkAttr));
 }
@@ -474,7 +474,7 @@ QString MemcheckErrorView::defaultSuppressionFile() const
 
 // slot, can (for now) be invoked either when the settings were modified *or* when the active
 // settings object has changed.
-void MemcheckErrorView::settingsChanged(AnalyzerSettings *settings)
+void MemcheckErrorView::settingsChanged(Analyzer::AnalyzerSettings *settings)
 {
     QTC_ASSERT(settings, return);
 

@@ -44,11 +44,15 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Analyzer::Internal;
+using namespace Analyzer;
+using namespace Memcheck;
 using namespace Valgrind::XmlProtocol;
 
-MemcheckEngine::MemcheckEngine(ProjectExplorer::RunConfiguration *runConfiguration)
-    : ValgrindEngine(runConfiguration)
+using namespace Memcheck::Internal;
+
+MemcheckEngine::MemcheckEngine(const Analyzer::AnalyzerStartParameters &sp,
+                               ProjectExplorer::RunConfiguration *runConfiguration)
+    : ValgrindEngine(sp, runConfiguration)
 {
     connect(&m_parser, SIGNAL(error(const Valgrind::XmlProtocol::Error &)),
             SIGNAL(parserError(const Valgrind::XmlProtocol::Error &)));

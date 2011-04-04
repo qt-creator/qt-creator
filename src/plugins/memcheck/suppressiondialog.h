@@ -41,17 +41,17 @@
 
 #include <valgrind/xmlprotocol/error.h>
 
-QT_BEGIN_NAMESPACE
+namespace Analyzer
+{
+class AnalyzerSettings;
+}
+
+namespace Memcheck {
+namespace Internal {
+
 namespace Ui {
 class SuppressionDialog;
 }
-QT_END_NAMESPACE
-
-namespace Analyzer {
-
-class AnalyzerSettings;
-
-namespace Internal {
 
 class MemcheckErrorView;
 
@@ -73,7 +73,7 @@ private slots:
 private:
     MemcheckErrorView *m_view;
     Ui::SuppressionDialog *m_ui;
-    AnalyzerSettings *m_settings;
+    Analyzer::AnalyzerSettings *m_settings;
     bool m_cleanupIfCanceled;
     QList<Valgrind::XmlProtocol::Error> m_errors;
 };

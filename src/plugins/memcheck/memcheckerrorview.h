@@ -45,14 +45,16 @@ class QListView;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
+namespace Analyzer
+{
+class AnalyzerSettings;
+}
+
 namespace ProjectExplorer {
 class Project;
 }
 
-namespace Analyzer {
-
-class AnalyzerSettings;
-
+namespace Memcheck {
 namespace Internal {
 
 class MemcheckErrorDelegate : public QStyledItemDelegate
@@ -103,13 +105,13 @@ public:
 
     void setDefaultSuppressionFile(const QString &suppFile);
     QString defaultSuppressionFile() const;
-    AnalyzerSettings *settings() const { return m_settings; }
+    Analyzer::AnalyzerSettings *settings() const { return m_settings; }
 
 signals:
     void resized();
 
 public slots:
-    void settingsChanged(AnalyzerSettings *settings);
+    void settingsChanged(Analyzer::AnalyzerSettings *settings);
 
 private slots:
     void suppressError();
@@ -122,10 +124,10 @@ private:
     QAction *m_copyAction;
     QAction *m_suppressAction;
     QString m_defaultSuppFile;
-    AnalyzerSettings *m_settings;
+    Analyzer::AnalyzerSettings *m_settings;
 };
 
 } // namespace Internal
-} // namespace Analyzer
+} // namespace Memcheck
 
 #endif // MEMCHECKERRORVIEW_H

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SuppressionDialog</class>
- <widget class="QDialog" name="SuppressionDialog">
+ <class>Memcheck::Internal::SuppressionDialog</class>
+ <widget class="QDialog" name="Memcheck::Internal::SuppressionDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -74,7 +74,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>SuppressionDialog</receiver>
+   <receiver>Memcheck::Internal::SuppressionDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -90,7 +90,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>SuppressionDialog</receiver>
+   <receiver>Memcheck::Internal::SuppressionDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

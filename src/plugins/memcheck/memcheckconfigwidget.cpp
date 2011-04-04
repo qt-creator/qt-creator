@@ -45,7 +45,7 @@
 #include <QtGui/QFileDialog>
 #include <QtCore/QDebug>
 
-using namespace Analyzer::Internal;
+using namespace Memcheck::Internal;
 
 MemcheckConfigWidget::MemcheckConfigWidget(AbstractMemcheckSettings *settings, QWidget *parent)
     : QWidget(parent),

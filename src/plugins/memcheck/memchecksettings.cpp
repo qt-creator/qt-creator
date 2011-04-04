@@ -40,8 +40,10 @@
 
 #include <utils/qtcassert.h>
 
-using namespace Analyzer::Internal;
 using namespace Analyzer;
+using namespace Memcheck;
+
+using namespace Memcheck::Internal;
 
 static const QLatin1String numCallersC("Analyzer.Valgrind.NumCallers");
 static const QLatin1String trackOriginsC("Analyzer.Valgrind.TrackOrigins");
@@ -152,7 +154,7 @@ QString AbstractMemcheckSettings::displayName() const
     return tr("Memory Analysis");
 }
 
-QWidget* AbstractMemcheckSettings::createConfigWidget(QWidget *parent)
+QWidget *AbstractMemcheckSettings::createConfigWidget(QWidget *parent)
 {
     return new MemcheckConfigWidget(this, parent);
 }

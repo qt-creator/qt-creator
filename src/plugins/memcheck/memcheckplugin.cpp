@@ -45,7 +45,9 @@
 #include <QtCore/QtPlugin>
 
 using namespace Analyzer;
-using namespace Analyzer::Internal;
+using namespace Memcheck;
+
+using namespace Memcheck::Internal;
 
 MemcheckPlugin::MemcheckPlugin()
 {

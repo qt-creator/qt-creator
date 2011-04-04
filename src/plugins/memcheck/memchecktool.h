@@ -58,8 +58,12 @@ class Error;
 }
 }
 
-namespace Analyzer {
+namespace Analyzer
+{
 class AnalyzerSettings;
+}
+
+namespace Memcheck {
 namespace Internal {
 class MemCheckOutputPaneAdapter;
 class MemcheckErrorView;
@@ -82,7 +86,7 @@ private:
     bool m_filterExternalIssues;
 };
 
-class MemcheckTool : public IAnalyzerTool
+class MemcheckTool : public Analyzer::IAnalyzerTool
 {
     Q_OBJECT
 public:
@@ -93,29 +97,35 @@ public:
     ToolMode mode() const;
 
     void initialize(ExtensionSystem::IPlugin *plugin);
+    virtual void extensionsInitialized() {}
 
-    virtual IAnalyzerOutputPaneAdapter *outputPaneAdapter();
-    IAnalyzerEngine *createEngine(ProjectExplorer::RunConfiguration *runConfiguration);
+    virtual Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();
+    virtual Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
+                                  ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     // For the output pane adapter.
     MemcheckErrorView *ensurePaneErrorView();
     QWidget *createPaneToolBarWidget();
     void clearErrorView();
 
+    virtual bool canRunRemotely() const;
+
 private slots:
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
 
-    void engineStarting(const IAnalyzerEngine *engine);
+    void engineStarting(const Analyzer::IAnalyzerEngine *engine);
+    void finished();
+
     void parserError(const Valgrind::XmlProtocol::Error &error);
     void internalParserError(const QString &errorString);
     void updateErrorFilter();
     void suppressionActionTriggered();
-    void finished();
-    QMenu *filterMenu() const;
 
 private:
-    AnalyzerSettings *m_settings;
+    QMenu *filterMenu() const;
+
+    Analyzer::AnalyzerSettings *m_settings;
 
     FrameFinder *m_frameFinder;
     Valgrind::XmlProtocol::ErrorListModel *m_errorModel;
@@ -130,6 +140,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Analyzer
+} // namespace Memcheck
 
 #endif // MEMCHECKTOOL_H

@@ -41,14 +41,14 @@
 
 QT_BEGIN_NAMESPACE
 class QStandardItemModel;
+QT_END_NAMESPACE
+
+namespace Memcheck {
+namespace Internal {
 
 namespace Ui {
 class MemcheckConfigWidget;
 }
-QT_END_NAMESPACE
-
-namespace Analyzer {
-namespace Internal {
 
 class AbstractMemcheckSettings;
 

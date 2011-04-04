@@ -38,13 +38,13 @@
 
 #include <analyzerbase/analyzersettings.h>
 
-namespace Analyzer {
+namespace Memcheck {
 namespace Internal {
 
 /**
  * Generic memcheck settings
  */
-class AbstractMemcheckSettings : public AbstractAnalyzerSubConfig
+class AbstractMemcheckSettings : public Analyzer::AbstractAnalyzerSubConfig
 {
     Q_OBJECT
 public:

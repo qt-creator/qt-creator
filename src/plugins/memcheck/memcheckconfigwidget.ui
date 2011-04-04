@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MemcheckConfigWidget</class>
- <widget class="QWidget" name="MemcheckConfigWidget">
+ <class>Memcheck::Internal::MemcheckConfigWidget</class>
+ <widget class="QWidget" name="Memcheck::Internal::MemcheckConfigWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -39,7 +39,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Suppressions:</string>
+         <string>Suppression files:</string>
         </property>
         <property name="buddy">
          <cstring>suppressionList</cstring>
@@ -66,7 +66,7 @@
           <item>
            <widget class="QPushButton" name="addSuppression">
             <property name="text">
-             <string>Add</string>
+             <string>Add...</string>
             </property>
            </widget>
           </item>
