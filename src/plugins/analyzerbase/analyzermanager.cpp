@@ -506,10 +506,8 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
 {
     QTC_ASSERT(q->currentTool(), return);
 
-    // make sure our mode is shown
-    m_outputpane->popup();
-    if (m_mode)
-        ModeManager::instance()->activateMode(m_mode->id());
+    // make sure mode is shown
+    q->showMode();
 
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
 
@@ -880,6 +878,13 @@ AnalyzerRunControl *AnalyzerManager::createAnalyzer(const AnalyzerStartParameter
                                                     ProjectExplorer::RunConfiguration *rc)
 {
     return d->m_runControlFactory->create(sp, rc);
+}
+
+void AnalyzerManager::showMode()
+{
+    if (d->m_mode)
+        ModeManager::instance()->activateMode(d->m_mode->id());
+    d->m_outputpane->popup();
 }
 
 #include "analyzermanager.moc"

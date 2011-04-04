@@ -100,6 +100,7 @@ public:
     // Used by Maemo analyzer support.
     AnalyzerRunControl *createAnalyzer(const AnalyzerStartParameters &sp,
                                        ProjectExplorer::RunConfiguration *rc = 0);
+    void showMode();
 
 public slots:
     void startTool();
