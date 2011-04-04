@@ -36,6 +36,7 @@
 
 #include "maemoconstants.h"
 #include "maemodebugsupport.h"
+#include "maemoanalyzersupport.h"
 #include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
@@ -47,6 +48,7 @@
 #include <debugger/debuggerconstants.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <analyzerbase/analyzerconstants.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -179,7 +181,8 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
             : 0;
     if (mode == Debugger::Constants::DEBUGMODE)
         return freePortCount >= mountDirCount + maemoRunConfig->portsUsedByDebuggers();
-    if (mode == ProjectExplorer::Constants::RUNMODE)
+    if (mode == ProjectExplorer::Constants::RUNMODE
+        || Analyzer::Constants::MODE_ANALYZE)
         return freePortCount >= mountDirCount;
     return false;
 }
@@ -188,12 +191,15 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
     const QString &mode)
 {
     Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE
-        || mode == Debugger::Constants::DEBUGMODE);
+        || mode == Debugger::Constants::DEBUGMODE
+        || mode == Analyzer::Constants::MODE_ANALYZE);
     Q_ASSERT(canRun(runConfig, mode));
     MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
     if (mode == ProjectExplorer::Constants::RUNMODE)
         return new MaemoRunControl(rc);
+    if (mode == Analyzer::Constants::MODE_ANALYZE)
+        return MaemoAnalyzerSupport::createAnalyzerRunControl(rc);
     return MaemoDebugSupport::createDebugRunControl(rc);
 }
 

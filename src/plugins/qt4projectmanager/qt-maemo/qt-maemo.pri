@@ -23,6 +23,7 @@ HEADERS += \
     $$PWD/maemoglobal.h \
     $$PWD/maemosshrunner.h \
     $$PWD/maemodebugsupport.h \
+    $$PWD/maemoanalyzersupport.h \
     $$PWD/maemoremotemountsmodel.h \
     $$PWD/maemodeviceenvreader.h \
     $$PWD/maemomountspecification.h \
@@ -82,6 +83,7 @@ SOURCES += \
     $$PWD/maemoglobal.cpp \
     $$PWD/maemosshrunner.cpp \
     $$PWD/maemodebugsupport.cpp \
+    $$PWD/maemoanalyzersupport.cpp \
     $$PWD/maemoremotemountsmodel.cpp \
     $$PWD/maemodeviceenvreader.cpp \
     $$PWD/maemomountspecification.cpp \

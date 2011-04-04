@@ -43,7 +43,8 @@ class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
 {
     Q_OBJECT
 public:
-    explicit QmlProfilerEngine(ProjectExplorer::RunConfiguration *runConfiguration);
+    explicit QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
+                               ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerEngine();
 
 signals:

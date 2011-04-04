@@ -40,6 +40,7 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
+#include <analyzerbase/ianalyzeroutputpaneadapter.h>
 
 #include "timelineview.h"
 
@@ -142,9 +143,10 @@ IAnalyzerTool::ToolMode QmlProfilerTool::mode() const
 }
 
 
-IAnalyzerEngine *QmlProfilerTool::createEngine(ProjectExplorer::RunConfiguration *runConfiguration)
+IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
+                                               ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    QmlProfilerEngine *engine = new QmlProfilerEngine(runConfiguration);
+    QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
 
     d->m_project = runConfiguration->target()->project();
     if (d->m_project) {
@@ -176,6 +178,10 @@ void QmlProfilerTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
     d->m_client = new QDeclarativeDebugConnection;
     d->m_traceWindow = new TraceWindow();
     d->m_traceWindow->reset(d->m_client);
+}
+
+void QmlProfilerTool::extensionsInitialized()
+{
 }
 
 IAnalyzerOutputPaneAdapter *QmlProfilerTool::outputPaneAdapter()
@@ -272,4 +278,10 @@ void QmlProfilerTool::updateProjectFileList()
 {
     d->m_projectFinder.setProjectFiles(
                 d->m_project->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+}
+
+bool QmlProfilerTool::canRunRemotely() const
+{
+    // TODO: Is this correct?
+    return true;
 }

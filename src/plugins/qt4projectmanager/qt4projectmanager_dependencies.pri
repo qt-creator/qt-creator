@@ -1,5 +1,6 @@
 include(../../plugins/projectexplorer/projectexplorer.pri)
 include(../../plugins/cpptools/cpptools.pri)
 include(../../plugins/debugger/debugger.pri)
+include(../../plugins/analyzerbase/analyzerbase.pri)
 include(../../libs/symbianutils/symbianutils.pri)
 include(../../libs/qmljs/qmljs.pri)

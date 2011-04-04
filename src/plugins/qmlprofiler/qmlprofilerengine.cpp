@@ -81,8 +81,9 @@ public:
     bool m_running;
 };
 
-QmlProfilerEngine::QmlProfilerEngine(ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(runConfiguration), d(new QmlProfilerEnginePrivate(this))
+QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp, ProjectExplorer::RunConfiguration *runConfiguration)
+    : IAnalyzerEngine(sp, runConfiguration)
+    , d(new QmlProfilerEnginePrivate(this))
 {
     ProjectExplorer::LocalApplicationRunConfiguration *localAppConfig =
             qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration);

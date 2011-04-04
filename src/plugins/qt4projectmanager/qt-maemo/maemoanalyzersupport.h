@@ -31,64 +31,21 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERTOOL_H
-#define QMLPROFILERTOOL_H
+#ifndef MAEMOANALYZERSUPPORT_H
+#define MAEMOANALYZERSUPPORT_H
 
-#include <analyzerbase/ianalyzertool.h>
-#include <analyzerbase/ianalyzerengine.h>
+#include "maemorunconfiguration.h"
 
-namespace QmlProfiler {
+namespace Qt4ProjectManager {
 namespace Internal {
 
-class QmlProfilerTool : public Analyzer::IAnalyzerTool
-{
-    Q_OBJECT
-public:
-    explicit QmlProfilerTool(QObject *parent = 0);
-    ~QmlProfilerTool();
+namespace MaemoAnalyzerSupport {
 
-    QString id() const;
-    QString displayName() const;
-    ToolMode mode() const;
+ProjectExplorer::RunControl *createAnalyzerRunControl(MaemoRunConfiguration *runConfig);
 
-    void initialize(ExtensionSystem::IPlugin *plugin);
-    void extensionsInitialized();
-
-    Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
-                                            ProjectExplorer::RunConfiguration *runConfiguration = 0);
-
-    Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();
-    QWidget *createToolBarWidget();
-    QWidget *createTimeLineWidget();
-
-    bool canRunRemotely() const;
-
-public slots:
-    void connectClient();
-    void disconnectClient();
-
-    void stopRecording();
-
-    void gotoSourceLocation(const QString &fileUrl, int lineNumber);
-    void updateTimer(qreal elapsedSeconds);
-
-signals:
-    void setTimeLabel(const QString &);
-
-public:
-    // Todo: configurable parameters
-    static QString host;
-    static quint16 port;
-
-private slots:
-    void updateProjectFileList();
-
-private:
-    class QmlProfilerToolPrivate;
-    QmlProfilerToolPrivate *d;
-};
+}
 
 } // namespace Internal
-} // namespace QmlProfiler
+} // namespace Qt4ProjectManager
 
-#endif // QMLPROFILERTOOL_H
+#endif // MAEMOANALYZERSUPPORT_H
