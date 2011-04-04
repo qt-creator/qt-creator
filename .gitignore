@@ -126,3 +126,5 @@ tests/valgrind/memcheck/testapps/uninit1/uninit1
 tests/valgrind/memcheck/testapps/uninit2/uninit2
 tests/valgrind/memcheck/testapps/uninit3/uninit3
 tests/valgrind/memcheck/testrunner
+tests/valgrind/callgrind/callgrindparsertests
+tests/valgrind/callgrind/modeltest

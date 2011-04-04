@@ -1,0 +1,38 @@
+version: 1
+creator: callgrind-3.6.0.SVN-Debian
+pid: 19824
+cmd:  ./a.out
+part: 1
+
+
+desc: I1 cache:
+desc: D1 cache:
+desc: L2 cache:
+
+desc: Timerange: Basic block 0 - 10318874
+desc: Trigger: Program termination
+
+positions: line
+events: Ir
+summary: 35700972
+
+
+fn=(470) main
+0 4
+cfn=(472) A(int)
+calls=1 0
+0 35700965
+0 3
+
+fn=(472)
+0 700010
+cfn=(473) A(int)'2
+calls=1 0
+0 35000946
+0 2
+
+fn=(473)
+0 35000846
+cfn=(473)
+calls=49 0
+0 857523079

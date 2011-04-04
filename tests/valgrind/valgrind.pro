@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS += memcheck
+SUBDIRS += memcheck callgrind

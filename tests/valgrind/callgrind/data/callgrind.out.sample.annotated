@@ -1,0 +1,355 @@
+## THIS IS AN ANNOTATED VERSION AND NOT SUPPOSED TO BE PARSED
+## for more information on the file format see:
+## http://kcachegrind.sourceforge.net/html/CallgrindFormat.html
+## and
+## http://valgrind.org/docs/manual/cg-manual.html#cg-manual.impl-details.file-format
+
+#################
+# information about the app that was run
+##
+
+version: 1
+creator: callgrind-3.6.0.SVN-Debian
+pid: 2992
+cmd:  ls
+part: 1
+
+#################
+# desc: type: value [Cachegrind]
+# This specifies various information for this dump.
+# For some types, the semantic is defined, but any description type is allowed.
+# Unknown types are ignored.
+#
+# From cachegrind man:
+#
+# The contents of the "desc:" lines are printed out at the top of the summary.
+# This is a generic way of providing simulation specific information,
+# e.g. for giving the cache configuration for cache simulation.
+#
+# Basically seems to be some information on what caches where found, how long the app ran and
+# why the callgrind file was created (app closed, died, callgrind_control --dump, ...)
+##
+
+desc: I1 cache:
+desc: D1 cache:
+desc: L2 cache:
+
+desc: Timerange: Basic block 0 - 300089
+desc: Trigger: Program termination
+
+#################
+# the positions that get reported, whitespace separated list
+##
+positions: line
+
+#################
+# events that where counted, whitespace separated list
+#
+# Ir == Instructions
+##
+events: Ir
+
+#################
+# list of total count of events, in this case total cost of Ir events
+# Can be used for a progress bar
+##
+summary: 1434186
+
+#################
+# ob: the object the function lives in
+# fl: the file where the function lives in
+# fn: the function
+#
+# the (NUM) stuff before that is used for string compression, each string gets only printed once,
+# afterwards only (3) or similar will be written
+#
+# the numbers below are the data columns, starting with the position(s) and then the event(s)
+# in our case it's just a pair of pos, event
+#
+# "If a cost line specifies less event counts than given in the "events" line,
+# the rest is assumed to be zero."
+#
+# "Note that regular cost lines always give self (also called exclusive)
+# cost of code at a given position."
+#
+# generally all this should be shown accumulated for the function.
+# if the file exists we might want to show a line-by-line analysis though.
+# furthermore note that positions size gets compressed by just wirting the absolute number once
+# than using relative values.
+##
+ob=(3) /lib/i686/cmov/libpthread-2.11.2.so
+fl=(131) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/nptl/../nptl/sysdeps/unix/sysv/linux/i386/i686/../i486/pthread_rwlock_unlock.S
+fn=(782) pthread_rwlock_unlock
+33 3
++2 3
++5 3
++3 3
++1 3
++1 3
++6 3
++2 3
++1 3
++4 3
++2 3
++1 3
++1 3
++1 3
++3 3
++1 3
++39 3
++6 3
++2 3
++1 3
++1 3
++1 3
+
+#################
+# here we don't have an object and the fn has no symbol, same as above otherwise
+##
+fl=(44) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/nptl/../nptl/sysdeps/unix/sysv/linux/i386/i686/../i486/sem_post.S
+fn=(196) 0x00004340
+170 11
++1 11
+
+#################
+# here we don't have an object, same as above otherwise
+#
+# also noteworthy is the c{ob,fi,fn} stuff, it shows the object, file, and function of a call
+# if they are not given for a calls=... line, they are assumed to be the same as the parent function.
+# The calls format is this:
+#
+#  calls=(Call Count) (Destination position)
+# (Source position) (Inclusive cost of call)
+#
+# Another interesting point: The * for the position means: +-0, i.e. same position as before
+##
+fl=(43) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/nptl/nptl-init.c
+fn=(194) __pthread_initialize_minimal
+273 4
++14 1
++2 1
+-16 1
++16 1
+-16 1
++16 1
+-2 1
+-14 1
+cfi=(44)
+cfn=(196)
+calls=1 170
+* 2
+* 1
++16 3
+cob=(1) /lib/ld-2.11.2.so
+cfi=(1) ???
+cfn=(198) _dl_sysinfo_int80
+calls=1 0
+* 2
+* 4
++1 3
++1 1
++4 5
++7 1
++6 1
+-6 2
++2 1
++4 3
+cob=(1)
+cfi=(1)
+cfn=(198)
+calls=1 0
+* 2
+* 1
++11 2
+-2 1
++2 4
+cob=(1)
+cfi=(1)
+cfn=(198)
+calls=1 0
+* 2
+* 1
++1 1
+-2 1
++2 1
++1 1
++7 3
++12 2
+-8 1
++8 7
+cob=(1)
+cfi=(1)
+cfn=(198)
+calls=1 0
+* 2
+* 1
++1 1
+-3 1
++3 1
++1 2
++1 2
++7 3
++4 1
+fi=(156) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/nptl/../nptl/sysdeps/pthread/list.h
+49 2
+fe=(43)
+354 1
+fi=(156)
+49 1
++1 1
++2 1
+-1 1
+fe=(43)
+358 2
++8 2
+-2 2
++2 37
++16 1
+-14 2
+-3 1
++3 3
+cfi=(45) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/nptl/../sysdeps/unix/sysv/linux/i386/sigaction.c
+cfn=(200) __libc_sigaction
+calls=1 59
+* 93
++3 1
++3 1
++8 1
+-11 1
++1 1
++2 3
+cfi=(45)
+cfn=(200)
+calls=1 59
+* 93
++8 1
+fi=(157) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/nptl/../sysdeps/unix/sysv/linux/bits/sigset.h
+119 2
+fe=(43)
+382 4
+cob=(1)
+cfi=(1)
+cfn=(198)
+calls=1 0
+* 2
+* 1
++5 3
+cob=(1)
+cfi=(36) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/elf/dl-tls.c
+cfn=(214) _dl_get_tls_static_info
+calls=1 -64
+* 14
+cob=(1)
+cfi=(46) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/elf/../sysdeps/i386/dl-trampoline.S
+cfn=(208) _dl_runtime_resolve
+calls=1 29
+* 1958
++3 4
++2 1
++2 2
++6 1
+-6 4
++6 3
+cob=(4) /lib/i686/cmov/libc-2.11.2.so
+cfi=(48) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/resource/../sysdeps/unix/sysv/linux/i386/getrlimit.c
+cfn=(220) getrlimit@@GLIBC_2.2
+calls=1 41
+* 20
+cob=(1)
+cfi=(46)
+cfn=(208)
+calls=1 29
+* 1634
+-1 2
++1 1
+-1 2
++5 2
++7 2
+cob=(4)
+cfi=(50) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/posix/../sysdeps/unix/sysv/linux/x86_64/sysconf.c
+cfn=(228) sysconf
+calls=1 33
+* 50
+cob=(1)
+cfi=(46)
+cfn=(208)
+calls=1 29
+* 1458
++1 1
++1 1
+-1 1
++1 2
++4 4
++1 1
++4 1
+cob=(4)
+cfi=(55) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/elf/dl-tsd.c
+cfn=(242) __libc_dl_error_tsd
+calls=1 51
+* 10
+cob=(1)
+cfi=(46)
+cfn=(208)
+calls=1 29
+* 1630
+* 3
+cob=(1)
+cfi=(2) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/elf/rtld.c
+cfn=(84) _dl_initial_error_catch_tsd
+calls=1 796
+* 9
+* 2
++1 1
++6 1
++1 1
+-7 1
++4 2
++4 1
+-3 2
++3 1
++3 2
++11 1
+fi=(58) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/nptl/../nptl/sysdeps/unix/sysv/linux/i386/smp.h
+40 1
+fe=(43)
+434 1
++3 2
++2 2
++6 3
+cob=(4)
+cfi=(56) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/nptl/../nptl/sysdeps/unix/sysv/linux/libc_pthread_init.c
+cfn=(248) __libc_pthread_init
+calls=1 43
+* 458
+cob=(1)
+cfi=(46)
+cfn=(208)
+calls=1 29
+* 1630
+fi=(58)
+40 2
+cob=(4)
+cfi=(59) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/posix/../sysdeps/unix/syscall-template.S
+cfn=(258) uname
+calls=1 +42
+* 10
+cob=(1)
+cfi=(46)
+cfn=(208)
+calls=1 -11
+* 1377
+* 3
++15 4
+cob=(4)
+cfi=(62) /build/buildd-eglibc_2.11.2-6-i386-6jE6oF/eglibc-2.11.2/string/../string/strstr.c
+cfn=(268) __GI_strstr
+calls=1 -2
+* 366
+cob=(1)
+cfi=(46)
+cfn=(208)
+calls=1 -26
+* 1474
+fe=(43)
+449 4
++1 6

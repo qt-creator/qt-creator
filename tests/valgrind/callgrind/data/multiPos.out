@@ -1,0 +1,33 @@
+version: 1
+creator: callgrind-3.6.0.SVN-Debian
+pid: 2992
+cmd: ls
+part: 1
+
+
+desc: I1 cache:
+desc: D1 cache:
+desc: L2 cache:
+
+desc: Timerange: Basic block 0 - 300089
+desc: Trigger: Program termination
+
+positions: line memAddr
+events: Ir
+summary: 4
+
+
+ob=(1) /my/object
+fl=(1) /my/file.cpp
+fn=(1) main
+1 0x01 1
+fi=(3) /my/file.h
+2 0x02 1
+fe=(1)
+3 0x3 1
+cfn=(2) func1
+calls=1 1 0x04
+4 0x05 1
+
+fn=(2)
+1 0x04 1
