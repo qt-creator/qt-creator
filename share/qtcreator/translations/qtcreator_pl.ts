@@ -738,7 +738,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Try to set breakpoints in plugins always automatically.</source>
-        <translation>Zawsze próbuj automatycznie ustawiać pułapki we wtyczkach.</translation>
+        <translation type="obsolete">Zawsze próbuj automatycznie ustawiać pułapki we wtyczkach.</translation>
     </message>
     <message>
         <source>Try to set breakpoints in selected plugins</source>
@@ -758,7 +758,7 @@ it terminates non-responsive gdb process. The default value of 20 seconds
 should be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than that
 on slow machines. In this case, the value should be increased.</source>
-        <translation>Jest to czas wyrażony w sekundach przez który Qt Creator będzie oczekiwał na odpowiedź
+        <translation type="obsolete">Jest to czas wyrażony w sekundach przez który Qt Creator będzie oczekiwał na odpowiedź
 od procesu gdb zanim go zakończy. Domyślna wartość 20 sekund powinna być
 wystarczająca dla większości aplikacji, lecz mogą zdarzyć się sytuacje że ładowanie
 bibliotek o dużych rozmiarach lub wyświetlanie plików źródłowych zajmie dużo więcej
@@ -810,7 +810,7 @@ czasu na powolnych maszynach. W takich przypadkach wartość ta powinna zostać 
     </message>
     <message>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
-        <translation>Kiedy ta opcja jest zaznaczona &quot;Wskocz do wnętrza&quot; kompresuje w pewnych sytuacjach kilka kroków w jeden, co prowadzi do przejrzystszego debugowania. I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &quot;Wskocz do wnętrza&quot; dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
+        <translation type="obsolete">Kiedy ta opcja jest zaznaczona &quot;Wskocz do wnętrza&quot; kompresuje w pewnych sytuacjach kilka kroków w jeden, co prowadzi do przejrzystszego debugowania. I tak np. kod atomowego licznika referencji będzie pominięty, a pojedyncze &quot;Wskocz do wnętrza&quot; dla emisji sygnału wskoczy bezpośrednio do podłączonego slotu.</translation>
     </message>
     <message>
         <source>This will show a message box as soon as your application receives a signal like SIGSEGV during debugging.</source>
@@ -827,6 +827,23 @@ czasu na powolnych maszynach. W takich przypadkach wartość ta powinna zostać 
     <message>
         <source>Enable reverse debugging Selecting this enables reverse debugging. NOTE: This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.</source>
         <translation>Zaznaczenie tego włącza debugowanie wsteczne. Uwaga: ta funkcja jest bardzo wolna i niestabilna po stronie GDB. Kroczenie wstecz nad wywołaniami systemowymi zachowuje się w sposób nieprzewidywalny i może łatwo zniszczyć sesję debugową.</translation>
+    </message>
+    <message>
+        <source>This is the number of seconds Qt Creator will wait before
+it terminates a non-responsive GDB process. The default value of 20 seconds
+should be sufficient for most applications, but there are situations when
+loading big libraries or listing source files takes much longer than that
+on slow machines. In this case, the value should be increased.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Allows &apos;Step Into&apos; to compress several steps into one step for less noisy debugging. For example, the atomic reference
+ counting code is skipped, and a single &apos;Step Into&apos; for a signal emission ends up directly in the slot connected to it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Try to set breakpoints in plugins always automatically</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14874,12 +14891,20 @@ Czy uruchomiłeś Qemu?</translation>
         <translation>Typ debugowania:</translation>
     </message>
     <message>
+        <source>Use remote GDB server</source>
+        <translation>Użyj zdalnego serwera GDB</translation>
+    </message>
+    <message>
         <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use GDB</source>
         <translation>&lt;b&gt;Szczegóły debugowania:&lt;/b&gt; Użyj GDB</translation>
     </message>
     <message>
+        <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use GDB server</source>
+        <translation>&lt;b&gt;Szczegóły debugowania:&lt;/b&gt; Użyj serwera GDB</translation>
+    </message>
+    <message>
         <source>Use remote gdbserver</source>
-        <translation>Użyj zdalnego gdbserver</translation>
+        <translation type="obsolete">Użyj zdalnego gdbserver</translation>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
@@ -14907,7 +14932,7 @@ Czy uruchomiłeś Qemu?</translation>
     </message>
     <message>
         <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use gdbserver</source>
-        <translation>&lt;b&gt;Szczegóły debugowania:&lt;/b&gt; Użyj gdbserver</translation>
+        <translation type="obsolete">&lt;b&gt;Szczegóły debugowania:&lt;/b&gt; Użyj gdbserver</translation>
     </message>
     <message>
         <source>Cancel Fetch Operation</source>
@@ -20168,7 +20193,11 @@ Local pulls are not applied to the master branch</source>
     </message>
     <message>
         <source>Use GDB python dumpers</source>
-        <translation>Używaj narzędzia do zrzutów GDB python</translation>
+        <translation type="obsolete">Używaj narzędzia do zrzutów GDB python</translation>
+    </message>
+    <message>
+        <source>Use GDB Python dumpers</source>
+        <translation>Używaj narzędzia do zrzutów GDB Python</translation>
     </message>
 </context>
 <context>
