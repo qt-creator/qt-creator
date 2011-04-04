@@ -94,8 +94,7 @@ LayoutWidget::~LayoutWidget()
  {
         if (url.scheme() == QLatin1String("file")) {
             QFile file(url.toLocalFile());
-            file.open(QIODevice::ReadOnly);
-            if (file.isOpen()) {
+            if (file.open(QIODevice::ReadOnly)) {
                 QPixmap pixmap(url.toLocalFile());
                 button->setIcon(pixmap);
             } else {

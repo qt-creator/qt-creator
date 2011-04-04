@@ -443,8 +443,7 @@ public:
         else
             fileName = (_styleSheetFile.toLocalFile());
         QFile file(fileName);
-        file.open(QIODevice::ReadOnly);
-        if (file.isOpen()) {
+        if (file.open(QIODevice::ReadOnly)) {
             QString styleSheet(file.readAll());
             q->setStyleSheet(styleSheet);
         } else {
@@ -634,8 +633,7 @@ private:
         }
 
         QFile file(path);
-        file.open(QIODevice::ReadOnly);
-        if (file.exists() && file.isOpen()) {
+        if (file.open(QIODevice::ReadOnly)) {
             QPixmap pixmap(path);
             if (pixmap.isNull())
                 qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
@@ -700,8 +698,7 @@ private:
         }
 
         QFile file(path);
-        file.open(QIODevice::ReadOnly);
-        if (file.exists() && file.isOpen()) {
+        if (file.open(QIODevice::ReadOnly)) {
             QPixmap pixmap(path);
             if (pixmap.isNull())
                 qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
@@ -773,8 +770,7 @@ private:
         }
 
         QFile file(path);
-        file.open(QIODevice::ReadOnly);
-        if (file.exists() && file.isOpen()) {
+        if (file.open(QIODevice::ReadOnly)) {
             QPixmap pixmap(path);
             if (pixmap.isNull())
                 qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
