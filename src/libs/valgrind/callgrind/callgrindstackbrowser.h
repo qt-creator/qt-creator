@@ -39,26 +39,6 @@ namespace Valgrind {
 namespace Callgrind {
 
 class Function;
-class StackBrowser;
-
-class VALGRINDSHARED_EXPORT HistoryItem
-{
-public:
-    HistoryItem(StackBrowser *stack = 0);
-    virtual ~HistoryItem();
-};
-
-class VALGRINDSHARED_EXPORT FunctionHistoryItem : public HistoryItem
-{
-public:
-    FunctionHistoryItem(const Function *function, StackBrowser *stack = 0);
-    virtual ~FunctionHistoryItem();
-
-    const Function *function() const { return m_function; }
-
-private:
-    const Function *m_function;
-};
 
 class VALGRINDSHARED_EXPORT StackBrowser : public QObject
 {
@@ -66,10 +46,9 @@ class VALGRINDSHARED_EXPORT StackBrowser : public QObject
 
 public:
     explicit StackBrowser(QObject *parent = 0);
-    virtual ~StackBrowser();
 
-    void select(HistoryItem *item);
-    HistoryItem *current() const;
+    void select(const Function *item);
+    const Function *current() const;
 
     void clear();
     int size() const;
@@ -81,7 +60,7 @@ Q_SIGNALS:
     void currentChanged();
 
 private:
-    QStack<HistoryItem *> m_stack;
+    QStack<const Function *> m_stack;
 };
 
 }

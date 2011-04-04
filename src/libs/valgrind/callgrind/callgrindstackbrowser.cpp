@@ -31,42 +31,14 @@
 
 using namespace Valgrind::Callgrind;
 
-HistoryItem::HistoryItem(StackBrowser *stack)
-{
-    if (stack)
-        stack->select(this);
-}
-
-HistoryItem::~HistoryItem()
-{
-
-}
-
-
-FunctionHistoryItem::FunctionHistoryItem(const Function *function, StackBrowser *stack)
-    : HistoryItem(stack)
-    , m_function(function)
-{
-}
-
-FunctionHistoryItem::~FunctionHistoryItem()
-{
-}
 
 StackBrowser::StackBrowser(QObject *parent)
     : QObject(parent)
 {
 }
 
-StackBrowser::~StackBrowser()
-{
-    qDeleteAll(m_stack);
-    m_stack.clear();
-}
-
 void StackBrowser::clear()
 {
-    qDeleteAll(m_stack);
     m_stack.clear();
     emit currentChanged();
 }
@@ -76,7 +48,7 @@ int StackBrowser::size() const
     return m_stack.size();
 }
 
-void StackBrowser::select(HistoryItem *item)
+void StackBrowser::select(const Function *item)
 {
     if (!m_stack.isEmpty() && m_stack.top() == item)
         return;
@@ -85,7 +57,7 @@ void StackBrowser::select(HistoryItem *item)
     emit currentChanged();
 }
 
-HistoryItem *StackBrowser::current() const
+const Function *StackBrowser::current() const
 {
     return m_stack.isEmpty() ? 0 : m_stack.top();
 }
@@ -95,7 +67,6 @@ void StackBrowser::goBack()
     if (m_stack.isEmpty())
         return;
 
-    HistoryItem *item = m_stack.pop();
-    delete item;
+    m_stack.pop();
     emit currentChanged();
 }

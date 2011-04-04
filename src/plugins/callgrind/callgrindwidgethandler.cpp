@@ -338,23 +338,18 @@ void CallgrindWidgetHandler::selectFunction(const Function *func)
     m_calleesModel->setCalls(func->outgoingCalls(), func);
     m_visualisation->setFunction(func);
 
-    FunctionHistoryItem *item = dynamic_cast<FunctionHistoryItem *>(m_stackBrowser->current());
-    if (!item || item->function() != func)
-        m_stackBrowser->select(new FunctionHistoryItem(func));
+    const Function *item = m_stackBrowser->current();
+    if (!item || item != func)
+        m_stackBrowser->select(func);
 
     emit functionSelected(func);
 }
 
 void CallgrindWidgetHandler::stackBrowserChanged()
 {
-    FunctionHistoryItem *item = dynamic_cast<FunctionHistoryItem *>(m_stackBrowser->current());
-
-    if (!item || item->function() == 0)
-        m_goBack->setDisabled(true);
-    else
-        m_goBack->setEnabled(true);
-
-    selectFunction(item ? item->function() : 0);
+    const Function *item = m_stackBrowser->current();
+    m_goBack->setEnabled(item != 0);
+    selectFunction(item);
 }
 
 void CallgrindWidgetHandler::updateFilterString()
