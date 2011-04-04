@@ -39,6 +39,8 @@
 #include <utils/qtcassert.h>
 
 #include <utils/environment.h>
+#include <utils/ssh/sshconnection.h>
+#include <utils/ssh/sshremoteprocess.h>
 
 #include <QtCore/QEventLoop>
 
@@ -51,19 +53,17 @@ public:
         : q(qq),
           process(0),
           channelMode(QProcess::SeparateChannels),
-          finished(false),
-          lastPid(0)
+          finished(false)
     {
     }
 
-    void run(Internal::ValgrindProcess *process);
+    void run(ValgrindProcess *process);
 
     ValgrindRunner *q;
-    Internal::ValgrindProcess *process;
+    ValgrindProcess *process;
     Utils::Environment environment;
     QProcess::ProcessChannelMode channelMode;
     bool finished;
-    Q_PID lastPid;
     QString valgrindExecutable;
     QStringList valgrindArguments;
     QString debuggeeExecutable;
@@ -71,7 +71,7 @@ public:
     QString workingdir;
 };
 
-void ValgrindRunner::Private::run(Internal::ValgrindProcess *_process)
+void ValgrindRunner::Private::run(ValgrindProcess *_process)
 {
     if (process && process->isRunning()) {
         process->close();
@@ -79,7 +79,6 @@ void ValgrindRunner::Private::run(Internal::ValgrindProcess *_process)
         process->deleteLater();
     }
 
-    lastPid = 0;
     QTC_ASSERT(_process, return);
 
     process = _process;
@@ -93,6 +92,11 @@ void ValgrindRunner::Private::run(Internal::ValgrindProcess *_process)
     // -q as suggested by valgrind manual
     QStringList valgrindArgs = valgrindArguments;
     valgrindArgs << QString("--tool=%1").arg(q->tool());
+
+#ifdef Q_OS_MAC
+    // May be slower to start but without it we get no filenames for symbols.
+    valgrindArgs << QLatin1String("--dsymutil=yes");
+#endif
 
     QObject::connect(process, SIGNAL(standardOutputReceived(QByteArray)),
             q, SIGNAL(standardOutputReceived(QByteArray)));
@@ -196,7 +200,12 @@ void ValgrindRunner::waitForFinished() const
 
 void ValgrindRunner::start()
 {
-    d->run(new Internal::LocalValgrindProcess(this));
+    d->run(new LocalValgrindProcess(this));
+}
+
+void ValgrindRunner::startRemotely(const Utils::SshConnectionParameters &sshParams)
+{
+    d->run(new RemoteValgrindProcess(sshParams, this));
 }
 
 void ValgrindRunner::processError(QProcess::ProcessError e)
@@ -227,15 +236,7 @@ void ValgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
 
 void ValgrindRunner::processStarted()
 {
-    if (Internal::LocalValgrindProcess *process = dynamic_cast<Internal::LocalValgrindProcess *>(d->process))
-        d->lastPid = process->pid();
-
     emit started();
-}
-
-Q_PID ValgrindRunner::lastPid() const
-{
-    return d->lastPid;
 }
 
 QString ValgrindRunner::errorString() const
@@ -250,4 +251,9 @@ void ValgrindRunner::stop()
 {
     if (d->process)
         d->process->close();
+}
+
+ValgrindProcess *ValgrindRunner::valgrindProcess() const
+{
+    return d->process;
 }

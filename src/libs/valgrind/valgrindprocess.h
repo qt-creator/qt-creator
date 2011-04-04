@@ -37,14 +37,17 @@
 #define VALGRIND_RUNNER_P_H
 
 #include <utils/qtcprocess.h>
+#include <utils/ssh/sshremoteprocess.h>
+#include <utils/ssh/sshconnection.h>
+
+#include "valgrind_global.h"
 
 namespace Valgrind {
-namespace Internal {
 
 /**
  * Abstract process that can be subclassed to supply local and remote valgrind runs
  */
-class ValgrindProcess : public QObject
+class VALGRINDSHARED_EXPORT ValgrindProcess : public QObject
 {
     Q_OBJECT
 public:
@@ -62,7 +65,10 @@ public:
 
     virtual void setProcessChannelMode(QProcess::ProcessChannelMode mode) = 0;
     virtual void setWorkingDirectory(const QString &path) = 0;
+    virtual QString workingDirectory() const = 0;
     virtual void setEnvironment(const Utils::Environment &environment) = 0;
+
+    virtual Q_PID pid() const = 0;
 
 signals:
     void started();
@@ -75,7 +81,7 @@ signals:
 /**
  * Run valgrind on the local machine
  */
-class LocalValgrindProcess : public ValgrindProcess
+class VALGRINDSHARED_EXPORT LocalValgrindProcess : public ValgrindProcess
 {
     Q_OBJECT
 
@@ -94,9 +100,10 @@ public:
 
     virtual void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     virtual void setWorkingDirectory(const QString &path);
+    virtual QString workingDirectory() const;
     virtual void setEnvironment(const Utils::Environment &environment);
 
-    Q_PID pid() const;
+    virtual Q_PID pid() const;
 
 private slots:
     void readyReadStandardError();
@@ -104,11 +111,64 @@ private slots:
 
 private:
     Utils::QtcProcess m_process;
+    Q_PID m_pid;
 };
 
-// remote support will be supplied later
+/**
+ * Run valgrind on a remote machine via SSH
+ */
+class VALGRINDSHARED_EXPORT RemoteValgrindProcess : public ValgrindProcess
+{
+    Q_OBJECT
 
-}
+public:
+    explicit RemoteValgrindProcess(const Utils::SshConnectionParameters &sshParams,
+                                   QObject *parent = 0);
+    explicit RemoteValgrindProcess(const Utils::SshConnection::Ptr &connection,
+                                   QObject *parent = 0);
+    virtual ~RemoteValgrindProcess();
+
+    virtual bool isRunning() const;
+
+    virtual void run(const QString &valgrindExecutable, const QStringList &valgrindArguments,
+                     const QString &debuggeeExecutable, const QString &debuggeeArguments);
+    virtual void close();
+
+    virtual QString errorString() const;
+    QProcess::ProcessError error() const;
+
+    virtual void setProcessChannelMode(QProcess::ProcessChannelMode mode);
+    virtual void setWorkingDirectory(const QString &path);
+    virtual QString workingDirectory() const;
+    virtual void setEnvironment(const Utils::Environment &environment);
+
+    virtual Q_PID pid() const;
+
+    Utils::SshConnection::Ptr connection() const;
+
+private slots:
+    void closed(int);
+    void connected();
+    void error(Utils::SshError error);
+    void processStarted();
+    void findPIDOutputReceived(const QByteArray &output);
+
+private:
+    Utils::SshConnectionParameters m_params;
+    Utils::SshConnection::Ptr m_connection;
+    Utils::SshRemoteProcess::Ptr m_process;
+    Utils::SshRemoteProcess::Ptr m_cleanup;
+    QString m_workingDir;
+    QString m_valgrindExe;
+    QStringList m_valgrindArgs;
+    QString m_debuggee;
+    QString m_debuggeeArgs;
+    QString m_errorString;
+    QProcess::ProcessError m_error;
+    Q_PID m_pid;
+    Utils::SshRemoteProcess::Ptr m_findPID;
+};
+
 }
 
 #endif // VALGRIND_RUNNER_P_H

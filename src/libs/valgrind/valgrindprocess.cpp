@@ -40,7 +40,6 @@
 #include <QtCore/QFileInfo>
 
 namespace Valgrind {
-namespace Internal {
 
 ValgrindProcess::ValgrindProcess(QObject *parent)
 : QObject(parent)
@@ -85,6 +84,11 @@ void LocalValgrindProcess::setWorkingDirectory(const QString &path)
     m_process.setWorkingDirectory(path);
 }
 
+QString LocalValgrindProcess::workingDirectory() const
+{
+    return m_process.workingDirectory();
+}
+
 bool LocalValgrindProcess::isRunning() const
 {
     return m_process.state() != QProcess::NotRunning;
@@ -97,8 +101,7 @@ void LocalValgrindProcess::setEnvironment(const Utils::Environment &environment)
 
 void LocalValgrindProcess::close()
 {
-    m_process.close();
-    m_process.waitForFinished(-1);
+    m_process.terminate();
 }
 
 void LocalValgrindProcess::run(const QString &valgrindExecutable, const QStringList &valgrindArguments,
@@ -106,10 +109,6 @@ void LocalValgrindProcess::run(const QString &valgrindExecutable, const QStringL
 {
     QString arguments;
     Utils::QtcProcess::addArgs(&arguments, valgrindArguments);
-#ifdef Q_OS_MAC
-    // May be slower to start but without it we get no filenames for symbols.
-    Utils::QtcProcess::addArg(&arguments, QLatin1String("--dsymutil=yes"));
-#endif
 
     Utils::QtcProcess::addArg(&arguments, debuggeeExecutable);
     Utils::QtcProcess::addArgs(&arguments, debuggeeArguments);
@@ -117,6 +116,7 @@ void LocalValgrindProcess::run(const QString &valgrindExecutable, const QStringL
     m_process.setCommand(valgrindExecutable, arguments);
     m_process.start();
     m_process.waitForStarted();
+    m_pid = m_process.pid();
 }
 
 QString LocalValgrindProcess::errorString() const
@@ -131,7 +131,7 @@ QProcess::ProcessError LocalValgrindProcess::error() const
 
 Q_PID LocalValgrindProcess::pid() const
 {
-    return m_process.pid();
+    return m_pid;
 }
 
 void LocalValgrindProcess::readyReadStandardError()
@@ -148,5 +148,218 @@ void LocalValgrindProcess::readyReadStandardOutput()
         emit standardOutputReceived(b);
 }
 
+////////////////////////
+
+RemoteValgrindProcess::RemoteValgrindProcess(const Utils::SshConnectionParameters &sshParams,
+                                             QObject *parent)
+: ValgrindProcess(parent)
+, m_params(sshParams)
+, m_error(QProcess::UnknownError)
+, m_pid(0)
+{
+
 }
+
+RemoteValgrindProcess::RemoteValgrindProcess(const Utils::SshConnection::Ptr &connection, QObject *parent)
+: ValgrindProcess(parent)
+, m_params(connection->connectionParameters())
+, m_connection(connection)
+, m_error(QProcess::UnknownError)
+, m_pid(0)
+{
+
+}
+
+RemoteValgrindProcess::~RemoteValgrindProcess()
+{
+
+}
+
+bool RemoteValgrindProcess::isRunning() const
+{
+    return m_process && m_process->isRunning();
+}
+
+void RemoteValgrindProcess::run(const QString &valgrindExecutable, const QStringList &valgrindArguments,
+                                const QString &debuggeeExecutable, const QString &debuggeeArguments)
+{
+    m_valgrindExe = valgrindExecutable;
+    m_debuggee = debuggeeExecutable;
+    m_debuggeeArgs = debuggeeArguments;
+    m_valgrindArgs = valgrindArguments;
+
+    // connect to host and wait for connection
+    if (!m_connection)
+        m_connection = Utils::SshConnection::create(m_params);
+
+    if (m_connection->state() != Utils::SshConnection::Connected) {
+        connect(m_connection.data(), SIGNAL(connected()),
+                this, SLOT(connected()));
+        connect(m_connection.data(), SIGNAL(error(Utils::SshError)),
+                this, SLOT(error(Utils::SshError)));
+        m_connection->connectToHost();
+    } else {
+        connected();
+    }
+}
+
+void RemoteValgrindProcess::connected()
+{
+    // connected, run command
+    QString cmd;
+
+    if (!m_workingDir.isEmpty())
+        cmd += QString("cd '%1' && ").arg(m_workingDir);
+
+    QString arguments;
+    Utils::QtcProcess::addArgs(&arguments, m_valgrindArgs);
+    Utils::QtcProcess::addArg(&arguments, m_debuggee);
+    Utils::QtcProcess::addArgs(&arguments, m_debuggeeArgs);
+    cmd += m_valgrindExe + ' ' + arguments;
+
+    m_process = m_connection->createRemoteProcess(cmd.toUtf8());
+    connect(m_process.data(), SIGNAL(errorOutputAvailable(QByteArray)),
+            this, SIGNAL(standardErrorReceived(QByteArray)));
+    connect(m_process.data(), SIGNAL(outputAvailable(QByteArray)),
+            this, SIGNAL(standardOutputReceived(QByteArray)));
+    connect(m_process.data(), SIGNAL(closed(int)),
+            this, SLOT(closed(int)));
+    connect(m_process.data(), SIGNAL(started()),
+            this, SLOT(processStarted()));
+    m_process->start();
+}
+
+Utils::SshConnection::Ptr RemoteValgrindProcess::connection() const
+{
+    return m_connection;
+}
+
+void RemoteValgrindProcess::processStarted()
+{
+    // find out what PID our process has
+
+    // NOTE: valgrind cloaks its name,
+    // e.g.: valgrind --tool=memcheck foobar
+    // => ps aux, pidof will see valgrind.bin
+    // => pkill/killall/top... will see memcheck-amd64-linux or similar
+    // hence we need to do something more complex...
+
+    // plain path to exe, m_valgrindExe contains e.g. env vars etc. pp.
+    const QString proc = m_valgrindExe.split(QLatin1Char(' ')).last();
+    // sleep required since otherwise we might only match "bash -c..."
+    //  and not the actual valgrind run
+    const QString cmd = QString("sleep 1; ps ax" // list all processes with aliased name
+                                " | grep '\\b%1.*%2'" // find valgrind process
+                                " | tail -n 1" // limit to single process
+                                               // we pick the last one, first would be "bash -c ..."
+                                " | awk '{print $1;}'" // get pid
+                                ).arg(proc, QFileInfo(m_debuggee).fileName());
+
+    m_findPID = m_connection->createRemoteProcess(cmd.toUtf8());
+    connect(m_findPID.data(), SIGNAL(errorOutputAvailable(QByteArray)),
+            this, SIGNAL(standardErrorReceived(QByteArray)));
+    connect(m_findPID.data(), SIGNAL(outputAvailable(QByteArray)),
+            this, SLOT(findPIDOutputReceived(QByteArray)));
+    m_findPID->start();
+}
+
+void RemoteValgrindProcess::findPIDOutputReceived(const QByteArray &output)
+{
+    bool ok;
+    m_pid = output.trimmed().toLongLong(&ok);
+    if (!ok) {
+        m_pid = 0;
+        m_errorString = tr("Could not determine remote PID.");
+        m_error = QProcess::FailedToStart;
+        emit ValgrindProcess::error(QProcess::FailedToStart);
+        close();
+    } else {
+        emit started();
+    }
+}
+
+void RemoteValgrindProcess::error(Utils::SshError error)
+{
+    switch(error) {
+        case Utils::SshTimeoutError:
+            m_error = QProcess::Timedout;
+            break;
+        default:
+            m_error = QProcess::FailedToStart;
+            break;
+    }
+    m_errorString = m_connection->errorString();
+    emit ValgrindProcess::error(m_error);
+}
+
+void RemoteValgrindProcess::close()
+{
+    if (m_process) {
+        m_process->closeChannel();
+
+        if (m_pid) {
+            const QString killTemplate = QString("kill -%2 %1" // kill
+                                                ).arg(m_pid);
+
+            const QString niceKill = killTemplate.arg("SIGTERM");
+            const QString brutalKill = killTemplate.arg("SIGKILL");
+            const QString remoteCall = niceKill + QLatin1String("; sleep 1; ") + brutalKill;
+
+            m_cleanup = m_connection->createRemoteProcess(remoteCall.toUtf8());
+            m_cleanup->start();
+        }
+    }
+}
+
+void RemoteValgrindProcess::closed(int status)
+{
+    m_errorString = m_process->errorString();
+    if (status == Utils::SshRemoteProcess::FailedToStart) {
+        m_error = QProcess::FailedToStart;
+        emit ValgrindProcess::error(QProcess::FailedToStart);
+    } else if (status == Utils::SshRemoteProcess::ExitedNormally) {
+        emit finished(m_process->exitCode(), QProcess::NormalExit);
+    } else if (status == Utils::SshRemoteProcess::KilledBySignal) {
+        m_error = QProcess::Crashed;
+        emit finished(m_process->exitCode(), QProcess::CrashExit);
+    }
+}
+
+QString RemoteValgrindProcess::errorString() const
+{
+    return m_errorString;
+}
+
+QProcess::ProcessError RemoteValgrindProcess::error() const
+{
+    return m_error;
+}
+
+void RemoteValgrindProcess::setEnvironment(const Utils::Environment &environment)
+{
+    Q_UNUSED(environment);
+    ///TODO: anything that should/could be done here?
+}
+
+void RemoteValgrindProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
+{
+    Q_UNUSED(mode);
+    ///TODO: support this by handling the mode internally
+}
+
+void RemoteValgrindProcess::setWorkingDirectory(const QString &path)
+{
+    m_workingDir = path;
+}
+
+QString RemoteValgrindProcess::workingDirectory() const
+{
+    return m_workingDir;
+}
+
+Q_PID RemoteValgrindProcess::pid() const
+{
+    return m_pid;
+}
+
 }

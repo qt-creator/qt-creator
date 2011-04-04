@@ -46,9 +46,12 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class Environment;
+class SshConnectionParameters;
 }
 
 namespace Valgrind {
+
+class ValgrindProcess;
 
 class VALGRINDSHARED_EXPORT ValgrindRunner : public QObject
 {
@@ -77,13 +80,14 @@ public:
     QString errorString() const;
 
     virtual void start();
+    virtual void startRemotely(const Utils::SshConnectionParameters &sshParams);
 
     virtual void stop();
 
+    ValgrindProcess *valgrindProcess() const;
+
 protected:
     virtual QString tool() const = 0;
-
-    Q_PID lastPid() const;
 
 signals:
     void standardOutputReceived(const QByteArray &);

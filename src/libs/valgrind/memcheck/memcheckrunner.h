@@ -65,6 +65,7 @@ public:
     void setParser(XmlProtocol::ThreadedParser *parser);
 
     void start();
+    void startRemotely(const Utils::SshConnectionParameters &sshParams);
 
 signals:
     void logMessageReceived(const QByteArray &);

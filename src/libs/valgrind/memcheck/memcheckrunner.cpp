@@ -45,6 +45,12 @@
 #include <QtNetwork/QTcpSocket>
 #include <QtNetwork/QNetworkInterface>
 #include <QtCore/QEventLoop>
+#include <QtGui/QDialog>
+#include <QtGui/QApplication>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QListWidget>
+#include <QtGui/QDialogButtonBox>
 
 using namespace Valgrind::Memcheck;
 
@@ -115,6 +121,91 @@ void MemcheckRunner::start()
     setValgrindArguments(memcheckArguments);
 
     ValgrindRunner::start();
+}
+
+void MemcheckRunner::startRemotely(const Utils::SshConnectionParameters &sshParams)
+{
+    QTC_ASSERT(d->parser, return);
+
+    QList<QHostAddress> possibleHostAddresses;
+    //NOTE: ::allAddresses does not seem to work for usb interfaces...
+    foreach(const QNetworkInterface &iface, QNetworkInterface::allInterfaces()) {
+        foreach(const QNetworkAddressEntry &entry, iface.addressEntries()) {
+            const QHostAddress addr = entry.ip();
+            if (addr.toString() != "127.0.0.1"
+                && addr.toString() != "0:0:0:0:0:0:0:1")
+            {
+                possibleHostAddresses << addr;
+                break;
+            }
+        }
+    }
+
+    QHostAddress hostAddr;
+
+    if (possibleHostAddresses.isEmpty()) {
+        emit processErrorReceived(tr("No network interface found to use for remote analyzation."),
+                                  QProcess::FailedToStart);
+        return;
+    } else if (possibleHostAddresses.size() > 1) {
+        QDialog dlg;
+        dlg.setWindowTitle(tr("Select Network Interface"));
+        QVBoxLayout *layout = new QVBoxLayout;
+        QLabel *description = new QLabel;
+        description->setWordWrap(true);
+        description->setText(tr("More than one network interface was found on your machine. Please select which one you want to use for remote analyzation."));
+        layout->addWidget(description);
+        QListWidget *list = new QListWidget;
+        foreach(const QHostAddress &address, possibleHostAddresses)
+            list->addItem(address.toString());
+
+        list->setSelectionMode(QAbstractItemView::SingleSelection);
+        list->setCurrentRow(0);
+        layout->addWidget(list);
+
+        QDialogButtonBox *buttons = new QDialogButtonBox;
+        buttons->addButton(QDialogButtonBox::Ok);
+        buttons->addButton(QDialogButtonBox::Cancel);
+        connect(buttons, SIGNAL(accepted()),
+                &dlg, SLOT(accept()));
+        connect(buttons, SIGNAL(rejected()),
+                &dlg, SLOT(reject()));
+        layout->addWidget(buttons);
+
+        dlg.setLayout(layout);
+        if (dlg.exec() != QDialog::Accepted)
+            return;
+
+        QTC_ASSERT(list->currentRow() >= 0, return);
+        QTC_ASSERT(list->currentRow() < possibleHostAddresses.size(), return);
+        hostAddr = possibleHostAddresses.at(list->currentRow());
+    } else {
+        hostAddr = possibleHostAddresses.first();
+    }
+
+    QString ip = hostAddr.toString();
+    QTC_ASSERT(!ip.isEmpty(), return);
+
+    bool check = d->xmlServer.listen(hostAddr);
+    QTC_ASSERT(check, return);
+    d->xmlServer.setMaxPendingConnections(1);
+    const quint16 xmlPortNumber = d->xmlServer.serverPort();
+    connect(&d->xmlServer, SIGNAL(newConnection()), SLOT(xmlSocketConnected()));
+
+    check = d->logServer.listen(hostAddr);
+    QTC_ASSERT(check, return);
+    d->logServer.setMaxPendingConnections(1);
+    const quint16 logPortNumber = d->logServer.serverPort();
+    connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
+
+    QStringList memcheckArguments;
+    memcheckArguments << QString("--xml=yes")
+                      << QString("--xml-socket=%1:%2").arg(ip, QString::number(xmlPortNumber))
+                      << QString("--child-silent-after-fork=yes")
+                      << QString("--log-socket=%1:%2").arg(ip, QString::number(logPortNumber));
+    setValgrindArguments(memcheckArguments);
+
+    ValgrindRunner::startRemotely(sshParams);
 }
 
 void MemcheckRunner::xmlSocketConnected()
