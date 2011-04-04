@@ -89,7 +89,6 @@ public:
 protected:
     enum ActionStatus { NoActionRequired, ActionSuccessful, ActionFailed };
 
-    void initDeviceConfigurationsModel();
     void raiseError(const QString &reason);
     QSharedPointer<QFile> openFile(const QString &filePath,
         QIODevice::OpenMode mode, QString *error) const;
