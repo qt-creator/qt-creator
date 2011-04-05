@@ -67,7 +67,7 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode)
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeAbstractProperty())
         reparentHere(modelNode, isNodeListProperty());
     else
-        reparentHere(modelNode, parentModelNode().metaInfo().propertyIsListProperty(name())); //we could use the metasystem instead?
+        reparentHere(modelNode, parentModelNode().metaInfo().propertyIsListProperty(name()) || isDefaultProperty()); //we could use the metasystem instead?
 }
 
 void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNodeList)
