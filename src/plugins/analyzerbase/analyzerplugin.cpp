@@ -151,8 +151,10 @@ ExtensionSystem::IPlugin::ShutdownFlag AnalyzerPlugin::aboutToShutdown()
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)
 
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->setValue(lastActiveToolC, d->m_manager->currentTool()->id());
+    if (const IAnalyzerTool *tool = d->m_manager->currentTool()) {
+        QSettings *settings = Core::ICore::instance()->settings();
+        settings->setValue(QLatin1String(lastActiveToolC), tool->id());
+    }
 
     d->m_manager->shutdown();
     return SynchronousShutdown;
