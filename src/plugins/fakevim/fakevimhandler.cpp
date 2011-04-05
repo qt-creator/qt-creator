@@ -503,6 +503,9 @@ void Inputs::parseFrom(const QString &str)
                 uint c = (c3 < 90 ? c3 : c3 - 32);
                 append(Input(c, Qt::ControlModifier, QString(QChar(c - 64))));
                 i += 4;
+            } else if (c1 == 'C' && c2 == 'R' && c3 == '>') {
+                append(Input(Key_Return, Qt::NoModifier, QString(QChar(13))));
+                i += 3;
             } else {
                 append(Input(QLatin1Char(c0)));
             }
@@ -955,6 +958,7 @@ public:
     bool handleExSourceCommand(const ExCommand &cmd);
     bool handleExSubstituteCommand(const ExCommand &cmd);
     bool handleExWriteCommand(const ExCommand &cmd);
+    bool handleExEchoCommand(const ExCommand &cmd);
 
     void timerEvent(QTimerEvent *ev);
 
@@ -1299,7 +1303,7 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
 
 EventResult FakeVimHandler::Private::handleKey(const Input &input)
 {
-    KEY_DEBUG("HANDLE INPUT: " << input);
+    KEY_DEBUG("HANDLE INPUT: " << input << " MODE: " << mode);
     if (m_mode == ExMode)
         return handleExMode(input);
     if (m_subsubmode == SearchSubSubMode)
@@ -3246,7 +3250,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     if (pos == -1) {
         // FIXME: Dump mappings here.
         //qDebug() << g.mappings;
-        return true;;
+        return true;
     }
 
     QString lhs = cmd0.args.left(pos);
@@ -3599,6 +3603,15 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     return true;
 }
 
+bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
+{
+    // :echo
+    if (cmd.cmd != "echo")
+        return false;
+    m_currentMessage = cmd.args;
+    return true;
+}
+
 void FakeVimHandler::Private::handleExCommand(const QString &line0)
 {
     QString line = line0; // Make sure we have a copy to prevent aliasing.
@@ -3651,7 +3664,8 @@ bool FakeVimHandler::Private::handleExCommandHelper(const ExCommand &cmd)
         || handleExShiftCommand(cmd)
         || handleExSourceCommand(cmd)
         || handleExSubstituteCommand(cmd)
-        || handleExWriteCommand(cmd);
+        || handleExWriteCommand(cmd)
+        || handleExEchoCommand(cmd);
 }
 
 bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
@@ -4744,7 +4758,7 @@ void FakeVimHandler::Private::replay(const QString &command, int n)
     //qDebug() << "REPLAY: " << quoteUnprintable(command);
     for (int i = n; --i >= 0; ) {
         foreach (QChar c, command) {
-            //qDebug() << "  REPLAY: " << QString(c);
+            //qDebug() << "  REPLAY: " << c.unicode();
             handleKey(Input(c));
         }
     }
@@ -4960,6 +4974,17 @@ void FakeVimHandler::handleCommand(const QString &cmd)
 void FakeVimHandler::handleReplay(const QString &keys)
 {
     d->replay(keys, 1);
+}
+
+void FakeVimHandler::handleInput(const QString &keys)
+{
+    Mode oldMode = d->m_mode;
+    d->m_mode = CommandMode;
+    Inputs inputs;
+    inputs.parseFrom(keys);
+    foreach (const Input &input, inputs)
+        d->handleKey(input);
+    d->m_mode = oldMode;
 }
 
 void FakeVimHandler::setCurrentFileName(const QString &fileName)

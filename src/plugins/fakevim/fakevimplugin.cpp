@@ -76,6 +76,7 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
+#include <QtCore/QAbstractTableModel>
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QtPlugin>
@@ -84,6 +85,7 @@
 #include <QtCore/QTextStream>
 
 #include <QtGui/QDesktopServices>
+#include <QtGui/QItemDelegate>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QShortcut>
@@ -106,6 +108,7 @@ const char * const SETTINGS_CATEGORY              = "D.FakeVim";
 const char * const SETTINGS_CATEGORY_FAKEVIM_ICON = ":/core/images/category_fakevim.png";
 const char * const SETTINGS_ID                    = "A.General";
 const char * const SETTINGS_EX_CMDS_ID            = "B.ExCommands";
+const char * const SETTINGS_USER_CMDS_ID          = "C.UserCommands";
 
 } // namespace Constants
 } // namespace FakeVim
@@ -120,7 +123,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-typedef QMap<QString, QRegExp> CommandMap;
+typedef QMap<QString, QRegExp> ExCommandMap;
+typedef QMap<int, QString> UserCommandMap;
 typedef QLatin1String _;
 
 class FakeVimOptionPage : public Core::IOptionsPage
@@ -296,8 +300,8 @@ public:
 
     QWidget *createPage(QWidget *parent);
     void initialize();
-    CommandMap &exCommandMap();
-    CommandMap &defaultExCommandMap();
+    ExCommandMap &exCommandMap();
+    ExCommandMap &defaultExCommandMap();
 
 public slots:
     void commandChanged(QTreeWidgetItem *current);
@@ -307,7 +311,6 @@ public slots:
     void defaultAction();
 
 private:
-    //QList<QTreeWidgetItem *> m_citems;
     FakeVimPluginPrivate *m_q;
 };
 
@@ -337,7 +340,6 @@ void FakeVimExCommandsPage::initialize()
 
         QTreeWidgetItem *item = new QTreeWidgetItem;
         item->setData(0, CommandRole, int(c->id()));
-        //m_citems.append(item);
 
         const QString name = uidm->stringForUniqueIdentifier(c->id());
         const int pos = name.indexOf(QLatin1Char('.'));
@@ -402,11 +404,7 @@ void FakeVimExCommandsPage::targetIdentifierChanged()
         exCommandMap()[name] = QRegExp(regex);
     }
 
-    if (regex != defaultExCommandMap()[name].pattern())
-        setModified(current, true);
-    else
-        setModified(current, false);
-
+    setModified(current, regex != defaultExCommandMap()[name].pattern());
 }
 
 void FakeVimExCommandsPage::resetTargetIdentifier()
@@ -448,6 +446,133 @@ void FakeVimExCommandsPage::defaultAction()
                 commandChanged(item);
         }
     }
+}
+
+///////////////////////////////////////////////////////////////////////
+//
+// FakeVimUserCommandsPage
+//
+///////////////////////////////////////////////////////////////////////
+
+class FakeVimUserCommandsModel : public QAbstractTableModel
+{
+public:
+    FakeVimUserCommandsModel(FakeVimPluginPrivate *q) : m_q(q) {}
+    ~FakeVimUserCommandsModel() {}
+
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QVariant &data, int role);
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+
+private:
+    FakeVimPluginPrivate *m_q;
+};
+
+int FakeVimUserCommandsModel::rowCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : 9;
+}
+
+int FakeVimUserCommandsModel::columnCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : 2;
+}
+
+
+QVariant FakeVimUserCommandsModel::headerData(int section,
+    Qt::Orientation orient, int role) const
+{
+    if (orient == Qt::Horizontal && role == Qt::DisplayRole) {
+        switch (section) {
+            case 0: return tr("Action");
+            case 1: return tr("Command");
+        };
+    }
+    return QVariant();
+}
+
+Qt::ItemFlags FakeVimUserCommandsModel::flags(const QModelIndex &index) const
+{
+    if (index.column() == 1)
+        return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
+    return QAbstractTableModel::flags(index);
+}
+
+class FakeVimUserCommandsDelegate : public QItemDelegate
+{
+public:
+    explicit FakeVimUserCommandsDelegate(QObject *parent)
+        : QItemDelegate(parent)
+    {}
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
+        const QModelIndex &) const
+    {
+        QLineEdit *lineEdit = new QLineEdit(parent);
+        lineEdit->setFrame(false);
+        return lineEdit;
+    }
+
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const
+    {
+        QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
+        QTC_ASSERT(lineEdit, return);
+        model->setData(index, lineEdit->text(), Qt::EditRole);
+    }
+};
+
+class FakeVimUserCommandsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+
+public:
+    FakeVimUserCommandsPage(FakeVimPluginPrivate *q) : m_q(q) {}
+    ~FakeVimUserCommandsPage() {}
+
+    // IOptionsPage
+    QString id() const { return _(Constants::SETTINGS_USER_CMDS_ID); }
+    QString displayName() const { return tr("User Command Mapping"); }
+    QString category() const { return _(Constants::SETTINGS_CATEGORY); }
+    QString displayCategory() const { return tr("FakeVim"); }
+    QIcon categoryIcon() const { return QIcon(); }
+    void apply();
+    void finish() {}
+
+    QWidget *createPage(QWidget *parent);
+    void initialize() {}
+    UserCommandMap &userCommandMap();
+    UserCommandMap &defaultUserCommandMap();
+
+private:
+    FakeVimPluginPrivate *m_q;
+};
+
+QWidget *FakeVimUserCommandsPage::createPage(QWidget *parent)
+{
+    QGroupBox *box = new QGroupBox(parent);
+
+    FakeVimUserCommandsModel *model = new FakeVimUserCommandsModel(m_q);
+    QTreeView *widget = new QTreeView;
+    widget->setModel(model);
+    widget->resizeColumnToContents(0);
+
+    FakeVimUserCommandsDelegate *delegate = new FakeVimUserCommandsDelegate(widget);
+    widget->setItemDelegateForColumn(1, delegate);
+
+    QGridLayout *layout = new QGridLayout(box);
+    layout->addWidget(widget, 0, 0);
+    box->setLayout(layout);
+
+    return box;
+}
+
+void FakeVimUserCommandsPage::apply()
+{
+    //m_q->writeSettings();
 }
 
 
@@ -622,6 +747,8 @@ public:
     ~FakeVimPluginPrivate();
     friend class FakeVimPlugin;
     friend class FakeVimExCommandsPage;
+    friend class FakeVimUserCommandsPage;
+    friend class FakeVimUserCommandsModel;
 
     bool initialize();
     void aboutToShutdown();
@@ -632,6 +759,7 @@ private slots:
     void editorAboutToClose(Core::IEditor *);
 
     void setUseFakeVim(const QVariant &value);
+    void setUseFakeVimInternal(bool on);
     void quitFakeVim();
     void triggerCompletions();
     void triggerSimpleCompletions(const QString &needle, bool forward);
@@ -656,6 +784,7 @@ private slots:
 
     void handleDelayedQuitAll(bool forced);
     void handleDelayedQuit(bool forced, Core::IEditor *editor);
+    void userActionTriggered();
 
     void switchToFile(int n);
     int currentFile() const;
@@ -668,6 +797,7 @@ private:
     FakeVimPlugin *q;
     FakeVimOptionPage *m_fakeVimOptionsPage;
     FakeVimExCommandsPage *m_fakeVimExCommandsPage;
+    FakeVimUserCommandsPage *m_fakeVimUserCommandsPage;
     QHash<Core::IEditor *, FakeVimHandler *> m_editorToHandler;
     QPointer<Core::ICore> m_core;
     QPointer<Core::EditorManager> m_editorManager;
@@ -682,19 +812,52 @@ private:
     typedef int (*DistFunction)(const QRect &cursor, const QRect &other);
     void moveSomewhere(DistFunction f);
 
-    CommandMap &exCommandMap() { return m_exCommandMap; }
-    CommandMap &defaultExCommandMap() { return m_defaultExCommandMap; }
-    CommandMap m_exCommandMap;
-    CommandMap m_defaultExCommandMap;
+    ExCommandMap &exCommandMap() { return m_exCommandMap; }
+    ExCommandMap &defaultExCommandMap() { return m_defaultExCommandMap; }
+    ExCommandMap m_exCommandMap;
+    ExCommandMap m_defaultExCommandMap;
+
+    UserCommandMap &userCommandMap() { return m_userCommandMap; }
+    UserCommandMap &defaultUserCommandMap() { return m_defaultUserCommandMap; }
+    UserCommandMap m_userCommandMap;
+    UserCommandMap m_defaultUserCommandMap;
+
     Core::StatusBarWidget *m_statusBar;
     WordCompletion *m_wordCompletion;
 };
+
+QVariant FakeVimUserCommandsModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid())
+        return QVariant();
+
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        switch (index.column()) {
+        case 0: // Action
+            return tr("User command #%1").arg(index.row() + 1);
+        case 1: // Command
+            return m_q->userCommandMap().value(index.row() + 1);
+        }
+    }
+
+    return QVariant();
+}
+
+bool FakeVimUserCommandsModel::setData(const QModelIndex &index,
+    const QVariant &data, int role)
+{
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
+        if (index.column() == 1)
+            m_q->userCommandMap()[index.row() + 1] = data.toString();
+    return true;
+}
 
 FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
 {
     q = plugin;
     m_fakeVimOptionsPage = 0;
     m_fakeVimExCommandsPage = 0;
+    m_fakeVimUserCommandsPage = 0;
     defaultExCommandMap()[CppTools::Constants::SWITCH_HEADER_SOURCE] =
         QRegExp("^A$");
     defaultExCommandMap()["Coreplugin.OutputPane.previtem"] =
@@ -707,6 +870,12 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
         QRegExp("^pop?$");
     defaultExCommandMap()[_("QtCreator.Locate")] =
         QRegExp("^e$");
+
+    for (int i = 1; i < 10; ++i) {
+        QString cmd = QString::fromLatin1(":echo User command %1 executed.<CR>");
+        defaultUserCommandMap().insert(i, cmd.arg(i));
+    }
+
     m_statusBar = 0;
 }
 
@@ -720,6 +889,10 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
     q->removeObject(m_fakeVimExCommandsPage);
     delete m_fakeVimExCommandsPage;
     m_fakeVimExCommandsPage = 0;
+
+    q->removeObject(m_fakeVimUserCommandsPage);
+    delete m_fakeVimUserCommandsPage;
+    m_fakeVimUserCommandsPage = 0;
 }
 
 void FakeVimPluginPrivate::onCoreAboutToClose()
@@ -759,12 +932,27 @@ bool FakeVimPluginPrivate::initialize()
 
     m_fakeVimExCommandsPage = new FakeVimExCommandsPage(this);
     q->addObject(m_fakeVimExCommandsPage);
+
+    m_fakeVimUserCommandsPage = new FakeVimUserCommandsPage(this);
+    q->addObject(m_fakeVimUserCommandsPage);
+
     readSettings();
 
     Core::Command *cmd = 0;
     cmd = actionManager()->registerAction(theFakeVimSetting(ConfigUseFakeVim),
         Constants::INSTALL_HANDLER, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::INSTALL_KEY));
+
+    for (int i = 1; i < 10; ++i) {
+        QAction *act = new QAction(this);
+        act->setText(QString("Execute User Action #%1").arg(i));
+        act->setData(i);
+        QString id = QString("FakeVim.UserAction%1").arg(i);
+        QString keys = QString("Alt+V,%1").arg(i);
+        cmd = actionManager()->registerAction(act, id, globalcontext);
+        cmd->setDefaultKeySequence(QKeySequence(keys));
+        connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
+    }
 
     ActionContainer *advancedMenu =
         actionManager()->actionContainer(Core::Constants::M_EDIT_ADVANCED);
@@ -794,8 +982,25 @@ bool FakeVimPluginPrivate::initialize()
     return true;
 }
 
+void FakeVimPluginPrivate::userActionTriggered()
+{
+    QAction *act = qobject_cast<QAction *>(sender());
+    if (!act)
+        return;
+    const int key = act->data().toInt();
+    if (!key)
+        return;
+    QString cmd = userCommandMap().value(key);
+    IEditor *editor = editorManager()->currentEditor();
+    FakeVimHandler *handler = m_editorToHandler[editor];
+    if (handler)
+        handler->handleInput(cmd);
+}
+
 static const char *exCommandMapGroup = "FakeVimExCommand";
+static const char *userCommandMapGroup = "FakeVimUserCommand";
 static const char *reKey = "RegEx";
+static const char *cmdKey = "Cmd";
 static const char *idKey = "Command";
 
 void FakeVimPluginPrivate::writeSettings()
@@ -804,9 +1009,10 @@ void FakeVimPluginPrivate::writeSettings()
 
     theFakeVimSettings()->writeSettings(settings);
 
+    { // block
     settings->beginWriteArray(_(exCommandMapGroup));
     int count = 0;
-    typedef CommandMap::const_iterator Iterator;
+    typedef ExCommandMap::const_iterator Iterator;
     const Iterator end = exCommandMap().constEnd();
     for (Iterator it = exCommandMap().constBegin(); it != end; ++it) {
         const QString id = it.key();
@@ -820,8 +1026,29 @@ void FakeVimPluginPrivate::writeSettings()
             ++count;
         }
     }
-
     settings->endArray();
+    } // block
+
+    { // block
+    settings->beginWriteArray(_(userCommandMapGroup));
+    int count = 0;
+    typedef UserCommandMap::const_iterator Iterator;
+    const Iterator end = userCommandMap().constEnd();
+    for (Iterator it = userCommandMap().constBegin(); it != end; ++it) {
+        const int key = it.key();
+        const QString cmd = it.value();
+
+        if ((defaultUserCommandMap().contains(key)
+                && defaultUserCommandMap()[key] != cmd)
+            || (!defaultUserCommandMap().contains(key) && !cmd.isEmpty())) {
+            settings->setArrayIndex(count);
+            settings->setValue(_(idKey), key);
+            settings->setValue(_(cmdKey), cmd);
+            ++count;
+        }
+    }
+    settings->endArray();
+    } // block
 }
 
 void FakeVimPluginPrivate::readSettings()
@@ -837,6 +1064,15 @@ void FakeVimPluginPrivate::readSettings()
         const QString id = settings->value(_(idKey)).toString();
         const QString re = settings->value(_(reKey)).toString();
         exCommandMap()[id] = QRegExp(re);
+    }
+
+    userCommandMap() = defaultUserCommandMap();
+    size = settings->beginReadArray(_(userCommandMapGroup));
+    for (int i = 0; i < size; ++i) {
+        settings->setArrayIndex(i);
+        const int id = settings->value(_(idKey)).toInt();
+        const QString cmd = settings->value(_(cmdKey)).toString();
+        userCommandMap()[id] = cmd;
     }
     settings->endArray();
 }
@@ -1140,6 +1376,11 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
     bool on = value.toBool();
     if (Find::FindPlugin::instance())
         Find::FindPlugin::instance()->setUseFakeVim(on);
+    setUseFakeVimInternal(on);
+}
+
+void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
+{
     if (on) {
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Core::Context(FAKEVIM_CONTEXT),
@@ -1296,7 +1537,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
     } else {
         // Check whether one of the configure commands matches.
-        typedef CommandMap::const_iterator Iterator;
+        typedef ExCommandMap::const_iterator Iterator;
         const Iterator end = exCommandMap().constEnd();
         for (Iterator it = exCommandMap().constBegin(); it != end; ++it) {
             const QString &id = it.key();
@@ -1451,14 +1692,24 @@ void FakeVimPluginPrivate::switchToFile(int n)
     editorManager()->activateEditorForIndex(model->index(n, 0));
 }
 
-CommandMap &FakeVimExCommandsPage::exCommandMap()
+ExCommandMap &FakeVimExCommandsPage::exCommandMap()
 {
     return m_q->exCommandMap();
 }
 
-CommandMap &FakeVimExCommandsPage::defaultExCommandMap()
+ExCommandMap &FakeVimExCommandsPage::defaultExCommandMap()
 {
     return m_q->defaultExCommandMap();
+}
+
+UserCommandMap &FakeVimUserCommandsPage::userCommandMap()
+{
+    return m_q->userCommandMap();
+}
+
+UserCommandMap &FakeVimUserCommandsPage::defaultUserCommandMap()
+{
+    return m_q->defaultUserCommandMap();
 }
 
 ///////////////////////////////////////////////////////////////////////
