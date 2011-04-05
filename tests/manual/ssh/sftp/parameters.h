@@ -34,12 +34,12 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
-#include <coreplugin/ssh/sshconnection.h>
+#include <utils/ssh/sshconnection.h>
 
 struct Parameters {
-    Parameters() : sshParams(Core::SshConnectionParameters::DefaultProxy) {}
+    Parameters() : sshParams(Utils::SshConnectionParameters::DefaultProxy) {}
 
-    Core::SshConnectionParameters sshParams;
+    Utils::SshConnectionParameters sshParams;
     int smallFileCount;
     int bigFileSize;
 };

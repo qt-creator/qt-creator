@@ -1,4 +1,5 @@
 include(../qttest.pri)
+include($$IDE_SOURCE_TREE/src/libs/symbianutils/symbianutils.pri)
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
 UTILSDIR    = $$IDE_SOURCE_TREE/src/libs
@@ -6,7 +7,6 @@ MACROSDIR   = $$IDE_SOURCE_TREE/share/qtcreator/gdbmacros
 
 SOURCES += \
     $$DEBUGGERDIR/gdb/gdbmi.cpp \
-    $$DEBUGGERDIR/tcf/json.cpp \
     $$MACROSDIR/gdbmacros.cpp \
     tst_dumpers.cpp \
 

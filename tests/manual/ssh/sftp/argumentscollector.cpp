@@ -36,7 +36,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace Core;
+using namespace Utils;
 
 ArgumentsCollector::ArgumentsCollector(const QStringList &args)
     : m_arguments(args)
@@ -57,26 +57,26 @@ Parameters ArgumentsCollector::collect(bool &success) const
         int port;
         for (pos = 1; pos < m_arguments.count() - 1; ++pos) {
             if (checkAndSetStringArg(pos, parameters.sshParams.host, "-h")
-                || checkAndSetStringArg(pos, parameters.sshParams.uname, "-u"))
+                || checkAndSetStringArg(pos, parameters.sshParams.userName, "-u"))
                 continue;
             if (checkAndSetIntArg(pos, port, portGiven, "-p")
                 || checkAndSetIntArg(pos, parameters.sshParams.timeout, timeoutGiven, "-t")
                 || checkAndSetIntArg(pos, parameters.smallFileCount, smallFileCountGiven, "-c")
                 || checkAndSetIntArg(pos, parameters.bigFileSize, bigFileSizeGiven, "-s"))
                 continue;
-            if (checkAndSetStringArg(pos, parameters.sshParams.pwd, "-pwd")) {
+            if (checkAndSetStringArg(pos, parameters.sshParams.password, "-pwd")) {
                 if (!parameters.sshParams.privateKeyFile.isEmpty())
                     throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
-                parameters.sshParams.authType
-                    = SshConnectionParameters::AuthByPwd;
+                parameters.sshParams.authenticationType
+                    = SshConnectionParameters::AuthenticationByPassword;
                 authTypeGiven = true;
                 continue;
             }
             if (checkAndSetStringArg(pos, parameters.sshParams.privateKeyFile, "-k")) {
-                if (!parameters.sshParams.pwd.isEmpty())
+                if (!parameters.sshParams.password.isEmpty())
                     throw ArgumentErrorException(QLatin1String("-pwd and -k are mutually exclusive."));
-                parameters.sshParams.authType
-                    = SshConnectionParameters::AuthByKey;
+                parameters.sshParams.authenticationType
+                    = SshConnectionParameters::AuthenticationByKey;
                 authTypeGiven = true;
                 continue;
             }
@@ -94,7 +94,7 @@ Parameters ArgumentsCollector::collect(bool &success) const
             throw ArgumentErrorException(QLatin1String("No authentication argument given."));
         if (parameters.sshParams.host.isEmpty())
             throw ArgumentErrorException(QLatin1String("No host given."));
-        if (parameters.sshParams.uname.isEmpty())
+        if (parameters.sshParams.userName.isEmpty())
             throw ArgumentErrorException(QLatin1String("No user name given."));
 
         parameters.sshParams.port = portGiven ? port : 22;

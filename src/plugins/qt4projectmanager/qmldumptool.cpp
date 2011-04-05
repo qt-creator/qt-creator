@@ -252,8 +252,10 @@ static QStringList sourceFileNames()
     QStringList files;
     files << QLatin1String("main.cpp") << QLatin1String("qmldump.pro")
           << QLatin1String("qmlstreamwriter.cpp") << QLatin1String("qmlstreamwriter.h")
-          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT")
-          << QLatin1String("Info.plist");
+          << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
+#ifdef Q_OS_MAC
+    files << QLatin1String("Info.plist");
+#endif
     return files;
 }
 

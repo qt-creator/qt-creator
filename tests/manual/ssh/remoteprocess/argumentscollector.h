@@ -34,7 +34,7 @@
 #ifndef ARGUMENTSCOLLECTOR_H
 #define ARGUMENTSCOLLECTOR_H
 
-#include <coreplugin/ssh/sshconnection.h>
+#include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QStringList>
 
@@ -42,7 +42,7 @@ class ArgumentsCollector
 {
 public:
     ArgumentsCollector(const QStringList &args);
-    Core::SshConnectionParameters collect(bool &success) const;
+    Utils::SshConnectionParameters collect(bool &success) const;
 private:
     struct ArgumentErrorException
     {
@@ -55,7 +55,7 @@ private:
     bool checkAndSetIntArg(int &pos, int &val, bool &alreadyGiven,
         const char *opt) const;
     bool checkForNoProxy(int &pos,
-        Core::SshConnectionParameters::ProxyType &type,
+        Utils::SshConnectionParameters::ProxyType &type,
         bool &alreadyGiven) const;
 
     const QStringList m_arguments;

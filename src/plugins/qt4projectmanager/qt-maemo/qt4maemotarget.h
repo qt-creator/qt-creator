@@ -117,6 +117,7 @@ private:
     virtual bool initAdditionalPackagingSettingsFromOtherTarget()=0;
 
     Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    bool m_isInitialized;
 };
 
 

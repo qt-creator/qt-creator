@@ -81,10 +81,10 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
         if (runConfig->useRemoteGdb()) {
             params.startMode = StartRemoteGdb;
             params.executable = runConfig->remoteExecutableFilePath();
-            params.debuggerCommand
-                = MaemoGlobal::remoteCommandPrefix(runConfig->remoteExecutableFilePath())
-                    + MaemoGlobal::remoteEnvironment(runConfig->userEnvironmentChanges())
-                    + QLatin1String(" /usr/bin/gdb");
+            params.debuggerCommand = MaemoGlobal::remoteCommandPrefix(runConfig->deviceConfig()->osVersion(),
+                runConfig->remoteExecutableFilePath())
+                + MaemoGlobal::remoteEnvironment(runConfig->userEnvironmentChanges())
+                + QLatin1String(" /usr/bin/gdb");
             params.connParams = devConf->sshParameters();
             params.localMountDir = runConfig->localDirToMountForRemoteGdb();
             params.remoteMountPoint
@@ -289,7 +289,8 @@ void MaemoDebugSupport::startDebugging()
                 SLOT(handleRemoteProcessStarted()));
         }
         const QString &remoteExe = m_runner->remoteExecutable();
-        const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(remoteExe);
+        const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(m_deviceConfig->osVersion(),
+            remoteExe);
         const QString env = MaemoGlobal::remoteEnvironment(m_userEnvChanges);
         QString args = m_runner->arguments();
         if (m_debuggingType != MaemoRunConfiguration::DebugCppOnly) {

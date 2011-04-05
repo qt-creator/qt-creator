@@ -36,9 +36,9 @@
 #undef private
 
 #include "gdb/gdbmi.h"
-#include "tcf/json.h"
 #include "gdbmacros.h"
 #include "gdbmacros_p.h"
+#include "json.h"
 
 #include <QtCore/private/qobject_p.h>
 

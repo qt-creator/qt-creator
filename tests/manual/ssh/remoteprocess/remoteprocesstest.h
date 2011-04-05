@@ -34,7 +34,7 @@
 #ifndef SFTPTEST_H
 #define SFTPTEST_H
 
-#include <coreplugin/ssh/sshremoteprocessrunner.h>
+#include <utils/ssh/sshremoteprocessrunner.h>
 
 QT_FORWARD_DECLARE_CLASS(QTimer);
 #include <QtCore/QObject>
@@ -43,7 +43,7 @@ class RemoteProcessTest : public QObject
 {
     Q_OBJECT
 public:
-    RemoteProcessTest(const Core::SshConnectionParameters &params);
+    RemoteProcessTest(const Utils::SshConnectionParameters &params);
     ~RemoteProcessTest();
     void run();
 
@@ -59,7 +59,7 @@ private:
     enum State { Inactive, TestingSuccess, TestingFailure, TestingCrash };
 
     QTimer * const m_timeoutTimer;
-    const Core::SshRemoteProcessRunner::Ptr m_remoteRunner;
+    const Utils::SshRemoteProcessRunner::Ptr m_remoteRunner;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;
     State m_state;

@@ -162,7 +162,7 @@ enum DebuggerCapabilities
     ReverseSteppingCapability = 0x1,
     SnapshotCapability = 0x2,
     AutoDerefPointersCapability = 0x4,
-    DisassemblerCapability = 0x80,
+    DisassemblerCapability = 0x8,
     RegisterCapability = 0x10,
     ShowMemoryCapability = 0x20,
     JumpToLineCapability = 0x40,

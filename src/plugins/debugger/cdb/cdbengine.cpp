@@ -1066,6 +1066,7 @@ unsigned CdbEngine::debuggerCapabilities() const
 {
     return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
            |WatchpointCapability|JumpToLineCapability|AddWatcherCapability
+           |ReloadModuleCapability
            |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
            |BreakConditionCapability|TracePointCapability
            |BreakModuleCapability;

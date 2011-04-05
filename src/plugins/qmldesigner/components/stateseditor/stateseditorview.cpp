@@ -140,7 +140,9 @@ void StatesEditorView::addState()
     }
 
     try {
-        if (rootStateGroup().allStates().count() < 1)
+        if ((rootStateGroup().allStates().count() < 1) && //QtQuick import might be missing
+            (!model()->imports().contains(Import::createLibraryImport("QtQuick", "1.0")) &&
+             !model()->imports().contains(Import::createLibraryImport("QtQuick", "1.1"))))
             model()->changeImports(QList<Import>() << Import::createLibraryImport("QtQuick", "1.0"), QList<Import>());
         ModelNode newState = rootStateGroup().addState(newStateName);
         setCurrentState(newState);

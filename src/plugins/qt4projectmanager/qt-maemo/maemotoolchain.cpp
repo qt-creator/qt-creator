@@ -96,9 +96,6 @@ void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
 {
     QtVersion *v = QtVersionManager::instance()->version(m_qtVersionId);
     const QString maddeRoot = MaemoGlobal::maddeRoot(v);
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin").arg(maddeRoot)));
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
-                                                  .arg(MaemoGlobal::targetRoot(v))));
 
     // put this into environment to make pkg-config stuff work
     env.prependOrSet(QLatin1String("SYSROOT_DIR"), QDir::toNativeSeparators(sysroot()));
@@ -108,6 +105,10 @@ void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
         .arg(maddeRoot)));
     env.prependOrSet(QLatin1String("PERL5LIB"),
         QDir::toNativeSeparators(QString("%1/madlib/perl5").arg(maddeRoot)));
+
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin").arg(maddeRoot)));
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
+                                                  .arg(MaemoGlobal::targetRoot(v))));
 
     const QString manglePathsKey = QLatin1String("GCCWRAPPER_PATHMANGLE");
     if (!env.hasKey(manglePathsKey)) {

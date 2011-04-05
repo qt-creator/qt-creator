@@ -31,9 +31,9 @@
 **
 **************************************************************************/
 
-#include <coreplugin/ssh/sftpchannel.h>
-#include <coreplugin/ssh/sshconnection.h>
-#include <coreplugin/ssh/sshremoteprocess.h>
+#include <utils/ssh/sftpchannel.h>
+#include <utils/ssh/sshconnection.h>
+#include <utils/ssh/sshremoteprocess.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QList>
@@ -41,7 +41,7 @@
 #include <QtCore/QPair>
 #include <QtCore/QTimer>
 
-using namespace Core;
+using namespace Utils;
 
 class Test : public QObject {
     Q_OBJECT
@@ -69,24 +69,24 @@ public:
         noUser.host = QLatin1String("localhost");
         noUser.port = 22;
         noUser.timeout = 30;
-        noUser.authType = SshConnectionParameters::AuthByPwd;
-        noUser.uname = QLatin1String("dumdidumpuffpuff");
-        noUser.uname = QLatin1String("whatever");
+        noUser.authenticationType = SshConnectionParameters::AuthenticationByPassword;
+        noUser.userName = QLatin1String("dumdidumpuffpuff");
+        noUser.password = QLatin1String("whatever");
 
         SshConnectionParameters wrongPwd=SshConnectionParameters(SshConnectionParameters::DefaultProxy);
         wrongPwd.host = QLatin1String("localhost");
         wrongPwd.port = 22;
         wrongPwd.timeout = 30;
-        wrongPwd.authType = SshConnectionParameters::AuthByPwd;
-        wrongPwd.uname = QLatin1String("root");
-        noUser.uname = QLatin1String("thiscantpossiblybeapasswordcanit");
+        wrongPwd.authenticationType = SshConnectionParameters::AuthenticationByPassword;
+        wrongPwd.userName = QLatin1String("root");
+        noUser.password = QLatin1String("thiscantpossiblybeapasswordcanit");
 
         SshConnectionParameters invalidKeyFile=SshConnectionParameters(SshConnectionParameters::DefaultProxy);
         invalidKeyFile.host = QLatin1String("localhost");
         invalidKeyFile.port = 22;
         invalidKeyFile.timeout = 30;
-        invalidKeyFile.authType = SshConnectionParameters::AuthByKey;
-        invalidKeyFile.uname = QLatin1String("root");
+        invalidKeyFile.authenticationType = SshConnectionParameters::AuthenticationByKey;
+        invalidKeyFile.userName = QLatin1String("root");
         invalidKeyFile.privateKeyFile
             = QLatin1String("somefilenamethatwedontexpecttocontainavalidkey");
 
@@ -129,7 +129,7 @@ private slots:
         qApp->quit();
     }
 
-    void handleError(Core::SshError error)
+    void handleError(Utils::SshError error)
     {
         if (m_testSet.isEmpty()) {
             qDebug("Error: Received error %d, but no test was running.", error);
@@ -173,8 +173,8 @@ private:
             SLOT(handleDisconnected()));
         connect(m_connection.data(), SIGNAL(dataAvailable(QString)), this,
             SLOT(handleDataAvailable(QString)));
-        connect(m_connection.data(), SIGNAL(error(Core::SshError)), this,
-            SLOT(handleError(Core::SshError)));
+        connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
+            SLOT(handleError(Utils::SshError)));
         const TestItem &nextItem = m_testSet.first();
         m_timeoutTimer.stop();
         m_timeoutTimer.setInterval(qMax(10000, nextItem.params.timeout * 1000));

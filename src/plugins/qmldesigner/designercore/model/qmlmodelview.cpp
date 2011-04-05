@@ -43,6 +43,7 @@
 #include <QMessageBox>
 #include "nodeabstractproperty.h"
 #include "variantproperty.h"
+#include "rewritingexception.h"
 
 
 namespace QmlDesigner {
@@ -102,8 +103,8 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
     QmlItemNode newNode;
     RewriterTransaction transaction = beginRewriterTransaction();
     {
-        const QString newImportUrl = QLatin1String("Qt");
-        const QString newImportVersion = QLatin1String("4.7");
+        const QString newImportUrl = QLatin1String("QtQuick");
+        const QString newImportVersion = QLatin1String("1.0");
         Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
 
         foreach (const Import &import, model()->imports()) {
@@ -169,8 +170,9 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
     Q_ASSERT(parentNode.isValid());
 
     QmlItemNode newNode;
-    RewriterTransaction transaction = beginRewriterTransaction();
-    {
+
+    try {
+        RewriterTransaction transaction = beginRewriterTransaction();
         if (itemLibraryEntry.typeName().contains('.')) {
             const QString newImportUrl = itemLibraryEntry.typeName().split('.').first();
             const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
@@ -216,12 +218,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             i++;
         } while (hasId(id)); //If the name already exists count upwards
 
-        try {
-            newNode.setId(id);
-        } catch (InvalidIdException &e) {
-            // should never happen
-            QMessageBox::warning(0, tr("Invalid Id"), e.description());
-        }
+        newNode.setId(id);
 
         if (!currentState().isBaseState()) {
             newNode.modelNode().variantProperty("opacity") = 0;
@@ -229,6 +226,13 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
         }
 
         Q_ASSERT(newNode.isValid());
+    }
+    catch (RewritingException &e) {
+        QMessageBox::warning(0, "Error", e.description());
+    }
+    catch (InvalidIdException &e) {
+        // should never happen
+        QMessageBox::warning(0, tr("Invalid Id"), e.description());
     }
 
     Q_ASSERT(newNode.isValid());

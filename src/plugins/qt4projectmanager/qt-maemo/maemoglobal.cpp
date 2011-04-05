@@ -129,10 +129,14 @@ QString MaemoGlobal::remoteSudo()
     return QLatin1String("/usr/lib/mad-developer/devrootsh");
 }
 
-QString MaemoGlobal::remoteCommandPrefix(const QString &commandFilePath)
+QString MaemoGlobal::remoteCommandPrefix(MaemoVersion maemoVersion,
+    const QString &commandFilePath)
 {
-    return QString::fromLocal8Bit("%1 chmod a+x %2; %3; ")
+    QString prefix = QString::fromLocal8Bit("%1 chmod a+x %2; %3; ")
         .arg(remoteSudo(), commandFilePath, remoteSourceProfilesCommand());
+    if (maemoVersion != Maemo5 && maemoVersion != Maemo6)
+        prefix += QLatin1String("DISPLAY=:0.0 ");
+    return prefix;
 }
 
 QString MaemoGlobal::remoteSourceProfilesCommand()
@@ -333,8 +337,8 @@ QStringList MaemoGlobal::targetArgs(const QtVersion *qtVersion, bool useTarget)
 QString MaemoGlobal::osVersionToString(OsVersion version)
 {
     switch (version) {
-    case Maemo5: return QLatin1String("Maemo 5/Fremantle");
-    case Maemo6: return QLatin1String("Maemo 6/Harmattan");
+    case Maemo5: return QLatin1String("Maemo5/Fremantle");
+    case Maemo6: return QLatin1String("Harmattan");
     case Meego: return QLatin1String("Meego");
     case GenericLinux: return QLatin1String("Other Linux");
     }

@@ -127,7 +127,8 @@ CodaGdbAdapter::CodaGdbAdapter(GdbEngine *engine) :
     m_uid(0),
     m_verbose(0),
     m_firstResumableExeLoadedEvent(false),
-    m_registerRequestPending(false)
+    m_registerRequestPending(false),
+    m_firstHelloEvent(true)
 {
     m_bufferedMemoryRead = true;
     // Disable buffering if gdb's dcache is used.
@@ -316,8 +317,11 @@ void CodaGdbAdapter::codaEvent(const CodaEvent &e)
 
     switch (e.type()) {
     case CodaEvent::LocatorHello:
-        m_codaDevice->sendLoggingAddListenerCommand(CodaCallback());
-        startGdb(); // Commands are only accepted after hello
+        if (state() == EngineSetupRequested && m_firstHelloEvent) {
+            m_firstHelloEvent = false;
+            m_codaDevice->sendLoggingAddListenerCommand(CodaCallback());
+            startGdb(); // Commands are only accepted after hello
+        }
         break;
     case CodaEvent::RunControlModuleLoadSuspended: // A module was loaded
         handleCodaRunControlModuleLoadContextSuspendedEvent(
@@ -1027,6 +1031,7 @@ void CodaGdbAdapter::startAdapter()
     m_session.reset();
     m_firstResumableExeLoadedEvent = true;
     m_tcfProcessId.clear();
+    m_firstHelloEvent = true;
 
     // Retrieve parameters.
     const DebuggerStartParameters &parameters = startParameters();

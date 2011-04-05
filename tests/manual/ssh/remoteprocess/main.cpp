@@ -34,7 +34,7 @@
 #include "argumentscollector.h"
 #include "remoteprocesstest.h"
 
-#include <coreplugin/ssh/sshconnection.h>
+#include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QObject>
@@ -43,13 +43,13 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace Core;
+using namespace Utils;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     bool parseSuccess;
-    const Core::SshConnectionParameters &parameters
+    const Utils::SshConnectionParameters &parameters
         = ArgumentsCollector(app.arguments()).collect(parseSuccess);
     if (!parseSuccess)
         return EXIT_FAILURE;

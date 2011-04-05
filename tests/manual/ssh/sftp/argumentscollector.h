@@ -55,7 +55,7 @@ private:
     bool checkAndSetIntArg(int &pos, int &val, bool &alreadyGiven,
         const char *opt) const;
     bool checkForNoProxy(int &pos,
-        Core::SshConnectionParameters::ProxyType &type,
+        Utils::SshConnectionParameters::ProxyType &type,
         bool &alreadyGiven) const;
 
     const QStringList m_arguments;

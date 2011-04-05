@@ -284,6 +284,7 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
     QString styleSheet = QLatin1String(file.readAll());
     m_stackedWidget->setStyleSheet(styleSheet);
     m_stackedWidget->setMinimumWidth(300);
+    m_stackedWidget->move(0, 0);
     connect(m_stackedWidget, SIGNAL(resized()), this, SLOT(updateSize()));
 
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));

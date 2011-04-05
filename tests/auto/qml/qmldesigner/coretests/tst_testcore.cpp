@@ -106,12 +106,12 @@ public:
 static void initializeMetaTypeSystem(const QString &resourcePath)
 {
     const QDir typeFileDir(resourcePath + QLatin1String("/qml-type-descriptions"));
-    const QStringList xmlExtensions = QStringList() << QLatin1String("*.xml");
-    const QFileInfoList xmlFiles = typeFileDir.entryInfoList(xmlExtensions,
+    const QStringList qmlExtensions = QStringList() << QLatin1String("*.qml");
+    const QFileInfoList qmlFiles = typeFileDir.entryInfoList(qmlExtensions,
                                                              QDir::Files,
                                                              QDir::Name);
 
-    const QStringList errors = QmlJS::Interpreter::CppQmlTypesLoader::load(xmlFiles);
+    const QStringList errors = QmlJS::Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlFiles);
     foreach (const QString &error, errors)
         qWarning() << qPrintable(error);
 }
@@ -867,7 +867,11 @@ void tst_TestCore::testRewriterChangeImports()
     // Add / Remove an import in the model
     //
     Import webkitImport = Import::createLibraryImport("QtWebKit", "1.0");
-    model->addImport(webkitImport);
+
+    QList<Import> importList;
+    importList << webkitImport;
+
+    model->changeImports(importList, QList<Import>());
 
     const QLatin1String qmlWithImport("\n"
                                  "import Qt 4.7\n"
@@ -876,7 +880,7 @@ void tst_TestCore::testRewriterChangeImports()
                                  "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithImport);
 
-    model->removeImport(webkitImport);
+    model->changeImports(QList<Import>(), importList);
 
     QCOMPARE(model->imports().size(), 1);
     QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
@@ -887,8 +891,7 @@ void tst_TestCore::testRewriterChangeImports()
     //
     // Add / Remove an import in the model (with alias)
     //
-    webkitImport = Import::createLibraryImport("QtWebKit", "1.0", "Web");
-    model->addImport(webkitImport);
+    model->changeImports(importList, QList<Import>());
 
     const QLatin1String qmlWithAliasImport("\n"
                                  "import Qt 4.7\n"
@@ -897,7 +900,7 @@ void tst_TestCore::testRewriterChangeImports()
                                  "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithAliasImport);
 
-    model->removeImport(webkitImport);
+    model->changeImports(QList<Import>(), importList);
 
     QCOMPARE(model->imports().size(), 1);
     QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
@@ -3479,7 +3482,7 @@ void tst_TestCore::testSubComponentManager()
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
     QScopedPointer<SubComponentManager> subComponentManager(new SubComponentManager(model->metaInfo(), 0));
-    subComponentManager->update(QUrl::fromLocalFile(fileName), modifier.text().toUtf8());
+    subComponentManager->update(QUrl::fromLocalFile(fileName), model->imports());
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
     testRewriterView->setTextModifier(&modifier);

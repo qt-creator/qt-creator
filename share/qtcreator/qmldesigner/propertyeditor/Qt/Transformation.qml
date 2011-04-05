@@ -69,14 +69,14 @@ GroupBox {
                     backendValue: backendValues.scale;
                     property variant pureValue: backendValues.scale.value;
                     onPureValueChanged: {
-                        if (value != pureValue * 100)
+                        if (value != pureValue * 10)
                             value = pureValue * 10;
                     }
                     minimum: 1;
-                    maximum: 100;
+                    maximum: 10;
                     singleStep: 1;
                     onValueChanged: {
-                        if ((value > 5) && (value < 100))
+                        if ((value > 0) && (value < 11))
                             backendValues.scale.value = value / 10;
                     }
                 }

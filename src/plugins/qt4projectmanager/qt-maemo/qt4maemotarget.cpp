@@ -109,7 +109,9 @@ bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
 AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id) :
     Qt4BaseTarget(parent, id),
     m_filesWatcher(new QFileSystemWatcher(this)),
-    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
+    m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
+    m_deployConfigurationFactory(new Qt4MaemoDeployConfigurationFactory(this)),
+    m_isInitialized(false)
 {
     setIcon(QIcon(":/projectexplorer/images/MaemoDevice.png"));
     connect(parent, SIGNAL(addedTarget(ProjectExplorer::Target*)),
@@ -284,6 +286,7 @@ void AbstractQt4MaemoTarget::handleTargetAdded(ProjectExplorer::Target *target)
         return;
     initPackagingSettingsFromOtherTarget();
     handleTargetAddedSpecial();
+    m_isInitialized = true;
 }
 
 void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *target)
@@ -355,7 +358,7 @@ bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
     foreach (const Target * const target, project()->targets()) {
         const AbstractQt4MaemoTarget * const maemoTarget
             = qobject_cast<const AbstractQt4MaemoTarget *>(target);
-        if (maemoTarget && maemoTarget != this) {
+        if (maemoTarget && maemoTarget != this && maemoTarget->m_isInitialized) {
             if (!setProjectVersionInternal(maemoTarget->projectVersion()))
                 success = false;
             if (!setPackageNameInternal(maemoTarget->packageName()))

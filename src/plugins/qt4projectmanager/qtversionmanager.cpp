@@ -173,8 +173,9 @@ QtVersionManager::QtVersionManager()
                                            id,
                                            isAutodetected,
                                            autodetectionSource);
-        version->setSystemRoot(s->value("S60SDKDirectory").toString());
-        version->setSbsV2Directory(s->value(QLatin1String("SBSv2Directory")).toString());
+        // Make sure we do not import non-native separators from old Qt Creator versions:
+        version->setSystemRoot(QDir::fromNativeSeparators(s->value("S60SDKDirectory").toString()));
+        version->setSbsV2Directory(QDir::fromNativeSeparators(s->value(QLatin1String("SBSv2Directory")).toString()));
 
         // Update from pre-2.2:
         const QString mingwDir = s->value(QLatin1String("MingwDirectory")).toString();

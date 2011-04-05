@@ -34,8 +34,8 @@
 #include "argumentscollector.h"
 #include "sftptest.h"
 
-#include <coreplugin/ssh/sftpchannel.h>
-#include <coreplugin/ssh/sshconnection.h>
+#include <utils/ssh/sftpchannel.h>
+#include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QObject>
@@ -44,7 +44,7 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace Core;
+using namespace Utils;
 
 int main(int argc, char *argv[])
 {
