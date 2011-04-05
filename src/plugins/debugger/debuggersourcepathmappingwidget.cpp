@@ -204,12 +204,12 @@ void SourcePathMappingModel::setTarget(int row, const QString &t)
 DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent) :
     QGroupBox(parent),
     m_model(new SourcePathMappingModel(this)),
-    m_treeView(new QTreeView),
-    m_addButton(new QPushButton(tr("Add"))),
-    m_addQtButton(new QPushButton(tr("Add Qt sources..."))),
-    m_removeButton(new QPushButton(tr("Remove"))),
-    m_sourceLineEdit(new QLineEdit),
-    m_targetChooser(new Utils::PathChooser)
+    m_treeView(new QTreeView(this)),
+    m_addButton(new QPushButton(tr("Add"), this)),
+    m_addQtButton(new QPushButton(tr("Add Qt sources..."), this)),
+    m_removeButton(new QPushButton(tr("Remove"), this)),
+    m_sourceLineEdit(new QLineEdit(this)),
+    m_targetChooser(new Utils::PathChooser(this))
 {
     setTitle(tr("Source Paths Mapping"));
     setToolTip(tr("<html><head/><body><p>Mappings of source file folders to "
