@@ -125,6 +125,7 @@ private:
     Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
     Qt4MaemoDeployConfigurationFactory *m_deployConfigurationFactory;
     MaemoPerTargetDeviceConfigurationListModel * m_deviceConfigurationsListModel;
+    bool m_isInitialized;
 };
 
 
