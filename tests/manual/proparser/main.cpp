@@ -169,6 +169,7 @@ int main(int argc, char **argv)
     } props[] = {
         { "QT_INSTALL_DATA", QLibraryInfo::DataPath },
         { "QT_INSTALL_LIBS", QLibraryInfo::LibrariesPath },
+        { "QT_INSTALL_IMPORTS", QLibraryInfo::ImportsPath },
         { "QT_INSTALL_HEADERS", QLibraryInfo::HeadersPath },
         { "QT_INSTALL_DEMOS", QLibraryInfo::DemosPath },
         { "QT_INSTALL_EXAMPLES", QLibraryInfo::ExamplesPath },
