@@ -95,6 +95,8 @@ void FormEditorScene::resetScene()
 {
     foreach(QGraphicsItem *item, m_manipulatorLayerItem->childItems())
        removeItem(item);
+
+    setSceneRect(-canvasWidth()/2., -canvasHeight()/2., canvasWidth(), canvasHeight());
 }
 
 FormEditorItem* FormEditorScene::itemForQmlItemNode(const QmlItemNode &qmlItemNode) const
