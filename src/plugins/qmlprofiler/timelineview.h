@@ -129,6 +129,8 @@ private:
     qreal m_startX;
     int prevMin;
     int prevMax;
+    QList<qreal> m_starts;
+    QList<qreal> m_ends;
 
     struct PrevLimits {
         PrevLimits(int _min, int _max) : min(_min), max(_max) {}

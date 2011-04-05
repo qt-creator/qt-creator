@@ -81,6 +81,16 @@ void TimelineView::setRanges(const QScriptValue &value)
 
     for (int i = 0; i < m_rangeList.count(); ++i)
         m_prevLimits << PrevLimits(0, 0);
+
+    qreal startValue = m_ranges.property(0).property("start").toNumber();
+    m_starts.clear();
+    m_starts.reserve(length);
+    m_ends.clear();
+    m_ends.reserve(length);
+    for (int i = 0; i < length; ++i) {
+        m_starts.append(m_ranges.property(i).property("start").toNumber() - startValue);
+        m_ends.append(m_ranges.property(i).property("start").toNumber() + m_ranges.property(i).property("duration").toNumber() - startValue);
+    }
 }
 
 void TimelineView::setStartX(qreal arg)
@@ -127,32 +137,25 @@ void TimelineView::updateTimeline(bool updateStartX)
     qreal oldtw = m_totalWidth;
     m_totalWidth = totalRange * spacing;
 
-    qreal offsets[length][2];
-
-    for (int i = 0; i < length; ++i) {
-        offsets[i][0] = (m_ranges.property(i).property("start").toNumber() - startValue);
-        offsets[i][1] = (m_ranges.property(i).property("start").toNumber() + m_ranges.property(i).property("duration").toNumber() - startValue);
-    }
-
     // Find region samples
     int minsample = 0;
     int maxsample = 0;
 
     for (int i = 0; i < length; ++i) {
-        if (offsets[i][1] >= m_startTime)
+        if (m_ends.at(i) >= m_startTime)
             break;
         minsample = i;
     }
 
     for (int i = minsample + 1; i < length; ++i) {
         maxsample = i;
-        if (offsets[i][0] > m_endTime)
+        if (m_starts.at(i) > m_endTime)
             break;
     }
 
     //### overkill (if we can expose whether or not data is nested)
     for (int i = maxsample + 1; i < length; ++i) {
-        if (offsets[i][0] < m_endTime)
+        if (m_starts.at(i) < m_endTime)
             maxsample = i;
     }
 
@@ -222,8 +225,8 @@ void TimelineView::updateTimeline(bool updateStartX)
             item->setParentItem(this);
         }
         if (item) {
-            item->setX(offsets[i][0]*spacing);
-            item->setWidth(m_ranges.property(i).property("duration").toNumber() * spacing);
+            item->setX(m_starts.at(i)*spacing);
+            item->setWidth((m_ends.at(i)-m_starts.at(i)) * spacing);
             item->setZValue(++z);
         }
         if (creating)

@@ -89,6 +89,9 @@ function drawData(canvas, ctxt, region)
     var sumValue = ranges[ranges.length - 1].start + ranges[ranges.length - 1].duration - ranges[0].start;
     var spacing = width / sumValue;
 
+    ctxt.fillStyle = "rgba(0,0,0,1)";
+    var highest = [0,0,0,0,0];
+
     //### only draw those in range
     for (var ii = 0; ii < ranges.length; ++ii) {
 
@@ -103,8 +106,11 @@ function drawData(canvas, ctxt, region)
         if (size < 0.5)
             size = 0.5;
 
-        ctxt.fillStyle = "rgba(0,0,0,1)" //colors[ranges[ii].type];
-        ctxt.fillRect(xx, ranges[ii].type*10, size, 10);
+        xx = Math.round(xx);
+        if (xx + size > highest[ranges[ii].type]) {
+            ctxt.fillRect(xx, ranges[ii].type*10, size, 10);
+            highest[ranges[ii].type] = xx+size;
+        }
     }
 
     //draw fps overlay

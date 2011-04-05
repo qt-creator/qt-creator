@@ -49,6 +49,7 @@ TiledCanvas::TiledCanvas()
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setAcceptedMouseButtons(Qt::LeftButton);
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 QSizeF TiledCanvas::canvasSize() const
