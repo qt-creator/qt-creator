@@ -5869,7 +5869,8 @@
 
             \o In the \gui Id field, enter \e middleRightRect.
 
-            \o In \gui {Layout}, select the right and vertical center anchor buttons to
+            \o In \gui {Layout}, select the vertical center anchor button and
+            then the right anchor button to
             anchor the rectangle to the middle right margin of the screen.
 
             \o In the \gui Margin field, select 10 for the right anchor and 0 for
