@@ -6997,7 +6997,11 @@
     \title Managing Sessions
 
     When you exit Qt Creator, a snapshot of your current workspace is stored
-    as a \e session. A session is an arbitrary collection of:
+    as a \e session. To restore the session automatically when you start Qt
+    Creator, select \gui {File > Session Manager > Restore last session on
+    startup}.
+
+    A session is an arbitrary collection of:
 
     \list
         \o Open projects with their dependencies (including SUBDIRS projects)
@@ -7016,12 +7020,12 @@
     to return to working on the first project later.
 
     To create a new session or remove existing sessions, select \gui File >
-    \gui Sessions > \gui{Session Manager}.
+    \gui{Session Manager}.
 
     \image qtcreator-session-manager.png
 
     To switch between sessions, choose
-    \gui File > \gui Session. If you do not create or select a session,
+    \gui {File > Session Manager}. If you do not create or select a session,
     Qt Creator always uses the default session, which was created the
     last time you exited Qt Creator.
 
