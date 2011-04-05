@@ -252,3 +252,11 @@ char S60RunControlBase::installationDrive() const
 {
     return m_installationDrive;
 }
+
+void S60RunControlBase::appendMessage(const QString &msg, ProjectExplorer::OutputFormat format, bool addNewLine)
+{
+    if (addNewLine)
+        RunControl::appendMessage(msg + '\n', format);
+    else
+        RunControl::appendMessage(msg, format);
+}
