@@ -13,7 +13,7 @@ SOURCES += $$PWD/peutils.cpp \
 HEADERS += $$PWD/peutils.h \
            $$PWD/dbgwinutils.h
 
-contains(QMAKE_CXX, cl) {
+win32-msvc* {
 #   For the Privilege manipulation functions in sharedlibraryinjector.cpp.
     LIBS += -ladvapi32
 }

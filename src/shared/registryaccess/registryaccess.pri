@@ -5,6 +5,6 @@ HEADERS += $$PWD/registryaccess.h
 
 LIBS *= -lpsapi
 # PS API and registry functions
-contains(QMAKE_CXX, cl) {
+win32-msvc* {
     LIBS *= -ladvapi32
 }
