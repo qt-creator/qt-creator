@@ -21,7 +21,14 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0" colspan="2">
-       <widget class="QTableView" name="mimeTypesTableView"/>
+       <widget class="QTableView" name="mimeTypesTableView">
+        <property name="showGrid">
+         <bool>false</bool>
+        </property>
+        <property name="gridStyle">
+         <enum>Qt::NoPen</enum>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QPushButton" name="resetButton">
@@ -84,6 +91,12 @@
             <width>16777215</width>
             <height>100</height>
            </size>
+          </property>
+          <property name="showGrid">
+           <bool>false</bool>
+          </property>
+          <property name="gridStyle">
+           <enum>Qt::NoPen</enum>
           </property>
           <column>
            <property name="text">
