@@ -1449,7 +1449,7 @@ static bool dumpQStringFromQPrivateClass(const SymbolGroupValue &v,
         return false;
     const std::string dumpType = QtInfo::get(v.context()).prependQtCoreModule("QString");
     const std::string symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , dumpType);
-    if (SymbolGroupValue::verbose)
+    if (SymbolGroupValue::verbose > 1)
         DebugPrint() <<  "dumpQStringFromQPrivateClass of " << v.name() << '/'
                      << v.type() << " mode=" << mode
                      << " offset=" << additionalOffset << " address=0x" << std::hex << stringAddress
