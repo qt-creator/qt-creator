@@ -205,7 +205,7 @@ QString MaemoTarPackageInstaller::installCommand() const
 
 QStringList MaemoTarPackageInstaller::installCommandArguments() const
 {
-    return QStringList() << QLatin1String("xvf");
+    return QStringList() << QLatin1String("--absolute-names -xvf");
 }
 
 } // namespace Internal

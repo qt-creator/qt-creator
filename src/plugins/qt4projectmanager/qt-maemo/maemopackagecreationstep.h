@@ -47,6 +47,7 @@
 QT_BEGIN_NAMESPACE
 class QDateTime;
 class QFile;
+class QFileInfo;
 class QProcess;
 QT_END_NAMESPACE
 
@@ -109,7 +110,7 @@ private:
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    virtual bool createPackage(QProcess *buildProc)=0;
+    virtual bool createPackage(QProcess *buildProc, const QFutureInterface<bool> &fi)=0;
     virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const=0;
 
     static QString nativePath(const QFile &file);
@@ -132,7 +133,7 @@ private:
     MaemoDebianPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
         MaemoDebianPackageCreationStep *other);
 
-    virtual bool createPackage(QProcess *buildProc);
+    virtual bool createPackage(QProcess *buildProc, const QFutureInterface<bool> &fi);
     virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const;
 
     void ctor();
@@ -159,7 +160,7 @@ public:
     MaemoRpmPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
 
 private:
-    virtual bool createPackage(QProcess *buildProc);
+    virtual bool createPackage(QProcess *buildProc, const QFutureInterface<bool> &fi);
     virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const;
 
     MaemoRpmPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
@@ -180,7 +181,7 @@ public:
 
     virtual QString packageFilePath() const;
 private:
-    virtual bool createPackage(QProcess *buildProc);
+    virtual bool createPackage(QProcess *buildProc, const QFutureInterface<bool> &fi);
     virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const;
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
@@ -188,6 +189,10 @@ private:
         MaemoTarPackageCreationStep *other);
 
     void ctor();
+    bool appendFile(QFile &tarFile, const QFileInfo &fileInfo,
+        const QString &remoteFilePath, const QFutureInterface<bool> &fi);
+    bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo,
+        const QString &remoteFilePath);
 
     static const QString CreatePackageId;
 };
