@@ -174,17 +174,13 @@
     Ubuntu or Debian?}
 
     \code
-    @
     sudo apt-get install libglib2.0-dev libSM-dev libxrender-dev libfontconfig1-dev libxext-dev
-    @
     \endcode
 
     If you use QtOpenGL, you also need:
 
     \code
-    @
     sudo apt-get install libgl-dev libglu-dev
-    @
     \endcode
 
     \section1 Platform Releated Questions
