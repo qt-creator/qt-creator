@@ -36,37 +36,19 @@
 
 #include "../valgrind_global.h"
 
+#include <QtGui/QAbstractItemView>
+
 namespace Valgrind {
 namespace Callgrind {
 
 class ParseData;
 
-class VALGRINDSHARED_EXPORT AbstractModel {
-public:
-    AbstractModel();
-    virtual ~AbstractModel();
-
-    virtual void setParseData(const ParseData *data) = 0;
-    virtual const ParseData *parseData() const = 0;
-
-    /// Only one cost event column will be shown, this decides which one it is.
-    /// By default it is the first event in the @c ParseData, i.e. 0.
-    virtual int costEvent() const = 0;
-
-    //BEGIN SLOTS
-    virtual void setCostEvent(int event) = 0;
-    //END SLOTS
-
-    //BEGIN SIGNALS
-    virtual void parseDataChanged(AbstractModel *model) = 0;
-    //END SIGNALS
-
-    enum Roles {
-        ParentCostRole = Qt::UserRole,
-        RelativeTotalCostRole,
-        RelativeParentCostRole,
-        NextCustomRole
-    };
+enum AbstractModelRoles
+{
+    ParentCostRole = Qt::UserRole,
+    RelativeTotalCostRole,
+    RelativeParentCostRole,
+    NextCustomRole
 };
 
 } // Callgrind

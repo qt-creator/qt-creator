@@ -96,12 +96,7 @@ void CostView::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
 
-    AbstractModel *abstractModel = 0;
     forever {
-        abstractModel = dynamic_cast<AbstractModel *>(model);
-        if (abstractModel)
-            break;
-
         QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel *>(model);
         if (proxy)
             model = proxy->sourceModel();
@@ -114,7 +109,7 @@ void CostView::setModel(QAbstractItemModel *model)
     headerView->setResizeMode(QHeaderView::Interactive);
     headerView->setStretchLastSection(false);
 
-    if (dynamic_cast<CallModel *>(abstractModel)) {
+    if (qobject_cast<CallModel *>(model)) {
         setItemDelegateForColumn(CallModel::CostColumn, d->m_costDelegate);
         headerView->setResizeMode(CallModel::CostColumn, QHeaderView::ResizeToContents);
         headerView->setResizeMode(CallModel::CallsColumn, QHeaderView::ResizeToContents);
@@ -122,7 +117,7 @@ void CostView::setModel(QAbstractItemModel *model)
         setItemDelegateForColumn(CallModel::CalleeColumn, d->m_nameDelegate);
         headerView->setResizeMode(CallModel::CallerColumn, QHeaderView::Stretch);
         setItemDelegateForColumn(CallModel::CallerColumn, d->m_nameDelegate);
-    } else if(dynamic_cast<DataModel *>(abstractModel)) {
+    } else if (qobject_cast<DataModel *>(model)) {
         setItemDelegateForColumn(DataModel::SelfCostColumn, d->m_costDelegate);
         headerView->setResizeMode(DataModel::SelfCostColumn, QHeaderView::ResizeToContents);
         setItemDelegateForColumn(DataModel::InclusiveCostColumn, d->m_costDelegate);
@@ -132,7 +127,7 @@ void CostView::setModel(QAbstractItemModel *model)
         headerView->setResizeMode(DataModel::LocationColumn, QHeaderView::Stretch);
     }
 
-    d->m_costDelegate->setModel(abstractModel);
+    d->m_costDelegate->setModel(model);
 }
 
 void CostView::setCostFormat(CostDelegate::CostFormat format)

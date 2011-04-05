@@ -50,12 +50,11 @@ class Function;
 /**
  * Model to display list of function calls.
  */
-class VALGRINDSHARED_EXPORT CallModel : public QAbstractItemModel, public AbstractModel
+class VALGRINDSHARED_EXPORT CallModel : public QAbstractItemModel
 {
     Q_OBJECT
-
 public:
-    explicit CallModel(QObject *parent = 0);
+    explicit CallModel(QObject *parent);
     virtual ~CallModel();
 
     void clear();
@@ -63,6 +62,7 @@ public:
     /// Only one cost event column will be shown, this decides which one it is.
     /// By default it is the first event in the @c ParseData, i.e. 0.
     virtual int costEvent() const;
+    virtual void setCostEvent(int event);
 
     virtual void setParseData(const ParseData *data);
     virtual const ParseData *parseData() const;
@@ -87,16 +87,8 @@ public:
     };
 
     enum Roles {
-        FunctionCallRole = AbstractModel::NextCustomRole
+        FunctionCallRole = NextCustomRole
     };
-
-public slots:
-    /// Only one cost event column will be shown, this decides which one it is.
-    /// By default it is the first event in the @c ParseData, i.e. 0.
-    void setCostEvent(int event);
-
-signals:
-    void parseDataChanged(AbstractModel *model);
 
 private:
     class Private;

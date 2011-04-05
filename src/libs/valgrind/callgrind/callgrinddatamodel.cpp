@@ -108,8 +108,7 @@ void DataModel::Private::updateFunctions()
 //BEGIN DataModel
 
 DataModel::DataModel(QObject *parent)
-: QAbstractItemModel(parent)
-, d(new Private)
+   : QAbstractItemModel(parent), d(new Private)
 {
 
 }
@@ -129,7 +128,6 @@ void DataModel::setParseData(const ParseData *data)
     d->m_event = 0;
     d->updateFunctions();
     endResetModel();
-    emit parseDataChanged(this);
 }
 
 const ParseData *DataModel::parseData() const

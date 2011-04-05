@@ -36,15 +36,8 @@
 
 #include <QtGui/QStyledItemDelegate>
 
-namespace Valgrind {
-namespace Callgrind {
-class AbstractModel;
-}
-}
-
 namespace Callgrind {
 namespace Internal {
-
 
 class CostDelegate : public QStyledItemDelegate
 {
@@ -58,7 +51,7 @@ public:
                        const QModelIndex &index) const;
     virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-    void setModel(Valgrind::Callgrind::AbstractModel *model);
+    void setModel(QAbstractItemModel *model);
 
     enum CostFormat {
         /// show absolute numbers
@@ -76,7 +69,6 @@ private:
     class Private;
     Private *d;
 };
-
 
 } // Internal
 } // Callgrind

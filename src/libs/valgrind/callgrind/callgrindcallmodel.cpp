@@ -69,10 +69,8 @@ CallModel::Private::Private()
 
 //BEGIN CallModel
 CallModel::CallModel(QObject *parent)
-: QAbstractItemModel(parent)
-, d(new Private)
+  : QAbstractItemModel(parent), d(new Private)
 {
-
 }
 
 CallModel::~CallModel()
@@ -125,7 +123,6 @@ void CallModel::setParseData(const ParseData *data)
         clear();
 
     d->m_data = data;
-    emit parseDataChanged(this);
 }
 
 const ParseData *CallModel::parseData() const

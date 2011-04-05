@@ -47,12 +47,12 @@ namespace Callgrind {
 class Function;
 class ParseData;
 
-class VALGRINDSHARED_EXPORT DataModel : public QAbstractItemModel, public AbstractModel
+class VALGRINDSHARED_EXPORT DataModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit DataModel(QObject *parent = 0);
+    explicit DataModel(QObject *parent);
     virtual ~DataModel();
 
     virtual void setParseData(const ParseData *data);
@@ -82,7 +82,7 @@ public:
     };
 
     enum Roles {
-        FunctionRole = AbstractModel::NextCustomRole,
+        FunctionRole = NextCustomRole,
         LineNumberRole,
         FileNameRole
     };
@@ -94,9 +94,6 @@ public slots:
     /// Only one cost event column will be shown, this decides which one it is.
     /// By default it is the first event in the @c ParseData, i.e. 0.
     virtual void setCostEvent(int event);
-
-signals:
-    void parseDataChanged(AbstractModel *model);
 
 private:
     class Private;

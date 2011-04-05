@@ -60,7 +60,7 @@ void CallgrindTextMark::paint(QPainter *painter, const QRect &paintRect) const
         return;
 
     bool ok;
-    qreal costs = m_modelIndex.data(DataModel::RelativeTotalCostRole).toReal(&ok);
+    qreal costs = m_modelIndex.data(RelativeTotalCostRole).toReal(&ok);
     QTC_ASSERT(ok, return)
     QTC_ASSERT(costs >= 0.0 && costs <= 100.0, return)
 

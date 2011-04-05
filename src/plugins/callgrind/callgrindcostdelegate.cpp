@@ -51,13 +51,12 @@ using namespace Valgrind::Callgrind;
 namespace Callgrind {
 namespace Internal {
 
-//BEGIN CostDelegate::Private
-class CostDelegate::Private {
+class CostDelegate::Private
+{
 public:
     Private();
-    ~Private();
 
-    Valgrind::Callgrind::AbstractModel *m_model;
+    QAbstractItemModel *m_model;
     CostDelegate::CostFormat m_format;
 
     static int toNativeRole(CostFormat format);
@@ -69,12 +68,6 @@ CostDelegate::Private::Private()
 : m_model(0)
 , m_format(CostDelegate::FormatAbsolute)
 {
-
-}
-
-CostDelegate::Private::~Private()
-{
-
 }
 
 int CostDelegate::Private::toNativeRole(CostDelegate::CostFormat format)
@@ -83,9 +76,9 @@ int CostDelegate::Private::toNativeRole(CostDelegate::CostFormat format)
     {
     case FormatAbsolute:
     case FormatRelative:
-        return Valgrind::Callgrind::AbstractModel::RelativeTotalCostRole;
+        return Valgrind::Callgrind::RelativeTotalCostRole;
     case FormatRelativeToParent:
-        return Valgrind::Callgrind::AbstractModel::RelativeParentCostRole;
+        return Valgrind::Callgrind::RelativeParentCostRole;
     default:
         return -1;
     }
@@ -129,7 +122,7 @@ CostDelegate::~CostDelegate()
     delete d;
 }
 
-void CostDelegate::setModel(Valgrind::Callgrind::AbstractModel *model)
+void CostDelegate::setModel(QAbstractItemModel *model)
 {
     d->m_model = model;
 }

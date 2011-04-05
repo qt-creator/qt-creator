@@ -30,23 +30,3 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-
-#include "callgrindparsedata.h"
-#include "callgrinddatamodel.h"
-
-namespace Valgrind {
-namespace Callgrind {
-
-AbstractModel::AbstractModel()
-{
-
-}
-
-AbstractModel::~AbstractModel()
-{
-
-}
-
-
-} // Callgrind
-} // Valgrind
