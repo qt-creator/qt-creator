@@ -53,6 +53,8 @@ DesignerSettings SettingsPageWidget::settings() const
     DesignerSettings ds;
     ds.itemSpacing = m_ui.spinItemSpacing->value();
     ds.snapMargin = m_ui.spinSnapMargin->value();
+    ds.canvasWidth = m_ui.spinCanvasWidth->value();
+    ds.canvasHeight = m_ui.spinCanvasHeight->value();
     return ds;
 }
 
@@ -60,6 +62,8 @@ void SettingsPageWidget::setSettings(const DesignerSettings &s)
 {
     m_ui.spinItemSpacing->setValue(s.itemSpacing);
     m_ui.spinSnapMargin->setValue(s.snapMargin);
+    m_ui.spinCanvasWidth->setValue(s.canvasWidth);
+    m_ui.spinCanvasHeight->setValue(s.canvasHeight);
 }
 
 QString SettingsPageWidget::searchKeywords() const
@@ -67,7 +71,9 @@ QString SettingsPageWidget::searchKeywords() const
     QString rc;
     QTextStream(&rc)
             << ' ' << m_ui.snapMarginLabel->text()
-            << ' ' << m_ui.itemSpacingLabel->text();
+            << ' ' << m_ui.itemSpacingLabel->text()
+            << ' ' << m_ui.canvasWidthLabel->text()
+            << ' ' << m_ui.canvasHeightLabel->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }
