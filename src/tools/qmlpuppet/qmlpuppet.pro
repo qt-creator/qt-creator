@@ -2,7 +2,11 @@ TARGET = qmlpuppet
 
 TEMPLATE = app
 
-QT += core gui declarative network webkit
+QT += core gui declarative network
+
+contains (QT_CONFIG, webkit) {
+    QT += webkit
+}
 
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
 
