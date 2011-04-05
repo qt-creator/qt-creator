@@ -218,16 +218,41 @@ ULONG64 SymbolGroupValue::pointerValue(ULONG64 defaultValue) const
     return defaultValue;
 }
 
+// Read a POD value from debuggee memory and convert into host variable type POD.
+// For unsigned integer types, it is possible to read a smaller debuggee-unsigned
+// into a big ULONG64 on the host side (due to endianness).
+template<class POD>
+    POD readPODFromMemory(CIDebugDataSpaces *ds, ULONG64 address, ULONG debuggeeTypeSize,
+                          POD defaultValue, std::string *errorMessage /* = 0 */)
+{
+    POD rc = defaultValue;
+    if (debuggeeTypeSize == 0 || debuggeeTypeSize > sizeof(POD)) // Safety check.
+        return rc;
+    if (const unsigned char *buffer = SymbolGroupValue::readMemory(ds, address, debuggeeTypeSize, errorMessage)) {
+        memcpy(&rc, buffer, debuggeeTypeSize);
+        delete [] buffer;
+    }
+    return rc;
+}
+
 ULONG64 SymbolGroupValue::readPointerValue(CIDebugDataSpaces *ds, ULONG64 address,
                                            std::string *errorMessage /* = 0 */)
 {
-    ULONG64 v = 0;
-    if (const unsigned ps = SymbolGroupValue::pointerSize())
-        if (const unsigned char *buffer = SymbolGroupValue::readMemory(ds, address, ps, errorMessage)) {
-            memcpy(&v, buffer, ps);
-            delete [] buffer;
-    }
-    return v;
+    return readPODFromMemory<ULONG64>(ds, address, SymbolGroupValue::pointerSize(), 0, errorMessage);
+}
+
+ULONG64 SymbolGroupValue::readUnsignedValue(CIDebugDataSpaces *ds,
+                                            ULONG64 address, ULONG debuggeeTypeSize,
+                                            ULONG64 defaultValue,
+                                            std::string *errorMessage /* = 0 */)
+{
+    return readPODFromMemory<ULONG64>(ds, address, debuggeeTypeSize, defaultValue, errorMessage);
+}
+
+double SymbolGroupValue::readDouble(CIDebugDataSpaces *ds, ULONG64 address, double defaultValue,
+                                    std::string *errorMessage /* = 0 */)
+{
+    return readPODFromMemory<double>(ds, address, sizeof(double), defaultValue, errorMessage);
 }
 
 // Read memory and return allocated array
@@ -545,6 +570,8 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
 {
     static const char qtCoreDefaultModule[] = "QtCored4";
     static const char qtGuiDefaultModule[] = "QtGuid4";
+    static const char qtNetworkDefaultModule[] = "QtNetworkd4";
+    static const char qtScriptDefaultModule[] = "QtScriptd4";
     static QtInfo rc;
     if (!rc.coreModule.empty())
         return rc;
@@ -553,21 +580,23 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
         // Lookup qstrdup() to hopefully get module (potential libinfix) and namespace
         // Typically, this resolves to 'QtGuid4!qstrdup' and 'QtCored4!qstrdup'...
         const std::string qualifiedSymbol = resolveQtSymbol("qstrdup", qtCoreDefaultModule, "Core", ctx);
-        if (qualifiedSymbol.empty()) {
+        const std::string::size_type exclPos = qualifiedSymbol.find('!'); // Resolved: 'QtCored4!qstrdup'
+        if (exclPos == std::string::npos) {
             rc.coreModule = qtCoreDefaultModule;
             rc.guiModule = qtGuiDefaultModule;
+            rc.networkModule = qtNetworkDefaultModule;
+            rc.scriptModule = qtScriptDefaultModule;
             break;
         }
         // Should be 'QtCored4!qstrdup'
-        const std::string::size_type exclPos = qualifiedSymbol.find('!');
-        if (exclPos == std::string::npos) {
-            rc.coreModule = qtCoreDefaultModule;
-            break;
-        }
         rc.coreModule = qualifiedSymbol.substr(0, exclPos);
         // Derive other module names 'QtXX<infix>d4'
         rc.guiModule = rc.coreModule;
         rc.guiModule.replace(0, 6, "QtGui");
+        rc.networkModule = rc.coreModule;
+        rc.networkModule.replace(0, 6, "QtNetwork");
+        rc.scriptModule = rc.coreModule;
+        rc.scriptModule.replace(0, 6, "QtScript");
         // Any namespace? 'QtCored4!nsp::qstrdup'
         const std::string::size_type nameSpaceStart = exclPos + 1;
         const std::string::size_type colonPos = qualifiedSymbol.find(':', nameSpaceStart);
@@ -1070,6 +1099,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QXmltem;
         if (!type.compare(qPos, 8, "QXmlName"))
             return KT_QXmlName;
+        if (!type.compare(qPos, 8, "QProcess"))
+            return KT_QProcess;
         break;
     case 9:
         if (!type.compare(qPos, 9, "QBitArray"))
@@ -1124,6 +1155,10 @@ static KnownType knownClassTypeHelper(const std::string &type,
     case 12:
         if (!type.compare(qPos, 12, "QKeySequence"))
             return KT_QKeySequence;
+        if (!type.compare(qPos, 12, "QHostAddress"))
+            return KT_QHostAddress;
+        if (!type.compare(qPos, 12, "QScriptValue"))
+            return KT_QScriptValue;
         break;
     case 13:
         if (!type.compare(qPos, 13, "QTextFragment"))
@@ -1385,8 +1420,10 @@ static ULONG64 addressOfQPrivateMember(const SymbolGroupValue &v, QPrivateDumpMo
                                        unsigned additionalOffset = 0)
 {
     std::string errorMessage;
-    // Dererence d-Ptr.
-    ULONG64 dAddress = v.address();
+    // Dererence d-Ptr (Pointer/Value duality: Value or object address).
+    ULONG64 dAddress = SymbolGroupValue::isPointerType(v.type()) ? v.pointerValue() : v.address();
+    if (!dAddress)
+        return 0;
     if (mode == QPDM_qVirtual) // Skip vtable.
         dAddress += SymbolGroupValue::pointerSize();
     const ULONG64 dptr = SymbolGroupValue::readPointerValue(v.context().dataspaces,
@@ -1412,6 +1449,11 @@ static bool dumpQStringFromQPrivateClass(const SymbolGroupValue &v,
         return false;
     const std::string dumpType = QtInfo::get(v.context()).prependQtCoreModule("QString");
     const std::string symbolName = SymbolGroupValue::pointedToSymbolName(stringAddress , dumpType);
+    if (SymbolGroupValue::verbose)
+        DebugPrint() <<  "dumpQStringFromQPrivateClass of " << v.name() << '/'
+                     << v.type() << " mode=" << mode
+                     << " offset=" << additionalOffset << " address=0x" << std::hex << stringAddress
+                     << std::dec << " expr=" << symbolName;
     SymbolGroupNode *stringNode =
             v.node()->symbolGroup()->addSymbol(v.module(), symbolName, std::string(), &errorMessage);
     if (!stringNode)
@@ -1472,6 +1514,63 @@ static inline bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
     if (!qIoDevicePrivateSize)
         return false;
     return dumpQStringFromQPrivateClass(v, QPDM_qVirtual, qIoDevicePrivateSize,  str);
+}
+
+/* Dump QHostAddress, for whose private class no debugging information is available.
+ * Dump string 'ipString' past of its private class. Does not currently work? */
+static inline bool dumpQHostAddress(const SymbolGroupValue &v, std::wostream &str)
+{
+    // Determine offset in private struct: qIPv6AddressType (array, unaligned) +  uint32 + enum.
+    static unsigned qIPv6AddressSize = 0;
+    if (!qIPv6AddressSize) {
+        const std::string qIPv6AddressType = QtInfo::get(v.context()).prependQtNetworkModule("QIPv6Address");
+        qIPv6AddressSize = SymbolGroupValue::sizeOf(qIPv6AddressType.c_str());
+    }
+    if (!qIPv6AddressSize)
+        return false;
+    const unsigned offset = padOffset(8 + qIPv6AddressSize);
+    return dumpQStringFromQPrivateClass(v, QPDM_None, offset,  str);
+}
+
+/* Dump QProcess, for whose private class no debugging information is available.
+ * Dump string 'program' string with empirical offset. */
+static inline bool dumpQProcess(const SymbolGroupValue &v, std::wostream &str)
+{
+    const unsigned offset = SymbolGroupValue::pointerSize() == 8 ? 424 : 260;
+    return dumpQStringFromQPrivateClass(v, QPDM_qVirtual, offset,  str);
+}
+
+/* Dump QScriptValue, for whose private class no debugging information is available.
+ * Private class has a pointer to engine, type enumeration and a JSC:JValue and double/QString
+ * for respective types. */
+static inline bool dumpQScriptValue(const SymbolGroupValue &v, std::wostream &str)
+{
+    std::string errorMessage;
+    // Read out type
+    const ULONG64 privateAddress = addressOfQPrivateMember(v, QPDM_None, 0);
+    if (!privateAddress) { // Can actually be 0 for default-constructed
+        str << L"<Invalid>";
+        return true;
+    }
+    const unsigned ps = SymbolGroupValue::pointerSize();
+    // Offsets of QScriptValuePrivate
+    const unsigned jscScriptValueSize = 8; // Union of double and rest.
+    const unsigned doubleValueOffset = 2 * ps + jscScriptValueSize;
+    const unsigned stringValueOffset = doubleValueOffset + sizeof(double);
+    const ULONG64 type =
+        SymbolGroupValue::readUnsignedValue(v.context().dataspaces,
+                                            privateAddress + ps, 4, 0, &errorMessage);
+    switch (type) {
+    case 1:
+        str << SymbolGroupValue::readDouble(v.context().dataspaces, privateAddress + doubleValueOffset);
+        break;
+    case 2:
+        return dumpQStringFromQPrivateClass(v, QPDM_None, stringValueOffset, str);
+    default:
+        str << L"<JavaScriptCore>";
+        break;
+    }
+    return true;
 }
 
 /* Dump QUrl for whose private class no debugging information is available.
@@ -2002,6 +2101,15 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         break;
     case KT_QUrl:
         rc = dumpQUrl(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QHostAddress:
+        rc = dumpQHostAddress(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QProcess:
+        rc = dumpQProcess(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QScriptValue:
+        rc = dumpQScriptValue(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QString:
         rc = dumpQString(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;

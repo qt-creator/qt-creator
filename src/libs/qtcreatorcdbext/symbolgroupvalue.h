@@ -137,6 +137,12 @@ public:
                                      std::string *errorMessage = 0);
     static ULONG64 readPointerValue(CIDebugDataSpaces *ds, ULONG64 address,
                                     std::string *errorMessage = 0);
+    static ULONG64 readUnsignedValue(CIDebugDataSpaces *ds,
+                                     ULONG64 address, ULONG debuggeeTypeSize, ULONG64 defaultValue = 0,
+                                     std::string *errorMessage = 0);
+    static double readDouble(CIDebugDataSpaces *ds,
+                             ULONG64 address, double defaultValue = 0.0,
+                             std::string *errorMessage = 0);
 
     static unsigned pointerSize();
     static unsigned intSize();
@@ -168,6 +174,11 @@ struct QtInfo
         { return QtInfo::prependModuleAndNameSpace(type, coreModule, nameSpace); }
     std::string prependQtGuiModule(const std::string &type) const
         { return QtInfo::prependModuleAndNameSpace(type, guiModule, nameSpace); }
+    std::string prependQtNetworkModule(const std::string &type) const
+        { return QtInfo::prependModuleAndNameSpace(type, networkModule, nameSpace); }
+    std::string prependQtScriptModule(const std::string &type) const
+        { return QtInfo::prependModuleAndNameSpace(type, scriptModule, nameSpace); }
+
     // Prepend module and namespace if missing with some smartness
     // ('Foo' or -> 'nsp::Foo') => 'QtCored4!nsp::Foo'
     static std::string prependModuleAndNameSpace(const std::string &type,
@@ -177,6 +188,8 @@ struct QtInfo
     std::string nameSpace;
     std::string coreModule;
     std::string guiModule;
+    std::string networkModule;
+    std::string scriptModule;
     // Fully qualified types with module and namespace
     std::string qObjectType;
     std::string qObjectPrivateType;

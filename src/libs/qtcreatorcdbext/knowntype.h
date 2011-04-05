@@ -138,6 +138,9 @@ enum KnownType
     KT_QPatternist_AccelTree_BasicNodeData = KT_Qt_Type + KT_Qt_MovableType + 88,
     KT_QFile = KT_Qt_Type + KT_HasSimpleDumper + 89,
     KT_QDir  = KT_Qt_Type + KT_HasSimpleDumper + 90,
+    KT_QScriptValue = KT_Qt_Type + KT_HasSimpleDumper + 91,
+    KT_QHostAddress = KT_Qt_Type + KT_HasSimpleDumper + 92,
+    KT_QProcess = KT_Qt_Type + KT_HasSimpleDumper + 93,
     // Types: Qt primitive types
     KT_QFixed = KT_Qt_Type + KT_Qt_PrimitiveType + 90,
     KT_QTextItem = KT_Qt_Type + KT_Qt_PrimitiveType + 91,
