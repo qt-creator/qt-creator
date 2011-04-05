@@ -98,8 +98,7 @@ private:
     struct ParseCtx {
         int parens; // Nesting of non-functional parentheses
         int argc; // Number of arguments in current function call
-        int litCount; // Number of literals in current expression
-        int expCount; // Number of expansions in current expression
+        int wordCount; // Number of words in current expression
         Context context;
         ushort quote; // Enclosing quote type
         ushort terminator; // '}' if replace function call is braced, ':' if test function
@@ -114,7 +113,7 @@ private:
     void putHashStr(ushort *&pTokPtr, const ushort *buf, uint len);
     void finalizeHashStr(ushort *buf, uint len);
     void putLineMarker(ushort *&tokPtr);
-    void finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr);
+    void finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount);
     void finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc);
     void finalizeTest(ushort *&tokPtr);
     void enterScope(ushort *&tokPtr, bool special, ScopeState state);
@@ -125,7 +124,7 @@ private:
     void parseError(const QString &msg) const;
 
     // Current location
-    QString m_fileName;
+    ProFile *m_proFile;
     int m_lineNo;
 
     QStack<BlockScope> m_blockstack;
