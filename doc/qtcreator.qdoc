@@ -8826,13 +8826,6 @@
     .qml file in your project. All the other files in the project are automatically added
     to the application project.
 
-    For example, you can open and run the
-    \l {http://doc.qt.nokia.com/4.7/qdeclarativeexamples.html} {QML examples and demos}
-    to learn how to use various aspects of QML. To run the examples in the QML Viewer
-    on the desktop, open them in the \gui Welcome mode. To view the examples on
-    mobile devices, use the \gui {Qt Quick Application} wizard to convert them into
-    Qt Quick Applications.
-
     To import QML applications:
 
     \list 1
