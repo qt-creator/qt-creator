@@ -3196,8 +3196,10 @@
     In a class wizard, you can allow developers to specify the class name, base
     class, and header and source files for the class.
 
-    To see how this works, rename wizard_example.xml as wizard.xml in the helloworld
-    and listmodels folders. After you restart Qt Creator, the \gui {Custom Classes}
+    To see how this works, rename wizard_sample.xml as wizard.xml in the
+    \c {\share\qtcreator\templates\wizards\listmodel\helloworld} and
+    \c {\share\qtcreator\templates\wizards\listmodel\listmodels} folders. After
+    you restart Qt Creator, the \gui {Custom Classes}
     and \gui {Custom Projects} categories appear in the \gui New dialog.
 
     \image qtcreator-custom-project-wizards.png "The New dialog with custom projects and classes"
@@ -3903,7 +3905,7 @@
     \endlist
 
     For more information about the project file settings, see
-    \l{http://doc.qt.nokia.com/4.7/qmake-project-files.html#declaring-other-libraries}{Declaring other Libraries}.
+    \l{http://doc.qt.nokia.com/4.7/qmake-project-files.html#declaring-other-libraries}{Declaring Other Libraries}.
 
     \section1 Example of Adding Internal Libraries
 
@@ -5436,7 +5438,8 @@
 
         \image qtcreator-mobile-project-qt-versions.png "Target Setup dialog"
 
-        \o Select \gui Maemo, \gui {Qt Simulator}, and \gui {Symbian Device} targets,
+        \o Select \gui {Maemo5}, \gui {Qt Simulator}, and \gui {Symbian
+        Device} targets,
         and click \gui{Next}.
 
         \note Targets are listed if you installed the appropriate development
