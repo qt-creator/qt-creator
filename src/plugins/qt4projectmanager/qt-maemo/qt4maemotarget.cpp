@@ -110,7 +110,6 @@ AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString
     Qt4BaseTarget(parent, id),
     m_filesWatcher(new QFileSystemWatcher(this)),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
-    m_deployConfigurationFactory(new Qt4MaemoDeployConfigurationFactory(this)),
     m_isInitialized(false)
 {
     setIcon(QIcon(":/projectexplorer/images/MaemoDevice.png"));
