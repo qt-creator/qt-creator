@@ -1105,6 +1105,13 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         return EventPassedToCore;
     }
 
+    bool inSnippetMode = false;
+    QMetaObject::invokeMethod(editor(),
+        "inSnippetMode", Q_ARG(bool *, &inSnippetMode));
+
+    if (inSnippetMode)
+        return EventPassedToCore;
+
     // Fake "End of line"
     //m_tc = cursor();
 

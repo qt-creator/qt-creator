@@ -6159,3 +6159,8 @@ void BaseTextEditorWidget::transformSelection(Internal::TransformationMethod met
     cursor.setPosition(pos, QTextCursor::KeepAnchor);
     setTextCursor(cursor);
 }
+
+void BaseTextEditorWidget::inSnippetMode(bool *active)
+{
+    *active = d->m_snippetOverlay->isVisible();
+}
