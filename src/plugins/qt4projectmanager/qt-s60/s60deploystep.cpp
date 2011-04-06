@@ -806,6 +806,7 @@ void S60DeployStep::setCopyProgress(int progress)
     if (copyProgress() == progress)
         return;
     m_copyProgress = progress;
+    emit addOutput(QLatin1String("."), ProjectExplorer::BuildStep::MessageOutput, DontAppendNewline);
     emit copyProgressChanged(m_copyProgress);
 }
 
