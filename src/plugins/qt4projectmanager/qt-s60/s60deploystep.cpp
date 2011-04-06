@@ -313,10 +313,18 @@ void S60DeployStep::stop()
             m_launcher->terminate();
     } else {
         if (m_codaDevice) {
+            switch (m_state) {
+            case StateSendingData:
+                closeRemoteFile();
+                break;
+            default:
+                break; //should also stop the package installatrion, but CODA does not support it yet
+            }
             disconnect(m_codaDevice.data(), 0, this, 0);
             SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
         }
     }
+    m_state = StateUninit;
     emit finished(false);
 }
 
@@ -350,9 +358,8 @@ void S60DeployStep::setupConnections()
 
 void S60DeployStep::startDeployment()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection)
         QTC_ASSERT(m_launcher, return);
-    }
     QTC_ASSERT(!m_codaDevice.data(), return);
 
     // We need to defer setupConnections() in the case of CommunicationCodaSerialConnection
@@ -573,9 +580,10 @@ void S60DeployStep::handleSymbianInstall(const Coda::CodaCommandResult &result)
 {
     if (result.type == Coda::CodaCommandResult::SuccessReply) {
         appendMessage(tr("Installation has finished"), false);
-        if (++m_currentFileIndex >= m_signedPackages.count())
+        if (++m_currentFileIndex >= m_signedPackages.count()) {
+            m_state = StateFinished;
             emit allFilesInstalled();
-        else
+        } else
             initFileInstallation();
     } else {
         reportError(tr("Installation failed: %1; "
@@ -613,8 +621,10 @@ void S60DeployStep::closeRemoteFile()
 {
     QTC_ASSERT(m_codaDevice, return);
 
+    emit addOutput(QLatin1String("\n"), ProjectExplorer::BuildStep::MessageOutput);
     m_codaDevice->sendFileSystemCloseCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemClose),
                                             m_remoteFileHandle);
+
 }
 
 void S60DeployStep::handleFileSystemWrite(const Coda::CodaCommandResult &result)
@@ -743,6 +753,7 @@ void S60DeployStep::installFailed(const QString &filename, const QString &errorM
 void S60DeployStep::checkForCancel()
 {
     if ((m_futureInterface->isCanceled() || m_deployCanceled) && m_timer->isActive()) {
+        closeRemoteFile();
         m_timer->stop();
         stop();
         QString canceledText(tr("Deployment has been cancelled."));

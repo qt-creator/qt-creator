@@ -184,7 +184,8 @@ private:
         StateConnecting,
         StateConnected,
         StateSendingData,
-        StateInstalling
+        StateInstalling,
+        StateFinished
     };
 
     QString m_serialPortName;
