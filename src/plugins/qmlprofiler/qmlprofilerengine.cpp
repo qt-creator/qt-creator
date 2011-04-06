@@ -80,6 +80,7 @@ public:
 
     QProcess *m_process;
     bool m_running;
+    bool m_fetchingData;
 };
 
 QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp, ProjectExplorer::RunConfiguration *runConfiguration)
@@ -98,6 +99,7 @@ QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp
     d->m_environment = localAppConfig->environment();
     d->m_process = 0;
     d->m_running = false;
+    d->m_fetchingData = false;
 }
 
 QmlProfilerEngine::~QmlProfilerEngine()
@@ -118,30 +120,42 @@ void QmlProfilerEngine::start()
 void QmlProfilerEngine::stop()
 {
     d->m_running = false;
-    emit stopRecording();
+    if (d->m_fetchingData)
+        emit stopRecording();
+    else
+        finishProcess();
 }
 
 void QmlProfilerEngine::spontaneousStop()
 {
+    d->m_running = false;
     Analyzer::AnalyzerManager::instance()->stopTool();
+    emit finished();
 }
 
-void QmlProfilerEngine::viewUpdated()
-{
-    if (d->m_process) {
-        disconnect(d->m_process,SIGNAL(finished(int)),this,SLOT(spontaneousStop()));
-        if (d->m_process->state() == QProcess::Running) {
-            d->m_process->terminate();
-            if (!d->m_process->waitForFinished(1000)) {
-                d->m_process->kill();
-                d->m_process->waitForFinished();
-            }
-        }
-        delete d->m_process;
-        d->m_process = 0;
+void QmlProfilerEngine::setFetchingData(bool b) {
+    d->m_fetchingData = b;
     }
 
-    emit processTerminated();
+void QmlProfilerEngine::finishProcess()
+{
+    // user stop?
+    if (!d->m_running) {
+        if (d->m_process) {
+            disconnect(d->m_process,SIGNAL(finished(int)),this,SLOT(spontaneousStop()));
+            if (d->m_process->state() == QProcess::Running) {
+                d->m_process->terminate();
+                if (!d->m_process->waitForFinished(1000)) {
+                    d->m_process->kill();
+                    d->m_process->waitForFinished();
+                }
+            }
+            delete d->m_process;
+            d->m_process = 0;
+        }
+
+        emit finished();
+    }
 }
 
 bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()

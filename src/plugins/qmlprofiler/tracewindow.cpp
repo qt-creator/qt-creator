@@ -322,4 +322,9 @@ void TraceWindow::setRecording(bool recording)
     m_plugin->setRecording(recording);
 }
 
+bool TraceWindow::isRecording() const
+{
+    return (m_plugin->recording());
+}
+
 #include "tracewindow.moc"

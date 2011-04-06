@@ -50,7 +50,7 @@
 #include <QtGui/qapplication.h>
 #include <QtGui/qgraphicseffect.h>
 
-#include <QImage>
+#include <QtGui/QImage>
 
 QT_BEGIN_NAMESPACE
 

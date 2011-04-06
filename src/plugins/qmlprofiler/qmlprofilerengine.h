@@ -49,7 +49,7 @@ public:
 
 signals:
     void processRunning();
-    void processTerminated();
+    //void finished();
     void stopRecording();
 
 public slots:
@@ -57,7 +57,8 @@ public slots:
     void stop();
     void spontaneousStop();
 
-    void viewUpdated();
+    void setFetchingData(bool);
+    void finishProcess();
 
 private:
     class QmlProfilerEnginePrivate;

@@ -67,13 +67,16 @@ public slots:
     void connectClient();
     void disconnectClient();
 
+    void startRecording();
     void stopRecording();
+    void setRecording(bool recording);
 
     void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void updateTimer(qreal elapsedSeconds);
 
 signals:
     void setTimeLabel(const QString &);
+    void fetchingData(bool);
 
 public:
     // Todo: configurable parameters

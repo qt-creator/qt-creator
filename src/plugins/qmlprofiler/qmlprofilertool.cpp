@@ -68,6 +68,7 @@
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
+#include <QtGui/QToolButton>
 
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;
@@ -116,6 +117,7 @@ public:
     ProjectExplorer::RunConfiguration *m_runConfiguration;
     bool m_isAttached;
     QAction *m_attachAction;
+    QToolButton *m_recordButton;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
@@ -169,9 +171,11 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     }
 
     connect(engine, SIGNAL(processRunning()), this, SLOT(connectClient()));
-    connect(engine, SIGNAL(processTerminated()), this, SLOT(disconnectClient()));
+    connect(engine, SIGNAL(finished()), this, SLOT(disconnectClient()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
-    connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(viewUpdated()));
+    connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(finishProcess()));
+    connect(this, SIGNAL(fetchingData(bool)), engine, SLOT(setFetchingData(bool)));
+    emit fetchingData(d->m_recordButton->isChecked());
 
     return engine;
 }
@@ -233,6 +237,15 @@ QWidget *QmlProfilerTool::createToolBarWidget()
     layout->setMargin(0);
     layout->setSpacing(0);
 
+    d->m_recordButton = new QToolButton(toolbarWidget);
+
+    d->m_recordButton->setIcon(QIcon(QLatin1String(":/qmlprofiler/analyzer_category_small.png")));
+    d->m_recordButton->setCheckable(true);
+
+    connect(d->m_recordButton,SIGNAL(toggled(bool)), this, SLOT(setRecording(bool)));
+    d->m_recordButton->setChecked(true);
+    layout->addWidget(d->m_recordButton);
+
     QLabel *timeLabel = new QLabel(tr("elapsed:      0 s"));
     QPalette palette = timeLabel->palette();
     palette.setColor(QPalette::WindowText, Qt::white);
@@ -260,8 +273,7 @@ void QmlProfilerTool::connectClient()
     d->m_client->connectToHost(host, port);
     d->m_client->waitForConnected();
 
-    if (d->m_client->state() == QDeclarativeDebugConnection::ConnectedState) {
-        d->m_traceWindow->setRecording(true);
+    if (d->m_client->isConnected()) {
         if (QmlProfilerPlugin::debugOutput)
             qWarning("QmlProfiler: connected and running");
     } else {
@@ -275,9 +287,29 @@ void QmlProfilerTool::disconnectClient()
     d->m_client->disconnectFromHost();
 }
 
+
+void QmlProfilerTool::startRecording()
+{
+    d->m_traceWindow->setRecordAtStart(true);
+    if (d->m_client->isConnected())
+        d->m_traceWindow->setRecording(true);
+    emit fetchingData(true);
+}
+
 void QmlProfilerTool::stopRecording()
 {
-    d->m_traceWindow->setRecording(false);
+    d->m_traceWindow->setRecordAtStart(d->m_recordButton->isChecked());
+    if (d->m_client->isConnected())
+        d->m_traceWindow->setRecording(false);
+    emit fetchingData(false);
+}
+
+void QmlProfilerTool::setRecording(bool recording)
+{
+    if (recording)
+        startRecording();
+    else
+        stopRecording();
 }
 
 void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)

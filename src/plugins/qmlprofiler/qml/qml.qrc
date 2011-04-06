@@ -11,5 +11,6 @@
         <file>RangeMover.qml</file>
         <file>RecordButton.qml</file>
         <file>ToolButton.qml</file>
+        <file>analyzer_category_small.png</file>
     </qresource>
 </RCC>

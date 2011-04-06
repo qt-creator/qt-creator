@@ -205,7 +205,12 @@ Rectangle {
                             preferredX = rangeDetails.parent.width - rangeDetails.width
                         rangeDetails.x = preferredX
 
-                        rangeDetails.y = pos.y + 10
+                        var preferredY = pos.y - rangeDetails.height/2;
+                        if (preferredY + rangeDetails.height > root.height - 10)
+                            preferredY = root.height - 10 - rangeDetails.height;
+                        if (preferredY < 10)
+                            preferredY=10;
+                        rangeDetails.y = preferredY;
                         rangeDetails.visible = true
                     }
                     onExited: {

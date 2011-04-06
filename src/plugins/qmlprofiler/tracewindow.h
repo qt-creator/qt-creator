@@ -66,6 +66,7 @@ public:
     void setRecordAtStart(bool record);
 
     void setRecording(bool recording);
+    bool isRecording() const;
 
 public slots:
     void updateCursorPosition();
