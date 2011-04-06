@@ -49,7 +49,7 @@ public:
     Test()
     {
         m_timeoutTimer.setSingleShot(true);
-        m_connection = SshConnection::create();
+        m_connection = SshConnection::create(SshConnectionParameters(SshConnectionParameters::DefaultProxy));
         if (m_connection->state() != SshConnection::Unconnected) {
             qDebug("Error: Newly created SSH connection has state %d.",
                 m_connection->state());
@@ -166,7 +166,7 @@ private:
     {
         if (m_connection)
             disconnect(m_connection.data(), 0, this, 0);
-        m_connection = SshConnection::create();
+        m_connection = SshConnection::create(m_testSet.first().params);
         connect(m_connection.data(), SIGNAL(connected()), this,
             SLOT(handleConnected()));
         connect(m_connection.data(), SIGNAL(disconnected()), this,
@@ -179,7 +179,7 @@ private:
         m_timeoutTimer.stop();
         m_timeoutTimer.setInterval(qMax(10000, nextItem.params.timeout * 1000));
         qDebug("Testing: %s", nextItem.description);
-        m_connection->connectToHost(m_testSet.first().params);
+        m_connection->connectToHost();
     }
 
     SshConnection::Ptr m_connection;

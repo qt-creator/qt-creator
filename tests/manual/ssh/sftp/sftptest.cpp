@@ -58,7 +58,7 @@ SftpTest::~SftpTest()
 
 void SftpTest::run()
 {
-    m_connection = SshConnection::create();
+    m_connection = SshConnection::create(m_parameters.sshParams);
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(handleConnected()));
     connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
@@ -68,7 +68,7 @@ void SftpTest::run()
     std::cout << "Connecting to host '"
         << qPrintable(m_parameters.sshParams.host) << "'..." << std::endl;
     m_state = Connecting;
-    m_connection->connectToHost(m_parameters.sshParams);
+    m_connection->connectToHost();
 }
 
 void SftpTest::handleConnected()
