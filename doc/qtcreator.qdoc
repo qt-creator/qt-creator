@@ -4267,12 +4267,6 @@
     use the standard Symbian Signed process to have the application Symbian Signed
     (using the Certified Signed path or the manufacturer-specific channel).
 
-    \note At the time of writing this document, the distribution of Qt 4.7.x based
-    applications is not supported by neither Ovi Store nor Smart Installer.
-    For up-to-date information about the packages available for distribution, see the
-    \l{http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}
-    wiki.
-
     To create a SIS package that you can submit to Ovi Publishing:
 
     \list 1
