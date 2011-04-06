@@ -2559,6 +2559,7 @@ void testMPI()
 
 int main(int argc, char *argv[])
 {
+    int *x = new int(32);
     testQXmlAttributes();
     testQRegExp();
     testInlineBreakpoints();

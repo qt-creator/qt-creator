@@ -1349,6 +1349,11 @@ void setWatchDataAddress(WatchData &data, const GdbMi &mi)
         setWatchDataAddressHelper(data, mi.data());
 }
 
+void setWatchDataOrigAddress(WatchData &data, const GdbMi &mi)
+{
+    data.origAddress = mi.data().toULongLong(0, 16);
+}
+
 void setWatchDataSize(WatchData &data, const GdbMi &mi)
 {
     if (mi.isValid()) {
@@ -1418,6 +1423,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
 
     setWatchDataValue(data, item);
     setWatchDataAddress(data, item.findChild("addr"));
+    setWatchDataOrigAddress(data, item.findChild("origaddr"));
     setWatchDataSize(data, item.findChild("size"));
     setWatchDataExpression(data, item.findChild("exp"));
     setWatchDataValueEnabled(data, item.findChild("valueenabled"));

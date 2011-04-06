@@ -641,6 +641,10 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 case 1:
                     result = removeInitialNamespace(truncateValue(
                             formattedValue(data, itemFormat(data))), ns);
+                    if (data.origAddress) {
+                        result += QLatin1String(" @");
+                        result += QString::fromLatin1(data.hexOrigAddress());
+                    }
                     break;
                 case 2:
                     result = removeNamespaces(displayType(data), ns);
@@ -692,16 +696,16 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_handler->m_expandedINames.contains(data.iname);
 
         case LocalsTypeFormatListRole: {
-            if (isIntType(data.type) && data.type != "bool")
-                return QStringList() << tr("decimal") << tr("hexadecimal")
-                    << tr("binary") << tr("octal");
-            if (data.type.endsWith('*'))
+            if (data.origAddress || data.type.endsWith('*'))
                 return QStringList()
                     << tr("Raw pointer")
                     << tr("Latin1 string")
                     << tr("UTF8 string")
                     << tr("UTF16 string")
                     << tr("UCS4 string");
+            if (isIntType(data.type) && data.type != "bool")
+                return QStringList() << tr("decimal") << tr("hexadecimal")
+                    << tr("binary") << tr("octal");
             // Hack: Compensate for namespaces.
             QString type = data.type;
             int pos = type.indexOf("::Q");

@@ -145,6 +145,7 @@ WatchData::WatchData() :
     state(InitialState),
     editformat(0),
     address(0),
+    origAddress(0),
     size(0),
     bitpos(0),
     bitsize(0),
@@ -309,6 +310,11 @@ QString WatchData::toString() const
         str << "addr=\"0x" << address << doubleQuoteComma;
         str.setIntegerBase(10);
     }
+    if (origAddress) {
+        str.setIntegerBase(16);
+        str << "origaddr=\"0x" << origAddress << doubleQuoteComma;
+        str.setIntegerBase(10);
+    }
     if (!exp.isEmpty())
         str << "exp=\"" << exp << doubleQuoteComma;
 
@@ -372,6 +378,9 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Value"), val);
     formatToolTipRow(str, tr("Object Address"),
                      QString::fromAscii(hexAddress()));
+    if (origAddress)
+        formatToolTipRow(str, tr("Original Address"),
+                         QString::fromAscii(hexOrigAddress()));
     if (size)
         formatToolTipRow(str, tr("Size"),
                          QString::number(size));
@@ -413,6 +422,11 @@ quint64 WatchData::coreAddress() const
 QByteArray WatchData::hexAddress() const
 {
     return address ? (QByteArray("0x") + QByteArray::number(address, 16)) : QByteArray();
+}
+
+QByteArray WatchData::hexOrigAddress() const
+{
+    return origAddress ? (QByteArray("0x") + QByteArray::number(origAddress, 16)) : QByteArray();
 }
 
 } // namespace Internal
