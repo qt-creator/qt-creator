@@ -45,6 +45,7 @@
 */
 
 namespace Utils {
+namespace Internal {
 
 class SshRemoteProcessRunnerPrivate : public QObject
 {
@@ -231,6 +232,7 @@ void SshRemoteProcessRunnerPrivate::assertState(State allowedState,
     assertState(QList<State>() << allowedState, func);
 }
 
+} // namespace Internal
 
 SshRemoteProcessRunner::Ptr SshRemoteProcessRunner::create(const SshConnectionParameters &params)
 {
@@ -243,13 +245,13 @@ SshRemoteProcessRunner::Ptr SshRemoteProcessRunner::create(const SshConnection::
 }
 
 SshRemoteProcessRunner::SshRemoteProcessRunner(const SshConnectionParameters &params)
-    : d(new SshRemoteProcessRunnerPrivate(params, this))
+    : d(new Internal::SshRemoteProcessRunnerPrivate(params, this))
 {
     init();
 }
 
 SshRemoteProcessRunner::SshRemoteProcessRunner(const SshConnection::Ptr &connection)
-    : d(new SshRemoteProcessRunnerPrivate(connection, this))
+    : d(new Internal::SshRemoteProcessRunnerPrivate(connection, this))
 {
     init();
 }

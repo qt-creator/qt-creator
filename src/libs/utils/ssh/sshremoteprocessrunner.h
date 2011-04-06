@@ -38,7 +38,9 @@
 #include "sshremoteprocess.h"
 
 namespace Utils {
+namespace Internal {
 class SshRemoteProcessRunnerPrivate;
+} // namespace Internal
 
 class QTCREATOR_UTILS_EXPORT SshRemoteProcessRunner : public QObject
 {
@@ -70,7 +72,7 @@ private:
     SshRemoteProcessRunner(const SshConnection::Ptr &connection);
     void init();
 
-    SshRemoteProcessRunnerPrivate *d;
+    Internal::SshRemoteProcessRunnerPrivate *d;
 };
 
 } // namespace Utils
