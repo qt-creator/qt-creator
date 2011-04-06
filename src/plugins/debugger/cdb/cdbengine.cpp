@@ -1660,7 +1660,7 @@ void CdbEngine::handleRegisters(const CdbExtensionCommandPtr &reply)
             registers.reserve(value.childCount());
             foreach (const GdbMi &gdbmiReg, value.children())
                 registers.push_back(parseRegister(gdbmiReg));
-            registerHandler()->setRegisters(registers);
+            registerHandler()->setAndMarkRegisters(registers);
         } else {
             showMessage(QString::fromLatin1("Parse error in registers response."), LogError);
             qWarning("Parse error in registers response:\n%s", reply->reply.constData());

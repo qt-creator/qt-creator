@@ -71,7 +71,9 @@ public:
     QAbstractItemModel *model() { return this; }
 
     bool isEmpty() const; // nothing known so far?
+    // Set up register names (gdb)
     void setRegisters(const Registers &registers);
+    // Set register values
     void setAndMarkRegisters(const Registers &registers);
     Registers registers() const;
     Register registerAt(int i) const { return m_registers.at(i); }
