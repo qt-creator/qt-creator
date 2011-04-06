@@ -215,6 +215,7 @@ struct VCSBaseEditorWidgetPrivate
     TextEditor::BaseTextEditor *m_editor;
     QWidget *m_configurationWidget;
     bool m_revertChunkEnabled;
+    bool m_mouseDragging;
 };
 
 VCSBaseEditorWidgetPrivate::VCSBaseEditorWidgetPrivate(const VCSBaseEditorParameters *type)  :
@@ -225,7 +226,8 @@ VCSBaseEditorWidgetPrivate::VCSBaseEditorWidgetPrivate(const VCSBaseEditorParame
     m_fileLogAnnotateEnabled(false),
     m_editor(0),
     m_configurationWidget(0),
-    m_revertChunkEnabled(false)
+    m_revertChunkEnabled(false),
+    m_mouseDragging(false)
 {
 }
 
@@ -569,6 +571,12 @@ void VCSBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
 void VCSBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
+    if (e->buttons()) {
+        d->m_mouseDragging = true;
+        TextEditor::BaseTextEditorWidget::mouseMoveEvent(e);
+        return;
+    }
+
     bool overrideCursor = false;
     Qt::CursorShape cursorShape;
 
@@ -599,7 +607,9 @@ void VCSBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
 
 void VCSBaseEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
+    const bool wasDragging = d->m_mouseDragging;
+    d->m_mouseDragging = false;
+    if (!wasDragging && (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput)) {
         if (e->button() == Qt::LeftButton &&!(e->modifiers() & Qt::ShiftModifier)) {
             QTextCursor cursor = cursorForPosition(e->pos());
             d->m_currentChange = changeUnderCursor(cursor);
