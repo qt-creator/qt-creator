@@ -909,7 +909,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
         case TokCondition:
             if (!m_skipLevel && okey != or_op) {
                 if (curr.size() != 1) {
-                    evalError(fL1S("Conditional must expand to exactly one word."));
+                    if (!m_cumulative || !curr.isEmpty())
+                        evalError(fL1S("Conditional must expand to exactly one word."));
                     okey = false;
                 } else {
                     okey = isActiveConfig(curr.at(0).toQString(m_tmp2), true) ^ invert;
@@ -922,7 +923,8 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProBlock(
         case TokTestCall:
             if (!m_skipLevel && okey != or_op) {
                 if (curr.size() != 1) {
-                    evalError(fL1S("Test name must expand to exactly one word."));
+                    if (!m_cumulative || !curr.isEmpty())
+                        evalError(fL1S("Test name must expand to exactly one word."));
                     skipExpression(tokPtr);
                     okey = false;
                 } else {
@@ -1067,7 +1069,8 @@ void ProFileEvaluator::Private::visitProVariable(
 
     if (curr.size() != 1) {
         skipExpression(tokPtr);
-        evalError(fL1S("Left hand side of assignment must expand to exactly one word."));
+        if (!m_cumulative || !curr.isEmpty())
+            evalError(fL1S("Left hand side of assignment must expand to exactly one word."));
         return;
     }
     const ProString &varName = map(curr.first());

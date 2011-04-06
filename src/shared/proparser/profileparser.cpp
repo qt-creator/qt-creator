@@ -286,11 +286,11 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
     m_invert = false;
     m_operator = NoOperator;
     m_markLine = m_lineNo;
+    m_inError = false;
     Context context = CtxTest;
     int parens = 0; // Braces in value context
     int argc = 0;
     int wordCount = 0; // Number of words in currently accumulated expression
-    bool inError = false;
     bool putSpace = false; // Only ever true inside quoted string
     bool lineMarked = true; // For in-expression markers
     ushort needSep = TokNewStr; // Complementary to putSpace: separator outside quotes
@@ -300,8 +300,6 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
     ushort *ptr = buf;
     ptr += 4;
     ushort *xprPtr = ptr;
-
-    ushort *oldTokPtr = tokPtr;
 
 #define FLUSH_LHS_LITERAL() \
     do { \
@@ -360,14 +358,9 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
             c = *cur;
             if (c == '\n') {
                 ++cur;
-                if (!inError)
-                    goto flushLine;
-                ++m_lineNo;
-                goto freshLine;
+                goto flushLine;
             } else if (!c) {
-                if (!inError)
-                    goto flushLine;
-                goto flushFile;
+                goto flushLine;
             } else if (c != ' ' && c != '\t' && c != '\r') {
                 break;
             }
@@ -421,7 +414,6 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
             --end;
         }
 
-        if (!inError) {
             // Finally, do the tokenization
             ushort tok, rtok;
             int tlen;
@@ -530,12 +522,11 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                                 parseError(fL1S("Missing %1 terminator [found %2]")
                                     .arg(QChar(term))
                                     .arg(c ? QString(c) : QString::fromLatin1("end-of-line")));
-                              parseErr:
                                 pro->setOk(false);
-                                xprStack.resize(0);
-                                tokPtr = oldTokPtr;
-                                inError = true;
-                                goto skip;
+                                m_inError = true;
+                                if (c)
+                                    cur--;
+                                // Just parse on, as if there was a terminator ...
                             }
                         }
                       joinToken:
@@ -617,7 +608,8 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                                 parseError(fL1S("Extra characters after test expression."));
                             else
                                 parseError(fL1S("Opening parenthesis without prior test name."));
-                            goto parseErr;
+                            pro->setOk(false);
+                            ptr = buf; // Put empty function name
                         }
                         *ptr++ = TokTestCall;
                         term = ':';
@@ -688,9 +680,11 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                         putLineMarker(tokPtr);
                         if (wordCount != 1) {
                             parseError(fL1S("Assignment needs exactly one word on the left hand side."));
-                            goto parseErr;
+                            pro->setOk(false);
+                            // Put empty variable name.
+                        } else {
+                            putBlock(tokPtr, buf, ptr - buf);
                         }
-                        putBlock(tokPtr, buf, ptr - buf);
                         putTok(tokPtr, tok);
                         context = CtxValue;
                         ptr = ++tokPtr;
@@ -737,23 +731,34 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                 FLUSH_LITERAL();
                 if (quote) {
                     parseError(fL1S("Missing closing %1 quote").arg(QChar(quote)));
-                    goto parseErr;
-                }
-                if (!xprStack.isEmpty()) {
+                    if (!xprStack.isEmpty()) {
+                        context = xprStack.at(0).context;
+                        xprStack.clear();
+                    }
+                    goto flErr;
+                } else if (!xprStack.isEmpty()) {
                     parseError(fL1S("Missing closing parenthesis in function call"));
-                    goto parseErr;
-                }
-                if (context == CtxValue)
+                    context = xprStack.at(0).context;
+                    xprStack.clear();
+                  flErr:
+                    pro->setOk(false);
+                    if (context == CtxValue) {
+                        tokPtr[-1] = 0; // sizehint
+                        putTok(tokPtr, TokValueTerminator);
+                    } else {
+                        bogusTest(tokPtr);
+                    }
+                } else if (context == CtxValue) {
                     FLUSH_VALUE_LIST();
-                else
+                } else {
                     finalizeCond(tokPtr, buf, ptr, wordCount);
+                }
                 if (!c)
                     break;
                 ++m_lineNo;
                 goto freshLine;
             }
-        } // !inError
-      skip:
+
         if (!lineCont) {
             cur = cptr;
             ++m_lineNo;
@@ -765,7 +770,6 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
         ++m_lineNo;
     }
 
-  flushFile:
     flushScopes(tokPtr);
     if (m_blockstack.size() > 1) {
         parseError(fL1S("Missing closing brace(s)."));
@@ -862,12 +866,22 @@ void ProFileParser::finalizeTest(ushort *&tokPtr)
     m_canElse = true;
 }
 
+void ProFileParser::bogusTest(ushort *&tokPtr)
+{
+    flushScopes(tokPtr);
+    m_operator = NoOperator;
+    m_invert = false;
+    m_state = StCond;
+    m_canElse = true;
+    m_proFile->setOk(false);
+}
+
 void ProFileParser::finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount)
 {
     if (wordCount != 1) {
         if (wordCount) {
             parseError(fL1S("Extra characters after test expression."));
-            m_proFile->setOk(false);
+            bogusTest(tokPtr);
         }
         return;
     }
@@ -1008,7 +1022,7 @@ void ProFileParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int a
 
 void ProFileParser::parseError(const QString &msg) const
 {
-    if (m_handler)
+    if (!m_inError && m_handler)
         m_handler->parseError(m_proFile->fileName(), m_lineNo, msg);
 }
 

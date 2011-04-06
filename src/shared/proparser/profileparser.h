@@ -116,6 +116,7 @@ private:
     void finalizeCond(ushort *&tokPtr, ushort *uc, ushort *ptr, int wordCount);
     void finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int argc);
     void finalizeTest(ushort *&tokPtr);
+    void bogusTest(ushort *&tokPtr);
     void enterScope(ushort *&tokPtr, bool special, ScopeState state);
     void leaveScope(ushort *&tokPtr);
     void flushCond(ushort *&tokPtr);
@@ -130,6 +131,7 @@ private:
     QStack<BlockScope> m_blockstack;
     ScopeState m_state;
     int m_markLine; // Put marker for this line
+    bool m_inError; // Current line had a parsing error; suppress followup error messages
     bool m_canElse; // Conditionals met on previous line, but no scope was opened
     bool m_invert; // Pending conditional is negated
     enum { NoOperator, AndOperator, OrOperator } m_operator; // Pending conditional is ORed/ANDed
