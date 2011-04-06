@@ -204,7 +204,7 @@ void MimeTypeSettingsModel::updateKnownPatterns(const QStringList &oldPatterns,
     }
 }
 
-// MimeTypeSettingsPagePrivate
+// MimeTypeSettingsPrivate
 class MimeTypeSettingsPrivate : public QObject
 {
     Q_OBJECT
@@ -231,6 +231,7 @@ public:
     void editMagicHeaderRowData(const int row, const MagicData &data);
 
     void updateMimeDatabase();
+    void resetState();
 
 public slots:
     void syncData(const QModelIndex &current, const QModelIndex &previous);
@@ -249,6 +250,7 @@ public:
     int m_mimeForPatternSync;
     int m_mimeForMagicSync;
     bool m_reset;
+    bool m_persist;
     QList<int> m_modifiedMimeTypes;
     Ui::MimeTypeSettingsPage m_ui;
 };
@@ -261,6 +263,7 @@ MimeTypeSettingsPrivate::MimeTypeSettingsPrivate()
     , m_mimeForPatternSync(-1)
     , m_mimeForMagicSync(-1)
     , m_reset(false)
+    , m_persist(false)
 {}
 
 MimeTypeSettingsPrivate::~MimeTypeSettingsPrivate()
@@ -507,22 +510,32 @@ void MimeTypeSettingsPrivate::editMagicHeader()
 
 void MimeTypeSettingsPrivate::updateMimeDatabase()
 {
-    MimeDatabase *db = ICore::instance()->mimeDatabase();
+    if (m_modifiedMimeTypes.isEmpty())
+        return;
+
     // For this case it is a better approach to simply use a list and to remove duplicates
     // afterwards than to keep a more complex data structure like a hash table.
     qSort(m_modifiedMimeTypes.begin(), m_modifiedMimeTypes.end());
     m_modifiedMimeTypes.erase(std::unique(m_modifiedMimeTypes.begin(), m_modifiedMimeTypes.end()),
                               m_modifiedMimeTypes.end());
-    if (!m_modifiedMimeTypes.isEmpty()) {
-        QList<MimeType> allModified;
-        foreach (int index, m_modifiedMimeTypes) {
-            const MimeType &mimeType = m_model->m_mimeTypes.at(index);
-            db->setGlobPatterns(mimeType.type(), mimeType.globPatterns());
-            db->setMagicMatchers(mimeType.type(), mimeType.magicMatchers());
-            allModified.append(mimeType);
-        }
-        db->writeUserModifiedMimeTypes(allModified);
+
+    MimeDatabase *db = ICore::instance()->mimeDatabase();
+    QList<MimeType> allModified;
+    foreach (int index, m_modifiedMimeTypes) {
+        const MimeType &mimeType = m_model->m_mimeTypes.at(index);
+        db->setGlobPatterns(mimeType.type(), mimeType.globPatterns());
+        db->setMagicMatchers(mimeType.type(), mimeType.magicMatchers());
+        allModified.append(mimeType);
     }
+    db->writeUserModifiedMimeTypes(allModified);
+}
+
+void MimeTypeSettingsPrivate::resetState()
+{
+    clearSyncData();
+    m_modifiedMimeTypes.clear();
+    m_reset = false;
+    m_persist = false;
 }
 
 void MimeTypeSettingsPrivate::resetMimeTypes()
@@ -581,9 +594,7 @@ QWidget *MimeTypeSettings::createPage(QWidget *parent)
 
 void MimeTypeSettings::apply()
 {
-    if (m_d->m_reset) {
-        ICore::instance()->mimeDatabase()->clearUserModifiedMimeTypes();
-    } else if (!m_d->m_modifiedMimeTypes.isEmpty()) {
+    if (!m_d->m_modifiedMimeTypes.isEmpty()) {
         const QModelIndex &modelIndex =
             m_d->m_ui.mimeTypesTableView->selectionModel()->currentIndex();
         if (modelIndex.isValid()) {
@@ -592,12 +603,23 @@ void MimeTypeSettings::apply()
             if (m_d->m_mimeForMagicSync == modelIndex.row())
                 m_d->syncMimeMagic();
         }
-        m_d->updateMimeDatabase();
+        m_d->clearSyncData();
     }
+
+    if (!m_d->m_persist)
+        m_d->m_persist = true;
 }
 
 void MimeTypeSettings::finish()
-{}
+{
+    if (m_d->m_persist) {
+        if (m_d->m_reset)
+            ICore::instance()->mimeDatabase()->clearUserModifiedMimeTypes();
+        else
+            m_d->updateMimeDatabase();
+    }
+    m_d->resetState();
+}
 
 } // Internal
 } // Core
