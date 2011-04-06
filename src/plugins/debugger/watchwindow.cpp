@@ -319,6 +319,24 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         const QString spacer = QLatin1String("     ");
         formatMenu.addSeparator();
         QAction *dummy = formatMenu.addAction(
+            tr("Change Display for Object Named \"%1\":").arg(mi0.data().toString()));
+        dummy->setEnabled(false);
+        clearIndividualFormatAction
+            = formatMenu.addAction(spacer + tr("Use Display Format Based on Type"));
+        //clearIndividualFormatAction->setEnabled(individualFormat != -1);
+        clearIndividualFormatAction->setCheckable(true);
+        clearIndividualFormatAction->setChecked(effectiveIndividualFormat == -1);
+        for (int i = 0; i != alternativeFormats.size(); ++i) {
+            const QString format = spacer + alternativeFormats.at(i);
+            QAction *act = new QAction(format, &formatMenu);
+            act->setCheckable(true);
+            if (i == effectiveIndividualFormat)
+                act->setChecked(true);
+            formatMenu.addAction(act);
+            individualFormatActions.append(act);
+        }
+        formatMenu.addSeparator();
+        dummy = formatMenu.addAction(
             tr("Change Display for Type \"%1\":").arg(type));
         dummy->setEnabled(false);
         clearTypeFormatAction = formatMenu.addAction(spacer + tr("Automatic"));
@@ -335,24 +353,6 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
                 act->setChecked(true);
             formatMenu.addAction(act);
             typeFormatActions.append(act);
-        }
-        formatMenu.addSeparator();
-        dummy = formatMenu.addAction(
-            tr("Change Display for Object Named \"%1\":").arg(mi0.data().toString()));
-        dummy->setEnabled(false);
-        clearIndividualFormatAction
-            = formatMenu.addAction(spacer + tr("Use Display Format Based on Type"));
-        //clearIndividualFormatAction->setEnabled(individualFormat != -1);
-        clearIndividualFormatAction->setCheckable(true);
-        clearIndividualFormatAction->setChecked(effectiveIndividualFormat == -1);
-        for (int i = 0; i != alternativeFormats.size(); ++i) {
-            const QString format = spacer + alternativeFormats.at(i);
-            QAction *act = new QAction(format, &formatMenu);
-            act->setCheckable(true);
-            if (i == effectiveIndividualFormat)
-                act->setChecked(true);
-            formatMenu.addAction(act);
-            individualFormatActions.append(act);
         }
     } else {
         QAction *dummy = formatMenu.addAction(
