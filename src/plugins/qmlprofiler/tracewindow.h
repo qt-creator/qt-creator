@@ -71,6 +71,7 @@ public:
 public slots:
     void updateCursorPosition();
     void updateTimer();
+    void clearDisplay();
 
 signals:
     void viewUpdated();

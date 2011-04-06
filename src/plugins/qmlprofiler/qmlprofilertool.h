@@ -63,6 +63,8 @@ public:
 
     bool canRunRemotely() const;
 
+    void clearDisplay();
+
 public slots:
     void connectClient();
     void disconnectClient();

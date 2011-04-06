@@ -86,7 +86,7 @@ public:
 
     virtual QWidget *toolBarWidget() { return m_tool->createToolBarWidget(); }
     virtual QWidget *paneWidget() { return m_tool->createTimeLineWidget(); }
-    virtual void clearContents() { /*TODO*/ }
+    virtual void clearContents() { m_tool->clearDisplay(); }
     virtual void setFocus() { /*TODO*/ }
     virtual bool hasFocus() const { return false; /*TODO*/ }
     virtual bool canFocus() const { return false; /*TODO*/ }
@@ -348,6 +348,11 @@ bool QmlProfilerTool::canRunRemotely() const
 {
     // TODO: Is this correct?
     return true;
+}
+
+void QmlProfilerTool::clearDisplay()
+{
+    d->m_traceWindow->clearDisplay();
 }
 
 void QmlProfilerTool::attach()

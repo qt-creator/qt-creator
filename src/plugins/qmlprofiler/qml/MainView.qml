@@ -54,15 +54,19 @@ Rectangle {
         root.updateCursorPosition();
     }
 
+    function clearAll() {
+        Plotter.reset();
+        view.clearData();
+        rangeMover.x = 2
+        rangeMover.opacity = 0
+    }
+
     //handle debug data coming from C++
     Connections {
         target: connection
         onEvent: {
             if (Plotter.valuesdone) {
-                Plotter.reset();
-                view.clearData();
-                rangeMover.x = 2
-                rangeMover.opacity = 0
+                root.clearAll();
             }
 
             if (!Plotter.valuesdone && event === 0) //### only handle paint event
@@ -71,10 +75,7 @@ Rectangle {
 
         onRange: {
             if (Plotter.valuesdone) {
-                Plotter.reset();
-                view.clearData();
-                rangeMover.x = 2
-                rangeMover.opacity = 0
+                root.clearAll();
             }
 
             if (!Plotter.valuesdone)
@@ -84,11 +85,19 @@ Rectangle {
         onComplete: {
             Plotter.valuesdone = true;
             Plotter.calcFps();
+            view.visible = true;
             view.setRanges(Plotter.ranges);
             view.updateTimeline();
             canvas.requestPaint();
             rangeMover.x = 1    //### hack to get view to display things immediately
             rangeMover.opacity = 1
+        }
+
+        onClear: {
+            root.clearAll();
+            Plotter.valuesdone = false;
+            canvas.requestPaint();
+            view.visible = false;
         }
 
     }

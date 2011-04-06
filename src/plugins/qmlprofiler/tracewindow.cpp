@@ -110,6 +110,7 @@ public:
 
 public slots:
     void setRecording(bool);
+    void clearView();
 
 signals:
     void complete();
@@ -122,6 +123,7 @@ signals:
     void recordingChanged(bool arg);
 
     void enabled();
+    void clear();
 
 protected:
     virtual void statusChanged(Status);
@@ -147,6 +149,12 @@ TracePlugin::TracePlugin(QDeclarativeDebugConnection *client)
     : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client), m_inProgressRanges(0), m_maximumTime(0), m_recording(false)
 {
     ::memset(m_rangeCount, 0, MaximumRangeType * sizeof(int));
+}
+
+void TracePlugin::clearView()
+{
+    ::memset(m_rangeCount, 0, MaximumRangeType * sizeof(int));
+    emit clear();
 }
 
 void TracePlugin::setRecording(bool v)
@@ -310,6 +318,12 @@ void TraceWindow::updateCursorPosition()
 void TraceWindow::updateTimer()
 {
     emit timeChanged(m_view->rootObject()->property("elapsedTime").toDouble());
+}
+
+void TraceWindow::clearDisplay()
+{
+    if (m_plugin)
+        m_plugin->clearView();
 }
 
 void TraceWindow::setRecordAtStart(bool record)
