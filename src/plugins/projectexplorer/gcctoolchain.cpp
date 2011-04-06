@@ -182,7 +182,8 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
 
     foreach (const QString &p, parts) {
         if (p == QLatin1String("unknown") || p == QLatin1String("pc") || p == QLatin1String("none")
-            || p == QLatin1String("gnu") || p == QLatin1String("86_64")) {
+            || p == QLatin1String("gnu") || p == QLatin1String("uclibc")
+            || p == QLatin1String("86_64")) {
             continue;
         } else if (p == QLatin1String("i386") || p == QLatin1String("i486") || p == QLatin1String("i586")
                    || p == QLatin1String("i686") || p == QLatin1String("x86")) {
@@ -190,6 +191,9 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
             width = 32;
         } else if (p == QLatin1String("arm")) {
             arch = ProjectExplorer::Abi::ArmArchitecture;
+            width = 32;
+        } else if (p == QLatin1String("mipsel")) {
+            arch = ProjectExplorer::Abi::MipsArcitecture;
             width = 32;
         } else if (p == QLatin1String("x86_64")) {
             arch = ProjectExplorer::Abi::X86Architecture;
@@ -838,6 +842,9 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
             << QString::fromLatin1("x86_64-linux-gnu")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
                               << QLatin1String("x86-linux-generic-elf-32bit"));
+    QTest::newRow("Linux 4")
+            << QString::fromLatin1("mipsel-linux-uclibc")
+            << (QStringList() << QLatin1String("mips-linux-generic-elf-32bit"));
     QTest::newRow("Mingw 1")
             << QString::fromLatin1("i686-w64-mingw32")
             << (QStringList() << QLatin1String("x86-windows-msys-pe-64bit")
