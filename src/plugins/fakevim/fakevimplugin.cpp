@@ -1065,7 +1065,7 @@ void FakeVimPluginPrivate::readSettings()
         const QString re = settings->value(_(reKey)).toString();
         exCommandMap()[id] = QRegExp(re);
     }
-    settungs->endArray();
+    settings->endArray();
 
     userCommandMap() = defaultUserCommandMap();
     size = settings->beginReadArray(_(userCommandMapGroup));
