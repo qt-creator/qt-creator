@@ -336,7 +336,7 @@ bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
         return false;
     }
 
-    if (qt4BuildConfiguration()->qtVersion()->qtVersion() < QtVersionNumber(4, 7 ,0)) {
+    if (qt4BuildConfiguration()->qtVersion()->qtVersion() < QtVersionNumber(4, 7, 1)) {
         if (reason)
             *reason = tr("Requires Qt 4.7.1 or newer.");
         return false;
@@ -449,6 +449,7 @@ void QMakeStepConfigWidget::qtVersionChanged()
 {
     updateSummaryLabel();
     updateEffectiveQMakeCall();
+    updateQmlDebuggingWarningsLabel();
 }
 
 void QMakeStepConfigWidget::qmakeBuildConfigChanged()
