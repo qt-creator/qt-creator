@@ -7345,7 +7345,7 @@
 
     \omit
 
-    \section2 Gdb Adapter Modes
+    \section2 GDB Adapter Modes
 
     [Advanced Topic]
 
@@ -7393,13 +7393,13 @@
             \o Native Debugger
             \o Notes
         \row
-            \o Gdb
+            \o GDB
             \o On Linux and Windows, use the Python-enabled GDB versions that
             are installed when you install Qt Creator and Qt SDK. On Mac OS X,
             use the GDB provided with Xcode.
             For a custom target, you can build your own Python-enabled GDB.
             Follow the instructions on
-            \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}{Building Gdb}.
+            \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}{Building GDB}.
             You must use at least Python version 2.5, but we recommend that you
             use version 2.6.
 
@@ -7675,7 +7675,7 @@
             \i  \bold{Note:}
 
         \row
-            \i  Gdb, and therefore Qt Creator's debugger works for optimized
+            \i  GDB, and therefore Qt Creator's debugger works for optimized
                 builds on Linux and Mac OS X. Optimization can lead to
                 re-ordering of instructions or removal of some local variables,
                 causing the \gui{Locals and Watchers} view to show unexpected
@@ -7996,8 +7996,9 @@
     To extend the shipped Python based debugging helpers for custom types,
     define one Python function per user defined type in the
     GDB startup file. By default, the following startup file is used:
-    \c{~/.gdbinit}. To use another file, select \gui {Tools > Options... > Gdb}
-    and specify a filename in the \gui {Gdb startup script} field.
+    \c{~/.gdbinit}. To use another file, select \gui {Tools > Options... >
+    Debugger > GDB}
+    and specify a filename in the \gui {GDB startup script} field.
 
     The function name has to be qdump__NS__Foo, where NS::Foo is the class
     or class template to be examined. Nested namespaces are possible.
@@ -10848,10 +10849,10 @@
            (all platforms), some data types will not be displayed in the
            \gui{Locals and Watchers} view due to missing debug information.
 
-        \o Gdb on Windows may not work if the 'Embassy \reg Security Center' software
+        \o GDB on Windows may not work if the 'Embassy \reg Security Center' software
            by 'Wave \reg Systems' is installed and active (causing crashes in \c{vxvault.dll)}).
 
-        \o Gdb may take long to load debugging symbols, especially from large
+        \o GDB may take long to load debugging symbols, especially from large
            libraries.
 
         \o Setting breakpoints in code that is compiled into the binary more
