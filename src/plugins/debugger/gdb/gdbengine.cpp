@@ -1673,8 +1673,7 @@ void GdbEngine::handleExecuteContinue(const GdbResponse &response)
         return;
     }
     QByteArray msg = response.data.findChild("msg").data();
-    if (msg.startsWith("Cannot find bounds of current function")
-        || msg.startsWith("\"finish\" not meaningful in the outermost frame")) {
+    if (msg.startsWith("Cannot find bounds of current function")) {
         notifyInferiorRunFailed();
         if (isDying())
             return;
@@ -1683,9 +1682,14 @@ void GdbEngine::handleExecuteContinue(const GdbResponse &response)
         QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
         showStatusMessage(tr("Stopped."), 5000);
         reloadStack(true);
-        //showStatusMessage(tr("No debug information available. "
-        //  "Leaving function..."));
-        //executeStepOut();
+    } else if (msg.startsWith("\"finish\" not meaningful in the outermost frame")) {
+        notifyInferiorRunFailed();
+        if (isDying())
+            return;
+        QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+        // FIXME: Fix translation in master.
+        showStatusMessage(QString::fromLocal8Bit(msg), 5000);
+        gotoLocation(stackHandler()->currentFrame());
     } else {
         showExecutionError(QString::fromLocal8Bit(msg));
         notifyInferiorIll();
