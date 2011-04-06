@@ -153,6 +153,13 @@ void SshSendFacility::sendSessionPacket(quint32 channelId, quint32 windowSize,
     sendPacket();
 }
 
+void SshSendFacility::sendPtyRequestPacket(quint32 remoteChannel,
+    const SshPseudoTerminal &terminal)
+{
+    m_outgoingPacket.generatePtyRequestPacket(remoteChannel, terminal);
+    sendPacket();
+}
+
 void SshSendFacility::sendEnvPacket(quint32 remoteChannel,
     const QByteArray &var, const QByteArray &value)
 {

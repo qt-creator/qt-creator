@@ -160,7 +160,7 @@ void SshOutgoingPacket::generatePtyRequestPacket(quint32 remoteChannel,
     init(SSH_MSG_CHANNEL_REQUEST).appendInt(remoteChannel)
         .appendString("pty-req").appendBool(false)
         .appendString(terminal.termType).appendInt(terminal.columnCount)
-        .appendInt(terminal.rowCount);
+        .appendInt(terminal.rowCount).appendInt(0).appendInt(0);
     QByteArray modeString;
     for (SshPseudoTerminal::ModeMap::ConstIterator it = terminal.modes.constBegin();
          it != terminal.modes.constEnd(); ++it) {

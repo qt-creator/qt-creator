@@ -199,9 +199,8 @@ void SshRemoteProcessPrivate::handleOpenSuccessInternal()
            envVar.second);
    }
 
-   if (m_useTerminal) {
-       // TODO: Encode m_terminal
-   }
+   if (m_useTerminal)
+       m_sendFacility.sendPtyRequestPacket(remoteChannel(), m_terminal);
 
    m_sendFacility.sendExecPacket(remoteChannel(), m_command);
    setProcState(ExecRequested);

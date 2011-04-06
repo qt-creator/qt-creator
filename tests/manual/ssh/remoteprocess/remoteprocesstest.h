@@ -56,7 +56,7 @@ private slots:
     void handleTimeout();
 
 private:
-    enum State { Inactive, TestingSuccess, TestingFailure, TestingCrash };
+    enum State { Inactive, TestingSuccess, TestingFailure, TestingCrash, TestingTerminal };
 
     QTimer * const m_timeoutTimer;
     const Utils::SshRemoteProcessRunner::Ptr m_remoteRunner;

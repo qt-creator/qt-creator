@@ -34,6 +34,7 @@
 #include "sshremoteprocessrunner.h"
 
 #include "sshconnectionmanager.h"
+#include "sshpseudoterminal.h"
 
 #define ASSERT_STATE(states) assertState(states, Q_FUNC_INFO)
 
@@ -54,7 +55,9 @@ public:
     SshRemoteProcessRunnerPrivate(const SshConnection::Ptr &connection,
         QObject *parent);
     ~SshRemoteProcessRunnerPrivate();
-    void run(const QByteArray &command);
+    void runWithoutTerminal(const QByteArray &command);
+    void runInTerminal(const QByteArray &command,
+        const SshPseudoTerminal &terminal);
     QByteArray command() const { return m_command; }
 
     const SshConnection::Ptr m_connection;
@@ -77,12 +80,15 @@ private slots:
 private:
     enum State { Inactive, Connecting, Connected, ProcessRunning };
 
+    void run(const QByteArray &command);
     void setState(State state);
     void assertState(const QList<State> &allowedStates, const char *func);
     void assertState(State allowedState, const char *func);
 
     State m_state;
     bool m_needsRelease;
+    bool m_runInTerminal;
+    SshPseudoTerminal m_terminal;
     QByteArray m_command;
 };
 
@@ -108,6 +114,20 @@ SshRemoteProcessRunnerPrivate::SshRemoteProcessRunnerPrivate(const SshConnection
 SshRemoteProcessRunnerPrivate::~SshRemoteProcessRunnerPrivate()
 {
     setState(Inactive);
+}
+
+void SshRemoteProcessRunnerPrivate::runWithoutTerminal(const QByteArray &command)
+{
+    m_runInTerminal = false;
+    run(command);
+}
+
+void SshRemoteProcessRunnerPrivate::runInTerminal(const QByteArray &command,
+    const SshPseudoTerminal &terminal)
+{
+    m_terminal = terminal;
+    m_runInTerminal = true;
+    run(command);
 }
 
 void SshRemoteProcessRunnerPrivate::run(const QByteArray &command)
@@ -142,6 +162,8 @@ void SshRemoteProcessRunnerPrivate::handleConnected()
         SIGNAL(processOutputAvailable(QByteArray)));
     connect(m_process.data(), SIGNAL(errorOutputAvailable(QByteArray)),
         SIGNAL(processErrorOutputAvailable(QByteArray)));
+    if (m_runInTerminal)
+        m_process->requestTerminal(m_terminal);
     m_process->start();
 }
 
@@ -246,7 +268,13 @@ void SshRemoteProcessRunner::init()
 
 void SshRemoteProcessRunner::run(const QByteArray &command)
 {
-    d->run(command);
+    d->runWithoutTerminal(command);
+}
+
+void SshRemoteProcessRunner::runInTerminal(const QByteArray &command,
+    const SshPseudoTerminal &terminal)
+{
+    d->runInTerminal(command, terminal);
 }
 
 QByteArray SshRemoteProcessRunner::command() const { return d->command(); }

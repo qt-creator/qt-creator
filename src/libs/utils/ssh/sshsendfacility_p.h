@@ -43,6 +43,8 @@ QT_END_NAMESPACE
 
 
 namespace Utils {
+class SshPseudoTerminal;
+
 namespace Internal {
 class SshKeyExchange;
 
@@ -70,6 +72,8 @@ public:
     void sendInvalidPacket();
     void sendSessionPacket(quint32 channelId, quint32 windowSize,
         quint32 maxPacketSize);
+    void sendPtyRequestPacket(quint32 remoteChannel,
+        const SshPseudoTerminal &terminal);
     void sendEnvPacket(quint32 remoteChannel, const QByteArray &var,
         const QByteArray &value);
     void sendExecPacket(quint32 remoteChannel, const QByteArray &command);

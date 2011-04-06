@@ -51,6 +51,8 @@ public:
     static Ptr create(const SshConnection::Ptr &connection);
 
     void run(const QByteArray &command);
+    void runInTerminal(const QByteArray &command,
+        const SshPseudoTerminal &terminal);
     QByteArray command() const;
 
     SshConnection::Ptr connection() const;
