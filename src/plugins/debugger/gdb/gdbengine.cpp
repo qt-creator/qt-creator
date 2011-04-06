@@ -2457,7 +2457,6 @@ void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     const BreakpointId id = response.cookie.toInt();
-    BreakHandler *handler = breakHandler();
     const QString str = QString::fromLocal8Bit(
         response.data.findChild("consolestreamoutput").data());
     extractDataFromInfoBreak(str, id);
