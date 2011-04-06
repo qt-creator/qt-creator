@@ -544,8 +544,8 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version,
                                                                        DebuggingHelperBuildTask::QmlDebugging);
 
-    connect(buildTask, SIGNAL(finished(int,DebuggingHelperBuildTask::Tools,QString)),
-            this, SLOT(debuggingHelperBuildFinished()),
+    connect(buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
+            this, SLOT(debuggingHelperBuildFinished(int,QString)),
             Qt::QueuedConnection);
 
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
@@ -554,7 +554,7 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
                                                         QLatin1String("Qt4ProjectManager::BuildHelpers"));
 }
 
-void QMakeStepConfigWidget::debuggingHelperBuildFinished()
+void QMakeStepConfigWidget::debuggingHelperBuildFinished(int qtVersionId, const QString &output)
 {
     m_step->qt4BuildConfiguration()->qtVersion()->invalidateCache();
     m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());

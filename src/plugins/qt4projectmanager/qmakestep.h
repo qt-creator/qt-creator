@@ -149,7 +149,7 @@ private slots:
 
     // other
     void buildQmlDebuggingHelper();
-    void debuggingHelperBuildFinished();
+    void debuggingHelperBuildFinished(int qtVersionId, const QString &output);
 
 private:
     void updateSummaryLabel();

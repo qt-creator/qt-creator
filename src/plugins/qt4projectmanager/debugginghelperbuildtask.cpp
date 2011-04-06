@@ -133,10 +133,10 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
         success = buildDebuggingHelper(future, &output);
 
     if (success) {
-        emit finished(m_qtId, m_tools, output);
+        emit finished(m_qtId, output, m_tools);
     } else {
         qWarning("%s", qPrintable(m_errorMessage));
-        emit finished(m_qtId, m_tools, m_errorMessage);
+        emit finished(m_qtId, m_errorMessage, m_tools);
     }
 
     deleteLater();

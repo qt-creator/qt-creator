@@ -106,7 +106,7 @@ private slots:
     void buildQmlDebuggingLibrary();
     void buildQmlObserver();
     void slotShowDebuggingBuildLog();
-    void debuggingHelperBuildFinished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output);
+    void debuggingHelperBuildFinished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
 
 private:
     void updateDescriptionLabel();

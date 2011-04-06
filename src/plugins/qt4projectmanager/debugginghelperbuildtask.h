@@ -65,7 +65,7 @@ public:
     static Tools availableTools(const QtVersion *version);
 
 signals:
-    void finished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output);
+    void finished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
 
 private:
     bool buildDebuggingHelper(QFutureInterface<void> &future, QString *output);

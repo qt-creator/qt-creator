@@ -261,7 +261,7 @@ static inline int findVersionById(const QList<QtVersion *> &l, int id)
 }
 
 // Update with results of terminated helper build
-void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, DebuggingHelperBuildTask::Tools tools, const QString &output)
+void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools)
 {
     const int index = findVersionById(m_versions, qtVersionId);
     if (index == -1)
@@ -320,8 +320,8 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
 
     // Run a debugging helper build task in the background.
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version, tools);
-    connect(buildTask, SIGNAL(finished(int,DebuggingHelperBuildTask::Tools,QString)),
-            this, SLOT(debuggingHelperBuildFinished(int,DebuggingHelperBuildTask::Tools,QString)),
+    connect(buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
+            this, SLOT(debuggingHelperBuildFinished(int,QString,DebuggingHelperBuildTask::Tools)),
             Qt::QueuedConnection);
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");

@@ -73,8 +73,8 @@ public:
     {
         qmlDumpBuilds()->insert(version->uniqueId(), this);
 
-        connect(m_buildTask, SIGNAL(finished(int,DebuggingHelperBuildTask::Tools,QString)),
-                this, SLOT(finish(int,DebuggingHelperBuildTask::Tools,QString)),
+        connect(m_buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
+                this, SLOT(finish(int,QString,DebuggingHelperBuildTask::Tools)),
                 Qt::QueuedConnection);
     }
 
@@ -102,7 +102,7 @@ public:
     }
 
 private slots:
-    void finish(int qtId, DebuggingHelperBuildTask::Tools tools, const QString &output)
+    void finish(int qtId, const QString &output, DebuggingHelperBuildTask::Tools tools)
     {
         QtVersion *version = QtVersionManager::instance()->version(qtId);
 
