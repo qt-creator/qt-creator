@@ -780,9 +780,8 @@ void MaemoDeployStep::copyNextFileToDevice()
     sourceFilePath += d.localFilePath;
 #endif
 
-    QString command = QString::fromLatin1("%1 cp -r %2 %3")
-        .arg(MaemoGlobal::remoteSudo(), sourceFilePath,
-            d.remoteDir + QLatin1Char('/'));
+    QString command = QString::fromLatin1("%1 mkdir -p %3 && %1 cp -r %2 %3")
+        .arg(MaemoGlobal::remoteSudo(), sourceFilePath, d.remoteDir);
     SshRemoteProcess::Ptr copyProcess
         = m_connection->createRemoteProcess(command.toUtf8());
     connect(copyProcess.data(), SIGNAL(errorOutputAvailable(QByteArray)),
