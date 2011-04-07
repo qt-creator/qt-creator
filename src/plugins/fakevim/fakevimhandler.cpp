@@ -129,6 +129,14 @@ namespace Internal {
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
+enum {
+#ifdef Q_WS_MAC
+    RealControlModifier = Qt::MetaModifier
+#else
+    RealControlModifier = Qt::ControlModifier
+#endif
+};
+
 const int ParagraphSeparator = 0x00002029;
 typedef QLatin1String _;
 
@@ -409,23 +417,12 @@ public:
 
     bool is(int c) const
     {
-        return m_xkey == c && m_modifiers !=
-#ifdef Q_WS_MAC
-                Qt::MetaModifier
-#else
-                Qt::ControlModifier
-#endif
-        ;
+        return m_xkey == c && m_modifiers != RealControlModifier;
     }
 
     bool isControl(int c) const
     {
-        return m_modifiers ==
-#ifdef Q_WS_MAC
-            Qt::MetaModifier
-#else
-            Qt::ControlModifier
-#endif
+        return m_modifiers == RealControlModifier
             && (m_xkey == c || m_xkey + 32 == c || m_xkey + 64 == c || m_xkey + 96 == c);
     }
 
@@ -501,7 +498,7 @@ void Inputs::parseFrom(const QString &str)
         if (c0 == '<') {
             if ((c1 == 'C' || c1 == 'c') && c2 == '-' && c4 == '>') {
                 uint c = (c3 < 90 ? c3 : c3 - 32);
-                append(Input(c, Qt::ControlModifier, QString(QChar(c - 64))));
+                append(Input(c, RealControlModifier, QString(QChar(c - 64))));
                 i += 4;
             } else if (c1 == 'C' && c2 == 'R' && c3 == '>') {
                 append(Input(Key_Return, Qt::NoModifier, QString(QChar(13))));
@@ -1055,12 +1052,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     }
 
     // We are interested in overriding most Ctrl key combinations
-    if (mods ==
-#ifdef Q_WS_MAC
-            Qt::MetaModifier
-#else
-            Qt::ControlModifier
-#endif
+    if (mods == RealControlModifier
             && !config(ConfigPassControlKey).toBool()
             && ((key >= Key_A && key <= Key_Z && key != Key_K)
                 || key == Key_BracketLeft || key == Key_BracketRight)) {
@@ -1148,7 +1140,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     if (m_fakeEnd)
         moveRight();
 
-    //if ((mods & Qt::ControlModifier) != 0) {
+    //if ((mods & RealControlModifier) != 0) {
     //    if (key >= Key_A && key <= Key_Z)
     //        key = shift(key); // make it lower case
     //    key = control(key);
@@ -1261,13 +1253,7 @@ void FakeVimHandler::Private::importSelection()
         // Import new selection.
         Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
         if (cursor().hasSelection()) {
-            if (mods &
-#ifdef Q_WS_MAC
-                    Qt::MetaModifier
-#else
-                    Qt::ControlModifier
-#endif
-                    )
+            if (mods & RealControlModifier)
                 m_visualMode = VisualBlockMode;
             else if (mods & Qt::AltModifier)
                 m_visualMode = VisualBlockMode;
