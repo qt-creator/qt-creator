@@ -354,23 +354,25 @@ void MaemoRunConfiguration::updateDeviceConfigurations()
 
 void MaemoRunConfiguration::handleDeployConfigChanged()
 {
-    const QList<DeployConfiguration *> &deployConfigs
-        = target()->deployConfigurations();
     DeployConfiguration * const activeDeployConf
         = target()->activeDeployConfiguration();
-    for (int i = 0; i < deployConfigs.count(); ++i) {
+    if (activeDeployConf) {
+        connect(activeDeployConf->stepList(), SIGNAL(stepInserted(int)),
+            SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
+        connect(activeDeployConf->stepList(), SIGNAL(stepInserted(int)),
+            SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
+        connect(activeDeployConf->stepList(), SIGNAL(stepMoved(int,int)),
+            SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
+        connect(activeDeployConf->stepList(), SIGNAL(stepRemoved(int)),
+            SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
         AbstractMaemoDeployStep * const step
-            = MaemoGlobal::earlierBuildStep<AbstractMaemoDeployStep>(deployConfigs.at(i), 0);
-        if (!step)
-            continue;
-        if (deployConfigs.at(i) == activeDeployConf) {
+            = MaemoGlobal::earlierBuildStep<AbstractMaemoDeployStep>(activeDeployConf, 0);
+        if (step) {
             connect(step, SIGNAL(deviceConfigChanged()),
-                SLOT(updateDeviceConfigurations()));
-        } else {
-            disconnect(step, 0, this,
-                SLOT(updateDeviceConfigurations()));
+                SLOT(updateDeviceConfigurations()), Qt::UniqueConnection);
         }
     }
+
     updateDeviceConfigurations();
     updateFactoryState();
 }
