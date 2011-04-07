@@ -105,6 +105,7 @@ static inline bool renameFile(const QString &sourceName, const QString &targetNa
 S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc,
                              S60DeployStep *bs):
     BuildStep(bc, bs), m_timer(0),
+    m_timeoutTimer(new QTimer(this)),
     m_releaseDeviceAfterLauncherFinish(bs->m_releaseDeviceAfterLauncherFinish),
     m_handleDeviceRemoval(bs->m_handleDeviceRemoval),
     m_launcher(0),
@@ -123,6 +124,7 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc,
 
 S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
     BuildStep(bc, QLatin1String(S60_DEPLOY_STEP_ID)), m_timer(0),
+    m_timeoutTimer(new QTimer(this)),
     m_releaseDeviceAfterLauncherFinish(true),
     m_handleDeviceRemoval(true),
     m_launcher(0),
@@ -143,6 +145,9 @@ void S60DeployStep::ctor()
 {
     //: Qt4 Deploystep display name
     setDefaultDisplayName(tr("Deploy"));
+    m_timeoutTimer->setSingleShot(true);
+    m_timeoutTimer->setInterval(2000);
+    connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(timeout()));
 }
 
 S60DeployStep::~S60DeployStep()
@@ -313,7 +318,7 @@ void S60DeployStep::stop()
             m_launcher->terminate();
     } else {
         if (m_codaDevice) {
-            switch (m_state) {
+            switch (state()) {
             case StateSendingData:
                 closeRemoteFile();
                 break;
@@ -324,7 +329,7 @@ void S60DeployStep::stop()
             SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
         }
     }
-    m_state = StateUninit;
+    setState(StateUninit);
     emit finished(false);
 }
 
@@ -402,7 +407,7 @@ void S60DeployStep::startDeployment()
             return;
         }
         setupConnections();
-        m_state = StateConnecting;
+        setState(StateConnecting);
         m_codaDevice->sendSerialPing(false);
     } else {
         m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice);
@@ -410,7 +415,7 @@ void S60DeployStep::startDeployment()
         const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);
         m_codaDevice->setDevice(codaSocket);
         codaSocket->connectToHost(m_address, m_port);
-        m_state = StateConnecting;
+        setState(StateConnecting);
         appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), false);
     }
     QTimer::singleShot(4000, this, SLOT(checkForTimeout()));
@@ -494,9 +499,9 @@ void S60DeployStep::slotCodaEvent(const Coda::CodaEvent &event)
 
 void S60DeployStep::handleConnected()
 {
-    if (m_state >= StateConnected)
+    if (state() >= StateConnected)
         return;
-    m_state = StateConnected;
+    setState(StateConnected);
     emit codaConnected();
     startTransferring();
 }
@@ -518,6 +523,7 @@ void S60DeployStep::initFileSending()
     m_codaDevice->sendFileSystemOpenCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemOpen),
                                            remoteFileLocation.toAscii(), flags);
     appendMessage(tr("Copying \"%1\"...").arg(packageName), false);
+    m_timeoutTimer->start();
 }
 
 void S60DeployStep::initFileInstallation()
@@ -544,14 +550,14 @@ void S60DeployStep::startTransferring()
 {
     m_currentFileIndex = 0;
     initFileSending();
-    m_state = StateSendingData;
+    setState(StateSendingData);
 }
 
 void S60DeployStep::startInstalling()
 {
     m_currentFileIndex = 0;
     initFileInstallation();
-    m_state = StateInstalling;
+    setState(StateInstalling);
 }
 
 void S60DeployStep::handleFileSystemOpen(const Coda::CodaCommandResult &result)
@@ -562,7 +568,7 @@ void S60DeployStep::handleFileSystemOpen(const Coda::CodaCommandResult &result)
     }
 
     if (result.values.size() < 1 || result.values.at(0).data().isEmpty()) {
-        reportError(QLatin1String("Internal error: No filehandle obtained"));
+        reportError(tr("Internal error: No filehandle obtained"));
         return;
     }
 
@@ -582,7 +588,7 @@ void S60DeployStep::handleSymbianInstall(const Coda::CodaCommandResult &result)
     if (result.type == Coda::CodaCommandResult::SuccessReply) {
         appendMessage(tr("Installation has finished"), false);
         if (++m_currentFileIndex >= m_signedPackages.count()) {
-            m_state = StateFinished;
+            setState(StateFinished);
             emit allFilesInstalled();
         } else
             initFileInstallation();
@@ -615,6 +621,7 @@ void S60DeployStep::putSendNextChunk()
         m_codaDevice->sendFileSystemWriteCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemWrite),
                                                 m_remoteFileHandle, data, unsigned(pos));
         setCopyProgress((100*(m_putLastChunkSize+pos))/size);
+        m_timeoutTimer->start();
     }
 }
 
@@ -630,6 +637,7 @@ void S60DeployStep::closeRemoteFile()
 
 void S60DeployStep::handleFileSystemWrite(const Coda::CodaCommandResult &result)
 {
+    m_timeoutTimer->stop();
     // Close remote file even if copy fails
     m_putWriteOk = result;
     if (!m_putWriteOk) {
@@ -660,7 +668,7 @@ void S60DeployStep::handleFileSystemClose(const Coda::CodaCommandResult &result)
 
 void S60DeployStep::checkForTimeout()
 {
-    if (m_state != StateConnecting)
+    if (state() != StateConnecting)
         return;
     QMessageBox *mb = CodaRunControl::createCodaWaitingMessageBox(Core::ICore::instance()->mainWindow());
     connect(this, SIGNAL(codaConnected()), mb, SLOT(close()));
@@ -754,7 +762,6 @@ void S60DeployStep::installFailed(const QString &filename, const QString &errorM
 void S60DeployStep::checkForCancel()
 {
     if ((m_futureInterface->isCanceled() || m_deployCanceled) && m_timer->isActive()) {
-        closeRemoteFile();
         m_timer->stop();
         stop();
         QString canceledText(tr("Deployment has been cancelled."));
@@ -823,6 +830,11 @@ void S60DeployStep::updateProgress(int progress)
     int copyProgress = ((m_currentFileIndex*100 + progress) /m_signedPackages.count());
     int entireProgress = copyProgress * 0.8; //the copy progress is just 80% of the whole deployment progress
     m_futureInterface->setProgressValueAndText(entireProgress, tr("Copy progress: %1%").arg(copyProgress));
+}
+
+void S60DeployStep::timeout()
+{
+    reportError(tr("A timeout while deploying has occurred. CODA might not be responding. Try reconnecting the device."));
 }
 
 // #pragma mark -- S60DeployStepWidget

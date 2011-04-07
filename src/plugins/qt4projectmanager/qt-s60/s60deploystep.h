@@ -125,6 +125,7 @@ private slots:
     void slotWaitingForTrkClosed();
     void checkForCancel();
     void checkForTimeout();
+    void timeout();
 
     void slotError(const QString &error);
     void slotTrkLogMessage(const QString &log);
@@ -188,6 +189,9 @@ private:
         StateFinished
     };
 
+    inline void setState(State state) { m_state = state; }
+    inline State state() { return m_state; }
+
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
     QStringList m_packageFileNamesWithTarget; // Support for 4.6.1
@@ -196,6 +200,7 @@ private:
     unsigned short m_port;
 
     QTimer *m_timer;
+    QTimer* m_timeoutTimer;
 
     bool m_releaseDeviceAfterLauncherFinish;
     bool m_handleDeviceRemoval;
