@@ -331,6 +331,17 @@ bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
     if (qt4BuildConfiguration()->qtVersion()->hasQmlDebuggingLibrary())
         return true;
 
+    if (!qt4BuildConfiguration()->qtVersion()->qtAbis().isEmpty()) {
+        ProjectExplorer::Abi abi = qt4BuildConfiguration()->qtVersion()->qtAbis().first();
+        if (abi.os() == ProjectExplorer::Abi::SymbianOS
+                || abi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor) {
+            if (reason)
+                *reason = QString();
+//               *reason = tr("Qml debugging on device not yet supported.");
+            return false;
+        }
+    }
+
     if (!qt4BuildConfiguration()->qtVersion()->isValid()) {
         if (reason)
             *reason = tr("Invalid Qt version.");
