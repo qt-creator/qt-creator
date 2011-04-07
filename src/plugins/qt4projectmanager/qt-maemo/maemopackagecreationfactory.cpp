@@ -74,16 +74,19 @@ QStringList MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::B
     if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
         return QStringList();
 
+    QStringList ids;
     if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())
             && !parent->contains(MaemoDebianPackageCreationStep::CreatePackageId)) {
-        return QStringList() << MaemoDebianPackageCreationStep::CreatePackageId;
+        ids << MaemoDebianPackageCreationStep::CreatePackageId;
     } else if (qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target())
                && !parent->contains(MaemoRpmPackageCreationStep::CreatePackageId)) {
-        return QStringList() << MaemoRpmPackageCreationStep::CreatePackageId;
-    } else if (!parent->contains(MaemoTarPackageCreationStep::CreatePackageId)) {
-        return QStringList() << MaemoTarPackageCreationStep::CreatePackageId;
+        ids << MaemoRpmPackageCreationStep::CreatePackageId;
     }
-    return QStringList();
+    if (!qobject_cast<Qt4HarmattanTarget *>(parent->target())
+            && !parent->contains(MaemoTarPackageCreationStep::CreatePackageId)) {
+        ids << MaemoTarPackageCreationStep::CreatePackageId;
+    }
+    return ids;
 }
 
 QString MaemoPackageCreationFactory::displayNameForId(const QString &id) const

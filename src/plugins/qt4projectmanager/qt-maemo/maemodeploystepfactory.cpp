@@ -69,11 +69,12 @@ QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) 
     QStringList ids;
     if (qobject_cast<AbstractQt4MaemoTarget *>(parent->target()))
         ids << MaemoCopyToSysrootStep::Id;
+    if (!qobject_cast<Qt4HarmattanTarget *>(parent->target()))
+        ids << MaemoUploadAndInstallTarPackageStep::Id;
     if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())) {
         ids << MaemoInstallDebianPackageToSysrootStep::Id;
         ids << MaemoUploadAndInstallDpkgPackageStep::Id;
-    }
-    else if (qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target())) {
+    } else if (qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target())) {
         ids << MaemoInstallRpmPackageToSysrootStep::Id;
         ids << MaemoUploadAndInstallRpmPackageStep::Id;
     }
