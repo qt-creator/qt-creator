@@ -4,6 +4,7 @@ TARGET = cplusplus0
 include(../../../qtcreator.pri)
 include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
 include($$IDE_SOURCE_TREE/src/libs/languageutils/languageutils.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 
 # Input
 SOURCES += main.cpp
