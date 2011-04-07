@@ -38,6 +38,7 @@
 #include "gdb/gdbmi.h"
 #include "gdbmacros.h"
 #include "gdbmacros_p.h"
+
 #include "json.h"
 
 #include <QtCore/private/qobject_p.h>
@@ -162,7 +163,7 @@ public:
 
     void testJson(const char* input)
     {
-        QCOMPARE('\n' + QString::fromLatin1(JsonValue(input).toString(false)),
+        QCOMPARE('\n' + QString::fromLatin1(Coda::JsonValue(input).toString(false)),
             '\n' + QString(input));
     }
 

@@ -3,7 +3,9 @@ macx:CONFIG -= app_bundle
 TARGET = pp
 
 include(../../../qtcreator.pri)
-include(../../../src/libs/cplusplus/cplusplus.pri)
+include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
+include($$IDE_SOURCE_TREE/src/libs/3rdparty/botan/botan.pri)
 
 # Input
 SOURCES += main.cpp

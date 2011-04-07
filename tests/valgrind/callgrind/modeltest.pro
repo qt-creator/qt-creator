@@ -1,11 +1,12 @@
+include(../../../qtcreator.pri)
 TEMPLATE = app
 TARGET = modeltest
 
 macx:CONFIG -= app_bundle
 
 !win32 {
-    include(../../../qtcreator.pri)
-    include(../../../src/plugins/callgrind/callgrind.pri)
+    include($$IDE_SOURCE_TREE/src/plugins/callgrind/callgrind.pri)
+    include($$IDE_SOURCE_TREE/src/libs/languageutils/languageutils.pri)
 }
 
 SRCDIR = $$IDE_SOURCE_TREE/src

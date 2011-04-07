@@ -35,7 +35,7 @@
 
 //template <typename T> class B;  B foo() {}
 
-#include "../deeper/simple_gdbtest_app.h"
+#include "../simple/deep/deep/simple_gdbtest_app.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QDateTime>

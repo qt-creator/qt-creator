@@ -1,5 +1,5 @@
 include(../../../qtcreator.pri)
-include(../../../src/libs/utils/utils.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
 
 FAKEVIMDIR = $$IDE_SOURCE_TREE/src/plugins/fakevim
 LIBSDIR = $$IDE_SOURCE_TREE/src/libs
