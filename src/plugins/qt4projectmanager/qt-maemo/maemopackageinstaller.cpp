@@ -67,7 +67,9 @@ void AbstractMaemoPackageInstaller::installPackage(const SshConnection::Ptr &con
         SLOT(handleInstallationFinished(int)));
 
     const QString space = QLatin1String(" ");
-    QString cmdLine = MaemoGlobal::remoteSudo(m_installer->connection()->connectionParameters().userName)
+    QString cmdLine = QLatin1String("cd ") + workingDirectory()
+        + QLatin1String(" && ")
+        + MaemoGlobal::remoteSudo(m_installer->connection()->connectionParameters().userName)
         + space + installCommand()
         + space + installCommandArguments().join(space) + space
         + packageFilePath;
@@ -205,7 +207,7 @@ QString MaemoTarPackageInstaller::installCommand() const
 
 QStringList MaemoTarPackageInstaller::installCommandArguments() const
 {
-    return QStringList() << QLatin1String("--absolute-names -xvf");
+    return QStringList() << QLatin1String("xvf");
 }
 
 } // namespace Internal

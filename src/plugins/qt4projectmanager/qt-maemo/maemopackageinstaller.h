@@ -73,6 +73,7 @@ private slots:
 
 private:
     virtual void prepareInstallation() {}
+    virtual QString workingDirectory() const { return QLatin1String("/tmp"); }
     virtual QString installCommand() const=0;
     virtual QStringList installCommandArguments() const=0;
     virtual QString errorString() const { return QString(); }
@@ -122,6 +123,7 @@ public:
 private:
     virtual QString installCommand() const;
     virtual QStringList installCommandArguments() const;
+    virtual QString workingDirectory() const { return QLatin1String("/"); }
 };
 
 
