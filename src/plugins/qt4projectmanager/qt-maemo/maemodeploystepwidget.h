@@ -58,6 +58,7 @@ private:
     Q_SLOT void handleDeviceUpdate();
     Q_SLOT void setCurrentDeviceConfig(int index);
     Q_SLOT void showDeviceConfigurations();
+    Q_SLOT void handleStepToBeRemoved(int step);
 
     virtual void init();
     virtual QString summaryText() const;

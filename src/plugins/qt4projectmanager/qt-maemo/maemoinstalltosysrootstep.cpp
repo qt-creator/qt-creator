@@ -58,10 +58,11 @@ public:
 
     virtual void init()
     {
-        ProjectExplorer::BuildStepList * const list
-            = qobject_cast<BuildStepList *>(m_step->parent());
+        BuildStepList * const list
+             = qobject_cast<BuildStepList *>(m_step->parent());
         connect(list, SIGNAL(stepInserted(int)), SIGNAL(updateSummary()));
         connect(list, SIGNAL(stepMoved(int,int)), SIGNAL(updateSummary()));
+        connect(list, SIGNAL(aboutToRemoveStep(int)), SLOT(handleStepToBeRemoved(int)));
         connect(list, SIGNAL(stepRemoved(int)), SIGNAL(updateSummary()));
     }
 
@@ -76,6 +77,14 @@ public:
     }
 
 private:
+    Q_SLOT void handleStepToBeRemoved(int step)
+    {
+        BuildStepList * const list
+            = qobject_cast<BuildStepList *>(m_step->parent());
+        if (list->steps().at(step) == m_step)
+            disconnect(list, 0, this, 0);
+    }
+
     const AbstractMaemoInstallPackageToSysrootStep * const m_step;
 };
 

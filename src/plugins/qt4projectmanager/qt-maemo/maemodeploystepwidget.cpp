@@ -63,6 +63,8 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(AbstractMaemoDeployStep *step) :
     connect(list, SIGNAL(stepInserted(int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(stepMoved(int,int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(stepRemoved(int)), SIGNAL(updateSummary()));
+    connect(list, SIGNAL(aboutToRemoveStep(int)),
+        SLOT(handleStepToBeRemoved(int)));
 }
 
 MaemoDeployStepWidget::~MaemoDeployStepWidget()
@@ -90,6 +92,14 @@ void MaemoDeployStepWidget::handleDeviceUpdate()
         ->indexForInternalId(internalId);
     ui->deviceConfigComboBox->setCurrentIndex(newIndex);
     emit updateSummary();
+}
+
+void MaemoDeployStepWidget::handleStepToBeRemoved(int step)
+{
+    ProjectExplorer::BuildStepList * const list
+        = qobject_cast<ProjectExplorer::BuildStepList *>(m_step->parent());
+    if (list->steps().at(step) == m_step)
+        disconnect(list, 0, this, 0);
 }
 
 QString MaemoDeployStepWidget::summaryText() const
