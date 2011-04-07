@@ -48,6 +48,8 @@
 #include <QApplication>
 #include <QGraphicsOpacityEffect>
 #include <QCleanlooksStyle>
+#include <QPlastiqueStyle>
+
 #include <QTextEdit>
 
 
@@ -57,11 +59,16 @@ class CleanLooksSingleton
 {
    public:
      static CleanLooksSingleton* instance();
-     QCleanlooksStyle* style() {return &m_style; };
+     QStyle* style() {return &m_style; };
 
    private:
      static CleanLooksSingleton *m_instance;
+
+#ifdef Q_OS_MAC
+     QPlastiqueStyle m_style;
+#else
      QCleanlooksStyle m_style;
+#endif //Q_OS_MAC
 
      CleanLooksSingleton() {}
      CleanLooksSingleton( const CleanLooksSingleton& );
