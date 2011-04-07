@@ -94,14 +94,17 @@ int AbstractMobileAppWizardDialog::nextId() const
     const bool symbianTargetSelected =
         m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         || m_targetsPage->isTargetSelected(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
-    const bool maemoTargetSelected =
-        m_targetsPage->isTargetSelected(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID))
+    const bool fremantleTargetSelected
+        = m_targetsPage->isTargetSelected(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID));
+    const bool maemoTargetSelected = fremantleTargetSelected
             || m_targetsPage->isTargetSelected(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID))
             || m_targetsPage->isTargetSelected(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
 
     if (currentPage() == m_targetsPage) {
-        if (symbianTargetSelected || maemoTargetSelected)
+        if (symbianTargetSelected || fremantleTargetSelected)
             return m_genericOptionsPageId;
+        else if (maemoTargetSelected)
+            return m_maemoOptionsPageId;
         else
             return idOfNextGenericPage();
     } else if (currentPage() == m_genericOptionsPage) {
@@ -122,7 +125,7 @@ int AbstractMobileAppWizardDialog::nextId() const
 void AbstractMobileAppWizardDialog::initializePage(int id)
 {
     if (id == startId()) {
-        m_targetItem->setNextItems(QList<Utils::WizardProgressItem *>() << m_genericItem << itemOfNextGenericPage());
+        m_targetItem->setNextItems(QList<Utils::WizardProgressItem *>() << m_genericItem << m_maemoItem << itemOfNextGenericPage());
         m_genericItem->setNextItems(QList<Utils::WizardProgressItem *>() << m_symbianItem << m_maemoItem);
         m_symbianItem->setNextItems(QList<Utils::WizardProgressItem *>() << m_maemoItem << itemOfNextGenericPage());
     } else if (id == m_genericOptionsPageId) {
