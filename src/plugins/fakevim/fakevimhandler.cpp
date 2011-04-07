@@ -136,6 +136,9 @@ enum {
     RealControlModifier = Qt::ControlModifier
 #endif
 };
+// Enforce use of RealControlModifier by breaking the compilation.
+#define MetaModifier     // Use RealControlModifier instead
+#define ControlModifier  // Use RealControlModifier instead
 
 const int ParagraphSeparator = 0x00002029;
 typedef QLatin1String _;
