@@ -376,6 +376,16 @@ QString GccToolChain::debuggerCommand() const
     return m_debuggerCommand;
 }
 
+QString GccToolChain::mkspec() const
+{
+    Abi abi = targetAbi();
+    if (abi.os() == Abi::MacOS)
+        return QLatin1String("macx-g++");
+    if (abi.os() == Abi::LinuxOS)
+        return QLatin1String("linux-g++-") + QString::number(m_targetAbi.wordWidth());
+    return QString();
+}
+
 QString GccToolChain::makeCommand() const
 {
     return QLatin1String("make");
@@ -692,6 +702,11 @@ QString MingwToolChain::typeName() const
     return Internal::MingwToolChainFactory::tr("MinGW");
 }
 
+QString MingwToolChain::mkspec() const
+{
+    return QLatin1String("win32-g++");
+}
+
 QString MingwToolChain::makeCommand() const
 {
     return QLatin1String("mingw32-make.exe");
@@ -779,6 +794,11 @@ QString LinuxIccToolChain::typeName() const
 IOutputParser *LinuxIccToolChain::outputParser() const
 {
     return new LinuxIccParser;
+}
+
+QString LinuxIccToolChain::mkspec() const
+{
+    return QLatin1String("linux-icc-") + QString::number(targetAbi().wordWidth());
 }
 
 ToolChain *LinuxIccToolChain::clone() const

@@ -128,6 +128,11 @@ QString GcceToolChain::makeCommand() const
 #endif
 }
 
+QString GcceToolChain::mkspec() const
+{
+    return QString(); // always use default from Qt version
+}
+
 QString GcceToolChain::defaultMakeTarget() const
 {
     return QLatin1String("gcce");

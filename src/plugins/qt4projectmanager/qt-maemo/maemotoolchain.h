@@ -51,6 +51,7 @@ public:
 
     QString typeName() const;
     ProjectExplorer::Abi targetAbi() const;
+    QString mkspec() const;
 
     bool isValid() const;
     bool canClone() const;

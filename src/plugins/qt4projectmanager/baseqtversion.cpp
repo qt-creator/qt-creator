@@ -597,6 +597,17 @@ QString BaseQtVersion::mkspecPath() const
     return m_mkspecFullPath;
 }
 
+bool BaseQtVersion::hasMkspec(const QString &spec) const
+{
+    updateVersionInfo();
+    QFileInfo fi;
+    fi.setFile(QDir::fromNativeSeparators(m_versionInfo.value("QMAKE_MKSPECS")) + '/' + spec);
+    if (fi.isDir())
+        return true;
+    fi.setFile(sourcePath() + QLatin1String("/mkspecs/") + spec);
+    return fi.isDir();
+}
+
 BaseQtVersion::QmakeBuildConfigs BaseQtVersion::defaultBuildConfig() const
 {
     ensureMkSpecParsed();

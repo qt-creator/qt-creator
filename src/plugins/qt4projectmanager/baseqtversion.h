@@ -147,6 +147,8 @@ public:
     /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
     QString mkspecPath() const;
 
+    bool hasMkspec(const QString &) const;
+
     enum QmakeBuildConfig
     {
         NoBuild = 1,

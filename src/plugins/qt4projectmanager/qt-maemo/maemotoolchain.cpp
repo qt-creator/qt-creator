@@ -82,6 +82,11 @@ ProjectExplorer::Abi MaemoToolChain::targetAbi() const
     return m_targetAbi;
 }
 
+QString MaemoToolChain::mkspec() const
+{
+    return QString(); // always use default
+}
+
 bool MaemoToolChain::isValid() const
 {
     return GccToolChain::isValid() && m_qtVersionId >= 0 && m_targetAbi.isValid();

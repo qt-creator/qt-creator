@@ -83,6 +83,8 @@ public:
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual QString makeCommand() const = 0;
 
+    virtual QString mkspec() const = 0;
+
     virtual QString debuggerCommand() const = 0;
     virtual QString defaultMakeTarget() const;
     virtual IOutputParser *outputParser() const = 0;

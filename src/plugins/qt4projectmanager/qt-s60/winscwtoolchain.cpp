@@ -182,6 +182,12 @@ void WinscwToolChain::addToEnvironment(Utils::Environment &env) const
     env.prependOrSetPath(QFileInfo(m_compilerPath).absolutePath());
 }
 
+
+QString WinscwToolChain::mkspec() const
+{
+    return QString(); // Always use default from Qt version
+}
+
 QString WinscwToolChain::makeCommand() const
 {
 #if defined Q_OS_WIN

@@ -225,6 +225,11 @@ void RvctToolChain::addToEnvironment(Utils::Environment &env) const
     env.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
 }
 
+QString RvctToolChain::mkspec() const
+{
+    return QString(); // Always use default from Qt version
+}
+
 QString RvctToolChain::makeCommand() const
 {
 #if defined(Q_OS_WIN)

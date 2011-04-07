@@ -50,6 +50,7 @@ public:
     QByteArray predefinedMacros() const;
     void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
+    QString mkspec() const;
     QString defaultMakeTarget() const;
 
     void setCompilerPath(const QString &);

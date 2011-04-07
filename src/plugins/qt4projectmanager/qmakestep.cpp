@@ -130,12 +130,18 @@ QString QMakeStep::allArguments(bool shorted)
         arguments << QDir::toNativeSeparators(buildConfiguration()->target()->project()->file()->fileName());
     arguments << "-r";
 
+    bool haveSpec = false;
     for (Utils::QtcProcess::ArgIterator ait(&additonalArguments); ait.next(); )
         if (ait.value() == QLatin1String("-spec"))
-            goto haveSpec;
-    if (bc->qtVersion())
-        arguments << "-spec" << bc->qtVersion()->mkspec();
-  haveSpec:
+            haveSpec = true;
+
+    if (!haveSpec) {
+        const QString tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : QString();
+        if (!tcSpec.isEmpty() && bc->qtVersion()->hasMkspec(tcSpec))
+            arguments << "-spec" << tcSpec;
+        else
+            arguments << "-spec" << bc->qtVersion()->mkspec();
+    }
 
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
