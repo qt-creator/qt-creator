@@ -322,11 +322,13 @@ void S60DeployStep::stop()
 
 void S60DeployStep::setupConnections()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection
+            || m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection)
         connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
                 this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
-        connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
 
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
+        connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
         connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(connectFailed(QString)));
         connect(m_launcher, SIGNAL(copyingStarted(QString)), this, SLOT(printCopyingNotice(QString)));
         connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(createFileFailed(QString,QString)));

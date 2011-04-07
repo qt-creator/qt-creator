@@ -1024,17 +1024,48 @@
 
     \title Developing Widget Based Applications
 
-    Widgets and forms created with \QD are integrated seamlessly with programmed code,
-    using the Qt signals and slots mechanism, that lets you easily assign behavior to
+    Widgets and forms created with \QD are integrated seamlessly with
+    programmed code by using the Qt signals and slots mechanism that allows you
+    to easily assign behavior to
     graphical elements. All properties set in \QD can be changed dynamically within the code.
-    Furthermore, features like widget promotion and custom plugins allow you to use your
-    own widgets with \QD.
+    Furthermore, features such as widget promotion and custom plugins allow you to use your
+    own widgets with \QD. For more information, see
+    \l{Adding Qt Designer Plugins}.
 
-    Qt Creator automatically opens all .ui files in \QD.
+    Qt Creator automatically opens all .ui files in the integrated \QD, in
+    \gui Design mode.
 
     \image qtcreator-formedit.png
 
+    For more information about \QD, see the
+    \l{http://doc.qt.nokia.com/4.7/designer-manual.html}{Qt Designer Manual}.
+
+    Generally, the integrated \QD contains the same functions as the standalone
+    \QD. The following sections describe the differences.
+
+    \section1 Code Editor Integration
+
+    To switch between forms (\gui Design mode) and code (\gui Edit mode),
+    press \key Shift+F4.
+
+    You can use Qt Creator to create stub implementations of slot functions.
+    In the \gui Design mode, right-click a widget to open a context menu, and
+    then select \gui {Go to Slot...}. Select a signal in the list to go to an
+    existing slot function or to create a new slot function.
+
+    \section1 Managing Image Resources
+
+    In standalone \QD, image resources are created using the built-in
+    \gui {Resource Editor}. In Qt Creator, .ui files are usually part of a
+    project, which may contain several resource files (.qrc). They are created
+    and maintained by using the Qt Creator Resource Editor. The \QD
+    \gui {Resource Editor} is de-activated and the image resources are
+    displayed in the \QD \gui {Resource Browser}.
+
+    \section1 Specifying Settings for Qt Designer
+
     To change the layout of \QD user interface elements:
+
     \list 1
         \o Select \gui Tools > \gui{Form Editor} > \gui Views >
            \gui Locked.
@@ -1044,29 +1075,50 @@
            position.
     \endlist
 
-    To change \QD properties, select \gui Tools > \gui Options... >
-    \gui Designer.
-    \list
-        \o Set the class properties and code generation preferences in \gui
-           {Class Generation}.
-        \o Set an additional folder for saving templates in \gui{Template
-           Paths}.
-        \o Set the grid settings and preview preferences in \gui Forms. To
-           preview your form with skins, enable \gui{Print/Preview
-           Configuration} and select your skin. Otherwise default preview
-           settings are used.
+    To specify settings for \QD:
 
-           To preview the settings, select \gui Tools > \gui{Form Editor} >
-           \gui Preview, or press \key Alt+Shift+R.
-        \o To specify embedded device profiles, such as style, font, and screen
-           resolution, select \gui{Embedded Design}.
+    \list
+
+        \o  Select \gui Tools > \gui Options... > \gui Designer.
+
+        \o  Specify settins for generating classes and code in \gui {Class
+            Generation}.
+
+        \o  Specify embedded device profiles, that determine style, font, and
+            screen resolution, for example, in \gui{Embedded Design}.
+
+        \o  Specify settings for the grid and previewing forms in \gui Forms.
+
+        \o  Specify an additional folder for saving templates in \gui{Template
+            Paths}.
+
     \endlist
 
-    To switch between forms and code, use \key Shift+F4.
+    To preview the settings, select \gui Tools > \gui{Form Editor} >
+    \gui Preview, or press \key Alt+Shift+R.
 
-    For more information on \QD, see
-    \l{http://doc.qt.nokia.com/4.7/designer-manual.html}{Qt Designer Manual}.
+    \section1 Previewing Forms Using Device Skins
 
+    A \e {device skin} is a set of configuration files that describe a mobile
+    device. It includes a border image that surrounds the form and depicts a
+    mobile device with its buttons.
+
+    To preview your form using device skins:
+
+    \list 1
+
+        \o  Select \gui Tools > \gui Options... > \gui Designer.
+
+        \o  Select the \gui{Print/Preview Configuration} check box.
+
+        \o  In the \gui {Device skin} field, select a device skin.
+
+        \o  When the form is open in \gui Design mode, press \key Alt+Shift+R.
+
+        \o  To end the preview, right-click the skin and select \gui Close in
+            the context menu.
+
+    \endlist
 */
 
 
@@ -5212,12 +5264,6 @@
     (using the Certified Signed path or the manufacturer-specific channel).
     For more information, see \l{Deploying Applications to Symbian Devices}.
 
-    \note At the time of writing this document, the distribution of Qt 4.7.x based
-    applications is supported by neither Ovi Store nor Smart Installer.
-    For up-to-date information about the packages available for distribution, see the
-    \l{http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}
-    wiki.
-
     To use the publishing wizard:
 
     \list 1
@@ -8825,13 +8871,6 @@
     to mobile devices, use the \gui {Qt Quick Application} wizard and select the main
     .qml file in your project. All the other files in the project are automatically added
     to the application project.
-
-    For example, you can open and run the
-    \l {http://doc.qt.nokia.com/4.7/qdeclarativeexamples.html} {QML examples and demos}
-    to learn how to use various aspects of QML. To run the examples in the QML Viewer
-    on the desktop, open them in the \gui Welcome mode. To view the examples on
-    mobile devices, use the \gui {Qt Quick Application} wizard to convert them into
-    Qt Quick Applications.
 
     To import QML applications:
 

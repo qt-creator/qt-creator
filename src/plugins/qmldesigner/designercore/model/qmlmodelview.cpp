@@ -292,7 +292,7 @@ NodeInstance QmlModelView::instanceForModelNode(const ModelNode &modelNode)
 
 bool QmlModelView::hasInstanceForModelNode(const ModelNode &modelNode)
 {
-    return nodeInstanceView()->hasInstanceForNode(modelNode);
+    return nodeInstanceView() && nodeInstanceView()->hasInstanceForNode(modelNode);
 }
 
 void QmlModelView::modelAttached(Model *model)

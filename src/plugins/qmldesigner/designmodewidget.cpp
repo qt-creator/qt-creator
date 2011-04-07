@@ -155,7 +155,7 @@ QList<QToolButton *> ItemLibrarySideBarItem::createToolBarWidgets()
 
 void DocumentWarningWidget::goToError()
 {
-    m_designModeWidget->textEditor()->gotoLine(m_error.line(), m_error.column());
+    m_designModeWidget->textEditor()->gotoLine(m_error.line(), m_error.column() - 1);
     Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
 }
 

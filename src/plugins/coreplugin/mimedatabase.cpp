@@ -1705,9 +1705,15 @@ QList<MimeType> MimeDatabasePrivate::readUserModifiedMimeTypes()
 
 void MimeDatabasePrivate::writeUserModifiedMimeTypes(const QList<MimeType> &mimeTypes)
 {
-    // Keep mime types modified which are already on file.
+    // Keep mime types modified which are already on file, unless they are part of the current set.
+    QSet<QString> currentMimeTypes;
+    foreach (const MimeType &mimeType, mimeTypes)
+        currentMimeTypes.insert(mimeType.type());
+    const QList<MimeType> &inFileMimeTypes = readUserModifiedMimeTypes();
     QList<MimeType> allModifiedMimeTypes = mimeTypes;
-    allModifiedMimeTypes.append(readUserModifiedMimeTypes());
+    foreach (const MimeType &mimeType, inFileMimeTypes)
+        if (!currentMimeTypes.contains(mimeType.type()))
+            allModifiedMimeTypes.append(mimeType);
 
     if (QFile::exists(kModifiedMimeTypesPath) || QDir().mkpath(kModifiedMimeTypesPath)) {
         QFile file(kModifiedMimeTypesPath + kModifiedMimeTypesFile);

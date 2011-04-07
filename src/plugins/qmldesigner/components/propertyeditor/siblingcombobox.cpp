@@ -81,7 +81,7 @@ void SiblingComboBox::setup()
     //We currently have no instanceChildren().
     //So we double check here if the instanceParents are equal.
     foreach (const QmlItemNode &node, m_itemList)
-        if (node.instanceParent().modelNode() != m_itemNode.instanceParent().modelNode())
+        if (node.isValid() && (node.instanceParent().modelNode() != m_itemNode.instanceParent().modelNode()))
             m_itemList.removeAll(node);
 
     disconnect(this, SIGNAL(currentIndexChanged (int)), this, SLOT(changeSelection(int)));
