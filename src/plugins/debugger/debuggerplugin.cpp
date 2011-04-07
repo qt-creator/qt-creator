@@ -2708,9 +2708,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Start and Debug External Application..."));
     connect(act, SIGNAL(triggered()), SLOT(startExternalApplication()));
 
+#ifdef WITH_LLDB
     act = m_startRemoteLldbAction = new QAction(this);
     act->setText(tr("Start and Debug External Application with External Engine..."));
     connect(act, SIGNAL(triggered()), SLOT(startRemoteEngine()));
+#endif
 
     act = m_attachExternalAction = new QAction(this);
     act->setText(tr("Attach to Running External Application..."));
