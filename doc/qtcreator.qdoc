@@ -130,9 +130,9 @@
        \o \l{Debugging}
             \list
                 \o \l{Debugging the Example Application}
+                \o \l{Launching the Debugger}
                 \o \l{Interacting with the Debugger}
                 \o \l{Setting Up Debugger}
-                \o \l{Launching the Debugger in Different Modes}
                 \o \l{Using Debugging Helpers}
                 \o \l{Debugging Qt Quick Projects}
                 \o \l{Detecting Memory Leaks}
@@ -7108,6 +7108,10 @@
             to illustrate how to debug Qt C++ applications in the \gui Debug
             mode.
 
+        \o  \l{Launching the Debugger} describes the
+            operating modes in which the debugger plugin runs, depending on
+            where and how the process is started and run.
+
         \o  \l{Interacting with the Debugger} describes the views and functions
             available in the \gui Debug mode.
 
@@ -7116,13 +7120,8 @@
             between Qt Creator and the native debugger is set up automatically
             and you do not need to do anything.
 
-        \o  \l{Launching the Debugger in Different Modes} describes the
-            operating modes in which the debugger plugin runs, depending on
-            where and how the process is started and run.
-
         \o  \l{Using Debugging Helpers} describes how to get more detailed data
             on complex data.
-
 
         \o  \l{Debugging Qt Quick Projects} describes how to debug Qt Quick
             projects.
@@ -7139,11 +7138,28 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugger-engines.html
+    \previouspage creator-debugging-example.html
     \page creator-debugger-operating-modes.html
-    \nextpage creator-debugging-helpers.html
+    \nextpage creator-debug-mode.html
 
-    \title Launching the Debugger in Different Modes
+    \title Launching the Debugger
+
+    To start a program under the control of the debugger, select \gui{Debug} >
+    \gui{Start Debugging} > \gui{Start Debugging}, or press \key{F5}.
+    Qt Creator checks whether the compiled program is up-to-date, and rebuilds
+    it if necessary. The debugger then takes over and starts the program.
+
+    \note Starting a program in the debugger can take a long
+    time, typically in the range of several seconds to minutes if complex
+    features (like QtWebKit) are used.
+
+    The debugger is launched in the appropriate operating mode (plain, terminal,
+    or on-device), based on the build and run settings for the active project.
+    Select \gui Debug menu options to launch the debugger in other modes.
+
+    \note Debugging QML and JavaScript is supported only in plain mode.
+
+    \section1 Launching the Debugger in Different Modes
 
     The debugger plugin runs in different operating modes depending on where and
     how the process is started and run. Some of the modes are only available for
@@ -7178,33 +7194,81 @@
     build and run settings for the active project. Select \gui Debug menu options
     to launch the debugger in the other modes.
 
-    \section2 Plain Mode
+    \section2 Launching in Plain Mode
 
     To launch the debugger in the plain mode, click the \gui {Start Debugging}
     button for the active project, or choose
     \gui {Debug > Start Debugging > Start and Debug External Application...}
     and specify an executable.
 
-    \section2 Terminal Mode
+
+
+    \section2 Launching in Terminal Mode
 
     To launch the debugger in the terminal mode, select \gui {Projects > Run Settings}
     and select the \gui {Run in terminal} check box. Then click the
     \gui {Start Debugging} button for the active project.
 
-    \section2 Attach Mode
+    \section2 Launching in Attach Mode
 
     To launch the debugger in the attach mode, select
     \gui {Debug > Start Debugging >  Attach to Running External Application...},
     and then select a process by its name or process ID to attach to.
 
-    \section2 Remote Mode
+    \section2 Launching in Remote Mode
 
-    The remote mode uses a \e{gdbserver} daemon that runs on the remote machine.
+    The remote mode uses GDB or CDB that runs on the remote machine.
 
-    To launch the debugger in the remote mode, select
-    \gui {Debug > Start Debugging > Start and Attach to Remote Application...}.
+    If you use GDB, select\gui {Debug > Start Debugging > Start and Attach to
+    Remote Application...} to launch the debugger in the remote mode.
 
-    \section2 Core Mode
+    If you use CDB, you have to configure the remote CDB to use the Qt Creator
+    CDB extension:
+
+    \list 1
+
+        \o  Copy the Qt Creator CDB extension from the Qt installation
+            directory to the the remote machine:
+
+        \list
+
+            \o  \c {\lib\qtcreatorcdbext32\qtcreatorcdbext.dll}
+
+            \o  \c {\lib\qtcreatorcdbext64\qtcreatorcdbext.dll}
+
+        \endlist
+
+        \o  Set the _NT_DEBUGGER_EXTENSION_PATH environment variable to point
+            to the directory.
+
+        \o  To use TCP/IP as communication protocol, launch the remote CDB as
+            follows:
+
+            \code
+            cdb.exe -server tcp:port=1234 <executable>
+            \endcode
+
+        \o  Enter the connection parameters as follows:
+
+            \code
+
+            Server:Port
+            tcp:server=Server,port=Port[,password=Password][,ipversion=6]
+            tcp:clicon=Server,port=Port[,password=Password][,ipversion=6]
+            npipe:server=Server,pipe=PipeName[,password=Password]
+            com:port=COMPort,baud=BaudRate,channel=COMChannel[,password=Password]
+            spipe:proto=Protocol,{certuser=Cert|machuser=Cert},server=Server,pipe=PipeName[,password=Password]
+            ssl:proto=Protocol,{certuser=Cert|machuser=Cert},server=Server,port=Socket[,password=Password]
+            ssl:proto=Protocol,{certuser=Cert|machuser=Cert},clicon=Server,port=Socket[,password=Password]
+            \endcode
+
+    \endlist
+
+    To launch the debugger in remote mode, select \gui {Debug > Start Debugging
+    > Start and Attach to Remote CDB Session...}.
+
+
+    \section2 Launching in Core Mode
 
     The core mode it used to debug \e {core} files (crash dumps) that are
     generated from crashed processes if the system is set up to allow this.
@@ -7219,7 +7283,7 @@
     To launch the debugger in the core mode, select
     \gui{Debug > Start Debugging >  Attach to Core...}.
 
-    \section2 Post-Mortem Mode
+    \section2 Launching in Post-Mortem Mode
 
     The post-mortem mode is available only on Windows, if you have installed
     the debugging tools for Windows.
@@ -7232,7 +7296,7 @@
     on Windows. Click the \gui {Debug in Qt Creator} button in the error message
     that is displayed by the Windows operating system.
 
-    \section2 On-device Mode
+    \section2 Launching in On-device Mode
 
     The on-device mode is a special mode available for run configurations
     targeting mobile devices. It debugs processes running on mobile
@@ -7249,7 +7313,7 @@
     \contentspage index.html
     \previouspage creator-debug-mode.html
     \page creator-debugger-engines.html
-    \nextpage creator-debugger-operating-modes.html
+    \nextpage creator-debugging-helpers.html
 
     \title Setting Up Debugger
 
@@ -7460,7 +7524,7 @@
     debugging Windows applications, add the Symbol Server provided
     by Microsoft to the symbol search path of the debugger:
     \list 1
-        \o  Select \gui Tools > \gui{Options...} > \gui Debugger > \gui Cdb.
+        \o  Select \gui Tools > \gui{Options...} > \gui Debugger > \gui CDB.
         \o  In the \gui {Symbol paths} field, open the \gui{Insert...} menu
             and select \gui{Symbol Server...}.
         \o  Select a directory where you want to store the cached information
@@ -7500,30 +7564,12 @@
     views into new positions on the screen. Drag view borders to resize the
     views. The size and position of views are saved for future sessions.
 
-    \section1 Starting the Debugger
-
-    To start a program under the debugger's control, select \gui{Debug} >
-    \gui{Start Debugging} > \gui{Start Debugging}, or press \key{F5}.
-    Qt Creator checks whether the compiled program is up-to-date, rebuilding
-    it if necessary. The debugger then takes over and starts the program.
-
-    \note Starting a program in the debugger can take a considerable amount of
-    time, typically in the range of several seconds to minutes if complex
-    features (like QtWebKit) are used.
-
-    The debugger is launched in the appropriate operating mode (plain, terminal,
-    or on-device), based on the build and run settings for the active project.
-    Select \gui Debug menu options to launch the debugger in other modes.
-    For more information, see \l{Launching the Debugger in Different Modes}.
-
-    \note Debugging QML and JavaScript is supported only in plain mode.
-
-    Once the program starts running, it behaves and performs as usual.
-    You can interrupt a running C++ program by selecting \gui{Debug} >
-    \gui {Interrupt}. The program is automatically interrupted as soon as a
-    breakpoint is hit.
-
     \section1 Using the Debugger
+
+    Once the program starts running under the control of the debugger, it
+    behaves and performs as usual. You can interrupt a running C++ program by
+    selecting \gui{Debug} > \gui {Interrupt}. The program is automatically
+    interrupted when a breakpoint is hit.
 
     Once the program stops, Qt Creator:
 
@@ -7839,7 +7885,7 @@
     \contentspage index.html
     \previouspage creator-debugging.html
     \page creator-debugging-example.html
-    \nextpage creator-debug-mode.html
+    \nextpage creator-debugger-operating-modes.html
 
     \title Debugging the Example Application
 
@@ -7922,7 +7968,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugger-operating-modes.html
+    \previouspage creator-debugger-engines.html
     \page creator-debugging-helpers.html
     \nextpage creator-debugging-qml.html
 
@@ -8395,7 +8441,7 @@
     \contentspage index.html
     \previouspage creator-debugging-helpers.html
     \page creator-debugging-qml.html
-    \nextpage creator-troubleshooting-debugging.html
+    \nextpage creator-analyzer.html
 
     \title Debugging Qt Quick Projects
 
