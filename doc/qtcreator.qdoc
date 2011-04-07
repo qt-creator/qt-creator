@@ -826,7 +826,7 @@
     \contentspage index.html
     \previouspage creator-cli.html
     \page creator-help.html
-    \nextpage creator-tips.html
+    \nextpage creator-keyboard-shortcuts.html
 
     \title Getting Help
 
@@ -7575,7 +7575,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-debugging-example.html
+    \previouspage creator-debugger-operating-modes.html
     \page creator-debug-mode.html
     \nextpage creator-debugger-engines.html
 
@@ -10066,9 +10066,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-help.html
+    \previouspage creator-faq.html
     \page creator-tips.html
-    \nextpage creator-keyboard-shortcuts.html
+    \nextpage creator-known-issues.html
 
     \title Tips and Tricks
 
@@ -10269,9 +10269,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-tips.html
+    \previouspage creator-help.html
     \page creator-keyboard-shortcuts.html
-    \nextpage creator-known-issues.html
+    \nextpage creator-faq.html
 
     \title Keyboard Shortcuts
 
@@ -10833,7 +10833,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-keyboard-shortcuts.html
+    \previouspage creator-tips.html
     \page creator-known-issues.html
     \nextpage creator-glossary.html
 
@@ -11308,7 +11308,7 @@
 
     /*!
     \contentspage index.html
-    \previouspage creator-debugging-qml.html
+    \previouspage creator-analyzer.html
     \page creator-troubleshooting-debugging.html
     \nextpage creator-maemo-emulator.html
 
