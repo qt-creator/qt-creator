@@ -294,6 +294,9 @@ void NavigatorView::updateItemSelection()
     treeWidget()->selectionModel()->select(itemSelection, QItemSelectionModel::ClearAndSelect);
     blockSelectionChangedSignal(blocked);
 
+    if (!selectedModelNodes().isEmpty())
+        treeWidget()->scrollTo(m_treeModel->indexForNode(selectedModelNodes().first()));
+
     // make sure selected nodes a visible
     foreach(const QModelIndex &selectedIndex, itemSelection.indexes()) {
         if (selectedIndex.column() == 0)
