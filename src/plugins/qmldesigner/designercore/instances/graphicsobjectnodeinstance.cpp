@@ -223,12 +223,12 @@ QImage GraphicsObjectNodeInstance::renderImage() const
     QRectF boundingRect = graphicsObject()->boundingRect();
     QSize boundingSize = boundingRect.size().toSize();
 
-    QImage image(boundingSize, QImage::Format_ARGB32);
+    QImage image(boundingSize, QImage::Format_ARGB32_Premultiplied);
 
     if (image.isNull())
         return image;
 
-    image.fill(Qt::transparent);
+    image.fill(0x00000000);
 
     QPainter painter(&image);
     painter.translate(-boundingRect.topLeft());
@@ -237,13 +237,12 @@ QImage GraphicsObjectNodeInstance::renderImage() const
         QStyleOptionGraphicsItem option;
         initOption(graphicsObject(), &option, painter.transform());
         graphicsObject()->paint(&painter, &option);
-
     }
 
     foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems())
         paintRecursively(graphicsItem, &painter);
 
-    return image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    return image;
 }
 
 void GraphicsObjectNodeInstance::paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const
