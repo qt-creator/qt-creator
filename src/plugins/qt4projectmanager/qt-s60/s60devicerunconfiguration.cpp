@@ -451,6 +451,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
 
     const S60DeployConfiguration *activeDeployConf =
         qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
+    QTC_ASSERT(activeDeployConf, return sp);
 
     const QString debugFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe")
             .arg(activeDeployConf->installationDrive()).arg(rc->targetName());
