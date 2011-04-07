@@ -1694,6 +1694,12 @@ QString QtVersion::qtCorePath() const
 
 QString QtVersion::sbsV2Directory() const
 {
+    QDir dir(m_sbsV2Directory);
+    if (dir.exists(QLatin1String("sbs")))
+        return dir.absolutePath();
+    dir.cd("bin");
+    if (dir.exists(QLatin1String("sbs")))
+        return dir.absolutePath();
     return m_sbsV2Directory;
 }
 
@@ -1752,7 +1758,7 @@ void QtVersion::addToEnvironment(Utils::Environment &env) const
         if (isBuildWithSymbianSbsV2()) {
             QString sbsHome(env.value(QLatin1String("SBS_HOME")));
             if (!m_sbsV2Directory.isEmpty()) {
-                env.prependOrSetPath(m_sbsV2Directory + QLatin1String("/bin"));
+                env.prependOrSetPath(sbsV2Directory());
                 env.unset(QLatin1String("SBS_HOME")); // unset SBS_HOME to prevent SBS from picking it up
             } else if (!sbsHome.isEmpty()) {
                 env.prependOrSetPath(sbsHome + QLatin1Char('/') + QLatin1String("bin"));
