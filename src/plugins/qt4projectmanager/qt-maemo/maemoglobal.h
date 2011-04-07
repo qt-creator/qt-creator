@@ -107,6 +107,8 @@ public:
     static PackagingSystem packagingSystem(MaemoVersion maemoVersion);
 
     static bool removeRecursively(const QString &filePath, QString &error);
+    static bool copyRecursively(const QString &srcFilePath,
+        const QString &tgtFilePath, QString *error = 0);
 
     template<class T> static T *buildStep(const ProjectExplorer::DeployConfiguration *dc)
     {

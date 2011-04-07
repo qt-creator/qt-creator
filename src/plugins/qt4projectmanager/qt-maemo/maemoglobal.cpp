@@ -254,6 +254,43 @@ bool MaemoGlobal::removeRecursively(const QString &filePath, QString &error)
     return true;
 }
 
+bool MaemoGlobal::copyRecursively(const QString &srcFilePath,
+    const QString &tgtFilePath, QString *error)
+{
+    QFileInfo srcFileInfo(srcFilePath);
+    if (srcFileInfo.isDir()) {
+        QDir targetDir(tgtFilePath);
+        targetDir.cdUp();
+        if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName())) {
+            if (error) {
+                *error = tr("Failed to create directory '%1'.")
+                    .arg(QDir::toNativeSeparators(tgtFilePath));
+                return false;
+            }
+        }
+        QDir sourceDir(srcFilePath);
+        QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        foreach (const QString &fileName, fileNames) {
+            const QString newSrcFilePath
+                = srcFilePath + QLatin1Char('/') + fileName;
+            const QString newTgtFilePath
+                = tgtFilePath + QLatin1Char('/') + fileName;
+            if (!copyRecursively(newSrcFilePath, newTgtFilePath))
+                return false;
+        }
+    } else {
+        if (!QFile::copy(srcFilePath, tgtFilePath)) {
+            if (error) {
+                *error = tr("Could not copy file '%1' to '%2'.")
+                    .arg(QDir::toNativeSeparators(srcFilePath),
+                         QDir::toNativeSeparators(tgtFilePath));
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 bool MaemoGlobal::callMad(QProcess &proc, const QStringList &args,
     const QtVersion *qtVersion, bool useTarget)
 {
