@@ -10938,18 +10938,6 @@
            paths may fail. For example, remounting parts of a file system
            using the --bind mount option.
 
-        \o You must use a workaround to use the DYLD_IMAGE_SUFFIX option in the
-           \gui Projects tab on Mac OS X  Snow Leopard. For more information on
-           the issue, see
-           \l{http://wimleers.com/blog/dyld-image-suffix-causing-havoc-on-mac-os-x-snow-leopard}{DYLD_IMAGE_SUFFIX causing havoc on Mac OS X Snow Leopard}.
-
-           To use the option, enter the following commands in the Terminal
-           application:
-           \code
-           sudo mv /usr/lib/libSystem.B_debug.dylib /usr/lib/libSystem.B_debug.dylib.backup
-           sudo cp /usr/lib/libSystem.B.dylib /usr/lib/libSystem.B_debug.dylib.backup
-           \endcode
-
     \endlist
 
     \section1 Qt Quick Designer Issues
@@ -11348,7 +11336,7 @@
 
     \endlist
 
-    \section1 Directly Displaying Pointer Variable Members
+    \section1 Pointer Variable Members Are Not Displayed Directly
 
     When you use the \gui {Locals and Watchers} view to inspect a pointer
     variable and expand the variable tree item, another tree item level
@@ -11374,6 +11362,37 @@
     helpers operate on wrong data and come to wrong conclusions. Most likely,
     they find garbage and declare the variable to be <not in scope>.
 
+    \section1 Application Crashes when Debugging on Mac OS X Snow Leopard
+
+    You must use a workaround to use the DYLD_IMAGE_SUFFIX option in the
+    \gui Projects tab on Mac OS X  Snow Leopard. For more information on the
+    issue, see
+    \l{http://wimleers.com/blog/dyld-image-suffix-causing-havoc-on-mac-os-x-snow-leopard}{DYLD_IMAGE_SUFFIX causing havoc on Mac OS X Snow Leopard}.
+
+    To use the option, enter the following commands in the Terminal
+    application:
+           \code
+           sudo mv /usr/lib/libSystem.B_debug.dylib /usr/lib/libSystem.B_debug.dylib.backup
+           sudo cp /usr/lib/libSystem.B.dylib /usr/lib/libSystem.B_debug.dylib.backup
+           \endcode
+
+     \section1 Debugger Cannot Attach to Running Process on Linux
+
+    GDB uses \c ptrace to attach to running processes. Some Linux distributions
+    do not allow this, which stops all attempts to either directly attach to an
+    existing process or use the \gui {Run in terminal} option in Qt Creator.
+
+    The reasons for this are described in
+    \l{https://wiki.ubuntu.com/SecurityTeam/Roadmap/KernelHardening#ptrace%20Protection}{KernelHardening}.
+
+    However, the usefulness of this security measure seems dubious,
+    because this feature can be easily disabled. With root permissions, you can
+    disable the feature immediately by writing \c{0} into
+    \c{/proc/sys/kernel/yama/ptrace_scope}. Even if you do not have elevated
+    permissions, you can disable the feature later by adding a library that
+    calls \c{prctl(0x59616d61, getppid(), 0, 0, 0);}, such as the one in
+    \c{$QTCREATORDIR/lib/libptracepreload.so} to the LD_PRELOAD environment.
+
     */
 
 
@@ -11381,7 +11400,7 @@
     \contentspage index.html
     \previouspage creator-debugging-qml.html
     \page creator-analyzer.html
-    \nextpage creator-maemo-emulator.html
+    \nextpage creator-troubleshooting-debugging.html
 
     \title Detecting Memory Leaks
 
