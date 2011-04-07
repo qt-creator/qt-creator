@@ -120,6 +120,8 @@ public:
     template<class T> static T *earlierBuildStep(const ProjectExplorer::DeployConfiguration *dc,
         const ProjectExplorer::BuildStep *laterBuildStep)
     {
+        if (!dc)
+            return 0;
         const ProjectExplorer::BuildStepList * const bsl = dc->stepList();
         const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();
         for (int i = 0; i < buildSteps.count(); ++i) {

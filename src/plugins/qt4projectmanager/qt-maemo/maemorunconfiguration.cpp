@@ -310,7 +310,7 @@ QString MaemoRunConfiguration::remoteExecutableFilePath() const
 
 MaemoPortList MaemoRunConfiguration::freePorts() const
 {
-    return deployStep()->freePorts();
+    return deployStep() ? deployStep()->freePorts() : MaemoPortList();
 }
 
 bool MaemoRunConfiguration::useRemoteGdb() const
