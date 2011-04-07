@@ -98,6 +98,8 @@ Rectangle {
             Plotter.valuesdone = false;
             canvas.requestPaint();
             view.visible = false;
+            root.elapsedTime = 0;
+            root.updateTimer();
         }
 
     }
