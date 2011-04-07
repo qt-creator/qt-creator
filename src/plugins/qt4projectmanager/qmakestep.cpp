@@ -42,6 +42,7 @@
 #include "qt4target.h"
 #include "qtversionmanager.h"
 #include "debugginghelperbuildtask.h"
+#include "ui_showbuildlog.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/toolchain.h>
@@ -556,12 +557,27 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
 
 void QMakeStepConfigWidget::debuggingHelperBuildFinished(int qtVersionId, const QString &output)
 {
-    m_step->qt4BuildConfiguration()->qtVersion()->invalidateCache();
-    m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
-    m_ui.qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
-    updateSummaryLabel();
-    updateEffectiveQMakeCall();
-    updateQmlDebuggingWarningsLabel();
+    QtVersion *version = QtVersionManager::instance()->version(qtVersionId);
+    if (!version) // qt version got deleted in between
+        return;
+    version->invalidateCache();
+
+    if (version == m_step->qt4BuildConfiguration()->qtVersion()) {
+        m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
+        m_ui.qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
+        updateSummaryLabel();
+        updateEffectiveQMakeCall();
+        updateQmlDebuggingWarningsLabel();
+    }
+
+    if (!version->hasQmlDebuggingLibrary()) {
+        Ui::ShowBuildLog ui;
+        QDialog dialog;
+        ui.setupUi(&dialog);
+
+        ui.log->setPlainText(output);
+        dialog.exec();
+    }
 }
 
 void QMakeStepConfigWidget::updateSummaryLabel()
