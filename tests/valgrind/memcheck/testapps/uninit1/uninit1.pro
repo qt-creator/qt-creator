@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = uninit1
 
-QT += core
+QT -= core gui
 
 macx:CONFIG -= app_bundle
 
