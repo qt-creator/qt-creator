@@ -358,8 +358,9 @@ void S60DeployStep::setupConnections()
 
 void S60DeployStep::startDeployment()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection)
+    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
         QTC_ASSERT(m_launcher, return);
+    }
     QTC_ASSERT(!m_codaDevice.data(), return);
 
     // We need to defer setupConnections() in the case of CommunicationCodaSerialConnection
