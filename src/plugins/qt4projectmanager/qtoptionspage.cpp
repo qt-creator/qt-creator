@@ -306,7 +306,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
 {
     QStringList toRemove;
     foreach (const QtVersion *v, m_versions) {
-        if (!v->isValid())
+        if (!v->isValid() && !v->isAutodetected())
             toRemove.append(v->displayName());
     }
 
