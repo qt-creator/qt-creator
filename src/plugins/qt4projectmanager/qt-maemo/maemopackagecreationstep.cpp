@@ -729,6 +729,14 @@ bool MaemoTarPackageCreationStep::createPackage(QProcess *buildProc,
         }
     }
 
+    const QByteArray eofIndicator(2*sizeof(TarFileHeader), 0);
+    if (tarFile.write(eofIndicator) != eofIndicator.length()) {
+        raiseError(tr("Error writing tar file '%1': %2.")
+            .arg(QDir::toNativeSeparators(tarFile.fileName()),
+                 tarFile.errorString()));
+        return false;
+    }
+
     return true;
 }
 
