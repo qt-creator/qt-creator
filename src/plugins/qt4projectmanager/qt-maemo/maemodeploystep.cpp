@@ -979,10 +979,12 @@ void MaemoDeployStep::handleDeviceInstallerOutput(const QByteArray &output)
 
 void MaemoDeployStep::handleDeviceInstallerErrorOutput(const QByteArray &output)
 {
-    ASSERT_STATE(QList<State>() << InstallingToDevice << StopRequested);
+    ASSERT_STATE(QList<State>() << InstallingToDevice << CopyingFile
+        << StopRequested);
 
     switch (m_state) {
     case InstallingToDevice:
+    case CopyingFile:
     case StopRequested:
         m_installerStderr += output;
         writeOutput(QString::fromUtf8(output), ErrorOutput);
