@@ -41,16 +41,17 @@ namespace Internal {
 class AbstractMaemoPackageInstaller;
 class MaemoPackageUploader;
 
-class MaemoUploadAndInstallDeployStep : public AbstractMaemoDeployStep
+class AbstractMaemoUploadAndInstallStep : public AbstractMaemoDeployStep
 {
     Q_OBJECT
-public:
-    MaemoUploadAndInstallDeployStep(ProjectExplorer::BuildStepList *bc);
-    MaemoUploadAndInstallDeployStep(ProjectExplorer::BuildStepList *bc,
-        MaemoUploadAndInstallDeployStep *other);
+protected:
+    AbstractMaemoUploadAndInstallStep(ProjectExplorer::BuildStepList *bc,
+        const QString &id);
+    AbstractMaemoUploadAndInstallStep(ProjectExplorer::BuildStepList *bc,
+        AbstractMaemoUploadAndInstallStep *other);
 
-    static const QString Id;
-    static const QString DisplayName;
+    void finishInitialization(const QString &displayName,
+        AbstractMaemoPackageInstaller *installer);
 
 private slots:
     void handleUploadFinished(const QString &errorMsg);
@@ -64,7 +65,6 @@ private:
     virtual void startInternal();
     virtual void stopInternal();
 
-    void ctor();
     void upload();
     void setFinished();
     QString uploadDir() const;
@@ -72,6 +72,58 @@ private:
     MaemoPackageUploader *m_uploader;
     AbstractMaemoPackageInstaller *m_installer;
     ExtendedState m_extendedState;
+};
+
+
+class MaemoUploadAndInstallDpkgPackageStep : public AbstractMaemoUploadAndInstallStep
+{
+    Q_OBJECT
+public:
+    MaemoUploadAndInstallDpkgPackageStep(ProjectExplorer::BuildStepList *bc);
+    MaemoUploadAndInstallDpkgPackageStep(ProjectExplorer::BuildStepList *bc,
+        MaemoUploadAndInstallDpkgPackageStep *other);
+
+    static const QString Id;
+    static const QString DisplayName;
+
+private:
+    void ctor();
+
+    virtual const AbstractMaemoPackageCreationStep *packagingStep() const;
+};
+
+class MaemoUploadAndInstallRpmPackageStep : public AbstractMaemoUploadAndInstallStep
+{
+    Q_OBJECT
+public:
+    MaemoUploadAndInstallRpmPackageStep(ProjectExplorer::BuildStepList *bc);
+    MaemoUploadAndInstallRpmPackageStep(ProjectExplorer::BuildStepList *bc,
+        MaemoUploadAndInstallRpmPackageStep *other);
+
+    static const QString Id;
+    static const QString DisplayName;
+
+private:
+    void ctor();
+
+    virtual const AbstractMaemoPackageCreationStep *packagingStep() const;
+};
+
+class MaemoUploadAndInstallTarPackageStep : public AbstractMaemoUploadAndInstallStep
+{
+    Q_OBJECT
+public:
+    MaemoUploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bc);
+    MaemoUploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bc,
+        MaemoUploadAndInstallTarPackageStep *other);
+
+    static const QString Id;
+    static const QString DisplayName;
+
+private:
+    void ctor();
+
+    virtual const AbstractMaemoPackageCreationStep *packagingStep() const;
 };
 
 } // namespace Internal

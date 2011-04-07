@@ -177,11 +177,6 @@ void AbstractMaemoDeployStep::getDeployTimesFromMap(const QVariantMap &map)
     }
 }
 
-const AbstractMaemoPackageCreationStep *AbstractMaemoDeployStep::packagingStep() const
-{
-    return MaemoGlobal::earlierBuildStep<AbstractMaemoPackageCreationStep>(maemoDeployConfig(), this);
-}
-
 void AbstractMaemoDeployStep::raiseError(const QString &errorString)
 {
     emit addTask(Task(Task::Error, errorString, QString(), -1,

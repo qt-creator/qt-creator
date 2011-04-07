@@ -67,14 +67,16 @@ QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) 
         return QStringList();
 
     QStringList ids;
-    if (qobject_cast<Qt4BaseTarget *>(parent->target()))
-        ids << MaemoUploadAndInstallDeployStep::Id;
     if (qobject_cast<AbstractQt4MaemoTarget *>(parent->target()))
         ids << MaemoCopyToSysrootStep::Id;
-    if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target()))
+    if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())) {
         ids << MaemoInstallDebianPackageToSysrootStep::Id;
-    else if (qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target()))
+        ids << MaemoUploadAndInstallDpkgPackageStep::Id;
+    }
+    else if (qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target())) {
         ids << MaemoInstallRpmPackageToSysrootStep::Id;
+        ids << MaemoUploadAndInstallRpmPackageStep::Id;
+    }
     if (qobject_cast<Qt4Maemo5Target *>(parent->target())) {
         ids << MaemoMountAndInstallDeployStep::Id
             << MaemoMountAndCopyDeployStep::Id;
@@ -89,8 +91,12 @@ QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
         return MaemoMountAndInstallDeployStep::DisplayName;
     else if (id == MaemoMountAndCopyDeployStep::Id)
         return MaemoMountAndCopyDeployStep::DisplayName;
-    else if (id == MaemoUploadAndInstallDeployStep::Id)
-        return MaemoUploadAndInstallDeployStep::DisplayName;
+    else if (id == MaemoUploadAndInstallDpkgPackageStep::Id)
+        return MaemoUploadAndInstallDpkgPackageStep::DisplayName;
+    else if (id == MaemoUploadAndInstallRpmPackageStep::Id)
+        return MaemoUploadAndInstallRpmPackageStep::DisplayName;
+    else if (id == MaemoUploadAndInstallTarPackageStep::Id)
+        return MaemoUploadAndInstallTarPackageStep::DisplayName;
     else if (id == MaemoInstallDebianPackageToSysrootStep::Id)
         return MaemoInstallDebianPackageToSysrootStep::DisplayName;
     else if (id == MaemoInstallRpmPackageToSysrootStep::Id)
@@ -120,11 +126,16 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const QString &
         return new MaemoMountAndInstallDeployStep(parent);
     } else if (id == MaemoMountAndCopyDeployStep::Id) {
         return new MaemoMountAndCopyDeployStep(parent);
-    } else if (id == MaemoUploadAndInstallDeployStep::Id
-        || (id == OldMaemoDeployStepId && (qobject_cast<const Qt4HarmattanTarget *>(t)
-            || qobject_cast<const Qt4MeegoTarget *>(t)))) {
-        return new MaemoUploadAndInstallDeployStep(parent);
+    } else if (id == MaemoUploadAndInstallDpkgPackageStep::Id
+        || (id == OldMaemoDeployStepId && (qobject_cast<const Qt4HarmattanTarget *>(t)))) {
+        return new MaemoUploadAndInstallDpkgPackageStep(parent);
+    } else if (id == MaemoUploadAndInstallRpmPackageStep::Id
+        || (id == OldMaemoDeployStepId && (qobject_cast<const Qt4MeegoTarget *>(t)))) {
+        return new MaemoUploadAndInstallRpmPackageStep(parent);
+    } else if (id == MaemoUploadAndInstallTarPackageStep::Id) {
+        return new MaemoUploadAndInstallTarPackageStep(parent);
     }
+
     return 0;
 }
 
@@ -159,9 +170,15 @@ BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *produ
     } else if (product->id() == MaemoMountAndCopyDeployStep::Id) {
         return new MaemoMountAndCopyDeployStep(parent,
             qobject_cast<MaemoMountAndCopyDeployStep *>(product));
-    } else if (product->id() == MaemoUploadAndInstallDeployStep::Id) {
-        return new MaemoUploadAndInstallDeployStep(parent,
-            qobject_cast<MaemoUploadAndInstallDeployStep*>(product));
+    } else if (product->id() == MaemoUploadAndInstallDpkgPackageStep::Id) {
+        return new MaemoUploadAndInstallDpkgPackageStep(parent,
+            qobject_cast<MaemoUploadAndInstallDpkgPackageStep*>(product));
+    } else if (product->id() == MaemoUploadAndInstallRpmPackageStep::Id) {
+        return new MaemoUploadAndInstallRpmPackageStep(parent,
+            qobject_cast<MaemoUploadAndInstallRpmPackageStep*>(product));
+    } else if (product->id() == MaemoUploadAndInstallTarPackageStep::Id) {
+        return new MaemoUploadAndInstallTarPackageStep(parent,
+            qobject_cast<MaemoUploadAndInstallTarPackageStep*>(product));
     } else if (product->id() == MaemoInstallDebianPackageToSysrootStep::Id) {
         return new MaemoInstallDebianPackageToSysrootStep(parent,
             qobject_cast<MaemoInstallDebianPackageToSysrootStep *>(product));

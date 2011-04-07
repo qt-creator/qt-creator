@@ -166,14 +166,14 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
     } else if (id == Qt4MaemoDeployConfiguration::HarmattanId) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MaemoUploadAndInstallDeployStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaemoUploadAndInstallDpkgPackageStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::MeegoId) {
         dc->stepList()->insertStep(0, new MaemoRpmPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallRpmPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MaemoUploadAndInstallDeployStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaemoUploadAndInstallRpmPackageStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::GenericLinuxId) {
         dc->stepList()->insertStep(0, new MaemoTarPackageCreationStep(dc->stepList()));
-        dc->stepList()->insertStep(1, new MaemoUploadAndInstallDeployStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new MaemoUploadAndInstallTarPackageStep(dc->stepList()));
     }
     return dc;
 }

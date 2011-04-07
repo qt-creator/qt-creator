@@ -92,7 +92,9 @@ protected:
     void writeOutput(const QString &text, OutputFormat format = MessageOutput,
         OutputNewlineSetting newlineSetting = DoAppendNewline);
     void setDeploymentFinished();
-    const AbstractMaemoPackageCreationStep *packagingStep() const;
+
+    virtual const AbstractMaemoPackageCreationStep *packagingStep() const=0;
+
     QString deployMountPoint() const;
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     QSharedPointer<Utils::SshConnection> connection() const { return m_connection; }

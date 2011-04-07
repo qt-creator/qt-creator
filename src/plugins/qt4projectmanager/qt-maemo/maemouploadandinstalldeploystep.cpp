@@ -37,6 +37,7 @@
 #include "maemopackagecreationstep.h"
 #include "maemopackageinstaller.h"
 #include "maemopackageuploader.h"
+#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -52,23 +53,22 @@ using namespace Utils;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoUploadAndInstallDeployStep::MaemoUploadAndInstallDeployStep(BuildStepList *parent)
-    : AbstractMaemoDeployStep(parent, Id)
+AbstractMaemoUploadAndInstallStep::AbstractMaemoUploadAndInstallStep(BuildStepList *parent, const QString &id)
+    : AbstractMaemoDeployStep(parent, id)
 {
-    ctor();
 }
 
-MaemoUploadAndInstallDeployStep::MaemoUploadAndInstallDeployStep(BuildStepList *parent,
-    MaemoUploadAndInstallDeployStep *other)
+AbstractMaemoUploadAndInstallStep::AbstractMaemoUploadAndInstallStep(BuildStepList *parent,
+    AbstractMaemoUploadAndInstallStep *other)
     : AbstractMaemoDeployStep(parent, other)
 {
-    ctor();
 }
 
-void MaemoUploadAndInstallDeployStep::ctor()
+void AbstractMaemoUploadAndInstallStep::finishInitialization(const QString &displayName,
+    AbstractMaemoPackageInstaller *installer)
 {
-    setDefaultDisplayName(DisplayName);
-
+    setDefaultDisplayName(displayName);
+    m_installer = installer;
     m_extendedState = Inactive;
 
     m_uploader = new MaemoPackageUploader(this);
@@ -76,13 +76,6 @@ void MaemoUploadAndInstallDeployStep::ctor()
         SLOT(handleProgressReport(QString)));
     connect(m_uploader, SIGNAL(uploadFinished(QString)),
         SLOT(handleUploadFinished(QString)));
-
-    if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(target()))
-        m_installer = new MaemoDebianPackageInstaller(this);
-    else if (qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(target()))
-        m_installer = new MaemoRpmPackageInstaller(this);
-    else
-        m_installer = new MaemoTarPackageInstaller(this);
     connect(m_installer, SIGNAL(stdoutData(QString)),
         SLOT(handleRemoteStdout(QString)));
     connect(m_installer, SIGNAL(stderrData(QString)),
@@ -91,16 +84,16 @@ void MaemoUploadAndInstallDeployStep::ctor()
         SLOT(handleInstallationFinished(QString)));
 }
 
-bool MaemoUploadAndInstallDeployStep::isDeploymentPossibleInternal(QString &whyNot) const
+bool AbstractMaemoUploadAndInstallStep::isDeploymentPossibleInternal(QString &whyNot) const
 {
     if (!packagingStep()) {
-        whyNot = tr("No packaging step found.");
+        whyNot = tr("No matching packaging step found.");
         return false;
     }
     return true;
 }
 
-bool MaemoUploadAndInstallDeployStep::isDeploymentNeeded(const QString &hostName) const
+bool AbstractMaemoUploadAndInstallStep::isDeploymentNeeded(const QString &hostName) const
 {
     const AbstractMaemoPackageCreationStep * const pStep = packagingStep();
     Q_ASSERT(pStep);
@@ -108,14 +101,14 @@ bool MaemoUploadAndInstallDeployStep::isDeploymentNeeded(const QString &hostName
     return currentlyNeedsDeployment(hostName, d);
 }
 
-void MaemoUploadAndInstallDeployStep::startInternal()
+void AbstractMaemoUploadAndInstallStep::startInternal()
 {
     Q_ASSERT(m_extendedState == Inactive);
 
     upload();
 }
 
-void MaemoUploadAndInstallDeployStep::stopInternal()
+void AbstractMaemoUploadAndInstallStep::stopInternal()
 {
     ASSERT_BASE_STATE(StopRequested);
     ASSERT_STATE(QList<ExtendedState>() << Uploading << Installing);
@@ -136,7 +129,7 @@ void MaemoUploadAndInstallDeployStep::stopInternal()
     setFinished();
 }
 
-void MaemoUploadAndInstallDeployStep::upload()
+void AbstractMaemoUploadAndInstallStep::upload()
 {
     m_extendedState = Uploading;
     const QString localFilePath = packagingStep()->packageFilePath();
@@ -145,7 +138,7 @@ void MaemoUploadAndInstallDeployStep::upload()
     m_uploader->uploadPackage(connection(), localFilePath, remoteFilePath);
 }
 
-void MaemoUploadAndInstallDeployStep::handleUploadFinished(const QString &errorMsg)
+void AbstractMaemoUploadAndInstallStep::handleUploadFinished(const QString &errorMsg)
 {
     ASSERT_BASE_STATE(QList<BaseState>() << Deploying << StopRequested);
     ASSERT_STATE(QList<ExtendedState>() << Uploading << Inactive);
@@ -166,7 +159,7 @@ void MaemoUploadAndInstallDeployStep::handleUploadFinished(const QString &errorM
     }
 }
 
-void MaemoUploadAndInstallDeployStep::handleInstallationFinished(const QString &errorMsg)
+void AbstractMaemoUploadAndInstallStep::handleInstallationFinished(const QString &errorMsg)
 {
     ASSERT_BASE_STATE(QList<BaseState>() << Deploying << StopRequested);
     ASSERT_STATE(QList<ExtendedState>() << Installing << Inactive);
@@ -184,20 +177,102 @@ void MaemoUploadAndInstallDeployStep::handleInstallationFinished(const QString &
     setFinished();
 }
 
-void MaemoUploadAndInstallDeployStep::setFinished()
+void AbstractMaemoUploadAndInstallStep::setFinished()
 {
     m_extendedState = Inactive;
     setDeploymentFinished();
 }
 
-QString MaemoUploadAndInstallDeployStep::uploadDir() const
+QString AbstractMaemoUploadAndInstallStep::uploadDir() const
 {
     return MaemoGlobal::homeDirOnDevice(connection()->connectionParameters().userName);
 }
 
-const QString MaemoUploadAndInstallDeployStep::Id("MaemoUploadAndInstallDeployStep");
-const QString MaemoUploadAndInstallDeployStep::DisplayName
-    = tr("Deploy package via SFTP upload");
+
+MaemoUploadAndInstallDpkgPackageStep::MaemoUploadAndInstallDpkgPackageStep(ProjectExplorer::BuildStepList *bc)
+    : AbstractMaemoUploadAndInstallStep(bc, Id)
+{
+    ctor();
+}
+
+MaemoUploadAndInstallDpkgPackageStep::MaemoUploadAndInstallDpkgPackageStep(ProjectExplorer::BuildStepList *bc,
+    MaemoUploadAndInstallDpkgPackageStep *other)
+    : AbstractMaemoUploadAndInstallStep(bc, other)
+{
+    ctor();
+}
+
+void MaemoUploadAndInstallDpkgPackageStep::ctor()
+{
+    finishInitialization(DisplayName, new MaemoDebianPackageInstaller(this));
+}
+
+
+const AbstractMaemoPackageCreationStep *MaemoUploadAndInstallDpkgPackageStep::packagingStep() const
+{
+    return MaemoGlobal::earlierBuildStep<MaemoDebianPackageCreationStep>(maemoDeployConfig(), this);
+}
+
+const QString MaemoUploadAndInstallDpkgPackageStep::Id("MaemoUploadAndInstallDpkgPackageStep");
+const QString MaemoUploadAndInstallDpkgPackageStep::DisplayName
+    = tr("Deploy Debian package via SFTP upload");
+
+
+MaemoUploadAndInstallRpmPackageStep::MaemoUploadAndInstallRpmPackageStep(ProjectExplorer::BuildStepList *bc)
+    : AbstractMaemoUploadAndInstallStep(bc, Id)
+{
+    ctor();
+}
+
+MaemoUploadAndInstallRpmPackageStep::MaemoUploadAndInstallRpmPackageStep(ProjectExplorer::BuildStepList *bc,
+    MaemoUploadAndInstallRpmPackageStep *other)
+    : AbstractMaemoUploadAndInstallStep(bc, other)
+{
+    ctor();
+}
+
+void MaemoUploadAndInstallRpmPackageStep::ctor()
+{
+    finishInitialization(DisplayName, new MaemoRpmPackageInstaller(this));
+}
+
+const AbstractMaemoPackageCreationStep *MaemoUploadAndInstallRpmPackageStep::packagingStep() const
+{
+    return MaemoGlobal::earlierBuildStep<MaemoRpmPackageCreationStep>(maemoDeployConfig(), this);
+}
+
+const QString MaemoUploadAndInstallRpmPackageStep::Id("MaemoUploadAndInstallRpmPackageStep");
+const QString MaemoUploadAndInstallRpmPackageStep::DisplayName
+    = tr("Deploy RPM package via SFTP upload");
+
+
+MaemoUploadAndInstallTarPackageStep::MaemoUploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bc)
+    : AbstractMaemoUploadAndInstallStep(bc, Id)
+{
+    ctor();
+}
+
+MaemoUploadAndInstallTarPackageStep::MaemoUploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bc,
+    MaemoUploadAndInstallTarPackageStep *other)
+    : AbstractMaemoUploadAndInstallStep(bc, other)
+{
+    ctor();
+}
+
+const AbstractMaemoPackageCreationStep *MaemoUploadAndInstallTarPackageStep::packagingStep() const
+{
+    return MaemoGlobal::earlierBuildStep<MaemoTarPackageCreationStep>(maemoDeployConfig(), this);
+}
+
+void MaemoUploadAndInstallTarPackageStep::ctor()
+{
+    finishInitialization(DisplayName, new MaemoTarPackageInstaller(this));
+}
+
+const QString MaemoUploadAndInstallTarPackageStep::Id("MaemoUploadAndInstallTarPackageStep");
+const QString MaemoUploadAndInstallTarPackageStep::DisplayName
+    = tr("Deploy tar package via SFTP upload");
+
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

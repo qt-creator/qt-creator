@@ -225,10 +225,15 @@ void MaemoMountAndInstallDeployStep::ctor()
         SLOT(handleInstallationFinished(QString)));
 }
 
+const AbstractMaemoPackageCreationStep *MaemoMountAndInstallDeployStep::packagingStep() const
+{
+    return MaemoGlobal::earlierBuildStep<MaemoDebianPackageCreationStep>(maemoDeployConfig(), this);
+}
+
 bool MaemoMountAndInstallDeployStep::isDeploymentPossibleInternal(QString &whyNot) const
 {
     if (!packagingStep()) {
-        whyNot = tr("No packaging step found.");
+        whyNot = tr("No matching packaging step found.");
         return false;
     }
     return true;
