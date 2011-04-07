@@ -7217,29 +7217,54 @@
 
     \section2 Launching in Remote Mode
 
-    The remote mode uses GDB or CDB that runs on the remote machine.
+    The remote mode allows you to debug processes that run on remote machines.
 
-    If you use GDB, select\gui {Debug > Start Debugging > Start and Attach to
-    Remote Application...} to launch the debugger in the remote mode.
+    \bold{GDB:} In remote mode, the local gdb process talks to a gdbserver process
+    running on the remote machine that controls the process to be debugged.
 
-    If you use CDB, you have to configure the remote CDB to use the Qt Creator
-    CDB extension:
+    The gdbserver process is started on the remote machines by passing a port number
+    and the executable:
+
+    \code
+    gdbserver :1234 <executable>
+    \endcode
+
+    It then typically responds:
+    \code
+    Process bin/qtcreator created; pid = 5159
+    Listening on port 1234
+    \endcode
+
+    On the local machine running Qt Creator, select
+    \gui {Debug > Start Debugging > Start and Attach to Remote Application...}.
+    This will show a dialog, in which you can enter the host name of the remote machine
+    and the port number chosen. After clicking \gui{OK}, debugging will start.
+
+    \bold{CDB:} In remote mode, the local cdb process talks to a cdb process
+    running on the remote machine which is started passing special command line options that
+    switch it into server mode. The remote cdb process needs to load the
+    Qt Creator CDB extension library that is shipped with along with Qt Creator:
 
     \list 1
 
-        \o  Copy the Qt Creator CDB extension from the Qt installation
-            directory to the the remote machine:
+        \o  Install the \e{Debugging Tools for Windows} on the remote machine.
+            The installation folder contains the CDB command line executable (cdb.exe).
+
+        \o  Copy the Qt Creator CDB extension library from the Qt installation
+            directory to the a new folder on the remote machine
+            (32 or 64 bit version depending on the version \e{Debugging Tools for Windows}
+            used):
 
         \list
 
-            \o  \c {\lib\qtcreatorcdbext32\qtcreatorcdbext.dll}
+            \o  \c {\lib\qtcreatorcdbext32\qtcreatorcdbext.dll} (32 bit)
 
-            \o  \c {\lib\qtcreatorcdbext64\qtcreatorcdbext.dll}
+            \o  \c {\lib\qtcreatorcdbext64\qtcreatorcdbext.dll} (64 bit)
 
         \endlist
 
         \o  Set the _NT_DEBUGGER_EXTENSION_PATH environment variable to point
-            to the directory.
+            to that folder.
 
         \o  To use TCP/IP as communication protocol, launch the remote CDB as
             follows:
@@ -7248,11 +7273,18 @@
             cdb.exe -server tcp:port=1234 <executable>
             \endcode
 
-        \o  Enter the connection parameters as follows:
+        \o  On the local machine running Qt Creator, select
+            \gui {Debug > Start Debugging > Attach to Remote CDB Session...}
+            This will show a dialog in which you can enter the connection parameters
+            for example for TCP/IP:
 
             \code
-
             Server:Port
+            \endcode
+
+            In case you chose a different protocol, specify one of the alternative forms:
+
+            \code
             tcp:server=Server,port=Port[,password=Password][,ipversion=6]
             tcp:clicon=Server,port=Port[,password=Password][,ipversion=6]
             npipe:server=Server,pipe=PipeName[,password=Password]
@@ -7262,11 +7294,9 @@
             ssl:proto=Protocol,{certuser=Cert|machuser=Cert},clicon=Server,port=Socket[,password=Password]
             \endcode
 
+            \o Click \gui{OK} to start debugging.
+
     \endlist
-
-    To launch the debugger in remote mode, select \gui {Debug > Start Debugging
-    > Start and Attach to Remote CDB Session...}.
-
 
     \section2 Launching in Core Mode
 
