@@ -74,14 +74,18 @@ void FadingPanel::fadeTo(float value)
 DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent), m_fader(0)
 {
     setCheckable(true);
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
     setText(tr("Details"));
 }
 
 QSize DetailsButton::sizeHint() const
 {
     // TODO: Adjust this when icons become available!
+#ifdef Q_WS_MAC
+    return QSize(80, 34);
+#else
     return QSize(80, 22);
+#endif
 }
 
 bool DetailsButton::event(QEvent *e)

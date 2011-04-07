@@ -324,8 +324,8 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     QVBoxLayout *vboxLayout = new QVBoxLayout();
-    vboxLayout->setMargin(0);
     setLayout(vboxLayout);
+    vboxLayout->setContentsMargins(0, 0, 0, 0);
     m_detailsWidget = new Utils::DetailsWidget(this);
     m_detailsWidget->setSummaryText(factory->displayNameForId(id));
     m_detailsWidget->setUseCheckBox(true);
@@ -338,12 +338,18 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     QWidget *widget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
     widget->setLayout(layout);
+    layout->setContentsMargins(0, 0, 0, 0);
 
+    QWidget *w = new QWidget;
     m_importLayout = new QGridLayout;
     m_importLayout->setMargin(0);
-    layout->addLayout(m_importLayout);
+    w->setLayout(m_importLayout);
+    layout->addWidget(w);
 
+    w = new QWidget;
     m_importLineLayout = new QHBoxLayout();
+    m_importLineLayout->setContentsMargins(0, 0, 0, 0);
+    w->setLayout(m_importLineLayout);
     m_importLineLabel = new QLabel();
     m_importLineLabel->setText(tr("Add build from:"));
     m_importLineLayout->addWidget(m_importLineLabel);
@@ -355,17 +361,16 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     m_importLineButton = new QPushButton;
     m_importLineButton->setText(tr("Add Build"));
+    m_importLineButton->setAttribute(Qt::WA_MacSmallSize);
+    // make it in line with import path chooser button on mac
+    m_importLineButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     m_importLineLayout->addWidget(m_importLineButton);
     m_importLineLayout->addStretch();
-    layout->addLayout(m_importLineLayout);
+    layout->addWidget(w);
 
     m_importLineLabel->setVisible(false);
     m_importLinePath->setVisible(false);
     m_importLineButton->setVisible(m_showImport);
-
-    m_spacerTopWidget = new QWidget;
-    m_spacerTopWidget->setMinimumHeight(12);
-    layout->addWidget(m_spacerTopWidget);
 
     m_shadowBuildEnabled = new QCheckBox;
     m_shadowBuildEnabled->setText(tr("Use Shadow Building"));
@@ -373,16 +378,14 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_shadowBuildEnabled->setVisible(false);
     layout->addWidget(m_shadowBuildEnabled);
 
-    m_spacerBottomWidget = new QWidget;
-    m_spacerBottomWidget->setMinimumHeight(0);
-    layout->addWidget(m_spacerBottomWidget);
-
+    w = new QWidget;
     m_newBuildsLayout = new QGridLayout;
     m_newBuildsLayout->setMargin(0);
-    layout->addLayout(m_newBuildsLayout);
-
-    m_spacerTopWidget->setVisible(false);
-    m_spacerBottomWidget->setVisible(false);
+#ifdef Q_WS_MAC
+    m_newBuildsLayout->setSpacing(0);
+#endif
+    w->setLayout(m_newBuildsLayout);
+    layout->addWidget(w);
 
     m_detailsWidget->setWidget(widget);
 
@@ -456,8 +459,6 @@ void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
 void Qt4DefaultTargetSetupWidget::setShadowBuildCheckBoxVisible(bool b)
 {
     m_shadowBuildEnabled->setVisible(b);
-    m_spacerTopWidget->setVisible(b && !m_importInfos.isEmpty());
-    m_spacerBottomWidget->setVisible(b);
     m_shadowBuildEnabled->setChecked(!m_hasInSourceBuild);
 }
 
@@ -488,6 +489,7 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     if (!m_importLineLabel->isVisible()) {
         m_importLineLabel->setVisible(true);
         m_importLinePath->setVisible(true);
+        m_importLineButton->setAttribute(Qt::WA_MacNormalSize);
         return;
     }
     BuildConfigurationInfo info = BuildConfigurationInfo::checkForBuild(m_importLinePath->path(), m_proFilePath);
@@ -614,6 +616,7 @@ void Qt4DefaultTargetSetupWidget::setupWidgets()
         QCheckBox *checkbox = new QCheckBox;
         checkbox->setText(displayNameFrom(info));
         checkbox->setChecked(m_enabled.at(i));
+        checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
         if (info.version)
             checkbox->setToolTip(info.version->toHtml(false));
         m_newBuildsLayout->addWidget(checkbox, i * 2, 0);

@@ -147,8 +147,6 @@ private:
     QGridLayout *m_importLayout;
     QGridLayout *m_newBuildsLayout;
     QCheckBox *m_shadowBuildEnabled;
-    QWidget *m_spacerTopWidget;
-    QWidget *m_spacerBottomWidget;
 
     // import line widgets
     QHBoxLayout *m_importLineLayout;

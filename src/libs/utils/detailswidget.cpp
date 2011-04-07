@@ -110,6 +110,7 @@ namespace Utils {
 
         d->m_summaryCheckBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         d->m_summaryCheckBox->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+        d->m_summaryCheckBox->setAttribute(Qt::WA_LayoutUsesWidgetRect); /* broken layout on mac otherwise */
         d->m_summaryCheckBox->setVisible(false);
 
         d->m_additionalSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -325,8 +326,13 @@ namespace Utils {
         pixmap.fill(Qt::transparent);
         QPainter p(&pixmap);
 
-        QRect topRect(0, 0, size.width(), d->m_useCheckBox ? d->m_summaryCheckBox->height() : d->m_summaryLabel->height());
+        int topHeight = qMax(d->m_detailsButton->height(),
+                             d->m_useCheckBox ? d->m_summaryCheckBox->height() : d->m_summaryLabel->height());
+        QRect topRect(0, 0, size.width(), topHeight);
         QRect fullRect(0, 0, size.width(), size.height());
+#ifdef Q_WS_MAC
+        p.fillRect(fullRect, qApp->palette().window().color());
+#endif
         p.fillRect(fullRect, QColor(255, 255, 255, 40));
 
         QColor highlight = palette().highlight().color();
