@@ -1235,10 +1235,6 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         *enabledEngines &= ~ScriptEngineType;
         return true;
     }
-    if (option == _("-disable-tcf")) {
-        *enabledEngines &= ~TcfEngineType;
-        return true;
-    }
     if (option == _("-disable-lldb")) {
         *enabledEngines &= ~LldbEngineType;
         return true;
@@ -1260,7 +1256,6 @@ bool DebuggerPluginPrivate::parseArguments(const QStringList &args,
             << QString::number(*enabledEngines, 16) << '\n';
     return true;
 }
-
 
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     QString *errorMessage)

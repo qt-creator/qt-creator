@@ -237,7 +237,6 @@ enum DebuggerEngineType
     ScriptEngineType  = 0x02,
     CdbEngineType     = 0x04,
     PdbEngineType     = 0x08,
-    TcfEngineType     = 0x10,
     QmlEngineType     = 0x20,
     QmlCppEngineType  = 0x40,
     LldbEngineType  = 0x80,
@@ -245,7 +244,6 @@ enum DebuggerEngineType
         | ScriptEngineType
         | CdbEngineType
         | PdbEngineType
-        | TcfEngineType
         | QmlEngineType
         | QmlCppEngineType
         | LldbEngineType

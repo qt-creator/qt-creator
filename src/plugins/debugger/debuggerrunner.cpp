@@ -111,8 +111,6 @@ static const char *engineTypeName(DebuggerEngineType et)
         return "Cdb engine";
     case Debugger::PdbEngineType:
         return "Pdb engine";
-    case Debugger::TcfEngineType:
-        return "Tcf engine";
     case Debugger::QmlEngineType:
         return "QML engine";
     case Debugger::QmlCppEngineType:
@@ -410,10 +408,10 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
 {
     QList<DebuggerEngineType> result;
     switch (startMode) {
-    case Debugger::NoStartMode:
+    case NoStartMode:
         break;
-    case Debugger::StartInternal:
-    case Debugger::StartExternal:
+    case StartInternal:
+    case StartExternal:
     case AttachExternal:
         if (!hardConstraintsOnly) {
 #ifdef Q_OS_WIN
@@ -422,20 +420,17 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
             result.push_back(GdbEngineType);
         }
         break;
-    case Debugger::AttachCore:
-    case Debugger::StartRemoteGdb:
+    case AttachCore:
+    case StartRemoteGdb:
         result.push_back(GdbEngineType);
         break;
-    case Debugger::AttachToRemote:
+    case AttachToRemote:
         if (!hardConstraintsOnly) {
 #ifdef Q_OS_WIN
             result.push_back(CdbEngineType);
 #endif
             result.push_back(GdbEngineType);
         }
-        break;
-    case AttachTcf:
-        result.push_back(TcfEngineType);
         break;
     case AttachCrashedExternal:
         result.push_back(CdbEngineType); // Only CDB can do this
@@ -493,7 +488,9 @@ ConfigurationCheck::ConfigurationCheck() :
 
 ConfigurationCheck::operator bool() const
 {
-    return errorMessage.isEmpty() &&  errorDetails.isEmpty() && masterSlaveEngineTypes.first != NoEngineType;
+    return errorMessage.isEmpty()
+        && errorDetails.isEmpty()
+        && masterSlaveEngineTypes.first != NoEngineType;
 }
 
 QString ConfigurationCheck::errorDetailsString() const
@@ -516,9 +513,9 @@ static inline bool canUseEngine(DebuggerEngineType et,
     }
     // Configured.
     switch (et) {
-    case Debugger::CdbEngineType:
+    case CdbEngineType:
         return checkCdbConfiguration(sp, result);
-    case Debugger::GdbEngineType:
+    case GdbEngineType:
         return checkGdbConfiguration(sp, result);
     default:
         break;
@@ -758,11 +755,11 @@ DebuggerRunControl *DebuggerRunControlFactory::create
     return new DebuggerRunControl(runConfiguration, sp, check.masterSlaveEngineTypes);
 }
 
-DebuggerEngine *
-    DebuggerRunControlFactory::createEngine(DebuggerEngineType et,
-                                            const DebuggerStartParameters &sp,
-                                            DebuggerEngine *masterEngine,
-                                            QString *errorMessage)
+DebuggerEngine *DebuggerRunControlFactory::createEngine
+    (DebuggerEngineType et,
+     const DebuggerStartParameters &sp,
+     DebuggerEngine *masterEngine,
+     QString *errorMessage)
 {
     switch (et) {
     case GdbEngineType:
@@ -771,17 +768,12 @@ DebuggerEngine *
         return createScriptEngine(sp);
     case CdbEngineType:
         return createCdbEngine(sp, masterEngine, errorMessage);
-        break;
     case PdbEngineType:
         return createPdbEngine(sp);
-        break;
     case QmlEngineType:
         return createQmlEngine(sp, masterEngine);
-        break;
     case LldbEngineType:
         return createLldbEngine(sp);
-    default:
-        break;
     }
     *errorMessage = DebuggerRunControl::tr("Unable to create a debugger engine of the type '%1'").
                     arg(_(engineTypeName(et)));
