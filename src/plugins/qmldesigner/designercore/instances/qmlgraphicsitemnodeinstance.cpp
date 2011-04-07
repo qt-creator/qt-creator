@@ -118,6 +118,7 @@ QSizeF QmlGraphicsItemNodeInstance::size() const
         double implicitWidth = qmlGraphicsItem()->implicitWidth();
         if (!m_hasWidth
             && implicitWidth // WORKAROUND
+            && qmlGraphicsItem()->width() <= 0
             && implicitWidth != qmlGraphicsItem()->width()
             && !hasBindingForProperty("width")) {
             qmlGraphicsItem()->blockSignals(true);
@@ -128,6 +129,7 @@ QSizeF QmlGraphicsItemNodeInstance::size() const
         double implicitHeight = qmlGraphicsItem()->implicitHeight();
         if (!m_hasHeight
             && implicitWidth // WORKAROUND
+            && qmlGraphicsItem()->height() <= 0
             && implicitHeight != qmlGraphicsItem()->height()
             && !hasBindingForProperty("height")) {
             qmlGraphicsItem()->blockSignals(true);
@@ -162,6 +164,7 @@ QRectF QmlGraphicsItemNodeInstance::boundingRect() const
         double implicitWidth = qmlGraphicsItem()->implicitWidth();
         if (!m_hasWidth
             && implicitWidth // WORKAROUND
+            && qmlGraphicsItem()->width() <= 0
             && implicitWidth != qmlGraphicsItem()->width()
             && !hasBindingForProperty("width")) {
             qmlGraphicsItem()->blockSignals(true);
@@ -172,6 +175,7 @@ QRectF QmlGraphicsItemNodeInstance::boundingRect() const
         double implicitHeight = qmlGraphicsItem()->implicitHeight();
         if (!m_hasHeight
             && implicitWidth // WORKAROUND
+            && qmlGraphicsItem()->height() <= 0
             && implicitHeight != qmlGraphicsItem()->height()
             && !hasBindingForProperty("height")) {
             qmlGraphicsItem()->blockSignals(true);
@@ -249,6 +253,7 @@ QVariant QmlGraphicsItemNodeInstance::property(const QString &name) const
         double implicitWidth = qmlGraphicsItem()->implicitWidth();
         if (!m_hasWidth
             && implicitWidth // WORKAROUND
+            && qmlGraphicsItem()->width() <= 0
             && implicitWidth != qmlGraphicsItem()->width()) {
                 qmlGraphicsItem()->blockSignals(true);
                 qmlGraphicsItem()->setWidth(implicitWidth);
@@ -260,6 +265,7 @@ QVariant QmlGraphicsItemNodeInstance::property(const QString &name) const
         double implicitHeight = qmlGraphicsItem()->implicitHeight();
         if (!m_hasHeight
             && implicitHeight // WORKAROUND
+            && qmlGraphicsItem()->width() <= 0
             && implicitHeight != qmlGraphicsItem()->height()) {
                 qmlGraphicsItem()->blockSignals(true);
                 qmlGraphicsItem()->setHeight(implicitHeight);
