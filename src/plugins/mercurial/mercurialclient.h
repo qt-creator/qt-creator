@@ -76,37 +76,37 @@ private slots:
     void mercurialDiff(const Mercurial::Internal::MercurialDiffParameters &);
 
 public:
-    virtual QString findTopLevelForFile(const QFileInfo &file) const;
+    QString findTopLevelForFile(const QFileInfo &file) const;
 
 protected:
-    virtual QString vcsEditorKind(VCSCommand cmd) const;
+    QString vcsEditorKind(VCSCommand cmd) const;
 
-    virtual QStringList cloneArguments(const QString &srcLocation,
-                                       const QString &dstLocation,
-                                       const ExtraCommandOptions &extraOptions) const;
-    virtual QStringList pullArguments(const QString &srcLocation,
-                                      const ExtraCommandOptions &extraOptions) const;
-    virtual QStringList pushArguments(const QString &dstLocation,
-                                      const ExtraCommandOptions &extraOptions) const;
-    virtual QStringList commitArguments(const QStringList &files,
-                                        const QString &commitMessageFile,
-                                        const ExtraCommandOptions &extraOptions) const;
-    virtual QStringList importArguments(const QStringList &files) const;
-    virtual QStringList updateArguments(const QString &revision) const;
-    virtual QStringList revertArguments(const QString &file, const QString &revision) const;
-    virtual QStringList revertAllArguments(const QString &revision) const;
-    virtual QStringList annotateArguments(const QString &file,
-                                          const QString &revision, int lineNumber) const;
-    virtual QStringList diffArguments(const QStringList &files,
-                                      const ExtraCommandOptions &extraOptions) const;
-    virtual void initializeDiffEditor(const QString &workingDir, const QStringList &files,
-                                      const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
-                                      VCSBase::VCSBaseEditorWidget *ed);
-    virtual QStringList logArguments(const QStringList &files) const;
-    virtual QStringList statusArguments(const QString &file) const;
-    virtual QStringList viewArguments(const QString &revision) const;
+    QStringList cloneArguments(const QString &srcLocation,
+                               const QString &dstLocation,
+                               const ExtraCommandOptions &extraOptions) const;
+    QStringList pullArguments(const QString &srcLocation,
+                              const ExtraCommandOptions &extraOptions) const;
+    QStringList pushArguments(const QString &dstLocation,
+                              const ExtraCommandOptions &extraOptions) const;
+    QStringList commitArguments(const QStringList &files,
+                                const QString &commitMessageFile,
+                                const ExtraCommandOptions &extraOptions) const;
+    QStringList importArguments(const QStringList &files) const;
+    QStringList updateArguments(const QString &revision) const;
+    QStringList revertArguments(const QString &file, const QString &revision) const;
+    QStringList revertAllArguments(const QString &revision) const;
+    QStringList annotateArguments(const QString &file,
+                                  const QString &revision, int lineNumber) const;
+    QStringList diffArguments(const QStringList &files,
+                              const ExtraCommandOptions &extraOptions) const;
+    void initializeDiffEditor(const QString &workingDir, const QStringList &files,
+                              const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
+                              VCSBase::VCSBaseEditorWidget *ed);
+    QStringList logArguments(const QStringList &files) const;
+    QStringList statusArguments(const QString &file) const;
+    QStringList viewArguments(const QString &revision) const;
 
-    virtual QPair<QString, QString> parseStatusLine(const QString &line) const;
+    QPair<QString, QString> parseStatusLine(const QString &line) const;
 };
 
 } //namespace Internal
