@@ -85,16 +85,12 @@ public:
     bool promptToDelete(const QString &fileName);
     bool promptToDelete(IVersionControl *versionControl, const QString &fileName);
 
-    friend CORE_EXPORT QDebug operator<<(QDebug in, const VcsManager &);
-
 signals:
     void repositoryChanged(const QString &repository);
 
 private:
     VcsManagerPrivate *m_d;
 };
-
-CORE_EXPORT QDebug operator<<(QDebug in, const VcsManager &);
 
 } // namespace Core
 

@@ -53,12 +53,13 @@ enum { debug = 0 };
 namespace Core {
 
 typedef QList<IVersionControl *> VersionControlList;
-typedef QMap<QString, IVersionControl *> VersionControlCache;
 
 static inline VersionControlList allVersionControls()
 {
     return ExtensionSystem::PluginManager::instance()->getObjects<IVersionControl>();
 }
+
+static const QChar SLASH('/');
 
 // ---- VCSManagerPrivate:
 // Maintains a cache of top-level directory->version control.
@@ -66,7 +67,79 @@ static inline VersionControlList allVersionControls()
 class VcsManagerPrivate
 {
 public:
-    VersionControlCache m_cachedMatches;
+    class VcsInfo {
+    public:
+        VcsInfo(IVersionControl *vc, const QString &tl) :
+            versionControl(vc), topLevel(tl)
+        { }
+
+        bool operator == (const VcsInfo &other) const
+        {
+            return versionControl == other.versionControl &&
+                    topLevel == other.topLevel;
+        }
+
+        IVersionControl *versionControl;
+        QString topLevel;
+    };
+
+    ~VcsManagerPrivate()
+    {
+        qDeleteAll(m_vcsInfoList);
+    }
+
+    VcsInfo *findInCache(const QString &directory)
+    {
+        const QMap<QString, VcsInfo *>::const_iterator it = m_cachedMatches.constFind(directory);
+        if (it != m_cachedMatches.constEnd())
+            return it.value();
+        return 0;
+    }
+
+    VcsInfo *findUpInCache(const QString &directory)
+    {
+        VcsInfo *result = 0;
+
+        // Split the path, trying to find the matching repository. We start from the reverse
+        // in order to detected nested repositories correctly (say, a git checkout under SVN).
+        for (int pos = directory.size() - 1; pos >= 0; pos = directory.lastIndexOf(SLASH, pos) - 1) {
+            const QString directoryPart = directory.left(pos);
+            result = findInCache(directoryPart);
+            if (result != 0)
+                break;
+        }
+        return result;
+    }
+
+    void cache(IVersionControl *vc, const QString topLevel, const QString directory)
+    {
+        Q_ASSERT(directory.startsWith(topLevel));
+
+        qDebug() << "New cache entries:" << vc->displayName() << topLevel << directory;
+        VcsInfo *newInfo = new VcsInfo(vc, topLevel);
+        bool createdNewInfo(true);
+        // Do we have a matching VcsInfo already?
+        foreach(VcsInfo *i, m_vcsInfoList) {
+            if (*i == *newInfo) {
+                delete newInfo;
+                newInfo = i;
+                createdNewInfo = false;
+                break;
+            }
+        }
+        if (createdNewInfo)
+            m_vcsInfoList.append(newInfo);
+
+        QString tmpDir = directory;
+        while (tmpDir.count() >= topLevel.count()) {
+            m_cachedMatches.insert(tmpDir, newInfo);
+            int slashPos = tmpDir.lastIndexOf(SLASH);
+            tmpDir = slashPos >= 0 ? tmpDir.left(tmpDir.lastIndexOf(SLASH)) : QString();
+        }
+    }
+
+    QMap<QString, VcsInfo *> m_cachedMatches;
+    QList<VcsInfo *> m_vcsInfoList;
 };
 
 VcsManager::VcsManager(QObject *parent) :
@@ -74,6 +147,8 @@ VcsManager::VcsManager(QObject *parent) :
    m_d(new VcsManagerPrivate)
 {
 }
+
+// ---- VCSManager:
 
 VcsManager::~VcsManager()
 {
@@ -100,91 +175,55 @@ static bool longerThanPath(QPair<QString, IVersionControl *> &pair1, QPair<QStri
 IVersionControl* VcsManager::findVersionControlForDirectory(const QString &directory,
                                                             QString *topLevelDirectory)
 {
-    typedef VersionControlCache::const_iterator VersionControlCacheConstIterator;
+    if (directory.isEmpty())
+        return 0;
 
-    if (debug) {
-        qDebug(">findVersionControlForDirectory %s topLevelPtr %d",
-               qPrintable(directory), (topLevelDirectory != 0));
-        if (debug > 1) {
-            const VersionControlCacheConstIterator cend = m_d->m_cachedMatches.constEnd();
-            for (VersionControlCacheConstIterator it = m_d->m_cachedMatches.constBegin(); it != cend; ++it)
-                qDebug("Cache %s -> '%s'", qPrintable(it.key()), qPrintable(it.value()->displayName()));
-        }
-    }
-    QTC_ASSERT(!directory.isEmpty(), return 0);
+    qDebug() << "Searching Vcs for:" << directory;
 
-    const VersionControlCacheConstIterator cacheEnd = m_d->m_cachedMatches.constEnd();
-
-    if (topLevelDirectory)
-        topLevelDirectory->clear();
-
-    // First check if the directory has an entry, meaning it is a top level
-    const VersionControlCacheConstIterator fullPathIt = m_d->m_cachedMatches.constFind(directory);
-    if (fullPathIt != cacheEnd) {
+    VcsManagerPrivate::VcsInfo * cachedData = m_d->findUpInCache(directory);
+    if (cachedData) {
+        qDebug() << "Found in Cache:" << cachedData->versionControl->displayName() << cachedData->topLevel;
         if (topLevelDirectory)
-            *topLevelDirectory = directory;
-        if (debug)
-            qDebug("<findVersionControlForDirectory: full cache match for VCS '%s'", qPrintable(fullPathIt.value()->displayName()));
-        return fullPathIt.value();
+            *topLevelDirectory = cachedData->topLevel;
+        return cachedData->versionControl;
     }
 
-    // Split the path, trying to find the matching repository. We start from the reverse
-    // in order to detected nested repositories correctly (say, a git checkout under SVN).
-    // Note that detection of a nested version control will still fail if the
-    // above-located version control is detected and entered into the cache first.
-    // The nested one can then no longer be found due to the splitting of the paths.
-    int pos = directory.size() - 1;
-    const QChar slash = QLatin1Char('/');
-    while (true) {
-        const int index = directory.lastIndexOf(slash, pos);
-        if (index <= 0) // Stop at '/' or not found
-            break;
-        const QString directoryPart = directory.left(index);
-        const VersionControlCacheConstIterator it = m_d->m_cachedMatches.constFind(directoryPart);
-        if (it != cacheEnd) {
-            if (topLevelDirectory)
-                *topLevelDirectory = it.key();
-            if (debug)
-                qDebug("<findVersionControlForDirectory: cache match for VCS '%s', topLevel: %s",
-                       qPrintable(it.value()->displayName()), qPrintable(it.key()));
-            return it.value();
-        }
-        pos = index - 1;
-    }
-
-    // Nothing: ask the IVersionControls directly, insert the toplevel into the cache.
+    // Nothing: ask the IVersionControls directly.
     const VersionControlList versionControls = allVersionControls();
     QList<QPair<QString, IVersionControl *> > allThatCanManage;
 
     foreach (IVersionControl * versionControl, versionControls) {
-        QString topLevel;
-        if (versionControl->managesDirectory(directory, &topLevel)) {
-            if (debug)
-                qDebug("<findVersionControlForDirectory: %s manages %s",
-                       qPrintable(versionControl->displayName()),
-                       qPrintable(topLevel));
+        QString topLevel = cachedData ? cachedData->topLevel : QString();
+        if (versionControl->managesDirectory(directory, &topLevel))
             allThatCanManage.push_back(qMakePair(topLevel, versionControl));
-        }
     }
 
     // To properly find a nested repository (say, git checkout inside SVN),
     // we need to select the version control with the longest toplevel pathname.
     qSort(allThatCanManage.begin(), allThatCanManage.end(), longerThanPath);
 
-    if (!allThatCanManage.isEmpty()) {
-        QString toplevel = allThatCanManage.first().first;
-        IVersionControl *versionControl = allThatCanManage.first().second;
-        m_d->m_cachedMatches.insert(toplevel, versionControl);
+    if (allThatCanManage.isEmpty()) {
+        m_d->cache(0, cachedData->topLevel, directory); // register that nothing was found!
+
+        // report result;
         if (topLevelDirectory)
-            *topLevelDirectory = toplevel;
-        if (debug)
-            qDebug("<findVersionControlForDirectory: invocation of '%s' matches: %s",
-                   qPrintable(versionControl->displayName()), qPrintable(toplevel));
-        return versionControl;
+            topLevelDirectory->clear();
+        return 0;
     }
-    if (debug)
-        qDebug("<findVersionControlForDirectory: No match for %s", qPrintable(directory));
-    return 0;
+
+    // Register Vcs(s) with the cache
+    QString tmpDir = directory;
+    for (QList<QPair<QString, IVersionControl *> >::const_iterator i = allThatCanManage.constBegin();
+         i != allThatCanManage.constEnd(); ++i) {
+        m_d->cache(i->second, i->first, tmpDir);
+        tmpDir = i->first;
+        tmpDir = tmpDir.left(tmpDir.lastIndexOf(SLASH));
+    }
+
+    // return result
+    if (topLevelDirectory)
+        *topLevelDirectory = allThatCanManage.first().first;
+    return allThatCanManage.first().second;
 }
 
 bool VcsManager::promptToDelete(const QString &fileName)
@@ -202,7 +241,7 @@ IVersionControl *VcsManager::checkout(const QString &versionControlType,
         if (versionControl->displayName() == versionControlType
             && versionControl->supportsOperation(Core::IVersionControl::CheckoutOperation)) {
             if (versionControl->vcsCheckout(directory, url)) {
-                m_d->m_cachedMatches.insert(directory, versionControl);
+                m_d->cache(versionControl, directory, directory);
                 return versionControl;
             }
             return 0;
@@ -242,16 +281,6 @@ bool VcsManager::promptToDelete(IVersionControl *vc, const QString &fileName)
     if (button != QMessageBox::Yes)
         return true;
     return vc->vcsDelete(fileName);
-}
-
-CORE_EXPORT QDebug operator<<(QDebug in, const VcsManager &v)
-{
-    QDebug nospace = in.nospace();
-    const VersionControlCache::const_iterator cend = v.m_d->m_cachedMatches.constEnd();
-    for (VersionControlCache::const_iterator it = v.m_d->m_cachedMatches.constBegin(); it != cend; ++it)
-        nospace << "Directory: " << it.key() << ' ' << it.value()->displayName() << '\n';
-    nospace << '\n';
-    return in;
 }
 
 } // namespace Core
