@@ -299,6 +299,7 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     delete m_plugin;
     m_plugin = new TracePlugin(conn);
     connect(m_plugin,SIGNAL(complete()), this, SIGNAL(viewUpdated()));
+    connect(m_plugin,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),this,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)));
     if (m_recordAtStart)
         m_plugin->setRecording(true);
 

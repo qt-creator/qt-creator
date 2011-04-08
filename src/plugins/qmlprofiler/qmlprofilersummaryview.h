@@ -31,64 +31,49 @@
 **
 **************************************************************************/
 
-#ifndef TRACEWINDOW_H
-#define TRACEWINDOW_H
+#ifndef QMLPROFILERSUMMARYVIEW_H
+#define QMLPROFILERSUMMARYVIEW_H
 
-#include <QtCore/qpointer.h>
-#include <QtGui/qwidget.h>
-
-#include <QtDeclarative/private/qdeclarativedebugclient_p.h>
-
-
-QT_BEGIN_NAMESPACE
-class QTabWidget;
-class QSlider;
-class QGroupBox;
-class QLabel;
-class QSpinBox;
-class QPushButton;
-class QDeclarativeView;
-QT_END_NAMESPACE
+#include <QTreeView>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class TracePlugin;
-
-class TraceWindow : public QWidget
+class QmlProfilerSummaryView : public QTreeView
 {
     Q_OBJECT
 public:
-    TraceWindow(QWidget *parent = 0);
-    ~TraceWindow();
-
-    void reset(QDeclarativeDebugConnection *conn);
-    void setRecordAtStart(bool record);
-
-    void setRecording(bool recording);
-    bool isRecording() const;
-
-public slots:
-    void updateCursorPosition();
-    void updateTimer();
-    void clearDisplay();
+    explicit QmlProfilerSummaryView(QWidget *parent = 0);
+    ~QmlProfilerSummaryView();
 
 signals:
-    void viewUpdated();
-    void gotoSourceLocation(const QString &fileUrl, int lineNumber);
-    void timeChanged(qreal newTime);
-    void range(int type, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
+    void gotoSourceLocation(const QString &fileName, int lineNumber);
+
+public slots:
+    void clean();
+    void addRangedEvent(int type, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
+    void complete();
+    void jumpToItem(const QModelIndex &index);
 
 private:
-    TracePlugin *m_plugin;
-    QSize m_sizeHint;
-    bool m_recordAtStart;
+    class QmlProfilerSummaryViewPrivate;
+    QmlProfilerSummaryViewPrivate *d;
 
-    QDeclarativeView *m_view;
+    void appendRow(const QString &displayname,
+                   const QString &filename,
+                   int line,
+                   double percentTime,
+                   double totalTime,
+                   int ncalls,
+                   double timepercall,
+                   double maxtime,
+                   double mintime);
+    void setHeaderLabels();
+    QString displayTime(double time) const;
+
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+}
+}
 
-#endif // TRACEWINDOW_H
-
+#endif // QMLPROFILERSUMMARYVIEW_H

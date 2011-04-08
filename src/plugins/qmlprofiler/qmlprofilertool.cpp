@@ -70,6 +70,9 @@
 #include <QtGui/QLabel>
 #include <QtGui/QToolButton>
 
+#include <QtGui/QTabWidget>
+#include "qmlprofilersummaryview.h"
+
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;
 
@@ -111,6 +114,8 @@ public:
 
     QDeclarativeDebugConnection *m_client;
     TraceWindow *m_traceWindow;
+    QTabWidget *m_tabbed;
+    QmlProfilerSummaryView *m_summary;
     QmlProfilerOutputPaneAdapter *m_outputPaneAdapter;
     ProjectExplorer::Project *m_project;
     Utils::FileInProjectFinder m_projectFinder;
@@ -136,7 +141,8 @@ QmlProfilerTool::~QmlProfilerTool()
 {
     if (d->m_client->isConnected())
         d->m_client->disconnectFromHost();
-    delete d->m_traceWindow;
+    delete d->m_tabbed;
+
     delete d->m_outputPaneAdapter;
     delete d;
 }
@@ -191,11 +197,23 @@ void QmlProfilerTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
     qmlRegisterType<TimelineView>("Monitor", 1, 0,"TimelineView");
 
     d->m_client = new QDeclarativeDebugConnection;
-    d->m_traceWindow = new TraceWindow();
+
+    d->m_tabbed = new QTabWidget();
+
+    d->m_traceWindow = new TraceWindow(d->m_tabbed);
     d->m_traceWindow->reset(d->m_client);
 
     connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
+
+    d->m_summary = new QmlProfilerSummaryView(d->m_tabbed);
+    d->m_tabbed->addTab(d->m_traceWindow, "timeline");
+    d->m_tabbed->addTab(d->m_summary, "summary");
+
+    connect(d->m_traceWindow,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),
+            d->m_summary,SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
+    connect(d->m_traceWindow,SIGNAL(viewUpdated()), d->m_summary, SLOT(complete()));
+    connect(d->m_summary,SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
 
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
@@ -260,7 +278,7 @@ QWidget *QmlProfilerTool::createToolBarWidget()
 
 QWidget *QmlProfilerTool::createTimeLineWidget()
 {
-    return d->m_traceWindow;
+    return d->m_tabbed;
 }
 
 void QmlProfilerTool::connectClient()
@@ -353,6 +371,7 @@ bool QmlProfilerTool::canRunRemotely() const
 void QmlProfilerTool::clearDisplay()
 {
     d->m_traceWindow->clearDisplay();
+    d->m_summary->clean();
 }
 
 void QmlProfilerTool::attach()

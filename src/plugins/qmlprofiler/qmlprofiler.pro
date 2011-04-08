@@ -19,7 +19,8 @@ SOURCES += \
     qmlprofilerengine.cpp \
     tracewindow.cpp \
     timelineview.cpp \
-    qmlprofilerattachdialog.cpp
+    qmlprofilerattachdialog.cpp \
+    qmlprofilersummaryview.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -29,7 +30,8 @@ HEADERS += \
     qmlprofilerengine.h \
     tracewindow.h \
     timelineview.h \
-    qmlprofilerattachdialog.h
+    qmlprofilerattachdialog.h \
+    qmlprofilersummaryview.h
 
 RESOURCES += \
     qml/qml.qrc
