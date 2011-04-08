@@ -138,6 +138,9 @@ protected:
     void lambdaDeclarator(LambdaDeclaratorAST *ast);
     FullySpecifiedType trailingReturnType(TrailingReturnTypeAST *ast, const FullySpecifiedType &init);
 
+    virtual bool preVisit(AST *);
+    virtual void postVisit(AST *);
+
     // AST
     virtual bool visit(ObjCSelectorArgumentAST *ast);
     virtual bool visit(AttributeAST *ast);
@@ -297,6 +300,8 @@ protected:
     virtual bool visit(ArrayDeclaratorAST *ast);
 
 private:
+    static const int kMaxDepth;
+
     Scope *_scope;
     ExpressionTy _expression;
     const Name *_name;
@@ -306,6 +311,7 @@ private:
     int _objcVisibility;
     int _methodKey;
     bool _skipFunctionBodies;
+    int _depth;
 };
 
 } // namespace CPlusPlus

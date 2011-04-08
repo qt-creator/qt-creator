@@ -66,6 +66,8 @@
 
 using namespace CPlusPlus;
 
+const int Bind::kMaxDepth(100);
+
 Bind::Bind(TranslationUnit *unit)
     : ASTVisitor(unit),
       _scope(0),
@@ -75,7 +77,8 @@ Bind::Bind(TranslationUnit *unit)
       _visibility(Symbol::Public),
       _objcVisibility(Symbol::Public),
       _methodKey(Function::NormalMethod),
-      _skipFunctionBodies(false)
+      _skipFunctionBodies(false),
+      _depth(0)
 {
 }
 
@@ -289,6 +292,19 @@ FullySpecifiedType Bind::postfixDeclarator(PostfixDeclaratorAST *ast, const Full
     accept(ast);
     std::swap(_type, value);
     return value;
+}
+
+bool Bind::preVisit(AST *)
+{
+    ++_depth;
+    if (_depth > kMaxDepth)
+        return false;
+    return true;
+}
+
+void Bind::postVisit(AST *)
+{
+    --_depth;
 }
 
 // AST
