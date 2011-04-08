@@ -150,7 +150,6 @@ enum DebuggerStartMode
     StartExternal,         // Start binary found in file system
     AttachExternal,        // Attach to running process by process id
     AttachCrashedExternal, // Attach to crashed process by process id
-    AttachTcf,             // Attach to a running Target Communication Framework agent
     AttachCore,            // Attach to a core file
     AttachToRemote,        // Start and attach to a remote process
     StartRemoteGdb,        // Start gdb itself remotely

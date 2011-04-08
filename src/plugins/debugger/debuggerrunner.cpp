@@ -774,6 +774,8 @@ DebuggerEngine *DebuggerRunControlFactory::createEngine
         return createQmlEngine(sp, masterEngine);
     case LldbEngineType:
         return createLldbEngine(sp);
+    default:
+        break;
     }
     *errorMessage = DebuggerRunControl::tr("Unable to create a debugger engine of the type '%1'").
                     arg(_(engineTypeName(et)));

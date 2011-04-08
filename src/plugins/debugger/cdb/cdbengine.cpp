@@ -309,7 +309,6 @@ static inline bool validMode(DebuggerStartMode sm)
 {
     switch (sm) {
     case NoStartMode:
-    case AttachTcf:
     case AttachCore:
     case StartRemoteGdb:
         return false;
