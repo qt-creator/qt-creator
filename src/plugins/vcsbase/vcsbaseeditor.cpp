@@ -49,6 +49,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
@@ -708,6 +709,9 @@ void VCSBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     const QChar deletionIndicator = QLatin1Char('-');
     // find nearest change hunk
     QTextBlock block = cursor.block();
+    if (TextEditor::BaseTextDocumentLayout::foldingIndent(block) <= 1)
+        /* We are in a diff header, do not jump anywhere. DiffHighlighter sets the foldingIndent for us. */
+        return;
     for ( ; block.isValid() ; block = block.previous()) {
         const QString line = block.text();
         if (checkChunkLine(line, &chunkStart)) {
