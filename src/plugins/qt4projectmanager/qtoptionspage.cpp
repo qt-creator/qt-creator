@@ -820,7 +820,7 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
     currentItem->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
     showEnvironmentPage(currentItem);
 
-    updateDebuggingHelperUi();
+    updateState();
 
     if (m_versionUi->nameEdit->text().isEmpty() || m_versionUi->nameEdit->text() == m_specifyNameString) {
         QString name = ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(version->qmakeCommand());
