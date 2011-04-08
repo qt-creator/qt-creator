@@ -7201,8 +7201,6 @@
     \gui {Debug > Start Debugging > Start and Debug External Application...}
     and specify an executable.
 
-
-
     \section2 Launching in Terminal Mode
 
     To launch the debugger in the terminal mode, select \gui {Projects > Run Settings}
@@ -7214,6 +7212,10 @@
     To launch the debugger in the attach mode, select
     \gui {Debug > Start Debugging >  Attach to Running External Application...},
     and then select a process by its name or process ID to attach to.
+
+    You can load the source project in advance and set breakpoints in it before
+    attaching to an already running process. For more information, see
+    \l{Setting Breakpoints}.
 
     \section2 Launching in Remote Mode
 
