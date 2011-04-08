@@ -96,10 +96,7 @@ public:
 
     static InspectorUi *instance();
 
-    // returns the project being currently debugged, or 0 if not debugging anything
-    ProjectExplorer::Project *debugProject() const;
-    QString debugProjectBuildDirectory() const;
-    bool isShadowBuildProject() const;
+    QString findFileInProject(const QString &file) const;
 
     void setupUi();
     bool isConnected() const;
@@ -173,7 +170,6 @@ private:
 
     // project is needed for matching filenames, esp. with shadow builds.
     ProjectExplorer::Project *m_debugProject;
-    QString m_debugProjectBuildDir;
 
     QStringList m_pendingPreviewDocumentNames;
     Utils::FileInProjectFinder m_projectFinder;

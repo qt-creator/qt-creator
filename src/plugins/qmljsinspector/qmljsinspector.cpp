@@ -310,13 +310,6 @@ void InspectorUi::connected(ClientProxy *clientProxy)
     }
 
     m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    if (m_debugProject->activeTarget()
-            && m_debugProject->activeTarget()->activeBuildConfiguration())
-    {
-        ProjectExplorer::BuildConfiguration *bc
-                = m_debugProject->activeTarget()->activeBuildConfiguration();
-        m_debugProjectBuildDir = bc->buildDirectory();
-    }
 
     connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
     m_projectFinder.setProjectDirectory(m_debugProject->projectDirectory());
@@ -787,23 +780,9 @@ InspectorUi *InspectorUi::instance()
     return m_instance;
 }
 
-ProjectExplorer::Project *InspectorUi::debugProject() const
+QString InspectorUi::findFileInProject(const QString &originalPath) const
 {
-    return m_debugProject;
-}
-
-bool InspectorUi::isShadowBuildProject() const
-{
-    // for .qmlproject based stuff, build dir is empty
-    if (!debugProject() || debugProjectBuildDirectory().isEmpty())
-        return false;
-
-    return (debugProject()->projectDirectory() != debugProjectBuildDirectory());
-}
-
-QString InspectorUi::debugProjectBuildDirectory() const
-{
-    return m_debugProjectBuildDir;
+    return m_projectFinder.findFile(originalPath);
 }
 
 void InspectorUi::setApplyChangesToQmlObserver(bool applyChanges)

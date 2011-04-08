@@ -516,16 +516,7 @@ void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReferen
         lineNum += rx.cap(3).toInt() - 1;
     }
 
-    //convert the filename to a canonical filename in case of shadow build.
-    bool isShadowBuild = InspectorUi::instance()->isShadowBuildProject();
-    if (isShadowBuild && rev == 0) {
-        QString shadowBuildDir = InspectorUi::instance()->debugProjectBuildDirectory();
-
-        if (filename.startsWith(shadowBuildDir)) {
-            ProjectExplorer::Project *debugProject = InspectorUi::instance()->debugProject();
-            filename = debugProject->projectDirectory() + filename.mid(shadowBuildDir.length());
-        }
-    }
+    filename = InspectorUi::instance()->findFileInProject(filename);
 
     // append the debug ids in the hash
     m_debugIdHash[qMakePair<QString, int>(filename, rev)][qMakePair<int, int>(lineNum, colNum)].append(ref.debugId());
