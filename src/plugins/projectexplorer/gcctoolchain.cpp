@@ -236,7 +236,7 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
     if (unknownCount == parts.count())
         return abiList;
 
-    if (os == Abi::MacOS) {
+    if (os == Abi::MacOS && arch != Abi::ArmArchitecture) {
         // Apple does PPC and x86!
         abiList << ProjectExplorer::Abi(arch, os, flavor, format, width);
         abiList << ProjectExplorer::Abi(arch, os, flavor, format, width == 64 ? 32 : 64);
@@ -870,6 +870,9 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
                               << QLatin1String("x86-macos-generic-mach_o-64bit")
                               << QLatin1String("ppc-macos-generic-mach_o-32bit")
                               << QLatin1String("ppc-macos-generic-mach_o-64bit"));
+    QTest::newRow("Mac IOS")
+            << QString::fromLatin1("arm-apple-darwin9")
+            << (QStringList() << QLatin1String("arm-macos-generic-mach_o-32bit"));
     QTest::newRow("Intel 1")
             << QString::fromLatin1("86_64 x86_64 GNU/Linux")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
