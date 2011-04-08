@@ -164,7 +164,17 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
         Core::MessageManager *messageManager = Core::MessageManager::instance();
         const QString errorMessages = process->readAllStandardError();
         messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
-        libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage(errorMessages));
+
+        if (errorMessages.contains(QLatin1String("Usage: qmldump [plugin/import/path plugin.uri]"))) {
+            // outdated qmldump from 2.1.
+            // TODO: Show a warning that qmldump should be recompiled.
+            libraryInfo.setDumpStatus(LibraryInfo::DumpDone);
+            if (!libraryPath.isEmpty())
+                m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
+            return;
+        } else {
+            libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage(errorMessages));
+        }
     }
 
     const QByteArray output = process->readAllStandardOutput();
