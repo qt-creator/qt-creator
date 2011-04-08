@@ -499,7 +499,7 @@ void SubmitEditorWidget::updateSubmitAction()
         // Update button text.
         const int fileCount = m_d->m_ui.fileView->model()->rowCount();
         const QString msg = checkedCount ?
-                            tr("Commit %1/%n Files", 0, fileCount).arg(checkedCount) :
+                            tr("&Commit %1/%n File(s)", 0, fileCount).arg(checkedCount) :
                             tr("Commit");
         emit submitActionTextChanged(msg);
     }

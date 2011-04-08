@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="descriptionBox">
      <property name="title">
-      <string>Des&amp;cription</string>
+      <string>Descriptio&amp;n</string>
      </property>
      <property name="flat">
       <bool>true</bool>
