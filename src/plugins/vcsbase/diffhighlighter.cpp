@@ -153,6 +153,12 @@ static inline int trimmedLength(const QString &in)
     return 0;
 }
 
+/*
+ * This sets the folding indent:
+ * 0 for the first line of the diff header.
+ * 1 for all the following lines of the diff header and all @@ lines.
+ * 2 for everything else
+ */
 void DiffHighlighter::highlightBlock(const QString &text)
 {
     if (text.isEmpty())
