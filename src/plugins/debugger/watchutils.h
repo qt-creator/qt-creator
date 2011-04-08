@@ -60,6 +60,24 @@ namespace Internal {
 class WatchData;
 class GdbMi;
 
+// Keep in sync with dumper.py
+enum DebuggerEncoding
+{
+    Unencoded8Bit                        =  0,
+    Base64Encoded8BitWithQuotes          =  1,
+    Base64Encoded16BitWithQuotes         =  2,
+    Base64Encoded32BitWithQuotes         =  3,
+    Base64Encoded16Bit                   =  4,
+    Base64Encoded8Bit                    =  5,
+    Hex2EncodedLatin1                    =  6,
+    Hex4EncodedLittleEndian              =  7,
+    Hex8EncodedLittleEndian              =  8,
+    Hex2EncodedUtf8                      =  9,
+    Hex8EncodedBigEndian                 = 10,
+    Hex4EncodedBigEndian                 = 11,
+    Hex4EncodedLittleEndianWithoutQuotes = 12
+};
+
 bool isEditorDebuggable(Core::IEditor *editor);
 QByteArray dotEscape(QByteArray str);
 QString currentTime();
@@ -104,10 +122,8 @@ QString decodeData(const QByteArray &baIn, int encoding);
 // of a function from the code model. Shadowed variables will
 // be reported using the debugger naming conventions '<shadowed n>'
 bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
-                       const QString &function,
-                       const QString &file,
-                       int line,
-                       QStringList *uninitializedVariables);
+   const QString &function, const QString &file, int line,
+   QStringList *uninitializedVariables);
 
 /* Attempt to put common code of the dumper handling into a helper
  * class.
