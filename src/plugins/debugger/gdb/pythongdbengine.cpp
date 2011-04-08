@@ -152,7 +152,15 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         foreach (const GdbMi &child, data.children()) {
             WatchData dummy;
             dummy.iname = child.findChild("iname").data();
-            dummy.name = _(child.findChild("name").data());
+            GdbMi wname = child.findChild("wname");
+            if (wname.isValid()) {
+                // Happens (only) for watched expressions. They are encoded as.
+                // base64 encoded 8 bit data, without quotes
+                dummy.name = decodeData(wname.data(), 5);
+                dummy.exp = dummy.name.toUtf8();
+            } else {
+                dummy.name = _(child.findChild("name").data());
+            }
             //qDebug() << "CHILD: " << child.toString();
             parseWatchData(watchHandler()->expandedINames(), dummy, child, &list);
         }
