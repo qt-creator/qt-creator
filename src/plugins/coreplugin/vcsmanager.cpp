@@ -127,7 +127,7 @@ public:
             m_vcsInfoList.append(newInfo);
 
         QString tmpDir = directory;
-        while (tmpDir.count() >= topLevel.count()) {
+        while (tmpDir.count() >= topLevel.count() && tmpDir.count() > 0) {
             m_cachedMatches.insert(tmpDir, newInfo);
             int slashPos = tmpDir.lastIndexOf(SLASH);
             tmpDir = slashPos >= 0 ? tmpDir.left(tmpDir.lastIndexOf(SLASH)) : QString();
@@ -174,7 +174,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &direc
     if (directory.isEmpty())
         return 0;
 
-    VcsManagerPrivate::VcsInfo * cachedData = m_d->findUpInCache(directory);
+    VcsManagerPrivate::VcsInfo *cachedData = m_d->findInCache(directory);
     if (cachedData) {
         if (topLevelDirectory)
             *topLevelDirectory = cachedData->topLevel;
@@ -186,7 +186,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &direc
     QList<QPair<QString, IVersionControl *> > allThatCanManage;
 
     foreach (IVersionControl * versionControl, versionControls) {
-        QString topLevel = cachedData ? cachedData->topLevel : QString();
+        QString topLevel;
         if (versionControl->managesDirectory(directory, &topLevel))
             allThatCanManage.push_back(qMakePair(topLevel, versionControl));
     }
@@ -196,7 +196,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &direc
     qSort(allThatCanManage.begin(), allThatCanManage.end(), longerThanPath);
 
     if (allThatCanManage.isEmpty()) {
-        m_d->cache(0, cachedData->topLevel, directory); // register that nothing was found!
+        m_d->cache(0, QString(), directory); // register that nothing was found!
 
         // report result;
         if (topLevelDirectory)
