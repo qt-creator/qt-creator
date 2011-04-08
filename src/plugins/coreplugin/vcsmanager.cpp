@@ -44,11 +44,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QCoreApplication>
 
-#include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 #include <QtGui/QMessageBox>
-
-enum { debug = 0 };
 
 namespace Core {
 
@@ -115,7 +112,6 @@ public:
     {
         Q_ASSERT(directory.startsWith(topLevel));
 
-        qDebug() << "New cache entries:" << vc->displayName() << topLevel << directory;
         VcsInfo *newInfo = new VcsInfo(vc, topLevel);
         bool createdNewInfo(true);
         // Do we have a matching VcsInfo already?
@@ -178,11 +174,8 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &direc
     if (directory.isEmpty())
         return 0;
 
-    qDebug() << "Searching Vcs for:" << directory;
-
     VcsManagerPrivate::VcsInfo * cachedData = m_d->findUpInCache(directory);
     if (cachedData) {
-        qDebug() << "Found in Cache:" << cachedData->versionControl->displayName() << cachedData->topLevel;
         if (topLevelDirectory)
             *topLevelDirectory = cachedData->topLevel;
         return cachedData->versionControl;
