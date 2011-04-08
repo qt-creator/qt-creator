@@ -518,7 +518,7 @@ void SubmitEditorWidget::updateDiffAction()
 void SubmitEditorWidget::updateCheckAllComboBox()
 {
     m_d->m_ignoreChange = true;
-    unsigned checkedCount = checkedFilesCount();
+    int checkedCount = checkedFilesCount();
     if (checkedCount == 0)
         m_d->m_ui.checkAllCheckBox->setCheckState(Qt::Unchecked);
     else if (checkedCount == m_d->m_ui.fileView->model()->rowCount())
@@ -536,14 +536,14 @@ bool SubmitEditorWidget::hasSelection() const
     return false;
 }
 
-unsigned SubmitEditorWidget::checkedFilesCount() const
+int SubmitEditorWidget::checkedFilesCount() const
 {
-    unsigned checkedCount = 0;
+    int checkedCount = 0;
     if (const QAbstractItemModel *model = m_d->m_ui.fileView->model()) {
         const int count = model->rowCount();
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < count; ++i)
             if (listModelChecked(model, i, checkableColumn))
-                checkedCount++;
+                ++checkedCount;
     }
     return checkedCount;
 }
