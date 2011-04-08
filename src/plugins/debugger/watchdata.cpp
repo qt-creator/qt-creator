@@ -45,13 +45,6 @@
 namespace Debugger {
 namespace Internal {
 
-enum GuessChildrenResult
-{
-    HasChildren,
-    HasNoChildren,
-    HasPossiblyChildren
-};
-
 static QString htmlEscape(const QString &plain)
 {
     QString rich;
@@ -125,19 +118,6 @@ bool isFloatType(const QByteArray &type)
 bool isIntOrFloatType(const QByteArray &type)
 {
     return isIntType(type) || isFloatType(type);
-}
-
-GuessChildrenResult guessChildren(const QByteArray &type)
-{
-    if (isIntOrFloatType(type))
-        return HasNoChildren;
-    if (isCharPointerType(type))
-        return HasNoChildren;
-    if (isPointerType(type))
-        return HasChildren;
-    if (type.endsWith("QString"))
-        return HasNoChildren;
-    return HasPossiblyChildren;
 }
 
 WatchData::WatchData() :
@@ -232,6 +212,21 @@ void WatchData::setValue(const QString &value0)
 void WatchData::setValueToolTip(const QString &tooltip)
 {
     valuetooltip = tooltip;
+}
+
+enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
+
+static GuessChildrenResult guessChildren(const QByteArray &type)
+{
+    if (isIntOrFloatType(type))
+        return HasNoChildren;
+    if (isCharPointerType(type))
+        return HasNoChildren;
+    if (isPointerType(type))
+        return HasChildren;
+    if (type.endsWith("QString"))
+        return HasNoChildren;
+    return HasPossiblyChildren;
 }
 
 void WatchData::setType(const QByteArray &str, bool guessChildrenFromType)

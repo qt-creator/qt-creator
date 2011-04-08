@@ -36,11 +36,6 @@
 
 #include <QtCore/QSet>
 #include <QtCore/QString>
-#include <QtCore/QMap>
-
-QT_BEGIN_NAMESPACE
-class QDebug;
-QT_END_NAMESPACE
 
 namespace TextEditor {
     class ITextEditor;
@@ -84,12 +79,6 @@ QString currentTime();
 bool isSkippableFunction(const QString &funcName, const QString &fileName);
 bool isLeavableFunction(const QString &funcName, const QString &fileName);
 
-inline bool isNameChar(char c)
-{
-    // could be 'stopped' or 'shlibs-added'
-    return (c >= 'a' && c <= 'z') || c == '-';
-}
-
 bool hasLetterOrNumber(const QString &exp);
 bool hasSideEffects(const QString &exp);
 bool isKeyWord(const QString &exp);
@@ -98,14 +87,10 @@ bool isCharPointerType(const QByteArray &type);
 bool startsWithDigit(const QString &str);
 QByteArray stripPointerType(QByteArray type);
 QByteArray gdbQuoteTypes(const QByteArray &type);
-QString extractTypeFromPTypeOutput(const QString &str);
 bool isFloatType(const QByteArray &type);
 bool isIntOrFloatType(const QByteArray &type);
 bool isIntType(const QByteArray &type);
 bool isSymbianIntType(const QByteArray &type);
-
-enum GuessChildrenResult { HasChildren, HasNoChildren, HasPossiblyChildren };
-GuessChildrenResult guessChildren(const QByteArray &type);
 
 QString quoteUnprintableLatin1(const QByteArray &ba);
 
@@ -124,9 +109,6 @@ bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
    const QString &function, const QString &file, int line,
    QStringList *uninitializedVariables);
 
-// remove the default template argument in std:: containers
-QString removeDefaultTemplateArguments(QString type);
-
 
 //
 // GdbMi interaction
@@ -137,10 +119,7 @@ void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
     int encoding);
 void setWatchDataChildCount(WatchData &data, const GdbMi &mi);
 void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi);
-void setWatchDataValueEditable(WatchData &data, const GdbMi &mi);
-void setWatchDataExpression(WatchData &data, const GdbMi &mi);
 void setWatchDataAddress(WatchData &data, const GdbMi &mi);
-void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr);
 void setWatchDataType(WatchData &data, const GdbMi &mi);
 void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
 

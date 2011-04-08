@@ -329,6 +329,12 @@ void GdbEngine::readDebugeeOutput(const QByteArray &data)
     showMessage(msg, AppOutput);
 }
 
+static bool isNameChar(char c)
+{
+    // could be 'stopped' or 'shlibs-added'
+    return (c >= 'a' && c <= 'z') || c == '-';
+}
+
 void GdbEngine::handleResponse(const QByteArray &buff)
 {
     showMessage(QString::fromLocal8Bit(buff, buff.length()), LogOutput);

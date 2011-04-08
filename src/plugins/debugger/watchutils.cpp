@@ -496,18 +496,6 @@ QByteArray gdbQuoteTypes(const QByteArray &type)
     return result;
 }
 
-QString extractTypeFromPTypeOutput(const QString &str)
-{
-    int pos0 = str.indexOf(QLatin1Char('='));
-    int pos1 = str.indexOf(QLatin1Char('{'));
-    int pos2 = str.lastIndexOf(QLatin1Char('}'));
-    QString res = str;
-    if (pos0 != -1 && pos1 != -1 && pos2 != -1)
-        res = str.mid(pos0 + 2, pos1 - 1 - pos0)
-            + QLatin1String(" ... ") + str.right(str.size() - pos2);
-    return res.simplified();
-}
-
 bool isSymbianIntType(const QByteArray &type)
 {
     return type == "TInt" || type == "TBool";
@@ -730,7 +718,7 @@ void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi)
         data.valueEnabled = false;
 }
 
-void setWatchDataValueEditable(WatchData &data, const GdbMi &mi)
+static void setWatchDataValueEditable(WatchData &data, const GdbMi &mi)
 {
     if (mi.data() == "true")
         data.valueEditable = true;
@@ -738,34 +726,13 @@ void setWatchDataValueEditable(WatchData &data, const GdbMi &mi)
         data.valueEditable = false;
 }
 
-void setWatchDataExpression(WatchData &data, const GdbMi &mi)
+static void setWatchDataExpression(WatchData &data, const GdbMi &mi)
 {
     if (mi.isValid())
         data.exp = mi.data();
 }
 
-void setWatchDataAddress(WatchData &data, const GdbMi &mi)
-{
-    if (mi.isValid())
-        setWatchDataAddressHelper(data, mi.data());
-}
-
-void setWatchDataOrigAddress(WatchData &data, const GdbMi &mi)
-{
-    data.origAddress = mi.data().toULongLong(0, 16);
-}
-
-void setWatchDataSize(WatchData &data, const GdbMi &mi)
-{
-    if (mi.isValid()) {
-        bool ok = false;
-        const unsigned size = mi.data().toUInt(&ok);
-        if (ok)
-            data.size = size;
-    }
-}
-
-void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr)
+static void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr)
 {
     if (addr.startsWith("0x")) { // Item model dumpers pull tricks
        data.setHexAddress(addr);
@@ -774,6 +741,27 @@ void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr)
     }
     if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$'))
         data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" +data.hexAddress();
+}
+
+void setWatchDataAddress(WatchData &data, const GdbMi &mi)
+{
+    if (mi.isValid())
+        setWatchDataAddressHelper(data, mi.data());
+}
+
+static void setWatchDataOrigAddress(WatchData &data, const GdbMi &mi)
+{
+    data.origAddress = mi.data().toULongLong(0, 16);
+}
+
+static void setWatchDataSize(WatchData &data, const GdbMi &mi)
+{
+    if (mi.isValid()) {
+        bool ok = false;
+        const unsigned size = mi.data().toUInt(&ok);
+        if (ok)
+            data.size = size;
+    }
 }
 
 // Find the "type" and "displayedtype" children of root and set up type.
