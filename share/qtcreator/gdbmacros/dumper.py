@@ -1335,15 +1335,13 @@ class Dumper:
 
     def handleWatch(self, exp, iname):
         exp = str(exp)
-        escapedExp = exp.replace('"', '\\"')
-        escapedExp = escapedExp.replace('\\', '\\\\')
+        escapedExp = base64.b64encode(exp);
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
             with SubItem(self):
                 self.put('iname="%s",' % iname)
-                self.put('name="%s",' % escapedExp)
-                self.put('exp="%s",' % escapedExp)
+                self.put('wname="%s",' % escapedExp)
                 try:
                     list = eval(exp)
                     self.putValue("")
@@ -1366,8 +1364,7 @@ class Dumper:
 
         with SubItem(self):
             self.put('iname="%s",' % iname)
-            self.put('name="%s",' % escapedExp)
-            self.put('exp="%s",' % escapedExp)
+            self.put('wname="%s",' % escapedExp)
             handled = False
             if len(exp) == 0: # The <Edit> case
                 self.putValue(" ")
