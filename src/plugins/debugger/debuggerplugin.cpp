@@ -1365,6 +1365,7 @@ void DebuggerPluginPrivate::startExternalApplication()
     sp.toolChainAbi = dlg.abi();
     sp.debuggerCommand = dlg.debuggerCommand();
     sp.workingDirectory = dlg.workingDirectory();
+    sp.displayName = sp.executable;
     if (!dlg.executableArguments().isEmpty())
         sp.processArgs = dlg.executableArguments();
     // Fixme: 1 of 3 testing hacks.
