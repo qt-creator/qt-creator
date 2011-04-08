@@ -298,6 +298,9 @@ void QmlProfilerTool::connectClient()
         if (QmlProfilerPlugin::debugOutput)
             qWarning("QmlProfiler: Failed to connect: %s", qPrintable(d->m_client->errorString()));
     }
+
+    if (d->m_traceWindow->isRecording())
+        clearDisplay();
 }
 
 void QmlProfilerTool::disconnectClient()
@@ -308,9 +311,11 @@ void QmlProfilerTool::disconnectClient()
 
 void QmlProfilerTool::startRecording()
 {
-    d->m_traceWindow->setRecordAtStart(true);
-    if (d->m_client->isConnected())
+   d->m_traceWindow->setRecordAtStart(true);
+    if (d->m_client->isConnected()) {
+        clearDisplay();
         d->m_traceWindow->setRecording(true);
+    }
     emit fetchingData(true);
 }
 
