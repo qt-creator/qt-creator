@@ -588,6 +588,7 @@ void S60DeployStep::handleSymbianInstall(const Coda::CodaCommandResult &result)
 void S60DeployStep::putSendNextChunk()
 {
     QTC_ASSERT(m_codaDevice, return);
+    QTC_ASSERT(m_putFile, return);
 
     // Read and send off next chunk
     const quint64 pos = m_putFile->pos();
@@ -595,7 +596,7 @@ void S60DeployStep::putSendNextChunk()
     const quint64 size = m_putFile->size();
     if (data.isEmpty()) {
         m_putWriteOk = true;
-        closeRemoteFile();
+        closeFiles();
         setCopyProgress(100);
     } else {
         m_putLastChunkSize = data.size();
@@ -609,8 +610,9 @@ void S60DeployStep::putSendNextChunk()
     }
 }
 
-void S60DeployStep::closeRemoteFile()
+void S60DeployStep::closeFiles()
 {
+    m_putFile.reset();
     QTC_ASSERT(m_codaDevice, return);
 
     m_codaDevice->sendFileSystemCloseCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemClose),
@@ -627,7 +629,7 @@ void S60DeployStep::handleFileSystemWrite(const Coda::CodaCommandResult &result)
     }
 
     if (!m_putWriteOk || m_putLastChunkSize < m_putChunkSize) {
-        closeRemoteFile();
+        closeFiles();
     } else {
         putSendNextChunk();
     }

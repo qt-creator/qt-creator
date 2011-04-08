@@ -171,7 +171,7 @@ private:
     void handleSymbianInstall(const Coda::CodaCommandResult &result);
     void handleFileSystemOpen(const Coda::CodaCommandResult &result);
     void handleFileSystemWrite(const Coda::CodaCommandResult &result);
-    void closeRemoteFile();
+    void closeFiles();
     void putSendNextChunk();
     void handleFileSystemClose(const Coda::CodaCommandResult &result);
 
