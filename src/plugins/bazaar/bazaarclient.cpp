@@ -357,7 +357,7 @@ QStringList BazaarClient::statusArguments(const QString &file) const
 QStringList BazaarClient::viewArguments(const QString &revision) const
 {
     QStringList args(QLatin1String("log"));
-    args << QLatin1String("-p") << QLatin1String("--gnu-changelog")
+    args << QLatin1String("-p") << QLatin1String("-v")
          << QLatin1String("-r") << revision;
     return args;
 }
