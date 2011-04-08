@@ -56,9 +56,8 @@ void GdbEngine::updateLocalsPython(bool tryPartial, const QByteArray &varList)
 {
     PRECONDITION;
     m_processedNames.clear();
-    watchHandler()->beginCycle(!tryPartial);
-    //m_toolTipExpression.clear();
     WatchHandler *handler = watchHandler();
+    handler->beginCycle(!tryPartial);
 
     QByteArray expanded = "expanded:" + handler->expansionRequests() + ' ';
     expanded += "typeformats:" + handler->typeFormatRequests() + ' ';
@@ -68,8 +67,8 @@ void GdbEngine::updateLocalsPython(bool tryPartial, const QByteArray &varList)
     const QString fileName = stackHandler()->currentFrame().file;
     const QString function = stackHandler()->currentFrame().function;
     if (!fileName.isEmpty()) {
-        QStringList expressions =
-            DebuggerToolTipManager::instance()->treeWidgetExpressions(fileName, objectName(), function);
+        QStringList expressions = DebuggerToolTipManager::instance()
+            ->treeWidgetExpressions(fileName, objectName(), function);
         const QString currentExpression = tooltipExpression();
         if (!currentExpression.isEmpty() && !expressions.contains(currentExpression))
             expressions.push_back(currentExpression);
@@ -132,11 +131,9 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
     PRECONDITION;
     if (response.resultClass == GdbResultDone) {
         const bool partial = response.cookie.toBool();
-        //qDebug() << "READING " << (partial ? "PARTIAL" : "FULL");
         QByteArray out = response.data.findChild("consolestreamoutput").data();
         while (out.endsWith(' ') || out.endsWith('\n'))
             out.chop(1);
-        //qDebug() << "SECOND CHUNK: " << out;
         int pos = out.indexOf("data=");
         if (pos != 0) {
             showMessage(_("DISCARDING JUNK AT BEGIN OF RESPONSE: "
@@ -145,7 +142,6 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         }
         GdbMi all;
         all.fromStringMultiple(out);
-        //qDebug() << "ALL: " << all.toString();
 
         GdbMi data = all.findChild("data");
         QList<WatchData> list;
@@ -160,48 +156,9 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
             } else {
                 dummy.name = _(child.findChild("name").data());
             }
-            //qDebug() << "CHILD: " << child.toString();
             parseWatchData(watchHandler()->expandedINames(), dummy, child, &list);
         }
         watchHandler()->insertBulkData(list);
-        //for (int i = 0; i != list.size(); ++i)
-        //    qDebug() << "LOCAL: " << list.at(i).toString();
-
-#if 0
-        data = all.findChild("bkpts");
-        if (data.isValid()) {
-            BreakHandler *handler = breakHandler();
-            foreach (const GdbMi &child, data.children()) {
-                int bpNumber = child.findChild("number").data().toInt();
-                int found = handler->findBreakpoint(bpNumber);
-                if (found != -1) {
-                    BreakpointData *bp = handler->at(found);
-                    GdbMi addr = child.findChild("addr");
-                    if (addr.isValid()) {
-                        bp->bpAddress = child.findChild("addr").data();
-                        bp->pending = false;
-                    } else {
-                        bp->bpAddress = "<PENDING>";
-                        bp->pending = true;
-                    }
-                    bp->bpFuncName = child.findChild("func").data();
-                    bp->bpLineNumber = child.findChild("line").data();
-                    bp->bpFileName = child.findChild("file").data();
-                    bp->markerLineNumber = bp->bpLineNumber.toInt();
-                    bp->markerFileName = bp->bpFileName;
-                    // Happens with moved/symlinked sources.
-                    if (!bp->fileName.isEmpty()
-                            && !bp->bpFileName.isEmpty()
-                            && bp->fileName !=  bp->bpFileName)
-                        bp->markerFileName = bp->fileName;
-                } else {
-                    QTC_ASSERT(false, qDebug() << child.toString() << bpNumber);
-                    //bp->bpNumber = "<unavailable>";
-                }
-            }
-            handler->updateMarkers();
-        }
-#endif
 
         //PENDING_DEBUG("AFTER handleStackFrame()");
         // FIXME: This should only be used when updateLocals() was
