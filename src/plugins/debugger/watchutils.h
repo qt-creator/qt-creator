@@ -98,7 +98,6 @@ bool isCharPointerType(const QByteArray &type);
 bool startsWithDigit(const QString &str);
 QByteArray stripPointerType(QByteArray type);
 QByteArray gdbQuoteTypes(const QByteArray &type);
-bool extractTemplate(const QString &type, QString *tmplate, QString *inner);
 QString extractTypeFromPTypeOutput(const QString &str);
 bool isFloatType(const QByteArray &type);
 bool isIntOrFloatType(const QByteArray &type);
@@ -124,124 +123,6 @@ QString decodeData(const QByteArray &baIn, int encoding);
 bool getUninitializedVariables(const CPlusPlus::Snapshot &snapshot,
    const QString &function, const QString &file, int line,
    QStringList *uninitializedVariables);
-
-/* Attempt to put common code of the dumper handling into a helper
- * class.
- * "Custom dumper" is a library compiled against the current
- * Qt containing functions to evaluate values of Qt classes
- * (such as QString, taking pointers to their addresses).
- * The library must be loaded into the debuggee.
- * It provides a function that takes input from an input buffer
- * and some parameters and writes output into an output buffer.
- * Parameter 1 is the protocol:
- * 1) Query. Fills output buffer with known types, Qt version and namespace.
- *    This information is parsed and stored by this class (special type
- *    enumeration).
- * 2) Evaluate symbol, taking address and some additional parameters
- *    depending on type. */
-
-class QtDumperHelper
-{
-public:
-    enum Type {
-        UnknownType,
-        SupportedType, // A type that requires no special handling by the dumper
-        // Below types require special handling
-        QAbstractItemType,
-        QObjectType, QWidgetType, QObjectSlotType, QObjectSignalType,
-        QVectorType, QMapType, QMultiMapType, QMapNodeType, QStackType,
-        StdVectorType, StdDequeType, StdSetType, StdMapType, StdStackType,
-        StdStringType
-    };
-
-    // Type/Parameter struct required for building a value query
-    struct TypeData {
-        TypeData();
-        void clear();
-
-        Type type;
-        bool isTemplate;
-        QByteArray tmplate;
-        QByteArray inner;
-    };
-
-    QtDumperHelper();
-    void clear();
-
-    double dumperVersion() const { return m_dumperVersion; }
-
-    int typeCount() const;
-    // Look up a simple, non-template  type
-    Type simpleType(const QByteArray &simpleType) const;
-    // Look up a (potentially) template type and fill parameter struct
-    TypeData typeData(const QByteArray &typeName) const;
-    Type type(const QByteArray &typeName) const;
-
-    int qtVersion() const;
-    QByteArray qtVersionString() const;
-    QByteArray qtNamespace() const;
-    void setQtNamespace(const QByteArray &ba)
-        { if (!ba.isEmpty()) m_qtNamespace = ba; }
-
-    // Complete parse of "query" (protocol 1) response from debuggee buffer.
-    // 'data' excludes the leading indicator character.
-    bool parseQuery(const GdbMi &data);
-    // Sizes can be added as the debugger determines them
-    void addSize(const QByteArray &type, int size);
-
-    // Determine the parameters required for an "evaluate" (protocol 2) call
-    void evaluationParameters(const WatchData &data,
-                              const TypeData &td,
-                              QByteArray *inBuffer,
-                              QList<QByteArray> *extraParameters) const;
-
-    QString toString(bool debug = false) const;
-
-    static QString msgDumperOutdated(double requiredVersion, double currentVersion);
-
-private:
-    typedef QMap<QString, Type> NameTypeMap;
-    typedef QMap<QByteArray, int> SizeCache;
-
-    // Look up a simple (namespace) type
-    QByteArray evaluationSizeofTypeExpression(const QByteArray &typeName) const;
-
-    NameTypeMap m_nameTypeMap;
-    SizeCache m_sizeCache;
-
-    // The initial dumper query function returns sizes of some special
-    // types to aid CDB since it cannot determine the size of classes.
-    // They are not complete (std::allocator<X>).
-    enum SpecialSizeType { IntSize, PointerSize, StdAllocatorSize,
-                           QSharedPointerSize, QSharedDataPointerSize,
-                           QWeakPointerSize, QPointerSize,
-                           QListSize, QLinkedListSize, QVectorSize, QQueueSize,
-                           SpecialSizeCount };
-
-    // Resolve name to enumeration or SpecialSizeCount (invalid)
-    SpecialSizeType specialSizeType(const QByteArray &type) const;
-
-    int m_specialSizes[SpecialSizeCount];
-
-    typedef QMap<QByteArray, QByteArray> ExpressionCache;
-    ExpressionCache m_expressionCache;
-    int m_qtVersion;
-    double m_dumperVersion;
-    QByteArray m_qtNamespace;
-
-    void setQClassPrefixes(const QByteArray &qNamespace);
-
-    QByteArray m_qPointerPrefix;
-    QByteArray m_qSharedPointerPrefix;
-    QByteArray m_qSharedDataPointerPrefix;
-    QByteArray m_qWeakPointerPrefix;
-    QByteArray m_qListPrefix;
-    QByteArray m_qLinkedListPrefix;
-    QByteArray m_qVectorPrefix;
-    QByteArray m_qQueuePrefix;
-};
-
-QDebug operator<<(QDebug in, const QtDumperHelper::TypeData &d);
 
 // remove the default template argument in std:: containers
 QString removeDefaultTemplateArguments(QString type);

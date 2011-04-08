@@ -3603,7 +3603,7 @@ bool GdbEngine::hasDebuggingHelperForType(const QByteArray &type) const
         return false;
 
     // Simple types.
-    return m_dumperHelper.type(type) != QtDumperHelper::UnknownType;
+    return m_dumperHelper.type(type) != DumperHelper::UnknownType;
 }
 
 

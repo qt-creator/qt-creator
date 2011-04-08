@@ -56,21 +56,617 @@
 
 
 #define PRECONDITION QTC_ASSERT(!hasPython(), /**/)
+
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
 
-
-//#define DEBUG_PENDING  1
-//#define DEBUG_SUBITEM  1
-
-#if DEBUG_PENDING
-#   define PENDING_DEBUG(s) qDebug() << s
-#else
-#   define PENDING_DEBUG(s)
-#endif
-#define PENDING_DEBUGX(s) qDebug() << s
+enum {
+    debugPending = 0,
+    debugSubItem = 0,
+    debug = 0
+};
 
 namespace Debugger {
 namespace Internal {
+
+// ----------------- QtDumperHelper::TypeData
+DumperHelper::TypeData::TypeData() :
+    type(UnknownType),
+    isTemplate(false)
+{
+}
+
+void DumperHelper::TypeData::clear()
+{
+    isTemplate = false;
+    type = UnknownType;
+    tmplate.clear();
+    inner.clear();
+}
+
+// ----------------- QtDumperHelper
+DumperHelper::DumperHelper() :
+    m_qtVersion(0),
+    m_dumperVersion(1.0)
+{
+    qFill(m_specialSizes, m_specialSizes + SpecialSizeCount, 0);
+    setQClassPrefixes(QByteArray());
+}
+
+void DumperHelper::clear()
+{
+    m_nameTypeMap.clear();
+    m_qtVersion = 0;
+    m_dumperVersion = 1.0;
+    m_qtNamespace.clear();
+    m_sizeCache.clear();
+    qFill(m_specialSizes, m_specialSizes + SpecialSizeCount, 0);
+    m_expressionCache.clear();
+    setQClassPrefixes(QByteArray());
+}
+
+QString DumperHelper::msgDumperOutdated(double requiredVersion, double currentVersion)
+{
+    return QCoreApplication::translate("QtDumperHelper",
+       "Found an outdated version of the debugging helper library (%1); "
+       "version %2 is required.").
+       arg(currentVersion).arg(requiredVersion);
+}
+
+static inline void formatQtVersion(int v, QTextStream &str)
+{
+    str  << ((v >> 16) & 0xFF) << '.' << ((v >> 8) & 0xFF) << '.' << (v & 0xFF);
+}
+
+QString DumperHelper::toString(bool debug) const
+{
+    if (debug)  {
+        QString rc;
+        QTextStream str(&rc);
+        str << "version=";
+        formatQtVersion(m_qtVersion, str);
+        str << "dumperversion='" << m_dumperVersion <<  "' namespace='" << m_qtNamespace << "'," << m_nameTypeMap.size() << " known types <type enum>: ";
+        const NameTypeMap::const_iterator cend = m_nameTypeMap.constEnd();
+        for (NameTypeMap::const_iterator it = m_nameTypeMap.constBegin(); it != cend; ++it) {
+            str <<",[" << it.key() << ',' << it.value() << ']';
+        }
+        str << "\nSpecial size: ";
+        for (int i = 0; i < SpecialSizeCount; i++)
+            str << ' ' << m_specialSizes[i];
+        str << "\nSize cache: ";
+        const SizeCache::const_iterator scend = m_sizeCache.constEnd();
+        for (SizeCache::const_iterator it = m_sizeCache.constBegin(); it != scend; ++it) {
+            str << ' ' << it.key() << '=' << it.value() << '\n';
+        }
+        str << "\nExpression cache: (" << m_expressionCache.size() << ")\n";
+        const ExpressionCache::const_iterator excend = m_expressionCache.constEnd();
+        for (ExpressionCache::const_iterator it = m_expressionCache.constBegin(); it != excend; ++it)
+            str << "    " << it.key() << ' ' << it.value() << '\n';
+        return rc;
+    }
+    const QString nameSpace = m_qtNamespace.isEmpty()
+        ? QCoreApplication::translate("QtDumperHelper", "<none>") : m_qtNamespace;
+    return QCoreApplication::translate("QtDumperHelper",
+       "%n known types, Qt version: %1, Qt namespace: %2 Dumper version: %3",
+       0, QCoreApplication::CodecForTr,
+       m_nameTypeMap.size()).arg(qtVersionString(), nameSpace).arg(m_dumperVersion);
+}
+
+DumperHelper::Type DumperHelper::simpleType(const QByteArray &simpleType) const
+{
+    return m_nameTypeMap.value(simpleType, UnknownType);
+}
+
+int DumperHelper::qtVersion() const
+{
+    return m_qtVersion;
+}
+
+QByteArray DumperHelper::qtNamespace() const
+{
+    return m_qtNamespace;
+}
+
+int DumperHelper::typeCount() const
+{
+    return m_nameTypeMap.size();
+}
+
+// Look up unnamespaced 'std' types.
+static DumperHelper::Type stdType(const QByteArray &type)
+{
+    if (type == "vector")
+        return DumperHelper::StdVectorType;
+    if (type == "deque")
+        return DumperHelper::StdDequeType;
+    if (type == "set")
+        return DumperHelper::StdSetType;
+    if (type == "stack")
+        return DumperHelper::StdStackType;
+    if (type == "map")
+        return DumperHelper::StdMapType;
+    if (type == "basic_string")
+        return DumperHelper::StdStringType;
+    return DumperHelper::UnknownType;
+}
+
+static DumperHelper::Type specialType(QByteArray type)
+{
+    // Std classes.
+    if (type.startsWith("std::"))
+        return stdType(type.mid(5));
+
+    // Strip namespace
+    // FIXME: that's not a good idea as it makes all namespaces equal.
+    const int namespaceIndex = type.lastIndexOf("::");
+    if (namespaceIndex == -1) {
+        // None ... check for std..
+        const DumperHelper::Type sType = stdType(type);
+        if (sType != DumperHelper::UnknownType)
+            return sType;
+    } else {
+        type = type.mid(namespaceIndex + 2);
+    }
+
+    if (type == "QAbstractItem")
+        return DumperHelper::QAbstractItemType;
+    if (type == "QMap")
+        return DumperHelper::QMapType;
+    if (type == "QMapNode")
+        return DumperHelper::QMapNodeType;
+    if (type == "QMultiMap")
+        return DumperHelper::QMultiMapType;
+    if (type == "QObject")
+        return DumperHelper::QObjectType;
+    if (type == "QObjectSignal")
+        return DumperHelper::QObjectSignalType;
+    if (type == "QObjectSlot")
+        return DumperHelper::QObjectSlotType;
+    if (type == "QStack")
+        return DumperHelper::QStackType;
+    if (type == "QVector")
+        return DumperHelper::QVectorType;
+    if (type == "QWidget")
+        return DumperHelper::QWidgetType;
+    return DumperHelper::UnknownType;
+}
+
+QByteArray DumperHelper::qtVersionString() const
+{
+    QString rc;
+    QTextStream str(&rc);
+    formatQtVersion(m_qtVersion, str);
+    return rc.toLatin1();
+}
+
+// Parse a list of types.
+typedef QList<QByteArray> QByteArrayList;
+
+static QByteArray qClassName(const QByteArray &qtNamespace, const char *className)
+{
+    if (qtNamespace.isEmpty())
+        return className;
+    QByteArray rc = qtNamespace;
+    rc += "::";
+    rc += className;
+    return rc;
+}
+
+static double getDumperVersion(const GdbMi &contents)
+{
+    const GdbMi dumperVersionG = contents.findChild("dumperversion");
+    if (dumperVersionG.type() != GdbMi::Invalid) {
+        bool ok;
+        const double v = QString::fromAscii(dumperVersionG.data()).toDouble(&ok);
+        if (ok)
+            return v;
+    }
+    return 1.0;
+}
+
+
+void DumperHelper::setQClassPrefixes(const QByteArray &qNamespace)
+{
+    // Prefixes with namespaces
+    m_qPointerPrefix = qClassName(qNamespace, "QPointer");
+    m_qSharedPointerPrefix = qClassName(qNamespace, "QSharedPointer");
+    m_qSharedDataPointerPrefix = qClassName(qNamespace, "QSharedDataPointer");
+    m_qWeakPointerPrefix = qClassName(qNamespace, "QWeakPointer");
+    m_qListPrefix = qClassName(qNamespace, "QList");
+    m_qLinkedListPrefix = qClassName(qNamespace, "QLinkedList");
+    m_qVectorPrefix = qClassName(qNamespace, "QVector");
+    m_qQueuePrefix = qClassName(qNamespace, "QQueue");
+}
+
+bool DumperHelper::parseQuery(const GdbMi &contents)
+{
+    clear();
+    if (debug > 1)
+        qDebug() << "parseQuery" << contents.toString(true, 2);
+
+    // Common info, dumper version, etc
+    QByteArray ns = contents.findChild("namespace").data();
+    setQtNamespace(ns);
+    int qtv = 0;
+    const GdbMi qtversion = contents.findChild("qtversion");
+    if (qtversion.children().size() == 3) {
+        qtv = (qtversion.childAt(0).data().toInt() << 16)
+                    + (qtversion.childAt(1).data().toInt() << 8)
+                    + qtversion.childAt(2).data().toInt();
+    }
+    m_qtVersion = qtv;
+    // Get list of helpers
+    QByteArrayList availableSimpleDebuggingHelpers;
+    foreach (const GdbMi &item, contents.findChild("dumpers").children())
+        availableSimpleDebuggingHelpers.append(item.data());
+
+    // Parse types
+    m_nameTypeMap.clear();
+    foreach (const QByteArray &type, availableSimpleDebuggingHelpers) {
+        const Type t = specialType(type);
+        m_nameTypeMap.insert(type, t != UnknownType ? t : SupportedType);
+    }
+
+    m_dumperVersion = getDumperVersion(contents);
+    // Parse sizes
+    foreach (const GdbMi &sizesList, contents.findChild("sizes").children()) {
+        const int childCount = sizesList.childCount();
+        if (childCount > 1) {
+            const int size = sizesList.childAt(0).data().toInt();
+            for (int c = 1; c < childCount; c++)
+                addSize(sizesList.childAt(c).data(), size);
+        }
+    }
+    // Parse expressions
+    foreach (const GdbMi &exprList, contents.findChild("expressions").children())
+        if (exprList.childCount() == 2)
+            m_expressionCache.insert(exprList.childAt(0).data(),
+                                     exprList.childAt(1).data());
+    return true;
+}
+
+void DumperHelper::addSize(const QByteArray &name, int size)
+{
+    // Special interest cases
+    if (name == "char*") {
+        m_specialSizes[PointerSize] = size;
+        return;
+    }
+    const SpecialSizeType st = specialSizeType(name);
+    if (st != SpecialSizeCount) {
+        m_specialSizes[st] = size;
+        return;
+    }
+    do {
+        // CDB helpers
+        if (name == "std::string") {
+            m_sizeCache.insert("std::basic_string<char,std::char_traits<char>,std::allocator<char> >", size);
+            m_sizeCache.insert("basic_string<char,char_traits<char>,allocator<char> >", size);
+            break;
+        }
+        if (name == "std::wstring") {
+            m_sizeCache.insert("basic_string<unsigned short,char_traits<unsignedshort>,allocator<unsignedshort> >", size);
+            m_sizeCache.insert("std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >", size);
+            break;
+        }
+    } while (false);
+    m_sizeCache.insert(name, size);
+}
+
+DumperHelper::Type DumperHelper::type(const QByteArray &typeName) const
+{
+    const DumperHelper::TypeData td = typeData(typeName);
+    return td.type;
+}
+
+static bool extractTemplate(const QByteArray &type, QByteArray *tmplate, QByteArray *inner)
+{
+    // Input "Template<Inner1,Inner2,...>::Foo" will return "Template::Foo" in
+    // 'tmplate' and "Inner1@Inner2@..." etc in 'inner'. Result indicates
+    // whether parsing was successful
+    // Gdb inserts a blank after each comma which we would like to avoid
+    tmplate->clear();
+    inner->clear();
+    if (!type.contains('<'))
+        return  false;
+    int level = 0;
+    bool skipSpace = false;
+    const int size = type.size();
+
+    for (int i = 0; i != size; ++i) {
+        const char c = type.at(i);
+        switch (c) {
+        case '<':
+            *(level == 0 ? tmplate : inner) += c;
+            ++level;
+            break;
+        case '>':
+            --level;
+            *(level == 0 ? tmplate : inner) += c;
+            break;
+        case ',':
+            *inner += (level == 1) ? '@' : ',';
+            skipSpace = true;
+            break;
+        default:
+            if (!skipSpace || c != ' ') {
+                *(level == 0 ? tmplate : inner) += c;
+                skipSpace = false;
+            }
+            break;
+        }
+    }
+    *tmplate = tmplate->trimmed();
+    tmplate->replace("<>", "");
+    *inner = inner->trimmed();
+    // qDebug() << "EXTRACT TEMPLATE: " << *tmplate << *inner << " FROM " << type;
+    return !inner->isEmpty();
+}
+
+DumperHelper::TypeData DumperHelper::typeData(const QByteArray &typeName) const
+{
+    TypeData td;
+    td.type = UnknownType;
+    const Type st = simpleType(typeName);
+    if (st != UnknownType) {
+        td.isTemplate = false;
+        td.type = st;
+        return td;
+    }
+    // Try template
+    td.isTemplate = extractTemplate(typeName, &td.tmplate, &td.inner);
+    if (!td.isTemplate)
+        return td;
+    // Check the template type QMap<X,Y> -> 'QMap'
+    td.type = simpleType(td.tmplate);
+    return td;
+}
+
+static QByteArray sizeofTypeExpression(const QByteArray &type)
+{
+    if (type.endsWith('*'))
+        return "sizeof(void*)";
+    if (type.endsWith('>'))
+        return "sizeof(" + type + ')';
+    return "sizeof(" + gdbQuoteTypes(type) + ')';
+}
+
+// Format an expression to have the debugger query the
+// size. Use size cache if possible
+QByteArray DumperHelper::evaluationSizeofTypeExpression(const QByteArray &typeName) const
+{
+    // Look up special size types
+    const SpecialSizeType st = specialSizeType(typeName);
+    if (st != SpecialSizeCount) {
+        if (const int size = m_specialSizes[st])
+            return QByteArray::number(size);
+    }
+    // Look up size cache
+    const SizeCache::const_iterator sit = m_sizeCache.constFind(typeName);
+    if (sit != m_sizeCache.constEnd())
+        return QByteArray::number(sit.value());
+    // Finally have the debugger evaluate
+    return sizeofTypeExpression(typeName);
+}
+
+DumperHelper::SpecialSizeType DumperHelper::specialSizeType(const QByteArray &typeName) const
+{
+    if (isPointerType(typeName))
+        return PointerSize;
+    if (typeName == "int")
+        return IntSize;
+    if (typeName.startsWith("std::allocator"))
+        return StdAllocatorSize;
+    if (typeName.startsWith(m_qPointerPrefix))
+        return QPointerSize;
+    if (typeName.startsWith(m_qSharedPointerPrefix))
+        return QSharedPointerSize;
+    if (typeName.startsWith(m_qSharedDataPointerPrefix))
+        return QSharedDataPointerSize;
+    if (typeName.startsWith(m_qWeakPointerPrefix))
+        return QWeakPointerSize;
+    if (typeName.startsWith(m_qListPrefix))
+        return QListSize;
+    if (typeName.startsWith(m_qLinkedListPrefix))
+        return QLinkedListSize;
+    if (typeName.startsWith(m_qVectorPrefix))
+        return QVectorSize;
+    if (typeName.startsWith(m_qQueuePrefix))
+        return QQueueSize;
+    return SpecialSizeCount;
+}
+
+static inline bool isInteger(const QString &n)
+{
+    const int size = n.size();
+    if (!size)
+        return false;
+    for (int i = 0; i < size; i++)
+        if (!n.at(i).isDigit())
+            return false;
+    return true;
+}
+
+// Return debugger expression to get the offset of a map node.
+static inline QByteArray qMapNodeValueOffsetExpression(const QByteArray &type)
+{
+        return "(size_t)&(('" + type + "'*)0)->value";
+}
+
+void DumperHelper::evaluationParameters(const WatchData &data,
+    const TypeData &td, QByteArray *inBuffer, QByteArrayList *extraArgsIn) const
+{
+    enum { maxExtraArgCount = 4 };
+
+    QByteArrayList &extraArgs = *extraArgsIn;
+
+    // See extractTemplate for parameters
+    QByteArrayList inners = td.inner.split('@');
+    if (inners.at(0).isEmpty())
+        inners.clear();
+    for (int i = 0; i != inners.size(); ++i)
+        inners[i] = inners[i].simplified();
+
+    QString outertype = td.isTemplate ? td.tmplate : data.type;
+    // adjust the data extract
+    if (outertype == m_qtNamespace + "QWidget")
+        outertype = m_qtNamespace + "QObject";
+
+    QString inner = td.inner;
+    const QByteArray zero = "0";
+
+    extraArgs.clear();
+
+    if (!inners.empty()) {
+        // "generic" template dumpers: passing sizeof(argument)
+        // gives already most information the dumpers need
+        const int count = qMin(int(maxExtraArgCount), inners.size());
+        for (int i = 0; i < count; i++)
+            extraArgs.push_back(evaluationSizeofTypeExpression(inners.at(i)));
+    }
+
+    // Pad with zeros
+    while (extraArgs.size() < maxExtraArgCount)
+        extraArgs.push_back("0");
+
+    // in rare cases we need more or less:
+    switch (td.type) {
+    case QAbstractItemType:
+        if (data.dumperFlags.isEmpty()) {
+            qWarning("Internal error: empty dumper state '%s'.", data.iname.constData());
+        } else {
+            inner = data.dumperFlags.mid(1);
+        }
+        break;
+    case QObjectSlotType:
+    case QObjectSignalType: {
+            // we need the number out of something like
+            // iname="local.ob.slots.2" // ".deleteLater()"?
+            const int pos = data.iname.lastIndexOf('.');
+            const QByteArray slotNumber = data.iname.mid(pos + 1);
+            QTC_ASSERT(slotNumber.toInt() != -1, /**/);
+            extraArgs[0] = slotNumber;
+        }
+        break;
+    case QMapType:
+    case QMultiMapType: {
+            QByteArray nodetype;
+            if (m_qtVersion >= 0x040500) {
+                nodetype = m_qtNamespace + "QMapNode";
+                nodetype += data.type.mid(outertype.size());
+            } else {
+                // FIXME: doesn't work for QMultiMap
+                nodetype  = data.type + "::Node";
+            }
+            //qDebug() << "OUTERTYPE: " << outertype << " NODETYPE: " << nodetype
+            //    << "QT VERSION" << m_qtVersion << ((4 << 16) + (5 << 8) + 0);
+            extraArgs[2] = evaluationSizeofTypeExpression(nodetype);
+            extraArgs[3] = qMapNodeValueOffsetExpression(nodetype);
+        }
+        break;
+    case QMapNodeType:
+        extraArgs[2] = evaluationSizeofTypeExpression(data.type);
+        extraArgs[3] = qMapNodeValueOffsetExpression(data.type);
+        break;
+    case StdVectorType:
+        //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
+        if (inners.at(0) == "bool")
+            outertype = "std::vector::bool";
+        break;
+    case StdDequeType:
+        extraArgs[1] = "0";
+        break;
+    case StdStackType:
+        // remove 'std::allocator<...>':
+        extraArgs[1] = "0";
+        break;
+    case StdSetType:
+        // remove 'std::less<...>':
+        extraArgs[1] = "0";
+        // remove 'std::allocator<...>':
+        extraArgs[2] = "0";
+        break;
+    case StdMapType: {
+            // We need the offset of the second item in the value pair.
+            // We read the type of the pair from the allocator argument because
+            // that gets the constness "right" (in the sense that gdb/cdb can
+            // read it back: "std::allocator<std::pair<Key,Value> >"
+            // -> "std::pair<Key,Value>". Different debuggers have varying
+            // amounts of terminating blanks...
+            extraArgs[2].clear();
+            extraArgs[3] = "0";
+            QByteArray pairType = inners.at(3);
+            int bracketPos = pairType.indexOf('<');
+            if (bracketPos != -1)
+                pairType.remove(0, bracketPos + 1);
+            // We don't want the comparator and the allocator confuse gdb.
+            const char closingBracket = '>';
+            bracketPos = pairType.lastIndexOf(closingBracket);
+            if (bracketPos != -1)
+                bracketPos = pairType.lastIndexOf(closingBracket, bracketPos - pairType.size() - 1);
+            if (bracketPos != -1)
+                pairType.truncate(bracketPos + 1);
+            extraArgs[2] = "(size_t)&(('";
+            extraArgs[2] += pairType;
+            extraArgs[2] += "'*)0)->second";
+    }
+        break;
+    case StdStringType:
+        //qDebug() << "EXTRACT TEMPLATE: " << outertype << inners;
+        if (inners.at(0) == "char")
+            outertype = "std::string";
+        else if (inners.at(0) == "wchar_t")
+            outertype = "std::wstring";
+        qFill(extraArgs, zero);
+        break;
+    case UnknownType:
+        qWarning("Unknown type encountered in %s.\n", Q_FUNC_INFO);
+        break;
+    case SupportedType:
+    case QVectorType:
+    case QStackType:
+    case QObjectType:
+    case QWidgetType:
+        break;
+    }
+
+    // Look up expressions in the cache
+    if (!m_expressionCache.empty()) {
+        const ExpressionCache::const_iterator excCend = m_expressionCache.constEnd();
+        const QByteArrayList::iterator eend = extraArgs.end();
+        for (QByteArrayList::iterator it = extraArgs.begin(); it != eend; ++it) {
+            QByteArray &e = *it;
+            if (!e.isEmpty() && e != zero && !isInteger(e)) {
+                const ExpressionCache::const_iterator eit = m_expressionCache.constFind(e);
+                if (eit != excCend)
+                    e = eit.value();
+            }
+        }
+    }
+
+    inBuffer->clear();
+    inBuffer->append(outertype.toUtf8());
+    inBuffer->append('\0');
+    inBuffer->append(data.iname);
+    inBuffer->append('\0');
+    inBuffer->append(data.exp);
+    inBuffer->append('\0');
+    inBuffer->append(inner.toUtf8());
+    inBuffer->append('\0');
+    inBuffer->append(data.iname);
+    inBuffer->append('\0');
+
+    if (debug)
+        qDebug() << '\n' << Q_FUNC_INFO << '\n' << data.toString() << "\n-->" << outertype << td.type << extraArgs;
+}
+
+QDebug operator<<(QDebug in, const DumperHelper::TypeData &d)
+{
+    QDebug nsp = in.nospace();
+    nsp << " type=" << d.type << " tpl=" << d.isTemplate;
+    if (d.isTemplate)
+        nsp << d.tmplate << '<' << d.inner << '>';
+    return in;
+}
 
 static bool isAccessSpecifier(const QByteArray &ba)
 {
@@ -99,25 +695,13 @@ static bool parseConsoleStream(const GdbResponse &response, GdbMi *contents)
     return contents->isValid();
 }
 
-static double getDumperVersion(const GdbMi &contents)
-{
-    const GdbMi dumperVersionG = contents.findChild("dumperversion");
-    if (dumperVersionG.type() != GdbMi::Invalid) {
-        bool ok;
-        const double v = QString::fromAscii(dumperVersionG.data()).toDouble(&ok);
-        if (ok)
-            return v;
-    }
-    return 1.0;
-}
-
-
 void GdbEngine::updateLocalsClassic(const QVariant &cookie)
 {
     PRECONDITION;
     m_processedNames.clear();
 
-    //PENDING_DEBUG("\nRESET PENDING");
+    if (0 && debugPending)
+        qDebug() << "\nRESET PENDING";
     //m_toolTipCache.clear();
     clearToolTip();
     watchHandler()->beginCycle();
@@ -179,7 +763,7 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
 
     QByteArray params;
     QList<QByteArray> extraArgs;
-    const QtDumperHelper::TypeData td = m_dumperHelper.typeData(data0.type);
+    const DumperHelper::TypeData td = m_dumperHelper.typeData(data0.type);
     m_dumperHelper.evaluationParameters(data, td, &params, &extraArgs);
 
     //int protocol = (data.iname.startsWith("watch") && data.type == "QImage") ? 3 : 2;
@@ -236,9 +820,8 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 {
     PRECONDITION;
     WatchData data = data0;
-#    if DEBUG_SUBITEM
-    qDebug() << "UPDATE SUBITEM:" << data.toString();
-#    endif
+    if (debugSubItem)
+        qDebug() << "UPDATE SUBITEM:" << data.toString();
     QTC_ASSERT(data.isValid(), return);
 
     // in any case we need the type first
@@ -272,10 +855,9 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     // A common case that can be easily solved.
     if (data.isChildrenNeeded() && isPointerType(data.type)
         && !hasDebuggingHelperForType(data.type)) {
-        // We sometimes know what kind of children pointers have
-#        if DEBUG_SUBITEM
-        qDebug() << "IT'S A POINTER";
-#        endif
+        // We sometimes know what kind of children pointers have.
+        if (debugSubItem)
+            qDebug() << "IT'S A POINTER";
 
         if (debuggerCore()->boolSetting(AutoDerefPointers)) {
             // Try automatic dereferentiation
@@ -298,9 +880,8 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     }
 
     if (data.isValueNeeded() && hasDebuggingHelperForType(data.type)) {
-#        if DEBUG_SUBITEM
-        qDebug() << "UPDATE SUBITEM: CUSTOMVALUE";
-#        endif
+        if (debugSubItem)
+            qDebug() << "UPDATE SUBITEM: CUSTOMVALUE";
         runDebuggingHelperClassic(data,
             watchHandler()->isExpandedIName(data.iname));
         return;
@@ -308,9 +889,8 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 
 /*
     if (data.isValueNeeded() && data.exp.isEmpty()) {
-#        if DEBUG_SUBITEM
-        qDebug() << "UPDATE SUBITEM: NO EXPRESSION?";
-#        endif
+        if (debugSubItem)
+            qDebug() << "UPDATE SUBITEM: NO EXPRESSION?";
         data.setError("<no expression given>");
         insertData(data);
         return;
@@ -318,9 +898,8 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 */
 
     if (data.isValueNeeded() && data.variable.isEmpty()) {
-#        if DEBUG_SUBITEM
-        qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR VALUE";
-#        endif
+        if (debugSubItem)
+            qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR VALUE";
         createGdbVariableClassic(data);
         // the WatchVarCreate handler will re-insert a WatchData
         // item, with valueNeeded() set.
@@ -329,9 +908,8 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
 
     if (data.isValueNeeded()) {
         QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
-#        if DEBUG_SUBITEM
-        qDebug() << "UPDATE SUBITEM: VALUE";
-#        endif
+        if (debugSubItem)
+            qDebug() << "UPDATE SUBITEM: VALUE";
         QByteArray cmd = "-var-evaluate-expression \"" + data.iname + '"';
         postCommand(cmd, WatchUpdate,
             CB(handleEvaluateExpressionClassic), QVariant::fromValue(data));
@@ -339,17 +917,15 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     }
 
     if (data.isChildrenNeeded() && hasDebuggingHelperForType(data.type)) {
-#        if DEBUG_SUBITEM
-        qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
-#        endif
+        if (debugSubItem)
+            qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
         runDebuggingHelperClassic(data, true);
         return;
     }
 
     if (data.isChildrenNeeded() && data.variable.isEmpty()) {
-#        if DEBUG_SUBITEM
-        qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR CHILDREN";
-#        endif
+        if (debugSubItem)
+            qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR CHILDREN";
         createGdbVariableClassic(data);
         // the WatchVarCreate handler will re-insert a WatchData
         // item, with childrenNeeded() set.
@@ -365,18 +941,16 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     }
 
     if (data.isHasChildrenNeeded() && hasDebuggingHelperForType(data.type)) {
-#        if DEBUG_SUBITEM
-        qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
-#        endif
+        if (debugSubItem)
+            qDebug() << "UPDATE SUBITEM: CUSTOMVALUE WITH CHILDREN";
         runDebuggingHelperClassic(data, watchHandler()->isExpandedIName(data.iname));
         return;
     }
 
 //#if !X
     if (data.isHasChildrenNeeded() && data.variable.isEmpty()) {
-#        if DEBUG_SUBITEM
-        qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR CHILDCOUNT";
-#        endif
+        if (debugSubItem)
+            qDebug() << "UPDATE SUBITEM: VARIABLE NEEDED FOR CHILDCOUNT";
         createGdbVariableClassic(data);
         // the WatchVarCreate handler will re-insert a WatchData
         // item, with childrenNeeded() set.
@@ -520,7 +1094,8 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
         return;
     }
 
-    PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
+    if (debugPending)
+        qDebug() << "TRY LOAD CUSTOM DUMPERS";
     m_debuggingHelperState = DebuggingHelperUnavailable;
     if (!checkDebuggingHelpersClassic())
         return;
@@ -575,7 +1150,8 @@ void GdbEngine::tryQueryDebuggingHelpersClassic()
 void GdbEngine::updateAllClassic()
 {
     PRECONDITION;
-    PENDING_DEBUG("UPDATING ALL\n");
+    if (debugPending)
+        qDebug() << "UPDATING ALL\n";
     QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopOk,
         qDebug() << state());
     tryLoadDebuggingHelpersClassic();
@@ -710,7 +1286,7 @@ void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)
         const double dumperVersion = getDumperVersion(contents);
         if (dumperVersion < dumperVersionRequired) {
             showQtDumperLibraryWarning(
-                QtDumperHelper::msgDumperOutdated(dumperVersionRequired, dumperVersion));
+                DumperHelper::msgDumperOutdated(dumperVersionRequired, dumperVersion));
             m_debuggingHelperState = DebuggingHelperUnavailable;
             return;
         }
