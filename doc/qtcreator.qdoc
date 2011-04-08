@@ -9042,6 +9042,11 @@
 
     \endlist
 
+    You can experiment with a set of Qt Quick components that are designed to
+    appear native to the Symbian devices target platform. For more information,
+    see
+    \l{http://labs.qt.nokia.com/2011/04/08/qt-quick-components-for-symbian-technology-preview/}{Qt Quick components for Symbian Technology Preview}.
+
     You can dowload a set of commonly used UI-components for generic use in
     Qt Quick projects from
     \l{https://projects.forum.nokia.com/QMLTemplates}{QML Templates}. You can
