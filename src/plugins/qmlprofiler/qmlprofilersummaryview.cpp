@@ -34,11 +34,24 @@
 #include "qmlprofilersummaryview.h"
 
 #include <QtCore/QUrl>
+#include <QtCore/QHash>
 
 #include <QtGui/QHeaderView>
 #include <QtGui/QStandardItemModel>
 
 using namespace QmlProfiler::Internal;
+
+struct BindingData {
+    QString displayname;
+    QString filename;
+    int line;
+    qint64 duration;
+    qint64 calls;
+    qint64 minTime;
+    qint64 maxTime;
+    double tpc;
+    double percent;
+};
 
 class QmlProfilerSummaryView::QmlProfilerSummaryViewPrivate
 {
@@ -49,6 +62,7 @@ public:
     QmlProfilerSummaryView *q;
 
     QStandardItemModel *m_model;
+    QHash<QString, BindingData *> m_bindingHash;
 
     enum RangeType {
         Painting,
@@ -106,6 +120,15 @@ void QmlProfilerSummaryView::clean()
 {
     d->m_model->clear();
     d->m_model->setColumnCount(7);
+
+    // clean the hash
+    QHashIterator<QString, BindingData *>it(d->m_bindingHash);
+    while (it.hasNext()) {
+        it.next();
+        delete it.value();
+    }
+    d->m_bindingHash.clear();
+
     setHeaderLabels();
     setSortingEnabled(false);
 }
@@ -118,52 +141,32 @@ void QmlProfilerSummaryView::addRangedEvent(int type, qint64 startTime, qint64 l
     if (type != QmlProfilerSummaryViewPrivate::Binding && type != QmlProfilerSummaryViewPrivate::HandlingSignal)
         return;
 
-    QString fname;
-    QString displayName;
-    if (!fileName.isEmpty()) {
-        fname = fileName;
-        QString localName = QUrl(fileName).toLocalFile();
-        displayName = localName.mid(localName.lastIndexOf(QChar('/'))+1)+QLatin1String(":")+QString::number(line);
-    } else {
-        // ignore anonymous bindings
+    if (fileName.isEmpty())
         return;
-        //fname = (type==QmlProfilerSummaryViewPrivate::Binding ? QLatin1String("[binding]") : QLatin1String("[signal]"));
-        //displayName = fname;
-    }
+    QString localName = QUrl(fileName).toLocalFile();
+    QString displayName = localName.mid(localName.lastIndexOf(QChar('/'))+1)+QLatin1String(":")+QString::number(line);
+    QString location = fileName+":"+QString::number(line);
 
-    QString location = fname+":"+QString::number(line);
-
-
-    int rowNum = 0;
-    while (rowNum < d->m_model->rowCount()) {
-        if (d->m_model->item(rowNum,0)->data(Qt::UserRole+1) == location)
-            break;
-        rowNum++;
-    }
-
-    if (rowNum < d->m_model->rowCount()) {
-        double itemTime = d->m_model->item(rowNum,2)->data().toDouble() + length;
-        d->m_model->item(rowNum,2)->setData(QVariant(itemTime));
-        d->m_model->item(rowNum,2)->setText(displayTime(itemTime));
-
-        int callCount = d->m_model->item(rowNum,3)->data().toInt() + 1;
-        d->m_model->item(rowNum,3)->setData(QVariant(callCount));
-        d->m_model->item(rowNum,3)->setText(QString::number(callCount));
-
-        double maxTime = d->m_model->item(rowNum,5)->data().toDouble();
-        if (length > maxTime) {
-            d->m_model->item(rowNum,5)->setData(QVariant(length));
-            d->m_model->item(rowNum,5)->setText(displayTime(length));
-        }
-
-        double minTime = d->m_model->item(rowNum,6)->data().toDouble();
-        if (length < minTime) {
-            d->m_model->item(rowNum,6)->setData(QVariant(length));
-            d->m_model->item(rowNum,6)->setText(displayTime(length));
-        }
-
+    QHash<QString, BindingData *>::iterator it = d->m_bindingHash.find(location);
+    if (it != d->m_bindingHash.end()) {
+        BindingData *bindingInfo = it.value();
+        bindingInfo->duration += length;
+        bindingInfo->calls++;
+        if (bindingInfo->maxTime < length)
+            bindingInfo->maxTime = length;
+        if (bindingInfo->minTime > length)
+            bindingInfo->minTime = length;
     } else {
-        appendRow(displayName, fname, line, 0, length, 1, length, length, length);
+        BindingData *newBinding = new BindingData;
+        newBinding->calls = 1;
+        newBinding->duration = length;
+        newBinding->displayname = displayName;
+        newBinding->filename = fileName;
+        newBinding->line = line;
+        newBinding->minTime = length;
+        newBinding->maxTime = length;
+
+        d->m_bindingHash.insert(location, newBinding);
     }
 }
 
@@ -171,19 +174,32 @@ void QmlProfilerSummaryView::complete()
 {
     // compute percentages
     double totalTime = 0;
-    int i;
-    for (i=0; i < d->m_model->rowCount(); i++)
-        totalTime += d->m_model->item(i,2)->data().toDouble();
-    for (i=0; i < d->m_model->rowCount(); i++) {
-        double time = d->m_model->item(i,2)->data().toDouble();
-        double percent = time * 100.0 / totalTime;
-        d->m_model->item(i,1)->setData(QVariant(percent));
-        d->m_model->item(i,1)->setText(QString::number(percent,'g',2)+QLatin1String(" %"));
 
-        int callCount = d->m_model->item(i,3)->data().toInt();
-        double tpc = callCount>0? time / callCount : 0;
-        d->m_model->item(i,4)->setData(QVariant(tpc));
-        d->m_model->item(i,4)->setText(displayTime(tpc));
+    QHashIterator<QString, BindingData *> it(d->m_bindingHash);
+
+    while (it.hasNext()) {
+        it.next();
+        totalTime += it.value()->duration;
+    }
+
+    it.toFront();
+
+    while (it.hasNext()) {
+        it.next();
+        BindingData *binding = it.value();
+        binding->percent = binding->duration * 100.0 / totalTime;
+        binding->tpc = binding->calls>0? (double)binding->duration / binding->calls : 0;
+
+        appendRow(binding->displayname,
+                  binding->filename,
+                  binding->line,
+                  binding->percent,
+                  binding->duration,
+                  binding->calls,
+                  binding->tpc,
+                  binding->maxTime,
+                  binding->minTime);
+
     }
     setSortingEnabled(true);
     sortByColumn(1,Qt::DescendingOrder);
@@ -215,7 +231,7 @@ void QmlProfilerSummaryView::appendRow(const QString &displayName,
     locationColumn->setData(QVariant(fileName),Qt::UserRole+2);
     locationColumn->setData(QVariant(line),Qt::UserRole+3);
     locationColumn->setEditable(false);
-    ProfilerItem *percentColumn = new ProfilerItem(QString::number(percentTime)+QLatin1String(" %"));
+    ProfilerItem *percentColumn = new ProfilerItem(QString::number(percentTime,'f',2)+QLatin1String(" %"));
     percentColumn->setData(QVariant(percentTime));
     percentColumn->setEditable(false);
     ProfilerItem *timeColumn = new ProfilerItem(displayTime(totalTime));
