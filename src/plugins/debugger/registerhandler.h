@@ -81,6 +81,9 @@ public:
     Q_SLOT void setNumberBase(int base);
     int numberBase() const { return m_base; }
 
+signals:
+    void registerSet(const QModelIndex &r); // Register was set, for memory views
+
 private:
     void calculateWidth();
     int rowCount(const QModelIndex &parent = QModelIndex()) const;

@@ -39,9 +39,11 @@
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
+#include "debuggerstartparameters.h"
 #include "watchdelegatewidgets.h"
 #include "watchhandler.h"
 #include "debuggertooltipmanager.h"
+#include "memoryviewwidget.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -52,6 +54,7 @@
 #include <QtCore/QVariant>
 
 #include <QtGui/QApplication>
+#include <QtGui/QPalette>
 #include <QtGui/QClipboard>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QHeaderView>
@@ -140,6 +143,199 @@ private:
     WatchWindow *m_watchWindow;
 };
 
+// Watch model query helpers.
+static inline quint64 addressOf(const QModelIndex &m)
+    { return m.data(LocalsAddressRole).toULongLong(); }
+static inline quint64 pointerValueOf(const QModelIndex &m)
+    { return m.data(LocalsPointerValueRole).toULongLong(); }
+static inline QString nameOf(const QModelIndex &m)
+    { return m.data().toString(); }
+static inline uint sizeOf(const QModelIndex &m)
+    { return m.data(LocalsSizeRole).toUInt(); }
+
+// Helper functionality to obtain a address-sorted list of member variables
+// of a watch model index and its size. Restrict this to the size passed
+// in since static members can be contained that are in different areas.
+struct MemberVariable
+{
+    MemberVariable(quint64 a = 0, uint s = 0, const QString &n = QString()) :
+        address(a), size(s), name(n) {}
+
+    quint64 address;
+    uint size;
+    QString name;
+};
+
+bool lessThanMV(const MemberVariable &m1, const MemberVariable &m2)
+{
+    return m1.address < m2.address;
+}
+
+static QVector<MemberVariable> sortedMemberVariables(const QModelIndex &m,
+                                                     quint64 start, quint64 end)
+{
+    const int rowCount = m.model()->rowCount(m);
+    if (!rowCount)
+        return QVector<MemberVariable>();
+    QVector<MemberVariable> result;
+    result.reserve(rowCount);
+    for (int r = 0; r < rowCount; r++) {
+        const QModelIndex childIndex = m.child(r, 0);
+        const quint64 childAddress = addressOf(childIndex);
+        const uint childSize = sizeOf(childIndex);
+        if (childAddress && childAddress >= start
+            && (childAddress + childSize) <= end) { // Non-static, within area?
+            result.push_back(MemberVariable(childAddress, childSize, nameOf(childIndex)));
+        }
+    }
+    qStableSort(result.begin(), result.end(), lessThanMV);
+    return result;
+}
+
+/*!
+    \fn variableMemoryMarkup()
+
+    \brief Creates markup for a variable in the memory view.
+
+    Marks the 1st order children with alternating colors in the parent, that is, for
+    \code
+    struct Foo {
+    char c1
+    char c2
+    int x2;
+    }
+    \endcode
+    create something like:
+    \code
+    0 memberColor1
+    1 memberColor2
+    2 base color (padding area of parent)
+    3 base color
+    4 member color1
+    ...
+    \endcode
+
+   Fixme: When dereferencing a pointer, the size of the pointee is not
+   known, currently. So, we take an area of 1024 and fill the background
+   with the default color so that just the members are shown
+   (sizeIsEstimate=true). This could be fixed by passing the pointee size
+   as well from the debugger, but would require expensive type manipulation.
+
+    \sa Debugger::Internal::MemoryViewWidget
+*/
+
+typedef QList<MemoryViewWidget::Markup> MemoryViewWidgetMarkup;
+
+static inline MemoryViewWidgetMarkup
+    variableMemoryMarkup(const QModelIndex &m, quint64 address, quint64 size,
+                         bool sizeIsEstimate,
+                         const QTextCharFormat &defaultFormat,
+                         const QColor &defaultBackground)
+{
+    enum { debug = 0 };
+
+    typedef QPair<QColor, QString> ColorNamePair;
+    typedef QVector<ColorNamePair> ColorNameVector;
+
+    MemoryViewWidgetMarkup result;
+    const QVector<MemberVariable> members = sortedMemberVariables(m, address, address + size);
+    // Starting out from base, create an array representing the area filled with base
+    // color. Fill children with alternating member colors,
+    // leaving the padding areas of the parent colored with the base color.
+    if (sizeIsEstimate && members.isEmpty())
+        return result; // Fixme: Exact size not known, no point in filling if no children.
+    const QColor baseColor = sizeIsEstimate ? defaultBackground : Qt::lightGray;
+    const QString name = nameOf(m);
+    ColorNameVector ranges(size, ColorNamePair(baseColor, name));
+    if (!members.isEmpty()) {
+        QColor memberColor1 = QColor(Qt::yellow).lighter();
+        QColor memberColor2 = QColor(Qt::cyan).lighter();
+        for (int m = 0; m < members.size(); m++) {
+            QColor memberColor;
+            if (m & 1) {
+                memberColor = memberColor1;
+                memberColor1 = memberColor1.darker(120);
+            } else {
+                memberColor = memberColor2;
+                memberColor2 = memberColor2.darker(120);
+            }
+            const quint64 childOffset = members.at(m).address - address;
+            const QString toolTip = WatchWindow::tr("%1.%2 at #%3")
+                    .arg(name, members.at(m).name).arg(childOffset);
+            qFill(ranges.begin() + childOffset,
+                  ranges.begin() + childOffset + members.at(m).size,
+                  ColorNamePair(memberColor, toolTip));
+        }
+    }
+
+    if (debug) {
+        QDebug dbg = qDebug().nospace();
+        dbg << name << ' ' << address << ' ' << size << '\n';
+        foreach (const MemberVariable &mv, members)
+            dbg << ' ' << mv.name << ' ' << mv.address << ' ' << mv.size << '\n';
+        QString name;
+        for (unsigned i = 0; i < size; i++)
+            if (name != ranges.at(i).second) {
+                dbg << ",[" << i << ' ' << ranges.at(i).first << ' ' << ranges.at(i).second << ']';
+                name = ranges.at(i).second;
+            }
+    }
+
+    // Condense ranges of identical color into markup ranges.
+    for (unsigned i = 0; i < size; i++) {
+        const ColorNamePair &range = ranges.at(i);
+        if (result.isEmpty() || result.back().format.background().color() != range.first) {
+            QTextCharFormat format = defaultFormat;
+            format.setBackground(QBrush(range.first));
+            result.push_back(MemoryViewWidget::Markup(address + i, 1, format, range.second));
+        } else {
+            result.back().size++;
+        }
+    }
+
+    if (debug) {
+        QDebug dbg = qDebug().nospace();
+        dbg << name << ' ' << address << ' ' << size << '\n';
+        foreach (const MemberVariable &mv, members)
+            dbg << ' ' << mv.name << ' ' << mv.address << ' ' << mv.size << '\n';
+        QString name;
+        for (unsigned i = 0; i < size; i++)
+            if (name != ranges.at(i).second) {
+                dbg << ',' << i << ' ' << ranges.at(i).first << ' ' << ranges.at(i).second;
+                name = ranges.at(i).second;
+            }
+        dbg << '\n';
+        foreach (const MemoryViewWidget::Markup &m, result)
+            dbg << m.address <<  ' ' << m.size << ' '  << m.toolTip << '\n';
+    }
+
+    return result;
+}
+
+// Convenience to create a memory view of a variable.
+static void addVariableMemoryView(DebuggerEngine *engine,
+                                  const QModelIndex &m, bool deferencePointer,
+                                  const QPoint &p, QWidget *parent)
+{
+    const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
+    LocalsMemoryViewWidget *w = new LocalsMemoryViewWidget(parent);
+    const quint64 address = deferencePointer ? pointerValueOf(m) : addressOf(m);
+    // Fixme: Get the size of pointee (see variableMemoryMarkup())?
+    // Also, gdb does not report the size yet as of 8.4.2011
+    const quint64 typeSize = sizeOf(m);
+    const bool sizeIsEstimate = deferencePointer || !typeSize;
+    const quint64 size    = sizeIsEstimate ? 1024 : typeSize;
+    if (!address)
+         return;
+    const MemoryViewWidgetMarkup markup
+        = variableMemoryMarkup(m, address, size, sizeIsEstimate,
+                               w->textCharFormat(), background);
+    w->init(address, qMax(size, LocalsMemoryViewWidget::defaultLength), nameOf(m));
+    w->setMarkup(markup);
+    w->move(p);
+    engine->addMemoryView(w);
+}
+
 /////////////////////////////////////////////////////////////////////
 //
 // WatchWindow
@@ -150,6 +346,7 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
   : QTreeView(parent),
     m_type(type)
 {
+    setObjectName(QLatin1String("WatchWindow"));
     m_grabbing = false;
 
     setFrameStyle(QFrame::NoFrame);
@@ -278,9 +475,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const QModelIndex mi0 = idx.sibling(idx.row(), 0);
     const QModelIndex mi1 = idx.sibling(idx.row(), 1);
     const QModelIndex mi2 = idx.sibling(idx.row(), 2);
-    const quint64 address = mi0.data(LocalsAddressRole).toULongLong();
-    const uint size = mi0.data(LocalsSizeRole).toUInt();
-    const quint64 pointerValue = mi0.data(LocalsPointerValueRole).toULongLong();
+    const quint64 address = addressOf(mi0);
+    const uint size = sizeOf(mi0);
+    const quint64 pointerValue = pointerValueOf(mi0);
     const QString exp = mi0.data(LocalsExpressionRole).toString();
     const QString type = mi2.data().toString();
 
@@ -425,26 +622,42 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actOpenMemoryEditAtVariableAddress = new QAction(&memoryMenu);
     QAction *actOpenMemoryEditAtPointerValue = new QAction(&memoryMenu);
     QAction *actOpenMemoryEditor = new QAction(&memoryMenu);
+    QAction *actOpenMemoryViewAtVariableAddress = new QAction(&memoryMenu);
+    QAction *actOpenMemoryViewAtPointerValue = new QAction(&memoryMenu);
     if (engineCapabilities & ShowMemoryCapability) {
         actOpenMemoryEditor->setText(tr("Open Memory Editor..."));
         if (address) {
             actOpenMemoryEditAtVariableAddress->setText(
                 tr("Open Memory Editor at Object's Address (0x%1)")
                     .arg(address, 0, 16));
+            actOpenMemoryViewAtVariableAddress->setText(
+                    tr("Open Memory View at Object's Address (0x%1)")
+                        .arg(address, 0, 16));
         } else {
             actOpenMemoryEditAtVariableAddress->setText(
                 tr("Open Memory Editor at Object's Address"));
             actOpenMemoryEditAtVariableAddress->setEnabled(false);
+            actOpenMemoryViewAtVariableAddress->setText(
+                    tr("Open Memory View at Object's Address"));
+            actOpenMemoryViewAtVariableAddress->setEnabled(false);
         }
         if (createPointerActions) {
             actOpenMemoryEditAtPointerValue->setText(
                 tr("Open Memory Editor at Referenced Address (0x%1)")
                     .arg(pointerValue, 0, 16));
+            actOpenMemoryViewAtPointerValue->setText(
+                tr("Open Memory View at Referenced Address (0x%1)")
+                    .arg(pointerValue, 0, 16));
         } else {
             actOpenMemoryEditAtPointerValue->setText(
                 tr("Open Memory Editor at Referenced Address"));
             actOpenMemoryEditAtPointerValue->setEnabled(false);
+            actOpenMemoryViewAtPointerValue->setText(
+                tr("Open Memory View at Referenced Address"));
+            actOpenMemoryViewAtPointerValue->setEnabled(false);
         }
+        memoryMenu.addAction(actOpenMemoryViewAtVariableAddress);
+        memoryMenu.addAction(actOpenMemoryViewAtPointerValue);
         memoryMenu.addAction(actOpenMemoryEditAtVariableAddress);
         memoryMenu.addAction(actOpenMemoryEditAtPointerValue);
         memoryMenu.addAction(actOpenMemoryEditor);
@@ -513,6 +726,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         AddressDialog dialog;
         if (dialog.exec() == QDialog::Accepted)
             currentEngine()->openMemoryView(dialog.address());
+    } else if (act == actOpenMemoryViewAtVariableAddress) {
+        addVariableMemoryView(currentEngine(), mi0, false, ev->globalPos(), this);
+    } else if (act == actOpenMemoryViewAtPointerValue) {
+        addVariableMemoryView(currentEngine(), mi0, true, ev->globalPos(), this);
     } else if (act == actSetWatchpointAtVariableAddress) {
         setWatchpoint(address, size);
     } else if (act == actSetWatchpointAtPointerValue) {

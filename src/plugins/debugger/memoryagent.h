@@ -37,8 +37,14 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 
+QT_FORWARD_DECLARE_CLASS(QPoint)
+
 namespace Core {
 class IEditor;
+}
+
+namespace ProjectExplorer {
+class Abi;
 }
 
 namespace Debugger {
@@ -46,6 +52,7 @@ namespace Debugger {
 class DebuggerEngine;
 
 namespace Internal {
+class MemoryViewWidget;
 
 class MemoryAgent : public QObject
 {
@@ -58,9 +65,14 @@ public:
     enum { BinBlockSize = 1024 };
     bool hasVisibleEditor() const;
 
+    static bool isBigEndian(const ProjectExplorer::Abi &a);
+    static quint64 readInferiorPointerValue(const unsigned char *data, const ProjectExplorer::Abi &a);
+
 public slots:
     // Called by engine to create a new view.
     void createBinEditor(quint64 startAddr);
+    // Called by engine to create a tooltip.
+    void addMemoryView(MemoryViewWidget *w);
     // Called by engine to trigger update of contents.
     void updateContents();
     // Called by engine to pass updated contents.
@@ -73,6 +85,8 @@ private slots:
     void handleEndOfFileRequested(Core::IEditor *editor);
     void handleDataChanged(Core::IEditor *editor, quint64 address,
         const QByteArray &data);
+    void updateMemoryView(quint64 address, quint64 length);
+    void openMemoryView(quint64 address, quint64 length, const QPoint &pos);
 
 private:
     QList<QPointer<Core::IEditor> > m_editors;

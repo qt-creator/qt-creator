@@ -32,7 +32,7 @@
 **************************************************************************/
 
 #include "registerwindow.h"
-
+#include "memoryviewwidget.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
@@ -173,11 +173,7 @@ RegisterWindow::RegisterWindow(QWidget *parent)
     connect(debuggerCore()->action(AlwaysAdjustRegistersColumnWidths),
         SIGNAL(toggled(bool)),
         SLOT(setAlwaysResizeColumnsToContents(bool)));
-}
-
-void RegisterWindow::resizeEvent(QResizeEvent *ev)
-{
-    QTreeView::resizeEvent(ev);
+    setObjectName(QLatin1String("RegisterWindow"));
 }
 
 void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
@@ -197,16 +193,24 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addSeparator();
 
-    QModelIndex idx = indexAt(ev->pos());
-    QString address = handler->registers().at(idx.row()).value;
-    QAction *actShowMemory = menu.addAction(QString());
-    if (address.isEmpty()) {
-        actShowMemory->setText(tr("Open Memory Editor"));
-        actShowMemory->setEnabled(false);
+    const QModelIndex idx = indexAt(ev->pos());
+    if (!idx.isValid())
+        return;
+    const Register &aRegister = handler->registers().at(idx.row());
+    const QVariant addressV = aRegister.editValue();
+    const quint64 address = addressV.type() == QVariant::ULongLong ? addressV.toULongLong() : 0;
+    QAction *actViewMemory = menu.addAction(QString());
+    QAction *actEditMemory = menu.addAction(QString());
+    if (address) {
+        const bool canShow = actionsEnabled && (engineCapabilities & ShowMemoryCapability);
+        actEditMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
+        actEditMemory->setEnabled(canShow);
+        actViewMemory->setText(tr("Open Memory View at Value of Register %1 0x%2")
+                               .arg(QString::fromAscii(aRegister.name)).arg(address, 0, 16));
     } else {
-        actShowMemory->setText(tr("Open Memory Editor at %1").arg(address));
-        actShowMemory->setEnabled(actionsEnabled
-            && (engineCapabilities & ShowMemoryCapability));
+        actEditMemory->setText(tr("Open Memory Editor"));
+        actViewMemory->setText(tr("Open Memory View at Value of Register"));
+        actEditMemory->setEnabled(false);
     }
     menu.addSeparator();
 
@@ -231,15 +235,21 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(debuggerCore()->action(SettingsDialog));
 
-    QAction *act = menu.exec(ev->globalPos());
+    const QPoint position = ev->globalPos();
+    QAction *act = menu.exec(position);
 
     if (act == actAdjust)
         resizeColumnsToContents();
     else if (act == actReload)
         engine->reloadRegisters();
-    else if (act == actShowMemory)
-        engine->openMemoryView(address.toULongLong(0, 0));
-    else if (act == act16)
+    else if (act == actEditMemory)
+        engine->openMemoryView(address);
+    else if (act == actViewMemory) {
+        RegisterMemoryViewWidget *w = new RegisterMemoryViewWidget(this);
+        w->move(position);
+        w->init(idx.row(), handler);
+        engine->addMemoryView(w);
+    } else if (act == act16)
         handler->setNumberBase(16);
     else if (act == act10)
         handler->setNumberBase(10);

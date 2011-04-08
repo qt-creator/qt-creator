@@ -63,7 +63,8 @@ HEADERS += breakhandler.h \
     debuggerruncontrolfactory.h \
     debuggertooltipmanager.h \
     debuggertoolchaincombobox.h \
-    debuggersourcepathmappingwidget.h
+    debuggersourcepathmappingwidget.h \
+    memoryviewwidget.h
 
 SOURCES += breakhandler.cpp \
     breakpoint.cpp \
@@ -106,7 +107,8 @@ SOURCES += breakhandler.cpp \
     watchdelegatewidgets.cpp \
     debuggertooltipmanager.cpp \
     debuggertoolchaincombobox.cpp \
-    debuggersourcepathmappingwidget.cpp
+    debuggersourcepathmappingwidget.cpp \
+    memoryviewwidget.cpp
 
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \

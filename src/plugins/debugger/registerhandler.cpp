@@ -175,13 +175,14 @@ void RegisterHandler::setAndMarkRegisters(const Registers &registers)
     }
     const int size = m_registers.size();
     for (int r = 0; r < size; r++) {
+        const QModelIndex regIndex = index(r, 1);
         if (m_registers.at(r).value != registers.at(r).value) {
             // Indicate red if values change, keep changed.
             m_registers[r].changed = m_registers[r].changed || !m_registers.at(r).value.isEmpty();
             m_registers[r].value = registers.at(r).value;
-            const QModelIndex regIndex = index(r, 1);
             emit dataChanged(regIndex, regIndex);
         }
+        emit registerSet(regIndex); // notify attached memory views.
     }
 }
 

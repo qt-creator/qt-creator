@@ -82,6 +82,7 @@ class WatchHandler;
 class BreakpointParameters;
 class QmlCppEngine;
 class DebuggerToolTipContext;
+class MemoryViewWidget;
 
 struct WatchUpdateFlags
 {
@@ -157,6 +158,7 @@ public:
 
     virtual void watchPoint(const QPoint &);
     virtual void openMemoryView(quint64 addr);
+    virtual void addMemoryView(Internal::MemoryViewWidget *w);
     virtual void fetchMemory(Internal::MemoryAgent *, QObject *,
                              quint64 addr, quint64 length);
     virtual void changeMemory(Internal::MemoryAgent *, QObject *,

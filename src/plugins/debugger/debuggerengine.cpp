@@ -1573,6 +1573,11 @@ void DebuggerEngine::openMemoryView(quint64 address)
     d->m_memoryAgent.createBinEditor(address);
 }
 
+void DebuggerEngine::addMemoryView(Internal::MemoryViewWidget *w)
+{
+    d->m_memoryAgent.addMemoryView(w);
+}
+
 void DebuggerEngine::updateMemoryViews()
 {
     d->m_memoryAgent.updateContents();

@@ -34,7 +34,9 @@
 #include "memoryagent.h"
 
 #include "debuggerengine.h"
+#include "debuggerstartparameters.h"
 #include "debuggercore.h"
+#include "memoryviewwidget.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -44,6 +46,9 @@
 #include <utils/qtcassert.h>
 
 #include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
+
+#include <cstring>
 
 using namespace Core;
 
@@ -79,6 +84,33 @@ MemoryAgent::~MemoryAgent()
         if (editor)
             editors.append(editor.data());
     EditorManager::instance()->closeEditors(editors);
+}
+
+void MemoryAgent::openMemoryView(quint64 address, quint64 length, const QPoint &pos)
+{
+    MemoryViewWidget *w = new MemoryViewWidget(Core::ICore::instance()->mainWindow());
+    w->setUpdateOnInferiorStop(true);
+    w->move(pos);
+    w->requestMemory(address, length);
+    addMemoryView(w);
+}
+
+void MemoryAgent::addMemoryView(MemoryViewWidget *w)
+{
+    w->setAbi(m_engine->startParameters().toolChainAbi);
+    connect(w, SIGNAL(memoryRequested(quint64,quint64)),
+            this, SLOT(updateMemoryView(quint64,quint64)));
+    connect(m_engine, SIGNAL(stateChanged(Debugger::DebuggerState)),
+            w, SLOT(engineStateChanged(Debugger::DebuggerState)));
+    connect(w, SIGNAL(openViewRequested(quint64,quint64,QPoint)),
+            this, SLOT(openMemoryView(quint64,quint64,QPoint)));
+    w->requestMemory();
+    w->show();
+}
+
+void MemoryAgent::updateMemoryView(quint64 address, quint64 length)
+{
+    m_engine->fetchMemory(this, sender(), address, length);
 }
 
 void MemoryAgent::createBinEditor(quint64 addr)
@@ -133,11 +165,16 @@ void MemoryAgent::fetchLazyData(IEditor *editor, quint64 block)
 void MemoryAgent::addLazyData(QObject *editorToken, quint64 addr,
                                   const QByteArray &ba)
 {
-    IEditor *editor = qobject_cast<IEditor *>(editorToken);
-    if (editor && editor->widget()) {
-        QMetaObject::invokeMethod(editor->widget(), "addData",
-            Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
+
+    if (IEditor *editor = qobject_cast<IEditor *>(editorToken)) {
+        if (QWidget *editorWidget = editor->widget()) {
+            QMetaObject::invokeMethod(editorWidget , "addData",
+                Q_ARG(quint64, addr / BinBlockSize), Q_ARG(QByteArray, ba));
+        }
+        return;
     }
+    if (MemoryViewWidget *mvw = qobject_cast<MemoryViewWidget*>(editorToken))
+        mvw->setData(ba);
 }
 
 void MemoryAgent::provideNewRange(IEditor *editor, quint64 address)
@@ -183,6 +220,43 @@ bool MemoryAgent::hasVisibleEditor() const
         if (visible.contains(editor.data()))
             return true;
     return false;
+}
+
+bool MemoryAgent::isBigEndian(const ProjectExplorer::Abi &a)
+{
+    switch (a.architecture()) {
+    case ProjectExplorer::Abi::UnknownArchitecture:
+    case ProjectExplorer::Abi::X86Architecture:
+    case ProjectExplorer::Abi::ItaniumArchitecture: // Configureable
+    case ProjectExplorer::Abi::ArmArchitecture:     // Configureable
+        break;
+    case ProjectExplorer::Abi::MipsArcitecture:     // Configureable
+    case ProjectExplorer::Abi::PowerPCArchitecture: // Configureable
+        return true;
+    }
+    return false;
+}
+
+// Read a POD variable from a memory location. Swap bytes if endianness differs
+template <class POD> POD readPod(const unsigned char *data, bool swapByteOrder)
+{
+    POD pod = 0;
+    if (swapByteOrder) {
+        unsigned char *target = reinterpret_cast<unsigned char *>(&pod) + sizeof(POD) - 1;
+        for (size_t i = 0; i < sizeof(POD); i++)
+            *target-- = data[i];
+    } else {
+        std::memcpy(&pod, data, sizeof(POD));
+    }
+    return pod;
+}
+
+// Read memory from debuggee
+quint64 MemoryAgent::readInferiorPointerValue(const unsigned char *data, const ProjectExplorer::Abi &a)
+{
+    const bool swapByteOrder = isBigEndian(a) != isBigEndian(ProjectExplorer::Abi::hostAbi());
+    return a.wordWidth() == 32 ? readPod<quint32>(data, swapByteOrder) :
+                                 readPod<quint64>(data, swapByteOrder);
 }
 
 } // namespace Internal

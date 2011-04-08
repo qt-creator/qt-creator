@@ -54,8 +54,7 @@ public slots:
     void reloadRegisters();
 
 private:
-    void resizeEvent(QResizeEvent *ev);
-    void contextMenuEvent(QContextMenuEvent *ev);
+    virtual void contextMenuEvent(QContextMenuEvent *ev);
 };
 
 } // namespace Internal
