@@ -124,6 +124,7 @@
                        \o \l{Adding Qt Versions}
                        \o \l{Adding Tool Chains}
                    \endlist
+                \o \l{Specifying Run Settings}
                 \o \l{Specifying Editor Settings}
                 \o \l{Specifying Dependencies}
             \endlist
@@ -3783,7 +3784,7 @@
     \contentspage index.html
     \previouspage creator-project-qmake.html
     \page creator-tool-chains.html
-    \nextpage creator-editor-settings.html
+    \nextpage creator-run-settings.html
 
     \title Adding Tool Chains
 
