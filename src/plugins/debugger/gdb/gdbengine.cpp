@@ -4124,7 +4124,7 @@ static DisassemblerLine parseLine(const GdbMi &line)
 {
     DisassemblerLine dl;
     QByteArray address = line.findChild("address").data();
-    dl.address = address.toULongLong();
+    dl.address = address.toULongLong(0, 0);
     dl.data = _(line.findChild("inst").data());
     return dl;
 }
@@ -4137,10 +4137,13 @@ DisassemblerLines GdbEngine::parseMiDisassembler(const GdbMi &lines)
     // src_and_asm_line={line="1244",file=".../app.cpp",
     // line_asm_insn=[{address="0x0805485c",func-name="main",offset="32",
     //inst="call 0x804cba1 <_Z11testObject1v>"}]}]}
-    // - or -
+    // - or - (non-Mac)
     // ^done,asm_insns=[
     // {address="0x0805acf8",func-name="...",offset="25",inst="and $0xe8,%al"},
-    // {address="0x0805acfa",func-name="...",offset="27",inst="pop %esp"},
+    // {address="0x0805acfa",func-name="...",offset="27",inst="pop %esp"}, ..]
+    // - or - (MAC)
+    // ^done,asm_insns={
+    // {address="0x0d8f69e0",func-name="...",offset="1952",inst="add $0x0,%al"},..}
 
     QStringList fileContents;
     bool fileLoaded = false;
