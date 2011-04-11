@@ -57,14 +57,7 @@
   <node name="TextArea" icon=":/symbianplugin/images/textarea16.png">
     <itemlibraryentry name="TextArea" category="Components Symbian" libraryIcon=":/symbianplugin/images/textarea.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="30"/>
-      <property name="text" type="QString" value="TextArea"/>
-    </itemlibraryentry>
-  </node>
-  <node name="TextField" icon=":/symbianplugin/images/textarea16.png">
-    <itemlibraryentry name="TextField" category="Components Symbian" libraryIcon=":/symbianplugin/images/textarea.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="30"/>
+      <property name="height" type="int" value="180"/>
       <property name="text" type="QString" value="TextArea"/>
     </itemlibraryentry>
   </node>
@@ -85,12 +78,12 @@
     </itemlibraryentry>
   </node>
       <node name="Slider" icon=":/symbianplugin/images/slider16.png">
-    <itemlibraryentry name="Slider" category="Components Symbian" libraryIcon=":/symbianplugin/images/slider.png"  version="1.0" requiredImport="com.nokia.symbian">
+    <itemlibraryentry name="Slider (horizontal)" category="Components Symbian" libraryIcon=":/symbianplugin/images/slider.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="180"/>
       <property name="height" type="int" value="30"/>
       <property name="orientation" type="int" value="1"/>
     </itemlibraryentry>
-    <itemlibraryentry name="Slider (Horizontal)" category="Components Symbian" libraryIcon=":/symbianplugin/images/sliderh.png" version="1.0" requiredImport="com.nokia.symbian">
+    <itemlibraryentry name="Slider (vertical)" category="Components Symbian" libraryIcon=":/symbianplugin/images/sliderh.png" version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="30"/>
       <property name="height" type="int" value="180"/>
       <property name="orientation" type="int" value="2"/>
@@ -100,12 +93,6 @@
     <itemlibraryentry name="Page" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="360"/>
       <property name="height" type="int" value="640"/>
-    </itemlibraryentry>
-  </node>
-  <node name="TabBarLayout" icon=":/symbianponlugin/images/window16.png">
-    <itemlibraryentry name="TabBarLayout" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png" version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="360"/>
-      <property name="height" type="int" value="40"/>
     </itemlibraryentry>
   </node>
   <node name="TabGroup" icon=":/symbianponlugin/images/window16.png">
@@ -120,6 +107,13 @@
   </node>
   <node name="Switch" icon=":/symbianponlugin/images/switchbutton16.png">
     <itemlibraryentry name="Switch" category="Components Symbian" libraryIcon=":/symbianplugin/images/switchbutton.png" version="1.0" requiredImport="com.nokia.symbian">
+    </itemlibraryentry>
+  </node>
+  <node name="TextField" icon=":/symbianplugin/images/textfield16.png">
+    <itemlibraryentry name="TextField" category="Components Symbian" libraryIcon=":/symbianplugin/images/textfield.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="180"/>
+      <property name="height" type="int" value="50"/>
+      <property name="text" type="QString" value="TextField"/>
     </itemlibraryentry>
   </node>
 </metainfo>
