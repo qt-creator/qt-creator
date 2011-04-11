@@ -169,10 +169,10 @@ void FindUsages::reportResult(unsigned tokenIndex)
     getTokenStartPosition(tokenIndex, &line, &col);
     QString lineText;
     QList<QByteArray> lines = _originalSource.split('\n');
-    if (lines.size() < ((int) line - 1))
-        lineText = matchingLine(tk);
-    else
+    if (((int) line - 1) < lines.size())
         lineText = QString::fromUtf8(lines.at(line - 1));
+    else
+        lineText = matchingLine(tk);
 
     if (col)
         --col;  // adjust the column position.
