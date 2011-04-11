@@ -11340,6 +11340,20 @@
     This section lists some typical problems that you might encounter while
     debugging and solutions to them.
 
+    \section1 Cannot Launch Debugger
+
+    Some anti-virus applications do not allow debuggers to retrieve data. For
+    example, on Windows, launching the debugger might fail with the following
+    message if the Avira AntiVir is installed on the development PC: \e{The
+    inferior stopped because it received a signal from the operating system.
+    Signal name:? signal meaning: Unknown signal.}
+
+    Some versions of Avira AntiVir Desktop-Products contain known issues in
+    various development environments, including Qt Creator. To fix the problem,
+    Avira instructs you to update to version \c {avipbb.sys 10.0.22.22}. For
+    more information, see
+    \l{http://www.avira.com/en/support-for-business-knowledgebase-detail/kbid/805}{Restricted Usability of IDE/Debuggers since 2010-12-08}.
+
    \section1 Debugger Does Not Hit Breakpoints
 
     You might have created a release build that does not contain debug
