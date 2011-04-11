@@ -342,7 +342,7 @@ bool VirtualSerialDevice::waitForBytesWritten(int msecs)
         return true;
     }
     else {
-        setErrorString(QString("An error occured in waitForBytesWritten() for %1: %2").
+        setErrorString(QString("An error occurred in waitForBytesWritten() for %1: %2").
                        arg(portName, winErrorMessage(GetLastError())));
         return false;
     }
