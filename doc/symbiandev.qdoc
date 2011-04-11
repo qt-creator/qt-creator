@@ -208,19 +208,7 @@
     \section2 Installing Debugging Agents
 
     You can download CODA from the
-    \l{http://tools.ext.nokia.com/coda/}{CODA download server}:
-
-    \list
-
-        \o  Symbian^1 versions of CODA are located in the pf5250 folder.
-
-        \o  Symbian^3 versions of CODA are located in the tb92 folder.
-
-    \endlist
-
-    The builds that are marked as \e delta builds work on top of App TRK, and
-    therefore, App TRK and CODA can co-exist on a device. Other than the delta
-    builds cannot be installed on a device where App TRK is installed.
+    \l{http://tools.ext.nokia.com/coda/}{CODA download server}.
 
     The \QSDK installation program creates a shortcut for installing
     App TRK on Symbian devices, but you can also download and install it
