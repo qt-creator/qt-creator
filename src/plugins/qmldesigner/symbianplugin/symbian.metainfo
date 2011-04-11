@@ -13,8 +13,8 @@
       <property name="text" type="QString" value="Button"/>
     </itemlibraryentry>
   </node>
-  <node name="TabButton" icon=":/symbianplugin/images/button16.png">
-    <itemlibraryentry name="TabButton"  category="Components Symbian" libraryIcon=":/symbianplugin/images/button.png"  version="1.0" requiredImport="com.nokia.symbian">
+  <node name="TabButton" icon=":/symbianplugin/images/tabbutton16.png">
+    <itemlibraryentry name="TabButton"  category="Components Symbian" libraryIcon=":/symbianplugin/images/tabbutton.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="Button"/>
@@ -27,8 +27,8 @@
       <property name="text" type="QString" value="CheckBox"/>
     </itemlibraryentry>
   </node>
-  <node name="BusyIndicator" icon=":/symbianplugin/images/button16.png">
-    <itemlibraryentry name="BusyIndicator" category="Components Symbian" libraryIcon=":/symbianplugin/images/button.png"  version="1.0" requiredImport="com.nokia.symbian">
+  <node name="BusyIndicator" icon=":/symbianplugin/images/busyindicator16.png">
+    <itemlibraryentry name="BusyIndicator" category="Components Symbian" libraryIcon=":/symbianplugin/images/busyindicator.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="180"/>
       <property name="height" type="int" value="30"/>
       <property name="text" type="QString" value="CheckBox"/>
@@ -68,16 +68,32 @@
       <property name="text" type="QString" value="TextArea"/>
     </itemlibraryentry>
   </node>
-  <node name="Slider" icon=":/symbianplugin/images/slider16.png">
+  <node name="ButtonRow" icon=":/symbianplugin/images/buttonrow16.png">
+    <itemlibraryentry name="ButtonRow" category="Components Symbian" libraryIcon=":/symbianplugin/images/buttonrow.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="120"/>
+      <property name="height" type="int" value="20"/>
+    </itemlibraryentry>
+  </node>
+  <node name="ButtonColumn" icon=":/symbianplugin/images/buttoncolumn16.png">
+    <itemlibraryentry name="ButtonColumn" category="Components Symbian" libraryIcon=":/symbianplugin/images/buttoncolumn.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="20"/>
+      <property name="height" type="int" value="120"/>
+    </itemlibraryentry>
+  </node>
+  <node name="TabBar" icon=":/symbianponlugin/images/tabbar16.png">
+    <itemlibraryentry name="TabBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/tabbar.png"  version="1.0" requiredImport="com.nokia.symbian">
+    </itemlibraryentry>
+  </node>
+      <node name="Slider" icon=":/symbianplugin/images/slider16.png">
     <itemlibraryentry name="Slider" category="Components Symbian" libraryIcon=":/symbianplugin/images/slider.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="180"/>
       <property name="height" type="int" value="30"/>
+      <property name="orientation" type="int" value="1"/>
     </itemlibraryentry>
-  </node>
-  <node name="Window" icon=":/symbianplugin/images/window16.png">
-    <itemlibraryentry name="Window" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="360"/>
-      <property name="height" type="int" value="640"/>
+    <itemlibraryentry name="Slider (Horizontal)" category="Components Symbian" libraryIcon=":/symbianplugin/images/sliderh.png" version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="30"/>
+      <property name="height" type="int" value="180"/>
+      <property name="orientation" type="int" value="2"/>
     </itemlibraryentry>
   </node>
   <node name="Page" icon=":/symbianplugin/images/window16.png">
@@ -87,33 +103,23 @@
     </itemlibraryentry>
   </node>
   <node name="TabBarLayout" icon=":/symbianponlugin/images/window16.png">
-    <itemlibraryentry name="TabBarLayout" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+    <itemlibraryentry name="TabBarLayout" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png" version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="360"/>
       <property name="height" type="int" value="40"/>
     </itemlibraryentry>
   </node>
   <node name="TabGroup" icon=":/symbianponlugin/images/window16.png">
-    <itemlibraryentry name="TabGroup" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
+    <itemlibraryentry name="TabGroup" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png" version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="360"/>
       <property name="height" type="int" value="40"/>
     </itemlibraryentry>
   </node>
-  <node name="ToolBar" icon=":/symbianponlugin/images/window16.png">
-    <itemlibraryentry name="ToolBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="360"/>
-      <property name="height" type="int" value="40"/>
+  <node name="ToolBar" icon=":/symbianponlugin/images/toolbar16.png">
+    <itemlibraryentry name="ToolBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/toolbar.png" version="1.0" requiredImport="com.nokia.symbian">
     </itemlibraryentry>
   </node>
-  <node name="TabBar" icon=":/symbianponlugin/images/window16.png">
-    <itemlibraryentry name="TabBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="360"/>
-      <property name="height" type="int" value="40"/>
-    </itemlibraryentry>
-  </node>
-  <node name="Icon" icon=":/symbianponlugin/images/window16.png">
-    <itemlibraryentry name="Icon" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="32"/>
-      <property name="height" type="int" value="32"/>
+  <node name="Switch" icon=":/symbianponlugin/images/switchbutton16.png">
+    <itemlibraryentry name="Switch" category="Components Symbian" libraryIcon=":/symbianplugin/images/switchbutton.png" version="1.0" requiredImport="com.nokia.symbian">
     </itemlibraryentry>
   </node>
 </metainfo>
