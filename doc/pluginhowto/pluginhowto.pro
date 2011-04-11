@@ -52,8 +52,8 @@ HELP_DEP_FILES = $$PWD/adv-find-filter.qdoc \
                  $$PWD/qtcreator-compile.qdoc \
                  $$PWD/qtcreator-pluginhowto.qdoc \
                  $$PWD/vcs.qdoc \
-                 $$PWD/../qt-defines.qdocconf \
-                 $$PWD/../qt-html-templates.qdocconf \
+                 $$PWD/../config/qt-defines.qdocconf \
+                 $$PWD/../config/qt-html-templates.qdocconf \
                  $$PWD/qtcreator-pluginhowto.qdocconf
 
 docs.name = CREATE API DOC

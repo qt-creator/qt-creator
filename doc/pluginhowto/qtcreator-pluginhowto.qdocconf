@@ -1,5 +1,5 @@
 # Run qdoc from the directory that contains this file.
-include(../qt-html-templates.qdocconf)
+include(../config/qt-html-templates.qdocconf)
 
 project                 = Qt Creator Plugin HOWTO
 description             = Qt Creator Plugin HOWTO Documentation
@@ -11,7 +11,7 @@ outputdir = $OUTDIR
 exampledirs = $SRCDIR
 indexes = ../qt.index
 
-include(../qt-defines.qdocconf)
+include(../config/qt-defines.qdocconf)
 
 sources.fileextensions = *.qdoc
 
