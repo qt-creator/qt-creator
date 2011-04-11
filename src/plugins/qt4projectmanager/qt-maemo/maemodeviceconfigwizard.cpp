@@ -176,9 +176,10 @@ class MaemoDeviceConfigWizardLoginDataPage : public QWizardPage
     Q_OBJECT
 
 public:
-    MaemoDeviceConfigWizardLoginDataPage(QWidget *parent)
+    MaemoDeviceConfigWizardLoginDataPage(WizardData &wizardData, QWidget *parent)
         : QWizardPage(parent),
-          m_ui(new Ui::MaemoDeviceConfigWizardLoginDataPage)
+          m_ui(new Ui::MaemoDeviceConfigWizardLoginDataPage),
+          m_wizardData(wizardData)
     {
         m_ui->setupUi(this);
         setTitle(tr("Login Data"));
@@ -201,7 +202,7 @@ public:
 
     virtual void initializePage()
     {
-        m_ui->userNameLineEdit->clear();
+        m_ui->userNameLineEdit->setText(MaemoDeviceConfig::defaultUser(m_wizardData.osVersion));
         m_ui->passwordButton->setChecked(true);
         m_ui->passwordLineEdit->clear();
         m_ui->privateKeyPathChooser->setPath(MaemoDeviceConfig::defaultPrivateKeyFilePath());
@@ -228,6 +229,7 @@ private:
     }
 
     const QScopedPointer<Ui::MaemoDeviceConfigWizardLoginDataPage> m_ui;
+    const WizardData &m_wizardData;
 };
 
 class MaemoDeviceConfigWizardPreviousKeySetupCheckPage : public QWizardPage
@@ -592,7 +594,7 @@ struct MaemoDeviceConfigWizardPrivate
             QWidget *parent)
         : devConfigs(devConfigs),
           startPage(parent),
-          loginDataPage(parent),
+          loginDataPage(wizardData, parent),
           previousKeySetupPage(parent),
           reuseKeysCheckPage(parent),
           keyCreationPage(parent),

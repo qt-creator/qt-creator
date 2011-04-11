@@ -71,8 +71,6 @@ namespace {
     const int DefaultSshPortSim(6666);
     const int DefaultGdbServerPortHW(10000);
     const int DefaultGdbServerPortSim(13219);
-    const QString DefaultHostNameHW(QLatin1String("192.168.2.15"));
-    const QString DefaultHostNameSim(QLatin1String("localhost"));
     const AuthType DefaultAuthType(Utils::SshConnectionParameters::AuthenticationByKey);
     const int DefaultTimeout(30);
     const MaemoDeviceConfig::DeviceType DefaultDeviceType(MaemoDeviceConfig::Physical);
@@ -345,9 +343,17 @@ QString MaemoDeviceConfig::defaultPortsSpec(DeviceType type) const
 
 QString MaemoDeviceConfig::defaultHost(DeviceType type, MaemoGlobal::OsVersion osVersion)
 {
-    if (osVersion == MaemoGlobal::GenericLinux)
+    switch (osVersion) {
+    case MaemoGlobal::Maemo5:
+    case MaemoGlobal::Maemo6:
+    case MaemoGlobal::Meego:
+        return QLatin1String(type == Physical ? "192.168.2.15" : "localhost");
+    case MaemoGlobal::GenericLinux:
         return QString();
-    return type == Physical ? DefaultHostNameHW : DefaultHostNameSim;
+    default:
+        qFatal("%s: Missing case in switch", Q_FUNC_INFO);
+        return QString();
+    }
 }
 
 QString MaemoDeviceConfig::defaultPrivateKeyFilePath()
