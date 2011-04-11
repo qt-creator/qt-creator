@@ -201,7 +201,7 @@ void DesignDocumentController::blockModelSync(bool block)
             attachNodeInstanceView();
             QmlModelState state;
             //We go back to base state (and back again) to avoid side effects from text editing.
-            if (m_d->statesEditorView) {
+            if (m_d->statesEditorView && m_d->statesEditorView->model()) {
                 state = m_d->statesEditorView->currentState();
                 m_d->statesEditorView->setCurrentState(m_d->statesEditorView->baseState());
 
