@@ -102,6 +102,7 @@ private:
 
     Utils::PathChooser *m_compilerPath;
     QComboBox *m_abiComboBox;
+    QString m_autoDebuggerCommand;
 
     QList<Abi> m_abiList;
 };

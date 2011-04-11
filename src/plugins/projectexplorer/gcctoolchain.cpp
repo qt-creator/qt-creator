@@ -594,6 +594,7 @@ void Internal::GccToolChainConfigWidget::apply()
     tc->setTargetAbi(m_abiList.at(m_abiComboBox->currentIndex()));
     tc->setDisplayName(displayName); // reset display name
     tc->setDebuggerCommand(debuggerCommand());
+    m_autoDebuggerCommand = QLatin1String("<manually set>");
 }
 
 void Internal::GccToolChainConfigWidget::populateAbiList(const QList<Abi> &list)
@@ -612,6 +613,7 @@ void Internal::GccToolChainConfigWidget::populateAbiList(const QList<Abi> &list)
         if (m_abiList.at(i) == currentAbi)
             m_abiComboBox->setCurrentIndex(i);
     }
+    handleAbiChange();
 }
 
 void Internal::GccToolChainConfigWidget::setFromToolchain()
@@ -643,6 +645,11 @@ void Internal::GccToolChainConfigWidget::handlePathChange()
 
 void Internal::GccToolChainConfigWidget::handleAbiChange()
 {
+    if (m_autoDebuggerCommand == debuggerCommand() && m_abiComboBox->currentIndex() >= 0) {
+        ProjectExplorer::Abi abi = m_abiList.at(m_abiComboBox->currentIndex());
+        m_autoDebuggerCommand = ToolChainManager::instance()->defaultDebugger(abi);
+        setDebuggerCommand(m_autoDebuggerCommand);
+    }
     emit dirty(toolChain());
 }
 
