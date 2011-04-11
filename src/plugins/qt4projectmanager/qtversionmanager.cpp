@@ -1680,7 +1680,8 @@ QString QtVersion::qtCorePath() const
                     if (file.endsWith(".a") || file.endsWith(".lib"))
                         staticLibs.append(info);
                     else if (file.endsWith(QLatin1String(".dll"))
-                                || file.endsWith(QString::fromLatin1(".so.") + qtVersionString()))
+                                || file.endsWith(QString::fromLatin1(".so.") + qtVersionString())
+                                || file.endsWith(QLatin1Char('.') + qtVersionString() + QLatin1String(".dylib")))
                         return info.absoluteFilePath();
                 }
             }
