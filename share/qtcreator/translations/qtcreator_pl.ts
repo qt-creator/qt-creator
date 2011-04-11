@@ -379,7 +379,7 @@
     </message>
     <message>
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Zwróć uwagę że wtyczka użyje go zarówno do wysyłania jak i odbierania fragmentów kodu.&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;Zwróć uwagę, że wtyczka użyje go zarówno do wysyłania jak i odbierania fragmentów kodu.&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -682,11 +682,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Switch to previous mode on debugger exit.</source>
-        <translation>Przełącz do poprzedniego trybu po zakończeniu debugowania.</translation>
+        <translation>Przełączaj do poprzedniego trybu po zakończeniu debugowania.</translation>
     </message>
     <message>
         <source>Switch to previous mode on debugger exit</source>
-        <translation>Przełącz do poprzedniego trybu po zakończeniu debugowania</translation>
+        <translation>Przełączaj do poprzedniego trybu po zakończeniu debugowania</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -697,7 +697,7 @@ p, li { white-space: pre-wrap; }
     <name>DebuggingHelperOptionPage</name>
     <message>
         <source>Use debugging helper from custom location</source>
-        <translation>Użyj asystenta debuggera z innego położenia</translation>
+        <translation>Używaj asystenta debuggera z innego położenia</translation>
     </message>
     <message>
         <source>Location: </source>
@@ -1376,7 +1376,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Note that huge amount of commits might take some time.</source>
-        <translation>Zwróć uwagę że wyświetlanie dużej liczby zmian może zajmować sporo czasu.</translation>
+        <translation>Zwróć uwagę, że wyświetlanie dużej liczby zmian może zajmować sporo czasu.</translation>
     </message>
     <message>
         <source>Git</source>
@@ -1475,7 +1475,7 @@ Add, modify, and remove document filters, which determine the documentation set 
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;
 &lt;p&gt;
-Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokumentacji wyświetlanej w trybie &quot;Pomocy&quot;. Atrybuty są zdefiniowane w dokumentach. Zaznaczenie ich spowoduje wyświetlenie zestawu odpowiedniej dokumentacji. Zwróć uwagę że niektóre atrybuty mogą być zdefiniowane w kilku dokumentach.
+Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokumentacji wyświetlanej w trybie &quot;Pomocy&quot;. Atrybuty są zdefiniowane w dokumentach. Zaznaczenie ich spowoduje wyświetlenie zestawu odpowiedniej dokumentacji. Zwróć uwagę, że niektóre atrybuty mogą być zdefiniowane w kilku dokumentach.
 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -3524,11 +3524,11 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>The directory %1 contains an outdated .cbp file. Qt Creator needs to update this file by running CMake. If you want to add additional command line arguments, add them below. Note that CMake remembers command line arguments from the previous runs.</source>
-        <translation>Katalog %1 zawiera nieaktualny plik cbp. Qt Creator wymaga uaktualnienia go poprzez uruchomienie CMake. Poniżej podaj dodatkowe argumenty dla komendy CMake. Zwróć uwagę że CMake zapamiętuje argumenty komendy z ostatniego uruchomienia.</translation>
+        <translation>Katalog %1 zawiera nieaktualny plik cbp. Qt Creator wymaga uaktualnienia go poprzez uruchomienie CMake. Poniżej podaj dodatkowe argumenty dla komendy CMake. Zwróć uwagę, że CMake zapamiętuje argumenty komendy z ostatniego uruchomienia.</translation>
     </message>
     <message>
         <source>The directory %1 specified in a build-configuration, does not contain a cbp file. Qt Creator needs to recreate this file, by running CMake. Some projects require command line arguments to the initial CMake call. Note that CMake remembers command line arguments from the previous runs.</source>
-        <translation>Katalog %1 podany w konfiguracji budowania nie zawiera pliku cbp. Qt Creator wymaga utworzenia go poprzez uruchomienie CMake. Niektóre projekty wymagają dodatkowych argumentów w komendzie CMake. Zwróć uwagę że CMake zapamiętuje argumenty komendy z ostatniego uruchomienia.</translation>
+        <translation>Katalog %1 podany w konfiguracji budowania nie zawiera pliku cbp. Qt Creator wymaga utworzenia go poprzez uruchomienie CMake. Niektóre projekty wymagają dodatkowych argumentów w komendzie CMake. Zwróć uwagę, że CMake zapamiętuje argumenty komendy z ostatniego uruchomienia.</translation>
     </message>
     <message>
         <source>Qt Creator needs to run CMake in the new build directory. Some projects require command line arguments to the initial CMake call.</source>
@@ -8103,11 +8103,11 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>The filter &quot;%1&quot; will only show documentation files that have the attribute %2 specified.</source>
-        <translation>Filtr &quot;%1&quot; pokaże tylko tą dokumentację, która posiada atrybut %2.</translation>
+        <translation>Filtr &quot;%1&quot; pokaże tylko tę dokumentację, która posiada atrybut %2.</translation>
     </message>
     <message>
         <source>The filter &quot;%1&quot; will only show documentation files that have the attributes %2 specified.</source>
-        <translation>Filtr &quot;%1&quot; pokaże tylko tą dokumentację, która posiada atrybuty %2.</translation>
+        <translation type="unfinished">Filtr &quot;%1&quot; pokaże tylko tę dokumentację, która posiada atrybuty: %2.</translation>
     </message>
 </context>
 <context>
@@ -11494,19 +11494,19 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>The check script &apos;%1&apos; could not be started: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można uruchomić skryptu sprawdzającego &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>The check script &apos;%1&apos; timed out.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrypt sprawdzający &quot;%1&quot; bez odpowiedzi.</translation>
     </message>
     <message>
         <source>The check script &apos;%1&apos; crashed</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrypt sprawdzający &quot;%1&quot; zakończył pracę błędem</translation>
     </message>
     <message>
         <source>The check script returned exit code %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrypt sprawdzający zwrócił kod wyjściowy %1.</translation>
     </message>
 </context>
 <context>
@@ -18233,7 +18233,7 @@ zamiast w jego katalogu instalacyjnym.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zostanie użyta wersjonowana kopia zapasowa pliku z ustawieniami .user, ponieważ niewersjonowany plik został utworzony przez niekompatybilną nowszą wersję Qt Creatora.&lt;/p&gt;&lt;p&gt;Zmiany w ustawieniach tego projektu dokonane od ostatniego użycia tej wersji Qt Creatora zostaną zignorowane. Nowe zmiany &lt;b&gt;nie&lt;/b&gt; zostaną zastosowane w nowszej wersji.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Użyta zostanie wersjonowana kopia zapasowa pliku z ustawieniami .user, ponieważ niewersjonowany plik został utworzony przez niekompatybilną, nowszą wersję Qt Creatora.&lt;/p&gt;&lt;p&gt;Zmiany w ustawieniach tego projektu dokonane od ostatniego użycia tej wersji Qt Creatora zostaną zignorowane. Nowe zmiany &lt;b&gt;nie&lt;/b&gt; zostaną zastosowane w nowszej wersji.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Project Settings File from a different Environment?</source>
@@ -20323,7 +20323,7 @@ Local pulls are not applied to the master branch</source>
     <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
     <message>
         <source>Publishing Wizard Selection</source>
-        <translation>Publikowanie selekcji kreatora</translation>
+        <translation>Wybór kreatora publikującego</translation>
     </message>
     <message>
         <source>Available Wizards:</source>
@@ -22186,7 +22186,7 @@ Wpływa na wcięcia przeniesionych linii.
     <name>Core::Internal::ExternalToolModel</name>
     <message>
         <source>Uncategorized</source>
-        <translation>Nieskategoryzowany</translation>
+        <translation>Nieskategoryzowane</translation>
     </message>
     <message>
         <source>Tools that will appear directly under the External Tools menu.</source>
@@ -23988,6 +23988,14 @@ Czy urządzenie jest podłączone i czy zostało skonfigurowane połączenie sie
         <source>Failed to remove file &apos;%1&apos;.</source>
         <translation>Nie można usunąć pliku &quot;%1&quot;.</translation>
     </message>
+    <message>
+        <source>Failed to create directory &apos;%1&apos;.</source>
+        <translation type="unfinished">Nie można utworzyć katalogu &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
+        <translation type="unfinished">Nie można skopiować pliku &quot;%1&quot; do &quot;%2&quot;.</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MaemoKeyDeployer</name>
@@ -25311,6 +25319,13 @@ Można zbudować aplikację i zainstalować ją na platformie mobilnej albo na d
     <message>
         <source>An error occurred while syncing on waitForBytesWritten for %1: %2</source>
         <translation>Błąd podczas synchronizacji z waitForBytesWritten dla %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>Macros</name>
+    <message>
+        <source>Macros</source>
+        <translation>Makra</translation>
     </message>
 </context>
 </TS>
