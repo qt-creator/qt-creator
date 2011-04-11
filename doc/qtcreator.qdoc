@@ -4276,6 +4276,9 @@
 
         \o Start the debugging agent (CODA or App TRK) application on your device.
 
+        \note If you use CODA over an USB connection, it starts up
+        automatically when you connect the device to the development PC.
+
         \o Click the \gui Run button.
 
     \endlist
@@ -4294,9 +4297,12 @@
         \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
         have been installed on the development PC.
         \o The device is connected through USB cable in \e{PC Suite} mode.
-        \o The debugging agent (CODA or App TRK) is running on the device, using
-           the USB connection,
-           with the status \e connected.
+        \o The debugging agent (App TRK or CODA) is running on the device with
+           the status \e connected.
+
+           \note If you use the CODA debugging agent over WLAN, you must enter
+           the WLAN address and port number in Qt Creator, separated by a
+           colon (:). For example: 192.167.0.100:1534
         \o The device is detected and selected in the \gui {Run Settings}.
      \endlist
 
@@ -4568,7 +4574,9 @@
 
 /*!
     \contentspage index.html
+    \previouspage creator-tool-chains.html
     \page creator-run-settings.html
+    \nextpage creator-editor-settings.html
 
     \title Specifying Run Settings
 
@@ -4618,6 +4626,10 @@
     device, such as the CPU type and the running debugging agent version.
 
     \image qtcreator-symbian-run-settings.png "Run settings for Symbian devices"
+
+    To use the CODA debugging agent over a WLAN connection, enter the WLAN
+    address of the device and the port number to use, separated by a colon (:),
+    in the \gui WLAN field. For example: 192.167.0.100:1534
 
     When you deploy the application for the \gui{Symbian Device} target, Qt
     Creator generates a Symbian installation system (SIS) file in the project folder
@@ -5351,7 +5363,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-tool-chains.html
+    \previouspage creator-run-settings.html
     \page creator-editor-settings.html
     \nextpage creator-build-dependencies.html
 
