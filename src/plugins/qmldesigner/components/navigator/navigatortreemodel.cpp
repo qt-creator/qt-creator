@@ -535,7 +535,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty parentPropert
                             }
                         }
 
-                        if (parentProperty.isDefaultProperty() && parentProperty.parentModelNode().metaInfo().isSubclassOf("QtQuick.QDeclarativeBasePositioner", -1, -1)) {
+                        if (parentProperty.isDefaultProperty() && parentProperty.parentModelNode().metaInfo().isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1)) {
                              ModelNode currentNode = node;
                              if (currentNode.hasProperty("x"))
                                  currentNode.removeProperty("x");
