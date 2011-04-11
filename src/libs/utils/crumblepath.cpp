@@ -363,8 +363,13 @@ void CrumblePath::resizeButtons()
             nextElementPosition.rx() += button->width() - ArrowBorderSize;
 
             button->show();
-            if (i > 0)
-                button->stackUnder(d->m_buttons[i - 1]);
+            if (i > 0) {
+                // work-around for a compiler / optimization bug in i686-apple-darwin9-g
+                // without volatile, the optimizer (-O2) seems to do the wrong thing (tm
+                // the d->m_buttons array with an invalid argument.
+                volatile int prevIndex = i - 1;
+                button->stackUnder(d->m_buttons[prevIndex]);
+            }
         }
     }
 }
