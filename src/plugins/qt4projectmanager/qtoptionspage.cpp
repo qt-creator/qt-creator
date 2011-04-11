@@ -820,14 +820,14 @@ void QtOptionsPageWidget::updateCurrentQMakeLocation()
     currentItem->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
     showEnvironmentPage(currentItem);
 
-    updateState();
-
     if (m_versionUi->nameEdit->text().isEmpty() || m_versionUi->nameEdit->text() == m_specifyNameString) {
         QString name = ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(version->qmakeCommand());
         if (!name.isEmpty())
             m_versionUi->nameEdit->setText(name);
         updateCurrentQtName();
     }
+
+    updateState();
 }
 
 void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
