@@ -235,7 +235,6 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
 {
     QList<JSAgentWatchData> result;
     QScriptValueIterator it(object);
-    QByteArray expPrefix = '@' + QByteArray::number(object.objectId(), 16) + "->";
     while (it.hasNext()) {
         it.next();
         if (it.flags() & QScriptValue::SkipInEnumeration)
@@ -246,7 +245,6 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
             continue;
         }
         JSAgentWatchData data = fromScriptValue(it.name(), it.value());
-        data.exp.prepend(expPrefix);
         result.append(data);
     }
     if (result.isEmpty()) {
@@ -254,7 +252,6 @@ static QList<JSAgentWatchData> expandObject(const QScriptValue &object)
         data.name = "<no initialized data>";
         data.hasChildren = false;
         data.value = " ";
-        data.exp.prepend(expPrefix);
         data.objectId = 0;
         result.append(data);
     }
