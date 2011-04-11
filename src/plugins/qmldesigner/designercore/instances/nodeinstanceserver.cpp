@@ -362,11 +362,6 @@ void NodeInstanceServer::addImports(const QVector<AddImportContainer> &container
 
         if (!m_importList.contains(importStatement))
             m_importList.append(importStatement);
-
-        foreach(const QString &importPath, container.importPaths()) { // this is simply ugly
-            engine()->addImportPath(importPath);
-            engine()->addPluginPath(importPath);
-        }
     }
 
     delete m_importComponent.data();
