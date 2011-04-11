@@ -46,7 +46,8 @@ const char * const SAVE_LAST_MACRO = "Macros.SaveLastMacro";
 const char * const PREFIX_MACRO = "Macros.";
 
 const char * const M_OPTIONS_PAGE = "Macros";
-const char * const M_OPTIONS_TR_PAGE = "Macros";
+const char * const M_OPTIONS_TR_PAGE =
+    QT_TRANSLATE_NOOP("Macros", "Macros");
 
 const char * const M_STATUS_BUFFER = "Macros.Status";
 const char * const M_INFO_BUFFER = "Macros.Info";

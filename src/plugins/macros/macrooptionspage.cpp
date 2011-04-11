@@ -63,7 +63,7 @@ QString MacroOptionsPage::id() const
 
 QString MacroOptionsPage::displayName() const
 {
-    return QCoreApplication::translate("Macro", Constants::M_OPTIONS_TR_PAGE);
+    return QCoreApplication::translate("Macros", Constants::M_OPTIONS_TR_PAGE);
 }
 
 QString MacroOptionsPage::category() const
