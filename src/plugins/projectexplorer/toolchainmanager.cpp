@@ -96,6 +96,12 @@ ToolChainManager::ToolChainManager(QObject *parent) :
     m_instance = this;
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
             this, SLOT(saveToolChains()));
+    connect(this, SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
+            this, SIGNAL(toolChainsChanged()));
+    connect(this, SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
+            this, SIGNAL(toolChainsChanged()));
+    connect(this, SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
+            this, SIGNAL(toolChainsChanged()));
 }
 
 void ToolChainManager::restoreToolChains()

@@ -82,6 +82,8 @@ signals:
     void toolChainRemoved(ProjectExplorer::ToolChain *);
     // Tool chain was updated.
     void toolChainUpdated(ProjectExplorer::ToolChain *);
+    // Something changed:
+    void toolChainsChanged();
 
 private:
     explicit ToolChainManager(QObject *parent = 0);
