@@ -313,7 +313,7 @@ void MemoryViewWidget::slotContextMenuRequested(const QPoint &pos)
 static inline void formatAddressToHexStream(QTextStream &hexStream, quint64 address)
 {
     hexStream.setFieldWidth(4);
-    hexStream << (address >> 32);
+    hexStream << ((address >> 16) & 0xFFFF);
     hexStream.setFieldWidth(1);
     hexStream << ':';
     hexStream.setFieldWidth(4);
