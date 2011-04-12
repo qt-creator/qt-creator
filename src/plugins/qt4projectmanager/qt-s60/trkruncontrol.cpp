@@ -83,12 +83,12 @@ bool TrkRunControl::doStart()
 {
     if (m_serialPortName.isEmpty()) {
         cancelProgress();
-        QString msg = tr("No device is connected. Please connect a device and try again.");
+        QString msg = tr("No device is connected. Please connect a device and try again.\n");
         appendMessage(msg, NormalMessageFormat);
         return false;
     }
 
-    appendMessage(tr("Executable file: %1").arg(msgListFile(executableFileName())),
+    appendMessage(tr("Executable file: %1\n").arg(msgListFile(executableFileName())),
                   NormalMessageFormat);
     return true;
 }
@@ -149,7 +149,7 @@ void TrkRunControl::doStop()
 
 void TrkRunControl::printConnectFailed(const QString &errorMessage)
 {
-    appendMessage(tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage),
+    appendMessage(tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.\n").arg(errorMessage),
                   ErrorMessageFormat);
 }
 
@@ -194,7 +194,7 @@ void TrkRunControl::slotWaitingForTrkClosed()
 {
     if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
         stop();
-        appendMessage(tr("Canceled."), ErrorMessageFormat);
+        appendMessage(tr("Canceled.\n"), ErrorMessageFormat);
         emit finished();
     }
 }
@@ -215,7 +215,7 @@ void TrkRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &d)
         trk::Launcher::releaseToDeviceManager(m_launcher);
         m_launcher->deleteLater();
         m_launcher = 0;
-        QString msg = tr("The device '%1' has been disconnected").arg(d.friendlyName());
+        QString msg = tr("The device '%1' has been disconnected.\n").arg(d.friendlyName());
         appendMessage(msg, ErrorMessageFormat);
         emit finished();
     }
@@ -233,16 +233,16 @@ void TrkRunControl::initLauncher(const QString &executable, trk::Launcher *launc
 
 void TrkRunControl::printStartingNotice()
 {
-    appendMessage(tr("Starting application..."), NormalMessageFormat);
+    appendMessage(tr("Starting application...\n"), NormalMessageFormat);
 }
 
 void TrkRunControl::applicationRunNotice(uint pid)
 {
-    appendMessage(tr("Application running with pid %1.").arg(pid), NormalMessageFormat);
+    appendMessage(tr("Application running with pid %1.\n").arg(pid), NormalMessageFormat);
     setProgress(maxProgress());
 }
 
 void TrkRunControl::applicationRunFailedNotice(const QString &errorMessage)
 {
-    appendMessage(tr("Could not start application: %1").arg(errorMessage), NormalMessageFormat);
+    appendMessage(tr("Could not start application: %1\n").arg(errorMessage), NormalMessageFormat);
 }

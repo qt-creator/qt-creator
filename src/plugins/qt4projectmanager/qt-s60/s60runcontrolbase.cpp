@@ -115,7 +115,7 @@ void S60RunControlBase::start()
 
     if (m_runSmartInstaller) { //Smart Installer does the running by itself
         cancelProgress();
-        appendMessage(tr("Please finalise the installation on your device."), NormalMessageFormat);
+        appendMessage(tr("Please finalise the installation on your device.\n"), NormalMessageFormat);
         emit finished();
         return;
     }
@@ -168,7 +168,7 @@ void S60RunControlBase::startLaunching()
 
 void S60RunControlBase::handleFinished()
 {
-    appendMessage(tr("Finished."), NormalMessageFormat);
+    appendMessage(tr("Finished.\n"), NormalMessageFormat);
 }
 
 void S60RunControlBase::setProgress(int value)
@@ -251,12 +251,4 @@ bool S60RunControlBase::runSmartInstaller() const
 char S60RunControlBase::installationDrive() const
 {
     return m_installationDrive;
-}
-
-void S60RunControlBase::appendMessage(const QString &msg, ProjectExplorer::OutputFormat format, bool addNewLine)
-{
-    if (addNewLine)
-        RunControl::appendMessage(msg + '\n', format);
-    else
-        RunControl::appendMessage(msg, format);
 }

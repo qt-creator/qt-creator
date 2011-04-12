@@ -356,7 +356,7 @@ void S60EmulatorRunControl::start()
     m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable, QString());
     emit started();
 
-    QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable));
+    QString msg = tr("Starting %1...\n").arg(QDir::toNativeSeparators(m_executable));
     appendMessage(msg, NormalMessageFormat);
 }
 
@@ -393,7 +393,7 @@ void S60EmulatorRunControl::slotAppendMessage(const QString &line, OutputFormat 
 
 void S60EmulatorRunControl::processExited(int exitCode)
 {
-    QString msg = tr("%1 exited with code %2");
+    QString msg = tr("%1 exited with code %2\n");
     appendMessage(msg, exitCode ? ErrorMessageFormat : NormalMessageFormat);
     emit finished();
 }

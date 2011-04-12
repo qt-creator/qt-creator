@@ -498,7 +498,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
     Debugger::DebuggerRunControl(rc, sp, masterSlaveEngineTypes)
 {
     if (startParameters().symbolFileName.isEmpty()) {
-        const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.").
+        const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.\n").
                                arg(rc->localExecutableFileName());
         appendMessage(msg, ErrorMessageFormat);
     }
@@ -506,7 +506,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
 
 void S60DeviceDebugRunControl::start()
 {
-    appendMessage(tr("Launching debugger..."), NormalMessageFormat);
+    appendMessage(tr("Launching debugger...\n"), NormalMessageFormat);
     Debugger::DebuggerRunControl::start();
 }
 
@@ -514,14 +514,6 @@ bool S60DeviceDebugRunControl::promptToStop(bool *) const
 {
     // We override the settings prompt
     return Debugger::DebuggerRunControl::promptToStop(0);
-}
-
-void S60DeviceDebugRunControl::appendMessage(const QString &msg, ProjectExplorer::OutputFormat format, bool addNewLine)
-{
-    if (addNewLine)
-        RunControl::appendMessage(msg + '\n', format);
-    else
-        RunControl::appendMessage(msg, format);
 }
 
 S60DeviceDebugRunControlFactory::S60DeviceDebugRunControlFactory(QObject *parent) :

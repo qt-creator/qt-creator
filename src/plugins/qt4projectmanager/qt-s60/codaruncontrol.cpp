@@ -97,11 +97,11 @@ bool CodaRunControl::doStart()
 {
     if (m_address.isEmpty() && m_serialPort.isEmpty()) {
         cancelProgress();
-        QString msg = tr("No device is connected. Please connect a device and try again.");
+        QString msg = tr("No device is connected. Please connect a device and try again.\n");
         appendMessage(msg, NormalMessageFormat);
         return false;
     }
-    appendMessage(tr("Executable file: %1").arg(msgListFile(executableFileName())),
+    appendMessage(tr("Executable file: %1\n").arg(msgListFile(executableFileName())),
                   NormalMessageFormat);
     return true;
 }
@@ -122,14 +122,14 @@ bool CodaRunControl::setupLauncher()
 
     if (m_serialPort.length()) {
         // We get the port from SymbianDeviceManager
-        appendMessage(tr("Connecting to '%1'...").arg(m_serialPort), NormalMessageFormat);
+        appendMessage(tr("Connecting to '%1'...\n").arg(m_serialPort), NormalMessageFormat);
         m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPort);
         if (m_codaDevice.isNull()) {
-            appendMessage(tr("Unable to create CODA connection. Please try again."), ErrorMessageFormat);
+            appendMessage(tr("Unable to create CODA connection. Please try again.\n"), ErrorMessageFormat);
             return false;
         }
         if (!m_codaDevice->device()->isOpen()) {
-            appendMessage(tr("Could not open serial device: %1").arg(m_codaDevice->device()->errorString()), ErrorMessageFormat);
+            appendMessage(tr("Could not open serial device: %1\n").arg(m_codaDevice->device()->errorString()), ErrorMessageFormat);
             return false;
         }
         connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
@@ -151,7 +151,7 @@ bool CodaRunControl::setupLauncher()
         m_codaDevice->setDevice(codaSocket);
         codaSocket->connectToHost(m_address, m_port);
         m_state = StateConnecting;
-        appendMessage(tr("Connecting to %1:%2...").arg(m_address).arg(m_port), NormalMessageFormat);
+        appendMessage(tr("Connecting to %1:%2...\n").arg(m_address).arg(m_port), NormalMessageFormat);
     }
     QTimer::singleShot(5000, this, SLOT(checkForTimeout()));
     if (debug)
@@ -178,7 +178,7 @@ void CodaRunControl::doStop()
 
 void CodaRunControl::slotError(const QString &error)
 {
-    appendMessage(tr("Error: %1").arg(error), ErrorMessageFormat);
+    appendMessage(tr("Error: %1\n").arg(error), ErrorMessageFormat);
     finishRunControl();
 }
 
@@ -238,7 +238,7 @@ void CodaRunControl::handleConnected()
     if (m_state >= StateConnected)
         return;
     m_state = StateConnected;
-    appendMessage(tr("Connected."), NormalMessageFormat);
+    appendMessage(tr("Connected.\n"), NormalMessageFormat);
     setProgress(maxProgress()*0.80);
     initCommunication();
 }
@@ -249,7 +249,7 @@ void CodaRunControl::handleContextRemoved(const CodaEvent &event)
             = static_cast<const CodaRunControlContextRemovedEvent &>(event).ids();
     if (!m_runningProcessId.isEmpty()
             && removedItems.contains(m_runningProcessId.toAscii())) {
-        appendMessage(tr("Process has finished."), NormalMessageFormat);
+        appendMessage(tr("Process has finished.\n"), NormalMessageFormat);
         finishRunControl();
     }
 }
@@ -274,7 +274,7 @@ void CodaRunControl::handleContextSuspended(const CodaEvent &event)
     switch (me.reason()) {
     case TcfSuspendEvent::Other:
     case TcfSuspendEvent::Crash:
-        appendMessage(tr("Thread has crashed: %1").arg(QString::fromLatin1(me.message())), ErrorMessageFormat);
+        appendMessage(tr("Thread has crashed: %1\n").arg(QString::fromLatin1(me.message())), ErrorMessageFormat);
 
         if (me.reason() == TcfSuspendEvent::Crash)
             stop();
@@ -316,7 +316,7 @@ void CodaRunControl::handleFindProcesses(const CodaCommandResult &result)
 {
     if (result.values.size() && result.values.at(0).type() == JsonValue::Array && result.values.at(0).children().count()) {
         //there are processes running. Cannot run mine
-        appendMessage(tr("The process is already running on the device. Please first close it."), ErrorMessageFormat);
+        appendMessage(tr("The process is already running on the device. Please first close it.\n"), ErrorMessageFormat);
         finishRunControl();
     } else {
         setProgress(maxProgress()*0.90);
@@ -326,7 +326,7 @@ void CodaRunControl::handleFindProcesses(const CodaCommandResult &result)
                                               commandLineArguments().split(' '),
                                               QString(),
                                               true);
-        appendMessage(tr("Launching: %1").arg(executableName()), NormalMessageFormat);
+        appendMessage(tr("Launching: %1\n").arg(executableName()), NormalMessageFormat);
     }
 }
 
@@ -335,9 +335,9 @@ void CodaRunControl::handleCreateProcess(const CodaCommandResult &result)
     const bool ok = result.type == CodaCommandResult::SuccessReply;
     if (ok) {
         setProgress(maxProgress());
-        appendMessage(tr("Launched."), NormalMessageFormat);
+        appendMessage(tr("Launched.\n"), NormalMessageFormat);
     } else {
-        appendMessage(tr("Launch failed: %1").arg(result.toString()), ErrorMessageFormat);
+        appendMessage(tr("Launch failed: %1\n").arg(result.toString()), ErrorMessageFormat);
         finishRunControl();
     }
 }
@@ -381,14 +381,14 @@ void CodaRunControl::cancelConnection()
         return;
 
     stop();
-    appendMessage(tr("Canceled."), ErrorMessageFormat);
+    appendMessage(tr("Canceled.\n"), ErrorMessageFormat);
     emit finished();
 }
 
 void CodaRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &device)
 {
     if (m_codaDevice && device.portName() == m_serialPort) {
-        QString msg = tr("The device '%1' has been disconnected").arg(device.friendlyName());
+        QString msg = tr("The device '%1' has been disconnected.\n").arg(device.friendlyName());
         appendMessage(msg, ErrorMessageFormat);
         finishRunControl();
     }

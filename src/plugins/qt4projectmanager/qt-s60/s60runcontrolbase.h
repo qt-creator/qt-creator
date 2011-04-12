@@ -81,7 +81,6 @@ private:
 
 protected slots:
     void reportLaunchFinished();
-    void appendMessage(const QString &msg, ProjectExplorer::OutputFormat format, bool addNewLine=true);
 
 private slots:
     void handleFinished();

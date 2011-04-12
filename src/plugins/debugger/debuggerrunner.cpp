@@ -248,12 +248,12 @@ void DebuggerRunControl::start()
     d->m_engine->startDebugger(this);
 
     if (d->m_running)
-        appendMessage(tr("Debugging starts"), NormalMessageFormat);
+        appendMessage(tr("Debugging starts\n"), NormalMessageFormat);
 }
 
 void DebuggerRunControl::startFailed()
 {
-    appendMessage(tr("Debugging has failed"), NormalMessageFormat);
+    appendMessage(tr("Debugging has failed\n"), NormalMessageFormat);
     d->m_running = false;
     emit finished();
     d->m_engine->handleStartFailed();
@@ -261,7 +261,7 @@ void DebuggerRunControl::startFailed()
 
 void DebuggerRunControl::handleFinished()
 {
-    appendMessage(tr("Debugging has finished"), NormalMessageFormat);
+    appendMessage(tr("Debugging has finished\n"), NormalMessageFormat);
     if (d->m_engine)
         d->m_engine->handleFinished();
     debuggerCore()->runControlFinished(d->m_engine);
