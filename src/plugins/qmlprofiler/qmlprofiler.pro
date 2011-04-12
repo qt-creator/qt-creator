@@ -8,11 +8,9 @@ include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/analyzerbase/analyzerbase.pri)
 include(../../plugins/qmlprojectmanager/qmlprojectmanager.pri)
 
-
 QT += network script declarative
 
 include(canvas/canvas.pri)
-#include($$QMLJSDEBUGGER_PATH/qmljsdebugger-lib.pri)
 
 SOURCES += \
     qmlprofilerplugin.cpp \

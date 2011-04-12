@@ -85,8 +85,11 @@ private slots:
     void updateProjectFileList();
     void attach();
     void updateAttachAction();
+    void tryToConnect();
 
 private:
+    void connectToClient();
+
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;
 };

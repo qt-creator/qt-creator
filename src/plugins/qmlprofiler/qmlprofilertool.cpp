@@ -109,6 +109,8 @@ public:
     QmlProfilerTool *q;
 
     QDeclarativeDebugConnection *m_client;
+    QTimer m_connectionTimer;
+    int m_connectionAttempts;
     TraceWindow *m_traceWindow;
     QTabWidget *m_tabbed;
     QmlProfilerSummaryView *m_summary;
@@ -128,6 +130,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate(this))
 {
      d->m_client = 0;
+     d->m_connectionAttempts = 0;
      d->m_traceWindow = 0;
      d->m_outputPaneAdapter = 0;
      d->m_project = 0;
@@ -135,6 +138,9 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
      d->m_isAttached = false;
      d->m_attachAction = 0;
      d->m_recordingEnabled = true;
+
+     d->m_connectionTimer.setInterval(200);
+     connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(tryToConnect()));
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -190,7 +196,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     return engine;
 }
 
-void QmlProfilerTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
+void QmlProfilerTool::initialize(ExtensionSystem::IPlugin * /*plugin*/)
 {
     qmlRegisterType<Canvas>("Monitor", 1, 0, "Canvas");
     qmlRegisterType<TiledCanvas>("Monitor", 1, 0, "TiledCanvas");
@@ -286,6 +292,11 @@ QWidget *QmlProfilerTool::createTimeLineWidget()
 }
 
 void QmlProfilerTool::connectClient()
+{
+    d->m_connectionTimer.start();
+}
+
+void QmlProfilerTool::connectToClient()
 {
     QDeclarativeDebugConnection *newClient = new QDeclarativeDebugConnection;
     d->m_traceWindow->reset(newClient);
@@ -419,3 +430,19 @@ void QmlProfilerTool::updateAttachAction()
     d->m_attachAction->setEnabled(Analyzer::AnalyzerManager::instance()->currentTool() == this);
 }
 
+void QmlProfilerTool::tryToConnect()
+{
+    ++d->m_connectionAttempts;
+
+    if (d->m_client->isConnected()) {
+        d->m_connectionTimer.stop();
+        d->m_connectionAttempts = 0;
+    } else if (d->m_connectionAttempts == 50) {
+        d->m_connectionTimer.stop();
+        d->m_connectionAttempts = 0;
+        // TODO: Warn user that connection failed
+        //emit connectionStartupFailed();
+    } else {
+        connectToClient();
+    }
+}

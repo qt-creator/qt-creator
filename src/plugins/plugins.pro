@@ -64,7 +64,7 @@ contains(QT_CONFIG, declarative) {
 
         minQtVersion(4, 7, 1) {
             SUBDIRS += plugin_qmldesigner
-	    !win32:SUBDIRS += plugin_qmlprofiler
+            SUBDIRS += plugin_qmlprofiler
         } else {
             warning()
             warning("QmlDesigner plugin has been disabled.")
@@ -269,12 +269,12 @@ plugin_analyzerbase.depends += plugin_projectexplorer
     plugin_callgrind.depends = plugin_coreplugin
     plugin_callgrind.depends += plugin_analyzerbase
     plugin_callgrind.depends += plugin_valgrindtoolbase
-
-    plugin_qmlprofiler.subdir = qmlprofiler
-    plugin_qmlprofiler.depends = plugin_coreplugin
-    plugin_qmlprofiler.depends += plugin_analyzerbase
-    plugin_qmlprofiler.depends += plugin_qmlprojectmanager
 }
+
+plugin_qmlprofiler.subdir = qmlprofiler
+plugin_qmlprofiler.depends = plugin_coreplugin
+plugin_qmlprofiler.depends += plugin_analyzerbase
+plugin_qmlprofiler.depends += plugin_qmlprojectmanager
 
 plugin_qmljstools.subdir = qmljstools
 plugin_qmljstools.depends = plugin_projectexplorer

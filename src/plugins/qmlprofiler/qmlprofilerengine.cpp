@@ -52,9 +52,6 @@
 
 #include <QProcess>
 
-#ifdef Q_OS_UNIX
-#include <unistd.h> // sleep
-#endif
 
 using namespace QmlProfiler::Internal;
 
@@ -175,9 +172,6 @@ bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
     m_process->setWorkingDirectory(m_params.workingDirectory);
     connect(m_process,SIGNAL(finished(int)),q,SLOT(spontaneousStop()));
     m_process->start(m_params.debuggee, arguments);
-
-    // give the process time to start
-    sleep(1);
 
     if (!m_process->waitForStarted()) {
         if (QmlProfilerPlugin::debugOutput)
