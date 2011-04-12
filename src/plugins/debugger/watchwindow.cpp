@@ -153,43 +153,42 @@ static inline QString nameOf(const QModelIndex &m)
 static inline uint sizeOf(const QModelIndex &m)
     { return m.data(LocalsSizeRole).toUInt(); }
 
-// Helper functionality to obtain a address-sorted list of member variables
-// of a watch model index and its size. Restrict this to the size passed
-// in since static members can be contained that are in different areas.
-struct MemberVariable
-{
-    MemberVariable(quint64 a = 0, uint s = 0, const QString &n = QString()) :
-        address(a), size(s), name(n) {}
+// Helper functionality to indicate the area of a member variable in
+// a vector representing the memory area by a unique color
+// number and tooltip. Parts of it will be overwritten when recursing
+// over the children.
 
-    quint64 address;
-    uint size;
-    QString name;
-};
+typedef QPair<int, QString> ColorNumberToolTipPair;
+typedef QVector<ColorNumberToolTipPair> ColorNumberToolTipVector;
 
-bool lessThanMV(const MemberVariable &m1, const MemberVariable &m2)
+static int memberVariableRecursion(const QModelIndex &m,
+                                    const QString &name,
+                                    quint64 start, quint64 end,
+                                    int *colorNumberIn,
+                                    ColorNumberToolTipVector *cnmv)
 {
-    return m1.address < m2.address;
-}
-
-static QVector<MemberVariable> sortedMemberVariables(const QModelIndex &m,
-                                                     quint64 start, quint64 end)
-{
+    int childCount = 0;
     const int rowCount = m.model()->rowCount(m);
     if (!rowCount)
-        return QVector<MemberVariable>();
-    QVector<MemberVariable> result;
-    result.reserve(rowCount);
+        return childCount;
+    const QString nameRoot = name + QLatin1Char('.');
     for (int r = 0; r < rowCount; r++) {
         const QModelIndex childIndex = m.child(r, 0);
         const quint64 childAddress = addressOf(childIndex);
         const uint childSize = sizeOf(childIndex);
         if (childAddress && childAddress >= start
-            && (childAddress + childSize) <= end) { // Non-static, within area?
-            result.push_back(MemberVariable(childAddress, childSize, nameOf(childIndex)));
+                && (childAddress + childSize) <= end) { // Non-static, within area?
+            const QString childName = nameRoot + nameOf(childIndex);
+            const quint64 childOffset = childAddress - start;
+            const QString toolTip = WatchWindow::tr("%1 at #%2").arg(childName).arg(childOffset);
+            const ColorNumberToolTipPair colorNumberNamePair((*colorNumberIn)++, toolTip);
+            const ColorNumberToolTipVector::iterator begin = cnmv->begin() + childOffset;
+            qFill(begin, begin + childSize, colorNumberNamePair);
+            childCount++;
+            childCount += memberVariableRecursion(childIndex, childName, start, end, colorNumberIn, cnmv);
         }
     }
-    qStableSort(result.begin(), result.end(), lessThanMV);
-    return result;
+    return childCount;
 }
 
 /*!
@@ -197,12 +196,13 @@ static QVector<MemberVariable> sortedMemberVariables(const QModelIndex &m,
 
     \brief Creates markup for a variable in the memory view.
 
-    Marks the 1st order children with alternating colors in the parent, that is, for
+    Marks the visible children with alternating colors in the parent, that is, for
     \code
     struct Foo {
     char c1
     char c2
     int x2;
+    QPair<int, int> pair
     }
     \endcode
     create something like:
@@ -213,6 +213,9 @@ static QVector<MemberVariable> sortedMemberVariables(const QModelIndex &m,
     3 base color
     4 member color1
     ...
+    8 memberColor2 (pair.first)
+    ...
+    12 memberColor1 (pair.second)
     \endcode
 
    Fixme: When dereferencing a pointer, the size of the pointee is not
@@ -234,45 +237,19 @@ static inline MemoryViewWidgetMarkup
 {
     enum { debug = 0 };
 
-    typedef QPair<QColor, QString> ColorNamePair;
-    typedef QVector<ColorNamePair> ColorNameVector;
-
-    MemoryViewWidgetMarkup result;
-    const QVector<MemberVariable> members = sortedMemberVariables(m, address, address + size);
     // Starting out from base, create an array representing the area filled with base
-    // color. Fill children with alternating member colors,
+    // color. Fill children with some unique color numbers,
     // leaving the padding areas of the parent colored with the base color.
-    if (sizeIsEstimate && members.isEmpty())
-        return result; // Fixme: Exact size not known, no point in filling if no children.
-    const QColor baseColor = sizeIsEstimate ? defaultBackground : Qt::lightGray;
+    MemoryViewWidgetMarkup result;
     const QString name = nameOf(m);
-    ColorNameVector ranges(size, ColorNamePair(baseColor, name));
-    if (!members.isEmpty()) {
-        QColor memberColor1 = QColor(Qt::yellow).lighter();
-        QColor memberColor2 = QColor(Qt::cyan).lighter();
-        for (int m = 0; m < members.size(); m++) {
-            QColor memberColor;
-            if (m & 1) {
-                memberColor = memberColor1;
-                memberColor1 = memberColor1.darker(120);
-            } else {
-                memberColor = memberColor2;
-                memberColor2 = memberColor2.darker(120);
-            }
-            const quint64 childOffset = members.at(m).address - address;
-            const QString toolTip = WatchWindow::tr("%1.%2 at #%3")
-                    .arg(name, members.at(m).name).arg(childOffset);
-            qFill(ranges.begin() + childOffset,
-                  ranges.begin() + childOffset + members.at(m).size,
-                  ColorNamePair(memberColor, toolTip));
-        }
-    }
-
+    int colorNumber = 0;
+    ColorNumberToolTipVector ranges(size, ColorNumberToolTipPair(colorNumber, name));
+    const int childCount = memberVariableRecursion(m, name, address, address + size, &colorNumber, &ranges);
+    if (sizeIsEstimate && !childCount)
+        return result; // Fixme: Exact size not known, no point in filling if no children.
     if (debug) {
         QDebug dbg = qDebug().nospace();
         dbg << name << ' ' << address << ' ' << size << '\n';
-        foreach (const MemberVariable &mv, members)
-            dbg << ' ' << mv.name << ' ' << mv.address << ' ' << mv.size << '\n';
         QString name;
         for (unsigned i = 0; i < size; i++)
             if (name != ranges.at(i).second) {
@@ -281,12 +258,30 @@ static inline MemoryViewWidgetMarkup
             }
     }
 
-    // Condense ranges of identical color into markup ranges.
+    // Condense ranges of identical color into markup ranges. Assign member colors
+    // interchangeably.
+    const QColor baseColor = sizeIsEstimate ? defaultBackground : Qt::lightGray;
+    QColor memberColor1 = QColor(Qt::yellow).lighter();
+    QColor memberColor2 = QColor(Qt::cyan).lighter();
+
+    int lastColorNumber = 0;
+    int childNumber = 0;
     for (unsigned i = 0; i < size; i++) {
-        const ColorNamePair &range = ranges.at(i);
-        if (result.isEmpty() || result.back().format.background().color() != range.first) {
+        const ColorNumberToolTipPair &range = ranges.at(i);
+        if (result.isEmpty() || lastColorNumber != range.first) {
+            lastColorNumber = range.first;
             QTextCharFormat format = defaultFormat;
-            format.setBackground(QBrush(range.first));
+            if (range.first == 0) { // Base color: Parent
+                format.setBackground(QBrush(baseColor));
+            } else {
+                if (childNumber++ & 1) { // Alternating member colors.
+                    format.setBackground(QBrush(memberColor1));
+                    memberColor1 = memberColor1.darker(120);
+                } else {
+                    format.setBackground(QBrush(memberColor2));
+                    memberColor2 = memberColor2.darker(120);
+                }
+            } // color switch
             result.push_back(MemoryViewWidget::Markup(address + i, 1, format, range.second));
         } else {
             result.back().size++;
@@ -296,8 +291,6 @@ static inline MemoryViewWidgetMarkup
     if (debug) {
         QDebug dbg = qDebug().nospace();
         dbg << name << ' ' << address << ' ' << size << '\n';
-        foreach (const MemberVariable &mv, members)
-            dbg << ' ' << mv.name << ' ' << mv.address << ' ' << mv.size << '\n';
         QString name;
         for (unsigned i = 0; i < size; i++)
             if (name != ranges.at(i).second) {
