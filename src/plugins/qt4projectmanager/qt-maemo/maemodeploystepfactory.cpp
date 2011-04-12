@@ -34,6 +34,7 @@
 #include "maemodeploystepfactory.h"
 
 #include "maemodeploybymountstep.h"
+#include "maemodirectdeviceuploadstep.h"
 #include "maemoglobal.h"
 #include "maemoinstalltosysrootstep.h"
 #include "maemouploadandinstalldeploystep.h"
@@ -104,6 +105,8 @@ QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
         return MaemoInstallRpmPackageToSysrootStep::DisplayName;
     else if (id == MaemoCopyToSysrootStep::Id)
         return MaemoCopyToSysrootStep::DisplayName;
+    else if (id == MaemoDirectDeviceUploadStep::Id)
+        return MaemoDirectDeviceUploadStep::DisplayName;
     return QString();
 }
 
@@ -135,6 +138,8 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const QString &
         return new MaemoUploadAndInstallRpmPackageStep(parent);
     } else if (id == MaemoUploadAndInstallTarPackageStep::Id) {
         return new MaemoUploadAndInstallTarPackageStep(parent);
+    } else if (id == MaemoDirectDeviceUploadStep::Id) {
+        return new MaemoDirectDeviceUploadStep(parent);
     }
 
     return 0;
@@ -189,6 +194,9 @@ BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *produ
     } else if (product->id() == MaemoCopyToSysrootStep::Id) {
         return new MaemoCopyToSysrootStep(parent,
             qobject_cast<MaemoCopyToSysrootStep *>(product));
+    } else if (product->id() == MaemoDirectDeviceUploadStep::Id) {
+        return new MaemoDirectDeviceUploadStep(parent,
+            qobject_cast<MaemoDirectDeviceUploadStep *>(product));
     }
     return 0;
 }
