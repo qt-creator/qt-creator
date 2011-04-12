@@ -37,6 +37,7 @@
 #include "fileformat/qmlprojectitem.h"
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojecttarget.h"
+#include "qmlprojectconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -58,6 +59,9 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
       m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>()),
       m_fileWatcher(new ProjectExplorer::FileWatcher(this))
 {
+    setProjectContext(Core::Context(QmlProjectManager::Constants::PROJECTCONTEXT));
+    setProjectLanguage(Core::Context(QmlProjectManager::Constants::LANG_QML));
+
     QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.completeBaseName();
 

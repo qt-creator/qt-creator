@@ -49,18 +49,7 @@ namespace Internal {
 
 Manager::Manager()
 {
-    m_projectContext  = Core::Context(QmlProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = Core::Context(QmlProjectManager::Constants::LANG_QML);
 }
-
-Manager::~Manager()
-{ }
-
-Core::Context Manager::projectContext() const
-{ return m_projectContext; }
-
-Core::Context Manager::projectLanguage() const
-{ return m_projectLanguage; }
 
 QString Manager::mimeType() const
 { return QLatin1String(Constants::QMLMIMETYPE); }

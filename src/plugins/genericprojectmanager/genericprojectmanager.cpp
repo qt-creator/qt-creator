@@ -46,20 +46,7 @@
 using namespace GenericProjectManager::Internal;
 
 Manager::Manager()
-{
-    m_projectContext  = Core::Context(GenericProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = Core::Context(ProjectExplorer::Constants::LANG_CXX);
-}
-
-Core::Context Manager::projectContext() const
-{
-    return m_projectContext;
-}
-
-Core::Context Manager::projectLanguage() const
-{
-    return m_projectLanguage;
-}
+{ }
 
 QString Manager::mimeType() const
 {

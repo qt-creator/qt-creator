@@ -203,16 +203,6 @@ void Qt4Manager::uiEditorContentsChanged()
         m_dirty = true;
 }
 
-Core::Context Qt4Manager::projectContext() const
-{
-     return m_plugin->projectContext();
-}
-
-Core::Context Qt4Manager::projectLanguage() const
-{
-    return Core::Context(ProjectExplorer::Constants::LANG_CXX);
-}
-
 QString Qt4Manager::mimeType() const
 {
     return QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);

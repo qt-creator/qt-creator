@@ -63,9 +63,6 @@ using namespace CMakeProjectManager::Internal;
 CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     : m_settingsPage(cmakeSettingsPage)
 {
-    m_projectContext = Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = Core::Context(ProjectExplorer::Constants::LANG_CXX);
-
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)),
             this, SLOT(updateContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)));
@@ -79,14 +76,16 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     Core::ActionContainer *msubproject =
             am->actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
+    const Core::Context projectContext(CMakeProjectManager::Constants::PROJECTCONTEXT);
+
     m_runCMakeAction = new QAction(QIcon(), tr("Run CMake"), this);
-    Core::Command *command = am->registerAction(m_runCMakeAction, Constants::RUNCMAKE, m_projectContext);
+    Core::Command *command = am->registerAction(m_runCMakeAction, Constants::RUNCMAKE, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_PROJECT);
     connect(m_runCMakeAction, SIGNAL(triggered()), this, SLOT(runCMake()));
 
     m_runCMakeActionContextMenu = new QAction(QIcon(), tr("Run CMake"), this);
-    command = am->registerAction(m_runCMakeActionContextMenu, Constants::RUNCMAKECONTEXTMENU, m_projectContext);
+    command = am->registerAction(m_runCMakeActionContextMenu, Constants::RUNCMAKECONTEXTMENU, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
@@ -131,16 +130,6 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
     if (copw.exec() == QDialog::Accepted) {
         cmakeProject->parseCMakeLists();
     }
-}
-
-Core::Context CMakeManager::projectContext() const
-{
-    return m_projectContext;
-}
-
-Core::Context CMakeManager::projectLanguage() const
-{
-    return m_projectLanguage;
 }
 
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName)

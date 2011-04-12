@@ -47,6 +47,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QProcessEnvironment>
@@ -72,6 +73,9 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
       m_fileName(fileName),
       m_toolChain(0)
 {
+    setProjectContext(Core::Context(GenericProjectManager::Constants::PROJECTCONTEXT));
+    setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+
     QFileInfo fileInfo(m_fileName);
     QDir dir = fileInfo.dir();
 

@@ -65,8 +65,6 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
 
-    Core::Context projectContext() const { return m_projectContext; }
-
 private slots:
     void updateContextMenu(ProjectExplorer::Project *project,
                            ProjectExplorer::Node *node);

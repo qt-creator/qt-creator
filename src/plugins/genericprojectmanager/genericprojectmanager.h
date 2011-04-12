@@ -35,7 +35,6 @@
 #define GENERICPROJECTMANAGER_H
 
 #include <projectexplorer/iprojectmanager.h>
-#include <coreplugin/icontext.h>
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -49,9 +48,6 @@ class Manager : public ProjectExplorer::IProjectManager
 public:
     Manager();
 
-    virtual Core::Context projectContext() const;
-    virtual Core::Context projectLanguage() const;
-
     virtual QString mimeType() const;
     virtual ProjectExplorer::Project *openProject(const QString &fileName);
 
@@ -61,8 +57,6 @@ public:
     void unregisterProject(GenericProject *project);
 
 private:
-    Core::Context m_projectContext;
-    Core::Context m_projectLanguage;
     QList<GenericProject *> m_projects;
 };
 

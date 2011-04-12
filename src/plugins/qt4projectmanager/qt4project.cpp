@@ -46,6 +46,7 @@
 #include "qmldumptool.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -57,6 +58,7 @@
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
@@ -261,6 +263,9 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_asyncUpdateState(NoState),
     m_cancelEvaluate(false)
 {
+    setProjectContext(Core::Context(Qt4ProjectManager::Constants::PROJECT_ID));
+    setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+
     m_asyncUpdateTimer.setSingleShot(true);
     m_asyncUpdateTimer.setInterval(3000);
     connect(&m_asyncUpdateTimer, SIGNAL(timeout()), this, SLOT(asyncUpdate()));

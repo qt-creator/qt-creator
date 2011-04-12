@@ -42,6 +42,7 @@
 #include "userfileaccessor.h"
 
 #include <coreplugin/ifile.h>
+#include <coreplugin/icontext.h>
 #include <extensionsystem/pluginmanager.h>
 #include <limits>
 #include <utils/qtcassert.h>
@@ -60,12 +61,15 @@ namespace ProjectExplorer {
 // Project
 // -------------------------------------------------------------------------
 
-class ProjectPrivate {
+class ProjectPrivate
+{
 public:
     ProjectPrivate();
     QList<Target *> m_targets;
     Target *m_activeTarget;
     EditorConfiguration *m_editorConfiguration;
+    Core::Context m_projectContext;
+    Core::Context m_projectLanguage;
 };
 
 ProjectPrivate::ProjectPrivate() :
@@ -299,6 +303,26 @@ EditorConfiguration *Project::editorConfiguration() const
 QString Project::generatedUiHeader(const QString & /* formFile */) const
 {
     return QString();
+}
+
+void Project::setProjectContext(Core::Context context)
+{
+    d->m_projectContext = context;
+}
+
+void Project::setProjectLanguage(Core::Context language)
+{
+    d->m_projectLanguage = language;
+}
+
+Core::Context Project::projectContext() const
+{
+    return d->m_projectContext;
+}
+
+Core::Context Project::projectLanguage() const
+{
+    return d->m_projectLanguage;
 }
 
 } // namespace ProjectExplorer

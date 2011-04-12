@@ -42,6 +42,7 @@
 
 namespace Core {
 class IFile;
+class Context;
 }
 
 namespace ProjectExplorer {
@@ -51,7 +52,6 @@ class IProjectManager;
 class EditorConfiguration;
 class ProjectNode;
 class Target;
-class ITargetFactory;
 class ProjectPrivate;
 
 class PROJECTEXPLORER_EXPORT Project
@@ -119,6 +119,9 @@ public:
     QString projectDirectory() const;
     static QString projectDirectory(const QString &proFile);
 
+    virtual Core::Context projectContext() const;
+    virtual Core::Context projectLanguage() const;
+
 signals:
     void fileListChanged();
 
@@ -144,6 +147,9 @@ protected:
     //
     // Note: Do not forget to call your base class' fromMap method!
     virtual bool fromMap(const QVariantMap &map);
+
+    virtual void setProjectContext(Core::Context context);
+    virtual void setProjectLanguage(Core::Context language);
 
 private slots:
     void changeEnvironment();

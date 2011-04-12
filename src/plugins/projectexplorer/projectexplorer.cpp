@@ -1502,12 +1502,12 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
         Core::Context newContext;
 
         if (d->m_currentProject) {
-            oldContext.add(d->m_currentProject->projectManager()->projectContext());
-            oldContext.add(d->m_currentProject->projectManager()->projectLanguage());
+            oldContext.add(d->m_currentProject->projectContext());
+            oldContext.add(d->m_currentProject->projectLanguage());
         }
         if (project) {
-            newContext.add(project->projectManager()->projectContext());
-            newContext.add(project->projectManager()->projectLanguage());
+            newContext.add(project->projectContext());
+            newContext.add(project->projectLanguage());
         }
 
         core->updateAdditionalContexts(oldContext, newContext);

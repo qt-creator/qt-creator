@@ -78,10 +78,6 @@ public:
 
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;
 
-    // ProjectExplorer::IProjectManager
-    Core::Context projectContext() const;
-    Core::Context projectLanguage() const;
-
     virtual QString mimeType() const;
     ProjectExplorer::Project *openProject(const QString &fileName);
 
