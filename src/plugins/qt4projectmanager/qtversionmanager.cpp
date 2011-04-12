@@ -247,7 +247,7 @@ bool QtVersionManager::supportsTargetId(const QString &id) const
 {
     QList<QtVersion *> versions = QtVersionManager::instance()->versionsForTargetId(id);
     foreach (QtVersion *v, versions)
-        if (v->isValid() && v->toolChainAvailable())
+        if (v->isValid() && v->toolChainAvailable(id))
             return true;
     return false;
 }
@@ -1815,10 +1815,29 @@ bool QtVersion::isValid() const
             && m_validSystemRoot;
 }
 
-bool QtVersion::toolChainAvailable() const
+bool QtVersion::toolChainAvailable(const QString &id) const
 {
     if (!isValid())
         return false;
+
+    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
+        QList<ProjectExplorer::ToolChain *> tcList =
+                ProjectExplorer::ToolChainManager::instance()->toolChains();
+        foreach (ProjectExplorer::ToolChain *tc, tcList) {
+            if (tc->id().startsWith(QLatin1String(Constants::WINSCW_TOOLCHAIN_ID)))
+                return true;
+        }
+        return false;
+    } else if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
+        QList<ProjectExplorer::ToolChain *> tcList =
+                ProjectExplorer::ToolChainManager::instance()->toolChains();
+        foreach (ProjectExplorer::ToolChain *tc, tcList) {
+            if (!tc->id().startsWith(Qt4ProjectManager::Constants::WINSCW_TOOLCHAIN_ID))
+                return true;
+        }
+        return false;
+    }
+
     foreach (const ProjectExplorer::Abi &abi, qtAbis())
         if (!ProjectExplorer::ToolChainManager::instance()->findToolChains(abi).isEmpty())
             return true;

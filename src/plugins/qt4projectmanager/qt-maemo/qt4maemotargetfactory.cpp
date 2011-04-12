@@ -155,7 +155,7 @@ QList<BuildConfigurationInfo> Qt4MaemoTargetFactory::availableBuildConfiguration
     QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
     foreach (QtVersion *version, knownVersions) {
-        if (!version->isValid() || !version->toolChainAvailable())
+        if (!version->isValid() || !version->toolChainAvailable(id))
             continue;
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
 #ifdef Q_OS_WIN

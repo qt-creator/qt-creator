@@ -96,7 +96,7 @@ public:
     ~QtVersion();
 
     bool isValid() const;
-    bool toolChainAvailable() const;
+    bool toolChainAvailable(const QString &id) const;
 
     QString invalidReason() const;
     QString description() const;

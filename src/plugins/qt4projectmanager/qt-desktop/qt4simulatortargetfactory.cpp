@@ -135,7 +135,7 @@ QList<BuildConfigurationInfo> Qt4SimulatorTargetFactory::availableBuildConfigura
     QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
     foreach (QtVersion *version, knownVersions) {
-        if (!version->isValid() || !version->toolChainAvailable())
+        if (!version->isValid() || !version->toolChainAvailable(id))
             continue;
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
         QString dir = defaultShadowBuildDirectory(Qt4Project::defaultTopLevelBuildDirectory(proFilePath), id);

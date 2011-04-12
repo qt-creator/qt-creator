@@ -78,6 +78,7 @@ QStringList Qt4SymbianTargetFactory::supportedTargetIds(ProjectExplorer::Project
         return QStringList();
 
     QStringList ids;
+    // The QtVersionManager will just check whether theres
     if (QtVersionManager::instance()->supportsTargetId(Constants::S60_DEVICE_TARGET_ID))
         ids << QLatin1String(Constants::S60_DEVICE_TARGET_ID);
     if (QtVersionManager::instance()->supportsTargetId(Constants::S60_EMULATOR_TARGET_ID))
@@ -168,7 +169,7 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
     QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
     foreach (QtVersion *version, knownVersions) {
-        if (!version->isValid() || !version->toolChainAvailable())
+        if (!version->isValid() || !version->toolChainAvailable(id))
             continue;
 
         bool buildAll = version->defaultBuildConfig() & QtVersion::BuildAll;
