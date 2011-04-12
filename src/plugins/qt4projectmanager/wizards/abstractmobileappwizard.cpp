@@ -49,12 +49,12 @@
 
 namespace Qt4ProjectManager {
 
-AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent)
+AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent, const QtVersionNumber &minimumQtVersionNumber)
     : ProjectExplorer::BaseProjectWizardDialog(parent)
 {
     m_targetsPage = new TargetSetupPage;
     m_targetsPage->setPreferMobile(true);
-    m_targetsPage->setMinimumQtVersion(QtVersionNumber(4,7,0));
+    m_targetsPage->setMinimumQtVersion(minimumQtVersionNumber);
     resize(900, 450);
     m_targetsPageId = addPageWithTitle(m_targetsPage, tr("Qt Versions"));
     m_genericOptionsPage = new Internal::MobileAppWizardGenericOptionsPage;

@@ -59,7 +59,7 @@ private:
 };
 
 Html5AppWizardDialog::Html5AppWizardDialog(QWidget *parent)
-    : AbstractMobileAppWizardDialog(parent)
+    : AbstractMobileAppWizardDialog(parent, QtVersionNumber())
     , m_htmlOptionsPage(0)
 {
     setWindowTitle(tr("New HTML5 Application"));
