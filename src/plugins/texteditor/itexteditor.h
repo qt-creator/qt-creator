@@ -61,7 +61,6 @@ class TEXTEDITOR_EXPORT ITextMark : public QObject
     Q_OBJECT
 public:
     ITextMark(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ITextMark() {}
 
     // determine order on markers on the same line.
     enum Priority
@@ -94,9 +93,8 @@ class TEXTEDITOR_EXPORT ITextMarkable : public QObject
     Q_OBJECT
 public:
     ITextMarkable(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ITextMarkable() {}
-    virtual bool addMark(ITextMark *mark, int line) = 0;
 
+    virtual bool addMark(ITextMark *mark, int line) = 0;
     virtual TextMarks marksAt(int line) const = 0;
     virtual void removeMark(ITextMark *mark) = 0;
     virtual bool hasMark(ITextMark *mark) const = 0;
@@ -116,10 +114,8 @@ public:
     };
 
     ITextEditor() {}
-    virtual ~ITextEditor() {}
 
     virtual int find(const QString &string) const = 0;
-
     virtual int position(PositionOperation posOp = Current, int at = -1) const = 0;
     virtual void convertPosition(int pos, int *line, int *column) const = 0;
     virtual QRect cursorRect(int pos = -1) const = 0;
