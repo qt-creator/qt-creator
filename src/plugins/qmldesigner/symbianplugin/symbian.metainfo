@@ -73,7 +73,7 @@
       <property name="height" type="int" value="120"/>
     </itemlibraryentry>
   </node>
-  <node name="TabBar" icon=":/symbianponlugin/images/tabbar16.png">
+  <node name="TabBar" icon=":/symbianplugin/images/tabbar16.png">
     <itemlibraryentry name="TabBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/tabbar.png"  version="1.0" requiredImport="com.nokia.symbian">
     </itemlibraryentry>
   </node>
@@ -95,17 +95,17 @@
       <property name="height" type="int" value="640"/>
     </itemlibraryentry>
   </node>
-  <node name="TabGroup" icon=":/symbianponlugin/images/window16.png">
+  <node name="TabGroup" icon=":/symbianplugin//images/window16.png">
     <itemlibraryentry name="TabGroup" category="Components Symbian" libraryIcon=":/symbianplugin/images/window.png" version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="360"/>
       <property name="height" type="int" value="40"/>
     </itemlibraryentry>
   </node>
-  <node name="ToolBar" icon=":/symbianponlugin/images/toolbar16.png">
+  <node name="ToolBar" icon=":/symbianplugin/images/toolbar16.png">
     <itemlibraryentry name="ToolBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/toolbar.png" version="1.0" requiredImport="com.nokia.symbian">
     </itemlibraryentry>
   </node>
-  <node name="Switch" icon=":/symbianponlugin/images/switchbutton16.png">
+  <node name="Switch" icon=":/symbianplugin/images/switchbutton16.png">
     <itemlibraryentry name="Switch" category="Components Symbian" libraryIcon=":/symbianplugin/images/switchbutton.png" version="1.0" requiredImport="com.nokia.symbian">
     </itemlibraryentry>
   </node>
