@@ -660,6 +660,14 @@ private: ////////// View & Data Stuff //////////
     void handleStackListArgumentsClassic(const GdbResponse &response);
 
     QSet<QByteArray> m_processedNames;
+    struct TypeInfo
+    {
+        TypeInfo(uint s = 0) : size(s) {}
+
+        uint size;
+    };
+
+    QHash<QByteArray, TypeInfo> m_typeInfoCache;
 
     //
     // Dumper Management

@@ -119,7 +119,7 @@ void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
     int encoding);
 void setWatchDataChildCount(WatchData &data, const GdbMi &mi);
 void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi);
-void setWatchDataAddress(WatchData &data, const GdbMi &mi);
+void setWatchDataAddress(WatchData &data, const GdbMi &addressMi, const GdbMi &origAddressMi);
 void setWatchDataType(WatchData &data, const GdbMi &mi);
 void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
 

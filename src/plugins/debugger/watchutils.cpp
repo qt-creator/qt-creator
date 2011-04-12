@@ -732,26 +732,31 @@ static void setWatchDataExpression(WatchData &data, const GdbMi &mi)
         data.exp = mi.data();
 }
 
-static void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr)
+static void setWatchDataAddress(WatchData &data, quint64 address , quint64 origAddress = 0)
 {
-    if (addr.startsWith("0x")) { // Item model dumpers pull tricks
-       data.setHexAddress(addr);
+    if (origAddress) { // Gdb dumpers reports the dereferenced address as origAddress
+        data.address = origAddress;
+        data.referencingAddress = address;
     } else {
-        data.dumperFlags = addr;
+        data.address = address;
     }
     if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$'))
         data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" +data.hexAddress();
 }
 
-void setWatchDataAddress(WatchData &data, const GdbMi &mi)
+void setWatchDataAddress(WatchData &data, const GdbMi &addressMi, const GdbMi &origAddressMi)
 {
-    if (mi.isValid())
-        setWatchDataAddressHelper(data, mi.data());
-}
-
-static void setWatchDataOrigAddress(WatchData &data, const GdbMi &mi)
-{
-    data.origAddress = mi.data().toULongLong(0, 16);
+    if (!addressMi.isValid())
+        return;
+    const QByteArray addressBA = addressMi.data();
+    if (!addressBA.startsWith("0x")) { // Item model dumpers pull tricks.
+        data.dumperFlags = addressBA;
+        return;
+    }
+    const quint64 address = addressBA.toULongLong(0, 16);
+    const quint64 origAddress = origAddressMi.isValid() ?
+                                origAddressMi.data().toULongLong(0, 16) : quint64(0);
+    setWatchDataAddress(data, address, origAddress);
 }
 
 static void setWatchDataSize(WatchData &data, const GdbMi &mi)
@@ -811,8 +816,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
         data.bitsize = mi.data().toInt();
 
     setWatchDataValue(data, item);
-    setWatchDataAddress(data, item.findChild("addr"));
-    setWatchDataOrigAddress(data, item.findChild("origaddr"));
+    setWatchDataAddress(data, item.findChild("addr"), item.findChild("origaddr"));
     setWatchDataSize(data, item.findChild("size"));
     setWatchDataExpression(data, item.findChild("exp"));
     setWatchDataValueEnabled(data, item.findChild("valueenabled"));
@@ -851,8 +855,7 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
             data1.name = _c('[') + data1.name + _c(']');
         if (addressStep) {
-            const QByteArray addr = "0x" + QByteArray::number(addressBase, 16);
-            setWatchDataAddressHelper(data1, addr);
+            setWatchDataAddress(data1, addressBase);
             addressBase += addressStep;
         }
         QByteArray key = child.findChild("key").data();

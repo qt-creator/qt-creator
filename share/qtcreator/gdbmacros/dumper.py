@@ -103,6 +103,13 @@ def hasInferiorThreadList():
 
 typeCache = {}
 
+class TypeInfo:
+    def __init__(self, type):
+        self.size = type.sizeof
+        self.reported = False
+
+typeInfoCache = {}
+
 def lookupType(typestring):
     type = typeCache.get(typestring)
     #warn("LOOKUP 1: %s -> %s" % (typestring, type))
@@ -331,8 +338,13 @@ class SubItem:
             #warn("TYPE VALUE: %s" % self.d.currentValue)
             type = stripClassTag(str(self.d.currentType))
             #warn("TYPE: '%s'  DEFAULT: '%s'" % (type, self.d.currentChildType))
+
             if len(type) > 0 and type != self.d.currentChildType:
                 self.d.put('type="%s",' % type) # str(type.unqualified()) ?
+                if not type in typeInfoCache:
+                    typeObj = lookupType(type)
+                    if not typeObj is None:
+                        typeInfoCache[type] = TypeInfo(typeObj)
             if not self.d.currentValueEncoding is None:
                 self.d.put('valueencoded="%d",' % self.d.currentValueEncoding)
             if not self.d.currentValue is None:
@@ -1082,7 +1094,14 @@ class FrameCommand(gdb.Command):
 FrameCommand()
 
 def bb(args):
-    return 'data=[' + Dumper(args).output + ']'
+    output = 'data=[' + Dumper(args).output + '],typeinfo=['
+    for typeName, typeInfo in typeInfoCache.iteritems():
+        if not typeInfo.reported:
+            output += '{name="' + base64.b64encode(typeName)
+            output += '",size="' + str(typeInfo.size) + '"},'
+            typeInfo.reported = True
+    output += ']';
+    return output
 
 
 #######################################################################

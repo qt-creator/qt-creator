@@ -641,9 +641,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 case 1:
                     result = removeInitialNamespace(truncateValue(
                             formattedValue(data, itemFormat(data))), ns);
-                    if (data.origAddress) {
+                    if (data.referencingAddress) {
                         result += QLatin1String(" @");
-                        result += QString::fromLatin1(data.hexOrigAddress());
+                        result += QString::fromLatin1(data.hexAddress());
                     }
                     break;
                 case 2:
@@ -696,7 +696,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_handler->m_expandedINames.contains(data.iname);
 
         case LocalsTypeFormatListRole: {
-            if (data.origAddress || data.type.endsWith('*'))
+            if (data.referencingAddress || data.type.endsWith('*'))
                 return QStringList()
                     << tr("Raw pointer")
                     << tr("Latin1 string")

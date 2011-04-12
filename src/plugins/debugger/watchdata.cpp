@@ -125,7 +125,7 @@ WatchData::WatchData() :
     state(InitialState),
     editformat(0),
     address(0),
-    origAddress(0),
+    referencingAddress(0),
     size(0),
     bitpos(0),
     bitsize(0),
@@ -305,9 +305,9 @@ QString WatchData::toString() const
         str << "addr=\"0x" << address << doubleQuoteComma;
         str.setIntegerBase(10);
     }
-    if (origAddress) {
+    if (referencingAddress) {
         str.setIntegerBase(16);
-        str << "origaddr=\"0x" << origAddress << doubleQuoteComma;
+        str << "referencingaddr=\"0x" << referencingAddress << doubleQuoteComma;
         str.setIntegerBase(10);
     }
     if (!exp.isEmpty())
@@ -373,9 +373,9 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Value"), val);
     formatToolTipRow(str, tr("Object Address"),
                      QString::fromAscii(hexAddress()));
-    if (origAddress)
-        formatToolTipRow(str, tr("Original Address"),
-                         QString::fromAscii(hexOrigAddress()));
+    if (referencingAddress)
+        formatToolTipRow(str, tr("Referencing Address"),
+                         QString::fromAscii(hexReferencingAddress()));
     if (size)
         formatToolTipRow(str, tr("Size"),
                          QString::number(size));
@@ -419,9 +419,9 @@ QByteArray WatchData::hexAddress() const
     return address ? (QByteArray("0x") + QByteArray::number(address, 16)) : QByteArray();
 }
 
-QByteArray WatchData::hexOrigAddress() const
+QByteArray WatchData::hexReferencingAddress() const
 {
-    return origAddress ? (QByteArray("0x") + QByteArray::number(origAddress, 16)) : QByteArray();
+    return referencingAddress ? (QByteArray("0x") + QByteArray::number(referencingAddress, 16)) : QByteArray();
 }
 
 } // namespace Internal

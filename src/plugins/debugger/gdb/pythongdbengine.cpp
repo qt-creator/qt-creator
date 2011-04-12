@@ -158,6 +158,22 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
             }
             parseWatchData(watchHandler()->expandedINames(), dummy, child, &list);
         }
+        const GdbMi typeInfo = all.findChild("typeinfo");
+        if (typeInfo.type() == GdbMi::List) {
+            foreach (const GdbMi &s, typeInfo.children()) {
+                const GdbMi name = s.findChild("name");
+                const GdbMi size = s.findChild("size");
+                if (name.isValid() && size.isValid())
+                    m_typeInfoCache.insert(QByteArray::fromBase64(name.data()),
+                                           TypeInfo(size.data().toUInt()));
+            }
+        }
+        for (int i = 0; i != list.size(); ++i) {
+            const TypeInfo ti = m_typeInfoCache.value(list.at(i).type);
+            if (ti.size)
+                list[i].size = ti.size;
+        }
+
         watchHandler()->insertBulkData(list);
 
         //PENDING_DEBUG("AFTER handleStackFrame()");
