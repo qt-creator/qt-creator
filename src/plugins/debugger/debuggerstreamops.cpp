@@ -265,6 +265,9 @@ QDataStream &operator>>(QDataStream &stream, WatchData &wd)
 QDataStream &operator<<(QDataStream& stream, const DisassemblerLine &o)
 {
     stream << o.address;
+    stream << o.function;
+    stream << o.offset;
+    stream << o.lineNumber;
     stream << o.data;
     return stream;
 }
@@ -272,6 +275,9 @@ QDataStream &operator<<(QDataStream& stream, const DisassemblerLine &o)
 QDataStream &operator>>(QDataStream& stream, DisassemblerLine &o)
 {
     stream >> o.address;
+    stream >> o.function;
+    stream >> o.offset;
+    stream >> o.lineNumber;
     stream >> o.data;
     return stream;
 }

@@ -72,9 +72,6 @@ public:
     void cleanup();
     bool isMixed() const;
 
-    // Return address of an assembly line "0x0dfd  bla"
-    static quint64 addressFromDisassemblyLine(const QString &data);
-
 private:
     DisassemblerAgentPrivate *d;
 };

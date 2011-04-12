@@ -48,7 +48,7 @@
 #include "breakhandler.h"
 #include "breakwindow.h"
 #include "consolewindow.h"
-#include "disassembleragent.h"
+#include "disassemblerlines.h"
 #include "logwindow.h"
 #include "moduleswindow.h"
 #include "moduleshandler.h"
@@ -1621,7 +1621,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
             .section('\n', lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
         needle.type = BreakpointByAddress;
-        needle.address = DisassemblerAgent::addressFromDisassemblyLine(line);
+        needle.address = DisassemblerLine::addressFromDisassemblyLine(line);
         args.address = needle.address;
         needle.lineNumber = -1;
         id = breakHandler()->findSimilarBreakpoint(needle);
@@ -1704,7 +1704,7 @@ void DebuggerPluginPrivate::toggleBreakpoint()
     if (textEditor->property("DisassemblerView").toBool()) {
         QString line = textEditor->contents()
             .section('\n', lineNumber - 1, lineNumber - 1);
-        quint64 address = DisassemblerAgent::addressFromDisassemblyLine(line);
+        quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
     } else if (lineNumber >= 0) {
         toggleBreakpointByFileAndLine(textEditor->file()->fileName(), lineNumber);
@@ -1751,7 +1751,7 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
     if (editor->property("DisassemblerView").toBool()) {
         QString line = editor->contents()
             .section('\n', lineNumber - 1, lineNumber - 1);
-        quint64 address = DisassemblerAgent::addressFromDisassemblyLine(line);
+        quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
     } else if (editor->file()) {
         toggleBreakpointByFileAndLine(editor->file()->fileName(), lineNumber);

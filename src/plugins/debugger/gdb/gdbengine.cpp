@@ -4119,6 +4119,8 @@ static DisassemblerLine parseLine(const GdbMi &line)
     QByteArray address = line.findChild("address").data();
     dl.address = address.toULongLong();
     dl.data = _(line.findChild("inst").data());
+    dl.function = _(line.findChild("func-name").data());
+    dl.offset = line.findChild("offset").data().toUInt();
     return dl;
 }
 
@@ -4153,8 +4155,12 @@ DisassemblerLines GdbEngine::parseMiDisassembler(const GdbMi &lines)
                 fileLoaded = true;
             }
             int line = child.findChild("line").data().toInt();
-            if (line >= 1 && line <= fileContents.size())
-                result.appendComment(fileContents.at(line - 1));
+            if (line >= 1 && line <= fileContents.size()) {
+                DisassemblerLine dl;
+                dl.lineNumber = line;
+                dl.data = fileContents.at(line - 1);
+                result.appendLine(dl);
+            }
             GdbMi insn = child.findChild("line_asm_insn");
             foreach (const GdbMi &item, insn.children())
                 result.appendLine(parseLine(item));
@@ -4172,45 +4178,8 @@ DisassemblerLines GdbEngine::parseCliDisassembler(const GdbMi &output)
     // First line is something like
     // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
     DisassemblerLines dlines;
-    QByteArray lastFunction;
-    foreach (const QByteArray &line0, output.data().split('\n')) {
-        QByteArray line = line0.trimmed();
-        if (line.startsWith("=> "))
-            line = line.mid(3);
-        if (line.isEmpty())
-            continue;
-        if (line.startsWith("Current language:"))
-            continue;
-        if (line.startsWith("Dump of assembler"))
-            continue;
-        if (line.startsWith("The current source"))
-            continue;
-        if (line.startsWith("End of assembler"))
-            continue;
-        if (line.startsWith("0x")) {
-            int pos1 = line.indexOf('<') + 1;
-            int pos2 = line.indexOf('+', pos1);
-            int pos3 = line.indexOf('>', pos1);
-            if (pos1 < pos2 && pos2 < pos3) {
-                QByteArray function = line.mid(pos1, pos2 - pos1);
-                if (function != lastFunction) {
-                    dlines.appendComment(QString());
-                    dlines.appendComment(_("Function: ") + _(function));
-                    lastFunction = function;
-                }
-                line.replace(pos1, pos2 - pos1, "");
-            }
-            if (pos3 - pos2 == 1)
-                line.insert(pos2 + 1, "000");
-            if (pos3 - pos2 == 2)
-                line.insert(pos2 + 1, "00");
-            if (pos3 - pos2 == 3)
-                line.insert(pos2 + 1, "0");
-            dlines.appendLine(DisassemblerLine(_(line)));
-            continue;
-        }
-        dlines.appendComment(someSpace + _(line));
-    }
+    foreach (const QByteArray &line, output.data().split('\n'))
+        dlines.appendUnparsed(_(line));
     return dlines;
 }
 

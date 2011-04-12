@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "disassemblerlines.h"
+#include "debuggerstringutils.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
@@ -39,7 +40,7 @@
 namespace Debugger {
 namespace Internal {
 
-DisassemblerLine::DisassemblerLine(const QString &unparsed)
+void DisassemblerLine::fromString(const QString &unparsed)
 {
     int pos = -1;
     for (int i = 0; i != unparsed.size(); ++i) {
@@ -71,6 +72,13 @@ DisassemblerLine::DisassemblerLine(const QString &unparsed)
         data = unparsed;
 }
 
+quint64 DisassemblerLine::addressFromDisassemblyLine(const QString &line)
+{
+    DisassemblerLine l;
+    l.fromString(line);
+    return l.address;
+}
+
 int DisassemblerLines::lineForAddress(quint64 address) const
 {
     return m_rowCache.value(address);
@@ -81,17 +89,80 @@ bool DisassemblerLines::coversAddress(quint64 address) const
     return m_rowCache.value(address) != 0;
 }
 
-void DisassemblerLines::appendComment(const QString &comment)
-{
-    DisassemblerLine dl;
-    dl.data = comment;
-    m_data.append(dl);
-}
-
 void DisassemblerLines::appendLine(const DisassemblerLine &dl)
 {
     m_data.append(dl);
     m_rowCache[dl.address] = m_data.size();
+}
+
+void DisassemblerLines::appendUnparsed(const QString &unparsed)
+{
+    QString line = unparsed.trimmed();
+    if (line.isEmpty())
+        return;
+    if (line.startsWith("Current language:"))
+        return;
+    if (line.startsWith("Dump of assembler")) {
+        m_lastFunction.clear();
+        return;
+    }
+    if (line.startsWith("The current source"))
+        return;
+    if (line.startsWith("End of assembler")) {
+        m_lastFunction.clear();
+        return;
+    }
+    if (line.startsWith("=> "))
+        line = line.mid(3);
+    if (line.startsWith("0x")) {
+        // Address line.
+        int pos1 = line.indexOf('<') + 1;
+        int pos2 = line.indexOf('+', pos1);
+        int pos3 = line.indexOf('>', pos1);
+        if (pos1 < pos2 && pos2 < pos3) {
+            QString function = line.mid(pos1, pos2 - pos1);
+            if (function != m_lastFunction) {
+                DisassemblerLine dl;
+                dl.data = _("Function: ") + function;
+                m_data.append(dl);
+                m_lastFunction = function;
+            }
+            //line.replace(pos1, pos2 - pos1, "");
+        }
+        DisassemblerLine dl;
+        dl.address = line.left(pos1 - 1).toULongLong(0, 0);
+        dl.function = m_lastFunction;
+        dl.offset = line.mid(pos2, pos3 - pos2).toUInt();
+        dl.data = line.mid(pos3 + 3).trimmed();
+        m_rowCache[dl.address] = m_data.size() + 1;
+        m_data.append(dl);
+    } else {
+        // Comment line.
+        DisassemblerLine dl;
+        dl.data = line;
+        m_data.append(dl);
+    }
+}
+
+QString DisassemblerLine::toString() const
+{
+    const QString someSpace = _("        ");
+    QString str;
+    if (isAssembler()) {
+        if (address)
+            str += _("0x%1  ").arg(address, 0, 16);
+        if (offset)
+            str += _("<+0x%1> ").arg(offset, 4, 10, QLatin1Char('0'));
+        str += _("        ");
+        str += data;
+    } else if (isCode()) {
+        str += someSpace;
+        str += data;
+    } else {
+        str += someSpace;
+        str += data;
+    }
+    return str;
 }
 
 } // namespace Internal

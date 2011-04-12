@@ -1509,7 +1509,7 @@ void CdbEngine::handleDisassembler(const CdbBuiltinCommandPtr &command)
     DisassemblerAgent *agent = qvariant_cast<DisassemblerAgent*>(command->cookie);
     DisassemblerLines disassemblerLines;
     foreach(const QByteArray &line, command->reply)
-        disassemblerLines.appendLine(DisassemblerLine(QString::fromLatin1(line)));
+        disassemblerLines.appendUnparsed(QString::fromLatin1(line));
     agent->setContents(disassemblerLines);
 }
 

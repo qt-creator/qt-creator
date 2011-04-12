@@ -254,13 +254,7 @@ void DisassemblerAgent::setContents(const DisassemblerLines &contents)
 
     QString str;
     for (int i = 0, n = contents.size(); i != n; ++i) {
-        const DisassemblerLine &dl = contents.at(i);
-        if (dl.address) {
-            str += QLatin1String("0x");
-            str += QString::number(dl.address, 16);
-            str += QLatin1String("  ");
-        }
-        str += dl.data;
+        str += contents.at(i).toString();
         str += QLatin1Char('\n');
     }
     plainTextEdit->setPlainText(str);
@@ -329,12 +323,6 @@ void DisassemblerAgent::updateBreakpointMarkers()
 quint64 DisassemblerAgent::address() const
 {
     return d->location.address();
-}
-
-// Return address of an assembly line "0x0dfd  bla"
-quint64 DisassemblerAgent::addressFromDisassemblyLine(const QString &line)
-{
-    return DisassemblerLine(line).address;
 }
 
 void DisassemblerAgent::setTryMixed(bool on)
