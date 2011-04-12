@@ -87,6 +87,7 @@ public:
                                  const QString &importUri, const QString &importVersion);
 
     virtual CppQmlTypeHash cppQmlTypes() const;
+    virtual BuiltinPackagesHash builtinPackages() const;
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);

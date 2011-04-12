@@ -1970,6 +1970,7 @@ const Value *Function::invoke(const Activation *activation) const
 ////////////////////////////////////////////////////////////////////////////////
 
 QHash<QString, FakeMetaObject::ConstPtr> CppQmlTypesLoader::builtinObjects;
+QHash<QString, QList<LanguageUtils::ComponentVersion> > CppQmlTypesLoader::builtinPackages;
 
 QStringList CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles)
 {
@@ -1997,6 +1998,17 @@ QStringList CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles)
         builtinObjects.unite(newObjects);
     }
 
+    QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr>::const_iterator iter
+            = builtinObjects.constBegin();
+    for (; iter != builtinObjects.constEnd(); iter++) {
+        foreach (const FakeMetaObject::Export &exp, iter.value().data()->exports()) {
+            QList<LanguageUtils::ComponentVersion> versions = builtinPackages.value(exp.package);
+            if (!versions.contains(exp.version)) {
+                versions.append(exp.version);
+                builtinPackages.insert(exp.package, versions);
+            }
+        }
+    }
     return errorMsgs;
 }
 

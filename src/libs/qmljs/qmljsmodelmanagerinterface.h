@@ -110,6 +110,7 @@ public:
     };
 
     typedef QHash<QString, QList<LanguageUtils::FakeMetaObject::ConstPtr> > CppQmlTypeHash;
+    typedef QHash<QString, QList<LanguageUtils::ComponentVersion> > BuiltinPackagesHash;
 
 public:
     ModelManagerInterface(QObject *parent = 0);
@@ -135,6 +136,7 @@ public:
                                  const QString &importUri, const QString &importVersion) = 0;
 
     virtual CppQmlTypeHash cppQmlTypes() const = 0;
+    virtual BuiltinPackagesHash builtinPackages() const = 0;
 
 signals:
     void documentUpdated(QmlJS::Document::Ptr doc);

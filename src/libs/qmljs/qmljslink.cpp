@@ -347,8 +347,16 @@ bool Link::importLibrary(Document::Ptr doc, Interpreter::ObjectValue *import,
                         tr("Library contains C++ plugins, type dump is in progress."));
             }
         } else if (libraryInfo.dumpStatus() == LibraryInfo::DumpError) {
-            if (errorLoc.isValid()) {
-                error(doc, errorLoc, libraryInfo.dumpError());
+            ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+
+            // Only underline import if package/version isn't described in .qmltypes anyway
+            const QmlJS::ModelManagerInterface::BuiltinPackagesHash builtinPackages
+                    = modelManager->builtinPackages();
+            const QString packageName = importInfo.name().replace(QDir::separator(), QLatin1Char('.'));
+            if (!builtinPackages.value(packageName).contains(importInfo.version())) {
+                if (errorLoc.isValid()) {
+                    error(doc, errorLoc, libraryInfo.dumpError());
+                }
             }
         } else {
             QList<QmlObjectValue *> loadedObjects =

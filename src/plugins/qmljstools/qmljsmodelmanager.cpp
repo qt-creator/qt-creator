@@ -640,3 +640,8 @@ ModelManagerInterface::CppQmlTypeHash ModelManager::cppQmlTypes() const
     QMutexLocker locker(&m_cppTypesMutex);
     return m_cppTypes;
 }
+
+ModelManagerInterface::BuiltinPackagesHash ModelManager::builtinPackages() const
+{
+    return Interpreter::CppQmlTypesLoader::builtinPackages;
+}
