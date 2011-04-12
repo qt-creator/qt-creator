@@ -516,6 +516,14 @@ bool S60DeviceDebugRunControl::promptToStop(bool *) const
     return Debugger::DebuggerRunControl::promptToStop(0);
 }
 
+void S60DeviceDebugRunControl::appendMessage(const QString &msg, ProjectExplorer::OutputFormat format, bool addNewLine)
+{
+    if (addNewLine)
+        RunControl::appendMessage(msg + '\n', format);
+    else
+        RunControl::appendMessage(msg, format);
+}
+
 S60DeviceDebugRunControlFactory::S60DeviceDebugRunControlFactory(QObject *parent) :
     IRunControlFactory(parent)
 {

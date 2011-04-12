@@ -140,6 +140,7 @@ public:
                                       const QPair<Debugger::DebuggerEngineType, Debugger::DebuggerEngineType> &masterSlaveEngineTypes);
     virtual void start();
     virtual bool promptToStop(bool *optionalPrompt = 0) const;
+    virtual void appendMessage(const QString &msg, ProjectExplorer::OutputFormat format, bool addNewLine=true);
 };
 
 class S60DeviceDebugRunControlFactory : public ProjectExplorer::IRunControlFactory
