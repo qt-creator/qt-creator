@@ -228,7 +228,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
                                     info.version, info.buildConfig,
                                     info.additionalArguments, info.directory);
 
-    t->addDeployConfiguration(t->deployConfigurationFactory()->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));
+    t->addDeployConfiguration(t->createDeployConfiguration(QLatin1String(Qt4ProjectManager::Constants::S60_DEVICE_TARGET_ID)));
 
     t->createApplicationProFiles();
 
