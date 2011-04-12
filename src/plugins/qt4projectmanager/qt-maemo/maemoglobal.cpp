@@ -30,7 +30,6 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-
 #include "maemoglobal.h"
 
 #include "maemoconstants.h"

@@ -352,8 +352,10 @@ void MaemoDeployStep::start()
         const int deployableCount = m_deployables->deployableCount();
         for (int i = 0; i < deployableCount; ++i) {
             const MaemoDeployable &d = m_deployables->deployableAt(i);
-            if (currentlyNeedsDeployment(hostName, d))
+            if (currentlyNeedsDeployment(hostName, d)
+                || QFileInfo(d.localFilePath).isDir()) {
                 m_filesToCopy << d;
+            }
         }
     }
 
@@ -650,6 +652,8 @@ void MaemoDeployStep::installToSysroot()
                 + d.remoteDir + sep + QFileInfo(d.localFilePath).fileName();
             sysRootDir.mkpath(d.remoteDir.mid(1));
             QFile::remove(targetFilePath);
+            QString dummy;
+            MaemoGlobal::removeRecursively(targetFilePath, dummy);
             if (!MaemoGlobal::copyRecursively(d.localFilePath, targetFilePath)) {
                 writeOutput(tr("Sysroot installation failed: "
                     "Could not copy '%1' to '%2'. Continuing anyway.")
