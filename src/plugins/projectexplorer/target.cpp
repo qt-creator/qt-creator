@@ -359,7 +359,8 @@ QList<ToolChain *> Target::possibleToolChains(BuildConfiguration *) const
     QList<ToolChain *> tcList = ToolChainManager::instance()->toolChains();
     QList<ToolChain *> result;
     foreach (ToolChain *tc, tcList) {
-        if (!tc->restrictedToTargets().contains(id()))
+        QStringList restricted = tc->restrictedToTargets();
+        if (restricted.isEmpty() || restricted.contains(id()))
             result.append(tc);
     }
     return result;
