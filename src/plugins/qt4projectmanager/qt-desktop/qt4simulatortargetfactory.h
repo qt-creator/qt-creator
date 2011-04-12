@@ -61,6 +61,7 @@ public:
 
     QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
     bool isMobileTarget(const QString &id);
+    bool supportsShadowBuilds(const QString &id);
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
 };

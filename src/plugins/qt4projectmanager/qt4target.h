@@ -124,6 +124,7 @@ public:
     QList<BuildConfigurationInfo> buildConfigurationInfos() const;
     void setProFilePath(const QString &proFilePath);
 
+    void setShadowBuildSupported(bool b);
     void setShadowBuildCheckBoxVisible(bool b);
 
 public slots:

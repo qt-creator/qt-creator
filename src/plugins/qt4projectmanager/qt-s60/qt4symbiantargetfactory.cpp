@@ -192,6 +192,12 @@ bool Qt4SymbianTargetFactory::isMobileTarget(const QString &id)
     return true;
 }
 
+bool Qt4SymbianTargetFactory::supportsShadowBuilds(const QString &id)
+{
+    Q_UNUSED(id);
+    return false;
+}
+
 ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
     if (!canCreate(parent, id))

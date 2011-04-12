@@ -152,6 +152,12 @@ bool Qt4SimulatorTargetFactory::isMobileTarget(const QString &id)
     return true;
 }
 
+bool Qt4SimulatorTargetFactory::supportsShadowBuilds(const QString &id)
+{
+    Q_UNUSED(id);
+    return true;
+}
+
 ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
     if (!canCreate(parent, id))

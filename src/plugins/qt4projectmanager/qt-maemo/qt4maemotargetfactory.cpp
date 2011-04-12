@@ -176,6 +176,16 @@ bool Qt4MaemoTargetFactory::isMobileTarget(const QString &id)
     return true;
 }
 
+bool Qt4MaemoTargetFactory::supportsShadowBuilds(const QString &id)
+{
+    Q_UNUSED(id);
+#ifdef Q_OS_WIN
+    return false;
+#else
+    return true;
+#endif
+}
+
 ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
     if (!canCreate(parent, id))

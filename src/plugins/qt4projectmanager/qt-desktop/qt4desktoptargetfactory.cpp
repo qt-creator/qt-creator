@@ -184,6 +184,12 @@ bool Qt4DesktopTargetFactory::isMobileTarget(const QString &id)
     return false;
 }
 
+bool Qt4DesktopTargetFactory::supportsShadowBuilds(const QString &id)
+{
+    Q_UNUSED(id);
+    return true;
+}
+
 ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)
 {
     if (!canCreate(parent, id))

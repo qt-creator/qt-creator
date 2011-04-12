@@ -83,7 +83,9 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
     QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, number);
     if (infos.isEmpty())
         return 0;
-    return new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, number, importEnabled, importInfos);
+    Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, number, importEnabled, importInfos);
+    widget->setShadowBuildSupported(supportsShadowBuilds(id));
+    return widget;
 }
 
 ProjectExplorer::Target *Qt4BaseTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget)
@@ -374,7 +376,6 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     m_shadowBuildEnabled = new QCheckBox;
     m_shadowBuildEnabled->setText(tr("Use Shadow Building"));
-    m_shadowBuildEnabled->setChecked(true);
     m_shadowBuildEnabled->setVisible(false);
     layout->addWidget(m_shadowBuildEnabled);
 
@@ -394,6 +395,8 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
             m_hasInSourceBuild = true;
         m_importEnabled << true;
     }
+
+    m_shadowBuildEnabled->setChecked(!m_hasInSourceBuild);
 
     m_selected += m_importInfos.size();
 
@@ -456,10 +459,15 @@ void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
     setBuildConfigurationInfos(m_factory->availableBuildConfigurations(m_id, proFilePath, m_minimumQtVersion), false);
 }
 
+void Qt4DefaultTargetSetupWidget::setShadowBuildSupported(bool b)
+{
+    // if shadow building is supported we want to enable it, unless we have a in source build
+    m_shadowBuildEnabled->setChecked(b && !m_hasInSourceBuild);
+}
+
 void Qt4DefaultTargetSetupWidget::setShadowBuildCheckBoxVisible(bool b)
 {
     m_shadowBuildEnabled->setVisible(b);
-    m_shadowBuildEnabled->setChecked(!m_hasInSourceBuild);
 }
 
 QList<BuildConfigurationInfo> Qt4DefaultTargetSetupWidget::buildConfigurationInfos() const

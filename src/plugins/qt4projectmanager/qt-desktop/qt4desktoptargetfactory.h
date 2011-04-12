@@ -58,6 +58,7 @@ public:
 
     Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion, bool importEnabled, QList<BuildConfigurationInfo> importInfos);
     bool isMobileTarget(const QString &id);
+    bool supportsShadowBuilds(const QString &id);
     QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
