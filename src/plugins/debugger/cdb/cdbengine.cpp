@@ -1432,19 +1432,21 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
         }
     }
     addLocalsOptions(str);
-    // Uninitialized variables if desired
+    // Uninitialized variables if desired. Quote as safeguard against shadowed
+    // variables in case of errors in uninitializedVariables().
     if (debuggerCore()->boolSetting(UseCodeModel)) {
         QStringList uninitializedVariables;
         getUninitializedVariables(debuggerCore()->cppCodeModelSnapshot(),
                                   frame.function, frame.file, frame.line, &uninitializedVariables);
         if (!uninitializedVariables.isEmpty()) {
-            str << blankSeparator << "-u ";
+            str << blankSeparator << "-u \"";
             int i = 0;
             foreach(const QString &u, uninitializedVariables) {
                 if (i++)
                     str << ',';
                 str << localsPrefixC << u;
             }
+            str << '"';
         }
     }
     // Perform watches synchronization

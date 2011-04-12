@@ -397,7 +397,7 @@ QString WatchData::shadowedName(const QString &name, int seen)
 {
     if (seen <= 0)
         return name;
-    return shadowedNameFormat().arg(name, seen);
+    return shadowedNameFormat().arg(name).arg(seen);
 }
 
 quint64 WatchData::coreAddress() const

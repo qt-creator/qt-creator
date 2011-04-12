@@ -338,8 +338,9 @@ static void blockRecursion(const CPlusPlus::Overview &overview,
                            SeenHash *seenHash,
                            int level = 0)
 {
-    const int size = scope->memberCount();
-    for (int s = 0; s < size; s++){
+    // Go backwards in case someone has identical variables in the same scope.
+    // Fixme: loop variables or similar are currently seen in the outer scope
+    for (int s = scope->memberCount() - 1; s >= 0; --s){
         const CPlusPlus::Symbol *symbol = scope->memberAt(s);
         if (symbol->isDeclaration()) {
             // Find out about shadowed symbols by bookkeeping
