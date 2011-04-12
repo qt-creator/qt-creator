@@ -415,13 +415,16 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 void MiniProjectTargetSelector::setVisible(bool visible)
 {
     if (visible) {
-        resize(sizeHint());
+        QSize sh = sizeHint();
+        resize(sh);
         QStatusBar *statusBar = Core::ICore::instance()->statusBar();
         QPoint moveTo = statusBar->mapToGlobal(QPoint(0,0));
-        moveTo -= QPoint(0, sizeHint().height());
+        moveTo -= QPoint(0, sh.height());
         move(moveTo);
     }
+
     QWidget::setVisible(visible);
+
     if (m_widgetStack->currentWidget())
         m_widgetStack->currentWidget()->setFocus();
 
@@ -533,6 +536,8 @@ void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool 
 
     if (activeTarget)
         plw->setCurrentItem(lwi, QItemSelectionModel::SelectCurrent);
+
+    m_widgetStack->updateGeometry();
 }
 
 void MiniProjectTargetSelector::removeTarget(ProjectExplorer::Target *target)
@@ -554,9 +559,12 @@ void MiniProjectTargetSelector::removeTarget(ProjectExplorer::Target *target)
         delete plw->takeItem(i);
         delete mtw;
     }
+
     disconnect(target, SIGNAL(toolTipChanged()), this, SLOT(updateAction()));
     disconnect(target, SIGNAL(iconChanged()), this, SLOT(updateAction()));
     disconnect(target, SIGNAL(overlayIconChanged()), this, SLOT(updateAction()));
+
+    m_widgetStack->updateGeometry();
 }
 
 void MiniProjectTargetSelector::changeActiveTarget(ProjectExplorer::Target *target)
