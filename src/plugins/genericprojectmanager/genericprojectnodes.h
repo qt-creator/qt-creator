@@ -84,13 +84,13 @@ public:
     void refresh();
 
 private:
-    FolderNode *findOrCreateFolderByName(const QString &filePath);
-    FolderNode *findOrCreateFolderByName(const QStringList &components, int end);
+    typedef QHash<QString, FolderNode *> FolderByName;
+    FolderNode *findOrCreateFolderByName(FolderByName *folderByName,
+                                         const QStringList &components, int end);
 
 private:
     GenericProject *m_project;
     Core::IFile *m_projectFile;
-    QHash<QString, FolderNode *> m_folderByName;
 };
 
 } // namespace Internal
