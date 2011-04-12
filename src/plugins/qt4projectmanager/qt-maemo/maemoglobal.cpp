@@ -342,7 +342,7 @@ QString MaemoGlobal::maemoVersionToString(MaemoVersion version)
     case Maemo6: return QLatin1String("Harmattan");
     case Meego: return QLatin1String("Meego");
     }
-    Q_ASSERT(false);
+    qDebug("%s: Unknown OS Version %d.", Q_FUNC_INFO, osVersion);
     return QString();
 }
 

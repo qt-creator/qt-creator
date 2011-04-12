@@ -339,7 +339,7 @@ QString MaemoDeviceConfig::defaultUser(MaemoGlobal::MaemoVersion osVersion)
     case MaemoGlobal::Meego:
         return QLatin1String("meego");
     default:
-        Q_ASSERT(false);
+        qDebug("%s: Unknown OS Version %d.", Q_FUNC_INFO, osVersion);
         return QString();
     }
 }
@@ -353,7 +353,7 @@ QString MaemoDeviceConfig::defaultQemuPassword(MaemoGlobal::MaemoVersion osVersi
     case MaemoGlobal::Meego:
         return QLatin1String("meego");
     default:
-        Q_ASSERT(false);
+        qDebug("%s: Unknown OS Version %d.", Q_FUNC_INFO, osVersion);
         return QString();
     }
 }
