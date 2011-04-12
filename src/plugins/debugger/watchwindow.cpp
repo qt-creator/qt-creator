@@ -459,6 +459,15 @@ static inline QString removeWatchActionText(QString exp)
     return WatchWindow::tr("Remove Watch Expression \"%1\"").arg(exp);
 }
 
+static inline void copyToClipboard(const QString &clipboardText)
+{
+    QClipboard *clipboard = QApplication::clipboard();
+#ifdef Q_WS_X11
+    clipboard->setText(clipboardText, QClipboard::Selection);
+#endif
+    clipboard->setText(clipboardText, QClipboard::Clipboard);
+}
+
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     DebuggerEngine *engine = currentEngine();
@@ -659,6 +668,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     }
 
     QAction *actCopy = new QAction(tr("Copy Contents to Clipboard"), &menu);
+    QAction *actCopyValue = new QAction(tr("Copy Value to Clipboard"), &menu);
+    actCopyValue->setEnabled(idx.isValid());
+
 
     menu.addAction(actInsertNewWatchItem);
     menu.addAction(actSelectWidgetToWatch);
@@ -667,7 +679,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actSetWatchpointAtVariableAddress);
     if (actSetWatchpointAtPointerValue)
         menu.addAction(actSetWatchpointAtPointerValue);
-    menu.addAction(actCopy );
+    menu.addAction(actCopy);
+    menu.addAction(actCopyValue);
     menu.addSeparator();
 
     menu.addAction(debuggerCore()->action(UseDebuggingHelpers));
@@ -734,13 +747,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         watchExpression(exp);
     } else if (act == actRemoveWatchExpression) {
         removeWatchExpression(exp);
-    } else if (act == actCopy ) {
-        const QString clipboardText = DebuggerTreeViewToolTipWidget::treeModelClipboardContents(model());
-        QClipboard *clipboard = QApplication::clipboard();
-#ifdef Q_WS_X11
-        clipboard->setText(clipboardText, QClipboard::Selection);
-#endif
-        clipboard->setText(clipboardText, QClipboard::Clipboard);
+    } else if (act == actCopy) {
+        copyToClipboard(DebuggerTreeViewToolTipWidget::treeModelClipboardContents(model()));
+    } else if (act == actCopyValue) {
+        copyToClipboard(mi1.data().toString());
     } else if (act == actRemoveWatches) {
         currentEngine()->watchHandler()->clearWatches();
     } else if (act == actClearCodeModelSnapshot) {
