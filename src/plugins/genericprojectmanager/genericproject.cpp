@@ -45,6 +45,7 @@
 #include <cplusplus/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDir>
@@ -100,13 +101,19 @@ GenericTarget *GenericProject::activeTarget() const
 }
 
 QString GenericProject::filesFileName() const
-{ return m_filesFileName; }
+{
+    return m_filesFileName;
+}
 
 QString GenericProject::includesFileName() const
-{ return m_includesFileName; }
+{
+    return m_includesFileName;
+}
 
 QString GenericProject::configFileName() const
-{ return m_configFileName; }
+{
+    return m_configFileName;
+}
 
 static QStringList readLines(const QString &absoluteFileName)
 {
@@ -307,22 +314,34 @@ QStringList GenericProject::allIncludePaths() const
 }
 
 QStringList GenericProject::projectIncludePaths() const
-{ return m_projectIncludePaths; }
+{
+    return m_projectIncludePaths;
+}
 
 QStringList GenericProject::files() const
-{ return m_files; }
+{
+    return m_files;
+}
 
 QStringList GenericProject::generated() const
-{ return m_generated; }
+{
+    return m_generated;
+}
 
 QStringList GenericProject::includePaths() const
-{ return m_includePaths; }
+{
+    return m_includePaths;
+}
 
 void GenericProject::setIncludePaths(const QStringList &includePaths)
-{ m_includePaths = includePaths; }
+{
+    m_includePaths = includePaths;
+}
 
 QByteArray GenericProject::defines() const
-{ return m_defines; }
+{
+    return m_defines;
+}
 
 void GenericProject::setToolChain(ToolChain *tc)
 {
@@ -584,7 +603,7 @@ void GenericProjectFile::rename(const QString &newName)
 {
     // Can't happen
     Q_UNUSED(newName);
-    Q_ASSERT(false);
+    QTC_ASSERT(false, /**/);
 }
 
 Core::IFile::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

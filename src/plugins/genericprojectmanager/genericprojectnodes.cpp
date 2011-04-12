@@ -50,14 +50,15 @@ GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IFile *pro
     setDisplayName(QFileInfo(projectFile->fileName()).completeBaseName());
 }
 
-GenericProjectNode::~GenericProjectNode()
-{ }
-
 Core::IFile *GenericProjectNode::projectFile() const
-{ return m_projectFile; }
+{
+    return m_projectFile;
+}
 
 QString GenericProjectNode::projectFilePath() const
-{ return m_projectFile->fileName(); }
+{
+    return m_projectFile->fileName();
+}
 
 void GenericProjectNode::refresh()
 {

@@ -52,7 +52,6 @@ class GenericProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
     GenericProjectNode(GenericProject *project, Core::IFile *projectFile);
-    virtual ~GenericProjectNode();
 
     Core::IFile *projectFile() const;
     QString projectFilePath() const;

@@ -65,10 +65,6 @@ GenericTarget::GenericTarget(GenericProject *parent) :
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
 }
 
-GenericTarget::~GenericTarget()
-{
-}
-
 ProjectExplorer::BuildConfigWidget *GenericTarget::createConfigWidget()
 {
     return new GenericBuildSettingsWidget(this);
@@ -103,10 +99,6 @@ bool GenericTarget::fromMap(const QVariantMap &map)
 
 GenericTargetFactory::GenericTargetFactory(QObject *parent) :
     ITargetFactory(parent)
-{
-}
-
-GenericTargetFactory::~GenericTargetFactory()
 {
 }
 

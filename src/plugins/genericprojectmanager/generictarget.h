@@ -63,7 +63,6 @@ class GenericTarget : public ProjectExplorer::Target
 
 public:
     explicit GenericTarget(GenericProject *parent);
-    ~GenericTarget();
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
 
@@ -85,7 +84,6 @@ class GenericTargetFactory : public ProjectExplorer::ITargetFactory
 
 public:
     explicit GenericTargetFactory(QObject *parent = 0);
-    ~GenericTargetFactory();
 
     bool supportsTargetId(const QString &id) const;
 

@@ -48,7 +48,6 @@ class Manager : public ProjectExplorer::IProjectManager
 
 public:
     Manager();
-    virtual ~Manager();
 
     virtual Core::Context projectContext() const;
     virtual Core::Context projectLanguage() const;
