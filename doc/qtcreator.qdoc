@@ -10267,6 +10267,7 @@
 
     To switch off the debugging helpers:
     \list 1
+
         \o Select \gui Tools > \gui Options... > \gui Debugger >
            \gui{Debugging Helper}.
         \o Uncheck the \gui{Use Debugging Helper} checkbox.
@@ -10281,6 +10282,17 @@
         \o Select \gui Tools > \gui Options... > \gui Debugger > \gui General.
         \o Select the \gui {Use tooltips in main editor while debugging} check box.
     \endlist
+
+    When you hover over a variable in the code editor in \gui Debug mode, a
+    tooltip is displayed. To keep the tooltip visible, click the pin button.
+    You can expand pinned tooltips to view their full content.
+
+    \image qtcreator-pin-tooltip.png
+
+    Pinned tooltips are stored in the session. To close all pinned tooltips,
+    select \gui {Close Editor Tooltips} in the context menu in the \gui {Locals
+    and Watchers} view.
+
 
     \section1 Locating Files
 
