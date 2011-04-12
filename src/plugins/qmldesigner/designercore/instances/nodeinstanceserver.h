@@ -73,6 +73,8 @@ public:
     typedef QPair<QWeakPointer<QObject>, QString>  ObjectPropertyPair;
     typedef QPair<qint32, QString>  IdPropertyPair;
     typedef QPair<ServerNodeInstance, QString>  InstancePropertyPair;
+    typedef QPair<QString, QWeakPointer<QObject> > DummyPair;
+
     explicit NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
     ~NodeInstanceServer();
 
@@ -180,12 +182,18 @@ protected:
 
     void refreshBindings();
 
+    void setupDummysForContext(QDeclarativeContext *context);
+
+    QList<QDeclarativeContext*> allSubContextsForObject(QObject *object);
+    static QList<QObject*> allSubObjectsForObject(QObject *object);
+
 private:
     ServerNodeInstance m_rootNodeInstance;
     ServerNodeInstance m_activeStateInstance;
     QHash<qint32, ServerNodeInstance> m_idInstanceHash;
     QHash<QObject*, ServerNodeInstance> m_objectInstanceHash;
     QMultiHash<QString, ObjectPropertyPair> m_fileSystemWatcherHash;
+    QList<QPair<QString, QWeakPointer<QObject> > > m_dummyObjectList;
     QWeakPointer<QFileSystemWatcher> m_fileSystemWatcher;
     QWeakPointer<QFileSystemWatcher> m_dummdataFileSystemWatcher;
     QWeakPointer<QDeclarativeView> m_declarativeView;

@@ -124,6 +124,9 @@ QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<Ins
             }
 
         }
+
+        foreach (QDeclarativeContext* context, allSubContextsForObject(instance.internalObject()))
+            setupDummysForContext(context);
     }
 
     return instanceList;
@@ -472,6 +475,43 @@ const QVector<NodeInstanceServer::InstancePropertyPair> NodeInstanceServer::chan
 void NodeInstanceServer::clearChangedPropertyList()
 {
     m_changedPropertyList.clear();
+}
+
+void NodeInstanceServer::setupDummysForContext(QDeclarativeContext *context)
+{
+    foreach (const DummyPair& dummyPair, m_dummyObjectList) {
+        if (dummyPair.second) {
+            context->setContextProperty(dummyPair.first, dummyPair.second.data());
+        }
+    }
+}
+
+
+QList<QDeclarativeContext*> NodeInstanceServer::allSubContextsForObject(QObject *object)
+{
+    QList<QDeclarativeContext*> contextList;
+
+    if (object) {
+        foreach (QObject *subObject, allSubObjectsForObject(object)) {
+            QDeclarativeContext *contextOfObject = QDeclarativeEngine::contextForObject(subObject);
+            if (contextOfObject) {
+                if (contextOfObject != context() && !contextList.contains(contextOfObject))
+                    contextList.append(contextOfObject);
+            }
+        }
+    }
+
+    return contextList;
+}
+
+QList<QObject*> NodeInstanceServer::allSubObjectsForObject(QObject *object)
+{
+    QList<QObject*> subChildren;
+    if (object) {
+        subChildren = object->findChildren<QObject*>();
+    }
+
+    return subChildren;
 }
 
 void NodeInstanceServer::refreshBindings()
@@ -1003,6 +1043,7 @@ void NodeInstanceServer::loadDummyDataFile(const QFileInfo& qmlFileInfo)
         qWarning() << "Loaded dummy data:" << qmlFileInfo.filePath();
         m_declarativeView->rootContext()->setContextProperty(qmlFileInfo.completeBaseName(), dummyData);
         dummyData->setParent(this);
+        m_dummyObjectList.append(DummyPair(qmlFileInfo.completeBaseName(), dummyData));
     }
 
     if (!oldDummyDataObject.isNull())
@@ -1010,6 +1051,11 @@ void NodeInstanceServer::loadDummyDataFile(const QFileInfo& qmlFileInfo)
 
     if (!dummydataFileSystemWatcher()->files().contains(qmlFileInfo.filePath()))
         dummydataFileSystemWatcher()->addPath(qmlFileInfo.filePath());
+
+    if (rootNodeInstance().isValid() && rootNodeInstance().internalObject()) {
+        foreach (QDeclarativeContext *context, allSubContextsForObject(rootNodeInstance().internalObject()))
+            setupDummysForContext(context);
+    }
 }
 
 void NodeInstanceServer::loadDummyContextObjectFile(const QFileInfo& qmlFileInfo)
