@@ -41,7 +41,6 @@ namespace Constants {
 
 //contexts
 const char * const C_PROFILEEDITOR  = ".pro File Editor";
-const char * const C_PROFILEEDITOR_PANEL  = ".pro File Editor (embedded)";
 
 // menus
 const char * const M_CONTEXT = "ProFileEditor.ContextMenu";
@@ -59,35 +58,14 @@ const char * const FORM_MIMETYPE = "application/x-designer";
 const char * const LINGUIST_MIMETYPE = "application/x-linguist";
 
 //actions
-const char * const NEWMENU             = "Qt4.NewMenu";
-const char * const PROJECT_NEWMENU_SEPARATOR      = "Qt4.NewMenuSeparator";
-const char * const SUBPROJECT_NEWMENU_SEPARATOR   = "Qt4.SubProjectNewMenuSeparator";
-const char * const ADDTOPROJECT        = "Qt4.AddToProject";
 const char * const RUNQMAKE            = "Qt4Builder.RunQMake";
 const char * const RUNQMAKECONTEXTMENU = "Qt4Builder.RunQMakeContextMenu";
 const char * const BUILDSUBDIR         = "Qt4Builder.BuildSubDir";
 const char * const REBUILDSUBDIR       = "Qt4Builder.RebuildSubDir";
 const char * const CLEANSUBDIR         = "Qt4Builder.CleanSubDir";
-const char * const RUNSUBDIR           = "Qt4Builder.RunSubDir";
-const char * const RUNMENUSUBDIR       = "Qt4Builder.RunMenuSubDir";
 const char * const ADDLIBRARY          = "Qt4.AddLibrary";
 const char * const JUMP_TO_FILE        = "Qt4.JumpToFile";
 const char * const SEPARATOR           = "Qt4.Separator";
-
-//configurations
-const char * const CONFIG_DEBUG     = "debug";
-const char * const CONFIG_RELEASE   = "release";
-
-//global configurations
-const char * const GC_BUILDCONFIG   = "Qt4.BuildConfig";
-const char * const GC_QTVERSION     = "Qt4.QtVersion";
-const char * const GC_COMPILER      = "Qt4.Compiler";
-
-// qmakestep
-const char * const QMAKESTEP  = "trolltech.qt4projectmanager.qmake";
-const char * const MAKESTEP   = "trolltech.qt4projectmanager.make";
-const char * const QT4RUNSTEP = "trolltech.qt4projectmanager.qt4runstep";
-const char * const DEPLOYHELPERRUNSTEP = "trolltech.qt4projectmanager.deployhelperrunstep";
 
 //Qt4 settings pages
 const char * const QT_SETTINGS_CATEGORY       = "L.Qt4";
