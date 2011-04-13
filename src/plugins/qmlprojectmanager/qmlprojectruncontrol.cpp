@@ -152,6 +152,8 @@ bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
         qobject_cast<QmlProjectRunConfiguration*>(runConfiguration);
     if (mode == ProjectExplorer::Constants::RUNMODE)
         return config != 0 && !config->viewerPath().isEmpty();
+    else if (mode != Debugger::Constants::DEBUGMODE)
+        return false;
 
     bool qmlDebugSupportInstalled =
             Debugger::DebuggerPlugin::isActiveDebugLanguage(Debugger::QmlLanguage);

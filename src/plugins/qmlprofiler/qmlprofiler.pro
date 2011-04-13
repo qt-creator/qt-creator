@@ -6,6 +6,7 @@ DEFINES += PROFILER_LIBRARY
 include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/analyzerbase/analyzerbase.pri)
+include(../../plugins/qmlprojectmanager/qmlprojectmanager.pri)
 
 
 QT += network script declarative
@@ -20,7 +21,8 @@ SOURCES += \
     tracewindow.cpp \
     timelineview.cpp \
     qmlprofilerattachdialog.cpp \
-    qmlprofilersummaryview.cpp
+    qmlprofilersummaryview.cpp \
+    qmlprojectanalyzerruncontrolfactory.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -31,7 +33,8 @@ HEADERS += \
     tracewindow.h \
     timelineview.h \
     qmlprofilerattachdialog.h \
-    qmlprofilersummaryview.h
+    qmlprofilersummaryview.h \
+    qmlprojectanalyzerruncontrolfactory.h
 
 RESOURCES += \
     qml/qml.qrc

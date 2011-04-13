@@ -1,10 +1,8 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
-**
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -33,40 +31,39 @@
 **
 **************************************************************************/
 
+#ifndef QMLPROJECTANALYZERRUNCONTROLFACTORY_H
+#define QMLPROJECTANALYZERRUNCONTROLFACTORY_H
 
-#ifndef ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H
-#define ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H
-
+#include <analyzerbase/analyzerruncontrol.h>
+//#include <analyzerbase/analyzerruncontrolfactory.h>
 #include <projectexplorer/runconfiguration.h>
-#include <analyzerbase/analyzerbase_global.h>
 
-QT_BEGIN_NAMESPACE
-class QStandardItemModel;
-QT_END_NAMESPACE
+namespace QmlProfiler {
+namespace Internal {
 
-namespace Utils {
-class DetailsWidget;
-}
-
-namespace Analyzer {
-
-class AnalyzerSettings;
-
-class ANALYZER_EXPORT AnalyzerRunConfigWidget : public ProjectExplorer::RunConfigWidget
+class QmlProjectAnalyzerRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
-
 public:
-    AnalyzerRunConfigWidget();
+    typedef ProjectExplorer::RunConfiguration RunConfiguration;
 
-    virtual QString displayName() const;
+    QmlProjectAnalyzerRunControlFactory(QObject *parent = 0);
+    ~QmlProjectAnalyzerRunControlFactory();
 
-    void setRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    // virtuals from IRunControlFactory
+    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
+    ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
+    Analyzer::AnalyzerRunControl *create(const Analyzer::AnalyzerStartParameters &sp, RunConfiguration *runConfiguration = 0);
+    QString displayName() const;
 
-private:
-    Utils::DetailsWidget *m_detailsWidget;
+    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
+
+signals:
+    void runControlCreated(Analyzer::AnalyzerRunControl *);
 };
 
 }
+}
 
-#endif // ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H
+#endif // QMLPROJECTANALYZERRUNCONTROLFACTORY_H

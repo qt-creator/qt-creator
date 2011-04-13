@@ -37,6 +37,7 @@
 #define ANALYZERMANAGER_H
 
 #include "analyzerbase_global.h"
+#include "projectexplorer/runconfiguration.h"
 
 #include <QtCore/QObject>
 
@@ -75,6 +76,7 @@ public:
     ~AnalyzerManager();
 
     static AnalyzerManager *instance();
+    void registerRunControlFactory(ProjectExplorer::IRunControlFactory *factory);
 
     bool isInitialized() const;
     void shutdown();

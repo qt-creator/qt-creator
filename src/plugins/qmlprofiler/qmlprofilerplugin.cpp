@@ -33,6 +33,7 @@
 
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerconstants.h"
+#include "qmlprojectanalyzerruncontrolfactory.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -68,6 +69,7 @@ public:
 
     void initialize(const QStringList &arguments, QString *errorString);
 
+    QmlProjectAnalyzerRunControlFactory *m_runControlFactory;
     QmlProfilerPlugin *q;
 };
 
@@ -76,7 +78,8 @@ void QmlProfilerPlugin::QmlProfilerPluginPrivate::initialize(const QStringList &
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-//    AnalyzerManager::instance()->addTool(new MemcheckTool(this));
+    m_runControlFactory = new QmlProjectAnalyzerRunControlFactory();
+    Analyzer::AnalyzerManager::instance()->registerRunControlFactory(m_runControlFactory);
 }
 
 

@@ -45,7 +45,6 @@
 #include <QtGui/QVBoxLayout>
 
 using namespace Analyzer;
-using namespace Analyzer::Internal;
 
 AnalyzerRunConfigWidget::AnalyzerRunConfigWidget()
     : m_detailsWidget(new Utils::DetailsWidget(this))

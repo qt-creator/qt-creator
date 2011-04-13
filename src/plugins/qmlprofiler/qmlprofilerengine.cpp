@@ -39,8 +39,6 @@
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
 
-#include <projectexplorer/applicationrunconfiguration.h>
-
 #include <private/qdeclarativedebugclient_p.h>
 
 #include "timelineview.h"
@@ -52,9 +50,7 @@
 #include "canvas/qdeclarativecontext2d_p.h"
 #include "canvas/qdeclarativetiledcanvas_p.h"
 
-#include <utils/environment.h>
 #include <QProcess>
-#include "tracewindow.h"
 
 #ifdef Q_OS_UNIX
 #include <unistd.h> // sleep
@@ -73,11 +69,7 @@ public:
 
     QmlProfilerEngine *q;
 
-    QString m_workingDirectory;
-    QString m_executable;
-    QString m_commandLineArguments;
-    Utils::Environment m_environment;
-
+    Analyzer::AnalyzerStartParameters m_params;
     QProcess *m_process;
     bool m_running;
     bool m_fetchingData;
@@ -87,16 +79,7 @@ QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp
     : IAnalyzerEngine(sp, runConfiguration)
     , d(new QmlProfilerEnginePrivate(this))
 {
-    ProjectExplorer::LocalApplicationRunConfiguration *localAppConfig =
-            qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration);
-
-    if (!localAppConfig)
-        return;
-
-    d->m_workingDirectory = localAppConfig->workingDirectory();
-    d->m_executable = localAppConfig->executable();
-    d->m_commandLineArguments = localAppConfig->commandLineArguments();
-    d->m_environment = localAppConfig->environment();
+    d->m_params = sp;
     d->m_process = 0;
     d->m_running = false;
     d->m_fetchingData = false;
@@ -165,8 +148,10 @@ bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
     m_process = new QProcess();
 
     QStringList arguments("-qmljsdebugger=port:" + QString::number(QmlProfilerTool::port) + ",block");
+    arguments.append(m_params.debuggeeArgs.split(" "));
+
     if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Launching %s", qPrintable(m_executable));
+        qWarning("QmlProfiler: Launching %s", qPrintable(m_params.displayName));
 
     if (qtquick1) {
         QProcessEnvironment env;
@@ -175,16 +160,16 @@ bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
     }
 
     m_process->setProcessChannelMode(QProcess::ForwardedChannels);
-    m_process->setWorkingDirectory(m_workingDirectory);
+    m_process->setWorkingDirectory(m_params.workingDirectory);
     connect(m_process,SIGNAL(finished(int)),q,SLOT(spontaneousStop()));
-    m_process->start(m_executable, arguments);
+    m_process->start(m_params.debuggee, arguments);
 
     // give the process time to start
     sleep(1);
 
     if (!m_process->waitForStarted()) {
         if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: %s failed to start", qPrintable(m_executable));
+            qWarning("QmlProfiler: %s failed to start", qPrintable(m_params.displayName));
         return false;
     }
 

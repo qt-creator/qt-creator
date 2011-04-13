@@ -255,9 +255,8 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
     m_runControlFactory = new AnalyzerRunControlFactory();
-    AnalyzerPlugin::instance()->addAutoReleasedObject(m_runControlFactory);
-    connect(m_runControlFactory, SIGNAL(runControlCreated(Analyzer::AnalyzerRunControl *)),
-            q, SLOT(runControlCreated(Analyzer::AnalyzerRunControl *)));
+
+    q->registerRunControlFactory(m_runControlFactory);
 
     connect(m_toolBox, SIGNAL(currentIndexChanged(int)),
             q, SLOT(toolSelected(int)));
@@ -273,6 +272,13 @@ AnalyzerManager::AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
         if (ptr)
             delete ptr.data();
     }
+}
+
+void AnalyzerManager::registerRunControlFactory(ProjectExplorer::IRunControlFactory *factory)
+{
+    AnalyzerPlugin::instance()->addAutoReleasedObject(factory);
+    connect(factory, SIGNAL(runControlCreated(Analyzer::AnalyzerRunControl *)),
+            this, SLOT(runControlCreated(Analyzer::AnalyzerRunControl *)));
 }
 
 void AnalyzerManager::AnalyzerManagerPrivate::setupActions()

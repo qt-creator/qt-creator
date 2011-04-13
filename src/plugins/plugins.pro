@@ -272,7 +272,8 @@ plugin_analyzerbase.depends += plugin_projectexplorer
 
     plugin_qmlprofiler.subdir = qmlprofiler
     plugin_qmlprofiler.depends = plugin_coreplugin
-    plugin_qmlprofiler.depends = plugin_analyzerbase
+    plugin_qmlprofiler.depends += plugin_analyzerbase
+    plugin_qmlprofiler.depends += plugin_qmlprojectmanager
 }
 
 plugin_qmljstools.subdir = qmljstools
