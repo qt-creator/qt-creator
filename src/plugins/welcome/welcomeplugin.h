@@ -37,19 +37,17 @@
 #include <extensionsystem/iplugin.h>
 
 namespace Welcome {
-class WelcomeMode;
-
 namespace Internal {
+
+class WelcomeMode;
 
 class WelcomePlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 public:
     WelcomePlugin();
-    virtual ~WelcomePlugin();
 
     virtual bool initialize(const QStringList &arguments, QString *error_message);
-
     virtual void extensionsInitialized();
 
 private:

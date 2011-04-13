@@ -70,7 +70,6 @@
 #include <find/findplugin.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/styledbar.h>
-#include <welcome/welcomemode.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>

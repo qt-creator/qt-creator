@@ -108,7 +108,6 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/variablemanager.h>
-#include <welcome/welcomemode.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/searchresultwindow.h>
 #include <utils/consoleprocess.h>
