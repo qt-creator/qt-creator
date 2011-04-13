@@ -187,7 +187,7 @@ QString DisassemblerLine::toString() const
         if (address)
             str += _("0x%1  ").arg(address, 0, 16);
         if (offset)
-            str += _("<+0x%1> ").arg(offset, 4, 10, QLatin1Char('0'));
+            str += _("<+0x%1> ").arg(offset, 4, 16, QLatin1Char('0'));
         str += _("        ");
         str += data;
     } else if (isCode()) {

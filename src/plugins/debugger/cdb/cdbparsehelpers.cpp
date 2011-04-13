@@ -469,8 +469,8 @@ QtCored4!QTextStreamPrivate::putString+0x34:
     When the source line changes, the source instruction is inserted.
 */
 
-// Parse a function header line: Match: 'nsp::foo::+0x<offset> [<file> @ <line>]:'
-// or 'nsp::foo::+0x<offset>:'
+// Parse a function header line: Match: 'nsp::foo+0x<offset> [<file> @ <line>]:'
+// or 'nsp::foo+0x<offset>:', 'nsp::foo [<file> @ <line>]:'
 // Do not use regexp here as it is hard for functions like operator+, operator[].
 bool parseCdbDisassemblerFunctionLine(const QString &l,
                                       QString *currentFunction, quint64 *functionOffset,
@@ -478,24 +478,26 @@ bool parseCdbDisassemblerFunctionLine(const QString &l,
 {
     if (l.isEmpty() || !l.endsWith(QLatin1Char(':')) || l.at(0).isDigit() || l.at(0).isSpace())
         return false;
+    int functionEnd = l.indexOf(QLatin1Char(' '));
+    if (functionEnd < 0)
+        functionEnd = l.size() - 1; // Nothing at all, just ':'
     const int offsetPos = l.indexOf(QLatin1String("+0x"));
-    if (offsetPos == -1)
-        return false;
-    sourceFile->clear();
-    *currentFunction = l.left(offsetPos);
-    if (!l.endsWith(QLatin1String("]:"))) { // No source file.
-        *functionOffset = l.mid(offsetPos + 3, l.size() - offsetPos - 4).trimmed().toULongLong(0, 16);
-        if (debugDisAsm)
-            qDebug() << "Function:" << l << currentFunction << functionOffset;
-        return true;
+    if (offsetPos > 0) {
+        *currentFunction = l.left(offsetPos);
+        *functionOffset = l.mid(offsetPos + 3, functionEnd - offsetPos - 3).trimmed().toULongLong(0, 16);
+    } else { // No offset, directly at beginning.
+        *currentFunction = l.left(functionEnd);
+        *functionOffset = 0;
     }
+    sourceFile->clear();
     // Parse file and line.
-    const int filePos   = l.indexOf(QLatin1Char('['), offsetPos + 1);
-    const int linePos   = filePos   != -1 ? l.indexOf(QLatin1String(" @ "), filePos + 1)   : -1;
+    const int filePos = l.indexOf(QLatin1Char('['), functionEnd);
+    if (filePos == -1)
+        return true; // No file
+    const int linePos = l.indexOf(QLatin1String(" @ "), filePos + 1);
     if (linePos == -1)
         return false;
-    *functionOffset = l.mid(offsetPos + 3, filePos - offsetPos - 4).trimmed().toULongLong(0, 16);
-    *sourceFile = l.mid(filePos + 1, linePos - filePos - 1).trimmed();
+        *sourceFile = l.mid(filePos + 1, linePos - filePos - 1).trimmed();
     if (debugDisAsm)
         qDebug() << "Function with source: " << l << currentFunction
                  << functionOffset << sourceFile;
@@ -555,9 +557,12 @@ DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a)
 
     foreach (const QByteArray &lineBA, a) {
         const QString line = QString::fromLatin1(lineBA);
-        // New function?
+        // New function. Append as comment line.
         if (parseCdbDisassemblerFunctionLine(line, &currentFunction, &functionOffset, &sourceFile)) {
             functionAddress = 0;
+            DisassemblerLine commentLine;
+            commentLine.data = line;
+            result.appendLine(commentLine);
         } else {
             DisassemblerLine disassemblyLine;
             uint sourceLine;
@@ -573,7 +578,7 @@ DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a)
             }
             // Determine address of function from the first assembler line after a
             // function header line.
-            if (!functionAddress && disassemblyLine.address && functionOffset) {
+            if (!functionAddress && disassemblyLine.address) {
                 functionAddress = disassemblyLine.address - functionOffset;
             }
             if (functionAddress && disassemblyLine.address)
