@@ -486,12 +486,10 @@ CdbEngine::~CdbEngine()
 
 void CdbEngine::operateByInstructionTriggered(bool operateByInstruction)
 {
-    if (state() == InferiorStopOk) {
+    // To be set next time session becomes accessible
+    m_operateByInstructionPending = operateByInstruction;
+    if (state() == InferiorStopOk)
         syncOperateByInstruction(operateByInstruction);
-    } else {
-        // To be set next time session becomes accessible
-        m_operateByInstructionPending = operateByInstruction;
-    }
 }
 
 void CdbEngine::syncOperateByInstruction(bool operateByInstruction)
