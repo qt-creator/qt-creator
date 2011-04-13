@@ -691,6 +691,16 @@ QString Internal::MingwToolChainFactory::id() const
 
 QList<ToolChain *> Internal::MingwToolChainFactory::autoDetect()
 {
+    // Compatibility to pre-2.2:
+    // All Mingw toolchains that exist so far are either installed by the SDK itself (in
+    // which case they most likely have debuggers set up) or were created when updating
+    // from a previous Qt version. Add debugger in that case.
+    foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
+        if (tc->debuggerCommand().isEmpty() && tc->id().startsWith(QLatin1String(Constants::MINGW_TOOLCHAIN_ID)))
+            static_cast<MingwToolChain *>(tc)
+                ->setDebuggerCommand(ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
+    }
+
     Abi ha = Abi::hostAbi();
     return autoDetectToolchains(QLatin1String("g++"), QStringList(),
                                 Abi(ha.architecture(), Abi::WindowsOS, Abi::WindowsMSysFlavor, Abi::PEFormat, ha.wordWidth()));

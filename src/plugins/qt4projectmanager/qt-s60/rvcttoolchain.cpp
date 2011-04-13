@@ -37,6 +37,7 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
 #include <utils/synchronousprocess.h>
@@ -535,6 +536,7 @@ QList<ProjectExplorer::ToolChain *> RvctToolChainFactory::autoDetect()
         tc->setDisplayName(name.arg(armVersionString(tc->armVersion()))
                            .arg(v.majorVersion).arg(v.minorVersion).arg(v.build));
         tc->setVersion(v);
+        tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
         result.append(tc);
     }
 

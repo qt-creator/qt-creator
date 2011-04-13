@@ -185,6 +185,8 @@ QtVersionManager::QtVersionManager()
                 if (tc) {
                     tc->setCompilerPath(fi.absoluteFilePath());
                     tc->setDisplayName(tr("MinGW from %1").arg(version->displayName()));
+                    // The debugger is set later in the autoDetect method of the MinGw tool chain factory
+                    // as the default debuggers are not yet registered.
                     ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
                 }
             }
