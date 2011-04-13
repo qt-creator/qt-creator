@@ -47,7 +47,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class IMode;
 class IOutputPane;
 
 namespace Internal {

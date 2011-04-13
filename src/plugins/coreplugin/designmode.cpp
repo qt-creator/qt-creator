@@ -122,6 +122,11 @@ DesignMode::DesignMode(EditorManager *editorManager) :
     setEnabled(false);
     setContext(Context(Constants::C_DESIGN_MODE));
     setWidget(d->m_stackWidget);
+    setDisplayName(tr("Design"));
+    setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Design.png")));
+    setPriority(Constants::P_MODE_DESIGN);
+    setId(Constants::MODE_DESIGN);
+    setType(Constants::MODE_DESIGN_TYPE);
 
     ExtensionSystem::PluginManager::instance()->addObject(d->m_coreListener);
 
@@ -139,31 +144,6 @@ DesignMode::~DesignMode()
 
     qDeleteAll(d->m_editors);
     delete d;
-}
-
-QString DesignMode::displayName() const
-{
-    return tr("Design");
-}
-
-QIcon DesignMode::icon() const
-{
-    return QIcon(QLatin1String(":/fancyactionbar/images/mode_Design.png"));
-}
-
-int DesignMode::priority() const
-{
-    return Constants::P_MODE_DESIGN;
-}
-
-QString DesignMode::id() const
-{
-    return QLatin1String(Constants::MODE_DESIGN);
-}
-
-QString DesignMode::type() const
-{
-    return QLatin1String(Constants::MODE_DESIGN_TYPE);
 }
 
 QStringList DesignMode::registeredMimeTypes() const

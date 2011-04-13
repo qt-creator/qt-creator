@@ -36,11 +36,7 @@
 
 #include "icontext.h"
 
-#include <coreplugin/core_global.h>
-
-QT_BEGIN_NAMESPACE
-class QIcon;
-QT_END_NAMESPACE
+#include <QtGui/QIcon>
 
 namespace Core {
 
@@ -48,23 +44,33 @@ class CORE_EXPORT IMode : public IContext
 {
     Q_OBJECT
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+
 public:
     IMode(QObject *parent = 0);
-    virtual ~IMode() {}
 
-    virtual QString displayName() const = 0;
-    virtual QIcon icon() const = 0;
-    virtual int priority() const = 0;
-    virtual QString id() const = 0;
-    virtual QString type() const = 0;
+    QString displayName() const { return m_displayName; }
+    QIcon icon() const { return m_icon; }
+    int priority() const { return m_priority; }
+    QString id() const { return m_id; }
+    QString type() const { return m_type; }
+    bool isEnabled() const;
 
     void setEnabled(bool enabled);
-    bool isEnabled() const;
+    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
+    void setIcon(const QIcon &icon) { m_icon = icon; }
+    void setPriority(int priority) { m_priority = priority; }
+    void setId(const QString &id) { m_id = id; }
+    void setType(const QString &type) { m_type = type; }
 
 signals:
     void enabledStateChanged(bool enabled);
 
 private:
+    QString m_displayName;
+    QIcon m_icon;
+    int m_priority;
+    QString m_id;
+    QString m_type;
     bool m_isEnabled;
 };
 

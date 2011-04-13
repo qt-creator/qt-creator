@@ -499,6 +499,11 @@ public:
     {
         setObjectName(QLatin1String("DebugMode"));
         setContext(Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE));
+        setDisplayName(DebuggerPlugin::tr("Debug"));
+        setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Debug.png")));
+        setPriority(P_MODE_DEBUG);
+        setId(MODE_DEBUG);
+        setType(CC::MODE_EDIT_TYPE);
     }
 
     ~DebugMode()
@@ -507,19 +512,6 @@ public:
         //EditorManager::instance()->setParent(0);
         delete m_widget;
     }
-
-    void setWidget(QWidget *widget)
-    {
-        m_widget = widget;
-    }
-
-    // IMode
-    QString displayName() const { return DebuggerPlugin::tr("Debug"); }
-    QIcon icon() const { return QIcon(__(":/fancyactionbar/images/mode_Debug.png")); }
-    int priority() const { return P_MODE_DEBUG; }
-    QString id() const { return MODE_DEBUG; }
-    QString type() const { return CC::MODE_EDIT_TYPE; }
-    QString contextHelpId() const { return QString(); }
 };
 
 

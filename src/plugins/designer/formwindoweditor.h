@@ -41,10 +41,6 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
-namespace Core {
-    class IMode;
-}
-
 namespace TextEditor {
     class BaseTextDocument;
     class PlainTextEditor;

@@ -60,14 +60,13 @@ public:
     {
         setWidget(new QPushButton(tr("Hello World PushButton!")));
         setContext(Core::Context("HelloWorld.MainView"));
+        setDisplayName(tr("Hello world!"));
+        setIcon(QIcon());
+        setPriority(0);
+        setId(QLatin1String("HelloWorld.HelloWorldMode"));
+        setType(QLatin1String("HelloWorld.HelloWorldMode"));
+        setContextHelpId(QString());
     }
-
-    QString displayName() const { return tr("Hello world!"); }
-    QIcon icon() const { return QIcon(); }
-    int priority() const { return 0; }
-    QString id() const { return QLatin1String("HelloWorld.HelloWorldMode"); }
-    QString type() const { return QLatin1String("HelloWorld.HelloWorldMode"); }
-    QString contextHelpId() const { return QString(); }
 };
 
 

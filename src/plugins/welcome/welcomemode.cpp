@@ -100,6 +100,13 @@ struct WelcomeModePrivate
 WelcomeMode::WelcomeMode() :
     m_d(new WelcomeModePrivate)
 {
+    setDisplayName(tr("Welcome"));
+    setIcon(QIcon(QLatin1String(Core::Constants::ICON_QTLOGO_32)));
+    setPriority(Core::Constants::P_MODE_WELCOME);
+    setId(QLatin1String(Core::Constants::MODE_WELCOME));
+    setType(QLatin1String(Core::Constants::MODE_WELCOME_TYPE));
+    setContextHelpId(QLatin1String("Qt Creator Manual"));
+
     m_d->m_widget = new QWidget;
     QVBoxLayout *l = new QVBoxLayout(m_d->m_widget);
     l->setMargin(0);
@@ -133,32 +140,7 @@ WelcomeMode::~WelcomeMode()
     delete m_d;
 }
 
-QString WelcomeMode::displayName() const
-{
-    return tr("Welcome");
-}
-
-QIcon WelcomeMode::icon() const
-{
-    return QIcon(QLatin1String(Core::Constants::ICON_QTLOGO_32));
-}
-
-int WelcomeMode::priority() const
-{
-    return Core::Constants::P_MODE_WELCOME;
-}
-
-QString WelcomeMode::id() const
-{
-    return QLatin1String(Core::Constants::MODE_WELCOME);
-}
-
-QString WelcomeMode::type() const
-{
-    return QLatin1String(Core::Constants::MODE_WELCOME_TYPE);
-}
-
-bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
+bool sortFunction(Utils::IWelcomePage *a, Utils::IWelcomePage *b)
 {
     return a->priority() < b->priority();
 }
@@ -179,11 +161,6 @@ QToolButton *WelcomeMode::addPageToolButton(Utils::IWelcomePage *plugin, int pos
         m_d->buttonLayout->addWidget(btn);
     }
     return btn;
-}
-
-QString WelcomeMode::contextHelpId() const
-{
-    return QLatin1String("Qt Creator Manual");
 }
 
 void WelcomeMode::initPlugins()

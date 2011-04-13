@@ -58,6 +58,12 @@ EditMode::EditMode(EditorManager *editorManager) :
     m_rightSplitWidgetLayout(new QVBoxLayout)
 {
     setObjectName(QLatin1String("EditMode"));
+    setDisplayName(tr("Edit"));
+    setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Edit.png")));
+    setPriority(Constants::P_MODE_EDIT);
+    setId(QLatin1String(Constants::MODE_EDIT));
+    setType(QLatin1String(Constants::MODE_EDIT_TYPE));
+
     m_rightSplitWidgetLayout->setSpacing(0);
     m_rightSplitWidgetLayout->setMargin(0);
     QWidget *rightSplitWidget = new QWidget;
@@ -100,31 +106,6 @@ EditMode::~EditMode()
     // Make sure the editor manager does not get deleted
     m_editorManager->setParent(0);
     delete m_splitter;
-}
-
-QString EditMode::displayName() const
-{
-    return tr("Edit");
-}
-
-QIcon EditMode::icon() const
-{
-    return QIcon(QLatin1String(":/fancyactionbar/images/mode_Edit.png"));
-}
-
-int EditMode::priority() const
-{
-    return Constants::P_MODE_EDIT;
-}
-
-QString EditMode::id() const
-{
-    return QLatin1String(Constants::MODE_EDIT);
-}
-
-QString EditMode::type() const
-{
-    return QLatin1String(Constants::MODE_EDIT_TYPE);
 }
 
 void EditMode::grabEditorManager(Core::IMode *mode)

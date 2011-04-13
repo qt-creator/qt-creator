@@ -56,13 +56,6 @@ public:
     EditMode(EditorManager *editorManager);
     ~EditMode();
 
-    // IMode
-    QString displayName() const;
-    QIcon icon() const;
-    int priority() const;
-    QString id() const;
-    QString type() const;
-
 private slots:
     void grabEditorManager(Core::IMode *mode);
 

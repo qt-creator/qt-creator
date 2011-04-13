@@ -238,17 +238,13 @@ public:
     {
         setWidget(proWindow);
         setContext(Core::Context(Constants::C_PROJECTEXPLORER));
+        setDisplayName(QCoreApplication::translate("ProjectExplorer::ProjectsMode", "Projects"));
+        setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
+        setPriority(Constants::P_MODE_SESSION);
+        setId(QLatin1String(Constants::MODE_SESSION));
+        setType(QString());
+        setContextHelpId(QLatin1String("Managing Projects"));
     }
-
-    QString displayName() const { return QCoreApplication::translate("ProjectExplorer::ProjectsMode", "Projects"); }
-    QIcon icon() const { return QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")); }
-    int priority() const { return Constants::P_MODE_SESSION; }
-    QString id() const { return QLatin1String(Constants::MODE_SESSION); }
-    QString type() const { return QString(); }
-    QString contextHelpId() const { return QLatin1String("Managing Projects"); }
-
-private:
-    QIcon m_icon;
 };
 
 }  // namespace ProjectExplorer

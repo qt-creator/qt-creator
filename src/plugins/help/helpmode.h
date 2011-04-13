@@ -46,17 +46,6 @@ class HelpMode : public Core::IMode
 {
 public:
     explicit HelpMode(QObject *parent = 0);
-
-    QString displayName() const;
-    QIcon icon() const { return m_icon; }
-    int priority() const;
-    QString id() const;
-    QString type() const { return QString(); }
-    QString contextHelpId() const { return QString(); }
-
-private:
-    QWidget *m_widget;
-    QIcon m_icon;
 };
 
 } // namespace Internal

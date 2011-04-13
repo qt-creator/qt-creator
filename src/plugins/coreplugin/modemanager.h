@@ -63,8 +63,8 @@ public:
     void init();
     static ModeManager *instance();
 
-    IMode* currentMode() const;
-    IMode* mode(const QString &id) const;
+    IMode *currentMode() const;
+    IMode *mode(const QString &id) const;
 
     void addAction(QAction *action, int priority);
     void addProjectSelector(QAction *action);

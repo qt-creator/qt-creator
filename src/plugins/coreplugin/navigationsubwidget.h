@@ -48,7 +48,6 @@ class StyledBar;
 
 namespace Core {
 class INavigationWidgetFactory;
-class IMode;
 class Command;
 class NavigationWidget;
 

@@ -48,11 +48,7 @@ QT_END_NAMESPACE
 namespace Core {
     class Context;
     class IContext;
-    class IWizard;
-    class ICore;
-    class IEditorFactory;
     class IEditor;
-    class IMode;
     class DesignMode;
     class EditorManager;
 }

@@ -148,6 +148,11 @@ public:
             Core::Constants::C_EDITORMANAGER,
             Constants::C_ANALYZEMODE,
             Core::Constants::C_NAVIGATION_PANE));
+        setDisplayName(tr("Analyze"));
+        setIcon(QIcon(":/images/analyzer_mode.png"));
+        setPriority(Constants::P_MODE_ANALYZE);
+        setId(QLatin1String(Constants::MODE_ANALYZE));
+        setType(Core::Constants::MODE_EDIT_TYPE);
     }
 
     ~AnalyzerMode()
@@ -159,13 +164,6 @@ public:
         }
         Core::EditorManager::instance()->setParent(0);
     }
-
-    QString displayName() const { return tr("Analyze"); }
-    QIcon icon() const { return QIcon(":/images/analyzer_mode.png"); }
-    int priority() const { return Constants::P_MODE_ANALYZE; }
-    QString id() const { return QLatin1String(Constants::MODE_ANALYZE); }
-    QString type() const { return Core::Constants::MODE_EDIT_TYPE; }
-    QString contextHelpId() const { return QString(); }
 };
 
 } // namespace Internal
