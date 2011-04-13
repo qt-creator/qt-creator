@@ -3182,7 +3182,7 @@
 
     By default, Qt Creator does a \l{glossary-shadow-build}{shadow build} and also
     creates the directory. However, shadow building is not supported for the Symbian
-    Devices target.
+    Devices or Maemo5 target on Windows.
 
     If you have built the project before, Qt Creator can use the existing build
     configuration to make the exact same build as found in the directory available to
