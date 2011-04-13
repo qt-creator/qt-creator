@@ -1098,8 +1098,6 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
             }
             contents = QString::fromLocal8Bit(reader.data());
             lines = contents.split(QLatin1Char('\n'));
-            while (!lines.isEmpty() && lines.last().isEmpty())
-                lines.removeLast();
         }
 
         ProMessageHandler handler;

@@ -283,8 +283,6 @@ void S60PublisherOvi::updateProFile(const QString &var, const QString &values)
         return;
     }
     lines = QString::fromLocal8Bit(reader.data()).split(QLatin1Char('\n'));
-    while (!lines.isEmpty() && lines.last().isEmpty())
-        lines.removeLast();
 
     ProWriter::putVarValues(profile, &lines, QStringList() << values, var,
                             ProWriter::ReplaceValues | ProWriter::OneLine | ProWriter::AppendOperator,
