@@ -550,6 +550,8 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
 {
     if (!target)
         return false;
+    if (target != target->project()->activeTarget())
+        return false;
 
     MaemoRunConfiguration *mrc =
         qobject_cast<MaemoRunConfiguration *> (target->activeRunConfiguration());
