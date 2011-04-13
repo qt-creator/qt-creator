@@ -18233,7 +18233,7 @@ zamiast w jego katalogu instalacyjnym.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Użyta zostanie wersjonowana kopia zapasowa pliku z ustawieniami .user, ponieważ niewersjonowany plik został utworzony przez niekompatybilną, nowszą wersję Qt Creatora.&lt;/p&gt;&lt;p&gt;Zmiany w ustawieniach tego projektu dokonane od ostatniego użycia tej wersji Qt Creatora zostaną zignorowane. Nowe zmiany &lt;b&gt;nie&lt;/b&gt; zostaną zastosowane w nowszej wersji.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Użyta zostanie kopia zapasowa pliku z ustawieniami .user, ponieważ w międzyczasie oryginalny plik z ustawieniami został zachowany przez nowszą, niekompatybilną wersję Qt Creatora.&lt;/p&gt;&lt;p&gt;Jeżeli nastąpią teraz zmiany w ustawieniach projektu to &lt;b&gt;nie&lt;/b&gt; zostaną one zastosowane w nowszej wersji Qt Creatora.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Project Settings File from a different Environment?</source>
