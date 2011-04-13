@@ -485,9 +485,12 @@ OutputWindow::OutputWindow(QWidget *parent)
         setWordWrapMode(QTextOption::NoWrap);
 
     static uint usedIds = 0;
-    Core::ICore *core = Core::ICore::instance();
     Core::Context context(Constants::C_APP_OUTPUT, usedIds++);
-    m_outputWindowContext = new Core::BaseContext(this, context);
+    Core::ICore *core = Core::ICore::instance();
+
+    m_outputWindowContext = new Core::IContext;
+    m_outputWindowContext->setContext(context);
+    m_outputWindowContext->setWidget(this);
     core->addContextObject(m_outputWindowContext);
 
     QAction *undoAction = new QAction(this);

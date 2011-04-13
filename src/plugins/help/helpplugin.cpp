@@ -579,9 +579,10 @@ void HelpPlugin::createRightPaneContextViewer()
     agg->add(m_helpViewerForSideBar);
     agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));
 
-    Core::Context context(Constants::C_HELP_SIDEBAR);
-    m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar,
-        context, this));
+    Core::IContext *context = new Core::IContext(this);
+    context->setContext(Core::Context(Constants::C_HELP_SIDEBAR));
+    context->setWidget(m_helpViewerForSideBar);
+    m_core->addContextObject(context);
 
     QAction *copy = new QAction(this);
     Core::Command *cmd = m_core->actionManager()->registerAction(copy,

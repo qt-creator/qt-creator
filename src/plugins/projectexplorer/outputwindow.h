@@ -47,7 +47,7 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
-    class BaseContext;
+    class IContext;
 }
 
 namespace ProjectExplorer {
@@ -189,7 +189,7 @@ private:
     void enableUndoRedo();
     QString doNewlineEnfocement(const QString &out);
 
-    Core::BaseContext *m_outputWindowContext;
+    Core::IContext *m_outputWindowContext;
     OutputFormatter *m_formatter;
 
     bool m_enforceNewline;

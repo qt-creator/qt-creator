@@ -91,17 +91,6 @@ protected:
     QPointer<QWidget> m_widget;
 };
 
-class BaseContext : public Core::IContext
-{
-public:
-    BaseContext(QWidget *widget, const Context &context, QObject *parent = 0)
-        : Core::IContext(parent)
-    {
-        setWidget(widget);
-        setContext(context);
-    }
-};
-
 } // namespace Core
 
 #endif //ICONTEXT_H
