@@ -42,9 +42,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <projectexplorer/abi.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/toolchain.h>
 #include <qt4projectmanager/qt4project.h>
 
 #include <QtGui/QApplication>
@@ -125,18 +127,15 @@ AbstractQt4MaemoTarget::~AbstractQt4MaemoTarget()
 
 AbstractQt4MaemoTarget::DebugArchitecture AbstractQt4MaemoTarget::debugArchitecture() const
 {
-    const QString arch
-        = MaemoGlobal::architecture(activeBuildConfiguration()->qtVersion());
-    if (arch.startsWith(QLatin1String("arm"))) {
-        return DebugArchitecture(QLatin1String("arm"),
-            QLatin1String("arm-none-linux-gnueabi"));
-    } else if (arch.startsWith(QLatin1String("x86_64"))) {
-        return DebugArchitecture(QLatin1String("i386:x86-64"),
-            QLatin1String("x86_64-unknown-linux-gnu "));
-    } else {
-        return DebugArchitecture(QLatin1String("x86"),
-            QLatin1String("i386-unknown-linux-gnu "));
-    }
+    // TODO: This functionality should be inside the debugger.
+    const ProjectExplorer::Abi &abi
+        = activeBuildConfiguration()->toolChain()->targetAbi();
+    DebugArchitecture arch(abi.toString());
+
+    // TODO: This might do the wrong thing for x64.
+    arch.gnuTarget = QLatin1String(abi.architecture() == ProjectExplorer::Abi::ArmArchitecture
+        ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
+    return arch;
 }
 
 QList<ProjectExplorer::ToolChain *> AbstractQt4MaemoTarget::possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const
