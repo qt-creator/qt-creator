@@ -7684,7 +7684,9 @@
 
         \o  Throwing and catching exceptions
 
-        \o  Some system calls, such as \c fork(), \c vfork(), and \c exec()
+        \o  Executing and forking processes
+
+        \o  Executing some system calls
 
     \endlist
 
