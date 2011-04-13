@@ -318,7 +318,7 @@ bool CMakeSettingsPage::isCMakeExecutableValid() const
 {
     if (m_userCmake.state == CMakeValidator::RUNNING) {
         disconnect(m_userCmake.process, SIGNAL(finished(int)),
-                   this, SLOT(cmakeFinished()));
+                   this, SLOT(userCmakeFinished()));
         m_userCmake.process->waitForFinished();
         // Parse the output now
         cmakeFinished(&m_userCmake);
@@ -328,7 +328,7 @@ bool CMakeSettingsPage::isCMakeExecutableValid() const
         return true;
     if (m_pathCmake.state == CMakeValidator::RUNNING) {
         disconnect(m_userCmake.process, SIGNAL(finished(int)),
-                   this, SLOT(cmakeFinished()));
+                   this, SLOT(pathCmakeFinished()));
         m_pathCmake.process->waitForFinished();
         // Parse the output now
         cmakeFinished(&m_pathCmake);
