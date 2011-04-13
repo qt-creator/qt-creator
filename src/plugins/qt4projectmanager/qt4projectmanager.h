@@ -93,6 +93,8 @@ public:
     enum Action { BUILD, REBUILD, CLEAN };
 
 public slots:
+    void addLibrary();
+    void addLibraryContextMenu();
     void runQMake();
     void runQMakeContextMenu();
     void buildSubDirContextMenu();
@@ -108,6 +110,7 @@ private slots:
 private:
     QList<Qt4Project *> m_projects;
     void handleSubDirContexMenu(Action action);
+    void addLibrary(const QString &fileName, Internal::ProFileEditorWidget *editor = 0);
     void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
     Internal::Qt4ProjectManagerPlugin *m_plugin;

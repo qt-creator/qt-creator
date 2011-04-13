@@ -94,7 +94,6 @@ protected:
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
-    void addLibrary();
     void jumpToFile();
 
 private:

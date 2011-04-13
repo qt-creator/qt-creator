@@ -69,8 +69,8 @@ private slots:
     void updateContextMenu(ProjectExplorer::Project *project,
                            ProjectExplorer::Node *node);
     void currentProjectChanged();
+    void currentNodeChanged(ProjectExplorer::Node *node);
     void buildStateChanged(ProjectExplorer::Project *pro);
-    void addLibrary();
     void jumpToFile();
 
 #ifdef WITH_TESTS
@@ -98,6 +98,8 @@ private:
     QAction *m_buildSubProjectContextMenu;
     QAction *m_rebuildSubProjectContextMenu;
     QAction *m_cleanSubProjectContextMenu;
+    QAction *m_addLibraryAction;
+    QAction *m_addLibraryActionContextMenu;
     GettingStartedWelcomePage *m_welcomePage;
     Core::Context m_projectContext;
 };

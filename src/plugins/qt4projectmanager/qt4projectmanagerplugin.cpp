@@ -109,6 +109,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 {
     Q_UNUSED(arguments)
     const Core::Context projectContext(Qt4ProjectManager::Constants::PROJECT_ID);
+    Core::Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
     ProFileParser::initialize();
     ProFileEvaluator::initialize();
@@ -243,35 +244,43 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, SLOT(buildStateChanged(ProjectExplorer::Project *)));
     connect(m_projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(currentProjectChanged()));
+    connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
+            this, SLOT(currentNodeChanged(ProjectExplorer::Node*)));
 
     Core::ActionContainer *contextMenu = am->createMenu(Qt4ProjectManager::Constants::M_CONTEXT);
-
-    Core::Command *cmd;
 
     Core::Context proFileEditorContext = Core::Context(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
 
     QAction *jumpToFile = new QAction(tr("Jump to File Under Cursor"), this);
-    cmd = am->registerAction(jumpToFile,
+    command = am->registerAction(jumpToFile,
         Constants::JUMP_TO_FILE, proFileEditorContext);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
+    command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
     connect(jumpToFile, SIGNAL(triggered()),
             this, SLOT(jumpToFile()));
-    contextMenu->addAction(cmd);
+    contextMenu->addAction(command);
 
-    QAction *addLibrary = new QAction(tr("Add Library..."), this);
-    cmd = am->registerAction(addLibrary,
+    m_addLibraryAction = new QAction(tr("Add Library..."), this);
+    command = am->registerAction(m_addLibraryAction,
         Constants::ADDLIBRARY, proFileEditorContext);
-    connect(addLibrary, SIGNAL(triggered()),
-            this, SLOT(addLibrary()));
-    contextMenu->addAction(cmd);
+    connect(m_addLibraryAction, SIGNAL(triggered()),
+            m_qt4ProjectManager, SLOT(addLibrary()));
+    contextMenu->addAction(command);
+
+    m_addLibraryActionContextMenu = new QAction(tr("Add Library..."), this);
+    command = am->registerAction(m_addLibraryActionContextMenu,
+        Constants::ADDLIBRARY, projecTreeContext);
+    connect(m_addLibraryActionContextMenu, SIGNAL(triggered()),
+            m_qt4ProjectManager, SLOT(addLibraryContextMenu()));
+    mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
 
     QAction *separator = new QAction(this);
     separator->setSeparator(true);
     contextMenu->addAction(am->registerAction(separator,
                   Core::Id(Constants::SEPARATOR), proFileEditorContext));
 
-    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
-    contextMenu->addAction(cmd);
+    command = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    contextMenu->addAction(command);
 
     return true;
 }
@@ -317,6 +326,11 @@ void Qt4ProjectManagerPlugin::currentProjectChanged()
     m_runQMakeAction->setEnabled(!m_projectExplorer->buildManager()->isBuilding(m_projectExplorer->currentProject()));
 }
 
+void Qt4ProjectManagerPlugin::currentNodeChanged(ProjectExplorer::Node *node)
+{
+    m_addLibraryActionContextMenu->setEnabled(qobject_cast<Qt4ProFileNode *>(node));
+}
+
 void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
 {
     ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
@@ -324,14 +338,6 @@ void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
         m_runQMakeAction->setEnabled(!m_projectExplorer->buildManager()->isBuilding(currentProject));
     if (pro == m_qt4ProjectManager->contextProject())
         m_runQMakeActionContextMenu->setEnabled(!m_projectExplorer->buildManager()->isBuilding(pro));
-}
-
-void Qt4ProjectManagerPlugin::addLibrary()
-{
-    Core::EditorManager *em = Core::EditorManager::instance();
-    ProFileEditorWidget *editor = qobject_cast<ProFileEditorWidget*>(em->currentEditor()->widget());
-    if (editor)
-        editor->addLibrary();
 }
 
 void Qt4ProjectManagerPlugin::jumpToFile()

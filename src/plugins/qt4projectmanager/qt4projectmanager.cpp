@@ -39,8 +39,10 @@
 #include "qt4project.h"
 #include "qt4target.h"
 #include "profilereader.h"
+#include "profileeditor.h"
 #include "qmakestep.h"
 #include "qt4buildconfiguration.h"
+#include "addlibrarywizard.h"
 #include "wizards/qtquickapp.h"
 #include "wizards/html5app.h"
 
@@ -284,6 +286,52 @@ ProjectExplorer::Project *Qt4Manager::contextProject() const
 {
     return m_contextProject;
 }
+
+void Qt4Manager::addLibrary()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    ProFileEditorWidget *editor = qobject_cast<ProFileEditorWidget*>(em->currentEditor()->widget());
+    if (editor)
+        addLibrary(editor->file()->fileName(), editor);
+}
+
+void Qt4Manager::addLibraryContextMenu()
+{
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode();
+    if (qobject_cast<Qt4ProFileNode *>(node))
+        addLibrary(node->path());
+}
+
+void Qt4Manager::addLibrary(const QString &fileName, ProFileEditorWidget *editor)
+{
+    AddLibraryWizard wizard(fileName, Core::EditorManager::instance());
+    if (wizard.exec() != QDialog::Accepted)
+        return;
+
+    TextEditor::BaseTextEditor *editable = 0;
+    if (editor) {
+        editable = editor->editor();
+    } else {
+        Core::EditorManager *em = Core::EditorManager::instance();
+        editable = qobject_cast<TextEditor::BaseTextEditor *>
+                (em->openEditor(fileName, Qt4ProjectManager::Constants::PROFILE_EDITOR_ID));
+    }
+    if (!editable)
+        return;
+
+    const int endOfDoc = editable->position(TextEditor::ITextEditor::EndOfDoc);
+    editable->setCursorPosition(endOfDoc);
+    QString snippet = wizard.snippet();
+
+    // add extra \n in case the last line is not empty
+    int line, column;
+    editable->convertPosition(endOfDoc, &line, &column);
+    if (!editable->textAt(endOfDoc - column, column).simplified().isEmpty())
+        snippet = QLatin1Char('\n') + snippet;
+
+    editable->insert(snippet);
+}
+
 
 void Qt4Manager::runQMake()
 {
