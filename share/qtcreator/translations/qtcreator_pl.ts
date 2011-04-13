@@ -483,7 +483,7 @@ p, li { white-space: pre-wrap; }
     <name>CompletionSettingsPage</name>
     <message>
         <source>Automatically insert (, ) and ; when appropriate.</source>
-        <translation>Automatycznie wstawiaj (, ) i ; gdy należy.</translation>
+        <translation>Kiedy należy, automatycznie wstawiaj &quot;(&quot;, &quot;)&quot; i &quot;;&quot;.</translation>
     </message>
     <message>
         <source>&amp;Automatically insert brackets</source>
@@ -642,7 +642,7 @@ p, li { white-space: pre-wrap; }
     <name>CommonOptionsPage</name>
     <message>
         <source>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</source>
-        <translation>Ustawienie tej opcji spowoduje automatyczne wypełnianie widoku pliku źródłowego lecz może znacznie spowolnić uruchamianie debuggera.</translation>
+        <translation>Ustawienie tej opcji spowoduje automatyczne wypełnianie widoku pliku źródłowego, lecz może znacznie spowolnić uruchamianie debuggera.</translation>
     </message>
     <message>
         <source>Populate source file view automatically</source>
@@ -734,7 +734,7 @@ p, li { white-space: pre-wrap; }
     <name>GdbOptionsPage</name>
     <message>
         <source>This is the slowest but safest option.</source>
-        <translation>To jest najwolniejsza ale i zarazem najbezpieczniejsza opcja.</translation>
+        <translation>To jest najwolniejsza, ale i zarazem najbezpieczniejsza opcja.</translation>
     </message>
     <message>
         <source>Try to set breakpoints in plugins always automatically.</source>
@@ -798,7 +798,7 @@ czasu na powolnych maszynach. W takich przypadkach wartość ta powinna zostać 
     </message>
     <message>
         <source>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</source>
-        <translation>Może wskazywać plik zawierający komendy GDB które będą wykonane zaraz po uruchomieniu gdb.</translation>
+        <translation>Może wskazywać plik zawierający komendy GDB, które będą wykonane zaraz po uruchomieniu gdb.</translation>
     </message>
     <message>
         <source>GDB startup script:</source>
@@ -822,7 +822,7 @@ czasu na powolnych maszynach. W takich przypadkach wartość ta powinna zostać 
     </message>
     <message>
         <source>GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.</source>
-        <translation>GDB umożliwia ustawianie pułapek w liniach źródłowych dla których nie został wygenerowany żaden kod wykonywalny. W takich przypadkach pułapki są przesuwane do następnej linii dla której kod wygenerowano. Zaznaczenie tej opcji odzwierciedli takie sytuacje poprzez przesunięcie znaczników pułapek w edytorze kodu źródłowego.</translation>
+        <translation>GDB umożliwia ustawianie pułapek w liniach źródłowych, dla których nie został wygenerowany żaden kod wykonywalny. W takich przypadkach pułapki są przesuwane do następnej linii, dla której kod wygenerowano. Zaznaczenie tej opcji odzwierciedli takie sytuacje poprzez przesunięcie znaczników pułapek w edytorze kodu źródłowego.</translation>
     </message>
     <message>
         <source>Enable reverse debugging Selecting this enables reverse debugging. NOTE: This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.</source>
@@ -1775,7 +1775,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. The latest binary is available at &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp://ftp.qt.nokia.com/jom/&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
-        <translation>&lt;i&gt;jom&lt;/i&gt; jest zamiennikiem &lt;i&gt;nmake&lt;/i&gt; który dystrybuuje proces kompilacji do wielu rdzeni procesora .Najnowsza wersja jest dostępna tu: &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp://ftp.qt.nokia.com/jom/&lt;/a&gt;. Wyłącz tę opcję jeśli doświadczasz problemów podczas budowania.</translation>
+        <translation>&lt;i&gt;jom&lt;/i&gt; jest zamiennikiem &lt;i&gt;nmake&lt;/i&gt;, który dystrybuuje proces kompilacji do wielu rdzeni procesora .Najnowsza wersja jest dostępna tu: &lt;a href=&quot;ftp://ftp.qt.nokia.com/jom/&quot;&gt;ftp://ftp.qt.nokia.com/jom/&lt;/a&gt;. Wyłącz tę opcję, jeśli doświadczasz problemów podczas budowania.</translation>
     </message>
     <message>
         <source>Always build project before deploying it</source>
@@ -2149,7 +2149,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Did You Know?</source>
-        <translation>Czy wiesz że?</translation>
+        <translation>Czy wiesz, że...?</translation>
     </message>
     <message>
         <source>The Qt Creator User Interface</source>
@@ -2229,7 +2229,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>You can switch between the output pane by hitting &lt;tt&gt;%1+n&lt;/tt&gt; where n is the number denoted on the buttons at the window bottom: &lt;br /&gt;&lt;br /&gt;1: Build Issues, 2: Search Results, 3: Application Output, 4: Compile Output</source>
-        <translation>Możesz przełączać panele wyjściowe naciskając &lt;tt&gt;%1+n&lt;/tt&gt; gdzie n jest odpowiednim numerem na przycisku na dole okna:&lt;br /&gt;&lt;br /&gt;1 - Problemy podczas budowania, 2 - Wyniki wyszukiwań, 3 - Komunikaty aplikacji, 4 - Komunikaty kompilatora</translation>
+        <translation>Możesz przełączać panele wyjściowe naciskając &lt;tt&gt;%1+n&lt;/tt&gt;, gdzie n jest odpowiednim numerem na przycisku na dole okna:&lt;br /&gt;&lt;br /&gt;1 - Problemy podczas budowania, 2 - Wyniki wyszukiwań, 3 - Komunikaty aplikacji, 4 - Komunikaty kompilatora</translation>
     </message>
     <message>
         <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-editor-locator.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
@@ -2253,7 +2253,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation>Uzupełnianie kodu uwzględnia wielkie litery w środku nazw. Na przykład aby uzupełnić &lt;tt&gt;namespaceUri&lt;/tt&gt; wystarczy że napiszesz &lt;tt&gt;nU&lt;/tt&gt; i przyciśniesz &lt;tt&gt;Ctrl+spacja&lt;/tt&gt;.</translation>
+        <translation>Uzupełnianie kodu uwzględnia wielkie litery w środku nazw. Na przykład, aby uzupełnić &lt;tt&gt;namespaceUri&lt;/tt&gt; wystarczy, że napiszesz &lt;tt&gt;nU&lt;/tt&gt; i przyciśniesz &lt;tt&gt;Ctrl+spacja&lt;/tt&gt;.</translation>
     </message>
     <message>
         <source>You can force code completion at any time using &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
@@ -2942,7 +2942,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Description file found, but error on read</source>
-        <translation>Plik z opisem został znaleziony lecz wystąpił błąd podczas czytania</translation>
+        <translation>Plik z opisem został znaleziony, lecz wystąpił błąd podczas czytania</translation>
     </message>
     <message>
         <source>Read</source>
@@ -3022,7 +3022,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     <message>
         <source>Cannot load plugin because dependency failed to load: %1(%2)
 Reason: %3</source>
-        <translation>Nie można załadować wtyczki ponieważ załadowanie zależności: %1(%2) zakończyło sie niepowodzeniem
+        <translation>Nie można załadować wtyczki, ponieważ załadowanie zależności: %1(%2) zakończyło sie niepowodzeniem
 Przyczyna: %3</translation>
     </message>
 </context>
@@ -3069,7 +3069,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Resolving dependencies failed because state != Read</source>
-        <translation>Nie udało się rozwiązać zależności ponieważ stan wtyczki jest inny niż &quot;wczytana&quot;</translation>
+        <translation>Nie udało się rozwiązać zależności, ponieważ stan wtyczki jest inny niż &quot;wczytana&quot;</translation>
     </message>
     <message>
         <source>Could not resolve dependency &apos;%1(%2)&apos;</source>
@@ -3097,7 +3097,7 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Cannot perform extensionsInitialized because state != Initialized</source>
-        <translation>Nie można wykonać &quot;extensionsInitialized&quot; ponieważ stan wtyczek jest inny niż &quot;Initialized&quot;</translation>
+        <translation>Nie można wykonać &quot;extensionsInitialized&quot;, ponieważ stan wtyczek jest inny niż &quot;Initialized&quot;</translation>
     </message>
     <message>
         <source>Internal error: have no plugin instance to perform extensionsInitialized</source>
@@ -3473,11 +3473,11 @@ Przyczyna: %3</translation>
     <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
-        <translation>Podaj katalog w którym chcesz zbudować swój projekt.</translation>
+        <translation>Podaj katalog, w którym chcesz zbudować swój projekt.</translation>
     </message>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
-        <translation>Podaj katalog w którym chcesz zbudować swój projekt. Zaleca się aby nie budować projektu w katalogu ze źródłami. Dzięki temu katalog ze źródłami pozostaje czysty i możliwe jest zbudowanie wielu wersji z różnymi ustawieniami na podstawie tych samych źródeł.</translation>
+        <translation>Podaj katalog, w którym chcesz zbudować swój projekt. Zaleca się aby nie budować projektu w katalogu ze źródłami. Dzięki temu katalog ze źródłami pozostaje czysty i możliwe jest zbudowanie wielu wersji z różnymi ustawieniami na podstawie tych samych źródeł.</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -3696,7 +3696,7 @@ Przyczyna: %3</translation>
     <message>
         <source>The project directory %1 contains files which cannot be overwritten:
 %2.</source>
-        <translation>Katalog projektu %1 zawiera pliki które nie moga być nadpisane:
+        <translation>Katalog projektu %1 zawiera pliki, które nie moga być nadpisane:
 %2.</translation>
     </message>
     <message>
@@ -4025,7 +4025,7 @@ Czy chcesz je nadpisać?</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
-        <translation>&lt;b&gt;Ostrzeżenie:&lt;/b&gt; Zmieniasz plik który jest tylko do odczytu.</translation>
+        <translation>&lt;b&gt;Ostrzeżenie:&lt;/b&gt; Zmieniasz plik, który jest tylko do odczytu.</translation>
     </message>
     <message>
         <source>&amp;Save %1</source>
@@ -4520,15 +4520,15 @@ Czy chcesz je nadpisać?</translation>
     <name>CppEditor::Internal::CppPlugin</name>
     <message>
         <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
-        <translation>Tworzy plik nagłówkowy i źródłowy C++ z nową klasą którą można dodać do projektu C++.</translation>
+        <translation>Tworzy plik nagłówkowy i źródłowy C++ z nową klasą, którą można dodać do projektu C++.</translation>
     </message>
     <message>
         <source>Creates a C++ source file that you can add to a C++ project.</source>
-        <translation>Tworzy plik źródłowy C++ który można dodać do projektu C++.</translation>
+        <translation>Tworzy plik źródłowy C++, który można dodać do projektu C++.</translation>
     </message>
     <message>
         <source>Creates a C++ header file that you can add to a C++ project.</source>
-        <translation>Tworzy plik nagłówkowy C++ który można dodać do projektu C++.</translation>
+        <translation>Tworzy plik nagłówkowy C++, który można dodać do projektu C++.</translation>
     </message>
     <message>
         <source>C++ Header File</source>
@@ -5208,7 +5208,7 @@ Czy chcesz je nadpisać?</translation>
     </message>
     <message>
         <source>Breakpoint will only be hit if this condition is met.</source>
-        <translation>Program przerwie działanie w pułapce tylko gdy ten warunek będzie spełniony.</translation>
+        <translation>Program przerwie działanie w pułapce, tylko gdy ten warunek będzie spełniony.</translation>
     </message>
     <message>
         <source>Breakpoint will only be hit after being ignored so many times.</source>
@@ -5401,7 +5401,7 @@ Czy chcesz je nadpisać?</translation>
     </message>
     <message>
         <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation>Wybranie tej opcji spowoduje pobieranie informacji o zakresie zmiennych z modelu kodu C++. Może to przyspieszyć działanie debuggera lecz również może to spowodować niepoprawne działanie dla zoptymalizowanego kodu.</translation>
+        <translation>Wybranie tej opcji spowoduje pobieranie informacji o zakresie zmiennych z modelu kodu C++. Może to przyspieszyć działanie debuggera, lecz również może to spowodować niepoprawne działanie dla zoptymalizowanego kodu.</translation>
     </message>
     <message>
         <source>This switches the Locals&amp;&amp;Watchers view to automatically dereference pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
@@ -5417,7 +5417,7 @@ Czy chcesz je nadpisać?</translation>
     </message>
     <message>
         <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>Nie wszystkie linie kodu źródłowego generują kod wykonywalny. Ustawienie pułapki w takiej linii spowoduje że zostanie ona ustawiona de facto w najbliższej kolejnej linii generującej kod wykonywalny. &quot;Poprawiaj położenie pułapek&quot; przesuwa czerwone znaczniki pułapek w miejsca prawdziwych pułapek w takich przypadkach.</translation>
+        <translation>Nie wszystkie linie kodu źródłowego generują kod wykonywalny. Ustawienie pułapki w takiej linii spowoduje, że zostanie ona ustawiona de facto w najbliższej kolejnej linii generującej kod wykonywalny. &quot;Poprawiaj położenie pułapek&quot; przesuwa czerwone znaczniki pułapek w miejsca prawdziwych pułapek w takich przypadkach.</translation>
     </message>
     <message>
         <source>Break on &quot;throw&quot;</source>
@@ -5437,7 +5437,7 @@ Czy chcesz je nadpisać?</translation>
     </message>
     <message>
         <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation>Zaznaczenie tej opcji włączy podpowiedzi dla wartości zmiennych podczas debugowania. Domyślnie jest to wyłączone ponieważ może to spowalniać debugowanie i ponadto może dostarczać nieprawidłowych informacji jako że dane o zakresach nie są uwzględniane.</translation>
+        <translation>Zaznaczenie tej opcji włączy podpowiedzi dla wartości zmiennych podczas debugowania. Domyślnie jest to wyłączone, ponieważ może to spowalniać debugowanie i ponadto może dostarczać nieprawidłowych informacji, jako że dane o zakresach nie są uwzględniane.</translation>
     </message>
     <message>
         <source>Use Tooltips in Locals View When Debugging</source>
@@ -5914,7 +5914,7 @@ Może to spowodować uzyskanie błędnych rezultatów.</translation>
     <message>
         <source>The gdb process has not responded to a command within %1 seconds. This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
 You can choose between waiting longer or abort debugging.</source>
-        <translation>Proces gdb nie odpowiedział na komendę po upływie %1 sekund. Może to oznaczać że utknął on w nieskończonej pętli lub możliwość odpowiedzenia zajmuje mu więcej czasu niż się spodziewano.
+        <translation>Proces gdb nie odpowiedział na komendę po upływie %1 sekund. Może to oznaczać, że utknął on w nieskończonej pętli lub możliwość odpowiedzenia zajmuje mu więcej czasu, niż się spodziewano.
 Możesz poczekać dłużej na odpowiedź lub przerwać debugowanie.</translation>
     </message>
     <message>
@@ -6069,7 +6069,7 @@ Można ustawić zmienną środowiskową PYTHONPATH wskazującą na instalację.<
     </message>
     <message>
         <source>The debugger settings point to a script file at &apos;%1&apos; which is not accessible. If a script file is not needed, consider clearing that entry to avoid this warning. </source>
-        <translation>Ustawienia debuggera pokazują na skrypt &quot;%1&quot; który nie jest dostępny. Jeśli plik ze skryptem nie jest potrzebny rozważ usunięcie go z ustawień w celu uniknięcia tego ostrzeżenia.</translation>
+        <translation>Ustawienia debuggera pokazują na skrypt &quot;%1&quot;, który nie jest dostępny. Jeśli plik ze skryptem nie jest potrzebny, rozważ usunięcie go z ustawień w celu uniknięcia tego ostrzeżenia.</translation>
     </message>
     <message>
         <source>GDB I/O Error</source>
@@ -6103,7 +6103,7 @@ Można ustawić zmienną środowiskową PYTHONPATH wskazującą na instalację.<
     </message>
     <message>
         <source>Unable to acquire a device on &apos;%1&apos;. It appears to be in use.</source>
-        <translation>Nie można pozyskać urządzenia na &quot;%1&quot;. Wygląda że jest w użyciu.</translation>
+        <translation>Nie można pozyskać urządzenia na &quot;%1&quot;. Wygląda, że jest w użyciu.</translation>
     </message>
     <message>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
@@ -6761,7 +6761,7 @@ Można ustawić zmienną środowiskową PYTHONPATH wskazującą na instalację.<
     </message>
     <message>
         <source>Setting a watchpoint on an address will cause the program to stop when the data at the address it modified.</source>
-        <translation>Ustawienie pułapki warunkowej pod adresem spowoduje zatrzymanie programu gdy dane pod tym adresem zostaną zmodyfikowane.</translation>
+        <translation>Ustawienie pułapki warunkowej pod adresem spowoduje zatrzymanie programu, gdy dane pod tym adresem zostaną zmodyfikowane.</translation>
     </message>
     <message>
         <source>Remove All Watch Items</source>
@@ -6874,7 +6874,7 @@ Spróbuj ponownie przebudować projekt.</translation>
     </message>
     <message>
         <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Tworzy formularz Qt Designera który można dodać do projektu Qt Widget. Jest to przydatne gdy istnieje już klasa implementująca logikę UI.</translation>
+        <translation>Tworzy formularz Qt Designera, który można dodać do projektu Qt Widget. Jest to przydatne, gdy istnieje już klasa implementująca logikę UI.</translation>
     </message>
     <message>
         <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
@@ -7360,7 +7360,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake or CMake. This allows you to use Qt Creator as a code editor.</source>
-        <translation>Importuje istniejące projekty które nie używają qmake ani CMake. To pozwala na korzystanie z Qt Creatora jako edytora kodu.</translation>
+        <translation>Importuje istniejące projekty, które nie używają qmake ani CMake. To pozwala na korzystanie z Qt Creatora jako edytora kodu.</translation>
     </message>
 </context>
 <context>
@@ -9476,11 +9476,11 @@ do projektu &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Files to be added:</source>
-        <translation>Pliki które zostaną dodane:</translation>
+        <translation>Pliki, które zostaną dodane:</translation>
     </message>
     <message>
         <source>Files to be added in</source>
-        <translation>Pliki które zostaną dodane w</translation>
+        <translation>Pliki, które zostaną dodane w</translation>
     </message>
 </context>
 <context>
@@ -10266,7 +10266,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
-        <translation>Podaj podstawowe informacje o klasach dla których chcesz wygenerować szkielet plików z kodem źródłowym.</translation>
+        <translation>Podaj podstawowe informacje o klasach, dla których chcesz wygenerować szkielet plików z kodem źródłowym.</translation>
     </message>
 </context>
 <context>
@@ -10307,7 +10307,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
-        <translation>Tworzy bibliotekę C++ bazującą na qmake. To pozwala na utworzenie:&lt;ul&gt;&lt;li&gt;dzielonej biblioteki C++ zdolnej do ładowania wtyczek za pomocą &lt;tt&gt;QPluginLoader&lt;/tt&gt;&lt;/li&gt;&lt;li&gt;dzielonej lub statycznej biblioteki C++ którą można dowiązać do innego projektu&lt;/li&gt;&lt;/ul&gt;.</translation>
+        <translation>Tworzy bibliotekę C++ bazującą na qmake. To pozwala na utworzenie:&lt;ul&gt;&lt;li&gt;dzielonej biblioteki C++ zdolnej do ładowania wtyczek za pomocą &lt;tt&gt;QPluginLoader&lt;/tt&gt;&lt;/li&gt;&lt;li&gt;dzielonej lub statycznej biblioteki C++ ,którą można dowiązać do innego projektu&lt;/li&gt;&lt;/ul&gt;.</translation>
     </message>
 </context>
 <context>
@@ -10349,7 +10349,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
     <message>
         <source>Select the modules you want to include in your project. The recommended modules for this project are selected by default.</source>
-        <translation>Wybierz moduły które chcesz włączyć do projektu. Rekomendowane moduły dla tego projektu są domyślnie zaznaczone.</translation>
+        <translation>Wybierz moduły, które chcesz włączyć do projektu. Rekomendowane moduły dla tego projektu są domyślnie zaznaczone.</translation>
     </message>
 </context>
 <context>
@@ -10367,7 +10367,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
     <message>
         <source>Creates a Qt Resource file (.qrc) that you can add to a Qt Widget Project.</source>
-        <translation>Tworzy plik z zasobami Qt (.qrc) który można dodać do projektu Qt Widget.</translation>
+        <translation>Tworzy plik z zasobami Qt (.qrc), który można dodać do projektu Qt Widget.</translation>
     </message>
     <message>
         <source>Qt Resource file</source>
@@ -10732,7 +10732,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Directory to search</source>
-        <translation>Katalog w którym przeszukiwać</translation>
+        <translation>Katalog, w którym przeszukiwać</translation>
     </message>
 </context>
 <context>
@@ -10766,7 +10766,7 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this color scheme permanently?</source>
-        <translation>Czy jesteś pewien że chcesz usunąć ten schemat kolorów bezpowrotnie?</translation>
+        <translation>Czy jesteś pewien, że chcesz usunąć ten schemat kolorów bezpowrotnie?</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -11929,8 +11929,8 @@ Następujące kodowania będą najprawdopodobniej pasowały:</translation>
     <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
-        <translation>Podaj krótkie słowo lub skrót który będzie użyty do odfiltrowania plików w podanych katalogach.
-Aby uaktywnić ten filtr wpisz w lokalizatorze powyższy skrót i po spacji podaj szukane słowo.</translation>
+        <translation>Podaj krótkie słowo lub skrót, który będzie użyty do odfiltrowania plików w podanych katalogach.
+Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji podaj szukane słowo.</translation>
     </message>
     <message>
         <source>Limit to prefix</source>
@@ -12424,7 +12424,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     <message>
         <source>%1 cannot be restored since the repository is modified.
 You can choose between stashing the changes or discarding them.</source>
-        <translation>Nie można przywrócić %1 ponieważ repozytorium zostało zmodyfikowane.
+        <translation>Nie można przywrócić %1, ponieważ repozytorium zostało zmodyfikowane.
 Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
@@ -12754,7 +12754,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
-        <translation>Podaj podstawowe informacje o klasie testowej dla której chcesz wygenerować szkielet pliku z kodem źródłowym.</translation>
+        <translation>Podaj podstawowe informacje o klasie testowej, dla której chcesz wygenerować szkielet pliku z kodem źródłowym.</translation>
     </message>
     <message>
         <source>Class name:</source>
@@ -14966,17 +14966,17 @@ Czy uruchomiłeś Qemu?</translation>
     <message numerus="yes">
         <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
         <translation>
-            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów ponieważ urządzenie posiada tylko %n wolny port.&lt;br&gt;Nie będzie można uruchomić tej konfiguracji.</numerusform>
-            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów ponieważ urządzenie posiada tylko %n wolne porty.&lt;br&gt;Nie będzie można uruchomić tej konfiguracji.</numerusform>
-            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów ponieważ urządzenie posiada tylko %n wolnych portów.&lt;br&gt;Nie będzie można uruchomić tej konfiguracji.</numerusform>
+            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów, ponieważ urządzenie posiada tylko %n wolny port.&lt;br&gt;Nie będzie można uruchomić tej konfiguracji.</numerusform>
+            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów, ponieważ urządzenie posiada tylko %n wolne porty.&lt;br&gt;Nie będzie można uruchomić tej konfiguracji.</numerusform>
+            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów, ponieważ urządzenie posiada tylko %n wolnych portów.&lt;br&gt;Nie będzie można uruchomić tej konfiguracji.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
         <translation>
-            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów ponieważ urządzenie udostępnia tylko %n port do debugowania.&lt;br&gt;Nie będzie można debugować aplikacji przy użyciu tej konfiguracji.</numerusform>
-            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów ponieważ urządzenie udostępnia tylko %n porty do debugowania.&lt;br&gt;Nie będzie można debugować aplikacji przy użyciu tej konfiguracji.</numerusform>
-            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów ponieważ urządzenie udostępnia tylko %n portów do debugowania.&lt;br&gt;Nie będzie można debugować aplikacji przy użyciu tej konfiguracji.</numerusform>
+            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów, ponieważ urządzenie udostępnia tylko %n port do debugowania.&lt;br&gt;Nie będzie można debugować aplikacji przy użyciu tej konfiguracji.</numerusform>
+            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów, ponieważ urządzenie udostępnia tylko %n porty do debugowania.&lt;br&gt;Nie będzie można debugować aplikacji przy użyciu tej konfiguracji.</numerusform>
+            <numerusform>Ostrzeżenie: Nie można zamontować %1 katalogów, ponieważ urządzenie udostępnia tylko %n portów do debugowania.&lt;br&gt;Nie będzie można debugować aplikacji przy użyciu tej konfiguracji.</numerusform>
         </translation>
     </message>
     <message>
@@ -15354,7 +15354,7 @@ Czy uruchomiłeś Qemu?</translation>
     </message>
     <message>
         <source>Unable to acquire a device for port &apos;%1&apos;. It appears to be in use.</source>
-        <translation>Nie można pozyskać urządzenia na porcie &quot;%1&quot;. Wygląda że jest w użyciu.</translation>
+        <translation>Nie można pozyskać urządzenia na porcie &quot;%1&quot;. Wygląda, że jest w użyciu.</translation>
     </message>
 </context>
 <context>
@@ -15498,7 +15498,7 @@ Czy uruchomiłeś Qemu?</translation>
     </message>
     <message>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation>Plik wykonywalny który jest uruchamiany z nazwą pliku tymczasowego przechowującego opis zmiany jako pierwszy argument. Powinien on zwrócić wartość różną od 0 i standardowy komunikat o błędzie w razie niepowodzenia.</translation>
+        <translation>Plik wykonywalny, który jest uruchamiany z nazwą pliku tymczasowego przechowującego opis zmiany jako pierwszy argument. Powinien on zwrócić wartość różną od 0 i standardowy komunikat o błędzie w razie niepowodzenia.</translation>
     </message>
     <message>
         <source>Submit message check script:</source>
@@ -15516,7 +15516,7 @@ nazwa &lt;email&gt; alias &lt;email&gt;</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="unfinished">Plik z liniami zawierającymi pola takie jak: &quot;Reviewed-By:&quot; który będzie dodany poniżej submit editor.</translation>
+        <translation type="unfinished">Plik z liniami zawierającymi pola takie jak: &quot;Reviewed-By:&quot;, który będzie dodany poniżej submit editor.</translation>
     </message>
     <message>
         <source>User fields configuration file:</source>
@@ -15525,7 +15525,7 @@ nazwa &lt;email&gt; alias &lt;email&gt;</translation>
     <message>
         <source>Specifies a command that is executed to graphically prompt for a password, 
 should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation>W przypadku gdy repozytorium wymaga autoryzacji SSH pole to definiuje komendę, która będzie pytała o hasło.
+        <translation>W przypadku, gdy repozytorium wymaga autoryzacji SSH, pole to definiuje komendę, która będzie pytała o hasło.
 Sprawdź dokumentację SSH zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
     <message>
@@ -16233,7 +16233,7 @@ Sprawdź dokumentację SSH zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
     <message>
         <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation>Kompilacja w innym miejscu nie została użyta a w projekcie występuje katalog debian (&quot;%1&quot;). Ten katalog nie zostanie nadpisany. Usuń go lub skompiluj projekt w innym miejscu.</translation>
+        <translation>Kompilacja w innym miejscu nie została użyta, a w projekcie występuje katalog debian (&quot;%1&quot;). Ten katalog nie zostanie nadpisany. Usuń go lub skompiluj projekt w innym miejscu.</translation>
     </message>
     <message>
         <source>Could not create Debian directory &apos;%1&apos;.</source>
@@ -16259,7 +16259,7 @@ Sprawdź dokumentację SSH zmienną środowiskową SSH_ASKPASS.</translation>
         <source>Your project name contains characters not allowed in Debian packages.
 They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
 We will try to work around that, but you may experience problems.</source>
-        <translation>Nazwa projektu zawiera znaki które są niedozwolone w pakietach Debiana.
+        <translation>Nazwa projektu zawiera znaki, które są niedozwolone w pakietach Debiana.
 Dozwolonymi znakami są tylko małe litery, liczby, &apos;-&apos;, &apos;+&apos; oraz &apos;.&apos;.
 Przy obecnej nazwie możesz spodziewać się problemów.</translation>
     </message>
@@ -17036,7 +17036,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>Note: All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
-        <translation>Uwaga: Wszystkie pliki i katalogi umieszczone w katalogu w którym jest główny plik QML zostaną zainstalowane. Zawartość katalogu może być dowolnie modyfikowana przed instalacją.</translation>
+        <translation>Uwaga: Wszystkie pliki i katalogi umieszczone w katalogu, w którym jest główny plik QML, zostaną zainstalowane. Zawartość katalogu może być dowolnie modyfikowana przed instalacją.</translation>
     </message>
 </context>
 <context>
@@ -17367,12 +17367,12 @@ Lista serwera: %2.</translation>
     <message>
         <source>Debugger command to be executed when the breakpoint is hit.
 GDB allows for specifying a sequence of commands separated by the delimiter &apos;\n&apos;.</source>
-        <translation>Komenda debuggera, która zostanie uruchomiona gdy pułapka zostanie osiągnięta.
+        <translation>Komenda debuggera, która zostanie uruchomiona, gdy pułapka zostanie osiągnięta.
 GDB umożliwia podawanie sekwencji komend oddzielonych separatorem &quot;\n&quot;.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Determines how the path is specified when setting breakpoints:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Use Engine Default&lt;/i&gt;: Preferred setting of the debugger engine.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use Full Path&lt;/i&gt;: Pass full path, avoiding ambiguities should files of the same name exist in several modules. This is the engine default for CDB and LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use File Name&lt;/i&gt;: Pass the file name only. This is useful when using a source tree whose location does not match the one used when building the modules. It is the engine default for GDB as using full paths can be slow with this engine.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Określa sposób wyznaczania ścieżki podczas ustawiania pułapek:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Używaj domyślnego silnika&lt;/i&gt;: preferowane ustawienie silnika debuggera.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Używaj pełnej ścieżki&lt;/i&gt;: przekazuj pełną ścieżkę, aby uniknąć niejednoznaczności gdy istnieją pliki o tej samej nazwie w różnych modułach. Jest to domyślne ustawienie dla silników CDB i LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Używaj nazwy pliku&lt;/i&gt;: przekazuj tylko nazwę pliku. Jest to pomocne w trakcie używania drzewa źródeł, którego położenie jest inne niż użyte podczas budowania modułu. Jest to domyślne ustawienie silnika GDB, ponieważ używanie pełnych ścieżek może go spowolnić.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Określa sposób wyznaczania ścieżki podczas ustawiania pułapek:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Używaj domyślnego silnika&lt;/i&gt;: preferowane ustawienie silnika debuggera.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Używaj pełnej ścieżki&lt;/i&gt;: przekazuj pełną ścieżkę, aby uniknąć niejednoznaczności, gdy istnieją pliki o tej samej nazwie w różnych modułach. Jest to domyślne ustawienie dla silników CDB i LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Używaj nazwy pliku&lt;/i&gt;: przekazuj tylko nazwę pliku. Jest to pomocne w trakcie używania drzewa źródeł, którego położenie jest inne niż użyte podczas budowania modułu. Jest to domyślne ustawienie silnika GDB, ponieważ używanie pełnych ścieżek może go spowolnić.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Specifying the module (base name of the library or executable)
@@ -17641,7 +17641,7 @@ debuggera (CDB, LLDB).</translation>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>&lt;p&gt;Podproces zatrzymany ponieważ otrzymał on sygnał z systemu operacyjnego.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Nazwa sygnału: &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Znaczenie sygnału: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+        <translation>&lt;p&gt;Podproces zatrzymany, ponieważ otrzymał on sygnał z systemu operacyjnego.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Nazwa sygnału: &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Znaczenie sygnału: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
         <source>Signal received</source>
@@ -17970,7 +17970,7 @@ This causes msysgit to look for the SSH-keys in that location
 instead of its installation directory when run outside git bash.</source>
         <translation>Ustaw zmienną środowiskową HOME na &quot;%1&quot;
 (%2).
-Spowoduje to że msysgit uruchomiony na zewnątrz powłoki git
+Spowoduje to, że msysgit uruchomiony na zewnątrz powłoki git
 zacznie poszukiwać kluczy SSH w tym położeniu
 zamiast w jego katalogu instalacyjnym.</translation>
     </message>
@@ -18245,9 +18245,9 @@ zamiast w jego katalogu instalacyjnym.</translation>
 The .user settings files contain environment specific settings. They should not be copied to a different environment. 
 
 Do you still want to load the settings file?</source>
-        <translation>Qt Creator znalazł plik .user z ustawieniami który był utworzony dla innego środowiska, być może pochodzi z innego komputera.
+        <translation>Qt Creator znalazł plik .user z ustawieniami, który był utworzony dla innego środowiska, być może pochodzi z innego komputera.
 
-Plik .user zawiera ustawienia które nie powinny być kopiowane do innego środowiska.
+Plik .user zawiera ustawienia, które nie powinny być kopiowane do innego środowiska.
 
 Czy wciąż chcesz załadować plik z ustawieniami?</translation>
     </message>
@@ -18356,7 +18356,7 @@ Czy wciąż chcesz załadować plik z ustawieniami?</translation>
     </message>
     <message>
         <source>You can continue debugging, but behavior can be unexpected.</source>
-        <translation>Możesz kontynuować debugowanie ale zachowanie może być nieoczekiwane.</translation>
+        <translation>Możesz kontynuować debugowanie, ale zachowanie może być nieoczekiwane.</translation>
     </message>
 </context>
 <context>
@@ -18393,7 +18393,7 @@ Czy wciąż chcesz załadować plik z ustawieniami?</translation>
     </message>
     <message>
         <source>Choose the type of the library to link to</source>
-        <translation>Wybierz typ biblioteki która ma zostać dowiązana</translation>
+        <translation>Wybierz typ biblioteki, która ma zostać dowiązana</translation>
     </message>
     <message>
         <source>System library</source>
@@ -18420,7 +18420,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     <message>
         <source>Links to a library that is not located in your build tree.
 Adds the library and include paths to the .pro file.</source>
-        <translation>Dowiązuje bibliotekę która jest poza drzewem budowy projektu.
+        <translation>Dowiązuje bibliotekę, która jest poza drzewem budowy projektu.
 Ścieżki do biblioteki i jej nagłówków zostaną dodane do pliku .pro.</translation>
     </message>
     <message>
@@ -18430,7 +18430,7 @@ Adds the library and include paths to the .pro file.</source>
     <message>
         <source>Links to a library that is located in your build tree.
 Adds the library and include paths to the .pro file.</source>
-        <translation>Dowiązuje bibliotekę która jest wewnątrz drzewa budowy projektu.
+        <translation>Dowiązuje bibliotekę, która jest wewnątrz drzewa budowy projektu.
 Ścieżki do biblioteki i jej nagłówków zostaną dodane do pliku .pro.</translation>
     </message>
 </context>
@@ -18442,7 +18442,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Specify the library to link to</source>
-        <translation>Wskaż bibliotekę która ma zostać dowiązana</translation>
+        <translation>Wskaż bibliotekę, która ma zostać dowiązana</translation>
     </message>
     <message>
         <source>System Package</source>
@@ -18458,7 +18458,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Specify the library to link to and the includes path</source>
-        <translation>Wskaż bibliotekę która ma zostać dowiązana i podaj ścieżkę do jej nagłówków</translation>
+        <translation>Wskaż bibliotekę, która ma zostać dowiązana i podaj ścieżkę do jej nagłówków</translation>
     </message>
     <message>
         <source>Internal Library</source>
@@ -18466,7 +18466,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
     <message>
         <source>Choose the project file of the library to link to</source>
-        <translation>Wybierz plik projektu biblioteki która ma zostać dowiązana</translation>
+        <translation>Wybierz plik projektu biblioteki, która ma zostać dowiązana</translation>
     </message>
 </context>
 <context>
@@ -18767,7 +18767,7 @@ Zawartość zdalnego stderr: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation>Qemu zostało zamknięte ponieważ usunięto odpowiednią wersję Qt.</translation>
+        <translation>Qemu zostało zamknięte, ponieważ usunięto odpowiednią wersję Qt.</translation>
     </message>
     <message>
         <source>Qemu finished with error: Exit code was %1.</source>
@@ -19002,7 +19002,7 @@ stderr był: %1</translation>
     </message>
     <message>
         <source>Silent installation is an installation mode that does not require user&apos;s intervention. In case it fails the non silent installation is launched.</source>
-        <translation>Cicha instalacja jest trybem instalacji która nie wymaga interwencji użytkownika. W przypadku niepowodzenia uruchomiona zostanie instalacja wymagająca interakcji użytkownika.</translation>
+        <translation>Cicha instalacja jest trybem instalacji, która nie wymaga interwencji użytkownika. W przypadku niepowodzenia uruchomiona zostanie instalacja wymagająca interakcji użytkownika.</translation>
     </message>
     <message>
         <source>Installation drive:</source>
@@ -19156,7 +19156,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
     </message>
     <message>
         <source>Could not close file %1 on device: %2. It will be closed when App TRK is closed.</source>
-        <translation>Nie można zamknąć pliku %1 w urządzeniu: %2, zostanie on zamknięty gdy aplikacja TRK zostanie zakończona.</translation>
+        <translation>Nie można zamknąć pliku %1 w urządzeniu: %2, zostanie on zamknięty, gdy aplikacja TRK zostanie zakończona.</translation>
     </message>
     <message>
         <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
@@ -19361,7 +19361,7 @@ Wstępnie wybiera wersję Qt dla Symulatora i aplikacji mobilnych (jeśli jest d
         <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
 
 You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects.</source>
-        <translation>Tworzy projekt aplikacji Qt Quick który może zawierać kod QML i C++ i dołącza QDeclarativeView
+        <translation>Tworzy projekt aplikacji Qt Quick, który może zawierać kod QML i C++ i dołącza QDeclarativeView
 
 Aplikację można zbudować i zainstalować na desktopie i urządzeniach mobilnych. Dla tego typu projektów można na przykład utworzyć podpisane pakiety Symbian Installation System (SIS).</translation>
     </message>
@@ -20524,7 +20524,7 @@ Local pulls are not applied to the master branch</source>
     </message>
     <message>
         <source>Click here to see which processes are running on the device.</source>
-        <translation>Kliknij tutaj aby zobaczyć które procesy są uruchomione na urządzeniu.</translation>
+        <translation>Kliknij tutaj aby zobaczyć, które procesy są uruchomione na urządzeniu.</translation>
     </message>
     <message>
         <source>Remote Processes ...</source>
@@ -20543,7 +20543,7 @@ Local pulls are not applied to the master branch</source>
     </message>
     <message>
         <source>Qt Creator will now generate a new pair of keys. Please enter the directory to save the key files in and then press &quot;Create Keys&quot;.</source>
-        <translation>Teraz zostanie wygenerowana nowa para kluczy. Wprowadź katalog w którym zapisać pliki z kluczami i naciśnij &quot;Utwórz klucze&quot;.</translation>
+        <translation>Teraz zostanie wygenerowana nowa para kluczy. Wprowadź katalog, w którym zapisać pliki z kluczami, i naciśnij &quot;Utwórz klucze&quot;.</translation>
     </message>
     <message>
         <source>Directory:</source>
@@ -20704,7 +20704,7 @@ Local pulls are not applied to the master branch</source>
     <message>
         <source>&lt;b&gt;Please select the files you want to be included in the source tarball.&lt;/b&gt;
 </source>
-        <translation>&lt;b&gt; Wybierz pliki które chcesz umieścić w archiwum źródłowym.&lt;/b&gt;
+        <translation>&lt;b&gt; Wybierz pliki, które chcesz umieścić w archiwum źródłowym.&lt;/b&gt;
 </translation>
     </message>
 </context>
@@ -20967,7 +20967,7 @@ Poprzednie wersje mają ograniczenia w budowaniu odpowiednich plików SIS.</tran
     </message>
     <message>
         <source>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main HTML file are deployed. You can modify the contents of the directory any time before deploying.</source>
-        <translation>Uwaga: wszystkie pliki i katalogi które leżą w tym samym katalogu co główny plik HTML zostaną zainstalowane, chyba że wybrałeś załadowanie URL. Możesz zmodyfikować zawartość katalogu przed zainstalowaniem.</translation>
+        <translation>Uwaga: wszystkie pliki i katalogi, które leżą w tym samym katalogu co główny plik HTML, zostaną zainstalowane, chyba że wybrałeś załadowanie URL. Możesz zmodyfikować zawartość katalogu przed zainstalowaniem.</translation>
     </message>
     <message>
         <source>Touch optimized navigation</source>
@@ -21707,11 +21707,11 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
     <message>
         <source>Leaked Blocks</source>
-        <translation>Bloki które wyciekły</translation>
+        <translation>Bloki, które wyciekły</translation>
     </message>
     <message>
         <source>Leaked Bytes</source>
-        <translation>Bajty które wyciekły</translation>
+        <translation>Bajty, które wyciekły</translation>
     </message>
     <message>
         <source>Helgrind Thread ID</source>
@@ -22782,7 +22782,7 @@ Uwaga: może to spowodować usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mappings of source file folders to be used in the debugger can be entered here.&lt;/p&gt;&lt;p&gt;This is useful when using a copy of the source tree at a location different from the one at which the modules where built, for example, while doing remote debugging.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tu można podać mapowanie katalogów plików źródłowych użytych w debuggerze.&lt;/p&gt;&lt;p&gt;To jest przydatne podczas używania kopii drzewa źródeł z położenia innego niż to w którym moduły były zbudowane, np. podczas zdalnego debugowania.&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tu można podać mapowanie katalogów plików źródłowych użytych w debuggerze.&lt;/p&gt;&lt;p&gt;To jest przydatne podczas używania kopii drzewa źródeł z położenia innego niż to, w którym moduły były zbudowane, np. podczas zdalnego debugowania.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Add a mapping for Qt&apos;s source folders when using an unpatched version of Qt.</source>
@@ -22888,7 +22888,7 @@ Uwaga: może to spowodować usunięcie lokalnego pliku.</translation>
     </message>
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation>Zawartość pamięci nie może zostać pokazana ponieważ nie załadowano żadnej wtyczki z przeglądarką dla binarnego edytora.</translation>
+        <translation>Zawartość pamięci nie może zostać pokazana, ponieważ nie załadowano żadnej wtyczki z przeglądarką dla binarnego edytora.</translation>
     </message>
 </context>
 <context>
@@ -24654,7 +24654,7 @@ Używaj certyfikatu developerskiego lub innej opcji podpisu, aby uchronić pakie
     </message>
     <message>
         <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
-        <translation>Nie można utworzyć pakietu Smart Installer ponieważ brakuje bazowego pliku Smart Installera. Upewnij się, że jest on umieszczony w SDK.</translation>
+        <translation>Nie można utworzyć pakietu Smart Installer, ponieważ brakuje bazowego pliku Smart Installera. Upewnij się, że jest on umieszczony w SDK.</translation>
     </message>
 </context>
 <context>
@@ -24770,14 +24770,14 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
 Your application will also be rejected by Ovi QA if you choose an unreleased Qt version on the next page.</source>
         <translation>Ten kreator sprawdza czy plik projektu spełnia kryteria publikacji w Ovi Store.
 
-Kreator tworzy pliki SIS które mogą być wysłane do publikacji w Ovi Store.
+Kreator tworzy pliki SIS, które mogą być wysłane do publikacji w Ovi Store.
 
-Nie można go używać gdy skorzystano z UIDów dostarczonych przez Symbian Signed.
+Nie można go używać, gdy skorzystano z UIDów dostarczonych przez Symbian Signed.
 
 Nie można go używać dla capabilities wymagających &quot;Certified Signed&quot; lub zgody producenta:
 NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM i TCB.
 
-Aplikacja będzie również odrzucona przez Ovi QA jeśli na następnej stronie wybrana zostanie niewydana wersja Qt.</translation>
+Aplikacja będzie również odrzucona przez Ovi QA, jeśli na następnej stronie wybrana zostanie niewydana wersja Qt.</translation>
     </message>
 </context>
 <context>
@@ -25017,7 +25017,7 @@ Sprawdź czy telefon jest podłączony i czy aplikacja TRK jest uruchomiona.</tr
 You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects.</source>
         <translation>Tworzy projekt aplikacji HTML5, który może zawierać zarówno kod HTML5 i C++ oraz dołączać widok WebKit.
 
-Można zbudować aplikację i zainstalować ją na platformie mobilnej albo na desktopie. Dla tego typu projektu można np. utworzyć podpisany pakiet instalacyjny SIS</translation>
+Można zbudować aplikację i zainstalować ją na platformie mobilnej albo na desktopie. Dla tego typu projektu można np. utworzyć podpisany pakiet instalacyjny SIS.</translation>
     </message>
 </context>
 <context>
