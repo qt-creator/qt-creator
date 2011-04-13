@@ -507,7 +507,7 @@ void MaemoDeployStep::handleUnmounted()
         break;
     case UnmountingCurrentDirs:
         setState(GatheringPorts);
-        m_portsGatherer->start(m_connection, freePorts());
+        m_portsGatherer->start(m_connection, freePorts(m_cachedDeviceConfig));
         break;
     case UnmountingCurrentMounts:
         if (m_hasError)
@@ -932,7 +932,7 @@ void MaemoDeployStep::handlePortListReady()
 
     if (m_state == GatheringPorts) {
         setState(Mounting);
-        m_freePorts = freePorts();
+        m_freePorts = freePorts(m_cachedDeviceConfig);
         m_mounter->mount(&m_freePorts, m_portsGatherer);
     } else {
         setState(Inactive);
@@ -956,6 +956,7 @@ void MaemoDeployStep::setState(State newState)
         }
         if (m_deviceInstaller)
             disconnect(m_deviceInstaller.data(), 0, this, 0);
+        m_cachedDeviceConfig.clear();
         emit done();
     }
 }
@@ -1001,9 +1002,12 @@ void MaemoDeployStep::handleDeviceInstallerErrorOutput(const QByteArray &output)
 
 MaemoPortList MaemoDeployStep::freePorts() const
 {
+    return freePorts(m_deviceConfig);
+}
+
+MaemoPortList MaemoDeployStep::freePorts(const MaemoDeviceConfig::ConstPtr &devConf) const
+{
     const Qt4BuildConfiguration * const qt4bc = qt4BuildConfiguration();
-    const MaemoDeviceConfig::ConstPtr &devConf
-        = m_cachedDeviceConfig ? m_cachedDeviceConfig : m_deviceConfig;
     if (!devConf)
         return MaemoPortList();
     if (devConf->type() == MaemoDeviceConfig::Emulator && qt4bc) {

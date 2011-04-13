@@ -157,6 +157,7 @@ private:
     void unmount();
     void setDeviceConfig(MaemoDeviceConfig::Id internalId);
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    MaemoPortList freePorts(const QSharedPointer<const MaemoDeviceConfig> &devConfig) const;
 
     static const QLatin1String Id;
 
