@@ -632,8 +632,11 @@ void MaemoDeployStep::installToSysroot()
         const QString command = QLatin1String(
             packagingStep()->debBasedMaemoTarget() ? "xdpkg" : "xrpm");
         QStringList args = QStringList() << command << QLatin1String("-i");
-        if (packagingStep()->debBasedMaemoTarget())
-            args << QLatin1String("--no-force-downgrade");
+
+        // Cannot use it, because we have an outdated MADDE version in the SDK.
+//        if (packagingStep()->debBasedMaemoTarget())
+//            args << QLatin1String("--no-force-downgrade");
+
         args << packagingStep()->packageFilePath();
         MaemoGlobal::callMadAdmin(*m_sysrootInstaller, args, qtVersion, true);
         if (!m_sysrootInstaller->waitForStarted()) {
