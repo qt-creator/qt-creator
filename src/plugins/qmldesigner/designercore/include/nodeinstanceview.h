@@ -138,6 +138,9 @@ public:
 
     QImage statePreviewImage(const ModelNode &stateNode) const;
 
+signals:
+    void qmlPuppetCrashed();
+
 private: // functions
     NodeInstance rootNodeInstance() const;
 

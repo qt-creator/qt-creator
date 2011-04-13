@@ -648,6 +648,7 @@ void DesignModeWidget::setup()
     }
 
     m_nodeInstanceView = new NodeInstanceView(this);
+    connect(m_nodeInstanceView.data(), SIGNAL(qmlPuppetCrashed()), this, SLOT(qmlPuppetCrashed()));
      // Sidebar takes ownership
     m_navigator = new NavigatorView;
     m_allPropertiesBox = new AllPropertiesBox;
@@ -771,6 +772,14 @@ void DesignModeWidget::deleteSidebarWidgets()
     delete m_rightSideBar;
     m_leftSideBar = 0;
     m_rightSideBar = 0;
+}
+
+void DesignModeWidget::qmlPuppetCrashed()
+{
+    QList<RewriterView::Error> errorList;
+    RewriterView::Error error(tr("Qt Quick emulation layer crashed"));
+    errorList << error;
+    disable(errorList);
 }
 
 void DesignModeWidget::resizeEvent(QResizeEvent *event)
