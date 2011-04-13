@@ -480,8 +480,8 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
                 Debugger::DebuggerStartParameters::CommunicationChannelUsb;
 
     sp.debugClient = activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection?
-                Debugger::DebuggerStartParameters::DebugClientTrk:
-                Debugger::DebuggerStartParameters::DebugClientCoda;
+                Debugger::DebuggerStartParameters::SymbianDebugClientTrk:
+                Debugger::DebuggerStartParameters::SymbianDebugClientCoda;
 
     QTC_ASSERT(sp.executableUid, return sp);
 

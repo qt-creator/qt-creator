@@ -55,9 +55,9 @@ public:
         CommunicationChannelUsb
     };
 
-    enum DebugClient {
-        DebugClientTrk,
-        DebugClientCoda
+    enum SymbianDebugClient {
+        SymbianDebugClientTrk,
+        SymbianDebugClientCoda
     };
 
     DebuggerStartParameters()
@@ -70,9 +70,9 @@ public:
         connParams(Utils::SshConnectionParameters::NoProxy),
         startMode(NoStartMode),
         executableUid(0),
-        communicationChannel(CommunicationChannelUsb),
+        communicationChannel(CommunicationChannelTcpIp),
         serverPort(0),
-        debugClient(DebugClientTrk)
+        debugClient(SymbianDebugClientTrk)
     {}
 
     QString executable;
@@ -122,7 +122,7 @@ public:
     CommunicationChannel communicationChannel;
     QString serverAddress;
     quint16 serverPort;
-    DebugClient debugClient;
+    SymbianDebugClient debugClient;
 };
 
 } // namespace Debugger

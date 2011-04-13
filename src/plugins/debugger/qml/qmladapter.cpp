@@ -128,7 +128,7 @@ void QmlAdapter::connectToViewer()
 
     const DebuggerStartParameters &parameters = d->m_engine.data()->startParameters();
     if (parameters.communicationChannel == DebuggerStartParameters::CommunicationChannelUsb) {
-        if (parameters.debugClient == DebuggerStartParameters::DebugClientTrk) {
+        if (parameters.debugClient == DebuggerStartParameters::SymbianDebugClientTrk) {
             d->m_connectionTimer.stop();
             showConnectionErrorMessage(tr("QML debugging is not supported when using TRK!"));
             emit connectionStartupFailed();

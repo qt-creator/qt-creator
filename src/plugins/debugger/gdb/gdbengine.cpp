@@ -1831,7 +1831,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
     const DebuggerStartParameters &sp = startParameters();
     if (sp.toolChainAbi.os() == Abi::SymbianOS) {
         // FIXME: 1 of 3 testing hacks.
-        if (sp.debugClient == DebuggerStartParameters::DebugClientCoda)
+        if (sp.debugClient == DebuggerStartParameters::SymbianDebugClientCoda)
             return new CodaGdbAdapter(this);
         else
             return new TrkGdbAdapter(this);
