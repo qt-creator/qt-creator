@@ -427,7 +427,10 @@ bool GenericProject::fromMap(const QVariantMap &map)
     if (!id.isNull()) {
         setToolChain(toolChainManager->findToolChain(id));
     } else {
-        QList<ToolChain *> tcs = toolChainManager->findToolChains(Abi::hostAbi());
+        ProjectExplorer::Abi abi = ProjectExplorer::Abi::hostAbi();
+        abi = ProjectExplorer::Abi(abi.architecture(), abi.os(),  ProjectExplorer::Abi::UnknownFlavor,
+                                   abi.binaryFormat(), abi.wordWidth() == 32 ? 32 : 0);
+        QList<ToolChain *> tcs = toolChainManager->findToolChains(abi);
         if (tcs.isEmpty())
             tcs = toolChainManager->toolChains();
         if (!tcs.isEmpty())

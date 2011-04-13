@@ -402,8 +402,11 @@ void CMakeRunPage::initializePage()
 
         m_generatorComboBox->setVisible(true);
         m_generatorComboBox->clear();
+        ProjectExplorer::Abi abi = ProjectExplorer::Abi::hostAbi();
+        abi = ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::UnknownFlavor,
+                                   abi.binaryFormat(), abi.wordWidth() == 32 ? 32 : 0);
         QList<ProjectExplorer::ToolChain *> tcs =
-                ProjectExplorer::ToolChainManager::instance()->findToolChains(ProjectExplorer::Abi::hostAbi());
+                ProjectExplorer::ToolChainManager::instance()->findToolChains(abi);
         foreach (ProjectExplorer::ToolChain *tc, tcs) {
             ProjectExplorer::Abi targetAbi = tc->targetAbi();
             QVariant tcVariant = qVariantFromValue(static_cast<void *>(tc));
