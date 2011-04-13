@@ -87,7 +87,7 @@ public Q_SLOTS:
 };
 
 QDeclarativeDebugConnectionPrivate::QDeclarativeDebugConnectionPrivate(QDeclarativeDebugConnection *c)
-: QObject(c), q(c), protocol(0), gotHello(false), device(0)
+: QObject(c), q(c), protocol(0), device(0), gotHello(false)
 {
     protocol = new QPacketProtocol(q, this);
     QObject::connect(c, SIGNAL(connected()), this, SLOT(connected()));

@@ -658,6 +658,7 @@ void ExternalToolRunner::error(QProcess::ProcessError error)
         FileManager::instance()->unexpectFileChange(m_expectedFileName);
     }
     // TODO inform about errors
+    Q_UNUSED(error);
     deleteLater();
 }
 
