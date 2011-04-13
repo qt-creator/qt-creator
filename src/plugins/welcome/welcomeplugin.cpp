@@ -57,13 +57,9 @@
 #include <QtCore/QUrl>
 #include <QtCore/QtPlugin>
 
-enum { debug = 0 };
+enum { debug = 1 };
 
 using namespace ExtensionSystem;
-
-namespace Utils {
-    class IWelcomePage;
-}
 
 namespace Welcome {
 namespace Internal {
@@ -73,8 +69,13 @@ namespace Internal {
 class ImageWidget : public QWidget
 {
 public:
-    ImageWidget(const QImage &bg, QWidget *parent) : QWidget(parent), m_bg(bg) {}
-    void paintEvent(QPaintEvent *e) {
+    explicit ImageWidget(QWidget *parent)
+        : QWidget(parent),
+          m_bg(":/welcome/images/welcomebg.png")
+    {}
+
+    void paintEvent(QPaintEvent *e)
+    {
         if (!m_bg.isNull()) {
             QPainter painter(this);
             if (m_stretch.size() != size())
@@ -85,6 +86,7 @@ public:
         }
         QWidget::paintEvent(e);
     }
+
 private:
     QImage m_bg;
     QPixmap m_stretch;
@@ -107,15 +109,15 @@ private slots:
     void showClickedPage();
 
 private:
-    QToolButton *addPageToolButton(Utils::IWelcomePage *plugin, int position = -1);
+    void addPageToolButton(Utils::IWelcomePage *plugin, int position = -1);
 
     typedef QMap<QToolButton *, QWidget *> ToolButtonWidgetMap;
 
-    QScrollArea *m_scrollArea;
-    QWidget *m_outerWidget;
+    QScrollArea m_scrollArea;
+    QWidget m_outerWidget;
     ImageWidget *m_welcomePage;
     ToolButtonWidgetMap buttonMap;
-    QHBoxLayout * buttonLayout;
+    QHBoxLayout *buttonLayout;
     Ui::WelcomeMode ui;
 };
 
@@ -130,25 +132,22 @@ WelcomeMode::WelcomeMode()
     setId(QLatin1String(Core::Constants::MODE_WELCOME));
     setType(QLatin1String(Core::Constants::MODE_WELCOME_TYPE));
     setContextHelpId(QLatin1String("Qt Creator Manual"));
+    setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
+    setWidget(&m_scrollArea);
 
-    m_outerWidget = new QWidget;
-    QVBoxLayout *l = new QVBoxLayout(m_outerWidget);
+    QVBoxLayout *l = new QVBoxLayout(&m_outerWidget);
     l->setMargin(0);
     l->setSpacing(0);
-    l->addWidget(new Utils::StyledBar(m_outerWidget));
-    m_welcomePage = new ImageWidget(QImage(":/welcome/images/welcomebg.png"), m_outerWidget);
+    l->addWidget(new Utils::StyledBar(&m_outerWidget));
+    m_welcomePage = new ImageWidget(&m_outerWidget);
     ui.setupUi(m_welcomePage);
     ui.helpUsLabel->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     ui.feedbackButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     l->addWidget(m_welcomePage);
 
-    m_scrollArea = new QScrollArea;
-    m_scrollArea->setFrameStyle(QFrame::NoFrame);
-    m_scrollArea->setWidget(m_outerWidget);
-    m_scrollArea->setWidgetResizable(true);
-
-    setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
-    setWidget(m_scrollArea);
+    m_scrollArea.setFrameStyle(QFrame::NoFrame);
+    m_scrollArea.setWidget(&m_outerWidget);
+    m_scrollArea.setWidgetResizable(true);
 
     PluginManager *pluginManager = PluginManager::instance();
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
@@ -160,7 +159,6 @@ WelcomeMode::~WelcomeMode()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->setValue(QLatin1String(currentPageSettingsKeyC), ui.stackedWidget->currentIndex());
-    delete m_outerWidget;
 }
 
 bool sortFunction(Utils::IWelcomePage *a, Utils::IWelcomePage *b)
@@ -169,21 +167,19 @@ bool sortFunction(Utils::IWelcomePage *a, Utils::IWelcomePage *b)
 }
 
 // Create a QToolButton for a page
-QToolButton *WelcomeMode::addPageToolButton(Utils::IWelcomePage *plugin, int position)
+void WelcomeMode::addPageToolButton(Utils::IWelcomePage *plugin, int position)
 {
     QToolButton *btn = new QToolButton;
     btn->setCheckable(true);
     btn->setText(plugin->title());
     btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     btn->setAutoExclusive(true);
-    connect (btn, SIGNAL(clicked()), SLOT(showClickedPage()));
+    connect(btn, SIGNAL(clicked()), SLOT(showClickedPage()));
     buttonMap.insert(btn, plugin->page());
-    if (position >= 0) {
+    if (position >= 0)
         buttonLayout->insertWidget(position, btn);
-    } else {
+    else
         buttonLayout->addWidget(btn);
-    }
-    return btn;
 }
 
 void WelcomeMode::initPlugins()
@@ -212,20 +208,23 @@ void WelcomeMode::initPlugins()
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)
 {
-    if (Utils::IWelcomePage *plugin = qobject_cast<Utils::IWelcomePage*>(obj)) {
-        int insertPos = 0;
-        foreach (Utils::IWelcomePage* p, PluginManager::instance()->getObjects<Utils::IWelcomePage>()) {
-            if (plugin->priority() < p->priority())
-                insertPos++;
-            else
-                break;
-        }
-        ui.stackedWidget->insertWidget(insertPos, plugin->page());
-        addPageToolButton(plugin, insertPos);
-        if (debug)
-            qDebug() << "welcomePluginAdded" << plugin->title() << "at" << insertPos
-                     << " of " << buttonMap.size();
+    Utils::IWelcomePage *plugin = qobject_cast<Utils::IWelcomePage*>(obj);
+    if (!plugin)
+        return;
+
+    int insertPos = 0;
+    QList<Utils::IWelcomePage *> pages
+        = PluginManager::instance()->getObjects<Utils::IWelcomePage>();
+    foreach (Utils::IWelcomePage *p, pages) {
+        if (plugin->priority() >= p->priority())
+            break;
+        insertPos++;
     }
+    ui.stackedWidget->insertWidget(insertPos, plugin->page());
+    addPageToolButton(plugin, insertPos);
+    if (debug)
+        qDebug() << "welcomePluginAdded" << plugin->title() << "at" << insertPos
+                 << " of " << buttonMap.size();
 }
 
 void WelcomeMode::showClickedPage()
