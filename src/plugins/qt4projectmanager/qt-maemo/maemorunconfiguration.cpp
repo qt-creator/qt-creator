@@ -228,7 +228,7 @@ const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 
 const QString MaemoRunConfiguration::gdbCmd() const
 {
-    return QDir::toNativeSeparators(targetRoot() + QLatin1String("/bin/gdb"));
+    return QDir::toNativeSeparators(activeBuildConfiguration()->toolChain()->debuggerCommand());
 }
 
 MaemoDeployStep *MaemoRunConfiguration::deployStep() const
