@@ -1753,7 +1753,7 @@ void QtVersion::addToEnvironment(Utils::Environment &env) const
             QString sbsHome(env.value(QLatin1String("SBS_HOME")));
             if (!m_sbsV2Directory.isEmpty()) {
                 env.prependOrSetPath(m_sbsV2Directory + QLatin1String("/bin"));
-                env.unset(QLatin1String("SBS_HOME")); // unset SBS_HOME to prevent SBS from picking it up
+                env.set(QLatin1String("SBS_HOME"), m_sbsV2Directory); // We need this for Qt 4.6.3 compatibility
             } else if (!sbsHome.isEmpty()) {
                 env.prependOrSetPath(sbsHome + QLatin1Char('/') + QLatin1String("bin"));
             }
