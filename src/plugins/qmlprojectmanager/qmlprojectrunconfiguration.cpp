@@ -248,7 +248,10 @@ QString QmlProjectRunConfiguration::mainScript() const
         return m_mainScriptFilename;
     }
 
-    QString path = qmlTarget()->qmlProject()->mainFile();
+    const QString path = qmlTarget()->qmlProject()->mainFile();
+    if (path.isEmpty()) {
+        return m_currentFileFilename;
+    }
     if (QFileInfo(path).isAbsolute()) {
         return path;
     } else {
@@ -325,8 +328,11 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
     return RunConfiguration::fromMap(map);
 }
 
-void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor * /*editor*/)
+void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor *editor)
 {
+    if (editor) {
+        m_currentFileFilename = editor->file()->fileName();
+    }
     updateEnabled();
 }
 
