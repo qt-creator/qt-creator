@@ -55,15 +55,11 @@ class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
     Q_OBJECT
 public:
     PlainTextEditor(PlainTextEditorWidget *);
-    Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     bool isTemporary() const { return false; }
     virtual QString id() const;
-
-private:
-    const Core::Context m_context;
 };
 
 class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget
@@ -72,7 +68,6 @@ class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget
 
 public:
     PlainTextEditorWidget(QWidget *parent);
-    ~PlainTextEditorWidget();
 
     void configure(const Core::MimeType &mimeType);
     bool isMissingSyntaxDefinition() const;

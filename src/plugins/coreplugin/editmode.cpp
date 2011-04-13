@@ -88,6 +88,11 @@ EditMode::EditMode(EditorManager *editorManager) :
     connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(grabEditorManager(Core::IMode*)));
     m_splitter->setFocusProxy(m_editorManager);
+
+    setWidget(m_splitter);
+    setContext(Context(Constants::C_EDIT_MODE,
+                       Constants::C_EDITORMANAGER,
+                       Constants::C_NAVIGATION_PANE));
 }
 
 EditMode::~EditMode()
@@ -112,11 +117,6 @@ int EditMode::priority() const
     return Constants::P_MODE_EDIT;
 }
 
-QWidget* EditMode::widget()
-{
-    return m_splitter;
-}
-
 QString EditMode::id() const
 {
     return QLatin1String(Constants::MODE_EDIT);
@@ -125,14 +125,6 @@ QString EditMode::id() const
 QString EditMode::type() const
 {
     return QLatin1String(Constants::MODE_EDIT_TYPE);
-}
-
-Context EditMode::context() const
-{
-    static Context contexts(Constants::C_EDIT_MODE,
-                            Constants::C_EDITORMANAGER,
-                            Constants::C_NAVIGATION_PANE);
-    return contexts;
 }
 
 void EditMode::grabEditorManager(Core::IMode *mode)

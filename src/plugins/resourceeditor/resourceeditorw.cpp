@@ -73,11 +73,13 @@ QString ResourceEditorFile::mimeType() const
 ResourceEditorW::ResourceEditorW(const Core::Context &context,
                                ResourceEditorPlugin *plugin,
                                QWidget *parent)
-        : m_context(context),
-        m_resourceEditor(new SharedTools::QrcEditor(parent)),
+      : m_resourceEditor(new SharedTools::QrcEditor(parent)),
         m_resourceFile(new ResourceEditorFile(this)),
         m_plugin(plugin)
 {
+    setContext(context);
+    setWidget(m_resourceEditor);
+
     m_resourceEditor->setResourceDragEnabled(true);
 
     connect(m_resourceEditor, SIGNAL(dirtyChanged(bool)), this, SLOT(dirtyChanged(bool)));
@@ -240,11 +242,6 @@ void ResourceEditorW::dirtyChanged(bool dirty)
         qDebug() << " ResourceEditorW::dirtyChanged" <<  dirty;
     if (dirty)
         emit changed();
-}
-
-QWidget *ResourceEditorW::widget()
-{
-    return m_resourceEditor; /* we know it's a subclass of QWidget...*/
 }
 
 void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)

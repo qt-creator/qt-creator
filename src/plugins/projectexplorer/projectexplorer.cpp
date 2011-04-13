@@ -234,19 +234,20 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
 class ProjectsMode : public Core::IMode
 {
 public:
-    ProjectsMode(QWidget *proWindow) : m_widget(proWindow) {}
+    ProjectsMode(QWidget *proWindow)
+    {
+        setWidget(proWindow);
+        setContext(Core::Context(Constants::C_PROJECTEXPLORER));
+    }
 
     QString displayName() const { return QCoreApplication::translate("ProjectExplorer::ProjectsMode", "Projects"); }
     QIcon icon() const { return QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")); }
     int priority() const { return Constants::P_MODE_SESSION; }
-    QWidget *widget() { return m_widget; }
     QString id() const { return QLatin1String(Constants::MODE_SESSION); }
     QString type() const { return QString(); }
-    Core::Context context() const { return Core::Context(Constants::C_PROJECTEXPLORER); }
     QString contextHelpId() const { return QLatin1String("Managing Projects"); }
 
 private:
-    QWidget *m_widget;
     QIcon m_icon;
 };
 

@@ -116,6 +116,9 @@ WelcomeMode::WelcomeMode() :
     m_d->m_scrollArea->setWidget(m_d->m_widget);
     m_d->m_scrollArea->setWidgetResizable(true);
 
+    setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
+    setWidget(m_d->m_scrollArea);
+
     PluginManager *pluginManager = PluginManager::instance();
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
 
@@ -145,11 +148,6 @@ int WelcomeMode::priority() const
     return Core::Constants::P_MODE_WELCOME;
 }
 
-QWidget* WelcomeMode::widget()
-{
-    return m_d->m_scrollArea;
-}
-
 QString WelcomeMode::id() const
 {
     return QLatin1String(Core::Constants::MODE_WELCOME);
@@ -158,12 +156,6 @@ QString WelcomeMode::id() const
 QString WelcomeMode::type() const
 {
     return QLatin1String(Core::Constants::MODE_WELCOME_TYPE);
-}
-
-Core::Context WelcomeMode::context() const
-{
-    static Core::Context contexts(Core::Constants::C_WELCOME_MODE);
-    return contexts;
 }
 
 bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)

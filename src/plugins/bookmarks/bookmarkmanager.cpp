@@ -300,21 +300,11 @@ void BookmarkView::gotoBookmark(const QModelIndex &index)
 // BookmarkContext
 ////
 
-BookmarkContext::BookmarkContext(BookmarkView *widget)
-    : Core::IContext(widget),
-      m_bookmarkView(widget),
-      m_context(Constants::BOOKMARKS_CONTEXT)
+BookmarkContext::BookmarkContext(QWidget *widget)
+    : Core::IContext(widget)
 {
-}
-
-Context BookmarkContext::context() const
-{
-    return m_context;
-}
-
-QWidget *BookmarkContext::widget()
-{
-    return m_bookmarkView;
+      setWidget(widget);
+      setContext(Core::Context(Constants::BOOKMARKS_CONTEXT));
 }
 
 ////

@@ -59,16 +59,11 @@ using namespace Qt4ProjectManager::Internal;
 //
 
 ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
-  : BaseTextEditor(editor),
-    m_context(Qt4ProjectManager::Constants::C_PROFILEEDITOR,
-              TextEditor::Constants::C_TEXTEDITOR)
+  : BaseTextEditor(editor)
 {
+    setContext(Core::Context(Qt4ProjectManager::Constants::C_PROFILEEDITOR,
+              TextEditor::Constants::C_TEXTEDITOR));
 //    m_contexts << uidm->uniqueIdentifier(Qt4ProjectManager::Constants::PROJECT_KIND);
-}
-
-Core::Context ProFileEditor::context() const
-{
-    return m_context;
 }
 
 Core::IEditor *ProFileEditor::duplicate(QWidget *parent)
@@ -101,10 +96,6 @@ ProFileEditorWidget::ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *
     baseTextDocument()->setSyntaxHighlighter(new ProFileHighlighter);
     m_commentDefinition.clearCommentStyles();
     m_commentDefinition.setSingleLine(QString(QLatin1Char('#')));
-}
-
-ProFileEditorWidget::~ProFileEditorWidget()
-{
 }
 
 void ProFileEditorWidget::unCommentSelection()

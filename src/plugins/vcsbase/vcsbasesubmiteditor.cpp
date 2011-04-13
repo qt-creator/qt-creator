@@ -136,7 +136,6 @@ struct VCSBaseSubmitEditorPrivate
     QPointer<QAction> m_submitAction;
 
     Internal::NickNameDialog *m_nickNameDialog;
-    Core::Context m_contexts;
 };
 
 VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditorParameters *parameters,
@@ -146,8 +145,7 @@ VCSBaseSubmitEditorPrivate::VCSBaseSubmitEditorPrivate(const VCSBaseSubmitEditor
     m_toolWidget(0),
     m_parameters(parameters),
     m_file(new VCSBase::Internal::SubmitEditorFile(QLatin1String(parameters->mimeType), q)),
-    m_nickNameDialog(0),
-    m_contexts(parameters->context)
+    m_nickNameDialog(0)
 {
 }
 
@@ -155,6 +153,9 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
                                          Utils::SubmitEditorWidget *editorWidget) :
     m_d(new VCSBaseSubmitEditorPrivate(parameters, editorWidget, this))
 {
+    setContext(Core::Context(parameters->context));
+    setWidget(m_d->m_widget);
+
     // Message font according to settings
     const TextEditor::FontSettings fs = TextEditor::TextEditorSettings::instance()->fontSettings();
     QFont font = editorWidget->descriptionEdit()->font();
@@ -425,16 +426,6 @@ QWidget *VCSBaseSubmitEditor::toolBar()
     // Create
     m_d->m_toolWidget = createToolBar(m_d->m_widget, m_d->m_submitAction, m_d->m_diffAction);
     return m_d->m_toolWidget;
-}
-
-Core::Context VCSBaseSubmitEditor::context() const
-{
-    return m_d->m_contexts;
-}
-
-QWidget *VCSBaseSubmitEditor::widget()
-{
-    return m_d->m_widget;
 }
 
 QByteArray VCSBaseSubmitEditor::saveState() const

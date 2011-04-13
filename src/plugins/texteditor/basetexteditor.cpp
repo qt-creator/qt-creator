@@ -5781,6 +5781,7 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 BaseTextEditor::BaseTextEditor(BaseTextEditorWidget *editor)
   : e(editor)
 {
+    setWidget(e);
     using namespace Find;
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(editor);

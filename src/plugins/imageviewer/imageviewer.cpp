@@ -54,11 +54,6 @@ namespace Internal {
 
 struct ImageViewerPrivate
 {
-    ImageViewerPrivate()
-        : context(Constants::IMAGEVIEWER_ID)
-    {}
-
-    Core::Context context;
     QString displayName;
     ImageViewerFile *file;
     ImageView *imageView;
@@ -71,8 +66,10 @@ ImageViewer::ImageViewer(QWidget *parent)
     d_ptr(new ImageViewerPrivate)
 {
     d_ptr->file = new ImageViewerFile(this);
-
     d_ptr->imageView = new ImageView();
+
+    setContext(Core::Context(Constants::IMAGEVIEWER_ID));
+    setWidget(d_ptr->imageView);
 
     // toolbar
     d_ptr->toolbar = new QWidget();
@@ -112,16 +109,6 @@ ImageViewer::~ImageViewer()
 {
     delete d_ptr->imageView;
     delete d_ptr->toolbar;
-}
-
-Core::Context ImageViewer::context() const
-{
-    return d_ptr->context;
-}
-
-QWidget *ImageViewer::widget()
-{
-    return d_ptr->imageView;
 }
 
 bool ImageViewer::createNew(const QString &contents)

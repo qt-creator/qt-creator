@@ -129,8 +129,6 @@ public:
     virtual QString id() const;
 
     virtual QWidget *toolBar();
-    virtual Core::Context context() const;
-    virtual QWidget *widget();
 
     virtual QByteArray saveState() const;
     virtual bool restoreState(const QByteArray &state);

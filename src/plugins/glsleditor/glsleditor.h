@@ -121,8 +121,6 @@ private:
     void setSelectedElements();
     QString wordUnderCursor() const;
 
-    const Core::Context m_context;
-
     QTimer *m_updateDocumentTimer;
     QComboBox *m_outlineCombo;
     Document::Ptr m_glslDocument;

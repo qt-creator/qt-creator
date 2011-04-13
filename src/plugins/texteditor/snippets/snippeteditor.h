@@ -55,17 +55,11 @@ class TEXTEDITOR_EXPORT SnippetEditor : public BaseTextEditor
 
 public:
     SnippetEditor(SnippetEditorWidget *editorWidget);
-    virtual ~SnippetEditor();
-
-    Core::Context context() const { return m_context; }
 
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget * /* parent */ ) { return 0; }
     bool isTemporary() const { return false; }
     virtual QString id() const;
-
-private:
-    const Core::Context m_context;
 };
 
 class TEXTEDITOR_EXPORT SnippetEditorWidget : public BaseTextEditorWidget
@@ -74,7 +68,6 @@ class TEXTEDITOR_EXPORT SnippetEditorWidget : public BaseTextEditorWidget
 
 public:
     SnippetEditorWidget(QWidget *parent);
-    virtual ~SnippetEditorWidget();
 
     void setSyntaxHighlighter(SyntaxHighlighter *highlighter);
 

@@ -495,7 +495,11 @@ public:
 class DebugMode : public IMode
 {
 public:
-    DebugMode() : m_widget(0) { setObjectName(QLatin1String("DebugMode")); }
+    DebugMode()
+    {
+        setObjectName(QLatin1String("DebugMode"));
+        setContext(Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE));
+    }
 
     ~DebugMode()
     {
@@ -504,18 +508,18 @@ public:
         delete m_widget;
     }
 
+    void setWidget(QWidget *widget)
+    {
+        m_widget = widget;
+    }
+
     // IMode
     QString displayName() const { return DebuggerPlugin::tr("Debug"); }
     QIcon icon() const { return QIcon(__(":/fancyactionbar/images/mode_Debug.png")); }
     int priority() const { return P_MODE_DEBUG; }
-    QWidget *widget();
     QString id() const { return MODE_DEBUG; }
     QString type() const { return CC::MODE_EDIT_TYPE; }
-    Context context() const
-        { return Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE); }
     QString contextHelpId() const { return QString(); }
-private:
-    QWidget *m_widget;
 };
 
 
@@ -2942,7 +2946,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
 
     // Debug mode setup
-    m_plugin->addAutoReleasedObject(new DebugMode);
+    DebugMode *debugMode = new DebugMode;
+    QWidget *widget = m_mainWindow->createContents(debugMode);
+    widget->setFocusProxy(EditorManager::instance());
+    debugMode->setWidget(widget);
+
+    m_plugin->addAutoReleasedObject(debugMode);
 
     //
     //  Connections
@@ -3155,16 +3164,6 @@ DebuggerMainWindow *DebuggerPlugin::mainWindow()
 QAction *DebuggerPlugin::visibleDebugAction()
 {
     return theDebuggerCore->m_visibleDebugAction;
-}
-
-QWidget *DebugMode::widget()
-{
-    if (!m_widget) {
-        //qDebug() << "CREATING DEBUG MODE WIDGET";
-        m_widget = theDebuggerCore->m_mainWindow->createContents(this);
-        m_widget->setFocusProxy(EditorManager::instance());
-    }
-    return m_widget;
 }
 
 } // namespace Debugger

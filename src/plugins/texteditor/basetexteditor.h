@@ -558,7 +558,7 @@ public:
     BaseTextEditorWidget *editorWidget() const { return e; }
 
     // EditorInterface
-    QWidget *widget() { return e; }
+    //QWidget *widget() { return e; }
     Core::IFile * file() { return e->file(); }
     bool createNew(const QString &contents) { return e->createNew(contents); }
     bool open(const QString &fileName = QString()) { return e->open(fileName); }

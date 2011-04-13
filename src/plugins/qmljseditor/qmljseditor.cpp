@@ -748,11 +748,6 @@ bool QmlJSEditorEditable::open(const QString &fileName)
     return b;
 }
 
-Core::Context QmlJSEditorEditable::context() const
-{
-    return m_context;
-}
-
 void QmlJSTextEditorWidget::updateDocument()
 {
     m_updateDocumentTimer->start(UPDATE_DOCUMENT_DEFAULT_INTERVAL);

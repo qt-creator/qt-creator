@@ -46,7 +46,6 @@ class QMLJSEDITOR_EXPORT QmlJSEditorEditable : public TextEditor::BaseTextEditor
 
 public:
     explicit QmlJSEditorEditable(QmlJSTextEditorWidget *);
-    Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
@@ -55,10 +54,6 @@ public:
     virtual bool open(const QString & fileName);
     virtual QString preferredModeType() const;
     void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason);
-
-
-private:
-    Core::Context m_context;
 };
 
 } // namespace QmlJSEditor

@@ -59,9 +59,10 @@ using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 PlainTextEditor::PlainTextEditor(PlainTextEditorWidget *editor)
-  : BaseTextEditor(editor),
-    m_context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, TextEditor::Constants::C_TEXTEDITOR)
+  : BaseTextEditor(editor)
 {
+    setContext(Core::Context(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
+                             TextEditor::Constants::C_TEXTEDITOR));
 }
 
 PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
@@ -82,14 +83,6 @@ PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
 
     connect(file(), SIGNAL(changed()), this, SLOT(configure()));
     connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configure()));
-}
-
-PlainTextEditorWidget::~PlainTextEditorWidget()
-{}
-
-Core::Context PlainTextEditor::context() const
-{
-    return m_context;
 }
 
 Core::IEditor *PlainTextEditor::duplicate(QWidget *parent)

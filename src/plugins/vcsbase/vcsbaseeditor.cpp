@@ -134,9 +134,7 @@ class VCSBaseEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 public:
-    VCSBaseEditor(VCSBaseEditorWidget *,
-                  const VCSBaseEditorParameters *type);
-    Core::Context context() const;
+    VCSBaseEditor(VCSBaseEditorWidget *, const VCSBaseEditorParameters *type);
 
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget * /*parent*/) { return 0; }
@@ -151,7 +149,6 @@ signals:
 
 private:
     QString m_id;
-    Core::Context m_context;
     bool m_temporary;
 };
 
@@ -159,14 +156,9 @@ VCSBaseEditor::VCSBaseEditor(VCSBaseEditorWidget *widget,
                              const VCSBaseEditorParameters *type)  :
     BaseTextEditor(widget),
     m_id(type->id),
-    m_context(type->context, TextEditor::Constants::C_TEXTEDITOR),
     m_temporary(false)
 {
-}
-
-Core::Context VCSBaseEditor::context() const
-{
-    return m_context;
+    setContext(Core::Context(type->context, TextEditor::Constants::C_TEXTEDITOR));
 }
 
 // Diff editor: creates a browse combo in the toolbar for diff output.

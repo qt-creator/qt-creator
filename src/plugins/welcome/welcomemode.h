@@ -39,7 +39,6 @@
 #include <coreplugin/imode.h>
 
 QT_BEGIN_NAMESPACE
-class QWidget;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -62,10 +61,8 @@ public:
     QString displayName() const;
     QIcon icon() const;
     int priority() const;
-    QWidget *widget();
     QString id() const;
     QString type() const;
-    Core::Context context() const;
     void activated();
     QString contextHelpId() const;
     void initPlugins();

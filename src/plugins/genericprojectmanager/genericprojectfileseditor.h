@@ -58,7 +58,6 @@ class ProjectFilesFactory: public Core::IEditorFactory
 
 public:
     ProjectFilesFactory(Manager *manager, TextEditor::TextEditorActionHandler *handler);
-    virtual ~ProjectFilesFactory();
 
     Manager *manager() const;
 
@@ -81,18 +80,11 @@ class ProjectFilesEditor : public TextEditor::BaseTextEditor
 
 public:
     ProjectFilesEditor(ProjectFilesEditorWidget *editorWidget);
-    virtual ~ProjectFilesEditor();
 
-    virtual Core::Context context() const;
     virtual QString id() const;
-
     virtual bool duplicateSupported() const;
     virtual Core::IEditor *duplicate(QWidget *parent);
-
     virtual bool isTemporary() const { return false; }
-
-private:
-    Core::Context m_context;
 };
 
 class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget

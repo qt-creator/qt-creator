@@ -50,17 +50,10 @@ public:
     StatusBarWidget(QObject *parent = 0);
     ~StatusBarWidget();
 
-    Context context() const;
-    QWidget *widget();
     StatusBarWidget::StatusBarPosition position() const;
-
-    QWidget *setWidget(QWidget *widget);
-    void setContext(const Context &context);
     void setPosition(StatusBarWidget::StatusBarPosition position);
 
 private:
-    QPointer<QWidget> m_widget;
-    Context m_context;
     StatusBarWidget::StatusBarPosition m_defaultPosition;
 };
 

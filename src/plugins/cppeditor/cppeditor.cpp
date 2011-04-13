@@ -1775,11 +1775,6 @@ void CPPEditorWidget::keyPressEvent(QKeyEvent *e)
     finishRename();
 }
 
-Core::Context CPPEditor::context() const
-{
-    return m_context;
-}
-
 Core::IEditor *CPPEditor::duplicate(QWidget *parent)
 {
     CPPEditorWidget *newEditor = new CPPEditorWidget(parent);

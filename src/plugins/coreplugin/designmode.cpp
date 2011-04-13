@@ -120,6 +120,9 @@ DesignMode::DesignMode(EditorManager *editorManager) :
 {
     setObjectName(QLatin1String("DesignMode"));
     setEnabled(false);
+    setContext(Context(Constants::C_DESIGN_MODE));
+    setWidget(d->m_stackWidget);
+
     ExtensionSystem::PluginManager::instance()->addObject(d->m_coreListener);
 
     connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -136,17 +139,6 @@ DesignMode::~DesignMode()
 
     qDeleteAll(d->m_editors);
     delete d;
-}
-
-Context DesignMode::context() const
-{
-    static Context contexts(Constants::C_DESIGN_MODE);
-    return contexts;
-}
-
-QWidget *DesignMode::widget()
-{
-    return d->m_stackWidget;
 }
 
 QString DesignMode::displayName() const

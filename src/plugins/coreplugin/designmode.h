@@ -68,10 +68,6 @@ public:
 
     QStringList registeredMimeTypes() const;
 
-    // IContext
-    Context context() const;
-    QWidget *widget();
-
     // IMode
     QString displayName() const;
     QIcon icon() const;

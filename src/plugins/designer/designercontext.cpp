@@ -47,23 +47,12 @@ enum { debug = 0 };
 namespace Designer {
 namespace Internal {
 
-DesignerContext::DesignerContext(const Core::Context &contexts,
-                                 QWidget *widget,
-                                 QObject *parent) :
-    Core::IContext(parent),
-    m_context(contexts),
-    m_widget(widget)
+DesignerContext::DesignerContext(const Core::Context &context,
+                                 QWidget *widget, QObject *parent)
+  : Core::IContext(parent)
 {
-}
-
-Core::Context DesignerContext::context() const
-{
-    return m_context;
-}
-
-QWidget *DesignerContext::widget()
-{
-    return m_widget;
+    setContext(context);
+    setWidget(widget);
 }
 
 QString DesignerContext::contextHelpId() const

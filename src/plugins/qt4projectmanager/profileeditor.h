@@ -61,14 +61,11 @@ class ProFileEditor : public TextEditor::BaseTextEditor
 
 public:
     ProFileEditor(ProFileEditorWidget *);
-    Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     QString id() const;
     bool isTemporary() const { return false; }
-private:
-    const Core::Context m_context;
 };
 
 class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget
@@ -78,10 +75,8 @@ class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget
 public:
     ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory,
                   TextEditor::TextEditorActionHandler *ah);
-    ~ProFileEditorWidget();
 
     bool save(const QString &fileName = QString());
-
 
     ProFileEditorFactory *factory() { return m_factory; }
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }

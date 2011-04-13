@@ -318,6 +318,7 @@ class BinEditorInterface : public Core::IEditor
 public:
     BinEditorInterface(BinEditor *editor)
     {
+        setWidget(editor);
         m_editor = editor;
         m_file = new BinEditorFile(m_editor);
         m_context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
@@ -350,10 +351,6 @@ public:
     ~BinEditorInterface() {
         delete m_editor;
     }
-
-    QWidget *widget() { return m_editor; }
-
-    Core::Context context() const { return m_context; }
 
     bool createNew(const QString & /* contents */ = QString()) {
         m_editor->clear();
@@ -392,7 +389,6 @@ private:
     BinEditor *m_editor;
     QString m_displayName;
     BinEditorFile *m_file;
-    Core::Context m_context;
     QToolBar *m_toolBar;
     QLineEdit *m_addressEdit;
 };

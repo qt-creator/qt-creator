@@ -56,9 +56,6 @@ public:
     explicit ImageViewer(QWidget *parent = 0);
     ~ImageViewer();
 
-    Core::Context context() const;
-    QWidget *widget();
-
     bool createNew(const QString &contents = QString());
     bool open(const QString &fileName = QString());
     Core::IFile *file();

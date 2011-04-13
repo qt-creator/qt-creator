@@ -98,10 +98,6 @@ public:
     QByteArray saveState() const { return QByteArray(); }
     bool restoreState(const QByteArray &/*state*/) { return true; }
 
-    // ContextInterface
-    Core::Context context() const { return m_context; }
-    QWidget *widget();
-
     void setSuggestedFileName(const QString &fileName);
     bool isTemporary() const { return false; }
 
@@ -114,7 +110,6 @@ private:
     const QString m_fileFilter;
     QString m_displayName;
     QString m_suggestedName;
-    const Core::Context m_context;
     QPointer<SharedTools::QrcEditor> m_resourceEditor;
     ResourceEditorFile *m_resourceFile;
     ResourceEditorPlugin *m_plugin;

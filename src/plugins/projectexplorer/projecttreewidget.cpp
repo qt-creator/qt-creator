@@ -75,8 +75,8 @@ public:
         setEditTriggers(QAbstractItemView::EditKeyPressed);
         setContextMenuPolicy(Qt::CustomContextMenu);
 //        setExpandsOnDoubleClick(false);
-        Core::Context context(Constants::C_PROJECT_TREE);
-        m_context = new Core::BaseContext(this, context);
+        m_context = new Core::IContext(this);
+        m_context->setContext(Core::Context(Constants::C_PROJECT_TREE));
         Core::ICore::instance()->addContextObject(m_context);
     }
     ~ProjectTreeView()
@@ -86,7 +86,7 @@ public:
     }
 
 private:
-    Core::BaseContext *m_context;
+    Core::IContext *m_context;
 };
 
 /*!

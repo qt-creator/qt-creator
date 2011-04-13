@@ -143,8 +143,12 @@ class AnalyzerMode : public Core::IMode
 public:
     AnalyzerMode(QObject *parent = 0)
         : Core::IMode(parent)
-        , m_widget(0)
-    {}
+    {
+        setContext(Core::Context(
+            Core::Constants::C_EDITORMANAGER,
+            Constants::C_ANALYZEMODE,
+            Core::Constants::C_NAVIGATION_PANE));
+    }
 
     ~AnalyzerMode()
     {
@@ -159,19 +163,9 @@ public:
     QString displayName() const { return tr("Analyze"); }
     QIcon icon() const { return QIcon(":/images/analyzer_mode.png"); }
     int priority() const { return Constants::P_MODE_ANALYZE; }
-    QWidget *widget() { return m_widget; }
     QString id() const { return QLatin1String(Constants::MODE_ANALYZE); }
     QString type() const { return Core::Constants::MODE_EDIT_TYPE; }
-    Core::Context context() const
-    {
-        return Core::Context(Core::Constants::C_EDITORMANAGER, Constants::C_ANALYZEMODE,
-                             Core::Constants::C_NAVIGATION_PANE);
-    }
     QString contextHelpId() const { return QString(); }
-    void setWidget(QWidget *widget) { m_widget = widget; }
-
-private:
-    QWidget *m_widget;
 };
 
 } // namespace Internal

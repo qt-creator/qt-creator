@@ -42,13 +42,11 @@
 
 using namespace TextEditor;
 
-SnippetEditor::SnippetEditor(SnippetEditorWidget *editor) :
-    BaseTextEditor(editor),
-    m_context(Constants::SNIPPET_EDITOR_ID, Constants::C_TEXTEDITOR)
-{}
-
-SnippetEditor::~SnippetEditor()
-{}
+SnippetEditor::SnippetEditor(SnippetEditorWidget *editor)
+    : BaseTextEditor(editor)
+{
+    setContext(Core::Context(Constants::SNIPPET_EDITOR_ID, Constants::C_TEXTEDITOR));
+}
 
 QString SnippetEditor::id() const
 {
@@ -62,9 +60,6 @@ SnippetEditorWidget::SnippetEditorWidget(QWidget *parent) : BaseTextEditorWidget
     setLineNumbersVisible(false);
     setParenthesesMatchingEnabled(true);
 }
-
-SnippetEditorWidget::~SnippetEditorWidget()
-{}
 
 void SnippetEditorWidget::setSyntaxHighlighter(TextEditor::SyntaxHighlighter *highlighter)
 {

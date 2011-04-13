@@ -213,11 +213,6 @@ bool GLSLEditorEditable::open(const QString &fileName)
     return b;
 }
 
-Core::Context GLSLEditorEditable::context() const
-{
-    return m_context;
-}
-
 void GLSLTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);

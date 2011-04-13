@@ -56,19 +56,18 @@ namespace Internal {
 class HelloMode : public Core::IMode
 {
 public:
-    HelloMode() : m_widget(new QPushButton(tr("Hello World PushButton!"))) {}
+    HelloMode()
+    {
+        setWidget(new QPushButton(tr("Hello World PushButton!")));
+        setContext(Core::Context("HelloWorld.MainView"));
+    }
 
     QString displayName() const { return tr("Hello world!"); }
     QIcon icon() const { return QIcon(); }
     int priority() const { return 0; }
-    QWidget *widget() { return m_widget; }
     QString id() const { return QLatin1String("HelloWorld.HelloWorldMode"); }
     QString type() const { return QLatin1String("HelloWorld.HelloWorldMode"); }
-    Core::Context context() const { return Core::Context("HelloWorld.MainView"); };
     QString contextHelpId() const { return QString(); }
-
-private:
-    QWidget *m_widget;
 };
 
 

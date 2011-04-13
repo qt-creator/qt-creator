@@ -61,8 +61,6 @@ public:
 
 private:
     const QStringList m_mimeTypes;
-    const Core::Context m_context;
-
     ResourceEditorPlugin *m_plugin;
 };
 

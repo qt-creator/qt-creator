@@ -59,19 +59,14 @@ namespace Designer {
 
 struct FormWindowEditorPrivate
 {
-    explicit FormWindowEditorPrivate(Internal::DesignerXmlEditor *editor,
-                                     QDesignerFormWindowInterface *form);
+    FormWindowEditorPrivate(Internal::DesignerXmlEditor *editor,
+                            QDesignerFormWindowInterface *form)
+        : m_textEditor(editor), m_file(form)
+    {}
 
     TextEditor::PlainTextEditor m_textEditor;
     Internal::FormWindowFile m_file;
-    Core::Context m_context;
 };
-
-FormWindowEditorPrivate::FormWindowEditorPrivate(Internal::DesignerXmlEditor *editor,
-                                                 QDesignerFormWindowInterface *form) :
-    m_textEditor(editor), m_file(form)
-{
-}
 
 FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditor *editor,
                                    QDesignerFormWindowInterface *form,
@@ -79,8 +74,10 @@ FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditor *editor,
     Core::IEditor(parent),
     d(new FormWindowEditorPrivate(editor, form))
 {
-    d->m_context.add(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
-    d->m_context.add(Designer::Constants::C_DESIGNER_XML_EDITOR);
+    setContext(Core::Context(Designer::Constants::K_DESIGNER_XML_EDITOR_ID,
+                             Designer::Constants::C_DESIGNER_XML_EDITOR));
+    setWidget(d->m_textEditor.widget());
+
     connect(form, SIGNAL(changed()), this, SIGNAL(changed()));
     // Revert to saved/load externally modified files.
     connect(&d->m_file, SIGNAL(reload(QString)), this, SLOT(slotOpen(QString)));
@@ -237,16 +234,6 @@ QByteArray FormWindowEditor::saveState() const
 bool FormWindowEditor::restoreState(const QByteArray &state)
 {
     return d->m_textEditor.restoreState(state);
-}
-
-Core::Context FormWindowEditor::context() const
-{
-    return d->m_context;
-}
-
-QWidget *FormWindowEditor::widget()
-{
-    return d->m_textEditor.widget();
 }
 
 bool FormWindowEditor::isTemporary() const

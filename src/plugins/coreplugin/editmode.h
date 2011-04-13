@@ -60,10 +60,8 @@ public:
     QString displayName() const;
     QIcon icon() const;
     int priority() const;
-    QWidget* widget();
     QString id() const;
     QString type() const;
-    Context context() const;
 
 private slots:
     void grabEditorManager(Core::IMode *mode);

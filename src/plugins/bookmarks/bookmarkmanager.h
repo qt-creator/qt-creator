@@ -164,12 +164,7 @@ private:
 class BookmarkContext : public Core::IContext
 {
 public:
-    BookmarkContext(BookmarkView *widget);
-    virtual Core::Context context() const;
-    virtual QWidget *widget();
-private:
-    BookmarkView *m_bookmarkView;
-    const Core::Context m_context;
+    BookmarkContext(QWidget *widget);
 };
 
 class BookmarkViewFactory : public Core::INavigationWidgetFactory

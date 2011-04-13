@@ -55,17 +55,11 @@ using namespace CMakeProjectManager::Internal;
 //
 
 CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
-  : BaseTextEditor(editor),
-    m_context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
-              TextEditor::Constants::C_TEXTEDITOR)
+  : BaseTextEditor(editor)
 {
-    connect (this, SIGNAL(changed()),
-             this, SLOT(markAsChanged()));
-}
-
-Core::Context CMakeEditor::context() const
-{
-    return m_context;
+    setContext(Core::Context(CMakeProjectManager::Constants::C_CMAKEEDITOR,
+              TextEditor::Constants::C_TEXTEDITOR));
+    connect(this, SIGNAL(changed()), this, SLOT(markAsChanged()));
 }
 
 Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
@@ -120,10 +114,6 @@ CMakeEditorWidget::CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factor
     ah->setupActions(this);
 
     baseTextDocument()->setSyntaxHighlighter(new CMakeHighlighter);
-}
-
-CMakeEditorWidget::~CMakeEditorWidget()
-{
 }
 
 TextEditor::BaseTextEditor *CMakeEditorWidget::createEditor()

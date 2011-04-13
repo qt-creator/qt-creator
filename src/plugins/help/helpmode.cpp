@@ -41,10 +41,10 @@ using namespace Help::Internal;
 
 HelpMode::HelpMode(QObject *parent)
   : Core::IMode(parent),
-    m_widget(0),
     m_icon(QLatin1String(":/fancyactionbar/images/mode_Reference.png"))
 {
     setObjectName(QLatin1String("HelpMode"));
+    setContext(Core::Context(Constants::C_MODE_HELP));
 }
 
 QString HelpMode::displayName() const
@@ -60,9 +60,4 @@ int HelpMode::priority() const
 QString HelpMode::id() const
 {
     return QLatin1String(Constants::ID_MODE_HELP);
-}
-
-Core::Context HelpMode::context() const
-{
-    return Core::Context(Constants::C_MODE_HELP);
 }

@@ -78,11 +78,6 @@ class TaskWindowContext : public Core::IContext
 {
 public:
     TaskWindowContext(QWidget *widget);
-    virtual Core::Context context() const;
-    virtual QWidget *widget();
-private:
-    QWidget *m_taskList;
-    const Core::Context m_context;
 };
 
 class TaskModel : public QAbstractItemModel
@@ -1145,24 +1140,13 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
 }
 
 TaskWindowContext::TaskWindowContext(QWidget *widget)
-  : Core::IContext(widget),
-    m_taskList(widget),
-    m_context(Core::Constants::C_PROBLEM_PANE)
+  : Core::IContext(widget)
 {
-}
-
-Core::Context TaskWindowContext::context() const
-{
-    return m_context;
-}
-
-QWidget *TaskWindowContext::widget()
-{
-    return m_taskList;
+    setWidget(widget);
+    setContext(Core::Context(Core::Constants::C_PROBLEM_PANE));
 }
 
 } // namespace Internal
-
 } // namespace ProjectExplorer
 
 #include "taskwindow.moc"

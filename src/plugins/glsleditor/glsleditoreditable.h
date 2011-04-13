@@ -47,17 +47,13 @@ class GLSLEditorEditable : public TextEditor::BaseTextEditor
 
 public:
     explicit GLSLEditorEditable(GLSLTextEditorWidget *);
-    Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     QString id() const;
     bool isTemporary() const { return false; }
-    virtual bool open(const QString & fileName);
+    virtual bool open(const QString &fileName);
     virtual QString preferredModeType() const;
-
-private:
-    Core::Context m_context;
 };
 
 } // namespace Internal

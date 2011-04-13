@@ -50,12 +50,9 @@ public:
     QString displayName() const;
     QIcon icon() const { return m_icon; }
     int priority() const;
-    QWidget *widget() { return m_widget; }
     QString id() const;
     QString type() const { return QString(); }
-    Core::Context context() const;
     QString contextHelpId() const { return QString(); }
-    void setWidget(QWidget *widget) { m_widget = widget; }
 
 private:
     QWidget *m_widget;

@@ -59,10 +59,6 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
     m_mimeTypes.append(QLatin1String(Constants::CONFIG_MIMETYPE));
 }
 
-ProjectFilesFactory::~ProjectFilesFactory()
-{
-}
-
 Manager *ProjectFilesFactory::manager() const
 {
     return m_manager;
@@ -105,16 +101,9 @@ Core::IFile *ProjectFilesFactory::open(const QString &fileName)
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
-  : TextEditor::BaseTextEditor(editor),
-    m_context(Constants::C_FILESEDITOR)
-{ }
-
-ProjectFilesEditor::~ProjectFilesEditor()
-{ }
-
-Core::Context ProjectFilesEditor::context() const
+  : TextEditor::BaseTextEditor(editor)
 {
-    return m_context;
+   setContext(Core::Context(Constants::C_FILESEDITOR));
 }
 
 QString ProjectFilesEditor::id() const

@@ -94,10 +94,6 @@ public:
 
     virtual  QString preferredModeType() const;
 
-    // IContext
-    virtual Core::Context context() const;
-    virtual QWidget *widget();
-
     // For uic code model support
     QString contents() const;
 

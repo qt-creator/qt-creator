@@ -147,7 +147,6 @@ class CPPEditor : public TextEditor::BaseTextEditor
     Q_OBJECT
 public:
     CPPEditor(CPPEditorWidget *);
-    Core::Context context() const;
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
@@ -155,9 +154,6 @@ public:
 
     bool isTemporary() const { return false; }
     virtual bool open(const QString & fileName);
-
-private:
-    Core::Context m_context;
 };
 
 class CPPEditorWidget : public TextEditor::BaseTextEditorWidget
