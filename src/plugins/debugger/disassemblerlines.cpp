@@ -36,6 +36,8 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
 
 namespace Debugger {
 namespace Internal {
@@ -93,6 +95,39 @@ void DisassemblerLines::appendLine(const DisassemblerLine &dl)
 {
     m_data.append(dl);
     m_rowCache[dl.address] = m_data.size();
+}
+
+// Append source line: Cache current file
+struct SourceFileCache
+{
+    QString fileName;
+    QStringList lines;
+};
+
+Q_GLOBAL_STATIC(SourceFileCache, sourceFileCache)
+
+void DisassemblerLines::appendSourceLine(const QString &fileName, uint lineNumber)
+{
+
+    if (fileName.isEmpty() || lineNumber == 0)
+        return;
+    lineNumber--; // fix 1..n range.
+    SourceFileCache *cache = sourceFileCache();
+    if (fileName != cache->fileName) {
+        cache->fileName = fileName;
+        cache->lines.clear();
+        QFile file(fileName);
+        if (file.open(QIODevice::ReadOnly)) {
+            QTextStream ts(&file);
+            cache->lines = ts.readAll().split(QLatin1Char('\n'));
+        } // open
+    }     // different file
+    if (lineNumber >= uint(cache->lines.size()))
+        return;
+    DisassemblerLine dl;
+    dl.lineNumber = lineNumber;
+    dl.data = cache->lines.at(lineNumber);
+    appendLine(dl);
 }
 
 void DisassemblerLines::appendUnparsed(const QString &unparsed)

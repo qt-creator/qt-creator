@@ -4137,30 +4137,14 @@ DisassemblerLines GdbEngine::parseMiDisassembler(const GdbMi &lines)
     // {address="0x0805acf8",func-name="...",offset="25",inst="and $0xe8,%al"},
     // {address="0x0805acfa",func-name="...",offset="27",inst="pop %esp"},
 
-    QStringList fileContents;
-    bool fileLoaded = false;
     DisassemblerLines result;
 
     // FIXME: Performance?
     foreach (const GdbMi &child, lines.children()) {
         if (child.hasName("src_and_asm_line")) {
-            // Mixed mode.
-            if (!fileLoaded) {
-                QString fileName = QFile::decodeName(child.findChild("file").data());
-                fileName = cleanupFullName(fileName);
-                QFile file(fileName);
-                file.open(QIODevice::ReadOnly);
-                QTextStream ts(&file);
-                fileContents = ts.readAll().split(QLatin1Char('\n'));
-                fileLoaded = true;
-            }
-            int line = child.findChild("line").data().toInt();
-            if (line >= 1 && line <= fileContents.size()) {
-                DisassemblerLine dl;
-                dl.lineNumber = line;
-                dl.data = fileContents.at(line - 1);
-                result.appendLine(dl);
-            }
+            const QString fileName = QFile::decodeName(child.findChild("file").data());
+            const uint line = child.findChild("line").data().toUInt();
+            result.appendSourceLine(fileName, line);
             GdbMi insn = child.findChild("line_asm_insn");
             foreach (const GdbMi &item, insn.children())
                 result.appendLine(parseLine(item));

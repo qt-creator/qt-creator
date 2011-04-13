@@ -823,6 +823,7 @@ void CdbEngine::setupInferior()
         qDebug("setupInferior");
     attemptBreakpointSynchronization();
     postCommand("sxn 0x4000001f", 0); // Do not break on WowX86 exceptions.
+    postCommand(".asm source_line", 0); // Source line in assembly
     postExtensionCommand("pid", QByteArray(), 0, &CdbEngine::handlePid);
 }
 
@@ -1507,10 +1508,7 @@ void CdbEngine::handleDisassembler(const CdbBuiltinCommandPtr &command)
 {
     QTC_ASSERT(qVariantCanConvert<DisassemblerAgent*>(command->cookie), return;)
     DisassemblerAgent *agent = qvariant_cast<DisassemblerAgent*>(command->cookie);
-    DisassemblerLines disassemblerLines;
-    foreach(const QByteArray &line, command->reply)
-        disassemblerLines.appendUnparsed(QString::fromLatin1(line));
-    agent->setContents(disassemblerLines);
+    agent->setContents(parseCdbDisassembler(command->reply));
 }
 
 void CdbEngine::fetchMemory(MemoryAgent *agent, QObject *editor, quint64 addr, quint64 length)

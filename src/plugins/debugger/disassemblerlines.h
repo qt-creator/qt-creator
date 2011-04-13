@@ -34,7 +34,7 @@
 #ifndef DEBUGGER_DISASSEMBLERLINES_H
 #define DEBUGGER_DISASSEMBLERLINES_H
 
-#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QHash>
 #include <QtCore/QVector>
 
@@ -65,6 +65,7 @@ public:
     QString function; // (ass) Function to which current instruction belongs.
     uint offset;      // (ass) Offset of instruction in relation to current function.
     uint lineNumber;  // (src) Line number in source.
+    QByteArray rawData;  // (ass) Raw bytes of the instruction
     QString data;     // (ass) Instruction text, (src) source text, (cmt) arbitrary.
 };
 
@@ -76,6 +77,9 @@ public:
     bool coversAddress(quint64 address) const;
     void appendUnparsed(const QString &line);
     void appendLine(const DisassemblerLine &dl);
+    // Mixed source/assembly: Retrieve contents of source (cached)
+    void appendSourceLine(const QString &fileName, uint line);
+
     int size() const { return m_data.size(); }
     const DisassemblerLine &at(int i) const { return m_data.at(i); }
     int lineForAddress(quint64 address) const;

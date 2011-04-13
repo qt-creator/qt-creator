@@ -37,18 +37,21 @@
 #include "registerhandler.h"
 #include "bytearrayinputstream.h"
 #include "gdb/gdbmi.h"
+#include "disassemblerlines.h"
 #ifdef Q_OS_WIN
 #    include "shared/dbgwinutils.h"
 #endif
+#include <utils/qtcassert.h>
+
 #include <QtCore/QByteArray>
 #include <QtCore/QVariant>
 #include <QtCore/QString>
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
-#include <utils/qtcassert.h>
-
 #include <cctype>
+
+enum { debugDisAsm = 0 };
 
 namespace Debugger {
 namespace Internal {
@@ -433,6 +436,153 @@ QDebug operator<<(QDebug s, const WinException &e)
         << ",address=0x" << QString::number(e.exceptionAddress, 16)
         << ",firstChance=" << e.firstChance;
     return s;
+}
+
+/*!
+    \fn DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a)
+
+    \brief Parse CDB disassembler output into DisassemblerLines (with helpers)
+
+    Expected options (prepend source file line):
+    \code
+    .asm source_line
+    .lines
+    \endcode
+
+    should cause the 'u' command to produce:
+
+    \code
+gitgui!Foo::MainWindow::on_actionPtrs_triggered+0x1f9 [c:\qt\projects\gitgui\app\mainwindow.cpp @ 758]:
+  225 00000001`3fcebfe9 488b842410050000 mov     rax,qword ptr [rsp+510h]
+  225 00000001`3fcebff1 8b4030          mov     eax,dword ptr [rax+30h]
+  226 00000001`3fcebff4 ffc0            inc     eax
+      00000001`3fcebff6 488b8c2410050000 mov     rcx,qword ptr [rsp+510h]
+...
+QtCored4!QTextStreamPrivate::putString+0x34:
+   10 00000000`6e5e7f64 90              nop
+...
+\endcode
+
+    The algorithm checks for a function line and grabs the function name, offset and (optional)
+    source file from it.
+    Instruction lines are checked for address and source line number.
+    When the source line changes, the source instruction is inserted.
+*/
+
+// Parse a function header line: Match: 'nsp::foo::+0x<offset> [<file> @ <line>]:'
+// or 'nsp::foo::+0x<offset>:'
+// Do not use regexp here as it is hard for functions like operator+, operator[].
+bool parseCdbDisassemblerFunctionLine(const QString &l,
+                                      QString *currentFunction, quint64 *functionOffset,
+                                      QString *sourceFile)
+{
+    if (l.isEmpty() || !l.endsWith(QLatin1Char(':')) || l.at(0).isDigit() || l.at(0).isSpace())
+        return false;
+    const int offsetPos = l.indexOf(QLatin1String("+0x"));
+    if (offsetPos == -1)
+        return false;
+    sourceFile->clear();
+    *currentFunction = l.left(offsetPos);
+    if (!l.endsWith(QLatin1String("]:"))) { // No source file.
+        *functionOffset = l.mid(offsetPos + 3, l.size() - offsetPos - 4).trimmed().toULongLong(0, 16);
+        if (debugDisAsm)
+            qDebug() << "Function:" << l << currentFunction << functionOffset;
+        return true;
+    }
+    // Parse file and line.
+    const int filePos   = l.indexOf(QLatin1Char('['), offsetPos + 1);
+    const int linePos   = filePos   != -1 ? l.indexOf(QLatin1String(" @ "), filePos + 1)   : -1;
+    if (linePos == -1)
+        return false;
+    *functionOffset = l.mid(offsetPos + 3, filePos - offsetPos - 4).trimmed().toULongLong(0, 16);
+    *sourceFile = l.mid(filePos + 1, linePos - filePos - 1).trimmed();
+    if (debugDisAsm)
+        qDebug() << "Function with source: " << l << currentFunction
+                 << functionOffset << sourceFile;
+    return true;
+}
+
+// Parse an instruction line:
+// '   21 00000001`3fcebff1 8b4030          mov     eax,dword ptr [rax+30h]'
+// '<source_line> <address> <raw data> <instruction>
+bool parseCdbDisassemblerLine(const QString &lineIn, DisassemblerLine *dLine, uint *sourceLine)
+{
+    *sourceLine = 0;
+    if (lineIn.size() < 6)
+        return false;
+    // Check source line: right-padded 5 digits
+    const bool hasSourceLine = lineIn.at(4).isDigit();
+    const QString line = lineIn.trimmed();
+    int addressPos = 0;
+    const QChar blank = QLatin1Char(' ');
+    // Optional source line.
+    if (hasSourceLine) {
+        const int sourceLineEnd = line.indexOf(blank);
+        if (sourceLineEnd == -1)
+            return false;
+        *sourceLine = line.left(sourceLineEnd).toUInt();
+        addressPos = sourceLineEnd + 1;
+    }
+    // Find positions of address/raw data/instruction
+    const int addressEnd = line.indexOf(blank, addressPos + 1);
+    if (addressEnd < 0)
+        return false;
+    const int rawDataPos = addressEnd + 1;
+    const int rawDataEnd = line.indexOf(blank, rawDataPos + 1);
+    if (rawDataEnd < 0)
+        return false;
+    const int instructionPos = rawDataEnd + 1;
+    bool ok;
+    QString addressS = line.mid(addressPos, addressEnd - addressPos);
+    if (addressS.size() > 9 && addressS.at(8) == QLatin1Char('`'))
+        addressS.remove(8, 1);
+    dLine->address = addressS.toULongLong(&ok, 16);
+    if (!ok)
+        return false;
+    dLine->rawData = QByteArray::fromHex(line.mid(rawDataPos, rawDataEnd - rawDataPos).toAscii());
+    dLine->data = line.right(line.size() - instructionPos).trimmed();
+    return true;
+}
+
+DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a)
+{
+    DisassemblerLines result;
+    quint64 functionAddress = 0;
+    uint lastSourceLine = 0;
+    QString currentFunction;
+    quint64 functionOffset = 0;
+    QString sourceFile;
+
+    foreach (const QByteArray &lineBA, a) {
+        const QString line = QString::fromLatin1(lineBA);
+        // New function?
+        if (parseCdbDisassemblerFunctionLine(line, &currentFunction, &functionOffset, &sourceFile)) {
+            functionAddress = 0;
+        } else {
+            DisassemblerLine disassemblyLine;
+            uint sourceLine;
+            if (parseCdbDisassemblerLine(line, &disassemblyLine, &sourceLine)) {
+                // New source line: Add source code if available.
+                if (sourceLine && sourceLine != lastSourceLine) {
+                    lastSourceLine = sourceLine;
+                    result.appendSourceLine(sourceFile, sourceLine);
+                }
+            } else {
+                qWarning("Unable to parse assembly line '%s'", lineBA.constData());
+                disassemblyLine.fromString(line);
+            }
+            // Determine address of function from the first assembler line after a
+            // function header line.
+            if (!functionAddress && disassemblyLine.address && functionOffset) {
+                functionAddress = disassemblyLine.address - functionOffset;
+            }
+            if (functionAddress && disassemblyLine.address)
+                disassemblyLine.offset = disassemblyLine.address - functionAddress;
+            disassemblyLine.function = currentFunction;
+            result.appendLine(disassemblyLine);
+        }
+    }
+    return result;
 }
 
 } // namespace Internal

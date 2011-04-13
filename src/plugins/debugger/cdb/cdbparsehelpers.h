@@ -54,6 +54,7 @@ class BreakpointParameters;
 struct ThreadData;
 class Register;
 class GdbMi;
+class DisassemblerLines;
 
 // Perform mapping on parts of the source tree as reported by/passed to debugger
 // in case the user has specified such mappings in the global settings.
@@ -80,6 +81,8 @@ QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
 
 QString debugByteArray(const QByteArray &a);
 QString StringFromBase64EncodedUtf16(const QByteArray &a);
+
+DisassemblerLines parseCdbDisassembler(const QList<QByteArray> &a);
 
 // Model EXCEPTION_RECORD + firstchance
 struct WinException
