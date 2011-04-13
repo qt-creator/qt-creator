@@ -232,6 +232,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
     toplayout->addRow(QString(), m_useTerminalCheck);
+    m_useTerminalCheck->setVisible(qt4RunConfiguration->target()->id() != Constants::QT_SIMULATOR_TARGET_ID);
 
     QWidget *debuggerLabelWidget = new QWidget(this);
     QVBoxLayout *debuggerLabelLayout = new QVBoxLayout(debuggerLabelWidget);
