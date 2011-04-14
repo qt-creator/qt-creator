@@ -182,7 +182,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     connect(engine, SIGNAL(processRunning()), this, SLOT(connectClient()));
     connect(engine, SIGNAL(finished()), this, SLOT(disconnectClient()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
-    connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(finishProcess()));
+    connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(dataReceived()));
     connect(this, SIGNAL(connectionFailed()), engine, SLOT(finishProcess()));
     connect(this, SIGNAL(fetchingData(bool)), engine, SLOT(setFetchingData(bool)));
     emit fetchingData(d->m_recordButton->isChecked());

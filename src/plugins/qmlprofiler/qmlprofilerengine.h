@@ -58,6 +58,7 @@ public slots:
     void spontaneousStop();
 
     void setFetchingData(bool);
+    void dataReceived();
     void finishProcess();
 
 private:

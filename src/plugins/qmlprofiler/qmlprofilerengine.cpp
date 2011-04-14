@@ -73,6 +73,7 @@ public:
     QProcess *m_process;
     bool m_running;
     bool m_fetchingData;
+    bool m_delayedDelete;
 };
 
 QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp, ProjectExplorer::RunConfiguration *runConfiguration)
@@ -83,6 +84,7 @@ QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp
     d->m_process = 0;
     d->m_running = false;
     d->m_fetchingData = false;
+    d->m_delayedDelete = false;
 }
 
 QmlProfilerEngine::~QmlProfilerEngine()
@@ -96,14 +98,18 @@ void QmlProfilerEngine::start()
 {
     d->launchperfmonitor();
     d->m_running = true;
+    d->m_delayedDelete = false;
 
     emit processRunning();
 }
 
 void QmlProfilerEngine::stop()
 {
-    if (d->m_fetchingData)
+    if (d->m_fetchingData) {
+        if (d->m_running)
+            d->m_delayedDelete = true;
         emit stopRecording();
+    }
     else
         finishProcess();
 }
@@ -118,6 +124,12 @@ void QmlProfilerEngine::spontaneousStop()
 void QmlProfilerEngine::setFetchingData(bool b)
 {
     d->m_fetchingData = b;
+}
+
+void QmlProfilerEngine::dataReceived() {
+    if (d->m_delayedDelete)
+        finishProcess();
+    d->m_delayedDelete = false;
 }
 
 void QmlProfilerEngine::finishProcess()
