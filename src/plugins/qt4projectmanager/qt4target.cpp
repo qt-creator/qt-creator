@@ -603,8 +603,8 @@ void Qt4DefaultTargetSetupWidget::setShadowBuildCheckBoxVisible(bool b)
 
 void Qt4DefaultTargetSetupWidget::setBuildConfiguraionComboBoxVisible(bool b)
 {
-    m_buildConfigurationLabel->setVisible(true);
-    m_buildConfigurationComboBox->setVisible(true);
+    m_buildConfigurationLabel->setVisible(b);
+    m_buildConfigurationComboBox->setVisible(b);
     updateWidgetVisibility();
 }
 
