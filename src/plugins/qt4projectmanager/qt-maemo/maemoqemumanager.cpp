@@ -79,6 +79,8 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     , m_qemuProcess(new QProcess(this))
     , m_runningQtId(INT_MIN)
     , m_userTerminated(false)
+    , m_runtimeRootWatcher(0)
+    , m_runtimeFolderWatcher(0)
 {
     m_qemuStarterIcon.addFile(":/qt-maemo/images/qemu-run.png", iconSize);
     m_qemuStarterIcon.addFile(":/qt-maemo/images/qemu-stop.png", iconSize,
@@ -124,13 +126,26 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
         SLOT(qemuOutput()));
     connect(this, SIGNAL(qemuProcessStatus(QemuStatus, QString)),
         this, SLOT(qemuStatusChanged(QemuStatus, QString)));
+}
 
-    m_runtimeRootWatcher = new QFileSystemWatcher(this);
-    connect(m_runtimeRootWatcher, SIGNAL(directoryChanged(QString)), this,
-        SLOT(runtimeRootChanged(QString)));
-    m_runtimeFolderWatcher = new QFileSystemWatcher(this);
-    connect(m_runtimeFolderWatcher, SIGNAL(directoryChanged(QString)), this,
-        SLOT(runtimeFolderChanged(QString)));
+QFileSystemWatcher *MaemoQemuManager::runtimeRootWatcher()
+{
+    if (!m_runtimeRootWatcher) {
+        m_runtimeRootWatcher = new QFileSystemWatcher(this);
+        connect(m_runtimeRootWatcher, SIGNAL(directoryChanged(QString)), this,
+            SLOT(runtimeRootChanged(QString)));
+    }
+    return m_runtimeRootWatcher;
+}
+
+QFileSystemWatcher *MaemoQemuManager::runtimeFolderWatcher()
+{
+    if (!m_runtimeFolderWatcher) {
+        m_runtimeFolderWatcher = new QFileSystemWatcher(this);
+        connect(m_runtimeFolderWatcher, SIGNAL(directoryChanged(QString)), this,
+            SLOT(runtimeFolderChanged(QString)));
+    }
+    return m_runtimeFolderWatcher;
 }
 
 MaemoQemuManager::~MaemoQemuManager()
@@ -170,8 +185,8 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
                     = MaemoQemuRuntimeParser::parseRuntime(version);
                 if (runtime.isValid()) {
                     m_runtimes.insert(uniqueId, runtime);
-                    if (!m_runtimeRootWatcher->directories().contains(runtime.m_watchPath))
-                        m_runtimeRootWatcher->addPath(runtime.m_watchPath);
+                    if (!runtimeRootWatcher()->directories().contains(runtime.m_watchPath))
+                        runtimeRootWatcher()->addPath(runtime.m_watchPath);
                 } else {
                     m_runtimes.remove(uniqueId);
                 }
@@ -462,7 +477,7 @@ void MaemoQemuManager::runtimeRootChanged(const QString &directory)
                 if (!QFile::exists(runtime.m_root + QLatin1String("/information"))) {
                     // install might be still in progress
                     uniqueIds.removeAll(uniqueId);
-                    m_runtimeFolderWatcher->addPath(runtime.m_root);
+                    runtimeFolderWatcher()->addPath(runtime.m_root);
                 }
             }
         }
@@ -480,7 +495,8 @@ void MaemoQemuManager::runtimeFolderChanged(const QString &directory)
                 uniqueIds.append(it.key());
         }
         notify(uniqueIds);
-        m_runtimeFolderWatcher->removePath(directory);
+        if (m_runtimeFolderWatcher)
+            m_runtimeFolderWatcher->removePath(directory);
     }
 }
 

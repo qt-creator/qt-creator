@@ -123,6 +123,8 @@ private:
 private:
     QAction *m_qemuAction;
     QProcess *m_qemuProcess;
+    QFileSystemWatcher *runtimeRootWatcher();
+    QFileSystemWatcher *runtimeFolderWatcher();
 
     int m_runningQtId;
     bool m_userTerminated;
