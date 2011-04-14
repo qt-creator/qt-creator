@@ -386,18 +386,24 @@ void GccToolChain::setCompilerPath(const QString &path)
     if (path == m_compilerPath)
         return;
 
-    if (displayName() == defaultDisplayName())
-        setDisplayName(typeName());
+    bool resetDisplayName = displayName() == defaultDisplayName();
+
     m_compilerPath = path;
     m_supportedAbis.clear();
+
+    Abi currentAbi = m_targetAbi;
 
     m_targetAbi = Abi();
     if (!m_compilerPath.isEmpty()) {
         updateSupportedAbis();
-        if (!m_supportedAbis.isEmpty())
-            m_targetAbi = m_supportedAbis.at(0);
+        if (!m_supportedAbis.isEmpty()) {
+            if (m_supportedAbis.contains(currentAbi))
+                m_targetAbi = currentAbi;
+            else
+                m_targetAbi = m_supportedAbis.at(0);
+        }
 
-        if (displayName() == typeName())
+        if (resetDisplayName)
             setDisplayName(defaultDisplayName());
     }
     updateId(); // Will trigger toolChainUpdated()!
