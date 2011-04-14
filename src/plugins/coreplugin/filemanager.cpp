@@ -113,6 +113,8 @@ struct FileState
 
 struct FileManagerPrivate {
     explicit FileManagerPrivate(FileManager *q, QMainWindow *mw);
+    QFileSystemWatcher *fileWatcher();
+    QFileSystemWatcher *linkWatcher();
 
     static FileManager *m_instance;
     QMap<QString, FileState> m_states;
@@ -127,8 +129,8 @@ struct FileManagerPrivate {
     QString m_currentFile;
 
     QMainWindow *m_mainWindow;
-    QFileSystemWatcher *m_fileWatcher;
-    QFileSystemWatcher *m_linkWatcher;
+    QFileSystemWatcher *m_fileWatcher; // Delayed creation.
+    QFileSystemWatcher *m_linkWatcher; // Delayed creation (only UNIX/if a link is seen).
     bool m_blockActivated;
     QString m_lastVisitedDirectory;
     QString m_projectsDirectory;
@@ -140,11 +142,37 @@ struct FileManagerPrivate {
     IFile *m_blockedIFile;
 };
 
+QFileSystemWatcher *FileManagerPrivate::fileWatcher()
+{
+    if (!m_fileWatcher) {
+        m_fileWatcher= new QFileSystemWatcher(m_instance);
+        QObject::connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
+                         m_instance, SLOT(changedFile(QString)));
+    }
+    return m_fileWatcher;
+}
+
+QFileSystemWatcher *FileManagerPrivate::linkWatcher()
+{
+#ifdef Q_OS_UNIX
+    if (!m_linkWatcher) {
+        m_linkWatcher = new QFileSystemWatcher(m_instance);
+        m_linkWatcher->setObjectName(QLatin1String("_qt_autotest_force_engine_poller"));
+        QObject::connect(m_linkWatcher, SIGNAL(fileChanged(QString)),
+                         m_instance, SLOT(changedFile(QString)));
+    }
+    return m_linkWatcher;
+#else
+    return fileWatcher();
+#endif
+}
+
 FileManager *FileManagerPrivate::m_instance = 0;
 
 FileManagerPrivate::FileManagerPrivate(FileManager *q, QMainWindow *mw) :
     m_mainWindow(mw),
-    m_fileWatcher(new QFileSystemWatcher(q)),
+    m_fileWatcher(0),
+    m_linkWatcher(0),
     m_blockActivated(false),
     m_lastVisitedDirectory(QDir::currentPath()),
 #ifdef Q_OS_MAC  // Creator is in bizarre places when launched via finder.
@@ -155,16 +183,6 @@ FileManagerPrivate::FileManagerPrivate(FileManager *q, QMainWindow *mw) :
     m_blockedIFile(0)
 {
     m_instance = q;
-    q->connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
-        q, SLOT(changedFile(QString)));
-#ifdef Q_OS_UNIX
-    m_linkWatcher = new QFileSystemWatcher(q);
-    m_linkWatcher->setObjectName(QLatin1String("_qt_autotest_force_engine_poller"));
-    q->connect(m_linkWatcher, SIGNAL(fileChanged(QString)),
-        q, SLOT(changedFile(QString)));
-#else
-    m_linkWatcher = m_fileWatcher;
-#endif
 }
 
 } // namespace Internal
@@ -248,9 +266,9 @@ void FileManager::addFileInfo(const QString &fileName, IFile *file, bool isLink)
             d->m_states.insert(fileName, Internal::FileState());
 
             if (isLink)
-                d->m_linkWatcher->addPath(fileName);
+                d->linkWatcher()->addPath(fileName);
             else
-                d->m_fileWatcher->addPath(fileName);
+                d->fileWatcher()->addPath(fileName);
         }
         d->m_states[fileName].lastUpdatedState.insert(file, state);
     }
@@ -299,9 +317,11 @@ void FileManager::dump()
         qDebug() << key->fileName() << d->m_filesWithWatch.value(key);
     }
     qDebug() << "------- dumping watch list";
-    qDebug() << d->m_fileWatcher->files();
+    if (d->m_fileWatcher)
+        qDebug() << d->m_fileWatcher->files();
     qDebug() << "------- dumping link watch list";
-    qDebug() << d->m_linkWatcher->files();
+    if (d->m_linkWatcher)
+        qDebug() << d->m_linkWatcher->files();
 }
 
 /*!
@@ -351,9 +371,9 @@ void FileManager::removeFileInfo(IFile *file)
             continue;
         d->m_states[fileName].lastUpdatedState.remove(file);
         if (d->m_states.value(fileName).lastUpdatedState.isEmpty()) {
-            if (d->m_fileWatcher->files().contains(fileName))
+            if (d->m_fileWatcher && d->m_fileWatcher->files().contains(fileName))
                 d->m_fileWatcher->removePath(fileName);
-            if (d->m_linkWatcher->files().contains(fileName))
+            if (d->m_linkWatcher && d->m_linkWatcher->files().contains(fileName))
                 d->m_linkWatcher->removePath(fileName);
             d->m_states.remove(fileName);
         }
