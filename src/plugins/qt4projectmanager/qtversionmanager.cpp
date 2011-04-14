@@ -1701,6 +1701,16 @@ QString QtVersion::sbsV2Directory() const
 
 void QtVersion::setSbsV2Directory(const QString &directory)
 {
+    QDir dir(directory);
+    if (dir.exists(QLatin1String("sbs"))) {
+        m_sbsV2Directory = dir.absolutePath();
+        return;
+    }
+    dir.cd("bin");
+    if (dir.exists(QLatin1String("sbs"))) {
+        m_sbsV2Directory = dir.absolutePath();
+        return;
+    }
     m_sbsV2Directory = directory;
 }
 
@@ -1753,11 +1763,14 @@ void QtVersion::addToEnvironment(Utils::Environment &env) const
         // SBSv2:
         if (isBuildWithSymbianSbsV2()) {
             QString sbsHome(env.value(QLatin1String("SBS_HOME")));
-            if (!m_sbsV2Directory.isEmpty()) {
-                env.prependOrSetPath(m_sbsV2Directory + QLatin1String("/bin"));
-                env.set(QLatin1String("SBS_HOME"), m_sbsV2Directory); // We need this for Qt 4.6.3 compatibility
+            QString sbsConfig = sbsV2Directory();
+            if (!sbsConfig.isEmpty()) {
+                env.prependOrSetPath(sbsConfig);
+                // SBS_HOME is the path minus the trailing /bin:
+                env.set(QLatin1String("SBS_HOME"),
+                        QDir::toNativeSeparators(sbsConfig.left(sbsConfig.count() - 4))); // We need this for Qt 4.6.3 compatibility
             } else if (!sbsHome.isEmpty()) {
-                env.prependOrSetPath(sbsHome + QLatin1Char('/') + QLatin1String("bin"));
+                env.prependOrSetPath(sbsHome + QLatin1String("/bin"));
             }
         }
     }
