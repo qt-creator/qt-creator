@@ -440,8 +440,15 @@
             protected, private. The public section is interesting for every
             user of the class. The private section is only of interest for the
             implementors of the class (you).
+
         \o  Avoid declaring global objects in the declaration file of the class.
             If the same variable is used for all objects, use a static member.
+
+        \o  Use \c{class} instead of \c{struct}. Some compilers mangle that
+            difference into the symbol names and spit out warnings if a struct
+            declaration is followed by a class definition. To avoid ongoing
+            changes from one to the other we declare \c{class} the prefered way.
+
     \endlist
 
     \section3 Declaring Variables
