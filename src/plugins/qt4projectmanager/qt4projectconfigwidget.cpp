@@ -458,6 +458,7 @@ void Qt4ProjectConfigWidget::toolChainChanged()
 {
     if (m_ignoreChange)
         return;
+    bool foundTc = false;
     for (int i = 0; i < m_ui->toolChainComboBox->count(); ++i) {
         ProjectExplorer::ToolChain *tc =
                 static_cast<ProjectExplorer::ToolChain *>(m_ui->toolChainComboBox->itemData(i, Qt::UserRole).value<void *>());
@@ -465,13 +466,20 @@ void Qt4ProjectConfigWidget::toolChainChanged()
             m_ignoreChange = true;
             m_ui->toolChainComboBox->setCurrentIndex(i);
             m_ignoreChange = false;
-            return;
+            foundTc = true;
+            break;
         }
     }
-    m_ignoreChange = true;
-    m_ui->toolChainComboBox->addItem(tr("<No tool chain selected>"), qVariantFromValue(static_cast<void *>(0)));
-    m_ui->toolChainComboBox->setCurrentIndex(m_ui->toolChainComboBox->count() - 1);
-    m_ignoreChange = false;
+    if (foundTc) {
+        int index = m_ui->toolChainComboBox->findData(qVariantFromValue(static_cast<void *>(0)));
+        if (index >= 0)
+            m_ui->toolChainComboBox->removeItem(index);
+    } else {
+        m_ignoreChange = true;
+        m_ui->toolChainComboBox->addItem(tr("<No tool chain selected>"), qVariantFromValue(static_cast<void *>(0)));
+        m_ui->toolChainComboBox->setCurrentIndex(m_ui->toolChainComboBox->count() - 1);
+        m_ignoreChange = false;
+    }
 }
 
 void Qt4ProjectConfigWidget::updateToolChainCombo()
