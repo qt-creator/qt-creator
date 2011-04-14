@@ -38,6 +38,7 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
+#include <projectexplorer/applicationlauncher.h>
 
 #include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 
@@ -50,7 +51,6 @@
 #include "canvas/qdeclarativecontext2d_p.h"
 #include "canvas/qdeclarativetiledcanvas_p.h"
 
-#include <QProcess>
 
 
 using namespace QmlProfiler::Internal;
@@ -61,13 +61,13 @@ public:
     QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq) {}
     ~QmlProfilerEnginePrivate() {}
 
-    bool launchperfmonitor();
+    void launchperfmonitor();
     bool attach(const QString &address, uint port);
 
     QmlProfilerEngine *q;
 
     Analyzer::AnalyzerStartParameters m_params;
-    QProcess *m_process;
+    ProjectExplorer::ApplicationLauncher m_launcher;
     bool m_running;
     bool m_fetchingData;
     bool m_delayedDelete;
@@ -78,10 +78,13 @@ QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp
     , d(new QmlProfilerEnginePrivate(this))
 {
     d->m_params = sp;
-    d->m_process = 0;
+
     d->m_running = false;
     d->m_fetchingData = false;
     d->m_delayedDelete = false;
+
+    connect(&d->m_launcher, SIGNAL(appendMessage(QString,ProjectExplorer::OutputFormat)),
+            this, SLOT(logApplicationMessage(QString,ProjectExplorer::OutputFormat)));
 }
 
 QmlProfilerEngine::~QmlProfilerEngine()
@@ -111,8 +114,10 @@ void QmlProfilerEngine::stop()
         finishProcess();
 }
 
-void QmlProfilerEngine::spontaneousStop()
+void QmlProfilerEngine::spontaneousStop(int exitCode)
 {
+    if (QmlProfilerPlugin::debugOutput)
+        qWarning() << "QmlProfiler: Application exited (exit code " << exitCode << ").";
     d->m_running = false;
     Analyzer::AnalyzerManager::instance()->stopTool();
     emit finished();
@@ -131,74 +136,34 @@ void QmlProfilerEngine::dataReceived() {
 
 void QmlProfilerEngine::finishProcess()
 {
+    // user stop?
     if (d->m_running) {
         d->m_running = false;
-        if (d->m_process) {
-            disconnect(d->m_process,SIGNAL(finished(int)),this,SLOT(spontaneousStop()));
-            if (d->m_process->state() == QProcess::Running) {
-                d->m_process->terminate();
-                if (!d->m_process->waitForFinished(1000)) {
-                    d->m_process->kill();
-                    d->m_process->waitForFinished();
-                }
-            }
-            delete d->m_process;
-            d->m_process = 0;
+        disconnect(&d->m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop()));
+        if (d->m_launcher.isRunning()) {
+            d->m_launcher.stop();
         }
 
         emit finished();
     }
 }
 
-bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
+void QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
 {
-    bool qtquick1 = false;
-
-    m_process = new QProcess();
-
-    QStringList arguments("-qmljsdebugger=port:" + QString::number(m_params.connParams.port) + ",block");
-    arguments.append(m_params.debuggeeArgs.split(" "));
+    QString arguments = m_params.debuggeeArgs;
+    arguments += QLatin1String("-qmljsdebugger=port:") + QString::number(m_params.connParams.port)
+            + QLatin1String(",block");
 
     if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Launching %s", qPrintable(m_params.displayName));
+        qWarning("QmlProfiler: Launching %s:%d", qPrintable(m_params.displayName), m_params.connParams.port);
 
-    if (qtquick1) {
-        QProcessEnvironment env;
-        env.insert("QMLSCENE_IMPORT_NAME", "quick1");
-        m_process->setProcessEnvironment(env);
-    }
-
-    m_process->setProcessChannelMode(QProcess::ForwardedChannels);
-    m_process->setWorkingDirectory(m_params.workingDirectory);
-    connect(m_process,SIGNAL(finished(int)),q,SLOT(spontaneousStop()));
-    m_process->start(m_params.debuggee, arguments);
-
-    if (!m_process->waitForStarted()) {
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: %s failed to start", qPrintable(m_params.displayName));
-        return false;
-    }
-
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Connecting to %s:%d", qPrintable(m_params.connParams.host), m_params.connParams.port);
-
-    return true;
+    m_launcher.setWorkingDirectory(m_params.workingDirectory);
+    m_launcher.setEnvironment(m_params.environment);
+    connect(&m_launcher, SIGNAL(processExited(int)), q, SLOT(spontaneousStop(int)));
+    m_launcher.start(ProjectExplorer::ApplicationLauncher::Gui, m_params.debuggee, arguments);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void QmlProfilerEngine::logApplicationMessage(const QString &msg, ProjectExplorer::OutputFormat /*format*/)
+{
+    qDebug() << "app: " << msg;
+}
