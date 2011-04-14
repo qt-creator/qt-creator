@@ -57,7 +57,7 @@
 #include <QtCore/QUrl>
 #include <QtCore/QtPlugin>
 
-enum { debug = 1 };
+enum { debug = 0 };
 
 using namespace ExtensionSystem;
 
