@@ -52,6 +52,7 @@
 
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <utils/fileinprojectfinder.h>
+#include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
@@ -145,8 +146,8 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
 QmlProfilerTool::~QmlProfilerTool()
 {
-    if (d->m_client->isConnected())
-        d->m_client->close();
+    if (d->m_client)
+        delete d->m_client;
     delete d->m_tabbed;
 
     delete d->m_outputPaneAdapter;
@@ -205,8 +206,6 @@ void QmlProfilerTool::initialize(ExtensionSystem::IPlugin * /*plugin*/)
     qmlRegisterType<CanvasGradient>();
 
     qmlRegisterType<TimelineView>("Monitor", 1, 0,"TimelineView");
-
-    d->m_client = new QDeclarativeDebugConnection;
 
     d->m_tabbed = new QTabWidget();
 
@@ -293,41 +292,33 @@ QWidget *QmlProfilerTool::createTimeLineWidget()
 
 void QmlProfilerTool::connectClient()
 {
+    QTC_ASSERT(!d->m_client, return;)
+    d->m_client = new QDeclarativeDebugConnection;
+    connect(d->m_client, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+            this, SLOT(connectionStateChanged()));
     d->m_connectionTimer.start();
 }
 
 void QmlProfilerTool::connectToClient()
 {
-    QDeclarativeDebugConnection *newClient = new QDeclarativeDebugConnection;
-    d->m_traceWindow->reset(newClient);
-    delete d->m_client;
-    d->m_client = newClient;
+    if (!d->m_client || d->m_client->state() != QAbstractSocket::UnconnectedState)
+        return;
+    if (QmlProfilerPlugin::debugOutput)
+        qWarning("QmlProfiler: Connecting to %s:%d ...", qPrintable(d->m_host), d->m_port);
+
 
     d->m_client->connectToHost(d->m_host, d->m_port);
-
-    if (d->m_client->isConnected()) {
-        d->m_traceWindow->setRecording(d->m_recordingEnabled);
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: connected and running");
-    } else {
-        d->m_traceWindow->setRecording(false);
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: Failed to connect: %s", qPrintable(d->m_client->errorString()));
-        emit connectionFailed();
-    }
-
-    if (d->m_traceWindow->isRecording())
-        clearDisplay();
 }
 
 void QmlProfilerTool::disconnectClient()
 {
-    d->m_client->close();
+    delete d->m_client;
+    d->m_client = 0;
 }
 
 void QmlProfilerTool::startRecording()
 {
-    if (d->m_client->isConnected()) {
+    if (d->m_client && d->m_client->isConnected()) {
         clearDisplay();
         d->m_traceWindow->setRecording(true);
     }
@@ -432,15 +423,64 @@ void QmlProfilerTool::tryToConnect()
 {
     ++d->m_connectionAttempts;
 
-    if (d->m_client->isConnected()) {
+    if (d->m_client && d->m_client->isConnected()) {
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
     } else if (d->m_connectionAttempts == 50) {
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
-        // TODO: Warn user that connection failed
-        //emit connectionStartupFailed();
+        if (QmlProfilerPlugin::debugOutput)
+            qWarning("QmlProfiler: Failed to connect: %s", qPrintable(d->m_client->errorString()));
+        emit connectionFailed();
     } else {
         connectToClient();
     }
+}
+
+void QmlProfilerTool::connectionStateChanged()
+{
+    if (!d->m_client)
+        return;
+    switch (d->m_client->state()) {
+    case QAbstractSocket::UnconnectedState:
+    {
+        if (QmlProfilerPlugin::debugOutput)
+            qWarning("QmlProfiler: disconnected");
+        break;
+    }
+    case QAbstractSocket::HostLookupState:
+        break;
+    case QAbstractSocket::ConnectingState: {
+        if (QmlProfilerPlugin::debugOutput)
+            qWarning("QmlProfiler: Connecting to debug server ...");
+        break;
+    }
+    case QAbstractSocket::ConnectedState:
+    {
+        if (QmlProfilerPlugin::debugOutput)
+            qWarning("QmlProfiler: connected and running");
+        resetWindow();
+        break;
+    }
+    case QAbstractSocket::ClosingState:
+        if (QmlProfilerPlugin::debugOutput)
+            qWarning("QmlProfiler: closing ...");
+        break;
+    case QAbstractSocket::BoundState:
+    case QAbstractSocket::ListeningState:
+        break;
+    }
+}
+
+void QmlProfilerTool::resetWindow()
+{
+    d->m_traceWindow->reset(d->m_client);
+    if (d->m_client->isConnected()) {
+        d->m_traceWindow->setRecording(d->m_recordingEnabled);
+    } else {
+        d->m_traceWindow->setRecording(false);
+    }
+
+    if (d->m_traceWindow->isRecording())
+        clearDisplay();
 }

@@ -86,9 +86,11 @@ private slots:
     void attach();
     void updateAttachAction();
     void tryToConnect();
+    void connectionStateChanged();
 
 private:
     void connectToClient();
+    void resetWindow();
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;
