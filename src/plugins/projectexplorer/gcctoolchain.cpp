@@ -570,12 +570,12 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     m_compilerPath->setCommandVersionArguments(gnuVersionArgs);
     connect(m_compilerPath, SIGNAL(changed(QString)), this, SLOT(handlePathChange()));
     layout->addRow(tr("&Compiler path:"), m_compilerPath);
+    layout->addRow(tr("&ABI:"), m_abiComboBox);
 
     addDebuggerCommandControls(layout, gnuVersionArgs);
     addErrorLabel(layout);
 
     populateAbiList(tc->supportedAbis());
-    layout->addRow(tr("&ABI:"), m_abiComboBox);
 
     connect(m_abiComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(handleAbiChange()));
 
