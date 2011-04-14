@@ -362,6 +362,7 @@ void GccToolChain::setDebuggerCommand(const QString &d)
     if (m_debuggerCommand == d)
         return;
     m_debuggerCommand = d;
+    updateId();
     toolChainUpdated();
 }
 
