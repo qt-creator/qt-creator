@@ -229,7 +229,7 @@ void QmlProfilerTool::initialize(ExtensionSystem::IPlugin * /*plugin*/)
     Core::ActionContainer *manalyzer = am->actionContainer(Analyzer::Constants::M_DEBUG_ANALYZER);
     const Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
-    d->m_attachAction = new QAction(tr("Attach ..."), manalyzer);
+    d->m_attachAction = new QAction(tr("Attach..."), manalyzer);
     Core::Command *command = am->registerAction(d->m_attachAction,
                                                 Constants::ATTACH, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);

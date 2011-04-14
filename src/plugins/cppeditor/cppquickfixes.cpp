@@ -1522,7 +1522,7 @@ private:
             : CppQuickFixOperation(state, priority)
             , binaryAST(binaryAST)
         {
-            setDescription(QApplication::translate("CppTools::QuickFix", "Add local Declaration"));
+            setDescription(QApplication::translate("CppTools::QuickFix", "Add Local Declaration"));
         }
 
         virtual void performChanges(CppRefactoringFile *currentFile, CppRefactoringChanges *)
@@ -1612,7 +1612,7 @@ private:
             , m_name(newName)
         {
             setDescription(QApplication::translate("CppTools::QuickFix",
-                                                   "Convert to Camel Case ..."));
+                                                   "Convert to Camel Case"));
         }
 
         virtual void performChanges(CppRefactoringFile *, CppRefactoringChanges *)

@@ -102,7 +102,7 @@
        <item>
         <widget class="QPushButton" name="addIconButton">
          <property name="text">
-          <string>Add Launcher Icon ...</string>
+          <string>Add Launcher Icon...</string>
          </property>
         </widget>
        </item>

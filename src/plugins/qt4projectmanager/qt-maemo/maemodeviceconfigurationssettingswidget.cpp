@@ -397,7 +397,7 @@ void MaemoDeviceConfigurationsSettingsWidget::finishDeployment()
 {
     m_keyDeployer->stopDeployment();
     m_ui->deployKeyButton->disconnect();
-    m_ui->deployKeyButton->setText(tr("Deploy Public Key ..."));
+    m_ui->deployKeyButton->setText(tr("&Deploy Public Key..."));
     connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(deployKey()));
 }
 

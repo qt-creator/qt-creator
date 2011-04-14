@@ -819,7 +819,7 @@ FileManager::ReadOnlyAction
 
     QPushButton *saveAsButton = 0;
     if (displaySaveAsButton)
-        saveAsButton = msgBox.addButton(tr("Save as ..."), QMessageBox::ActionRole);
+        saveAsButton = msgBox.addButton(tr("Save as..."), QMessageBox::ActionRole);
 
     msgBox.setDefaultButton(vcsButton ? vcsButton : makeWritableButton);
     msgBox.exec();

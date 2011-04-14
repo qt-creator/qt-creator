@@ -415,7 +415,7 @@
         <string>Click here if you do not have an SSH key yet.</string>
        </property>
        <property name="text">
-        <string>&amp;Generate SSH Key ...</string>
+        <string>&amp;Generate SSH Key...</string>
        </property>
       </widget>
      </item>
@@ -431,7 +431,7 @@
         <string>This will enable you to log into the device without a password.</string>
        </property>
        <property name="text">
-        <string>&amp;Deploy Public Key ...</string>
+        <string>&amp;Deploy Public Key...</string>
        </property>
       </widget>
      </item>
@@ -447,7 +447,7 @@
         <string>Click here to see which processes are running on the device.</string>
        </property>
        <property name="text">
-        <string>Remote Processes ...</string>
+        <string>Remote Processes...</string>
        </property>
       </widget>
      </item>
