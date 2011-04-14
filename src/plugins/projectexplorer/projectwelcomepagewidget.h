@@ -44,6 +44,7 @@ namespace Ui {
     class ProjectWelcomePageWidget;
 }
 
+// Documentation inside.
 class ProjectWelcomePageWidget : public QWidget
 {
     Q_OBJECT

@@ -45,6 +45,7 @@ class Environment;
 namespace ProjectExplorer {
 struct ApplicationLauncherPrivate;
 
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT ApplicationLauncher : public QObject
 {
     Q_OBJECT

@@ -37,6 +37,12 @@ namespace ProjectExplorer
 
 unsigned int Task::s_nextId = 1;
 
+/*!
+    \class  ProjectExplorer::Task
+    \brief Build issue (warning or error).
+    \sa ProjectExplorer::TaskHub
+*/
+
 Task::Task() : taskId(0), type(Unknown), line(-1)
 { }
 

@@ -43,39 +43,24 @@ class AbstractMacroExpander;
 
 namespace ProjectExplorer {
 
-/*!
-  ProcessParameters aggregates all parameters needed to start a process.
-
-  It offers a set of functions which expand macros and environment variables
-  inside the raw parameters to obtain final values for starting a process
-  or for display purposes.
-*/
-
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT ProcessParameters
 {
 public:
     ProcessParameters();
 
-    /// setCommand() sets the executable to run
     void setCommand(const QString &cmd);
     QString command() const { return m_command; }
 
-    /// sets the command line arguments used by the process
     void setArguments(const QString &arguments);
     QString arguments() const { return m_arguments; }
 
-    /// sets the workingDirectory for the process for a buildConfiguration
-    /// should be called from init()
     void setWorkingDirectory(const QString &workingDirectory);
     QString workingDirectory() const { return m_workingDirectory; }
 
-    /// Set the Environment for running the command
-    /// should be called from init()
     void setEnvironment(const Utils::Environment &env) { m_environment = env; }
     Utils::Environment environment() const { return m_environment; }
 
-    /// Set the macro expander to use on the command, arguments and working dir.
-    /// Note that the caller retains ownership of the object.
     void setMacroExpander(Utils::AbstractMacroExpander *mx) { m_macroExpander = mx; }
     Utils::AbstractMacroExpander *macroExpander() const { return m_macroExpander; }
 

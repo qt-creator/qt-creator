@@ -127,6 +127,24 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QWizard>
 
+/*!
+    \namespace ProjectExplorer
+    ProjectExplorer plugin namespace
+*/
+
+/*!
+    \namespace ProjectExplorer::Internal
+    Internal namespace of the ProjectExplorer plugin
+    \internal
+*/
+
+/*!
+    \class ProjectExplorer::ProjectExplorerPlugin
+
+    \brief ProjectExplorerPlugin with static accessor and utility functions to obtain
+    current project, open projects, etc.
+*/
+
 Q_DECLARE_METATYPE(Core::IEditorFactory*)
 Q_DECLARE_METATYPE(Core::IExternalEditor*)
 

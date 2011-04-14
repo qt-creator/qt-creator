@@ -154,6 +154,20 @@ CustomWizardFile::CustomWizardFile() :
 {
 }
 
+/*!
+    \class ProjectExplorer::CustomWizardValidationRule
+    \brief A custom wizard validation rule based on JavaScript-expressions over
+    the field placeholders.
+
+    Placeholder replacement is performed on the condition and it is evaluated
+    using JavaScript. So, for example '"%ProjectName%" != "untitled" would block
+    default names. On failure, the message is displayed in a red warning label
+    in the wizard page. Placeholder replacement is also performed on the message
+    prior to displaying.
+
+    \sa ProjectExplorer::CustomWizard, ProjectExplorer::CustomWizardFieldPage
+*/
+
 bool CustomWizardValidationRule::validateRules(const QList<CustomWizardValidationRule> &rules,
                                                const QMap<QString, QString> &replacementMap,
                                                QString *errorMessage)
@@ -521,6 +535,16 @@ static inline QString languageSetting()
     return name;
 }
 
+/*!
+    \class ProjectExplorer::Internal::GeneratorScriptArgument
+    \brief Argument to a custom wizard generator script.
+
+    Contains placeholders to be replaced by field values or file names
+    as in \c '--class-name=%ClassName%' or \c '--description=%Description%'.
+
+    \sa ProjectExplorer::CustomWizard
+*/
+
 GeneratorScriptArgument::GeneratorScriptArgument(const QString &v) :
     value(v), flags(0)
 {
@@ -853,6 +877,22 @@ bool replaceFieldHelper(ValueStringTransformation transform,
     return nonEmptyReplacements;
 }
 
+/*!
+    \brief Performs field replacements.
+
+    Replace field values delimited by '%' with special modifiers:
+    \list
+    \o %Field% -> simple replacement
+    \o %Field:l% -> replace with everything changed to lower case
+    \o %Field:u% -> replace with everything changed to upper case
+    \o %Field:c% -> replace with first character capitalized
+    \o  %Field:h% -> replace with something usable as header guard
+    \o %Field:s% -> replace with something usable as structure or class name
+    \endlist
+
+    The return value indicates whether non-empty replacements were encountered.
+*/
+
 bool CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *s)
 {
     return replaceFieldHelper(passThrough, fm, s);
@@ -896,6 +936,29 @@ QString TemporaryFileTransform::operator()(const QString &value) const
     m_files->push_back(temporaryFile);
     return name;
 }
+
+/*!
+    \class ProjectExplorer::Internal::CustomWizardContext
+    \brief Context used for one custom wizard run.
+
+    Shared between CustomWizard and the CustomWizardPage as it is used
+    for the QLineEdit-type fields'
+    default texts as well. Contains basic replacement fields
+    like  \c '%CppSourceSuffix%', \c '%CppHeaderSuffix%' (settings-dependent)
+    reset() should be called before each wizard run to refresh them.
+    CustomProjectWizard additionally inserts \c '%ProjectName%' from
+    the intro page to have it available for default texts.
+
+    \sa ProjectExplorer::CustomWizard
+*/
+
+/*!
+    \brief Special replaceFields() overload used for the arguments of a generator
+    script.
+
+    Write the expanded field values out to temporary files and
+    inserts file names instead of the expanded fields in string 's'.
+*/
 
 bool CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *s,
                                         TemporaryFilePtrList *files)

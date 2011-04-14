@@ -36,9 +36,14 @@
 
 using namespace ProjectExplorer;
 
-///
-/// RunConfigurationsModel
-///
+/*!
+    \class ProjectExplorer::RunConfigurationModel
+
+    \brief A model to represent the run configurations of a target.
+
+    To be used in for the drop down of comboboxes.
+    Does automatically adjust itself to added and removed RunConfigurations
+*/
 
 class RunConfigurationComparer
 {

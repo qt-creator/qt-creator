@@ -58,6 +58,12 @@
 #  define MAX_RECENT_SESSION_ITEMS 9
 #endif
 
+/*!
+    \class ProjectExplorer::Internal::ProjectWelcomePageWidget
+
+   \brief Welcome page listing projects and sessions.
+*/
+
 using namespace ProjectExplorer::Internal;
 
 bool ProjectWelcomePageWidget::WelcomePageData::operator==(const WelcomePageData &rhs) const

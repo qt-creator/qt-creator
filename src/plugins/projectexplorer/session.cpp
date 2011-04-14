@@ -305,7 +305,16 @@ void SessionFile::clearFailedProjectFileNames()
     m_failedProjects.clear();
 }
 
-/* --------------------------------- */
+/*!
+     \class ProjectExplorer::SessionManager
+
+     \brief Session management.
+
+     TODO the interface of this class is not really great.
+     The implementation suffers that all the functions from the
+     public interface just wrap around functions which do the actual work
+     This could be improved.
+*/
 
 SessionManager::SessionManager(QObject *parent)
   : QObject(parent),
@@ -917,6 +926,10 @@ void SessionManager::removeProjects(QList<Project *> remove)
             setStartupProject(m_file->m_projects.first());
 }
 
+/*!
+    \brief Let other plugins store persistent values within the session file.
+*/
+
 void SessionManager::setValue(const QString &name, const QVariant &value)
 {
     if (!m_file)
@@ -961,6 +974,10 @@ QString SessionManager::sessionNameToFileName(const QString &session) const
     return m_core->userResourcePath() + '/' + session + ".qws";
 }
 
+/*!
+    \brief Creates a new default session and switches to it.
+*/
+
 void SessionManager::createAndLoadNewDefaultSession()
 {
     emit aboutToLoadSession();
@@ -968,6 +985,10 @@ void SessionManager::createAndLoadNewDefaultSession()
     createImpl(sessionNameToFileName(m_sessionName));
     emit sessionLoaded();
 }
+
+/*!
+    \brief Just creates a new session (Does not actually create the file).
+*/
 
 bool SessionManager::createSession(const QString &session)
 {
@@ -986,6 +1007,10 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
         loadSession(newName);
     return deleteSession(original);
 }
+
+/*!
+     \brief Deletes session name from session list and file from disk.
+*/
 
 bool SessionManager::deleteSession(const QString &session)
 {
@@ -1012,6 +1037,10 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
     }
     return false;
 }
+
+/*!
+     \brief Loads a session, takes a session name (not filename).
+*/
 
 bool SessionManager::loadSession(const QString &session)
 {

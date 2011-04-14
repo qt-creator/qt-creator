@@ -151,7 +151,20 @@ IRunConfigurationFactory * findRunConfigurationFactory(RunConfigurationFactoryMa
 
 } // namespace
 
-// RunConfiguration
+/*!
+    \class ProjectExplorer::RunConfiguration
+    \brief  Base class for a run configuration. A run configuration specifies how a
+    target should be run, while the runner (see below) does the actual running.
+
+    Note that all RunControls and the target hold a shared pointer to the RunConfiguration.
+    That is the lifetime of the RunConfiguration might exceed the life of the target.
+    The user might still have a RunControl running (or output tab of that RunControl open)
+    and yet unloaded the target.
+
+    Also, a RunConfiguration might be already removed from the list of RunConfigurations
+    for a target, but still be runnable via the output tab.
+*/
+
 RunConfiguration::RunConfiguration(Target *target, const QString &id) :
     ProjectConfiguration(target, id),
     m_useCppDebugger(true),
@@ -184,11 +197,26 @@ void RunConfiguration::addExtraAspects()
             m_aspects.append(aspect);
 }
 
+/*!
+    \brief Used to find out whether a runconfiguration works with the given buildconfiguration.
+    \note bc may be 0!
+*/
+
 bool RunConfiguration::isEnabled(BuildConfiguration *bc) const
 {
     Q_UNUSED(bc);
     return true;
 }
+
+/*!
+    \fn virtual QWidget *ProjectExplorer::RunConfiguration::createConfigurationWidget()
+
+    \brief Returns the widget used to configure this run configuration. Ownership is transferred to the caller
+*/
+
+/*!
+    \brief Used to find out whether a runconfiguration works with the active buildconfiguration.
+*/
 
 bool RunConfiguration::isEnabled() const
 {
@@ -279,6 +307,22 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     return ProjectConfiguration::fromMap(map);
 }
 
+/*!
+    \class ProjectExplorer::IRunConfigurationAspect
+
+    \brief Extra configuration aspect.
+
+    Aspects are a mechanism to add RunControl-specific options to a RunConfiguration without
+    subclassing the RunConfiguration for every addition, preventing a combinatorical explosion
+    of subclasses or the need to add all options to the base class.
+*/
+
+/*!
+    \brief Return extra aspects.
+
+    \sa ProjectExplorer::IRunConfigurationAspect
+*/
+
 QList<IRunConfigurationAspect *> RunConfiguration::extraAspects() const
 {
     return m_aspects;
@@ -288,6 +332,31 @@ ProjectExplorer::OutputFormatter *RunConfiguration::createOutputFormatter() cons
 {
     return new OutputFormatter();
 }
+
+/*!
+    \class ProjectExplorer::IRunConfigurationFactory
+
+    \brief Restores RunConfigurations from settings.
+
+    The run configuration factory is used for restoring run configurations from
+    settings. And used to create new runconfigurations in the "Run Settings" Dialog.
+    For the first case, bool canRestore(Target *parent, const QString &id) and
+    RunConfiguration* create(Target *parent, const QString &id) are used.
+    For the second type, the functions QStringList availableCreationIds(Target *parent) and
+    QString displayNameForType(const QString&) are used to generate a list of creatable
+    RunConfigurations, and create(..) is used to create it.
+*/
+
+/*!
+    \fn QStringList ProjectExplorer::IRunConfigurationFactory::availableCreationIds(Target *parent) const
+
+    \brief Used to show the list of possible additons to a target, returns a list of types.
+*/
+
+/*!
+    \fn QString ProjectExplorer::IRunConfigurationFactory::displayNameForId(const QString &id) const
+    \brief Used to translate the types to names to display to the user.
+*/
 
 IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
     QObject(parent)
@@ -316,6 +385,30 @@ IRunConfigurationFactory *IRunConfigurationFactory::restoreFactory(Target *paren
     return findRunConfigurationFactory(matcher);
 }
 
+/*!
+    \class ProjectExplorer::IRunControlFactory
+
+    \brief Creates RunControl objects matching a RunConfiguration
+*/
+
+/*!
+    \fn IRunConfigurationAspect *ProjectExplorer::IRunControlFactory::createRunConfigurationAspect()
+    \brief Return an IRunConfigurationAspect to carry options for RunControls this factory can create.
+
+    If no extra options are required it is allowed to return null like the default implementation does.
+    This is intended to be called from the RunConfiguration constructor, so passing a RunConfiguration
+    pointer makes no sense because that object is under construction at the time.
+*/
+
+/*!
+    \fn RunConfigWidget *ProjectExplorer::IRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
+
+    \brief Return a widget used to configure this runner. Ownership is transferred to the caller.
+
+    Return 0 if @p runConfiguration is not suitable for RunControls from this factory, or no user-accessible
+    configuration is required.
+*/
+
 IRunControlFactory::IRunControlFactory(QObject *parent)
     : QObject(parent)
 {
@@ -329,6 +422,25 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect()
 {
     return 0;
 }
+
+/*!
+    \class ProjectExplorer::RunControl
+    \brief Each instance of this class represents one item that is run.
+*/
+
+/*!
+    \fn bool ProjectExplorer::RunControl::promptToStop(bool *optionalPrompt = 0) const
+
+    \brief Prompt to stop. If 'optionalPrompt' is passed, a "Do not ask again"-
+    checkbox will show and the result will be returned in '*optionalPrompt'.
+*/
+
+/*!
+    \fn QIcon ProjectExplorer::RunControl::icon() const
+    \brief Eeturns the icon to be shown in the Outputwindow.
+
+    TODO the icon differs currently only per "mode", so this is more flexible then it needs to be.
+*/
 
 RunControl::RunControl(RunConfiguration *runConfiguration, QString mode)
     : m_runMode(mode), m_runConfiguration(runConfiguration), m_outputFormatter(0)
@@ -376,7 +488,10 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
                                   optionalPrompt);
 }
 
-// Utility to prompt to terminate application with checkable box.
+/*!
+    \brief Utility to prompt to terminate application with checkable box.
+*/
+
 bool RunControl::showPromptToStopDialog(const QString &title,
                                         const QString &text,
                                         const QString &stopButtonText,

@@ -40,6 +40,14 @@
 
 using namespace ProjectExplorer::Internal;
 
+/*!
+    \class ProjectExplorer::Internal::WinGuiProcess
+    \brief Captures the debug output of a Windows GUI application.
+
+    The output of a Windows GUI application would otherwise not be
+    visible. Uses the debug interface and emits via a signal.
+*/
+
 WinGuiProcess::WinGuiProcess(QObject *parent)
     : QThread(parent)
 {

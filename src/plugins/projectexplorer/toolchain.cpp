@@ -64,8 +64,12 @@ public:
 
 } // namespace Internal
 
-// --------------------------------------------------------------------------
-// ToolChain
+/*!
+    \class ProjectExplorer::ToolChain
+    \brief Representation of a ToolChain.
+    \sa ProjectExplorer::ToolChainManager
+*/
+
 // --------------------------------------------------------------------------
 
 ToolChain::ToolChain(const QString &id, bool autodetect) :
@@ -111,6 +115,12 @@ QString ToolChain::id() const
     return m_d->m_id;
 }
 
+/*!
+    \brief Returns a list of target ids that this tool chain is restricted to.
+
+    An empty list is shows that the toolchain is compatible with all targets.
+*/
+
 QStringList ToolChain::restrictedToTargets() const
 {
     return QStringList();
@@ -133,6 +143,12 @@ bool ToolChain::operator == (const ToolChain &tc) const
 
     return id() == tc.id();
 }
+
+/*!
+    \brief Used by the toolchainmanager to save user-generated tool chains.
+
+    Make sure to call this method when deriving!
+*/
 
 QVariantMap ToolChain::toMap() const
 {
@@ -169,6 +185,12 @@ void ToolChain::setAutoDetected(bool autodetect)
     toolChainUpdated();
 }
 
+/*!
+    \brief Used by the toolchainmanager to load user-generated tool chains.
+
+    Make sure to call this method when deriving!
+*/
+
 bool ToolChain::fromMap(const QVariantMap &data)
 {
     Q_ASSERT(!isAutoDetected());
@@ -178,9 +200,20 @@ bool ToolChain::fromMap(const QVariantMap &data)
     return true;
 }
 
-// --------------------------------------------------------------------------
-// ToolChainFactory
-// --------------------------------------------------------------------------
+/*!
+    \class ProjectExplorer::ToolChainFactory
+    \brief Creates toolchains from settings or autodetects them.
+*/
+
+/*!
+    \fn QString ProjectExplorer::ToolChainFactory::displayName() const = 0
+    \brief Name used to display the name of the tool chain that will be created.
+*/
+
+/*!
+    \fn bool ProjectExplorer::ToolChainFactory::canRestore(const QVariantMap &data)
+    \brief Used by the ToolChainManager to restore user-generated tool chains.
+*/
 
 QList<ToolChain *> ToolChainFactory::autoDetect()
 {

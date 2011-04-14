@@ -39,12 +39,7 @@ namespace ProjectExplorer {
 class Target;
 class BuildConfiguration;
 
-/*! A model to represent the build configurations of a target.
-    To be used in for the drop down of comboboxes
-    Does automatically adjust itself to added and removed BuildConfigurations
-    Very similar to the Run Configuration Model
-    TOOD might it possible to share code without making the code a complete mess
-*/
+// Documentation inside.
 class BuildConfigurationModel : public QAbstractListModel
 {
     Q_OBJECT

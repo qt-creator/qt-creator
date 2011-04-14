@@ -47,6 +47,12 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+/*!
+    \class ProjectExplorer::Internal::ProjectFileFactory
+
+    \brief Factory for project files.
+*/
+
 ProjectFileFactory::ProjectFileFactory(IProjectManager *manager)
   : m_mimeTypes(manager->mimeType()),
     m_manager(manager)

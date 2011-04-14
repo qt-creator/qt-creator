@@ -43,6 +43,7 @@ namespace Internal {
 
 struct ProjectExplorerSettings;
 
+// Documentation inside.
 class ProjectExplorerSettingsWidget : public QWidget {
     Q_OBJECT
 public:

@@ -91,6 +91,11 @@
     actions, mode windows and files, just to mention the most important ones.
 
     \row
+    \o \l{ProjectExplorer}
+    \o The project explorer plugin. Provides base classes for
+    project handling.
+
+    \row
     \o \l{Find}
     \o Support for searching text in arbitrary widgets, and arbitrary other things.
 

@@ -64,12 +64,6 @@ class SessionFile;
 class SessionNodeImpl;
 } // namespace Internal
 
-// TODO the interface of this class is not really great
-
-// The implementation suffers that all the functions from the
-// public interface just wrap around functions which do the actual work
-
-// This could be improved.
 class PROJECTEXPLORER_EXPORT SessionManager : public QObject
 {
     Q_OBJECT
@@ -83,20 +77,14 @@ public:
     QString lastSession() const;
     QStringList sessions() const;
 
-    // creates a new default session and switches to it
     void createAndLoadNewDefaultSession();
-
-    // Just creates a new session (Does not actually create the file)
     bool createSession(const QString &session);
 
-    // delete session name from session list
-    // delete file from disk
     bool deleteSession(const QString &session);
 
     bool cloneSession(const QString &original, const QString &clone);
     bool renameSession(const QString &original, const QString &newName);
 
-    // loads a session, takes a session name (not filename)
     bool loadSession(const QString &session);
 
     bool save();

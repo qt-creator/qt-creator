@@ -41,7 +41,7 @@
 
 namespace ProjectExplorer {
 
-// Build issue (warning or error).
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT Task
 {
 public:

@@ -59,11 +59,7 @@ namespace Internal {
     struct CustomWizardContext;
 }
 
-// Factory for creating custom wizards derived from the base classes
-// The factory can be registered under a name in CustomWizard. The name can
-// be specified in the  <wizard class=''...> attribute in the wizard.xml file
-// and thus allows for specifying a C++ derived wizard class (see Qt4ProjectManager).
-
+// Documentation inside.
 class ICustomWizardFactory {
 public:
     virtual CustomWizard *create(const Core::BaseFileWizardParameters& baseFileParameters,
@@ -78,10 +74,7 @@ template <class Wizard> class CustomWizardFactory : public ICustomWizardFactory 
     { return new Wizard(baseFileParameters, parent); }
 };
 
-// A custom wizard presenting CustomWizardDialog (fields page containing
-// path control) for wizards of type "class" or "file". Serves as base class
-// for project wizards.
-
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT CustomWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
@@ -137,13 +130,7 @@ private:
     CustomWizardPrivate *d;
 };
 
-// A custom project wizard presenting CustomProjectWizardDialog
-// (Project intro page and fields page) for wizards of type "project".
-// Overwrites postGenerateFiles() to open the project files according to the
-// file attributes. Also inserts '%ProjectName%' into the base
-// replacement map once the intro page is left to have it available
-// for QLineEdit-type fields' default text.
-
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT CustomProjectWizard : public CustomWizard
 {
     Q_OBJECT
@@ -151,16 +138,12 @@ public:
     explicit CustomProjectWizard(const Core::BaseFileWizardParameters& baseFileParameters,
                                  QObject *parent = 0);
 
-    // Can be reimplemented to create custom project wizards.
-    // initProjectWizardDialog() needs to be called.
     virtual QWizard *createWizardDialog(QWidget *parent,
                                         const QString &defaultPath,
                                         const WizardPageList &extensionPages) const;
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 
-    // Utility to open the projects and editors for the files that have
-    // the respective attributes set.
     static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = 0);
 
 signals:

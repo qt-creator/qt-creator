@@ -57,7 +57,7 @@ class ToolChainFactory;
 class ToolChainManager;
 
 // --------------------------------------------------------------------------
-// ToolChain
+// ToolChain (documentation inside)
 // --------------------------------------------------------------------------
 
 class PROJECTEXPLORER_EXPORT ToolChain
@@ -76,8 +76,6 @@ public:
 
     virtual bool isValid() const = 0;
 
-    /// Returns a list of target ids that this tool chain is restricted to.
-    /// An empty list is shows that the toolchain is compatible with all targets.
     virtual QStringList restrictedToTargets() const;
 
     virtual QByteArray predefinedMacros() const = 0;
@@ -119,16 +117,11 @@ private:
     friend class ToolChainFactory;
 };
 
-// --------------------------------------------------------------------------
-// ToolChainFactory
-// --------------------------------------------------------------------------
-
 class PROJECTEXPLORER_EXPORT ToolChainFactory : public QObject
 {
     Q_OBJECT
 
 public:
-    // Name used to display the name of the tool chain that will be created.
     virtual QString displayName() const = 0;
     virtual QString id() const = 0;
 
@@ -137,7 +130,6 @@ public:
     virtual bool canCreate();
     virtual ToolChain *create();
 
-    // Used by the ToolChainManager to restore user-generated tool chains
     virtual bool canRestore(const QVariantMap &data);
     virtual ToolChain *restore(const QVariantMap &data);
 

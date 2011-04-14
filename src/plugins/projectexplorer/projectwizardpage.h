@@ -42,6 +42,7 @@ namespace Ui {
 class WizardPage;
 }
 
+// Documentation inside.
 class ProjectWizardPage : public QWizardPage {
     Q_OBJECT
     Q_DISABLE_COPY(ProjectWizardPage)

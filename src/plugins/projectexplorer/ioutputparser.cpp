@@ -35,6 +35,84 @@
 
 #include <utils/qtcassert.h>
 
+/*!
+    \class ProjectExplorer::IOutputParser
+
+    \brief Interface for an output parser that emit build issues (tasks).
+
+    \sa ProjectExplorer::Task
+*/
+
+/*!
+    \fn void ProjectExplorer::IOutputParser::appendOutputParser(IOutputParser *parser)
+
+    \brief Append a subparser to this parser, of which IOutputParser will take ownership.
+*/
+
+/*!
+    \fn IOutputParser *ProjectExplorer::IOutputParser::takeOutputParserChain()
+
+    \brief Remove the appended outputparser chain from this parser, transferring
+           ownership of the parser chain to the caller.
+*/
+
+/*!
+    \fn IOutputParser *ProjectExplorer::IOutputParser::childParser() const
+
+    \brief Return the head of this parsers output parser children, IOutputParser keeps ownership.
+*/
+
+/*!
+   \fn void ProjectExplorer::IOutputParser::stdOutput(const QString &line)
+
+   \brief Called once for each line if standard output to parse.
+*/
+
+/*!
+   \fn void ProjectExplorer::IOutputParser::stdError(const QString &line)
+
+   \brief Called once for each line if standard error to parse.
+*/
+
+/*!
+   \fn bool ProjectExplorer::IOutputParser::hasFatalErrors() const
+
+   \brief This is mainly a symbian specific quirk.
+*/
+
+/*!
+   \fn void ProjectExplorer::IOutputParser::addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
+
+   \brief Should be emitted whenever some additional information should be added to the output.
+
+   Note: This is additional information. There is no need to add each line!
+*/
+
+/*!
+   \fn void ProjectExplorer::IOutputParser::addTask(const ProjectExplorer::Task &task)
+
+   \brief Should be emitted for each task seen in the output.
+*/
+
+/*!
+   \fn void ProjectExplorer::IOutputParser::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
+
+   \brief Subparsers have their addOutput signal connected to this slot.
+*/
+
+/*!
+   \fn void ProjectExplorer::IOutputParser::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
+
+   \brief This method can be overwritten to change the string.
+*/
+
+/*!
+   \fn void ProjectExplorer::IOutputParser::taskAdded(const ProjectExplorer::Task &task)
+
+   \brief Subparsers have their addTask signal connected to this slot.
+   This method can be overwritten to change the task.
+*/
+
 namespace ProjectExplorer {
 
 IOutputParser::IOutputParser() : m_parser(0)

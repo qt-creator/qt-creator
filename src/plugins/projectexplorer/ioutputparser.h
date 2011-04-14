@@ -41,6 +41,7 @@
 namespace ProjectExplorer {
 class Task;
 
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT IOutputParser : public QObject
 {
     Q_OBJECT
@@ -48,44 +49,26 @@ public:
     IOutputParser();
     virtual ~IOutputParser();
 
-    /// Append a subparser to this parser.
-    /// IOutputParser will take ownership.
     virtual void appendOutputParser(IOutputParser *parser);
 
-    /// Remove the appended outputparser chain frm this parser.
-    /// This method transferes ownership of the parser chain to the caller!
     IOutputParser *takeOutputParserChain();
 
-    /// Return the head of this parsers output parser children
-    /// IOutputParser keeps ownership!
     IOutputParser *childParser() const;
     void setChildParser(IOutputParser *parser);
 
-    /// Called once for each line if standard output to parse.
     virtual void stdOutput(const QString &line);
-    /// Called once for each line if standard error to parse.
     virtual void stdError(const QString &line);
 
-    // This is mainly a symbian specific quirk
     virtual bool hasFatalErrors() const;
     // For GnuMakeParser
     virtual void setWorkingDirectory(const QString &workingDirectory);
 
 signals:
-    /// Should be emitted whenever some additional information should be
-    /// added to the output.
-    /// Note: This is additional information. There is no need to add each
-    /// line!
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
-    /// Should be emitted for each task seen in the output.
     void addTask(const ProjectExplorer::Task &task);
 
 public slots:
-    /// Subparsers have their addOutput signal connected to this slot.
-    /// This method can be overwritten to change the string.
     virtual void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
-    /// Subparsers have their addTask signal connected to this slot.
-    /// This method can be overwritten to change the task.
     virtual void taskAdded(const ProjectExplorer::Task &task);
 
 private:

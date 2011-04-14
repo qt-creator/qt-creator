@@ -56,6 +56,18 @@ namespace ProjectExplorer {
 namespace Internal {
 
 // ----------- TextFieldComboBox
+
+/*!
+    \class ProjectExplorer::Internal::TextFieldComboBox
+    \brief  A non-editable combo for text editing purposes that plays
+    with QWizard::registerField (providing a settable 'text' property).
+
+    Allows for a separation of values to be used for wizard fields replacement
+    and display texts.
+
+    \sa ProjectExplorer::Internal::CustomWizardFieldPage, ProjectExplorer::CustomWizard
+*/
+
 TextFieldComboBox::TextFieldComboBox(QWidget *parent) :
     QComboBox(parent)
 {
@@ -97,7 +109,15 @@ QString TextFieldComboBox::valueAt(int i) const
     return i >= 0 && i < count() ? itemData(i, Qt::UserRole).toString() : QString();
 }
 
-// -------------- TextCheckBox
+/*!
+    \class ProjectExplorer::Internal::TextFieldCheckBox
+    \brief A Checkbox that plays with QWizard::registerField.
+
+    Provides a settable 'text' property containing predefined strings for 'true'/'false').
+
+    \sa ProjectExplorer::Internal::CustomWizardFieldPage, ProjectExplorer::CustomWizard
+*/
+
 TextFieldCheckBox::TextFieldCheckBox(const QString &text, QWidget *parent) :
         QCheckBox(text, parent),
         m_trueText(QLatin1String("true")), m_falseText(QLatin1String("false"))
@@ -120,7 +140,19 @@ void TextFieldCheckBox::slotStateChanged(int cs)
     emit textChanged(cs == Qt::Checked ? m_trueText : m_falseText);
 }
 
-// --------------- CustomWizardFieldPage
+/*!
+    \class ProjectExplorer::Internal::CustomWizardFieldPage
+    \brief A simple custom wizard page presenting the fields to be used
+    as page 2 of a BaseProjectWizardDialog if there are any fields.
+
+    Uses the 'field' functionality of QWizard.
+    Implements validatePage() as the field logic cannot be tied up
+    with additional validation. Performs checking of the Javascript-based
+    validation rules of the parameters and displays error messages in a red
+    warning label.
+
+    \sa ProjectExplorer::CustomWizard
+*/
 
 CustomWizardFieldPage::LineEditData::LineEditData(QLineEdit* le, const QString &defText) :
     lineEdit(le), defaultText(defText)
@@ -176,8 +208,11 @@ void CustomWizardFieldPage::clearError()
     m_errorLabel->setVisible(false);
 }
 
-// Create widget a control based  on the control attributes map
-// and register it with the QWizard.
+/*!
+    \brief Create widget a control based  on the control attributes map
+    and register it with the QWizard.
+*/
+
 void CustomWizardFieldPage::addField(const CustomWizardField &field)\
 {
     //  Register field, indicate mandatory by '*' (only when registering)
@@ -382,7 +417,15 @@ QMap<QString, QString> CustomWizardFieldPage::replacementMap(const QWizard *w,
     return fieldReplacementMap;
 }
 
-// --------------- CustomWizardPage
+/*!
+    \class ProjectExplorer::Internal::CustomWizardPage
+    \brief A custom wizard page presenting the fields to be used and a path chooser
+    at the bottom (for use by "class"/"file" wizards).
+
+    Does validation on the Path chooser only (as the other fields can by validated by regexps).
+
+    \sa ProjectExplorer::CustomWizard
+*/
 
 CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ctx,
                                    const QSharedPointer<CustomWizardParameters> &parameters,

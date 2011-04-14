@@ -47,28 +47,9 @@ class BuildStepList;
 class DeployConfiguration;
 class Target;
 
-/*
-// BuildSteps are the primary way plugin developers can customize
-// how their projects (or projects from other plugins) are build.
-//
-// Building a project, is done by taking the list of buildsteps
-// from the project and calling first init() than run() on them.
-//
-// That means to change the way your project is build, reimplemnt
-// this class and add your Step to the buildStep list of the project.
-//
-// Note: The projects own the buildstep, do not delete them yourself.
-//
-// init() is called in the GUI thread and can be used to query the
-// project for any information you need.
-//
-// run() is run via QtConccurrent in a own thread, if you need an
-// eventloop you need to create it yourself!
-//
-*/
-
 class BuildStepConfigWidget;
 
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT BuildStep : public ProjectConfiguration
 {
     Q_OBJECT
@@ -80,24 +61,12 @@ protected:
 public:
     virtual ~BuildStep();
 
-    // This function is run in the gui thread,
-    // use it to retrieve any information that you need in run()
     virtual bool init() = 0;
 
-    // Reimplement this. This function is called when the target is build.
-    // This function is NOT run in the gui thread. It runs in its own thread
-    // If you need an event loop, you need to create one.
-    // The absolute minimal implementation is:
-    // fi.reportResult(true);
     virtual void run(QFutureInterface<bool> &fi) = 0;
 
-    // the Widget shown in the target settings dialog for this buildStep
-    // ownership is transferred to the caller
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
 
-    // if this function returns true, the user can't delete this BuildStep for this target
-    // and the user is prevented from changing the order immutable steps are run
-    // the default implementation returns false
     virtual bool immutable() const;
 
     BuildConfiguration *buildConfiguration() const;
@@ -108,12 +77,8 @@ public:
     enum OutputNewlineSetting { DoAppendNewline, DontAppendNewline };
 
 signals:
-    // Add a task.
     void addTask(const ProjectExplorer::Task &task);
 
-    // The string is added to the generated output, usually in the output
-    // window.
-    // It should be in plain text, with the format in the parameter
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
         ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline);
 };

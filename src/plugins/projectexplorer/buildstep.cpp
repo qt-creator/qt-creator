@@ -37,6 +37,75 @@
 #include "deployconfiguration.h"
 #include "target.h"
 
+/*!
+    \class ProjectExplorer::BuildStep
+
+    \brief BuildSteps are the primary way plugin developers can customize
+    how their projects (or projects from other plugins) are build.
+
+    Building a project, is done by taking the list of buildsteps
+    from the project and calling first init() than run() on them.
+
+    That means to change the way your project is build, reimplemnt
+    this class and add your Step to the buildStep list of the project.
+
+    Note: The projects own the buildstep, do not delete them yourself.
+
+    init() is called in the GUI thread and can be used to query the
+    project for any information you need.
+
+    run() is run via QtConccurrent in a own thread, if you need an
+    eventloop you need to create it yourself!
+*/
+
+/*!
+    \fn bool ProjectExplorer::BuildStep::init()
+
+    This function is run in the gui thread,
+    use it to retrieve any information that you need in run()
+*/
+
+/*!
+    \fn void ProjectExplorer::BuildStep::run(QFutureInterface<bool> &fi)
+
+    Reimplement this. This function is called when the target is build.
+    This function is NOT run in the gui thread. It runs in its own thread
+    If you need an event loop, you need to create one.
+
+    The absolute minimal implementation is:
+    \code
+    fi.reportResult(true);
+    \endcode
+*/
+
+/*!
+    \fn BuildStepConfigWidget *ProjectExplorer::BuildStep::createConfigWidget()
+
+    Returns the Widget shown in the target settings dialog for this buildStep;
+    ownership is transferred to the caller.
+*/
+
+/*!
+    \fn bool ProjectExplorer::BuildStep::immutable() const
+
+    If this function returns true, the user can't delete this BuildStep for this target
+    and the user is prevented from changing the order immutable steps are run
+    the default implementation returns false.
+*/
+
+/*!
+    \fn  void ProjectExplorer::BuildStep::addTask(const ProjectExplorer::Task &task)
+    \brief Add a task.
+*/
+
+/*!
+    \fn  void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
+              ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting)
+
+    The string is added to the generated output, usually in the output window.
+    It should be in plain text, with the format in the parameter.
+*/
+
 using namespace ProjectExplorer;
 
 BuildStep::BuildStep(BuildStepList *bsl, const QString &id) :

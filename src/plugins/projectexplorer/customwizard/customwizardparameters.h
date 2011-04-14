@@ -75,12 +75,7 @@ struct CustomWizardFile {
     bool binary;
 };
 
-// A validation rule based on Javascript-expressions over the field placeholders.
-// Placeholder replacement is performed on the condition and it is evaluated
-// using Javascript. So, for example '"%ProjectName%" != "untitled" would block
-// default names. On failure, the message is displayed in a red warning label
-// in the wizard page. Placeholder replacement is also performed on the message
-// prior to displaying.
+// Documentation inside.
 struct CustomWizardValidationRule {
     // Validate a set of rules and return false + message on the first failing one.
     static bool validateRules(const QList<CustomWizardValidationRule> &rules,
@@ -91,9 +86,7 @@ struct CustomWizardValidationRule {
     QString message;
 };
 
-// Argument to the generator script containing placeholders to
-// be replaced by field values or file names
-// as in '--class-name=%ClassName%' or '--description=%Description%'.
+// Documentation inside.
 struct GeneratorScriptArgument {
     enum Flags {
         // Omit this arguments if all field placeholders expanded to empty strings.
@@ -134,14 +127,7 @@ public:
     int firstPageId;
 };
 
-// Context used for one wizard run, shared between CustomWizard
-// and the CustomWizardPage as it is used for the QLineEdit-type fields'
-// default texts as well. Contains basic replacement fields
-// like  '%CppSourceSuffix%', '%CppHeaderSuffix%' (settings-dependent)
-// reset() should be called before each wizard run to refresh them.
-// CustomProjectWizard additionally inserts '%ProjectName%' from
-// the intro page to have it available for default texts.
-
+// Documentation inside.
 struct CustomWizardContext {
     typedef QMap<QString, QString> FieldReplacementMap;
     typedef QSharedPointer<QTemporaryFile> TemporaryFilePtr;
@@ -149,20 +135,7 @@ struct CustomWizardContext {
 
     void reset();
 
-    // Replace field values delimited by '%' with special modifiers:
-    // %Field% -> simple replacement
-    // %Field:l% -> replace with everything changed to lower case
-    // %Field:u% -> replace with everything changed to upper case
-    // %Field:c% -> replace with first character capitalized
-    // %Field:h% -> replace with something usable as header guard
-    // %Field:s% -> replace with something usable as structure or class name
-    // The return value indicates whether non-empty
-    // replacements were encountered.
     static bool replaceFields(const FieldReplacementMap &fm, QString *s);
-
-    // Special replaceFields() overload used for the arguments of a generator
-    // script: Write the expanded field values out to temporary files and
-    // inserts file names instead of the expanded fields in string 's'.
     static bool replaceFields(const FieldReplacementMap &fm, QString *s,
                               TemporaryFilePtrList *files);
 

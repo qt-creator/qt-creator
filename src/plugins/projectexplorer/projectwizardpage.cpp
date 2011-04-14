@@ -36,6 +36,14 @@
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
 
+/*!
+    \class ProjectExplorer::Internal::ProjectWizardPage
+
+    \brief Wizard page showing projects and version control to add new files to.
+
+    \sa ProjectExplorer::Internal::ProjectFileWizardExtension
+*/
+
 using namespace ProjectExplorer;
 using namespace Internal;
 

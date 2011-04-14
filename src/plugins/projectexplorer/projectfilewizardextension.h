@@ -41,10 +41,6 @@ namespace Internal {
 
 struct ProjectWizardContext;
 
-/* Final file wizard processing steps:
- * 1) Add to a project file (*.pri/ *.pro)
- * 2) Initialize a version control repository (unless the path is already
- *    managed) and do 'add' if the VCS supports it.  */
 class ProjectFileWizardExtension : public Core::IFileWizardExtension
 {
     Q_OBJECT

@@ -46,10 +46,7 @@ namespace ProjectExplorer {
 
 struct BaseProjectWizardDialogPrivate;
 
-/* BaseProjectWizardDialog: Presents the introductory
- * page and takes care of setting the directory as default
- * should the user wish to do that. */
-
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public Utils::Wizard
 {
     Q_OBJECT

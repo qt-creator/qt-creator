@@ -44,8 +44,6 @@ class ProjectExplorerPlugin;
 
 namespace Internal {
 
-/* Factory for project files. */
-
 class ProjectFileFactory : public Core::IFileFactory
 {
     Q_OBJECT

@@ -51,17 +51,7 @@ class OutputFormatter;
 class RunControl;
 class Target;
 
-/**
- * Base class for a run configuration. A run configuration specifies how a
- * target should be run, while the runner (see below) does the actual running.
- *
- * Note that all RunControls and the target hold a shared pointer to the RunConfiguration.
- * That is the lifetime of the RunConfiguration might exceed the life of the target.
- * The user might still have a RunControl running (or output tab of that RunControl open)
- * and yet unloaded the target.
- * Also a RunConfiguration might be already removed from the list of RunConfigurations
- * for a target, but stil be runnable via the output tab.
- */
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 {
     Q_OBJECT
@@ -69,20 +59,8 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 public:
     virtual ~RunConfiguration();
 
-    /**
-     * Used to find out whether a runconfiguration works with the given
-     * buildconfiguration.
-     * \note bc may be 0!
-     */
     virtual bool isEnabled(BuildConfiguration *bc) const;
-
-    /**
-     * Used to find out whether a runconfiguration works with the active
-     * buildconfiguration.
-     */
     bool isEnabled() const;
-
-    /// Returns the widget used to configure this run configuration. Ownership is transferred to the caller
     virtual QWidget *createConfigurationWidget() = 0;
 
     Target *target() const;
@@ -99,9 +77,6 @@ public:
 
     virtual QVariantMap toMap() const;
 
-    // aspects are a mechanism to add RunControl-specific options to a RunConfiguration without
-    // subclassing the RunConfiguration for every addition, preventing a combinatorical explosion
-    // of subclasses or the need to add all options to the base class.
     QList<IRunConfigurationAspect *> extraAspects() const;
     template <typename T> T *extraAspect() const
     {
@@ -151,15 +126,6 @@ protected:
     virtual bool fromMap(const QVariantMap &map) = 0;
 };
 
-/**
- * The run configuration factory is used for restoring run configurations from
- * settings. And used to create new runconfigurations in the "Run Settings" Dialog.
- * For the first case bool canRestore(Target *parent, const QString &id) and
- * RunConfiguration* create(Target *parent, const QString &id) are used.
- * For the second type the functions QStringList availableCreationIds(Target *parent) and
- * QString displayNameForType(const QString&) are used to generate a list of creatable
- * RunConfigurations, and create(..) is used to create it.
- */
 class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
 {
     Q_OBJECT
@@ -168,10 +134,7 @@ public:
     explicit IRunConfigurationFactory(QObject *parent = 0);
     virtual ~IRunConfigurationFactory();
 
-    /// used to show the list of possible additons to a target, returns a list of types
     virtual QStringList availableCreationIds(Target *parent) const = 0;
-
-    /// used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
     virtual bool canCreate(Target *parent, const QString &id) const = 0;
@@ -203,15 +166,7 @@ public:
 
     virtual QString displayName() const = 0;
 
-    /// Return an IRunConfigurationAspect to carry options for RunControls this factory can create.
-    /// If no extra options are required it is allowed to return null like the default implementation does.
-    /// This is intended to be called from the RunConfiguration constructor, so passing a RunConfiguration
-    /// pointer makes no sense because that object is under construction at the time.
     virtual IRunConfigurationAspect *createRunConfigurationAspect();
-
-    /// Return a widget used to configure this runner. Ownership is transferred to the caller.
-    /// If @p runConfiguration is not suitable for RunControls from this factory, or no user-accesible
-    /// configuration is required, return null.
     virtual RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration) = 0;
 };
 
@@ -230,9 +185,6 @@ signals:
     void displayNameChanged(const QString &);
 };
 
-/**
- * Each instance of this class represents one item that is run.
- */
 class PROJECTEXPLORER_EXPORT RunControl : public QObject
 {
     Q_OBJECT
@@ -246,15 +198,10 @@ public:
     virtual ~RunControl();
     virtual void start() = 0;
 
-    // Prompt to stop. If 'optionalPrompt' is passed, a "Do not ask again"-
-    // checkbox will show and the result will be returned in '*optionalPrompt'.
     virtual bool promptToStop(bool *optionalPrompt = 0) const;
     virtual StopResult stop() = 0;
     virtual bool isRunning() const = 0;
     virtual QString displayName() const;
-    /// \returns the icon to be shown in the outputwindow
-    // TODO the icon differs currently only per "mode"
-    // so this is more flexibel then it needs to be
     virtual QIcon icon() const = 0;
 
     bool sameRunConfiguration(const RunControl *other) const;
@@ -276,7 +223,6 @@ private slots:
     void bringApplicationToForegroundInternal();
 
 protected:
-    // Utility to prompt to terminate application with checkable box.
     bool showPromptToStopDialog(const QString &title, const QString &text,
                                 const QString &stopButtonText = QString(),
                                 const QString &cancelButtonText = QString(),

@@ -39,6 +39,14 @@
 #include <QtCore/QStringList>
 #include <QtCore/QSysInfo>
 
+/*!
+    \class ProjectExplorer::Abi
+
+    \brief Represents the Application Binary Interface (ABI) of a target platform.
+
+    \sa ProjectExplorer::ToolChain
+*/
+
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------------
@@ -258,6 +266,7 @@ Abi::Abi(const QString &abiString) :
         else if (abiParts.at(1) == QLatin1String("windows"))
             m_os = WindowsOS;
         else
+
             return;
     }
 

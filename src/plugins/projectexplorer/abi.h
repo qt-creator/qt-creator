@@ -40,7 +40,7 @@
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------------
-// ABI
+// ABI (documentation inside)
 // --------------------------------------------------------------------------
 
 class PROJECTEXPLORER_EXPORT Abi

@@ -45,29 +45,6 @@ namespace Internal {
 
 struct GeneratorScriptArgument;
 
-/* Custom wizard script generator functions. In addition to the <file> elements
- * that define template files in which macros are replaced, it is possible to have
- * a custom wizard call a generation script (specified in the "generatorscript"
- * attribute of the <files> element) which actually creates files.
- * The command line of the script must follow the convention
- *
- * script [--dry-run] [options]
- *
- * Options containing field placeholders are configured in the XML files
- * and will be passed with them replaced by their values.
- *
- * As Qt Creator needs to know the file names before actually creates them to
- * do overwrite checking etc., this is  2-step process:
- * 1) Determine file names and attributes: The script is called with the
- *    --dry-run option and the field values. It then prints the relative path
- *    names it intends to create followed by comma-separated attributes
- *    matching those of the <file> element, for example:
- *        myclass.cpp,openeditor
- * 2) The script is called with the parameters only in the working directory
- * and then actually creates the files. If that involves directories, the script
- * should create those, too.
- */
-
 // Parse the script arguments apart and expand the binary.
 QStringList fixGeneratorScript(const QString &configFile, QString attributeIn);
 

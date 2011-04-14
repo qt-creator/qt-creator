@@ -149,7 +149,13 @@ static bool
     return true;
 }
 
-// Do a dry run of the generation script to get a list of files
+/*!
+    \brief Custom wizard script generator function (Step1) - dry run.
+
+    Do a dry run of the generation script to get a list of files
+    \sa runCustomWizardGeneratorScript, ProjectExplorer::CustomWizard
+*/
+
 Core::GeneratedFiles
     dryRunCustomWizardGeneratorScript(const QString &targetPath,
                                       const QStringList &script,
@@ -202,6 +208,37 @@ Core::GeneratedFiles
     }
     return files;
 }
+
+/*!
+    \brief Custom wizard script generator function (Step2) - actual file creation.
+
+    In addition to the <file> elements
+    that define template files in which macros are replaced, it is possible to have
+    a custom wizard call a generation script (specified in the "generatorscript"
+    attribute of the <files> element) which actually creates files.
+    The command line of the script must follow the convention
+    \code
+    script [--dry-run] [options]
+    \endcode
+
+    Options containing field placeholders are configured in the XML files
+    and will be passed with them replaced by their values.
+
+    As Qt Creator needs to know the file names before actually creates them to
+    do overwrite checking etc., this is  2-step process:
+    \list
+    \o Determine file names and attributes: The script is called with the
+      \c --dry-run option and the field values. It then prints the relative path
+      names it intends to create followed by comma-separated attributes
+     matching those of the \c <file> element, for example:
+     \c myclass.cpp,openeditor
+    \o The script is called with the parameters only in the working directory
+    and then actually creates the files. If that involves directories, the script
+    should create those, too.
+    \endlist
+
+    \sa dryRunCustomWizardGeneratorScript, ProjectExplorer::CustomWizard
+ */
 
 bool runCustomWizardGeneratorScript(const QString &targetPath,
                                     const QStringList &script,

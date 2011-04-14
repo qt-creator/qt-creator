@@ -39,6 +39,15 @@
 
 #include <QtCore/QDir>
 
+/*!
+    \class ProjectExplorer::BaseProjectWizardDialog
+
+    \brief Base class for project wizards.
+
+    Presents the introductory page and takes care of setting the folder choosen
+    as default projects' folder should the user wish to do that.
+*/
+
 namespace ProjectExplorer {
 
 struct BaseProjectWizardDialogPrivate {

@@ -52,16 +52,6 @@ namespace Core {
 
 namespace ProjectExplorer {
 
-//
-// = Node hierarchy =
-//
-//  The nodes are arranged in a tree where leaves are FileNodes and non-leaves are FolderNodes
-//  A Project is a special Folder that manages the files and normal folders underneath it.
-//
-//  The Watcher emits signals for structural changes in the hierarchy.
-//  A Visitor can be used to traverse all Projects and other Folders.
-//
-
 enum NodeType {
     FileNodeType = 1,
     FolderNodeType,
@@ -89,6 +79,7 @@ class ProjectNode;
 class NodesWatcher;
 class NodesVisitor;
 
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT Node : public QObject {
     Q_OBJECT
 public:
@@ -128,6 +119,7 @@ private:
     bool m_generated;
 };
 
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT FolderNode : public Node {
     Q_OBJECT
 public:
@@ -156,6 +148,7 @@ private:
     mutable QIcon m_icon;
 };
 
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode
 {
     Q_OBJECT
@@ -250,6 +243,7 @@ private:
     friend class SessionNode;
 };
 
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT SessionNode : public FolderNode {
     Q_OBJECT
 public:
@@ -275,6 +269,7 @@ private:
     QList<NodesWatcher*> m_watchers;
 };
 
+// Documentation inside.
 class PROJECTEXPLORER_EXPORT NodesWatcher : public QObject {
     Q_OBJECT
 public:

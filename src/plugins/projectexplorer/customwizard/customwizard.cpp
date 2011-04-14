@@ -55,6 +55,20 @@ static const char configFileC[] = "wizard.xml";
 
 namespace ProjectExplorer {
 
+/*!
+    \class ProjectExplorer::ICustomWizardFactory
+    \brief Factory for creating custom wizards extending the base class
+           (CustomWizard or CustomProjectWizard)
+
+    The factory can be registered under a name in CustomWizard. The name can
+    be specified in the  \c <wizard class=''...> attribute in the \c wizard.xml file
+    and thus allows for specifying a C++ derived wizard class.
+    For example, this is currently used in Qt4ProjectManager to get Qt-specific
+    aspects into the custom wizard.
+
+    \sa ProjectExplorer::CustomWizard, ProjectExplorer::CustomProjectWizard
+*/
+
 struct CustomWizardPrivate {
     CustomWizardPrivate() : m_context(new Internal::CustomWizardContext) {}
 
@@ -64,6 +78,16 @@ struct CustomWizardPrivate {
 };
 
 int CustomWizardPrivate::verbose = 0;
+
+/*!
+    \class ProjectExplorer::CustomWizard
+
+    \brief Base classes for custom wizards based on file templates and a XML
+    configuration file (\c share/qtcreator/templates/wizards).
+
+    Presents CustomWizardDialog (fields page containing path control) for wizards
+    of type "class" or "file". Serves as base class for project wizards.
+*/
 
 CustomWizard::CustomWizard(const Core::BaseFileWizardParameters& baseFileParameters,
                            QObject *parent) :
@@ -379,8 +403,16 @@ static QString listWizards()
     return rc;
 }
 
-// Scan the subdirectories of the template directory for directories
-// containing valid configuration files and parse them into wizards.
+/*!
+    \brief Reads \c share/qtcreator/templates/wizards and creates all custom wizards.
+
+    As other plugins might register factories for derived
+    classes, call it in extensionsInitialized().
+
+    Scans the subdirectories of the template directory for directories
+    containing valid configuration files and parse them into wizards.
+*/
+
 QList<CustomWizard*> CustomWizard::createWizards()
 {
     QList<CustomWizard*> rc;
@@ -464,13 +496,29 @@ QList<CustomWizard*> CustomWizard::createWizards()
     return rc;
 }
 
-// --------------- CustomProjectWizard
+/*!
+    \class ProjectExplorer::CustomProjectWizard
+    \brief A custom project wizard.
+
+    Presents a CustomProjectWizardDialog (Project intro page and fields page)
+    for wizards of type "project".
+    Overwrites postGenerateFiles() to open the project files according to the
+    file attributes. Also inserts \c '%ProjectName%' into the base
+    replacement map once the intro page is left to have it available
+    for QLineEdit-type fields' default text.
+*/
 
 CustomProjectWizard::CustomProjectWizard(const Core::BaseFileWizardParameters& baseFileParameters,
                                          QObject *parent) :
     CustomWizard(baseFileParameters, parent)
 {
 }
+
+/*!
+    \brief Can be reimplemented to create custom project wizards.
+
+    initProjectWizardDialog() needs to be called.
+*/
 
 QWizard *CustomProjectWizard::createWizardDialog(QWidget *parent,
                                         const QString &defaultPath,
@@ -528,6 +576,11 @@ Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QStrin
     const Core::GeneratedFiles generatedFiles = generateWizardFiles(errorMessage);
     return generatedFiles;
 }
+
+/*!
+    \brief Utility to open the projects and editors for the files that have
+    the respective attributes set.
+*/
 
 bool CustomProjectWizard::postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage)
 {

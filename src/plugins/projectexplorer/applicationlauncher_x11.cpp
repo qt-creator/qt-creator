@@ -40,6 +40,17 @@
 #include <QtCore/QTimer>
 #include <QtCore/QTextCodec>
 
+/*!
+    \class ProjectExplorer::ApplicationLauncher
+
+    \brief Application launcher of the ProjectExplorer plugin.
+
+    Encapsulates processes running in a console or as GUI processes,
+    captures debug output of GUI processes on Windows (outputDebugString()).
+
+    \sa Utils::ConsoleProcess
+*/
+
 namespace ProjectExplorer {
 
 struct ApplicationLauncherPrivate {

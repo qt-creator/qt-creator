@@ -40,10 +40,7 @@ namespace ProjectExplorer {
 class Target;
 class DeployConfiguration;
 
-/*! A model to represent the run configurations of a target.
-    To be used in for the drop down of comboboxes
-    Does automatically adjust itself to added and removed RunConfigurations
-*/
+// Documentation inside.
 class DeployConfigurationModel : public QAbstractListModel
 {
     Q_OBJECT

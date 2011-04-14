@@ -56,10 +56,7 @@ struct CustomWizardField;
 struct CustomWizardParameters;
 struct CustomWizardContext;
 
-// A non-editable combo for text editing purposes that plays
-// with QWizard::registerField (providing a settable 'text' property).
-// Allows for a separation of values to be used for wizard fields replacement
-// and display texts.
+// Documentation inside.
 class TextFieldComboBox : public QComboBox {
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_OBJECT
@@ -81,8 +78,7 @@ private:
     inline QString valueAt(int) const;
 };
 
-// A Checkbox that plays with QWizard::registerField (providing a settable
-// 'text' property containing predefined strings for 'true'/'false').
+// Documentation inside.
 class TextFieldCheckBox : public QCheckBox {
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QString trueText READ trueText WRITE setTrueText)
@@ -110,13 +106,7 @@ private:
     QString m_falseText;
 };
 
-// A simple custom wizard page presenting the fields to be used
-// as page 2 of a BaseProjectWizardDialog if there are any fields.
-// Uses the 'field' functionality of QWizard.
-// Implements validatePage() as the field logic cannot be tied up
-// with additional validation. Performs checking of the Javascript-based
-// validation rules of the parameters and displays error messages in a red
-// warning label.
+// Documentation inside.
 class CustomWizardFieldPage : public QWizardPage {
     Q_OBJECT
 public:
@@ -169,10 +159,7 @@ private:
     QLabel *m_errorLabel;
 };
 
-// A custom wizard page presenting the fields to be used and a path chooser
-// at the bottom (for use by "class"/"file" wizards). Does validation on
-// the Path chooser only (as the other fields can by validated by regexps).
-
+// Documentation inside.
 class CustomWizardPage : public CustomWizardFieldPage {
     Q_OBJECT
 public:

@@ -38,6 +38,18 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 
+/*!
+    \class ProjectExplorer::ProcessParameters
+
+    \brief ProcessParameters aggregates all parameters needed to start a process.
+
+    It offers a set of functions which expand macros and environment variables
+    inside the raw parameters to obtain final values for starting a process
+    or for display purposes.
+
+    \sa ProjectExplorer::AbstractProcessStep
+*/
+
 using namespace ProjectExplorer;
 
 ProcessParameters::ProcessParameters() :
@@ -46,11 +58,19 @@ ProcessParameters::ProcessParameters() :
 {
 }
 
+/*!
+    \brief Sets the executable to run.
+*/
+
 void ProcessParameters::setCommand(const QString &cmd)
 {
     m_command = cmd;
     m_effectiveCommand.clear();
 }
+
+/*!
+    \brief Sets the command line arguments used by the process
+*/
 
 void ProcessParameters::setArguments(const QString &arguments)
 {
@@ -58,11 +78,34 @@ void ProcessParameters::setArguments(const QString &arguments)
     m_effectiveArguments.clear();
 }
 
+/*!
+    \brief Sets the workingDirectory for the process for a buildConfiguration
+    should be called from init()
+*/
+
 void ProcessParameters::setWorkingDirectory(const QString &workingDirectory)
 {
     m_workingDirectory = workingDirectory;
     m_effectiveWorkingDirectory.clear();
 }
+
+/*!
+    \fn void ProjectExplorer::ProcessParameters::setEnvironment(const Utils::Environment &env)
+    \brief Set the Environment for running the command
+
+    Should be called from init()
+*/
+
+/*!
+   \fn  void ProjectExplorer::ProcessParameters::setMacroExpander(Utils::AbstractMacroExpander *mx)
+   \brief Set the macro expander to use on the command, arguments and working dir.
+
+   Note that the caller retains ownership of the object.
+*/
+
+/*!
+    \brief Get the fully expanded working directory.
+*/
 
 QString ProcessParameters::effectiveWorkingDirectory() const
 {
@@ -74,6 +117,10 @@ QString ProcessParameters::effectiveWorkingDirectory() const
     }
     return m_effectiveWorkingDirectory;
 }
+
+/*!
+    \brief Get the fully expanded command name to run
+*/
 
 QString ProcessParameters::effectiveCommand() const
 {
@@ -89,6 +136,10 @@ QString ProcessParameters::effectiveCommand() const
     }
     return m_effectiveCommand;
 }
+
+/*!
+    \brief True if effectiveCommand() would return only a fallback.
+*/
 
 bool ProcessParameters::commandMissing() const
 {
