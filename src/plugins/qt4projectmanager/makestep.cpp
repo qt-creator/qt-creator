@@ -293,6 +293,8 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
             this, SLOT(userArgumentsChanged()));
     connect(makeStep->buildConfiguration(), SIGNAL(buildDirectoryChanged()),
             this, SLOT(updateDetails()));
+    connect(makeStep->buildConfiguration(), SIGNAL(toolChainChanged()),
+            this, SLOT(updateDetails()));
 
     connect(makeStep->qt4BuildConfiguration(), SIGNAL(qtVersionChanged()),
             this, SLOT(qtVersionChanged()));
