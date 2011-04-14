@@ -4,27 +4,26 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-** No Commercial Usage
-**
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
 **
 ** GNU Lesser General Public License Usage
 **
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
+** rights. These rights are described in the Nokia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
@@ -42,6 +41,7 @@
 #include "qt4target.h"
 #include "qtversionmanager.h"
 #include "debugginghelperbuildtask.h"
+#include "ui_showbuildlog.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/toolchain.h>
@@ -331,6 +331,17 @@ bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
     if (qt4BuildConfiguration()->qtVersion()->hasQmlDebuggingLibrary())
         return true;
 
+    if (!qt4BuildConfiguration()->qtVersion()->qtAbis().isEmpty()) {
+        ProjectExplorer::Abi abi = qt4BuildConfiguration()->qtVersion()->qtAbis().first();
+        if (abi.os() == ProjectExplorer::Abi::SymbianOS
+                || abi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor) {
+            if (reason)
+                *reason = QString();
+//               *reason = tr("Qml debugging on device not yet supported.");
+            return false;
+        }
+    }
+
     if (!qt4BuildConfiguration()->qtVersion()->isValid()) {
         if (reason)
             *reason = tr("Invalid Qt version.");
@@ -545,8 +556,8 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version,
                                                                        DebuggingHelperBuildTask::QmlDebugging);
 
-    connect(buildTask, SIGNAL(finished(int,DebuggingHelperBuildTask::Tools,QString)),
-            this, SLOT(debuggingHelperBuildFinished()),
+    connect(buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
+            this, SLOT(debuggingHelperBuildFinished(int,QString)),
             Qt::QueuedConnection);
 
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
@@ -555,14 +566,29 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
                                                         QLatin1String("Qt4ProjectManager::BuildHelpers"));
 }
 
-void QMakeStepConfigWidget::debuggingHelperBuildFinished()
+void QMakeStepConfigWidget::debuggingHelperBuildFinished(int qtVersionId, const QString &output)
 {
-    m_step->qt4BuildConfiguration()->qtVersion()->invalidateCache();
-    m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
-    m_ui.qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
-    updateSummaryLabel();
-    updateEffectiveQMakeCall();
-    updateQmlDebuggingWarningsLabel();
+    QtVersion *version = QtVersionManager::instance()->version(qtVersionId);
+    if (!version) // qt version got deleted in between
+        return;
+    version->invalidateCache();
+
+    if (version == m_step->qt4BuildConfiguration()->qtVersion()) {
+        m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
+        m_ui.qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
+        updateSummaryLabel();
+        updateEffectiveQMakeCall();
+        updateQmlDebuggingWarningsLabel();
+    }
+
+    if (!version->hasQmlDebuggingLibrary()) {
+        Ui::ShowBuildLog ui;
+        QDialog dialog;
+        ui.setupUi(&dialog);
+
+        ui.log->setPlainText(output);
+        dialog.exec();
+    }
 }
 
 void QMakeStepConfigWidget::updateSummaryLabel()

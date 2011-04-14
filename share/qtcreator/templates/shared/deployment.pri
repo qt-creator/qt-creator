@@ -31,7 +31,7 @@ symbian {
         target = $$replace(target, /, \\)
         !isEqual(source,$$target) {
             !isEmpty(copyCommand):copyCommand += &&
-            isEmpty(QMAKE_SH) {
+            isEqual(QMAKE_DIR_SEP, \\) {
                 copyCommand += $(COPY_DIR) \"$$source\" \"$$target\"
             } else {
                 source = $$replace(source, \\\\, /)

@@ -31,10 +31,6 @@ QWidget {
             intEditor.backendValue === null)
             ? null : intEditor.backendValue.value;
 
-            onBackendValueValueChanged: {
-                intSlider.value = intEditor.backendValue.value;
-            }
-
             minimum: minimumValue
             maximum: maximumValue
             baseStateFlag: intEditor.baseStateFlag
@@ -54,12 +50,16 @@ QWidget {
                 minimum: minimumValue
                 maximum: maximumValue
                 singleStep: step
+                property int valueFromBackend: intEditor.backendValue.value;
 
+                onValueFromBackendChanged: {
+                    if (intSlider.maximum < valueFromBackend)
+                        intSlider.maximum = valueFromBackend;
+                    if (intSlider.minimum > valueFromBackend)
+                        intSlider.minimum = valueFromBackend;
+                    intSlider.value = valueFromBackend;
+                }
 
-                value: (backendValue == undefined
-                || backendValue == null
-                || backendValue.value == undefined
-                || backendValue.value == null) ? 0 : backendValue.value
                 onValueChanged: {
                     if (backendValue != undefined && backendValue != null)
                     backendValue.value = value;

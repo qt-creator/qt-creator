@@ -4,27 +4,26 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-** No Commercial Usage
-**
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
 **
 ** GNU Lesser General Public License Usage
 **
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
+** rights. These rights are described in the Nokia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
@@ -84,7 +83,9 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
     QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, number);
     if (infos.isEmpty())
         return 0;
-    return new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, number, importEnabled, importInfos);
+    Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, number, importEnabled, importInfos);
+    widget->setShadowBuildSupported(supportsShadowBuilds(id));
+    return widget;
 }
 
 ProjectExplorer::Target *Qt4BaseTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget)
@@ -103,7 +104,7 @@ QList<BuildConfigurationInfo> Qt4BaseTargetFactory::availableBuildConfigurations
     QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
     foreach (QtVersion *version, knownVersions) {
-        if (!version->isValid() || !version->toolChainAvailable())
+        if (!version->isValid() || !version->toolChainAvailable(id))
             continue;
         QtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
         BuildConfigurationInfo info = BuildConfigurationInfo(version, config, QString(), QString());
@@ -385,8 +386,8 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     QVBoxLayout *vboxLayout = new QVBoxLayout();
-    vboxLayout->setMargin(0);
     setLayout(vboxLayout);
+    vboxLayout->setContentsMargins(0, 0, 0, 0);
     m_detailsWidget = new Utils::DetailsWidget(this);
     m_detailsWidget->setSummaryText(factory->displayNameForId(id));
     m_detailsWidget->setUseCheckBox(true);
@@ -399,12 +400,18 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     QWidget *widget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
     widget->setLayout(layout);
+    layout->setContentsMargins(0, 0, 0, 0);
 
+    QWidget *w = new QWidget;
     m_importLayout = new QGridLayout;
     m_importLayout->setMargin(0);
-    layout->addLayout(m_importLayout);
+    w->setLayout(m_importLayout);
+    layout->addWidget(w);
 
+    w = new QWidget;
     m_importLineLayout = new QHBoxLayout();
+    m_importLineLayout->setContentsMargins(0, 0, 0, 0);
+    w->setLayout(m_importLineLayout);
     m_importLineLabel = new QLabel();
     m_importLineLabel->setText(tr("Add build from:"));
     m_importLineLayout->addWidget(m_importLineLabel);
@@ -416,17 +423,16 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     m_importLineButton = new QPushButton;
     m_importLineButton->setText(tr("Add Build"));
+    m_importLineButton->setAttribute(Qt::WA_MacSmallSize);
+    // make it in line with import path chooser button on mac
+    m_importLineButton->setAttribute(Qt::WA_LayoutUsesWidgetRect);
     m_importLineLayout->addWidget(m_importLineButton);
     m_importLineLayout->addStretch();
-    layout->addLayout(m_importLineLayout);
+    layout->addWidget(w);
 
     m_importLineLabel->setVisible(false);
     m_importLinePath->setVisible(false);
     m_importLineButton->setVisible(m_showImport);
-
-    m_spacerTopWidget = new QWidget;
-    m_spacerTopWidget->setMinimumHeight(12);
-    layout->addWidget(m_spacerTopWidget);
 
     m_buildConfigurationLabel = new QLabel;
     m_buildConfigurationLabel->setText("Create Build Configurations:");
@@ -468,16 +474,14 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     hbox->addStretch();
     layout->addLayout(hbox);
 
-    m_spacerBottomWidget = new QWidget;
-    m_spacerBottomWidget->setMinimumHeight(0);
-    layout->addWidget(m_spacerBottomWidget);
-
+    w = new QWidget;
     m_newBuildsLayout = new QGridLayout;
     m_newBuildsLayout->setMargin(0);
-    layout->addLayout(m_newBuildsLayout);
-
-    m_spacerTopWidget->setVisible(false);
-    m_spacerBottomWidget->setVisible(false);
+#ifdef Q_WS_MAC
+    m_newBuildsLayout->setSpacing(0);
+#endif
+    w->setLayout(m_newBuildsLayout);
+    layout->addWidget(w);
 
     widget->setEnabled(false);
     m_detailsWidget->setWidget(widget);
@@ -585,22 +589,22 @@ void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
     setBuildConfigurationInfos(m_factory->availableBuildConfigurations(m_id, proFilePath, m_minimumQtVersion), false);
 }
 
+void Qt4DefaultTargetSetupWidget::setShadowBuildSupported(bool b)
+{
+    // if shadow building is supported we want to enable it, unless we have a in source build
+    m_shadowBuildEnabled->setChecked(b && !m_hasInSourceBuild);
+}
+
 void Qt4DefaultTargetSetupWidget::setShadowBuildCheckBoxVisible(bool b)
 {
     m_shadowBuildCheckBoxVisible = b;
     m_shadowBuildEnabled->setVisible(b);
-    bool anythingVisible = b || m_buildConfigurationComboBox->isVisible();
-    m_spacerTopWidget->setVisible(anythingVisible && !m_importInfos.isEmpty());
-    m_spacerBottomWidget->setVisible(anythingVisible);
 }
 
 void Qt4DefaultTargetSetupWidget::setBuildConfiguraionComboBoxVisible(bool b)
 {
     m_buildConfigurationLabel->setVisible(true);
     m_buildConfigurationComboBox->setVisible(true);
-    bool anythingVisible = b || m_shadowBuildEnabled->isVisible();
-    m_spacerTopWidget->setVisible(anythingVisible && !m_importInfos.isEmpty());
-    m_spacerBottomWidget->setVisible(anythingVisible);
     updateWidgetVisibility();
 }
 
@@ -677,6 +681,7 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     if (!m_importLineLabel->isVisible()) {
         m_importLineLabel->setVisible(true);
         m_importLinePath->setVisible(true);
+        m_importLineButton->setAttribute(Qt::WA_MacNormalSize);
         return;
     }
     BuildConfigurationInfo info = BuildConfigurationInfo::checkForBuild(m_importLinePath->path(), m_proFilePath);
@@ -815,6 +820,7 @@ void Qt4DefaultTargetSetupWidget::setupWidgets()
         QCheckBox *checkbox = new QCheckBox;
         checkbox->setText(displayNameFrom(info));
         checkbox->setChecked(m_enabled.at(i));
+        checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
         if (info.version)
             checkbox->setToolTip(info.version->toHtml(false));
         m_newBuildsLayout->addWidget(checkbox, i * 2, 0);

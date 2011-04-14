@@ -31,7 +31,9 @@ public:
     void loadFile(const QString &fileName);
     void loadUrl(const QUrl &url);
 
+    // Note that this will only have an effect on Symbian and Fremantle.
     void setOrientation(ScreenOrientation orientation);
+
     void showExpanded();
 
     QGraphicsWebView *webView() const;

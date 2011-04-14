@@ -75,7 +75,11 @@ QWidget { //This is a special spinBox that does color coding for states
             property int valueFromBackend: spinBox.backendValue.value;
 
             onValueFromBackendChanged: {
-                readingFromBackend = true;                
+                readingFromBackend = true;
+                if (maximum < valueFromBackend)
+                    maximum = valueFromBackend;
+                if (minimum > valueFromBackend)
+                    minimum = valueFromBackend;
                 value = valueFromBackend;
                 readingFromBackend = false;
                 evaluate();

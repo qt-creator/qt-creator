@@ -4,27 +4,26 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-** No Commercial Usage
-**
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
 **
 ** GNU Lesser General Public License Usage
 **
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
+** rights. These rights are described in the Nokia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
@@ -310,13 +309,6 @@ void InspectorUi::connected(ClientProxy *clientProxy)
     }
 
     m_debugProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
-    if (m_debugProject->activeTarget()
-            && m_debugProject->activeTarget()->activeBuildConfiguration())
-    {
-        ProjectExplorer::BuildConfiguration *bc
-                = m_debugProject->activeTarget()->activeBuildConfiguration();
-        m_debugProjectBuildDir = bc->buildDirectory();
-    }
 
     connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
     m_projectFinder.setProjectDirectory(m_debugProject->projectDirectory());
@@ -787,23 +779,9 @@ InspectorUi *InspectorUi::instance()
     return m_instance;
 }
 
-ProjectExplorer::Project *InspectorUi::debugProject() const
+QString InspectorUi::findFileInProject(const QString &originalPath) const
 {
-    return m_debugProject;
-}
-
-bool InspectorUi::isShadowBuildProject() const
-{
-    // for .qmlproject based stuff, build dir is empty
-    if (!debugProject() || debugProjectBuildDirectory().isEmpty())
-        return false;
-
-    return (debugProject()->projectDirectory() != debugProjectBuildDirectory());
-}
-
-QString InspectorUi::debugProjectBuildDirectory() const
-{
-    return m_debugProjectBuildDir;
+    return m_projectFinder.findFile(originalPath);
 }
 
 void InspectorUi::setApplyChangesToQmlObserver(bool applyChanges)

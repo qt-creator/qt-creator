@@ -4,27 +4,26 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-** No Commercial Usage
-**
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
 **
 ** GNU Lesser General Public License Usage
 **
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
+** rights. These rights are described in the Nokia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at qt-info@nokia.com.
@@ -4117,7 +4116,7 @@ static DisassemblerLine parseLine(const GdbMi &line)
 {
     DisassemblerLine dl;
     QByteArray address = line.findChild("address").data();
-    dl.address = address.toULongLong();
+    dl.address = address.toULongLong(0, 0);
     dl.data = _(line.findChild("inst").data());
     dl.function = _(line.findChild("func-name").data());
     dl.offset = line.findChild("offset").data().toUInt();
@@ -4132,10 +4131,13 @@ DisassemblerLines GdbEngine::parseMiDisassembler(const GdbMi &lines)
     // src_and_asm_line={line="1244",file=".../app.cpp",
     // line_asm_insn=[{address="0x0805485c",func-name="main",offset="32",
     //inst="call 0x804cba1 <_Z11testObject1v>"}]}]}
-    // - or -
+    // - or - (non-Mac)
     // ^done,asm_insns=[
     // {address="0x0805acf8",func-name="...",offset="25",inst="and $0xe8,%al"},
-    // {address="0x0805acfa",func-name="...",offset="27",inst="pop %esp"},
+    // {address="0x0805acfa",func-name="...",offset="27",inst="pop %esp"}, ..]
+    // - or - (MAC)
+    // ^done,asm_insns={
+    // {address="0x0d8f69e0",func-name="...",offset="1952",inst="add $0x0,%al"},..}
 
     DisassemblerLines result;
 

@@ -2,7 +2,8 @@
     <qresource prefix="/qmldesigner">
         <file>templates/Standard/Form.xml</file>
         <file>stylesheet.css</file>
-        <file>toolbutton.css</file>
-        <file>scrollbar.css</file>        
+        <file>scrollbar.css</file>
+        <file>formeditorstylesheet.css</file>
+        <file>outputpane-style.css</file>
     </qresource>
 </RCC>
