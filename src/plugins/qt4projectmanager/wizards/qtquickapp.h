@@ -43,6 +43,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 class QtQuickApp;
+struct QmlCppPlugin;
 
 struct QmlModule
 {
@@ -64,7 +65,7 @@ struct QmlModule
     const QFileInfo qmldir;         // 'qmldir' file.
     const bool isExternal;          // Either external or inside a source paths
     const QtQuickApp *qtQuickApp;
-    QHash<QString, struct QmlCppPlugin*> cppPlugins;   // Just as info. No ownership.
+    QHash<QString, QmlCppPlugin *> cppPlugins;   // Just as info. No ownership.
 };
 
 struct QmlCppPlugin
@@ -152,8 +153,8 @@ private:
     QFileInfo m_mainQmlFile;
     Mode m_mainQmlMode;
     QStringList m_importPaths;
-    QList <QmlModule*> m_modules;
-    QList <QmlCppPlugin*> m_cppPlugins;
+    QList<QmlModule *> m_modules;
+    QList<QmlCppPlugin *> m_cppPlugins;
 };
 
 } // namespace Internal
