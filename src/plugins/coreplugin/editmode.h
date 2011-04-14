@@ -37,7 +37,6 @@
 
 QT_BEGIN_NAMESPACE
 class QSplitter;
-class QWidget;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
@@ -52,7 +51,7 @@ class EditMode : public Core::IMode
     Q_OBJECT
 
 public:
-    EditMode(EditorManager *editorManager);
+    EditMode();
     ~EditMode();
 
 private slots:

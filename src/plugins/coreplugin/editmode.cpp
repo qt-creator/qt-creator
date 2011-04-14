@@ -51,11 +51,11 @@
 using namespace Core;
 using namespace Core::Internal;
 
-EditMode::EditMode(EditorManager *editorManager) :
-    m_editorManager(editorManager),
+EditMode::EditMode() :
     m_splitter(new MiniSplitter),
     m_rightSplitWidgetLayout(new QVBoxLayout)
 {
+    m_editorManager = EditorManager::instance();
     setObjectName(QLatin1String("EditMode"));
     setDisplayName(tr("Edit"));
     setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Edit.png")));

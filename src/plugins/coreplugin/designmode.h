@@ -36,7 +36,6 @@
 #include <coreplugin/imode.h>
 
 namespace Core {
-class EditorManager;
 class IEditor;
 
 namespace Internal {
@@ -50,14 +49,14 @@ class DesignModeCoreListener;
   * to the main editor widget itself.
   */
 
-struct DesignModePrivate;
+class DesignModePrivate;
 
 class CORE_EXPORT DesignMode : public Core::IMode
 {
     Q_OBJECT
 
 public:
-    explicit DesignMode(EditorManager *editorManager);
+    explicit DesignMode();
     virtual ~DesignMode();
 
     void registerDesignWidget(QWidget *widget,

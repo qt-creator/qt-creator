@@ -86,12 +86,10 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     parseArguments(arguments);
     const bool success = m_mainWindow->init(errorMessage);
     if (success) {
-        EditorManager *editorManager = m_mainWindow->editorManager();
-        m_editMode = new EditMode(editorManager);
+        m_editMode = new EditMode;
         addObject(m_editMode);
         m_mainWindow->modeManager()->activateMode(m_editMode->id());
-
-        m_designMode = new DesignMode(editorManager);
+        m_designMode = new DesignMode;
         addObject(m_designMode);
     }
     return success;

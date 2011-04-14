@@ -86,36 +86,37 @@ bool DesignModeCoreListener::coreAboutToClose()
 
 } // namespace Internal
 
-struct DesignEditorInfo {
+struct DesignEditorInfo
+{
     int widgetIndex;
     QStringList mimeTypes;
     Context context;
     QWidget *widget;
 };
 
-struct DesignModePrivate {
-    explicit DesignModePrivate(DesignMode *q, EditorManager *editorManager);
+class DesignModePrivate
+{
+public:
+    explicit DesignModePrivate(DesignMode *q);
+
+public:
     Internal::DesignModeCoreListener *m_coreListener;
     QWeakPointer<Core::IEditor> m_currentEditor;
     bool m_isActive;
-
     QList<DesignEditorInfo*> m_editors;
-
-    EditorManager *m_editorManager;
     QStackedWidget *m_stackWidget;
     Context m_activeContext;
 };
 
-DesignModePrivate::DesignModePrivate(DesignMode *q, EditorManager *editorManager) :
-    m_coreListener(new Internal::DesignModeCoreListener(q)),
+DesignModePrivate::DesignModePrivate(DesignMode *q)
+  : m_coreListener(new Internal::DesignModeCoreListener(q)),
     m_isActive(false),
-    m_editorManager(editorManager),
     m_stackWidget(new QStackedWidget)
 {
 }
 
-DesignMode::DesignMode(EditorManager *editorManager) :
-        IMode(), d(new DesignModePrivate(this, editorManager))
+DesignMode::DesignMode()
+    : d(new DesignModePrivate(this))
 {
     setObjectName(QLatin1String("DesignMode"));
     setEnabled(false);
@@ -129,7 +130,7 @@ DesignMode::DesignMode(EditorManager *editorManager) :
 
     ExtensionSystem::PluginManager::instance()->addObject(d->m_coreListener);
 
-    connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(currentEditorChanged(Core::IEditor*)));
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
