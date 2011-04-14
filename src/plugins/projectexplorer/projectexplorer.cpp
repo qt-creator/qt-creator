@@ -59,6 +59,7 @@
 #include "metatypedeclarations.h"
 #include "nodesvisitor.h"
 #include "outputwindow.h"
+#include "appoutputpane.h"
 #include "persistentsettings.h"
 #include "pluginfilefactory.h"
 #include "processstep.h"
@@ -221,7 +222,7 @@ struct ProjectExplorerPluginPrivate {
 
     QList<Internal::ProjectFileFactory*> m_fileFactories;
     QStringList m_profileMimeTypes;
-    Internal::OutputPane *m_outputPane;
+    Internal::AppOutputPane *m_outputPane;
 
     QList<QPair<QString, QString> > m_recentProjects; // pair of filename, displayname
     static const int m_maxRecentProjects = 7;
@@ -375,7 +376,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new CoreListener);
 
-    d->m_outputPane = new OutputPane;
+    d->m_outputPane = new AppOutputPane;
     addAutoReleasedObject(d->m_outputPane);
     connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project *)),
             d->m_outputPane, SLOT(projectRemoved()));
@@ -1085,7 +1086,7 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     // Attempt to synchronously shutdown all run controls.
     // If that fails, fall back to asynchronous shutdown (Debugger run controls
     // might shutdown asynchronously).
-    if (d->m_outputPane->closeTabs(OutputPane::CloseTabNoPrompt /* No prompt any more */))
+    if (d->m_outputPane->closeTabs(AppOutputPane::CloseTabNoPrompt /* No prompt any more */))
         return SynchronousShutdown;
     connect(d->m_outputPane, SIGNAL(allRunControlsFinished()),
             this, SIGNAL(asynchronousShutdownFinished()));

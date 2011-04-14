@@ -101,7 +101,8 @@ HEADERS += projectexplorer.h \
     publishing/publishingwizardselectiondialog.h \
     publishing/ipublishingwizardfactory.h \
     headerpath.h \
-    gcctoolchainfactories.h
+    gcctoolchainfactories.h \
+    appoutputpane.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -185,7 +186,8 @@ SOURCES += projectexplorer.cpp \
     localapplicationruncontrol.cpp \
     customexecutableconfigurationwidget.cpp \
     sessionnodeimpl.cpp \
-    publishing/publishingwizardselectiondialog.cpp
+    publishing/publishingwizardselectiondialog.cpp \
+    appoutputpane.cpp
 
 FORMS += processstep.ui \
     toolchainoptionspage.ui \

@@ -82,6 +82,9 @@ public:
     bool knowsPositionOf(const Task &task);
     void showPositionOf(const Task &task);
 
+private slots:
+    void updateWordWrapMode();
+
 private:
     OutputWindow *m_outputWindow;
     QHash<unsigned int, int> m_taskPositions;

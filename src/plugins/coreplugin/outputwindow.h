@@ -33,127 +33,25 @@
 #ifndef OUTPUTWINDOW_H
 #define OUTPUTWINDOW_H
 
-#include "outputformat.h"
-#include <coreplugin/ioutputpane.h>
 #include <utils/outputformatter.h>
+#include <coreplugin/icontext.h>
 
 #include <QtGui/QPlainTextEdit>
-#include <QtGui/QIcon>
-
-QT_BEGIN_NAMESPACE
-class QTabWidget;
-class QToolButton;
-class QAction;
-QT_END_NAMESPACE
 
 namespace Core {
     class IContext;
 }
 
 namespace ProjectExplorer {
-class RunControl;
-class Project;
-
-namespace Constants {
-    const char * const C_APP_OUTPUT = "Application Output";
-}
 
 namespace Internal {
-
-class OutputWindow;
-
-struct OutputPanePrivate;
-
-class OutputPane : public Core::IOutputPane
-{
-    Q_OBJECT
-
-public:
-    enum CloseTabMode {
-        CloseTabNoPrompt,
-        CloseTabWithPrompt
-    };
-
-    OutputPane();
-    virtual ~OutputPane();
-
-    QWidget *outputWidget(QWidget *);
-    QList<QWidget*> toolBarWidgets() const;
-    QString displayName() const;
-    int priorityInStatusBar() const;
-    void clearContents();
-    void visibilityChanged(bool);
-    bool canFocus();
-    bool hasFocus();
-    void setFocus();
-
-    bool canNext();
-    bool canPrevious();
-    void goToNext();
-    void goToPrev();
-    bool canNavigate();
-
-    void createNewOutputWindow(RunControl *rc);
-    void showTabFor(RunControl *rc);
-
-    bool aboutToClose() const;
-    bool closeTabs(CloseTabMode mode);
-
-signals:
-     void allRunControlsFinished();
-
-public slots:
-    // ApplicationOutput specifics
-    void projectRemoved();
-
-    void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
-                       Utils::OutputFormat format);
-
-private slots:
-    void reRunRunControl();
-    void stopRunControl();
-    bool closeTab(int index);
-    void tabChanged(int);
-    void runControlStarted();
-    void runControlFinished();
-
-    void aboutToUnloadSession();
-
-private:
-    struct RunControlTab {
-        explicit RunControlTab(RunControl *runControl = 0,
-                               OutputWindow *window = 0);
-        RunControl* runControl;
-        OutputWindow *window;
-        // Is the run control stopping asynchronously, close the tab once it finishes
-        bool asyncClosing;
-    };
-
-    bool isRunning() const;
-    bool closeTab(int index, CloseTabMode cm);
-    bool optionallyPromptToStop(RunControl *runControl);
-
-    int indexOf(const RunControl *) const;
-    int indexOf(const QWidget *outputWindow) const;
-    int currentIndex() const;
-    RunControl *currentRunControl() const;
-    int tabWidgetIndexOf(int runControlIndex) const;
-
-    QWidget *m_mainWidget;
-    QTabWidget *m_tabWidget;
-    QList<RunControlTab> m_runControlTabs;
-    QAction *m_stopAction;
-    QToolButton *m_reRunButton;
-    QToolButton *m_stopButton;
-};
-
 
 class OutputWindow : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:
-    OutputWindow(QWidget *parent = 0);
+    OutputWindow(Core::Context context, QWidget *parent = 0);
     ~OutputWindow();
 
     Utils::OutputFormatter* formatter() const;
@@ -164,13 +62,14 @@ public:
     void appendText(const QString &text, const QTextCharFormat &format, int maxLineCount);
 
     void grayOutOldContent();
+    void clear();
 
     void showEvent(QShowEvent *);
 
-    void clear();
-    void handleOldOutput();
-
     void scrollToBottom();
+
+public slots:
+    void setWordWrapEnabled(bool wrap);
 
 protected:
     bool isScrollbarAtBottom() const;
@@ -180,9 +79,6 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *e);
     virtual void resizeEvent(QResizeEvent *e);
     virtual void keyPressEvent(QKeyEvent *ev);
-
-private slots:
-    void updateWordWrapMode();
 
 private:
     void enableUndoRedo();

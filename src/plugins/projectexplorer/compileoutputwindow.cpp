@@ -34,7 +34,11 @@
 #include "buildmanager.h"
 #include "showoutputtaskhandler.h"
 #include "task.h"
+#include "projectexplorerconstants.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
 
+#include <coreplugin/icontext.h>
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
 #include <extensionsystem/pluginmanager.h>
@@ -58,7 +62,8 @@ const int MAX_LINECOUNT = 50000;
 
 CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
 {
-    m_outputWindow = new OutputWindow();
+    Core::Context context(Constants::C_COMPILE_OUTPUT);
+    m_outputWindow = new OutputWindow(context);
     m_outputWindow->setWindowTitle(tr("Compile Output"));
     m_outputWindow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
     m_outputWindow->setReadOnly(true);
@@ -72,12 +77,20 @@ CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
 
     m_handler = new ShowOutputTaskHandler(this);
     ExtensionSystem::PluginManager::instance()->addObject(m_handler);
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+            this, SLOT(updateWordWrapMode()));
+    updateWordWrapMode();
 }
 
 CompileOutputWindow::~CompileOutputWindow()
 {
     ExtensionSystem::PluginManager::instance()->removeObject(m_handler);
     delete m_handler;
+}
+
+void CompileOutputWindow::updateWordWrapMode()
+{
+    m_outputWindow->setWordWrapEnabled(ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput);
 }
 
 bool CompileOutputWindow::hasFocus()

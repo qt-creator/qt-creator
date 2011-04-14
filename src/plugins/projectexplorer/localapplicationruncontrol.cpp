@@ -33,8 +33,8 @@
 #include "localapplicationruncontrol.h"
 #include "applicationrunconfiguration.h"
 #include "projectexplorerconstants.h"
-#include "outputformat.h"
 
+#include <utils/outputformat.h>
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
 

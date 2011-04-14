@@ -98,6 +98,8 @@ const int          P_ACTION_BUILDPROJECT   = 80;
 // context
 const char * const C_PROJECTEXPLORER    = "Project Explorer";
 const char * const C_PROJECT_TREE       = "ProjectExplorer.ProjectTreeContext";
+const char * const C_APP_OUTPUT         = "ProjectExplorer.ApplicationOutput";
+const char * const C_COMPILE_OUTPUT     = "ProjectExplorer.CompileOutput";
 
 // languages
 const char * const LANG_CXX             = "CXX";
