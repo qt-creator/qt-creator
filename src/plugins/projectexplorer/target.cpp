@@ -145,6 +145,11 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
     configuration->setDisplayName(configurationDisplayName);
 
+    // Make sure we have a sane tool chain if at all possible
+    if (!configuration->toolChain()
+            || !possibleToolChains(configuration).contains(configuration->toolChain()))
+        configuration->setToolChain(preferredToolChain(configuration));
+
     // add it
     d->m_buildConfigurations.push_back(configuration);
 
