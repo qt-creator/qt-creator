@@ -61,6 +61,8 @@ AnalyzerStartParameters localStartParameters(ProjectExplorer::RunConfiguration *
     sp.debuggee = rc->executable();
     sp.debuggeeArgs = rc->commandLineArguments();
     sp.displayName = rc->displayName();
+    sp.connParams.host = QLatin1String("localhost");
+    sp.connParams.port = rc->qmlDebugServerPort();
     return sp;
 }
 

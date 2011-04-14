@@ -76,10 +76,6 @@
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;
 
-QString QmlProfilerTool::host = QLatin1String("localhost");
-quint16 QmlProfilerTool::port = 33456;
-
-
 // Adapter for output pane.
 class QmlProfilerOutputPaneAdapter : public Analyzer::IAnalyzerOutputPaneAdapter
 {
@@ -124,6 +120,8 @@ public:
     QAction *m_attachAction;
     QToolButton *m_recordButton;
     bool m_recordingEnabled;
+    QString m_host;
+    quint64 m_port;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
@@ -169,6 +167,9 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
                                                ProjectExplorer::RunConfiguration *runConfiguration)
 {
     QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
+
+    d->m_host = sp.connParams.host;
+    d->m_port = sp.connParams.port;
 
     d->m_runConfiguration = runConfiguration;
     d->m_project = runConfiguration->target()->project();
@@ -291,7 +292,7 @@ void QmlProfilerTool::connectClient()
     delete d->m_client;
     d->m_client = newClient;
 
-    d->m_client->connectToHost(host, port);
+    d->m_client->connectToHost(d->m_host, d->m_port);
     d->m_client->waitForConnected();
 
     if (d->m_client->isConnected()) {
@@ -392,8 +393,8 @@ void QmlProfilerTool::attach()
         if (result == QDialog::Rejected)
             return;
 
-        port = dialog.port();
-        host = dialog.address();
+        d->m_port = dialog.port();
+        d->m_host = dialog.address();
 
         connectClient();
         AnalyzerManager::instance()->showMode();

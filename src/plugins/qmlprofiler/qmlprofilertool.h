@@ -81,11 +81,6 @@ signals:
     void fetchingData(bool);
     void connectionFailed();
 
-public:
-    // Todo: configurable parameters
-    static QString host;
-    static quint16 port;
-
 private slots:
     void updateProjectFileList();
     void attach();

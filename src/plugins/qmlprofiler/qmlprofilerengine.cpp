@@ -147,7 +147,7 @@ bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
 
     m_process = new QProcess();
 
-    QStringList arguments("-qmljsdebugger=port:" + QString::number(QmlProfilerTool::port) + ",block");
+    QStringList arguments("-qmljsdebugger=port:" + QString::number(m_params.connParams.port) + ",block");
     arguments.append(m_params.debuggeeArgs.split(" "));
 
     if (QmlProfilerPlugin::debugOutput)
@@ -174,7 +174,7 @@ bool QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
     }
 
     if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Connecting to %s:%d", qPrintable(QmlProfilerTool::host), QmlProfilerTool::port);
+        qWarning("QmlProfiler: Connecting to %s:%d", qPrintable(m_params.connParams.host), m_params.connParams.port);
 
     return true;
 }
