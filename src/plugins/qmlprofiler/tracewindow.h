@@ -81,7 +81,7 @@ signals:
     void range(int type, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
 
 private:
-    TracePlugin *m_plugin;
+    QWeakPointer<TracePlugin> m_plugin;
     QSize m_sizeHint;
 
     QDeclarativeView *m_view;

@@ -267,8 +267,7 @@ void TracePlugin::messageReceived(const QByteArray &data)
 }
 
 TraceWindow::TraceWindow(QWidget *parent)
-: QWidget(parent),
-  m_plugin(0)
+: QWidget(parent)
 {
     setObjectName(tr("Qml Performance Monitor"));
 
@@ -295,19 +294,20 @@ TraceWindow::TraceWindow(QWidget *parent)
 
 TraceWindow::~TraceWindow()
 {
-    delete m_plugin;
+    delete m_plugin.data();
 }
 
 void TraceWindow::reset(QDeclarativeDebugConnection *conn)
 {
     if (m_plugin)
-        disconnect(m_plugin,SIGNAL(complete()), this, SIGNAL(viewUpdated()));
-    delete m_plugin;
+        disconnect(m_plugin.data(), SIGNAL(complete()), this, SIGNAL(viewUpdated()));
+    delete m_plugin.data();
     m_plugin = new TracePlugin(conn);
-    connect(m_plugin,SIGNAL(complete()), this, SIGNAL(viewUpdated()));
-    connect(m_plugin,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),this,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)));
+    connect(m_plugin.data(), SIGNAL(complete()), this, SIGNAL(viewUpdated()));
+    connect(m_plugin.data(), SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),
+            this, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)));
 
-    m_view->rootContext()->setContextProperty("connection", m_plugin);
+    m_view->rootContext()->setContextProperty("connection", m_plugin.data());
     m_view->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));
 
     connect(m_view->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
@@ -328,17 +328,17 @@ void TraceWindow::updateTimer()
 void TraceWindow::clearDisplay()
 {
     if (m_plugin)
-        m_plugin->clearView();
+        m_plugin.data()->clearView();
 }
 
 void TraceWindow::setRecording(bool recording)
 {
-    m_plugin->setRecording(recording);
+    m_plugin.data()->setRecording(recording);
 }
 
 bool TraceWindow::isRecording() const
 {
-    return (m_plugin->recording());
+    return (m_plugin.data()->recording());
 }
 
 #include "tracewindow.moc"
