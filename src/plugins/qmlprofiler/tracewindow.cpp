@@ -161,10 +161,14 @@ void TracePlugin::setRecording(bool v)
 {
     if (v == m_recording)
         return;
-    QByteArray ba;
-    QDataStream stream(&ba, QIODevice::WriteOnly);
-    stream << v;
-    sendMessage(ba);
+
+    if (status() == Enabled) {
+        QByteArray ba;
+        QDataStream stream(&ba, QIODevice::WriteOnly);
+        stream << v;
+        sendMessage(ba);
+    }
+
     m_recording = v;
     emit recordingChanged(v);
 }
@@ -262,7 +266,7 @@ void TracePlugin::messageReceived(const QByteArray &data)
 
 TraceWindow::TraceWindow(QWidget *parent)
 : QWidget(parent),
-  m_plugin(0), m_recordAtStart(false)
+  m_plugin(0)
 {
     setObjectName(tr("Qml Performance Monitor"));
 
@@ -300,8 +304,6 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     m_plugin = new TracePlugin(conn);
     connect(m_plugin,SIGNAL(complete()), this, SIGNAL(viewUpdated()));
     connect(m_plugin,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),this,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)));
-    if (m_recordAtStart)
-        m_plugin->setRecording(true);
 
     m_view->rootContext()->setContextProperty("connection", m_plugin);
     m_view->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));
@@ -325,11 +327,6 @@ void TraceWindow::clearDisplay()
 {
     if (m_plugin)
         m_plugin->clearView();
-}
-
-void TraceWindow::setRecordAtStart(bool record)
-{
-    m_recordAtStart = record;
 }
 
 void TraceWindow::setRecording(bool recording)

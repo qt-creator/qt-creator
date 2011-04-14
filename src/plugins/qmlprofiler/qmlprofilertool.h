@@ -79,6 +79,7 @@ public slots:
 signals:
     void setTimeLabel(const QString &);
     void fetchingData(bool);
+    void connectionFailed();
 
 public:
     // Todo: configurable parameters

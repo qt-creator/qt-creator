@@ -63,7 +63,6 @@ public:
     ~TraceWindow();
 
     void reset(QDeclarativeDebugConnection *conn);
-    void setRecordAtStart(bool record);
 
     void setRecording(bool recording);
     bool isRecording() const;
@@ -82,7 +81,6 @@ signals:
 private:
     TracePlugin *m_plugin;
     QSize m_sizeHint;
-    bool m_recordAtStart;
 
     QDeclarativeView *m_view;
 };

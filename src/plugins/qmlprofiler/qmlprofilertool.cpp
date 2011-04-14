@@ -123,6 +123,7 @@ public:
     bool m_isAttached;
     QAction *m_attachAction;
     QToolButton *m_recordButton;
+    bool m_recordingEnabled;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
@@ -135,6 +136,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
      d->m_runConfiguration = 0;
      d->m_isAttached = false;
      d->m_attachAction = 0;
+     d->m_recordingEnabled = true;
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -180,6 +182,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     connect(engine, SIGNAL(finished()), this, SLOT(disconnectClient()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(finishProcess()));
+    connect(this, SIGNAL(connectionFailed()), engine, SLOT(finishProcess()));
     connect(this, SIGNAL(fetchingData(bool)), engine, SLOT(setFetchingData(bool)));
     emit fetchingData(d->m_recordButton->isChecked());
 
@@ -292,11 +295,14 @@ void QmlProfilerTool::connectClient()
     d->m_client->waitForConnected();
 
     if (d->m_client->isConnected()) {
+        d->m_traceWindow->setRecording(d->m_recordingEnabled);
         if (QmlProfilerPlugin::debugOutput)
             qWarning("QmlProfiler: connected and running");
     } else {
+        d->m_traceWindow->setRecording(false);
         if (QmlProfilerPlugin::debugOutput)
             qWarning("QmlProfiler: Failed to connect: %s", qPrintable(d->m_client->errorString()));
+        emit connectionFailed();
     }
 
     if (d->m_traceWindow->isRecording())
@@ -311,7 +317,6 @@ void QmlProfilerTool::disconnectClient()
 
 void QmlProfilerTool::startRecording()
 {
-   d->m_traceWindow->setRecordAtStart(true);
     if (d->m_client->isConnected()) {
         clearDisplay();
         d->m_traceWindow->setRecording(true);
@@ -321,14 +326,13 @@ void QmlProfilerTool::startRecording()
 
 void QmlProfilerTool::stopRecording()
 {
-    d->m_traceWindow->setRecordAtStart(d->m_recordButton->isChecked());
-    if (d->m_client->isConnected())
-        d->m_traceWindow->setRecording(false);
+    d->m_traceWindow->setRecording(false);
     emit fetchingData(false);
 }
 
 void QmlProfilerTool::setRecording(bool recording)
 {
+    d->m_recordingEnabled = recording;
     if (recording)
         startRecording();
     else

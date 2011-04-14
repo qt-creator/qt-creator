@@ -102,7 +102,6 @@ void QmlProfilerEngine::start()
 
 void QmlProfilerEngine::stop()
 {
-    d->m_running = false;
     if (d->m_fetchingData)
         emit stopRecording();
     else
@@ -116,14 +115,15 @@ void QmlProfilerEngine::spontaneousStop()
     emit finished();
 }
 
-void QmlProfilerEngine::setFetchingData(bool b) {
+void QmlProfilerEngine::setFetchingData(bool b)
+{
     d->m_fetchingData = b;
-    }
+}
 
 void QmlProfilerEngine::finishProcess()
 {
-    // user stop?
-    if (!d->m_running) {
+    if (d->m_running) {
+        d->m_running = false;
         if (d->m_process) {
             disconnect(d->m_process,SIGNAL(finished(int)),this,SLOT(spontaneousStop()));
             if (d->m_process->state() == QProcess::Running) {
