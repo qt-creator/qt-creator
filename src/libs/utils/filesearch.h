@@ -52,7 +52,7 @@ public:
     FileIterator();
     explicit FileIterator(const QStringList &fileList,
                           const QList<QTextCodec *> encodings);
-    ~FileIterator();
+    virtual ~FileIterator();
 
     virtual bool hasNext() const;
     virtual QString next();

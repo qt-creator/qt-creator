@@ -39,23 +39,17 @@ namespace Constants {
 
 const char *const PROJECTCONTEXT     = "GenericProject.ProjectContext";
 const char *const GENERICMIMETYPE    = "text/x-generic-project"; // ### FIXME
-const char *const MAKESTEP           = "GenericProjectManager.MakeStep";
 
 // contexts
 const char *const C_FILESEDITOR      = ".files Editor";
-
-// kinds
-const char *const PROJECT_KIND       = "Generic";
 
 const char *const FILES_EDITOR_ID    = "QT4.FilesEditor";
 const char *const FILES_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", ".files Editor");
 
 const char *const FILES_MIMETYPE     = "application/vnd.nokia.qt.generic.files";
 
-const char *const INCLUDES_EDITOR    = ".includes Editor";
 const char *const INCLUDES_MIMETYPE  = "application/vnd.nokia.qt.generic.includes";
 
-const char *const CONFIG_EDITOR      = ".config Editor";
 const char *const CONFIG_MIMETYPE    = "application/vnd.nokia.qt.generic.config";
 
 // Project

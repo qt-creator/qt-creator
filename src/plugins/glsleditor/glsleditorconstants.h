@@ -47,11 +47,8 @@ const char * const SEPARATOR1 = "GLSLEditor.Separator1";
 const char * const SEPARATOR2 = "GLSLEditor.Separator2";
 const char * const M_REFACTORING_MENU_INSERTION_POINT = "GLSLEditor.RefactorGroup";
 
-const char * const RUN_SEP = "GLSLEditor.Run.Separator";
 const char * const C_GLSLEDITOR_ID = "GLSLEditor.GLSLEditor";
 const char * const C_GLSLEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "GLSL Editor");
-const char * const TASK_INDEX = "GLSLEditor.TaskIndex";
-const char * const TASK_SEARCH = "GLSLEditor.TaskSearch";
 
 const char * const GLSL_MIMETYPE = "application/x-glsl";
 const char * const GLSL_MIMETYPE_VERT = "text/x-glsl-vert";

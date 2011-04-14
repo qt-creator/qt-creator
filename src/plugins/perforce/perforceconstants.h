@@ -39,8 +39,6 @@
 namespace Perforce {
 namespace Constants {
 
-const char * const PERFORCEEDITOR_CONTEXT  = "Perforce Editor";
-
 const char * const PERFORCE_SUBMIT_EDITOR_ID  = "Perforce.SubmitEditor";
 const char * const PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Perforce.SubmitEditor");
 const char * const PERFORCESUBMITEDITOR_CONTEXT = "Perforce Submit Editor";

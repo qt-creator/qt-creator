@@ -41,16 +41,6 @@ const char *const PROJECTCONTEXT     = "QmlProject.ProjectContext";
 const char *const LANG_QML           = "QML";
 const char *const QMLMIMETYPE        = "application/x-qmlproject";
 
-// contexts
-const char *const C_FILESEDITOR      = ".files Editor";
-
-// kinds
-const char *const PROJECT_KIND       = "QML";
-
-const char *const FILES_EDITOR_ID    = "Qt4.QmlProjectEditor";
-const char *const FILES_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", ".qmlproject Editor");
-const char *const FILES_MIMETYPE     = QMLMIMETYPE;
-
 } // namespace Constants
 } // namespace QmlProjectManager
 

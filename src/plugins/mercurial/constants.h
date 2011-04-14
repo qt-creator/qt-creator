@@ -38,17 +38,8 @@ namespace Mercurial {
 namespace Constants {
 
 enum { debug = 0 };
-const char * const MERCURIAL = "mercurial";
 const char * const MECURIALREPO = ".hg";
 const char * const MERCURIALDEFAULT = "hg";
-
-//options page items
-const char * const MERCURIALPATH = "Mercurial_Path";
-const char * const MERCURIALUSERNAME = "Mercurial_Username";
-const char * const MERCURIALEMAIL = "Mercurial_Email";
-const char * const MERCURIALLOGCOUNT = "Mercurial_LogCount";
-const char * const MERCURIALTIMEOUT = "Mercurial_Timeout";
-const char * const MERCURIALPROMPTSUBMIT = "Mercurial_PromptOnSubmit";
 
 //changeset identifiers
 const char * const CHANGESETID12 = " ([a-f0-9]{12,12}) "; //match 12 hex chars and capture
@@ -113,22 +104,7 @@ const char * const OUTGOING = "Mercurial.Action.Outgoing";
 const char * const COMMIT = "Mercurial.Action.Commit";
 const char * const CREATE_REPOSITORY = "Mercurial.Action.CreateRepository";
 
-//Repository Management
-const char * const MERGE = "Mercurial.Action.Merge";
-const char * const BRANCH = "Mercurial.Action.Branch";
-const char * const HEADS = "Mercurial.Action.Heads";
-const char * const PARENTS = "Mercurial.Action.Parents";
-const char * const TAGS = "Mercurial.Action.Tags";
-const char * const TIP = "Mercurial.Action.TIP";
-const char * const PATHS = "Mercurial.Action.Paths";
-
-//Less commonly used menu actions
-const char * const CLONE = "Mercurial.Action.Clone";
-const char * const INIT = "Mercurial.Action.Init";
-const char * const SERVE = "Mercurial.Action.Serve";
-
 //submit editor actions
-const char * const COMMITEDITOR = "Mercurial.Action.Editor.Commit";
 const char * const DIFFEDITOR = "Mercurial.Action.Editor.Diff";
 
 } // namespace Constants

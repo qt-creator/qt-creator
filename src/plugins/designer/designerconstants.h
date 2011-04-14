@@ -52,11 +52,7 @@ const char * const SETTINGS_CPP_SETTINGS_NAME = QT_TRANSLATE_NOOP("Designer", "C
 
 // context
 const char * const C_FORMEDITOR       = "FormEditor.FormEditor";
-const char * const FORMEDITOR_ID      = "FormEditor";
-const char * const C_FORMEDITOR_DISPLAY_NAME  = QT_TRANSLATE_NOOP("Designer", "Form Editor");
-const char * const T_FORMEDITOR         = "FormEditor.Toolbar";
 const char * const M_FORMEDITOR         = "FormEditor.Menu";
-const char * const M_FORMEDITOR_VIEWS   = "FormEditor.Menu.Views";
 const char * const M_FORMEDITOR_PREVIEW = "FormEditor.Menu.Preview";
 
 // Wizard type

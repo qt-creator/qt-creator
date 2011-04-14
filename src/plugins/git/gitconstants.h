@@ -60,7 +60,6 @@ const char * const DIFF_SELECTED = "Git.DiffSelectedFilesInLog";
 const char * const SUBMIT_MIMETYPE = "application/vnd.nokia.text.git.submit";
 const char * const GIT_BINARY = "git";
 
-const char * const DIFF_FILE_INDICATOR = "--- ";
 enum { debug = 0 };
 
 } // namespace Constants

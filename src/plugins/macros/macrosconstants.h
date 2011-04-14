@@ -49,7 +49,6 @@ const char * const M_OPTIONS_PAGE = "Macros";
 const char * const M_OPTIONS_TR_PAGE = "Macros";
 
 const char * const M_STATUS_BUFFER = "Macros.Status";
-const char * const M_INFO_BUFFER = "Macros.Info";
 
 const char * const M_EXTENSION = "mac";
 

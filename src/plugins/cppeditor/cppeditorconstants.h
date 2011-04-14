@@ -37,7 +37,6 @@
 namespace CppEditor {
 namespace Constants {
 
-const char * const FORMATCODE   = "CppEditor.FormatCode";
 const char * const M_CONTEXT    = "CppEditor.ContextMenu";
 const char * const C_CPPEDITOR  = "CppPlugin.C++Editor";
 const char * const CPPEDITOR_ID = "CppPlugin.C++Editor";
@@ -50,19 +49,12 @@ const char * const SEPARATOR = "CppEditor.Separator";
 const char * const SEPARATOR2 = "CppEditor.Separator2";
 const char * const SEPARATOR3 = "CppEditor.Separator3";
 const char * const SEPARATOR4 = "CppEditor.Separator4";
-const char * const FIND_REFERENCES = "CppEditor.FindReferences";
 const char * const JUMP_TO_DEFINITION = "CppEditor.JumpToDefinition";
 const char * const UPDATE_CODEMODEL = "CppEditor.UpdateCodeModel";
 
 const int TYPE_HIERARCHY_PRIORITY = 700;
 const char * const TYPE_HIERARCHY_ID = "CppEditor.TypeHierarchy";
 const char * const OPEN_TYPE_HIERARCHY = "CppEditor.OpenTypeHierarchy";
-
-const char * const HEADER_FILE_TYPE = "CppHeaderFiles";
-const char * const SOURCE_FILE_TYPE = "CppSourceFiles";
-
-const char * const MOVE_TO_PREVIOUS_TOKEN = "CppEditor.MoveToPreviousToken";
-const char * const MOVE_TO_NEXT_TOKEN = "CppEditor.MoveToNextToken";
 
 const char * const C_SOURCE_MIMETYPE = "text/x-csrc";
 const char * const C_HEADER_MIMETYPE = "text/x-chdr";
