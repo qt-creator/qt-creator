@@ -39,8 +39,9 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-struct MaemoDeployable
+class MaemoDeployable
 {
+public:
     MaemoDeployable() {}
 
     MaemoDeployable(const QString &localFilePath, const QString &remoteDir)
