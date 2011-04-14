@@ -401,11 +401,8 @@ void FileManager::fileDestroyed(QObject *obj)
 {
     IFile *file = static_cast<IFile*>(obj);
     // Check the special unwatched first:
-    if (d->m_filesWithoutWatch.contains(file)) {
-        d->m_filesWithoutWatch.removeOne(file);
-        return;
-    }
-    removeFileInfo(file);
+    if (!d->m_filesWithoutWatch.removeOne(file))
+        removeFileInfo(file);
 }
 
 /*!
@@ -420,14 +417,10 @@ void FileManager::removeFile(IFile *file)
     QTC_ASSERT(file, return);
 
     // Special casing unwatched files
-    if (d->m_filesWithoutWatch.contains(file)) {
-        disconnect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
-        d->m_filesWithoutWatch.removeOne(file);
-        return;
+    if (!d->m_filesWithoutWatch.removeOne(file)) {
+        removeFileInfo(file);
+        disconnect(file, SIGNAL(changed()), this, SLOT(checkForNewFileName()));
     }
-
-    removeFileInfo(file);
-    disconnect(file, SIGNAL(changed()), this, SLOT(checkForNewFileName()));
     disconnect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
 }
 
