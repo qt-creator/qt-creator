@@ -56,6 +56,8 @@
 
 #define GAP_TIME 150
 
+using QmlJsDebugClient::QDeclarativeDebugClient;
+
 namespace QmlProfiler {
 namespace Internal {
 

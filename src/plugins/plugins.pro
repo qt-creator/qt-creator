@@ -40,7 +40,8 @@ SUBDIRS   = plugin_coreplugin \
             plugin_analyzerbase \
             plugin_qmljstools \
             plugin_macros \
-            debugger/dumper.pro
+            debugger/dumper.pro \
+            plugin_qmlprofiler
 
 !win32 {
      SUBDIRS += plugin_valgrindtoolbase \
@@ -64,7 +65,6 @@ contains(QT_CONFIG, declarative) {
 
         minQtVersion(4, 7, 1) {
             SUBDIRS += plugin_qmldesigner
-            SUBDIRS += plugin_qmlprofiler
         } else {
             warning()
             warning("QmlDesigner plugin has been disabled.")

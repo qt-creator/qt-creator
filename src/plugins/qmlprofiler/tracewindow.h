@@ -37,7 +37,7 @@
 #include <QtCore/qpointer.h>
 #include <QtGui/qwidget.h>
 
-#include <QtDeclarative/private/qdeclarativedebugclient_p.h>
+#include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 
 
 QT_BEGIN_NAMESPACE
@@ -49,6 +49,8 @@ class QSpinBox;
 class QPushButton;
 class QDeclarativeView;
 QT_END_NAMESPACE
+
+using QmlJsDebugClient::QDeclarativeDebugConnection;
 
 namespace QmlProfiler {
 namespace Internal {

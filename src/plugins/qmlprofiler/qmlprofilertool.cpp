@@ -38,7 +38,7 @@
 #include "qmlprofilerattachdialog.h"
 
 #include "tracewindow.h"
-#include <private/qdeclarativedebugclient_p.h>
+#include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
@@ -146,7 +146,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 QmlProfilerTool::~QmlProfilerTool()
 {
     if (d->m_client->isConnected())
-        d->m_client->disconnectFromHost();
+        d->m_client->close();
     delete d->m_tabbed;
 
     delete d->m_outputPaneAdapter;
@@ -304,7 +304,6 @@ void QmlProfilerTool::connectToClient()
     d->m_client = newClient;
 
     d->m_client->connectToHost(d->m_host, d->m_port);
-    d->m_client->waitForConnected();
 
     if (d->m_client->isConnected()) {
         d->m_traceWindow->setRecording(d->m_recordingEnabled);
@@ -323,9 +322,8 @@ void QmlProfilerTool::connectToClient()
 
 void QmlProfilerTool::disconnectClient()
 {
-    d->m_client->disconnectFromHost();
+    d->m_client->close();
 }
-
 
 void QmlProfilerTool::startRecording()
 {

@@ -39,7 +39,7 @@
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
 
-#include <private/qdeclarativedebugclient_p.h>
+#include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 
 #include "timelineview.h"
 #include "tracewindow.h"

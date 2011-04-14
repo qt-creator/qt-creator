@@ -7,6 +7,7 @@ include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/analyzerbase/analyzerbase.pri)
 include(../../plugins/qmlprojectmanager/qmlprojectmanager.pri)
+include(../../libs/qmljsdebugclient/qmljsdebugclient-lib.pri)
 
 QT += network script declarative
 
