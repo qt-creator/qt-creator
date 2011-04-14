@@ -49,6 +49,7 @@ public:
 
     QByteArray predefinedMacros() const;
     void addToEnvironment(Utils::Environment &env) const;
+    QString makeCommand() const;
     QString defaultMakeTarget() const;
 
     ProjectExplorer::ToolChain *clone() const;

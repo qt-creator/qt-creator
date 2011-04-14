@@ -117,6 +117,15 @@ void GcceToolChain::addToEnvironment(Utils::Environment &env) const
     env.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
 }
 
+QString GcceToolChain::makeCommand() const
+{
+#if defined(Q_OS_WIN)
+    return QLatin1String("make.exe");
+#else
+    return QLatin1String("make");
+#endif
+}
+
 QString GcceToolChain::defaultMakeTarget() const
 {
     return QLatin1String("gcce");
