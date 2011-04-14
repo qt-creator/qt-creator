@@ -60,7 +60,6 @@ const char * const QT4_BC_ID("Qt4ProjectManager.Qt4BuildConfiguration");
 
 const char * const USE_SHADOW_BUILD_KEY("Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild");
 const char * const BUILD_DIRECTORY_KEY("Qt4ProjectManager.Qt4BuildConfiguration.BuildDirectory");
-const char * const TOOLCHAIN_KEY("Qt4ProjectManager.Qt4BuildConfiguration.ToolChain");
 const char * const BUILD_CONFIGURATION_KEY("Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration");
 const char * const QT_VERSION_ID_KEY("Qt4ProjectManager.Qt4BuildConfiguration.QtVersionId");
 
@@ -112,7 +111,6 @@ QVariantMap Qt4BuildConfiguration::toMap() const
     map.insert(QLatin1String(USE_SHADOW_BUILD_KEY), m_shadowBuild);
     map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
     map.insert(QLatin1String(QT_VERSION_ID_KEY), m_qtVersionId);
-    map.insert(QLatin1String(TOOLCHAIN_KEY), toolChain() ? toolChain()->id() : QLatin1String("<UNSET>"));
     map.insert(QLatin1String(BUILD_CONFIGURATION_KEY), int(m_qmakeBuildConfiguration));
     return map;
 }
@@ -133,8 +131,7 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 
     m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), true).toBool();
     m_qtVersionId = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
-    ProjectExplorer::ToolChain *tc = 0;
-    tc = ProjectExplorer::ToolChainManager::instance()->findToolChain(map.value(QLatin1String(TOOLCHAIN_KEY)).toString());
+    ProjectExplorer::ToolChain *tc = toolChain();
     m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY), defaultShadowBuildDirectory()).toString();
 
