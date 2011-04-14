@@ -866,6 +866,10 @@ void FileManager::checkForReload()
             changedIFiles.insert(file);
     }
 
+    // clean up. do this before we may enter the main loop, otherwise we would
+    // lose consecutive notifications.
+    d->m_changedFiles.clear();
+
     // collect information about "expected" file names
     // we can't do the "resolving" already in expectFileChange, because
     // if the resolved names are different when unexpectFileChange is called
@@ -1005,9 +1009,6 @@ void FileManager::checkForReload()
         addFileInfo(file);
         d->m_blockedIFile = 0;
     }
-
-    // clean up
-    d->m_changedFiles.clear();
 
     // handle deleted files
     EditorManager::instance()->closeEditors(editorsToClose, false);
