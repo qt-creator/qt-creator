@@ -134,6 +134,8 @@ QString QmlProjectRunConfiguration::observerPath() const
     if (!version) {
         return QString();
     } else {
+        if (!version->needsQmlDebuggingLibrary())
+            return version->qmlviewerCommand();
         return version->qmlObserverTool();
     }
 }

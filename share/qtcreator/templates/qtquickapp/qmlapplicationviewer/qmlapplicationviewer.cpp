@@ -16,18 +16,16 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
 
-#if defined(QMLJSDEBUGGER)
-#include <qt_private/qdeclarativedebughelper_p.h>
-#endif
+#if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 
-#if defined(QMLJSDEBUGGER) && !defined(NO_JSDEBUGGER)
+#include <qt_private/qdeclarativedebughelper_p.h>
+
+#if !defined(NO_JSDEBUGGER)
 #include <jsdebuggeragent.h>
 #endif
-#if defined(QMLJSDEBUGGER) && !defined(NO_QMLOBSERVER)
+#if !defined(NO_QMLOBSERVER)
 #include <qdeclarativeviewobserver.h>
 #endif
-
-#if defined(QMLJSDEBUGGER)
 
 // Enable debugging before any QDeclarativeEngine is created
 struct QmlJsDebuggingEnabler
@@ -76,11 +74,14 @@ QmlApplicationViewer::QmlApplicationViewer(QWidget *parent) :
 {
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
-#if defined(QMLJSDEBUGGER) && !defined(NO_JSDEBUGGER)
+    // Qt versions prior to 4.8.0 don't have QML/JS debugging services built in
+#if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
+#if !defined(NO_JSDEBUGGER)
     new QmlJSDebugger::JSDebuggerAgent(engine());
 #endif
-#if defined(QMLJSDEBUGGER) && !defined(NO_QMLOBSERVER)
+#if !defined(NO_QMLOBSERVER)
     new QmlJSDebugger::QDeclarativeViewObserver(this, this);
+#endif
 #endif
 }
 

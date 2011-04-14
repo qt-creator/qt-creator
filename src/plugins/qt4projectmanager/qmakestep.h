@@ -152,7 +152,7 @@ private slots:
 
 private:
     void updateSummaryLabel();
-    void updateQmlDebuggingWarningsLabel();
+    void updateQmlDebuggingOption();
     void updateEffectiveQMakeCall();
     Ui::QMakeStep m_ui;
     QMakeStep *m_step;

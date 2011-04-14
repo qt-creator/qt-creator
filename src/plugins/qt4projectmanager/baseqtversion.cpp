@@ -784,6 +784,12 @@ bool BaseQtVersion::hasQmlDebuggingLibrary() const
     return m_hasQmlDebuggingLibrary;
 }
 
+bool BaseQtVersion::needsQmlDebuggingLibrary() const
+{
+    updateVersionInfo();
+    return qtVersion() < QtVersionNumber(4, 8, 0);
+}
+
 bool BaseQtVersion::hasQmlObserver() const
 {
     updateVersionInfo();

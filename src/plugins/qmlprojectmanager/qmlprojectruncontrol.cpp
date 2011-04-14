@@ -160,7 +160,8 @@ bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
             Debugger::DebuggerPlugin::isActiveDebugLanguage(Debugger::QmlLanguage);
 
     if (config && qmlDebugSupportInstalled) {
-        if (!config->observerPath().isEmpty())
+        if (!(config->qtVersion() && config->qtVersion()->needsQmlDebuggingLibrary())
+                || !config->observerPath().isEmpty())
             return true;
         if (config->qtVersion() && Qt4ProjectManager::QmlObserverTool::canBuild(config->qtVersion()))
             return true;

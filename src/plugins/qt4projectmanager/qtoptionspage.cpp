@@ -474,6 +474,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         const bool hasGdbHelper = !version->gdbDebuggingHelperLibrary().isEmpty();
         const bool hasQmlDumper = version->hasQmlDump();
         const bool hasQmlDebuggingLib = version->hasQmlDebuggingLibrary();
+        const bool needsQmlDebuggingLib = version->needsQmlDebuggingLibrary();
         const bool hasQmlObserver = !version->qmlObserverTool().isEmpty();
 
         bool isBuildingGdbHelper = false;
@@ -566,8 +567,10 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
                 qmlDebuggingLibStatusText += debugPath;
             }
             qmlDebuggingLibStatusTextFlags = Qt::TextSelectableByMouse;
-        }  else {
-            if (canBuildQmlDebuggingLib) {
+        } else {
+            if (!needsQmlDebuggingLib) {
+                qmlDebuggingLibStatusText = tr("<i>Not needed.</i>");
+            } else if (canBuildQmlDebuggingLib) {
                 qmlDebuggingLibStatusText = tr("<i>Not yet built.</i>");
             } else {
                 qmlDebuggingLibStatusText = tr("<i>Cannot be compiled.</i>");
@@ -575,7 +578,8 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         }
         m_debuggingHelperUi->qmlDebuggingLibStatus->setText(qmlDebuggingLibStatusText);
         m_debuggingHelperUi->qmlDebuggingLibStatus->setTextInteractionFlags(qmlDebuggingLibStatusTextFlags);
-        m_debuggingHelperUi->qmlDebuggingLibBuildButton->setEnabled(canBuildQmlDebuggingLib
+        m_debuggingHelperUi->qmlDebuggingLibBuildButton->setEnabled(needsQmlDebuggingLib
+                                                                    && canBuildQmlDebuggingLib
                                                                     && !isBuildingQmlDebuggingLib);
 
         QString qmlObserverStatusText;
@@ -584,7 +588,9 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
             qmlObserverStatusText = QDir::toNativeSeparators(version->qmlObserverTool());
             qmlObserverStatusTextFlags = Qt::TextSelectableByMouse;
         }  else {
-            if (canBuildQmlObserver) {
+            if (!needsQmlDebuggingLib) {
+                qmlObserverStatusText = tr("<i>Not needed.</i>");
+            } else if (canBuildQmlObserver) {
                 qmlObserverStatusText = tr("<i>Not yet built.</i>");
             } else {
                 qmlObserverStatusText = tr("<i>Cannot be compiled.</i>");
@@ -604,7 +610,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
                                                         && !isBuildingQmlObserver)
                                                        && (canBuildGdbHelper
                                                            || canBuildQmlDumper
-                                                           || canBuildQmlDebuggingLib
+                                                           || (canBuildQmlDebuggingLib && needsQmlDebuggingLib)
                                                            || canBuildQmlObserver));
 
         m_ui->debuggingHelperWidget->setVisible(true);

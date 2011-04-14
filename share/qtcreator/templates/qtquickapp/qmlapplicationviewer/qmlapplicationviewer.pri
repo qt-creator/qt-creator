@@ -5,6 +5,7 @@
 # may offer an updated version of it.
 
 QT += declarative
+CONFIG(debug, debug|release):CONFIG += declarative_debug
 
 SOURCES += $$PWD/qmlapplicationviewer.cpp
 HEADERS += $$PWD/qmlapplicationviewer.h
