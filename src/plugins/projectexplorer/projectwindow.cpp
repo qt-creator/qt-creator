@@ -162,7 +162,7 @@ PanelsWidget::~PanelsWidget()
  * |          widget (with contentsmargins adjusted!)   |
  * +--------+-------------------------------------------+ BELOW_CONTENTS_MARGIN
  */
-void PanelsWidget::addPropertiesPanel(IPropertiesPanel *panel)
+void PanelsWidget::addPropertiesPanel(PropertiesPanel *panel)
 {
     QTC_ASSERT(panel, return);
 
@@ -200,7 +200,7 @@ void PanelsWidget::addPropertiesPanel(IPropertiesPanel *panel)
     addPanelWidget(panel, widgetRow);
 }
 
-void PanelsWidget::addPanelWidget(IPropertiesPanel *panel, int row)
+void PanelsWidget::addPanelWidget(PropertiesPanel *panel, int row)
 {
     QWidget *widget = panel->widget();
     widget->setContentsMargins(Constants::PANEL_LEFT_MARGIN,
@@ -436,7 +436,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
     if (fac) {
         removeCurrentWidget();
 
-        IPropertiesPanel *panel = 0;
+        PropertiesPanel *panel = 0;
         if (ITargetPanelFactory *ipf = qobject_cast<ITargetPanelFactory *>(fac))
             panel = ipf->createPanel(project->activeTarget());
         else if (IProjectPanelFactory *ipf = qobject_cast<IProjectPanelFactory *>(fac))

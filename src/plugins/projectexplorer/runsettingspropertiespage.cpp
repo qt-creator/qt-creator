@@ -89,39 +89,13 @@ bool RunSettingsPanelFactory::supports(Target *target)
     return true;
 }
 
-IPropertiesPanel *RunSettingsPanelFactory::createPanel(Target *target)
+PropertiesPanel *RunSettingsPanelFactory::createPanel(Target *target)
 {
-    return new RunSettingsPanel(target);
-}
-
-///
-/// RunSettingsPanel
-///
-
-RunSettingsPanel::RunSettingsPanel(Target *target) :
-     m_widget(new RunSettingsWidget(target)),
-     m_icon(":/projectexplorer/images/RunSettings.png")
-{
-}
-
-RunSettingsPanel::~RunSettingsPanel()
-{
-    delete m_widget;
-}
-
-QString RunSettingsPanel::displayName() const
-{
-    return QCoreApplication::translate("RunSettingsPanel", "Run Settings");
-}
-
-QWidget *RunSettingsPanel::widget() const
-{
-    return m_widget;
-}
-
-QIcon RunSettingsPanel::icon() const
-{
-    return m_icon;
+    PropertiesPanel *panel = new PropertiesPanel;
+    panel->setWidget(new RunSettingsWidget(target));
+    panel->setIcon(QIcon(":/projectexplorer/images/RunSettings.png"));
+    panel->setDisplayName(QCoreApplication::translate("RunSettingsPanel", "Run Settings"));
+    return panel;
 }
 
 ///

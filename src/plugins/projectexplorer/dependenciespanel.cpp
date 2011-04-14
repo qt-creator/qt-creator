@@ -257,36 +257,6 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
 }
 
 //
-// DependenciesPanel
-//
-
-DependenciesPanel::DependenciesPanel(SessionManager *session, Project *project) :
-    m_widget(new DependenciesWidget(session, project)),
-    m_icon(":/projectexplorer/images/ProjectDependencies.png")
-{
-}
-
-DependenciesPanel::~DependenciesPanel()
-{
-    delete m_widget;
-}
-
-QString DependenciesPanel::displayName() const
-{
-    return QCoreApplication::translate("DependenciesPanel", "Dependencies");
-}
-
-QWidget *DependenciesPanel::widget() const
-{
-    return m_widget;
-}
-
-QIcon DependenciesPanel::icon() const
-{
-    return m_icon;
-}
-
-//
 // DependenciesPanelFactory
 //
 
@@ -311,9 +281,13 @@ bool DependenciesPanelFactory::supports(Project *project)
     return true;
 }
 
-IPropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
+PropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
 {
-    return new DependenciesPanel(m_session, project);
+    PropertiesPanel *panel = new PropertiesPanel;
+    panel->setWidget(new DependenciesWidget(m_session, project));
+    panel->setIcon(QIcon(":/projectexplorer/images/ProjectDependencies.png"));
+    panel->setDisplayName(QCoreApplication::translate("DependenciesPanel", "Dependencies"));
+    return panel;
 }
 
 } // namespace Internal

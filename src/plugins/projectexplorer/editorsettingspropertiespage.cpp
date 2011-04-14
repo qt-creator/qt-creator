@@ -55,35 +55,13 @@ bool EditorSettingsPanelFactory::supports(Project *project)
     return true;
 }
 
-IPropertiesPanel *EditorSettingsPanelFactory::createPanel(Project *project)
+PropertiesPanel *EditorSettingsPanelFactory::createPanel(Project *project)
 {
-    return new EditorSettingsPanel(project);
-}
-
-EditorSettingsPanel::EditorSettingsPanel(Project *project) :
-    m_widget(new EditorSettingsWidget(project)),
-    m_icon(":/projectexplorer/images/EditorSettings.png")
-{
-}
-
-EditorSettingsPanel::~EditorSettingsPanel()
-{
-    delete m_widget;
-}
-
-QString EditorSettingsPanel::displayName() const
-{
-    return QCoreApplication::translate("EditorSettingsPanel", "Editor Settings");
-}
-
-QWidget *EditorSettingsPanel::widget() const
-{
-    return m_widget;
-}
-
-QIcon EditorSettingsPanel::icon() const
-{
-    return m_icon;
+    PropertiesPanel *panel = new PropertiesPanel;
+    panel->setDisplayName(QCoreApplication::translate("EditorSettingsPanel", "Editor Settings"));
+    panel->setWidget(new EditorSettingsWidget(project)),
+    panel->setIcon(QIcon(":/projectexplorer/images/EditorSettings.png"));
+    return panel;
 }
 
 EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_project(project)

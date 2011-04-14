@@ -36,8 +36,8 @@
 #include "projectexplorer_export.h"
 
 #include <QtCore/QObject>
-
-QT_FORWARD_DECLARE_CLASS(QIcon)
+#include <QtGui/QIcon>
+#include <QtGui/QWidget>
 
 namespace ProjectExplorer {
 class Project;
@@ -47,17 +47,26 @@ namespace Constants {
     const int PANEL_LEFT_MARGIN = 70;
 }
 
-class PROJECTEXPLORER_EXPORT IPropertiesPanel
+class PROJECTEXPLORER_EXPORT PropertiesPanel
 {
-public:
-    IPropertiesPanel()
-    { }
-    virtual ~IPropertiesPanel()
-    { }
+    Q_DISABLE_COPY(PropertiesPanel)
 
-    virtual QString displayName() const = 0;
-    virtual QIcon icon() const = 0;
-    virtual QWidget *widget() const = 0;
+public:
+    PropertiesPanel() {}
+    ~PropertiesPanel() { delete m_widget; }
+
+    QString displayName() const { return m_displayName; }
+    QIcon icon() const { return m_icon; }
+    QWidget *widget() const { return m_widget; }
+
+    void setDisplayName(const QString &name) { m_displayName = name; }
+    void setIcon(const QIcon &icon) { m_icon = icon; }
+    void setWidget(QWidget *widget) { m_widget = widget; }
+
+private:
+    QString m_displayName;
+    QWidget *m_widget;
+    QIcon m_icon;
 };
 
 class PROJECTEXPLORER_EXPORT IPanelFactory : public QObject
@@ -73,7 +82,7 @@ class PROJECTEXPLORER_EXPORT IProjectPanelFactory : public IPanelFactory
     Q_OBJECT
 public:
     virtual bool supports(Project *project) = 0;
-    virtual IPropertiesPanel *createPanel(Project *project) = 0;
+    virtual PropertiesPanel *createPanel(Project *project) = 0;
 };
 
 class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public IPanelFactory
@@ -81,7 +90,7 @@ class PROJECTEXPLORER_EXPORT ITargetPanelFactory : public IPanelFactory
     Q_OBJECT
 public:
     virtual bool supports(Target *target) = 0;
-    virtual IPropertiesPanel *createPanel(Target *target) = 0;
+    virtual PropertiesPanel *createPanel(Target *target) = 0;
 };
 
 } // namespace ProjectExplorer

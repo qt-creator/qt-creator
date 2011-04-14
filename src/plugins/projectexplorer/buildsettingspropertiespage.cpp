@@ -76,40 +76,13 @@ bool BuildSettingsPanelFactory::supports(Target *target)
     return target->buildConfigurationFactory();
 }
 
-IPropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)
+PropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)
 {
-    return new BuildSettingsPanel(target);
-}
-
-
-///
-// BuildSettingsPanel
-///
-
-BuildSettingsPanel::BuildSettingsPanel(Target *target) :
-    m_widget(new BuildSettingsWidget(target)),
-    m_icon(":/projectexplorer/images/BuildSettings.png")
-{
-}
-
-BuildSettingsPanel::~BuildSettingsPanel()
-{
-    delete m_widget;
-}
-
-QString BuildSettingsPanel::displayName() const
-{
-    return QCoreApplication::translate("BuildSettingsPanel", "Build Settings");
-}
-
-QWidget *BuildSettingsPanel::widget() const
-{
-    return m_widget;
-}
-
-QIcon BuildSettingsPanel::icon() const
-{
-    return m_icon;
+    PropertiesPanel *panel = new PropertiesPanel;
+    panel->setWidget(new BuildSettingsWidget(target));
+    panel->setIcon(QIcon(":/projectexplorer/images/BuildSettings.png"));
+    panel->setDisplayName(QCoreApplication::translate("BuildSettingsPanel", "Build Settings"));
+    return panel;
 }
 
 ///

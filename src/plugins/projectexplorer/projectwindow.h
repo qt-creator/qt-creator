@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-class IPropertiesPanel;
+class PropertiesPanel;
 class Project;
 class Target;
 class BuildConfiguration;
@@ -62,12 +62,12 @@ public:
     PanelsWidget(QWidget *parent);
     ~PanelsWidget();
     // Adds a widget
-    void addPropertiesPanel(IPropertiesPanel *panel);
+    void addPropertiesPanel(PropertiesPanel *panel);
 
 private:
-    void addPanelWidget(IPropertiesPanel *panel, int row);
+    void addPanelWidget(PropertiesPanel *panel, int row);
 
-    QList<IPropertiesPanel *> m_panels;
+    QList<PropertiesPanel *> m_panels;
     QGridLayout *m_layout;
     QWidget *m_root;
 };

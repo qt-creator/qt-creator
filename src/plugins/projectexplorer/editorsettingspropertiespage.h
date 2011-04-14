@@ -49,24 +49,8 @@ class EditorSettingsPanelFactory : public IProjectPanelFactory
 public:
     QString id() const;
     QString displayName() const;
-    IPropertiesPanel *createPanel(Project *project);
+    PropertiesPanel *createPanel(Project *project);
     bool supports(Project *project);
-};
-
-class EditorSettingsWidget;
-
-class EditorSettingsPanel : public IPropertiesPanel
-{
-public:
-    EditorSettingsPanel(Project *project);
-    ~EditorSettingsPanel();
-    QString displayName() const;
-    QWidget *widget() const;
-    QIcon icon() const;
-
-private:
-    EditorSettingsWidget *m_widget;
-    const QIcon m_icon;
 };
 
 class EditorSettingsWidget : public QWidget
