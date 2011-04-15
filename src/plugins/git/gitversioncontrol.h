@@ -47,24 +47,24 @@ class GitVersionControl : public Core::IVersionControl
 public:
     explicit GitVersionControl(GitClient *plugin);
 
-    virtual QString displayName() const;
+    QString displayName() const;
 
-    virtual bool managesDirectory(const QString &directory, QString *topLevel) const;
+    bool managesDirectory(const QString &directory, QString *topLevel) const;
 
-    virtual bool supportsOperation(Operation operation) const;
-    virtual bool vcsOpen(const QString &fileName);
-    virtual bool vcsAdd(const QString &fileName);
-    virtual bool vcsDelete(const QString &filename);
-    virtual bool vcsMove(const QString &from, const QString &to);
-    virtual bool vcsCreateRepository(const QString &directory);
-    virtual bool vcsCheckout(const QString &directory, const QByteArray &url);
-    virtual QString vcsGetRepositoryURL(const QString &directory);
-    virtual QString vcsCreateSnapshot(const QString &topLevel);
-    virtual QStringList vcsSnapshots(const QString &topLevel);
-    virtual bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
-    virtual bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
+    bool supportsOperation(Operation operation) const;
+    bool vcsOpen(const QString &fileName);
+    bool vcsAdd(const QString &fileName);
+    bool vcsDelete(const QString &filename);
+    bool vcsMove(const QString &from, const QString &to);
+    bool vcsCreateRepository(const QString &directory);
+    bool vcsCheckout(const QString &directory, const QByteArray &url);
+    QString vcsGetRepositoryURL(const QString &directory);
+    QString vcsCreateSnapshot(const QString &topLevel);
+    QStringList vcsSnapshots(const QString &topLevel);
+    bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
+    bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
 
-    virtual bool vcsAnnotate(const QString &file, int line);
+    bool vcsAnnotate(const QString &file, int line);
 
     void emitFilesChanged(const QStringList &);
     void emitRepositoryChanged(const QString &);
