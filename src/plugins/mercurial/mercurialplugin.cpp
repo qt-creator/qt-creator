@@ -199,6 +199,7 @@ void MercurialPlugin::setSettings(const MercurialSettings &settings)
 {
     if (settings != mercurialSettings) {
         mercurialSettings = settings;
+        static_cast<MercurialControl *>(versionControl())->emitConfigurationChanged();
     }
 }
 

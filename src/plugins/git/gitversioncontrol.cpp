@@ -247,5 +247,10 @@ void GitVersionControl::emitRepositoryChanged(const QString &r)
     emit repositoryChanged(r);
 }
 
+void GitVersionControl::emitConfigurationChanged()
+{
+    emit configurationChanged();
+}
+
 } // Internal
 } // Git

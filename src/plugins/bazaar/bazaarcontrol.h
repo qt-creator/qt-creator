@@ -74,6 +74,7 @@ public slots:
     // files changed signals according to the variant's type:
     // String -> repository, StringList -> files
     void changed(const QVariant&);
+    void emitConfigurationChanged();
 
 private:
     BazaarClient *m_bazaarClient;

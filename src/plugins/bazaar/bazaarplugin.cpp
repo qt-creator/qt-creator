@@ -208,6 +208,7 @@ void BazaarPlugin::setSettings(const BazaarSettings &settings)
         m_bazaarSettings = settings;
         if (userIdChanged)
             client()->synchronousSetUserId();
+        static_cast<BazaarControl *>(versionControl())->emitConfigurationChanged();
     }
 }
 

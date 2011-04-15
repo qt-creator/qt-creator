@@ -159,3 +159,8 @@ void SubversionControl::emitFilesChanged(const QStringList &l)
 {
     emit filesChanged(l);
 }
+
+void SubversionControl::emitConfigurationChanged()
+{
+    emit configurationChanged();
+}

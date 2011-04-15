@@ -1320,6 +1320,7 @@ void CVSPlugin::setSettings(const CVSSettings &s)
         m_settings = s;
         if (QSettings *settings = Core::ICore::instance()->settings())
             m_settings.toSettings(settings);
+        cvsVersionControl()->emitConfigurationChanged();
     }
 }
 

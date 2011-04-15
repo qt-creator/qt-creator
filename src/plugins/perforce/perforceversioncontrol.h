@@ -68,6 +68,7 @@ public:
 
     void emitRepositoryChanged(const QString &s);
     void emitFilesChanged(const QStringList &l);
+    void emitConfigurationChanged();
 
 private:
     bool m_enabled;

@@ -158,3 +158,8 @@ void CVSControl::emitFilesChanged(const QStringList &l)
 {
     emit filesChanged(l);
 }
+
+void CVSControl::emitConfigurationChanged()
+{
+    emit configurationChanged();
+}

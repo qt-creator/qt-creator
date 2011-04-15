@@ -69,6 +69,7 @@ public:
 
     void emitFilesChanged(const QStringList &);
     void emitRepositoryChanged(const QString &);
+    void emitConfigurationChanged();
 
 private:
     GitClient *m_client;

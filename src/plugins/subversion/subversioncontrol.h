@@ -69,6 +69,7 @@ public:
 
     void emitRepositoryChanged(const QString &);
     void emitFilesChanged(const QStringList &);
+    void emitConfigurationChanged();
 
 private:
     SubversionPlugin *m_plugin;

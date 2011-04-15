@@ -183,3 +183,8 @@ void MercurialControl::changed(const QVariant &v)
         break;
     }
 }
+
+void MercurialControl::emitConfigurationChanged()
+{
+    emit configurationChanged();
+}

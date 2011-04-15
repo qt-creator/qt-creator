@@ -1457,6 +1457,7 @@ void PerforcePlugin::setSettings(const Settings &newSettings)
         m_managedDirectoryCache.clear();
         m_settings.toSettings(Core::ICore::instance()->settings());
         getTopLevel();
+        perforceVersionControl()->emitConfigurationChanged();
     }
 }
 

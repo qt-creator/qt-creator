@@ -169,6 +169,7 @@ struct ProjectWizardContext
     void clear();
 
     QList<Core::IVersionControl*> versionControls;
+    QList<Core::IVersionControl*> activeVersionControls;
     QList<ProjectEntry> projects;
     ProjectWizardPage *page;
     bool repositoryExists; // Is VCS 'add' sufficient, or should a repository be created?
@@ -185,7 +186,7 @@ ProjectWizardContext::ProjectWizardContext() :
 
 void ProjectWizardContext::clear()
 {
-    versionControls.clear();
+    activeVersionControls.clear();
     projects.clear();
     commonDirectory.clear();
     page = 0;
@@ -299,6 +300,13 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
     } else {
         m_context->page->setCurrentProjectIndex(bestProjectIndex + 1);
     }
+
+    // Store all version controls for later use:
+    foreach (Core::IVersionControl *vc, ExtensionSystem::PluginManager::instance()->getObjects<Core::IVersionControl>()) {
+        m_context->versionControls.append(vc);
+        connect(vc, SIGNAL(configurationChanged()), this, SLOT(initializeVersionControlChoices()));
+    }
+
     initializeVersionControlChoices();
 }
 
@@ -308,32 +316,42 @@ void ProjectFileWizardExtension::initializeVersionControlChoices()
     // 1) Directory is managed and VCS supports "Add" -> List it
     // 2) Directory is managed and VCS does not support "Add" -> None available
     // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
-    m_context->versionControls.clear();
+
+    Core::IVersionControl *currentSelection = 0;
+    int currentIdx = m_context->page->versionControlIndex() - 1;
+    if (currentIdx >= 0 && currentIdx <= m_context->activeVersionControls.size() - 1)
+        currentSelection = m_context->activeVersionControls.at(currentIdx);
+
+    m_context->activeVersionControls.clear();
+
+    QStringList versionControlChoices = QStringList(tr("<None>"));
     if (!m_context->commonDirectory.isEmpty()) {
         Core::IVersionControl *managingControl = Core::ICore::instance()->vcsManager()->findVersionControlForDirectory(m_context->commonDirectory);
         if (managingControl) {
             // Under VCS
             if (managingControl->supportsOperation(Core::IVersionControl::AddOperation)) {
-                m_context->versionControls.push_back(managingControl);
+                m_context->activeVersionControls.push_back(managingControl);
                 m_context->repositoryExists = true;
             }
         } else {
             // Create
-            foreach (Core::IVersionControl *vc, ExtensionSystem::PluginManager::instance()->getObjects<Core::IVersionControl>())
-                if (vc->supportsOperation(Core::IVersionControl::CreateRepositoryOperation))
-                    m_context->versionControls.push_back(vc);
+            foreach (Core::IVersionControl *vc, m_context->versionControls)
+                if (vc->supportsOperation(Core::IVersionControl::CreateRepositoryOperation)) {
+                    versionControlChoices.append(vc->displayName());
+                    m_context->activeVersionControls.append(vc);
+                }
             m_context->repositoryExists = false;
         }
     } // has a common root.
-    // Compile names
-    //: No version control system selected
-    QStringList versionControlChoices = QStringList(tr("<None>"));
-    foreach(const Core::IVersionControl *c, m_context->versionControls)
-        versionControlChoices.push_back(c->displayName());
+
     m_context->page->setVersionControls(versionControlChoices);
     // Enable adding to version control by default.
     if (m_context->repositoryExists && versionControlChoices.size() >= 2)
         m_context->page->setVersionControlIndex(1);
+    if (!m_context->repositoryExists) {
+        int newIdx = m_context->activeVersionControls.indexOf(currentSelection) + 1;
+        m_context->page->setVersionControlIndex(newIdx);
+    }
 }
 
 QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const Core::IWizard *wizard)
@@ -442,10 +460,10 @@ bool ProjectFileWizardExtension::processVersionControl(const QList<Core::Generat
 {
     // Add files to  version control (Entry at 0 is 'None').
     const int vcsIndex = m_context->page->versionControlIndex() - 1;
-    if (vcsIndex < 0 || vcsIndex >= m_context->versionControls.size())
+    if (vcsIndex < 0 || vcsIndex >= m_context->activeVersionControls.size())
         return true;
     QTC_ASSERT(!m_context->commonDirectory.isEmpty(), return false);
-    Core::IVersionControl *versionControl = m_context->versionControls.at(vcsIndex);
+    Core::IVersionControl *versionControl = m_context->activeVersionControls.at(vcsIndex);
     // Create repository?
     if (!m_context->repositoryExists) {
         QTC_ASSERT(versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation), return false);

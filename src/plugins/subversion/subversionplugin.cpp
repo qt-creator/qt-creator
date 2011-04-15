@@ -1203,6 +1203,7 @@ void SubversionPlugin::setSettings(const SubversionSettings &s)
         m_settings = s;
         if (QSettings *settings = Core::ICore::instance()->settings())
             m_settings.toSettings(settings);
+        subVersionControl()->emitConfigurationChanged();
     }
 }
 

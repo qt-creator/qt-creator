@@ -2387,6 +2387,7 @@ void GitClient::setSettings(const GitSettings &s)
         m_binaryPath = m_settings.gitBinaryPath();
         m_cachedGitVersion = 0u;
         m_hasCachedGitVersion = false;
+        m_plugin->gitVersionControl()->emitConfigurationChanged();
     }
 }
 

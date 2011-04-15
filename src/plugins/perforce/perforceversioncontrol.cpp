@@ -175,5 +175,10 @@ void PerforceVersionControl::emitFilesChanged(const QStringList &l)
     emit filesChanged(l);
 }
 
+void PerforceVersionControl::emitConfigurationChanged()
+{
+    emit configurationChanged();
+}
+
 } // Internal
 } // Perforce

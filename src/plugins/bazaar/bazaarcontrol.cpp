@@ -177,3 +177,8 @@ void BazaarControl::changed(const QVariant &v)
         break;
     }
 }
+
+void BazaarControl::emitConfigurationChanged()
+{
+    emit configurationChanged();
+}
