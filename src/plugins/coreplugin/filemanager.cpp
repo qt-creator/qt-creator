@@ -279,24 +279,6 @@ void FileManager::addFileInfo(const QString &fileName, IFile *file, bool isLink)
     d->m_filesWithWatch[file].append(fileName); // inserts a new QStringList if not already there
 }
 
-/* Updates the time stamp and permission information of the files
-   registered for this IFile (in m_filesWithWatch; can be the IFile's file + final link target) */
-void FileManager::updateFileInfo(IFile *file)
-{
-    foreach (const QString &fileName, d->m_filesWithWatch.value(file)) {
-        // If the filename is empty there's nothing to do
-        if (fileName.isEmpty())
-            continue;
-        const QFileInfo fi(fileName);
-        Internal::FileStateItem item;
-        item.modified = fi.lastModified();
-        item.permissions = fi.permissions();
-        QTC_ASSERT(d->m_states.contains(fileName), continue);
-        QTC_ASSERT(d->m_states.value(fileName).lastUpdatedState.contains(file), continue);
-        d->m_states[fileName].lastUpdatedState.insert(file, item);
-    }
-}
-
 /// Dumps the state of the file manager's map
 /// For debugging purposes
 void FileManager::dump()
@@ -410,18 +392,21 @@ void FileManager::fileDestroyed(QObject *obj)
 
     Removes a IFile object from the collection.
 
-    Returns true if the file specified by \a file has been part of the file list.
+    Returns true if the file specified by \a file had the addWatcher argument to addFile() set.
 */
-void FileManager::removeFile(IFile *file)
+bool FileManager::removeFile(IFile *file)
 {
-    QTC_ASSERT(file, return);
+    QTC_ASSERT(file, return false);
 
+    bool addWatcher = false;
     // Special casing unwatched files
     if (!d->m_filesWithoutWatch.removeOne(file)) {
+        addWatcher = true;
         removeFileInfo(file);
         disconnect(file, SIGNAL(changed()), this, SLOT(checkForNewFileName()));
     }
     disconnect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
+    return addWatcher;
 }
 
 /* Slot reacting on IFile::changed. We need to check if the signal was sent
@@ -633,7 +618,11 @@ QList<IFile *> FileManager::saveModifiedFiles(const QList<IFile *> &files,
 
 bool FileManager::saveFile(IFile *file, const QString &fileName, bool *isReadOnly)
 {
+    bool ret = true;
     QString effName = fileName.isEmpty() ? file->fileName() : fileName;
+    expectFileChange(effName); // This only matters to other IFiles which refer to this file
+    bool addWatcher = removeFile(file); // So that our own IFile gets no notification at all
+
     QString errorString;
     if (!file->save(&errorString, fileName)) {
         if (isReadOnly) {
@@ -642,28 +631,18 @@ bool FileManager::saveFile(IFile *file, const QString &fileName, bool *isReadOnl
             if (ofi.exists() && !ofi.open(QIODevice::ReadWrite)
                 && ofi.error() == QFile::PermissionsError) {
                 *isReadOnly = true;
-                return false;
+                goto out;
             }
             *isReadOnly = false;
         }
         QMessageBox::critical(d->m_mainWindow, tr("File Error"), errorString);
-        return false;
+      out:
+        ret = false;
     }
 
-    // We are updating the lastUpdated time to the current modification time
-    // in changedFile we'll compare the modification time with the last updated
-    // time, and if they are the same, then we don't deliver that notification
-    // to corresponding IFile
-    //
-    // Also we are updating the expected time of the file
-    // in changedFile we'll check if the modification time
-    // is the same as the saved one here
-    // If so then it's a expected change
-    updateFileInfo(file);
-    foreach (const QString &fileName, d->m_filesWithWatch.value(file))
-        updateExpectedState(fileName);
-
-    return true;
+    addFile(file, addWatcher);
+    unexpectFileChange(effName);
+    return ret;
 }
 
 QString FileManager::getSaveFileName(const QString &title, const QString &pathIn,

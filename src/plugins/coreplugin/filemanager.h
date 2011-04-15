@@ -74,7 +74,7 @@ public:
     // file pool to monitor
     void addFiles(const QList<IFile *> &files, bool addWatcher = true);
     void addFile(IFile *file, bool addWatcher = true);
-    void removeFile(IFile *file);
+    bool removeFile(IFile *file);
     QList<IFile *> modifiedFiles() const;
 
     void renamedFile(const QString &from, const QString &to);
@@ -159,7 +159,6 @@ private:
     void addFileInfo(const QString &fileName, IFile *file, bool isLink);
     void removeFileInfo(IFile *file);
 
-    void updateFileInfo(IFile *file);
     void updateExpectedState(const QString &fileName);
 
     QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
