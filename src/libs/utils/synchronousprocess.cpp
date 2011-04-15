@@ -251,6 +251,8 @@ SynchronousProcess::SynchronousProcess() :
 
 SynchronousProcess::~SynchronousProcess()
 {
+    disconnect(&m_d->m_timer, 0, this, 0);
+    disconnect(&m_d->m_process, 0, this, 0);
     delete m_d;
 }
 
