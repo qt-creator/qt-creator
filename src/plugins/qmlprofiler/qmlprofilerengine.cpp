@@ -150,9 +150,10 @@ void QmlProfilerEngine::finishProcess()
 
 void QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
 {
-    QString arguments = m_params.debuggeeArgs;
-    arguments += QLatin1String("-qmljsdebugger=port:") + QString::number(m_params.connParams.port)
+    QString arguments = QLatin1String("-qmljsdebugger=port:") + QString::number(m_params.connParams.port)
             + QLatin1String(",block");
+    if (!m_params.debuggeeArgs.isEmpty())
+        arguments += QChar(' ') + m_params.debuggeeArgs;
 
     if (QmlProfilerPlugin::debugOutput)
         qWarning("QmlProfiler: Launching %s:%d", qPrintable(m_params.displayName), m_params.connParams.port);
