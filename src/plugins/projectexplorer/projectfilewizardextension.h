@@ -46,14 +46,14 @@ class ProjectFileWizardExtension : public Core::IFileWizardExtension
     Q_OBJECT
 public:
     explicit ProjectFileWizardExtension();
-    virtual ~ProjectFileWizardExtension();
+    ~ProjectFileWizardExtension();
 
-    virtual QList<QWizardPage *> extensionPages(const Core::IWizard *wizard);
-    virtual bool process(const QList<Core::GeneratedFile> &files,
-                         bool *removeOpenProjectAttribute, QString *errorMessage);
+    QList<QWizardPage *> extensionPages(const Core::IWizard *wizard);
+    bool process(const QList<Core::GeneratedFile> &files,
+                 bool *removeOpenProjectAttribute, QString *errorMessage);
 
 public slots:
-    virtual void firstExtensionPageShown(const QList<Core::GeneratedFile> &files);
+    void firstExtensionPageShown(const QList<Core::GeneratedFile> &files);
 
 private:
     void initProjectChoices(const QString &generatedProjectFilePath);
