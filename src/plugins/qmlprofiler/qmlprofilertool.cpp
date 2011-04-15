@@ -304,7 +304,7 @@ void QmlProfilerTool::connectToClient()
     if (!d->m_client || d->m_client->state() != QAbstractSocket::UnconnectedState)
         return;
     if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Connecting to %s:%d ...", qPrintable(d->m_host), d->m_port);
+        qWarning("QmlProfiler: Connecting to %s:%lld ...", qPrintable(d->m_host), d->m_port);
 
 
     d->m_client->connectToHost(d->m_host, d->m_port);
