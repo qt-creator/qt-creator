@@ -50,7 +50,7 @@ class CodaClientApplication : public QCoreApplication
 {
     Q_OBJECT
 public:
-    enum Mode { Invalid, Ping, Launch, Put, Stat, Install };
+    enum Mode { Invalid, Ping, Launch, Put, Stat, Install, Uninstall };
 
     explicit CodaClientApplication(int &argc, char **argv);
     ~CodaClientApplication();
@@ -77,6 +77,7 @@ private:
     void handleFileSystemClose(const Coda::CodaCommandResult &result);
     void handleFileSystemFStat(const Coda::CodaCommandResult &result);
     void handleSymbianInstall(const Coda::CodaCommandResult &result);
+    void handleUninstall(const Coda::CodaCommandResult &result);
     void doExit(int ex);
     void putSendNextChunk();
     void closeRemoteFile();
@@ -88,6 +89,7 @@ private:
     QStringList m_launchArgs;
     unsigned m_launchUID;
     bool m_launchDebug;
+    unsigned m_uninstallPackage;
     QString m_installSisFile;
     QString m_installTargetDrive;
     bool m_installSilently;

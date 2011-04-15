@@ -50,6 +50,7 @@ static const char usageC[] =
 "%1 ping            connection   Note: For serial connections ONLY.\n"
 "%1 launch [-d]     connection binary uid [--] [arguments]\n"
 "%1 install[-s]     connection remote-sis-file [targetdrive]\n"
+"%1 uninstall       connection packageUID\n"
 "%1 put    [c size] connection local-file remote-file\n"
 "%1 stat            connection remote-file\n\n"
 "'connection': address[:port] or serial-port\n\n"
@@ -90,6 +91,7 @@ CodaClientApplication::CodaClientApplication(int &argc, char **argv) :
     m_port(defaultPort),
     m_launchUID(0),
     m_launchDebug(false),
+    m_uninstallPackage(0),
     m_installTargetDrive(QLatin1String("C:")),
     m_installSilently(false),
     m_putWriteOk(false),
@@ -120,6 +122,8 @@ static inline CodaClientApplication::Mode modeArg(const QString &a)
         return CodaClientApplication::Ping;
     if (a == QLatin1String("install"))
         return CodaClientApplication::Install;
+    if (a == QLatin1String("uninstall"))
+        return CodaClientApplication::Uninstall;
     if (a == QLatin1String("put"))
         return CodaClientApplication::Put;
     if (a == QLatin1String("stat"))
@@ -153,6 +157,13 @@ bool CodaClientApplication::parseArgument(const QString &a, int argNumber, QStri
             break;
         case Install:
             m_installSisFile = a;
+            break;
+        case Uninstall:
+            m_uninstallPackage = a.toUInt(0, 0);
+            if (!m_uninstallPackage) {
+                *errorMessage = QLatin1String("Invalid UID");
+                return false;
+            }
             break;
         case Put:
             m_putLocalFile = a;
@@ -261,6 +272,12 @@ CodaClientApplication::ParseArgsResult CodaClientApplication::parseArguments(QSt
             return ParseInitError;
         }
         break;
+    case Uninstall:
+        if (!m_uninstallPackage) {
+            *errorMessage = QString::fromLatin1("Not enough parameters for uninstall.");
+            return ParseInitError;
+        }
+        break;
     case Put: {
         if (m_address.isEmpty() || m_putLocalFile.isEmpty() || m_putRemoteFile.isEmpty()) {
             *errorMessage = QString::fromLatin1("Not enough parameters for put.");
@@ -295,6 +312,10 @@ bool CodaClientApplication::start()
     case Install:
         std::printf("Installing '%s' to '%s'\n",
                     qPrintable(m_installSisFile), qPrintable(m_installTargetDrive));
+        break;
+    case Uninstall:
+        std::printf("Uninstalling 0x%x'\n",
+                    m_uninstallPackage);
         break;
     case Put:
         std::printf("Copying '%s' to '%s' in chunks of %lluKB\n",
@@ -482,6 +503,18 @@ void CodaClientApplication::handleSymbianInstall(const Coda::CodaCommandResult &
     }
 }
 
+void CodaClientApplication::handleUninstall(const Coda::CodaCommandResult &result)
+{
+    if (result.type == Coda::CodaCommandResult::SuccessReply) {
+        printTimeStamp();
+        std::printf("Uninstallation succeeded\n.");
+        doExit(0);
+    } else {
+        std::fprintf(stderr, "Uninstallation failed: %s\n", qPrintable(result.toString()));
+        doExit(-1);
+    }
+}
+
 void CodaClientApplication::slotCodaEvent (const Coda::CodaEvent &ev)
 {
     printTimeStamp();
@@ -504,6 +537,10 @@ void CodaClientApplication::slotCodaEvent (const Coda::CodaEvent &ev)
                                                                 m_installSisFile.toAscii());
             }
             break;
+        case Uninstall:
+            m_trkDevice->sendSymbianUninstallCommand(Coda::CodaCallback(this, &CodaClientApplication::handleUninstall),
+                                                     m_uninstallPackage);
+            break;
         case Put: {
             const unsigned flags =
                     Coda::CodaDevice::FileSystem_TCF_O_WRITE
@@ -512,15 +549,15 @@ void CodaClientApplication::slotCodaEvent (const Coda::CodaEvent &ev)
             m_putWriteOk = false;
             m_trkDevice->sendFileSystemOpenCommand(Coda::CodaCallback(this, &CodaClientApplication::handleFileSystemOpen),
                                                    m_putRemoteFile.toAscii(), flags);
-}
-            break;
+        }
+        break;
         case Stat: {
             const unsigned flags = Coda::CodaDevice::FileSystem_TCF_O_READ;
             m_statFstatOk = false;
             m_trkDevice->sendFileSystemOpenCommand(Coda::CodaCallback(this, &CodaClientApplication::handleFileSystemOpen),
                                                    m_statRemoteFile.toAscii(), flags);
-}
-            break;
+        }
+        break;
         case Invalid:
             break;
         }
