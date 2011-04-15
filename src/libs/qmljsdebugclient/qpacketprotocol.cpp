@@ -153,46 +153,44 @@ public Q_SLOTS:
 
     void readyToRead()
     {
-        if(-1 == inProgressSize) {
-            // We need a size header of sizeof(qint32)
-            if(sizeof(qint32) > (uint)dev->bytesAvailable())
-                return;
-
-            // Read size header
-            int read = dev->read((char *)&inProgressSize, sizeof(qint32));
-            Q_ASSERT(read == sizeof(qint32));
-            Q_UNUSED(read);
-
-            // Check sizing constraints
-            if(inProgressSize > maxPacketSize) {
-                QObject::disconnect(dev, SIGNAL(readyRead()),
-                                    this, SLOT(readyToRead()));
-                QObject::disconnect(dev, SIGNAL(aboutToClose()),
-                                    this, SLOT(aboutToClose()));
-                QObject::disconnect(dev, SIGNAL(bytesWritten(qint64)),
-                                    this, SLOT(bytesWritten(qint64)));
-                dev = 0;
-                emit invalidPacket();
-                return;
-            }
-
-            inProgressSize -= sizeof(qint32);
-
+        while(true) {
             // Need to get trailing data
-            readyToRead();
-        } else {
-            inProgress.append(dev->read(inProgressSize - inProgress.size()));
+            if(-1 == inProgressSize) {
+                // We need a size header of sizeof(qint32)
+                if(sizeof(qint32) > (uint)dev->bytesAvailable())
+                    return;
 
-            if(inProgressSize == inProgress.size()) {
-                // Packet has arrived!
-                packets.append(inProgress);
-                inProgressSize = -1;
-                inProgress.clear();
+                // Read size header
+                int read = dev->read((char *)&inProgressSize, sizeof(qint32));
+                Q_ASSERT(read == sizeof(qint32));
+                Q_UNUSED(read);
 
-                emit readyRead();
+                // Check sizing constraints
+                if(inProgressSize > maxPacketSize) {
+                    QObject::disconnect(dev, SIGNAL(readyRead()),
+                                        this, SLOT(readyToRead()));
+                    QObject::disconnect(dev, SIGNAL(aboutToClose()),
+                                        this, SLOT(aboutToClose()));
+                    QObject::disconnect(dev, SIGNAL(bytesWritten(qint64)),
+                                        this, SLOT(bytesWritten(qint64)));
+                    dev = 0;
+                    emit invalidPacket();
+                    return;
+                }
 
-                // Need to get trailing data
-                readyToRead();
+                inProgressSize -= sizeof(qint32);
+            } else {
+                inProgress.append(dev->read(inProgressSize - inProgress.size()));
+
+                if(inProgressSize == inProgress.size()) {
+                    // Packet has arrived!
+                    packets.append(inProgress);
+                    inProgressSize = -1;
+                    inProgress.clear();
+
+                    emit readyRead();
+                } else
+                    return;
             }
         }
     }
