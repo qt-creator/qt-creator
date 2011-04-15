@@ -39,7 +39,6 @@ using namespace CVS;
 using namespace CVS::Internal;
 
 CVSControl::CVSControl(CVSPlugin *plugin) :
-    m_enabled(true),
     m_plugin(plugin)
 {
 }
