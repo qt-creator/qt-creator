@@ -43,6 +43,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QIcon>
 
@@ -212,9 +213,9 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
 // contains relative path segments ("../").
 inline static QString fileInCurrentProject(const QString &file)
 {
-    const QStringList filesInProject =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject()->files(
-                ProjectExplorer::Project::ExcludeGeneratedFiles);
+    const ProjectExplorer::Project *p = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject();
+    QTC_ASSERT(p, return QString(); )
+    const QStringList filesInProject = p->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
     foreach (const QString &uncleanFile, filesInProject)
         if (QDir::cleanPath(uncleanFile) == file)
             return uncleanFile;

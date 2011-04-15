@@ -37,7 +37,7 @@
 #include "ifilewizardextension.h"
 #include "mimedatabase.h"
 #include "editormanager/editormanager.h"
-
+#include "dialogs/promptoverwritedialog.h"
 #include <extensionsystem/pluginmanager.h>
 #include <utils/filewizarddialog.h>
 #include <utils/qtcassert.h>
@@ -206,6 +206,15 @@ GeneratedFile::Attributes GeneratedFile::attributes() const
 void GeneratedFile::setAttributes(Attributes a)
 {
     m_d->attributes = a;
+}
+
+static int indexOfFile(const GeneratedFiles &f, const QString &path)
+{
+    const int size = f.size();
+    for (int i = 0; i < size; ++i)
+        if (f.at(i).path() == path)
+            return i;
+    return -1;
 }
 
 // ------------ BaseFileWizardParameterData
@@ -589,11 +598,7 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     if (files.empty())
         return;
     // Compile result list and prompt for overwrite
-    QStringList result;
-    foreach (const GeneratedFile &generatedFile, files)
-        result.push_back(generatedFile.path());
-
-    switch (promptOverwrite(result, &errorMessage)) {
+    switch (promptOverwrite(&files, &errorMessage)) {
     case OverwriteCanceled:
         return;
     case OverwriteError:
@@ -602,7 +607,6 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     case OverwriteOk:
         break;
     }
-
     // Write
     if (!writeFiles(files, &errorMessage)) {
         QMessageBox::critical(parent, tr("File Generation Failure"), errorMessage);
@@ -655,8 +659,10 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent)
 
 bool BaseFileWizard::writeFiles(const GeneratedFiles &files, QString *errorMessage)
 {
+    const GeneratedFile::Attributes noWriteAttributes
+        = GeneratedFile::CustomGeneratorAttribute|GeneratedFile::KeepExistingFileAttribute;
     foreach (const GeneratedFile &generatedFile, files)
-        if (!(generatedFile.attributes() & GeneratedFile::CustomGeneratorAttribute))
+        if (!(generatedFile.attributes() & noWriteAttributes ))
             if (!generatedFile.write(errorMessage))
                 return false;
     return true;
@@ -728,7 +734,7 @@ bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *e
     the file exists, can be overwritten at all and prompts the user with a summary.
 */
 
-BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QStringList &files,
+BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(GeneratedFiles *files,
                                                                 QString *errorMessage) const
 {
     if (debugWizard)
@@ -738,17 +744,20 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QStringLis
     bool oddStuffFound = false;
 
     static const QString readOnlyMsg = tr(" [read only]");
-    static const QString directoryMsg = tr(" [directory]");
+    static const QString directoryMsg = tr(" [folder]");
     static const QString symLinkMsg = tr(" [symbolic link]");
 
-    foreach (const QString &fileName, files) {
-        const QFileInfo fi(fileName);
+    foreach (const GeneratedFile &file, *files) {
+        const QFileInfo fi(file.path());
         if (fi.exists())
-            existingFiles.append(fileName);
+            existingFiles.append(file.path());
     }
-    // Note: Generated files are using native separators, no need to convert.
+    if (existingFiles.isEmpty())
+        return OverwriteOk;
+    // Before prompting to overwrite existing files, loop over files and check
+    // if there is anything blocking overwriting them (like them being links or folders).
+    // Format a file list message as ( "<file1> [readonly], <file2> [folder]").
     const QString commonExistingPath = Utils::commonPath(existingFiles);
-    // Format a file list message as ( "<file1> [readonly], <file2> [directory]").
     QString fileNamesMsgPart;
     foreach (const QString &fileName, existingFiles) {
         const QFileInfo fi(fileName);
@@ -775,24 +784,31 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(const QStringLis
         }
     }
 
-    if (existingFiles.isEmpty())
-        return OverwriteOk;
-
     if (oddStuffFound) {
         *errorMessage = tr("The project directory %1 contains files which cannot be overwritten:\n%2.")
                 .arg(QDir::toNativeSeparators(commonExistingPath)).arg(fileNamesMsgPart);
         return OverwriteError;
     }
-
-    const QString messageFormat = tr("The following files already exist in the directory %1:\n"
-                                     "%2.\nWould you like to overwrite them?");
-    const QString message = messageFormat.arg(QDir::toNativeSeparators(commonExistingPath)).arg(fileNamesMsgPart);
-    const bool yes = (QMessageBox::question(Core::ICore::instance()->mainWindow(),
-                                            tr("Existing files"), message,
-                                            QMessageBox::Yes | QMessageBox::No,
-                                            QMessageBox::No)
-                      == QMessageBox::Yes);
-    return yes ? OverwriteOk :  OverwriteCanceled;
+    // Prompt to overwrite existing files.
+    Internal::PromptOverwriteDialog overwriteDialog;
+    // Scripts cannot handle overwrite
+    overwriteDialog.setFiles(existingFiles);
+    foreach (const GeneratedFile &file, *files)
+        if (file.attributes() & GeneratedFile::CustomGeneratorAttribute)
+            overwriteDialog.setFileEnabled(file.path(), false);
+    if (overwriteDialog.exec() != QDialog::Accepted)
+        return OverwriteCanceled;
+    const QStringList existingFilesToKeep = overwriteDialog.uncheckedFiles();
+    if (existingFilesToKeep.size() == files->size()) // All exist & all unchecked->Cancel.
+        return OverwriteCanceled;
+    // Set 'keep' attribute in files
+    foreach (const QString &keepFile, existingFilesToKeep) {
+        const int i = indexOfFile(*files, keepFile);
+        QTC_ASSERT(i != -1, return OverwriteCanceled; )
+        GeneratedFile &file = (*files)[i];
+        file.setAttributes(file.attributes() | GeneratedFile::KeepExistingFileAttribute);
+    }
+    return OverwriteOk;
 }
 
 /*!

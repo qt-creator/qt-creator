@@ -88,7 +88,8 @@ SOURCES += mainwindow.cpp \
     toolsettings.cpp \
     variablechooser.cpp \
     mimetypemagicdialog.cpp \
-    mimetypesettings.cpp
+    mimetypesettings.cpp \
+    dialogs/promptoverwritedialog.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -179,7 +180,8 @@ HEADERS += mainwindow.h \
     toolsettings.h \
     variablechooser.h \
     mimetypemagicdialog.h \
-    mimetypesettings.h
+    mimetypesettings.h \
+    dialogs/promptoverwritedialog.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

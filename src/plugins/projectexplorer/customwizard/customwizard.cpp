@@ -262,10 +262,11 @@ bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorM
         return false;
     if (d->m_parameters->filesGeneratorScript.isEmpty())
         return true;
-
     // Prepare run of the custom script to generate. In the case of a
     // project wizard that is entirely created by a script,
     // the target project directory might not exist.
+    // Known issue: By nature, the script does not honor
+    // Core::GeneratedFile::KeepExistingFileAttribute.
     const CustomWizardContextPtr ctx = context();
     const QString scriptWorkingDir = scriptWorkingDirectory(ctx, d->m_parameters);
     const QDir scriptWorkingDirDir(scriptWorkingDir);
