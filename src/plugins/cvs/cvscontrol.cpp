@@ -32,6 +32,7 @@
 
 #include "cvscontrol.h"
 #include "cvsplugin.h"
+#include "cvssettings.h"
 
 #include <QtCore/QFileInfo>
 
@@ -48,9 +49,18 @@ QString CVSControl::displayName() const
     return QLatin1String("cvs");
 }
 
+bool CVSControl::isConfigured() const
+{
+    const QString binary = m_plugin->settings().cvsCommand;
+    if (binary.isEmpty())
+        return false;
+    QFileInfo fi(binary);
+    return fi.exists() && fi.isFile() && fi.isExecutable();
+}
+
 bool CVSControl::supportsOperation(Operation operation) const
 {
-    bool rc = true;
+    bool rc = isConfigured();
     switch (operation) {
     case AddOperation:
     case DeleteOperation:

@@ -277,13 +277,14 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
+    m_core = Core::ICore::instance();
+    m_gitClient = new GitClient(this);
+
     typedef VCSBase::VCSEditorFactory<GitEditor> GitEditorFactory;
     typedef VCSBase::VCSSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
 
     VCSBase::VCSBasePlugin::initialize(new GitVersionControl(m_gitClient));
 
-    m_core = Core::ICore::instance();
-    m_gitClient = new GitClient(this);
     // Create the globalcontext list to register actions accordingly
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 

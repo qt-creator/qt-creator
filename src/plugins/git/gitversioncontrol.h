@@ -51,6 +51,7 @@ public:
 
     bool managesDirectory(const QString &directory, QString *topLevel) const;
 
+    bool isConfigured() const;
     bool supportsOperation(Operation operation) const;
     bool vcsOpen(const QString &fileName);
     bool vcsAdd(const QString &fileName);
@@ -70,7 +71,6 @@ public:
     void emitRepositoryChanged(const QString &);
 
 private:
-    bool m_enabled;
     GitClient *m_client;
 };
 

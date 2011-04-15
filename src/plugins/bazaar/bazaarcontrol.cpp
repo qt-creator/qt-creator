@@ -33,6 +33,8 @@
 #include "bazaarcontrol.h"
 #include "bazaarclient.h"
 
+#include <vcsbase/vcsbaseclientsettings.h>
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QVariant>
 #include <QtCore/QStringList>
@@ -59,9 +61,19 @@ bool BazaarControl::managesDirectory(const QString &directory, QString *topLevel
     return !topLevelFound.isEmpty();
 }
 
+bool BazaarControl::isConfigured() const
+{
+    const QString binary = m_bazaarClient->settings().binary();
+    if (binary.isEmpty())
+        return false;
+    QFileInfo fi(binary);
+    return fi.exists() && fi.isFile() && fi.isExecutable();
+}
+
 bool BazaarControl::supportsOperation(Operation operation) const
 {
-    bool supported = true;
+    bool supported = isConfigured();
+
     switch (operation) {
     case Core::IVersionControl::AddOperation:
     case Core::IVersionControl::DeleteOperation:

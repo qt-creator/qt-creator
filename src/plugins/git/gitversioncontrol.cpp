@@ -46,13 +46,7 @@ static const char stashRevisionIdC[] = "revision";
 namespace Git {
 namespace Internal {
 
-static inline GitClient *gitClient()
-{
-    return GitPlugin::instance()->gitClient();
-}
-
 GitVersionControl::GitVersionControl(GitClient *client) :
-    m_enabled(true),
     m_client(client)
 {
 }
@@ -62,18 +56,22 @@ QString GitVersionControl::displayName() const
     return QLatin1String("git");
 }
 
-// Add: Implement using "git add --intent-to-add" starting from 1.6.1
-static inline bool addOperationSupported()
+bool GitVersionControl::isConfigured() const
 {
-    return gitClient()->gitVersion(true) >= version(1, 6, 1);
+    bool ok = false;
+    m_client->settings().gitBinaryPath(&ok);
+    return ok;
 }
 
 bool GitVersionControl::supportsOperation(Operation operation) const
 {
+    if (!isConfigured())
+        return false;
+
     bool rc = false;
     switch (operation) {
     case AddOperation:
-        rc = addOperationSupported();
+        rc = m_client->gitVersion(true) >= version(1, 6, 1);;
         break;
     case DeleteOperation:
         rc = true;
@@ -106,37 +104,37 @@ bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
 bool GitVersionControl::vcsAdd(const QString & fileName)
 {
     // Implement in terms of using "--intent-to-add"
-    QTC_ASSERT(addOperationSupported(), return false);
+    QTC_ASSERT(m_client->gitVersion(true) >= version(1, 6, 1), return false);
     const QFileInfo fi(fileName);
-    return gitClient()->synchronousAdd(fi.absolutePath(), true, QStringList(fi.fileName()));
+    return m_client->synchronousAdd(fi.absolutePath(), true, QStringList(fi.fileName()));
 }
 
 bool GitVersionControl::vcsDelete(const QString & fileName)
 {
     const QFileInfo fi(fileName);
-    return gitClient()->synchronousDelete(fi.absolutePath(), true, QStringList(fi.fileName()));
+    return m_client->synchronousDelete(fi.absolutePath(), true, QStringList(fi.fileName()));
 }
 
 bool GitVersionControl::vcsMove(const QString &from, const QString &to)
 {
     const QFileInfo fromInfo(from);
     const QFileInfo toInfo(to);
-    return gitClient()->synchronousMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
+    return m_client->synchronousMove(fromInfo.absolutePath(), fromInfo.absoluteFilePath(), toInfo.absoluteFilePath());
 }
 
 bool GitVersionControl::vcsCreateRepository(const QString &directory)
 {
-    return gitClient()->synchronousInit(directory);
+    return m_client->synchronousInit(directory);
 }
 
 bool GitVersionControl::vcsCheckout(const QString &directory, const QByteArray &url)
 {
-    return gitClient()->cloneRepository(directory,url);
+    return m_client->cloneRepository(directory,url);
 }
 
 QString GitVersionControl::vcsGetRepositoryURL(const QString &directory)
 {
-    return gitClient()->vcsGetRepositoryURL(directory);
+    return m_client->vcsGetRepositoryURL(directory);
 }
 
 /* Snapshots are implement using stashes, relying on stash messages for
@@ -153,7 +151,7 @@ QString GitVersionControl::vcsCreateSnapshot(const QString &topLevel)
     static int n = 1;
     QString keyword = QLatin1String(stashMessageKeywordC) + QString::number(n++);
     const QString stashMessage =
-            gitClient()->synchronousStash(topLevel, keyword,
+            m_client->synchronousStash(topLevel, keyword,
                                           GitClient::StashImmediateRestore|GitClient::StashIgnoreUnchanged,
                                           &repositoryUnchanged);
     if (!stashMessage.isEmpty())
@@ -162,7 +160,7 @@ QString GitVersionControl::vcsCreateSnapshot(const QString &topLevel)
         // For unchanged repository state: return identifier + top revision
         QString topRevision;
         QString branch;
-        if (!gitClient()->synchronousTopRevision(topLevel, &topRevision, &branch))
+        if (!m_client->synchronousTopRevision(topLevel, &topRevision, &branch))
             return QString();
         const QChar colon = QLatin1Char(':');
         QString id = QLatin1String(stashRevisionIdC);
@@ -178,7 +176,7 @@ QString GitVersionControl::vcsCreateSnapshot(const QString &topLevel)
 QStringList GitVersionControl::vcsSnapshots(const QString &topLevel)
 {
     QList<Stash> stashes;
-    if (!gitClient()->synchronousStashList(topLevel, &stashes))
+    if (!m_client->synchronousStashList(topLevel, &stashes))
         return QStringList();
     // Return the git stash 'message' as identifier, ignoring empty ones
     QStringList rc;
@@ -200,15 +198,15 @@ bool GitVersionControl::vcsRestoreSnapshot(const QString &topLevel, const QStrin
                 break;
             const QString branch = tokens.at(1);
             const QString revision = tokens.at(2);
-            success = gitClient()->synchronousReset(topLevel)
-                      && gitClient()->synchronousCheckoutBranch(topLevel, branch)
-                      && gitClient()->synchronousCheckoutFiles(topLevel, QStringList(), revision);
+            success = m_client->synchronousReset(topLevel)
+                      && m_client->synchronousCheckoutBranch(topLevel, branch)
+                      && m_client->synchronousCheckoutFiles(topLevel, QStringList(), revision);
         } else {
             // Restore stash if it can be resolved.
             QString stashName;
-            success = gitClient()->stashNameFromMessage(topLevel, name, &stashName)
-                      && gitClient()->synchronousReset(topLevel)
-                      && gitClient()->synchronousStashRestore(topLevel, stashName);
+            success = m_client->stashNameFromMessage(topLevel, name, &stashName)
+                      && m_client->synchronousReset(topLevel)
+                      && m_client->synchronousStashRestore(topLevel, stashName);
         }
     }  while (false);
     return success;
@@ -220,8 +218,8 @@ bool GitVersionControl::vcsRemoveSnapshot(const QString &topLevel, const QString
     if (name.startsWith(QLatin1String(stashRevisionIdC)))
         return true;
     QString stashName;
-    return gitClient()->stashNameFromMessage(topLevel, name, &stashName)
-            && gitClient()->synchronousStashRemove(topLevel, stashName);
+    return m_client->stashNameFromMessage(topLevel, name, &stashName)
+            && m_client->synchronousStashRemove(topLevel, stashName);
 }
 
 bool GitVersionControl::managesDirectory(const QString &directory, QString *topLevel) const
@@ -235,7 +233,7 @@ bool GitVersionControl::managesDirectory(const QString &directory, QString *topL
 bool GitVersionControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
-    gitClient()->blame(fi.absolutePath(), QStringList(), fi.fileName(), QString(), line);
+    m_client->blame(fi.absolutePath(), QStringList(), fi.fileName(), QString(), line);
     return true;
 }
 

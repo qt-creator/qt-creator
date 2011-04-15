@@ -33,6 +33,7 @@
 #include "perforceversioncontrol.h"
 #include "perforceplugin.h"
 #include "perforceconstants.h"
+#include "perforcesettings.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
@@ -41,7 +42,6 @@ namespace Perforce {
 namespace Internal {
 
 PerforceVersionControl::PerforceVersionControl(PerforcePlugin *plugin) :
-    m_enabled(true),
     m_plugin(plugin)
 {
 }
@@ -51,15 +51,25 @@ QString PerforceVersionControl::displayName() const
     return QLatin1String("perforce");
 }
 
+bool PerforceVersionControl::isConfigured() const
+{
+    const QString binary = m_plugin->settings().p4Command();
+    if (binary.isEmpty())
+        return false;
+    QFileInfo fi(binary);
+    return fi.exists() && fi.isFile() && fi.isExecutable();
+}
+
 bool PerforceVersionControl::supportsOperation(Operation operation) const
 {
+    bool supported = isConfigured();
     switch (operation) {
     case AddOperation:
     case DeleteOperation:
     case MoveOperation:
     case OpenOperation:
     case AnnotateOperation:
-        return true;
+        return supported;
     case CreateRepositoryOperation:
     case SnapshotOperations:
     case CheckoutOperation:

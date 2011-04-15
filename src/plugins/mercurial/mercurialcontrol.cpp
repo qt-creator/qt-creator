@@ -33,6 +33,8 @@
 #include "mercurialcontrol.h"
 #include "mercurialclient.h"
 
+#include <vcsbase/vcsbaseclientsettings.h>
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QVariant>
 #include <QtCore/QStringList>
@@ -59,9 +61,18 @@ bool MercurialControl::managesDirectory(const QString &directory, QString *topLe
     return !topLevelFound.isEmpty();
 }
 
+bool MercurialControl::isConfigured() const
+{
+    const QString binary = mercurialClient->settings().binary();
+    if (binary.isEmpty())
+        return false;
+    QFileInfo fi(binary);
+    return fi.exists() && fi.isFile() && fi.isExecutable();
+}
+
 bool MercurialControl::supportsOperation(Operation operation) const
 {
-    bool supported = true;
+    bool supported = isConfigured();
     switch (operation) {
     case Core::IVersionControl::AddOperation:
     case Core::IVersionControl::DeleteOperation:

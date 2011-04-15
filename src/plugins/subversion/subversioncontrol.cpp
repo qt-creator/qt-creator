@@ -32,6 +32,7 @@
 
 #include "subversioncontrol.h"
 #include "subversionplugin.h"
+#include "subversionsettings.h"
 
 #include <QtCore/QFileInfo>
 
@@ -48,9 +49,18 @@ QString SubversionControl::displayName() const
     return QLatin1String("subversion");
 }
 
+bool SubversionControl::isConfigured() const
+{
+    const QString binary = m_plugin->settings().svnCommand;
+    if (binary.isEmpty())
+        return false;
+    QFileInfo fi(binary);
+    return fi.exists() && fi.isFile() && fi.isExecutable();
+}
+
 bool SubversionControl::supportsOperation(Operation operation) const
 {
-    bool rc = true;
+    bool rc = isConfigured();
     switch (operation) {
     case AddOperation:
     case DeleteOperation:

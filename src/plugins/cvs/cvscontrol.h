@@ -50,6 +50,7 @@ public:
 
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
 
+    bool isConfigured() const;
     bool supportsOperation(Operation operation) const;
     bool vcsOpen(const QString &fileName);
     bool vcsAdd(const QString &fileName);

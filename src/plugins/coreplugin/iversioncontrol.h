@@ -76,7 +76,13 @@ public:
     virtual bool managesDirectory(const QString &filename, QString *topLevel = 0) const = 0;
 
     /*!
+     * Returns true is the VCS is configured to run.
+     */
+    virtual bool isConfigured() const = 0;
+    /*!
      * Called to query whether a VCS supports the respective operations.
+     *
+     * Return false if the VCS is not configured yet.
      */
     virtual bool supportsOperation(Operation operation) const = 0;
 
