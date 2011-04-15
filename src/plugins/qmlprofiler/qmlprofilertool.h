@@ -90,7 +90,7 @@ private slots:
 
 private:
     void connectToClient();
-    void resetWindow();
+    void updateRecordingState();
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

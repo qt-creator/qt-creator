@@ -333,7 +333,8 @@ void TraceWindow::clearDisplay()
 
 void TraceWindow::setRecording(bool recording)
 {
-    m_plugin.data()->setRecording(recording);
+    if (m_plugin)
+        m_plugin.data()->setRecording(recording);
 }
 
 bool TraceWindow::isRecording() const

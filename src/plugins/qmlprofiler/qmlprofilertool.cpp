@@ -294,6 +294,7 @@ void QmlProfilerTool::connectClient()
 {
     QTC_ASSERT(!d->m_client, return;)
     d->m_client = new QDeclarativeDebugConnection;
+    d->m_traceWindow->reset(d->m_client);
     connect(d->m_client, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             this, SLOT(connectionStateChanged()));
     d->m_connectionTimer.start();
@@ -461,7 +462,7 @@ void QmlProfilerTool::connectionStateChanged()
     {
         if (QmlProfilerPlugin::debugOutput)
             qWarning("QmlProfiler: connected and running");
-        resetWindow();
+        updateRecordingState();
         break;
     }
     case QAbstractSocket::ClosingState:
@@ -474,9 +475,8 @@ void QmlProfilerTool::connectionStateChanged()
     }
 }
 
-void QmlProfilerTool::resetWindow()
+void QmlProfilerTool::updateRecordingState()
 {
-    d->m_traceWindow->reset(d->m_client);
     if (d->m_client->isConnected()) {
         d->m_traceWindow->setRecording(d->m_recordingEnabled);
     } else {
