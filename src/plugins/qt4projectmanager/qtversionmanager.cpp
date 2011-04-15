@@ -527,6 +527,10 @@ bool QtVersionManager::equals(QtVersion *a, QtVersion *b)
         return false;
     if (a->m_displayName != b->displayName())
         return false;
+    if (a->m_sbsV2Directory != b->m_sbsV2Directory)
+        return false;
+    if (a->m_systemRoot != b->m_systemRoot)
+        return false;
     return true;
 }
 
