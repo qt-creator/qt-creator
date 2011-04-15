@@ -47,6 +47,7 @@ class VCSBASE_EXPORT VCSBaseClientSettings
 {
 public:
     VCSBaseClientSettings();
+    virtual ~VCSBaseClientSettings();
 
     QString binary() const;
     void setBinary(const QString &);

@@ -54,6 +54,9 @@ VCSBaseClientSettings::VCSBaseClientSettings() :
 {
 }
 
+VCSBaseClientSettings::~VCSBaseClientSettings()
+{ }
+
 QString VCSBaseClientSettings::binary() const
 {
     return m_binary;
