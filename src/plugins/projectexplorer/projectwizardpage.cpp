@@ -33,6 +33,9 @@
 #include "projectwizardpage.h"
 #include "ui_projectwizardpage.h"
 
+#include <coreplugin/coreimpl.h>
+#include <vcsbase/vcsbaseconstants.h>
+
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
 
@@ -54,6 +57,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     m_ui->setupUi(this);
     connect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotProjectChanged(int)));
+    connect(m_ui->vcsManageButton, SIGNAL(clicked()), this, SLOT(slotManageVcs()));
     setProperty("shortTitle", tr("Summary"));
 }
 
@@ -156,4 +160,11 @@ void ProjectWizardPage::slotProjectChanged(int index)
 {
     setProjectToolTip(index >= 0 && index < m_projectToolTips.size() ?
                       m_projectToolTips.at(index) : QString());
+}
+
+void ProjectWizardPage::slotManageVcs()
+{
+    Core::ICore *core = Core::ICore::instance();
+    core->showOptionsDialog(VCSBase::Constants::VCS_SETTINGS_CATEGORY,
+                            VCSBase::Constants::VCS_COMMON_SETTINGS_ID);
 }

@@ -72,6 +72,7 @@ protected:
 
 private slots:
     void slotProjectChanged(int);
+    void slotManageVcs();
 
 private:
     inline void setProjectToolTip(const QString &);
