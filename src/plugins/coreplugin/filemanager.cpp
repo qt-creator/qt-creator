@@ -120,7 +120,7 @@ struct FileManagerPrivate {
 
     static FileManager *m_instance;
     QMap<QString, FileState> m_states;
-    QStringList m_changedFiles;
+    QSet<QString> m_changedFiles;
     QList<IFile *> m_filesWithoutWatch;
     QMap<IFile *, QStringList> m_filesWithWatch;
     QSet<QString> m_expectedFileNames;
@@ -833,8 +833,8 @@ void FileManager::changedFile(const QString &fileName)
 {
     const bool wasempty = d->m_changedFiles.isEmpty();
 
-    if (!d->m_changedFiles.contains(fileName) && d->m_states.contains(fileName))
-        d->m_changedFiles.append(fileName);
+    if (d->m_states.contains(fileName))
+        d->m_changedFiles.insert(fileName);
 
     if (wasempty && !d->m_changedFiles.isEmpty()) {
         QTimer::singleShot(200, this, SLOT(checkForReload()));
