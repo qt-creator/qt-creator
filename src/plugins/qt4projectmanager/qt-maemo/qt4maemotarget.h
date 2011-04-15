@@ -177,6 +177,7 @@ private:
 
     virtual void addAdditionalControlFileFields(QByteArray &controlContents)=0;
     virtual QByteArray packageManagerNameFieldName() const=0;
+    virtual QByteArray defaultSection() const=0;
 
     QString changeLogFilePath() const;
     QString controlFilePath() const;
@@ -251,6 +252,7 @@ private:
     virtual void addAdditionalControlFileFields(QByteArray &controlContents);
     virtual QString debianDirName() const;
     virtual QByteArray packageManagerNameFieldName() const;
+    virtual QByteArray defaultSection() const;
 };
 
 
@@ -271,6 +273,7 @@ private:
     virtual void addAdditionalControlFileFields(QByteArray &controlContents);
     virtual QString debianDirName() const;
     virtual QByteArray packageManagerNameFieldName() const;
+    virtual QByteArray defaultSection() const;
 };
 
 
