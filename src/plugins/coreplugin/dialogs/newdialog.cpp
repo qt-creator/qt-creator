@@ -158,6 +158,8 @@ NewDialog::NewDialog(QWidget *parent) :
     m_okButton(0)
 {
     typedef QMap<QString, QStandardItem *> CategoryItemMap;
+
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
     m_okButton = m_ui->buttonBox->button(QDialogButtonBox::Ok);
     m_okButton->setDefault(true);
