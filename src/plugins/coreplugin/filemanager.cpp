@@ -45,6 +45,7 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <utils/reloadpromptutils.h>
+#include <utils/filesystemwatcher.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QFileInfo>
@@ -113,8 +114,9 @@ struct FileState
 
 struct FileManagerPrivate {
     explicit FileManagerPrivate(FileManager *q, QMainWindow *mw);
-    QFileSystemWatcher *fileWatcher();
-    QFileSystemWatcher *linkWatcher();
+
+    void watchFile(const QString &f);
+    void watchLink(const QString &f);
 
     static FileManager *m_instance;
     QMap<QString, FileState> m_states;
@@ -129,7 +131,7 @@ struct FileManagerPrivate {
     QString m_currentFile;
 
     QMainWindow *m_mainWindow;
-    QFileSystemWatcher *m_fileWatcher; // Delayed creation.
+    Utils::FileSystemWatcher *m_fileWatcher; // Delayed creation.
     QFileSystemWatcher *m_linkWatcher; // Delayed creation (only UNIX/if a link is seen).
     bool m_blockActivated;
     QString m_lastVisitedDirectory;
@@ -142,28 +144,30 @@ struct FileManagerPrivate {
     IFile *m_blockedIFile;
 };
 
-QFileSystemWatcher *FileManagerPrivate::fileWatcher()
+void FileManagerPrivate::watchFile(const QString &f)
 {
     if (!m_fileWatcher) {
-        m_fileWatcher= new QFileSystemWatcher(m_instance);
+        m_fileWatcher = new Utils::FileSystemWatcher(m_instance);
+        m_fileWatcher->setObjectName(QLatin1String("FileManagerWatcher"));
         QObject::connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
                          m_instance, SLOT(changedFile(QString)));
     }
-    return m_fileWatcher;
+    m_fileWatcher->addFile(f, Utils::FileSystemWatcher::WatchAllChanges);
 }
 
-QFileSystemWatcher *FileManagerPrivate::linkWatcher()
+void FileManagerPrivate::watchLink(const QString &f)
 {
 #ifdef Q_OS_UNIX
     if (!m_linkWatcher) {
+        // Use a different file watcher engine for links on UNIX
         m_linkWatcher = new QFileSystemWatcher(m_instance);
         m_linkWatcher->setObjectName(QLatin1String("_qt_autotest_force_engine_poller"));
         QObject::connect(m_linkWatcher, SIGNAL(fileChanged(QString)),
                          m_instance, SLOT(changedFile(QString)));
     }
-    return m_linkWatcher;
+    m_linkWatcher->addPath(f);
 #else
-    return fileWatcher();
+    watchFile(f);
 #endif
 }
 
@@ -266,9 +270,9 @@ void FileManager::addFileInfo(const QString &fileName, IFile *file, bool isLink)
             d->m_states.insert(fileName, Internal::FileState());
 
             if (isLink)
-                d->linkWatcher()->addPath(fileName);
+                d->watchLink(fileName);
             else
-                d->fileWatcher()->addPath(fileName);
+                d->watchFile(fileName);
         }
         d->m_states[fileName].lastUpdatedState.insert(file, state);
     }
@@ -371,8 +375,8 @@ void FileManager::removeFileInfo(IFile *file)
             continue;
         d->m_states[fileName].lastUpdatedState.remove(file);
         if (d->m_states.value(fileName).lastUpdatedState.isEmpty()) {
-            if (d->m_fileWatcher && d->m_fileWatcher->files().contains(fileName))
-                d->m_fileWatcher->removePath(fileName);
+            if (d->m_fileWatcher && d->m_fileWatcher->watchesFile(fileName))
+                d->m_fileWatcher->removeFile(fileName);
             if (d->m_linkWatcher && d->m_linkWatcher->files().contains(fileName))
                 d->m_linkWatcher->removePath(fileName);
             d->m_states.remove(fileName);
