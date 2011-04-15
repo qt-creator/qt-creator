@@ -42,6 +42,15 @@ IFile::~IFile()
 {
 }
 
+IFile::ReloadBehavior IFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+{
+    if (type == TypePermissions)
+        return BehaviorSilent;
+    if (type == TypeContents && state == TriggerInternal && !isModified())
+        return BehaviorSilent;
+    return BehaviorAsk;
+}
+
 void IFile::checkPermissions()
 {
 }

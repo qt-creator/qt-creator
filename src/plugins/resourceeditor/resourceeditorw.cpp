@@ -193,18 +193,6 @@ bool ResourceEditorFile::isSaveAsAllowed() const
     return true;
 }
 
-Core::IFile::ReloadBehavior ResourceEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    if (type == TypePermissions)
-        return BehaviorSilent;
-    if (type == TypeContents) {
-        if (state == TriggerInternal && !isModified())
-            return BehaviorSilent;
-        return BehaviorAsk;
-    }
-    return BehaviorAsk;
-}
-
 bool ResourceEditorFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore)

@@ -609,18 +609,6 @@ bool BaseTextDocument::reload(QString *errorString)
     return true;
 }
 
-Core::IFile::ReloadBehavior BaseTextDocument::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    if (type == TypePermissions)
-        return BehaviorSilent;
-    if (type == TypeContents) {
-        if (state == TriggerInternal && !isModified())
-            return BehaviorSilent;
-        return BehaviorAsk;
-    }
-    return BehaviorAsk;
-}
-
 bool BaseTextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore)

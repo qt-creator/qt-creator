@@ -64,16 +64,6 @@ ImageViewerFile::~ImageViewerFile()
 {
 }
 
-Core::IFile::ReloadBehavior ImageViewerFile::reloadBehavior(Core::IFile::ChangeTrigger state,
-                                                            Core::IFile::ChangeType type) const
-{
-    if (type == TypePermissions)
-        return BehaviorSilent;
-    if (type == TypeContents && state == TriggerInternal)
-        return BehaviorSilent;
-    return BehaviorAsk;
-}
-
 bool ImageViewerFile::reload(QString *errorString,
                              Core::IFile::ReloadFlag flag,
                              Core::IFile::ChangeType type)

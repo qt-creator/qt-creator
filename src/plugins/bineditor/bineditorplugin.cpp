@@ -299,17 +299,6 @@ public:
 
     bool isSaveAsAllowed() const { return true; }
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const {
-        if (type == TypePermissions)
-            return BehaviorSilent;
-        if (type == TypeContents) {
-            if (state == TriggerInternal && !isModified())
-                return BehaviorSilent;
-            return BehaviorAsk;
-        }
-        return BehaviorAsk;
-    }
-
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) {
         if (flag == FlagIgnore)
             return true;

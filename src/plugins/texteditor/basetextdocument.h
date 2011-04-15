@@ -76,7 +76,6 @@ public:
     virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const;
     virtual void checkPermissions();
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
     virtual QString mimeType() const;
     void setMimeType(const QString &mt);

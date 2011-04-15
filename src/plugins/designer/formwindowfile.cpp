@@ -129,18 +129,6 @@ bool FormWindowFile::isSaveAsAllowed() const
     return true;
 }
 
-Core::IFile::ReloadBehavior FormWindowFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    if (type == TypePermissions)
-        return BehaviorSilent;
-    if (type == TypeContents) {
-        if (state == TriggerInternal && !isModified())
-            return BehaviorSilent;
-        return BehaviorAsk;
-    }
-    return BehaviorAsk;
-}
-
 bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore)
