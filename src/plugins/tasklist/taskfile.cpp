@@ -92,9 +92,8 @@ bool TaskFile::isSaveAsAllowed() const
 Core::IFile::ReloadBehavior TaskFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state);
-    if (type != TypePermissions)
-        return BehaviorSilent;
-    return BehaviorAsk;
+    Q_UNUSED(type);
+    return BehaviorSilent;
 }
 
 void TaskFile::reload(ReloadFlag flag, ChangeType type)
