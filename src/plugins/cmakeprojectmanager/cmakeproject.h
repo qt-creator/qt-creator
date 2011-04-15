@@ -42,7 +42,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/filewatcher.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/editormanager/editormanager.h>
