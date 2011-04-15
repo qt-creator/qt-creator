@@ -139,7 +139,7 @@ void QmlProfilerEngine::finishProcess()
     // user stop?
     if (d->m_running) {
         d->m_running = false;
-        disconnect(&d->m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop()));
+        disconnect(&d->m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop(int)));
         if (d->m_launcher.isRunning()) {
             d->m_launcher.stop();
         }
