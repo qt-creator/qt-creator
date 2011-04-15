@@ -80,8 +80,8 @@ public:
         FlagIgnore
     };
 
-    IFile(QObject *parent = 0) : QObject(parent) {}
-    virtual ~IFile() {}
+    IFile(QObject *parent = 0);
+    virtual ~IFile();
 
     virtual bool save(QString *errorString, const QString &fileName = QString()) = 0;
     virtual QString fileName() const = 0;
@@ -98,7 +98,7 @@ public:
     virtual bool reload(QString *errorString, ReloadFlag flag, ChangeType type) = 0;
     virtual void rename(const QString &newName) = 0;
 
-    virtual void checkPermissions() {}
+    virtual void checkPermissions();
 
 signals:
     void changed();

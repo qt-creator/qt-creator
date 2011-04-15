@@ -69,6 +69,7 @@ SOURCES += mainwindow.cpp \
     fileiconprovider.cpp \
     mimedatabase.cpp \
     icore.cpp \
+    ifile.cpp \
     editormanager/ieditor.cpp \
     dialogs/ioptionspage.cpp \
     dialogs/iwizard.cpp \
