@@ -294,15 +294,32 @@ void MaemoDebugSupport::startDebugging()
             args += QString(QLatin1String(" -qmljsdebugger=port:%1,block"))
                 .arg(m_qmlPort);
         }
-        const QString remoteCommandLine
-            = m_debuggingType == MaemoRunConfiguration::DebugQmlOnly
-                ? QString::fromLocal8Bit("%1 %2 %3 %4").arg(cmdPrefix).arg(env)
-                      .arg(remoteExe).arg(args)
-                : QString::fromLocal8Bit("%1 %2 gdbserver :%3 %4 %5")
-                      .arg(cmdPrefix).arg(env).arg(m_gdbServerPort)
-                      .arg(remoteExe).arg(args);
+
+        QString remoteCommandLine;
+        if (m_debuggingType == MaemoRunConfiguration::DebugQmlOnly) {
+            remoteCommandLine = QString::fromLocal8Bit("%1 %2 %3 %4")
+                .arg(cmdPrefix).arg(env).arg(remoteExe).arg(args);
+        } else {
+            remoteCommandLine = QString::fromLocal8Bit("%1 %2 gdbserver :%3 %4 %5")
+                .arg(cmdPrefix).arg(env).arg(m_gdbServerPort)
+                .arg(remoteExe).arg(args);
+            connect(m_runner, SIGNAL(remoteProcessFinished(qint64)),
+                SLOT(handleGdbServerFinished(qint64)));
+        }
+
         m_runner->startExecution(remoteCommandLine.toUtf8());
     }
+}
+
+void MaemoDebugSupport::handleGdbServerFinished(qint64 exitCode)
+{
+    if (!m_engine || m_state == Inactive || exitCode == 0)
+        return;
+
+    if (m_state == Debugging)
+        m_engine->notifyInferiorIll();
+    else
+        m_engine->handleRemoteSetupFailed(tr("The gdbserver process closed unexpectedly."));
 }
 
 void MaemoDebugSupport::handleDebuggingFinished()
