@@ -31,7 +31,6 @@
     <itemlibraryentry name="BusyIndicator" category="Components Symbian" libraryIcon=":/symbianplugin/images/busyindicator.png"  version="1.0" requiredImport="com.nokia.symbian">
       <property name="width" type="int" value="180"/>
       <property name="height" type="int" value="30"/>
-      <property name="text" type="QString" value="CheckBox"/>
     </itemlibraryentry>
   </node>
   <node name="ChoiceList" icon=":/symbianplugin/images/choicelist16.png">
