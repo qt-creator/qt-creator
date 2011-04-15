@@ -907,7 +907,7 @@ void FileManager::checkForReload()
     // handle the IFiles
     QStringList errorStrings;
     foreach (IFile *file, changedIFiles) {
-        IFile::ChangeTrigger behavior = IFile::TriggerInternal;
+        IFile::ChangeTrigger trigger = IFile::TriggerInternal;
         IFile::ChangeType type = IFile::TypePermissions;
         bool changed = false;
         // find out the type & behavior from the two possible files
@@ -921,6 +921,7 @@ void FileManager::checkForReload()
             Internal::FileStateItem currentState = currentStates.value(fileName);
             Internal::FileStateItem expectedState = d->m_states.value(fileName).expected;
             Internal::FileStateItem lastState = d->m_states.value(fileName).lastUpdatedState.value(file);
+
             // did the file actually change?
             if (lastState.modified == currentState.modified && lastState.permissions == currentState.permissions)
                 continue;
@@ -933,14 +934,14 @@ void FileManager::checkForReload()
             // was the change unexpected?
             if ((currentState.modified != expectedState.modified || currentState.permissions != expectedState.permissions)
                     && !expectedFileNames.contains(fileName)) {
-                behavior = IFile::TriggerExternal;
+                trigger = IFile::TriggerExternal;
             }
 
             // find out the type
             IFile::ChangeType fileChange = changeTypes.value(fileName);
             if (fileChange == IFile::TypeRemoved) {
                 type = IFile::TypeRemoved;
-                behavior = IFile::TriggerExternal; // removed files always trigger externally
+                trigger = IFile::TriggerExternal; // removed files always trigger externally
             } else if (fileChange == IFile::TypeContents && type == IFile::TypePermissions) {
                 type = IFile::TypeContents;
             }
@@ -974,7 +975,7 @@ void FileManager::checkForReload()
         // so do whatever the IFile wants us to do
         } else {
             // check if IFile wants us to ask
-            if (file->reloadBehavior(behavior, type) == IFile::BehaviorSilent) {
+            if (file->reloadBehavior(trigger, type) == IFile::BehaviorSilent) {
                 // content change or removed, IFile wants silent handling
                 success = file->reload(&errorString, IFile::FlagReload, type);
             // IFile wants us to ask
