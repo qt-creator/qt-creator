@@ -41,8 +41,8 @@ QT_BEGIN_NAMESPACE
 class QDir;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class FileWatcher;
+namespace Utils {
+class FileSystemWatcher;
 }
 
 namespace QmlJSTools {
@@ -89,8 +89,10 @@ private:
                           const QString &prefix = QString());
 
 private:
+    Utils::FileSystemWatcher *pluginWatcher();
+
     ModelManager *m_modelManager;
-    ProjectExplorer::FileWatcher *m_pluginWatcher;
+    Utils::FileSystemWatcher *m_pluginWatcher;
     QHash<QProcess *, QString> m_runningQmldumps;
     QList<Plugin> m_plugins;
     QHash<QString, int> m_libraryToPluginIndex;

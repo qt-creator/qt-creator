@@ -33,41 +33,46 @@
 #ifndef FSWATCHER_H
 #define FSWATCHER_H
 
-#include <QtCore/QDateTime>
-#include <QtCore/QHash>
+#include "utils_global.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
-#include <QtCore/QMap>
 
-QT_BEGIN_NAMESPACE
-class QTimer;
-class QFileSystemWatcher;
-QT_END_NAMESPACE
+namespace Utils {
+class FileSystemWatcherPrivate;
 
-namespace QmlProjectManager {
-
-class FileSystemWatcher : public QObject
+// Documentation inside.
+class QTCREATOR_UTILS_EXPORT FileSystemWatcher : public QObject
 {
     Q_DISABLE_COPY(FileSystemWatcher)
     Q_OBJECT
 public:
+    enum WatchMode
+    {
+        WatchModifiedDate,
+        WatchAllChanges
+    };
+
     explicit FileSystemWatcher(QObject *parent = 0);
+    explicit FileSystemWatcher(int id, QObject *parent = 0);
     virtual ~FileSystemWatcher();
 
-    void addFile(const QString &file);
-    void addFiles(const QStringList &files);
+    void addFile(const QString &file, WatchMode wm);
+    void addFiles(const QStringList &files, WatchMode wm);
 
     void removeFile(const QString &file);
     void removeFiles(const QStringList &files);
 
+    bool watchesFile(const QString &file) const;
     QStringList files() const;
 
-    void addDirectory(const QString &file);
-    void addDirectories(const QStringList &files);
+    void addDirectory(const QString &file, WatchMode wm);
+    void addDirectories(const QStringList &files, WatchMode wm);
 
     void removeDirectory(const QString &file);
     void removeDirectories(const QStringList &files);
 
+    bool watchesDirectory(const QString &file) const;
     QStringList directories() const;
 
 private slots:
@@ -79,15 +84,11 @@ signals:
     void directoryChanged(const QString &path);
 
 private:
-    QStringList m_files;
-    QStringList m_directories;
+    void init();
 
-    static int m_objectCount;
-    static QHash<QString, int> m_fileCount;
-    static QHash<QString, int> m_directoryCount;
-    static QFileSystemWatcher *m_watcher;
+    QScopedPointer<FileSystemWatcherPrivate> d;
 };
 
-} // namespace QmlProjectManager
+} // namespace Utils
 
 #endif // FSWATCHER_H

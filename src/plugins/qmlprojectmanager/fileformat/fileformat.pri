@@ -1,8 +1,6 @@
 HEADERS += $$PWD/qmlprojectitem.h \
            $$PWD/filefilteritems.h \
-           $$PWD/qmlprojectfileformat.h \
-           $$PWD/filesystemwatcher.h
+           $$PWD/qmlprojectfileformat.h
 SOURCES += $$PWD/qmlprojectitem.cpp \
            $$PWD/filefilteritems.cpp \
-           $$PWD/qmlprojectfileformat.cpp \
-           $$PWD/filesystemwatcher.cpp
+           $$PWD/qmlprojectfileformat.cpp

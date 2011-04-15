@@ -48,6 +48,8 @@
 #include <projectexplorer/toolchain.h>
 #include <qt4projectmanager/qt4project.h>
 
+#include <utils/filesystemwatcher.h>
+
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 #include <QtCore/QBuffer>
@@ -109,10 +111,11 @@ bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
 
 AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id) :
     Qt4BaseTarget(parent, id),
-    m_filesWatcher(new QFileSystemWatcher(this)),
+    m_filesWatcher(new Utils::FileSystemWatcher(this)),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this)),
     m_isInitialized(false)
 {
+    m_filesWatcher->setObjectName(QLatin1String("Qt4MaemoTarget"));
     setIcon(QIcon(":/projectexplorer/images/MaemoDevice.png"));
     connect(parent, SIGNAL(addedTarget(ProjectExplorer::Target*)),
         this, SLOT(handleTargetAdded(ProjectExplorer::Target*)));
@@ -692,9 +695,9 @@ void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
         if (QFileInfo(iconPath).exists())
             setPackageManagerIcon(iconPath);
     }
-    m_filesWatcher->addPath(debianDirPath());
-    m_filesWatcher->addPath(changeLogFilePath());
-    m_filesWatcher->addPath(controlFilePath());
+    m_filesWatcher->addDirectory(debianDirPath(), Utils::FileSystemWatcher::WatchAllChanges);
+    m_filesWatcher->addFile(changeLogFilePath(), Utils::FileSystemWatcher::WatchAllChanges);
+    m_filesWatcher->addFile(controlFilePath(), Utils::FileSystemWatcher::WatchAllChanges);
     connect(m_filesWatcher, SIGNAL(directoryChanged(QString)), this,
         SLOT(handleDebianDirContentsChanged()));
     connect(m_filesWatcher, SIGNAL(fileChanged(QString)), this,
@@ -1017,7 +1020,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractRpmBasedQt4MaemoTarget::createSpeci
 
 void AbstractRpmBasedQt4MaemoTarget::handleTargetAddedSpecial()
 {
-    m_filesWatcher->addPath(specFilePath());
+    m_filesWatcher->addFile(specFilePath(), Utils::FileSystemWatcher::WatchAllChanges);
     connect(m_filesWatcher, SIGNAL(fileChanged(QString)), this,
         SIGNAL(specFileChanged()));
 }

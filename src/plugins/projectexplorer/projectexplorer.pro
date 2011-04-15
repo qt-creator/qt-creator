@@ -77,7 +77,6 @@ HEADERS += projectexplorer.h \
     userfileaccessor.h \
     cesdkhandler.h \
     gccparser.h \
-    filewatcher.h \
     debugginghelper.h \
     projectexplorersettingspage.h \
     projectwelcomepage.h \
@@ -168,7 +167,6 @@ SOURCES += projectexplorer.cpp \
     cesdkhandler.cpp \
     userfileaccessor.cpp \
     gccparser.cpp \
-    filewatcher.cpp \
     debugginghelper.cpp \
     projectexplorersettingspage.cpp \
     projectwelcomepage.cpp \

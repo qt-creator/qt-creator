@@ -45,8 +45,8 @@ namespace QmlJS {
 class ModelManagerInterface;
 }
 
-namespace ProjectExplorer {
-class FileWatcher;
+namespace Utils {
+class FileSystemWatcher;
 }
 
 namespace QmlProjectManager {
@@ -125,7 +125,7 @@ private:
     // qml based, new format
     QDeclarativeEngine m_engine;
     QWeakPointer<QmlProjectItem> m_projectItem;
-    ProjectExplorer::FileWatcher *m_fileWatcher;
+    Utils::FileSystemWatcher *m_fileWatcher;
 
     Internal::QmlProjectNode *m_rootNode;
 };

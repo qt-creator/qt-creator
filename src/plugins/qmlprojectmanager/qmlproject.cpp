@@ -41,10 +41,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/filewatcher.h>
 #include <qt4projectmanager/qmldumptool.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+
+#include <utils/filesystemwatcher.h>
 
 #include <QtCore/QTextStream>
 #include <QtDeclarative/QDeclarativeComponent>
@@ -56,8 +57,9 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
       m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>()),
-      m_fileWatcher(new ProjectExplorer::FileWatcher(this))
+      m_fileWatcher(new Utils::FileSystemWatcher(this))
 {
+    m_fileWatcher->setObjectName(QLatin1String("QmlProjectWatcher"));
     setProjectContext(Core::Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguage(Core::Context(QmlProjectManager::Constants::LANG_QML));
 
@@ -67,7 +69,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     m_file = new Internal::QmlProjectFile(this, fileName);
     m_rootNode = new Internal::QmlProjectNode(this, m_file);
 
-    m_fileWatcher->addFile(fileName),
+    m_fileWatcher->addFile(fileName, Utils::FileSystemWatcher::WatchModifiedDate);
     connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
             this, SLOT(refreshProjectFile()));
 

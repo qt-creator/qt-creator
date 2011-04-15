@@ -43,8 +43,11 @@
 #include <QtGui/QIcon>
 
 QT_FORWARD_DECLARE_CLASS(QAction)
-QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 QT_FORWARD_DECLARE_CLASS(QStringList)
+
+namespace Utils {
+class FileSystemWatcher;
+}
 
 namespace ProjectExplorer {
     class BuildConfiguration;
@@ -123,16 +126,16 @@ private:
 private:
     QAction *m_qemuAction;
     QProcess *m_qemuProcess;
-    QFileSystemWatcher *runtimeRootWatcher();
-    QFileSystemWatcher *runtimeFolderWatcher();
+    Utils::FileSystemWatcher *runtimeRootWatcher();
+    Utils::FileSystemWatcher *runtimeFolderWatcher();
 
     int m_runningQtId;
     bool m_userTerminated;
     QIcon m_qemuStarterIcon;
     QMap<int, MaemoQemuRuntime> m_runtimes;
     static MaemoQemuManager *m_instance;
-    QFileSystemWatcher *m_runtimeRootWatcher;
-    QFileSystemWatcher *m_runtimeFolderWatcher;
+    Utils::FileSystemWatcher *m_runtimeRootWatcher;
+    Utils::FileSystemWatcher *m_runtimeFolderWatcher;
 };
 
 }   // namespace Internal

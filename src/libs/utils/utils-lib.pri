@@ -19,6 +19,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/wizard.cpp \
     $$PWD/filewizardpage.cpp \
     $$PWD/filewizarddialog.cpp \
+    $$PWD/filesystemwatcher.cpp \
     $$PWD/projectintropage.cpp \
     $$PWD/basevalidatinglineedit.cpp \
     $$PWD/filenamevalidatinglineedit.cpp \
@@ -105,6 +106,7 @@ HEADERS += $$PWD/environment.h \
     $$PWD/wizard.h \
     $$PWD/filewizardpage.h \
     $$PWD/filewizarddialog.h \
+    $$PWD/filesystemwatcher.h \
     $$PWD/projectintropage.h \
     $$PWD/basevalidatinglineedit.h \
     $$PWD/filenamevalidatinglineedit.h \

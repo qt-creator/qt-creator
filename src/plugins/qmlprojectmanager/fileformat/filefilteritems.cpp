@@ -32,6 +32,9 @@
 
 #include "filefilteritems.h"
 
+#include <utils/filesystemwatcher.h>
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtGui/QImageReader>
@@ -40,12 +43,28 @@ namespace QmlProjectManager {
 
 FileFilterBaseItem::FileFilterBaseItem(QObject *parent) :
         QmlProjectContentItem(parent),
-        m_recurse(RecurseDefault)
+        m_recurse(RecurseDefault),
+        m_dirWatcher(0)
 {
     m_updateFileListTimer.setSingleShot(true);
     m_updateFileListTimer.setInterval(50);
-    connect(&m_dirWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateFileList()));
+
     connect(&m_updateFileListTimer, SIGNAL(timeout()), this, SLOT(updateFileListNow()));
+}
+
+Utils::FileSystemWatcher *FileFilterBaseItem::dirWatcher()
+{
+    if (!m_dirWatcher) {
+        m_dirWatcher = new Utils::FileSystemWatcher(1, this); // Separate id, might exceed OS limits.
+        m_dirWatcher->setObjectName(QLatin1String("FileFilterBaseItemWatcher"));
+        connect(m_dirWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateFileList()));
+    }
+    return m_dirWatcher;
+}
+
+QStringList FileFilterBaseItem::watchedDirectories() const
+{
+    return m_dirWatcher ? m_dirWatcher->directories() : QStringList();
 }
 
 QString FileFilterBaseItem::directory() const
@@ -170,7 +189,7 @@ bool FileFilterBaseItem::matchesFile(const QString &filePath) const
         return false;
 
     const QDir fileDir = QFileInfo(filePath).absoluteDir();
-    foreach (const QString &watchedDirectory, m_dirWatcher.directories()) {
+    foreach (const QString &watchedDirectory, watchedDirectories()) {
         if (QDir(watchedDirectory) == fileDir)
             return true;
     }
@@ -233,14 +252,16 @@ void FileFilterBaseItem::updateFileListNow()
     }
 
     // update watched directories
-    const QSet<QString> oldDirs = m_dirWatcher.directories().toSet();
+    const QSet<QString> oldDirs = watchedDirectories().toSet();
     const QSet<QString> unwatchDirs = oldDirs - dirsToBeWatched;
     const QSet<QString> watchDirs = dirsToBeWatched - oldDirs;
 
-    if (!unwatchDirs.isEmpty())
-        m_dirWatcher.removeDirectories(unwatchDirs.toList());
+    if (!unwatchDirs.isEmpty()) {
+        QTC_ASSERT(m_dirWatcher, return ; )
+        m_dirWatcher->removeDirectories(unwatchDirs.toList());
+    }
     if (!watchDirs.isEmpty())
-        m_dirWatcher.addDirectories(watchDirs.toList());
+        dirWatcher()->addDirectories(watchDirs.toList(), Utils::FileSystemWatcher::WatchAllChanges);
 }
 
 bool FileFilterBaseItem::fileMatches(const QString &fileName) const

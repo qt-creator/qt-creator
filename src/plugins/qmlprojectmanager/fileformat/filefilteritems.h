@@ -34,7 +34,6 @@
 #define FILEFILTERITEMS_H
 
 #include "qmlprojectitem.h"
-#include "filesystemwatcher.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QSet>
@@ -43,6 +42,10 @@
 #include <QtDeclarative/qdeclarative.h>
 
 QT_FORWARD_DECLARE_CLASS(QDir)
+
+namespace Utils {
+class FileSystemWatcher;
+}
 
 namespace QmlProjectManager {
 
@@ -91,6 +94,8 @@ private:
 
     bool fileMatches(const QString &fileName) const;
     QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs = 0);
+    Utils::FileSystemWatcher *dirWatcher();
+    QStringList watchedDirectories() const;
 
     QString m_rootDir;
     QString m_defaultDir;
@@ -111,7 +116,7 @@ private:
     QStringList m_explicitFiles;
 
     QSet<QString> m_files;
-    FileSystemWatcher m_dirWatcher;
+    Utils::FileSystemWatcher *m_dirWatcher;
     QTimer m_updateFileListTimer;
 
 

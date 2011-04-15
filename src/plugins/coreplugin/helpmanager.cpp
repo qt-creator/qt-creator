@@ -32,13 +32,13 @@
 
 #include "helpmanager.h"
 
-#include "icore.h"
+#include <coreplugin/icore.h>
+#include <utils/filesystemwatcher.h>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
-#include <QtCore/QFileSystemWatcher>
 #include <QtCore/QStringList>
 
 #include <QtHelp/QHelpEngineCore>
@@ -58,7 +58,7 @@ struct HelpManagerPrivate {
 
     bool m_needsSetup;
     QHelpEngineCore *m_helpEngine;
-    QFileSystemWatcher *m_collectionWatcher;
+    Utils::FileSystemWatcher *m_collectionWatcher;
 
     QStringList m_filesToRegister;
     QStringList m_nameSpacesToUnregister;
@@ -429,8 +429,9 @@ void HelpManager::setupHelpManager()
     for (it = d->m_customValues.constBegin(); it != d->m_customValues.constEnd(); ++it)
         setCustomValue(it.key(), it.value());
 
-    d->m_collectionWatcher = new QFileSystemWatcher(QStringList() << collectionFilePath(),
-        this);
+    d->m_collectionWatcher = new Utils::FileSystemWatcher(this);
+    d->m_collectionWatcher->setObjectName(QLatin1String("HelpCollectionWatcher"));
+    d->m_collectionWatcher->addFile(collectionFilePath(), Utils::FileSystemWatcher::WatchAllChanges);
     connect(d->m_collectionWatcher, SIGNAL(fileChanged(QString)), this,
         SLOT(collectionFileModified()));
 

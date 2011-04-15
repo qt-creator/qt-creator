@@ -52,6 +52,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <utils/filesystemwatcher.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -128,20 +129,22 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
         this, SLOT(qemuStatusChanged(QemuStatus, QString)));
 }
 
-QFileSystemWatcher *MaemoQemuManager::runtimeRootWatcher()
+Utils::FileSystemWatcher *MaemoQemuManager::runtimeRootWatcher()
 {
     if (!m_runtimeRootWatcher) {
-        m_runtimeRootWatcher = new QFileSystemWatcher(this);
+        m_runtimeRootWatcher = new Utils::FileSystemWatcher(this);
+        m_runtimeRootWatcher->setObjectName(QLatin1String("MaemoQemuRuntimeRootWatcher"));
         connect(m_runtimeRootWatcher, SIGNAL(directoryChanged(QString)), this,
             SLOT(runtimeRootChanged(QString)));
     }
     return m_runtimeRootWatcher;
 }
 
-QFileSystemWatcher *MaemoQemuManager::runtimeFolderWatcher()
+Utils::FileSystemWatcher *MaemoQemuManager::runtimeFolderWatcher()
 {
     if (!m_runtimeFolderWatcher) {
-        m_runtimeFolderWatcher = new QFileSystemWatcher(this);
+        m_runtimeFolderWatcher = new Utils::FileSystemWatcher(this);
+        m_runtimeFolderWatcher->setObjectName(QLatin1String("MaemoQemuRuntimeFolderWatcher"));
         connect(m_runtimeFolderWatcher, SIGNAL(directoryChanged(QString)), this,
             SLOT(runtimeFolderChanged(QString)));
     }
@@ -185,8 +188,9 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
                     = MaemoQemuRuntimeParser::parseRuntime(version);
                 if (runtime.isValid()) {
                     m_runtimes.insert(uniqueId, runtime);
-                    if (!runtimeRootWatcher()->directories().contains(runtime.m_watchPath))
-                        runtimeRootWatcher()->addPath(runtime.m_watchPath);
+                    if (!runtimeRootWatcher()->watchesDirectory(runtime.m_watchPath))
+                        runtimeRootWatcher()->addDirectory(runtime.m_watchPath,
+                                                           Utils::FileSystemWatcher::WatchAllChanges);
                 } else {
                     m_runtimes.remove(uniqueId);
                 }
@@ -477,7 +481,8 @@ void MaemoQemuManager::runtimeRootChanged(const QString &directory)
                 if (!QFile::exists(runtime.m_root + QLatin1String("/information"))) {
                     // install might be still in progress
                     uniqueIds.removeAll(uniqueId);
-                    runtimeFolderWatcher()->addPath(runtime.m_root);
+                    runtimeFolderWatcher()->addDirectory(runtime.m_root,
+                                                         Utils::FileSystemWatcher::WatchAllChanges);
                 }
             }
         }
@@ -496,7 +501,7 @@ void MaemoQemuManager::runtimeFolderChanged(const QString &directory)
         }
         notify(uniqueIds);
         if (m_runtimeFolderWatcher)
-            m_runtimeFolderWatcher->removePath(directory);
+            m_runtimeFolderWatcher->removeDirectory(directory);
     }
 }
 

@@ -40,8 +40,10 @@
 #include <QtGui/QIcon>
 
 QT_FORWARD_DECLARE_CLASS(QFile)
-QT_FORWARD_DECLARE_CLASS(QFileSystemWatcher)
 
+namespace Utils {
+class FileSystemWatcher;
+}
 namespace Qt4ProjectManager {
 class Qt4Project;
 namespace Internal {
@@ -92,7 +94,7 @@ protected:
     QSharedPointer<QFile> openFile(const QString &filePath,
         QIODevice::OpenMode mode, QString *error) const;
 
-    QFileSystemWatcher * const m_filesWatcher;
+    Utils::FileSystemWatcher* const m_filesWatcher;
 
 private slots:
     void handleTargetAdded(ProjectExplorer::Target *target);

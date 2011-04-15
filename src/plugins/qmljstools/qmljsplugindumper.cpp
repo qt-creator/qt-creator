@@ -35,9 +35,9 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsinterpreter.h>
-#include <projectexplorer/filewatcher.h>
 #include <projectexplorer/projectexplorer.h>
 #include <coreplugin/messagemanager.h>
+#include <utils/filesystemwatcher.h>
 
 #include <QtCore/QDir>
 
@@ -49,9 +49,19 @@ using namespace QmlJSTools::Internal;
 PluginDumper::PluginDumper(ModelManager *modelManager)
     : QObject(modelManager)
     , m_modelManager(modelManager)
-    , m_pluginWatcher(new ProjectExplorer::FileWatcher(this))
+    , m_pluginWatcher(0)
 {
-    connect(m_pluginWatcher, SIGNAL(fileChanged(QString)), SLOT(pluginChanged(QString)));
+}
+
+Utils::FileSystemWatcher *PluginDumper::pluginWatcher()
+{
+    if (!m_pluginWatcher) {
+        m_pluginWatcher = new Utils::FileSystemWatcher(this);
+        m_pluginWatcher->setObjectName(QLatin1String("PluginDumperWatcher"));
+        connect(m_pluginWatcher, SIGNAL(fileChanged(QString)),
+                this, SLOT(pluginChanged(QString)));
+    }
+    return m_pluginWatcher;
 }
 
 void PluginDumper::loadPluginTypes(const QString &libraryPath, const QString &importPath, const QString &importUri, const QString &importVersion)
@@ -92,14 +102,14 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
     // watch plugin libraries
     foreach (const QmlDirParser::Plugin &plugin, snapshot.libraryInfo(canonicalLibraryPath).plugins()) {
         const QString pluginLibrary = resolvePlugin(canonicalLibraryPath, plugin.path, plugin.name);
-        m_pluginWatcher->addFile(pluginLibrary);
+        pluginWatcher()->addFile(pluginLibrary, Utils::FileSystemWatcher::WatchModifiedDate);
         m_libraryToPluginIndex.insert(pluginLibrary, index);
     }
 
     // watch library xml file
     if (plugin.hasPredumpedQmlTypesFile()) {
         const QString &path = plugin.predumpedQmlTypesFilePath();
-        m_pluginWatcher->addFile(path);
+        pluginWatcher()->addFile(path, Utils::FileSystemWatcher::WatchModifiedDate);
         m_libraryToPluginIndex.insert(path, index);
     }
 
