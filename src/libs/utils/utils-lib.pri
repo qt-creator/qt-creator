@@ -81,7 +81,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/ssh/sftpdefs.cpp \
     $$PWD/ssh/sftpchannel.cpp \
     $$PWD/ssh/sshremoteprocessrunner.cpp \
-    $$PWD/ssh/sshconnectionmanager.cpp
+    $$PWD/ssh/sshconnectionmanager.cpp \
+    $$PWD/outputformatter.cpp
 
 win32 {
     SOURCES += $$PWD/abstractprocess_win.cpp \
@@ -179,7 +180,9 @@ HEADERS += $$PWD/environment.h \
     $$PWD/ssh/sshremoteprocessrunner.h \
     $$PWD/ssh/sshconnectionmanager.h \
     $$PWD/ssh/sshpseudoterminal.h \
-    $$PWD/statuslabel.h
+    $$PWD/statuslabel.h \
+    $$PWD/outputformatter.h \
+    $$PWD/outputformat.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

@@ -699,7 +699,7 @@ Qt4RunConfiguration::BaseEnvironmentBase Qt4RunConfiguration::baseEnvironmentBas
     return m_baseEnvironmentBase;
 }
 
-ProjectExplorer::OutputFormatter *Qt4RunConfiguration::createOutputFormatter() const
+Utils::OutputFormatter *Qt4RunConfiguration::createOutputFormatter() const
 {
     return new QtOutputFormatter(qt4Target()->qt4Project());
 }

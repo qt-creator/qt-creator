@@ -71,7 +71,7 @@ public:
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *createConfigurationWidget();
 
-    ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+    Utils::OutputFormatter *createOutputFormatter() const;
 
     QString commandLineArguments() const;
     void setCommandLineArguments(const QString &args);
@@ -148,7 +148,7 @@ private slots:
     void qmlEngineStateChanged(const Debugger::DebuggerState &state);
     void codaFinished();
     void handleDebuggingFinished();
-    void handleMessageFromCoda(ProjectExplorer::RunControl *aCodaRunControl, const QString &msg, ProjectExplorer::OutputFormat format);
+    void handleMessageFromCoda(ProjectExplorer::RunControl *aCodaRunControl, const QString &msg, Utils::OutputFormat format);
 
 private:
     CodaRunControl *m_codaRunControl;

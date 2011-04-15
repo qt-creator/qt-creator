@@ -89,8 +89,8 @@ LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfig
     m_runMode = static_cast<ApplicationLauncher::Mode>(rc->runMode());
     m_commandLineArguments = rc->commandLineArguments();
 
-    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,ProjectExplorer::OutputFormat)),
-            this, SLOT(slotAppendMessage(QString,ProjectExplorer::OutputFormat)));
+    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+            this, SLOT(slotAppendMessage(QString,Utils::OutputFormat)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
@@ -105,12 +105,12 @@ void LocalApplicationRunControl::start()
 {
     emit started();
     if (m_executable.isEmpty()) {
-        appendMessage(tr("No executable specified.\n"), ErrorMessageFormat);
+        appendMessage(tr("No executable specified.\n"), Utils::ErrorMessageFormat);
         emit finished();
     }  else {
         m_applicationLauncher.start(m_runMode, m_executable, m_commandLineArguments);
         QString msg = tr("Starting %1...\n").arg(QDir::toNativeSeparators(m_executable));
-        appendMessage(msg, NormalMessageFormat);
+        appendMessage(msg, Utils::NormalMessageFormat);
     }
 }
 
@@ -131,7 +131,7 @@ QIcon LocalApplicationRunControl::icon() const
 }
 
 void LocalApplicationRunControl::slotAppendMessage(const QString &err,
-                                                   OutputFormat format)
+                                                   Utils::OutputFormat format)
 {
     appendMessage(err, format);
 }
@@ -140,7 +140,7 @@ void LocalApplicationRunControl::processExited(int exitCode)
 {
     QString msg = tr("%1 exited with code %2\n")
         .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
-    appendMessage(msg, NormalMessageFormat);
+    appendMessage(msg, Utils::NormalMessageFormat);
     emit finished();
 }
 

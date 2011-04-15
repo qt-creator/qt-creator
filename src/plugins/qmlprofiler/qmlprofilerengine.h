@@ -35,7 +35,7 @@
 #define QMLPROFILERENGINE_H
 
 #include <analyzerbase/ianalyzerengine.h>
-#include <projectexplorer/outputformat.h>
+#include <utils/outputformat.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -63,7 +63,7 @@ private slots:
     void setFetchingData(bool);
     void dataReceived();
     void finishProcess();
-    void logApplicationMessage(const QString &msg, ProjectExplorer::OutputFormat format);
+    void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
 
 private:
     class QmlProfilerEnginePrivate;

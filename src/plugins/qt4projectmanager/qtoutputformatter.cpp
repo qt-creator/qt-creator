@@ -91,7 +91,7 @@ LinkResult QtOutputFormatter::matchLine(const QString &line) const
     return lr;
 }
 
-void QtOutputFormatter::appendMessage(const QString &txt, OutputFormat format)
+void QtOutputFormatter::appendMessage(const QString &txt, Utils::OutputFormat format)
 {
     QTextCursor cursor(plainTextEdit()->document());
     cursor.movePosition(QTextCursor::End);
@@ -173,7 +173,7 @@ void QtOutputFormatter::appendMessage(const QString &txt, OutputFormat format)
 }
 
 void QtOutputFormatter::appendLine(QTextCursor &cursor, LinkResult lr,
-    const QString &line, ProjectExplorer::OutputFormat format)
+    const QString &line, Utils::OutputFormat format)
 {
     const QTextCharFormat normalFormat = charFormat(format);
     cursor.insertText(line.left(lr.start), normalFormat);

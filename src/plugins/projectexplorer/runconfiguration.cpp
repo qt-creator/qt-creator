@@ -32,7 +32,6 @@
 
 #include "runconfiguration.h"
 
-#include "outputformatter.h"
 #include "project.h"
 #include "target.h"
 #include "toolchain.h"
@@ -327,9 +326,9 @@ QList<IRunConfigurationAspect *> RunConfiguration::extraAspects() const
     return m_aspects;
 }
 
-ProjectExplorer::OutputFormatter *RunConfiguration::createOutputFormatter() const
+Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
 {
-    return new OutputFormatter();
+    return new Utils::OutputFormatter();
 }
 
 /*!
@@ -450,7 +449,7 @@ RunControl::RunControl(RunConfiguration *runConfiguration, QString mode)
     }
     // We need to ensure that there's always a OutputFormatter
     if (!m_outputFormatter)
-        m_outputFormatter = new OutputFormatter();
+        m_outputFormatter = new Utils::OutputFormatter();
 }
 
 RunControl::~RunControl()
@@ -458,7 +457,7 @@ RunControl::~RunControl()
     delete m_outputFormatter;
 }
 
-OutputFormatter *RunControl::outputFormatter()
+Utils::OutputFormatter *RunControl::outputFormatter()
 {
     return m_outputFormatter;
 }
@@ -554,7 +553,7 @@ void RunControl::bringApplicationToForegroundInternal()
 #endif
 }
 
-void RunControl::appendMessage(const QString &msg, OutputFormat format)
+void RunControl::appendMessage(const QString &msg, Utils::OutputFormat format)
 {
     emit appendMessage(this, msg, format);
 }

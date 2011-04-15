@@ -219,7 +219,7 @@ QWidget *QmlProjectRunConfiguration::createConfigurationWidget()
     return m_configurationWidget.data();
 }
 
-ProjectExplorer::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() const
+Utils::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() const
 {
     return new Qt4ProjectManager::QtOutputFormatter(qmlTarget()->qmlProject());
 }

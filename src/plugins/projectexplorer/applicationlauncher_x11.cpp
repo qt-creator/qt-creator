@@ -99,7 +99,7 @@ ApplicationLauncher::~ApplicationLauncher()
 
 void ApplicationLauncher::appendProcessMessage(const QString &output, bool onStdErr)
 {
-    emit appendMessage(output, onStdErr ? ErrorMessageFormat : NormalMessageFormat);
+    emit appendMessage(output, onStdErr ? Utils::ErrorMessageFormat : Utils::NormalMessageFormat);
 }
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)
@@ -176,7 +176,7 @@ void ApplicationLauncher::guiProcessError()
     default:
         error = tr("Some error has occurred while running the program.");
     }
-    emit appendMessage(error + QLatin1Char('\n'), ErrorMessageFormat);
+    emit appendMessage(error + QLatin1Char('\n'), Utils::ErrorMessageFormat);
     emit processExited(d->m_guiProcess.exitCode());
 }
 
@@ -185,7 +185,7 @@ void ApplicationLauncher::readStandardOutput()
     QByteArray data = d->m_guiProcess.readAllStandardOutput();
     QString msg = d->m_outputCodec->toUnicode(
             data.constData(), data.length(), &d->m_outputCodecState);
-    emit appendMessage(msg, StdOutFormatSameLine);
+    emit appendMessage(msg, Utils::StdOutFormatSameLine);
 }
 
 void ApplicationLauncher::readStandardError()
@@ -193,7 +193,7 @@ void ApplicationLauncher::readStandardError()
     QByteArray data = d->m_guiProcess.readAllStandardError();
     QString msg = d->m_outputCodec->toUnicode(
             data.constData(), data.length(), &d->m_outputCodecState);
-    emit appendMessage(msg, StdErrFormatSameLine);
+    emit appendMessage(msg, Utils::StdErrFormatSameLine);
 }
 
 void ApplicationLauncher::processStopped()

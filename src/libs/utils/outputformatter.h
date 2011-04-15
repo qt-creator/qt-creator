@@ -33,10 +33,11 @@
 #ifndef OUTPUTFORMATTER_H
 #define OUTPUTFORMATTER_H
 
-#include "projectexplorer_export.h"
+#include "utils_global.h"
 #include "outputformat.h"
 
 #include <QtCore/QObject>
+#include <QtGui/QFont>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -44,9 +45,9 @@ class QTextCharFormat;
 class QColor;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
+namespace Utils {
 
-class PROJECTEXPLORER_EXPORT OutputFormatter : public QObject
+class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
 {
     Q_OBJECT
 
@@ -56,6 +57,9 @@ public:
 
     QPlainTextEdit *plainTextEdit() const;
     void setPlainTextEdit(QPlainTextEdit *plainText);
+
+    QFont font() const;
+    void setFont(const QFont &font);
 
     virtual void appendMessage(const QString &text, OutputFormat format);
     virtual void handleLink(const QString &href);
@@ -70,8 +74,9 @@ protected:
 private:
     QPlainTextEdit *m_plainTextEdit;
     QTextCharFormat *m_formats;
+    QFont m_font;
 };
 
-} // namespace ProjectExplorer
+} // namespace Utils
 
 #endif // OUTPUTFORMATTER_H

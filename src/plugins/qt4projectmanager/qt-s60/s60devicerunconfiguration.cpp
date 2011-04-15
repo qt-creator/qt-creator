@@ -171,7 +171,7 @@ QWidget *S60DeviceRunConfiguration::createConfigurationWidget()
     return new S60DeviceRunConfigurationWidget(this);
 }
 
-ProjectExplorer::OutputFormatter *S60DeviceRunConfiguration::createOutputFormatter() const
+Utils::OutputFormatter *S60DeviceRunConfiguration::createOutputFormatter() const
 {
     return new QtOutputFormatter(qt4Target()->qt4Project());
 }
@@ -491,7 +491,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
     if (startParameters().symbolFileName.isEmpty()) {
         const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.\n").
                                arg(rc->localExecutableFileName());
-        appendMessage(msg, ErrorMessageFormat);
+        appendMessage(msg, Utils::ErrorMessageFormat);
     }
     if (masterSlaveEngineTypes.first == Debugger::QmlEngineType) {
         connect(engine(), SIGNAL(requestRemoteSetup()), this, SLOT(remoteSetupRequested()));
@@ -501,7 +501,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
 
 void S60DeviceDebugRunControl::start()
 {
-    appendMessage(tr("Launching debugger...\n"), NormalMessageFormat);
+    appendMessage(tr("Launching debugger...\n"), Utils::NormalMessageFormat);
     Debugger::DebuggerRunControl::start();
 }
 
@@ -558,7 +558,7 @@ void S60DeviceDebugRunControl::handleDebuggingFinished()
     }
 }
 
-void S60DeviceDebugRunControl::handleMessageFromCoda(ProjectExplorer::RunControl *aCodaRunControl, const QString &msg, ProjectExplorer::OutputFormat format)
+void S60DeviceDebugRunControl::handleMessageFromCoda(ProjectExplorer::RunControl *aCodaRunControl, const QString &msg, Utils::OutputFormat format)
 {
     // This only gets used when QmlEngine is the master debug engine. If GDB is running, messages are handled via the gdb adapter
     Q_UNUSED(aCodaRunControl)

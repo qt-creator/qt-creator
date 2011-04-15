@@ -102,7 +102,7 @@ public:
     // TODO detectQtShadowBuild() ? how did this work ?
     QVariantMap toMap() const;
 
-    ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+    Utils::OutputFormatter *createOutputFormatter() const;
 
 signals:
     void commandLineArgumentsChanged(const QString&);

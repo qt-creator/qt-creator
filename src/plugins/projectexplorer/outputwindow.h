@@ -35,6 +35,7 @@
 
 #include "outputformat.h"
 #include <coreplugin/ioutputpane.h>
+#include <utils/outputformatter.h>
 
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QIcon>
@@ -50,7 +51,6 @@ namespace Core {
 }
 
 namespace ProjectExplorer {
-class OutputFormatter;
 class RunControl;
 class Project;
 
@@ -107,7 +107,7 @@ public slots:
     void projectRemoved();
 
     void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
-                       ProjectExplorer::OutputFormat format);
+                       Utils::OutputFormat format);
 
 private slots:
     void reRunRunControl();
@@ -156,10 +156,10 @@ public:
     OutputWindow(QWidget *parent = 0);
     ~OutputWindow();
 
-    OutputFormatter* formatter() const;
-    void setFormatter(OutputFormatter *formatter);
+    Utils::OutputFormatter* formatter() const;
+    void setFormatter(Utils::OutputFormatter *formatter);
 
-    void appendMessage(const QString &out, OutputFormat format);
+    void appendMessage(const QString &out, Utils::OutputFormat format);
     /// appends a \p text using \p format without using formater
     void appendText(const QString &text, const QTextCharFormat &format, int maxLineCount);
 
@@ -189,7 +189,7 @@ private:
     QString doNewlineEnfocement(const QString &out);
 
     Core::IContext *m_outputWindowContext;
-    OutputFormatter *m_formatter;
+    Utils::OutputFormatter *m_formatter;
 
     bool m_enforceNewline;
     bool m_scrollToBottom;

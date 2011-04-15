@@ -36,7 +36,8 @@
 #include "abi.h"
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
-#include "outputformat.h"
+
+#include <utils/outputformatter.h>
 
 #include <QtCore/QMetaType>
 #include <QtCore/QWeakPointer>
@@ -47,7 +48,6 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class IRunConfigurationAspect;
-class OutputFormatter;
 class RunControl;
 class Target;
 
@@ -65,7 +65,7 @@ public:
 
     Target *target() const;
 
-    virtual ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+    virtual Utils::OutputFormatter *createOutputFormatter() const;
 
     void setUseQmlDebugger(bool value);
     void setUseCppDebugger(bool value);
@@ -206,16 +206,16 @@ public:
 
     bool sameRunConfiguration(const RunControl *other) const;
 
-    OutputFormatter *outputFormatter();
+    Utils::OutputFormatter *outputFormatter();
     QString runMode() const;
 
 public slots:
     void bringApplicationToForeground(qint64 pid);
-    void appendMessage(const QString &msg, ProjectExplorer::OutputFormat format);
+    void appendMessage(const QString &msg, Utils::OutputFormat format);
 
 signals:
     void appendMessage(ProjectExplorer::RunControl *runControl,
-        const QString &msg, ProjectExplorer::OutputFormat format);
+        const QString &msg, Utils::OutputFormat format);
     void started();
     void finished();
 
@@ -232,7 +232,7 @@ private:
     QString m_displayName;
     QString m_runMode;
     const QWeakPointer<RunConfiguration> m_runConfiguration;
-    OutputFormatter *m_outputFormatter;
+    Utils::OutputFormatter *m_outputFormatter;
 
 #ifdef Q_OS_MAC
     //these two are used to bring apps in the foreground on Mac

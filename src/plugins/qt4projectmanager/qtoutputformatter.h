@@ -35,7 +35,7 @@
 
 #include "qt4projectmanager_global.h"
 
-#include <projectexplorer/outputformatter.h>
+#include <utils/outputformatter.h>
 #include <utils/fileinprojectfinder.h>
 
 #include <QtCore/QRegExp>
@@ -57,14 +57,14 @@ struct LinkResult
 };
 
 class QT4PROJECTMANAGER_EXPORT QtOutputFormatter
-    : public ProjectExplorer::OutputFormatter
+    : public Utils::OutputFormatter
 {
     Q_OBJECT
 public:
     QtOutputFormatter(ProjectExplorer::Project *project);
 
     virtual void appendMessage(const QString &text,
-        ProjectExplorer::OutputFormat format);
+        Utils::OutputFormat format);
     virtual void handleLink(const QString &href);
 
 private slots:
@@ -73,7 +73,7 @@ private slots:
 private:
     LinkResult matchLine(const QString &line) const;
     void appendLine(QTextCursor & cursor, LinkResult lr,
-        const QString &line, ProjectExplorer::OutputFormat);
+        const QString &line, Utils::OutputFormat);
 
     QRegExp m_qmlError;
     QRegExp m_qtError;

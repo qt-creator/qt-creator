@@ -84,7 +84,7 @@ public:
     using ProjectExplorer::RunConfiguration::isEnabled;
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     QWidget *createConfigurationWidget();
-    ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+    Utils::OutputFormatter *createOutputFormatter() const;
     AbstractQt4MaemoTarget *maemoTarget() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 

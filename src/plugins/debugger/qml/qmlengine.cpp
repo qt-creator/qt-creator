@@ -200,8 +200,8 @@ void QmlEngine::setupInferior()
             SIGNAL(processExited(int)),
             SLOT(disconnected()));
         connect(&d->m_applicationLauncher,
-            SIGNAL(appendMessage(QString,ProjectExplorer::OutputFormat)),
-            SLOT(appendMessage(QString,ProjectExplorer::OutputFormat)));
+            SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+            SLOT(appendMessage(QString,Utils::OutputFormat)));
         connect(&d->m_applicationLauncher,
             SIGNAL(bringToForegroundRequested(qint64)),
             runControl(),
@@ -214,7 +214,7 @@ void QmlEngine::setupInferior()
     }
 }
 
-void QmlEngine::appendMessage(const QString &msg, OutputFormat /* format */)
+void QmlEngine::appendMessage(const QString &msg, Utils::OutputFormat /* format */)
 {
     showMessage(msg, AppOutput); // FIXME: Redirect to RunControl
 }
@@ -392,7 +392,7 @@ void QmlEngine::startApplicationLauncher()
                           QDir::toNativeSeparators(startParameters().executable),
                           startParameters().processArgs)
                       + QLatin1Char('\n')
-                     , NormalMessageFormat);
+                     , Utils::NormalMessageFormat);
         d->m_applicationLauncher.start(ApplicationLauncher::Gui,
                                     startParameters().executable,
                                     startParameters().processArgs);

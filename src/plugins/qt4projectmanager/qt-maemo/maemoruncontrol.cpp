@@ -95,7 +95,7 @@ void MaemoRunControl::handleSshError(const QString &error)
 
 void MaemoRunControl::startExecution()
 {
-    appendMessage(tr("Starting remote process ...\n"), NormalMessageFormat);
+    appendMessage(tr("Starting remote process ...\n"), Utils::NormalMessageFormat);
     m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3 %4")
         .arg(MaemoGlobal::remoteCommandPrefix(m_runner->devConfig()->osVersion(),
             m_runner->connection()->connectionParameters().userName,
@@ -109,29 +109,29 @@ void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)
 {
     if (exitCode != MaemoSshRunner::InvalidExitCode) {
         appendMessage(tr("Finished running remote process. Exit code was %1.\n")
-            .arg(exitCode), NormalMessageFormat);
+            .arg(exitCode), Utils::NormalMessageFormat);
     }
     setFinished();
 }
 
 void MaemoRunControl::handleRemoteOutput(const QByteArray &output)
 {
-    appendMessage(QString::fromUtf8(output), StdOutFormatSameLine);
+    appendMessage(QString::fromUtf8(output), Utils::StdOutFormatSameLine);
 }
 
 void MaemoRunControl::handleRemoteErrorOutput(const QByteArray &output)
 {
-    appendMessage(QString::fromUtf8(output), StdErrFormatSameLine);
+    appendMessage(QString::fromUtf8(output), Utils::StdErrFormatSameLine);
 }
 
 void MaemoRunControl::handleProgressReport(const QString &progressString)
 {
-    appendMessage(progressString + QLatin1Char('\n'), NormalMessageFormat);
+    appendMessage(progressString + QLatin1Char('\n'), Utils::NormalMessageFormat);
 }
 
 void MaemoRunControl::handleMountDebugOutput(const QString &output)
 {
-    appendMessage(output, StdErrFormatSameLine);
+    appendMessage(output, Utils::StdErrFormatSameLine);
 }
 
 bool MaemoRunControl::isRunning() const
@@ -147,7 +147,7 @@ QIcon MaemoRunControl::icon() const
 void MaemoRunControl::handleError(const QString &errString)
 {
     stop();
-    appendMessage(errString, ErrorMessageFormat);
+    appendMessage(errString, Utils::ErrorMessageFormat);
     QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
 }
 

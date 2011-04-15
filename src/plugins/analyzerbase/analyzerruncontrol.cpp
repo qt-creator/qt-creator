@@ -142,12 +142,12 @@ QIcon AnalyzerRunControl::icon() const
 
 void AnalyzerRunControl::receiveStandardOutput(const QString &text)
 {
-    appendMessage(text, ProjectExplorer::StdOutFormat);
+    appendMessage(text, Utils::StdOutFormat);
 }
 
 void AnalyzerRunControl::receiveStandardError(const QString &text)
 {
-    appendMessage(text, ProjectExplorer::StdErrFormat);
+    appendMessage(text, Utils::StdErrFormat);
 }
 
 void AnalyzerRunControl::addTask(ProjectExplorer::Task::TaskType type, const QString &description,

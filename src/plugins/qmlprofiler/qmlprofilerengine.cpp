@@ -164,7 +164,7 @@ void QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
     m_launcher.start(ProjectExplorer::ApplicationLauncher::Gui, m_params.debuggee, arguments);
 }
 
-void QmlProfilerEngine::logApplicationMessage(const QString &msg, ProjectExplorer::OutputFormat /*format*/)
+void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat /*format*/)
 {
     qDebug() << "app: " << msg;
 }

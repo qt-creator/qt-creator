@@ -32,19 +32,16 @@
 
 #include "outputformatter.h"
 
-#include <texteditor/fontsettings.h>
-#include <texteditor/texteditorsettings.h>
-
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QColor>
 
 #include <QtCore/QString>
 
-using namespace ProjectExplorer;
-using namespace TextEditor;
+using namespace Utils;
 
 OutputFormatter::OutputFormatter()
     : QObject()
+    , m_plainTextEdit(0)
     , m_formats(0)
 {
 
@@ -94,11 +91,11 @@ QColor OutputFormatter::mixColors(const QColor &a, const QColor &b)
 
 void OutputFormatter::initFormats()
 {
+    if (!plainTextEdit())
+        return;
     QPalette p = plainTextEdit()->palette();
 
-    FontSettings fs = TextEditorSettings::instance()->fontSettings();
-    QFont font = fs.font();
-    QFont boldFont = font;
+    QFont boldFont = m_font;
     boldFont.setBold(true);
 
     m_formats = new QTextCharFormat[NumberOfFormats];
@@ -112,12 +109,12 @@ void OutputFormatter::initFormats()
     m_formats[ErrorMessageFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::red)));
 
     // StdOutFormat
-    m_formats[StdOutFormat].setFont(font);
+    m_formats[StdOutFormat].setFont(m_font);
     m_formats[StdOutFormat].setForeground(p.color(QPalette::Text));
     m_formats[StdOutFormatSameLine] = m_formats[StdOutFormat];
 
     // StdErrFormat
-    m_formats[StdErrFormat].setFont(font);
+    m_formats[StdErrFormat].setFont(m_font);
     m_formats[StdErrFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::red)));
     m_formats[StdErrFormatSameLine] = m_formats[StdErrFormat];
 }
@@ -125,4 +122,15 @@ void OutputFormatter::initFormats()
 void OutputFormatter::handleLink(const QString &href)
 {
     Q_UNUSED(href);
+}
+
+QFont OutputFormatter::font() const
+{
+    return m_font;
+}
+
+void OutputFormatter::setFont(const QFont &font)
+{
+    m_font = font;
+    initFormats();
 }

@@ -36,7 +36,6 @@
 #include "projectexplorersettings.h"
 #include "runconfiguration.h"
 #include "session.h"
-#include "outputformatter.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -47,10 +46,15 @@
 #include <coreplugin/icontext.h>
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
+
 #include <texteditor/basetexteditor.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/texteditorsettings.h>
+
 #include <projectexplorer/project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <utils/qtcassert.h>
+#include <utils/outputformatter.h>
 
 #include <QtGui/QIcon>
 #include <QtGui/QScrollBar>
@@ -71,6 +75,8 @@
 static const int MaxBlockCount = 100000;
 
 enum { debug = 0 };
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -242,8 +248,8 @@ void OutputPane::createNewOutputWindow(RunControl *rc)
             this, SLOT(runControlStarted()));
     connect(rc, SIGNAL(finished()),
             this, SLOT(runControlFinished()));
-    connect(rc, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)),
-            this, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)));
+    connect(rc, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)),
+            this, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)));
 
     // First look if we can reuse a tab
     const int size = m_runControlTabs.size();
@@ -598,6 +604,7 @@ OutputFormatter *OutputWindow::formatter() const
 void OutputWindow::setFormatter(OutputFormatter *formatter)
 {
     m_formatter = formatter;
+    m_formatter->setFont(TextEditor::TextEditorSettings::instance()->fontSettings().font());
     m_formatter->setPlainTextEdit(this);
 }
 

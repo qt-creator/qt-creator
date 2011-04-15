@@ -132,13 +132,13 @@ qint64 ApplicationLauncher::applicationPID() const
 
 void ApplicationLauncher::appendProcessMessage(const QString &output, bool onStdErr)
 {
-    emit appendMessage(output, onStdErr ? ErrorMessageFormat : NormalMessageFormat);
+    emit appendMessage(output, onStdErr ? Utils::ErrorMessageFormat : Utils::NormalMessageFormat);
 }
 
 void ApplicationLauncher::readWinDebugOutput(const QString &output,
                                              bool onStdErr)
 {
-    emit appendMessage(output, onStdErr ? StdErrFormat : StdOutFormat);
+    emit appendMessage(output, onStdErr ? Utils::StdErrFormat : Utils::StdOutFormat);
 }
 
 void ApplicationLauncher::processStopped()

@@ -155,7 +155,7 @@ QWidget *S60EmulatorRunConfiguration::createConfigurationWidget()
     return new S60EmulatorRunConfigurationWidget(this);
 }
 
-ProjectExplorer::OutputFormatter *S60EmulatorRunConfiguration::createOutputFormatter() const
+Utils::OutputFormatter *S60EmulatorRunConfiguration::createOutputFormatter() const
 {
     return new QtOutputFormatter(qt4Target()->qt4Project());
 }
@@ -342,8 +342,8 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
     m_executable = runConfiguration->executable();
     connect(&m_applicationLauncher, SIGNAL(applicationError(QString)),
             this, SLOT(slotError(QString)));
-    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString, ProjectExplorer::OutputFormat)),
-            this, SLOT(slotAppendMessage(QString, ProjectExplorer::OutputFormat)));
+    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString, Utils::OutputFormat)),
+            this, SLOT(slotAppendMessage(QString, Utils::OutputFormat)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
@@ -356,7 +356,7 @@ void S60EmulatorRunControl::start()
     emit started();
 
     QString msg = tr("Starting %1...\n").arg(QDir::toNativeSeparators(m_executable));
-    appendMessage(msg, NormalMessageFormat);
+    appendMessage(msg, Utils::NormalMessageFormat);
 }
 
 RunControl::StopResult S60EmulatorRunControl::stop()
@@ -377,11 +377,11 @@ QIcon S60EmulatorRunControl::icon() const
 
 void S60EmulatorRunControl::slotError(const QString & err)
 {
-    appendMessage(err, ErrorMessageFormat);
+    appendMessage(err, Utils::ErrorMessageFormat);
     emit finished();
 }
 
-void S60EmulatorRunControl::slotAppendMessage(const QString &line, OutputFormat format)
+void S60EmulatorRunControl::slotAppendMessage(const QString &line, Utils::OutputFormat format)
 {
     static QString prefix = tr("[Qt Message]");
     static int prefixLength = prefix.length();
@@ -393,6 +393,6 @@ void S60EmulatorRunControl::slotAppendMessage(const QString &line, OutputFormat 
 void S60EmulatorRunControl::processExited(int exitCode)
 {
     QString msg = tr("%1 exited with code %2\n");
-    appendMessage(msg, exitCode ? ErrorMessageFormat : NormalMessageFormat);
+    appendMessage(msg, exitCode ? Utils::ErrorMessageFormat : Utils::NormalMessageFormat);
     emit finished();
 }

@@ -34,7 +34,8 @@
 #define APPLICATIONLAUNCHER_H
 
 #include "projectexplorer_export.h"
-#include "outputformat.h"
+
+#include <utils/outputformat.h>
 
 #include <QtCore/QProcess>
 
@@ -69,7 +70,7 @@ public:
     qint64 applicationPID() const;
 
 signals:
-    void appendMessage(const QString &message, ProjectExplorer::OutputFormat format);
+    void appendMessage(const QString &message, Utils::OutputFormat format);
     void processExited(int exitCode);
     void bringToForegroundRequested(qint64 pid);
 

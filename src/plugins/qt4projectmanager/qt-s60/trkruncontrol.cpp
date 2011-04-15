@@ -83,12 +83,12 @@ bool TrkRunControl::doStart()
     if (m_serialPortName.isEmpty()) {
         cancelProgress();
         QString msg = tr("No device is connected. Please connect a device and try again.\n");
-        appendMessage(msg, NormalMessageFormat);
+        appendMessage(msg, Utils::NormalMessageFormat);
         return false;
     }
 
     appendMessage(tr("Executable file: %1\n").arg(msgListFile(executableFileName())),
-                  NormalMessageFormat);
+                  Utils::NormalMessageFormat);
     return true;
 }
 
@@ -111,7 +111,7 @@ bool TrkRunControl::setupLauncher()
     QString errorMessage;
     m_launcher = trk::Launcher::acquireFromDeviceManager(m_serialPortName, 0, &errorMessage);
     if (!m_launcher) {
-        appendMessage(errorMessage, ErrorMessageFormat);
+        appendMessage(errorMessage, Utils::ErrorMessageFormat);
         return false;
     }
 
@@ -134,7 +134,7 @@ bool TrkRunControl::setupLauncher()
 
     if (!m_launcher->startServer(&errorMessage)) {
         appendMessage(tr("Could not connect to phone on port '%1': %2\n"
-                         "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage), ErrorMessageFormat);
+                         "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage), Utils::ErrorMessageFormat);
         return false;
     }
     return true;
@@ -149,7 +149,7 @@ void TrkRunControl::doStop()
 void TrkRunControl::printConnectFailed(const QString &errorMessage)
 {
     appendMessage(tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.\n").arg(errorMessage),
-                  ErrorMessageFormat);
+                  Utils::ErrorMessageFormat);
 }
 
 void TrkRunControl::launcherFinished()
@@ -162,7 +162,7 @@ void TrkRunControl::launcherFinished()
 
 void TrkRunControl::processStopped(uint pc, uint pid, uint tid, const QString &reason)
 {
-    appendMessage(trk::Launcher::msgStopped(pid, tid, pc, reason), StdOutFormat);
+    appendMessage(trk::Launcher::msgStopped(pid, tid, pc, reason), Utils::StdOutFormat);
     m_launcher->terminate();
 }
 
@@ -193,7 +193,7 @@ void TrkRunControl::slotWaitingForTrkClosed()
 {
     if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
         stop();
-        appendMessage(tr("Canceled.\n"), ErrorMessageFormat);
+        appendMessage(tr("Canceled.\n"), Utils::ErrorMessageFormat);
         emit finished();
     }
 }
@@ -205,7 +205,7 @@ void TrkRunControl::printApplicationOutput(const QString &output)
 
 void TrkRunControl::printApplicationOutput(const QString &output, bool onStdErr)
 {
-    appendMessage(output, onStdErr ? StdErrFormat : StdOutFormat);
+    appendMessage(output, onStdErr ? Utils::StdErrFormat : Utils::StdOutFormat);
 }
 
 void TrkRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &d)
@@ -215,7 +215,7 @@ void TrkRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &d)
         m_launcher->deleteLater();
         m_launcher = 0;
         QString msg = tr("The device '%1' has been disconnected.\n").arg(d.friendlyName());
-        appendMessage(msg, ErrorMessageFormat);
+        appendMessage(msg, Utils::ErrorMessageFormat);
         emit finished();
     }
 }
@@ -232,16 +232,16 @@ void TrkRunControl::initLauncher(const QString &executable, trk::Launcher *launc
 
 void TrkRunControl::printStartingNotice()
 {
-    appendMessage(tr("Starting application...\n"), NormalMessageFormat);
+    appendMessage(tr("Starting application...\n"), Utils::NormalMessageFormat);
 }
 
 void TrkRunControl::applicationRunNotice(uint pid)
 {
-    appendMessage(tr("Application running with pid %1.\n").arg(pid), NormalMessageFormat);
+    appendMessage(tr("Application running with pid %1.\n").arg(pid), Utils::NormalMessageFormat);
     setProgress(maxProgress());
 }
 
 void TrkRunControl::applicationRunFailedNotice(const QString &errorMessage)
 {
-    appendMessage(tr("Could not start application: %1\n").arg(errorMessage), NormalMessageFormat);
+    appendMessage(tr("Could not start application: %1\n").arg(errorMessage), Utils::NormalMessageFormat);
 }

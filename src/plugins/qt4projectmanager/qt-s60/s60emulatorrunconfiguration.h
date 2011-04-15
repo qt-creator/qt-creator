@@ -72,7 +72,7 @@ public:
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *createConfigurationWidget();
 
-    ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+    Utils::OutputFormatter *createOutputFormatter() const;
 
     QString executable() const;
 
@@ -149,7 +149,7 @@ public:
 
 private slots:
     void processExited(int exitCode);
-    void slotAppendMessage(const QString &line, ProjectExplorer::OutputFormat);
+    void slotAppendMessage(const QString &line, Utils::OutputFormat);
     void slotError(const QString & error);
 
 private:

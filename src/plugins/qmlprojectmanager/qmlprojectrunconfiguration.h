@@ -99,7 +99,7 @@ public:
     // RunConfiguration
     bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
     virtual QWidget *createConfigurationWidget();
-    ProjectExplorer::OutputFormatter *createOutputFormatter() const;
+    Utils::OutputFormatter *createOutputFormatter() const;
     QVariantMap toMap() const;
 
     ProjectExplorer::Abi abi() const;

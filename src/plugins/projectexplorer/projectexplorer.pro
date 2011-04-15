@@ -89,8 +89,6 @@ HEADERS += projectexplorer.h \
     buildenvironmentwidget.h \
     ldparser.h \
     linuxiccparser.h \
-    outputformat.h \
-    outputformatter.h \
     runconfigurationmodel.h \
     buildconfigurationmodel.h \
     processparameters.h \
@@ -180,7 +178,6 @@ SOURCES += projectexplorer.cpp \
     buildenvironmentwidget.cpp \
     ldparser.cpp \
     linuxiccparser.cpp \
-    outputformatter.cpp \
     runconfigurationmodel.cpp \
     buildconfigurationmodel.cpp \
     taskhub.cpp \

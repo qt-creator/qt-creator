@@ -65,7 +65,7 @@ public:
     virtual QIcon icon() const;
 private slots:
     void processExited(int exitCode);
-    void slotAppendMessage(const QString &err, ProjectExplorer::OutputFormat isError);
+    void slotAppendMessage(const QString &err, Utils::OutputFormat isError);
 private:
     ProjectExplorer::ApplicationLauncher m_applicationLauncher;
     QString m_executable;

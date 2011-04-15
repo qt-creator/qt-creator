@@ -79,8 +79,8 @@ QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QStri
     }
     m_commandLineArguments = runConfiguration->viewerArguments();
 
-    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,ProjectExplorer::OutputFormat)),
-            this, SLOT(slotAppendMessage(QString, ProjectExplorer::OutputFormat)));
+    connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+            this, SLOT(slotAppendMessage(QString, Utils::OutputFormat)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
     connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
@@ -100,7 +100,7 @@ void QmlRunControl::start()
     emit started();
     QString msg = tr("Starting %1 %2\n")
         .arg(QDir::toNativeSeparators(m_executable), m_commandLineArguments);
-    appendMessage(msg, NormalMessageFormat);
+    appendMessage(msg, Utils::NormalMessageFormat);
 }
 
 RunControl::StopResult QmlRunControl::stop()
@@ -124,7 +124,7 @@ void QmlRunControl::slotBringApplicationToForeground(qint64 pid)
     bringApplicationToForeground(pid);
 }
 
-void QmlRunControl::slotAppendMessage(const QString &line, OutputFormat format)
+void QmlRunControl::slotAppendMessage(const QString &line, Utils::OutputFormat format)
 {
     appendMessage(line, format);
 }
@@ -133,7 +133,7 @@ void QmlRunControl::processExited(int exitCode)
 {
     QString msg = tr("%1 exited with code %2\n")
         .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
-    appendMessage(msg, exitCode ? ErrorMessageFormat : NormalMessageFormat);
+    appendMessage(msg, exitCode ? Utils::ErrorMessageFormat : Utils::NormalMessageFormat);
     emit finished();
 }
 

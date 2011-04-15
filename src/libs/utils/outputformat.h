@@ -33,7 +33,7 @@
 #ifndef OUTPUTFORMAT_H
 #define OUTPUTFORMAT_H
 
-namespace ProjectExplorer {
+namespace Utils {
 
 enum OutputFormat
 {
@@ -46,6 +46,6 @@ enum OutputFormat
     NumberOfFormats // Keep this entry last.
 };
 
-} // namespace ProjectExplorer
+} // namespace Utils
 
 #endif // OUTPUTFORMATR_H
