@@ -1326,6 +1326,17 @@ void CodaDevice::sendLoggingAddListenerCommand(const CodaCallback &callBack,
     sendCodaMessage(MessageWithReply, LoggingService, "addListener", data, callBack, cookie);
 }
 
+void CodaDevice::sendSymbianUninstallCommand(const Coda::CodaCallback &callBack,
+                                             const quint32 package,
+                                             const QVariant &cookie)
+{
+    QByteArray data;
+    JsonInputStream str(data);
+    QString string = QString::number(package, 16);
+    str << string;
+    sendCodaMessage(MessageWithReply, SymbianInstallService, "uninstall", data, callBack, cookie);
+}
+
 void CodaDevice::sendSymbianOsDataGetThreadsCommand(const CodaCallback &callBack,
                                                  const QVariant &cookie)
 {

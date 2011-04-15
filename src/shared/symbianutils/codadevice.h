@@ -352,6 +352,10 @@ public:
     void sendLoggingAddListenerCommand(const CodaCallback &callBack,
                                        const QVariant &cookie = QVariant());
 
+    void sendSymbianUninstallCommand(const Coda::CodaCallback &callBack,
+                                                 const quint32 package,
+                                                 const QVariant &cookie = QVariant());
+
     // SymbianOs Data
     void sendSymbianOsDataGetThreadsCommand(const CodaCallback &callBack,
                                             const QVariant &cookie = QVariant());
