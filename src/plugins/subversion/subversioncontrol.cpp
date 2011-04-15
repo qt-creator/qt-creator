@@ -39,7 +39,6 @@ using namespace Subversion;
 using namespace Subversion::Internal;
 
 SubversionControl::SubversionControl(SubversionPlugin *plugin) :
-    m_enabled(true),
     m_plugin(plugin)
 {
 }

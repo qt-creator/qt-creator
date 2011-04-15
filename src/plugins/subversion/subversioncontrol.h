@@ -46,31 +46,30 @@ class SubversionControl : public Core::IVersionControl
     Q_OBJECT
 public:
     explicit SubversionControl(SubversionPlugin *plugin);
-    virtual QString displayName() const;
+    QString displayName() const;
 
-    virtual bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
+    bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
 
-    virtual bool supportsOperation(Operation operation) const;
-    virtual bool vcsOpen(const QString &fileName);
-    virtual bool vcsAdd(const QString &fileName);
-    virtual bool vcsDelete(const QString &filename);
-    virtual bool vcsMove(const QString &from, const QString &to);
-    virtual bool vcsCreateRepository(const QString &directory);
-    virtual bool vcsCheckout(const QString &directory, const QByteArray &url);
-    virtual QString vcsGetRepositoryURL(const QString &directory);
+    bool supportsOperation(Operation operation) const;
+    bool vcsOpen(const QString &fileName);
+    bool vcsAdd(const QString &fileName);
+    bool vcsDelete(const QString &filename);
+    bool vcsMove(const QString &from, const QString &to);
+    bool vcsCreateRepository(const QString &directory);
+    bool vcsCheckout(const QString &directory, const QByteArray &url);
+    QString vcsGetRepositoryURL(const QString &directory);
 
-    virtual QString vcsCreateSnapshot(const QString &topLevel);
-    virtual QStringList vcsSnapshots(const QString &topLevel);
-    virtual bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
-    virtual bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
+    QString vcsCreateSnapshot(const QString &topLevel);
+    QStringList vcsSnapshots(const QString &topLevel);
+    bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
+    bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
 
-    virtual bool vcsAnnotate(const QString &file, int line);
+    bool vcsAnnotate(const QString &file, int line);
 
     void emitRepositoryChanged(const QString &);
     void emitFilesChanged(const QStringList &);
 
 private:
-    bool m_enabled;
     SubversionPlugin *m_plugin;
 };
 
