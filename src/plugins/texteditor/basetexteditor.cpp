@@ -38,7 +38,6 @@
 #include "behaviorsettings.h"
 #include "codecselector.h"
 #include "completionsettings.h"
-#include "completionsupport.h"
 #include "tabsettings.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
@@ -48,6 +47,9 @@
 #include "indenter.h"
 #include "autocompleter.h"
 #include "snippet.h"
+#include "codeassistant.h"
+#include "defaultassistinterface.h"
+#include "convenience.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -235,11 +237,6 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     d->m_highlightBlocksTimer = new QTimer(this);
     d->m_highlightBlocksTimer->setSingleShot(true);
     connect(d->m_highlightBlocksTimer, SIGNAL(timeout()), this, SLOT(_q_highlightBlocks()));
-
-    d->m_requestAutoCompletionTimer = new QTimer(this);
-    d->m_requestAutoCompletionTimer->setSingleShot(true);
-    d->m_requestAutoCompletionTimer->setInterval(500);
-    connect(d->m_requestAutoCompletionTimer, SIGNAL(timeout()), this, SLOT(_q_requestAutoCompletion()));
 
     d->m_animator = 0;
 
@@ -490,7 +487,8 @@ ITextMarkable *BaseTextEditorWidget::markableInterface() const
 BaseTextEditor *BaseTextEditorWidget::editor() const
 {
     if (!d->m_editor) {
-        d->m_editor = const_cast<BaseTextEditorWidget*>(this)->createEditor();
+        d->m_editor = const_cast<BaseTextEditorWidget *>(this)->createEditor();
+        d->m_codeAssistant->configure(d->m_editor);
         connect(this, SIGNAL(textChanged()),
                 d->m_editor, SIGNAL(contentsChanged()));
         connect(this, SIGNAL(changed()),
@@ -668,6 +666,9 @@ void BaseTextEditorWidget::editorContentsChange(int position, int charsRemoved, 
 
     if (doc->isRedoAvailable())
         emit editor()->contentsChangedBecauseOfUndo();
+
+    if (charsAdded != 0 && characterAt(position + charsAdded - 1).isPrint())
+        d->m_assistRelevantContentAdded = true;
 }
 
 void BaseTextEditorWidget::slotSelectionChanged()
@@ -1535,9 +1536,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
 
     if (!ro
         && (e == QKeySequence::InsertParagraphSeparator
-            || (!d->m_lineSeparatorsAllowed && e == QKeySequence::InsertLineSeparator))
-        ) {
-
+            || (!d->m_lineSeparatorsAllowed && e == QKeySequence::InsertLineSeparator))) {
         if (d->m_snippetOverlay->isVisible()) {
             e->accept();
             d->m_snippetOverlay->hide();
@@ -1547,7 +1546,6 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
             setTextCursor(cursor);
             return;
         }
-
 
         QTextCursor cursor = textCursor();
         if (d->m_inBlockSelectionMode)
@@ -1702,7 +1700,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Right:
     case Qt::Key_Left:
 #ifndef Q_WS_MAC
-        if ((e->modifiers() & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier)) {
+        if ((e->modifiers()
+             & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier)) {
             int diff_row = 0;
             int diff_col = 0;
             if (e->key() == Qt::Key_Up)
@@ -1833,39 +1832,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
     if (!ro && e->key() == Qt::Key_Delete && d->m_parenthesesMatchingEnabled)
         d->m_parenthesesMatchingTimer->start(50);
 
-
-    if (!ro && d->m_contentsChanged && !e->text().isEmpty() && e->text().at(0).isPrint()) {
-        maybeRequestAutoCompletion(e->text().at(0));
-    }
-
-}
-
-void BaseTextEditorWidget::maybeRequestAutoCompletion(const QChar &ch)
-{
-    if (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
-        if (CompletionSupport::instance()->isActive())
-            d->m_requestAutoCompletionTimer->stop();
-        else {
-            d->m_requestAutoCompletionRevision = document()->revision();
-            d->m_requestAutoCompletionPosition = position();
-            d->m_requestAutoCompletionTimer->start();
-        }
-    } else {
-        d->m_requestAutoCompletionTimer->stop();
-        CompletionSupport::instance()->complete(editor(), SemanticCompletion, false);
-    }
-}
-
-void BaseTextEditorWidget::_q_requestAutoCompletion()
-{
-    d->m_requestAutoCompletionTimer->stop();
-
-    if (CompletionSupport::instance()->isActive())
-        return;
-
-    if (d->m_requestAutoCompletionRevision == document()->revision()
-            && d->m_requestAutoCompletionPosition == position())
-        CompletionSupport::instance()->complete(editor(), SemanticCompletion, false);
+    if (!ro && d->m_contentsChanged && !e->text().isEmpty() && e->text().at(0).isPrint())
+        d->m_codeAssistant->process();
 }
 
 void BaseTextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg, const QString &snippet)
@@ -2025,14 +1993,7 @@ int BaseTextEditorWidget::position(ITextEditor::PositionOperation posOp, int at)
 
 void BaseTextEditorWidget::convertPosition(int pos, int *line, int *column) const
 {
-    QTextBlock block = document()->findBlock(pos);
-    if (!block.isValid()) {
-        (*line) = -1;
-        (*column) = -1;
-    } else {
-        (*line) = block.blockNumber() + 1;
-        (*column) = pos - block.position();
-    }
+    Convenience::convertPosition(document(), pos, line, column);
 }
 
 QChar BaseTextEditorWidget::characterAt(int pos) const
@@ -2086,6 +2047,7 @@ BaseTextDocument *BaseTextEditorWidget::baseTextDocument() const
 {
     return d->m_document;
 }
+
 
 void BaseTextEditorWidget::setBaseTextDocument(BaseTextDocument *doc)
 {
@@ -2403,9 +2365,8 @@ BaseTextEditorPrivate::BaseTextEditorPrivate()
     m_findScopeVerticalBlockSelectionFirstColumn(-1),
     m_findScopeVerticalBlockSelectionLastColumn(-1),
     m_highlightBlocksTimer(0),
-    m_requestAutoCompletionRevision(0),
-    m_requestAutoCompletionPosition(0),
-    m_requestAutoCompletionTimer(0),
+    m_codeAssistant(new CodeAssistant),
+    m_assistRelevantContentAdded(false),
     m_cursorBlockNumber(-1),
     m_autoCompleter(new AutoCompleter),
     m_indenter(new Indenter)
@@ -3787,6 +3748,7 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
             const QString &number = QString::number(blockNumber + 1);
             bool selected = (
                     (selStart < block.position() + block.length()
+
                     && selEnd > block.position())
                     || (selStart == selEnd && selStart == block.position())
                     );
@@ -3961,6 +3923,7 @@ void BaseTextEditorWidget::slotCursorPositionChanged()
     } else if (d->m_contentsChanged) {
         saveCurrentCursorPositionForNavigation();
     }
+
     updateHighlights();
 }
 
@@ -5650,8 +5613,8 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
         if (text.isEmpty())
             return;
 
-        if (CompletionSupport::instance()->isActive())
-            setFocus();
+        if (d->m_codeAssistant->hasContext())
+            d->m_codeAssistant->destroyContext();
 
         QStringList lines = text.split(QLatin1Char('\n'));
         QTextCursor cursor = textCursor();
@@ -5696,8 +5659,8 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     if (text.isEmpty())
         return;
 
-    if (CompletionSupport::instance()->isActive())
-        setFocus();
+    if (d->m_codeAssistant->hasContext())
+        d->m_codeAssistant->destroyContext();
 
     if (d->m_snippetOverlay->isVisible() && (text.contains(QLatin1Char('\n'))
                                              || text.contains(QLatin1Char('\t')))) {
@@ -5882,18 +5845,7 @@ QString BaseTextEditor::selectedText() const
 
 QString BaseTextEditor::textAt(int pos, int length) const
 {
-    QTextCursor c = e->textCursor();
-
-    if (pos < 0)
-        pos = 0;
-    c.movePosition(QTextCursor::End);
-    if (pos + length > c.position())
-        length = c.position() - pos;
-
-    c.setPosition(pos);
-    c.setPosition(pos + length, QTextCursor::KeepAnchor);
-
-    return c.selectedText();
+    return Convenience::textAt(e->textCursor(), pos, length);
 }
 
 void BaseTextEditor::remove(int length)
@@ -6165,4 +6117,16 @@ void BaseTextEditorWidget::transformSelection(Internal::TransformationMethod met
 void BaseTextEditorWidget::inSnippetMode(bool *active)
 {
     *active = d->m_snippetOverlay->isVisible();
+}
+
+void BaseTextEditorWidget::invokeAssist(AssistKind kind, IAssistProvider *provider)
+{
+    d->m_codeAssistant->invoke(kind, provider);
+}
+
+IAssistInterface *BaseTextEditorWidget::createAssistInterface(AssistKind kind,
+                                                              AssistReason reason) const
+{
+    Q_UNUSED(kind);
+    return new DefaultAssistInterface(document(), position(), d->m_document, reason);
 }

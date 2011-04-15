@@ -32,7 +32,6 @@
 
 #include "texteditorplugin.h"
 
-#include "completionsupport.h"
 #include "findinfiles.h"
 #include "findincurrentfile.h"
 #include "fontsettings.h"
@@ -46,6 +45,7 @@
 #include "manager.h"
 #include "outlinefactory.h"
 #include "snippets/plaintextsnippetprovider.h"
+#include "codeassist/assistenums.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -215,17 +215,15 @@ void TextEditorPlugin::initializeEditor(PlainTextEditorWidget *editor)
 void TextEditorPlugin::invokeCompletion()
 {
     Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
-    ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
-    if (editor)
-        CompletionSupport::instance()->complete(editor, SemanticCompletion, true);
+    if (BaseTextEditorWidget *w = qobject_cast<BaseTextEditorWidget *>(iface->widget()))
+        w->invokeAssist(Completion);
 }
 
 void TextEditorPlugin::invokeQuickFix()
 {
     Core::IEditor *iface = Core::EditorManager::instance()->currentEditor();
-    ITextEditor *editor = qobject_cast<ITextEditor *>(iface);
-    if (editor)
-        CompletionSupport::instance()->complete(editor, QuickFixCompletion, true);
+    if (BaseTextEditorWidget *w = qobject_cast<BaseTextEditorWidget *>(iface->widget()))
+        w->invokeAssist(QuickFix);
 }
 
 void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)

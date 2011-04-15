@@ -34,13 +34,13 @@
 #define CPPEDITOR_H
 
 #include "cppeditorenums.h"
-#include "cppquickfix.h"
 #include "cppsemanticinfo.h"
 
 #include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/quickfix.h>
 
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
@@ -188,6 +188,9 @@ public:
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
 
     static QVector<QString> highlighterFormatCategories();
+
+    virtual TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind kind,
+                                                                TextEditor::AssistReason reason) const;
 
 Q_SIGNALS:
     void outlineModelIndexChanged(const QModelIndex &index);

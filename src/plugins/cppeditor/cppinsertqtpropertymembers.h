@@ -62,7 +62,8 @@ class InsertQtPropertyMembers : public CppQuickFixFactory
     Q_OBJECT
 
 public:
-    virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state);
+    virtual QList<CppQuickFixOperation::Ptr>
+        match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
 
 private:
     enum GenerateFlag {
@@ -75,7 +76,8 @@ private:
     class Operation: public CppQuickFixOperation
     {
     public:
-        Operation(const CppQuickFixState &state, int priority,
+        Operation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+                  int priority,
                   CPlusPlus::QtPropertyDeclarationAST *declaration, CPlusPlus::Class *klass,
                   int generateFlags,
                   const QString &getterName, const QString &setterName, const QString &signalName,

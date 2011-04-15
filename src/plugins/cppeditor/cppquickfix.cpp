@@ -32,7 +32,7 @@
 
 #include "cppquickfix.h"
 #include "cppeditor.h"
-#include "cppquickfixcollector.h"
+#include "cppquickfixassistant.h"
 
 #include <AST.h>
 #include <TranslationUnit.h>
@@ -58,53 +58,10 @@ using namespace TextEditor;
 using namespace CPlusPlus;
 using namespace Utils;
 
-CppQuickFixState::CppQuickFixState(TextEditor::BaseTextEditorWidget *editor)
-    : QuickFixState(editor)
-{}
-
-const QList<AST *> &CppQuickFixState::path() const
-{
-    return _path;
-}
-
-Snapshot CppQuickFixState::snapshot() const
-{
-    return _snapshot;
-}
-
-Document::Ptr CppQuickFixState::document() const
-{
-    return _semanticInfo.doc;
-}
-
-SemanticInfo CppQuickFixState::semanticInfo() const
-{
-    return _semanticInfo;
-}
-
-const LookupContext &CppQuickFixState::context() const
-{
-    return _context;
-}
-
-const CppRefactoringFile CppQuickFixState::currentFile() const
-{
-    return CppRefactoringFile(editor(), document());
-}
-
-bool CppQuickFixState::isCursorOn(unsigned tokenIndex) const
-{
-    return currentFile().isCursorOn(tokenIndex);
-}
-
-bool CppQuickFixState::isCursorOn(const CPlusPlus::AST *ast) const
-{
-    return currentFile().isCursorOn(ast);
-}
-
-CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixState &state, int priority)
+CppQuickFixOperation::CppQuickFixOperation(
+        const QSharedPointer<const CppQuickFixAssistInterface> &interface, int priority)
     : QuickFixOperation(priority)
-    , _state(state)
+    , m_interface(interface)
 {}
 
 CppQuickFixOperation::~CppQuickFixOperation()
@@ -112,19 +69,21 @@ CppQuickFixOperation::~CppQuickFixOperation()
 
 void CppQuickFixOperation::perform()
 {
-    CppRefactoringChanges refactoring(_state.snapshot());
+    CppRefactoringChanges refactoring(m_interface->snapshot());
     CppRefactoringFile current = refactoring.file(fileName());
 
     performChanges(&current, &refactoring);
 }
 
-const CppQuickFixState &CppQuickFixOperation::state() const
+const CppQuickFixAssistInterface *CppQuickFixOperation::assistInterface() const
 {
-    return _state;
+    return m_interface.data();
 }
 
 QString CppQuickFixOperation::fileName() const
-{ return state().document()->fileName(); }
+{
+    return m_interface->file()->fileName();
+}
 
 CppQuickFixFactory::CppQuickFixFactory()
 {
@@ -134,12 +93,14 @@ CppQuickFixFactory::~CppQuickFixFactory()
 {
 }
 
-QList<QuickFixOperation::Ptr> CppQuickFixFactory::matchingOperations(QuickFixState *state)
+QList<QuickFixOperation::Ptr> CppQuickFixFactory::matchingOperations(
+    const QSharedPointer<const TextEditor::IAssistInterface> &interface)
 {
-    if (CppQuickFixState *cppState = static_cast<CppQuickFixState *>(state))
-        return match(*cppState);
-    else
-        return QList<TextEditor::QuickFixOperation::Ptr>();
+    QSharedPointer<const CppQuickFixAssistInterface> cppInterface =
+            interface.staticCast<const CppQuickFixAssistInterface>();
+    if (cppInterface->path().isEmpty())
+        return QList<QuickFixOperation::Ptr>();
+    return match(cppInterface);
 }
 
 QList<CppQuickFixOperation::Ptr> CppQuickFixFactory::singleResult(CppQuickFixOperation *operation)

@@ -160,6 +160,9 @@ public:
 
     static QVector<QString> highlighterFormatCategories();
 
+    TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
+                                                        TextEditor::AssistReason reason) const;
+
 public slots:
     void forceSemanticRehighlight();
     void followSymbolUnderCursor();

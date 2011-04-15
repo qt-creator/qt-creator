@@ -40,7 +40,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/completionsupport.h>
 
 #include <QtCore/QFileInfo>
 #include <QtGui/QAction>

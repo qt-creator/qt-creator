@@ -32,6 +32,7 @@
 
 #include "qmljscomponentfromobjectdef.h"
 #include "qmljscomponentnamedialog.h"
+#include "qmljsquickfixassist.h"
 
 #include <coreplugin/ifile.h>
 
@@ -93,8 +94,9 @@ class Operation: public QmlJSQuickFixOperation
     QString m_idName, m_componentName;
 
 public:
-    Operation(const QmlJSQuickFixState &state, UiObjectDefinition *objDef)
-        : QmlJSQuickFixOperation(state, 0)
+    Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
+              UiObjectDefinition *objDef)
+        : QmlJSQuickFixOperation(interface, 0)
         , m_objDef(objDef)
     {
         Q_ASSERT(m_objDef != 0);
@@ -117,7 +119,7 @@ public:
         QString componentName = m_componentName;
         QString path = QFileInfo(fileName()).path();
         if (componentName.isEmpty()) {
-            ComponentNameDialog::go(&componentName, &path, state().editor());
+            ComponentNameDialog::go(&componentName, &path, assistInterface()->widget());
         }
 
         if (componentName.isEmpty() || path.isEmpty())
@@ -157,19 +159,21 @@ public:
 
 } // end of anonymous namespace
 
-QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(const QmlJSQuickFixState &state)
-{
-    const int pos = state.currentFile().cursor().position();
 
-    QList<Node *> path = state.semanticInfo().astPath(pos);
+QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(
+    const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface)
+{
+    const int pos = interface->currentFile().cursor().position();
+
+    QList<Node *> path = interface->semanticInfo().astPath(pos);
     for (int i = path.size() - 1; i >= 0; --i) {
         Node *node = path.at(i);
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
-            if (!state.currentFile().isCursorOn(objDef->qualifiedTypeNameId))
+            if (!interface->currentFile().isCursorOn(objDef->qualifiedTypeNameId))
                 return noResult();
              // check that the node is not the root node
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {
-                return singleResult(new Operation(state, objDef));
+                return singleResult(new Operation(interface, objDef));
             }
         }
     }

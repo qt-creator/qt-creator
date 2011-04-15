@@ -53,40 +53,17 @@ class IPlugin;
 namespace CppEditor {
 
 namespace Internal {
-class CppQuickFixCollector;
-} // namespace Internal
-
-class CPPEDITOR_EXPORT CppQuickFixState: public TextEditor::QuickFixState
-{
-    friend class Internal::CppQuickFixCollector;
-
-public:
-    CppQuickFixState(TextEditor::BaseTextEditorWidget *editor);
-
-    const QList<CPlusPlus::AST *> &path() const;
-    CPlusPlus::Snapshot snapshot() const;
-    CPlusPlus::Document::Ptr document() const;
-    CppEditor::Internal::SemanticInfo semanticInfo() const;
-    const CPlusPlus::LookupContext &context() const;
-
-    const CppTools::CppRefactoringFile currentFile() const;
-
-    bool isCursorOn(unsigned tokenIndex) const;
-    bool isCursorOn(const CPlusPlus::AST *ast) const;
-
-private:
-    QList<CPlusPlus::AST *> _path;
-    CPlusPlus::Snapshot _snapshot;
-    CppEditor::Internal::SemanticInfo _semanticInfo;
-    CPlusPlus::LookupContext _context;
-};
+class CppQuickFixAssistInterface;
+}
 
 class CPPEDITOR_EXPORT CppQuickFixOperation: public TextEditor::QuickFixOperation
 {
     Q_DISABLE_COPY(CppQuickFixOperation)
 
 public:
-    explicit CppQuickFixOperation(const CppQuickFixState &state, int priority = -1);
+    explicit CppQuickFixOperation(
+        const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+        int priority = -1);
     virtual ~CppQuickFixOperation();
 
     virtual void perform();
@@ -97,10 +74,10 @@ protected:
 
     QString fileName() const;
 
-    const CppQuickFixState &state() const;
+    const Internal::CppQuickFixAssistInterface *assistInterface() const;
 
 private:
-    CppQuickFixState _state;
+    QSharedPointer<const Internal::CppQuickFixAssistInterface> m_interface;
 };
 
 class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory
@@ -111,12 +88,15 @@ public:
     CppQuickFixFactory();
     virtual ~CppQuickFixFactory();
 
-    virtual QList<TextEditor::QuickFixOperation::Ptr> matchingOperations(TextEditor::QuickFixState *state);
+    virtual QList<TextEditor::QuickFixOperation::Ptr>
+        matchingOperations(const QSharedPointer<const TextEditor::IAssistInterface> &interface);
+
     /*!
         Implement this method to match and create the appropriate
         CppQuickFixOperation objects.
      */
-    virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state) = 0;
+    virtual QList<CppQuickFixOperation::Ptr> match(
+        const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface) = 0;
 
 protected:
     /*!

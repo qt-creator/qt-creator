@@ -56,8 +56,6 @@ class QmlJSTextEditorWidget;
 
 namespace Internal {
 
-class SemanticInfo;
-
 class HoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_OBJECT

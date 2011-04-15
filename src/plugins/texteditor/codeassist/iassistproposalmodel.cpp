@@ -1,0 +1,52 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+**************************************************************************/
+
+#include "iassistproposalmodel.h"
+
+using namespace TextEditor;
+
+/*!
+    \class IAssistProposalModel
+    \brief The IAssistProposalModel is an interface for representing proposals.
+
+    Known implenters of this interface are IFunctionHintProposalModel and IGenericProposalModel.
+    The former is recommeded to be used when assisting function calls constructs (overloads
+    and parameters) while the latter is quite generic so that it could be used to propose
+    snippets, refactoring operations (quickfixes), and contextual content (the member of class
+    or a string existent in the document, for example).
+*/
+
+IAssistProposalModel::IAssistProposalModel()
+{}
+
+IAssistProposalModel::~IAssistProposalModel()
+{}

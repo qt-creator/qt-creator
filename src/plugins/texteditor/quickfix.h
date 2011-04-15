@@ -34,31 +34,14 @@
 #define TEXTEDITORQUICKFIX_H
 
 #include "texteditor_global.h"
-#include "icompletioncollector.h"
 
+#include <QtCore/QString>
+#include <QtCore/QMetaType>
 #include <QtCore/QSharedPointer>
 
 namespace TextEditor {
 
-class BaseTextEditorWidget;
-
-/*!
-    State of the editor on which the QuickFixFactory and the QuickFixOperation work.
-
-    This class contains a reference
- */
-class TEXTEDITOR_EXPORT QuickFixState
-{
-public:
-    /// Creates a new state object for the given text editor.
-    QuickFixState(TextEditor::BaseTextEditorWidget *editor);
-    virtual ~QuickFixState();
-
-    TextEditor::BaseTextEditorWidget *editor() const;
-
-private:
-    TextEditor::BaseTextEditorWidget *_editor;
-};
+class IAssistInterface;
 
 /*!
     Class to perform a single quick-fix.
@@ -127,58 +110,14 @@ class TEXTEDITOR_EXPORT QuickFixFactory: public QObject
 
 public:
     QuickFixFactory(QObject *parent = 0);
-    virtual ~QuickFixFactory() = 0;
+    virtual ~QuickFixFactory();
 
-    /*!
-        \returns A list of operations which can be performed for the given state.
-     */
-    virtual QList<QuickFixOperation::Ptr> matchingOperations(QuickFixState *state) = 0;
-};
-
-/*!
-    A completion collector which will use the QuickFixFactory classes to generate
-    quickfixes for the given editor.
-
-    All QuickFixFactory instances returned by #quickFixFactories are queried for
-    possible quick-fix operations. The operations(s) with the highest priority are
-    stored, and can be queried by calling #quickFixes .
- */
-class TEXTEDITOR_EXPORT QuickFixCollector: public TextEditor::IQuickFixCollector
-{
-    Q_OBJECT
-
-public:
-    QuickFixCollector();
-    virtual ~QuickFixCollector();
-
-    QList<TextEditor::QuickFixOperation::Ptr> quickFixes() const
-    { return m_quickFixes; }
-
-    virtual TextEditor::ITextEditor *editor() const;
-    virtual int startPosition() const;
-    virtual bool triggersCompletion(TextEditor::ITextEditor *editor);
-    virtual int startCompletion(TextEditor::ITextEditor *editor);
-    virtual void completions(QList<TextEditor::CompletionItem> *completions);
-
-    virtual bool supportsPolicy(TextEditor::CompletionPolicy policy) const
-    { return policy == TextEditor::QuickFixCompletion; }
-
-    /// See IQuickFixCollector::fix
-    virtual void fix(const TextEditor::CompletionItem &item);
-
-    /// See ICompletionCollector::cleanup .
-    virtual void cleanup();
-
-    /// Called from #startCompletion to create a QuickFixState .
-    virtual TextEditor::QuickFixState *initializeCompletion(BaseTextEditorWidget *editable) = 0;
-
-    virtual QList<QuickFixFactory *> quickFixFactories() const = 0;
-
-private:
-    TextEditor::ITextEditor *m_editor;
-    QList<QuickFixOperation::Ptr> m_quickFixes;
+    virtual QList<QuickFixOperation::Ptr>
+    matchingOperations(const QSharedPointer<const IAssistInterface> &interface) = 0;
 };
 
 } // namespace TextEditor
+
+Q_DECLARE_METATYPE(TextEditor::QuickFixOperation::Ptr)
 
 #endif // TEXTEDITORQUICKFIX_H

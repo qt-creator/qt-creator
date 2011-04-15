@@ -34,9 +34,9 @@
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
 #include "glsleditorfactory.h"
-#include "glslcodecompletion.h"
 #include "glslfilewizard.h"
 #include "glslhoverhandler.h"
+#include "glslcompletionassist.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -55,7 +55,6 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/completionsupport.h>
 #include <utils/qtcassert.h>
 
 #include <glsl/glslengine.h>
@@ -132,8 +131,7 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     m_editor = new GLSLEditorFactory(this);
     addObject(m_editor);
 
-    CodeCompletion *completion = new CodeCompletion(this);
-    addAutoReleasedObject(completion);
+    addAutoReleasedObject(new GLSLCompletionAssistProvider);
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(GLSLEditor::Constants::C_GLSLEDITOR_ID,
                                                               TextEditor::TextEditorActionHandler::Format
@@ -163,12 +161,6 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
-
-    // Set completion settings and keep them up to date
-    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
-    completion->setCompletionSettings(textEditorSettings->completionSettings());
-    connect(textEditorSettings, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
-            completion, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
 
     error_message->clear();
 

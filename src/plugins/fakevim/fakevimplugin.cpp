@@ -57,12 +57,16 @@
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/basetextmark.h>
-#include <texteditor/completionsupport.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/indenter.h>
-#include <texteditor/icompletioncollector.h>
+#include <texteditor/codeassist/basicproposalitem.h>
+#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/iassistprocessor.h>
+#include <texteditor/codeassist/iassistinterface.h>
+#include <texteditor/codeassist/genericproposal.h>
 
 #include <find/findplugin.h>
 #include <find/textfindconstants.h>
@@ -581,58 +585,15 @@ void FakeVimUserCommandsPage::apply()
 //
 ///////////////////////////////////////////////////////////////////////
 
-class WordCompletion : public ICompletionCollector
+class FakeVimCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
-    Q_OBJECT
-
 public:
-    WordCompletion()
+    virtual bool supportsEditor(const QString &) const
     {
-        m_editable = 0;
-        m_editor = 0;
-    }
-
-    virtual bool shouldRestartCompletion()
-    {
-        //qDebug() << "SHOULD RESTART COMPLETION?";
         return false;
     }
 
-    virtual ITextEditor *editor() const
-    {
-        //qDebug() << "NO EDITOR?";
-        return m_editable;
-    }
-
-    virtual int startPosition() const
-    {
-        return m_startPosition;
-    }
-
-    virtual bool supportsEditor(ITextEditor *) const
-    {
-        return true;
-    }
-
-    virtual bool supportsPolicy(CompletionPolicy policy) const
-    {
-        return policy == TextCompletion;
-    }
-
-    virtual bool triggersCompletion(ITextEditor *editable)
-    {
-        //qDebug() << "TRIGGERS?";
-        QTC_ASSERT(m_editable == editable, /**/);
-        return true;
-    }
-
-    virtual int startCompletion(ITextEditor *editable)
-    {
-        //qDebug() << "START COMPLETION";
-        QTC_ASSERT(m_editor, return -1);
-        QTC_ASSERT(m_editable == editable, return -1);
-        return m_editor->textCursor().position();
-    }
+    virtual TextEditor::IAssistProcessor *createProcessor() const;
 
     void setActive(const QString &needle, bool forward, FakeVimHandler *handler)
     {
@@ -640,95 +601,137 @@ public:
         m_handler = handler;
         if (!m_handler)
             return;
-        m_editor = qobject_cast<BaseTextEditorWidget *>(handler->widget());
-        if (!m_editor)
+
+        BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(handler->widget());
+        if (!editor)
             return;
+
         //qDebug() << "ACTIVATE: " << needle << forward;
         m_needle = needle;
-        m_editable = m_editor->editor();
-        m_startPosition = m_editor->textCursor().position() - needle.size();
-
-        CompletionSupport::instance()->complete(m_editable, TextCompletion, false);
+        editor->invokeAssist(Completion, this);
     }
 
     void setInactive()
     {
         m_needle.clear();
-        m_editable = 0;
-        m_editor = 0;
         m_handler = 0;
-        m_startPosition = -1;
     }
 
-    virtual void completions(QList<CompletionItem> *completions)
+    const QString &needle() const
     {
-        QTC_ASSERT(m_editor, return);
-        QTC_ASSERT(completions, return);
-        QTextCursor tc = m_editor->textCursor();
+        return m_needle;
+    }
+
+    void appendNeedle(const QChar &c)
+    {
+        m_needle.append(c);
+    }
+
+    FakeVimHandler *handler() const
+    {
+        return m_handler;
+    }
+
+private:
+    FakeVimHandler *m_handler;
+    QString m_needle;
+};
+
+class FakeVimAssistProposalItem : public BasicProposalItem
+{
+public:
+    FakeVimAssistProposalItem(const FakeVimCompletionAssistProvider *provider)
+        : m_provider(const_cast<FakeVimCompletionAssistProvider *>(provider))
+    {}
+
+    virtual bool implicitlyApplies() const
+    {
+        return false;
+    }
+
+    virtual bool prematurelyApplies(const QChar &c) const
+    {
+        m_provider->appendNeedle(c);
+        return text() == m_provider->needle();
+    }
+
+    virtual void applyContextualContent(BaseTextEditor *, int) const
+    {
+        QTC_ASSERT(m_provider->handler(), return);
+        m_provider->handler()->handleReplay(text().mid(m_provider->needle().size()));
+        const_cast<FakeVimCompletionAssistProvider *>(m_provider)->setInactive();
+    }
+
+private:
+    FakeVimCompletionAssistProvider *m_provider;
+};
+
+
+class FakeVimAssistProposalModel : public BasicProposalItemListModel
+{
+public:
+    FakeVimAssistProposalModel(const QList<BasicProposalItem *> &items)
+        : BasicProposalItemListModel(items)
+    {}
+
+    virtual bool supportsPrefixExpansion() const
+    {
+        return false;
+    }
+};
+
+class FakeVimCompletionAssistProcessor : public IAssistProcessor
+{
+public:
+    FakeVimCompletionAssistProcessor(const TextEditor::IAssistProvider *provider)
+        : m_provider(static_cast<const FakeVimCompletionAssistProvider *>(provider))
+    {}
+
+    virtual TextEditor::IAssistProposal *perform(const IAssistInterface *interface)
+    {
+        const QString &needle = m_provider->needle();
+
+        const int basePosition = interface->position() - needle.size();
+
+        QTextCursor tc(interface->document());
+        tc.setPosition(interface->position());
         tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
+        QList<BasicProposalItem *> items;
         QSet<QString> seen;
-
         QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
         while (1) {
-            tc = tc.document()->find(m_needle, tc.position(), flags);
+            tc = tc.document()->find(needle, tc.position(), flags);
             if (tc.isNull())
                 break;
             QTextCursor sel = tc;
             sel.select(QTextCursor::WordUnderCursor);
             QString found = sel.selectedText();
             // Only add "real" completions.
-            if (found.startsWith(m_needle)
+            if (found.startsWith(needle)
                     && !seen.contains(found)
-                    && sel.anchor() != m_startPosition) {
+                    && sel.anchor() != basePosition) {
                 seen.insert(found);
-                CompletionItem item;
-                item.collector = this;
-                item.text = found;
-                completions->append(item);
+                BasicProposalItem *item = new FakeVimAssistProposalItem(m_provider);
+                item->setText(found);
+                items.append(item);
             }
             tc.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor);
         }
         //qDebug() << "COMPLETIONS" << completions->size();
-    }
 
-    virtual bool typedCharCompletes(const CompletionItem &item, QChar typedChar)
-    {
-        m_needle += typedChar;
-        //qDebug() << "COMPLETE? " << typedChar << item.text << m_needle;
-        return item.text == m_needle;
+        delete interface;
+        return new GenericProposal(basePosition, new FakeVimAssistProposalModel(items));
     }
-
-    virtual void complete(const CompletionItem &item, QChar typedChar)
-    {
-        Q_UNUSED(typedChar);
-        //qDebug() << "COMPLETE: " << item.text;
-        QTC_ASSERT(m_handler, return);
-        m_handler->handleReplay(item.text.mid(m_needle.size()));
-        setInactive();
-    }
-
-    virtual bool partiallyComplete(const QList<CompletionItem> &completionItems)
-    {
-        //qDebug() << "PARTIALLY";
-        Q_UNUSED(completionItems);
-        return false;
-    }
-
-    virtual void cleanup() {}
 
 private:
-    int findStartOfName(int pos = -1) const;
-    bool isInComment() const;
-
-    FakeVimHandler *m_handler;
-    BaseTextEditorWidget *m_editor;
-    ITextEditor *m_editable;
-    QString m_needle;
-    QString m_currentPrefix;
-    QList<CompletionItem> m_items;
-    int m_startPosition;
+    const FakeVimCompletionAssistProvider *m_provider;
 };
+
+IAssistProcessor *FakeVimCompletionAssistProvider::createProcessor() const
+{
+    return new FakeVimCompletionAssistProcessor(this);
+}
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -822,7 +825,9 @@ private:
     UserCommandMap m_defaultUserCommandMap;
 
     Core::StatusBarWidget *m_statusBar;
-    WordCompletion *m_wordCompletion;
+    // @TODO: Delete
+    //WordCompletion *m_wordCompletion;
+    FakeVimCompletionAssistProvider *m_wordProvider;
 };
 
 QVariant FakeVimUserCommandsModel::data(const QModelIndex &index, int role) const
@@ -912,8 +917,10 @@ bool FakeVimPluginPrivate::initialize()
     m_actionManager = core()->actionManager();
     QTC_ASSERT(actionManager(), return false);
 
-    m_wordCompletion = new WordCompletion;
-    q->addAutoReleasedObject(m_wordCompletion);
+    //m_wordCompletion = new WordCompletion;
+    //q->addAutoReleasedObject(m_wordCompletion);
+    m_wordProvider = new FakeVimCompletionAssistProvider;
+
 /*
     // Set completion settings and keep them up to date.
     TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
@@ -1407,16 +1414,15 @@ void FakeVimPluginPrivate::triggerCompletions()
     if (!handler)
         return;
     if (BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
-        CompletionSupport::instance()->
-            complete(editor->editor(), TextCompletion, false);
-   //     editor->triggerCompletions();
+        editor->invokeAssist(Completion, m_wordProvider);
+//        CompletionSupport::instance()->complete(editor->editor(), TextCompletion, false);
 }
 
 void FakeVimPluginPrivate::triggerSimpleCompletions(const QString &needle,
    bool forward)
 {
-    m_wordCompletion->setActive(needle, forward,
-        qobject_cast<FakeVimHandler *>(sender()));
+//    m_wordCompletion->setActive(needle, forward, qobject_cast<FakeVimHandler *>(sender()));
+    m_wordProvider->setActive(needle, forward, qobject_cast<FakeVimHandler *>(sender()));
 }
 
 void FakeVimPluginPrivate::setBlockSelection(bool on)

@@ -8,7 +8,6 @@ DEFINES += \
     QT_CREATOR
 
 HEADERS += \
-    qmljscodecompletion.h \
     qmljseditor.h \
     qmljseditor_global.h \
     qmljseditoractionhandler.h \
@@ -20,7 +19,6 @@ HEADERS += \
     qmljshighlighter.h \
     qmljshoverhandler.h \
     qmljspreviewrunner.h \
-    qmljsquickfix.h \
     qmljscomponentfromobjectdef.h \
     qmljsoutline.h \
     qmloutlinemodel.h \
@@ -35,10 +33,13 @@ HEADERS += \
     qmljsindenter.h \
     qmljsautocompleter.h \
     jsfilewizard.h \
-    qmljssnippetprovider.h
+    qmljssnippetprovider.h \
+    qmljsreuse.h \
+    qmljsquickfixassist.h \
+    qmljscompletionassist.h \
+    qmljsquickfix.h
 
 SOURCES += \
-    qmljscodecompletion.cpp \
     qmljseditor.cpp \
     qmljseditoractionhandler.cpp \
     qmljseditorfactory.cpp \
@@ -48,7 +49,6 @@ SOURCES += \
     qmljshighlighter.cpp \
     qmljshoverhandler.cpp \
     qmljspreviewrunner.cpp \
-    qmljsquickfix.cpp \
     qmljscomponentfromobjectdef.cpp \
     qmljsoutline.cpp \
     qmloutlinemodel.cpp \
@@ -64,7 +64,11 @@ SOURCES += \
     qmljsindenter.cpp \
     qmljsautocompleter.cpp \
     jsfilewizard.cpp \
-    qmljssnippetprovider.cpp
+    qmljssnippetprovider.cpp \
+    qmljsreuse.cpp \
+    qmljsquickfixassist.cpp \
+    qmljscompletionassist.cpp \
+    qmljsquickfix.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.mimetypes.xml

@@ -50,6 +50,7 @@ namespace Internal {
 
 class CPPEditorWidget;
 class CppQuickFixCollector;
+class CppQuickFixAssistProvider;
 
 class CppPlugin : public ExtensionSystem::IPlugin
 {
@@ -70,7 +71,7 @@ public:
 
     bool sortedOutline() const;
 
-    CppQuickFixCollector *quickFixCollector() const;
+    CppQuickFixAssistProvider *quickFixProvider() const;
 
 signals:
     void outlineSortingChanged(bool sort);
@@ -86,8 +87,6 @@ private slots:
     void onTaskStarted(const QString &type);
     void onAllTasksFinished(const QString &type);
     void findUsages();
-    void quickFix(TextEditor::ITextEditor *editable);
-    void quickFixNow();
     void currentEditorChanged(Core::IEditor *editor);
     void openTypeHierarchy();
 
@@ -105,9 +104,8 @@ private:
     QAction *m_updateCodeModelAction;
     QAction *m_openTypeHierarchyAction;
 
-    CppQuickFixCollector *m_quickFixCollector;
+    CppQuickFixAssistProvider *m_quickFixProvider;
 
-    QTimer *m_quickFixTimer;
     QPointer<TextEditor::ITextEditor> m_currentEditor;
 };
 

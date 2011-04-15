@@ -10,7 +10,6 @@ INCLUDEPATH += .
 DEFINES += CPPTOOLS_LIBRARY
 HEADERS += completionsettingspage.h \
     cppclassesfilter.h \
-    cppcodecompletion.h \
     cppcurrentdocumentfilter.h \
     cppfunctionsfilter.h \
     cppmodelmanager.h \
@@ -28,11 +27,11 @@ HEADERS += completionsettingspage.h \
     uicodecompletionsupport.h \
     insertionpointlocator.h \
     cpprefactoringchanges.h \
-    abstracteditorsupport.h
+    abstracteditorsupport.h \
+    cppcompletionassist.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
-    cppcodecompletion.cpp \
     cppcurrentdocumentfilter.cpp \
     cppfunctionsfilter.cpp \
     cppmodelmanager.cpp \
@@ -48,7 +47,8 @@ SOURCES += completionsettingspage.cpp \
     symbolsfindfilter.cpp \
     uicodecompletionsupport.cpp \
     insertionpointlocator.cpp \
-    cpprefactoringchanges.cpp
+    cpprefactoringchanges.cpp \
+    cppcompletionassist.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui

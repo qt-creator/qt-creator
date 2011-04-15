@@ -47,10 +47,11 @@ namespace Internal {
 class DeclFromDef: public CppQuickFixFactory
 {
 public:
-    virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state);
+    virtual QList<CppQuickFixOperation::Ptr>
+        match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
 
 protected:
-    static QString generateDeclaration(const CppQuickFixState &state,
+    static QString generateDeclaration(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
                                        CPlusPlus::Function *method,
                                        CPlusPlus::ClassOrNamespace *targetBinding);
 };
@@ -58,7 +59,8 @@ protected:
 class DefFromDecl: public CppQuickFixFactory
 {
 public:
-    virtual QList<CppQuickFixOperation::Ptr> match(const CppQuickFixState &state);
+    virtual QList<CppQuickFixOperation::Ptr>
+        match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
 };
 
 } // namespace Internal

@@ -37,11 +37,10 @@
 #include "cppeditorenums.h"
 #include "cppfilewizard.h"
 #include "cpphoverhandler.h"
-#include "cppquickfix.h"
 #include "cppoutline.h"
-#include "cppquickfixcollector.h"
 #include "cpptypehierarchy.h"
 #include "cppsnippetprovider.h"
+#include "cppquickfixassistant.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -54,7 +53,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/navigationwidget.h>
-#include <texteditor/completionsupport.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -74,6 +72,8 @@
 
 using namespace CppEditor;
 using namespace CppEditor::Internal;
+
+void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
 
 enum { QUICKFIX_INTERVAL = 20 };
 
@@ -149,15 +149,10 @@ CppPlugin::CppPlugin() :
     m_renameSymbolUnderCursorAction(0),
     m_findUsagesAction(0),
     m_updateCodeModelAction(0),
-    m_openTypeHierarchyAction(0)
+    m_openTypeHierarchyAction(0),
+    m_quickFixProvider(0)
 {
     m_instance = this;
-
-    m_quickFixCollector = 0;
-    m_quickFixTimer = new QTimer(this);
-    m_quickFixTimer->setInterval(20);
-    m_quickFixTimer->setSingleShot(true);
-    connect(m_quickFixTimer, SIGNAL(timeout()), this, SLOT(quickFixNow()));
 }
 
 CppPlugin::~CppPlugin()
@@ -193,8 +188,10 @@ bool CppPlugin::sortedOutline() const
     return m_sortedOutline;
 }
 
-CppQuickFixCollector *CppPlugin::quickFixCollector() const
-{ return m_quickFixCollector; }
+CppQuickFixAssistProvider *CppPlugin::quickFixProvider() const
+{
+    return m_quickFixProvider;
+}
 
 bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
@@ -209,9 +206,9 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     addAutoReleasedObject(new CppTypeHierarchyFactory);
     addAutoReleasedObject(new CppSnippetProvider);
 
-    m_quickFixCollector = new CppQuickFixCollector;
-    addAutoReleasedObject(m_quickFixCollector);
-    CppQuickFixCollector::registerQuickFixes(this);
+    m_quickFixProvider = new CppQuickFixAssistProvider;
+    addAutoReleasedObject(m_quickFixProvider);
+    registerQuickFixes(this);
 
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 
@@ -378,31 +375,6 @@ void CppPlugin::findUsages()
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(em->currentEditor()->widget());
     if (editor)
         editor->findUsages();
-}
-
-void CppPlugin::quickFix(TextEditor::ITextEditor *editor)
-{
-    m_currentEditor = editor;
-    quickFixNow();
-}
-
-void CppPlugin::quickFixNow()
-{
-    if (! m_currentEditor)
-        return;
-
-    Core::EditorManager *em = Core::EditorManager::instance();
-    CPPEditorWidget *currentEditor = qobject_cast<CPPEditorWidget*>(em->currentEditor()->widget());
-
-    if (CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(m_currentEditor->widget())) {
-        if (currentEditor == editor) {
-            if (editor->isOutdated())
-                m_quickFixTimer->start(QUICKFIX_INTERVAL);
-            else
-                TextEditor::CompletionSupport::instance()->
-                    complete(m_currentEditor, TextEditor::QuickFixCompletion, true);
-        }
-    }
 }
 
 void CppPlugin::onTaskStarted(const QString &type)

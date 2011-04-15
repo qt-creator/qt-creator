@@ -35,17 +35,17 @@
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditorfactory.h"
-#include "qmljscodecompletion.h"
 #include "qmljshoverhandler.h"
 #include "qmlfilewizard.h"
 #include "jsfilewizard.h"
 #include "qmljsoutline.h"
 #include "qmljspreviewrunner.h"
-#include "qmljsquickfix.h"
 #include "qmljssnippetprovider.h"
 #include "qmltaskmanager.h"
 #include "quicktoolbar.h"
 #include "quicktoolbarsettingspage.h"
+#include "qmljscompletionassist.h"
+#include "qmljsquickfixassist.h"
 
 #include <qmljs/qmljsicons.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -69,7 +69,6 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <texteditor/completionsupport.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>
@@ -89,21 +88,18 @@ enum {
     QUICKFIX_INTERVAL = 20
 };
 
+void registerQuickFixes(ExtensionSystem::IPlugin *plugIn);
+
 QmlJSEditorPlugin *QmlJSEditorPlugin::m_instance = 0;
 
 QmlJSEditorPlugin::QmlJSEditorPlugin() :
         m_modelManager(0),
     m_wizard(0),
     m_editor(0),
-    m_actionHandler(0)
+    m_actionHandler(0),
+    m_quickFixAssistProvider(0)
 {
     m_instance = this;
-
-    m_quickFixCollector = 0;
-    m_quickFixTimer = new QTimer(this);
-    m_quickFixTimer->setInterval(20);
-    m_quickFixTimer->setSingleShot(true);
-    connect(m_quickFixTimer, SIGNAL(timeout()), this, SLOT(quickFixNow()));
 }
 
 QmlJSEditorPlugin::~QmlJSEditorPlugin()
@@ -211,25 +207,18 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    CodeCompletion *completion = new CodeCompletion(m_modelManager);
-    addAutoReleasedObject(completion);
+    m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider;
+    addAutoReleasedObject(m_quickFixAssistProvider);
+    addAutoReleasedObject(new QmlJSCompletionAssistProvider);
 
     addAutoReleasedObject(new HoverHandler);
-
-    // Set completion settings and keep them up to date
-    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
-    completion->setCompletionSettings(textEditorSettings->completionSettings());
-    connect(textEditorSettings, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
-            completion, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
 
     error_message->clear();
 
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/qmljseditor/images/qmlfile.png")), "qml");
 
-    m_quickFixCollector = new QmlJSQuickFixCollector;
-    addAutoReleasedObject(m_quickFixCollector);
-    QmlJSQuickFixCollector::registerQuickFixes(this);
+    registerQuickFixes(this);
 
     addAutoReleasedObject(new QmlJSOutlineWidgetFactory);
 
@@ -313,35 +302,9 @@ Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a, Core::ActionManager 
     return command;
 }
 
-QmlJSQuickFixCollector *QmlJSEditorPlugin::quickFixCollector() const
-{ return m_quickFixCollector; }
-
-void QmlJSEditorPlugin::quickFix(TextEditor::ITextEditor *editable)
+QmlJSQuickFixAssistProvider *QmlJSEditorPlugin::quickFixAssistProvider() const
 {
-    m_currentTextEditable = editable;
-    quickFixNow();
-}
-
-void QmlJSEditorPlugin::quickFixNow()
-{
-    if (! m_currentTextEditable)
-        return;
-
-    Core::EditorManager *em = Core::EditorManager::instance();
-    QmlJSTextEditorWidget *currentEditor = qobject_cast<QmlJSTextEditorWidget*>(em->currentEditor()->widget());
-
-    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(m_currentTextEditable->widget())) {
-        if (currentEditor == editor) {
-            if (editor->isOutdated()) {
-                // qDebug() << "TODO: outdated document" << editor->editorRevision() << editor->semanticInfo().revision();
-                // ### FIXME: m_quickFixTimer->start(QUICKFIX_INTERVAL);
-                m_quickFixTimer->stop();
-            } else {
-                TextEditor::CompletionSupport::instance()
-                    ->complete(m_currentTextEditable, TextEditor::QuickFixCompletion, true);
-            }
-        }
-    }
+    return m_quickFixAssistProvider;
 }
 
 void QmlJSEditorPlugin::currentEditorChanged(Core::IEditor *editor)

@@ -34,13 +34,13 @@
 #include "completionsettingspage.h"
 #include "cppfilesettingspage.h"
 #include "cppclassesfilter.h"
-#include "cppcodecompletion.h"
 #include "cppfunctionsfilter.h"
 #include "cppcurrentdocumentfilter.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsconstants.h"
 #include "cpplocatorfilter.h"
 #include "symbolsfindfilter.h"
+#include "cppcompletionassist.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -113,9 +113,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
             m_modelManager, SLOT(updateSourceFiles(QStringList)));
     addAutoReleasedObject(m_modelManager);
 
-    CppCodeCompletion *completion = new CppCodeCompletion(m_modelManager);
-    addAutoReleasedObject(completion);
-
+    addAutoReleasedObject(new CppCompletionAssistProvider);
     addAutoReleasedObject(new CppLocatorFilter(m_modelManager));
     addAutoReleasedObject(new CppClassesFilter(m_modelManager));
     addAutoReleasedObject(new CppFunctionsFilter(m_modelManager));
@@ -140,12 +138,6 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
-
-    // Set completion settings and keep them up to date
-    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
-    completion->setCompletionSettings(textEditorSettings->completionSettings());
-    connect(textEditorSettings, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
-            completion, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
 
     return true;
 }

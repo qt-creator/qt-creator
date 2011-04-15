@@ -68,7 +68,7 @@ namespace Internal {
 
 class QmlJSEditorFactory;
 class QmlJSPreviewRunner;
-class QmlJSQuickFixCollector;
+class QmlJSQuickFixAssistProvider;
 class QmlTaskManager;
 
 class QmlJSEditorPlugin : public ExtensionSystem::IPlugin
@@ -87,7 +87,7 @@ public:
     static QmlJSEditorPlugin *instance()
     { return m_instance; }
 
-    QmlJSQuickFixCollector *quickFixCollector() const;
+    QmlJSQuickFixAssistProvider *quickFixAssistProvider() const;
 
     void initializeEditor(QmlJSEditor::QmlJSTextEditorWidget *editor);
 
@@ -97,8 +97,6 @@ public Q_SLOTS:
     void showContextPane();
 
 private Q_SLOTS:
-    void quickFix(TextEditor::ITextEditor *editable);
-    void quickFixNow();
     void currentEditorChanged(Core::IEditor *editor);
 
 private:
@@ -115,9 +113,8 @@ private:
     QmlJSEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;
 
-    QmlJSQuickFixCollector *m_quickFixCollector;
+    QmlJSQuickFixAssistProvider *m_quickFixAssistProvider;
 
-    QTimer *m_quickFixTimer;
     QPointer<TextEditor::ITextEditor> m_currentTextEditable;
     QmlTaskManager *m_qmlTaskManager;
 };

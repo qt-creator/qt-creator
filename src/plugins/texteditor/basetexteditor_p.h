@@ -54,6 +54,7 @@ namespace TextEditor {
 
 class BaseTextDocument;
 class TextEditorActionHandler;
+class CodeAssistant;
 
 namespace Internal {
 
@@ -288,9 +289,8 @@ public:
     BaseTextEditorPrivateHighlightBlocks m_highlightBlocksInfo;
     QTimer *m_highlightBlocksTimer;
 
-    int m_requestAutoCompletionRevision;
-    int m_requestAutoCompletionPosition;
-    QTimer *m_requestAutoCompletionTimer;
+    QScopedPointer<CodeAssistant> m_codeAssistant;
+    bool m_assistRelevantContentAdded;
 
     QPointer<BaseTextEditorAnimator> m_animator;
     int m_cursorBlockNumber;

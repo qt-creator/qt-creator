@@ -6,7 +6,8 @@ include(../../qtcreatorplugin.pri)
 include(texteditor_dependencies.pri)
 INCLUDEPATH += generichighlighter \
     tooltip \
-    snippets
+    snippets \
+    codeassist
 SOURCES += texteditorplugin.cpp \
     textfilewizard.cpp \
     plaintexteditor.cpp \
@@ -16,9 +17,6 @@ SOURCES += texteditorplugin.cpp \
     behaviorsettings.cpp \
     behaviorsettingspage.cpp \
     texteditoractionhandler.cpp \
-    icompletioncollector.cpp \
-    completionsupport.cpp \
-    completionwidget.cpp \
     fontsettingspage.cpp \
     tabsettings.cpp \
     storagesettings.cpp \
@@ -76,10 +74,32 @@ SOURCES += texteditorplugin.cpp \
     snippets/snippetscollection.cpp \
     snippets/snippetssettings.cpp \
     snippets/isnippetprovider.cpp \
-    snippets/snippetcollector.cpp \
     snippets/plaintextsnippetprovider.cpp \
     behaviorsettingswidget.cpp \
-    extraencodingsettings.cpp
+    extraencodingsettings.cpp \
+    codeassist/functionhintproposalwidget.cpp \
+    codeassist/ifunctionhintproposalmodel.cpp \
+    codeassist/functionhintproposal.cpp \
+    codeassist/iassistprovider.cpp \
+    codeassist/iassistproposal.cpp \
+    codeassist/iassistprocessor.cpp \
+    codeassist/iassistproposalwidget.cpp \
+    codeassist/codeassistant.cpp \
+    snippets/snippetassistcollector.cpp \
+    codeassist/iassistinterface.cpp \
+    codeassist/defaultassistinterface.cpp \
+    codeassist/iassistproposalitem.cpp \
+    convenience.cpp \
+    codeassist/runner.cpp \
+    codeassist/completionassistprovider.cpp \
+    codeassist/igenericproposalmodel.cpp \
+    codeassist/quickfixassistprovider.cpp \
+    codeassist/quickfixassistprocessor.cpp \
+    codeassist/genericproposal.cpp \
+    codeassist/genericproposalwidget.cpp \
+    codeassist/basicproposalitem.cpp \
+    codeassist/basicproposalitemlistmodel.cpp \
+    codeassist/iassistproposalmodel.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -89,12 +109,9 @@ HEADERS += texteditorplugin.h \
     basetextdocument.h \
     behaviorsettings.h \
     behaviorsettingspage.h \
-    completionsupport.h \
-    completionwidget.h \
     basetexteditor.h \
     texteditoractionhandler.h \
     fontsettingspage.h \
-    icompletioncollector.h \
     texteditorconstants.h \
     tabsettings.h \
     storagesettings.h \
@@ -160,10 +177,33 @@ HEADERS += texteditorplugin.h \
     snippets/reuse.h \
     snippets/snippetssettings.h \
     snippets/isnippetprovider.h \
-    snippets/snippetcollector.h \
     snippets/plaintextsnippetprovider.h \
     behaviorsettingswidget.h \
-    extraencodingsettings.h
+    extraencodingsettings.h \
+    codeassist/functionhintproposalwidget.h \
+    codeassist/ifunctionhintproposalmodel.h \
+    codeassist/functionhintproposal.h \
+    codeassist/iassistprovider.h \
+    codeassist/iassistprocessor.h \
+    codeassist/iassistproposalwidget.h \
+    codeassist/iassistproposal.h \
+    codeassist/codeassistant.h \
+    snippets/snippetassistcollector.h \
+    codeassist/iassistinterface.h \
+    codeassist/defaultassistinterface.h \
+    codeassist/iassistproposalitem.h \
+    convenience.h \
+    codeassist/assistenums.h \
+    codeassist/runner.h \
+    codeassist/completionassistprovider.h \
+    codeassist/igenericproposalmodel.h \
+    codeassist/quickfixassistprovider.h \
+    codeassist/quickfixassistprocessor.h \
+    codeassist/genericproposal.h \
+    codeassist/genericproposalwidget.h \
+    codeassist/basicproposalitem.h \
+    codeassist/basicproposalitemlistmodel.h \
+    codeassist/iassistproposalmodel.h
 
 FORMS += \
     displaysettingspage.ui \

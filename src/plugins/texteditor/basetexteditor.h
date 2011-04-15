@@ -34,7 +34,7 @@
 #define BASETEXTEDITOR_H
 
 #include "itexteditor.h"
-#include "icompletioncollector.h"
+#include "codeassist/assistenums.h"
 
 #include <find/ifindsupport.h>
 
@@ -56,6 +56,9 @@ namespace TextEditor {
 class TabSettings;
 class RefactorOverlay;
 struct RefactorMarker;
+class IAssistMonitorInterface;
+class IAssistInterface;
+class IAssistProvider;
 
 namespace Internal {
     class BaseTextEditorPrivate;
@@ -234,6 +237,11 @@ public:
     AutoCompleter *autoCompleter() const;
 
     QPoint toolTipPosition(const QTextCursor &c) const;
+
+    void invokeAssist(AssistKind assistKind, IAssistProvider *provider = 0);
+
+    virtual IAssistInterface *createAssistInterface(AssistKind assistKind,
+                                                    AssistReason assistReason) const;
 
 public slots:
     void setDisplayName(const QString &title);
@@ -492,7 +500,6 @@ signals:
     void requestBlockUpdate(const QTextBlock &);
 
 private:
-    void maybeRequestAutoCompletion(const QChar &ch);
     void indentOrUnindent(bool doIndent);
     void handleHomeKey(bool anchor);
     void handleBackspaceKey();
@@ -531,9 +538,6 @@ private:
     void transformSelection(Internal::TransformationMethod method);
 
 private slots:
-    // auto completion
-    void _q_requestAutoCompletion();
-
     void handleBlockSelection(int diff_row, int diff_col);
 
     // parentheses matcher

@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "cppinsertqtpropertymembers.h"
+#include "cppquickfixassistant.h"
 
 #include <AST.h>
 #include <Token.h>
@@ -38,6 +39,7 @@
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/cpprefactoringchanges.h>
 #include <cppeditor/cppquickfix.h>
+#include <coreplugin/ifile.h>
 
 using namespace CPlusPlus;
 using namespace CppTools;
@@ -46,9 +48,10 @@ using namespace Utils;
 using namespace CppEditor;
 using namespace CppEditor::Internal;
 
-QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(const CppQuickFixState &state)
+QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(
+    const QSharedPointer<const CppQuickFixAssistInterface> &interface)
 {
-    const QList<AST *> &path = state.path();
+    const QList<AST *> &path = interface->path();
 
     if (path.isEmpty())
         return noResult();
@@ -67,8 +70,8 @@ QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(const CppQuickFi
     if (!klass)
         return noResult();
 
-    CppRefactoringChanges refactoring(state.snapshot());
-    const CppRefactoringFile &file = refactoring.file(state.document()->fileName());
+    CppRefactoringChanges refactoring(interface->snapshot());
+    const CppRefactoringFile &file = refactoring.file(interface->file()->fileName());
     const QString propertyName = file.textOf(qtPropertyDeclaration->property_name);
     QString getterName;
     QString setterName;
@@ -116,16 +119,17 @@ QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(const CppQuickFi
     if (getterName.isEmpty() && setterName.isEmpty() && signalName.isEmpty())
         return noResult();
 
-    return singleResult(new Operation(state, path.size() - 1, qtPropertyDeclaration, c,
+    return singleResult(new Operation(interface, path.size() - 1, qtPropertyDeclaration, c,
                                       generateFlags,
                                       getterName, setterName, signalName, storageName));
 }
 
 InsertQtPropertyMembers::Operation::Operation(
-    const CppQuickFixState &state, int priority, QtPropertyDeclarationAST *declaration, Class *klass,
+    const QSharedPointer<const CppQuickFixAssistInterface> &interface,
+    int priority, QtPropertyDeclarationAST *declaration, Class *klass,
     int generateFlags, const QString &getterName, const QString &setterName, const QString &signalName,
     const QString &storageName)
-    : CppQuickFixOperation(state, priority)
+    : CppQuickFixOperation(interface, priority)
     , m_declaration(declaration)
     , m_class(klass)
     , m_generateFlags(generateFlags)

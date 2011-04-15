@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "cppinsertdecldef.h"
+#include "cppquickfixassistant.h"
 
 #include <CPlusPlus.h>
 #include <cplusplus/ASTPath.h>
@@ -53,11 +54,12 @@ namespace {
 class InsertDeclOperation: public CppQuickFixOperation
 {
 public:
-    InsertDeclOperation(const CppQuickFixState &state, int priority,
+    InsertDeclOperation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+                        int priority,
                         const QString &targetFileName, const Class *targetSymbol,
                         InsertionPointLocator::AccessSpec xsSpec,
                         const QString &decl)
-        : CppQuickFixOperation(state, priority)
+        : CppQuickFixOperation(interface, priority)
         , m_targetFileName(targetFileName)
         , m_targetSymbol(targetSymbol)
         , m_xsSpec(xsSpec)
@@ -108,10 +110,11 @@ private:
 
 } // anonymous namespace
 
-QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &state)
+QList<CppQuickFixOperation::Ptr> DeclFromDef::match(
+    const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface)
 {
-    const QList<AST *> &path = state.path();
-    const CppRefactoringFile &file = state.currentFile();
+    const QList<AST *> &path = interface->path();
+    const CppRefactoringFile &file = interface->currentFile();
 
     FunctionDefinitionAST *funDef = 0;
     int idx = 0;
@@ -158,7 +161,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
     if (!q->base())
         return noResult();
 
-    if (ClassOrNamespace *binding = state.context().lookupType(q->base(), enclosingScope)) {
+    if (ClassOrNamespace *binding = interface->context().lookupType(q->base(), enclosingScope)) {
         foreach (Symbol *s, binding->symbols()) {
             if (Class *matchingClass = s->asClass()) {
                 for (Symbol *s = matchingClass->find(q->identifier()); s; s = s->next()) {
@@ -177,11 +180,11 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
 
                 const QString fn = QString::fromUtf8(matchingClass->fileName(),
                                                      matchingClass->fileNameLength());
-                const QString decl = generateDeclaration(state,
+                const QString decl = generateDeclaration(interface,
                                                          method,
                                                          binding);
                 return singleResult(
-                            new InsertDeclOperation(state, idx, fn, matchingClass,
+                            new InsertDeclOperation(interface, idx, fn, matchingClass,
                                                     InsertionPointLocator::Public,
                                                     decl));
             }
@@ -191,7 +194,7 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(const CppQuickFixState &stat
     return noResult();
 }
 
-QString DeclFromDef::generateDeclaration(const CppQuickFixState &,
+QString DeclFromDef::generateDeclaration(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &,
                                          Function *method,
                                          ClassOrNamespace *targetBinding)
 {
@@ -214,9 +217,9 @@ namespace {
 class InsertDefOperation: public CppQuickFixOperation
 {
 public:
-    InsertDefOperation(const CppQuickFixState &state, int priority,
+    InsertDefOperation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface, int priority,
                        Declaration *decl, const InsertionLocation &loc)
-        : CppQuickFixOperation(state, priority)
+        : CppQuickFixOperation(interface, priority)
         , m_decl(decl)
         , m_loc(loc)
     {
@@ -241,12 +244,12 @@ public:
 
         //--
         SubstitutionEnvironment env;
-        env.setContext(state().context());
+        env.setContext(assistInterface()->context());
         env.switchScope(m_decl->enclosingScope());
         UseQualifiedNames q;
         env.enter(&q);
 
-        Control *control = state().context().control().data();
+        Control *control = assistInterface()->context().control().data();
         FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
         QString name = oo(LookupContext::fullyQualifiedName(m_decl));
         //--
@@ -274,10 +277,11 @@ private:
 
 } // anonymous namespace
 
-QList<CppQuickFixOperation::Ptr> DefFromDecl::match(const CppQuickFixState &state)
+QList<CppQuickFixOperation::Ptr> DefFromDecl::match(
+    const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface)
 {
-    const QList<AST *> &path = state.path();
-    const CppRefactoringFile &file = state.currentFile();
+    const QList<AST *> &path = interface->path();
+    const CppRefactoringFile &file = interface->currentFile();
 
     int idx = path.size() - 1;
     for (; idx >= 0; --idx) {
@@ -292,12 +296,12 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(const CppQuickFixState &stat
                                 && decl->enclosingScope()->isClass()) {
                             DeclaratorAST *declarator = simpleDecl->declarator_list->value;
                             if (file.isCursorOn(declarator->core_declarator)) {
-                                CppRefactoringChanges refactoring(state.snapshot());
+                                CppRefactoringChanges refactoring(interface->snapshot());
                                 InsertionPointLocator locator(&refactoring);
                                 QList<CppQuickFixOperation::Ptr> results;
                                 foreach (const InsertionLocation &loc, locator.methodDefinition(decl)) {
                                     if (loc.isValid())
-                                        results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(state, idx, decl, loc)));
+                                        results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(interface, idx, decl, loc)));
                                 }
                                 return results;
                             }

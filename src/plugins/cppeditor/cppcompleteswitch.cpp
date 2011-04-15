@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "cppcompleteswitch.h"
+#include "cppquickfixassistant.h"
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
@@ -102,8 +103,11 @@ public:
 class Operation: public CppQuickFixOperation
 {
 public:
-    Operation(const CppQuickFixState &state, int priority, CompoundStatementAST *compoundStatement, const QStringList &values)
-        : CppQuickFixOperation(state, priority)
+    Operation(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
+              int priority,
+              CompoundStatementAST *compoundStatement,
+              const QStringList &values)
+        : CppQuickFixOperation(interface, priority)
         , compoundStatement(compoundStatement)
         , values(values)
     {
@@ -150,15 +154,15 @@ static Enum *findEnum(const QList<LookupItem> &results,
     return 0;
 }
 
-static Enum *conditionEnum(const CppQuickFixState &state,
+static Enum *conditionEnum(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
                            SwitchStatementAST *statement)
 {
     Block *block = statement->symbol;
-    Scope *scope = state.document()->scopeAt(block->line(), block->column());
+    Scope *scope = interface->semanticInfo().doc->scopeAt(block->line(), block->column());
     TypeOfExpression typeOfExpression;
-    typeOfExpression.init(state.document(), state.snapshot());
+    typeOfExpression.init(interface->semanticInfo().doc, interface->snapshot());
     const QList<LookupItem> results = typeOfExpression(statement->condition,
-                                                       state.document(),
+                                                       interface->semanticInfo().doc,
                                                        scope);
 
     return findEnum(results, typeOfExpression.context());
@@ -166,9 +170,10 @@ static Enum *conditionEnum(const CppQuickFixState &state,
 
 } // end of anonymous namespace
 
-QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(const CppQuickFixState &state)
+QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(
+    const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface)
 {
-    const QList<AST *> &path = state.path();
+    const QList<AST *> &path = interface->path();
 
     if (path.isEmpty())
         return noResult(); // nothing to do
@@ -178,13 +183,13 @@ QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(const CppQui
         AST *ast = path.at(depth);
         SwitchStatementAST *switchStatement = ast->asSwitchStatement();
         if (switchStatement) {
-            if (!state.isCursorOn(switchStatement->switch_token) || !switchStatement->statement)
+            if (!interface->isCursorOn(switchStatement->switch_token) || !switchStatement->statement)
                 return noResult();
             CompoundStatementAST *compoundStatement = switchStatement->statement->asCompoundStatement();
             if (!compoundStatement) // we ignore pathologic case "switch (t) case A: ;"
                 return noResult();
             // look if the condition's type is an enum
-            if (Enum *e = conditionEnum(state, switchStatement)) {
+            if (Enum *e = conditionEnum(interface, switchStatement)) {
                 // check the possible enum values
                 QStringList values;
                 Overview prettyPrint;
@@ -195,8 +200,8 @@ QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(const CppQui
                 }
                 // Get the used values
                 Block *block = switchStatement->symbol;
-                CaseStatementCollector caseValues(state.document(), state.snapshot(),
-                                                  state.document()->scopeAt(block->line(), block->column()));
+                CaseStatementCollector caseValues(interface->semanticInfo().doc, interface->snapshot(),
+                                                  interface->semanticInfo().doc->scopeAt(block->line(), block->column()));
                 QStringList usedValues = caseValues(switchStatement);
                 // save the values that would be added
                 foreach (const QString &usedValue, usedValues)
@@ -204,7 +209,7 @@ QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(const CppQui
                 if (values.isEmpty())
                     return noResult();
                 else
-                    return singleResult(new Operation(state, depth, compoundStatement, values));
+                    return singleResult(new Operation(interface, depth, compoundStatement, values));
             }
 
             return noResult();

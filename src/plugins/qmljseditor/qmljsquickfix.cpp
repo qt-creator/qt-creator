@@ -34,6 +34,7 @@
 #include "qmljscomponentfromobjectdef.h"
 #include "qmljseditor.h"
 #include "qmljs/parser/qmljsast_p.h"
+#include "qmljsquickfixassist.h"
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
@@ -50,34 +51,11 @@ using namespace QmlJSTools;
 using namespace TextEditor;
 using TextEditor::RefactoringChanges;
 
-QmlJSQuickFixState::QmlJSQuickFixState(TextEditor::BaseTextEditorWidget *editor)
-    : QuickFixState(editor)
-{
-}
-
-SemanticInfo QmlJSQuickFixState::semanticInfo() const
-{
-    return _semanticInfo;
-}
-
-Snapshot QmlJSQuickFixState::snapshot() const
-{
-    return _semanticInfo.snapshot;
-}
-
-Document::Ptr QmlJSQuickFixState::document() const
-{
-    return _semanticInfo.document;
-}
-
-const QmlJSRefactoringFile QmlJSQuickFixState::currentFile() const
-{
-    return QmlJSRefactoringFile(editor(), document());
-}
-
-QmlJSQuickFixOperation::QmlJSQuickFixOperation(const QmlJSQuickFixState &state, int priority)
+QmlJSQuickFixOperation::QmlJSQuickFixOperation(
+        const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
+        int priority)
     : QuickFixOperation(priority)
-    , _state(state)
+    , m_interface(interface)
 {
 }
 
@@ -88,20 +66,21 @@ QmlJSQuickFixOperation::~QmlJSQuickFixOperation()
 void QmlJSQuickFixOperation::perform()
 {
     QmlJSRefactoringChanges refactoring(ExtensionSystem::PluginManager::instance()->getObject<QmlJS::ModelManagerInterface>(),
-                                    _state.snapshot());
+                                    //_state.snapshot());
+                                        m_interface->semanticInfo().snapshot);
     QmlJSRefactoringFile current = refactoring.file(fileName());
 
     performChanges(&current, &refactoring);
 }
 
-const QmlJSQuickFixState &QmlJSQuickFixOperation::state() const
+const QmlJSQuickFixAssistInterface *QmlJSQuickFixOperation::assistInterface() const
 {
-    return _state;
+    return m_interface.data();
 }
 
 QString QmlJSQuickFixOperation::fileName() const
 {
-    return state().document()->fileName();
+    return m_interface->semanticInfo().document->fileName();
 }
 
 QmlJSQuickFixFactory::QmlJSQuickFixFactory()
@@ -112,12 +91,10 @@ QmlJSQuickFixFactory::~QmlJSQuickFixFactory()
 {
 }
 
-QList<QuickFixOperation::Ptr> QmlJSQuickFixFactory::matchingOperations(QuickFixState *state)
+QList<QuickFixOperation::Ptr> QmlJSQuickFixFactory::matchingOperations(
+    const QSharedPointer<const TextEditor::IAssistInterface> &interface)
 {
-    if (QmlJSQuickFixState *qmljsState = static_cast<QmlJSQuickFixState *>(state))
-        return match(*qmljsState);
-    else
-        return QList<TextEditor::QuickFixOperation::Ptr>();
+    return match(interface.staticCast<const QmlJSQuickFixAssistInterface>());
 }
 
 QList<QmlJSQuickFixOperation::Ptr> QmlJSQuickFixFactory::noResult()
@@ -130,50 +107,4 @@ QList<QmlJSQuickFixOperation::Ptr> QmlJSQuickFixFactory::singleResult(QmlJSQuick
     QList<QmlJSQuickFixOperation::Ptr> result;
     result.append(QmlJSQuickFixOperation::Ptr(operation));
     return result;
-}
-
-QmlJSQuickFixCollector::QmlJSQuickFixCollector()
-{
-}
-
-QmlJSQuickFixCollector::~QmlJSQuickFixCollector()
-{
-}
-
-bool QmlJSQuickFixCollector::supportsEditor(TextEditor::ITextEditor *editable) const
-{
-    return qobject_cast<QmlJSTextEditorWidget *>(editable->widget()) != 0;
-}
-
-bool QmlJSQuickFixCollector::supportsPolicy(TextEditor::CompletionPolicy policy) const
-{
-    return policy == TextEditor::QuickFixCompletion;
-}
-
-TextEditor::QuickFixState *QmlJSQuickFixCollector::initializeCompletion(TextEditor::BaseTextEditorWidget *editor)
-{
-    if (QmlJSTextEditorWidget *qmljsEditor = qobject_cast<QmlJSTextEditorWidget *>(editor)) {
-        const SemanticInfo info = qmljsEditor->semanticInfo();
-
-        if (! info.isValid() || qmljsEditor->isOutdated()) {
-            // outdated
-            qWarning() << "TODO: outdated semantic info, force a reparse.";
-            return 0;
-        }
-
-        QmlJSQuickFixState *state = new QmlJSQuickFixState(editor);
-        state->_semanticInfo = info;
-        return state;
-    }
-
-    return 0;
-}
-
-QList<TextEditor::QuickFixFactory *> QmlJSQuickFixCollector::quickFixFactories() const
-{
-    QList<TextEditor::QuickFixFactory *> results;
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    foreach (QmlJSQuickFixFactory *f, pm->getObjects<QmlJSEditor::QmlJSQuickFixFactory>())
-        results.append(f);
-    return results;
 }

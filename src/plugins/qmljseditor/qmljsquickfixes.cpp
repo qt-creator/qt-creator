@@ -33,6 +33,7 @@
 #include "qmljsquickfix.h"
 #include "qmljscomponentfromobjectdef.h"
 #include "qmljseditor.h"
+#include "qmljsquickfixassist.h"
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
@@ -64,13 +65,14 @@ namespace {
 class SplitInitializerOp: public QmlJSQuickFixFactory
 {
 public:
-    virtual QList<QmlJSQuickFixOperation::Ptr> match(const QmlJSQuickFixState &state)
+    virtual QList<QmlJSQuickFixOperation::Ptr> match(
+        const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface)
     {
         UiObjectInitializer *objectInitializer = 0;
 
-        const int pos = state.currentFile().cursor().position();
+        const int pos = interface->currentFile().cursor().position();
 
-        if (QmlJS::AST::Node *member = state.semanticInfo().declaringMember(pos)) {
+        if (QmlJS::AST::Node *member = interface->semanticInfo().declaringMember(pos)) {
             if (QmlJS::AST::UiObjectBinding *b = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member)) {
                 if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                     objectInitializer = b->initializer;
@@ -82,7 +84,7 @@ public:
         }
 
         if (objectInitializer)
-            return singleResult(new Operation(state, objectInitializer));
+            return singleResult(new Operation(interface, objectInitializer));
         else
             return noResult();
     }
@@ -93,8 +95,9 @@ private:
         UiObjectInitializer *_objectInitializer;
 
     public:
-        Operation(const QmlJSQuickFixState &state, UiObjectInitializer *objectInitializer)
-            : QmlJSQuickFixOperation(state, 0)
+        Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
+                  UiObjectInitializer *objectInitializer)
+            : QmlJSQuickFixOperation(interface, 0)
             , _objectInitializer(objectInitializer)
         {
             setDescription(QApplication::translate("QmlJSEditor::QuickFix",
@@ -129,7 +132,7 @@ private:
 
 } // end of anonymous namespace
 
-void QmlJSQuickFixCollector::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
+void registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
 {
     plugIn->addAutoReleasedObject(new SplitInitializerOp);
     plugIn->addAutoReleasedObject(new ComponentFromObjectDef);

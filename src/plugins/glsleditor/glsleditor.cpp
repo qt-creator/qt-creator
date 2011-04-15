@@ -37,6 +37,7 @@
 #include "glslhighlighter.h"
 #include "glslautocompleter.h"
 #include "glslindenter.h"
+#include "glslcompletionassist.h"
 
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
@@ -411,4 +412,18 @@ int GLSLTextEditorWidget::languageVariant() const
 Document::Ptr GLSLTextEditorWidget::glslDocument() const
 {
     return m_glslDocument;
+}
+
+TextEditor::IAssistInterface *GLSLTextEditorWidget::createAssistInterface(
+    TextEditor::AssistKind kind,
+    TextEditor::AssistReason reason) const
+{
+    if (kind == TextEditor::Completion)
+        return new GLSLCompletionAssistInterface(document(),
+                                                 position(),
+                                                 editor()->file(),
+                                                 reason,
+                                                 mimeType(),
+                                                 glslDocument());
+    return BaseTextEditorWidget::createAssistInterface(kind, reason);
 }

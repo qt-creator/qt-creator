@@ -35,11 +35,10 @@
 #include "cppplugin.h"
 #include "cpphighlighter.h"
 #include "cppchecksymbols.h"
-#include "cppquickfix.h"
 #include "cpplocalsymbols.h"
-#include "cppquickfixcollector.h"
 #include "cppqtstyleindenter.h"
 #include "cppautocompleter.h"
+#include "cppquickfixassistant.h"
 
 #include <AST.h>
 #include <Control.h>
@@ -66,6 +65,7 @@
 #include <cpptools/cpptoolsplugin.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppcodeformatter.h>
+#include <cpptools/cppcompletionassist.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -83,6 +83,9 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/basicproposalitem.h>
+#include <texteditor/codeassist/genericproposal.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
@@ -1617,22 +1620,29 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QMenu *quickFixMenu = new QMenu(tr("&Refactor"), menu);
     quickFixMenu->addAction(am->command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
 
-    CppQuickFixCollector *quickFixCollector = CppPlugin::instance()->quickFixCollector();
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));
-
     if (! isOutdated()) {
-        if (quickFixCollector->startCompletion(editor()) != -1) {
-            m_quickFixes = quickFixCollector->quickFixes();
-
-            if (! m_quickFixes.isEmpty())
-                quickFixMenu->addSeparator();
-
-            for (int index = 0; index < m_quickFixes.size(); ++index) {
-                TextEditor::QuickFixOperation::Ptr op = m_quickFixes.at(index);
-                QAction *action = quickFixMenu->addAction(op->description());
-                mapper.setMapping(action, index);
-                connect(action, SIGNAL(triggered()), &mapper, SLOT(map()));
+        TextEditor::IAssistInterface *interface =
+            createAssistInterface(TextEditor::QuickFix, TextEditor::ExplicitlyInvoked);
+        if (interface) {
+            QScopedPointer<TextEditor::IAssistProcessor> processor(
+                        CppPlugin::instance()->quickFixProvider()->createProcessor());
+            QScopedPointer<TextEditor::IAssistProposal> proposal(processor->perform(interface));
+            if (!proposal.isNull()) {
+                TextEditor::BasicProposalItemListModel *model =
+                        static_cast<TextEditor::BasicProposalItemListModel *>(proposal->model());
+                for (int index = 0; index < model->size(); ++index) {
+                    TextEditor::BasicProposalItem *item =
+                            static_cast<TextEditor::BasicProposalItem *>(model->proposalItem(index));
+                    TextEditor::QuickFixOperation::Ptr op =
+                            item->data().value<TextEditor::QuickFixOperation::Ptr>();
+                    m_quickFixes.append(op);
+                    QAction *action = quickFixMenu->addAction(op->description());
+                    mapper.setMapping(action, index);
+                    connect(action, SIGNAL(triggered()), &mapper, SLOT(map()));
+                }
+                delete model;
             }
         }
     }
@@ -1646,7 +1656,6 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     appendStandardContextMenuActions(menu);
 
     menu->exec(e->globalPos());
-    quickFixCollector->cleanup();
     m_quickFixes.clear();
     delete menu;
 }
@@ -1919,6 +1928,7 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
                                                            m_keywordFormat));
 #endif
     }
+
 
 
     setExtraSelections(UnusedSymbolSelection, unusedSelections);
@@ -2203,6 +2213,34 @@ QVector<QString> CPPEditorWidget::highlighterFormatCategories()
                    << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
     return categories;
+}
+
+TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
+    TextEditor::AssistKind kind,
+    TextEditor::AssistReason reason) const
+{
+    if (kind == TextEditor::Completion) {
+        QStringList includePaths;
+        QStringList frameworkPaths;
+        if (ProjectExplorer::Project *project =
+                ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject()) {
+            includePaths = m_modelManager->projectInfo(project).includePaths;
+            frameworkPaths = m_modelManager->projectInfo(project).frameworkPaths;
+        }
+        return new CppTools::Internal::CppCompletionAssistInterface(
+                    document(),
+                    position(),
+                    editor()->file(),
+                    reason,
+                    m_modelManager->snapshot(),
+                    includePaths,
+                    frameworkPaths);
+    } else if (kind == TextEditor::QuickFix) {
+        if (!semanticInfo().doc || semanticInfo().revision != editorRevision())
+            return 0;
+        return new CppQuickFixAssistInterface(const_cast<CPPEditorWidget *>(this), reason);
+    }
+    return 0;
 }
 
 #include "cppeditor.moc"

@@ -69,7 +69,6 @@ HEADERS += \
     qmldumptool.h \
     qmlobservertool.h \
     qmldebugginglibrary.h \
-    profilecompletion.h \
     profilekeywords.h \
     debugginghelperbuildtask.h \
     qt4targetsetupwidget.h \
@@ -78,7 +77,8 @@ HEADERS += \
     qtversionfactory.h \
     winceqtversionfactory.h \
     baseqtversion.h \
-    winceqtversion.h
+    winceqtversion.h \
+    profilecompletionassist.h
 
 SOURCES += qt4projectmanagerplugin.cpp \
     qtparser.cpp \
@@ -142,13 +142,14 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qmldumptool.cpp \
     qmlobservertool.cpp \
     qmldebugginglibrary.cpp \
-    profilecompletion.cpp \
     profilekeywords.cpp \
     debugginghelperbuildtask.cpp \
     qtversionfactory.cpp \
     winceqtversionfactory.cpp \
     baseqtversion.cpp \
-    winceqtversion.cpp
+    winceqtversion.cpp \
+    profilecompletionassist.cpp
+
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \

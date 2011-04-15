@@ -41,7 +41,8 @@ namespace Internal {
 class ComponentFromObjectDef: public QmlJSQuickFixFactory
 {
 public:
-    virtual QList<QmlJSQuickFixOperation::Ptr> match(const QmlJSQuickFixState &state);
+    virtual QList<QmlJSQuickFixOperation::Ptr> match(
+        const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface);
 };
 
 } // namespace Internal
