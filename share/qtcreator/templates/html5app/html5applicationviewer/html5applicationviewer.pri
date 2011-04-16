@@ -8,3 +8,5 @@ QT += webkit
 SOURCES += $$PWD/html5applicationviewer.cpp
 HEADERS += $$PWD/html5applicationviewer.h
 INCLUDEPATH += $$PWD
+
+include(touchnavigation/touchnavigation.pri)
