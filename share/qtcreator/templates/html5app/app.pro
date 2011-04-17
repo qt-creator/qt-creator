@@ -32,6 +32,8 @@ SOURCES += main.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(html5applicationviewer/html5applicationviewer.pri)
-# INCLUDE_DEPLOYMENT_PRI (wizard will remove the include and append deployment.pri to qmlapplicationviewer.pri, instead) #
+# REMOVE_NEXT_LINE (wizard will remove the include and merge the touchnavigation code into html5applicationviewer.cpp, instead) #
+include(html5applicationviewer/touchnavigation/touchnavigation.pri)
+# REMOVE_NEXT_LINE (wizard will remove the include and append deployment.pri to qmlapplicationviewer.pri, instead) #
 include(../shared/deployment.pri)
 qtcAddDeployment()
