@@ -109,6 +109,7 @@ private:
         bool &commentOutNextLine) const;
     QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
     QList<DeploymentFolder> deploymentFolders() const;
+    QByteArray appViewerCppFileCode(QString *errorMessage) const;
 
     QFileInfo m_indexHtmlFile;
     Mode m_mainHtmlMode;
