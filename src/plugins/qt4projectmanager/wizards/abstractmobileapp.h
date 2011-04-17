@@ -46,7 +46,11 @@ QT_FORWARD_DECLARE_CLASS(QTextStream)
 namespace Qt4ProjectManager {
 
 /// \internal
-struct QT4PROJECTMANAGER_EXPORT AbstractGeneratedFileInfo
+struct
+#ifndef CREATORLESSTEST
+    QT4PROJECTMANAGER_EXPORT
+#endif // CREATORLESSTEST
+    AbstractGeneratedFileInfo
 {
     enum FileType {
         MainCppFile,
@@ -71,7 +75,11 @@ struct QT4PROJECTMANAGER_EXPORT AbstractGeneratedFileInfo
 typedef QPair<QString, QString> DeploymentFolder; // QPair<.source, .target>
 
 /// \internal
-class QT4PROJECTMANAGER_EXPORT AbstractMobileApp : public QObject
+class
+#ifndef CREATORLESSTEST
+    QT4PROJECTMANAGER_EXPORT
+#endif // CREATORLESSTEST
+    AbstractMobileApp : public QObject
 {
     Q_OBJECT
 
