@@ -192,7 +192,7 @@ QByteArray Html5App::appViewerCppFileCode(QString *errorMessage) const
     static const QString touchNavigavigationDir =
             originsRoot() + appViewerOriginsSubDir + QLatin1String("touchnavigation/");
     QByteArray touchNavigavigationCode;
-    for (int i = 0; i < sizeof(touchNavigavigationFiles) / sizeof(touchNavigavigationFiles[0]); ++i) {
+    for (size_t i = 0; i < sizeof(touchNavigavigationFiles) / sizeof(touchNavigavigationFiles[0]); ++i) {
         QFile touchNavigavigationFile(touchNavigavigationDir + QLatin1String(touchNavigavigationFiles[i]));
         if (!touchNavigavigationFile.open(QIODevice::ReadOnly)) {
             if (errorMessage)
@@ -204,12 +204,13 @@ QByteArray Html5App::appViewerCppFileCode(QString *errorMessage) const
         QString line;
         while (!(line = touchNavigavigationFileIn.readLine()).isNull()) {
             if (line.startsWith(QLatin1String("#include")) ||
-                    (line.startsWith(QLatin1String("#ifndef"))
-                     || line.startsWith(QLatin1String("#define"))
-                     || line.startsWith(QLatin1String("#endif")))
-                    && line.endsWith(QLatin1String("_H")))
+                    ((line.startsWith(QLatin1String("#ifndef"))
+                      || line.startsWith(QLatin1String("#define"))
+                      || line.startsWith(QLatin1String("#endif")))
+                    && line.endsWith(QLatin1String("_H"))))
                 continue;
-            touchNavigavigationCode.append(line + QLatin1Char('\n'));
+            touchNavigavigationCode.append(line.toLatin1());
+            touchNavigavigationCode.append('\n');
         }
     }
 
@@ -226,17 +227,21 @@ QByteArray Html5App::appViewerCppFileCode(QString *errorMessage) const
     QString line;
     while (!(line = in.readLine()).isNull()) {
         if (!touchNavigavigationCodeInserted && line == QLatin1String("#ifdef TOUCH_OPTIMIZED_NAVIGATION")) {
-            appViewerCppCode.append(line + QLatin1Char('\n'));
+            appViewerCppCode.append(line.toLatin1());
+            appViewerCppCode.append('\n');
             while (!(line = in.readLine()).isNull()
                 && !line.contains(QLatin1String("#endif // TOUCH_OPTIMIZED_NAVIGATION")))
             {
-                if (!line.startsWith(QLatin1String("#include \"")))
-                    appViewerCppCode.append(line + QLatin1Char('\n'));
+                if (!line.startsWith(QLatin1String("#include \""))) {
+                    appViewerCppCode.append(line.toLatin1());
+                    appViewerCppCode.append('\n');
+                }
             }
             appViewerCppCode.append(touchNavigavigationCode);
             touchNavigavigationCodeInserted = true;
         }
-        appViewerCppCode.append(line + QLatin1Char('\n'));
+        appViewerCppCode.append(line.toLatin1());
+        appViewerCppCode.append('\n');
     }
     return appViewerCppCode;
 }
