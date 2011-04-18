@@ -12,7 +12,7 @@ QWidget {
         }
         GroupBox {
             finished: finishedNotify;
-            caption: qsTr("List View")
+            caption: qsTr("Grid View")
             layout: VerticalLayout {
                 IntEditor {
                     backendValue: backendValues.cacheBuffer
@@ -55,9 +55,10 @@ QWidget {
                         }
                     }
                 } //QWidget
+
                 IntEditor {
                     backendValue: backendValues.keyNavigationWraps
-                    caption: qsTr("Navigation Wraps")
+                    caption: qsTr("Resize Wraps")
                     toolTip: qsTr("This property holds whether the grid wraps key navigation.")
                     baseStateFlag: isBaseState;
                     step: 1;
@@ -73,7 +74,7 @@ QWidget {
 
 //                        ComboBox {
 //                            baseStateFlag: isBaseState
-//                            items : { ["LeftToRight", "TopToBottom"] }
+//                            items : { ["LeftToRight", "RightToLeft"] }
 //                            currentText: backendValues.layoutDirection.value;
 //                            onItemsChanged: {
 //                                currentText =  backendValues.layoutDirection.value;
@@ -82,25 +83,6 @@ QWidget {
 //                        }
 //                    }
 //                } //QWidget
-
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Orientation")
-                            toolTip: qsTr("This property holds the orientation of the list.")
-                        }
-
-                        ComboBox {
-                            baseStateFlag: isBaseState
-                            items : { ["Horizontal", "Vertical"] }
-                            currentText: backendValues.snapMode.value;
-                            onItemsChanged: {
-                                currentText =  backendValues.snapMode.value;
-                            }
-                            backendValue: backendValues.snapMode
-                        }
-                    }
-                } //QWidget
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
@@ -119,18 +101,9 @@ QWidget {
                         }
                     }
                 } //QWidget
-                IntEditor {
-                    backendValue: backendValues.spacing
-                    caption: qsTr("Spacing")
-                    toolTip: qsTr("This property holds the spacing between items.")
-                    baseStateFlag: isBaseState;
-                    step: 1;
-                    minimumValue: 0;
-                    maximumValue: 1000;
-                }
                 GroupBox {
                     finished: finishedNotify;
-                    caption: qsTr("List View Highlight")
+                    caption: qsTr("Grid View Highlight")
                     layout: VerticalLayout {
                         QWidget {
                             layout: HorizontalLayout {
@@ -162,24 +135,6 @@ QWidget {
                             backendValue: backendValues.highlightMoveSpeed
                             caption: qsTr("Move Speed")
                             toolTip: qsTr("This property holds the move animation speed of the highlight delegate.")
-                            baseStateFlag: isBaseState;
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 1000;
-                        }
-                        IntEditor {
-                            backendValue: backendValues.highlightResizeDuration
-                            caption: qsTr("Resize Duration")
-                            toolTip: qsTr("This property holds the resize animation duration of the highlight delegate.")
-                            baseStateFlag: isBaseState;
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 1000;
-                        }
-                        IntEditor {
-                            backendValue: backendValues.highlightResizeSpeed
-                            caption: qsTr("Resize Speed")
-                            toolTip: qsTr("This property holds the resize animation speed of the highlight delegate.")
                             baseStateFlag: isBaseState;
                             step: 1;
                             minimumValue: 0;
