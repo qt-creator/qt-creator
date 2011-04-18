@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>ProjectExplorer::Internal::WizardPage</class>
  <widget class="QWizardPage" name="ProjectExplorer::Internal::WizardPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>307</width>
-    <height>241</height>
-   </rect>
-  </property>
   <property name="title">
    <string>Project Management</string>
   </property>
@@ -116,30 +108,26 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>289</width>
-        <height>131</height>
+        <width>316</width>
+        <height>103</height>
        </rect>
       </property>
-      <widget class="QLabel" name="filesLabel">
-       <property name="geometry">
-        <rect>
-         <x>9</x>
-         <y>9</y>
-         <width>154</width>
-         <height>65</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>The following files will be added:
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="filesLabel">
+         <property name="text">
+          <string>The following files will be added:
 
 
 
 </string>
-       </property>
-       <property name="textInteractionFlags">
-        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-       </property>
-      </widget>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
