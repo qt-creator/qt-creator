@@ -373,13 +373,13 @@ void QmlCppEngine::continueInferior()
 void QmlCppEngine::interruptInferior()
 {
     EDEBUG("\nMASTER INTERRUPT INFERIOR");
+    d->m_cppEngine->requestInterruptInferior();
 }
 
 void QmlCppEngine::requestInterruptInferior()
 {
     EDEBUG("\nMASTER REQUEST INTERRUPT INFERIOR");
     DebuggerEngine::requestInterruptInferior();
-    d->m_cppEngine->requestInterruptInferior();
 }
 
 void QmlCppEngine::executeRunToLine(const ContextData &data)
@@ -570,6 +570,9 @@ void QmlCppEngine::slaveEngineStateChanged
     case InferiorStopOk:
         if (isDying()) {
             EDEBUG("... AN INFERIOR STOPPED DURING SHUTDOWN ");
+            if (state() == InferiorStopRequested) {
+                notifyInferiorStopOk();
+            }
         } else {
             if (slaveEngine != d->m_activeEngine) {
                 QString engineName = slaveEngine == d->m_cppEngine

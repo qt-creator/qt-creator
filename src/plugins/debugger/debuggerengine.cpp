@@ -209,8 +209,11 @@ public slots:
         QTC_ASSERT(state() == EngineShutdownOk
             || state() == EngineShutdownFailed, qDebug() << state());
         m_engine->setState(DebuggerFinished);
-        m_engine->showMessage(_("QUEUE: FINISH DEBUGGER"));
-        QTimer::singleShot(0, this, SLOT(doFinishDebugger()));
+        resetLocation();
+        if (isMasterEngine()) {
+            m_engine->showMessage(_("QUEUE: FINISH DEBUGGER"));
+            QTimer::singleShot(0, this, SLOT(doFinishDebugger()));
+        }
     }
 
     void raiseApplication()
@@ -1011,7 +1014,6 @@ void DebuggerEnginePrivate::doFinishDebugger()
 {
     m_engine->showMessage(_("NOTE: FINISH DEBUGGER"));
     QTC_ASSERT(state() == DebuggerFinished, qDebug() << m_engine << state());
-    resetLocation();
     if (isMasterEngine() && m_runControl)
         m_runControl->debuggingFinished();
 }
