@@ -511,6 +511,9 @@ void PropertyEditor::changeExpression(const QString &name)
             return;
         }
 
+        if (value->expression().isEmpty())
+            return;
+
         if (fxObjectNode.expression(name) != value->expression() || !fxObjectNode.propertyAffectedByCurrentState(name))
             fxObjectNode.setBindingProperty(name, value->expression());
 
