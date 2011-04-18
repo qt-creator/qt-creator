@@ -297,20 +297,24 @@ bool BuildableHelperLibrary::getHelperFileInfoFor(const QStringList &validBinary
 QString BuildableHelperLibrary::byInstallDataHelper(const QString &sourcePath,
                                                     const QStringList &sourceFileNames,
                                                     const QStringList &installDirectories,
-                                                    const QStringList &validBinaryFilenames)
+                                                    const QStringList &validBinaryFilenames,
+                                                    bool acceptOutdatedHelper)
 {
     // find the latest change to the sources
     QDateTime sourcesModified;
-    foreach (const QString &sourceFileName, sourceFileNames) {
-        const QDateTime fileModified = QFileInfo(sourcePath + sourceFileName).lastModified();
-        if (fileModified.isValid() && (!sourcesModified.isValid() || fileModified > sourcesModified))
-            sourcesModified = fileModified;
+    if (!acceptOutdatedHelper) {
+        foreach (const QString &sourceFileName, sourceFileNames) {
+            const QDateTime fileModified = QFileInfo(sourcePath + sourceFileName).lastModified();
+            if (fileModified.isValid() && (!sourcesModified.isValid() || fileModified > sourcesModified))
+                sourcesModified = fileModified;
+        }
     }
 
     // We pretend that the lastmodified of gdbmacros.cpp is 5 minutes before what the file system says
     // Because afer a installation from the package the modified dates of gdbmacros.cpp
     // and the actual library are close to each other, but not deterministic in one direction
-    sourcesModified = sourcesModified.addSecs(-300);
+    if (sourcesModified.isValid())
+        sourcesModified = sourcesModified.addSecs(-300);
 
     // look for the newest helper library in the different locations
     QString newestHelper;
@@ -318,7 +322,8 @@ QString BuildableHelperLibrary::byInstallDataHelper(const QString &sourcePath,
     QFileInfo fileInfo;
     foreach(const QString &installDirectory, installDirectories) {
         if (getHelperFileInfoFor(validBinaryFilenames, installDirectory, &fileInfo)) {
-            if (fileInfo.lastModified() > newestHelperModified) {
+            if (!newestHelperModified.isValid()
+                    || (fileInfo.lastModified() > newestHelperModified)) {
                 newestHelper = fileInfo.filePath();
                 newestHelperModified = fileInfo.lastModified();
             }

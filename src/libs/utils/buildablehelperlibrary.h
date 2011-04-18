@@ -61,7 +61,8 @@ public:
     static QString byInstallDataHelper(const QString &sourcePath,
                                        const QStringList &sourceFileNames,
                                        const QStringList &installDirectories,
-                                       const QStringList &validBinaryFilenames);
+                                       const QStringList &validBinaryFilenames,
+                                       bool acceptOutdatedHelper);
 
     static bool copyFiles(const QString &sourcePath, const QStringList &files,
                           const QString &targetDirectory, QString *errorMessage);

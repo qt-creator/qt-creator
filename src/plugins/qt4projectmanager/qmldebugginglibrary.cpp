@@ -62,7 +62,7 @@ QString QmlDebuggingLibrary::libraryByInstallData(const QString &qtInstallData, 
     }
     binFilenames << QLatin1String("libQmlJSDebugger.a");
 
-    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames);
+    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames, false);
 }
 
 bool QmlDebuggingLibrary::canBuild(const QtVersion *qtVersion)

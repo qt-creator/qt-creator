@@ -101,7 +101,7 @@ QString DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(const QStrin
     const QStringList directories = DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
     const QStringList binFilenames = validBinaryFilenames();
 
-    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames);
+    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames, false);
 }
 
 QString DebuggingHelperLibrary::copy(const QString &qtInstallData,

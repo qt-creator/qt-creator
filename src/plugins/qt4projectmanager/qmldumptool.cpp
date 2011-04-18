@@ -175,14 +175,20 @@ static inline QStringList validBinaryFilenames(bool debugBuild)
     return list;
 }
 
+static bool hasPrivateHeaders(const QString &qtInstallHeaders) {
+    const QString header = qtInstallHeaders
+            + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");
+    return QFile::exists(header);
+}
+
 bool QmlDumpTool::canBuild(const QtVersion *qtVersion)
 {
     const QString installHeaders = qtVersion->versionInfo().value("QT_INSTALL_HEADERS");
-    const QString header = installHeaders + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");
+
     return (qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
             || (qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID)
                 && (qtVersion->qtVersion() > QtVersionNumber(4, 7, 1))))
-            && QFile::exists(header);
+            && hasPrivateHeaders(installHeaders);
 }
 
 static QtVersion *qtVersionForProject(ProjectExplorer::Project *project)
@@ -234,7 +240,8 @@ QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project, bool debu
     QtVersion *version = qtVersionForProject(project);
     if (version) {
         QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
-        QString toolPath = toolByInstallData(qtInstallData, debugDump);
+        QString qtInstallHeaders = version->versionInfo().value("QT_INSTALL_HEADERS");
+        QString toolPath = toolByInstallData(qtInstallData, qtInstallHeaders, debugDump);
         return toolPath;
     }
 
@@ -258,17 +265,17 @@ static QStringList sourceFileNames()
     return files;
 }
 
-QString QmlDumpTool::toolByInstallData(const QString &qtInstallData, bool debugDump)
+QString QmlDumpTool::toolByInstallData(const QString &qtInstallData, const QString &qtInstallHeaders,
+                                       bool debugDump)
 {
     if (!Core::ICore::instance())
         return QString();
 
-    const QString mainFilename = Core::ICore::instance()->resourcePath()
-            + QLatin1String("/qml/qmldump/main.cpp");
     const QStringList directories = installDirectories(qtInstallData);
     const QStringList binFilenames = validBinaryFilenames(debugDump);
 
-    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames);
+    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames,
+                               !hasPrivateHeaders(qtInstallHeaders));
 }
 
 QStringList QmlDumpTool::locationsByInstallData(const QString &qtInstallData, bool debugDump)
