@@ -185,6 +185,8 @@ QtVersionManager::QtVersionManager()
                 if (tc) {
                     tc->setCompilerPath(fi.absoluteFilePath());
                     tc->setDisplayName(tr("MinGW from %1").arg(version->displayName()));
+                    // The debugger is set later in the autoDetect method of the MinGw tool chain factory
+                    // as the default debuggers are not yet registered.
                     ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
                 }
             }
@@ -524,6 +526,10 @@ bool QtVersionManager::equals(QtVersion *a, QtVersion *b)
     if (a->m_id != b->m_id)
         return false;
     if (a->m_displayName != b->displayName())
+        return false;
+    if (a->m_sbsV2Directory != b->m_sbsV2Directory)
+        return false;
+    if (a->m_systemRoot != b->m_systemRoot)
         return false;
     return true;
 }
@@ -1705,6 +1711,16 @@ QString QtVersion::sbsV2Directory() const
 
 void QtVersion::setSbsV2Directory(const QString &directory)
 {
+    QDir dir(directory);
+    if (dir.exists(QLatin1String("sbs"))) {
+        m_sbsV2Directory = dir.absolutePath();
+        return;
+    }
+    dir.cd("bin");
+    if (dir.exists(QLatin1String("sbs"))) {
+        m_sbsV2Directory = dir.absolutePath();
+        return;
+    }
     m_sbsV2Directory = directory;
 }
 
@@ -1757,11 +1773,14 @@ void QtVersion::addToEnvironment(Utils::Environment &env) const
         // SBSv2:
         if (isBuildWithSymbianSbsV2()) {
             QString sbsHome(env.value(QLatin1String("SBS_HOME")));
-            if (!m_sbsV2Directory.isEmpty()) {
-                env.prependOrSetPath(sbsV2Directory());
-                env.set(QLatin1String("SBS_HOME"), m_sbsV2Directory); // We need this for Qt 4.6.3 compatibility
+            QString sbsConfig = sbsV2Directory();
+            if (!sbsConfig.isEmpty()) {
+                env.prependOrSetPath(sbsConfig);
+                // SBS_HOME is the path minus the trailing /bin:
+                env.set(QLatin1String("SBS_HOME"),
+                        QDir::toNativeSeparators(sbsConfig.left(sbsConfig.count() - 4))); // We need this for Qt 4.6.3 compatibility
             } else if (!sbsHome.isEmpty()) {
-                env.prependOrSetPath(sbsHome + QLatin1Char('/') + QLatin1String("bin"));
+                env.prependOrSetPath(sbsHome + QLatin1String("/bin"));
             }
         }
     }

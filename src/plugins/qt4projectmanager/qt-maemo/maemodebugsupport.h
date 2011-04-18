@@ -80,6 +80,7 @@ private slots:
     void handleRemoteErrorOutput(const QByteArray &output);
     void handleProgressReport(const QString &progressOutput);
     void handleRemoteProcessStarted();
+    void handleGdbServerFinished(qint64 exitCode);
 
 private:
     enum State {

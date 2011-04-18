@@ -1,5 +1,5 @@
 
-#line 218 "./glsl.g"
+#line 217 "./glsl.g"
 
 /**************************************************************************
 **
@@ -76,11 +76,11 @@ public:
             List<ExpressionAST *> *arguments;
         } function;
         int qualifier;
-        LayoutQualifier *layout;
-        List<LayoutQualifier *> *layout_list;
+        LayoutQualifierAST *layout;
+        List<LayoutQualifierAST *> *layout_list;
         struct {
             int qualifier;
-            List<LayoutQualifier *> *layout_list;
+            List<LayoutQualifierAST *> *layout_list;
         } type_qualifier;
         struct {
             TypeAST *type;

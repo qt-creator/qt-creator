@@ -69,6 +69,7 @@ class BasicTypeAST;
 class NamedTypeAST;
 class ArrayTypeAST;
 class StructTypeAST;
+class LayoutQualifierAST;
 class QualifiedTypeAST;
 class DeclarationAST;
 class PrecisionDeclarationAST;
@@ -214,6 +215,7 @@ public:
         Kind_StructType,
         Kind_AnonymousStructType,
         Kind_StructField,
+        Kind_LayoutQualifier,
         Kind_QualifiedType,
 
         // Declarations
@@ -260,6 +262,7 @@ public:
     virtual ArrayTypeAST *asArrayType() { return 0; }
     virtual StructTypeAST *asStructType() { return 0; }
     virtual QualifiedTypeAST *asQualifiedType() { return 0; }
+    virtual LayoutQualifierAST *asLayoutQualifier() { return 0; }
 
     virtual DeclarationAST *asDeclaration() { return 0; }
     virtual PrecisionDeclarationAST *asPrecisionDeclaration() { return 0; }
@@ -785,22 +788,24 @@ public: // attributes
     List<Field *> *fields;
 };
 
-class GLSL_EXPORT LayoutQualifier
+class GLSL_EXPORT LayoutQualifierAST: public AST
 {
 public:
-    LayoutQualifier(const QString *_name, const QString *_number)
-        : name(_name), number(_number), lineno(0) {}
+    LayoutQualifierAST(const QString *_name, const QString *_number)
+        : AST(Kind_LayoutQualifier), name(_name), number(_number) {}
+
+    virtual LayoutQualifierAST *asLayoutQualifier() { return this; }
+    virtual void accept0(Visitor *visitor);
 
 public: // attributes
     const QString *name;
     const QString *number;
-    int lineno;
 };
 
 class GLSL_EXPORT QualifiedTypeAST: public TypeAST
 {
 public:
-    QualifiedTypeAST(int _qualifiers, TypeAST *_type, List<LayoutQualifier *> *_layout_list)
+    QualifiedTypeAST(int _qualifiers, TypeAST *_type, List<LayoutQualifierAST *> *_layout_list)
         : TypeAST(Kind_QualifiedType), qualifiers(_qualifiers), type(_type)
         , layout_list(finish(_layout_list)) {}
 
@@ -840,7 +845,7 @@ public:
 public: // attributes
     int qualifiers;
     TypeAST *type;
-    List<LayoutQualifier *> *layout_list;
+    List<LayoutQualifierAST *> *layout_list;
 };
 
 class GLSL_EXPORT DeclarationAST: public AST

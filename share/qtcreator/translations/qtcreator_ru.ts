@@ -3984,7 +3984,7 @@ Note: This might remove the local file.</source>
     <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
-        <translation>Добавить определение в %1</translation>
+        <translation>Добавить реализацию в %1</translation>
     </message>
 </context>
 <context>
@@ -15686,6 +15686,10 @@ Do you still want to load the settings file?</source>
         <source>Open Documents</source>
         <translation>Открытые документы</translation>
     </message>
+    <message>
+        <source>Qt Quick emulation layer crashed</source>
+        <translation>Слой эмуляции Qt Quick завершился крахом</translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::Internal::DocumentWarningWidget</name>
@@ -18030,6 +18034,10 @@ Qemu уже запущен?</translation>
     <message>
         <source>Finished uploading debugging helpers.</source>
         <translation>Отправка помощников отладчика завершена.</translation>
+    </message>
+    <message>
+        <source>The gdbserver process closed unexpectedly.</source>
+        <translation>Процесс gdbserver неожиданно завершился.</translation>
     </message>
     <message>
         <source>Initial setup failed: %1</source>

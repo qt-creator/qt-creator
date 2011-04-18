@@ -593,6 +593,7 @@ void Qt4DefaultTargetSetupWidget::setShadowBuildSupported(bool b)
 {
     // if shadow building is supported we want to enable it, unless we have a in source build
     m_shadowBuildEnabled->setChecked(b && !m_hasInSourceBuild);
+    m_importLineButton->setVisible(b);
 }
 
 void Qt4DefaultTargetSetupWidget::setShadowBuildCheckBoxVisible(bool b)

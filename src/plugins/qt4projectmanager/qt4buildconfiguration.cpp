@@ -462,11 +462,11 @@ MakeStep *Qt4BuildConfiguration::makeStep() const
 
 void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &changedVersions)
 {
-    if (!changedVersions.contains(m_qtVersionId) ||
-        qtVersion()->isValid())
+    if (!changedVersions.contains(m_qtVersionId))
         return;
-
-    pickValidQtVersion();
+    if (!qtVersion()->isValid())
+        pickValidQtVersion();
+    emit environmentChanged(); // Our qt version changed, that might have changed the environemnt
 }
 
 // returns true if both are equal

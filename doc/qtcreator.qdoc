@@ -738,6 +738,7 @@
        \o  \gui{Application Output}
        \o  \gui{Compile Output}
        \o  \gui{General Messages}
+       \o  \gui{Analysis}
        \o  \gui{Version Control}
     \endlist
 
@@ -751,7 +752,7 @@
     criteria in the \gui Find field and click the left and right arrows to
     search down and up in the pane.
 
-    To open the \gui{General Messages} and \gui{Version Control}
+    To open the \gui{General Messages}, \gui{Analysis}, and \gui{Version Control}
     panes, select \gui {Window > Output Panes}.
 
 

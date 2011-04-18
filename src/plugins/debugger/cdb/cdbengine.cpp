@@ -1697,7 +1697,7 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
         if (forNewStackFrame)
             emit stackFrameCompleted();
     } else {
-        showMessage(QString::fromLatin1(reply->errorMessage), LogError);
+        showMessage(QString::fromLatin1(reply->errorMessage), LogWarning);
     }
 }
 

@@ -827,7 +827,7 @@ bool AbstractDebBasedQt4MaemoTarget::adaptControlFile()
 
     QByteArray controlContents = controlFile.readAll();
 
-    adaptControlFileField(controlContents, "Section", "user/hidden");
+    adaptControlFileField(controlContents, "Section", defaultSection());
     adaptControlFileField(controlContents, "Priority", "optional");
     adaptControlFileField(controlContents, packageManagerNameFieldName(),
         project()->displayName().toUtf8());
@@ -1104,6 +1104,11 @@ QByteArray Qt4Maemo5Target::packageManagerNameFieldName() const
     return "XB-Maemo-Display-Name";
 }
 
+QByteArray Qt4Maemo5Target::defaultSection() const
+{
+    return "user/hidden";
+}
+
 Qt4HarmattanTarget::Qt4HarmattanTarget(Qt4Project *parent, const QString &id)
         : AbstractDebBasedQt4MaemoTarget(parent, id)
 {
@@ -1132,6 +1137,11 @@ QString Qt4HarmattanTarget::debianDirName() const
 QByteArray Qt4HarmattanTarget::packageManagerNameFieldName() const
 {
     return "XSBC-Maemo-Display-Name";
+}
+
+QByteArray Qt4HarmattanTarget::defaultSection() const
+{
+    return "user/other";
 }
 
 

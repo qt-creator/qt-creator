@@ -354,6 +354,13 @@ List<StructTypeAST::Field *> *StructTypeAST::fixInnerTypes(TypeAST *innerType, L
     return fields;
 }
 
+void LayoutQualifierAST::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
 void QualifiedTypeAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))

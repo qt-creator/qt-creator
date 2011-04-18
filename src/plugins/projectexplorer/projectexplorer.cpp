@@ -1067,7 +1067,7 @@ void ProjectExplorerPlugin::updateVariable(const QString &variable)
     } else if (variable == QLatin1String(kCurrentProjectPath)) {
         if (currentProject() && currentProject()->file()) {
             Core::VariableManager::instance()->insert(variable,
-                                                      QFileInfo(currentProject()->file()->fileName()).filePath());
+                                                      QFileInfo(currentProject()->file()->fileName()).path());
         } else {
             Core::VariableManager::instance()->remove(variable);
         }

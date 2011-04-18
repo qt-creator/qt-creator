@@ -145,7 +145,7 @@ ProjectExplorer::Abi WinscwToolChain::targetAbi() const
 {
     return ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::SymbianOS,
                                 ProjectExplorer::Abi::SymbianEmulatorFlavor,
-                                ProjectExplorer::Abi::ElfFormat, false);
+                                ProjectExplorer::Abi::ElfFormat, 32);
 }
 
 bool WinscwToolChain::isValid() const

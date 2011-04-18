@@ -154,6 +154,7 @@ private slots:
     void updateAvailableSidebarItemsRight();
 
     void deleteSidebarWidgets();
+    void qmlPuppetCrashed();
 
 protected:
     void resizeEvent(QResizeEvent *event);

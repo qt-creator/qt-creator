@@ -37,6 +37,7 @@
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/toolchainmanager.h>
 
 #include <QtCore/QDir>
 
@@ -169,6 +170,7 @@ QList<ProjectExplorer::ToolChain *> GcceToolChainFactory::autoDetect()
             GcceToolChain *tc = new GcceToolChain(false);
             tc->setCompilerPath(fi.absoluteFilePath());
             tc->setDisplayName(tr("GCCE from Qt version"));
+            tc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(tc->targetAbi()));
             result.append(tc);
         }
     }
