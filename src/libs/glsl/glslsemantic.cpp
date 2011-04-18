@@ -786,8 +786,8 @@ bool Semantic::visit(StructTypeAST *ast)
 bool Semantic::visit(QualifiedTypeAST *ast)
 {
     _type = type(ast->type);
-    for (List<LayoutQualifier *> *it = ast->layout_list; it; it = it->next) {
-        LayoutQualifier *q = it->value;
+    for (List<LayoutQualifierAST *> *it = ast->layout_list; it; it = it->next) {
+        LayoutQualifierAST *q = it->value;
         // q->name;
         // q->number;
         Q_UNUSED(q);

@@ -129,6 +129,9 @@ public:
     virtual bool visit(StructTypeAST::Field *) { return true; }
     virtual void endVisit(StructTypeAST::Field *) {}
 
+    virtual bool visit(LayoutQualifierAST *) { return true; }
+    virtual void endVisit(LayoutQualifierAST *) {}
+
     virtual bool visit(QualifiedTypeAST *) { return true; }
     virtual void endVisit(QualifiedTypeAST *) {}
 

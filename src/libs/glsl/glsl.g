@@ -290,11 +290,11 @@ public:
             List<ExpressionAST *> *arguments;
         } function;
         int qualifier;
-        LayoutQualifier *layout;
-        List<LayoutQualifier *> *layout_list;
+        LayoutQualifierAST *layout;
+        List<LayoutQualifierAST *> *layout_list;
         struct {
             int qualifier;
-            List<LayoutQualifier *> *layout_list;
+            List<LayoutQualifierAST *> *layout_list;
         } type_qualifier;
         struct {
             TypeAST *type;
@@ -1394,7 +1394,7 @@ case $rule_number: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (makeAstNode<QualifiedTypeAST>
             (sym(1).qualifier, sym(3).param_declarator.type,
-             (List<LayoutQualifier *> *)0),
+             (List<LayoutQualifierAST *> *)0),
          ParameterDeclarationAST::Qualifier(sym(2).qualifier),
          sym(3).param_declarator.name);
 }   break;
@@ -1415,7 +1415,7 @@ parameter_declaration ::= parameter_type_qualifier parameter_qualifier parameter
 case $rule_number: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (makeAstNode<QualifiedTypeAST>
-            (sym(1).qualifier, type(3), (List<LayoutQualifier *> *)0),
+            (sym(1).qualifier, type(3), (List<LayoutQualifierAST *> *)0),
          ParameterDeclarationAST::Qualifier(sym(2).qualifier),
          (const QString *)0);
 }   break;
@@ -1605,7 +1605,7 @@ case $rule_number: {
 fully_specified_type ::= type_specifier ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<QualifiedTypeAST>(0, type(1), (List<LayoutQualifier *> *)0);
+    ast(1) = makeAstNode<QualifiedTypeAST>(0, type(1), (List<LayoutQualifierAST *> *)0);
 }   break;
 ./
 
@@ -1656,28 +1656,28 @@ case $rule_number: {
 layout_qualifier_id_list ::= layout_qualifier_id ;
 /.
 case $rule_number: {
-    sym(1).layout_list = makeAstNode< List<LayoutQualifier *> >(sym(1).layout);
+    sym(1).layout_list = makeAstNode< List<LayoutQualifierAST *> >(sym(1).layout);
 }   break;
 ./
 
 layout_qualifier_id_list ::= layout_qualifier_id_list COMMA layout_qualifier_id ;
 /.
 case $rule_number: {
-    sym(1).layout_list = makeAstNode< List<LayoutQualifier *> >(sym(1).layout_list, sym(3).layout);
+    sym(1).layout_list = makeAstNode< List<LayoutQualifierAST *> >(sym(1).layout_list, sym(3).layout);
 }   break;
 ./
 
 layout_qualifier_id ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    sym(1).layout = makeAstNode<LayoutQualifier>(string(1), (const QString *)0);
+    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)0);
 }   break;
 ./
 
 layout_qualifier_id ::= IDENTIFIER EQUAL NUMBER ;
 /.
 case $rule_number: {
-    sym(1).layout = makeAstNode<LayoutQualifier>(string(1), string(3));
+    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), string(3));
 }   break;
 ./
 
