@@ -3984,7 +3984,7 @@ Note: This might remove the local file.</source>
     <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
-        <translation>Добавить определение в %1</translation>
+        <translation>Добавить реализацию в %1</translation>
     </message>
 </context>
 <context>
