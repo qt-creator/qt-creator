@@ -103,11 +103,15 @@ LocalApplicationRunControl::~LocalApplicationRunControl()
 
 void LocalApplicationRunControl::start()
 {
-    m_applicationLauncher.start(m_runMode, m_executable, m_commandLineArguments);
     emit started();
-
-    QString msg = tr("Starting %1...\n").arg(QDir::toNativeSeparators(m_executable));
-    appendMessage(msg, NormalMessageFormat);
+    if (m_executable.isEmpty()) {
+        appendMessage(tr("No executable specified.\n"), ErrorMessageFormat);
+        emit finished();
+    }  else {
+        m_applicationLauncher.start(m_runMode, m_executable, m_commandLineArguments);
+        QString msg = tr("Starting %1...\n").arg(QDir::toNativeSeparators(m_executable));
+        appendMessage(msg, NormalMessageFormat);
+    }
 }
 
 LocalApplicationRunControl::StopResult LocalApplicationRunControl::stop()
