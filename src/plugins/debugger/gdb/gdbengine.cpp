@@ -2660,7 +2660,8 @@ bool GdbEngine::stateAcceptsBreakpointChanges() const
 
 bool GdbEngine::acceptsBreakpoint(BreakpointId id) const
 {
-    return DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id));
+    return DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id))
+        && startParameters().startMode != AttachCore;
 }
 
 void GdbEngine::insertBreakpoint(BreakpointId id)
@@ -4640,8 +4641,12 @@ void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
         showMessage(_("FOUND NAMESPACED QT: " + ns));
         setQtNamespace(ns + "::");
     }
-    postCommand("-break-insert -f '" + qtNamespace() + "qFatal'",
-         CB(handleBreakOnQFatal));
+
+    if (startParameters().startMode == AttachCore)
+        notifyInferiorSetupOk(); // No breakpoints in core files.
+    else
+        postCommand("-break-insert -f '" + qtNamespace() + "qFatal'",
+             CB(handleBreakOnQFatal));
 }
 
 void GdbEngine::handleBreakOnQFatal(const GdbResponse &response)
