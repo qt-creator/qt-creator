@@ -167,8 +167,7 @@ bool FileSaverBase::setResult(QTextStream *stream)
 bool FileSaverBase::setResult(QDataStream *stream)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
-    stream->flush();
-    return setResult(stream->status() == QTextStream::Ok);
+    return setResult(stream->status() == QDataStream::Ok);
 #else
     Q_UNUSED(stream)
     return true;
