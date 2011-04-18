@@ -702,9 +702,16 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     << tr("UTF8 string")
                     << tr("UTF16 string")
                     << tr("UCS4 string");
+            if (data.type.contains("char[") || data.type.contains("char ["))
+                return QStringList()
+                    << tr("Latin1 string")
+                    << tr("UTF8 string");
             if (isIntType(data.type) && data.type != "bool")
-                return QStringList() << tr("decimal") << tr("hexadecimal")
-                    << tr("binary") << tr("octal");
+                return QStringList()
+                    << tr("decimal")
+                    << tr("hexadecimal")
+                    << tr("binary")
+                    << tr("octal");
             // Hack: Compensate for namespaces.
             QString type = data.type;
             int pos = type.indexOf("::Q");

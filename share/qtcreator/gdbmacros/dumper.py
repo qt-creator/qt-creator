@@ -1643,11 +1643,19 @@ class Dumper:
             return
 
         if value.type.code == gdb.TYPE_CODE_ARRAY:
-            self.putType(realtype)
-            self.putAddress(value.address)
-            self.putNumChild(1)
             baseptr = value.cast(realtype.pointer())
-            self.putValue("%s" % baseptr)
+            if format == 0 or format == 1:
+                # Explicityly requested Latin1 or UTF-8 formatting.
+                f = select(format == 0, Hex2EncodedLatin1, Hex2EncodedUtf8)
+                self.putAddress(value.address)
+                self.putType(realtype)
+                self.putValue(encodeCharArray(value, 100), f)
+                self.putNumChild(1)
+            else:
+                self.putType(realtype)
+                self.putAddress(value.address)
+                self.putValue("%s" % baseptr)
+                self.putNumChild(1)
             if self.isExpanded(item):
                 charptr = lookupType("unsigned char").pointer()
                 addr1 = (baseptr+1).cast(charptr)
