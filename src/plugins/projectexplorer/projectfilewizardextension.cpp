@@ -330,6 +330,7 @@ void ProjectFileWizardExtension::initializeVersionControlChoices()
         if (managingControl) {
             // Under VCS
             if (managingControl->supportsOperation(Core::IVersionControl::AddOperation)) {
+                versionControlChoices.append(managingControl->displayName());
                 m_context->activeVersionControls.push_back(managingControl);
                 m_context->repositoryExists = true;
             }
