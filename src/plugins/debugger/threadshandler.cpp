@@ -134,7 +134,7 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
         case ThreadData::FunctionColumn:
             return thread.function;
         case ThreadData::FileColumn:
-            return thread.fileName;
+            return thread.fileName.isEmpty() ? thread.module : thread.fileName;
         case ThreadData::LineColumn:
             return thread.lineNumber >= 0
                 ? QString::number(thread.lineNumber) : QString();
@@ -146,10 +146,14 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
             return thread.core;
         case ThreadData::StateColumn:
             return thread.state;
-        case ThreadData::NameColumn:
+        case ThreadData::NameColumn: {
+            QString s;
             if (!thread.name.isEmpty())
-                return thread.name;
-            return thread.id;
+                s += ' ' + thread.name;
+            if (!thread.targetId.isEmpty())
+                s += ' ' + thread.targetId;
+            return s;
+            }
         }
     case Qt::ToolTipRole:
         return threadToolTip(thread);
@@ -289,6 +293,7 @@ Threads ThreadsHandler::parseGdbmiThreads(const GdbMi &data, int *currentThread)
         thread.function = QString::fromLatin1(frame.findChild("func").data());
         thread.fileName = QString::fromLatin1(frame.findChild("fullname").data());
         thread.lineNumber = frame.findChild("line").data().toInt();
+        thread.module = QString::fromLocal8Bit(frame.findChild("from").data());
         // Non-GDB (Cdb2) output name here.
         thread.name = QString::fromLatin1(frame.findChild("name").data());
         threads.append(thread);

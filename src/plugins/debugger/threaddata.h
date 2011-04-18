@@ -83,6 +83,7 @@ struct ThreadData
     qint32  frameLevel;
     quint64 address;
     QString function;
+    QString module;
     QString fileName;
     QString state;
     qint32  lineNumber;
