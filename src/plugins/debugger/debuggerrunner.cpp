@@ -237,6 +237,15 @@ void DebuggerRunControl::setCustomEnvironment(Utils::Environment env)
 void DebuggerRunControl::start()
 {
     QTC_ASSERT(d->m_engine, return);
+    // User canceled input dialog asking for executable when working on library project.
+    if (d->m_engine->startParameters().startMode == StartInternal
+        && d->m_engine->startParameters().executable.isEmpty()) {
+        appendMessage(tr("No executable specified.\n"), ErrorMessageFormat);
+        emit started();
+        emit finished();
+        return;
+    }
+
     debuggerCore()->runControlStarted(d->m_engine);
 
     // We might get a synchronous startFailed() notification on Windows,
