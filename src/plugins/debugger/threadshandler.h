@@ -70,17 +70,24 @@ public:
 
     static Threads parseGdbmiThreads(const GdbMi &data, int *currentThread = 0);
 
+    void resetLocation();
+    void scheduleResetLocation();
+
 private:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     Threads m_threads;
     int m_currentIndex;
     const QIcon m_positionIcon;
     const QIcon m_emptyIcon;
+
+    bool m_resetLocationScheduled;
+    bool m_contentsValid;
 };
 
 } // namespace Internal

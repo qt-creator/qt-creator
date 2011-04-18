@@ -104,6 +104,8 @@ ThreadsHandler::ThreadsHandler()
     m_positionIcon(QLatin1String(":/debugger/images/location_16.png")),
     m_emptyIcon(QLatin1String(":/debugger/images/debugger_empty_14.png"))
 {
+    m_resetLocationScheduled = false;
+    m_contentsValid = false;
 }
 
 int ThreadsHandler::rowCount(const QModelIndex &parent) const
@@ -194,6 +196,11 @@ QVariant ThreadsHandler::headerData
     return QVariant();
 }
 
+Qt::ItemFlags ThreadsHandler::flags(const QModelIndex &index) const
+{
+    return m_contentsValid ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
+}
+
 int ThreadsHandler::currentThreadId() const
 {
     if (m_currentIndex < 0 || m_currentIndex >= m_threads.size())
@@ -241,7 +248,9 @@ void ThreadsHandler::setThreads(const Threads &threads)
     m_threads = threads;
     if (m_currentIndex >= m_threads.size())
         m_currentIndex = -1;
-    layoutChanged();
+    m_resetLocationScheduled = false;
+    m_contentsValid = true;
+    reset();
 }
 
 Threads ThreadsHandler::threads() const
@@ -253,7 +262,7 @@ void ThreadsHandler::removeAll()
 {
     m_threads.clear();
     m_currentIndex = 0;
-    layoutChanged();
+    reset();
 }
 
 void ThreadsHandler::notifyRunning()
@@ -301,6 +310,20 @@ Threads ThreadsHandler::parseGdbmiThreads(const GdbMi &data, int *currentThread)
     if (currentThread)
         *currentThread = data.findChild("current-thread-id").data().toInt();
     return threads;
+}
+
+void ThreadsHandler::scheduleResetLocation()
+{
+    m_resetLocationScheduled = true;
+    m_contentsValid = false;
+}
+
+void ThreadsHandler::resetLocation()
+{
+    if (m_resetLocationScheduled) {
+        m_resetLocationScheduled = false;
+        reset();
+    }
 }
 
 } // namespace Internal
