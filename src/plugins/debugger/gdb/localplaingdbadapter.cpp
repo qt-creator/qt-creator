@@ -38,6 +38,8 @@
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
 
+#include <projectexplorer/abi.h>
+
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
@@ -126,6 +128,18 @@ void LocalPlainGdbAdapter::shutdownAdapter()
 
 void LocalPlainGdbAdapter::checkForReleaseBuild()
 {
+    QString objDump = _("objdump");
+    // Windows: Locate objdump in the debuggee's (MinGW) environment
+    if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS
+        && startParameters().environment.size()) {
+        objDump = startParameters().environment.searchInPath(objDump);
+    } else {
+        objDump = Utils::Environment::systemEnvironment().searchInPath(objDump);
+    }
+    if (objDump.isEmpty()) {
+        showMessage(_("Could not locate objdump command for release build check"), LogWarning);
+        return;
+    }
     // Quick check for a "release" build
     QProcess proc;
     QStringList args;
@@ -133,7 +147,7 @@ void LocalPlainGdbAdapter::checkForReleaseBuild()
     args.append(_("-j"));
     args.append(_(".debug_info"));
     args.append(startParameters().executable);
-    proc.start(_("objdump"), args);
+    proc.start(objDump, args);
     proc.closeWriteChannel();
     if (!proc.waitForStarted()) {
         showMessage(_("OBJDUMP PROCESS COULD NOT BE STARTED. "
