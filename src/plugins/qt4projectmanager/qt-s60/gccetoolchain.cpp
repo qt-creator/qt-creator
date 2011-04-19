@@ -72,8 +72,9 @@ static QString gcceVersion(const QString &command)
         return QString();
     }
 
-    if (gxx.canReadLine())
-        return gxx.readLine().trimmed();
+    QString version = QString::fromLocal8Bit(gxx.readLine().trimmed());
+    if (version.contains(QRegExp("^\\d+\\.\\d+\\.\\d+.*$")))
+        return version;
 
     return QString();
 }
@@ -182,10 +183,12 @@ QList<ProjectExplorer::ToolChain *> GcceToolChainFactory::autoDetect()
     }
 
     QString fullPath = Utils::Environment::systemEnvironment().searchInPath(QLatin1String("arm-none-symbianelf-gcc"));
-    if (!fullPath.isEmpty()) {
+    QString version = gcceVersion(fullPath);
+    // If version is empty then this is not a GCC but e.g. bullseye!
+    if (!fullPath.isEmpty() && !version.isEmpty()) {
         GcceToolChain *tc = new GcceToolChain(true);
         tc->setCompilerPath(fullPath);
-        tc->setDisplayName(tr("GCCE (%1)").arg(gcceVersion(fullPath)));
+        tc->setDisplayName(tr("GCCE (%1)").arg(version));
         if (tc->targetAbi() == ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture,
                                                     ProjectExplorer::Abi::SymbianOS,
                                                     ProjectExplorer::Abi::SymbianDeviceFlavor,
