@@ -50,6 +50,12 @@ WinDebugInterface::WinDebugInterface(QObject *parent) :
     start();
 }
 
+WinDebugInterface::~WinDebugInterface()
+{
+    terminate(); // Creator is shutting down anyway, no need to clean up.
+    wait(500);
+}
+
 void WinDebugInterface::run()
 {
     HANDLE bufferReadyEvent = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_BUFFER_READY");

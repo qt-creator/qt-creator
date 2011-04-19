@@ -46,6 +46,8 @@ class WinDebugInterface : public QThread
 
 public:
     explicit WinDebugInterface(QObject *parent = 0);
+    ~WinDebugInterface();
+
     static WinDebugInterface *instance();
 
 signals:
