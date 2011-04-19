@@ -56,14 +56,23 @@ void WinDebugInterface::run()
     if (!bufferReadyEvent)
         return;
     HANDLE dataReadyEvent = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_DATA_READY");
-    if (!dataReadyEvent)
+    if (!dataReadyEvent) {
+        CloseHandle(bufferReadyEvent);
         return;
+    }
     HANDLE sharedFile = CreateFileMapping((HANDLE)-1, NULL, PAGE_READWRITE, 0, 4096, L"DBWIN_BUFFER");
-    if (!sharedFile)
+    if (!sharedFile) {
+        CloseHandle(dataReadyEvent);
+        CloseHandle(bufferReadyEvent);
         return;
+    }
     LPVOID sharedMem = MapViewOfFile(sharedFile, FILE_MAP_READ, 0, 0,  512);
-    if (!sharedMem)
+    if (!sharedMem) {
+        CloseHandle(sharedFile);
+        CloseHandle(dataReadyEvent);
+        CloseHandle(bufferReadyEvent);
         return;
+    }
 
     LPSTR  message;
     LPDWORD processId;
