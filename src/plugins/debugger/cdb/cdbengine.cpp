@@ -1512,18 +1512,23 @@ void CdbEngine::handleDisassembler(const CdbBuiltinCommandPtr &command)
 
 void CdbEngine::fetchMemory(MemoryAgent *agent, QObject *editor, quint64 addr, quint64 length)
 {
-    if (!m_accessible) {
-        qWarning("Internal error: Attempt to read memory from inaccessible session: %s", Q_FUNC_INFO);
-        return;
-    }
     if (debug)
         qDebug("CdbEngine::fetchMemory %llu bytes from 0x%llx", length, addr);
+    const MemoryViewCookie cookie(agent, editor, addr, length);
+    if (m_accessible) {
+        postFetchMemory(cookie);
+    } else {
+        doInterruptInferiorCustomSpecialStop(qVariantFromValue(cookie));
+    }
+}
 
+void CdbEngine::postFetchMemory(const MemoryViewCookie &cookie)
+{
     QByteArray args;
     ByteArrayInputStream str(args);
-    str << addr << ' ' << length;
-    const QVariant cookie = qVariantFromValue<MemoryViewCookie>(MemoryViewCookie(agent, editor, addr, length));
-    postExtensionCommand("memory", args, 0, &CdbEngine::handleMemory, 0, cookie);
+    str << cookie.address << ' ' << cookie.length;
+    postExtensionCommand("memory", args, 0, &CdbEngine::handleMemory, 0,
+                         qVariantFromValue(cookie));
 }
 
 void CdbEngine::changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, const QByteArray &data)
@@ -1547,7 +1552,7 @@ void CdbEngine::handleMemory(const CdbExtensionCommandPtr &command)
             memViewCookie.agent->addLazyData(memViewCookie.editorToken,
                                              memViewCookie.address, data);
     } else {
-        showMessage(QString::fromLocal8Bit(command->errorMessage), LogError);
+        showMessage(QString::fromLocal8Bit(command->errorMessage), LogWarning);
     }
 }
 
@@ -2779,6 +2784,10 @@ void CdbEngine::handleCustomSpecialStop(const QVariant &v)
     if (qVariantCanConvert<MemoryChangeCookie>(v)) {
         const MemoryChangeCookie changeData = qVariantValue<MemoryChangeCookie>(v);
         postCommand(cdbWriteMemoryCommand(changeData.address, changeData.data), 0);
+        return;
+    }
+    if (qVariantCanConvert<MemoryViewCookie>(v)) {
+        postFetchMemory(qVariantValue<MemoryViewCookie>(v));
         return;
     }
 }

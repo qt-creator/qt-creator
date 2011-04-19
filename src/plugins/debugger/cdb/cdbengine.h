@@ -54,6 +54,7 @@ class DisassemblerAgent;
 struct CdbBuiltinCommand;
 struct CdbExtensionCommand;
 struct CdbOptions;
+struct MemoryViewCookie;
 class ByteArrayInputStream;
 class GdbMi;
 
@@ -209,6 +210,7 @@ private:
     void syncOperateByInstruction(bool operateByInstruction);
     void postWidgetAtCommand();
     void handleCustomSpecialStop(const QVariant &v);
+    void postFetchMemory(const MemoryViewCookie &c);
     void evaluateExpression(QByteArray exp, const QVariant &cookie = QVariant());
 
     // Builtin commands
