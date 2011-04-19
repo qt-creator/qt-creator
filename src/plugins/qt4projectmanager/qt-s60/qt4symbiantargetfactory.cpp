@@ -174,7 +174,7 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
 
         bool buildAll = version->defaultBuildConfig() & QtVersion::BuildAll;
         QtVersion::QmakeBuildConfigs config = buildAll ? QtVersion::BuildAll : QtVersion::QmakeBuildConfig(0);
-        QString dir = QFileInfo(proFilePath).absolutePath(), id;
+        QString dir = QFileInfo(proFilePath).absolutePath();
         if (id == Constants::S60_EMULATOR_TARGET_ID) {
             infos.append(BuildConfigurationInfo(version, config | QtVersion::DebugBuild, QString(), dir));
         } else {
