@@ -280,8 +280,9 @@ void SftpTest::handleJobFinished(Utils::SftpJobId job, const QString &error)
                 + QLatin1Char('/') + bigFileName));
             bool success = m_localBigFile->open(QIODevice::WriteOnly);
             const int blockSize = 8192;
-            const int blockCount = m_parameters.bigFileSize*1024*1024/blockSize;
-            for (int block = 0; block < blockCount; ++block) {
+            const quint64 blockCount
+                = static_cast<quint64>(m_parameters.bigFileSize)*1024*1024/blockSize;
+            for (quint64 block = 0; block < blockCount; ++block) {
                 int content[blockSize/sizeof(int)];
                 for (size_t j = 0; j < sizeof content / sizeof content[0]; ++j)
                     content[j] = qrand();
@@ -434,7 +435,6 @@ void SftpTest::earlyDisconnectFromHost()
     if (m_channel)
         disconnect(m_channel.data(), 0, this, 0);
     m_state = Disconnecting;
-    removeFiles(true);
     m_connection->disconnectFromHost();
 }
 
