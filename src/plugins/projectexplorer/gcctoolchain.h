@@ -75,7 +75,7 @@ public:
 
     bool operator ==(const ToolChain &) const;
 
-    void setCompilerPath(const QString &);
+    virtual void setCompilerPath(const QString &);
     QString compilerPath() const;
 
     ToolChain *clone() const;

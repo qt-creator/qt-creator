@@ -132,6 +132,12 @@ QString GcceToolChain::defaultMakeTarget() const
     return QLatin1String("gcce");
 }
 
+void GcceToolChain::setCompilerPath(const QString &path)
+{
+    m_gcceVersion.clear();
+    GccToolChain::setCompilerPath(path);
+}
+
 ProjectExplorer::ToolChain *GcceToolChain::clone() const
 {
     return new GcceToolChain(*this);

@@ -52,6 +52,8 @@ public:
     QString makeCommand() const;
     QString defaultMakeTarget() const;
 
+    void setCompilerPath(const QString &);
+
     ProjectExplorer::ToolChain *clone() const;
 
 private:
