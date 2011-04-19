@@ -51,7 +51,7 @@ public:
         PushMode
     };
 
-    PullOrPushDialog(Mode mode, QWidget *parent = 0);
+    explicit PullOrPushDialog(Mode mode, QWidget *parent = 0);
     ~PullOrPushDialog();
 
     // Common parameters and options

@@ -352,7 +352,7 @@ void AddressBook::exportAsVCard()
         lastName = nameList.last();
     } else {
         firstName = name;
-        lastName = "";
+        lastName.clear();
     }
 
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -381,9 +381,9 @@ void AddressBook::exportAsVCard()
     else
         out << "FN:" << firstName << "\n";
 
-    address.replace(";", "\\;", Qt::CaseInsensitive);
-    address.replace("\n", ";", Qt::CaseInsensitive);
-    address.replace(",", " ", Qt::CaseInsensitive);
+    address.replace(';', "\\;", Qt::CaseInsensitive);
+    address.replace('\n', ";", Qt::CaseInsensitive);
+    address.replace(',', " ", Qt::CaseInsensitive);
 
     out << "ADR;HOME:;" << address << "\n";
     out << "END;VCARD" << "\n";

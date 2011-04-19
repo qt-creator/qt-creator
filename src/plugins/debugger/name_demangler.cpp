@@ -332,7 +332,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
 
 #ifdef DO_TRACE
     qDebug("%d", substitutions.size());
-    foreach (QString s, substitutions)
+    foreach (const QString &s, substitutions)
         qDebug(qPrintable(s));
 #endif
     return !parseError;
