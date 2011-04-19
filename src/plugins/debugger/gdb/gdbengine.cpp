@@ -3954,7 +3954,8 @@ void GdbEngine::changeMemory(MemoryAgent *agent, QObject *token,
     QByteArray cmd = "-data-write-memory " + QByteArray::number(addr) + " d 1";
     foreach (char c, data) {
         cmd.append(' ');
-        cmd.append(QByteArray::number(uint(c)));
+        const unsigned char uc = (unsigned char)c;
+        cmd.append(QByteArray::number(uint(uc)));
     }
     postCommand(cmd, NeedsStop, CB(handleChangeMemory),
         QVariant::fromValue(MemoryAgentCookie(agent, token, addr)));
