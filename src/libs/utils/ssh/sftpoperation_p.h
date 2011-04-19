@@ -180,7 +180,7 @@ struct SftpDownload : public AbstractSftpTransfer
     virtual Type type() const { return Download; }
     virtual SftpOutgoingPacket &initialPacket(SftpOutgoingPacket &packet);
 
-    QMap<quint32, quint32> offsets;
+    QMap<quint32, quint64> offsets;
     SftpJobId eofId;
 };
 
