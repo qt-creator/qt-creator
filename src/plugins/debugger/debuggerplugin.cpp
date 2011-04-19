@@ -42,7 +42,7 @@
 #include "debuggerrunner.h"
 #include "debuggerruncontrolfactory.h"
 #include "debuggerstringutils.h"
-
+#include "memoryagent.h"
 #include "breakpoint.h"
 #include "breakhandler.h"
 #include "breakwindow.h"
@@ -2184,7 +2184,7 @@ void DebuggerPluginPrivate::openMemoryEditor()
 {
     AddressDialog dialog;
     if (dialog.exec() == QDialog::Accepted)
-        currentEngine()->openMemoryView(dialog.address());
+        currentEngine()->openMemoryView(dialog.address(), 0, QList<MemoryMarkup>(), QPoint());
 }
 
 void DebuggerPluginPrivate::coreShutdown()

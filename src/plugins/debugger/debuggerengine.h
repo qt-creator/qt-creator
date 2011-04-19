@@ -81,7 +81,7 @@ class WatchHandler;
 class BreakpointParameters;
 class QmlCppEngine;
 class DebuggerToolTipContext;
-class MemoryViewWidget;
+class MemoryMarkup;
 
 struct WatchUpdateFlags
 {
@@ -156,8 +156,18 @@ public:
     virtual void startDebugger(DebuggerRunControl *runControl);
 
     virtual void watchPoint(const QPoint &);
-    virtual void openMemoryView(quint64 addr);
-    virtual void addMemoryView(Internal::MemoryViewWidget *w);
+
+    enum MemoryViewFlags
+    {
+        MemoryReadOnly = 0x1,      //!< Read-only.
+        MemoryTrackRegister = 0x2, //!< Address parameter is register number to track
+        MemoryView = 0x4           //!< Open a separate view (using the pos-parameter).
+    };
+
+    virtual void openMemoryView(quint64 startAddr, unsigned flags,
+                                const QList<Internal::MemoryMarkup> &ml,
+                                const QPoint &pos,
+                                const QString &title = QString(), QWidget *parent = 0);
     virtual void fetchMemory(Internal::MemoryAgent *, QObject *,
                              quint64 addr, quint64 length);
     virtual void changeMemory(Internal::MemoryAgent *, QObject *,

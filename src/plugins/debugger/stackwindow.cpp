@@ -37,6 +37,7 @@
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
+#include "memoryagent.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -169,9 +170,14 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         copyContentsToClipboard();
     else if (act == actAdjust)
         resizeColumnsToContents();
-    else if (act == actShowMemory)
-        engine->openMemoryView(address);
-    else if (act == actShowDisassembler)
+    else if (act == actShowMemory) {
+        const QString title = tr("Memory at Frame #%1 (%2) 0x%3)").
+        arg(row).arg(frame.function).arg(address, 0, 16);
+        QList<MemoryMarkup> ml;
+        ml.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),
+                                  tr("Frame #%1 (%2)").arg(row).arg(frame.function)));
+        engine->openMemoryView(address, 0, ml, QPoint(), title);
+    } else if (act == actShowDisassembler)
         engine->openDisassemblerView(frame);
     else if (act == actLoadSymbols)
         engine->loadSymbolsForStack();

@@ -33,8 +33,13 @@
 #ifndef DEBUGGER_MEMORYAGENT_H
 #define DEBUGGER_MEMORYAGENT_H
 
+#include "debuggerconstants.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QString>
+#include <QtCore/QList>
+#include <QtGui/QColor>
 
 QT_FORWARD_DECLARE_CLASS(QPoint)
 
@@ -51,7 +56,19 @@ namespace Debugger {
 class DebuggerEngine;
 
 namespace Internal {
-class MemoryViewWidget;
+class MemoryView;
+class MemoryMarkup
+{
+public:
+    MemoryMarkup(quint64 a = 0, quint64 l = 0, QColor c = Qt::yellow,
+                 const QString &tt = QString()) :
+        address(a), length(l), color(c), toolTip(tt) {}
+
+    quint64 address;
+    quint64 length;
+    QColor color;
+    QString toolTip;
+};
 
 class MemoryAgent : public QObject
 {
@@ -62,6 +79,8 @@ public:
     ~MemoryAgent();
 
     enum { BinBlockSize = 1024 };
+    enum { DataRange = 1024 * 1024 };
+
     bool hasVisibleEditor() const;
 
     static bool isBigEndian(const ProjectExplorer::Abi &a);
@@ -69,13 +88,16 @@ public:
 
 public slots:
     // Called by engine to create a new view.
+    void createBinEditor(quint64 startAddr, unsigned flags,
+                         const QList<MemoryMarkup> &ml, const QPoint &pos,
+                         const QString &title, QWidget *parent);
     void createBinEditor(quint64 startAddr);
     // Called by engine to create a tooltip.
-    void addMemoryView(MemoryViewWidget *w);
-    // Called by engine to trigger update of contents.
-    void updateContents();
-    // Called by engine to pass updated contents.
     void addLazyData(QObject *editorToken, quint64 addr, const QByteArray &data);
+    // On stack frame completed and on request.
+    void updateContents();
+    void closeEditors();
+    void closeViews();
 
 private slots:
     void fetchLazyData(Core::IEditor *, quint64 block);
@@ -85,10 +107,16 @@ private slots:
     void handleDataChanged(Core::IEditor *editor, quint64 address,
         const QByteArray &data);
     void updateMemoryView(quint64 address, quint64 length);
-    void openMemoryView(quint64 address, quint64 length, const QPoint &pos);
+    void engineStateChanged(Debugger::DebuggerState s);
 
 private:
+    void connectBinEditorWidget(QWidget *w);
+    bool doCreateBinEditor(quint64 startAddr, unsigned flags,
+                           const QList<MemoryMarkup> &ml, const QPoint &pos,
+                           QString title, QWidget *parent);
+
     QList<QPointer<Core::IEditor> > m_editors;
+    QList<QPointer<MemoryView> > m_views;
     QPointer<DebuggerEngine> m_engine;
 };
 

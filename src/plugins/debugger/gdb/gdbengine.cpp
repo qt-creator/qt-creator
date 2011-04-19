@@ -3794,9 +3794,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
         updateLocalsPython(false, QByteArray());
     else
         updateLocalsClassic(cookie);
-    updateMemoryViews();
 }
-
 
 // Parse a local variable from GdbMi.
 WatchData GdbEngine::localVariable(const GdbMi &item,

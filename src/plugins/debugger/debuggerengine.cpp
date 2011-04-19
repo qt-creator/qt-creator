@@ -1569,14 +1569,11 @@ bool DebuggerEngine::isCppBreakpoint(const BreakpointParameters &p)
             && !p.fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive);
 }
 
-void DebuggerEngine::openMemoryView(quint64 address)
+void DebuggerEngine::openMemoryView(quint64 startAddr, unsigned flags,
+                                    const QList<MemoryMarkup> &ml, const QPoint &pos,
+                                    const QString &title, QWidget *parent)
 {
-    d->m_memoryAgent.createBinEditor(address);
-}
-
-void DebuggerEngine::addMemoryView(Internal::MemoryViewWidget *w)
-{
-    d->m_memoryAgent.addMemoryView(w);
+    d->m_memoryAgent.createBinEditor(startAddr, flags, ml, pos, title, parent);
 }
 
 void DebuggerEngine::updateMemoryViews()

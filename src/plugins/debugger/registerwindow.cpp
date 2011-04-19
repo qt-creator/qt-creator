@@ -31,13 +31,14 @@
 **************************************************************************/
 
 #include "registerwindow.h"
-#include "memoryviewwidget.h"
+#include "memoryview.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "registerhandler.h"
 #include "watchdelegatewidgets.h"
+#include "memoryagent.h"
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -210,6 +211,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         actEditMemory->setText(tr("Open Memory Editor"));
         actViewMemory->setText(tr("Open Memory View at Value of Register"));
         actEditMemory->setEnabled(false);
+        actViewMemory->setEnabled(false);
     }
     menu.addSeparator();
 
@@ -241,13 +243,13 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         resizeColumnsToContents();
     else if (act == actReload)
         engine->reloadRegisters();
-    else if (act == actEditMemory)
-        engine->openMemoryView(address);
-    else if (act == actViewMemory) {
-        RegisterMemoryViewWidget *w = new RegisterMemoryViewWidget(this);
-        w->move(position);
-        w->init(idx.row(), handler);
-        engine->addMemoryView(w);
+    else if (act == actEditMemory) {
+        const QString registerName = QString::fromAscii(aRegister.name, address);
+        engine->openMemoryView(address, 0, RegisterMemoryView::registerMarkup(address, registerName),
+                               QPoint(), RegisterMemoryView::title(registerName), 0);
+    } else if (act == actViewMemory) {
+        engine->openMemoryView(idx.row(), DebuggerEngine::MemoryTrackRegister|DebuggerEngine::MemoryView,
+                               QList<MemoryMarkup>(), position, QString(), this);
     } else if (act == act16)
         handler->setNumberBase(16);
     else if (act == act10)
