@@ -776,12 +776,6 @@ QString QmlEngine::toFileInProject(const QString &fileUrl)
             return sourcePath;
     }
 
-    // Try whether file is absolute & exists
-    if (QFileInfo(path).isAbsolute()
-            && QFileInfo(path).exists()) {
-        return path;
-    }
-
     if (d->fileFinder.projectDirectory().isEmpty())
         d->fileFinder.setProjectDirectory(startParameters().projectDir);
 
@@ -790,6 +784,13 @@ QString QmlEngine::toFileInProject(const QString &fileUrl)
     QString fileInProject = d->fileFinder.findFile(path, &fileFound);
     if (fileFound)
         return fileInProject;
+
+    // Try whether file is absolute & exists
+    if (QFileInfo(path).isAbsolute()
+            && QFileInfo(path).exists()) {
+        return path;
+    }
+
     return fileUrl;
 }
 

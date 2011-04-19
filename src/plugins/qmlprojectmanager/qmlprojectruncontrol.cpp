@@ -37,6 +37,8 @@
 #include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -204,6 +206,7 @@ RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfigurati
     params.workingDirectory = runConfig->workingDirectory();
     params.environment = runConfig->environment();
     params.displayName = runConfig->displayName();
+    params.projectDir = runConfig->target()->project()->projectDirectory();
 
     if (params.executable.isEmpty()) {
         showQmlObserverToolWarning();
