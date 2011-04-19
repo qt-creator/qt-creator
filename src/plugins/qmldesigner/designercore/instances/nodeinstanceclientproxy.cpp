@@ -74,6 +74,8 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent),
       m_nodeInstanceServer(0),
       m_blockSize(0),
+      m_writeCommandCounter(0),
+      m_lastReadCommandCounter(0),
       m_synchronizeId(-1)
 {
     if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
@@ -94,9 +96,12 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
 
 void NodeInstanceClientProxy::writeCommand(const QVariant &command)
 {
+    static unsigned int commandCounter = 0;
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out << quint32(0);
+    out << quint32(m_writeCommandCounter);
+    m_writeCommandCounter++;
     out << command;
     out.device()->seek(0);
     out << quint32(block.size() - sizeof(quint32));
@@ -167,6 +172,13 @@ void NodeInstanceClientProxy::readDataStream()
 
         if (m_socket->bytesAvailable() < m_blockSize)
             break;
+
+        quint32 commandCounter;
+        in >> commandCounter;
+        bool commandLost = !((m_lastReadCommandCounter == 0 && commandCounter == 0) || (m_lastReadCommandCounter + 1 == commandCounter));
+        if (commandLost)
+            qDebug() << "client command lost: " << m_lastReadCommandCounter <<  commandCounter;
+        m_lastReadCommandCounter = commandCounter;
 
         QVariant command;
         in >> command;

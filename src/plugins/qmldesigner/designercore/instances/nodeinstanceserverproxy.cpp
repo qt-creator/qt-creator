@@ -78,6 +78,10 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
       m_firstBlockSize(0),
       m_secondBlockSize(0),
       m_thirdBlockSize(0),
+      m_writeCommandCounter(0),
+      m_firstLastReadCommandCounter(0),
+      m_secondLastReadCommandCounter(0),
+      m_thirdLastReadCommandCounter(0),
       m_runModus(runModus),
       m_synchronizeId(-1)
 {
@@ -220,12 +224,13 @@ NodeInstanceClientInterface *NodeInstanceServerProxy::nodeInstanceClient() const
     return m_nodeInstanceView.data();
 }
 
-static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket)
+static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket, unsigned int commandCounter)
 {
     if(socket) {
         QByteArray block;
         QDataStream out(&block, QIODevice::WriteOnly);
         out << quint32(0);
+        out << quint32(commandCounter);
         out << command;
         out.device()->seek(0);
         out << quint32(block.size() - sizeof(quint32));
@@ -236,16 +241,17 @@ static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket)
 
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
-    writeCommandToSocket(command, m_firstSocket.data());
-    writeCommandToSocket(command, m_secondSocket.data());
-    writeCommandToSocket(command, m_thirdSocket.data());
-
+    writeCommandToSocket(command, m_firstSocket.data(), m_writeCommandCounter);
+    writeCommandToSocket(command, m_secondSocket.data(), m_writeCommandCounter);
+    writeCommandToSocket(command, m_thirdSocket.data(), m_writeCommandCounter);
+    m_writeCommandCounter++;
     if (m_runModus == TestModus) {
         static int synchronizeId = 0;
         synchronizeId++;
         SynchronizeCommand synchronizeCommand(synchronizeId);
 
-        writeCommandToSocket(QVariant::fromValue(synchronizeCommand), m_firstSocket.data());
+        writeCommandToSocket(QVariant::fromValue(synchronizeCommand), m_firstSocket.data(), m_writeCommandCounter);
+        m_writeCommandCounter++;
 
         while(m_firstSocket->waitForReadyRead()) {
                 readFirstDataStream();
@@ -271,6 +277,7 @@ void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitSt
 
 void NodeInstanceServerProxy::readFirstDataStream()
 {
+    static unsigned int lastCommandCounter = 0;
     QList<QVariant> commandList;
 
     while (!m_firstSocket->atEnd()) {
@@ -286,6 +293,14 @@ void NodeInstanceServerProxy::readFirstDataStream()
         if (m_firstSocket->bytesAvailable() < m_firstBlockSize)
             break;
 
+        quint32 commandCounter;
+        in >> commandCounter;
+        bool commandLost = !((m_firstLastReadCommandCounter == 0 && commandCounter == 0) || (m_firstLastReadCommandCounter + 1 == commandCounter));
+        if (commandLost)
+            qDebug() << "server command lost: " << m_firstLastReadCommandCounter <<  commandCounter;
+        m_firstLastReadCommandCounter = commandCounter;
+
+
         QVariant command;
         in >> command;
         m_firstBlockSize = 0;
@@ -300,6 +315,7 @@ void NodeInstanceServerProxy::readFirstDataStream()
 
 void NodeInstanceServerProxy::readSecondDataStream()
 {
+    static unsigned int lastCommandCounter = 0;
     QList<QVariant> commandList;
 
     while (!m_secondSocket->atEnd()) {
@@ -314,6 +330,14 @@ void NodeInstanceServerProxy::readSecondDataStream()
 
         if (m_secondSocket->bytesAvailable() < m_secondBlockSize)
             break;
+
+        quint32 commandCounter;
+        in >> commandCounter;
+        bool commandLost = !((m_secondLastReadCommandCounter == 0 && commandCounter == 0) || (m_secondLastReadCommandCounter + 1 == commandCounter));
+        if (commandLost)
+            qDebug() << "server command lost: " << m_secondLastReadCommandCounter <<  commandCounter;
+        m_secondLastReadCommandCounter = commandCounter;
+
 
         QVariant command;
         in >> command;
@@ -343,6 +367,14 @@ void NodeInstanceServerProxy::readThirdDataStream()
 
         if (m_thirdSocket->bytesAvailable() < m_thirdBlockSize)
             break;
+
+        quint32 commandCounter;
+        in >> commandCounter;
+        bool commandLost = !((m_thirdLastReadCommandCounter == 0 && commandCounter == 0) || (m_thirdLastReadCommandCounter + 1 == commandCounter));
+        if (commandLost)
+            qDebug() << "server command lost: " << m_thirdLastReadCommandCounter <<  commandCounter;
+        m_thirdLastReadCommandCounter = commandCounter;
+
 
         QVariant command;
         in >> command;

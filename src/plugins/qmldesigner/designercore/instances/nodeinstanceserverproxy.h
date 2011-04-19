@@ -97,6 +97,10 @@ private:
     quint32 m_firstBlockSize;
     quint32 m_secondBlockSize;
     quint32 m_thirdBlockSize;
+    quint32 m_writeCommandCounter;
+    quint32 m_firstLastReadCommandCounter;
+    quint32 m_secondLastReadCommandCounter;
+    quint32 m_thirdLastReadCommandCounter;
     RunModus m_runModus;
     int m_synchronizeId;
 };

@@ -104,6 +104,8 @@ private:
     QLocalSocket *m_socket;
     NodeInstanceServerInterface *m_nodeInstanceServer;
     quint32 m_blockSize;
+    quint32 m_writeCommandCounter;
+    quint32 m_lastReadCommandCounter;
     int m_synchronizeId;
 };
 
