@@ -120,10 +120,14 @@ def lookupType(typestring):
                 ts = ts[9:]
             elif ts.startswith("enum "):
                 ts = ts[5:]
-            elif ts.endswith("const"):
-                ts = ts[-5:]
-            elif ts.endswith("volatile"):
-                ts = ts[-8:]
+            elif ts.endswith(" const"):
+                ts = ts[:-6]
+            elif ts.endswith(" volatile"):
+                ts = ts[:-9]
+            elif ts.endswith("*const"):
+                ts = ts[:-5]
+            elif ts.endswith("*volatile"):
+                ts = ts[:-8]
             else:
                 break
         try:
