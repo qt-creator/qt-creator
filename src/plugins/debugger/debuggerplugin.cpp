@@ -1179,11 +1179,20 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 .arg(sp.remoteChannel);
             sp.toolChainAbi = abiOfBinary(sp.executable);
         } else {
-            sp.startMode = AttachCore;
-            sp.coreFile = *it;
-            sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
-            sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
-            sp.toolChainAbi = abiOfBinary(sp.coreFile);
+            // Fixme: Distinguish between core-file and executable by argument syntax?
+            // (default up to 2.2 was core-file).
+            if (Abi::hostAbi().os() == Abi::WindowsOS || QFileInfo(*it).isExecutable()) {
+                sp.startMode = StartExternal;
+                sp.executable = *it;
+                sp.displayName = tr("Executable file \"%1\"").arg(sp.executable);
+                sp.startMessage = tr("Debugging file %1.").arg(sp.executable);
+            } else {
+                sp.startMode = AttachCore;
+                sp.coreFile = *it;
+                sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
+                sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
+            }
+            sp.toolChainAbi = abiOfBinary(*it);
         }
         m_scheduledStarts.append(sp);
         return true;
