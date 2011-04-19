@@ -163,6 +163,19 @@ QTCREATOR_UTILS_EXPORT QString getLongPathName(const QString &name)
     return rc;
 }
 
+// makes sure that capitalization of directories is canonical.
+// This mimics the logic in QDeclarative_isFileCaseCorrect
+QTCREATOR_UTILS_EXPORT QString normalizePathName(const QString &name)
+{
+    QString canonicalName = getShortPathName(name);
+    if (canonicalName.isEmpty())
+        return name;
+    canonicalName = getLongPathName(canonicalName);
+    if (canonicalName.isEmpty())
+        return name;
+    return canonicalName;
+}
+
 QTCREATOR_UTILS_EXPORT unsigned long winQPidToPid(const Q_PID qpid)
 {
     const PROCESS_INFORMATION *processInfo = reinterpret_cast<const PROCESS_INFORMATION*>(qpid);

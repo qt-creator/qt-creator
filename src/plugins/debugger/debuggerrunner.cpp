@@ -46,6 +46,7 @@
 
 #ifdef Q_OS_WIN
 #  include "peutils.h"
+#  include <utils/winutils.h>
 #endif
 
 #include <projectexplorer/abi.h>
@@ -675,6 +676,12 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.startMode = StartInternal;
     sp.environment = rc->environment();
     sp.workingDirectory = rc->workingDirectory();
+
+#if defined(Q_OS_WIN)
+    // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
+    sp.workingDirectory = Utils::normalizePathName(sp.workingDirectory);
+#endif
+
     sp.executable = rc->executable();
     sp.processArgs = rc->commandLineArguments();
     sp.toolChainAbi = rc->abi();
