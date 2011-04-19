@@ -104,6 +104,9 @@ void WinGuiProcess::run()
     m_exitCode = 0;
     bool started = false;
 
+    if (!WinDebugInterface::instance()->isRunning())
+        WinDebugInterface::instance()->start(); // Try to start listener again...
+
     do {
         QString pcmd, pargs;
         QtcProcess::prepareCommand(m_program, m_args, &pcmd, &pargs, &m_environment, &m_workingDir);
@@ -123,6 +126,9 @@ void WinGuiProcess::run()
             emit processFinished(0);
             break;
         }
+
+        if (!WinDebugInterface::instance()->isRunning())
+            emit processMessage(msgWinCannotRetrieveDebuggingOutput(), false);
 
         WaitForSingleObject(m_pid->hProcess, INFINITE);
     } while (false);
