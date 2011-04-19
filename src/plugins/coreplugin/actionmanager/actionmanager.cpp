@@ -484,9 +484,9 @@ ActionContainer *ActionManagerPrivate::actionContainer(int uid) const
     return it.value();
 }
 
-static const char *settingsGroup = "KeyBindings";
-static const char *idKey = "ID";
-static const char *sequenceKey = "Keysequence";
+static const char settingsGroup[] = "KeyBindings";
+static const char idKey[] = "ID";
+static const char sequenceKey[] = "Keysequence";
 
 void ActionManagerPrivate::initialize()
 {

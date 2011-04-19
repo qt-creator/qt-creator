@@ -37,7 +37,7 @@
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerFormEditorInterface>
 
-static const char *groupC = "QtCreator";
+static const char groupC[] = "QtCreator";
 
 NewClassCustomWidget::NewClassCustomWidget(QObject *parent) :
    QObject(parent),

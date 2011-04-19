@@ -278,12 +278,12 @@ static inline InamePathEntrySet expandEntrySet(const std::vector<std::string> &n
     InamePathEntrySet pathEntries;
     const std::string::size_type rootSize = root.size();
     const VectorIndexType nodeCount = nodes.size();
-    for (VectorIndexType i= 0; i < nodeCount; i++) {
+    for (VectorIndexType i= 0; i < nodeCount; ++i) {
         const std::string &iname = nodes.at(i); // Silently skip items of another group
         if (iname.size() >= rootSize && iname.compare(0, rootSize, root) == 0) {
             std::string::size_type pos = 0;
             // Split a path 'local.foo' and insert (0,'local'), (1,'local.foo') (see above)
-            for (unsigned level = 0; pos < iname.size(); level++) {
+            for (unsigned level = 0; pos < iname.size(); ++level) {
                 std::string::size_type dotPos = iname.find(SymbolGroupNodeVisitor::iNamePathSeparator, pos);
                 if (dotPos == std::string::npos)
                     dotPos = iname.size();
@@ -797,7 +797,7 @@ WatchesSymbolGroup::InameExpressionMap
     // Skip additional, expanded nodes
     InameExpressionMap rc;
     if (unsigned size = unsigned(root()->children().size())) {
-        for (unsigned i = 0; i < size; i++) {
+        for (unsigned i = 0; i < size; ++i) {
             const AbstractSymbolGroupNode *n = root()->childAt(i);
             if (n->testFlags(SymbolGroupNode::WatchNode))
                 rc.insert(InameExpressionMap::value_type(n->iName(), n->name()));

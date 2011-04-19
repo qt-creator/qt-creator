@@ -41,7 +41,7 @@
 using namespace ProjectExplorer;
 
 namespace {
-    // optional full path, make executable name, optional exe extention, optional number in square brackets, colon space
+    // optional full path, make executable name, optional exe extension, optional number in square brackets, colon space
     const char * const MAKE_PATTERN("^(([A-Za-z]:)?[/\\\\][^:]*[/\\\\])?(mingw(32|64)-|g)?make(.exe)?(\\[\\d+\\])?:\\s");
 }
 

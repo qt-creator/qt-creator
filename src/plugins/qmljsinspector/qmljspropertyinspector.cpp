@@ -278,7 +278,7 @@ void QmlJSPropertyInspector::setCurrentObjects(const QList<QDeclarativeDebugObje
 
     clear();
 
-    foreach ( QDeclarativeDebugObjectReference obj, objectList) {
+    foreach (const QDeclarativeDebugObjectReference &obj, objectList) {
         m_currentObjects << obj.debugId();
         buildPropertyTree(obj);
     }

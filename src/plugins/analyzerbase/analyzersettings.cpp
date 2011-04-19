@@ -48,7 +48,7 @@
 using namespace Analyzer;
 using namespace Analyzer::Internal;
 
-static const QLatin1String groupC("Analyzer");
+static const char groupC[] = "Analyzer";
 
 AnalyzerGlobalSettings *AnalyzerGlobalSettings::m_instance = 0;
 
@@ -125,7 +125,7 @@ void AnalyzerGlobalSettings::readSettings()
 
     QVariantMap map;
 
-    settings->beginGroup(groupC);
+    settings->beginGroup(QLatin1String(groupC));
     // read the values from config, using the keys from the defaults value map
     const QVariantMap def = defaults();
     for (QVariantMap::ConstIterator it = def.constBegin(); it != def.constEnd(); ++it)
@@ -139,7 +139,7 @@ void AnalyzerGlobalSettings::readSettings()
 void AnalyzerGlobalSettings::writeSettings() const
 {
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(groupC);
+    settings->beginGroup(QLatin1String(groupC));
     const QVariantMap map = toMap();
     for (QVariantMap::ConstIterator it = map.begin(); it != map.end(); ++it)
         settings->setValue(it.key(), it.value());

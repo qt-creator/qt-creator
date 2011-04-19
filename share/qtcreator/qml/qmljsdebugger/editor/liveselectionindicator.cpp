@@ -105,7 +105,7 @@ void LiveSelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> 
 
     // set selections to also all children if they are not editor items
 
-    foreach (QWeakPointer<QGraphicsObject> object, itemList) {
+    foreach (const QWeakPointer<QGraphicsObject> &object, itemList) {
         if (object.isNull())
             continue;
 

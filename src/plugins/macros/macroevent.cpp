@@ -42,7 +42,7 @@ using namespace Macros;
     \class Macros::MacroEvent
     \brief Represents an event in a macro
 
-    An event stores informations so it can be replayed. An event can be:
+    An event stores information so it can be replayed. An event can be:
     \list
     \o menu action
     \o key event on an editor

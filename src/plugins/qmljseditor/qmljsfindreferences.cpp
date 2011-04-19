@@ -369,7 +369,7 @@ public:
 
     void operator()(quint32 offset)
     {
-        _name = QString::null;
+        _name.clear();
         _scope = 0;
         _objectNode = 0;
         _offset = offset;
@@ -551,7 +551,7 @@ public:
         // find all idenfifier expressions, try to resolve them and check if the result is in scope
         FindUsages findUsages(doc, snapshot, &contextCopy);
         FindUsages::Result results = findUsages(name, scope);
-        foreach (AST::SourceLocation loc, results)
+        foreach (const AST::SourceLocation &loc, results)
             usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
 
         return usages;

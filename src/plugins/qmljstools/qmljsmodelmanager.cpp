@@ -181,7 +181,7 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
 
         m_synchronizer.clearFutures();
 
-        foreach (QFuture<void> future, futures) {
+        foreach (const QFuture<void> &future, futures) {
             if (! (future.isFinished() || future.isCanceled()))
                 m_synchronizer.addFuture(future);
         }
@@ -526,7 +526,7 @@ bool ModelManager::matchesMimeType(const Core::MimeType &fileMimeType, const Cor
 
     const QStringList knownTypeNames = QStringList(knownMimeType.type()) + knownMimeType.aliases();
 
-    foreach (const QString knownTypeName, knownTypeNames)
+    foreach (const QString &knownTypeName, knownTypeNames)
         if (fileMimeType.matchesType(knownTypeName))
             return true;
 

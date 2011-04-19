@@ -161,7 +161,7 @@ QStringList prototypes(const Interpreter::ObjectValue *ov, LookupContext::Ptr co
                 ' ' + QString::number(qmlValue->version().majorVersion()) +
                 '.' + QString::number(qmlValue->version().minorVersion());
             } else {
-                list << qmlValue->packageName() + "." + qmlValue->className();
+                list << qmlValue->packageName() + QLatin1Char('.') + qmlValue->className();
             }
         } else {
             if (versions) {

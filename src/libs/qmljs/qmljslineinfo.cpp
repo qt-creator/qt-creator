@@ -204,7 +204,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
             if (yyLinizerState.leftBraceFollows && !text.isEmpty() && text.at(0).isUpper()) {
                 int i = index;
 
-                // skip any preceeding 'identifier.'; these could appear in both cases
+                // skip any preceding 'identifier.'; these could appear in both cases
                 while (i >= 2) {
                     const Token &prev = yyLinizerState.tokens.at(i-1);
                     const Token &prevPrev = yyLinizerState.tokens.at(i-2);

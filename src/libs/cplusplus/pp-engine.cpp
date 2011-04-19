@@ -1168,7 +1168,7 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
         if (macro.isFunctionLike()) {
             macroId += '(';
             bool fst = true;
-            foreach (const QByteArray formal, macro.formals()) {
+            foreach (const QByteArray &formal, macro.formals()) {
                 if (! fst)
                     macroId += ", ";
                 fst = false;

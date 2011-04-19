@@ -99,7 +99,7 @@ static void formatNodeError(const AbstractSymbolGroupNode *n, std::ostream &os)
     }
     if (size) {
         os << "children (" << size << "): [";
-        for (VectorIndexType i = 0; i < size; i++)
+        for (VectorIndexType i = 0; i < size; ++i)
             os << ' ' << children.at(i)->name();
         os << ']';
     } else {

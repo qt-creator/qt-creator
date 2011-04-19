@@ -722,7 +722,7 @@ QString MsvcToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /* 
 
     // Try the post fixes
     QString outPath;
-    for (unsigned i = 0; i < sizeof(postFixes)/sizeof(const char*); i++) {
+    for (unsigned i = 0; i < sizeof(postFixes)/sizeof(const char*); ++i) {
         outPath = checkCdbExecutable(programDir, QLatin1String(postFixes[i]), checkedDirectories);
         if (!outPath.isEmpty())
             return outPath;
@@ -739,7 +739,7 @@ QString MsvcToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /* 
     // A 32bit process on 64 bit sees "ProgramFiles\Debg.. (x64)".
     if (programDir.endsWith(QLatin1String(" (x86)"))) {
         const QString programDir64 = programDir.left(programDir.size() - 6);
-        for (unsigned i = 0; i < sizeof(postFixes)/sizeof(const char*); i++) {
+        for (unsigned i = 0; i < sizeof(postFixes)/sizeof(const char*); ++i) {
             outPath = checkCdbExecutable(programDir64, QLatin1String(postFixes[i]), checkedDirectories);
             if (!outPath.isEmpty())
                 return outPath;

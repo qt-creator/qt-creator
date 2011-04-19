@@ -87,7 +87,7 @@ static QByteArray runGcc(const QString &gcc, const QStringList &arguments, const
         return QByteArray();
     }
 
-    return cpp.readAllStandardOutput() + "\n" + cpp.readAllStandardError();
+    return cpp.readAllStandardOutput() + '\n' + cpp.readAllStandardError();
 }
 
 static QByteArray gccPredefinedMacros(const QString &gcc, const QStringList &env)

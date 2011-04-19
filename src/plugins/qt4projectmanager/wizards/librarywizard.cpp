@@ -45,7 +45,7 @@
 #include <QtCore/QTextStream>
 #include <QtGui/QIcon>
 
-static const char *sharedHeaderPostfixC = "_global";
+static const char sharedHeaderPostfixC[] = "_global";
 
 namespace Qt4ProjectManager {
 

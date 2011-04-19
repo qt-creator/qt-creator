@@ -83,7 +83,7 @@ QDataStream &operator>>(QDataStream &stream, Threads &threads)
     quint64 count;
     stream >> count;
     threads.clear();
-    for (quint64 i = 0; i < count; i++)
+    for (quint64 i = 0; i < count; ++i)
     {
         ThreadData d;
         stream >> d;
@@ -136,7 +136,7 @@ QDataStream &operator>>(QDataStream &stream, StackFrames &frames)
     quint64 count;
     stream >> count;
     frames.clear();
-    for (quint64 i = 0; i < count; i++)
+    for (quint64 i = 0; i < count; ++i)
     {
         StackFrame s;
         stream >> s;
@@ -284,7 +284,7 @@ QDataStream &operator>>(QDataStream& stream, DisassemblerLine &o)
 QDataStream &operator<<(QDataStream& stream, const DisassemblerLines &o)
 {
     stream << quint64(o.size());
-    for (int i = 0; i < o.size(); i++)
+    for (int i = 0; i < o.size(); ++i)
     {
         stream << o.at(i);
     }

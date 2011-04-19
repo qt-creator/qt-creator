@@ -189,7 +189,7 @@ void DesignDocumentControllerView::fromText(QString text)
     inputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;
     QString imports;
-    foreach (Import import, model()->imports())
+    foreach (const Import &import, model()->imports())
         imports += import.toString() + ";\n";
 
     textEdit.setPlainText(imports + text);

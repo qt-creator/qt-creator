@@ -73,7 +73,7 @@ QString Macro::toString() const
     if (f._functionLike) {
         text += QLatin1Char('(');
         bool first = true;
-        foreach (const QByteArray formal, _formals) {
+        foreach (const QByteArray &formal, _formals) {
             if (! first)
                 text += QLatin1String(", ");
             else

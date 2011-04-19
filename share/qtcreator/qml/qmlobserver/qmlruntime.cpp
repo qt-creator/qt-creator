@@ -459,10 +459,10 @@ private:
         QMutexLocker lock(&mutex);
         QList<QNetworkCookie> list = allCookies();
         QByteArray data;
-        foreach (QNetworkCookie cookie, list) {
+        foreach (const QNetworkCookie &cookie, list) {
             if (!cookie.isSessionCookie()) {
                 data.append(cookie.toRawForm());
-                data.append("\n");
+                data.append('\n');
             }
         }
         QSettings settings;
@@ -1036,7 +1036,7 @@ void QDeclarativeViewer::chooseRecordingOptions()
         // Rate
         record_rate = recdlg->videoRate();
         // Profile
-        record_args = recdlg->arguments().split(" ",QString::SkipEmptyParts);
+        record_args = recdlg->arguments().split(QLatin1Char(' '),QString::SkipEmptyParts);
     }
 }
 
@@ -1458,7 +1458,7 @@ void QDeclarativeViewer::setRecording(bool on)
             }
 
             progress.setValue(progress.maximum()-1);
-            foreach (QString name, inputs)
+            foreach (const QString &name, inputs)
                 QFile::remove(name);
 
             frames.clear();

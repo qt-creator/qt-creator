@@ -221,7 +221,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     }
 
     QMap<QString, QStandardItem *> propertyItems;
-    foreach (QString propertyName, visibleProperties(node)) {
+    foreach (const QString &propertyName, visibleProperties(node)) {
         QStandardItem *propertyItem = new QStandardItem;
         propertyItem->setSelectable(false);
         propertyItem->setDragEnabled(false);
@@ -572,7 +572,7 @@ QList<ModelNode> NavigatorTreeModel::modelNodeChildren(const ModelNode &parentNo
 
     properties << visibleProperties(parentNode);
 
-    foreach (QString propertyName, properties) {
+    foreach (const QString &propertyName, properties) {
         AbstractProperty property(parentNode.property(propertyName));
         if (property.isNodeProperty())
             children << property.toNodeProperty().modelNode();

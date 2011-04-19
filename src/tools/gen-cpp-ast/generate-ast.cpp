@@ -1505,13 +1505,11 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
         out
                 << ")" << endl
                 << "    {" << endl
-                << "        " << className << " *__ast = new (&pool) " << className << ";" << endl;
+                << "        " << className << " *__ast = new (&pool) " << className << ';' << endl;
 
 
-        QPair<QString, QString> p;
-        foreach (p, args) {
-            out
-                    << "        __ast->" << p.second << " = " << p.second << ";" << endl;
+        foreach (const QPair<QString, QString> &p, args) {
+            out << "        __ast->" << p.second << " = " << p.second << ';' << endl;
         }
 
         out

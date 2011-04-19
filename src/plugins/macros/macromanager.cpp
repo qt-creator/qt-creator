@@ -224,7 +224,7 @@ bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
     if (error) {
         QMessageBox::warning(Core::ICore::instance()->mainWindow(),
                              tr("Playing Macro"),
-                             tr("An error occured while replaying the macro, execution stopped."));
+                             tr("An error occurred while replaying the macro, execution stopped."));
     }
 
     // Set the focus back to the editor

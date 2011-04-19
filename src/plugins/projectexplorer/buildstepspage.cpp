@@ -93,7 +93,7 @@ void BuildStepListWidget::init(BuildStepList *bsl)
 
     setupUi();
 
-    foreach(BuildStepsWidgetStruct s, m_buildSteps) {
+    foreach (const BuildStepsWidgetStruct &s, m_buildSteps) {
         delete s.widget;
         delete s.detailsWidget;
     }

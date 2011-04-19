@@ -75,7 +75,7 @@ public:
     virtual QString displayName() const = 0;
 
     /**
-     * The mode in which this tool should be run preferrably
+     * The mode in which this tool should preferably be run
      *
      * memcheck, for example, requires debug symbols, hence DebugMode is preferred.
      * otoh callgrind should look at optimized code, hence ReleaseMode.

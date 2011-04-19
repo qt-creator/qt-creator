@@ -940,7 +940,7 @@ void CodeFormatter::dump() const
 
     qDebug() << "Current token index" << m_tokenIndex;
     qDebug() << "Current state:";
-    foreach (State s, m_currentState) {
+    foreach (const State &s, m_currentState) {
         qDebug() << metaEnum.valueToKey(s.type) << s.savedIndentDepth;
     }
     qDebug() << "Current indent depth:" << m_indentDepth;

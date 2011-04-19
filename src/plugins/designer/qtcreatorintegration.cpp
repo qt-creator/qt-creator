@@ -182,13 +182,13 @@ static const Class *findClass(const Namespace *parentNameSpace, const QString &c
 
     const Overview o;
     const unsigned namespaceMemberCount = parentNameSpace->memberCount();
-    for (unsigned i = 0; i < namespaceMemberCount; i++) { // we go through all namespace members
+    for (unsigned i = 0; i < namespaceMemberCount; ++i) { // we go through all namespace members
         const Symbol *sym = parentNameSpace->memberAt(i);
         // we have found a class - we are interested in classes only
         if (const Class *cl = sym->asClass()) {
             // 1) we go through class members
             const unsigned classMemberCount = cl->memberCount();
-            for (unsigned j = 0; j < classMemberCount; j++)
+            for (unsigned j = 0; j < classMemberCount; ++j)
                 if (const Declaration *decl = cl->memberAt(j)->asDeclaration()) {
                 // we want to know if the class contains a member (so we look into
                 // a declaration) of uiClassName type

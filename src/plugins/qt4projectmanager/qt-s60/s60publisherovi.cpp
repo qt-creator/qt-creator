@@ -164,11 +164,11 @@ void S60PublisherOvi::completeCreation()
     QStringList vendorInfoVars;
     QStringList valueLevelVars;
 
-    foreach (QString deploymentLevelVar, deploymentLevelVars) {
+    foreach (const QString &deploymentLevelVar, deploymentLevelVars) {
         vendorInfoVars = m_reader->values(deploymentLevelVar+".pkg_prerules");
-        foreach(QString vendorInfoVar, vendorInfoVars) {
+        foreach (const QString &vendorInfoVar, vendorInfoVars) {
             valueLevelVars = m_reader->values(vendorInfoVar);
-            foreach(QString valueLevelVar, valueLevelVars) {
+            foreach (const QString &valueLevelVar, valueLevelVars) {
                 if (valueLevelVar.startsWith("%{\"")) {
                     m_vendorInfoVariable = vendorInfoVar;
                     break;
@@ -184,7 +184,7 @@ QString S60PublisherOvi::globalVendorName() const
 
     foreach (QString vendorinfo, vendorinfos) {
         if (vendorinfo.startsWith(':')) {
-            return vendorinfo.remove(':').remove("\"").trimmed();
+            return vendorinfo.remove(':').remove('"').trimmed();
         }
     }
     return QString();

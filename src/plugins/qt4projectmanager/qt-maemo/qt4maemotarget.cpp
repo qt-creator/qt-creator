@@ -84,7 +84,7 @@ bool adaptTagValue(QByteArray &document, const QByteArray &fieldName,
     const QByteArray &newFieldValue, bool caseSensitive)
 {
     QByteArray adaptedLine = fieldName + ": " + newFieldValue;
-    const QByteArray completeTag = fieldName + ":";
+    const QByteArray completeTag = fieldName + ':';
     const int lineOffset = caseSensitive ? document.indexOf(completeTag)
         : document.toLower().indexOf(completeTag.toLower());
     if (lineOffset == -1) {

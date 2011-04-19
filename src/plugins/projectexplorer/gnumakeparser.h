@@ -83,7 +83,7 @@ class GnuMakeParserTester : public QObject
     Q_OBJECT
 
 public:
-    GnuMakeParserTester(GnuMakeParser *parser, QObject *parent = 0);
+    explicit GnuMakeParserTester(GnuMakeParser *parser, QObject *parent = 0);
 
     QStringList directories;
     GnuMakeParser *parser;

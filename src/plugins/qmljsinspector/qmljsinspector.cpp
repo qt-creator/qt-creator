@@ -245,7 +245,7 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
                 if ((qmlNode->kind == QmlJS::AST::Node::Kind_IdentifierExpression) &&
                         (m_clientProxy->objectReferenceForId(refToLook).debugId() == -1)) {
                     query = doubleQuote + QString("local: ") + refToLook + doubleQuote;
-                    foreach (QDeclarativeDebugPropertyReference property, ref.properties()) {
+                    foreach (const QDeclarativeDebugPropertyReference &property, ref.properties()) {
                         if (property.name() == wordAtCursor
                                 && !property.valueTypeName().isEmpty()) {
                             query = doubleQuote + property.name() + QLatin1Char(':')
@@ -259,7 +259,7 @@ void InspectorUi::showDebuggerTooltip(const QPoint &mousePos, TextEditor::ITextE
                             + QLatin1Char('+') + refToLook;
             } else {
                 // show properties
-                foreach (QDeclarativeDebugPropertyReference property, ref.properties()) {
+                foreach (const QDeclarativeDebugPropertyReference &property, ref.properties()) {
                     if (property.name() == wordAtCursor && !property.valueTypeName().isEmpty()) {
                         query = doubleQuote + property.name() + QLatin1Char(':')
                                 + doubleQuote + QLatin1Char('+') + property.name();

@@ -97,7 +97,7 @@ SearchFunction::FunctionList SearchFunction::operator()(const DocumentPtr &doc)
 {
     m_matches.clear();
     const unsigned globalSymbolCount = doc->globalSymbolCount();
-    for (unsigned i = 0; i < globalSymbolCount; i++)
+    for (unsigned i = 0; i < globalSymbolCount; ++i)
         accept(doc->globalSymbolAt(i));
     return m_matches;
 }

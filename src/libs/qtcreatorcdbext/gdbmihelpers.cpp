@@ -215,7 +215,7 @@ bool threadList(CIDebugSystemObjects *debugSystemObjects,
     }
     // Create entries
     static WCHAR name[256];
-    for (ULONG i= 0; i < threadCount ; i++) {
+    for (ULONG i= 0; i < threadCount ; ++i) {
         const ULONG id = ids[i];
         Thread thread(id, systemIds[i]);
         // Thread name
@@ -296,7 +296,7 @@ Modules getModules(CIDebugSymbols *syms, std::string *errorMessage)
         return Modules();
     }
 
-    for (ULONG m = 0; m < count; m++) {
+    for (ULONG m = 0; m < count; ++m) {
         Module module;
         module.base = parameters[m].Base;
         module.size = parameters[m].Size;
@@ -321,7 +321,7 @@ std::string gdbmiModules(CIDebugSymbols *syms, bool humanReadable, std::string *
     std::ostringstream str;
     str << '[' << std::hex << std::showbase;
     const Modules::size_type size = modules.size();
-    for (Modules::size_type m = 0; m < size; m++) {
+    for (Modules::size_type m = 0; m < size; ++m) {
         const Module &module = modules.at(m);
         if (m)
             str << ',';
@@ -465,7 +465,7 @@ Registers getRegisters(CIDebugRegisters *regs,
     // Standard registers
     DEBUG_REGISTER_DESCRIPTION description;
     DEBUG_VALUE value;
-    for (ULONG r = 0; r < registerCount; r++) {
+    for (ULONG r = 0; r < registerCount; ++r) {
         hr = regs->GetDescriptionWide(r, buf, bufSize, NULL, &description);
         if (FAILED(hr)) {
             *errorMessage = msgDebugEngineComFailed("GetDescription", hr);
@@ -488,7 +488,7 @@ Registers getRegisters(CIDebugRegisters *regs,
     }
 
     // Pseudo
-    for (ULONG r = 0; r < pseudoRegisterCount; r++) {
+    for (ULONG r = 0; r < pseudoRegisterCount; ++r) {
         ULONG type;
         hr = regs->GetPseudoDescriptionWide(r, buf, bufSize, NULL, NULL, &type);
         if (FAILED(hr))
@@ -526,7 +526,7 @@ std::string gdbmiRegisters(CIDebugRegisters *regs,
     if (humanReadable)
         str << '\n';
     const Registers::size_type size = registers.size();
-    for (Registers::size_type r = 0; r < size; r++) {
+    for (Registers::size_type r = 0; r < size; ++r) {
         const Register &reg = registers.at(r);
         if (r)
             str << ',';
@@ -589,7 +589,7 @@ static StackFrames getStackTrace(CIDebugControl *debugControl,
         *errorMessage = msgDebugEngineComFailed("GetStackTrace", hr);
     }
     StackFrames rc(frameCount, StackFrame());
-    for (ULONG f = 0; f < frameCount; f++)
+    for (ULONG f = 0; f < frameCount; ++f)
         getFrame(debugSymbols, frames[f], &(rc[f]));
     delete [] frames;
     return rc;
@@ -608,7 +608,7 @@ std::string gdbmiStack(CIDebugControl *debugControl,
     std::ostringstream str;
     str << '[';
     const StackFrames::size_type size = frames.size();
-    for (StackFrames::size_type i = 0; i < size; i++) {
+    for (StackFrames::size_type i = 0; i < size; ++i) {
         if (i)
             str << ',';
         frames.at(i).formatGDBMI(str, (int)i);

@@ -638,12 +638,12 @@ void QmlJSLiveTextPreview::setClientProxy(ClientProxy *clientProxy)
         connect(m_clientProxy.data(), SIGNAL(objectTreeUpdated()),
                    SLOT(updateDebugIds()));
 
-        foreach(QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> qmlEditor, m_editors) {
+        foreach (const QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> &qmlEditor, m_editors) {
             if (qmlEditor)
                 qmlEditor.data()->setUpdateSelectedElements(true);
         }
     } else {
-        foreach(QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> qmlEditor, m_editors) {
+        foreach (const QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> &qmlEditor, m_editors) {
             if (qmlEditor)
                 qmlEditor.data()->setUpdateSelectedElements(false);
         }

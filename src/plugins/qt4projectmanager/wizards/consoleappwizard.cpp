@@ -50,7 +50,7 @@ static const char *mainCppC =
 "    return a.exec();\n"
 "}\n";
 
-static const char *mainSourceFileC = "main";
+static const char mainSourceFileC[] = "main";
 
 namespace Qt4ProjectManager {
 namespace Internal {

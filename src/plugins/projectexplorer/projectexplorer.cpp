@@ -1669,7 +1669,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QStringList stepIds)
 {
     if (debug) {
         QStringList projectNames;
-        foreach (Project *p, projects)
+        foreach (const Project *p, projects)
             projectNames << p->displayName();
         qDebug() << "Building" << stepIds << "for projects" << projectNames;
     }

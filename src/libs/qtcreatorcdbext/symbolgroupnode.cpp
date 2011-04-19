@@ -47,7 +47,7 @@ enum { BufSize = 2048 };
 
 static inline void indentStream(std::ostream &str, unsigned depth)
 {
-    for (unsigned d = 0; d < depth; d++)
+    for (unsigned d = 0; d < depth; ++d)
         str << "  ";
 }
 
@@ -126,7 +126,7 @@ unsigned AbstractSymbolGroupNode::indexByIName(const char *n) const
 {
     const AbstractSymbolGroupNodePtrVector &c = children();
     const VectorIndexType size = c.size();
-    for (VectorIndexType i = 0; i < size; i++)
+    for (VectorIndexType i = 0; i < size; ++i)
         if ( c.at(i)->iName() == n )
             return unsigned(i);
     return unsigned(-1);
@@ -170,7 +170,7 @@ bool AbstractSymbolGroupNode::accept(SymbolGroupNodeVisitor &visitor,
     case SymbolGroupNodeVisitor::VisitContinue: {
         const AbstractSymbolGroupNodePtrVector &c = children();
         const unsigned childCount = unsigned(c.size());
-        for (unsigned i = 0; i < childCount; i++)
+        for (unsigned i = 0; i < childCount; ++i)
             if (c.at(i)->accept(visitor, fullIname, i, childDepth))
                 return true;
         if (!invisibleRoot)
@@ -698,7 +698,7 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
     names.reserve(size);
     // Pass 1) Determine names. We need the complete set first in order to do some corrections.
     const VectorIndexType startIndex = isTopLevel ? 0 : index + 1;
-    for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; pos++ ) {
+    for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; ++pos) {
         if (vec.at(pos).ParentSymbol == index) {
             const VectorIndexType symbolGroupIndex = pos + parameterOffset;
             if (FAILED(m_symbolGroup->debugSymbolGroup()->GetSymbolName(ULONG(symbolGroupIndex), buf, BufSize, &obtainedSize)))
@@ -711,7 +711,7 @@ void SymbolGroupNode::parseParameters(VectorIndexType index,
     fixNames(isTopLevel, &names, &inames);
     // Pass 3): Add nodes with fixed names
     StringVector::size_type nameIndex = 0;
-    for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; pos++ ) {
+    for (VectorIndexType pos = startIndex - parameterOffset; pos < size ; ++pos) {
         if (vec.at(pos).ParentSymbol == index) {
             const VectorIndexType symbolGroupIndex = pos + parameterOffset;
             SymbolGroupNode *child = new SymbolGroupNode(m_symbolGroup,
@@ -1173,7 +1173,7 @@ ULONG SymbolGroupNode::nextSymbolIndex() const
     const AbstractSymbolGroupNodePtrVector &siblings = sParent->children();
     // Find any 'real' SymbolGroupNode to our right.
     const unsigned size = unsigned(siblings.size());
-    for (unsigned i = myIndex + 1; i < size; i++)
+    for (unsigned i = myIndex + 1; i < size; ++i)
         if (const SymbolGroupNode *s = siblings.at(i)->asSymbolGroupNode())
             return s->index();
     return sParent->nextSymbolIndex();

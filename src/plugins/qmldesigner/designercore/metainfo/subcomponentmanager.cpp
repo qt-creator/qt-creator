@@ -135,8 +135,8 @@ void SubComponentManagerPrivate::addImport(int pos, const Import &import)
         
         url.replace(QLatin1Char('.'), QLatin1Char('/'));
 
-        foreach(const QString path, importPaths()) {
-            url  = path + QLatin1String("/") + url;
+        foreach (const QString &path, importPaths()) {
+            url  = path + QLatin1Char('/') + url;
             QFileInfo dirInfo = QFileInfo(url);
             if (dirInfo.exists() && dirInfo.isDir()) {
                 const QString canonicalDirPath = dirInfo.canonicalFilePath();
@@ -189,9 +189,9 @@ void SubComponentManagerPrivate::parseDirectories()
             }
         } else {
             QString url = import.url();
-            foreach(const QString path, importPaths()) {
+            foreach (const QString &path, importPaths()) {
                 url.replace(QLatin1Char('.'), QLatin1Char('/'));
-                url  = path + QLatin1String("/") + url;
+                url  = path + QLatin1Char('/') + url;
                 QFileInfo dirInfo = QFileInfo(url);
                 if (dirInfo.exists() && dirInfo.isDir()) {
                     //### todo full qualified names QString nameSpace = import.uri();

@@ -130,7 +130,7 @@ Q_GLOBAL_STATIC_WITH_INITIALIZER(Qt4NodeStaticData, qt4NodeStaticData, {
     // Overlay the SP_DirIcon with the custom icons
     const QSize desiredSize = QSize(16, 16);
 
-    for (unsigned i = 0 ; i < count; i++) {
+    for (unsigned i = 0 ; i < count; ++i) {
         const QIcon overlayIcon = QIcon(QLatin1String(fileTypeDataStorage[i].icon));
         const QPixmap folderPixmap =
                 Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,

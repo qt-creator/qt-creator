@@ -407,7 +407,8 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
 
     QString imports;
     foreach (const QString &s, importList) {
-        imports += s + "\n";
+        imports += s;
+        imports += QLatin1Char('\n');
     }
 
     QDeclarativeContext *parentContext = view->engine()->contextForObject(parent);
@@ -574,7 +575,7 @@ void QDeclarativeViewObserverPrivate::changeTool(Constants::DesignTool tool,
 
 void QDeclarativeViewObserverPrivate::setSelectedItemsForTools(QList<QGraphicsItem *> items)
 {
-    foreach (QWeakPointer<QGraphicsObject> obj, currentSelection) {
+    foreach (const QWeakPointer<QGraphicsObject> &obj, currentSelection) {
         if (QGraphicsItem *item = obj.data()) {
             if (!items.contains(item)) {
                 QObject::disconnect(obj.data(), SIGNAL(destroyed(QObject*)),
@@ -603,7 +604,7 @@ void QDeclarativeViewObserverPrivate::setSelectedItems(QList<QGraphicsItem *> it
     setSelectedItemsForTools(items);
     if (oldList != currentSelection) {
         QList<QObject*> objectList;
-        foreach (QWeakPointer<QGraphicsObject> graphicsObject, currentSelection) {
+        foreach (const QWeakPointer<QGraphicsObject> &graphicsObject, currentSelection) {
             if (graphicsObject)
                 objectList << graphicsObject.data();
         }

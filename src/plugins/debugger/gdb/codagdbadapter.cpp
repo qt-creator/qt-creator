@@ -1117,7 +1117,7 @@ void CodaGdbAdapter::setupInferior()
     // Compile additional libraries.
     QStringList libraries;
     const unsigned libraryCount = sizeof(librariesC)/sizeof(char *);
-    for (unsigned i = 0; i < libraryCount; i++)
+    for (unsigned i = 0; i < libraryCount; ++i)
         libraries.push_back(QString::fromAscii(librariesC[i]));
 
     m_codaDevice->sendProcessStartCommand(

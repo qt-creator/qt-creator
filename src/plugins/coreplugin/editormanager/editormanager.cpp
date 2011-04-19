@@ -85,10 +85,10 @@
 
 enum { debugEditorManager=0 };
 
-static const char * const kCurrentDocumentFilePath = "CurrentDocument:FilePath";
-static const char * const kCurrentDocumentPath = "CurrentDocument:Path";
-static const char * const kCurrentDocumentXPos = "CurrentDocument:XPos";
-static const char * const kCurrentDocumentYPos = "CurrentDocument:YPos";
+static const char kCurrentDocumentFilePath[] = "CurrentDocument:FilePath";
+static const char kCurrentDocumentPath[] = "CurrentDocument:Path";
+static const char kCurrentDocumentXPos[] = "CurrentDocument:XPos";
+static const char kCurrentDocumentYPos[] = "CurrentDocument:YPos";
 
 static inline ExtensionSystem::PluginManager *pluginManager()
 {
@@ -1794,8 +1794,8 @@ bool EditorManager::restoreState(const QByteArray &state)
     return true;
 }
 
-static const char * const documentStatesKey = "EditorManager/DocumentStates";
-static const char * const reloadBehaviorKey = "EditorManager/ReloadBehavior";
+static const char documentStatesKey[] = "EditorManager/DocumentStates";
+static const char reloadBehaviorKey[] = "EditorManager/ReloadBehavior";
 
 void EditorManager::saveSettings()
 {

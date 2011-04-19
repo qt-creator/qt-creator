@@ -534,7 +534,7 @@ StdMapNode *StdMapNode::buildMap(const SymbolGroupValue &n)
 
 static inline void indentStream(std::ostream &os, unsigned indent)
 {
-    for (unsigned i = 0; i < indent; i++)
+    for (unsigned i = 0; i < indent; ++i)
         os << ' ';
 }
 
@@ -923,7 +923,7 @@ static inline SymbolGroupValueVector qMapNodes(const SymbolGroupValue &v, Vector
     SymbolGroupValueVector rc;
     rc.reserve(count);
     SymbolGroupValue n = e["forward"][unsigned(0)];
-    for (VectorIndexType i = 0; i < count && n && n.pointerValue() != ePtr; i++) {
+    for (VectorIndexType i = 0; i < count && n && n.pointerValue() != ePtr; ++i) {
         rc.push_back(n);
         n = n["forward"][unsigned(0)];
     }
@@ -986,7 +986,7 @@ static inline AbstractSymbolGroupNodePtrVector
     rc.reserve(count);
     std::string errorMessage;
     SymbolGroup *sg = v.node()->symbolGroup();
-    for (VectorIndexType i = 0; i < count ; i++) {
+    for (VectorIndexType i = 0; i < count ; ++i) {
         const ULONG64 nodePtr = childNodes.at(i).pointerValue();
         if (!nodePtr)
             return AbstractSymbolGroupNodePtrVector();

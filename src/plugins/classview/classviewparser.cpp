@@ -436,7 +436,7 @@ ParserTreeItem::ConstPtr Parser::getParseDocumentTree(const CPlusPlus::Document:
     ParserTreeItem::Ptr itemPtr(new ParserTreeItem());
 
     unsigned total = doc->globalSymbolCount();
-    for (unsigned i = 0; i < total; i++)
+    for (unsigned i = 0; i < total; ++i)
         addSymbol(itemPtr, doc->globalSymbolAt(i));
 
     QWriteLocker locker(&d_ptr->docLocker);

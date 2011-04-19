@@ -466,7 +466,7 @@ void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &changedVersions)
         return;
     if (!qtVersion()->isValid())
         pickValidQtVersion();
-    emit environmentChanged(); // Our qt version changed, that might have changed the environemnt
+    emit environmentChanged(); // Our qt version changed, that might have changed the environment
 }
 
 // returns true if both are equal

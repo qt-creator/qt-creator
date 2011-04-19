@@ -165,10 +165,10 @@ QString AbstractLiveEditTool::titleForItem(QGraphicsItem *item)
     if (gfxObject) {
         className = gfxObject->metaObject()->className();
 
-        className.replace(QRegExp("_QMLTYPE_\\d+"), "");
-        className.replace(QRegExp("_QML_\\d+"), "");
+        className.remove(QRegExp("_QMLTYPE_\\d+"));
+        className.remove(QRegExp("_QML_\\d+"));
         if (className.startsWith(QLatin1String("QDeclarative")))
-            className = className.replace(QLatin1String("QDeclarative"), "");
+            className = className.remove(QLatin1String("QDeclarative"));
 
         QDeclarativeItem *declarativeItem = qobject_cast<QDeclarativeItem*>(gfxObject);
         if (declarativeItem) {
@@ -176,10 +176,10 @@ QString AbstractLiveEditTool::titleForItem(QGraphicsItem *item)
         }
 
         if (!objectStringId.isEmpty()) {
-            constructedName = objectStringId + " (" + className + ")";
+            constructedName = objectStringId + " (" + className + QLatin1Char(')');
         } else {
             if (!gfxObject->objectName().isEmpty()) {
-                constructedName = gfxObject->objectName() + " (" + className + ")";
+                constructedName = gfxObject->objectName() + " (" + className + QLatin1Char(')');
             } else {
                 constructedName = className;
             }

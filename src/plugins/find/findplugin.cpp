@@ -164,7 +164,7 @@ void FindPlugin::filterChanged()
     QTC_ASSERT(action, return);
     action->setEnabled(changedFilter->isEnabled());
     bool haveEnabledFilters = false;
-    foreach (IFindFilter *filter, d->m_filterActions.keys()) {
+    foreach (const IFindFilter *filter, d->m_filterActions.keys()) {
         if (filter->isEnabled()) {
             haveEnabledFilters = true;
             break;
