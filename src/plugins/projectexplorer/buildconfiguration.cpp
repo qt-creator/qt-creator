@@ -96,6 +96,8 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
             this, SLOT(handleToolChainRemovals(ProjectExplorer::ToolChain*)));
     connect(ToolChainManager::instance(), SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
             this, SLOT(handleToolChainAddition(ProjectExplorer::ToolChain*)));
+    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
+            this, SLOT(handleToolChainUpdates(ProjectExplorer::ToolChain*)));
 }
 
 BuildConfiguration::~BuildConfiguration()
@@ -188,6 +190,8 @@ void BuildConfiguration::handleToolChainUpdates(ProjectExplorer::ToolChain *tc)
     QList<ToolChain *> candidates = target()->possibleToolChains(this);
     if (!candidates.contains(m_toolChain))
         setToolChain(target()->preferredToolChain(this));
+    else
+        emit toolChainChanged();
 }
 
 
