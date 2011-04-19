@@ -71,8 +71,10 @@ enum SshStateInternal {
 
 enum SshKeyExchangeState {
     NoKeyExchange,
-    KeyExchangeStarted,    // After server's KEXINIT message
-    KeyExchangeSuccess     // After server's DH_REPLY message
+    KexInitSent,
+    DhInitSent,
+    NewKeysSent,
+    KeyExchangeSuccess  // After server's DH_REPLY message
 };
 
 class SshConnectionPrivate : public QObject

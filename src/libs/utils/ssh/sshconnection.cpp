@@ -342,6 +342,7 @@ void SshConnectionPrivate::handleServerId()
     m_keyExchange.reset(new SshKeyExchange(m_sendFacility));
     m_serverId = m_incomingData.left(endOffset);
     m_keyExchange->sendKexInitPacket(m_serverId);
+    m_keyExchangeState = KexInitSent;
     m_incomingData.remove(0, endOffset + 2);
 }
 
@@ -358,7 +359,7 @@ void SshConnectionPrivate::handlePackets()
 void SshConnectionPrivate::handleCurrentPacket()
 {
     Q_ASSERT(m_incomingPacket.isComplete());
-    Q_ASSERT(m_keyExchangeState == KeyExchangeStarted || !m_ignoreNextPacket);
+    Q_ASSERT(m_keyExchangeState == DhInitSent || !m_ignoreNextPacket);
 
     if (m_ignoreNextPacket) {
         m_ignoreNextPacket = false;
@@ -381,14 +382,15 @@ void SshConnectionPrivate::handleCurrentPacket()
 
 void SshConnectionPrivate::handleKeyExchangeInitPacket()
 {
-    if (m_keyExchangeState != NoKeyExchange) {
+    if (m_keyExchangeState != NoKeyExchange
+            && m_keyExchangeState != KexInitSent) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected packet.", tr("Unexpected packet of type %1.")
             .arg(m_incomingPacket.type()));
     }
 
     // Server-initiated re-exchange.
-    if (m_state == ConnectionEstablished) {
+    if (m_keyExchangeState == NoKeyExchange) {
         m_keyExchange.reset(new SshKeyExchange(m_sendFacility));
         m_keyExchange->sendKexInitPacket(m_serverId);
     }
@@ -400,12 +402,12 @@ void SshConnectionPrivate::handleKeyExchangeInitPacket()
         m_ignoreNextPacket = true;
     }
 
-    m_keyExchangeState = KeyExchangeStarted;
+    m_keyExchangeState = DhInitSent;
 }
 
 void SshConnectionPrivate::handleKeyExchangeReplyPacket()
 {
-    if (m_keyExchangeState != KeyExchangeStarted) {
+    if (m_keyExchangeState != DhInitSent) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected packet.", tr("Unexpected packet of type %1.")
             .arg(m_incomingPacket.type()));
@@ -414,12 +416,12 @@ void SshConnectionPrivate::handleKeyExchangeReplyPacket()
     m_keyExchange->sendNewKeysPacket(m_incomingPacket,
         ClientId.left(ClientId.size() - 2));
     m_sendFacility.recreateKeys(*m_keyExchange);
-    m_keyExchangeState = KeyExchangeSuccess;
+    m_keyExchangeState = NewKeysSent;
 }
 
 void SshConnectionPrivate::handleNewKeysPacket()
 {
-    if (m_keyExchangeState != KeyExchangeSuccess) {
+    if (m_keyExchangeState != NewKeysSent) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected packet.", tr("Unexpected packet of type %1.")
             .arg(m_incomingPacket.type()));
