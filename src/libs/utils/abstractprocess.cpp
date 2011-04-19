@@ -66,7 +66,7 @@ Environment AbstractProcess::environment() const
 
 QString AbstractProcess::msgWinCannotRetrieveDebuggingOutput()
 {
-    return QCoreApplication::translate("Utils::AbstractProcess", "Cannot retrieve debugging output.");
+    return QCoreApplication::translate("Utils::AbstractProcess", "Cannot retrieve debugging output.\n");
 }
 
 } // namespace Utils
