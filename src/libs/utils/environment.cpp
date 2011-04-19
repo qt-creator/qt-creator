@@ -211,7 +211,7 @@ QString Environment::searchInPath(const QStringList &executables,
 
         QFileInfo baseFi(exec);
         if (baseFi.isAbsolute() && baseFi.exists())
-            return QDir::toNativeSeparators(exec);
+            return QDir::fromNativeSeparators(exec);
 
         // Check in directories:
         foreach (const QString &dir, additionalDirs) {
