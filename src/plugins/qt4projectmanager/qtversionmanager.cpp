@@ -1011,21 +1011,21 @@ void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
     }
 }
 
-bool QtVersionManager::makefileIsFor(const QString &makefile, const QString &proFile)
+QtVersionManager::MakefileCompatible QtVersionManager::makefileIsFor(const QString &makefile, const QString &proFile)
 {
     if (proFile.isEmpty())
-        return true;
+        return CouldNotParse;
 
     QString line = findQMakeLine(makefile, QLatin1String("# Project:")).trimmed();
     if (line.isEmpty())
-        return false;
+        return CouldNotParse;
 
     line = line.mid(line.indexOf(QChar(':')) + 1);
     line = line.trimmed();
 
     QFileInfo srcFileInfo(QFileInfo(makefile).absoluteDir(), line);
     QFileInfo proFileInfo(proFile);
-    return srcFileInfo == proFileInfo;
+    return (srcFileInfo == proFileInfo) ? SameProject : DifferentProject;
 }
 
 QPair<QtVersion::QmakeBuildConfigs, QString> QtVersionManager::scanMakeFile(const QString &makefile, QtVersion::QmakeBuildConfigs defaultBuildConfig)

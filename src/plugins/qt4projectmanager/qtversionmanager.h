@@ -287,7 +287,9 @@ public:
     QSet<QString> supportedTargetIds() const;
 
     // Static Methods
-    static bool makefileIsFor(const QString &makefile, const QString &proFile);
+
+    enum MakefileCompatible { CouldNotParse, DifferentProject, SameProject };
+    static MakefileCompatible makefileIsFor(const QString &makefile, const QString &proFile);
     static QPair<QtVersion::QmakeBuildConfigs, QString> scanMakeFile(const QString &makefile,
                                                                      QtVersion::QmakeBuildConfigs defaultBuildConfig);
     static QString findQMakeBinaryFromMakefile(const QString &directory);

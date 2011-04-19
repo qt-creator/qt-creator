@@ -328,6 +328,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     bool visible = false;
     bool targetMatches = false;
     bool incompatibleBuild = false;
+    bool couldnotparse = false;
 
     QtVersionManager *vm = QtVersionManager::instance();
     // we only show if we actually have a qmake and makestep
@@ -343,25 +344,31 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         // check that there's a makefile
         if (!qmakePath.isEmpty()) {
             // Is it from the same build?
-            if (!QtVersionManager::makefileIsFor(makefile, m_buildConfiguration->target()->project()->file()->fileName())) {
+            QtVersionManager::MakefileCompatible mc =
+                    QtVersionManager::makefileIsFor(makefile, m_buildConfiguration->target()->project()->file()->fileName());
+            if (mc == QtVersionManager::DifferentProject) {
                 incompatibleBuild = true;
-            } else if (qmakePath != (version ? version->qmakeCommand() : QString())) {
-                // and that the qmake path is different from the current version
-                // import enable
-                visible = true;
-                QtVersion *newVersion = vm->qtVersionForQMakeBinary(qmakePath);
-                bool mustDelete(false);
-                if (!newVersion) {
-                    newVersion = new QtVersion(qmakePath);
-                    mustDelete = true;
+            } else if (mc == QtVersionManager::SameProject) {
+                if (qmakePath != (version ? version->qmakeCommand() : QString())) {
+                    // and that the qmake path is different from the current version
+                    // import enable
+                    visible = true;
+                    QtVersion *newVersion = vm->qtVersionForQMakeBinary(qmakePath);
+                    bool mustDelete(false);
+                    if (!newVersion) {
+                        newVersion = new QtVersion(qmakePath);
+                        mustDelete = true;
+                    }
+                    targetMatches = newVersion->supportsTargetId(m_buildConfiguration->target()->id());
+                    if (mustDelete)
+                        delete newVersion;
+                } else {
+                    // check that the qmake flags, arguments match
+                    visible = !m_buildConfiguration->compareToImportFrom(makefile);
+                    targetMatches = true;
                 }
-                targetMatches = newVersion->supportsTargetId(m_buildConfiguration->target()->id());
-                if (mustDelete)
-                    delete newVersion;
-            } else {
-                // check that the qmake flags, arguments match
-                visible = !m_buildConfiguration->compareToImportFrom(makefile);
-                targetMatches = true;
+            } else if (mc == QtVersionManager::CouldNotParse) {
+                couldnotparse = true;
             }
         }
     }
@@ -409,7 +416,11 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         m_ui->problemLabel->setVisible(false);
         m_ui->warningLabel->setVisible(false);
         m_ui->importLabel->setVisible(visible);
-    } else {
+    } else if (couldnotparse) {
+        m_ui->problemLabel->setVisible(false);
+        m_ui->warningLabel->setVisible(false);
+        m_ui->importLabel->setVisible(false);
+    } else { // target did not match
         m_ui->warningLabel->setVisible(visible);
         m_ui->problemLabel->setVisible(visible);
         m_ui->problemLabel->setText(tr("An incompatible build exists in %1, which will be overwritten.",

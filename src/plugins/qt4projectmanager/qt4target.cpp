@@ -1081,7 +1081,7 @@ BuildConfigurationInfo BuildConfigurationInfo::checkForBuild(const QString &dire
     QString qmakeBinary = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
     if (qmakeBinary.isEmpty())
         return BuildConfigurationInfo();
-    if (!QtVersionManager::makefileIsFor(makefile, proFilePath))
+    if (QtVersionManager::makefileIsFor(makefile, proFilePath) != QtVersionManager::SameProject)
         return BuildConfigurationInfo();
 
     bool temporaryQtVersion = false;
