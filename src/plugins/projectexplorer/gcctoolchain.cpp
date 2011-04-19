@@ -531,8 +531,12 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
         return result;
 
     QList<Abi> abiList = guessGccAbi(compilerPath, systemEnvironment.toStringList());
-    if (!abiList.contains(requiredAbi))
-        return result;
+    if (!abiList.contains(requiredAbi)) {
+        if (requiredAbi.wordWidth() != 64
+                || !abiList.contains(Abi(requiredAbi.architecture(), requiredAbi.os(), requiredAbi.osFlavor(),
+                                         requiredAbi.binaryFormat(), 32)))
+            return result;
+    }
 
     QString debuggerPath = ToolChainManager::instance()->defaultDebugger(requiredAbi); // Find the first debugger
     if (debuggerPath.isEmpty()) {
