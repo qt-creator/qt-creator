@@ -85,6 +85,7 @@
 #include "publishing/publishingwizardselectiondialog.h"
 
 #ifdef Q_OS_WIN
+#    include "windebuginterface.h"
 #    include "msvctoolchain.h"
 #endif
 
@@ -305,6 +306,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // Add ToolChainFactories:
 #ifdef Q_OS_WIN
+    addAutoReleasedObject(new WinDebugInterface);
+
     addAutoReleasedObject(new Internal::MingwToolChainFactory);
     addAutoReleasedObject(new Internal::MsvcToolChainFactory);
 #else

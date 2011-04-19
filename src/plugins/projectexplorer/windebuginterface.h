@@ -30,56 +30,34 @@
 **
 **************************************************************************/
 
-#ifndef WINGUIPROCESS_H
-#define WINGUIPROCESS_H
-
-#include "abstractprocess.h"
+#ifndef WINDEBUGINTERFACE_H
+#define WINDEBUGINTERFACE_H
 
 #include <QtCore/QThread>
-#include <QtCore/QStringList>
 
 #include <windows.h>
-
-using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
 
-// Documentation inside.
-class WinGuiProcess : public QThread, public AbstractProcess
+class WinDebugInterface : public QThread
 {
     Q_OBJECT
 
 public:
-    explicit WinGuiProcess(QObject *parent = 0);
-    virtual ~WinGuiProcess();
-
-    bool isRunning() const;
-    bool start(const QString &program, const QString &args);
-    void stop();
-
-    qint64 applicationPID() const;
-    int exitCode() const;
+    explicit WinDebugInterface(QObject *parent = 0);
+    static WinDebugInterface *instance();
 
 signals:
-    void processMessage(const QString &error, bool isError);
-    void receivedDebugOutput(const QString &output, bool isError);
-    void processFinished(int exitCode);
-
-private slots:
-    void checkDebugOutput(qint64, const QString &);
-    void done();
+    void debugOutput(qint64 pid, const QString &message);
 
 private:
     void run();
 
-    PROCESS_INFORMATION *m_pid;
-    QString m_program;
-    QString m_args;
-    unsigned long m_exitCode;
+    static WinDebugInterface *m_instance;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // WINGUIPROCESS_H
+#endif // WINDEBUGINTERFACE_H

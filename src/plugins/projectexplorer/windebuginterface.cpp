@@ -30,56 +30,58 @@
 **
 **************************************************************************/
 
-#ifndef WINGUIPROCESS_H
-#define WINGUIPROCESS_H
-
-#include "abstractprocess.h"
-
-#include <QtCore/QThread>
-#include <QtCore/QStringList>
-
-#include <windows.h>
-
-using namespace Utils;
+#include "windebuginterface.h"
 
 namespace ProjectExplorer {
 namespace Internal {
 
-// Documentation inside.
-class WinGuiProcess : public QThread, public AbstractProcess
+WinDebugInterface *WinDebugInterface::m_instance = 0;
+
+WinDebugInterface *WinDebugInterface::instance()
 {
-    Q_OBJECT
+    return m_instance;
+}
 
-public:
-    explicit WinGuiProcess(QObject *parent = 0);
-    virtual ~WinGuiProcess();
 
-    bool isRunning() const;
-    bool start(const QString &program, const QString &args);
-    void stop();
+WinDebugInterface::WinDebugInterface(QObject *parent) :
+    QThread(parent)
+{
+    m_instance = this;
+    start();
+}
 
-    qint64 applicationPID() const;
-    int exitCode() const;
+void WinDebugInterface::run()
+{
+    HANDLE bufferReadyEvent = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_BUFFER_READY");
+    if (!bufferReadyEvent)
+        return;
+    HANDLE dataReadyEvent = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_DATA_READY");
+    if (!dataReadyEvent)
+        return;
+    HANDLE sharedFile = CreateFileMapping((HANDLE)-1, NULL, PAGE_READWRITE, 0, 4096, L"DBWIN_BUFFER");
+    if (!sharedFile)
+        return;
+    LPVOID sharedMem = MapViewOfFile(sharedFile, FILE_MAP_READ, 0, 0,  512);
+    if (!sharedMem)
+        return;
 
-signals:
-    void processMessage(const QString &error, bool isError);
-    void receivedDebugOutput(const QString &output, bool isError);
-    void processFinished(int exitCode);
+    LPSTR  message;
+    LPDWORD processId;
 
-private slots:
-    void checkDebugOutput(qint64, const QString &);
-    void done();
+    message = reinterpret_cast<LPSTR>(sharedMem) + sizeof(DWORD);
+    processId = reinterpret_cast<LPDWORD>(sharedMem);
 
-private:
-    void run();
+    SetEvent(bufferReadyEvent);
 
-    PROCESS_INFORMATION *m_pid;
-    QString m_program;
-    QString m_args;
-    unsigned long m_exitCode;
-};
+    while (true) {
+        DWORD ret = WaitForSingleObject(dataReadyEvent, INFINITE);
+
+        if (ret == WAIT_OBJECT_0) {
+            emit debugOutput(*processId, QString::fromLocal8Bit(message));
+            SetEvent(bufferReadyEvent);
+        }
+    }
+}
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#endif // WINGUIPROCESS_H
