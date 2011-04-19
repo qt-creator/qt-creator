@@ -5,7 +5,8 @@ include(bineditor_dependencies.pri)
 
 HEADERS += bineditorplugin.h \
         bineditor.h \
-        bineditorconstants.h
+        bineditorconstants.h \
+        markup.h
 
 SOURCES += bineditorplugin.cpp \
         bineditor.cpp

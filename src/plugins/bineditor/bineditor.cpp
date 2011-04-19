@@ -697,7 +697,6 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
 
     int viewport_height = viewport()->height();
-    QBrush alternate_base = palette().alternateBase();
     for (int i = 0; i < 8; ++i) {
         int bg_x = -xoffset +  m_margin + (2 * i + 1) * m_columnWidth + m_labelWidth;
         QRect r(bg_x - m_charWidth/2, 0, m_columnWidth, viewport_height);
@@ -714,7 +713,6 @@ void BinEditor::paintEvent(QPaintEvent *e)
         if (!m_caseSensitiveSearch)
             ::lower(patternData);
     }
-
 
     int foundPatternAt = findPattern(patternData, patternDataHex, patternOffset, patternOffset, &matchLength);
 
@@ -739,15 +737,15 @@ void BinEditor::paintEvent(QPaintEvent *e)
         if (line >= m_numLines)
             break;
 
+        const quint64 lineAddress = m_baseAddr + uint(line) * 16;
         int y = i * m_lineHeight + m_ascent;
         if (y - m_ascent > e->rect().bottom())
             break;
         if (y + m_descent < e->rect().top())
             continue;
 
-
         painter.drawText(-xoffset, i * m_lineHeight + m_ascent,
-                         addressString(m_baseAddr + uint(line) * 16));
+                         addressString(lineAddress));
 
         int cursor = -1;
         if (line * 16 <= m_cursorPosition && m_cursorPosition < line * 16 + 16)
@@ -789,7 +787,6 @@ void BinEditor::paintEvent(QPaintEvent *e)
                     }
                     break;
                 }
-
                 if (foundPatternAt >= 0 && pos >= foundPatternAt + matchLength)
                     foundPatternAt = findPattern(patternData, patternDataHex, foundPatternAt + matchLength, patternOffset, &matchLength);
 
@@ -804,13 +801,23 @@ void BinEditor::paintEvent(QPaintEvent *e)
 
                 int item_x = -xoffset +  m_margin + c * m_columnWidth + m_labelWidth;
 
-                if (foundPatternAt >= 0 && pos >= foundPatternAt && pos < foundPatternAt + matchLength) {
-                    painter.fillRect(item_x, y-m_ascent, m_columnWidth, m_lineHeight, QColor(0xffef0b));
+                QColor color;
+                foreach (const Markup &m, m_markup) {
+                    if (m.covers(lineAddress + c)) {
+                        color = m.color;
+                        break;
+                    }
+                }
+                if (foundPatternAt >= 0 && pos >= foundPatternAt && pos < foundPatternAt + matchLength)
+                    color = QColor(0xffef0b);
+
+                if (color.isValid()) {
+                    painter.fillRect(item_x, y-m_ascent, m_columnWidth, m_lineHeight, color);
                     int printable_item_x = -xoffset + m_margin + m_labelWidth + 16 * m_columnWidth + m_charWidth
                                            + fm.width(printable.left(c));
                     painter.fillRect(printable_item_x, y-m_ascent,
                                      fm.width(printable.at(c)),
-                                     m_lineHeight, QColor(0xffef0b));
+                                     m_lineHeight, color);
                 }
 
                 if (selStart < selEnd && !isFullySelected && pos >= selStart && pos < selEnd) {
@@ -1095,7 +1102,17 @@ bool BinEditor::event(QEvent *e)
                 //uchar old = dataAt(pos, true);
                 //uchar current = dataAt(pos, false);
 
-                QString msg = 
+                QString msg;
+                const quint64 address = m_baseAddr + selStart;
+                foreach (const Markup &m, m_markup) {
+                    if (m.covers(address) && !m.toolTip.isEmpty()) {
+                        msg += m.toolTip;
+                        msg += QLatin1String("\n\n");
+                        break;
+                    }
+                }
+
+                msg +=
                     tr("Decimal unsigned value (little endian): %1\n"
                        "Decimal unsigned value (big endian): %2\n"
                        "Decimal signed value (little endian): %3\n"
@@ -1427,9 +1444,9 @@ void BinEditor::jumpToAddress(quint64 address)
         emit newRangeRequested(editor(), address);
 }
 
-void BinEditor::setNewWindowRequestAllowed()
+void BinEditor::setNewWindowRequestAllowed(bool c)
 {
-    m_canRequestNewWindow = true;
+    m_canRequestNewWindow = c;
 }
 
 void BinEditor::updateContents()
@@ -1461,6 +1478,12 @@ void BinEditor::asIntegers(int offset, int count, quint64 &beValue,
 bool BinEditor::isMemoryView() const
 {
     return editor()->property("MemoryView").toBool();
+}
+
+void BinEditor::setMarkup(const QList<Markup> &markup)
+{
+    m_markup = markup;
+    viewport()->update();
 }
 
 } // namespace BINEditor

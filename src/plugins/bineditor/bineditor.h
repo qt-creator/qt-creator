@@ -33,6 +33,8 @@
 #ifndef BINEDITOR_H
 #define BINEDITOR_H
 
+#include "markup.h"
+
 #include <QtCore/QBasicTimer>
 #include <QtCore/QMap>
 #include <QtCore/QSet>
@@ -60,7 +62,8 @@ class BinEditor : public QAbstractScrollArea
     Q_OBJECT
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE false)
-
+    Q_PROPERTY(QList<BINEditor::Markup> markup READ markup WRITE setMarkup DESIGNABLE false)
+    Q_PROPERTY(bool newWindowRequestAllowed READ newWindowRequestAllowed WRITE setNewWindowRequestAllowed DESIGNABLE false)
 public:
     BinEditor(QWidget *parent = 0);
     ~BinEditor();
@@ -70,7 +73,9 @@ public:
     Q_INVOKABLE void setSizes(quint64 startAddr, int range, int blockSize = 4096);
     int dataBlockSize() const { return m_blockSize; }
     Q_INVOKABLE void addData(quint64 block, const QByteArray &data);
-    Q_INVOKABLE void setNewWindowRequestAllowed();
+
+    bool newWindowRequestAllowed() const { return m_canRequestNewWindow; }
+
     Q_INVOKABLE void updateContents();
     bool save(QString *errorString, const QString &oldFileName, const QString &newFileName);
 
@@ -119,11 +124,15 @@ public:
 
     static const int SearchStride = 1024 * 1024;
 
+    QList<Markup> markup() const { return m_markup; }
+
 public Q_SLOTS:
     void setFontSettings(const TextEditor::FontSettings &fs);
     void highlightSearchResults(const QByteArray &pattern,
         QTextDocument::FindFlags findFlags = 0);
     void copy(bool raw = false);
+    void setMarkup(const QList<Markup> &markup);
+    void setNewWindowRequestAllowed(bool c);
 
 Q_SIGNALS:
     void modificationChanged(bool modified);
@@ -239,6 +248,7 @@ private:
     QString m_addressString;
     int m_addressBytes;
     bool m_canRequestNewWindow;
+    QList<Markup> m_markup;
 };
 
 } // namespace BINEditor

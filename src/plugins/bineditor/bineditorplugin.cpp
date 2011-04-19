@@ -438,6 +438,24 @@ QStringList BinEditorFactory::mimeTypes() const
     return m_mimeTypes;
 }
 
+/*!
+   \class BINEditor::BinEditorWidgetFactory
+   \brief Service registered with PluginManager to create bin editor widgets for plugins
+   without direct linkage.
+
+   \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
+*/
+
+BinEditorWidgetFactory::BinEditorWidgetFactory(QObject *parent) :
+    QObject(parent)
+{
+}
+
+QWidget *BinEditorWidgetFactory::createWidget(QWidget *parent)
+{
+    return new BinEditor(parent);
+}
+
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
 BinEditorPlugin::BinEditorPlugin()
@@ -515,6 +533,7 @@ bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMes
         this, SLOT(updateCurrentEditor(Core::IContext *)));
 
     addAutoReleasedObject(new BinEditorFactory(this));
+    addAutoReleasedObject(new BinEditorWidgetFactory);
     return true;
 }
 

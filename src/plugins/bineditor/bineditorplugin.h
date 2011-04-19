@@ -44,6 +44,16 @@
 
 namespace BINEditor {
 class BinEditor;
+
+class BinEditorWidgetFactory : public QObject
+{
+    Q_OBJECT
+public:
+    explicit BinEditorWidgetFactory(QObject *parent = 0);
+
+    Q_INVOKABLE QWidget *createWidget(QWidget *parent);
+};
+
 namespace Internal {
 class BinEditorFactory;
 
