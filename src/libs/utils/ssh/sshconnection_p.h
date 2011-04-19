@@ -63,13 +63,16 @@ enum SshStateInternal {
     SocketUnconnected, // initial and after disconnect
     SocketConnecting, // After connectToHost()
     SocketConnected, // After socket's connected() signal
-    KeyExchangeStarted, // After server's KEXINIT message
-    KeyExchangeSuccess, // After server's DH_REPLY message
     UserAuthServiceRequested,
     UserAuthRequested,
-
     ConnectionEstablished // After service has been started
     // ...
+};
+
+enum SshKeyExchangeState {
+    NoKeyExchange,
+    KeyExchangeStarted,    // After server's KEXINIT message
+    KeyExchangeSuccess     // After server's DH_REPLY message
 };
 
 class SshConnectionPrivate : public QObject
@@ -147,6 +150,7 @@ private:
 
     QTcpSocket *m_socket;
     SshStateInternal m_state;
+    SshKeyExchangeState m_keyExchangeState;
     SshIncomingPacket m_incomingPacket;
     SshSendFacility m_sendFacility;
     SshChannelManager * const m_channelManager;
@@ -160,6 +164,7 @@ private:
     bool m_ignoreNextPacket;
     SshConnection *m_conn;
     quint64 m_lastInvalidMsgSeqNr;
+    QByteArray m_serverId;
 };
 
 } // namespace Internal

@@ -215,13 +215,13 @@ void SshConnectionPrivate::setupPacketHandlers()
 {
     typedef SshConnectionPrivate This;
 
-    setupPacketHandler(SSH_MSG_KEXINIT, StateList() << SocketConnected,
-        &This::handleKeyExchangeInitPacket);
-    setupPacketHandler(SSH_MSG_KEXDH_REPLY, StateList() << KeyExchangeStarted,
-        &This::handleKeyExchangeReplyPacket);
+    setupPacketHandler(SSH_MSG_KEXINIT, StateList() << SocketConnected
+        << ConnectionEstablished, &This::handleKeyExchangeInitPacket);
+    setupPacketHandler(SSH_MSG_KEXDH_REPLY, StateList() << SocketConnected
+        << ConnectionEstablished, &This::handleKeyExchangeReplyPacket);
 
-    setupPacketHandler(SSH_MSG_NEWKEYS, StateList() << KeyExchangeSuccess,
-        &This::handleNewKeysPacket);
+    setupPacketHandler(SSH_MSG_NEWKEYS, StateList() << SocketConnected
+        << ConnectionEstablished, &This::handleNewKeysPacket);
     setupPacketHandler(SSH_MSG_SERVICE_ACCEPT,
         StateList() << UserAuthServiceRequested,
         &This::handleServiceAcceptPacket);
@@ -267,7 +267,6 @@ void SshConnectionPrivate::setupPacketHandlers()
         &This::handleChannelClose);
 
     setupPacketHandler(SSH_MSG_DISCONNECT, StateList() << SocketConnected
-        << KeyExchangeStarted << KeyExchangeSuccess
         << UserAuthServiceRequested << UserAuthRequested
         << ConnectionEstablished, &This::handleDisconnect);
 
@@ -341,7 +340,8 @@ void SshConnectionPrivate::handleServerId()
     }
 
     m_keyExchange.reset(new SshKeyExchange(m_sendFacility));
-    m_keyExchange->sendKexInitPacket(m_incomingData.left(endOffset));
+    m_serverId = m_incomingData.left(endOffset);
+    m_keyExchange->sendKexInitPacket(m_serverId);
     m_incomingData.remove(0, endOffset + 2);
 }
 
@@ -358,7 +358,7 @@ void SshConnectionPrivate::handlePackets()
 void SshConnectionPrivate::handleCurrentPacket()
 {
     Q_ASSERT(m_incomingPacket.isComplete());
-    Q_ASSERT(m_state == KeyExchangeStarted || !m_ignoreNextPacket);
+    Q_ASSERT(m_keyExchangeState == KeyExchangeStarted || !m_ignoreNextPacket);
 
     if (m_ignoreNextPacket) {
         m_ignoreNextPacket = false;
@@ -381,28 +381,58 @@ void SshConnectionPrivate::handleCurrentPacket()
 
 void SshConnectionPrivate::handleKeyExchangeInitPacket()
 {
+    if (m_keyExchangeState != NoKeyExchange) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Unexpected packet.", tr("Unexpected packet of type %1.")
+            .arg(m_incomingPacket.type()));
+    }
+
+    // Server-initiated re-exchange.
+    if (m_state == ConnectionEstablished) {
+        m_keyExchange.reset(new SshKeyExchange(m_sendFacility));
+        m_keyExchange->sendKexInitPacket(m_serverId);
+    }
+
     // If the server sends a guessed packet, the guess must be wrong,
     // because the algorithms we support requires us to initiate the
     // key exchange.
-    if (m_keyExchange->sendDhInitPacket(m_incomingPacket))
+    if (m_keyExchange->sendDhInitPacket(m_incomingPacket)) {
         m_ignoreNextPacket = true;
-    m_state = KeyExchangeStarted;
+    }
+
+    m_keyExchangeState = KeyExchangeStarted;
 }
 
 void SshConnectionPrivate::handleKeyExchangeReplyPacket()
 {
+    if (m_keyExchangeState != KeyExchangeStarted) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Unexpected packet.", tr("Unexpected packet of type %1.")
+            .arg(m_incomingPacket.type()));
+    }
+
     m_keyExchange->sendNewKeysPacket(m_incomingPacket,
         ClientId.left(ClientId.size() - 2));
     m_sendFacility.recreateKeys(*m_keyExchange);
-    m_state = KeyExchangeSuccess;
+    m_keyExchangeState = KeyExchangeSuccess;
 }
 
 void SshConnectionPrivate::handleNewKeysPacket()
 {
+    if (m_keyExchangeState != KeyExchangeSuccess) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Unexpected packet.", tr("Unexpected packet of type %1.")
+            .arg(m_incomingPacket.type()));
+    }
+
     m_incomingPacket.recreateKeys(*m_keyExchange);
     m_keyExchange.reset();
-    m_sendFacility.sendUserAuthServiceRequestPacket();
-    m_state = UserAuthServiceRequested;
+    m_keyExchangeState = NoKeyExchange;
+
+    if (m_state == SocketConnected) {
+        m_sendFacility.sendUserAuthServiceRequestPacket();
+        m_state = UserAuthServiceRequested;
+    }
 }
 
 void SshConnectionPrivate::handleServiceAcceptPacket()
@@ -595,6 +625,7 @@ void SshConnectionPrivate::connectToHost()
         SLOT(handleSocketDisconnected()));
     connect(&m_timeoutTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     m_state = SocketConnecting;
+    m_keyExchangeState = NoKeyExchange;
     m_timeoutTimer.start(m_connParams.timeout * 1000);
     m_socket->connectToHost(m_connParams.host, m_connParams.port);
 }
