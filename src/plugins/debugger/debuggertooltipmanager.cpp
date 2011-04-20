@@ -1506,7 +1506,10 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested(ITextEditor *editor,
 
     DebuggerEngine *currentEngine = 0;
     do {
-        if (*handled || samePosition)
+        if (samePosition)
+            *handled = true;
+
+        if (*handled)
             break; // Avoid flicker.
 
         DebuggerCore  *core = debuggerCore();
