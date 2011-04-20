@@ -34,8 +34,10 @@
 #include "checkoutwizardpage.h"
 #include "cvsplugin.h"
 
+#include <coreplugin/iversioncontrol.h>
 #include <vcsbase/checkoutjobs.h>
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QIcon>
@@ -66,9 +68,12 @@ QString CheckoutWizard::displayName() const
 
 QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
 {
+    QList<QWizardPage*> rc;
+    const Core::IVersionControl *vc = CVSPlugin::instance()->versionControl();
+    if (!vc->isConfigured())
+        rc.append(new VCSBase::VcsConfigurationPage(vc));
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path);
-    QList<QWizardPage*> rc;
     rc.push_back(cwp);
     return rc;
 }
@@ -80,7 +85,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     // CVS does not allow for checking out into a different directory.
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
-    const CVSSettings settings = CVSPlugin::cvsPluginInstance()->settings();
+    const CVSSettings settings = CVSPlugin::instance()->settings();
     const QString binary = settings.cvsCommand;
     QStringList args;
     const QString repository = cwp->repository();

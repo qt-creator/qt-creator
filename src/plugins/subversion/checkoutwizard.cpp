@@ -34,8 +34,10 @@
 #include "checkoutwizardpage.h"
 #include "subversionplugin.h"
 
+#include <coreplugin/iversioncontrol.h>
 #include <vcsbase/checkoutjobs.h>
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QIcon>
@@ -66,10 +68,13 @@ QString CheckoutWizard::displayName() const
 
 QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
 {
+    QList<QWizardPage*> rc;
+    const Core::IVersionControl *vc = SubversionPlugin::instance()->versionControl();
+    if (!vc->isConfigured())
+        rc.append(new VCSBase::VcsConfigurationPage(vc));
     CheckoutWizardPage *cwp = new CheckoutWizardPage;
     cwp->setPath(path);
-    QList<QWizardPage*> rc;
-    rc.push_back(cwp);
+    rc.append(cwp);
     return rc;
 }
 
@@ -79,7 +84,7 @@ QSharedPointer<VCSBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     // Collect parameters for the checkout command.
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return QSharedPointer<VCSBase::AbstractCheckoutJob>())
-    const SubversionSettings settings = SubversionPlugin::subversionPluginInstance()->settings();
+    const SubversionSettings settings = SubversionPlugin::instance()->settings();
     const QString binary = settings.svnCommand;
     const QString directory = cwp->directory();
     QStringList args;

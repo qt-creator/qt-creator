@@ -102,7 +102,7 @@ public:
     // cvs 'edit' is used to implement 'open' (cvsnt).
     bool edit(const QString &topLevel, const QStringList &files);
 
-    static CVSPlugin *cvsPluginInstance();
+    static CVSPlugin *instance();
 
 public slots:
     void vcsAnnotate(const QString &file, const QString &revision /* = QString() */, int lineNumber);

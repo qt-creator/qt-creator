@@ -120,7 +120,7 @@ QString SettingsPage::displayName() const
 QWidget *SettingsPage::createPage(QWidget *parent)
 {
     m_widget = new SettingsPageWidget(parent);
-    m_widget->setSettings(SubversionPlugin::subversionPluginInstance()->settings());
+    m_widget->setSettings(SubversionPlugin::instance()->settings());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
@@ -128,7 +128,7 @@ QWidget *SettingsPage::createPage(QWidget *parent)
 
 void SettingsPage::apply()
 {
-    SubversionPlugin::subversionPluginInstance()->setSettings(m_widget->settings());
+    SubversionPlugin::instance()->setSettings(m_widget->settings());
 }
 
 bool SettingsPage::matches(const QString &s) const

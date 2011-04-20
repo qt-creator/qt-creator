@@ -33,8 +33,12 @@
 #include "clonewizard.h"
 #include "clonewizardpage.h"
 
+#include "gitplugin.h"
+#include "gitversioncontrol.h"
+
 #include <vcsbase/checkoutjobs.h>
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QIcon>
@@ -65,9 +69,12 @@ QString CloneWizard::displayName() const
 
 QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)
 {
+    QList<QWizardPage*> rc;
+    const Internal::GitVersionControl *vc = Internal::GitPlugin::instance()->gitVersionControl();
+    if (!vc->isConfigured())
+        rc.append(new VCSBase::VcsConfigurationPage(vc));
     CloneWizardPage *cwp = new CloneWizardPage;
     cwp->setPath(path);
-    QList<QWizardPage*> rc;
     rc.push_back(cwp);
     return rc;
 }

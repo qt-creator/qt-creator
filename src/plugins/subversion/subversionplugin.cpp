@@ -1205,7 +1205,7 @@ void SubversionPlugin::setSettings(const SubversionSettings &s)
     }
 }
 
-SubversionPlugin *SubversionPlugin::subversionPluginInstance()
+SubversionPlugin *SubversionPlugin::instance()
 {
     QTC_ASSERT(m_subversionPluginInstance, return m_subversionPluginInstance);
     return m_subversionPluginInstance;

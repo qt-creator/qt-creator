@@ -1321,7 +1321,7 @@ void CVSPlugin::setSettings(const CVSSettings &s)
     }
 }
 
-CVSPlugin *CVSPlugin::cvsPluginInstance()
+CVSPlugin *CVSPlugin::instance()
 {
     QTC_ASSERT(m_cvsPluginInstance, return m_cvsPluginInstance);
     return m_cvsPluginInstance;

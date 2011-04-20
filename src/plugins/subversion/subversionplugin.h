@@ -103,7 +103,7 @@ public:
     virtual bool vcsCheckout(const QString &directory, const QByteArray &url);
     virtual QString vcsGetRepositoryURL(const QString &directory);
 
-    static SubversionPlugin *subversionPluginInstance();
+    static SubversionPlugin *instance();
 
     // Add authorization options to the command line arguments.
     static QStringList addAuthenticationOptions(const QStringList &args,

@@ -37,8 +37,10 @@
 #include "bazaarclient.h"
 #include "bazaarsettings.h"
 
+#include <coreplugin/iversioncontrol.h>
 #include <vcsbase/checkoutjobs.h>
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsconfigurationpage.h>
 
 #include <QtCore/QDebug>
 
@@ -69,6 +71,9 @@ QString CloneWizard::displayName() const
 QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)
 {
     QList<QWizardPage*> wizardPageList;
+    const Core::IVersionControl *vc = BazaarPlugin::instance()->versionControl();
+    if (!vc->isConfigured())
+        wizardPageList.append(new VCSBase::VcsConfigurationPage(vc));
     CloneWizardPage *page = new CloneWizardPage;
     page->setPath(path);
     wizardPageList.append(page);

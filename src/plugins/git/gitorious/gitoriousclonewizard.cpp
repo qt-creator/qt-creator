@@ -36,8 +36,12 @@
 #include "gitoriousrepositorywizardpage.h"
 #include "clonewizardpage.h"
 
+#include <git/gitplugin.h>
+
+#include <coreplugin/iversioncontrol.h>
 #include <vcsbase/checkoutjobs.h>
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QUrl>
@@ -93,13 +97,17 @@ QString GitoriousCloneWizard::displayName() const
 
 QList<QWizardPage*> GitoriousCloneWizard::createParameterPages(const QString &path)
 {
+    QList<QWizardPage*> rc;
+    const Core::IVersionControl *vc = Git::Internal::GitPlugin::instance()->versionControl();
+    if (!vc->isConfigured())
+        rc.append(new VCSBase::VcsConfigurationPage(vc));
+
     GitoriousHostWizardPage *hostPage = new GitoriousHostWizardPage;
     GitoriousProjectWizardPage *projectPage = new GitoriousProjectWizardPage(hostPage);
     GitoriousRepositoryWizardPage *repoPage = new GitoriousRepositoryWizardPage(projectPage);
     GitoriousCloneWizardPage *clonePage = new GitoriousCloneWizardPage(repoPage);
     clonePage->setPath(path);
 
-    QList<QWizardPage*> rc;
     rc << hostPage << projectPage << repoPage << clonePage;
     return rc;
 }
