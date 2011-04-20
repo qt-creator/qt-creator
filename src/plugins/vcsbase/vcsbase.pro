@@ -5,6 +5,7 @@ include(../../qtcreatorplugin.pri)
 include(vcsbase_dependencies.pri)
 HEADERS += vcsbase_global.h \
     vcsbaseconstants.h \
+    vcsconfigurationpage.h \
     vcsplugin.h \
     corelistener.h \
     vcsbaseplugin.h \
@@ -35,6 +36,7 @@ HEADERS += vcsbase_global.h \
 
 SOURCES += vcsplugin.cpp \
     vcsbaseplugin.cpp \
+    vcsconfigurationpage.cpp \
     corelistener.cpp \
     baseannotationhighlighter.cpp \
     diffhighlighter.cpp \
@@ -67,4 +69,6 @@ FORMS += commonsettingspage.ui \
     nicknamedialog.ui \
     checkoutprogresswizardpage.ui \
     basecheckoutwizardpage.ui \
-    cleandialog.ui
+    cleandialog.ui \
+    vcsconfigurationpage.ui \
+
