@@ -57,6 +57,7 @@ enum OmitPreHashing { NoHash };
 }
 
 class ProStringList;
+class ProFile;
 
 class ProString {
 public:
@@ -70,6 +71,8 @@ public:
     ProString(const QString &str, int offset, int length);
     ProString(const QString &str, int offset, int length, uint hash);
     ProString(const QString &str, int offset, int length, ProStringConstants::OmitPreHashing);
+    void setSource(const ProFile *pro) { m_file = pro; }
+    const ProFile *sourceFile() const { return m_file; }
     QString toQString() const;
     QString &toQString(QString &tmp) const;
     ProString &operator+=(const ProString &other);
@@ -95,6 +98,7 @@ public:
 private:
     QString m_string;
     int m_offset, m_length;
+    const ProFile *m_file;
     mutable uint m_hash;
     QChar *prepareAppend(int extraLen);
     uint updatedHash() const;

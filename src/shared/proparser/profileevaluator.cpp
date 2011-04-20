@@ -279,7 +279,6 @@ public:
     FunctionDefs m_functionDefs;
     ProStringList m_returnValue;
     QStack<QHash<ProString, ProStringList> > m_valuemapStack;         // VariableName must be us-ascii, the content however can be non-us-ascii.
-    QHash<const ProFile*, QHash<ProString, ProStringList> > m_filevaluemap; // Variables per include file
     QString m_tmp1, m_tmp2, m_tmp3, m_tmp[2]; // Temporaries for efficient toQString
 
     ProFileOption *m_option;
@@ -514,6 +513,7 @@ ProString ProFileEvaluator::Private::getStr(const ushort *&tokPtr)
 {
     uint len = *tokPtr++;
     ProString ret(m_current.pro->items(), tokPtr - m_current.pro->tokPtr(), len, NoHash);
+    ret.setSource(m_current.pro);
     tokPtr += len;
     return ret;
 }
@@ -1107,7 +1107,6 @@ void ProFileEvaluator::Private::visitProVariable(
             // We could make a union of modified and unmodified values,
             // but this will break just as much as it fixes, so leave it as is.
             replaceInList(&valuesRef(varName), regexp, replace, global, m_tmp2);
-            replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global, m_tmp2);
         }
     } else {
         ProStringList varVal = expandVariableReferences(tokPtr, sizeHint);
@@ -1118,7 +1117,6 @@ void ProFileEvaluator::Private::visitProVariable(
                 if (!m_skipLevel) {
                     zipEmpty(&varVal);
                     m_valuemapStack.top()[varName] = varVal;
-                    m_filevaluemap[currentProFile()][varName] = varVal;
                 }
             } else {
                 zipEmpty(&varVal);
@@ -1139,31 +1137,23 @@ void ProFileEvaluator::Private::visitProVariable(
                             if (!has.contains(s))
                                 v << s;
                     }
-                    // These values will not be used for further processing inside
-                    // the evaluator. Duplicate elimination happens later.
-                    m_filevaluemap[currentProFile()][varName] += varVal;
                 }
             }
             break;
         case TokAppendUnique:    // *=
-            if (!m_skipLevel || m_cumulative) {
+            if (!m_skipLevel || m_cumulative)
                 insertUnique(&valuesRef(varName), varVal);
-                insertUnique(&m_filevaluemap[currentProFile()][varName], varVal);
-            }
             break;
         case TokAppend:          // +=
             if (!m_skipLevel || m_cumulative) {
                 zipEmpty(&varVal);
                 valuesRef(varName) += varVal;
-                m_filevaluemap[currentProFile()][varName] += varVal;
             }
             break;
         case TokRemove:       // -=
             if (!m_cumulative) {
-                if (!m_skipLevel) {
+                if (!m_skipLevel)
                     removeEach(&valuesRef(varName), varVal);
-                    removeEach(&m_filevaluemap[currentProFile()][varName], varVal);
-                }
             } else {
                 // We are stingy with our values, too.
             }
@@ -3277,7 +3267,13 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
 QStringList ProFileEvaluator::values(const QString &variableName, const ProFile *pro) const
 {
     // It makes no sense to put any kind of magic into expanding these
-    return expandEnvVars(d->m_filevaluemap.value(pro).value(ProString(variableName)));
+    const ProStringList &values = d->m_valuemapStack.at(0).value(ProString(variableName));
+    QStringList ret;
+    ret.reserve(values.size());
+    foreach (const ProString &str, values)
+        if (str.sourceFile() == pro)
+            ret << expandEnvVars(str.toQString());
+    return ret;
 }
 
 QStringList ProFileEvaluator::absolutePathValues(
