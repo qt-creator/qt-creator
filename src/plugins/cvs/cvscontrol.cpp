@@ -34,6 +34,8 @@
 #include "cvsplugin.h"
 #include "cvssettings.h"
 
+#include <vcsbase/vcsbaseconstants.h>
+
 #include <QtCore/QFileInfo>
 
 using namespace CVS;
@@ -47,6 +49,11 @@ CVSControl::CVSControl(CVSPlugin *plugin) :
 QString CVSControl::displayName() const
 {
     return QLatin1String("cvs");
+}
+
+QString CVSControl::id() const
+{
+    return QLatin1String(VCSBase::Constants::VCS_ID_CVS);
 }
 
 bool CVSControl::isConfigured() const

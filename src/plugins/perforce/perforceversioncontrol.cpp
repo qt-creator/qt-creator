@@ -35,6 +35,8 @@
 #include "perforceconstants.h"
 #include "perforcesettings.h"
 
+#include <vcsbase/vcsbaseconstants.h>
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
@@ -49,6 +51,11 @@ PerforceVersionControl::PerforceVersionControl(PerforcePlugin *plugin) :
 QString PerforceVersionControl::displayName() const
 {
     return QLatin1String("perforce");
+}
+
+QString PerforceVersionControl::id() const
+{
+    return QLatin1String(VCSBase::Constants::VCS_ID_PERFORCE);
 }
 
 bool PerforceVersionControl::isConfigured() const

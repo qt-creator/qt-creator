@@ -34,6 +34,7 @@
 #include "bazaarclient.h"
 
 #include <vcsbase/vcsbaseclientsettings.h>
+#include <vcsbase/vcsbaseconstants.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QVariant>
@@ -50,6 +51,11 @@ BazaarControl::BazaarControl(BazaarClient *client)
 QString BazaarControl::displayName() const
 {
     return tr("Bazaar");
+}
+
+QString BazaarControl::id() const
+{
+    return QLatin1String(VCSBase::Constants::VCS_ID_BAZAAR);
 }
 
 bool BazaarControl::managesDirectory(const QString &directory, QString *topLevel) const

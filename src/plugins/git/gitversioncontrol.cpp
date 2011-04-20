@@ -36,6 +36,7 @@
 #include "gitutils.h"
 
 #include <utils/qtcassert.h>
+#include <vcsbase/vcsbaseconstants.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -54,6 +55,11 @@ GitVersionControl::GitVersionControl(GitClient *client) :
 QString GitVersionControl::displayName() const
 {
     return QLatin1String("git");
+}
+
+QString GitVersionControl::id() const
+{
+    return QLatin1String(VCSBase::Constants::VCS_ID_GIT);
 }
 
 bool GitVersionControl::isConfigured() const

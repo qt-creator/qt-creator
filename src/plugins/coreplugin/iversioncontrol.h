@@ -64,6 +64,7 @@ public:
     virtual ~IVersionControl() {}
 
     virtual QString displayName() const = 0;
+    virtual QString id() const = 0;
 
     /*!
      * Returns whether files in this directory should be managed with this

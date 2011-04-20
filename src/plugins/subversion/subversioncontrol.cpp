@@ -34,6 +34,8 @@
 #include "subversionplugin.h"
 #include "subversionsettings.h"
 
+#include <vcsbase/vcsbaseconstants.h>
+
 #include <QtCore/QFileInfo>
 
 using namespace Subversion;
@@ -47,6 +49,11 @@ SubversionControl::SubversionControl(SubversionPlugin *plugin) :
 QString SubversionControl::displayName() const
 {
     return QLatin1String("subversion");
+}
+
+QString SubversionControl::id() const
+{
+    return QLatin1String(VCSBase::Constants::VCS_ID_SUBVERSION);
 }
 
 bool SubversionControl::isConfigured() const

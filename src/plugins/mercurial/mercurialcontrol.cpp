@@ -34,6 +34,7 @@
 #include "mercurialclient.h"
 
 #include <vcsbase/vcsbaseclientsettings.h>
+#include <vcsbase/vcsbaseconstants.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QVariant>
@@ -50,6 +51,11 @@ MercurialControl::MercurialControl(MercurialClient *client)
 QString MercurialControl::displayName() const
 {
     return tr("Mercurial");
+}
+
+QString MercurialControl::id() const
+{
+    return QLatin1String(VCSBase::Constants::VCS_ID_MERCURIAL);
 }
 
 bool MercurialControl::managesDirectory(const QString &directory, QString *topLevel) const

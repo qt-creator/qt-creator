@@ -53,6 +53,8 @@ public:
     explicit BazaarControl(BazaarClient *bazaarClient);
 
     QString displayName() const;
+    QString id() const;
+
     bool managesDirectory(const QString &filename, QString *topLevel = 0) const;
     bool isConfigured() const;
     bool supportsOperation(Operation operation) const;
