@@ -205,6 +205,7 @@ private:
     int m_slowRenderTimerInterval;
     QVector<InstancePropertyPair> m_changedPropertyList;
     QStringList m_importList;
+    QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
     QWeakPointer<QObject> m_dummyContextObject;
     QWeakPointer<QDeclarativeComponent> m_importComponent;

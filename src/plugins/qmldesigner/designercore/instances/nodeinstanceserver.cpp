@@ -295,6 +295,7 @@ void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &con
         ServerNodeInstance instance = instanceForId(container.instanceId());
         if (instance.isValid()) {
             instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(), instanceForId(container.newParentInstanceId()), container.newParentProperty());
+            m_parentChangedSet.insert(instance);
         }
     }
 
@@ -1177,7 +1178,6 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
 
         QSet<ServerNodeInstance> informationChangedInstanceSet;
         QVector<InstancePropertyPair> propertyChangedList;
-        QSet<ServerNodeInstance> parentChangedSet;
         bool adjustSceneRect = false;
 
         if (m_declarativeView) {
@@ -1211,7 +1211,7 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
 
                     if (propertyName == "parent") {
                         informationChangedInstanceSet.insert(instance);
-                        parentChangedSet.insert(instance);
+                        m_parentChangedSet.insert(instance);
                     }
 
                     propertyChangedList.append(property);
@@ -1227,8 +1227,10 @@ void NodeInstanceServer::findItemChangesAndSendChangeCommands()
             if (!propertyChangedList.isEmpty())
                 nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
 
-            if (!parentChangedSet.isEmpty())
-                sendChildrenChangedCommand(parentChangedSet.toList());
+            if (!m_parentChangedSet.isEmpty()) {
+                sendChildrenChangedCommand(m_parentChangedSet.toList());
+                m_parentChangedSet.clear();
+            }
 
             if (adjustSceneRect) {
                 QRectF boundingRect = m_rootNodeInstance.boundingRect();
