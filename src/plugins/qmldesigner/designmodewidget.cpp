@@ -634,11 +634,12 @@ void DesignModeWidget::setup()
             openDocumentsWidget->setWindowTitle(tr("Open Documents"));
         }
 
-        if (navigationView.widget)
-            navigationView.widget->setStyleSheet(QLatin1String(
-                    Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css")
-                    + Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css")
-                    + "QLabel { background-color: #4f4f4f; }"));
+        if (navigationView.widget) {
+            QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
+            sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+            sheet += "QLabel { background-color: #4f4f4f; }";
+            navigationView.widget->setStyleSheet(QString::fromLatin1(sheet));
+        }
     }
 
     m_nodeInstanceView = new NodeInstanceView(this);

@@ -42,9 +42,9 @@
 
 StyledOutputpanePlaceHolder::StyledOutputpanePlaceHolder(Core::IMode *mode, QSplitter *parent) : Core::OutputPanePlaceHolder(mode, parent)
 {
-    m_customStylesheet = QString::fromLatin1(
-            Utils::FileReader::fetchQrc(":/qmldesigner/outputpane-style.css")
-            + Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css"));
+    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/outputpane-style.css");
+    sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
+    m_customStylesheet = QString::fromLatin1(sheet);
 }
 
 void StyledOutputpanePlaceHolder::childEvent(QChildEvent *event)
