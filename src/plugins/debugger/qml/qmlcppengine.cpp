@@ -665,7 +665,7 @@ void QmlCppEngine::handleRemoteSetupFailed(const QString &message)
 
 void QmlCppEngine::showMessage(const QString &msg, int channel, int timeout) const
 {
-    if (channel == AppOutput || channel == AppError) {
+    if (channel == AppOutput || channel == AppError || channel == AppStuff) {
         // message is from CppEngine, allow qml engine to process
         d->m_qmlEngine->filterApplicationMessage(msg, channel);
     }
