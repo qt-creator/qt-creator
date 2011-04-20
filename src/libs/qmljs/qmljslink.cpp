@@ -183,27 +183,6 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
     foreach (const ImportInfo &info, doc->bind()->imports()) {
         ObjectValue *import = d->importCache.value(ImportCacheKey(info));
 
-        //### Hack: if this document is in a library, and if there is an qmldir file in the same directory, and if the prefix is an import-path, the import means to import everything in this library.
-        if (info.ast() && info.ast()->fileName && info.ast()->fileName->asString() == QLatin1String(".")) {
-            const QString importInfoName(info.name());
-            if (QFileInfo(QDir(importInfoName), QLatin1String("qmldir")).exists()) {
-                foreach (const QString &importPath, d->importPaths) {
-                    if (importInfoName.startsWith(importPath)) {
-                        // Got it.
-
-                        const QString cleanPath = QFileInfo(importInfoName).canonicalFilePath();
-                        const QString forcedPackageName = cleanPath.mid(importPath.size() + 1).replace('/', '.').replace('\\', '.');
-                        import = importNonFile(doc, info, forcedPackageName);
-                        if (import)
-                            d->importCache.insert(ImportCacheKey(info), import);
-
-                        break;
-                    }
-                }
-            }
-        }
-        //### End of hack.
-
         if (!import) {
             switch (info.type()) {
             case ImportInfo::FileImport:
