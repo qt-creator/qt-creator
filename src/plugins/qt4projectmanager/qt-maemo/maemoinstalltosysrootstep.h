@@ -33,11 +33,12 @@
 #ifndef MAEMOINSTALLTOSYSROOTSTEP_H
 #define MAEMOINSTALLTOSYSROOTSTEP_H
 
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
 
 #include <QtCore/QStringList>
 
-QT_FORWARD_DECLARE_CLASS(QProcess);
+QT_FORWARD_DECLARE_CLASS(QProcess)
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -111,7 +112,22 @@ public:
 
     static const QString Id;
     static const QString DisplayName;
-private:
+};
+
+class MaemoMakeInstallToSysrootStep : public ProjectExplorer::AbstractProcessStep
+{
+    Q_OBJECT
+public:
+    explicit MaemoMakeInstallToSysrootStep(ProjectExplorer::BuildStepList *bsl);
+    MaemoMakeInstallToSysrootStep(ProjectExplorer::BuildStepList *bsl,
+        MaemoMakeInstallToSysrootStep *other);
+
+    virtual bool immutable() const { return false; }
+    virtual bool init();
+    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+
+    static const QString Id;
+    static const QString DisplayName;
 };
 
 } // namespace Internal

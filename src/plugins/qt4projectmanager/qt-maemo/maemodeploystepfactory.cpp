@@ -68,7 +68,7 @@ QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) 
 
     QStringList ids;
     if (qobject_cast<AbstractQt4MaemoTarget *>(parent->target()))
-        ids << MaemoCopyToSysrootStep::Id;
+        ids << MaemoMakeInstallToSysrootStep::Id;
     if (!qobject_cast<Qt4HarmattanTarget *>(parent->target()))
         ids << MaemoUploadAndInstallTarPackageStep::Id;
     if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())) {
@@ -104,6 +104,8 @@ QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
         return MaemoInstallRpmPackageToSysrootStep::DisplayName;
     else if (id == MaemoCopyToSysrootStep::Id)
         return MaemoCopyToSysrootStep::DisplayName;
+    else if (id == MaemoMakeInstallToSysrootStep::Id)
+        return MaemoMakeInstallToSysrootStep::DisplayName;
     else if (id == MaemoDirectDeviceUploadStep::Id)
         return MaemoDirectDeviceUploadStep::DisplayName;
     return QString();
@@ -124,6 +126,8 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const QString &
         return new MaemoInstallRpmPackageToSysrootStep(parent);
     } else if (id == MaemoCopyToSysrootStep::Id) {
         return new MaemoCopyToSysrootStep(parent);
+    } else if (id == MaemoMakeInstallToSysrootStep::Id) {
+        return new MaemoMakeInstallToSysrootStep(parent);
     } else if (id == MaemoMountAndInstallDeployStep::Id
         || (id == OldMaemoDeployStepId && qobject_cast< const Qt4Maemo5Target *>(t))) {
         return new MaemoMountAndInstallDeployStep(parent);
@@ -193,6 +197,9 @@ BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *produ
     } else if (product->id() == MaemoCopyToSysrootStep::Id) {
         return new MaemoCopyToSysrootStep(parent,
             qobject_cast<MaemoCopyToSysrootStep *>(product));
+    } else if (product->id() == MaemoMakeInstallToSysrootStep::Id) {
+        return new MaemoMakeInstallToSysrootStep(parent,
+            qobject_cast<MaemoMakeInstallToSysrootStep *>(product));
     } else if (product->id() == MaemoDirectDeviceUploadStep::Id) {
         return new MaemoDirectDeviceUploadStep(parent,
             qobject_cast<MaemoDirectDeviceUploadStep *>(product));

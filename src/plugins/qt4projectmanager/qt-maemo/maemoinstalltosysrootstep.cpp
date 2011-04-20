@@ -330,6 +330,55 @@ const QString MaemoCopyToSysrootStep::Id
 const QString MaemoCopyToSysrootStep::DisplayName
     = tr("Copy files to sysroot");
 
+
+MaemoMakeInstallToSysrootStep::MaemoMakeInstallToSysrootStep(BuildStepList *bsl)
+    : AbstractProcessStep(bsl, Id)
+{
+}
+
+MaemoMakeInstallToSysrootStep::MaemoMakeInstallToSysrootStep(BuildStepList *bsl,
+        MaemoMakeInstallToSysrootStep *other)
+    : AbstractProcessStep(bsl, other)
+{
+}
+
+bool MaemoMakeInstallToSysrootStep::init()
+{
+    const Qt4BuildConfiguration * const bc
+        = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    if (!bc) {
+        addOutput("Can't deploy: No active build dconfiguration.",
+            ErrorMessageOutput);
+        return false;
+    }
+    const QtVersion * const qtVersion = bc->qtVersion();
+    if (!qtVersion) {
+        addOutput("Can't deploy: Unusable build configuration.",
+            ErrorMessageOutput);
+        return false;
+
+    }
+    processParameters()->setCommand(MaemoGlobal::madCommand(qtVersion));
+    const QStringList args = QStringList() << QLatin1String("-t")
+        << MaemoGlobal::targetName(qtVersion) << QLatin1String("make")
+        << QLatin1String("install")
+        << (QLatin1String("INSTALL_ROOT=") + qtVersion->systemRoot());
+    processParameters()->setArguments(args.join(QLatin1String(" ")));
+    processParameters()->setEnvironment(bc->environment());
+    processParameters()->setWorkingDirectory(bc->buildDirectory());
+    return true;
+}
+
+BuildStepConfigWidget *MaemoMakeInstallToSysrootStep::createConfigWidget()
+{
+    return new MaemoCopyFilesToSysrootWidget;
+}
+
+const QString MaemoMakeInstallToSysrootStep::Id
+    = QLatin1String("MaemoMakeInstallToSysrootStep");
+const QString MaemoMakeInstallToSysrootStep::DisplayName
+    = tr("Copy files to sysroot");
+
 } // namespace Internal
 } // namespace Qt4ProjectManager
 

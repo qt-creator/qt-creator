@@ -156,7 +156,7 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
     dc->setDefaultDisplayName(displayNameForId(id));
 
     if (id == Qt4MaemoDeployConfiguration::FremantleWithoutPackagingId) {
-        dc->stepList()->insertStep(0, new MaemoCopyToSysrootStep(dc->stepList()));
+        dc->stepList()->insertStep(0, new MaemoMakeInstallToSysrootStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoMountAndCopyDeployStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::FremantleWithPackagingId) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
