@@ -11022,6 +11022,24 @@
            switch to the nfs-kernel-server, or create a symlink so that the
            settings are stored locally.
 
+        \o The Okteta KDE custom widget plugin might be installed as part of
+           some Linux distributions. It can cause Qt Designer to crash. For
+           more information, see:
+
+           \list
+
+           \o  \l{https://bugs.launchpad.net/ubuntu/+source/kdeutils/+bug/662005}{Ubuntu bug 662005}
+           \o  \l{http://bugreports.qt.nokia.com/browse/QTBUG-12025}{QTBUG-12025}
+
+           \endlist
+
+           To resolve the issue, enter the following command to remove the package:
+           \code
+           sudo apt-get remove okteta
+           \endcode
+           Or delete the following file:
+           \c /usr/lib/kde4/plugins/designer/oktetadesignerplugin.so.
+
     \endlist
 
     \section1 Editing Issues
