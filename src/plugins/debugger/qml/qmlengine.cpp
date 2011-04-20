@@ -949,14 +949,29 @@ void QmlEngine::messageReceived(const QByteArray &message)
             sendPing();
     } else if (command == "LOCALS") {
         QList<WatchData> locals;
+        QList<WatchData> watches;
         int frameId;
         stream >> frameId >> locals;
+        if (!stream.atEnd()) { // compatibility with jsdebuggeragent from 2.1, 2.2
+            stream >> watches;
+        }
 
-        logMessage(LogReceive, QString("%1 %2 (%3 x locals)").arg(
+        logMessage(LogReceive, QString("%1 %2 (%3 x locals) (%4 x watchdata)").arg(
                              QString(command), QString::number(frameId),
-                             QString::number(locals.size())));
+                             QString::number(locals.size()),
+                             QString::number(watches.size())));
         watchHandler()->beginCycle();
         bool needPing = false;
+        foreach (WatchData data, watches) {
+            data.iname = watchHandler()->watcherName(data.exp);
+            watchHandler()->insertData(data);
+
+            if (watchHandler()->expandedINames().contains(data.iname)) {
+                needPing = true;
+                expandObject(data.iname, data.id);
+            }
+        }
+
         foreach (WatchData data, locals) {
             data.iname = "local." + data.exp;
             watchHandler()->insertData(data);

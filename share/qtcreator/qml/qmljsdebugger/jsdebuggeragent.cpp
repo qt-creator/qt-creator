@@ -538,11 +538,21 @@ void JSDebuggerAgentPrivate::messageReceived(const QByteArray &message)
             deep++;
         }
 
+        QList<JSAgentWatchData> watches;
         QList<JSAgentWatchData> locals = getLocals(ctx);
+
+        // re-evaluate watches given the frame's context
+        QScriptContext *currentCtx = engine()->pushContext();
+        currentCtx->setActivationObject(ctx->activationObject());
+        currentCtx->setThisObject(ctx->thisObject());
+        foreach (const QString &expr, watchExpressions)
+            watches << fromScriptValue(expr, engine()->evaluate(expr));
+        recordKnownObjects(watches);
+        engine()->popContext();
 
         QByteArray reply;
         QDataStream rs(&reply, QIODevice::WriteOnly);
-        rs << QByteArray("LOCALS") << frameId << locals;
+        rs << QByteArray("LOCALS") << frameId << locals << watches;
         sendMessage(reply);
     } else if (command == "SET_PROPERTY") {
         SetupExecEnv execEnv(this);
