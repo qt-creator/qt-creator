@@ -93,7 +93,7 @@ ProFileOption::ProFileOption()
     dirlist_sep = QLatin1Char(':');
     dir_sep = QLatin1Char('/');
 #endif
-    qmakespec = QString::fromLocal8Bit(qgetenv("QMAKESPEC").data());
+    qmakespec = getEnv(QLatin1String("QMAKESPEC"));
 
     host_mode = HOST_UNKNOWN_MODE;
     target_mode = TARG_UNKNOWN_MODE;
@@ -161,6 +161,17 @@ void ProFileOption::applyHostMode()
    } else {
        dir_sep = fL1S("/");
    }
+}
+
+QString ProFileOption::getEnv(const QString &var) const
+{
+    if (!environment.isEmpty())
+#ifdef Q_OS_WIN
+        return environment.value(var.toUpper());
+#else
+        return environment.value(var);
+#endif
+    return QString::fromLocal8Bit(qgetenv(var.toLocal8Bit().constData()));
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -256,6 +267,8 @@ public:
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
 
+    QString expandEnvVars(const QString &str) const;
+    QString fixPathToLocalOS(const QString &str) const;
     QString sysrootify(const QString &path, const QString &baseDir) const;
 
     int m_skipLevel;
@@ -635,19 +648,19 @@ static void replaceInList(ProStringList *varlist,
     }
 }
 
-static QString expandEnvVars(const QString &str)
+QString ProFileEvaluator::Private::expandEnvVars(const QString &str) const
 {
     QString string = str;
     int rep;
     QRegExp reg_variableName = statics.reg_variableName; // Copy for thread safety
     while ((rep = reg_variableName.indexIn(string)) != -1)
         string.replace(rep, reg_variableName.matchedLength(),
-                       QString::fromLocal8Bit(qgetenv(string.mid(rep + 2, reg_variableName.matchedLength() - 3).toLatin1().constData()).constData()));
+                       m_option->getEnv(string.mid(rep + 2, reg_variableName.matchedLength() - 3)));
     return string;
 }
 
 // This is braindead, but we want qmake compat
-static QString fixPathToLocalOS(const QString &str)
+QString ProFileEvaluator::Private::fixPathToLocalOS(const QString &str) const
 {
     QString string = expandEnvVars(str);
 
@@ -750,8 +763,8 @@ void ProFileEvaluator::Private::evaluateExpression(
                     getStr(tokPtr).toQString(m_tmp1), true), NoHash), ret, pending, joined);
             break;
         case TokEnvVar:
-            addStrList(split_value_list(QString::fromLocal8Bit(qgetenv(
-                    getStr(tokPtr).toQString(m_tmp1).toLatin1().constData()))), tok, ret, pending, joined);
+            addStrList(split_value_list(m_option->getEnv(getStr(tokPtr).toQString(m_tmp1))),
+                       tok, ret, pending, joined);
             break;
         case TokFuncName: {
             ProString func = getHashStr(tokPtr);
@@ -1376,9 +1389,9 @@ QStringList ProFileEvaluator::Private::qmakeMkspecPaths() const
     QStringList ret;
     const QString concat = QLatin1String("/mkspecs");
 
-    QByteArray qmakepath = qgetenv("QMAKEPATH");
+    QString qmakepath = m_option->getEnv(QLatin1String("QMAKEPATH"));
     if (!qmakepath.isEmpty())
-        foreach (const QString &it, QString::fromLocal8Bit(qmakepath).split(m_option->dirlist_sep))
+        foreach (const QString &it, qmakepath.split(m_option->dirlist_sep))
             ret << QDir::cleanPath(it) + concat;
 
     QString builtIn = propertyValue(QLatin1String("QT_INSTALL_DATA"), false) + concat;
@@ -1416,9 +1429,9 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
 
     QStringList feature_roots;
 
-    QByteArray mkspec_path = qgetenv("QMAKEFEATURES");
+    QString mkspec_path = m_option->getEnv(QLatin1String("QMAKEFEATURES"));
     if (!mkspec_path.isEmpty())
-        foreach (const QString &f, QString::fromLocal8Bit(mkspec_path).split(m_option->dirlist_sep))
+        foreach (const QString &f, mkspec_path.split(m_option->dirlist_sep))
             feature_roots += resolvePath(f);
 
     feature_roots += propertyValue(QLatin1String("QMAKEFEATURES"), false).split(
@@ -1430,9 +1443,9 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
             feature_roots << (path + concat_it);
     }
 
-    QByteArray qmakepath = qgetenv("QMAKEPATH");
+    QString qmakepath = m_option->getEnv(QLatin1String("QMAKEPATH"));
     if (!qmakepath.isNull()) {
-        const QStringList lst = QString::fromLocal8Bit(qmakepath).split(m_option->dirlist_sep);
+        const QStringList lst = qmakepath.split(m_option->dirlist_sep);
         foreach (const QString &item, lst) {
             QString citem = resolvePath(item);
             foreach (const QString &concat_it, concat)
@@ -1700,8 +1713,7 @@ ProStringList ProFileEvaluator::Private::expandVariableReferences(
 
                 ProStringList replacement;
                 if (var_type == ENVIRON) {
-                    replacement = split_value_list(QString::fromLocal8Bit(qgetenv(
-                            var.toQString(m_tmp1).toLocal8Bit().constData())));
+                    replacement = split_value_list(m_option->getEnv(var.toQString(m_tmp1)));
                 } else if (var_type == PROPERTY) {
                     replacement << ProString(propertyValue(var.toQString(m_tmp1), true), NoHash);
                 } else if (var_type == FUNCTION) {
@@ -3242,14 +3254,6 @@ bool ProFileEvaluator::contains(const QString &variableName) const
     return d->m_valuemapStack.top().contains(ProString(variableName));
 }
 
-static QStringList expandEnvVars(const ProStringList &x)
-{
-    QStringList ret;
-    foreach (const ProString &str, x)
-        ret << expandEnvVars(str.toQString());
-    return ret;
-}
-
 QString ProFileEvaluator::value(const QString &variable) const
 {
     const QStringList &vals = values(variable);
@@ -3261,7 +3265,12 @@ QString ProFileEvaluator::value(const QString &variable) const
 
 QStringList ProFileEvaluator::values(const QString &variableName) const
 {
-    return expandEnvVars(d->values(ProString(variableName)));
+    const ProStringList &values = d->values(ProString(variableName));
+    QStringList ret;
+    ret.reserve(values.size());
+    foreach (const ProString &str, values)
+        ret << d->expandEnvVars(str.toQString());
+    return ret;
 }
 
 QStringList ProFileEvaluator::values(const QString &variableName, const ProFile *pro) const
@@ -3272,7 +3281,7 @@ QStringList ProFileEvaluator::values(const QString &variableName, const ProFile 
     ret.reserve(values.size());
     foreach (const ProString &str, values)
         if (str.sourceFile() == pro)
-            ret << expandEnvVars(str.toQString());
+            ret << d->expandEnvVars(str.toQString());
     return ret;
 }
 

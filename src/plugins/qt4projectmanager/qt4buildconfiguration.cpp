@@ -192,6 +192,8 @@ void Qt4BuildConfiguration::ctor()
 {
     connect(this, SIGNAL(environmentChanged()),
             this, SLOT(emitBuildDirectoryChanged()));
+    connect(this, SIGNAL(environmentChanged()),
+            this, SLOT(emitProFileEvaluteNeeded()));
 
     QtVersionManager *vm = QtVersionManager::instance();
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),

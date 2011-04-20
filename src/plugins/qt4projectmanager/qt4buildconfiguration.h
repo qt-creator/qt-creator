@@ -83,7 +83,6 @@ public:
     void setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config);
 
     /// \internal for qmakestep
-    void emitProFileEvaluteNeeded();
     // used by qmake step to notify that the qmake args have changed
     // not really nice, the build configuration should save the arguments
     // since they are needed for reevaluation
@@ -127,6 +126,7 @@ public:
 
 public slots:
     void importFromBuildDirectory();
+    void emitProFileEvaluteNeeded();
 
 signals:
     /// emitted if the qt version changes (either directly, or because the default qt version changed

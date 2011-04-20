@@ -168,6 +168,7 @@ struct ProFileOption
     QString qmakespec;
     QString cachefile;
     QHash<QString, QString> properties;
+    QHash<QString, QString> environment;
     QString sysroot;
 
     //QString pro_ext;
@@ -182,6 +183,7 @@ struct ProFileOption
     friend class ProFileEvaluator::Private;
 
     void applyHostMode();
+    QString getEnv(const QString &) const;
 
     QHash<ProString, ProStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
     ProFileEvaluator::FunctionDefs base_functions;
