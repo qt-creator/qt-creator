@@ -46,6 +46,7 @@
 #include <QtGui/QTextFormat>
 
 QT_FORWARD_DECLARE_CLASS(QMenu)
+QT_FORWARD_DECLARE_CLASS(QHelpEvent)
 
 namespace Core {
 class IEditor;
@@ -185,9 +186,12 @@ private:
     QByteArray dataMid(int from, int length, bool old = false) const;
     QByteArray blockData(int block, bool old = false) const;
 
-    QPoint offsetToPos(int offset);
-    void asIntegers(int offset, int count, quint64 &beValue, quint64 &leValue,
-        bool old = false);
+    QPoint offsetToPos(int offset) const;
+    void asIntegers(int offset, int count, quint64 &bigEndianValue, quint64 &littleEndianValue,
+        bool old = false) const;
+    void asFloat(int offset, float &value, bool old) const;
+    void asDouble(int offset, double &value, bool old) const;
+    QString toolTip(const QHelpEvent *helpEvent) const;
 
     int m_unmodifiedState;
     int m_readOnly;
