@@ -33,7 +33,7 @@
     \nextpage creator-developing-maemo.html
     \endif
 
-    \title Setting Up Development Environment for Symbian
+    \title Connecting Symbian Devices
 
     When you install \QSDK, the build and run settings for Symbian devices
     are set up automatically. You only need to connect the devices to the
