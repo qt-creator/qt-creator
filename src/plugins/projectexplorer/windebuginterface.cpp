@@ -32,6 +32,20 @@
 
 #include "windebuginterface.h"
 
+#include <windows.h>
+
+/*!
+    \class ProjectExplorer::Internal::WinDebugInterface
+    \brief Windows: Captures output of the Windows API OutputDebugString() function.
+
+    Emits output by process id.
+
+    OutputDebugString puts its data into a shared memory segment named
+    \c DBWIN_BUFFER which can be accessed via file mapping.
+
+    \sa ProjectExplorer::Internal::WinGuiProcess
+*/
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -42,58 +56,80 @@ WinDebugInterface *WinDebugInterface::instance()
     return m_instance;
 }
 
-
 WinDebugInterface::WinDebugInterface(QObject *parent) :
     QThread(parent)
 {
     m_instance = this;
+    setObjectName(QLatin1String("WinDebugInterfaceThread"));
     start();
 }
 
 WinDebugInterface::~WinDebugInterface()
 {
-    terminate(); // Creator is shutting down anyway, no need to clean up.
-    wait(500);
+    if (m_waitHandles[TerminateEventHandle]) {
+        SetEvent(m_waitHandles[TerminateEventHandle]);
+        wait(500);
+    }
+    m_instance = 0;
 }
 
 void WinDebugInterface::run()
 {
-    HANDLE bufferReadyEvent = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_BUFFER_READY");
-    if (!bufferReadyEvent)
-        return;
-    HANDLE dataReadyEvent = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_DATA_READY");
-    if (!dataReadyEvent) {
-        CloseHandle(bufferReadyEvent);
-        return;
+    m_waitHandles[DataReadyEventHandle] = m_waitHandles[TerminateEventHandle] = 0;
+    m_bufferReadyEvent = 0;
+    m_sharedFile = 0;
+    m_sharedMem  = 0;
+    runLoop();
+    if (m_sharedMem) {
+        UnmapViewOfFile(m_sharedMem);
+        m_sharedMem = 0;
     }
-    HANDLE sharedFile = CreateFileMapping((HANDLE)-1, NULL, PAGE_READWRITE, 0, 4096, L"DBWIN_BUFFER");
-    if (!sharedFile) {
-        CloseHandle(dataReadyEvent);
-        CloseHandle(bufferReadyEvent);
-        return;
+    if (m_sharedFile) {
+        CloseHandle(m_sharedFile);
+        m_sharedFile = 0;
     }
-    LPVOID sharedMem = MapViewOfFile(sharedFile, FILE_MAP_READ, 0, 0,  512);
-    if (!sharedMem) {
-        CloseHandle(sharedFile);
-        CloseHandle(dataReadyEvent);
-        CloseHandle(bufferReadyEvent);
-        return;
+    if (m_waitHandles[TerminateEventHandle]) {
+        CloseHandle(m_waitHandles[TerminateEventHandle]);
+        m_waitHandles[TerminateEventHandle] = 0;
     }
+    if (m_waitHandles[DataReadyEventHandle]) {
+        CloseHandle(m_waitHandles[DataReadyEventHandle]);
+        m_waitHandles[DataReadyEventHandle] = 0;
+    }
+    if (m_bufferReadyEvent) {
+        CloseHandle(m_bufferReadyEvent);
+        m_bufferReadyEvent = 0;
+    }
+}
 
-    LPSTR  message;
-    LPDWORD processId;
+void WinDebugInterface::runLoop()
+{
+    m_waitHandles[TerminateEventHandle] = CreateEvent(NULL, FALSE, FALSE, NULL);
+    m_waitHandles[DataReadyEventHandle] = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_DATA_READY");
+    if (!m_waitHandles[TerminateEventHandle] || !m_waitHandles[DataReadyEventHandle])
+        return;
+    m_bufferReadyEvent = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_BUFFER_READY");
+    if (!m_bufferReadyEvent)
+        return;
+    m_sharedFile = CreateFileMapping((HANDLE)-1, NULL, PAGE_READWRITE, 0, 4096, L"DBWIN_BUFFER");
+    if (!m_sharedFile)
+        return;
+    m_sharedMem = MapViewOfFile(m_sharedFile, FILE_MAP_READ, 0, 0,  512);
+    if (!m_sharedMem)
+        return;
 
-    message = reinterpret_cast<LPSTR>(sharedMem) + sizeof(DWORD);
-    processId = reinterpret_cast<LPDWORD>(sharedMem);
+    LPSTR  message = reinterpret_cast<LPSTR>(m_sharedMem) + sizeof(DWORD);
+    LPDWORD processId = reinterpret_cast<LPDWORD>(m_sharedMem);
 
-    SetEvent(bufferReadyEvent);
+    SetEvent(m_bufferReadyEvent);
 
     while (true) {
-        DWORD ret = WaitForSingleObject(dataReadyEvent, INFINITE);
-
-        if (ret == WAIT_OBJECT_0) {
+        const DWORD ret = WaitForMultipleObjects(HandleCount, m_waitHandles, FALSE, INFINITE);
+        if (ret == WAIT_FAILED || ret - WAIT_OBJECT_0 == TerminateEventHandle)
+            break;
+        if (ret - WAIT_OBJECT_0 == DataReadyEventHandle) {
             emit debugOutput(*processId, QString::fromLocal8Bit(message));
-            SetEvent(bufferReadyEvent);
+            SetEvent(m_bufferReadyEvent);
         }
     }
 }

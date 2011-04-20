@@ -35,8 +35,6 @@
 
 #include <QtCore/QThread>
 
-#include <windows.h>
-
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -54,9 +52,17 @@ signals:
     void debugOutput(qint64 pid, const QString &message);
 
 private:
+    enum Handles { DataReadyEventHandle, TerminateEventHandle, HandleCount };
+
     void run();
+    void runLoop();
 
     static WinDebugInterface *m_instance;
+
+    Qt::HANDLE m_waitHandles[HandleCount];
+    Qt::HANDLE m_bufferReadyEvent;
+    Qt::HANDLE m_sharedFile;
+    void *m_sharedMem;
 };
 
 } // namespace Internal

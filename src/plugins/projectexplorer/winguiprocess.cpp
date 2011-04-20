@@ -47,6 +47,8 @@ using namespace ProjectExplorer::Internal;
 
     The output of a Windows GUI application would otherwise not be
     visible. Uses the debug interface and emits via a signal.
+
+    \sa ProjectExplorer::Internal::WinDebugInterface
 */
 
 WinGuiProcess::WinGuiProcess(QObject *parent) :
