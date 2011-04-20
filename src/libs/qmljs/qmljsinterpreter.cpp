@@ -2029,12 +2029,15 @@ template <typename T>
 QList<QmlObjectValue *> CppQmlTypes::load(Engine *engine, const T &objects)
 {
     // load
+    QList<QmlObjectValue *> loadedObjects;
     QList<QmlObjectValue *> newObjects;
     foreach (FakeMetaObject::ConstPtr metaObject, objects) {
         foreach (const FakeMetaObject::Export &exp, metaObject->exports()) {
-            QmlObjectValue *newObject = makeObject(engine, metaObject, exp);
-            if (newObject)
-                newObjects += newObject;
+            bool wasCreated;
+            QmlObjectValue *loadedObject = getOrCreate(engine, metaObject, exp, &wasCreated);
+            loadedObjects += loadedObject;
+            if (wasCreated)
+                newObjects += loadedObject;
         }
     }
 
@@ -2043,7 +2046,7 @@ QList<QmlObjectValue *> CppQmlTypes::load(Engine *engine, const T &objects)
         setPrototypes(object);
     }
 
-    return newObjects;
+    return loadedObjects;
 }
 // explicitly instantiate load for list and hash
 template QList<QmlObjectValue *> CppQmlTypes::load< QList<FakeMetaObject::ConstPtr> >(Engine *, const QList<FakeMetaObject::ConstPtr> &);
@@ -2101,19 +2104,26 @@ QmlObjectValue *CppQmlTypes::typeByQualifiedName(const QString &package, const Q
     return typeByQualifiedName(qualifiedName(package, type, version));
 }
 
-QmlObjectValue *CppQmlTypes::makeObject(
+QmlObjectValue *CppQmlTypes::getOrCreate(
     Engine *engine,
     FakeMetaObject::ConstPtr metaObject,
-    const LanguageUtils::FakeMetaObject::Export &exp)
+    const LanguageUtils::FakeMetaObject::Export &exp,
+    bool *wasCreated)
 {
     // make sure we're not loading duplicate objects
-    if (_typesByFullyQualifiedName.contains(exp.packageNameVersion))
-        return 0;
+    if (QmlObjectValue *existing = _typesByFullyQualifiedName.value(exp.packageNameVersion)) {
+        if (wasCreated)
+            *wasCreated = false;
+        return existing;
+    }
 
     QmlObjectValue *objectValue = new QmlObjectValue(
                 metaObject, exp.type, exp.package, exp.version, engine);
     _typesByPackage[exp.package].append(objectValue);
     _typesByFullyQualifiedName[exp.packageNameVersion] = objectValue;
+
+    if (wasCreated)
+        *wasCreated = true;
     return objectValue;
 }
 
@@ -2141,7 +2151,7 @@ void CppQmlTypes::setPrototypes(QmlObjectValue *object)
     // needs to create Positioner (Qt) and Positioner (QtQuick)
     QmlObjectValue *v = object;
     while (!v->prototype() && !fmo->superclassName().isEmpty()) {
-        QmlObjectValue *superValue = getOrCreate(targetPackage, fmo->superclassName());
+        QmlObjectValue *superValue = getOrCreateForPackage(targetPackage, fmo->superclassName());
         if (!superValue)
             return;
         v->setPrototype(superValue);
@@ -2150,7 +2160,7 @@ void CppQmlTypes::setPrototypes(QmlObjectValue *object)
     }
 }
 
-QmlObjectValue *CppQmlTypes::getOrCreate(const QString &package, const QString &cppName)
+QmlObjectValue *CppQmlTypes::getOrCreateForPackage(const QString &package, const QString &cppName)
 {
     // first get the cpp object value
     QmlObjectValue *cppObject = typeByCppName(cppName);
@@ -2164,10 +2174,9 @@ QmlObjectValue *CppQmlTypes::getOrCreate(const QString &package, const QString &
     FakeMetaObject::Export exp = metaObject->exportInPackage(package);
     QmlObjectValue *object = 0;
     if (exp.isValid()) {
-        object = typeByQualifiedName(exp.packageNameVersion);
-        if (!object)
-            object = makeObject(cppObject->engine(), metaObject, exp);
+        object = getOrCreate(cppObject->engine(), metaObject, exp);
     } else {
+        // make a convenience object that does not get added to _typesByPackage
         const QString qname = qualifiedName(package, cppName, ComponentVersion());
         object = typeByQualifiedName(qname);
         if (!object) {
@@ -3443,3 +3452,59 @@ ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *conte
     }
     return ImportInfo();
 }
+
+#ifdef QT_DEBUG
+
+class MemberDumper: public MemberProcessor
+{
+public:
+    MemberDumper() {}
+
+    virtual bool processProperty(const QString &name, const Value *)
+    {
+        qDebug() << "property: " << name;
+        return true;
+    }
+
+    virtual bool processEnumerator(const QString &name, const Value *)
+    {
+        qDebug() << "enumerator: " << name;
+        return true;
+    }
+
+    virtual bool processSignal(const QString &name, const Value *)
+    {
+        qDebug() << "signal: " << name;
+        return true;
+    }
+
+    virtual bool processSlot(const QString &name, const Value *)
+    {
+        qDebug() << "slot: " << name;
+        return true;
+    }
+
+    virtual bool processGeneratedSlot(const QString &name, const Value *)
+    {
+        qDebug() << "generated slot: " << name;
+        return true;
+    }
+};
+
+void TypeEnvironment::dump() const
+{
+    qDebug() << "Type environment contents, in search order:";
+    QListIterator<Import> it(_imports);
+    it.toBack();
+    while (it.hasPrevious()) {
+        const Import &i = it.previous();
+        const ObjectValue *import = i.object;
+        const ImportInfo &info = i.info;
+
+        qDebug() << "  " << info.name() << " " << info.version().toString() << " as " << info.id() << " : " << import;
+        MemberDumper dumper;
+        import->processMembers(&dumper);
+    }
+}
+
+#endif

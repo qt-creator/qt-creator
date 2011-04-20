@@ -633,11 +633,12 @@ public:
                                         LanguageUtils::ComponentVersion version) const;
 
 private:
-    QmlObjectValue *makeObject(Engine *engine,
-                               LanguageUtils::FakeMetaObject::ConstPtr metaObject,
-                               const LanguageUtils::FakeMetaObject::Export &exp);
     void setPrototypes(QmlObjectValue *object);
-    QmlObjectValue *getOrCreate(const QString &package, const QString &cppName);
+    QmlObjectValue *getOrCreate(Engine *engine,
+                                LanguageUtils::FakeMetaObject::ConstPtr metaObject,
+                                const LanguageUtils::FakeMetaObject::Export &exp,
+                                bool *wasCreated = 0);
+    QmlObjectValue *getOrCreateForPackage(const QString &package, const QString &cppName);
 
 
     QHash<QString, QList<QmlObjectValue *> > _typesByPackage;
@@ -1036,6 +1037,10 @@ public:
 
     void addImport(const ObjectValue *import, const ImportInfo &info);
     ImportInfo importInfo(const QString &name, const Context *context) const;
+
+#ifdef QT_DEBUG
+    void dump() const;
+#endif
 };
 
 } } // namespace QmlJS::Interpreter
