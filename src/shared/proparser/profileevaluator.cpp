@@ -48,6 +48,9 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
+#ifndef QT_BOOTSTRAPPED
+# include <QtCore/QProcess>
+#endif
 #ifdef PROEVALUATOR_THREAD_SAFE
 # include <QtCore/QThreadPool>
 #endif
@@ -270,6 +273,10 @@ public:
     QString expandEnvVars(const QString &str) const;
     QString fixPathToLocalOS(const QString &str) const;
     QString sysrootify(const QString &path, const QString &baseDir) const;
+
+#ifndef QT_BOOTSTRAPPED
+    void runProcess(QProcess *proc, const QString &command, QProcess::ProcessChannel chan) const;
+#endif
 
     int m_skipLevel;
     int m_loopLevel; // To report unexpected break() and next()s
@@ -1526,6 +1533,26 @@ QString ProFileEvaluator::Private::sysrootify(const QString &path, const QString
     return isHostSystemPath ? path : m_option->sysroot + path;
 }
 
+#ifndef QT_BOOTSTRAPPED
+void ProFileEvaluator::Private::runProcess(QProcess *proc, const QString &command,
+                                           QProcess::ProcessChannel chan) const
+{
+    proc->setWorkingDirectory(currentDirectory());
+# ifdef Q_OS_WIN
+    proc->setNativeArguments(QLatin1String("/v:off /s /c \"") + command + QLatin1Char('"'));
+    proc->start(m_option->getEnv(QLatin1String("COMSPEC")), QStringList());
+# else
+    proc->start(QLatin1String("/bin/sh"), QStringList() << QLatin1String("-c") << command);
+# endif
+    proc->waitForFinished(-1);
+    proc->setReadChannel(chan);
+    QByteArray errout = proc->readAll();
+    if (errout.endsWith('\n'))
+        errout.chop(1);
+    m_handler->evalError(QString(), 0, QString::fromLocal8Bit(errout));
+}
+#endif
+
 // The (QChar*)current->constData() constructs below avoid pointless detach() calls
 // FIXME: This is inefficient. Should not make new string if it is a straight subsegment
 static ALWAYS_INLINE void appendChar(ushort unicode,
@@ -2307,14 +2334,22 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 if (args.count() < 1 || args.count() > 2) {
                     evalError(fL1S("system(execute) requires one or two arguments."));
                 } else {
+                    bool singleLine = true;
+                    if (args.count() > 1)
+                        singleLine = isTrue(args.at(1), m_tmp2);
+                    QByteArray output;
+#ifndef QT_BOOTSTRAPPED
+                    QProcess proc;
+                    runProcess(&proc, args.at(0).toQString(m_tmp2), QProcess::StandardError);
+                    output = proc.readAllStandardOutput();
+                    output.replace('\t', ' ');
+                    if (singleLine)
+                        output.replace('\n', ' ');
+#else
                     char buff[256];
                     FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
                                            + IoUtils::shellQuote(currentDirectory())
                                            + QLatin1String(" && ") + args[0]).toLocal8Bit(), "r");
-                    bool singleLine = true;
-                    if (args.count() > 1)
-                        singleLine = isTrue(args.at(1), m_tmp2);
-                    QString output;
                     while (proc && !feof(proc)) {
                         int read_in = int(fread(buff, 1, 255, proc));
                         if (!read_in)
@@ -2323,12 +2358,12 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                             if ((singleLine && buff[i] == '\n') || buff[i] == '\t')
                                 buff[i] = ' ';
                         }
-                        buff[read_in] = '\0';
-                        output += QString::fromLocal8Bit(buff);
+                        output.append(buff, read_in);
                     }
-                    ret += split_value_list(output);
                     if (proc)
                         QT_PCLOSE(proc);
+#endif
+                    ret += split_value_list(QString::fromLocal8Bit(output));
                 }
             }
             break;
@@ -2899,9 +2934,16 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
                 evalError(fL1S("system(exec) requires one argument."));
                 return ReturnFalse;
             }
+#ifndef QT_BOOTSTRAPPED
+            QProcess proc;
+            proc.setProcessChannelMode(QProcess::MergedChannels);
+            runProcess(&proc, args.at(0).toQString(m_tmp2), QProcess::StandardOutput);
+            return returnBool(proc.exitStatus() == QProcess::NormalExit && proc.exitCode() == 0);
+#else
             return returnBool(system((QLatin1String("cd ")
                                       + IoUtils::shellQuote(currentDirectory())
                                       + QLatin1String(" && ") + args.at(0)).toLocal8Bit().constData()) == 0);
+#endif
         }
 #endif
         case T_ISEMPTY: {

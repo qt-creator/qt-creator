@@ -91,6 +91,7 @@ QString IoUtils::resolvePath(const QString &baseDir, const QString &fileName)
     return QDir::cleanPath(baseDir + QLatin1Char('/') + fileName);
 }
 
+#ifdef QT_BOOTSTRAPPED
 inline static bool isSpecialChar(ushort c)
 {
     // Chars that should be quoted (TM). This includes:
@@ -148,3 +149,4 @@ QString IoUtils::shellQuote(const QString &arg)
     }
     return ret;
 }
+#endif
