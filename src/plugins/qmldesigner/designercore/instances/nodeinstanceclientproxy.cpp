@@ -96,7 +96,6 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
 
 void NodeInstanceClientProxy::writeCommand(const QVariant &command)
 {
-    static unsigned int commandCounter = 0;
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out << quint32(0);

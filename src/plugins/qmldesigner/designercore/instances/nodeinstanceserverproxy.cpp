@@ -277,7 +277,6 @@ void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitSt
 
 void NodeInstanceServerProxy::readFirstDataStream()
 {
-    static unsigned int lastCommandCounter = 0;
     QList<QVariant> commandList;
 
     while (!m_firstSocket->atEnd()) {
@@ -315,7 +314,6 @@ void NodeInstanceServerProxy::readFirstDataStream()
 
 void NodeInstanceServerProxy::readSecondDataStream()
 {
-    static unsigned int lastCommandCounter = 0;
     QList<QVariant> commandList;
 
     while (!m_secondSocket->atEnd()) {
