@@ -43,11 +43,8 @@
 
     \note Please report bugs and suggestions to the
     \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
-    You can also join the Qt Creator mailing list. To subscribe,
-    send a message with the word \e subscribe to
-    \l{mailto:qt-creator-request@qt.nokia.com}
-    {qt-creator-request@trolltech.com}. For more information about Qt mailing
-    lists, visit \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
+    You can also join the Qt Creator mailing list at:
+    \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
 
     \raw HTML
     <img border="0" style="float:right;" src="images/qtcreator-screenshots.png" />
