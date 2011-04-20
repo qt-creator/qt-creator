@@ -37,6 +37,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QIODevice>
+#include <QtCore/QXmlStreamWriter> // Mac.
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -44,7 +45,6 @@ class QTemporaryFile;
 class QWidget;
 class QTextStream;
 class QDataStream;
-class QXmlStreamWriter;
 QT_END_NAMESPACE
 
 namespace Utils {

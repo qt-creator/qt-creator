@@ -40,7 +40,6 @@
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QDataStream>
 #include <QtCore/QTextStream>
-#include <QtCore/QXmlStreamWriter>
 #include <QtGui/QMessageBox>
 
 namespace Utils {
