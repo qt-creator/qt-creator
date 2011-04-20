@@ -43,6 +43,7 @@
 
 #include <QtCore/QLatin1Char>
 #include <QtCore/QProcess>
+#include <QtCore/QWeakPointer>
 
 using namespace ProjectExplorer;
 
@@ -113,10 +114,23 @@ class MaemoCopyFilesToSysrootWidget : public BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    virtual void init() { }
+    MaemoCopyFilesToSysrootWidget(const BuildStep *buildStep)
+        : m_buildStep(buildStep) {}
+
+    virtual void init()
+    {
+        if (m_buildStep) {
+            connect(m_buildStep.data(), SIGNAL(displayNameChanged()),
+                SIGNAL(updateSummary()));
+        }
+    }
     virtual QString summaryText() const {
         return QLatin1String("<b>") + displayName() + QLatin1String("</b>"); }
-    virtual QString displayName() const { return MaemoCopyToSysrootStep::DisplayName; }
+    virtual QString displayName() const {
+        return m_buildStep ? m_buildStep.data()->displayName() : QString();
+    }
+private:
+    const QWeakPointer<const BuildStep> m_buildStep;
 };
 
 
@@ -322,7 +336,7 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
 
 BuildStepConfigWidget *MaemoCopyToSysrootStep::createConfigWidget()
 {
-    return new MaemoCopyFilesToSysrootWidget;
+    return new MaemoCopyFilesToSysrootWidget(this);
 }
 
 const QString MaemoCopyToSysrootStep::Id
@@ -334,12 +348,14 @@ const QString MaemoCopyToSysrootStep::DisplayName
 MaemoMakeInstallToSysrootStep::MaemoMakeInstallToSysrootStep(BuildStepList *bsl)
     : AbstractProcessStep(bsl, Id)
 {
+    setDefaultDisplayName(DisplayName);
 }
 
 MaemoMakeInstallToSysrootStep::MaemoMakeInstallToSysrootStep(BuildStepList *bsl,
         MaemoMakeInstallToSysrootStep *other)
     : AbstractProcessStep(bsl, other)
 {
+    setDefaultDisplayName(DisplayName);
 }
 
 bool MaemoMakeInstallToSysrootStep::init()
@@ -371,7 +387,7 @@ bool MaemoMakeInstallToSysrootStep::init()
 
 BuildStepConfigWidget *MaemoMakeInstallToSysrootStep::createConfigWidget()
 {
-    return new MaemoCopyFilesToSysrootWidget;
+    return new MaemoCopyFilesToSysrootWidget(this);
 }
 
 const QString MaemoMakeInstallToSysrootStep::Id
