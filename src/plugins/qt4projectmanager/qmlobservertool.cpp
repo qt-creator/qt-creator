@@ -86,7 +86,7 @@ QString QmlObserverTool::toolByInstallData(const QString &qtInstallData)
     const QStringList directories = installDirectories(qtInstallData);
     const QStringList binFilenames = validBinaryFilenames();
 
-    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames);
+    return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames, false);
 }
 
 QStringList QmlObserverTool::locationsByInstallData(const QString &qtInstallData)

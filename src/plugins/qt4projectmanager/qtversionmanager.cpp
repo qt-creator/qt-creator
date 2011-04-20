@@ -1271,11 +1271,14 @@ void QtVersion::updateVersionInfo() const
 
     if (m_versionInfo.contains("QT_INSTALL_DATA")) {
         QString qtInstallData = m_versionInfo.value("QT_INSTALL_DATA");
+        QString qtHeaderData = m_versionInfo.value("QT_INSTALL_HEADERS");
         m_versionInfo.insert("QMAKE_MKSPECS", QDir::cleanPath(qtInstallData+"/mkspecs"));
 
         if (!qtInstallData.isEmpty()) {
             m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
-            m_hasQmlDump = !QmlDumpTool::toolByInstallData(qtInstallData, false).isEmpty() || !QmlDumpTool::toolByInstallData(qtInstallData, true).isEmpty();
+            m_hasQmlDump
+                    = !QmlDumpTool::toolByInstallData(qtInstallData, qtHeaderData, false).isEmpty()
+                    || !QmlDumpTool::toolByInstallData(qtInstallData, qtHeaderData, true).isEmpty();
             m_hasQmlDebuggingLibrary
                     = !QmlDebuggingLibrary::libraryByInstallData(qtInstallData, false).isEmpty()
                 || !QmlDebuggingLibrary::libraryByInstallData(qtInstallData, true).isEmpty();
@@ -1970,9 +1973,10 @@ QString QtVersion::gdbDebuggingHelperLibrary() const
 QString QtVersion::qmlDumpTool(bool debugVersion) const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
+    QString qtHeaderData = versionInfo().value("QT_INSTALL_HEADERS");
     if (qtInstallData.isEmpty())
         return QString();
-    return QmlDumpTool::toolByInstallData(qtInstallData, debugVersion);
+    return QmlDumpTool::toolByInstallData(qtInstallData, qtHeaderData, debugVersion);
 }
 
 QString QtVersion::qmlDebuggingHelperLibrary(bool debugVersion) const

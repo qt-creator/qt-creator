@@ -53,7 +53,8 @@ class QT4PROJECTMANAGER_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrar
 public:
     static bool canBuild(const QtVersion *qtVersion);
     static QString toolForProject(ProjectExplorer::Project *project, bool debugDump);
-    static QString toolByInstallData(const QString &qtInstallData, bool debugDump);
+    static QString toolByInstallData(const QString &qtInstallData, const QString &qtInstallHeaders,
+                                     bool debugDump);
     static QStringList locationsByInstallData(const QString &qtInstallData, bool debugDump);
 
     // Build the helpers and return the output log/errormessage.

@@ -336,8 +336,10 @@ QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data)
     str.setIntegerBase(16);
     str << "f " << addr << " L" << data.size();
     const int count = data.size();
-    for (int i = 0 ; i < count ; i++ )
-        str << ' ' << int(data.at(i));
+    for (int i = 0 ; i < count ; i++ ) {
+        const unsigned char uc = (unsigned char)data.at(i);
+        str << ' ' << unsigned(uc);
+    }
     return cmd;
 }
 

@@ -43,11 +43,8 @@
 
     \note Please report bugs and suggestions to the
     \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
-    You can also join the Qt Creator mailing list. To subscribe,
-    send a message with the word \e subscribe to
-    \l{mailto:qt-creator-request@qt.nokia.com}
-    {qt-creator-request@trolltech.com}. For more information about Qt mailing
-    lists, visit \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
+    You can also join the Qt Creator mailing list at:
+    \l{http://lists.qt.nokia.com}{http://lists.qt.nokia.com}.
 
     \raw HTML
     <img border="0" style="float:right;" src="images/qtcreator-screenshots.png" />
@@ -55,7 +52,6 @@
 
     \list
        \o \l{Introducing Qt Creator}
-       \o \l{Operating Systems and Supported Platforms}
        \o \l{Qt Creator User Interface}
        \o \l{Getting Started}
            \list
@@ -68,16 +64,17 @@
             \list
                 \o \l{Creating a Project}
                 \o \l{Opening a Project}
-                \o \l{Adding New Custom Wizards}
                 \o \l{Adding Libraries to Projects}
-                \o \l{Setting Up a CMake Project}
-                \o \l{Setting Up a Generic Project}
-                \o \l{Setting Up Development Environment for Maemo}
-                \o \l{Setting Up Development Environment for Symbian}
+                \o \l{Connecting Maemo Devices}
+                \o \l{Connecting Symbian Devices}
                 \o \l{Managing Sessions}
             \endlist
-       \o \l{Using the Editor}
+       \o \l{Coding}
             \list
+                \o \l{Using the Editor}
+                \o \l{Semantic Highlighting}
+                \o \l{Checking Code Syntax}
+                \o \l{Completing Code}
                 \o \l{Finding and Replacing}
                 \o \l{Refactoring}
                 \o \l{Using Qt Quick Toolbars}
@@ -86,7 +83,6 @@
                 \o \l{Using Text Editing Macros}
                 \o \l{Configuring the Editor}
                 \o \l{Using FakeVim Mode}
-
             \endlist
        \o \l{Developing Application UI}
        \list
@@ -104,9 +100,6 @@
                     \o \l {Implementing Application Logic}
                 \endlist
            \o \l{Developing Widget Based Applications}
-               \list
-                   \o \l{Adding Qt Designer Plugins}
-               \endlist
            \o \l{Optimizing Applications for Mobile Devices}
        \endlist
        \o \l{Building and Running Applications}
@@ -133,7 +126,6 @@
                 \o \l{Detecting Memory Leaks}
                 \o \l{Troubleshooting Debugger}
             \endlist
-       \o \l{Using the Maemo Emulator}
        \o \l{Deploying Applications to Mobile Devices}
             \list
                 \o \l{Deploying Applications to Symbian Devices}
@@ -142,13 +134,22 @@
                 \o \l{Publishing Applications to Ovi Store}
                 \o \l{Building with Remote Compiler}
             \endlist
-       \o \l{Using Version Control Systems}
-       \o \l{Using External Tools}
-       \o \l{Editing MIME Types}
-       \o \l{Showing Task List Files in the Build Issues Pane}
-       \o \l{Using Command Line Options}
        \o \l{Getting Help}
-       \o \l{Keyboard Shortcuts}
+       \o \l{Advanced Use}
+           \list
+               \o \l{Operating Systems and Supported Platforms}
+               \o \l{Adding New Custom Wizards}
+               \o \l{Setting Up a CMake Project}
+               \o \l{Setting Up a Generic Project}
+               \o \l{Using Version Control Systems}
+               \o \l{Adding Qt Designer Plugins}
+               \o \l{Using External Tools}
+               \o \l{Using the Maemo Emulator}
+               \o \l{Editing MIME Types}
+               \o \l{Showing Task List Files in the Build Issues Pane}
+               \o \l{Using Command Line Options}
+               \o \l{Keyboard Shortcuts}
+           \endlist
        \o \l{FAQ}
        \o \l{Tips and Tricks}
        \o \l{Known Issues}
@@ -162,7 +163,7 @@
     \contentspage index.html
     \previouspage index.html
     \page creator-overview.html
-    \nextpage creator-os-supported-platforms.html
+    \nextpage creator-quick-tour.html
 
   \title Introducing Qt Creator
 
@@ -297,7 +298,7 @@
     compose and customize your widgets or dialogs and test them using different
     styles and resolutions.
 
-    \section1 Coding
+    \section1 Code Editor
 
     As an IDE, Qt Creator differs from a text editor in that it knows how to build and run
     applications. It understands the C++ and QML languages as code, not just as plain text. This allows
@@ -462,9 +463,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-overview.html
+    \previouspage creator-advanced.html
     \page creator-os-supported-platforms.html
-    \nextpage creator-quick-tour.html
+    \nextpage creator-project-wizards.html
 
     \title Operating Systems and Supported Platforms
 
@@ -561,7 +562,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-os-supported-platforms.html
+    \previouspage creator-overview.html
     \page creator-quick-tour.html
     \nextpage creator-getting-started.html
 
@@ -820,9 +821,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-cli.html
+    \previouspage creator-remote-compiler.html
     \page creator-help.html
-    \nextpage creator-keyboard-shortcuts.html
+    \nextpage creator-advanced.html
 
     \title Getting Help
 
@@ -1016,7 +1017,7 @@
     \contentspage index.html
     \previouspage quick-application-logic.html
     \page creator-using-qt-designer.html
-    \nextpage adding-plugins.html
+    \nextpage creator-usability.html
 
     \title Developing Widget Based Applications
 
@@ -1527,8 +1528,74 @@
 /*!
     \contentspage index.html
     \previouspage creator-project-managing-sessions.html
+    \page creator-coding.html
+    \nextpage creator-editor-using.html
+
+    \title Coding
+
+    Writing, editing, and navigating in source code are core tasks in
+    application development. Therefore, the code editor is one of the key
+    components of Qt Creator. You can use the code editor in the \gui Edit
+    mode.
+
+    The following sections describe coding with Qt Creator:
+
+    \list
+
+        \o  \l{Using the Editor} describes how to work in the code editor, use
+            the editor toolbar, split the view, add bookmarks, and move between
+            symbol definitions and declarations.
+
+        \o  \l{Semantic Highlighting} describes highlighting code elements and
+            blocks, as well as using syntax highlighting also for other types
+            of files than C++ or QML.
+
+        \o  \l{Checking Code Syntax} describes how errors are visualized
+            while you write code.
+
+        \o  \l{Completing Code} describes how code and code snippets are
+            completed for elements, properties, an IDs.
+
+        \o  \l{Finding and Replacing} describes the incremental search that
+            highlights the matching strings in the window while typing and the
+            advanced search that allows you to search from currently open
+            projects or files on the file system. In addition, you can search
+            for symbols when you want to refactor code.
+
+        \o  \l{Refactoring} describes the features that help you improve the
+            internal quality or your application, its performance and
+            extendibility, and code readability and maintainability, as well as
+            to simplify code structure.
+
+        \o  \l{Using Qt Quick Toolbars} describes how to use the Qt Quick
+            Toolbars to edit the properties of QML elements in the code editor.
+
+        \o  \l{Searching With the Locator} describes how to browse through
+            projects, files, classes, methods, documentation and file systems.
+
+        \o  \l{Pasting and Fetching Code Snippets} describes how to cooperate
+            with other developers by pasting and fetching snippets of code from
+            a server.
+
+        \o  \l{Using Text Editing Macros} describes how to record and play
+            text editing macros.
+
+        \o  \l{Configuring the Editor} describes how to change the text editor
+            options to suit your specific needs.
+
+        \o  \l{Using FakeVim Mode} run the main editor in a manner similar to
+            the Vim editor.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-coding.html
     \page creator-editor-using.html
-    \nextpage creator-editor-finding.html
+    \nextpage creator-highlighting.html
 
     \title Using the Editor
 
@@ -1591,7 +1658,51 @@
     \key{Ctrl+E, 0}. To remove all but the currently selected split view,
     select \gui Window > \gui{Remove All Splits} or press \key{Ctrl+E, 1}.
 
-    \section1 Semantic Highlighting
+    \section1 Using Bookmarks
+
+    To insert or delete a bookmark right-click the line number and select
+    \gui{Toggle Bookmark} or press \key{Ctrl+M}.
+
+    \image qtcreator-togglebookmark.png
+
+    To go to previous bookmark in the current session, press \key{Ctrl+,}.
+
+    To go to next bookmark in the current session, press \key{Ctrl+.}.
+
+    \section1 Moving to Symbol Definition or Declaration
+
+    You can move directly to the definition or the declaration of a symbol by
+    holding the \key Ctrl and clicking the symbol.
+
+    To enable this moving function, in \gui Tools > \gui{Options...} >
+    \gui{Text Editor} > \gui Behavior, select \gui{Enable mouse navigation}.
+
+    You can also select the symbol and press \key F2, or right-click the symbol
+    and select \gui {Follow Symbol Under Cursor} to move to its definition or
+    declaration. This feature is supported for namespaces, classes, methods,
+    variables, include statements, and macros.
+
+    To switch between the definition and declaration of a symbol, press
+    \key {Shift+F2} or right-click the symbol and select \gui {Switch Between
+    Method Declaration/Definition}.
+
+    \section1 Using Update Code Model
+
+    To refresh the internal information in Qt Creator pertaining to your code,
+    select \gui{Tools} > \gui{C++} > \gui{Update Code Model}.
+
+    \note In Qt Creator indexing updates the code automatically. Use
+    \gui{Update Code Model} only as an emergency command.
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-using.html
+    \page creator-highlighting.html
+    \nextpage creator-checking-code-syntax.html
+
+    \title Semantic Highlighting
 
     Qt Creator understands the C++ and QML languages as code, not as plain text.
     It reads the source code, analyzes it, and highlights it based on the
@@ -1613,7 +1724,63 @@
     \gui {Tools > Options... > Text Editor > Fonts & Color}.
 
     Qt Creator supports syntax highlighting also for other types of files than
-    C++ or QML. For more information, see \l{Generic Highlighting}.
+    C++ or QML.
+
+    \section1 Generic Highlighting
+
+    Generic highlighting is based on highlight definition files that are
+    provided by the
+    \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}{Kate Editor}.
+    You can download highlight definition files for use with Qt Creator.
+
+    If you have a Unix installation that comes with the Kate Editor, you might
+    already have the definition files installed. Typically, the files are
+    located in a read-only directory, and therefore, you cannot manage them. Qt
+    Creator can try to locate them and use them as fallback files, when the
+    primary location does not contain the definition for the current file type.
+    You can also specify the directory that contains preinstalled highlight
+    definition files as the primary location.
+
+    When you open a file for editing and the editor cannot find the highlight
+    definition for it, an alert appears. You can turn off the alerts. You can
+    also specify patterns for ignoring files. The editor will not alert you if
+    highlight definitions for the ignored files are not found.
+
+    To download highlight definition files:
+
+    \list 1
+
+        \o  Select \gui {Tools > Options... > Text Editor > Generic
+            Highlighter}.
+
+            \image qtcreator-generic-highlighter.png "Generic Highlighter options"
+
+        \o  In the \gui Location field, specify the path to the primary
+            location for highlight definition files.
+
+        \o  Click \gui {Download Definitions} to open a list of highlight
+            definition files available for download.
+
+            \image qtcreator-manage-definitions.png "Download Definitions dialog"
+
+        \o  Select highlight definition files in the list and click
+            \gui {Download Selected Definitions}.
+
+        \o  Select the \gui {Use fallback location} check box to specify the
+            secondary location where the editor will look for highlight
+            definition files.
+
+        \o  Click \gui Autodetect to allow Qt Creator to look for highlight
+            definition files on your system, or click \gui Browse to locate
+            them in the file system yourself.
+
+        \o  In the \gui {Ignored file patterns} field, specify file patterns.
+            You will not receive alerts if the highlight definitions for the
+            specified files are not found.
+
+        \o  Click \gui OK to save your changes.
+
+    \endlist
 
     \section1 Highlighting and Folding Blocks
 
@@ -1640,8 +1807,16 @@
     the braces, select \gui {Tools > Options... > Text Editor > Display} and
     deselect \gui {Animate matching parentheses}.
 
+*/
 
-    \section1 Checking Code Syntax
+
+/*!
+    \contentspage index.html
+    \previouspage creator-highlighting.html
+    \page creator-checking-code-syntax.html
+    \nextpage creator-completing-code.html
+
+    \title Checking Code Syntax
 
     As you write code Qt Creator checks code syntax. When Qt Creator spots a
     syntax error in your code it underlines it and shows error details when you
@@ -1660,8 +1835,16 @@
            \image qtcreator-semanticerror.png
     \endlist
 
+*/
 
-    \section1 Completing Code
+
+/*!
+    \contentspage index.html
+    \previouspage creator-checking-code-syntax.html
+    \page creator-completing-code.html
+    \nextpage creator-editor-finding.html
+
+    \title Completing Code
 
     As you write code, Qt Creator suggests properties, IDs, and code
     snippets to complete the code. It provides a list of context-sensitive
@@ -1838,42 +2021,6 @@
     \note If you now select \gui OK or \gui Apply, you permanently lose all
     your own snippets.
 
-    \section1 Using Bookmarks
-
-    To insert or delete a bookmark right-click the line number and select
-    \gui{Toggle Bookmark} or press \key{Ctrl+M}.
-
-    \image qtcreator-togglebookmark.png
-
-    To go to previous bookmark in the current session, press \key{Ctrl+,}.
-
-    To go to next bookmark in the current session, press \key{Ctrl+.}.
-
-
-    \section1 Moving to Symbol Definition or Declaration
-
-    In Qt Creator you can move directly to the definition or the declaration of
-    a symbol by holding the \key Ctrl and clicking the symbol.
-
-    To enable this moving function, in \gui Tools > \gui{Options...} >
-    \gui{Text Editor} > \gui Behavior, select \gui{Enable mouse navigation}.
-
-    You can also select the symbol and press \key F2, or right-click the symbol
-    and select \gui {Follow Symbol Under Cursor} to move to its definition or declaration.
-    This is supported for namespaces, classes, methods, variables, include statements,
-    and macros.
-
-    To switch between the definition and declaration of a symbol, press \key {Shift+F2}
-    or right-click the symbol and select \gui {Switch Between Method Declaration/Definition}.
-
-    \section1 Using Update Code Model
-
-    To refresh the internal information in Qt Creator pertaining to your code,
-    select \gui{Tools} > \gui{C++} > \gui{Update Code Model}.
-
-    \note In Qt Creator indexing updates the code automatically. Use
-    \gui{Update Code Model} only as an emergency command.
-
 */
 
 
@@ -1991,9 +2138,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-version-control.html
+    \previouspage adding-plugins.html
     \page creator-editor-external.html
-    \nextpage creator-mime-types.html
+    \nextpage creator-maemo-emulator.html
 
     \title Using External Tools
 
@@ -2126,7 +2273,9 @@
     \list
         \o Set the font preferences and apply color schemes for syntax highlighting in
            \gui{Font & Colors}.
-        \o Specify definition files for syntax highlighting for other types of files than
+        \o Specify
+           \l{Generic Highlighting}{definition files for syntax highlighting}
+           for other types of files than
              C++ or QML in \gui{Generic Highlighter}.
         \o Set tabs, indentation, the handling of whitespace, and mouse operations in
            \gui Behavior.
@@ -2183,58 +2332,6 @@
     When you copy code from Qt Creator, it is copied in both plain text and HTML
     format. The latter makes sure that syntax highlighting is preserved when
     pasting to a rich-text editor.
-
-    \section2 Generic Highlighting
-
-    Generic highlighting is based on highlight definition files that are provided by the
-    \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}{Kate Editor}.
-    You can download highlight definition files for use with Qt Creator.
-
-    If you have a Unix installation that comes with the Kate Editor, you might already
-    have the definition files installed. Typically, the files are in a read-only directory,
-    and therefore, you cannot manage them. Qt Creator can try to locate them and use them
-    as fallback files, when the primary location does not contain the definition for the
-    current file type. You can also specify the directory that contains preinstalled
-    highlight definition files as the primary location.
-
-    When you open a file for editing and the editor cannot find the highlight definition
-    for it, an alert appears. You can turn off the alerts. You can also specify patterns
-    for ignoring files. The editor will not alert you if highlight definitions for the
-    ignored files are not found.
-
-    To download highlight definition files:
-
-    \list 1
-
-        \o Select \gui {Tools > Options... > Text Editor > Generic Highlighter}.
-
-        \image qtcreator-generic-highlighter.png "Generic Highlighter options"
-
-        \o In the \gui Location field, specify the path to the primary location for
-        highlight definition files.
-
-        \o Click \gui {Download Definitions} to open a list of highlight definition files available for
-        download.
-
-        \image qtcreator-manage-definitions.png "Download Definitions dialog"
-
-        \o Select highlight definition files in the list and click \gui{Download Selected
-        Definitions}.
-
-        \o Select the \gui {Use fallback location} check box to specify the secondary location
-        where the editor will look for highlight definition files.
-
-        \o Click \gui Autodetect to allow Qt Creator to look for highlight definition
-        files on your system, or click \gui Browse to locate them in the file system
-        yourself.
-
-        \o In the \gui {Ignored file patterns} field, specify file patterns. You will not
-        receive alerts if the highlight definitions for the specified files are not found.
-
-        \o Click \gui OK to save your changes.
-
-    \endlist
-
 
     \section2 Indenting Code
 
@@ -2313,7 +2410,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-editor-using.html
+    \previouspage creator-completing-code.html
     \page creator-editor-finding.html
     \nextpage creator-editor-refactoring.html
 
@@ -2958,13 +3055,18 @@
     \list
         \o \l{Creating a Project}
         \o \l{Opening a Project}
-        \o \l{Adding New Custom Wizards}
         \o \l{Adding Libraries to Projects}
+        \o \l{Connecting Maemo Devices}
+        \o \l{Connecting Symbian Devices}
+        \o \l{Managing Sessions}
+    \endlist
+
+    For advanced options, see the following topics:
+
+    \list
+        \o \l{Adding New Custom Wizards}
         \o \l{Setting Up a CMake Project}
         \o \l{Setting Up a Generic Project}
-        \o \l{Setting Up Development Environment for Maemo}
-        \o \l{Setting Up Development Environment for Symbian}
-        \o \l{Managing Sessions}
     \endlist
 
 */
@@ -3157,7 +3259,7 @@
     \contentspage index.html
     \previouspage creator-project-creating.html
     \page creator-project-opening.html
-    \nextpage creator-project-wizards.html
+    \nextpage creator-project-qmake-libraries.html
 
     \title Opening a Project
 
@@ -3223,9 +3325,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-opening.html
+    \previouspage creator-os-supported-platforms.html
     \page creator-project-wizards.html
-    \nextpage creator-project-qmake-libraries.html
+    \nextpage creator-project-cmake.html
 
     \title Adding New Custom Wizards
 
@@ -3887,9 +3989,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-wizards.html
+    \previouspage creator-project-opening.html
     \page creator-project-qmake-libraries.html
-    \nextpage creator-project-cmake.html
+    \nextpage creator-developing-maemo.html
 
     \title Adding Libraries to Projects
 
@@ -4215,7 +4317,7 @@
 
         \o Set up the MADDE development environment and specify a connection
         to the device. For more information, see
-        \l{Setting Up Development Environment for Maemo}.
+        \l{Connecting Maemo Devices}.
 
         \o Connect the device to the development PC.
 
@@ -4258,7 +4360,7 @@
     \list 1
 
         \o Install the required software on the device. For more information, see
-        \l{Setting Up Development Environment for Symbian}.
+        \l{Connecting Symbian Devices}.
 
         \o Connect the device to the development PC through a USB cable.
         The target selector displays a green check mark when a
@@ -4335,7 +4437,7 @@
     \contentspage index.html
     \previouspage creator-publish-ovi.html
     \page creator-remote-compiler.html
-    \nextpage creator-version-control.html
+    \nextpage creator-help.html
 
     \title Building with Remote Compiler
 
@@ -4850,7 +4952,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-maemo-emulator.html
+    \previouspage creator-troubleshooting-debugging.html
     \page creator-deployment.html
     \nextpage creator-deployment-symbian.html
 
@@ -5678,7 +5780,7 @@
 
         \o Install Qt libraries, Qt mobile libraries, and a
         debugging agent on the device. For more information,
-        see \l{Setting Up Development Environment for Symbian}.
+        see \l{Connecting Symbian Devices}.
 
         \o Start the debugging agent, App TRK or CODA, on the device.
 
@@ -5750,7 +5852,7 @@
 
         \o To test the application on a Symbian device, install Qt libraries
         and a debugging agent on the device. For more information,
-        see \l{Setting Up Development Environment for Symbian}.
+        see \l{Connecting Symbian Devices}.
 
         \o Click the \gui {Target Selector} and select \gui {Symbian Device}.
 
@@ -6343,9 +6445,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-remote-compiler.html
+    \previouspage creator-project-generic.html
     \page creator-version-control.html
-    \nextpage creator-editor-external.html
+    \nextpage adding-plugins.html
 
     \title Using Version Control Systems
 
@@ -7050,7 +7152,7 @@
     \contentspage index.html
     \previouspage creator-developing-symbian.html
     \page creator-project-managing-sessions.html
-    \nextpage creator-editor-using.html
+    \nextpage creator-coding.html
 
     \title Managing Sessions
 
@@ -8393,7 +8495,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-qmake-libraries.html
+    \previouspage creator-project-wizards.html
     \page creator-project-cmake.html
     \nextpage creator-project-generic.html
 
@@ -8659,7 +8761,7 @@
     \contentspage index.html
     \previouspage creator-project-cmake.html
     \page creator-project-generic.html
-    \nextpage creator-developing-maemo.html
+    \nextpage creator-version-control.html
 
     \title Setting Up a Generic Project
 
@@ -9771,9 +9873,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-troubleshooting-debugging.html
+    \previouspage creator-editor-external.html
     \page creator-maemo-emulator.html
-    \nextpage creator-deployment.html
+    \nextpage creator-mime-types.html
 
     \title Using the Maemo Emulator
 
@@ -9791,7 +9893,7 @@
     The Maemo 5 emulator is installed and configured as part of the \QSDK
     package. You can also install and configure the MADDE environment and
     Maemo emulator separately. For more information, see
-    \l{Setting Up Development Environment for Maemo}.
+    \l{Connecting Maemo Devices}.
 
     \section1 Starting the Maemo Emulator
 
@@ -9906,9 +10008,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-using-qt-designer.html
+    \previouspage creator-version-control.html
     \page adding-plugins.html
-    \nextpage creator-usability.html
+    \nextpage creator-editor-external.html
 
     \title Adding Qt Designer Plugins
 
@@ -10020,7 +10122,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage adding-plugins.html
+    \previouspage creator-using-qt-designer.html
     \page creator-usability.html
     \nextpage creator-building-running.html
 
@@ -10270,6 +10372,7 @@
         \o Uncheck the \gui{Use Debugging Helper} checkbox.
     \endlist
 
+
     \section1 Showing Tooltips in Debug Mode
 
     To inspect the value of variables from the editor, you can turn
@@ -10326,7 +10429,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-help.html
+    \previouspage creator-cli.html
     \page creator-keyboard-shortcuts.html
     \nextpage creator-faq.html
 
@@ -11177,7 +11280,7 @@
     \contentspage index.html
     \previouspage creator-task-lists.html
     \page creator-cli.html
-    \nextpage creator-help.html
+    \nextpage creator-keyboard-shortcuts.html
 
     \title Using Command Line Options
 
@@ -11282,7 +11385,7 @@
 
     /*!
     \contentspage index.html
-    \previouspage creator-editor-external.html
+    \previouspage creator-maemo-emulator.html
     \page creator-mime-types.html
     \nextpage creator-task-lists.html
 
@@ -11355,7 +11458,7 @@
     \contentspage index.html
     \previouspage creator-analyzer.html
     \page creator-troubleshooting-debugging.html
-    \nextpage creator-maemo-emulator.html
+    \nextpage creator-deployment.html
 
     \title Troubleshooting Debugger
 
@@ -11491,5 +11594,47 @@
     Select a link to move to the problematic code.
 
     \image analyzer_issues.png "Analysis output pane"
+
+    */
+
+
+    /*!
+    \contentspage index.html
+    \previouspage creator-help.html
+    \page creator-advanced.html
+    \nextpage creator-os-supported-platforms.html
+
+    \title Advanced Use
+
+    Qt Creator attempts to meet your development needs, whether you are an
+    experienced Qt developer or a newcomer to Qt. When you install Qt Creator
+    as a part of \QSDK, the default configuration allows you to start coding,
+    building, running and debugging applications with very little effort.
+
+    However, you can easily change or extend the default configuration, by
+    choosing a different build system, adding project wizards, integrating
+    external tools, or editing the standard MIME types that Qt Creator uses
+    to recognize your files.
+
+    You can start Qt Creator and specify some options for running it from the
+    command line.
+
+    This following topics describe advanced use of Qt Creator:
+
+    \list
+        \o \l{Operating Systems and Supported Platforms}
+        \o \l{Adding New Custom Wizards}
+        \o \l{Setting Up a CMake Project}
+        \o \l{Setting Up a Generic Project}
+        \o \l{Using Version Control Systems}
+        \o \l{Adding Qt Designer Plugins}
+        \o \l{Using External Tools}
+        \o \l{Using the Maemo Emulator}
+        \o \l{Editing MIME Types}
+        \o \l{Showing Task List Files in the Build Issues Pane}
+        \o \l{Using Command Line Options}
+        \o \l{Keyboard Shortcuts}
+        \o \l{Glossary}
+    \endlist
 
     */

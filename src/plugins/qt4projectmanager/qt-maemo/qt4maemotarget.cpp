@@ -1087,8 +1087,7 @@ QString Qt4HarmattanTarget::defaultDisplayName()
 
 void Qt4HarmattanTarget::addAdditionalControlFileFields(QByteArray &controlContents)
 {
-    adaptControlFileField(controlContents, "XB-Meego-Desktop-Entry", "");
-    adaptControlFileField(controlContents, "XB-MeeGo-Desktop-Entry-Filename", "");
+    Q_UNUSED(controlContents);
 }
 
 QString Qt4HarmattanTarget::debianDirName() const

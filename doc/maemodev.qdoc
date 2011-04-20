@@ -23,7 +23,7 @@
 
     \contentspage index.html
     \if defined(qcmanual)
-    \previouspage creator-project-generic.html
+    \previouspage creator-project-qmake-libraries.html
     \else
     \previouspage creator-developing-symbian.html
     \endif
@@ -34,7 +34,7 @@
     \nextpage smartinstaller.html
     \endif
 
-    \title Setting Up Development Environment for Maemo
+    \title Connecting Maemo Devices
 
     Maemo 5 (Fremantle) is a software platform developed by Nokia for
     smartphones. The Maemo 5 SDK provides an open development environment
