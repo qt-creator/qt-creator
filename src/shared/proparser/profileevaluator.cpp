@@ -2897,7 +2897,7 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateCondit
         case T_SYSTEM: {
             if (args.count() != 1) {
                 evalError(fL1S("system(exec) requires one argument."));
-                ReturnFalse;
+                return ReturnFalse;
             }
             return returnBool(system((QLatin1String("cd ")
                                       + IoUtils::shellQuote(currentDirectory())
