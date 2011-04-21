@@ -66,19 +66,57 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMainWindow>
 
-using namespace CodePaster;
 using namespace Core;
 using namespace TextEditor;
+
+namespace CodePaster {
+
+/*!
+   \class CodePaster::CodePasterService
+   \brief Service registered with PluginManager providing CodePaster
+          post() functionality.
+
+   \sa ExtensionSystem::PluginManager::getObjectByClassName, ExtensionSystem::invoke
+   \sa VCSBase::VCSBaseEditorWidget
+*/
+
+CodePasterService::CodePasterService(QObject *parent) :
+    QObject(parent)
+{
+}
+
+void CodePasterService::postText(const QString &text, const QString &mimeType)
+{
+    QTC_ASSERT(CodepasterPlugin::instance(), return; )
+    CodepasterPlugin::instance()->post(text, mimeType);
+}
+
+void CodePasterService::postCurrentEditor()
+{
+    QTC_ASSERT(CodepasterPlugin::instance(), return; )
+    CodepasterPlugin::instance()->postEditor();
+}
+
+void CodePasterService::postClipboard()
+{
+    QTC_ASSERT(CodepasterPlugin::instance(), return; )
+    CodepasterPlugin::instance()->postClipboard();
+}
+
+// ---------- CodepasterPlugin
+CodepasterPlugin *CodepasterPlugin::m_instance = 0;
 
 CodepasterPlugin::CodepasterPlugin() :
     m_settings(new Settings),
     m_postEditorAction(0), m_postClipboardAction(0), m_fetchAction(0)
 {
+    CodepasterPlugin::m_instance = this;
 }
 
 CodepasterPlugin::~CodepasterPlugin()
 {
     qDeleteAll(m_protocols);
+    CodepasterPlugin::m_instance = 0;
 }
 
 bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_message)
@@ -141,6 +179,8 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *error_m
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+F")));
     connect(m_fetchAction, SIGNAL(triggered()), this, SLOT(fetch()));
     cpContainer->addAction(command);
+
+    addAutoReleasedObject(new CodePasterService);
 
     return true;
 }
@@ -215,10 +255,14 @@ void CodepasterPlugin::post(QString data, const QString &mimeType)
     view.setProtocol(m_settings->protocol);
 
     const FileDataList diffChunks = splitDiffToFiles(data.toLatin1());
-    if (diffChunks.isEmpty()) {
-        view.show(username, QString(), QString(), data);
-    } else {
+    const int dialogResult = diffChunks.isEmpty() ?
+        view.show(username, QString(), QString(), data) :
         view.show(username, QString(), QString(), diffChunks);
+    // Save new protocol in case user changed it.
+    if (dialogResult == QDialog::Accepted
+        && m_settings->protocol != view.protocol()) {
+        m_settings->protocol = view.protocol();
+        m_settings->toSettings(Core::ICore::instance()->settings());
     }
 }
 
@@ -229,6 +273,12 @@ void CodepasterPlugin::fetch()
 
     if (dialog.exec() != QDialog::Accepted)
         return;
+    // Save new protocol in case user changed it.
+    if (m_settings->protocol != dialog.protocol()) {
+        m_settings->protocol = dialog.protocol();
+        m_settings->toSettings(Core::ICore::instance()->settings());
+    }
+
     const QString pasteID = dialog.pasteId();
     if (pasteID.isEmpty())
         return;
@@ -319,4 +369,11 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     editor->setDisplayName(titleDescription);
 }
 
-Q_EXPORT_PLUGIN(CodepasterPlugin)
+CodepasterPlugin *CodepasterPlugin::instance()
+{
+    return m_instance;
+}
+
+} // namespace CodePaster
+
+Q_EXPORT_PLUGIN(CodePaster::CodepasterPlugin)

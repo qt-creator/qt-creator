@@ -48,6 +48,18 @@ class CustomPoster;
 struct Settings;
 class Protocol;
 
+class CodePasterService : public QObject
+{
+    Q_OBJECT
+public:
+    explicit CodePasterService(QObject *parent = 0);
+
+public slots:
+    void postText(const QString &text, const QString &mimeType);
+    void postCurrentEditor();
+    void postClipboard();
+};
+
 class CodepasterPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -60,6 +72,8 @@ public:
     virtual void extensionsInitialized();
     virtual ShutdownFlag aboutToShutdown();
 
+    static CodepasterPlugin *instance();
+
 public slots:
     void postEditor();
     void postClipboard();
@@ -69,9 +83,10 @@ public slots:
                      const QString &content,
                      bool error);
 
-private:
     void post(QString data, const QString &mimeType);
+private:
 
+    static CodepasterPlugin *m_instance;
     const QSharedPointer<Settings> m_settings;
     QAction *m_postEditorAction;
     QAction *m_postClipboardAction;

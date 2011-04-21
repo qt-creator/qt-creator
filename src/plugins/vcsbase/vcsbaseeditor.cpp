@@ -52,6 +52,8 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
+#include <extensionsystem/invoker.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -547,6 +549,9 @@ void VCSBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         break;
     case DiffOutput: {
         menu->addSeparator();
+        connect(menu->addAction(tr("Send to CodePaster...")), SIGNAL(triggered()),
+                this, SLOT(slotPaste()));
+        menu->addSeparator();
         QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
         const DiffChunk chunk = diffChunk(cursorForPosition(e->pos()));
         revertAction->setEnabled(canRevertDiffChunk(chunk));
@@ -1036,6 +1041,20 @@ void VCSBaseEditorWidget::slotCopyRevision()
 QStringList VCSBaseEditorWidget::annotationPreviousVersions(const QString &) const
 {
     return QStringList();
+}
+
+void VCSBaseEditorWidget::slotPaste()
+{
+    // Retrieve service by soft dependency.
+    QObject *pasteService =
+            ExtensionSystem::PluginManager::instance()
+                ->getObjectByClassName("CodePaster::CodePasterService");
+    if (pasteService) {
+        QMetaObject::invokeMethod(pasteService, "postCurrentEditor");
+    } else {
+        QMessageBox::information(this, tr("Unable to Paste"),
+                                 tr("Code pasting services are not available."));
+    }
 }
 
 bool VCSBaseEditorWidget::isRevertDiffChunkEnabled() const

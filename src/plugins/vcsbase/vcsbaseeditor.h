@@ -227,6 +227,7 @@ private slots:
     void slotAnnotateRevision();
     void slotCopyRevision();
     void slotRevertDiffChunk();
+    void slotPaste();
 
 protected:
     /* A helper that can be used to locate a file in a diff in case it
