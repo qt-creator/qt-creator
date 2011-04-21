@@ -312,18 +312,13 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
         const QFileInfo localFileInfo(deployable.localFilePath);
         const QString targetFilePath = tc->sysroot() + sep
             + deployable.remoteDir + sep + localFileInfo.fileName();
-        if (QFileInfo(targetFilePath).exists()
-            && MaemoGlobal::isFileNewerThan(targetFilePath, localFileInfo.lastModified())) {
-            continue;
-        }
         sysRootDir.mkpath(deployable.remoteDir.mid(1));
-        QFile::remove(targetFilePath);
-        if (!QFile::copy(deployable.localFilePath, targetFilePath)) {
-            emit addOutput(tr("Sysroot installation failed: "
-                "Could not copy '%1' to '%2'. Continuing anyway.")
-                .arg(QDir::toNativeSeparators(deployable.localFilePath),
-                     QDir::toNativeSeparators(targetFilePath)),
-                ErrorMessageOutput);
+        QString errorMsg;
+        MaemoGlobal::removeRecursively(targetFilePath, errorMsg);
+        if (!MaemoGlobal::copyRecursively(deployable.localFilePath,
+                targetFilePath, &errorMsg)) {
+            emit addOutput(tr("Sysroot installation failed: $1\n"
+                " Continuing anyway.").arg(errorMsg), ErrorMessageOutput);
         }
         QCoreApplication::processEvents();
         if (fi.isCanceled()) {

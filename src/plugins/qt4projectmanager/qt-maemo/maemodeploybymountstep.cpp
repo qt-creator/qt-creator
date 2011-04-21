@@ -323,8 +323,10 @@ bool MaemoMountAndCopyDeployStep::isDeploymentNeeded(const QString &hostName) co
     const int deployableCount = deployables->deployableCount();
     for (int i = 0; i < deployableCount; ++i) {
         const MaemoDeployable &d = deployables->deployableAt(i);
-        if (currentlyNeedsDeployment(hostName, d))
+        if (currentlyNeedsDeployment(hostName, d)
+                || QFileInfo(d.localFilePath).isDir()) {
             m_filesToCopy << d;
+        }
     }
     return !m_filesToCopy.isEmpty();
 }
