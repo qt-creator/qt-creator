@@ -34,19 +34,15 @@
 
 #include "maemorunconfiguration.h"
 
-#include <utils/ssh/sftpdefs.h>
 #include <utils/environment.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QSharedPointer>
 
-namespace Core { class SftpChannel; }
-
 namespace Debugger {
 class DebuggerEngine;
 }
-
 namespace ProjectExplorer { class RunControl; }
 
 namespace Qt4ProjectManager {
@@ -66,15 +62,10 @@ public:
         Debugger::DebuggerEngine *engine, bool useGdb);
     ~MaemoDebugSupport();
 
-    static QString uploadDir(const QSharedPointer<const MaemoDeviceConfig> &devConf);
-
 private slots:
     void handleAdapterSetupRequested();
     void handleSshError(const QString &error);
     void startExecution();
-    void handleSftpChannelInitialized();
-    void handleSftpChannelInitializationFailed(const QString &error);
-    void handleSftpJobFinished(Utils::SftpJobId job, const QString &error);
     void handleDebuggingFinished();
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
@@ -84,28 +75,23 @@ private slots:
 
 private:
     enum State {
-        Inactive, StartingRunner, InitializingUploader, UploadingDumpers,
-        DumpersUploaded, StartingRemoteProcess, Debugging
+        Inactive, StartingRunner, StartingRemoteProcess, Debugging
     };
 
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();
-    void startDebugging();
     bool useGdb() const;
     void setState(State newState);
     bool setPort(int &port);
-
     void showMessage(const QString &msg, int channel);
+
     const QPointer<Debugger::DebuggerEngine> m_engine;
     const QPointer<MaemoRunConfiguration> m_runConfig;
     const QSharedPointer<const MaemoDeviceConfig> m_deviceConfig;
     MaemoSshRunner * const m_runner;
     const MaemoRunConfiguration::DebuggingType m_debuggingType;
-    const QString m_dumperLib;
     const QList<Utils::EnvironmentItem> m_userEnvChanges;
 
-    QSharedPointer<Utils::SftpChannel> m_uploader;
-    Utils::SftpJobId m_uploadJob;
     QByteArray m_gdbserverOutput;
     State m_state;
     int m_gdbServerPort;

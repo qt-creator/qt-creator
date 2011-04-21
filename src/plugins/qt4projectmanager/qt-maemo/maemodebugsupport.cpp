@@ -38,7 +38,6 @@
 #include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
 
-#include <utils/ssh/sftpchannel.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerrunner.h>
@@ -72,9 +71,6 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
         params.processArgs = runConfig->arguments();
         params.sysRoot = runConfig->sysRoot();
         params.toolChainAbi = runConfig->abi();
-        params.dumperLibrary = runConfig->dumperLib();
-        params.remoteDumperLib = uploadDir(devConf).toUtf8() + '/'
-            + QFileInfo(runConfig->dumperLib()).fileName().toUtf8();
         if (runConfig->useRemoteGdb()) {
             params.startMode = StartRemoteGdb;
             params.executable = runConfig->remoteExecutableFilePath();
@@ -127,7 +123,6 @@ MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
       m_deviceConfig(m_runConfig->deviceConfig()),
       m_runner(new MaemoSshRunner(this, runConfig, true)),
       m_debuggingType(runConfig->debuggingType()),
-      m_dumperLib(runConfig->dumperLib()),
       m_userEnvChanges(runConfig->userEnvironmentChanges()),
       m_state(Inactive), m_gdbServerPort(-1), m_qmlPort(-1),
       m_useGdb(useGdb)
@@ -152,7 +147,7 @@ void MaemoDebugSupport::handleAdapterSetupRequested()
     ASSERT_STATE(Inactive);
 
     setState(StartingRunner);
-    showMessage(tr("Preparing remote side ..."), AppStuff);
+    showMessage(tr("Preparing remote side ...\n"), AppStuff);
     disconnect(m_runner, 0, this, 0);
     connect(m_runner, SIGNAL(error(QString)), this,
         SLOT(handleSshError(QString)));
@@ -190,121 +185,40 @@ void MaemoDebugSupport::startExecution()
             return;
     }
 
-    if (m_debuggingType != MaemoRunConfiguration::DebugQmlOnly
-            && !m_dumperLib.isEmpty()
-            && m_runConfig
-            && m_runConfig->deployStep()->currentlyNeedsDeployment(m_deviceConfig->sshParameters().host,
-                   MaemoDeployable(m_dumperLib, uploadDir(m_deviceConfig)))) {
-        setState(InitializingUploader);
-        m_uploader = m_runner->connection()->createSftpChannel();
-        connect(m_uploader.data(), SIGNAL(initialized()), this,
-                SLOT(handleSftpChannelInitialized()));
-        connect(m_uploader.data(), SIGNAL(initializationFailed(QString)), this,
-                SLOT(handleSftpChannelInitializationFailed(QString)));
-        connect(m_uploader.data(), SIGNAL(finished(Utils::SftpJobId, QString)),
-                this, SLOT(handleSftpJobFinished(Utils::SftpJobId, QString)));
-        m_uploader->initialize();
-    } else {
-        setState(DumpersUploaded);
-        startDebugging();
-    }
-}
-
-void MaemoDebugSupport::handleSftpChannelInitialized()
-{
-    if (m_state == Inactive)
-        return;
-
-    ASSERT_STATE(InitializingUploader);
-
-    const QString fileName = QFileInfo(m_dumperLib).fileName();
-    const QString remoteFilePath = uploadDir(m_deviceConfig)
-        + QLatin1Char('/') + fileName;
-    m_uploadJob = m_uploader->uploadFile(m_dumperLib, remoteFilePath,
-        SftpOverwriteExisting);
-    if (m_uploadJob == SftpInvalidJob) {
-        handleAdapterSetupFailed(tr("Upload failed: Could not open file '%1'")
-            .arg(m_dumperLib));
-    } else {
-        setState(UploadingDumpers);
-        showMessage(tr("Started uploading debugging helpers ('%1').")
-            .arg(m_dumperLib), AppStuff);
-    }
-}
-
-void MaemoDebugSupport::handleSftpChannelInitializationFailed(const QString &error)
-{
-    if (m_state == Inactive)
-        return;
-    ASSERT_STATE(InitializingUploader);
-    handleAdapterSetupFailed(error);
-}
-
-void MaemoDebugSupport::handleSftpJobFinished(Utils::SftpJobId job,
-    const QString &error)
-{
-    if (m_state == Inactive)
-        return;
-
-    ASSERT_STATE(UploadingDumpers);
-
-    if (job != m_uploadJob) {
-        qWarning("Warning: Unknown debugging helpers upload job %d finished.", job);
-        return;
-    }
-
-    if (!error.isEmpty()) {
-        handleAdapterSetupFailed(tr("Could not upload debugging helpers: %1.")
-            .arg(error));
-    } else {
-        setState(DumpersUploaded);
-        if (m_runConfig) {
-            m_runConfig->deployStep()->setDeployed(m_deviceConfig->sshParameters().host,
-                MaemoDeployable(m_dumperLib, uploadDir(m_deviceConfig)));
-        }
-        showMessage(tr("Finished uploading debugging helpers."), AppStuff);
-        startDebugging();
-    }
-    m_uploadJob = SftpInvalidJob;
-}
-
-void MaemoDebugSupport::startDebugging()
-{
-    ASSERT_STATE(DumpersUploaded);
-
     if (useGdb()) {
         handleAdapterSetupDone();
-    } else {
-        setState(StartingRemoteProcess);
-        m_gdbserverOutput.clear();
-        connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)), this,
-            SLOT(handleRemoteErrorOutput(QByteArray)));
-        connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
-            SLOT(handleRemoteOutput(QByteArray)));
-        if (m_debuggingType == MaemoRunConfiguration::DebugQmlOnly) {
-            connect(m_runner, SIGNAL(remoteProcessStarted()),
-                SLOT(handleRemoteProcessStarted()));
-        }
-        const QString &remoteExe = m_runner->remoteExecutable();
-        const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(m_deviceConfig->osVersion(),
-            m_deviceConfig->sshParameters().userName, remoteExe);
-        const QString env = MaemoGlobal::remoteEnvironment(m_userEnvChanges);
-        QString args = m_runner->arguments();
-        if (m_debuggingType != MaemoRunConfiguration::DebugCppOnly) {
-            args += QString(QLatin1String(" -qmljsdebugger=port:%1,block"))
-                .arg(m_qmlPort);
-        }
-
-        const QString remoteCommandLine = m_debuggingType == MaemoRunConfiguration::DebugQmlOnly
-            ? QString::fromLocal8Bit("%1 %2 %3 %4").arg(cmdPrefix).arg(env)
-                .arg(remoteExe).arg(args)
-            : QString::fromLocal8Bit("%1 %2 gdbserver :%3 %4 %5")
-                .arg(cmdPrefix).arg(env).arg(m_gdbServerPort)
-                .arg(remoteExe).arg(args);
-        connect(m_runner, SIGNAL(remoteProcessFinished(qint64)),
-            SLOT(handleRemoteProcessFinished(qint64)));
-        m_runner->startExecution(remoteCommandLine.toUtf8());
+        return;
     }
+
+    setState(StartingRemoteProcess);
+    m_gdbserverOutput.clear();
+    connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)), this,
+        SLOT(handleRemoteErrorOutput(QByteArray)));
+    connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
+        SLOT(handleRemoteOutput(QByteArray)));
+    if (m_debuggingType == MaemoRunConfiguration::DebugQmlOnly) {
+        connect(m_runner, SIGNAL(remoteProcessStarted()),
+            SLOT(handleRemoteProcessStarted()));
+    }
+    const QString &remoteExe = m_runner->remoteExecutable();
+    const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(m_deviceConfig->osVersion(),
+        m_deviceConfig->sshParameters().userName, remoteExe);
+    const QString env = MaemoGlobal::remoteEnvironment(m_userEnvChanges);
+    QString args = m_runner->arguments();
+    if (m_debuggingType != MaemoRunConfiguration::DebugCppOnly) {
+        args += QString(QLatin1String(" -qmljsdebugger=port:%1,block"))
+            .arg(m_qmlPort);
+    }
+
+    const QString remoteCommandLine = m_debuggingType == MaemoRunConfiguration::DebugQmlOnly
+        ? QString::fromLocal8Bit("%1 %2 %3 %4").arg(cmdPrefix).arg(env)
+            .arg(remoteExe).arg(args)
+        : QString::fromLocal8Bit("%1 %2 gdbserver :%3 %4 %5")
+            .arg(cmdPrefix).arg(env).arg(m_gdbServerPort)
+            .arg(remoteExe).arg(args);
+    connect(m_runner, SIGNAL(remoteProcessFinished(qint64)),
+        SLOT(handleRemoteProcessFinished(qint64)));
+    m_runner->startExecution(remoteCommandLine.toUtf8());
 }
 
 void MaemoDebugSupport::handleRemoteProcessFinished(qint64 exitCode)
@@ -381,18 +295,8 @@ void MaemoDebugSupport::setState(State newState)
     if (m_state == newState)
         return;
     m_state = newState;
-    if (m_state == Inactive) {
-        if (m_uploader) {
-            disconnect(m_uploader.data(), 0, this, 0);
-            m_uploader->closeChannel();
-        }
+    if (m_state == Inactive)
         m_runner->stop();
-    }
-}
-
-QString MaemoDebugSupport::uploadDir(const MaemoDeviceConfig::ConstPtr &devConf)
-{
-    return MaemoGlobal::homeDirOnDevice(devConf->sshParameters().userName);
 }
 
 bool MaemoDebugSupport::useGdb() const

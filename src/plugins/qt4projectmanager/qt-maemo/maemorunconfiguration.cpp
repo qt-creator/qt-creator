@@ -259,13 +259,6 @@ const QString MaemoRunConfiguration::arguments() const
     return m_arguments;
 }
 
-const QString MaemoRunConfiguration::dumperLib() const
-{
-    Qt4BuildConfiguration *qt4bc(activeQt4BuildConfiguration());
-    return qt4bc->qtVersion()->gdbDebuggingHelperLibrary();
-}
-
-
 QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
 {
     const QString projectDir
