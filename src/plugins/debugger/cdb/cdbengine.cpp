@@ -44,6 +44,7 @@
 #include "threadshandler.h"
 #include "moduleshandler.h"
 #include "debuggeractions.h"
+#include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "registerhandler.h"
 #include "disassembleragent.h"
