@@ -295,11 +295,18 @@ static inline MemoryMarkupList
         return result; // Fixme: Exact size not known, no point in filling if no children.
     // Punch in registers as 1-byte markers on top.
     const RegisterMapConstIt regcEnd = registerMap.constEnd();
-    for (RegisterMapConstIt it = registerMap.constBegin(); it != regcEnd; ++it)
-        if (it.key() - address < size)
-            ranges[it.key() - address] =
-                ColorNumberToolTipPair(registerColorNumber,
-                                       WatchWindow::tr("Register <i>%1</i>").arg(it.value()));
+    for (RegisterMapConstIt it = registerMap.constBegin(); it != regcEnd; ++it) {
+        if (it.key() >= address) {
+            const quint64 offset = it.key() - address;
+            if (offset < size) {
+                ranges[offset] =
+                    ColorNumberToolTipPair(registerColorNumber,
+                                           WatchWindow::tr("Register <i>%1</i>").arg(it.value()));
+            } else {
+                break; // Sorted.
+            }
+        }
+    } // for registers.
     if (debug) {
         QDebug dbg = qDebug().nospace();
         dbg << rootToolTip << ' ' << address << ' ' << size << '\n';
