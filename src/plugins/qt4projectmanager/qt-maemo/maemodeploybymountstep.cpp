@@ -153,8 +153,8 @@ void AbstractMaemoDeployByMountStep::handleMountDebugOutput(const QString &outpu
 void AbstractMaemoDeployByMountStep::mount()
 {
     m_extendedState = Mounting;
-    m_mounter->setupMounts(connection(), mountSpecifications(), freePorts(),
-        qt4BuildConfiguration());
+    m_mounter->setupMounts(connection(), mountSpecifications(),
+        freePorts(cachedDeviceConfig()), qt4BuildConfiguration());
 }
 
 QString AbstractMaemoDeployByMountStep::deployMountPoint() const
