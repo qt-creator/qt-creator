@@ -4725,7 +4725,8 @@ void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         debuggerCore()->openTextEditor(_("Backtrace $"),
-            _(response.data.findChild("consolestreamoutput").data()));
+            _(response.data.findChild("consolestreamoutput").data()
+              + response.data.findChild("logstreamoutput").data()));
     }
 }
 
