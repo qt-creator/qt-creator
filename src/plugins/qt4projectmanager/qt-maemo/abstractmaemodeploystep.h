@@ -65,9 +65,6 @@ public:
     virtual ~AbstractMaemoDeployStep();
     QSharedPointer<const MaemoDeviceConfig> deviceConfig() const { return m_deviceConfig; }
     void setDeviceConfig(int i);
-    bool currentlyNeedsDeployment(const QString &host,
-        const MaemoDeployable &deployable) const;
-    void setDeployed(const QString &host, const MaemoDeployable &deployable);
     Qt4MaemoDeployConfiguration *maemoDeployConfig() const;
     bool isDeploymentPossible(QString &whyNot) const;
 
@@ -87,6 +84,9 @@ protected:
     enum BaseState { BaseInactive, StopRequested, Connecting, Deploying };
     BaseState baseState() const { return m_baseState; }
 
+    bool currentlyNeedsDeployment(const QString &host,
+        const MaemoDeployable &deployable) const;
+    void setDeployed(const QString &host, const MaemoDeployable &deployable);
     void raiseError(const QString &error);
     void writeOutput(const QString &text, OutputFormat format = MessageOutput,
         OutputNewlineSetting newlineSetting = DoAppendNewline);
