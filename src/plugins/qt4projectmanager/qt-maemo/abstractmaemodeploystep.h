@@ -34,6 +34,7 @@
 #ifndef ABSTRACTMAEMODEPLOYSTEP_H
 #define ABSTRACTMAEMODEPLOYSTEP_H
 
+#include "abstractlinuxdevicedeploystep.h"
 #include "maemodeployable.h"
 #include "maemodeployables.h"
 #include "maemodeviceconfigurations.h"
@@ -58,22 +59,18 @@ class AbstractMaemoPackageCreationStep;
 class MaemoDeviceConfig;
 class Qt4MaemoDeployConfiguration;
 
-class AbstractMaemoDeployStep : public ProjectExplorer::BuildStep
+class AbstractMaemoDeployStep
+    : public ProjectExplorer::BuildStep, public AbstractLinuxDeviceDeployStep
 {
     Q_OBJECT
 public:
     virtual ~AbstractMaemoDeployStep();
-    QSharedPointer<const MaemoDeviceConfig> deviceConfig() const { return m_deviceConfig; }
-    void setDeviceConfig(int i);
-    Qt4MaemoDeployConfiguration *maemoDeployConfig() const;
-    bool isDeploymentPossible(QString &whyNot) const;
 
     Q_INVOKABLE void stop();
 
 signals:
     void done();
     void error();
-    void deviceConfigChanged();
 
 protected:
     AbstractMaemoDeployStep(ProjectExplorer::BuildStepList *bc,
@@ -98,7 +95,6 @@ protected:
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
     MaemoPortList freePorts(const QSharedPointer<const MaemoDeviceConfig> &devConfig) const;
     QSharedPointer<Utils::SshConnection> connection() const { return m_connection; }
-    QSharedPointer<const MaemoDeviceConfig> cachedDeviceConfig() const { return m_cachedDeviceConfig; }
 
 private slots:
     void start();
@@ -107,16 +103,14 @@ private slots:
     void handleProgressReport(const QString &progressMsg);
     void handleRemoteStdout(const QString &output);
     void handleRemoteStderr(const QString &output);
-    void handleDeviceConfigurationsUpdated();
 
 private:
-    virtual bool init() { return true; }
+    virtual bool init();
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual QVariantMap toMap() const;
     virtual bool fromMap(const QVariantMap &map);
 
-    virtual bool isDeploymentPossibleInternal(QString &whynot) const=0;
     virtual bool isDeploymentNeeded(const QString &hostName) const=0;
     virtual void startInternal()=0;
     virtual void stopInternal()=0;
@@ -126,13 +120,10 @@ private:
     void getDeployTimesFromMap(const QVariantMap &map);
     void connectToDevice();
     void setBaseState(BaseState newState);
-    void setDeviceConfig(MaemoDeviceConfig::Id internalId);
 
     QSharedPointer<Utils::SshConnection> m_connection;
     typedef QPair<MaemoDeployable, QString> DeployablePerHost;
     QHash<DeployablePerHost, QDateTime> m_lastDeployed;
-    QSharedPointer<const MaemoDeviceConfig> m_deviceConfig;
-    QSharedPointer<const MaemoDeviceConfig> m_cachedDeviceConfig;
     BaseState m_baseState;
     bool m_hasError;
 };

@@ -33,7 +33,7 @@
 #include "maemodeploystepwidget.h"
 #include "ui_maemodeploystepwidget.h"
 
-#include "abstractmaemodeploystep.h"
+#include "abstractlinuxdevicedeploystep.h"
 #include "maemodeviceconfigurations.h"
 #include "maemosettingspages.h"
 #include "maemoglobal.h"
@@ -51,14 +51,14 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-MaemoDeployStepWidget::MaemoDeployStepWidget(AbstractMaemoDeployStep *step) :
+MaemoDeployStepWidget::MaemoDeployStepWidget(AbstractLinuxDeviceDeployStep *step) :
     ProjectExplorer::BuildStepConfigWidget(),
     ui(new Ui::MaemoDeployStepWidget),
     m_step(step)
 {
     ui->setupUi(this);
     ProjectExplorer::BuildStepList * const list
-        = qobject_cast<ProjectExplorer::BuildStepList *>(step->parent());
+        = step->maemoDeployConfig()->stepList();
     connect(list, SIGNAL(stepInserted(int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(stepMoved(int,int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(stepRemoved(int)), SIGNAL(updateSummary()));
@@ -74,7 +74,8 @@ MaemoDeployStepWidget::~MaemoDeployStepWidget()
 void MaemoDeployStepWidget::init()
 {
     ui->deviceConfigComboBox->setModel(m_step->maemoDeployConfig()->deviceConfigModel());
-    connect(m_step, SIGNAL(deviceConfigChanged()), SLOT(handleDeviceUpdate()));
+    connect(&m_step->helper(), SIGNAL(deviceConfigChanged()),
+        SLOT(handleDeviceUpdate()));
     handleDeviceUpdate();
     connect(ui->deviceConfigComboBox, SIGNAL(activated(int)), this,
         SLOT(setCurrentDeviceConfig(int)));
@@ -84,7 +85,7 @@ void MaemoDeployStepWidget::init()
 
 void MaemoDeployStepWidget::handleDeviceUpdate()
 {
-    const MaemoDeviceConfig::ConstPtr &devConf = m_step->deviceConfig();
+    const MaemoDeviceConfig::ConstPtr &devConf = m_step->helper().deviceConfig();
     const MaemoDeviceConfig::Id internalId
         = MaemoDeviceConfigurations::instance()->internalId(devConf);
     const int newIndex = m_step->maemoDeployConfig()->deviceConfigModel()
@@ -96,8 +97,10 @@ void MaemoDeployStepWidget::handleDeviceUpdate()
 void MaemoDeployStepWidget::handleStepToBeRemoved(int step)
 {
     ProjectExplorer::BuildStepList * const list
-        = qobject_cast<ProjectExplorer::BuildStepList *>(m_step->parent());
-    if (list->steps().at(step) == m_step)
+        = m_step->maemoDeployConfig()->stepList();
+    const AbstractLinuxDeviceDeployStep * const alds
+        = dynamic_cast<AbstractLinuxDeviceDeployStep *>(list->steps().at(step));
+    if (alds && alds == m_step)
         disconnect(list, 0, this, 0);
 }
 
@@ -110,7 +113,7 @@ QString MaemoDeployStepWidget::summaryText() const
             + QLatin1String("</font>");
     }
     return tr("<b>Deploy to device</b>: %1")
-        .arg(MaemoGlobal::deviceConfigurationName(m_step->deviceConfig()));
+        .arg(MaemoGlobal::deviceConfigurationName(m_step->helper().deviceConfig()));
 }
 
 QString MaemoDeployStepWidget::displayName() const
@@ -120,10 +123,11 @@ QString MaemoDeployStepWidget::displayName() const
 
 void MaemoDeployStepWidget::setCurrentDeviceConfig(int index)
 {
-    disconnect(m_step, SIGNAL(deviceConfigChanged()), this,
+    disconnect(&m_step->helper(), SIGNAL(deviceConfigChanged()), this,
         SLOT(handleDeviceUpdate()));
-    m_step->setDeviceConfig(index);
-    connect(m_step, SIGNAL(deviceConfigChanged()), SLOT(handleDeviceUpdate()));
+    m_step->helper().setDeviceConfig(index);
+    connect(&m_step->helper(), SIGNAL(deviceConfigChanged()),
+        SLOT(handleDeviceUpdate()));
     updateSummary();
 }
 

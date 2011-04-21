@@ -32,7 +32,7 @@
 
 #include "maemorunconfiguration.h"
 
-#include "abstractmaemodeploystep.h"
+#include "abstractlinuxdevicedeploystep.h"
 #include "maemodeployables.h"
 #include "maemoglobal.h"
 #include "maemoqemumanager.h"
@@ -213,8 +213,8 @@ QString MaemoRunConfiguration::defaultDisplayName()
 
 MaemoDeviceConfig::ConstPtr MaemoRunConfiguration::deviceConfig() const
 {
-    const AbstractMaemoDeployStep * const step = deployStep();
-    return step ? step->deviceConfig() : MaemoDeviceConfig::ConstPtr();
+    const AbstractLinuxDeviceDeployStep * const step = deployStep();
+    return step ? step->helper().deviceConfig() : MaemoDeviceConfig::ConstPtr();
 }
 
 const MaemoToolChain *MaemoRunConfiguration::toolchain() const
@@ -236,9 +236,9 @@ Qt4MaemoDeployConfiguration *MaemoRunConfiguration::deployConfig() const
     return qobject_cast<Qt4MaemoDeployConfiguration *>(target()->activeDeployConfiguration());
 }
 
-AbstractMaemoDeployStep *MaemoRunConfiguration::deployStep() const
+AbstractLinuxDeviceDeployStep *MaemoRunConfiguration::deployStep() const
 {
-    return MaemoGlobal::earlierBuildStep<AbstractMaemoDeployStep>(deployConfig(), 0);
+    return MaemoGlobal::earlierBuildStep<AbstractLinuxDeviceDeployStep>(deployConfig(), 0);
 }
 
 const QString MaemoRunConfiguration::sysRoot() const
@@ -303,8 +303,9 @@ QString MaemoRunConfiguration::remoteExecutableFilePath() const
 MaemoPortList MaemoRunConfiguration::freePorts() const
 {
     const Qt4BuildConfiguration * const bc = activeQt4BuildConfiguration();
-    return bc
-        ? MaemoGlobal::freePorts(deployStep()->deviceConfig(), bc->qtVersion())
+    const AbstractLinuxDeviceDeployStep * const step = deployStep();
+    return bc && step
+        ? MaemoGlobal::freePorts(deployStep()->helper().deviceConfig(), bc->qtVersion())
         : MaemoPortList();
 }
 
@@ -360,10 +361,10 @@ void MaemoRunConfiguration::handleDeployConfigChanged()
             SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
         connect(activeDeployConf->stepList(), SIGNAL(stepRemoved(int)),
             SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
-        AbstractMaemoDeployStep * const step
-            = MaemoGlobal::earlierBuildStep<AbstractMaemoDeployStep>(activeDeployConf, 0);
+        AbstractLinuxDeviceDeployStep * const step
+            = MaemoGlobal::earlierBuildStep<AbstractLinuxDeviceDeployStep>(activeDeployConf, 0);
         if (step) {
-            connect(step, SIGNAL(deviceConfigChanged()),
+            connect(&step->helper(), SIGNAL(deviceConfigChanged()),
                 SLOT(updateDeviceConfigurations()), Qt::UniqueConnection);
         }
     }

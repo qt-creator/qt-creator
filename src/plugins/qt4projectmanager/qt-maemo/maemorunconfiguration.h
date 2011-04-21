@@ -57,7 +57,7 @@ namespace Internal {
 class Qt4ProFileNode;
 
 class AbstractQt4MaemoTarget;
-class AbstractMaemoDeployStep;
+class AbstractLinuxDeviceDeployStep;
 class MaemoDeviceConfigListModel;
 class MaemoManager;
 class MaemoRemoteMountsModel;
@@ -89,7 +89,6 @@ public:
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     Qt4MaemoDeployConfiguration *deployConfig() const;
-    AbstractMaemoDeployStep *deployStep() const;
     MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
 
     const MaemoToolChain *toolchain() const;
@@ -151,6 +150,7 @@ private slots:
 private:
     void init();
     void handleParseState(bool success);
+    AbstractLinuxDeviceDeployStep *deployStep() const;
 
     QString m_proFilePath;
     mutable QString m_gdbPath;

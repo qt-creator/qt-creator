@@ -130,7 +130,7 @@ public:
         for (int i = 0; i < buildSteps.count(); ++i) {
             if (buildSteps.at(i) == laterBuildStep)
                 return 0;
-            if (T * const step = qobject_cast<T *>(buildSteps.at(i)))
+            if (T * const step = dynamic_cast<T *>(buildSteps.at(i)))
                 return step;
         }
         return 0;

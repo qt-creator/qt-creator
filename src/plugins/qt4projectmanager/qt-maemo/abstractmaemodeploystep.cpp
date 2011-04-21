@@ -87,14 +87,18 @@ private:
 
 
 AbstractMaemoDeployStep::AbstractMaemoDeployStep(BuildStepList *parent,
-    const QString &id) : BuildStep(parent, id)
+        const QString &id)
+    : BuildStep(parent, id),
+      AbstractLinuxDeviceDeployStep(deployConfiguration())
 {
     baseCtor();
 }
 
 AbstractMaemoDeployStep::AbstractMaemoDeployStep(BuildStepList *parent,
-    AbstractMaemoDeployStep *other)
-    : BuildStep(parent, other), m_lastDeployed(other->m_lastDeployed)
+        AbstractMaemoDeployStep *other)
+    : BuildStep(parent, other),
+      AbstractLinuxDeviceDeployStep(deployConfiguration()),
+      m_lastDeployed(other->m_lastDeployed)
 {
     baseCtor();
 }
@@ -104,9 +108,16 @@ AbstractMaemoDeployStep::~AbstractMaemoDeployStep() { }
 void AbstractMaemoDeployStep::baseCtor()
 {
     m_baseState = BaseInactive;
-    m_deviceConfig = maemoDeployConfig()->deviceConfigModel()->defaultDeviceConfig();
-    connect(maemoDeployConfig()->deviceConfigModel(), SIGNAL(updated()),
-        SLOT(handleDeviceConfigurationsUpdated()));
+}
+
+bool AbstractMaemoDeployStep::init()
+{
+    QString errorMsg;
+    if (!initialize(errorMsg)) {
+        writeOutput(errorMsg, ErrorMessageOutput);
+        return false;
+    }
+    return true;
 }
 
 void AbstractMaemoDeployStep::run(QFutureInterface<bool> &fi)
@@ -126,8 +137,7 @@ QVariantMap AbstractMaemoDeployStep::toMap() const
 {
     QVariantMap map(BuildStep::toMap());
     addDeployTimesToMap(map);
-    map.insert(DeviceIdKey,
-        MaemoDeviceConfigurations::instance()->internalId(m_deviceConfig));
+    map.unite(helper().toMap());
     return map;
 }
 
@@ -154,8 +164,9 @@ bool AbstractMaemoDeployStep::fromMap(const QVariantMap &map)
 {
     if (!BuildStep::fromMap(map))
         return false;
+    if (!helper().fromMap(map))
+        return false;
     getDeployTimesFromMap(map);
-    setDeviceConfig(map.value(DeviceIdKey, MaemoDeviceConfig::InvalidId).toULongLong());
     return true;
 }
 
@@ -228,32 +239,6 @@ void AbstractMaemoDeployStep::setDeployed(const QString &host,
         QDateTime::currentDateTime());
 }
 
-void AbstractMaemoDeployStep::handleDeviceConfigurationsUpdated()
-{
-    setDeviceConfig(MaemoDeviceConfigurations::instance()->internalId(m_deviceConfig));
-}
-
-void AbstractMaemoDeployStep::setDeviceConfig(MaemoDeviceConfig::Id internalId)
-{
-    m_deviceConfig = maemoDeployConfig()->deviceConfigModel()->find(internalId);
-    emit deviceConfigChanged();
-}
-
-void AbstractMaemoDeployStep::setDeviceConfig(int i)
-{
-    m_deviceConfig = maemoDeployConfig()->deviceConfigModel()->deviceAt(i);
-    emit deviceConfigChanged();
-}
-
-bool AbstractMaemoDeployStep::isDeploymentPossible(QString &whyNot) const
-{
-    if (!m_deviceConfig) {
-        whyNot = tr("No valid device set.");
-        return false;
-    }
-    return isDeploymentPossibleInternal(whyNot);
-}
-
 void AbstractMaemoDeployStep::start()
 {
     if (m_baseState != BaseInactive) {
@@ -262,18 +247,9 @@ void AbstractMaemoDeployStep::start()
         return;
     }
 
-    m_cachedDeviceConfig = m_deviceConfig;
-
-    QString message;
-    if (!isDeploymentPossible(message)) {
-        raiseError(tr("Cannot deploy: %1").arg(message));
-        emit done();
-        return;
-    }
-
     m_hasError = false;
-    if (isDeploymentNeeded(m_cachedDeviceConfig->sshParameters().host)) {
-        if (m_cachedDeviceConfig->type() == MaemoDeviceConfig::Emulator
+    if (isDeploymentNeeded(helper().cachedDeviceConfig()->sshParameters().host)) {
+        if (helper().cachedDeviceConfig()->type() == MaemoDeviceConfig::Emulator
                 && !MaemoQemuManager::instance().qemuIsRunning()) {
             MaemoQemuManager::instance().startRuntime();
             raiseError(tr("Cannot deploy: Qemu was not running. "
@@ -296,7 +272,7 @@ void AbstractMaemoDeployStep::handleConnectionFailure()
         return;
 
     const QString errorMsg = m_baseState == Connecting
-        ? MaemoGlobal::failedToConnectToServerMessage(m_connection, m_cachedDeviceConfig)
+        ? MaemoGlobal::failedToConnectToServerMessage(m_connection, helper().cachedDeviceConfig())
         : tr("Connection error: %1").arg(m_connection->errorString());
     raiseError(errorMsg);
     setDeploymentFinished();
@@ -307,7 +283,7 @@ void AbstractMaemoDeployStep::connectToDevice()
     ASSERT_STATE(QList<BaseState>() << BaseInactive);
     setBaseState(Connecting);
 
-    m_connection = SshConnectionManager::instance().acquireConnection(m_cachedDeviceConfig->sshParameters());
+    m_connection = SshConnectionManager::instance().acquireConnection(helper().cachedDeviceConfig()->sshParameters());
     connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
         SLOT(handleConnectionFailure()));
     if (m_connection->state() == SshConnection::Connected) {
@@ -405,11 +381,6 @@ MaemoPortList AbstractMaemoDeployStep::freePorts(const MaemoDeviceConfig::ConstP
 const Qt4BuildConfiguration *AbstractMaemoDeployStep::qt4BuildConfiguration() const
 {
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
-}
-
-Qt4MaemoDeployConfiguration *AbstractMaemoDeployStep::maemoDeployConfig() const
-{
-    return qobject_cast<Qt4MaemoDeployConfiguration *>(deployConfiguration());
 }
 
 MaemoDeployEventHandler::MaemoDeployEventHandler(AbstractMaemoDeployStep *deployStep,
