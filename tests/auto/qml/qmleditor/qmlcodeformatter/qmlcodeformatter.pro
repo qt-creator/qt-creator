@@ -1,15 +1,10 @@
-TEMPLATE = app
-CONFIG += qt warn_on console depend_includepath qtestlib testcase
-QT += network
+include(../../../qttest.pri)
 
 SRCDIR = ../../../../../src
 
-#DEFINES += QML_BUILD_STATIC_LIB
-#include($$SRCDIR/../qtcreator.pri)
-include($$SRCDIR/libs/qmljs/qmljs-lib.pri)
-include($$SRCDIR/libs/utils/utils-lib.pri)
-include($$SRCDIR/libs/languageutils/languageutils-lib.pri)
-#LIBS += -L$$IDE_LIBRARY_PATH
+include($$SRCDIR/libs/qmljs/qmljs.pri)
+include($$SRCDIR/libs/utils/utils.pri)
+include($$SRCDIR/libs/languageutils/languageutils.pri)
 
 SOURCES += \
     tst_qmlcodeformatter.cpp \
@@ -17,7 +12,7 @@ SOURCES += \
     $$SRCDIR/plugins/texteditor/basetextdocumentlayout.cpp
 
 HEADERS += \
-    $$SRCDIR/plugins/qmljstools/qmljseditorcodeformatter.h \
+    $$SRCDIR/plugins/qmljstools/qmljsqtstylecodeformatter.h \
     $$SRCDIR/plugins/texteditor/basetextdocumentlayout.h
 
 INCLUDEPATH += $$SRCDIR/plugins $$SRCDIR/libs
