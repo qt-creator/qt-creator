@@ -504,9 +504,9 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
         + QLatin1Char('/') + maemoTarget()->packageName()
         + QLatin1String("/usr/share/applications/");
     const Qt4BuildConfiguration * const bc = qt4BuildConfiguration();
-    const MaemoGlobal::OsVersion version
+    const MaemoDeviceConfig::OsVersion version
         = MaemoGlobal::version(bc->qtVersion());
-    if (version == MaemoGlobal::Maemo5)
+    if (version == MaemoDeviceConfig::Maemo5)
         desktopFileDir += QLatin1String("hildon/");
 #ifdef Q_OS_WIN
     desktopFileDir.remove(QLatin1Char(':'));
@@ -518,7 +518,7 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
             = deployConfig()->deployables()->modelAt(i);
         if (!model->hasDesktopFile())
             continue;
-        if (version == MaemoGlobal::Maemo6) {
+        if (version == MaemoDeviceConfig::Maemo6) {
             addWorkaroundForHarmattanBug(content, insertPos,
                 model, desktopFileDir);
         }

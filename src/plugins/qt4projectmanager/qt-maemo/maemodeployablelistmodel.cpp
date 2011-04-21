@@ -248,7 +248,7 @@ bool MaemoDeployableListModel::addDesktopFile()
     const QtVersion * const version = qtVersion();
     QTC_ASSERT(version, return false);
     QString remoteDir = QLatin1String("/usr/share/applications");
-    if (MaemoGlobal::version(version) == MaemoGlobal::Maemo5)
+    if (MaemoGlobal::version(version) == MaemoDeviceConfig::Maemo5)
         remoteDir += QLatin1String("/hildon");
     const QLatin1String filesLine("desktopfile.files = $${TARGET}.desktop");
     const QString pathLine = QLatin1String("desktopfile.path = ") + remoteDir;
@@ -330,7 +330,7 @@ QString MaemoDeployableListModel::proFileScope() const
 {
     const QtVersion *const qv = qtVersion();
     QTC_ASSERT(qv, return QString());
-    return QLatin1String(MaemoGlobal::version(qv) == MaemoGlobal::Maemo5
+    return QLatin1String(MaemoGlobal::version(qv) == MaemoDeviceConfig::Maemo5
         ? "maemo5" : "unix:!symbian:!maemo5");
 }
 

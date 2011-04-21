@@ -42,13 +42,13 @@ MaemoPerTargetDeviceConfigurationListModel::MaemoPerTargetDeviceConfigurationLis
     const Target *target) : QAbstractListModel(parent)
 {
     if (qobject_cast<const Qt4Maemo5Target *>(target))
-        m_targetOsVersion = MaemoGlobal::Maemo5;
+        m_targetOsVersion = MaemoDeviceConfig::Maemo5;
     else if (qobject_cast<const Qt4HarmattanTarget *>(target))
-        m_targetOsVersion = MaemoGlobal::Maemo6;
+        m_targetOsVersion = MaemoDeviceConfig::Maemo6;
     else if (qobject_cast<const Qt4MeegoTarget *>(target))
-        m_targetOsVersion = MaemoGlobal::Meego;
+        m_targetOsVersion = MaemoDeviceConfig::Meego;
     else
-        m_targetOsVersion = MaemoGlobal::GenericLinux;
+        m_targetOsVersion = MaemoDeviceConfig::GenericLinux;
     const MaemoDeviceConfigurations * const devConfs
         = MaemoDeviceConfigurations::instance();
     connect(devConfs, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
@@ -63,7 +63,7 @@ int MaemoPerTargetDeviceConfigurationListModel::rowCount(const QModelIndex &pare
     const MaemoDeviceConfigurations * const devConfs
         = MaemoDeviceConfigurations::instance();
     const int devConfsCount = devConfs->rowCount();
-    if (m_targetOsVersion == MaemoGlobal::GenericLinux)
+    if (m_targetOsVersion == MaemoDeviceConfig::GenericLinux)
         return devConfsCount;
     for (int i = 0; i < devConfsCount; ++i) {
         if (devConfs->deviceAt(i)->osVersion() == m_targetOsVersion)
@@ -90,7 +90,7 @@ MaemoDeviceConfig::ConstPtr MaemoPerTargetDeviceConfigurationListModel::deviceAt
     int currentRow = -1;
     const MaemoDeviceConfigurations * const devConfs
         = MaemoDeviceConfigurations::instance();
-    if (m_targetOsVersion == MaemoGlobal::GenericLinux)
+    if (m_targetOsVersion == MaemoDeviceConfig::GenericLinux)
         return devConfs->deviceAt(idx);
     const int devConfsCount = devConfs->rowCount();
     for (int i = 0; i < devConfsCount; ++i) {
@@ -113,7 +113,7 @@ MaemoDeviceConfig::ConstPtr MaemoPerTargetDeviceConfigurationListModel::find(Mae
     const MaemoDeviceConfig::ConstPtr &devConf
         = MaemoDeviceConfigurations::instance()->find(id);
     return devConf && (devConf->osVersion() == m_targetOsVersion
-            || m_targetOsVersion == MaemoGlobal::GenericLinux)
+            || m_targetOsVersion == MaemoDeviceConfig::GenericLinux)
         ? devConf : defaultDeviceConfig();
 }
 

@@ -70,7 +70,7 @@ void MaemoRemoteProcessList::update()
 
     // The ps command on Fremantle ignores all command line options, so
     // we have to collect the information in /proc manually.
-    if (m_devConfig->osVersion() == MaemoGlobal::Maemo5) {
+    if (m_devConfig->osVersion() == MaemoDeviceConfig::Maemo5) {
         command = "sep1=" + LineSeparator1 + '\n'
             + "sep2=" + LineSeparator2 + '\n'
             + "pidlist=`ls /proc |grep -E '^[[:digit:]]+$' |sort -n`; "
@@ -192,7 +192,7 @@ void MaemoRemoteProcessList::stop()
 
 void MaemoRemoteProcessList::buildProcessList()
 {
-    const bool isFremantle = m_devConfig->osVersion() == MaemoGlobal::Maemo5;
+    const bool isFremantle = m_devConfig->osVersion() == MaemoDeviceConfig::Maemo5;
     const QString remoteOutput = QString::fromUtf8(m_remoteStdout);
     const QByteArray lineSeparator = isFremantle ? LineSeparator : "\n";
     QStringList lines = remoteOutput.split(QString::fromUtf8(lineSeparator));

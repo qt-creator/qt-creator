@@ -68,7 +68,6 @@ public:
     bool currentlyNeedsDeployment(const QString &host,
         const MaemoDeployable &deployable) const;
     void setDeployed(const QString &host, const MaemoDeployable &deployable);
-    MaemoPortList freePorts() const;
     Qt4MaemoDeployConfiguration *maemoDeployConfig() const;
     bool isDeploymentPossible(QString &whyNot) const;
 

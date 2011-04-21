@@ -32,6 +32,7 @@
 **************************************************************************/
 
 #include "maemoanalyzersupport.h"
+#include "maemoglobal.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerstartparameters.h>

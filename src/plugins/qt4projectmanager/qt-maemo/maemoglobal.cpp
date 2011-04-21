@@ -32,7 +32,7 @@
 #include "maemoglobal.h"
 
 #include "maemoconstants.h"
-#include "maemodeviceconfigurations.h"
+#include "maemoqemumanager.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -78,21 +78,21 @@ bool MaemoGlobal::isMeegoTargetId(const QString &id)
 
 bool MaemoGlobal::isValidMaemo5QtVersion(const QtVersion *version)
 {
-    return isValidMaemoQtVersion(version, Maemo5);
+    return isValidMaemoQtVersion(version, MaemoDeviceConfig::Maemo5);
 }
 
 bool MaemoGlobal::isValidHarmattanQtVersion(const QtVersion *version)
 {
-    return isValidMaemoQtVersion(version, Maemo6);
+    return isValidMaemoQtVersion(version, MaemoDeviceConfig::Maemo6);
 }
 
 bool MaemoGlobal::isValidMeegoQtVersion(const Qt4ProjectManager::QtVersion *version)
 {
-    return isValidMaemoQtVersion(version, Meego);
+    return isValidMaemoQtVersion(version, MaemoDeviceConfig::Meego);
 }
 
 bool MaemoGlobal::isValidMaemoQtVersion(const QtVersion *qtVersion,
-    OsVersion maemoVersion)
+    MaemoDeviceConfig::OsVersion maemoVersion)
 {
     if (version(qtVersion) != maemoVersion)
         return false;
@@ -132,12 +132,12 @@ QString MaemoGlobal::remoteSudo(const QString &uname)
     return uname == QLatin1String("root") ? QString() : devrootshPath();
 }
 
-QString MaemoGlobal::remoteCommandPrefix(OsVersion osVersion,
+QString MaemoGlobal::remoteCommandPrefix(MaemoDeviceConfig::OsVersion osVersion,
     const QString &userName, const QString &commandFilePath)
 {
     QString prefix = QString::fromLocal8Bit("%1 chmod a+x %2; %3; ")
         .arg(remoteSudo(userName), commandFilePath, remoteSourceProfilesCommand());
-    if (osVersion != Maemo5 && osVersion != Maemo6)
+    if (osVersion != MaemoDeviceConfig::Maemo5 && osVersion != MaemoDeviceConfig::Maemo6)
         prefix += QLatin1String("DISPLAY=:0.0 ");
     return prefix;
 }
@@ -183,6 +183,20 @@ QString MaemoGlobal::deviceConfigurationName(const MaemoDeviceConfig::ConstPtr &
     return devConf ? devConf->name() : tr("(No device)");
 }
 
+MaemoPortList MaemoGlobal::freePorts(const MaemoDeviceConfig::ConstPtr &devConf,
+    const QtVersion *qtVersion)
+{
+    if (!devConf)
+        return MaemoPortList();
+    if (devConf->type() == MaemoDeviceConfig::Emulator) {
+        MaemoQemuRuntime rt;
+        const int id = qtVersion->uniqueId();
+        if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))
+            return rt.m_freePorts;
+    }
+    return devConf->freePorts();
+}
+
 QString MaemoGlobal::maddeRoot(const QtVersion *qtVersion)
 {
     QDir dir(targetRoot(qtVersion));
@@ -210,22 +224,22 @@ QString MaemoGlobal::madCommand(const QtVersion *qtVersion)
     return maddeRoot(qtVersion) + QLatin1String("/bin/mad");
 }
 
-QString MaemoGlobal::madDeveloperUiName(OsVersion osVersion)
+QString MaemoGlobal::madDeveloperUiName(MaemoDeviceConfig::OsVersion osVersion)
 {
-    return osVersion == Maemo6
+    return osVersion == MaemoDeviceConfig::Maemo6
         ? tr("SDK Connectivity") : tr("Mad Developer");
 }
 
-MaemoGlobal::OsVersion MaemoGlobal::version(const QtVersion *qtVersion)
+MaemoDeviceConfig::MaemoDeviceConfig::OsVersion MaemoGlobal::version(const QtVersion *qtVersion)
 {
     const QString &name = targetName(qtVersion);
     if (name.startsWith(QLatin1String("fremantle")))
-        return Maemo5;
+        return MaemoDeviceConfig::Maemo5;
     if (name.startsWith(QLatin1String("harmattan")))
-        return Maemo6;
+        return MaemoDeviceConfig::Maemo6;
     if (name.startsWith(QLatin1String("meego")))
-        return Meego;
-    return static_cast<OsVersion>(-1);
+        return MaemoDeviceConfig::Meego;
+    return static_cast<MaemoDeviceConfig::OsVersion>(-1);
 }
 
 QString MaemoGlobal::architecture(const QtVersion *qtVersion)
@@ -374,24 +388,24 @@ QStringList MaemoGlobal::targetArgs(const QtVersion *qtVersion, bool useTarget)
     return args;
 }
 
-QString MaemoGlobal::osVersionToString(OsVersion version)
+QString MaemoGlobal::osVersionToString(MaemoDeviceConfig::OsVersion version)
 {
     switch (version) {
-    case Maemo5: return QLatin1String("Maemo5/Fremantle");
-    case Maemo6: return QLatin1String("Harmattan");
-    case Meego: return QLatin1String("Meego");
-    case GenericLinux: return QLatin1String("Other Linux");
+    case MaemoDeviceConfig::Maemo5: return QLatin1String("Maemo5/Fremantle");
+    case MaemoDeviceConfig::Maemo6: return QLatin1String("Harmattan");
+    case MaemoDeviceConfig::Meego: return QLatin1String("Meego");
+    case MaemoDeviceConfig::GenericLinux: return QLatin1String("Other Linux");
     }
     qDebug("%s: Unknown OS Version %d.", Q_FUNC_INFO, version);
     return QString();
 }
 
-MaemoGlobal::PackagingSystem MaemoGlobal::packagingSystem(OsVersion osVersion)
+MaemoGlobal::PackagingSystem MaemoGlobal::packagingSystem(MaemoDeviceConfig::OsVersion osVersion)
 {
     switch (osVersion) {
-    case Maemo5: case Maemo6: return Dpkg;
-    case Meego: return Rpm;
-    case GenericLinux: return Tar;
+    case MaemoDeviceConfig::Maemo5: case MaemoDeviceConfig::Maemo6: return Dpkg;
+    case MaemoDeviceConfig::Meego: return Rpm;
+    case MaemoDeviceConfig::GenericLinux: return Tar;
     default: qFatal("%s: Missing case in switch.", Q_FUNC_INFO);
     }
     return static_cast<PackagingSystem>(-1);

@@ -394,23 +394,12 @@ void AbstractMaemoDeployStep::handleRemoteStderr(const QString &output)
     }
 }
 
-MaemoPortList AbstractMaemoDeployStep::freePorts() const
-{
-    return freePorts(m_deviceConfig);
-}
-
 MaemoPortList AbstractMaemoDeployStep::freePorts(const MaemoDeviceConfig::ConstPtr &devConf) const
 {
     const Qt4BuildConfiguration * const qt4bc = qt4BuildConfiguration();
-    if (!devConf)
+    if (!qt4bc)
         return MaemoPortList();
-    if (devConf->type() == MaemoDeviceConfig::Emulator && qt4bc) {
-        MaemoQemuRuntime rt;
-        const int id = qt4bc->qtVersion()->uniqueId();
-        if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))
-            return rt.m_freePorts;
-    }
-    return devConf->freePorts();
+    return MaemoGlobal::freePorts(devConf, qt4bc->qtVersion());
 }
 
 const Qt4BuildConfiguration *AbstractMaemoDeployStep::qt4BuildConfiguration() const

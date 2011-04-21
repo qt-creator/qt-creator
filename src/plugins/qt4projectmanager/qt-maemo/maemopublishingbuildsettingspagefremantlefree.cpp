@@ -79,7 +79,7 @@ void MaemoPublishingBuildSettingsPageFremantleFree::collectBuildConfigurations(c
                 = qobject_cast<Qt4BuildConfiguration *>(bc);
             if (!qt4Bc)
                 continue;
-            if (MaemoGlobal::version(qt4Bc->qtVersion()) == MaemoGlobal::Maemo5)
+            if (MaemoGlobal::version(qt4Bc->qtVersion()) == MaemoDeviceConfig::Maemo5)
                 m_buildConfigs << qt4Bc;
         }
         break;

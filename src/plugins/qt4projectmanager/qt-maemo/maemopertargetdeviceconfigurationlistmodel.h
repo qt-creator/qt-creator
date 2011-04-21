@@ -63,7 +63,7 @@ signals:
     void updated();
 
 private:
-    MaemoGlobal::OsVersion m_targetOsVersion;
+    MaemoDeviceConfig::OsVersion m_targetOsVersion;
 };
 
 } // namespace Internal

@@ -76,7 +76,7 @@ bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *p
                 = qobject_cast<const Qt4BuildConfiguration *>(bc);
             if (!qt4Bc)
                 continue;
-            if (MaemoGlobal::version(qt4Bc->qtVersion()) == MaemoGlobal::Maemo5)
+            if (MaemoGlobal::version(qt4Bc->qtVersion()) == MaemoDeviceConfig::Maemo5)
                 return true;
         }
         break;

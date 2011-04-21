@@ -36,6 +36,7 @@
 #include "maemoconfigtestdialog.h"
 #include "maemodeviceconfigwizard.h"
 #include "maemodeviceconfigurations.h"
+#include "maemoglobal.h"
 #include "maemokeydeployer.h"
 #include "maemoremoteprocessesdialog.h"
 #include "maemosshconfigdialog.h"

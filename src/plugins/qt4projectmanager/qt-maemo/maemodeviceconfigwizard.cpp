@@ -38,6 +38,7 @@
 #include "ui_maemodeviceconfigwizardstartpage.h"
 
 #include "maemodeviceconfigurations.h"
+#include "maemoglobal.h"
 #include "maemokeydeployer.h"
 
 #include <utils/fileutils.h>
@@ -60,7 +61,7 @@ struct WizardData
 {
     QString configName;
     QString hostName;
-    MaemoGlobal::OsVersion osVersion;
+    MaemoDeviceConfig::OsVersion osVersion;
     SshConnectionParameters::AuthenticationType authType;
     MaemoDeviceConfig::DeviceType deviceType;
     QString privateKeyFilePath;
@@ -84,10 +85,10 @@ public:
         m_ui->setupUi(this);
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        m_ui->fremantleButton->setText(MaemoGlobal::osVersionToString(MaemoGlobal::Maemo5));
-        m_ui->harmattanButton->setText(MaemoGlobal::osVersionToString(MaemoGlobal::Maemo6));
-        m_ui->meegoButton->setText(MaemoGlobal::osVersionToString(MaemoGlobal::Meego));
-        m_ui->genericLinuxButton->setText(MaemoGlobal::osVersionToString(MaemoGlobal::GenericLinux));
+        m_ui->fremantleButton->setText(MaemoGlobal::osVersionToString(MaemoDeviceConfig::Maemo5));
+        m_ui->harmattanButton->setText(MaemoGlobal::osVersionToString(MaemoDeviceConfig::Maemo6));
+        m_ui->meegoButton->setText(MaemoGlobal::osVersionToString(MaemoDeviceConfig::Meego));
+        m_ui->genericLinuxButton->setText(MaemoGlobal::osVersionToString(MaemoDeviceConfig::GenericLinux));
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
@@ -131,12 +132,12 @@ public:
             : m_ui->hostNameLineEdit->text().trimmed();
     }
 
-    MaemoGlobal::OsVersion osVersion() const
+    MaemoDeviceConfig::OsVersion osVersion() const
     {
-        return m_ui->fremantleButton->isChecked() ? MaemoGlobal::Maemo5
-            : m_ui->harmattanButton->isChecked() ? MaemoGlobal::Maemo6
-            : m_ui->meegoButton->isChecked() ? MaemoGlobal::Meego
-            : MaemoGlobal::GenericLinux;
+        return m_ui->fremantleButton->isChecked() ? MaemoDeviceConfig::Maemo5
+            : m_ui->harmattanButton->isChecked() ? MaemoDeviceConfig::Maemo6
+            : m_ui->meegoButton->isChecked() ? MaemoDeviceConfig::Meego
+            : MaemoDeviceConfig::GenericLinux;
     }
 
     MaemoDeviceConfig::DeviceType deviceType() const
@@ -155,7 +156,7 @@ private slots:
 
     void handleOsTypeChanged()
     {
-        if (osVersion() == MaemoGlobal::GenericLinux) {
+        if (osVersion() == MaemoDeviceConfig::GenericLinux) {
             m_ui->hwButton->setChecked(true);
             m_ui->hwButton->setEnabled(false);
             m_ui->qemuButton->setEnabled(false);
@@ -640,7 +641,7 @@ void MaemoDeviceConfigWizard::createDeviceConfig()
         while (d->devConfigs->hasConfig(name));
     }
 
-    if (d->wizardData.osVersion == MaemoGlobal::GenericLinux) {
+    if (d->wizardData.osVersion == MaemoDeviceConfig::GenericLinux) {
         if (d->wizardData.authType == SshConnectionParameters::AuthenticationByPassword) {
            d->devConfigs->addGenericLinuxConfigurationUsingPassword(name,
                d->wizardData.hostName, d->wizardData.userName,
@@ -671,7 +672,7 @@ int MaemoDeviceConfigWizard::nextId() const
 
         if (d->wizardData.deviceType == MaemoDeviceConfig::Emulator) {
             return FinalPageId;
-        } else if (d->wizardData.osVersion == MaemoGlobal::GenericLinux) {
+        } else if (d->wizardData.osVersion == MaemoDeviceConfig::GenericLinux) {
             return LoginDataPageId;
         } else {
             return PreviousKeySetupCheckPageId;

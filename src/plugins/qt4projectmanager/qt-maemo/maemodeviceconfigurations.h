@@ -33,8 +33,6 @@
 #ifndef MAEMODEVICECONFIGURATIONS_H
 #define MAEMODEVICECONFIGURATIONS_H
 
-#include "maemoglobal.h"
-
 #include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QAbstractListModel>
@@ -72,30 +70,31 @@ class MaemoDeviceConfig
 public:
     typedef QSharedPointer<const MaemoDeviceConfig> ConstPtr;
     typedef quint64 Id;
+    enum OsVersion { Maemo5, Maemo6, Meego, GenericLinux };
     enum DeviceType { Physical, Emulator };
 
     MaemoPortList freePorts() const;
     Utils::SshConnectionParameters sshParameters() const { return m_sshParameters; }
     QString name() const { return m_name; }
-    MaemoGlobal::OsVersion osVersion() const { return m_osVersion; }
+    OsVersion osVersion() const { return m_osVersion; }
     DeviceType type() const { return m_type; }
     QString portsSpec() const { return m_portsSpec; }
     Id internalId() const { return m_internalId; }
     bool isDefault() const { return m_isDefault; }
     static QString portsRegExpr();
-    static QString defaultHost(DeviceType type, MaemoGlobal::OsVersion osVersion);
+    static QString defaultHost(DeviceType type, OsVersion osVersion);
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
-    static QString defaultUser(MaemoGlobal::OsVersion osVersion);
+    static QString defaultUser(OsVersion osVersion);
     static int defaultSshPort(DeviceType type);
-    static QString defaultQemuPassword(MaemoGlobal::OsVersion osVersion);
+    static QString defaultQemuPassword(OsVersion osVersion);
 
     static const Id InvalidId;
 
 private:
     typedef QSharedPointer<MaemoDeviceConfig> Ptr;
 
-    MaemoDeviceConfig(const QString &name, MaemoGlobal::OsVersion osVersion,
+    MaemoDeviceConfig(const QString &name, OsVersion osVersion,
         DeviceType type, const Utils::SshConnectionParameters &sshParams,
         Id &nextId);
     MaemoDeviceConfig(const QSettings &settings, Id &nextId);
@@ -104,17 +103,16 @@ private:
     MaemoDeviceConfig(const MaemoDeviceConfig &);
     MaemoDeviceConfig &operator=(const MaemoDeviceConfig &);
 
-    static Ptr createHardwareConfig(const QString &name,
-        MaemoGlobal::OsVersion osVersion, const QString &hostName,
-        const QString &privateKeyFilePath, Id &nextId);
+    static Ptr createHardwareConfig(const QString &name, OsVersion osVersion,
+        const QString &hostName, const QString &privateKeyFilePath, Id &nextId);
     static Ptr createGenericLinuxConfigUsingPassword(const QString &name,
         const QString &hostName, const QString &userName,
         const QString &password, Id &nextId);
     static Ptr createGenericLinuxConfigUsingKey(const QString &name,
         const QString &hostName, const QString &userName,
         const QString &privateKeyFilePath, Id &nextId);
-    static Ptr createEmulatorConfig(const QString &name,
-        MaemoGlobal::OsVersion osVersion, Id &nextId);
+    static Ptr createEmulatorConfig(const QString &name, OsVersion osVersion,
+        Id &nextId);
     static Ptr create(const QSettings &settings, Id &nextId);
     static Ptr create(const ConstPtr &other);
 
@@ -123,7 +121,7 @@ private:
 
     Utils::SshConnectionParameters m_sshParameters;
     QString m_name;
-    MaemoGlobal::OsVersion m_osVersion;
+    OsVersion m_osVersion;
     DeviceType m_type;
     QString m_portsSpec;
     bool m_isDefault;
@@ -143,7 +141,7 @@ public:
 
     MaemoDeviceConfig::ConstPtr deviceAt(int index) const;
     MaemoDeviceConfig::ConstPtr find(MaemoDeviceConfig::Id id) const;
-    MaemoDeviceConfig::ConstPtr defaultDeviceConfig(const MaemoGlobal::OsVersion osVersion) const;
+    MaemoDeviceConfig::ConstPtr defaultDeviceConfig(const MaemoDeviceConfig::OsVersion osVersion) const;
     bool hasConfig(const QString &name) const;
     int indexForInternalId(MaemoDeviceConfig::Id internalId) const;
     MaemoDeviceConfig::Id internalId(MaemoDeviceConfig::ConstPtr devConf) const;
@@ -152,7 +150,7 @@ public:
     QString defaultSshKeyFilePath() const { return m_defaultSshKeyFilePath; }
 
     void addHardwareDeviceConfiguration(const QString &name,
-        MaemoGlobal::OsVersion osVersion, const QString &hostName,
+        MaemoDeviceConfig::OsVersion osVersion, const QString &hostName,
         const QString &privateKeyFilePath);
     void addGenericLinuxConfigurationUsingPassword(const QString &name,
         const QString &hostName, const QString &userName,
@@ -161,7 +159,7 @@ public:
         const QString &hostName, const QString &userName,
         const QString &privateKeyFilePath);
     void addEmulatorDeviceConfiguration(const QString &name,
-        MaemoGlobal::OsVersion osVersion);
+        MaemoDeviceConfig::OsVersion osVersion);
     void removeConfiguration(int index);
     void setConfigurationName(int i, const QString &name);
     void setSshParameters(int i, const Utils::SshConnectionParameters &params);
@@ -182,7 +180,7 @@ private:
     static void copy(const MaemoDeviceConfigurations *source,
         MaemoDeviceConfigurations *target, bool deep);
     void addConfiguration(const MaemoDeviceConfig::Ptr &devConfig);
-    void ensureDefaultExists(MaemoGlobal::OsVersion osVersion);
+    void ensureDefaultExists(MaemoDeviceConfig::OsVersion osVersion);
 
     static MaemoDeviceConfigurations *m_instance;
     MaemoDeviceConfig::Id m_nextId;

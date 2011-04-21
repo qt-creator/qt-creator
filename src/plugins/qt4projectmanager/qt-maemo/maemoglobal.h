@@ -33,6 +33,8 @@
 #ifndef MAEMOGLOBAL_H
 #define MAEMOGLOBAL_H
 
+#include "maemodeviceconfigurations.h"
+
 #include <utils/environment.h>
 
 #include <projectexplorer/buildstep.h>
@@ -56,13 +58,11 @@ namespace Utils { class SshConnection; }
 namespace Qt4ProjectManager {
 class QtVersion;
 namespace Internal {
-class MaemoDeviceConfig;
 
 class MaemoGlobal
 {
     Q_DECLARE_TR_FUNCTIONS(Qt4ProjectManager::Internal::MaemoGlobal)
 public:
-    enum OsVersion { Maemo5, Maemo6, Meego, GenericLinux };
     enum PackagingSystem { Dpkg, Rpm, Tar };
 
     class FileUpdate {
@@ -84,20 +84,22 @@ public:
     static QString homeDirOnDevice(const QString &uname);
     static QString devrootshPath();
     static QString remoteSudo(const QString &uname);
-    static QString remoteCommandPrefix(OsVersion osVersion,
+    static QString remoteCommandPrefix(MaemoDeviceConfig::OsVersion osVersion,
         const QString &userName, const QString &commandFilePath);
     static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);
     static QString remoteSourceProfilesCommand();
     static QString failedToConnectToServerMessage(const QSharedPointer<Utils::SshConnection> &connection,
         const QSharedPointer<const MaemoDeviceConfig> &deviceConfig);
     static QString deviceConfigurationName(const QSharedPointer<const MaemoDeviceConfig> &devConf);
+    static MaemoPortList freePorts(const QSharedPointer<const MaemoDeviceConfig> &devConf,
+        const QtVersion *qtVersion);
 
     static QString maddeRoot(const QtVersion *qtVersion);
     static QString targetRoot(const QtVersion *qtVersion);
     static QString targetName(const QtVersion *qtVersion);
     static QString madCommand(const QtVersion *qtVersion);
-    static QString madDeveloperUiName(OsVersion maemoVersion);
-    static OsVersion version(const QtVersion *qtVersion);
+    static QString madDeveloperUiName(MaemoDeviceConfig::OsVersion maemoVersion);
+    static MaemoDeviceConfig::OsVersion version(const QtVersion *qtVersion);
 
     // TODO: IS this still needed with Qt Version having an Abi?
     static QString architecture(const QtVersion *version);
@@ -107,9 +109,9 @@ public:
     static bool callMadAdmin(QProcess &proc, const QStringList &args,
         const QtVersion *qtVersion, bool useTarget);
 
-    static QString osVersionToString(OsVersion version);
+    static QString osVersionToString(MaemoDeviceConfig::OsVersion version);
 
-    static PackagingSystem packagingSystem(OsVersion osVersion);
+    static PackagingSystem packagingSystem(MaemoDeviceConfig::OsVersion osVersion);
 
     static bool removeRecursively(const QString &filePath, QString &error);
     static bool copyRecursively(const QString &srcFilePath,
@@ -151,7 +153,7 @@ public:
 
 private:
     static bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *qtVersion,
-        OsVersion maemoVersion);
+        MaemoDeviceConfig::OsVersion maemoVersion);
     static QString madAdminCommand(const QtVersion *qtVersion);
     static bool callMaddeShellScript(QProcess &proc, const QtVersion *qtVersion,
         const QString &command, const QStringList &args, bool useTarget);
