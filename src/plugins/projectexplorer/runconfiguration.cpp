@@ -70,6 +70,8 @@ public:
     RunConfigurationFactoryMatcher(Target * target) : m_target(target)
     { }
 
+    virtual ~RunConfigurationFactoryMatcher() { }
+
     virtual bool operator()(IRunConfigurationFactory *) const = 0;
 
     Target *target() const
@@ -88,7 +90,6 @@ public:
         RunConfigurationFactoryMatcher(target),
         m_id(id)
     { }
-    ~CreateMatcher() { }
 
     bool operator()(IRunConfigurationFactory *factory) const
     {
@@ -106,7 +107,6 @@ public:
         RunConfigurationFactoryMatcher(target),
         m_source(source)
     { }
-    ~CloneMatcher() { }
 
     bool operator()(IRunConfigurationFactory *factory) const
     {
@@ -124,7 +124,6 @@ public:
         RunConfigurationFactoryMatcher(target),
         m_map(map)
     { }
-    ~RestoreMatcher() { }
 
     bool operator()(IRunConfigurationFactory *factory) const
     {
@@ -137,11 +136,11 @@ private:
 
 // Helper methods:
 
-IRunConfigurationFactory * findRunConfigurationFactory(RunConfigurationFactoryMatcher &matcher)
+IRunConfigurationFactory *findRunConfigurationFactory(RunConfigurationFactoryMatcher &matcher)
 {
-    QList<IRunConfigurationFactory *>
-            factories(ExtensionSystem::PluginManager::instance()->
-                getObjects<IRunConfigurationFactory>());
+    QList<IRunConfigurationFactory *> factories
+        = ExtensionSystem::PluginManager::instance()->
+                getObjects<IRunConfigurationFactory>();
     foreach (IRunConfigurationFactory *factory, factories) {
         if (matcher(factory))
             return factory;
@@ -273,7 +272,7 @@ void RunConfiguration::setQmlDebugServerPort(uint port)
 
 QVariantMap RunConfiguration::toMap() const
 {
-    QVariantMap map(ProjectConfiguration::toMap());
+    QVariantMap map = ProjectConfiguration::toMap();
     map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), m_useCppDebugger);
     map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger);
     map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), m_qmlDebugServerPort);

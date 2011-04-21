@@ -168,7 +168,6 @@ class PROJECTEXPLORER_EXPORT ITargetFactory :
 
 public:
     explicit ITargetFactory(QObject *parent = 0);
-    virtual ~ITargetFactory();
 
     virtual QStringList supportedTargetIds(ProjectExplorer::Project *project) const = 0;
     virtual bool supportsTargetId(const QString &id) const = 0;

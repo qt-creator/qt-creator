@@ -46,17 +46,17 @@
 #include <QtGui/QIcon>
 
 namespace {
-const char * const ACTIVE_BC_KEY("ProjectExplorer.Target.ActiveBuildConfiguration");
-const char * const BC_KEY_PREFIX("ProjectExplorer.Target.BuildConfiguration.");
-const char * const BC_COUNT_KEY("ProjectExplorer.Target.BuildConfigurationCount");
+const char * const ACTIVE_BC_KEY = "ProjectExplorer.Target.ActiveBuildConfiguration";
+const char * const BC_KEY_PREFIX = "ProjectExplorer.Target.BuildConfiguration.";
+const char * const BC_COUNT_KEY = "ProjectExplorer.Target.BuildConfigurationCount";
 
-const char * const ACTIVE_DC_KEY("ProjectExplorer.Target.ActiveDeployConfiguration");
-const char * const DC_KEY_PREFIX("ProjectExplorer.Target.DeployConfiguration.");
-const char * const DC_COUNT_KEY("ProjectExplorer.Target.DeployConfigurationCount");
+const char * const ACTIVE_DC_KEY = "ProjectExplorer.Target.ActiveDeployConfiguration";
+const char * const DC_KEY_PREFIX = "ProjectExplorer.Target.DeployConfiguration.";
+const char * const DC_COUNT_KEY = "ProjectExplorer.Target.DeployConfigurationCount";
 
-const char * const ACTIVE_RC_KEY("ProjectExplorer.Target.ActiveRunConfiguration");
-const char * const RC_KEY_PREFIX("ProjectExplorer.Target.RunConfiguration.");
-const char * const RC_COUNT_KEY("ProjectExplorer.Target.RunConfigurationCount");
+const char * const ACTIVE_RC_KEY = "ProjectExplorer.Target.ActiveRunConfiguration";
+const char * const RC_KEY_PREFIX = "ProjectExplorer.Target.RunConfiguration.";
+const char * const RC_COUNT_KEY = "ProjectExplorer.Target.RunConfigurationCount";
 
 } // namespace
 
@@ -66,7 +66,8 @@ const char * const RC_COUNT_KEY("ProjectExplorer.Target.RunConfigurationCount");
 
 namespace ProjectExplorer {
 
-class TargetPrivate {
+class TargetPrivate
+{
 public:
     TargetPrivate();
 
@@ -112,14 +113,14 @@ Target::~Target()
 
 void Target::changeEnvironment()
 {
-    ProjectExplorer::BuildConfiguration *bc(qobject_cast<ProjectExplorer::BuildConfiguration *>(sender()));
+    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(sender());
     if (bc == activeBuildConfiguration())
         emit environmentChanged();
 }
 
 void Target::changeBuildConfigurationEnabled()
 {
-    ProjectExplorer::BuildConfiguration *bc = qobject_cast<ProjectExplorer::BuildConfiguration *>(sender());
+    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(sender());
     if (bc == activeBuildConfiguration())
         emit buildConfigurationEnabledChanged();
 }
@@ -454,20 +455,20 @@ bool Target::fromMap(const QVariantMap &map)
         return false;
 
     bool ok;
-    int bcCount(map.value(QLatin1String(BC_COUNT_KEY), 0).toInt(&ok));
+    int bcCount = map.value(QLatin1String(BC_COUNT_KEY), 0).toInt(&ok);
     if (!ok || bcCount < 0)
         bcCount = 0;
-    int activeConfiguration(map.value(QLatin1String(ACTIVE_BC_KEY), 0).toInt(&ok));
+    int activeConfiguration = map.value(QLatin1String(ACTIVE_BC_KEY), 0).toInt(&ok);
     if (!ok || activeConfiguration < 0)
         activeConfiguration = 0;
     if (0 > activeConfiguration || bcCount < activeConfiguration)
         activeConfiguration = 0;
 
     for (int i = 0; i < bcCount; ++i) {
-        const QString key(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i));
+        const QString key = QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i);
         if (!map.contains(key))
             return false;
-        BuildConfiguration *bc(buildConfigurationFactory()->restore(this, map.value(key).toMap()));
+        BuildConfiguration *bc = buildConfigurationFactory()->restore(this, map.value(key).toMap());
         if (!bc)
             continue;
         addBuildConfiguration(bc);
@@ -477,7 +478,7 @@ bool Target::fromMap(const QVariantMap &map)
     if (buildConfigurations().isEmpty() && buildConfigurationFactory())
         return false;
 
-    int dcCount(map.value(QLatin1String(DC_COUNT_KEY), 0).toInt(&ok));
+    int dcCount = map.value(QLatin1String(DC_COUNT_KEY), 0).toInt(&ok);
     if (!ok || dcCount < 0)
         dcCount = 0;
     activeConfiguration = map.value(QLatin1String(ACTIVE_DC_KEY), 0).toInt(&ok);
@@ -487,7 +488,7 @@ bool Target::fromMap(const QVariantMap &map)
         activeConfiguration = 0;
 
     for (int i = 0; i < dcCount; ++i) {
-        const QString key(QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i));
+        const QString key = QString::fromLatin1(DC_KEY_PREFIX) + QString::number(i);
         if (!map.contains(key))
             return false;
         DeployConfiguration *dc = 0;
@@ -507,7 +508,7 @@ bool Target::fromMap(const QVariantMap &map)
     if (deployConfigurations().isEmpty() && d->deployFactories().isEmpty())
         return false;
 
-    int rcCount(map.value(QLatin1String(RC_COUNT_KEY), 0).toInt(&ok));
+    int rcCount = map.value(QLatin1String(RC_COUNT_KEY), 0).toInt(&ok);
     if (!ok || rcCount < 0)
         rcCount = 0;
     activeConfiguration = map.value(QLatin1String(ACTIVE_RC_KEY), 0).toInt(&ok);
@@ -517,16 +518,16 @@ bool Target::fromMap(const QVariantMap &map)
         activeConfiguration = 0;
 
     for (int i = 0; i < rcCount; ++i) {
-        const QString key(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i));
+        const QString key = QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i);
         if (!map.contains(key))
             return false;
 
-        QVariantMap valueMap(map.value(key).toMap());
-        IRunConfigurationFactory *factory(IRunConfigurationFactory::restoreFactory(this, valueMap));
+        QVariantMap valueMap = map.value(key).toMap();
+        IRunConfigurationFactory *factory = IRunConfigurationFactory::restoreFactory(this, valueMap);
         if (!factory)
             continue; // Skip RCs we do not know about.)
 
-        RunConfiguration *rc(factory->restore(this, valueMap));
+        RunConfiguration *rc = factory->restore(this, valueMap);
         if (!rc)
             continue;
         addRunConfiguration(rc);
@@ -545,9 +546,6 @@ bool Target::fromMap(const QVariantMap &map)
 
 ITargetFactory::ITargetFactory(QObject *parent) :
     QObject(parent)
-{ }
-
-ITargetFactory::~ITargetFactory()
 { }
 
 } // namespace ProjectExplorer
