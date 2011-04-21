@@ -9544,6 +9544,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
     </message>
+    <message>
+        <source>Might make the application vulnerable. Use only in a safe environment.</source>
+        <translation>Kann die Anwendung angreifbar machen. Verwenden sie diese Option nur in sicherer Umgebung.</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Qt4Manager</name>
