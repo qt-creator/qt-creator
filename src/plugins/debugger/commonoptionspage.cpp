@@ -262,6 +262,8 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
 
     m_group.insert(dc->action(UseCodeModel),
         m_ui.checkBoxUseCodeModel);
+    m_ui.checkBoxUseCodeModel->setToolTip(dc->action(UseCodeModel)->toolTip());
+
     m_group.insert(dc->action(ShowThreadNames),
         m_ui.checkBoxShowThreadNames);
 
