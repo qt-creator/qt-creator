@@ -32,10 +32,10 @@
 
 #include "outputwindow.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
+#include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
+#include "coreconstants.h"
+#include "icore.h"
 
 #include <utils/qtcassert.h>
 #include <utils/outputformatter.h>
@@ -47,8 +47,7 @@ static const int MaxBlockCount = 100000;
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace Core {
 
 /*******************/
 
@@ -259,7 +258,7 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
 {
     QString text = textIn;
     text.remove(QLatin1Char('\r'));
-    if (document()->blockCount() > maxLineCount)
+    if (maxLineCount > 0 && document()->blockCount() > maxLineCount)
         return;
     const bool atBottom = isScrollbarAtBottom();
     QTextCursor cursor = QTextCursor(document());
@@ -267,7 +266,7 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
     cursor.beginEditBlock();
     cursor.insertText(doNewlineEnfocement(text), format);
 
-    if (document()->blockCount() > maxLineCount) {
+    if (maxLineCount > 0 && document()->blockCount() > maxLineCount) {
         QTextCharFormat tmp;
         tmp.setFontWeight(QFont::Bold);
         cursor.insertText(tr("Additional output omitted\n"), tmp);
@@ -291,6 +290,10 @@ void OutputWindow::clear()
 
 void OutputWindow::scrollToBottom()
 {
+    verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+    // QPlainTextEdit destroys the first calls value in case of multiline
+    // text, so make sure that the scroll bar actually gets the value set.
+    // Is a noop if the first call succeeded.
     verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 }
 
@@ -331,5 +334,4 @@ void OutputWindow::setWordWrapEnabled(bool wrap)
         setWordWrapMode(QTextOption::NoWrap);
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace Core

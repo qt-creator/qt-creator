@@ -101,6 +101,7 @@ const char * const C_DESIGN_MODE         = "Core.DesignMode";
 const char * const C_EDITORMANAGER       = "Core.EditorManager";
 const char * const C_NAVIGATION_PANE     = "Core.NavigationPane";
 const char * const C_PROBLEM_PANE        = "Core.ProblemPane";
+const char * const C_GENERAL_OUTPUT_PANE = "Core.GeneralOutputPane";
 
 //default editor kind
 const char * const K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "Plain Text Editor");

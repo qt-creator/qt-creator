@@ -33,7 +33,8 @@
 #ifndef MESSAGEOUTPUTWINDOW_H
 #define MESSAGEOUTPUTWINDOW_H
 
-#include <coreplugin/ioutputpane.h>
+#include "ioutputpane.h"
+#include "outputwindow.h"
 
 #include <QtGui/QShowEvent>
 #include <QtGui/QResizeEvent>
@@ -41,21 +42,6 @@
 
 namespace Core {
 namespace Internal {
-
-class TextView : public QTextEdit
-{
-    Q_OBJECT
-
-public:
-    TextView(QWidget *parent = 0) : QTextEdit(parent) {}
-
-    void showEvent(QShowEvent *);
-    void scrollToBottom();
-    bool isScrollbarAtBottom() const;
-
-protected:
-    void resizeEvent(QResizeEvent *e);
-};
 
 class MessageOutputWindow : public Core::IOutputPane
 {
@@ -85,7 +71,7 @@ public:
     bool canNavigate();
 
 private:
-    TextView *m_widget;
+    OutputWindow *m_widget;
 };
 
 } // namespace Internal

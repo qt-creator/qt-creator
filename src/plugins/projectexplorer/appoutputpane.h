@@ -34,8 +34,7 @@
 #ifndef APPOUTPUTPANE_H
 #define APPOUTPUTPANE_H
 
-#include "outputwindow.h"
-
+#include <coreplugin/outputwindow.h>
 #include <coreplugin/ioutputpane.h>
 
 QT_BEGIN_NAMESPACE
@@ -110,9 +109,9 @@ private slots:
 private:
     struct RunControlTab {
         explicit RunControlTab(RunControl *runControl = 0,
-                               OutputWindow *window = 0);
+                               Core::OutputWindow *window = 0);
         RunControl* runControl;
-        OutputWindow *window;
+        Core::OutputWindow *window;
         // Is the run control stopping asynchronously, close the tab once it finishes
         bool asyncClosing;
     };
@@ -126,7 +125,7 @@ private:
     int currentIndex() const;
     RunControl *currentRunControl() const;
     int tabWidgetIndexOf(int runControlIndex) const;
-    void handleOldOutput(OutputWindow *window) const;
+    void handleOldOutput(Core::OutputWindow *window) const;
 
     QWidget *m_mainWidget;
     QTabWidget *m_tabWidget;

@@ -63,7 +63,7 @@ const int MAX_LINECOUNT = 50000;
 CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
 {
     Core::Context context(Constants::C_COMPILE_OUTPUT);
-    m_outputWindow = new OutputWindow(context);
+    m_outputWindow = new Core::OutputWindow(context);
     m_outputWindow->setWindowTitle(tr("Compile Output"));
     m_outputWindow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
     m_outputWindow->setReadOnly(true);

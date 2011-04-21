@@ -33,8 +33,8 @@
 #ifndef COMPILEOUTPUTWINDOW_H
 #define COMPILEOUTPUTWINDOW_H
 
-#include "outputwindow.h"
 #include "buildstep.h"
+#include <coreplugin/outputwindow.h>
 #include <coreplugin/ioutputpane.h>
 
 #include <QtCore/QHash>
@@ -86,7 +86,7 @@ private slots:
     void updateWordWrapMode();
 
 private:
-    OutputWindow *m_outputWindow;
+    Core::OutputWindow *m_outputWindow;
     QHash<unsigned int, int> m_taskPositions;
     ShowOutputTaskHandler * m_handler;
 };

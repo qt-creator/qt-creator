@@ -33,20 +33,18 @@
 #ifndef OUTPUTWINDOW_H
 #define OUTPUTWINDOW_H
 
+#include "core_global.h"
+#include "icontext.h"
+
 #include <utils/outputformatter.h>
-#include <coreplugin/icontext.h>
 
 #include <QtGui/QPlainTextEdit>
 
 namespace Core {
-    class IContext;
-}
 
-namespace ProjectExplorer {
+class IContext;
 
-namespace Internal {
-
-class OutputWindow : public QPlainTextEdit
+class CORE_EXPORT OutputWindow : public QPlainTextEdit
 {
     Q_OBJECT
 
@@ -59,7 +57,7 @@ public:
 
     void appendMessage(const QString &out, Utils::OutputFormat format);
     /// appends a \p text using \p format without using formater
-    void appendText(const QString &text, const QTextCharFormat &format, int maxLineCount);
+    void appendText(const QString &text, const QTextCharFormat &format = QTextCharFormat(), int maxLineCount = -1);
 
     void grayOutOldContent();
     void clear();
@@ -93,7 +91,6 @@ private:
     bool m_mousePressed;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace Core
 
 #endif // OUTPUTWINDOW_H

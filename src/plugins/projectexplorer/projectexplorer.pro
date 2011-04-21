@@ -28,7 +28,6 @@ HEADERS += projectexplorer.h \
     showoutputtaskhandler.h \
     vcsannotatetaskhandler.h \
     taskwindow.h \
-    outputwindow.h \
     persistentsettings.h \
     projectfilewizardextension.h \
     session.h \
@@ -125,7 +124,6 @@ SOURCES += projectexplorer.cpp \
     showoutputtaskhandler.cpp \
     vcsannotatetaskhandler.cpp \
     taskwindow.cpp \
-    outputwindow.cpp \
     persistentsettings.cpp \
     projectfilewizardextension.cpp \
     session.cpp \

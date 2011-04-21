@@ -27,6 +27,7 @@ SOURCES += mainwindow.cpp \
     messagemanager.cpp \
     messageoutputwindow.cpp \
     outputpane.cpp \
+    outputwindow.cpp \
     vcsmanager.cpp \
     statusbarmanager.cpp \
     versiondialog.cpp \
@@ -104,6 +105,7 @@ HEADERS += mainwindow.h \
     messagemanager.h \
     messageoutputwindow.h \
     outputpane.h \
+    outputwindow.h \
     vcsmanager.h \
     statusbarmanager.h \
     editormanager/editormanager.h \

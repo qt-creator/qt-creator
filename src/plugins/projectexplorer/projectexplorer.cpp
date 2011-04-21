@@ -58,7 +58,6 @@
 #include "iprojectmanager.h"
 #include "metatypedeclarations.h"
 #include "nodesvisitor.h"
-#include "outputwindow.h"
 #include "appoutputpane.h"
 #include "persistentsettings.h"
 #include "pluginfilefactory.h"

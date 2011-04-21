@@ -32,7 +32,6 @@
 **************************************************************************/
 
 #include "appoutputpane.h"
-#include "outputwindow.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
@@ -65,7 +64,7 @@ enum { debug = 0 };
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, OutputWindow *w) :
+AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *w) :
     runControl(rc), window(w), asyncClosing(false)
 {
 }
@@ -203,7 +202,7 @@ int AppOutputPane::priorityInStatusBar() const
 
 void AppOutputPane::clearContents()
 {
-    OutputWindow *currentWindow = qobject_cast<OutputWindow *>(m_tabWidget->currentWidget());
+    Core::OutputWindow *currentWindow = qobject_cast<Core::OutputWindow *>(m_tabWidget->currentWidget());
     if (currentWindow)
         currentWindow->clear();
 }
@@ -259,7 +258,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     // Create new
     static uint counter = 0;
     Core::Context context(Constants::C_APP_OUTPUT, counter++);
-    OutputWindow *ow = new OutputWindow(context, m_tabWidget);
+    Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
     ow->setWindowTitle(tr("Application Output Window"));
     // TODO the following is a hidden impossible dependency of projectexplorer on qt4projectmanager
     ow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
@@ -274,7 +273,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         qDebug() << "OutputPane::createNewOutputWindow: Adding tab for " << rc;
 }
 
-void AppOutputPane::handleOldOutput(OutputWindow *window) const
+void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 {
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().cleanOldAppOutput)
         window->clear();
