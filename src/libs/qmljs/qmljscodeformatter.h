@@ -126,7 +126,8 @@ public: // must be public to make Q_GADGET introspection work
 
         binding_or_objectdefinition, // after an identifier
 
-        binding_assignment, // after :
+        binding_assignment, // after : in a binding
+        property_initializer, // after : in a property
         objectdefinition_open, // after {
 
         expression,

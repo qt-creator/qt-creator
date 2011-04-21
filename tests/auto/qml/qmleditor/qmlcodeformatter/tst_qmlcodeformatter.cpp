@@ -87,6 +87,7 @@ private Q_SLOTS:
     void objectLiteral2();
     void objectLiteral3();
     void objectLiteral4();
+    void objectLiteral5();
     void keywordStatement();
     void namespacedObjects();
 };
@@ -1024,6 +1025,31 @@ void tst_QMLCodeFormatter::objectLiteral4()
          << Line("        adef: 1 +")
          << Line("              2 + 3")
          << Line("              + 4,")
+         << Line("    }")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::objectLiteral5()
+{
+    QList<Line> data;
+    data << Line("Rectangle {")
+         << Line("    property int x: { a: 12, b: 13 }")
+         << Line("    property int y: {")
+         << Line("        a: 1 +")
+         << Line("           2 + 3")
+         << Line("           + 4")
+         << Line("    }")
+         << Line("    property int y: {")
+         << Line("        a: 1 +")
+         << Line("           2 + 3")
+         << Line("           + 4,")
+         << Line("        b: {")
+         << Line("            adef: 1 +")
+         << Line("                  2 + 3")
+         << Line("                  + 4,")
+         << Line("        }")
          << Line("    }")
          << Line("}")
          ;
