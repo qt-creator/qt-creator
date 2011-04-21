@@ -523,7 +523,7 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageNameInternal(const QString &packa
     const QString oldString = QLatin1String("debian/") + oldPackageName;
     const QString newString = QLatin1String("debian/") + packageName;
     rulesContents.replace(oldString.toUtf8(), newString.toUtf8());
-    Utils::FileSaver rulesSaver(changeLogFilePath());
+    Utils::FileSaver rulesSaver(rulesFilePath());
     rulesSaver.write(rulesContents);
     return rulesSaver.finalize();
 }
@@ -645,7 +645,7 @@ bool AbstractDebBasedQt4MaemoTarget::setControlFieldValue(const QByteArray &fiel
     QByteArray contents = reader.data();
     if (adaptControlFileField(contents, fieldName, fieldValue)) {
         MaemoGlobal::FileUpdate update(controlFilePath());
-        Utils::FileSaver saver(changeLogFilePath());
+        Utils::FileSaver saver(controlFilePath());
         saver.write(contents);
         return saver.finalize();
     }
