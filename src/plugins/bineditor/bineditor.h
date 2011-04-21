@@ -193,6 +193,7 @@ private:
     void asDouble(int offset, double &value, bool old) const;
     QString toolTip(const QHelpEvent *helpEvent) const;
 
+    int m_bytesPerLine;
     int m_unmodifiedState;
     int m_readOnly;
     int m_margin;
