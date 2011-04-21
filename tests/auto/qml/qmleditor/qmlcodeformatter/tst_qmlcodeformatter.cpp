@@ -83,7 +83,10 @@ private Q_SLOTS:
 //    void gnuStyle();
 //    void whitesmithsStyle();
     void expressionContinuation();
-    void objectLiteral();
+    void objectLiteral1();
+    void objectLiteral2();
+    void objectLiteral3();
+    void objectLiteral4();
     void keywordStatement();
     void namespacedObjects();
 };
@@ -962,12 +965,65 @@ void tst_QMLCodeFormatter::expressionContinuation()
     checkIndent(data);
 }
 
-void tst_QMLCodeFormatter::objectLiteral()
+void tst_QMLCodeFormatter::objectLiteral1()
 {
     QList<Line> data;
     data << Line("function shuffle() {")
          << Line("    for (var i = 0; i < 10; ++i) {")
          << Line("        x[i] = { index: i }")
+         << Line("    }")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::objectLiteral2()
+{
+    QList<Line> data;
+    data << Line("var x = {")
+         << Line("    \"x\": 12,")
+         << Line("    \"y\": 34,")
+         << Line("    z: \"abc\"")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::objectLiteral3()
+{
+    QList<Line> data;
+    data << Line("var x = {")
+         << Line("    x: {")
+         << Line("        y: 12,")
+         << Line("        z: [1, 3]")
+         << Line("    },")
+         << Line("    \"z\": {")
+         << Line("        a: 1 + 2 + 3,")
+         << Line("        b: \"12\"")
+         << Line("    },")
+         << Line("    a: b")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_QMLCodeFormatter::objectLiteral4()
+{
+    QList<Line> data;
+    data << Line("var x = { a: 12, b: 13 }")
+         << Line("y = {")
+         << Line("    a: 1 +")
+         << Line("       2 + 3")
+         << Line("       + 4")
+         << Line("}")
+         << Line("y = {")
+         << Line("    a: 1 +")
+         << Line("       2 + 3")
+         << Line("       + 4,")
+         << Line("    b: {")
+         << Line("        adef: 1 +")
+         << Line("              2 + 3")
+         << Line("              + 4,")
          << Line("    }")
          << Line("}")
          ;

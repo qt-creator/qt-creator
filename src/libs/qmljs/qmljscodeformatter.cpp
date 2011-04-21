@@ -295,7 +295,22 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             if (tryInsideExpression())
                 break;
             switch (kind) {
+            case Colon:             enter(objectliteral_assignment); break;
+            case RightBracket:
+            case RightParenthesis:  leave(); continue; // error recovery
             case RightBrace:        leave(); break;
+            } break;
+
+        // pretty much like expression, but ends with , or }
+        case objectliteral_assignment:
+            if (tryInsideExpression())
+                break;
+            switch (kind) {
+            case Delimiter:         enter(expression_continuation); break;
+            case RightBracket:
+            case RightParenthesis:  leave(); continue; // error recovery
+            case RightBrace:        leave(); continue; // so we also leave objectliteral_open
+            case Comma:             leave(); break;
             } break;
 
         case bracket_element_start:
@@ -451,7 +466,8 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
     int topState = m_currentState.top().type;
 
     if (topState == expression
-            || topState == expression_or_objectdefinition) {
+            || topState == expression_or_objectdefinition
+            || topState == objectliteral_assignment) {
         enter(expression_maybe_continuation);
     }
     if (topState != multiline_comment_start
@@ -743,7 +759,8 @@ bool CodeFormatter::isExpressionEndState(int type) const
             type == substatement_open ||
             type == bracket_open ||
             type == paren_open ||
-            type == case_cont;
+            type == case_cont ||
+            type == objectliteral_open;
 }
 
 const Token &CodeFormatter::tokenAt(int idx) const

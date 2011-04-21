@@ -117,6 +117,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         break;
 
     case binding_assignment:
+    case objectliteral_assignment:
         if (lastToken)
             *indentDepth = *savedIndentDepth + 4;
         else
@@ -202,6 +203,16 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
             *savedIndentDepth = state(1).savedIndentDepth;
         *indentDepth = *savedIndentDepth + m_indentSize;
         break;
+
+    case objectliteral_open:
+        if (parentState.type == expression || parentState.type == objectliteral_assignment) {
+            // undo the continuation indent of the expression
+            *indentDepth = parentState.savedIndentDepth;
+            *savedIndentDepth = *indentDepth;
+        }
+        *indentDepth += m_indentSize;
+        break;
+
 
     case statement_with_condition:
     case statement_with_block:
@@ -290,7 +301,8 @@ void QtStyleCodeFormatter::adjustIndent(const QList<Token> &tokens, int lexerSta
             const int type = state(i).type;
             if (type == objectdefinition_open
                     || type == jsblock_open
-                    || type == substatement_open) {
+                    || type == substatement_open
+                    || type == objectliteral_open) {
                 *indentDepth = state(i).savedIndentDepth;
                 break;
             }

@@ -138,6 +138,8 @@ public: // must be public to make Q_GADGET introspection work
         bracket_open, // opening [ in expression
         objectliteral_open, // opening { in expression
 
+        objectliteral_assignment, // after : in object literal
+
         bracket_element_start, // after starting bracket_open or after ',' in bracket_open
         bracket_element_maybe_objectdefinition, // after an identifier in bracket_element_start
 
