@@ -86,14 +86,16 @@ bool operator==(const ImportCacheKey &i1, const ImportCacheKey &i2)
 class QmlJS::LinkPrivate
 {
 public:
-    Document::Ptr doc;
     Snapshot snapshot;
     Interpreter::Context *context;
     QStringList importPaths;
 
     QHash<ImportCacheKey, Interpreter::ObjectValue *> importCache;
 
-    QList<DiagnosticMessage> diagnosticMessages;
+    Document::Ptr doc;
+    QList<DiagnosticMessage> *diagnosticMessages;
+
+    QHash<QString, QList<DiagnosticMessage> > *allDiagnosticMessages;
 };
 
 /*!
@@ -109,15 +111,41 @@ public:
     \l{Context} with \l{Link}.
 */
 
-Link::Link(Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
-           const QStringList &importPaths)
+Link::Link(Context *context, const Snapshot &snapshot, const QStringList &importPaths,
+           QHash<QString, QList<DiagnosticMessage> > *messages)
     : d_ptr(new LinkPrivate)
 {
     Q_D(Link);
     d->context = context;
-    d->doc = doc;
     d->snapshot = snapshot;
     d->importPaths = importPaths;
+
+    d->diagnosticMessages = 0;
+    d->allDiagnosticMessages = messages;
+
+    // populate engine with types from C++
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+    if (modelManager) {
+        foreach (const QList<FakeMetaObject::ConstPtr> &cppTypes, modelManager->cppQmlTypes()) {
+            engine()->cppQmlTypes().load(engine(), cppTypes);
+        }
+    }
+
+    linkImports();
+}
+
+Link::Link(Context *context, const Snapshot &snapshot, const QStringList &importPaths,
+           const Document::Ptr &doc, QList<DiagnosticMessage> *messages)
+    : d_ptr(new LinkPrivate)
+{
+    Q_D(Link);
+    d->context = context;
+    d->snapshot = snapshot;
+    d->importPaths = importPaths;
+
+    d->doc = doc;
+    d->diagnosticMessages = messages;
+    d->allDiagnosticMessages = 0;
 
     // populate engine with types from C++
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
@@ -140,20 +168,16 @@ Interpreter::Engine *Link::engine()
     return d->context->engine();
 }
 
-QList<DiagnosticMessage> Link::diagnosticMessages() const
-{
-    Q_D(const Link);
-    return d->diagnosticMessages;
-}
-
 void Link::linkImports()
 {
     Q_D(Link);
 
-    // do it on d->doc first, to make sure import errors are shown
-    TypeEnvironment *typeEnv = new TypeEnvironment(engine());
-    populateImportedTypes(typeEnv, d->doc);
-    d->context->setTypeEnvironment(d->doc.data(), typeEnv);
+    if (d->doc) {
+        // do it on d->doc first, to make sure import errors are shown
+        TypeEnvironment *typeEnv = new TypeEnvironment(engine());
+        populateImportedTypes(typeEnv, d->doc);
+        d->context->setTypeEnvironment(d->doc.data(), typeEnv);
+    }
 
     foreach (Document::Ptr doc, d->snapshot) {
         if (doc == d->doc)
@@ -364,18 +388,22 @@ UiQualifiedId *Link::qualifiedTypeNameId(Node *node)
 
 void Link::error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message)
 {
-    Q_D(Link);
-
-    if (doc->fileName() == d->doc->fileName())
-        d->diagnosticMessages.append(DiagnosticMessage(DiagnosticMessage::Error, loc, message));
+    appendDiagnostic(doc, DiagnosticMessage(DiagnosticMessage::Error, loc, message));
 }
 
 void Link::warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message)
 {
+    appendDiagnostic(doc, DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
+}
+
+void Link::appendDiagnostic(const Document::Ptr &doc, const DiagnosticMessage &message)
+{
     Q_D(Link);
 
-    if (doc->fileName() == d->doc->fileName())
-        d->diagnosticMessages.append(DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
+    if (d->diagnosticMessages && doc->fileName() == d->doc->fileName())
+        d->diagnosticMessages->append(message);
+    if (d->allDiagnosticMessages)
+        (*d->allDiagnosticMessages)[doc->fileName()].append(message);
 }
 
 void Link::loadQmldirComponents(Interpreter::ObjectValue *import, ComponentVersion version,

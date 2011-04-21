@@ -54,12 +54,16 @@ class QMLJS_EXPORT Link
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
 
 public:
-    // Link all documents in snapshot
-    Link(Interpreter::Context *context, const Document::Ptr &doc, const Snapshot &snapshot,
-         const QStringList &importPaths);
-    ~Link();
+    // Link all documents in snapshot, collecting all diagnostic messages
+    Link(Interpreter::Context *context, const Snapshot &snapshot,
+         const QStringList &importPaths, QHash<QString, QList<DiagnosticMessage> > *messages = 0);
 
-    QList<DiagnosticMessage> diagnosticMessages() const;
+    // Link all documents in snapshot, appending the diagnostic messages
+    // for 'doc' in 'messages'
+    Link(Interpreter::Context *context, const Snapshot &snapshot,
+         const QStringList &importPaths, const Document::Ptr &doc, QList<DiagnosticMessage> *messages);
+
+    ~Link();
 
 private:
     Interpreter::Engine *engine();
@@ -87,6 +91,7 @@ private:
 
     void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
     void warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
+    void appendDiagnostic(const Document::Ptr &doc, const DiagnosticMessage &message);
 
 private:
     QScopedPointer<LinkPrivate> d_ptr;

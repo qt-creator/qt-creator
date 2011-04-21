@@ -237,7 +237,13 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     addAutoReleasedObject(m_qmlTaskManager);
 
     connect(m_modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
-            m_qmlTaskManager, SLOT(documentChangedOnDisk(QmlJS::Document::Ptr)));
+            m_qmlTaskManager, SLOT(updateMessages()));
+    // recompute messages when information about libraries changes
+    connect(m_modelManager, SIGNAL(libraryInfoUpdated(QString,QmlJS::LibraryInfo)),
+            m_qmlTaskManager, SLOT(updateMessages()));
+    // recompute messages when project data changes (files added or removed)
+    connect(m_modelManager, SIGNAL(projectInfoUpdated(ProjectInfo)),
+            m_qmlTaskManager, SLOT(updateMessages()));
     connect(m_modelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
             m_qmlTaskManager, SLOT(documentsRemoved(QStringList)));
 

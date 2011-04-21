@@ -626,7 +626,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     if (!doc)
         return;
 
-    Link link(&context, doc, snapshot, ModelManagerInterface::instance()->importPaths());
+    Link link(&context, snapshot, ModelManagerInterface::instance()->importPaths());
     ScopeBuilder builder(&context, doc, snapshot);
     ScopeAstPath astPath(doc);
     builder.push(astPath(offset));

@@ -40,6 +40,12 @@
 #include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QString>
+#include <QtCore/QFutureWatcher>
+#include <QtCore/QTimer>
+
+namespace QmlJSEditor {
+class QmlJSTextEditorWidget;
+}
 
 namespace ProjectExplorer {
 class TaskHub;
@@ -57,16 +63,34 @@ public:
     void extensionsInitialized();
 
 public slots:
-    void documentChangedOnDisk(QmlJS::Document::Ptr doc);
+    void updateMessages();
     void documentsRemoved(const QStringList path);
 
+private slots:
+    void displayResults(int begin, int end);
+    void displayAllResults();
+    void updateMessagesNow();
+
 private:
-    void insertTask(const QString &fileName, const ProjectExplorer::Task &task);
+    void insertTask(const ProjectExplorer::Task &task);
     void removeTasksForFile(const QString &fileName);
+    void removeAllTasks();
+
+private:
+    class FileErrorMessages
+    {
+    public:
+        QString fileName;
+        QList<QmlJS::DiagnosticMessage> messages;
+    };
+    static void collectMessages(QFutureInterface<FileErrorMessages> &future,
+                                QmlJS::Snapshot snapshot, QStringList files, QStringList importPaths);
 
 private:
     ProjectExplorer::TaskHub *m_taskHub;
     QMap<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
+    QFutureWatcher<FileErrorMessages> m_messageCollector;
+    QTimer m_updateDelay;
 };
 
 } // Internal

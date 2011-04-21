@@ -265,6 +265,8 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
             newFiles += file;
     }
     updateSourceFiles(newFiles, false);
+
+    emit projectInfoUpdated(pinfo);
 }
 
 void ModelManager::emitDocumentChangedOnDisk(Document::Ptr doc)

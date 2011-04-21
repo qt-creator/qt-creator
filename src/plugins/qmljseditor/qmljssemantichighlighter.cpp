@@ -133,13 +133,9 @@ SemanticInfo SemanticHighlighter::semanticInfo(const SemanticHighlighterSource &
     semanticInfo.document = doc;
 
     QmlJS::Interpreter::Context *ctx = new QmlJS::Interpreter::Context;
-    QmlJS::Link link(ctx, doc, snapshot, QmlJS::ModelManagerInterface::instance()->importPaths());
+    QmlJS::Link link(ctx, snapshot, QmlJS::ModelManagerInterface::instance()->importPaths(), doc, &semanticInfo.semanticMessages);
     semanticInfo.m_context = QSharedPointer<const QmlJS::Interpreter::Context>(ctx);
-    semanticInfo.semanticMessages = link.diagnosticMessages();
 
-    QStringList importPaths;
-    if (m_modelManager)
-        importPaths = m_modelManager->importPaths();
     QmlJS::Check checker(doc, snapshot, ctx);
     semanticInfo.semanticMessages.append(checker());
 
