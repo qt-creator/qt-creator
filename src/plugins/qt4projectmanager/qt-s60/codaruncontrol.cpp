@@ -70,7 +70,8 @@ enum { debug = 0 };
 CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString &mode) :
     S60RunControlBase(runConfiguration, mode),
     m_port(0),
-    m_state(StateUninit)
+    m_state(StateUninit),
+    m_stopAfterConnect(false)
 {
     const S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     QTC_ASSERT(s60runConfig, return);
@@ -239,7 +240,9 @@ void CodaRunControl::handleConnected()
     m_state = StateConnected;
     appendMessage(tr("Connected.\n"), NormalMessageFormat);
     setProgress(maxProgress()*0.80);
-    initCommunication();
+    emit connected();
+    if (!m_stopAfterConnect)
+        initCommunication();
 }
 
 void CodaRunControl::handleContextRemoved(const CodaEvent &event)
@@ -391,4 +394,15 @@ void CodaRunControl::deviceRemoved(const SymbianUtils::SymbianDevice &device)
         appendMessage(msg, ErrorMessageFormat);
         finishRunControl();
     }
+}
+
+void CodaRunControl::connect()
+{
+    m_stopAfterConnect = true;
+    start();
+}
+
+void CodaRunControl::run()
+{
+    initCommunication();
 }

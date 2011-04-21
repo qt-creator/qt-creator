@@ -88,6 +88,11 @@ S60RunControlBase::S60RunControlBase(RunConfiguration *runConfiguration, const Q
     m_executableUid = s60runConfig->executableUid();
     m_targetName = s60runConfig->targetName();
     m_commandLineArguments = s60runConfig->commandLineArguments();
+    QString qmlArgs = s60runConfig->qmlCommandLineArguments();
+    if (mode == Debugger::Constants::DEBUGMODE && qmlArgs.length()) {
+        m_commandLineArguments.prepend(' ');
+        m_commandLineArguments.prepend(qmlArgs);
+    }
     m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
     m_installationDrive = activeDeployConf->installationDrive();
     if (const QtVersion *qtv = activeDeployConf->qtVersion())

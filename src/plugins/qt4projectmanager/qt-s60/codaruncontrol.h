@@ -66,10 +66,17 @@ public:
 
     static QMessageBox *createCodaWaitingMessageBox(QWidget *parent = 0);
 
+    using QObject::connect;
+    void connect(); // Like start() but doesn't actually launch the program; just hooks up coda.
+    void run();
+
 protected:
     virtual bool doStart();
     virtual void doStop();
     virtual bool setupLauncher();
+
+signals:
+    void connected();
 
 protected slots:
     void finishRunControl();
@@ -114,6 +121,7 @@ private:
     QString m_runningProcessId;
 
     State m_state;
+    bool m_stopAfterConnect;
 };
 
 } // namespace Internal

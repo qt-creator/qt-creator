@@ -53,6 +53,7 @@ namespace Internal {
 class Qt4SymbianTarget;
 class Qt4ProFileNode;
 class S60DeviceRunConfigurationFactory;
+class CodaRunControl;
 
 class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -74,6 +75,7 @@ public:
 
     QString commandLineArguments() const;
     void setCommandLineArguments(const QString &args);
+    QString qmlCommandLineArguments() const;
 
     QString projectFilePath() const;
 
@@ -139,6 +141,22 @@ public:
                                       const QPair<Debugger::DebuggerEngineType, Debugger::DebuggerEngineType> &masterSlaveEngineTypes);
     virtual void start();
     virtual bool promptToStop(bool *optionalPrompt = 0) const;
+
+private slots:
+    void remoteSetupRequested();
+    void codaConnected();
+    void qmlEngineStateChanged(const Debugger::DebuggerState &state);
+    void codaFinished();
+    void handleDebuggingFinished();
+    void handleMessageFromCoda(ProjectExplorer::RunControl *aCodaRunControl, const QString &msg, ProjectExplorer::OutputFormat format);
+
+private:
+    CodaRunControl *m_codaRunControl;
+    enum {
+        ENotUsingCodaRunControl = 0,
+        EWaitingForCodaConnection,
+        ECodaConnected,
+    } m_codaState;
 };
 
 class S60DeviceDebugRunControlFactory : public ProjectExplorer::IRunControlFactory

@@ -40,6 +40,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qtoutputformatter.h"
 #include "qt4symbiantarget.h"
+#include "codaruncontrol.h"
 
 #include <utils/qtcassert.h>
 
@@ -306,6 +307,22 @@ void S60DeviceRunConfiguration::setCommandLineArguments(const QString &args)
     m_commandLineArguments = args;
 }
 
+QString S60DeviceRunConfiguration::qmlCommandLineArguments() const
+{
+    QString args;
+    if (useQmlDebugger()) {
+        const S60DeployConfiguration *activeDeployConf =
+            qobject_cast<S60DeployConfiguration *>(qt4Target()->activeDeployConfiguration());
+        QTC_ASSERT(activeDeployConf, return args);
+
+        if (activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection)
+            args = QString("-qmljsdebugger=port:%1").arg(qmlDebugServerPort());
+        else
+            args = QString("-qmljsdebugger=ost");
+    }
+    return args;
+}
+
 QString S60DeviceRunConfiguration::proFilePath() const
 {
     return m_proFilePath;
@@ -429,7 +446,11 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
 
     sp.remoteChannel = activeDeployConf->serialPortName();
     sp.processArgs = rc->commandLineArguments();
-    sp.startMode = Debugger::StartInternal;
+    if (rc->useQmlDebugger() && !rc->useCppDebugger())
+        sp.startMode = Debugger::AttachToRemote;
+    else
+        sp.startMode = Debugger::StartInternal;
+
     sp.toolChainAbi = rc->abi();
     sp.executable = debugFileName;
     sp.executableUid = rc->executableUid();
@@ -437,14 +458,11 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.serverPort = activeDeployConf->devicePort().toInt();
     sp.displayName = rc->displayName();
     sp.qmlServerPort = rc->qmlDebugServerPort();
-    // TODO - is this the correct place to put this?
     if (rc->useQmlDebugger()) {
+        QString qmlArgs = rc->qmlCommandLineArguments();
         if (sp.processArgs.length())
             sp.processArgs.prepend(" ");
-        if (activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection)
-            sp.processArgs.prepend(QString("-qmljsdebugger=port:%1").arg(sp.qmlServerPort));
-        else
-            sp.processArgs.prepend(QString("-qmljsdebugger=ost"));
+        sp.processArgs.prepend(qmlArgs);
     }
 
     sp.communicationChannel = activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection?
@@ -466,12 +484,18 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
 S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc,
                                                    const Debugger::DebuggerStartParameters &sp,
                                                    const QPair<Debugger::DebuggerEngineType, Debugger::DebuggerEngineType> &masterSlaveEngineTypes) :
-    Debugger::DebuggerRunControl(rc, sp, masterSlaveEngineTypes)
+    Debugger::DebuggerRunControl(rc, sp, masterSlaveEngineTypes),
+    m_codaRunControl(NULL),
+    m_codaState(ENotUsingCodaRunControl)
 {
     if (startParameters().symbolFileName.isEmpty()) {
         const QString msg = tr("Warning: Cannot locate the symbol file belonging to %1.\n").
                                arg(rc->localExecutableFileName());
         appendMessage(msg, ErrorMessageFormat);
+    }
+    if (masterSlaveEngineTypes.first == Debugger::QmlEngineType) {
+        connect(engine(), SIGNAL(requestRemoteSetup()), this, SLOT(remoteSetupRequested()));
+        connect(engine(), SIGNAL(stateChanged(Debugger::DebuggerState)), this, SLOT(qmlEngineStateChanged(Debugger::DebuggerState)));
     }
 }
 
@@ -486,6 +510,63 @@ bool S60DeviceDebugRunControl::promptToStop(bool *) const
     // We override the settings prompt
     return Debugger::DebuggerRunControl::promptToStop(0);
 }
+
+void S60DeviceDebugRunControl::remoteSetupRequested()
+{
+    // This is called from Engine->setupInferior(), ie InferiorSetupRequested state
+    QTC_ASSERT(runConfiguration()->useQmlDebugger() && !runConfiguration()->useCppDebugger(), return);
+    m_codaRunControl = new CodaRunControl(runConfiguration(), Debugger::Constants::DEBUGMODE);
+    connect(m_codaRunControl, SIGNAL(connected()), this, SLOT(codaConnected()));
+    connect(m_codaRunControl, SIGNAL(finished()), this, SLOT(codaFinished()));
+    connect(m_codaRunControl, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)), this, SLOT(handleMessageFromCoda(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)));
+    connect(this, SIGNAL(finished()), this, SLOT(handleDebuggingFinished()));
+    m_codaState = EWaitingForCodaConnection;
+    m_codaRunControl->connect();
+}
+
+void S60DeviceDebugRunControl::codaFinished()
+{
+    if (m_codaRunControl) {
+        m_codaRunControl->deleteLater();
+        m_codaRunControl = NULL;
+    }
+    if (m_codaState == EWaitingForCodaConnection) {
+        engine()->handleRemoteSetupFailed(QLatin1String("CODA failed to initialise")); // TODO sort out this error string? Unlikely we'll ever hit this state anyway.
+    } else {
+        debuggingFinished();
+    }
+    m_codaState = ENotUsingCodaRunControl;
+}
+
+void S60DeviceDebugRunControl::codaConnected()
+{
+    QTC_ASSERT(m_codaState == EWaitingForCodaConnection, return);
+    m_codaState = ECodaConnected;
+    engine()->handleRemoteSetupDone(-1, 0); // calls notifyInferiorSetupOk()
+}
+
+void S60DeviceDebugRunControl::qmlEngineStateChanged(const Debugger::DebuggerState &state)
+{
+    if (state == Debugger::EngineRunRequested)
+        m_codaRunControl->run();
+}
+
+void S60DeviceDebugRunControl::handleDebuggingFinished()
+{
+    if (m_codaRunControl) {
+        m_codaRunControl->stop(); // We'll get a callback to our codaFinished() slot when it's done
+    }
+}
+
+void S60DeviceDebugRunControl::handleMessageFromCoda(ProjectExplorer::RunControl *aCodaRunControl, const QString &msg, ProjectExplorer::OutputFormat format)
+{
+    // This only gets used when QmlEngine is the master debug engine. If GDB is running, messages are handled via the gdb adapter
+    Q_UNUSED(aCodaRunControl)
+    Q_UNUSED(format)
+    engine()->showMessage(msg, Debugger::AppOutput);
+}
+
+//
 
 S60DeviceDebugRunControlFactory::S60DeviceDebugRunControlFactory(QObject *parent) :
     IRunControlFactory(parent)

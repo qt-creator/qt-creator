@@ -305,6 +305,7 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
         static QString waitingForConnection = QLatin1String("Waiting for connection ");
         static QString unableToListen = QLatin1String("Unable to listen ");
         static QString debuggingNotEnabled = QLatin1String("Ignoring \"-qmljsdebugger=");
+        static QString debuggingNotEnabled2 = QLatin1String("Ignoring\"-qmljsdebugger="); // There is (was?) a bug in one of the error strings - safest to handle both
         static QString connectionEstablished = QLatin1String("Connection established");
 
         QString errorMessage;
@@ -313,7 +314,7 @@ void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
         } else if (status.startsWith(unableToListen)) {
             //: Error message shown after 'Could not connect ... debugger:"
             errorMessage = tr("The port seems to be in use.");
-        } else if (status.startsWith(debuggingNotEnabled)) {
+        } else if (status.startsWith(debuggingNotEnabled) || status.startsWith(debuggingNotEnabled2)) {
             //: Error message shown after 'Could not connect ... debugger:"
             errorMessage = tr("The application is not set up for QML/JS debugging.");
         } else if (status.startsWith(connectionEstablished)) {
@@ -380,7 +381,7 @@ void QmlEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    if (!isSlaveEngine())
+    if (!isSlaveEngine() && startParameters().startMode != AttachToRemote)
         startApplicationLauncher();
 }
 
