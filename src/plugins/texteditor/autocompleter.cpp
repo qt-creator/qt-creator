@@ -308,7 +308,10 @@ int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor,
     cursor.insertText(textToInsert);
     cursor.setPosition(pos);
 
-    m_allowSkippingOfBlockEnd = true;
+    // if we actually insert a separator, allow it to be overwritten if
+    // user types it
+    if (!textToInsert.isEmpty())
+        m_allowSkippingOfBlockEnd = true;
 
     return 1;
 }
