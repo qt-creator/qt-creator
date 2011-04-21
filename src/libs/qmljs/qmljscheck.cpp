@@ -717,7 +717,8 @@ bool Check::visit(ExpressionStatement *ast)
                 || cast<PreDecrementExpression *>(ast->expression)
                 || cast<PreIncrementExpression *>(ast->expression)
                 || cast<PostIncrementExpression *>(ast->expression)
-                || cast<PostDecrementExpression *>(ast->expression);
+                || cast<PostDecrementExpression *>(ast->expression)
+                || cast<FunctionExpression *>(ast->expression);
         if (BinaryExpression *binary = cast<BinaryExpression *>(ast->expression)) {
             switch (binary->op) {
             case QSOperator::Assign:
