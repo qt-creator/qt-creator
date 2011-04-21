@@ -93,8 +93,6 @@ private slots:
     void handleRemoteMountsChanged();
     void handleDebuggingTypeChanged();
     void handleDeploySpecsChanged();
-    void handleBuildConfigChanged();
-    void handleToolchainChanged();
     void handleActiveDeployConfigurationChanged();
 
 private:
@@ -124,7 +122,6 @@ private:
     QComboBox *m_baseEnvironmentComboBox;
     MaemoDeviceEnvReader *m_deviceEnvReader;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
-    Qt4BuildConfiguration *m_lastActiveBuildConfig;
     bool m_deployablesConnected;
 };
 

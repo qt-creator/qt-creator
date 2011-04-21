@@ -80,7 +80,6 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_deviceEnvReader(new MaemoDeviceEnvReader(this, runConfiguration)),
     m_deployablesConnected(false)
 {
-    m_lastActiveBuildConfig = m_runConfiguration->activeQt4BuildConfiguration();
     QVBoxLayout *mainLayout = new QVBoxLayout;
     setLayout(mainLayout);
     addGenericWidgets(mainLayout);
@@ -92,14 +91,20 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
         this, SLOT(handleCurrentDeviceConfigChanged()));
     handleCurrentDeviceConfigChanged();
-    connect(m_runConfiguration->maemoTarget(),
-        SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-        this, SLOT(handleBuildConfigChanged()));
 
     connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
             this, SLOT(runConfigurationEnabledChange(bool)));
 
-    handleBuildConfigChanged();
+    const AbstractQt4MaemoTarget * const maemoTarget
+        = runConfiguration->maemoTarget();
+    const bool remoteMountsAvailable = maemoTarget->allowsRemoteMounts();
+    m_debugDetailsContainer->setVisible(remoteMountsAvailable);
+    m_mountDetailsContainer->setVisible(remoteMountsAvailable);
+    const bool qmlDebuggingAvailable = maemoTarget->allowsQmlDebugging();
+    m_debuggingLanguagesLabel->setVisible(qmlDebuggingAvailable);
+    m_debugCppOnlyButton->setVisible(qmlDebuggingAvailable);
+    m_debugQmlOnlyButton->setVisible(qmlDebuggingAvailable);
+    m_debugCppAndQmlButton->setVisible(qmlDebuggingAvailable);
 
     setEnabled(m_runConfiguration->isEnabled());
 }
@@ -324,35 +329,6 @@ void MaemoRunConfigurationWidget::handleActiveDeployConfigurationChanged()
 void MaemoRunConfigurationWidget::handleDeploySpecsChanged()
 {
     m_remoteExecutableLabel->setText(m_runConfiguration->remoteExecutableFilePath());
-    m_runConfiguration->updateFactoryState();
-}
-
-void MaemoRunConfigurationWidget::handleBuildConfigChanged()
-{
-    if (m_lastActiveBuildConfig)
-        disconnect(m_lastActiveBuildConfig, 0, this, 0);
-    m_lastActiveBuildConfig = m_runConfiguration->activeQt4BuildConfiguration();
-    if (m_lastActiveBuildConfig) {
-        connect(m_lastActiveBuildConfig, SIGNAL(qtVersionChanged()), this,
-            SLOT(handleToolchainChanged()));
-    }
-    handleToolchainChanged();
-}
-
-void MaemoRunConfigurationWidget::handleToolchainChanged()
-{
-    const AbstractQt4MaemoTarget * const maemoTarget
-        = m_runConfiguration->maemoTarget();
-    if (maemoTarget) {
-        const bool remoteMountsAvailable = maemoTarget->allowsRemoteMounts();
-        m_debugDetailsContainer->setVisible(remoteMountsAvailable);
-        m_mountDetailsContainer->setVisible(remoteMountsAvailable);
-        const bool qmlDebuggingAvailable = maemoTarget->allowsQmlDebugging();
-        m_debuggingLanguagesLabel->setVisible(qmlDebuggingAvailable);
-        m_debugCppOnlyButton->setVisible(qmlDebuggingAvailable);
-        m_debugQmlOnlyButton->setVisible(qmlDebuggingAvailable);
-        m_debugCppAndQmlButton->setVisible(qmlDebuggingAvailable);
-    }
     m_runConfiguration->updateFactoryState();
 }
 
