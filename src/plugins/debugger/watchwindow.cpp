@@ -33,6 +33,7 @@
 #include "watchwindow.h"
 
 #include "breakhandler.h"
+#include "registerhandler.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
@@ -61,6 +62,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QInputDialog>
+#include <QtGui/QMessageBox>
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -153,6 +155,21 @@ static inline QString typeOf(const QModelIndex &m)
 static inline uint sizeOf(const QModelIndex &m)
     { return m.data(LocalsSizeRole).toUInt(); }
 
+// Create a map of value->name for register markup
+typedef QMap<quint64, QString> RegisterMap;
+typedef RegisterMap::const_iterator RegisterMapConstIt;
+
+RegisterMap registerMap(const DebuggerEngine *engine)
+{
+    RegisterMap result;
+    foreach (const Register &reg, engine->registerHandler()->registers()) {
+        const QVariant v = reg.editValue();
+        if (v.type() == QVariant::ULongLong)
+            result.insert(v.toULongLong(), QString::fromAscii(reg.name));
+    }
+    return result;
+}
+
 // Helper functionality to indicate the area of a member variable in
 // a vector representing the memory area by a unique color
 // number and tooltip. Parts of it will be overwritten when recursing
@@ -173,19 +190,22 @@ static inline QString variableToolTip(const QString &name,
            WatchWindow::tr("<i>%1</i> %2").arg(type, name);
 }
 
-static int memberVariableRecursion(const QModelIndex &m,
-                                    const QString &name,
-                                    quint64 start, quint64 end,
-                                    int *colorNumberIn,
-                                    ColorNumberToolTipVector *cnmv)
+static int memberVariableRecursion(const QAbstractItemModel *model,
+                                   const QModelIndex &modelIndex,
+                                   const QString &name,
+                                   quint64 start, quint64 end,
+                                   int *colorNumberIn,
+                                   ColorNumberToolTipVector *cnmv)
 {
     int childCount = 0;
-    const int rowCount = m.model()->rowCount(m);
+    // Recurse over top level items if modelIndex is invalid.
+    const bool isRoot = !modelIndex.isValid();
+    const int rowCount = isRoot ? model->rowCount() : modelIndex.model()->rowCount(modelIndex);
     if (!rowCount)
         return childCount;
-    const QString nameRoot = name + QLatin1Char('.');
+    const QString nameRoot = name.isEmpty() ? name : name +  QLatin1Char('.');
     for (int r = 0; r < rowCount; r++) {
-        const QModelIndex childIndex = m.child(r, 0);
+        const QModelIndex childIndex = isRoot ? model->index(r, 0) : modelIndex.child(r, 0);
         const quint64 childAddress = addressOf(childIndex);
         const uint childSize = sizeOf(childIndex);
         if (childAddress && childAddress >= start
@@ -198,7 +218,7 @@ static int memberVariableRecursion(const QModelIndex &m,
             const ColorNumberToolTipVector::iterator begin = cnmv->begin() + childOffset;
             qFill(begin, begin + childSize, colorNumberNamePair);
             childCount++;
-            childCount += memberVariableRecursion(childIndex, childName, start, end, colorNumberIn, cnmv);
+            childCount += memberVariableRecursion(model, childIndex, childName, start, end, colorNumberIn, cnmv);
         }
     }
     return childCount;
@@ -231,11 +251,16 @@ static int memberVariableRecursion(const QModelIndex &m,
     12 memberColor1 (pair.second)
     \endcode
 
+    In addition, registers pointing into the area are shown as 1 byte-markers.
+
    Fixme: When dereferencing a pointer, the size of the pointee is not
    known, currently. So, we take an area of 1024 and fill the background
    with the default color so that just the members are shown
    (sizeIsEstimate=true). This could be fixed by passing the pointee size
    as well from the debugger, but would require expensive type manipulation.
+
+   \note To recurse over the top level items of the model, pass an invalid model
+   index.
 
     \sa Debugger::Internal::MemoryViewWidget
 */
@@ -243,26 +268,41 @@ static int memberVariableRecursion(const QModelIndex &m,
 typedef QList<MemoryMarkup> MemoryMarkupList;
 
 static inline MemoryMarkupList
-    variableMemoryMarkup(const QModelIndex &m, quint64 address, quint64 size,
+    variableMemoryMarkup(const QAbstractItemModel *model,
+                         const QModelIndex &modelIndex,
+                         const QString &rootName,
+                         const QString &rootToolTip,
+                         quint64 address, quint64 size,
+                         const RegisterMap &registerMap,
                          bool sizeIsEstimate,
                          const QColor &defaultBackground)
 {
     enum { debug = 0 };
+    enum { registerColorNumber = 0x3453 };
 
-    // Starting out from base, create an array representing the area filled with base
-    // color. Fill children with some unique color numbers,
+    if (debug)
+        qDebug() << address << ' ' << size << rootName << rootToolTip;
+    // Starting out from base, create an array representing the area
+    // filled with base color. Fill children with some unique color numbers,
     // leaving the padding areas of the parent colored with the base color.
     MemoryMarkupList result;
-    const QString name = nameOf(m);
     int colorNumber = 0;
-    const QString rootToolTip = variableToolTip(name, typeOf(m), 0);
     ColorNumberToolTipVector ranges(size, ColorNumberToolTipPair(colorNumber, rootToolTip));
-    const int childCount = memberVariableRecursion(m, name, address, address + size, &colorNumber, &ranges);
+    const int childCount = memberVariableRecursion(model, modelIndex,
+                                                   rootName, address, address + size,
+                                                   &colorNumber, &ranges);
     if (sizeIsEstimate && !childCount)
         return result; // Fixme: Exact size not known, no point in filling if no children.
+    // Punch in registers as 1-byte markers on top.
+    const RegisterMapConstIt regcEnd = registerMap.constEnd();
+    for (RegisterMapConstIt it = registerMap.constBegin(); it != regcEnd; ++it)
+        if (it.key() - address < size)
+            ranges[it.key() - address] =
+                ColorNumberToolTipPair(registerColorNumber,
+                                       WatchWindow::tr("Register <i>%1</i>").arg(it.value()));
     if (debug) {
         QDebug dbg = qDebug().nospace();
-        dbg << name << ' ' << address << ' ' << size << '\n';
+        dbg << rootToolTip << ' ' << address << ' ' << size << '\n';
         QString name;
         for (unsigned i = 0; i < size; i++)
             if (name != ranges.at(i).second) {
@@ -274,6 +314,7 @@ static inline MemoryMarkupList
     // Condense ranges of identical color into markup ranges. Assign member colors
     // interchangeably.
     const QColor baseColor = sizeIsEstimate ? defaultBackground : Qt::lightGray;
+    const QColor registerColor = Qt::green;
     QColor memberColor1 = QColor(Qt::yellow).lighter();
     QColor memberColor2 = QColor(Qt::cyan).lighter();
 
@@ -283,8 +324,9 @@ static inline MemoryMarkupList
         const ColorNumberToolTipPair &range = ranges.at(i);
         if (result.isEmpty() || lastColorNumber != range.first) {
             lastColorNumber = range.first;
-            QColor color = baseColor; // Base color: Parent
-            if (range.first) {
+            // Base colors: Parent/register
+            QColor color = range.first == registerColorNumber ? registerColor : baseColor;
+            if (range.first && range.first != registerColorNumber) {
                 if (childNumber++ & 1) { // Alternating member colors.
                     color = memberColor1;
                     memberColor1 = memberColor1.darker(120);
@@ -301,7 +343,7 @@ static inline MemoryMarkupList
 
     if (debug) {
         QDebug dbg = qDebug().nospace();
-        dbg << name << ' ' << address << ' ' << size << '\n';
+        dbg << rootName << ' ' << address << ' ' << size << '\n';
         QString name;
         for (unsigned i = 0; i < size; i++)
             if (name != ranges.at(i).second) {
@@ -326,19 +368,78 @@ static void addVariableMemoryView(DebuggerEngine *engine,
     const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
     const quint64 address = deferencePointer ? pointerValueOf(m) : addressOf(m);
     // Fixme: Get the size of pointee (see variableMemoryMarkup())?
-    // Also, gdb does not report the size yet as of 8.4.2011
+    const QString rootToolTip = variableToolTip(nameOf(m), typeOf(m), 0);
     const quint64 typeSize = sizeOf(m);
     const bool sizeIsEstimate = deferencePointer || !typeSize;
     const quint64 size    = sizeIsEstimate ? 1024 : typeSize;
     if (!address)
          return;
     const QList<MemoryMarkup> markup =
-        variableMemoryMarkup(m, address, size, sizeIsEstimate, background);
+        variableMemoryMarkup(m.model(), m, nameOf(m), rootToolTip,
+                             address, size,
+                             registerMap(engine),
+                             sizeIsEstimate, background);
     const unsigned flags = separateView ? (DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly) : 0;
     const QString title = deferencePointer ?
     WatchWindow::tr("Memory Referenced by Pointer '%1' (0x%2)").arg(nameOf(m)).arg(address, 0, 16) :
     WatchWindow::tr("Memory at Variable '%1' (0x%2)").arg(nameOf(m)).arg(address, 0, 16);
     engine->openMemoryView(address, flags, markup, p, title, parent);
+}
+
+// Add a memory view of the stack layout showing local variables
+// and registers.
+static inline void addStackLayoutMemoryView(DebuggerEngine *engine,
+                                            bool separateView,
+                                            const QAbstractItemModel *m, const QPoint &p,
+                                            QWidget *parent)
+{
+    typedef QPair<quint64, QString> RegisterValueNamePair;
+
+    // Determine suitable address range from locals
+    quint64 start = 0xFFFFFFFFFFFFFFFF;
+    quint64 end = 0;
+    const int rootItemCount = m->rowCount();
+    for (int r = 0; r < rootItemCount; r++) { // Note: Unsorted by default
+        const QModelIndex idx = m->index(r, 0);
+        const quint64 address = addressOf(idx);
+        if (address) {
+            if (address < start)
+                start = address;
+            if (const uint size = sizeOf(idx))
+                if (address + size > end)
+                    end = address + size;
+        }
+    }
+    // Anything found and everything in a sensible range (static data in-between)?
+    if (end <= start || end - start > 100 * 1024) {
+        QMessageBox::information(parent, WatchWindow::tr("Cannot Display Stack Layout"),
+            WatchWindow::tr("Could not determine a suitable address range. "
+                            "Unchecking the option 'Automatically Dereference Pointers' "
+                            "might help."));
+        return;
+    }
+    // Take a look at the register values. Extend the range a bit if suitable
+    // to show stack/stack frame pointers.
+    const RegisterMap regMap = registerMap(engine);
+    const RegisterMapConstIt regcEnd = regMap.constEnd();
+    for (RegisterMapConstIt it = regMap.constBegin(); it != regcEnd; ++it) {
+        const quint64 value = it.key();
+        if (value < start && start - value < 512) {
+            start = value;
+        } else if (value > end && value - end < 512) {
+            end = value + 1;
+        }
+    }
+    // Indicate all variables.
+    const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
+    const MemoryMarkupList markup =
+        variableMemoryMarkup(m, QModelIndex(), QString(),
+                             QString(), start, end - start,
+                             regMap, true, background);
+    const unsigned flags = separateView ? (DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly) : 0;
+    const QString title =
+        WatchWindow::tr("Memory Layout of Local Variables at 0x%2").arg(start, 0, 16);
+    engine->openMemoryView(start, flags, markup, p, title, parent);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -636,6 +737,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actOpenMemoryEditAtVariableAddress = new QAction(&memoryMenu);
     QAction *actOpenMemoryEditAtPointerValue = new QAction(&memoryMenu);
     QAction *actOpenMemoryEditor = new QAction(&memoryMenu);
+    QAction *actOpenMemoryEditorStackLayout = new QAction(&memoryMenu);
     QAction *actOpenMemoryViewAtVariableAddress = new QAction(&memoryMenu);
     QAction *actOpenMemoryViewAtPointerValue = new QAction(&memoryMenu);
     if (engineCapabilities & ShowMemoryCapability) {
@@ -670,10 +772,13 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
                 tr("Open Memory View at Referenced Address"));
             actOpenMemoryViewAtPointerValue->setEnabled(false);
         }
+        actOpenMemoryEditorStackLayout->setText(tr("Open Memory Editor Showing Stack Layout"));
+        actOpenMemoryEditorStackLayout->setEnabled(m_type == LocalsType && mi0.isValid());
         memoryMenu.addAction(actOpenMemoryViewAtVariableAddress);
         memoryMenu.addAction(actOpenMemoryViewAtPointerValue);
         memoryMenu.addAction(actOpenMemoryEditAtVariableAddress);
         memoryMenu.addAction(actOpenMemoryEditAtPointerValue);
+        memoryMenu.addAction(actOpenMemoryEditorStackLayout);
         memoryMenu.addAction(actOpenMemoryEditor);
     } else {
         memoryMenu.setEnabled(false);
@@ -748,6 +853,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         addVariableMemoryView(currentEngine(), true, mi0, false, ev->globalPos(), this);
     } else if (act == actOpenMemoryViewAtPointerValue) {
         addVariableMemoryView(currentEngine(), true, mi0, true, ev->globalPos(), this);
+    } else if (act == actOpenMemoryEditorStackLayout) {
+        addStackLayoutMemoryView(currentEngine(), false, mi0.model(), ev->globalPos(), this);
     } else if (act == actSetWatchpointAtVariableAddress) {
         setWatchpoint(address, size);
     } else if (act == actSetWatchpointAtPointerValue) {
