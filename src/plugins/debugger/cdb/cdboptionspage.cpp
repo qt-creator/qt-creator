@@ -32,7 +32,7 @@
 
 #include "cdboptionspage.h"
 #include "cdboptions.h"
-#include "debuggerconstants.h"
+#include "debuggerinternalconstants.h"
 #include "cdbengine.h"
 
 #include <utils/synchronousprocess.h>

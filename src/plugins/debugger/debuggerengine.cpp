@@ -32,6 +32,7 @@
 
 #include "debuggerengine.h"
 
+#include "debuggerinternalconstants.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerplugin.h"

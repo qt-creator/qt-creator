@@ -33,7 +33,7 @@
 #include "commonoptionspage.h"
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
+#include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
 

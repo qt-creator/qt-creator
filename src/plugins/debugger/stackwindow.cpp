@@ -34,7 +34,6 @@
 #include "stackhandler.h"
 
 #include "debuggeractions.h"
-#include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "memoryagent.h"

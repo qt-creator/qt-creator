@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "breakhandler.h"
+#include "debuggerinternalconstants.h"
 #include "breakpointmarker.h"
 
 #include "debuggeractions.h"

@@ -36,6 +36,7 @@
 #include "registerhandler.h"
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
+#include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"

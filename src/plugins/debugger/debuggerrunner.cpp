@@ -34,6 +34,7 @@
 #include "debuggerruncontrolfactory.h"
 
 #include "debuggeractions.h"
+#include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggermainwindow.h"

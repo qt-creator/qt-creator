@@ -36,6 +36,7 @@
 #include "debuggerengine.h"
 #include "debuggerstartparameters.h"
 #include "debuggercore.h"
+#include "debuggerinternalconstants.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>

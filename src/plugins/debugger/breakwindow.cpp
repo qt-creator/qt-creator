@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "breakwindow.h"
+#include "debuggerinternalconstants.h"
 #include "breakhandler.h"
 #include "debuggerengine.h"
 #include "debuggeractions.h"

@@ -33,6 +33,7 @@
 #include "gdboptionspage.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
+#include "debuggerinternalconstants.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>

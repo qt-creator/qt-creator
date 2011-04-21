@@ -34,6 +34,7 @@
 
 #include "breakhandler.h"
 #include "debuggerengine.h"
+#include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
 #include "stackframe.h"

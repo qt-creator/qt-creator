@@ -33,6 +33,7 @@
 #include "snapshothandler.h"
 
 #include "debuggerconstants.h"
+#include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerrunner.h"

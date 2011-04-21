@@ -33,16 +33,23 @@
 #ifndef DEBUGGERCONSTANTS_H
 #define DEBUGGERCONSTANTS_H
 
-#include <QtCore/QtGlobal>
+#include <QtCore/QFlags>
 
 namespace Debugger {
 namespace Constants {
 
-// modes and their priorities
+// Debug mode
 const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
-const int          P_MODE_DEBUG         = 85;
 
-// common actions
+// Contexts
+const char * const C_DEBUGMODE          = "Debugger.DebugMode";
+const char * const C_CPPDEBUGGER        = "Gdb Debugger";
+const char * const C_QMLDEBUGGER        = "Qml/JavaScript Debugger";
+
+// Project Explorer run mode (RUN/DEBUG)
+const char * const DEBUGMODE            = "Debugger.DebugMode";
+
+// Common actions (accessed by QML inspector)
 const char * const INTERRUPT            = "Debugger.Interrupt";
 const char * const CONTINUE             = "Debugger.Continue";
 const char * const STOP                 = "Debugger.Stop";
@@ -53,20 +60,7 @@ const char * const NEXT                 = "Debugger.NextLine";
 const char * const REVERSE              = "Debugger.ReverseDirection";
 const char * const OPERATE_BY_INSTRUCTION   = "Debugger.OperateByInstruction";
 
-const char * const C_DEBUGMODE          = "Debugger.DebugMode";
-const char * const C_CPPDEBUGGER        = "Gdb Debugger";
-const char * const C_QMLDEBUGGER        = "Qml/JavaScript Debugger";
-
-const char * const DEBUGGER_COMMON_SETTINGS_ID = "A.Common";
-const char * const DEBUGGER_COMMON_SETTINGS_NAME =
-    QT_TRANSLATE_NOOP("Debugger", "General");
-const char * const DEBUGGER_SETTINGS_CATEGORY = "O.Debugger";
-const char * const DEBUGGER_SETTINGS_TR_CATEGORY =
-    QT_TRANSLATE_NOOP("Debugger", "Debugger");
-const char * const DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON =
-    ":/core/images/category_debug.png";
-
-// dock widget names
+// DebuggerMainWindow dock widget names
 const char * const DOCKWIDGET_BREAK      = "Debugger.Docks.Break";
 const char * const DOCKWIDGET_MODULES    = "Debugger.Docks.Modules";
 const char * const DOCKWIDGET_REGISTER   = "Debugger.Docks.Register";
@@ -81,25 +75,7 @@ const char * const DOCKWIDGET_QML_INSPECTOR = "Debugger.Docks.QmlInspector";
 const char * const DOCKWIDGET_QML_SCRIPTCONSOLE = "Debugger.Docks.ScriptConsole";
 const char * const DOCKWIDGET_DEFAULT_AREA = "Debugger.Docks.DefaultArea";
 
-namespace Internal {
-    enum { debug = 0 };
-} // namespace Internal
-
-const char * const OPENED_BY_DEBUGGER         = "OpenedByDebugger";
-const char * const OPENED_WITH_DISASSEMBLY    = "DisassemblerView";
-const char * const OPENED_WITH_MEMORY         = "MemoryView";
-
-const char * const DEBUGMODE            = "Debugger.DebugMode";
-const char * const DEBUG                = "Debugger.Debug";
-const int          P_ACTION_DEBUG       = 90; //priority for the modemanager
-#ifdef Q_OS_MAC
-const char * const DEBUG_KEY = "Ctrl+Y";
-#else
-const char * const DEBUG_KEY = "F5";
-#endif
-
 } // namespace Constants
-
 
 enum DebuggerState
 {
@@ -194,40 +170,6 @@ enum LogChannel
     ScriptConsoleOutput
 };
 
-enum ModelRoles
-{
-    DisplaySourceRole = 32,  // Qt::UserRole
-
-    EngineStateRole,
-    EngineCapabilitiesRole,
-    EngineActionsEnabledRole,
-    RequestActivationRole,
-    RequestContextMenuRole,
-
-    // Locals and Watchers
-    LocalsINameRole,
-    LocalsEditTypeRole,     // A QVariant::type describing the item
-    LocalsIntegerBaseRole,  // Number base 16, 10, 8, 2
-    LocalsExpressionRole,
-    LocalsRawExpressionRole,
-    LocalsExpandedRole,     // The preferred expanded state to the view
-    LocalsRawTypeRole,      // Raw type name
-    LocalsTypeRole,         // Display type name
-    LocalsTypeFormatListRole,
-    LocalsTypeFormatRole,   // Used to communicate alternative formats to the view
-    LocalsIndividualFormatRole,
-    LocalsAddressRole,      // Memory address of variable as quint64
-    LocalsReferencingAddressRole, // Address referencing for 'Automatically dereferenced pointer'
-    LocalsSizeRole,         // Size of variable as quint
-    LocalsRawValueRole,     // Unformatted value as string
-    LocalsPointerValueRole, // Pointer value (address) as quint64
-    LocalsIsWatchpointAtAddressRole,
-    LocalsIsWatchpointAtPointerValueRole,
-
-    // Snapshots
-    SnapshotCapabilityRole
-};
-
 enum DebuggerEngineType
 {
     NoEngineType      = 0,
@@ -258,4 +200,3 @@ Q_DECLARE_FLAGS(DebuggerLanguages, DebuggerLanguage)
 } // namespace Debugger
 
 #endif // DEBUGGERCONSTANTS_H
-

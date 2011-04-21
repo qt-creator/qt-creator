@@ -34,6 +34,7 @@
 #include "snapshothandler.h"
 
 #include "debuggeractions.h"
+#include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 
@@ -45,7 +46,6 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
 #include <QtGui/QKeyEvent>
-
 
 namespace Debugger {
 namespace Internal {
