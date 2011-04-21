@@ -107,6 +107,7 @@ BinEditor::BinEditor(QWidget *parent)
     m_caseSensitiveSearch = false;
     m_canRequestNewWindow = false;
     setFocusPolicy(Qt::WheelFocus);
+    setFrameStyle(QFrame::Plain);
 }
 
 BinEditor::~BinEditor()

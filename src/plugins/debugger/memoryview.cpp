@@ -62,6 +62,7 @@ MemoryView::MemoryView(QWidget *binEditor, QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(binEditor);
+    layout->setContentsMargins(0, 0, 0, 0);
     setMinimumWidth(400);
 }
 
