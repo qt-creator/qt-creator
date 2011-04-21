@@ -1051,12 +1051,13 @@ void CodaGdbAdapter::startAdapter()
         m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()
             ->getCodaDevice(parameters.remoteChannel);
 
-        bool ok = !m_codaDevice.isNull() && m_codaDevice->device()->isOpen();
+        const bool ok = !m_codaDevice.isNull() && m_codaDevice->device()->isOpen();
         if (!ok) {
-            QString msg = QString("Couldn't open serial device %1")
-                    .arg(parameters.remoteChannel);
-            if (m_codaDevice)
-                msg.append(QString(": %1").arg(m_codaDevice->device()->errorString()));
+            const QString reason = m_codaDevice.isNull() ?
+                        tr("Could not obtain device.") :
+                        m_codaDevice->device()->errorString();
+            const QString msg = QString("Could not open serial device '%1': %2")
+                                .arg(parameters.remoteChannel, reason);
             logMessage(msg, LogError);
             m_engine->handleAdapterStartFailed(msg, QString());
             return;
