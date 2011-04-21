@@ -782,7 +782,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             actOpenMemoryViewAtPointerValue->setEnabled(false);
         }
         actOpenMemoryEditorStackLayout->setText(tr("Open Memory Editor Showing Stack Layout"));
-        actOpenMemoryEditorStackLayout->setEnabled(m_type == LocalsType && mi0.isValid());
+        actOpenMemoryEditorStackLayout->setEnabled(m_type == LocalsType);
         memoryMenu.addAction(actOpenMemoryViewAtVariableAddress);
         memoryMenu.addAction(actOpenMemoryViewAtPointerValue);
         memoryMenu.addAction(actOpenMemoryEditAtVariableAddress);
