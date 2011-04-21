@@ -259,20 +259,6 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(UseDebuggingHelpers, item);
 
     item = new SavedAction(this);
-    item->setSettingsKey(debugModeGroup, QLatin1String("UseCustomDebuggingHelperLocation"));
-    item->setCheckable(true);
-    item->setDefaultValue(false);
-    item->setValue(false);
-    insertItem(UseCustomDebuggingHelperLocation, item);
-
-    item = new SavedAction(this);
-    item->setSettingsKey(debugModeGroup, QLatin1String("CustomDebuggingHelperLocation"));
-    item->setCheckable(true);
-    item->setDefaultValue(QString());
-    item->setValue(QString());
-    insertItem(CustomDebuggingHelperLocation, item);
-
-    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseCodeModel"));
     item->setText(tr("Use Code Model"));
     item->setToolTip(tr("Selecting this causes the C++ Code Model being asked "

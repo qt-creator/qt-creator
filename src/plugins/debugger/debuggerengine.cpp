@@ -646,13 +646,6 @@ bool DebuggerEngine::qtDumperLibraryEnabled() const
 
 QStringList DebuggerEngine::qtDumperLibraryLocations() const
 {
-    if (debuggerCore()->action(UseCustomDebuggingHelperLocation)->value().toBool()) {
-        const QString customLocation =
-            debuggerCore()->action(CustomDebuggingHelperLocation)->value().toString();
-        const QString location =
-            tr("%1 (explicitly set in the Debugger Options)").arg(customLocation);
-        return QStringList(location);
-    }
     return d->m_startParameters.dumperLibraryLocations;
 }
 
@@ -663,8 +656,6 @@ void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
 
 QString DebuggerEngine::qtDumperLibraryName() const
 {
-    if (debuggerCore()->action(UseCustomDebuggingHelperLocation)->value().toBool())
-        return debuggerCore()->action(CustomDebuggingHelperLocation)->value().toString();
     return startParameters().dumperLibrary;
 }
 

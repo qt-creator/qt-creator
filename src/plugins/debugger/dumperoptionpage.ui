@@ -51,31 +51,6 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QGroupBox" name="customLocationGroupBox">
-        <property name="title">
-         <string>Use debugging helper from custom location</string>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <layout class="QFormLayout" name="formLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="dumperLocationLabel">
-           <property name="text">
-            <string>Location: </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="Utils::PathChooser" name="dumperLocationChooser" native="true"/>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="checkBoxUseCodeModel">
         <property name="toolTip">
          <string>Makes use of Qt Creator's code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</string>

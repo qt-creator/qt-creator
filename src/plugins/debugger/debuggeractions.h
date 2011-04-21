@@ -100,8 +100,6 @@ enum DebuggerActionCode
     SwitchModeOnExit,
 
     UseDebuggingHelpers,
-    UseCustomDebuggingHelperLocation,
-    CustomDebuggingHelperLocation,
 
     UseCodeModel,
     ShowThreadNames,

@@ -214,12 +214,6 @@ bool CommonOptionsPage::matches(const QString &s) const
 //
 ///////////////////////////////////////////////////////////////////////
 
-static bool oxygenStyle()
-{
-    const ManhattanStyle *ms = qobject_cast<const ManhattanStyle *>(qApp->style());
-    return ms && !qstrcmp("OxygenStyle", ms->baseStyle()->metaObject()->className());
-}
-
 QString DebuggingHelperOptionPage::id() const
 {
     return _("Z.DebuggingHelper");
@@ -260,25 +254,11 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
 
-    m_ui.dumperLocationChooser->setExpectedKind(Utils::PathChooser::Command);
-    m_ui.dumperLocationChooser->setPromptDialogTitle(QCoreApplication::translate
-        ("Debugger", "Choose DebuggingHelper Location"));
-    m_ui.dumperLocationChooser->setInitialBrowsePathBackup(
-        ICore::instance()->resourcePath() + "../../lib");
-
     m_group.clear();
     DebuggerCore *dc = debuggerCore();
 
     m_group.insert(dc->action(UseDebuggingHelpers),
         m_ui.debuggingHelperGroupBox);
-    m_group.insert(dc->action(UseCustomDebuggingHelperLocation),
-        m_ui.customLocationGroupBox);
-    // Suppress Oxygen style's giving flat group boxes bold titles.
-    if (oxygenStyle())
-        m_ui.customLocationGroupBox->setStyleSheet(_("QGroupBox::title { font: ; }"));
-
-    m_group.insert(dc->action(CustomDebuggingHelperLocation),
-        m_ui.dumperLocationChooser);
 
     m_group.insert(dc->action(UseCodeModel),
         m_ui.checkBoxUseCodeModel);
@@ -299,8 +279,6 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords)
                 << ' ' << m_ui.debuggingHelperGroupBox->title()
-                << ' ' << m_ui.customLocationGroupBox->title()
-                << ' ' << m_ui.dumperLocationLabel->text()
                 << ' ' << m_ui.checkBoxUseCodeModel->text()
                 << ' ' << m_ui.checkBoxShowThreadNames->text();
         m_searchKeywords.remove(QLatin1Char('&'));
