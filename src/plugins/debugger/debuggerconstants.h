@@ -211,6 +211,8 @@ enum ModelRoles
     LocalsExpressionRole,
     LocalsRawExpressionRole,
     LocalsExpandedRole,     // The preferred expanded state to the view
+    LocalsRawTypeRole,      // Raw type name
+    LocalsTypeRole,         // Display type name
     LocalsTypeFormatListRole,
     LocalsTypeFormatRole,   // Used to communicate alternative formats to the view
     LocalsIndividualFormatRole,

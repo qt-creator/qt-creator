@@ -626,7 +626,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         }
 
         case Qt::DisplayRole: {
-            const QByteArray ns = engine()->qtNamespace();
+            const QByteArray qtNameSpace = engine()->qtNamespace();
             QString result;
             switch (idx.column()) {
                 case 0:
@@ -635,18 +635,18 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     else if (data.name == QLatin1String("*") && item->parent)
                         result = QLatin1Char('*') + item->parent->name;
                     else
-                        result = removeInitialNamespace(data.name, ns);
+                        result = removeInitialNamespace(data.name, qtNameSpace);
                     break;
                 case 1:
                     result = removeInitialNamespace(truncateValue(
-                            formattedValue(data, itemFormat(data))), ns);
+                            formattedValue(data, itemFormat(data))), qtNameSpace);
                     if (data.referencingAddress) {
                         result += QLatin1String(" @");
                         result += QString::fromLatin1(data.hexAddress());
                     }
                     break;
                 case 2:
-                    result = removeNamespaces(displayType(data), ns);
+                    result = removeNamespaces(displayType(data), qtNameSpace);
                     break;
                 default:
                     break;
@@ -722,7 +722,10 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 type = type.left(pos);
             return m_handler->m_reportedTypeFormats.value(type);
         }
-
+        case LocalsTypeRole:
+           return removeNamespaces(displayType(data), engine()->qtNamespace());
+        case LocalsRawTypeRole:
+           return QString::fromLatin1(data.type);
         case LocalsTypeFormatRole:
             return m_handler->m_typeFormats.value(data.type, -1);
 

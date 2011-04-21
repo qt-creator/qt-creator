@@ -148,6 +148,8 @@ static inline quint64 pointerValueOf(const QModelIndex &m)
     { return m.data(LocalsPointerValueRole).toULongLong(); }
 static inline QString nameOf(const QModelIndex &m)
     { return m.data().toString(); }
+static inline QString typeOf(const QModelIndex &m)
+    { return m.data(LocalsTypeRole).toString(); }
 static inline uint sizeOf(const QModelIndex &m)
     { return m.data(LocalsSizeRole).toUInt(); }
 
@@ -158,6 +160,18 @@ static inline uint sizeOf(const QModelIndex &m)
 
 typedef QPair<int, QString> ColorNumberToolTipPair;
 typedef QVector<ColorNumberToolTipPair> ColorNumberToolTipVector;
+
+static inline QString variableToolTip(const QString &name,
+                                      const QString &type,
+                                      quint64 offset)
+{
+    return offset ?
+           //: HTML tooltip of a variable in the memory editor
+           WatchWindow::tr("<i>%1</i> %2 at #%3").
+               arg(type, name).arg(offset) :
+           //: HTML tooltip of a variable in the memory editor
+           WatchWindow::tr("<i>%1</i> %2").arg(type, name);
+}
 
 static int memberVariableRecursion(const QModelIndex &m,
                                     const QString &name,
@@ -178,7 +192,8 @@ static int memberVariableRecursion(const QModelIndex &m,
                 && (childAddress + childSize) <= end) { // Non-static, within area?
             const QString childName = nameRoot + nameOf(childIndex);
             const quint64 childOffset = childAddress - start;
-            const QString toolTip = WatchWindow::tr("%1 at #%2").arg(childName).arg(childOffset);
+            const QString toolTip
+                = variableToolTip(childName, typeOf(childIndex), childOffset);
             const ColorNumberToolTipPair colorNumberNamePair((*colorNumberIn)++, toolTip);
             const ColorNumberToolTipVector::iterator begin = cnmv->begin() + childOffset;
             qFill(begin, begin + childSize, colorNumberNamePair);
@@ -240,7 +255,8 @@ static inline MemoryMarkupList
     MemoryMarkupList result;
     const QString name = nameOf(m);
     int colorNumber = 0;
-    ColorNumberToolTipVector ranges(size, ColorNumberToolTipPair(colorNumber, name));
+    const QString rootToolTip = variableToolTip(name, typeOf(m), 0);
+    ColorNumberToolTipVector ranges(size, ColorNumberToolTipPair(colorNumber, rootToolTip));
     const int childCount = memberVariableRecursion(m, name, address, address + size, &colorNumber, &ranges);
     if (sizeIsEstimate && !childCount)
         return result; // Fixme: Exact size not known, no point in filling if no children.
@@ -319,7 +335,9 @@ static void addVariableMemoryView(DebuggerEngine *engine,
     const QList<MemoryMarkup> markup =
         variableMemoryMarkup(m, address, size, sizeIsEstimate, background);
     const unsigned flags = separateView ? (DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly) : 0;
-    const QString title = WatchWindow::tr("Memory at Variable '%1' (0x%2)").arg(nameOf(m)).arg(address, 0, 16);
+    const QString title = deferencePointer ?
+    WatchWindow::tr("Memory Referenced by Pointer '%1' (0x%2)").arg(nameOf(m)).arg(address, 0, 16) :
+    WatchWindow::tr("Memory at Variable '%1' (0x%2)").arg(nameOf(m)).arg(address, 0, 16);
     engine->openMemoryView(address, flags, markup, p, title, parent);
 }
 
