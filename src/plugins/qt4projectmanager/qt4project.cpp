@@ -895,11 +895,7 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Q
             Utils::Environment env = bc->environment();
             Utils::Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
             for (; eit != eend; ++eit)
-#ifdef Q_OS_WIN
-                m_proFileOption->environment.insert(env.key(eit).toUpper(), env.value(eit));
-#else
                 m_proFileOption->environment.insert(env.key(eit), env.value(eit));
-#endif
 
             QStringList args;
             if (QMakeStep *qs = bc->qmakeStep())

@@ -48,9 +48,6 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
-#ifndef QT_BOOTSTRAPPED
-# include <QtCore/QProcess>
-#endif
 #ifdef PROEVALUATOR_THREAD_SAFE
 # include <QtCore/QThreadPool>
 #endif
@@ -168,10 +165,8 @@ void ProFileOption::applyHostMode()
 
 QString ProFileOption::getEnv(const QString &var) const
 {
+#ifndef QT_BOOTSTRAPPED
     if (!environment.isEmpty())
-#ifdef Q_OS_WIN
-        return environment.value(var.toUpper());
-#else
         return environment.value(var);
 #endif
     return QString::fromLocal8Bit(qgetenv(var.toLocal8Bit().constData()));
@@ -1538,6 +1533,8 @@ void ProFileEvaluator::Private::runProcess(QProcess *proc, const QString &comman
                                            QProcess::ProcessChannel chan) const
 {
     proc->setWorkingDirectory(currentDirectory());
+    if (!m_option->environment.isEmpty())
+        proc->setProcessEnvironment(m_option->environment);
 # ifdef Q_OS_WIN
     proc->setNativeArguments(QLatin1String("/v:off /s /c \"") + command + QLatin1Char('"'));
     proc->start(m_option->getEnv(QLatin1String("COMSPEC")), QStringList());

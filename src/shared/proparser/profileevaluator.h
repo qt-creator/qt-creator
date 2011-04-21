@@ -37,6 +37,9 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
+#ifndef QT_BOOTSTRAPPED
+# include <QtCore/QProcess>
+#endif
 #ifdef PROEVALUATOR_THREAD_SAFE
 # include <QtCore/QMutex>
 # include <QtCore/QWaitCondition>
@@ -168,7 +171,9 @@ struct ProFileOption
     QString qmakespec;
     QString cachefile;
     QHash<QString, QString> properties;
-    QHash<QString, QString> environment;
+#ifndef QT_BOOTSTRAPPED
+    QProcessEnvironment environment;
+#endif
     QString sysroot;
 
     //QString pro_ext;
