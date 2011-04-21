@@ -217,6 +217,7 @@ enum ModelRoles
     LocalsTypeFormatRole,   // Used to communicate alternative formats to the view
     LocalsIndividualFormatRole,
     LocalsAddressRole,      // Memory address of variable as quint64
+    LocalsReferencingAddressRole, // Address referencing for 'Automatically dereferenced pointer'
     LocalsSizeRole,         // Size of variable as quint
     LocalsRawValueRole,     // Unformatted value as string
     LocalsPointerValueRole, // Pointer value (address) as quint64

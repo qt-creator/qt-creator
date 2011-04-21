@@ -406,23 +406,25 @@ static inline void addStackLayoutMemoryView(DebuggerEngine *engine,
     quint64 start = 0xFFFFFFFFFFFFFFFF;
     quint64 end = 0;
     const int rootItemCount = m->rowCount();
-    for (int r = 0; r < rootItemCount; r++) { // Note: Unsorted by default
+    // Note: Unsorted by default. Exclude 'Automatically dereferenced
+    // pointer' items as they are outside the address range.
+    for (int r = 0; r < rootItemCount; r++) {
         const QModelIndex idx = m->index(r, 0);
-        const quint64 address = addressOf(idx);
-        if (address) {
-            if (address < start)
-                start = address;
-            if (const uint size = sizeOf(idx))
-                if (address + size > end)
-                    end = address + size;
+        if (idx.data(LocalsReferencingAddressRole).toULongLong() == 0) {
+            const quint64 address = addressOf(idx);
+            if (address) {
+                if (address < start)
+                    start = address;
+                if (const uint size = sizeOf(idx))
+                    if (address + size > end)
+                        end = address + size;
+            }
         }
     }
     // Anything found and everything in a sensible range (static data in-between)?
     if (end <= start || end - start > 100 * 1024) {
         QMessageBox::information(parent, WatchWindow::tr("Cannot Display Stack Layout"),
-            WatchWindow::tr("Could not determine a suitable address range. "
-                            "Unchecking the option 'Automatically Dereference Pointers' "
-                            "might help."));
+            WatchWindow::tr("Could not determine a suitable address range."));
         return;
     }
     // Take a look at the register values. Extend the range a bit if suitable

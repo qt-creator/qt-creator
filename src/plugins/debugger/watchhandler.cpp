@@ -748,6 +748,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case LocalsAddressRole:
             return data.coreAddress();
+        case LocalsReferencingAddressRole:
+            return QVariant(data.referencingAddress);
         case LocalsSizeRole:
             return QVariant(data.size);
 
