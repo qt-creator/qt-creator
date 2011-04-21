@@ -230,7 +230,10 @@ void QmlEngine::connectionEstablished()
 
     showMessage(tr("QML Debugger connected."), StatusBar);
 
-    synchronizeWatchers();
+    if (!watchHandler()->watcherNames().isEmpty()) {
+        synchronizeWatchers();
+    }
+    connect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
 
     notifyEngineRunAndInferiorRunOk();
 
@@ -359,6 +362,7 @@ bool QmlEngine::acceptsWatchesWhileRunning() const
 
 void QmlEngine::closeConnection()
 {
+    disconnect(watchersModel(),SIGNAL(layoutChanged()),this,SLOT(synchronizeWatchers()));
     disconnect(&d->m_adapter, SIGNAL(connectionStartupFailed()),
         this, SLOT(connectionStartupFailed()));
     d->m_adapter.closeConnection();
@@ -709,17 +713,15 @@ void QmlEngine::updateWatchData(const WatchData &data,
 
 void QmlEngine::synchronizeWatchers()
 {
-    if (!watchHandler()->watcherNames().isEmpty()) {
-        // send watchers list
-        QByteArray reply;
-        QDataStream rs(&reply, QIODevice::WriteOnly);
-        QByteArray cmd = "WATCH_EXPRESSIONS";
-        rs << cmd;
-        rs << watchHandler()->watchedExpressions();
-        logMessage(LogSend, QString("%1 %2").arg(
-                       QString(cmd), watchHandler()->watchedExpressions().join(", ")));
-        sendMessage(reply);
-    }
+    // send watchers list
+    QByteArray reply;
+    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QByteArray cmd = "WATCH_EXPRESSIONS";
+    rs << cmd;
+    rs << watchHandler()->watchedExpressions();
+    logMessage(LogSend, QString("%1 %2").arg(
+                   QString(cmd), watchHandler()->watchedExpressions().join(", ")));
+    sendMessage(reply);
 }
 
 void QmlEngine::expandObject(const QByteArray &iname, quint64 objectId)

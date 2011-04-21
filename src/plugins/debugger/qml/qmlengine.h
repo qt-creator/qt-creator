@@ -132,6 +132,8 @@ private slots:
     void serviceConnectionError(const QString &service);
     void appendMessage(const QString &msg, ProjectExplorer::OutputFormat);
 
+    void synchronizeWatchers();
+
 private:
     void expandObject(const QByteArray &iname, quint64 objectId);
     void sendPing();
@@ -145,8 +147,6 @@ private:
     QString mangleFilenamePaths(const QString &filename,
         const QString &oldBasePath, const QString &newBasePath) const;
     QString qmlImportPath() const;
-
-    void synchronizeWatchers();
 
     enum LogDirection {
         LogSend,
