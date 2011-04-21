@@ -2613,12 +2613,8 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
 void ProjectExplorerPlugin::openOpenProjectDialog()
 {
     Core::FileManager *fileMananger = Core::ICore::instance()->fileManager();
-    const QString projectPatterns = ProjectExplorerPlugin::projectFilePatterns().join(QString(QLatin1Char(' ')));
-    QString projectFilesFilter = tr("Projects (%1)").arg(projectPatterns);
-    const QString allFilesFilter = tr("All Files (*)");
-    const QString filters = allFilesFilter + QLatin1String(";;") + projectFilesFilter;
     const QString path = fileMananger->useProjectsDirectory() ? fileMananger->projectsDirectory() : QString();
-    const QStringList files = fileMananger->getOpenFileNames(filters, path, &projectFilesFilter);
+    const QStringList files = fileMananger->getOpenFileNames(d->m_projectFilterString, path);
     if (!files.isEmpty())
         Core::ICore::instance()->openFiles(files, Core::ICore::SwitchMode);
 }
