@@ -230,7 +230,7 @@ QString MaemoGlobal::madDeveloperUiName(MaemoDeviceConfig::OsVersion osVersion)
         ? tr("SDK Connectivity") : tr("Mad Developer");
 }
 
-MaemoDeviceConfig::MaemoDeviceConfig::OsVersion MaemoGlobal::version(const QtVersion *qtVersion)
+MaemoDeviceConfig::OsVersion MaemoGlobal::version(const QtVersion *qtVersion)
 {
     const QString &name = targetName(qtVersion);
     if (name.startsWith(QLatin1String("fremantle")))
