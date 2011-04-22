@@ -21045,6 +21045,10 @@ Check if the phone is connected and App TRK is running.</source>
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
     </message>
+    <message>
+        <source>Might make the application vulnerable. Use only in a safe environment.</source>
+        <translation>Может сделать приложение уязвимым. Используйте только в безопасных системах.</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::QmlDebuggingLibrary</name>
