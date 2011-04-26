@@ -94,20 +94,20 @@ void CustomDragAndDropIcon::mouseReleaseEvent(QMouseEvent *event)
 void CustomDragAndDropIcon::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint globalPos = event->globalPos();
-    QWidget * widget = QApplication::topLevelAt(globalPos); //grap the "current" top level widget
+    QWidget * widget = QApplication::topLevelAt(globalPos); // grap the "current" top level widget
     if (widget) {
-        setParent(widget); //set the current top level widget as parent
+        setParent(widget); // set the current top level widget as parent
         QPoint pos = parentWidget()->mapFromGlobal(globalPos);
-        if ((pos.y() > 30 && CustomDragAndDrop::isVisible())) //do not allow dragging over the menubar
+        if ((pos.y() > 30 && CustomDragAndDrop::isVisible())) // do not allow dragging over the menubar
             move(pos);
         else
-            move(-1000, -1000); //no hiding because of mouse grabbing
+            move(-1000, -1000); // no hiding because of mouse grabbing
         resize(m_size);
         show();
         update();
     }
     else {
-       move(-1000, -1000); //if no top level widget is found we are out of the main window
+       move(-1000, -1000); // if no top level widget is found we are out of the main window
     }
     QWidget* target = QApplication::widgetAt(globalPos - QPoint(2,2)); //-(2, 2) because:
                                                                        // otherwise we just get this widget
@@ -117,18 +117,18 @@ void CustomDragAndDropIcon::mouseMoveEvent(QMouseEvent *event)
                                                            // event was accepted
       bool wasAccepted = CustomDragAndDrop::isAccepted();
       CustomDragAndDrop::enter(target, globalPos);         // create and handle the create enter event
-      releaseMouse(); //to set the cursor we have to disable the mouse grabber
-      if (CustomDragAndDrop::isAccepted()) { //setting the right cursor and trigger animation
+      releaseMouse(); // to set the cursor we have to disable the mouse grabber
+      if (CustomDragAndDrop::isAccepted()) { // setting the right cursor and trigger animation
           setCursor(Qt::CrossCursor);
           if (!wasAccepted)
-              enter();                      //trigger animation if enter event was accepted
+              enter();                      // trigger animation if enter event was accepted
       } else {
           setCursor(Qt::ForbiddenCursor);
           if (wasAccepted)
               leave();                     // trigger animation if we leave a widget that accepted
                                            // the drag enter event
       }
-      //enable the mouse grabber again - after the curser is set
+      // enable the mouse grabber again - after the curser is set
       grabMouseSafely();
     } else {
         if (CustomDragAndDrop::isAccepted()) // create DragMoveEvents if the current widget
@@ -183,35 +183,35 @@ void CustomDragAndDropIcon::leave()
 
 void CustomDragAndDropIcon::animateDrag(int frame)
 {
-    //interpolation of m_size and alpha values
+    // interpolation of m_size and alpha values
     if (CustomDragAndDrop::isAccepted()) {
-        //small -> big
-         m_iconAlpha = 1.0 - qreal(frame) / 10.0;
-         m_previewAlpha = qreal(frame) / 10.0;
-         int width = qreal(m_preview.width()) * (qreal(frame) / 10.0) + qreal(m_icon.width()) * (1.0 - qreal(frame) / 10.0);
-         int height = qreal(m_preview.height()) * (qreal(frame) / 10.0) + qreal(m_icon.height()) * (1 - qreal(frame) / 10.0);
-         m_size = QSize(width, height);
+        // small -> big
+        m_iconAlpha = 1.0 - qreal(frame) / 10.0;
+        m_previewAlpha = qreal(frame) / 10.0;
+        int width = qreal(m_preview.width()) * (qreal(frame) / 10.0) + qreal(m_icon.width()) * (1.0 - qreal(frame) / 10.0);
+        int height = qreal(m_preview.height()) * (qreal(frame) / 10.0) + qreal(m_icon.height()) * (1 - qreal(frame) / 10.0);
+        m_size = QSize(width, height);
     } else {
-        //big -> small
-         m_previewAlpha = 1.0 - qreal(frame) / 10.0;
-         m_iconAlpha = qreal(frame) / 10.0;
-         int width = qreal(m_icon.width()) * (qreal(frame) / 10.0) + qreal(m_preview.width()) * (1.0 - qreal(frame) / 10.0);
-         int height = qreal(m_icon.height()) * (qreal(frame) / 10.0) + qreal(m_preview.height()) * (1 - qreal(frame) / 10.0);
-         m_size = QSize(width, height);
+        // big -> small
+        m_previewAlpha = 1.0 - qreal(frame) / 10.0;
+        m_iconAlpha = qreal(frame) / 10.0;
+        int width = qreal(m_icon.width()) * (qreal(frame) / 10.0) + qreal(m_preview.width()) * (1.0 - qreal(frame) / 10.0);
+        int height = qreal(m_icon.height()) * (qreal(frame) / 10.0) + qreal(m_preview.height()) * (1 - qreal(frame) / 10.0);
+        m_size = QSize(width, height);
     }
     QPoint p = pos();
     resize(m_size);
     move(p);
-    update(); //redrawing needed
+    update(); // redrawing needed
 }
 
 
-class CustomDragAndDropGuard { //This guard destroys the singleton in its destructor
-public:                   //This should avoid that a memory leak is reported
-   ~CustomDragAndDropGuard() {
-   if (CustomDragAndDrop::m_instance != 0)
-     delete CustomDragAndDrop::m_instance;
-   }
+class CustomDragAndDropGuard { // This guard destroys the singleton in its destructor
+public:                   // This should avoid that a memory leak is reported
+    ~CustomDragAndDropGuard() {
+        if (CustomDragAndDrop::m_instance)
+            delete CustomDragAndDrop::m_instance;
+    }
 };
 
 
@@ -228,7 +228,7 @@ CustomDragAndDrop::CustomDragAndDrop() : m_customDragActive(0), m_mimeData(0), m
 
 CustomDragAndDrop* CustomDragAndDrop::instance()
 {
-    static CustomDragAndDropGuard guard; //The destructor destroys the singleton. See above
+    static CustomDragAndDropGuard guard; // The destructor destroys the singleton. See above
     if (m_instance == 0)
         m_instance = new CustomDragAndDrop();
     return m_instance;
@@ -268,9 +268,9 @@ void CustomDragAndDrop::enter(QWidget *target, QPoint globalPos)
 {
     if (target) {
         QPoint pos = target->mapFromGlobal(globalPos);
-       QDragEnterEvent event(pos, Qt::MoveAction, instance()->m_mimeData ,Qt::RightButton, Qt::NoModifier);
-       QApplication::sendEvent(target, &event);
-       instance()-> m_accepted = event.isAccepted(); //if the event is accepted we enter the "accepted" state
+        QDragEnterEvent event(pos, Qt::MoveAction, instance()->m_mimeData ,Qt::RightButton, Qt::NoModifier);
+        QApplication::sendEvent(target, &event);
+        instance()-> m_accepted = event.isAccepted(); // if the event is accepted we enter the "accepted" state
     } else {
         instance()-> m_accepted = false;
     }
@@ -316,6 +316,5 @@ bool CustomDragAndDrop::isAnimated()
     return false;
 }
 
-} //namespace QmlDesignerItemLibraryDragAndDrop
-} //namespave QmlDesigner
-
+} // namespace QmlDesignerItemLibraryDragAndDrop
+} // namespave QmlDesigner
