@@ -92,8 +92,9 @@ public:
     // Used by Qml debugging.
     QString qmlServerAddress;
     quint16 qmlServerPort;
-    QString projectBuildDir;
-    QString projectDir;
+    QString projectSourceDirectory;
+    QString projectBuildDirectory;
+    QStringList projectSourceFiles;
 
     QString qtInstallPath;
     // Used by remote debugging.

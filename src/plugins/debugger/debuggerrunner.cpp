@@ -707,12 +707,13 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
                 sp.qtInstallPath = findQtInstallPath(qmake);
         }
         if (const ProjectExplorer::Project *project = target->project()) {
-              sp.projectDir = project->projectDirectory();
-              if (const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration()) {
-                  sp.projectBuildDir = buildConfig->buildDirectory();
-                  if (const ProjectExplorer::ToolChain *tc = buildConfig->toolChain())
+            sp.projectSourceDirectory = project->projectDirectory();
+            if (const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration()) {
+                sp.projectBuildDirectory = buildConfig->buildDirectory();
+                if (const ProjectExplorer::ToolChain *tc = buildConfig->toolChain())
                     sp.debuggerCommand = tc->debuggerCommand();
-              }
+            }
+            sp.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
         }
     }
 

@@ -206,7 +206,8 @@ RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfigurati
     params.workingDirectory = runConfig->workingDirectory();
     params.environment = runConfig->environment();
     params.displayName = runConfig->displayName();
-    params.projectDir = runConfig->target()->project()->projectDirectory();
+    params.projectSourceDirectory = runConfig->target()->project()->projectDirectory();
+    params.projectSourceFiles = runConfig->target()->project()->files(Project::ExcludeGeneratedFiles);
 
     if (params.executable.isEmpty()) {
         showQmlObserverToolWarning();

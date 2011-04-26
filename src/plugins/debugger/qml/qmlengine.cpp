@@ -772,15 +772,10 @@ QString QmlEngine::toFileInProject(const QString &fileUrl)
     if (path.isEmpty())
         return fileUrl;
 
-    // Try to find shadow-build file in source dir first
-    if (isShadowBuildProject()) {
-        const QString sourcePath = fromShadowBuildFilename(path);
-        if (QFileInfo(sourcePath).exists())
-            return sourcePath;
+    if (d->fileFinder.projectDirectory().isEmpty()) {
+        d->fileFinder.setProjectDirectory(startParameters().projectSourceDirectory);
+        d->fileFinder.setProjectFiles(startParameters().projectSourceFiles);
     }
-
-    if (d->fileFinder.projectDirectory().isEmpty())
-        d->fileFinder.setProjectDirectory(startParameters().projectDir);
 
     // Try to find file with biggest common path in source directory
     bool fileFound = false;
@@ -788,13 +783,7 @@ QString QmlEngine::toFileInProject(const QString &fileUrl)
     if (fileFound)
         return fileInProject;
 
-    // Try whether file is absolute & exists
-    if (QFileInfo(path).isAbsolute()
-            && QFileInfo(path).exists()) {
-        return path;
-    }
-
-    return fileUrl;
+    return path;
 }
 
 void QmlEngine::messageReceived(const QByteArray &message)
@@ -1029,59 +1018,10 @@ void QmlEngine::executeDebuggerCommand(const QString& command)
     sendMessage(reply);
 }
 
-bool QmlEngine::isShadowBuildProject() const
-{
-    return !startParameters().projectBuildDir.isEmpty()
-        && startParameters().projectDir != startParameters().projectBuildDir;
-}
 
 QString QmlEngine::qmlImportPath() const
 {
     return startParameters().environment.value("QML_IMPORT_PATH");
-}
-
-QString QmlEngine::mangleFilenamePaths(const QString &filename,
-    const QString &oldBasePath, const QString &newBasePath) const
-{
-    QDir oldBaseDir(oldBasePath);
-    QDir newBaseDir(newBasePath);
-    QFileInfo fileInfo(filename);
-
-    if (oldBaseDir.exists() && newBaseDir.exists() && fileInfo.exists()) {
-        Qt::CaseSensitivity caseSensitive = Qt::CaseSensitive;
-#ifdef Q_OS_WIN
-        caseSensitive = Qt::CaseInsensitive;
-#endif
-        if (fileInfo.absoluteFilePath().startsWith(oldBaseDir.canonicalPath(), caseSensitive)) {
-            QString fileRelativePath = fileInfo.canonicalFilePath().mid(oldBaseDir.canonicalPath().length());
-            QFileInfo projectFile(newBaseDir.canonicalPath() + QLatin1Char('/') + fileRelativePath);
-
-            if (projectFile.exists())
-                return projectFile.canonicalFilePath();
-        }
-    }
-    return filename;
-}
-
-QString QmlEngine::fromShadowBuildFilename(const QString &filename) const
-{
-    QString newFilename = filename;
-    QString importPath = qmlImportPath();
-
-#ifdef Q_OS_MACX
-    // Qt Quick Applications by default copy the qml directory
-    // to buildDir()/X.app/Contents/Resources.
-    const QString applicationBundleDir
-                = QFileInfo(startParameters().executable).absolutePath() + "/../..";
-    newFilename = mangleFilenamePaths(newFilename, applicationBundleDir + "/Contents/Resources", startParameters().projectDir);
-#endif
-    newFilename = mangleFilenamePaths(newFilename, startParameters().projectBuildDir, startParameters().projectDir);
-
-    if (newFilename == filename && !importPath.isEmpty()) {
-        newFilename = mangleFilenamePaths(filename, startParameters().projectBuildDir, importPath);
-    }
-
-    return newFilename;
 }
 
 void QmlEngine::logMessage(LogDirection direction, const QString &message)

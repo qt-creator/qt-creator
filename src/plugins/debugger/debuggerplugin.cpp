@@ -2343,10 +2343,10 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
         str << "Core: " << QDir::toNativeSeparators(sp.coreFile) << '\n';
     if (sp.attachPID > 0)
         str << "PID: " << sp.attachPID << ' ' << sp.crashParameter << '\n';
-    if (!sp.projectDir.isEmpty()) {
-        str << "Project: " << QDir::toNativeSeparators(sp.projectDir);
-        if (!sp.projectBuildDir.isEmpty())
-            str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDir) << ')';
+    if (!sp.projectSourceDirectory.isEmpty()) {
+        str << "Project: " << QDir::toNativeSeparators(sp.projectSourceDirectory);
+        if (!sp.projectBuildDirectory.isEmpty())
+            str << " (built: " << QDir::toNativeSeparators(sp.projectBuildDirectory) << ')';
         str << '\n';
     }
     if (!sp.qtInstallPath.isEmpty())
