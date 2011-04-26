@@ -91,10 +91,8 @@ public:
     Qt4MaemoDeployConfiguration *deployConfig() const;
     MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
 
-    const MaemoToolChain *toolchain() const;
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
-    const QString sysRoot() const;
     const QString targetRoot() const;
     const QString arguments() const;
     void setArguments(const QString &args);

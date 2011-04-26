@@ -163,7 +163,8 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
     const MaemoRunConfiguration * const maemoRunConfig
         = qobject_cast<MaemoRunConfiguration *>(runConfiguration);
     if (!maemoRunConfig
-        || !maemoRunConfig->deviceConfig() || !maemoRunConfig->toolchain()
+        || !maemoRunConfig->deviceConfig()
+        || !maemoRunConfig->activeQt4BuildConfiguration()
         || maemoRunConfig->remoteExecutableFilePath().isEmpty())
         return false;
     const int freePortCount = maemoRunConfig->freePorts().count();
