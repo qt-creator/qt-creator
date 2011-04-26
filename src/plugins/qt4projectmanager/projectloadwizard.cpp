@@ -53,7 +53,8 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
 
     setupTargetPage();
 
-    setOptions(options() | QWizard::NoBackButtonOnLastPage);
+    setOption(QWizard::NoBackButtonOnLastPage, true);
+    setOption(QWizard::NoCancelButton, false);
 }
 
 // We don't want to actually show the dialog if we don't show the import page
