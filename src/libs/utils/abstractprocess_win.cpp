@@ -81,7 +81,10 @@ static QString quoteWinArgument(const QString &arg)
         // The argument must not end with a \ since this would be interpreted
         // as escaping the quote -- rather put the \ behind the quote: e.g.
         // rather use "foo"\ than "foo\"
-        ret.replace(QRegExp(QLatin1String("(\\\\*)$")), QLatin1String("\"\\1"));
+        int i = ret.length();
+        while (i > 0 && ret.at(i - 1) == QLatin1Char('\\'))
+            --i;
+        ret.insert(i, QLatin1Char('"'));
         ret.prepend(QLatin1Char('"'));
     }
     return ret;
