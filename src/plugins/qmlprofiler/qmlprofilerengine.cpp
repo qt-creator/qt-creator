@@ -83,8 +83,8 @@ QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp
     d->m_fetchingData = false;
     d->m_delayedDelete = false;
 
-    connect(&d->m_launcher, SIGNAL(appendMessage(QString,ProjectExplorer::OutputFormat)),
-            this, SLOT(logApplicationMessage(QString,ProjectExplorer::OutputFormat)));
+    connect(&d->m_launcher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+            this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
 }
 
 QmlProfilerEngine::~QmlProfilerEngine()
