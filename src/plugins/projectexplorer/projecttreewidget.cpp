@@ -76,6 +76,7 @@ public:
 //        setExpandsOnDoubleClick(false);
         m_context = new Core::IContext(this);
         m_context->setContext(Core::Context(Constants::C_PROJECT_TREE));
+        m_context->setWidget(this);
         Core::ICore::instance()->addContextObject(m_context);
     }
     ~ProjectTreeView()
