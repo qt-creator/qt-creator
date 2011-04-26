@@ -172,6 +172,8 @@ public:
 class AnalyzerManager::AnalyzerManagerPrivate
 {
 public:
+    typedef QHash<QString, QVariant> FancyMainWindowSettings;
+
     AnalyzerManagerPrivate(AnalyzerManager *qq);
     ~AnalyzerManagerPrivate();
 
@@ -214,7 +216,8 @@ public:
     typedef QList<ToolWidgetPair> ToolWidgetPairList;
     QMap<IAnalyzerTool *, ToolWidgetPairList> m_toolWidgets;
     DockWidgetEventFilter *m_resizeEventFilter;
-    QMap<IAnalyzerTool *, QSettings *> m_defaultSettings;
+
+    QMap<IAnalyzerTool *, FancyMainWindowSettings> m_defaultSettings;
 
     // list of dock widgets to prevent memory leak
     typedef QWeakPointer<QDockWidget> DockPtr;
@@ -712,9 +715,7 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
 
     tool->initialize(plugin);
 
-    QSettings *defaultSettings = new QSettings(this);
-    d->m_defaultSettings[tool] = defaultSettings;
-    d->m_mainWindow->saveSettings(defaultSettings);
+    d->m_defaultSettings.insert(tool, d->m_mainWindow->saveSettings());
     loadToolSettings(tool);
 }
 
@@ -737,11 +738,9 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
 
 IAnalyzerTool *AnalyzerManager::currentTool() const
 {
-    if (!d->m_toolGroup->checkedAction()) {
-        return 0;
-    }
-
-    return d->m_tools.value(d->m_toolGroup->checkedAction()->data().toInt());
+    if (const QAction *ca = d->m_toolGroup->checkedAction())
+        return d->m_tools.value(ca->data().toInt());
+    return 0;
 }
 
 QList<IAnalyzerTool *> AnalyzerManager::tools() const
