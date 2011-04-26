@@ -161,7 +161,7 @@ QString QmlProfilerTool::id() const
 
 QString QmlProfilerTool::displayName() const
 {
-    return tr("Qml Performance Monitor");
+    return tr("QML Performance Monitor");
 }
 
 IAnalyzerTool::ToolMode QmlProfilerTool::mode() const
