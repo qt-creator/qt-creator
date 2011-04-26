@@ -1619,7 +1619,8 @@ void QtVersion::updateAbiAndMkspec() const
 
     // Set up systemroot
     if (supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID)
-            || supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)) {
+            || supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)
+            || supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID)) {
         if (m_systemRoot.isNull()) {
             QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(this))
                        + QLatin1String("/information"));
