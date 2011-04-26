@@ -278,8 +278,8 @@ void CustomDragAndDrop::enter(QWidget *target, QPoint globalPos)
 
 void CustomDragAndDrop::leave(QWidget *target, QPoint globalPos)
 {
+    Q_UNUSED(globalPos)
     if (target) {
-        QPoint pos = target->mapFromGlobal(globalPos);
         QDragLeaveEvent event;
         QApplication::sendEvent(target, &event);
     } else {
