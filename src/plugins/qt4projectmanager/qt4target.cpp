@@ -1106,7 +1106,7 @@ BuildConfigurationInfo BuildConfigurationInfo::checkForBuild(const QString &dire
         specArgument = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec);
     }
     Utils::QtcProcess::addArgs(&specArgument, additionalArguments);
-
+    Qt4BuildConfiguration::removeQMLInspectorFromArguments(&specArgument);
 
     BuildConfigurationInfo info = BuildConfigurationInfo(version,
                                                          makefileBuildConfig.first,
