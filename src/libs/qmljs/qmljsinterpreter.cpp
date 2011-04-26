@@ -2165,7 +2165,8 @@ QmlObjectValue *CppQmlTypes::getOrCreateForPackage(const QString &package, const
     // first get the cpp object value
     QmlObjectValue *cppObject = typeByCppName(cppName);
     if (!cppObject) {
-        qWarning() << "QML type system: could not find '" << cppName << "'";
+        // ### disabled for now, should be communicated to the user somehow.
+        //qWarning() << "QML type system: could not find '" << cppName << "'";
         return 0;
     }
 
