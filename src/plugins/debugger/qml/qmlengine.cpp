@@ -1029,7 +1029,11 @@ QString QmlEngine::mangleFilenamePaths(const QString &filename,
     QFileInfo fileInfo(filename);
 
     if (oldBaseDir.exists() && newBaseDir.exists() && fileInfo.exists()) {
-        if (fileInfo.absoluteFilePath().startsWith(oldBaseDir.canonicalPath())) {
+        Qt::CaseSensitivity caseSensitive = Qt::CaseSensitive;
+#ifdef Q_OS_WIN
+        caseSensitive = Qt::CaseInsensitive;
+#endif
+        if (fileInfo.absoluteFilePath().startsWith(oldBaseDir.canonicalPath(), caseSensitive)) {
             QString fileRelativePath = fileInfo.canonicalFilePath().mid(oldBaseDir.canonicalPath().length());
             QFileInfo projectFile(newBaseDir.canonicalPath() + QLatin1Char('/') + fileRelativePath);
 
