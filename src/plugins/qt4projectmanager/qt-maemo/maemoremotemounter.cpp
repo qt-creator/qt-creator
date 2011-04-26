@@ -63,10 +63,12 @@ MaemoRemoteMounter::~MaemoRemoteMounter()
     killAllUtfsServers();
 }
 
-void MaemoRemoteMounter::setConnection(const SshConnection::Ptr &connection)
+void MaemoRemoteMounter::setConnection(const SshConnection::Ptr &connection,
+    const MaemoDeviceConfig::ConstPtr &devConf)
 {
     ASSERT_STATE(Inactive);
     m_connection = connection;
+    m_devConf = devConf;
 }
 
 void MaemoRemoteMounter::setBuildConfiguration(const Qt4BuildConfiguration *bc)
@@ -121,10 +123,11 @@ void MaemoRemoteMounter::unmount()
     }
 
     QString remoteCall;
+    const QString remoteSudo = MaemoGlobal::remoteSudo(m_devConf->osVersion(),
+        m_connection->connectionParameters().userName);
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
         remoteCall += QString::fromLocal8Bit("%1 umount %2 && %1 rmdir %2;")
-            .arg(MaemoGlobal::remoteSudo(m_connection->connectionParameters().userName),
-                m_mountSpecs.at(i).mountSpec.remoteMountPoint);
+            .arg(remoteSudo, m_mountSpecs.at(i).mountSpec.remoteMountPoint);
     }
 
     m_umountStderr.clear();
@@ -183,8 +186,8 @@ void MaemoRemoteMounter::stop()
 void MaemoRemoteMounter::startUtfsClients()
 {
     const QString userName = m_connection->connectionParameters().userName;
-    const QString chmodFuse = MaemoGlobal::remoteSudo(userName)
-        + QLatin1String(" chmod a+r+w /dev/fuse");
+    const QString chmodFuse = MaemoGlobal::remoteSudo(m_devConf->osVersion(),
+        userName) + QLatin1String(" chmod a+r+w /dev/fuse");
     const QString chmodUtfsClient
         = QLatin1String("chmod a+x ") + utfsClientOnDevice();
     const QLatin1String andOp(" && ");
@@ -199,17 +202,21 @@ void MaemoRemoteMounter::startUtfsClients()
             return;
         }
 
+        const QString remoteSudo
+            = MaemoGlobal::remoteSudo(m_devConf->osVersion(), userName);
         const MaemoMountSpecification &mountSpec = mountInfo.mountSpec;
         const QString mkdir = QString::fromLocal8Bit("%1 mkdir -p %2")
-            .arg(MaemoGlobal::remoteSudo(userName), mountSpec.remoteMountPoint);
+            .arg(remoteSudo, mountSpec.remoteMountPoint);
         const QString chmod = QString::fromLocal8Bit("%1 chmod a+r+w+x %2")
-            .arg(MaemoGlobal::remoteSudo(userName), mountSpec.remoteMountPoint);
+            .arg(remoteSudo, mountSpec.remoteMountPoint);
         QString utfsClient
             = QString::fromLocal8Bit("%1 -l %2 -r %2 -b %2 %4 -o nonempty")
                   .arg(utfsClientOnDevice()).arg(mountInfo.remotePort)
                   .arg(mountSpec.remoteMountPoint);
-        if (mountInfo.mountAsRoot)
-            utfsClient.prepend(MaemoGlobal::remoteSudo(userName) + QLatin1Char(' '));
+        if (mountInfo.mountAsRoot) {
+            utfsClient.prepend(MaemoGlobal::remoteSudo(m_devConf->osVersion(),
+                userName) + QLatin1Char(' '));
+        }
         QLatin1String seqOp("; ");
         remoteCall += seqOp + MaemoGlobal::remoteSourceProfilesCommand()
             + seqOp + mkdir + andOp + chmod + andOp + utfsClient;

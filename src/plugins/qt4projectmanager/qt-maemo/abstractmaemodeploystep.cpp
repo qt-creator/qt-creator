@@ -370,14 +370,6 @@ void AbstractMaemoDeployStep::handleRemoteStderr(const QString &output)
     }
 }
 
-MaemoPortList AbstractMaemoDeployStep::freePorts(const MaemoDeviceConfig::ConstPtr &devConf) const
-{
-    const Qt4BuildConfiguration * const qt4bc = qt4BuildConfiguration();
-    if (!qt4bc)
-        return MaemoPortList();
-    return MaemoGlobal::freePorts(devConf, qt4bc->qtVersion());
-}
-
 const Qt4BuildConfiguration *AbstractMaemoDeployStep::qt4BuildConfiguration() const
 {
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());

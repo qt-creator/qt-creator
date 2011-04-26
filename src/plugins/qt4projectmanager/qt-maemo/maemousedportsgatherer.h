@@ -46,6 +46,7 @@ class SshRemoteProcessRunner;
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoDeviceConfig;
 
 class MaemoUsedPortsGatherer : public QObject
 {
@@ -54,7 +55,7 @@ public:
     explicit MaemoUsedPortsGatherer(QObject *parent = 0);
     ~MaemoUsedPortsGatherer();
     void start(const QSharedPointer<Utils::SshConnection> &connection,
-        const MaemoPortList &portList);
+        const QSharedPointer<const MaemoDeviceConfig> &devConf);
     void stop();
     int getNextFreePort(MaemoPortList *freePorts) const; // returns -1 if no more are left
     QList<int> usedPorts() const { return m_usedPorts; }

@@ -208,7 +208,7 @@ void MaemoSshRunner::handleCleanupFinished(int exitStatus)
         emitError(tr("Initial cleanup failed: %1")
             .arg(m_cleaner->errorString()));
     } else {
-        m_mounter->setConnection(m_connection);
+        m_mounter->setConnection(m_connection, m_devConfig);
         unmount();
     }
 }
@@ -228,7 +228,7 @@ void MaemoSshRunner::handleUnmounted()
     }
     case PreMountUnmounting:
         setState(GatheringPorts);
-        m_portsGatherer->start(m_connection, m_freePorts);
+        m_portsGatherer->start(m_connection, m_devConfig);
         break;
     case PostRunCleaning:
     case StopRequested: {
@@ -307,7 +307,7 @@ bool MaemoSshRunner::isConnectionUsable() const
 void MaemoSshRunner::setState(State newState)
 {
     if (newState == Inactive) {
-        m_mounter->setConnection(SshConnection::Ptr());
+        m_mounter->setConnection(SshConnection::Ptr(), m_devConfig);
         m_portsGatherer->stop();
         if (m_connection) {
             disconnect(m_connection.data(), 0, this, 0);

@@ -45,6 +45,7 @@ class SshRemoteProcessRunner;
 
 namespace Qt4ProjectManager {
 namespace Internal {
+class MaemoDeviceConfig;
 
 class AbstractMaemoPackageInstaller : public QObject
 {
@@ -53,6 +54,7 @@ public:
     ~AbstractMaemoPackageInstaller();
 
     void installPackage(const QSharedPointer<Utils::SshConnection> &connection,
+        const QSharedPointer<const MaemoDeviceConfig> &devConfig,
         const QString &packageFilePath, bool removePackageFile);
     void cancelInstallation();
 

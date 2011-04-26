@@ -151,17 +151,20 @@ void MaemoConfigTestDialog::handleGeneralTestResult(int exitStatus)
         m_ui->testResultEdit->setPlainText(output);
     }
 
-    if (m_config->osVersion() == MaemoDeviceConfig::GenericLinux) {
+    switch (m_config->osVersion()) {
+    case MaemoDeviceConfig::Maemo5:
+    case MaemoDeviceConfig::Maemo6:
+    case MaemoDeviceConfig::Meego:
+        m_currentTest = MadDeveloperTest;
+        disconnect(m_testProcessRunner.data(),
+            SIGNAL(processOutputAvailable(QByteArray)), this,
+            SLOT(processSshOutput(QByteArray)));
+        m_testProcessRunner->run("test -x "
+            + MaemoGlobal::devrootshPath().toUtf8());
+        break;
+    default:
         testPorts();
-        return;
     }
-
-    m_currentTest = MadDeveloperTest;
-    disconnect(m_testProcessRunner.data(),
-        SIGNAL(processOutputAvailable(QByteArray)), this,
-        SLOT(processSshOutput(QByteArray)));
-    const QByteArray command = "test -x " + MaemoGlobal::devrootshPath().toUtf8();
-    m_testProcessRunner->run(command);
 }
 
 void MaemoConfigTestDialog::handleMadDeveloperTestResult(int exitStatus)
@@ -208,8 +211,7 @@ void MaemoConfigTestDialog::handlePortListReady()
 void MaemoConfigTestDialog::testPorts()
 {
     if (m_config->freePorts().hasMore())
-        m_portsGatherer->start(m_testProcessRunner->connection(),
-            m_config->freePorts());
+        m_portsGatherer->start(m_testProcessRunner->connection(), m_config);
     else
         finish();
 }

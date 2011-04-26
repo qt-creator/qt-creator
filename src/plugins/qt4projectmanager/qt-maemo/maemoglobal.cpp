@@ -127,16 +127,26 @@ QString MaemoGlobal::devrootshPath()
     return QLatin1String("/usr/lib/mad-developer/devrootsh");
 }
 
-QString MaemoGlobal::remoteSudo(const QString &uname)
+QString MaemoGlobal::remoteSudo(MaemoDeviceConfig::OsVersion osVersion,
+    const QString &uname)
 {
-    return uname == QLatin1String("root") ? QString() : devrootshPath();
+    if (uname == QLatin1String("root"))
+        return QString();
+    switch (osVersion) {
+    case MaemoDeviceConfig::Maemo5:
+    case MaemoDeviceConfig::Maemo6:
+    case MaemoDeviceConfig::Meego:
+        return devrootshPath();
+    default:
+        return QLatin1String("sudo");
+    }
 }
 
 QString MaemoGlobal::remoteCommandPrefix(MaemoDeviceConfig::OsVersion osVersion,
     const QString &userName, const QString &commandFilePath)
 {
     QString prefix = QString::fromLocal8Bit("%1 chmod a+x %2; %3; ")
-        .arg(remoteSudo(userName), commandFilePath, remoteSourceProfilesCommand());
+        .arg(remoteSudo(osVersion, userName), commandFilePath, remoteSourceProfilesCommand());
     if (osVersion != MaemoDeviceConfig::Maemo5 && osVersion != MaemoDeviceConfig::Maemo6)
         prefix += QLatin1String("DISPLAY=:0.0 ");
     return prefix;

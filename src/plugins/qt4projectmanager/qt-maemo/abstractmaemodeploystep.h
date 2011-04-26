@@ -93,7 +93,6 @@ protected:
 
     QString deployMountPoint() const;
     const Qt4BuildConfiguration *qt4BuildConfiguration() const;
-    MaemoPortList freePorts(const QSharedPointer<const MaemoDeviceConfig> &devConfig) const;
     QSharedPointer<Utils::SshConnection> connection() const { return m_connection; }
 
 private slots:

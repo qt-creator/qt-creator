@@ -53,6 +53,7 @@ class SshRemoteProcess;
 namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
 namespace Internal {
+class MaemoDeviceConfig;
 class MaemoUsedPortsGatherer;
 
 class MaemoRemoteMounter : public QObject
@@ -63,7 +64,8 @@ public:
     ~MaemoRemoteMounter();
 
     // Must already be connected.
-    void setConnection(const QSharedPointer<Utils::SshConnection> &connection);
+    void setConnection(const QSharedPointer<Utils::SshConnection> &connection,
+        const QSharedPointer<const MaemoDeviceConfig> &devConf);
 
     void setBuildConfiguration(const Qt4BuildConfiguration *bc);
     void addMountSpecification(const MaemoMountSpecification &mountSpec,
@@ -120,6 +122,7 @@ private:
     };
 
     QSharedPointer<Utils::SshConnection> m_connection;
+    QSharedPointer<const MaemoDeviceConfig> m_devConf;
     QList<MountInfo> m_mountSpecs;
     QSharedPointer<Utils::SshRemoteProcess> m_mountProcess;
     QSharedPointer<Utils::SshRemoteProcess> m_unmountProcess;

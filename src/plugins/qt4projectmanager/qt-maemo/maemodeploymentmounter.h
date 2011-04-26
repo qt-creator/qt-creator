@@ -45,6 +45,7 @@ namespace Utils { class SshConnection; }
 namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
 namespace Internal {
+class MaemoDeviceConfig;
 class MaemoRemoteMounter;
 class MaemoUsedPortsGatherer;
 
@@ -56,8 +57,9 @@ public:
 
     // Connection must be in connected state.
     void setupMounts(const QSharedPointer<Utils::SshConnection> &connection,
+        const QSharedPointer<const MaemoDeviceConfig> &devConf,
         const QList<MaemoMountSpecification> &mountSpecs,
-        const MaemoPortList &freePorts, const Qt4BuildConfiguration *bc);
+        const Qt4BuildConfiguration *bc);
     void tearDownMounts();
 
 signals:
@@ -87,6 +89,7 @@ private:
 
     State m_state;
     QSharedPointer<Utils::SshConnection> m_connection;
+    QSharedPointer<const MaemoDeviceConfig> m_devConf;
     MaemoRemoteMounter * const m_mounter;
     MaemoUsedPortsGatherer * const m_portsGatherer;
     MaemoPortList m_freePorts;

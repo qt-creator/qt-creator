@@ -51,11 +51,13 @@ MaemoRemoteCopyFacility::MaemoRemoteCopyFacility(QObject *parent) :
 MaemoRemoteCopyFacility::~MaemoRemoteCopyFacility() {}
 
 void MaemoRemoteCopyFacility::copyFiles(const SshConnection::Ptr &connection,
+    const MaemoDeviceConfig::ConstPtr &devConf,
     const QList<MaemoDeployable> &deployables, const QString &mountPoint)
 {
     Q_ASSERT(connection->state() == SshConnection::Connected);
     Q_ASSERT(!m_isCopying);
 
+    m_devConf = devConf;
     m_deployables = deployables;
     m_mountPoint = mountPoint;
 
@@ -137,7 +139,8 @@ void MaemoRemoteCopyFacility::copyNextFile()
 #endif
 
     QString command = QString::fromLatin1("%1 mkdir -p %3 && %1 cp -r %2 %3")
-        .arg(MaemoGlobal::remoteSudo(m_copyRunner->connection()->connectionParameters().userName),
+        .arg(MaemoGlobal::remoteSudo(m_devConf->osVersion(),
+            m_copyRunner->connection()->connectionParameters().userName),
             sourceFilePath, d.remoteDir);
     emit progress(tr("Copying file '%1' to directory '%2' on the device...")
         .arg(d.localFilePath, d.remoteDir));

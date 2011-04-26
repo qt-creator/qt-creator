@@ -50,7 +50,8 @@ AbstractMaemoPackageInstaller::AbstractMaemoPackageInstaller(QObject *parent)
 AbstractMaemoPackageInstaller::~AbstractMaemoPackageInstaller() {}
 
 void AbstractMaemoPackageInstaller::installPackage(const SshConnection::Ptr &connection,
-    const QString &packageFilePath, bool removePackageFile)
+    const MaemoDeviceConfig::ConstPtr &devConf, const QString &packageFilePath,
+    bool removePackageFile)
 {
     Q_ASSERT(connection && connection->state() == SshConnection::Connected);
     Q_ASSERT(!m_isRunning);
@@ -69,7 +70,8 @@ void AbstractMaemoPackageInstaller::installPackage(const SshConnection::Ptr &con
     const QString space = QLatin1String(" ");
     QString cmdLine = QLatin1String("cd ") + workingDirectory()
         + QLatin1String(" && ")
-        + MaemoGlobal::remoteSudo(m_installer->connection()->connectionParameters().userName)
+        + MaemoGlobal::remoteSudo(devConf->osVersion(),
+              m_installer->connection()->connectionParameters().userName)
         + space + installCommand()
         + space + installCommandArguments().join(space) + space
         + packageFilePath;

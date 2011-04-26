@@ -48,7 +48,7 @@ MaemoUsedPortsGatherer::MaemoUsedPortsGatherer(QObject *parent) :
 MaemoUsedPortsGatherer::~MaemoUsedPortsGatherer() {}
 
 void MaemoUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connection,
-    const MaemoPortList &portList)
+    const MaemoDeviceConfig::ConstPtr &devConf)
 {
     if (m_running)
         qWarning("Unexpected call of %s in running state", Q_FUNC_INFO);
@@ -64,8 +64,9 @@ void MaemoUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connection,
         SLOT(handleRemoteStdOut(QByteArray)));
     connect(m_procRunner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdErr(QByteArray)));
-    const QString command = MaemoGlobal::remoteSudo(m_procRunner->connection()->connectionParameters().userName)
-        + QLatin1String(" lsof -nPi4tcp:") + portList.toString()
+    const QString command = MaemoGlobal::remoteSudo(devConf->osVersion(),
+        m_procRunner->connection()->connectionParameters().userName)
+        + QLatin1String(" lsof -nPi4tcp:") + devConf->freePorts().toString()
         + QLatin1String(" -F n |grep '^n' |sed -r 's/[^:]*:([[:digit:]]+).*/\\1/g' |sort -n |uniq");
     m_procRunner->run(command.toUtf8());
     m_running = true;

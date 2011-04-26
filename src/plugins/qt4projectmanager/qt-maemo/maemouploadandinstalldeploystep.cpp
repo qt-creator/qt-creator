@@ -155,7 +155,8 @@ void AbstractMaemoUploadAndInstallStep::handleUploadFinished(const QString &erro
             + QFileInfo(packagingStep()->packageFilePath()).fileName();
         m_extendedState = Installing;
         writeOutput(tr("Installing package to device..."));
-        m_installer->installPackage(connection(), remoteFilePath, true);
+        m_installer->installPackage(connection(), helper().cachedDeviceConfig(),
+            remoteFilePath, true);
     }
 }
 

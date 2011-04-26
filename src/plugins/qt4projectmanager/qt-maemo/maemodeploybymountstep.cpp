@@ -153,8 +153,8 @@ void AbstractMaemoDeployByMountStep::handleMountDebugOutput(const QString &outpu
 void AbstractMaemoDeployByMountStep::mount()
 {
     m_extendedState = Mounting;
-    m_mounter->setupMounts(connection(), mountSpecifications(),
-        freePorts(helper().cachedDeviceConfig()), qt4BuildConfiguration());
+    m_mounter->setupMounts(connection(), helper().cachedDeviceConfig(),
+        mountSpecifications(), qt4BuildConfiguration());
 }
 
 QString AbstractMaemoDeployByMountStep::deployMountPoint() const
@@ -259,7 +259,8 @@ void MaemoMountAndInstallDeployStep::deploy()
 {
     const QString remoteFilePath = deployMountPoint() + QLatin1Char('/')
         + QFileInfo(packagingStep()->packageFilePath()).fileName();
-    m_installer->installPackage(connection(), remoteFilePath, false);
+    m_installer->installPackage(connection(), helper().cachedDeviceConfig(),
+        remoteFilePath, false);
 }
 
 void MaemoMountAndInstallDeployStep::cancelInstallation()
@@ -365,7 +366,8 @@ QList<MaemoMountSpecification> MaemoMountAndCopyDeployStep::mountSpecifications(
 
 void MaemoMountAndCopyDeployStep::deploy()
 {
-    m_copyFacility->copyFiles(connection(), m_filesToCopy, deployMountPoint());
+    m_copyFacility->copyFiles(connection(), helper().cachedDeviceConfig(),
+        m_filesToCopy, deployMountPoint());
 }
 
 void MaemoMountAndCopyDeployStep::handleFileCopied(const MaemoDeployable &deployable)

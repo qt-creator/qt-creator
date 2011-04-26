@@ -83,7 +83,8 @@ public:
 
     static QString homeDirOnDevice(const QString &uname);
     static QString devrootshPath();
-    static QString remoteSudo(const QString &uname);
+    static QString remoteSudo(MaemoDeviceConfig::OsVersion,
+        const QString &uname);
     static QString remoteCommandPrefix(MaemoDeviceConfig::OsVersion osVersion,
         const QString &userName, const QString &commandFilePath);
     static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);

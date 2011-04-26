@@ -67,15 +67,16 @@ MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
 }
 
 void MaemoDeploymentMounter::setupMounts(const SshConnection::Ptr &connection,
+    const MaemoDeviceConfig::ConstPtr &devConf,
     const QList<MaemoMountSpecification> &mountSpecs,
-    const MaemoPortList &freePorts, const Qt4BuildConfiguration *bc)
+    const Qt4BuildConfiguration *bc)
 {
     ASSERT_STATE(Inactive);
 
-    m_freePorts = freePorts;
     m_mountSpecs = mountSpecs;
     m_connection = connection;
-    m_mounter->setConnection(m_connection);
+    m_devConf = devConf;
+    m_mounter->setConnection(m_connection, m_devConf);
     m_buildConfig = bc;
     connect(m_connection.data(), SIGNAL(error(Utils::SshError)),
         SLOT(handleConnectionError()));
@@ -136,7 +137,7 @@ void MaemoDeploymentMounter::handleUnmounted()
         break;
     case UnmountingCurrentDirs:
         setState(GatheringPorts);
-        m_portsGatherer->start(m_connection, m_freePorts);
+        m_portsGatherer->start(m_connection, m_devConf);
         break;
     case UnmountingCurrentMounts:
         setState(Inactive);
@@ -166,6 +167,7 @@ void MaemoDeploymentMounter::handlePortListReady()
         return;
 
     setState(Mounting);
+    m_freePorts = MaemoGlobal::freePorts(m_devConf, m_buildConfig->qtVersion());
     m_mounter->mount(&m_freePorts, m_portsGatherer);
 }
 
