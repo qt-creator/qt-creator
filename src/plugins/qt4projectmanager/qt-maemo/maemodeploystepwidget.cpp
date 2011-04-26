@@ -48,6 +48,8 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
+using namespace ProjectExplorer;
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -57,8 +59,7 @@ MaemoDeployStepWidget::MaemoDeployStepWidget(AbstractLinuxDeviceDeployStep *step
     m_step(step)
 {
     ui->setupUi(this);
-    ProjectExplorer::BuildStepList * const list
-        = step->maemoDeployConfig()->stepList();
+    BuildStepList * const list = step->maemoDeployConfig()->stepList();
     connect(list, SIGNAL(stepInserted(int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(stepMoved(int,int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(stepRemoved(int)), SIGNAL(updateSummary()));
@@ -96,8 +97,7 @@ void MaemoDeployStepWidget::handleDeviceUpdate()
 
 void MaemoDeployStepWidget::handleStepToBeRemoved(int step)
 {
-    ProjectExplorer::BuildStepList * const list
-        = m_step->maemoDeployConfig()->stepList();
+    BuildStepList * const list = m_step->maemoDeployConfig()->stepList();
     const AbstractLinuxDeviceDeployStep * const alds
         = dynamic_cast<AbstractLinuxDeviceDeployStep *>(list->steps().at(step));
     if (alds && alds == m_step)
@@ -112,8 +112,8 @@ QString MaemoDeployStepWidget::summaryText() const
             + tr("Cannot deploy: %1").arg(error)
             + QLatin1String("</font>");
     }
-    return tr("<b>Deploy to device</b>: %1")
-        .arg(MaemoGlobal::deviceConfigurationName(m_step->helper().deviceConfig()));
+    return tr("<b>%1 to device</b>: %2").arg(dynamic_cast<BuildStep *>(m_step)->displayName(),
+        MaemoGlobal::deviceConfigurationName(m_step->helper().deviceConfig()));
 }
 
 QString MaemoDeployStepWidget::displayName() const
