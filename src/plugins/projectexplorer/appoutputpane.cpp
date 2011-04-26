@@ -124,7 +124,7 @@ AppOutputPane::~AppOutputPane()
     if (debug)
         qDebug() << "OutputPane::~OutputPane: Entries left" << m_runControlTabs.size();
 
-    foreach(const RunControlTab &rt, m_runControlTabs)
+    foreach (const RunControlTab &rt, m_runControlTabs)
         delete rt.runControl;
     delete m_mainWidget;
 }
@@ -169,7 +169,7 @@ int AppOutputPane::tabWidgetIndexOf(int runControlIndex) const
 
 bool AppOutputPane::aboutToClose() const
 {
-    foreach(const RunControlTab &rt, m_runControlTabs)
+    foreach (const RunControlTab &rt, m_runControlTabs)
         if (rt.runControl->isRunning() && !rt.runControl->promptToStop())
             return false;
     return true;
@@ -450,7 +450,7 @@ void AppOutputPane::runControlFinished()
 
 bool AppOutputPane::isRunning() const
 {
-    foreach(const RunControlTab &rt, m_runControlTabs)
+    foreach (const RunControlTab &rt, m_runControlTabs)
         if (rt.runControl->isRunning())
             return true;
     return false;
