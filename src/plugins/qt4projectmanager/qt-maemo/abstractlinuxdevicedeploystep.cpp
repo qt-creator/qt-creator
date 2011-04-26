@@ -69,7 +69,7 @@ LinuxDeviceDeployStepHelper::LinuxDeviceDeployStepHelper(Qt4MaemoDeployConfigura
     : m_deployConfiguration(dc)
 {
     m_deviceConfig = dc->deviceConfigModel()->defaultDeviceConfig();
-    connect(dc->deviceConfigModel(), SIGNAL(updated()),
+    connect(dc->deviceConfigModel().data(), SIGNAL(updated()),
         SLOT(handleDeviceConfigurationsUpdated()));
 }
 

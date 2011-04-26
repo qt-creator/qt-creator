@@ -55,6 +55,10 @@ MaemoPerTargetDeviceConfigurationListModel::MaemoPerTargetDeviceConfigurationLis
     connect(devConfs, SIGNAL(updated()), this, SIGNAL(updated()));
 }
 
+MaemoPerTargetDeviceConfigurationListModel::~MaemoPerTargetDeviceConfigurationListModel()
+{
+}
+
 int MaemoPerTargetDeviceConfigurationListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())

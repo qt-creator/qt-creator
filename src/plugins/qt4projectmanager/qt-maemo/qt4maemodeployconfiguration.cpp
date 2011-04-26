@@ -36,7 +36,6 @@
 #include "maemodeployconfigurationwidget.h"
 #include "maemodeployables.h"
 #include "maemoinstalltosysrootstep.h"
-#include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemopackagecreationstep.h"
 #include "maemouploadandinstalldeploystep.h"
 #include "qt4maemotarget.h"
@@ -75,7 +74,8 @@ Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(Target *target,
     }
     if (!m_deployables) {
         m_deployables = QSharedPointer<MaemoDeployables>(new MaemoDeployables(qobject_cast<Qt4BaseTarget *>(target)));
-        m_devConfModel = new MaemoPerTargetDeviceConfigurationListModel(this, target);
+        m_devConfModel = QSharedPointer<MaemoPerTargetDeviceConfigurationListModel>
+            (new MaemoPerTargetDeviceConfigurationListModel(0, target));
     }
 }
 

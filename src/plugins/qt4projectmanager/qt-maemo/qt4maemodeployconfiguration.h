@@ -34,6 +34,7 @@
 #define QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 
 #include"maemodeployables.h"
+#include "maemopertargetdeviceconfigurationlistmodel.h"
 
 #include <projectexplorer/deployconfiguration.h>
 
@@ -53,7 +54,7 @@ public:
     virtual ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
     QSharedPointer<MaemoDeployables> deployables() const { return m_deployables; }
-    MaemoPerTargetDeviceConfigurationListModel *deviceConfigModel() const { return m_devConfModel; }
+    QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> deviceConfigModel() const { return m_devConfModel; }
 
     static const QString FremantleWithPackagingId;
     static const QString FremantleWithoutPackagingId;
@@ -70,7 +71,7 @@ private:
         ProjectExplorer::DeployConfiguration *source);
 
     QSharedPointer<MaemoDeployables> m_deployables;
-    MaemoPerTargetDeviceConfigurationListModel *m_devConfModel;
+    QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> m_devConfModel;
 };
 
 

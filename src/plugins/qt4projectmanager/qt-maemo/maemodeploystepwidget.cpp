@@ -73,7 +73,7 @@ MaemoDeployStepBaseWidget::~MaemoDeployStepBaseWidget()
 
 void MaemoDeployStepBaseWidget::init()
 {
-    ui->deviceConfigComboBox->setModel(m_step->maemoDeployConfig()->deviceConfigModel());
+    ui->deviceConfigComboBox->setModel(m_step->maemoDeployConfig()->deviceConfigModel().data());
     connect(&m_step->helper(), SIGNAL(deviceConfigChanged()),
         SLOT(handleDeviceUpdate()));
     handleDeviceUpdate();
