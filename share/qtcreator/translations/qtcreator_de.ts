@@ -2863,8 +2863,8 @@ This might yield incorrect results.</source>
     <message>
         <source>The gdb process has not responded to a command within %1 seconds. This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
 You can choose between waiting longer or abort debugging.</source>
-        <translation>Der Gdb-Prozess hat nach %1 Sekunde nicht auf das Kommando reagiert. Das könnte bedeuten, dass er sich in einer Endlosschleife befinded oder für die Operation mehr Zeit benötigt.
-Sie haben die Wahl zwischen Abwarten oder Abbrechen.</translation>
+        <translation>Der Gdb-Prozess hat nach %1 Sekunden nicht auf das Kommando reagiert. Das könnte bedeuten, dass er sich in einer Endlosschleife befindet oder für die Operation mehr Zeit benötigt.
+Sie haben die Wahl zu warten oder abzubrechen.</translation>
     </message>
     <message>
         <source>Stop debugging</source>
