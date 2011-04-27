@@ -497,6 +497,7 @@ static QColor mix_colors(QColor a, QColor b)
 void CMakeRunPage::cmakeReadyReadStandardOutput()
 {
     QTextCursor cursor(m_output->document());
+    cursor.movePosition(QTextCursor::End);
     QTextCharFormat tf;
 
     QFont font = m_output->font();
