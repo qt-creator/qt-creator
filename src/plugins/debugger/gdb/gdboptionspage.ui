@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>GdbOptionsPage</class>
  <widget class="QWidget" name="GdbOptionsPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>398</width>
-    <height>412</height>
-   </rect>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBoxLocations">
@@ -40,7 +32,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="Utils::PathChooser" name="scriptFileChooser" native="true"/>
+       <widget class="Utils::PathChooser" name="scriptFileChooser"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="labelGdbWatchdogTimeout">
@@ -106,7 +98,7 @@ on slow machines. In this case, the value should be increased.</string>
       <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxAdjustBreakpointLocations">
         <property name="toolTip">
-         <string>GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;GDB allows setting breakpoints on source lines for which no code was generated. In such situations the breakpoint is shifted to the next source code line for which code was actually generated. This option reflects such temporary change by moving the breakpoint markers in the source code editor.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Adjust breakpoint locations</string>
@@ -133,7 +125,7 @@ on slow machines. In this case, the value should be increased.</string>
       <item row="7" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxEnableReverseDebugging">
         <property name="toolTip">
-         <string>Enable reverse debugging Selecting this enables reverse debugging. NOTE: This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Enable reverse debugging</string>
