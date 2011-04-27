@@ -85,6 +85,8 @@ public:
     void appendOrSetPath(const QString &value);
     void prependOrSetPath(const QString &value);
 
+    void prependOrSetLibrarySearchPath(const QString &value);
+
     void clear();
     int size() const;
 

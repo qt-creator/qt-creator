@@ -174,6 +174,27 @@ void Environment::prependOrSetPath(const QString &value)
     prependOrSet(QLatin1String("PATH"), QDir::toNativeSeparators(value), QString(sep));
 }
 
+void Environment::prependOrSetLibrarySearchPath(const QString &value)
+{
+#ifdef Q_OS_WIN
+    const QChar sep = QLatin1Char(';');
+#else
+    const QChar sep = QLatin1Char(':');
+#endif
+
+#ifdef Q_OS_WIN
+    const QLatin1String path("PATH");
+#elif defined(Q_OS_MAC)
+    const QLatin1String path("DYLD_LIBRARY_PATH");
+#elif defined(Q_OS_UNIX)
+    const QLatin1String path("LD_LIBRARY_PATH");
+#else
+    return;
+#endif
+
+    prependOrSet(path, QDir::toNativeSeparators(value), QString(sep));
+}
+
 Environment Environment::systemEnvironment()
 {
     return Environment(QProcess::systemEnvironment());
