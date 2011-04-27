@@ -45,7 +45,7 @@
 #include <qt4projectmanager/qtoutputformatter.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN
 #include <utils/winutils.h>
 #endif
 
@@ -180,20 +180,13 @@ void QmlProjectRunConfiguration::setQtVersionId(int id)
 }
 
 /* QtDeclarative checks explicitly that the capitalization for any URL / path
-   is exactly like the capitalization on disk. This method is uses the same
-   native Windows API's to get the exact canonical path. */
+   is exactly like the capitalization on disk.*/
 QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
 {
     QString canonicalPath = QFileInfo(fileName).canonicalFilePath();
 
-#if defined(Q_OS_WIN32)
-    // don't know whether the shortpath step is really needed,
-    // but we do this in QtDeclarative too.
-    QString path = Utils::getShortPathName(canonicalPath);
-    if (!path.isEmpty())
-        path = Utils::getLongPathName(canonicalPath);
-    if (!path.isEmpty())
-        canonicalPath = path;
+#if defined(Q_OS_WIN)
+    canonicalPath = Utils::normalizePathName(canonicalPath);
 #endif
 
     return canonicalPath;

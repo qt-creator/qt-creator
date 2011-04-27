@@ -505,8 +505,6 @@ bool Target::fromMap(const QVariantMap &map)
         if (i == activeConfiguration)
             setActiveDeployConfiguration(dc);
     }
-    if (deployConfigurations().isEmpty() && d->deployFactories().isEmpty())
-        return false;
 
     int rcCount = map.value(QLatin1String(RC_COUNT_KEY), 0).toInt(&ok);
     if (!ok || rcCount < 0)

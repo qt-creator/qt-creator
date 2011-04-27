@@ -196,7 +196,7 @@ public:
 
     virtual bool allowsRemoteMounts() const { return false; }
     virtual bool allowsPackagingDisabling() const { return false; }
-    virtual bool allowsQmlDebugging() const { return true; }
+    virtual bool allowsQmlDebugging() const { return false; }
 
     virtual QString projectVersion(QString *error = 0) const;
     virtual QString packageName() const;
@@ -258,7 +258,7 @@ public:
 
     virtual bool allowsRemoteMounts() const { return false; }
     virtual bool allowsPackagingDisabling() const { return false; }
-    virtual bool allowsQmlDebugging() const { return true; }
+    virtual bool allowsQmlDebugging() const { return false; }
 
     static QString defaultDisplayName();
 

@@ -620,7 +620,7 @@ void QMakeStepConfigWidget::updateQmlDebuggingWarningsLabel()
 
     if (m_step->linkQmlDebuggingLibrary()) {
         if (m_step->isQmlDebuggingLibrarySupported()) {
-            m_ui.qmlDebuggingWarningText->setText("Might make your application vulnerable. Only use in a safe environment!");
+            m_ui.qmlDebuggingWarningText->setText(tr("Might make the application vulnerable. Use only in a safe environment."));
         }
     }
 
