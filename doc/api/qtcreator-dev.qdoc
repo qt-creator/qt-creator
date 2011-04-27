@@ -40,7 +40,7 @@
                 \o  MIME Type Specification Files
                 \o  External Tool Specification Files
                 \o  Custom Wizard Specification Files
-                \o  Highlight Definition Files (KATE)
+                \o  \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}{Highlight Definition Files}
                 \o  User Interface Text Guidelines
                 \o  \l{Qt Creator Coding Rules}
                 \o  \l{Qt Creator API Reference}

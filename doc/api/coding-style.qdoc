@@ -22,7 +22,9 @@
 /*!
 
     \contentspage{index.html}{Qt Creator}
+    \previouspage
     \page coding-style.html
+    \nextpage qtcreator-api.html
 
     \title Qt Creator Coding Rules
 

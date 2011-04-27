@@ -20,18 +20,17 @@
 ****************************************************************************/
 
 /*!
-    \page index.html
-    \title Qt Creator
+    \contentspage{index.html}{Extending Qt Creator Manual}
+    \page qtcreator-api.html
 
-    Qt Creator is Nokia's crossplatform IDE. The core of Qt Creator is
+    \title Qt Creator API Reference
+
+    The core of Qt Creator is
     basically only a \l{ExtensionSystem}{plugin loader}.
-    All functionality is implemented in plugins, the basis of Qt Creator is
+    All functionality is implemented in plugins. The basis of Qt Creator is
     implemented in the \l{Core} {Core} Plugin. The plugin manager provides
     simple means for plugin cooperation that allow plugins to provide
     hooks for other plugin's extensions.
-
-    To get an overview of what parts of Qt Creator are extensible, have a look at the \l{Common Extension Tasks} page.
-    Also read and follow the Qt Creator \l{Qt Creator Coding Rules}{coding style and best practice patterns}.
 
     \section1 Libraries
 

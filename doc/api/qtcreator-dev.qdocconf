@@ -1,0 +1,3 @@
+# Run qdoc from the directory that contains this file.
+include(../config/qtcreator-developer.qdocconf)
+include(../config/qt-html-templates.qdocconf)

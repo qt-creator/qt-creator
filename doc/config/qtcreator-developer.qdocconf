@@ -1,0 +1,68 @@
+project     = "Qt Creator"
+description = "Extending Qt Creator Manual"
+
+language                = Cpp
+
+headerdirs              = . \
+                          ../../src/libs/aggregation \
+                          ../../src/libs/cplusplus \
+                          ../../src/libs/extensionsystem \
+                          ../../src/libs/utils \
+                          ../../src/libs/qtcreatorcdbext \
+                          ../../src/plugins/coreplugin \
+                          ../../src/plugins/find \
+                          ../../src/plugins/locator \
+                          ../../src/plugins/debugger \
+                          ../../src/plugins/vcsbase \
+                          ../../src/plugins/projectexplorer
+
+sourcedirs              = . \
+                          ../../src/libs/aggregation \
+                          ../../src/libs/cplusplus \
+                          ../../src/libs/extensionsystem \
+                          ../../src/libs/utils \
+                          ../../src/libs/qtcreatorcdbext \
+                          ../../src/plugins/coreplugin \
+                          ../../src/plugins/find \
+                          ../../src/plugins/locator \
+                          ../../src/plugins/debugger \
+                          ../../src/plugins/vcsbase \
+                          ../../src/plugins/projectexplorer
+
+# -- Generate complete documentation. Set this to 'false'
+#    to generate public API documentation only.
+
+showinternal = true
+
+headers.fileextensions  = "*.h"
+sources.fileextensions  = "*.cpp *.qdoc"
+
+imagedirs = $SRCDIR/images $SRCDIR/templates/images
+outputdir = ../api/html
+exampledirs = 
+indexes                 = qt.index
+
+include(compat.qdocconf)
+include(macros.qdocconf)
+include(qt-cpp-ignore.qdocconf)
+include(qt-defines.qdocconf)
+
+qhp.projects            = QtCreatorDev
+qhp.QtCreatorDev.file             = qtcreator-dev.qhp
+qhp.QtCreatorDev.namespace        = com.nokia.qtcreator.developer.$QTC_VERSION_TAG
+qhp.QtCreatorDev.virtualFolder    = doc
+qhp.QtCreatorDev.indexTitle       = Extending Qt Creator Manual
+qhp.QtCreatorDev.filterAttributes = qtcreator $QTC_VERSION
+qhp.QtCreatorDev.customFilters.QtCreator.name = Qt Creator $QTC_VERSION
+qhp.QtCreatorDev.customFilters.QtCreator.filterAttributes = qtcreator $QTC_VERSION
+qhp.QtCreatorDev.indexRoot        =
+
+qhp.QtCreator.subprojects = manual
+qhp.QtCreator.subprojects.manual.title = Creating Qt Creator Plugins
+qhp.QtCreator.subprojects.manual.indexTitle = Creating Qt Creator Plugins
+qhp.QtCreator.subprojects.manual.type = manual
+
+# Doxygen compatibility commands
+
+macro.see                       = "\\sa"
+macro.function                  = "\\fn"
