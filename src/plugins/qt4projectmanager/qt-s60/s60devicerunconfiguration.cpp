@@ -518,7 +518,7 @@ void S60DeviceDebugRunControl::remoteSetupRequested()
     m_codaRunControl = new CodaRunControl(runConfiguration(), Debugger::Constants::DEBUGMODE);
     connect(m_codaRunControl, SIGNAL(connected()), this, SLOT(codaConnected()));
     connect(m_codaRunControl, SIGNAL(finished()), this, SLOT(codaFinished()));
-    connect(m_codaRunControl, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)), this, SLOT(handleMessageFromCoda(ProjectExplorer::RunControl*,QString,ProjectExplorer::OutputFormat)));
+    connect(m_codaRunControl, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)), this, SLOT(handleMessageFromCoda(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)));
     connect(this, SIGNAL(finished()), this, SLOT(handleDebuggingFinished()));
     m_codaState = EWaitingForCodaConnection;
     m_codaRunControl->connect();
