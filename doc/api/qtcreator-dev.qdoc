@@ -1,0 +1,50 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \page index.html
+    \title Extending Qt Creator Manual
+
+    \list
+
+        \o  Developing Qt Creator Plugins
+            \list
+                \o  Creating Plugins
+                \o  Menus and Menu Items
+                \o  Wizards
+                \o  Editors
+                \o  Text Editors
+                \o  Options Pages
+            \endlist
+        \o  Reference
+            \list
+                \o  Code Snippet Configuration Files
+                \o  MIME Type Specification Files
+                \o  External Tool Specification Files
+                \o  Custom Wizard Specification Files
+                \o  Highlight Definition Files (KATE)
+                \o  User Interface Text Guidelines
+                \o  \l{Qt Creator Coding Rules}
+                \o  \l{Qt Creator API Reference}
+        \endlist
+
+    \endlist
+*/
