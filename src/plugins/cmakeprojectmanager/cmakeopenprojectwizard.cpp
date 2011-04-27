@@ -330,6 +330,9 @@ void CMakeRunPage::initWidgets()
     // Bottom output window
     m_output = new QPlainTextEdit(this);
     m_output->setReadOnly(true);
+    QFont f("Courier");
+    f.setStyleHint(QFont::TypeWriter);
+    m_output->setFont(f);
     QSizePolicy pl = m_output->sizePolicy();
     pl.setVerticalStretch(1);
     m_output->setSizePolicy(pl);
