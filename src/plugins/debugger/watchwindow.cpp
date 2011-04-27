@@ -404,7 +404,7 @@ static inline void addStackLayoutMemoryView(DebuggerEngine *engine,
     typedef QPair<quint64, QString> RegisterValueNamePair;
 
     // Determine suitable address range from locals
-    quint64 start = 0xFFFFFFFFFFFFFFFF;
+    quint64 start = Q_UINT64_C(0xFFFFFFFFFFFFFFFF);
     quint64 end = 0;
     const int rootItemCount = m->rowCount();
     // Note: Unsorted by default. Exclude 'Automatically dereferenced
