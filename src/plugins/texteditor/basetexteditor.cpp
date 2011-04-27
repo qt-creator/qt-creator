@@ -4269,6 +4269,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             if (!contextMenu->isEmpty())
                 contextMenu->exec(e->globalPos());
             delete contextMenu;
+            e->accept();
         }
     } else if (d->extraAreaSelectionAnchorBlockNumber >= 0) {
         QTextCursor selection = cursor;
