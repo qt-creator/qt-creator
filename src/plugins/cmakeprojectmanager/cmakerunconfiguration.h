@@ -72,6 +72,7 @@ public:
 
     QString executable() const;
     RunMode runMode() const;
+    void setRunMode(RunMode runMode);
     QString workingDirectory() const;
     QString commandLineArguments() const;
     Utils::Environment environment() const;
@@ -145,11 +146,11 @@ private slots:
     void userChangesChanged();
     void setWorkingDirectory();
     void resetWorkingDirectory();
+    void runInTerminalToggled(bool toggled);
     void useCppDebuggerToggled(bool toggled);
     void useQmlDebuggerToggled(bool toggled);
     void qmlDebugServerPortChanged(uint port);
 
-private slots:
     void baseEnvironmentComboBoxChanged(int index);
     void workingDirectoryChanged(const QString &workingDirectory);
 

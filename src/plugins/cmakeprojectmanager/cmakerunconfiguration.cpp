@@ -53,6 +53,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QComboBox>
 #include <QtGui/QToolButton>
+#include <QtGui/QCheckBox>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -136,6 +137,11 @@ QString CMakeRunConfiguration::executable() const
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode CMakeRunConfiguration::runMode() const
 {
     return m_runMode;
+}
+
+void CMakeRunConfiguration::setRunMode(RunMode runMode)
+{
+    m_runMode = runMode;
 }
 
 QString CMakeRunConfiguration::workingDirectory() const
@@ -347,6 +353,10 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
 
     fl->addRow(tr("Working directory:"), boxlayout);
 
+    QCheckBox *runInTerminal = new QCheckBox;
+    fl->addRow(tr("Run in Terminal"), runInTerminal);
+
+
     QWidget *debuggerLabelWidget = new QWidget(this);
     QVBoxLayout *debuggerLabelLayout = new QVBoxLayout(debuggerLabelWidget);
     debuggerLabelLayout->setMargin(0);
@@ -411,6 +421,9 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     connect(resetButton, SIGNAL(clicked()),
             this, SLOT(resetWorkingDirectory()));
 
+    connect(runInTerminal, SIGNAL(toggled(bool)),
+            this, SLOT(runInTerminalToggled(bool)));
+
     connect(m_debuggerLanguageChooser, SIGNAL(cppLanguageToggled(bool)),
             this, SLOT(useCppDebuggerToggled(bool)));
     connect(m_debuggerLanguageChooser, SIGNAL(qmlLanguageToggled(bool)),
@@ -453,6 +466,12 @@ void CMakeRunConfigurationWidget::resetWorkingDirectory()
     // This emits a signal connected to workingDirectoryChanged()
     // that sets the m_workingDirectoryEdit
     m_cmakeRunConfiguration->setUserWorkingDirectory(QString());
+}
+
+void CMakeRunConfigurationWidget::runInTerminalToggled(bool toggled)
+{
+    m_cmakeRunConfiguration->setRunMode(toggled ? ProjectExplorer::LocalApplicationRunConfiguration::Console
+                                                : ProjectExplorer::LocalApplicationRunConfiguration::Gui);
 }
 
 void CMakeRunConfigurationWidget::useCppDebuggerToggled(bool toggled)
