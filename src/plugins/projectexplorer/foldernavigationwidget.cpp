@@ -441,6 +441,10 @@ void FolderNavigationWidget::openTerminal(const QString &path)
 #ifdef Q_OS_WIN
     const QString terminalEmulator = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     const QStringList args; // none
+#elif defined(Q_WS_MAC)
+    const QString terminalEmulator = Core::ICore::instance()->resourcePath()
+            + QLatin1String("/scripts/openTerminal.command");
+    QStringList args;
 #else
     QStringList args = Utils::QtcProcess::splitArgs(
         Utils::ConsoleProcess::terminalEmulator(Core::ICore::instance()->settings()));

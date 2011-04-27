@@ -38,6 +38,7 @@ DATA_DIRS = \
     qml-type-descriptions \
     generic-highlighter \
     glsl
+macx: DATA_DIRS += scripts
 
 # conditionally deployed data
 !isEmpty(copydata) {
