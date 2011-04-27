@@ -694,7 +694,8 @@ QStringList Qt4BuildConfigurationFactory::availableCreationIds(ProjectExplorer::
     QtVersionManager *vm = QtVersionManager::instance();
     for (QMap<QString, VersionInfo>::const_iterator i = m_versions.constBegin();
          i != m_versions.constEnd(); ++i) {
-        if (vm->version(i.value().versionId)->supportsTargetId(parent->id()))
+        if (vm->version(i.value().versionId)->supportsTargetId(parent->id())
+                && vm->version(i.value().versionId)->toolChainAvailable(parent->id()))
             results.append(i.key());
     }
     return results;
@@ -744,16 +745,17 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
         return 0;
 
     //: Debug build configuration. We recommend not translating it.
-    qt4Target->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
+    BuildConfiguration *bc = qt4Target->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
                                         version,
                                         (version->defaultBuildConfig() | QtVersion::DebugBuild),
                                         QString(), QString());
-    BuildConfiguration *bc =
-    //: Release build configuration. We recommend not translating it.
-    qt4Target->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
-                                        version,
-                                        (version->defaultBuildConfig() & ~QtVersion::DebugBuild),
-                                        QString(), QString());
+    if (id != Constants::S60_EMULATOR_TARGET_ID) {
+        //: Release build configuration. We recommend not translating it.
+        bc = qt4Target->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
+                                                 version,
+                                                 (version->defaultBuildConfig() & ~QtVersion::DebugBuild),
+                                                 QString(), QString());
+    }
     return bc;
 }
 
