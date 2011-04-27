@@ -48,7 +48,7 @@ void ContextCrumblePath::updateContextPath(const QStringList &path, const QList<
 {
     Q_ASSERT(path.count() == debugIds.count());
 
-    clear();
+    CrumblePath::clear();
 
     m_isEmpty = path.isEmpty();
     if (m_isEmpty) {
@@ -64,6 +64,11 @@ void ContextCrumblePath::addChildren(const QStringList &childrenNames, const QLi
     Q_ASSERT(childrenNames.count() == childrenDebugIds.count());
     for (int i = 0; i < childrenNames.count(); i++)
         addChild(childrenNames[i], QVariant(childrenDebugIds[i]));
+}
+
+void ContextCrumblePath::clear()
+{
+    updateContextPath(QStringList(), QList<int>());
 }
 
 bool ContextCrumblePath::isEmpty() const

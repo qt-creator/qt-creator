@@ -69,6 +69,7 @@ protected:
     void leaveEvent(QEvent *);
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
+    void changeEvent(QEvent * e);
 
 private:
     void tintImages();
@@ -141,7 +142,11 @@ void CrumblePathButton::paintEvent(QPaintEvent *)
             Utils::StyleHelper::drawCornerImage(m_segment, &p, geom, 2, 0, 12, 0);
         }
     }
-    p.setPen(StyleHelper::panelTextColor());
+    if (isEnabled()) {
+        p.setPen(StyleHelper::panelTextColor());
+    } else {
+        p.setPen(StyleHelper::panelTextColor().darker());
+    }
     QFontMetrics fm(p.font());
     QString textToDraw = fm.elidedText(text(), Qt::ElideRight, geom.width() - m_textPos.x());
 
@@ -173,6 +178,8 @@ void CrumblePathButton::leaveEvent(QEvent *e)
 
 void CrumblePathButton::mouseMoveEvent(QMouseEvent *e)
 {
+    if (!isEnabled())
+        return;
     QPushButton::mouseMoveEvent(e);
     m_isHovering = true;
     update();
@@ -180,6 +187,8 @@ void CrumblePathButton::mouseMoveEvent(QMouseEvent *e)
 
 void CrumblePathButton::mousePressEvent(QMouseEvent *e)
 {
+    if (!isEnabled())
+        return;
     QPushButton::mousePressEvent(e);
     m_isPressed = true;
     update();
@@ -190,6 +199,13 @@ void CrumblePathButton::mouseReleaseEvent(QMouseEvent *e)
     QPushButton::mouseReleaseEvent(e);
     m_isPressed = false;
     update();
+}
+
+void CrumblePathButton::changeEvent(QEvent * e)
+{
+    if (e && e->type() == QEvent::EnabledChange) {
+        update();
+    }
 }
 
 void CrumblePathButton::select(bool s)

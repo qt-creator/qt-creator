@@ -57,7 +57,7 @@ public slots:
     void pushElement(const QString &title, const QVariant &data = QVariant());
     void addChild(const QString &title, const QVariant &data = QVariant());
     void popElement();
-    void clear();
+    virtual void clear();
 
 signals:
     void elementClicked(int debugId);

@@ -290,8 +290,6 @@ void QmlInspectorToolBar::createActions(const Core::Context &context)
     m_colorBox->setOuterBorderColor(QColor(58, 58, 58));
     toolBarLayout->addWidget(m_colorBox);
 
-    setEnabled(false);
-
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
     connect(m_showAppOnTopAction, SIGNAL(triggered()), SLOT(showAppOnTopClick()));
     connect(m_observerModeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));

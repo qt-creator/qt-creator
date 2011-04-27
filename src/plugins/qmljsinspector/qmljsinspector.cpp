@@ -168,6 +168,8 @@ void InspectorUi::setupUi()
 {
     setupDockWidgets();
     restoreSettings();
+
+    disable();
 }
 
 void InspectorUi::saveSettings() const
@@ -630,6 +632,7 @@ void InspectorUi::enable()
     m_toolBar->enable();
     m_crumblePath->setEnabled(true);
     m_propertyInspector->setEnabled(true);
+    m_filterExp->setEnabled(true);
 }
 
 void InspectorUi::disable()
@@ -637,6 +640,7 @@ void InspectorUi::disable()
     m_toolBar->disable();
     m_crumblePath->setEnabled(false);
     m_propertyInspector->setEnabled(false);
+    m_filterExp->setEnabled(false);
 }
 
 QDeclarativeDebugObjectReference InspectorUi::objectReferenceForLocation(const QString &fileName, int cursorPosition) const
