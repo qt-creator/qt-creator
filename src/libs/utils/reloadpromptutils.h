@@ -49,7 +49,7 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title, con
 
 enum FileDeletedPromptAnswer { FileDeletedClose, FileDeletedSaveAs, FileDeletedSave };
 
-QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const QString &fileName, QWidget *parent);
+QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const QString &fileName, bool triggerExternally, QWidget *parent);
 
 } // namespace Utils
 

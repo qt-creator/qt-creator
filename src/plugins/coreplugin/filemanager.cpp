@@ -920,7 +920,6 @@ void FileManager::checkForReload()
             IFile::ChangeType fileChange = changeTypes.value(fileName);
             if (fileChange == IFile::TypeRemoved) {
                 type = IFile::TypeRemoved;
-                trigger = IFile::TriggerExternal; // removed files always trigger externally
             } else if (fileChange == IFile::TypeContents && type == IFile::TypePermissions) {
                 type = IFile::TypeContents;
             }
@@ -946,6 +945,11 @@ void FileManager::checkForReload()
             success = file->reload(&errorString, IFile::FlagReload, type);
         // file was removed or it's a content change and the default behavior for
         // unmodified files didn't kick in
+        } else if (defaultBehavior == IFile::ReloadUnmodified
+                   && type == IFile::TypeRemoved && !file->isModified()) {
+            // file removed, but unmodified files should be reloaded
+            // so we close the file
+            editorsToClose << EditorManager::instance()->editorsForFile(file);
         } else if (defaultBehavior == IFile::IgnoreAll) {
             // content change or removed, but settings say ignore
             success = file->reload(&errorString, IFile::FlagIgnore, type);
@@ -985,7 +989,7 @@ void FileManager::checkForReload()
                 // Ask about removed file
                 bool unhandled = true;
                 while (unhandled) {
-                    switch (Utils::fileDeletedPrompt(file->fileName(), QApplication::activeWindow())) {
+                    switch (Utils::fileDeletedPrompt(file->fileName(), trigger == IFile::TriggerExternal, QApplication::activeWindow())) {
                     case Utils::FileDeletedSave:
                         filesToSave.insert(file, file->fileName());
                         unhandled = false;
