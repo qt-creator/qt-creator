@@ -44,6 +44,7 @@
 
 #include <utils/pathchooser.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <texteditor/fontsettings.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QFormLayout>
@@ -330,7 +331,7 @@ void CMakeRunPage::initWidgets()
     // Bottom output window
     m_output = new QPlainTextEdit(this);
     m_output->setReadOnly(true);
-    QFont f("Courier");
+    QFont f(TextEditor::FontSettings::defaultFixedFontFamily());
     f.setStyleHint(QFont::TypeWriter);
     m_output->setFont(f);
     QSizePolicy pl = m_output->sizePolicy();
