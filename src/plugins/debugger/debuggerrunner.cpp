@@ -606,7 +606,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
                 arg(sp.toolChainAbi.toString(), engineTypeName(usableType),
                     result.errorDetails.join(QString(QLatin1Char('\n'))));
         debuggerCore()->showMessage(msg, LogWarning);
-        showMessageBox(QMessageBox::Warning, "Warning", msg);
+        showMessageBox(QMessageBox::Warning, DebuggerPlugin::tr("Warning"), msg);
     }
     // Anything left: Happy.
     result.errorMessage.clear();
