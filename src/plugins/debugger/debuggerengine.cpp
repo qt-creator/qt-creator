@@ -168,6 +168,7 @@ public:
         m_state(DebuggerNotReady),
         m_lastGoodState(DebuggerNotReady),
         m_targetState(DebuggerNotReady),
+        m_inferiorPid(0),
         m_modulesHandler(),
         m_registerHandler(),
         m_sourceFilesHandler(),
