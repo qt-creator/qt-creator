@@ -98,14 +98,21 @@ void MaemoConfigTestDialog::startConfigTest()
         SLOT(processSshOutput(QByteArray)));
     const QLatin1String sysInfoCmd("uname -rsm");
     QString command = sysInfoCmd;
-    if (m_config->osVersion() != MaemoDeviceConfig::GenericLinux) {
-        const bool osUsesRpm = MaemoGlobal::packagingSystem(m_config->osVersion()) == MaemoGlobal::Rpm;
-        const QLatin1String qtInfoCmd(osUsesRpm
-            ? "rpm -qa 'libqt*' --queryformat '%{NAME} %{VERSION}\\n'"
-            : "dpkg-query -W -f '${Package} ${Version} ${Status}\n' 'libqt*' "
-              "|grep ' installed$'");
-        command += QLatin1String(" && ") + qtInfoCmd;
+    QString qtInfoCmd;
+    switch (MaemoGlobal::packagingSystem(m_config->osVersion())) {
+    case MaemoGlobal::Rpm:
+        qtInfoCmd = QLatin1String("rpm -qa 'libqt*' "
+            "--queryformat '%{NAME} %{VERSION}\\n'");
+        break;
+    case MaemoGlobal::Dpkg:
+        qtInfoCmd = QLatin1String("dpkg-query -W -f "
+            "'${Package} ${Version} ${Status}\n' 'libqt*' |grep ' installed$'");
+        break;
+    default:
+        break;
     }
+    if (!qtInfoCmd.isEmpty())
+        command += QLatin1String(" && ") + qtInfoCmd;
     m_testProcessRunner->run(command.toUtf8());
 }
 
