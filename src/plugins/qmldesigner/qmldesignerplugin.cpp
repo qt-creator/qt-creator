@@ -168,6 +168,7 @@ void BauhausPlugin::createDesignModeWidget()
     creatorCore->addContextObject(m_context);
     Core::Context qmlDesignerMainContext(Constants::C_QMLDESIGNER);
     Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
+    Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
 
     // Revert to saved
     actionManager->registerAction(m_revertToSavedAction,
@@ -201,27 +202,38 @@ void BauhausPlugin::createDesignModeWidget()
     Core::Command *command;
     command = actionManager->registerAction(m_mainWidget->deleteAction(),
                                             QmlDesigner::Constants::DELETE, qmlDesignerFormEditorContext);
+    command = actionManager->registerAction(m_mainWidget->deleteAction(),
+                                            QmlDesigner::Constants::DELETE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Delete);
     command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     command = actionManager->registerAction(m_mainWidget->cutAction(),
                                             Core::Constants::CUT, qmlDesignerFormEditorContext);
+    command = actionManager->registerAction(m_mainWidget->cutAction(),
+                                            Core::Constants::CUT, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Cut);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     command = actionManager->registerAction(m_mainWidget->copyAction(),
                                             Core::Constants::COPY, qmlDesignerFormEditorContext);
+    command = actionManager->registerAction(m_mainWidget->copyAction(),
+                                            Core::Constants::COPY, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Copy);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     command = actionManager->registerAction(m_mainWidget->pasteAction(),
                                             Core::Constants::PASTE, qmlDesignerFormEditorContext);
+    command = actionManager->registerAction(m_mainWidget->pasteAction(),
+                                            Core::Constants::PASTE, qmlDesignerNavigatorContext);
     command->setDefaultKeySequence(QKeySequence::Paste);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     command = actionManager->registerAction(m_mainWidget->selectAllAction(),
                                             Core::Constants::SELECTALL, qmlDesignerFormEditorContext);
+    command = actionManager->registerAction(m_mainWidget->selectAllAction(),
+                                            Core::Constants::SELECTALL, qmlDesignerNavigatorContext);
+
     command->setDefaultKeySequence(QKeySequence::SelectAll);
     editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
 

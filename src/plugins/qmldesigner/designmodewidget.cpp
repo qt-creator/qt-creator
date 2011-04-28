@@ -308,7 +308,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
 
             newDocument->setNodeInstanceView(m_nodeInstanceView.data());
             newDocument->setAllPropertiesBox(m_allPropertiesBox.data());
-            newDocument->setNavigator(m_navigator.data());
+            newDocument->setNavigator(m_navigatorView.data());
             newDocument->setStatesEditorView(m_statesEditorView.data());
             newDocument->setItemLibraryView(m_itemLibraryView.data());
             newDocument->setFormEditorView(m_formEditorView.data());
@@ -666,7 +666,7 @@ void DesignModeWidget::setup()
     m_nodeInstanceView = new NodeInstanceView(this);
     connect(m_nodeInstanceView.data(), SIGNAL(qmlPuppetCrashed()), this, SLOT(qmlPuppetCrashed()));
      // Sidebar takes ownership
-    m_navigator = new NavigatorView;
+    m_navigatorView = new NavigatorView;
     m_allPropertiesBox = new AllPropertiesBox;
     m_itemLibraryView = new ItemLibraryView(this);
 
@@ -683,7 +683,7 @@ void DesignModeWidget::setup()
     m_warningWidget = new DocumentWarningWidget(this);
     m_warningWidget->setVisible(false);
 
-    Core::SideBarItem *navigatorItem = new Core::SideBarItem(m_navigator->widget(), QLatin1String(SB_NAVIGATOR));
+    Core::SideBarItem *navigatorItem = new NavigatorSideBarItem(m_navigatorView->widget(), QLatin1String(SB_NAVIGATOR));
     Core::SideBarItem *libraryItem = new ItemLibrarySideBarItem(m_itemLibraryView->widget(), QLatin1String(SB_LIBRARY));
     Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_allPropertiesBox.data(), QLatin1String(SB_PROPERTIES));
 
@@ -730,8 +730,11 @@ void DesignModeWidget::setup()
         //### we now own these here
         rightLayout->addWidget(m_statesEditorView->widget());
 
-        FormEditorContext *context = new FormEditorContext(m_formEditorView->widget());
-        Core::ICore::instance()->addContextObject(context);
+        FormEditorContext *formEditorContext = new FormEditorContext(m_formEditorView->widget());
+        Core::ICore::instance()->addContextObject(formEditorContext);
+
+        NavigatorContext *navigatorContext = new NavigatorContext(m_navigatorView->widget());
+        Core::ICore::instance()->addContextObject(navigatorContext);
 
         // editor and output panes
         m_outputPlaceholderSplitter->addWidget(m_formEditorView->widget());

@@ -181,7 +181,7 @@ private:
     QAction *m_toggleRightSidebarAction;
 
     QWeakPointer<ItemLibraryView> m_itemLibraryView;
-    QWeakPointer<NavigatorView> m_navigator;
+    QWeakPointer<NavigatorView> m_navigatorView;
     QWeakPointer<AllPropertiesBox> m_allPropertiesBox;
     QWeakPointer<StatesEditorView> m_statesEditorView;
     QWeakPointer<FormEditorView> m_formEditorView;

@@ -55,6 +55,13 @@ public:
     QString contextHelpId() const;
 };
 
+class NavigatorContext : public Core::IContext
+{
+public:
+    NavigatorContext(QWidget *widget);
+    QString contextHelpId() const;
+};
+
 }
 }
 

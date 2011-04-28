@@ -34,6 +34,7 @@
 #include "qmldesignerconstants.h"
 #include "designmodewidget.h"
 #include "formeditorwidget.h"
+#include "navigatorwidget.h"
 
 namespace QmlDesigner {
 namespace Internal {
@@ -61,6 +62,18 @@ FormEditorContext::FormEditorContext(QWidget *widget)
 QString FormEditorContext::contextHelpId() const
 {
     return qobject_cast<FormEditorWidget *>(m_widget)->contextHelpId();
+}
+
+NavigatorContext::NavigatorContext(QWidget *widget)
+  : IContext(widget)
+{
+    setWidget(widget);
+    setContext(Core::Context(Constants::C_QMLNAVIGATOR, Constants::C_QT_QUICK_TOOLS_MENU));
+}
+
+QString NavigatorContext::contextHelpId() const
+{
+    return qobject_cast<NavigatorWidget *>(m_widget)->contextHelpId();
 }
 
 }
