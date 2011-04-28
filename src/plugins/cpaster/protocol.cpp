@@ -42,6 +42,7 @@
 
 #include <QtCore/QUrl>
 #include <QtCore/QDebug>
+#include <QtCore/QVariant>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QApplication>
@@ -183,6 +184,9 @@ QNetworkReply *NetworkAccessManagerProxy::httpPost(const QString &link, const QB
 {
     QUrl url(link);
     QNetworkRequest r(url);
+    // Required for Qt 4.8
+    r.setHeader(QNetworkRequest::ContentTypeHeader,
+                QVariant(QByteArray("application/x-www-form-urlencoded")));
     return networkAccessManager()->post(r, data);
 }
 
