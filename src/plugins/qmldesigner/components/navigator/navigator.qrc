@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/navigator/icon">
+        <file>arrowdown.png</file>
+        <file>arrowleft.png</file>
+        <file>arrowright.png</file>
+        <file>arrowup.png</file>
+    </qresource>
+</RCC>

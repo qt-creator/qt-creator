@@ -8,3 +8,5 @@ HEADERS += navigatorview.h \
     navigatortreemodel.h \
     navigatorwidget.h \
     navigatortreeview.h
+
+RESOURCES += navigator.qrc

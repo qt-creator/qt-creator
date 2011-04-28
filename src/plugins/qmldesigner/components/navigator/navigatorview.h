@@ -59,7 +59,7 @@ public:
     NavigatorView(QObject* parent = 0);
     ~NavigatorView();
 
-    QWidget *widget();
+    NavigatorWidget *widget();
 
     // AbstractView
     void modelAttached(Model *model);
@@ -103,6 +103,11 @@ private slots:
     void changeSelection(const QItemSelection &selected, const QItemSelection &deselected);
     void updateItemSelection();
     void changeToComponent(const QModelIndex &index);
+
+    void leftButtonClicked();
+    void rightButtonClicked();
+    void upButtonClicked();
+    void downButtonClicked();
 
 protected: //functions
     QTreeView *treeWidget();

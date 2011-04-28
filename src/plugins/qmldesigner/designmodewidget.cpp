@@ -153,6 +153,27 @@ QList<QToolButton *> ItemLibrarySideBarItem::createToolBarWidgets()
     return qobject_cast<ItemLibraryWidget*>(widget())->createToolBarWidgets();
 }
 
+class NavigatorSideBarItem : public Core::SideBarItem
+{
+public:
+    explicit NavigatorSideBarItem(NavigatorWidget *widget, const QString &id);
+    virtual ~NavigatorSideBarItem();
+
+    virtual QList<QToolButton *> createToolBarWidgets();
+};
+
+NavigatorSideBarItem::NavigatorSideBarItem(NavigatorWidget *widget, const QString &id) : Core::SideBarItem(widget, id) {}
+
+NavigatorSideBarItem::~NavigatorSideBarItem()
+{
+
+}
+
+QList<QToolButton *> NavigatorSideBarItem::createToolBarWidgets()
+{
+    return qobject_cast<NavigatorWidget*>(widget())->createToolBarWidgets();
+}
+
 void DocumentWarningWidget::goToError()
 {
     m_designModeWidget->textEditor()->gotoLine(m_error.line(), m_error.column() - 1);

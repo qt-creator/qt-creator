@@ -36,15 +36,17 @@
 #include <model.h>
 
 #include "navigatorwidget.h"
+#include "navigatorview.h"
 
 #include <utils/fileutils.h>
 
 
 namespace QmlDesigner {
 
-NavigatorWidget::NavigatorWidget(QWidget* parent) :
-        QFrame(parent),
-        m_treeView(new NavigatorTreeView)
+NavigatorWidget::NavigatorWidget(NavigatorView *view) :
+        QFrame(),
+        m_treeView(new NavigatorTreeView),
+        m_navigatorView(view)
 {
     m_treeView->setDragEnabled(true);
     m_treeView->setAcceptDrops(true);
@@ -77,6 +79,56 @@ NavigatorWidget::~NavigatorWidget()
 void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
 {
     m_treeView->setModel(model);
+}
+
+QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
+{
+    QList<QToolButton *> buttons;
+
+    buttons << new QToolButton();
+    buttons.last()->setIcon(QIcon(":/navigator/icon/arrowleft.png"));
+    buttons.last()->setToolTip(tr("Become first sibling of parent (CTRL + Left)"));
+    buttons.last()->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
+    connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(leftButtonClicked()));
+    buttons << new QToolButton();
+    buttons.last()->setIcon(QIcon(":/navigator/icon/arrowright.png"));
+    buttons.last()->setToolTip(tr("Become child of first silbing (CTRL + Right)"));
+    buttons.last()->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
+    connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(rightButtonClicked()));
+
+    buttons << new QToolButton();
+    buttons.last()->setIcon(QIcon(":/navigator/icon/arrowdown.png"));
+    buttons.last()->setToolTip(tr("Move down (CTRL + Down)"));
+    buttons.last()->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
+    connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(downButtonClicked()));
+
+    buttons << new QToolButton();
+    buttons.last()->setIcon(QIcon(":/navigator/icon/arrowup.png"));
+    buttons.last()->setToolTip(tr("Move up (CTRL + Up)"));
+    buttons.last()->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
+    connect(buttons.last(), SIGNAL(clicked()), this, SIGNAL(upButtonClicked()));
+
+    return buttons;
+}
+
+QString NavigatorWidget::contextHelpId() const
+{
+    if (!navigatorView())
+        return QString();
+
+    QList<ModelNode> nodes = navigatorView()->selectedModelNodes();
+    QString helpId;
+    if (!nodes.isEmpty()) {
+        helpId = nodes.first().type();
+        helpId.replace("QtQuick", "QML");
+    }
+
+    return helpId;
+}
+
+NavigatorView *NavigatorWidget::navigatorView() const
+{
+    return m_navigatorView.data();
 }
 
 }
