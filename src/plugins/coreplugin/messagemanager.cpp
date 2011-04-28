@@ -77,16 +77,16 @@ void MessageManager::printToOutputPane(const QString &text, bool bringToForegrou
         return;
     if (bringToForeground)
         m_messageOutputWindow->popup(false);
-    m_messageOutputWindow->append(text);
+    m_messageOutputWindow->append(text + QLatin1Char('\n'));
 }
 
 void MessageManager::printToOutputPanePopup(const QString &text)
 {
-    printToOutputPane(text, true);
+    printToOutputPane(text + QLatin1Char('\n'), true);
 }
 
 void MessageManager::printToOutputPane(const QString &text)
 {
-    printToOutputPane(text, false);
+    printToOutputPane(text + QLatin1Char('\n'), false);
 }
 
