@@ -68,6 +68,8 @@ enum SshPacketType {
     SSH_MSG_REQUEST_SUCCESS = 81,
     SSH_MSG_REQUEST_FAILURE = 82,
 
+    // TODO: We currently take no precautions against sending these messages
+    //       during a key re-exchange, which is not allowed.
     SSH_MSG_CHANNEL_OPEN = 90,
     SSH_MSG_CHANNEL_OPEN_CONFIRMATION = 91,
     SSH_MSG_CHANNEL_OPEN_FAILURE = 92,

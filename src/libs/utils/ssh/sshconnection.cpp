@@ -605,6 +605,12 @@ void SshConnectionPrivate::handleTimeout()
 
 void SshConnectionPrivate::sendKeepAlivePacket()
 {
+    // This type of message is not allowed during key exchange.
+    if (m_keyExchangeState != NoKeyExchange) {
+        m_keepAliveTimer.start();
+        return;
+    }
+
     Q_ASSERT(m_lastInvalidMsgSeqNr == InvalidSeqNr);
     m_lastInvalidMsgSeqNr = m_sendFacility.nextClientSeqNr();
     m_sendFacility.sendInvalidPacket();
