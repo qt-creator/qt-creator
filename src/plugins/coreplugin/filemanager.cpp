@@ -265,11 +265,15 @@ void FileManager::addFileInfo(const QString &fileName, IFile *file, bool isLink)
         if (!d->m_states.contains(fileName)) {
             d->m_states.insert(fileName, Internal::FileState());
 
-            if (isLink)
-                d->linkWatcher()->addPath(fileName);
-            else
-                d->fileWatcher()->addPath(fileName);
         }
+        QFileSystemWatcher *watcher = 0;
+        if (isLink)
+            watcher = d->linkWatcher();
+        else
+            watcher = d->fileWatcher();
+        if (!watcher->files().contains(fileName))
+            watcher->addPath(fileName);
+
         d->m_states[fileName].lastUpdatedState.insert(file, state);
     }
     d->m_filesWithWatch[file].append(fileName); // inserts a new QStringList if not already there
