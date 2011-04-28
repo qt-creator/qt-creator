@@ -635,6 +635,13 @@ bool CodeCompletion::completeUrl(const QString &relativeBasePath, const QString 
     return completeFileName(relativeBasePath, fileName);
 }
 
+class FileNameCompletion
+{
+public:
+    bool isDirectory;
+};
+Q_DECLARE_METATYPE(FileNameCompletion)
+
 bool CodeCompletion::completeFileName(const QString &relativeBasePath, const QString &fileName,
                                       const QStringList &patterns)
 {
@@ -657,6 +664,11 @@ bool CodeCompletion::completeFileName(const QString &relativeBasePath, const QSt
 
         TextEditor::CompletionItem item(this);
         item.text += fileName;
+        FileNameCompletion extraData;
+        extraData.isDirectory = dirIterator.fileInfo().isDir();
+        if (extraData.isDirectory)
+            item.text += QLatin1Char('/');
+        item.data = QVariant::fromValue(extraData);
         // ### Icon for file completions
         item.icon = iconForColor(Qt::darkBlue);
         m_completions.append(item);
@@ -1028,7 +1040,7 @@ void CodeCompletion::complete(const TextEditor::CompletionItem &item, QChar type
     QString toInsert = item.text;
 
     if (QmlJSTextEditorWidget *edit = qobject_cast<QmlJSTextEditorWidget *>(m_editor->widget())) {
-        if (item.data.isValid()) {
+        if (item.data.canConvert<QString>()) {
             QTextCursor tc = edit->textCursor();
             tc.setPosition(m_startPosition, QTextCursor::KeepAnchor);
             toInsert = item.data.toString();
@@ -1060,6 +1072,8 @@ void CodeCompletion::complete(const TextEditor::CompletionItem &item, QChar type
     m_editor->replace(length, toInsert);
 
     if (toInsert.endsWith(QLatin1Char('.')))
+        m_restartCompletion = true;
+    if (item.data.canConvert<FileNameCompletion>() && item.data.value<FileNameCompletion>().isDirectory)
         m_restartCompletion = true;
 }
 
