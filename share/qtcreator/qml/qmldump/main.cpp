@@ -59,6 +59,8 @@
 #include <signal.h>
 #endif
 
+QString pluginImportPath;
+
 void collectReachableMetaObjects(const QMetaObject *meta, QSet<const QMetaObject *> *metas)
 {
     if (! meta || metas->contains(meta))
@@ -188,7 +190,7 @@ QSet<const QMetaObject *> collectReachableMetaObjects(const QString &importCode,
         code += " {}\n";
 
         QDeclarativeComponent c(engine);
-        c.setData(code, QUrl("typeinstance"));
+        c.setData(code, QUrl::fromLocalFile(pluginImportPath + "/typeinstance.qml"));
 
         QObject *object = c.create();
         if (object)
@@ -442,7 +444,7 @@ int main(int argc, char *argv[])
 
     QString pluginImportUri;
     QString pluginImportVersion;
-    QString pluginImportPath;
+
     bool relocatable = true;
     bool pathImport = false;
     if (args.size() >= 3) {
@@ -477,7 +479,7 @@ int main(int argc, char *argv[])
                 qWarning() << "Incorrect number of positional arguments";
                 return EXIT_INVALIDARGUMENTS;
             }
-            pluginImportPath = positionalArgs[1];
+            pluginImportPath = QDir::fromNativeSeparators(positionalArgs[1]);
             if (positionalArgs.size() == 3)
                 pluginImportVersion = positionalArgs[2];
         }
@@ -503,7 +505,7 @@ int main(int argc, char *argv[])
             importCode += QString("import %0 %1\n").arg(pluginImportUri, pluginImportVersion).toAscii();
         } else {
             // pluginImportVersion can be empty
-            importCode += QString("import \"%1\" %2\n").arg(pluginImportPath, pluginImportVersion).toAscii();
+            importCode += QString("import \".\" %2\n").arg(pluginImportVersion).toAscii();
         }
 
         // create a component with these imports to make sure the imports are valid
@@ -513,7 +515,7 @@ int main(int argc, char *argv[])
             code += "QtObject {}";
             QDeclarativeComponent c(engine);
 
-            c.setData(code, QUrl("typelist"));
+            c.setData(code, QUrl::fromLocalFile(pluginImportPath + "/typelist.qml"));
             c.create();
             if (!c.errors().isEmpty()) {
                 foreach (const QDeclarativeError &error, c.errors())
