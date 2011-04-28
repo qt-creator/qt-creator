@@ -71,20 +71,27 @@ private:
 
     int idOfNextGenericPage() const;
     Utils::WizardProgressItem *itemOfNextGenericPage() const;
+    bool isSymbianTargetSelected() const;
+    bool isFremantleTargetSelected() const;
+    bool isHarmattanTargetSelected() const;
+    bool isMeegoTargetSelected() const;
 
     Internal::MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
     Internal::MobileAppWizardSymbianOptionsPage *m_symbianOptionsPage;
     Internal::MobileAppWizardMaemoOptionsPage *m_maemoOptionsPage;
+    Internal::MobileAppWizardMaemoOptionsPage *m_harmattanOptionsPage;
     TargetSetupPage *m_targetsPage;
 
     int m_genericOptionsPageId;
     int m_symbianOptionsPageId;
     int m_maemoOptionsPageId;
+    int m_harmattanOptionsPageId;
     int m_targetsPageId;
     Utils::WizardProgressItem *m_targetItem;
     Utils::WizardProgressItem *m_genericItem;
     Utils::WizardProgressItem *m_symbianItem;
     Utils::WizardProgressItem *m_maemoItem;
+    Utils::WizardProgressItem *m_harmattanItem;
 
     friend class AbstractMobileAppWizard;
 };

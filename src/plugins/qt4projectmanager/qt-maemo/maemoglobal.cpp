@@ -127,6 +127,11 @@ QString MaemoGlobal::devrootshPath()
     return QLatin1String("/usr/lib/mad-developer/devrootsh");
 }
 
+int MaemoGlobal::applicationIconSize(MaemoDeviceConfig::OsVersion osVersion)
+{
+    return osVersion == MaemoDeviceConfig::Maemo6 ? 80 : 64;
+}
+
 QString MaemoGlobal::remoteSudo(MaemoDeviceConfig::OsVersion osVersion,
     const QString &uname)
 {

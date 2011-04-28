@@ -85,7 +85,8 @@ class MobileAppWizardMaemoOptionsPage : public QWizardPage
     Q_DISABLE_COPY(MobileAppWizardMaemoOptionsPage)
 
 public:
-    explicit MobileAppWizardMaemoOptionsPage(QWidget *parent = 0);
+    explicit MobileAppWizardMaemoOptionsPage(int appIconSize,
+        QWidget *parent = 0);
     virtual ~MobileAppWizardMaemoOptionsPage();
 
     QString pngIcon() const;

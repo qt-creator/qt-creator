@@ -56,7 +56,8 @@ bool QtQuickApp::generateFiles(QString *errorMessage) const
             && writeFile(generateFile(QtQuickAppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp))
             && writeFile(generateFile(QtQuickAppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH))
             && writeFile(generateFile(QtQuickAppGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon))
-            && writeFile(generateFile(QtQuickAppGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon))
+            && writeFile(generateFile(QtQuickAppGeneratedFileInfo::MaemoPngIconFile64, errorMessage), path(MaemoPngIcon64))
+            && writeFile(generateFile(QtQuickAppGeneratedFileInfo::MaemoPngIconFile80, errorMessage), path(MaemoPngIcon80))
             && writeFile(generateFile(QtQuickAppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop));
 }
 
@@ -69,7 +70,8 @@ bool Html5App::generateFiles(QString *errorMessage) const
             && writeFile(generateFile(Html5AppGeneratedFileInfo::AppViewerCppFile, errorMessage), path(AppViewerCpp))
             && writeFile(generateFile(Html5AppGeneratedFileInfo::AppViewerHFile, errorMessage), path(AppViewerH))
             && writeFile(generateFile(Html5AppGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon))
-            && writeFile(generateFile(Html5AppGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon))
+            && writeFile(generateFile(Html5AppGeneratedFileInfo::MaemoPngIconFile64, errorMessage), path(MaemoPngIcon64))
+            && writeFile(generateFile(Html5AppGeneratedFileInfo::MaemoPngIconFile80, errorMessage), path(MaemoPngIcon80))
             && writeFile(generateFile(Html5AppGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop));
 }
 

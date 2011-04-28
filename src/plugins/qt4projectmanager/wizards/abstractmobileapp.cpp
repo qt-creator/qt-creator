@@ -115,14 +115,24 @@ QString AbstractMobileApp::symbianSvgIcon() const
     return path(SymbianSvgIconOrigin);
 }
 
-void AbstractMobileApp::setMaemoPngIcon(const QString &icon)
+void AbstractMobileApp::setMaemoPngIcon64(const QString &icon)
 {
-    m_maemoPngIcon = icon;
+    m_maemoPngIcon64 = icon;
 }
 
-QString AbstractMobileApp::maemoPngIcon() const
+QString AbstractMobileApp::maemoPngIcon64() const
 {
-    return path(MaemoPngIconOrigin);
+    return path(MaemoPngIconOrigin64);
+}
+
+void AbstractMobileApp::setMaemoPngIcon80(const QString &icon)
+{
+    m_maemoPngIcon80 = icon;
+}
+
+QString AbstractMobileApp::maemoPngIcon80() const
+{
+    return path(MaemoPngIconOrigin80);
 }
 
 void AbstractMobileApp::setSymbianTargetUid(const QString &uid)
@@ -167,9 +177,12 @@ QString AbstractMobileApp::path(int fileType) const
         case SymbianSvgIcon:        return outputPathBase() + cleanProjectName + QLatin1String(".svg");
         case SymbianSvgIconOrigin:  return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
                                         : originsRootShared + symbianIconFileName;
-        case MaemoPngIcon:          return outputPathBase() + cleanProjectName +  QLatin1String(".png");
-        case MaemoPngIconOrigin:    return !m_maemoPngIcon.isEmpty() ? m_maemoPngIcon
-                                        : originsRootShared + QLatin1String("maemoicon.png");
+        case MaemoPngIcon64:        return outputPathBase() + cleanProjectName +  QLatin1String("64.png");
+        case MaemoPngIconOrigin64:  return !m_maemoPngIcon64.isEmpty() ? m_maemoPngIcon64
+                                        : originsRootShared + QLatin1String("maemoicon64.png");
+        case MaemoPngIcon80:        return outputPathBase() + cleanProjectName +  QLatin1String("80.png");
+        case MaemoPngIconOrigin80:  return !m_maemoPngIcon80.isEmpty() ? m_maemoPngIcon80
+                                        : originsRootShared + QLatin1String("maemoicon80.png");
         default:                    return pathExtended(fileType);
     }
     return QString();
@@ -189,6 +202,8 @@ QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage) const
     QByteArray desktopFileContent;
     if (!readTemplate(DesktopOrigin, &desktopFileContent, errorMessage))
         return QByteArray();
+    desktopFileContent.replace("Icon=thisApp",
+        "Icon=" + projectName().toUtf8() + "64");
     return desktopFileContent.replace("thisApp", projectName().toUtf8());
 }
 
@@ -378,7 +393,8 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
     files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     files << file(generateFile(AbstractGeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp));
     files << file(generateFile(AbstractGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon));
-    files << file(generateFile(AbstractGeneratedFileInfo::MaemoPngIconFile, errorMessage), path(MaemoPngIcon));
+    files << file(generateFile(AbstractGeneratedFileInfo::MaemoPngIconFile64, errorMessage), path(MaemoPngIcon64));
+    files << file(generateFile(AbstractGeneratedFileInfo::MaemoPngIconFile80, errorMessage), path(MaemoPngIcon80));
     files << file(generateFile(AbstractGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop));
     return files;
 }
@@ -415,8 +431,11 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
         case AbstractGeneratedFileInfo::SymbianSvgIconFile:
             data = readBlob(path(SymbianSvgIconOrigin), errorMessage);
             break;
-        case AbstractGeneratedFileInfo::MaemoPngIconFile:
-            data = readBlob(path(MaemoPngIconOrigin), errorMessage);
+        case AbstractGeneratedFileInfo::MaemoPngIconFile64:
+            data = readBlob(path(MaemoPngIconOrigin64), errorMessage);
+            break;
+        case AbstractGeneratedFileInfo::MaemoPngIconFile80:
+            data = readBlob(path(MaemoPngIconOrigin80), errorMessage);
             break;
         case AbstractGeneratedFileInfo::DesktopFile:
             data = generateDesktopFile(errorMessage);

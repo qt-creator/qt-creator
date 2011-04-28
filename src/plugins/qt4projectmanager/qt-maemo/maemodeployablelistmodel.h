@@ -64,6 +64,7 @@ public:
     MaemoDeployable deployableAt(int row) const;
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
+    const QtVersion *qtVersion() const;
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
     QString projectName() const { return m_projectName; }
@@ -97,9 +98,9 @@ private:
     bool isEditable(const QModelIndex &index) const;
     bool buildModel();
     bool addLinesToProFile(const QStringList &lines);
-    const QtVersion *qtVersion() const;
     QString proFileScope() const;
     QString installPrefix() const;
+    QString remoteIconDir() const;
 
     const Qt4ProjectType m_projectType;
     const QString m_proFilePath;

@@ -83,6 +83,7 @@ public:
 
     static QString homeDirOnDevice(const QString &uname);
     static QString devrootshPath();
+    static int applicationIconSize(MaemoDeviceConfig::OsVersion osVersion);
     static QString remoteSudo(MaemoDeviceConfig::OsVersion,
         const QString &uname);
     static QString remoteCommandPrefix(MaemoDeviceConfig::OsVersion osVersion,

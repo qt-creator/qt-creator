@@ -52,9 +52,6 @@
 
 namespace Qt4ProjectManager {
 namespace Internal {
-namespace {
-const QLatin1String RemoteIconPath("/usr/share/icons/hicolor/64x64/apps");
-} // anonymous namespace
 
 MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
     ProFileUpdateSetting updateSetting, QObject *parent)
@@ -269,7 +266,7 @@ bool MaemoDeployableListModel::addIcon(const QString &fileName)
         return true;
 
     const QString filesLine = QLatin1String("icon.files = ") + fileName;
-    const QString pathLine = QLatin1String("icon.path = ") + RemoteIconPath;
+    const QString pathLine = QLatin1String("icon.path = ") + remoteIconDir();
     const QLatin1String installsLine("INSTALLS += icon");
     if (!addLinesToProFile(QStringList() << filesLine << pathLine
             << installsLine))
@@ -278,7 +275,7 @@ bool MaemoDeployableListModel::addIcon(const QString &fileName)
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     const QString filePath = QFileInfo(m_proFilePath).path()
         + QLatin1Char('/') + fileName;
-    m_deployables << MaemoDeployable(filePath, RemoteIconPath);
+    m_deployables << MaemoDeployable(filePath, remoteIconDir());
     endInsertRows();
     return true;
 }
@@ -291,7 +288,7 @@ QString MaemoDeployableListModel::remoteIconFilePath() const
     foreach (const MaemoDeployable &d, m_deployables) {
         const QByteArray extension
             = QFileInfo(d.localFilePath).suffix().toLocal8Bit();
-        if (d.remoteDir.startsWith(RemoteIconPath)
+        if (d.remoteDir.startsWith(remoteIconDir())
                 && imageTypes.contains(extension))
             return d.remoteDir + QLatin1Char('/')
                 + QFileInfo(d.localFilePath).fileName();
@@ -337,6 +334,14 @@ QString MaemoDeployableListModel::proFileScope() const
 QString MaemoDeployableListModel::installPrefix() const
 {
     return QLatin1String("/opt/") + m_projectName;
+}
+
+QString MaemoDeployableListModel::remoteIconDir() const
+{
+    const QtVersion *const qv = qtVersion();
+    QTC_ASSERT(qv, return QString());
+    return QString::fromLocal8Bit("/usr/share/icons/hicolor/%1x%1/apps")
+        .arg(MaemoGlobal::applicationIconSize(MaemoGlobal::version(qv)));
 }
 
 } // namespace Qt4ProjectManager

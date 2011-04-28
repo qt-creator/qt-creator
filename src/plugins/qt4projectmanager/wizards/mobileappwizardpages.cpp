@@ -62,6 +62,7 @@ class MobileAppWizardSymbianOptionsPagePrivate
 class MobileAppWizardMaemoOptionsPagePrivate
 {
     Ui::MobileAppWizardMaemoOptionsPage ui;
+    QSize iconSize;
     QString pngIcon;
     friend class MobileAppWizardMaemoOptionsPage;
 };
@@ -166,11 +167,18 @@ void MobileAppWizardSymbianOptionsPage::openSvgIcon()
 }
 
 
-MobileAppWizardMaemoOptionsPage::MobileAppWizardMaemoOptionsPage(QWidget *parent)
+MobileAppWizardMaemoOptionsPage::MobileAppWizardMaemoOptionsPage(int appIconSize,
+        QWidget *parent)
     : QWizardPage(parent)
     , m_d(new MobileAppWizardMaemoOptionsPagePrivate)
 {
     m_d->ui.setupUi(this);
+    QString iconLabelText = m_d->ui.appIconLabel->text();
+    iconLabelText.replace(QLatin1String("%%w%%"), QString::number(appIconSize));
+    iconLabelText.replace(QLatin1String("%%h%%"), QString::number(appIconSize));
+    m_d->ui.appIconLabel->setText(iconLabelText);
+    m_d->iconSize = QSize(appIconSize, appIconSize);
+    m_d->ui.pngIconButton->setIconSize(m_d->iconSize);
     connect(m_d->ui.pngIconButton, SIGNAL(clicked()), this, SLOT(openPngIcon()));
 }
 
@@ -194,18 +202,18 @@ void MobileAppWizardMaemoOptionsPage::setPngIcon(const QString &icon)
         return;
     }
 
-    const QSize iconSize(64, 64);
     QString actualIconPath;
-    if (iconPixmap.size() == iconSize) {
+    if (iconPixmap.size() == m_d->iconSize) {
         actualIconPath = icon;
     } else {
         const QMessageBox::StandardButton button = QMessageBox::warning(this,
-            tr("Wrong Icon Size"), tr("The icon needs to be 64x64 pixels big, "
-                "but is not. Do you want Creator to scale it?"),
+            tr("Wrong Icon Size"), tr("The icon needs to be %1x%2 pixels big, "
+                "but is not. Do you want Creator to scale it?")
+                .arg(m_d->iconSize.width()).arg(m_d->iconSize.height()),
             QMessageBox::Ok | QMessageBox::Cancel);
         if (button != QMessageBox::Ok)
             return;
-        iconPixmap = iconPixmap.scaled(iconSize);
+        iconPixmap = iconPixmap.scaled(m_d->iconSize);
         Utils::TempFileSaver saver;
         saver.setAutoRemove(false);
         if (!saver.hasError())

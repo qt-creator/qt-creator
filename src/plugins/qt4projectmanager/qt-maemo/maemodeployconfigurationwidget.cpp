@@ -133,8 +133,9 @@ void MaemoDeployConfigurationWidget::addIcon()
 
     MaemoDeployableListModel *const model
         = m_deployConfig->deployables()->modelAt(modelRow);
+    const int iconDim = MaemoGlobal::applicationIconSize(MaemoGlobal::version(model->qtVersion()));
     const QString origFilePath = QFileDialog::getOpenFileName(this,
-        tr("Choose Icon (will be scaled to 64x64 pixels, if necessary)"),
+        tr("Choose Icon (will be scaled to %1x%1 pixels, if necessary)").arg(iconDim),
         model->projectDir(), QLatin1String("(*.png)"));
     if (origFilePath.isEmpty())
         return;
@@ -144,7 +145,7 @@ void MaemoDeployConfigurationWidget::addIcon()
             tr("Unable to read image"));
         return;
     }
-    const QSize iconSize(64, 64);
+    const QSize iconSize(iconDim, iconDim);
     if (pixmap.size() != iconSize)
         pixmap = pixmap.scaled(iconSize);
     const QString newFileName = model->projectName() + QLatin1Char('.')
