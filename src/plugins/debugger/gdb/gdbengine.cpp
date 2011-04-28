@@ -1703,11 +1703,10 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
 {
     QString cleanFilePath = fileName;
 
-    const Abi abi = startParameters().toolChainAbi;
-    if (abi.os() == Abi::WindowsOS) {
+    // Gdb running on windows often delivers "fullnames" which
+    // (a) have no drive letter and (b) are not normalized.
+    if (Abi::hostAbi().os() == Abi::WindowsOS) {
         QTC_ASSERT(!fileName.isEmpty(), return QString())
-        // Gdb on windows often delivers "fullnames" which
-        // (a) have no drive letter and (b) are not normalized.
         QFileInfo fi(fileName);
         if (fi.isReadable())
             cleanFilePath = QDir::cleanPath(fi.absoluteFilePath());
