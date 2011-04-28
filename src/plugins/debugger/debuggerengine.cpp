@@ -180,6 +180,8 @@ public:
         m_isStateDebugging(false)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
+        if (sp.toolChainAbi.os() == ProjectExplorer::Abi::MacOS)
+            m_disassemblerAgent.setTryMixed(false);
     }
 
     ~DebuggerEnginePrivate() {}
@@ -559,7 +561,6 @@ void DebuggerEngine::resetLocation()
 void DebuggerEngine::gotoLocation(const Location &loc)
 {
     if (debuggerCore()->boolSetting(OperateByInstruction) || !loc.hasDebugInfo()) {
-        d->m_disassemblerAgent.setTryMixed(true);
         d->m_disassemblerAgent.setLocation(loc);
         return;
     }
@@ -1591,7 +1592,6 @@ void DebuggerEngine::updateMemoryViews()
 void DebuggerEngine::openDisassemblerView(const Location &location)
 {
     DisassemblerAgent *agent = new DisassemblerAgent(this);
-    agent->setTryMixed(true);
     agent->setLocation(location);
 }
 
