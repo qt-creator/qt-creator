@@ -2477,7 +2477,7 @@ CdbEngine::NormalizedSourceFileName CdbEngine::sourceMapNormalizeFileNameFromDeb
                                                   DebuggerToSource);
     // Up/lower case normalization according to Windows.
 #ifdef Q_OS_WIN
-    QString normalized = winNormalizeFileName(fileName);
+    QString normalized = Utils::normalizePathName(fileName);
 #else
     QString normalized = fileName;
 #endif

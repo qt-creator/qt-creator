@@ -173,6 +173,9 @@ QTCREATOR_UTILS_EXPORT QString normalizePathName(const QString &name)
     canonicalName = getLongPathName(canonicalName);
     if (canonicalName.isEmpty())
         return name;
+    // Upper case drive letter
+    if (canonicalName.size() > 2 && canonicalName.at(1) == QLatin1Char(':'))
+        canonicalName[0] = canonicalName.at(0).toUpper();
     return canonicalName;
 }
 
