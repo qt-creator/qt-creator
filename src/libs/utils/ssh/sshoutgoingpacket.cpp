@@ -55,7 +55,7 @@ quint32 SshOutgoingPacket::macLength() const
     return m_encrypter.macLength();
 }
 
-void SshOutgoingPacket::generateKeyExchangeInitPacket()
+QByteArray SshOutgoingPacket::generateKeyExchangeInitPacket()
 {
     const QByteArray &supportedkeyExchangeMethods
         = encodeNameList(SshCapabilities::KeyExchangeMethods);
@@ -81,7 +81,9 @@ void SshOutgoingPacket::generateKeyExchangeInitPacket()
     m_data.append(supportedLanguages).append(supportedLanguages);
     appendBool(false); // No guessed packet.
     m_data.append(QByteArray(4, 0)); // Reserved.
+    QByteArray payload = m_data.mid(PayloadOffset);
     finalize();
+    return payload;
 }
 
 void SshOutgoingPacket::generateKeyDhInitPacket(const Botan::BigInt &e)

@@ -74,11 +74,11 @@ void SshSendFacility::createAuthenticationKey(const QByteArray &privKeyFileConte
     m_encrypter.createAuthenticationKey(privKeyFileContents);
 }
 
-SshOutgoingPacket::Payload SshSendFacility::sendKeyExchangeInitPacket()
+QByteArray SshSendFacility::sendKeyExchangeInitPacket()
 {
-    m_outgoingPacket.generateKeyExchangeInitPacket();
+    const QByteArray &payLoad = m_outgoingPacket.generateKeyExchangeInitPacket();
     sendPacket();
-    return m_outgoingPacket.payLoad();
+    return payLoad;
 }
 
 void SshSendFacility::sendKeyDhInitPacket(const Botan::BigInt &e)

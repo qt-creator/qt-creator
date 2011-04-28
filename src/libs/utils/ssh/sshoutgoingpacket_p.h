@@ -48,7 +48,7 @@ public:
     SshOutgoingPacket(const SshEncryptionFacility &encrypter,
         const quint32 &seqNr);
 
-    void generateKeyExchangeInitPacket();
+    QByteArray generateKeyExchangeInitPacket(); // Returns payload.
     void generateKeyDhInitPacket(const Botan::BigInt &e);
     void generateNewKeysPacket();
     void generateDisconnectPacket(SshErrorCode reason,

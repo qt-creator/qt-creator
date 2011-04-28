@@ -113,8 +113,7 @@ public:
 
     const QByteArray &rawData() const { return m_data; }
 
-    struct Payload { const char *data; quint32 size; };
-    Payload payLoad() const;
+    QByteArray payLoad() const;
 
 protected:
     AbstractSshPacket();

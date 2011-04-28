@@ -86,12 +86,10 @@ SshPacketType AbstractSshPacket::type() const
     return static_cast<SshPacketType>(m_data.at(TypeOffset));
 }
 
-AbstractSshPacket::Payload AbstractSshPacket::payLoad() const
+QByteArray AbstractSshPacket::payLoad() const
 {
-    Payload p;
-    p.data = m_data.constData() + PayloadOffset;
-    p.size = length() - paddingLength() - 1;
-    return p;
+    return QByteArray(m_data.constData() + PayloadOffset,
+        length() - paddingLength() - 1);
 }
 
 void AbstractSshPacket::printRawBytes() const

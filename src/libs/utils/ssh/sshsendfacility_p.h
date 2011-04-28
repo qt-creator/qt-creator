@@ -55,7 +55,7 @@ public:
     void recreateKeys(const SshKeyExchange &keyExchange);
     void createAuthenticationKey(const QByteArray &privKeyFileContents);
 
-    SshOutgoingPacket::Payload sendKeyExchangeInitPacket();
+    QByteArray sendKeyExchangeInitPacket();
     void sendKeyDhInitPacket(const Botan::BigInt &e);
     void sendNewKeysPacket();
     void sendDisconnectPacket(SshErrorCode reason,

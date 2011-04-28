@@ -44,6 +44,9 @@
 #include <botan/pubkey.h>
 #include <botan/rsa.h>
 
+#ifdef CREATOR_SSH_DEBUG
+#include <iostream>
+#endif
 #include <string>
 
 using namespace Botan;
@@ -65,6 +68,18 @@ namespace {
         Q_UNUSED(list);
 #endif
     }
+
+#ifdef CREATOR_SSH_DEBUG
+    void printData(const char *name, const QByteArray &data)
+    {
+        std::cerr << std::hex;
+        qDebug("The client thinks the %s has length %d and is:", name, data.count());
+        for (int i = 0; i < data.count(); ++i)
+            std::cerr << (static_cast<unsigned int>(data.at(i)) & 0xff) << ' ';
+        std::cerr << std::endl;
+    }
+#endif
+
 } // anonymous namespace
 
 SshKeyExchange::SshKeyExchange(SshSendFacility &sendFacility)
@@ -77,9 +92,7 @@ SshKeyExchange::~SshKeyExchange() {}
 void SshKeyExchange::sendKexInitPacket(const QByteArray &serverId)
 {
     m_serverId = serverId;
-    const AbstractSshPacket::Payload &payload
-        = m_sendFacility.sendKeyExchangeInitPacket();
-    m_clientKexInitPayload = QByteArray(payload.data, payload.size);
+    m_clientKexInitPayload = m_sendFacility.sendKeyExchangeInitPacket();
 }
 
 bool SshKeyExchange::sendDhInitPacket(const SshIncomingPacket &serverKexInit)
@@ -132,8 +145,7 @@ bool SshKeyExchange::sendDhInitPacket(const SshIncomingPacket &serverKexInit)
     m_dhKey.reset(new DH_PrivateKey(rng,
         DL_Group(botanKeyExchangeAlgoName(keyAlgo))));
 
-    const AbstractSshPacket::Payload &payload = serverKexInit.payLoad();
-    m_serverKexInitPayload = QByteArray(payload.data, payload.size);
+    m_serverKexInitPayload = serverKexInit.payLoad();
     m_sendFacility.sendKeyDhInitPacket(m_dhKey->get_y());
     return kexInitParams.firstKexPacketFollows;
 }
@@ -164,6 +176,19 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
         = m_hash->process(convertByteArray(concatenatedData),
                         concatenatedData.size());
     m_h = convertByteArray(hashResult);
+
+#ifdef CREATOR_SSH_DEBUG
+    printData("Client Id", AbstractSshPacket::encodeString(clientId));
+    printData("Server Id", AbstractSshPacket::encodeString(m_serverId));
+    printData("Client Payload", AbstractSshPacket::encodeString(m_clientKexInitPayload));
+    printData("Server payload", AbstractSshPacket::encodeString(m_serverKexInitPayload));
+    printData("K_S", reply.k_s);
+    printData("y", AbstractSshPacket::encodeMpInt(m_dhKey->get_y()));
+    printData("f", AbstractSshPacket::encodeMpInt(reply.f));
+    printData("K", m_k);
+    printData("Concatenated data", concatenatedData);
+    printData("H", m_h);
+#endif // CREATOR_SSH_DEBUG
 
     QScopedPointer<Public_Key> sigKey;
     QScopedPointer<PK_Verifier> verifier;
