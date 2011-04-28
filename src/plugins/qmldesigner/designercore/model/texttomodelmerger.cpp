@@ -1397,6 +1397,10 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
     if (componentText.contains("Component")) { //explicit component
         FirstDefinitionFinder firstDefinitionFinder(componentText);
         int offset = firstDefinitionFinder(0);
+        if (offset < 0) {
+            node.variantProperty("__component_data").setValue(QLatin1String(""));
+            return; //No object definition found
+        }
         ObjectLengthCalculator objectLengthCalculator;
         unsigned length;
         if (objectLengthCalculator(componentText, offset, length)) {
