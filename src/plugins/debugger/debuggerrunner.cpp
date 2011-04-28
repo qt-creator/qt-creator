@@ -248,6 +248,23 @@ void DebuggerRunControl::start()
         return;
     }
 
+    foreach (const BreakpointId &id, debuggerCore()->breakHandler()->allBreakpointIds()) {
+        if (!d->m_engine->acceptsBreakpoint(id)) {
+            debuggerCore()->showMessage(DebuggerPlugin::tr("Some breakpoints cannot be handled by the current debugger, and will be ignored."), LogWarning);
+
+            int result = QMessageBox::warning(debuggerCore()->mainWindow(),
+                                          DebuggerPlugin::tr("Warning"), DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger, and will be ignored. Do you want to continue?"),
+                                          QMessageBox::Ok | QMessageBox::Cancel);
+
+            if (result == QMessageBox::Cancel) {
+                emit started();
+                emit finished();
+                return;
+            }
+            break;
+        }
+    }
+
     debuggerCore()->runControlStarted(d->m_engine);
 
     // We might get a synchronous startFailed() notification on Windows,
