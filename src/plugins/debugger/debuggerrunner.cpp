@@ -254,7 +254,7 @@ void DebuggerRunControl::start()
 
             int result = QMessageBox::warning(debuggerCore()->mainWindow(),
                                           DebuggerPlugin::tr("Warning"), DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger, and will be ignored. Do you want to continue?"),
-                                          QMessageBox::Ok | QMessageBox::Cancel);
+                                          QMessageBox::Yes | QMessageBox::No);
 
             if (result == QMessageBox::Cancel) {
                 emit started();
