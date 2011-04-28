@@ -425,7 +425,6 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
     m_tokenPrefix("<token>"),
     m_options(options),
     m_effectiveStartMode(NoStartMode),
-    m_inferiorPid(0),
     m_accessible(false),
     m_specialStopMode(NoSpecialStop),
     m_nextCommandToken(0),
@@ -453,7 +452,7 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
 void CdbEngine::init()
 {
     m_effectiveStartMode = NoStartMode;
-    m_inferiorPid = 0;
+    notifyInferiorPid(0);
     m_accessible = false;
     m_specialStopMode = NoSpecialStop;
     m_nextCommandToken  = 0;
@@ -1117,7 +1116,7 @@ void CdbEngine::doContinueInferior()
 
 bool CdbEngine::canInterruptInferior() const
 {
-    return m_effectiveStartMode != AttachToRemote && m_inferiorPid;
+    return m_effectiveStartMode != AttachToRemote && inferiorPid();
 }
 
 void CdbEngine::interruptInferior()
@@ -1150,10 +1149,10 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
     const SpecialStopMode oldSpecialMode = m_specialStopMode;
     m_specialStopMode = sm;
     QString errorMessage;
-    showMessage(QString::fromLatin1("Interrupting process %1...").arg(m_inferiorPid), LogMisc);
-    if (!winDebugBreakProcess(m_inferiorPid, &errorMessage)) {
+    showMessage(QString::fromLatin1("Interrupting process %1...").arg(inferiorPid()), LogMisc);
+    if (!winDebugBreakProcess(inferiorPid(), &errorMessage)) {
         m_specialStopMode = oldSpecialMode;
-        showMessage(QString::fromLatin1("Cannot interrupt process %1: %2").arg(m_inferiorPid).arg(errorMessage), LogError);
+        showMessage(QString::fromLatin1("Cannot interrupt process %1: %2").arg(inferiorPid()).arg(errorMessage), LogError);
     }
 #else
     Q_UNUSED(sm)
@@ -1594,8 +1593,7 @@ void CdbEngine::reloadFullStack()
 void CdbEngine::handlePid(const CdbExtensionCommandPtr &reply)
 {
     if (reply->success) {
-        m_inferiorPid = reply->reply.toUInt();
-        showMessage(QString::fromLatin1("Inferior pid: %1.").arg(m_inferiorPid), LogMisc);
+        notifyInferiorPid(reply->reply.toULongLong());
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorSetupOk")
         notifyInferiorSetupOk();
     }  else {

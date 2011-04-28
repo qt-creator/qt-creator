@@ -291,6 +291,7 @@ DebuggerEngine::DebuggerEngine(const DebuggerStartParameters &startParameters,
         DebuggerEngine *parentEngine)
   : d(new DebuggerEnginePrivate(this, parentEngine, startParameters))
 {
+    d->m_inferiorPid = 0;
 }
 
 DebuggerEngine::~DebuggerEngine()
@@ -1167,11 +1168,16 @@ bool DebuggerEngine::debuggerActionsEnabled(DebuggerState state)
 
 void DebuggerEngine::notifyInferiorPid(qint64 pid)
 {
-    showMessage(tr("Taking notice of pid %1").arg(pid));
     if (d->m_inferiorPid == pid)
         return;
     d->m_inferiorPid = pid;
-    QTimer::singleShot(0, d, SLOT(raiseApplication()));
+    if (pid) {
+        showMessage(tr("Taking notice of pid %1").arg(pid));
+        if (d->m_startParameters.startMode == StartInternal
+            || d->m_startParameters.startMode == StartExternal
+            || d->m_startParameters.startMode == AttachExternal)
+        QTimer::singleShot(0, d, SLOT(raiseApplication()));
+    }
 }
 
 qint64 DebuggerEngine::inferiorPid() const

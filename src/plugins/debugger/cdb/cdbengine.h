@@ -249,7 +249,6 @@ private:
     QScopedPointer<Utils::ConsoleProcess> m_consoleStub;
     DebuggerStartMode m_effectiveStartMode;
     QByteArray m_outputBuffer;
-    unsigned long m_inferiorPid;
     //! Debugger accessible (expecting commands)
     bool m_accessible;
     SpecialStopMode m_specialStopMode;
