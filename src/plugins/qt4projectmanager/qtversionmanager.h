@@ -141,7 +141,6 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
     QList<ProjectExplorer::HeaderPath> systemHeaderPathes() const;
 
-    bool supportsBinaryDebuggingHelper() const;
     QString gdbDebuggingHelperLibrary() const;
     QString qmlDebuggingHelperLibrary(bool debugVersion) const;
     QString qmlDumpTool(bool debugVersion) const;

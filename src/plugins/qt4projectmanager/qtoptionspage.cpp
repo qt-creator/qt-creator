@@ -471,7 +471,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
     const QtVersion *version = currentVersion();
     const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
 
-    if (!version || !version->supportsBinaryDebuggingHelper()) {
+    if (!version || !version->isValid()) {
         m_ui->debuggingHelperWidget->setVisible(false);
     } else {
         const DebuggingHelperBuildTask::Tools availableTools = DebuggingHelperBuildTask::availableTools(version);

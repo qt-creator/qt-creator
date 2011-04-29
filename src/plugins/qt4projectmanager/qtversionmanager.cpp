@@ -2005,13 +2005,6 @@ QStringList QtVersion::debuggingHelperLibraryLocations() const
     return DebuggingHelperLibrary::locationsByInstallData(qtInstallData);
 }
 
-bool QtVersion::supportsBinaryDebuggingHelper() const
-{
-    if (!isValid())
-        return false;
-    return qtAbis().at(0).os() != ProjectExplorer::Abi::SymbianOS;
-}
-
 bool QtVersion::hasDocumentation() const
 {
     updateVersionInfo();
