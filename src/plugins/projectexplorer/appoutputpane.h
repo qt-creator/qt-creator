@@ -104,7 +104,7 @@ private slots:
     void runControlFinished();
 
     void aboutToUnloadSession();
-    void updateWordWrapMode();
+    void updateFromSettings();
 
 private:
     struct RunControlTab {

@@ -116,7 +116,7 @@ AppOutputPane::AppOutputPane() :
     connect(ProjectExplorerPlugin::instance()->session(), SIGNAL(aboutToUnloadSession()),
             this, SLOT(aboutToUnloadSession()));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
-            this, SLOT(updateWordWrapMode()));
+            this, SLOT(updateFromSettings()));
 }
 
 AppOutputPane::~AppOutputPane()
@@ -264,6 +264,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
     ow->setFormatter(formatter);
     ow->setWordWrapEnabled(ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput);
+    ow->setMaxLineCount(ProjectExplorerPlugin::instance()->projectExplorerSettings().maxAppOutputLines);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(ow);
     agg->add(new Find::BaseTextFind(ow));
@@ -281,12 +282,13 @@ void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
         window->grayOutOldContent();
 }
 
-void AppOutputPane::updateWordWrapMode()
+void AppOutputPane::updateFromSettings()
 {
     const int size = m_runControlTabs.size();
     for (int i = 0; i < size; i++) {
         RunControlTab &tab =m_runControlTabs[i];
         tab.window->setWordWrapEnabled(ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput);
+        tab.window->setMaxLineCount(ProjectExplorerPlugin::instance()->projectExplorerSettings().maxAppOutputLines);
     }
 }
 

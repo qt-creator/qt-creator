@@ -68,6 +68,7 @@ CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/)
     m_outputWindow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
     m_outputWindow->setReadOnly(true);
     m_outputWindow->setUndoRedoEnabled(false);
+    m_outputWindow->setMaxLineCount(MAX_LINECOUNT);
 
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(m_outputWindow);
@@ -142,7 +143,7 @@ void CompileOutputWindow::appendText(const QString &text, ProjectExplorer::Build
 
     }
 
-    m_outputWindow->appendText(text, textFormat, MAX_LINECOUNT);
+    m_outputWindow->appendText(text, textFormat);
 }
 
 void CompileOutputWindow::clearContents()

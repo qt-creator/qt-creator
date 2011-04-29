@@ -57,7 +57,7 @@ public:
 
     void appendMessage(const QString &out, Utils::OutputFormat format);
     /// appends a \p text using \p format without using formater
-    void appendText(const QString &text, const QTextCharFormat &format = QTextCharFormat(), int maxLineCount = -1);
+    void appendText(const QString &text, const QTextCharFormat &format = QTextCharFormat());
 
     void grayOutOldContent();
     void clear();
@@ -65,6 +65,9 @@ public:
     void showEvent(QShowEvent *);
 
     void scrollToBottom();
+
+    void setMaxLineCount(int count);
+    int maxLineCount() const { return m_maxLineCount; }
 
 public slots:
     void setWordWrapEnabled(bool wrap);
@@ -89,6 +92,7 @@ private:
     bool m_scrollToBottom;
     bool m_linksActive;
     bool m_mousePressed;
+    int m_maxLineCount;
 };
 
 } // namespace Core

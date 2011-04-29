@@ -43,8 +43,6 @@
 #include <QtGui/QAction>
 #include <QtGui/QScrollBar>
 
-static const int MaxBlockCount = 100000;
-
 using namespace Utils;
 
 namespace Core {
@@ -58,6 +56,7 @@ OutputWindow::OutputWindow(Core::Context context, QWidget *parent)
     , m_scrollToBottom(false)
     , m_linksActive(true)
     , m_mousePressed(false)
+    , m_maxLineCount(100000)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
@@ -203,11 +202,17 @@ QString OutputWindow::doNewlineEnfocement(const QString &out)
     return s;
 }
 
+void OutputWindow::setMaxLineCount(int count)
+{
+    m_maxLineCount = count;
+    setMaximumBlockCount(m_maxLineCount);
+}
+
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 {
     QString out = output;
     out.remove(QLatin1Char('\r'));
-    setMaximumBlockCount(MaxBlockCount);
+    setMaximumBlockCount(m_maxLineCount);
     const bool atBottom = isScrollbarAtBottom();
 
     if (format == ErrorMessageFormat || format == NormalMessageFormat) {
@@ -254,11 +259,11 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 }
 
 // TODO rename
-void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &format, int maxLineCount)
+void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &format)
 {
     QString text = textIn;
     text.remove(QLatin1Char('\r'));
-    if (maxLineCount > 0 && document()->blockCount() > maxLineCount)
+    if (m_maxLineCount > 0 && document()->blockCount() > m_maxLineCount)
         return;
     const bool atBottom = isScrollbarAtBottom();
     QTextCursor cursor = QTextCursor(document());
@@ -266,7 +271,7 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
     cursor.beginEditBlock();
     cursor.insertText(doNewlineEnfocement(text), format);
 
-    if (maxLineCount > 0 && document()->blockCount() > maxLineCount) {
+    if (m_maxLineCount > 0 && document()->blockCount() > m_maxLineCount) {
         QTextCharFormat tmp;
         tmp.setFontWeight(QFont::Bold);
         cursor.insertText(tr("Additional output omitted\n"), tmp);
