@@ -219,7 +219,7 @@ QString Environment::searchInPath(const QStringList &executables,
                                   const QStringList &additionalDirs) const
 {
     foreach (const QString &executable, executables) {
-        QString exec = expandVariables(executable);
+        QString exec = QDir::cleanPath(expandVariables(executable));
 
         if (exec.isEmpty())
             continue;

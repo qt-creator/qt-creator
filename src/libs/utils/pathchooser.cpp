@@ -217,7 +217,7 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
 {
     if (input.isEmpty())
         return input;
-    const QString path = QDir::fromNativeSeparators(m_environment.expandVariables(input));
+    const QString path = QDir::cleanPath(m_environment.expandVariables(input));
     if (path.isEmpty())
         return path;
 
