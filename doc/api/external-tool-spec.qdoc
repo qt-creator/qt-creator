@@ -1,0 +1,182 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \page external-tool-spec.html
+    \title External Tool Specification Files
+
+    \section1 Description
+
+    File that describes a tool that can be run from the \gui { Tools > External } menu.
+    It specifies the name, the binary to run, what parameters the binary should get
+    and what should happen with the tool's output.
+
+    \section1 File Name
+
+    \c {<yourtoolname>.xml}
+
+    \section1 Location
+
+    User specific tools are located in \c {$HOME/.config/Nokia/qtcreator/externaltools}
+    on Mac and Linux, and in \c {%APPDATA%\Nokia\qtcreator\externaltools} on Windows.
+
+    System wide tools are located in \c {<Qt Creator install>/share/qtcreator/externaltools}
+    on Windows and Linux, and in \c {Qt Creator.app/Contents/Resources/externaltools} on Mac.
+
+    \section1 File Format
+
+    External tool specifications are XML files with the following structure.
+
+    \section2 Main Tag
+
+    The root tag is \c externaltool. It has a mandatory attribute \c id.
+
+    \table
+    \header
+        \o Tag
+        \o Meaning
+    \row
+        \o externaltool
+        \o Root element in a external tool's xml file.
+    \endtable
+    \table
+    \header
+        \o Attribute
+        \o Meaning
+    \row
+        \o id
+        \o This is a string that is used as an identifier for the external tool.
+           There can be no two tools with the same id. Required.
+    \endtable
+
+    \section2 Description Tags
+
+    It is mandatory that you give your tool a description, display name and category.
+    All three can optionally be translated into different languages by adding multiple
+    \c description, \c displayname and \c category tags with different language attributes.
+
+    \table
+    \header
+        \o Tag
+        \o Meaning
+    \row
+        \o description
+        \o Short, one-line description of what the tool is for. Required.
+    \row
+        \o displayname
+        \o Name to show in the menu item for the tool. Required.
+    \row
+        \o category
+        \o Name of the category to show the tool in.
+           This is the name of the sub menu under the \c { Tools > External } menu which
+           will contain this tool. E.g. a value of \c "Text" for the category will
+           put the tool's menu item in the \c { Tools > External > Text } menu. Required.
+    \endtable
+    \table
+    \header
+        \o Attribute
+        \o Meaning
+    \row
+        \o xml:lang
+        \o Language code (e.g. \c "en" or \c "de") of the lanugage that is used for
+           the description, display name, or category. Optional.
+    \endtable
+
+    \section2 Executable Specification Tag
+
+    It is mandatory to add a \c executable tag under the root tag, that specifies what to run,
+    the parameters given to the process, and what to do with the output.
+
+    \table
+    \header
+        \o Tag
+        \o Meaning
+    \row
+        \o executable
+        \o Encloses subtags that specify what to run and which parameters to use. Required.
+    \endtable
+    \table
+    \header
+        \o Attribute
+        \o Meaning
+    \row
+        \o output
+        \o Specifies what to do with the tool's standard output stream.
+           See \l{Output Behavior Flags} below. Defaults to \c ShowInPane. Optional.
+    \row
+        \o error
+        \o Specifies what to do with the tool's standard error stream.
+           See \l{Output Behavior Flags} below. Defaults to \c ShowInPane. Optional.
+    \row
+        \o modifiesdocument
+        \o Spefifies if Qt Creator should expect a change of the current document.
+           If this flag is set, Qt Creator asks for saving the current document
+           before running the tool (if the current document was modified),
+           and silently reloads the current document after the tool has finished.
+           \c "yes" or \c "no" (defaults to \c "no"). Optional.
+    \endtable
+
+    The \c executable tag allows the following subtags, it is only required to specify at least
+    one \c path. All subtags can contain special \l{Qt Creator Variables}.
+
+    \table
+    \header
+        \o Subtag
+        \o Meaning
+    \row
+        \o path
+        \o File path to the executable to run, including the executable's file name.
+           If only the executable name is given without a path, it is looked for in the
+           system's PATH environment variable. Can be specified multiple times,
+           Qt Creator then tries to resolve them in the given order and runs the first
+           one that is found. Required.
+    \row
+        \o arguments
+        \o Command line arguments for the executable. This string is in the form
+           (with respect to e.g. quoting and argument splitting) how it would
+           be specified on the command line of the platform the tool runs on. Optional.
+    \row
+        \o workingdirectory
+        \o The working directory that should be set for the executable. Optional.
+    \row
+        \o input
+        \o A potentially multiline string that is passed to the tool via standard input stream.
+    \endtable
+
+    \section1 Example
+
+    \code
+<?xml version="1.0" encoding="UTF-8"?>
+<externaltool id="sort">
+    <description>Sorts the selected text</description>
+    <description xml:lang="de">Sortiert den ausgewählten Text</description>
+    <displayname>Sort Selection</displayname>
+    <displayname xml:lang="de">Auswahl Sortieren</displayname>
+    <category>Text</category>
+    <category xml:lang="de">Text</category>
+    <executable output="replaceselection" error="ignore">
+        <path>sort</path>
+        <input>%{CurrentDocument:Selection}</input>
+        <workingdirectory>%{CurrentDocument:Path}</workingdirectory>
+    </executable>
+</externaltool>
+    \endcode
+*/
