@@ -317,7 +317,7 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
         MaemoGlobal::removeRecursively(targetFilePath, errorMsg);
         if (!MaemoGlobal::copyRecursively(deployable.localFilePath,
                 targetFilePath, &errorMsg)) {
-            emit addOutput(tr("Sysroot installation failed: $1\n"
+            emit addOutput(tr("Sysroot installation failed: %1\n"
                 " Continuing anyway.").arg(errorMsg), ErrorMessageOutput);
         }
         QCoreApplication::processEvents();
