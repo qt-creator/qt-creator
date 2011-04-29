@@ -146,6 +146,7 @@ public:
         m_state(DebuggerNotReady),
         m_lastGoodState(DebuggerNotReady),
         m_targetState(DebuggerNotReady),
+        m_inferiorPid(0),
         m_modulesHandler(),
         m_registerHandler(),
         m_sourceFilesHandler(),
@@ -157,6 +158,8 @@ public:
         m_isStateDebugging(false)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
+        if (sp.toolChainAbi.os() == ProjectExplorer::Abi::MacOS)
+            m_disassemblerAgent.setTryMixed(false);
     }
 
     ~DebuggerEnginePrivate() {}
@@ -542,7 +545,6 @@ void DebuggerEngine::resetLocation()
 void DebuggerEngine::gotoLocation(const Location &loc)
 {
     if (debuggerCore()->boolSetting(OperateByInstruction) || !loc.hasDebugInfo()) {
-        d->m_disassemblerAgent.setTryMixed(true);
         d->m_disassemblerAgent.setLocation(loc);
         return;
     }
@@ -1584,7 +1586,6 @@ void DebuggerEngine::updateMemoryViews()
 void DebuggerEngine::openDisassemblerView(const Location &location)
 {
     DisassemblerAgent *agent = new DisassemblerAgent(this);
-    agent->setTryMixed(true);
     agent->setLocation(location);
 }
 

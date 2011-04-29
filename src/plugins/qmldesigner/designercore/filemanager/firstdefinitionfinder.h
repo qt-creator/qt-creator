@@ -43,7 +43,7 @@ class FirstDefinitionFinder: protected QmlJS::AST::Visitor
 public:
     FirstDefinitionFinder(const QString &text);
 
-    quint32 operator()(quint32 offset);
+    qint32 operator()(quint32 offset);
 
 protected:
     using QmlJS::AST::Visitor::visit;

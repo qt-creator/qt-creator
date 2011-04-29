@@ -54,12 +54,15 @@ FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
   \arg the offset of the object to search in
   \return the offset of the first object definition
   */
-quint32 FirstDefinitionFinder::operator()(quint32 offset)
+qint32 FirstDefinitionFinder::operator()(quint32 offset)
 {
     m_offset = offset;
     m_firstObjectDefinition = 0;
 
     Node::accept(m_doc->qmlProgram(), this);
+
+    if (!m_firstObjectDefinition)
+        return -1;
 
     return m_firstObjectDefinition->firstSourceLocation().offset;
 }
