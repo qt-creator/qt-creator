@@ -264,6 +264,8 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
             m_lastIndex = propertyParent.indexOf(removedNode);
         }
     }
+    if (removedNode == currentState())
+        setCurrentState(baseState());
 }
 
 void StatesEditorView::nodeRemoved(const ModelNode & /*removedNode*/, const NodeAbstractProperty &parentProperty, PropertyChangeFlags /*propertyChange*/)
