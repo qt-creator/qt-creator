@@ -1722,14 +1722,7 @@ void QtVersion::addToEnvironment(Utils::Environment &env) const
     // Generic:
     env.set("QTDIR", QDir::toNativeSeparators(versionInfo().value("QT_INSTALL_DATA")));
     env.prependOrSetPath(versionInfo().value("QT_INSTALL_BINS"));
-
-    // set LD_LIBRARY_PATH for generic linux
-    foreach (const ProjectExplorer::Abi &abi, qtAbis()) {
-        if (abi.osFlavor() == ProjectExplorer::Abi::GenericLinuxFlavor) {
-            env.prependOrSet(QLatin1String("LD_LIBRARY_PATH"), versionInfo().value("QT_INSTALL_LIBS"), QLatin1String(":"));
-            break;
-        }
-    }
+    env.prependOrSetLibrarySearchPath(versionInfo().value("QT_INSTALL_LIBS"));
 
     // Symbian specific:
     if (supportsTargetId(Constants::S60_DEVICE_TARGET_ID)
