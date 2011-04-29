@@ -72,6 +72,8 @@ void SubmitEditorFile::setModified(bool modified)
 bool SubmitEditorFile::save(QString *errorString, const QString &fileName)
 {
     emit saveMe(errorString, fileName);
+    if (!errorString->isEmpty())
+        return false;
     emit changed();
     return true;
 }
