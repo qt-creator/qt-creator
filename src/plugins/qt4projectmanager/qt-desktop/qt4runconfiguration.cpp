@@ -602,11 +602,16 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
 
     // The user could be linking to a library found via a -L/some/dir switch
     // to find those libraries while actually running we explicitly prepend those
-    // dirs to the library search path
+    // dirs to the library search path on windows/linux
     const Qt4ProFileNode *node = qt4Target()->qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
+    const ProjectExplorer::Abi runAbi = abi();
     if (node)
-        foreach(const QString &dir, node->variableValue(LibDirectoriesVar))
-            env.prependOrSetLibrarySearchPath(dir);
+        foreach (const QString &dir, node->variableValue(LibDirectoriesVar)) {
+            if (runAbi.os() == ProjectExplorer::Abi::WindowsOS)
+                env.prependOrSetPath(dir);
+            else if (runAbi.osFlavor() == ProjectExplorer::Abi::GenericLinuxFlavor)
+                env.prependOrSet(QLatin1String("LD_LIBRARY_PATH"), dir, QLatin1String(":"));
+        }
     return env;
 }
 
