@@ -90,7 +90,8 @@ public:
                                                    const QString &expr,
                                                    QObject *parent = 0);
     bool setBindingForObject(int objectDebugId, const QString &propertyName,
-                             const QVariant &bindingExpression, bool isLiteralValue);
+                             const QVariant &bindingExpression, bool isLiteralValue,
+                             QString source = QString(), int line = -1);
     bool resetBindingForObject(int objectDebugId, const QString &propertyName);
     bool setMethodBody(int objectDebugId, const QString &methodName, const QString &methodBody);
 

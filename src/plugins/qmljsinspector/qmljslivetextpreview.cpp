@@ -463,7 +463,7 @@ protected:
         if (isLiteral)
             expr = castToLiteral(scriptCode, scriptBinding);
         appliedChangesToViewer = true;
-        m_clientProxy->setBindingForObject(debugId, propertyName, expr, isLiteral);
+        m_clientProxy->setBindingForObject(debugId, propertyName, expr, isLiteral, document()->fileName(), scriptBinding->firstSourceLocation().startLine);
     }
 
     virtual void resetBindingForObject(int debugId, const QString &propertyName)

@@ -670,14 +670,15 @@ QDeclarativeDebugExpressionQuery *QDeclarativeEngineDebug::queryExpressionResult
 
 bool QDeclarativeEngineDebug::setBindingForObject(int objectDebugId, const QString &propertyName,
                                                   const QVariant &bindingExpression,
-                                                  bool isLiteralValue)
+                                                  bool isLiteralValue,
+                                                  QString source, int line)
 {
     Q_D(QDeclarativeEngineDebug);
 
     if (d->client->status() == QDeclarativeDebugClient::Enabled && objectDebugId != -1) {
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("SET_BINDING") << objectDebugId << propertyName << bindingExpression << isLiteralValue;
+        ds << QByteArray("SET_BINDING") << objectDebugId << propertyName << bindingExpression << isLiteralValue << source << line;
         d->client->sendMessage(message);
         return true;
     } else {

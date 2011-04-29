@@ -460,6 +460,9 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
     Q_ASSERT(doc1->qmlProgram());
     Q_ASSERT(doc2->qmlProgram());
 
+    m_previousDoc = doc1;
+    m_currentDoc = doc2;
+
     Delta::DebugIdMap newDebuggIds;
 
     Map M = buildMapping(doc1, doc2);

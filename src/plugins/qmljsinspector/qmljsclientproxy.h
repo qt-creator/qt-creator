@@ -62,7 +62,9 @@ public:
     bool setBindingForObject(int objectDebugId,
                              const QString &propertyName,
                              const QVariant &value,
-                             bool isLiteralValue);
+                             bool isLiteralValue,
+                             QString source,
+                             int line);
 
     bool setMethodBodyForObject(int objectDebugId, const QString &methodName, const QString &methodBody);
     bool resetBindingForObject(int objectDebugId, const QString &propertyName);

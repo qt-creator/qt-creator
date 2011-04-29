@@ -250,7 +250,9 @@ QList<QDeclarativeDebugObjectReference> ClientProxy::objectReferences(const QDec
 bool ClientProxy::setBindingForObject(int objectDebugId,
                                       const QString &propertyName,
                                       const QVariant &value,
-                                      bool isLiteralValue)
+                                      bool isLiteralValue,
+                                      QString source,
+                                      int line)
 {
     if (objectDebugId == -1)
         return false;
@@ -263,7 +265,7 @@ bool ClientProxy::setBindingForObject(int objectDebugId,
 
     log(LogSend, QString("SET_BINDING %1 %2 %3 %4").arg(QString::number(objectDebugId), propertyName, value.toString(), QString(isLiteralValue ? "true" : "false")));
 
-    bool result = m_engineClient->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue);
+    bool result = m_engineClient->setBindingForObject(objectDebugId, propertyName, value.toString(), isLiteralValue, source, line);
 
     if (!result)
         log(LogSend, QString("failed!"));
