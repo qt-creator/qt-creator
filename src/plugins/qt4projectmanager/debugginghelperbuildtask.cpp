@@ -143,24 +143,28 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
 
 bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &future, QString *output)
 {
+    Utils::BuildableHelperLibrary::BuildHelperArguments arguments;
+    arguments.makeCommand = m_makeCommand;
+    arguments.qmakeCommand = m_qmakeCommand;
+    arguments.targetMode = m_target;
+    arguments.mkspec = m_mkspec;
+    arguments.environment = m_environment;
+
     if (m_tools & GdbDebugging) {
-        const QString gdbHelperDirectory = DebuggingHelperLibrary::copy(m_qtInstallData,
-                                                                        &m_errorMessage);
-        if (gdbHelperDirectory.isEmpty())
+        arguments.directory = DebuggingHelperLibrary::copy(m_qtInstallData, &m_errorMessage);
+        if (arguments.directory.isEmpty())
             return false;
-        if (!DebuggingHelperLibrary::build(gdbHelperDirectory, m_makeCommand,
-                                           m_qmakeCommand, m_mkspec, m_environment,
-                                           m_target, QStringList(), output, &m_errorMessage))
+
+        if (!DebuggingHelperLibrary::build(arguments, output, &m_errorMessage))
             return false;
     }
     future.setProgressValue(2);
 
     if (m_tools & QmlDump) {
-        const QString qmlDumpToolDirectory = QmlDumpTool::copy(m_qtInstallData, &m_errorMessage);
-        if (qmlDumpToolDirectory.isEmpty())
+        arguments.directory = QmlDumpTool::copy(m_qtInstallData, &m_errorMessage);
+        if (arguments.directory.isEmpty())
             return false;
-        if (!QmlDumpTool::build(qmlDumpToolDirectory, m_makeCommand, m_qmakeCommand, m_mkspec,
-                                m_environment, m_target, QStringList(), output, &m_errorMessage))
+        if (!QmlDumpTool::build(arguments, output, &m_errorMessage))
             return false;
     }
     future.setProgressValue(3);
@@ -170,25 +174,21 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
         qmlDebuggingDirectory = QmlDebuggingLibrary::copy(m_qtInstallData, &m_errorMessage);
         if (qmlDebuggingDirectory.isEmpty())
             return false;
-        if (!QmlDebuggingLibrary::build(qmlDebuggingDirectory, m_makeCommand,
-                                                m_qmakeCommand, m_mkspec, m_environment,
-                                                m_target, QStringList(), output, &m_errorMessage))
+        arguments.directory = qmlDebuggingDirectory;
+        if (!QmlDebuggingLibrary::build(arguments, output, &m_errorMessage))
             return false;
     }
     future.setProgressValue(4);
 
     if (m_tools & QmlObserver) {
-        const QString qmlObserverDirectory = QmlObserverTool::copy(m_qtInstallData,
-                                                                   &m_errorMessage);
-        if (qmlObserverDirectory.isEmpty())
+        arguments.directory = QmlObserverTool::copy(m_qtInstallData, &m_errorMessage);
+        if (arguments.directory.isEmpty())
             return false;
 
-        QStringList qmakeArgs;
-        qmakeArgs << QLatin1String("INCLUDEPATH+=\"\\\"") + qmlDebuggingDirectory + "include\\\"\"";
-        qmakeArgs << QLatin1String("LIBS+=-L\"\\\"") + qmlDebuggingDirectory + QLatin1String("\\\"\"");
+        arguments.qmakeArguments << QLatin1String("INCLUDEPATH+=\"\\\"") + qmlDebuggingDirectory + "include\\\"\"";
+        arguments.qmakeArguments << QLatin1String("LIBS+=-L\"\\\"") + qmlDebuggingDirectory + QLatin1String("\\\"\"");
 
-        if (!QmlObserverTool::build(qmlObserverDirectory, m_makeCommand, m_qmakeCommand, m_mkspec,
-                                    m_environment, m_target, qmakeArgs, output, &m_errorMessage))
+        if (!QmlObserverTool::build(arguments, output, &m_errorMessage))
             return false;
     }
     future.setProgressValue(5);

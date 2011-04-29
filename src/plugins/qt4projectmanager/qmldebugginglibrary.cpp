@@ -70,15 +70,11 @@ bool QmlDebuggingLibrary::canBuild(const QtVersion *qtVersion)
     return qtVersion->qtVersion() >=  QtVersionNumber(4, 7, 1);
 }
 
-bool  QmlDebuggingLibrary::build(const QString &directory, const QString &makeCommand,
-                             const QString &qmakeCommand, const QString &mkspec,
-                             const Utils::Environment &env, const QString &targetMode,
-                             const QStringList &qmakeArguments, QString *output,  QString *errorMessage)
+bool  QmlDebuggingLibrary::build(BuildHelperArguments arguments, QString *log, QString *errorMessage)
 {
-    return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "QML Debugging"),
-                       QLatin1String("qmljsdebugger.pro"),
-                       directory, makeCommand, qmakeCommand, mkspec, env, targetMode,
-                       qmakeArguments, output, errorMessage);
+    arguments.helperName = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "QML Debugging");
+    arguments.proFilename = QLatin1String("qmljsdebugger.pro");
+    return buildHelper(arguments, log, errorMessage);
 }
 
 static inline bool mkpath(const QString &targetDirectory, QString *errorMessage)

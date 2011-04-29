@@ -34,6 +34,7 @@
 #define BUILDABLEHELPERLIBRARY_H
 
 #include "utils_global.h"
+#include <utils/environment.h>
 
 #include <QtCore/QString>
 
@@ -67,12 +68,22 @@ public:
     static bool copyFiles(const QString &sourcePath, const QStringList &files,
                           const QString &targetDirectory, QString *errorMessage);
 
-    static bool buildHelper(const QString &helperName, const QString &proFilename,
-                            const QString &directory, const QString &makeCommand,
-                            const QString &qmakeCommand, const QString &mkspec,
-                            const Utils::Environment &env, const QString &targetMode,
-                            const QStringList &qmakeArguments, QString *output,
-                            QString *errorMessage);
+    struct BuildHelperArguments {
+        QString helperName;
+        QString directory;
+        Utils::Environment environment;
+
+        QString qmakeCommand;
+        QString targetMode;
+        QString mkspec;
+        QString proFilename;
+        QStringList qmakeArguments;
+
+        QString makeCommand;
+    };
+
+    static bool buildHelper(const BuildHelperArguments &arguments,
+                            QString *log, QString *errorMessage);
 
     static bool getHelperFileInfoFor(const QStringList &validBinaryFilenames,
                                      const QString &directory, QFileInfo* info);

@@ -101,16 +101,12 @@ QStringList QmlObserverTool::locationsByInstallData(const QString &qtInstallData
     return result;
 }
 
-bool  QmlObserverTool::build(const QString &directory, const QString &makeCommand,
-                             const QString &qmakeCommand, const QString &mkspec,
-                             const Utils::Environment &env, const QString &targetMode,
-                             const QStringList &qmakeArguments, QString *output,
-                             QString *errorMessage)
+bool  QmlObserverTool::build(BuildHelperArguments arguments, QString *log, QString *errorMessage)
 {
-    return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "QMLObserver"),
-                       QLatin1String("qmlobserver.pro"),
-                       directory, makeCommand, qmakeCommand, mkspec, env, targetMode,
-                       qmakeArguments, output, errorMessage);
+    arguments.helperName = QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "QMLObserver");
+    arguments.proFilename = QLatin1String("qmlobserver.pro");
+
+    return buildHelper(arguments, log, errorMessage);
 }
 
 static inline bool mkpath(const QString &targetDirectory, QString *errorMessage)

@@ -56,10 +56,7 @@ public:
     static QString libraryByInstallData(const QString &qtInstallData, bool debugBuild);
 
     static bool canBuild(const QtVersion *qtVersion);
-    static bool build(const QString &directory, const QString &makeCommand,
-                       const QString &qmakeCommand, const QString &mkspec,
-                       const Utils::Environment &env, const QString &targetMode,
-                       const QStringList &qmakeArguments, QString *output,  QString *errorMessage);
+    static bool build(BuildHelperArguments arguments, QString *log, QString *errorMessage);
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
 private:

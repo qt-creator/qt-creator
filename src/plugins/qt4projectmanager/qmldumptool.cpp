@@ -290,14 +290,11 @@ QStringList QmlDumpTool::locationsByInstallData(const QString &qtInstallData, bo
     return result;
 }
 
-bool QmlDumpTool::build(const QString &directory, const QString &makeCommand,
-                        const QString &qmakeCommand, const QString &mkspec,
-                        const Utils::Environment &env, const QString &targetMode,
-                        const QStringList &qmakeArguments, QString *output, QString *errorMessage)
+bool QmlDumpTool::build(BuildHelperArguments arguments, QString *log, QString *errorMessage)
 {
-    return buildHelper(QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "qmldump"), QLatin1String("qmldump.pro"),
-                       directory, makeCommand, qmakeCommand, mkspec, env, targetMode,
-                       qmakeArguments, output, errorMessage);
+    arguments.helperName = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "qmldump");
+    arguments.proFilename = QLatin1String("qmldump.pro");
+    return buildHelper(arguments, log, errorMessage);
 }
 
 QString QmlDumpTool::copy(const QString &qtInstallData, QString *errorMessage)
