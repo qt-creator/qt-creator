@@ -48,6 +48,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -580,14 +581,11 @@ void QMakeStepConfigWidget::debuggingHelperBuildFinished(int qtVersionId, const 
         updateQmlDebuggingWarningsLabel();
     }
 
-    if (!version->hasQmlDebuggingLibrary()) {
-        Ui::ShowBuildLog ui;
-        QDialog dialog;
-        ui.setupUi(&dialog);
 
-        ui.log->setPlainText(output);
-        dialog.exec();
-    }
+    Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
+    messageManager->printToOutputPane(output);
+    if (!version->hasQmlDebuggingLibrary())
+        messageManager->showOutputPane();
 }
 
 void QMakeStepConfigWidget::updateSummaryLabel()
