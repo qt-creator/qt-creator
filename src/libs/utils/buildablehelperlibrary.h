@@ -80,6 +80,7 @@ public:
         QStringList qmakeArguments;
 
         QString makeCommand;
+        QStringList makeArguments;
     };
 
     static bool buildHelper(const BuildHelperArguments &arguments,

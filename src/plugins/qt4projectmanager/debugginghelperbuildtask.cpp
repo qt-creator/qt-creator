@@ -175,8 +175,10 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
         if (qmlDebuggingDirectory.isEmpty())
             return false;
         arguments.directory = qmlDebuggingDirectory;
+        arguments.makeArguments += QLatin1String("all"); // build debug and release
         if (!QmlDebuggingLibrary::build(arguments, output, &m_errorMessage))
             return false;
+        arguments.makeArguments.clear();
     }
     future.setProgressValue(4);
 

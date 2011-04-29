@@ -4,10 +4,15 @@
 QT += declarative script
 INCLUDEPATH += $$PWD/include
 
-DEBUGLIB=QmlJSDebugger
-CONFIG(debug, debug|release) {
-    windows:DEBUGLIB = QmlJSDebuggerd
+symbian {
+    LIBNAME = QmLJSDebugger.lib
+} else {
+    CONFIG(debug, debug|release) {
+        LIBNAME = QmlJSDebuggerd
+    } else {
+        LIBNAME = QmlJSDebugger
+    }
 }
-LIBS += -L$$PWD -l$$DEBUGLIB
+LIBS += -L$$PWD -l$$LIBNAME
 
 DEFINES += QMLJSDEBUGGER

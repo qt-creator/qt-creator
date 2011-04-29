@@ -61,6 +61,7 @@ QString QmlDebuggingLibrary::libraryByInstallData(const QString &qtInstallData, 
         binFilenames << QLatin1String("QmlJSDebugger.lib");
     }
     binFilenames << QLatin1String("libQmlJSDebugger.a");
+    binFilenames << QLatin1String("QmlJSDebugger.prl"); // Symbian. Note that the actual lib is in EPOCROOT
 
     return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames, false);
 }
