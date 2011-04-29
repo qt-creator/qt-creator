@@ -1749,17 +1749,9 @@ bool EditorManager::restoreState(const QByteArray &state)
     if (version != "EditorManagerV4")
         return false;
 
-    QMap<QString, QVariant> editorstates;
-
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    stream >> editorstates;
-
-    QMapIterator<QString, QVariant> i(editorstates);
-    while (i.hasNext()) {
-        i.next();
-        m_d->m_editorStates.insert(i.key(), i.value());
-    }
+    stream >> m_d->m_editorStates;
 
     int editorCount = 0;
     stream >> editorCount;
