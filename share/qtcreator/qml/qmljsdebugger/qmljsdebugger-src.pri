@@ -49,6 +49,4 @@ SOURCES += \
 
 RESOURCES += $$PWD/editor/editor.qrc
 
-OTHER_FILES += $$PWD/qmljsdebugger.pri
-
 DEFINES += QMLJSDEBUGGER
