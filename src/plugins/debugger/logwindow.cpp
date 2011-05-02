@@ -402,6 +402,8 @@ LogWindow::LogWindow(QWidget *parent)
         m_combinedText, SLOT(gotoResult(int)));
     connect(m_commandEdit, SIGNAL(returnPressed()),
         SLOT(sendCommand()));
+
+    setMinimumHeight(60);
 }
 
 void LogWindow::sendCommand()
