@@ -17,7 +17,7 @@ int %ClassName%::rowCount(const QModelIndex &) const
     return items.size();
 }
 
-QVariant %ClassName%::data(const QModelIndex &index, int)
+QVariant %ClassName%::data(const QModelIndex &index, int) const
 {
     return items.at(index.row());
 }

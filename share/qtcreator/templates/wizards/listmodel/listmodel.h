@@ -11,7 +11,7 @@ public:
     void addItems(const QList<%Datatype%> &items);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole);
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 private:
     QList<%Datatype%> items;
