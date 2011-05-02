@@ -20,14 +20,17 @@
 ****************************************************************************/
 
 /*!
+    \contentspage{index.html}{Qt Creator}
+    \previouspage qtcreator-code-snippet-config.html
     \page external-tool-spec.html
+    \nextpage coding-style.html
+
     \title External Tool Specification Files
 
-    \section1 Description
-
-    File that describes a tool that can be run from the \gui { Tools > External } menu.
-    It specifies the name, the binary to run, what parameters the binary should get
-    and what should happen with the tool's output.
+    An external tool specification file describes a tool that can be run from
+    the \gui { Tools > External } menu.
+    It specifies the name of the tool, the executable to run, optional
+    arguments, and how to handle the output from the tool.
 
     \section1 File Name
 
@@ -47,7 +50,7 @@
 
     \section2 Main Tag
 
-    The root tag is \c externaltool. It has a mandatory attribute \c id.
+    The root tag is \c externaltool. It has the mandatory attribute \c id.
 
     \table
     \header
@@ -55,7 +58,7 @@
         \o Meaning
     \row
         \o externaltool
-        \o Root element in a external tool's xml file.
+        \o Root element in the XML file that specifies an external tool.
     \endtable
     \table
     \header
@@ -63,15 +66,16 @@
         \o Meaning
     \row
         \o id
-        \o This is a string that is used as an identifier for the external tool.
-           There can be no two tools with the same id. Required.
+        \o A string that identifies the external tool.
+           Two tools cannot have the same id. Required.
     \endtable
 
     \section2 Description Tags
 
-    It is mandatory that you give your tool a description, display name and category.
-    All three can optionally be translated into different languages by adding multiple
-    \c description, \c displayname and \c category tags with different language attributes.
+    You must specify a description, display name, and category for the tool.
+    You can translate their values into different languages by adding multiple
+    \c description, \c displayname, and \c category tags that contain language
+    codes.
 
     \table
     \header
@@ -86,9 +90,10 @@
     \row
         \o category
         \o Name of the category to show the tool in.
-           This is the name of the sub menu under the \c { Tools > External } menu which
-           will contain this tool. E.g. a value of \c "Text" for the category will
-           put the tool's menu item in the \c { Tools > External > Text } menu. Required.
+           This is the name of the sub menu of the \c { Tools > External }
+           menu where the tool is placed. For example, specify the value
+           \c "Text" to display the tool in the \c { Tools > External > Text }
+           menu. Required.
     \endtable
     \table
     \header
@@ -96,14 +101,14 @@
         \o Meaning
     \row
         \o xml:lang
-        \o Language code (e.g. \c "en" or \c "de") of the lanugage that is used for
+        \o Language code (such as, \c "en" or \c "de") of the language that is used for
            the description, display name, or category. Optional.
     \endtable
 
     \section2 Executable Specification Tag
 
-    It is mandatory to add a \c executable tag under the root tag, that specifies what to run,
-    the parameters given to the process, and what to do with the output.
+    You must add an \c executable tag under the root tag, that specifies the
+    executable to run, optional arguments, and how to handle the output.
 
     \table
     \header
@@ -119,22 +124,23 @@
         \o Meaning
     \row
         \o output
-        \o Specifies what to do with the tool's standard output stream.
-           See \l{Output Behavior Flags} below. Defaults to \c ShowInPane. Optional.
+        \o Specifies how to handle the tool's standard output stream.
+           Defaults to \c ShowInPane. Optional.
     \row
         \o error
-        \o Specifies what to do with the tool's standard error stream.
-           See \l{Output Behavior Flags} below. Defaults to \c ShowInPane. Optional.
+        \o Specifies how to handle the tool's standard error stream.
+           Defaults to \c ShowInPane. Optional.
     \row
         \o modifiesdocument
-        \o Spefifies if Qt Creator should expect a change of the current document.
-           If this flag is set, Qt Creator asks for saving the current document
-           before running the tool (if the current document was modified),
+        \o Specifies whether Qt Creator should expect changes to the current
+           document. If this flag is set, Qt Creator prompts users to save
+           changes to the current document before running the tool,
            and silently reloads the current document after the tool has finished.
-           \c "yes" or \c "no" (defaults to \c "no"). Optional.
+           Possible values are: \c "yes" or \c "no" (defaults to \c "no").
+           Optional.
     \endtable
 
-    The \c executable tag allows the following subtags, it is only required to specify at least
+    The \c executable tag allows the following subtags. You must specify at least
     one \c path. All subtags can contain special \l{Qt Creator Variables}.
 
     \table
@@ -143,19 +149,21 @@
         \o Meaning
     \row
         \o path
-        \o File path to the executable to run, including the executable's file name.
-           If only the executable name is given without a path, it is looked for in the
-           system's PATH environment variable. Can be specified multiple times,
-           Qt Creator then tries to resolve them in the given order and runs the first
-           one that is found. Required.
+        \o File path to the executable to run, including filename. If you
+           specify the executable name without a path, Qt creator checks the
+           system PATH environment variable for a path to the executable. You
+           can specify the path multiple times. Qt Creator tries to resolve the
+           references in the given order and runs the first executable that it
+           finds. Required.
     \row
         \o arguments
-        \o Command line arguments for the executable. This string is in the form
-           (with respect to e.g. quoting and argument splitting) how it would
-           be specified on the command line of the platform the tool runs on. Optional.
+        \o Command line arguments for the executable. Specify the string in the
+           same format (with respect to quoting and argument splitting, for
+           example) as you would specify it on the command line of the platform
+           the tool runs on. Optional.
     \row
         \o workingdirectory
-        \o The working directory that should be set for the executable. Optional.
+        \o The working directory for the executable. Optional.
     \row
         \o input
         \o A potentially multiline string that is passed to the tool via standard input stream.
