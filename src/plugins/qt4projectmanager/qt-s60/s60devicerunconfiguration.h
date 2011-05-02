@@ -155,7 +155,7 @@ private:
     enum {
         ENotUsingCodaRunControl = 0,
         EWaitingForCodaConnection,
-        ECodaConnected,
+        ECodaConnected
     } m_codaState;
 };
 
