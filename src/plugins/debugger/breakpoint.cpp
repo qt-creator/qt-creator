@@ -69,7 +69,7 @@ BreakpointParts BreakpointParameters::differencesTo
         parts |= PathUsagePart;
     if (fileName != rhs.fileName)
         parts |= FileAndLinePart;
-    if (conditionsMatch(rhs.condition))
+    if (!conditionsMatch(rhs.condition))
         parts |= ConditionPart;
     if (ignoreCount != rhs.ignoreCount)
         parts |= IgnoreCountPart;
