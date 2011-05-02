@@ -3489,6 +3489,8 @@ bool GdbEngine::showToolTip()
     tw->acquireEngine(this);
     DebuggerToolTipManager::instance()->showToolTip(m_toolTipContext->mousePosition,
                                                     m_toolTipContext->editor, tw);
+    // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
+    m_toolTipContext.reset();
     return true;
 }
 
