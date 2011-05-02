@@ -1211,18 +1211,20 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
         return activateEditor(view, editor, flags);
     }
 
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     IEditor *editor = createEditor(editorId, fn);
     // If we could not open the file in the requested editor, fall
     // back to the default editor:
     if (!editor)
         editor = createEditor(QString(), fn);
+    if (!editor) // Internal error
+        return 0;
+
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QString errorString;
-    if (!editor || !editor->open(&errorString, fn)) {
+    if (!editor->open(&errorString, fn)) {
         QApplication::restoreOverrideCursor();
         QMessageBox::critical(m_d->m_core->mainWindow(), tr("File Error"), errorString);
         delete editor;
-        editor = 0;
         return 0;
     }
     addEditor(editor);
