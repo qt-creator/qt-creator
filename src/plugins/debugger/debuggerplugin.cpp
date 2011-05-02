@@ -2405,7 +2405,7 @@ void DebuggerPluginPrivate::runControlFinished(DebuggerEngine *engine)
         // Connect to some existing engine.
         m_snapshotHandler->activateSnapshot(0);
     }
-    action(OperateByInstruction)->setChecked(false);
+    action(OperateByInstruction)->setValue(QVariant(false));
 }
 
 void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
