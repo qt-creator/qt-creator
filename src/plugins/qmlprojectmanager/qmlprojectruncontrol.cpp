@@ -66,7 +66,7 @@ using namespace ProjectExplorer;
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode)
+QmlProjectRunControl::QmlProjectRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode)
     : RunControl(runConfiguration, mode)
 {
     m_applicationLauncher.setEnvironment(runConfiguration->environment());
@@ -87,12 +87,12 @@ QmlRunControl::QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QStri
             this, SLOT(slotBringApplicationToForeground(qint64)));
 }
 
-QmlRunControl::~QmlRunControl()
+QmlProjectRunControl::~QmlProjectRunControl()
 {
     stop();
 }
 
-void QmlRunControl::start()
+void QmlProjectRunControl::start()
 {
     m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable,
                                 m_commandLineArguments);
@@ -103,33 +103,33 @@ void QmlRunControl::start()
     appendMessage(msg, Utils::NormalMessageFormat);
 }
 
-RunControl::StopResult QmlRunControl::stop()
+RunControl::StopResult QmlProjectRunControl::stop()
 {
     m_applicationLauncher.stop();
     return StoppedSynchronously;
 }
 
-bool QmlRunControl::isRunning() const
+bool QmlProjectRunControl::isRunning() const
 {
     return m_applicationLauncher.isRunning();
 }
 
-QIcon QmlRunControl::icon() const
+QIcon QmlProjectRunControl::icon() const
 {
     return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
 }
 
-void QmlRunControl::slotBringApplicationToForeground(qint64 pid)
+void QmlProjectRunControl::slotBringApplicationToForeground(qint64 pid)
 {
     bringApplicationToForeground(pid);
 }
 
-void QmlRunControl::slotAppendMessage(const QString &line, Utils::OutputFormat format)
+void QmlProjectRunControl::slotAppendMessage(const QString &line, Utils::OutputFormat format)
 {
     appendMessage(line, format);
 }
 
-void QmlRunControl::processExited(int exitCode)
+void QmlProjectRunControl::processExited(int exitCode)
 {
     QString msg = tr("%1 exited with code %2\n")
         .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
@@ -137,16 +137,16 @@ void QmlRunControl::processExited(int exitCode)
     emit finished();
 }
 
-QmlRunControlFactory::QmlRunControlFactory(QObject *parent)
+QmlProjectRunControlFactory::QmlProjectRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {
 }
 
-QmlRunControlFactory::~QmlRunControlFactory()
+QmlProjectRunControlFactory::~QmlProjectRunControlFactory()
 {
 }
 
-bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
+bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
                                   const QString &mode) const
 {
     QmlProjectRunConfiguration *config =
@@ -169,7 +169,7 @@ bool QmlRunControlFactory::canRun(RunConfiguration *runConfiguration,
     return false;
 }
 
-RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration,
+RunControl *QmlProjectRunControlFactory::create(RunConfiguration *runConfiguration,
                                          const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
@@ -177,24 +177,24 @@ RunControl *QmlRunControlFactory::create(RunConfiguration *runConfiguration,
     QmlProjectRunConfiguration *config = qobject_cast<QmlProjectRunConfiguration *>(runConfiguration);
     RunControl *runControl = 0;
     if (mode == ProjectExplorer::Constants::RUNMODE)
-        runControl = new QmlRunControl(config, mode);
+        runControl = new QmlProjectRunControl(config, mode);
     else if (mode == Debugger::Constants::DEBUGMODE)
         runControl = createDebugRunControl(config);
     return runControl;
 }
 
-QString QmlRunControlFactory::displayName() const
+QString QmlProjectRunControlFactory::displayName() const
 {
     return tr("Run");
 }
 
-ProjectExplorer::RunConfigWidget *QmlRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
+ProjectExplorer::RunConfigWidget *QmlProjectRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
     Q_UNUSED(runConfiguration)
     return 0;
 }
 
-RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
+RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
 {
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::StartInternal;
@@ -217,7 +217,7 @@ RunControl *QmlRunControlFactory::createDebugRunControl(QmlProjectRunConfigurati
     return Debugger::DebuggerPlugin::createDebugger(params, runConfig);
 }
 
-void QmlRunControlFactory::showQmlObserverToolWarning()
+void QmlProjectRunControlFactory::showQmlObserverToolWarning()
 {
     QMessageBox dialog(QApplication::activeWindow());
     QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),

@@ -42,12 +42,12 @@ class QmlProjectRunConfiguration;
 
 namespace Internal {
 
-class QmlRunControl : public ProjectExplorer::RunControl
+class QmlProjectRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit QmlRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode);
-    virtual ~QmlRunControl ();
+    explicit QmlProjectRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode);
+    virtual ~QmlProjectRunControl ();
 
     // RunControl
     virtual void start();
@@ -67,11 +67,11 @@ private:
     QString m_commandLineArguments;
 };
 
-class QmlRunControlFactory : public ProjectExplorer::IRunControlFactory {
+class QmlProjectRunControlFactory : public ProjectExplorer::IRunControlFactory {
     Q_OBJECT
 public:
-    explicit QmlRunControlFactory(QObject *parent = 0);
-    virtual ~QmlRunControlFactory();
+    explicit QmlProjectRunControlFactory(QObject *parent = 0);
+    virtual ~QmlProjectRunControlFactory();
 
     // IRunControlFactory
     virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
