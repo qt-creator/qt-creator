@@ -4448,6 +4448,12 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 
     postCommand("disassemble 0 0", ConsoleCommand, CB(handleDisassemblerCheck));
 
+    if (sp.breakOnMain) {
+        QByteArray cmd = "tbreak ";
+        cmd += sp.toolChainAbi.os() == Abi::WindowsOS ? "qMain" : "main";
+        postCommand(cmd);
+    }
+
     loadPythonDumpers();
 
     QString scriptFileName = debuggerCore()->stringSetting(GdbScriptFile);

@@ -682,6 +682,7 @@ public slots:
     void showSettingsDialog();
 
     void debugProject();
+    void debugProjectBreakMain();
     void startExternalApplication();
     void startRemoteCdbSession();
     void startRemoteApplication();
@@ -779,20 +780,28 @@ public slots:
 
     void handleExecStep()
     {
-        currentEngine()->resetLocation();
-        if (boolSetting(OperateByInstruction))
-            currentEngine()->executeStepI();
-        else
-            currentEngine()->executeStep();
+        if (currentEngine()->state() == DebuggerNotReady) {
+            debugProjectBreakMain();
+        } else {
+            currentEngine()->resetLocation();
+            if (boolSetting(OperateByInstruction))
+                currentEngine()->executeStepI();
+            else
+                currentEngine()->executeStep();
+        }
     }
 
     void handleExecNext()
     {
-        currentEngine()->resetLocation();
-        if (boolSetting(OperateByInstruction))
-            currentEngine()->executeNextI();
-        else
-            currentEngine()->executeNext();
+        if (currentEngine()->state() == DebuggerNotReady) {
+            debugProjectBreakMain();
+        } else {
+            currentEngine()->resetLocation();
+            if (boolSetting(OperateByInstruction))
+                currentEngine()->executeNextI();
+            else
+                currentEngine()->executeNext();
+        }
     }
 
     void handleExecStepOut()
@@ -1336,6 +1345,13 @@ void DebuggerPluginPrivate::debugProject()
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     if (Project *pro = pe->startupProject())
         pe->runProject(pro, Constants::DEBUGMODE);
+}
+
+void DebuggerPluginPrivate::debugProjectBreakMain()
+{
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    if (Project *pro = pe->startupProject())
+        pe->runProject(pro, Constants::DEBUGMODE2);
 }
 
 void DebuggerPluginPrivate::startExternalApplication()
@@ -1920,13 +1936,13 @@ void DebuggerPluginPrivate::setInitialState()
     m_interruptAction->setEnabled(false);
     m_continueAction->setEnabled(false);
 
-    m_stepAction->setEnabled(false);
+    m_stepAction->setEnabled(true);
     m_stepOutAction->setEnabled(false);
     m_runToLineAction->setEnabled(false);
     m_runToSelectedFunctionAction->setEnabled(true);
     m_returnFromFunctionAction->setEnabled(false);
     m_jumpToLineAction->setEnabled(false);
-    m_nextAction->setEnabled(false);
+    m_nextAction->setEnabled(true);
 
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);
@@ -2041,7 +2057,9 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_resetAction->setEnabled(state != DebuggerNotReady
                                       && state != DebuggerFinished);
 
-    m_stepAction->setEnabled(stopped);
+    m_stepAction->setEnabled(stopped || state == DebuggerNotReady);
+    m_nextAction->setEnabled(stopped || state == DebuggerNotReady);
+
     m_stepOutAction->setEnabled(stopped);
     m_runToLineAction->setEnabled(stopped);
     m_runToSelectedFunctionAction->setEnabled(stopped);
@@ -2050,8 +2068,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     const bool canJump = stopped && (caps & JumpToLineCapability);
     m_jumpToLineAction->setEnabled(canJump);
-
-    m_nextAction->setEnabled(stopped);
 
     const bool canDeref = actionsEnabled && (caps & AutoDerefPointersCapability);
     action(AutoDerefPointers)->setEnabled(canDeref);
@@ -2828,13 +2844,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_nextAction,
-        Constants::NEXT, cppDebuggercontext);
+        Constants::NEXT, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::NEXT_KEY));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_stepAction,
-        Constants::STEP, cppDebuggercontext);
+        Constants::STEP, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEP_KEY));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);

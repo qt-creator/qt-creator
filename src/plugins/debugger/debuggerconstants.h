@@ -48,6 +48,7 @@ const char * const C_QMLDEBUGGER        = "Qml/JavaScript Debugger";
 
 // Project Explorer run mode (RUN/DEBUG)
 const char * const DEBUGMODE            = "Debugger.DebugMode";
+const char * const DEBUGMODE2           = "Debugger.DebugMode2";
 
 // Common actions (accessed by QML inspector)
 const char * const INTERRUPT            = "Debugger.Interrupt";

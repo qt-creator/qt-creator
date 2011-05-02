@@ -654,7 +654,7 @@ DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent,
 bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
 //    return mode == ProjectExplorer::Constants::DEBUGMODE;
-    return mode == Constants::DEBUGMODE
+    return (mode == Constants::DEBUGMODE || mode == Constants::DEBUGMODE2)
             && qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
 }
 
@@ -761,8 +761,10 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 RunControl *DebuggerRunControlFactory::create
     (RunConfiguration *runConfiguration, const QString &mode)
 {
-    QTC_ASSERT(mode == Constants::DEBUGMODE, return 0);
+    QTC_ASSERT(mode == Constants::DEBUGMODE || mode == Constants::DEBUGMODE2, return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration);
+    if (mode == Constants::DEBUGMODE2)
+        sp.breakOnMain = true;
     return create(sp, runConfiguration);
 }
 

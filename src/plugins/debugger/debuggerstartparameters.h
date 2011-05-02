@@ -64,6 +64,7 @@ public:
       : isSnapshot(false),
         attachPID(-1),
         useTerminal(false),
+        breakOnMain(false),
         qmlServerAddress(QLatin1String("127.0.0.1")),
         qmlServerPort(0),
         useServerStartScript(false),
@@ -85,6 +86,7 @@ public:
     QString workingDirectory;
     qint64 attachPID;
     bool useTerminal;
+    bool breakOnMain;
 
     // Used by AttachCrashedExternal.
     QString crashParameter;
