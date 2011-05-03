@@ -303,7 +303,7 @@ void CodaRunControl::handleModuleLoadSuspended(const CodaEvent &event)
 void CodaRunControl::handleLogging(const CodaEvent &event)
 {
     const CodaLoggingWriteEvent &me = static_cast<const CodaLoggingWriteEvent &>(event);
-    appendMessage(me.message(), Utils::StdOutFormat);
+    appendMessage(me.message() + '\n', Utils::StdOutFormat);
 }
 
 void CodaRunControl::handleAddListener(const CodaCommandResult &result)

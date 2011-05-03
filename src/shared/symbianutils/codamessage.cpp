@@ -441,10 +441,7 @@ CodaLoggingWriteEvent::CodaLoggingWriteEvent(const QByteArray &console, const QB
 
 QString CodaLoggingWriteEvent::toString() const
 {
-    QByteArray msgBA = m_console;
-    msgBA += ": ";
-    msgBA += m_message;
-    return QString::fromUtf8(msgBA);
+    return QString::fromUtf8(m_message);
 }
 
 // -------------- CodaIdEvent

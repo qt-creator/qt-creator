@@ -372,7 +372,7 @@ void CodaGdbAdapter::codaEvent(const CodaEvent &e)
     }
         break;
     case CodaEvent::LoggingWriteEvent: // TODO: Not tested yet.
-        showMessage(e.toString(), AppOutput);
+        showMessage(e.toString() + '\n', AppOutput);
         break;
     default:
         break;
