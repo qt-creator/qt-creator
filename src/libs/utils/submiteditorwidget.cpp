@@ -44,6 +44,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QSpacerItem>
+#include <QtGui/QShortcut>
 
 enum { debug = 0 };
 enum { defaultLineWidth = 72 };
@@ -172,6 +173,7 @@ struct SubmitEditorWidgetPrivate
     QList<AdditionalContextMenuAction> descriptionEditContextMenuActions;
     QVBoxLayout *m_fieldLayout;
     QList<SubmitFieldWidget *> m_fieldWidgets;
+    QShortcut *m_submitShortcut;
     int m_lineWidth;
 
     bool m_commitEnabled;
@@ -184,6 +186,7 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_activatedRow(-1),
     m_emptyFileListEnabled(false),
     m_fieldLayout(0),
+    m_submitShortcut(0),
     m_lineWidth(defaultLineWidth),
     m_commitEnabled(false),
     m_ignoreChange(false)
@@ -253,6 +256,9 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
             actionSlotHelper = new QActionSetTextSlotHelper(submitAction);
         connect(this, SIGNAL(submitActionTextChanged(QString)), actionSlotHelper, SLOT(setText(QString)));
         m_d->m_ui.buttonLayout->addWidget(new QActionPushButton(submitAction));
+        if (!m_d->m_submitShortcut)
+            m_d->m_submitShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Return), this);
+        connect(m_d->m_submitShortcut, SIGNAL(activated()), submitAction, SLOT(trigger()));
     }
     if (diffAction) {
         if (debug)
