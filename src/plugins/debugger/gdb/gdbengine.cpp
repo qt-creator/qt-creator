@@ -2064,6 +2064,7 @@ void GdbEngine::executeRunToLine(const ContextData &data)
         else
             loc = "\"\\\"" + breakLocation(data.fileName).toLocal8Bit() + "\\\":"
                 + QByteArray::number(data.lineNumber) + '"';
+        // "tbreak/continue" does _not_ work on Mac. See #4619
         postCommand("-break-insert -t -l -1 -f " + loc);
         postCommand("-exec-continue", RunRequest, CB(handleExecuteRunToLine));
     } else {
