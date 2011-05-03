@@ -991,14 +991,14 @@ QWidget *VCSBaseEditorWidget::configurationWidget() const
 }
 
 // Find the complete file from a diff relative specification.
-QString VCSBaseEditorWidget::findDiffFile(const QString &f, Core::IVersionControl *control /* = 0 */) const
+QString VCSBaseEditorWidget::findDiffFile(const QString &f,
+                                          Core::IVersionControl *control /* = 0 */) const
 {
-    // Try the file itself, expand to absolute.
+    // Check if file is absolute
     const QFileInfo in(f);
     if (in.isAbsolute())
         return in.isFile() ? f : QString();
-    if (in.isFile())
-        return in.absoluteFilePath();
+
     // 1) Try base dir
     const QChar slash = QLatin1Char('/');
     if (!d->m_diffBaseDirectory.isEmpty()) {
@@ -1007,22 +1007,26 @@ QString VCSBaseEditorWidget::findDiffFile(const QString &f, Core::IVersionContro
             return baseFileInfo.absoluteFilePath();
     }
     // 2) Try in source (which can be file or directory)
-    if (source().isEmpty())
-        return QString();
-    const QFileInfo sourceInfo(source());
-    const QString sourceDir = sourceInfo.isDir() ? sourceInfo.absoluteFilePath() : sourceInfo.absolutePath();
-    const QFileInfo sourceFileInfo(sourceDir + slash + f);
-    if (sourceFileInfo.isFile())
-        return sourceFileInfo.absoluteFilePath();
-    // Try to locate via repository.
-    if (!control)
-        return QString();
-    QString topLevel;
-    if (!control->managesDirectory(sourceDir, &topLevel))
-        return QString();
-    const QFileInfo topLevelFileInfo(topLevel + slash + f);
-    if (topLevelFileInfo.isFile())
-        return topLevelFileInfo.absoluteFilePath();
+    if (!source().isEmpty()) {
+        const QFileInfo sourceInfo(source());
+        const QString sourceDir = sourceInfo.isDir() ? sourceInfo.absoluteFilePath()
+                                                     : sourceInfo.absolutePath();
+        const QFileInfo sourceFileInfo(sourceDir + slash + f);
+        if (sourceFileInfo.isFile())
+            return sourceFileInfo.absoluteFilePath();
+
+        QString topLevel;
+        if (control && control->managesDirectory(sourceDir, &topLevel)) {
+            const QFileInfo topLevelFileInfo(topLevel + slash + f);
+            if (topLevelFileInfo.isFile())
+                return topLevelFileInfo.absoluteFilePath();
+        }
+    }
+
+    // 3) Try working directory
+    if (in.isFile())
+        return in.absoluteFilePath();
+
     return QString();
 }
 
