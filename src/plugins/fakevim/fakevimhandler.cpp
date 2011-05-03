@@ -3671,19 +3671,27 @@ bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
     return handled;
 }
 
-static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *flags)
+static QRegExp vimPatternToQtPattern(QString needle, QTextDocument::FindFlags *flags)
 {
     // FIXME: Rough mapping of a common case.
-    if (needle->startsWith(_("\\<")) && needle->endsWith(_("\\>")))
+    if (needle.startsWith(_("\\<")) && needle.endsWith(_("\\>")))
         (*flags) |= QTextDocument::FindWholeWords;
     // Half-hearted attempt at removing pitfalls.
-    if (needle->startsWith(_(".*")))
-        *needle = needle->mid(2);
-    if (needle->endsWith(_(".*")))
-        *needle = needle->left(needle->size() - 2);
-    needle->remove(_("\\<")); // start of word
-    needle->remove(_("\\>")); // end of word
-    //qDebug() << "NEEDLE " << needle0 << needle;
+    if (needle.startsWith(_(".*")))
+        needle = needle.mid(2);
+    if (needle.endsWith(_(".*")))
+        needle = needle.left(needle.size() - 2);
+    needle.remove(_("\\<")); // start of word
+    needle.remove(_("\\>")); // end of word
+
+    // QRegExp's | and \| have the opposite meaning of vim's.
+    QString dummy(QLatin1Char(1));
+    needle.replace(_("\\|"), dummy);
+    needle.replace(_("|"), _("\\|"));
+    needle.replace(dummy, _("|"));
+
+    //qDebug() << "NEEDLE " << needle << needle;
+    return QRegExp(needle);
 }
 
 void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar other)
@@ -3726,8 +3734,7 @@ void FakeVimHandler::Private::search(const SearchData &sd)
     if (!sd.forward)
         flags |= QTextDocument::FindBackward;
 
-    QString needle = sd.needle;
-    vimPatternToQtPattern(&needle, &flags);
+    QRegExp needleExp = vimPatternToQtPattern(sd.needle, &flags);
 
     const int oldLine = cursorLine() - cursorLineOnScreen();
 
@@ -3736,7 +3743,6 @@ void FakeVimHandler::Private::search(const SearchData &sd)
         sd.forward ? ++startPos : --startPos;
 
     m_searchCursor = QTextCursor();
-    QRegExp needleExp(needle);
     QTextCursor tc = document()->find(needleExp, startPos, flags);
     if (tc.isNull()) {
         int startPos = sd.forward ? 0 : lastPositionInDocument();
@@ -3744,7 +3750,8 @@ void FakeVimHandler::Private::search(const SearchData &sd)
         if (tc.isNull()) {
             if (!incSearch) {
                 highlightMatches(QString());
-                showRedMessage(FakeVimHandler::tr("Pattern not found: ") + needle);
+                showRedMessage(FakeVimHandler::tr("Pattern not found: %1")
+                    .arg(needleExp.pattern()));
             }
             updateSelection();
             return;
@@ -3771,27 +3778,25 @@ void FakeVimHandler::Private::search(const SearchData &sd)
     setTargetColumn();
 
     if (sd.highlightMatches)
-        highlightMatches(needle);
+        highlightMatches(sd.needle);
     updateSelection();
     recordJump();
 }
 
-void FakeVimHandler::Private::highlightMatches(const QString &needle0)
+void FakeVimHandler::Private::highlightMatches(const QString &needle)
 {
     if (!hasConfig(ConfigHlSearch))
         return;
-    if (needle0 == m_oldNeedle)
+    if (needle == m_oldNeedle)
         return;
-    m_oldNeedle = needle0;
+    m_oldNeedle = needle;
     m_searchSelections.clear();
-    if (!needle0.isEmpty()) {
+    if (!needle.isEmpty()) {
         QTextCursor tc = cursor();
         tc.movePosition(StartOfDocument, MoveAnchor);
 
         QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
-        QString needle = needle0;
-        vimPatternToQtPattern(&needle, &flags);
-        QRegExp needleExp(needle);
+        QRegExp needleExp = vimPatternToQtPattern(needle, &flags);
         while (!tc.atEnd()) {
             tc = tc.document()->find(needleExp, tc.position(), flags);
             if (tc.isNull())
@@ -3801,7 +3806,8 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle0)
             sel.format = tc.blockCharFormat();
             sel.format.setBackground(QColor(177, 177, 0));
             m_searchSelections.append(sel);
-            tc.movePosition(Right, MoveAnchor);
+            if (document()->characterAt(tc.position()) == ParagraphSeparator)
+                tc.movePosition(Right, MoveAnchor);
         }
     }
     updateSelection();
