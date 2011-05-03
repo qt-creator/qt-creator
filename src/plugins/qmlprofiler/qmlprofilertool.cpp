@@ -166,9 +166,8 @@ QString QmlProfilerTool::displayName() const
 
 IAnalyzerTool::ToolMode QmlProfilerTool::mode() const
 {
-    return DebugMode;
+    return AnyMode;
 }
-
 
 IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
                                                ProjectExplorer::RunConfiguration *runConfiguration)
