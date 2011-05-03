@@ -510,7 +510,7 @@ void BazaarPlugin::createSubmitEditorActions()
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_editorCommit, SIGNAL(triggered()), this, SLOT(commitFromEditor()));
 
-    m_editorDiff = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
+    m_editorDiff = new QAction(VCSBase::VCSBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
     command = m_actionManager->registerAction(m_editorDiff, Core::Id(Constants::DIFFEDITOR), context);
 
     m_editorUndo = new QAction(tr("&Undo"), this);
