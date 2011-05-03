@@ -302,13 +302,15 @@ void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *ta
     if (answer == QMessageBox::No)
         return;
     const QStringList pkgFilePaths = packagingFilePaths();
-    project()->rootProjectNode()->removeFiles(ProjectExplorer::UnknownFileType,
-        pkgFilePaths);
-    Core::IVersionControl * const vcs = core->vcsManager()
-        ->findVersionControlForDirectory(QFileInfo(packagingFilePaths().first()).dir().path());
-    if (vcs && vcs->supportsOperation(Core::IVersionControl::DeleteOperation)) {
-        foreach (const QString &filePath, pkgFilePaths)
-            vcs->vcsDelete(filePath);
+    if (!pkgFilePaths.isEmpty()) {
+        project()->rootProjectNode()->removeFiles(ProjectExplorer::UnknownFileType,
+            pkgFilePaths);
+        Core::IVersionControl * const vcs = core->vcsManager()
+            ->findVersionControlForDirectory(QFileInfo(pkgFilePaths.first()).dir().path());
+        if (vcs && vcs->supportsOperation(Core::IVersionControl::DeleteOperation)) {
+            foreach (const QString &filePath, pkgFilePaths)
+                vcs->vcsDelete(filePath);
+        }
     }
     removeTarget();
     QString error;
