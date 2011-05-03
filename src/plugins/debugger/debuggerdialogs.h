@@ -88,6 +88,9 @@ public:
     ProjectExplorer::Abi abi() const;
     QString debuggerCommand();
 
+    QString overrideStartScript() const;
+    void setOverrideStartScript(const QString &scriptName);
+
 private slots:
     void changed();
 
@@ -185,6 +188,9 @@ public:
     QString gnuTarget() const;
     void setGnuTarget(const QString &gnuTarget);
     void setGnuTargets(const QStringList &gnuTargets);
+
+    QString overrideStartScript() const;
+    void setOverrideStartScript(const QString &scriptName);
 
     bool useServerStartScript() const;
     void setUseServerStartScript(bool on);

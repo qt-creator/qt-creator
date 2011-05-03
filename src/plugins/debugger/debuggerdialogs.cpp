@@ -189,12 +189,14 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     m_ui->coreFileName->setExpectedKind(PathChooser::File);
     m_ui->coreFileName->setPromptDialogTitle(tr("Select Core File"));
 
+    m_ui->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
+    m_ui->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
+
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
     connect(m_ui->coreFileName, SIGNAL(changed(QString)), this, SLOT(changed()));
-    connect(m_ui->execFileName, SIGNAL(changed(QString)), this, SLOT(changed()));
     changed();
 }
 
@@ -244,6 +246,16 @@ int AttachCoreDialog::abiIndex() const
 QString AttachCoreDialog::debuggerCommand()
 {
     return m_ui->toolchainComboBox->debuggerCommand();
+}
+
+QString AttachCoreDialog::overrideStartScript() const
+{
+    return m_ui->overrideStartScriptFileName->path();
+}
+
+void AttachCoreDialog::setOverrideStartScript(const QString &scriptName)
+{
+    m_ui->overrideStartScriptFileName->setPath(scriptName);
 }
 
 bool AttachCoreDialog::isValid() const
@@ -632,8 +644,10 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     m_ui->executablePathChooser->setExpectedKind(PathChooser::File);
     m_ui->executablePathChooser->setPromptDialogTitle(tr("Select Executable"));
     m_ui->sysrootPathChooser->setPromptDialogTitle(tr("Select Sysroot"));
+    m_ui->overrideStartScriptPathChooser->setExpectedKind(PathChooser::File);
+    m_ui->overrideStartScriptPathChooser->setPromptDialogTitle(tr("Select GDB Start Script"));
     m_ui->serverStartScript->setExpectedKind(PathChooser::File);
-    m_ui->serverStartScript->setPromptDialogTitle(tr("Select Start Script"));
+    m_ui->serverStartScript->setPromptDialogTitle(tr("Select Server Start Script"));
 
     connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)),
         this, SLOT(updateState()));
@@ -719,6 +733,16 @@ void StartRemoteDialog::setGnuTarget(const QString &gnuTarget)
     const int index = m_ui->gnuTargetComboBox->findText(gnuTarget);
     if (index != -1)
         m_ui->gnuTargetComboBox->setCurrentIndex(index);
+}
+
+QString StartRemoteDialog::overrideStartScript() const
+{
+    return m_ui->overrideStartScriptPathChooser->path();
+}
+
+void StartRemoteDialog::setOverrideStartScript(const QString &scriptName)
+{
+    m_ui->overrideStartScriptPathChooser->setPath(scriptName);
 }
 
 void StartRemoteDialog::setServerStartScript(const QString &scriptName)

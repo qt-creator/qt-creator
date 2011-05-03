@@ -107,6 +107,19 @@
       <widget class="Utils::PathChooser" name="sysrootPathChooser"/>
      </item>
      <item row="6" column="0">
+      <widget class="QLabel" name="overrideStartScriptLabel">
+       <property name="text">
+        <string>Override S&amp;tart script:</string>
+       </property>
+       <property name="buddy">
+        <cstring>overrideStartScriptPathChooser</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="Utils::PathChooser" name="overrideStartScriptPathChooser"/>
+     </item>
+     <item row="7" column="0">
       <widget class="QLabel" name="useServerStartScriptLabel">
        <property name="text">
         <string>&amp;Use server start script:</string>
@@ -116,10 +129,10 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="7" column="1">
       <widget class="QCheckBox" name="useServerStartScriptCheckBox"/>
      </item>
-     <item row="7" column="0">
+     <item row="8" column="0">
       <widget class="QLabel" name="serverStartScriptLabel">
        <property name="text">
         <string>&amp;Server start script:</string>
@@ -129,7 +142,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="8" column="1">
       <widget class="Utils::PathChooser" name="serverStartScript"/>
      </item>
     </layout>

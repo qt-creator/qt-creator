@@ -4438,7 +4438,9 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 
     loadPythonDumpers();
 
-    QString scriptFileName = debuggerCore()->stringSetting(GdbScriptFile);
+    QString scriptFileName = sp.overrideStartScript;
+    if (scriptFileName.isEmpty())
+        scriptFileName = debuggerCore()->stringSetting(GdbScriptFile);
     if (!scriptFileName.isEmpty()) {
         if (QFileInfo(scriptFileName).isReadable()) {
             postCommand("source " + scriptFileName.toLocal8Bit());

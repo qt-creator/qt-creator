@@ -80,6 +80,7 @@ public:
     QString displayName; // Used in the Snapshots view.
     QString startMessage; // First status message shown.
     QString coreFile;
+    QString overrideStartScript; // Used in attach to core and remote debugging
     bool isSnapshot; // Set if created internally.
     QString processArgs;
     Utils::Environment environment;

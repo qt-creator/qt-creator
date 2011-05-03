@@ -695,6 +695,7 @@ public slots:
     void attachCore();
     void attachCore(const QString &core, const QString &exeFileName,
                     const ProjectExplorer::Abi &abi = ProjectExplorer::Abi(),
+                    const QString &overrideStartScript = QString(),
                     const QString &debuggerCommand = QString());
     void attachRemote(const QString &spec);
 
@@ -1441,6 +1442,7 @@ void DebuggerPluginPrivate::attachCore()
     dlg.setExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setCoreFile(configValue(_("LastExternalCoreFile")).toString());
     dlg.setAbiIndex(configValue(_("LastExternalCoreAbiIndex")).toInt());
+    dlg.setOverrideStartScript(configValue(_("LastExternalStartScript")).toString());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
@@ -1448,12 +1450,14 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue(_("LastExternalExecutableFile"), dlg.executableFile());
     setConfigValue(_("LastExternalCoreFile"), dlg.coreFile());
     setConfigValue(_("LastExternalCoreAbiIndex"), QVariant(dlg.abiIndex()));
-    attachCore(dlg.coreFile(), dlg.executableFile(), dlg.abi());
+    setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
+    attachCore(dlg.coreFile(), dlg.executableFile(), dlg.abi(), dlg.overrideStartScript());
 }
 
 void DebuggerPluginPrivate::attachCore(const QString &core,
                                        const QString &exe,
                                        const ProjectExplorer::Abi &abi,
+                                       const QString &overrideStartScript,
                                        const QString &debuggerCommand)
 {
     DebuggerStartParameters sp;
@@ -1463,6 +1467,7 @@ void DebuggerPluginPrivate::attachCore(const QString &core,
     sp.startMode = AttachCore;
     sp.debuggerCommand = debuggerCommand;
     sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.coreFile);
+    sp.overrideStartScript = overrideStartScript;
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1534,6 +1539,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     dlg.setDebugger(configValue(_("LastDebugger")).toString());
     dlg.setRemoteArchitecture(lastUsed);
     dlg.setGnuTarget(lastUsedGnuTarget);
+    dlg.setOverrideStartScript(configValue(_("LastRemoteStartScript")).toString());
     dlg.setServerStartScript(
             configValue(_("LastServerStartScript")).toString());
     dlg.setUseServerStartScript(
@@ -1546,6 +1552,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     setConfigValue(_("LastDebugger"), dlg.debugger());
     setConfigValue(_("LastRemoteArchitecture"), dlg.remoteArchitecture());
     setConfigValue(_("LastGnuTarget"), dlg.gnuTarget());
+    setConfigValue(_("LastRemoteStartScript"), dlg.overrideStartScript());
     setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
     setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
     setConfigValue(_("LastSysroot"), dlg.sysRoot());
@@ -1558,6 +1565,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     if (!sp.debuggerCommand.isEmpty())
         sp.toolChainAbi = ProjectExplorer::Abi();
     sp.startMode = AttachToRemote;
+    sp.overrideStartScript = dlg.overrideStartScript();
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
     sp.sysRoot = dlg.sysRoot();
