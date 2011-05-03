@@ -654,6 +654,9 @@ void NodeInstanceServer::resetInstanceProperty(const PropertyAbstractContainer &
         } else {
             instance.resetProperty(name);
         }
+
+        if (propertyContainer.isDynamic() && propertyContainer.instanceId() == 0 && engine())
+            engine()->rootContext()->setContextProperty(name, QVariant());
     }
 }
 
@@ -716,7 +719,8 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
                 instance.setPropertyVariant(name, value);
         }
 
-//        instance.paintUpdate();
+        if (valueContainer.isDynamic() && valueContainer.instanceId() == 0 && engine())
+            engine()->rootContext()->setContextProperty(name, value);
     }
 }
 
