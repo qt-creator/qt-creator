@@ -431,8 +431,13 @@ void QmlProfilerTool::tryToConnect()
     } else if (d->m_connectionAttempts == 50) {
         d->m_connectionTimer.stop();
         d->m_connectionAttempts = 0;
-        if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: Failed to connect: %s", qPrintable(d->m_client->errorString()));
+        if (QmlProfilerPlugin::debugOutput) {
+            if (d->m_client) {
+                qWarning("QmlProfiler: Failed to connect: %s", qPrintable(d->m_client->errorString()));
+            } else {
+                qWarning("QmlProfiler: Failed to connect.");
+            }
+        }
         emit connectionFailed();
     } else {
         connectToClient();
