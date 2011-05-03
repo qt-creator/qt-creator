@@ -318,7 +318,8 @@ void BazaarPlugin::logCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
+    m_client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
+                  BazaarClient::ExtraCommandOptions(), true);
 }
 
 void BazaarPlugin::revertCurrentFile()

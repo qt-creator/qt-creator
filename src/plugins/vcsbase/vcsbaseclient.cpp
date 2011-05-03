@@ -291,11 +291,12 @@ void VCSBaseClient::diff(const QString &workingDir, const QStringList &files,
 }
 
 void VCSBaseClient::log(const QString &workingDir, const QStringList &files,
+                        const ExtraCommandOptions &extraOptions,
                         bool enableAnnotationContextMenu)
 {
     const QString vcsCmdString = vcsCommandString(LogCommand);
     QStringList args;
-    args << vcsCmdString << logArguments(files);
+    args << vcsCmdString << logArguments(files, extraOptions);
     const QString kind = vcsEditorKind(LogCommand);
     const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);

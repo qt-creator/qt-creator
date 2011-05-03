@@ -457,8 +457,10 @@ QStringList MercurialClient::diffArguments(const QStringList &files,
     return args;
 }
 
-QStringList MercurialClient::logArguments(const QStringList &files) const
+QStringList MercurialClient::logArguments(const QStringList &files,
+                                          const ExtraCommandOptions &extraOptions) const
 {
+    Q_UNUSED(extraOptions);
     QStringList args;
     if (!files.empty())
         args.append(files);

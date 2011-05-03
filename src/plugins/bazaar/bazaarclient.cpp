@@ -339,9 +339,10 @@ QStringList BazaarClient::diffArguments(const QStringList &files,
     return args;
 }
 
-QStringList BazaarClient::logArguments(const QStringList &files) const
+QStringList BazaarClient::logArguments(const QStringList &files,
+                                       const ExtraCommandOptions &extraOptions) const
 {
-    return diffArguments(files, ExtraCommandOptions());
+    return diffArguments(files, extraOptions);
 }
 
 QStringList BazaarClient::statusArguments(const QString &file) const

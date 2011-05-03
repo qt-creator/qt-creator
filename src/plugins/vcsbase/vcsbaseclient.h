@@ -91,6 +91,7 @@ public:
     void diff(const QString &workingDir, const QStringList &files = QStringList(),
               const ExtraCommandOptions &extraOptions = ExtraCommandOptions());
     void log(const QString &workingDir, const QStringList &files = QStringList(),
+             const ExtraCommandOptions &extraOptions = ExtraCommandOptions(),
              bool enableAnnotationContextMenu = false);
     void status(const QString &workingDir, const QString &file = QString());
     void statusWithSignal(const QString &repository);
@@ -158,7 +159,8 @@ protected:
                                       const ExtraCommandOptions &extraOptions) const = 0;
     virtual void initializeDiffEditor(const QString &workingDir, const QStringList &files,
                                       const ExtraCommandOptions &extraOptions, VCSBaseEditorWidget *ed);
-    virtual QStringList logArguments(const QStringList &files) const = 0;
+    virtual QStringList logArguments(const QStringList &files,
+                                     const ExtraCommandOptions &extraOptions) const = 0;
     virtual QStringList statusArguments(const QString &file) const = 0;
     virtual QStringList viewArguments(const QString &revision) const = 0;
 

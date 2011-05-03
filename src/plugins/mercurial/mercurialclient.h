@@ -101,7 +101,8 @@ protected:
     void initializeDiffEditor(const QString &workingDir, const QStringList &files,
                               const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
                               VCSBase::VCSBaseEditorWidget *ed);
-    QStringList logArguments(const QStringList &files) const;
+    QStringList logArguments(const QStringList &files,
+                             const ExtraCommandOptions &extraOptions) const;
     QStringList statusArguments(const QString &file) const;
     QStringList viewArguments(const QString &revision) const;
 
