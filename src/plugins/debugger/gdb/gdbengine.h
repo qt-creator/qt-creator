@@ -710,7 +710,6 @@ private: ////////// View & Data Stuff //////////
     bool isQFatalBreakpoint(int bpnr) const;
 
     // HACK:
-    StackFrame m_targetFrame;
     QByteArray m_currentThread;
     QString m_lastWinException;
     int m_qFatalBreakpointNumber;

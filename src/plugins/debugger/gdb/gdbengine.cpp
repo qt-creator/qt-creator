@@ -1144,16 +1144,15 @@ void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
         doNotifyInferiorRunOk();
         // All is fine. Waiting for the temporary breakpoint to be hit.
     } else if (response.resultClass == GdbResultDone) {
-        // This happens on old gdb. Trigger the effect of a '*stopped'.
+        // This happens on old gdb (Mac). gdb is not stopped yet,
+        // but merely accepted the continue.
         // >&"continue\n"
         // >~"Continuing.\n"
         //>~"testArray () at ../simple/app.cpp:241\n"
         //>~"241\t    s[1] = \"b\";\n"
         //>122^done
-        gotoLocation(m_targetFrame);
         showStatusMessage(tr("Target line hit. Stopped"));
-        notifyInferiorSpontaneousStop();
-        handleStop1(response);
+        notifyInferiorRunOk();
     }
 }
 
@@ -2054,19 +2053,28 @@ void GdbEngine::executeRunToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
+    resetLocation();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Run to line %1 requested...").arg(data.lineNumber), 5000);
 #if 1
-    m_targetFrame.file = data.fileName;
-    m_targetFrame.line = data.lineNumber;
     QByteArray loc;
-    if (data.address)
-        loc = addressSpec(data.address);
-    else
-        loc = '"' + breakLocation(data.fileName).toLocal8Bit() + '"' + ':'
-            + QByteArray::number(data.lineNumber);
-    postCommand("tbreak " + loc);
-    postCommand("continue", RunRequest, CB(handleExecuteRunToLine));
+    if (m_isMacGdb) {
+        if (data.address)
+            loc = addressSpec(data.address);
+        else
+            loc = "\"\\\"" + breakLocation(data.fileName).toLocal8Bit() + "\\\":"
+                + QByteArray::number(data.lineNumber) + '"';
+        postCommand("-break-insert -t -l -1 -f " + loc);
+        postCommand("-exec-continue", RunRequest, CB(handleExecuteRunToLine));
+    } else {
+        if (data.address)
+            loc = addressSpec(data.address);
+        else
+            loc = '"' + breakLocation(data.fileName).toLocal8Bit() + '"' + ':'
+               + QByteArray::number(data.lineNumber);
+        postCommand("tbreak " + loc);
+        postCommand("continue", RunRequest, CB(handleExecuteRunToLine));
+    }
 #else
     // Seems to jump to unpredicatable places. Observed in the manual
     // tests in the Foo::Foo() constructor with both gdb 6.8 and 7.1.
@@ -2080,6 +2088,7 @@ void GdbEngine::executeRunToFunction(const QString &functionName)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     setTokenBarrier();
+    resetLocation();
     postCommand("-break-insert -t " + functionName.toLatin1());
     showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
     continueInferiorInternal();
