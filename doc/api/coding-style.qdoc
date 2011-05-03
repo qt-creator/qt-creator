@@ -63,7 +63,8 @@
     the philosophy behind Qt development. For more information about how to set up
     the development environment for working on a Qt library and how to submit code
     and documentation for inclusion to Qt, see
-    \l{http://qt.gitorious.org/qt/pages/QtContributionGuidelines}{Qt Contribution Guidelines}.
+    \l{http://developer.qt.nokia.com/wiki/Qt_Contribution_Guidelines}
+    {Guidelines for Contributions to the Qt Framework}.
 
     \section1 Binary and Source Compatibility
 
