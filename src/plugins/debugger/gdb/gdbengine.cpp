@@ -3147,24 +3147,6 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         stackFrames.append(parseStackFrame(stack.childAt(i), i));
         const StackFrame &frame = stackFrames.back();
 
-#        if defined(Q_OS_WIN)
-        const bool isBogus =
-            // Assume this is wrong and points to some strange stl_algobase
-            // implementation. Happens on Karsten's XP system with Gdb 5.50
-            (frame.file.endsWith(__("/bits/stl_algobase.h")) && frame.line == 150)
-            // Also wrong. Happens on Vista with Gdb 5.50
-               || (frame.function == __("operator new") && frame.line == 151);
-
-        // Immediately leave bogus frames.
-        if (targetFrame == -1 && isBogus) {
-            setTokenBarrier();
-            notifyInferiorRunRequested();
-            postCommand("-exec-finish", RunRequest, CB(handleExecuteContinue));
-            showStatusMessage(tr("Jumping out of bogus frame..."), 1000);
-            return;
-        }
-#        endif
-
         // Initialize top frame to the first valid frame.
         const bool isValid = frame.isUsable() && !frame.function.isEmpty();
         if (isValid && targetFrame == -1)
