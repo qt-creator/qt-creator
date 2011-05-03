@@ -90,11 +90,13 @@ private:
     QIcon m_invalidVersionIcon;
     QIcon m_validVersionIcon;
 
+public slots:
+    void updateState();
+
 private slots:
     void versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old);
     void addQtDir();
     void removeQtDir();
-    void updateState();
     void makeS60Visible(bool visible);
     void onQtBrowsed();
     void updateCurrentQtName();

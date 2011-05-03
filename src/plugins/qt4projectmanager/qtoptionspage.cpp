@@ -117,6 +117,7 @@ void QtOptionsPage::apply()
 
     QtVersionManager *vm = QtVersionManager::instance();
     vm->setNewQtVersions(m_widget->versions());
+    m_widget->updateState();
 }
 
 bool QtOptionsPage::matches(const QString &s) const
