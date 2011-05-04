@@ -163,6 +163,9 @@ void CodaGdbAdapter::setupTrkDeviceSignals()
 
 CodaGdbAdapter::~CodaGdbAdapter()
 {
+    if (m_codaDevice)
+        SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
+
     cleanup();
     logMessage("Shutting down.\n");
 }
@@ -1222,6 +1225,8 @@ void CodaGdbAdapter::cleanup()
     m_gdbServer = 0;
     if (m_codaDevice) {
         // Ensure process is stopped after being suspended.
+        // This cannot be used when the object is deleted
+        // as the responce will return to a not existing object
         sendRunControlTerminateCommand();
         disconnect(m_codaDevice.data(), 0, this, 0);
         SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
