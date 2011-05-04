@@ -38,6 +38,7 @@
 #include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
 
+#include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
@@ -420,7 +421,7 @@ bool AbstractDebBasedQt4MaemoTarget::setProjectVersionInternal(const QString &ve
     QString content = QString::fromUtf8(reader.data());
     content.replace(QRegExp(QLatin1String("\\([a-zA-Z0-9_\\.]+\\)")),
         QLatin1Char('(') + version + QLatin1Char(')'));
-    MaemoGlobal::FileUpdate update(filePath);
+    Core::FileChangeBlocker update(filePath);
     Utils::FileSaver saver(filePath);
     saver.write(content.toUtf8());
     return saver.finalize(error);
@@ -488,7 +489,7 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIconInternal(const QString
         contents.replace(oldIconStartPos, nextEolPos - oldIconStartPos,
             ' ' + iconAsBase64);
     }
-    MaemoGlobal::FileUpdate update(filePath);
+    Core::FileChangeBlocker update(filePath);
     Utils::FileSaver saver(filePath);
     saver.write(contents);
     return saver.finalize(error);
@@ -646,7 +647,7 @@ bool AbstractDebBasedQt4MaemoTarget::setControlFieldValue(const QByteArray &fiel
         return false;
     QByteArray contents = reader.data();
     if (adaptControlFileField(contents, fieldName, fieldValue)) {
-        MaemoGlobal::FileUpdate update(controlFilePath());
+        Core::FileChangeBlocker update(controlFilePath());
         Utils::FileSaver saver(controlFilePath());
         saver.write(contents);
         return saver.finalize();

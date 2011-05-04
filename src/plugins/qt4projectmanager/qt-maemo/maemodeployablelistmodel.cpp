@@ -36,6 +36,7 @@
 #include "qt4maemotarget.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/filemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -299,7 +300,7 @@ QString MaemoDeployableListModel::remoteIconFilePath() const
 
 bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
 {
-    MaemoGlobal::FileUpdate update(m_proFilePath);
+    Core::FileChangeBlocker update(m_proFilePath);
 
     const QLatin1String separator("\n    ");
     const QString proFileString = QString(QLatin1Char('\n') + proFileScope()

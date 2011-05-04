@@ -65,14 +65,6 @@ class MaemoGlobal
 public:
     enum PackagingSystem { Dpkg, Rpm, Tar };
 
-    class FileUpdate {
-    public:
-        FileUpdate(const QString &fileName);
-        ~FileUpdate();
-    private:
-        const QString m_fileName;
-    };
-
     static bool isMaemoTargetId(const QString &id);
     static bool isFremantleTargetId(const QString &id);
     static bool isHarmattanTargetId(const QString &id);

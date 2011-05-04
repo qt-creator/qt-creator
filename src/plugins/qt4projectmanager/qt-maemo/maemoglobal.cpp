@@ -426,16 +426,5 @@ MaemoGlobal::PackagingSystem MaemoGlobal::packagingSystem(MaemoDeviceConfig::OsV
     return static_cast<PackagingSystem>(-1);
 }
 
-MaemoGlobal::FileUpdate::FileUpdate(const QString &fileName)
-    : m_fileName(fileName)
-{
-    Core::FileManager::instance()->expectFileChange(fileName);
-}
-
-MaemoGlobal::FileUpdate::~FileUpdate()
-{
-    Core::FileManager::instance()->unexpectFileChange(m_fileName);
-}
-
 } // namespace Internal
 } // namespace Qt4ProjectManager
