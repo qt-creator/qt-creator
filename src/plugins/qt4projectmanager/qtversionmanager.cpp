@@ -1413,19 +1413,37 @@ QString QtVersion::systemRoot() const
 bool QtVersion::supportsTargetId(const QString &id) const
 {
     updateAbiAndMkspec();
+    if (!m_forcedTargetIds.isEmpty())
+        return m_forcedTargetIds.contains(id);
     return m_targetIds.contains(id);
 }
 
 QSet<QString> QtVersion::supportedTargetIds() const
 {
     updateAbiAndMkspec();
+    if (!m_forcedTargetIds.isEmpty())
+        return m_forcedTargetIds;
     return m_targetIds;
 }
 
 QList<ProjectExplorer::Abi> QtVersion::qtAbis() const
 {
     updateAbiAndMkspec();
+    if (!m_forcedAbis.isEmpty())
+        return m_forcedAbis;
     return m_abis;
+}
+
+void QtVersion::setForcedTargetIds(const QSet<QString> &ids)
+{
+    updateAbiAndMkspec();
+    m_forcedTargetIds = ids;
+}
+
+void QtVersion::setForcedQtAbis(const QList<ProjectExplorer::Abi> &abis)
+{
+    updateAbiAndMkspec();
+    m_forcedAbis = abis;
 }
 
 // if none, then it's INVALID everywhere this function is called

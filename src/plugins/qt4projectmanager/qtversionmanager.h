@@ -118,6 +118,9 @@ public:
 
     QList<ProjectExplorer::Abi> qtAbis() const;
 
+    void setForcedTargetIds(const QSet<QString> &ids);
+    void setForcedQtAbis(const QList<ProjectExplorer::Abi> &abis);
+
     /// @returns the name of the mkspec, which is generally not enough
     /// to pass to qmake.
     QString mkspec() const;
@@ -221,6 +224,7 @@ private:
     mutable QString m_mkspec; // updated lazily
     mutable QString m_mkspecFullPath;
     mutable QList<ProjectExplorer::Abi> m_abis;
+    mutable QList<ProjectExplorer::Abi> m_forcedAbis;
 
     mutable bool m_versionInfoUpToDate;
     mutable QHash<QString,QString> m_versionInfo; // updated lazily
@@ -238,6 +242,7 @@ private:
     mutable QString m_linguistCommand;
     mutable QString m_qmlviewerCommand;
     mutable QSet<QString> m_targetIds;
+    mutable QSet<QString> m_forcedTargetIds;
 
     mutable bool m_isBuildUsingSbsV2;
     mutable bool m_qmakeIsExecutable;
