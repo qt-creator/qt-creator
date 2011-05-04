@@ -38,10 +38,10 @@
 namespace Qt4ProjectManager {
 struct QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo {
     explicit BuildConfigurationInfo()
-        : version(0), buildConfig(QtVersion::QmakeBuildConfig(0)), importing(false), temporaryQtVersion(false)
+        : version(0), buildConfig(BaseQtVersion::QmakeBuildConfig(0)), importing(false), temporaryQtVersion(false)
     {}
 
-    explicit BuildConfigurationInfo(QtVersion *v, QtVersion::QmakeBuildConfigs bc,
+    explicit BuildConfigurationInfo(BaseQtVersion *v, BaseQtVersion::QmakeBuildConfigs bc,
                                     const QString &aa, const QString &d, bool importing_ = false, bool temporaryQtVersion_ = false) :
         version(v), buildConfig(bc), additionalArguments(aa), directory(d), importing(importing_), temporaryQtVersion(temporaryQtVersion_)
     { }
@@ -51,8 +51,8 @@ struct QT4PROJECTMANAGER_EXPORT BuildConfigurationInfo {
         return version != 0;
     }
 
-    QtVersion *version;
-    QtVersion::QmakeBuildConfigs buildConfig;
+    BaseQtVersion *version;
+    BaseQtVersion::QmakeBuildConfigs buildConfig;
     QString additionalArguments;
     QString directory;
     bool importing;

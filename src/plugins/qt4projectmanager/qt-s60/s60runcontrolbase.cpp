@@ -93,10 +93,11 @@ S60RunControlBase::S60RunControlBase(RunConfiguration *runConfiguration, const Q
         m_commandLineArguments.prepend(' ');
         m_commandLineArguments.prepend(qmlArgs);
     }
-    m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
-    m_installationDrive = activeDeployConf->installationDrive();
-    if (const QtVersion *qtv = activeDeployConf->qtVersion())
+    if (const BaseQtVersion *qtv = activeBuildConf->qtVersion()) {
+        m_qtDir = qtv->versionInfo().value("QT_INSTALL_DATA");
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
+    }
+    m_installationDrive = activeDeployConf->installationDrive();
     QTC_ASSERT(!m_qtBinPath.isEmpty(), return);
     m_executableFileName = s60runConfig->localExecutableFileName();
     m_runSmartInstaller = activeDeployConf->runSmartInstaller();

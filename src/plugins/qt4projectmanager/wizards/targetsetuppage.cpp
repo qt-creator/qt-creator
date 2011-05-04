@@ -207,7 +207,7 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
         Qt4BaseTargetFactory *factory = m_factories.value(it.value());
 
         foreach (const BuildConfigurationInfo &info, it.value()->usedImportInfos()) {
-            QtVersion *version = info.version;
+            BaseQtVersion *version = info.version;
             for (int i=0; i < m_importInfos.size(); ++i) {
                 if (m_importInfos.at(i).version == version) {
                     if (m_importInfos[i].temporaryQtVersion) {

@@ -6,55 +6,36 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>105</height>
+    <width>222</width>
+    <height>62</height>
    </rect>
   </property>
-  <layout class="QGridLayout">
-   <property name="margin">
-    <number>0</number>
-   </property>
-   <item row="1" column="0">
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0">
     <widget class="QLabel" name="versionNameLabel">
      <property name="text">
       <string>Version name:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="0" column="1">
     <widget class="QLineEdit" name="nameEdit"/>
    </item>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="QLabel" name="pathLabel">
      <property name="text">
       <string>qmake location:</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="Utils::PathChooser" name="qmakePath" native="true"/>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="s60SDKLabel">
+   <item row="1" column="1">
+    <widget class="QLabel" name="qmakePath">
      <property name="text">
-      <string>S60 SDK:</string>
+      <string/>
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="Utils::PathChooser" name="s60SDKPath" native="true"/>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="sbsV2Label">
-     <property name="text">
-      <string>SBS v2 directory:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1">
-    <widget class="Utils::PathChooser" name="sbsV2Path" native="true"/>
-   </item>
-   <item row="6" column="0" colspan="2">
+   <item row="2" column="0" colspan="2">
     <widget class="QLabel" name="errorLabel">
      <property name="text">
       <string/>
@@ -63,18 +44,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Utils::PathChooser</class>
-   <extends>QWidget</extends>
-   <header location="global">utils/pathchooser.h</header>
-   <container>1</container>
-   <slots>
-    <signal>editingFinished()</signal>
-    <signal>browsingFinished()</signal>
-   </slots>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

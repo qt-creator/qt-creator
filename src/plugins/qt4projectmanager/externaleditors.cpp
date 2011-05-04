@@ -146,7 +146,10 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
             !project->activeTarget()->activeBuildConfiguration())
             return false;
         Qt4BuildConfiguration *qt4bc = project->activeTarget()->activeBuildConfiguration();
-        const QtVersion *qtVersion = qt4bc->qtVersion();
+        BaseQtVersion *qtVersion = qt4bc->qtVersion();
+        if (!qtVersion)
+            return false;
+
         data->binary = (qtVersion->*commandAccessor)();
         data->workingDirectory = project->projectDirectory();
     } else {
@@ -195,7 +198,7 @@ LinguistExternalEditor::LinguistExternalEditor(QObject *parent) :
 bool LinguistExternalEditor::startEditor(const QString &fileName, QString *errorMessage)
 {
     EditorLaunchData data;
-    return getEditorLaunchData(fileName, &QtVersion::linguistCommand,
+    return getEditorLaunchData(fileName, &BaseQtVersion::linguistCommand,
                             QLatin1String(linguistBinaryC),
                             QStringList(), true, &data, errorMessage)
     && startEditorProcess(data, errorMessage);
@@ -213,7 +216,7 @@ MacDesignerExternalEditor::MacDesignerExternalEditor(QObject *parent) :
 bool MacDesignerExternalEditor::startEditor(const QString &fileName, QString *errorMessage)
 {
     EditorLaunchData data;
-    return getEditorLaunchData(fileName, &QtVersion::designerCommand,
+    return getEditorLaunchData(fileName, &BaseQtVersion::designerCommand,
                             QLatin1String(designerBinaryC),
                             QStringList(), true, &data, errorMessage)
         && startEditorProcess(data, errorMessage);
@@ -249,7 +252,7 @@ bool DesignerExternalEditor::startEditor(const QString &fileName, QString *error
 {
     EditorLaunchData data;
     // Find the editor binary
-    if (!getEditorLaunchData(fileName, &QtVersion::designerCommand,
+    if (!getEditorLaunchData(fileName, &BaseQtVersion::designerCommand,
                             QLatin1String(designerBinaryC),
                             QStringList(), false, &data, errorMessage)) {
         return false;

@@ -60,7 +60,9 @@ HEADERS += \
     $$PWD/maemodeploybymountstep.h \
     $$PWD/maemouploadandinstalldeploystep.h \
     $$PWD/maemodirectdeviceuploadstep.h \
-    $$PWD/abstractlinuxdevicedeploystep.h
+    $$PWD/abstractlinuxdevicedeploystep.h \
+    $$PWD/maemoqtversionfactory.h \
+    $$PWD/maemoqtversion.h
 
 SOURCES += \
     $$PWD/maemoconfigtestdialog.cpp \
@@ -121,7 +123,9 @@ SOURCES += \
     $$PWD/maemodeploybymountstep.cpp \
     $$PWD/maemouploadandinstalldeploystep.cpp \
     $$PWD/maemodirectdeviceuploadstep.cpp \
-    $$PWD/abstractlinuxdevicedeploystep.cpp
+    $$PWD/abstractlinuxdevicedeploystep.cpp \
+    $$PWD/maemoqtversionfactory.cpp \
+    $$PWD/maemoqtversion.cpp
 
 FORMS += \
     $$PWD/maemoconfigtestdialog.ui \

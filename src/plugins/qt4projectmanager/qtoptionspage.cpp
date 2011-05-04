@@ -36,30 +36,21 @@
 #include "ui_qtversioninfo.h"
 #include "ui_debugginghelper.h"
 #include "qt4projectmanagerconstants.h"
-#include "qt4target.h"
 #include "qtversionmanager.h"
+#include "qtversionfactory.h"
 
-#include <projectexplorer/abi.h>
-#include <projectexplorer/debugginghelper.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <utils/detailsbutton.h>
 #include <utils/treewidgetcolumnstretcher.h>
 #include <utils/qtcassert.h>
+#include <utils/buildablehelperlibrary.h>
 #include <qtconcurrent/runextensions.h>
 
-#include <QtCore/QFuture>
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QDebug>
 #include <QtCore/QDir>
-#include <QtCore/QSet>
-#include <QtCore/QTextStream>
-#include <QtCore/QDateTime>
-#include <QtGui/QHelpEvent>
 #include <QtGui/QToolTip>
-#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMainWindow>
 
 enum ModelRoles { VersionIdRole = Qt::UserRole, BuildLogRole, BuildRunningRole};
 
@@ -117,7 +108,6 @@ void QtOptionsPage::apply()
 
     QtVersionManager *vm = QtVersionManager::instance();
     vm->setNewQtVersions(m_widget->versions());
-    m_widget->updateState();
 }
 
 bool QtOptionsPage::matches(const QString &s) const
@@ -128,26 +118,21 @@ bool QtOptionsPage::matches(const QString &s) const
 //-----------------------------------------------------
 
 
-QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions)
+QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *> versions)
     : QWidget(parent)
     , m_specifyNameString(tr("<specify a name>"))
-    , m_specifyPathString(tr("<specify a qmake location>"))
     , m_ui(new Internal::Ui::QtVersionManager())
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_debuggingHelperUi(new Internal::Ui::DebuggingHelper())
     , m_invalidVersionIcon(":/projectexplorer/images/compile_error.png")
+    , m_configurationWidget(0)
 {
     // Initialize m_versions
-    foreach(QtVersion *version, versions)
-        m_versions.push_back(new QtVersion(*version));
+    foreach(BaseQtVersion *version, versions)
+        m_versions.push_back(version->clone());
 
     QWidget *versionInfoWidget = new QWidget();
     m_versionUi->setupUi(versionInfoWidget);
-
-    m_versionUi->qmakePath->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_versionUi->qmakePath->setPromptDialogTitle(tr("Select qmake Executable"));
-    m_versionUi->s60SDKPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_versionUi->s60SDKPath->setPromptDialogTitle(tr("Select S60 SDK Root"));
 
     QWidget *debuggingHelperDetailsWidget = new QWidget();
     m_debuggingHelperUi->setupUi(debuggingHelperDetailsWidget);
@@ -172,31 +157,22 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     manualItem->setFirstColumnSpanned(true);
 
     for (int i = 0; i < m_versions.count(); ++i) {
-        const QtVersion * const version = m_versions.at(i);
+        BaseQtVersion *version = m_versions.at(i);
         QTreeWidgetItem *item = new QTreeWidgetItem(version->isAutodetected()? autoItem : manualItem);
         item->setText(0, version->displayName());
         item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
         item->setData(0, VersionIdRole, version->uniqueId());
+        item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
     }
     m_ui->qtdirList->expandAll();
 
     connect(m_versionUi->nameEdit, SIGNAL(textEdited(const QString &)),
             this, SLOT(updateCurrentQtName()));
 
-    connect(m_versionUi->qmakePath, SIGNAL(changed(QString)),
-            this, SLOT(updateCurrentQMakeLocation()));
-    connect(m_versionUi->s60SDKPath, SIGNAL(changed(QString)),
-            this, SLOT(updateCurrentS60SDKDirectory()));
-    connect(m_versionUi->sbsV2Path, SIGNAL(changed(QString)),
-            this, SLOT(updateCurrentSbsV2Directory()));
-
     connect(m_ui->addButton, SIGNAL(clicked()),
             this, SLOT(addQtDir()));
     connect(m_ui->delButton, SIGNAL(clicked()),
             this, SLOT(removeQtDir()));
-
-    connect(m_versionUi->qmakePath, SIGNAL(browsingFinished()),
-            this, SLOT(onQtBrowsed()));
 
     connect(m_ui->qtdirList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             this, SLOT(versionChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
@@ -216,8 +192,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
             this, SLOT(slotShowDebuggingBuildLog()));
 
     connect(m_ui->cleanUpButton, SIGNAL(clicked()), this, SLOT(cleanUpQtVersions()));
-    showEnvironmentPage(0);
-    updateState();
+    userChangedCurrentVersion();
+    updateCleanUpButton();
 }
 
 bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
@@ -247,7 +223,7 @@ int QtOptionsPageWidget::currentIndex() const
     return -1;
 }
 
-QtVersion *QtOptionsPageWidget::currentVersion() const
+BaseQtVersion *QtOptionsPageWidget::currentVersion() const
 {
     const int currentItemIndex = currentIndex();
     if (currentItemIndex >= 0 && currentItemIndex < m_versions.size())
@@ -255,7 +231,7 @@ QtVersion *QtOptionsPageWidget::currentVersion() const
     return 0;
 }
 
-static inline int findVersionById(const QList<QtVersion *> &l, int id)
+static inline int findVersionById(const QList<BaseQtVersion *> &l, int id)
 {
     const int size = l.size();
     for (int i = 0; i < size; i++)
@@ -271,7 +247,8 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
     if (index == -1)
         return; // Oops, somebody managed to delete the version
 
-    m_versions.at(index)->invalidateCache();
+    BaseQtVersion *version = m_versions.at(index);
+    version->recheckDumper();
 
     // Update item view
     QTreeWidgetItem *item = treeItemForIndex(index);
@@ -282,17 +259,15 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
     item->setData(0, BuildRunningRole,  QVariant::fromValue(buildFlags));
     item->setData(0, BuildLogRole, output);
 
-    QtVersion *qtVersion = m_versions.at(index);
-
     bool success = true;
     if (tools & DebuggingHelperBuildTask::GdbDebugging)
-        success &= qtVersion->hasGdbDebuggingHelper();
+        success &= version->hasGdbDebuggingHelper();
     if (tools & DebuggingHelperBuildTask::QmlDebugging)
-        success &= qtVersion->hasQmlDebuggingLibrary();
+        success &= version->hasQmlDebuggingLibrary();
     if (tools & DebuggingHelperBuildTask::QmlDump)
-        success &= qtVersion->hasQmlDump();
+        success &= version->hasQmlDump();
     if (tools & DebuggingHelperBuildTask::QmlObserver)
-        success &= qtVersion->hasQmlObserver();
+        success &= version->hasQmlObserver();
 
     // Update bottom control if the selection is still the same
     if (index == currentIndex()) {
@@ -305,7 +280,7 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
 void QtOptionsPageWidget::cleanUpQtVersions()
 {
     QStringList toRemove;
-    foreach (const QtVersion *v, m_versions) {
+    foreach (const BaseQtVersion *v, m_versions) {
         if (!v->isValid() && !v->isAutodetected())
             toRemove.append(v->displayName());
     }
@@ -329,7 +304,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
             m_versions.removeAt(i);
         }
     }
-    updateState();
+    updateCleanUpButton();
 }
 
 void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools)
@@ -346,7 +321,7 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     buildFlags |= tools;
     item->setData(0, BuildRunningRole, QVariant::fromValue(buildFlags));
 
-    QtVersion *version = m_versions.at(index);
+    BaseQtVersion *version = m_versions.at(index);
     if (!version)
         return;
 
@@ -431,25 +406,40 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
     delete m_ui;
     delete m_versionUi;
     delete m_debuggingHelperUi;
+    delete m_configurationWidget;
     qDeleteAll(m_versions);
 }
 
 void QtOptionsPageWidget::addQtDir()
 {
-    QtVersion *newVersion = new QtVersion(m_specifyNameString, m_specifyPathString);
-    m_versions.append(newVersion);
+    QString filter("qmake (");
+    foreach (const QString &s, Utils::BuildableHelperLibrary::possibleQMakeCommands()) {
+        filter += s + " ";
+    }
+    filter += ")";
 
-    QTreeWidgetItem *item = new QTreeWidgetItem(m_ui->qtdirList->topLevelItem(1));
-    item->setText(0, newVersion->displayName());
-    item->setText(1, QDir::toNativeSeparators(newVersion->qmakeCommand()));
-    item->setData(0, VersionIdRole, newVersion->uniqueId());
+    QString qtVersion = QFileDialog::getOpenFileName(Core::ICore::instance()->mainWindow(),
+                                                     tr("Select a qmake executable"), QString(), filter);
+    if (qtVersion.isNull())
+        return;
+    if (QtVersionManager::instance()->qtVersionForQMakeBinary(qtVersion)) {
+        // Already exist
+    }
 
-    m_ui->qtdirList->setCurrentItem(item);
+    BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
+    if (version) {
+        m_versions.append(version);
 
-    m_versionUi->nameEdit->setText(newVersion->displayName());
-    m_versionUi->qmakePath->setPath(newVersion->qmakeCommand());
-    m_versionUi->nameEdit->setFocus();
-    m_versionUi->nameEdit->selectAll();
+        QTreeWidgetItem *item = new QTreeWidgetItem(m_ui->qtdirList->topLevelItem(1));
+        item->setText(0, version->displayName());
+        item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
+        item->setData(0, VersionIdRole, version->uniqueId());
+        item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
+        m_ui->qtdirList->setCurrentItem(item); // should update the rest of the ui
+        m_versionUi->nameEdit->setFocus();
+        m_versionUi->nameEdit->selectAll();
+    }
+    updateCleanUpButton();
 }
 
 void QtOptionsPageWidget::removeQtDir()
@@ -461,15 +451,15 @@ void QtOptionsPageWidget::removeQtDir()
 
     delete item;
 
-    QtVersion *version = m_versions.at(index);
+    BaseQtVersion *version = m_versions.at(index);
     m_versions.removeAt(index);
     delete version;
-    updateState();
+    updateCleanUpButton();
 }
 
 void QtOptionsPageWidget::updateDebuggingHelperUi()
 {
-    const QtVersion *version = currentVersion();
+    BaseQtVersion *version = currentVersion();
     const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
 
     if (!version || !version->isValid()) {
@@ -619,84 +609,49 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
 
         m_ui->debuggingHelperWidget->setVisible(true);
     }
-
 }
 
-void QtOptionsPageWidget::updateState()
+// To be called if a qt version was removed or added
+void QtOptionsPageWidget::updateCleanUpButton()
 {
     bool hasInvalidVersion = false;
     for (int i = 0; i < m_versions.count(); ++i) {
-        QTreeWidgetItem *item = treeItemForIndex(i);
         if (!m_versions.at(i)->isValid()) {
-            if (item)
-                item->setIcon(0, m_invalidVersionIcon);
             hasInvalidVersion = true;
-        } else {
-            if (item)
-                item->setIcon(0, m_validVersionIcon);
+            break;
         }
     }
-
-    const QtVersion *version  = currentVersion();
-    const bool enabled = version != 0;
-    const bool isAutodetected = enabled && version->isAutodetected();
-    m_ui->delButton->setEnabled(enabled && !isAutodetected);
     m_ui->cleanUpButton->setEnabled(hasInvalidVersion);
-    m_versionUi->nameEdit->setEnabled(enabled && !isAutodetected);
-    m_versionUi->qmakePath->setEnabled(enabled && !isAutodetected);
-    bool s60SDKPathEnabled = enabled &&
-                             (isAutodetected ? version->systemRoot().isEmpty() : true);
-    m_versionUi->s60SDKPath->setEnabled(s60SDKPathEnabled);
+}
 
+void QtOptionsPageWidget::userChangedCurrentVersion()
+{
+    updateWidgets();
+    updateDescriptionLabel();
     updateDebuggingHelperUi();
 }
 
-void QtOptionsPageWidget::makeS60Visible(bool visible)
+void QtOptionsPageWidget::qtVersionChanged()
 {
-    m_versionUi->s60SDKLabel->setVisible(visible);
-    m_versionUi->s60SDKPath->setVisible(visible);
-    m_versionUi->sbsV2Label->setVisible(visible);
-    m_versionUi->sbsV2Path->setVisible(visible);
-}
-
-void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
-{
-    makeS60Visible(false);
-    m_versionUi->errorLabel->setText("");
-    if (!item)
-        return;
-
-    int index = indexForTreeItem(item);
-
-    if (index < 0)
-        return;
-
-    QtVersion *qtVersion = m_versions.at(index);
-
-    QList<ProjectExplorer::Abi> abis = qtVersion->qtAbis();
-    if (!abis.isEmpty()) {
-        ProjectExplorer::Abi qtAbi = qtVersion->qtAbis().at(0);
-        if (qtAbi.os() == ProjectExplorer::Abi::SymbianOS) {
-            makeS60Visible(true);
-            m_versionUi->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->systemRoot()));
-            m_versionUi->sbsV2Path->setPath(m_versions.at(index)->sbsV2Directory());
-            m_versionUi->sbsV2Path->setEnabled(m_versions.at(index)->isBuildWithSymbianSbsV2());
-        }
+    QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
+    if (item) {
+        BaseQtVersion *version = currentVersion();
+        item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
     }
     updateDescriptionLabel();
+    updateDebuggingHelperUi();
 }
 
 void QtOptionsPageWidget::updateDescriptionLabel()
 {
-    QtVersion *version = currentVersion();
+    BaseQtVersion *version = currentVersion();
     if (!version)
         m_versionUi->errorLabel->setText("");
     else if (version->isValid())
-        m_versionUi->errorLabel->setText(version->description());
+        m_versionUi->errorLabel->setText( tr("Qt version %1 for %2").arg(version->qtVersionString(),
+                                                                         version->description()));
     else
         m_versionUi->errorLabel->setText(version->invalidReason());
-
-    updateState();
 }
 
 int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const
@@ -726,32 +681,37 @@ QTreeWidgetItem *QtOptionsPageWidget::treeItemForIndex(int index) const
     return 0;
 }
 
-void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old)
+void QtOptionsPageWidget::versionChanged(QTreeWidgetItem *newItem, QTreeWidgetItem *old)
 {
-    if (old) {
+    Q_UNUSED(newItem)
+    if (old)
         fixQtVersionName(indexForTreeItem(old));
-    }
-    int itemIndex = indexForTreeItem(item);
-    if (itemIndex >= 0) {
-        m_versionUi->nameEdit->setText(item->text(0));
-        m_versionUi->qmakePath->setPath(item->text(1));
-    } else {
-        m_versionUi->nameEdit->clear();
-        m_versionUi->qmakePath->setPath(QString()); // clear()
-
-    }
-    showEnvironmentPage(item);
-    updateState();
+    userChangedCurrentVersion();
 }
 
-void QtOptionsPageWidget::onQtBrowsed()
+void QtOptionsPageWidget::updateWidgets()
 {
-    const QString dir = m_versionUi->qmakePath->path();
-    if (dir.isEmpty())
-        return;
+    delete m_configurationWidget;
+    m_configurationWidget = 0;
+    BaseQtVersion *version = currentVersion();
+    if (version) {
+        m_versionUi->nameEdit->setText(version->displayName());
+        m_versionUi->qmakePath->setText(QDir::toNativeSeparators(version->qmakeCommand()));
+        m_configurationWidget = version->createConfigurationWidget();
+        if (m_configurationWidget) {
+            m_versionUi->formLayout->addRow(m_configurationWidget);
+            connect(m_configurationWidget, SIGNAL(changed()),
+                    this, SLOT(qtVersionChanged()));
+        }
+    } else {
+        m_versionUi->nameEdit->clear();
+        m_versionUi->qmakePath->setText(QString()); // clear()
+    }
 
-    updateCurrentQMakeLocation();
-    updateState();
+    const bool enabled = version != 0;
+    const bool isAutodetected = enabled && version->isAutodetected();
+    m_ui->delButton->setEnabled(enabled && !isAutodetected);
+    m_versionUi->nameEdit->setEnabled(enabled && !isAutodetected);
 }
 
 void QtOptionsPageWidget::updateCurrentQtName()
@@ -763,7 +723,6 @@ void QtOptionsPageWidget::updateCurrentQtName()
         return;
     m_versions[currentItemIndex]->setDisplayName(m_versionUi->nameEdit->text());
     currentItem->setText(0, m_versions[currentItemIndex]->displayName());
-    updateDescriptionLabel();
 }
 
 
@@ -808,58 +767,11 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
     }
 }
 
-void QtOptionsPageWidget::updateCurrentQMakeLocation()
+QList<BaseQtVersion *> QtOptionsPageWidget::versions() const
 {
-    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = indexForTreeItem(currentItem);
-    if (currentItemIndex < 0)
-        return;
-    QtVersion *version = m_versions.at(currentItemIndex);
-    if (version->qmakeCommand() == m_versionUi->qmakePath->path())
-        return;
-    version->setQMakeCommand(m_versionUi->qmakePath->path());
-    currentItem->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
-    showEnvironmentPage(currentItem);
-
-    if (m_versionUi->nameEdit->text().isEmpty() || m_versionUi->nameEdit->text() == m_specifyNameString) {
-        QString name = ProjectExplorer::DebuggingHelperLibrary::qtVersionForQMake(version->qmakeCommand());
-        if (!name.isEmpty())
-            m_versionUi->nameEdit->setText(name);
-        updateCurrentQtName();
-    }
-
-    updateState();
-}
-
-void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
-{
-    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = indexForTreeItem(currentItem);
-    if (currentItemIndex < 0)
-        return;
-    m_versions[currentItemIndex]->setSystemRoot(m_versionUi->s60SDKPath->path());
-    updateDescriptionLabel();
-}
-
-void QtOptionsPageWidget::updateCurrentSbsV2Directory()
-{
-    QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
-    Q_ASSERT(currentItem);
-    int currentItemIndex = indexForTreeItem(currentItem);
-    if (currentItemIndex < 0)
-        return;
-    m_versions[currentItemIndex]->setSbsV2Directory(m_versionUi->sbsV2Path->path());
-    updateDescriptionLabel();
-}
-
-QList<QtVersion *> QtOptionsPageWidget::versions() const
-{
-    QList<QtVersion *> result;
+    QList<BaseQtVersion *> result;
     for (int i = 0; i < m_versions.count(); ++i)
-        if (m_versions.at(i)->qmakeCommand() != m_specifyPathString)
-            result.append(new QtVersion(*(m_versions.at(i))));
+        result.append(m_versions.at(i)->clone());
     return result;
 }
 
@@ -867,14 +779,20 @@ QString QtOptionsPageWidget::searchKeywords() const
 {
     QString rc;
     QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << m_versionUi->versionNameLabel->text()
-            << sep << m_versionUi->pathLabel->text()
-            << sep << m_versionUi->s60SDKLabel->text()
-            << sep << m_versionUi->sbsV2Label->text()
-            << sep << m_debuggingHelperUi->gdbHelperLabel->text()
-            << sep << m_debuggingHelperUi->qmlDumpLabel->text()
-            << sep << m_debuggingHelperUi->qmlObserverLabel->text();
+    QTextStream ts(&rc);
+    ts << sep << m_versionUi->versionNameLabel->text()
+       << sep << m_versionUi->pathLabel->text()
+       << sep << m_debuggingHelperUi->gdbHelperLabel->text()
+       << sep << m_debuggingHelperUi->qmlDumpLabel->text()
+       << sep << m_debuggingHelperUi->qmlObserverLabel->text();
+
+    // Symbian specific, could be factored out to the factory
+    // checking m_configurationWidget is not enough, we want them to be a keyword
+    // regardless of which qt versions configuration widget is currently active
+    ts << sep << tr("S60 SDK:")
+       << sep << tr("SBS v2 directory:");
+
+
     rc.remove(QLatin1Char('&'));
     return rc;
 }

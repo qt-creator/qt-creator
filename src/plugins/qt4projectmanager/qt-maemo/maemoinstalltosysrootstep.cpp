@@ -37,6 +37,7 @@
 #include "maemopackagecreationstep.h"
 #include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
+#include "baseqtversion.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4target.h>
@@ -166,6 +167,13 @@ void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
         return;
     }
 
+    if (!bc->qtVersion()) {
+        addOutput(tr("Can't install package to sysroot without a qt version."),
+            ErrorMessageOutput);
+        fi.reportResult(false);
+        return;
+    }
+
     m_installerProcess = new QProcess;
     connect(m_installerProcess, SIGNAL(readyReadStandardOutput()),
         SLOT(handleInstallerStdout()));
@@ -173,11 +181,11 @@ void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
         SLOT(handleInstallerStderr()));
 
     emit addOutput(tr("Installing package to sysroot ..."), MessageOutput);
-    const QtVersion * const qtVersion = bc->qtVersion();
+    const BaseQtVersion * const qtVersion = bc->qtVersion();
     const QString packageFilePath = pStep->packageFilePath();
     const int packageFileSize = QFileInfo(packageFilePath).size() / (1024*1024);
     const QStringList args = madArguments() << packageFilePath;
-    MaemoGlobal::callMadAdmin(*m_installerProcess, args, qtVersion, true);
+    MaemoGlobal::callMadAdmin(*m_installerProcess, args, qtVersion->qmakeCommand(), true);
     if (!m_installerProcess->waitForFinished((2*packageFileSize + 10)*1000)
             || m_installerProcess->exitStatus() != QProcess::NormalExit
             || m_installerProcess->exitCode() != 0) {
@@ -362,16 +370,16 @@ bool MaemoMakeInstallToSysrootStep::init()
             ErrorMessageOutput);
         return false;
     }
-    const QtVersion * const qtVersion = bc->qtVersion();
+    const BaseQtVersion * const qtVersion = bc->qtVersion();
     if (!qtVersion) {
         addOutput("Can't deploy: Unusable build configuration.",
             ErrorMessageOutput);
         return false;
 
     }
-    processParameters()->setCommand(MaemoGlobal::madCommand(qtVersion));
+    processParameters()->setCommand(MaemoGlobal::madCommand(qtVersion->qmakeCommand()));
     const QStringList args = QStringList() << QLatin1String("-t")
-        << MaemoGlobal::targetName(qtVersion) << QLatin1String("make")
+        << MaemoGlobal::targetName(qtVersion->qmakeCommand()) << QLatin1String("make")
         << QLatin1String("install")
         << (QLatin1String("INSTALL_ROOT=") + qtVersion->systemRoot());
     processParameters()->setArguments(args.join(QLatin1String(" ")));

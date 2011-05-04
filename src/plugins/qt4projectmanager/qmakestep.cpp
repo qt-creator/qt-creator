@@ -133,7 +133,8 @@ QString QMakeStep::allArguments(bool shorted)
     for (Utils::QtcProcess::ArgIterator ait(&additonalArguments); ait.next(); )
         if (ait.value() == QLatin1String("-spec"))
             goto haveSpec;
-    arguments << "-spec" << bc->qtVersion()->mkspec();
+    if (bc->qtVersion())
+        arguments << "-spec" << bc->qtVersion()->mkspec();
   haveSpec:
 
     // Find out what flags we pass on to qmake
@@ -163,7 +164,7 @@ QStringList QMakeStep::moreArguments()
 #endif
 
     if (m_linkQmlDebuggingLibrary
-            && !bc->qtVersion()->qmlDebuggingHelperLibrary(true).isEmpty()) {
+            && bc->qtVersion() && !bc->qtVersion()->qmlDebuggingHelperLibrary(true).isEmpty()) {
         // Do not turn debugger path into native path separators: Qmake does not like that!
         const QString debuggingHelperPath
                 = QFileInfo(bc->qtVersion()->qmlDebuggingHelperLibrary(true)).dir().path();
@@ -172,7 +173,7 @@ QStringList QMakeStep::moreArguments()
                      + QLatin1Char('=') + debuggingHelperPath;
     }
 
-    if (!bc->qtVersion()->supportsShadowBuilds()) {
+    if (bc->qtVersion() && !bc->qtVersion()->supportsShadowBuilds()) {
         // We have a target which does not allow shadow building.
         // But we really don't want to have the build artefacts in the source dir
         // so we try to hack around it, to make the common cases work.
@@ -190,7 +191,10 @@ QStringList QMakeStep::moreArguments()
 bool QMakeStep::init()
 {
     Qt4BuildConfiguration *qt4bc = qt4BuildConfiguration();
-    const QtVersion *qtVersion = qt4bc->qtVersion();
+    const BaseQtVersion *qtVersion = qt4bc->qtVersion();
+
+    if (!qtVersion)
+        return false;
 
     QString args = allArguments();
     QString workingDirectory;
@@ -329,10 +333,16 @@ void QMakeStep::setUserArguments(const QString &arguments)
 
 bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
 {
-    if (qt4BuildConfiguration()->qtVersion()->hasQmlDebuggingLibrary())
+    BaseQtVersion *version = qt4BuildConfiguration()->qtVersion();
+    if (!version) {
+        if (reason)
+            *reason = tr("No Qt version.");
+        return false;
+    }
+    if (version->hasQmlDebuggingLibrary())
         return true;
 
-    if (!qt4BuildConfiguration()->qtVersion()->qtAbis().isEmpty()) {
+    if (!version->qtAbis().isEmpty()) {
         ProjectExplorer::Abi abi = qt4BuildConfiguration()->qtVersion()->qtAbis().first();
         if (abi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor) {
             if (reason)
@@ -342,13 +352,13 @@ bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
         }
     }
 
-    if (!qt4BuildConfiguration()->qtVersion()->isValid()) {
+    if (!version->isValid()) {
         if (reason)
             *reason = tr("Invalid Qt version.");
         return false;
     }
 
-    if (qt4BuildConfiguration()->qtVersion()->qtVersion() < QtVersionNumber(4, 7, 1)) {
+    if (version->qtVersion() < QtVersionNumber(4, 7, 1)) {
         if (reason)
             *reason = tr("Requires Qt 4.7.1 or newer.");
         return false;
@@ -467,9 +477,9 @@ void QMakeStepConfigWidget::qtVersionChanged()
 void QMakeStepConfigWidget::qmakeBuildConfigChanged()
 {
     Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
-    bool debug = bc->qmakeBuildConfiguration() & QtVersion::DebugBuild;
+    bool debug = bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild;
     int index = debug ? 0 : 1;
-    if (bc->qmakeBuildConfiguration() & QtVersion::BuildAll)
+    if (bc->qmakeBuildConfiguration() & BaseQtVersion::BuildAll)
         index = 2;
     m_ignoreChange = true;
     m_ui.buildConfigurationComboBox->setCurrentIndex(index);
@@ -515,16 +525,16 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
     if (m_ignoreChange)
         return;
     Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
-    QtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
+    BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
     switch (m_ui.buildConfigurationComboBox->currentIndex()) {
     case 0:
-        buildConfiguration = QtVersion::DebugBuild;
+        buildConfiguration = BaseQtVersion::DebugBuild;
         break;
     case 1:
         buildConfiguration = 0;
         break;
     case 2:
-        buildConfiguration = QtVersion::BuildAll;
+        buildConfiguration = BaseQtVersion::BuildAll;
         break;
     }
 
@@ -552,7 +562,9 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
 
 void QMakeStepConfigWidget::buildQmlDebuggingHelper()
 {
-    QtVersion *version = m_step->qt4BuildConfiguration()->qtVersion();
+    BaseQtVersion *version = m_step->qt4BuildConfiguration()->qtVersion();
+    if (!version)
+        return;
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version,
                                                                        DebuggingHelperBuildTask::QmlDebugging);
 
@@ -568,10 +580,10 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
 
 void QMakeStepConfigWidget::debuggingHelperBuildFinished(int qtVersionId, const QString &output)
 {
-    QtVersion *version = QtVersionManager::instance()->version(qtVersionId);
+    BaseQtVersion *version = QtVersionManager::instance()->version(qtVersionId);
     if (!version) // qt version got deleted in between
         return;
-    version->invalidateCache();
+    version->recheckDumper();
 
     if (version == m_step->qt4BuildConfiguration()->qtVersion()) {
         m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
@@ -591,7 +603,7 @@ void QMakeStepConfigWidget::debuggingHelperBuildFinished(int qtVersionId, const 
 void QMakeStepConfigWidget::updateSummaryLabel()
 {
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
-    const QtVersion *qtVersion = qt4bc->qtVersion();
+    BaseQtVersion *qtVersion = qt4bc->qtVersion();
     if (!qtVersion) {
         m_summaryText = tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
         emit updateSummary();
@@ -627,8 +639,10 @@ void QMakeStepConfigWidget::updateQmlDebuggingWarningsLabel()
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 {
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
-    const QtVersion *qtVersion = qt4bc->qtVersion();
-    QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
+    BaseQtVersion *qtVersion = qt4bc->qtVersion();
+    QString program = tr("<No qtversion>");
+    if (qtVersion)
+        program = QFileInfo(qtVersion->qmakeCommand()).fileName();
     m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + m_step->allArguments());
 }
 

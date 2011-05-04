@@ -38,6 +38,7 @@
 #include "qt4symbiantarget.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtoutputformatter.h"
+#include "baseqtversion.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -187,10 +188,10 @@ bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
 QString S60EmulatorRunConfiguration::executable() const
 {
     Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
-    QtVersion *qtVersion = qt4bc->qtVersion();
+    BaseQtVersion *qtVersion = qt4bc->qtVersion();
     QString baseDir = qtVersion->systemRoot();
     QString qmakeBuildConfig = "urel";
-    if (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild)
+    if (qt4bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
         qmakeBuildConfig = "udeb";
     baseDir += "/epoc32/release/winscw/" + qmakeBuildConfig;
 

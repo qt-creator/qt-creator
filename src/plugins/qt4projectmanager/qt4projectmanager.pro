@@ -74,7 +74,12 @@ HEADERS += \
     debugginghelperbuildtask.h \
     qt4targetsetupwidget.h \
     qt4basetargetfactory.h \
-    buildconfigurationinfo.h
+    buildconfigurationinfo.h \
+    qtversionfactory.h \
+    winceqtversionfactory.h \
+    baseqtversion.h \
+    winceqtversion.h
+
 SOURCES += qt4projectmanagerplugin.cpp \
     qtparser.cpp \
     qt4projectmanager.cpp \
@@ -139,7 +144,11 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qmldebugginglibrary.cpp \
     profilecompletion.cpp \
     profilekeywords.cpp \
-    debugginghelperbuildtask.cpp
+    debugginghelperbuildtask.cpp \
+    qtversionfactory.cpp \
+    winceqtversionfactory.cpp \
+    baseqtversion.cpp \
+    winceqtversion.cpp
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \

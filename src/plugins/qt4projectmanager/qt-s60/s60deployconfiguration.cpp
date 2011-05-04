@@ -267,7 +267,7 @@ ProjectExplorer::ToolChain *S60DeployConfiguration::toolChain() const
 bool S60DeployConfiguration::isDebug() const
 {
     const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
-    return (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild);
+    return (qt4bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild);
 }
 
 QString S60DeployConfiguration::symbianTarget() const
@@ -275,7 +275,7 @@ QString S60DeployConfiguration::symbianTarget() const
     return isDebug() ? QLatin1String("udeb") : QLatin1String("urel");
 }
 
-const QtVersion *S60DeployConfiguration::qtVersion() const
+const BaseQtVersion *S60DeployConfiguration::qtVersion() const
 {
     if (const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration())
         return qt4bc->qtVersion();

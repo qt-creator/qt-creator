@@ -203,9 +203,13 @@ bool MakeStep::init()
     setEnabled(true);
     pp->setArguments(args);
 
-    ProjectExplorer::IOutputParser *parser = bc->qtVersion()->createOutputParser();
-    Q_ASSERT(parser);
-    parser->appendOutputParser(new QtParser);
+    ProjectExplorer::IOutputParser *parser = 0;
+    if (bc->qtVersion())
+        parser = bc->qtVersion()->createOutputParser();
+    if (parser)
+        parser->appendOutputParser(new QtParser);
+    else
+        parser = new QtParser;
     if (toolchain)
         parser->appendOutputParser(toolchain->outputParser());
 

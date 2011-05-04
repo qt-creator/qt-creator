@@ -120,7 +120,7 @@ QmlProjectTarget *QmlProjectRunConfiguration::qmlTarget() const
 
 QString QmlProjectRunConfiguration::viewerPath() const
 {
-    Qt4ProjectManager::QtVersion *version = qtVersion();
+    Qt4ProjectManager::BaseQtVersion *version = qtVersion();
     if (!version) {
         return QString();
     } else {
@@ -130,7 +130,7 @@ QString QmlProjectRunConfiguration::viewerPath() const
 
 QString QmlProjectRunConfiguration::observerPath() const
 {
-    Qt4ProjectManager::QtVersion *version = qtVersion();
+    Qt4ProjectManager::BaseQtVersion *version = qtVersion();
     if (!version) {
         return QString();
     } else {
@@ -193,13 +193,13 @@ QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
 }
 
 
-Qt4ProjectManager::QtVersion *QmlProjectRunConfiguration::qtVersion() const
+Qt4ProjectManager::BaseQtVersion *QmlProjectRunConfiguration::qtVersion() const
 {
     if (m_qtVersionId == -1)
         return 0;
 
     QtVersionManager *versionManager = QtVersionManager::instance();
-    Qt4ProjectManager::QtVersion *version = versionManager->version(m_qtVersionId);
+    Qt4ProjectManager::BaseQtVersion *version = versionManager->version(m_qtVersionId);
     QTC_ASSERT(version, return 0);
 
     return version;
@@ -381,7 +381,7 @@ void QmlProjectRunConfiguration::updateQtVersions()
             || !isValidVersion(qtVersions->version(m_qtVersionId))) {
         int newVersionId = -1;
         // take first one you find
-        foreach (Qt4ProjectManager::QtVersion *version, qtVersions->validVersions()) {
+        foreach (Qt4ProjectManager::BaseQtVersion *version, qtVersions->validVersions()) {
             if (isValidVersion(version)) {
                 newVersionId = version->uniqueId();
                 break;
@@ -393,7 +393,7 @@ void QmlProjectRunConfiguration::updateQtVersions()
     updateEnabled();
 }
 
-bool QmlProjectRunConfiguration::isValidVersion(Qt4ProjectManager::QtVersion *version)
+bool QmlProjectRunConfiguration::isValidVersion(Qt4ProjectManager::BaseQtVersion *version)
 {
     if (version
             && (version->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)

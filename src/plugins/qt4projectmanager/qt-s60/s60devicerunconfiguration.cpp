@@ -41,6 +41,8 @@
 #include "qtoutputformatter.h"
 #include "qt4symbiantarget.h"
 #include "codaruncontrol.h"
+#include "baseqtversion.h"
+#include "symbianqtversion.h"
 
 #include <utils/qtcassert.h>
 
@@ -223,18 +225,18 @@ QString S60DeviceRunConfiguration::targetName() const
     return ti.target;
 }
 
-const QtVersion *S60DeviceRunConfiguration::qtVersion() const
+SymbianQtVersion *S60DeviceRunConfiguration::qtVersion() const
 {
     if (const BuildConfiguration *bc = target()->activeBuildConfiguration())
         if (const Qt4BuildConfiguration *qt4bc = qobject_cast<const Qt4BuildConfiguration *>(bc))
-            return qt4bc->qtVersion();
+            return dynamic_cast<SymbianQtVersion *>(qt4bc->qtVersion());
     return 0;
 }
 
 bool S60DeviceRunConfiguration::isDebug() const
 {
     const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
-    return (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild);
+    return (qt4bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild);
 }
 
 QString S60DeviceRunConfiguration::symbianTarget() const
@@ -243,7 +245,7 @@ QString S60DeviceRunConfiguration::symbianTarget() const
 }
 
 // ABLD/Raptor: Return executable from device/EPOC
-static inline QString localExecutableFromVersion(const QtVersion *qtv,
+static inline QString localExecutableFromVersion(const SymbianQtVersion *qtv,
                                                 const QString &symbianTarget, /* udeb/urel */
                                                 const QString &targetName,
                                                 const ProjectExplorer::ToolChain *tc)

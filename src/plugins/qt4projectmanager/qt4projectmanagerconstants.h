@@ -111,6 +111,13 @@ const char * const MAEMO_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.Maemo";
 const char * const RVCT_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.RVCT";
 const char * const WINSCW_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.WINSCW";
 
+// QtVersions
+const char * const SYMBIANQT   = "Qt4ProjectManager.QtVersion.Symbian";
+const char * const MAEMOQT     = "Qt4ProjectManager.QtVersion.Maemo";
+const char * const DESKTOPQT   = "Qt4ProjectManager.QtVersion.Desktop";
+const char * const SIMULATORQT = "Qt4ProjectManager.QtVersion.Simulator";
+const char * const WINCEQT     = "Qt4ProjectManager.QtVersion.WinCE";
+
 // ICONS
 const char * const ICON_QT_PROJECT = ":/qt4projectmanager/images/qt_project.png";
 const char * const ICON_WINDOW = ":/qt4projectmanager/images/window.png";

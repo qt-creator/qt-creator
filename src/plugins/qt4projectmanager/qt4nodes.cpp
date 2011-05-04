@@ -2066,7 +2066,7 @@ TargetInformation Qt4ProFileNode::targetInformation(ProFileReader *reader) const
         // Hmm can we find out whether it's debug or release in a saner way?
         // Theoretically it's in CONFIG
         QString qmakeBuildConfig = "release";
-        if (m_project->activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & QtVersion::DebugBuild)
+        if (m_project->activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
             qmakeBuildConfig = "debug";
         wd += QLatin1Char('/') + qmakeBuildConfig;
     }

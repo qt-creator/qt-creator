@@ -36,7 +36,6 @@
 #include <QtCore/QObject>
 
 namespace Qt4ProjectManager {
-    class QtVersion;
 namespace Internal {
 
 class MaemoDeployStepFactory;
@@ -50,6 +49,7 @@ class MaemoQemuSettingsPage;
 class Qt4MaemoDeployConfigurationFactory;
 class Qt4MaemoTargetFactory;
 class MaemoToolChainFactory;
+class MaemoQtVersionFactory;
 
 class MaemoManager : public QObject
 {
@@ -77,6 +77,7 @@ private:
     MaemoPublishingWizardFactoryFremantleFree *m_publishingFactoryFremantleFree;
     Qt4MaemoTargetFactory *m_maemoTargetFactory;
     MaemoToolChainFactory *m_toolChainFactory;
+    MaemoQtVersionFactory *m_maemoQtVersionFactory;
 };
 
     } // namespace Internal

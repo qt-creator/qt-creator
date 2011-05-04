@@ -295,7 +295,7 @@ void QmlProjectRunConfigurationWidget::updateQtVersionComboBox()
     m_qtVersionComboBox->clear();
 
     QtVersionManager *qtVersions = QtVersionManager::instance();
-    foreach (Qt4ProjectManager::QtVersion *version, qtVersions->validVersions()) {
+    foreach (Qt4ProjectManager::BaseQtVersion *version, qtVersions->validVersions()) {
         if (m_runConfiguration->isValidVersion(version)) {
             m_qtVersionComboBox->addItem(version->displayName(), version->uniqueId());
         }

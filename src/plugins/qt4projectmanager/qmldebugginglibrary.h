@@ -48,15 +48,16 @@ namespace ProjectExplorer {
 
 namespace Qt4ProjectManager {
 
-class QtVersion;
+class BaseQtVersion;
 
 class QmlDebuggingLibrary : public Utils::BuildableHelperLibrary
 {
 public:
     static QString libraryByInstallData(const QString &qtInstallData, bool debugBuild);
 
-    static bool canBuild(const QtVersion *qtVersion);
+    static bool canBuild(const BaseQtVersion *qtVersion);
     static bool build(BuildHelperArguments arguments, QString *log, QString *errorMessage);
+
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
 private:

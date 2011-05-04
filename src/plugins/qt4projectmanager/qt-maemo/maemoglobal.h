@@ -56,7 +56,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class SshConnection; }
 namespace Qt4ProjectManager {
-class QtVersion;
+class BaseQtVersion;
 namespace Internal {
 
 class MaemoGlobal
@@ -69,9 +69,9 @@ public:
     static bool isFremantleTargetId(const QString &id);
     static bool isHarmattanTargetId(const QString &id);
     static bool isMeegoTargetId(const QString &id);
-    static bool isValidMaemo5QtVersion(const Qt4ProjectManager::QtVersion *version);
-    static bool isValidHarmattanQtVersion(const Qt4ProjectManager::QtVersion *version);
-    static bool isValidMeegoQtVersion(const Qt4ProjectManager::QtVersion *version);
+    static bool isValidMaemo5QtVersion(const QString &qmakePath);
+    static bool isValidHarmattanQtVersion(const QString &qmakePath);
+    static bool isValidMeegoQtVersion(const QString &qmakePath);
 
     static QString homeDirOnDevice(const QString &uname);
     static QString devrootshPath();
@@ -86,22 +86,22 @@ public:
         const QSharedPointer<const MaemoDeviceConfig> &deviceConfig);
     static QString deviceConfigurationName(const QSharedPointer<const MaemoDeviceConfig> &devConf);
     static MaemoPortList freePorts(const QSharedPointer<const MaemoDeviceConfig> &devConf,
-        const QtVersion *qtVersion);
+        const BaseQtVersion *qtVersion);
 
-    static QString maddeRoot(const QtVersion *qtVersion);
-    static QString targetRoot(const QtVersion *qtVersion);
-    static QString targetName(const QtVersion *qtVersion);
-    static QString madCommand(const QtVersion *qtVersion);
+    static QString maddeRoot(const QString &qmakePath);
+    static QString targetRoot(const QString &qmakePath);
+    static QString targetName(const QString &qmakePath);
+    static QString madCommand(const QString &qmakePath);
     static QString madDeveloperUiName(MaemoDeviceConfig::OsVersion maemoVersion);
-    static MaemoDeviceConfig::OsVersion version(const QtVersion *qtVersion);
+    static MaemoDeviceConfig::OsVersion version(const QString &qmakePath);
 
     // TODO: IS this still needed with Qt Version having an Abi?
-    static QString architecture(const QtVersion *version);
+    static QString architecture(const QString &qmakePath);
 
     static bool callMad(QProcess &proc, const QStringList &args,
-        const QtVersion *qtVersion, bool useTarget);
+        const QString &qmakePath, bool useTarget);
     static bool callMadAdmin(QProcess &proc, const QStringList &args,
-        const QtVersion *qtVersion, bool useTarget);
+        const QString &qmakePath, bool useTarget);
 
     static QString osVersionToString(MaemoDeviceConfig::OsVersion version);
 
@@ -146,12 +146,12 @@ public:
     }
 
 private:
-    static bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *qtVersion,
+    static bool isValidMaemoQtVersion(const QString &qmakePath,
         MaemoDeviceConfig::OsVersion maemoVersion);
-    static QString madAdminCommand(const QtVersion *qtVersion);
-    static bool callMaddeShellScript(QProcess &proc, const QtVersion *qtVersion,
+    static QString madAdminCommand(const QString &qmakePath);
+    static bool callMaddeShellScript(QProcess &proc, const QString &qmakePath,
         const QString &command, const QStringList &args, bool useTarget);
-    static QStringList targetArgs(const QtVersion *qtVersion, bool useTarget);
+    static QStringList targetArgs(const QString &qmakePath, bool useTarget);
 };
 
 } // namespace Internal

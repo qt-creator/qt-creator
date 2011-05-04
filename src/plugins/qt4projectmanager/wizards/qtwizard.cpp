@@ -315,7 +315,7 @@ bool BaseQt4ProjectWizardDialog::isTargetSelected(const QString &targetid) const
 
 void BaseQt4ProjectWizardDialog::generateProfileName(const QString &name, const QString &path)
 {
-    const QString proFile = QDir::fromNativeSeparators(path) + QChar('/') + name + QChar('/') + name + QLatin1String(".pro");
+    const QString proFile = QDir::cleanPath(path + QChar('/') + name + QChar('/') + name + QLatin1String(".pro"));
     m_targetSetupPage->setProFilePath(proFile);
 }
 

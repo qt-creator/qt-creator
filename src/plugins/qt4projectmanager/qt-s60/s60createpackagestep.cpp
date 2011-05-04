@@ -42,6 +42,7 @@
 #include "passphraseforkeydialog.h"
 #include "s60certificateinfo.h"
 #include "s60certificatedetailsdialog.h"
+#include "symbianqtversion.h"
 
 #include <coreplugin/coreconstants.h>
 
@@ -182,6 +183,11 @@ bool S60CreatePackageStep::init()
     Qt4Project *pro = qobject_cast<Qt4Project *>(buildConfiguration()->target()->project());
 
     QList<Qt4ProFileNode *> nodes = pro->allProFiles();
+
+    SymbianQtVersion *sqv = dynamic_cast<SymbianQtVersion *>(qt4BuildConfiguration()->qtVersion());
+    if (!sqv)
+        return false;
+    m_isBuildWithSymbianSbsV2 = sqv->isBuildWithSymbianSbsV2();
 
     m_workingDirectories.clear();
     QStringList projectCapabilities;
@@ -408,7 +414,7 @@ bool S60CreatePackageStep::createOnePackage()
 
     // Setup parsers:
     Q_ASSERT(!m_outputParserChain);
-    if (!qt4BuildConfiguration()->qtVersion()->isBuildWithSymbianSbsV2()) {
+    if (!m_isBuildWithSymbianSbsV2) {
         m_outputParserChain = new Qt4ProjectManager::AbldParser;
         m_outputParserChain->appendOutputParser(new ProjectExplorer::GnuMakeParser);
     } else {

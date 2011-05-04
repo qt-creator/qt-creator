@@ -43,6 +43,7 @@
 #include "qt4buildconfiguration.h"
 #include "findqt4profiles.h"
 #include "qmldumptool.h"
+#include "baseqtversion.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -433,7 +434,9 @@ void Qt4Project::updateCppCodeModel()
     QStringList predefinedFrameworkPaths;
     QByteArray predefinedMacros;
 
-    QString qtFrameworkPath = activeBC->qtVersion()->frameworkInstallPath();
+    QString qtFrameworkPath;
+    if (activeBC->qtVersion())
+        qtFrameworkPath = activeBC->qtVersion()->frameworkInstallPath();
     if (!qtFrameworkPath.isEmpty())
         predefinedFrameworkPaths.append(qtFrameworkPath);
 
@@ -442,7 +445,8 @@ void Qt4Project::updateCppCodeModel()
         predefinedMacros = tc->predefinedMacros();
 
         QList<HeaderPath> headers = tc->systemHeaderPaths();
-        headers.append(activeBC->qtVersion()->systemHeaderPathes());
+	if (activeBC->qtVersion())
+            headers.append(activeBC->qtVersion()->systemHeaderPathes());
         foreach (const HeaderPath &headerPath, headers) {
             if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
                 predefinedFrameworkPaths.append(headerPath.path());
@@ -485,26 +489,11 @@ void Qt4Project::updateCppCodeModel()
             if (!allIncludePaths.contains(includePath))
                 allIncludePaths.append(includePath);
         }
-
-#if 0 // Experimental PKGCONFIG support
-        { // Pkg Config support
-            QStringList pkgConfig = pro->variableValue(PkgConfigVar);
-            if (!pkgConfig.isEmpty()) {
-                pkgConfig.prepend("--cflags-only-I");
-                QProcess process;
-                process.start("pkg-config", pkgConfig);
-                process.waitForFinished();
-                QString result = process.readAllStandardOutput();
-                foreach(const QString &part, result.trimmed().split(' ', QString::SkipEmptyParts)) {
-                    info.includes.append(part.mid(2)); // Chop off "-I"
-                }
-            }
-        }
-#endif
     }
 
     // Add mkspec directory
-    allIncludePaths.append(activeBC->qtVersion()->mkspecPath());
+    if (activeBC->qtVersion())
+        allIncludePaths.append(activeBC->qtVersion()->mkspecPath());
 
     allIncludePaths.append(predefinedIncludePaths);
 
@@ -565,9 +554,9 @@ void Qt4Project::updateQmlJSCodeModel()
     }
     bool preferDebugDump = false;
     if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
-        preferDebugDump = activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & QtVersion::DebugBuild;
-        const QtVersion *qtVersion = activeTarget()->activeBuildConfiguration()->qtVersion();
-        if (qtVersion->isValid()) {
+        preferDebugDump = activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild;
+        BaseQtVersion *qtVersion = activeTarget()->activeBuildConfiguration()->qtVersion();
+        if (qtVersion && qtVersion->isValid()) {
             const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
             if (!qtVersionImportPath.isEmpty())
                 projectInfo.importPaths += qtVersionImportPath;
@@ -885,8 +874,8 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Q
             bc = activeTarget()->activeBuildConfiguration();
 
         if (bc) {
-            QtVersion *version = bc->qtVersion();
-            if (version->isValid()) {
+            BaseQtVersion *version = bc->qtVersion();
+            if (version && version->isValid()) {
                 m_proFileOption->properties = version->versionInfo();
                 if (bc->toolChain())
                     m_proFileOption->sysroot = bc->qtVersion()->systemRoot();

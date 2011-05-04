@@ -37,6 +37,7 @@
 #include "maemodeployables.h"
 #include "qt4maemodeployconfiguration.h"
 
+#include <qt4projectmanager/qtversionmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QFileDialog>
@@ -137,7 +138,7 @@ void MaemoDeployConfigurationWidget::addIcon()
 
     MaemoDeployableListModel *const model
         = m_deployConfig->deployables()->modelAt(modelRow);
-    const int iconDim = MaemoGlobal::applicationIconSize(MaemoGlobal::version(model->qtVersion()));
+    const int iconDim = MaemoGlobal::applicationIconSize(MaemoGlobal::version(model->qtVersion()->qmakeCommand()));
     const QString origFilePath = QFileDialog::getOpenFileName(this,
         tr("Choose Icon (will be scaled to %1x%1 pixels, if necessary)").arg(iconDim),
         model->projectDir(), QLatin1String("(*.png)"));

@@ -74,7 +74,7 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
 
     // todo more intelligent selection? prefer newer versions?
     foreach (Qt4BuildConfiguration *qt4bc, list)
-        if (!m_bc && !(qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild))
+        if (!m_bc && !(qt4bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild))
             m_bc = qt4bc;
 
     if (!m_bc && !list.isEmpty())

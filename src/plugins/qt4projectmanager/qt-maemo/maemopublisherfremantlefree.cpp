@@ -37,6 +37,7 @@
 #include "maemopublishingfileselectiondialog.h"
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
+#include "baseqtversion.h"
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/project.h>
@@ -363,13 +364,17 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
         }
     }
 
+    BaseQtVersion *lqt = m_buildConfig->qtVersion();
+    if (!lqt)
+        finishWithFailure(QString(), tr("No qt version set"));
+
     if (m_state == Inactive)
         return;
     setState(BuildingPackage);
     emit progressReport(tr("Building source package..."));
     const QStringList args = QStringList() << QLatin1String("dpkg-buildpackage")
         << QLatin1String("-S") << QLatin1String("-us") << QLatin1String("-uc");
-    MaemoGlobal::callMad(*m_process, args, m_buildConfig->qtVersion(), true);
+    MaemoGlobal::callMad(*m_process, args, lqt->qmakeCommand(), true);
 }
 
 // We have to implement the SCP protocol, because the maemo.org

@@ -44,7 +44,7 @@
 #include <QtCore/QString>
 
 namespace Qt4ProjectManager {
-class QtVersion;
+class BaseQtVersion;
 namespace Internal {
 
 class MaemoDeployableListModel : public QAbstractTableModel
@@ -64,7 +64,7 @@ public:
     MaemoDeployable deployableAt(int row) const;
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
-    const QtVersion *qtVersion() const;
+    const BaseQtVersion *qtVersion() const;
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
     QString projectName() const { return m_projectName; }

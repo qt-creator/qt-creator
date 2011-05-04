@@ -41,6 +41,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4maemotarget.h"
+#include "maemoqtversion.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -180,10 +181,9 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &uniqueIds)
     QtVersionManager *manager = QtVersionManager::instance();
     foreach (int uniqueId, uniqueIds) {
         if (manager->isValidId(uniqueId)) {
-            QtVersion *version = manager->version(uniqueId);
-            if (version->supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID)
-                    || version->supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)
-                    || version->supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID)) {
+            MaemoQtVersion *version = dynamic_cast<MaemoQtVersion *>(manager->version(uniqueId));
+
+            if (version) {
                 MaemoQemuRuntime runtime
                     = MaemoQemuRuntimeParser::parseRuntime(version);
                 if (runtime.isValid()) {
@@ -370,7 +370,7 @@ void MaemoQemuManager::startRuntime()
     Project *p = ProjectExplorerPlugin::instance()->session()->startupProject();
     if (!p)
         return;
-    QtVersion *version;
+    BaseQtVersion *version;
     if (!targetUsesMatchingRuntimeConfig(p->activeTarget(), &version)) {
         qWarning("Strange: Qemu button was enabled, but target does not match.");
         return;
@@ -530,7 +530,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
     if (target) {
         if (AbstractQt4MaemoTarget *qt4Target = qobject_cast<AbstractQt4MaemoTarget*>(target)) {
             if (Qt4BuildConfiguration *bc = qt4Target->activeBuildConfiguration()) {
-                if (QtVersion *version = bc->qtVersion())
+                if (BaseQtVersion *version = bc->qtVersion())
                     uniqueId = version->uniqueId();
             }
         }
@@ -567,7 +567,7 @@ bool MaemoQemuManager::sessionHasMaemoTarget() const
 }
 
 bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
-    QtVersion **qtVersion)
+    BaseQtVersion **qtVersion)
 {
     if (!target)
         return false;
@@ -582,7 +582,7 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
         = qobject_cast<Qt4BuildConfiguration *>(target->activeBuildConfiguration());
     if (!bc)
         return false;
-    QtVersion *version = bc->qtVersion();
+    BaseQtVersion *version = bc->qtVersion();
     if (!version || !m_runtimes.value(version->uniqueId(), MaemoQemuRuntime()).isValid())
         return false;
 

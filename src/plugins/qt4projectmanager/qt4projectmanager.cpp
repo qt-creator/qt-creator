@@ -191,8 +191,10 @@ void Qt4Manager::updateVariable(const QString &variable)
             Core::VariableManager::instance()->remove(QLatin1String(kInstallBins));
             return;
         }
-        QString value = qt4pro->activeTarget()->activeBuildConfiguration()
-                ->qtVersion()->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
+        QString value;
+        BaseQtVersion *qtv = qt4pro->activeTarget()->activeBuildConfiguration()->qtVersion();
+        if (qtv)
+            value = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
         Core::VariableManager::instance()->insert(QLatin1String(kInstallBins), value);
     }
 }

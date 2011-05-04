@@ -40,7 +40,7 @@
 #include <QtCore/QMetaType>
 
 namespace Qt4ProjectManager {
-class QtVersion;
+class BaseQtVersion;
 namespace Internal {
 
 class DebuggingHelperBuildTask : public QObject {
@@ -56,12 +56,12 @@ public:
     };
     Q_DECLARE_FLAGS(Tools, DebuggingHelper)
 
-    explicit DebuggingHelperBuildTask(const QtVersion *version, Tools tools = AllTools);
+    explicit DebuggingHelperBuildTask(const BaseQtVersion *version, Tools tools = AllTools);
     virtual ~DebuggingHelperBuildTask();
 
     void run(QFutureInterface<void> &future);
 
-    static Tools availableTools(const QtVersion *version);
+    static Tools availableTools(const BaseQtVersion *version);
 
 signals:
     void finished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);

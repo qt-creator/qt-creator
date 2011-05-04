@@ -46,10 +46,10 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
-class QtVersion;
 class Qt4BaseTarget;
 
 namespace Internal {
+class SymbianQtVersion;
 class Qt4SymbianTarget;
 class Qt4ProFileNode;
 class S60DeviceRunConfigurationFactory;
@@ -65,7 +65,7 @@ public:
     virtual ~S60DeviceRunConfiguration();
 
     Qt4SymbianTarget *qt4Target() const;
-    const QtVersion *qtVersion() const;
+    SymbianQtVersion *qtVersion() const;
 
     using ProjectExplorer::RunConfiguration::isEnabled;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;

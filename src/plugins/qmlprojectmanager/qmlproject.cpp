@@ -42,7 +42,7 @@
 #include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qt4projectmanager/qmldumptool.h>
-#include <qt4projectmanager/qtversionmanager.h>
+#include <qt4projectmanager/baseqtversion.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/fileutils.h>
 
@@ -192,7 +192,7 @@ QStringList QmlProject::importPaths() const
         const QmlProjectRunConfiguration *runConfig =
                 qobject_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
         if (runConfig) {
-            const Qt4ProjectManager::QtVersion *qtVersion = runConfig->qtVersion();
+            const Qt4ProjectManager::BaseQtVersion *qtVersion = runConfig->qtVersion();
             if (qtVersion && qtVersion->isValid()) {
                 const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
                 if (!qtVersionImportPath.isEmpty())

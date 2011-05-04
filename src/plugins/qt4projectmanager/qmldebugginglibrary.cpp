@@ -32,7 +32,7 @@
 
 #include "qmldebugginglibrary.h"
 
-#include "qt4project.h"
+#include "baseqtversion.h"
 #include "qt4projectmanagerconstants.h"
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -66,7 +66,7 @@ QString QmlDebuggingLibrary::libraryByInstallData(const QString &qtInstallData, 
     return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames, false);
 }
 
-bool QmlDebuggingLibrary::canBuild(const QtVersion *qtVersion)
+bool QmlDebuggingLibrary::canBuild(const BaseQtVersion *qtVersion)
 {
     return qtVersion->qtVersion() >=  QtVersionNumber(4, 7, 1);
 }

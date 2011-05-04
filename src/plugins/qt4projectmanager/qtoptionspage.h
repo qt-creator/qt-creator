@@ -34,11 +34,7 @@
 #define QTOPTIONSPAGE_H
 
 #include "debugginghelperbuildtask.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QtCore/QSharedPointer>
-#include <QtCore/QFutureInterface>
 
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
@@ -49,7 +45,8 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 
-class QtVersion;
+class BaseQtVersion;
+class QtConfigWidget;
 
 namespace Internal {
 namespace Ui {
@@ -63,47 +60,44 @@ class QtOptionsPageWidget : public QWidget
     Q_OBJECT
     Q_DISABLE_COPY(QtOptionsPageWidget)
 public:
-    QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions);
+    QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *> versions);
     ~QtOptionsPageWidget();
-    QList<QtVersion *> versions() const;
+    QList<BaseQtVersion *> versions() const;
     void finish();
     QString searchKeywords() const;
 
     virtual bool eventFilter(QObject *o, QEvent *e);
 
 private:
-    void showEnvironmentPage(QTreeWidgetItem * item);
+    void updateDescriptionLabel();
+    void userChangedCurrentVersion();
+    void updateWidgets();
+    void updateDebuggingHelperUi();
     void fixQtVersionName(int index);
     int indexForTreeItem(const QTreeWidgetItem *item) const;
     QTreeWidgetItem *treeItemForIndex(int index) const;
-    QtVersion *currentVersion() const;
+    BaseQtVersion *currentVersion() const;
     int currentIndex() const;
+    void showDebuggingBuildLog(const QTreeWidgetItem *currentItem);
 
     const QString m_specifyNameString;
-    const QString m_specifyPathString;
 
     Internal::Ui::QtVersionManager *m_ui;
     Internal::Ui::QtVersionInfo *m_versionUi;
     Internal::Ui::DebuggingHelper *m_debuggingHelperUi;
-    QList<QtVersion *> m_versions;
+    QList<BaseQtVersion *> m_versions;
     int m_defaultVersion;
     QIcon m_invalidVersionIcon;
     QIcon m_validVersionIcon;
-
-public slots:
-    void updateState();
+    QtConfigWidget *m_configurationWidget;
 
 private slots:
+    void qtVersionChanged();
     void versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old);
     void addQtDir();
     void removeQtDir();
-    void makeS60Visible(bool visible);
-    void onQtBrowsed();
+    void updateCleanUpButton();
     void updateCurrentQtName();
-    void updateCurrentQMakeLocation();
-    void updateCurrentS60SDKDirectory();
-    void updateCurrentSbsV2Directory();
-    void updateDebuggingHelperUi();
     void buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools
                               = DebuggingHelperBuildTask::AllTools);
     void buildGdbHelper();
@@ -113,10 +107,6 @@ private slots:
     void slotShowDebuggingBuildLog();
     void debuggingHelperBuildFinished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
     void cleanUpQtVersions();
-
-private:
-    void updateDescriptionLabel();
-    void showDebuggingBuildLog(const QTreeWidgetItem *currentItem);
 };
 
 class QtOptionsPage : public Core::IOptionsPage

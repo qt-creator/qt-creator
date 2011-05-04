@@ -34,6 +34,7 @@
 
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
+#include "baseqtversion.h"
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
@@ -54,7 +55,7 @@ static inline QStringList validBinaryFilenames()
             << QLatin1String("QMLObserver.app/Contents/MacOS/QMLObserver");
 }
 
-bool QmlObserverTool::canBuild(const QtVersion *qtVersion)
+bool QmlObserverTool::canBuild(const BaseQtVersion *qtVersion)
 {
     return (qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
             || qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID))
@@ -67,8 +68,8 @@ QString QmlObserverTool::toolForProject(ProjectExplorer::Project *project)
         Qt4Project *qt4Project = static_cast<Qt4Project*>(project);
         if (qt4Project && qt4Project->activeTarget()
          && qt4Project->activeTarget()->activeBuildConfiguration()) {
-            QtVersion *version = qt4Project->activeTarget()->activeBuildConfiguration()->qtVersion();
-            if (version->isValid()) {
+            BaseQtVersion *version = qt4Project->activeTarget()->activeBuildConfiguration()->qtVersion();
+            if (version && version->isValid()) {
                 QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
                 QString toolPath = toolByInstallData(qtInstallData);
                 return toolPath;

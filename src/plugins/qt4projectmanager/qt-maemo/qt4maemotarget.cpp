@@ -49,9 +49,9 @@
 #include <projectexplorer/toolchain.h>
 #include <qt4projectmanager/qt4project.h>
 #include <utils/fileutils.h>
-
 #include <utils/filesystemwatcher.h>
-#include <utils/fileutils.h>
+#include <qt4projectmanager/baseqtversion.h>
+
 
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
@@ -153,7 +153,7 @@ QList<ProjectExplorer::ToolChain *> AbstractQt4MaemoTarget::possibleToolChains(P
     QList<ProjectExplorer::ToolChain *> candidates = Qt4BaseTarget::possibleToolChains(bc);
     foreach (ProjectExplorer::ToolChain *i, candidates) {
         MaemoToolChain *tc = dynamic_cast<MaemoToolChain *>(i);
-        if (!tc)
+        if (!tc || !qt4Bc->qtVersion())
             continue;
         if (tc->qtVersionId() == qt4Bc->qtVersion()->uniqueId())
             result.append(tc);
@@ -692,7 +692,8 @@ bool AbstractDebBasedQt4MaemoTarget::targetCanBeRemoved() const
 void AbstractDebBasedQt4MaemoTarget::removeTarget()
 {
     QString error;
-    MaemoGlobal::removeRecursively(debianDirPath(), error);
+    if (!MaemoGlobal::removeRecursively(debianDirPath(), error))
+        qDebug("%s", qPrintable(error));
 }
 
 void AbstractDebBasedQt4MaemoTarget::handleDebianFileChanged(const QString &filePath)
@@ -725,7 +726,12 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
         << QLatin1String("-s") << QLatin1String("-n") << QLatin1String("-p")
         << (defaultPackageFileName() + QLatin1Char('_')
             + AbstractMaemoPackageCreationStep::DefaultVersionNumber);
-    if (!MaemoGlobal::callMad(dh_makeProc, dh_makeArgs, activeBuildConfiguration()->qtVersion(), true)
+    BaseQtVersion *lqt = activeBuildConfiguration()->qtVersion();
+    if (!lqt) {
+        raiseError(tr("Unable to create Debian templates: No qt version set"));
+        return ActionFailed;
+    }
+    if (!MaemoGlobal::callMad(dh_makeProc, dh_makeArgs, lqt->qmakeCommand(), true)
             || !dh_makeProc.waitForStarted()) {
         raiseError(tr("Unable to create Debian templates: dh_make failed (%1)")
             .arg(dh_makeProc.errorString()));
@@ -924,9 +930,12 @@ QString AbstractRpmBasedQt4MaemoTarget::shortDescription() const
 
 QString AbstractRpmBasedQt4MaemoTarget::packageFileName() const
 {
+    BaseQtVersion *lqt = activeBuildConfiguration()->qtVersion();
+    if (!lqt)
+        return QString();
     return packageName() + QLatin1Char('-') + projectVersion() + QLatin1Char('-')
         + QString::fromUtf8(getValueForTag(ReleaseTag, 0)) + QLatin1Char('.')
-        + MaemoGlobal::architecture(activeBuildConfiguration()->qtVersion())
+        + MaemoGlobal::architecture(lqt->qmakeCommand())
         + QLatin1String(".rpm");
 }
 

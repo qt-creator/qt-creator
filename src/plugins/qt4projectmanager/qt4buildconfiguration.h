@@ -75,13 +75,13 @@ public:
     Qt4ProjectManager::Internal::Qt4ProFileNode *subNodeBuild() const;
 
     // returns the qtVersion
-    QtVersion *qtVersion() const;
-    void setQtVersion(QtVersion *);
+    BaseQtVersion *qtVersion() const;
+    void setQtVersion(BaseQtVersion *);
 
     void setToolChain(ProjectExplorer::ToolChain *tc);
 
-    QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
-    void setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config);
+    BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
+    void setQMakeBuildConfiguration(BaseQtVersion::QmakeBuildConfigs config);
 
     /// \internal for qmakestep
     // used by qmake step to notify that the qmake args have changed
@@ -112,7 +112,7 @@ public:
     bool compareToImportFrom(const QString &makefile);
     static void removeQMLInspectorFromArguments(QString *args);
     static QString extractSpecFromArguments(QString *arguments,
-                                            const QString &directory, const QtVersion *version,
+                                            const QString &directory, const BaseQtVersion *version,
                                             QStringList *outArgs = 0);
 
     QVariantMap toMap() const;
@@ -165,7 +165,7 @@ private:
     QString m_buildDirectory;
     QString m_lastEmmitedBuildDirectory;
     int m_qtVersionId;
-    QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
+    BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     Qt4ProjectManager::Internal::Qt4ProFileNode *m_subNodeBuild;
 };
 

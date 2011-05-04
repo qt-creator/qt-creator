@@ -31,7 +31,9 @@ SOURCES += $$PWD/s60manager.cpp \
     $$PWD/s60publishingsissettingspageovi.cpp \
     $$PWD/s60publisherovi.cpp \
     $$PWD/s60publishingbuildsettingspageovi.cpp \
-    $$PWD/s60publishingresultspageovi.cpp
+    $$PWD/s60publishingresultspageovi.cpp \
+    $$PWD/symbianqtversionfactory.cpp \
+    $$PWD/symbianqtversion.cpp
 
 HEADERS += $$PWD/s60manager.h \
     $$PWD/sbsv2parser.h \
@@ -66,7 +68,9 @@ HEADERS += $$PWD/s60manager.h \
     $$PWD/s60publishingsissettingspageovi.h \
     $$PWD/s60publisherovi.h \
     $$PWD/s60publishingbuildsettingspageovi.h \
-    $$PWD/s60publishingresultspageovi.h
+    $$PWD/s60publishingresultspageovi.h \
+    $$PWD/symbianqtversionfactory.h \
+    $$PWD/symbianqtversion.h
 
 FORMS += $$PWD/s60createpackagestep.ui \
     $$PWD/s60certificatedetailsdialog.ui \

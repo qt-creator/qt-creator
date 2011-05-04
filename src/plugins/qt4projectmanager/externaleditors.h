@@ -46,7 +46,7 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 
-class QtVersion;
+class BaseQtVersion;
 
 namespace Internal {
 
@@ -66,7 +66,7 @@ public:
 
 protected:
     // Method pointer for a QtVersion method return a string (command)
-    typedef QString (QtVersion::*QtVersionCommandAccessor)() const;
+    typedef QString (BaseQtVersion::*QtVersionCommandAccessor)() const;
 
     // Data required to launch the editor
     struct EditorLaunchData {

@@ -35,6 +35,7 @@
 
 #include "qt4project.h"
 #include "qt4target.h"
+#include "baseqtversion.h"
 
 using namespace Qt4ProjectManager;
 using namespace Internal;
@@ -57,6 +58,8 @@ Qt4UiCodeModelSupport::~Qt4UiCodeModelSupport()
 QString Qt4UiCodeModelSupport::uicCommand() const
 {
     Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeBuildConfiguration();
+    if (!qt4bc->qtVersion())
+        return QString();
     return qt4bc->qtVersion()->uicCommand();
 }
 

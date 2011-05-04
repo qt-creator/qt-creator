@@ -34,6 +34,7 @@
 
 #include "maemoglobal.h"
 #include "maemomanager.h"
+#include "maemoqtversion.h"
 #include "qt4projectmanagerconstants.h"
 #include "qtversionmanager.h"
 
@@ -93,8 +94,10 @@ bool MaemoToolChain::canClone() const
 
 void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    QtVersion *v = QtVersionManager::instance()->version(m_qtVersionId);
-    const QString maddeRoot = MaemoGlobal::maddeRoot(v);
+    BaseQtVersion *v = QtVersionManager::instance()->version(m_qtVersionId);
+    if (!v)
+        return;
+    const QString maddeRoot = MaemoGlobal::maddeRoot(v->qmakeCommand());
 
     // put this into environment to make pkg-config stuff work
     env.prependOrSet(QLatin1String("SYSROOT_DIR"), QDir::toNativeSeparators(sysroot()));
@@ -107,7 +110,7 @@ void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
 
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin").arg(maddeRoot)));
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
-                                                  .arg(MaemoGlobal::targetRoot(v))));
+                                                  .arg(MaemoGlobal::targetRoot(v->qmakeCommand()))));
 
     const QString manglePathsKey = QLatin1String("GCCWRAPPER_PATHMANGLE");
     if (!env.hasKey(manglePathsKey)) {
@@ -121,19 +124,19 @@ void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
 
 QString MaemoToolChain::sysroot() const
 {
-    QtVersion *v = QtVersionManager::instance()->version(m_qtVersionId);
+    BaseQtVersion *v = QtVersionManager::instance()->version(m_qtVersionId);
     if (!v)
         return QString();
 
     if (m_sysroot.isEmpty()) {
-        QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(v)) + QLatin1String("/information"));
+        QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(v->qmakeCommand())) + QLatin1String("/information"));
         if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream stream(&file);
             while (!stream.atEnd()) {
                 const QString &line = stream.readLine().trimmed();
                 const QStringList &list = line.split(QLatin1Char(' '));
                 if (list.count() > 1 && list.at(0) == QLatin1String("sysroot"))
-                    m_sysroot = MaemoGlobal::maddeRoot(v) + QLatin1String("/sysroots/") + list.at(1);
+                    m_sysroot = MaemoGlobal::maddeRoot(v->qmakeCommand()) + QLatin1String("/sysroots/") + list.at(1);
             }
         }
     }
@@ -180,14 +183,14 @@ void MaemoToolChain::setQtVersionId(int id)
         return;
     }
 
-    QtVersion *version = QtVersionManager::instance()->version(id);
+    BaseQtVersion *version = QtVersionManager::instance()->version(id);
     Q_ASSERT(version);
     ProjectExplorer::Abi::OSFlavor flavour = ProjectExplorer::Abi::HarmattanLinuxFlavor;
-    if (MaemoGlobal::isValidMaemo5QtVersion(version))
+    if (MaemoGlobal::isValidMaemo5QtVersion(version->qmakeCommand()))
         flavour = ProjectExplorer::Abi::MaemoLinuxFlavor;
-    else if (MaemoGlobal::isValidHarmattanQtVersion(version))
+    else if (MaemoGlobal::isValidHarmattanQtVersion(version->qmakeCommand()))
         flavour = ProjectExplorer::Abi::HarmattanLinuxFlavor;
-    else if (MaemoGlobal::isValidMeegoQtVersion(version))
+    else if (MaemoGlobal::isValidMeegoQtVersion(version->qmakeCommand()))
         flavour = ProjectExplorer::Abi::MeegoLinuxFlavor;
     else
         return;
@@ -221,14 +224,14 @@ MaemoToolChainConfigWidget::MaemoToolChainConfigWidget(MaemoToolChain *tc) :
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     QLabel *label = new QLabel;
-    QtVersion *v = QtVersionManager::instance()->version(tc->qtVersionId());
+    BaseQtVersion *v = QtVersionManager::instance()->version(tc->qtVersionId());
     Q_ASSERT(v);
     label->setText(tr("<html><head/><body><table>"
                       "<tr><td>Path to MADDE:</td><td>%1</td></tr>"
                       "<tr><td>Path to MADDE target:</td><td>%2</td></tr>"
                       "<tr><td>Debugger:</td/><td>%3</td></tr></body></html>")
-                   .arg(QDir::toNativeSeparators(MaemoGlobal::maddeRoot(v)),
-                        QDir::toNativeSeparators(MaemoGlobal::targetRoot(v)),
+                   .arg(QDir::toNativeSeparators(MaemoGlobal::maddeRoot(v->qmakeCommand())),
+                        QDir::toNativeSeparators(MaemoGlobal::targetRoot(v->qmakeCommand())),
                         QDir::toNativeSeparators(tc->debuggerCommand())));
     layout->addWidget(label);
 }
@@ -268,14 +271,12 @@ QString MaemoToolChainFactory::id() const
 
 QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::autoDetect()
 {
-    QList<ProjectExplorer::ToolChain *> result;
-
     QtVersionManager *vm = QtVersionManager::instance();
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
             this, SLOT(handleQtVersionChanges(QList<int>)));
 
     QList<int> versionList;
-    foreach (QtVersion *v, vm->versions())
+    foreach (BaseQtVersion *v, vm->versions())
         versionList.append(v->uniqueId());
 
     return createToolChainList(versionList);
@@ -296,7 +297,7 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
     QList<ProjectExplorer::ToolChain *> result;
 
     foreach (int i, changes) {
-        QtVersion *v = vm->version(i);
+        BaseQtVersion *v = vm->version(i);
         if (!v) {
             // remove tool chain:
             QList<ProjectExplorer::ToolChain *> toRemove;
@@ -309,9 +310,7 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
             }
             foreach (ProjectExplorer::ToolChain *tc, toRemove)
                 tcm->deregisterToolChain(tc);
-        } else if (v->supportsTargetId(Constants::MAEMO5_DEVICE_TARGET_ID)
-                   || v->supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID)
-                   || v->supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID)) {
+        } else if (MaemoQtVersion *mqv = dynamic_cast<MaemoQtVersion *>(v)) {
             // add tool chain:
             MaemoToolChain *mTc = new MaemoToolChain(true);
             mTc->setQtVersionId(i);
@@ -320,11 +319,11 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
                 target = "Maemo 6";
             else if (v->supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID))
                 target = "Meego";
-            mTc->setDisplayName(tr("%1 GCC (%2)").arg(target).arg(MaemoGlobal::maddeRoot(v)));
-            mTc->setCompilerPath(MaemoGlobal::targetRoot(v) + QLatin1String("/bin/gcc"));
-            mTc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(v->qtAbis().at(0)));
+            mTc->setDisplayName(tr("%1 GCC (%2)").arg(target).arg(MaemoGlobal::maddeRoot(mqv->qmakeCommand())));
+            mTc->setCompilerPath(MaemoGlobal::targetRoot(mqv->qmakeCommand()) + QLatin1String("/bin/gcc"));
+            mTc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(mqv->qtAbis().at(0)));
             if (mTc->debuggerCommand().isEmpty())
-                mTc->setDebuggerCommand(MaemoGlobal::targetRoot(v) + QLatin1String("/bin/gdb"));
+                mTc->setDebuggerCommand(MaemoGlobal::targetRoot(mqv->qmakeCommand()) + QLatin1String("/bin/gdb"));
             result.append(mTc);
         }
     }

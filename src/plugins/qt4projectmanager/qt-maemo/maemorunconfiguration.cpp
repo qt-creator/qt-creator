@@ -42,6 +42,7 @@
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
 #include "qtoutputformatter.h"
+#include "maemoqtversion.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -235,7 +236,10 @@ AbstractLinuxDeviceDeployStep *MaemoRunConfiguration::deployStep() const
 const QString MaemoRunConfiguration::targetRoot() const
 {
     QTC_ASSERT(activeQt4BuildConfiguration(), return QString());
-    return MaemoGlobal::targetRoot(activeQt4BuildConfiguration()->qtVersion());
+    BaseQtVersion *v = activeQt4BuildConfiguration()->qtVersion();
+    if (!v)
+        return QString();
+    return MaemoGlobal::targetRoot(v->qmakeCommand());
 }
 
 const QString MaemoRunConfiguration::arguments() const

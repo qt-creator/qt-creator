@@ -33,6 +33,8 @@
 #ifndef HEADERPATH_H
 #define HEADERPATH_H
 
+#include <QtCore/QString>
+
 #include "projectexplorer_export.h"
 
 namespace ProjectExplorer {

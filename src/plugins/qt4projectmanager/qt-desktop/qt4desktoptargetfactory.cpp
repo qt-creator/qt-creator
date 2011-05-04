@@ -142,16 +142,16 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
     if (!canCreate(parent, id))
         return 0;
 
-    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id);
+    QList<BaseQtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id);
     if (knownVersions.isEmpty())
         return 0;
 
-    QtVersion *qtVersion = knownVersions.first();
-    QtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
+    BaseQtVersion *qtVersion = knownVersions.first();
+    BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
 
     QList<BuildConfigurationInfo> infos;
     infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
-    infos.append(BuildConfigurationInfo(qtVersion, config ^ QtVersion::DebugBuild, QString(), QString()));
+    infos.append(BuildConfigurationInfo(qtVersion, config ^ BaseQtVersion::DebugBuild, QString(), QString()));
 
     return create(parent, id, infos);
 }

@@ -248,6 +248,8 @@ bool S60PublisherOvi::isVendorNameValid(const QString &vendorName) const
 
 QString S60PublisherOvi::qtVersion() const
 {
+    if (!m_qt4bc->qtVersion())
+        return QString();
     return m_qt4bc->qtVersion()->displayName();
 }
 

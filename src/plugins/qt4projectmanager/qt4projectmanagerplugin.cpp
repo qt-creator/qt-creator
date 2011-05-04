@@ -61,6 +61,9 @@
 #include "qt-desktop/qt4desktoptargetfactory.h"
 #include "qt-desktop/qt4simulatortargetfactory.h"
 #include "qt-desktop/qt4runconfiguration.h"
+#include "qt-desktop/desktopqtversionfactory.h"
+#include "qt-desktop/simulatorqtversionfactory.h"
+#include "winceqtversionfactory.h"
 
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/icore.h>
@@ -120,6 +123,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     Core::ActionManager *am = core->actionManager();
 
+    new ProFileCacheManager(this);
+
     QtVersionManager *mgr = new QtVersionManager;
     addAutoReleasedObject(mgr);
     addAutoReleasedObject(new QtOptionsPage);
@@ -171,6 +176,10 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new Qt4DesktopTargetFactory);
     addAutoReleasedObject(new Qt4SimulatorTargetFactory);
 
+    addAutoReleasedObject(new DesktopQtVersionFactory);
+    addAutoReleasedObject(new SimulatorQtVersionFactory);
+    addAutoReleasedObject(new WinCeQtVersionFactory);
+
     ProFileCompletion *completion = new ProFileCompletion;
     addAutoReleasedObject(completion);
     // Set completion settings and keep them up to date
@@ -178,8 +187,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     completion->setCompletionSettings(textEditorSettings->completionSettings());
     connect(textEditorSettings, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
             completion, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
-
-    new ProFileCacheManager(this);
 
     // TODO reenable
     //m_embeddedPropertiesPage = new EmbeddedPropertiesPage;
@@ -287,6 +294,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 void Qt4ProjectManagerPlugin::extensionsInitialized()
 {
     m_qt4ProjectManager->init();
+    QtVersionManager::instance()->extensionsInitialized();
 }
 
 void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,

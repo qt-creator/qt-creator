@@ -78,8 +78,8 @@ public:
     // This is the same for almost all Qt4Targets
     // so for now offer a convience function
     Qt4BuildConfiguration *addQt4BuildConfiguration(QString displayName,
-                                                            QtVersion *qtversion,
-                                                            QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
+                                                            BaseQtVersion *qtversion,
+                                                            BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                                             QString additionalArguments,
                                                             QString directory);
 

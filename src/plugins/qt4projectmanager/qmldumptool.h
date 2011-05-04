@@ -46,12 +46,12 @@ namespace ProjectExplorer {
 }
 
 namespace Qt4ProjectManager {
-class QtVersion;
+class BaseQtVersion;
 
 class QT4PROJECTMANAGER_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrary
 {
 public:
-    static bool canBuild(const QtVersion *qtVersion);
+    static bool canBuild(const BaseQtVersion *qtVersion);
     static QString toolForProject(ProjectExplorer::Project *project, bool debugDump);
     static QString toolByInstallData(const QString &qtInstallData, const QString &qtInstallHeaders,
                                      bool debugDump);

@@ -68,7 +68,8 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
     }
     if (debuggingType != MaemoRunConfiguration::DebugQmlOnly) {
         params.processArgs = runConfig->arguments();
-        params.sysRoot = runConfig->activeQt4BuildConfiguration()->qtVersion()->systemRoot();
+        if (runConfig->activeQt4BuildConfiguration()->qtVersion())
+            params.sysRoot = runConfig->activeQt4BuildConfiguration()->qtVersion()->systemRoot();
         params.toolChainAbi = runConfig->abi();
         if (runConfig->useRemoteGdb()) {
             params.startMode = StartRemoteGdb;

@@ -57,7 +57,7 @@ namespace ProjectExplorer {
 }
 
 namespace Qt4ProjectManager {
-    class QtVersion;
+    class BaseQtVersion;
     namespace Internal {
     class MaemoRunConfiguration;
 
@@ -117,7 +117,7 @@ private:
     void updateStarterIcon(bool running);
     void toggleStarterButton(ProjectExplorer::Target *target);
     bool targetUsesMatchingRuntimeConfig(ProjectExplorer::Target *target,
-        QtVersion **qtVersion = 0);
+        BaseQtVersion **qtVersion = 0);
 
     void notify(const QList<int> uniqueIds);
     void toggleDeviceConnections(MaemoRunConfiguration *mrc, bool connect);

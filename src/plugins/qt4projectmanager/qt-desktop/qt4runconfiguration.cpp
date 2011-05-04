@@ -42,6 +42,7 @@
 #include "qtoutputformatter.h"
 #include "qt4desktoptarget.h"
 #include "qmakestep.h"
+#include "baseqtversion.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -660,7 +661,7 @@ QString Qt4RunConfiguration::proFilePath() const
 
 QString Qt4RunConfiguration::dumperLibrary() const
 {
-    QtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
+    BaseQtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
     if (version)
         return version->gdbDebuggingHelperLibrary();
     return QString();
@@ -668,7 +669,7 @@ QString Qt4RunConfiguration::dumperLibrary() const
 
 QStringList Qt4RunConfiguration::dumperLibraryLocations() const
 {
-    QtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
+    BaseQtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
     if (version)
         return version->debuggingHelperLibraryLocations();
     return QStringList();

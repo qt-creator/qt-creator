@@ -33,6 +33,7 @@
 
 #include "maemoglobal.h"
 #include "maemopublishingwizardfremantlefree.h"
+#include "baseqtversion.h"
 
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qmakestep.h>
@@ -76,7 +77,11 @@ bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *p
                 = qobject_cast<const Qt4BuildConfiguration *>(bc);
             if (!qt4Bc)
                 continue;
-            if (MaemoGlobal::version(qt4Bc->qtVersion()) == MaemoDeviceConfig::Maemo5)
+
+            BaseQtVersion *qt = qt4Bc->qtVersion();
+            if (!qt)
+                continue;
+            if (MaemoGlobal::version(qt->qmakeCommand()) == MaemoDeviceConfig::Maemo5)
                 return true;
         }
         break;

@@ -211,6 +211,7 @@ void BuildConfiguration::setToolChain(ProjectExplorer::ToolChain *tc)
         return;
     m_toolChain = tc;
     emit toolChainChanged();
+    emit environmentChanged();
 }
 
 Utils::Environment BuildConfiguration::baseEnvironment() const

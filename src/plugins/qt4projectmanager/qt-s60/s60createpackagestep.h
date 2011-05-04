@@ -182,6 +182,7 @@ private:
 
     bool m_suppressPatchWarningDialog;
     Utils::CheckableMessageBox *m_patchWarningDialog;
+    bool m_isBuildWithSymbianSbsV2;
 };
 
 class S60CreatePackageStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

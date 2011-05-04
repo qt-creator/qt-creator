@@ -43,7 +43,6 @@
 namespace Qt4ProjectManager {
 class Qt4TargetSetupWidget;
 class QtVersionNumber;
-class QtVersion;
 struct BuildConfigurationInfo;
 
 class QT4PROJECTMANAGER_EXPORT Qt4BaseTargetFactory : public ProjectExplorer::ITargetFactory

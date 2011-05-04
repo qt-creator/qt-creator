@@ -37,7 +37,6 @@
 #include <projectexplorer/toolchainconfigwidget.h>
 
 namespace Qt4ProjectManager {
-class QtVersion;
 
 namespace Internal {
 

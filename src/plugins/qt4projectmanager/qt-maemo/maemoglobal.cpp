@@ -76,35 +76,35 @@ bool MaemoGlobal::isMeegoTargetId(const QString &id)
     return id == QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID);
 }
 
-bool MaemoGlobal::isValidMaemo5QtVersion(const QtVersion *version)
+bool MaemoGlobal::isValidMaemo5QtVersion(const QString &qmakePath)
 {
-    return isValidMaemoQtVersion(version, MaemoDeviceConfig::Maemo5);
+    return isValidMaemoQtVersion(qmakePath, MaemoDeviceConfig::Maemo5);
 }
 
-bool MaemoGlobal::isValidHarmattanQtVersion(const QtVersion *version)
+bool MaemoGlobal::isValidHarmattanQtVersion(const QString &qmakePath)
 {
-    return isValidMaemoQtVersion(version, MaemoDeviceConfig::Maemo6);
+    return isValidMaemoQtVersion(qmakePath, MaemoDeviceConfig::Maemo6);
 }
 
-bool MaemoGlobal::isValidMeegoQtVersion(const Qt4ProjectManager::QtVersion *version)
+bool MaemoGlobal::isValidMeegoQtVersion(const QString &qmakePath)
 {
-    return isValidMaemoQtVersion(version, MaemoDeviceConfig::Meego);
+    return isValidMaemoQtVersion(qmakePath, MaemoDeviceConfig::Meego);
 }
 
-bool MaemoGlobal::isValidMaemoQtVersion(const QtVersion *qtVersion,
+bool MaemoGlobal::isValidMaemoQtVersion(const QString &qmakePath,
     MaemoDeviceConfig::OsVersion maemoVersion)
 {
-    if (version(qtVersion) != maemoVersion)
+    if (version(qmakePath) != maemoVersion)
         return false;
     QProcess madAdminProc;
     const QStringList arguments(QLatin1String("list"));
-    if (!callMadAdmin(madAdminProc, arguments, qtVersion, false))
+    if (!callMadAdmin(madAdminProc, arguments, qmakePath, false))
         return false;
     if (!madAdminProc.waitForStarted() || !madAdminProc.waitForFinished())
         return false;
 
     madAdminProc.setReadChannel(QProcess::StandardOutput);
-    const QByteArray tgtName = targetName(qtVersion).toAscii();
+    const QByteArray tgtName = targetName(qmakePath).toAscii();
     while (madAdminProc.canReadLine()) {
         const QByteArray &line = madAdminProc.readLine();
         if (line.contains(tgtName)
@@ -199,9 +199,9 @@ QString MaemoGlobal::deviceConfigurationName(const MaemoDeviceConfig::ConstPtr &
 }
 
 MaemoPortList MaemoGlobal::freePorts(const MaemoDeviceConfig::ConstPtr &devConf,
-    const QtVersion *qtVersion)
+    const BaseQtVersion *qtVersion)
 {
-    if (!devConf)
+    if (!devConf || !qtVersion)
         return MaemoPortList();
     if (devConf->type() == MaemoDeviceConfig::Emulator) {
         MaemoQemuRuntime rt;
@@ -212,31 +212,31 @@ MaemoPortList MaemoGlobal::freePorts(const MaemoDeviceConfig::ConstPtr &devConf,
     return devConf->freePorts();
 }
 
-QString MaemoGlobal::maddeRoot(const QtVersion *qtVersion)
+QString MaemoGlobal::maddeRoot(const QString &qmakePath)
 {
-    QDir dir(targetRoot(qtVersion));
+    QDir dir(targetRoot(qmakePath));
     dir.cdUp(); dir.cdUp();
     return dir.absolutePath();
 }
 
-QString MaemoGlobal::targetRoot(const QtVersion *qtVersion)
+QString MaemoGlobal::targetRoot(const QString &qmakePath)
 {
-    return QDir::cleanPath(qtVersion->qmakeCommand()).remove(binQmake);
+    return QDir::cleanPath(qmakePath).remove(binQmake);
 }
 
-QString MaemoGlobal::targetName(const QtVersion *qtVersion)
+QString MaemoGlobal::targetName(const QString &qmakePath)
 {
-    return QDir(targetRoot(qtVersion)).dirName();
+    return QDir(targetRoot(qmakePath)).dirName();
 }
 
-QString MaemoGlobal::madAdminCommand(const QtVersion *qtVersion)
+QString MaemoGlobal::madAdminCommand(const QString &qmakePath)
 {
-    return maddeRoot(qtVersion) + QLatin1String("/bin/mad-admin");
+    return maddeRoot(qmakePath) + QLatin1String("/bin/mad-admin");
 }
 
-QString MaemoGlobal::madCommand(const QtVersion *qtVersion)
+QString MaemoGlobal::madCommand(const QString &qmakePath)
 {
-    return maddeRoot(qtVersion) + QLatin1String("/bin/mad");
+    return maddeRoot(qmakePath) + QLatin1String("/bin/mad");
 }
 
 QString MaemoGlobal::madDeveloperUiName(MaemoDeviceConfig::OsVersion osVersion)
@@ -245,9 +245,9 @@ QString MaemoGlobal::madDeveloperUiName(MaemoDeviceConfig::OsVersion osVersion)
         ? tr("SDK Connectivity") : tr("Mad Developer");
 }
 
-MaemoDeviceConfig::OsVersion MaemoGlobal::version(const QtVersion *qtVersion)
+MaemoDeviceConfig::OsVersion MaemoGlobal::version(const QString &qmakePath)
 {
-    const QString &name = targetName(qtVersion);
+    const QString &name = targetName(qmakePath);
     if (name.startsWith(QLatin1String("fremantle")))
         return MaemoDeviceConfig::Maemo5;
     if (name.startsWith(QLatin1String("harmattan")))
@@ -257,12 +257,12 @@ MaemoDeviceConfig::OsVersion MaemoGlobal::version(const QtVersion *qtVersion)
     return static_cast<MaemoDeviceConfig::OsVersion>(-1);
 }
 
-QString MaemoGlobal::architecture(const QtVersion *qtVersion)
+QString MaemoGlobal::architecture(const QString &qmakePath)
 {
     QProcess proc;
     const QStringList args = QStringList() << QLatin1String("uname")
         << QLatin1String("-m");
-    if (!callMad(proc, args, qtVersion, true))
+    if (!callMad(proc, args, qmakePath, true))
         return QString();
     if (!proc.waitForFinished())
         return QString();
@@ -359,30 +359,30 @@ bool MaemoGlobal::isFileNewerThan(const QString &filePath,
 }
 
 bool MaemoGlobal::callMad(QProcess &proc, const QStringList &args,
-    const QtVersion *qtVersion, bool useTarget)
+    const QString &qmakePath, bool useTarget)
 {
-    return callMaddeShellScript(proc, qtVersion, madCommand(qtVersion), args,
+    return callMaddeShellScript(proc, qmakePath, madCommand(qmakePath), args,
         useTarget);
 }
 
 bool MaemoGlobal::callMadAdmin(QProcess &proc, const QStringList &args,
-    const QtVersion *qtVersion, bool useTarget)
+    const QString &qmakePath, bool useTarget)
 {
-    return callMaddeShellScript(proc, qtVersion, madAdminCommand(qtVersion),
+    return callMaddeShellScript(proc, qmakePath, madAdminCommand(qmakePath),
         args, useTarget);
 }
 
 bool MaemoGlobal::callMaddeShellScript(QProcess &proc,
-    const QtVersion *qtVersion, const QString &command, const QStringList &args,
+    const QString &qmakePath, const QString &command, const QStringList &args,
     bool useTarget)
 {
     if (!QFileInfo(command).exists())
         return false;
     QString actualCommand = command;
-    QStringList actualArgs = targetArgs(qtVersion, useTarget) + args;
+    QStringList actualArgs = targetArgs(qmakePath, useTarget) + args;
 #ifdef Q_OS_WIN
     Utils::Environment env(proc.systemEnvironment());
-    const QString root = maddeRoot(qtVersion);
+    const QString root = maddeRoot(qmakePath);
     env.prependOrSetPath(root + QLatin1String("/bin"));
     env.prependOrSet(QLatin1String("HOME"),
         QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
@@ -394,11 +394,11 @@ bool MaemoGlobal::callMaddeShellScript(QProcess &proc,
     return true;
 }
 
-QStringList MaemoGlobal::targetArgs(const QtVersion *qtVersion, bool useTarget)
+QStringList MaemoGlobal::targetArgs(const QString &qmakePath, bool useTarget)
 {
     QStringList args;
     if (useTarget) {
-        args << QLatin1String("-t") << targetName(qtVersion);
+        args << QLatin1String("-t") << targetName(qmakePath);
     }
     return args;
 }

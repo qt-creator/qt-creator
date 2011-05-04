@@ -255,13 +255,17 @@ bool AbstractMaemoPackageCreationStep::callPackagingCommand(QProcess *proc,
     const QStringList &arguments)
 {
     preparePackagingProcess(proc, qt4BuildConfiguration(), buildDirectory());
-    const QtVersion * const qtVersion = qt4BuildConfiguration()->qtVersion();
-    const QString madCommand = MaemoGlobal::madCommand(qtVersion);
+    const BaseQtVersion * const qtVersion = qt4BuildConfiguration()->qtVersion();
+    if (!qtVersion) {
+        raiseError(tr("Packaging failed."), tr("Packaging error: No qt version."));
+        return false;
+    }
+    const QString madCommand = MaemoGlobal::madCommand(qtVersion->qmakeCommand());
     const QString cmdLine = madCommand + QLatin1Char(' ')
         + arguments.join(QLatin1String(" "));
     emit addOutput(tr("Package Creation: Running command '%1'.").arg(cmdLine),
         BuildStep::MessageOutput);
-    MaemoGlobal::callMad(*proc, arguments, qtVersion, true);
+    MaemoGlobal::callMad(*proc, arguments, qtVersion->qmakeCommand(), true);
     if (!proc->waitForStarted()) {
         raiseError(tr("Packaging failed."),
             tr("Packaging error: Could not start command '%1'. Reason: %2")
@@ -287,7 +291,7 @@ void AbstractMaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
     const Qt4BuildConfiguration *bc, const QString &workingDir)
 {
     Utils::Environment env = bc->environment();
-    if (bc->qmakeBuildConfiguration() & QtVersion::DebugBuild) {
+    if (bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild) {
         env.appendOrSet(QLatin1String("DEB_BUILD_OPTIONS"),
             QLatin1String("nostrip"), QLatin1String(" "));
     }
@@ -466,7 +470,8 @@ QString MaemoDebianPackageCreationStep::packagingCommand(const Qt4BuildConfigura
     const QString &commandName)
 {
     QString perl;
-    const QString maddeRoot = MaemoGlobal::maddeRoot(bc->qtVersion());
+    BaseQtVersion *v = bc->qtVersion();
+    const QString maddeRoot = MaemoGlobal::maddeRoot(v->qmakeCommand());
 #ifdef Q_OS_WIN
     perl = maddeRoot + QLatin1String("/bin/perl.exe ");
 #endif
@@ -504,8 +509,12 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
         + QLatin1Char('/') + maemoTarget()->packageName()
         + QLatin1String("/usr/share/applications/");
     const Qt4BuildConfiguration * const bc = qt4BuildConfiguration();
+
+    const BaseQtVersion *const lqt = bc->qtVersion();
+    if (!lqt)
+        return false;
     const MaemoDeviceConfig::OsVersion version
-        = MaemoGlobal::version(bc->qtVersion());
+        = MaemoGlobal::version(lqt->qmakeCommand());
     if (version == MaemoDeviceConfig::Maemo5)
         desktopFileDir += QLatin1String("hildon/");
 #ifdef Q_OS_WIN
@@ -537,7 +546,7 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
     }
 
     // Always check for dependencies in release builds.
-    if (!(bc->qmakeBuildConfiguration() & QtVersion::DebugBuild))
+    if (!(bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild))
         ensureShlibdeps(content);
 
     Utils::FileSaver saver(rulesFilePath);

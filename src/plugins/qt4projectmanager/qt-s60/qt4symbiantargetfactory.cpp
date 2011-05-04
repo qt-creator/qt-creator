@@ -170,7 +170,7 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
     // For emulator filter out all non debug builds
     QList<BuildConfigurationInfo> tmp;
     foreach (const BuildConfigurationInfo &info, infos)
-        if (info.buildConfig & QtVersion::DebugBuild)
+        if (info.buildConfig & BaseQtVersion::DebugBuild)
             tmp << info;
     return tmp;
 }
@@ -192,22 +192,22 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
     if (!canCreate(parent, id))
         return 0;
 
-    QList<QtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id);
+    QList<BaseQtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id);
     if (knownVersions.isEmpty())
         return 0;
 
-    QtVersion *qtVersion = knownVersions.first();
-    QtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
+    BaseQtVersion *qtVersion = knownVersions.first();
+    BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
 
     QList<BuildConfigurationInfo> infos;
     if (id != Constants::S60_EMULATOR_TARGET_ID) {
         infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
-        infos.append(BuildConfigurationInfo(qtVersion, config ^ QtVersion::DebugBuild, QString(), QString()));
+        infos.append(BuildConfigurationInfo(qtVersion, config ^ BaseQtVersion::DebugBuild, QString(), QString()));
     } else {
-        if(config & QtVersion::DebugBuild)
+        if(config & BaseQtVersion::DebugBuild)
             infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
         else
-            infos.append(BuildConfigurationInfo(qtVersion, config ^ QtVersion::DebugBuild, QString(), QString()));
+            infos.append(BuildConfigurationInfo(qtVersion, config ^ BaseQtVersion::DebugBuild, QString(), QString()));
     }
 
     return create(parent, id, infos);
