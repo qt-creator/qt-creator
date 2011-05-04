@@ -33,6 +33,7 @@
 #include "registerwindow.h"
 #include "memoryview.h"
 #include "debuggeractions.h"
+#include "debuggerdialogs.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
@@ -201,17 +202,26 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     const quint64 address = addressV.type() == QVariant::ULongLong ? addressV.toULongLong() : 0;
     QAction *actViewMemory = menu.addAction(QString());
     QAction *actEditMemory = menu.addAction(QString());
+
+    QAction *actShowDisassemblerAt = menu.addAction(QString());
+    QAction *actShowDisassembler = menu.addAction(tr("Open Disassembler..."));
+    actShowDisassembler->setEnabled(engineCapabilities & DisassemblerCapability);
+
     if (address) {
         const bool canShow = actionsEnabled && (engineCapabilities & ShowMemoryCapability);
         actEditMemory->setText(tr("Open Memory Editor at 0x%1").arg(address, 0, 16));
         actEditMemory->setEnabled(canShow);
         actViewMemory->setText(tr("Open Memory View at Value of Register %1 0x%2")
                                .arg(QString::fromAscii(aRegister.name)).arg(address, 0, 16));
+        actShowDisassemblerAt->setText(tr("Open Disassembler at 0x%1").arg(address, 0, 16));
+        actShowDisassemblerAt->setEnabled(engineCapabilities & DisassemblerCapability);
     } else {
         actEditMemory->setText(tr("Open Memory Editor"));
         actViewMemory->setText(tr("Open Memory View at Value of Register"));
         actEditMemory->setEnabled(false);
         actViewMemory->setEnabled(false);
+        actShowDisassemblerAt->setText(tr("Open Disassembler"));
+        actShowDisassemblerAt->setEnabled(false);
     }
     menu.addSeparator();
 
@@ -250,6 +260,14 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actViewMemory) {
         engine->openMemoryView(idx.row(), DebuggerEngine::MemoryTrackRegister|DebuggerEngine::MemoryView,
                                QList<MemoryMarkup>(), position, QString(), this);
+    } else if (act == actShowDisassembler) {
+        AddressDialog dialog;
+        if (address)
+            dialog.setAddress(address);
+        if (dialog.exec() == QDialog::Accepted)
+            currentEngine()->openDisassemblerView(Location(dialog.address()));
+    } else if (act == actShowDisassemblerAt) {
+        engine->openDisassemblerView(Location(address));
     } else if (act == act16)
         handler->setNumberBase(16);
     else if (act == act10)
