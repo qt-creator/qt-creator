@@ -1379,7 +1379,7 @@ QList<const ObjectValue *> ScopeChain::all() const
 }
 
 
-Context::Context(const Snapshot &snapshot)
+Context::Context(const QmlJS::Snapshot &snapshot)
     : _snapshot(snapshot),
       _engine(new Engine),
       _qmlScopeObjectIndex(-1),
