@@ -165,7 +165,7 @@ public:
     QVariant toVariant() const;
 
     QVariant auxiliaryData(const QString &name) const;
-    void setAuxiliaryData(const QString &name, const QVariant &data);
+    void setAuxiliaryData(const QString &name, const QVariant &data) const;
     bool hasAuxiliaryData(const QString &name) const;
 
     qint32 internalId() const;

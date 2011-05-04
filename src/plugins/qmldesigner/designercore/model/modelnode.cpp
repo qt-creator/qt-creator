@@ -902,7 +902,7 @@ QVariant ModelNode::auxiliaryData(const QString &name) const
     return internalNode()->auxiliaryData(name);
 }
 
-void ModelNode::setAuxiliaryData(const QString &name, const QVariant &data)
+void ModelNode::setAuxiliaryData(const QString &name, const QVariant &data) const
 {
     Internal::WriteLocker locker(m_model.data());
     m_model.data()->m_d->setAuxiliaryData(internalNode(), name, data);
