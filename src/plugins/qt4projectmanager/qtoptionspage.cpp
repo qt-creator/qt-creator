@@ -695,6 +695,8 @@ void QtOptionsPageWidget::updateDescriptionLabel()
         m_versionUi->errorLabel->setText(version->description());
     else
         m_versionUi->errorLabel->setText(version->invalidReason());
+
+    updateState();
 }
 
 int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const
