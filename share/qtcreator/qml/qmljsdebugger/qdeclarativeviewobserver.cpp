@@ -54,6 +54,8 @@
 #include <QtGui/QApplication>
 #include <QtCore/QSettings>
 
+#include "QtDeclarative/private/qdeclarativestate_p.h"
+
 static inline void initEditorResource() { Q_INIT_RESOURCE(editor); }
 
 namespace QmlJSDebugger {
@@ -423,6 +425,12 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
         QDeclarativeItem *newItem    = qobject_cast<QDeclarativeItem*>(newObject);
         if (parentItem && newItem)
             newItem->setParentItem(parentItem);
+        else {
+            QDeclarativeState *parentState = qobject_cast<QDeclarativeState*>(parent);
+            QDeclarativeStateOperation *newPropertyChanges = qobject_cast<QDeclarativeStateOperation *>(newObject);
+            if (parentState && newPropertyChanges)
+                (*parentState) << newPropertyChanges;
+        }
     }
 }
 
