@@ -1363,6 +1363,8 @@ void DebuggerPluginPrivate::startExternalApplication()
             configValue(_("LastExternalExecutableFile")).toString());
     dlg.setExecutableArguments(
             configValue(_("LastExternalExecutableArguments")).toString());
+    dlg.setRunInTerminal(
+            configValue(_("LastExternalRunInTerminal")).toBool());
     dlg.setWorkingDirectory(
             configValue(_("LastExternalWorkingDirectory")).toString());
     dlg.setAbiIndex(configValue(_("LastExternalAbiIndex")).toInt());
@@ -1376,6 +1378,8 @@ void DebuggerPluginPrivate::startExternalApplication()
                    dlg.executableArguments());
     setConfigValue(_("LastExternalWorkingDirectory"),
                    dlg.workingDirectory());
+    setConfigValue(_("LastExternalRunInTerminal"),
+                   dlg.runInTerminal());
     setConfigValue(_("LastExternalAbiIndex"), QVariant(dlg.abiIndex()));
 
     sp.executable = dlg.executableFile();
@@ -1384,6 +1388,7 @@ void DebuggerPluginPrivate::startExternalApplication()
     sp.debuggerCommand = dlg.debuggerCommand();
     sp.workingDirectory = dlg.workingDirectory();
     sp.displayName = sp.executable;
+    sp.useTerminal = dlg.runInTerminal();
     if (!dlg.executableArguments().isEmpty())
         sp.processArgs = dlg.executableArguments();
     // Fixme: 1 of 3 testing hacks.

@@ -158,6 +158,9 @@ public:
 
     bool breakAtMain() const;
 
+    bool runInTerminal() const;
+    void setRunInTerminal(bool v);
+
     bool isValid() const;
 
 private slots:

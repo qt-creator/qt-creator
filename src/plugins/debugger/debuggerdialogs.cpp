@@ -594,6 +594,16 @@ bool StartExternalDialog::breakAtMain() const
     return m_ui->checkBoxBreakAtMain->isChecked();
 }
 
+bool StartExternalDialog::runInTerminal() const
+{
+    return m_ui->checkBoxRunInTerminal->isChecked();
+}
+
+void StartExternalDialog::setRunInTerminal(bool v)
+{
+    m_ui->checkBoxRunInTerminal->setChecked(v);
+}
+
 ProjectExplorer::Abi StartExternalDialog::abi() const
 {
     return m_ui->toolChainComboBox->abi();
