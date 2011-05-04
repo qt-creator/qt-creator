@@ -365,11 +365,10 @@ private:
 } // end of anonymous namespace
 
 
-Check::Check(Document::Ptr doc, const Snapshot &snapshot, const Context *linkedContextNoScope)
+Check::Check(Document::Ptr doc, const Context *linkedContextNoScope)
     : _doc(doc)
-    , _snapshot(snapshot)
     , _context(*linkedContextNoScope)
-    , _scopeBuilder(&_context, doc, snapshot)
+    , _scopeBuilder(&_context, doc)
     , _options(WarnDangerousNonStrictEqualityChecks | WarnBlocks | WarnWith
           | WarnVoid | WarnCommaExpression | WarnExpressionStatement
           | WarnAssignInCondition | WarnUseBeforeDeclaration | WarnDuplicateDeclaration
@@ -844,11 +843,16 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     if (!value) {
         error(id->identifierToken,
               Check::tr("'%1' is not a valid property name").arg(propertyName));
+        return 0;
     }
 
     // can't look up members for attached properties
     if (isAttachedProperty)
         return 0;
+
+    // resolve references
+    if (const Reference *ref = value->asReference())
+        value = _context.lookupReference(ref);
 
     // member lookup
     const UiQualifiedId *idPart = id;

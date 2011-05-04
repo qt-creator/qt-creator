@@ -282,10 +282,10 @@ public:
                    const QStringList importPaths)
         : m_snapshot(snapshot)
         , m_doc(doc)
-        , m_context(new Interpreter::Context)
+        , m_context(new Interpreter::Context(snapshot))
         , m_link(m_context, snapshot, importPaths, doc, &m_diagnosticLinkMessages)
         , m_lookupContext(LookupContext::create(doc, snapshot, *m_context, QList<AST::Node*>()))
-        , m_scopeBuilder(m_context, doc, snapshot)
+        , m_scopeBuilder(m_context, doc)
     {
     }
 
@@ -380,6 +380,10 @@ public:
         // can't look up members for attached properties
         if (isAttachedProperty)
             return false;
+
+        // resolve references
+        if (const Interpreter::Reference *ref = value->asReference())
+            value = m_context->lookupReference(ref);
 
         // member lookup
         const UiQualifiedId *idPart = id;
@@ -664,7 +668,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
 
         if (view()->checkSemanticErrors()) {
-            Check check(doc, snapshot, m_lookupContext->context());
+            Check check(doc, m_lookupContext->context());
             check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
             foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check())
                 if (diagnosticMessage.isError())

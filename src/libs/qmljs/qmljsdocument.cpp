@@ -126,7 +126,13 @@ Document::~Document()
 Document::Ptr Document::create(const QString &fileName)
 {
     Document::Ptr doc(new Document(fileName));
+    doc->_ptr = doc;
     return doc;
+}
+
+Document::Ptr Document::ptr() const
+{
+    return _ptr.toStrongRef();
 }
 
 bool Document::isQmlDocument() const

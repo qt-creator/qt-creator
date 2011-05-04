@@ -52,7 +52,7 @@ class QMLJS_EXPORT Check: protected AST::Visitor
     typedef QSet<QString> StringSet;
 
 public:
-    Check(Document::Ptr doc, const Snapshot &snapshot, const Interpreter::Context *linkedContextNoScope);
+    Check(Document::Ptr doc, const Interpreter::Context *linkedContextNoScope);
     virtual ~Check();
 
     QList<DiagnosticMessage> operator()();
@@ -125,7 +125,6 @@ private:
     AST::Node *parent(int distance = 0);
 
     Document::Ptr _doc;
-    Snapshot _snapshot;
 
     Interpreter::Context _context;
     ScopeBuilder _scopeBuilder;

@@ -47,6 +47,7 @@
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsscopebuilder.h>
+#include <qmljs/qmljsscopeastpath.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 
@@ -80,7 +81,7 @@ public:
         : _doc(doc)
         , _snapshot(snapshot)
         , _context(context)
-        , _builder(context, doc, snapshot)
+        , _builder(context, doc)
     {
     }
 
@@ -284,79 +285,6 @@ private:
 
     QString _name;
     const ObjectValue *_scope;
-};
-
-class ScopeAstPath: protected Visitor
-{
-public:
-    ScopeAstPath(Document::Ptr doc)
-        : _doc(doc)
-    {
-    }
-
-    QList<Node *> operator()(quint32 offset)
-    {
-        _result.clear();
-        _offset = offset;
-        if (_doc)
-            Node::accept(_doc->ast(), this);
-        return _result;
-    }
-
-protected:
-    void accept(AST::Node *node)
-    { AST::Node::acceptChild(node, this); }
-
-    using Visitor::visit;
-
-    virtual bool preVisit(Node *node)
-    {
-        if (Statement *stmt = node->statementCast()) {
-            return containsOffset(stmt->firstSourceLocation(), stmt->lastSourceLocation());
-        } else if (ExpressionNode *exp = node->expressionCast()) {
-            return containsOffset(exp->firstSourceLocation(), exp->lastSourceLocation());
-        } else if (UiObjectMember *ui = node->uiObjectMemberCast()) {
-            return containsOffset(ui->firstSourceLocation(), ui->lastSourceLocation());
-        }
-        return true;
-    }
-
-    virtual bool visit(AST::UiObjectDefinition *node)
-    {
-        _result.append(node);
-        Node::accept(node->initializer, this);
-        return false;
-    }
-
-    virtual bool visit(AST::UiObjectBinding *node)
-    {
-        _result.append(node);
-        Node::accept(node->initializer, this);
-        return false;
-    }
-
-    virtual bool visit(AST::FunctionDeclaration *node)
-    {
-        return visit(static_cast<FunctionExpression *>(node));
-    }
-
-    virtual bool visit(AST::FunctionExpression *node)
-    {
-        Node::accept(node->formals, this);
-        _result.append(node);
-        Node::accept(node->body, this);
-        return false;
-    }
-
-private:
-    bool containsOffset(SourceLocation start, SourceLocation end)
-    {
-        return _offset >= start.begin() && _offset <= end.end();
-    }
-
-    QList<Node *> _result;
-    Document::Ptr _doc;
-    quint32 _offset;
 };
 
 class FindTargetExpression: protected Visitor
@@ -621,13 +549,13 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     }
 
     // find the scope for the name we're searching
-    Context context;
+    Context context(snapshot);
     Document::Ptr doc = snapshot.document(fileName);
     if (!doc)
         return;
 
     Link link(&context, snapshot, ModelManagerInterface::instance()->importPaths());
-    ScopeBuilder builder(&context, doc, snapshot);
+    ScopeBuilder builder(&context, doc);
     ScopeAstPath astPath(doc);
     builder.push(astPath(offset));
 

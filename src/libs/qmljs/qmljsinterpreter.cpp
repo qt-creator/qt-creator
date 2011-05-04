@@ -36,6 +36,7 @@
 #include "qmljsbind.h"
 #include "qmljsscopebuilder.h"
 #include "qmljstypedescriptionreader.h"
+#include "qmljsscopeastpath.h"
 #include "parser/qmljsast_p.h"
 
 #include <languageutils/fakemetaobject.h>
@@ -1378,8 +1379,9 @@ QList<const ObjectValue *> ScopeChain::all() const
 }
 
 
-Context::Context()
-    : _engine(new Engine),
+Context::Context(const Snapshot &snapshot)
+    : _snapshot(snapshot),
+      _engine(new Engine),
       _qmlScopeObjectIndex(-1),
       _qmlScopeObjectSet(false)
 {
@@ -1393,6 +1395,11 @@ Context::~Context()
 Engine *Context::engine() const
 {
     return _engine.data();
+}
+
+QmlJS::Snapshot Context::snapshot() const
+{
+    return _snapshot;
 }
 
 const ScopeChain &Context::scopeChain() const
@@ -3270,8 +3277,20 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
 const Value *ASTPropertyReference::value(const Context *context) const
 {
     if (_ast->expression
-            && (!_ast->memberType || _ast->memberType->asString() == QLatin1String("variant"))) {
-        Evaluate check(context);
+            && (!_ast->memberType || _ast->memberType->asString() == QLatin1String("variant")
+                || _ast->memberType->asString() == QLatin1String("alias"))) {
+
+        // Adjust the context for the current location - expensive!
+        // ### Improve efficiency by caching the 'use chain' constructed in ScopeBuilder.
+
+        QmlJS::Document::Ptr doc = _doc->ptr();
+        Context localContext(*context);
+        QmlJS::ScopeBuilder builder(&localContext, doc);
+
+        int offset = _ast->expression->firstSourceLocation().begin();
+        builder.push(ScopeAstPath(doc)(offset));
+
+        Evaluate check(&localContext);
         return check(_ast->expression);
     }
 

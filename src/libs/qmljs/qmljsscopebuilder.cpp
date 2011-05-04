@@ -41,9 +41,8 @@ using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
-ScopeBuilder::ScopeBuilder(Context *context, Document::Ptr doc, const Snapshot &snapshot)
+ScopeBuilder::ScopeBuilder(Context *context, Document::Ptr doc)
     : _doc(doc)
-    , _snapshot(snapshot)
     , _context(context)
 {
     initializeScopeChain();
@@ -121,25 +120,26 @@ void ScopeBuilder::initializeScopeChain()
 
     Bind *bind = _doc->bind();
     QHash<Document *, ScopeChain::QmlComponentChain *> componentScopes;
+    const Snapshot &snapshot = _context->snapshot();
 
     ScopeChain::QmlComponentChain *chain = new ScopeChain::QmlComponentChain;
     scopeChain.qmlComponentScope = QSharedPointer<const ScopeChain::QmlComponentChain>(chain);
     if (_doc->qmlProgram()) {
         componentScopes.insert(_doc.data(), chain);
-        makeComponentChain(_doc, chain, &componentScopes);
+        makeComponentChain(_doc, snapshot, chain, &componentScopes);
 
         if (const TypeEnvironment *typeEnvironment = _context->typeEnvironment(_doc.data())) {
             scopeChain.qmlTypes = typeEnvironment;
         }
     } else {
         // add scope chains for all components that import this file
-        foreach (Document::Ptr otherDoc, _snapshot) {
+        foreach (Document::Ptr otherDoc, snapshot) {
             foreach (const ImportInfo &import, otherDoc->bind()->imports()) {
                 if (import.type() == ImportInfo::FileImport && _doc->fileName() == import.name()) {
                     ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
                     componentScopes.insert(otherDoc.data(), component);
                     chain->instantiatingComponents += component;
-                    makeComponentChain(otherDoc, component, &componentScopes);
+                    makeComponentChain(otherDoc, snapshot, component, &componentScopes);
                 }
             }
         }
@@ -155,6 +155,7 @@ void ScopeBuilder::initializeScopeChain()
 
 void ScopeBuilder::makeComponentChain(
         Document::Ptr doc,
+        const Snapshot &snapshot,
         ScopeChain::QmlComponentChain *target,
         QHash<Document *, ScopeChain::QmlComponentChain *> *components)
 {
@@ -164,7 +165,7 @@ void ScopeBuilder::makeComponentChain(
     Bind *bind = doc->bind();
 
     // add scopes for all components instantiating this one
-    foreach (Document::Ptr otherDoc, _snapshot) {
+    foreach (Document::Ptr otherDoc, snapshot) {
         if (otherDoc == doc)
             continue;
         if (otherDoc->bind()->usesQmlPrototype(bind->rootObjectValue(), _context)) {
@@ -175,7 +176,7 @@ void ScopeBuilder::makeComponentChain(
                 components->insert(otherDoc.data(), component);
                 target->instantiatingComponents += component;
 
-                makeComponentChain(otherDoc, component, components);
+                makeComponentChain(otherDoc, snapshot, component, components);
             }
         }
     }

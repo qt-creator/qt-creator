@@ -47,7 +47,7 @@ namespace AST {
 class QMLJS_EXPORT ScopeBuilder
 {
 public:
-    ScopeBuilder(Interpreter::Context *context, Document::Ptr doc, const Snapshot &snapshot);
+    ScopeBuilder(Interpreter::Context *context, Document::Ptr doc);
     ~ScopeBuilder();
 
     void push(AST::Node *node);
@@ -58,14 +58,14 @@ public:
 
 private:
     void initializeScopeChain();
-    void makeComponentChain(Document::Ptr doc, Interpreter::ScopeChain::QmlComponentChain *target,
+    void makeComponentChain(Document::Ptr doc, const Snapshot &snapshot,
+                            Interpreter::ScopeChain::QmlComponentChain *target,
                             QHash<Document *, Interpreter::ScopeChain::QmlComponentChain *> *components);
 
     void setQmlScopeObject(AST::Node *node);
     const Interpreter::Value *scopeObjectLookup(AST::UiQualifiedId *id);
 
     Document::Ptr _doc;
-    Snapshot _snapshot;
     Interpreter::Context *_context;
     QList<AST::Node *> _nodes;
 };

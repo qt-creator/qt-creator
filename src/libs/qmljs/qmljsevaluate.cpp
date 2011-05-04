@@ -32,7 +32,6 @@
 
 #include "qmljsevaluate.h"
 #include "qmljsinterpreter.h"
-#include "parser/qmljsparser_p.h"
 #include "parser/qmljsast_p.h"
 #include <QtCore/QDebug>
 

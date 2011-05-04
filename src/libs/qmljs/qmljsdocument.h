@@ -64,6 +64,8 @@ public:
 
     static Document::Ptr create(const QString &fileName);
 
+    Document::Ptr ptr() const;
+
     bool isQmlDocument() const;
     bool isJSDocument() const;
 
@@ -113,6 +115,7 @@ private:
     QString _path;
     QString _componentName;
     QString _source;
+    QWeakPointer<Document> _ptr;
 
     // for documentFromSource
     friend class Snapshot;

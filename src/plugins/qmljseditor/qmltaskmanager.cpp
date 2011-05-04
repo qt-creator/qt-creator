@@ -72,7 +72,7 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
 void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future,
     Snapshot snapshot, QStringList files, QStringList importPaths)
 {
-    Interpreter::Context ctx;
+    Interpreter::Context ctx(snapshot);
     QHash<QString, QList<DiagnosticMessage> > linkMessages;
     Link link(&ctx, snapshot, importPaths, &linkMessages);
 
@@ -86,7 +86,7 @@ void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future
         result.messages = document->diagnosticMessages();
         result.messages += linkMessages.value(fileName);
 
-        Check checker(document, snapshot, &ctx);
+        Check checker(document, &ctx);
         result.messages.append(checker());
 
         future.reportResult(result);

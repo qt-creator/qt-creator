@@ -43,13 +43,13 @@ class QmlJS::LookupContextData
 {
 public:
     LookupContextData(Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path)
-        : doc(doc),
-          snapshot(snapshot)
+        : context(snapshot),
+          doc(doc)
     {
         // since we keep the document and snapshot around, we don't need to keep the Link instance
         Link link(&context, snapshot, ModelManagerInterface::instance()->importPaths());
 
-        ScopeBuilder scopeBuilder(&context, doc, snapshot);
+        ScopeBuilder scopeBuilder(&context, doc);
         scopeBuilder.push(path);
     }
 
@@ -57,16 +57,15 @@ public:
                       const Interpreter::Context &linkedContextWithoutScope,
                       const QList<AST::Node *> &path)
         : context(linkedContextWithoutScope),
-          doc(doc),
-          snapshot(snapshot)
+          doc(doc)
     {
-        ScopeBuilder scopeBuilder(&context, doc, snapshot);
+        ScopeBuilder scopeBuilder(&context, doc);
         scopeBuilder.push(path);
     }
 
     Interpreter::Context context;
     Document::Ptr doc;
-    Snapshot snapshot;
+    // snapshot is in context
 };
 
 LookupContext::LookupContext(Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path)
@@ -112,7 +111,7 @@ Document::Ptr LookupContext::document() const
 
 Snapshot LookupContext::snapshot() const
 {
-    return d->snapshot;
+    return d->context.snapshot();
 }
 
 // the engine is only guaranteed to live as long as the LookupContext

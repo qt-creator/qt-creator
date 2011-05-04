@@ -317,10 +317,12 @@ private:
 class QMLJS_EXPORT Context
 {
 public:
-    Context();
+    Context(const Snapshot &snapshot);
     ~Context();
 
     Engine *engine() const;
+    Snapshot snapshot() const;
+
     const ScopeChain &scopeChain() const;
     ScopeChain &scopeChain();
 
@@ -340,6 +342,7 @@ public:
 private:
     typedef QHash<QString, const Value *> Properties;
 
+    Snapshot _snapshot;
     QSharedPointer<Engine> _engine;
     QHash<const ObjectValue *, Properties> _properties;
     QHash<const Document *, const TypeEnvironment *> _typeEnvironments;

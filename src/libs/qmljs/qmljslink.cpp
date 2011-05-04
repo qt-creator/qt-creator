@@ -36,7 +36,6 @@
 #include "qmljsdocument.h"
 #include "qmljsbind.h"
 #include "qmljscheck.h"
-#include "qmljsscopebuilder.h"
 #include "qmljsmodelmanagerinterface.h"
 
 #include <QtCore/QFileInfo>
