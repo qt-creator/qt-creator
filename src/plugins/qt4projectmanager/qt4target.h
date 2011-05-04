@@ -62,7 +62,7 @@ namespace Internal {
 class Qt4ProFileNode;
 }
 
-class Qt4BaseTarget : public ProjectExplorer::Target
+class QT4PROJECTMANAGER_EXPORT Qt4BaseTarget : public ProjectExplorer::Target
 {
     Q_OBJECT
 public:
