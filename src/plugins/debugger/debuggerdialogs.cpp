@@ -916,6 +916,12 @@ bool AddressDialog::isOkButtonEnabled() const
     return m_box->button(QDialogButtonBox::Ok)->isEnabled();
 }
 
+void AddressDialog::setAddress(quint64 a)
+{
+    m_lineEdit->setText(QLatin1String("0x")
+                        + QString::number(a, 16));
+}
+
 quint64 AddressDialog::address() const
 {
     return m_lineEdit->text().toULongLong(0, 16);

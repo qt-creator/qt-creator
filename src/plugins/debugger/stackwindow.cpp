@@ -36,6 +36,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
+#include "debuggerdialogs.h"
 #include "memoryagent.h"
 
 #include <utils/qtcassert.h>
@@ -136,13 +137,15 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowMemory->setEnabled(engineCapabilities & ShowMemoryCapability);
     }
 
-    QAction *actShowDisassembler = menu.addAction(QString());
+    QAction *actShowDisassemblerAt = menu.addAction(QString());
+    QAction *actShowDisassembler = menu.addAction(tr("Open Disassembler..."));
+    actShowDisassembler->setEnabled(engineCapabilities & DisassemblerCapability);
     if (address == 0) {
-        actShowDisassembler->setText(tr("Open Disassembler"));
-        actShowDisassembler->setEnabled(false);
+        actShowDisassemblerAt->setText(tr("Open Disassembler"));
+        actShowDisassemblerAt->setEnabled(false);
     } else {
-        actShowDisassembler->setText(tr("Open Disassembler at 0x%1").arg(address, 0, 16));
-        actShowDisassembler->setEnabled(engineCapabilities & DisassemblerCapability);
+        actShowDisassemblerAt->setText(tr("Open Disassembler at 0x%1").arg(address, 0, 16));
+        actShowDisassemblerAt->setEnabled(engineCapabilities & DisassemblerCapability);
     }
 
     QAction *actLoadSymbols = 0;
@@ -176,7 +179,13 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         ml.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),
                                   tr("Frame #%1 (%2)").arg(row).arg(frame.function)));
         engine->openMemoryView(address, 0, ml, QPoint(), title);
-    } else if (act == actShowDisassembler)
+    } else if (act == actShowDisassembler) {
+        AddressDialog dialog;
+        if (address)
+            dialog.setAddress(address);
+        if (dialog.exec() == QDialog::Accepted)
+            currentEngine()->openDisassemblerView(Location(dialog.address()));
+    } else if (act == actShowDisassemblerAt)
         engine->openDisassemblerView(frame);
     else if (act == actLoadSymbols)
         engine->loadSymbolsForStack();

@@ -238,6 +238,8 @@ class AddressDialog : public QDialog {
     Q_OBJECT
 public:
      explicit AddressDialog(QWidget *parent = 0);
+
+     void setAddress(quint64 a);
      quint64 address() const;
 
      virtual void accept();
