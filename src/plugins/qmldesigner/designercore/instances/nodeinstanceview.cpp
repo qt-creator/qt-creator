@@ -493,6 +493,20 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node, const QString
             }
         }
     }
+    if (name == "__component_data" || name == "__model_data") {
+        qDebug() << "__component_data";
+        qDebug() << "signal";
+        qDebug() << data;
+        if (hasInstanceForNode(node)) {
+            NodeInstance instance = instanceForNode(node);
+            QVariant value = data;
+            if (value.isValid()) {
+                PropertyValueContainer container(instance.instanceId(), name, value, QString());
+                ChangeValuesCommand changeValueCommand(QVector<PropertyValueContainer>() << container);
+                nodeInstanceServer()->changePropertyValues(changeValueCommand);
+            }
+        }
+    }
 }
 
 void NodeInstanceView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &, const QList<QVariant> &)
@@ -785,6 +799,18 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
             NodeInstance instance = instanceForNode(node);
             PropertyBindingContainer container(instance.instanceId(), property.name(), property.expression(), property.dynamicTypeName());
             bindingContainerList.append(container);
+        }
+    }
+
+    foreach (const ModelNode &node, nodeList) {
+        if (node.isValid() && node.hasAuxiliaryData("__component_data")) {
+            NodeInstance instance = instanceForNode(node);
+            PropertyValueContainer container(instance.instanceId(), "__component_data", node.auxiliaryData("__component_data"), QString());
+            valueContainerList.append(container);
+        } if (node.isValid() && node.hasAuxiliaryData("__model_data")) {
+            NodeInstance instance = instanceForNode(node);
+            PropertyValueContainer container(instance.instanceId(), "__model_data", node.auxiliaryData("__model_data"), QString());
+            valueContainerList.append(container);
         }
     }
 
