@@ -857,6 +857,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         addVariableMemoryView(currentEngine(), false, mi0, true, ev->globalPos(), this);
     } else if (act == actOpenMemoryEditor) {
         AddressDialog dialog;
+        if (address)
+            dialog.setAddress(address);
         if (dialog.exec() == QDialog::Accepted)
             currentEngine()->openMemoryView(dialog.address(), false, MemoryMarkupList(), QPoint());
     } else if (act == actOpenMemoryViewAtVariableAddress) {
