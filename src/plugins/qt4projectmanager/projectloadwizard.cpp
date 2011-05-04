@@ -61,13 +61,10 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
 // We used to simply call ::exec() on the dialog
 void ProjectLoadWizard::execDialog()
 {
-    if (!pageIds().isEmpty()) {
-        QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+    if (!pageIds().isEmpty())
         exec();
-        QApplication::restoreOverrideCursor();
-    } else {
+    else
         done(QDialog::Accepted);
-    }
 }
 
 ProjectLoadWizard::~ProjectLoadWizard()

@@ -138,12 +138,10 @@ bool SessionFile::load(const QString &fileName)
 
     // NPE: Load the session in the background?
     // NPE: Let FileManager monitor filename
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     PersistentSettingsReader reader;
     if (!reader.load(m_fileName)) {
         qWarning() << "SessionManager::load failed!" << fileName;
-        QApplication::restoreOverrideCursor();
         return false;
     }
 
@@ -216,7 +214,6 @@ bool SessionFile::load(const QString &fileName)
 
 
     future.reportFinished();
-    QApplication::restoreOverrideCursor();
     return true;
 }
 
