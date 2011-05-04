@@ -1831,7 +1831,11 @@ bool QtVersion::isValid() const
             && (!m_mkspecFullPath.isEmpty() || !m_abiUpToDate)
             && !m_abis.isEmpty()
             && m_qmakeIsExecutable
-            && m_validSystemRoot;
+            && m_validSystemRoot
+            && (!isBuildWithSymbianSbsV2()
+                || (isBuildWithSymbianSbsV2()
+                    && !m_sbsV2Directory.isEmpty()
+                    && QFileInfo(m_sbsV2Directory + QLatin1String("/sbs")).exists()));
 }
 
 bool QtVersion::toolChainAvailable(const QString &id) const
