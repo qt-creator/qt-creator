@@ -820,6 +820,12 @@ void CdbEngine::setupInferior()
     if (debug)
         qDebug("setupInferior");
     attemptBreakpointSynchronization();
+
+    if (startParameters().breakOnMain) {
+        const BreakpointParameters bp(BreakpointAtMain);
+        postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings,
+                                            BreakpointId(-1), true), 0);
+    }
     postCommand("sxn 0x4000001f", 0); // Do not break on WowX86 exceptions.
     postCommand(".asm source_line", 0); // Source line in assembly
     postExtensionCommand("pid", QByteArray(), 0, &CdbEngine::handlePid);

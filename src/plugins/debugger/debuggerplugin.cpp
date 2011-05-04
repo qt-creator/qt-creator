@@ -1396,15 +1396,7 @@ void DebuggerPluginPrivate::startExternalApplication()
         // Set up an ARM Symbian Abi
         sp.toolChainAbi = Abi(Abi::ArmArchitecture, Abi::SymbianOS, Abi::SymbianDeviceFlavor, Abi::ElfFormat, false);
 
-    if (dlg.breakAtMain()) {
-#ifdef Q_OS_WIN
-        // FIXME: wrong on non-Qt based binaries
-        breakHandler()->breakByFunction("qMain");
-#else
-        breakHandler()->breakByFunction("main");
-#endif
-    }
-
+    sp.breakOnMain = dlg.breakAtMain();
     if (RunControl *rc = m_debuggerRunControlFactory->create(sp))
         startDebugger(rc);
 }
@@ -2100,7 +2092,10 @@ void DebuggerPluginPrivate::updateDebugActions()
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = pe->startupProject();
-    m_debugAction->setEnabled(pe->canRun(project, Constants::DEBUGMODE));
+    m_debugAction->setEnabled(pe->canRun(project, _(Constants::DEBUGMODE)));
+    const bool canStepInto = pe->canRun(project, _(Constants::DEBUGMODE2));
+    m_stepAction->setEnabled(canStepInto);
+    m_nextAction->setEnabled(canStepInto);
 }
 
 void DebuggerPluginPrivate::onCoreAboutToOpen()
