@@ -1888,6 +1888,9 @@ QString QtVersion::invalidReason() const
         return QCoreApplication::translate("QtVersion", "Failed to detect the ABI(s) used by the Qt version.");
     if (!m_validSystemRoot)
         return QCoreApplication::translate("QtVersion", "The \"Open C/C++ plugin\" is not installed in the Symbian SDK or the Symbian SDK path is misconfigured");
+    if (isBuildWithSymbianSbsV2()
+            && (m_sbsV2Directory.isEmpty() || !QFileInfo(m_sbsV2Directory + QLatin1String("/sbs")).exists()))
+        return QCoreApplication::translate("QtVersion", "SBS was not found.");
     return QString();
 }
 
