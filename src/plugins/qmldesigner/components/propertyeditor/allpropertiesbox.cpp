@@ -75,6 +75,11 @@ void AllPropertiesBox::setModel(Model* model)
         m_d->propertiesEditor->model()->detachView(m_d->propertiesEditor);
 }
 
+PropertyEditor* AllPropertiesBox::view() const
+{
+    return m_d->propertiesEditor;
+}
+
 void AllPropertiesBox::showNewLook()
 {
     setCurrentIndex(m_newLookIndex);

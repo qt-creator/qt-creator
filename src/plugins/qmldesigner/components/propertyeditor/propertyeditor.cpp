@@ -806,6 +806,9 @@ void PropertyEditor::propertiesRemoved(const QList<AbstractProperty>& propertyLi
     if (!m_selectedNode.isValid())
         return;
 
+    if (!QmlObjectNode(m_selectedNode).isValid())
+        return;
+
     foreach (const AbstractProperty &property, propertyList) {
         ModelNode node(property.parentModelNode());
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
@@ -825,6 +828,9 @@ void PropertyEditor::variantPropertiesChanged(const QList<VariantProperty>& prop
     if (!m_selectedNode.isValid())
         return;
 
+    if (!QmlObjectNode(m_selectedNode).isValid())
+        return;
+
     foreach (const VariantProperty &property, propertyList) {
         ModelNode node(property.parentModelNode());
 
@@ -842,6 +848,9 @@ void PropertyEditor::bindingPropertiesChanged(const QList<BindingProperty>& prop
     QmlModelView::bindingPropertiesChanged(propertyList, propertyChange);
 
     if (!m_selectedNode.isValid())
+        return;
+
+       if (!QmlObjectNode(m_selectedNode).isValid())
         return;
 
     foreach (const BindingProperty &property, propertyList) {
@@ -875,6 +884,9 @@ void PropertyEditor::nodeIdChanged(const ModelNode& node, const QString& newId, 
     QmlModelView::nodeIdChanged(node, newId, oldId);
 
     if (!m_selectedNode.isValid())
+        return;
+
+    if (!QmlObjectNode(m_selectedNode).isValid())
         return;
 
     if (node == m_selectedNode) {

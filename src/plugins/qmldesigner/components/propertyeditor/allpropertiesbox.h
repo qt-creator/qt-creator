@@ -40,6 +40,7 @@ namespace QmlDesigner {
 class FormWindow;
 class Model;
 class ModelState;
+class PropertyEditor;
 
 class AllPropertiesBox: public QStackedWidget
 {
@@ -53,6 +54,9 @@ public:
     void showTraditional();
 
     void setModel(Model *model);
+
+    PropertyEditor* view() const;
+
 
 private:
 

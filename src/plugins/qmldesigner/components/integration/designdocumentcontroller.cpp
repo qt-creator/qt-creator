@@ -43,6 +43,7 @@
 #include <navigatorview.h>
 #include <stateseditorview.h>
 #include <formeditorview.h>
+#include <propertyeditor.h>
 #include <formeditorwidget.h>
 #include <basetexteditmodifier.h>
 #include <componenttextmodifier.h>
@@ -199,7 +200,6 @@ void DesignDocumentController::blockModelSync(bool block)
             detachNodeInstanceView();
             m_d->textModifier->deactivateChangeSignals();
         } else {
-            attachNodeInstanceView();
             QmlModelState state;
             //We go back to base state (and back again) to avoid side effects from text editing.
             if (m_d->statesEditorView && m_d->statesEditorView->model()) {
@@ -212,6 +212,9 @@ void DesignDocumentController::blockModelSync(bool block)
 
             if (state.isValid() && m_d->statesEditorView)
                 m_d->statesEditorView->setCurrentState(state);
+            attachNodeInstanceView();
+            if (m_d->allPropertiesBox->view())
+                m_d->allPropertiesBox->view()->resetView();
         }
     }
 }

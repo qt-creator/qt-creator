@@ -110,6 +110,8 @@ public:
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
+    void resetView();
+
 protected:
     void timerEvent(QTimerEvent *event);
     void otherPropertyChanged(const QmlObjectNode &, const QString &propertyName);
@@ -133,7 +135,6 @@ private: //functions
     QString locateQmlFile(const QString &relativePath) const;
     void select(const ModelNode& node);
 
-    void resetView();
     void delayedResetView();
 
 
