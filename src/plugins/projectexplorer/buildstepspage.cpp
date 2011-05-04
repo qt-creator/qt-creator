@@ -159,6 +159,8 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
     s.detailsWidget = new Utils::DetailsWidget(this);
     s.detailsWidget->setSummaryText(s.widget->summaryText());
     s.detailsWidget->setWidget(s.widget);
+    if(s.widget->showExpanded())
+        s.detailsWidget->setState(Utils::DetailsWidget::Expanded);
 
     // layout
     Utils::FadingPanel *toolWidget = new Utils::FadingPanel(s.detailsWidget);
