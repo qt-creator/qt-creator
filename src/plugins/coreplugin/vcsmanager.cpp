@@ -38,6 +38,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QDir>
 #include <QtCore/QString>
 #include <QtCore/QList>
 #include <QtCore/QMap>
@@ -167,11 +168,14 @@ static bool longerThanPath(QPair<QString, IVersionControl *> &pair1, QPair<QStri
     return pair1.first.size() > pair2.first.size();
 }
 
-IVersionControl* VcsManager::findVersionControlForDirectory(const QString &directory,
+IVersionControl* VcsManager::findVersionControlForDirectory(const QString &inputDirectory,
                                                             QString *topLevelDirectory)
 {
-    if (directory.isEmpty())
+    if (inputDirectory.isEmpty())
         return 0;
+
+    // Make sure we a clean absolute path:
+    const QString directory = QDir(inputDirectory).absolutePath();
 
     VcsManagerPrivate::VcsInfo *cachedData = m_d->findInCache(directory);
     if (cachedData) {
