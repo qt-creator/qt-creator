@@ -7,7 +7,7 @@ INCLUDEPATH += $$PWD/include
 symbian {
     LIBNAME = QmLJSDebugger.lib
 } else {
-    CONFIG(debug, debug|release) {
+    windows:CONFIG(debug, debug|release) {
         LIBNAME = QmlJSDebuggerd
     } else {
         LIBNAME = QmlJSDebugger
