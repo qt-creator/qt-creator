@@ -22070,7 +22070,7 @@ Fehlerausgabe: %1</translation>
     </message>
     <message>
         <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
-        <translation>Möchten Sie die zum Ziel &apos;%1&apos; gehörigen Paketdateien auf dem Gerät löschen?</translation>
+        <translation>Möchten Sie die Paketdateien löschen, die zum Ziel &apos;%1&apos; gehören?</translation>
     </message>
     <message>
         <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
