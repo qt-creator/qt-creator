@@ -174,6 +174,7 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
     setSymbolPaths(o.symbolPaths);
     m_ui.sourcePathListEditor->setPathList(o.sourcePaths);
     m_breakEventWidget->setBreakEvents(o.breakEvents);
+    m_ui.consoleCheckBox->setChecked(o.cdbConsole);
 }
 
 CdbOptions CdbOptionsPageWidget::options() const
@@ -183,6 +184,7 @@ CdbOptions CdbOptionsPageWidget::options() const
     rc.symbolPaths = symbolPaths();
     rc.sourcePaths = m_ui.sourcePathListEditor->pathList();
     rc.breakEvents = m_breakEventWidget->breakEvents();
+    rc.cdbConsole = m_ui.consoleCheckBox->isChecked();
     return rc;
 }
 

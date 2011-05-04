@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
-    <height>298</height>
+    <width>334</width>
+    <height>317</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -40,6 +40,16 @@
         </item>
         <item row="0" column="1">
          <widget class="QLineEdit" name="additionalArgumentsLineEdit"/>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QCheckBox" name="consoleCheckBox">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use CDB's native console instead of Qt Creator's console for console applications. The native console does not prompt on application exit. It is suitable for diagnosing cases in which the application does not start up properly in Qt Creator's console and the subsequent attach fails.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Use CDB &amp;console</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

@@ -200,10 +200,10 @@ Q_DECLARE_METATYPE(Debugger::Internal::ConditionalBreakPointCookie)
 namespace Debugger {
 namespace Internal {
 
-static inline bool isConsole(const DebuggerStartParameters &sp)
+static inline bool isCreatorConsole(const DebuggerStartParameters &sp, const CdbOptions &o)
 {
-    return (sp.startMode == StartInternal || sp.startMode == StartExternal)
-        && sp.useTerminal;
+    return !o.cdbConsole && sp.useTerminal
+           && (sp.startMode == StartInternal || sp.startMode == StartExternal);
 }
 
 static QMessageBox *
@@ -651,6 +651,7 @@ void CdbEngine::consoleStubProcessStarted()
     attachParameters.processArgs.clear();
     attachParameters.attachPID = m_consoleStub->applicationPID();
     attachParameters.startMode = AttachExternal;
+    attachParameters.useTerminal = false;
     showMessage(QString::fromLatin1("Attaching to %1...").arg(attachParameters.attachPID), LogMisc);
     QString errorMessage;
     if (!launchCDB(attachParameters, &errorMessage)) {
@@ -682,7 +683,7 @@ void CdbEngine::setupEngine()
     // console, too, but that immediately closes when the debuggee quits.
     // Use the Creator stub instead.
     const DebuggerStartParameters &sp = startParameters();
-    const bool launchConsole = isConsole(sp);
+    const bool launchConsole = isCreatorConsole(sp, *m_options);
     m_effectiveStartMode = launchConsole ? AttachExternal : sp.startMode;
     const bool ok = launchConsole ?
                 startConsole(startParameters(), &errorMessage) :
@@ -829,7 +830,7 @@ void CdbEngine::runEngine()
     if (debug)
         qDebug("runEngine");
     // Resume the threads frozen by the console stub.
-    if (isConsole(startParameters()))
+    if (isCreatorConsole(startParameters(), *m_options))
         postCommand("~* m", 0);
     foreach (const QString &breakEvent, m_options->breakEvents)
             postCommand(QByteArray("sxe ") + breakEvent.toAscii(), 0);

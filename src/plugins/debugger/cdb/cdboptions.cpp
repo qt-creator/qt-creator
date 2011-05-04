@@ -39,11 +39,12 @@ static const char symbolPathsKeyC[] = "SymbolPaths";
 static const char sourcePathsKeyC[] = "SourcePaths";
 static const char breakEventKeyC[] = "BreakEvent";
 static const char additionalArgumentsKeyC[] = "AdditionalArguments";
+static const char cdbConsoleKeyC[] = "CDB_Console";
 
 namespace Debugger {
 namespace Internal {
 
-CdbOptions::CdbOptions()
+CdbOptions::CdbOptions() : cdbConsole(false)
 {
 }
 
@@ -56,6 +57,7 @@ void CdbOptions::clear()
 {
     symbolPaths.clear();
     sourcePaths.clear();
+    cdbConsole = false;
 }
 
 QStringList CdbOptions::oldEngineSymbolPaths(const QSettings *s)
@@ -71,6 +73,7 @@ void CdbOptions::fromSettings(QSettings *s)
     symbolPaths = s->value(keyRoot + QLatin1String(symbolPathsKeyC), QStringList()).toStringList();
     sourcePaths = s->value(keyRoot + QLatin1String(sourcePathsKeyC), QStringList()).toStringList();
     breakEvents = s->value(keyRoot + QLatin1String(breakEventKeyC), QStringList()).toStringList();
+    cdbConsole = s->value(keyRoot + QLatin1String(cdbConsoleKeyC), QVariant(false)).toBool();
 }
 
 void CdbOptions::toSettings(QSettings *s) const
@@ -80,12 +83,14 @@ void CdbOptions::toSettings(QSettings *s) const
     s->setValue(QLatin1String(sourcePathsKeyC), sourcePaths);
     s->setValue(QLatin1String(breakEventKeyC), breakEvents);
     s->setValue(QLatin1String(additionalArgumentsKeyC), additionalArguments);
+    s->setValue(QLatin1String(cdbConsoleKeyC), QVariant(cdbConsole));
     s->endGroup();
 }
 
 bool CdbOptions::equals(const CdbOptions &rhs) const
 {
-    return additionalArguments == rhs.additionalArguments
+    return cdbConsole == rhs.cdbConsole
+            && additionalArguments == rhs.additionalArguments
             && symbolPaths == rhs.symbolPaths
             && sourcePaths == rhs.sourcePaths
             && breakEvents == rhs.breakEvents;
