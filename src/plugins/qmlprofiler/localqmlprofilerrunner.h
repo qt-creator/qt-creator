@@ -31,45 +31,46 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERENGINE_H
-#define QMLPROFILERENGINE_H
+#ifndef LOCALQMLPROFILERRUNNER_H
+#define LOCALQMLPROFILERRUNNER_H
 
-#include <analyzerbase/ianalyzerengine.h>
-#include <utils/outputformat.h>
+#include "abstractqmlprofilerrunner.h"
+
+#include <utils/environment.h>
+#include <projectexplorer/applicationlauncher.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
+class LocalQmlProfilerRunner : public AbstractQmlProfilerRunner
 {
     Q_OBJECT
+    Q_DISABLE_COPY(LocalQmlProfilerRunner)
+
 public:
-    explicit QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration);
-    ~QmlProfilerEngine();
+    struct Configuration {
+        QString executable;
+        QString executableArguments;
+        quint16 port;
+        QString workingDirectory;
+        Utils::Environment environment;
+    };
 
-signals:
-    void processRunning();
-    void stopRecording();
+    explicit LocalQmlProfilerRunner(const Configuration &configuration, QObject *parent = 0);
 
-public slots:
-    void start();
-    void stop();
+    // AbstractQmlProfilerRunner
+    virtual void start();
+    virtual void stop();
 
 private slots:
-    void stopped();
-
-    void setFetchingData(bool);
-    void dataReceived();
-    void finishProcess();
-    void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
+    void spontaneousStop(int exitCode);
 
 private:
-    class QmlProfilerEnginePrivate;
-    QmlProfilerEnginePrivate *d;
+    Configuration m_configuration;
+    ProjectExplorer::ApplicationLauncher m_launcher;
 };
 
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // QMLPROFILERENGINE_H
+#endif // LOCALQMLPROFILERRUNNER_H

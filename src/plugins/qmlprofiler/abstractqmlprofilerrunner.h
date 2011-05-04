@@ -31,45 +31,33 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERENGINE_H
-#define QMLPROFILERENGINE_H
+#ifndef ABSTRACTQMLPROFILERRUNNER_H
+#define ABSTRACTQMLPROFILERRUNNER_H
 
-#include <analyzerbase/ianalyzerengine.h>
+#include <QtCore/QObject>
 #include <utils/outputformat.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
+class AbstractQmlProfilerRunner : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration);
-    ~QmlProfilerEngine();
+    explicit AbstractQmlProfilerRunner(QObject *parent = 0) : QObject(parent) { }
+
+    virtual void start() = 0;
+    virtual void stop() = 0;
 
 signals:
-    void processRunning();
-    void stopRecording();
-
-public slots:
-    void start();
-    void stop();
-
-private slots:
+    void started();
     void stopped();
 
-    void setFetchingData(bool);
-    void dataReceived();
-    void finishProcess();
-    void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
-
-private:
-    class QmlProfilerEnginePrivate;
-    QmlProfilerEnginePrivate *d;
+    void appendMessage(const QString &message, Utils::OutputFormat format);
 };
 
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // QMLPROFILERENGINE_H
+#endif // ABSTRACTQMLPROFILERRUNNER_H

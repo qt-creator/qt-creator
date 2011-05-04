@@ -35,12 +35,15 @@
 
 #include "qmlprofilerplugin.h"
 #include "qmlprofilertool.h"
+#include "localqmlprofilerrunner.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
 
 #include <qmljsdebugclient/qdeclarativedebugclient_p.h>
+
+#include <utils/qtcassert.h>
 
 #include "timelineview.h"
 #include "tracewindow.h"
@@ -55,23 +58,52 @@
 
 using namespace QmlProfiler::Internal;
 
+
+//
+// QmlProfilerEnginePrivate
+//
+
 class QmlProfilerEngine::QmlProfilerEnginePrivate
 {
 public:
-    QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq) {}
+    QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq), m_runner(0) {}
     ~QmlProfilerEnginePrivate() {}
 
-    void launchperfmonitor();
     bool attach(const QString &address, uint port);
+    static AbstractQmlProfilerRunner *createRunner(const Analyzer::AnalyzerStartParameters &m_params, QObject *parent);
 
     QmlProfilerEngine *q;
 
     Analyzer::AnalyzerStartParameters m_params;
-    ProjectExplorer::ApplicationLauncher m_launcher;
+    AbstractQmlProfilerRunner *m_runner;
     bool m_running;
     bool m_fetchingData;
     bool m_delayedDelete;
 };
+
+AbstractQmlProfilerRunner *
+QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(const Analyzer::AnalyzerStartParameters &m_params, QObject *parent)
+{
+    AbstractQmlProfilerRunner *runner = 0;
+    if (m_params.startMode == Analyzer::StartLocal) {
+        LocalQmlProfilerRunner::Configuration configuration;
+        configuration.executable = m_params.debuggee;
+        configuration.executableArguments = m_params.debuggeeArgs;
+        configuration.workingDirectory = m_params.workingDirectory;
+        configuration.environment = m_params.environment;
+        configuration.port = m_params.connParams.port;
+
+        runner = new LocalQmlProfilerRunner(configuration, parent);
+
+    } else if (m_params.startMode == Analyzer::StartRemote) {
+
+    }
+    return runner;
+}
+
+//
+// QmlProfilerEngine
+//
 
 QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp, ProjectExplorer::RunConfiguration *runConfiguration)
     : IAnalyzerEngine(sp, runConfiguration)
@@ -82,9 +114,6 @@ QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp
     d->m_running = false;
     d->m_fetchingData = false;
     d->m_delayedDelete = false;
-
-    connect(&d->m_launcher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
-            this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
 }
 
 QmlProfilerEngine::~QmlProfilerEngine()
@@ -96,11 +125,19 @@ QmlProfilerEngine::~QmlProfilerEngine()
 
 void QmlProfilerEngine::start()
 {
-    d->launchperfmonitor();
+    QTC_ASSERT(!d->m_runner, return);
+    d->m_runner = QmlProfilerEnginePrivate::createRunner(d->m_params, this);
+    QTC_ASSERT(d->m_runner, return);
+
+    connect(d->m_runner, SIGNAL(started()), this, SIGNAL(processRunning()));
+    connect(d->m_runner, SIGNAL(stopped()), this, SLOT(stopped()));
+    connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
+            this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
+
+    d->m_runner->start();
+
     d->m_running = true;
     d->m_delayedDelete = false;
-
-    emit processRunning();
 }
 
 void QmlProfilerEngine::stop()
@@ -109,15 +146,13 @@ void QmlProfilerEngine::stop()
         if (d->m_running)
             d->m_delayedDelete = true;
         emit stopRecording();
-    }
-    else
+    } else {
         finishProcess();
+    }
 }
 
-void QmlProfilerEngine::spontaneousStop(int exitCode)
+void QmlProfilerEngine::stopped()
 {
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning() << "QmlProfiler: Application exited (exit code " << exitCode << ").";
     d->m_running = false;
     Analyzer::AnalyzerManager::instance()->stopTool();
     emit finished();
@@ -139,29 +174,10 @@ void QmlProfilerEngine::finishProcess()
     // user stop?
     if (d->m_running) {
         d->m_running = false;
-        disconnect(&d->m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop(int)));
-        if (d->m_launcher.isRunning()) {
-            d->m_launcher.stop();
-        }
+        d->m_runner->stop();
 
         emit finished();
     }
-}
-
-void QmlProfilerEngine::QmlProfilerEnginePrivate::launchperfmonitor()
-{
-    QString arguments = QLatin1String("-qmljsdebugger=port:") + QString::number(m_params.connParams.port)
-            + QLatin1String(",block");
-    if (!m_params.debuggeeArgs.isEmpty())
-        arguments += QChar(' ') + m_params.debuggeeArgs;
-
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Launching %s:%d", qPrintable(m_params.displayName), m_params.connParams.port);
-
-    m_launcher.setWorkingDirectory(m_params.workingDirectory);
-    m_launcher.setEnvironment(m_params.environment);
-    connect(&m_launcher, SIGNAL(processExited(int)), q, SLOT(spontaneousStop(int)));
-    m_launcher.start(ProjectExplorer::ApplicationLauncher::Gui, m_params.debuggee, arguments);
 }
 
 void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat /*format*/)

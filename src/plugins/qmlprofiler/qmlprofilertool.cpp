@@ -314,8 +314,10 @@ void QmlProfilerTool::disconnectClient()
 {
     // this might be actually be called indirectly by QDDConnectionPrivate::readyRead(), therefore allow
     // method to complete before deleting object
-    d->m_client->deleteLater();
-    d->m_client = 0;
+    if (d->m_client) {
+        d->m_client->deleteLater();
+        d->m_client = 0;
+    }
 }
 
 void QmlProfilerTool::startRecording()

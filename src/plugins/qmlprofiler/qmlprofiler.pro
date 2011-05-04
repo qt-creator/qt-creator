@@ -21,7 +21,8 @@ SOURCES += \
     timelineview.cpp \
     qmlprofilerattachdialog.cpp \
     qmlprofilersummaryview.cpp \
-    qmlprojectanalyzerruncontrolfactory.cpp
+    qmlprojectanalyzerruncontrolfactory.cpp \
+    localqmlprofilerrunner.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -33,7 +34,9 @@ HEADERS += \
     timelineview.h \
     qmlprofilerattachdialog.h \
     qmlprofilersummaryview.h \
-    qmlprojectanalyzerruncontrolfactory.h
+    qmlprojectanalyzerruncontrolfactory.h \
+    abstractqmlprofilerrunner.h \
+    localqmlprofilerrunner.h
 
 RESOURCES += \
     qml/qml.qrc
