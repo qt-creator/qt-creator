@@ -17816,7 +17816,7 @@ Möchten Sie sie trotzdem laden?</translation>
     <message>
         <source>Links to a system library.
 Neither the path to the library nor the path to its includes is added to the .pro file.</source>
-        <translation>Linken gegen eine Systembibliothek.
+        <translation>Linkt gegen eine Systembibliothek.
 Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-Datei hinzugefügt.</translation>
     </message>
     <message>
@@ -17834,8 +17834,8 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <message>
         <source>Links to a library that is not located in your build tree.
 Adds the library and include paths to the .pro file.</source>
-        <translation>Linken gegen eine Systembibliothek.
-Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-Datei hinzugefügt.</translation>
+        <translation>Linkt gegen eine Bibliothek, die sich nicht in Ihrem Build-Baum befindet.
+Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei hinzugefügt.</translation>
     </message>
     <message>
         <source>Internal library</source>
@@ -17844,8 +17844,8 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <message>
         <source>Links to a library that is located in your build tree.
 Adds the library and include paths to the .pro file.</source>
-        <translation>Linken gegen eine Systembibliothek.
-Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-Datei hinzugefügt.</translation>
+        <translation>Linkt gegen eine Bibliothek, die sich in Ihrem Build-Baum befindet.
+Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei hinzugefügt.</translation>
     </message>
 </context>
 <context>
