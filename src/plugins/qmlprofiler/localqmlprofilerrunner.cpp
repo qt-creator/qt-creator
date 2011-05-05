@@ -69,7 +69,7 @@ void LocalQmlProfilerRunner::start()
 void LocalQmlProfilerRunner::spontaneousStop(int exitCode)
 {
     if (QmlProfilerPlugin::debugOutput)
-        qWarning() << "QmlProfiler: Application exited (exit code" << exitCode << ").";
+        qWarning("QmlProfiler: Application exited (exit code %d).", exitCode);
 
     disconnect(&m_launcher, SIGNAL(processExited(int)), this, SLOT(spontaneousStop(int)));
 
@@ -79,7 +79,7 @@ void LocalQmlProfilerRunner::spontaneousStop(int exitCode)
 void LocalQmlProfilerRunner::stop()
 {
     if (QmlProfilerPlugin::debugOutput)
-        qWarning() << "QmlProfiler: Stopping application ...";
+        qWarning("QmlProfiler: Stopping application ...");
 
     if (m_launcher.isRunning()) {
         m_launcher.stop();
