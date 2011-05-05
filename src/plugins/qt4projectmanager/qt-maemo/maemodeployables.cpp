@@ -118,12 +118,16 @@ void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:
     case LibraryTemplate:
-    case ScriptTemplate: {
-        UpdateSettingsMap::ConstIterator it
-            = m_updateSettings.find(proFileNode->path());
-        const MaemoDeployableListModel::ProFileUpdateSetting updateSetting
-            = it != m_updateSettings.end()
-                  ? it.value() : MaemoDeployableListModel::AskToUpdateProFile;
+    case AuxTemplate: {
+        MaemoDeployableListModel::ProFileUpdateSetting updateSetting;
+        if (proFileNode->projectType() == AuxTemplate) {
+            updateSetting = MaemoDeployableListModel::DontUpdateProFile;
+        } else {
+            UpdateSettingsMap::ConstIterator it
+                = m_updateSettings.find(proFileNode->path());
+            updateSetting = it != m_updateSettings.end()
+                ? it.value() : MaemoDeployableListModel::AskToUpdateProFile;
+        }
         MaemoDeployableListModel *const newModel
             = new MaemoDeployableListModel(proFileNode, updateSetting, this);
         m_listModels << newModel;
@@ -201,7 +205,8 @@ QVariant MaemoDeployables::data(const QModelIndex &index, int role) const
             || index.column() != 0)
         return QVariant();
     const MaemoDeployableListModel *const model = m_listModels.at(index.row());
-    if (role == Qt::ForegroundRole && !model->hasTargetPath()) {
+    if (role == Qt::ForegroundRole && model->projectType() != AuxTemplate
+            && !model->hasTargetPath()) {
         QBrush brush;
         brush.setColor(Qt::red);
         return brush;

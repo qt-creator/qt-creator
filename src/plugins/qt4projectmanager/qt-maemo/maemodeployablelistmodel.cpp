@@ -85,7 +85,7 @@ bool MaemoDeployableListModel::buildModel()
         const QStringList deployInfo = QStringList() << remoteDir
             << QLatin1String("INSTALLS += target");
         return addLinesToProFile(deployInfo);
-    } else {
+    } else if (m_projectType != AuxTemplate) {
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             m_installsList.targetPath));
     }
@@ -209,7 +209,8 @@ void MaemoDeployableListModel::setProFileUpdateSetting(ProFileUpdateSetting upda
 
 bool MaemoDeployableListModel::isEditable(const QModelIndex &index) const
 {
-    return index.row() == 0 && index.column() == 1
+    return m_projectType != AuxTemplate
+        && index.row() == 0 && index.column() == 1
         && m_deployables.first().remoteDir.isEmpty();
 }
 
