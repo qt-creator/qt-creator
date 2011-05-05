@@ -3395,6 +3395,8 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
             return TT_Library;
         if (!t.compare(QLatin1String("script"), Qt::CaseInsensitive))
             return TT_Script;
+        if (!t.compare(QLatin1String("aux"), Qt::CaseInsensitive))
+            return TT_Aux;
         if (!t.compare(QLatin1String("subdirs"), Qt::CaseInsensitive))
             return TT_Subdirs;
     }

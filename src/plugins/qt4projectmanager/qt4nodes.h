@@ -88,6 +88,7 @@ enum Qt4ProjectType {
     ApplicationTemplate,
     LibraryTemplate,
     ScriptTemplate,
+    AuxTemplate,
     SubDirsTemplate
 };
 

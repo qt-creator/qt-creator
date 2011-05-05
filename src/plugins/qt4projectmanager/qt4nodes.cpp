@@ -784,7 +784,12 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
 
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:
-    case LibraryTemplate: {
+    case LibraryTemplate:
+    case AuxTemplate: {
+        // TODO: Some of the file types don't make much sense for aux
+        // projects (e.g. cpp). It'd be nice if the "add" action could
+        // work on a subset of the file types according to project type.
+
         actions << AddNewFile;
         if (m_recursiveEnumerateFiles.contains(node->path())) {
             actions << EraseFile;
@@ -1506,6 +1511,8 @@ static Qt4ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::Templat
         return LibraryTemplate;
     case ProFileEvaluator::TT_Script:
         return ScriptTemplate;
+    case ProFileEvaluator::TT_Aux:
+        return AuxTemplate;
     case ProFileEvaluator::TT_Subdirs:
         return SubDirsTemplate;
     default:

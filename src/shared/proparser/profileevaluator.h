@@ -103,6 +103,7 @@ public:
         TT_Application,
         TT_Library,
         TT_Script,
+        TT_Aux,
         TT_Subdirs
     };
 
