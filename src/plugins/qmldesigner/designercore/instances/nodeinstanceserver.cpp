@@ -346,7 +346,7 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
     startRenderTimer();
 }
 
-void NodeInstanceServer::changeCustomParserSource(ChangeCustomParserSourceCommand &command)
+void NodeInstanceServer::changeCustomParserSource(const ChangeCustomParserSourceCommand &command)
 {
     if (hasInstanceForId(command.instanceId())) {
         ServerNodeInstance instance = instanceForId(command.instanceId());

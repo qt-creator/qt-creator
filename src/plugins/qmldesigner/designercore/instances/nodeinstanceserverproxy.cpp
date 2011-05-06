@@ -453,7 +453,7 @@ void NodeInstanceServerProxy::completeComponent(const CompleteComponentCommand &
     writeCommand(QVariant::fromValue(command));
 }
 
-void NodeInstanceServerProxy::changeCustomParserSource(ChangeCustomParserSourceCommand &command)
+void NodeInstanceServerProxy::changeCustomParserSource(const ChangeCustomParserSourceCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

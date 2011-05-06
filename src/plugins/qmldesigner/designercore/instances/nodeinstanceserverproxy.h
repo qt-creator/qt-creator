@@ -70,7 +70,7 @@ public:
     void changeState(const ChangeStateCommand &command);
     void addImport(const AddImportCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
-    void changeCustomParserSource(ChangeCustomParserSourceCommand &command);
+    void changeCustomParserSource(const ChangeCustomParserSourceCommand &command);
 
 protected:
     void writeCommand(const QVariant &command);

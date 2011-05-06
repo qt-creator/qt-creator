@@ -264,7 +264,7 @@ void NodeInstanceClientProxy::completeComponent(const CompleteComponentCommand &
     nodeInstanceServer()->completeComponent(command);
 }
 
-void NodeInstanceClientProxy::changeCustomParserSource(ChangeCustomParserSourceCommand &command)
+void NodeInstanceClientProxy::changeCustomParserSource(const ChangeCustomParserSourceCommand &command)
 {
     nodeInstanceServer()->changeCustomParserSource(command);
 }
