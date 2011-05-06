@@ -167,12 +167,11 @@ public:
 
 struct ToolDockWidgetData
 {
-    ToolDockWidgetData(Qt::DockWidgetArea a, QDockWidget *w, QDockWidget *t) :
-        area(a), widget(w), tabifyTo(t) {}
+    ToolDockWidgetData(Qt::DockWidgetArea a, QDockWidget *w) :
+        area(a), widget(w) {}
 
     Qt::DockWidgetArea area;
     QDockWidget *widget;
-    QDockWidget *tabifyTo;
 };
 } // namespace Internal
 } // namespace Analyzer
@@ -684,14 +683,13 @@ void AnalyzerManager::toolSelected(int idx)
     d->m_controlsWidget->setCurrentIndex(idx);
 
     const bool firstTime = !d->m_defaultSettings.contains(newTool);
-    foreach (const ToolDockWidgetData &widget, d->m_toolWidgets.value(newTool)) {
-        d->addDock(newTool, widget.area, widget.widget);
-        if (firstTime && widget.tabifyTo)
-            d->m_mainWindow->tabifyDockWidget(widget.tabifyTo, widget.widget);
-    }
-
-    if (firstTime) // Save default settings first time
+    if (firstTime) {
+        newTool->initializeDockWidgets();
         d->m_defaultSettings.insert(newTool, d->m_mainWindow->saveSettings());
+    } else {
+        foreach (const ToolDockWidgetData &widget, d->m_toolWidgets.value(newTool))
+            d->addDock(newTool, widget.area, widget.widget);
+    }
 
     loadToolSettings(newTool);
     d->m_outputpane->setTool(newTool);
@@ -744,8 +742,7 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
 }
 
 QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QString &title,
-                                               QWidget *widget, Qt::DockWidgetArea area,
-                                               QDockWidget *tabifyTo)
+                                               QWidget *widget, Qt::DockWidgetArea area)
 {
     QTC_ASSERT(!widget->objectName().isEmpty(), return 0;);
 
@@ -753,7 +750,8 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
     d->m_dockWidgets << AnalyzerManagerPrivate::DockPtr(dockWidget);
     dockWidget->setWindowTitle(title);
 
-    d->m_toolWidgets[tool].push_back(ToolDockWidgetData(area, dockWidget, tabifyTo));
+    d->m_toolWidgets[tool].push_back(ToolDockWidgetData(area, dockWidget));
+    d->addDock(tool, area, dockWidget);
     dockWidget->installEventFilter(d->m_resizeEventFilter);
     return dockWidget;
 }

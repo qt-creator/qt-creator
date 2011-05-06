@@ -84,12 +84,14 @@ public:
     Valgrind::Callgrind::DataModel *dataModel() const { return m_dataModel; }
     Valgrind::Callgrind::DataProxyModel *proxyModel() const { return m_dataProxy; }
     CostView *flatView() const { return m_flatView; }
-    Visualisation *visualisation() const { return m_visualisation; }
+    Visualisation *visualisation();
 
     Valgrind::Callgrind::CallModel *callersModel() const { return m_callersModel; }
-    CostView *callersView() const { return m_callersView; }
+    CostView *callersView();
     Valgrind::Callgrind::CallModel *calleesModel() const { return m_calleesModel; }
-    CostView *calleesView() const { return m_calleesView; }
+    CostView *calleesView();
+
+    Callgrind::Internal::CostDelegate::CostFormat costFormat() const;
 
 signals:
     void dumpRequested();
@@ -125,6 +127,8 @@ private slots:
     void visualisationFunctionSelected(const Valgrind::Callgrind::Function *function);
 
 private:
+    void ensureDockWidgets();
+    void doClear(bool clearParseData);
     void updateEventCombo();
 
     Valgrind::Callgrind::DataModel *m_dataModel;

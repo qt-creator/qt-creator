@@ -54,6 +54,10 @@ IAnalyzerOutputPaneAdapter *IAnalyzerTool::outputPaneAdapter()
     return 0;
 }
 
+void IAnalyzerTool::initializeDockWidgets()
+{
+}
+
 QWidget *IAnalyzerTool::createControlWidget()
 {
     return 0;

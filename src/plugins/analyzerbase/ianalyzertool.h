@@ -97,6 +97,12 @@ public:
     /// gets called after all analyzation tools where initialized.
     virtual void extensionsInitialized() = 0;
 
+    /**
+      * Called to add all dock widgets if tool becomes active first time.
+      * \sa AnalzyerManager::createDockWidget
+      */
+    virtual void initializeDockWidgets();
+
     virtual IAnalyzerOutputPaneAdapter *outputPaneAdapter();
     /// subclass to return a control widget which will be shown
     /// in the output pane when this tool is selected

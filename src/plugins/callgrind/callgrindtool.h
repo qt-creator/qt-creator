@@ -89,6 +89,7 @@ public:
 
     virtual void initialize(ExtensionSystem::IPlugin *plugin);
     virtual void extensionsInitialized();
+    virtual void initializeDockWidgets();
 
     virtual Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();
     virtual Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,

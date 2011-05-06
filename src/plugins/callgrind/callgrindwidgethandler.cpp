@@ -121,27 +121,20 @@ CallgrindWidgetHandler::CallgrindWidgetHandler(QWidget *parent)
     m_flatView->setObjectName("Valgrind.CallgrindWidgetHandler.FlatView");
     connect(m_flatView, SIGNAL(activated(QModelIndex)),
             this, SLOT(dataFunctionSelected(QModelIndex)));
+}
 
-    m_visualisation = new Visualisation(parent);
+void CallgrindWidgetHandler::ensureDockWidgets()
+{
+    if (m_visualisation)
+        return;
+    QWidget *parenWidget  = qobject_cast<QWidget *>(parent());
+    m_visualisation = new Visualisation(parenWidget);
     m_visualisation->setObjectName("Valgrind.CallgrindWidgetHandler.Visualisation");
     m_visualisation->setModel(m_dataModel);
     connect(m_visualisation, SIGNAL(functionActivated(const Valgrind::Callgrind::Function*)),
             this, SLOT(visualisationFunctionSelected(const Valgrind::Callgrind::Function*)));
 
-    {
-    m_calleesView = new CostView(parent);
-    m_calleesView->sortByColumn(CallModel::CostColumn);
-    m_calleesView->setObjectName("Valgrind.CallgrindWidgetHandler.CalleesView");
-    // enable sorting
-    QSortFilterProxyModel *calleeProxy = new QSortFilterProxyModel(m_calleesModel);
-    calleeProxy->setSourceModel(m_calleesModel);
-    m_calleesView->setModel(calleeProxy);
-    m_calleesView->hideColumn(CallModel::CallerColumn);
-    connect(m_calleesView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(calleeFunctionSelected(QModelIndex)));
-    }
-    {
-    m_callersView = new CostView(parent);
+    m_callersView = new CostView(parenWidget);
     m_callersView->sortByColumn(CallModel::CostColumn);
     m_callersView->setObjectName("Valgrind.CallgrindWidgetHandler.CallersView");
     // enable sorting
@@ -151,7 +144,36 @@ CallgrindWidgetHandler::CallgrindWidgetHandler(QWidget *parent)
     m_callersView->hideColumn(CallModel::CalleeColumn);
     connect(m_callersView, SIGNAL(activated(QModelIndex)),
             this, SLOT(callerFunctionSelected(QModelIndex)));
-    }
+
+    m_calleesView = new CostView(parenWidget);
+    m_calleesView->sortByColumn(CallModel::CostColumn);
+    m_calleesView->setObjectName("Valgrind.CallgrindWidgetHandler.CalleesView");
+    // enable sorting
+    QSortFilterProxyModel *calleeProxy = new QSortFilterProxyModel(m_calleesModel);
+    calleeProxy->setSourceModel(m_calleesModel);
+    m_calleesView->setModel(calleeProxy);
+    m_calleesView->hideColumn(CallModel::CallerColumn);
+    connect(m_calleesView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(calleeFunctionSelected(QModelIndex)));
+    updateCostFormat();
+}
+
+Visualisation *CallgrindWidgetHandler::visualisation()
+{
+    ensureDockWidgets();
+    return m_visualisation;
+}
+
+CostView *CallgrindWidgetHandler::callersView()
+{
+    ensureDockWidgets();
+    return m_callersView;
+}
+
+CostView *CallgrindWidgetHandler::calleesView()
+{
+    ensureDockWidgets();
+    return m_calleesView;
 }
 
 void CallgrindWidgetHandler::populateActions(QLayout *layout)
@@ -284,7 +306,7 @@ void CallgrindWidgetHandler::populateActions(QLayout *layout)
 
 CallgrindWidgetHandler::~CallgrindWidgetHandler()
 {
-    slotClear();
+    doClear(false);
 }
 
 void CallgrindWidgetHandler::slotGoToOverview()
@@ -294,7 +316,13 @@ void CallgrindWidgetHandler::slotGoToOverview()
 
 void CallgrindWidgetHandler::slotClear()
 {
-    setParseData(0);
+    doClear(true);
+}
+
+void CallgrindWidgetHandler::doClear(bool clearParseData)
+{
+    if (clearParseData) // Crashed when done from destructor.
+        setParseData(0);
 
     // clear filters
     m_filterProjectCosts->setChecked(false);
@@ -388,20 +416,27 @@ void CallgrindWidgetHandler::enableCycleDetection(bool enabled)
     m_cycleDetection->setChecked(enabled);
 }
 
+// Following functions can be called with actions=0 or widgets=0
+// depending on initialization sequence (whether callgrind was current).
+Callgrind::Internal::CostDelegate::CostFormat
+    CallgrindWidgetHandler::costFormat() const
+{
+    if (m_costRelativeToParent && m_costRelativeToParent->isChecked())
+        return CostDelegate::FormatRelativeToParent;
+    if (m_costRelative && m_costRelative->isChecked())
+        return CostDelegate::FormatRelative;
+    return CostDelegate::FormatAbsolute;
+}
+
 void CallgrindWidgetHandler::updateCostFormat()
 {
-    CostDelegate::CostFormat format = CostDelegate::FormatAbsolute;
-
-    if (m_costRelativeToParent->isChecked())
-        format = CostDelegate::FormatRelativeToParent;
-    else if (m_costRelative->isChecked())
-        format = CostDelegate::FormatRelative;
-    // else = Absolute
-
-    m_flatView->setCostFormat(format);
-    m_calleesView->setCostFormat(format);
-    m_callersView->setCostFormat(format);
-
+    const CostDelegate::CostFormat format = costFormat();
+    if (m_flatView)
+        m_flatView->setCostFormat(format);
+    if (m_calleesView) {
+        m_calleesView->setCostFormat(format);
+        m_callersView->setCostFormat(format);
+    }
     emit costFormatChanged(format);
 }
 
