@@ -506,8 +506,6 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
     if (!f.exists())
         return tmp;
 
-    bool windowsStatic = path.endsWith(QLatin1String(".lib"));
-
     f.open(QFile::ReadOnly);
     QByteArray data = f.read(1024);
     if (data.size() >= 67
@@ -534,12 +532,11 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
 
             int toSkip = 60 + fileNameOffset;
             offset += fileLength.toInt() + 60 /* header */;
-            if (windowsStatic) {
-                if (fileName == QLatin1String("/0              "))
-                    tmp = parseCoffHeader(data.mid(toSkip, 20));
-            } else {
-                tmp.append(abiOf(data.mid(toSkip)));
-            }
+
+            tmp.append(abiOf(data.mid(toSkip)));
+            if (tmp.isEmpty() && fileName == QLatin1String("/0              "))
+                tmp = parseCoffHeader(data.mid(toSkip, 20)); // This might be windws...
+
             if (!tmp.isEmpty()
                     && tmp.at(0).binaryFormat() != Abi::MachOFormat)
                 break;
@@ -605,6 +602,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-64bit"));
     QTest::newRow("static QtCore: win msvc2008 (debug)")
             << QString::fromLatin1("%1/abi/static/win-msvc2008-debug.lib").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
+    QTest::newRow("static QtCore: win mingw")
+            << QString::fromLatin1("%1/abi/static/win-mingw.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
     QTest::newRow("static QtCore: mac (debug)")
             << QString::fromLatin1("%1/abi/static/mac-32bit-debug.a").arg(prefix)
