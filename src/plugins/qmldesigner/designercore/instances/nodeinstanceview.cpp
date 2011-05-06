@@ -140,13 +140,19 @@ NodeInstanceView::~NodeInstanceView()
 \param model Model to which the view is attached
 */
 
-bool isSkippedNode(const ModelNode &node)
+bool isSkippedRootNode(const ModelNode &node)
 {
-    static QStringList skipList =  QStringList() << "Qt.ListModel" << "QtQuick.ListModel";
+    static QStringList skipList =  QStringList() << "Qt.ListModel" << "QtQuick.ListModel" << "Qt.ListModel" << "QtQuick.ListModel";
 
     if (skipList.contains(node.type()))
         return true;
 
+    return false;
+}
+
+
+bool isSkippedNode(const ModelNode &)
+{
     return false;
 }
 
@@ -157,7 +163,7 @@ void NodeInstanceView::modelAttached(Model *model)
     m_lastCrashTime.start();
     connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
-    if (!isSkippedNode(rootModelNode()))
+    if (!isSkippedRootNode(rootModelNode()))
         nodeInstanceServer()->createScene(createCreateSceneCommand());
 }
 
@@ -195,7 +201,7 @@ void NodeInstanceView::restartProcess()
         m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus);
         connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
-        if (!isSkippedNode(rootModelNode()))
+        if (!isSkippedRootNode(rootModelNode()))
             nodeInstanceServer()->createScene(createCreateSceneCommand());
     }
 }
