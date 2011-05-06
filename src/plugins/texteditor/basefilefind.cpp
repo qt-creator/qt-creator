@@ -132,7 +132,8 @@ void BaseFileFind::replaceAll(const QString &txt, Find::FindFlags findFlags)
     if (m_filterCombo)
         updateComboEntries(m_filterCombo, true);
     m_watcher.setFuture(QFuture<FileSearchResultList>());
-    SearchResult *result = m_resultWindow->startNewSearch(SearchResultWindow::SearchAndReplace);
+    SearchResult *result = m_resultWindow->startNewSearch(
+            SearchResultWindow::SearchAndReplace, QLatin1String("TextEditor"));
     connect(result, SIGNAL(activated(Find::SearchResultItem)), this, SLOT(openEditor(Find::SearchResultItem)));
     connect(result, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
             this, SLOT(doReplace(QString,QList<Find::SearchResultItem>)));

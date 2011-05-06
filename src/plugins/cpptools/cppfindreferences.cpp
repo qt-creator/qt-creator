@@ -242,7 +242,8 @@ void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus:
         const QString textToReplace = replacement.isEmpty()
                 ? QString::fromUtf8(id->chars(), id->size()) : replacement;
 
-        Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
+        Find::SearchResult *search = _resultWindow->startNewSearch(
+                Find::SearchResultWindow::SearchAndReplace, QLatin1String("CppEditor"));
         _resultWindow->setTextToReplace(textToReplace);
 
         connect(search, SIGNAL(activated(Find::SearchResultItem)),
@@ -280,10 +281,6 @@ void CppFindReferences::findAll_helper(Symbol *symbol, const LookupContext &cont
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
                                                const QList<Find::SearchResultItem> &items)
 {
-    // FIXME: abuse
-    Core::EditorManager::instance()->currentEditor()->file()->infoBar()->removeInfo(
-            QLatin1String("CppEditor.Rename"));
-
     const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items);
     if (!fileNames.isEmpty()) {
         _modelManager->updateSourceFiles(fileNames);

@@ -68,7 +68,6 @@
 #include <cpptools/cppcodeformatter.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/infobar.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -680,54 +679,14 @@ void CPPEditorWidget::renameUsagesNow(const QString &replacement)
     info.snapshot.insert(info.doc);
 
     CanonicalSymbol cs(this, info);
-    if (Symbol *canonicalSymbol = cs(textCursor())) {
-        if (canonicalSymbol->identifier() != 0) {
-            if (showWarningMessage()) {
-                // FIXME: abuse
-                Core::InfoBarEntry info(QLatin1String("CppEditor.Rename"),
-                                        tr("This change cannot be undone."));
-                info.setCustomButtonInfo(tr("Yes, I know what I am doing."),
-                                         this, SLOT(hideRenameNotification()));
-                file()->infoBar()->addInfo(info);
-            }
-
+    if (Symbol *canonicalSymbol = cs(textCursor()))
+        if (canonicalSymbol->identifier() != 0)
             m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
-        }
-    }
 }
 
 void CPPEditorWidget::renameUsages()
 {
     renameUsagesNow();
-}
-
-bool CPPEditorWidget::showWarningMessage() const
-{
-    // Restore settings
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String("CppEditor"));
-    settings->beginGroup(QLatin1String("Rename"));
-    const bool showWarningMessage = settings->value(QLatin1String("ShowWarningMessage"), true).toBool();
-    settings->endGroup();
-    settings->endGroup();
-    return showWarningMessage;
-}
-
-void CPPEditorWidget::setShowWarningMessage(bool showWarningMessage)
-{
-    // Restore settings
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String("CppEditor"));
-    settings->beginGroup(QLatin1String("Rename"));
-    settings->setValue(QLatin1String("ShowWarningMessage"), showWarningMessage);
-    settings->endGroup();
-    settings->endGroup();
-}
-
-void CPPEditorWidget::hideRenameNotification()
-{
-    setShowWarningMessage(false);
-    file()->infoBar()->removeInfo(QLatin1String("CppEditor.Rename"));
 }
 
 void CPPEditorWidget::markSymbolsNow()

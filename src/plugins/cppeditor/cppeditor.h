@@ -202,7 +202,6 @@ public Q_SLOTS:
     void renameUsages();
     void findUsages();
     void renameUsagesNow(const QString &replacement = QString());
-    void hideRenameNotification();
     void rehighlight(bool force = false);
 
 protected:
@@ -237,9 +236,6 @@ private Q_SLOTS:
     void performQuickFix(int index);
 
 private:
-    bool showWarningMessage() const;
-    void setShowWarningMessage(bool showWarningMessage);
-
     void markSymbols(const QTextCursor &tc, const SemanticInfo &info);
     bool sortedOutline() const;
     CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol, const CPlusPlus::Snapshot &snapshot) const;
