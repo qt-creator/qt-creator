@@ -30,21 +30,7 @@ QWidget {
                             baseStateFlag: isBaseState;
                         }
                     }
-                }
-                
-                QWidget {
-                    layout: HorizontalLayout {
-                        leftMargin: 0;
-                        rightMargin: 0;
-                        Label {
-                            text: qsTr("Title")
-                        }
-                        LineEdit {
-                            backendValue: backendValues.title
-                            baseStateFlag: isBaseState;
-                        }
-                    }
-                }
+                }                       
 
                 IntEditor {
                     id: preferredWidth;
