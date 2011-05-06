@@ -1,0 +1,446 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \contentspage{index.html}{Qt Creator}
+    \previouspage external-tool-spec.html
+    \page qtcreator-ui-text.html
+    \nextpage coding-style.html
+
+    \title User Interface Text Guidelines
+
+    Follow the guidelines in this section to make sure that your extensions
+    are consistent with the Qt Creator UI and that they can be easily
+    localized into different languages.
+
+    When you write UI text, make sure that it is:
+
+    \list
+
+        \o  Consistent with existing Qt Creator UI terms
+
+        \o  Short and concise
+
+        \o  Neutral, descriptive, and factually correct
+
+        \o  Unambigious
+
+        \o  Translatable into different languages
+
+    \endlist
+
+    \section1 Grammar and Style
+
+    All UI text must be grammatically correct English and use the standard form
+    of written language. Do not use dialect or slang words. Use idiomatic
+    language, that is, expressions that are characteristic for English.
+    If possible, ask a native English speaker for a review.
+
+    UI text should be concise and economically formulated. Avoid unnecessary
+    content words and phrases. The following message contains unnecessary
+    content: \e {Do you want to delete this document?}. It could be rephrased
+    as: \e {Delete document?}.
+
+    Avoid addressing the user in the second person. Use a neutral tone or
+    passive voice but use a formal address when necessary. Avoid using the
+    word \e Please when addressing the user. Exceptions to this are some
+    copyright text and short imperative sentences that might otherwise sound
+    abrupt. For example, \e {Please wait.}
+
+    Avoid abbreviations in the menu names and items. If there is no room for
+    the full spelling or hyphenation of a word, abbreviate the text according
+    to the English abbreviation rules.
+
+    Avoid contractions. For example, write \e cannot instead of \e can't.
+
+    \section1 Punctuation
+
+    Avoid using punctuation marks or special characters in menu names and
+    items.
+
+    Use punctuation marks as follows:
+
+    \list
+
+        \o  Never user full stops (.) at the end of menu item names.
+
+        \o  Use full stops in messages.
+
+        \o  Use exclamation marks (!) only in text that demands extra attention
+            from the user or carries special weight.
+
+        \o  Use quotation marks ("") around variable values. For example,
+            \gui {Close Project "qtcreator"}.
+
+        \o  Do not use leading, trailing, or multiple spaces to align text in
+            messages, as translation tools might not handle them correctly.
+
+    \endlist
+
+    \section2 Writing Tooltips
+
+    Tooltips contain useful information about icons, menu items, or other UI
+    elements. They appear when users place the mouse pointer over an UI
+    element. You can also add descriptive text to the UI that is always
+    visible.
+
+    For an icon, you can use the command name as a tool tip. In that
+    case, use book style capitalization and do not add a comma after the tool
+    tip.
+
+    \image qtcreator-tooltip.png "Tooltip"
+
+    Tooltips can also contain full sentences. Try to make them as short and
+    concise as possible, while still making them grammatically correct. Use
+    sentence style capitalization and punctuation as you would for any
+    sentence.
+
+    \image qtcreator-tooltip-long.png "Sentence as a tooltip"
+
+    \section3 Writing Tooltips in Design Mode
+
+    In Qt Designer, use plain text for tooltips. For extra formatting, write
+    short, canonical HTML in the source tab of the rich text editor:
+    \c {<html><head/><body><b>Note:</b> text.}
+
+    In Qt 4.7, use only the \gui Source tab of the Qt Designer rich text
+    editor. The automatic conversion performed by the rich text editor tab
+    generates a lot of redundant stylesheet information and uses hard-coded
+    fonts that look bad on other platforms and make translation in Qt Linguist
+    difficult.
+
+    Qt Designer 4.8 has a feature that simplifies the rich text (on by
+    default), but still, you should verify by looking at the \gui Source tab.
+
+    \section2 Writing Messages
+
+    Check that messages are concise and economically formulated. Avoid
+    excessive use of, for example, verbs and articles if the sentence is
+    grammatically correct without them, such as:
+
+     \list
+
+        \o  SIM card full (NOT: SIM card is full)
+
+        \o  Calendar entry deleted (NOT: Calendar entry has been deleted)
+
+     \endlist
+
+    Keep the use of many new and different sentence structures to a minimum.
+    Reuse sentence structures that have been used in similar situations. For
+    example:
+
+    \list
+
+        \o  Cannot send log as selected message type. Text too long.
+
+        \o  Cannot receive image.
+
+        \o  Cannot insert picture. Maximum text length is 120 characters.
+
+        \o  Image name already in use.
+
+        \o  Folder name already in use.
+
+    \endlist
+
+    \section1 UI Text Capitalization
+
+    The capitalization of the Qt Creator UI text follows the
+    \l{http://developer.kde.org/documentation/standards/kde/style/basics/labels.html#items}
+    {KDE Style Guide}.
+
+    Two styles are used, book title and sentence style:
+
+    \list
+
+        \o  Example of Book Title Capitalization
+
+        \o  Example of sentence style capitalization
+
+    \endlist
+
+    Use book style capitalization for:
+
+    \list
+
+        \o  Titles (window, dialog, group box, tab, list view columns, and so
+            on)
+
+        \o  Functions (menu items, buttons)
+
+        \o  Selectable items (combobox items, listbox items, tree list items,
+            and so on)
+
+    \endlist
+
+    Use sentence style capitalization for:
+
+    \list
+
+        \o  Labels
+
+        \o  Tool tips
+
+        \o  Descriptive text
+
+        \o  Other non-heading or title text
+
+    \endlist
+
+    \section1 Preparing for Localization
+
+    Qt Creator is localized into several languages. Consistency and conciseness
+    make UI text easier to translate.
+
+    \section2 Marking UI Text for Translation
+
+    Make sure the text strings presented to the user are easy to translate.
+    The user interface text strings are enclosed in \c tr() calls and
+    extracted from the source code during the translation process. Therefore,
+    the translator might not know the source code context of the messages.
+
+    You can add comments that are visible in Qt Linguist ( //:) to clarify the
+    context. For example:
+
+    \code
+    //: Contact book "Add person" button label
+    return tr("Add");
+    \endcode
+
+    If the class is not Q_OBJECT, use \c {QCoreApplication::translate("class
+    context", "message")} or consider using Q_DECLARE_TR_FUNCTIONS. Do not use
+    \c {QObject::tr()}, which is confusing because the messages appear grouped
+    by class context in Qt Linguist and messages tied to QObject do not have a
+    class context.
+
+    \section2 Features of Languages or Writing Systems
+
+    To allow for localization of your extensions, consider the impact that
+    languages and writing systems have on the implementation.
+
+    \table
+        \header
+            \o  Features of Languages or Writing Systems
+            \o  Impact on Implementation
+        \row
+            \o  Word order
+            \o  Different languages have different word order rules.
+
+                Do not use run-time concatenation. Use complete phrases
+                and “%1” formatting instead. For example, use:
+
+                \c{tr("Foo failed: %1").arg(message)}
+
+                instead of
+
+                \c {tr("Foo failed: ") + message}
+        \row
+            \o  Singular vs. plural vs. dual forms
+            \o  Some languages do not have plural form (for example, Chinese
+                and Japanese), whereas some have a different form for dual.
+
+                Allow room for text expansion in the layout design. Some
+                languages need more space to indicate plurality or duality to
+                convey the needed information.
+
+                For example, use
+
+                \c {tr("%n files found", 0, number)}
+
+                instead of
+
+                \c {tr("%1 files found").arg(number)}
+        \row
+            \o  Gender
+            \o  Some languages have gender (feminine, masculine, neutral),
+                whereas some do not (for example, Finnish) or do not use it
+                extensively (for example, English).
+
+                Do not reuse text strings. The same term may not work in
+                another context due to the gender of the base word.
+
+                Articles have a grammatical gender in some languages and
+                sentences cannot be as easily constructed as in English. Avoid
+                following types of constructs:
+
+                \c {tr("%1 failed").arg(someCondition ? "the operation" : "opening a file")}
+        \row
+            \o  Compound words
+            \o  Some languages form new words by combining existing words into
+                new compound words (for example, Finnish and Thai).
+
+                Allow for text expansion. The compound words tend to make terms
+                longer than in English.
+        \row
+            \o  Word boundaries
+            \o  There are languages that do not use space as word boundaries
+                (for example, Thai, also Chinese and Japanese to some extent).
+
+                Use the line wrapping function.
+        \row
+            \o  Abbreviations
+            \o  There are languages that do not allow abbreviating words, (for
+                example, Chinese, Arabic).
+
+                Do not assume that all supported languages can be abbreviated
+                if the layout is not wide enough.
+        \row
+            \o  Length of words
+            \o  Most languages have longer words than English.
+
+                Do not assume that the layout is OK if a short English word
+                fits in.
+        \row
+            \o  Direction of text flow
+            \o  In Qt Creator, both left-to-right and right-to-left text flow
+                is supported.
+
+                Arabic and Hebrew writing systems are essentially
+                bidirectional, that is, the text can flow either from right to
+                left or vice versa, depending on the characters' attributes.
+        \row
+            \o  Writing systems
+            \o  Qt widgets embed most of the writing system support.
+
+                Do not assume a certain character is always available in
+                every language and every writing system.
+
+                Allow for different directions in text flow (unless
+                feature-related standard dictates differently). For example,
+                allow for the bidirectionality of Arabic script.
+
+                Do not assume that if your software functions properly in
+                English, it will be OK also in other languages and writing
+                systems.
+        \row
+            \o  Character sets and character repertoire
+            \o  Do not assume a certain character is always available.
+        \row
+            \o  Multiple scripts within one writing system for one language
+            \o  Do not assume that a language would use only one script in
+                writing.
+        \row
+            \o  Digits
+            \o  Allow also for other than European digits (1,2,3, ...).
+
+    \endtable
+
+    \section1 Common Qt Creator Terms
+
+    This section summarizes the terminology used for common Qt Creator UI
+    components. It also describes the conventions for naming different types of
+    UI components.
+
+    Always check that the term you plan to use is not used to mean something
+    else in the UI. If a suitable term already exists, use it. For example, use
+    \e Find for searching and \e New for wizards that create new objects.
+
+    For more information on how to add UI components, see
+    \l{Common Extension Tasks}.
+
+    \table
+        \header
+            \o  UI Text
+            \o  Usage
+            \o  Conventions
+        \row
+            \o  Context menu
+            \o  Opens when users right-click on the screen. Contents depend on
+                the context.
+                \image qtcreator-context-menu.png "Context menu"
+            \o  You can add menu items that are relevant in a particular
+                context. Follow the conventions for naming menu items.
+        \row
+            \o  Dialog
+            \o  User interface element that usually contains a number of
+                choices or allows the user to give input to the application.
+                Opens when users select a menu item or button.
+                \image qtcreator-dialog.png "Dialog"
+            \o  Use the menu item or button name as the dialog name. You can
+                also combine the menu item or button name and the name of the
+                object that is managed in the dialog. For example, the \gui Add
+                button in the \gui Documentation options opens the
+                \gui {Add Documentation} dialog.
+        \row
+            \o  Locator
+            \o  Allows you to browse not only files, but any items defined by
+                locator filters.
+                \image qtcreator-locator.png "Locator"
+            \o  You can add locator filters. Check that the filter is not
+                already in use and give the filter a descriptive name.
+        \row
+            \o  Menu
+            \o  Contains menu items that represent commands or options and that
+                are logically grouped and displayed. A menu can also contain
+                submenus.
+                \image qtcreator-menu.png "Menu"
+            \o  You can create new menus. Use short, but descriptive names that
+                are consistent with existing menu names. Use unambigious names.
+        \row
+            \o  Menu item
+            \o  Represents a command or an option for users to choose.
+                \image qtcreator-menu-item.png "Menu item"
+            \o  You can add new items to menus. Use short, but descriptive
+                names that are consistent with existing menu names. Use
+                unambigious names.
+        \row
+            \o  Message box
+            \o  Dialog that provides feedback to users, in the form of status
+                information, a warning, or an error message.
+                \image qtcreator-error-message.png "Message box"
+                Output from Qt Creator should be displayed in output panes,
+                instead.
+            \o  Use the event as the title and provide a solution in the
+                message box.
+        \row
+            \o  Mode
+            \o  Modes correspond to complete screens of controls, specialized
+                for a task.
+                \image qtcreator-mode-selector.png "Mode selector"
+            \o  You can add a mode for a new type of editor, for example.
+                Use descriptive, but short mode names. They have to fit in the
+                \gui {Mode selector}.
+        \row
+            \o  Output pane
+            \o  A pane displayed in the task pane that displays output from Qt
+                Creator.
+                \image qtcreator-output-pane.png "Output pane"
+            \o  Use descriptive names for output panes.
+        \row
+            \o  Sidebar
+            \o  A view available in the \gui Edit and \gui Debug modes that
+                you can use to browse projects, files, and bookmarks, and to
+                view the class hierarchy.
+                \image qtcreator-sidebar-menu.png "Sidebar"
+            \o  You can add views to the sidebar menu. Use descriptive names
+                for them.
+        \row
+            \o  View
+            \o  Available in \gui Debug mode, for interaction with the program
+                that is running under the control of the debugger.
+                \image qtcreator-debugger-views.png "Views"
+            \o  ##Can you add views? How do \e views and \e panes actually
+                differ? Should we choose one of those terms and use it
+                everywhere?
+    \endtable
+
+*/
