@@ -125,15 +125,15 @@ ProjectExplorer::Target  *Qt4DesktopTargetFactory::restore(ProjectExplorer::Proj
 
 Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
 {
-    Qt4DefaultTargetSetupWidget *widget
-            = static_cast<Qt4DefaultTargetSetupWidget *>(
-                Qt4BaseTargetFactory::createTargetSetupWidget(id,  proFilePath,
-                                                              number,  importEnabled,
-                                                              importInfos));
-    if (widget) {
-        widget->setShadowBuildCheckBoxVisible(true);
-        widget->setBuildConfiguraionComboBoxVisible(true);
-    }
+
+    QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, number);
+    if (infos.isEmpty())
+        return 0;
+    Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath,  infos,
+                                                                          number,  importEnabled,
+                                                                          importInfos,
+                                                                          Qt4DefaultTargetSetupWidget::USER);
+    widget->setBuildConfiguraionComboBoxVisible(true);
     return widget;
 }
 

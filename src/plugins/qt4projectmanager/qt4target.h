@@ -108,13 +108,15 @@ class Qt4DefaultTargetSetupWidget : public Qt4TargetSetupWidget
 {
     Q_OBJECT
 public:
+    enum ShadowBuildOption { DISABLE, ENABLE, USER };
     Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *factory,
                                 const QString &id,
                                 const QString &proFilePath,
                                 const QList<BuildConfigurationInfo> &info,
                                 const QtVersionNumber &minimumQtVersion,
                                 bool importEnabled,
-                                const QList<BuildConfigurationInfo> &importInfos);
+                                const QList<BuildConfigurationInfo> &importInfos,
+                                ShadowBuildOption shadowBuild);
     ~Qt4DefaultTargetSetupWidget();
     bool isTargetSelected() const;
     void setTargetSelected(bool b);
@@ -123,8 +125,6 @@ public:
     QList<BuildConfigurationInfo> buildConfigurationInfos() const;
     void setProFilePath(const QString &proFilePath);
 
-    void setShadowBuildSupported(bool b);
-    void setShadowBuildCheckBoxVisible(bool b);
     void setBuildConfiguraionComboBoxVisible(bool b);
 
     enum BuildConfigurationTemplate { PERQT = 0,

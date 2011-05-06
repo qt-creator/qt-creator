@@ -83,8 +83,11 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
     QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, number);
     if (infos.isEmpty())
         return 0;
-    Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, number, importEnabled, importInfos);
-    widget->setShadowBuildSupported(supportsShadowBuilds(id));
+    Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath,  infos,
+                                                                          number,  importEnabled && supportsShadowBuilds(id),
+                                                                          importInfos,
+                                                                          supportsShadowBuilds(id) ? Qt4DefaultTargetSetupWidget::ENABLE :
+                                                                                                     Qt4DefaultTargetSetupWidget::DISABLE);
     return widget;
 }
 
@@ -365,7 +368,8 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
                                                          const QList<BuildConfigurationInfo> &infos,
                                                          const QtVersionNumber &minimumQtVersion,
                                                          bool importEnabled,
-                                                         const QList<BuildConfigurationInfo> &importInfos)
+                                                         const QList<BuildConfigurationInfo> &importInfos,
+                                                         ShadowBuildOption shadowBuild)
     : Qt4TargetSetupWidget(),
       m_id(id),
       m_factory(factory),
@@ -459,7 +463,8 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
 
     m_shadowBuildEnabled = new QCheckBox;
     m_shadowBuildEnabled->setText(tr("Use Shadow Building"));
-    m_shadowBuildEnabled->setVisible(false);
+    m_shadowBuildCheckBoxVisible = shadowBuild == USER;
+    m_shadowBuildEnabled->setVisible(m_shadowBuildCheckBoxVisible);
 
     layout->addWidget(m_shadowBuildEnabled);
 
@@ -492,10 +497,16 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
         m_importEnabled << true;
     }
 
-    if (m_hasInSourceBuild)
+    if (m_hasInSourceBuild || shadowBuild == DISABLE) {
         m_shadowBuildEnabled->setChecked(false);
-    else
-        m_shadowBuildEnabled->setChecked(s->value("Qt4ProjectManager.TargetSetupPage.ShadowBuilding", true).toBool());
+        m_directoriesEnabled = false;
+    } else if (shadowBuild == ENABLE) {
+        m_shadowBuildEnabled->setChecked(true);
+        m_directoriesEnabled = true;
+    } else {
+        m_directoriesEnabled = s->value("Qt4ProjectManager.TargetSetupPage.ShadowBuilding", true).toBool();
+        m_shadowBuildEnabled->setChecked(m_directoriesEnabled);
+    }
 
     m_selected += m_importInfos.size();
 
@@ -587,19 +598,6 @@ void Qt4DefaultTargetSetupWidget::setProFilePath(const QString &proFilePath)
     m_proFilePath = proFilePath;
     m_detailsWidget->setAdditionalSummaryText(issuesListToString(m_factory->reportIssues(m_proFilePath)));
     setBuildConfigurationInfos(m_factory->availableBuildConfigurations(m_id, proFilePath, m_minimumQtVersion), false);
-}
-
-void Qt4DefaultTargetSetupWidget::setShadowBuildSupported(bool b)
-{
-    // if shadow building is supported we want to enable it, unless we have a in source build
-    m_shadowBuildEnabled->setChecked(b && !m_hasInSourceBuild);
-    m_importLineButton->setVisible(b);
-}
-
-void Qt4DefaultTargetSetupWidget::setShadowBuildCheckBoxVisible(bool b)
-{
-    m_shadowBuildCheckBoxVisible = b;
-    m_shadowBuildEnabled->setVisible(b);
 }
 
 void Qt4DefaultTargetSetupWidget::setBuildConfiguraionComboBoxVisible(bool b)
