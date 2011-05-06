@@ -2304,18 +2304,28 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
 {
     const int id = response.cookie.toInt();
     if (response.resultClass == GdbResultDone) {
+        BreakHandler *handler = breakHandler();
+        BreakpointResponse bresponse = handler->response(id);
         // "Hardware watchpoint 2: *0xbfffed40\n"
         QByteArray ba = response.data.findChild("consolestreamoutput").data();
-        if (ba.startsWith("Hardware watchpoint ")
+        GdbMi wpt = response.data.findChild("wpt");
+        if (wpt.isValid()) {
+            // Mac yields:
+            //>32^done,wpt={number="4",exp="*4355182176"}
+            bresponse.number = wpt.findChild("number").data().toInt();
+            bresponse.address = wpt.findChild("exp").data().toULongLong(0, 0);
+            handler->setResponse(id, bresponse);
+            QTC_ASSERT(!handler->needsChange(id), /**/);
+            handler->notifyBreakpointInsertOk(id);
+        } else if (ba.startsWith("Hardware watchpoint ")
                 || ba.startsWith("Watchpoint ")) {
+            // Non-Mac: "Hardware watchpoint 2: *0xbfffed40\n"
             const int end = ba.indexOf(':');
             const int begin = ba.lastIndexOf(' ', end) + 1;
             const QByteArray address = ba.mid(end + 3).trimmed();
-            BreakHandler *handler = breakHandler();
-            BreakpointResponse response = handler->response(id);
-            response.number = ba.mid(begin, end - begin).toInt();
-            response.address = address.toULongLong(0, 0);
-            handler->setResponse(id, response);
+            bresponse.number = ba.mid(begin, end - begin).toInt();
+            bresponse.address = address.toULongLong(0, 0);
+            handler->setResponse(id, bresponse);
             QTC_ASSERT(!handler->needsChange(id), /**/);
             handler->notifyBreakpointInsertOk(id);
         } else {
