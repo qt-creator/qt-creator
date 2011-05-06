@@ -57,7 +57,7 @@ public:
     explicit AbstractQt4MaemoTarget(Qt4Project *parent, const QString &id);
     virtual ~AbstractQt4MaemoTarget();
 
-    Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
+    Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
     void createApplicationProFiles();
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
 

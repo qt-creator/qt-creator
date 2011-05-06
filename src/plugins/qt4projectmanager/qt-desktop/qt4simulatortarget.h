@@ -49,7 +49,7 @@ public:
     explicit Qt4SimulatorTarget(Qt4Project *parent, const QString &id);
     virtual ~Qt4SimulatorTarget();
 
-    Internal::Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
+    Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
 
     void createApplicationProFiles();
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
@@ -57,7 +57,7 @@ public:
     static QString defaultDisplayName();
 
 private:
-    Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
 };
 
 } // namespace Internal

@@ -34,6 +34,7 @@
 #define QT4BUILDCONFIGURATION_H
 
 #include "qtversionmanager.h"
+#include "qt4projectmanager_global.h"
 
 #include <projectexplorer/buildconfiguration.h>
 
@@ -46,16 +47,16 @@ namespace Qt4ProjectManager {
 class QMakeStep;
 class MakeStep;
 class Qt4BaseTarget;
+class Qt4BuildConfigurationFactory;
 
 namespace Internal {
 class Qt4ProFileNode;
-class Qt4BuildConfigurationFactory;
 }
 
-class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
+class QT4PROJECTMANAGER_EXPORT Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
-    friend class Internal::Qt4BuildConfigurationFactory;
+    friend class Qt4BuildConfigurationFactory;
 
 public:
     explicit Qt4BuildConfiguration(Qt4BaseTarget *target);
@@ -168,8 +169,7 @@ private:
     Qt4ProjectManager::Internal::Qt4ProFileNode *m_subNodeBuild;
 };
 
-namespace Internal {
-class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class QT4PROJECTMANAGER_EXPORT Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
 {
     Q_OBJECT
 
@@ -205,7 +205,6 @@ private:
     QMap<QString, VersionInfo> m_versions;
 };
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif // QT4BUILDCONFIGURATION_H
