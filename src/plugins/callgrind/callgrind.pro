@@ -12,6 +12,7 @@ HEADERS += \
     callgrindplugin.h \
     callgrind_global.h \
     callgrindconfigwidget.h \
+    callgrindconstants.h \
     callgrindcostdelegate.h \
     callgrindcostview.h \
     callgrindhelper.h \

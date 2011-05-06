@@ -36,6 +36,7 @@ HEADERS += \
     analyzerruncontrolfactory.h \
     analyzermanager.h \
     analyzersettings.h \
+    analyzerstartparameters.h \
     analyzeroptionspage.h \
     analyzerrunconfigwidget.h \
     analyzeroutputpane.h \
