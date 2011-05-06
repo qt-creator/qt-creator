@@ -81,78 +81,80 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.pathItemCount
-                    caption: qsTr("Path Item Count")
-                    toolTip: qsTr("This property holds the number of items visible on the path at any one time.")
+                    caption: qsTr("Item Count")
+                    toolTip: qsTr("pathItemCount: This property holds the number of items visible on the path at any one time.")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: -1;
                     maximumValue: 1000;
                 }
-                GroupBox {
-                    finished: finishedNotify;
-                    caption: qsTr("Grid View ViewHighlight")
-                    layout: VerticalLayout {
-                        QWidget {
-                            layout: HorizontalLayout {
-                                Label {
-                                    text: qsTr("Righlight Range")
-                                }
+            }
+        }
+        GroupBox {
+            finished: finishedNotify;
+            caption: qsTr("Grid View ViewHighlight")
+            layout: VerticalLayout {
+                QWidget {
+                    layout: HorizontalLayout {
+                        Label {
+                            text: qsTr("Righlight Range")
+                        }
 
-                                ComboBox {
-                                    baseStateFlag: isBaseState
-                                    items : { ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"] }
-                                    currentText: backendValues.highlightRangeMode.value;
-                                    onItemsChanged: {
-                                        currentText =  backendValues.highlightRangeMode.value;
-                                    }
-                                    backendValue: backendValues.highlightRangeMode
-                                }
+                        ComboBox {
+                            baseStateFlag: isBaseState
+                            items : { ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"] }
+                            currentText: backendValues.highlightRangeMode.value;
+                            onItemsChanged: {
+                                currentText =  backendValues.highlightRangeMode.value;
                             }
-                        } //QWidget
-                        IntEditor {
-                            backendValue: backendValues.highlightMoveDuration
-                            caption: qsTr("Move Duration")
-                            toolTip: qsTr("This property holds the move animation duration of the highlight delegate.")
-                            baseStateFlag: isBaseState;
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 1000;
+                            backendValue: backendValues.highlightRangeMode
                         }
-                        IntEditor {
-                            backendValue: backendValues.preferredHighlightBegin
-                            caption: qsTr("Preferred Begin")
-                            toolTip: qsTr("Preferred Highlight Begin - must be smaller than Preferred Highlight End")
-                            baseStateFlag: isBaseState;
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 1000;
-                        }
-                        IntEditor {
-                            backendValue: backendValues.preferredHighlightEnd
-                            caption: qsTr("Preferred End")
-                            toolTip: qsTr("Preferred Highlight End - must be larger than Preferred Highlight End")
-                            baseStateFlag: isBaseState;
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 1000;
-                        }
-                        QWidget {  // 1
-                            layout: HorizontalLayout {
+                    }
+                } //QWidget
+                IntEditor {
+                    backendValue: backendValues.highlightMoveDuration
+                    caption: qsTr("Move Duration")
+                    toolTip: qsTr("This property holds the move animation duration of the highlight delegate.")
+                    baseStateFlag: isBaseState;
+                    step: 1;
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                }
+                IntEditor {
+                    backendValue: backendValues.preferredHighlightBegin
+                    caption: qsTr("Preferred Begin")
+                    toolTip: qsTr("Preferred Highlight Begin - must be smaller than Preferred Highlight End")
+                    baseStateFlag: isBaseState;
+                    step: 1;
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                }
+                IntEditor {
+                    backendValue: backendValues.preferredHighlightEnd
+                    caption: qsTr("Preferred End")
+                    toolTip: qsTr("Preferred Highlight End - must be larger than Preferred Highlight End")
+                    baseStateFlag: isBaseState;
+                    step: 1;
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                }
+                QWidget {  // 1
+                    layout: HorizontalLayout {
 
-                                Label {
-                                    text: qsTr("Follows Current")
-                                }
-                                CheckBox {
-                                    backendValue: backendValues.highlightFollowsCurrentItem
-                                    toolTip: qsTr("This property sets whether the highlight is managed by the view.")
-                                    baseStateFlag: isBaseState;
-                                    checkable: True
-                                }
-                            }
+                        Label {
+                            text: qsTr("Follows Current")
+                        }
+                        CheckBox {
+                            backendValue: backendValues.highlightFollowsCurrentItem
+                            toolTip: qsTr("This property sets whether the highlight is managed by the view.")
+                            baseStateFlag: isBaseState;
+                            checkable: True
                         }
                     }
                 }
             }
+        }
+        QScrollArea {
         }
     }
 }
