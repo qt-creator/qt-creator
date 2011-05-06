@@ -16,7 +16,8 @@ GroupBox {
                 }
                 CheckBox {
                     id: visibleCheckBox;
-                    text: qsTr("Is visible")
+                    text: qsTr("visible")
+                    toolTip: qsTr("isVisible")
                     backendValue: backendValues.visible;
                     baseStateFlag: isBaseState;
                     checkable: true;
@@ -32,6 +33,7 @@ GroupBox {
         }
         QWidget {
             layout: HorizontalLayout {
+                spacing: 4
                 Label {                    
                     text: ""
                 }
