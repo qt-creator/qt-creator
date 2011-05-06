@@ -9,8 +9,11 @@
 
 for i in $@ ; do
     if test -f "$i" && test -s "$i" ; then
-        if head -n 15 "$i" | grep Copyright > /dev/null 2>&1 ; then
-            if head -n 15 "$i" | grep "No Commercial Usage" > /dev/null 2>&1 ; then
+        if head -n 35 "$1" | grep "qt-info@nokia.com" > /dev/null 2>&1 ; then
+             echo "$i: OLD EMAIL IN USE!"
+        elif head -n 35 "$i" | grep Copyright > /dev/null 2>&1 ; then
+            if head -n 35 "$i" | grep "GNU Lesser General Public License" > /dev/null 2>&1 &&
+               head -n 35 "$i" | grep "Other Usage" > /dev/null 2>&1 ; then
                 echo "$i: Copyright ok"
             else
                 echo "$i: WRONG COPYRIGHT"
