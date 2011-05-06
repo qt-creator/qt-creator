@@ -16,7 +16,8 @@ QWidget {
             layout: VerticalLayout {
                 IntEditor {
                     backendValue: backendValues.cacheBuffer
-                    caption: qsTr("Cache Buffer")
+                    caption: qsTr("Cache")
+                    toolTip: qsTr("Cache Buffer")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -65,24 +66,24 @@ QWidget {
                     minimumValue: 0;
                     maximumValue: 1000;
                 }
-//                Qt namespace enums not supported by the rewriter
-//                QWidget {
-//                    layout: HorizontalLayout {
-//                        Label {
-//                            text: qsTr("Layout Direction")
-//                        }
+                //                Qt namespace enums not supported by the rewriter
+                //                QWidget {
+                //                    layout: HorizontalLayout {
+                //                        Label {
+                //                            text: qsTr("Layout Direction")
+                //                        }
 
-//                        ComboBox {
-//                            baseStateFlag: isBaseState
-//                            items : { ["LeftToRight", "RightToLeft"] }
-//                            currentText: backendValues.layoutDirection.value;
-//                            onItemsChanged: {
-//                                currentText =  backendValues.layoutDirection.value;
-//                            }
-//                            backendValue: backendValues.layoutDirection
-//                        }
-//                    }
-//                } //QWidget
+                //                        ComboBox {
+                //                            baseStateFlag: isBaseState
+                //                            items : { ["LeftToRight", "RightToLeft"] }
+                //                            currentText: backendValues.layoutDirection.value;
+                //                            onItemsChanged: {
+                //                                currentText =  backendValues.layoutDirection.value;
+                //                            }
+                //                            backendValue: backendValues.layoutDirection
+                //                        }
+                //                    }
+                //                } //QWidget
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
@@ -101,80 +102,83 @@ QWidget {
                         }
                     }
                 } //QWidget
-                GroupBox {
-                    finished: finishedNotify;
-                    caption: qsTr("Grid View Highlight")
-                    layout: VerticalLayout {
-                        QWidget {
-                            layout: HorizontalLayout {
-                                Label {
-                                    text: qsTr("Righlight Range")
-                                }
+            }
+        }
+        GroupBox {
+            finished: finishedNotify;
+            caption: qsTr("Grid View Highlight")
+            layout: VerticalLayout {
+                QWidget {
+                    layout: HorizontalLayout {
+                        Label {
+                            text: qsTr("Range")
+                            toolTip: qsTr("Highlight Range")
+                        }
 
-                                ComboBox {
-                                    baseStateFlag: isBaseState
-                                    items : { ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"] }
-                                    currentText: backendValues.highlightRangeMode.value;
-                                    onItemsChanged: {
-                                        currentText =  backendValues.highlightRangeMode.value;
-                                    }
-                                    backendValue: backendValues.highlightRangeMode
-                                }
+                        ComboBox {
+                            baseStateFlag: isBaseState
+                            items : { ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"] }
+                            currentText: backendValues.highlightRangeMode.value;
+                            onItemsChanged: {
+                                currentText =  backendValues.highlightRangeMode.value;
                             }
-                        } //QWidget
-                        IntEditor {
-                            backendValue: backendValues.highlightMoveDuration
-                            caption: qsTr("Move Duration")
-                            toolTip: qsTr("This property holds the move animation duration of the highlight delegate.")
-                            baseStateFlag: isBaseState;
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 1000;
+                            backendValue: backendValues.highlightRangeMode
                         }
-                        IntEditor {
-                            backendValue: backendValues.highlightMoveSpeed
-                            caption: qsTr("Move Speed")
-                            toolTip: qsTr("This property holds the move animation speed of the highlight delegate.")
-                            baseStateFlag: isBaseState;
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 1000;
-                        }
-                        IntEditor {
-                            backendValue: backendValues.preferredHighlightBegin
-                            caption: qsTr("Preferred Begin")
-                            toolTip: qsTr("Preferred Highlight Begin - must be smaller than Preferred Highlight End")
-                            baseStateFlag: isBaseState;
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 1000;
-                        }
-                        IntEditor {
-                            backendValue: backendValues.preferredHighlightEnd
-                            caption: qsTr("Preferred End")
-                            toolTip: qsTr("Preferred Highlight End - must be larger than Preferred Highlight End")
-                            baseStateFlag: isBaseState;
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 1000;
-                        }
-                        QWidget {  // 1
-                            layout: HorizontalLayout {
+                    }
+                } //QWidget
+                IntEditor {
+                    backendValue: backendValues.highlightMoveDuration
+                    caption: qsTr("Move Duration")
+                    toolTip: qsTr("This property holds the move animation duration of the highlight delegate.")
+                    baseStateFlag: isBaseState;
+                    step: 1;
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                }
+                IntEditor {
+                    backendValue: backendValues.highlightMoveSpeed
+                    caption: qsTr("Move Speed")
+                    toolTip: qsTr("This property holds the move animation speed of the highlight delegate.")
+                    baseStateFlag: isBaseState;
+                    step: 1;
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                }
+                IntEditor {
+                    backendValue: backendValues.preferredHighlightBegin
+                    caption: qsTr("Preferred Begin")
+                    toolTip: qsTr("Preferred Highlight Begin - must be smaller than Preferred Highlight End")
+                    baseStateFlag: isBaseState;
+                    step: 1;
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                }
+                IntEditor {
+                    backendValue: backendValues.preferredHighlightEnd
+                    caption: qsTr("Preferred End")
+                    toolTip: qsTr("Preferred Highlight End - must be larger than Preferred Highlight End")
+                    baseStateFlag: isBaseState;
+                    step: 1;
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                }
+                QWidget {  // 1
+                    layout: HorizontalLayout {
 
-                                Label {
-                                    text: qsTr("Follows Current")
-                                }
-                                CheckBox {
-                                    backendValue: backendValues.highlightFollowsCurrentItem
-                                    toolTip: qsTr("This property sets whether the highlight is managed by the view.")
-                                    baseStateFlag: isBaseState;
-                                    checkable: True
-                                }
-                            }
+                        Label {
+                            text: qsTr("Follows Current")
+                        }
+                        CheckBox {
+                            backendValue: backendValues.highlightFollowsCurrentItem
+                            toolTip: qsTr("This property sets whether the highlight is managed by the view.")
+                            baseStateFlag: isBaseState;
+                            checkable: True
                         }
                     }
                 }
             }
+        }
+        QScrollArea {
         }
     }
 }
