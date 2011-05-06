@@ -552,8 +552,8 @@ private:
     Snapshot m_snapshot;
     Document::Ptr m_doc;
     Interpreter::Context *m_context;
-    Link m_link;
     QList<DiagnosticMessage> m_diagnosticLinkMessages;
+    Link m_link;
     LookupContext::Ptr m_lookupContext;
     ScopeBuilder m_scopeBuilder;
 };
