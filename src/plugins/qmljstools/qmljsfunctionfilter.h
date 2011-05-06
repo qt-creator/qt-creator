@@ -47,7 +47,7 @@ public:
     explicit FunctionFilter(LocatorData *data, QObject *parent = 0);
     ~FunctionFilter();
 
-    QString displayName() const { return tr("Functions"); }
+    QString displayName() const { return tr("Methods and functions"); }
     QString id() const { return QLatin1String("Functions"); }
     Priority priority() const { return Medium; }
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);

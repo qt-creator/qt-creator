@@ -69,20 +69,28 @@ ILocatorFilter::Priority LocatorFiltersFilter::priority() const
 QList<FilterEntry> LocatorFiltersFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
 {
     QList<FilterEntry> entries;
-    if (entry.isEmpty()) {
-        foreach (ILocatorFilter *filter, m_plugin->filters()) {
-            if (future.isCanceled())
-                break;
-            if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
-                FilterEntry filterEntry(this,
-                                  filter->shortcutString(),
-                                  QVariant::fromValue(filter),
-                                  m_icon);
-                filterEntry.extraInfo = filter->displayName();
-                entries.append(filterEntry);
-            }
+    if (!entry.isEmpty())
+        return entries;
+
+    QMap<QString, ILocatorFilter*> uniqueFilters;
+    foreach (ILocatorFilter *filter, m_plugin->filters()) {
+        const QString filterId = filter->shortcutString() + QLatin1Char(',') + filter->displayName();
+        uniqueFilters.insert(filterId, filter);
+    }
+
+    foreach (ILocatorFilter *filter, uniqueFilters) {
+        if (future.isCanceled())
+            break;
+        if (!filter->shortcutString().isEmpty() && !filter->isHidden()) {
+            FilterEntry filterEntry(this,
+                                    filter->shortcutString(),
+                                    QVariant::fromValue(filter),
+                                    m_icon);
+            filterEntry.extraInfo = filter->displayName();
+            entries.append(filterEntry);
         }
     }
+
     return entries;
 }
 
