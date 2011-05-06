@@ -277,7 +277,9 @@ static bool isList(const QDeclarativeProperty &property)
 
 static bool isObject(const QDeclarativeProperty &property)
 {
-    return property.propertyTypeCategory() == QDeclarativeProperty::Object;
+    return (property.propertyTypeCategory() == QDeclarativeProperty::Object) ||
+            //QVariant can also store QObjects. Lets trust our model.
+           (QLatin1String(property.propertyTypeName()) == QLatin1String("QVariant"));
 }
 
 static QVariant objectToVariant(QObject *object)
