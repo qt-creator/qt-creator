@@ -92,7 +92,7 @@ int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
 
     if (call == QMetaObject::WriteProperty && !property(id).hasNotifySignal())
     {
-        oldValue = property(id).read(m_nodeInstance->object());
+        oldValue = property(id).read(object());
     }
 
     ObjectNodeInstance::Pointer objectNodeInstance = m_nodeInstance.toStrongRef();
@@ -119,7 +119,7 @@ int NodeInstanceMetaObject::metaCall(QMetaObject::Call call, int id, void **a)
     if (metaCallReturnValue >= 0
             && call == QMetaObject::WriteProperty
             && !property(id).hasNotifySignal()
-            && oldValue != property(id).read(m_nodeInstance->object()))
+            && oldValue != property(id).read(object()))
         notifyPropertyChange(id);
 
     return metaCallReturnValue;
