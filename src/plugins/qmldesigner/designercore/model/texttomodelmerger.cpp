@@ -264,7 +264,7 @@ static bool isComponentType(const QString &type)
     return  type == QLatin1String("Component") || type == QLatin1String("Qt.Component") || type == QLatin1String("QtQuick.Component");
 }
 
-static bool isModelType(const QString &type)
+static bool isCustomParserType(const QString &type)
 {
     return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel" ||
            type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel" ||
@@ -762,8 +762,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     if (isComponentType(typeNameFixedForImplicitComponents))
         setupComponent(modelNode);
 
-    if (isModelType(typeName))
-        setupModel(modelNode);
+    if (isCustomParserType(typeName))
+        setupCustomParserNode(modelNode);
 
     if (modelNode.parentProperty().isValid() && modelNode.type() != typeNameFixedForImplicitComponents //If there is no valid parentProperty 
                                                                                                        //the node has just been created. The type is correct then.
@@ -1102,9 +1102,18 @@ ModelNode TextToModelMerger::createModelNode(const QString &typeName,
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
+    QString customParserSource;
+
+    if (isCustomParserType(typeName))
+        customParserSource = textAt(context->doc(),
+                                    astNode->firstSourceLocation(),
+                                    astNode->lastSourceLocation());
+
     ModelNode newNode = m_rewriterView->createModelNode(typeName,
                                                         majorVersion,
-                                                        minorVersion);
+                                                        minorVersion,
+                                                        PropertyListType(),
+                                                        customParserSource);
     syncNode(newNode, astNode, context, differenceHandler);
     return newNode;
 }
@@ -1317,7 +1326,7 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
 
     const bool propertyTakesComponent = propertyIsComponentType(newNodeProperty);
 
-     const ModelNode &newNode = m_merger->createModelNode(propertyTakesComponent ? QLatin1String("QtQuick.Component") : typeName,
+    const ModelNode &newNode = m_merger->createModelNode(propertyTakesComponent ? QLatin1String("QtQuick.Component") : typeName,
                                                           majorVersion,
                                                           minorVersion,
                                                           astNode,
@@ -1469,20 +1478,16 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
     node.setAuxiliaryData("__component_data", result);
 }
 
-void TextToModelMerger::setupModel(const ModelNode &node)
+void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
 {
-    Q_ASSERT(isModelType(node.type()));
+    Q_ASSERT(isCustomParserType(node.type()));
 
     QString modelText = m_rewriterView->extractText(QList<ModelNode>() << node).value(node);
 
     if (modelText.isEmpty())
         return;
 
-    if (node.hasAuxiliaryData("__model_data")
-            && node.auxiliaryData("__model_data").toString() == modelText)
-        return;
-
-    node.setAuxiliaryData("__model_data", modelText);
+    ModelNode(node).setCustomParserSource(modelText);
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,

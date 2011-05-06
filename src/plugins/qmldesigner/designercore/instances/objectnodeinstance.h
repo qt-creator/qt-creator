@@ -77,7 +77,7 @@ public:
     //void setModelNode(const ModelNode &node);
 
     static Pointer create(QObject *objectToBeWrapped);
-    static QObject* createObject(const QString &typeName, int majorNumber, int minorNumber, const QString &componentPath, QDeclarativeContext *context);
+    static QObject* createObject(const QString &typeName, int majorNumber, int minorNumber, const QString &componentPath, const QString &customParserSource, NodeInstanceServer* nodeInstanceServer, QDeclarativeContext *context);
 
     void setInstanceId(qint32 id);
     qint32 instanceId() const;

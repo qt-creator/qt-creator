@@ -90,6 +90,7 @@ public:
     void changeState(const ChangeStateCommand &command);
     void addImport(const AddImportCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
+    void changeCustomParserSource(ChangeCustomParserSourceCommand &command);
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;

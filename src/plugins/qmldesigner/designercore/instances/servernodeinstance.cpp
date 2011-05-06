@@ -196,7 +196,9 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
 
     QDeclarativeContext *context = nodeInstanceServer->context();
 
-    QObject *object = Internal::ObjectNodeInstance::createObject(instanceContainer.type(), instanceContainer.majorNumber(), instanceContainer.minorNumber(), instanceContainer.componentPath(), context);
+    QObject *object = Internal::ObjectNodeInstance::createObject(instanceContainer.type(), instanceContainer.majorNumber(),
+                                                                 instanceContainer.minorNumber(), instanceContainer.componentPath(),
+                                                                 instanceContainer.customParserSource(), nodeInstanceServer, context);
 
     ServerNodeInstance instance(createInstance(object));
 

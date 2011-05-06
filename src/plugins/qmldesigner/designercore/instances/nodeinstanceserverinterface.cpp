@@ -50,6 +50,7 @@
 #include "changestatecommand.h"
 #include "completecomponentcommand.h"
 #include "addimportcontainer.h"
+#include "changecustomparsersourcecommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -165,6 +166,10 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<SynchronizeCommand>("SynchronizeCommand");
     qRegisterMetaTypeStreamOperators<SynchronizeCommand>("SynchronizeCommand");
+
+    qRegisterMetaType<ChangeCustomParserSourceCommand>("ChangeCustomParserSourceCommand");
+    qRegisterMetaTypeStreamOperators<ChangeCustomParserSourceCommand>("ChangeCustomParserSourceCommand");
+
 }
 
 }

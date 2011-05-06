@@ -51,6 +51,7 @@
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
+#include <rewriterview.h>
 
 namespace QmlDesigner {
 using namespace QmlDesigner::Internal;
@@ -933,6 +934,30 @@ qint32 ModelNode::internalId() const
         return -1;
 
     return m_internalNode->internalId();
+}
+
+void ModelNode::setCustomParserSource(const QString &newCustomParserSource)
+{
+    Internal::WriteLocker locker(m_model.data());
+
+    if (!isValid()) {
+        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    }
+
+    if (internalNode()->customParserSource() == newCustomParserSource)
+        return;
+
+    m_model.data()->m_d->setCustomParserSource(internalNode(), newCustomParserSource);
+}
+
+QString ModelNode::customParserSource() const
+{
+    if (!isValid()) {
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    }
+
+    return internalNode()->customParserSource();
 }
 
 }

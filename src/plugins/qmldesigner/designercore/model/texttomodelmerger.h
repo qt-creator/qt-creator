@@ -122,7 +122,7 @@ public:
                                       DifferenceHandler &differenceHandler);
 
     void setupComponent(const ModelNode &node);
-    void setupModel(const ModelNode &node);
+    void setupCustomParserNode(const ModelNode &node);
 
 private:
     static QString textAt(const QmlJS::Document::Ptr &doc,

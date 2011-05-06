@@ -107,6 +107,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/imagecontainer.cpp \
     $$PWD/instances/completecomponentcommand.cpp \
     $$PWD/instances/componentcompletedcommand.cpp \
+    $$PWD/instances/changecustomparsersourcecommand.cpp \
     $$PWD/instances/addimportcontainer.cpp
 
 HEADERS += $$PWD/include/corelib_global.h \
@@ -215,6 +216,7 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/instances/imagecontainer.h \
     $$PWD/instances/completecomponentcommand.h \
     $$PWD/instances/componentcompletedcommand.h \
+    $$PWD/instances/changecustomparsersourcecommand.h \
     $$PWD/instances/addimportcontainer.h
 contains(CONFIG, plugin) {
   # If core.pri has been included in the qmldesigner plugin

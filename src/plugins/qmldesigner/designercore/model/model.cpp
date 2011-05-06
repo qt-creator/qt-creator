@@ -94,7 +94,7 @@ ModelPrivate::ModelPrivate(Model *model) :
         m_writeLock(false),
         m_internalIdCounter(1)
 {
-    m_rootInternalNode = createNode("QtQuick/Item", 1, 0, PropertyListType(), true);
+    m_rootInternalNode = createNode("QtQuick/Item", 1, 0, PropertyListType(), QString(), true);
 }
 
 ModelPrivate::~ModelPrivate()
@@ -202,6 +202,7 @@ InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
                                                int majorVersion,
                                                int minorVersion,
                                                const QList<QPair<QString, QVariant> > &propertyList,
+                                               const QString &customParserSource,
                                                bool isRootNode)
 {
     if (typeString.isEmpty())
@@ -223,6 +224,9 @@ InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
 
     m_nodeSet.insert(newInternalNodePointer);
     m_internalIdNodeHash.insert(newInternalNodePointer->internalId(), newInternalNodePointer);
+
+    if (!customParserSource.isNull())
+        newInternalNodePointer->setCustomParserSource(customParserSource);
 
     notifyNodeCreated(newInternalNodePointer);
 
@@ -348,6 +352,38 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &interna
     if (nodeInstanceView()) {
         ModelNode node(internalNode, model(), nodeInstanceView());
         nodeInstanceView()->auxiliaryDataChanged(node, name, data);
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
+void ModelPrivate::notifyCustomParserSourceChanged(const InternalNodePointer &internalNode, const QString &newCustomParserSource)
+{
+    bool resetModel = false;
+    QString description;
+
+    try {
+        if (rewriterView()) {
+            ModelNode node(internalNode, model(), rewriterView());
+            rewriterView()->customParserSourceChanged(node, newCustomParserSource);
+        }
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        ModelNode node(internalNode, model(), view.data());
+        view->customParserSourceChanged(node, newCustomParserSource);
+
+    }
+
+    if (nodeInstanceView()) {
+        ModelNode node(internalNode, model(), nodeInstanceView());
+        nodeInstanceView()->customParserSourceChanged(node, newCustomParserSource);
     }
 
     if (resetModel) {
@@ -1454,6 +1490,12 @@ void ModelPrivate::setScriptFunctions(const InternalNode::Pointer &internalNode,
     internalNode->setScriptFunctions(scriptFunctionList);
 
     notifyScriptFunctionsChanged(internalNode, scriptFunctionList);
+}
+
+void ModelPrivate::setCustomParserSource(const InternalNodePointer &internalNode, const QString &customParserSource)
+{
+    internalNode->setCustomParserSource(customParserSource);
+    notifyCustomParserSourceChanged(internalNode, customParserSource);
 }
 
 void ModelPrivate::changeNodeOrder(const InternalNode::Pointer &internalParentNode, const QString &listPropertyName, int from, int to)

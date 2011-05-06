@@ -59,6 +59,7 @@ class RemovePropertiesCommand;
 class AddImportCommand;
 class CompleteComponentCommand;
 class ChangeStateCommand;
+class ChangeCustomParserSourceCommand;
 
 class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterface
 {
@@ -72,7 +73,7 @@ public:
     void pixmapChanged(const PixmapChangedCommand &command);
     void childrenChanged(const ChildrenChangedCommand &command);
     void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
-    void componentCompleted(const ComponentCompletedCommand &command);
+    void componentCompleted(const ComponentCompletedCommand &command);    
 
     void flush();
     void synchronizeWithClientProcess();
@@ -96,6 +97,7 @@ protected:
     void changeState(const ChangeStateCommand &command);
     void addImport(const AddImportCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
+    void changeCustomParserSource(ChangeCustomParserSourceCommand &command);
 
 private slots:
     void readDataStream();

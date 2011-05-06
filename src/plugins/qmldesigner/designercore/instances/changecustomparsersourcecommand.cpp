@@ -30,44 +30,43 @@
 **
 **************************************************************************/
 
-#ifndef INSTANCECONTAINER_H
-#define INSTANCECONTAINER_H
-
-#include <qmetatype.h>
-#include <QString>
+#include "changecustomparsersourcecommand.h"
 
 namespace QmlDesigner {
 
-class InstanceContainer;
-
-QDataStream &operator<<(QDataStream &out, const InstanceContainer &container);
-QDataStream &operator>>(QDataStream &in, InstanceContainer &container);
-
-class InstanceContainer
+ChangeCustomParserSourceCommand::ChangeCustomParserSourceCommand()
 {
-    friend QDataStream &operator>>(QDataStream &in, InstanceContainer &container);
+}
 
-public:
-    InstanceContainer();
-    InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &customParserSource);
+ChangeCustomParserSourceCommand::ChangeCustomParserSourceCommand(qint32 newInstanceId, const QString &newCustomParserSource)
+    : m_instanceId(newInstanceId), m_customParserSource(newCustomParserSource)
+{
+}
 
-    qint32 instanceId() const;
-    QString type() const;
-    int majorNumber() const;
-    int minorNumber() const;
-    QString componentPath() const;
-    QString customParserSource() const;
+qint32 ChangeCustomParserSourceCommand::instanceId() const
+{
+    return m_instanceId;
+}
 
-private:
-    qint32 m_instanceId;
-    QString m_type;
-    int m_majorNumber;
-    int m_minorNumber;
-    QString m_componentPath;
-    QString m_customParserSource;
-};
+QString ChangeCustomParserSourceCommand::customParserSource() const
+{
+    return m_customParserSource;
+}
+
+QDataStream &operator<<(QDataStream &out, const ChangeCustomParserSourceCommand &command)
+{
+    out << command.instanceId();
+    out << command.customParserSource();
+
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, ChangeCustomParserSourceCommand &command)
+{
+    in >> command.m_instanceId;
+    in >> command.m_customParserSource;
+
+    return in;
+}
 
 } // namespace QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::InstanceContainer)
-#endif // INSTANCECONTAINER_H

@@ -999,6 +999,11 @@ QString NodeMetaInfo::componentFileName() const
     return NodeMetaInfo::m_privateData->componentFileName();
 }
 
+bool NodeMetaInfo::hasCustomParser() const
+{
+    return false;
+}
+
 bool NodeMetaInfo::availableInVersion(int majorVersion, int minorVersion) const
 {
     if (majorVersion == -1 && minorVersion == -1)

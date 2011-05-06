@@ -66,6 +66,7 @@
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
 #include "changeidscommand.h"
+#include "changecustomparsersourcecommand.h"
 #include "removeinstancescommand.h"
 #include "removepropertiescommand.h"
 #include "valueschangedcommand.h"
@@ -515,6 +516,15 @@ void NodeInstanceView::customNotification(const AbstractView *view, const QStrin
         restartProcess();
 }
 
+void NodeInstanceView::customParserSourceChanged(const ModelNode &node, const QString & newCustomParserSource)
+{
+     if (hasInstanceForNode(node)) {
+         NodeInstance instance = instanceForNode(node);
+         ChangeCustomParserSourceCommand changeCustomParserSourceCommand(instance.instanceId(), newCustomParserSource);
+         nodeInstanceServer()->changeCustomParserSource(changeCustomParserSourceCommand);
+     }
+}
+
 void NodeInstanceView::rewriterBeginTransaction()
 {
 
@@ -738,7 +748,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     nodeList = filterNodesForSkipItems(nodeList);
 
     QList<VariantProperty> variantPropertyList;
-    QList<BindingProperty> bindingPropertyList;
+    QList<BindingProperty> bindingPropertyList;    
 
     foreach (const ModelNode &node, nodeList) {
         variantPropertyList.append(node.variantProperties());
@@ -747,7 +757,9 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 
     QVector<InstanceContainer> instanceContainerList;
     foreach(const NodeInstance &instance, instanceList) {
-        InstanceContainer container(instance.instanceId(), instance.modelNode().type(), instance.modelNode().majorVersion(), instance.modelNode().minorVersion(), instance.modelNode().metaInfo().componentFileName());
+        InstanceContainer container(instance.instanceId(), instance.modelNode().type(), instance.modelNode().majorVersion(),
+                                    instance.modelNode().minorVersion(), instance.modelNode().metaInfo().componentFileName(),
+                                    instance.modelNode().customParserSource());
         instanceContainerList.append(container);
     }
 
@@ -858,7 +870,8 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
 {
     QVector<InstanceContainer> containerList;
     foreach(const NodeInstance &instance, instanceList) {
-        InstanceContainer container(instance.instanceId(), instance.modelNode().type(), instance.modelNode().majorVersion(), instance.modelNode().minorVersion(), instance.modelNode().metaInfo().componentFileName());
+        InstanceContainer container(instance.instanceId(), instance.modelNode().type(), instance.modelNode().majorVersion(), instance.modelNode().minorVersion(),
+                                    instance.modelNode().metaInfo().componentFileName(), instance.modelNode().customParserSource());
         containerList.append(container);
     }
 

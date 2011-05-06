@@ -76,6 +76,7 @@
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
+#include "changecustomparsersourcecommand.h"
 
 #include "dummycontextobject.h"
 
@@ -341,6 +342,16 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
     nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
+
+    startRenderTimer();
+}
+
+void NodeInstanceServer::changeCustomParserSource(ChangeCustomParserSourceCommand &command)
+{
+    if (hasInstanceForId(command.instanceId())) {
+        ServerNodeInstance instance = instanceForId(command.instanceId());
+        ;
+    }
 
     startRenderTimer();
 }

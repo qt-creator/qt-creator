@@ -95,6 +95,8 @@ public:
     QString componentSource() const;
     QString componentFileName() const;
 
+    bool hasCustomParser() const;
+
     bool availableInVersion(int majorVersion, int minorVersion) const;
     bool isSubclassOf(const QString& type, int majorVersion, int minorVersio) const;
 

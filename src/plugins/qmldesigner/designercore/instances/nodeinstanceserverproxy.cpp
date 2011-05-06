@@ -55,6 +55,7 @@
 #include "changestatecommand.h"
 #include "addimportcommand.h"
 #include "completecomponentcommand.h"
+#include "changecustomparsersourcecommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -451,4 +452,10 @@ void NodeInstanceServerProxy::completeComponent(const CompleteComponentCommand &
 {
     writeCommand(QVariant::fromValue(command));
 }
+
+void NodeInstanceServerProxy::changeCustomParserSource(ChangeCustomParserSourceCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
 } // namespace QmlDesigner

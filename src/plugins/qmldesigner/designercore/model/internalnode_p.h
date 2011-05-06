@@ -121,6 +121,9 @@ public:
 
     qint32 internalId() const;
 
+    void setCustomParserSource(const QString&);
+    QString customParserSource() const;
+
 protected:
     Pointer internalPointer() const;
     void setInternalWeakPointer(const Pointer &pointer);
@@ -144,6 +147,8 @@ private:
 
     QHash<QString, InternalPropertyPointer> m_namePropertyHash;
     QStringList m_scriptFunctionList;
+
+    QString m_customParserSource;
 };
 
 uint qHash(const InternalNodePointer& node);

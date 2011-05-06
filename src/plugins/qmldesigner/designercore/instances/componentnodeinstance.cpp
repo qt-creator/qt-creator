@@ -73,17 +73,19 @@ bool ComponentNodeInstance::hasContent() const
 void ComponentNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
     if (name == "__component_data") {
-        QByteArray data(value.toByteArray());
+
         QByteArray importArray;
         foreach(const QString &import, nodeInstanceServer()->imports()) {
             importArray.append(import.toUtf8());
         }
 
+        QByteArray data(value.toByteArray());
+
         data.prepend(importArray);
+        data.append("\n");
 
-        component()->setData(data, nodeInstanceServer()->fileUrl());
+        component()->setData(data, QUrl(nodeInstanceServer()->fileUrl().toString() + "_"+ id()));
         setId(id());
-
     }
 
     if (component()->isError()) {

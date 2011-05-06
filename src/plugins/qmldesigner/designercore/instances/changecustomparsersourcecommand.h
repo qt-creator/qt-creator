@@ -30,44 +30,32 @@
 **
 **************************************************************************/
 
-#ifndef INSTANCECONTAINER_H
-#define INSTANCECONTAINER_H
+#ifndef CHANGECUSTOMPARSERSOURCECOMMAND_H
+#define CHANGECUSTOMPARSERSOURCECOMMAND_H
 
-#include <qmetatype.h>
-#include <QString>
+#include <QMetaType>
 
 namespace QmlDesigner {
 
-class InstanceContainer;
-
-QDataStream &operator<<(QDataStream &out, const InstanceContainer &container);
-QDataStream &operator>>(QDataStream &in, InstanceContainer &container);
-
-class InstanceContainer
+class ChangeCustomParserSourceCommand
 {
-    friend QDataStream &operator>>(QDataStream &in, InstanceContainer &container);
-
+    friend QDataStream &operator>>(QDataStream &in, ChangeCustomParserSourceCommand &command);
 public:
-    InstanceContainer();
-    InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &customParserSource);
-
+    ChangeCustomParserSourceCommand();
+    ChangeCustomParserSourceCommand(qint32 instanceId, const QString &customParserSource);
     qint32 instanceId() const;
-    QString type() const;
-    int majorNumber() const;
-    int minorNumber() const;
-    QString componentPath() const;
     QString customParserSource() const;
 
 private:
     qint32 m_instanceId;
-    QString m_type;
-    int m_majorNumber;
-    int m_minorNumber;
-    QString m_componentPath;
     QString m_customParserSource;
 };
 
+QDataStream &operator<<(QDataStream &out, const ChangeCustomParserSourceCommand &command);
+QDataStream &operator>>(QDataStream &in, ChangeCustomParserSourceCommand &command);
+
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::InstanceContainer)
-#endif // INSTANCECONTAINER_H
+Q_DECLARE_METATYPE(QmlDesigner::ChangeCustomParserSourceCommand)
+
+#endif // CHANGECUSTOMPARSERSOURCECOMMAND_H

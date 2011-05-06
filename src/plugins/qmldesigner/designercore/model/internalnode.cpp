@@ -342,5 +342,15 @@ qint32 InternalNode::internalId() const
     return m_internalId;
 }
 
+void InternalNode::setCustomParserSource(const QString &customParserSource)
+{
+    m_customParserSource = customParserSource;
+}
+
+QString InternalNode::customParserSource() const
+{
+    return m_customParserSource;
+}
+
 }
 }

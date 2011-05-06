@@ -85,7 +85,8 @@ public:
     ModelNode createModelNode(const QString &typeString,
                          int majorVersion,
                          int minorVersion,
-                         const PropertyListType &propertyList = PropertyListType());
+                         const PropertyListType &propertyList = PropertyListType(),
+                         const QString &customParserSource = QString());
 
     const ModelNode rootModelNode() const;
     ModelNode rootModelNode();
@@ -140,6 +141,7 @@ public:
     virtual void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) = 0;
     virtual void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) = 0;
     virtual void instancesChildrenChanged(const QVector<ModelNode> &nodeList) = 0;
+    virtual void customParserSourceChanged(const ModelNode &modelNode, const QString &newCustomParserSource) = 0;
 
     virtual void rewriterBeginTransaction() = 0;
     virtual void rewriterEndTransaction() = 0;

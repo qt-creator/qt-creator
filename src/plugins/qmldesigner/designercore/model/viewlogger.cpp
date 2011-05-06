@@ -256,6 +256,12 @@ void ViewLogger::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
         m_output << time() << indent("node: ") << node << endl;
 }
 
+void ViewLogger::customParserSourceChanged(const ModelNode &node, const QString & /*newCustomParserSource*/)
+{
+    m_output << time() << indent("customParserSourceChanged:") << endl;
+    m_output << time() << indent("node: ") << node << endl;
+}
+
 void ViewLogger::rewriterBeginTransaction()
 {
     m_output << time() << indent("rewriterBeginTransaction:") << endl;

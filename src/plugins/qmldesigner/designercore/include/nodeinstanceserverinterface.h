@@ -54,6 +54,7 @@ class RemovePropertiesCommand;
 class ChangeStateCommand;
 class AddImportCommand;
 class CompleteComponentCommand;
+class ChangeCustomParserSourceCommand;
 
 class NodeInstanceServerInterface : public QObject
 {
@@ -79,6 +80,7 @@ public:
     virtual void changeState(const ChangeStateCommand &command) = 0;
     virtual void addImport(const AddImportCommand &command) = 0;
     virtual void completeComponent(const CompleteComponentCommand &command) = 0;
+    virtual void changeCustomParserSource(ChangeCustomParserSourceCommand &command) = 0;
 
     static void registerCommands();
 };

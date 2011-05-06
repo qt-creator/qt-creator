@@ -80,9 +80,10 @@ RewriterTransaction AbstractView::beginRewriterTransaction()
 ModelNode AbstractView::createModelNode(const QString &typeString,
                             int majorVersion,
                             int minorVersion,
-                            const QList<QPair<QString, QVariant> > &propertyList)
+                            const QList<QPair<QString, QVariant> > &propertyList,
+                            const QString &customParserSource)
 {
-    return ModelNode(model()->m_d->createNode(typeString, majorVersion, minorVersion, propertyList), model(), this);
+    return ModelNode(model()->m_d->createNode(typeString, majorVersion, minorVersion, propertyList, customParserSource), model(), this);
 }
 
 

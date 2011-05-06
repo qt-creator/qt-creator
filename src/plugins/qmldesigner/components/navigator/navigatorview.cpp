@@ -235,6 +235,11 @@ void NavigatorView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeLis
 
 }
 
+void NavigatorView::customParserSourceChanged(const ModelNode &, const QString & /*newCustomParserSource*/)
+{
+
+}
+
 void NavigatorView::rewriterBeginTransaction()
 {
 }

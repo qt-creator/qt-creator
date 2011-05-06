@@ -70,7 +70,7 @@ CORESHARED_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const 
 
 typedef QList<QPair<QString, QVariant> > PropertyListType;
 
-class CORESHARED_EXPORT ModelNode
+class CORESHARED_EXPORT  ModelNode
 {
     friend CORESHARED_EXPORT bool operator ==(const ModelNode &firstNode, const ModelNode &secondNode);
     friend CORESHARED_EXPORT bool operator !=(const ModelNode &firstNode, const ModelNode &secondNode);
@@ -169,6 +169,9 @@ public:
     bool hasAuxiliaryData(const QString &name) const;
 
     qint32 internalId() const;
+
+    void setCustomParserSource(const QString&);
+    QString customParserSource() const;
 
 private: // functions
     Internal::InternalNodePointer internalNode() const;

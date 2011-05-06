@@ -39,8 +39,9 @@ InstanceContainer::InstanceContainer()
 {
 }
 
-InstanceContainer::InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath)
-    : m_instanceId(instanceId), m_type(type), m_majorNumber(majorNumber), m_minorNumber(minorNumber), m_componentPath(componentPath)
+InstanceContainer::InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &customParserSource)
+    : m_instanceId(instanceId), m_type(type), m_majorNumber(majorNumber), m_minorNumber(minorNumber), m_componentPath(componentPath),
+      m_customParserSource(customParserSource)
 {
     m_type.replace(QLatin1Char('.'), QLatin1Char('/'));
 }
@@ -70,6 +71,11 @@ QString InstanceContainer::componentPath() const
     return m_componentPath;
 }
 
+QString InstanceContainer::customParserSource() const
+{
+    return m_customParserSource;
+}
+
 QDataStream &operator<<(QDataStream &out, const InstanceContainer &container)
 {
     out << container.instanceId();
@@ -77,6 +83,7 @@ QDataStream &operator<<(QDataStream &out, const InstanceContainer &container)
     out << container.majorNumber();
     out << container.minorNumber();
     out << container.componentPath();
+    out << container.customParserSource();
 
     return out;
 }
@@ -89,6 +96,7 @@ QDataStream &operator>>(QDataStream &in, InstanceContainer &container)
     in >> container.m_majorNumber;
     in >> container.m_minorNumber;
     in >> container.m_componentPath;
+    in >> container.m_customParserSource;
 
     return in;
 }

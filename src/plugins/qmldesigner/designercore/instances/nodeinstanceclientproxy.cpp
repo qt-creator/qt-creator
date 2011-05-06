@@ -67,6 +67,7 @@
 #include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
 #include "componentcompletedcommand.h"
+#include "changecustomparsersourcecommand.h"
 
 namespace QmlDesigner {
 
@@ -263,6 +264,11 @@ void NodeInstanceClientProxy::completeComponent(const CompleteComponentCommand &
     nodeInstanceServer()->completeComponent(command);
 }
 
+void NodeInstanceClientProxy::changeCustomParserSource(ChangeCustomParserSourceCommand &command)
+{
+    nodeInstanceServer()->changeCustomParserSource(command);
+}
+
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 {
     static const int createInstancesCommandType = QMetaType::type("CreateInstancesCommand");
@@ -279,6 +285,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int addImportCommandType = QMetaType::type("AddImportCommand");
     static const int completeComponentCommandType = QMetaType::type("CompleteComponentCommand");
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
+    static const int changeCustomParserSourceCommandType = QMetaType::type("ChangeCustomParserSourceCommand");
 
     if (command.userType() ==  createInstancesCommandType) {
         createInstances(command.value<CreateInstancesCommand>());
@@ -306,6 +313,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         addImport(command.value<AddImportCommand>());
     else if (command.userType() ==  completeComponentCommandType)
         completeComponent(command.value<CompleteComponentCommand>());
+    else if (command.userType() ==  changeCustomParserSourceCommandType)
+        changeCustomParserSource(command.value<ChangeCustomParserSourceCommand>());
     else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();

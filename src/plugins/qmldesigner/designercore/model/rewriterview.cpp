@@ -407,6 +407,11 @@ void RewriterView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList
 
 }
 
+void RewriterView::customParserSourceChanged(const ModelNode &, const QString & /*newCustomParserSource*/)
+{
+
+}
+
 void RewriterView::rewriterBeginTransaction()
 {
     transactionLevel++;

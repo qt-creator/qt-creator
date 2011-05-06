@@ -736,17 +736,46 @@ void tweakObjects(QObject *object)
 }
 
 
-QObject *createComponent(const QString &componentPath, QDeclarativeContext *context)
-{
+static QObject *createComponent(const QString &componentPath, QDeclarativeContext *context)
+{    
     QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(componentPath));
     QObject *object = component.beginCreate(context);
     tweakObjects(object);
     component.completeCreate();
 
+    if (component.isError()) {
+        qDebug() << componentPath;
+        foreach(const QDeclarativeError &error, component.errors())
+            qDebug() << error;
+    }
+
     return object;
 }
 
-QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QDeclarativeContext *context)
+static QObject *createCustomParserObject(const QString &customParserSource, QStringList imports, QDeclarativeContext *context)
+{
+    QDeclarativeComponent component(context->engine());
+
+    QByteArray importArray;
+    foreach(const QString &import, imports) {
+        importArray.append(import.toUtf8());
+    }
+
+    QByteArray data(customParserSource.toUtf8());
+
+    data.prepend(importArray);
+
+    component.setData(data, context->baseUrl().resolved(QUrl("createCustomParserObject.qml")));
+
+    QObject *object = component.beginCreate(context);
+    tweakObjects(object);
+    component.completeCreate();
+
+    return object;
+
+}
+
+static QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QDeclarativeContext *context)
 {
     QObject *object = 0;
     QDeclarativeType *type = QDeclarativeMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
@@ -770,11 +799,13 @@ QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumb
     return object;
 }
 
-QObject* ObjectNodeInstance::createObject(const QString &typeName, int majorNumber, int minorNumber, const QString &componentPath, QDeclarativeContext *context)
+QObject* ObjectNodeInstance::createObject(const QString &typeName, int majorNumber, int minorNumber, const QString &componentPath, const QString &customParserSource, NodeInstanceServer* nodeInstanceServer, QDeclarativeContext *context)
 {
     QObject *object = 0;
-    if (componentPath.isEmpty()) {
+    if (componentPath.isEmpty() && customParserSource.isEmpty()) {
         object = createPrimitive(typeName, majorNumber, minorNumber, context);
+    } else if (componentPath.isEmpty()) {
+        object = createCustomParserObject(customParserSource, nodeInstanceServer->imports(), context);
     } else {
         object = createComponent(componentPath, context);
     }

@@ -92,6 +92,10 @@ void DesignDocumentControllerView::instancesChildrenChanged(const QVector<ModelN
 
 }
 
+void DesignDocumentControllerView::customParserSourceChanged(const ModelNode &, const QString & /*newCustomParserSource*/)
+{
+
+}
 
 void DesignDocumentControllerView::rewriterBeginTransaction()
 {
