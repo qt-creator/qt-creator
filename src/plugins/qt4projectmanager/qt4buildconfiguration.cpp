@@ -749,7 +749,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
                                         version,
                                         (version->defaultBuildConfig() | QtVersion::DebugBuild),
                                         QString(), QString());
-    if (id != Constants::S60_EMULATOR_TARGET_ID) {
+    if (qt4Target->id() != Constants::S60_EMULATOR_TARGET_ID) {
         //: Release build configuration. We recommend not translating it.
         bc = qt4Target->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
                                                  version,
