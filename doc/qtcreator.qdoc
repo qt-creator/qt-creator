@@ -7299,11 +7299,6 @@
 
     \note Debugging QML and JavaScript is supported only in plain mode.
 
-    When you click the \gui {Start Debugging} button, the debugger is launched
-    in the appropriate operating mode (plain, terminal, or on-device), based on the
-    build and run settings for the active project. Select \gui Debug menu options
-    to launch the debugger in the other modes.
-
     \section2 Launching in Plain Mode
 
     To launch the debugger in the plain mode, click the \gui {Start Debugging}
