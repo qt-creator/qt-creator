@@ -784,6 +784,8 @@ void SplitterOrView::restoreState(const QByteArray &state)
         QByteArray id;
         QByteArray editorState;
         stream >> fileName >> id >> editorState;
+        if (!QFile::exists(fileName))
+            return;
         IEditor *e = em->openEditor(view(), fileName, id, Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::NoActivate);
 

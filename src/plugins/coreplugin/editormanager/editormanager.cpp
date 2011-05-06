@@ -1831,8 +1831,10 @@ bool EditorManager::restoreState(const QByteArray &state)
 
         if (!fileName.isEmpty() && !displayName.isEmpty()) {
             QFileInfo fi(fileName);
+            if (!fi.exists())
+                continue;
             QFileInfo rfi(autoSaveName(fileName));
-            if (fi.exists() && rfi.exists() && fi.lastModified() < rfi.lastModified()) {
+            if (rfi.exists() && fi.lastModified() < rfi.lastModified()) {
                 openEditor(fileName, QString::fromUtf8(id));
             } else {
                 m_d->m_editorModel->addRestoredEditor(fileName, displayName, QString::fromUtf8(id));
