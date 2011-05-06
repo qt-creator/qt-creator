@@ -657,11 +657,11 @@ protected:
     void paintEvent(QPaintEvent *event)
     {
         QFontMetrics fm(font());
-        if (fm.width(text()) > (contentsRect().width() - 6) && text().length() > 4) {
+        if (fm.width(text()) > (contentsRect().width() - 8) && text().length() > 4) {
             QPainter p(this);
-            QString elided_txt;
-            elided_txt = this->fontMetrics().elidedText(text(), Qt::ElideRight, rect().width() - 6, Qt::TextShowMnemonic);
-            p.drawText(rect().adjusted(12, 0, 0, 0), elided_txt);
+            QString elided_txt;            
+            elided_txt = fm.elidedText(text(), Qt::ElideRight, contentsRect().width() - 8, Qt::TextShowMnemonic);
+            p.drawText(contentsRect().adjusted(12, 0, 0, 0), Qt::TextSingleLine, elided_txt);
         }
         else
             QLabel::paintEvent(event);
