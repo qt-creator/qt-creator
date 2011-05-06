@@ -165,6 +165,15 @@ public:
     }
 };
 
+struct ToolDockWidgetData
+{
+    ToolDockWidgetData(Qt::DockWidgetArea a, QDockWidget *w, QDockWidget *t) :
+        area(a), widget(w), tabifyTo(t) {}
+
+    Qt::DockWidgetArea area;
+    QDockWidget *widget;
+    QDockWidget *tabifyTo;
+};
 } // namespace Internal
 } // namespace Analyzer
 
@@ -212,12 +221,11 @@ public:
     QStackedWidget *m_controlsWidget;
     ActionContainer *m_viewsMenu;
     Utils::StatusLabel *m_statusLabel;
-    typedef QPair<Qt::DockWidgetArea, QDockWidget *> ToolWidgetPair;
-    typedef QList<ToolWidgetPair> ToolWidgetPairList;
-    QMap<IAnalyzerTool *, ToolWidgetPairList> m_toolWidgets;
+    typedef QMap<IAnalyzerTool *, FancyMainWindowSettings> MainWindowSettingsMap;
+    QMap<IAnalyzerTool *, QList<ToolDockWidgetData> > m_toolWidgets;
     DockWidgetEventFilter *m_resizeEventFilter;
 
-    QMap<IAnalyzerTool *, FancyMainWindowSettings> m_defaultSettings;
+    MainWindowSettingsMap m_defaultSettings;
 
     // list of dock widgets to prevent memory leak
     typedef QWeakPointer<QDockWidget> DockPtr;
@@ -225,6 +233,7 @@ public:
 
     bool m_restartOnStop;
     bool m_initialized;
+    IAnalyzerTool *m_currentTool;
 };
 
 AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -245,7 +254,8 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     m_statusLabel(new Utils::StatusLabel),
     m_resizeEventFilter(new DockWidgetEventFilter(qq)),
     m_restartOnStop(false),
-    m_initialized(false)
+    m_initialized(false),
+    m_currentTool(0)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
     m_runControlFactory = new AnalyzerRunControlFactory();
@@ -640,37 +650,49 @@ void AnalyzerManager::selectTool(IAnalyzerTool *tool)
 void AnalyzerManager::toolSelected(int idx)
 {
     static bool selectingTool = false;
-    if (selectingTool)
-        return;
-    selectingTool = true;
 
     IAnalyzerTool *oldTool = currentTool();
+    IAnalyzerTool *newTool = d->m_tools.at(idx);
+
+    if (selectingTool || oldTool == newTool)
+        return;
+
+    selectingTool = true;
+
     if (oldTool != 0) {
         saveToolSettings(oldTool);
 
         ActionManager *am = ICore::instance()->actionManager();
 
-        foreach(const AnalyzerManagerPrivate::ToolWidgetPair &widget, d->m_toolWidgets.value(oldTool)) {
-            QAction *toggleViewAction = widget.second->toggleViewAction();
-            am->unregisterAction(toggleViewAction, QString("Analyzer." + widget.second->objectName()));
-            d->m_mainWindow->removeDockWidget(widget.second);
+        foreach (const ToolDockWidgetData &widget, d->m_toolWidgets.value(oldTool)) {
+            QAction *toggleViewAction = widget.widget->toggleViewAction();
+            am->unregisterAction(toggleViewAction, QString("Analyzer." + widget.widget->objectName()));
+            d->m_mainWindow->removeDockWidget(widget.widget);
             ///NOTE: QMainWindow (and FancyMainWindow) just look at @c findChildren<QDockWidget*>()
             ///if we don't do this, all kind of havoc might happen, including:
             ///- improper saveState/restoreState
             ///- improper list of qdockwidgets in popup menu
             ///- ...
-            widget.second->setParent(0);
+            widget.widget->setParent(0);
         }
     }
+
+    d->m_currentTool = newTool;
 
     d->m_toolGroup->actions().at(idx)->setChecked(true);
     d->m_toolBox->setCurrentIndex(idx);
     d->m_controlsWidget->setCurrentIndex(idx);
 
-    IAnalyzerTool *newTool = currentTool();
-    foreach (const AnalyzerManagerPrivate::ToolWidgetPair &widget, d->m_toolWidgets.value(newTool)) {
-        d->addDock(newTool, widget.first, widget.second);
+    const bool firstTime = !d->m_defaultSettings.contains(newTool);
+    foreach (const ToolDockWidgetData &widget, d->m_toolWidgets.value(newTool)) {
+        d->addDock(newTool, widget.area, widget.widget);
+        if (firstTime && widget.tabifyTo)
+            d->m_mainWindow->tabifyDockWidget(widget.tabifyTo, widget.widget);
     }
+
+    if (firstTime) // Save default settings first time
+        d->m_defaultSettings.insert(newTool, d->m_mainWindow->saveSettings());
+
     loadToolSettings(newTool);
     d->m_outputpane->setTool(newTool);
 
@@ -694,6 +716,7 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
     QAction *action = new QAction(tool->displayName(), d->m_toolGroup);
     action->setData(d->m_tools.count());
     action->setCheckable(true);
+    action->setChecked(false);
 
     ActionManager *am = Core::ICore::instance()->actionManager();
 
@@ -703,24 +726,26 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
 
     d->m_toolGroup->setVisible(d->m_toolGroup->actions().count() > 1);
     d->m_tools.append(tool);
-    d->m_toolBox->addItem(tool->displayName());
 
+    const bool blocked = d->m_toolBox->blockSignals(true); // Do not make current.
+    d->m_toolBox->addItem(tool->displayName());
+    d->m_toolBox->blockSignals(blocked);
+
+    // Populate output pane
+    d->m_outputpane->setTool(tool);
     // populate controls widget
     QWidget *controlWidget = tool->createControlWidget(); // might be 0
     d->m_controlsWidget->addWidget(controlWidget ? controlWidget : AnalyzerUtils::createDummyWidget());
 
     d->m_toolBox->setEnabled(d->m_toolBox->count() > 1);
-    if (currentTool() != tool)
-        selectTool(tool); // the first tool gets selected automatically due to signal emission from toolbox
 
     tool->initialize(plugin);
 
-    d->m_defaultSettings.insert(tool, d->m_mainWindow->saveSettings());
-    loadToolSettings(tool);
 }
 
 QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QString &title,
-                                               QWidget *widget, Qt::DockWidgetArea area)
+                                               QWidget *widget, Qt::DockWidgetArea area,
+                                               QDockWidget *tabifyTo)
 {
     QTC_ASSERT(!widget->objectName().isEmpty(), return 0;);
 
@@ -728,19 +753,14 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
     d->m_dockWidgets << AnalyzerManagerPrivate::DockPtr(dockWidget);
     dockWidget->setWindowTitle(title);
 
-    d->m_toolWidgets[tool] << qMakePair(area, dockWidget);
+    d->m_toolWidgets[tool].push_back(ToolDockWidgetData(area, dockWidget, tabifyTo));
     dockWidget->installEventFilter(d->m_resizeEventFilter);
-
-    d->addDock(tool, area, dockWidget);
-
     return dockWidget;
 }
 
 IAnalyzerTool *AnalyzerManager::currentTool() const
 {
-    if (const QAction *ca = d->m_toolGroup->checkedAction())
-        return d->m_tools.value(ca->data().toInt());
-    return 0;
+    return d->m_currentTool;
 }
 
 QList<IAnalyzerTool *> AnalyzerManager::tools() const

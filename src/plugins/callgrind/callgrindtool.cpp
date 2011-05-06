@@ -164,16 +164,16 @@ void CallgrindTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
     CallgrindWidgetHandler *handler = new CallgrindWidgetHandler(am->mainWindow());
     m_callgrindWidgetHandler = handler;
 
-    QDockWidget *visDock = am->createDockWidget(this, tr("Visualisation"),
-                            handler->visualisation(), Qt::LeftDockWidgetArea);
-
-    QDockWidget *calleesDock = am->createDockWidget(this, tr("Callees"),
-                                handler->calleesView(), Qt::BottomDockWidgetArea);
     QDockWidget *callersDock = am->createDockWidget(this, tr("Callers"),
                                 handler->callersView(), Qt::BottomDockWidgetArea);
 
-    am->mainWindow()->tabifyDockWidget(callersDock, calleesDock);
-    am->mainWindow()->tabifyDockWidget(calleesDock, visDock);
+    QDockWidget *calleesDock = am->createDockWidget(this, tr("Callees"),
+                                handler->calleesView(), Qt::BottomDockWidgetArea,
+                                callersDock);
+
+    am->createDockWidget(this, tr("Visualisation"),
+                         handler->visualisation(), Qt::LeftDockWidgetArea,
+                         calleesDock);
 
     connect(m_callgrindWidgetHandler, SIGNAL(functionSelected(const Valgrind::Callgrind::Function*)),
             this, SLOT(slotFunctionSelected(const Valgrind::Callgrind::Function*)));

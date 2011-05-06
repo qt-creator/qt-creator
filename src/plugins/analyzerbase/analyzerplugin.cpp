@@ -129,19 +129,24 @@ void AnalyzerPlugin::extensionsInitialized()
     //  plugins that depend on it are completely initialized."
 
     // notify tools about the extensions initialized state
-    foreach(IAnalyzerTool *tool, d->m_manager->tools()) {
+    const QList<IAnalyzerTool *> tools = d->m_manager->tools();
+    if (tools.isEmpty())
+        return;
+
+    const QSettings *settings = Core::ICore::instance()->settings();
+    const QString lastActiveToolId = settings->value(QLatin1String(lastActiveToolC), QString()).toString();
+    IAnalyzerTool *lastActiveTool = 0;
+
+    foreach (IAnalyzerTool *tool, tools) {
         tool->extensionsInitialized();
+        if (tool->id() == lastActiveToolId)
+            lastActiveTool = tool;
     }
 
-    // load the last active tool
-    QSettings *settings = Core::ICore::instance()->settings();
-    const QString lastActiveTool = settings->value(lastActiveToolC, QString()).toString();
-    foreach(IAnalyzerTool *tool, d->m_manager->tools()) {
-        if (tool->id() == lastActiveTool) {
-            d->m_manager->selectTool(tool);
-            break;
-        }
-    }
+    if (!lastActiveTool)
+        lastActiveTool = tools.back();
+    if (lastActiveTool)
+        d->m_manager->selectTool(lastActiveTool);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag AnalyzerPlugin::aboutToShutdown()
