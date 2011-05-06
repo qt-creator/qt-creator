@@ -53,7 +53,7 @@
 #include <QtGui/QListWidget>
 #include <QtGui/QToolButton>
 #include <QtGui/QLineEdit>
-#include <QtGui/QStackedWidget>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QFont>
 #include <QtGui/QAction>
@@ -227,7 +227,7 @@ namespace Internal {
         QLineEdit *m_replaceTextEdit;
         QToolButton *m_replaceButton;
         static const bool m_initiallyExpand = false;
-        QStackedWidget *m_widget;
+        QWidget *m_widget;
         SearchResult *m_currentSearch;
         int m_itemCount;
         bool m_isShowingReplaceUI;
@@ -327,13 +327,12 @@ SearchResultWindow *SearchResultWindow::m_instance = 0;
 SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
 {
     m_instance = this;
-    d->m_widget = new QStackedWidget;
+    d->m_widget = new QWidget;
     d->m_widget->setWindowTitle(displayName());
 
     d->m_searchResultTreeView = new Internal::SearchResultTreeView(d->m_widget);
     d->m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
     d->m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    d->m_widget->addWidget(d->m_searchResultTreeView);
     Aggregation::Aggregate * agg = new Aggregation::Aggregate;
     agg->add(d->m_searchResultTreeView);
     agg->add(new SearchResultFindSupport(d->m_searchResultTreeView));
@@ -341,7 +340,14 @@ SearchResultWindow::SearchResultWindow() : d(new SearchResultWindowPrivate)
     d->m_noMatchesFoundDisplay = new QListWidget(d->m_widget);
     d->m_noMatchesFoundDisplay->addItem(tr("No matches found!"));
     d->m_noMatchesFoundDisplay->setFrameStyle(QFrame::NoFrame);
-    d->m_widget->addWidget(d->m_noMatchesFoundDisplay);
+    d->m_noMatchesFoundDisplay->hide();
+
+    QVBoxLayout *vlay = new QVBoxLayout;
+    d->m_widget->setLayout(vlay);
+    vlay->setMargin(0);
+    vlay->setSpacing(0);
+    vlay->addWidget(d->m_noMatchesFoundDisplay);
+    vlay->addWidget(d->m_searchResultTreeView);
 
     d->m_expandCollapseButton = new QToolButton(d->m_widget);
     d->m_expandCollapseButton->setAutoRaise(true);
@@ -537,7 +543,7 @@ void SearchResultWindow::clearContents()
     d->m_replaceTextEdit->clear();
     d->m_searchResultTreeView->clear();
     d->m_itemCount = 0;
-    d->m_widget->setCurrentWidget(d->m_searchResultTreeView);
+    d->m_noMatchesFoundDisplay->hide();
     navigateStateChanged();
 }
 
@@ -549,7 +555,7 @@ void SearchResultWindow::showNoMatchesFound()
 {
     d->m_replaceTextEdit->setEnabled(false);
     d->m_replaceButton->setEnabled(false);
-    d->m_widget->setCurrentWidget(d->m_noMatchesFoundDisplay);
+    d->m_noMatchesFoundDisplay->show();
 }
 
 /*!
