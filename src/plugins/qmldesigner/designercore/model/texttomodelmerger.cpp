@@ -301,6 +301,7 @@ public:
         , m_link(m_context, snapshot, importPaths)
         , m_scopeBuilder(m_context, doc)
     {
+        m_link(doc, &m_diagnosticLinkMessages);
         m_lookupContext = LookupContext::create(doc, *m_context, QList<AST::Node*>());
         // cheaper than calling m_scopeBuilder.initializeRootScope()
         *m_context = *m_lookupContext->context();
