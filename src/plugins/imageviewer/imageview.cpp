@@ -39,6 +39,7 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+
 #include "imageview.h"
 
 #include <QtCore/QFile>
