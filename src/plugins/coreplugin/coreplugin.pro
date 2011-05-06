@@ -71,6 +71,7 @@ SOURCES += mainwindow.cpp \
     mimedatabase.cpp \
     icore.cpp \
     ifile.cpp \
+    infobar.cpp \
     editormanager/ieditor.cpp \
     dialogs/ioptionspage.cpp \
     dialogs/iwizard.cpp \
@@ -139,6 +140,7 @@ HEADERS += mainwindow.h \
     icontext.h \
     icore.h \
     ifile.h \
+    infobar.h \
     ifilefactory.h \
     imode.h \
     ioutputpane.h \

@@ -47,6 +47,7 @@
 #include <projectexplorer/project.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -568,19 +569,20 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 
 void QmlJSLiveTextPreview::showExperimentalWarning()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    em->showEditorInfoBar(Constants::INFO_EXPERIMENTAL,
-                          tr("You changed a QML file in Live Preview mode, which modifies the running QML application. "
-                             "In case of unexpected behavior, please reload the QML application. "
-                             ),
-                          tr("Disable Live Preview"), this, SLOT(disableLivePreview()));
+    foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
+        if (editor) {
+            Core::InfoBarEntry info(
+                    Constants::INFO_EXPERIMENTAL,
+                    tr("You changed a QML file in Live Preview mode, which modifies the running QML application. "
+                       "In case of unexpected behavior, please reload the QML application."));
+            info.setCustomButtonInfo(tr("Disable Live Preview"), this, SLOT(disableLivePreview()));
+            editor.data()->file()->infoBar()->addInfo(info);
+        }
 }
 
 void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType,
                                            const QString &elementName, unsigned line, unsigned column)
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-
     QString errorMessage;
     switch (unsyncronizableChangeType) {
         case AttributeChangeWarning:
@@ -598,18 +600,25 @@ void QmlJSLiveTextPreview::showSyncWarning(UnsyncronizableChangeType unsyncroniz
 
     errorMessage.append(tr("You can continue debugging, but behavior can be unexpected."));
 
-    em->showEditorInfoBar(Constants::INFO_OUT_OF_SYNC, errorMessage);
+    foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
+        if (editor)
+            editor.data()->file()->infoBar()->addInfo(Core::InfoBarEntry(
+                    QLatin1String(Constants::INFO_OUT_OF_SYNC), errorMessage));
 }
 
 void QmlJSLiveTextPreview::reloadQmlViewer()
 {
-    Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_OUT_OF_SYNC);
+    foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
+        if (editor)
+            editor.data()->file()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
     emit reloadQmlViewerRequested();
 }
 
 void QmlJSLiveTextPreview::disableLivePreview()
 {
-    Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_EXPERIMENTAL);
+    foreach (QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> editor, m_editors)
+        if (editor)
+            editor.data()->file()->infoBar()->removeInfo(Constants::INFO_OUT_OF_SYNC);
     emit disableLivePreviewRequested();
 }
 

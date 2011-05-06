@@ -39,6 +39,7 @@
 namespace Core {
 
 class MimeType;
+class InfoBar;
 
 class CORE_EXPORT IFile : public QObject
 {
@@ -100,11 +101,20 @@ public:
 
     virtual void checkPermissions();
 
+    bool hasWriteWarning() const { return m_hasWriteWarning; }
+    void setWriteWarning(bool has) { m_hasWriteWarning = has; }
+
+    InfoBar *infoBar();
+
 signals:
     void changed();
 
     void aboutToReload();
     void reloaded();
+
+private:
+    InfoBar *m_infoBar;
+    bool m_hasWriteWarning;
 };
 
 } // namespace Core

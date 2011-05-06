@@ -56,6 +56,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/manhattanstyle.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -251,9 +252,6 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     d->m_delayedUpdateTimer = new QTimer(this);
     d->m_delayedUpdateTimer->setSingleShot(true);
     connect(d->m_delayedUpdateTimer, SIGNAL(timeout()), viewport(), SLOT(update()));
-
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(currentEditorChanged(Core::IEditor*)));
 
     d->m_moveLineUndoHack = false;
 }
@@ -502,19 +500,6 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
 }
 
 
-void BaseTextEditorWidget::currentEditorChanged(Core::IEditor *ed)
-{
-    if (ed == editor()) {
-        if (d->m_document->hasDecodingError()) {
-            Core::EditorManager::instance()->showEditorInfoBar(QLatin1String(Constants::SELECT_ENCODING),
-                tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
-                    .arg(displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())),
-                tr("Select Encoding"),
-                this, SLOT(selectEncoding()));
-        }
-    }
-}
-
 void BaseTextEditorWidget::selectEncoding()
 {
     BaseTextDocument *doc = d->m_document;
@@ -527,11 +512,6 @@ void BaseTextEditorWidget::selectEncoding()
             QMessageBox::critical(this, tr("File Error"), errorString);
             break;
         }
-        setReadOnly(d->m_document->hasDecodingError());
-        if (doc->hasDecodingError())
-            currentEditorChanged(Core::EditorManager::instance()->currentEditor());
-        else
-            Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String(Constants::SELECT_ENCODING));
         break; }
     case CodecSelector::Save:
         doc->setCodec(codecSelector.selectedCodec());
@@ -560,11 +540,26 @@ bool BaseTextEditorWidget::createNew(const QString &contents)
     return true;
 }
 
+void BaseTextEditorWidget::updateCannotDecodeInfo()
+{
+    setReadOnly(d->m_document->hasDecodingError());
+    if (d->m_document->hasDecodingError()) {
+        Core::InfoBarEntry info(
+            QLatin1String(Constants::SELECT_ENCODING),
+            tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
+            .arg(displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())));
+        info.setCustomButtonInfo(tr("Select Encoding"), this, SLOT(selectEncoding()));
+        d->m_document->infoBar()->addInfo(info);
+    } else {
+        d->m_document->infoBar()->removeInfo(QLatin1String(Constants::SELECT_ENCODING));
+    }
+}
+
 bool BaseTextEditorWidget::open(QString *errorString, const QString &fileName)
 {
     if (d->m_document->open(errorString, fileName)) {
         moveCursor(QTextCursor::Start);
-        setReadOnly(d->m_document->hasDecodingError());
+        updateCannotDecodeInfo();
         return true;
     }
     return false;
@@ -2122,6 +2117,7 @@ void BaseTextEditorWidget::documentReloaded()
 {
     // restore cursor position
     restoreState(d->m_tempState);
+    updateCannotDecodeInfo();
 }
 
 QByteArray BaseTextEditorWidget::saveState() const

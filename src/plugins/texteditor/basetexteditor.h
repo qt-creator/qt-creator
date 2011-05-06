@@ -323,6 +323,7 @@ protected:
 
 private:
     void maybeSelectLine();
+    void updateCannotDecodeInfo();
 
 public:
     void duplicateFrom(BaseTextEditorWidget *editor);
@@ -343,7 +344,6 @@ private slots:
     void setFindScope(const QTextCursor &start, const QTextCursor &end, int, int);
     bool inFindScope(const QTextCursor &cursor);
     bool inFindScope(int selectionStart, int selectionEnd);
-    void currentEditorChanged(Core::IEditor *editor);
     void inSnippetMode(bool *active);
 
 private:

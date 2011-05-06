@@ -37,6 +37,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 
+#include <coreplugin/infobar.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/fontsettings.h>
@@ -77,11 +78,10 @@ QString CMakeEditor::id() const
 
 void CMakeEditor::markAsChanged()
 {
-    Core::EditorManager::instance()->
-            showEditorInfoBar(QLatin1String("CMakeEditor.RunCMake"),
-                              tr("Changes to cmake files are shown in the project tree after building."),
-                              tr("Build now"),
-                              this, SLOT(build()));
+    Core::InfoBarEntry info(QLatin1String("CMakeEditor.RunCMake"),
+                            tr("Changes to cmake files are shown in the project tree after building."));
+    info.setCustomButtonInfo(tr("Build now"), this, SLOT(build()));
+    file()->infoBar()->addInfo(info);
 }
 
 void CMakeEditor::build()

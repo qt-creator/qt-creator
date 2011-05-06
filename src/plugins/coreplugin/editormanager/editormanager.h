@@ -165,14 +165,6 @@ public:
     Internal::OpenEditorsWindow *windowPopup() const;
     void showPopupOrSelectDocument() const;
 
-    void showEditorInfoBar(const QString &id,
-                           const QString &infoText,
-                           const QString &buttonText = QString(),
-                           QObject *object = 0, const char *buttonPressMember = 0,
-                           const char *cancelButtonPressMember = 0);
-
-    void hideEditorInfoBar(const QString &id);
-
     void showEditorStatusBar(const QString &id,
                            const QString &infoText,
                            const QString &buttonText = QString(),

@@ -51,6 +51,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QMap>
@@ -195,7 +196,9 @@ bool CMakeProject::parseCMakeLists()
         !activeTarget()->activeBuildConfiguration())
         return false;
 
-    Core::EditorManager::instance()->hideEditorInfoBar("CMakeEditor.RunCMake");
+    foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors())
+        if (isProjectFile(editor->file()->fileName()))
+            editor->file()->infoBar()->removeInfo(QLatin1String("CMakeEditor.RunCMake"));
 
     // Find cbp file
     CMakeBuildConfiguration *activeBC = activeTarget()->activeBuildConfiguration();

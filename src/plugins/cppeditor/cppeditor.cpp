@@ -68,6 +68,7 @@
 #include <cpptools/cppcodeformatter.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -444,9 +445,6 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
 
 CPPEditorWidget::~CPPEditorWidget()
 {
-    if (Core::EditorManager *em = Core::EditorManager::instance())
-        em->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
-
     m_semanticHighlighter->abort();
     m_semanticHighlighter->wait();
 
@@ -685,10 +683,12 @@ void CPPEditorWidget::renameUsagesNow(const QString &replacement)
     if (Symbol *canonicalSymbol = cs(textCursor())) {
         if (canonicalSymbol->identifier() != 0) {
             if (showWarningMessage()) {
-                Core::EditorManager::instance()->showEditorInfoBar(QLatin1String("CppEditor.Rename"),
-                                                                   tr("This change cannot be undone."),
-                                                                   tr("Yes, I know what I am doing."),
-                                                                   this, SLOT(hideRenameNotification()));
+                // FIXME: abuse
+                Core::InfoBarEntry info(QLatin1String("CppEditor.Rename"),
+                                        tr("This change cannot be undone."));
+                info.setCustomButtonInfo(tr("Yes, I know what I am doing."),
+                                         this, SLOT(hideRenameNotification()));
+                file()->infoBar()->addInfo(info);
             }
 
             m_modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
@@ -727,7 +727,7 @@ void CPPEditorWidget::setShowWarningMessage(bool showWarningMessage)
 void CPPEditorWidget::hideRenameNotification()
 {
     setShowWarningMessage(false);
-    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+    file()->infoBar()->removeInfo(QLatin1String("CppEditor.Rename"));
 }
 
 void CPPEditorWidget::markSymbolsNow()

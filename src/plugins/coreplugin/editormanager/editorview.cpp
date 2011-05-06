@@ -38,6 +38,7 @@
 
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
@@ -79,8 +80,7 @@ EditorView::EditorView(QWidget *parent) :
     QWidget(parent),
     m_toolBar(EditorManager::createToolBar(this)),
     m_container(new QStackedWidget(this)),
-    m_infoWidget(new QFrame(this)),
-    m_editorForInfoWidget(0),
+    m_infoBarDisplay(new InfoBarDisplay(this)),
     m_statusHLine(new QFrame(this)),
     m_statusWidget(new QFrame(this)),
     m_currentNavigationHistoryPosition(0)
@@ -95,36 +95,8 @@ EditorView::EditorView(QWidget *parent) :
         connect(m_toolBar, SIGNAL(listSelectionActivated(int)), this, SLOT(listSelectionActivated(int)));
         tl->addWidget(m_toolBar);
     }
-    {
-        QPalette pal = m_infoWidget->palette();
-        pal.setColor(QPalette::Window, QColor(255, 255, 225));
-        pal.setColor(QPalette::WindowText, Qt::black);
 
-        m_infoWidget->setPalette(pal);
-        m_infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
-        m_infoWidget->setLineWidth(1);
-        m_infoWidget->setAutoFillBackground(true);
-
-        QHBoxLayout *hbox = new QHBoxLayout(m_infoWidget);
-        hbox->setMargin(2);
-        m_infoWidgetLabel = new QLabel("Placeholder");
-        m_infoWidgetLabel->setWordWrap(true);
-        hbox->addWidget(m_infoWidgetLabel);
-
-        m_infoWidgetButton = new QToolButton;
-        m_infoWidgetButton->setText(tr("Placeholder"));
-        hbox->addWidget(m_infoWidgetButton);
-
-        m_infoWidgetCloseButton = new QToolButton;
-        m_infoWidgetCloseButton->setAutoRaise(true);
-        m_infoWidgetCloseButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAR)));
-        m_infoWidgetCloseButton->setToolTip(tr("Close"));
-
-        hbox->addWidget(m_infoWidgetCloseButton);
-
-        m_infoWidget->setVisible(false);
-        tl->addWidget(m_infoWidget);
-    }
+    m_infoBarDisplay->setTarget(tl, 1);
 
     tl->addWidget(m_container);
 
@@ -168,40 +140,6 @@ void EditorView::closeView()
     IEditor *editor = currentEditor();
     if (editor)
        em->closeEditor(editor);
-}
-void EditorView::showEditorInfoBar(const QString &id,
-                                   const QString &infoText,
-                                   const QString &buttonText,
-                                   QObject *object, const char *buttonPressMember,
-                                   const char *cancelButtonPressMember)
-{
-    m_infoWidgetId = id;
-    m_infoWidgetLabel->setText(infoText);
-    m_infoWidgetButton->setText(buttonText);
-
-    if (object && !buttonText.isEmpty()) {
-        m_infoWidgetButton->show();
-    } else {
-        m_infoWidgetButton->hide();
-    }
-
-    m_infoWidgetButton->disconnect();
-    if (object && buttonPressMember)
-        connect(m_infoWidgetButton, SIGNAL(clicked()), object, buttonPressMember);
-
-    m_infoWidgetCloseButton->disconnect();
-    if (object && cancelButtonPressMember)
-        connect(m_infoWidgetCloseButton, SIGNAL(clicked()), object, cancelButtonPressMember);
-    connect(m_infoWidgetCloseButton, SIGNAL(clicked()), m_infoWidget, SLOT(hide()));
-
-    m_infoWidget->setVisible(true);
-    m_editorForInfoWidget = currentEditor();
-}
-
-void EditorView::hideEditorInfoBar(const QString &id)
-{
-    if (id == m_infoWidgetId)
-        m_infoWidget->setVisible(false);
 }
 
 void EditorView::showEditorStatusBar(const QString &id,
@@ -284,15 +222,10 @@ void EditorView::listSelectionActivated(int index)
 
 void EditorView::setCurrentEditor(IEditor *editor)
 {
-    // FIXME: this keeps the editor hidden if switching from A to B and back
-    if (editor != m_editorForInfoWidget) {
-        m_infoWidget->hide();
-        m_editorForInfoWidget = 0;
-    }
-
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1) {
         m_toolBar->updateEditorStatus(0);
+        m_infoBarDisplay->setInfoBar(0);
         // ### TODO the combo box m_editorList should show an empty item
         return;
     }
@@ -306,6 +239,8 @@ void EditorView::setCurrentEditor(IEditor *editor)
     m_toolBar->setCurrentEditor(editor);
 
     updateEditorHistory(editor);
+
+    m_infoBarDisplay->setInfoBar(editor->file()->infoBar());
 }
 
 int EditorView::editorCount() const

@@ -32,14 +32,17 @@
 
 #include "ifile.h"
 
+#include "infobar.h"
+
 namespace Core {
 
-IFile::IFile(QObject *parent) : QObject(parent)
+IFile::IFile(QObject *parent) : QObject(parent), m_infoBar(0), m_hasWriteWarning(false)
 {
 }
 
 IFile::~IFile()
 {
+    delete m_infoBar;
 }
 
 IFile::ReloadBehavior IFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -53,6 +56,13 @@ IFile::ReloadBehavior IFile::reloadBehavior(ChangeTrigger state, ChangeType type
 
 void IFile::checkPermissions()
 {
+}
+
+InfoBar *IFile::infoBar()
+{
+    if (!m_infoBar)
+        m_infoBar = new InfoBar;
+    return m_infoBar;
 }
 
 } // namespace Core

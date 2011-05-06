@@ -41,6 +41,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QFileInfo>
@@ -121,35 +122,21 @@ Core::IFile *QmlJSEditorFactory::open(const QString &fileName)
 
 Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)
 {
-    static bool listenerInitialized = false;
-    if (!listenerInitialized) {
-        listenerInitialized = true;
-        if (isNaggingAboutExperimentalDesignerEnabled()) {
-            connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-                     SLOT(updateEditorInfoBar(Core::IEditor*)));
-        }
-    }
     QmlJSEditor::QmlJSTextEditorWidget *rc = new QmlJSEditor::QmlJSTextEditorWidget(parent);
     QmlJSEditorPlugin::instance()->initializeEditor(rc);
+    if (isNaggingAboutExperimentalDesignerEnabled()) {
+        Core::InfoBarEntry info(QMLDESIGNER_INFO_BAR,
+                                tr("Do you want to enable the experimental Qt Quick Designer?"));
+        info.setCustomButtonInfo(tr("Enable Qt Quick Designer"), this, SLOT(activateQmlDesigner()));
+        info.setCancelButtonInfo(this, SLOT(neverAskAgainAboutQmlDesigner()));
+        rc->file()->infoBar()->addInfo(info);
+    }
     return rc->editor();
 }
 
 QStringList QmlJSEditorFactory::mimeTypes() const
 {
     return m_mimeTypes;
-}
-
-void QmlJSEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
-{
-    if (qobject_cast<QmlJSEditorEditable *>(editor)) {
-        Core::EditorManager::instance()->showEditorInfoBar(QMLDESIGNER_INFO_BAR,
-            tr("Do you want to enable the experimental Qt Quick Designer?"),
-            tr("Enable Qt Quick Designer"), this,
-            SLOT(activateQmlDesigner()),
-            SLOT(neverAskAgainAboutQmlDesigner()));
-    } else {
-        Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
-    }
 }
 
 void QmlJSEditorFactory::activateQmlDesigner()
@@ -178,9 +165,9 @@ void QmlJSEditorFactory::activateQmlDesigner()
                 pm->writeSettings();
                 QMessageBox::information(Core::ICore::instance()->mainWindow(), tr("Please restart Qt Creator"),
                                          tr("Please restart Qt Creator to make the change effective."));
-                disconnect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-                         this, SLOT(updateEditorInfoBar(Core::IEditor*)));
-                Core::EditorManager::instance()->hideEditorInfoBar(QMLDESIGNER_INFO_BAR);
+                foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors())
+                    if (qobject_cast<QmlJSEditorEditable *>(editor))
+                        editor->file()->infoBar()->removeInfo(QMLDESIGNER_INFO_BAR);
                 neverAskAgainAboutQmlDesigner();
                 return;
             }

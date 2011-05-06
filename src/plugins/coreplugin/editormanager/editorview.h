@@ -55,6 +55,7 @@ namespace Core {
 class IContext;
 class IFile;
 class IEditor;
+class InfoBarDisplay;
 class OpenEditorsModel;
 class EditorToolBar;
 
@@ -84,12 +85,6 @@ public:
     bool hasEditor(IEditor *editor) const;
 
     QList<IEditor *> editors() const;
-    void showEditorInfoBar(const QString &id,
-                           const QString &infoText,
-                           const QString &buttonText,
-                           QObject *object, const char *buttonPressMember,
-                           const char *cancelButtonPressMember = 0);
-    void hideEditorInfoBar(const QString &id);
 
     void showEditorStatusBar(const QString &id,
                            const QString &infoText,
@@ -109,12 +104,7 @@ private:
     EditorToolBar *m_toolBar;
 
     QStackedWidget *m_container;
-    QString m_infoWidgetId;
-    QFrame *m_infoWidget;
-    QLabel *m_infoWidgetLabel;
-    QToolButton *m_infoWidgetButton;
-    QToolButton *m_infoWidgetCloseButton;
-    IEditor *m_editorForInfoWidget;
+    InfoBarDisplay *m_infoBarDisplay;
     QString m_statusWidgetId;
     QFrame *m_statusHLine;
     QFrame *m_statusWidget;

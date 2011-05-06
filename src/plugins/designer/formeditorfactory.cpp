@@ -39,6 +39,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/modemanager.h>
@@ -58,8 +59,6 @@ FormEditorFactory::FormEditorFactory()
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/formeditor/images/qt_ui.png")),
                                                QLatin1String("ui"));
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-             SLOT(updateEditorInfoBar(Core::IEditor*)));
 }
 
 QString FormEditorFactory::id() const
@@ -75,7 +74,15 @@ QString FormEditorFactory::displayName() const
 Core::IFile *FormEditorFactory::open(const QString &fileName)
 {
     Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
-    return iface ? iface->file() : 0;
+    if (!iface)
+        return 0;
+    if (qobject_cast<FormWindowEditor *>(iface)) {
+        Core::InfoBarEntry info(Constants::INFO_READ_ONLY,
+                                tr("This file can only be edited in <b>Design</b> mode."));
+        info.setCustomButtonInfo(tr("Switch mode"), this, SLOT(designerModeClicked()));
+        iface->file()->infoBar()->addInfo(info);
+    }
+    return iface->file();
 }
 
 Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)
@@ -87,17 +94,6 @@ Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)
 QStringList FormEditorFactory::mimeTypes() const
 {
     return m_mimeTypes;
-}
-
-void FormEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
-{
-    if (qobject_cast<FormWindowEditor *>(editor)) {
-        Core::EditorManager::instance()->showEditorInfoBar(Constants::INFO_READ_ONLY,
-            tr("This file can only be edited in <b>Design</b> mode."),
-            tr("Switch mode"), this, SLOT(designerModeClicked()));
-    } else {
-        Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_READ_ONLY);
-    }
 }
 
 void FormEditorFactory::designerModeClicked()

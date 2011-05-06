@@ -43,6 +43,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 
 #include <ASTVisitor.h>
 #include <AST.h>
@@ -279,7 +280,9 @@ void CppFindReferences::findAll_helper(Symbol *symbol, const LookupContext &cont
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
                                                const QList<Find::SearchResultItem> &items)
 {
-    Core::EditorManager::instance()->hideEditorInfoBar(QLatin1String("CppEditor.Rename"));
+    // FIXME: abuse
+    Core::EditorManager::instance()->currentEditor()->file()->infoBar()->removeInfo(
+            QLatin1String("CppEditor.Rename"));
 
     const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items);
     if (!fileNames.isEmpty()) {

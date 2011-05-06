@@ -53,6 +53,7 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/icorelistener.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/variablemanager.h>
@@ -1573,13 +1574,18 @@ void EditorManager::updateActions()
 #ifdef Q_WS_MAC
         window()->setWindowModified(curEditor->file()->isModified());
 #endif
-        if (curEditor->file()->isModified() && curEditor->file()->isReadOnly()) {
-            // we are about to change a read-only file, warn user
-            showEditorInfoBar(QLatin1String("Core.EditorManager.MakeWritable"),
-                tr("<b>Warning:</b> You are changing a read-only file."),
-                tr("Make writable"), this, SLOT(makeCurrentEditorWritable()));
-        } else {
-            hideEditorInfoBar(QLatin1String("Core.EditorManager.MakeWritable"));
+        bool ww = curEditor->file()->isModified() && curEditor->file()->isReadOnly();
+        if (ww != curEditor->file()->hasWriteWarning()) {
+            curEditor->file()->setWriteWarning(ww);
+            if (ww) {
+                // we are about to change a read-only file, warn user
+                InfoBarEntry info(QLatin1String("Core.EditorManager.MakeWritable"),
+                                  tr("<b>Warning:</b> You are changing a read-only file."));
+                info.setCustomButtonInfo(tr("Make writable"), this, SLOT(makeCurrentEditorWritable()));
+                curEditor->file()->infoBar()->addInfo(info);
+            } else {
+                curEditor->file()->infoBar()->removeInfo(QLatin1String("Core.EditorManager.MakeWritable"));
+            }
         }
 #ifdef Q_WS_MAC
     } else { // curEditor
@@ -1841,23 +1847,6 @@ void EditorManager::revertToSaved()
     QString errorString;
     if (!currEditor->file()->reload(&errorString, IFile::FlagReload, IFile::TypeContents))
         QMessageBox::critical(m_d->m_core->mainWindow(), tr("File Error"), errorString);
-}
-
-void EditorManager::showEditorInfoBar(const QString &id,
-                                      const QString &infoText,
-                                      const QString &buttonText,
-                                      QObject *object, const char *buttonPressMember,
-                                      const char *cancelButtonPressMember)
-{
-    currentEditorView()->showEditorInfoBar(id, infoText, buttonText, object, buttonPressMember, cancelButtonPressMember);
-}
-
-
-void EditorManager::hideEditorInfoBar(const QString &id)
-{
-    Core::Internal::EditorView *cev = currentEditorView();
-    if (cev)
-        cev->hideEditorInfoBar(id);
 }
 
 void EditorManager::showEditorStatusBar(const QString &id,

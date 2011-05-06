@@ -61,7 +61,6 @@ public:
 
 private slots:
     void designerModeClicked();
-    void updateEditorInfoBar(Core::IEditor *editor);
 
 private:
     const QStringList m_mimeTypes;
