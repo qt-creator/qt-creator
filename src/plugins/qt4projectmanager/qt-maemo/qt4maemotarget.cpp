@@ -313,6 +313,7 @@ void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *ta
                 vcs->vcsDelete(filePath);
         }
     }
+    delete m_filesWatcher;
     removeTarget();
     QString error;
     const QString packagingPath = project()->projectDirectory()
