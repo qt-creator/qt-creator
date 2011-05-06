@@ -40,7 +40,8 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {
                 Label {
-                    text: qsTr("Flickable Direction")
+                    text: qsTr("Flick Direction")
+                    toolTip: qsTr("Flickable Direction")
                 }
 
                 ComboBox {
@@ -57,7 +58,8 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {
                 Label {
-                    text: qsTr("Bounds Behavior")
+                    text: qsTr("Behavior")
+                    toolTip: qsTr("Bounds Behavior")
                 }
 
                 ComboBox {
