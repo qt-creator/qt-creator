@@ -97,7 +97,7 @@ NodeInstanceServer::NodeInstanceServer(NodeInstanceClientInterface *nodeInstance
 {
     qmlRegisterType<DummyContextObject>("QmlDesigner", 1, 0, "DummyContextObject");
 
-    m_importList.append("import Qt 4.7\n");
+    m_importList.append("import QtQuick 1.0\n");
     connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
 }
 
