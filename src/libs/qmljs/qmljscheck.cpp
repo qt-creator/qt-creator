@@ -375,6 +375,7 @@ Check::Check(Document::Ptr doc, const Context *linkedContextNoScope)
           | WarnCaseWithoutFlowControlEnd | ErrCheckTypeErrors)
     , _lastValue(0)
 {
+    _scopeBuilder.initializeRootScope();
 }
 
 Check::~Check()

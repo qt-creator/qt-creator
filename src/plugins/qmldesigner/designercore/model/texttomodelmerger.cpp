@@ -298,10 +298,12 @@ public:
         : m_snapshot(snapshot)
         , m_doc(doc)
         , m_context(new Interpreter::Context(snapshot))
-        , m_link(m_context, snapshot, importPaths, doc, &m_diagnosticLinkMessages)
-        , m_lookupContext(LookupContext::create(doc, snapshot, *m_context, QList<AST::Node*>()))
+        , m_link(m_context, snapshot, importPaths)
         , m_scopeBuilder(m_context, doc)
     {
+        m_lookupContext = LookupContext::create(doc, *m_context, QList<AST::Node*>());
+        // cheaper than calling m_scopeBuilder.initializeRootScope()
+        *m_context = *m_lookupContext->context();
     }
 
     ~ReadingContext()

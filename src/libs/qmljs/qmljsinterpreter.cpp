@@ -3286,6 +3286,7 @@ const Value *ASTPropertyReference::value(const Context *context) const
         QmlJS::Document::Ptr doc = _doc->ptr();
         Context localContext(*context);
         QmlJS::ScopeBuilder builder(&localContext, doc);
+        builder.initializeRootScope();
 
         int offset = _ast->expression->firstSourceLocation().begin();
         builder.push(ScopeAstPath(doc)(offset));

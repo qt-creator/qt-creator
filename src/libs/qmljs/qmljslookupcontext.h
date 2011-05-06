@@ -54,7 +54,7 @@ class QMLJS_EXPORT LookupContext
     Q_DISABLE_COPY(LookupContext)
 
     LookupContext(const Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path);
-    LookupContext(const Document::Ptr doc, const Snapshot &snapshot,
+    LookupContext(const Document::Ptr doc,
                   const Interpreter::Context &linkedContextWithoutScope,
                   const QList<AST::Node *> &path);
 
@@ -66,7 +66,7 @@ public:
     // consider using SemanticInfo::lookupContext instead, it's faster
     static Ptr create(const Document::Ptr doc, const Snapshot &snapshot,
                       const QList<AST::Node *> &path);
-    static Ptr create(const Document::Ptr doc, const Snapshot &snapshot,
+    static Ptr create(const Document::Ptr doc,
                       const Interpreter::Context &linkedContextWithoutScope,
                       const QList<AST::Node *> &path);
 

@@ -74,7 +74,8 @@ void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future
 {
     Interpreter::Context ctx(snapshot);
     QHash<QString, QList<DiagnosticMessage> > linkMessages;
-    Link link(&ctx, snapshot, importPaths, &linkMessages);
+    Link link(&ctx, snapshot, importPaths);
+    link(&linkMessages);
 
     foreach (const QString &fileName, files) {
         Document::Ptr document = snapshot.document(fileName);

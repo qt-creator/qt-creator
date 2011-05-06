@@ -45,7 +45,6 @@ ScopeBuilder::ScopeBuilder(Context *context, Document::Ptr doc)
     : _doc(doc)
     , _context(context)
 {
-    initializeScopeChain();
 }
 
 ScopeBuilder::~ScopeBuilder()
@@ -98,7 +97,7 @@ void ScopeBuilder::pop()
     _context->scopeChain().update();
 }
 
-void ScopeBuilder::initializeScopeChain()
+void ScopeBuilder::initializeRootScope()
 {
     ScopeChain &scopeChain = _context->scopeChain();
     if (scopeChain.qmlComponentScope

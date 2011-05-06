@@ -54,14 +54,15 @@ class QMLJS_EXPORT Link
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
 
 public:
-    // Link all documents in snapshot, collecting all diagnostic messages
     Link(Interpreter::Context *context, const Snapshot &snapshot,
-         const QStringList &importPaths, QHash<QString, QList<DiagnosticMessage> > *messages = 0);
+         const QStringList &importPaths);
+
+    // Link all documents in snapshot, collecting all diagnostic messages (if messages != 0)
+    void operator()(QHash<QString, QList<DiagnosticMessage> > *messages = 0);
 
     // Link all documents in snapshot, appending the diagnostic messages
     // for 'doc' in 'messages'
-    Link(Interpreter::Context *context, const Snapshot &snapshot,
-         const QStringList &importPaths, const Document::Ptr &doc, QList<DiagnosticMessage> *messages);
+    void operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages);
 
     ~Link();
 

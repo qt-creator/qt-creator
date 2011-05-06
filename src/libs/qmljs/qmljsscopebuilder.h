@@ -50,6 +50,8 @@ public:
     ScopeBuilder(Interpreter::Context *context, Document::Ptr doc);
     ~ScopeBuilder();
 
+    void initializeRootScope();
+
     void push(AST::Node *node);
     void push(const QList<AST::Node *> &nodes);
     void pop();
@@ -57,7 +59,6 @@ public:
     static const Interpreter::ObjectValue *isPropertyChangesObject(const Interpreter::Context *context, const Interpreter::ObjectValue *object);
 
 private:
-    void initializeScopeChain();
     void makeComponentChain(Document::Ptr doc, const Snapshot &snapshot,
                             Interpreter::ScopeChain::QmlComponentChain *target,
                             QHash<Document *, Interpreter::ScopeChain::QmlComponentChain *> *components);

@@ -43,7 +43,6 @@
 
 namespace QmlJS {
 
-class Link;
 class Document;
 
 class QMLJS_EXPORT Bind: protected AST::Visitor

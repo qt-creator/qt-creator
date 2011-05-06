@@ -83,6 +83,7 @@ public:
         , _context(context)
         , _builder(context, doc)
     {
+        _builder.initializeRootScope();
     }
 
     Result operator()(const QString &name, const ObjectValue *scope)
@@ -555,7 +556,10 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         return;
 
     Link link(&context, snapshot, ModelManagerInterface::instance()->importPaths());
+    link();
+
     ScopeBuilder builder(&context, doc);
+    builder.initializeRootScope();
     ScopeAstPath astPath(doc);
     builder.push(astPath(offset));
 

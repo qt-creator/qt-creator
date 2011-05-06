@@ -110,8 +110,7 @@ public:
     \l{Context} with \l{Link}.
 */
 
-Link::Link(Context *context, const Snapshot &snapshot, const QStringList &importPaths,
-           QHash<QString, QList<DiagnosticMessage> > *messages)
+Link::Link(Context *context, const Snapshot &snapshot, const QStringList &importPaths)
     : d_ptr(new LinkPrivate)
 {
     Q_D(Link);
@@ -120,30 +119,6 @@ Link::Link(Context *context, const Snapshot &snapshot, const QStringList &import
     d->importPaths = importPaths;
 
     d->diagnosticMessages = 0;
-    d->allDiagnosticMessages = messages;
-
-    // populate engine with types from C++
-    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
-    if (modelManager) {
-        foreach (const QList<FakeMetaObject::ConstPtr> &cppTypes, modelManager->cppQmlTypes()) {
-            engine()->cppQmlTypes().load(engine(), cppTypes);
-        }
-    }
-
-    linkImports();
-}
-
-Link::Link(Context *context, const Snapshot &snapshot, const QStringList &importPaths,
-           const Document::Ptr &doc, QList<DiagnosticMessage> *messages)
-    : d_ptr(new LinkPrivate)
-{
-    Q_D(Link);
-    d->context = context;
-    d->snapshot = snapshot;
-    d->importPaths = importPaths;
-
-    d->doc = doc;
-    d->diagnosticMessages = messages;
     d->allDiagnosticMessages = 0;
 
     // populate engine with types from C++
@@ -153,7 +128,20 @@ Link::Link(Context *context, const Snapshot &snapshot, const QStringList &import
             engine()->cppQmlTypes().load(engine(), cppTypes);
         }
     }
+}
 
+void Link::operator()(QHash<QString, QList<DiagnosticMessage> > *messages)
+{
+    Q_D(Link);
+    d->allDiagnosticMessages = messages;
+    linkImports();
+}
+
+void Link::operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages)
+{
+    Q_D(Link);
+    d->doc = doc;
+    d->diagnosticMessages = messages;
     linkImports();
 }
 
