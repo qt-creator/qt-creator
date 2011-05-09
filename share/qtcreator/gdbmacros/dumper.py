@@ -1673,6 +1673,12 @@ class Dumper:
                     self.putFields(child)
             return
 
+        if typedefStrippedType.code == gdb.TYPE_CODE_ENUM:
+            self.putType(realtype)
+            self.putValue("%s (%d)" % (value, value))
+            self.putNumChild(0)
+            return
+
         if isSimpleType(typedefStrippedType):
             #warn("IS SIMPLE: %s " % type)
             #self.putAddress(value.address)
