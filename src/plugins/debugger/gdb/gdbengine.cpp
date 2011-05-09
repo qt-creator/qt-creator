@@ -4475,6 +4475,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     if (!scriptFileName.isEmpty()) {
         if (QFileInfo(scriptFileName).isReadable()) {
             postCommand("source " + scriptFileName.toLocal8Bit());
+            // Re-do the setup, as the "source" might have changed something.
+            postCommand("bbsetup", ConsoleCommand, CB(handleHasPython));
         } else {
             showMessageBox(QMessageBox::Warning,
             tr("Cannot find debugger initialization script"),
