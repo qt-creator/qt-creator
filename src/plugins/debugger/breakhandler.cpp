@@ -114,8 +114,10 @@ static QString typeToString(BreakpointType type)
             return msgBreakpointAtSpecialFunc("syscall");
         case BreakpointAtMain:
             return BreakHandler::tr("Breakpoint at Function \"main()\"");
-        case Watchpoint:
-            return BreakHandler::tr("Watchpoint");
+        case WatchpointAtAddress:
+            return BreakHandler::tr("Watchpoint at Address");
+        case WatchpointAtExpression:
+            return BreakHandler::tr("Watchpoint at Expression");
         case UnknownType:
             break;
     }
@@ -517,7 +519,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                         //|| data.type == BreakpointAtVFork
                         || data.type == BreakpointAtSysCall)
                     return typeToString(data.type);
-                if (data.type == Watchpoint)
+                if (data.type == WatchpointAtAddress)
                     return tr("Watchpoint at 0x%1").arg(data.address, 0, 16);
                 return empty;
             }
@@ -648,6 +650,7 @@ PROPERTY(int, threadSpec, setThreadSpec)
 PROPERTY(QByteArray, condition, setCondition)
 GETTER(int, lineNumber)
 PROPERTY(quint64, address, setAddress)
+PROPERTY(QByteArray, expression, setExpression)
 PROPERTY(int, ignoreCount, setIgnoreCount)
 
 bool BreakHandler::isEnabled(BreakpointId id) const
@@ -671,6 +674,13 @@ void BreakHandler::setEnabled(BreakpointId id, bool on)
         it->state = BreakpointChangeRequested;
         scheduleSynchronization();
     }
+}
+
+bool BreakHandler::isWatchpoint(BreakpointId id) const
+{
+    ConstIterator it = m_storage.find(id);
+    BREAK_ASSERT(it != m_storage.end(), return false);
+    return it->data.isWatchpoint();
 }
 
 bool BreakHandler::isTracepoint(BreakpointId id) const
@@ -1195,7 +1205,7 @@ QIcon BreakHandler::BreakpointItem::icon() const
     // cursor is near a line with a breakpoint marker (+/- 2 lines or so).
     if (data.isTracepoint())
         return BreakHandler::tracepointIcon();
-    if (data.type == Watchpoint)
+    if (data.type == WatchpointAtAddress)
         return BreakHandler::watchpointIcon();
     if (!data.enabled)
         return BreakHandler::disabledBreakpointIcon();

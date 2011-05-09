@@ -359,10 +359,14 @@ protected:
 
     DebuggerRunControl *runControl() const;
 
-    static QString msgWatchpointTriggered(BreakpointId id,
+    static QString msgWatchpointByAddressTriggered(BreakpointId id,
         int number, quint64 address);
-    static QString msgWatchpointTriggered(BreakpointId id,
+    static QString msgWatchpointByAddressTriggered(BreakpointId id,
         int number, quint64 address, const QString &threadId);
+    static QString msgWatchpointByExpressionTriggered(BreakpointId id,
+        int number, const QByteArray &expr);
+    static QString msgWatchpointByExpressionTriggered(BreakpointId id,
+        int number, const QByteArray &expr, const QString &threadId);
     static QString msgBreakpointTriggered(BreakpointId id,
         int number, const QString &threadId);
     static QString msgStopped(const QString &reason = QString());

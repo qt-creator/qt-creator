@@ -742,7 +742,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return QVariant(quint64(0));
 
         case LocalsIsWatchpointAtAddressRole: {
-            BreakpointParameters bp(Watchpoint);
+            BreakpointParameters bp(WatchpointAtAddress);
             bp.address = data.coreAddress();
             return engine()->breakHandler()->findWatchpoint(bp) != 0;
         }
@@ -756,7 +756,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case LocalsIsWatchpointAtPointerValueRole:
             if (isPointerType(data.type)) {
-                BreakpointParameters bp(Watchpoint);
+                BreakpointParameters bp(WatchpointAtAddress);
                 bp.address = pointerValue(data.value);
                 return engine()->breakHandler()->findWatchpoint(bp) != 0;
             }

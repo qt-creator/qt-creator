@@ -2556,6 +2556,10 @@ void testMPI()
 
 }
 
+enum E {
+ ONE = 6
+};
+
 int main(int argc, char *argv[])
 {
     int *x = new int(32);

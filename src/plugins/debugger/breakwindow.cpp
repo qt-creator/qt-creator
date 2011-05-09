@@ -80,20 +80,6 @@ public slots:
     void typeChanged(int index);
 
 private:
-    enum DialogPart {
-        FileAndLinePart = 0x1,
-        FunctionPart = 0x2,
-        AddressPart = 0x4,
-        ConditionPart = 0x8,
-        IgnoreCountPart = 0x10,
-        ThreadSpecPart = 0x20,
-        AllConditionParts = ConditionPart|IgnoreCountPart|ThreadSpecPart,
-        ModulePart = 0x40,
-        TracePointPart = 0x80,
-        AllParts = FileAndLinePart|FunctionPart|AddressPart|ConditionPart
-                   |IgnoreCountPart|ThreadSpecPart|ModulePart|TracePointPart
-    };
-
     void setPartsEnabled(unsigned partsMask);
     void clearOtherParts(unsigned partsMask);
     void getParts(unsigned partsMask, BreakpointParameters *data) const;
@@ -122,17 +108,18 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
     // Match BreakpointType (omitting unknown type).
     m_ui.setupUi(this);
     QStringList types;
-    types << tr("File and Line Number")
-          << tr("Function Name")
+    types << tr("File name and line number")
+          << tr("Function name")
           << tr("Address")
-          << tr("Break when C++ Exception is Thrown")
-          << tr("Break when C++ Exception is Caught")
-          << tr("Break when Function \"main()\" Starts")
-          << tr("Break when a new Process is Forked")
-          << tr("Break when a new Process is Executed")
-          << tr("Break when a System Call is Executed")
-          << tr("Break on Data Access (Watchpoint)");
-    QTC_ASSERT(types.size() == Watchpoint, return; )
+          << tr("Break when C++ exception is thrown")
+          << tr("Break when C++ exception is caught")
+          << tr("Break when function \"main()\" starts")
+          << tr("Break when a new process is forked")
+          << tr("Break when a new process is executed")
+          << tr("Break when a system call is executed")
+          << tr("Break on data access (Watchpoint at address)")
+          << tr("Break on data access (Watchpoint at expression)");
+    QTC_ASSERT(types.size() == WatchpointAtExpression, return; )
     m_ui.comboBoxType->addItems(types);
     m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
     connect(m_ui.comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
@@ -213,6 +200,8 @@ void BreakpointDialog::setPartsEnabled(unsigned partsMask)
 
     m_ui.labelAddress->setEnabled(partsMask & AddressPart);
     m_ui.lineEditAddress->setEnabled(partsMask & AddressPart);
+    m_ui.labelExpression->setEnabled(partsMask & ExpressionPart);
+    m_ui.lineEditExpression->setEnabled(partsMask & ExpressionPart);
 
     m_ui.labelCondition->setEnabled(partsMask & ConditionPart);
     m_ui.lineEditCondition->setEnabled(partsMask & ConditionPart);
@@ -242,6 +231,8 @@ void BreakpointDialog::clearOtherParts(unsigned partsMask)
 
     if (invertedPartsMask & AddressPart)
         m_ui.lineEditAddress->clear();
+    if (invertedPartsMask & ExpressionPart)
+        m_ui.lineEditExpression->clear();
 
     if (invertedPartsMask & ConditionPart)
         m_ui.lineEditCondition->clear();
@@ -271,6 +262,8 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
 
     if (partsMask & AddressPart)
         data->address = m_ui.lineEditAddress->text().toULongLong(0, 0);
+    if (partsMask & ExpressionPart)
+        data->expression = m_ui.lineEditExpression->text().toUtf8();
 
     if (partsMask & ConditionPart)
         data->condition = m_ui.lineEditCondition->text().toUtf8();
@@ -306,6 +299,14 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
                 QString::fromAscii("0x%1").arg(data.address, 0, 16));
         } else {
             m_ui.lineEditAddress->clear();
+        }
+    }
+
+    if (mask & ExpressionPart) {
+        if (!data.expression.isEmpty()) {
+            m_ui.lineEditExpression->setText(data.expression);
+        } else {
+            m_ui.lineEditExpression->clear();
         }
     }
 
@@ -347,8 +348,11 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointAtSysCall:
         break;
     case BreakpointByAddress:
-    case Watchpoint:
+    case WatchpointAtAddress:
         getParts(AddressPart|AllConditionParts|TracePointPart, &m_savedParameters);
+        break;
+    case WatchpointAtExpression:
+        getParts(ExpressionPart|AllConditionParts|TracePointPart, &m_savedParameters);
         break;
     }
 
@@ -381,10 +385,15 @@ void BreakpointDialog::typeChanged(int)
         setPartsEnabled(0);
         break;
     case BreakpointByAddress:
-    case Watchpoint:
+    case WatchpointAtAddress:
         setParts(AddressPart|AllConditionParts|TracePointPart, m_savedParameters);
         setPartsEnabled(AddressPart|AllConditionParts|TracePointPart|TracePointPart);
         clearOtherParts(AddressPart|AllConditionParts|TracePointPart);
+        break;
+    case WatchpointAtExpression:
+        setParts(ExpressionPart|AllConditionParts|TracePointPart, m_savedParameters);
+        setPartsEnabled(ExpressionPart|AllConditionParts|TracePointPart|TracePointPart);
+        clearOtherParts(ExpressionPart|AllConditionParts|TracePointPart);
         break;
     }
 }

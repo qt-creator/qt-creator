@@ -147,9 +147,10 @@ enum DebuggerCapabilities
     ReturnFromFunctionCapability = 0x2000,
     CreateFullBacktraceCapability = 0x4000,
     AddWatcherCapability = 0x8000,
-    WatchpointCapability = 0x10000,
-    ShowModuleSymbolsCapability = 0x20000,
-    CatchCapability = 0x40000, //!< fork, vfork, syscall
+    WatchpointByAddressCapability = 0x10000,
+    WatchpointByExpressionCapability = 0x20000,
+    ShowModuleSymbolsCapability = 0x40000,
+    CatchCapability = 0x80000, //!< fork, vfork, syscall
     AllDebuggerCapabilities = 0xFFFFFFFF
 };
 

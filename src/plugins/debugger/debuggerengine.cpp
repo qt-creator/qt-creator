@@ -1488,7 +1488,27 @@ bool DebuggerEngine::isDying() const
     return targetState() == DebuggerFinished;
 }
 
-QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id,
+QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
+    const int number, const QByteArray &expr)
+{
+    return id
+        ? tr("Watchpoint %1 (%2) at %3 %4 triggered.")
+            .arg(id).arg(number).arg(_(expr))
+        : tr("Internal watchpoint %1 at %2 %4 triggered.")
+            .arg(number).arg(_(expr));
+}
+
+QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
+    const int number, const QByteArray &expr, const QString &threadId)
+{
+    return id
+        ? tr("Watchpoint %1 (%2) at %3 in thread %4 triggered.")
+            .arg(id).arg(number).arg(_(expr)).arg(threadId)
+        : tr("Internal watchpoint %1 at %2 in thread %4 triggered.")
+            .arg(number).arg(_(expr)).arg(threadId);
+}
+
+QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
     const int number, quint64 address)
 {
     return id
@@ -1498,7 +1518,7 @@ QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id,
             .arg(number).arg(address, 0, 16);
 }
 
-QString DebuggerEngine::msgWatchpointTriggered(BreakpointId id,
+QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
     const int number, quint64 address, const QString &threadId)
 {
     return id

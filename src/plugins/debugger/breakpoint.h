@@ -62,7 +62,8 @@ enum BreakpointType
     BreakpointAtExec,
     //BreakpointAtVFork,
     BreakpointAtSysCall,
-    Watchpoint
+    WatchpointAtAddress,
+    WatchpointAtExpression
 };
 
 //! \enum Debugger::Internal::BreakpointState
@@ -93,19 +94,21 @@ enum BreakpointParts
     FileAndLinePart = 0x1,
     FunctionPart = 0x2,
     AddressPart = 0x4,
-    ConditionPart = 0x8,
-    IgnoreCountPart = 0x10,
-    ThreadSpecPart = 0x20,
+    ExpressionPart = 0x8,
+    ConditionPart = 0x10,
+    IgnoreCountPart = 0x20,
+    ThreadSpecPart = 0x40,
     AllConditionParts = ConditionPart|IgnoreCountPart|ThreadSpecPart,
-    ModulePart = 0x40,
-    TracePointPart = 0x80,
+    ModulePart = 0x80,
+    TracePointPart = 0x100,
 
-    EnabledPart = 0x100,
-    TypePart = 0x200,
-    PathUsagePart = 0x400,
-    CommandPart = 0x400,
+    EnabledPart = 0x200,
+    TypePart = 0x400,
+    PathUsagePart = 0x800,
+    CommandPart = 0x1000,
 
-    AllParts = FileAndLinePart|FunctionPart|AddressPart|ConditionPart
+    AllParts = FileAndLinePart|FunctionPart
+               |ExpressionPart|AddressPart|ConditionPart
                |IgnoreCountPart|ThreadSpecPart|ModulePart|TracePointPart
                |EnabledPart|TypePart|PathUsagePart|CommandPart
 };
@@ -123,9 +126,10 @@ public:
     BreakpointParts differencesTo(const BreakpointParameters &rhs) const;
     bool equals(const BreakpointParameters &rhs) const;
     bool conditionsMatch(const QByteArray &other) const;
-    bool isWatchpoint() const { return type == Watchpoint; }
+    bool isWatchpoint() const
+        { return type == WatchpointAtAddress || type == WatchpointAtExpression; }
     // Enough for now.
-    bool isBreakpoint() const { return type != Watchpoint && !tracepoint; }
+    bool isBreakpoint() const { return !isWatchpoint() && !isTracepoint(); }
     bool isTracepoint() const { return tracepoint; }
     QString toString() const;
 
@@ -139,7 +143,8 @@ public:
     QByteArray condition;    //!< Condition associated with breakpoint.
     int ignoreCount;         //!< Ignore count associated with breakpoint.
     int lineNumber;          //!< Line in source file.
-    quint64 address;         //!< Address for watchpoints.
+    quint64 address;         //!< Address for address based watchpoints.
+    QByteArray expression;   //!< Address for expression based watchpoints.
     uint size;               //!< Size of watched area for watchpoints.
     uint bitpos;             //!< Location of watched bitfield within watched area.
     uint bitsize;            //!< Size of watched bitfield within watched area.

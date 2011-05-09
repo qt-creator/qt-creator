@@ -1069,7 +1069,7 @@ void CdbEngine::updateLocalVariable(const QByteArray &iname)
 unsigned CdbEngine::debuggerCapabilities() const
 {
     return DisassemblerCapability | RegisterCapability | ShowMemoryCapability
-           |WatchpointCapability|JumpToLineCapability|AddWatcherCapability
+           |WatchpointByAddressCapability|JumpToLineCapability|AddWatcherCapability
            |ReloadModuleCapability
            |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
            |BreakConditionCapability|TracePointCapability
@@ -1849,10 +1849,13 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
                 id = 0;
             }
         }
-        if (id && breakHandler()->type(id) == Watchpoint) {
-            *message = msgWatchpointTriggered(id, number, breakHandler()->address(id), QString::number(threadId));
+        QString tid = QString::number(threadId);
+        if (id && breakHandler()->type(id) == WatchpointAtAddress) {
+            *message = msgWatchpointByAddressTriggered(id, number, breakHandler()->address(id), tid);
+        } else if (id && breakHandler()->type(id) == WatchpointAtExpression) {
+            *message = msgWatchpointByExpressionTriggered(id, number, breakHandler()->expression(id), tid);
         } else {
-            *message = msgBreakpointTriggered(id, number, QString::number(threadId));
+            *message = msgBreakpointTriggered(id, number, tid);
         }
         rc |= StopReportStatusMessage|StopNotifyStop;
         return rc;
@@ -2347,7 +2350,7 @@ bool CdbEngine::acceptsBreakpoint(BreakpointId id) const
     //case BreakpointAtVFork:
     case BreakpointAtSysCall:
         return false;
-    case Watchpoint:
+    case WatchpointAtAddress:
     case BreakpointByFileAndLine:
     case BreakpointByFunction:
     case BreakpointByAddress:

@@ -701,7 +701,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *actSetWatchpointAtVariableAddress = 0;
     QAction *actSetWatchpointAtPointerValue = 0;
-    const bool canSetWatchpoint = engineCapabilities & WatchpointCapability;
+    const bool canSetWatchpoint = engineCapabilities & WatchpointByAddressCapability;
     if (canSetWatchpoint && address) {
         actSetWatchpointAtVariableAddress =
             new QAction(tr("Add Watchpoint at Object's Address (0x%1)")
@@ -1015,7 +1015,7 @@ void WatchWindow::setModelData
 
 void WatchWindow::setWatchpoint(quint64 address, unsigned size)
 {
-    BreakpointParameters data(Watchpoint);
+    BreakpointParameters data(WatchpointAtAddress);
     data.address = address;
     data.size = size;
     BreakpointId id = breakHandler()->findWatchpoint(data);

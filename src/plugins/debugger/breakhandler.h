@@ -115,6 +115,8 @@ public:
     void setFileName(BreakpointId, const QString &fileName);
     QString functionName(BreakpointId id) const;
     void setFunctionName(BreakpointId, const QString &functionName);
+    QByteArray expression(BreakpointId id) const;
+    void setExpression(BreakpointId, const QByteArray &expression);
     BreakpointType type(BreakpointId id) const;
     void setType(BreakpointId id, const BreakpointType &type);
     quint64 address(BreakpointId id) const;
@@ -129,6 +131,7 @@ public:
     void updateLineNumberFromMarker(BreakpointId id, int lineNumber);
     void setMarkerFileAndLine(BreakpointId id,
         const QString &fileName, int lineNumber);
+    bool isWatchpoint(BreakpointId id) const;
     bool isTracepoint(BreakpointId id) const;
     void setTracepoint(BreakpointId, bool on);
     DebuggerEngine *engine(BreakpointId id) const;

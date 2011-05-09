@@ -119,8 +119,11 @@ QString BreakpointParameters::toString() const
         ts << " FunctionName: " << functionName;
         break;
     case BreakpointByAddress:
-    case Watchpoint:
+    case WatchpointAtAddress:
         ts << " Address: " << address;
+        break;
+    case WatchpointAtExpression:
+        ts << " Expression: " << expression;
         break;
     case BreakpointAtThrow:
     case BreakpointAtCatch:

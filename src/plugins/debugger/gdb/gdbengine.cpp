@@ -1499,7 +1499,11 @@ void GdbEngine::handleStop1(const GdbMi &data)
         const int bpNumber = wpt.findChild("number").data().toInt();
         const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
         const quint64 bpAddress = wpt.findChild("exp").data().mid(1).toULongLong(0, 0);
-        QString msg = msgWatchpointTriggered(id, bpNumber, bpAddress);
+        QString msg;
+        if (id && breakHandler()->type(id) == WatchpointAtExpression)
+            msg = msgWatchpointByExpressionTriggered(id, bpNumber, breakHandler()->expression(id));
+        if (id && breakHandler()->type(id) == WatchpointAtAddress)
+            msg = msgWatchpointByAddressTriggered(id, bpNumber, bpAddress);
         GdbMi value = data.findChild("value");
         GdbMi oldValue = value.findChild("old");
         GdbMi newValue = value.findChild("new");
@@ -1882,7 +1886,8 @@ unsigned GdbEngine::debuggerCapabilities() const
         | TracePointCapability
         | ReturnFromFunctionCapability
         | CreateFullBacktraceCapability
-        | WatchpointCapability
+        | WatchpointByAddressCapability
+        | WatchpointByExpressionCapability
         | AddWatcherCapability
         | ShowModuleSymbolsCapability
         | CatchCapability;
@@ -2229,7 +2234,7 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
             if (child.data().contains("tracepoint"))
                 response.tracepoint = true;
             else if (!child.data().contains("reakpoint"))
-                response.type = Watchpoint;
+                response.type = WatchpointAtAddress;
         }
         // This field is not present.  Contents needs to be parsed from
         // the plain "ignore" response.
@@ -2692,8 +2697,14 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
     QTC_ASSERT(handler->state(id) == BreakpointInsertRequested, /**/);
     handler->notifyBreakpointInsertProceeding(id);
     BreakpointType type = handler->type(id);
-    if (type == Watchpoint) {
+    if (type == WatchpointAtAddress) {
         postCommand("watch " + addressSpec(handler->address(id)),
+            NeedsStop | RebuildBreakpointModel,
+            CB(handleWatchInsert), id);
+        return;
+    }
+    if (type == WatchpointAtExpression) {
+        postCommand("watch " + handler->expression(id),
             NeedsStop | RebuildBreakpointModel,
             CB(handleWatchInsert), id);
         return;

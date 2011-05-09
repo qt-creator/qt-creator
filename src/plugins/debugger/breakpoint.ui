@@ -90,6 +90,19 @@
        <widget class="QLineEdit" name="lineEditAddress"/>
       </item>
       <item row="5" column="0">
+       <widget class="QLabel" name="labelExpression">
+        <property name="text">
+         <string>&amp;Expression:</string>
+        </property>
+        <property name="buddy">
+         <cstring>lineEditExpression</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="lineEditExpression"/>
+      </item>
+      <item row="6" column="0">
        <widget class="QLabel" name="labelFunction">
         <property name="text">
          <string>Fun&amp;ction:</string>
@@ -99,7 +112,7 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="QLineEdit" name="lineEditFunction"/>
       </item>
      </layout>
