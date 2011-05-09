@@ -118,6 +118,8 @@ public:
     QString popPendingMwcUpdate();
     QString popPendingGcceUpdate();
 signals:
+    // qt version information cache has been invalidated
+    void qtVersionsUpdated(const QString &qmakeCommand);
     void qtVersionsChanged(const QList<int> &uniqueIds);
     void updateExamples(QString, QString, QString);
 

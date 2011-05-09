@@ -192,6 +192,9 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     connect(m_ui->cleanUpButton, SIGNAL(clicked()), this, SLOT(cleanUpQtVersions()));
     userChangedCurrentVersion();
     updateCleanUpButton();
+
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsUpdated(QString)),
+            this, SLOT(qtVersionsUpdated(QString)));
 }
 
 bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
@@ -270,6 +273,7 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
     if (index == currentIndex()) {
         updateDebuggingHelperUi();
     }
+
     if (!success)
         showDebuggingBuildLog(item);
 }
@@ -302,6 +306,19 @@ void QtOptionsPageWidget::cleanUpQtVersions()
         }
     }
     updateCleanUpButton();
+}
+
+void QtOptionsPageWidget::qtVersionsUpdated(const QString &qmakeCommand)
+{
+    foreach (BaseQtVersion *version, m_versions) {
+        if (version->qmakeCommand() == qmakeCommand)
+            version->recheckDumper();
+    }
+    if (currentVersion()->qmakeCommand() == qmakeCommand) {
+        updateWidgets();
+        updateDescriptionLabel();
+        updateDebuggingHelperUi();
+    }
 }
 
 void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools)

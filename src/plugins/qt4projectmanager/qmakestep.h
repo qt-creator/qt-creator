@@ -137,6 +137,7 @@ public:
 private slots:
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
+    void qtVersionsUpdated(const QString &qmakeCommand);
     void qmakeBuildConfigChanged();
     void userArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();
@@ -148,7 +149,6 @@ private slots:
 
     // other
     void buildQmlDebuggingHelper();
-    void debuggingHelperBuildFinished(int qtVersionId, const QString &output);
 
 private:
     void updateSummaryLabel();

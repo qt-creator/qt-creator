@@ -451,6 +451,8 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(qtVersionChanged()));
     connect(step->qt4BuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
             this, SLOT(qmakeBuildConfigChanged()));
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsUpdated(QString)),
+            this, SLOT(qtVersionsUpdated(QString)));
 }
 
 void QMakeStepConfigWidget::init()
@@ -482,6 +484,12 @@ void QMakeStepConfigWidget::qtVersionChanged()
     updateQmlDebuggingOption();
 }
 
+void QMakeStepConfigWidget::qtVersionsUpdated(const QString &qmakeCommand)
+{
+    if (m_step->qt4BuildConfiguration()->qtVersion()->qmakeCommand() == qmakeCommand)
+        qtVersionChanged();
+}
+
 void QMakeStepConfigWidget::qmakeBuildConfigChanged()
 {
     Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
@@ -510,7 +518,6 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged()
 {
     if (m_ignoreChange)
         return;
-    m_ui.qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
     m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
 
     updateSummaryLabel();
@@ -576,10 +583,6 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version,
                                                                        DebuggingHelperBuildTask::QmlDebugging);
 
-    connect(buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
-            this, SLOT(debuggingHelperBuildFinished(int,QString)),
-            Qt::QueuedConnection);
-
     // pop up Application Output on error
     buildTask->showOutputOnError(true);
 
@@ -587,20 +590,6 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
     const QString taskName = tr("Building helpers");
     Core::ICore::instance()->progressManager()->addTask(task, taskName,
                                                         QLatin1String("Qt4ProjectManager::BuildHelpers"));
-}
-
-void QMakeStepConfigWidget::debuggingHelperBuildFinished(int qtVersionId, const QString &output)
-{
-    BaseQtVersion *version = QtVersionManager::instance()->version(qtVersionId);
-    if (!version) // qt version got deleted in between
-        return;
-
-    if (version == m_step->qt4BuildConfiguration()->qtVersion()) {
-        m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
-        updateSummaryLabel();
-        updateEffectiveQMakeCall();
-        updateQmlDebuggingOption();
-    }
 }
 
 void QMakeStepConfigWidget::updateSummaryLabel()

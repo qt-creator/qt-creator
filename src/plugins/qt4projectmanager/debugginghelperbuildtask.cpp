@@ -106,6 +106,11 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     m_qmakeCommand = version->qmakeCommand();
     m_makeCommand = tc->makeCommand();
     m_mkspec = version->mkspec();
+
+    // Make sure QtVersion cache is invalidated
+    connect(this, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
+            QtVersionManager::instance(), SLOT(updateQtVersion(int)),
+            Qt::QueuedConnection);
 }
 
 DebuggingHelperBuildTask::~DebuggingHelperBuildTask()
