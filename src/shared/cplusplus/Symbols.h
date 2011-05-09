@@ -141,11 +141,36 @@ public:
     virtual Declaration *asDeclaration()
     { return this; }
 
+    virtual EnumeratorDeclaration *asEnumeratorDeclarator()
+    { return 0; }
+
+    virtual const EnumeratorDeclaration *asEnumeratorDeclarator() const
+    { return 0; }
+
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
 
 private:
     FullySpecifiedType _type;
+};
+
+class CPLUSPLUS_EXPORT EnumeratorDeclaration: public Declaration
+{
+public:
+    EnumeratorDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    virtual ~EnumeratorDeclaration();
+
+    const StringLiteral *constantValue() const;
+    void setConstantValue(const StringLiteral *constantValue);
+
+    virtual EnumeratorDeclaration *asEnumeratorDeclarator()
+    { return this; }
+
+    virtual const EnumeratorDeclaration *asEnumeratorDeclarator() const
+    { return this; }
+
+private:
+    const StringLiteral *_constantValue;
 };
 
 class CPLUSPLUS_EXPORT Argument: public Symbol

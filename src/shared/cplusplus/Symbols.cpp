@@ -123,6 +123,20 @@ FullySpecifiedType Declaration::type() const
 void Declaration::visitSymbol0(SymbolVisitor *visitor)
 { visitor->visit(this); }
 
+EnumeratorDeclaration::EnumeratorDeclaration(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
+    : Declaration(translationUnit, sourceLocation, name)
+    , _constantValue(0)
+{}
+
+EnumeratorDeclaration::~EnumeratorDeclaration()
+{}
+
+const StringLiteral *EnumeratorDeclaration::constantValue() const
+{ return _constantValue; }
+
+void EnumeratorDeclaration::setConstantValue(const StringLiteral *constantValue)
+{ _constantValue = constantValue; }
+
 Argument::Argument(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
       _initializer(0)

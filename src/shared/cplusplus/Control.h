@@ -129,6 +129,9 @@ public:
     /// Creates a new Declaration symbol.
     Declaration *newDeclaration(unsigned sourceLocation, const Name *name);
 
+    /// Creates a new EnumeratorDeclaration symbol.
+    EnumeratorDeclaration *newEnumeratorDeclaration(unsigned sourceLocation, const Name *name);
+
     /// Creates a new Argument symbol.
     Argument *newArgument(unsigned sourceLocation, const Name *name = 0);
 

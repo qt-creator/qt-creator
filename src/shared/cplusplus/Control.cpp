@@ -326,6 +326,13 @@ public:
         return declaration;
     }
 
+    EnumeratorDeclaration *newEnumeratorDeclaration(unsigned sourceLocation, const Name *name)
+    {
+        EnumeratorDeclaration *decl = new EnumeratorDeclaration(translationUnit, sourceLocation, name);
+        symbols.push_back(decl);
+        return decl;
+    }
+
     Argument *newArgument(unsigned sourceLocation, const Name *name)
     {
         Argument *argument = new Argument(translationUnit, sourceLocation, name);
@@ -712,6 +719,9 @@ Block *Control::newBlock(unsigned sourceLocation)
 
 Declaration *Control::newDeclaration(unsigned sourceLocation, const Name *name)
 { return d->newDeclaration(sourceLocation, name); }
+
+EnumeratorDeclaration *Control::newEnumeratorDeclaration(unsigned sourceLocation, const Name *name)
+{ return d->newEnumeratorDeclaration(sourceLocation, name); }
 
 UsingNamespaceDirective *Control::newUsingNamespaceDirective(unsigned sourceLocation,
                                                                 const Name *name)

@@ -475,12 +475,17 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
 
     // unsigned identifier_token = ast->identifier_token;
     // unsigned equal_token = ast->equal_token;
-    ExpressionTy expression = this->expression(ast->expression);
+    /*ExpressionTy expression =*/ this->expression(ast->expression);
 
     if (ast->identifier_token) {
         const Name *name = identifier(ast->identifier_token);
-        Declaration *e = control()->newDeclaration(ast->identifier_token, name);
+        EnumeratorDeclaration *e = control()->newEnumeratorDeclaration(ast->identifier_token, name);
         e->setType(control()->integerType(IntegerType::Int)); // ### introduce IntegerType::Enumerator
+
+        if (ExpressionAST *expr = ast->expression) {
+            e->setConstantValue(asStringLiteral(expr->firstToken(), expr->lastToken()));
+        }
+
         symbol->addMember(e);
     }
 }
@@ -1146,6 +1151,17 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
     return type;
 }
 
+const StringLiteral *Bind::asStringLiteral(unsigned firstToken, unsigned lastToken)
+{
+    std::string buffer;
+    for (unsigned index = firstToken; index != lastToken; ++index) {
+        const Token &tk = tokenAt(index);
+        if (tk.whitespace() || tk.newline())
+            buffer += ' ';
+        buffer += tk.spell();
+    }
+    return control()->stringLiteral(buffer.c_str(), buffer.size());
+}
 
 // StatementAST
 bool Bind::visit(QtMemberDeclarationAST *ast)
@@ -2140,15 +2156,7 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     if (ast->expression) {
         unsigned startOfExpression = ast->expression->firstToken();
         unsigned endOfExpression = ast->expression->lastToken();
-        std::string buffer;
-        for (unsigned index = startOfExpression; index != endOfExpression; ++index) {
-            const Token &tk = tokenAt(index);
-            if (tk.whitespace() || tk.newline())
-                buffer += ' ';
-            buffer += tk.spell();
-        }
-        const StringLiteral *initializer = control()->stringLiteral(buffer.c_str(), buffer.size());
-        arg->setInitializer(initializer);
+        arg->setInitializer(asStringLiteral(startOfExpression, endOfExpression));
     }
 
     _scope->addMember(arg);
