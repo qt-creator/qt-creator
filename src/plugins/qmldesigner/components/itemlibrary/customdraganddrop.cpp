@@ -159,7 +159,7 @@ void CustomDragAndDropIcon::enter()
 {
     connect(&m_timeLine, SIGNAL( frameChanged (int)), this, SLOT(animateDrag(int)));
     m_timeLine.setFrameRange(0, 10);
-    m_timeLine.setDuration(150);
+    m_timeLine.setDuration(10);
     m_timeLine.setLoopCount(1);
     m_timeLine.setCurveShape(QTimeLine::EaseInCurve);
     m_timeLine.start();
