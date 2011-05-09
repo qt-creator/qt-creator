@@ -35,6 +35,8 @@
 #include "qmlobservertool.h"
 #include "qmldebugginglibrary.h"
 #include <qt4projectmanager/baseqtversion.h>
+#include <coreplugin/messagemanager.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qtversionmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -49,12 +51,20 @@ using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::DebuggingHelperLibrary;
 
 DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version, Tools tools) :
-    m_tools(tools & availableTools(version))
+    m_tools(tools & availableTools(version)),
+    m_invalidQt(false),
+    m_showErrors(true)
 {
     if (!version || !version->isValid())
         return;
     // allow type to be used in queued connections.
     qRegisterMetaType<DebuggingHelperBuildTask::Tools>("DebuggingHelperBuildTask::Tools");
+
+    // Print result in application ouptut
+    Core::MessageManager *messageManager = Core::MessageManager::instance();
+    connect(this, SIGNAL(logOutput(QString,bool)),
+            messageManager, SLOT(printToOutputPane(QString,bool)),
+            Qt::QueuedConnection);
 
     //
     // Extract all information we need from version, such that we don't depend on the existence
@@ -63,11 +73,13 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     m_qtId = version->uniqueId();
     m_qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
     if (m_qtInstallData.isEmpty()) {
-        m_errorMessage
+        const QString error
                 = QCoreApplication::translate(
                     "QtVersion",
                     "Cannot determine the installation path for Qt version '%1'."
                     ).arg(version->displayName());
+        log(QString(), error);
+        m_invalidQt = true;
         return;
     }
 
@@ -77,10 +89,12 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     // TODO: the debugging helper doesn't comply to actual tool chain yet
     QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->findToolChains(version->qtAbis().at(0));
     if (tcList.isEmpty()) {
-        m_errorMessage =
-                QCoreApplication::translate(
+        const QString error
+                = QCoreApplication::translate(
                     "QtVersion",
                     "The Qt Version has no tool chain.");
+        log(QString(), error);
+        m_invalidQt = true;
         return;
     }
     ProjectExplorer::ToolChain *tc = tcList.at(0);
@@ -92,11 +106,6 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     m_qmakeCommand = version->qmakeCommand();
     m_makeCommand = tc->makeCommand();
     m_mkspec = version->mkspec();
-
-    // Make sure QtVersion cache is invalidated
-    connect(this, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
-            QtVersionManager::instance(), SLOT(updateQtVersion(int)),
-            Qt::QueuedConnection);
 }
 
 DebuggingHelperBuildTask::~DebuggingHelperBuildTask()
@@ -125,28 +134,39 @@ DebuggingHelperBuildTask::Tools DebuggingHelperBuildTask::availableTools(const B
     return tools;
 }
 
+void DebuggingHelperBuildTask::showOutputOnError(bool show)
+{
+    m_showErrors = show;
+}
+
 void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
 {
     future.setProgressRange(0, 5);
     future.setProgressValue(1);
 
-    QString output;
-
     bool success = false;
-    if (m_errorMessage.isEmpty()) // might be already set in constructor
-        success = buildDebuggingHelper(future, &output);
+    if (!m_invalidQt)
+        success = buildDebuggingHelper(future);
 
-    if (success) {
-        emit finished(m_qtId, output, m_tools);
+    if (!success) {
+        const QString error
+                = QCoreApplication::translate(
+                    "QtVersion",
+                    "Build failed!");
+        log(QString(), error);
     } else {
-        qWarning("%s", qPrintable(m_errorMessage));
-        emit finished(m_qtId, m_errorMessage, m_tools);
+        const QString result
+                = QCoreApplication::translate(
+                    "QtVersion",
+                    "Build succeeded!");
+        log(result, QString());
     }
 
+    emit finished(m_qtId, m_log, m_tools);
     deleteLater();
 }
 
-bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &future, QString *output)
+bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &future)
 {
     Utils::BuildableHelperLibrary::BuildHelperArguments arguments;
     arguments.makeCommand = m_makeCommand;
@@ -156,48 +176,87 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
     arguments.environment = m_environment;
 
     if (m_tools & GdbDebugging) {
-        arguments.directory = DebuggingHelperLibrary::copy(m_qtInstallData, &m_errorMessage);
-        if (arguments.directory.isEmpty())
-            return false;
+        QString output, error;
+        bool success = true;
 
-        if (!DebuggingHelperLibrary::build(arguments, output, &m_errorMessage))
+        arguments.directory = DebuggingHelperLibrary::copy(m_qtInstallData, &error);
+        if (arguments.directory.isEmpty()
+                || !DebuggingHelperLibrary::build(arguments, &output, &error))
+            success = false;
+        log(output, error);
+        if (!success)
             return false;
     }
     future.setProgressValue(2);
 
     if (m_tools & QmlDump) {
-        arguments.directory = QmlDumpTool::copy(m_qtInstallData, &m_errorMessage);
-        if (arguments.directory.isEmpty())
-            return false;
-        if (!QmlDumpTool::build(arguments, output, &m_errorMessage))
+        QString output, error;
+        bool success = true;
+
+        arguments.directory = QmlDumpTool::copy(m_qtInstallData, &error);
+        if (arguments.directory.isEmpty()
+                || !QmlDumpTool::build(arguments, &output, &error))
+            success = false;
+        log(output, error);
+        if (!success)
             return false;
     }
     future.setProgressValue(3);
 
     QString qmlDebuggingDirectory;
     if (m_tools & QmlDebugging) {
-        qmlDebuggingDirectory = QmlDebuggingLibrary::copy(m_qtInstallData, &m_errorMessage);
-        if (qmlDebuggingDirectory.isEmpty())
-            return false;
+        QString output, error;
+
+        qmlDebuggingDirectory = QmlDebuggingLibrary::copy(m_qtInstallData, &error);
+
+        bool success = true;
         arguments.directory = qmlDebuggingDirectory;
         arguments.makeArguments += QLatin1String("all"); // build debug and release
-        if (!QmlDebuggingLibrary::build(arguments, output, &m_errorMessage))
+        if (arguments.directory.isEmpty()
+                || !QmlDebuggingLibrary::build(arguments, &output, &error)) {
+            success = false;
+        }
+
+        log(output, error);
+        if (!success) {
             return false;
+        }
         arguments.makeArguments.clear();
     }
     future.setProgressValue(4);
 
     if (m_tools & QmlObserver) {
-        arguments.directory = QmlObserverTool::copy(m_qtInstallData, &m_errorMessage);
-        if (arguments.directory.isEmpty())
-            return false;
+        QString output, error;
+        bool success = true;
 
+        arguments.directory = QmlObserverTool::copy(m_qtInstallData, &error);
         arguments.qmakeArguments << QLatin1String("INCLUDEPATH+=\"\\\"") + qmlDebuggingDirectory + "include\\\"\"";
         arguments.qmakeArguments << QLatin1String("LIBS+=-L\"\\\"") + qmlDebuggingDirectory + QLatin1String("\\\"\"");
 
-        if (!QmlObserverTool::build(arguments, output, &m_errorMessage))
+        if (arguments.directory.isEmpty()
+                || !QmlObserverTool::build(arguments, &output, &error)) {
+            success = false;
+        }
+        log(output, error);
+        if (!success) {
             return false;
+        }
     }
     future.setProgressValue(5);
     return true;
+}
+
+void DebuggingHelperBuildTask::log(const QString &output, const QString &error)
+{
+    if (output.isEmpty() && error.isEmpty())
+        return;
+
+    QString logEntry;
+    if (!output.isEmpty())
+        logEntry.append(output);
+    if (!error.isEmpty())
+        logEntry.append(error);
+    m_log.append(logEntry);
+
+    emit logOutput(logEntry, m_showErrors && !error.isEmpty());
 }

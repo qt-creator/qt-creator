@@ -326,6 +326,8 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
 
     // Run a debugging helper build task in the background.
     DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version, tools);
+    // Don't open General Messages pane with errors
+    buildTask->showOutputOnError(false);
     connect(buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
             this, SLOT(debuggingHelperBuildFinished(int,QString,DebuggingHelperBuildTask::Tools)),
             Qt::QueuedConnection);

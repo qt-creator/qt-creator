@@ -72,7 +72,8 @@ public:
         , m_failed(false)
     {
         qmlDumpBuilds()->insert(version->uniqueId(), this);
-
+        // Don't open General Messages pane with errors
+        m_buildTask->showOutputOnError(false);
         connect(m_buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
                 this, SLOT(finish(int,QString,DebuggingHelperBuildTask::Tools)),
                 Qt::QueuedConnection);

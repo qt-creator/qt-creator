@@ -59,15 +59,19 @@ public:
     explicit DebuggingHelperBuildTask(const BaseQtVersion *version, Tools tools = AllTools);
     virtual ~DebuggingHelperBuildTask();
 
+    void showOutputOnError(bool show);
     void run(QFutureInterface<void> &future);
 
     static Tools availableTools(const BaseQtVersion *version);
 
 signals:
+    // used internally
+    void logOutput(const QString &output, bool bringToForeground);
     void finished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
 
 private:
-    bool buildDebuggingHelper(QFutureInterface<void> &future, QString *output);
+    bool buildDebuggingHelper(QFutureInterface<void> &future);
+    void log(const QString &output, const QString &error);
 
     const Tools m_tools;
 
@@ -78,7 +82,9 @@ private:
     QString m_makeCommand;
     QString m_mkspec;
     Utils::Environment m_environment;
-    QString m_errorMessage;
+    QString m_log;
+    bool m_invalidQt;
+    bool m_showErrors;
 };
 
 } //namespace Internal

@@ -580,6 +580,9 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
             this, SLOT(debuggingHelperBuildFinished(int,QString)),
             Qt::QueuedConnection);
 
+    // pop up Application Output on error
+    buildTask->showOutputOnError(true);
+
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");
     Core::ICore::instance()->progressManager()->addTask(task, taskName,
@@ -598,12 +601,6 @@ void QMakeStepConfigWidget::debuggingHelperBuildFinished(int qtVersionId, const 
         updateEffectiveQMakeCall();
         updateQmlDebuggingOption();
     }
-
-
-    Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
-    messageManager->printToOutputPane(output);
-    if (!version->hasQmlDebuggingLibrary())
-        messageManager->showOutputPane();
 }
 
 void QMakeStepConfigWidget::updateSummaryLabel()
