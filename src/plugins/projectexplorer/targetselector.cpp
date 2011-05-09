@@ -91,9 +91,7 @@ void TargetSelector::removeTarget(int index)
 
     m_targets.removeAt(index);
 
-    if (m_currentTargetIndex >= m_targets.count()) {
-        setCurrentIndex(-1);
-    } else if (m_currentTargetIndex >= index) {
+    if (m_currentTargetIndex > index) {
         --m_currentTargetIndex;
         // force a signal since the index has changed
         emit currentChanged(m_currentTargetIndex, m_targets.at(m_currentTargetIndex).currentSubIndex);
