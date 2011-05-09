@@ -56,6 +56,8 @@
 #include "gdb/gdbmi.h"
 #include "shared/cdbsymbolpathlisteditor.h"
 
+#include <TranslationUnit.h>
+
 #include <coreplugin/icore.h>
 #include <texteditor/itexteditor.h>
 #include <projectexplorer/abi.h>
@@ -66,6 +68,11 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/consoleprocess.h>
+#include <utils/fileutils.h>
+
+#include <cplusplus/findcdbbreakpoint.h>
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/ModelManagerInterface.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
@@ -2365,8 +2372,65 @@ bool CdbEngine::acceptsBreakpoint(BreakpointId id) const
     return true;
 }
 
+// Context for fixing file/line-type breakpoints, for delayed creation.
+class BreakpointCorrectionContext
+{
+public:
+    explicit BreakpointCorrectionContext(const CPlusPlus::Snapshot &s,
+                                         const CPlusPlus::CppModelManagerInterface::WorkingCopy &workingCopy) :
+        m_snapshot(s), m_workingCopy(workingCopy) {}
+
+    unsigned fixLineNumber(const QString &fileName, unsigned lineNumber) const;
+
+private:
+    const CPlusPlus::Snapshot m_snapshot;
+    CPlusPlus::CppModelManagerInterface::WorkingCopy m_workingCopy;
+};
+
+static CPlusPlus::Document::Ptr getParsedDocument(const QString &fileName,
+                                                  const CPlusPlus::CppModelManagerInterface::WorkingCopy &workingCopy,
+                                                  const CPlusPlus::Snapshot &snapshot)
+{
+    QString src;
+    if (workingCopy.contains(fileName)) {
+        src = workingCopy.source(fileName);
+    } else {
+        Utils::FileReader reader;
+        if (reader.fetch(fileName)) // ### FIXME error reporting
+            src = QString::fromLocal8Bit(reader.data()); // ### FIXME encoding
+    }
+
+    QByteArray source = snapshot.preprocessedCode(src, fileName);
+
+    CPlusPlus::Document::Ptr doc = snapshot.documentFromSource(source, fileName);
+    doc->parse();
+    return doc;
+}
+
+unsigned BreakpointCorrectionContext::fixLineNumber(const QString &fileName,
+                                                    unsigned lineNumber) const
+{
+    CPlusPlus::Document::Ptr doc = m_snapshot.document(fileName);
+    if (!doc || !doc->translationUnit()->ast())
+        doc = getParsedDocument(fileName, m_workingCopy, m_snapshot);
+
+    CPlusPlus::FindCdbBreakpoint findVisitor(doc->translationUnit());
+    const unsigned correctedLine = findVisitor(lineNumber);
+    if (!correctedLine) {
+        qWarning("Unable to find breakpoint location for %s:%d",
+                 qPrintable(QDir::toNativeSeparators(fileName)), lineNumber);
+        return lineNumber;
+    }
+    if (debug)
+        qDebug("Code model: Breakpoint line %u -> %u in %s",
+               lineNumber, correctedLine, qPrintable(fileName));
+    return correctedLine;
+}
+
 void CdbEngine::attemptBreakpointSynchronization()
 {
+
+
     if (debug)
         qDebug("attemptBreakpointSynchronization in %s", stateName(state()));
     // Check if there is anything to be done at all.
@@ -2415,6 +2479,7 @@ void CdbEngine::attemptBreakpointSynchronization()
     // Breakhandler::setResponse() on pending breakpoints clears the pending flag.
     // handleBreakPoints will the complete that information and set it on the break handler.
     bool addedChanged = false;
+    QScopedPointer<BreakpointCorrectionContext> lineCorrection;
     foreach (BreakpointId id, ids) {
         BreakpointParameters parameters = handler->breakpointData(id);
         BreakpointResponse response;
@@ -2427,7 +2492,15 @@ void CdbEngine::attemptBreakpointSynchronization()
         }
         switch (handler->state(id)) {
         case BreakpointInsertRequested:
-            postCommand(cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0);
+            if (parameters.type == BreakpointByFileAndLine) {
+                if (lineCorrection.isNull())
+                    lineCorrection.reset(new BreakpointCorrectionContext(debuggerCore()->cppCodeModelSnapshot(),
+                                                                         CPlusPlus::CppModelManagerInterface::instance()->workingCopy()));
+                response.lineNumber = lineCorrection->fixLineNumber(parameters.fileName, parameters.lineNumber);
+                postCommand(cdbAddBreakpointCommand(response, m_sourcePathMappings, id, false), 0);
+            } else {
+                postCommand(cdbAddBreakpointCommand(parameters, m_sourcePathMappings, id, false), 0);
+            }
             if (!parameters.enabled)
                 postCommand("bd " + QByteArray::number(id), 0);
             handler->notifyBreakpointInsertProceeding(id);
