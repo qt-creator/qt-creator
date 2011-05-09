@@ -16,7 +16,7 @@ FindCdbBreakpoint::FindCdbBreakpoint(TranslationUnit *unit)
 unsigned FindCdbBreakpoint::searchFrom(unsigned line)
 {
     m_initialLine = line;
-    m_breakpointLine = 0;
+    m_breakpointLine = NO_LINE_FOUND;
 
     accept(translationUnit()->ast());
 
@@ -41,7 +41,7 @@ unsigned FindCdbBreakpoint::endLine(AST *ast) const
     if (ast)
         return endLine(ast->lastToken() - 1);
     else
-        return 0;
+        return NO_LINE_FOUND;
 }
 
 bool FindCdbBreakpoint::preVisit(AST *ast)
@@ -95,13 +95,13 @@ bool FindCdbBreakpoint::visit(CompoundStatementAST *ast)
 bool FindCdbBreakpoint::visit(DeclarationStatementAST *ast)
 {
     foundLine(ast->lastToken() - 1);
-    return m_breakpointLine == 0;
+    return m_breakpointLine == NO_LINE_FOUND;
 }
 
 bool FindCdbBreakpoint::visit(DoStatementAST *ast)
 {
     accept(ast->statement);
-    if (m_breakpointLine == 0)
+    if (m_breakpointLine == NO_LINE_FOUND)
         foundLine(ast->rparen_token);
 
     return false;

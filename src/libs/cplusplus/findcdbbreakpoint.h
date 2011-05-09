@@ -9,12 +9,22 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT FindCdbBreakpoint: protected ASTVisitor
 {
 public:
+    static const unsigned NO_LINE_FOUND = 0;
+
 public:
     FindCdbBreakpoint(TranslationUnit *unit);
 
     unsigned operator()(unsigned line)
     { return searchFrom(line); }
 
+    /**
+     * Search for the next breakable line of code.
+     *
+     * \param line the starting line from where the next breakable code line
+     *        should be found
+     * \return the next breakable code line (1-based), or \c NO_LINE_FOUND if
+     *         no line could be found.
+     */
     unsigned searchFrom(unsigned line);
 
 protected:
