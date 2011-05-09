@@ -350,12 +350,31 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
     if (!member || !parentMember)
         return;
 
+    unsigned begin, end, startColumn, startLine;
+    bool accepted = false;
+
     // create new objects
     if (UiObjectDefinition* uiObjectDef = cast<UiObjectDefinition *>(member)) {
-        unsigned begin = uiObjectDef->firstSourceLocation().begin();
-        unsigned end = uiObjectDef->lastSourceLocation().end();
-        QString qmlText = QString(uiObjectDef->firstSourceLocation().startColumn - 1, QLatin1Char(' '));
+        begin = uiObjectDef->firstSourceLocation().begin();
+        end = uiObjectDef->lastSourceLocation().end();
+        startColumn = uiObjectDef->firstSourceLocation().startColumn;
+        startLine = uiObjectDef->firstSourceLocation().startLine;
+        accepted = true;
+    }
+
+    if (UiObjectBinding* uiObjectBind = cast<UiObjectBinding *>(member)) {
+        SourceLocation definitionLocation = uiObjectBind->qualifiedTypeNameId->identifierToken;
+        begin = definitionLocation.begin();
+        end = uiObjectBind->lastSourceLocation().end();
+        startColumn = definitionLocation.startColumn;
+        startLine = definitionLocation.startLine;
+        accepted = true;
+    }
+
+    if (accepted) {
+        QString qmlText = QString(startColumn - 1, QLatin1Char(' '));
         qmlText += doc->source().midRef(begin, end - begin);
+
         QStringList importList;
         for (UiImportList *it = doc->qmlProgram()->imports; it; it = it->next) {
             if (!it->import)
@@ -368,7 +387,7 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
 
         // encode editorRevision, lineNumber in URL. See ClientProxy::buildDebugIdHashRecursive
         QString filename = QLatin1String("file://") + doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
-                         + QLatin1Char(':') + QString::number(uiObjectDef->firstSourceLocation().startLine-importList.count());
+                         + QLatin1Char(':') + QString::number(startLine-importList.count());
         foreach(DebugId debugId, debugReferences) {
             if (debugId != -1) {
                 createObject(qmlText, debugId, importList, filename);
@@ -484,11 +503,14 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
 
         if (!M.way2.contains(y)) {
             UiObjectMember* parent = parents2.parent.value(y);
-            if (!M.way2.contains(parent))
-                continue;
-            if (debug)
-                qDebug () << "Delta::operator():  insert " << label(y, doc2) << " to " << label(parent, doc2);
-            insert(y, parent, newDebuggIds.value(parent), doc2);
+            if ( parent->kind == QmlJS::AST::Node::Kind_UiArrayBinding )
+                parent = parents2.parent.value(parent);
+
+            if (M.way2.contains(parent) && newDebuggIds.value(parent).count() > 0) {
+                if (debug)
+                    qDebug () << "Delta::operator():  insert " << label(y, doc2) << " to " << label(parent, doc2);
+                insert(y, parent, newDebuggIds.value(parent), doc2);
+            }
             continue;
         }
         UiObjectMember *x = M.way2[y];
@@ -500,6 +522,8 @@ Delta::DebugIdMap Delta::operator()(const Document::Ptr &doc1, const Document::P
                 updateIds = debugIds[x];
                 newDebuggIds[y] = updateIds;
             }
+            if (debug)
+                qDebug () << "Delta::operator(): update " << label(x,doc1);
             update(x, doc1, y, doc2, updateIds);
         }
         //qDebug() << "Delta::operator():  match "<< label(x, doc1) << "with parent " << label(parents1.parent.value(x), doc1)

@@ -421,16 +421,28 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
     QObject *newObject = component.create(parentContext);
     if (newObject) {
         newObject->setParent(parent);
-        QDeclarativeItem *parentItem = qobject_cast<QDeclarativeItem*>(parent);
-        QDeclarativeItem *newItem    = qobject_cast<QDeclarativeItem*>(newObject);
-        if (parentItem && newItem)
-            newItem->setParentItem(parentItem);
-        else {
+        do {
+            QDeclarativeItem *parentItem = qobject_cast<QDeclarativeItem*>(parent);
+            QDeclarativeItem *newItem    = qobject_cast<QDeclarativeItem*>(newObject);
+            if (parentItem && newItem) {
+                newItem->setParentItem(parentItem);
+                break;
+            }
+
             QDeclarativeState *parentState = qobject_cast<QDeclarativeState*>(parent);
             QDeclarativeStateOperation *newPropertyChanges = qobject_cast<QDeclarativeStateOperation *>(newObject);
-            if (parentState && newPropertyChanges)
+            if (parentState && newPropertyChanges) {
                 (*parentState) << newPropertyChanges;
-        }
+                break;
+            }
+
+            QDeclarativeState *newState = qobject_cast<QDeclarativeState*>(newObject);
+            if (parentItem && newState) {
+                QDeclarativeListReference statesList(parentItem, "states");
+                statesList.append(newObject);
+                break;
+            }
+        } while (false);
     }
 }
 
