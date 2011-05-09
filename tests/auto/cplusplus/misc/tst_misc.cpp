@@ -35,6 +35,8 @@
 #include <QtTest>
 #include <QtDebug>
 
+#include <findbreakpoint.h>
+
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 
@@ -45,6 +47,8 @@ class tst_Misc: public QObject
 private slots:
     void diagnosticClient_error();
     void diagnosticClient_warning();
+
+    void findBreakpoints();
 };
 
 void tst_Misc::diagnosticClient_error()
@@ -85,6 +89,59 @@ void tst_Misc::diagnosticClient_warning()
     QCOMPARE(msg.level(), (int) Document::DiagnosticMessage::Warning);
     QCOMPARE(msg.line(), 1U);
     QCOMPARE(msg.column(), 17U);
+}
+
+void tst_Misc::findBreakpoints()
+{
+    const QByteArray src("\n"                   // line 0
+                         "class C {\n"
+                         "  int a;\n"
+                         "  C():\n"
+                         "    a(0)\n"           // line 4
+                         "  {\n"                // line 5
+                         "  }\n"
+                         "  void empty()\n"     // line 7
+                         "  {\n"
+                         "  }\n"                // line 9
+                         "  void misc()    \n"
+                         "  {              \n"  // line 11
+                         "    if (         \n"  // line 12
+                         "          a      \n"  // line 13
+                         "        &&       \n"  // line 14
+                         "          b      \n"  // line 15
+                         "       )         \n"  // line 16
+                         "    {            \n"  // line 17
+                         "    }            \n"  // line 18
+                         "    while (      \n"  // line 19
+                         "          a      \n"  // line 20
+                         "        &&       \n"  // line 21
+                         "          b      \n"  // line 22
+                         "       )         \n"  // line 23
+                         "    {            \n"  // line 24
+                         "    }            \n"  // line 25
+                         "    do {         \n"  // line 26
+                         "    }            \n"  // line 27
+                         "    while (      \n"  // line 28
+                         "          a      \n"  // line 39
+                         "        &&       \n"  // line 30
+                         "          b      \n"  // line 31
+                         "       );        \n"  // line 32
+                         "  }              \n"
+                         "};               \n"
+                         );
+    Document::Ptr doc = Document::create("findContstructorBreakpoint");
+    QVERIFY(!doc.isNull());
+    doc->setSource(src);
+    bool success = doc->parse();
+    QVERIFY(success);
+    QCOMPARE(doc->diagnosticMessages().size(), 0);
+    FindCdbBreakpoint findBreakpoint(doc->translationUnit());
+
+    QCOMPARE(findBreakpoint(0), 5U);
+    QCOMPARE(findBreakpoint(7), 9U);
+    QCOMPARE(findBreakpoint(11), 16U);
+    QCOMPARE(findBreakpoint(17), 23U);
+    QCOMPARE(findBreakpoint(18), 23U);
 }
 
 QTEST_MAIN(tst_Misc)
