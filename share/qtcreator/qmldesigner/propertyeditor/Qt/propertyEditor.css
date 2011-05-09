@@ -433,3 +433,10 @@ QMenu::separator {
      border-radius: 3px;
  }
 
+QToolTip {
+    color: #333333;
+    background-color: #eeeeee;
+    border-color: #333333;
+    border-width: 1px;
+}
+
