@@ -191,8 +191,8 @@ QStringList S60DeployConfiguration::signedPackages() const
 QString S60DeployConfiguration::createPackageName(const QString &baseName) const
 {
     QString name(baseName);
-    name += isSigned() ? QLatin1String("") : QLatin1String("_unsigned");
     name += runSmartInstaller() ? QLatin1String("_installer") : QLatin1String("");
+    name += isSigned() ? QLatin1String("") : QLatin1String("_unsigned");
     name += QLatin1String(".sis");
     return name;
 }
