@@ -105,10 +105,12 @@ public:
     void cleanUp();
     void completeCreation();
 
+    QString displayName() const;
     QString globalVendorName() const;
     QString localisedVendorNames() const;
     bool isVendorNameValid(const QString &vendorName) const;
 
+    QString nameFromTarget() const;
     QString qtVersion() const;
 
     QString uid3() const;
@@ -128,9 +130,11 @@ public:
 
     bool hasSucceeded();
 
+    void setDisplayName(const QString &displayName);
     void setVendorName(const QString &vendorName);
     void setLocalVendorNames(const QString &localVendorNames);
     void setAppUid(const QString &appuid);
+
 
 signals:
     void progressReport(const QString& status, QColor c);
@@ -165,6 +169,7 @@ private:
     QString m_vendorName;
     QString m_localVendorNames;
     QString m_appUid;
+    QString m_displayName;
 
     bool m_finishedAndSuccessful;
 };

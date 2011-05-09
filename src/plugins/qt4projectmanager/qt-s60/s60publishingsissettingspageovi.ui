@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>301</width>
-    <height>346</height>
+    <width>453</width>
+    <height>630</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,31 +23,324 @@
    <property name="sizeConstraint">
     <enum>QLayout::SetMinAndMaxSize</enum>
    </property>
-   <item row="0" column="0">
-    <widget class="QLabel" name="globalVendorNameLabel">
+   <item row="10" column="1" colspan="2">
+    <widget class="QLabel" name="localisedVendorNamesErrorReasonLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
-      <string>Global vendor name:</string>
+      <string/>
      </property>
     </widget>
    </item>
-   <item row="0" column="2">
-    <widget class="QLabel" name="globalVendorNameOkLabel">
+   <item row="10" column="0">
+    <widget class="QLabel" name="localisedVendorNamesErrorLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>:/projectexplorer/images/ConnectionOn.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="qtVersionLabel">
+   <item row="9" column="2">
+    <widget class="QLabel" name="localisedVendorNamesOkLabel">
      <property name="text">
-      <string>Qt version used in builds:</string>
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="9" column="1">
+    <widget class="QLineEdit" name="localisedVendorNamesLineEdit">
+     <property name="text">
+      <string>Localised Vendor Names</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="globalVendorNameLineEdit">
+     <property name="text">
+      <string>Current Global Vendor Name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="24" column="1" colspan="3">
+    <widget class="QLabel" name="capabilitiesErrorReasonLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="4">
+    <widget class="Line" name="line_5">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="displayNameErrorLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="displayNameLabel">
+     <property name="text">
+      <string>Display name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="19" column="1">
+    <widget class="QLabel" name="uid3WarningReasonLabel">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="19" column="0">
+    <widget class="QLabel" name="uid3WarningLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="20" column="0" colspan="4">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1" colspan="2">
+    <widget class="QLabel" name="globalVendorNameWarningReasonLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="globalVendorNameWarningLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="1" colspan="2">
+    <widget class="QLabel" name="qtVersionWarningReasonLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="0">
+    <widget class="QLabel" name="qtVersionWarningLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="localisedVendorNamesWarningLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1" colspan="2">
+    <widget class="QLabel" name="localisedVendorNamesWarningReasonLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="4">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="24" column="0">
+    <widget class="QLabel" name="capabilitiesErrorLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="0">
+    <widget class="QLabel" name="uid3ErrorLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="0">
+    <widget class="QLabel" name="qtVersionErrorLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="localisedVendorNamesLabel">
+     <property name="text">
+      <string>Localised vendor names:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="23" column="0">
+    <widget class="QLabel" name="capabilitiesLabel">
+     <property name="text">
+      <string>Capabilities:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="3">
+    <widget class="QLabel" name="globalVendorNameErrorReasonLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="2">
+    <widget class="QLabel" name="uid3OkLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="1">
+    <widget class="QLineEdit" name="uid3LineEdit">
+     <property name="text">
+      <string>Current UID3</string>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="0">
+    <widget class="QLabel" name="uid3Label">
+     <property name="text">
+      <string>Application UID:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="2">
+    <widget class="QLabel" name="qtVersionOkLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
     <widget class="QLabel" name="qtVersionDisplayLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -63,48 +356,14 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="2">
-    <widget class="QLabel" name="qtVersionOkLabel">
+   <item row="13" column="0">
+    <widget class="QLabel" name="qtVersionLabel">
      <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/projectexplorer/images/ConnectionOn.png</pixmap>
+      <string>Qt version used in builds:</string>
      </property>
     </widget>
    </item>
-   <item row="12" column="0">
-    <widget class="QLabel" name="uid3Label">
-     <property name="text">
-      <string>Application UID:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="2">
-    <widget class="QLabel" name="uid3OkLabel">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/projectexplorer/images/ConnectionOn.png</pixmap>
-     </property>
-    </widget>
-   </item>
-   <item row="12" column="1">
-    <widget class="QLineEdit" name="uid3LineEdit">
-     <property name="text">
-      <string>Current UID3</string>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="0">
-    <widget class="QLabel" name="capabilitiesLabel">
-     <property name="text">
-      <string>Capabilities:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="18" column="1">
+   <item row="23" column="1">
     <widget class="QLabel" name="capabilitiesDisplayLabel">
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -114,18 +373,39 @@
      </property>
     </widget>
    </item>
-   <item row="18" column="2">
-    <widget class="QLabel" name="capabilitiesOkLabel">
+   <item row="5" column="0">
+    <widget class="QLabel" name="globalVendorNameLabel">
+     <property name="text">
+      <string>Global vendor name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QLabel" name="globalVendorNameOkLabel">
      <property name="text">
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>:/projectexplorer/images/ConnectionOn.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="3">
-    <widget class="QLabel" name="globalVendorNameErrorReasonLabel">
+   <item row="16" column="0" colspan="4">
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="4">
+    <widget class="Line" name="line_4">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="globalVendorNameErrorLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -135,22 +415,12 @@
      <property name="text">
       <string/>
      </property>
-    </widget>
-   </item>
-   <item row="9" column="1" colspan="3">
-    <widget class="QLabel" name="qtVersionErrorReasonLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
      </property>
     </widget>
    </item>
-   <item row="13" column="1" colspan="3">
+   <item row="18" column="1" colspan="3">
     <widget class="QLabel" name="uid3ErrorReasonLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -163,8 +433,8 @@
      </property>
     </widget>
    </item>
-   <item row="19" column="1" colspan="3">
-    <widget class="QLabel" name="capabilitiesErrorReasonLabel">
+   <item row="14" column="1" colspan="3">
+    <widget class="QLabel" name="qtVersionErrorReasonLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -176,257 +446,48 @@
      </property>
     </widget>
    </item>
-   <item row="11" column="0" colspan="4">
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="4">
-    <widget class="Line" name="line_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="globalVendorNameErrorLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item row="23" column="2">
+    <widget class="QLabel" name="capabilitiesOkLabel">
      <property name="text">
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>:/projectexplorer/images/compile_error.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
-    <widget class="QLabel" name="qtVersionErrorLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item row="3" column="0">
+    <widget class="QLabel" name="displayNameWarningLabel">
      <property name="text">
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>:/projectexplorer/images/compile_error.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
      </property>
     </widget>
    </item>
-   <item row="13" column="0">
-    <widget class="QLabel" name="uid3ErrorLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="displayNameLineEdit"/>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="displayNameOkLabel">
      <property name="text">
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>:/projectexplorer/images/compile_error.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
      </property>
     </widget>
    </item>
-   <item row="19" column="0">
-    <widget class="QLabel" name="capabilitiesErrorLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/projectexplorer/images/compile_error.png</pixmap>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="globalVendorNameLineEdit">
-     <property name="text">
-      <string>Current Global Vendor Name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="localisedVendorNamesLabel">
-     <property name="text">
-      <string>Localised vendor names:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="localisedVendorNamesLineEdit">
-     <property name="text">
-      <string>Localised Vendor Names</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="2">
-    <widget class="QLabel" name="localisedVendorNamesOkLabel">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/projectexplorer/images/ConnectionOn.png</pixmap>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="localisedVendorNamesErrorLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/projectexplorer/images/compile_error.png</pixmap>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1" colspan="2">
-    <widget class="QLabel" name="localisedVendorNamesErrorReasonLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item row="3" column="1">
+    <widget class="QLabel" name="displayNameWarningReasonLabel">
      <property name="text">
       <string/>
      </property>
     </widget>
    </item>
-   <item row="7" column="0" colspan="3">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="localisedVendorNamesWarningLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1" colspan="2">
-    <widget class="QLabel" name="localisedVendorNamesWarningReasonLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <widget class="QLabel" name="qtVersionWarningLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="1" colspan="2">
-    <widget class="QLabel" name="qtVersionWarningReasonLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="globalVendorNameWarningLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1" colspan="2">
-    <widget class="QLabel" name="globalVendorNameWarningReasonLabel">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="15" column="0" colspan="3">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="0">
-    <widget class="QLabel" name="uid3WarningLabel">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
-     </property>
-    </widget>
-   </item>
-   <item row="14" column="1">
-    <widget class="QLabel" name="uid3WarningReasonLabel">
+   <item row="2" column="1">
+    <widget class="QLabel" name="displayNameErrorReasonLabel">
      <property name="text">
       <string/>
      </property>
@@ -434,6 +495,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../projectexplorer/projectexplorer.qrc"/>
+ </resources>
  <connections/>
 </ui>

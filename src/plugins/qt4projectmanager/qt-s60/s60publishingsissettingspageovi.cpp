@@ -76,6 +76,11 @@ void S60PublishingSisSettingsPageOvi::initializePage()
 
     showWarningsForUnenforcableChecks();
 
+    //Check Display Name
+    ui->displayNameLineEdit->setText(m_publisher->displayName());
+    displayNameChanged();
+    connect(ui->displayNameLineEdit,SIGNAL(textChanged(QString)),SLOT(displayNameChanged()));
+
     //Check Global Vendor Name
     ui->globalVendorNameLineEdit->setText(m_publisher->globalVendorName());
     globalVendorNameChanged();
@@ -129,6 +134,29 @@ void S60PublishingSisSettingsPageOvi::reflectSettingState(bool settingState, QLa
     // It essentially forces QWizard to update its layout. (Until setTitleFormat checks whether the format changed at all...)
     // todo figure out whether the QWizard should be doing that automatically
     wizard()->setTitleFormat(wizard()->titleFormat());
+}
+
+void S60PublishingSisSettingsPageOvi::displayNameChanged()
+{
+    reflectSettingState(!ui->displayNameLineEdit->text().isEmpty(),
+                        ui->displayNameOkLabel,
+                        ui->displayNameErrorLabel,
+                        ui->displayNameErrorReasonLabel,
+                        tr("This should be application's display name. <br>"
+                           "It can't' be empty.<br>"));
+
+    const int visibleCharacters = 12;
+    if (ui->displayNameLineEdit->text().length() > visibleCharacters) {
+        ui->displayNameWarningLabel->show();
+        ui->displayNameWarningReasonLabel->setText(tr("The display name is quite long.<br>"
+                                                   "It might not be fully visible in the phone's menu.<br>"));
+        ui->displayNameWarningReasonLabel->show();
+    } else {
+        ui->displayNameWarningLabel->hide();
+        ui->displayNameWarningReasonLabel->hide();
+    }
+
+    m_publisher->setDisplayName(ui->displayNameLineEdit->text());
 }
 
 void S60PublishingSisSettingsPageOvi::globalVendorNameChanged()

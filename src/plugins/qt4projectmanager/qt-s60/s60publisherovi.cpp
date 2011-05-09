@@ -103,6 +103,12 @@ void S60PublisherOvi::setBuildConfiguration(Qt4BuildConfiguration *qt4bc)
     m_qt4bc = qt4bc;
 }
 
+
+void S60PublisherOvi::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
+
 void S60PublisherOvi::setVendorName(const QString &vendorName)
 {
     m_vendorName = vendorName;
@@ -159,7 +165,6 @@ void S60PublisherOvi::completeCreation()
     m_createSisProc->setWorkingDirectory(m_qt4bc->buildDirectory());
 
     // set up access to vendor names
-
     QStringList deploymentLevelVars = m_reader->values("DEPLOYMENT");
     QStringList vendorInfoVars;
     QStringList valueLevelVars;
@@ -176,6 +181,24 @@ void S60PublisherOvi::completeCreation()
             }
         }
     }
+}
+
+QString S60PublisherOvi::nameFromTarget() const
+{
+    QString target = m_reader->value(QLatin1String("TARGET"));
+    if (target.isEmpty())
+        target = QFileInfo(m_qt4project->rootProjectNode()->path()).baseName();
+    return target;
+}
+
+QString S60PublisherOvi::displayName() const
+{
+    const QStringList displayNameList = m_reader->values(QLatin1String("DEPLOYMENT.display_name"));
+
+    if (displayNameList.isEmpty())
+        return nameFromTarget();
+
+    return displayNameList.join(QLatin1String(" "));
 }
 
 QString S60PublisherOvi::globalVendorName() const
@@ -297,10 +320,13 @@ void S60PublisherOvi::updateProFile(const QString &var, const QString &values)
 void S60PublisherOvi::updateProFile()
 {
     if (m_vendorInfoVariable.isEmpty()) {
-        m_vendorInfoVariable = "vendorinfo";
-        updateProFile("my_deployment.pkg_prerules", m_vendorInfoVariable);
-        updateProFile("DEPLOYMENT", "my_deployment");
+        m_vendorInfoVariable = QLatin1String("vendorinfo");
+        updateProFile(QLatin1String("my_deployment.pkg_prerules"), m_vendorInfoVariable);
+        updateProFile(QLatin1String("DEPLOYMENT"), QLatin1String("my_deployment"));
     }
+
+    if (!m_displayName.isEmpty() && m_displayName != nameFromTarget())
+        updateProFile(QLatin1String("DEPLOYMENT.display_name"), m_displayName);
 
     updateProFile(m_vendorInfoVariable, "\"%{" + m_localVendorNames + "}\" \":\\\"" + m_vendorName + "\\\"\"" );
     updateProFile("TARGET.UID3", m_appUid);
@@ -365,8 +391,6 @@ void S60PublisherOvi::endBuild(int result)
         fileNamePostFix =  QLatin1String("_installer.sis");
 
     QString resultFile = m_qt4bc->buildDirectory() + "/" + m_qt4project->displayName() + fileNamePostFix;
-
-
 
     QFileInfo fi(resultFile);
     if (result == QProcess::NormalExit && fi.exists()) {
