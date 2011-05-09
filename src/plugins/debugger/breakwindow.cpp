@@ -99,6 +99,8 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
     : QDialog(parent), m_enabledParts(-1), m_previousType(UnknownType),
       m_firstTypeChange(true)
 {
+    m_ui.setupUi(this);
+    m_ui.comboBoxType->setMaxVisibleItems(20);
     if (!(engineCapabilities & BreakConditionCapability))
         m_enabledParts &= ~ConditionPart;
     if (!(engineCapabilities & BreakModuleCapability))
@@ -106,14 +108,13 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
     if (!(engineCapabilities & TracePointCapability))
         m_enabledParts &= ~TracePointPart;
     // Match BreakpointType (omitting unknown type).
-    m_ui.setupUi(this);
     QStringList types;
     types << tr("File name and line number")
           << tr("Function name")
-          << tr("Address")
+          << tr("Memory address")
           << tr("Break when C++ exception is thrown")
           << tr("Break when C++ exception is caught")
-          << tr("Break when function \"main()\" starts")
+          << tr("Break when function \"main\" starts")
           << tr("Break when a new process is forked")
           << tr("Break when a new process is executed")
           << tr("Break when a system call is executed")
