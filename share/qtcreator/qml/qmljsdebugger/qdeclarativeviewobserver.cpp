@@ -422,6 +422,7 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
     if (newObject) {
         newObject->setParent(parent);
         do {
+            // add child item
             QDeclarativeItem *parentItem = qobject_cast<QDeclarativeItem*>(parent);
             QDeclarativeItem *newItem    = qobject_cast<QDeclarativeItem*>(newObject);
             if (parentItem && newItem) {
@@ -429,6 +430,7 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
                 break;
             }
 
+            // add property change
             QDeclarativeState *parentState = qobject_cast<QDeclarativeState*>(parent);
             QDeclarativeStateOperation *newPropertyChanges = qobject_cast<QDeclarativeStateOperation *>(newObject);
             if (parentState && newPropertyChanges) {
@@ -436,12 +438,39 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
                 break;
             }
 
+            // add states
             QDeclarativeState *newState = qobject_cast<QDeclarativeState*>(newObject);
             if (parentItem && newState) {
                 QDeclarativeListReference statesList(parentItem, "states");
                 statesList.append(newObject);
                 break;
             }
+
+            // add animation to transition
+            if (parent->inherits("QDeclarativeTransition") &&
+                    newObject->inherits("QDeclarativeAbstractAnimation")) {
+                QDeclarativeListReference animationsList(parent, "animations");
+                animationsList.append(newObject);
+                break;
+            }
+
+            // add animation to animation
+            if (parent->inherits("QDeclarativeAnimationGroup") &&
+                    newObject->inherits("QDeclarativeAbstractAnimation")) {
+                QDeclarativeListReference animationsList(parent, "animations");
+                animationsList.append(newObject);
+                break;
+            }
+
+            // add transition
+            if (parentItem && newObject->inherits("QDeclarativeTransition")) {
+                QDeclarativeListReference transitionsList(parentItem,"transitions");
+                if (transitionsList.count() == 1 && transitionsList.at(0) == 0)
+                    transitionsList.clear();
+                transitionsList.append(newObject);
+                break;
+            }
+
         } while (false);
     }
 }
