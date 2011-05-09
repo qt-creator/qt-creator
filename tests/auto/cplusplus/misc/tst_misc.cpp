@@ -35,7 +35,7 @@
 #include <QtTest>
 #include <QtDebug>
 
-#include <findbreakpoint.h>
+#include <findcdbbreakpoint.h>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
