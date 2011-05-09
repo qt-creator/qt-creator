@@ -172,7 +172,8 @@ def cleanAddress(addr):
         return "<no address>"
     # We cannot use str(addr) as it yields rubbish for char pointers
     # that might trigger Unicode encoding errors.
-    return addr.cast(lookupType("void").pointer())
+    #return addr.cast(lookupType("void").pointer())
+    return hex(long(addr))
 
 def extractTemplateArgument(type, position):
     level = 0
@@ -1436,7 +1437,7 @@ class Dumper:
 
     def putAddress(self, addr):
         if self.printsAddress:
-            self.put('addr="%s",' % cleanAddress(addr))
+            self.put('addr="0x%x",' % long(addr))
 
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
