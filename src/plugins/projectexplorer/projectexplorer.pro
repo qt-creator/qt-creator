@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = ProjectExplorer
-QT += network
+QT += network script
 include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)
 include(../../libs/utils/utils.pri)
