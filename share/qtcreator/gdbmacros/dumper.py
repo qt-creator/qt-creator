@@ -293,7 +293,7 @@ class OutputSafer:
     def __enter__(self):
         self.d.put(self.pre)
         self.savedOutput = self.d.output
-        self.d.output = ""
+        self.d.output = []
 
     def __exit__(self, exType, exValue, exTraceBack):
         self.d.put(self.post)
@@ -301,7 +301,8 @@ class OutputSafer:
             showException("OUTPUTSAFER", exType, exValue, exTraceBack)
             self.d.output = self.savedOutput
         else:
-            self.d.output = self.savedOutput + self.d.output
+            self.savedOutput.extend(self.d.output)
+            self.d.output = self.savedOutput
         return False
 
 
@@ -1099,7 +1100,7 @@ class FrameCommand(gdb.Command):
 FrameCommand()
 
 def bb(args):
-    output = 'data=[' + Dumper(args).output + '],typeinfo=['
+    output = 'data=[' + "".join(Dumper(args).output) + '],typeinfo=['
     for typeName, typeInfo in typeInfoCache.iteritems():
         if not typeInfo.reported:
             output += '{name="' + base64.b64encode(typeName)
@@ -1149,7 +1150,7 @@ SalCommand()
 
 class Dumper:
     def __init__(self, args):
-        self.output = ""
+        self.output = []
         self.printsAddress = True
         self.currentChildType = ""
         self.currentChildNumChild = -1
@@ -1410,7 +1411,7 @@ class Dumper:
 
 
     def put(self, value):
-        self.output += value
+        self.output.append(value)
 
     def putField(self, name, value):
         self.put('%s="%s",' % (name, value))
