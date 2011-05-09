@@ -1,10 +1,8 @@
 TEMPLATE = lib
 TARGET = ProjectExplorer
-QT += script \
-    network
+QT += network
 include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)
-include(../../shared/scriptwrapper/scriptwrapper.pri)
 include(../../libs/utils/utils.pri)
 include(customwizard/customwizard.pri)
 INCLUDEPATH += $$PWD/../../libs/utils
@@ -43,7 +41,6 @@ HEADERS += projectexplorer.h \
     pluginfilefactory.h \
     iprojectmanager.h \
     currentprojectfilter.h \
-    scriptwrappers.h \
     allprojectsfind.h \
     buildstep.h \
     buildconfiguration.h \
@@ -130,7 +127,6 @@ SOURCES += projectexplorer.cpp \
     dependenciespanel.cpp \
     allprojectsfilter.cpp \
     currentprojectfilter.cpp \
-    scriptwrappers.cpp \
     allprojectsfind.cpp \
     project.cpp \
     pluginfilefactory.cpp \

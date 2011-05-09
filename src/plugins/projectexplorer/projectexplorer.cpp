@@ -69,7 +69,6 @@
 #include "projectwindow.h"
 #include "removefiledialog.h"
 #include "runsettingspropertiespage.h"
-#include "scriptwrappers.h"
 #include "session.h"
 #include "projectnodes.h"
 #include "sessiondialog.h"
