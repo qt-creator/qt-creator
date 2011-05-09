@@ -35,6 +35,7 @@
 #include "qmlobservertool.h"
 #include "qmldebugginglibrary.h"
 #include <qt4projectmanager/baseqtversion.h>
+#include <qt4projectmanager/qtversionmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/debugginghelper.h>
@@ -91,6 +92,11 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     m_qmakeCommand = version->qmakeCommand();
     m_makeCommand = tc->makeCommand();
     m_mkspec = version->mkspec();
+
+    // Make sure QtVersion cache is invalidated
+    connect(this, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
+            QtVersionManager::instance(), SLOT(updateQtVersion(int)),
+            Qt::QueuedConnection);
 }
 
 DebuggingHelperBuildTask::~DebuggingHelperBuildTask()

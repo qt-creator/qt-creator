@@ -591,7 +591,6 @@ void QMakeStepConfigWidget::debuggingHelperBuildFinished(int qtVersionId, const 
     BaseQtVersion *version = QtVersionManager::instance()->version(qtVersionId);
     if (!version) // qt version got deleted in between
         return;
-    version->recheckDumper();
 
     if (version == m_step->qt4BuildConfiguration()->qtVersion()) {
         m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());

@@ -121,8 +121,12 @@ signals:
     void qtVersionsChanged(const QList<int> &uniqueIds);
     void updateExamples(QString, QString, QString);
 
+public slots:
+    void updateQtVersion(int id);
+
 private slots:
     void updateSettings();
+
 private:
     // This function is really simplistic...
     static bool equals(BaseQtVersion *a, BaseQtVersion *b);

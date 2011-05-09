@@ -112,8 +112,6 @@ private slots:
             m_failed = true;
             errorMessage = QString::fromLatin1("Qt version became invalid");
         } else {
-            version->recheckDumper();
-
             if (!version->hasQmlDump()) {
                 m_failed = true;
                 errorMessage = QString::fromLatin1("Could not build QML plugin dumping helper for %1\n"

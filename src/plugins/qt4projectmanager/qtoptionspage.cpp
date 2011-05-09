@@ -246,7 +246,6 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
         return; // Oops, somebody managed to delete the version
 
     BaseQtVersion *version = m_versions.at(index);
-    version->recheckDumper();
 
     // Update item view
     QTreeWidgetItem *item = treeItemForIndex(index);
