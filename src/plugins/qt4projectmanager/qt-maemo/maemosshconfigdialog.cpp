@@ -131,4 +131,6 @@ void MaemoSshConfigDialog::saveKey(bool publicKey)
             : m_keyGenerator->privateKey());
     if (saver.finalize(this) && !publicKey)
         emit privateKeyGenerated(fileName);
+    if (!publicKey)
+        QFile::setPermissions(fileName, QFile::ReadOwner | QFile::WriteOwner);
 }

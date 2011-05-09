@@ -415,6 +415,8 @@ private:
             enableInput();
             return;
         }
+        QFile::setPermissions(privateKeyFilePath(),
+            QFile::ReadOwner | QFile::WriteOwner);
 
         m_ui->statusLabel->setText(m_ui->statusLabel->text() + tr("Done."));
         m_isComplete = true;
