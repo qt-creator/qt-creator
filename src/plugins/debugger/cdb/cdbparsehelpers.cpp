@@ -104,7 +104,7 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
     case BreakpointByFunction:
     case BreakpointByAddress:
     case BreakpointAtFork:
-    //case BreakpointAtVFork:
+    case WatchpointAtExpression:
     case BreakpointAtSysCall:
     case WatchpointAtAddress:
         break;
@@ -157,7 +157,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     switch (bp.type) {
     case BreakpointAtFork:
     case BreakpointAtExec:
-    //case BreakpointAtVFork:
+    case WatchpointAtExpression:
     case BreakpointAtSysCall:
     case UnknownType:
     case BreakpointAtCatch:
