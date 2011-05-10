@@ -45,6 +45,7 @@ HELP_DEP_FILES = $$PWD/qtcreator-api.qdoc \
                  $$PWD/coding-style.qdoc \
                  $$PWD/external-tool-spec.qdoc \
                  $$PWD/qtcreator-dev.qdoc \
+                 $$PWD/qtcreator-dev-wizards.qdoc \
                  $$PWD/qtcreator-dev.qdocconf
 
 docs.name = CREATE API DOC

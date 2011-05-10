@@ -1,0 +1,249 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \page qtcreator-dev-wizards.html
+    \title Creating Wizards in Code
+
+    \section1 Introduction
+
+    If the functionality provided by template-based
+    \l{http://doc.qt.nokia.com/qtcreator-snapshot/creator-project-wizards.html}{custom wizards}
+    is not sufficient for your case, you can write wizards in code.
+
+    A wizard in Qt Creator is an instance of a class implementing
+    the Core::IWizard interface that is registered with ExtensionSystem::PluginManager.
+
+    Implementing wizards requires:
+    \list
+    \o Deciding on a base class:
+       \list
+       \o Core::IWizard is a very generic interface that does
+          not make any assumption about what the wizard does and
+          what its UI looks like.
+
+       \o Core::BaseFileWizard should be used for wizards that
+          generate files using a UI based on Utils::Wizard.
+       \endlist
+
+    \o Providing a set of parameters that determine how the wizard shows up
+       in the list of wizards in the  \gui{New File or Project} dialog.
+
+       When deriving from Core::IWizard, virtual functions returning the
+       values have to be implemented.
+
+       When deriving from Core::BaseFileWizard, a parameter class
+       Core::BaseFileWizardParameters needs to be passed to the constructor,
+       on which the parameters can be set. This allows for easy creation
+       of several wizard instances with slightly different parameters.
+
+    \o Implementing the wizard UI
+
+       Typically, this will be a class derived from Utils::Wizard.
+       Utils::Wizard extends QWizard with the functionality to show a progress
+       bar on the left.
+
+    \o Implementing the wizard functionality
+
+       When deriving from Core::BaseFileWizard, a list of Core::GeneratedFile
+       needs to be populated with the files and their contents.
+       \note The files are not actually written to the disk. This will be
+       done by Core::BaseFileWizard after performing overwrite checks and prompting
+       the user accordingly.
+
+    \endlist
+
+    \section2 Relevant Classes
+
+    \table
+    \header
+    \o Class
+    \o Description
+
+    \row
+    \o Core::IWizard
+    \o Qt Creator wizard interface, implementations of which are registered with
+       ExtensionSystem::PluginManager.
+
+    \row
+    \o Core::BaseFileWizard
+    \o Inherits Core::IWizard and provides a base class for generating files with a UI
+       based on QWizard.
+
+    \row
+    \o Core::BaseFileWizardParameters
+    \o Contains parameters for Core::BaseFileWizard.
+
+    \row
+    \o Core::GeneratedFile
+    \o A file as produced by Core::BaseFileWizard, containing name, contents and some
+    attributes.
+
+    \row
+    \o Utils::FileWizardPage
+    \o Introductory wizard page asking for file name and path.
+
+    \row
+    \o Utils::FileWizardDialog
+    \o A wizard dialog presenting a Utils::FileWizardPage, which can be extended
+       by custom pages.
+
+    \row
+    \o Utils::ProjectIntroPage
+    \o Introductory wizard page asking for project name and path.
+
+    \row
+    \o ProjectExplorer::BaseProjectWizardDialog
+    \o Base class for project wizard dialogs, presenting
+        a Utils::ProjectIntroPage.
+
+    \endtable
+
+    \section2 Parameters
+
+    The parameters listed below determine how the wizard shows up
+    in the list of wizards in the  \gui{New File or Project} dialog.
+
+    Wizards in Qt Creator are grouped by categories.
+
+    \table
+    \header
+    \o Type
+    \o Parameter Name
+    \o Description
+
+    \row
+    \o Core::IWizard::WizardKind
+    \o kind
+    \o Enumeration value that indicates the type of the wizard (project, class, file).
+
+    \row
+    \o QIcon
+    \o icon
+    \o Icon to show.
+
+    \row
+    \o QString
+    \o description
+    \o Descriptive text.
+
+    \row
+    \o QString
+    \o displayName
+    \o Name to be shown in the list.
+
+    \row
+    \o QString
+    \o id
+    \o Unique identifier for the wizard. It also determines the order within a category.
+
+    \row
+    \o QString
+    \o category
+    \o Identifier of the category under which the wizard is to be listed. It also
+       determines the order of the categories.
+    \
+    \row
+    \o QString
+    \o displayCategory
+    \o Description of the category.
+    \endtable
+
+    \section1 Example
+
+    \section2 Introduction
+
+    In this example, we create a wizard
+    for writing HTML files consisting of a title and a paragraph,
+    making use of QXmlStreamWriter.
+
+    For the UI, we use Utils::FileWizardDialog and extend it by a page
+    letting the user enter title and contents.
+
+    In our BaseFileWizard implementation, we create the file contents
+    using QXmlStreamWriter.
+
+    \section2 The WebContentPageWizardPage Class
+
+    Let us start with the wizard page. We use a QLineEdit for the title
+    and a QPlainTextEdit for the content, arranged in a QGridLayout with
+    descriptive labels.
+    \note The QGridLayout was chosen to be able to accommodate the large
+    vertical span of the QPlainTextEdit. For standard controls, a
+    QFormLayout should be considered, which will lay out the labels
+    according to the platform guide lines.
+
+    On top of that, we implement validation logic to ensure content is entered.
+    We implement QWizardPage::isComplete() to return true when both input widgets
+    have contents, enabling the \gui{Next} button. For this to happen
+    as the user enters text, we need to connect to the changed() signal of the
+    controls and emit QWizardPage::completeChanged() once the complete status changes.
+
+    \snippet webpagewizard/webpagewizard.h 1
+
+    \snippet webpagewizard/webpagewizard.cpp 1
+
+    \section2 The WebContentWizardDialog Class
+
+    The wizard dialog extends Utils::FileWizardDialog, which presents an
+    introductory page asking for file name and path.
+    We add our WebContentPageWizardPage after that.
+
+    \snippet webpagewizard/webpagewizard.h 2
+
+    \snippet webpagewizard/webpagewizard.cpp 2
+
+    \section2 The WebContentWizard Class
+
+    In our implementation of Core::BaseFileWizard, we overwrite
+    createWizardDialog() to return an instance of our WebContentWizardDialog,
+    initially set to the path passed in. We also add the extension pages
+    we receive. Extension pages are for example the wizard pages asking for
+    a project to add the files to and whether to add the files to a version control
+    system.
+
+    In generateFiles(), we obtain the parameters from our wizard and populate
+    the list of Core::GeneratedFile with our file. To generate the contents,
+    we use QXmlStreamWriter.
+
+    \snippet webpagewizard/webpagewizard.h 3
+
+    \snippet webpagewizard/webpagewizard.cpp 3
+
+    \section2 Plugin Registration
+
+    In order for the wizard to be found by the \gui{New} dialog, we need to
+    register it with ExtensionSystem::PluginManager, which also takes care
+    of deleting it:
+
+    \snippet webpagewizard/webpagewizardplugin.cpp 0
+
+    \section2 Complete Example Code
+
+    Here is the complete code of \c webpagewizard.h:
+    \snippet webpagewizard/webpagewizard.h 0
+    The complete code of \c webpagewizard.cpp looks as follows:
+    \snippet webpagewizard/webpagewizard.cpp 0
+
+    The registration of the wizard in the \c initialize() method
+    of a plugin looks like:
+    \snippet webpagewizard/webpagewizardplugin.cpp 0
+*/

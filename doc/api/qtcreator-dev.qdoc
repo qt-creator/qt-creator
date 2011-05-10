@@ -80,7 +80,7 @@
     \list
     \o \l{Creating Plugins}
     \o \l{Qt Creator Coding Rules}
-    \o \l{Wizards}
+    \o \l{Creating Wizards in Code}
     \o \l{User Interface Text Guidelines}
     \endlist
 
