@@ -84,7 +84,6 @@ public:
 
 
 protected:
-    void enterEvent(QEvent *event);
     void wheelEvent(QWheelEvent *event);
     QActionGroup *toolActionGroup() const;
 

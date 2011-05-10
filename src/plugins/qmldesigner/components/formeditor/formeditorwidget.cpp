@@ -172,12 +172,6 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_resetAction.data());
 }
 
-void FormEditorWidget::enterEvent(QEvent *event)
-{
-    m_graphicsView->setFocus();
-    QWidget::enterEvent(event);
-}
-
 void FormEditorWidget::changeTransformTool(bool checked)
 {
     if (checked)
