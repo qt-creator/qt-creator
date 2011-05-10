@@ -50,7 +50,7 @@ public:
     virtual ~IEditor() {}
 
     virtual bool createNew(const QString &contents = QString()) = 0;
-    virtual bool open(QString *errorString, const QString &fileName = QString()) = 0;
+    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName) = 0;
     virtual IFile *file() = 0;
     virtual QString id() const = 0;
     virtual QString displayName() const = 0;

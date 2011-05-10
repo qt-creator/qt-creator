@@ -48,10 +48,11 @@ TaskFile::TaskFile(QObject *parent) : Core::IFile(parent),
 TaskFile::~TaskFile()
 { }
 
-bool TaskFile::save(QString *errorString, const QString &fileName)
+bool TaskFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(fileName);
+    Q_UNUSED(autoSave)
     return false;
 }
 

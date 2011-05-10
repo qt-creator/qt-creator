@@ -67,6 +67,8 @@ public:
     void addFile(const QString &prefix, const QString &file);
 //    void removeFile(const QString &prefix, const QString &file);
 
+    const QUndoStack *commandHistory() const { return &m_history; }
+
 signals:
     void dirtyChanged(bool dirty);
     void addFilesTriggered(const QString &prefix);

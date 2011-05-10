@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>527</width>
-    <height>295</height>
+    <height>306</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -213,6 +213,69 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="0" colspan="4">
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QCheckBox" name="autoSaveCheckBox">
+          <property name="toolTip">
+           <string>If checked, temporary copies of modified files will be created automatically. If Qt Creator is restarted after a crash or power failure, it will ask whether the auto-saved content should be recovered.</string>
+          </property>
+          <property name="text">
+           <string>Auto-save modified files</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="autoSaveIntervalLabel">
+          <property name="text">
+           <string>Interval:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="autoSaveInterval">
+          <property name="suffix">
+           <string extracomment="unit for minutes">min</string>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
@@ -252,5 +315,22 @@
  <resources>
   <include location="core.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>autoSaveCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>autoSaveInterval</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>262</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>342</x>
+     <y>263</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

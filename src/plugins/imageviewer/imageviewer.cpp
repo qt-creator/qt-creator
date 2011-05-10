@@ -117,10 +117,10 @@ bool ImageViewer::createNew(const QString &contents)
     return false;
 }
 
-bool ImageViewer::open(QString *errorString, const QString &fileName)
+bool ImageViewer::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    if (!d_ptr->imageView->openFile(fileName)) {
-        *errorString = tr("Cannot open image file %1").arg(QDir::toNativeSeparators(fileName));
+    if (!d_ptr->imageView->openFile(realFileName)) {
+        *errorString = tr("Cannot open image file %1").arg(QDir::toNativeSeparators(realFileName));
         return false;
     }
     setDisplayName(QFileInfo(fileName).fileName());

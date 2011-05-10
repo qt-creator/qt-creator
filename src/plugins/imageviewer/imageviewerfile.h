@@ -49,7 +49,7 @@ public:
     explicit ImageViewerFile(ImageViewer *parent = 0);
     ~ImageViewerFile();
 
-    bool save(QString *errorString, const QString &fileName = QString());
+    bool save(QString *errorString, const QString &fileName, bool autoSave);
     void rename(const QString &newName);
     QString fileName() const;
 

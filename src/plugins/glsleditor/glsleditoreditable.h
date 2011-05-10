@@ -51,7 +51,7 @@ public:
     Core::IEditor *duplicate(QWidget *parent);
     QString id() const;
     bool isTemporary() const { return false; }
-    virtual bool open(QString *errorString, const QString &fileName);
+    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual QString preferredModeType() const;
 };
 

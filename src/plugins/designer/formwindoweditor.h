@@ -71,7 +71,7 @@ public:
 
     // IEditor
     virtual bool createNew(const QString &contents = QString());
-    virtual bool open(QString *errorString, const QString &fileName = QString());
+    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual Core::IFile *file();
     virtual QString id() const;
     virtual QString displayName() const;

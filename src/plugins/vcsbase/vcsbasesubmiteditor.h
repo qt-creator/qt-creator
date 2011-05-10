@@ -119,7 +119,7 @@ public:
 
     // Core::IEditor
     virtual bool createNew(const QString &contents);
-    virtual bool open(QString *errorString, const QString &fileName);
+    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual Core::IFile *file();
     virtual QString displayName() const;
     virtual void setDisplayName(const QString &title);
@@ -159,7 +159,7 @@ signals:
 
 private slots:
     void slotDiffSelectedVCSFiles(const QStringList &rawList);
-    bool save(QString *errorString, const QString &fileName);
+    bool save(QString *errorString, const QString &fileName, bool autoSave);
     void slotDescriptionChanged();
     void slotCheckSubmitMessage();
     void slotInsertNickName();

@@ -124,15 +124,16 @@ bool FormWindowEditor::createNew(const QString &contents)
 
     syncXmlEditor(contents);
     d->m_file.setFileName(QString());
+    d->m_file.setShouldAutoSave(false);
     return true;
 }
 
 void FormWindowEditor::slotOpen(QString *errorString, const QString &fileName)
 {
-    open(errorString, fileName);
+    open(errorString, fileName, fileName);
 }
 
-bool FormWindowEditor::open(QString *errorString, const QString &fileName)
+bool FormWindowEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowEditor::open" << fileName;
@@ -149,7 +150,7 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName)
     const QString absfileName = fi.absoluteFilePath();
 
     Utils::FileReader reader;
-    if (!reader.fetch(absfileName, QIODevice::Text, errorString))
+    if (!reader.fetch(realFileName, QIODevice::Text, errorString))
         return false;
 
     form->setFileName(absfileName);
@@ -158,11 +159,12 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName)
     form->setContents(contents);
     if (!form->mainContainer())
         return false;
-    form->setDirty(false);
+    form->setDirty(fileName != realFileName);
     syncXmlEditor(contents);
 
     setDisplayName(fi.fileName());
     d->m_file.setFileName(absfileName);
+    d->m_file.setShouldAutoSave(false);
 
     if (Internal::ResourceHandler *rh = qFindChild<Designer::Internal::ResourceHandler*>(form))
         rh->updateResources();

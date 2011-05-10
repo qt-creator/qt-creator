@@ -74,14 +74,15 @@ bool ImageViewerFile::reload(QString *errorString,
         emit changed();
         return true;
     } else {
-        return d_ptr->editor->open(errorString, d_ptr->fileName);
+        return d_ptr->editor->open(errorString, d_ptr->fileName, d_ptr->fileName);
     }
 }
 
-bool ImageViewerFile::save(QString *errorString, const QString &fileName)
+bool ImageViewerFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     Q_UNUSED(errorString)
     Q_UNUSED(fileName);
+    Q_UNUSED(autoSave)
     return false;
 }
 

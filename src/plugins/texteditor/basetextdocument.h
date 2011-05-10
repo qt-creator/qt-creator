@@ -70,8 +70,9 @@ public:
     ITextMarkable *documentMarker() const;
 
     // IFile implementation.
-    virtual bool save(QString *errorString, const QString &fileName = QString());
+    virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
     virtual QString fileName() const;
+    virtual bool shouldAutoSave() const;
     virtual bool isReadOnly() const;
     virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const;
@@ -87,7 +88,7 @@ public:
     void setDefaultPath(const QString &defaultPath);
     void setSuggestedFileName(const QString &suggestedFileName);
 
-    virtual bool open(QString *errorString, const QString &fileName = QString());
+    virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     virtual bool reload(QString *errorString);
 
     QTextDocument *document() const;

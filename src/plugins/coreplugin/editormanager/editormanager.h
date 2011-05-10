@@ -178,6 +178,11 @@ public:
     void setReloadSetting(IFile::ReloadSetting behavior);
     IFile::ReloadSetting reloadSetting() const;
 
+    void setAutoSaveEnabled(bool enabled);
+    bool autoSaveEnabled() const;
+    void setAutoSaveInterval(int interval);
+    int autoSaveInterval() const;
+
     QTextCodec *defaultTextCodec() const;
 
     static qint64 maxTextFileSize();
@@ -211,6 +216,7 @@ private slots:
     void updateWindowTitle();
     void handleEditorStateChange();
     void updateVariable(const QString &variable);
+    void autoSave();
 
 public slots:
     void goBackInNavigationHistory();
@@ -251,6 +257,7 @@ private:
     IEditor *pickUnusedEditor() const;
     void addFileToRecentFiles(IFile *file);
     void switchToPreferedMode();
+    void updateAutoSave();
 
     static EditorManager *m_instance;
     EditorManagerPrivate *m_d;

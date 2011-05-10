@@ -173,11 +173,12 @@ ProjectFilesDocument::ProjectFilesDocument(Manager *manager)
 ProjectFilesDocument::~ProjectFilesDocument()
 { }
 
-bool ProjectFilesDocument::save(QString *errorString, const QString &name)
+bool ProjectFilesDocument::save(QString *errorString, const QString &name, bool autoSave)
 {
-    if (! BaseTextDocument::save(errorString, name))
+    if (!BaseTextDocument::save(errorString, name, autoSave))
         return false;
 
-    m_manager->notifyChanged(name);
+    if (!autoSave)
+        m_manager->notifyChanged(name);
     return true;
 }

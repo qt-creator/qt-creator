@@ -45,6 +45,7 @@
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
+#include <QtGui/QUndoStack>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
@@ -57,13 +58,16 @@ namespace Internal {
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
   : Core::IFile(parent),
     m_mimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE)),
+    m_shouldAutoSave(false),
     m_formWindow(form)
 {
     connect(m_formWindow->core()->formWindowManager(), SIGNAL(formWindowRemoved(QDesignerFormWindowInterface*)),
             this, SLOT(slotFormWindowRemoved(QDesignerFormWindowInterface*)));
+    connect(m_formWindow->commandHistory(), SIGNAL(indexChanged(int)),
+            this, SLOT(setShouldAutoSave()));
 }
 
-bool FormWindowFile::save(QString *errorString, const QString &name /* = QString() */)
+bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSave)
 {
     const QString actualName = name.isEmpty() ? fileName() : name;
 
@@ -77,12 +81,16 @@ bool FormWindowFile::save(QString *errorString, const QString &name /* = QString
 
     const QFileInfo fi(actualName);
     const QString oldFormName = m_formWindow->fileName();
-    const QString formName = fi.absoluteFilePath();
-    m_formWindow->setFileName(formName);
+    if (!autoSave)
+        m_formWindow->setFileName(fi.absoluteFilePath());
 
     const bool warningsEnabled = qdesigner_internal::QSimpleResource::setWarningsEnabled(false);
     const bool writeOK = writeFile(actualName, errorString);
     qdesigner_internal::QSimpleResource::setWarningsEnabled(warningsEnabled);
+    m_shouldAutoSave = false;
+    if (autoSave)
+        return writeOK;
+
     if (!writeOK) {
         m_formWindow->setFileName(oldFormName);
         return false;
@@ -109,6 +117,11 @@ void FormWindowFile::rename(const QString &newName)
 QString FormWindowFile::fileName() const
 {
     return m_fileName;
+}
+
+bool FormWindowFile::shouldAutoSave() const
+{
+    return m_shouldAutoSave;
 }
 
 bool FormWindowFile::isModified() const

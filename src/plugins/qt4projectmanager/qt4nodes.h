@@ -115,7 +115,7 @@ class Qt4PriFile : public Core::IFile
     Q_OBJECT
 public:
     Qt4PriFile(Qt4PriFileNode *qt4PriFile);
-    virtual bool save(QString *errorString, const QString &fileName = QString());
+    virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
     virtual QString fileName() const;
     virtual void rename(const QString &newName);
 

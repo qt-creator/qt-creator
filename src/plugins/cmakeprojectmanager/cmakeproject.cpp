@@ -738,12 +738,13 @@ CMakeFile::CMakeFile(CMakeProject *parent, QString fileName)
 
 }
 
-bool CMakeFile::save(QString *errorString, const QString &fileName)
+bool CMakeFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     // Once we have an texteditor open for this file, we probably do
     // need to implement this, don't we.
     Q_UNUSED(errorString)
     Q_UNUSED(fileName)
+    Q_UNUSED(autoSave)
     return false;
 }
 

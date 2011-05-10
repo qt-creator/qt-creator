@@ -57,8 +57,9 @@ public:
     ResourceEditorFile(ResourceEditorW *parent = 0);
 
     //IFile
-    bool save(QString *errorString, const QString &fileName = QString());
+    bool save(QString *errorString, const QString &fileName, bool autoSave);
     QString fileName() const;
+    bool shouldAutoSave() const;
     bool isModified() const;
     bool isReadOnly() const;
     bool isSaveAsAllowed() const;
@@ -85,7 +86,7 @@ public:
 
     // IEditor
     bool createNew(const QString &contents);
-    bool open(QString *errorString, const QString &fileName = QString());
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget *) { return 0; }
     Core::IFile *file() { return m_resourceFile; }
@@ -102,6 +103,7 @@ public:
 private slots:
     void dirtyChanged(bool);
     void onUndoStackChanged(bool canUndo, bool canRedo);
+    void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
 
 private:
     const QString m_extension;
@@ -111,6 +113,8 @@ private:
     QPointer<SharedTools::QrcEditor> m_resourceEditor;
     ResourceEditorFile *m_resourceFile;
     ResourceEditorPlugin *m_plugin;
+    bool m_shouldAutoSave;
+    bool m_diskIo;
 
 public:
     void onUndo();

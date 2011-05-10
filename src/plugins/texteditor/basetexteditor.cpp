@@ -555,9 +555,9 @@ void BaseTextEditorWidget::updateCannotDecodeInfo()
     }
 }
 
-bool BaseTextEditorWidget::open(QString *errorString, const QString &fileName)
+bool BaseTextEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    if (d->m_document->open(errorString, fileName)) {
+    if (d->m_document->open(errorString, fileName, realFileName)) {
         moveCursor(QTextCursor::Start);
         updateCannotDecodeInfo();
         return true;

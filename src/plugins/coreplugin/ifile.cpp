@@ -34,14 +34,17 @@
 
 #include "infobar.h"
 
+#include <QtCore/QFile>
+
 namespace Core {
 
-IFile::IFile(QObject *parent) : QObject(parent), m_infoBar(0), m_hasWriteWarning(false)
+IFile::IFile(QObject *parent) : QObject(parent), m_infoBar(0), m_hasWriteWarning(false), m_restored(false)
 {
 }
 
 IFile::~IFile()
 {
+    removeAutoSaveFile();
     delete m_infoBar;
 }
 
@@ -56,6 +59,43 @@ IFile::ReloadBehavior IFile::reloadBehavior(ChangeTrigger state, ChangeType type
 
 void IFile::checkPermissions()
 {
+}
+
+bool IFile::shouldAutoSave() const
+{
+    return false;
+}
+
+bool IFile::autoSave(QString *errorString, const QString &fileName)
+{
+    if (!save(errorString, fileName, true))
+        return false;
+    m_autoSaveName = fileName;
+    return true;
+}
+
+static const char kRestoredAutoSave[] = "RestoredAutoSave";
+
+void IFile::setRestoredFrom(const QString &name)
+{
+    m_autoSaveName = name;
+    m_restored = true;
+    InfoBarEntry info(QLatin1String(kRestoredAutoSave),
+          tr("File was restored from auto-saved copy. "
+             "Use <i>Save</i> to confirm, or <i>Revert to Saved</i> to discard changes."));
+    infoBar()->addInfo(info);
+}
+
+void IFile::removeAutoSaveFile()
+{
+    if (!m_autoSaveName.isEmpty()) {
+        QFile::remove(m_autoSaveName);
+        m_autoSaveName.clear();
+        if (m_restored) {
+            m_restored = false;
+            infoBar()->removeInfo(QLatin1String(kRestoredAutoSave));
+        }
+    }
 }
 
 InfoBar *IFile::infoBar()

@@ -46,7 +46,7 @@ QmlProjectFile::QmlProjectFile(QmlProject *parent, QString fileName)
 QmlProjectFile::~QmlProjectFile()
 { }
 
-bool QmlProjectFile::save(QString *, const QString &)
+bool QmlProjectFile::save(QString *, const QString &, bool)
 {
     return false;
 }

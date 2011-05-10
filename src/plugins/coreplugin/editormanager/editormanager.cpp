@@ -64,6 +64,7 @@
 #include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 #include <QtCore/QMap>
@@ -71,6 +72,7 @@
 #include <QtCore/QSet>
 #include <QtCore/QSettings>
 #include <QtCore/QTextCodec>
+#include <QtCore/QTimer>
 
 #include <QtGui/QAction>
 #include <QtGui/QShortcut>
@@ -190,6 +192,7 @@ struct EditorManagerPrivate {
     Internal::SplitterOrView *m_splitter;
     QPointer<IEditor> m_currentEditor;
     QPointer<SplitterOrView> m_currentView;
+    QTimer *m_autoSaveTimer;
 
     ICore *m_core;
 
@@ -222,12 +225,16 @@ struct EditorManagerPrivate {
     IFile::ReloadSetting m_reloadSetting;
 
     QString m_titleAddition;
+
+    bool m_autoSaveEnabled;
+    int m_autoSaveInterval;
 };
 }
 
 EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_view(0),
     m_splitter(0),
+    m_autoSaveTimer(0),
     m_core(core),
     m_revertToSavedAction(new QAction(EditorManager::tr("Revert to Saved"), parent)),
     m_saveAction(new QAction(parent)),
@@ -241,7 +248,9 @@ EditorManagerPrivate::EditorManagerPrivate(ICore *core, QWidget *parent) :
     m_goForwardAction(new QAction(QIcon(QLatin1String(Constants::ICON_NEXT)), EditorManager::tr("Go Forward"), parent)),
     m_windowPopup(0),
     m_coreListener(0),
-    m_reloadSetting(IFile::AlwaysAsk)
+    m_reloadSetting(IFile::AlwaysAsk),
+    m_autoSaveEnabled(true),
+    m_autoSaveInterval(5)
 {
     m_editorModel = new OpenEditorsModel(parent);
 }
@@ -448,6 +457,10 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     updateActions();
 
     m_d->m_windowPopup = new OpenEditorsWindow(this);
+
+    m_d->m_autoSaveTimer = new QTimer(this);
+    connect(m_d->m_autoSaveTimer, SIGNAL(timeout()), SLOT(autoSave()));
+    updateAutoSave();
 }
 
 EditorManager::~EditorManager()
@@ -486,6 +499,13 @@ void EditorManager::init()
             this, SLOT(updateVariable(QString)));
 }
 
+void EditorManager::updateAutoSave()
+{
+    if (m_d->m_autoSaveEnabled)
+        m_d->m_autoSaveTimer->start(m_d->m_autoSaveInterval * (60 * 1000));
+    else
+        m_d->m_autoSaveTimer->stop();
+}
 
 EditorToolBar *EditorManager::createToolBar(QWidget *parent)
 {
@@ -1187,6 +1207,11 @@ int extractLineNumber(QString *fileName)
     return -1;
 }
 
+static QString autoSaveName(const QString &fileName)
+{
+    return fileName + QLatin1String(".autosave");
+}
+
 IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QString &fileName,
                         const QString &editorId, OpenEditorFlags flags, bool *newEditor)
 {
@@ -1212,6 +1237,14 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
         return activateEditor(view, editor, flags);
     }
 
+    QString realFn = autoSaveName(fn);
+    QFileInfo fi(fn);
+    QFileInfo rfi(realFn);
+    if (!fi.exists() || !rfi.exists() || fi.lastModified() >= rfi.lastModified()) {
+        QFile::remove(realFn);
+        realFn = fn;
+    }
+
     IEditor *editor = createEditor(editorId, fn);
     // If we could not open the file in the requested editor, fall
     // back to the default editor:
@@ -1222,12 +1255,14 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QString errorString;
-    if (!editor->open(&errorString, fn)) {
+    if (!editor->open(&errorString, fn, realFn)) {
         QApplication::restoreOverrideCursor();
         QMessageBox::critical(m_d->m_core->mainWindow(), tr("File Error"), errorString);
         delete editor;
         return 0;
     }
+    if (realFn != fn)
+        editor->file()->setRestoredFrom(realFn);
     addEditor(editor);
 
     if (newEditor)
@@ -1402,6 +1437,25 @@ bool EditorManager::saveFile(IFile *fileParam)
     return success;
 }
 
+void EditorManager::autoSave()
+{
+    QStringList errors;
+    // FIXME: the saving should be staggered
+    foreach (IEditor *editor, openedEditors()) {
+        IFile *file = editor->file();
+        if (!file->isModified() || !file->shouldAutoSave())
+            continue;
+        if (file->fileName().isEmpty()) // FIXME: save them to a dedicated directory
+            continue;
+        QString errorString;
+        if (!file->autoSave(&errorString, autoSaveName(file->fileName())))
+            errors << errorString;
+    }
+    if (!errors.isEmpty())
+        QMessageBox::critical(m_d->m_core->mainWindow(), tr("File Error"),
+                              errors.join(QLatin1String("\n")));
+}
+
 MakeWritableResult
 EditorManager::makeFileWritable(IFile *file)
 {
@@ -1549,8 +1603,11 @@ void EditorManager::updateWindowTitle()
 void EditorManager::handleEditorStateChange()
 {
     updateActions();
+    IEditor *theEditor = qobject_cast<IEditor *>(sender());
+    if (!theEditor->file()->isModified())
+        theEditor->file()->removeAutoSaveFile();
     IEditor *currEditor = currentEditor();
-    if (qobject_cast<IEditor *>(sender()) == currEditor) {
+    if (theEditor == currEditor) {
         updateWindowTitle();
         emit currentEditorStateChanged(currEditor);
     }
@@ -1771,8 +1828,15 @@ bool EditorManager::restoreState(const QByteArray &state)
         QByteArray id;
         stream >> id;
 
-        if (!fileName.isEmpty() && !displayName.isEmpty())
-            m_d->m_editorModel->addRestoredEditor(fileName, displayName, QString::fromUtf8(id));
+        if (!fileName.isEmpty() && !displayName.isEmpty()) {
+            QFileInfo fi(fileName);
+            QFileInfo rfi(autoSaveName(fileName));
+            if (fi.exists() && rfi.exists() && fi.lastModified() < rfi.lastModified()) {
+                openEditor(fileName, QString::fromUtf8(id));
+            } else {
+                m_d->m_editorModel->addRestoredEditor(fileName, displayName, QString::fromUtf8(id));
+            }
+        }
     }
 
     QByteArray splitterstates;
@@ -1796,12 +1860,16 @@ bool EditorManager::restoreState(const QByteArray &state)
 
 static const char documentStatesKey[] = "EditorManager/DocumentStates";
 static const char reloadBehaviorKey[] = "EditorManager/ReloadBehavior";
+static const char autoSaveEnabledKey[] = "EditorManager/AutoSaveEnabled";
+static const char autoSaveIntervalKey[] = "EditorManager/AutoSaveInterval";
 
 void EditorManager::saveSettings()
 {
     SettingsDatabase *settings = m_d->m_core->settingsDatabase();
     settings->setValue(QLatin1String(documentStatesKey), m_d->m_editorStates);
     settings->setValue(QLatin1String(reloadBehaviorKey), m_d->m_reloadSetting);
+    settings->setValue(QLatin1String(autoSaveEnabledKey), m_d->m_autoSaveEnabled);
+    settings->setValue(QLatin1String(autoSaveIntervalKey), m_d->m_autoSaveInterval);
 }
 
 void EditorManager::readSettings()
@@ -1821,6 +1889,12 @@ void EditorManager::readSettings()
 
     if (settings->contains(QLatin1String(reloadBehaviorKey)))
         m_d->m_reloadSetting = (IFile::ReloadSetting)settings->value(QLatin1String(reloadBehaviorKey)).toInt();
+
+    if (settings->contains(QLatin1String(autoSaveEnabledKey))) {
+        m_d->m_autoSaveEnabled = settings->value(QLatin1String(autoSaveEnabledKey)).toBool();
+        m_d->m_autoSaveInterval = settings->value(QLatin1String(autoSaveIntervalKey)).toInt();
+    }
+    updateAutoSave();
 }
 
 
@@ -1871,6 +1945,28 @@ void EditorManager::setReloadSetting(IFile::ReloadSetting behavior)
 IFile::ReloadSetting EditorManager::reloadSetting() const
 {
     return m_d->m_reloadSetting;
+}
+
+void EditorManager::setAutoSaveEnabled(bool enabled)
+{
+    m_d->m_autoSaveEnabled = enabled;
+    updateAutoSave();
+}
+
+bool EditorManager::autoSaveEnabled() const
+{
+    return m_d->m_autoSaveEnabled;
+}
+
+void EditorManager::setAutoSaveInterval(int interval)
+{
+    m_d->m_autoSaveInterval = interval;
+    updateAutoSave();
+}
+
+int EditorManager::autoSaveInterval() const
+{
+    return m_d->m_autoSaveInterval;
 }
 
 QTextCodec *EditorManager::defaultTextCodec() const

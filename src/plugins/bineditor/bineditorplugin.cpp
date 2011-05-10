@@ -203,8 +203,9 @@ public:
         return QLatin1String(Constants::C_BINEDITOR_MIMETYPE);
     }
 
-    bool save(QString *errorString, const QString &fileName = QString())
+    bool save(QString *errorString, const QString &fileName, bool autoSave)
     {
+        QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
         const QString fileNameToUse
             = fileName.isEmpty() ? m_fileName : fileName;
         if (m_editor->save(errorString, m_fileName, fileNameToUse)) {
@@ -363,7 +364,8 @@ public:
         m_file->setFilename(QString());
         return true;
     }
-    bool open(QString *errorString, const QString &fileName = QString()) {
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName) {
+        QTC_ASSERT(fileName == realFileName, return false); // The bineditor can do no autosaving
         return m_file->open(errorString, fileName);
     }
     Core::IFile *file() { return m_file; }

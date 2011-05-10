@@ -624,7 +624,7 @@ bool FileManager::saveFile(IFile *file, const QString &fileName, bool *isReadOnl
     bool addWatcher = removeFile(file); // So that our own IFile gets no notification at all
 
     QString errorString;
-    if (!file->save(&errorString, fileName)) {
+    if (!file->save(&errorString, fileName, false)) {
         if (isReadOnly) {
             QFile ofi(effName);
             // Check whether the existing file is writable

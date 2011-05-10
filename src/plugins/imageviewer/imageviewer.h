@@ -56,7 +56,7 @@ public:
     ~ImageViewer();
 
     bool createNew(const QString &contents = QString());
-    bool open(QString *errorString, const QString &fileName = QString());
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     Core::IFile *file();
     QString id() const;
     QString displayName() const;

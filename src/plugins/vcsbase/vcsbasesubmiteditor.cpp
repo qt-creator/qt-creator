@@ -165,7 +165,8 @@ VCSBaseSubmitEditor::VCSBaseSubmitEditor(const VCSBaseSubmitEditorParameters *pa
 
     m_d->m_file->setModified(false);
     // We are always clean to prevent the editor manager from asking to save.
-    connect(m_d->m_file, SIGNAL(saveMe(QString*, QString)), this, SLOT(save(QString*, QString)));
+    connect(m_d->m_file, SIGNAL(saveMe(QString*, QString, bool)),
+            this, SLOT(save(QString*, QString, bool)));
 
     connect(m_d->m_widget, SIGNAL(diffSelected(QStringList)), this, SLOT(slotDiffSelectedVCSFiles(QStringList)));
     connect(m_d->m_widget->descriptionEdit(), SIGNAL(textChanged()), this, SLOT(slotDescriptionChanged()));
@@ -328,13 +329,13 @@ bool VCSBaseSubmitEditor::createNew(const QString &contents)
     return true;
 }
 
-bool VCSBaseSubmitEditor::open(QString *errorString, const QString &fileName)
+bool VCSBaseSubmitEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     if (fileName.isEmpty())
         return false;
 
     Utils::FileReader reader;
-    if (!reader.fetch(fileName, QIODevice::Text, errorString))
+    if (!reader.fetch(realFileName, QIODevice::Text, errorString))
         return false;
 
     const QString text = QString::fromLocal8Bit(reader.data());
@@ -342,6 +343,7 @@ bool VCSBaseSubmitEditor::open(QString *errorString, const QString &fileName)
         return false;
 
     m_d->m_file->setFileName(QFileInfo(fileName).absoluteFilePath());
+    m_d->m_file->setModified(fileName != realFileName);
     return true;
 }
 
@@ -450,13 +452,15 @@ void VCSBaseSubmitEditor::slotDiffSelectedVCSFiles(const QStringList &rawList)
      emit diffSelectedFiles(rawList);
 }
 
-bool VCSBaseSubmitEditor::save(QString *errorString, const QString &fileName)
+bool VCSBaseSubmitEditor::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     const QString fName = fileName.isEmpty() ? m_d->m_file->fileName() : fileName;
     Utils::FileSaver saver(fName, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(fileContents().toLocal8Bit());
     if (!saver.finalize(errorString))
         return false;
+    if (autoSave)
+        return true;
     const QFileInfo fi(fName);
     m_d->m_file->setFileName(fi.absoluteFilePath());
     m_d->m_file->setModified(false);

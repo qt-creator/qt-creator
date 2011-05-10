@@ -230,6 +230,8 @@ public:
     bool m_hasDecodingError;
     QByteArray m_decodingErrorSample;
     static const int kChunkSize;
+
+    int m_autoSaveRevision;
 };
 
 const int BaseTextDocumentPrivate::kChunkSize = 65536;
@@ -242,7 +244,8 @@ BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_codec(Core::EditorManager::instance()->defaultTextCodec()),
     m_fileHasUtf8Bom(false),
     m_fileIsReadOnly(false),
-    m_hasDecodingError(false)
+    m_hasDecodingError(false),
+    m_autoSaveRevision(-1)
 {
 }
 
@@ -363,7 +366,7 @@ ITextMarkable *BaseTextDocument::documentMarker() const
     return d->m_documentMarker;
 }
 
-bool BaseTextDocument::save(QString *errorString, const QString &fileName)
+bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool autoSave)
 {
     QTextCursor cursor(d->m_document);
 
@@ -405,6 +408,9 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName)
     }
     if (!saver.finalize(errorString))
         return false;
+    d->m_autoSaveRevision = d->m_document->revision();
+    if (autoSave)
+        return true;
 
     const QFileInfo fi(fName);
     d->m_fileName = QDir::cleanPath(fi.absoluteFilePath());
@@ -417,6 +423,11 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName)
     d->m_decodingErrorSample.clear();
 
     return true;
+}
+
+bool BaseTextDocument::shouldAutoSave() const
+{
+    return d->m_autoSaveRevision != d->m_document->revision();
 }
 
 void BaseTextDocument::rename(const QString &newName)
@@ -454,7 +465,7 @@ void BaseTextDocument::checkPermissions()
         emit changed();
 }
 
-bool BaseTextDocument::open(QString *errorString, const QString &fileName)
+bool BaseTextDocument::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     QString title = tr("untitled");
     if (!fileName.isEmpty()) {
@@ -467,7 +478,7 @@ bool BaseTextDocument::open(QString *errorString, const QString &fileName)
         QByteArray buf;
         try {
             Utils::FileReader reader;
-            if (!reader.fetch(fileName, errorString))
+            if (!reader.fetch(realFileName, errorString))
                 return false;
             buf = reader.data();
         } catch (std::bad_alloc) {
@@ -583,8 +594,8 @@ bool BaseTextDocument::open(QString *errorString, const QString &fileName)
         BaseTextDocumentLayout *documentLayout =
             qobject_cast<BaseTextDocumentLayout*>(d->m_document->documentLayout());
         QTC_ASSERT(documentLayout, return true);
-        documentLayout->lastSaveRevision = d->m_document->revision();
-        d->m_document->setModified(false);
+        documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document->revision();
+        d->m_document->setModified(fileName != realFileName);
         emit titleChanged(title);
         emit changed();
     }
@@ -603,7 +614,7 @@ bool BaseTextDocument::reload(QString *errorString)
     emit aboutToReload();
     documentClosing(); // removes text marks non-permanently
 
-    if (!open(errorString, d->m_fileName))
+    if (!open(errorString, d->m_fileName, d->m_fileName))
         return false;
     emit reloaded();
     return true;

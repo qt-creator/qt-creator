@@ -151,6 +151,9 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_page->helpExternalFileBrowserButton->hide();
 #endif
 
+    m_page->autoSaveCheckBox->setChecked(EditorManager::instance()->autoSaveEnabled());
+    m_page->autoSaveInterval->setValue(EditorManager::instance()->autoSaveInterval());
+
     connect(m_page->resetButton, SIGNAL(clicked()),
             this, SLOT(resetInterfaceColor()));
 #ifdef Q_OS_UNIX
@@ -199,6 +202,8 @@ void GeneralSettings::apply()
     Utils::UnixUtils::setFileBrowser(Core::ICore::instance()->settings(), m_page->externalFileBrowserEdit->text());
 #endif
 #endif
+    EditorManager::instance()->setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
+    EditorManager::instance()->setAutoSaveInterval(m_page->autoSaveInterval->value());
 }
 
 void GeneralSettings::finish()

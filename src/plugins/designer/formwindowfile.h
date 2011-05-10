@@ -53,8 +53,9 @@ public:
     explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
 
     // IFile
-    virtual bool save(QString *errorString, const QString &fileName = QString());
+    virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
     virtual QString fileName() const;
+    virtual bool shouldAutoSave() const;
     virtual bool isModified() const;
     virtual bool isReadOnly() const;
     virtual bool isSaveAsAllowed() const;
@@ -79,6 +80,7 @@ signals:
 
 public slots:
     void setFileName(const QString &);
+    void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
 
 private slots:
     void slotFormWindowRemoved(QDesignerFormWindowInterface *w);
@@ -88,6 +90,7 @@ private:
 
     QString m_fileName;
     QString m_suggestedName;
+    bool m_shouldAutoSave;
     // Might actually go out of scope before the IEditor due
     // to deleting the WidgetHost which owns it.
     QPointer<QDesignerFormWindowInterface> m_formWindow;
