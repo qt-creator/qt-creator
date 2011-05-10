@@ -1079,9 +1079,6 @@ void BreakHandler::setResponse(BreakpointId id,
     item.destroyMarker();
     // Take over corrected values from response.
     if (takeOver) {
-        if (item.data.type == BreakpointByFileAndLine
-            && response.correctedLineNumber > 0)
-            item.data.lineNumber = response.correctedLineNumber;
         if ((item.data.type == BreakpointByFileAndLine
                     || item.data.type == BreakpointByFunction)
                 && !response.module.isEmpty())
