@@ -1489,32 +1489,32 @@ bool DebuggerEngine::isDying() const
 }
 
 QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
-    const int number, const QByteArray &expr)
+    const int number, const QString &expr)
 {
     return id
-        ? tr("Watchpoint %1 (%2) at %3 %4 triggered.")
-            .arg(id).arg(number).arg(_(expr))
-        : tr("Internal watchpoint %1 at %2 %4 triggered.")
-            .arg(number).arg(_(expr));
+        ? tr("Data breakpoint %1 (%2) at %3 triggered.")
+            .arg(id).arg(number).arg(expr)
+        : tr("Internal data breakpoint %1 at %2 triggered.")
+            .arg(number).arg(expr);
 }
 
 QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
-    const int number, const QByteArray &expr, const QString &threadId)
+    const int number, const QString &expr, const QString &threadId)
 {
     return id
-        ? tr("Watchpoint %1 (%2) at %3 in thread %4 triggered.")
-            .arg(id).arg(number).arg(_(expr)).arg(threadId)
-        : tr("Internal watchpoint %1 at %2 in thread %4 triggered.")
-            .arg(number).arg(_(expr)).arg(threadId);
+        ? tr("Data breakpoint %1 (%2) at %3 in thread %4 triggered.")
+            .arg(id).arg(number).arg(expr).arg(threadId)
+        : tr("Internal data breakpoint %1 at %2 in thread %4 triggered.")
+            .arg(number).arg(expr).arg(threadId);
 }
 
 QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
     const int number, quint64 address)
 {
     return id
-        ? tr("Watchpoint %1 (%2) at 0x%3 triggered.")
+        ? tr("Data breakpoint %1 (%2) at 0x%3 triggered.")
             .arg(id).arg(number).arg(address, 0, 16)
-        : tr("Internal watchpoint %1 at 0x%2 triggered.")
+        : tr("Internal data breakpoint %1 at 0x%2 triggered.")
             .arg(number).arg(address, 0, 16);
 }
 
@@ -1522,9 +1522,9 @@ QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
     const int number, quint64 address, const QString &threadId)
 {
     return id
-        ? tr("Watchpoint %1 (%2) at 0x%3 in thread %4 triggered.")
+        ? tr("Data breakpoint %1 (%2) at 0x%3 in thread %4 triggered.")
             .arg(id).arg(number).arg(address, 0, 16).arg(threadId)
-        : tr("Internal watchpoint %1 at 0x%2 in thread %3 triggered.")
+        : tr("Internal data breakpoint %1 at 0x%2 in thread %3 triggered.")
             .arg(id).arg(number).arg(address, 0, 16).arg(threadId);
 }
 

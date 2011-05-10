@@ -364,9 +364,9 @@ protected:
     static QString msgWatchpointByAddressTriggered(BreakpointId id,
         int number, quint64 address, const QString &threadId);
     static QString msgWatchpointByExpressionTriggered(BreakpointId id,
-        int number, const QByteArray &expr);
+        int number, const QString &expr);
     static QString msgWatchpointByExpressionTriggered(BreakpointId id,
-        int number, const QByteArray &expr, const QString &threadId);
+        int number, const QString &expr, const QString &threadId);
     static QString msgBreakpointTriggered(BreakpointId id,
         int number, const QString &threadId);
     static QString msgStopped(const QString &reason = QString());

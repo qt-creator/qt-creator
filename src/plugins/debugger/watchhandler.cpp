@@ -605,6 +605,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case LocalsEditTypeRole:
             return QVariant(editType(data));
 
+        case LocalsNameRole:
+            return QVariant(data.name);
+
         case LocalsIntegerBaseRole:
             if (isPointerType(data.type)) // Pointers using 0x-convention
                 return QVariant(16);

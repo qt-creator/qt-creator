@@ -467,7 +467,7 @@ WatchWindow::WatchWindow(Type type, QWidget *parent)
 
     setFrameStyle(QFrame::NoFrame);
     setAttribute(Qt::WA_MacShowFocusRect, false);
-    setWindowTitle(tr("Locals and Watchers"));
+    setWindowTitle(tr("Locals and Expressions"));
     setIndentation(indentation() * 9/10);
     setUniformRowHeights(true);
     setItemDelegate(new WatchDelegate(this));
@@ -562,24 +562,24 @@ void WatchWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 static inline QString addWatchActionText(QString exp)
 {
     if (exp.isEmpty())
-        return WatchWindow::tr("Watch Expression");
+        return WatchWindow::tr("Evaluate Expression");
     if (exp.size() > 30) {
         exp.truncate(30);
         exp.append(QLatin1String("..."));
     }
-    return WatchWindow::tr("Watch Expression \"%1\"").arg(exp);
+    return WatchWindow::tr("Evaluate Expression \"%1\"").arg(exp);
 }
 
 // Text for add watch action with truncated expression
 static inline QString removeWatchActionText(QString exp)
 {
     if (exp.isEmpty())
-        return WatchWindow::tr("Remove Watch Expression");
+        return WatchWindow::tr("Remove Evaluated Expression");
     if (exp.size() > 30) {
         exp.truncate(30);
         exp.append(QLatin1String("..."));
     }
-    return WatchWindow::tr("Remove Watch Expression \"%1\"").arg(exp);
+    return WatchWindow::tr("Remove Evaluated Expression \"%1\"").arg(exp);
 }
 
 static inline void copyToClipboard(const QString &clipboardText)
@@ -604,7 +604,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const uint size = sizeOf(mi0);
     const quint64 pointerValue = pointerValueOf(mi0);
     const QString exp = mi0.data(LocalsExpressionRole).toString();
+    const QString name = mi0.data(LocalsNameRole).toString();
     const QString type = mi2.data().toString();
+
+    // Offer to open address pointed to or variable address.
+    const bool createPointerActions = pointerValue && pointerValue != address;
 
     const QStringList alternativeFormats =
         mi0.data(LocalsTypeFormatListRole).toStringList();
@@ -686,44 +690,57 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     const unsigned engineCapabilities = engine->debuggerCapabilities();
     const bool canHandleWatches = engineCapabilities & AddWatcherCapability;
     const DebuggerState state = engine->state();
-    const bool canInsertWatches = (state==InferiorStopOk) || ((state==InferiorRunOk) && engine->acceptsWatchesWhileRunning());
+    const bool canInsertWatches = state == InferiorStopOk
+        || (state == InferiorRunOk && engine->acceptsWatchesWhileRunning());
 
-    QMenu menu;
-    QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
-    actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
-    QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
-    actSelectWidgetToWatch->setEnabled(canHandleWatches && (engine->canWatchWidgets()));
-
-    // Offer to open address pointed to or variable address.
-    const bool createPointerActions = pointerValue && pointerValue != address;
-
-    menu.addSeparator();
-
+    QMenu breakpointMenu;
+    breakpointMenu.setTitle(tr("Add Data Breakpoint..."));
     QAction *actSetWatchpointAtVariableAddress = 0;
     QAction *actSetWatchpointAtPointerValue = 0;
     const bool canSetWatchpoint = engineCapabilities & WatchpointByAddressCapability;
     if (canSetWatchpoint && address) {
         actSetWatchpointAtVariableAddress =
-            new QAction(tr("Add Watchpoint at Object's Address (0x%1)")
-                .arg(address, 0, 16), &menu);
+            new QAction(tr("Add Data Breakpoint at Object's Address (0x%1)")
+                .arg(address, 0, 16), &breakpointMenu);
         actSetWatchpointAtVariableAddress->
             setChecked(mi0.data(LocalsIsWatchpointAtAddressRole).toBool());
         if (createPointerActions) {
             actSetWatchpointAtPointerValue =
-                new QAction(tr("Add Watchpoint at Referenced Address (0x%1)")
-                    .arg(pointerValue, 0, 16), &menu);
+                new QAction(tr("Add Data Breakpoint at Referenced Address (0x%1)")
+                    .arg(pointerValue, 0, 16), &breakpointMenu);
             actSetWatchpointAtPointerValue->setCheckable(true);
             actSetWatchpointAtPointerValue->
                 setChecked(mi0.data(LocalsIsWatchpointAtPointerValueRole).toBool());
         }
     } else {
         actSetWatchpointAtVariableAddress =
-            new QAction(tr("Add Watchpoint"), &menu);
+            new QAction(tr("Add Data Breakpoint"), &breakpointMenu);
         actSetWatchpointAtVariableAddress->setEnabled(false);
     }
     actSetWatchpointAtVariableAddress->setToolTip(
-        tr("Setting a watchpoint on an address will cause the program "
-           "to stop when the data at the address it modified."));
+        tr("Setting a data breakpoint on an address will cause the program "
+           "to stop when the data at the address is modified."));
+
+    QAction *actSetWatchpointAtExpression =
+            new QAction(tr("Add Data Breakpoint at Expression \"%1\"").arg(name),
+                &breakpointMenu);
+    actSetWatchpointAtExpression->setToolTip(
+        tr("Setting a data breakpoint on an expression will cause the program "
+           "to stop when the data at the address given by the expression "
+           "is modified."));
+
+    breakpointMenu.addAction(actSetWatchpointAtVariableAddress);
+    if (actSetWatchpointAtPointerValue)
+        breakpointMenu.addAction(actSetWatchpointAtPointerValue);
+    breakpointMenu.addAction(actSetWatchpointAtExpression);
+
+    QMenu menu;
+    QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Evaluated Expression"));
+    actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
+    QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
+    actSelectWidgetToWatch->setEnabled(canHandleWatches && (engine->canWatchWidgets()));
+
+    menu.addSeparator();
 
     QAction *actWatchExpression = new QAction(addWatchActionText(exp), &menu);
     actWatchExpression->setEnabled(canHandleWatches && !exp.isEmpty());
@@ -803,9 +820,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actSelectWidgetToWatch);
     menu.addMenu(&formatMenu);
     menu.addMenu(&memoryMenu);
-    menu.addAction(actSetWatchpointAtVariableAddress);
-    if (actSetWatchpointAtPointerValue)
-        menu.addAction(actSetWatchpointAtPointerValue);
+    menu.addMenu(&breakpointMenu);
     menu.addAction(actCopy);
     menu.addAction(actCopyValue);
     menu.addSeparator();
@@ -868,9 +883,11 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actOpenMemoryEditorStackLayout) {
         addStackLayoutMemoryView(currentEngine(), false, mi0.model(), ev->globalPos(), this);
     } else if (act == actSetWatchpointAtVariableAddress) {
-        setWatchpoint(address, size);
+        setWatchpointAtAddress(address, size);
     } else if (act == actSetWatchpointAtPointerValue) {
-        setWatchpoint(pointerValue, 1);
+        setWatchpointAtAddress(pointerValue, sizeof(void *)); // FIXME: an approximation..
+    } else if (act == actSetWatchpointAtExpression) {
+        setWatchpointAtExpression(name);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
@@ -1013,11 +1030,24 @@ void WatchWindow::setModelData
     model()->setData(index, value, role);
 }
 
-void WatchWindow::setWatchpoint(quint64 address, unsigned size)
+void WatchWindow::setWatchpointAtAddress(quint64 address, unsigned size)
 {
     BreakpointParameters data(WatchpointAtAddress);
     data.address = address;
     data.size = size;
+    BreakpointId id = breakHandler()->findWatchpoint(data);
+    if (id) {
+        qDebug() << "WATCHPOINT EXISTS";
+        //   removeBreakpoint(index);
+        return;
+    }
+    breakHandler()->appendBreakpoint(data);
+}
+
+void WatchWindow::setWatchpointAtExpression(const QString &exp)
+{
+    BreakpointParameters data(WatchpointAtExpression);
+    data.expression = exp;
     BreakpointId id = breakHandler()->findWatchpoint(data);
     if (id) {
         qDebug() << "WATCHPOINT EXISTS";

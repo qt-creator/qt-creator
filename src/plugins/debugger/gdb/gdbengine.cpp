@@ -2706,7 +2706,7 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
         return;
     }
     if (type == WatchpointAtExpression) {
-        postCommand("watch " + handler->expression(id),
+        postCommand("watch " + handler->expression(id).toLocal8Bit(),
             NeedsStop | RebuildBreakpointModel,
             CB(handleWatchInsert), id);
         return;

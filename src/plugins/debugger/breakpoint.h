@@ -144,7 +144,7 @@ public:
     int ignoreCount;         //!< Ignore count associated with breakpoint.
     int lineNumber;          //!< Line in source file.
     quint64 address;         //!< Address for address based watchpoints.
-    QByteArray expression;   //!< Address for expression based watchpoints.
+    QString expression;      //!< Expression for expression based watchpoints.
     uint size;               //!< Size of watched area for watchpoints.
     uint bitpos;             //!< Location of watched bitfield within watched area.
     uint bitsize;            //!< Size of watched bitfield within watched area.

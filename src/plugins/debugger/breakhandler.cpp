@@ -287,6 +287,7 @@ BreakpointId BreakHandler::findWatchpoint(const BreakpointParameters &data) cons
         if (it->data.isWatchpoint()
                 && it->data.address == data.address
                 && it->data.size == data.size
+                && it->data.expression == data.expression
                 && it->data.bitpos == data.bitpos)
             return it.key();
     return BreakpointId();
@@ -520,7 +521,9 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                         || data.type == BreakpointAtSysCall)
                     return typeToString(data.type);
                 if (data.type == WatchpointAtAddress)
-                    return tr("Watchpoint at 0x%1").arg(data.address, 0, 16);
+                    return tr("Data breakpoint at 0x%1").arg(data.address, 0, 16);
+                if (data.type == WatchpointAtExpression)
+                    return tr("Data breakpoint at %1").arg(data.expression);
                 return empty;
             }
             break;
@@ -650,7 +653,7 @@ PROPERTY(int, threadSpec, setThreadSpec)
 PROPERTY(QByteArray, condition, setCondition)
 GETTER(int, lineNumber)
 PROPERTY(quint64, address, setAddress)
-PROPERTY(QByteArray, expression, setExpression)
+PROPERTY(QString, expression, setExpression)
 PROPERTY(int, ignoreCount, setIgnoreCount)
 
 bool BreakHandler::isEnabled(BreakpointId id) const
@@ -1206,6 +1209,8 @@ QIcon BreakHandler::BreakpointItem::icon() const
     if (data.isTracepoint())
         return BreakHandler::tracepointIcon();
     if (data.type == WatchpointAtAddress)
+        return BreakHandler::watchpointIcon();
+    if (data.type == WatchpointAtExpression)
         return BreakHandler::watchpointIcon();
     if (!data.enabled)
         return BreakHandler::disabledBreakpointIcon();

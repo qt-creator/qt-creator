@@ -111,15 +111,15 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
     QStringList types;
     types << tr("File name and line number")
           << tr("Function name")
-          << tr("Memory address")
+          << tr("Break on memory address")
           << tr("Break when C++ exception is thrown")
           << tr("Break when C++ exception is caught")
           << tr("Break when function \"main\" starts")
           << tr("Break when a new process is forked")
           << tr("Break when a new process is executed")
           << tr("Break when a system call is executed")
-          << tr("Break on data access (Watchpoint at address)")
-          << tr("Break on data access (Watchpoint at expression)");
+          << tr("Break on data access at fixed address)")
+          << tr("Break on data access at address given by expression)");
     QTC_ASSERT(types.size() == WatchpointAtExpression, return; )
     m_ui.comboBoxType->addItems(types);
     m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);

@@ -83,6 +83,7 @@ enum ModelRoles
     LocalsINameRole,
     LocalsEditTypeRole,     // A QVariant::type describing the item
     LocalsIntegerBaseRole,  // Number base 16, 10, 8, 2
+    LocalsNameRole,
     LocalsExpressionRole,
     LocalsRawExpressionRole,
     LocalsExpandedRole,     // The preferred expanded state to the view

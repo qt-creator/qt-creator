@@ -115,8 +115,8 @@ public:
     void setFileName(BreakpointId, const QString &fileName);
     QString functionName(BreakpointId id) const;
     void setFunctionName(BreakpointId, const QString &functionName);
-    QByteArray expression(BreakpointId id) const;
-    void setExpression(BreakpointId, const QByteArray &expression);
+    QString expression(BreakpointId id) const;
+    void setExpression(BreakpointId, const QString &expression);
     BreakpointType type(BreakpointId id) const;
     void setType(BreakpointId id, const BreakpointType &type);
     quint64 address(BreakpointId id) const;
