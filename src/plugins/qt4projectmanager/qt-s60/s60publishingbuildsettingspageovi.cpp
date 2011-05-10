@@ -38,6 +38,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtGui/QAbstractButton>
 
@@ -46,6 +47,8 @@ namespace Internal {
 
 S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60PublisherOvi *publisher, const ProjectExplorer::Project *project, QWidget *parent) :
     QWizardPage(parent),
+    m_bc(0),
+    m_toolchain(0),
     m_ui(new Ui::S60PublishingBuildSettingsPageOvi),
     m_publisher(publisher)
 {
@@ -69,9 +72,6 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
     foreach (Qt4BuildConfiguration *qt4bc, list)
         m_ui->chooseBuildConfigDropDown->addItem(qt4bc->displayName(), QVariant::fromValue(static_cast<ProjectExplorer::BuildConfiguration *>(qt4bc)));
 
-
-    m_bc = 0;
-
     // todo more intelligent selection? prefer newer versions?
     foreach (Qt4BuildConfiguration *qt4bc, list)
         if (!m_bc && !(qt4bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild))
@@ -84,14 +84,46 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
     int focusedIndex = m_ui->chooseBuildConfigDropDown->findData(QVariant::fromValue(m_bc));
     m_ui->chooseBuildConfigDropDown->setCurrentIndex(focusedIndex);
     m_publisher->setBuildConfiguration(static_cast<Qt4BuildConfiguration *>(m_bc));
+
+    populateToolchainList(m_bc);
+
     //change the build configuration if the user changes it
     connect(m_ui->chooseBuildConfigDropDown, SIGNAL(currentIndexChanged(int)), this, SLOT(buildConfigChosen()));
-    connect(this, SIGNAL(buildChosen()), SIGNAL(completeChanged()));
+    connect(this, SIGNAL(configurationChosen()), SIGNAL(completeChanged()));
+    connect(this, SIGNAL(toolchainConfigurationChosen()), SIGNAL(completeChanged()));
 }
 
 bool S60PublishingBuildSettingsPageOvi::isComplete() const
 {
-    return (m_bc != 0);
+    return m_bc && m_toolchain;
+}
+
+void S60PublishingBuildSettingsPageOvi::populateToolchainList(ProjectExplorer::BuildConfiguration *bc)
+{
+    if (!bc)
+        return;
+
+    disconnect(m_ui->chooseToolchainDropDown, SIGNAL(currentIndexChanged(int)), this, SLOT(toolchainChosen()));
+    m_ui->chooseToolchainDropDown->clear();
+    QList<ProjectExplorer::ToolChain *> toolchains = bc->target()->possibleToolChains(bc);
+
+    int index = 0;
+    bool toolchainChanged = true; // if the new build conf. doesn't contain previous toolchain
+    foreach (ProjectExplorer::ToolChain *toolchain, toolchains) {
+        m_ui->chooseToolchainDropDown->addItem(toolchain->displayName(),
+                                               qVariantFromValue(static_cast<void *>(toolchain)));
+        if (toolchainChanged && m_toolchain == toolchain) {
+            toolchainChanged = false;
+            m_ui->chooseToolchainDropDown->setCurrentIndex(index);
+        }
+        ++index;
+    }
+    connect(m_ui->chooseToolchainDropDown, SIGNAL(currentIndexChanged(int)), this, SLOT(toolchainChosen()));
+    m_ui->chooseToolchainDropDown->setEnabled(toolchains.size() > 1);
+    if (toolchainChanged)
+        toolchainChosen();
+    else
+        bc->setToolChain(m_toolchain);
 }
 
 void S60PublishingBuildSettingsPageOvi::buildConfigChosen()
@@ -100,8 +132,25 @@ void S60PublishingBuildSettingsPageOvi::buildConfigChosen()
     if (currentIndex == -1)
         return;
     m_bc = m_ui->chooseBuildConfigDropDown->itemData(currentIndex).value<ProjectExplorer::BuildConfiguration *>();
+    populateToolchainList(m_bc);
     m_publisher->setBuildConfiguration(static_cast<Qt4BuildConfiguration *>(m_bc));
-    emit buildChosen();
+    emit configurationChosen();
+}
+
+void S60PublishingBuildSettingsPageOvi::toolchainChosen()
+{
+    const int currentIndex = m_ui->chooseToolchainDropDown->currentIndex();
+    if (currentIndex == -1) {
+        m_toolchain = 0;
+        emit toolchainConfigurationChosen();
+        return;
+    }
+
+    m_toolchain = static_cast<ProjectExplorer::ToolChain *>(m_ui->chooseToolchainDropDown->itemData(currentIndex, Qt::UserRole).value<void *>());
+
+    if (m_bc)
+        m_bc->setToolChain(m_toolchain);
+    emit toolchainConfigurationChosen();
 }
 
 S60PublishingBuildSettingsPageOvi::~S60PublishingBuildSettingsPageOvi()

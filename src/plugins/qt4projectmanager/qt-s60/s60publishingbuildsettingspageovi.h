@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 class Project;
 class BuildConfiguration;
+class ToolChain;
 }
 
 namespace Qt4ProjectManager {
@@ -60,13 +61,19 @@ public:
     virtual bool isComplete() const;
 
 signals:
-    void buildChosen();
+    void configurationChosen();
+    void toolchainConfigurationChosen();
 
 private slots:
     void buildConfigChosen();
+    void toolchainChosen();
+
+private:
+    void populateToolchainList(ProjectExplorer::BuildConfiguration *bc);
 
 private:
     ProjectExplorer::BuildConfiguration *m_bc;
+    ProjectExplorer::ToolChain *m_toolchain;
     Ui::S60PublishingBuildSettingsPageOvi * m_ui;
     S60PublisherOvi * const m_publisher;
 };
