@@ -170,7 +170,10 @@ void MoveTool::keyPressEvent(QKeyEvent *event)
         case Qt::Key_Down: m_moveManipulator.moveBy(0.0, moveStep); break;
     }
 
-
+    if (event->key() == Qt::Key_Escape && !m_movingItems.isEmpty()) {
+       event->accept();
+       view()->changeToSelectionTool();
+    }
 }
 
 void MoveTool::keyReleaseEvent(QKeyEvent *keyEvent)

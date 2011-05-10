@@ -169,7 +169,6 @@ FormEditorItem* AbstractFormEditorTool::topFormEditorItemWithRootItem(const QLis
 
 void AbstractFormEditorTool::dropEvent(QGraphicsSceneDragDropEvent * /* event */)
 {
-    Q_ASSERT(false);
 }
 
 void AbstractFormEditorTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)

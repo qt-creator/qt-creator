@@ -259,6 +259,11 @@ void FormEditorWidget::centerScene()
     m_graphicsView->centerOn(rootItemRect().center());
 }
 
+void FormEditorWidget::setFocus()
+{
+    m_graphicsView->setFocus(Qt::OtherFocusReason);
+}
+
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();

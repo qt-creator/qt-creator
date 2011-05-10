@@ -34,6 +34,7 @@
 
 #include "formeditorscene.h"
 #include "formeditorview.h"
+#include "formeditorwidget.h"
 #include "itemutilfunctions.h"
 #include <customdraganddrop.h>
 #include <metainfo.h>
@@ -62,7 +63,8 @@ DragTool::DragTool(FormEditorView *editorView)
     m_moveManipulator(editorView->scene()->manipulatorLayerItem(), editorView),
     m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
     m_timerHandler(new Internal::TimerHandler(this)),
-    m_blockMove(false)
+    m_blockMove(false),
+    m_Aborted(false)
 {
 //    view()->setCursor(Qt::SizeAllCursor);
 }
@@ -98,9 +100,13 @@ void DragTool::hoverMoveEvent(const QList<QGraphicsItem*> &,
 
 }
 
-void DragTool::keyPressEvent(QKeyEvent *)
+void DragTool::keyPressEvent(QKeyEvent *event)
 {
-
+    if (event->key() == Qt::Key_Escape) {
+        abort();
+        event->accept();
+        view()->changeToSelectionTool();
+    }
 }
 
 void DragTool::keyReleaseEvent(QKeyEvent *)
@@ -221,6 +227,23 @@ void DragTool::clearMoveDelay()
         beginWithPoint(m_startPoint);
 }
 
+void DragTool::abort()
+{
+    if (m_Aborted)
+        return;
+
+    m_Aborted = true;
+
+    if (m_dragNode.isValid())
+        m_dragNode.destroy();
+
+    QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
+
+    if (m_rewriterTransaction.isValid())
+        m_rewriterTransaction.commit();
+
+}
+
 void DragTool::dropEvent(QGraphicsSceneDragDropEvent * event)
 {
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||
@@ -260,6 +283,8 @@ void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
         QList<Import> importToBeAddedList;
         m_blockMove = false;
         if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo")) {
+            view()->widget()->setFocus();
+            m_Aborted = false;
             Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo").isEmpty());
             ItemLibraryEntry itemLibraryEntry = itemLibraryEntryFromData(event->mimeData()->data("application/vnd.bauhaus.itemlibraryinfo"));
             if (!itemLibraryEntry.requiredImport().isEmpty()) {
@@ -309,6 +334,11 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
 {
     if (m_blockMove)
         return;
+
+    if (m_Aborted) {
+        event->ignore();
+        return;
+    }
     if (QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::isAnimated())
         return;
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.itemlibraryinfo") ||

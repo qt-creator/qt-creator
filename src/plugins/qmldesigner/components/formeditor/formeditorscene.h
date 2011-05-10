@@ -89,7 +89,6 @@ public:
     void synchronizeState(const QmlItemNode &qmlItemNode);
 
     FormEditorItem* calulateNewParent(FormEditorItem *widget);
-    bool event(QEvent *event);
     LayerItem* manipulatorLayerItem() const;
     LayerItem* formLayerItem() const;
     FormEditorView *editorView() const;
@@ -110,6 +109,7 @@ public slots:
     bool showBoundingRects() const;
 
 protected:
+    bool event(QEvent *event);
     void dropEvent(QGraphicsSceneDragDropEvent * event);
     void dragEnterEvent(QGraphicsSceneDragDropEvent * event);
     void dragLeaveEvent(QGraphicsSceneDragDropEvent * event);

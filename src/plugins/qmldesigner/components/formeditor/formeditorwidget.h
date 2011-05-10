@@ -82,6 +82,8 @@ public:
     void resetView();
     void centerScene();
 
+    void setFocus();
+
 
 protected:
     void wheelEvent(QWheelEvent *event);

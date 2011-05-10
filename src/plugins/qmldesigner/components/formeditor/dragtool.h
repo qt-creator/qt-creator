@@ -108,6 +108,7 @@ public:
     void clearMoveDelay();
 
 protected:
+    void abort();
 
 
 private:
@@ -128,6 +129,7 @@ private:
     QScopedPointer<Internal::TimerHandler> m_timerHandler;
     bool m_blockMove;
     QPointF m_startPoint;
+    bool m_Aborted;
 };
 
 

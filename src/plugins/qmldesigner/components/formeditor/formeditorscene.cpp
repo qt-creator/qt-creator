@@ -231,7 +231,6 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
     return formEditorItem;
 }
 
-
 void FormEditorScene::dropEvent(QGraphicsSceneDragDropEvent * event)
 {
     currentTool()->dropEvent(event);
@@ -345,6 +344,11 @@ bool FormEditorScene::event(QEvent * event)
         case QEvent::GraphicsSceneHoverLeave :
             hoverLeaveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
             return true;
+        case QEvent::ShortcutOverride :
+            if (static_cast<QKeyEvent*>(event)->key() == Qt::Key_Escape) {
+                currentTool()->keyPressEvent(static_cast<QKeyEvent*>(event));
+                return true;
+            }
         default: return QGraphicsScene::event(event);
     }
 
