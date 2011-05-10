@@ -44,11 +44,11 @@ enum { debug = 0 };
 
 enum Protocol { ListCategoriesProtocol, ListProjectsProtocol };
 
-static const char *protocolPropertyC = "gitoriousProtocol";
-static const char *hostNamePropertyC = "gitoriousHost";
-static const char *pagePropertyC = "requestPage";
+static const char protocolPropertyC[] = "gitoriousProtocol";
+static const char hostNamePropertyC[] = "gitoriousHost";
+static const char pagePropertyC[] = "requestPage";
 
-static const char *settingsKeyC = "GitoriousHosts";
+static const char settingsKeyC[] = "GitoriousHosts";
 
 // Gitorious paginates projects as 20 per page. It starts with page 1.
 enum { ProjectsPageSize = 20 };

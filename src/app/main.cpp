@@ -60,9 +60,9 @@
 
 enum { OptionIndent = 4, DescriptionIndent = 34 };
 
-static const char *appNameC = "Qt Creator";
-static const char *corePluginNameC = "Core";
-static const char *fixedOptionsC =
+static const char appNameC[] = "Qt Creator";
+static const char corePluginNameC[] = "Core";
+static const char fixedOptionsC[] =
 " [OPTION]... [FILE]...\n"
 "Options:\n"
 "    -help                         Display this help\n"
@@ -70,13 +70,13 @@ static const char *fixedOptionsC =
 "    -client                       Attempt to connect to already running instance\n"
 "    -settingspath <path>          Override the default path where user settings are stored.\n";
 
-static const char *HELP_OPTION1 = "-h";
-static const char *HELP_OPTION2 = "-help";
-static const char *HELP_OPTION3 = "/h";
-static const char *HELP_OPTION4 = "--help";
-static const char *VERSION_OPTION = "-version";
-static const char *CLIENT_OPTION = "-client";
-static const char *SETTINGS_OPTION = "-settingspath";
+static const char HELP_OPTION1[] = "-h";
+static const char HELP_OPTION2[] = "-help";
+static const char HELP_OPTION3[] = "/h";
+static const char HELP_OPTION4[] = "--help";
+static const char VERSION_OPTION[] = "-version";
+static const char CLIENT_OPTION[] = "-client";
+static const char SETTINGS_OPTION[] = "-settingspath";
 
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 

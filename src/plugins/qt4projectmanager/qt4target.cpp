@@ -1054,7 +1054,7 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
     if (!result.isEmpty())
         return result;
 
-    // Check for builds in build directoy
+    // Check for builds in build directory
     QList<Qt4BaseTargetFactory *> factories =
             ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *factory, factories) {

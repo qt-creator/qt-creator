@@ -44,13 +44,13 @@
 #include <QtCore/QSettings>
 #include <QtGui/QMainWindow>
 
-static const char *const TOOLCHAIN_DATA_KEY = "ToolChain.";
-static const char *const TOOLCHAIN_COUNT_KEY = "ToolChain.Count";
-static const char *const TOOLCHAIN_FILE_VERSION_KEY = "Version";
-static const char *const DEFAULT_DEBUGGER_COUNT_KEY = "DefaultDebugger.Count";
-static const char *const DEFAULT_DEBUGGER_ABI_KEY = "DefaultDebugger.Abi.";
-static const char *const DEFAULT_DEBUGGER_PATH_KEY = "DefaultDebugger.Path.";
-static const char *const TOOLCHAIN_FILENAME = "/toolChains.xml";
+static const char TOOLCHAIN_DATA_KEY[] = "ToolChain.";
+static const char TOOLCHAIN_COUNT_KEY[] = "ToolChain.Count";
+static const char TOOLCHAIN_FILE_VERSION_KEY[] = "Version";
+static const char DEFAULT_DEBUGGER_COUNT_KEY[] = "DefaultDebugger.Count";
+static const char DEFAULT_DEBUGGER_ABI_KEY[] = "DefaultDebugger.Abi.";
+static const char DEFAULT_DEBUGGER_PATH_KEY[] = "DefaultDebugger.Path.";
+static const char TOOLCHAIN_FILENAME[] = "/toolChains.xml";
 
 static QString settingsFileName()
 {

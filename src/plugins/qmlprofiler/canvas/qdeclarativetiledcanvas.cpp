@@ -154,7 +154,7 @@ QPixmap TiledCanvas::getTile(int xx, int yy)
 
     pix.fill(Qt::green);
 
-    QString text = QString::number(xx) + " " + QString::number(yy);
+    QString text = QString::number(xx) + QLatin1Char(' ') + QString::number(yy);
 
     QPainter p(&pix);
     p.drawText(pix.rect(), Qt::AlignHCenter | Qt::AlignVCenter, text);

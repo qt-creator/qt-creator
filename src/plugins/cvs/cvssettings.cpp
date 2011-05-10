@@ -35,14 +35,14 @@
 #include <QtCore/QSettings>
 #include <QtCore/QTextStream>
 
-static const char *groupC = "CVS";
-static const char *commandKeyC = "Command";
-static const char *rootC = "Root";
-static const char *promptToSubmitKeyC = "PromptForSubmit";
-static const char *diffOptionsKeyC = "DiffOptions";
-static const char *describeByCommitIdKeyC = "DescribeByCommitId";
-static const char *defaultDiffOptions = "-du";
-static const char *timeOutKeyC = "TimeOut";
+static const char groupC[] = "CVS";
+static const char commandKeyC[] = "Command";
+static const char rootC[] = "Root";
+static const char promptToSubmitKeyC[] = "PromptForSubmit";
+static const char diffOptionsKeyC[] = "DiffOptions";
+static const char describeByCommitIdKeyC[] = "DescribeByCommitId";
+static const char defaultDiffOptions[] = "-du";
+static const char timeOutKeyC[] = "TimeOut";
 
 enum { defaultTimeOutS = 30 };
 

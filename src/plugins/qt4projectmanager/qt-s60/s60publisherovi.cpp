@@ -393,7 +393,7 @@ void S60PublisherOvi::endBuild(int result)
     if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
         fileNamePostFix =  QLatin1String("_installer.sis");
 
-    QString resultFile = m_qt4bc->buildDirectory() + "/" + m_qt4project->displayName() + fileNamePostFix;
+    QString resultFile = m_qt4bc->buildDirectory() + QLatin1Char('/') + m_qt4project->displayName() + fileNamePostFix;
 
     QFileInfo fi(resultFile);
     if (result == QProcess::NormalExit && fi.exists()) {

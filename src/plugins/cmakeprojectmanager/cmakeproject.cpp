@@ -216,7 +216,7 @@ bool CMakeProject::parseCMakeLists()
         if (file != cbpFile)
             m_watcher->removePath(file);
 
-    // how can we ensure that it is completly written?
+    // how can we ensure that it is completely written?
     m_watcher->addPath(cbpFile);
 
     // ToolChain

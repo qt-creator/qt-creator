@@ -250,7 +250,7 @@ static int findMatchingProject(const QList<ProjectEntry> &projects,
 
 static QString generatedProjectFilePath(const QList<Core::GeneratedFile> &files)
 {
-    foreach (const Core::GeneratedFile file, files)
+    foreach (const Core::GeneratedFile &file, files)
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute)
             return file.path();
     return QString();

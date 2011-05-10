@@ -312,7 +312,7 @@ static inline MemoryMarkupList
         QDebug dbg = qDebug().nospace();
         dbg << rootToolTip << ' ' << address << ' ' << size << '\n';
         QString name;
-        for (unsigned i = 0; i < size; i++)
+        for (unsigned i = 0; i < size; ++i)
             if (name != ranges.at(i).second) {
                 dbg << ",[" << i << ' ' << ranges.at(i).first << ' ' << ranges.at(i).second << ']';
                 name = ranges.at(i).second;
@@ -328,7 +328,7 @@ static inline MemoryMarkupList
 
     int lastColorNumber = 0;
     int childNumber = 0;
-    for (unsigned i = 0; i < size; i++) {
+    for (unsigned i = 0; i < size; ++i) {
         const ColorNumberToolTipPair &range = ranges.at(i);
         if (result.isEmpty() || lastColorNumber != range.first) {
             lastColorNumber = range.first;
@@ -353,7 +353,7 @@ static inline MemoryMarkupList
         QDebug dbg = qDebug().nospace();
         dbg << rootName << ' ' << address << ' ' << size << '\n';
         QString name;
-        for (unsigned i = 0; i < size; i++)
+        for (unsigned i = 0; i < size; ++i)
             if (name != ranges.at(i).second) {
                 dbg << ',' << i << ' ' << ranges.at(i).first << ' ' << ranges.at(i).second;
                 name = ranges.at(i).second;

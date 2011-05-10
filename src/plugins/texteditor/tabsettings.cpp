@@ -40,17 +40,17 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QTextDocument>
 
-static const char *spacesForTabsKey = "SpacesForTabs";
-static const char *autoSpacesForTabsKey = "AutoSpacesForTabs";
-static const char *smartBackspaceKey = "SmartBackspace";
-static const char *autoIndentKey = "AutoIndent";
-static const char *tabSizeKey = "TabSize";
-static const char *indentSizeKey = "IndentSize";
-static const char *indentBracesKey = "IndentBraces";
-static const char *doubleIndentBlocksKey = "DoubleIndentBlocks";
-static const char *tabKeyBehaviorKey = "TabKeyBehavior";
-static const char *groupPostfix = "TabSettings";
-static const char *paddingModeKey = "PaddingMode";
+static const char spacesForTabsKey[] = "SpacesForTabs";
+static const char autoSpacesForTabsKey[] = "AutoSpacesForTabs";
+static const char smartBackspaceKey[] = "SmartBackspace";
+static const char autoIndentKey[] = "AutoIndent";
+static const char tabSizeKey[] = "TabSize";
+static const char indentSizeKey[] = "IndentSize";
+static const char indentBracesKey[] = "IndentBraces";
+static const char doubleIndentBlocksKey[] = "DoubleIndentBlocks";
+static const char tabKeyBehaviorKey[] = "TabKeyBehavior";
+static const char groupPostfix[] = "TabSettings";
+static const char paddingModeKey[] = "PaddingMode";
 
 namespace TextEditor {
 

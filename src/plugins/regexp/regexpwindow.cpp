@@ -145,8 +145,8 @@ RegExpWindow::RegExpWindow(QWidget *parent) :
     refresh();
 }
 
-static const char *escapedBackSlash = "\\\\";
-static const char *escapedDoubleQuote = "\\\"";
+static const char escapedBackSlash[] = "\\\\";
+static const char escapedDoubleQuote[] = "\\\"";
 
 static QString escapePattern(const QString &pattern)
 {

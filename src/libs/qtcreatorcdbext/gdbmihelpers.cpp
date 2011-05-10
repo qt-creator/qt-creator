@@ -763,7 +763,7 @@ std::string gdbmiBreakpoints(CIDebugControl *ctrl,
     str << '[';
     if (humanReadable)
         str << '\n';
-    for (ULONG i = 0; i < breakPointCount; i++) {
+    for (ULONG i = 0; i < breakPointCount; ++i) {
         str << "{number=\"" << i << '"';
         IDebugBreakpoint *bp = 0;
         hr = ctrl->GetBreakpointByIndex(i, &bp);

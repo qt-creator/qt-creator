@@ -91,9 +91,9 @@ using namespace Qt4ProjectManager::Internal;
 
 using ProjectExplorer::DebuggingHelperLibrary;
 
-static const char *QtVersionsSectionName = "QtVersions";
-static const char *newQtVersionsKey = "NewQtVersions";
-static const char *PATH_AUTODETECTION_SOURCE = "PATH";
+static const char QtVersionsSectionName[] = "QtVersions";
+static const char newQtVersionsKey[] = "NewQtVersions";
+static const char PATH_AUTODETECTION_SOURCE[] = "PATH";
 
 enum { debug = 0 };
 

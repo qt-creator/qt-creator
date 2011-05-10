@@ -55,7 +55,7 @@
 using namespace Analyzer;
 using namespace Analyzer::Internal;
 
-static const QLatin1String lastActiveToolC("Analyzer.Plugin.LastActiveTool");
+static const char lastActiveToolC[] = "Analyzer.Plugin.LastActiveTool";
 
 AnalyzerPlugin *AnalyzerPlugin::m_instance = 0;
 

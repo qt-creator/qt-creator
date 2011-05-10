@@ -148,7 +148,7 @@ Rewriter::Range Rewriter::addBinding(AST::UiObjectInitializer *ast,
 UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *members,
                                                         const QStringList &propertyOrder)
 {
-    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString::null);
+    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString());
 
     UiObjectMemberList *lastObjectDef = 0;
     UiObjectMemberList *lastNonObjectDef = 0;
@@ -181,7 +181,7 @@ UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *memb
 UiArrayMemberList *Rewriter::searchMemberToInsertAfter(UiArrayMemberList *members,
                                                         const QStringList &propertyOrder)
 {
-    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString::null);
+    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString());
 
     UiArrayMemberList *lastObjectDef = 0;
     UiArrayMemberList *lastNonObjectDef = 0;

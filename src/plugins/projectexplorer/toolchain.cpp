@@ -39,8 +39,8 @@
 
 #include <QtCore/QCoreApplication>
 
-static const char *const ID_KEY = "ProjectExplorer.ToolChain.Id";
-static const char *const DISPLAY_NAME_KEY = "ProjectExplorer.ToolChain.DisplayName";
+static const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
+static const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
 
 namespace ProjectExplorer {
 namespace Internal {

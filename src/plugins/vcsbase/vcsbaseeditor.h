@@ -236,7 +236,7 @@ protected:
     QString findDiffFile(const QString &f, Core::IVersionControl *control = 0) const;
 
     virtual bool canRevertDiffChunk(const DiffChunk &dc) const;
-    // Revert a patch chunk. Default implemenation uses patch.exe
+    // Revert a patch chunk. Default implementation uses patch.exe
     virtual bool revertDiffChunk(const DiffChunk &dc) const;
 
 private:

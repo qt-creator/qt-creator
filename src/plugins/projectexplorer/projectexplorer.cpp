@@ -152,8 +152,8 @@ namespace {
 bool debug = false;
 }
 
-static const char * const kCurrentProjectPath = "CurrentProject:Path";
-static const char * const kCurrentProjectFilePath = "CurrentProject:FilePath";
+static const char kCurrentProjectPath[] = "CurrentProject:Path";
+static const char kCurrentProjectFilePath[] = "CurrentProject:FilePath";
 
 namespace ProjectExplorer {
 

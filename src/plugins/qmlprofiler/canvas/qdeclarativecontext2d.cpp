@@ -79,7 +79,7 @@ static QList<qreal> parseNumbersList(QString::const_iterator &itr)
         ++itr;
     while ((*itr).isNumber() ||
            (*itr) == '-' || (*itr) == '+' || (*itr) == '.') {
-        temp = QString();
+        temp.clear();
 
         if ((*itr) == '-')
             temp += *itr++;
@@ -589,7 +589,7 @@ void Context2D::setFont(const QString &fontString)
 {
     QFont font;
     // ### this is simplified and incomplete
-    QStringList tokens = fontString.split(" ");
+    QStringList tokens = fontString.split(QLatin1Char(' '));
     foreach (const QString &token, tokens) {
         if (token == QLatin1String("italic"))
             font.setItalic(true);

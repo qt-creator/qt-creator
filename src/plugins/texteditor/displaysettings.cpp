@@ -35,19 +35,19 @@
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 
-static const char * const displayLineNumbersKey = "DisplayLineNumbers";
-static const char * const textWrappingKey = "TextWrapping";
-static const char * const showWrapColumnKey = "ShowWrapColumn";
-static const char * const wrapColumnKey = "WrapColumn";
-static const char * const visualizeWhitespaceKey = "VisualizeWhitespace";
-static const char * const displayFoldingMarkersKey = "DisplayFoldingMarkers";
-static const char * const highlightCurrentLineKey = "HighlightCurrentLine2Key";
-static const char * const highlightBlocksKey = "HighlightBlocksKey";
-static const char * const animateMatchingParenthesesKey= "AnimateMatchingParenthesesKey";
-static const char * const markTextChangesKey = "MarkTextChanges";
-static const char * const autoFoldFirstCommentKey = "AutoFoldFirstComment";
-static const char * const centerCursorOnScrollKey = "CenterCursorOnScroll";
-static const char * const groupPostfix = "DisplaySettings";
+static const char displayLineNumbersKey[] = "DisplayLineNumbers";
+static const char textWrappingKey[] = "TextWrapping";
+static const char showWrapColumnKey[] = "ShowWrapColumn";
+static const char wrapColumnKey[] = "WrapColumn";
+static const char visualizeWhitespaceKey[] = "VisualizeWhitespace";
+static const char displayFoldingMarkersKey[] = "DisplayFoldingMarkers";
+static const char highlightCurrentLineKey[] = "HighlightCurrentLine2Key";
+static const char highlightBlocksKey[] = "HighlightBlocksKey";
+static const char animateMatchingParenthesesKey[] = "AnimateMatchingParenthesesKey";
+static const char markTextChangesKey[] = "MarkTextChanges";
+static const char autoFoldFirstCommentKey[] = "AutoFoldFirstComment";
+static const char centerCursorOnScrollKey[] = "CenterCursorOnScroll";
+static const char groupPostfix[] = "DisplaySettings";
 
 namespace TextEditor {
 

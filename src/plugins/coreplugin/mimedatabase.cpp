@@ -61,29 +61,29 @@
 enum { debugMimeDB = 0 };
 
 // XML tags in mime files
-static const char *mimeInfoTagC = "mime-info";
-static const char *mimeTypeTagC = "mime-type";
-static const char *mimeTypeAttributeC = "type";
-static const char *subClassTagC = "sub-class-of";
-static const char *commentTagC = "comment";
-static const char *globTagC = "glob";
-static const char *aliasTagC = "alias";
-static const char *patternAttributeC = "pattern";
-static const char *weightAttributeC = "weight";
-static const char *localeAttributeC = "xml:lang";
+static const char mimeInfoTagC[] = "mime-info";
+static const char mimeTypeTagC[] = "mime-type";
+static const char mimeTypeAttributeC[] = "type";
+static const char subClassTagC[] = "sub-class-of";
+static const char commentTagC[] = "comment";
+static const char globTagC[] = "glob";
+static const char aliasTagC[] = "alias";
+static const char patternAttributeC[] = "pattern";
+static const char weightAttributeC[] = "weight";
+static const char localeAttributeC[] = "xml:lang";
 
-static const char *magicTagC = "magic";
-static const char *priorityAttributeC = "priority";
-static const char *matchTagC = "match";
-static const char *matchValueAttributeC = "value";
-static const char *matchTypeAttributeC = "type";
-static const char *matchStringTypeValueC = "string";
-static const char *matchByteTypeValueC = "byte";
-static const char *matchOffsetAttributeC = "offset";
+static const char magicTagC[] = "magic";
+static const char priorityAttributeC[] = "priority";
+static const char matchTagC[] = "match";
+static const char matchValueAttributeC[] = "value";
+static const char matchTypeAttributeC[] = "type";
+static const char matchStringTypeValueC[] = "string";
+static const char matchByteTypeValueC[] = "byte";
+static const char matchOffsetAttributeC[] = "offset";
 
 // Types
-static const char *textTypeC = "text/plain";
-static const char *binaryTypeC = "application/octet-stream";
+static const char textTypeC[] = "text/plain";
+static const char binaryTypeC[] = "application/octet-stream";
 
 // UTF16 byte order marks
 static const char bigEndianByteOrderMarkC[] = "\xFE\xFF";

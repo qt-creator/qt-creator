@@ -1842,7 +1842,7 @@ static QVariant version8VarNodeTransform(const QVariant &var)
     };
     static QSet<QString> map;
     if (map.isEmpty())
-        for (unsigned i = 0; i < sizeof(vars)/sizeof(vars[0]); i++)
+        for (unsigned i = 0; i < sizeof(vars)/sizeof(vars[0]); ++i)
             map.insert(QLatin1String("CURRENT_DOCUMENT:") + QLatin1String(vars[i]));
 
     QString str = var.toString();

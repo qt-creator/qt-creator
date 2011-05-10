@@ -143,9 +143,10 @@ void QmlProfilerSummaryView::addRangedEvent(int type, qint64 startTime, qint64 l
 
     if (fileName.isEmpty())
         return;
+    const QChar colon = QLatin1Char(':');
     QString localName = QUrl(fileName).toLocalFile();
-    QString displayName = localName.mid(localName.lastIndexOf(QChar('/'))+1)+QLatin1String(":")+QString::number(line);
-    QString location = fileName+":"+QString::number(line);
+    QString displayName = localName.mid(localName.lastIndexOf(QChar('/'))+1)+colon+QString::number(line);
+    QString location = fileName+colon+QString::number(line);
 
     QHash<QString, BindingData *>::iterator it = d->m_bindingHash.find(location);
     if (it != d->m_bindingHash.end()) {
@@ -225,7 +226,7 @@ void QmlProfilerSummaryView::appendRow(const QString &displayName,
                 double maxTime,
                 double minTime)
 {
-    QString location =fileName+":"+QString::number(line);
+    QString location =fileName+QLatin1Char(':')+QString::number(line);
     ProfilerItem *locationColumn = new ProfilerItem(displayName);
     locationColumn->setData(QVariant(location),Qt::UserRole+1);
     locationColumn->setData(QVariant(fileName),Qt::UserRole+2);

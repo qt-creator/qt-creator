@@ -147,7 +147,7 @@ void CallgrindController::processError(QProcess::ProcessError)
 {
     QTC_ASSERT(m_process, return)
     const QString error = m_process->errorString();
-    emit statusMessage(QString("An error occured while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
+    emit statusMessage(QString("An error occurred while trying to run %1: %2").arg(CALLGRIND_CONTROL_BINARY).arg(error));
 
     m_process->deleteLater();
     m_process = 0;
@@ -169,7 +169,7 @@ void CallgrindController::processFinished(int rc, QProcess::ExitStatus status)
     // this call went fine, we might run another task after this
     switch(m_lastOption) {
         case ResetEventCounters:
-            // lets dump the new resetted profiling info
+            // lets dump the new reset profiling info
             run(Dump);
             return;
         case Pause:
@@ -264,7 +264,7 @@ void CallgrindController::cleanupTempFile()
     if (!m_tempDataFile.isEmpty() && QFile::exists(m_tempDataFile))
         QFile::remove(m_tempDataFile);
 
-    m_tempDataFile = QString();
+    m_tempDataFile.clear();
 }
 
 }

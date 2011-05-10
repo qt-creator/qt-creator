@@ -316,7 +316,7 @@ void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
             m_tabs[m_currentIndex].currentSubTab = hit.second;
             update();
             // todo next two lines were outside the if leading to
-            // unecessary (?) signal emissions?
+            // unnecessary (?) signal emissions?
             event->accept();
             emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
             return;

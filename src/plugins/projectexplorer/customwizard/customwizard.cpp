@@ -382,7 +382,7 @@ static QString listWizards()
     QString rc;
     QTextStream str(&rc);
     CategoryWizardMap categoryWizardMap;
-    foreach(const  Core::IWizard *w, Core::IWizard::allWizards())
+    foreach (const Core::IWizard *w, Core::IWizard::allWizards())
         categoryWizardMap.insert(w->category(), w);
     str << "### Registered wizards (" << categoryWizardMap.size() << ")\n";
     // Format

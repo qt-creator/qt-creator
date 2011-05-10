@@ -53,8 +53,8 @@
 #include <QTest>
 #endif
 
-static const char * const C_IGNORED_PLUGINS = "Plugins/Ignored";
-static const char * const C_FORCEENABLED_PLUGINS = "Plugins/ForceEnabled";
+static const char C_IGNORED_PLUGINS[] = "Plugins/Ignored";
+static const char C_FORCEENABLED_PLUGINS[] = "Plugins/ForceEnabled";
 
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 

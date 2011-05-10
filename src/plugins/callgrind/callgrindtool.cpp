@@ -182,7 +182,7 @@ void CallgrindTool::initializeDockWidgets()
                              Qt::BottomDockWidgetArea);
 
     QDockWidget *visDock =
-       am->createDockWidget(this, tr("Visualisation"),
+       am->createDockWidget(this, tr("Visualization"),
                             m_callgrindWidgetHandler->visualisation(), Qt::LeftDockWidgetArea);
 
     am->mainWindow()->tabifyDockWidget(callersDock, calleesDock);

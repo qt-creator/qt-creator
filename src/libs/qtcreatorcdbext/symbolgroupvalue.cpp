@@ -2197,7 +2197,7 @@ static inline std::vector<AbstractSymbolGroupNode *>
     const std::string charType = "unsigned char";
     std::string errorMessage;
     SymbolGroup *sg = n->symbolGroup();
-    for (int i = 0; i < size; i++, address++) {
+    for (int i = 0; i < size; ++i, ++address) {
         SymbolGroupNode *en = sg->addSymbol(std::string(), SymbolGroupValue::pointedToSymbolName(address, charType),
                                             std::string(), &errorMessage);
         if (!en) {
@@ -2244,7 +2244,7 @@ std::vector<AbstractSymbolGroupNode *>
     if (SymbolGroupValue::verbose) {
         DebugPrint dp;
         dp << "<dumpComplexType" << rc.size() << ' ';
-        for (VectorIndexType i = 0; i < rc.size() ; i++)
+        for (VectorIndexType i = 0; i < rc.size() ; ++i)
             dp << i << ' ' << rc.at(i)->name();
     }
     return rc;

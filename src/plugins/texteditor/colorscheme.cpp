@@ -42,7 +42,7 @@
 
 using namespace TextEditor;
 
-static const char *trueString = "true";
+static const char trueString[] = "true";
 
 // Format
 

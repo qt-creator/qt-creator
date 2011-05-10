@@ -506,7 +506,7 @@ void Snapshot::syncThreads(ThreadsHandler *handler) const
     // Take advantage of direct access to cached register values.
     Threads threads;
     const unsigned count = threadInfo.size();
-    for (unsigned t = 0; t < count; t++) {
+    for (unsigned t = 0; t < count; ++t) {
         ThreadData thread(t + 1); // Fake gdb thread ids starting from 1
             thread.targetId = QString::number(threadInfo.at(t).id);
             thread.state = threadInfo.at(t).state;

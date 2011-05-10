@@ -99,8 +99,8 @@ void FunctionCycle::setFunctions(const QVector<const Function *> functions)
             }
         }
     }
-    // now substract self from incl. cost (see implementation of inclusiveCost())
-    /// now substract self cost (see @c inclusiveCost() implementation)
+    // now subtract self from incl. cost (see implementation of inclusiveCost())
+    // now subtract self cost (see @c inclusiveCost() implementation)
     for(int i = 0, c = d->m_inclusiveCost.size(); i < c; ++i) {
         if (d->m_inclusiveCost.at(i) < d->m_selfCost.at(i))
             d->m_inclusiveCost[i] = 0;

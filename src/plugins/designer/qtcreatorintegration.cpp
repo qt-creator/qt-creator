@@ -226,7 +226,7 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
     // we are interested only in declarations (can be decl of method or of a field)
     // we are only interested in declarations of methods
     const Overview overview;
-    for (unsigned j = 0; j < mCount; j++) { // go through all members
+    for (unsigned j = 0; j < mCount; ++j) { // go through all members
         if (Declaration *decl = cl->memberAt(j)->asDeclaration())
             if (Function *fun = decl->type()->asFunctionType()) {
                 // Format signature

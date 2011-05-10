@@ -447,7 +447,7 @@ void MiniProjectTargetSelector::mousePressEvent(QMouseEvent *e)
 
 QString MiniProjectTargetSelector::fullName(ProjectExplorer::Project *project)
 {
-    return project->displayName() + " (" + project->file()->fileName() + ")";
+    return project->displayName() + " (" + project->file()->fileName() + QLatin1Char(')');
 }
 
 void MiniProjectTargetSelector::addProject(ProjectExplorer::Project *project)

@@ -72,8 +72,8 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QToolButton>
 
-static const char *const kGitDirectoryC = ".git";
-static const char *const kBranchIndicatorC = "# On branch";
+static const char kGitDirectoryC[] = ".git";
+static const char kBranchIndicatorC[] = "# On branch";
 
 namespace Git {
 namespace Internal {

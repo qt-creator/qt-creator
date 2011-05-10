@@ -87,13 +87,13 @@
   (see addToRecentFiles() and recentFiles()).
  */
 
-static const char * const settingsGroupC = "RecentFiles";
-static const char * const filesKeyC = "Files";
-static const char * const editorsKeyC = "EditorIds";
+static const char settingsGroupC[] = "RecentFiles";
+static const char filesKeyC[] = "Files";
+static const char editorsKeyC[] = "EditorIds";
 
-static const char * const directoryGroupC = "Directories";
-static const char * const projectDirectoryKeyC = "Projects";
-static const char * const useProjectDirectoryKeyC = "UseProjectsDirectory";
+static const char directoryGroupC[] = "Directories";
+static const char projectDirectoryKeyC[] = "Projects";
+static const char useProjectDirectoryKeyC[] = "UseProjectsDirectory";
 
 namespace Core {
 namespace Internal {

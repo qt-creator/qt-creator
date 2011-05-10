@@ -1184,15 +1184,15 @@ void MainWindow::aboutToShutdown()
     hide();
 }
 
-static const char *settingsGroup = "MainWindow";
-static const char *colorKey = "Color";
-static const char *windowGeometryKey = "WindowGeometry";
-static const char *windowStateKey = "WindowState";
+static const char settingsGroup[] = "MainWindow";
+static const char colorKey[] = "Color";
+static const char windowGeometryKey[] = "WindowGeometry";
+static const char windowStateKey[] = "WindowState";
 
 // TODO compat for <= 2.1, remove later
-static const char *geometryKey = "Geometry";
-static const char *maxKey = "Maximized";
-static const char *fullScreenKey = "FullScreen";
+static const char geometryKey[] = "Geometry";
+static const char maxKey[] = "Maximized";
+static const char fullScreenKey[] = "FullScreen";
 
 void MainWindow::readSettings()
 {

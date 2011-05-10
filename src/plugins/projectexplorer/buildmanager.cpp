@@ -366,7 +366,8 @@ void BuildManager::progressChanged()
     int range = d->m_watcher.progressMaximum() - d->m_watcher.progressMinimum();
     if (range != 0) {
         int percent = (d->m_watcher.progressValue() - d->m_watcher.progressMinimum()) * 100 / range;
-        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress * 100 + percent, msgProgress(d->m_progress, d->m_maxProgress) + "\n" + d->m_watcher.progressText());
+        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress * 100 + percent, msgProgress(d->m_progress, d->m_maxProgress)
+                                                              + QLatin1Char('\n') + d->m_watcher.progressText());
     }
 }
 
@@ -376,7 +377,8 @@ void BuildManager::progressTextChanged()
     int percent = 0;
     if (range != 0)
         percent = (d->m_watcher.progressValue() - d->m_watcher.progressMinimum()) * 100 / range;
-    d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100 + percent, msgProgress(d->m_progress, d->m_maxProgress) + "\n" + d->m_watcher.progressText());
+    d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100 + percent, msgProgress(d->m_progress, d->m_maxProgress) +
+                                                          QLatin1Char('\n') + d->m_watcher.progressText());
 }
 
 void BuildManager::nextStep()

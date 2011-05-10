@@ -44,11 +44,11 @@
 #include <QtGui/QFont>
 #include <QtGui/QMainWindow>
 
-static const char *fontFamilyKey = "FontFamily";
-static const char *fontSizeKey = "FontSize";
-static const char *fontZoomKey= "FontZoom";
-static const char *antialiasKey = "FontAntialias";
-static const char *schemeFileNameKey = "ColorScheme";
+static const char fontFamilyKey[] = "FontFamily";
+static const char fontSizeKey[] = "FontSize";
+static const char fontZoomKey[] = "FontZoom";
+static const char antialiasKey[] = "FontAntialias";
+static const char schemeFileNameKey[] = "ColorScheme";
 
 namespace {
 static const bool DEFAULT_ANTIALIAS = true;

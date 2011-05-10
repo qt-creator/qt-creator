@@ -44,7 +44,7 @@
 
     \brief Base class for project wizards.
 
-    Presents the introductory page and takes care of setting the folder choosen
+    Presents the introductory page and takes care of setting the folder chosen
     as default projects' folder should the user wish to do that.
 */
 

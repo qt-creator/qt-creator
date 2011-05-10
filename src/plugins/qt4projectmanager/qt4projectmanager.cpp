@@ -77,7 +77,7 @@ using ProjectExplorer::FormType;
 using ProjectExplorer::ResourceType;
 using ProjectExplorer::UnknownFileType;
 
-static const char * const kInstallBins = "CurrentProject:QT_INSTALL_BINS";
+static const char kInstallBins[] = "CurrentProject:QT_INSTALL_BINS";
 
 // Known file types of a Qt 4 project
 static const char* qt4FileTypes[] = {

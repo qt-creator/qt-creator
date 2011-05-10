@@ -559,7 +559,7 @@ QList<Abi> Abi::abisOfBinary(const QString &path)
                     && tmp.at(0).binaryFormat() != Abi::MachOFormat)
                 break;
 
-            offset += (offset % 2); // ar is 2 byte alligned
+            offset += (offset % 2); // ar is 2 byte aligned
             f.seek(offset);
             data = f.read(1024);
         }

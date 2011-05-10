@@ -75,7 +75,7 @@ private:
 
     void populateImportedTypes(Interpreter::TypeEnvironment *typeEnv, Document::Ptr doc);
     Interpreter::ObjectValue *importFileOrDirectory(Document::Ptr doc, const Interpreter::ImportInfo &importInfo);
-    Interpreter::ObjectValue *importNonFile(Document::Ptr doc, const Interpreter::ImportInfo &importInfo, const QString &forcedPackageName = QString::null);
+    Interpreter::ObjectValue *importNonFile(Document::Ptr doc, const Interpreter::ImportInfo &importInfo, const QString &forcedPackageName = QString());
     void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
 
     bool importLibrary(Document::Ptr doc,

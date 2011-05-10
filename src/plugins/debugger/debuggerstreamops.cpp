@@ -296,7 +296,7 @@ QDataStream &operator>>(QDataStream& stream, DisassemblerLines &o)
     DisassemblerLines r;
     quint64 count;
     stream >> count;
-    for (quint64 i = 0; i < count; i++)
+    for (quint64 i = 0; i < count; ++i)
     {
         DisassemblerLine line;
         stream >> line;

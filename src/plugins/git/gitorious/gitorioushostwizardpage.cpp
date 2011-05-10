@@ -40,8 +40,8 @@
 #include <QtCore/QSettings>
 #include <QtGui/QVBoxLayout>
 
-static const char *settingsGroupC = "Gitorious";
-static const char *selectionKeyC = "/SelectedHost";
+static const char settingsGroupC[] = "Gitorious";
+static const char selectionKeyC[] = "/SelectedHost";
 
 namespace Gitorious {
 namespace Internal {

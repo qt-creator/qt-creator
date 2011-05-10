@@ -205,7 +205,7 @@ void TimelineView::updateTimeline(bool updateStartX)
             QVariantList list = m_ranges.property(i).property("label").toVariant().value<QVariantList>();
             for (int i = 0; i < list.size(); ++i) {
                 if (i > 0)
-                    label += "\n";
+                    label += QLatin1Char('\n');
                 QString sub = list.at(i).toString();
 
                 //### only do rewrite for bindings...

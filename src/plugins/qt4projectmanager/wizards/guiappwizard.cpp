@@ -52,20 +52,20 @@
 
 #include <QtGui/QIcon>
 
-static const char *mainSourceFileC = "main";
-static const char *mainSourceShowC = "    w.show();\n";
-static const char *mainSourceMobilityShowC = "#if defined(Q_WS_S60)\n"
+static const char mainSourceFileC[] = "main";
+static const char mainSourceShowC[] = "    w.show();\n";
+static const char mainSourceMobilityShowC[] = "#if defined(Q_WS_S60)\n"
 "    w.showMaximized();\n"
 "#else\n"
 "    w.show();\n"
 "#endif\n";
 
-static const char *mainWindowUiContentsC =
+static const char mainWindowUiContentsC[] =
 "\n  <widget class=\"QMenuBar\" name=\"menuBar\" />"
 "\n  <widget class=\"QToolBar\" name=\"mainToolBar\" />"
 "\n  <widget class=\"QWidget\" name=\"centralWidget\" />"
 "\n  <widget class=\"QStatusBar\" name=\"statusBar\" />";
-static const char *mainWindowMobileUiContentsC =
+static const char mainWindowMobileUiContentsC[] =
 "\n  <widget class=\"QWidget\" name=\"centralWidget\" />";
 
 static const char *baseClassesC[] = { "QMainWindow", "QWidget", "QDialog" };

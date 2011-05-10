@@ -56,9 +56,9 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-static const char *headerSuffixKeyC = "HeaderSuffix";
-static const char *sourceSuffixKeyC = "SourceSuffix";
-static const char *licenseTemplatePathKeyC = "LicenseTemplate";
+static const char headerSuffixKeyC[] = "HeaderSuffix";
+static const char sourceSuffixKeyC[] = "SourceSuffix";
+static const char licenseTemplatePathKeyC[] = "LicenseTemplate";
 
 const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("CppTools::Internal::CppFileSettingsWidget",
 "/**************************************************************************\n"

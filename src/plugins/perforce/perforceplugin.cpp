@@ -139,32 +139,32 @@ static inline QProcessEnvironment overrideDiffEnvironmentVariable()
     return rc;
 }
 
-static const char * const CMD_ID_PERFORCE_MENU = "Perforce.Menu";
-static const char * const CMD_ID_EDIT = "Perforce.Edit";
-static const char * const CMD_ID_ADD = "Perforce.Add";
-static const char * const CMD_ID_DELETE_FILE = "Perforce.Delete";
-static const char * const CMD_ID_OPENED = "Perforce.Opened";
-static const char * const CMD_ID_PROJECTLOG = "Perforce.ProjectLog";
-static const char * const CMD_ID_REPOSITORYLOG = "Perforce.RepositoryLog";
-static const char * const CMD_ID_REVERT = "Perforce.Revert";
-static const char * const CMD_ID_DIFF_CURRENT = "Perforce.DiffCurrent";
-static const char * const CMD_ID_DIFF_PROJECT = "Perforce.DiffProject";
-static const char * const CMD_ID_UPDATE_PROJECT = "Perforce.UpdateProject";
-static const char * const CMD_ID_REVERT_PROJECT = "Perforce.RevertProject";
-static const char * const CMD_ID_REVERT_UNCHANGED_PROJECT = "Perforce.RevertUnchangedProject";
-static const char * const CMD_ID_DIFF_ALL = "Perforce.DiffAll";
-static const char * const CMD_ID_RESOLVE = "Perforce.Resolve";
-static const char * const CMD_ID_SUBMIT = "Perforce.Submit";
-static const char * const CMD_ID_PENDING_CHANGES = "Perforce.PendingChanges";
-static const char * const CMD_ID_DESCRIBE = "Perforce.Describe";
-static const char * const CMD_ID_ANNOTATE_CURRENT = "Perforce.AnnotateCurrent";
-static const char * const CMD_ID_ANNOTATE = "Perforce.Annotate";
-static const char * const CMD_ID_FILELOG_CURRENT = "Perforce.FilelogCurrent";
-static const char * const CMD_ID_FILELOG = "Perforce.Filelog";
-static const char * const CMD_ID_UPDATEALL = "Perforce.UpdateAll";
-static const char * const CMD_ID_SEPARATOR1 = "Perforce.Separator1";
-static const char * const CMD_ID_SEPARATOR2 = "Perforce.Separator2";
-static const char * const CMD_ID_SEPARATOR3 = "Perforce.Separator3";
+static const char CMD_ID_PERFORCE_MENU[] = "Perforce.Menu";
+static const char CMD_ID_EDIT[] = "Perforce.Edit";
+static const char CMD_ID_ADD[] = "Perforce.Add";
+static const char CMD_ID_DELETE_FILE[] = "Perforce.Delete";
+static const char CMD_ID_OPENED[] = "Perforce.Opened";
+static const char CMD_ID_PROJECTLOG[] = "Perforce.ProjectLog";
+static const char CMD_ID_REPOSITORYLOG[] = "Perforce.RepositoryLog";
+static const char CMD_ID_REVERT[] = "Perforce.Revert";
+static const char CMD_ID_DIFF_CURRENT[] = "Perforce.DiffCurrent";
+static const char CMD_ID_DIFF_PROJECT[] = "Perforce.DiffProject";
+static const char CMD_ID_UPDATE_PROJECT[] = "Perforce.UpdateProject";
+static const char CMD_ID_REVERT_PROJECT[] = "Perforce.RevertProject";
+static const char CMD_ID_REVERT_UNCHANGED_PROJECT[] = "Perforce.RevertUnchangedProject";
+static const char CMD_ID_DIFF_ALL[] = "Perforce.DiffAll";
+static const char CMD_ID_RESOLVE[] = "Perforce.Resolve";
+static const char CMD_ID_SUBMIT[] = "Perforce.Submit";
+static const char CMD_ID_PENDING_CHANGES[] = "Perforce.PendingChanges";
+static const char CMD_ID_DESCRIBE[] = "Perforce.Describe";
+static const char CMD_ID_ANNOTATE_CURRENT[] = "Perforce.AnnotateCurrent";
+static const char CMD_ID_ANNOTATE[] = "Perforce.Annotate";
+static const char CMD_ID_FILELOG_CURRENT[] = "Perforce.FilelogCurrent";
+static const char CMD_ID_FILELOG[] = "Perforce.Filelog";
+static const char CMD_ID_UPDATEALL[] = "Perforce.UpdateAll";
+static const char CMD_ID_SEPARATOR1[] = "Perforce.Separator1";
+static const char CMD_ID_SEPARATOR2[] = "Perforce.Separator2";
+static const char CMD_ID_SEPARATOR3[] = "Perforce.Separator3";
 
 ////
 // PerforcePlugin
