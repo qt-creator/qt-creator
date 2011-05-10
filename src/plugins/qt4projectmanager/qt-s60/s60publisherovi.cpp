@@ -165,16 +165,16 @@ void S60PublisherOvi::completeCreation()
     m_createSisProc->setWorkingDirectory(m_qt4bc->buildDirectory());
 
     // set up access to vendor names
-    QStringList deploymentLevelVars = m_reader->values("DEPLOYMENT");
+    QStringList deploymentLevelVars = m_reader->values(QLatin1String("DEPLOYMENT"));
     QStringList vendorInfoVars;
     QStringList valueLevelVars;
 
     foreach (const QString &deploymentLevelVar, deploymentLevelVars) {
-        vendorInfoVars = m_reader->values(deploymentLevelVar+".pkg_prerules");
+        vendorInfoVars = m_reader->values(deploymentLevelVar+QLatin1String(".pkg_prerules"));
         foreach (const QString &vendorInfoVar, vendorInfoVars) {
             valueLevelVars = m_reader->values(vendorInfoVar);
             foreach (const QString &valueLevelVar, valueLevelVars) {
-                if (valueLevelVar.startsWith("%{\"")) {
+                if (valueLevelVar.startsWith(QLatin1String("%{\""))) {
                     m_vendorInfoVariable = vendorInfoVar;
                     break;
                 }
@@ -221,10 +221,10 @@ QString S60PublisherOvi::localisedVendorNames() const
     QStringList localisedVendorNames;
     foreach (QString vendorinfo, vendorinfos) {
         if (vendorinfo.startsWith('%')) {
-            localisedVendorNames = vendorinfo.remove("%{").remove('}').split(',');
+            localisedVendorNames = vendorinfo.remove(QLatin1String("%{")).remove('}').split(',');
             foreach (QString localisedVendorName, localisedVendorNames) {
                 if (!result.isEmpty())
-                    result.append(", ");
+                    result.append(QLatin1String(", "));
                 result.append(localisedVendorName.remove("\"").trimmed());
             }
             return result;
@@ -254,7 +254,7 @@ QString S60PublisherOvi::qtVersion() const
 
 QString S60PublisherOvi::uid3() const
 {
-    return m_reader->value("TARGET.UID3");
+    return m_reader->value(QLatin1String("TARGET.UID3"));
 }
 
 bool S60PublisherOvi::isUID3Valid(const QString &uid3) const
@@ -281,7 +281,7 @@ bool S60PublisherOvi::isKnownSymbianSignedUID3(const QString &uid3) const
 
 QString S60PublisherOvi::capabilities() const
 {
-    return m_reader->values("TARGET.CAPABILITY").join(", ");
+    return m_reader->values(QLatin1String("TARGET.CAPABILITY")).join(", ");
 }
 
 bool S60PublisherOvi::isCapabilityOneOf(const QString &capability, CapabilityLevel level) const
@@ -309,10 +309,10 @@ void S60PublisherOvi::updateProFile(const QString &var, const QString &values)
 
     ProWriter::putVarValues(profile, &lines, QStringList() << values, var,
                             ProWriter::ReplaceValues | ProWriter::OneLine | ProWriter::AppendOperator,
-                            "symbian");
+                            QLatin1String("symbian"));
 
     Utils::FileSaver saver(m_qt4project->rootProjectNode()->path(), QIODevice::Text);
-    saver.write(lines.join("\n").toLocal8Bit());
+    saver.write(lines.join(QLatin1String("\n")).toLocal8Bit());
     if (!saver.finalize())
         emit progressReport(saver.errorString(), m_errorColor);
 }
@@ -328,8 +328,12 @@ void S60PublisherOvi::updateProFile()
     if (!m_displayName.isEmpty() && m_displayName != nameFromTarget())
         updateProFile(QLatin1String("DEPLOYMENT.display_name"), m_displayName);
 
-    updateProFile(m_vendorInfoVariable, "\"%{" + m_localVendorNames + "}\" \":\\\"" + m_vendorName + "\\\"\"" );
-    updateProFile("TARGET.UID3", m_appUid);
+    updateProFile(m_vendorInfoVariable, QLatin1String("\"%{")
+                  + m_localVendorNames
+                  + QLatin1String("}\" \":\\\"")
+                  + m_vendorName
+                  + QLatin1String("\\\"\"") );
+    updateProFile(QLatin1String("TARGET.UID3"), m_appUid);
 }
 
 void S60PublisherOvi::buildSis()
@@ -346,7 +350,7 @@ void S60PublisherOvi::runQMake()
     qmakeStep->init();
     const ProjectExplorer::ProcessParameters * const qmakepp = qmakeStep->processParameters();
     runStep(QProcess::NormalExit,
-            "Running QMake",
+            QLatin1String("Running QMake"),
             qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
             m_qmakeProc,
             0);
@@ -358,7 +362,7 @@ void S60PublisherOvi::runBuild(int result)
     makeStep->init();
     const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
     runStep(result,
-            "Running Build Steps",
+            QLatin1String("Running Build Steps"),
             makepp->effectiveCommand() + ' ' + makepp->arguments(),
             m_buildProc,
             m_qmakeProc);
@@ -374,7 +378,7 @@ void S60PublisherOvi::runCreateSis(int result)
     if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
         makeTarget =  QLatin1String(" installer_sis");
     runStep(result,
-            "Making Sis File",
+            QLatin1String("Making Sis File"),
             makepp->effectiveCommand() + makeTarget,
             m_createSisProc,
             m_buildProc);
@@ -409,7 +413,7 @@ QString S60PublisherOvi::createdSisFileContainingFolder()
     if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
         fileNamePostFix =  QLatin1String("_installer.sis");
 
-    QString resultFile = m_qt4bc->buildDirectory() + "/" + m_qt4project->displayName() + fileNamePostFix;
+    QString resultFile = m_qt4bc->buildDirectory() + '/' + m_qt4project->displayName() + fileNamePostFix;
     QFileInfo fi(resultFile);
 
     return fi.exists() ? QDir::toNativeSeparators(m_qt4bc->buildDirectory()) : QString();
@@ -421,7 +425,7 @@ QString S60PublisherOvi::createdSisFilePath()
     if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
         fileNamePostFix =  QLatin1String("_installer.sis");
 
-    QString resultFile = m_qt4bc->buildDirectory() + "/" + m_qt4project->displayName() + fileNamePostFix;
+    QString resultFile = m_qt4bc->buildDirectory() + '/' + m_qt4project->displayName() + fileNamePostFix;
     QFileInfo fi(resultFile);
 
     return fi.exists() ? QDir::toNativeSeparators(m_qt4bc->buildDirectory()+ '/' + m_qt4project->displayName() + fileNamePostFix) : QString();
