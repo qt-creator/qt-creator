@@ -752,9 +752,8 @@ void setWatchDataAddress(WatchData &data, const GdbMi &addressMi, const GdbMi &o
         data.dumperFlags = addressBA;
         return;
     }
-    const quint64 address = addressBA.toULongLong(0, 16);
-    const quint64 origAddress = origAddressMi.isValid() ?
-                                origAddressMi.data().toULongLong(0, 16) : quint64(0);
+    const quint64 address = addressMi.toAddress();
+    const quint64 origAddress = origAddressMi.toAddress();
     setWatchDataAddress(data, address, origAddress);
 }
 

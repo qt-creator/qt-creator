@@ -127,6 +127,7 @@ public:
     GdbMi findChild(const char *name) const;
 
     QByteArray toString(bool multiline = false, int indent = 0) const;
+    qulonglong toAddress() const;
     void fromString(const QByteArray &str);
     void fromStringMultiple(const QByteArray &str);
     void setStreamOutput(const QByteArray &name, const QByteArray &content);

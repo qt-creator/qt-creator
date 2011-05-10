@@ -2564,6 +2564,9 @@ int main(int argc, char *argv[])
 {
     int *x = new int(32);
     Q_UNUSED(x);
+    std::string s;
+    s = "hallo";
+    s += "hallo";
     testQXmlAttributes();
     testQRegExp();
     testInlineBreakpoints();

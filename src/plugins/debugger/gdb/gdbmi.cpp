@@ -373,6 +373,16 @@ GdbMi GdbMi::findChild(const char *name) const
     return GdbMi();
 }
 
+qulonglong GdbMi::toAddress() const
+{
+    QByteArray ba = m_data;
+    if (ba.endsWith('L'))
+        ba.chop(1);
+    if (ba.startsWith('*') || ba.startsWith('@'))
+        ba = ba.mid(1);
+    return ba.toULongLong(0, 16);
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 //
 // GdbResponse

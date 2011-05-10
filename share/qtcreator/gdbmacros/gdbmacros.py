@@ -1354,6 +1354,18 @@ def qdump__QStandardItem(d, item):
         d.putPlainChildren(item)
 
 
+def qedit__QString(expr, value):
+    cmd = "call (%s).resize(%d)" % (expr, len(value))
+    gdb.execute(cmd)
+    d = gdb.parse_and_eval(expr)["d"]["data"]
+    cmd = "set {short[%d]}%s={" % (len(value), long(d))
+    for i in range(len(value)):
+        if i != 0:
+            cmd += ','
+        cmd += str(ord(value[i]))
+    cmd += '}'
+    gdb.execute(cmd)
+
 def qform__QString():
     return "Inline,Separate Window"
 
@@ -1924,6 +1936,13 @@ def qdump__std__vector(d, item):
                     d.putSubItem(Item(p.dereference(), item.iname, i))
                     p += 1
 
+
+def qedit__std__string(expr, value):
+    cmd = "print (%s).assign(\"%s\")" % (expr, value)
+    gdb.execute(cmd)
+
+def qedit__string(expr, value):
+    qdump__std__string(expr, value)
 
 def qdump__string(d, item):
     qdump__std__string(d, item)

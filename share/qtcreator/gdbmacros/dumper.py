@@ -1015,6 +1015,9 @@ qqFormats = {}
 # This is a cache of all known dumpers.
 qqDumpers = {}
 
+# This is a cache of all dumpers that support writing.
+qqEditable = {}
+
 # This is a cache of the namespace of the currently used Qt version.
 # FIXME: This is not available on 'bbsetup' time, only at 'bb' time.
 
@@ -1049,14 +1052,53 @@ def bbsetup():
             except:
                 pass
             qqFormats[name] = formats
+        elif key.startswith("qedit__"):
+            name = key[7:]
+            try:
+                qqEditable[name] = value
+            except:
+                pass
     result = "dumpers=["
     #qqNs = qtNamespace() # This is too early
     for key, value in qqFormats.items():
-        result += '{type="%s",formats="%s"},' % (key, value)
+        if qqEditable.has_key(key):
+            result += '{type="%s",formats="%s",editable="true"},' % (key, value)
+        else:
+            result += '{type="%s",formats="%s"},' % (key, value)
     result += ']'
     #result += ',namespace="%s"' % qqNs
     result += ',hasInferiorThreadList="%s"' % int(hasInferiorThreadList())
     return result
+
+
+#######################################################################
+#
+# Edit Command
+#
+#######################################################################
+
+def bbedit(args):
+    (type, expr, value) = args.split(" ")
+    type = base64.b64decode(type)
+    ns = qtNamespace()
+    type = type[len(ns):]
+    type = type.replace("::", "__")
+    expr = base64.b64decode(expr)
+    value = base64.b64decode(value)
+    if qqEditable.has_key(type):
+        qqEditable[type](expr, value)
+    warn("EDIT: %s %s %s: " % (type, expr, value))
+
+class EditCommand(gdb.Command):
+    """QtCreator Data Edit Support"""
+
+    def __init__(self):
+        super(EditCommand, self).__init__("bbedit", gdb.COMMAND_OBSCURE)
+
+    def invoke(self, args, from_tty):
+       bbedit(args)
+
+EditCommand()
 
 
 #######################################################################

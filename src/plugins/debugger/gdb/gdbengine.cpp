@@ -2199,11 +2199,9 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
             // is called <MULTIPLE>.
             //qDebug() << "ADDR: " << child.data() << (child.data() == "<MULTIPLE>");
             if (child.data().startsWith("0x")) {
-                response.address = child.data().mid(2).toULongLong(0, 16);
+                response.address = child.toAddress();
             } else {
                 response.extra = child.data();
-                if (child.data() == "<MULTIPLE>")
-                    response.multiple = true;
             }
         } else if (child.hasName("file")) {
             file = child.data();
@@ -2320,7 +2318,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
             // Mac yields:
             //>32^done,wpt={number="4",exp="*4355182176"}
             bresponse.number = wpt.findChild("number").data().toInt();
-            bresponse.address = wpt.findChild("exp").data().toULongLong(0, 0);
+            bresponse.address = wpt.findChild("exp").toAddress();
             handler->setResponse(id, bresponse);
             QTC_ASSERT(!handler->needsChange(id), /**/);
             handler->notifyBreakpointInsertOk(id);
@@ -3147,7 +3145,7 @@ StackFrame GdbEngine::parseStackFrame(const GdbMi &frameMi, int level)
     frame.function = _(frameMi.findChild("func").data());
     frame.from = _(frameMi.findChild("from").data());
     frame.line = frameMi.findChild("line").data().toInt();
-    frame.address = frameMi.findChild("addr").data().toULongLong(0, 16);
+    frame.address = frameMi.findChild("addr").toAddress();
     frame.usable = QFileInfo(frame.file).isReadable();
     return frame;
 }
@@ -3902,13 +3900,22 @@ void GdbEngine::insertData(const WatchData &data0)
     watchHandler()->insertData(data);
 }
 
-void GdbEngine::assignValueInDebugger(const WatchData *,
+void GdbEngine::assignValueInDebugger(const WatchData *data,
     const QString &expression, const QVariant &value)
 {
-    postCommand("-var-delete assign");
-    postCommand("-var-create assign * " + expression.toLatin1());
-    postCommand("-var-assign assign " + GdbMi::escapeCString(value.toString().toLatin1()),
-        Discardable, CB(handleVarAssign));
+    if (hasPython()) {
+        QByteArray cmd = "bbedit "
+            + data->type.toBase64() + ' '
+            + expression.toUtf8().toBase64() + ' '
+            + value.toString().toUtf8().toBase64();
+        postCommand(cmd, Discardable, CB(handleVarAssign));
+    } else {
+        postCommand("-var-delete assign");
+        postCommand("-var-create assign * " + expression.toLatin1());
+        postCommand("-var-assign assign " +
+                GdbMi::escapeCString(value.toString().toLatin1()),
+            Discardable, CB(handleVarAssign));
+    }
 }
 
 void GdbEngine::watchPoint(const QPoint &pnt)
