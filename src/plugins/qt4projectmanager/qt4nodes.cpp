@@ -1321,6 +1321,11 @@ QStringList Qt4ProFileNode::symbianCapabilities() const
     return result;
 }
 
+bool Qt4ProFileNode::isDeployable() const
+{
+    return m_isDeployable;
+}
+
 /*!
   \class Qt4ProFileNode
   Implements abstract ProjectNode class
@@ -1753,7 +1758,18 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                     QLatin1String("QML_IMPORT_PATH"), m_projectDir);
         newVarValues[Makefile] = m_readerExact->values("MAKEFILE");
         newVarValues[SymbianCapabilities] = m_readerExact->values("TARGET.CAPABILITY");
-        newVarValues[Deployment] = m_readerExact->values("DEPLOYMENT");
+
+        m_isDeployable = false;
+        if (m_projectType == ApplicationTemplate) {
+            m_isDeployable = true;
+        } else {
+            foreach (const QString &item, m_readerExact->values("DEPLOYMENT")) {
+                if (!m_readerExact->values(item + ".sources").isEmpty()) {
+                    m_isDeployable = true;
+                    break;
+                }
+            }
+        }
 
         if (m_varValues != newVarValues) {
             Qt4VariablesHash oldValues = m_varValues;

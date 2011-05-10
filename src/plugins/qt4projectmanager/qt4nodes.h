@@ -104,8 +104,7 @@ enum Qt4Variable {
     ConfigVar,
     QmlImportPathVar,
     Makefile,
-    SymbianCapabilities,
-    Deployment
+    SymbianCapabilities
 };
 
 class Qt4PriFileNode;
@@ -305,6 +304,7 @@ public:
 
     QString makefile() const;
     QStringList symbianCapabilities() const;
+    bool isDeployable() const;
 
     void update();
     void scheduleUpdate();
@@ -348,6 +348,7 @@ private:
 
     Qt4ProjectType m_projectType;
     Qt4VariablesHash m_varValues;
+    bool m_isDeployable;
 
     QMap<QString, QDateTime> m_uitimestamps;
     TargetInformation m_qt4targetInformation;
