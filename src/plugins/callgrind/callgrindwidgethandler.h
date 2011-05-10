@@ -33,7 +33,7 @@
 #ifndef CALLGRINDWIDGETHANDLER_H
 #define CALLGRINDWIDGETHANDLER_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 #include "callgrindcostdelegate.h"
 

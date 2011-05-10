@@ -35,7 +35,7 @@
 
 #include <analyzerbase/ianalyzertool.h>
 
-#include <QVector>
+#include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

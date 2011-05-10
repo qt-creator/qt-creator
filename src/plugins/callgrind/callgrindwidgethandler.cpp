@@ -72,8 +72,8 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMenu>
 #include <QtGui/QActionGroup>
-#include <QSortFilterProxyModel>
-#include <QComboBox>
+#include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QComboBox>
 
 using namespace Valgrind::Callgrind;
 

@@ -33,7 +33,7 @@
 #ifndef CALLGRINDVISUALISATION_H
 #define CALLGRINDVISUALISATION_H
 
-#include <QGraphicsView>
+#include <QtGui/QGraphicsView>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;

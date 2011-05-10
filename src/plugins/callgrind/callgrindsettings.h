@@ -35,7 +35,7 @@
 
 #include <analyzerbase/analyzersettings.h>
 
-#include <QString>
+#include <QtCore/QString>
 #include "callgrindcostdelegate.h"
 
 namespace Callgrind {

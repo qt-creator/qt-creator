@@ -37,8 +37,8 @@
 
 #include <analyzerbase/analyzermanager.h>
 
-#include <QStringList>
-#include <QtPlugin>
+#include <QtCore/QStringList>
+#include <QtCore/QtPlugin>
 
 using namespace Analyzer;
 using namespace Callgrind;

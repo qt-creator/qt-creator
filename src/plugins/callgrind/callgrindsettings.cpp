@@ -34,20 +34,20 @@
 
 #include "callgrindconfigwidget.h"
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 using namespace Analyzer;
 using namespace Callgrind::Internal;
 using namespace Callgrind;
 
-static const QLatin1String callgrindEnableCacheSimC("Analyzer.Valgrind.Callgrind.EnableCacheSim");
-static const QLatin1String callgrindEnableBranchSimC("Analyzer.Valgrind.Callgrind.EnableBranchSim");
-static const QLatin1String callgrindCollectSystimeC("Analyzer.Valgrind.Callgrind.CollectSystime");
-static const QLatin1String callgrindCollectBusEventsC("Analyzer.Valgrind.Callgrind.CollectBusEvents");
+static const char callgrindEnableCacheSimC[] = "Analyzer.Valgrind.Callgrind.EnableCacheSim";
+static const char callgrindEnableBranchSimC[] = "Analyzer.Valgrind.Callgrind.EnableBranchSim";
+static const char callgrindCollectSystimeC[] = "Analyzer.Valgrind.Callgrind.CollectSystime";
+static const char callgrindCollectBusEventsC[] = "Analyzer.Valgrind.Callgrind.CollectBusEvents";
 
-static const QLatin1String callgrindCycleDetectionC("Analyzer.Valgrind.Callgrind.CycleDetection");
-static const QLatin1String callgrindCostFormatC("Analyzer.Valgrind.Callgrind.CostFormat");
-static const QLatin1String callgrindMinimumCostRatioC("Analyzer.Valgrind.Callgrind.MinimumCostRatio");
+static const char callgrindCycleDetectionC[] = "Analyzer.Valgrind.Callgrind.CycleDetection";
+static const char callgrindCostFormatC[] = "Analyzer.Valgrind.Callgrind.CostFormat";
+static const char callgrindMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.MinimumCostRatio";
 
 AbstractCallgrindSettings::AbstractCallgrindSettings(QObject *parent)
     : AbstractAnalyzerSubConfig(parent)
@@ -99,36 +99,36 @@ void AbstractCallgrindSettings::setCollectBusEvents(bool collect)
 QVariantMap AbstractCallgrindSettings::defaults() const
 {
     QVariantMap map;
-    map.insert(callgrindEnableCacheSimC, false);
-    map.insert(callgrindEnableBranchSimC, false);
-    map.insert(callgrindCollectSystimeC, false);
-    map.insert(callgrindCollectBusEventsC, false);
+    map.insert(QLatin1String(callgrindEnableCacheSimC), false);
+    map.insert(QLatin1String(callgrindEnableBranchSimC), false);
+    map.insert(QLatin1String(callgrindCollectSystimeC), false);
+    map.insert(QLatin1String(callgrindCollectBusEventsC), false);
     return map;
 }
 
 bool AbstractCallgrindSettings::fromMap(const QVariantMap &map)
 {
-    setIfPresent(map, callgrindEnableCacheSimC, &m_enableCacheSim);
-    setIfPresent(map, callgrindEnableBranchSimC, &m_enableBranchSim);
-    setIfPresent(map, callgrindCollectSystimeC, &m_collectSystime);
-    setIfPresent(map, callgrindCollectBusEventsC, &m_collectBusEvents);
+    setIfPresent(map, QLatin1String(callgrindEnableCacheSimC), &m_enableCacheSim);
+    setIfPresent(map, QLatin1String(callgrindEnableBranchSimC), &m_enableBranchSim);
+    setIfPresent(map, QLatin1String(callgrindCollectSystimeC), &m_collectSystime);
+    setIfPresent(map, QLatin1String(callgrindCollectBusEventsC), &m_collectBusEvents);
     return true;
 }
 
 QVariantMap AbstractCallgrindSettings::toMap() const
 {
     QVariantMap map;
-    map.insert(callgrindEnableCacheSimC, m_enableCacheSim);
-    map.insert(callgrindEnableBranchSimC, m_enableBranchSim);
-    map.insert(callgrindCollectSystimeC, m_collectSystime);
-    map.insert(callgrindCollectBusEventsC, m_collectBusEvents);
+    map.insert(QLatin1String(callgrindEnableCacheSimC), m_enableCacheSim);
+    map.insert(QLatin1String(callgrindEnableBranchSimC), m_enableBranchSim);
+    map.insert(QLatin1String(callgrindCollectSystimeC), m_collectSystime);
+    map.insert(QLatin1String(callgrindCollectBusEventsC), m_collectBusEvents);
 
     return map;
 }
 
 QString AbstractCallgrindSettings::id() const
 {
-    return "Analyzer.Valgrind.Settings.Callgrind";
+    return QLatin1String("Analyzer.Valgrind.Settings.Callgrind");
 }
 
 QString AbstractCallgrindSettings::displayName() const
@@ -156,9 +156,9 @@ CallgrindGlobalSettings::~CallgrindGlobalSettings()
 QVariantMap CallgrindGlobalSettings::defaults() const
 {
     QVariantMap map = AbstractCallgrindSettings::defaults();
-    map.insert(callgrindCostFormatC, CostDelegate::FormatRelative);
-    map.insert(callgrindCycleDetectionC, true);
-    map.insert(callgrindMinimumCostRatioC, 0.0001);
+    map.insert(QLatin1String(callgrindCostFormatC), CostDelegate::FormatRelative);
+    map.insert(QLatin1String(callgrindCycleDetectionC), true);
+    map.insert(QLatin1String(callgrindMinimumCostRatioC), 0.0001);
     return map;
 }
 
@@ -166,20 +166,20 @@ bool CallgrindGlobalSettings::fromMap(const QVariantMap &map)
 {
     AbstractCallgrindSettings::fromMap(map);
     // special code as the default one does not cope with the enum properly
-    if (map.contains(callgrindCostFormatC)) {
-        m_costFormat = static_cast<CostDelegate::CostFormat>(map.value(callgrindCostFormatC).toInt());
+    if (map.contains(QLatin1String(callgrindCostFormatC))) {
+        m_costFormat = static_cast<CostDelegate::CostFormat>(map.value(QLatin1String(callgrindCostFormatC)).toInt());
     }
-    setIfPresent(map, callgrindCycleDetectionC, &m_detectCycles);
-    setIfPresent(map, callgrindMinimumCostRatioC, &m_minimumInclusiveCostRatio);
+    setIfPresent(map, QLatin1String(callgrindCycleDetectionC), &m_detectCycles);
+    setIfPresent(map, QLatin1String(callgrindMinimumCostRatioC), &m_minimumInclusiveCostRatio);
     return true;
 }
 
 QVariantMap CallgrindGlobalSettings::toMap() const
 {
     QVariantMap map = AbstractCallgrindSettings::toMap();
-    map.insert(callgrindCostFormatC, m_costFormat);
-    map.insert(callgrindCycleDetectionC, m_detectCycles);
-    map.insert(callgrindMinimumCostRatioC, m_minimumInclusiveCostRatio);
+    map.insert(QLatin1String(callgrindCostFormatC), m_costFormat);
+    map.insert(QLatin1String(callgrindCycleDetectionC), m_detectCycles);
+    map.insert(QLatin1String(callgrindMinimumCostRatioC), m_minimumInclusiveCostRatio);
     return map;
 }
 

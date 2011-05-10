@@ -37,8 +37,8 @@
 #include <valgrind/callgrind/callgrinddatamodel.h>
 #include <valgrind/callgrind/callgrindfunction.h>
 
-#include <QDebug>
-#include <QPainter>
+#include <QtCore/QDebug>
+#include <QtGui/QPainter>
 
 #include <utils/qtcassert.h>
 

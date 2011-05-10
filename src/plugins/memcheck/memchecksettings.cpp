@@ -44,16 +44,16 @@ using namespace Memcheck;
 
 using namespace Memcheck::Internal;
 
-static const QLatin1String numCallersC("Analyzer.Valgrind.NumCallers");
-static const QLatin1String trackOriginsC("Analyzer.Valgrind.TrackOrigins");
-static const QLatin1String suppressionFilesC("Analyzer.Valgrind.SupressionFiles");
-static const QLatin1String removedSuppressionFilesC("Analyzer.Valgrind.RemovedSupressionFiles");
-static const QLatin1String addedSuppressionFilesC("Analyzer.Valgrind.AddedSupressionFiles");
-static const QLatin1String filterExternalIssuesC("Analyzer.Valgrind.FilterExternalIssues");
-static const QLatin1String visibleErrorKindsC("Analyzer.Valgrind.VisibleErrorKinds");
+static const char numCallersC[]  = "Analyzer.Valgrind.NumCallers";
+static const char trackOriginsC[] = "Analyzer.Valgrind.TrackOrigins";
+static const char suppressionFilesC[] = "Analyzer.Valgrind.SupressionFiles";
+static const char removedSuppressionFilesC[] = "Analyzer.Valgrind.RemovedSuppressionFiles";
+static const char addedSuppressionFilesC[] = "Analyzer.Valgrind.AddedSuppressionFiles";
+static const char filterExternalIssuesC[] = "Analyzer.Valgrind.FilterExternalIssues";
+static const char visibleErrorKindsC[] = "Analyzer.Valgrind.VisibleErrorKinds";
 
-static const QLatin1String lastSuppressionDirectoryC("Analyzer.Valgrind.LastSuppressionDirectory");
-static const QLatin1String lastSuppressionHistoryC("Analyzer.Valgrind.LastSuppressionHistory");
+static const char lastSuppressionDirectoryC[] = "Analyzer.Valgrind.LastSuppressionDirectory";
+static const char lastSuppressionHistoryC[] = "Analyzer.Valgrind.LastSuppressionHistory";
 
 AbstractMemcheckSettings::AbstractMemcheckSettings(QObject *parent)
 : AbstractAnalyzerSubConfig(parent)
@@ -68,28 +68,28 @@ AbstractMemcheckSettings::~AbstractMemcheckSettings()
 QVariantMap AbstractMemcheckSettings::defaults() const
 {
     QVariantMap map;
-    map.insert(numCallersC, 25);
-    map.insert(trackOriginsC, true);
-    map.insert(filterExternalIssuesC, true);
+    map.insert(QLatin1String(numCallersC), 25);
+    map.insert(QLatin1String(trackOriginsC), true);
+    map.insert(QLatin1String(filterExternalIssuesC), true);
 
     QVariantList defaultErrorKinds;
     for(int i = 0; i < Valgrind::XmlProtocol::MemcheckErrorKindCount; ++i)
         defaultErrorKinds << i;
-    map.insert(visibleErrorKindsC, defaultErrorKinds);
+    map.insert(QLatin1String(visibleErrorKindsC), defaultErrorKinds);
 
     return map;
 }
 
 bool AbstractMemcheckSettings::fromMap(const QVariantMap &map)
 {
-    setIfPresent(map, numCallersC, &m_numCallers);
-    setIfPresent(map, trackOriginsC, &m_trackOrigins);
-    setIfPresent(map, filterExternalIssuesC, &m_filterExternalIssues);
+    setIfPresent(map, QLatin1String(numCallersC), &m_numCallers);
+    setIfPresent(map, QLatin1String(trackOriginsC), &m_trackOrigins);
+    setIfPresent(map, QLatin1String(filterExternalIssuesC), &m_filterExternalIssues);
 
     // if we get more of these try a template specialization of setIfPresent for lists...
-    if (map.contains(visibleErrorKindsC)) {
+    if (map.contains(QLatin1String(visibleErrorKindsC))) {
         m_visibleErrorKinds.clear();
-        foreach(const QVariant &val, map.value(visibleErrorKindsC).toList())
+        foreach (const QVariant &val, map.value(QLatin1String(visibleErrorKindsC)).toList())
             m_visibleErrorKinds << val.toInt();
     }
 
@@ -99,14 +99,14 @@ bool AbstractMemcheckSettings::fromMap(const QVariantMap &map)
 QVariantMap AbstractMemcheckSettings::toMap() const
 {
     QVariantMap map;
-    map.insert(numCallersC, m_numCallers);
-    map.insert(trackOriginsC, m_trackOrigins);
-    map.insert(filterExternalIssuesC, m_filterExternalIssues);
+    map.insert(QLatin1String(numCallersC), m_numCallers);
+    map.insert(QLatin1String(trackOriginsC), m_trackOrigins);
+    map.insert(QLatin1String(filterExternalIssuesC), m_filterExternalIssues);
 
     QVariantList errorKinds;
     foreach (int i, m_visibleErrorKinds)
         errorKinds << i;
-    map.insert(visibleErrorKindsC, errorKinds);
+    map.insert(QLatin1String(visibleErrorKindsC), errorKinds);
 
     return map;
 }

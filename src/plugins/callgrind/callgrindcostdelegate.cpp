@@ -40,9 +40,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QPainter>
-#include <QDebug>
-#include <QApplication>
+#include <QtGui/QPainter>
+#include <QtGui/QApplication>
+#include <QtCore/QDebug>
 
 using namespace Valgrind::Callgrind;
 
