@@ -35,8 +35,6 @@
 
 #include "corelib_global.h"
 
-#include <metainfo.h>
-
 #include <QObject>
 #include <QString>
 #include <QUrl>
@@ -44,12 +42,17 @@
 namespace QmlDesigner {
 
 class Import;
+class Model;
+
+namespace Internal {
+class SubComponentManagerPrivate;
+}
 
 class CORESHARED_EXPORT SubComponentManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit SubComponentManager(MetaInfo metaInfo, QObject *parent = 0);
+    explicit SubComponentManager(Model *model, QObject *parent = 0);
     ~SubComponentManager();
 
     void update(const QUrl &fileUrl, const QList<Import> &imports);
@@ -60,7 +63,7 @@ public:
 
 private:
     friend class Internal::SubComponentManagerPrivate;
-    class Internal::SubComponentManagerPrivate *m_d;
+    Internal::SubComponentManagerPrivate *m_d;
 };
 
 } // namespace QmlDesigner

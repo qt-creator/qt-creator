@@ -327,7 +327,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     m_d->masterModel->attachView(m_d->rewriterView.data());
     m_d->model = m_d->masterModel;
 
-    m_d->subComponentManager = new SubComponentManager(m_d->masterModel->metaInfo(), this);
+    m_d->subComponentManager = new SubComponentManager(m_d->masterModel.data(), this);
     m_d->subComponentManager->update(m_d->searchPath, m_d->model->imports());
 
     loadCurrentModel();

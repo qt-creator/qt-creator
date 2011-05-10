@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "subcomponentmanager.h"
+#include "model.h"
 #include "metainfo.h"
 
 #include <QDir>
@@ -81,7 +82,7 @@ static const QString QMLFILEPATTERN = QString(QLatin1String("*.qml"));
 class SubComponentManagerPrivate : QObject {
     Q_OBJECT
 public:
-    SubComponentManagerPrivate(MetaInfo metaInfo, SubComponentManager *q);
+    SubComponentManagerPrivate(Model *model, SubComponentManager *q);
 
     void addImport(int pos, const Import &import);
     void removeImport(int pos);
@@ -96,10 +97,11 @@ public:
     QList<QFileInfo> watchedFiles(const QString &canonicalDirPath);
     void unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier);
     void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, bool addToLibrary);
+    Model *model() const;
 
     SubComponentManager *m_q;
 
-    MetaInfo m_metaInfo;
+    QWeakPointer<Model> m_model;
 
     QFileSystemWatcher m_watcher;
 
@@ -111,9 +113,9 @@ public:
     QList<Import> m_imports;
 };
 
-SubComponentManagerPrivate::SubComponentManagerPrivate(MetaInfo metaInfo, SubComponentManager *q) :
+SubComponentManagerPrivate::SubComponentManagerPrivate(Model *model, SubComponentManager *q) :
         m_q(q),
-        m_metaInfo(metaInfo)
+        m_model(model)
 {
     connect(&m_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(parseDirectory(QString)));
 }
@@ -323,6 +325,9 @@ static inline bool isDepricatedQtType(const QString &typeName)
 void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
                                                  bool addToLibrary)
 {
+    if (!model())
+        return;
+
     QString componentName = fileInfo.baseName();
 
     if (!qualifier.isEmpty()) {
@@ -342,9 +347,18 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
         itemLibraryEntry.setName(componentName);
         itemLibraryEntry.setCategory("QML Components");
 
-        if (!m_metaInfo.itemLibraryInfo()->containsEntry(itemLibraryEntry))
-            m_metaInfo.itemLibraryInfo()->addEntry(itemLibraryEntry);
+
+        if (model()->metaInfo(componentName).isValid() && model()->metaInfo(componentName).isSubclassOf("QtQuick.Item", -1, -1) &&
+            !model()->metaInfo().itemLibraryInfo()->containsEntry(itemLibraryEntry)) {
+
+            model()->metaInfo().itemLibraryInfo()->addEntry(itemLibraryEntry);
+        }
     }
+}
+
+Model *SubComponentManagerPrivate::model() const
+{
+    return m_model.data();
 }
 
 } // namespace Internal
@@ -356,9 +370,9 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
   these in the metatype system.
 */
 
-SubComponentManager::SubComponentManager(MetaInfo metaInfo, QObject *parent) :
+SubComponentManager::SubComponentManager(Model *model, QObject *parent) :
         QObject(parent),
-        m_d(new Internal::SubComponentManagerPrivate(metaInfo, this))
+        m_d(new Internal::SubComponentManagerPrivate(model, this))
 {
 }
 
