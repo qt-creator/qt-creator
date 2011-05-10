@@ -103,7 +103,6 @@ void S60PublisherOvi::setBuildConfiguration(Qt4BuildConfiguration *qt4bc)
     m_qt4bc = qt4bc;
 }
 
-
 void S60PublisherOvi::setDisplayName(const QString &displayName)
 {
     m_displayName = displayName;

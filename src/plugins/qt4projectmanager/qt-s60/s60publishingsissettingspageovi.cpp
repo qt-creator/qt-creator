@@ -165,12 +165,12 @@ void S60PublishingSisSettingsPageOvi::globalVendorNameChanged()
                         ui->globalVendorNameOkLabel,
                         ui->globalVendorNameErrorLabel,
                         ui->globalVendorNameErrorReasonLabel,
-                        tr("%1 is a default vendor name used for testing and development. <br>"
+                        tr("\"%1\" is a default vendor name used for testing and development. <br>"
                            "The Vendor_Name field cannot contain the name 'Nokia'. <br>"
                            "You are advised against using the default names 'Vendor' and 'Vendor-EN'. <br>"
                            "You should also not leave the entry blank. <br>"
                            "see <a href=\"http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml\">Packaging and Signing</a> for guidelines.<br>")
-                        .arg("\"" + ui->globalVendorNameLineEdit->text() + "\""));
+                        .arg(ui->globalVendorNameLineEdit->text()));
     m_publisher->setVendorName(ui->globalVendorNameLineEdit->text());
 }
 
@@ -303,7 +303,8 @@ void S60PublishingSisSettingsPageOvi::showWarningsForUnenforcableChecks()
     //Warn about use of unreleased Qt Versions
     //ui->qtVersionWarningLabel->show(); //looks better without...
     ui->qtVersionWarningReasonLabel->setText(tr("Please verify that you have a released version of Qt. <br>"
-                                                "<a href=\"http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian\">Qt Packages Distributed by Smart Installer</a> has a list of released Qt versions."));
+                                                "<a href=\"http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian\">"
+                                                "Qt Packages Distributed by Smart Installer</a> has a list of released Qt versions."));
 }
 
 } // namespace Internal
