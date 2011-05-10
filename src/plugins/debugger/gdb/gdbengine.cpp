@@ -3905,9 +3905,9 @@ void GdbEngine::assignValueInDebugger(const WatchData *data,
 {
     if (hasPython()) {
         QByteArray cmd = "bbedit "
-            + data->type.toBase64() + ' '
-            + expression.toUtf8().toBase64() + ' '
-            + value.toString().toUtf8().toBase64();
+            + data->type.toHex() + ','
+            + expression.toUtf8().toHex() + ','
+            + value.toString().toUtf8().toHex();
         postCommand(cmd, Discardable, CB(handleVarAssign));
     } else {
         postCommand("-var-delete assign");

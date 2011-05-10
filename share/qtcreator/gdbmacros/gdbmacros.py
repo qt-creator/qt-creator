@@ -1645,6 +1645,17 @@ def qdump__QVariant(d, item):
     return tdata.type
 
 
+def qedit__QVector(expr, value):
+    values = value.split(',')
+    ob = gdb.parse_and_eval(expr)
+    cmd = "call (%s).resize(%d)" % (expr, len(values))
+    gdb.execute(cmd)
+    innerType = templateArgument(ob.type, 0)
+    ptr = ob["p"]["array"].cast(lookupType("void").pointer())
+    cmd = "set {%s[%d]}%s={%s}" % (innerType, len(values), long(ptr), value)
+    gdb.execute(cmd)
+
+
 def qdump__QVector(d, item):
     d_ptr = item.value["d"]
     p_ptr = item.value["p"]
@@ -1895,6 +1906,18 @@ def qdump__std__string(d, item):
 
     d.putNumChild(0)
 
+
+def qedit__std__vector(expr, value):
+    values = value.split(',')
+    n = len(values)
+    ob = gdb.parse_and_eval(expr)
+    innerType = templateArgument(ob.type, 0)
+    cmd = "set $d = (%s*)calloc(sizeof(%s)*%s,1)" % (innerType, innerType, n)
+    gdb.execute(cmd)
+    cmd = "set {void*[3]}%s = {$d, $d+%s, $d+%s}" % (ob.address, n, n)
+    gdb.execute(cmd)
+    cmd = "set (%s[%d])*$d={%s}" % (innerType, n, value)
+    gdb.execute(cmd)
 
 def qdump__std__vector(d, item):
     impl = item.value["_M_impl"]

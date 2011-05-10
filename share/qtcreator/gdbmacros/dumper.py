@@ -1078,16 +1078,20 @@ def bbsetup():
 #######################################################################
 
 def bbedit(args):
-    (type, expr, value) = args.split(" ")
-    type = base64.b64decode(type)
+    (type, expr, value) = args.split(",")
+    type = base64.b16decode(type, True)
     ns = qtNamespace()
-    type = type[len(ns):]
+    if type.startswith(ns):
+        type = type[len(ns):]
     type = type.replace("::", "__")
-    expr = base64.b64decode(expr)
-    value = base64.b64decode(value)
+    pos = type.find('<')
+    if pos != -1:
+        type = type[0:pos]
+    expr = base64.b16decode(expr, True)
+    value = base64.b16decode(value, True)
+    #warn("EDIT: %s %s %s %s: " % (pos, type, expr, value))
     if qqEditable.has_key(type):
         qqEditable[type](expr, value)
-    warn("EDIT: %s %s %s: " % (type, expr, value))
 
 class EditCommand(gdb.Command):
     """QtCreator Data Edit Support"""

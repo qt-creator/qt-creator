@@ -2604,6 +2604,12 @@ int main(int argc, char *argv[])
     testQHash1();
     testSignalSlot(argc, argv);
 
+    QVector<int> qv;
+    qv.push_back(2);
+
+    std::vector<int> v;
+    v.push_back(2);
+
     QString hallo = "hallo\nwelt";
     QStringList list;
     list << "aaa" << "bbb" << "cc";
