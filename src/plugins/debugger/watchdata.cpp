@@ -387,8 +387,10 @@ QString WatchData::toToolTip() const
 
 QString WatchData::msgNotInScope()
 {
-    //: Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).
-    static const QString rc = QCoreApplication::translate("Debugger::Internal::WatchData", "<not in scope>");
+    //: Value of variable in Debugger Locals display for variables out
+    //: of scope (stopped above initialization).
+    static const QString rc =
+        QCoreApplication::translate("Debugger::Internal::WatchData", "<not in scope>");
     return rc;
 }
 
@@ -397,7 +399,8 @@ const QString &WatchData::shadowedNameFormat()
     //: Display of variables shadowed by variables of the same name
     //: in nested scopes: Variable %1 is the variable name, %2 is a
     //: simple count.
-    static const QString format = QCoreApplication::translate("Debugger::Internal::WatchData", "%1 <shadowed %2>");
+    static const QString format =
+        QCoreApplication::translate("Debugger::Internal::WatchData", "%1 <shadowed %2>");
     return format;
 }
 
@@ -415,12 +418,16 @@ quint64 WatchData::coreAddress() const
 
 QByteArray WatchData::hexAddress() const
 {
-    return address ? (QByteArray("0x") + QByteArray::number(address, 16)) : QByteArray();
+    if (address)
+        return QByteArray("0x") + QByteArray::number(address, 16);
+    return QByteArray();
 }
 
 QByteArray WatchData::hexReferencingAddress() const
 {
-    return referencingAddress ? (QByteArray("0x") + QByteArray::number(referencingAddress, 16)) : QByteArray();
+    if (referencingAddress)
+        return QByteArray("0x") + QByteArray::number(referencingAddress, 16);
+    return QByteArray();
 }
 
 } // namespace Internal

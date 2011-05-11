@@ -137,7 +137,7 @@ public:
     DebuggerEngine *engine(BreakpointId id) const;
     void setEngine(BreakpointId id, DebuggerEngine *engine);
     const BreakpointResponse &response(BreakpointId id) const;
-    void setResponse(BreakpointId id, const BreakpointResponse &data, bool takeOver = true);
+    void setResponse(BreakpointId id, const BreakpointResponse &data);
     bool needsChange(BreakpointId id) const;
 
     // State transitions.

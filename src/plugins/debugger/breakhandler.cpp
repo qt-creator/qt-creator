@@ -303,9 +303,6 @@ void BreakHandler::saveBreakpoints()
     for ( ; it != et; ++it) {
         const BreakpointParameters &data = it->data;
         QMap<QString, QVariant> map;
-        // Do not persist Watchpoints.
-        if (data.isWatchpoint())
-            continue;
         if (data.type != BreakpointByFileAndLine)
             map.insert(_("type"), data.type);
         if (!data.fileName.isEmpty())
@@ -332,6 +329,8 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("module"), data.module);
         if (!data.command.isEmpty())
             map.insert(_("command"), data.command);
+        if (!data.expression.isEmpty())
+            map.insert(_("expression"), data.expression);
         list.append(map);
     }
     debuggerCore()->setSessionValue("Breakpoints", list);
@@ -387,6 +386,9 @@ void BreakHandler::loadBreakpoints()
         v = map.value(_("command"));
         if (v.isValid())
             data.command = v.toString();
+        v = map.value(_("expression"));
+        if (v.isValid())
+            data.expression = v.toString();
         appendBreakpoint(data);
     }
     //qDebug() << "LOADED BREAKPOINTS" << this << list.size();
@@ -521,9 +523,9 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                         || data.type == BreakpointAtSysCall)
                     return typeToString(data.type);
                 if (data.type == WatchpointAtAddress)
-                    return tr("Data breakpoint at 0x%1").arg(data.address, 0, 16);
+                    return tr("Data at 0x%1").arg(data.address, 0, 16);
                 if (data.type == WatchpointAtExpression)
-                    return tr("Data breakpoint at %1").arg(data.expression);
+                    return tr("Data at %1").arg(data.expression);
                 return empty;
             }
             break;
@@ -882,6 +884,10 @@ void BreakHandler::notifyBreakpointReleased(BreakpointId id)
     it->response = BreakpointResponse();
     delete it->marker;
     it->marker = 0;
+    if (it->data.type == WatchpointAtAddress
+            || it->data.type == WatchpointAtExpression
+            || it->data.type == BreakpointByAddress)
+        it->data.enabled = false;
     updateMarker(id);
     layoutChanged();
 }
@@ -1093,7 +1099,7 @@ bool BreakHandler::needsChange(BreakpointId id) const
 }
 
 void BreakHandler::setResponse(BreakpointId id,
-    const BreakpointResponse &response, bool takeOver)
+    const BreakpointResponse &response)
 {
     Iterator it = m_storage.find(id);
     BREAK_ASSERT(it != m_storage.end(), return);
@@ -1101,12 +1107,10 @@ void BreakHandler::setResponse(BreakpointId id,
     item.response = response;
     item.destroyMarker();
     // Take over corrected values from response.
-    if (takeOver) {
-        if ((item.data.type == BreakpointByFileAndLine
-                    || item.data.type == BreakpointByFunction)
-                && !response.module.isEmpty())
-            item.data.module = response.module;
-    }
+    if ((item.data.type == BreakpointByFileAndLine
+                || item.data.type == BreakpointByFunction)
+            && !response.module.isEmpty())
+        item.data.module = response.module;
     updateMarker(id);
 }
 

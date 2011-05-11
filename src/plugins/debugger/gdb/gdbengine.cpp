@@ -2318,7 +2318,9 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
             // Mac yields:
             //>32^done,wpt={number="4",exp="*4355182176"}
             bresponse.number = wpt.findChild("number").data().toInt();
-            bresponse.address = wpt.findChild("exp").toAddress();
+            QByteArray exp = wpt.findChild("exp").data();
+            if (exp.startsWith('*'))
+                bresponse.address = exp.mid(1).toULongLong(0, 0);
             handler->setResponse(id, bresponse);
             QTC_ASSERT(!handler->needsChange(id), /**/);
             handler->notifyBreakpointInsertOk(id);
@@ -2327,9 +2329,10 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
             // Non-Mac: "Hardware watchpoint 2: *0xbfffed40\n"
             const int end = ba.indexOf(':');
             const int begin = ba.lastIndexOf(' ', end) + 1;
-            const QByteArray address = ba.mid(end + 3).trimmed();
+            const QByteArray address = ba.mid(end + 2).trimmed();
             bresponse.number = ba.mid(begin, end - begin).toInt();
-            bresponse.address = address.toULongLong(0, 0);
+            if (address.startsWith('*'))
+                bresponse.address = address.mid(1).toULongLong(0, 0);
             handler->setResponse(id, bresponse);
             QTC_ASSERT(!handler->needsChange(id), /**/);
             handler->notifyBreakpointInsertOk(id);

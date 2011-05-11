@@ -380,7 +380,7 @@ qulonglong GdbMi::toAddress() const
         ba.chop(1);
     if (ba.startsWith('*') || ba.startsWith('@'))
         ba = ba.mid(1);
-    return ba.toULongLong(0, 16);
+    return ba.toULongLong(0, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
