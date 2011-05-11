@@ -118,8 +118,8 @@ BreakpointDialog::BreakpointDialog(unsigned engineCapabilities, QWidget *parent)
           << tr("Break when a new process is forked")
           << tr("Break when a new process is executed")
           << tr("Break when a system call is executed")
-          << tr("Break on data access at fixed address)")
-          << tr("Break on data access at address given by expression)");
+          << tr("Break on data access at fixed address")
+          << tr("Break on data access at address given by expression");
     QTC_ASSERT(types.size() == WatchpointAtExpression, return; )
     m_ui.comboBoxType->addItems(types);
     m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
