@@ -453,7 +453,7 @@ Qt::ItemFlags BreakHandler::flags(const QModelIndex &index) const
 //        //case 0:
 //        //    return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
 //        default:
-            return QAbstractTableModel::flags(index);
+            return QAbstractItemModel::flags(index);
 //    }
 }
 
@@ -467,6 +467,18 @@ int BreakHandler::threadSpecFromDisplay(const QString &str)
     bool ok = false;
     int result = str.toInt(&ok);
     return ok ? result : -1;
+}
+
+QModelIndex BreakHandler::index(int row, int col, const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return createIndex(row, col, 0);
+}
+
+QModelIndex BreakHandler::parent(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return QModelIndex();
 }
 
 QVariant BreakHandler::data(const QModelIndex &mi, int role) const
@@ -742,9 +754,9 @@ DebuggerEngine *BreakHandler::engine(BreakpointId id) const
 void BreakHandler::setEngine(BreakpointId id, DebuggerEngine *value)
 {
     Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), qDebug() << id; return);
-    QTC_ASSERT(it->state == BreakpointNew, qDebug() << id);
-    QTC_ASSERT(!it->engine, qDebug() << id; return);
+    BREAK_ASSERT(it != m_storage.end(), qDebug() << "SET ENGINE" << id; return);
+    QTC_ASSERT(it->state == BreakpointNew, qDebug() << "STATE: " << it->state <<id);
+    QTC_ASSERT(!it->engine, qDebug() << "NO ENGINE" << id; return);
     it->engine = value;
     it->state = BreakpointInsertRequested;
     it->response = BreakpointResponse();

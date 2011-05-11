@@ -54,7 +54,7 @@ namespace Internal {
 
 class BreakpointMarker;
 
-class BreakHandler : public QAbstractTableModel
+class BreakHandler : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -167,6 +167,8 @@ private:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
+    QModelIndex index(int row, int col, const QModelIndex &parent) const;
+    QModelIndex parent(const QModelIndex &parent) const;
 
     bool isEngineRunning(BreakpointId id) const;
     void setState(BreakpointId id, BreakpointState state);
