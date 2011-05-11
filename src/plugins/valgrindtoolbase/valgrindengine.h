@@ -48,6 +48,7 @@
 #include <QtCore/QString>
 #include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
+#include <QtCore/QFutureWatcher>
 
 namespace Analyzer {
 class AnalyzerSettings;
@@ -76,8 +77,11 @@ protected:
 
     Analyzer::AnalyzerSettings *m_settings;
     QFutureInterface<void> *m_progress;
+    QFutureWatcher<void> *m_progressWatcher;
 
 private slots:
+    void handleProgressCanceled();
+    void handleProgressFinished();
     void runnerFinished();
 
     void receiveStandardOutput(const QByteArray &);

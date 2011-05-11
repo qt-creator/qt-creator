@@ -56,6 +56,9 @@ public:
     virtual void setParseData(const ParseData *data);
     virtual const ParseData *parseData() const;
 
+    void setVerboseToolTipsEnabled(bool enabled);
+    bool verboseToolTipsEnabled() const;
+
     /// Only one cost event column will be shown, this decides which one it is.
     /// By default it is the first event in the @c ParseData, i.e. 0.
     virtual int costEvent() const;

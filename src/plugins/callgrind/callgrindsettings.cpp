@@ -44,10 +44,12 @@ static const char callgrindEnableCacheSimC[] = "Analyzer.Valgrind.Callgrind.Enab
 static const char callgrindEnableBranchSimC[] = "Analyzer.Valgrind.Callgrind.EnableBranchSim";
 static const char callgrindCollectSystimeC[] = "Analyzer.Valgrind.Callgrind.CollectSystime";
 static const char callgrindCollectBusEventsC[] = "Analyzer.Valgrind.Callgrind.CollectBusEvents";
+static const char callgrindEnableEventToolTipsC[] = "Analyzer.Valgrind.Callgrind.EnableEventToolTips";
+static const char callgrindMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.MinimumCostRatio";
+static const char callgrindVisualisationMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio";
 
 static const char callgrindCycleDetectionC[] = "Analyzer.Valgrind.Callgrind.CycleDetection";
 static const char callgrindCostFormatC[] = "Analyzer.Valgrind.Callgrind.CostFormat";
-static const char callgrindMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.MinimumCostRatio";
 
 AbstractCallgrindSettings::AbstractCallgrindSettings(QObject *parent)
     : AbstractAnalyzerSubConfig(parent)
@@ -96,6 +98,35 @@ void AbstractCallgrindSettings::setCollectBusEvents(bool collect)
     emit collectBusEventsChanged(collect);
 }
 
+void AbstractCallgrindSettings::setEnableEventToolTips(bool enable)
+{
+    if (m_enableEventToolTips == enable)
+        return;
+
+    m_enableEventToolTips = enable;
+    emit enableEventToolTipsChanged(enable);
+}
+
+void AbstractCallgrindSettings::setMinimumInclusiveCostRatio(
+    double minimumInclusiveCostRatio)
+{
+    if (m_minimumInclusiveCostRatio == minimumInclusiveCostRatio)
+        return;
+
+    m_minimumInclusiveCostRatio = qBound(0.0, minimumInclusiveCostRatio, 100.0);
+    emit minimumInclusiveCostRatioChanged(minimumInclusiveCostRatio);
+}
+
+void AbstractCallgrindSettings::setVisualisationMinimumInclusiveCostRatio(
+    double minimumInclusiveCostRatio)
+{
+    if (m_visualisationMinimumInclusiveCostRatio == minimumInclusiveCostRatio)
+        return;
+
+    m_visualisationMinimumInclusiveCostRatio = qBound(0.0, minimumInclusiveCostRatio, 100.0);
+    emit visualisationMinimumInclusiveCostRatioChanged(minimumInclusiveCostRatio);
+}
+
 QVariantMap AbstractCallgrindSettings::defaults() const
 {
     QVariantMap map;
@@ -103,6 +134,9 @@ QVariantMap AbstractCallgrindSettings::defaults() const
     map.insert(QLatin1String(callgrindEnableBranchSimC), false);
     map.insert(QLatin1String(callgrindCollectSystimeC), false);
     map.insert(QLatin1String(callgrindCollectBusEventsC), false);
+    map.insert(QLatin1String(callgrindEnableEventToolTipsC), true);
+    map.insert(QLatin1String(callgrindMinimumCostRatioC), 0.01);
+    map.insert(QLatin1String(callgrindVisualisationMinimumCostRatioC), 10.0);
     return map;
 }
 
@@ -112,6 +146,10 @@ bool AbstractCallgrindSettings::fromMap(const QVariantMap &map)
     setIfPresent(map, QLatin1String(callgrindEnableBranchSimC), &m_enableBranchSim);
     setIfPresent(map, QLatin1String(callgrindCollectSystimeC), &m_collectSystime);
     setIfPresent(map, QLatin1String(callgrindCollectBusEventsC), &m_collectBusEvents);
+    setIfPresent(map, QLatin1String(callgrindEnableEventToolTipsC), &m_enableEventToolTips);
+    setIfPresent(map, QLatin1String(callgrindMinimumCostRatioC), &m_minimumInclusiveCostRatio);
+    setIfPresent(map, QLatin1String(callgrindVisualisationMinimumCostRatioC),
+                 &m_visualisationMinimumInclusiveCostRatio);
     return true;
 }
 
@@ -122,7 +160,10 @@ QVariantMap AbstractCallgrindSettings::toMap() const
     map.insert(QLatin1String(callgrindEnableBranchSimC), m_enableBranchSim);
     map.insert(QLatin1String(callgrindCollectSystimeC), m_collectSystime);
     map.insert(QLatin1String(callgrindCollectBusEventsC), m_collectBusEvents);
-
+    map.insert(QLatin1String(callgrindEnableEventToolTipsC), m_enableEventToolTips);
+    map.insert(QLatin1String(callgrindMinimumCostRatioC), m_minimumInclusiveCostRatio);
+    map.insert(QLatin1String(callgrindVisualisationMinimumCostRatioC),
+               m_visualisationMinimumInclusiveCostRatio);
     return map;
 }
 
@@ -158,7 +199,6 @@ QVariantMap CallgrindGlobalSettings::defaults() const
     QVariantMap map = AbstractCallgrindSettings::defaults();
     map.insert(QLatin1String(callgrindCostFormatC), CostDelegate::FormatRelative);
     map.insert(QLatin1String(callgrindCycleDetectionC), true);
-    map.insert(QLatin1String(callgrindMinimumCostRatioC), 0.0001);
     return map;
 }
 
@@ -170,7 +210,6 @@ bool CallgrindGlobalSettings::fromMap(const QVariantMap &map)
         m_costFormat = static_cast<CostDelegate::CostFormat>(map.value(QLatin1String(callgrindCostFormatC)).toInt());
     }
     setIfPresent(map, QLatin1String(callgrindCycleDetectionC), &m_detectCycles);
-    setIfPresent(map, QLatin1String(callgrindMinimumCostRatioC), &m_minimumInclusiveCostRatio);
     return true;
 }
 
@@ -179,7 +218,6 @@ QVariantMap CallgrindGlobalSettings::toMap() const
     QVariantMap map = AbstractCallgrindSettings::toMap();
     map.insert(QLatin1String(callgrindCostFormatC), m_costFormat);
     map.insert(QLatin1String(callgrindCycleDetectionC), m_detectCycles);
-    map.insert(QLatin1String(callgrindMinimumCostRatioC), m_minimumInclusiveCostRatio);
     return map;
 }
 
@@ -202,17 +240,6 @@ bool CallgrindGlobalSettings::detectCycles() const
 void CallgrindGlobalSettings::setDetectCycles(bool detect)
 {
     m_detectCycles = detect;
-    AnalyzerGlobalSettings::instance()->writeSettings();
-}
-
-double CallgrindGlobalSettings::minimumInclusiveCostRatio() const
-{
-    return m_minimumInclusiveCostRatio;
-}
-
-void CallgrindGlobalSettings::setMinimumInclusiveCostRatio(double minimumInclusiveCost)
-{
-    m_minimumInclusiveCostRatio = minimumInclusiveCost;
     AnalyzerGlobalSettings::instance()->writeSettings();
 }
 

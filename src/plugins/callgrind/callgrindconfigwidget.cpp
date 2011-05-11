@@ -68,6 +68,24 @@ CallgrindConfigWidget::CallgrindConfigWidget(AbstractCallgrindSettings *settings
             m_settings, SLOT(setCollectBusEvents(bool)));
     connect(m_settings, SIGNAL(collectBusEventsChanged(bool)),
             m_ui->collectBusEvents, SLOT(setChecked(bool)));
+
+    m_ui->enableEventToolTips->setChecked(m_settings->enableEventToolTips());
+    connect(m_ui->enableEventToolTips, SIGNAL(toggled(bool)),
+            m_settings, SLOT(setEnableEventToolTips(bool)));
+    connect(m_settings, SIGNAL(enableEventToolTipsChanged(bool)),
+            m_ui->enableEventToolTips, SLOT(setChecked(bool)));
+
+    m_ui->minimumInclusiveCostRatio->setValue(m_settings->minimumInclusiveCostRatio());
+    connect(m_ui->minimumInclusiveCostRatio, SIGNAL(valueChanged(double)),
+            m_settings, SLOT(setMinimumInclusiveCostRatio(double)));
+    connect(m_settings, SIGNAL(minimumInclusiveCostRatioChanged(double)),
+            m_ui->minimumInclusiveCostRatio, SLOT(setValue(double)));
+
+    m_ui->visualisationMinimumInclusiveCostRatio->setValue(m_settings->visualisationMinimumInclusiveCostRatio());
+    connect(m_ui->visualisationMinimumInclusiveCostRatio, SIGNAL(valueChanged(double)),
+            m_settings, SLOT(setVisualisationMinimumInclusiveCostRatio(double)));
+    connect(m_settings, SIGNAL(visualisationMinimumInclusiveCostRatioChanged(double)),
+            m_ui->visualisationMinimumInclusiveCostRatio, SLOT(setValue(double)));
 }
 
 CallgrindConfigWidget::~CallgrindConfigWidget()

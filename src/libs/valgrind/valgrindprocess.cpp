@@ -38,6 +38,8 @@
 #include <QtCore/QEventLoop>
 #include <QtCore/QFileInfo>
 
+#include <utils/qtcassert.h>
+
 namespace Valgrind {
 
 ValgrindProcess::ValgrindProcess(QObject *parent)
@@ -204,6 +206,8 @@ void RemoteValgrindProcess::run(const QString &valgrindExecutable, const QString
 
 void RemoteValgrindProcess::connected()
 {
+    QTC_ASSERT(m_connection->state() == Utils::SshConnection::Connected, return);
+
     // connected, run command
     QString cmd;
 
@@ -235,6 +239,8 @@ Utils::SshConnection::Ptr RemoteValgrindProcess::connection() const
 
 void RemoteValgrindProcess::processStarted()
 {
+    QTC_ASSERT(m_connection->state() == Utils::SshConnection::Connected, return);
+
     // find out what PID our process has
 
     // NOTE: valgrind cloaks its name,
@@ -279,7 +285,7 @@ void RemoteValgrindProcess::findPIDOutputReceived(const QByteArray &output)
 
 void RemoteValgrindProcess::error(Utils::SshError error)
 {
-    switch(error) {
+    switch (error) {
         case Utils::SshTimeoutError:
             m_error = QProcess::Timedout;
             break;
@@ -293,9 +299,8 @@ void RemoteValgrindProcess::error(Utils::SshError error)
 
 void RemoteValgrindProcess::close()
 {
+    QTC_ASSERT(m_connection->state() == Utils::SshConnection::Connected, return);
     if (m_process) {
-        m_process->closeChannel();
-
         if (m_pid) {
             const QString killTemplate = QString("kill -%2 %1" // kill
                                                 ).arg(m_pid);
@@ -304,14 +309,16 @@ void RemoteValgrindProcess::close()
             const QString brutalKill = killTemplate.arg("SIGKILL");
             const QString remoteCall = niceKill + QLatin1String("; sleep 1; ") + brutalKill;
 
-            m_cleanup = m_connection->createRemoteProcess(remoteCall.toUtf8());
-            m_cleanup->start();
+            Utils::SshRemoteProcess::Ptr cleanup = m_connection->createRemoteProcess(remoteCall.toUtf8());
+            cleanup->start();
         }
     }
 }
 
 void RemoteValgrindProcess::closed(int status)
 {
+    QTC_ASSERT(m_process, return);
+
     m_errorString = m_process->errorString();
     if (status == Utils::SshRemoteProcess::FailedToStart) {
         m_error = QProcess::FailedToStart;

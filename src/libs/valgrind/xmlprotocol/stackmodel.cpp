@@ -112,7 +112,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
         if (fidx < 0 || fidx >= frames.size())
             return QVariant();
         const Frame &frame = frames[fidx];
-        switch(role) {
+        switch (role) {
         case Qt::DisplayRole:
         {
             switch (index.column()) {

@@ -210,6 +210,7 @@ public:
     AnalyzerRunControlFactory *m_runControlFactory;
     ProjectExplorer::RunControl *m_currentRunControl;
     Utils::FancyMainWindow *m_mainWindow;
+    IAnalyzerTool *m_currentTool;
     QList<IAnalyzerTool *> m_tools;
     QActionGroup *m_toolGroup;
     QAction *m_startAction;
@@ -232,7 +233,6 @@ public:
 
     bool m_restartOnStop;
     bool m_initialized;
-    IAnalyzerTool *m_currentTool;
 };
 
 AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -242,6 +242,7 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     m_runControlFactory(0),
     m_currentRunControl(0),
     m_mainWindow(0),
+    m_currentTool(0),
     m_toolGroup(0),
     m_startAction(0),
     m_startRemoteAction(0),
@@ -253,8 +254,7 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     m_statusLabel(new Utils::StatusLabel),
     m_resizeEventFilter(new DockWidgetEventFilter(qq)),
     m_restartOnStop(false),
-    m_initialized(false),
-    m_currentTool(0)
+    m_initialized(false)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
     m_runControlFactory = new AnalyzerRunControlFactory();
@@ -271,7 +271,7 @@ AnalyzerManager::AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
 {
     // as we have to setParent(0) on dock widget that are not selected,
     // we keep track of all and make sure we don't leak any
-    foreach(const DockPtr &ptr, m_dockWidgets) {
+    foreach (const DockPtr &ptr, m_dockWidgets) {
         if (ptr)
             delete ptr.data();
     }
@@ -541,7 +541,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
         const QString msg = tr("<html><head/><body><center><i>%1</i> is still running. You have to quit the Analyzer before being able to run another instance.<center/>"
                                "<center>Force it to quit?</center></body></html>").arg(m_currentRunControl->displayName());
         bool stopRequested = showPromptDialog(tr("Analyzer Still Running"), msg,
-                                     tr("Stop active run"), tr("Keep Running"));
+                                     tr("Stop Active Run"), tr("Keep Running"));
         if (!stopRequested)
             return; // no restart, keep it running, do nothing
 
@@ -657,7 +657,6 @@ void AnalyzerManager::toolSelected(int idx)
         return;
 
     selectingTool = true;
-
     if (oldTool != 0) {
         saveToolSettings(oldTool);
 

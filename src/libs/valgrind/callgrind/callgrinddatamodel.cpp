@@ -65,6 +65,7 @@ public:
     Private()
     : m_data(0)
     , m_event(0)
+    , m_verboseToolTips(true)
     , m_cycleDetection(false)
     {
     }
@@ -77,6 +78,7 @@ public:
 
     const ParseData *m_data;
     int m_event;
+    bool m_verboseToolTips;
     bool m_cycleDetection;
     QVector<const Function *> m_functions;
 };
@@ -126,6 +128,16 @@ void DataModel::setParseData(const ParseData *data)
     d->m_event = 0;
     d->updateFunctions();
     endResetModel();
+}
+
+void DataModel::setVerboseToolTipsEnabled(bool enabled)
+{
+    d->m_verboseToolTips = enabled;
+}
+
+bool DataModel::verboseToolTipsEnabled() const
+{
+    return d->m_verboseToolTips;
 }
 
 const ParseData *DataModel::parseData() const
@@ -254,6 +266,9 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         else if (index.column() == InclusiveCostColumn)
             return inclusiveCost;
     } else if (role == Qt::ToolTipRole) {
+        if (!d->m_verboseToolTips)
+            return data(index, Qt::DisplayRole);
+
         QString ret = "<html><head><style>\
             dt { font-weight: bold; }\
             dd { font-family: monospace; }\
@@ -269,7 +284,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         ret += "<dt>" + tr("File:") + "</dt><dd>" + func->file() + "</dd>\n";
         if (!func->costItems().isEmpty()) {
             const CostItem *firstItem = func->costItems().first();
-            for(int i = 0; i < d->m_data->positions().size(); ++i) {
+            for (int i = 0; i < d->m_data->positions().size(); ++i) {
                 ret += "<dt>" + ParseData::prettyStringForPosition(d->m_data->positions().at(i)) + "</dt>";
                 ret += "<dd>" + QString::number(firstItem->position(i)) + "</dd>\n";
             }
@@ -285,7 +300,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
         ret += "<td class='group'>" + tr("Incl. costs") + "</td><td>" + tr("(%)") +  "</td>";
         ret += "</tr></thead>";
         ret += "<tbody>";
-        for(int i = 0; i < d->m_data->events().size(); ++i) {
+        for (int i = 0; i < d->m_data->events().size(); ++i) {
             quint64 selfCost = func->selfCost(i);
             quint64 inclCost = func->inclusiveCost(i);
             quint64 totalCost = d->m_data->totalCost(i);
@@ -311,10 +326,23 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
 
 QVariant DataModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Vertical || role != Qt::DisplayRole)
+    if (orientation == Qt::Vertical || (role != Qt::DisplayRole && role != Qt::ToolTipRole))
         return QVariant();
 
     QTC_ASSERT(section >= 0 && section < columnCount(), return QVariant());
+
+    if (role == Qt::ToolTipRole) {
+        if (!d->m_data)
+            return QVariant();
+
+        const QString prettyCostStr = ParseData::prettyStringForEvent(d->m_data->events().at(d->m_event));
+        if (section == SelfCostColumn) {
+            return tr("%1 cost spent in a given function excluding costs from called functions.").arg(prettyCostStr);
+        } else if (section == InclusiveCostColumn) {
+            return tr("%1 cost spent in a given function including costs from called functions.").arg(prettyCostStr);
+        }
+        return QVariant();
+    }
 
     if (section == NameColumn)
         return tr("Function");

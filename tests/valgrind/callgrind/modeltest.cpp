@@ -162,9 +162,9 @@ void ModelTestWidget::showViewContextMenu(const QPoint &pos)
 
         QVector<quint64> totalCosts;
         totalCosts.fill(0, data->events().size());
-        for(int row = 0; row < rows; ++row) {
+        for (int row = 0; row < rows; ++row) {
             const CostItem *item = func->costItems().at(row);
-            for(int column = 0; column < columns; ++column) {
+            for (int column = 0; column < columns; ++column) {
                 QVariant value;
                 if (column < lastEventColumn) {
                     value = item->cost(column);
@@ -181,7 +181,7 @@ void ModelTestWidget::showViewContextMenu(const QPoint &pos)
             }
         }
         QStringList totalCostsStrings;
-        for(int i = 0; i < totalCosts.size(); ++i) {
+        for (int i = 0; i < totalCosts.size(); ++i) {
             totalCostsStrings << QString("%1: %2").arg(totalCosts.at(i)).arg(data->events().at(i));
         }
         view->setWindowTitle(totalCostsStrings.join(QLatin1String(", ")));

@@ -237,17 +237,17 @@ void Parser::Private::parse(QIODevice *device)
 
     // build fast lookup of functions by their nameId
     QHash<qint64, QList<const Function *> > functionLookup;
-    foreach(const Function *function, data->functions()) {
+    foreach (const Function *function, data->functions()) {
         functionLookup[function->nameId()].append(function);
     }
 
     // functions that need to accumulate their calees
     QSet<Function *> pendingFunctions;
-    foreach(const CallData &callData, pendingCallees) {
+    foreach (const CallData &callData, pendingCallees) {
         Function *calledFunction = 0;
         QTC_ASSERT(callData.call, continue);
         QTC_ASSERT(callData.call->caller(), continue);
-        foreach(const Function *function, functionLookup.value(callData.calledFunction)) {
+        foreach (const Function *function, functionLookup.value(callData.calledFunction)) {
             QTC_ASSERT(function->nameId() == callData.calledFunction, continue);
             if (function->objectId() == callData.calledObject
                 && function->fileId() == callData.calledFile)
@@ -263,7 +263,7 @@ void Parser::Private::parse(QIODevice *device)
             qDebug() << "caller is:" << callData.call->caller()->name() << callData.call->caller()->nameId();
             qDebug() << "called file:" << callData.calledFile << "object:" << callData.calledObject;
             qDebug() << data->stringForFileCompression(callData.calledFile) << data->stringForObjectCompression(callData.calledObject);
-            foreach(const Function *function, functionLookup.value(callData.calledFunction)) {
+            foreach (const Function *function, functionLookup.value(callData.calledFunction)) {
                 qDebug() << "available function file:" << function->fileId() << function->file() << "object:" << function->objectId() << function->object();
             }
         }
@@ -281,7 +281,7 @@ void Parser::Private::parse(QIODevice *device)
     // lookup done
 
     // now accumulate callees
-    foreach(Function *func, pendingFunctions)
+    foreach (Function *func, pendingFunctions)
         func->finalize();
 
     q->parserDataReady(); // emit
@@ -610,7 +610,7 @@ void Parser::Private::parseCalls(const char *begin, const char *end)
     skipSpace(&current, end);
 
     callDestinations.fill(0, addressValuesCount);
-    for(int i = 0; i < addressValuesCount; ++i) {
+    for (int i = 0; i < addressValuesCount; ++i) {
         callDestinations[i] = parseAddr(&current, end, &ok);
         if (!ok)
             break; // TODO error handling?

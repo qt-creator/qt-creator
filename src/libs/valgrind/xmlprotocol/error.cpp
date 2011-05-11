@@ -226,13 +226,13 @@ QString Error::toXml() const
         stream << "  <what>" << d->what << "</what>\n";
     }
 
-    foreach(const Stack &stack, d->stacks) {
+    foreach (const Stack &stack, d->stacks) {
         if (!stack.auxWhat().isEmpty()) {
             stream << "  <auxwhat>" << stack.auxWhat() << "</auxwhat>\n";
         }
         stream << "  <stack>\n";
 
-        foreach(const Frame &frame, stack.frames()) {
+        foreach (const Frame &frame, stack.frames()) {
             stream << "    <frame>\n";
             stream << "      <ip>0x" << QString::number(frame.instructionPointer(), 16) << "</ip>\n";
             if (!frame.object().isEmpty()) {

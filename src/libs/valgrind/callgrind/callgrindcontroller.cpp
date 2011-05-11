@@ -80,7 +80,7 @@ QString toOptionString(CallgrindController::Option option)
     -w=<dir>         Specify the startup directory of an active Callgrind run
     */
 
-    switch(option) {
+    switch (option) {
         case CallgrindController::Dump:
             return "--dump";
         case CallgrindController::ResetEventCounters:
@@ -118,7 +118,7 @@ void CallgrindController::run(Option option)
 
     const QString optionString = toOptionString(option);
 
-    switch(option) {
+    switch (option) {
         case CallgrindController::Dump:
             emit statusMessage(tr("Dumping profile data..."));
             break;
@@ -167,7 +167,7 @@ void CallgrindController::processFinished(int rc, QProcess::ExitStatus status)
     }
 
     // this call went fine, we might run another task after this
-    switch(m_lastOption) {
+    switch (m_lastOption) {
         case ResetEventCounters:
             // lets dump the new reset profiling info
             run(Dump);

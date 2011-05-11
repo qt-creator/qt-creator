@@ -163,13 +163,13 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, QWidget *parent, Q
         // can happen when using arrow keys to navigate and shortcut to trigger suppression
         indizes << m_view->selectionModel()->currentIndex();
     }
-    foreach(const QModelIndex &index, indizes) {
+    foreach (const QModelIndex &index, indizes) {
         Error error = m_view->model()->data(index, ErrorListModel::ErrorRole).value<Error>();
         if (!error.suppression().isNull())
             m_errors << error;
     }
 
-    foreach(const Error &error, m_errors)
+    foreach (const Error &error, m_errors)
         suppressions += suppressionText(error);
 
     m_ui->suppressionEdit->setPlainText(suppressions);
@@ -198,7 +198,7 @@ void SuppressionDialog::accept()
     // add file to project (if there is a project that contains this file on the file system)
     ProjectExplorer::SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
     if (!session->projectForFile(path)) {
-        foreach(ProjectExplorer::Project *p, session->projects()) {
+        foreach (ProjectExplorer::Project *p, session->projects()) {
             if (path.startsWith(p->projectDirectory())) {
                 p->rootProjectNode()->addFiles(ProjectExplorer::UnknownFileType, QStringList() << path);
                 break;
@@ -210,7 +210,7 @@ void SuppressionDialog::accept()
 
     QModelIndexList indizes = m_view->selectionModel()->selectedRows();
     qSort(indizes.begin(), indizes.end(), sortIndizesReverse);
-    foreach(const QModelIndex &index, indizes) {
+    foreach (const QModelIndex &index, indizes) {
         bool removed = m_view->model()->removeRow(index.row());
         QTC_ASSERT(removed, qt_noop());
         Q_UNUSED(removed);
@@ -221,7 +221,7 @@ void SuppressionDialog::accept()
         const Error rowError = m_view->model()->data(
             m_view->model()->index(row, 0), ErrorListModel::ErrorRole).value<Error>();
 
-        foreach(const Error &error, m_errors) {
+        foreach (const Error &error, m_errors) {
             if (equalSuppression(rowError, error)) {
                 bool removed = m_view->model()->removeRow(row);
                 QTC_ASSERT(removed, qt_noop());

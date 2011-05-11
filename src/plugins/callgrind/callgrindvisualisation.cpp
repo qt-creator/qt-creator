@@ -73,13 +73,9 @@ public:
                        const QStyleOptionGraphicsItem *option, QWidget *widget);
     virtual QRectF boundingRect() const;
 
-    void setRotateText(bool rotate);
-
 private:
     QString m_text;
     QStaticText m_staticText;
-    bool m_rotateText;
-    QColor m_textColor;
     qreal m_previousViewportDimension;
 };
 
@@ -105,17 +101,11 @@ FunctionGraphicsTextItem::FunctionGraphicsTextItem(const QString &text,
                                                    QGraphicsItem *parent)
     : QAbstractGraphicsShapeItem(parent)
     , m_text(text)
-    , m_rotateText(true)
     , m_previousViewportDimension(0)
 {
     setFlag(QGraphicsItem::ItemIgnoresTransformations);
     setAcceptedMouseButtons(0); // do not steal focus from parent item
     setToolTip(text);
-}
-
-void FunctionGraphicsTextItem::setRotateText(bool rotate)
-{
-    m_rotateText = rotate;
 }
 
 void FunctionGraphicsTextItem::paint(QPainter *painter,
@@ -135,30 +125,17 @@ void FunctionGraphicsTextItem::paint(QPainter *painter,
             * parentItem()->boundingRect().height()
             / scene()->sceneRect().height();
 
-    qreal textMaxHeight;
-    qreal textMaxWidth;
-    qreal viewportDim;
-    if (m_rotateText) {
-        viewportDim = viewportRect.height();
-        textMaxHeight = maxWidth;
-        textMaxWidth = maxHeight;
-    } else {
-        viewportDim = viewportRect.width();
-        textMaxHeight = maxHeight;
-        textMaxWidth = maxWidth;
-    }
-
-    if (textHeight > textMaxHeight)
+    if (textHeight > maxHeight)
         return;
 
-    if (viewportDim != m_previousViewportDimension) {
+    if (viewportRect.width() != m_previousViewportDimension) {
         const QString &elidedText =
                 painter->fontMetrics().elidedText(m_text, Qt::ElideRight,
-                                                  textMaxWidth);
+                                                  maxWidth);
         m_staticText.setText(elidedText);
         m_staticText.prepare();
 
-        m_previousViewportDimension = viewportDim;
+        m_previousViewportDimension = viewportRect.width();
     }
 
 #if VISUALISATION_DEBUG
@@ -169,16 +146,9 @@ void FunctionGraphicsTextItem::paint(QPainter *painter,
     painter->save();
     int textLeft = 0;
     int textTop = 0;
-    if (m_rotateText) {
-        painter->rotate(90);
-        textLeft = 2;
-        textTop = -textHeight/2;
-    }
-    else {
-        const int textWidth = painter->fontMetrics().width(m_staticText.text());
-        textLeft = -textWidth/2;
-        textTop = (maxHeight - textHeight)/2;
-    }
+    const int textWidth = painter->fontMetrics().width(m_staticText.text());
+    textLeft = -textWidth/2;
+    textTop = (maxHeight - textHeight)/2;
     painter->drawStaticText(textLeft, textTop, m_staticText);
 
     painter->restore();
@@ -218,9 +188,10 @@ void FunctionGraphicsItem::paint(QPainter *painter,
     QRectF rect = this->rect();
     const QColor &color = brush().color();
     if (option->state & QStyle::State_Selected) {
-        QLinearGradient gradient(0, 0, rect.width(), rect.height());
-        gradient.setColorAt(0, color.lighter(250));
-        gradient.setColorAt(1, color.darker());
+        QLinearGradient gradient(0, 0, rect.width(), 0);
+        gradient.setColorAt(0, color.darker(100));
+        gradient.setColorAt(0.5, color.lighter(200));
+        gradient.setColorAt(1, color.darker(100));
         painter->setBrush(gradient);
     }
     else {
@@ -256,13 +227,11 @@ public:
     Visualisation *q;
     DataProxyModel *m_model;
     QGraphicsScene m_scene;
-    int m_modelColumn;
 };
 
 Visualisation::Private::Private(Visualisation *qq)
     : q(qq)
     , m_model(new DataProxyModel(qq))
-    , m_modelColumn(-1)
 {
     // setup scene
     m_scene.setObjectName("Visualisation Scene");
@@ -286,7 +255,7 @@ void Visualisation::Private::handleMousePressEvent(QMouseEvent *event,
 {
     // find the first item that accepts mouse presses under the cursor position
     QGraphicsItem *itemAtPos = 0;
-    foreach(QGraphicsItem *item, q->items(event->pos())) {
+    foreach (QGraphicsItem *item, q->items(event->pos())) {
         if (!(item->acceptedMouseButtons() & event->button()))
             continue;
 
@@ -342,7 +311,7 @@ const Function *Visualisation::functionForItem(QGraphicsItem *item) const
 
 QGraphicsItem *Visualisation::itemForFunction(const Function *function) const
 {
-    foreach(QGraphicsItem *item, items()) {
+    foreach (QGraphicsItem *item, items()) {
         if (functionForItem(item) == function)
             return item;
     }
@@ -357,6 +326,11 @@ void Visualisation::setFunction(const Function *function)
 const Function *Visualisation::function() const
 {
     return d->m_model->filterFunction();
+}
+
+void Visualisation::setMinimumInclusiveCostRatio(double ratio)
+{
+    d->m_model->setMinimumInclusiveCostRatio(ratio);
 }
 
 void Visualisation::setModel(DataModel *model)
@@ -450,28 +424,26 @@ void Visualisation::populateScene()
         const QColor background = CallgrindHelper::colorForString(text);
         item->setBrush(background);
         item->setData(FunctionGraphicsItem::FunctionCallKey, QVariant::fromValue(d->m_model->filterFunction()));
-        item->textItem()->setRotateText(false);
         // NOTE: workaround wrong tooltip being show, no idea why...
         item->setZValue(-1);
         d->m_scene.addItem(item);
     }
 
     // add the canvas elements to the scene
-    qreal used = 0;
-    foreach(const Pair &cost, costs)
+    qreal used = sceneHeight * 0.1;
+    foreach (const Pair &cost, costs)
     {
         const QModelIndex &index = cost.first;
         const QString text = index.data().toString();
 
-        const qreal width = (sceneWidth * cost.second) / total;
-        const qreal height = sceneHeight * 0.9;
+        const qreal height = (sceneHeight * 0.9 * cost.second) / total;
 
-        FunctionGraphicsItem *item = new FunctionGraphicsItem(text, used, sceneHeight - height, width, height);
+        FunctionGraphicsItem *item = new FunctionGraphicsItem(text, 0, used, sceneWidth, height);
         const QColor background = CallgrindHelper::colorForString(text);
         item->setBrush(background);
         item->setData(FunctionGraphicsItem::FunctionCallKey, index.data(DataModel::FunctionRole));
         d->m_scene.addItem(item);
-        used += width;
+        used += height;
     }
 }
 

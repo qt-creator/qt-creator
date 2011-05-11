@@ -70,7 +70,7 @@ CostDelegate::Private::Private()
 
 int CostDelegate::Private::toNativeRole(CostDelegate::CostFormat format)
 {
-    switch(format)
+    switch (format)
     {
     case FormatAbsolute:
     case FormatRelative:

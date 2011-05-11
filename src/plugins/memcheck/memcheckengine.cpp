@@ -101,7 +101,7 @@ QStringList MemcheckEngine::toolArguments() const
     if (memcheckSettings->trackOrigins())
         arguments << QLatin1String("--track-origins=yes");
 
-    foreach(const QString &file, memcheckSettings->suppressionFiles())
+    foreach (const QString &file, memcheckSettings->suppressionFiles())
         arguments << QString("--suppressions=%1").arg(file);
 
     arguments << QString("--num-callers=%1").arg(memcheckSettings->numCallers());

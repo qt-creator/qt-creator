@@ -82,16 +82,16 @@ void FunctionCycle::setFunctions(const QVector<const Function *> functions)
     d->m_selfCost.fill(0, d->m_data->events().size());
     d->m_inclusiveCost.fill(0, d->m_data->events().size());
 
-    foreach(const Function *func, functions) {
+    foreach (const Function *func, functions) {
         // just add up self cost
         d->accumulateCost(d->m_selfCost, func->selfCosts());
         // add outgoing calls to functions that are not part of the cycle
-        foreach(const FunctionCall *call, func->outgoingCalls()) {
+        foreach (const FunctionCall *call, func->outgoingCalls()) {
             if (!functions.contains(call->callee()))
                 d->accumulateCall(call, Function::Private::Outgoing);
         }
         // add incoming calls from functions that are not part of the cycle
-        foreach(const FunctionCall *call, func->incomingCalls()) {
+        foreach (const FunctionCall *call, func->incomingCalls()) {
             if (!functions.contains(call->caller())) {
                 d->accumulateCall(call, Function::Private::Incoming);
                 d->m_called += call->calls();
@@ -101,7 +101,7 @@ void FunctionCycle::setFunctions(const QVector<const Function *> functions)
     }
     // now subtract self from incl. cost (see implementation of inclusiveCost())
     // now subtract self cost (see @c inclusiveCost() implementation)
-    for(int i = 0, c = d->m_inclusiveCost.size(); i < c; ++i) {
+    for (int i = 0, c = d->m_inclusiveCost.size(); i < c; ++i) {
         if (d->m_inclusiveCost.at(i) < d->m_selfCost.at(i))
             d->m_inclusiveCost[i] = 0;
         else

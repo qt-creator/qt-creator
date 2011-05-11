@@ -36,7 +36,6 @@
 #include <QObject>
 
 #include <qprocess.h>
-#include <qmetatype.h>
 
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocess.h>
@@ -69,6 +68,7 @@ public:
     void run(Valgrind::Callgrind::CallgrindController::Option option);
 
     void setValgrindProcess(ValgrindProcess *process);
+    inline ValgrindProcess *valgrindProcess() { return m_valgrindProc; }
 
     /**
      * Make data file available locally, triggers @c localParseDataAvailable.
@@ -96,7 +96,7 @@ private Q_SLOTS:
 private:
     void cleanupTempFile();
 
-    // callgrind_controll process
+    // callgrind_control process
     Valgrind::ValgrindProcess *m_process;
     // valgrind process
     Valgrind::ValgrindProcess *m_valgrindProc;

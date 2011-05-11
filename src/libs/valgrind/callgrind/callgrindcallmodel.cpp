@@ -208,10 +208,20 @@ QVariant CallModel::data(const QModelIndex &index, int role) const
 
 QVariant CallModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Vertical || role != Qt::DisplayRole)
+    if (orientation == Qt::Vertical || (role != Qt::DisplayRole && role != Qt::ToolTipRole))
         return QVariant();
 
     QTC_ASSERT(section >= 0 && section < columnCount(), return QVariant());
+
+    if (role == Qt::ToolTipRole) {
+        if (section == CostColumn) {
+            if (!d->m_data)
+                return QVariant();
+
+            return ParseData::prettyStringForEvent(d->m_data->events().at(d->m_event));
+        }
+        return QVariant();
+    }
 
     if (section == CalleeColumn)
         return tr("Callee");

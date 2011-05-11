@@ -208,7 +208,7 @@ void CallgrindTool::extensionsInitialized()
             analyzerContext);
         editorContextMenu->addAction(cmd);
 
-        action = new QAction(tr("Profile costs of this function and its callees"), this);
+        action = new QAction(tr("Profile Costs of this Function and its Callees"), this);
         action->setIcon(QIcon(Analyzer::Constants::ANALYZER_CONTROL_START_ICON));
         connect(action, SIGNAL(triggered()), SLOT(handleShowCostsOfFunction()));
         cmd = actionManager->registerAction(action, Callgrind::Constants::A_SHOWCOSTSOFFUNCTION,
@@ -244,6 +244,15 @@ IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
     m_toggleCollectFunction.clear();
 
     AnalyzerManager::instance()->showStatusMessage(AnalyzerManager::msgToolStarted(displayName()));
+
+    // apply project settings
+    AnalyzerProjectSettings *analyzerSettings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
+    CallgrindProjectSettings *settings = analyzerSettings->subConfig<CallgrindProjectSettings>();
+    QTC_ASSERT(settings, return engine)
+
+    m_callgrindWidgetHandler->visualisation()->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
+    m_callgrindWidgetHandler->proxyModel()->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
+    m_callgrindWidgetHandler->dataModel()->setVerboseToolTipsEnabled(settings->enableEventToolTips());
 
     return engine;
 }
@@ -312,9 +321,6 @@ QWidget *CallgrindTool::createPaneToolBarWidget()
             settings, SLOT(setCostFormat(Callgrind::Internal::CostDelegate::CostFormat)));
     connect(m_callgrindWidgetHandler, SIGNAL(cycleDetectionEnabled(bool)),
             settings, SLOT(setDetectCycles(bool)));
-
-    // performance: add a minimum cost index so that we are not flooded by the results
-    m_callgrindWidgetHandler->proxyModel()->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio());
 
     return toolbarWidget;
 }
@@ -387,7 +393,7 @@ void CallgrindTool::requestContextMenu(TextEditor::ITextEditor *editor, int line
 {
     // find callgrind text mark that corresponds to this editor's file and line number
     const Function *func = 0;
-    foreach(CallgrindTextMark *textMark, m_textMarks) {
+    foreach (CallgrindTextMark *textMark, m_textMarks) {
         if (textMark->fileName() == editor->file()->fileName() && textMark->lineNumber() == line) {
             func = textMark->function();
             break;
@@ -397,7 +403,7 @@ void CallgrindTool::requestContextMenu(TextEditor::ITextEditor *editor, int line
         return; // no callgrind text mark under cursor, return
 
     // add our action to the context menu
-    QAction *action = new QAction(tr("Select this function in the analyzer output"), menu);
+    QAction *action = new QAction(tr("Select this Function in the Analyzer Output"), menu);
     connect(action, SIGNAL(triggered()), this, SLOT(handleShowCostsAction()));
     action->setData(QVariant::fromValue<const Function *>(func));
     menu->addAction(action);
@@ -435,7 +441,7 @@ void CallgrindTool::handleShowCostsOfFunction()
 
 void CallgrindTool::slotRequestDump()
 {
-    m_callgrindWidgetHandler->visualisation()->setText(tr("Populating..."));
+    m_callgrindWidgetHandler->slotRequestDump();
     emit dumpRequested();
 }
 

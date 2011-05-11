@@ -164,10 +164,10 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         ProjectExplorer::SessionManager *session
             = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
         QSet<QString> validFolders;
-        foreach(ProjectExplorer::Project *project, session->projects()) {
+        foreach (ProjectExplorer::Project *project, session->projects()) {
             validFolders << project->projectDirectory();
-            foreach(ProjectExplorer::Target *target, project->targets()) {
-                foreach(ProjectExplorer::BuildConfiguration *config, target->buildConfigurations()) {
+            foreach (ProjectExplorer::Target *target, project->targets()) {
+                foreach (ProjectExplorer::BuildConfiguration *config, target->buildConfigurations()) {
                     validFolders << config->buildDirectory();
                 }
             }
@@ -180,7 +180,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
         bool inProject = false;
         for ( int i = 0; i < framesToLookAt; ++i ) {
             const Frame &frame = frames.at(i);
-            foreach(const QString &folder, validFolders) {
+            foreach (const QString &folder, validFolders) {
                 if (frame.object().startsWith(folder)) {
                     inProject = true;
                     break;
@@ -333,7 +333,7 @@ public:
 
         //find the first frame belonging to the project
         if (!m_projectFiles.isEmpty()) {
-            foreach(const Frame &frame, frames) {
+            foreach (const Frame &frame, frames) {
                 if (frame.directory().isEmpty() || frame.file().isEmpty())
                     continue;
 
@@ -345,7 +345,7 @@ public:
         }
 
         //if no frame belonging to the project was found, return the first one that is not malloc/new
-        foreach(const Frame &frame, frames) {
+        foreach (const Frame &frame, frames) {
             if (!frame.functionName().isEmpty() && frame.functionName() != QLatin1String("malloc")
                 && !frame.functionName().startsWith("operator new(") )
             {
@@ -455,7 +455,7 @@ void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)
 
     QMenu *menu = filterMenu();
     QTC_ASSERT(menu, return);
-    foreach(const QString &file, mEngine->suppressionFiles()) {
+    foreach (const QString &file, mEngine->suppressionFiles()) {
         QAction *action = menu->addAction(QFileInfo(file).fileName());
         action->setToolTip(file);
         action->setData(file);

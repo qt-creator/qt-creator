@@ -36,10 +36,6 @@
 #include "callgrindengine.h"
 #include "callgrindvisualisation.h"
 
-#ifndef DISABLE_CALLGRIND_WORKAROUNDS
-#include "workarounds.h"
-#endif
-
 #include <analyzerbase/analyzerconstants.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -129,6 +125,7 @@ void CallgrindWidgetHandler::ensureDockWidgets()
         return;
     QWidget *parenWidget  = qobject_cast<QWidget *>(parent());
     m_visualisation = new Visualisation(parenWidget);
+    m_visualisation->setFrameStyle(QFrame::NoFrame);
     m_visualisation->setObjectName("Valgrind.CallgrindWidgetHandler.Visualisation");
     m_visualisation->setModel(m_dataModel);
     connect(m_visualisation, SIGNAL(functionActivated(const Valgrind::Callgrind::Function*)),
@@ -137,6 +134,7 @@ void CallgrindWidgetHandler::ensureDockWidgets()
     m_callersView = new CostView(parenWidget);
     m_callersView->sortByColumn(CallModel::CostColumn);
     m_callersView->setObjectName("Valgrind.CallgrindWidgetHandler.CallersView");
+    m_callersView->setFrameStyle(QFrame::NoFrame);
     // enable sorting
     QSortFilterProxyModel *callerProxy = new QSortFilterProxyModel(m_callersModel);
     callerProxy->setSourceModel(m_callersModel);
@@ -148,6 +146,7 @@ void CallgrindWidgetHandler::ensureDockWidgets()
     m_calleesView = new CostView(parenWidget);
     m_calleesView->sortByColumn(CallModel::CostColumn);
     m_calleesView->setObjectName("Valgrind.CallgrindWidgetHandler.CalleesView");
+    m_calleesView->setFrameStyle(QFrame::NoFrame);
     // enable sorting
     QSortFilterProxyModel *calleeProxy = new QSortFilterProxyModel(m_calleesModel);
     calleeProxy->setSourceModel(m_calleesModel);
@@ -247,7 +246,7 @@ void CallgrindWidgetHandler::populateActions(QLayout *layout)
     menu->addAction(m_costRelative);
 
     // show costs relative to parent
-    m_costRelativeToParent = new QAction(tr("Relative Costs To Parent"), this);
+    m_costRelativeToParent = new QAction(tr("Relative Costs to Parent"), this);
     ///FIXME: icon
     m_costRelativeToParent->setToolTip(tr("Show costs relative to parent functions inclusive cost."));
     m_costRelativeToParent->setCheckable(true);
@@ -333,8 +332,19 @@ void CallgrindWidgetHandler::doClear(bool clearParseData)
 
 void CallgrindWidgetHandler::slotRequestDump()
 {
+    setBusy(true);
+
     m_visualisation->setText(tr("Populating..."));
-    emit dumpRequested();
+}
+
+void CallgrindWidgetHandler::setBusy(bool busy)
+{
+    QCursor cursor(busy ? Qt::BusyCursor : Qt::ArrowCursor);
+    QList<QWidget *> widgets;
+    widgets << m_flatView << m_calleesView << m_callersView << m_visualisation;
+    foreach(QWidget *widget, widgets) {
+        widget->setCursor(cursor);
+    }
 }
 
 void CallgrindWidgetHandler::selectFunction(const Function *func)
@@ -386,7 +396,7 @@ void CallgrindWidgetHandler::updateFilterString()
 
 void CallgrindWidgetHandler::setCostFormat(CostDelegate::CostFormat format)
 {
-    switch(format) {
+    switch (format) {
         case CostDelegate::FormatAbsolute:
             m_costAbsolute->setChecked(true);
             break;
@@ -510,6 +520,9 @@ void CallgrindWidgetHandler::setParseData(ParseData *data)
 
     // clear history for new data
     m_stackBrowser->clear();
+
+    // unset busy state
+    setBusy(false);
 }
 
 void CallgrindWidgetHandler::updateEventCombo()
@@ -525,7 +538,7 @@ void CallgrindWidgetHandler::updateEventCombo()
     }
 
     m_eventCombo->show();
-    foreach(const QString &event, data->events())
+    foreach (const QString &event, data->events())
         m_eventCombo->addItem(ParseData::prettyStringForEvent(event));
 }
 

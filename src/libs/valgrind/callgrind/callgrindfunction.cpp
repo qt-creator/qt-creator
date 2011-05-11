@@ -77,7 +77,7 @@ void Function::Private::accumulateCost(QVector<quint64> &base, const QVector<qui
     } else {
         ///TODO: see whether .data() is noticably faster (less detaching)
         int i = 0;
-        foreach(quint64 cost, add)
+        foreach (quint64 cost, add)
             base[i++] += cost;
     }
 }
@@ -187,11 +187,11 @@ void Function::setObject(qint64 id)
 QString Function::location() const
 {
     QString pos;
-    foreach(const CostItem *costItem, d->m_costItems) {
+    foreach (const CostItem *costItem, d->m_costItems) {
         if (costItem->differingFileId() != -1) {
             QTextStream stream(&pos);
             stream << '(';
-            for(int i = 0, c = costItem->positions().count(); i < c; ++i) {
+            for (int i = 0, c = costItem->positions().count(); i < c; ++i) {
                 ///TODO: remember what was hex formatted
                 stream << costItem->position(i);
                 if (i != c - 1)
@@ -227,7 +227,7 @@ int Function::lineNumber() const
     if (lineIdx == -1)
         return -1;
 
-    foreach(const CostItem *costItem, d->m_costItems) {
+    foreach (const CostItem *costItem, d->m_costItems) {
         if (costItem->differingFileId() == -1)
             return costItem->position(lineIdx);
     }
@@ -301,7 +301,7 @@ void Function::addCostItem(const CostItem *item)
 void Function::finalize()
 {
     bool recursive = false;
-    foreach(const FunctionCall *call, d->m_incomingCalls) {
+    foreach (const FunctionCall *call, d->m_incomingCalls) {
         if (call->caller() == this) {
             recursive = true;
             break;
@@ -314,16 +314,16 @@ void Function::finalize()
         // e.g.: A -> B -> B ..., C -> B -> B ...
         // cost of B = cost of call to B in A + cost of call to B in C + ...
         d->m_inclusiveCost.fill(0);
-        foreach(const FunctionCall *call, d->m_incomingCalls) {
+        foreach (const FunctionCall *call, d->m_incomingCalls) {
             if (call->caller() != this) {
-                foreach(const CostItem *costItem, call->caller()->costItems()) {
+                foreach (const CostItem *costItem, call->caller()->costItems()) {
                     if (costItem->call() && costItem->call()->callee() == this)
                         d->accumulateCost(d->m_inclusiveCost, costItem->costs());
                 }
             }
         }
         // now subtract self cost (see @c inclusiveCost() implementation)
-        for(int i = 0, c = d->m_inclusiveCost.size(); i < c; ++i) {
+        for (int i = 0, c = d->m_inclusiveCost.size(); i < c; ++i) {
             if (d->m_inclusiveCost.at(i) < d->m_selfCost.at(i))
                 d->m_inclusiveCost[i] = 0;
             else

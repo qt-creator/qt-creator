@@ -128,8 +128,8 @@ void MemcheckRunner::startRemotely(const Utils::SshConnectionParameters &sshPara
 
     QList<QHostAddress> possibleHostAddresses;
     //NOTE: ::allAddresses does not seem to work for usb interfaces...
-    foreach(const QNetworkInterface &iface, QNetworkInterface::allInterfaces()) {
-        foreach(const QNetworkAddressEntry &entry, iface.addressEntries()) {
+    foreach (const QNetworkInterface &iface, QNetworkInterface::allInterfaces()) {
+        foreach (const QNetworkAddressEntry &entry, iface.addressEntries()) {
             const QHostAddress addr = entry.ip();
             if (addr.toString() != "127.0.0.1"
                 && addr.toString() != "0:0:0:0:0:0:0:1")
@@ -155,7 +155,7 @@ void MemcheckRunner::startRemotely(const Utils::SshConnectionParameters &sshPara
         description->setText(tr("More than one network interface was found on your machine. Please select which one you want to use for remote analyzation."));
         layout->addWidget(description);
         QListWidget *list = new QListWidget;
-        foreach(const QHostAddress &address, possibleHostAddresses)
+        foreach (const QHostAddress &address, possibleHostAddresses)
             list->addItem(address.toString());
 
         list->setSelectionMode(QAbstractItemView::SingleSelection);

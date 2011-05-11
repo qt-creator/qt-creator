@@ -71,14 +71,14 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
 
     // update summary text
     QStringList tools;
-    foreach(AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
+    foreach (AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
         tools << QString("<strong>%1</strong>").arg(config->displayName());
     }
     m_detailsWidget->setSummaryText(tr("Available settings: %1").arg(tools.join(", ")));
 
     // add group boxes for each sub config
     QLayout *layout = m_detailsWidget->widget()->layout();
-    foreach(AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
+    foreach (AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
         QGroupBox *box = new QGroupBox(config->displayName());
         Q_UNUSED(box)
         QWidget *widget = config->createConfigWidget(this);

@@ -66,6 +66,8 @@ public:
     void setFunction(const Valgrind::Callgrind::Function *function);
     const Valgrind::Callgrind::Function *function() const;
 
+    void setMinimumInclusiveCostRatio(double ratio);
+
 public slots:
     void setText(const QString &message);
 

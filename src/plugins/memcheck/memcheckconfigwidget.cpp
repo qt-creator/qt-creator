@@ -76,7 +76,7 @@ MemcheckConfigWidget::MemcheckConfigWidget(AbstractMemcheckSettings *settings, Q
             this, SLOT(slotSuppressionsAdded(QStringList)));
 
     m_model->clear();
-    foreach(const QString &file, m_settings->suppressionFiles())
+    foreach (const QString &file, m_settings->suppressionFiles())
         m_model->appendRow(new QStandardItem(file));
 
     connect(m_ui->suppressionList->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
@@ -101,7 +101,7 @@ void MemcheckConfigWidget::slotAddSuppression()
     dialog.setHistory(conf->lastSuppressionDialogHistory());
 
     if (dialog.exec() == QDialog::Accepted) {
-        foreach(const QString &file, dialog.selectedFiles())
+        foreach (const QString &file, dialog.selectedFiles())
             m_model->appendRow(new QStandardItem(file));
 
         m_settings->addSuppressionFiles(dialog.selectedFiles());
@@ -114,10 +114,10 @@ void MemcheckConfigWidget::slotAddSuppression()
 void MemcheckConfigWidget::slotSuppressionsAdded(const QStringList &files)
 {
     QStringList filesToAdd = files;
-    for(int i = 0, c = m_model->rowCount(); i < c; ++i)
+    for (int i = 0, c = m_model->rowCount(); i < c; ++i)
         filesToAdd.removeAll(m_model->item(i)->text());
 
-    foreach(const QString &file, filesToAdd)
+    foreach (const QString &file, filesToAdd)
         m_model->appendRow(new QStandardItem(file));
 }
 
@@ -132,14 +132,14 @@ void MemcheckConfigWidget::slotRemoveSuppression()
     QList<int> rows;
 
     QStringList removed;
-    foreach(const QModelIndex &index, m_ui->suppressionList->selectionModel()->selectedIndexes()) {
+    foreach (const QModelIndex &index, m_ui->suppressionList->selectionModel()->selectedIndexes()) {
         rows << index.row();
         removed << index.data().toString();
     }
 
     qSort(rows.begin(), rows.end(), sortReverse);
 
-    foreach(int row, rows)
+    foreach (int row, rows)
         m_model->removeRow(row);
 
     m_settings->removeSuppressionFiles(removed);
@@ -147,7 +147,7 @@ void MemcheckConfigWidget::slotRemoveSuppression()
 
 void MemcheckConfigWidget::slotSuppressionsRemoved(const QStringList &files)
 {
-    for(int i = 0; i < m_model->rowCount(); ++i) {
+    for (int i = 0; i < m_model->rowCount(); ++i) {
         if (files.contains(m_model->item(i)->text())) {
             m_model->removeRow(i);
             --i;
@@ -158,7 +158,7 @@ void MemcheckConfigWidget::slotSuppressionsRemoved(const QStringList &files)
 void MemcheckConfigWidget::setSuppressions(const QStringList &files)
 {
     m_model->clear();
-    foreach(const QString &file, files)
+    foreach (const QString &file, files)
         m_model->appendRow(new QStandardItem(file));
 }
 
@@ -166,7 +166,7 @@ QStringList MemcheckConfigWidget::suppressions() const
 {
     QStringList ret;
 
-    for(int i = 0; i < m_model->rowCount(); ++i)
+    for (int i = 0; i < m_model->rowCount(); ++i)
         ret << m_model->item(i)->text();
 
     return ret;

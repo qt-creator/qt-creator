@@ -156,7 +156,6 @@ private:
     Utils::SshConnectionParameters m_params;
     Utils::SshConnection::Ptr m_connection;
     Utils::SshRemoteProcess::Ptr m_process;
-    Utils::SshRemoteProcess::Ptr m_cleanup;
     QString m_workingDir;
     QString m_valgrindExe;
     QStringList m_valgrindArgs;

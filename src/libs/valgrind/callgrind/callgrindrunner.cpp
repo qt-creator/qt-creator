@@ -116,7 +116,7 @@ void CallgrindRunner::localParseDataAvailable(const QString &file)
 
 void CallgrindRunner::controllerFinished(CallgrindController::Option option)
 {
-    switch(option)
+    switch (option)
     {
     case CallgrindController::Pause:
         m_paused = true;

@@ -74,7 +74,7 @@ AnalyzerSettings::~AnalyzerSettings()
 bool AnalyzerSettings::fromMap(const QVariantMap &map)
 {
     bool ret = true;
-    foreach(AbstractAnalyzerSubConfig *config, subConfigs()) {
+    foreach (AbstractAnalyzerSubConfig *config, subConfigs()) {
         ret = ret && config->fromMap(map);
     }
     return ret;
@@ -83,7 +83,7 @@ bool AnalyzerSettings::fromMap(const QVariantMap &map)
 QVariantMap AnalyzerSettings::defaults() const
 {
     QVariantMap map;
-    foreach(AbstractAnalyzerSubConfig *config, subConfigs()) {
+    foreach (AbstractAnalyzerSubConfig *config, subConfigs()) {
         map.unite(config->defaults());
     }
     return map;
@@ -92,7 +92,7 @@ QVariantMap AnalyzerSettings::defaults() const
 QVariantMap AnalyzerSettings::toMap() const
 {
     QVariantMap map;
-    foreach(AbstractAnalyzerSubConfig *config, subConfigs()) {
+    foreach (AbstractAnalyzerSubConfig *config, subConfigs()) {
         map.unite(config->toMap());
     }
     return map;
@@ -166,7 +166,7 @@ AnalyzerProjectSettings::AnalyzerProjectSettings(QObject *parent)
 : AnalyzerSettings(parent)
 {
     // add sub configs
-    foreach(AbstractAnalyzerSubConfigFactory *factory, AnalyzerGlobalSettings::instance()->subConfigFactories()) {
+    foreach (AbstractAnalyzerSubConfigFactory *factory, AnalyzerGlobalSettings::instance()->subConfigFactories()) {
         addSubConfig(factory->createProjectSubConfig(parent));
     }
 

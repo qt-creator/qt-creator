@@ -60,7 +60,10 @@ public slots:
     void pause();
     void unpause();
 
+    /// marks the callgrind process as paused
+    /// calls pause() and unpause() if there's an active run
     void setPaused(bool paused);
+
     void setToggleCollectFunction(const QString &toggleCollectFunction);
 
 protected:

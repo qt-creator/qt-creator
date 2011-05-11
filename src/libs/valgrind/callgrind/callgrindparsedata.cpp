@@ -100,7 +100,7 @@ ParseData::Private::~Private()
 void ParseData::Private::cleanupFunctionCycles()
 {
     m_cycleCacheValid = false;
-    foreach(const Function *func, m_cycleCache) {
+    foreach (const Function *func, m_cycleCache) {
         if (dynamic_cast<const FunctionCycle *>(func))
             delete func;
     }
@@ -244,7 +244,7 @@ void ParseData::setPositions(const QStringList &positions)
 {
     d->m_positions = positions;
     d->m_lineNumberPositionIndex = -1;
-    for(int i = 0; i < positions.size(); ++i) {
+    for (int i = 0; i < positions.size(); ++i) {
         if (positions.at(i) == "line") {
             d->m_lineNumberPositionIndex = i;
             break;

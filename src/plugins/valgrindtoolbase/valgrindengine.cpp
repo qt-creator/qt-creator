@@ -41,6 +41,10 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/applicationrunconfiguration.h>
+#include <analyzerbase/analyzermanager.h>
+
+#include <QtGui/QApplication>
+#include <QtGui/QMainWindow>
 
 #define VALGRIND_DEBUG_OUTPUT 0
 
@@ -52,7 +56,8 @@ ValgrindEngine::ValgrindEngine(const AnalyzerStartParameters &sp,
                                ProjectExplorer::RunConfiguration *runConfiguration)
     : IAnalyzerEngine(sp, runConfiguration),
       m_settings(0),
-      m_progress(new QFutureInterface<void>()) ,
+      m_progress(new QFutureInterface<void>()),
+      m_progressWatcher(new QFutureWatcher<void>()),
       m_isStopping(false)
 {
     if (runConfiguration)
@@ -60,6 +65,11 @@ ValgrindEngine::ValgrindEngine(const AnalyzerStartParameters &sp,
 
     if  (!m_settings)
         m_settings = AnalyzerGlobalSettings::instance();
+
+    connect(m_progressWatcher, SIGNAL(canceled()),
+            this, SLOT(handleProgressCanceled()));
+    connect(m_progressWatcher, SIGNAL(finished()),
+            this, SLOT(handleProgressFinished()));
 }
 
 ValgrindEngine::~ValgrindEngine()
@@ -75,6 +85,7 @@ void ValgrindEngine::start()
                                                         progressTitle(), "valgrind");
     fp->setKeepOnFinish(Core::FutureProgress::DontKeepOnFinish);
     m_progress->reportStarted();
+    m_progressWatcher->setFuture(m_progress->future());
 
 #if VALGRIND_DEBUG_OUTPUT
     emit standardOutputReceived(tr("Valgrind options: %1").arg(toolArguments().join(" ")));
@@ -117,6 +128,16 @@ void ValgrindEngine::stop()
 QString ValgrindEngine::executable() const
 {
     return startParameters().debuggee;
+}
+
+void ValgrindEngine::handleProgressCanceled()
+{
+    AnalyzerManager::instance()->stopTool();
+}
+
+void ValgrindEngine::handleProgressFinished()
+{
+    QApplication::alert(Core::ICore::instance()->mainWindow(), 3000);
 }
 
 void ValgrindEngine::runnerFinished()
@@ -167,7 +188,7 @@ void ValgrindEngine::receiveProcessError(const QString &error, QProcess::Process
     ///FIXME: get a better API for this into Qt Creator
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     QList< Core::IOutputPane *> panes = pm->getObjects<Core::IOutputPane>();
-    foreach(Core::IOutputPane *pane, panes) {
+    foreach (Core::IOutputPane *pane, panes) {
         if (pane->displayName() == tr("Application Output")) {
             pane->popup(false);
             break;

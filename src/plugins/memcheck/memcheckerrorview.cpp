@@ -176,7 +176,7 @@ QString errorLocation(const QModelIndex &index, const Error &error,
 {
     const ErrorListModel *model = 0;
     const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel *>(index.model());
-    while(!model && proxy) {
+    while (!model && proxy) {
         model = qobject_cast<const ErrorListModel *>(proxy->sourceModel());
         proxy = qobject_cast<const QAbstractProxyModel *>(proxy->sourceModel());
     };
@@ -393,12 +393,12 @@ void MemcheckErrorDelegate::copy()
 
     const QString relativeTo = relativeToPath();
 
-    foreach(const Stack &stack, error.stacks()) {
+    foreach (const Stack &stack, error.stacks()) {
         if (!stack.auxWhat().isEmpty()) {
             stream << stack.auxWhat();
         }
         int i = 1;
-        foreach(const Frame &frame, stack.frames()) {
+        foreach (const Frame &frame, stack.frames()) {
             stream << "  " << i++ << ": " << makeFrameName(frame, relativeTo) << "\n";
         }
     }
@@ -488,7 +488,7 @@ void MemcheckErrorView::contextMenuEvent(QContextMenuEvent *e)
 
 
     QList<Error> errors;
-    foreach(const QModelIndex &index, indizes) {
+    foreach (const QModelIndex &index, indizes) {
         Error error = model()->data(index, ErrorListModel::ErrorRole).value<Error>();
         if (!error.suppression().isNull())
             errors << error;

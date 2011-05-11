@@ -126,11 +126,13 @@ void CallgrindEngine::setPaused(bool paused)
 
     m_markAsPaused = paused;
 
-    // call controller
-    if (paused)
-        pause();
-    else
-        unpause();
+    // call controller only if it is attached to a valgrind process
+    if (m_runner.controller()->valgrindProcess()) {
+        if (paused)
+            pause();
+        else
+            unpause();
+    }
 }
 
 void CallgrindEngine::setToggleCollectFunction(const QString &toggleCollectFunction)

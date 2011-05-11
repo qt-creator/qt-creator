@@ -149,7 +149,7 @@ QVariant ErrorListModel::Private::errorData(int row, int column, int role) const
     const Stack stack = !stacks.isEmpty() ? stacks.first() : Stack();
 
     if (error.stacks().count())
-    switch(role) {
+    switch (role) {
     case Qt::DisplayRole:
     {
         switch (column) {

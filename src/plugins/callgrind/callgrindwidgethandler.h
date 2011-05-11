@@ -94,10 +94,6 @@ public:
     Callgrind::Internal::CostDelegate::CostFormat costFormat() const;
 
 signals:
-    void dumpRequested();
-    void resetRequested();
-    void pauseToggled(bool checked);
-
     void functionSelected(const Valgrind::Callgrind::Function *);
 
     void costFormatChanged(Callgrind::Internal::CostDelegate::CostFormat format);
@@ -121,6 +117,9 @@ private slots:
     void slotGoToOverview();
     void stackBrowserChanged();
 
+    /// If \param busy is true, all widgets get a busy cursor when hovered
+    void setBusy(bool busy);
+
     void dataFunctionSelected(const QModelIndex &index);
     void calleeFunctionSelected(const QModelIndex &index);
     void callerFunctionSelected(const QModelIndex &index);
@@ -138,6 +137,7 @@ private:
     Valgrind::Callgrind::CallModel *m_callersModel;
     Valgrind::Callgrind::CallModel *m_calleesModel;
 
+    // callgrind widgets
     CostView *m_flatView;
     CostView *m_callersView;
     CostView *m_calleesView;

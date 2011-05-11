@@ -56,6 +56,13 @@ public:
     inline bool enableBranchSim() const { return m_enableBranchSim; }
     inline bool collectSystime() const { return m_collectSystime; }
     inline bool collectBusEvents() const { return m_collectBusEvents; }
+    inline bool enableEventToolTips() const { return m_enableEventToolTips; }
+
+    /// \return Minimum cost ratio, range [0.0..100.0]
+    inline double minimumInclusiveCostRatio() const { return m_minimumInclusiveCostRatio; }
+
+    /// \return Minimum cost ratio, range [0.0..100.0]
+    inline double visualisationMinimumInclusiveCostRatio() const { return m_visualisationMinimumInclusiveCostRatio; }
 
     // abstract virtual methods from base class
     virtual bool fromMap(const QVariantMap &map);
@@ -71,12 +78,22 @@ public Q_SLOTS:
     void setEnableBranchSim(bool enable);
     void setCollectSystime(bool collect);
     void setCollectBusEvents(bool collect);
+    void setEnableEventToolTips(bool enable);
+
+    /// \param minimumInclusiveCostRatio Minimum inclusive cost ratio, valid values are [0.0..100.0]
+    void setMinimumInclusiveCostRatio(double minimumInclusiveCostRatio);
+
+    /// \param minimumInclusiveCostRatio Minimum inclusive cost ratio, valid values are [0.0..100.0]
+    void setVisualisationMinimumInclusiveCostRatio(double minimumInclusiveCostRatio);
 
 Q_SIGNALS:
     void enableCacheSimChanged(bool);
     void enableBranchSimChanged(bool);
     void collectSystimeChanged(bool);
     void collectBusEventsChanged(bool);
+    void enableEventToolTipsChanged(bool);
+    void minimumInclusiveCostRatioChanged(double);
+    void visualisationMinimumInclusiveCostRatioChanged(double);
 
 protected:
     virtual QVariantMap toMap() const;
@@ -86,6 +103,9 @@ private:
     bool m_collectSystime;
     bool m_collectBusEvents;
     bool m_enableBranchSim;
+    bool m_enableEventToolTips;
+    double m_minimumInclusiveCostRatio;
+    double m_visualisationMinimumInclusiveCostRatio;
 };
 
 /**
@@ -104,12 +124,10 @@ public:
 
     CostDelegate::CostFormat costFormat() const;
     bool detectCycles() const;
-    double minimumInclusiveCostRatio() const;
 
 public slots:
     void setCostFormat(Callgrind::Internal::CostDelegate::CostFormat format);
     void setDetectCycles(bool detect);
-    void setMinimumInclusiveCostRatio(double minimumInclusiveCost);
 
 protected:
     virtual QVariantMap toMap() const;
@@ -117,7 +135,6 @@ protected:
 private:
     CostDelegate::CostFormat m_costFormat;
     bool m_detectCycles;
-    double m_minimumInclusiveCostRatio;
 };
 
 /**

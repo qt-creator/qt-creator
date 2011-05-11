@@ -73,7 +73,7 @@ QVariantMap AbstractMemcheckSettings::defaults() const
     map.insert(QLatin1String(filterExternalIssuesC), true);
 
     QVariantList defaultErrorKinds;
-    for(int i = 0; i < Valgrind::XmlProtocol::MemcheckErrorKindCount; ++i)
+    for (int i = 0; i < Valgrind::XmlProtocol::MemcheckErrorKindCount; ++i)
         defaultErrorKinds << i;
     map.insert(QLatin1String(visibleErrorKindsC), defaultErrorKinds);
 
