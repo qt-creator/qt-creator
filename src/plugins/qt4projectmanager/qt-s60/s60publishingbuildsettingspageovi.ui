@@ -14,37 +14,6 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="chooseBuildConfigLabel">
-     <property name="text">
-      <string>Choose a build configuration:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QComboBox" name="chooseBuildConfigDropDown"/>
-   </item>
-   <item row="0" column="2">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>252</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="0" colspan="3">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Only Qt versions above 4.6.3 are made available in this wizard.
-Previous Qt versions have limitations in building suitable SIS files.</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <spacer name="verticalSpacer_2">
      <property name="orientation">
@@ -58,6 +27,50 @@ Previous Qt versions have limitations in building suitable SIS files.</string>
      </property>
     </spacer>
    </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="buildConfigInfoLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="chooseToolchainDropDown">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="chooseBuildConfigLabel">
+     <property name="text">
+      <string>Choose a build configuration:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>252</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="chooseBuildConfigDropDown">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="chooseToolchainLabel">
      <property name="text">
@@ -65,10 +78,25 @@ Previous Qt versions have limitations in building suitable SIS files.</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="chooseToolchainDropDown"/>
-   </item>
    <item row="1" column="2">
+    <widget class="QLabel" name="toolchainInfoIconLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_error.png</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="4">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Only Qt versions above 4.6.3 are made available in this wizard.
+Previous Qt versions have limitations in building suitable SIS files.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
     <spacer name="horizontalSpacer_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -83,6 +111,8 @@ Previous Qt versions have limitations in building suitable SIS files.</string>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../projectexplorer/projectexplorer.qrc"/>
+ </resources>
  <connections/>
 </ui>
