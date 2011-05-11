@@ -58,8 +58,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
 
     connect(&d->m_winGuiProcess, SIGNAL(processMessage(QString, bool)),
         this, SLOT(appendProcessMessage(QString,bool)));
-    connect(&d->m_winGuiProcess, SIGNAL(receivedDebugOutput(QString, bool)),
-        this, SLOT(readWinDebugOutput(QString, bool)));
+    connect(&d->m_winGuiProcess, SIGNAL(receivedDebugOutput(QString)),
+        this, SLOT(readWinDebugOutput(QString)));
     connect(&d->m_winGuiProcess, SIGNAL(processFinished(int)),
             this, SLOT(processFinished(int)));
 }
@@ -132,10 +132,9 @@ void ApplicationLauncher::appendProcessMessage(const QString &output, bool onStd
     emit appendMessage(output, onStdErr ? Utils::ErrorMessageFormat : Utils::NormalMessageFormat);
 }
 
-void ApplicationLauncher::readWinDebugOutput(const QString &output,
-                                             bool onStdErr)
+void ApplicationLauncher::readWinDebugOutput(const QString &output)
 {
-    emit appendMessage(output, onStdErr ? Utils::StdErrFormat : Utils::StdOutFormat);
+    emit appendMessage(output, Utils::StdErrFormat);
 }
 
 void ApplicationLauncher::processStopped()

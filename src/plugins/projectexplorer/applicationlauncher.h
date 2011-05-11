@@ -78,7 +78,7 @@ private slots:
     void processStopped();
     void appendProcessMessage(const QString &output, bool onStdErr);
 #ifdef Q_OS_WIN
-    void readWinDebugOutput(const QString &output, bool onStdErr);
+    void readWinDebugOutput(const QString &output);
     void processFinished(int exitCode);
 #else
     void guiProcessError();

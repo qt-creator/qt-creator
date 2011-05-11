@@ -63,7 +63,7 @@ public:
 
 signals:
     void processMessage(const QString &error, bool isError);
-    void receivedDebugOutput(const QString &output, bool isError);
+    void receivedDebugOutput(const QString &output);
     void processFinished(int exitCode);
 
 private slots:

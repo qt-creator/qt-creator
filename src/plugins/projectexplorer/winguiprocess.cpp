@@ -151,7 +151,7 @@ void WinGuiProcess::run()
 void WinGuiProcess::checkDebugOutput(qint64 pid, const QString &message)
 {
     if (applicationPID() == pid)
-        emit receivedDebugOutput(message, false);
+        emit receivedDebugOutput(message);
 }
 
 void WinGuiProcess::done()
