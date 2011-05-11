@@ -256,12 +256,12 @@ ObjectValue *Link::importFileOrDirectory(Document::Ptr doc, const ImportInfo &im
   import Qt 4.6 as Xxx
   (import com.nokia.qt is the same as the ones above)
 */
-ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo, const QString &forcedPackageName)
+ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
 {
     Q_D(Link);
 
     ObjectValue *import = new ObjectValue(engine());
-    const QString packageName = forcedPackageName.isEmpty() ? Bind::toString(importInfo.ast()->importUri, '.') : forcedPackageName;
+    const QString packageName = Bind::toString(importInfo.ast()->importUri, '.');
     const ComponentVersion version = importInfo.version();
 
     bool importFound = false;
