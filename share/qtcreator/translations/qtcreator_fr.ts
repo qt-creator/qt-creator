@@ -2078,7 +2078,7 @@ Voulez vous les écraser ?</translation>
     </message>
     <message>
         <source>Plugin Details of %1</source>
-        <translatorcomment>Détail sur le plugin %1 ?</translatorcomment>
+        <translatorcomment>Détail sur le plug-in %1 ?</translatorcomment>
         <translation>Détails du plug-in %1</translation>
     </message>
     <message>
@@ -3127,7 +3127,7 @@ Voulez vous les écraser ?</translation>
 </source>
         <translation>/**************************************************************************
 ** Modèle de licence Qt Creator
-**   Mot-clés spéciaux: %USER% %DATE% %YEAR%
+**   Mots-clés spéciaux : %USER% %DATE% %YEAR%
 **   Variables d&apos;environnement : %$VARIABLE%
 **   Pour échaper un caractère pourcentage, utilisez &apos;%%&apos;.
 **************************************************************************/</translation>
@@ -3366,7 +3366,7 @@ Voulez vous les écraser ?</translation>
     <name>Debugger::Internal::AttachCoreDialog</name>
     <message>
         <source>Select Executable</source>
-        <translation>Selectionner l&apos;exécutable</translation>
+        <translation>Sélectionner l&apos;exécutable</translation>
     </message>
     <message>
         <source>Select Core File</source>
@@ -4091,11 +4091,11 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
     <name>Debugger::Internal::CdbSymbolPathListEditor</name>
     <message>
         <source>Symbol Server...</source>
-        <translation>Serveur de symbole...</translation>
+        <translation>Serveur de symboles...</translation>
     </message>
     <message>
         <source>Adds the Microsoft symbol server providing symbols for operating system libraries.Requires specifying a local cache directory.</source>
-        <translation>Ajoute le serveur de symboles Microsoft pour fournir les symboles des bilbiothèques du système d&apos;exploitation. Exige de spécifier un répertoire local de cache.</translation>
+        <translation>Ajoute le serveur de symboles Microsoft pour fournir les symboles des bibliothèques du système d&apos;exploitation. Exige de spécifier un répertoire local de cache.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -4774,7 +4774,7 @@ Voulez vous la terminer ?</translation>
     <message>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
         <translatorcomment>this string appear twice in the translation</translatorcomment>
-        <translation>La dernière fonction waitFor...() est arrivé à échéance. Le statut de QProcess est inchangé, vous pouvez essayer d&apos;appeler waitFor...() à nouveau.</translation>
+        <translation>La dernière fonction waitFor...() est arrivée à échéance. Le statut de QProcess est inchangé, vous pouvez essayer d&apos;appeler waitFor...() à nouveau.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the Gdb process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -4963,7 +4963,7 @@ L&apos;utilisation de gdb 6.7 ou supérieur est recommandée.</translation>
     </message>
     <message>
         <source>Disassembler failed: %1</source>
-        <translation>Désassemblage échoué : %1</translation>
+        <translation>Échec du désassemblage : %1</translation>
     </message>
     <message>
         <source>GDB I/O Error</source>
@@ -16441,7 +16441,7 @@ p, li { white-space: pre-wrap; }
 &lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows to send posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.&lt;/p&gt;
 &lt;p&gt;Note that the plugin will use this for posting as well as fetching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; permet d&apos;envoyer les snippets à des sous-domaines personnalisés (par ex. qtcreator.pastebin.com). Remplissez le préfixe désiré.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; permet d&apos;envoyer les snippets à des sous-domaines personnalisés (par exemple qtcreator.pastebin.com). Remplissez le préfixe désiré.&lt;/p&gt;
 &lt;p&gt;Notez que les plug-ins utiliseront ceci pour poster et récupérer les snippets.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -17773,11 +17773,11 @@ p, li { white-space: pre-wrap; }
     <name>CodePaster::CodePasterProtocol</name>
     <message>
         <source>No Server defined in the CodePaster preferences!</source>
-        <translation type="obsolete">Aucun serveur définit dans les préférences de CodePaster !</translation>
+        <translation type="obsolete">Aucun serveur définit dans les préférences CodePaster !</translation>
     </message>
     <message>
         <source>No Server defined in the CodePaster options!</source>
-        <translation type="obsolete">Aucun serveur définit dans les options de CodePaster !</translation>
+        <translation type="obsolete">Aucun serveur défini dans les options CodePaster !</translation>
     </message>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
@@ -17812,7 +17812,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).</source>
-        <translation type="obsolete">Note : spécifiez le nom d&apos;hôte du service CodePaster sans aucun protocol (e.g. codepaster.mycompany.com).</translation>
+        <translation type="obsolete">Note : spécifiez le nom d&apos;hôte du service CodePaster sans aucun protocole (par exemple, codepaster.mycompany.com).</translation>
     </message>
 </context>
 <context>
@@ -20463,7 +20463,7 @@ Vous pouvez choisir entre mettre les changements dans le stash ou de les abandon
     </message>
     <message>
         <source>Local filesystem:</source>
-        <translation>Système local  de fichier :</translation>
+        <translation>Système local de fichier :</translation>
     </message>
     <message>
         <source>e.g. https://[user[:pass]@]host[:port]/[path]</source>
