@@ -781,6 +781,15 @@ static bool isAllowedTransition(BreakpointState from, BreakpointState to)
     return false;
 }
 
+bool BreakHandler::isEngineRunning(BreakpointId id) const
+{
+    if (const DebuggerEngine *e = engine(id)) {
+        const DebuggerState state = e->state();
+        return state != DebuggerFinished && state != DebuggerNotReady;
+    }
+    return false;
+}
+
 void BreakHandler::setState(BreakpointId id, BreakpointState state)
 {
     Iterator it = m_storage.find(id);
@@ -1028,10 +1037,8 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
     // Ignore updates to the "real" line number while the debugger is
     // running, as this can be triggered by moving the breakpoint to
     // the next line that generated code.
-    if (it->response.number == 0) {
-        // FIXME: Do we need yet another data member?
+    if (!isEngineRunning(id))
         it->data.lineNumber = lineNumber;
-    }
     updateMarker(id);
     emit layoutChanged();
 }

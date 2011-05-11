@@ -168,6 +168,7 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
+    bool isEngineRunning(BreakpointId id) const;
     void setState(BreakpointId id, BreakpointState state);
     void loadBreakpoints();
     void saveBreakpoints();
