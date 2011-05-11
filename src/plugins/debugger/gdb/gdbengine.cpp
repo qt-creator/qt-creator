@@ -2198,6 +2198,8 @@ void GdbEngine::updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkp
             // fields named "addr" in the response and/or the address
             // is called <MULTIPLE>.
             //qDebug() << "ADDR: " << child.data() << (child.data() == "<MULTIPLE>");
+            if (child.data() == "<MULTIPLE>")
+                response.multiple = true;
             if (child.data().startsWith("0x")) {
                 response.address = child.toAddress();
             } else {
@@ -2380,8 +2382,13 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
             changeBreakpoint(id);
         } else {
             handler->notifyBreakpointInsertOk(id);
-            attemptAdjustBreakpointLocation(id);
         }
+        BreakpointResponse bresponse = handler->response(id);
+        if (bresponse.correctedLineNumber == 0)
+            attemptAdjustBreakpointLocation(id);
+        if (bresponse.multiple && bresponse.addresses.isEmpty())
+            postCommand("info break " + QByteArray::number(bresponse.number),
+                NeedsStop, CB(handleBreakListMultiple), QVariant(id));
     } else if (response.data.findChild("msg").data().contains("Unknown option")) {
         // Older version of gdb don't know the -a option to set tracepoints
         // ^error,msg="mi_cmd_break_insert: Unknown option ``a''"
