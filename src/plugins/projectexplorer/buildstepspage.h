@@ -77,11 +77,14 @@ public:
 
 private slots:
     void updateAddBuildStepMenu();
-    void addBuildStep();
+    void triggerAddBuildStep();
+    void addBuildStep(int pos);
     void updateSummary();
-    void stepMoveUp(int pos);
-    void stepMoveDown(int pos);
-    void stepRemove(int pos);
+    void triggerStepMoveUp(int pos);
+    void stepMoved(int from, int to);
+    void triggerStepMoveDown(int pos);
+    void triggerRemoveBuildStep(int pos);
+    void removeBuildStep(int pos);
 
 private:
     void setupUi();

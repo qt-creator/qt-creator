@@ -93,6 +93,10 @@ void BuildStepListWidget::init(BuildStepList *bsl)
 
     setupUi();
 
+    connect(bsl, SIGNAL(stepInserted(int)), this, SLOT(addBuildStep(int)));
+    connect(bsl, SIGNAL(stepRemoved(int)), this, SLOT(removeBuildStep(int)));
+    connect(bsl, SIGNAL(stepMoved(int,int)), this, SLOT(stepMoved(int,int)));
+
     foreach (const BuildStepsWidgetStruct &s, m_buildSteps) {
         delete s.widget;
         delete s.detailsWidget;
@@ -142,7 +146,7 @@ void BuildStepListWidget::updateAddBuildStepMenu()
         for (it = map.constBegin(); it != end; ++it) {
             QAction *action = menu->addAction(it.key());
             connect(action, SIGNAL(triggered()),
-                    this, SLOT(addBuildStep()));
+                    this, SLOT(triggerAddBuildStep()));
             m_addBuildStepHash.insert(action, it.value());
         }
     }
@@ -214,57 +218,69 @@ void BuildStepListWidget::addBuildStepWidget(int pos, BuildStep *step)
             m_removeMapper, SLOT(map()));
 }
 
-void BuildStepListWidget::addBuildStep()
+void BuildStepListWidget::triggerAddBuildStep()
 {
     if (QAction *action = qobject_cast<QAction *>(sender())) {
         QPair<QString, IBuildStepFactory *> pair = m_addBuildStepHash.value(action);
         BuildStep *newStep = pair.second->create(m_buildStepList, pair.first);
         int pos = m_buildStepList->count();
         m_buildStepList->insertStep(pos, newStep);
-
-        addBuildStepWidget(pos, newStep);
-        const BuildStepsWidgetStruct s = m_buildSteps.at(pos);
-        s.detailsWidget->setState(Utils::DetailsWidget::Expanded);
     }
+}
+
+void BuildStepListWidget::addBuildStep(int pos)
+{
+    BuildStep *newStep = m_buildStepList->at(pos);
+    addBuildStepWidget(pos, newStep);
+    const BuildStepsWidgetStruct s = m_buildSteps.at(pos);
+    s.detailsWidget->setState(Utils::DetailsWidget::Expanded);
 
     m_noStepsLabel->setVisible(false);
     updateBuildStepButtonsState();
 }
 
-void BuildStepListWidget::stepMoveUp(int pos)
+void BuildStepListWidget::triggerStepMoveUp(int pos)
 {
     m_buildStepList->moveStepUp(pos);
+}
 
-    m_vbox->insertWidget(pos - 1, m_buildSteps.at(pos).detailsWidget);
+void BuildStepListWidget::stepMoved(int from, int to)
+{
+    m_vbox->insertWidget(to, m_buildSteps.at(from).detailsWidget);
 
-    m_buildSteps.swap(pos - 1, pos);
+    Internal::BuildStepsWidgetStruct data = m_buildSteps.at(from);
+    m_buildSteps.removeAt(from);
+    m_buildSteps.insert(to, data);
 
     updateBuildStepButtonsState();
 }
 
-void BuildStepListWidget::stepMoveDown(int pos)
+void BuildStepListWidget::triggerStepMoveDown(int pos)
 {
-    stepMoveUp(pos + 1);
+    triggerStepMoveUp(pos + 1);
 }
 
-void BuildStepListWidget::stepRemove(int pos)
+void BuildStepListWidget::triggerRemoveBuildStep(int pos)
 {
-    if (m_buildStepList->removeStep(pos)) {
-        BuildStepsWidgetStruct s = m_buildSteps.at(pos);
-        delete s.widget;
-        delete s.detailsWidget;
-        m_buildSteps.removeAt(pos);
-
-        updateBuildStepButtonsState();
-
-        bool hasSteps = m_buildStepList->isEmpty();
-        m_noStepsLabel->setVisible(hasSteps);
-    } else {
+    if (!m_buildStepList->removeStep(pos)) {
         QMessageBox::warning(Core::ICore::instance()->mainWindow(),
                              tr("Removing Step failed"),
                              tr("Cannot remove build step while building"),
                              QMessageBox::Ok, QMessageBox::Ok);
     }
+}
+
+void BuildStepListWidget::removeBuildStep(int pos)
+{
+    BuildStepsWidgetStruct s = m_buildSteps.at(pos);
+    delete s.widget;
+    delete s.detailsWidget;
+    m_buildSteps.removeAt(pos);
+
+    updateBuildStepButtonsState();
+
+    bool hasSteps = m_buildStepList->isEmpty();
+    m_noStepsLabel->setVisible(hasSteps);
 }
 
 void BuildStepListWidget::setupUi()
@@ -274,13 +290,13 @@ void BuildStepListWidget::setupUi()
 
     m_upMapper = new QSignalMapper(this);
     connect(m_upMapper, SIGNAL(mapped(int)),
-            this, SLOT(stepMoveUp(int)));
+            this, SLOT(triggerStepMoveUp(int)));
     m_downMapper = new QSignalMapper(this);
     connect(m_downMapper, SIGNAL(mapped(int)),
-            this, SLOT(stepMoveDown(int)));
+            this, SLOT(triggerStepMoveDown(int)));
     m_removeMapper = new QSignalMapper(this);
     connect(m_removeMapper, SIGNAL(mapped(int)),
-            this, SLOT(stepRemove(int)));
+            this, SLOT(triggerRemoveBuildStep(int)));
 
     m_vbox = new QVBoxLayout(this);
     m_vbox->setContentsMargins(0, 0, 0, 0);
