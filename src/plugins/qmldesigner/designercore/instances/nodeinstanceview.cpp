@@ -1084,7 +1084,7 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
     }
 
     if (!informationChangedVector.isEmpty())
-        emitInstanceInformationsChange(informationChangedVector.toList().toVector());
+        emitInstanceInformationsChange(informationChangedVector);
 }
 
 QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
