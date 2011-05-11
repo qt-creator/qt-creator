@@ -160,7 +160,7 @@ private slots:
     void postCommandSequence(unsigned mask);
     void operateByInstructionTriggered(bool);
 
-    void consoleStubMessage(const QString &, bool);
+    void consoleStubError(const QString &);
     void consoleStubProcessStarted();
     void consoleStubExited();
 

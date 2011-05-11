@@ -614,8 +614,8 @@ bool CdbEngine::startConsole(const DebuggerStartParameters &sp, QString *errorMe
         qDebug("startConsole %s", qPrintable(sp.executable));
     m_consoleStub.reset(new Utils::ConsoleProcess);
     m_consoleStub->setMode(Utils::ConsoleProcess::Suspend);
-    connect(m_consoleStub.data(), SIGNAL(processMessage(QString, bool)),
-            SLOT(consoleStubMessage(QString, bool)));
+    connect(m_consoleStub.data(), SIGNAL(processError(QString)),
+            SLOT(consoleStubError(QString)));
     connect(m_consoleStub.data(), SIGNAL(processStarted()),
             SLOT(consoleStubProcessStarted()));
     connect(m_consoleStub.data(), SIGNAL(wrapperStopped()),
@@ -630,22 +630,18 @@ bool CdbEngine::startConsole(const DebuggerStartParameters &sp, QString *errorMe
     return true;
 }
 
-void CdbEngine::consoleStubMessage(const QString &msg, bool isError)
+void CdbEngine::consoleStubError(const QString &msg)
 {
     if (debug)
-        qDebug("consoleStubProcessMessage() in %s error=%d %s", stateName(state()), isError, qPrintable(msg));
-    if (isError) {
-        if (state() == EngineSetupRequested) {
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
-            notifyEngineSetupFailed();
-        } else {
-            STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineIll")
-            notifyEngineIll();
-        }
-        nonModalMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
+        qDebug("consoleStubProcessMessage() in %s %s", stateName(state()), qPrintable(msg));
+    if (state() == EngineSetupRequested) {
+        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
+        notifyEngineSetupFailed();
     } else {
-        showMessage(msg, AppOutput);
+        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineIll")
+        notifyEngineIll();
     }
+    nonModalMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
 }
 
 void CdbEngine::consoleStubProcessStarted()

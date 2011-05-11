@@ -83,13 +83,13 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         pcmd = program;
     } else {
         if (perr != QtcProcess::FoundMeta) {
-            emit processMessage(tr("Quoting error in command."), true);
+            emit processError(tr("Quoting error in command."));
             return false;
         }
         if (d->m_mode == Debug) {
             // FIXME: QTCREATORBUG-2809
-            emit processMessage(tr("Debugging complex shell commands in a terminal"
-                                   " is currently not supported."), true);
+            emit processError(tr("Debugging complex shell commands in a terminal"
+                                 " is currently not supported."));
             return false;
         }
         pcmd = QLatin1String("/bin/sh");
@@ -100,15 +100,15 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     QStringList xtermArgs = QtcProcess::prepareArgs(terminalEmulator(d->m_settings), &qerr,
                                                     &d->m_environment, &d->m_workingDir);
     if (qerr != QtcProcess::SplitOk) {
-        emit processMessage(qerr == QtcProcess::BadQuoting
-                            ? tr("Quoting error in terminal command.")
-                            : tr("Terminal command may not be a shell command."), true);
+        emit processError(qerr == QtcProcess::BadQuoting
+                          ? tr("Quoting error in terminal command.")
+                          : tr("Terminal command may not be a shell command."));
         return false;
     }
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processMessage(msgCommChannelFailed(err), true);
+        emit processError(msgCommChannelFailed(err));
         return false;
     }
 
@@ -117,7 +117,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
             stubServerShutdown();
-            emit processMessage(msgCannotCreateTempFile(d->m_tempFile->errorString()), true);
+            emit processError(msgCannotCreateTempFile(d->m_tempFile->errorString()));
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
@@ -129,7 +129,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         }
         if (d->m_tempFile->write(contents) != contents.size() || !d->m_tempFile->flush()) {
             stubServerShutdown();
-            emit processMessage(msgCannotWriteTempFile(), true);
+            emit processError(msgCannotWriteTempFile());
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
@@ -153,7 +153,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     d->m_process.start(xterm, xtermArgs);
     if (!d->m_process.waitForStarted()) {
         stubServerShutdown();
-        emit processMessage(tr("Cannot start the terminal emulator '%1'.").arg(xterm), true);
+        emit processError(tr("Cannot start the terminal emulator '%1'.").arg(xterm));
         delete d->m_tempFile;
         d->m_tempFile = 0;
         return false;
@@ -234,9 +234,9 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = d->m_stubSocket->readLine();
         out.chop(1); // \n
         if (out.startsWith("err:chdir ")) {
-            emit processMessage(msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())), true);
+            emit processError(msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emit processMessage(msgCannotExecute(d->m_executable, errorMsg(out.mid(9).toInt())), true);
+            emit processError(msgCannotExecute(d->m_executable, errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("pid ")) {
             // Will not need it any more
             delete d->m_tempFile;
@@ -255,7 +255,7 @@ void ConsoleProcess::readStubOutput()
             d->m_appPid = 0;
             emit processStopped();
         } else {
-            emit processMessage(msgUnexpectedOutput(out), true);
+            emit processError(msgUnexpectedOutput(out));
             d->m_process.terminate();
             break;
         }

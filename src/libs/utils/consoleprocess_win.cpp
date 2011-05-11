@@ -82,7 +82,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
 
     const QString err = stubServerListen();
     if (!err.isEmpty()) {
-        emit processMessage(msgCommChannelFailed(err), true);
+        emit processError(msgCommChannelFailed(err));
         return false;
     }
 
@@ -91,7 +91,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
             stubServerShutdown();
-            emit processMessage(msgCannotCreateTempFile(d->m_tempFile->errorString()), true);
+            emit processError(msgCannotCreateTempFile(d->m_tempFile->errorString()));
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
@@ -106,7 +106,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         out.flush();
         if (out.status() != QTextStream::Ok) {
             stubServerShutdown();
-            emit processMessage(msgCannotWriteTempFile(), true);
+            emit processError(msgCannotWriteTempFile());
             delete d->m_tempFile;
             d->m_tempFile = 0;
             return false;
@@ -147,7 +147,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         delete d->m_tempFile;
         d->m_tempFile = 0;
         stubServerShutdown();
-        emit processMessage(tr("The process '%1' could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())), true);
+        emit processError(tr("The process '%1' could not be started: %2").arg(cmdLine, winErrorMessage(GetLastError())));
         return false;
     }
 
@@ -204,9 +204,9 @@ void ConsoleProcess::readStubOutput()
         QByteArray out = d->m_stubSocket->readLine();
         out.chop(2); // \r\n
         if (out.startsWith("err:chdir ")) {
-            emit processMessage(msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())), true);
+            emit processError(msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emit processMessage(msgCannotExecute(d->m_executable, winErrorMessage(out.mid(9).toInt())), true);
+            emit processError(msgCannotExecute(d->m_executable, winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("thread ")) { // Windows only
             d->m_appMainThreadId = out.mid(7).toLongLong();
         } else if (out.startsWith("pid ")) {
@@ -219,8 +219,8 @@ void ConsoleProcess::readStubOutput()
                     SYNCHRONIZE | PROCESS_QUERY_INFORMATION | PROCESS_TERMINATE,
                     FALSE, d->m_appPid);
             if (d->m_hInferior == NULL) {
-                emit processMessage(tr("Cannot obtain a handle to the inferior: %1")
-                                    .arg(winErrorMessage(GetLastError())), true);
+                emit processError(tr("Cannot obtain a handle to the inferior: %1")
+                                  .arg(winErrorMessage(GetLastError())));
                 // Uhm, and now what?
                 continue;
             }
@@ -228,7 +228,7 @@ void ConsoleProcess::readStubOutput()
             connect(d->inferiorFinishedNotifier, SIGNAL(activated(HANDLE)), SLOT(inferiorExited()));
             emit processStarted();
         } else {
-            emit processMessage(msgUnexpectedOutput(out), true);
+            emit processError(msgUnexpectedOutput(out));
             TerminateProcess(d->m_pid->hProcess, (unsigned)-1);
             break;
         }
@@ -249,8 +249,8 @@ void ConsoleProcess::inferiorExited()
     DWORD chldStatus;
 
     if (!GetExitCodeProcess(d->m_hInferior, &chldStatus))
-        emit processMessage(tr("Cannot obtain exit status from inferior: %1")
-                            .arg(winErrorMessage(GetLastError())), true);
+        emit processError(tr("Cannot obtain exit status from inferior: %1")
+                          .arg(winErrorMessage(GetLastError())));
     cleanupInferior();
     d->m_appStatus = QProcess::NormalExit;
     d->m_appCode = chldStatus;

@@ -103,8 +103,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
 #ifdef Q_OS_UNIX
     d->m_consoleProcess.setSettings(Core::ICore::instance()->settings());
 #endif
-    connect(&d->m_consoleProcess, SIGNAL(processMessage(QString,bool)),
-            this, SLOT(appendProcessMessage(QString,bool)));
+    connect(&d->m_consoleProcess, SIGNAL(processError(QString)),
+            this, SLOT(consoleProcessError(QString)));
     connect(&d->m_consoleProcess, SIGNAL(processStopped()),
             this, SLOT(processStopped()));
 
@@ -116,11 +116,6 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
 
 ApplicationLauncher::~ApplicationLauncher()
 {
-}
-
-void ApplicationLauncher::appendProcessMessage(const QString &output, bool onStdErr)
-{
-    emit appendMessage(output, onStdErr ? Utils::ErrorMessageFormat : Utils::NormalMessageFormat);
 }
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)
@@ -221,6 +216,11 @@ void ApplicationLauncher::guiProcessError()
     }
     emit appendMessage(error + QLatin1Char('\n'), Utils::ErrorMessageFormat);
     emit processExited(d->m_guiProcess.exitCode());
+}
+
+void ApplicationLauncher::consoleProcessError(const QString &error)
+{
+    emit appendMessage(error + QLatin1Char('\n'), Utils::ErrorMessageFormat);
 }
 
 void ApplicationLauncher::readStandardOutput()

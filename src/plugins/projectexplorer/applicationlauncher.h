@@ -78,8 +78,8 @@ signals:
 
 private slots:
     void processStopped();
-    void appendProcessMessage(const QString &output, bool onStdErr);
     void guiProcessError();
+    void consoleProcessError(const QString &error);
     void readStandardOutput();
     void readStandardError();
 #ifdef Q_OS_WIN

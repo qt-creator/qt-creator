@@ -74,7 +74,7 @@ private:
 
     Q_SLOT void handleInferiorSetupOk();
     Q_SLOT void stubExited();
-    Q_SLOT void stubMessage(const QString &msg, bool isError);
+    Q_SLOT void stubError(const QString &msg);
 
     Utils::ConsoleProcess m_stubProc;
     LocalGdbProcess m_gdbProc;

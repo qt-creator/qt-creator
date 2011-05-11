@@ -95,7 +95,7 @@ public:
 #endif
 
 signals:
-    void processMessage(const QString &message, bool isError);
+    void processError(const QString &error);
     // These reflect the state of the actual client process
     void processStarted();
     void processStopped();
