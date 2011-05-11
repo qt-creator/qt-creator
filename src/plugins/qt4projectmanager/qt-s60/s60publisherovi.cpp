@@ -406,6 +406,7 @@ void S60PublisherOvi::endBuild(int result)
         emit progressReport(tr(" Sis file not created due to previous errors\n"), m_errorColor);
     }
     emit progressReport(tr("Done!\n"), m_commandColor);
+    emit finished();
 }
 
 QString S60PublisherOvi::createdSisFileContainingFolder()
@@ -454,6 +455,7 @@ void S60PublisherOvi::runStep(int result, const QString& buildStep, const QStrin
          currProc->start(command);
     } else {
         emit progressReport(tr("Sis file not created due to previous errors\n") , m_errorColor);
+        emit finished();
     }
 }
 

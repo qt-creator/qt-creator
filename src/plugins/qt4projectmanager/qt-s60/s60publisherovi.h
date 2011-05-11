@@ -139,6 +139,7 @@ public:
 signals:
     void progressReport(const QString& status, QColor c);
     void succeeded();
+    void finished();
 
 public slots:
     void runQMake();
