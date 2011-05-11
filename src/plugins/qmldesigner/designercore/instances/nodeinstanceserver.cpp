@@ -535,7 +535,7 @@ void NodeInstanceServer::removeAllInstanceRelationships()
 {
     // prevent destroyed() signals calling back
 
-    foreach (ServerNodeInstance instance, m_objectInstanceHash.values()) {
+    foreach (ServerNodeInstance instance, m_objectInstanceHash) {
         if (instance.isValid())
             instance.setId(QString());
     }
@@ -547,7 +547,7 @@ void NodeInstanceServer::removeAllInstanceRelationships()
     rootNodeInstance().makeInvalid();
 
 
-    foreach (ServerNodeInstance instance, m_objectInstanceHash.values()) {
+    foreach (ServerNodeInstance instance, m_objectInstanceHash) {
         if (instance.internalObject())
             instance.internalObject()->disconnect();
         instance.makeInvalid();
@@ -601,8 +601,7 @@ void NodeInstanceServer::removeFilePropertyFromFileSystemWatcher(QObject *object
 void NodeInstanceServer::refreshLocalFileProperty(const QString &path)
 {
     if (m_fileSystemWatcherHash.contains(path)) {
-        QList<ObjectPropertyPair> objectPropertyPairList = m_fileSystemWatcherHash.values();
-        foreach(const ObjectPropertyPair &objectPropertyPair, objectPropertyPairList) {
+        foreach(const ObjectPropertyPair &objectPropertyPair, m_fileSystemWatcherHash) {
             QObject *object = objectPropertyPair.first.data();
             QString propertyName = objectPropertyPair.second;
 

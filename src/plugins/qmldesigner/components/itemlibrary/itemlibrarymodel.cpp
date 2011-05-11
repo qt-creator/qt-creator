@@ -301,7 +301,7 @@ bool ItemLibrarySectionModel::updateSectionVisibility(const QString &searchText,
 
 void ItemLibrarySectionModel::updateItemIconSize(const QSize &itemIconSize)
 {
-    foreach (ItemLibraryItemModel *item, m_sectionEntries.elements().values()) {
+    foreach (ItemLibraryItemModel *item, m_sectionEntries.elements()) {
         item->setItemIconSize(itemIconSize);
     }
 }
