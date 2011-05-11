@@ -2613,7 +2613,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
     QRegExp re(_("MULTIPLE.*(0x[0-9a-f]+) in (.*)\\s+at (.*):([\\d]+)([^\\d]|$)"));
     re.setMinimal(true);
 
-    BreakpointResponse response;
+    BreakpointResponse response = breakHandler()->response(id);
     response.fileName = _("<MULTIPLE>");
 
     QString requestedFileName = breakHandler()->fileName(id);

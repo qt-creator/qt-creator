@@ -1757,7 +1757,6 @@ void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileNam
         data.lineNumber = lineNumber;
         handler->appendBreakpoint(data);
     }
-    synchronizeBreakpoints();
 }
 
 void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address)
@@ -1772,7 +1771,6 @@ void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address)
         data.address = address;
         handler->appendBreakpoint(data);
     }
-    synchronizeBreakpoints();
 }
 
 void DebuggerPluginPrivate::requestMark(ITextEditor *editor, int lineNumber)
