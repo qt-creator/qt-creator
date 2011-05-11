@@ -1,5 +1,7 @@
-QTC_SOURCE = C:/Work/QtCreator
-QTC_BUILD = C:/Work/QtCreator/build
+#QTC_SOURCE = C:/Work/QtCreator
+#QTC_BUILD = C:/Work/QtCreator/build
+QTC_SOURCE = ../../../..
+QTC_BUILD = ../../../..
 DEFINES += FIND_LIBRARY
 
 TEMPLATE = lib

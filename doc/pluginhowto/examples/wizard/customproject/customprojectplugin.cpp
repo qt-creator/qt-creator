@@ -47,20 +47,15 @@ CustomProjectPlugin::CustomProjectPlugin()
     // Do nothing
 }
 
-CustomProjectPlugin::~CustomProjectPlugin()
-{
-    // Do notning
-}
-
 void CustomProjectPlugin::extensionsInitialized()
 {
     // Do nothing
 }
 
-bool CustomProjectPlugin::initialize(const QStringList& args, QString *errMsg)
+bool CustomProjectPlugin::initialize(const QStringList &args, QString *errorMessage)
 {
     Q_UNUSED(args);
-    Q_UNUSED(errMsg);
+    Q_UNUSED(errorMessage);
 
     addAutoReleasedObject(new CustomProjectWizard);
 

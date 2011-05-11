@@ -46,10 +46,6 @@ CustomProjectWizard::CustomProjectWizard()
 {
 }
 
-CustomProjectWizard::~CustomProjectWizard()
-{
-}
-
 Core::IWizard::Kind CustomProjectWizard::kind() const
 {
     return IWizard::ProjectWizard;
@@ -65,9 +61,9 @@ QString CustomProjectWizard::description() const
     return "A custom project";
 }
 
-QString CustomProjectWizard::name() const
+QString CustomProjectWizard::displayName() const
 {
-    return "CustomProject";
+    return tr("CustomProject");
 }
 
 QString CustomProjectWizard::category() const
@@ -80,10 +76,9 @@ QString CustomProjectWizard::trCategory() const
     return tr("FooCompanyInc");
 }
 
-QStringList CustomProjectWizard::runWizard(const QString &path, QWidget *parent)
+void CustomProjectWizard::runWizard(const QString &path, QWidget *parent)
 {
     Q_UNUSED(path);
     Q_UNUSED(parent);
     QMessageBox::information(parent, "Custom Wizard Dialog", "Hi there!");
-    return QStringList();
 }

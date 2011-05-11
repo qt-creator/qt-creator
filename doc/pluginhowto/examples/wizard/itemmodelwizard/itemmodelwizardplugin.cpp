@@ -38,7 +38,9 @@
 
 #include "itemmodelwizardplugin.h"
 #include "modelclasswizard.h"
+
 #include <QApplication>
+#include <QIcon>
 #include <QtPlugin>
 #include <QStringList>
 
@@ -57,10 +59,10 @@ void ItemModelWizardPlugin::extensionsInitialized()
     // Do nothing
 }
 
-bool ItemModelWizardPlugin::initialize(const QStringList& args, QString *errMsg)
+bool ItemModelWizardPlugin::initialize(const QStringList &args, QString *errorMessage)
 {
     Q_UNUSED(args);
-    Q_UNUSED(errMsg);
+    Q_UNUSED(errorMessage);
     Core::BaseFileWizardParameters params;
     params.setKind(Core::IWizard::ClassWizard);
     params.setIcon(qApp->windowIcon());

@@ -48,12 +48,13 @@ class SearchResultWindow;
 struct SearchResultItem;
 }
 
+QT_BEGIN_NAMESPACE
 class QKeySequence;
 class QWidget;
+QT_END_NAMESPACE
 
+class HeaderFilterPrivate;
 
-
-struct HeaderFilterData;
 class HeaderFilter : public Find::IFindFilter
 {
     Q_OBJECT
@@ -61,19 +62,22 @@ class HeaderFilter : public Find::IFindFilter
 public:
     HeaderFilter();
     ~HeaderFilter();
+
     QString id() const;
-    QString name() const;
     bool isEnabled() const;
     QKeySequence defaultShortcut() const;
-    void findAll(const QString &txt,QTextDocument::FindFlags findFlags);
+    void findAll(const QString &text, Find::FindFlags findFlags);
     QWidget *createConfigWidget();
+    QString displayName() const;
+    bool canCancel() const;
+    void cancel();
 
 protected slots:
     void displayResult(int index);
     void openEditor(const Find::SearchResultItem &item);
 
 private:
-    HeaderFilterData *d;
+    HeaderFilterPrivate *d;
 };
 
 

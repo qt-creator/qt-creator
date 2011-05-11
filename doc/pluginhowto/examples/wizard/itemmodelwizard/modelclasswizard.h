@@ -41,6 +41,7 @@
 
 #include <coreplugin/basefilewizard.h>
 
+#include <QMap>
 
 class ModelClassWizard : public Core::BaseFileWizard
 {
@@ -48,17 +49,15 @@ class ModelClassWizard : public Core::BaseFileWizard
 
 public:
     explicit ModelClassWizard(const Core::BaseFileWizardParameters &parameters, QObject *parent = 0);
-    ~ModelClassWizard();
 
-    QWizard *createWizardDialog(QWidget *parent,
-                                const QString &defaultPath,
-                                const WizardPageList &extensionPages) const;
+    QWizard *createWizardDialog(QWidget *parent, const QString &defaultPath,
+                    const WizardPageList &extensionPages) const;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 
 private:
-    QString readFile(const QString& fileName,
-                     const QMap<QString,QString>& replacementMap) const;
+    QString readFile(const QString &fileName,
+                     const QMap<QString, QString> &replacementMap) const;
 };
 
 #endif // MODELCLASSWIZARD_H

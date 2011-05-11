@@ -37,59 +37,62 @@
 ****************************************************************************/
 
 #include "headerfilter.h"
-#include <projectexplorer/projectexplorer.h>
+
+#include <extensionsystem/pluginmanager.h>
+#include <find/searchresultwindow.h>
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
-#include <extensionsystem/pluginmanager.h>
-#include <utils/filesearch.h>
-#include<QFutureWatcher>
-#include<QLabel>
-#include <find/searchresultwindow.h>
 #include <texteditor/basetexteditor.h>
+#include <utils/filesearch.h>
 
+#include <QFutureWatcher>
+#include <QLabel>
 
 
 using namespace Core;
 using namespace Utils;
 
 
-struct HeaderFilterData
- {
-    HeaderFilterData() : m_projectPlugin(0), m_searchResultWindow(0){}
-    QFutureWatcher<FileSearchResult> watcher;
+class HeaderFilterPrivate
+{
+public:
+    HeaderFilterPrivate()
+        : m_projectPlugin(0), m_searchResultWindow(0)
+    {}
 
-    ProjectExplorer::ProjectExplorerPlugin* projectExplorer()
+    ProjectExplorer::ProjectExplorerPlugin *projectExplorer()
      {
-         if(m_projectPlugin)
+         if (m_projectPlugin)
              return m_projectPlugin;
 
-         ExtensionSystem::PluginManager* pm = ExtensionSystem::PluginManager::instance();
+         ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
          m_projectPlugin = pm->getObject<ProjectExplorer::ProjectExplorerPlugin>();
          return m_projectPlugin;
      }
 
     // Method to search and return the search window
-
-    Find::SearchResultWindow* searchResultWindow()
+    Find::SearchResultWindow *searchResultWindow()
     {
-        if(m_searchResultWindow)
+        if (m_searchResultWindow)
             return m_searchResultWindow;
 
-        ExtensionSystem::PluginManager* pm = ExtensionSystem::PluginManager::instance();
+        ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
         m_searchResultWindow = pm->getObject<Find::SearchResultWindow>();
         return m_searchResultWindow;
     }
 
- private:
-     ProjectExplorer::ProjectExplorerPlugin* m_projectPlugin;
-     Find::SearchResultWindow *m_searchResultWindow;
+    QFutureWatcher<FileSearchResult> watcher;
 
+private:
+    ProjectExplorer::ProjectExplorerPlugin *m_projectPlugin;
+    Find::SearchResultWindow *m_searchResultWindow;
 };
 
 HeaderFilter::HeaderFilter()
 {
-    d = new HeaderFilterData;
+    d = new HeaderFilterPrivate;
     d->watcher.setPendingResultsLimit(1);
 
     // displayResult(int) is called when every a new
@@ -107,18 +110,24 @@ QString HeaderFilter::id() const
     return "HeaderFilter";
 }
 
-QString HeaderFilter::name() const
+QString HeaderFilter::displayName() const
 {
     return tr("Header Filter");
 }
 
+bool HeaderFilter::canCancel() const
+{
+    return false;
+}
+
+void HeaderFilter::cancel()
+{
+}
+
 bool HeaderFilter::isEnabled() const
 {
-    QList<ProjectExplorer::Project*> projects = d->projectExplorer()->session()->projects();
-    if(projects.count())
-        return true;
-
-    return false;
+    QList<ProjectExplorer::Project *> projects = d->projectExplorer()->session()->projects();
+    return !projects.isEmpty();
 }
 
 QKeySequence HeaderFilter::defaultShortcut() const
@@ -128,31 +137,30 @@ QKeySequence HeaderFilter::defaultShortcut() const
 
 QWidget *HeaderFilter::createConfigWidget()
 {
-    return (new QLabel("This is a header filter"));
+    return new QLabel("This is a header filter");
 }
 
-
-void HeaderFilter::findAll(const QString &text,QTextDocument::FindFlags findFlags)
- {
+void HeaderFilter::findAll(const QString &text, Find::FindFlags findFlags)
+{
     // Fetch a list of all open projects
-    QList<ProjectExplorer::Project*> projects = d->projectExplorer()->session()->projects();
+    QList<ProjectExplorer::Project *> projects = d->projectExplorer()->session()->projects();
 
     // Make a list of files in each project
     QStringList files;
-    Q_FOREACH(ProjectExplorer::Project* project, projects)
-            files += project->files(ProjectExplorer::Project::AllFiles);
+    foreach (ProjectExplorer::Project *project, projects)
+        files += project->files(ProjectExplorer::Project::AllFiles);
 
     // Remove duplicates
     files.removeDuplicates();
 
     //------------------------------------------------------------
     // Begin searching
-    QString includeline = "#include <" + text + ">";
+    QString includeline = "#include <" + text + '>';
     Find::SearchResult *result = d->searchResultWindow()->startNewSearch();
 
     d->watcher.setFuture(QFuture<FileSearchResult>());
 
-   //When result gets activated it invokes the openEditor function
+    // When result gets activated it invokes the openEditor function
     connect(result, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
 

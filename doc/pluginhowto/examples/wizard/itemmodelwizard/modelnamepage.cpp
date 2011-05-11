@@ -37,30 +37,24 @@
 ****************************************************************************/
 
 #include "modelnamepage.h"
-#include "ui_modelnamepage.h"
 
-ModelNamePage::ModelNamePage(QWidget *parent) :
-QWizardPage(parent)
+ModelNamePage::ModelNamePage(QWidget *parent)
+    : QWizardPage(parent)
 {
     setTitle("Enter model class information");
     setSubTitle("The header and source file names will be derived from the class name");
     ui.setupUi(this);
 }
 
-ModelNamePage::~ModelNamePage()
-{
-
-}
-
-void ModelNamePage::setPath(const QString& path)
+void ModelNamePage::setPath(const QString &path)
 {
     this->path = path;
 }
 
-void ModelNamePage::on_txtModelClass_textEdited(const QString& txt)
+void ModelNamePage::on_txtModelClass_textEdited(const QString &text)
 {
-    ui.txtHeaderFile->setText(txt + ".h");
-    ui.txtImplFile->setText(txt + ".cpp");
+    ui.txtHeaderFile->setText(text + ".h");
+    ui.txtImplFile->setText(text + ".cpp");
 }
 
 ModelClassParameters ModelNamePage::parameters() const

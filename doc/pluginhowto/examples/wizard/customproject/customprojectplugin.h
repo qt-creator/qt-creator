@@ -45,10 +45,9 @@ class CustomProjectPlugin : public ExtensionSystem::IPlugin
 {
 public:
     CustomProjectPlugin();
-    ~CustomProjectPlugin();
 
     void extensionsInitialized();
-    bool initialize(const QStringList & arguments, QString * errorString);
+    bool initialize(const QStringList &arguments, QString *errorString);
     void shutdown();
 };
 

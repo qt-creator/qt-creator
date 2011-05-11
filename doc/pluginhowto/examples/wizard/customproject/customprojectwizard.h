@@ -45,15 +45,14 @@ class CustomProjectWizard : public Core::IWizard
 {
 public:
     CustomProjectWizard();
-    ~CustomProjectWizard();
 
     Core::IWizard::Kind kind() const;
     QIcon icon() const;
     QString description() const;
-    QString name() const;
+    QString displayName() const;
     QString category() const;
     QString trCategory() const;
-    QStringList runWizard(const QString &path, QWidget *parent);
+    void runWizard(const QString &path, QWidget *parent);
 };
 
 #endif // CUSTOMPROJECTWIZARD_H

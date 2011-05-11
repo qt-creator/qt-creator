@@ -48,7 +48,7 @@ public:
     ~ItemModelWizardPlugin();
 
     void extensionsInitialized();
-    bool initialize(const QStringList & arguments, QString * errorString);
+    bool initialize(const QStringList &arguments, QString *errorString);
     void shutdown();
 };
 

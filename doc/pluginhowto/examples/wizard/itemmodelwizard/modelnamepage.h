@@ -39,30 +39,31 @@
 #ifndef MODELNAMEPAGE_H
 #define MODELNAMEPAGE_H
 
-#include <QWizardPage>
-#include "ui_ModelNamePage.h"
-struct ModelClassParameters
- {
-     QString className;
-     QString headerFile;
-     QString sourceFile;
-     QString baseClass;
-     QString path;
- };
+#include "ui_modelnamepage.h"
 
-class ModelNamePage :  public QWizardPage
+#include <QWizardPage>
+
+struct ModelClassParameters
+{
+    QString className;
+    QString headerFile;
+    QString sourceFile;
+    QString baseClass;
+    QString path;
+};
+
+class ModelNamePage : public QWizardPage
 {
     Q_OBJECT
 
 public:
     ModelNamePage(QWidget *parent = 0);
-    ~ModelNamePage();
-    void setPath(const QString& path);
+
+    void setPath(const QString &path);
     ModelClassParameters parameters() const;
     
 private slots:
-    void on_txtModelClass_textEdited(const QString& txt);
-
+    void on_txtModelClass_textEdited(const QString &text);
 
 private:
     Ui::ModelNamePage ui;
