@@ -304,7 +304,7 @@ void DebuggerRunControl::showMessage(const QString &msg, int channel)
             appendMessage(msg, Utils::StdErrFormatSameLine);
             break;
         case AppStuff:
-            appendMessage(msg, Utils::NormalMessageFormat);
+            appendMessage(msg, Utils::DebugFormat);
             break;
     }
 }

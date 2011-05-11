@@ -134,7 +134,7 @@ void ApplicationLauncher::appendProcessMessage(const QString &output, bool onStd
 
 void ApplicationLauncher::readWinDebugOutput(const QString &output)
 {
-    emit appendMessage(output, Utils::StdErrFormat);
+    emit appendMessage(output, Utils::DebugFormat);
 }
 
 void ApplicationLauncher::processStopped()

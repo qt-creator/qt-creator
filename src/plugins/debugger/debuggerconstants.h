@@ -167,9 +167,9 @@ enum LogChannel
     LogTime,                 // Used for time stamp messages
     LogDebug,
     LogMisc,
-    AppOutput,
-    AppError,
-    AppStuff,
+    AppOutput,               // stdout
+    AppError,                // stderr
+    AppStuff,                // (possibly) windows debug channel
     StatusBar,                // LogStatus and also put to the status bar
     ScriptConsoleOutput
 };

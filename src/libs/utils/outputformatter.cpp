@@ -117,6 +117,9 @@ void OutputFormatter::initFormats()
     m_formats[StdErrFormat].setFont(m_font);
     m_formats[StdErrFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::red)));
     m_formats[StdErrFormatSameLine] = m_formats[StdErrFormat];
+
+    m_formats[DebugFormat].setFont(m_font);
+    m_formats[DebugFormat].setForeground(mixColors(p.color(QPalette::Text), QColor(Qt::magenta)));
 }
 
 void OutputFormatter::handleLink(const QString &href)
