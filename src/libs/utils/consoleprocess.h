@@ -33,7 +33,9 @@
 #ifndef CONSOLEPROCESS_H
 #define CONSOLEPROCESS_H
 
-#include "abstractprocess.h"
+#include "utils_global.h"
+
+#include "environment.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -48,7 +50,7 @@ QT_END_NAMESPACE
 namespace Utils {
 struct ConsoleProcessPrivate;
 
-class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject, public AbstractProcess
+class QTCREATOR_UTILS_EXPORT ConsoleProcess : public QObject
 {
     Q_OBJECT
 
@@ -56,6 +58,12 @@ public:
     enum Mode { Run, Debug, Suspend };
     ConsoleProcess(QObject *parent = 0);
     ~ConsoleProcess();
+
+    void setWorkingDirectory(const QString &dir);
+    QString workingDirectory() const;
+
+    void setEnvironment(const Environment &env);
+    Environment environment() const;
 
     bool start(const QString &program, const QString &args);
     void stop();
@@ -73,7 +81,13 @@ public:
     int exitCode() const;
     QProcess::ExitStatus exitStatus() const;
 
-#ifdef Q_OS_UNIX
+#ifdef Q_OS_WIN
+    // Add PATH and SystemRoot environment variables in case they are missing
+    static QStringList fixWinEnvironment(const QStringList &env);
+    // Quote a Windows command line correctly for the "CreateProcess" API
+    static QString createWinCommandline(const QString &program, const QStringList &args);
+    static QString createWinCommandline(const QString &program, const QString &args);
+#else
     void setSettings(QSettings *settings);
     static QString defaultTerminalEmulator();
     static QString terminalEmulator(const QSettings *settings);

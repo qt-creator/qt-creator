@@ -30,56 +30,51 @@
 **
 **************************************************************************/
 
-#ifndef WINGUIPROCESS_H
-#define WINGUIPROCESS_H
+#ifndef CONSOLEPROCESS_P_H
+#define CONSOLEPROCESS_P_H
 
-#include "abstractprocess.h"
+#include "consoleprocess.h"
 
-#include <QtCore/QThread>
-#include <QtCore/QStringList>
+#include <QtCore/QTemporaryFile>
+
+#include <QtNetwork/QLocalSocket>
+#include <QtNetwork/QLocalServer>
+
+#ifdef Q_OS_WIN
+#include <QtCore/private/qwineventnotifier_p.h>
 
 #include <windows.h>
+#endif
 
-using namespace Utils;
+namespace Utils {
 
-namespace ProjectExplorer {
-namespace Internal {
+struct ConsoleProcessPrivate {
+    ConsoleProcessPrivate();
 
-// Documentation inside.
-class WinGuiProcess : public QThread, public AbstractProcess
-{
-    Q_OBJECT
+    ConsoleProcess::Mode m_mode;
+    QString m_workingDir;
+    Environment m_environment;
+    qint64 m_appPid;
+    int m_appCode;
+    QString m_executable;
+    QProcess::ExitStatus m_appStatus;
+    QLocalServer m_stubServer;
+    QLocalSocket *m_stubSocket;
+    QTemporaryFile *m_tempFile;
 
-public:
-    explicit WinGuiProcess(QObject *parent = 0);
-    virtual ~WinGuiProcess();
-
-    bool isRunning() const;
-    bool start(const QString &program, const QString &args);
-    void stop();
-
-    qint64 applicationPID() const;
-    int exitCode() const;
-
-signals:
-    void processMessage(const QString &error, bool isError);
-    void receivedDebugOutput(const QString &output);
-    void processFinished(int exitCode);
-
-private slots:
-    void checkDebugOutput(qint64, const QString &);
-    void done();
-
-private:
-    void run();
-
+#ifdef Q_OS_UNIX
+    QProcess m_process;
+    QByteArray m_stubServerDir;
+    QSettings *m_settings;
+#else
+    qint64 m_appMainThreadId;
     PROCESS_INFORMATION *m_pid;
-    QString m_program;
-    QString m_args;
-    unsigned long m_exitCode;
+    HANDLE m_hInferior;
+    QWinEventNotifier *inferiorFinishedNotifier;
+    QWinEventNotifier *processFinishedNotifier;
+#endif
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} //namespace Utils
 
-#endif // WINGUIPROCESS_H
+#endif

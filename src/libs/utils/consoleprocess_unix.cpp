@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "consoleprocess.h"
+#include "consoleprocess_p.h"
 
 #include "environment.h"
 #include "qtcprocess.h"
@@ -38,10 +38,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
-#include <QtCore/QTemporaryFile>
-
-#include <QtNetwork/QLocalSocket>
-#include <QtNetwork/QLocalServer>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -50,23 +46,6 @@
 #include <unistd.h>
 
 namespace Utils {
-struct ConsoleProcessPrivate {
-    ConsoleProcessPrivate();
-
-    ConsoleProcess::Mode m_mode;
-    qint64 m_appPid;
-    qint64 m_appMainThreadId;
-    int m_appCode;
-    QString m_executable;
-    QProcess::ExitStatus m_appStatus;
-    QLocalServer m_stubServer;
-    QLocalSocket *m_stubSocket;
-    QTemporaryFile *m_tempFile;
-
-    QProcess m_process;
-    QByteArray m_stubServerDir;
-    QSettings *m_settings;
-};
 
 ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_mode(ConsoleProcess::Run),
@@ -76,6 +55,7 @@ ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_settings(0)
 {
 }
+
 ConsoleProcess::ConsoleProcess(QObject *parent)  :
     QObject(parent), d(new ConsoleProcessPrivate)
 {
@@ -84,36 +64,6 @@ ConsoleProcess::ConsoleProcess(QObject *parent)  :
     d->m_process.setProcessChannelMode(QProcess::ForwardedChannels);
     connect(&d->m_process, SIGNAL(finished(int, QProcess::ExitStatus)),
             SLOT(stubExited()));
-}
-
-ConsoleProcess::~ConsoleProcess()
-{
-    stop();
-}
-
-void ConsoleProcess::setMode(Mode m)
-{
-    d->m_mode = m;
-}
-
-ConsoleProcess::Mode ConsoleProcess::mode() const
-{
-    return d->m_mode;
-}
-
-qint64 ConsoleProcess::applicationPID() const
-{
-    return d->m_appPid;
-}
-
-int ConsoleProcess::exitCode() const
-{
-    return d->m_appCode;
-} // This will be the signal number if exitStatus == CrashExit
-
-QProcess::ExitStatus ConsoleProcess::exitStatus() const
-{
-    return d->m_appStatus;
 }
 
 void ConsoleProcess::setSettings(QSettings *settings)
@@ -127,7 +77,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         return false;
 
     QtcProcess::SplitError perr;
-    QStringList pargs = QtcProcess::prepareArgs(args, &perr, &m_environment, &m_workingDir);
+    QStringList pargs = QtcProcess::prepareArgs(args, &perr, &d->m_environment, &d->m_workingDir);
     QString pcmd;
     if (perr == QtcProcess::SplitOk) {
         pcmd = program;
@@ -148,7 +98,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
 
     QtcProcess::SplitError qerr;
     QStringList xtermArgs = QtcProcess::prepareArgs(terminalEmulator(d->m_settings), &qerr,
-                                                    &m_environment, &m_workingDir);
+                                                    &d->m_environment, &d->m_workingDir);
     if (qerr != QtcProcess::SplitOk) {
         emit processMessage(qerr == QtcProcess::BadQuoting
                             ? tr("Quoting error in terminal command.")
@@ -162,7 +112,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         return false;
     }
 
-    QStringList env = m_environment.toStringList();
+    QStringList env = d->m_environment.toStringList();
     if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {

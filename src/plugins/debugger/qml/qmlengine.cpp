@@ -54,7 +54,6 @@
 #include <projectexplorer/applicationlauncher.h>
 
 #include <utils/environment.h>
-#include <utils/abstractprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/fileinprojectfinder.h>
 
@@ -295,7 +294,7 @@ bool QmlEngine::canDisplayTooltip() const
 void QmlEngine::filterApplicationMessage(const QString &msg, int /*channel*/)
 {
     static const QString qddserver = QLatin1String("QDeclarativeDebugServer: ");
-    static const QString cannotRetrieveDebuggingOutput = Utils::AbstractProcess::msgWinCannotRetrieveDebuggingOutput();
+    static const QString cannotRetrieveDebuggingOutput = ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput();
 
     const int index = msg.indexOf(qddserver);
     if (index != -1) {

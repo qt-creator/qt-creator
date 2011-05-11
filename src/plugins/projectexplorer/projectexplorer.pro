@@ -139,6 +139,7 @@ SOURCES += projectexplorer.cpp \
     editorconfiguration.cpp \
     editorsettingspropertiespage.cpp \
     runconfiguration.cpp \
+    applicationlauncher.cpp \
     applicationrunconfiguration.cpp \
     runsettingspropertiespage.cpp \
     projecttreewidget.cpp \
@@ -204,17 +205,15 @@ equals(TEST, 1) {
 }
 
 win32 {
-    SOURCES += applicationlauncher_win.cpp \
+    SOURCES += \
         windebuginterface.cpp \
-        winguiprocess.cpp \
         msvcparser.cpp \
         msvctoolchain.cpp
-    HEADERS += winguiprocess.h \
+    HEADERS += \
         windebuginterface.h \
         msvcparser.h \
         msvctoolchain.h
 } else {
-    SOURCES += applicationlauncher_x11.cpp
     macx:LIBS += -framework Carbon
 }
 RESOURCES += projectexplorer.qrc

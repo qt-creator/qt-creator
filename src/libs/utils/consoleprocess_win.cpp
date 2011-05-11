@@ -30,42 +30,18 @@
 **
 **************************************************************************/
 
-#include "consoleprocess.h"
+#include "consoleprocess_p.h"
 #include "environment.h"
 #include "qtcprocess.h"
 #include "winutils.h"
 
-#include <windows.h>
-
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
-#include <QtCore/QTemporaryFile>
 #include <QtCore/QAbstractEventDispatcher>
-#include <QtCore/private/qwineventnotifier_p.h>
-
-#include <QtNetwork/QLocalSocket>
-#include <QtNetwork/QLocalServer>
 
 #include <stdlib.h>
 
 namespace Utils {
-struct ConsoleProcessPrivate {
-    ConsoleProcessPrivate();
-
-    ConsoleProcess::Mode m_mode;
-    qint64 m_appPid;
-    qint64 m_appMainThreadId;
-    int m_appCode;
-    QString m_executable;
-    QProcess::ExitStatus m_appStatus;
-    QLocalServer m_stubServer;
-    QLocalSocket *m_stubSocket;
-    QTemporaryFile *m_tempFile;
-    PROCESS_INFORMATION *m_pid;
-    HANDLE m_hInferior;
-    QWinEventNotifier *inferiorFinishedNotifier;
-    QWinEventNotifier *processFinishedNotifier;
-};
 
 ConsoleProcessPrivate::ConsoleProcessPrivate() :
     m_mode(ConsoleProcess::Run),
@@ -85,39 +61,9 @@ ConsoleProcess::ConsoleProcess(QObject *parent) :
     connect(&d->m_stubServer, SIGNAL(newConnection()), SLOT(stubConnectionAvailable()));
 }
 
-ConsoleProcess::~ConsoleProcess()
-{
-    stop();
-}
-
-void ConsoleProcess::setMode(Mode m)
-{
-    d->m_mode = m;
-}
-
-ConsoleProcess::Mode ConsoleProcess::mode() const
-{
-    return d->m_mode;
-}
-
-qint64 ConsoleProcess::applicationPID() const
-{
-    return d->m_appPid;
-}
-
 qint64 ConsoleProcess::applicationMainThreadID() const
 {
     return d->m_appMainThreadId;
-}
-
-int ConsoleProcess::exitCode() const
-{
-    return d->m_appCode;
-} // This will be the signal number if exitStatus == CrashExit
-
-QProcess::ExitStatus ConsoleProcess::exitStatus() const
-{
-    return d->m_appStatus;
 }
 
 bool ConsoleProcess::start(const QString &program, const QString &args)
@@ -131,7 +77,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         pcmd = program;
         pargs = args;
     } else {
-        QtcProcess::prepareCommand(program, args, &pcmd, &pargs, &m_environment, &m_workingDir);
+        QtcProcess::prepareCommand(program, args, &pcmd, &pargs, &d->m_environment, &d->m_workingDir);
     }
 
     const QString err = stubServerListen();
@@ -140,7 +86,7 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         return false;
     }
 
-    QStringList env = m_environment.toStringList();
+    QStringList env = d->m_environment.toStringList();
     if (!env.isEmpty()) {
         d->m_tempFile = new QTemporaryFile();
         if (!d->m_tempFile->open()) {
@@ -338,6 +284,80 @@ void ConsoleProcess::stubExited()
         emit processStopped();
     }
     emit wrapperStopped();
+}
+
+QStringList ConsoleProcess::fixWinEnvironment(const QStringList &env)
+{
+    QStringList envStrings = env;
+    // add PATH if necessary (for DLL loading)
+    if (envStrings.filter(QRegExp(QLatin1String("^PATH="),Qt::CaseInsensitive)).isEmpty()) {
+        QByteArray path = qgetenv("PATH");
+        if (!path.isEmpty())
+            envStrings.prepend(QString(QLatin1String("PATH=%1")).arg(QString::fromLocal8Bit(path)));
+    }
+    // add systemroot if needed
+    if (envStrings.filter(QRegExp(QLatin1String("^SystemRoot="),Qt::CaseInsensitive)).isEmpty()) {
+        QByteArray systemRoot = qgetenv("SystemRoot");
+        if (!systemRoot.isEmpty())
+            envStrings.prepend(QString(QLatin1String("SystemRoot=%1")).arg(QString::fromLocal8Bit(systemRoot)));
+    }
+    return envStrings;
+}
+
+static QString quoteWinCommand(const QString &program)
+{
+    const QChar doubleQuote = QLatin1Char('"');
+
+    // add the program as the first arg ... it works better
+    QString programName = program;
+    programName.replace(QLatin1Char('/'), QLatin1Char('\\'));
+    if (!programName.startsWith(doubleQuote) && !programName.endsWith(doubleQuote)
+            && programName.contains(QLatin1Char(' '))) {
+        programName.prepend(doubleQuote);
+        programName.append(doubleQuote);
+    }
+    return programName;
+}
+
+static QString quoteWinArgument(const QString &arg)
+{
+    if (!arg.length())
+        return QString::fromLatin1("\"\"");
+
+    QString ret(arg);
+    // Quotes are escaped and their preceding backslashes are doubled.
+    ret.replace(QRegExp(QLatin1String("(\\\\*)\"")), QLatin1String("\\1\\1\\\""));
+    if (ret.contains(QRegExp(QLatin1String("\\s")))) {
+        // The argument must not end with a \ since this would be interpreted
+        // as escaping the quote -- rather put the \ behind the quote: e.g.
+        // rather use "foo"\ than "foo\"
+        int i = ret.length();
+        while (i > 0 && ret.at(i - 1) == QLatin1Char('\\'))
+            --i;
+        ret.insert(i, QLatin1Char('"'));
+        ret.prepend(QLatin1Char('"'));
+    }
+    return ret;
+}
+
+QString ConsoleProcess::createWinCommandline(const QString &program, const QStringList &args)
+{
+    QString programName = quoteWinCommand(program);
+    foreach (const QString &arg, args) {
+        programName += QLatin1Char(' ');
+        programName += quoteWinArgument(arg);
+    }
+    return programName;
+}
+
+QString ConsoleProcess::createWinCommandline(const QString &program, const QString &args)
+{
+    QString programName = quoteWinCommand(program);
+    if (!args.isEmpty()) {
+        programName += QLatin1Char(' ');
+        programName += args;
+    }
+    return programName;
 }
 
 } // namespace Utils

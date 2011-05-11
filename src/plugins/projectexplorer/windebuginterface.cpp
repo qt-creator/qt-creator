@@ -42,8 +42,6 @@
 
     OutputDebugString puts its data into a shared memory segment named
     \c DBWIN_BUFFER which can be accessed via file mapping.
-
-    \sa ProjectExplorer::Internal::WinGuiProcess
 */
 
 namespace ProjectExplorer {

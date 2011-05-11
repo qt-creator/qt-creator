@@ -69,6 +69,8 @@ public:
     bool isRunning() const;
     qint64 applicationPID() const;
 
+    static QString msgWinCannotRetrieveDebuggingOutput();
+
 signals:
     void appendMessage(const QString &message, Utils::OutputFormat format);
     void processExited(int exitCode);
@@ -77,16 +79,13 @@ signals:
 private slots:
     void processStopped();
     void appendProcessMessage(const QString &output, bool onStdErr);
-#ifdef Q_OS_WIN
-    void readWinDebugOutput(const QString &output);
-    void processFinished(int exitCode);
-#else
     void guiProcessError();
     void readStandardOutput();
     void readStandardError();
-    void processDone(int, QProcess::ExitStatus);
+#ifdef Q_OS_WIN
+    void checkDebugOutput(qint64 pid, const QString &message);
 #endif
-
+    void processDone(int, QProcess::ExitStatus);
     void bringToForeground();
 
 private:

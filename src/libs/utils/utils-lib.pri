@@ -10,7 +10,6 @@ QT += network
 SOURCES += $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/qtcprocess.cpp \
-    $$PWD/abstractprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
     $$PWD/stringutils.cpp \
     $$PWD/filesearch.cpp \
@@ -85,7 +84,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/outputformatter.cpp
 
 win32 {
-    SOURCES += $$PWD/abstractprocess_win.cpp \
+    SOURCES += \
         $$PWD/consoleprocess_win.cpp \
         $$PWD/winutils.cpp
     HEADERS += $$PWD/winutils.h
@@ -122,8 +121,8 @@ HEADERS += $$PWD/environment.h \
     $$PWD/qtcolorbutton.h \
     $$PWD/savedaction.h \
     $$PWD/submiteditorwidget.h \
-    $$PWD/abstractprocess.h \
     $$PWD/consoleprocess.h \
+    $$PWD/consoleprocess_p.h \
     $$PWD/synchronousprocess.h \
     $$PWD/savefile.h \
     $$PWD/fileutils.h \

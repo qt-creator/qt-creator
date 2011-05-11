@@ -32,13 +32,23 @@
 
 #include "applicationlauncher.h"
 #include "consoleprocess.h"
+#ifdef Q_OS_WIN
+#include "windebuginterface.h"
+#endif
 
 #include <coreplugin/icore.h>
 
 #include <utils/qtcprocess.h>
+#ifdef Q_OS_WIN
+#include <utils/winutils.h>
+#endif
 
 #include <QtCore/QTimer>
 #include <QtCore/QTextCodec>
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 
 /*!
     \class ProjectExplorer::ApplicationLauncher
@@ -52,6 +62,10 @@
 */
 
 namespace ProjectExplorer {
+
+#ifdef Q_OS_WIN
+using namespace Internal; // for WinDebugInterface
+#endif
 
 struct ApplicationLauncherPrivate {
     ApplicationLauncherPrivate();
@@ -86,11 +100,18 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
     connect(&d->m_guiProcess, SIGNAL(started()),
             this, SLOT(bringToForeground()));
 
+#ifdef Q_OS_UNIX
     d->m_consoleProcess.setSettings(Core::ICore::instance()->settings());
+#endif
     connect(&d->m_consoleProcess, SIGNAL(processMessage(QString,bool)),
             this, SLOT(appendProcessMessage(QString,bool)));
     connect(&d->m_consoleProcess, SIGNAL(processStopped()),
             this, SLOT(processStopped()));
+
+#ifdef Q_OS_WIN
+    connect(WinDebugInterface::instance(), SIGNAL(debugOutput(qint64,QString)),
+            this, SLOT(checkDebugOutput(qint64,QString)));
+#endif
 }
 
 ApplicationLauncher::~ApplicationLauncher()
@@ -104,8 +125,19 @@ void ApplicationLauncher::appendProcessMessage(const QString &output, bool onStd
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)
 {
-    d->m_guiProcess.setWorkingDirectory(dir);
-    d->m_consoleProcess.setWorkingDirectory(dir);
+#ifdef Q_OS_WIN
+    // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
+    const QString fixedPath = Utils::normalizePathName(dir);
+#else
+#   define fixedPath dir
+#endif
+
+    d->m_guiProcess.setWorkingDirectory(fixedPath);
+    d->m_consoleProcess.setWorkingDirectory(fixedPath);
+
+#ifndef Q_OS_WIN
+#   undef fixedPath
+#endif
 }
 
 void ApplicationLauncher::setEnvironment(const Utils::Environment &env)
@@ -116,6 +148,13 @@ void ApplicationLauncher::setEnvironment(const Utils::Environment &env)
 
 void ApplicationLauncher::start(Mode mode, const QString &program, const QString &args)
 {
+#ifdef Q_OS_WIN
+    if (!WinDebugInterface::instance()->isRunning())
+        WinDebugInterface::instance()->start(); // Try to start listener again...
+    if (!WinDebugInterface::instance()->isRunning())
+        emit appendMessage(msgWinCannotRetrieveDebuggingOutput(), Utils::ErrorMessageFormat);
+#endif
+
     d->m_currentMode = mode;
     if (mode == Gui) {
         d->m_guiProcess.setCommand(program, args);
@@ -158,7 +197,11 @@ qint64 ApplicationLauncher::applicationPID() const
     if (d->m_currentMode == Console) {
         result = d->m_consoleProcess.applicationPID();
     } else {
+#ifdef Q_OS_WIN
+        result = (qint64)d->m_guiProcess.pid()->dwProcessId;
+#else
         result = (qint64)d->m_guiProcess.pid();
+#endif
     }
     return result;
 }
@@ -196,6 +239,14 @@ void ApplicationLauncher::readStandardError()
     emit appendMessage(msg, Utils::StdErrFormatSameLine);
 }
 
+#ifdef Q_OS_WIN
+void ApplicationLauncher::checkDebugOutput(qint64 pid, const QString &message)
+{
+    if (applicationPID() == pid)
+        emit appendMessage(message, Utils::DebugFormat);
+}
+#endif
+
 void ApplicationLauncher::processStopped()
 {
     emit processExited(0);
@@ -209,6 +260,11 @@ void ApplicationLauncher::processDone(int exitCode, QProcess::ExitStatus)
 void ApplicationLauncher::bringToForeground()
 {
     emit bringToForegroundRequested(applicationPID());
+}
+
+QString ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput()
+{
+    return tr("Cannot retrieve debugging output.\n");
 }
 
 } // namespace ProjectExplorer

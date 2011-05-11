@@ -30,9 +30,24 @@
 **
 **************************************************************************/
 
-#include "consoleprocess.h"
+#include "consoleprocess_p.h"
 
 namespace Utils {
+
+ConsoleProcess::~ConsoleProcess()
+{
+    stop();
+}
+
+void ConsoleProcess::setMode(Mode m)
+{
+    d->m_mode = m;
+}
+
+ConsoleProcess::Mode ConsoleProcess::mode() const
+{
+    return d->m_mode;
+}
 
 QString ConsoleProcess::modeOption(Mode m)
 {
@@ -45,6 +60,41 @@ QString ConsoleProcess::modeOption(Mode m)
         break;
     }
     return QLatin1String("run");
+}
+
+qint64 ConsoleProcess::applicationPID() const
+{
+    return d->m_appPid;
+}
+
+int ConsoleProcess::exitCode() const
+{
+    return d->m_appCode;
+} // This will be the signal number if exitStatus == CrashExit
+
+QProcess::ExitStatus ConsoleProcess::exitStatus() const
+{
+    return d->m_appStatus;
+}
+
+void ConsoleProcess::setWorkingDirectory(const QString &dir)
+{
+    d->m_workingDir = dir;
+}
+
+QString ConsoleProcess::workingDirectory() const
+{
+    return d->m_workingDir;
+}
+
+void ConsoleProcess::setEnvironment(const Environment &env)
+{
+    d->m_environment = env;
+}
+
+Environment ConsoleProcess::environment() const
+{
+    return d->m_environment;
 }
 
 QString ConsoleProcess::msgCommChannelFailed(const QString &error)
