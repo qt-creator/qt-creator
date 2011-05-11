@@ -138,7 +138,7 @@ private:
     public:
         Operation(const CppQuickFixState &state, int priority, BinaryExpressionAST *binary, Kind invertToken)
             : CppQuickFixOperation(state, priority)
-            , binary(binary)
+            , binary(binary), nested(0), negation(0)
         {
             Token tok;
             tok.f.kind = invertToken;
