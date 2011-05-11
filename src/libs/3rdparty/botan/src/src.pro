@@ -284,7 +284,7 @@ unix {
            timer/gettimeofday/tm_unix.h
 }
 
-linux*-g++* {
+linux*-g++*|freebsd*-g++* {
     HEADERS += timer/posix_rt/tm_posix.h
 }
 
@@ -568,10 +568,8 @@ unix {
            timer/gettimeofday/tm_unix.cpp
 }
 
-linux* {
+linux*|freebsd* {
     SOURCES += timer/posix_rt/tm_posix.cpp
-}
 
-linux* {
     LIBS += -lrt
 }
