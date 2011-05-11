@@ -57,20 +57,15 @@ DoNothingPlugin::DoNothingPlugin()
     // Do nothing
 }
 
-DoNothingPlugin::~DoNothingPlugin()
-{
-    // Do notning
-}
-
 void DoNothingPlugin::extensionsInitialized()
 {
     // Do nothing
 }
 
-bool DoNothingPlugin::initialize(const QStringList &args, QString *errMsg)
+bool DoNothingPlugin::initialize(const QStringList &args, QString *errorMessage)
 {
     Q_UNUSED(args);
-    Q_UNUSED(errMsg);
+    Q_UNUSED(errorMessage);
 
     // Fetch the action manager
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
@@ -78,11 +73,11 @@ bool DoNothingPlugin::initialize(const QStringList &args, QString *errMsg)
     // Create a command for "DoNothing".
     QAction *action = new QAction(tr("DoNothing"),this);
     Core::Command *cmd = am->registerAction(action,
-        QLatin1String("DoNothingPlugin.DoNothing"),
-        Core::Context(Core::Constants::C_GLOBAL));
+        "DoNothingPlugin.DoNothing", Core::Context(Core::Constants::C_GLOBAL));
 
     // Add the "DoNothing" action to the tools menu
-    am->actionContainer(Core::Constants::M_TOOLS)->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    am->actionContainer(Core::Constants::M_TOOLS)
+        ->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
     // Connect the action
     connect(action, SIGNAL(triggered(bool)), this, SLOT(performAction()));

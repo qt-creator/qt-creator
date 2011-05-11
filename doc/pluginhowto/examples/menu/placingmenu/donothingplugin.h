@@ -47,7 +47,7 @@ class DoNothingPlugin : public ExtensionSystem::IPlugin
 
 public:
     DoNothingPlugin();
-    ~DoNothingPlugin();
+
     void extensionsInitialized();
     bool initialize(const QStringList &arguments, QString *errorString);
     ShutdownFlag shutdown();
