@@ -35,6 +35,7 @@
 
 #include <QMetaType>
 #include <QVector>
+#include <QDebug>
 
 #include "informationcontainer.h"
 
@@ -56,6 +57,7 @@ private:
 
 QDataStream &operator<<(QDataStream &out, const InformationChangedCommand &command);
 QDataStream &operator>>(QDataStream &in, InformationChangedCommand &command);
+QDebug operator<<(QDebug debug, const InformationChangedCommand &command);
 
 } // namespace QmlDesigner
 
