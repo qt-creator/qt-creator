@@ -1,0 +1,168 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+**************************************************************************/
+
+#include "remotedialog.h"
+
+#include "gitclient.h"
+#include "gitplugin.h"
+#include "remotemodel.h"
+#include "stashdialog.h" // for messages
+#include "ui_remotedialog.h"
+#include "ui_remoteadditiondialog.h"
+
+#include <vcsbase/vcsbaseoutputwindow.h>
+
+#include <QtGui/QItemSelectionModel>
+#include <QtGui/QPushButton>
+#include <QtGui/QMessageBox>
+
+namespace Git {
+namespace Internal {
+
+// --------------------------------------------------------------------------
+// RemoteAdditionDialog:
+// --------------------------------------------------------------------------
+
+RemoteAdditionDialog::RemoteAdditionDialog(QWidget *parent) :
+    QDialog(parent),
+    m_ui(new Ui::RemoteAdditionDialog)
+{
+    m_ui->setupUi(this);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+}
+
+QString RemoteAdditionDialog::remoteName() const
+{
+    return m_ui->nameEdit->text();
+}
+
+QString RemoteAdditionDialog::remoteUrl() const
+{
+    return m_ui->urlEdit->text();
+}
+
+void RemoteAdditionDialog::clear()
+{
+    m_ui->nameEdit->setText(QString());
+    m_ui->urlEdit->setText(QString());
+}
+
+// --------------------------------------------------------------------------
+// RemoteDialog:
+// --------------------------------------------------------------------------
+
+
+RemoteDialog::RemoteDialog(QWidget *parent) :
+    QDialog(parent),
+    m_ui(new Ui::RemoteDialog),
+    m_remoteModel(new RemoteModel(GitPlugin::instance()->gitClient(), this)),
+    m_addDialog(0)
+{
+    setModal(false);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setAttribute(Qt::WA_DeleteOnClose, true); // Do not update unnecessarily
+
+    m_ui->setupUi(this);
+
+    m_ui->remoteView->setModel(m_remoteModel);
+    m_ui->remoteView->setMinimumHeight(400);
+    m_ui->remoteView->horizontalHeader()->setStretchLastSection(true);
+    m_ui->remoteView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
+    QFontMetrics fm(font());
+    m_ui->remoteView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
+
+    connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(addRemote()));
+    connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(removeRemote()));
+}
+
+RemoteDialog::~RemoteDialog()
+{
+    delete m_ui;
+}
+
+void RemoteDialog::refresh(const QString &repository, bool force)
+{
+    if (m_repository == repository && !force)
+        return;
+    // Refresh
+    m_repository = repository;
+    m_ui->repositoryLabel->setText(StashDialog::msgRepositoryLabel(m_repository));
+    if (m_repository.isEmpty()) {
+        m_remoteModel->clear();
+    } else {
+        QString errorMessage;
+        if (!m_remoteModel->refresh(m_repository, &errorMessage))
+            VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+    }
+}
+
+void RemoteDialog::addRemote()
+{
+    if (!m_addDialog)
+        m_addDialog = new RemoteAdditionDialog;
+    m_addDialog->clear();
+
+    if (m_addDialog->exec() != QDialog::Accepted)
+        return;
+
+    m_remoteModel->addRemote(m_addDialog->remoteName(), m_addDialog->remoteUrl());
+}
+
+void RemoteDialog::removeRemote()
+{
+    const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
+    if (indexList.count() == 0)
+        return;
+
+    int row = indexList.at(0).row();
+    const QString remoteName = m_remoteModel->remoteName(row);
+    if (QMessageBox::question(this, tr("Delete Remote"),
+                              tr("Would you like to delete the remote '%1'?").arg(remoteName),
+                              QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+        m_remoteModel->removeRemote(row);
+    }
+}
+
+void RemoteDialog::changeEvent(QEvent *e)
+{
+    QDialog::changeEvent(e);
+    switch (e->type()) {
+    case QEvent::LanguageChange:
+        m_ui->retranslateUi(this);
+        break;
+    default:
+        break;
+    }
+}
+
+} // namespace Internal
+} // namespace Git

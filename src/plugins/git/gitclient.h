@@ -143,6 +143,8 @@ public:
                                 QString *errorMessage = 0);
     bool synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
                               QString *output, QString *errorMessage);
+    bool synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
+                              QString *output, QString *errorMessage);
     bool synchronousShow(const QString &workingDirectory, const QString &id,
                               QString *output, QString *errorMessage);
     bool synchronousParentRevisions(const QString &workingDirectory,

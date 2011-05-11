@@ -40,6 +40,7 @@
 #include "gitsubmiteditor.h"
 #include "gitversioncontrol.h"
 #include "branchdialog.h"
+#include "remotedialog.h"
 #include "clonewizard.h"
 #include "gitoriousclonewizard.h"
 #include "stashdialog.h"
@@ -431,6 +432,10 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     createRepositoryAction(actionManager, gitContainer,
                            tr("Branches..."), QLatin1String("Git.BranchList"),
                            globalcontext, false, SLOT(branchList()));
+
+    createRepositoryAction(actionManager, gitContainer,
+                           tr("Remotes..."), QLatin1String("Git.RemoteList"),
+                           globalcontext, false, SLOT(remoteList()));
 
     m_showAction = new QAction(tr("Show Commit..."), this);
     Core::Command *showCommitCommand = actionManager->registerAction(m_showAction, "Git.ShowCommit", globalcontext);
@@ -1000,6 +1005,11 @@ void GitPlugin::branchList()
    showNonModalDialog(currentState().topLevel(), m_branchDialog);
 }
 
+void GitPlugin::remoteList()
+{
+    showNonModalDialog(currentState().topLevel(), m_remoteDialog);
+}
+
 void GitPlugin::stashList()
 {
     showNonModalDialog(currentState().topLevel(), m_stashDialog);
@@ -1012,6 +1022,8 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
         m_stashDialog->refresh(currentState().topLevel(), false);
     if (m_branchDialog)
         m_branchDialog->refresh(currentState().topLevel(), false);
+    if (m_remoteDialog)
+        m_remoteDialog->refresh(currentState().topLevel(), false);
 
     m_commandLocator->setEnabled(repositoryEnabled);
     if (!enableMenuAction(as, m_menuAction))

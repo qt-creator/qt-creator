@@ -78,6 +78,7 @@ struct CommitData;
 struct GitSettings;
 class StashDialog;
 class BranchDialog;
+class RemoteDialog;
 
 typedef void (GitClient::*GitClientMemberFunc)(const QString &);
 
@@ -129,6 +130,7 @@ private slots:
     void stash();
     void stashSnapshot();
     void branchList();
+    void remoteList();
     void stashList();
     void fetch();
     void pull();
@@ -203,6 +205,7 @@ private:
     ChangeSelectionDialog       *m_changeSelectionDialog;
     QPointer<StashDialog>       m_stashDialog;
     QPointer<BranchDialog>      m_branchDialog;
+    QPointer<RemoteDialog>      m_remoteDialog;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;
     QStringList                 m_submitOrigDeleteFiles;

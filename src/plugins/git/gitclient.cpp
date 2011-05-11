@@ -1340,6 +1340,21 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     return true;
 }
 
+bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringList remoteArgs,
+                                     QString *output, QString *errorMessage)
+{
+    remoteArgs.push_front(QLatin1String("remote"));
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = fullySynchronousGit(workingDirectory, remoteArgs, &outputText, &errorText);
+    if (!rc) {
+        *errorMessage = tr("Unable to run a 'git remote' command in %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        return false;
+    }
+    *output = commandOutputFromLocal8Bit(outputText);
+    return true;
+}
+
 bool GitClient::synchronousShow(const QString &workingDirectory, const QString &id,
                                  QString *output, QString *errorMessage)
 {

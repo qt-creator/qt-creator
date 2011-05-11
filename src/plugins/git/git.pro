@@ -24,7 +24,10 @@ HEADERS += gitplugin.h \
     clonewizard.h \
     clonewizardpage.h \
     stashdialog.h \
-    gitutils.h
+    gitutils.h \
+    remotemodel.h \
+    remotedialog.h \
+
 SOURCES += gitplugin.cpp \
     gitclient.cpp \
     changeselectiondialog.cpp \
@@ -42,12 +45,18 @@ SOURCES += gitplugin.cpp \
     clonewizard.cpp \
     clonewizardpage.cpp \
     stashdialog.cpp \
-    gitutils.cpp
+    gitutils.cpp \
+    remotemodel.cpp \
+    remotedialog.cpp \
+
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
     gitsubmitpanel.ui \
     branchdialog.ui \
-    stashdialog.ui
+    stashdialog.ui \
+    remotedialog.ui \
+    remoteadditiondialog.ui \
+
 include(gitorious/gitorious.pri)
 
 RESOURCES += \
