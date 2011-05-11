@@ -58,6 +58,7 @@ signals:
 public slots:
     void updateResultsPage(const QString &status, QColor c);
     void openFileLocation();
+    void packageCreationFinished();
 
 private:
     Ui::S60PublishingResultsPageOvi *ui;

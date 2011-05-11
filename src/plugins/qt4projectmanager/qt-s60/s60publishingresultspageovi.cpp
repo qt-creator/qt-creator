@@ -57,7 +57,8 @@ S60PublishingResultsPageOvi::~S60PublishingResultsPageOvi()
 void S60PublishingResultsPageOvi::initializePage()
 {
     wizard()->setButtonText(QWizard::FinishButton, tr("Open Containing Folder"));
-    connect(m_publisher, SIGNAL(succeeded()), SIGNAL(completeChanged()));
+    connect(m_publisher, SIGNAL(finished()), SIGNAL(completeChanged()));
+    connect(m_publisher, SIGNAL(finished()), SLOT(packageCreationFinished()));
     connect(wizard()->button(QWizard::FinishButton), SIGNAL(clicked()), SLOT(openFileLocation()));
     m_publisher->buildSis();
 }
@@ -65,6 +66,11 @@ void S60PublishingResultsPageOvi::initializePage()
 bool S60PublishingResultsPageOvi::isComplete() const
 {
     return m_publisher->hasSucceeded();
+}
+
+void S60PublishingResultsPageOvi::packageCreationFinished()
+{
+    wizard()->setButtonText(QWizard::CancelButton, tr("Close"));
 }
 
 void S60PublishingResultsPageOvi::updateResultsPage(const QString& status, QColor c)
