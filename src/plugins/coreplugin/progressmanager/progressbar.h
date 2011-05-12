@@ -60,9 +60,11 @@ public:
     int minimum() const { return m_minimum; }
     int maximum() const { return m_maximum; }
     int value() const { return m_value; }
+    bool finished() const { return m_finished; }
     void reset();
     void setRange(int minimum, int maximum);
     void setValue(int value);
+    void setFinished(bool b);
     float cancelButtonFader() { return m_cancelButtonFader; }
     void setCancelButtonFader(float value) { update(); m_cancelButtonFader= value;}
     bool event(QEvent *);
@@ -83,6 +85,7 @@ private:
     int m_maximum;
     int m_value;
     float m_cancelButtonFader;
+    bool m_finished;
 };
 
 } // namespace Internal

@@ -243,11 +243,7 @@ void FutureProgress::setFinished()
 {
     updateToolTip(d->m_watcher.future().progressText());
 
-    // Special case for concurrent jobs that don't use QFutureInterface to report progress
-    if (d->m_watcher.progressMinimum() == 0 && d->m_watcher.progressMaximum() == 0) {
-        d->m_progress->setRange(0, 1);
-        d->m_progress->setValue(1);
-    }
+    d->m_progress->setFinished(true);
 
     if (d->m_watcher.future().isCanceled()) {
         d->m_progress->setError(true);

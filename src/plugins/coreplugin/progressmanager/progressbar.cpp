@@ -48,7 +48,7 @@ using namespace Core::Internal;
 #define CANCELBUTTON_SIZE 15
 
 ProgressBar::ProgressBar(QWidget *parent)
-    : QWidget(parent), m_error(false), m_minimum(1), m_maximum(100), m_value(1), m_cancelButtonFader(0)
+    : QWidget(parent), m_error(false), m_minimum(1), m_maximum(100), m_value(1), m_cancelButtonFader(0), m_finished(false)
 {
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setMouseTracking(true);
@@ -107,6 +107,14 @@ void ProgressBar::setValue(int value)
         return;
     }
     m_value = value;
+    update();
+}
+
+void ProgressBar::setFinished(bool b)
+{
+    if (b == m_finished)
+        return;
+    m_finished = b;
     update();
 }
 
@@ -183,6 +191,9 @@ void ProgressBar::paintEvent(QPaintEvent *)
     else if (percent < 0)
         percent = 0;
 
+    if (finished())
+        percent = 1;
+
     QPainter p(this);
     QFont boldFont(p.font());
     boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
@@ -238,7 +249,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         // avoid too small red bar
         if (inner.width() < 10)
             inner.adjust(0, 0, 10 - inner.width(), 0);
-    } else if (value() == maximum() && range != 0) {
+    } else if (m_finished) {
         c = QColor(90, 170, 60);
     }
 
