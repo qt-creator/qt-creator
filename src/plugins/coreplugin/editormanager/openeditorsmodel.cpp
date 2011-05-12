@@ -204,6 +204,11 @@ void OpenEditorsModel::removeEditor(const QModelIndex &index)
     removeEditor(index.row());
 }
 
+void OpenEditorsModel::removeEditor(const QString &fileName)
+{
+    removeEditor(findFileName(fileName));
+}
+
 void OpenEditorsModel::removeEditor(int idx)
 {
     if (idx < 0)

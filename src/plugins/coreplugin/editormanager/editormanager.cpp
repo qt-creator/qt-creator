@@ -939,7 +939,8 @@ void EditorManager::activateEditorForIndex(Internal::EditorView *view, const QMo
 
     QString fileName = index.data(Qt::UserRole + 1).toString();
     QString id = index.data(Qt::UserRole + 2).toString();
-    openEditor(view, fileName, id, flags);
+    if (!openEditor(view, fileName, id, flags))
+        m_d->m_editorModel->removeEditor(index);
 }
 
 Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core::IEditor *editor)

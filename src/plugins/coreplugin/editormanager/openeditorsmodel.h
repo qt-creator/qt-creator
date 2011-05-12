@@ -82,6 +82,7 @@ public:
 
     void removeEditor(IEditor *editor);
     void removeEditor(const QModelIndex &index);
+    void removeEditor(const QString &fileName);
 
     void removeAllRestoredEditors();
     void emitDataChanged(IEditor *editor);
