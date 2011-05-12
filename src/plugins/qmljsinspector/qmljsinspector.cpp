@@ -543,6 +543,7 @@ void InspectorUi::selectItems(const QList<QDeclarativeDebugObjectReference> &obj
             m_propertyInspector->setCurrentObjects(selectionList);
             populateCrumblePath(objref);
             gotoObjectReferenceDefinition(objref);
+            m_clientProxy->setSelectedItemsByObjectId(selectionList);
             return;
         }
     }
@@ -761,11 +762,8 @@ void InspectorUi::setupDockWidgets()
 
 void InspectorUi::crumblePathElementClicked(int debugId)
 {
-    if (debugId != -1) {
-        QList<int> l;
-        l << debugId;
-        selectItems(l);
-    }
+    if (debugId != -1)
+        selectItems(QList<int>() << debugId);
 }
 
 bool InspectorUi::showExperimentalWarning()
