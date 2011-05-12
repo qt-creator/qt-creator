@@ -236,27 +236,24 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
         case FormEditorScene::AnchorMode: {
                 pen.setColor(Qt::black);
                 pen.setWidth(m_borderWidth);
-            }
-            break;
+        }
+        break;
         case FormEditorScene::NormalMode: {
-                QColor frameColor("#AAAAAA");
+            QColor frameColor("#AAAAAA");
 
-                if (qmlItemNode().anchors().instanceHasAnchors())
-                        frameColor = QColor("#ffff00");
-
-                if (scene()->showBoundingRects()) {
-                    if (m_highlightBoundingRect)
-                        pen.setColor(frameColor);
-                    else
-                        pen.setColor(frameColor.darker(150));
-                } else {
-                    if (m_highlightBoundingRect)
-                        pen.setColor(frameColor);
-                    else
-                        pen.setColor(Qt::transparent);
-                }
+            if (scene()->showBoundingRects()) {
+                if (m_highlightBoundingRect)
+                    pen.setColor(frameColor);
+                else
+                    pen.setColor(frameColor.darker(150));
+            } else {
+                if (m_highlightBoundingRect)
+                    pen.setColor(frameColor);
+                else
+                    pen.setColor(Qt::transparent);
             }
-            break;
+        }
+        break;
     }
 
     painter->setPen(pen);
