@@ -89,7 +89,7 @@ public:
     Interpreter::Context *context;
     QStringList importPaths;
 
-    QHash<ImportCacheKey, Interpreter::ObjectValue *> importCache;
+    QHash<ImportCacheKey, TypeEnvironment::Import> importCache;
 
     Document::Ptr doc;
     QList<DiagnosticMessage> *diagnosticMessages;
@@ -192,9 +192,9 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
 
     // explicit imports, whether directories, files or libraries
     foreach (const ImportInfo &info, doc->bind()->imports()) {
-        ObjectValue *import = d->importCache.value(ImportCacheKey(info));
+        TypeEnvironment::Import import = d->importCache.value(ImportCacheKey(info));
 
-        if (!import) {
+        if (!import.object) {
             switch (info.type()) {
             case ImportInfo::FileImport:
             case ImportInfo::DirectoryImport:
@@ -206,11 +206,10 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
             default:
                 break;
             }
-            if (import)
+            if (import.object)
                 d->importCache.insert(ImportCacheKey(info), import);
         }
-        if (import)
-            typeEnv->addImport(import, info);
+        typeEnv->addImport(import);
     }
 }
 
@@ -222,30 +221,33 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
 
     import "http://www.ovi.com/" as Ovi
 */
-ObjectValue *Link::importFileOrDirectory(Document::Ptr doc, const ImportInfo &importInfo)
+TypeEnvironment::Import Link::importFileOrDirectory(Document::Ptr doc, const ImportInfo &importInfo)
 {
     Q_D(Link);
 
-    ObjectValue *import = 0;
+    TypeEnvironment::Import import;
+    import.info = importInfo;
+    import.object = 0;
+
     const QString &path = importInfo.name();
 
     if (importInfo.type() == ImportInfo::DirectoryImport
             || importInfo.type() == ImportInfo::ImplicitDirectoryImport) {
-        import = new ObjectValue(engine());
+        import.object = new ObjectValue(engine());
 
-        importLibrary(doc, import, path, importInfo);
+        importLibrary(doc, path, &import);
 
         const QList<Document::Ptr> &documentsInDirectory = d->snapshot.documentsInDirectory(path);
         foreach (Document::Ptr importedDoc, documentsInDirectory) {
             if (importedDoc->bind()->rootObjectValue()) {
                 const QString targetName = importedDoc->componentName();
-                import->setProperty(targetName, importedDoc->bind()->rootObjectValue());
+                import.object->setProperty(targetName, importedDoc->bind()->rootObjectValue());
             }
         }
     } else if (importInfo.type() == ImportInfo::FileImport) {
         Document::Ptr importedDoc = d->snapshot.document(path);
         if (importedDoc)
-            import = importedDoc->bind()->rootObjectValue();
+            import.object = importedDoc->bind()->rootObjectValue();
     }
 
     return import;
@@ -256,11 +258,14 @@ ObjectValue *Link::importFileOrDirectory(Document::Ptr doc, const ImportInfo &im
   import Qt 4.6 as Xxx
   (import com.nokia.qt is the same as the ones above)
 */
-ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
+TypeEnvironment::Import Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
 {
     Q_D(Link);
 
-    ObjectValue *import = new ObjectValue(engine());
+    TypeEnvironment::Import import;
+    import.info = importInfo;
+    import.object = new ObjectValue(engine());
+
     const QString packageName = Bind::toString(importInfo.ast()->importUri, '.');
     const ComponentVersion version = importInfo.version();
 
@@ -273,7 +278,7 @@ ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo
         libraryPath += QDir::separator();
         libraryPath += packagePath;
 
-        if (importLibrary(doc, import, libraryPath, importInfo, importPath)) {
+        if (importLibrary(doc, libraryPath, &import, importPath)) {
             importFound = true;
             break;
         }
@@ -284,7 +289,7 @@ ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo
         importFound = true;
         foreach (QmlObjectValue *object,
                  engine()->cppQmlTypes().typesForImport(packageName, version)) {
-            import->setProperty(object->className(), object);
+            import.object->setProperty(object->className(), object);
         }
     }
 
@@ -297,16 +302,20 @@ ObjectValue *Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo
     return import;
 }
 
-bool Link::importLibrary(Document::Ptr doc, Interpreter::ObjectValue *import,
+bool Link::importLibrary(Document::Ptr doc,
                          const QString &libraryPath,
-                         const Interpreter::ImportInfo &importInfo,
+                         TypeEnvironment::Import *import,
                          const QString &importPath)
 {
     Q_D(Link);
 
+    const ImportInfo &importInfo = import->info;
+
     const LibraryInfo libraryInfo = d->snapshot.libraryInfo(libraryPath);
     if (!libraryInfo.isValid())
         return false;
+
+    import->libraryPath = libraryPath;
 
     const ComponentVersion version = importInfo.version();
     const UiImport *ast = importInfo.ast();
@@ -315,7 +324,7 @@ bool Link::importLibrary(Document::Ptr doc, Interpreter::ObjectValue *import,
         errorLoc = locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation());
 
     if (!libraryInfo.plugins().isEmpty()) {
-        if (libraryInfo.dumpStatus() == LibraryInfo::DumpNotStartedOrRunning) {
+        if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::NoTypeInfo) {
             ModelManagerInterface *modelManager = ModelManagerInterface::instance();
             if (modelManager) {
                 if (importInfo.type() == ImportInfo::LibraryImport) {
@@ -335,7 +344,8 @@ bool Link::importLibrary(Document::Ptr doc, Interpreter::ObjectValue *import,
                 warning(doc, errorLoc,
                         tr("Library contains C++ plugins, type dump is in progress."));
             }
-        } else if (libraryInfo.dumpStatus() == LibraryInfo::DumpError) {
+        } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError
+                   || libraryInfo.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileError) {
             ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
             // Only underline import if package/version isn't described in .qmltypes anyway
@@ -344,7 +354,7 @@ bool Link::importLibrary(Document::Ptr doc, Interpreter::ObjectValue *import,
             const QString packageName = importInfo.name().replace(QDir::separator(), QLatin1Char('.'));
             if (!builtinPackages.value(packageName).contains(importInfo.version())) {
                 if (errorLoc.isValid()) {
-                    error(doc, errorLoc, libraryInfo.dumpError());
+                    error(doc, errorLoc, libraryInfo.pluginTypeInfoError());
                 }
             }
         } else {
@@ -352,13 +362,13 @@ bool Link::importLibrary(Document::Ptr doc, Interpreter::ObjectValue *import,
                     engine()->cppQmlTypes().load(engine(), libraryInfo.metaObjects());
             foreach (QmlObjectValue *object, loadedObjects) {
                 if (object->packageName().isEmpty()) {
-                    import->setProperty(object->className(), object);
+                    import->object->setProperty(object->className(), object);
                 }
             }
         }
     }
 
-    loadQmldirComponents(import, version, libraryInfo, libraryPath);
+    loadQmldirComponents(import->object, version, libraryInfo, libraryPath);
 
     return true;
 }
@@ -431,14 +441,15 @@ void Link::loadImplicitDirectoryImports(TypeEnvironment *typeEnv, Document::Ptr 
     ImportInfo implcitDirectoryImportInfo(
                 ImportInfo::ImplicitDirectoryImport, doc->path());
 
-    ObjectValue *directoryImport = d->importCache.value(ImportCacheKey(implcitDirectoryImportInfo));
-    if (!directoryImport) {
+    TypeEnvironment::Import directoryImport = d->importCache.value(ImportCacheKey(implcitDirectoryImportInfo));
+    if (!directoryImport.object) {
         directoryImport = importFileOrDirectory(doc, implcitDirectoryImportInfo);
-        if (directoryImport)
+        if (directoryImport.object)
             d->importCache.insert(ImportCacheKey(implcitDirectoryImportInfo), directoryImport);
     }
-    if (directoryImport)
-        typeEnv->addImport(directoryImport, implcitDirectoryImportInfo);
+    if (directoryImport.object) {
+        typeEnv->addImport(directoryImport);
+    }
 }
 
 void Link::loadImplicitDefaultImports(TypeEnvironment *typeEnv)
@@ -448,15 +459,16 @@ void Link::loadImplicitDefaultImports(TypeEnvironment *typeEnv)
     const QString defaultPackage = CppQmlTypes::defaultPackage;
     if (engine()->cppQmlTypes().hasPackage(defaultPackage)) {
         ImportInfo info(ImportInfo::LibraryImport, defaultPackage);
-        ObjectValue *import = d->importCache.value(ImportCacheKey(info));
-        if (!import) {
-            import = new ObjectValue(engine());
+        TypeEnvironment::Import import = d->importCache.value(ImportCacheKey(info));
+        if (!import.object) {
+            import.info = info;
+            import.object = new ObjectValue(engine());
             foreach (QmlObjectValue *object,
                      engine()->cppQmlTypes().typesForImport(defaultPackage, ComponentVersion())) {
-                import->setProperty(object->className(), object);
+                import.object->setProperty(object->className(), object);
             }
             d->importCache.insert(ImportCacheKey(info), import);
         }
-        typeEnv->addImport(import, info);
+        typeEnv->addImport(import);
     }
 }

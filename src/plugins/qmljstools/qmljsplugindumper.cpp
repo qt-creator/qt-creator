@@ -82,7 +82,7 @@ void PluginDumper::onLoadPluginTypes(const QString &libraryPath, const QString &
         return;
     const Snapshot snapshot = m_modelManager->snapshot();
     const LibraryInfo libraryInfo = snapshot.libraryInfo(canonicalLibraryPath);
-    if (libraryInfo.dumpStatus() != LibraryInfo::DumpNotStartedOrRunning)
+    if (libraryInfo.pluginTypeInfoStatus() != LibraryInfo::NoTypeInfo)
         return;
 
     // avoid inserting the same plugin twice
@@ -174,14 +174,14 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
         Core::MessageManager *messageManager = Core::MessageManager::instance();
         const QString errorMessages = process->readAllStandardError();
         messageManager->printToOutputPane(qmldumpErrorMessage(libraryPath, errorMessages));
-        libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage(errorMessages));
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(errorMessages));
     }
 
     const QByteArray output = process->readAllStandardOutput();
     QString error;
     QList<FakeMetaObject::ConstPtr> objectsList = parseHelper(output, &error);
     if (exitCode == 0 && !error.isEmpty()) {
-        libraryInfo.setDumpStatus(LibraryInfo::DumpError, tr("Type dump of C++ plugin failed. Parse error:\n'%1'").arg(error));
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, tr("Type dump of C++ plugin failed. Parse error:\n'%1'").arg(error));
     }
 
     if (exitCode == 0 && error.isEmpty()) {
@@ -189,7 +189,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
 // ### disabled code path for running qmldump to get Qt's builtins
 //        if (libraryPath.isEmpty())
 //            Interpreter::CppQmlTypesLoader::builtinObjects.append(objectsList);
-        libraryInfo.setDumpStatus(LibraryInfo::DumpDone);
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpDone);
     }
 
     if (!libraryPath.isEmpty())
@@ -212,7 +212,7 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
     if (!libraryPath.isEmpty()) {
         const Snapshot snapshot = m_modelManager->snapshot();
         LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
-        libraryInfo.setDumpStatus(LibraryInfo::DumpError, qmldumpFailedMessage(errorMessages));
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(errorMessages));
         m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
     }
 }
@@ -238,7 +238,7 @@ void PluginDumper::dump(const Plugin &plugin)
         const QString &path = plugin.predumpedQmlTypesFilePath();
         Utils::FileReader reader;
         if (!reader.fetch(path, QFile::Text)) {
-            libraryInfo.setDumpStatus(LibraryInfo::DumpError, reader.errorString());
+            libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, reader.errorString());
             m_modelManager->updateLibraryInfo(plugin.qmldirPath, libraryInfo);
             return;
         }
@@ -248,9 +248,9 @@ void PluginDumper::dump(const Plugin &plugin)
 
         if (error.isEmpty()) {
             libraryInfo.setMetaObjects(objectsList);
-            libraryInfo.setDumpStatus(LibraryInfo::DumpDone);
+            libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
         } else {
-            libraryInfo.setDumpStatus(LibraryInfo::DumpError,
+            libraryInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError,
                                       tr("Failed to parse '%1'.\nError: %2").arg(path, error));
         }
         m_modelManager->updateLibraryInfo(plugin.qmldirPath, libraryInfo);
@@ -269,7 +269,7 @@ void PluginDumper::dump(const Plugin &plugin)
         if (!libraryInfo.isValid())
             return;
 
-        libraryInfo.setDumpStatus(LibraryInfo::DumpError,
+        libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
                                   tr("Could not locate the helper application for dumping type information from C++ plugins.\n"
                                      "Please build the debugging helpers on the Qt version options page."));
         m_modelManager->updateLibraryInfo(plugin.qmldirPath, libraryInfo);

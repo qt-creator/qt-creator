@@ -78,6 +78,8 @@ private:
                         unsigned pos);
     void handleOrdinaryMatch(const QmlJS::LookupContext::Ptr &lookupContext,
                              QmlJS::AST::Node *node);
+    void handleImport(const QmlJS::LookupContext::Ptr &lookupContext,
+                      QmlJS::AST::UiImport *node);
 
     void prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
                             const QmlJS::Interpreter::Context *context);

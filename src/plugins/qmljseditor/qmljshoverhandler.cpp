@@ -120,16 +120,19 @@ void HoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         return;
 
     QList<AST::Node *> astPath = semanticInfo.astPath(pos);
-    if (astPath.isEmpty())
-        return;
 
     const Document::Ptr qmlDocument = semanticInfo.document;
     LookupContext::Ptr lookupContext = semanticInfo.lookupContext(astPath);
 
+    AST::Node *node = semanticInfo.nodeUnderCursor(pos);
+    if (astPath.isEmpty()) {
+        if (AST::UiImport *import = AST::cast<AST::UiImport *>(node))
+            handleImport(lookupContext, import);
+        return;
+    }
     if (matchColorItem(lookupContext, qmlDocument, astPath, pos))
         return;
 
-    AST::Node *node = semanticInfo.nodeUnderCursor(pos);
     handleOrdinaryMatch(lookupContext, node);
 
     TextEditor::HelpItem helpItem = qmlHelpItem(lookupContext, node);
@@ -211,6 +214,34 @@ void HoverHandler::handleOrdinaryMatch(const LookupContext::Ptr &lookupContext, 
                   AST::cast<AST::NumericLiteral *>(node) != 0)) {
         const Interpreter::Value *value = lookupContext->evaluate(node);
         prettyPrintTooltip(value, lookupContext->context());
+    }
+}
+
+void HoverHandler::handleImport(const LookupContext::Ptr &lookupContext, AST::UiImport *node)
+{
+    const Interpreter::TypeEnvironment *typeEnv = lookupContext->context()->typeEnvironment(lookupContext->document().data());
+    if (!typeEnv)
+        return;
+
+    foreach (const Interpreter::TypeEnvironment::Import &import, typeEnv->imports()) {
+        if (import.info.ast() == node) {
+            if (import.info.type() == Interpreter::ImportInfo::LibraryImport
+                    && !import.libraryPath.isEmpty()) {
+                QString msg = tr("Library at %1").arg(import.libraryPath);
+                const LibraryInfo &libraryInfo = lookupContext->snapshot().libraryInfo(import.libraryPath);
+                if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpDone) {
+                    msg += QLatin1Char('\n');
+                    msg += tr("Dumped plugins successfully.");
+                } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileDone) {
+                    msg += QLatin1Char('\n');
+                    msg += tr("Read typeinfo files successfully.");
+                }
+                setToolTip(msg);
+            } else {
+                setToolTip(import.info.name());
+            }
+            break;
+        }
     }
 }
 

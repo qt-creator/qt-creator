@@ -3374,6 +3374,10 @@ UiImport *ImportInfo::ast() const
     return _ast;
 }
 
+TypeEnvironment::Import::Import()
+    : object(0)
+{}
+
 TypeEnvironment::TypeEnvironment(Engine *engine)
     : ObjectValue(engine)
 {
@@ -3434,12 +3438,9 @@ void TypeEnvironment::processMembers(MemberProcessor *processor) const
     }
 }
 
-void TypeEnvironment::addImport(const ObjectValue *import, const ImportInfo &info)
+void TypeEnvironment::addImport(const Import &import)
 {
-    Import i;
-    i.object = import;
-    i.info = info;
-    _imports.append(i);
+    _imports.append(import);
 }
 
 ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *context) const
@@ -3471,6 +3472,11 @@ ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *conte
         }
     }
     return ImportInfo();
+}
+
+QList<TypeEnvironment::Import> TypeEnvironment::imports() const
+{
+    return _imports;
 }
 
 #ifdef QT_DEBUG

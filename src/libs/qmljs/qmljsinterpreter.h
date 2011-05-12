@@ -1020,15 +1020,17 @@ private:
 
 class QMLJS_EXPORT TypeEnvironment: public ObjectValue
 {
+public:
     class Import {
     public:
-        const ObjectValue *object;
-        ImportInfo info;
-    };
+        Import();
 
-    // holds imports in the order they appeared,
-    // lookup order is back to front
-    QList<Import> _imports;
+        // const!
+        ObjectValue *object;
+        ImportInfo info;
+        // uri imports: path to library, else empty
+        QString libraryPath;
+    };
 
 public:
     TypeEnvironment(Engine *engine);
@@ -1038,12 +1040,19 @@ public:
                                       bool examinePrototypes = true) const;
     virtual void processMembers(MemberProcessor *processor) const;
 
-    void addImport(const ObjectValue *import, const ImportInfo &info);
+    void addImport(const Import &import);
+
     ImportInfo importInfo(const QString &name, const Context *context) const;
+    QList<Import> imports() const;
 
 #ifdef QT_DEBUG
     void dump() const;
 #endif
+
+private:
+    // holds imports in the order they appeared,
+    // lookup order is back to front
+    QList<Import> _imports;
 };
 
 } } // namespace QmlJS::Interpreter

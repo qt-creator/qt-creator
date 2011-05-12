@@ -124,10 +124,12 @@ private:
 class QMLJS_EXPORT LibraryInfo
 {
 public:
-    enum DumpStatus {
-        DumpNotStartedOrRunning,
+    enum PluginTypeInfoStatus {
+        NoTypeInfo,
         DumpDone,
-        DumpError
+        DumpError,
+        TypeInfoFileDone,
+        TypeInfoFileError
     };
 
 private:
@@ -137,7 +139,7 @@ private:
     typedef QList<LanguageUtils::FakeMetaObject::ConstPtr> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
 
-    DumpStatus _dumpStatus;
+    PluginTypeInfoStatus _dumpStatus;
     QString _dumpError;
 
 public:
@@ -160,13 +162,13 @@ public:
     bool isValid() const
     { return _valid; }
 
-    DumpStatus dumpStatus() const
+    PluginTypeInfoStatus pluginTypeInfoStatus() const
     { return _dumpStatus; }
 
-    QString dumpError() const
+    QString pluginTypeInfoError() const
     { return _dumpError; }
 
-    void setDumpStatus(DumpStatus dumped, const QString &error = QString())
+    void setPluginTypeInfoStatus(PluginTypeInfoStatus dumped, const QString &error = QString())
     { _dumpStatus = dumped; _dumpError = error; }
 };
 
