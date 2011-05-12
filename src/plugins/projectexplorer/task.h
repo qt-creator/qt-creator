@@ -76,8 +76,10 @@ private:
     static unsigned int s_nextId;
 };
 
-bool operator==(const Task &t1, const Task &t2);
-uint qHash(const Task &task);
+bool PROJECTEXPLORER_EXPORT operator==(const Task &t1, const Task &t2);
+uint PROJECTEXPLORER_EXPORT qHash(const Task &task);
+
+bool PROJECTEXPLORER_EXPORT operator<(const Task &a, const Task &b);
 
 } //namespace ProjectExplorer
 

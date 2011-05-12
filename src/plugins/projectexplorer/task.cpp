@@ -65,6 +65,29 @@ bool operator==(const Task &t1, const Task &t2)
     return t1.taskId == t2.taskId;
 }
 
+bool operator<(const Task &a, const Task &b)
+{
+    if (a.type != b.type) {
+        if (a.type == ProjectExplorer::Task::Error)
+            return true;
+        if (b.type == ProjectExplorer::Task::Error)
+            return false;
+        if (a.type == ProjectExplorer::Task::Warning)
+            return true;
+        if (b.type == ProjectExplorer::Task::Warning)
+            return false;
+        // Can't happen
+        return true;
+    } else {
+        if (a.category < b.category)
+            return true;
+        if (b.category < a.category)
+            return false;
+        return a.taskId < b.taskId;
+    }
+}
+
+
 uint qHash(const Task &task)
 {
     return task.taskId;
