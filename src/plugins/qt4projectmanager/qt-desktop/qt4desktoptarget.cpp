@@ -69,9 +69,11 @@ void Qt4DesktopTarget::createApplicationProFiles()
 
     // We use the list twice
     QList<Qt4ProFileNode *> profiles = qt4Project()->applicationProFiles();
-    QSet<QString> paths;
-    foreach (Qt4ProFileNode *pro, profiles)
-        paths << pro->path();
+    QHash<QString, bool> paths;
+    foreach (Qt4ProFileNode *pro, profiles) {
+        bool isConsole = pro->variableValue(ConfigVar).contains(QLatin1String("console"));
+        paths.insert(pro->path(), isConsole);
+    }
 
     foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations())
         if (Qt4RunConfiguration *qt4rc = qobject_cast<Qt4RunConfiguration *>(rc)) {
@@ -79,8 +81,14 @@ void Qt4DesktopTarget::createApplicationProFiles()
         }
 
     // Only add new runconfigurations if there are none.
-    foreach (const QString &path, paths)
-        addRunConfiguration(new Qt4RunConfiguration(this, path));
+    QHash<QString, bool>::const_iterator it, end;
+    end = paths.constEnd();
+    for (it = paths.constBegin(); it != end; ++it) {
+        Qt4RunConfiguration *qt4rc = new Qt4RunConfiguration(this, it.key());
+        if (it.value())
+            qt4rc->setRunMode(ProjectExplorer::LocalApplicationRunConfiguration::Console);
+        addRunConfiguration(qt4rc);
+    }
 
     // Oh still none? Add a custom executable runconfiguration
     if (runConfigurations().isEmpty()) {

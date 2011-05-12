@@ -104,6 +104,7 @@ public:
 
     Utils::OutputFormatter *createOutputFormatter() const;
 
+    void setRunMode(RunMode runMode);
 signals:
     void commandLineArgumentsChanged(const QString&);
     void baseWorkingDirectoryChanged(const QString&);
@@ -125,7 +126,6 @@ protected:
 
 private:
     void handleParseState(bool success);
-    void setRunMode(RunMode runMode);
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     void setCommandLineArguments(const QString &argumentsString);
