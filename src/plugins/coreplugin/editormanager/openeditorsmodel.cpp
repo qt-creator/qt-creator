@@ -196,18 +196,16 @@ int OpenEditorsModel::findFileName(const QString &filename) const
 void OpenEditorsModel::removeEditor(IEditor *editor)
 {
     d->m_duplicateEditors.removeAll(editor);
-    int idx = findEditor(editor);
-    if (idx < 0)
-        return;
-    beginRemoveRows(QModelIndex(), idx, idx);
-    d->m_editors.removeAt(idx);
-    endRemoveRows();
-    disconnect(editor, SIGNAL(changed()), this, SLOT(itemChanged()));
+    removeEditor(findEditor(editor));
 }
 
 void OpenEditorsModel::removeEditor(const QModelIndex &index)
 {
-    int idx = index.row();
+    removeEditor(index.row());
+}
+
+void OpenEditorsModel::removeEditor(int idx)
+{
     if (idx < 0)
         return;
     IEditor *editor= d->m_editors.at(idx).editor;

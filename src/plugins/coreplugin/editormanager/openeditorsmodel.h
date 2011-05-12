@@ -103,6 +103,7 @@ private:
     void addEntry(const Entry &entry);
     int findEditor(IEditor *editor) const;
     int findFileName(const QString &filename) const;
+    void removeEditor(int idx);
 
     QScopedPointer<OpenEditorsModelPrivate> d;
 };
