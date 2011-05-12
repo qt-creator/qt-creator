@@ -33,4 +33,10 @@
         <glob pattern="*.vsh"/>
     </mime-type>
 
+    <mime-type type="text/x-glsl-es-geometry">
+        <sub-class-of type="text/x-glsl"/>
+        <comment>GLSL/ES Geometry Shader file</comment>
+        <glob pattern="*.gsh"/>
+    </mime-type>
+
 </mime-info>
