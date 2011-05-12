@@ -121,6 +121,11 @@ QRectF FormEditorGraphicsView::rootItemRect() const
     return m_rootItemRect;
 }
 
+void FormEditorGraphicsView::mousePressEvent(QMouseEvent *mouseEvent)
+{
+    QGraphicsView::mousePressEvent(mouseEvent);
+}
+
 void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (rect().contains(event->pos())) {
