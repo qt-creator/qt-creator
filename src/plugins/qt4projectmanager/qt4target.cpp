@@ -466,9 +466,9 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     m_shadowBuildEnabled = new QCheckBox;
     m_shadowBuildEnabled->setText(tr("Use Shadow Building"));
     m_shadowBuildCheckBoxVisible = shadowBuild == USER;
-    m_shadowBuildEnabled->setVisible(m_shadowBuildCheckBoxVisible);
 
     layout->addWidget(m_shadowBuildEnabled);
+    m_shadowBuildEnabled->setVisible(m_shadowBuildCheckBoxVisible);
 
     m_versionLabel = new QLabel;
     m_versionLabel->setText("Qt Version:");
