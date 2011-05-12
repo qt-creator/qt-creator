@@ -332,6 +332,11 @@ QString BaseQtVersion::autodetectionSource() const
     return m_autodetectionSource;
 }
 
+void BaseQtVersion::setAutoDetectionSource(const QString &autodetectionSource)
+{
+    m_autodetectionSource = autodetectionSource;
+}
+
 QString BaseQtVersion::displayName() const
 {
     return m_displayName;

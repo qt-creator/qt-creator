@@ -202,6 +202,7 @@ protected:
     void ensureMkSpecParsed() const;
     virtual void parseMkSpec(ProFileEvaluator *) const;
 private:
+    void setAutoDetectionSource(const QString &autodetectionSource);
     static int getUniqueId();
     void ctor(const QString &qmakePath);
     void updateSourcePath() const;

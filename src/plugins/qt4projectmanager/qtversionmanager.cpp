@@ -73,6 +73,10 @@ using ProjectExplorer::DebuggingHelperLibrary;
 static const char QTVERSION_DATA_KEY[] = "QtVersion.";
 static const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
 static const char QTVERSION_COUNT_KEY[] = "QtVersion.Count";
+static const char OLDQTVERSION_COUNT_KEY[] = "QtVersion.Old.Count";
+static const char OLDQTVERSION_DATA_KEY[] = "QtVersion.Old.";
+static const char OLDQTVERSION_SDKSOURCE[] = "QtVersion.Old.SdkSource";
+static const char OLDQTVERSION_PATH[] = "QtVersion.Old.Path";
 static const char QTVERSION_FILE_VERSION_KEY[] = "Version";
 static const char QTVERSION_FILENAME[] = "/qtversion.xml";
 
@@ -202,8 +206,146 @@ bool QtVersionManager::restoreQtVersions()
 
 void QtVersionManager::updateFromInstaller()
 {
-    // TODO implement for the sdk
-    return;
+    bool debug = true;
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    QList<QtVersionFactory *> factories = pm->getObjects<QtVersionFactory>();
+    ProjectExplorer::PersistentSettingsReader reader;
+    if (!reader.load(Core::ICore::instance()->resourcePath()
+                     + QLatin1String("/Nokia") + QLatin1String(QTVERSION_FILENAME)))
+        return;
+
+    QVariantMap data = reader.restoreValues();
+
+    if (debug) {
+        qDebug()<< "======= Existing qt versions =======";
+        foreach (BaseQtVersion *version, m_versions) {
+            qDebug() << version->qmakeCommand() << "id:"<<version->uniqueId();
+            qDebug() << "  autodetection source:"<< version->autodetectionSource();
+            qDebug() << "";
+        }
+    }
+
+    int oldcount = data.value(QLatin1String(OLDQTVERSION_COUNT_KEY), 0).toInt();
+    for (int i=0; i < oldcount; ++i) {
+        const QString key = QString::fromLatin1(OLDQTVERSION_DATA_KEY) +QString::number(i);
+        if (!data.contains(key))
+            break;
+        QVariantMap map = data.value(key).toMap();
+        QString path = map.value(OLDQTVERSION_PATH).toString();
+#ifdef Q_OS_WIN
+        path = path.toLower();
+#endif
+        QString autodetectionSource = map.value(OLDQTVERSION_SDKSOURCE).toString();
+        foreach (BaseQtVersion *v, m_versions) {
+            if (v->qmakeCommand() == path) {
+                if (v->autodetectionSource().isEmpty()) {
+                    v->setAutoDetectionSource(autodetectionSource);
+                } else {
+                    if (debug)
+                        qDebug() << "## Conflicting autodetictonSource for"<<path<<"\n"
+                                 <<"     version retains"<<v->autodetectionSource();
+                }
+                // No break, we want to mark all qt versions matching that path
+                // There's no way for us to decide whether this qt was added
+                // by the user or by the installer, so we treat them all as coming
+                // from the installer. Thus removing/updating them deletes/updates them all
+                // Note: This only applies to versions that are marked via QtVersion.Old
+            }
+        }
+    }
+
+    if (debug) {
+        qDebug()<< "======= After using OLD QtVersion data to mark versions =======";
+        foreach (BaseQtVersion *version, m_versions) {
+            qDebug() << version->qmakeCommand() << "id:"<<version->uniqueId();
+            qDebug() << "  autodetection source:"<< version->autodetectionSource();
+            qDebug() << "";
+        }
+
+        qDebug()<< "======= Adding sdk versions =======";
+    }
+    QStringList sdkVersions;
+    int count = data.value(QLatin1String(QTVERSION_COUNT_KEY), 0).toInt();
+    for (int i = 0; i < count; ++i) {
+        const QString key = QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(i);
+        if (!data.contains(key))
+            break;
+
+        QVariantMap qtversionMap = data.value(key).toMap();
+        const QString type = qtversionMap.value(QTVERSION_TYPE_KEY).toString();
+        const QString autoDetectionSource = qtversionMap.value(QLatin1String("autodetectionSource")).toString();
+        sdkVersions << autoDetectionSource;
+        int id = -1; // see BaseQtVersion::fromMap()
+        QtVersionFactory *factory = 0;
+        foreach (QtVersionFactory *f, factories) {
+            if (f->canRestore(type)) {
+                factory = f;
+            }
+        }
+        if (!factory) {
+            if (debug)
+                qDebug("Warning: Unable to find factory for type '%s'", qPrintable(type));
+            continue;
+        }
+        // First try to find a existing qt version to update
+        bool restored = false;
+        foreach (BaseQtVersion *v, m_versions) {
+            if (v->autodetectionSource() == autoDetectionSource) {
+                id = v->uniqueId();
+                if (debug)
+                    qDebug() << " Qt version found with same autodetection source" << autoDetectionSource << " => Migrating id:" << id;
+                removeVersion(v);
+                qtversionMap[QLatin1String("Id")] = id;
+
+                if (BaseQtVersion *qtv = factory->restore(qtversionMap)) {
+                    Q_ASSERT(qtv->isAutodetected());
+                    addVersion(qtv);
+                    restored = true;
+                }
+            }
+        }
+        // Create a new qtversion
+        if (!restored) { // didn't replace any existing versions
+            if (debug)
+                qDebug() << " No Qt version found matching" << autoDetectionSource << " => Creating new version";
+            if (BaseQtVersion *qtv = factory->restore(qtversionMap)) {
+                Q_ASSERT(qtv->isAutodetected());
+                addVersion(qtv);
+                restored = true;
+            }
+        }
+        if (!restored)
+            if (debug)
+                qDebug("Warning: Unable to update qtversion '%s' from sdk installer.",
+                       qPrintable(autoDetectionSource));
+    }
+
+    if (debug) {
+        qDebug() << "======= Before removing outdated sdk versions =======";
+        foreach (BaseQtVersion *version, m_versions) {
+            qDebug() << version->qmakeCommand() << "id:"<<version->uniqueId();
+            qDebug() << "  autodetection source:"<< version->autodetectionSource();
+            qDebug() << "";
+        }
+    }
+    foreach (BaseQtVersion *qtVersion, QtVersionManager::instance()->versions()) {
+        if (qtVersion->autodetectionSource().startsWith("SDK.")) {
+            if (!sdkVersions.contains(qtVersion->autodetectionSource())) {
+                if (debug)
+                    qDebug() << "  removing version"<<qtVersion->autodetectionSource();
+                removeVersion(qtVersion);
+            }
+        }
+    }
+
+    if (debug) {
+        qDebug()<< "======= End result =======";
+        foreach (BaseQtVersion *version, m_versions) {
+            qDebug() << version->qmakeCommand() << "id:"<<version->uniqueId();
+            qDebug() << "  autodetection source:"<< version->autodetectionSource();
+            qDebug() << "";
+        }
+    }
 }
 
 void QtVersionManager::saveQtVersions()

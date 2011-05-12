@@ -732,6 +732,7 @@ void QtOptionsPageWidget::updateWidgets()
         m_configurationWidget = version->createConfigurationWidget();
         if (m_configurationWidget) {
             m_versionUi->formLayout->addRow(m_configurationWidget);
+            m_configurationWidget->setEnabled(!version->isAutodetected());
             connect(m_configurationWidget, SIGNAL(changed()),
                     this, SLOT(qtVersionChanged()));
         }
