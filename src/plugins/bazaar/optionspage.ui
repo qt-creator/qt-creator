@@ -94,6 +94,9 @@
         <property name="toolTip">
          <string>The number of recent commit logs to show, choose 0 to see all enteries</string>
         </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
        </widget>
       </item>
       <item row="1" column="0">
