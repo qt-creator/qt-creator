@@ -49,6 +49,9 @@ QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, c
     if (m_nodeInstanceView.isNull())
         return QImage();
 
+    if (!m_nodeInstanceView->model())
+        return QImage(); //NodeInstanceView might be detached
+
     QSize newSize = requestedSize;
 
     if (newSize.isEmpty())
