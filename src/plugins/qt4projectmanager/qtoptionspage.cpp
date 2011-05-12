@@ -416,7 +416,7 @@ void QtOptionsPageWidget::addQtDir()
     }
     filter += ")";
 
-    QString qtVersion = QFileDialog::getOpenFileName(Core::ICore::instance()->mainWindow(),
+    QString qtVersion = QFileDialog::getOpenFileName(this,
                                                      tr("Select a qmake executable"), QString(), filter);
     if (qtVersion.isNull())
         return;
