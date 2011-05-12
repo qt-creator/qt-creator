@@ -144,8 +144,6 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
 
     m_ui->debuggingHelperWidget->setWidget(debuggingHelperDetailsWidget);
 
-    new Utils::TreeWidgetColumnStretcher(m_ui->qtdirList, 1);
-
     // setup parent items for auto-detected and manual versions
     m_ui->qtdirList->header()->setResizeMode(QHeaderView::ResizeToContents);
     QTreeWidgetItem *autoItem = new QTreeWidgetItem(m_ui->qtdirList);
