@@ -70,12 +70,13 @@ QmlTaskManager::QmlTaskManager(QObject *parent) :
 }
 
 void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future,
-    Snapshot snapshot, QStringList files, QStringList importPaths)
+    Snapshot snapshot, QStringList files, QStringList /*importPaths*/)
 {
-    Interpreter::Context ctx(snapshot);
-    QHash<QString, QList<DiagnosticMessage> > linkMessages;
-    Link link(&ctx, snapshot, importPaths);
-    link(&linkMessages);
+    // ### link and check error messages are disabled for now: too many false-positives!
+    //Interpreter::Context ctx(snapshot);
+    //QHash<QString, QList<DiagnosticMessage> > linkMessages;
+    //Link link(&ctx, snapshot, importPaths);
+    //link(&linkMessages);
 
     foreach (const QString &fileName, files) {
         Document::Ptr document = snapshot.document(fileName);
@@ -85,10 +86,11 @@ void QmlTaskManager::collectMessages(QFutureInterface<FileErrorMessages> &future
         FileErrorMessages result;
         result.fileName = fileName;
         result.messages = document->diagnosticMessages();
-        result.messages += linkMessages.value(fileName);
 
-        Check checker(document, &ctx);
-        result.messages.append(checker());
+        //result.messages += linkMessages.value(fileName);
+
+        //Check checker(document, &ctx);
+        //result.messages.append(checker());
 
         future.reportResult(result);
         if (future.isCanceled())
