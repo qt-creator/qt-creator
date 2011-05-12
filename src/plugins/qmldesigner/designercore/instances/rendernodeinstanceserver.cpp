@@ -32,14 +32,52 @@
 
 #include "rendernodeinstanceserver.h"
 
-#include "nodeinstanceclientinterface.h"
-
-#include "pixmapchangedcommand.h"
-
-#include <QDeclarativeView>
 #include <QGraphicsItem>
-
 #include <private/qgraphicsitem_p.h>
+#include <private/qgraphicsscene_p.h>
+#include <QDeclarativeEngine>
+#include <QDeclarativeView>
+#include <QFileSystemWatcher>
+#include <QUrl>
+#include <QSet>
+#include <QDir>
+#include <QVariant>
+#include <QMetaType>
+#include <QDeclarativeComponent>
+#include <QDeclarativeContext>
+#include <private/qlistmodelinterface_p.h>
+#include <QAbstractAnimation>
+#include <private/qabstractanimation_p.h>
+
+#include "servernodeinstance.h"
+#include "childrenchangeeventfilter.h"
+#include "propertyabstractcontainer.h"
+#include "propertybindingcontainer.h"
+#include "propertyvaluecontainer.h"
+#include "instancecontainer.h"
+#include "createinstancescommand.h"
+#include "changefileurlcommand.h"
+#include "clearscenecommand.h"
+#include "reparentinstancescommand.h"
+#include "changevaluescommand.h"
+#include "changebindingscommand.h"
+#include "changeidscommand.h"
+#include "removeinstancescommand.h"
+#include "nodeinstanceclientinterface.h"
+#include "removepropertiescommand.h"
+#include "valueschangedcommand.h"
+#include "informationchangedcommand.h"
+#include "pixmapchangedcommand.h"
+#include "commondefines.h"
+#include "childrenchangeeventfilter.h"
+#include "changestatecommand.h"
+#include "addimportcommand.h"
+#include "childrenchangedcommand.h"
+#include "completecomponentcommand.h"
+#include "componentcompletedcommand.h"
+#include "createscenecommand.h"
+
+#include "dummycontextobject.h"
 
 namespace QmlDesigner {
 
@@ -48,7 +86,7 @@ RenderNodeInstanceServer::RenderNodeInstanceServer(NodeInstanceClientInterface *
 {
 }
 
-void RenderNodeInstanceServer::findItemChangesAndSendChangeCommands()
+void RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
     if (!inFunction) {
@@ -107,6 +145,43 @@ void RenderNodeInstanceServer::findItemChangesAndSendChangeCommands()
 
         inFunction = false;
     }
+}
+
+void RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
+{
+    NodeInstanceServer::createScene(command);
+
+    QList<ServerNodeInstance> instanceList;
+    foreach(const InstanceContainer &container, command.instances()) {
+        ServerNodeInstance instance = instanceForId(container.instanceId());
+        if (instance.isValid()) {
+            instanceList.append(instance);
+        }
+    }
+
+    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
+}
+
+void RenderNodeInstanceServer::clearScene(const ClearSceneCommand &command)
+{
+    NodeInstanceServer::clearScene(command);
+
+    m_dirtyInstanceSet.clear();
+}
+
+void RenderNodeInstanceServer::completeComponent(const CompleteComponentCommand &command)
+{
+    NodeInstanceServer::completeComponent(command);
+
+    QList<ServerNodeInstance> instanceList;
+    foreach(qint32 instanceId, command.instances()) {
+        ServerNodeInstance instance = instanceForId(instanceId);
+        if (instance.isValid()) {
+            instanceList.append(instance);
+        }
+    }
+
+    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
 }
 
 } // namespace QmlDesigner

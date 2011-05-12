@@ -60,7 +60,7 @@ void PreviewNodeInstanceServer::startRenderTimer()
     setTimerId(timerId);
 }
 
-void PreviewNodeInstanceServer::findItemChangesAndSendChangeCommands()
+void PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
 

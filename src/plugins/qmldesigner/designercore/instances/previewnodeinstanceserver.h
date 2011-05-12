@@ -46,7 +46,7 @@ public:
     void changeState(const ChangeStateCommand &command);
 
 protected:
-    void findItemChangesAndSendChangeCommands();
+    void collectItemChangesAndSendChangeCommands();
     void startRenderTimer();
 
 private:

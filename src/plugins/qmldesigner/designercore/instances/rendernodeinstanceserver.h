@@ -43,8 +43,12 @@ class RenderNodeInstanceServer : public NodeInstanceServer
 public:
     explicit RenderNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
 
+    void createScene(const CreateSceneCommand &command);
+    void clearScene(const ClearSceneCommand &command);
+    void completeComponent(const CompleteComponentCommand &command);
+
 protected:
-    void findItemChangesAndSendChangeCommands();
+    void collectItemChangesAndSendChangeCommands();
 
 private:
     QSet<ServerNodeInstance> m_dirtyInstanceSet;

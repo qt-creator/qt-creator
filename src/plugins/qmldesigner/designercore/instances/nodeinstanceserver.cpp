@@ -80,9 +80,6 @@
 
 #include "dummycontextobject.h"
 
-#include <iostream>
-#include <stdio.h>
-
 
 namespace QmlDesigner {
 
@@ -237,12 +234,6 @@ void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 
     refreshBindings();
 
-    nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
-    nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
-    sendChildrenChangedCommand(instanceList);
-    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
-    nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
-
     startRenderTimer();
 }
 
@@ -296,7 +287,6 @@ void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &con
         ServerNodeInstance instance = instanceForId(container.instanceId());
         if (instance.isValid()) {
             instance.reparent(instanceForId(container.oldParentInstanceId()), container.oldParentProperty(), instanceForId(container.newParentInstanceId()), container.newParentProperty());
-            m_parentChangedSet.insert(instance);
         }
     }
 
@@ -336,12 +326,7 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
         }
     }
 
-    m_completedComponentList.append(instanceList);
     refreshBindings();
-
-    nodeInstanceClient()->valuesChanged(createValuesChangedCommand(instanceList));
-    nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
-    nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
 
     startRenderTimer();
 }
@@ -763,7 +748,7 @@ void NodeInstanceServer::clearStateInstance()
 void NodeInstanceServer::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == m_timer) {
-        findItemChangesAndSendChangeCommands();
+        collectItemChangesAndSendChangeCommands();
     }
 
     NodeInstanceServerInterface::timerEvent(event);
@@ -772,27 +757,6 @@ void NodeInstanceServer::timerEvent(QTimerEvent *event)
 NodeInstanceClientInterface *NodeInstanceServer::nodeInstanceClient() const
 {
     return m_nodeInstanceClient;
-}
-
-void NodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> childList)
-{
-    QSet<ServerNodeInstance> parentSet;
-    QList<ServerNodeInstance> noParentList;
-
-    foreach (const ServerNodeInstance &child, childList) {
-        if (!child.hasParent())
-            noParentList.append(child);
-        else
-            parentSet.insert(child.parent());
-    }
-
-
-    foreach (const ServerNodeInstance &parent, parentSet)
-        nodeInstanceClient()->childrenChanged(createChildrenChangedCommand(parent, parent.childItems()));
-
-    if (!noParentList.isEmpty())
-        nodeInstanceClient()->childrenChanged(createChildrenChangedCommand(ServerNodeInstance(), noParentList));
-
 }
 
 ChildrenChangedCommand NodeInstanceServer::createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const
@@ -1184,89 +1148,7 @@ QList<ServerNodeInstance> NodeInstanceServer::setupScene(const CreateSceneComman
     return instanceList;
 }
 
-void NodeInstanceServer::findItemChangesAndSendChangeCommands()
-{
-    static bool inFunction = false;
-    if (!inFunction) {
-        inFunction = true;
 
-        QSet<ServerNodeInstance> informationChangedInstanceSet;
-        QVector<InstancePropertyPair> propertyChangedList;
-        bool adjustSceneRect = false;
-
-        if (m_declarativeView) {
-            foreach (QGraphicsItem *item, m_declarativeView->items()) {
-                QGraphicsObject *graphicsObject = item->toGraphicsObject();
-                if (graphicsObject && hasInstanceForObject(graphicsObject)) {
-                    ServerNodeInstance instance = instanceForObject(graphicsObject);
-                    QGraphicsItemPrivate *d = QGraphicsItemPrivate::get(item);
-
-                    if (d->dirtySceneTransform || d->geometryChanged || d->dirty)
-                        informationChangedInstanceSet.insert(instance);
-
-                    if (d->geometryChanged) {
-                        if (instance.isRootNodeInstance())
-                            m_declarativeView->scene()->setSceneRect(item->boundingRect());
-                    }
-
-                }
-            }
-
-            foreach (const InstancePropertyPair& property, m_changedPropertyList) {
-                const ServerNodeInstance instance = property.first;
-                const QString propertyName = property.second;
-
-                if (instance.isValid()) {
-                    if (instance.isRootNodeInstance() && (propertyName == "width" || propertyName == "height"))
-                        adjustSceneRect = true;
-
-                    if (propertyName.contains("anchors"))
-                        informationChangedInstanceSet.insert(instance);
-
-                    if (propertyName == "parent") {
-                        informationChangedInstanceSet.insert(instance);
-                        m_parentChangedSet.insert(instance);
-                    }
-
-                    propertyChangedList.append(property);
-                }
-            }
-
-            m_changedPropertyList.clear();
-            resetAllItems();
-
-            if (!informationChangedInstanceSet.isEmpty())
-                nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(informationChangedInstanceSet.toList()));
-
-            if (!propertyChangedList.isEmpty())
-                nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
-
-            if (!m_parentChangedSet.isEmpty()) {
-                sendChildrenChangedCommand(m_parentChangedSet.toList());
-                m_parentChangedSet.clear();
-            }
-
-            if (adjustSceneRect) {
-                QRectF boundingRect = m_rootNodeInstance.boundingRect();
-                if (boundingRect.isValid()) {
-                    m_declarativeView->setSceneRect(boundingRect);
-                }
-            }
-
-            if (!m_completedComponentList.isEmpty()) {
-                nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(m_completedComponentList));
-                m_completedComponentList.clear();
-            }
-
-            slowDownRenderTimer();
-            nodeInstanceClient()->flush();
-            nodeInstanceClient()->synchronizeWithClientProcess();
-        }
-
-        inFunction = false;
-    }
-
-}
 }
 
 

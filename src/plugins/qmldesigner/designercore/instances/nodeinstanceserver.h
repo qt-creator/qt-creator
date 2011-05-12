@@ -146,7 +146,7 @@ protected:
     void timerEvent(QTimerEvent *);
 
     bool nonInstanceChildIsDirty(QGraphicsObject *graphicsObject) const;
-    virtual void findItemChangesAndSendChangeCommands();
+    virtual void collectItemChangesAndSendChangeCommands() = 0;
     void resetAllItems();
 
     ValuesChangedCommand createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
@@ -155,7 +155,6 @@ protected:
     InformationChangedCommand createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial = false) const;
     ChildrenChangedCommand createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const;
     ComponentCompletedCommand createComponentCompletedCommand(const QList<ServerNodeInstance> &instanceList);
-    void sendChildrenChangedCommand(const QList<ServerNodeInstance> childList);
 
     void addChangedProperty(const InstancePropertyPair &property);
 
@@ -206,8 +205,6 @@ private:
     int m_slowRenderTimerInterval;
     QVector<InstancePropertyPair> m_changedPropertyList;
     QStringList m_importList;
-    QSet<ServerNodeInstance> m_parentChangedSet;
-    QList<ServerNodeInstance> m_completedComponentList;
     QWeakPointer<QObject> m_dummyContextObject;
     QWeakPointer<QDeclarativeComponent> m_importComponent;
     QWeakPointer<QObject> m_importComponentObject;

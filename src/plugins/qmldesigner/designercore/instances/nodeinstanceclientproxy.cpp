@@ -37,7 +37,7 @@
 #include <QCoreApplication>
 #include <QStringList>
 
-#include "nodeinstanceserver.h"
+#include "informationnodeinstanceserver.h"
 #include "previewnodeinstanceserver.h"
 #include "rendernodeinstanceserver.h"
 
@@ -82,7 +82,7 @@ NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
         m_nodeInstanceServer = new PreviewNodeInstanceServer(this);
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("editormode")) {
-        m_nodeInstanceServer = new NodeInstanceServer(this);
+        m_nodeInstanceServer = new InformationNodeInstanceServer(this);
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("rendermode")) {
         m_nodeInstanceServer = new RenderNodeInstanceServer(this);
     }
