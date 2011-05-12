@@ -79,7 +79,7 @@ bool MercurialClient::manifestSync(const QString &repository, const QString &rel
 bool MercurialClient::synchronousClone(const QString &workingDir,
                                        const QString &srcLocation,
                                        const QString &dstLocation,
-                                       const ExtraCommandOptions &extraOptions)
+                                       const QStringList &extraOptions)
 {
     Q_UNUSED(workingDir);
     Q_UNUSED(extraOptions);
@@ -320,7 +320,7 @@ QString MercurialClient::vcsEditorKind(VCSCommand cmd) const
 
 QStringList MercurialClient::cloneArguments(const QString &srcLocation,
                                             const QString &dstLocation,
-                                            const ExtraCommandOptions &extraOptions) const
+                                            const QStringList &extraOptions) const
 {
     Q_UNUSED(srcLocation);
     Q_UNUSED(dstLocation);
@@ -330,7 +330,7 @@ QStringList MercurialClient::cloneArguments(const QString &srcLocation,
 }
 
 QStringList MercurialClient::pullArguments(const QString &srcLocation,
-                                           const ExtraCommandOptions &extraOptions) const
+                                           const QStringList &extraOptions) const
 {
     Q_UNUSED(extraOptions);
     QStringList args;
@@ -341,7 +341,7 @@ QStringList MercurialClient::pullArguments(const QString &srcLocation,
 }
 
 QStringList MercurialClient::pushArguments(const QString &dstLocation,
-                                           const ExtraCommandOptions &extraOptions) const
+                                           const QStringList &extraOptions) const
 {
     Q_UNUSED(extraOptions);
     QStringList args;
@@ -353,36 +353,11 @@ QStringList MercurialClient::pushArguments(const QString &dstLocation,
 
 QStringList MercurialClient::commitArguments(const QStringList &files,
                                              const QString &commitMessageFile,
-                                             const ExtraCommandOptions &extraOptions) const
+                                             const QStringList &extraOptions) const
 {
     QStringList args(QLatin1String("--noninteractive"));
-    // Fetch extra options
-    foreach (int iOption, extraOptions.keys())
-    {
-        const QVariant iOptValue = extraOptions[iOption];
-        switch (iOption)
-        {
-        case AuthorCommitOptionId :
-        {
-            Q_ASSERT(iOptValue.canConvert(QVariant::String));
-            const QString committerInfo = iOptValue.toString();
-            if (!committerInfo.isEmpty())
-                args << QLatin1String("-u") << committerInfo;
-            break;
-        }
-        case AutoAddRemoveCommitOptionId :
-        {
-            Q_ASSERT(iOptValue.canConvert(QVariant::Bool));
-            const bool autoAddRemove = iOptValue.toBool();
-            if (autoAddRemove)
-                args << QLatin1String("-A");
-            break;
-        }
-        default :
-            Q_ASSERT(false); // Invalid option !
-        }
-    } // end foreach ()
-    // Add arguments for common options
+    if (!args.isEmpty())
+        args.append(extraOptions);
     args << QLatin1String("-l") << commitMessageFile;
     args << files;
     return args;
@@ -435,30 +410,19 @@ QStringList MercurialClient::annotateArguments(const QString &file,
 }
 
 QStringList MercurialClient::diffArguments(const QStringList &files,
-                                           const ExtraCommandOptions &extraOptions) const
+                                           const QStringList &extraOptions) const
 {
     QStringList args;
     args << QLatin1String("-g") << QLatin1String("-p") << QLatin1String("-U 8");
-    foreach (const QVariant &extraOption, extraOptions) {
-        switch (extraOption.type()) {
-        case QVariant::String:
-            args.append(extraOption.toString());
-            break;
-        case QVariant::StringList:
-            args.append(extraOption.toStringList());
-            break;
-        default:
-            QTC_ASSERT(false, continue; )
-            break;
-        }
-    }
+    if (!args.isEmpty())
+        args.append(extraOptions);
     if (!files.isEmpty())
         args.append(files);
     return args;
 }
 
 QStringList MercurialClient::logArguments(const QStringList &files,
-                                          const ExtraCommandOptions &extraOptions) const
+                                          const QStringList &extraOptions) const
 {
     Q_UNUSED(extraOptions);
     QStringList args;
@@ -514,7 +478,7 @@ struct MercurialDiffParameters
 {
     QString workingDir;
     QStringList files;
-    VCSBase::VCSBaseClient::ExtraCommandOptions extraOptions;
+    QStringList extraOptions;
 };
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
@@ -545,7 +509,7 @@ MercurialDiffParameterWidget::MercurialDiffParameterWidget(const MercurialDiffPa
 void MercurialDiffParameterWidget::triggerReRun()
 {
     MercurialDiffParameters effectiveParameters = m_parameters;
-    effectiveParameters.extraOptions.insert(42, QVariant(arguments()));
+    effectiveParameters.extraOptions += arguments();
     emit reRunDiff(effectiveParameters);
 }
 
@@ -555,7 +519,7 @@ void MercurialClient::mercurialDiff(const Mercurial::Internal::MercurialDiffPara
 }
 
 void MercurialClient::initializeDiffEditor(const QString &workingDir, const QStringList &files,
-                                           const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
+                                           const QStringList &extraOptions,
                                            VCSBase::VCSBaseEditorWidget *diffEditorWidget)
 {
     // Wire up the parameter widget to trigger a re-run on
@@ -563,7 +527,7 @@ void MercurialClient::initializeDiffEditor(const QString &workingDir, const QStr
     MercurialDiffParameters parameters;
     parameters.workingDir = workingDir;
     parameters.files = files;
-    parameters.extraOptions = extra;
+    parameters.extraOptions = extraOptions;
     diffEditorWidget->setRevertDiffChunkEnabled(true);
     MercurialDiffParameterWidget *pw = new MercurialDiffParameterWidget(parameters);
     connect(pw, SIGNAL(reRunDiff(Mercurial::Internal::MercurialDiffParameters)),

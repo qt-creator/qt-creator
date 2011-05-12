@@ -44,32 +44,6 @@ class BazaarClient : public VCSBase::VCSBaseClient
 {
     Q_OBJECT
 public:
-    enum ExtraOptionId
-    {
-        // Clone
-        UseExistingDirCloneOptionId,
-        StackedCloneOptionId,
-        StandAloneCloneOptionId,
-        BindCloneOptionId,
-        SwitchCloneOptionId,
-        HardLinkCloneOptionId,
-        NoTreeCloneOptionId,
-        RevisionCloneOptionId,
-        // Commit
-        AuthorCommitOptionId,
-        FixesCommitOptionId,
-        LocalCommitOptionId,
-        // Pull or push (common options)
-        RememberPullOrPushOptionId,
-        OverwritePullOrPushOptionId,
-        RevisionPullOrPushOptionId,
-        // Pull only
-        LocalPullOptionId,
-        // Push only
-        UseExistingDirPushOptionId,
-        CreatePrefixPushOptionId
-    };
-
     BazaarClient(const VCSBase::VCSBaseClientSettings &settings);
 
     bool synchronousSetUserId();
@@ -84,14 +58,14 @@ protected:
 
     QStringList cloneArguments(const QString &srcLocation,
                                const QString &dstLocation,
-                               const ExtraCommandOptions &extraOptions) const;
+                               const QStringList &extraOptions) const;
     QStringList pullArguments(const QString &srcLocation,
-                              const ExtraCommandOptions &extraOptions) const;
+                              const QStringList &extraOptions) const;
     QStringList pushArguments(const QString &dstLocation,
-                              const ExtraCommandOptions &extraOptions) const;
+                              const QStringList &extraOptions) const;
     QStringList commitArguments(const QStringList &files,
                                 const QString &commitMessageFile,
-                                const ExtraCommandOptions &extraOptions) const;
+                                const QStringList &extraOptions) const;
     QStringList importArguments(const QStringList &files) const;
     QStringList updateArguments(const QString &revision) const;
     QStringList revertArguments(const QString &file, const QString &revision) const;
@@ -99,18 +73,17 @@ protected:
     QStringList annotateArguments(const QString &file,
                                   const QString &revision, int lineNumber) const;
     QStringList diffArguments(const QStringList &files,
-                              const ExtraCommandOptions &extraOptions) const;
+                              const QStringList &extraOptions) const;
     void initializeDiffEditor(const QString &workingDir, const QStringList &files,
-                              const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
+                              const QStringList &extraOptions,
                               VCSBase::VCSBaseEditorWidget *diffEditorWidget);
     QStringList logArguments(const QStringList &files,
-                             const ExtraCommandOptions &extraOptions) const;
+                             const QStringList &extraOptions) const;
     QStringList statusArguments(const QString &file) const;
     QStringList viewArguments(const QString &revision) const;
 
     QPair<QString, QString> parseStatusLine(const QString &line) const;
 private:
-    QStringList commonPullOrPushArguments(const ExtraCommandOptions &extraOptions) const;
     friend class CloneWizard;
 };
 

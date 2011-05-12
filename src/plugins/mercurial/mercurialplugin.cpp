@@ -318,7 +318,7 @@ void MercurialPlugin::logCurrentFile()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     m_client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
-                  MercurialClient::ExtraCommandOptions(), true);
+                  QStringList(), true);
 }
 
 void MercurialPlugin::revertCurrentFile()
@@ -668,8 +668,9 @@ bool MercurialPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *sub
         if (!core->fileManager()->saveFile(editorFile))
             return false;
 
-        QHash<int, QVariant> extraOptions;
-        extraOptions[MercurialClient::AuthorCommitOptionId] = commitEditor->committerInfo();
+        QStringList extraOptions;
+        if (!commitEditor->committerInfo().isEmpty())
+            extraOptions << QLatin1String("-u") << commitEditor->committerInfo();
         m_client->commit(m_submitRepository, files, editorFile->fileName(),
                          extraOptions);
     }

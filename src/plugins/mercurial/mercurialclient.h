@@ -43,18 +43,11 @@ class MercurialClient : public VCSBase::VCSBaseClient
 {
     Q_OBJECT
 public:
-    enum ExtraOptionId
-    {
-        // Commit
-        AuthorCommitOptionId,
-        AutoAddRemoveCommitOptionId
-    };
-
     MercurialClient(const VCSBase::VCSBaseClientSettings &settings);
     virtual bool synchronousClone(const QString &workingDir,
                                   const QString &srcLocation,
                                   const QString &dstLocation,
-                                  const ExtraCommandOptions &extraOptions = ExtraCommandOptions());
+                                  const QStringList &extraOptions = QStringList());
     bool manifestSync(const QString &repository, const QString &filename);
     QString branchQuerySync(const QString &repositoryRoot);
     bool parentRevisionsSync(const QString &workingDirectory,
@@ -82,14 +75,14 @@ protected:
 
     QStringList cloneArguments(const QString &srcLocation,
                                const QString &dstLocation,
-                               const ExtraCommandOptions &extraOptions) const;
+                               const QStringList &extraOptions) const;
     QStringList pullArguments(const QString &srcLocation,
-                              const ExtraCommandOptions &extraOptions) const;
+                              const QStringList &extraOptions) const;
     QStringList pushArguments(const QString &dstLocation,
-                              const ExtraCommandOptions &extraOptions) const;
+                              const QStringList &extraOptions) const;
     QStringList commitArguments(const QStringList &files,
                                 const QString &commitMessageFile,
-                                const ExtraCommandOptions &extraOptions) const;
+                                const QStringList &extraOptions) const;
     QStringList importArguments(const QStringList &files) const;
     QStringList updateArguments(const QString &revision) const;
     QStringList revertArguments(const QString &file, const QString &revision) const;
@@ -97,12 +90,12 @@ protected:
     QStringList annotateArguments(const QString &file,
                                   const QString &revision, int lineNumber) const;
     QStringList diffArguments(const QStringList &files,
-                              const ExtraCommandOptions &extraOptions) const;
+                              const QStringList &extraOptions) const;
     void initializeDiffEditor(const QString &workingDir, const QStringList &files,
-                              const VCSBase::VCSBaseClient::ExtraCommandOptions &extra,
+                              const QStringList &extraOptions,
                               VCSBase::VCSBaseEditorWidget *ed);
     QStringList logArguments(const QStringList &files,
-                             const ExtraCommandOptions &extraOptions) const;
+                             const QStringList &extraOptions) const;
     QStringList statusArguments(const QString &file) const;
     QStringList viewArguments(const QString &revision) const;
 

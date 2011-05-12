@@ -121,7 +121,7 @@ bool VCSBaseClient::synchronousCreateRepository(const QString &workingDirectory)
 bool VCSBaseClient::synchronousClone(const QString &workingDir,
                                      const QString &srcLocation,
                                      const QString &dstLocation,
-                                     const ExtraCommandOptions &extraOptions)
+                                     const QStringList &extraOptions)
 {
     QStringList args;
     args << vcsCommandString(CloneCommand)
@@ -157,7 +157,7 @@ bool VCSBaseClient::synchronousMove(const QString &workingDir,
 
 bool VCSBaseClient::synchronousPull(const QString &workingDir,
                                     const QString &srcLocation,
-                                    const ExtraCommandOptions &extraOptions)
+                                    const QStringList &extraOptions)
 {
     QStringList args;
     args << vcsCommandString(PullCommand) << pullArguments(srcLocation, extraOptions);
@@ -175,7 +175,7 @@ bool VCSBaseClient::synchronousPull(const QString &workingDir,
 
 bool VCSBaseClient::synchronousPush(const QString &workingDir,
                                     const QString &dstLocation,
-                                    const ExtraCommandOptions &extraOptions)
+                                    const QStringList &extraOptions)
 {
     QStringList args;
     args << vcsCommandString(PushCommand) << pushArguments(dstLocation, extraOptions);
@@ -272,7 +272,7 @@ void VCSBaseClient::annotate(const QString &workingDir, const QString &file,
 }
 
 void VCSBaseClient::diff(const QString &workingDir, const QStringList &files,
-                         const ExtraCommandOptions &extraOptions)
+                         const QStringList &extraOptions)
 {
     const QString vcsCmdString = vcsCommandString(DiffCommand);
     QStringList args;
@@ -291,7 +291,7 @@ void VCSBaseClient::diff(const QString &workingDir, const QStringList &files,
 }
 
 void VCSBaseClient::log(const QString &workingDir, const QStringList &files,
-                        const ExtraCommandOptions &extraOptions,
+                        const QStringList &extraOptions,
                         bool enableAnnotationContextMenu)
 {
     const QString vcsCmdString = vcsCommandString(LogCommand);
@@ -433,7 +433,7 @@ void VCSBaseClient::update(const QString &repositoryRoot, const QString &revisio
 void VCSBaseClient::commit(const QString &repositoryRoot,
                            const QStringList &files,
                            const QString &commitMessageFile,
-                           const ExtraCommandOptions &extraOptions)
+                           const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(CommitCommand));
     args.append(commitArguments(files, commitMessageFile, extraOptions));
@@ -457,7 +457,7 @@ void VCSBaseClient::settingsChanged()
 }
 
 void VCSBaseClient::initializeDiffEditor(const QString & /* workingDir */, const QStringList & /* files */,
-                                         const ExtraCommandOptions & /* extraOptions */,
+                                         const QStringList & /* extraOptions */,
                                          VCSBaseEditorWidget *)
 {
 }
