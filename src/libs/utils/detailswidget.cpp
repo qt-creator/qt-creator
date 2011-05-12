@@ -212,12 +212,16 @@ namespace Utils {
 
     void DetailsWidget::setSummaryText(const QString &text)
     {
-        d->m_summaryLabel->setText(text);
-        d->m_summaryCheckBox->setText(text);
+        if (d->m_useCheckBox)
+            d->m_summaryCheckBox->setText(text);
+        else
+            d->m_summaryLabel->setText(text);
     }
 
     QString DetailsWidget::summaryText() const
     {
+        if (d->m_useCheckBox)
+            return d->m_summaryCheckBox->text();
         return d->m_summaryLabel->text();
     }
 

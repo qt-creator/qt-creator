@@ -395,8 +395,8 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
     setLayout(vboxLayout);
     vboxLayout->setContentsMargins(0, 0, 0, 0);
     m_detailsWidget = new Utils::DetailsWidget(this);
-    m_detailsWidget->setSummaryText(factory->displayNameForId(id));
     m_detailsWidget->setUseCheckBox(true);
+    m_detailsWidget->setSummaryText(factory->displayNameForId(id));
     m_detailsWidget->setChecked(false);
     m_detailsWidget->setSummaryFontBold(true);
     m_detailsWidget->setIcon(factory->iconForId(id));
