@@ -48,7 +48,9 @@ MaemoQtVersion::MaemoQtVersion()
 }
 
 MaemoQtVersion::MaemoQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
-    : BaseQtVersion(path, isAutodetected, autodetectionSource)
+    : BaseQtVersion(path, isAutodetected, autodetectionSource),
+      m_osVersion(MaemoGlobal::version(path)),
+      m_isvalidVersion(MaemoGlobal::isValidMaemoQtVersion(path, m_osVersion))
 {
 
 }
@@ -56,6 +58,14 @@ MaemoQtVersion::MaemoQtVersion(const QString &path, bool isAutodetected, const Q
 MaemoQtVersion::~MaemoQtVersion()
 {
 
+}
+
+void MaemoQtVersion::fromMap(const QVariantMap &map)
+{
+    BaseQtVersion::fromMap(map);
+    QString path = qmakeCommand();
+    m_osVersion = MaemoGlobal::version(path);
+    m_isvalidVersion = MaemoGlobal::isValidMaemoQtVersion(path, m_osVersion);
 }
 
 QString MaemoQtVersion::type() const
@@ -93,16 +103,18 @@ QString MaemoQtVersion::systemRoot() const
 QList<ProjectExplorer::Abi> MaemoQtVersion::qtAbis() const
 {
     QList<ProjectExplorer::Abi> result;
-    if (MaemoGlobal::isValidMaemo5QtVersion(qmakeCommand())) {
+    if (!m_isvalidVersion)
+        return result;
+    if (m_osVersion == MaemoDeviceConfig::Maemo5) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::MaemoLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
                                            32));
-    } else if (MaemoGlobal::isValidHarmattanQtVersion(qmakeCommand())) {
+    } else if (m_osVersion == MaemoDeviceConfig::Maemo6) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::HarmattanLinuxFlavor,
                                            ProjectExplorer::Abi::ElfFormat,
                                            32));
-    } else if (MaemoGlobal::isValidMeegoQtVersion(qmakeCommand())) {
+    } else if (m_osVersion == MaemoDeviceConfig::Meego) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::MeegoLinuxFlavor,
                                            ProjectExplorer::Abi::ElfFormat, 32));
@@ -118,11 +130,13 @@ bool MaemoQtVersion::supportsTargetId(const QString &id) const
 QSet<QString> MaemoQtVersion::supportedTargetIds() const
 {
     QSet<QString> result;
-    if (MaemoGlobal::isValidMaemo5QtVersion(qmakeCommand())) {
+    if (!m_isvalidVersion)
+        return result;
+    if (m_osVersion == MaemoDeviceConfig::Maemo5) {
         result.insert(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID));
-    } else if (MaemoGlobal::isValidHarmattanQtVersion(qmakeCommand())) {
+    } else if (m_osVersion == MaemoDeviceConfig::Maemo6) {
         result.insert(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
-    } else if (MaemoGlobal::isValidMeegoQtVersion(qmakeCommand())) {
+    } else if (m_osVersion == MaemoDeviceConfig::Meego) {
         result.insert(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
     }
     return result;
@@ -130,11 +144,11 @@ QSet<QString> MaemoQtVersion::supportedTargetIds() const
 
 QString MaemoQtVersion::description() const
 {
-    if (MaemoGlobal::isValidMaemo5QtVersion(qmakeCommand()))
+    if (m_osVersion == MaemoDeviceConfig::Maemo5)
         return QCoreApplication::translate("QtVersion", "Maemo", "Qt Version is meant for Maemo5");
-    else if (MaemoGlobal::isValidHarmattanQtVersion(qmakeCommand()))
+    else if (m_osVersion == MaemoDeviceConfig::Maemo6)
         return QCoreApplication::translate("QtVersion", "Harmattan ", "Qt Version is meant for Harmattan");
-    else if (MaemoGlobal::isValidMeegoQtVersion(qmakeCommand()))
+    else if (m_osVersion == MaemoDeviceConfig::Meego)
         return QCoreApplication::translate("QtVersion", "Meego", "Qt Version is meant for Meego");
     return QString();
 }
@@ -145,4 +159,9 @@ bool MaemoQtVersion::supportsShadowBuilds() const
     return false;
 #endif
     return true;
+}
+
+MaemoDeviceConfig::OsVersion MaemoQtVersion::osVersion() const
+{
+    return m_osVersion;
 }

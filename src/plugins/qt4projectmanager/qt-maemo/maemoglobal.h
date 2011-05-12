@@ -145,9 +145,9 @@ public:
         }
     }
 
-private:
     static bool isValidMaemoQtVersion(const QString &qmakePath,
         MaemoDeviceConfig::OsVersion maemoVersion);
+private:
     static QString madAdminCommand(const QString &qmakePath);
     static bool callMaddeShellScript(QProcess &proc, const QString &qmakePath,
         const QString &command, const QStringList &args, bool useTarget);

@@ -33,6 +33,7 @@
 #define MAEMOQTVERSION_H
 
 #include "baseqtversion.h"
+#include "maemodeviceconfigurations.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -43,6 +44,8 @@ public:
     MaemoQtVersion();
     MaemoQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
     ~MaemoQtVersion();
+
+    void fromMap(const QVariantMap &map);
     MaemoQtVersion *clone() const;
 
     virtual QString type() const;
@@ -56,8 +59,11 @@ public:
     virtual QString description() const;
 
     virtual bool supportsShadowBuilds() const;
+    MaemoDeviceConfig::OsVersion osVersion() const;
 private:
     mutable QString m_systemRoot;
+    mutable MaemoDeviceConfig::OsVersion m_osVersion;
+    mutable bool m_isvalidVersion;
 };
 
 }
