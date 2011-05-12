@@ -742,8 +742,12 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     case AttachExternal:
     case AttachCrashedExternal:
         arguments << QLatin1String("-p") << QString::number(sp.attachPID);
-        if (sp.startMode == AttachCrashedExternal)
+        if (sp.startMode == AttachCrashedExternal) {
             arguments << QLatin1String("-e") << sp.crashParameter << QLatin1String("-g");
+        } else {
+            if (isConsole(startParameters()))
+                arguments << QLatin1String("-pr") << QLatin1String("-pb");
+        }
         break;
     default:
         *errorMessage = QString::fromLatin1("Internal error: Unsupported start mode %1.").arg(sp.startMode);
@@ -812,9 +816,6 @@ void CdbEngine::runEngine()
 {
     if (debug)
         qDebug("runEngine");
-    // Resume the threads frozen by the console stub.
-    if (isConsole(startParameters()))
-        postCommand("~* m", 0);
     foreach (const QString &breakEvent, m_options->breakEvents)
             postCommand(QByteArray("sxe ") + breakEvent.toAscii(), 0);
     postCommand("g", 0);
