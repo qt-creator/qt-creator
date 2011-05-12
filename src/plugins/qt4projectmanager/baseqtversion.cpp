@@ -259,7 +259,7 @@ QVariantMap BaseQtVersion::toMap() const
 
 bool BaseQtVersion::isValid() const
 {
-    if(uniqueId() == -1 || displayName().isEmpty())
+    if (uniqueId() == -1 || displayName().isEmpty())
         return false;
     updateVersionInfo();
     updateMkspec();
@@ -575,7 +575,7 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
     QStringList configValues = evaluator->values("CONFIG");
     m_defaultConfigIsDebugAndRelease = false;
-    foreach(const QString &value, configValues) {
+    foreach (const QString &value, configValues) {
         if (value == "debug")
             m_defaultConfigIsDebug = true;
         else if (value == "release")

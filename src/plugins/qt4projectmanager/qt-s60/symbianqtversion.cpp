@@ -93,7 +93,7 @@ bool SymbianQtVersion::isValid() const
         return false;
     if (!m_validSystemRoot)
         return false;
-    if(isBuildWithSymbianSbsV2() && (m_sbsV2Directory.isEmpty() || !QFileInfo(m_sbsV2Directory + QLatin1String("/sbs")).exists()))
+    if (isBuildWithSymbianSbsV2() && (m_sbsV2Directory.isEmpty() || !QFileInfo(m_sbsV2Directory + QLatin1String("/sbs")).exists()))
         return false;
     return true;
 }

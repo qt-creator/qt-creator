@@ -435,7 +435,7 @@ QList<BaseQtVersion *> QtVersionManager::versions() const
 QList<BaseQtVersion *> QtVersionManager::validVersions() const
 {
     QList<BaseQtVersion *> results;
-    foreach(BaseQtVersion *v, m_versions) {
+    foreach (BaseQtVersion *v, m_versions) {
         if (v->isValid())
             results.append(v);
     }
@@ -585,7 +585,7 @@ QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &makefile)
 
 BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const QString &qmakePath)
 {
-   foreach(BaseQtVersion *version, versions()) {
+   foreach (BaseQtVersion *version, versions()) {
        if (version->qmakeCommand() == qmakePath) {
            return version;
            break;

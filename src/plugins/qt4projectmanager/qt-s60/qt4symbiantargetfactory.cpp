@@ -204,7 +204,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
         infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
         infos.append(BuildConfigurationInfo(qtVersion, config ^ BaseQtVersion::DebugBuild, QString(), QString()));
     } else {
-        if(config & BaseQtVersion::DebugBuild)
+        if (config & BaseQtVersion::DebugBuild)
             infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
         else
             infos.append(BuildConfigurationInfo(qtVersion, config ^ BaseQtVersion::DebugBuild, QString(), QString()));

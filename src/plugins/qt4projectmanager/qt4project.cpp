@@ -445,7 +445,7 @@ void Qt4Project::updateCppCodeModel()
         predefinedMacros = tc->predefinedMacros();
 
         QList<HeaderPath> headers = tc->systemHeaderPaths();
-	if (activeBC->qtVersion())
+        if (activeBC->qtVersion())
             headers.append(activeBC->qtVersion()->systemHeaderPathes());
         foreach (const HeaderPath &headerPath, headers) {
             if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)

@@ -128,7 +128,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     , m_configurationWidget(0)
 {
     // Initialize m_versions
-    foreach(BaseQtVersion *version, versions)
+    foreach (BaseQtVersion *version, versions)
         m_versions.push_back(version->clone());
 
     QWidget *versionInfoWidget = new QWidget();
