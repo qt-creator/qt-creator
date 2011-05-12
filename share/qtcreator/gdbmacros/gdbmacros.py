@@ -2397,3 +2397,32 @@ if False:
                                 d.putSubItem(Item(p.dereference(), iiname))
                                 p = p + 1
 
+    #struct KRBase
+    #{
+    #    enum Type { TYPE_A, TYPE_B } type;
+    #    KRBase(Type _type) : type(_type) {}
+    #};
+    #
+    #struct KRA : KRBase { int x; int y; KRA():KRBase(TYPE_A),x(1),y(32) {} };
+    #struct KRB : KRBase { KRB():KRBase(TYPE_B) {}  };
+    #
+    #void testKR()
+    #{
+    #    KRBase *ptr1 = new KRA;
+    #    KRBase *ptr2 = new KRB;
+    #    ptr2 = new KRB;
+    #}
+
+    def qdump__KRBase(d, item):
+        warn("DIR %s " % dir(item))
+        if getattr(item, "__nested__", None) is None:
+            base = ["KRA", "KRB"][int(item.value["type"])]
+            nest = Item(item.value.cast(lookupType(base)), item.iname)
+            nest.__nested__ = True
+            warn("NEST %s " % dir(nest))
+            d.putItem(nest)
+        else:
+            d.putName("type")
+            d.putValue(item.value["type"])
+            d.putType(" ")
+

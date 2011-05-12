@@ -2556,12 +2556,30 @@ void testMPI()
 
 }
 
-enum E {
- ONE = 6
+enum E { ONE = 6 };
+
+
+
+struct KRBase
+{
+    enum Type { TYPE_A, TYPE_B } type;
+    KRBase(Type _type) : type(_type) {}
 };
+
+struct KRA : KRBase { int x; int y; KRA():KRBase(TYPE_A),x(1),y(32) {} };
+struct KRB : KRBase { KRB():KRBase(TYPE_B) {}  };
+
+void testKR()
+{
+    KRBase *ptr1 = new KRA;
+    KRBase *ptr2 = new KRB;
+    ptr2 = new KRB;
+}
+
 
 int main(int argc, char *argv[])
 {
+    testKR();
     int *x = new int(32);
     Q_UNUSED(x);
     std::string s;
