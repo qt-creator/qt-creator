@@ -3276,7 +3276,7 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
 
 const Value *ASTPropertyReference::value(const Context *context) const
 {
-    if (_ast->expression
+    if (_ast->statement
             && (!_ast->memberType || _ast->memberType->asString() == QLatin1String("variant")
                 || _ast->memberType->asString() == QLatin1String("alias"))) {
 
@@ -3288,11 +3288,11 @@ const Value *ASTPropertyReference::value(const Context *context) const
         QmlJS::ScopeBuilder builder(&localContext, doc);
         builder.initializeRootScope();
 
-        int offset = _ast->expression->firstSourceLocation().begin();
+        int offset = _ast->statement->firstSourceLocation().begin();
         builder.push(ScopeAstPath(doc)(offset));
 
         Evaluate check(&localContext);
-        return check(_ast->expression);
+        return check(_ast->statement);
     }
 
     if (_ast->memberType)

@@ -12,3 +12,7 @@ done
 
 # export QmlDirParser
 perl -p -0777 -i -e 's/QT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QmlDirParser/#include "qmljsglobal_p.h"\n\nQT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QML_PARSER_EXPORT QmlDirParser/' qmldirparser_p.h
+
+./changeLicense.py $me/../qmljs_global.h qml*.{cpp,h}
+
+echo "Fix licenses in qmljs.g!"

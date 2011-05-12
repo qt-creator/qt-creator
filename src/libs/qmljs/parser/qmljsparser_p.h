@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -225,9 +226,9 @@ protected:
 
 
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 78
+#define J_SCRIPT_REGEXPLITERAL_RULE1 76
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 79
+#define J_SCRIPT_REGEXPLITERAL_RULE2 77
 
 QT_QML_END_NAMESPACE
 

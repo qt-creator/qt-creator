@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -154,15 +155,15 @@ public:
     T_XOR = 79,
     T_XOR_EQ = 80,
 
-    ACCEPT_STATE = 645,
-    RULE_COUNT = 347,
-    STATE_COUNT = 646,
+    ACCEPT_STATE = 640,
+    RULE_COUNT = 345,
+    STATE_COUNT = 641,
     TERMINAL_COUNT = 101,
-    NON_TERMINAL_COUNT = 106,
+    NON_TERMINAL_COUNT = 107,
 
-    GOTO_INDEX_OFFSET = 646,
-    GOTO_INFO_OFFSET = 2714,
-    GOTO_CHECK_OFFSET = 2714
+    GOTO_INDEX_OFFSET = 641,
+    GOTO_INFO_OFFSET = 2787,
+    GOTO_CHECK_OFFSET = 2787
   };
 
   static const char  *const    spell [];

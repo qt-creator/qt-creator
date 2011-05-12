@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,7 +29,6 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #ifndef QMLJSGLOBAL_P_H
 #define QMLJSGLOBAL_P_H
 
@@ -49,7 +49,7 @@
 #else // !QT_CREATOR
 #  define QT_QML_BEGIN_NAMESPACE QT_BEGIN_NAMESPACE
 #  define QT_QML_END_NAMESPACE QT_END_NAMESPACE
-#  define QML_PARSER_EXPORT
+#  define QML_PARSER_EXPORT Q_AUTOTEST_EXPORT
 #endif // QT_CREATOR
 
 #endif // QMLJSGLOBAL_P_H

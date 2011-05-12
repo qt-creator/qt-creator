@@ -202,16 +202,21 @@ static bool isLiteralValue(ExpressionNode *expr)
         return false;
 }
 
+static bool isLiteralValue(Statement *stmt)
+{
+    ExpressionStatement *exprStmt = cast<ExpressionStatement *>(stmt);
+    if (exprStmt)
+        return isLiteralValue(exprStmt->expression);
+    else
+        return false;
+}
+
 static inline bool isLiteralValue(UiScriptBinding *script)
 {
     if (!script || !script->statement)
         return false;
 
-    ExpressionStatement *exprStmt = cast<ExpressionStatement *>(script->statement);
-    if (exprStmt)
-        return isLiteralValue(exprStmt->expression);
-    else
-        return false;
+    return isLiteralValue(script->statement);
 }
 
 static inline int propertyType(const QString &typeName)
@@ -852,13 +857,13 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
             const QString astName = property->name->asString();
             QString astValue;
-            if (property->expression)
+            if (property->statement)
                 astValue = textAt(context->doc(),
-                                  property->expression->firstSourceLocation(),
-                                  property->expression->lastSourceLocation());
+                                  property->statement->firstSourceLocation(),
+                                  property->statement->lastSourceLocation());
             const QString astType = property->memberType->asString();
             AbstractProperty modelProperty = modelNode.property(astName);
-            if (!property->expression || isLiteralValue(property->expression)) {
+            if (!property->statement || isLiteralValue(property->statement)) {
                 const QVariant variantValue = convertDynamicPropertyValueToVariant(astValue, astType);
                 syncVariantProperty(modelProperty, variantValue, astType, differenceHandler);
             } else {

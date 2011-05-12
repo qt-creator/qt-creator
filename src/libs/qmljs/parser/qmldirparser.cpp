@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -132,7 +133,7 @@ bool QmlDirParser::parse()
         } else if (sections[0] == QLatin1String("plugin")) {
             if (sectionCount < 2) {
                 reportError(lineNumber, -1,
-                            QString::fromUtf8("plugin directive requires 2 arguments, but %1 were provided").arg(sectionCount + 1));
+                            QString::fromUtf8("plugin directive requires one or two arguments, but %1 were provided").arg(sectionCount - 1));
 
                 continue;
             }
@@ -144,12 +145,22 @@ bool QmlDirParser::parse()
         } else if (sections[0] == QLatin1String("internal")) {
             if (sectionCount != 3) {
                 reportError(lineNumber, -1,
-                            QString::fromUtf8("internal types require 2 arguments, but %1 were provided").arg(sectionCount + 1));
+                            QString::fromUtf8("internal types require 2 arguments, but %1 were provided").arg(sectionCount - 1));
                 continue;
             }
             Component entry(sections[1], sections[2], -1, -1);
             entry.internal = true;
             _components.append(entry);
+        } else if (sections[0] == QLatin1String("typeinfo")) {
+            if (sectionCount != 2) {
+                reportError(lineNumber, -1,
+                            QString::fromUtf8("typeinfo requires 1 argument, but %1 were provided").arg(sectionCount - 1));
+                continue;
+            }
+#ifdef QT_CREATOR
+            TypeInfo typeInfo(sections[1]);
+            _typeInfos.append(typeInfo);
+#endif
 
         } else if (sectionCount == 2) {
             // No version specified (should only be used for relative qmldir files)
@@ -179,7 +190,7 @@ bool QmlDirParser::parse()
             }
         } else {
             reportError(lineNumber, -1, 
-                        QString::fromUtf8("a component declaration requires 3 arguments, but %1 were provided").arg(sectionCount + 1));
+                        QString::fromUtf8("a component declaration requires two or three arguments, but %1 were provided").arg(sectionCount));
         }
     }
 
@@ -218,5 +229,12 @@ QList<QmlDirParser::Component> QmlDirParser::components() const
 {
     return _components;
 }
+
+#ifdef QT_CREATOR
+QList<QmlDirParser::TypeInfo> QmlDirParser::typeInfos() const
+{
+    return _typeInfos;
+}
+#endif
 
 QT_END_NAMESPACE

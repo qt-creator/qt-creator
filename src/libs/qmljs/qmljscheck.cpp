@@ -745,6 +745,12 @@ bool Check::visit(ExpressionStatement *ast)
                         break;
                     }
                 }
+                if (UiPublicMember *member = cast<UiPublicMember *>(p)) {
+                    if (!cast<Block *>(member->statement)) {
+                        ok = true;
+                        break;
+                    }
+                }
             }
         }
 

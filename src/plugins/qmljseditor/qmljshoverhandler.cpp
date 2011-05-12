@@ -181,13 +181,13 @@ bool HoverHandler::matchColorItem(const LookupContext::Ptr &lookupContext,
         }
     } else if (const AST::UiPublicMember *publicMember =
                AST::cast<const AST::UiPublicMember *>(member)) {
-        if (publicMember->name && posIsInSource(pos, publicMember->expression)) {
+        if (publicMember->name && posIsInSource(pos, publicMember->statement)) {
             value = lookupContext->context()->lookup(publicMember->name->asString());
             if (const Interpreter::Reference *ref = value->asReference())
                 value = lookupContext->context()->lookupReference(ref);
                 color = textAt(qmlDocument,
-                               publicMember->expression->firstSourceLocation(),
-                               publicMember->expression->lastSourceLocation());
+                               publicMember->statement->firstSourceLocation(),
+                               publicMember->statement->lastSourceLocation());
         }
     }
 

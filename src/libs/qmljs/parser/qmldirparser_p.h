@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -101,6 +102,19 @@ public:
     QList<Component> components() const;
     QList<Plugin> plugins() const;
 
+#ifdef QT_CREATOR
+    struct TypeInfo
+    {
+        TypeInfo() {}
+        TypeInfo(const QString &fileName)
+            : fileName(fileName) {}
+
+        QString fileName;
+    };
+
+    QList<TypeInfo> typeInfos() const;
+#endif
+
 private:
     void reportError(int line, int column, const QString &message);
 
@@ -110,6 +124,9 @@ private:
     QString _source;
     QList<Component> _components;
     QList<Plugin> _plugins;
+#ifdef QT_CREATOR
+    QList<TypeInfo> _typeInfos;
+#endif
     unsigned _isParsed: 1;
 };
 

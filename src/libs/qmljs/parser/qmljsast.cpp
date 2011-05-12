@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -826,7 +827,7 @@ void UiFormal::accept0(Visitor *visitor)
 void UiPublicMember::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(expression, visitor);
+        accept(statement, visitor);
         accept(binding, visitor);
     }
 

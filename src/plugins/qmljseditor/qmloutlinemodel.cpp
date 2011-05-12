@@ -523,7 +523,7 @@ QModelIndex QmlOutlineModel::enterPublicMember(AST::UiPublicMember *publicMember
 
     if (publicMember->name)
         objectData.insert(Qt::DisplayRole, publicMember->name->asString());
-    objectData.insert(AnnotationRole, getAnnotation(publicMember->expression));
+    objectData.insert(AnnotationRole, getAnnotation(publicMember->statement));
     objectData.insert(ItemTypeRole, NonElementBindingType);
 
     QmlOutlineItem *item = enterNode(objectData, publicMember, 0, m_icons->publicMemberIcon());
