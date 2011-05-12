@@ -767,13 +767,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                                                        propertyIsComponentType(modelNode.parentProperty()) ?
                                                        QLatin1String("QtQuick.Component") : typeName;
 
-    if (isComponentType(typeNameFixedForImplicitComponents))
-        setupComponent(modelNode);
-
-    if (isCustomParserType(typeName))
-        setupCustomParserNode(modelNode);
-
-    if (modelNode.parentProperty().isValid() && modelNode.type() != typeNameFixedForImplicitComponents //If there is no valid parentProperty 
+    if ((modelNode.parentProperty().isValid() || modelNode.isRootNode()) && modelNode.type() != typeNameFixedForImplicitComponents //If there is no valid parentProperty
                                                                                                        //the node has just been created. The type is correct then.
             /*|| modelNode.majorVersion() != domObject.objectTypeMajorVersion()
             || modelNode.minorVersion() != domObject.objectTypeMinorVersion()*/) {
@@ -784,6 +778,12 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         if (!isRootNode)
             return; // the difference handler will create a new node, so we're done.
     }
+
+    if (isComponentType(typeNameFixedForImplicitComponents))
+        setupComponent(modelNode);
+
+    if (isCustomParserType(typeName))
+        setupCustomParserNode(modelNode);
 
     context->enterScope(astNode);
 
