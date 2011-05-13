@@ -149,11 +149,7 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
     future.setProgressRange(0, 5);
     future.setProgressValue(1);
 
-    bool success = false;
-    if (!m_invalidQt)
-        success = buildDebuggingHelper(future);
-
-    if (!success) {
+    if (!m_invalidQt && buildDebuggingHelper(future)) {
         const QString error
                 = QCoreApplication::translate(
                     "QtVersion",
