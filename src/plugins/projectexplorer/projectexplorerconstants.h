@@ -201,9 +201,10 @@ const char * const BUILDSTEPS_DEPLOY = "ProjectExplorer.BuildSteps.Deploy";
 const char * const DEFAULT_DEPLOYCONFIGURATION_ID = "ProjectExplorer.DefaultDeployConfiguration";
 
 // ToolChain Ids
+const char * const CLANG_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.Clang";
 const char * const GCC_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.Gcc";
-const char * const MINGW_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.Mingw";
 const char * const LINUXICC_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.LinuxIcc";
+const char * const MINGW_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.Mingw";
 const char * const MSVC_TOOLCHAIN_ID = "ProjectExplorer.ToolChain.Msvc";
 
 // Run Configuration defaults:

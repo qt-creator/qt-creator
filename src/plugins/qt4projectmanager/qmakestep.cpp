@@ -455,6 +455,8 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(linkQmlDebuggingLibraryChanged()));
     connect(step->qt4BuildConfiguration(), SIGNAL(qtVersionChanged()),
             this, SLOT(qtVersionChanged()));
+    connect(step->qt4BuildConfiguration(), SIGNAL(toolChainChanged()),
+            this, SLOT(qtVersionChanged()));
     connect(step->qt4BuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
             this, SLOT(qmakeBuildConfigChanged()));
     connect(QtVersionManager::instance(), SIGNAL(qtVersionsUpdated(QString)),

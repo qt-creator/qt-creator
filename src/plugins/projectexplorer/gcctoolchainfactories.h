@@ -108,6 +108,32 @@ private:
 };
 
 // --------------------------------------------------------------------------
+// ClangToolChainFactory
+// --------------------------------------------------------------------------
+
+class ClangToolChainFactory : public GccToolChainFactory
+{
+    Q_OBJECT
+
+public:
+    // Name used to display the name of the tool chain that will be created.
+    QString displayName() const;
+    QString id() const;
+
+    QList<ToolChain *> autoDetect();
+
+    bool canCreate();
+    ToolChain *create();
+
+    // Used by the ToolChainManager to restore user-generated tool chains
+    bool canRestore(const QVariantMap &data);
+    ToolChain *restore(const QVariantMap &data);
+
+protected:
+    GccToolChain *createToolChain(bool autoDetect);
+};
+
+// --------------------------------------------------------------------------
 // MingwToolChainFactory
 // --------------------------------------------------------------------------
 

@@ -41,6 +41,7 @@
 namespace ProjectExplorer {
 
 namespace Internal {
+class ClangToolChainFactory;
 class GccToolChainFactory;
 class MingwToolChainFactory;
 class LinuxIccToolChainFactory;
@@ -104,6 +105,26 @@ private:
     mutable QList<HeaderPath> m_headerPathes;
 
     friend class Internal::GccToolChainFactory;
+    friend class ToolChainFactory;
+};
+
+// --------------------------------------------------------------------------
+// ClangToolChain
+// --------------------------------------------------------------------------
+
+class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
+{
+public:
+    QString typeName() const;
+    QString makeCommand() const;
+    QString mkspec() const;
+
+    ToolChain *clone() const;
+
+private:
+    ClangToolChain(bool autodetect);
+
+    friend class Internal::ClangToolChainFactory;
     friend class ToolChainFactory;
 };
 

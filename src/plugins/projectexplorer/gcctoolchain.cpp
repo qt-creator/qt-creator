@@ -215,7 +215,7 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
             flavor = ProjectExplorer::Abi::SymbianDeviceFlavor;
             format = ProjectExplorer::Abi::ElfFormat;
             width = 32;
-        } else if (p == QLatin1String("mingw32")) {
+        } else if (p == QLatin1String("mingw32") || p == QLatin1String("win32")) {
             arch = ProjectExplorer::Abi::X86Architecture;
             os = ProjectExplorer::Abi::WindowsOS;
             flavor = ProjectExplorer::Abi::WindowsMSysFlavor;
@@ -689,6 +689,93 @@ void Internal::GccToolChainConfigWidget::handleAbiChange()
     emit dirty(toolChain());
 }
 
+
+// --------------------------------------------------------------------------
+// ClangToolChain
+// --------------------------------------------------------------------------
+
+ClangToolChain::ClangToolChain(bool autodetect) :
+    GccToolChain(QLatin1String(Constants::MINGW_TOOLCHAIN_ID), autodetect)
+{ }
+
+QString ClangToolChain::typeName() const
+{
+    return Internal::ClangToolChainFactory::tr("Clang");
+}
+
+QString ClangToolChain::makeCommand() const
+{
+#if defined(Q_OS_WIN)
+    return QLatin1String("mingw32-make.exe");
+#else
+    return QLatin1String("make");
+#endif
+}
+
+QString ClangToolChain::mkspec() const
+{
+    if (targetAbi().os() == Abi::MacOS)
+        return QLatin1String("macx-llvm");
+    else if (targetAbi().os() == Abi::LinuxOS)
+        return QLatin1String("linux-llvm");
+    return QLatin1String("win32-llvm"); // Note: Not part of standard Qt yet!
+}
+
+ToolChain *ClangToolChain::clone() const
+{
+    return new ClangToolChain(*this);
+}
+
+// --------------------------------------------------------------------------
+// ClangToolChainFactory
+// --------------------------------------------------------------------------
+
+QString Internal::ClangToolChainFactory::displayName() const
+{
+    return tr("Clang");
+}
+
+QString Internal::ClangToolChainFactory::id() const
+{
+    return QLatin1String(Constants::CLANG_TOOLCHAIN_ID);
+}
+
+QList<ToolChain *> Internal::ClangToolChainFactory::autoDetect()
+{
+    Abi ha = Abi::hostAbi();
+    return autoDetectToolchains(QLatin1String("clang++"), QStringList(), ha);
+}
+
+bool Internal::ClangToolChainFactory::canCreate()
+{
+    return true;
+}
+
+ToolChain *Internal::ClangToolChainFactory::create()
+{
+    return createToolChain(false);
+}
+
+bool Internal::ClangToolChainFactory::canRestore(const QVariantMap &data)
+{
+    return idFromMap(data).startsWith(QLatin1String(Constants::CLANG_TOOLCHAIN_ID) + QLatin1Char(':'));
+}
+
+ToolChain *Internal::ClangToolChainFactory::restore(const QVariantMap &data)
+{
+    ClangToolChain *tc = new ClangToolChain(false);
+    if (tc->fromMap(data))
+        return tc;
+
+    delete tc;
+    return 0;
+}
+
+GccToolChain *Internal::ClangToolChainFactory::createToolChain(bool autoDetect)
+{
+    return new ClangToolChain(autoDetect);
+}
+
 // --------------------------------------------------------------------------
 // MingwToolChain
 // --------------------------------------------------------------------------
@@ -915,6 +1002,14 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Mingw 2")
             << QString::fromLatin1("mingw32")
             << (QStringList() << QLatin1String("x86-windows-msys-pe-32bit"));
+    QTest::newRow("Clang 1: windows")
+            << QString::fromLatin1("x86_64-pc-win32")
+            << (QStringList() << QLatin1String("x86-windows-msys-pe-64bit")
+                              << QLatin1String("x86-windows-msys-pe-32bit"));
+    QTest::newRow("Clang 1: linux")
+            << QString::fromLatin1("x86_64-unknown-linux-gnu")
+            << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
+                              << QLatin1String("x86-linux-generic-elf-32bit"));
     QTest::newRow("Mac 1")
             << QString::fromLatin1("i686-apple-darwin10")
             << (QStringList() << QLatin1String("x86-macos-generic-mach_o-64bit")

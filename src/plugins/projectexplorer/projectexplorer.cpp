@@ -313,6 +313,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new Internal::GccToolChainFactory);
     addAutoReleasedObject(new Internal::LinuxIccToolChainFactory);
 #endif
+    addAutoReleasedObject(new Internal::ClangToolChainFactory);
 
     d->m_toolChainManager = new ToolChainManager(this);
 
