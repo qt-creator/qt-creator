@@ -66,13 +66,14 @@ const char * const QMAKE_BS_ID("QtProjectManager.QMakeBuildStep");
 
 const char * const QMAKE_ARGUMENTS_KEY("QtProjectManager.QMakeBuildStep.QMakeArguments");
 const char * const QMAKE_FORCED_KEY("QtProjectManager.QMakeBuildStep.QMakeForced");
+const char * const QMAKE_QMLDEBUGLIBAUTO_KEY("QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibraryAuto");
 const char * const QMAKE_QMLDEBUGLIB_KEY("QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary");
 }
 
 QMakeStep::QMakeStep(BuildStepList *bsl) :
     AbstractProcessStep(bsl, QLatin1String(QMAKE_BS_ID)),
     m_forced(false),
-    m_linkQmlDebuggingLibrary(false)
+    m_linkQmlDebuggingLibrary(DebugLink)
 {
     ctor();
 }
@@ -80,7 +81,7 @@ QMakeStep::QMakeStep(BuildStepList *bsl) :
 QMakeStep::QMakeStep(BuildStepList *bsl, const QString &id) :
     AbstractProcessStep(bsl, id),
     m_forced(false),
-    m_linkQmlDebuggingLibrary(false)
+    m_linkQmlDebuggingLibrary(DebugLink)
 {
     ctor();
 }
@@ -173,7 +174,7 @@ QStringList QMakeStep::moreArguments()
         arguments << QLatin1String("-unix");
 #endif
 
-    if (m_linkQmlDebuggingLibrary && bc->qtVersion()) {
+    if (linkQmlDebuggingLibrary() && bc->qtVersion()) {
         if (!bc->qtVersion()->needsQmlDebuggingLibrary()) {
             // This Qt version has the QML debugging services built in, however
             // they still need to be enabled at compile time
@@ -391,14 +392,19 @@ bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
 
 bool QMakeStep::linkQmlDebuggingLibrary() const
 {
-    return m_linkQmlDebuggingLibrary;
+    if (m_linkQmlDebuggingLibrary == DoLink)
+        return true;
+    if (m_linkQmlDebuggingLibrary == DoNotLink)
+        return false;
+    return (qt4BuildConfiguration()->buildType() & BuildConfiguration::Debug);
 }
 
 void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
 {
-    if (m_linkQmlDebuggingLibrary == enable)
+    if ((enable && (m_linkQmlDebuggingLibrary == DoLink))
+            || (!enable && (m_linkQmlDebuggingLibrary == DoNotLink)))
         return;
-    m_linkQmlDebuggingLibrary = enable;
+    m_linkQmlDebuggingLibrary = enable ? DoLink : DoNotLink;
 
     emit linkQmlDebuggingLibraryChanged();
 
@@ -424,7 +430,8 @@ QVariantMap QMakeStep::toMap() const
 {
     QVariantMap map(AbstractProcessStep::toMap());
     map.insert(QLatin1String(QMAKE_ARGUMENTS_KEY), m_userArgs);
-    map.insert(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), m_linkQmlDebuggingLibrary);
+    map.insert(QLatin1String(QMAKE_QMLDEBUGLIBAUTO_KEY), m_linkQmlDebuggingLibrary == DebugLink);
+    map.insert(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), m_linkQmlDebuggingLibrary == DoLink);
     map.insert(QLatin1String(QMAKE_FORCED_KEY), m_forced);
     return map;
 }
@@ -433,7 +440,16 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 {
     m_userArgs = map.value(QLatin1String(QMAKE_ARGUMENTS_KEY)).toString();
     m_forced = map.value(QLatin1String(QMAKE_FORCED_KEY), false).toBool();
-    m_linkQmlDebuggingLibrary = map.value(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), false).toBool();
+    if (map.value(QLatin1String(QMAKE_QMLDEBUGLIBAUTO_KEY), false).toBool()) {
+        m_linkQmlDebuggingLibrary = DebugLink;
+    } else {
+        if (map.value(QLatin1String(QMAKE_QMLDEBUGLIB_KEY), false).toBool()) {
+            m_linkQmlDebuggingLibrary = DoLink;
+        } else {
+            m_linkQmlDebuggingLibrary = DoNotLink;
+        }
+    }
+
     return BuildStep::fromMap(map);
 }
 

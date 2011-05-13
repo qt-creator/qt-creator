@@ -76,6 +76,12 @@ class QMakeStep : public ProjectExplorer::AbstractProcessStep
     Q_OBJECT
     friend class Internal::QMakeStepFactory;
 
+    enum QmlLibraryLink {
+        DoNotLink = 0,
+        DoLink,
+        DebugLink
+    };
+
 public:
     explicit QMakeStep(ProjectExplorer::BuildStepList *parent);
     virtual ~QMakeStep();
@@ -120,7 +126,7 @@ private:
     bool m_forced;
     bool m_needToRunQMake; // set in init(), read in run()
     QString m_userArgs;
-    bool m_linkQmlDebuggingLibrary;
+    QmlLibraryLink m_linkQmlDebuggingLibrary;
     bool m_scriptTemplate;
     QList<ProjectExplorer::Task> m_tasks;
 };
