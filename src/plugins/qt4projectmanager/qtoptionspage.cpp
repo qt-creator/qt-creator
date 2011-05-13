@@ -319,7 +319,8 @@ void QtOptionsPageWidget::qtVersionsDumpUpdated(const QString &qmakeCommand)
         if (version->qmakeCommand() == qmakeCommand)
             version->recheckDumper();
     }
-    if (currentVersion()->qmakeCommand() == qmakeCommand) {
+    if (currentVersion()
+            && currentVersion()->qmakeCommand() == qmakeCommand) {
         updateWidgets();
         updateDescriptionLabel();
         updateDebuggingHelperUi();
