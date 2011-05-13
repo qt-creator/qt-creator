@@ -232,7 +232,7 @@ protected: // visiting methods:
         terminal(ast->typeToken);
         terminal(ast->identifierToken);
         terminal(ast->colonToken);
-        nonterminal(ast->expression);
+        nonterminal(ast->statement);
         nonterminal(ast->binding);
         terminal(ast->semicolonToken);
         return false;
