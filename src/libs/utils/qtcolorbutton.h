@@ -75,7 +75,6 @@ private:
     class QtColorButtonPrivate *d_ptr;
     friend class QtColorButtonPrivate;
     Q_DISABLE_COPY(QtColorButton)
-    Q_PRIVATE_SLOT(d_ptr, void slotEditColor())
 };
 
 } // namespace Utils

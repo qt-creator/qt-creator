@@ -40,8 +40,9 @@
 
 namespace Utils {
 
-class QtColorButtonPrivate
+class QtColorButtonPrivate: public QObject
 {
+    Q_OBJECT
     QtColorButton *q_ptr;
     Q_DECLARE_PUBLIC(QtColorButton)
 public:
@@ -286,4 +287,4 @@ void QtColorButton::dropEvent(QDropEvent *event)
 
 } // namespace Utils
 
-#include "moc_qtcolorbutton.cpp"
+#include "qtcolorbutton.moc"
