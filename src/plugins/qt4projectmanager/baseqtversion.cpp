@@ -1107,20 +1107,9 @@ QString BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, con
     return QString();
 }
 
-QList<ProjectExplorer::Abi> BaseQtVersion::qtAbisFromLibrary(const QString &coreLibrary, bool mingw)
+QList<ProjectExplorer::Abi> BaseQtVersion::qtAbisFromLibrary(const QString &coreLibrary)
 {
     QList<ProjectExplorer::Abi> qtAbis = ProjectExplorer::Abi::abisOfBinary(coreLibrary);
-#if defined (Q_OS_WIN)
-    if (mingw) {
-        QList<ProjectExplorer::Abi> tmp = qtAbis;
-        qtAbis.clear();
-        foreach (const ProjectExplorer::Abi &abi, tmp)
-            qtAbis.append(ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::WindowsMSysFlavor,
-                                               abi.binaryFormat(), abi.wordWidth()));
-    }
-#else
-    Q_UNUSED(mingw)
-#endif
     if (qtAbis.isEmpty() && !coreLibrary.isEmpty()) {
         qWarning("Warning: Could not find ABI for '%s'"
                  "Qt Creator does not know about the system includes, "

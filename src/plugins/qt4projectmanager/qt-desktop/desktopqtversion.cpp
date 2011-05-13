@@ -87,18 +87,12 @@ QString DesktopQtVersion::invalidReason() const
     return QString();
 }
 
-void DesktopQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
-{
-    m_mingw = (evaluator->value("MAKEFILE_GENERATOR") == "MINGW");
-    BaseQtVersion::parseMkSpec(evaluator);
-}
-
 QList<ProjectExplorer::Abi> DesktopQtVersion::qtAbis() const
 {
     if (!m_qtAbisUpToDate) {
         m_qtAbisUpToDate = true;
         ensureMkSpecParsed();
-        m_qtAbis = qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()), m_mingw);
+        m_qtAbis = qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
     }
     return m_qtAbis;
 }

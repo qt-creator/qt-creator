@@ -58,12 +58,10 @@ public:
     virtual QSet<QString> supportedTargetIds() const;
 
     QString description() const;
-protected:
-    void parseMkSpec(ProFileEvaluator *evaluator) const;
+
 private:
     mutable bool m_qtAbisUpToDate;
     mutable QList<ProjectExplorer::Abi> m_qtAbis;
-    mutable bool m_mingw;
 };
 
 }

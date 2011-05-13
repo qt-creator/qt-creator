@@ -92,15 +92,9 @@ QList<ProjectExplorer::Abi> SimulatorQtVersion::qtAbis() const
     if (!m_qtAbisUpToDate) {
         m_qtAbisUpToDate = true;
         ensureMkSpecParsed();
-        m_qtAbis = qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()), m_mingw);
+        m_qtAbis = qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
     }
     return m_qtAbis;
-}
-
-void SimulatorQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
-{
-    m_mingw = (evaluator->value("MAKEFILE_GENERATOR") == "MINGW");
-    BaseQtVersion::parseMkSpec(evaluator);
 }
 
 bool SimulatorQtVersion::supportsTargetId(const QString &id) const
