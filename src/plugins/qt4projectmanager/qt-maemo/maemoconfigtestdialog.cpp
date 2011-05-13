@@ -270,10 +270,19 @@ QString MaemoConfigTestDialog::parseTestOutput()
         return output;
     }
 
-    const bool osUsesRpm = MaemoGlobal::packagingSystem(m_config->osVersion()) == MaemoGlobal::Rpm;
-    const QRegExp packagePattern(QLatin1String(osUsesRpm
-        ? "(libqt\\S+) ((\\d+)\\.(\\d+)\\.(\\d+))"
-        : "(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+"));
+    QString patternString;
+    switch (MaemoGlobal::packagingSystem(m_config->osVersion())) {
+    case MaemoGlobal::Rpm:
+        patternString = QLatin1String("(libqt\\S+) ((\\d+)\\.(\\d+)\\.(\\d+))");
+        break;
+    case MaemoGlobal::Dpkg:
+        patternString = QLatin1String("(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+");
+        break;
+    default:
+        return output;
+    }
+
+    const QRegExp packagePattern(patternString);
     index = packagePattern.indexIn(m_deviceTestOutput);
     if (index == -1) {
         output.append(tr("No Qt packages installed."));
