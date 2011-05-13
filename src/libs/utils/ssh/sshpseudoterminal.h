@@ -43,8 +43,8 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT SshPseudoTerminal
 {
   public:
-    SshPseudoTerminal(const QByteArray &termType = "vt100", int rowCount = 24,
-             int columnCount = 80)
+    explicit SshPseudoTerminal(const QByteArray &termType = "vt100",
+            int rowCount = 24, int columnCount = 80)
         : termType(termType), rowCount(rowCount), columnCount(columnCount) {}
 
     QByteArray termType;
