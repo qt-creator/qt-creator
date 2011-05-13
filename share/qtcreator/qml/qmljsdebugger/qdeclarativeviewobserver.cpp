@@ -54,7 +54,7 @@
 #include <QtGui/QApplication>
 #include <QtCore/QSettings>
 
-#include "QtDeclarative/private/qdeclarativestate_p.h"
+#include "qt_private/qdeclarativestate_p.h"
 
 static inline void initEditorResource() { Q_INIT_RESOURCE(editor); }
 
