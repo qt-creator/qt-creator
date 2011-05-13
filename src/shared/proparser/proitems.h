@@ -71,7 +71,10 @@ public:
     ProString(const QString &str, int offset, int length);
     ProString(const QString &str, int offset, int length, uint hash);
     ProString(const QString &str, int offset, int length, ProStringConstants::OmitPreHashing);
-    void setSource(const ProFile *pro) { m_file = pro; }
+    void setValue(const QString &str);
+    void setValue(const QString &str, ProStringConstants::OmitPreHashing);
+    ProString &setSource(const ProString &other) { m_file = other.m_file; return *this; }
+    ProString &setSource(const ProFile *pro) { m_file = pro; return *this; }
     const ProFile *sourceFile() const { return m_file; }
     QString toQString() const;
     QString &toQString(QString &tmp) const;

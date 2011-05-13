@@ -222,7 +222,7 @@ public:
     ProStringList values(const ProString &variableName) const;
     QString propertyValue(const QString &val, bool complain) const;
 
-    static ProStringList split_value_list(const QString &vals);
+    ProStringList split_value_list(const QString &vals, const ProFile *source = 0);
     bool isActiveConfig(const QString &config, bool regex = false);
     ProStringList expandVariableReferences(const ProString &value, int *pos = 0, bool joined = false);
     ProStringList expandVariableReferences(const ushort *&tokPtr, int sizeHint = 0, bool joined = false);
@@ -557,7 +557,7 @@ void ProFileEvaluator::Private::skipHashStr(const ushort *&tokPtr)
 
 // FIXME: this should not build new strings for direct sections.
 // Note that the E_SPRINTF and E_LIST implementations rely on the deep copy.
-ProStringList ProFileEvaluator::Private::split_value_list(const QString &vals)
+ProStringList ProFileEvaluator::Private::split_value_list(const QString &vals, const ProFile *source)
 {
     QString build;
     ProStringList ret;
@@ -569,6 +569,9 @@ ProStringList ProFileEvaluator::Private::split_value_list(const QString &vals)
     const ushort SINGLEQUOTE = '\'';
     const ushort DOUBLEQUOTE = '"';
     const ushort BACKSLASH = '\\';
+
+    if (!source)
+        source = currentProFile();
 
     ushort unicode;
     const QChar *vals_data = vals.data();
@@ -589,14 +592,14 @@ ProStringList ProFileEvaluator::Private::split_value_list(const QString &vals)
         }
 
         if (!parens && quote.isEmpty() && vals_data[x] == SPACE) {
-            ret << ProString(build, NoHash);
+            ret << ProString(build, NoHash).setSource(source);
             build.clear();
         } else {
             build += vals_data[x];
         }
     }
     if (!build.isEmpty())
-        ret << ProString(build, NoHash);
+        ret << ProString(build, NoHash).setSource(source);
     return ret;
 }
 
@@ -639,7 +642,7 @@ static void replaceInList(ProStringList *varlist,
             if (val.isEmpty()) {
                 varit = varlist->erase(varit);
             } else {
-                *varit = ProString(val);
+                (*varit).setValue(val, NoHash);
                 ++varit;
             }
             if (!global)
@@ -762,7 +765,8 @@ void ProFileEvaluator::Private::evaluateExpression(
             break;
         case TokProperty:
             addStr(ProString(propertyValue(
-                    getStr(tokPtr).toQString(m_tmp1), true), NoHash), ret, pending, joined);
+                      getStr(tokPtr).toQString(m_tmp1), true), NoHash).setSource(currentProFile()),
+                   ret, pending, joined);
             break;
         case TokEnvVar:
             addStrList(split_value_list(m_option->getEnv(getStr(tokPtr).toQString(m_tmp1))),
@@ -2145,12 +2149,12 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                     QRegExp sepRx(sep);
                     foreach (const ProString &str, values(map(var))) {
                         const QString &rstr = str.toQString(m_tmp1).section(sepRx, beg, end);
-                        ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr, NoHash));
+                        ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr, NoHash).setSource(str));
                     }
                 } else {
                     foreach (const ProString &str, values(map(var))) {
                         const QString &rstr = str.toQString(m_tmp1).section(sep, beg, end);
-                        ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr, NoHash));
+                        ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr, NoHash).setSource(str));
                     }
                 }
             }
@@ -2180,8 +2184,15 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 if (args.count() == 4)
                     after = args[3];
                 const ProStringList &var = values(map(args.at(0)));
-                if (!var.isEmpty())
-                    ret.append(ProString(before + var.join(glue) + after, NoHash));
+                if (!var.isEmpty()) {
+                    const ProFile *src = currentProFile();
+                    foreach (const ProString &v, var)
+                        if (const ProFile *s = v.sourceFile()) {
+                            src = s;
+                            break;
+                        }
+                    ret.append(ProString(before + var.join(glue) + after, NoHash).setSource(src));
+                }
             }
             break;
         }
@@ -2192,7 +2203,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                 const QString &sep = (args.count() == 2) ? args.at(1).toQString(m_tmp1) : statics.field_sep;
                 foreach (const ProString &var, values(map(args.at(0))))
                     foreach (const QString &splt, var.toQString(m_tmp2).split(sep))
-                        ret << (splt.isSharedWith(m_tmp2) ? var : ProString(splt, NoHash));
+                        ret << (splt.isSharedWith(m_tmp2) ? var : ProString(splt, NoHash).setSource(var));
             }
             break;
         case E_MEMBER:
@@ -2310,7 +2321,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             ret = ProStringList(ProString(tmp, NoHash));
             ProStringList lst;
             foreach (const ProString &arg, args)
-                lst += split_value_list(arg.toQString(m_tmp1)); // Relies on deep copy
+                lst += split_value_list(arg.toQString(m_tmp1), arg.sourceFile()); // Relies on deep copy
             m_valuemapStack.top()[ret.at(0)] = lst;
             break; }
         case E_FIND:
@@ -2405,13 +2416,13 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                         }
                     }
                 }
-                ret.append(ProString(QString(i_data, i_len), NoHash));
+                ret.append(ProString(QString(i_data, i_len), NoHash).setSource(args.at(i)));
             }
             break;
         case E_RE_ESCAPE:
             for (int i = 0; i < args.size(); ++i) {
                 const QString &rstr = QRegExp::escape(args.at(i).toQString(m_tmp1));
-                ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr, NoHash));
+                ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr, NoHash).setSource(args.at(i)));
             }
             break;
         case E_UPPER:
@@ -2419,7 +2430,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             for (int i = 0; i < args.count(); ++i) {
                 QString rstr = args.at(i).toQString(m_tmp1);
                 rstr = (func_t == E_UPPER) ? rstr.toUpper() : rstr.toLower();
-                ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr, NoHash));
+                ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr, NoHash).setSource(args.at(i)));
             }
             break;
         case E_FILES:
@@ -2459,7 +2470,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                                 dirs.append(fname + QDir::separator());
                         }
                         if (regex.exactMatch(qdir[i]))
-                            ret += ProString(fname, NoHash);
+                            ret += ProString(fname, NoHash).setSource(currentProFile());
                     }
                 }
             }
@@ -2474,7 +2485,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                     QString rstr = val.toQString(m_tmp1);
                     QString copy = rstr; // Force a detach on modify
                     rstr.replace(before, after);
-                    ret << (rstr.isSharedWith(m_tmp1) ? val : ProString(rstr, NoHash));
+                    ret << (rstr.isSharedWith(m_tmp1) ? val : ProString(rstr, NoHash).setSource(val));
                 }
             }
             break;

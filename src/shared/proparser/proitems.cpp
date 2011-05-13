@@ -105,6 +105,17 @@ ProString::ProString(const QString &str, int offset, int length, ProStringConsta
 {
 }
 
+void ProString::setValue(const QString &str)
+{
+    m_string = str, m_offset = 0, m_length = str.length();
+    updatedHash();
+}
+
+void ProString::setValue(const QString &str, OmitPreHashing)
+{
+    m_string = str, m_offset = 0, m_length = str.length(), m_hash = 0x80000000;
+}
+
 uint ProString::updatedHash() const
 {
      return (m_hash = hash(m_string.constData() + m_offset, m_length));
