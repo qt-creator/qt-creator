@@ -934,5 +934,3 @@ bool WizardProgressItem::titleWordWrap() const
 } // namespace Utils
 
 #include "wizard.moc"
-#include "moc_wizard.cpp"
-
