@@ -55,9 +55,8 @@
     If possible, ask a native English speaker for a review.
 
     UI text should be concise and economically formulated. Avoid unnecessary
-    content words and phrases. The following message contains unnecessary
-    content: \e {Do you want to delete this document?}. It could be rephrased
-    as: \e {Delete document?}.
+    content words and phrases. However, it is more important that the text is
+    useful and easy to understand.
 
     Avoid addressing the user in the second person. Use a neutral tone or
     passive voice but use a formal address when necessary. Avoid using the
@@ -132,17 +131,8 @@
 
     \section2 Writing Messages
 
-    Check that messages are concise and economically formulated. Avoid
-    excessive use of, for example, verbs and articles if the sentence is
-    grammatically correct without them, such as:
-
-     \list
-
-        \o  SIM card full (NOT: SIM card is full)
-
-        \o  Calendar entry deleted (NOT: Calendar entry has been deleted)
-
-     \endlist
+    Check that messages are concise and economically formulated. However, it
+    is more important that the messages are useful and easy to understand.
 
     Keep the use of many new and different sentence structures to a minimum.
     Reuse sentence structures that have been used in similar situations. For
@@ -150,7 +140,7 @@
 
     \list
 
-        \o  Cannot send log as selected message type. Text too long.
+        \o  Cannot send log as selected message type. Text is too long.
 
         \o  Cannot receive image.
 
@@ -283,65 +273,6 @@
                 following types of constructs:
 
                 \c {tr("%1 failed").arg(someCondition ? "the operation" : "opening a file")}
-        \row
-            \o  Compound words
-            \o  Some languages form new words by combining existing words into
-                new compound words (for example, Finnish and Thai).
-
-                Allow for text expansion. The compound words tend to make terms
-                longer than in English.
-        \row
-            \o  Word boundaries
-            \o  There are languages that do not use space as word boundaries
-                (for example, Thai, also Chinese and Japanese to some extent).
-
-                Use the line wrapping function.
-        \row
-            \o  Abbreviations
-            \o  There are languages that do not allow abbreviating words, (for
-                example, Chinese, Arabic).
-
-                Do not assume that all supported languages can be abbreviated
-                if the layout is not wide enough.
-        \row
-            \o  Length of words
-            \o  Most languages have longer words than English.
-
-                Do not assume that the layout is OK if a short English word
-                fits in.
-        \row
-            \o  Direction of text flow
-            \o  In Qt Creator, both left-to-right and right-to-left text flow
-                is supported.
-
-                Arabic and Hebrew writing systems are essentially
-                bidirectional, that is, the text can flow either from right to
-                left or vice versa, depending on the characters' attributes.
-        \row
-            \o  Writing systems
-            \o  Qt widgets embed most of the writing system support.
-
-                Do not assume a certain character is always available in
-                every language and every writing system.
-
-                Allow for different directions in text flow (unless
-                feature-related standard dictates differently). For example,
-                allow for the bidirectionality of Arabic script.
-
-                Do not assume that if your software functions properly in
-                English, it will be OK also in other languages and writing
-                systems.
-        \row
-            \o  Character sets and character repertoire
-            \o  Do not assume a certain character is always available.
-        \row
-            \o  Multiple scripts within one writing system for one language
-            \o  Do not assume that a language would use only one script in
-                writing.
-        \row
-            \o  Digits
-            \o  Allow also for other than European digits (1,2,3, ...).
-
     \endtable
 
     \section1 Common Qt Creator Terms
@@ -435,12 +366,12 @@
                 for them.
         \row
             \o  View
-            \o  Available in \gui Debug mode, for interaction with the program
+            \o  An area of the screen that displays information for users and
+                provides them with functions for managing the information.
+                Available in \gui Debug mode, for interaction with the program
                 that is running under the control of the debugger.
                 \image qtcreator-debugger-views.png "Views"
-            \o  ##Can you add views? How do \e views and \e panes actually
-                differ? Should we choose one of those terms and use it
-                everywhere?
+            \o  Use descriptive names for views.
     \endtable
 
 */
