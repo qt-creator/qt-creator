@@ -175,7 +175,7 @@ void ToolChainManager::restoreToolChains(const QString &fileName, bool autoDetec
         if (!data.contains(abiKey))
             continue;
         const QString pathKey = QString::fromLatin1(DEFAULT_DEBUGGER_PATH_KEY) + QString::number(i);
-        if (!data.contains(abiKey))
+        if (!data.contains(pathKey))
             continue;
         m_d->m_abiToDebugger.insert(data.value(abiKey).toString(), data.value(pathKey).toString());
     }
