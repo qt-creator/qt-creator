@@ -637,7 +637,6 @@ void S60DeployStep::closeFiles()
     emit addOutput(QLatin1String("\n"), ProjectExplorer::BuildStep::MessageOutput);
     m_codaDevice->sendFileSystemCloseCommand(Coda::CodaCallback(this, &S60DeployStep::handleFileSystemClose),
                                             m_remoteFileHandle);
-
 }
 
 void S60DeployStep::handleFileSystemWrite(const Coda::CodaCommandResult &result)
