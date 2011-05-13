@@ -463,8 +463,8 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(qtVersionChanged()));
     connect(step->qt4BuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
             this, SLOT(qmakeBuildConfigChanged()));
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsUpdated(QString)),
-            this, SLOT(qtVersionsUpdated(QString)));
+    connect(QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(QString)),
+            this, SLOT(qtVersionsDumpUpdated(QString)));
 }
 
 void QMakeStepConfigWidget::init()
@@ -496,7 +496,7 @@ void QMakeStepConfigWidget::qtVersionChanged()
     updateQmlDebuggingOption();
 }
 
-void QMakeStepConfigWidget::qtVersionsUpdated(const QString &qmakeCommand)
+void QMakeStepConfigWidget::qtVersionsDumpUpdated(const QString &qmakeCommand)
 {
     if (BaseQtVersion *version = m_step->qt4BuildConfiguration()->qtVersion()) {
         if (version->qmakeCommand() == qmakeCommand)

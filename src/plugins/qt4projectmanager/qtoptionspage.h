@@ -108,7 +108,7 @@ private slots:
     void debuggingHelperBuildFinished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
     void cleanUpQtVersions();
 
-    void qtVersionsUpdated(const QString &qmakeCommand);
+    void qtVersionsDumpUpdated(const QString &qmakeCommand);
 };
 
 class QtOptionsPage : public Core::IOptionsPage

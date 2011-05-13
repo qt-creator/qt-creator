@@ -381,7 +381,7 @@ void QtVersionManager::updateQtVersion(int id)
         if (v->qmakeCommand() == qmakeCommand)
             v->recheckDumper();
     }
-    emit qtVersionsUpdated(qmakeCommand);
+    emit dumpUpdatedFor(qmakeCommand);
 }
 
 void QtVersionManager::updateSettings()

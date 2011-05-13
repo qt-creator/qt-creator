@@ -198,8 +198,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     userChangedCurrentVersion();
     updateCleanUpButton();
 
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsUpdated(QString)),
-            this, SLOT(qtVersionsUpdated(QString)));
+    connect(QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(QString)),
+            this, SLOT(qtVersionsDumpUpdated(QString)));
 }
 
 bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
@@ -313,7 +313,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
     updateCleanUpButton();
 }
 
-void QtOptionsPageWidget::qtVersionsUpdated(const QString &qmakeCommand)
+void QtOptionsPageWidget::qtVersionsDumpUpdated(const QString &qmakeCommand)
 {
     foreach (BaseQtVersion *version, m_versions) {
         if (version->qmakeCommand() == qmakeCommand)
