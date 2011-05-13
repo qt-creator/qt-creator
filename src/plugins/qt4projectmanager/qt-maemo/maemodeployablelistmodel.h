@@ -102,12 +102,14 @@ private:
     QString proFileScope() const;
     QString installPrefix() const;
     QString remoteIconDir() const;
+    QStringList localLibraryFilePaths() const;
 
     const Qt4ProjectType m_projectType;
     const QString m_proFilePath;
     const QString m_projectName;
     const TargetInformation m_targetInfo;
     const InstallsList m_installsList;
+    const ProjectVersion m_projectVersion;
     const QStringList m_config;
     QList<MaemoDeployable> m_deployables;
     mutable bool m_modified;

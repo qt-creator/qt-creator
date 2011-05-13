@@ -63,6 +63,7 @@ MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFile
       m_projectName(proFileNode->displayName()),
       m_targetInfo(proFileNode->targetInformation()),
       m_installsList(proFileNode->installsList()),
+      m_projectVersion(proFileNode->projectVersion()),
       m_config(proFileNode->variableValue(ConfigVar)),
       m_modified(false),
       m_proFileUpdateSetting(updateSetting),
@@ -87,9 +88,14 @@ bool MaemoDeployableListModel::buildModel()
         const QStringList deployInfo = QStringList() << remoteDir
             << QLatin1String("INSTALLS += target");
         return addLinesToProFile(deployInfo);
-    } else if (m_projectType != AuxTemplate) {
+    } else if (m_projectType == ApplicationTemplate) {
         m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
             m_installsList.targetPath));
+    } else if (m_projectType == LibraryTemplate) {
+        foreach (const QString &filePath, localLibraryFilePaths()) {
+            m_deployables.prepend(MaemoDeployable(filePath,
+                m_installsList.targetPath));
+        }
     }
     foreach (const InstallsItem &elem, m_installsList.items) {
         foreach (const QString &file, elem.files)
@@ -172,26 +178,34 @@ QVariant MaemoDeployableListModel::headerData(int section,
 
 QString MaemoDeployableListModel::localExecutableFilePath() const
 {
-    if (!m_targetInfo.valid)
+    if (!m_targetInfo.valid || m_projectType != ApplicationTemplate)
         return QString();
+    return QDir::cleanPath(m_targetInfo.workingDir + '/' + m_targetInfo.target);
+}
 
-    const bool isLib = m_projectType == LibraryTemplate;
-    bool isStatic = false; // Nonsense init for stupid compilers.
-    QString fileName;
-    if (isLib) {
-        fileName += QLatin1String("lib");
-        isStatic = m_config.contains(QLatin1String("static"))
+QStringList MaemoDeployableListModel::localLibraryFilePaths() const
+{
+    if (!m_targetInfo.valid || m_projectType != LibraryTemplate)
+        return QStringList();
+    QString basePath = m_targetInfo.workingDir + QLatin1String("/lib");
+    const bool isStatic = m_config.contains(QLatin1String("static"))
             || m_config.contains(QLatin1String("staticlib"));
-    }
-    fileName += m_targetInfo.target;
-    if (isLib)
-        fileName += QLatin1String(isStatic ? ".a" : ".so");
-    return QDir::cleanPath(m_targetInfo.workingDir + '/' + fileName);
+    basePath += m_targetInfo.target + QLatin1String(isStatic ? ".a" : ".so");
+    basePath = QDir::cleanPath(basePath);
+    const QChar dot(QLatin1Char('.'));
+    const QString filePathMajor = basePath + dot
+        + QString::number(m_projectVersion.major);
+    const QString filePathMinor = filePathMajor + dot
+         + QString::number(m_projectVersion.minor);
+    const QString filePathPatch  = filePathMinor + dot
+         + QString::number(m_projectVersion.patch);
+    return QStringList() << filePathPatch << filePathMinor << filePathMajor
+        << basePath;
 }
 
 QString MaemoDeployableListModel::remoteExecutableFilePath() const
 {
-    return m_hasTargetPath
+    return m_hasTargetPath && m_projectType == ApplicationTemplate
         ? deployableAt(0).remoteDir + '/'
               + QFileInfo(localExecutableFilePath()).fileName()
         : QString();
