@@ -343,6 +343,7 @@ void S60DeployStep::setupConnections()
         connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
         connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(connectFailed(QString)));
         connect(m_launcher, SIGNAL(copyingStarted(QString)), this, SLOT(printCopyingNotice(QString)));
+        connect(m_launcher, SIGNAL(fileCopied(QString)), this, SLOT(printCopyingFinished(QString)));
         connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(createFileFailed(QString,QString)));
         connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(writeFileFailed(QString,QString)));
         connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(closeFileFailed(QString,QString)));
@@ -746,6 +747,12 @@ void S60DeployStep::connectFailed(const QString &errorMessage)
 void S60DeployStep::printCopyingNotice(const QString &fileName)
 {
     appendMessage(tr("Copying \"%1\"...").arg(fileName), false);
+}
+
+void S60DeployStep::printCopyingFinished(const QString &fileName)
+{
+    Q_UNUSED(fileName)
+    appendMessage(QLatin1String("\n"), false);
 }
 
 void S60DeployStep::printInstallingNotice(const QString &packageName)

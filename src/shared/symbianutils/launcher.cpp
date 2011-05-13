@@ -719,6 +719,7 @@ void Launcher::handleFileCopied(const TrkResult &result)
 {
     if (result.errorCode())
         emit canNotCloseFile(d->m_copyState.destinationFileNames.at(d->m_copyState.currentFileName), result.errorString());
+    emit fileCopied(d->m_copyState.destinationFileNames.at(d->m_copyState.currentFileName));
 
     ++d->m_copyState.currentFileName;
 

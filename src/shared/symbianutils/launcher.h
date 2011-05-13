@@ -139,6 +139,7 @@ public:
 signals:
     void deviceDescriptionReceived(const QString &port, const QString &description);
     void copyingStarted(const QString &fileName);
+    void fileCopied(const QString &fileName);
     void canNotConnect(const QString &errorMessage);
     void canNotCreateFile(const QString &filename, const QString &errorMessage);
     void canNotOpenFile(const QString &filename, const QString &errorMessage);

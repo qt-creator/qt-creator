@@ -113,6 +113,7 @@ protected slots:
 private slots:
     void connectFailed(const QString &errorMessage);
     void printCopyingNotice(const QString &fileName);
+    void printCopyingFinished(const QString &fileName);
     void createFileFailed(const QString &filename, const QString &errorMessage);
     void writeFileFailed(const QString &filename, const QString &errorMessage);
     void closeFileFailed(const QString &filename, const QString &errorMessage);
