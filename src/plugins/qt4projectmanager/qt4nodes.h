@@ -269,6 +269,12 @@ struct InstallsList {
     QList<InstallsItem> items;
 };
 
+struct ProjectVersion {
+    int major;
+    int minor;
+    int patch;
+};
+
 // Implements ProjectNode for qt4 pro files
 class Qt4ProFileNode : public Qt4PriFileNode
 {
@@ -301,6 +307,7 @@ public:
     TargetInformation targetInformation() const;
 
     InstallsList installsList() const;
+    ProjectVersion projectVersion() const { return m_projectVersion; }
 
     QString makefile() const;
     QStringList symbianCapabilities() const;
@@ -343,6 +350,7 @@ private:
     QStringList subDirsPaths(ProFileReader *reader) const;
     TargetInformation targetInformation(ProFileReader *reader) const;
     void setupInstallsList(const ProFileReader *reader);
+    void setupProjectVersion(const ProFileReader *reader);
 
     void invalidate();
 
@@ -353,6 +361,7 @@ private:
     QMap<QString, QDateTime> m_uitimestamps;
     TargetInformation m_qt4targetInformation;
     InstallsList m_installsList;
+    ProjectVersion m_projectVersion;
     friend class Qt4NodeHierarchy;
 
     bool m_validParse;
