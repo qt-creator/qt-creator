@@ -108,14 +108,14 @@ public:
         layout->setContentsMargins(3, 0, 3, 0);
         layout->setSpacing(2);
 
-        m_patience->setToolTip(tr("Use the patience algorithm for calculating the diff"));
+        m_patience->setToolTip(tr("Use the patience algorithm for calculating the differences."));
         m_patience->setText(tr("Patience"));
         layout->addWidget(m_patience);
         m_patience->setCheckable(true);
         m_patience->setChecked(m_settings->diffPatience);
         connect(m_patience, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
 
-        m_ignoreSpaces->setToolTip(tr("Ignore whitespace only changes"));
+        m_ignoreSpaces->setToolTip(tr("Ignore whitespace only changes."));
         m_ignoreSpaces->setText(tr("Ignore Whitespace"));
         layout->addWidget(m_ignoreSpaces);
         m_ignoreSpaces->setCheckable(true);
@@ -239,7 +239,7 @@ public:
         layout->setContentsMargins(3, 0, 3, 0);
         layout->setSpacing(2);
 
-        m_prettyFormat->setToolTip(tr("Select the pretty printing format"));
+        m_prettyFormat->setToolTip(tr("Select the pretty printing format."));
         m_prettyFormat->addItem(tr("oneline"), QLatin1String("oneline"));
         m_prettyFormat->addItem(tr("short"), QLatin1String("short"));
         m_prettyFormat->addItem(tr("medium"), QLatin1String("medium"));
@@ -310,7 +310,7 @@ public:
         layout->setSpacing(2);
 
         m_omitDate = new QToolButton;
-        m_omitDate->setToolTip(tr("Do not show the date a change was made in the output"));
+        m_omitDate->setToolTip(tr("Hide the date of a change from the output."));
         m_omitDate->setText(tr("Omit Date"));
         layout->addWidget(m_omitDate);
         m_omitDate->setCheckable(true);
@@ -320,7 +320,7 @@ public:
         connect(m_omitDate, SIGNAL(toggled(bool)), this, SLOT(testForArgumentsChanged()));
 
         m_ignoreSpaces = new QToolButton;
-        m_ignoreSpaces->setToolTip(tr("Ignore whitespace only changes"));
+        m_ignoreSpaces->setToolTip(tr("Ignore whitespace only changes."));
         m_ignoreSpaces->setText(tr("Ignore Whitespace"));
         layout->addWidget(m_ignoreSpaces);
         m_ignoreSpaces->setCheckable(true);
@@ -405,12 +405,12 @@ static inline VCSBase::VCSBaseOutputWindow *outputWindow()
 
 static inline QString msgRepositoryNotFound(const QString &dir)
 {
-    return GitClient::tr("Unable to determine the repository for %1.").arg(dir);
+    return GitClient::tr("Cannot determine the repository for \"%1\".").arg(dir);
 }
 
 static inline QString msgParseFilesFailed()
 {
-    return  GitClient::tr("Unable to parse the file output.");
+    return  GitClient::tr("Cannot parse the file output.");
 }
 
 // ---------------- GitClient
@@ -565,7 +565,7 @@ void GitClient::diff(const QString &workingDirectory,
                      const QString &fileName)
 {
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
-    const QString title = tr("Git Diff %1").arg(fileName);
+    const QString title = tr("Git Diff \"%1\"").arg(fileName);
     const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, fileName);
 
     QStringList userDiffArgs = diffArgs;
@@ -598,7 +598,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
         qDebug() << "diffBranch" << workingDirectory << branchName;
 
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
-    const QString title = tr("Git Diff Branch %1").arg(branchName);
+    const QString title = tr("Git Diff Branch \"%1\"").arg(branchName);
     const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, QStringList());
 
     QStringList userDiffArgs = diffArgs;
@@ -651,7 +651,7 @@ void GitClient::graphLog(const QString &workingDirectory, const QString & branch
     if (branch.isEmpty()) {
         title = tr("Git Log");
     } else {
-        title = tr("Git Log %1").arg(branch);
+        title = tr("Git Log \"%1\"").arg(branch);
         arguments << branch;
     }
     const QString editorId = QLatin1String(Git::Constants::GIT_LOG_EDITOR_ID);
@@ -678,7 +678,7 @@ void GitClient::log(const QString &workingDirectory, const QStringList &fileName
 
     const QString msgArg = fileNames.empty() ? workingDirectory :
                            fileNames.join(QString(", "));
-    const QString title = tr("Git Log %1").arg(msgArg);
+    const QString title = tr("Git Log \"%1\"").arg(msgArg);
     const QString editorId = QLatin1String(Git::Constants::GIT_LOG_EDITOR_ID);
     const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, fileNames);
     VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("logFileName", sourceFile);
@@ -700,7 +700,7 @@ static inline bool canShow(const QString &sha)
 
 static inline QString msgCannotShow(const QString &sha)
 {
-    return GitClient::tr("Cannot describe '%1'.").arg(sha);
+    return GitClient::tr("Cannot describe \"%1\".").arg(sha);
 }
 
 void GitClient::show(const QString &source, const QString &id, const QStringList &args)
@@ -713,7 +713,7 @@ void GitClient::show(const QString &source, const QString &id, const QStringList
     }
 
     QStringList userArgs = args;
-    const QString title = tr("Git Show %1").arg(id);
+    const QString title = tr("Git Show \"%1\"").arg(id);
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     VCSBase::VCSBaseEditorWidget *editor = findExistingVCSEditor("show", id);
     if (!editor) {
@@ -756,7 +756,7 @@ void GitClient::blame(const QString &workingDirectory,
 
     const QString editorId = QLatin1String(Git::Constants::GIT_BLAME_EDITOR_ID);
     const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDirectory, QStringList(fileName), revision);
-    const QString title = tr("Git Blame %1").arg(id);
+    const QString title = tr("Git Blame \"%1\"").arg(id);
     const QString sourceFile = VCSBase::VCSBaseEditorWidget::getSource(workingDirectory, fileName);
 
     QStringList userBlameArgs = args;
@@ -802,7 +802,7 @@ bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
     if (!rc) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         //: Meaning of the arguments: %1: Branch, %2: Repository, %3: Error message
-        const QString msg = tr("Unable to checkout %1 of %2: %3").arg(branch, workingDirectory, stdErr);
+        const QString msg = tr("Cannot checkout \"%1\" of \"%2\": %3").arg(branch, workingDirectory, stdErr);
         if (errorMessage) {
             *errorMessage = msg;
         } else {
@@ -862,7 +862,7 @@ bool GitClient::synchronousAdd(const QString &workingDirectory,
     arguments.append(files);
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
-        const QString errorMessage = tr("Unable to add %n file(s) to %1: %2", 0, files.size()).
+        const QString errorMessage = tr("Cannot add %n file(s) to \"%1\": %2", 0, files.size()).
                                      arg(QDir::toNativeSeparators(workingDirectory),
                                      commandOutputFromLocal8Bit(errorText));
         outputWindow()->appendError(errorMessage);
@@ -885,7 +885,7 @@ bool GitClient::synchronousDelete(const QString &workingDirectory,
     arguments.append(files);
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
-        const QString errorMessage = tr("Unable to remove %n file(s) from %1: %2", 0, files.size()).
+        const QString errorMessage = tr("Cannot remove %n file(s) from \"%1\": %2", 0, files.size()).
                                      arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         outputWindow()->appendError(errorMessage);
     }
@@ -906,7 +906,7 @@ bool GitClient::synchronousMove(const QString &workingDirectory,
     arguments << (to);
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
-        const QString errorMessage = tr("Unable to move from %1 to %2: %3").
+        const QString errorMessage = tr("Cannot move from \"%1\" to \"%2\": %3").
                                      arg(from, to, commandOutputFromLocal8Bit(errorText));
         outputWindow()->appendError(errorMessage);
     }
@@ -939,8 +939,8 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
          && !output.contains(QLatin1String("Unstaged changes after reset")))) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         const QString msg = files.isEmpty() ?
-                            tr("Unable to reset %1: %2").arg(QDir::toNativeSeparators(workingDirectory), stdErr) :
-                            tr("Unable to reset %n file(s) in %1: %2", 0, files.size()).
+                            tr("Cannot reset \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), stdErr) :
+                            tr("Cannot reset %n file(s) in \"%1\": %2", 0, files.size()).
                             arg(QDir::toNativeSeparators(workingDirectory), stdErr);
         if (errorMessage) {
             *errorMessage = msg;
@@ -996,7 +996,7 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
         const QString fileArg = files.join(QLatin1String(", "));
         //: Meaning of the arguments: %1: revision, %2: files, %3: repository,
         //: %4: Error message
-        const QString msg = tr("Unable to checkout %1 of %2 in %3: %4").
+        const QString msg = tr("Cannot checkout \"%1\" of %2 in \"%3\": %4").
                             arg(revision, fileArg, workingDirectory, commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
             *errorMessage = msg;
@@ -1013,7 +1013,7 @@ static inline QString msgParentRevisionFailed(const QString &workingDirectory,
                                               const QString &why)
 {
     //: Failed to find parent revisions of a SHA1 for "annotate previous"
-    return GitClient::tr("Unable to find parent revisions of %1 in %2: %3").arg(revision, workingDirectory, why);
+    return GitClient::tr("Cannot find parent revisions of \"%1\" in \"%2\": %3").arg(revision, workingDirectory, why);
 }
 
 static inline QString msgInvalidRevision()
@@ -1108,7 +1108,7 @@ bool GitClient::synchronousShortDescriptions(const QString &workingDirectory, co
 
 static inline QString msgCannotDetermineBranch(const QString &workingDirectory, const QString &why)
 {
-    return GitClient::tr("Unable to retrieve branch of %1: %2").arg(QDir::toNativeSeparators(workingDirectory), why);
+    return GitClient::tr("Cannot retrieve branch of \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), why);
 }
 
 // Retrieve head revision/branch
@@ -1130,7 +1130,7 @@ bool GitClient::synchronousTopRevision(const QString &workingDirectory,
             arguments << QLatin1String("log") << QLatin1String(noColorOption)
                     <<  QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%H");
             if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
-                errorMessage = tr("Unable to retrieve top revision of %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+                errorMessage = tr("Cannot retrieve top revision of \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
                 break;
             }
             *revision = commandOutputFromLocal8Bit(outputTextData);
@@ -1192,7 +1192,7 @@ bool GitClient::synchronousShortDescription(const QString &workingDirectory,
               << QLatin1String("--max-count=1") << revision;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to describe revision %1 in %2: %3").arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Cannot describe revision \"%1\" in \"%2\": %3").arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *description = commandOutputFromLocal8Bit(outputTextData);
@@ -1280,7 +1280,7 @@ bool GitClient::executeSynchronousStash(const QString &workingDirectory,
         arguments << QLatin1String("save") << message;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
-        const QString msg = tr("Unable stash in %1: %2").
+        const QString msg = tr("Cannot stash in \"%1\": %2").
                             arg(QDir::toNativeSeparators(workingDirectory),
                                 commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
@@ -1314,7 +1314,7 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
         }
     }
     //: Look-up of a stash via its descriptive message failed.
-    const QString msg = tr("Unable to resolve stash message '%1' in %2").arg(message, workingDirectory);
+    const QString msg = tr("Cannot resolve stash message \"%1\" in \"%2\".").arg(message, workingDirectory);
     if (errorMessage) {
         *errorMessage = msg;
     } else {
@@ -1333,7 +1333,7 @@ bool GitClient::synchronousBranchCmd(const QString &workingDirectory, QStringLis
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, branchArgs, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run a 'git branch' command in %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Cannot run \"git branch\" in \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputText);
@@ -1348,7 +1348,7 @@ bool GitClient::synchronousRemoteCmd(const QString &workingDirectory, QStringLis
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, remoteArgs, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run a 'git remote' command in %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Cannot run \"git remote\" in \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputText);
@@ -1370,7 +1370,7 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run 'git show' in %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Cannot run \"git show\" in \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return false;
     }
     *output = commandOutputFromLocal8Bit(outputText);
@@ -1390,7 +1390,7 @@ bool GitClient::synchronousCleanList(const QString &workingDirectory,
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (!rc) {
-        *errorMessage = tr("Unable to run 'git clean' in %1: %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Cannot run \"git clean\" in \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
         return false;
     }
     // Filter files that git would remove
@@ -1413,9 +1413,9 @@ bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
     if (rc) {
         if (!errorText.isEmpty())
-            *errorMessage = tr("There were warnings while applying %1 to %2:\n%3").arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
+            *errorMessage = tr("There were warnings while applying \"%1\" to \"%2\":\n%3").arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
     } else {
-        *errorMessage = tr("Unable apply patch %1 to %2: %3").arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
+        *errorMessage = tr("Cannot apply patch \"%1\" to \"%2\": %3").arg(file, workingDirectory, commandOutputFromLocal8Bit(errorText));
         return false;
     }
     return true;
@@ -1597,7 +1597,7 @@ GitClient::StashResult GitClient::ensureStash(const QString &workingDirectory, Q
     }
 
     const int answer = askWithDetailedText(m_core->mainWindow(), tr("Changes"),
-                             tr("You have modified files. Would you like to stash your changes?"),
+                             tr("Would you like to stash your changes?"),
                              statusOutput, QMessageBox::Yes, QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
     switch (answer) {
         case QMessageBox::Cancel:
@@ -1652,7 +1652,7 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     if (!statusRc && !branchKnown && !outputText.contains("# Not currently on any branch.")) {
         if (errorMessage) {
             const QString error = commandOutputFromLocal8Bit(errorText);
-            *errorMessage = tr("Unable to obtain the status: %1").arg(error);
+            *errorMessage = tr("Cannot obtain status: %1").arg(error);
         }
         return StatusFailed;
     }
@@ -1712,7 +1712,7 @@ void GitClient::launchGitK(const QString &workingDirectory)
     const QString path = env.value(QLatin1String("PATH"));
     const QString fullGitBinary = Utils::SynchronousProcess::locateBinary(path, m_binaryPath);
     if (fullGitBinary.isEmpty()) {
-        outwin->appendError(tr("Cannot locate %1.").arg(gitBinary));
+        outwin->appendError(tr("Cannot locate \"%1\".").arg(gitBinary));
         return;
     }
     const QString gitBinDirectory = QFileInfo(fullGitBinary).absolutePath();
@@ -1762,7 +1762,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
         success = QProcess::startDetached(binary, arguments, workingDirectory);
     }
     if (!success) {
-        const QString error = tr("Unable to launch %1.").arg(binary);
+        const QString error = tr("Cannot launch \"%1\".").arg(binary);
         if (silent)
             outwin->appendSilently(error);
         else
@@ -1793,7 +1793,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     QDir gitDir(repoDirectory);
     if (!gitDir.cd(QLatin1String(kGitDirectoryC))) {
-        *errorMessage = tr("The repository %1 is not initialized yet.").arg(repoDirectory);
+        *errorMessage = tr("The repository \"%1\" is not initialized.").arg(repoDirectory);
         return false;
     }
 
@@ -1870,7 +1870,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:") + format;
         const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args);
         if (sp.result != Utils::SynchronousProcessResponse::Finished) {
-            *errorMessage = tr("Unable to retrieve the last commit data of the repository %1.").arg(repoDirectory);
+            *errorMessage = tr("Cannot retrieve last commit data of repository \"%1\".").arg(repoDirectory);
             return false;
         }
         const int separatorPos = sp.stdOut.indexOf(QLatin1Char('@'));
@@ -1900,8 +1900,8 @@ static inline QString msgCommitted(const QString &amendSHA1, int fileCount)
     if (amendSHA1.isEmpty())
         return GitClient::tr("Committed %n file(s).\n", 0, fileCount);
     if (fileCount)
-        return GitClient::tr("Amended %1 (%n file(s)).\n", 0, fileCount).arg(amendSHA1);
-    return GitClient::tr("Amended %1.").arg(amendSHA1);
+        return GitClient::tr("Amended \"%1\" (%n file(s)).\n", 0, fileCount).arg(amendSHA1);
+    return GitClient::tr("Amended \"%1\".").arg(amendSHA1);
 }
 
 // addAndCommit:
@@ -1965,7 +1965,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     if (rc) {
         outputWindow()->append(msgCommitted(amendSHA1, checkedFiles.size()));
     } else {
-        outputWindow()->appendError(tr("Unable to commit %n file(s): %1\n", 0, checkedFiles.size()).arg(commandOutputFromLocal8Bit(errorText)));
+        outputWindow()->appendError(tr("Cannot commit %n file(s): %1\n", 0, checkedFiles.size()).arg(commandOutputFromLocal8Bit(errorText)));
     }
     return rc;
 }
@@ -2211,9 +2211,9 @@ bool GitClient::synchronousStashRestore(const QString &workingDirectory,
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         const QString nativeWorkingDir = QDir::toNativeSeparators(workingDirectory);
         const QString msg = branch.isEmpty() ?
-                            tr("Unable to restore stash %1: %2").
+                            tr("Cannot restore stash \"%1\": %2").
                             arg(nativeWorkingDir, stdErr) :
-                            tr("Unable to restore stash %1 to branch %2: %3").
+                            tr("Cannot restore stash \"%1\" to branch \"%2\": %3").
                             arg(nativeWorkingDir, branch, stdErr);
         if (errorMessage) {
             *errorMessage = msg;
@@ -2246,9 +2246,9 @@ bool GitClient::synchronousStashRemove(const QString &workingDirectory,
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
         const QString nativeWorkingDir = QDir::toNativeSeparators(workingDirectory);
         const QString msg = stash.isEmpty() ?
-                            tr("Unable to remove stashes of %1: %2").
+                            tr("Cannot remove stashes of \"%1\": %2").
                             arg(nativeWorkingDir, stdErr) :
-                            tr("Unable to remove stash %1 of %2: %3").
+                            tr("Cannot remove stash \"%1\" of \"%2\": %3").
                             arg(stash, nativeWorkingDir, stdErr);
         if (errorMessage) {
             *errorMessage = msg;
@@ -2288,7 +2288,7 @@ bool GitClient::synchronousStashList(const QString &workingDirectory,
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
-        const QString msg = tr("Unable retrieve stash list of %1: %2").
+        const QString msg = tr("Cannot retrieve stash list of \"%1\": %2").
                             arg(QDir::toNativeSeparators(workingDirectory),
                                 commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
@@ -2449,7 +2449,7 @@ unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage /* 
     QByteArray errorText;
     const bool rc = fullySynchronousGit(QString(), QStringList("--version"), &outputText, &errorText);
     if (!rc) {
-        const QString msg = tr("Unable to determine git version: %1").arg(commandOutputFromLocal8Bit(errorText));
+        const QString msg = tr("Cannot determine git version: %1").arg(commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
             *errorMessage = msg;
         } else {

@@ -146,7 +146,7 @@ void RemoteDialog::removeRemote()
     int row = indexList.at(0).row();
     const QString remoteName = m_remoteModel->remoteName(row);
     if (QMessageBox::question(this, tr("Delete Remote"),
-                              tr("Would you like to delete the remote '%1'?").arg(remoteName),
+                              tr("Would you like to delete the remote \"%1\"?").arg(remoteName),
                               QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
         m_remoteModel->removeRemote(row);
     }
