@@ -2541,6 +2541,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         m_movetype = MoveLineWise;
         m_submode = YankSubMode;
         finishMovement();
+    } else if (input.isControl('y')) {
+        // FIXME: this should use the "scroll" option, and "count"
+        if (cursorLineOnScreen() == linesOnScreen() - 1)
+            moveUp(1);
+        scrollUp(1);
+        finishMovement();
     } else if (input.is('y') && isNoVisualMode()) {
         setAnchor();
         m_submode = YankSubMode;
