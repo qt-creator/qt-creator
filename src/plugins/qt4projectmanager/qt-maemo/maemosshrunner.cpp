@@ -66,7 +66,6 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
       m_mountSpecs(runConfig->remoteMounts()->mountSpecs()),
       m_state(Inactive)
 {
-    m_connection = SshConnectionManager::instance().acquireConnection(m_devConfig->sshParameters());
     m_mounter->setBuildConfiguration(runConfig->activeQt4BuildConfiguration());
     if (debugging && runConfig->useRemoteGdb()) {
         m_mountSpecs << MaemoMountSpecification(runConfig->localDirToMountForRemoteGdb(),
@@ -112,6 +111,7 @@ void MaemoSshRunner::start()
         return;
     }
 
+    m_connection = SshConnectionManager::instance().acquireConnection(m_devConfig->sshParameters());
     setState(Connecting);
     m_exitStatus = -1;
     m_freePorts = m_initialFreePorts;
