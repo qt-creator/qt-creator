@@ -187,6 +187,8 @@ public:
     QmlJS::LookupContext *lookupContext() const;
     QmlJS::Document *document() const;
 
+    QString convertTypeToImportAlias(const QString &type) const;
+
     bool checkSemanticErrors() const
     { return m_checkErrors; }
 

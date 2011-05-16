@@ -629,6 +629,53 @@ QmlJS::Document *RewriterView::document() const
     return textToModelMerger()->document();
 }
 
+static inline QString getUrlFromType(const QString& typeName)
+{
+    QStringList nameComponents = typeName.split('.');
+    QString result;
+
+    for (int i = 0; i < (nameComponents.count() - 1); i++) {
+        result += nameComponents.at(i);
+    }
+
+    return result;
+}
+
+QString RewriterView::convertTypeToImportAlias(const QString &type) const
+{
+    QString url;
+    QString simplifiedType = type;
+    if (type.contains('.')) {
+        QStringList nameComponents = type.split('.');
+        url = getUrlFromType(type);
+        simplifiedType = nameComponents.last();
+    }
+
+    QString alias;
+    if (!url.isEmpty()) {
+        foreach (const Import &import, model()->imports()) {
+            if (import.url() == url) {
+                alias = import.alias();
+                break;
+            }
+            if (import.file() == url) {
+                alias = import.alias();
+                break;
+            }
+        }
+    }
+
+    QString result;
+
+    if (!alias.isEmpty())
+        result = alias + '.';
+
+    result += simplifiedType;
+
+    return result;
+}
+
+
 void RewriterView::qmlTextChanged()
 {
     if (inErrorState())
