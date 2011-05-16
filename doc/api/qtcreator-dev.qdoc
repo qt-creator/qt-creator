@@ -231,7 +231,7 @@
             \list
                 \o  \l{Creating Plugins}
                 \o  \l{Menus and Menu Items}
-                \o  \l{Wizards}
+                \o  \l{Creating Wizards in Code}
                 \o  \l{Editors}
                 \o  \l{Text Editors}
                 \o  \l{Options Pages}
@@ -239,10 +239,11 @@
         \o  Reference
             \list
                 \o  \l{Code Snippet Configuration Files}
-                \o  \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}{MIME Type Specification Files}
+                \o  \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
+                    {MIME Type Specification Files}
                 \o  \l{External Tool Specification Files}
-                \o  \l{Custom Wizard Specification Files}
-                \o  \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}{Highlight Definition Files}
+                \o  \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
+                    {Highlight Definition Files}
                 \o  \l{Qt Creator Variables}
                 \o  \l{User Interface Text Guidelines}
                 \o  \l{Qt Creator Coding Rules}
