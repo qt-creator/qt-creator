@@ -94,7 +94,7 @@
     </itemlibraryentry>
   </node>
   <node name="QtWebKit.WebView" icon=":/qtquickplugin/images/webview-icon16.png">
-    <itemlibraryentry name="Web View" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/webview-icon.png" version="1.0">
+    <itemlibraryentry name="Web View" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/webview-icon.png" version="1.0" requiredImport="QtWebKit" forceImport="true">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
       <property name="url" type="QString" value="qrc:/qtquickplugin/html/welcome.html"/>
