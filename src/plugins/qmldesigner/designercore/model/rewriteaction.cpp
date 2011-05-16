@@ -229,7 +229,7 @@ bool ChangeTypeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, 
     const int nodeLocation = positionStore.nodeOffset(m_node);
     bool result = false;
 
-    QString newNodeType = m_node.type();
+    QString newNodeType = m_node.convertTypeToImportAlias();
     const int slashIdx = newNodeType.lastIndexOf('.');
     if (slashIdx != -1)
         newNodeType = newNodeType.mid(slashIdx + 1);
