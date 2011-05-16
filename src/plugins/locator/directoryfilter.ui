@@ -47,7 +47,7 @@
      <item row="3" column="1">
       <widget class="QLineEdit" name="shortcutEdit">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -66,12 +66,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
      </item>
      <item row="3" column="2" colspan="2">
       <widget class="QCheckBox" name="defaultFlag">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>2</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="text">
         <string>Limit to prefix</string>
        </property>
@@ -143,24 +137,18 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
       </layout>
      </item>
      <item row="1" column="1" colspan="2">
-      <widget class="QListWidget" name="directoryList"/>
+      <widget class="QListWidget" name="directoryList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
    <item row="1" column="0">
-    <spacer>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>369</width>
-       <height>31</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
