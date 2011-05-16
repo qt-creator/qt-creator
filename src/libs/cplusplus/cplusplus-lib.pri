@@ -6,7 +6,7 @@ contains(CONFIG, dll) {
 
 INCLUDEPATH += $$PWD
 
-include(../../shared/cplusplus/cplusplus.pri)
+include(../3rdparty/cplusplus/cplusplus.pri)
 
 contains(QT, gui) {
 HEADERS += \

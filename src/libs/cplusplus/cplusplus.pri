@@ -1,3 +1,3 @@
-INCLUDEPATH += $$IDE_SOURCE_TREE/src/shared/cplusplus
-INCLUDEPATH += $$IDE_SOURCE_TREE/src/libs/cplusplus
+INCLUDEPATH += $$IDE_SOURCE_TREE/src/libs/3rdparty/cplusplus
+INCLUDEPATH += $$PWD
 LIBS *= -l$$qtLibraryName(CPlusPlus)

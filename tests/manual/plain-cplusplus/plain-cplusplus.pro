@@ -7,7 +7,7 @@ macx {
     release:LIBS += -Wl,-exported_symbol -Wl,_main
 }
 
-include(../../../src/shared/cplusplus/cplusplus.pri)
+include(../../../src/libs/3rdparty/cplusplus/cplusplus.pri)
 
 # Input
 HEADERS += Preprocessor.h
