@@ -383,10 +383,11 @@ bool ItemLibraryModel::isItemVisible(int itemLibId)
     return elementModel(sectionLibId)->isItemVisible(itemLibId);
 }
 
-QString entryToImport(const ItemLibraryEntry &entry)
+Import entryToImport(const ItemLibraryEntry &entry)
 {
-    return entry.requiredImport() + QLatin1Char(' ') + QString::number(entry.majorVersion())
-            + QLatin1Char('.') + QString::number(entry.minorVersion());
+    return Import::createLibraryImport(entry.requiredImport(), QString::number(entry.majorVersion()) + QLatin1Char('.') +
+                                                               QString::number(entry.minorVersion()));
+
 }
 
 void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
@@ -407,7 +408,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
          bool valid = model->metaInfo(entry.typeName(), entry.majorVersion(), entry.minorVersion()).isValid();
 
-        if (valid && (entry.requiredImport().isEmpty() || imports.contains(entryToImport(entry), Qt::CaseInsensitive))) {
+        if (valid && (entry.requiredImport().isEmpty() || model->hasImport(entryToImport(entry), true) || entry.forceImport())) {
             QString itemSectionName = entry.category();
             ItemLibrarySectionModel *sectionModel;
             ItemLibraryItemModel *itemModel;

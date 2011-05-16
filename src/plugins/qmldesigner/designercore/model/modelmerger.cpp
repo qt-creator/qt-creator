@@ -159,7 +159,15 @@ ModelNode ModelMerger::insertModel(const ModelNode &modelNode)
 {
     RewriterTransaction transaction(view()->beginRewriterTransaction());
 
-    view()->model()->changeImports(modelNode.model()->imports(), QList<Import>());
+    QList<Import> newImports;
+
+    foreach (const Import &import, modelNode.model()->imports()) {
+        if (!view()->model()->hasImport(import, true)) {
+            newImports.append(import);
+        }
+    }
+
+    view()->model()->changeImports(newImports, QList<Import>());
 
     QHash<QString, QString> idRenamingHash;
     setupIdRenamingHash(modelNode, idRenamingHash, view());
