@@ -386,10 +386,11 @@ def qdump__QHash(d, item):
         isSimpleKey = isSimpleType(keyType)
         isSimpleValue = isSimpleType(valueType)
         node = hashDataFirstNode(item.value)
-
         innerType = e_ptr.dereference().type
-        inner = select(isSimpleKey and isSimpleValue, valueType, innerType)
-        with Children(d, [size, 1000], inner):
+        childType = innerType
+        if isSimpleKey and isSimpleValue:
+            childType = isSimpleValue
+        with Children(d, [size, 1000], childType):
             for i in d.childRange():
                 it = node.dereference().cast(innerType)
                 with SubItem(d):
@@ -620,7 +621,10 @@ def qdumpHelper__QMap(d, item, forceLong):
         payloadSize = nodeType.sizeof - 2 * lookupType("void").pointer().sizeof
         charPtr = lookupType("char").pointer()
 
-        innerType = select(isSimpleKey and isSimpleValue, valueType, nodeType)
+        if isSimpleKey and isSimpleValue:
+            innerType = valueType
+        else:
+            innerType = nodeType
 
         with Children(d, n, innerType):
             for i in xrange(n):
@@ -1162,7 +1166,9 @@ def qdump__QPointF(d, item):
 
 
 def qdump__QRect(d, item):
-    def pp(l): return select(l >= 0, "+%s" % l, l)
+    def pp(l):
+        if l >= 0: return "+%s" % l
+        return l
     x1 = item.value["x1"]
     y1 = item.value["y1"]
     x2 = item.value["x2"]
@@ -1180,7 +1186,9 @@ def qdump__QRect(d, item):
 
 
 def qdump__QRectF(d, item):
-    def pp(l): return select(l >= 0, "+%s" % l, l)
+    def pp(l):
+        if l >= 0: return "+%s" % l
+        return l
     x = item.value["xp"]
     y = item.value["yp"]
     w = item.value["w"]
@@ -1473,7 +1481,10 @@ def qdumpHelper__QVariant(d, value):
         d.putValue("(invalid)")
         d.putNumChild(0)
     elif variantType == 1: # QVariant::Bool
-        d.putValue(select(data["b"], "true", "false"))
+        if int(data["b"]):
+            d.putValue("true")
+        else:
+            d.putValue("false")
         d.putNumChild(0)
         inner = "bool"
     elif variantType == 2: # QVariant::Int
@@ -1730,7 +1741,9 @@ def qdump__std__deque(d, item):
     if d.isExpanded(item):
         innerType = templateArgument(item.value.type, 0)
         innerSize = innerType.sizeof
-        bufsize = select(innerSize < 512, 512 / innerSize, 1)
+        bufsize = 1
+        if innerSize < 512:
+            bufsize = 512 / innerSize
         with Children(d, [size, 2000], innerType):
             pcur = start["_M_cur"]
             pfirst = start["_M_first"]
@@ -1784,11 +1797,18 @@ def qdump__std__map(d, item):
         pairType = templateArgument(templateArgument(item.value.type, 3), 0)
         isSimpleKey = isSimpleType(keyType)
         isSimpleValue = isSimpleType(valueType)
-        innerType = select(isSimpleKey and isSimpleValue, valueType, pairType)
+        innerType = pairType
+        if isSimpleKey and isSimpleValue:
+            innerType = valueType
         pairPointer = pairType.pointer()
         node = impl["_M_header"]["_M_left"]
-        with Children(d, [size, 1000], select(size > 0, innerType, pairType),
-            select(isSimpleKey and isSimpleValue, None, 2)):
+        childType = innerType
+        if size == 0:
+            childType = pairType
+        childNumChild = 2
+        if isSimpleKey and isSimpleValue:
+            childNumChild = None
+        with Children(d, [size, 1000], childType, childNumChild):
             for i in d.childRange():
                 pair = (node + 1).cast(pairPointer).dereference()
 
@@ -1950,8 +1970,7 @@ def qdump__std__vector(d, item):
             with Children(d, [size, 10000], type):
                 for i in d.childRange():
                     q = start + i / storagesize
-                    data = (q.dereference() >> (i % storagesize)) & 1
-                    d.putBoolItem(str(i), select(data, "true", "false"))
+                    d.putBoolItem(str(i), (q.dereference() >> (i % storagesize)) & 1)
         else:
             with Children(d, [size, 10000], type):
                 p = start

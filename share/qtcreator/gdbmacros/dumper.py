@@ -10,7 +10,9 @@ import os
 try:
     import curses.ascii
     def printableChar(ucs):
-        return select(curses.ascii.isprint(ucs), ucs, '?')
+        if curses.ascii.isprint(ucs):
+            return ucs
+        return '?'
 except:
     def printableChar(ucs):
         if ucs >= 32 and ucs <= 126:
@@ -77,11 +79,6 @@ DisplayImage, \
 DisplayProcess \
     = range(5)
 
-
-def select(condition, if_expr, else_expr):
-    if condition:
-        return if_expr
-    return else_expr
 
 def isGoodGdb():
     #return gdb.VERSION.startswith("6.8.50.2009") \
@@ -836,23 +833,22 @@ def qtNamespace():
     except:
         return ""
 
-def findFirstZero(p, max):
-    for i in xrange(max):
+def findFirstZero(p, maximum):
+    for i in xrange(maximum):
         if p.dereference() == 0:
             return i
         p = p + 1
-    return -1
+    return maximum + 1
 
 def extractCharArray(p, maxsize):
     t = lookupType("unsigned char").pointer()
     p = p.cast(t)
-    i = findFirstZero(p, maxsize)
-    limit = select(i < 0, maxsize, i)
+    limit = findFirstZero(p, maxsize)
     s = ""
     for i in xrange(limit):
         s += "%c" % int(p.dereference())
         p += 1
-    if i == maxsize:
+    if i > maxsize:
         s += "..."
     return s
 
@@ -866,18 +862,13 @@ def extractByteArray(value):
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
-    return extractCharArray(data, 1000, size)
+    return extractCharArray(data, min(100, size))
 
-def encodeCharArray(p, maxsize, size = -1):
+def encodeCharArray(p, maxsize, limit = -1):
     t = lookupType("unsigned char").pointer()
     p = p.cast(t)
-    if size == -1:
-        size = findFirstZero(p, maxsize)
-    if size == -1:
-        size = maxsize
-    limit = size
-    if size > maxsize:
-        limit = maxsize
+    if limit == -1:
+        limit = findFirstZero(p, maxsize)
     s = ""
     try:
         # gdb.Inferior is new in gdb 7.2
@@ -887,15 +878,14 @@ def encodeCharArray(p, maxsize, size = -1):
         for i in xrange(limit):
             s += "%02x" % int(p.dereference())
             p += 1
-    if maxsize < size:
+    if limit > maxsize:
         s += "2e2e2e"
     return s
 
 def encodeChar2Array(p, maxsize):
     t = lookupType("unsigned short").pointer()
     p = p.cast(t)
-    i = findFirstZero(p, maxsize)
-    limit = select(i < 0, maxsize, i)
+    limit = findFirstZero(p, maxsize)
     s = ""
     for i in xrange(limit):
         s += "%04x" % int(p.dereference())
@@ -907,13 +897,12 @@ def encodeChar2Array(p, maxsize):
 def encodeChar4Array(p, maxsize):
     t = lookupType("unsigned int").pointer()
     p = p.cast(t)
-    i = findFirstZero(p, maxsize)
-    limit = select(i < 0, maxsize, i)
+    limit = findFirstZero(p, maxsize)
     s = ""
     for i in xrange(limit):
         s += "%08x" % int(p.dereference())
         p += 1
-    if i == maxsize:
+    if i > maxsize:
         s += "2e0000002e0000002e000000"
     return s
 
@@ -927,7 +916,7 @@ def encodeByteArray(value):
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
-    return encodeCharArray(data, 1000, size)
+    return encodeCharArray(data, 100, size)
 
 def encodeString(value):
     d_ptr = value['d'].dereference()
@@ -941,16 +930,19 @@ def encodeString(value):
     checkRef(d_ptr["ref"])
     p = gdb.Value(d_ptr["data"])
     s = ""
+    limit = min(size, 1000)
     try:
         # gdb.Inferior is new in gdb 7.2
         inferior = gdb.inferiors()[0]
-        s = binascii.hexlify(inferior.read_memory(p, 2 * int(size)))
+        s = binascii.hexlify(inferior.read_memory(p, 2 * limit))
     except:
-        for i in xrange(size):
+        for i in xrange(limit):
             val = int(p.dereference())
             s += "%02x" % (val % 256)
             s += "%02x" % (val / 256)
             p += 1
+    if limit < size:
+        s += "2e002e002e00"
     return s
 
 def stripTypedefs(type):
@@ -1569,7 +1561,6 @@ class Dumper:
         with SubItem(self):
             self.putName(name)
             self.putValue(value)
-            self.putAddress(value.address)
             self.putType("bool")
             self.putNumChild(0)
 
@@ -1693,7 +1684,10 @@ class Dumper:
             baseptr = value.cast(realtype.pointer())
             if format == 0 or format == 1:
                 # Explicityly requested Latin1 or UTF-8 formatting.
-                f = select(format == 0, Hex2EncodedLatin1, Hex2EncodedUtf8)
+                if  format == 0:
+                    f = Hex2EncodedLatin1
+                else:
+                    f = Hex2EncodedUtf8
                 self.putAddress(value.address)
                 self.putType(realtype)
                 self.putValue(encodeCharArray(value, 100), f)
@@ -1791,12 +1785,19 @@ class Dumper:
                             #self.putAddress(item.value)
                 return
 
-            if format == 1 or format == 2:
-                # Explicityly requested Latin1 or UTF-8 formatting.
-                f = select(format == 1, Hex2EncodedLatin1, Hex2EncodedUtf8)
+            if format == 1:
+                # Explicityly requested Latin1 formatting.
                 self.putAddress(value.address)
                 self.putType(realtype)
-                self.putValue(encodeCharArray(value, 100), f)
+                self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
+                self.putNumChild(0)
+                return
+
+            if format == 2:
+                # Explicityly requested UTF-8 formatting.
+                self.putAddress(value.address)
+                self.putType(realtype)
+                self.putValue(encodeCharArray(value, 100), Hex2EncodedUtf8)
                 self.putNumChild(0)
                 return
 

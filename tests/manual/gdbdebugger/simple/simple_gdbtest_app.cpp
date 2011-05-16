@@ -539,6 +539,8 @@ int testQByteArray2()
     QByteArray ba;
     for (int i = 256; --i >= 0; )
         ba.append(char(i));
+    QString s(10000, 'x');
+    std::string ss(10000, 'c');
     return ba.size();
 }
 
@@ -1339,7 +1341,7 @@ std::list<int> testStdList()
 void testStdMap()
 {
     // This is not supposed to work with the compiled dumpers.
-#if 0
+#if 1
     std::map<QString, Foo> gg3;
     gg3["22.0"] = Foo(22);
     gg3["33.0"] = Foo(33);
