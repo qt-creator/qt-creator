@@ -55,11 +55,21 @@ static inline QStringList validBinaryFilenames()
             << QLatin1String("QMLObserver.app/Contents/MacOS/QMLObserver");
 }
 
-bool QmlObserverTool::canBuild(const BaseQtVersion *qtVersion)
+bool QmlObserverTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 {
-    return (qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
-            || qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID))
-            && (qtVersion->qtVersion() >= QtVersionNumber(4, 7, 1));
+    if (!qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
+            && !qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID)) {
+        if (reason)
+            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "Only available for Qt for Desktop or Qt for Qt Simulator.");
+        return false;
+    }
+
+    if (qtVersion->qtVersion() < QtVersionNumber(4, 7, 1)) {
+        if (reason)
+            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "Only available for Qt 4.7.1 or newer.");
+        return false;
+    }
+    return true;
 }
 
 QString QmlObserverTool::toolForProject(ProjectExplorer::Project *project)

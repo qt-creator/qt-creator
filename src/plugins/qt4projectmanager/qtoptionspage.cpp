@@ -38,6 +38,9 @@
 #include "qt4projectmanagerconstants.h"
 #include "qtversionmanager.h"
 #include "qtversionfactory.h"
+#include "qmldumptool.h"
+#include "qmldebugginglibrary.h"
+#include "qmlobservertool.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -546,7 +549,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         m_debuggingHelperUi->gdbHelperStatus->setTextInteractionFlags(gdbHelperTextFlags);
         m_debuggingHelperUi->gdbHelperBuildButton->setEnabled(canBuildGdbHelper && !isBuildingGdbHelper);
 
-        QString qmlDumpStatusText;
+        QString qmlDumpStatusText, qmlDumpStatusToolTip;
         Qt::TextInteractionFlags qmlDumpStatusTextFlags = Qt::NoTextInteraction;
         if (hasQmlDumper) {
             qmlDumpStatusText = QDir::toNativeSeparators(version->qmlDumpTool(false));
@@ -563,13 +566,15 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
                 qmlDumpStatusText = tr("<i>Not yet built.</i>");
             } else {
                 qmlDumpStatusText = tr("<i>Cannot be compiled.</i>");
+                QmlDumpTool::canBuild(version, &qmlDumpStatusToolTip);
             }
         }
         m_debuggingHelperUi->qmlDumpStatus->setText(qmlDumpStatusText);
         m_debuggingHelperUi->qmlDumpStatus->setTextInteractionFlags(qmlDumpStatusTextFlags);
+        m_debuggingHelperUi->qmlDumpStatus->setToolTip(qmlDumpStatusToolTip);
         m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(canBuildQmlDumper & !isBuildingQmlDumper);
 
-        QString qmlDebuggingLibStatusText;
+        QString qmlDebuggingLibStatusText, qmlDebuggingLibToolTip;
         Qt::TextInteractionFlags qmlDebuggingLibStatusTextFlags = Qt::NoTextInteraction;
         if (hasQmlDebuggingLib) {
             qmlDebuggingLibStatusText = QDir::toNativeSeparators(
@@ -592,15 +597,17 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
                 qmlDebuggingLibStatusText = tr("<i>Not yet built.</i>");
             } else {
                 qmlDebuggingLibStatusText = tr("<i>Cannot be compiled.</i>");
+                QmlDebuggingLibrary::canBuild(version, &qmlDebuggingLibToolTip);
             }
         }
         m_debuggingHelperUi->qmlDebuggingLibStatus->setText(qmlDebuggingLibStatusText);
         m_debuggingHelperUi->qmlDebuggingLibStatus->setTextInteractionFlags(qmlDebuggingLibStatusTextFlags);
+        m_debuggingHelperUi->qmlDebuggingLibStatus->setToolTip(qmlDebuggingLibToolTip);
         m_debuggingHelperUi->qmlDebuggingLibBuildButton->setEnabled(needsQmlDebuggingLib
                                                                     && canBuildQmlDebuggingLib
                                                                     && !isBuildingQmlDebuggingLib);
 
-        QString qmlObserverStatusText;
+        QString qmlObserverStatusText, qmlObserverToolTip;
         Qt::TextInteractionFlags qmlObserverStatusTextFlags = Qt::NoTextInteraction;
         if (hasQmlObserver) {
             qmlObserverStatusText = QDir::toNativeSeparators(version->qmlObserverTool());
@@ -612,10 +619,12 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
                 qmlObserverStatusText = tr("<i>Not yet built.</i>");
             } else {
                 qmlObserverStatusText = tr("<i>Cannot be compiled.</i>");
+                QmlObserverTool::canBuild(version, &qmlObserverToolTip);
             }
         }
         m_debuggingHelperUi->qmlObserverStatus->setText(qmlObserverStatusText);
         m_debuggingHelperUi->qmlObserverStatus->setTextInteractionFlags(qmlObserverStatusTextFlags);
+        m_debuggingHelperUi->qmlObserverStatus->setToolTip(qmlObserverToolTip);
         m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(canBuildQmlObserver
                                                                 & !isBuildingQmlObserver);
 

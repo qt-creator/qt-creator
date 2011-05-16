@@ -55,7 +55,7 @@ class QmlDebuggingLibrary : public Utils::BuildableHelperLibrary
 public:
     static QString libraryByInstallData(const QString &qtInstallData, bool debugBuild);
 
-    static bool canBuild(const BaseQtVersion *qtVersion);
+    static bool canBuild(const BaseQtVersion *qtVersion, QString *reason = 0);
     static bool build(BuildHelperArguments arguments, QString *log, QString *errorMessage);
 
     static QString copy(const QString &qtInstallData, QString *errorMessage);

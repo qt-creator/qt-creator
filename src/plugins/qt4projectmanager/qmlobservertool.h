@@ -53,7 +53,7 @@ class BaseQtVersion;
 class QT4PROJECTMANAGER_EXPORT QmlObserverTool : public Utils::BuildableHelperLibrary
 {
 public:
-    static bool canBuild(const BaseQtVersion *qtVersion);
+    static bool canBuild(const BaseQtVersion *qtVersion, QString *reason = 0);
     static QString toolForProject(ProjectExplorer::Project *project);
     static QString toolByInstallData(const QString &qtInstallData);
     static QStringList locationsByInstallData(const QString &qtInstallData);

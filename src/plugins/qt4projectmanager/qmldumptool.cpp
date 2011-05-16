@@ -181,14 +181,28 @@ static bool hasPrivateHeaders(const QString &qtInstallHeaders) {
     return QFile::exists(header);
 }
 
-bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion)
+bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 {
     const QString installHeaders = qtVersion->versionInfo().value("QT_INSTALL_HEADERS");
 
-    return (qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
-            || (qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID)
-                && (qtVersion->qtVersion() > QtVersionNumber(4, 7, 1))))
-            && hasPrivateHeaders(installHeaders);
+    if (!qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
+            && !(qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID))) {
+        if (reason)
+            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Only available for Qt for Desktop and Qt for Qt Simulator.");
+        return false;
+    }
+    if (qtVersion->qtVersion() < QtVersionNumber(4, 7, 1)) {
+        if (reason)
+            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Only available for Qt 4.7.1 or newer.");
+        return false;
+    }
+
+    if (!hasPrivateHeaders(installHeaders)) {
+        if (reason)
+            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Private headers are missing for this Qt version.");
+        return false;
+    }
+    return true;
 }
 
 static BaseQtVersion *qtVersionForProject(ProjectExplorer::Project *project)

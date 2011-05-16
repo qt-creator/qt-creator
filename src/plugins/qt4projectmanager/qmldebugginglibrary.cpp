@@ -66,9 +66,14 @@ QString QmlDebuggingLibrary::libraryByInstallData(const QString &qtInstallData, 
     return byInstallDataHelper(sourcePath(), sourceFileNames(), directories, binFilenames, false);
 }
 
-bool QmlDebuggingLibrary::canBuild(const BaseQtVersion *qtVersion)
+bool QmlDebuggingLibrary::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 {
-    return qtVersion->qtVersion() >=  QtVersionNumber(4, 7, 1);
+    if (qtVersion->qtVersion() < QtVersionNumber(4, 7, 1)) {
+        if (reason)
+            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "Only available for Qt 4.7.1 or newer.");
+        return false;
+    }
+    return true;
 }
 
 bool  QmlDebuggingLibrary::build(BuildHelperArguments arguments, QString *log, QString *errorMessage)
