@@ -143,9 +143,9 @@ public:
     QByteArray condition;    //!< Condition associated with breakpoint.
     int ignoreCount;         //!< Ignore count associated with breakpoint.
     int lineNumber;          //!< Line in source file.
-    quint64 address;         //!< Address for address based watchpoints.
-    QString expression;      //!< Expression for expression based watchpoints.
-    uint size;               //!< Size of watched area for watchpoints.
+    quint64 address;         //!< Address for address based data breakpoints.
+    QString expression;      //!< Expression for expression based data breakpoints.
+    uint size;               //!< Size of watched area for data breakpoints.
     uint bitpos;             //!< Location of watched bitfield within watched area.
     uint bitsize;            //!< Size of watched bitfield within watched area.
     int threadSpec;          //!< Thread specification.

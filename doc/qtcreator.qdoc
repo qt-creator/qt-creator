@@ -7733,7 +7733,7 @@
         \o Retrieves data representing the call stack at the program's current
            position.
         \o Retrieves the contents of local variables.
-        \o Examines \gui Watchers.
+        \o Examines \gui Expressions.
         \o Updates the \gui Registers, \gui Modules, and \gui Disassembler
            views if you are debugging the C++ based applications.
     \endlist
@@ -7833,7 +7833,7 @@
 
     \endlist
 
-    If the address is displayed in the \gui {Locals and Watchers} view, you can
+    If the address is displayed in the \gui {Locals and Expressions} view, you can
     select \gui {Add Watchpoint at Object's Address} in the context menu to set
     the watchpoint.
 
@@ -7854,19 +7854,19 @@
     corresponding source locations are grayed out in the \gui{Stack} view.
 
     If you click a frame with a known source location, the text editor
-    jumps to the corresponding location and updates the \gui{Locals and Watchers}
+    jumps to the corresponding location and updates the \gui{Locals and Expressions}
     view, making it seem like the program was interrupted before entering the
     function.
 
-    \section1 Locals and Watchers
+    \section1 Locals and Expressions
 
     Whenever a program stops under the control of the debugger, it retrieves
     information about the topmost stack frame and displays it in the
-    \gui{Locals and Watchers} view. The \gui{Locals and Watchers} view
+    \gui{Locals and Expressions} view. The \gui{Locals and Expressions} view
     typically includes information about parameters of the function in that
     frame as well as the local variables.
 
-    \image qtcreator-watcher.png "Locals and Watchers view"
+    \image qtcreator-watcher.png "Locals and Expressions view"
 
     Compound variables of struct or class type are displayed as
     expandable in the view. Expand entries to show
@@ -7882,7 +7882,7 @@
             \i  GDB, and therefore Qt Creator's debugger works for optimized
                 builds on Linux and Mac OS X. Optimization can lead to
                 re-ordering of instructions or removal of some local variables,
-                causing the \gui{Locals and Watchers} view to show unexpected
+                causing the \gui{Locals and Expressions} view to show unexpected
                 data.
         \row
             \i  The debug information provided by GCC does not include enough
@@ -7895,7 +7895,7 @@
     \endtable
 
 
-    The \gui{Locals and Watchers} view also provides access to the most
+    The \gui{Locals and Expressions} view also provides access to the most
     powerful feature of the debugger: comprehensive display of data belonging
     to Qt's basic objects.
 
@@ -7904,7 +7904,7 @@
        \o  Select \gui Tools > \gui {Options...} > \gui Debugger >
            \gui{Debugging Helper} and check the \gui{Use Debugging Helper}
            checkbox.
-       \o  The \gui{Locals and Watchers} view is reorganized to provide a
+       \o  The \gui{Locals and Expressions} view is reorganized to provide a
            high-level view of the objects.
     \endlist
 
@@ -7916,7 +7916,7 @@
     Also, the debugger displays access data for QFileInfo and provides
     access to the "real" contents of QVariant.
 
-    You can use the \gui{Locals and Watchers} view to change the contents of
+    You can use the \gui{Locals and Expressions} view to change the contents of
     variables of simple data types, for example, \c int or \c float when the
     program is interrupted. To do so, click the \gui Value column, modify
     the value with the inplace editor, and press \key Enter (or \key Return).
@@ -7939,7 +7939,7 @@
     \note Usually, you do not need this feature, because Qt Creator provides
     you with better ways to handle the task. For example, instead of using the
     GDB \c print command from the command line, you can create a watcher item
-    in the \gui{Locals and Watchers} view and examine the expression there.
+    in the \gui{Locals and Expressions} view and examine the expression there.
 
     \section1 Debugging C++ Based Applications
 
@@ -8075,7 +8075,7 @@
 
 
         \o To view the contents of \c{line}, go to the \gui{Locals and
-    Watchers} view.
+    Expressions} view.
 
         \image qtcreator-watcher.png
 
@@ -8162,7 +8162,7 @@
     \section1 Debugging Helpers Based on Python
 
     Qt Creator uses GDB builds that enable Python scripting to display
-    information in the \gui {Locals and Watchers} view. When Python scripting
+    information in the \gui {Locals and Expressions} view. When Python scripting
     is used, code (Debugging helpers) does not need to be injected into the
     debugged process to nicely display QStringList or \c std::map contents, for
     example.
@@ -8217,7 +8217,7 @@
 
     The function has to feed the Dumper object with certain information
     which is used to build up the object and its children's display in the
-    \gui{Locals and Watchers} view.
+    \gui{Locals and Expressions} view.
 
 
     Example:
@@ -8246,7 +8246,7 @@
     \section2 Item Class
 
     The Item Python class is a thin wrapper around values corresponding to one
-    line in the \gui{Locals and Watchers} view. The Item members are as follows :
+    line in the \gui{Locals and Expressions} view. The Item members are as follows :
 
     \list
 
@@ -8271,7 +8271,7 @@
 
     \section2 Dumper Class
 
-    For each line in the \gui{Locals and Watchers} view, a string like the
+    For each line in the \gui{Locals and Expressions} view, a string like the
     following needs to be created and channeled to the debugger plugin.
     \code
     "{iname='some internal name',
@@ -8676,7 +8676,7 @@
 
         \o \l{Viewing Call Stack Trace}
 
-        \o \l{Locals and Watchers}
+        \o \l{Locals and Expressions}
 
     \endlist
 
@@ -10345,12 +10345,12 @@
     Qt's signals and slots mechanism, select \gui Tools > \gui Options...
     > \gui{Debugger} > \gui{Debugging Helper} > \gui{Use Debugging Helper}.
 
-    In the \gui{Locals and Watchers} view, expand the object's entry and open
+    In the \gui{Locals and Expressions} view, expand the object's entry and open
     the slot in the \e slots subitem. The objects connected to this slot are
     shown as children of the slot. This method works with signals too.
 
-    For more information about the \gui{Locals and Watchers} view, see
-    \l{Locals and Watchers}.
+    For more information about the \gui{Locals and Expressions} view, see
+    \l{Locals and Expressions}.
 
 
     \section1 Displaying Low Level Data
@@ -10386,7 +10386,7 @@
 
     Pinned tooltips are stored in the session. To close all pinned tooltips,
     select \gui {Close Editor Tooltips} in the context menu in the \gui {Locals
-    and Watchers} view.
+    and Expressions} view.
 
 
     \section1 Locating Files
@@ -11096,7 +11096,7 @@
 
         \o When debugging executables created by the GNU Compiler version 4.5.0
            (all platforms), some data types will not be displayed in the
-           \gui{Locals and Watchers} view due to missing debug information.
+           \gui{Locals and Expressions} view due to missing debug information.
 
         \o GDB on Windows may not work if the 'Embassy \reg Security Center' software
            by 'Wave \reg Systems' is installed and active (causing crashes in \c{vxvault.dll)}).
@@ -11525,11 +11525,11 @@
 
     \section1 Pointer Variable Members Are Not Displayed Directly
 
-    When you use the \gui {Locals and Watchers} view to inspect a pointer
+    When you use the \gui {Locals and Expressions} view to inspect a pointer
     variable and expand the variable tree item, another tree item level
     is displayed. To directly display the members of the pointer variable,
     select \gui {Dereference Pointers Automatically} in the context menu in the
-    \gui {Locals and Watchers} view.
+    \gui {Locals and Expressions} view.
 
     \section1 Built-in Debugger Is Slow During Startup and Runtime
 
