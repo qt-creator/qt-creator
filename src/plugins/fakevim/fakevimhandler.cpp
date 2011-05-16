@@ -630,6 +630,7 @@ public:
     EventResult handleInsertMode(const Input &);
     EventResult handleReplaceMode(const Input &);
     EventResult handleCommandMode(const Input &);
+    EventResult handleCommandMode1(const Input &);
     EventResult handleCommandMode2(const Input &);
     EventResult handleRegisterMode(const Input &);
     EventResult handleExMode(const Input &);
@@ -1931,13 +1932,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
             m_mvcount.append(input.text());
         }
     } else {
-        handled = handleCommandMode2(input);
+        handled = handleCommandMode1(input);
     }
 
     return handled;
 }
 
-EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
+EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
 {
     EventResult handled = EventHandled;
 
@@ -2282,7 +2283,17 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         updateMiniBuffer();
         if (atEndOfLine())
             moveLeft();
-    } else if (input.is('I')) {
+    } else {
+        handled = handleCommandMode2(input);
+    }
+    return handled;
+}
+
+EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
+{
+    EventResult handled = EventHandled;
+
+    if (input.is('I')) {
         setDotCommand(QString(QLatin1Char('I'))); // setDotCommand("%1I", count());
         if (isVisualMode()) {
             int beginLine = lineForPosition(anchor());
