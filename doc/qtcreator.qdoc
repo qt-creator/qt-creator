@@ -198,7 +198,7 @@
     \l{http://qt.nokia.com/doc/4.7/qmake-tutorial.html#adding-platform-specific-source-files}{scopes}
     to select the file to process depending on which platform qmake is run on.
 
-    Items such as open files, breakpoints, and watchers are stored in
+    Items such as open files, breakpoints, and evaluated expressions are stored in
     sessions. They are not considered to be part of the
     information shared across platforms.
 
@@ -398,7 +398,7 @@
     as much as possible without losing the power of the native debuggers.
 
     In addition to the generic IDE functionality provided by stack view, views for
-    locals and watchers, registers, and so on, Qt Creator includes
+    locals and expressions, registers, and so on, Qt Creator includes
     features to make debugging Qt-based applications easy. The debugger
     plugin understands the internal layout of several Qt classes, for
     example, QString, the Qt containers, and most importantly QObject
@@ -411,7 +411,7 @@
 
     You can use the Qt Creator \gui Debug mode to inspect the state of
     the application while debugging JavaScript functions. You can set breakpoints,
-    view call stack trace, and examine locals and watchers.
+    view call stack trace, and examine locals and expressions.
 
     When the application is interrupted by a breakpoint, you can use the \gui {QML
     Script Console} to execute JavaScript expressions in the current context. You can
@@ -7166,7 +7166,7 @@
     \list
         \o Open projects with their dependencies (including SUBDIRS projects)
         \o Open editors
-        \o Breakpoints and watches
+        \o Breakpoints and expressions
         \o Bookmarks
     \endlist
 
@@ -7788,7 +7788,7 @@
 
     \endlist
 
-    You can also set watchpoints to monitor the changes in a block of memory
+    You can also set data breakpoints to monitor the changes in a block of memory
     at a particular address when a program is running.
 
     The interruption of a program by a breakpoint can be restricted with
@@ -7797,7 +7797,7 @@
     To set a breakpoint at a particular line you want the program to stop,
     click the left margin or press \key F9 (\key F8 for Mac OS X).
 
-    To set breakpoints and watchpoints select \gui {Add Breakpoint...} in
+    To set breakpoints, select \gui {Add Breakpoint...} in
     the context menu in the \gui Breakpoints view.
 
     \image qtcreator-add-breakpoint.png "Add Breakpoints" dialog
@@ -7815,17 +7815,17 @@
     while it is running under the debugger's control. Breakpoints are saved
     together with a session.
 
-    \section2 Setting Watchpoints
+    \section2 Setting Data Breakpoints
 
-    To set a watchpoint at an address:
+    To set a data breakpoint at an address:
 
     \list 1
 
         \o  Right-click in the \gui Breakpoints view to open the context menu,
             and select \gui {Add Breakpoint...}.
 
-        \o  In the \gui {Breakpoint type} field, select \gui {Address
-            (Watchpoint)}.
+        \o  In the \gui {Breakpoint type} field, select \gui {Break on data
+            access at fixed address}.
 
         \o  In the \gui Address field, specify the address of the memory block.
 
@@ -7834,8 +7834,8 @@
     \endlist
 
     If the address is displayed in the \gui {Locals and Expressions} view, you can
-    select \gui {Add Watchpoint at Object's Address} in the context menu to set
-    the watchpoint.
+    select \gui {Add Data Breakpoint at Object's Address} in the context menu to set
+    the data breakpoint.
 
     \section1 Viewing Call Stack Trace
 
@@ -7924,7 +7924,7 @@
     You can enable tooltips in the main editor displaying this information.
     For more information, see \l{Showing Tooltips in Debug Mode}.
 
-    \note The set of watched items is saved in your session.
+    \note The set of evaluated expressions is saved in your session.
 
     \section1 Directly Interacting with Native Debuggers
 
@@ -7938,8 +7938,8 @@
 
     \note Usually, you do not need this feature, because Qt Creator provides
     you with better ways to handle the task. For example, instead of using the
-    GDB \c print command from the command line, you can create a watcher item
-    in the \gui{Locals and Expressions} view and examine the expression there.
+    GDB \c print command from the command line, you can evaluate an expression
+    in the \gui{Locals and Expressions} view.
 
     \section1 Debugging C++ Based Applications
 
