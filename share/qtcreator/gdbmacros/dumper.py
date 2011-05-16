@@ -55,7 +55,6 @@ verbosity = 1
 # Some "Enums"
 
 # Encodings
-
 Unencoded8Bit, \
 Base64Encoded8BitWithQuotes, \
 Base64Encoded16BitWithQuotes, \
@@ -88,7 +87,7 @@ def isGoodGdb():
 def hasInferiorThreadList():
     return False
     try:
-        a= gdb.inferiors()[0].threads()
+        a = gdb.inferiors()[0].threads()
         return True
     except:
         return False
@@ -205,6 +204,7 @@ def templateArgument(type, position):
         # That's something like "myns::QList<...>"
         return lookupType(extractTemplateArgument(type.strip_typedefs(), position))
 
+
 # Workaround for gdb < 7.1
 def numericTemplateArgument(type, position):
     try:
@@ -213,6 +213,7 @@ def numericTemplateArgument(type, position):
         # ": No type named 30."
         msg = str(error)
         return int(msg[14:-1])
+
 
 def parseAndEvaluate(exp):
     if isGoodGdb():
@@ -380,7 +381,7 @@ class Children:
         if not self.childType is None:
             childType = stripClassTag(str(self.childType))
             self.d.put('childtype="%s",' % childType)
-            if isSimpleType(self.childType) or isStringType(self.d, self.childType):
+            if isSimpleType(self.childType):
                 self.d.put('childnumchild="0",')
                 childNumChild = 0
             elif self.childType.code == gdb.TYPE_CODE_PTR:
