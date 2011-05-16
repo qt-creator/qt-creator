@@ -1521,7 +1521,8 @@ void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
     if (modelText.isEmpty())
         return;
 
-    ModelNode(node).setCustomParserSource(modelText);
+    if (node.customParserSource() != modelText)
+        ModelNode(node).setCustomParserSource(modelText);
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,
