@@ -221,7 +221,7 @@ void TracePlugin::messageReceived(const QByteArray &data)
 
         if (messageType == RangeStart) {
             m_rangeStartTimes[range].push(time);
-            m_inProgressRanges |= (1 << range);
+            m_inProgressRanges |= (static_cast<qint64>(1) << range);
             ++m_rangeCount[range];
         } else if (messageType == RangeData) {
             QString data;
@@ -245,8 +245,8 @@ void TracePlugin::messageReceived(const QByteArray &data)
         } else {
             if (m_rangeCount[range] > 0) {
                 --m_rangeCount[range];
-                if (m_inProgressRanges & (1 << range))
-                    m_inProgressRanges &= ~(1 << range);
+                if (m_inProgressRanges & (static_cast<qint64>(1) << range))
+                    m_inProgressRanges &= ~(static_cast<qint64>(1) << range);
 
                 m_maximumTime = qMax(time, m_maximumTime);
                 QStringList data = m_rangeDatas[range].count() ? m_rangeDatas[range].pop() : QStringList();
