@@ -45,7 +45,13 @@ class QtColorButtonPrivate: public QObject
     Q_OBJECT
     QtColorButton *q_ptr;
     Q_DECLARE_PUBLIC(QtColorButton)
+public slots:
+    void slotEditColor();
+
 public:
+    QColor shownColor() const;
+    QPixmap generatePixmap() const;
+
     QColor m_color;
 #ifndef QT_NO_DRAGANDDROP
     QColor m_dragColor;
@@ -54,10 +60,6 @@ public:
 #endif
     bool m_backgroundCheckered;
     bool m_alphaAllowed;
-
-    void slotEditColor();
-    QColor shownColor() const;
-    QPixmap generatePixmap() const;
 };
 
 void QtColorButtonPrivate::slotEditColor()
@@ -132,7 +134,7 @@ QtColorButton::QtColorButton(QWidget *parent)
 
     setAcceptDrops(true);
 
-    connect(this, SIGNAL(clicked()), this, SLOT(slotEditColor()));
+    connect(this, SIGNAL(clicked()), d_ptr, SLOT(slotEditColor()));
     setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 }
 
