@@ -838,7 +838,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 //    mproject->addAction(cmd, Constants::G_FOLDER_FILES);
 
     // set startup project action
-    d->m_setStartupProjectAction = new QAction(tr("Set as Startup Project"), this);
+    d->m_setStartupProjectAction = new QAction(tr("Set as Active Project"), this);
     cmd = am->registerAction(d->m_setStartupProjectAction, ProjectExplorer::Constants::SETSTARTUP,
                              projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FIRST);
