@@ -54,6 +54,7 @@
 
 #include <QtCore/QSet>
 #include <QtGui/QMessageBox>
+#include <QDir>
 
 using namespace LanguageUtils;
 using namespace QmlJS;
@@ -341,8 +342,33 @@ public:
             for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
                 if (!iter->next && iter->name)
                     typeName = iter->name->asString();
+
+            QString fullTypeName;
+            for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
+                if (iter->name)
+                    fullTypeName += iter->name->asString() + ".";
+
+            if (fullTypeName.endsWith("."))
+                fullTypeName.chop(1);
+
             majorVersion = ComponentVersion::NoVersion;
             minorVersion = ComponentVersion::NoVersion;
+
+            const Interpreter::TypeEnvironment *typeEnv = m_lookupContext->context()->typeEnvironment(m_lookupContext->document().data());
+            Interpreter::ImportInfo importInfo = typeEnv->importInfo(fullTypeName, m_context);
+            if (importInfo.isValid() && importInfo.type() == Interpreter::ImportInfo::LibraryImport) {
+                QString name = importInfo.name().replace("\\", ".");
+                majorVersion = importInfo.version().majorVersion();
+                minorVersion = importInfo.version().minorVersion();
+                typeName.prepend(name + ".");
+            } else if (importInfo.isValid() && importInfo.type() == Interpreter::ImportInfo::DirectoryImport) {
+                QString path = importInfo.name();
+                QDir dir(m_doc->path());
+                QString relativeDir = dir.relativeFilePath(path);
+                QString name = relativeDir.replace("/", ".");               
+                if (!name.isEmpty())
+                    typeName.prepend(name + ".");
+            }
         }
     }
 
@@ -1370,7 +1396,7 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
     if (!astObjectType || !astInitializer)
         return ModelNode();
 
-    QString typeName, dummy;
+    QString typeName, fullTypeName, dummy;
     int majorVersion;
     int minorVersion;
     context->lookup(astObjectType, typeName, majorVersion, minorVersion, dummy);
