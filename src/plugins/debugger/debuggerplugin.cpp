@@ -1492,7 +1492,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
                                            ProjectExplorer::Abi::WindowsOS,
                                            ProjectExplorer::Abi::WindowsMsvc2010Flavor,
                                            ProjectExplorer::Abi::PEFormat,
-                                           true);
+                                           hostAbi.wordWidth());
     sp.startMode = AttachToRemote;
     StartRemoteCdbDialog dlg(mainWindow());
     QString previousConnection = configValue(connectionKey).toString();
