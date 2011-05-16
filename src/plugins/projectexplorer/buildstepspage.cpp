@@ -93,6 +93,12 @@ void BuildStepListWidget::init(BuildStepList *bsl)
 
     setupUi();
 
+    if (m_buildStepList) {
+        disconnect(m_buildStepList, SIGNAL(stepInserted(int)), this, SLOT(addBuildStep(int)));
+        disconnect(m_buildStepList, SIGNAL(stepRemoved(int)), this, SLOT(removeBuildStep(int)));
+        disconnect(m_buildStepList, SIGNAL(stepMoved(int,int)), this, SLOT(stepMoved(int,int)));
+    }
+
     connect(bsl, SIGNAL(stepInserted(int)), this, SLOT(addBuildStep(int)));
     connect(bsl, SIGNAL(stepRemoved(int)), this, SLOT(removeBuildStep(int)));
     connect(bsl, SIGNAL(stepMoved(int,int)), this, SLOT(stepMoved(int,int)));
