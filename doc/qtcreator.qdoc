@@ -7786,10 +7786,10 @@
 
         \o  Executing some system calls
 
-    \endlist
+        \o  Changes in a block of memory at a particular address when a
+            program is running
 
-    You can also set data breakpoints to monitor the changes in a block of memory
-    at a particular address when a program is running.
+    \endlist
 
     The interruption of a program by a breakpoint can be restricted with
     certain conditions.
@@ -8055,7 +8055,7 @@
     QString and then displays it with QTextEdit.
     To look at the example QString, \c{line}, and see the
     stored data, place a breakpoint and view the QString object
-    data, as follows:
+    data in textfinder.cpp, as follows:
 
     \list 1
         \o Click in between the line number and the window border on the line
