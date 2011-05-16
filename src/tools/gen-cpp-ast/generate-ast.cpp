@@ -59,37 +59,25 @@
 using namespace CPlusPlus;
 
 static const char copyrightHeader[] =
-"/**************************************************************************\n"
-"**\n"
-"** This file is part of Qt Creator\n"
-"**\n"
-"** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).\n"
-"**\n"
-"** Contact: Nokia Corporation (info@qt.nokia.com)\n"
-"**\n"
-"**\n"
-"** GNU Lesser General Public License Usage\n"
-"**\n"
-"** This file may be used under the terms of the GNU Lesser General Public\n"
-"** License version 2.1 as published by the Free Software Foundation and\n"
-"** appearing in the file LICENSE.LGPL included in the packaging of this file.\n"
-"** Please review the following information to ensure the GNU Lesser General\n"
-"** Public License version 2.1 requirements will be met:\n"
-"** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.\n"
-"**\n"
-"** In addition, as a special exception, Nokia gives you certain additional\n"
-"** rights. These rights are described in the Nokia Qt LGPL Exception\n"
-"** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
-**
-** Other Usage
-**
-** Alternatively, this file may be used in accordance with the terms and
-** conditions contained in a signed written agreement between you and Nokia.\n"
-"**\n"
-"** If you have questions regarding the use of this file, please contact\n"
-"** Nokia at qt-info@nokia.com.\n"
-"**\n"
-"**************************************************************************/\n"
+"// Copyright (c) 2008 Roberto Raggi <roberto.raggi@gmail.com>\n"
+"//\n"
+"// Permission is hereby granted, free of charge, to any person obtaining a copy\n"
+"// of this software and associated documentation files (the \"Software\"), to deal\n"
+"// in the Software without restriction, including without limitation the rights\n"
+"// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
+"// copies of the Software, and to permit persons to whom the Software is\n"
+"// furnished to do so, subject to the following conditions:\n"
+"//\n"
+"// The above copyright notice and this permission notice shall be included in\n"
+"// all copies or substantial portions of the Software.\n"
+"//\n"
+"// THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+"// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
+"// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
+"// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
+"// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
+"// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\n"
+"// THE SOFTWARE.\n"
 ;
 
 static const char generatedHeader[] =
@@ -1508,7 +1496,8 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
                 << "        " << className << " *__ast = new (&pool) " << className << ';' << endl;
 
 
-        foreach (const QPair<QString, QString> &p, args) {
+        QPair<QString, QString> p;
+        foreach (p, args) {
             out << "        __ast->" << p.second << " = " << p.second << ';' << endl;
         }
 
