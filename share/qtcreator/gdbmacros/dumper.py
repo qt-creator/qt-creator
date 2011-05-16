@@ -83,11 +83,6 @@ def select(condition, if_expr, else_expr):
         return if_expr
     return else_expr
 
-def qmin(n, m):
-    if n < m:
-        return n
-    return m
-
 def isGoodGdb():
     #return gdb.VERSION.startswith("6.8.50.2009") \
     #   and gdb.VERSION != "6.8.50.20090630-cvs"
@@ -1463,7 +1458,7 @@ class Dumper:
         self.put('%s="%s",' % (name, value))
 
     def childRange(self):
-        return xrange(qmin(self.currentMaxNumChilds, self.currentNumChilds))
+        return xrange(min(self.currentMaxNumChilds, self.currentNumChilds))
 
     # Convenience function.
     def putItemCount(self, count, maximum = 1000000000):

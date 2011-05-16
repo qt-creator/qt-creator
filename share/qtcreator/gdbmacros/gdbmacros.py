@@ -454,7 +454,7 @@ def qdump__QList(d, item):
         and str(innerType.target().unqualified()) != "char"
     if innerTypeIsPointer:
         p = gdb.Value(array).cast(innerType.pointer()) + begin
-        checkPointerRange(p, qmin(size, 100))
+        checkPointerRange(p, min(size, 100))
 
     d.putItemCount(size)
     d.putNumChild(size)
@@ -1878,7 +1878,7 @@ def qdump__std__string(d, item):
     elif str(charType) == "wchar_t":
         d.putType("std::wstring", 1)
 
-    n = qmin(size, 1000)
+    n = min(size, 1000)
     if charType.sizeof == 1:
         format = "%02x"
         for i in xrange(size):
