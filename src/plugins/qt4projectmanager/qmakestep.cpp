@@ -137,10 +137,14 @@ QString QMakeStep::allArguments(bool shorted)
 
     if (!haveSpec) {
         const QString tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : QString();
-        if (!tcSpec.isEmpty() && bc->qtVersion()->hasMkspec(tcSpec))
+        if (tcSpec.isEmpty()) {
+            if (bc->qtVersion())
+                arguments << "-spec" << bc->qtVersion()->mkspec();
+        } else if (!bc->qtVersion() || bc->qtVersion()->hasMkspec(tcSpec)) {
             arguments << "-spec" << tcSpec;
-        else
+        } else {
             arguments << "-spec" << bc->qtVersion()->mkspec();
+        }
     }
 
     // Find out what flags we pass on to qmake
