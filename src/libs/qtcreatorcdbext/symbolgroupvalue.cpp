@@ -1505,17 +1505,25 @@ static inline bool dumpQObject(const SymbolGroupValue &v, std::wostream &str, vo
 }
 
 // Dump a std::string.
-static bool dumpStd_W_String(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream &str)
 {
-    // MSVC 2010: Access Bx/_Buf in base class
-    SymbolGroupValue buf = v[unsigned(0)]["_Bx"]["_Buf"];
-    if (!buf) // MSVC2008: Bx/Buf are members
-        buf = v["_Bx"]["_Buf"];
-    if (buf) {
-        str << buf.value();
-        return true;
+    SymbolGroupValue bx = v[unsigned(0)]["_Bx"];
+    int reserved = 0;
+    if (bx) { // MSVC 2010
+        reserved = v[unsigned(0)]["_Myres"].intValue();
+    } else {  // MSVC2008
+        bx = v["_Bx"];
+        reserved = v["_Myres"].intValue();
     }
-    return false;
+    if (!bx || reserved < 0)
+        return false;
+    // 'Buf' array for small strings, else pointer 'Ptr'.
+    const int bufSize = type == KT_StdString ? 16 : 8; // see basic_string.
+    const SymbolGroupValue string = bufSize <= reserved ? bx["_Ptr"] : bx["_Buf"];
+    if (!string)
+        return false;
+    str << string.value();
+    return true;
 }
 
 // QVariant employs a template for storage where anything bigger than the data union
@@ -1818,7 +1826,7 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         break;
     case KT_StdString:
     case KT_StdWString:
-        rc = dumpStd_W_String(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        rc = dumpStd_W_String(v, kt, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     default:
         break;
