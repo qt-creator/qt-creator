@@ -88,9 +88,9 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
     m_ui->buildConfigInfoLabel->setVisible(list.isEmpty());
 
     m_ui->buildConfigInfoLabel->setToolTip(tr("No valid build configuration has been detected.<br>"
-                                         "Please define a correct  build configuration in \"Options->Qt4\""));
+                                         "Please define a correct  build configuration in \"Options > Qt4\""));
     m_ui->toolchainInfoIconLabel->setToolTip(tr("No valid tool chain has been detected.<br>"
-                                         "Please define a correct tool chain in \"Options->Tool Chains\""));
+                                         "Please define a correct tool chain in \"Options > Tool Chains\""));
     populateToolchainList(m_bc);
 
     //change the build configuration if the user changes it
