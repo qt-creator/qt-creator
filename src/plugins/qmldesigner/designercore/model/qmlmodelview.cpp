@@ -173,22 +173,26 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
     try {
         RewriterTransaction transaction = beginRewriterTransaction();
         if (itemLibraryEntry.typeName().contains('.')) {
-            const QString newImportUrl = itemLibraryEntry.typeName().split('.').first();
-            const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
-            Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
 
-            foreach (const Import &import, model()->imports()) {
-                if (import.isLibraryImport()
-                    && import.url() == newImport.url()
-                    && import.version() == newImport.version()) {
-                    // reuse this import
-                    newImport = import;
-                    break;
+            const QString newImportUrl = itemLibraryEntry.requiredImport();
+
+            if (!itemLibraryEntry.requiredImport().isEmpty()) {
+                const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
+                Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
+
+                foreach (const Import &import, model()->imports()) {
+                    if (import.isLibraryImport()
+                            && import.url() == newImport.url()
+                            && import.version() == newImport.version()) {
+                        // reuse this import
+                        newImport = import;
+                        break;
+                    }
                 }
-            }
 
-            if (!model()->imports().contains(newImport)) {
-                model()->changeImports(QList<Import>() << newImport, QList<Import>());
+                if (!model()->hasImport(newImport, true)) {
+                    model()->changeImports(QList<Import>() << newImport, QList<Import>());
+                }
             }
         }
 
