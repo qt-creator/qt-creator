@@ -960,4 +960,16 @@ QString ModelNode::customParserSource() const
     return internalNode()->customParserSource();
 }
 
+QString ModelNode::convertTypeToImportAlias() const
+{
+    if (!isValid()) {
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    }
+
+    if (model()->rewriterView())
+        return model()->rewriterView()->convertTypeToImportAlias(type());
+
+    return type();
+}
+
 }

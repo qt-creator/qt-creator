@@ -173,6 +173,8 @@ public:
     void setCustomParserSource(const QString&);
     QString customParserSource() const;
 
+    QString convertTypeToImportAlias() const;
+
 private: // functions
     Internal::InternalNodePointer internalNode() const;
     QString generateNewId() const;
