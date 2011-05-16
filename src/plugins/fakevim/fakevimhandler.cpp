@@ -630,6 +630,7 @@ public:
     EventResult handleInsertMode(const Input &);
     EventResult handleReplaceMode(const Input &);
     EventResult handleCommandMode(const Input &);
+    EventResult handleCommandMode2(const Input &);
     EventResult handleRegisterMode(const Input &);
     EventResult handleExMode(const Input &);
     EventResult handleOpenSquareSubMode(const Input &);
@@ -1929,7 +1930,18 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         } else {
             m_mvcount.append(input.text());
         }
-    } else if (input.is('^') || input.is('_')) {
+    } else {
+        handled = handleCommandMode2(input);
+    }
+
+    return handled;
+}
+
+EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
+{
+    EventResult handled = EventHandled;
+
+    if (input.is('^') || input.is('_')) {
         moveToFirstNonBlankOnLine();
         setTargetColumn();
         m_movetype = MoveExclusive;
