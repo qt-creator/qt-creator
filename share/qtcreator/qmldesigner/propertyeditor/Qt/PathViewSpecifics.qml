@@ -66,7 +66,7 @@ QWidget {
 
                         Label {
                             text: qsTr("Offset")
-                            toolTip: qsTr("The offset specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.")
+                            toolTip: qsTr("Specifies how far along the path the items are from their initial positions. This is a real number that ranges from 0.0 to the count of items in the model.")
                         }
                         DoubleSpinBox {
                             alignRight: false
@@ -82,7 +82,7 @@ QWidget {
                 IntEditor {
                     backendValue: backendValues.pathItemCount
                     caption: qsTr("Item Count")
-                    toolTip: qsTr("pathItemCount: This property holds the number of items visible on the path at any one time.")
+                    toolTip: qsTr("pathItemCount: number of items visible on the path at any one time.")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: -1;
@@ -97,7 +97,7 @@ QWidget {
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
-                            text: qsTr("Righlight Range")
+                            text: qsTr("Highlight Range")
                         }
 
                         ComboBox {
@@ -114,7 +114,7 @@ QWidget {
                 IntEditor {
                     backendValue: backendValues.highlightMoveDuration
                     caption: qsTr("Move Duration")
-                    toolTip: qsTr("This property holds the move animation duration of the highlight delegate.")
+                    toolTip: qsTr("Move animation duration of the highlight delegate.")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -123,7 +123,7 @@ QWidget {
                 IntEditor {
                     backendValue: backendValues.preferredHighlightBegin
                     caption: qsTr("Preferred Begin")
-                    toolTip: qsTr("Preferred Highlight Begin - must be smaller than Preferred Highlight End")
+                    toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred End.")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -132,7 +132,7 @@ QWidget {
                 IntEditor {
                     backendValue: backendValues.preferredHighlightEnd
                     caption: qsTr("Preferred End")
-                    toolTip: qsTr("Preferred Highlight End - must be larger than Preferred Highlight End")
+                    toolTip: qsTr("Preferred highlight end - must be larger than Preferred Begin.")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -146,7 +146,7 @@ QWidget {
                         }
                         CheckBox {
                             backendValue: backendValues.highlightFollowsCurrentItem
-                            toolTip: qsTr("This property sets whether the highlight is managed by the view.")
+                            toolTip: qsTr("Determines whether the highlight is managed by the view.")
                             baseStateFlag: isBaseState;
                             checkable: True
                         }
