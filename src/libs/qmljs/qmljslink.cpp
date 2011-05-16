@@ -209,7 +209,8 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
             if (import.object)
                 d->importCache.insert(ImportCacheKey(info), import);
         }
-        typeEnv->addImport(import);
+        if (import.object)
+            typeEnv->addImport(import);
     }
 }
 
