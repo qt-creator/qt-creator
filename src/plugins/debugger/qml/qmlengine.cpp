@@ -490,6 +490,7 @@ void QmlEngine::executeStep()
     rs << cmd;
     logMessage(LogSend, cmd);
     sendMessage(reply);
+    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
@@ -502,6 +503,7 @@ void QmlEngine::executeStepI()
     rs << cmd;
     logMessage(LogSend, cmd);
     sendMessage(reply);
+    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
@@ -514,6 +516,7 @@ void QmlEngine::executeStepOut()
     rs << cmd;
     logMessage(LogSend, cmd);
     sendMessage(reply);
+    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
@@ -526,6 +529,7 @@ void QmlEngine::executeNext()
     rs << cmd;
     logMessage(LogSend, cmd);
     sendMessage(reply);
+    resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
 }
