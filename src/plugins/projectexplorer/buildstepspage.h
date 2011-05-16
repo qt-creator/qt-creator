@@ -56,8 +56,13 @@ class BuildConfiguration;
 
 namespace Internal {
 
-struct BuildStepsWidgetStruct
+class BuildStepsWidgetData
 {
+public:
+    BuildStepsWidgetData(BuildStep *s);
+    ~BuildStepsWidgetData();
+
+    BuildStep *step;
     BuildStepConfigWidget *widget;
     Utils::DetailsWidget *detailsWidget;
     QToolButton *upButton;
@@ -94,7 +99,7 @@ private:
     BuildStepList *m_buildStepList;
     QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
 
-    QList<Internal::BuildStepsWidgetStruct> m_buildSteps;
+    QList<Internal::BuildStepsWidgetData *> m_buildStepsData;
 
     QVBoxLayout *m_vbox;
 
