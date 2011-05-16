@@ -429,7 +429,6 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
             setupPrototypes();
             m_isValid = true;
         } else {
-            m_qualfiedTypeName = m_qualfiedTypeName.split('.').last();
             const Interpreter::ObjectValue *objectValue = getObjectValue();
             if (objectValue) {
                 const Interpreter::QmlObjectValue *qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(objectValue);
@@ -450,9 +449,66 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
     }
 }
 
+static inline QString getUrlFromType(const QString& typeName)
+{
+    QStringList nameComponents = typeName.split('.');
+    QString result;
+
+    for (int i = 0; i < (nameComponents.count() - 1); i++) {
+        result += nameComponents.at(i);
+    }
+
+    return result;
+}
+
 const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue() const
 {
-    return lookupContext()->engine()->cppQmlTypes().typeByQualifiedName(lookupName());
+    QmlJS::Interpreter::QmlObjectValue * value = lookupContext()->engine()->cppQmlTypes().typeByQualifiedName(lookupName());
+    if (value)
+        return value;
+
+    //If no version was specified (-1,-1) the approach above does not work.
+    //But we can look up the value "manually"
+    //This is usefull to make something like QtQuick.Item -1 -1 work in all cases
+    //and fix ambiguities with Qt 4.7.
+
+    if (m_majorVersion != -1 ||   m_minorVersion != -1)
+        return 0;   
+
+    const QString old_qualfiedTypeName =  m_qualfiedTypeName;
+
+    //This makes only sense if a package was specified.
+    if (m_qualfiedTypeName.split(".").count() < 2)
+        return 0;
+
+    const QString package = getUrlFromType(m_qualfiedTypeName);
+    const QString type = m_qualfiedTypeName.split('.').last();
+
+    LanguageUtils::ComponentVersion version(9999, 9999);
+    QList<Interpreter::QmlObjectValue *> qmlObjectValues = lookupContext()->engine()->cppQmlTypes().typesForImport(package, version);
+    const Interpreter::QmlObjectValue *qmlValue = 0;
+    foreach (Interpreter::QmlObjectValue *value, qmlObjectValues) {
+        if (value->className() == type)
+            qmlValue = value;
+    }
+
+    if (!qmlValue)
+        return 0;
+
+    //Now we have to check the different packages.
+    const LanguageUtils::FakeMetaObject::Export exp =
+            qmlValue->metaObject()->exportInPackage(package);
+    const QString convertedName = exp.type;
+
+    //Not available in the requested package
+    if (convertedName.isNull())
+        return 0;
+
+    //Different name for requested package
+    if (type != convertedName)
+        return 0;
+
+    return qmlValue;
 }
 
 const QmlJS::Interpreter::ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
@@ -774,8 +830,12 @@ QString NodeMetaInfoPrivate::lookupName() const
 
 QStringList NodeMetaInfoPrivate::lookupNameComponent() const
 {
-    QString tempString = m_qualfiedTypeName;
-    return tempString.split('.');
+    if (m_model && m_model->rewriterView()) {
+        QString tempString = model()->rewriterView()->convertTypeToImportAlias(m_qualfiedTypeName);
+
+        return tempString.split('.');
+    }
+    return QStringList();
 }
 
 bool NodeMetaInfoPrivate::isValid() const
