@@ -498,10 +498,9 @@ void QMakeStepConfigWidget::qtVersionChanged()
 
 void QMakeStepConfigWidget::qtVersionsDumpUpdated(const QString &qmakeCommand)
 {
-    if (BaseQtVersion *version = m_step->qt4BuildConfiguration()->qtVersion()) {
-        if (version->qmakeCommand() == qmakeCommand)
-            qtVersionChanged();
-    }
+    BaseQtVersion *version = m_step->qt4BuildConfiguration()->qtVersion();
+    if (version && version->qmakeCommand() == qmakeCommand)
+        qtVersionChanged();
 }
 
 void QMakeStepConfigWidget::qmakeBuildConfigChanged()
