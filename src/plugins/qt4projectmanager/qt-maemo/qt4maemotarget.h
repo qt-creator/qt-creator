@@ -60,6 +60,7 @@ public:
     Qt4BuildConfigurationFactory *buildConfigurationFactory() const;
     void createApplicationProFiles();
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Node *n);
+    QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
 
     virtual bool allowsRemoteMounts() const=0;
     virtual bool allowsPackagingDisabling() const=0;
@@ -73,19 +74,6 @@ public:
     bool setProjectVersion(const QString &version, QString *error = 0);
     bool setPackageName(const QString &packageName);
     bool setShortDescription(const QString &description);
-
-    struct DebugArchitecture {
-        explicit DebugArchitecture(const QString &a = QString(), const QString &t = QString()) :
-            architecture(a), gnuTarget(t)
-        { }
-
-        QString architecture;
-        QString gnuTarget;
-    };
-    // TODO: Is this needed with the ABI info we have?
-    DebugArchitecture debugArchitecture() const;
-
-    QList<ProjectExplorer::ToolChain *> possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const;
 
 protected:
     enum ActionStatus { NoActionRequired, ActionSuccessful, ActionFailed };

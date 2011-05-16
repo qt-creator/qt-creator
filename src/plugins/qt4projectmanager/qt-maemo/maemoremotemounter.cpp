@@ -76,9 +76,10 @@ void MaemoRemoteMounter::setBuildConfiguration(const Qt4BuildConfiguration *bc)
 {
     ASSERT_STATE(Inactive);
     const BaseQtVersion * const qtVersion = bc->qtVersion();
-    m_remoteMountsAllowed
-        = qobject_cast<AbstractQt4MaemoTarget *>(bc->target())->allowsRemoteMounts();
-    m_maddeRoot = qtVersion ? MaemoGlobal::maddeRoot(qtVersion->qmakeCommand()) : "";
+    const AbstractQt4MaemoTarget * const maemoTarget
+        = qobject_cast<AbstractQt4MaemoTarget *>(bc->target());
+    m_remoteMountsAllowed = maemoTarget && maemoTarget->allowsRemoteMounts();
+    m_maddeRoot = qtVersion ? MaemoGlobal::maddeRoot(qtVersion->qmakeCommand()) : QString();
 }
 
 void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,

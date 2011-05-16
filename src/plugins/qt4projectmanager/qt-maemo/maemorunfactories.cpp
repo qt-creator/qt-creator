@@ -75,16 +75,16 @@ MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
 bool MaemoRunConfigurationFactory::canCreate(Target *parent,
     const QString &id) const
 {
-    AbstractQt4MaemoTarget *target = qobject_cast<AbstractQt4MaemoTarget *>(parent);
-    if (!target)
+    if (!MaemoGlobal::hasLinuxQt(parent))
         return false;
-    return target->qt4Project()->hasApplicationProFile(pathFromId(id));
+    return qobject_cast<Qt4BaseTarget *>(parent)->qt4Project()
+        ->hasApplicationProFile(pathFromId(id));
 }
 
 bool MaemoRunConfigurationFactory::canRestore(Target *parent,
     const QVariantMap &map) const
 {
-    if (!qobject_cast<AbstractQt4MaemoTarget *>(parent))
+    if (!MaemoGlobal::hasLinuxQt(parent))
         return false;
     return ProjectExplorer::idFromMap(map)
         .startsWith(QLatin1String(MAEMO_RC_ID));
@@ -98,8 +98,8 @@ bool MaemoRunConfigurationFactory::canClone(Target *parent,
 
 QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    if (AbstractQt4MaemoTarget *t = qobject_cast<AbstractQt4MaemoTarget *>(parent)) {
-        if (t) {
+    if (Qt4BaseTarget *t = qobject_cast<Qt4BaseTarget *>(parent)) {
+        if (t && MaemoGlobal::hasLinuxQt(t)) {
             return t->qt4Project()->
                 applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
         }
@@ -109,7 +109,8 @@ QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) c
 
 QString MaemoRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    return QFileInfo(pathFromId(id)).completeBaseName();
+    return QFileInfo(pathFromId(id)).completeBaseName()
+        + QLatin1String(" (remote)");
 }
 
 RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
@@ -117,9 +118,8 @@ RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
 {
     if (!canCreate(parent, id))
         return 0;
-    AbstractQt4MaemoTarget *pqt4parent = static_cast<AbstractQt4MaemoTarget *>(parent);
-    return new MaemoRunConfiguration(pqt4parent, pathFromId(id));
-
+    return new MaemoRunConfiguration(qobject_cast<Qt4BaseTarget *>(parent),
+        pathFromId(id));
 }
 
 RunConfiguration *MaemoRunConfigurationFactory::restore(Target *parent,
@@ -127,8 +127,8 @@ RunConfiguration *MaemoRunConfigurationFactory::restore(Target *parent,
 {
     if (!canRestore(parent, map))
         return 0;
-    AbstractQt4MaemoTarget *target = static_cast<AbstractQt4MaemoTarget *>(parent);
-    MaemoRunConfiguration *rc = new MaemoRunConfiguration(target, QString());
+    MaemoRunConfiguration *rc
+        = new MaemoRunConfiguration(qobject_cast<Qt4BaseTarget *>(parent), QString());
     if (rc->fromMap(map))
         return rc;
 
@@ -143,7 +143,7 @@ RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent,
         return 0;
 
     MaemoRunConfiguration *old = static_cast<MaemoRunConfiguration *>(source);
-    return new MaemoRunConfiguration(static_cast<AbstractQt4MaemoTarget *>(parent), old);
+    return new MaemoRunConfiguration(static_cast<Qt4BaseTarget *>(parent), old);
 }
 
 // #pragma mark -- MaemoRunControlFactory
@@ -169,8 +169,10 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
         return false;
     const int freePortCount = maemoRunConfig->freePorts().count();
 
+    const AbstractQt4MaemoTarget * const maemoTarget
+        = qobject_cast<AbstractQt4MaemoTarget *>(maemoRunConfig->target());
     const bool remoteMountsAllowed
-        = maemoRunConfig->maemoTarget()->allowsRemoteMounts();
+        = maemoTarget && maemoTarget->allowsRemoteMounts();
     if (remoteMountsAllowed && freePortCount == 0)
         return false;
     const int mountDirCount

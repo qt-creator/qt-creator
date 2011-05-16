@@ -42,6 +42,7 @@
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerengine.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -96,10 +97,13 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
             params.remoteChannel
                 = devConf->sshParameters().host + QLatin1String(":-1");
             params.useServerStartScript = true;
-            const AbstractQt4MaemoTarget::DebugArchitecture &debugArch
-                = runConfig->maemoTarget()->debugArchitecture();
-            params.remoteArchitecture = debugArch.architecture;
-            params.gnuTarget = debugArch.gnuTarget;
+
+            // TODO: This functionality should be inside the debugger.
+            const ProjectExplorer::Abi &abi = runConfig->target()
+                ->activeBuildConfiguration()->toolChain()->targetAbi();
+            params.remoteArchitecture = abi.toString();
+            params.gnuTarget = QLatin1String(abi.architecture() == ProjectExplorer::Abi::ArmArchitecture
+                ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
         }
     } else {
         params.startMode = AttachToRemote;

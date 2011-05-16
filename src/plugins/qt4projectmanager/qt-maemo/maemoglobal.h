@@ -73,6 +73,9 @@ public:
     static bool isValidHarmattanQtVersion(const QString &qmakePath);
     static bool isValidMeegoQtVersion(const QString &qmakePath);
 
+    static bool isLinuxQt(const BaseQtVersion *qtVersion);
+    static bool hasLinuxQt(const ProjectExplorer::Target *target);
+
     static QString homeDirOnDevice(const QString &uname);
     static QString devrootshPath();
     static int applicationIconSize(MaemoDeviceConfig::OsVersion osVersion);

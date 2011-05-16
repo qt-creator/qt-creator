@@ -33,7 +33,6 @@
 #include "maemodeployablelistmodel.h"
 
 #include "maemoglobal.h"
-#include "qt4maemotarget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/filemanager.h>
@@ -331,8 +330,8 @@ const BaseQtVersion *MaemoDeployableListModel::qtVersion() const
     const ProjectExplorer::Project *const activeProject
         = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->startupProject();
     QTC_ASSERT(activeProject, return 0);
-    const AbstractQt4MaemoTarget *const activeTarget
-        = qobject_cast<AbstractQt4MaemoTarget *>(activeProject->activeTarget());
+    const Qt4BaseTarget *const activeTarget
+        = qobject_cast<Qt4BaseTarget *>(activeProject->activeTarget());
     QTC_ASSERT(activeTarget, return 0);
     const Qt4BuildConfiguration *const bc
         = activeTarget->activeBuildConfiguration();

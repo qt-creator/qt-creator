@@ -96,11 +96,13 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
             this, SLOT(runConfigurationEnabledChange(bool)));
 
     const AbstractQt4MaemoTarget * const maemoTarget
-        = runConfiguration->maemoTarget();
-    const bool remoteMountsAvailable = maemoTarget->allowsRemoteMounts();
+        = qobject_cast<AbstractQt4MaemoTarget *>(runConfiguration->target());
+    const bool remoteMountsAvailable
+        = maemoTarget && maemoTarget->allowsRemoteMounts();
     m_debugDetailsContainer->setVisible(remoteMountsAvailable);
     m_mountDetailsContainer->setVisible(remoteMountsAvailable);
-    const bool qmlDebuggingAvailable = maemoTarget->allowsQmlDebugging();
+    const bool qmlDebuggingAvailable
+        = !maemoTarget || maemoTarget->allowsQmlDebugging();
     m_debuggingLanguagesLabel->setVisible(qmlDebuggingAvailable);
     m_debugCppOnlyButton->setVisible(qmlDebuggingAvailable);
     m_debugQmlOnlyButton->setVisible(qmlDebuggingAvailable);

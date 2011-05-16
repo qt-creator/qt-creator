@@ -63,13 +63,14 @@ MaemoDeployStepFactory::MaemoDeployStepFactory(QObject *parent)
 
 QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
-        return QStringList();
-
     QStringList ids;
-    if (qobject_cast<AbstractQt4MaemoTarget *>(parent->target()))
+    AbstractQt4MaemoTarget * const maemoTarget
+        = qobject_cast<AbstractQt4MaemoTarget *>(parent->target());
+    if (maemoTarget)
         ids << MaemoMakeInstallToSysrootStep::Id;
-    if (!qobject_cast<Qt4HarmattanTarget *>(parent->target()))
+    else if (MaemoGlobal::hasLinuxQt(parent->target()))
+        ids << MaemoUploadAndInstallTarPackageStep::Id;
+    if (maemoTarget && !qobject_cast<Qt4HarmattanTarget *>(parent->target()))
         ids << MaemoUploadAndInstallTarPackageStep::Id;
     if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())) {
         ids << MaemoInstallDebianPackageToSysrootStep::Id;

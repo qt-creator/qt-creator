@@ -129,19 +129,6 @@ AbstractQt4MaemoTarget::AbstractQt4MaemoTarget(Qt4Project *parent, const QString
 AbstractQt4MaemoTarget::~AbstractQt4MaemoTarget()
 { }
 
-AbstractQt4MaemoTarget::DebugArchitecture AbstractQt4MaemoTarget::debugArchitecture() const
-{
-    // TODO: This functionality should be inside the debugger.
-    const ProjectExplorer::Abi &abi
-        = activeBuildConfiguration()->toolChain()->targetAbi();
-    DebugArchitecture arch(abi.toString());
-
-    // TODO: This might do the wrong thing for x64.
-    arch.gnuTarget = QLatin1String(abi.architecture() == ProjectExplorer::Abi::ArmArchitecture
-        ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
-    return arch;
-}
-
 QList<ProjectExplorer::ToolChain *> AbstractQt4MaemoTarget::possibleToolChains(ProjectExplorer::BuildConfiguration *bc) const
 {
     QList<ProjectExplorer::ToolChain *> result;

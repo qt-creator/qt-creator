@@ -52,6 +52,7 @@
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4target.h>
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -105,7 +106,7 @@ void MaemoRunConfiguration::init()
         this, SLOT(handleDeployConfigChanged()));
     handleDeployConfigChanged();
 
-    Qt4Project *pro = maemoTarget()->qt4Project();
+    Qt4Project *pro = qt4Target()->qt4Project();
     connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)));
     connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
@@ -116,9 +117,9 @@ MaemoRunConfiguration::~MaemoRunConfiguration()
 {
 }
 
-AbstractQt4MaemoTarget *MaemoRunConfiguration::maemoTarget() const
+Qt4BaseTarget *MaemoRunConfiguration::qt4Target() const
 {
-    return static_cast<AbstractQt4MaemoTarget *>(target());
+    return static_cast<Qt4BaseTarget *>(target());
 }
 
 Qt4BuildConfiguration *MaemoRunConfiguration::activeQt4BuildConfiguration() const
@@ -140,7 +141,7 @@ QWidget *MaemoRunConfiguration::createConfigurationWidget()
 
 Utils::OutputFormatter *MaemoRunConfiguration::createOutputFormatter() const
 {
-    return new QtOutputFormatter(maemoTarget()->qt4Project());
+    return new QtOutputFormatter(qt4Target()->qt4Project());
 }
 
 void MaemoRunConfiguration::handleParseState(bool success)
@@ -197,7 +198,7 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
         SystemEnvironmentBase).toInt());
     m_remoteMounts->fromMap(map);
 
-    m_validParse = maemoTarget()->qt4Project()->validParse(m_proFilePath);
+    m_validParse = qt4Target()->qt4Project()->validParse(m_proFilePath);
 
     setDefaultDisplayName(defaultDisplayName());
 
@@ -207,9 +208,9 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
 QString MaemoRunConfiguration::defaultDisplayName()
 {
     if (!m_proFilePath.isEmpty())
-        return (QFileInfo(m_proFilePath).completeBaseName());
+        return (QFileInfo(m_proFilePath).completeBaseName()) + QLatin1String(" (remote)");
     //: Maemo run configuration default display name
-    return tr("Run on Maemo device");
+    return tr("Run on remote device");
 }
 
 MaemoDeviceConfig::ConstPtr MaemoRunConfiguration::deviceConfig() const
@@ -275,7 +276,7 @@ QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
 
 QString MaemoRunConfiguration::localExecutableFilePath() const
 {
-    TargetInformation ti = maemoTarget()->qt4Project()->rootProjectNode()
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()
         ->targetInformation(m_proFilePath);
     if (!ti.valid)
         return QString();
@@ -299,7 +300,11 @@ MaemoPortList MaemoRunConfiguration::freePorts() const
 
 bool MaemoRunConfiguration::useRemoteGdb() const
 {
-    return m_useRemoteGdb && maemoTarget()->allowsRemoteMounts();
+    if (!m_useRemoteGdb)
+        return false;
+    const AbstractQt4MaemoTarget * const maemoTarget
+        = qobject_cast<AbstractQt4MaemoTarget *>(target());
+    return maemoTarget && maemoTarget->allowsRemoteMounts();
 }
 
 void MaemoRunConfiguration::setArguments(const QString &args)
@@ -309,7 +314,9 @@ void MaemoRunConfiguration::setArguments(const QString &args)
 
 MaemoRunConfiguration::DebuggingType MaemoRunConfiguration::debuggingType() const
 {
-    if (!maemoTarget()->allowsQmlDebugging())
+    const AbstractQt4MaemoTarget * const maemoTarget
+        = qobject_cast<AbstractQt4MaemoTarget *>(target());
+    if (!maemoTarget || !maemoTarget->allowsQmlDebugging())
         return DebugCppOnly;
     if (useCppDebugger()) {
         if (useQmlDebugger())

@@ -118,9 +118,9 @@ QStringList Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target *par
         ids << Qt4MaemoDeployConfiguration::HarmattanId;
     } else if (qobject_cast<Qt4MeegoTarget *>(parent)) {
         ids << Qt4MaemoDeployConfiguration::MeegoId;
-    } /*else if (qobject_cast<Qt4BaseTarget *>(parent)) { // TODO: Check for Linux
+    } else if (MaemoGlobal::hasLinuxQt(parent)) {
         ids << Qt4MaemoDeployConfiguration::GenericLinuxId;
-    }*/
+    }
 
     return ids;
 }

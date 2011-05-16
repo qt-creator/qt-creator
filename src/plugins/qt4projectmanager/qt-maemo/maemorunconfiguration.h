@@ -56,7 +56,6 @@ namespace Internal {
 
 class Qt4ProFileNode;
 
-class AbstractQt4MaemoTarget;
 class AbstractLinuxDeviceDeployStep;
 class MaemoDeviceConfigListModel;
 class MaemoManager;
@@ -85,7 +84,7 @@ public:
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
-    AbstractQt4MaemoTarget *maemoTarget() const;
+    Qt4BaseTarget *qt4Target() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     Qt4MaemoDeployConfiguration *deployConfig() const;

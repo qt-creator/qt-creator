@@ -61,10 +61,9 @@ MaemoPackageCreationFactory::MaemoPackageCreationFactory(QObject *parent)
 
 QStringList MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
-        return QStringList();
-
     QStringList ids;
+    if (!MaemoGlobal::hasLinuxQt(parent->target()))
+        return ids;
     if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())
             && !parent->contains(MaemoDebianPackageCreationStep::CreatePackageId)) {
         ids << MaemoDebianPackageCreationStep::CreatePackageId;

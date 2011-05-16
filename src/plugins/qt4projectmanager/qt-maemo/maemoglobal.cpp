@@ -40,6 +40,7 @@
 #include <utils/ssh/sshconnection.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qtversionmanager.h>
+#include <qt4projectmanager/qt4target.h>
 #include <utils/environment.h>
 
 #include <QtCore/QDateTime>
@@ -89,6 +90,29 @@ bool MaemoGlobal::isValidHarmattanQtVersion(const QString &qmakePath)
 bool MaemoGlobal::isValidMeegoQtVersion(const QString &qmakePath)
 {
     return isValidMaemoQtVersion(qmakePath, MaemoDeviceConfig::Meego);
+}
+
+bool MaemoGlobal::isLinuxQt(const BaseQtVersion *qtVersion)
+{
+    if (!qtVersion)
+        return false;
+    const QList<ProjectExplorer::Abi> &abis = qtVersion->qtAbis();
+    foreach (const ProjectExplorer::Abi &abi, abis) {
+        if (abi.os() == ProjectExplorer::Abi::LinuxOS)
+            return true;
+    }
+    return false;
+}
+
+bool MaemoGlobal::hasLinuxQt(const ProjectExplorer::Target *target)
+{
+    const Qt4BaseTarget * const qtTarget
+        = qobject_cast<const Qt4BaseTarget *>(target);
+    if (!qtTarget)
+        return false;
+    const Qt4BuildConfiguration * const bc
+        = qtTarget->activeBuildConfiguration();
+    return bc && isLinuxQt(bc->qtVersion());
 }
 
 bool MaemoGlobal::isValidMaemoQtVersion(const QString &qmakePath,
@@ -143,7 +167,7 @@ QString MaemoGlobal::remoteSudo(MaemoDeviceConfig::OsVersion osVersion,
     case MaemoDeviceConfig::Meego:
         return devrootshPath();
     default:
-        return QLatin1String("sudo");
+        return QString(); // Using sudo would open a can of worms.
     }
 }
 
@@ -254,7 +278,7 @@ MaemoDeviceConfig::OsVersion MaemoGlobal::version(const QString &qmakePath)
         return MaemoDeviceConfig::Maemo6;
     if (name.startsWith(QLatin1String("meego")))
         return MaemoDeviceConfig::Meego;
-    return static_cast<MaemoDeviceConfig::OsVersion>(-1);
+    return MaemoDeviceConfig::GenericLinux;
 }
 
 QString MaemoGlobal::architecture(const QString &qmakePath)
