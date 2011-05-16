@@ -8137,11 +8137,11 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Publish Project...</source>
-        <translation>Projekt publizieren...</translation>
+        <translation>Projekt veröffentlichen...</translation>
     </message>
     <message>
         <source>Publish Project &quot;%1&quot;...</source>
-        <translation>Projekt &quot;%1&quot; publizieren...</translation>
+        <translation>Projekt &quot;%1&quot; veröffentlichen...</translation>
     </message>
     <message>
         <source>Clean Project</source>
