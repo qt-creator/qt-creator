@@ -84,7 +84,7 @@ QString DesktopQtVersion::invalidReason() const
     QString tmp = BaseQtVersion::invalidReason();
     if (tmp.isEmpty() && qtAbis().isEmpty())
         return QCoreApplication::translate("QtVersion", "Failed to detect the ABI(s) used by the Qt version.");
-    return QString();
+    return tmp;
 }
 
 QList<ProjectExplorer::Abi> DesktopQtVersion::qtAbis() const

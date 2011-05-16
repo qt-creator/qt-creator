@@ -107,7 +107,7 @@ QString SymbianQtVersion::invalidReason() const
             && (m_sbsV2Directory.isEmpty() || !QFileInfo(m_sbsV2Directory + QLatin1String("/sbs")).exists()))
         return QCoreApplication::translate("QtVersion", "SBS was not found.");
 
-    return QString();
+    return tmp;
 }
 
 bool SymbianQtVersion::toolChainAvailable(const QString &id) const

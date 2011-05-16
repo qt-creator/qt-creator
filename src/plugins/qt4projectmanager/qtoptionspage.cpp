@@ -757,6 +757,7 @@ void QtOptionsPageWidget::updateCurrentQtName()
         return;
     m_versions[currentItemIndex]->setDisplayName(m_versionUi->nameEdit->text());
     currentItem->setText(0, m_versions[currentItemIndex]->displayName());
+    updateDescriptionLabel();
 }
 
 
