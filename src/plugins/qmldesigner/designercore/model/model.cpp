@@ -1723,6 +1723,24 @@ void Model::changeImports(const QList<Import> &importsToBeAdded, const QList<Imp
     m_d->changeImports(importsToBeAdded, importsToBeRemoved);
 }
 
+bool Model::hasImport(const Import &import, bool ignoreAlias)
+{
+    if (imports().contains(import))
+        return true;
+    if (!ignoreAlias)
+        return false;
+
+    foreach (const Import &existingImport, imports()) {
+        if (existingImport.isFileImport() && import.isFileImport())
+            if (existingImport.file() == import.file() && existingImport.version() == import.version())
+                return true;
+        if (existingImport.isLibraryImport() && import.isLibraryImport())
+            if (existingImport.url() == import.url()  && existingImport.version() == import.version())
+                return true;
+    }
+    return false;
+}
+
 RewriterView *Model::rewriterView() const
 {
     return m_d->rewriterView();
