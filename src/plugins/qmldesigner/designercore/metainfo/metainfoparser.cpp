@@ -150,6 +150,16 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
         if (!requiredImport.isEmpty())
             entry.setRequiredImport(requiredImport);
 
+        if (reader.attributes().hasAttribute("forceImport")) {
+            QString forceImport = reader.attributes().value("forceImport").toString();
+            if (forceImport == QLatin1String("true") || forceImport == QLatin1String("True"))
+                entry.setForceImport(true);
+            else
+                entry.setForceImport(false);
+        } else {
+            entry.setForceImport(false);
+        }
+
         while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "itemlibraryentry")) {
             reader.readNext();
             handleItemLibraryEntryPropertyElement(reader, entry);
