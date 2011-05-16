@@ -159,6 +159,7 @@ void DesignDocumentControllerView::fromClipboard()
 QString DesignDocumentControllerView::toText() const
 {
     QScopedPointer<Model> outputModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
+    outputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;
 
     QString imports;
@@ -194,7 +195,7 @@ void DesignDocumentControllerView::fromText(QString text)
     QPlainTextEdit textEdit;
     QString imports;
     foreach (const Import &import, model()->imports())
-        imports += import.toString() + ";\n";
+        imports += import.toString(true, true) + "\n";
 
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(&textEdit);
