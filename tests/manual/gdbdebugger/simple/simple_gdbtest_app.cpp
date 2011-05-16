@@ -90,10 +90,15 @@
 
 #define USE_PRIVATE 1
 //#define USE_BOOST 1
+//#define USE_EIGEN 1
 
 #if USE_BOOST
 #include <boost/optional.hpp>
 #include <boost/shared_ptr.hpp>
+#endif
+
+#if USE_EIGEN
+#include <eigen2/Eigen/Core>
 #endif
 
 #if USE_PRIVATE
@@ -141,6 +146,7 @@ namespace nsY {
 int z;
 }
 }
+
 
 #if USE_PRIVATE
 
@@ -2579,8 +2585,35 @@ void testKR()
 }
 
 
+void testEigen()
+{
+#if USE_EIGEN
+    using namespace Eigen;
+
+    Matrix3d myMatrix = Matrix3d::Constant(5);
+    MatrixXd myDynamicMatrix(30, 10);
+
+    myDynamicMatrix(0, 0) = 0;
+    myDynamicMatrix(1, 0) = 1;
+    myDynamicMatrix(2, 0) = 2;
+
+    Matrix<double, 2, 1, RowMajor> rowMajorMatrix1;
+    rowMajorMatrix1 << 34, 44;
+
+    Matrix<double, 2, 2, RowMajor> rowMajorMatrix;
+    rowMajorMatrix << 0, 1, 2, 3;
+
+    int i = 0;
+    ++i;
+    ++i;
+    ++i;
+#endif
+}
+
+
 int main(int argc, char *argv[])
 {
+    testEigen();
     testKR();
     int *x = new int(32);
     Q_UNUSED(x);

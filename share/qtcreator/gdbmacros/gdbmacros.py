@@ -2295,6 +2295,55 @@ def qdump__QScriptValue(d, item):
            d.putSubItem(Item(dd["jscValue"], item.iname, "jscValue", "jscValue"))
 
 
+#######################################################################
+#
+# Eigen
+#
+#######################################################################
+
+def qdump__Eigen__Matrix(d, item):
+    innerType = templateArgument(item.value.type, 0)
+    storage = item.value["m_storage"]
+    options = numericTemplateArgument(item.value.type, 3)
+    rowMajor = (int(options) & 0x1)
+    p = storage["m_data"]
+    if p.type.code == gdb.TYPE_CODE_STRUCT: # Static
+        nrows = numericTemplateArgument(item.value.type, 1)
+        ncols = numericTemplateArgument(item.value.type, 2)
+        p = p["array"].cast(innerType.pointer())
+    else: # Dynamic
+        ncols = storage["m_cols"]
+        nrows = storage["m_rows"]
+    d.putValue("(%s x %s), %s" % (nrows, ncols, ["ColumnMajor", "RowMajor"][rowMajor]))
+    d.putField("keeporder", "1")
+    d.putNumChild(nrows * ncols)
+
+    limit = 100
+    nncols = min(ncols, limit)
+    nnrows = min(nrows, limit * limit / nncols)
+    if d.isExpanded(item):
+        iname = item.iname
+        with Children(d, nrows * ncols, innerType):
+            if ncols == 1:
+                for i in range(0, nnrows):
+                    v = (p + i).dereference()
+                    d.putSubItem(Item(v, item.iname))
+            elif nrows == 1:
+                for i in range(0, nncols):
+                    v = (p + i).dereference()
+                    d.putSubItem(Item(v, item.iname))
+            elif rowMajor == 1:
+                for i in range(0, nnrows):
+                    for j in range(0, nncols):
+                        name = "[%d,%d]" % (i, j)
+                        v = (p + i * ncols + j).dereference()
+                        d.putSubItem(Item(v, item.iname, None, name))
+            else:
+                for j in range(0, nncols):
+                    for i in range(0, nnrows):
+                        name = "[%d,%d]" % (i, j)
+                        v = (p + i * ncols + j).dereference()
+                        d.putSubItem(Item(v, item.iname, None, name))
 
 
 #######################################################################
@@ -2444,4 +2493,5 @@ if False:
             d.putName("type")
             d.putValue(item.value["type"])
             d.putType(" ")
+
 
