@@ -34,20 +34,17 @@
 #include "../qdeclarativeviewobserver_p.h"
 #include "qmlobserverconstants.h"
 
-#include <QtCore/QDebug>
-
-#include <QtGui/QGraphicsPolygonItem>
+#include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsObject>
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QPen>
 
-#include <cmath>
-
 namespace QmlJSDebugger {
 
-LiveSelectionIndicator::LiveSelectionIndicator(QDeclarativeViewObserver *editorView,
-                                       QGraphicsObject *layerItem)
-    : m_layerItem(layerItem), m_view(editorView)
+LiveSelectionIndicator::LiveSelectionIndicator(QDeclarativeViewObserver *viewObserver,
+                                               QGraphicsObject *layerItem)
+    : m_layerItem(layerItem)
+    , m_view(viewObserver)
 {
 }
 
@@ -58,24 +55,23 @@ LiveSelectionIndicator::~LiveSelectionIndicator()
 
 void LiveSelectionIndicator::show()
 {
-    foreach (QGraphicsPolygonItem *item, m_indicatorShapeHash.values())
+    foreach (QGraphicsRectItem *item, m_indicatorShapeHash)
         item->show();
 }
 
 void LiveSelectionIndicator::hide()
 {
-    foreach (QGraphicsPolygonItem *item, m_indicatorShapeHash.values())
+    foreach (QGraphicsRectItem *item, m_indicatorShapeHash)
         item->hide();
 }
 
 void LiveSelectionIndicator::clear()
 {
     if (!m_layerItem.isNull()) {
-        QHashIterator<QGraphicsItem*, QGraphicsPolygonItem *> iter(m_indicatorShapeHash);
-        while(iter.hasNext()) {
-            iter.next();
-            m_layerItem.data()->scene()->removeItem(iter.value());
-            delete iter.value();
+        QGraphicsScene *scene = m_layerItem.data()->scene();
+        foreach (QGraphicsRectItem *item, m_indicatorShapeHash) {
+            scene->removeItem(item);
+            delete item;
         }
     }
 
@@ -83,27 +79,9 @@ void LiveSelectionIndicator::clear()
 
 }
 
-QPolygonF LiveSelectionIndicator::addBoundingRectToPolygon(QGraphicsItem *item, QPolygonF &polygon)
-{
-    // ### remove this if statement when QTBUG-12172 gets fixed
-    if (item->boundingRect() != QRectF(0,0,0,0)) {
-        QPolygonF bounding = item->mapToScene(item->boundingRect());
-        if (bounding.isClosed()) //avoid crashes if there is an infinite scale.
-            polygon = polygon.united(bounding);
-    }
-
-    foreach (QGraphicsItem *child, item->childItems()) {
-        if (!QDeclarativeViewObserverPrivate::get(m_view)->isEditorItem(child))
-            addBoundingRectToPolygon(child, polygon);
-    }
-    return polygon;
-}
-
 void LiveSelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> > &itemList)
 {
     clear();
-
-    // set selections to also all children if they are not editor items
 
     foreach (const QWeakPointer<QGraphicsObject> &object, itemList) {
         if (object.isNull())
@@ -111,25 +89,17 @@ void LiveSelectionIndicator::setItems(const QList<QWeakPointer<QGraphicsObject> 
 
         QGraphicsItem *item = object.data();
 
-        QGraphicsPolygonItem *newSelectionIndicatorGraphicsItem
-                = new QGraphicsPolygonItem(m_layerItem.data());
         if (!m_indicatorShapeHash.contains(item)) {
-            m_indicatorShapeHash.insert(item, newSelectionIndicatorGraphicsItem);
+            QGraphicsRectItem *selectionIndicator = new QGraphicsRectItem(m_layerItem.data());
+            m_indicatorShapeHash.insert(item, selectionIndicator);
 
-            QPolygonF boundingShapeInSceneSpace;
-            addBoundingRectToPolygon(item, boundingShapeInSceneSpace);
+            const QRectF boundingRect = m_view->adjustToScreenBoundaries(item->mapRectToScene(item->boundingRect()));
+            const QRectF boundingRectInLayerItemSpace = m_layerItem.data()->mapRectFromScene(boundingRect);
 
-            QRectF boundingRect
-                    = m_view->adjustToScreenBoundaries(boundingShapeInSceneSpace.boundingRect());
-            QPolygonF boundingRectInLayerItemSpace = m_layerItem.data()->mapFromScene(boundingRect);
-
-            QPen pen;
-            pen.setColor(QColor(108, 141, 221));
-            newSelectionIndicatorGraphicsItem->setData(Constants::EditorItemDataKey,
-                                                       QVariant(true));
-            newSelectionIndicatorGraphicsItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
-            newSelectionIndicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
-            newSelectionIndicatorGraphicsItem->setPen(pen);
+            selectionIndicator->setData(Constants::EditorItemDataKey, true);
+            selectionIndicator->setFlag(QGraphicsItem::ItemIsSelectable, false);
+            selectionIndicator->setRect(boundingRectInLayerItemSpace);
+            selectionIndicator->setPen(QColor(108, 141, 221));
         }
     }
 }
