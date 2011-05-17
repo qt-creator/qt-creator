@@ -36,6 +36,7 @@
 #include <utils/debuggerlanguagechooser.h>
 #include <utils/detailswidget.h>
 
+#include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -69,8 +70,11 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     detailsBoxLayout->addLayout(formLayout);
     formLayout->addRow(tr("Arguments:"), m_argumentsLineEdit);
 
+    QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
+    debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+
     m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
-    formLayout->addRow(tr("Debugger:"), m_debuggerLanguageChooser);
+    formLayout->addRow(debuggerLabel, m_debuggerLanguageChooser);
 
     m_debuggerLanguageChooser->setCppChecked(m_runConfiguration->useCppDebugger());
     m_debuggerLanguageChooser->setQmlChecked(m_runConfiguration->useQmlDebugger());

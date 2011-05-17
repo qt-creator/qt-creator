@@ -235,17 +235,11 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->addRow(QString(), m_useTerminalCheck);
     m_useTerminalCheck->setVisible(qt4RunConfiguration->target()->id() != Constants::QT_SIMULATOR_TARGET_ID);
 
-    QWidget *debuggerLabelWidget = new QWidget(this);
-    QVBoxLayout *debuggerLabelLayout = new QVBoxLayout(debuggerLabelWidget);
-    debuggerLabelLayout->setMargin(0);
-    debuggerLabelLayout->setSpacing(0);
-    debuggerLabelWidget->setLayout(debuggerLabelLayout);
     QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
-    debuggerLabelLayout->addWidget(debuggerLabel);
-    debuggerLabelLayout->addStretch(10);
+    debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 
     m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
-    toplayout->addRow(debuggerLabelWidget, m_debuggerLanguageChooser);
+    toplayout->addRow(debuggerLabel, m_debuggerLanguageChooser);
 
     m_debuggerLanguageChooser->setCppChecked(m_qt4RunConfiguration->useCppDebugger());
     m_debuggerLanguageChooser->setQmlChecked(m_qt4RunConfiguration->useQmlDebugger());

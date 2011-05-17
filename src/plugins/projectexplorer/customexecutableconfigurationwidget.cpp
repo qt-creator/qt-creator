@@ -78,17 +78,11 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     m_useTerminalCheck = new QCheckBox(tr("Run in &Terminal"), this);
     layout->addRow(QString(), m_useTerminalCheck);
 
-    QWidget *debuggerLabelWidget = new QWidget(this);
-    QVBoxLayout *debuggerLabelLayout = new QVBoxLayout(debuggerLabelWidget);
-    debuggerLabelLayout->setMargin(0);
-    debuggerLabelLayout->setSpacing(0);
-    debuggerLabelWidget->setLayout(debuggerLabelLayout);
     QLabel *debuggerLabel = new QLabel(tr("Debugger:"), this);
-    debuggerLabelLayout->addWidget(debuggerLabel);
-    debuggerLabelLayout->addStretch(10);
+    debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 
     m_debuggerLanguageChooser = new Utils::DebuggerLanguageChooser(this);
-    layout->addRow(debuggerLabelWidget, m_debuggerLanguageChooser);
+    layout->addRow(debuggerLabel, m_debuggerLanguageChooser);
 
     m_debuggerLanguageChooser->setCppChecked(m_runConfiguration->useCppDebugger());
     m_debuggerLanguageChooser->setQmlChecked(m_runConfiguration->useQmlDebugger());

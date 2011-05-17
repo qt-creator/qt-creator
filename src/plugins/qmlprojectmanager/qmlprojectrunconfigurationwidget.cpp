@@ -117,17 +117,11 @@ QmlProjectRunConfigurationWidget::QmlProjectRunConfigurationWidget(QmlProjectRun
     // Debugging
     //
 
-    QWidget *debuggerLabelWidget = new QWidget;
-    QVBoxLayout *debuggerLabelLayout = new QVBoxLayout(debuggerLabelWidget);
-    debuggerLabelLayout->setMargin(0);
-    debuggerLabelLayout->setSpacing(0);
-    debuggerLabelWidget->setLayout(debuggerLabelLayout);
     QLabel *debuggerLabel = new QLabel(tr("Debugger:"));
-    debuggerLabelLayout->addWidget(debuggerLabel);
-    debuggerLabelLayout->addStretch(10);
+    debuggerLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
 
     DebuggerLanguageChooser *debuggerLanguageChooser = new DebuggerLanguageChooser(formWidget);
-    form->addRow(debuggerLabelWidget, debuggerLanguageChooser);
+    form->addRow(debuggerLabel, debuggerLanguageChooser);
 
     debuggerLanguageChooser->setCppChecked(rc->useCppDebugger());
     debuggerLanguageChooser->setQmlChecked(rc->useQmlDebugger());
