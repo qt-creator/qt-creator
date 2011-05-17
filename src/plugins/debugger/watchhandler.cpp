@@ -369,6 +369,10 @@ static inline QString formattedValue(const WatchData &data, int format)
             return reformatInteger(data.value.toULongLong(), format);
         return reformatInteger(data.value.toLongLong(), format);
     }
+
+    if (data.value.toULongLong(0, 0))
+        return reformatInteger(data.value.toLongLong(), format);
+
     QString result = data.value;
     result.replace(QLatin1Char('\n'), QLatin1String("\\n"));
     if (result.startsWith(QLatin1Char('<'))) {
@@ -395,6 +399,7 @@ static inline QString formattedValue(const WatchData &data, int format)
                      WatchHandler::tr("<%n items>", 0, size);
         }
     }
+
     return result;
 }
 
@@ -716,12 +721,13 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 return QStringList()
                     << tr("Latin1 string")
                     << tr("UTF8 string");
-            if (isIntType(data.type) && data.type != "bool")
+            if ((isIntType(data.type) && data.type != "bool")
+                || data.value.toULongLong(0, 0))
                 return QStringList()
-                    << tr("decimal")
-                    << tr("hexadecimal")
-                    << tr("binary")
-                    << tr("octal");
+                    << tr("Decimal")
+                    << tr("Hexadecimal")
+                    << tr("Binary")
+                    << tr("Octal");
             // Hack: Compensate for namespaces.
             QString type = stripTemplate(data.type);
             int pos = type.indexOf("::Q");
@@ -938,13 +944,6 @@ static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *i
 
 void WatchModel::insertData(const WatchData &data)
 {
-    //qDebug() << "WMI:" << data.toString();
-    //static int bulk = 0;
-    //qDebug() << "SINGLE: " << ++bulk << data.toString();
-    if (data.iname.isEmpty()) {
-        int x;
-        x = 1;
-    }
     QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
     WatchItem *parent = findItem(parentName(data.iname), m_root);
     if (!parent) {
