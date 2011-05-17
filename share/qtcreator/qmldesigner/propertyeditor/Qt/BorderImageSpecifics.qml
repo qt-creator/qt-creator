@@ -41,7 +41,7 @@ QWidget {
                     layout: HorizontalLayout {
 
                         Label {
-                            text: qsTr("Source Size")
+                            text: qsTr("Source size")
                         }
 
                         DoubleSpinBox {

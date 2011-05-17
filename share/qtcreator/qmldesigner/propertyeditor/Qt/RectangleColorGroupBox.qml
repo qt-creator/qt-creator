@@ -73,7 +73,7 @@ GroupBox {
                 spacing: 2
                 Label {
                     text: qsTr("Stops")
-                    toolTip: qsTr("Gradient Stops")
+                    toolTip: qsTr("Gradient stops")
                 }
 
                 GradientLine {

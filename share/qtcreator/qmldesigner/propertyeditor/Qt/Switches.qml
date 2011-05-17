@@ -18,7 +18,7 @@ QFrame {
             checkable: true;
             checked: true;
             id: standardMode;
-            toolTip: qsTr("special properties");
+            toolTip: qsTr("Special properties");
             //iconFromFile: "images/rect-icon.png";
             text: backendValues === undefined || backendValues.className === undefined || backendValues.className == "empty" ? "empty" : backendValues.className.value
             onClicked: {
@@ -35,7 +35,7 @@ QFrame {
             id: layoutMode;
             checkable: true;
             checked: false;
-            toolTip: qsTr("layout");
+            toolTip: qsTr("Layout");
             text: qsTr("Layout");
             onClicked: {
                 extendedMode.checked = false;
@@ -49,7 +49,7 @@ QFrame {
 
         QPushButton {
             id: extendedMode;
-            toolTip: qsTr("advanced properties");
+            toolTip: qsTr("Advanced properties");
             checkable: true;
             checked: false;
             text: qsTr("Advanced")

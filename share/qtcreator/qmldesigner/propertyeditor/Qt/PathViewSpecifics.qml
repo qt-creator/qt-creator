@@ -16,7 +16,7 @@ QWidget {
                     layout: HorizontalLayout {
 
                         Label {
-                            text: qsTr("Drag Margin")
+                            text: qsTr("Drag margin")
                         }
 
                         DoubleSpinBox {
@@ -34,7 +34,7 @@ QWidget {
                     layout: HorizontalLayout {
 
                         Label {
-                            text: qsTr("Flick Deceleration")
+                            text: qsTr("Flick deceleration")
                         }
 
                         DoubleSpinBox {
@@ -51,7 +51,7 @@ QWidget {
                 QWidget {  // 1
                     layout: HorizontalLayout {
                         Label {
-                            text: qsTr("Follows Current")
+                            text: qsTr("Follows current")
                             toolTip: qsTr("A user cannot drag or flick a PathView that is not interactive.")
                         }
                         CheckBox {
@@ -81,7 +81,7 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.pathItemCount
-                    caption: qsTr("Item Count")
+                    caption: qsTr("Item count")
                     toolTip: qsTr("pathItemCount: number of items visible on the path at any one time.")
                     baseStateFlag: isBaseState;
                     step: 1;
@@ -97,7 +97,7 @@ QWidget {
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
-                            text: qsTr("Highlight Range")
+                            text: qsTr("Highlight range")
                         }
 
                         ComboBox {
@@ -113,7 +113,7 @@ QWidget {
                 } //QWidget
                 IntEditor {
                     backendValue: backendValues.highlightMoveDuration
-                    caption: qsTr("Move Duration")
+                    caption: qsTr("Move duration")
                     toolTip: qsTr("Move animation duration of the highlight delegate.")
                     baseStateFlag: isBaseState;
                     step: 1;
@@ -122,8 +122,8 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.preferredHighlightBegin
-                    caption: qsTr("Preferred Begin")
-                    toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred End.")
+                    caption: qsTr("Preferred begin")
+                    toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -131,8 +131,8 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.preferredHighlightEnd
-                    caption: qsTr("Preferred End")
-                    toolTip: qsTr("Preferred highlight end - must be larger than Preferred Begin.")
+                    caption: qsTr("Preferred end")
+                    toolTip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -142,7 +142,7 @@ QWidget {
                     layout: HorizontalLayout {
 
                         Label {
-                            text: qsTr("Follows Current")
+                            text: qsTr("Follows current")
                         }
                         CheckBox {
                             backendValue: backendValues.highlightFollowsCurrentItem

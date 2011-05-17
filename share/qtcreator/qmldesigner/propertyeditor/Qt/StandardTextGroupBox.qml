@@ -25,7 +25,7 @@ GroupBox {
             visible: showIsWrapping
             layout: HorizontalLayout {
                 Label {
-                    text: qsTr("Wrap Mode")
+                    text: qsTr("Wrap mode")
                 }
                 ComboBox {
                     baseStateFlag: isBaseState

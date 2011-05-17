@@ -9,7 +9,7 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: qsTr("Content Size")
+                    text: qsTr("Content size")
                 }
 
                 DoubleSpinBox {
@@ -40,8 +40,8 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {
                 Label {
-                    text: qsTr("Flick Direction")
-                    toolTip: qsTr("Flickable Direction")
+                    text: qsTr("Flick direction")
+                    toolTip: qsTr("Flickable direction")
                 }
 
                 ComboBox {
@@ -59,7 +59,7 @@ GroupBox {
             layout: HorizontalLayout {
                 Label {
                     text: qsTr("Behavior")
-                    toolTip: qsTr("Bounds Behavior")
+                    toolTip: qsTr("Bounds behavior")
                 }
 
                 ComboBox {
@@ -90,8 +90,8 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: qsTr("Max. Velocity")
-                    toolTip: qsTr("Maximum Flick Velocity")
+                    text: qsTr("Max. velocity")
+                    toolTip: qsTr("Maximum flick velocity")
                 }
 
                 DoubleSpinBox {
@@ -111,7 +111,7 @@ GroupBox {
 
                 Label {
                     text: qsTr("Deceleration")
-                    toolTip: qsTr("Flick Deceleration")
+                    toolTip: qsTr("Flick deceleration")
                 }
 
                 DoubleSpinBox {

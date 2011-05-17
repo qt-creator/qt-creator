@@ -32,15 +32,15 @@ GroupBox {
                     }
                     
                     actions:  [
-                        QAction { text: qsTr("Top Left"); onTriggered: originWidget.origin = "TopLeft"; },
+                        QAction { text: qsTr("Top left"); onTriggered: originWidget.origin = "TopLeft"; },
                         QAction { text: qsTr("Top"); onTriggered: originWidget.origin = "Top"; },
-                        QAction { text: qsTr("Top Right"); onTriggered: originWidget.origin = "TopRight"; },
+                        QAction { text: qsTr("Top right"); onTriggered: originWidget.origin = "TopRight"; },
                         QAction { text: qsTr("Left"); onTriggered: originWidget.origin = "Left"; },
                         QAction {text: qsTr("Center"); onTriggered: originWidget.origin = "Center"; },
                         QAction { text: qsTr("Right"); onTriggered: originWidget.origin = "Right"; },
-                        QAction { text: qsTr("Bottom Left"); onTriggered: originWidget.origin = "BottomLeft"; },                        
+                        QAction { text: qsTr("Bottom left"); onTriggered: originWidget.origin = "BottomLeft"; },
                         QAction { text: qsTr("Bottom"); onTriggered: originWidget.origin = "Bottom"; },
-                        QAction { text: qsTr("Bottom Right"); onTriggered: originWidget.origin = "BottomRight"; }
+                        QAction { text: qsTr("Bottom right"); onTriggered: originWidget.origin = "BottomRight"; }
                     ]
                 }
             }

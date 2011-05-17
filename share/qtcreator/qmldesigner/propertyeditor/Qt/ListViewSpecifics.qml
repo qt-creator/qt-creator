@@ -18,7 +18,7 @@ QWidget {
                 IntEditor {
                     backendValue: backendValues.cacheBuffer
                     caption: qsTr("Cache")
-                    toolTip: qsTr("Cache Buffer")
+                    toolTip: qsTr("Cache buffer")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -26,7 +26,7 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.cellHeight
-                    caption: qsTr("Cell Height")
+                    caption: qsTr("Cell height")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -34,7 +34,7 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.cellWidth
-                    caption: qsTr("Cell Width")
+                    caption: qsTr("Cell width")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -59,7 +59,7 @@ QWidget {
                 } //QWidget
                 IntEditor {
                     backendValue: backendValues.keyNavigationWraps
-                    caption: qsTr("Navigation Wraps")
+                    caption: qsTr("Navigation wraps")
                     toolTip: qsTr("Determines whether the grid wraps key navigation.")
                     baseStateFlag: isBaseState;
                     step: 1;
@@ -70,7 +70,7 @@ QWidget {
                 //                QWidget {
                 //                    layout: HorizontalLayout {
                 //                        Label {
-                //                            text: qsTr("Layout Direction")
+                //                            text: qsTr("Layout direction")
                 //                        }
 
                 //                        ComboBox {
@@ -106,7 +106,7 @@ QWidget {
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
-                            text: qsTr("Snap Mode")
+                            text: qsTr("Snap mode")
                             toolTip: qsTr("Determines how the view scrolling will settle following a drag or flick.")
                         }
 
@@ -156,7 +156,7 @@ QWidget {
                 } //QWidget
                 IntEditor {
                     backendValue: backendValues.highlightMoveDuration
-                    caption: qsTr("Move Duration")
+                    caption: qsTr("Move duration")
                     toolTip: qsTr("Move animation duration of the highlight delegate.")
                     baseStateFlag: isBaseState;
                     step: 1;
@@ -165,7 +165,7 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.highlightMoveSpeed
-                    caption: qsTr("Move Speed")
+                    caption: qsTr("Move speed")
                     toolTip: qsTr("Move animation speed of the highlight delegate.")
                     baseStateFlag: isBaseState;
                     step: 1;
@@ -174,7 +174,7 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.highlightResizeDuration
-                    caption: qsTr("Resize Duration")
+                    caption: qsTr("Resize duration")
                     toolTip: qsTr("Resize animation duration of the highlight delegate.")
                     baseStateFlag: isBaseState;
                     step: 1;
@@ -183,7 +183,7 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.highlightResizeSpeed
-                    caption: qsTr("Resize Speed")
+                    caption: qsTr("Resize speed")
                     toolTip: qsTr("Resize animation speed of the highlight delegate.")
                     baseStateFlag: isBaseState;
                     step: 1;
@@ -192,8 +192,8 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.preferredHighlightBegin
-                    caption: qsTr("Preferred Begin")
-                    toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred End.")
+                    caption: qsTr("Preferred begin")
+                    toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -201,8 +201,8 @@ QWidget {
                 }
                 IntEditor {
                     backendValue: backendValues.preferredHighlightEnd
-                    caption: qsTr("Preferred End")
-                    toolTip: qsTr("Preferred highlight end - must be larger than Preferred Begin.")
+                    caption: qsTr("Preferred end")
+                    toolTip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
@@ -212,7 +212,7 @@ QWidget {
                     layout: HorizontalLayout {
 
                         Label {
-                            text: qsTr("Follows Current")
+                            text: qsTr("Follows current")
                         }
                         CheckBox {
                             backendValue: backendValues.highlightFollowsCurrentItem

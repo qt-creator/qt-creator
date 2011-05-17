@@ -49,7 +49,7 @@ QWidget {
 //                QWidget {
 //                    layout: HorizontalLayout {
 //                        Label {
-//                            text: qsTr("Layout Direction")
+//                            text: qsTr("Layout direction")
 //                        }
 
 //                        ComboBox {

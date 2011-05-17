@@ -13,7 +13,7 @@ GroupBox {
             visible: isTextInput
             layout: HorizontalLayout {
 
-                Label {text: qsTr("Input Mask") }
+                Label {text: qsTr("Input mask") }
 
                 LineEdit {
                     backendValue: backendValues.inputMask
@@ -26,7 +26,7 @@ GroupBox {
             visible: isTextInput
             layout: HorizontalLayout {
 
-                Label {text: qsTr("Echo Mode") }
+                Label {text: qsTr("Echo mode") }
 
                 ComboBox {
                     baseStateFlag: isBaseState
@@ -45,8 +45,8 @@ GroupBox {
             layout: HorizontalLayout {
 
                 Label {
-                    text: qsTr("Pass. Char")
-                    toolTip: qsTr("Password Character")
+                    text: qsTr("Pass. char")
+                    toolTip: qsTr("Character displayed when users enter passwords.")
                 }
 
                 LineEdit {
@@ -61,7 +61,7 @@ GroupBox {
                 Label {text: qsTr("Flags") }
 
                 CheckBox {
-                    text: qsTr("Read Only")
+                    text: qsTr("Read only")
                     baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue: backendValues.readOnly;
@@ -76,7 +76,7 @@ GroupBox {
 
                 CheckBox {
 
-                    text: qsTr("Cursor Visible")
+                    text: qsTr("Cursor visible")
                     baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue: backendValues.cursorVisible;
@@ -90,7 +90,7 @@ GroupBox {
             layout: HorizontalLayout {
                 Label {text: ""}
                 CheckBox {
-                    text: qsTr("Focus On Press")
+                    text: qsTr("Focus on press")
                     baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue:  backendValues.focusOnPress;
@@ -103,7 +103,7 @@ GroupBox {
             layout: HorizontalLayout {
                 Label {text: ""}
                 CheckBox {
-                    text: qsTr("Auto Scroll")
+                    text: qsTr("Auto scroll")
                     baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue:  backendValues.autoScroll;

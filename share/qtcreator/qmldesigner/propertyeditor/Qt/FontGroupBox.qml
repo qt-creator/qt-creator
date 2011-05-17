@@ -67,7 +67,7 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {
                 Label {
-                    text: qsTr("Font Style")
+                    text: qsTr("Font style")
                 }
                 FontStyleButtons {}
             }

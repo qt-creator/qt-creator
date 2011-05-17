@@ -16,7 +16,7 @@ GroupBox {
                 }
                 CheckBox {
                     id: visibleCheckBox;
-                    text: qsTr("visible")
+                    text: qsTr("Visible")
                     toolTip: qsTr("isVisible")
                     backendValue: backendValues.visible;
                     baseStateFlag: isBaseState;

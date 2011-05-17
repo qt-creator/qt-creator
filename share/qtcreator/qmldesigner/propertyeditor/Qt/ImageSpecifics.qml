@@ -38,7 +38,7 @@ QWidget {
                 QWidget {
                     layout: HorizontalLayout {
                         Label {
-                            text: qsTr("Fill Mode")
+                            text: qsTr("Fill mode")
                         }
 
                         ComboBox {
@@ -72,7 +72,7 @@ QWidget {
                     layout: HorizontalLayout {
 
                         Label {
-                            text: qsTr("Source Size")
+                            text: qsTr("Source size")
                         }
 
                         DoubleSpinBox {
@@ -107,7 +107,7 @@ QWidget {
                     layout: HorizontalLayout {
 
                         Label {
-                            text: qsTr("Painted Size")
+                            text: qsTr("Painted size")
                         }
 
                         DoubleSpinBox {
