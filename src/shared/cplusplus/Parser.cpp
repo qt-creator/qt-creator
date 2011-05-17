@@ -4282,6 +4282,7 @@ bool Parser::parseNameId(NameAST *&name)
     case T_LPAREN:
         return true;
 
+    case T_THIS:
     case T_IDENTIFIER:
     case T_STATIC_CAST:
     case T_DYNAMIC_CAST:
