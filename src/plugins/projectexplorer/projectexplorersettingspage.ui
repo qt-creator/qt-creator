@@ -98,6 +98,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="mergeStdErrAndStdOutCheckBox">
+        <property name="toolTip">
+         <string>Enabling this option ensures that the order of interleaved messages from stdout and stderr is preserved, at the cost of disabling highlighting of stderr.</string>
+        </property>
+        <property name="text">
+         <string>Merge stderr and stdout</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="wrapAppOutputCheckBox">
         <property name="text">
          <string>Word-wrap application output</string>

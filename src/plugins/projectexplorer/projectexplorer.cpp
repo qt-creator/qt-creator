@@ -895,6 +895,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         d->m_projectExplorerSettings.showCompilerOutput = s->value("ProjectExplorer/Settings/ShowCompilerOutput", false).toBool();
         d->m_projectExplorerSettings.showRunOutput = s->value("ProjectExplorer/Settings/ShowRunOutput", true).toBool();
         d->m_projectExplorerSettings.cleanOldAppOutput = s->value("ProjectExplorer/Settings/CleanOldAppOutput", false).toBool();
+        d->m_projectExplorerSettings.mergeStdErrAndStdOut = s->value("ProjectExplorer/Settings/MergeStdErrAndStdOut", false).toBool();
         d->m_projectExplorerSettings.wrapAppOutput = s->value("ProjectExplorer/Settings/WrapAppOutput", true).toBool();
         d->m_projectExplorerSettings.useJom = s->value("ProjectExplorer/Settings/UseJom", true).toBool();
         d->m_projectExplorerSettings.autorestoreLastSession = s->value("ProjectExplorer/Settings/AutoRestoreLastSession", false).toBool();
@@ -1187,6 +1188,7 @@ void ProjectExplorerPlugin::savePersistentSettings()
         s->setValue("ProjectExplorer/Settings/ShowCompilerOutput", d->m_projectExplorerSettings.showCompilerOutput);
         s->setValue("ProjectExplorer/Settings/ShowRunOutput", d->m_projectExplorerSettings.showRunOutput);
         s->setValue("ProjectExplorer/Settings/CleanOldAppOutput", d->m_projectExplorerSettings.cleanOldAppOutput);
+        s->setValue("ProjectExplorer/Settings/MergeStdErrAndStdOut", d->m_projectExplorerSettings.mergeStdErrAndStdOut);
         s->setValue("ProjectExplorer/Settings/WrapAppOutput", d->m_projectExplorerSettings.wrapAppOutput);
         s->setValue("ProjectExplorer/Settings/UseJom", d->m_projectExplorerSettings.useJom);
         s->setValue("ProjectExplorer/Settings/AutoRestoreLastSession", d->m_projectExplorerSettings.autorestoreLastSession);

@@ -50,6 +50,10 @@
 #include <windows.h>
 #endif
 
+#include "projectexplorerconstants.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
+
 /*!
     \class ProjectExplorer::ApplicationLauncher
 
@@ -88,13 +92,17 @@ ApplicationLauncherPrivate::ApplicationLauncherPrivate() :
 ApplicationLauncher::ApplicationLauncher(QObject *parent)
     : QObject(parent), d(new ApplicationLauncherPrivate)
 {
-    d->m_guiProcess.setReadChannelMode(QProcess::SeparateChannels);
-    connect(&d->m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
-        this, SLOT(guiProcessError()));
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().mergeStdErrAndStdOut){
+        d->m_guiProcess.setReadChannelMode(QProcess::MergedChannels);
+    } else {
+        d->m_guiProcess.setReadChannelMode(QProcess::SeparateChannels);
+        connect(&d->m_guiProcess, SIGNAL(readyReadStandardError()),
+            this, SLOT(readStandardError()));
+    }
     connect(&d->m_guiProcess, SIGNAL(readyReadStandardOutput()),
         this, SLOT(readStandardOutput()));
-    connect(&d->m_guiProcess, SIGNAL(readyReadStandardError()),
-        this, SLOT(readStandardError()));
+    connect(&d->m_guiProcess, SIGNAL(error(QProcess::ProcessError)),
+        this, SLOT(guiProcessError()));
     connect(&d->m_guiProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(processDone(int, QProcess::ExitStatus)));
     connect(&d->m_guiProcess, SIGNAL(started()),

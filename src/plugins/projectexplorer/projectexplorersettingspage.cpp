@@ -74,6 +74,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     pes.showCompilerOutput = m_ui.showCompileOutputCheckBox->isChecked();
     pes.showRunOutput = m_ui.showRunOutputCheckBox->isChecked();
     pes.cleanOldAppOutput = m_ui.cleanOldAppOutputCheckBox->isChecked();
+    pes.mergeStdErrAndStdOut = m_ui.mergeStdErrAndStdOutCheckBox->isChecked();
     pes.wrapAppOutput = m_ui.wrapAppOutputCheckBox->isChecked();
     pes.useJom = m_ui.jomCheckbox->isChecked();
     pes.prompToStopRunControl = m_ui.promptToStopRunControlCheckBox->isChecked();
@@ -89,6 +90,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.showCompileOutputCheckBox->setChecked(pes.showCompilerOutput);
     m_ui.showRunOutputCheckBox->setChecked(pes.showRunOutput);
     m_ui.cleanOldAppOutputCheckBox->setChecked(pes.cleanOldAppOutput);
+    m_ui.mergeStdErrAndStdOutCheckBox->setChecked(pes.mergeStdErrAndStdOut);
     m_ui.wrapAppOutputCheckBox->setChecked(pes.wrapAppOutput);
     m_ui.jomCheckbox->setChecked(pes.useJom);
     m_ui.promptToStopRunControlCheckBox->setChecked(pes.prompToStopRunControl);
@@ -136,6 +138,8 @@ QString ProjectExplorerSettingsWidget::searchKeywords() const
                 + sep + m_ui.deployProjectBeforeRunCheckBox->text()
                 + sep + m_ui.showCompileOutputCheckBox->text()
                 + sep + m_ui.cleanOldAppOutputCheckBox->text()
+                + sep + m_ui.mergeStdErrAndStdOutCheckBox->text()
+                + sep + m_ui.mergeStdErrAndStdOutCheckBox->toolTip()
                 + sep + m_ui.wrapAppOutputCheckBox->text()
                 + sep + m_ui.jomLabel->text()
                 ;
