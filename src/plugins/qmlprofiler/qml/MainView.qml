@@ -153,11 +153,13 @@ Rectangle {
         anchors.bottom: canvas.top
         contentWidth: view.totalWidth
         contentHeight: view.height
+        flickableDirection: Flickable.HorizontalFlick
 
         TimelineView {
             id: view
 
-            width: flick.width; height: flick.height
+            width: flick.width;
+            height: 50 * 5;
 
             startX: flick.contentX
             onStartXChanged: {
@@ -239,6 +241,20 @@ Rectangle {
         }
     }
 
+    VerticalScrollbar {
+        id: verticalScrollbar
+
+        flickable: flick
+        anchors.top: parent.top
+        anchors.right : flick.right
+        anchors.bottom : canvas.top
+        anchors.topMargin: 1
+        anchors.bottomMargin: 1
+        anchors.rightMargin: 0
+        anchors.leftMargin: 0
+        width: 10
+    }
+
     //popup showing the details for the hovered range
     RangeDetails {
         id: rangeDetails
@@ -248,8 +264,8 @@ Rectangle {
         id: labels
         width: 150
         color: "#dcdcdc"
-        anchors.top: root.top
-        anchors.bottom: canvas.top
+        y: -flick.contentY
+        height: flick.contentHeight
 
         Column {
             //### change to use Repeater + Plotter.names?

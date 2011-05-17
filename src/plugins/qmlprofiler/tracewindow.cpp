@@ -289,7 +289,7 @@ TraceWindow::TraceWindow(QWidget *parent)
     setLayout(groupLayout);
 
     // Maximum height: 5 rows of 50 pixels + scrollbar of 50 pixels
-    setFixedHeight(300);
+//    setFixedHeight(300);
 }
 
 TraceWindow::~TraceWindow()

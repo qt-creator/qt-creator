@@ -12,5 +12,6 @@
         <file>RecordButton.qml</file>
         <file>ToolButton.qml</file>
         <file>analyzer_category_small.png</file>
+        <file>VerticalScrollbar.qml</file>
     </qresource>
 </RCC>
