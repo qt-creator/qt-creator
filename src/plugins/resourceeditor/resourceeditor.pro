@@ -1,8 +1,6 @@
 TEMPLATE = lib
 TARGET = ResourceEditor
 
-qtAddLibrary(QtDesigner)
-
 include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
