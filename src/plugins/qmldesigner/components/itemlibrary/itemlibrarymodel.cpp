@@ -529,7 +529,7 @@ int ItemLibraryModel::getHeight(const ItemLibraryEntry &itemLibraryEntry)
     return 64;
 }
 
-QPixmap ItemLibraryModel::createDragPixmap(int width, int height)
+QPixmap ItemLibraryModel::createDragPixmap(int , int )
 {
     QImage dragImage(10, 10, QImage::Format_ARGB32); // TODO: draw item drag icon
     dragImage.fill(0x00ffffff); //### todo for now we disable the preview image

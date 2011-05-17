@@ -1175,11 +1175,13 @@ QStringList TextToModelMerger::syncGroupedProperties(ModelNode &modelNode,
 
 void ModelValidator::modelMissesImport(const Import &import)
 {
+    Q_UNUSED(import)
     Q_ASSERT(m_merger->view()->model()->imports().contains(import));
 }
 
 void ModelValidator::importAbsentInQMl(const Import &import)
 {
+    Q_UNUSED(import)
     Q_ASSERT(! m_merger->view()->model()->imports().contains(import));
 }
 
@@ -1187,6 +1189,9 @@ void ModelValidator::bindingExpressionsDiffer(BindingProperty &modelProperty,
                                               const QString &javascript,
                                               const QString &astType)
 {
+    Q_UNUSED(modelProperty)
+    Q_UNUSED(javascript)
+    Q_UNUSED(astType)
     Q_ASSERT(modelProperty.expression() == javascript);
     Q_ASSERT(modelProperty.dynamicTypeName() == astType);
     Q_ASSERT(0);
@@ -1196,6 +1201,7 @@ void ModelValidator::shouldBeBindingProperty(AbstractProperty &modelProperty,
                                              const QString &/*javascript*/,
                                              const QString &/*astType*/)
 {
+    Q_UNUSED(modelProperty)
     Q_ASSERT(modelProperty.isBindingProperty());
     Q_ASSERT(0);
 }
@@ -1204,12 +1210,17 @@ void ModelValidator::shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                               const QList<UiObjectMember *> /*arrayMembers*/,
                                               ReadingContext * /*context*/)
 {
+    Q_UNUSED(modelProperty)
     Q_ASSERT(modelProperty.isNodeListProperty());
     Q_ASSERT(0);
 }
 
 void ModelValidator::variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName)
 {
+    Q_UNUSED(modelProperty)
+    Q_UNUSED(qmlVariantValue)
+    Q_UNUSED(dynamicTypeName)
+
     Q_ASSERT(modelProperty.isDynamic() == !dynamicTypeName.isEmpty());
     if (modelProperty.isDynamic()) {
         Q_ASSERT(modelProperty.dynamicTypeName() == dynamicTypeName);
@@ -1221,6 +1232,8 @@ void ModelValidator::variantValuesDiffer(VariantProperty &modelProperty, const Q
 
 void ModelValidator::shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &/*qmlVariantValue*/, const QString &/*dynamicTypeName*/)
 {
+    Q_UNUSED(modelProperty)
+
     Q_ASSERT(modelProperty.isVariantProperty());
     Q_ASSERT(0);
 }
@@ -1232,12 +1245,16 @@ void ModelValidator::shouldBeNodeProperty(AbstractProperty &modelProperty,
                                           UiObjectMember * /*astNode*/,
                                           ReadingContext * /*context*/)
 {
+    Q_UNUSED(modelProperty)
+
     Q_ASSERT(modelProperty.isNodeProperty());
     Q_ASSERT(0);
 }
 
 void ModelValidator::modelNodeAbsentFromQml(ModelNode &modelNode)
 {
+    Q_UNUSED(modelNode)
+
     Q_ASSERT(!modelNode.isValid());
     Q_ASSERT(0);
 }
@@ -1258,6 +1275,11 @@ void ModelValidator::typeDiffers(bool /*isRootNode*/,
                                  QmlJS::AST::UiObjectMember * /*astNode*/,
                                  ReadingContext * /*context*/)
 {
+    Q_UNUSED(modelNode)
+    Q_UNUSED(typeName)
+    Q_UNUSED(minorVersion)
+    Q_UNUSED(majorVersion)
+
     Q_ASSERT(modelNode.type() == typeName);
     Q_ASSERT(modelNode.majorVersion() == majorVersion);
     Q_ASSERT(modelNode.minorVersion() == minorVersion);
@@ -1266,12 +1288,16 @@ void ModelValidator::typeDiffers(bool /*isRootNode*/,
 
 void ModelValidator::propertyAbsentFromQml(AbstractProperty &modelProperty)
 {
+    Q_UNUSED(modelProperty)
+
     Q_ASSERT(!modelProperty.isValid());
     Q_ASSERT(0);
 }
 
 void ModelValidator::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 {
+    Q_UNUSED(modelNode)
+
     Q_ASSERT(modelNode.id() == qmlId);
     Q_ASSERT(0);
 }
