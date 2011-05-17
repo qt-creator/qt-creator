@@ -1021,9 +1021,13 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
             }
         }
     }
-    // No children..suppose we are editable and enabled
-    if (childCountGuess != 0 || (m_parameters.Flags & DEBUG_SYMBOL_READ_ONLY) != 0)
+    // No children..suppose we are editable and enabled.
+    if (m_parameters.Flags & DEBUG_SYMBOL_READ_ONLY) {
         valueEditable = false;
+    } else {
+        if (childCountGuess != 0 && !(m_dumperType & KT_Editable))
+            valueEditable = false;
+    }
     str << ",valueenabled=\"" << (valueEnabled ? "true" : "false") << '"'
         << ",valueeditable=\"" << (valueEditable ? "true" : "false") << '"';
     return childCountGuess;
@@ -1263,6 +1267,28 @@ SymbolGroupNode *SymbolGroupNode::addSymbolByName(const std::string &module,
     node->addFlags(AdditionalSymbol);
     addChild(node);
     return node;
+}
+
+std::string SymbolGroupNode::msgAssignError(const std::string &nodeName,
+                                            const std::string &value,
+                                            const std::string &why)
+{
+    std::ostringstream str;
+    str << "Unable to assign '" << value << "' to '" << nodeName << "': " << why;
+    return str.str();
+}
+
+// Simple type
+bool SymbolGroupNode::assign(const std::string &value, std::string *errorMessage /* = 0 */)
+{
+    const HRESULT hr =
+        m_symbolGroup->debugSymbolGroup()->WriteSymbol(m_index, const_cast<char *>(value.c_str()));
+    if (FAILED(hr)) {
+        if (errorMessage)
+            *errorMessage = SymbolGroupNode::msgAssignError(name(), value, msgDebugEngineComFailed("WriteSymbol", hr));
+        return false;
+    }
+    return true;
 }
 
 // Utility returning a pair ('[42]','42') as name/iname pair

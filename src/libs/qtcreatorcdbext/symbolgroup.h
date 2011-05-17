@@ -103,7 +103,9 @@ public:
 
     // Assign a value by iname
     bool assign(const std::string &node,
+                int valueEncoding,
                 const std::string &value,
+                const SymbolGroupValueContext &ctx,
                 std::string *errorMessage);
 
     CIDebugSymbolGroup *debugSymbolGroup() const { return m_symbolGroup; }

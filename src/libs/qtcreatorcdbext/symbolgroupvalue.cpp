@@ -34,6 +34,7 @@
 #include "symbolgroup.h"
 #include "stringutils.h"
 #include "containers.h"
+#include "extensioncontext.h"
 
 #include <iomanip>
 #include <algorithm>
@@ -266,7 +267,8 @@ unsigned char *SymbolGroupValue::readMemory(CIDebugDataSpaces *ds, ULONG64 addre
         delete [] buffer;
         if (errorMessage) {
             std::ostringstream estr;
-            estr << "Cannot read " << length << " bytes from " << address << ": "
+            estr << "Cannot read " << length << " bytes from 0x"
+                 << std::hex << address << ": "
                  << msgDebugEngineComFailed("ReadVirtual", hr);
             *errorMessage = estr.str();
         }
@@ -274,10 +276,42 @@ unsigned char *SymbolGroupValue::readMemory(CIDebugDataSpaces *ds, ULONG64 addre
     }
     if (received < length && errorMessage) {
         std::ostringstream estr;
-        estr << "Warning: Received only " << received << " bytes of " << length << " requested at " << address << '.';
+        estr << "Warning: Received only " << received
+             << " bytes of " << length
+             << " requested at 0x" << std::hex << address << '.';
         *errorMessage = estr.str();
     }
     return buffer;
+}
+
+bool SymbolGroupValue::writeMemory(CIDebugDataSpaces *ds, ULONG64 address,
+                                   const unsigned char *data, ULONG length,
+                                   std::string *errorMessage /* =0 */)
+{
+    ULONG filled = 0;
+    const HRESULT hr = ds->FillVirtual(address, length,
+                                       const_cast<unsigned char *>(data),
+                                       length, &filled);
+    if (FAILED(hr)) {
+        if (errorMessage) {
+            std::ostringstream estr;
+            estr << "Cannot write " << length << " bytes to 0x"
+                 << std::hex << address << ": "
+                 << msgDebugEngineComFailed("FillVirtual", hr);
+            *errorMessage = estr.str();
+        }
+        return false;
+    }
+    if (filled < length) {
+        if (errorMessage) {
+            std::ostringstream estr;
+            estr << "Filled only " << filled << " bytes of " << length
+                 << " at 0x" << std::hex << address << '.';
+            *errorMessage = estr.str();
+        }
+        return false;
+    }
+    return true;
 }
 
 // Return allocated array of data
@@ -2215,6 +2249,264 @@ static inline std::vector<AbstractSymbolGroupNode *>
         rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, en));
     }
     return rc;
+}
+
+/* AssignmentStringData: Helper struct used for assigning values
+ * to string classes. Contains an (allocated) data array with size for use
+ * with IDebugDataSpaced::FillVirtual() + string length information and
+ * provides a conversion function decodeString() to create the array
+ * depending on the argument format (blow up ASCII to UTF16 or vice versa). */
+
+struct AssignmentStringData
+{
+    explicit AssignmentStringData(size_t dataLengthIn, size_t stringLengthIn);
+    static AssignmentStringData decodeString(const char *begin, const char *end,
+                                   int valueEncoding, bool toUtf16);
+
+    static inline AssignmentStringData decodeString(const std::string &value,
+                                        int valueEncoding, bool toUtf16)
+        { return decodeString(value.c_str(), value.c_str() + value.size(),
+                              valueEncoding, toUtf16); }
+
+    unsigned char *data;
+    size_t dataLength;
+    size_t stringLength;
+};
+
+AssignmentStringData::AssignmentStringData(size_t dataLengthIn, size_t stringLengthIn) :
+    data(new unsigned char[dataLengthIn]), dataLength(dataLengthIn),
+    stringLength(stringLengthIn)
+{
+    if (dataLength)
+        memset(data, 0, dataLength);
+}
+
+AssignmentStringData AssignmentStringData::decodeString(const char *begin, const char *end,
+                                    int valueEncoding, bool toUtf16)
+{
+    if (toUtf16) { // Target is UTF16 consisting of unsigned short characters.
+        switch (valueEncoding) {
+        // Hex encoded ASCII/2 digits per char: Decode to plain characters and
+        // recurse to expand them.
+        case AssignHexEncoded: {
+            const AssignmentStringData decoded = decodeString(begin, end, AssignHexEncoded, false);
+            const char *source = reinterpret_cast<const char*>(decoded.data);
+            const AssignmentStringData utf16 = decodeString(source, source + decoded.stringLength,
+                                                  AssignPlainValue, true);
+            delete [] decoded.data;
+            return utf16;
+        }
+        // Hex encoded UTF16: 4 hex digits per character: Decode sequence.
+        case AssignHexEncodedUtf16: {
+            const size_t stringLength = (end - begin) / 4;
+            AssignmentStringData result(sizeof(unsigned short) *(stringLength + 1), stringLength);
+            decodeHex(begin, end, result.data);
+            return result;
+        }
+        default:
+            break;
+        }
+        // Convert plain ASCII data to UTF16 by expanding.
+        const size_t stringLength = end - begin;
+        AssignmentStringData result(sizeof(unsigned short) *(stringLength + 1), stringLength);
+        const unsigned char *source = reinterpret_cast<const unsigned char *>(begin);
+        unsigned short *target = reinterpret_cast<unsigned short *>(result.data);
+        std::copy(source, source + stringLength, target);
+        return result;
+    } // toUtf16
+    switch (valueEncoding) {
+    case AssignHexEncoded: { // '0A5A'..2 digits per character
+        const size_t stringLength = (end - begin) / 2;
+        AssignmentStringData result(stringLength + 1, stringLength);
+        decodeHex(begin, end, result.data);
+        return result;
+    }
+    // Condense UTF16 characters to ASCII: Decode and use only every 2nd character
+    // (little endian, first byte)
+    case AssignHexEncodedUtf16: {
+        const AssignmentStringData decoded = decodeString(begin, end, AssignHexEncoded, false);
+        const size_t stringLength = decoded.stringLength / 2;
+        const AssignmentStringData result(stringLength + 1, stringLength);
+        const unsigned char *sourceEnd = decoded.data + decoded.stringLength;
+        unsigned char *target = result.data;
+        for (const unsigned char *source = decoded.data; source < sourceEnd; source += 2)
+            *target++ = *source;
+        delete [] decoded.data;
+        return result;
+    }
+        break;
+    default:
+        break;
+    }
+    // Plain 0-terminated copy
+    const size_t stringLength = end - begin;
+    AssignmentStringData result(stringLength + 1, stringLength);
+    memcpy(result.data, begin, stringLength);
+    return result;
+}
+
+// Assignment helpers
+static inline std::string msgAssignStringFailed(const std::string &value, int errorCode)
+{
+    std::ostringstream estr;
+    estr << "Unable to assign a string of " << value.size() << " bytes: Error " << errorCode;
+    return estr.str();
+}
+
+/* QString assign helper: If QString instance has sufficiently allocated,
+ * memory, write the data. Else invoke 'QString::resize' and
+ * recurse (since 'd' might become invalid). This works for QString with UTF16
+ * data and for QByteArray with ASCII data due to the similar member
+ * names and both using a terminating '\0' w_char/byte. */
+static int assignQStringI(SymbolGroupNode  *n, const char *className,
+                          const AssignmentStringData &data,
+                          const SymbolGroupValueContext &ctx,
+                          bool doAlloc = true)
+{
+    const SymbolGroupValue v(n, ctx);
+    SymbolGroupValue d = v["d"];
+    if (!d)
+        return 1;
+    // Check the size, re-allocate if required.
+    const size_t allocated = d["alloc"].intValue();
+    const bool needRealloc = allocated < data.stringLength;
+    if (needRealloc) {
+        if (!doAlloc) // Calling re-alloc failed somehow.
+            return 3;
+        std::ostringstream callStr;
+        const std::string funcName
+            = QtInfo::get(ctx).prependQtCoreModule(std::string(className) + "::resize");
+        callStr << funcName << '(' << std::hex << std::showbase
+                << v.address() << ',' << data.stringLength << ')';
+        std::wstring wOutput;
+        std::string errorMessage;
+        return ExtensionContext::instance().call(callStr.str(), &wOutput, &errorMessage) ?
+            assignQStringI(n, className, data, ctx, false) : 5;
+    }
+    // Write data.
+    const ULONG64 address = d["data"].pointerValue();
+    if (!address)
+        return 9;
+    if (!SymbolGroupValue::writeMemory(v.context().dataspaces,
+                                       address, data.data, ULONG(data.dataLength)))
+        return 11;
+    // Correct size unless we re-allocated
+    if (!needRealloc) {
+        const SymbolGroupValue size = d["size"];
+        if (!size || !size.node()->assign(toString(data.stringLength)))
+            return 17;
+    }
+    return 0;
+}
+
+// QString assignment
+static inline bool assignQString(SymbolGroupNode  *n,
+                                 int valueEncoding, const std::string &value,
+                                 const SymbolGroupValueContext &ctx,
+                                 std::string *errorMessage)
+{
+    const AssignmentStringData utf16 = AssignmentStringData::decodeString(value, valueEncoding, true);
+    const int errorCode = assignQStringI(n, "QString", utf16, ctx);
+    delete [] utf16.data;
+    if (errorCode) {
+        *errorMessage = msgAssignStringFailed(value, errorCode);
+        return false;
+    }
+    return true;
+}
+
+// QByteArray assignment
+static inline bool assignQByteArray(SymbolGroupNode  *n,
+                                    int valueEncoding, const std::string &value,
+                                    const SymbolGroupValueContext &ctx,
+                                    std::string *errorMessage)
+{
+    const AssignmentStringData data = AssignmentStringData::decodeString(value, valueEncoding, false);
+    const int errorCode = assignQStringI(n, "QByteArray", data, ctx);
+    delete [] data.data;
+    if (errorCode) {
+        *errorMessage = msgAssignStringFailed(value, errorCode);
+        return false;
+    }
+    return true;
+}
+
+// Helper to assign character data to std::string or std::wstring.
+static inline int assignStdStringI(SymbolGroupNode  *n, int type,
+                                   const AssignmentStringData &data,
+                                   const SymbolGroupValueContext &ctx)
+{
+    /* We do not reallocate and just write to the allocated buffer
+     * (internal small buffer or _Ptr depending on reserved) provided sufficient
+     * memory is there since it is apparently not possible to call the template
+     * function std::string::resize().
+     * See the dumpStd_W_String() how to figure out if the internal buffer
+     * or an allocated array is used. */
+
+    const SymbolGroupValue v(n, ctx);
+    SymbolGroupValue bx = v[unsigned(0)]["_Bx"];
+    SymbolGroupValue size;
+    int reserved = 0;
+    if (bx) { // MSVC2010
+        size = v[unsigned(0)]["_Mysize"];
+        reserved = v[unsigned(0)]["_Myres"].intValue();
+    } else { // MSVC2008
+        bx = v["_Bx"];
+        size = v["_Mysize"];
+        reserved = v["_Myres"].intValue();
+    }
+    if (reserved < 0 || !size || !bx)
+        return 42;
+    if (reserved <= data.stringLength)
+        return 1; // Insufficient memory.
+    // Copy data: 'Buf' array for small strings, else pointer 'Ptr'.
+    const int bufSize = type == KT_StdString ? 16 : 8; // see basic_string.
+    const ULONG64 address = (bufSize <= reserved) ?
+                            bx["_Ptr"].pointerValue() : bx["_Buf"].address();
+    if (!address)
+        return 3;
+    if (!SymbolGroupValue::writeMemory(v.context().dataspaces,
+                                       address, data.data, ULONG(data.dataLength)))
+        return 7;
+    // Correct size
+    if (!size.node()->assign(toString(data.stringLength)))
+        return 13;
+    return 0;
+}
+
+// assignment of std::string assign via ASCII, std::wstring via UTF16
+static inline bool assignStdString(SymbolGroupNode  *n,
+                                   int type, int valueEncoding, const std::string &value,
+                                   const SymbolGroupValueContext &ctx,
+                                   std::string *errorMessage)
+{
+    const bool toUtf16 = type == KT_StdWString;
+    const AssignmentStringData data = AssignmentStringData::decodeString(value, valueEncoding,
+                                                                         toUtf16);
+    const int errorCode = assignStdStringI(n, type, data, ctx);
+    delete [] data.data;
+    if (errorCode) {
+        *errorMessage = msgAssignStringFailed(value, errorCode);
+        return false;
+    }
+    return true;
+}
+
+bool assignType(SymbolGroupNode  *n, int valueEncoding, const std::string &value,
+                const SymbolGroupValueContext &ctx, std::string *errorMessage)
+{
+    switch (n->dumperType()) {
+    case KT_QString:
+        return assignQString(n, valueEncoding, value, ctx, errorMessage);
+    case KT_QByteArray:
+        return assignQByteArray(n, valueEncoding, value, ctx, errorMessage);
+    case KT_StdString:
+    case KT_StdWString:
+        return assignStdString(n, n->dumperType(), valueEncoding, value, ctx, errorMessage);
+    default:
+        break;
+    }
+    return false;
 }
 
 std::vector<AbstractSymbolGroupNode *>

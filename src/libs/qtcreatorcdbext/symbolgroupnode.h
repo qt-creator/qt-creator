@@ -227,6 +227,9 @@ public:
 
     std::wstring symbolGroupRawValue() const;
     std::wstring symbolGroupFixedValue() const;
+
+    bool assign(const std::string &value, std::string *errorMessage = 0);
+
     // A quick check if symbol is valid by checking for inaccessible value
     bool isMemoryAccessible() const;
 
@@ -253,6 +256,10 @@ public:
 
     // Remove self off parent and return the indexes to be shifted or unsigned(-1).
     bool removeSelf(SymbolGroupNode *root, std::string *errorMessage);
+
+    static std::string msgAssignError(const std::string &nodeName,
+                                      const std::string &value,
+                                      const std::string &why);
 
 private:
     const SymbolGroupNode *symbolGroupNodeParent() const;

@@ -441,35 +441,26 @@ void SymbolGroup::markUninitialized(const std::vector<std::string> &uniniNodes)
     }
 }
 
-static inline std::string msgAssignError(const std::string &nodeName,
-                                         const std::string &value,
-                                         const std::string &why)
-{
-    std::ostringstream str;
-    str << "Unable to assign '" << value << "' to '" << nodeName << "': " << why;
-    return str.str();
-}
-
-bool SymbolGroup::assign(const std::string &nodeName, const std::string &value,
+bool SymbolGroup::assign(const std::string &nodeName,
+                         int valueEncoding,
+                         const std::string &value,
+                         const SymbolGroupValueContext &ctx,
                          std::string *errorMessage)
 {
     AbstractSymbolGroupNode *aNode = find(nodeName);
     if (aNode == 0) {
-        *errorMessage = msgAssignError(nodeName, value, "No such node");
+        *errorMessage = SymbolGroupNode::msgAssignError(nodeName, value, "No such node");
         return false;
     }
     SymbolGroupNode *node = aNode->resolveReference()->asSymbolGroupNode();
     if (node == 0) {
-        *errorMessage = msgAssignError(nodeName, value, "Invalid node type");
+        *errorMessage = SymbolGroupNode::msgAssignError(nodeName, value, "Invalid node type");
         return false;
     }
 
-    const HRESULT hr = m_symbolGroup->WriteSymbol(node->index(), const_cast<char *>(value.c_str()));
-    if (FAILED(hr)) {
-        *errorMessage = msgAssignError(nodeName, value, msgDebugEngineComFailed("WriteSymbol", hr));
-        return false;
-    }
-    return true;
+    return (node->dumperType() & KT_Editable) ? // Edit complex types
+        assignType(node, valueEncoding, value, ctx, errorMessage) :
+        node->assign(value, errorMessage);
 }
 
 bool SymbolGroup::accept(SymbolGroupNodeVisitor &visitor) const

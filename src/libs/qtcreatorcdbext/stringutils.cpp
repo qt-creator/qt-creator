@@ -222,6 +222,15 @@ std::string stringFromHex(const char *p, const char *end)
     return rc;
 }
 
+void decodeHex(const char *p, const char *end, unsigned char *target)
+{
+    for ( ; p < end; p++) {
+        unsigned c = 16 * hexDigit(*p);
+        c += hexDigit(*++p);
+        *target++ = c;
+    }
+}
+
 std::wstring dataToHexW(const unsigned char *p, const unsigned char *end)
 {
     if (p == end)

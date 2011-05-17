@@ -46,6 +46,7 @@ enum KnownType
     KT_ContainerType = 0x200000,
     KT_HasSimpleDumper = 0x400000,
     KT_HasComplexDumper = 0x800000, // Non-container complex dumper
+    KT_Editable = 0x1000000, // Editable complex type
     // Types: PODs
     KT_Char = KT_POD_Type + 1,
     KT_UnsignedChar = KT_POD_Type + 2,
@@ -56,8 +57,8 @@ enum KnownType
     KT_PointerType = KT_POD_Type + 7,     // pointer to class or complex type
     // Types: Qt Basic
     KT_QChar = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 1,
-    KT_QByteArray = KT_Qt_Type + KT_Qt_MovableType + KT_HasComplexDumper + KT_HasSimpleDumper + 2,
-    KT_QString = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 3,
+    KT_QByteArray = KT_Qt_Type + KT_Editable + KT_Qt_MovableType + KT_HasComplexDumper + KT_HasSimpleDumper + 2,
+    KT_QString = KT_Qt_Type + KT_Editable + KT_Qt_MovableType + KT_HasSimpleDumper + 3,
     KT_QColor = KT_Qt_Type + KT_HasSimpleDumper + 4,
     KT_QFlags = KT_Qt_Type + KT_HasSimpleDumper + 5,
     KT_QDate = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 6,
@@ -163,8 +164,8 @@ enum KnownType
     KT_QMap = KT_Qt_Type + KT_ContainerType + KT_HasSimpleDumper + 10,
     KT_QMultiMap = KT_Qt_Type + KT_ContainerType + KT_HasSimpleDumper + 11,
     // Types: STL
-    KT_StdString = KT_STL_Type + KT_HasSimpleDumper + 1,
-    KT_StdWString = KT_STL_Type + KT_HasSimpleDumper + 2,
+    KT_StdString = KT_STL_Type + KT_Editable + KT_HasSimpleDumper + 1,
+    KT_StdWString = KT_STL_Type + KT_Editable + KT_HasSimpleDumper + 2,
     // Types: STL containers
     KT_StdVector =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 1,
     KT_StdList =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 2,

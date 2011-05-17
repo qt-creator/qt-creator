@@ -143,6 +143,10 @@ public:
                              ULONG64 address, double defaultValue = 0.0,
                              std::string *errorMessage = 0);
 
+    static bool writeMemory(CIDebugDataSpaces *ds, ULONG64 address,
+                            const unsigned char *data, ULONG length,
+                            std::string *errorMessage = 0);
+
     static unsigned pointerSize();
     static unsigned intSize();
 
@@ -223,6 +227,17 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
                         int *knownType = 0,
                         int *containerSizeIn = 0,
                         void **specialInfoIn = 0);
+
+enum AssignEncoding
+{
+    AssignPlainValue,
+    AssignHexEncoded,
+    AssignHexEncodedUtf16
+};
+
+bool assignType(SymbolGroupNode  *n, int valueEncoding, const std::string &value,
+                const SymbolGroupValueContext &ctx,
+                std::string *errorMessage);
 
 // Non-container complex dumpers (QObjects/QVariants).
 std::vector<AbstractSymbolGroupNode *>

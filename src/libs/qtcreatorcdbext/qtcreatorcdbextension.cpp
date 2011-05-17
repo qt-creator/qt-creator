@@ -157,7 +157,10 @@ static const CommandDescription commandDescriptions[] = {
 {"addsymbol","Adds a symbol to symbol group (testing command).",
  "[-t token] <frame-number> <name-expression> [optional-iname]"},
 {"assign","Assigns a value to a variable in current symbol group.",
- "[-t token] <iname=value>"},
+ "[-t token] [-h] <iname=value>\n"
+ "-h    Data are hex-encoded, binary data\n"
+ "-u    Data are hex-encoded, UTF16 data"
+},
 {"threads","Lists threads in GDBMI format.","[-t token]"},
 {"registers","Lists registers in GDBMI format","[-t token]"},
 {"modules","Lists modules in GDBMI format.","[-t token]"},
@@ -775,12 +778,30 @@ extern "C" HRESULT CALLBACK assign(CIDebugClient *client, PCSTR argsIn)
 
     std::string errorMessage;
     bool success = false;
-
+    AssignEncoding enc = AssignPlainValue;
     int token = 0;
     do {
-        const StringList tokens = commandTokens<StringList>(argsIn, &token);
+        StringList tokens = commandTokens<StringList>(argsIn, &token);
+        if (tokens.empty()) {
+            errorMessage = singleLineUsage(commandDescriptions[CmdAssign]);
+            break;
+        }
+
+        if (tokens.front() == "-h") {
+            enc = AssignHexEncoded;
+            tokens.pop_front();
+        } else if (tokens.front() == "-u") {
+            enc = AssignHexEncodedUtf16;
+            tokens.pop_front();
+        }
+
+        if (tokens.empty()) {
+            errorMessage = singleLineUsage(commandDescriptions[CmdAssign]);
+            break;
+        }
+
         // Parse 'assign locals.x=5'
-        const std::string::size_type equalsPos = tokens.size() == 1 ? tokens.front().find('=') : std::string::npos;
+        const std::string::size_type equalsPos = tokens.front().find('=');
         if (equalsPos == std::string::npos) {
             errorMessage = singleLineUsage(commandDescriptions[CmdAssign]);
             break;
@@ -796,7 +817,9 @@ extern "C" HRESULT CALLBACK assign(CIDebugClient *client, PCSTR argsIn)
         SymbolGroup *symGroup = ExtensionContext::instance().symbolGroup(exc.symbols(), exc.threadId(), currentFrame, &errorMessage);
         if (!symGroup)
             break;
-        success = symGroup->assign(iname, value, &errorMessage);
+        success = symGroup->assign(iname, enc, value,
+                                   SymbolGroupValueContext(exc.dataSpaces(), exc.symbols()),
+                                   &errorMessage);
     } while (false);
 
     if (success) {
