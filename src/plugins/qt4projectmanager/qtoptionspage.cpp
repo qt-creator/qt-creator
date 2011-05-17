@@ -667,11 +667,6 @@ void QtOptionsPageWidget::userChangedCurrentVersion()
 
 void QtOptionsPageWidget::qtVersionChanged()
 {
-    QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
-    if (item) {
-        BaseQtVersion *version = currentVersion();
-        item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
-    }
     updateDescriptionLabel();
     updateDebuggingHelperUi();
 }
@@ -686,6 +681,9 @@ void QtOptionsPageWidget::updateDescriptionLabel()
                                                                          version->description()));
     else
         m_versionUi->errorLabel->setText(version->invalidReason());
+    QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
+    if (item)
+        item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
 }
 
 int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const
@@ -777,6 +775,8 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
         return;
     int count = m_versions.count();
     QString name = m_versions.at(index)->displayName();
+    if (name.isEmpty())
+        return;
     for (int i = 0; i < count; ++i) {
         if (i != index) {
             if (m_versions.at(i)->displayName() == m_versions.at(index)->displayName()) {
