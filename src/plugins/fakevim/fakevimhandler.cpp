@@ -505,6 +505,9 @@ void Inputs::parseFrom(const QString &str)
             } else if (c1 == 'C' && c2 == 'R' && c3 == '>') {
                 append(Input(Key_Return, Qt::NoModifier, QString(QChar(13))));
                 i += 3;
+            } else if (c1 == 'E' && c2 == 's' && c3 == 'c' && c4 == '>') {
+                append(Input(Key_Escape, Qt::NoModifier, QString(QChar(27))));
+                i += 4;
             } else {
                 append(Input(QLatin1Char(c0)));
             }
