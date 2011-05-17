@@ -441,7 +441,7 @@ static inline QVariant editValue(const WatchData &d)
         break;
     }
     // Replace newlines, which will cause line edit troubles.
-    QString stringValue;
+    QString stringValue = d.value;
     stringValue.replace(QLatin1String("\n"), QLatin1String("\\n"));
     return QVariant(stringValue);
 }
