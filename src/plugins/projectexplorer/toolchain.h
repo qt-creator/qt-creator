@@ -34,6 +34,7 @@
 #define TOOLCHAIN_H
 
 #include "projectexplorer_export.h"
+#include "headerpath.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QString>

@@ -90,6 +90,8 @@ protected:
 
     void updateId();
 
+    virtual QList<Abi> detectSupportedAbis() const;
+
     mutable QByteArray m_predefinedMacros;
 
 private:

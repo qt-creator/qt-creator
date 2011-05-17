@@ -34,7 +34,6 @@
 #include "gcctoolchainfactories.h"
 #include "gccparser.h"
 #include "linuxiccparser.h"
-#include "headerpath.h"
 #include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
 
@@ -472,11 +471,15 @@ ToolChainConfigWidget *GccToolChain::configurationWidget()
 
 void GccToolChain::updateSupportedAbis() const
 {
-    if (m_supportedAbis.isEmpty()) {
-        Utils::Environment env = Utils::Environment::systemEnvironment();
-        addToEnvironment(env);
-        m_supportedAbis = guessGccAbi(m_compilerPath, env.toStringList());
-    }
+    if (m_supportedAbis.isEmpty())
+        m_supportedAbis = detectSupportedAbis();
+}
+
+QList<Abi> GccToolChain::detectSupportedAbis() const
+{
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    addToEnvironment(env);
+    return guessGccAbi(m_compilerPath, env.toStringList());
 }
 
 // --------------------------------------------------------------------------
