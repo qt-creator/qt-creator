@@ -57,7 +57,8 @@
     \if defined(qcmanual)
     \l{Using On-device Debugging Agents}.
     \else
-    \e \l{http://doc.qt.nokia.com/qtcreator-latest/creator-developing-symbian.html}{Using On-device Debugging Agents}.
+    \l{http://doc.qt.nokia.com/qtcreator/creator-developing-symbian.html#using-on-device-debugging-agents}
+    {Using On-device Debugging Agents}.
     \endif
 
 
