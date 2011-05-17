@@ -3913,7 +3913,7 @@ void GdbEngine::insertData(const WatchData &data0)
 void GdbEngine::assignValueInDebugger(const WatchData *data,
     const QString &expression, const QVariant &value)
 {
-    if (hasPython()) {
+    if (hasPython() && !isIntOrFloatType(data->type)) {
         QByteArray cmd = "bbedit "
             + data->type.toHex() + ','
             + expression.toUtf8().toHex() + ','

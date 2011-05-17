@@ -146,15 +146,29 @@ private:
 
 // Watch model query helpers.
 static inline quint64 addressOf(const QModelIndex &m)
-    { return m.data(LocalsAddressRole).toULongLong(); }
+{
+    return m.data(LocalsAddressRole).toULongLong();
+}
+
 static inline quint64 pointerValueOf(const QModelIndex &m)
-    { return m.data(LocalsPointerValueRole).toULongLong(); }
+{
+    return m.data(LocalsPointerValueRole).toULongLong();
+}
+
 static inline QString nameOf(const QModelIndex &m)
-    { return m.data().toString(); }
+{
+    return m.data().toString();
+}
+
 static inline QString typeOf(const QModelIndex &m)
-    { return m.data(LocalsTypeRole).toString(); }
+{
+    return m.data(LocalsTypeRole).toString();
+}
+
 static inline uint sizeOf(const QModelIndex &m)
-    { return m.data(LocalsSizeRole).toUInt(); }
+{
+    return m.data(LocalsSizeRole).toUInt();
+}
 
 // Create a map of value->name for register markup
 typedef QMap<quint64, QString> RegisterMap;

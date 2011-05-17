@@ -2590,6 +2590,8 @@ void testEigen()
 #if USE_EIGEN
     using namespace Eigen;
 
+    Vector3d test = Vector3d::Zero();
+
     Matrix3d myMatrix = Matrix3d::Constant(5);
     MatrixXd myDynamicMatrix(30, 10);
 
@@ -2597,11 +2599,11 @@ void testEigen()
     myDynamicMatrix(1, 0) = 1;
     myDynamicMatrix(2, 0) = 2;
 
-    Matrix<double, 2, 1, RowMajor> rowMajorMatrix1;
-    rowMajorMatrix1 << 34, 44;
+    Matrix<double, 2, 3, ColMajor> colMajorMatrix;
+    colMajorMatrix << 0, 1, 2, 3, 4, 5;
 
-    Matrix<double, 2, 2, RowMajor> rowMajorMatrix;
-    rowMajorMatrix << 0, 1, 2, 3;
+    Matrix<double, 2, 3, RowMajor> rowMajorMatrix;
+    rowMajorMatrix << 0, 1, 2, 3, 4, 5;
 
     int i = 0;
     ++i;

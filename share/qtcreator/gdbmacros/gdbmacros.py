@@ -2301,6 +2301,9 @@ def qdump__QScriptValue(d, item):
 #
 #######################################################################
 
+#def qform__Eigen__Matrix():
+#    return "Transposed"
+
 def qdump__Eigen__Matrix(d, item):
     innerType = templateArgument(item.value.type, 0)
     storage = item.value["m_storage"]
@@ -2318,18 +2321,15 @@ def qdump__Eigen__Matrix(d, item):
     d.putField("keeporder", "1")
     d.putNumChild(nrows * ncols)
 
-    limit = 100
+    limit = 10000
     nncols = min(ncols, limit)
     nnrows = min(nrows, limit * limit / nncols)
     if d.isExpanded(item):
+        #format = d.itemFormat(item) # format == 1 is "Transposed"
         iname = item.iname
         with Children(d, nrows * ncols, innerType):
-            if ncols == 1:
-                for i in range(0, nnrows):
-                    v = (p + i).dereference()
-                    d.putSubItem(Item(v, item.iname))
-            elif nrows == 1:
-                for i in range(0, nncols):
+            if ncols == 1 or nrows == 1:
+                for i in range(0, min(nrows * ncols, 10000)):
                     v = (p + i).dereference()
                     d.putSubItem(Item(v, item.iname))
             elif rowMajor == 1:
@@ -2342,7 +2342,7 @@ def qdump__Eigen__Matrix(d, item):
                 for j in range(0, nncols):
                     for i in range(0, nnrows):
                         name = "[%d,%d]" % (i, j)
-                        v = (p + i * ncols + j).dereference()
+                        v = (p + i + j * nrows).dereference()
                         d.putSubItem(Item(v, item.iname, None, name))
 
 
