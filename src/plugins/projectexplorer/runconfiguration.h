@@ -109,8 +109,14 @@ protected:
 private:
     void addExtraAspects();
 
+    enum QmlDebuggerStatus {
+        DisableQmlDebugger = 0,
+        EnableQmlDebugger,
+        AutoEnableQmlDebugger
+    };
+
     bool m_useCppDebugger;
-    bool m_useQmlDebugger;
+    mutable QmlDebuggerStatus m_useQmlDebugger;
     uint m_qmlDebugServerPort;
     QList<IRunConfigurationAspect *> m_aspects;
 };

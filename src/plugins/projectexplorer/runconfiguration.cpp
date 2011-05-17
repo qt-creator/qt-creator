@@ -61,6 +61,7 @@ namespace {
 
 const char * const USE_CPP_DEBUGGER_KEY("RunConfiguration.UseCppDebugger");
 const char * const USE_QML_DEBUGGER_KEY("RunConfiguration.UseQmlDebugger");
+const char * const USE_QML_DEBUGGER_AUTO_KEY("RunConfiguration.UseQmlDebuggerAuto");
 const char * const QML_DEBUG_SERVER_PORT_KEY("RunConfiguration.QmlDebugServerPort");
 
 class RunConfigurationFactoryMatcher
@@ -166,7 +167,7 @@ IRunConfigurationFactory *findRunConfigurationFactory(RunConfigurationFactoryMat
 RunConfiguration::RunConfiguration(Target *target, const QString &id) :
     ProjectConfiguration(target, id),
     m_useCppDebugger(true),
-    m_useQmlDebugger(false),
+    m_useQmlDebugger(AutoEnableQmlDebugger),
     m_qmlDebugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT)
 {
     Q_ASSERT(target);
@@ -175,8 +176,9 @@ RunConfiguration::RunConfiguration(Target *target, const QString &id) :
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
     ProjectConfiguration(target, source),
-    m_useCppDebugger(source->useCppDebugger()),
-    m_useQmlDebugger(source->useQmlDebugger())
+    m_useCppDebugger(source->m_useCppDebugger),
+    m_useQmlDebugger(source->m_useQmlDebugger),
+    m_qmlDebugServerPort(source->m_qmlDebugServerPort)
 {
     Q_ASSERT(target);
     addExtraAspects();
@@ -238,7 +240,11 @@ Target *RunConfiguration::target() const
 
 void RunConfiguration::setUseQmlDebugger(bool value)
 {
-    m_useQmlDebugger = value;
+    if (value) {
+        m_useQmlDebugger = EnableQmlDebugger;
+    } else {
+        m_useQmlDebugger = DisableQmlDebugger;
+    }
     emit debuggersChanged();
 }
 
@@ -253,9 +259,24 @@ bool RunConfiguration::useCppDebugger() const
     return m_useCppDebugger;
 }
 
+static bool isQtQuickAppProject(Project *project)
+{
+    const QString &filePath = project->projectDirectory()
+            +QLatin1String("/qmlapplicationviewer/qmlapplicationviewer.pri");
+    return project->files(Project::ExcludeGeneratedFiles).contains(filePath);
+}
+
 bool RunConfiguration::useQmlDebugger() const
 {
-    return m_useQmlDebugger;
+    if (m_useQmlDebugger == AutoEnableQmlDebugger) {
+        if (isQtQuickAppProject(target()->project())) {
+            m_useQmlDebugger = EnableQmlDebugger;
+        } else {
+            m_useQmlDebugger = DisableQmlDebugger;
+        }
+    }
+
+    return (m_useQmlDebugger == EnableQmlDebugger);
 }
 
 uint RunConfiguration::qmlDebugServerPort() const
@@ -273,7 +294,8 @@ QVariantMap RunConfiguration::toMap() const
 {
     QVariantMap map = ProjectConfiguration::toMap();
     map.insert(QLatin1String(USE_CPP_DEBUGGER_KEY), m_useCppDebugger);
-    map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger);
+    map.insert(QLatin1String(USE_QML_DEBUGGER_KEY), m_useQmlDebugger == EnableQmlDebugger);
+    map.insert(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), m_useQmlDebugger == AutoEnableQmlDebugger);
     map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), m_qmlDebugServerPort);
     foreach (IRunConfigurationAspect *aspect, m_aspects)
         map.unite(aspect->toMap());
@@ -295,8 +317,15 @@ ProjectExplorer::Abi RunConfiguration::abi() const
 bool RunConfiguration::fromMap(const QVariantMap &map)
 {
     m_useCppDebugger = map.value(QLatin1String(USE_CPP_DEBUGGER_KEY), true).toBool();
-    m_useQmlDebugger = map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool();
-    m_qmlDebugServerPort = map.value(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), Constants::QML_DEFAULT_DEBUG_SERVER_PORT).toUInt();
+    if (map.value(QLatin1String(USE_QML_DEBUGGER_AUTO_KEY), false).toBool()) {
+        m_useQmlDebugger = AutoEnableQmlDebugger;
+    } else {
+        if (map.value(QLatin1String(USE_QML_DEBUGGER_KEY), false).toBool()) {
+            m_useQmlDebugger = EnableQmlDebugger;
+        } else {
+            m_useQmlDebugger = DisableQmlDebugger;
+        }
+    }
 
     foreach (IRunConfigurationAspect *aspect, m_aspects)
         if (!aspect->fromMap(map))
