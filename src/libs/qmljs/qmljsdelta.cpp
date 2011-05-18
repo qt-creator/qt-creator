@@ -350,8 +350,9 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
     if (!member || !parentMember)
         return;
 
-    unsigned begin, end, startColumn, startLine;
     bool accepted = false;
+    // initialized with garbage
+    unsigned begin = 1, end = 2, startColumn = 3, startLine = 4;
 
     // create new objects
     if (UiObjectDefinition* uiObjectDef = cast<UiObjectDefinition *>(member)) {
