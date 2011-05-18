@@ -748,8 +748,22 @@ bool CppCompletionAssistProcessor::accepts() const
                     const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
                     const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 
-                    if (!tk.isComment() && !tk.isLiteral())
+                    if (!tk.isComment() && !tk.isLiteral()) {
                         return true;
+                    } else if (tk.isLiteral()
+                               && tokens.size() == 3
+                               && tokens.at(0).kind() == T_POUND
+                               && tokens.at(1).kind() == T_IDENTIFIER) {
+                        const QString &line = tc.block().text();
+                        const Token &idToken = tokens.at(1);
+                        const QStringRef &identifier =
+                                line.midRef(idToken.begin(), idToken.end() - idToken.begin());
+                        if (identifier == QLatin1String("include")
+                                || identifier == QLatin1String("include_next")
+                                || (m_objcEnabled && identifier == QLatin1String("import"))) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
