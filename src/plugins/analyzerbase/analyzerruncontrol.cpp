@@ -53,7 +53,8 @@ using namespace Analyzer::Internal;
 
 // AnalyzerRunControl::Private ///////////////////////////////////////////
 
-class AnalyzerRunControl::Private {
+class AnalyzerRunControl::Private
+{
 public:
     Private();
 
@@ -62,11 +63,8 @@ public:
 };
 
 AnalyzerRunControl::Private::Private()
-: m_isRunning(false)
-, m_engine(0)
-{
-
-}
+   : m_isRunning(false) , m_engine(0)
+{}
 
 
 // AnalyzerRunControl ////////////////////////////////////////////////////

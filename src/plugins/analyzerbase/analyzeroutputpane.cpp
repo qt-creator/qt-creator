@@ -139,7 +139,7 @@ void AnalyzerOutputPane::setCurrentIndex(int i)
     }
 }
 
-void AnalyzerOutputPane::add(IAnalyzerOutputPaneAdapter *adapter)
+void AnalyzerOutputPane::addAdapter(IAnalyzerOutputPaneAdapter *adapter)
 {
     if (m_adapters.isEmpty())
         m_adapters.push_back(0); // Index for leading dummy widgets.
@@ -153,25 +153,26 @@ void AnalyzerOutputPane::add(IAnalyzerOutputPaneAdapter *adapter)
 void AnalyzerOutputPane::addToWidgets(IAnalyzerOutputPaneAdapter *adapter)
 {
     QTC_ASSERT(m_paneWidget, return; )
-    QWidget *toolPaneWidget =  adapter->paneWidget();
+    QWidget *toolPaneWidget = adapter->paneWidget();
     QTC_ASSERT(toolPaneWidget, return; )
     m_paneStackedLayout->addWidget(toolPaneWidget);
     QWidget *toolBarWidget = adapter->toolBarWidget(); // Might be 0
     m_toolbarStackedWidget->addWidget(toolBarWidget ? toolBarWidget : AnalyzerUtils::createDummyWidget());
 }
 
-void AnalyzerOutputPane::setTool(IAnalyzerTool *t)
+void AnalyzerOutputPane::setTool(IAnalyzerTool *tool)
 {
     if (debug)
-        qDebug() << "AnalyzerOutputPane::setTool" << t;
+        qDebug() << "AnalyzerOutputPane::setTool" << tool;
     // No tool. show dummy label.
-    IAnalyzerOutputPaneAdapter *adapter = t ? t->outputPaneAdapter() :
-                                              static_cast<IAnalyzerOutputPaneAdapter *>(0);
+    IAnalyzerOutputPaneAdapter *adapter = 0;
+    if (tool)
+        adapter = tool->outputPaneAdapter();
     // Re-show or add.
     if (adapter) {
         int index = m_adapters.indexOf(adapter);
         if (index == -1) {
-            add(adapter);
+            addAdapter(adapter);
             index = m_adapters.size();
         }
         setCurrentIndex(index);
@@ -182,7 +183,7 @@ void AnalyzerOutputPane::setTool(IAnalyzerTool *t)
     }
 }
 
-QWidget * AnalyzerOutputPane::outputWidget(QWidget *parent)
+QWidget *AnalyzerOutputPane::outputWidget(QWidget *parent)
 {
     if (debug)
         qDebug() << "AnalyzerOutputPane::outputWidget";

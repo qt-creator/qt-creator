@@ -709,7 +709,6 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
 {
     d->delayedInit(); // be sure that there is a valid IMode instance
 
-    Internal::AnalyzerPlugin *plugin = Internal::AnalyzerPlugin::instance();
     QAction *action = new QAction(tool->displayName(), d->m_toolGroup);
     action->setData(d->m_tools.count());
     action->setCheckable(true);
@@ -736,8 +735,7 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
 
     d->m_toolBox->setEnabled(d->m_toolBox->count() > 1);
 
-    tool->initialize(plugin);
-
+    tool->initialize();
 }
 
 QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QString &title,

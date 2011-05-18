@@ -50,7 +50,6 @@ class AbstractCallgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
 
 public:
     AbstractCallgrindSettings(QObject *parent = 0);
-    virtual ~AbstractCallgrindSettings();
 
     inline bool enableCacheSim() const { return m_enableCacheSim; }
     inline bool enableBranchSim() const { return m_enableBranchSim; }

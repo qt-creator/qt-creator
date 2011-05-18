@@ -57,11 +57,6 @@ AbstractCallgrindSettings::AbstractCallgrindSettings(QObject *parent)
 
 }
 
-AbstractCallgrindSettings::~AbstractCallgrindSettings()
-{
-
-}
-
 void AbstractCallgrindSettings::setEnableCacheSim(bool enable)
 {
     if (m_enableCacheSim == enable)

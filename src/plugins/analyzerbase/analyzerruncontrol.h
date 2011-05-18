@@ -44,7 +44,6 @@
 
 namespace Analyzer {
 
-class IAnalyzerEngine;
 class AnalyzerStartParameters;
 
 class ANALYZER_EXPORT AnalyzerRunControl: public ProjectExplorer::RunControl

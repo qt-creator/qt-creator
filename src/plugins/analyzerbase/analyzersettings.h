@@ -44,12 +44,10 @@
 
 namespace Analyzer {
 
-class AnalyzerSettings;
-
 /**
  * Utility function to set @p val if @p key is present in @p map.
  */
-template <typename T> static void setIfPresent(const QVariantMap &map, const QString &key, T *val)
+template <typename T> void setIfPresent(const QVariantMap &map, const QString &key, T *val)
 {
     if (!map.contains(key))
         return;
@@ -65,9 +63,9 @@ template <typename T> static void setIfPresent(const QVariantMap &map, const QSt
 class ANALYZER_EXPORT AbstractAnalyzerSubConfig : public QObject
 {
     Q_OBJECT
+
 public:
     AbstractAnalyzerSubConfig(QObject *parent);
-    virtual ~AbstractAnalyzerSubConfig();
 
     /// return a list of default values
     virtual QVariantMap defaults() const = 0;
@@ -91,8 +89,8 @@ public:
 class ANALYZER_EXPORT AbstractAnalyzerSubConfigFactory
 {
 public:
-    AbstractAnalyzerSubConfigFactory(){}
-    virtual ~AbstractAnalyzerSubConfigFactory(){}
+    AbstractAnalyzerSubConfigFactory() {}
+    virtual ~AbstractAnalyzerSubConfigFactory() {}
 
     virtual AbstractAnalyzerSubConfig *createGlobalSubConfig(QObject *parent) = 0;
     virtual AbstractAnalyzerSubConfig *createProjectSubConfig(QObject *parent) = 0;
@@ -113,8 +111,6 @@ template<class GlobalConfigT, class ProjectConfigT>
 class ANALYZER_EXPORT AnalyzerSubConfigFactory : public AbstractAnalyzerSubConfigFactory
 {
 public:
-    AnalyzerSubConfigFactory(){}
-
     AbstractAnalyzerSubConfig *createGlobalSubConfig(QObject *parent)
     {
         return new GlobalConfigT(parent);
@@ -134,9 +130,8 @@ public:
 class ANALYZER_EXPORT AnalyzerSettings : public QObject
 {
     Q_OBJECT
-public:
-    virtual ~AnalyzerSettings();
 
+public:
     template<class T>
     T *subConfig() const
     {
@@ -176,6 +171,7 @@ protected:
 class ANALYZER_EXPORT AnalyzerGlobalSettings : public AnalyzerSettings
 {
     Q_OBJECT
+
 public:
     static AnalyzerGlobalSettings *instance();
     ~AnalyzerGlobalSettings();
@@ -201,21 +197,21 @@ private:
  * rc->extraAspect<AnalyzerProjectSettings>()->subConfig<YourProjectConfig>()->...
  * @endcode
  */
-class ANALYZER_EXPORT AnalyzerProjectSettings : public AnalyzerSettings, public ProjectExplorer::IRunConfigurationAspect
+class ANALYZER_EXPORT AnalyzerProjectSettings
+    : public AnalyzerSettings, public ProjectExplorer::IRunConfigurationAspect
 {
     Q_OBJECT
+
 public:
     AnalyzerProjectSettings(QObject *parent = 0);
-    virtual ~AnalyzerProjectSettings();
 
     QString displayName() const;
-
     virtual QVariantMap toMap() const;
 
 protected:
     virtual bool fromMap(const QVariantMap &map);
 };
 
-}
+} // namespace Analyzer
 
 #endif // ANALYZER_INTERNAL_ANALYZERSETTINGS_H

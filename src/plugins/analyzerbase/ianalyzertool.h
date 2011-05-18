@@ -43,10 +43,6 @@ namespace ProjectExplorer {
 class RunConfiguration;
 }
 
-namespace ExtensionSystem {
-class IPlugin;
-}
-
 namespace Analyzer {
 
 class AnalyzerStartParameters;
@@ -93,7 +89,7 @@ public:
      * The implementation should setup widgets for the output pane here and optionally add
      * dock widgets in the analyzation mode if wanted.
      */
-    virtual void initialize(ExtensionSystem::IPlugin *plugin) = 0;
+    virtual void initialize() = 0;
     /// gets called after all analyzation tools where initialized.
     virtual void extensionsInitialized() = 0;
 

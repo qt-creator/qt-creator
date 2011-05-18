@@ -43,8 +43,7 @@ class CallgrindPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
-    CallgrindPlugin();
-    ~CallgrindPlugin();
+    CallgrindPlugin() {}
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();

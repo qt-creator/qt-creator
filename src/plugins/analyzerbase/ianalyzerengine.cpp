@@ -34,16 +34,12 @@
 
 #include "ianalyzerengine.h"
 
-using namespace Analyzer;
+namespace Analyzer {
 
 IAnalyzerEngine::IAnalyzerEngine(const AnalyzerStartParameters &sp,
                                  ProjectExplorer::RunConfiguration *runConfiguration)
     : m_runConfig(runConfiguration)
     , m_sp(sp)
-{
-}
-
-IAnalyzerEngine::~IAnalyzerEngine()
 {
 }
 
@@ -56,3 +52,5 @@ AnalyzerStartParameters IAnalyzerEngine::startParameters() const
 {
     return m_sp;
 }
+
+} // namespace Analyzer

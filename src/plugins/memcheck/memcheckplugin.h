@@ -45,8 +45,7 @@ class MemcheckPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
-    MemcheckPlugin();
-    ~MemcheckPlugin();
+    MemcheckPlugin() {}
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();

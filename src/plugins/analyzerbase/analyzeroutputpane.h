@@ -45,6 +45,7 @@ class StyledSeparator;
 namespace Analyzer {
 class IAnalyzerTool;
 class IAnalyzerOutputPaneAdapter;
+
 namespace Internal {
 
 class AnalyzerOutputPane : public Core::IOutputPane
@@ -53,7 +54,7 @@ class AnalyzerOutputPane : public Core::IOutputPane
 public:
     explicit AnalyzerOutputPane(QObject *parent = 0);
 
-    void setTool(IAnalyzerTool *t);
+    void setTool(IAnalyzerTool *tool);
     // IOutputPane
     virtual QWidget *outputWidget(QWidget *parent);
     virtual QList<QWidget *> toolBarWidgets() const;
@@ -79,10 +80,10 @@ private slots:
 
 private:
     void clearTool();
-    inline int currentIndex() const;
-    inline IAnalyzerOutputPaneAdapter *currentAdapter() const;
+    int currentIndex() const;
+    IAnalyzerOutputPaneAdapter *currentAdapter() const;
     void setCurrentIndex(int );
-    void add(IAnalyzerOutputPaneAdapter *adapter);
+    void addAdapter(IAnalyzerOutputPaneAdapter *adapter);
     void addToWidgets(IAnalyzerOutputPaneAdapter *adapter);
     void createWidgets(QWidget *paneParent);
     bool isInitialized() const { return m_paneWidget != 0; }

@@ -42,7 +42,7 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QModelIndex>
 
-using namespace Analyzer;
+namespace Analyzer {
 
 IAnalyzerTool::IAnalyzerTool(QObject *parent) :
     QObject(parent)
@@ -64,9 +64,6 @@ IAnalyzerOutputPaneAdapter::IAnalyzerOutputPaneAdapter(QObject *parent) :
 {
 }
 
-IAnalyzerOutputPaneAdapter::~IAnalyzerOutputPaneAdapter()
-{
-}
 
 /*!
     \class Analyzer::ListItemViewOutputPaneAdapter
@@ -185,3 +182,5 @@ int ListItemViewOutputPaneAdapter::rowCount() const
 {
     return m_listView ? m_listView->model()->rowCount() : 0;
 }
+
+} // namespace Analyzer

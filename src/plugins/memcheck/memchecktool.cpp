@@ -414,7 +414,7 @@ QWidget *MemcheckTool::createPaneToolBarWidget()
     return toolbarWidget;
 }
 
-void MemcheckTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
+void MemcheckTool::initialize()
 {
     ensurePaneErrorView();
     // register shortcuts

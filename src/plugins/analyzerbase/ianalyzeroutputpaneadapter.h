@@ -37,18 +37,20 @@
 
 #include <QtCore/QObject>
 
-QT_FORWARD_DECLARE_CLASS(QAbstractItemView)
-QT_FORWARD_DECLARE_CLASS(QAbstractItemModel)
-QT_FORWARD_DECLARE_CLASS(QWidget)
+QT_BEGIN_NAMESPACE
+class QAbstractItemView;
+class QAbstractItemModel;
+class QWidget;
+QT_END_NAMESPACE
 
 namespace Analyzer {
 
 class ANALYZER_EXPORT IAnalyzerOutputPaneAdapter : public QObject
 {
     Q_OBJECT
+
 public:
     explicit IAnalyzerOutputPaneAdapter(QObject *parent = 0);
-    virtual ~IAnalyzerOutputPaneAdapter();
 
     virtual QWidget *toolBarWidget() = 0;
     virtual QWidget *paneWidget() = 0;
@@ -70,6 +72,7 @@ signals:
 class ANALYZER_EXPORT ListItemViewOutputPaneAdapter : public IAnalyzerOutputPaneAdapter
 {
     Q_OBJECT
+
 public:
     explicit ListItemViewOutputPaneAdapter(QObject *parent = 0);
 
@@ -101,6 +104,6 @@ private:
     bool m_showOnRowsInserted;
 };
 
-}
+} // namespace Analyzer
 
 #endif // IANALYZEROUTPUTPANEADAPTER_H

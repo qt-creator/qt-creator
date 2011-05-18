@@ -82,8 +82,6 @@
 // shared/cplusplus includes
 #include <Symbols.h>
 
-using namespace Callgrind;
-
 using namespace Analyzer;
 using namespace Core;
 using namespace Valgrind::Callgrind;
@@ -136,7 +134,7 @@ IAnalyzerTool::ToolMode CallgrindTool::mode() const
     return ReleaseMode;
 }
 
-void CallgrindTool::initialize(ExtensionSystem::IPlugin */*plugin*/)
+void CallgrindTool::initialize()
 {
     AnalyzerManager *am = AnalyzerManager::instance();
 
@@ -491,5 +489,5 @@ bool CallgrindTool::canRunRemotely() const
     return true;
 }
 
-}
-}
+} // namespace Internal
+} // namespace Callgrind

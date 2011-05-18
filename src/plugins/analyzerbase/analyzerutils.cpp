@@ -56,7 +56,8 @@
 using namespace Analyzer;
 using namespace Core;
 
-void moveCursorToEndOfName(QTextCursor *tc) {
+static void moveCursorToEndOfName(QTextCursor *tc)
+{
     QTextDocument *doc = tc->document();
     if (!doc)
         return;

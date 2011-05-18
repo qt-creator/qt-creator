@@ -41,8 +41,8 @@
 namespace Analyzer {
 
 StartRemoteDialog::StartRemoteDialog(QWidget *parent, Qt::WindowFlags f)
-: QDialog(parent, f)
-, m_ui(new Ui::StartRemoteDialog)
+    : QDialog(parent, f)
+    , m_ui(new Ui::StartRemoteDialog)
 {
     m_ui->setupUi(this);
 
@@ -144,4 +144,4 @@ QString StartRemoteDialog::workingDirectory() const
     return m_ui->workingDirectory->text();
 }
 
-}
+} // namespace Analyzer

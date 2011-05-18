@@ -95,7 +95,7 @@ public:
     QString displayName() const;
     ToolMode mode() const;
 
-    void initialize(ExtensionSystem::IPlugin *plugin);
+    void initialize();
     virtual void extensionsInitialized() {}
 
     virtual Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();

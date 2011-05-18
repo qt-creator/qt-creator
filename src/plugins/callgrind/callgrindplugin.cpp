@@ -41,18 +41,9 @@
 #include <QtCore/QtPlugin>
 
 using namespace Analyzer;
-using namespace Callgrind;
-using namespace Callgrind::Internal;
 
-CallgrindPlugin::CallgrindPlugin()
-{
-
-}
-
-CallgrindPlugin::~CallgrindPlugin()
-{
-
-}
+namespace Callgrind {
+namespace Internal {
 
 bool CallgrindPlugin::initialize(const QStringList &/*arguments*/, QString */*errorString*/)
 {
@@ -66,7 +57,9 @@ bool CallgrindPlugin::initialize(const QStringList &/*arguments*/, QString */*er
 
 void CallgrindPlugin::extensionsInitialized()
 {
-
 }
 
-Q_EXPORT_PLUGIN(CallgrindPlugin)
+} // namespace Internal
+} // namespace Callgrind
+
+Q_EXPORT_PLUGIN(Callgrind::Internal::CallgrindPlugin)

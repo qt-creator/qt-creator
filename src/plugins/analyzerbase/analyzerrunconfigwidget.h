@@ -32,16 +32,11 @@
 **
 **************************************************************************/
 
-
 #ifndef ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H
 #define ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H
 
 #include <projectexplorer/runconfiguration.h>
 #include <analyzerbase/analyzerbase_global.h>
-
-QT_BEGIN_NAMESPACE
-class QStandardItemModel;
-QT_END_NAMESPACE
 
 namespace Utils {
 class DetailsWidget;
@@ -66,6 +61,6 @@ private:
     Utils::DetailsWidget *m_detailsWidget;
 };
 
-}
+} // namespace Analyzer
 
 #endif // ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H

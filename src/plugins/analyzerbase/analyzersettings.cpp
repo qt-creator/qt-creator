@@ -45,29 +45,21 @@
 
 #include <QtCore/QSettings>
 
-using namespace Analyzer;
 using namespace Analyzer::Internal;
 
 static const char groupC[] = "Analyzer";
 
+namespace Analyzer {
+
 AnalyzerGlobalSettings *AnalyzerGlobalSettings::m_instance = 0;
 
 AbstractAnalyzerSubConfig::AbstractAnalyzerSubConfig(QObject *parent)
-: QObject(parent)
-{
-
-}
-
-AbstractAnalyzerSubConfig::~AbstractAnalyzerSubConfig()
+    : QObject(parent)
 {
 }
 
 AnalyzerSettings::AnalyzerSettings(QObject *parent)
-: QObject(parent)
-{
-}
-
-AnalyzerSettings::~AnalyzerSettings()
+    : QObject(parent)
 {
 }
 
@@ -175,10 +167,6 @@ AnalyzerProjectSettings::AnalyzerProjectSettings(QObject *parent)
     fromMap(gs->toMap());
 }
 
-AnalyzerProjectSettings::~AnalyzerProjectSettings()
-{
-}
-
 QString AnalyzerProjectSettings::displayName() const
 {
     return tr("Analyzer Settings");
@@ -193,3 +181,5 @@ QVariantMap AnalyzerProjectSettings::toMap() const
 {
     return AnalyzerSettings::toMap();
 }
+
+} // namespace Analyzer

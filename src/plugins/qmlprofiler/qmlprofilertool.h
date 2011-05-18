@@ -51,7 +51,7 @@ public:
     QString displayName() const;
     ToolMode mode() const;
 
-    void initialize(ExtensionSystem::IPlugin *plugin);
+    void initialize();
     void extensionsInitialized();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,

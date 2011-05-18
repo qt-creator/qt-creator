@@ -38,32 +38,22 @@
 #include <QtCore/QVector>
 
 QT_BEGIN_NAMESPACE
-class QCheckBox;
 class QAction;
-class QComboBox;
-class QSortFilterProxyModel;
 class QMenu;
-class QModelIndex;
 QT_END_NAMESPACE
 
 namespace Valgrind {
 namespace Callgrind {
-class CostView;
-class DataModel;
-class DataProxyModel;
 class Function;
 class ParseData;
-class StackBrowser;
-class Visualisation;
 }
 }
 
-namespace TextEditor
-{
+namespace TextEditor {
 class ITextEditor;
 }
-namespace Core
-{
+
+namespace Core {
 class IEditor;
 }
 
@@ -87,7 +77,7 @@ public:
     virtual QString displayName() const;
     virtual ToolMode mode() const;
 
-    virtual void initialize(ExtensionSystem::IPlugin *plugin);
+    virtual void initialize();
     virtual void extensionsInitialized();
     virtual void initializeDockWidgets();
 

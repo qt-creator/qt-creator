@@ -48,16 +48,6 @@ using namespace Memcheck;
 
 using namespace Memcheck::Internal;
 
-MemcheckPlugin::MemcheckPlugin()
-{
-
-}
-
-MemcheckPlugin::~MemcheckPlugin()
-{
-
-}
-
 bool MemcheckPlugin::initialize(const QStringList &/*arguments*/, QString */*errorString*/)
 {
     typedef AnalyzerSubConfigFactory<MemcheckGlobalSettings, MemcheckProjectSettings> MemcheckConfigFactory;
@@ -70,7 +60,6 @@ bool MemcheckPlugin::initialize(const QStringList &/*arguments*/, QString */*err
 
 void MemcheckPlugin::extensionsInitialized()
 {
-
 }
 
 Q_EXPORT_PLUGIN(MemcheckPlugin)

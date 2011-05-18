@@ -39,8 +39,7 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
-namespace CPlusPlus
-{
+namespace CPlusPlus {
 class Symbol;
 }
 

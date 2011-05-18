@@ -196,7 +196,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     return engine;
 }
 
-void QmlProfilerTool::initialize(ExtensionSystem::IPlugin * /*plugin*/)
+void QmlProfilerTool::initialize()
 {
     qmlRegisterType<Canvas>("Monitor", 1, 0, "Canvas");
     qmlRegisterType<TiledCanvas>("Monitor", 1, 0, "TiledCanvas");
