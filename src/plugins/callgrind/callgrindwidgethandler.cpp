@@ -108,15 +108,6 @@ CallgrindWidgetHandler::CallgrindWidgetHandler(QWidget *parent)
     m_dataProxy->setSortCaseSensitivity(Qt::CaseInsensitive);
     m_dataProxy->setFilterKeyColumn(DataModel::NameColumn);
     m_dataProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-
-    m_flatView = new CostView(parent);
-    m_flatView->sortByColumn(DataModel::SelfCostColumn);
-    m_flatView->setFrameStyle(QFrame::NoFrame);
-    m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_flatView->setModel(m_dataProxy);
-    m_flatView->setObjectName("Valgrind.CallgrindWidgetHandler.FlatView");
-    connect(m_flatView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(dataFunctionSelected(QModelIndex)));
 }
 
 void CallgrindWidgetHandler::ensureDockWidgets()
@@ -154,6 +145,16 @@ void CallgrindWidgetHandler::ensureDockWidgets()
     m_calleesView->hideColumn(CallModel::CallerColumn);
     connect(m_calleesView, SIGNAL(activated(QModelIndex)),
             this, SLOT(calleeFunctionSelected(QModelIndex)));
+
+    m_flatView = new CostView(parenWidget);
+    m_flatView->sortByColumn(DataModel::SelfCostColumn);
+    m_flatView->setFrameStyle(QFrame::NoFrame);
+    m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_flatView->setModel(m_dataProxy);
+    m_flatView->setObjectName("Valgrind.CallgrindWidgetHandler.FlatView");
+    connect(m_flatView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(dataFunctionSelected(QModelIndex)));
+
     updateCostFormat();
 }
 

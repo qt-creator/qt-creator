@@ -91,14 +91,12 @@ public:
     virtual void extensionsInitialized();
     virtual void initializeDockWidgets();
 
-    virtual Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();
     virtual Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
                                           ProjectExplorer::RunConfiguration *runConfiguration = 0);
     virtual QWidget *createControlWidget();
 
     // For the output pane adapter.
     CallgrindWidgetHandler *callgrindWidgetHandler() const;
-    QWidget *createPaneToolBarWidget();
     void clearErrorView();
 
     virtual bool canRunRemotely() const;
@@ -143,8 +141,7 @@ private:
     QAction *m_pauseAction;
 
     QAction *m_showCostsOfFunctionAction;
-
-    CallgrindOutputPaneAdapter *m_outputPaneAdapter;
+    QWidget *m_toolbarWidget;
 
     QString m_toggleCollectFunction;
 };

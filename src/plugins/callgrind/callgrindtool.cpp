@@ -91,26 +91,6 @@ using namespace Valgrind::Callgrind;
 namespace Callgrind {
 namespace Internal {
 
-// Adapter for output pane.
-class CallgrindOutputPaneAdapter : public Analyzer::ListItemViewOutputPaneAdapter
-{
-public:
-    explicit CallgrindOutputPaneAdapter(CallgrindTool *mct) :
-        ListItemViewOutputPaneAdapter(mct), m_tool(mct) {}
-
-    virtual QWidget *toolBarWidget() { return m_tool->createPaneToolBarWidget(); }
-    virtual void clearContents() { m_tool->clearErrorView(); }
-
-protected:
-    virtual QAbstractItemView *createItemView()
-    {
-        return m_tool->callgrindWidgetHandler()->flatView();
-    }
-
-private:
-    CallgrindTool *m_tool;
-};
-
 static QToolButton *createToolButton(QAction *action)
 {
     QToolButton *button = new QToolButton;
@@ -126,7 +106,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
 , m_resetAction(0)
 , m_pauseAction(0)
 , m_showCostsOfFunctionAction(0)
-, m_outputPaneAdapter(0)
+, m_toolbarWidget(0)
 {
     Core::ICore *core = Core::ICore::instance();
 
@@ -171,22 +151,45 @@ void CallgrindTool::initializeDockWidgets()
 {
     AnalyzerManager *am = AnalyzerManager::instance();
 
-    QDockWidget *callersDock =
+    //QDockWidget *callersDock =
         am->createDockWidget(this, tr("Callers"),
                              m_callgrindWidgetHandler->callersView(),
                              Qt::BottomDockWidgetArea);
+
+    QDockWidget *flatDock =
+        am->createDockWidget(this, tr("Functions"),
+                             m_callgrindWidgetHandler->flatView(),
+                             Qt::LeftDockWidgetArea);
 
     QDockWidget *calleesDock =
         am->createDockWidget(this, tr("Callees"),
                              m_callgrindWidgetHandler->calleesView(),
                              Qt::BottomDockWidgetArea);
 
-    QDockWidget *visDock =
-       am->createDockWidget(this, tr("Visualization"),
-                            m_callgrindWidgetHandler->visualisation(), Qt::LeftDockWidgetArea);
+    //QDockWidget *visDock =
+        am->createDockWidget(this, tr("Visualization"),
+                             m_callgrindWidgetHandler->visualisation(),
+                             Qt::LeftDockWidgetArea);
 
-    am->mainWindow()->tabifyDockWidget(callersDock, calleesDock);
-    am->mainWindow()->tabifyDockWidget(calleesDock, visDock);
+    am->mainWindow()->splitDockWidget(flatDock, calleesDock, Qt::Vertical);
+    am->mainWindow()->tabifyDockWidget(flatDock, calleesDock);
+
+    m_toolbarWidget = new QWidget;
+    m_toolbarWidget->setObjectName("CallgrindToolBarWidget");
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    m_toolbarWidget->setLayout(layout);
+
+    m_callgrindWidgetHandler->populateActions(layout);
+
+    CallgrindGlobalSettings *settings = AnalyzerGlobalSettings::instance()->subConfig<CallgrindGlobalSettings>();
+    m_callgrindWidgetHandler->setCostFormat(settings->costFormat());
+    m_callgrindWidgetHandler->enableCycleDetection(settings->detectCycles());
+    connect(m_callgrindWidgetHandler, SIGNAL(costFormatChanged(Callgrind::Internal::CostDelegate::CostFormat)),
+            settings, SLOT(setCostFormat(Callgrind::Internal::CostDelegate::CostFormat)));
+    connect(m_callgrindWidgetHandler, SIGNAL(cycleDetectionEnabled(bool)),
+            settings, SLOT(setDetectCycles(bool)));
 }
 
 void CallgrindTool::extensionsInitialized()
@@ -301,28 +304,6 @@ QWidget *CallgrindTool::createControlWidget()
 CallgrindWidgetHandler *CallgrindTool::callgrindWidgetHandler() const
 {
   return m_callgrindWidgetHandler;
-}
-
-QWidget *CallgrindTool::createPaneToolBarWidget()
-{
-    QWidget *toolbarWidget = new QWidget;
-    toolbarWidget->setObjectName("CallgrindToolBarWidget");
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    toolbarWidget->setLayout(layout);
-
-    m_callgrindWidgetHandler->populateActions(layout);
-
-    CallgrindGlobalSettings *settings = AnalyzerGlobalSettings::instance()->subConfig<CallgrindGlobalSettings>();
-    m_callgrindWidgetHandler->setCostFormat(settings->costFormat());
-    m_callgrindWidgetHandler->enableCycleDetection(settings->detectCycles());
-    connect(m_callgrindWidgetHandler, SIGNAL(costFormatChanged(Callgrind::Internal::CostDelegate::CostFormat)),
-            settings, SLOT(setCostFormat(Callgrind::Internal::CostDelegate::CostFormat)));
-    connect(m_callgrindWidgetHandler, SIGNAL(cycleDetectionEnabled(bool)),
-            settings, SLOT(setDetectCycles(bool)));
-
-    return toolbarWidget;
 }
 
 void CallgrindTool::clearErrorView()
@@ -505,18 +486,10 @@ void CallgrindTool::createTextMarks()
     }
 }
 
-IAnalyzerOutputPaneAdapter *CallgrindTool::outputPaneAdapter()
-{
-    if (!m_outputPaneAdapter)
-        m_outputPaneAdapter = new CallgrindOutputPaneAdapter(this);
-    return m_outputPaneAdapter;
-}
-
 bool CallgrindTool::canRunRemotely() const
 {
     return true;
 }
-
 
 }
 }
