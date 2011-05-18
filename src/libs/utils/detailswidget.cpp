@@ -64,315 +64,320 @@
 
 namespace Utils {
 
-    static const int MARGIN=8;
+static const int MARGIN = 8;
 
-    struct DetailsWidgetPrivate {
-        DetailsWidgetPrivate(QWidget *parent);
+class DetailsWidgetPrivate
+{
+public:
+    DetailsWidgetPrivate(QWidget *parent);
 
-        DetailsButton *m_detailsButton;
-        QGridLayout *m_grid;
-        QLabel *m_summaryLabel;
-        QCheckBox *m_summaryCheckBox;
-        QLabel *m_additionalSummaryLabel;
-        Utils::FadingPanel *m_toolWidget;
-        QWidget *m_widget;
+    QPixmap cacheBackground(const QSize &size, bool expanded);
+    void updateControls();
+    void changeHoverState(bool hovered);
 
-        QPixmap m_collapsedPixmap;
-        QPixmap m_expandedPixmap;
+    QWidget *q;
+    DetailsButton *m_detailsButton;
+    QGridLayout *m_grid;
+    QLabel *m_summaryLabel;
+    QCheckBox *m_summaryCheckBox;
+    QLabel *m_additionalSummaryLabel;
+    Utils::FadingPanel *m_toolWidget;
+    QWidget *m_widget;
 
-        DetailsWidget::State m_state;
-        bool m_hovered;
-        bool m_useCheckBox;
-    };
+    QPixmap m_collapsedPixmap;
+    QPixmap m_expandedPixmap;
 
-    DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget * parent) :
-            m_detailsButton(new DetailsButton),
-            m_grid(new QGridLayout),
-            m_summaryLabel(new QLabel(parent)),
-            m_summaryCheckBox(new QCheckBox(parent)),
-            m_additionalSummaryLabel(new QLabel(parent)),
-            m_toolWidget(0),
-            m_widget(0),
-            m_state(DetailsWidget::Collapsed),
-            m_hovered(false),
-            m_useCheckBox(false)
-    {
-    }
+    DetailsWidget::State m_state;
+    bool m_hovered;
+    bool m_useCheckBox;
+};
 
-    DetailsWidget::DetailsWidget(QWidget *parent) :
-            QWidget(parent),
-            d(new DetailsWidgetPrivate(this))
-    {
-        d->m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-        d->m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        d->m_summaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
+        q(parent),
+        m_detailsButton(new DetailsButton),
+        m_grid(new QGridLayout),
+        m_summaryLabel(new QLabel(parent)),
+        m_summaryCheckBox(new QCheckBox(parent)),
+        m_additionalSummaryLabel(new QLabel(parent)),
+        m_toolWidget(0),
+        m_widget(0),
+        m_state(DetailsWidget::Collapsed),
+        m_hovered(false),
+        m_useCheckBox(false)
+{
+    m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+    m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_summaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
 
-        d->m_summaryCheckBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        d->m_summaryCheckBox->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
-        d->m_summaryCheckBox->setAttribute(Qt::WA_LayoutUsesWidgetRect); /* broken layout on mac otherwise */
-        d->m_summaryCheckBox->setVisible(false);
+    m_summaryCheckBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    m_summaryCheckBox->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+    m_summaryCheckBox->setAttribute(Qt::WA_LayoutUsesWidgetRect); /* broken layout on mac otherwise */
+    m_summaryCheckBox->setVisible(false);
 
-        d->m_additionalSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        d->m_additionalSummaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
-        d->m_additionalSummaryLabel->setWordWrap(true);
-        d->m_additionalSummaryLabel->setVisible(false);
+    m_additionalSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_additionalSummaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+    m_additionalSummaryLabel->setWordWrap(true);
+    m_additionalSummaryLabel->setVisible(false);
 
-        d->m_grid->setContentsMargins(0, 0, 0, 0);
-        d->m_grid->setSpacing(0);
-        d->m_grid->addWidget(d->m_summaryLabel, 0, 0);
-        d->m_grid->addWidget(d->m_detailsButton, 0, 2);
-        d->m_grid->addWidget(d->m_additionalSummaryLabel, 1, 0, 1, 3);
-        setLayout(d->m_grid);
+    m_grid->setContentsMargins(0, 0, 0, 0);
+    m_grid->setSpacing(0);
+    m_grid->addWidget(m_summaryLabel, 0, 0);
+    m_grid->addWidget(m_detailsButton, 0, 2);
+    m_grid->addWidget(m_additionalSummaryLabel, 1, 0, 1, 3);
+}
 
-        connect(d->m_detailsButton, SIGNAL(toggled(bool)),
-                this, SLOT(setExpanded(bool)));
-        connect(d->m_summaryCheckBox, SIGNAL(toggled(bool)),
-                this, SIGNAL(checked(bool)));
-        connect(d->m_summaryLabel, SIGNAL(linkActivated(QString)),
-                this, SIGNAL(linkActivated(QString)));
-        updateControls();
-    }
+QPixmap DetailsWidgetPrivate::cacheBackground(const QSize &size, bool expanded)
+{
+    QPixmap pixmap(size);
+    pixmap.fill(Qt::transparent);
+    QPainter p(&pixmap);
 
-    DetailsWidget::~DetailsWidget()
-    {
-        delete d;
-    }
-
-    bool DetailsWidget::useCheckBox()
-    {
-        return d->m_useCheckBox;
-    }
-
-    void DetailsWidget::setUseCheckBox(bool b)
-    {
-        d->m_useCheckBox = b;
-        QWidget *widget = b ? static_cast<QWidget *>(d->m_summaryCheckBox) : static_cast<QWidget *>(d->m_summaryLabel);
-        d->m_grid->addWidget(widget, 0, 0);
-        d->m_summaryLabel->setVisible(b);
-        d->m_summaryCheckBox->setVisible(!b);
-    }
-
-    void DetailsWidget::setChecked(bool b)
-    {
-        d->m_summaryCheckBox->setChecked(b);
-    }
-
-    bool DetailsWidget::isChecked() const
-    {
-        return d->m_useCheckBox && d->m_summaryCheckBox->isChecked();
-    }
-
-    void DetailsWidget::setSummaryFontBold(bool b)
-    {
-        QFont f;
-        f.setBold(b);
-        d->m_summaryCheckBox->setFont(f);
-        d->m_summaryLabel->setFont(f);
-    }
-
-    void DetailsWidget::setIcon(const QIcon &icon)
-    {
-        d->m_summaryCheckBox->setIcon(icon);
-    }
-
-    void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
-    {
-        QWidget::paintEvent(paintEvent);
-
-        QPainter p(this);
-
-        QWidget *topLeftWidget = d->m_useCheckBox ? static_cast<QWidget *>(d->m_summaryCheckBox) : static_cast<QWidget *>(d->m_summaryLabel);
-        QPoint topLeft(topLeftWidget->geometry().left(), contentsRect().top());
-        const QRect paintArea(topLeft, contentsRect().bottomRight());
-
-        if (d->m_state != Expanded) {
-            if (d->m_collapsedPixmap.isNull() ||
-                d->m_collapsedPixmap.size() != size())
-                d->m_collapsedPixmap = cacheBackground(paintArea.size(), false);
-            p.drawPixmap(paintArea, d->m_collapsedPixmap);
-        } else {
-            if (d->m_expandedPixmap.isNull() ||
-                d->m_expandedPixmap.size() != size())
-                d->m_expandedPixmap = cacheBackground(paintArea.size(), true);
-            p.drawPixmap(paintArea, d->m_expandedPixmap);
-        }
-    }
-
-    void DetailsWidget::enterEvent(QEvent * event)
-    {
-        QWidget::enterEvent(event);
-        changeHoverState(true);
-    }
-
-    void DetailsWidget::leaveEvent(QEvent * event)
-    {
-        QWidget::leaveEvent(event);
-        changeHoverState(false);
-    }
-
-    void DetailsWidget::setSummaryText(const QString &text)
-    {
-        if (d->m_useCheckBox)
-            d->m_summaryCheckBox->setText(text);
-        else
-            d->m_summaryLabel->setText(text);
-    }
-
-    QString DetailsWidget::summaryText() const
-    {
-        if (d->m_useCheckBox)
-            return d->m_summaryCheckBox->text();
-        return d->m_summaryLabel->text();
-    }
-
-    QString DetailsWidget::additionalSummaryText() const
-    {
-        return d->m_additionalSummaryLabel->text();
-    }
-
-    void DetailsWidget::setAdditionalSummaryText(const QString &text)
-    {
-        d->m_additionalSummaryLabel->setText(text);
-        d->m_additionalSummaryLabel->setVisible(!text.isEmpty());
-    }
-
-    DetailsWidget::State DetailsWidget::state() const
-    {
-        return d->m_state;
-    }
-
-    void DetailsWidget::setState(State state)
-    {
-        if (state == d->m_state)
-            return;
-        d->m_state = state;
-        updateControls();
-    }
-
-    void DetailsWidget::setExpanded(bool expanded)
-    {
-        setState(expanded ? Expanded : Collapsed);
-    }
-
-    void DetailsWidget::updateControls()
-    {
-        if (d->m_widget)
-            d->m_widget->setVisible(d->m_state == Expanded || d->m_state == NoSummary);
-        d->m_detailsButton->setChecked(d->m_state == Expanded && d->m_widget);
-        //d->m_summaryLabel->setEnabled(d->m_state == Collapsed && d->m_widget);
-        d->m_detailsButton->setVisible(d->m_state != NoSummary);
-        d->m_summaryLabel->setVisible(d->m_state != NoSummary && !d->m_useCheckBox);
-        d->m_summaryCheckBox->setVisible(d->m_state != NoSummary && d->m_useCheckBox);
-        {
-            QWidget *w = this;
-            while (w) {
-                if (w->layout())
-                    w->layout()->activate();
-                if (QScrollArea *area = qobject_cast<QScrollArea*>(w)) {
-                    QEvent e(QEvent::LayoutRequest);
-                    QCoreApplication::sendEvent(area, &e);
-                }
-                w = w->parentWidget();
-            }
-        }
-    }
-
-    QWidget *DetailsWidget::widget() const
-    {
-        return d->m_widget;
-    }
-
-    void DetailsWidget::setWidget(QWidget *widget)
-    {
-        if (d->m_widget == widget)
-            return;
-
-        if (d->m_widget) {
-            d->m_grid->removeWidget(d->m_widget);
-            delete d->m_widget;
-        }
-
-        d->m_widget = widget;
-
-        if (d->m_widget) {
-            d->m_widget->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
-            d->m_grid->addWidget(d->m_widget, 2, 0, 1, 3);
-        }
-        updateControls();
-    }
-
-    void DetailsWidget::setToolWidget(Utils::FadingPanel *widget)
-    {
-        if (d->m_toolWidget == widget)
-            return;
-
-        d->m_toolWidget = widget;
-
-        if (!d->m_toolWidget)
-            return;
-
-        d->m_toolWidget->adjustSize();
-        d->m_grid->addWidget(d->m_toolWidget, 0, 1, 1, 1, Qt::AlignRight);
-
+    int topHeight = qMax(m_detailsButton->height(),
+                         m_useCheckBox ? m_summaryCheckBox->height() : m_summaryLabel->height());
+    QRect topRect(0, 0, size.width(), topHeight);
+    QRect fullRect(0, 0, size.width(), size.height());
 #ifdef Q_WS_MAC
-        d->m_toolWidget->setOpacity(1.0);
+    p.fillRect(fullRect, qApp->palette().window().color());
 #endif
-        changeHoverState(d->m_hovered);
-    }
+    p.fillRect(fullRect, QColor(255, 255, 255, 40));
 
-    QWidget *DetailsWidget::toolWidget() const
-    {
-        return d->m_toolWidget;
-    }
+    QColor highlight = q->palette().highlight().color();
+    highlight.setAlpha(0.5);
+    if (expanded)
+        p.fillRect(topRect, highlight);
 
-    QPixmap DetailsWidget::cacheBackground(const QSize &size, bool expanded)
-    {
-        QPixmap pixmap(size);
-        pixmap.fill(Qt::transparent);
-        QPainter p(&pixmap);
+    QLinearGradient lg(topRect.topLeft(), topRect.bottomLeft());
+    lg.setColorAt(0, QColor(255, 255, 255, 130));
+    lg.setColorAt(1, QColor(255, 255, 255, 0));
+    p.fillRect(topRect, lg);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.translate(0.5, 0.5);
+    p.setPen(QColor(0, 0, 0, 40));
+    p.setBrush(Qt::NoBrush);
+    p.drawRoundedRect(fullRect.adjusted(0, 0, -1, -1), 2, 2);
+    p.setBrush(Qt::NoBrush);
+    p.setPen(QColor(255,255,255,140));
+    p.drawRoundedRect(fullRect.adjusted(1, 1, -2, -2), 2, 2);
+    p.setPen(QPen(q->palette().color(QPalette::Mid)));
 
-        int topHeight = qMax(d->m_detailsButton->height(),
-                             d->m_useCheckBox ? d->m_summaryCheckBox->height() : d->m_summaryLabel->height());
-        QRect topRect(0, 0, size.width(), topHeight);
-        QRect fullRect(0, 0, size.width(), size.height());
-#ifdef Q_WS_MAC
-        p.fillRect(fullRect, qApp->palette().window().color());
-#endif
-        p.fillRect(fullRect, QColor(255, 255, 255, 40));
+    return pixmap;
+}
 
-        QColor highlight = palette().highlight().color();
-        highlight.setAlpha(0.5);
-        if (expanded) {
-            p.fillRect(topRect, highlight);
+void DetailsWidgetPrivate::updateControls()
+{
+    if (m_widget)
+        m_widget->setVisible(m_state == DetailsWidget::Expanded || m_state == DetailsWidget::NoSummary);
+    m_detailsButton->setChecked(m_state == DetailsWidget::Expanded && m_widget);
+    //m_summaryLabel->setEnabled(m_state == DetailsWidget::Collapsed && m_widget);
+    m_detailsButton->setVisible(m_state != DetailsWidget::NoSummary);
+    m_summaryLabel->setVisible(m_state != DetailsWidget::NoSummary && !m_useCheckBox);
+    m_summaryCheckBox->setVisible(m_state != DetailsWidget::NoSummary && m_useCheckBox);
+
+    for (QWidget *w = q; w; w = w->parentWidget()) {
+        if (w->layout())
+            w->layout()->activate();
+        if (QScrollArea *area = qobject_cast<QScrollArea*>(w)) {
+            QEvent e(QEvent::LayoutRequest);
+            QCoreApplication::sendEvent(area, &e);
         }
-
-        QLinearGradient lg(topRect.topLeft(), topRect.bottomLeft());
-        lg.setColorAt(0, QColor(255, 255, 255, 130));
-        lg.setColorAt(1, QColor(255, 255, 255, 0));
-        p.fillRect(topRect, lg);
-        p.setRenderHint(QPainter::Antialiasing, true);
-        p.translate(0.5, 0.5);
-        p.setPen(QColor(0, 0, 0, 40));
-        p.setBrush(Qt::NoBrush);
-        p.drawRoundedRect(fullRect.adjusted(0, 0, -1, -1), 2, 2);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QColor(255,255,255,140));
-        p.drawRoundedRect(fullRect.adjusted(1, 1, -2, -2), 2, 2);
-        p.setPen(QPen(palette().color(QPalette::Mid)));
-
-        return pixmap;
     }
+}
 
-    void DetailsWidget::changeHoverState(bool hovered)
-    {
-        if (!d->m_toolWidget)
-            return;
+void DetailsWidgetPrivate::changeHoverState(bool hovered)
+{
+    if (!m_toolWidget)
+        return;
 #ifdef Q_OS_MAC
-        d->m_toolWidget->setVisible(hovered);
+    m_toolWidget->setVisible(hovered);
 #else
-        d->m_toolWidget->fadeTo(hovered ? 1.0 : 0);
+    m_toolWidget->fadeTo(hovered ? 1.0 : 0);
 #endif
-        d->m_hovered = hovered;
+    m_hovered = hovered;
+}
+
+
+DetailsWidget::DetailsWidget(QWidget *parent) :
+        QWidget(parent),
+        d(new DetailsWidgetPrivate(this))
+{
+    setLayout(d->m_grid);
+
+    connect(d->m_detailsButton, SIGNAL(toggled(bool)),
+            this, SLOT(setExpanded(bool)));
+    connect(d->m_summaryCheckBox, SIGNAL(toggled(bool)),
+            this, SIGNAL(checked(bool)));
+    connect(d->m_summaryLabel, SIGNAL(linkActivated(QString)),
+            this, SIGNAL(linkActivated(QString)));
+    d->updateControls();
+}
+
+DetailsWidget::~DetailsWidget()
+{
+    delete d;
+}
+
+bool DetailsWidget::useCheckBox()
+{
+    return d->m_useCheckBox;
+}
+
+void DetailsWidget::setUseCheckBox(bool b)
+{
+    d->m_useCheckBox = b;
+    QWidget *widget = b ? static_cast<QWidget *>(d->m_summaryCheckBox) : static_cast<QWidget *>(d->m_summaryLabel);
+    d->m_grid->addWidget(widget, 0, 0);
+    d->m_summaryLabel->setVisible(b);
+    d->m_summaryCheckBox->setVisible(!b);
+}
+
+void DetailsWidget::setChecked(bool b)
+{
+    d->m_summaryCheckBox->setChecked(b);
+}
+
+bool DetailsWidget::isChecked() const
+{
+    return d->m_useCheckBox && d->m_summaryCheckBox->isChecked();
+}
+
+void DetailsWidget::setSummaryFontBold(bool b)
+{
+    QFont f;
+    f.setBold(b);
+    d->m_summaryCheckBox->setFont(f);
+    d->m_summaryLabel->setFont(f);
+}
+
+void DetailsWidget::setIcon(const QIcon &icon)
+{
+    d->m_summaryCheckBox->setIcon(icon);
+}
+
+void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
+{
+    QWidget::paintEvent(paintEvent);
+
+    QPainter p(this);
+
+    QWidget *topLeftWidget = d->m_useCheckBox ? static_cast<QWidget *>(d->m_summaryCheckBox) : static_cast<QWidget *>(d->m_summaryLabel);
+    QPoint topLeft(topLeftWidget->geometry().left(), contentsRect().top());
+    const QRect paintArea(topLeft, contentsRect().bottomRight());
+
+    if (d->m_state != Expanded) {
+        if (d->m_collapsedPixmap.isNull() ||
+            d->m_collapsedPixmap.size() != size())
+            d->m_collapsedPixmap = d->cacheBackground(paintArea.size(), false);
+        p.drawPixmap(paintArea, d->m_collapsedPixmap);
+    } else {
+        if (d->m_expandedPixmap.isNull() ||
+            d->m_expandedPixmap.size() != size())
+            d->m_expandedPixmap = d->cacheBackground(paintArea.size(), true);
+        p.drawPixmap(paintArea, d->m_expandedPixmap);
     }
+}
+
+void DetailsWidget::enterEvent(QEvent * event)
+{
+    QWidget::enterEvent(event);
+    d->changeHoverState(true);
+}
+
+void DetailsWidget::leaveEvent(QEvent * event)
+{
+    QWidget::leaveEvent(event);
+    d->changeHoverState(false);
+}
+
+void DetailsWidget::setSummaryText(const QString &text)
+{
+    if (d->m_useCheckBox)
+        d->m_summaryCheckBox->setText(text);
+    else
+        d->m_summaryLabel->setText(text);
+}
+
+QString DetailsWidget::summaryText() const
+{
+    if (d->m_useCheckBox)
+        return d->m_summaryCheckBox->text();
+    return d->m_summaryLabel->text();
+}
+
+QString DetailsWidget::additionalSummaryText() const
+{
+    return d->m_additionalSummaryLabel->text();
+}
+
+void DetailsWidget::setAdditionalSummaryText(const QString &text)
+{
+    d->m_additionalSummaryLabel->setText(text);
+    d->m_additionalSummaryLabel->setVisible(!text.isEmpty());
+}
+
+DetailsWidget::State DetailsWidget::state() const
+{
+    return d->m_state;
+}
+
+void DetailsWidget::setState(State state)
+{
+    if (state == d->m_state)
+        return;
+    d->m_state = state;
+    d->updateControls();
+}
+
+void DetailsWidget::setExpanded(bool expanded)
+{
+    setState(expanded ? Expanded : Collapsed);
+}
+
+QWidget *DetailsWidget::widget() const
+{
+    return d->m_widget;
+}
+
+void DetailsWidget::setWidget(QWidget *widget)
+{
+    if (d->m_widget == widget)
+        return;
+
+    if (d->m_widget) {
+        d->m_grid->removeWidget(d->m_widget);
+        delete d->m_widget;
+    }
+
+    d->m_widget = widget;
+
+    if (d->m_widget) {
+        d->m_widget->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+        d->m_grid->addWidget(d->m_widget, 2, 0, 1, 3);
+    }
+    d->updateControls();
+}
+
+void DetailsWidget::setToolWidget(Utils::FadingPanel *widget)
+{
+    if (d->m_toolWidget == widget)
+        return;
+
+    d->m_toolWidget = widget;
+
+    if (!d->m_toolWidget)
+        return;
+
+    d->m_toolWidget->adjustSize();
+    d->m_grid->addWidget(d->m_toolWidget, 0, 1, 1, 1, Qt::AlignRight);
+
+#ifdef Q_WS_MAC
+    d->m_toolWidget->setOpacity(1.0);
+#endif
+    d->changeHoverState(d->m_hovered);
+}
+
+QWidget *DetailsWidget::toolWidget() const
+{
+    return d->m_toolWidget;
+}
 
 } // namespace Utils
