@@ -422,7 +422,6 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
     }
 
     QString tryFile;
-    files << proFile;
     if (isQmlProject) {
         tryFile = proFileInfo.path() + '/' + "/main.qml";
         if(!QFile::exists(tryFile))
@@ -436,10 +435,13 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
         tryFile = proFileInfo.path() + "/main.cpp";
         if(!QFile::exists(tryFile))
             tryFile = proFileInfo.path() + '/' + proFileInfo.baseName() + ".cpp";
+        files << tryFile;
     }
-    Core::ICore::instance()->openFiles(files, static_cast<Core::ICore::OpenFilesFlags>(Core::ICore::SwitchMode | Core::ICore::StopOnLoadFail));
-    if (!tryFile.isEmpty() && Core::EditorManager::instance()->hasEditor(tryFile) && !helpFile.isEmpty())
-        slotOpenContextHelpPage(helpFile);
+    if (ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile)) {
+        Core::ICore::instance()->openFiles(files);
+        if (!helpFile.isEmpty())
+            slotOpenContextHelpPage(helpFile);
+    }
 }
 
 void GettingStartedWelcomePageWidget::slotOpenHelpPage(const QString& url)
