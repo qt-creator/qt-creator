@@ -52,11 +52,6 @@ static const char callgrindCostFormatC[] = "Analyzer.Valgrind.Callgrind.CostForm
 namespace Callgrind {
 namespace Internal {
 
-AbstractCallgrindSettings::AbstractCallgrindSettings(QObject *parent)
-    : AbstractAnalyzerSubConfig(parent)
-{
-}
-
 void AbstractCallgrindSettings::setEnableCacheSim(bool enable)
 {
     if (m_enableCacheSim == enable)
@@ -178,11 +173,6 @@ QWidget *AbstractCallgrindSettings::createConfigWidget(QWidget *parent)
 }
 
 
-CallgrindGlobalSettings::CallgrindGlobalSettings(QObject *parent)
-    : AbstractCallgrindSettings(parent)
-{
-}
-
 QVariantMap CallgrindGlobalSettings::defaults() const
 {
     QVariantMap map = AbstractCallgrindSettings::defaults();
@@ -230,11 +220,6 @@ void CallgrindGlobalSettings::setDetectCycles(bool detect)
 {
     m_detectCycles = detect;
     AnalyzerGlobalSettings::instance()->writeSettings();
-}
-
-CallgrindProjectSettings::CallgrindProjectSettings(QObject *parent)
-    : AbstractCallgrindSettings(parent)
-{
 }
 
 } // namespace Internal

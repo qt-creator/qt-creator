@@ -53,11 +53,6 @@ namespace Analyzer {
 
 AnalyzerGlobalSettings *AnalyzerGlobalSettings::m_instance = 0;
 
-AbstractAnalyzerSubConfig::AbstractAnalyzerSubConfig(QObject *parent)
-    : QObject(parent)
-{
-}
-
 AnalyzerSettings::AnalyzerSettings(QObject *parent)
     : QObject(parent)
 {
@@ -107,7 +102,6 @@ AnalyzerGlobalSettings *AnalyzerGlobalSettings::instance()
 
 AnalyzerGlobalSettings::~AnalyzerGlobalSettings()
 {
-    qDeleteAll(m_subConfigFactories);
     m_instance = 0;
 }
 
@@ -138,29 +132,29 @@ void AnalyzerGlobalSettings::writeSettings() const
     settings->endGroup();
 }
 
-void AnalyzerGlobalSettings::registerSubConfigFactory(AbstractAnalyzerSubConfigFactory *factory)
+void AnalyzerGlobalSettings::registerSubConfigs
+    (AnalyzerSubConfigFactory globalCreator, AnalyzerSubConfigFactory projectCreator)
 {
-    m_subConfigFactories << factory;
+    m_projectSubConfigs.append(projectCreator);
 
-    AbstractAnalyzerSubConfig *config = factory->createGlobalSubConfig(this);
-    addSubConfig(config);
+    AbstractAnalyzerSubConfig *config = globalCreator();
+    config->setParent(this);
     AnalyzerPlugin::instance()->addAutoReleasedObject(new AnalyzerOptionsPage(config));
 
     readSettings();
 }
 
-QList<AbstractAnalyzerSubConfigFactory *> AnalyzerGlobalSettings::subConfigFactories() const
+QList<AnalyzerSubConfigFactory> AnalyzerGlobalSettings::projectSubConfigs() const
 {
-    return m_subConfigFactories;
+    return m_projectSubConfigs;
 }
 
 AnalyzerProjectSettings::AnalyzerProjectSettings(QObject *parent)
-: AnalyzerSettings(parent)
+    : AnalyzerSettings(parent)
 {
     // add sub configs
-    foreach (AbstractAnalyzerSubConfigFactory *factory, AnalyzerGlobalSettings::instance()->subConfigFactories()) {
-        addSubConfig(factory->createProjectSubConfig(parent));
-    }
+    foreach (AnalyzerSubConfigFactory factory, AnalyzerGlobalSettings::instance()->projectSubConfigs())
+        factory()->setParent(this);
 
     // take defaults from global settings
     AnalyzerGlobalSettings *gs = AnalyzerGlobalSettings::instance();

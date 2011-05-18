@@ -50,7 +50,7 @@ class AbstractCallgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
     Q_OBJECT
 
 public:
-    AbstractCallgrindSettings(QObject *parent = 0);
+    AbstractCallgrindSettings() {}
 
     bool enableCacheSim() const { return m_enableCacheSim; }
     bool enableBranchSim() const { return m_enableBranchSim; }
@@ -116,7 +116,7 @@ class CallgrindGlobalSettings : public AbstractCallgrindSettings
     Q_OBJECT
 
 public:
-    CallgrindGlobalSettings(QObject *parent = 0);
+    CallgrindGlobalSettings() {}
 
     virtual bool fromMap(const QVariantMap &map);
     virtual QVariantMap defaults() const;
@@ -144,7 +144,7 @@ class CallgrindProjectSettings : public AbstractCallgrindSettings
     Q_OBJECT
 
 public:
-    CallgrindProjectSettings(QObject *parent = 0);
+    CallgrindProjectSettings() {}
 };
 
 } // namespace Internal

@@ -48,10 +48,19 @@ using namespace Memcheck;
 
 using namespace Memcheck::Internal;
 
+static Analyzer::AbstractAnalyzerSubConfig *globalFactory()
+{
+    return new MemcheckGlobalSettings();
+}
+
+static Analyzer::AbstractAnalyzerSubConfig *projectFactory()
+{
+    return new MemcheckProjectSettings();
+}
+
 bool MemcheckPlugin::initialize(const QStringList &/*arguments*/, QString */*errorString*/)
 {
-    typedef AnalyzerSubConfigFactory<MemcheckGlobalSettings, MemcheckProjectSettings> MemcheckConfigFactory;
-    AnalyzerGlobalSettings::instance()->registerSubConfigFactory(new MemcheckConfigFactory);
+    AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalFactory, &projectFactory);
 
     AnalyzerManager::instance()->addTool(new MemcheckTool(this));
     return true;

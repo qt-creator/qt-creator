@@ -45,10 +45,19 @@ using namespace Analyzer;
 namespace Callgrind {
 namespace Internal {
 
+static Analyzer::AbstractAnalyzerSubConfig *globalFactory()
+{
+    return new CallgrindGlobalSettings();
+}
+
+static Analyzer::AbstractAnalyzerSubConfig *projectFactory()
+{
+    return new CallgrindProjectSettings();
+}
+
 bool CallgrindPlugin::initialize(const QStringList &/*arguments*/, QString */*errorString*/)
 {
-    typedef AnalyzerSubConfigFactory<CallgrindGlobalSettings, CallgrindProjectSettings> CallgrindConfigFactory;
-    AnalyzerGlobalSettings::instance()->registerSubConfigFactory(new CallgrindConfigFactory);
+    AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalFactory, &projectFactory);
     AnalyzerManager::instance()->addTool(new CallgrindTool(this));
 
     return true;

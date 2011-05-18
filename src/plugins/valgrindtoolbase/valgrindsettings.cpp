@@ -48,14 +48,6 @@ static const QLatin1String groupC("Analyzer");
 
 static const QLatin1String valgrindExeC("Analyzer.Valgrind.ValgrindExecutable");
 
-ValgrindSettings::ValgrindSettings(QObject *parent)
-: AbstractAnalyzerSubConfig(parent)
-{
-}
-
-ValgrindSettings::~ValgrindSettings()
-{}
-
 QVariantMap ValgrindSettings::defaults() const
 {
     QVariantMap map;

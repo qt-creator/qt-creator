@@ -52,8 +52,7 @@ class VALGRINDTOOLBASE_EXPORT ValgrindSettings : public Analyzer::AbstractAnalyz
 {
     Q_OBJECT
 public:
-    ValgrindSettings(QObject *parent);
-    virtual ~ValgrindSettings();
+    ValgrindSettings() {}
 
     virtual QVariantMap toMap() const;
     virtual QVariantMap defaults() const;
@@ -77,7 +76,7 @@ private:
     QString m_valgrindExecutable;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Valgrind
 
 #endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H

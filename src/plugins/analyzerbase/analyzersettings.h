@@ -65,7 +65,7 @@ class ANALYZER_EXPORT AbstractAnalyzerSubConfig : public QObject
     Q_OBJECT
 
 public:
-    AbstractAnalyzerSubConfig(QObject *parent);
+    AbstractAnalyzerSubConfig() {}
 
     /// return a list of default values
     virtual QVariantMap defaults() const = 0;
@@ -80,46 +80,6 @@ public:
     virtual QString displayName() const = 0;
     /// create a configuration widget for this configuration
     virtual QWidget *createConfigWidget(QWidget *parent) = 0;
-};
-
-/**
- * Interface for registering configuration to the Manager.
- * You probably want to use the template class below.
- */
-class ANALYZER_EXPORT AbstractAnalyzerSubConfigFactory
-{
-public:
-    AbstractAnalyzerSubConfigFactory() {}
-    virtual ~AbstractAnalyzerSubConfigFactory() {}
-
-    virtual AbstractAnalyzerSubConfig *createGlobalSubConfig(QObject *parent) = 0;
-    virtual AbstractAnalyzerSubConfig *createProjectSubConfig(QObject *parent) = 0;
-};
-
-/**
- * Makes it easy to register custom configuration for a tool:
- *
- * @code
- * bool MemcheckPlugin::initialize(const QStringList &arguments, QString *errorString)
- * {
- *   typedef AnalyzerSubConfigFactory<YourGlobalSettings, YourProjectSettings> YourConfigFactory;
- *   AnalyzerGlobalSettings::instance()->registerSubConfigFactory(new YourConfigFactory);
- * }
- * @endcode
- */
-template<class GlobalConfigT, class ProjectConfigT>
-class ANALYZER_EXPORT AnalyzerSubConfigFactory : public AbstractAnalyzerSubConfigFactory
-{
-public:
-    AbstractAnalyzerSubConfig *createGlobalSubConfig(QObject *parent)
-    {
-        return new GlobalConfigT(parent);
-    }
-
-    AbstractAnalyzerSubConfig *createProjectSubConfig(QObject *parent)
-    {
-        return new ProjectConfigT(parent);
-    }
 };
 
 /**
@@ -147,16 +107,13 @@ public:
     virtual QVariantMap toMap() const;
 
 protected:
-    void addSubConfig(AbstractAnalyzerSubConfig *config)
-    {
-        config->setParent(this);
-    }
-
     virtual bool fromMap(const QVariantMap &map);
 
     AnalyzerSettings(QObject *parent);
 };
 
+
+typedef AbstractAnalyzerSubConfig *(*AnalyzerSubConfigFactory)();
 
 // global and local settings are loaded and saved differently, and they also handle suppressions
 // differently.
@@ -179,13 +136,13 @@ public:
     void writeSettings() const;
     void readSettings();
 
-    void registerSubConfigFactory(AbstractAnalyzerSubConfigFactory *factory);
-    QList<AbstractAnalyzerSubConfigFactory *> subConfigFactories() const;
+    void registerSubConfigs(AnalyzerSubConfigFactory globalFactory, AnalyzerSubConfigFactory projectFactory);
+    QList<AnalyzerSubConfigFactory> projectSubConfigs() const;
 
 private:
     AnalyzerGlobalSettings(QObject *parent);
     static AnalyzerGlobalSettings *m_instance;
-    QList<AbstractAnalyzerSubConfigFactory *> m_subConfigFactories;
+    QList<AnalyzerSubConfigFactory> m_projectSubConfigs;
 };
 
 /**

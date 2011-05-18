@@ -55,11 +55,6 @@ static const char lastSuppressionHistoryC[] = "Analyzer.Valgrind.LastSuppression
 namespace Memcheck {
 namespace Internal {
 
-AbstractMemcheckSettings::AbstractMemcheckSettings(QObject *parent)
-    : AbstractAnalyzerSubConfig(parent)
-{
-}
-
 QVariantMap AbstractMemcheckSettings::defaults() const
 {
     QVariantMap map;
@@ -153,11 +148,6 @@ QWidget *AbstractMemcheckSettings::createConfigWidget(QWidget *parent)
     return new MemcheckConfigWidget(this, parent);
 }
 
-MemcheckGlobalSettings::MemcheckGlobalSettings(QObject *parent)
-: AbstractMemcheckSettings(parent)
-{
-}
-
 QStringList MemcheckGlobalSettings::suppressionFiles() const
 {
     return m_suppressionFiles;
@@ -230,10 +220,6 @@ MemcheckGlobalSettings *globalMemcheckSettings()
     return ret;
 }
 
-MemcheckProjectSettings::MemcheckProjectSettings(QObject *parent)
-: AbstractMemcheckSettings(parent)
-{
-}
 
 QVariantMap MemcheckProjectSettings::defaults() const
 {

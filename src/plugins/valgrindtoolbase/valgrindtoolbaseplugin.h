@@ -45,14 +45,13 @@ class ValgrindToolbasePlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
-    ValgrindToolbasePlugin();
-    ~ValgrindToolbasePlugin();
+    ValgrindToolbasePlugin() {}
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
 };
 
 } // namespace Internal
-}
+} // namespace Valgrind
 
 #endif // VALGRINDTOOLBASEPLUGIN_H

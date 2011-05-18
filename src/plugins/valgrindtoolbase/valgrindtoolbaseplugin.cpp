@@ -44,20 +44,15 @@
 using namespace Analyzer;
 using namespace Valgrind::Internal;
 
-ValgrindToolbasePlugin::ValgrindToolbasePlugin()
+
+static AbstractAnalyzerSubConfig *configFactory()
 {
-
-}
-
-ValgrindToolbasePlugin::~ValgrindToolbasePlugin()
-{
-
+    return new ValgrindSettings();
 }
 
 bool ValgrindToolbasePlugin::initialize(const QStringList &/*arguments*/, QString */*errorString*/)
 {
-    typedef AnalyzerSubConfigFactory<ValgrindSettings, ValgrindSettings> ValgrindConfigFactory;
-    AnalyzerGlobalSettings::instance()->registerSubConfigFactory(new ValgrindConfigFactory);
+    AnalyzerGlobalSettings::instance()->registerSubConfigs(&configFactory, &configFactory);
     return true;
 }
 
