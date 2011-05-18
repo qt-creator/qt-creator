@@ -30,6 +30,9 @@
 **
 **************************************************************************/
 
+// std::copy is perfectly fine, don't let MSVC complain about it being deprecated
+#pragma warning (disable: 4996)
+
 #include "symbolgroupvalue.h"
 #include "symbolgroup.h"
 #include "stringutils.h"
@@ -2312,6 +2315,7 @@ AssignmentStringData AssignmentStringData::decodeString(const char *begin, const
         const unsigned char *source = reinterpret_cast<const unsigned char *>(begin);
         unsigned short *target = reinterpret_cast<unsigned short *>(result.data);
         std::copy(source, source + stringLength, target);
+
         return result;
     } // toUtf16
     switch (valueEncoding) {
@@ -2457,7 +2461,7 @@ static inline int assignStdStringI(SymbolGroupNode  *n, int type,
     }
     if (reserved < 0 || !size || !bx)
         return 42;
-    if (reserved <= data.stringLength)
+    if (reserved <= (int)data.stringLength)
         return 1; // Insufficient memory.
     // Copy data: 'Buf' array for small strings, else pointer 'Ptr'.
     const int bufSize = type == KT_StdString ? 16 : 8; // see basic_string.
