@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "gcctoolchain.h"
+#include "clangparser.h"
 #include "gcctoolchainfactories.h"
 #include "gccparser.h"
 #include "linuxiccparser.h"
@@ -692,7 +693,6 @@ void Internal::GccToolChainConfigWidget::handleAbiChange()
     emit dirty(toolChain());
 }
 
-
 // --------------------------------------------------------------------------
 // ClangToolChain
 // --------------------------------------------------------------------------
@@ -718,10 +718,15 @@ QString ClangToolChain::makeCommand() const
 QString ClangToolChain::mkspec() const
 {
     if (targetAbi().os() == Abi::MacOS)
-        return QLatin1String("macx-llvm");
+        return QLatin1String("unsupported/macx-clang");
     else if (targetAbi().os() == Abi::LinuxOS)
-        return QLatin1String("linux-llvm");
-    return QLatin1String("win32-llvm"); // Note: Not part of standard Qt yet!
+        return QLatin1String("unsupported/linux-clang");
+    return QLatin1String("unsupported/win32-clang"); // Note: Not part of Qt yet!
+}
+
+IOutputParser *ClangToolChain::outputParser() const
+{
+    return new ClangParser;
 }
 
 ToolChain *ClangToolChain::clone() const
@@ -966,7 +971,7 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
             << (QStringList());
     QTest::newRow("broken input")
             << QString::fromLatin1("arm-none-foo-gnueabi")
-            << (QStringList() << QLatin1String("arm-unknown-unknown-elf-32bit"));
+            << (QStringList() << QLatin1String("arm-unknown-unknown-unknown-32bit"));
     QTest::newRow("totally broken input")
             << QString::fromLatin1("foo-bar-foo")
             << (QStringList());

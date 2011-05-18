@@ -8,6 +8,7 @@ include(customwizard/customwizard.pri)
 INCLUDEPATH += $$PWD/../../libs/utils
 HEADERS += projectexplorer.h \
     abi.h \
+    clangparser.h \
     gcctoolchain.h \
     projectexplorer_export.h \
     projectwindow.h \
@@ -102,6 +103,7 @@ HEADERS += projectexplorer.h \
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
+    clangparser.cpp \
     gcctoolchain.cpp \
     projectwindow.cpp \
     buildmanager.cpp \

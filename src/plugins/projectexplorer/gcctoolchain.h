@@ -121,6 +121,8 @@ public:
     QString makeCommand() const;
     QString mkspec() const;
 
+    IOutputParser *outputParser() const;
+
     ToolChain *clone() const;
 
 private:
