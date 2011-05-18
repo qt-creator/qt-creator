@@ -33,12 +33,4 @@
 #ifndef CALLGRINDCONSTANTS_H
 #define CALLGRINDCONSTANTS_H
 
-namespace Callgrind {
-namespace Constants {
-
-const char * const A_SHOWCOSTSOFFUNCTION = "Analyzer.Callgrind.ShowCostsOfFunction";
-
-}
-}
-
 #endif // CALLGRINDCONSTANTS_H

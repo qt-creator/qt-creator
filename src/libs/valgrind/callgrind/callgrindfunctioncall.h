@@ -49,7 +49,8 @@ class Function;
 /**
  * This represents a function call.
  */
-class VALGRINDSHARED_EXPORT FunctionCall {
+class VALGRINDSHARED_EXPORT FunctionCall
+{
 public:
     explicit FunctionCall();
     ~FunctionCall();
@@ -89,8 +90,8 @@ private:
     Private *d;
 };
 
-} // Callgrind
-} // Valgrind
+} // namespace Callgrind
+} // namespace Valgrind
 
 Q_DECLARE_METATYPE(const Valgrind::Callgrind::FunctionCall *);
 

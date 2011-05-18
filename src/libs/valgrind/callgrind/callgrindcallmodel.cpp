@@ -45,7 +45,8 @@ namespace Callgrind {
 
 //BEGIN CallModel::Private
 
-class CallModel::Private {
+class CallModel::Private
+{
 public:
     Private();
 
@@ -56,11 +57,10 @@ public:
 };
 
 CallModel::Private::Private()
-: m_data(0)
-, m_event(0)
-, m_function(0)
+    : m_data(0)
+    , m_event(0)
+    , m_function(0)
 {
-
 }
 
 //END CallModel::Private
@@ -235,5 +235,5 @@ QVariant CallModel::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
-} // Callgrind
-} // Valgrind
+} // namespace Callgrind
+} // namespace Valgrind

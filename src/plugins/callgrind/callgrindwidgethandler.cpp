@@ -77,25 +77,25 @@ namespace Callgrind {
 namespace Internal {
 
 CallgrindWidgetHandler::CallgrindWidgetHandler(QWidget *parent)
-: QObject(parent)
-, m_dataModel(new DataModel(this))
-, m_dataProxy(new DataProxyModel(this))
-, m_stackBrowser(new StackBrowser(this))
-, m_callersModel(new CallModel(this))
-, m_calleesModel(new CallModel(this))
-, m_flatView(0)
-, m_callersView(0)
-, m_calleesView(0)
-, m_visualisation(0)
-, m_goToOverview(0)
-, m_goBack(0)
-, m_searchFilter(0)
-, m_filterProjectCosts(0)
-, m_costAbsolute(0)
-, m_costRelative(0)
-, m_costRelativeToParent(0)
-, m_eventCombo(0)
-, m_updateTimer(new QTimer(this))
+    : QObject(parent)
+    , m_dataModel(new DataModel(this))
+    , m_dataProxy(new DataProxyModel(this))
+    , m_stackBrowser(new StackBrowser(this))
+    , m_callersModel(new CallModel(this))
+    , m_calleesModel(new CallModel(this))
+    , m_flatView(0)
+    , m_callersView(0)
+    , m_calleesView(0)
+    , m_visualisation(0)
+    , m_goToOverview(0)
+    , m_goBack(0)
+    , m_searchFilter(0)
+    , m_filterProjectCosts(0)
+    , m_costAbsolute(0)
+    , m_costRelative(0)
+    , m_costRelativeToParent(0)
+    , m_eventCombo(0)
+    , m_updateTimer(new QTimer(this))
 {
     connect(m_stackBrowser, SIGNAL(currentChanged()), this, SLOT(stackBrowserChanged()));
 
@@ -543,5 +543,5 @@ void CallgrindWidgetHandler::updateEventCombo()
         m_eventCombo->addItem(ParseData::prettyStringForEvent(event));
 }
 
-}
-}
+} // namespace Internal
+} // namespace Callgrind

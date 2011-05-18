@@ -32,9 +32,9 @@
 
 #include "callgrindcostitem.h"
 
-#include <QtCore/QVector>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QVector>
 
 #include "callgrindparsedata.h"
 #include "callgrindfunctioncall.h"
@@ -58,11 +58,11 @@ public:
 };
 
 CostItem::Private::Private(ParseData *data)
-: m_positions(data->positions().size(), 0)
-, m_events(data->events().size(), 0)
-, m_call(0)
-, m_data(data)
-, m_differingFileId(-1)
+    : m_positions(data->positions().size(), 0)
+    , m_events(data->events().size(), 0)
+    , m_call(0)
+    , m_data(data)
+    , m_differingFileId(-1)
 {
 }
 
@@ -76,7 +76,6 @@ CostItem::Private::~Private()
 CostItem::CostItem(ParseData *data)
 : d(new Private(data))
 {
-
 }
 
 CostItem::~CostItem()
@@ -142,5 +141,5 @@ void CostItem::setDifferingFile(qint64 fileId)
     d->m_differingFileId = fileId;
 }
 
-} // Callgrind
-} // Valgrind
+} // namespace Callgrind
+} // namespace Valgrind

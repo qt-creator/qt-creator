@@ -44,7 +44,6 @@ class QIODevice;
 QT_END_NAMESPACE
 
 namespace Valgrind {
-
 namespace XmlProtocol {
 
 class AnnounceThread;
@@ -54,8 +53,10 @@ class Status;
 /**
  * Parser for the Valgrind Output XML Protocol 4
  */
-class VALGRINDSHARED_EXPORT Parser : public QObject {
+class VALGRINDSHARED_EXPORT Parser : public QObject
+{
     Q_OBJECT
+
 public:
     enum Tool {
         Unknown,
@@ -82,8 +83,6 @@ Q_SIGNALS:
     void finished();
 
 private:
-    Q_DISABLE_COPY(Parser)
-
     class Private;
     Private *const d;
 };

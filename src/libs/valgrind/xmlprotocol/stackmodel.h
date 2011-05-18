@@ -49,7 +49,7 @@ class VALGRINDSHARED_EXPORT StackModel : public QAbstractItemModel
     Q_OBJECT
 public:
     enum Column {
-        NameColumn=0,
+        NameColumn = 0,
         FunctionNameColumn,
         DirectoryColumn,
         FileColumn,
@@ -60,14 +60,14 @@ public:
     };
 
     enum Role {
-        ObjectRole=Qt::UserRole,
+        ObjectRole = Qt::UserRole,
         FunctionNameRole,
         DirectoryRole,
         FileRole,
         LineRole
     };
 
-    explicit StackModel(QObject *parent=0);
+    explicit StackModel(QObject *parent = 0);
     ~StackModel();
 
     QVariant data(const QModelIndex &index, int role) const;
@@ -87,7 +87,7 @@ private:
     Private *const d;
 };
 
-}
-}
+} // namespace XmlProtocol
+} // namespace Valgrind
 
 #endif // LIBVALGRIND_PROTOCOL_STACKMODEL_H

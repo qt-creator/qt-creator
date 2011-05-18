@@ -43,8 +43,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QVector>
 
-using namespace Valgrind;
-using namespace Valgrind::XmlProtocol;
+namespace Valgrind {
+namespace XmlProtocol {
 
 class StackModel::Private
 {
@@ -70,8 +70,7 @@ static QString makeName(const Frame &frame)
     if (!d.isEmpty() && !f.isEmpty())
         return frame.line() > 0 ? QString::fromLatin1("%1%2%3:%4").arg(d, QDir::separator(), f, QString::number(frame.line()))
                                 : QString::fromLatin1("%1%2%3").arg(d, QDir::separator(), f);
-    else
-        return frame.object();
+    return frame.object();
 }
 
 StackModel::StackModel(QObject *parent)
@@ -187,8 +186,8 @@ QModelIndex StackModel::index(int row, int column, const QModelIndex &parent) co
     if (parent.isValid()) {
         QTC_ASSERT(parent.model() == this, return QModelIndex());
         return createIndex(row, column, parent.row());
-    } else
-        return createIndex(row, column, -1);
+    }
+    return createIndex(row, column, -1);
 }
 
 QModelIndex StackModel::parent(const QModelIndex &child) const
@@ -197,8 +196,7 @@ QModelIndex StackModel::parent(const QModelIndex &child) const
 
     if (child.internalId() == -1)
         return QModelIndex();
-    else
-        return createIndex(child.internalId(), 0, -1);
+    return createIndex(child.internalId(), 0, -1);
 }
 
 int StackModel::rowCount(const QModelIndex &parent) const
@@ -212,11 +210,11 @@ int StackModel::rowCount(const QModelIndex &parent) const
 
     if (!gp.isValid())
         return d->stack(parent.row()).frames().size();
-    else
-        return 0;
+    return 0;
 }
 
-int StackModel::columnCount(const QModelIndex &parent) const {
+int StackModel::columnCount(const QModelIndex &parent) const
+{
     QTC_ASSERT(!parent.isValid() || parent.model() == this, return 0);
     return ColumnCount;
 }
@@ -235,3 +233,6 @@ void StackModel::clear()
     d->error = Error();
     endResetModel();
 }
+
+} // namespace XmlProtocol
+} // namespace Valgrind

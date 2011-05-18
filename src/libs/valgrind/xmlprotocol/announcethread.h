@@ -68,7 +68,7 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-}
-}
+} // namespace XmlProtocol
+} // namespace Valgrind
 
 #endif // LIBVALGRIND_PROTOCOL_ANNOUNCETHREAD_H

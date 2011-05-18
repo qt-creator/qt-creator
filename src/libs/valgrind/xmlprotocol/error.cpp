@@ -44,10 +44,11 @@
 
 #include <QtCore/QtAlgorithms>
 
-using namespace Valgrind;
-using namespace Valgrind::XmlProtocol;
+namespace Valgrind {
+namespace XmlProtocol {
 
-class Error::Private : public QSharedData {
+class Error::Private : public QSharedData
+{
 public:
     explicit Private() :
         unique(0),
@@ -260,3 +261,6 @@ QString Error::toXml() const
 
     return xml;
 }
+
+} // namespace XmlProtocol
+} // namespace Valgrind

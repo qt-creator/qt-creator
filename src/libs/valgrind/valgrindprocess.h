@@ -35,11 +35,11 @@
 #ifndef VALGRIND_RUNNER_P_H
 #define VALGRIND_RUNNER_P_H
 
+#include "valgrind_global.h"
+
 #include <utils/qtcprocess.h>
 #include <utils/ssh/sshremoteprocess.h>
 #include <utils/ssh/sshconnection.h>
-
-#include "valgrind_global.h"
 
 namespace Valgrind {
 
@@ -49,9 +49,9 @@ namespace Valgrind {
 class VALGRINDSHARED_EXPORT ValgrindProcess : public QObject
 {
     Q_OBJECT
+
 public:
     explicit ValgrindProcess(QObject *parent = 0);
-    virtual ~ValgrindProcess();
 
     virtual bool isRunning() const = 0;
 
@@ -86,7 +86,6 @@ class VALGRINDSHARED_EXPORT LocalValgrindProcess : public ValgrindProcess
 
 public:
     explicit LocalValgrindProcess(QObject *parent = 0);
-    virtual ~LocalValgrindProcess();
 
     virtual bool isRunning() const;
 
@@ -125,7 +124,6 @@ public:
                                    QObject *parent = 0);
     explicit RemoteValgrindProcess(const Utils::SshConnection::Ptr &connection,
                                    QObject *parent = 0);
-    virtual ~RemoteValgrindProcess();
 
     virtual bool isRunning() const;
 
@@ -167,6 +165,6 @@ private:
     Utils::SshRemoteProcess::Ptr m_findPID;
 };
 
-}
+} // namespace Valgrind
 
 #endif // VALGRIND_RUNNER_P_H

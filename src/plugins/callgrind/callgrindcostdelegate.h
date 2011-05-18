@@ -40,8 +40,6 @@ namespace Internal {
 
 class CostDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
-
 public:
     explicit CostDelegate(QObject *parent = 0);
     virtual ~CostDelegate();

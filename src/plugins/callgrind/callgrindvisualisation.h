@@ -43,7 +43,6 @@ QT_END_NAMESPACE
 namespace Valgrind {
 namespace Callgrind {
 class Function;
-class DataModel;
 }
 }
 
@@ -58,7 +57,7 @@ public:
     explicit Visualisation(QWidget *parent = 0);
     virtual ~Visualisation();
 
-    void setModel(Valgrind::Callgrind::DataModel *model);
+    void setModel(QAbstractItemModel *model);
 
     const Valgrind::Callgrind::Function *functionForItem(QGraphicsItem *item) const;
     QGraphicsItem *itemForFunction(const Valgrind::Callgrind::Function *function) const;

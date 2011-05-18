@@ -34,24 +34,25 @@
 
 #include "memcheckrunner.h"
 
-#include <xmlprotocol/threadedparser.h>
 #include <xmlprotocol/error.h>
 #include <xmlprotocol/status.h>
+#include <xmlprotocol/threadedparser.h>
 
 #include <utils/qtcassert.h>
 
+#include <QtNetwork/QNetworkInterface>
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QNetworkInterface>
 #include <QtCore/QEventLoop>
-#include <QtGui/QDialog>
 #include <QtGui/QApplication>
-#include <QtGui/QVBoxLayout>
+#include <QtGui/QDialog>
+#include <QtGui/QDialogButtonBox>
 #include <QtGui/QLabel>
 #include <QtGui/QListWidget>
-#include <QtGui/QDialogButtonBox>
+#include <QtGui/QVBoxLayout>
 
-using namespace Valgrind::Memcheck;
+namespace Valgrind {
+namespace Memcheck {
 
 class MemcheckRunner::Private
 {
@@ -228,3 +229,6 @@ void MemcheckRunner::readLogSocket()
 {
     emit logMessageReceived(d->logSocket->readAll());
 }
+
+} // namespace Memcheck
+} // namespace Valgrind

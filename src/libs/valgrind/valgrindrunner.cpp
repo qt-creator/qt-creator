@@ -43,7 +43,7 @@
 
 #include <QtCore/QEventLoop>
 
-using namespace Valgrind;
+namespace Valgrind {
 
 class ValgrindRunner::Private
 {
@@ -256,3 +256,5 @@ ValgrindProcess *ValgrindRunner::valgrindProcess() const
 {
     return d->process;
 }
+
+} // namespace Valgrind

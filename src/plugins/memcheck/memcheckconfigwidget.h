@@ -32,7 +32,6 @@
 **
 **************************************************************************/
 
-
 #ifndef ANALYZER_INTERNAL_MEMCHECKCONFIGWIDGET_H
 #define ANALYZER_INTERNAL_MEMCHECKCONFIGWIDGET_H
 
@@ -75,7 +74,7 @@ private:
     Ui::MemcheckConfigWidget *m_ui;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Memcheck
 
 #endif // ANALYZER_INTERNAL_MEMCHECKCONFIGWIDGET_H

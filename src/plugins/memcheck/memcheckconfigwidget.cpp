@@ -44,7 +44,8 @@
 #include <QtGui/QFileDialog>
 #include <QtCore/QDebug>
 
-using namespace Memcheck::Internal;
+namespace Memcheck {
+namespace Internal {
 
 MemcheckConfigWidget::MemcheckConfigWidget(AbstractMemcheckSettings *settings, QWidget *parent)
     : QWidget(parent),
@@ -176,3 +177,6 @@ void MemcheckConfigWidget::slotSuppressionSelectionChanged()
 {
     m_ui->removeSuppression->setEnabled(m_ui->suppressionList->selectionModel()->hasSelection());
 }
+
+} // namespace Internal
+} // namespace Memcheck

@@ -36,12 +36,12 @@
 #include "callgrindfunction.h"
 #include "callgrindcostitem.h"
 
-#include <QChar>
-#include <QDebug>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QChar>
+#include <QtCore/QDebug>
 #include <QtCore/QStringList>
 #include <QtCore/QVector>
-
-#include <utils/qtcassert.h>
 
 namespace Valgrind {
 namespace Callgrind {
@@ -60,17 +60,14 @@ namespace {
 
 //BEGIN DataModel::Private
 
-class DataModel::Private {
+class DataModel::Private
+{
 public:
     Private()
     : m_data(0)
     , m_event(0)
     , m_verboseToolTips(true)
     , m_cycleDetection(false)
-    {
-    }
-
-    ~Private()
     {
     }
 
@@ -110,7 +107,6 @@ void DataModel::Private::updateFunctions()
 DataModel::DataModel(QObject *parent)
    : QAbstractItemModel(parent), d(new Private)
 {
-
 }
 
 DataModel::~DataModel()
@@ -240,7 +236,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
     else if (role == RelativeParentCostRole || role == RelativeTotalCostRole) {
         if (index.column() == SelfCostColumn)
             return (float)selfCost / totalCost;
-        else if (index.column() == InclusiveCostColumn)
+        if (index.column() == InclusiveCostColumn)
             return (float)inclusiveCost / totalCost;
     }
     else if (role == LineNumberRole) {
@@ -257,13 +253,13 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
     else if (role == Qt::DisplayRole) {
         if (index.column() == NameColumn)
             return func->name();
-        else if (index.column() == LocationColumn)
+        if (index.column() == LocationColumn)
             return func->location();
-        else if (index.column() == CalledColumn)
+        if (index.column() == CalledColumn)
             return func->called();
-        else if (index.column() == SelfCostColumn)
+        if (index.column() == SelfCostColumn)
             return selfCost;
-        else if (index.column() == InclusiveCostColumn)
+        if (index.column() == InclusiveCostColumn)
             return inclusiveCost;
     } else if (role == Qt::ToolTipRole) {
         if (!d->m_verboseToolTips)
@@ -336,23 +332,22 @@ QVariant DataModel::headerData(int section, Qt::Orientation orientation, int rol
             return QVariant();
 
         const QString prettyCostStr = ParseData::prettyStringForEvent(d->m_data->events().at(d->m_event));
-        if (section == SelfCostColumn) {
+        if (section == SelfCostColumn)
             return tr("%1 cost spent in a given function excluding costs from called functions.").arg(prettyCostStr);
-        } else if (section == InclusiveCostColumn) {
+        if (section == InclusiveCostColumn)
             return tr("%1 cost spent in a given function including costs from called functions.").arg(prettyCostStr);
-        }
         return QVariant();
     }
 
     if (section == NameColumn)
         return tr("Function");
-    else if (section == LocationColumn)
+    if (section == LocationColumn)
         return tr("Location");
-    else if (section == CalledColumn)
+    if (section == CalledColumn)
         return tr("Called");
-    else if (section == SelfCostColumn)
+    if (section == SelfCostColumn)
         return tr("Self Cost: %1").arg(d->m_data ? d->m_data->events().value(d->m_event) : QString());
-    else if (section == InclusiveCostColumn)
+    if (section == InclusiveCostColumn)
         return tr("Incl. Cost: %1").arg(d->m_data ? d->m_data->events().value(d->m_event) : QString());
 
     return QVariant();
@@ -366,5 +361,5 @@ void DataModel::enableCycleDetection(bool enabled)
     endResetModel();
 }
 
-}
-}
+} // namespace Valgrind
+} // namespace Callgrind

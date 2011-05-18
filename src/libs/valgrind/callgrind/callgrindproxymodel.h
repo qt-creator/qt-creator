@@ -33,9 +33,9 @@
 #ifndef VALGRIND_CALLGRIND_CALLGRINDPROXYMODEL_H
 #define VALGRIND_CALLGRIND_CALLGRINDPROXYMODEL_H
 
-#include <QSortFilterProxyModel>
-
 #include "../valgrind_global.h"
+
+#include <QSortFilterProxyModel>
 
 namespace Valgrind {
 namespace Callgrind {
@@ -85,7 +85,7 @@ private:
     double m_minimumInclusiveCostRatio;
 };
 
-}
-}
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // VALGRIND_CALLGRIND_CALLGRINDPROXYMODEL_H

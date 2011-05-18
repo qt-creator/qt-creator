@@ -44,7 +44,8 @@
 namespace Valgrind {
 namespace Callgrind {
 
-class Function::Private {
+class Function::Private
+{
 public:
     Private(const ParseData *data);
     ~Private();
@@ -75,7 +76,7 @@ public:
     quint64 m_called;
 };
 
-}
-}
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // LIBVALGRIND_CALLGRINDFUNCTION_P_H

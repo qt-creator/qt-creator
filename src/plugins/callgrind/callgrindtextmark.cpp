@@ -53,10 +53,6 @@ CallgrindTextMark::CallgrindTextMark(const QPersistentModelIndex &index,
     setPriority(TextEditor::ITextMark::HighPriority);
 }
 
-CallgrindTextMark::~CallgrindTextMark()
-{
-}
-
 void CallgrindTextMark::paint(QPainter *painter, const QRect &paintRect) const
 {
     if (!m_modelIndex.isValid())
@@ -97,7 +93,7 @@ void CallgrindTextMark::paint(QPainter *painter, const QRect &paintRect) const
     painter->restore();
 }
 
-const Function* CallgrindTextMark::function() const
+const Function *CallgrindTextMark::function() const
 {
     if (!m_modelIndex.isValid())
         return 0;

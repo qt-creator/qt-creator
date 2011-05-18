@@ -66,7 +66,7 @@ private:
     QStack<const Function *> m_stack;
 };
 
-}
-}
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // CALLGRINDSTACKBROWSER_H

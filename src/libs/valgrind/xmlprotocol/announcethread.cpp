@@ -40,8 +40,8 @@
 
 #include <algorithm>
 
-using namespace Valgrind;
-using namespace Valgrind::XmlProtocol;
+namespace Valgrind {
+namespace XmlProtocol {
 
 class AnnounceThread::Private : public QSharedData
 {
@@ -106,3 +106,6 @@ void AnnounceThread::setStack(const QVector<Frame> &stack)
 {
     d->stack = stack;
 }
+
+} // namespace XmlProtocol
+} // namespace Valgrind

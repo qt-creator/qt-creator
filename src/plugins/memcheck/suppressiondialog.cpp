@@ -32,7 +32,6 @@
 **
 **************************************************************************/
 
-
 #include "suppressiondialog.h"
 #include "ui_suppressiondialog.h"
 
@@ -57,12 +56,10 @@
 #include <valgrind/xmlprotocol/frame.h>
 
 using namespace Analyzer;
-using namespace Memcheck;
 using namespace Valgrind::XmlProtocol;
 
-using namespace Memcheck::Internal;
-
 namespace {
+
 QString suppressionText(const Error &error)
 {
     Suppression sup(error.suppression());
@@ -95,13 +92,13 @@ QString suppressionText(const Error &error)
 
 /// @p error input error, which might get hidden when it has the same stack
 /// @p suppressed the error that got suppressed already
-static inline bool equalSuppression(const Error &error, const Error &suppressed)
+static bool equalSuppression(const Error &error, const Error &suppressed)
 {
     if (error.kind() != suppressed.kind() || error.suppression().isNull())
         return false;
 
-    const QVector< SuppressionFrame > errorFrames = error.suppression().frames();
-    const QVector< SuppressionFrame > suppressedFrames = suppressed.suppression().frames();
+    const SuppressionFrames errorFrames = error.suppression().frames();
+    const SuppressionFrames suppressedFrames = suppressed.suppression().frames();
 
     // limit to 23 frames, see: https://bugs.kde.org/show_bug.cgi?id=255822
     if (qMin(23, suppressedFrames.size()) > errorFrames.size())
@@ -127,14 +124,17 @@ bool sortIndizesReverse(const QModelIndex &l, const QModelIndex &r)
     return l.row() > r.row();
 }
 
-}
+} // namespace anoe
+
+namespace Memcheck {
+namespace Internal {
 
 SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, QWidget *parent, Qt::WindowFlags f)
-: QDialog(parent, f),
-  m_view(view),
-  m_ui(new Ui::SuppressionDialog),
-  m_settings(view->settings()),
-  m_cleanupIfCanceled(false)
+  : QDialog(parent, f),
+    m_view(view),
+    m_ui(new Ui::SuppressionDialog),
+    m_settings(view->settings()),
+    m_cleanupIfCanceled(false)
 {
     m_ui->setupUi(this);
 
@@ -241,17 +241,19 @@ void SuppressionDialog::accept()
 
 void SuppressionDialog::reject()
 {
-    if (m_cleanupIfCanceled) {
+    if (m_cleanupIfCanceled)
         QFile::remove(m_view->defaultSuppressionFile());
-    }
 
     QDialog::reject();
 }
 
 void SuppressionDialog::validate()
 {
-    bool valid = m_ui->fileChooser->isValid() &&
-                    !m_ui->suppressionEdit->toPlainText().trimmed().isEmpty();
+    bool valid = m_ui->fileChooser->isValid()
+            && !m_ui->suppressionEdit->toPlainText().trimmed().isEmpty();
 
     m_ui->buttonBox->button(QDialogButtonBox::Save)->setEnabled(valid);
 }
+
+} // namespace Internal
+} // namespace Memcheck

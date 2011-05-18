@@ -675,6 +675,5 @@ ParseData *Parser::takeData()
     return data;
 }
 
-
 } //Callgrind
 } //Valgrind

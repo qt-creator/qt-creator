@@ -37,13 +37,14 @@
 #include "frame.h"
 #include "stack.h"
 #include "modelhelpers.h"
+
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QVector>
 
-using namespace Valgrind;
-using namespace Valgrind::XmlProtocol;
+namespace Valgrind {
+namespace XmlProtocol {
 
 class ErrorListModel::Private
 {
@@ -54,7 +55,6 @@ public:
     Frame findRelevantFrame(const Error &error) const;
     QString formatAbsoluteFilePath(const Error &error) const;
     QString formatLocation(const Error &error) const;
-
 };
 
 ErrorListModel::ErrorListModel(QObject *parent)
@@ -96,7 +96,6 @@ QModelIndex ErrorListModel::parent(const QModelIndex &child) const
 {
     QTC_ASSERT(!child.isValid() || child.model() == this, return QModelIndex());
     return QModelIndex();
-
 }
 
 Frame ErrorListModel::Private::findRelevantFrame(const Error &error) const
@@ -110,8 +109,7 @@ Frame ErrorListModel::Private::findRelevantFrame(const Error &error) const
     const QVector<Frame> frames = stack.frames();
     if (!frames.isEmpty())
         return frames.first();
-    else
-        return Frame();
+    return Frame();
 }
 
 QString ErrorListModel::Private::formatAbsoluteFilePath(const Error &error) const
@@ -119,8 +117,7 @@ QString ErrorListModel::Private::formatAbsoluteFilePath(const Error &error) cons
     const Frame f = findRelevantFrame(error);
     if (!f.directory().isEmpty() && !f.file().isEmpty())
         return QString(f.directory() + QDir::separator() + f.file());
-    else
-        return QString();
+    return QString();
 }
 
 QString ErrorListModel::Private::formatLocation(const Error &error) const
@@ -133,8 +130,7 @@ QString ErrorListModel::Private::formatLocation(const Error &error) const
         const qint64 line = frame.line();
         if (line > 0)
             return QString::fromLatin1("%1:%2").arg(file, QString::number(frame.line()));
-        else
-            return file;
+        return file;
     }
     return frame.object();
 }
@@ -290,8 +286,7 @@ Error ErrorListModel::error(const QModelIndex &index) const
     const int r = index.row();
     if (r < 0 || r >= d->errors.size())
         return Error();
-    else
-        return d->errors[r];
+    return d->errors[r];
 }
 
 void ErrorListModel::clear()
@@ -300,3 +295,6 @@ void ErrorListModel::clear()
     d->errors.clear();
     endResetModel();
 }
+
+} // namespace XmlProtocol
+} // namespace Valgrind

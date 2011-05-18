@@ -31,14 +31,14 @@
 **************************************************************************/
 
 #include "callgrindrunner.h"
+#include "callgrindparser.h"
 
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFile>
 
-#include "callgrindparser.h"
-
-using namespace Valgrind::Callgrind;
+namespace Valgrind {
+namespace Callgrind {
 
 CallgrindRunner::CallgrindRunner(QObject *parent)
     : ValgrindRunner(parent)
@@ -131,3 +131,6 @@ void CallgrindRunner::controllerFinished(CallgrindController::Option option)
         break; // do nothing
     }
 }
+
+} // namespace Callgrind
+} // namespace Valgrind

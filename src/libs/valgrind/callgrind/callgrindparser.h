@@ -55,10 +55,12 @@ class ParseData;
  * the rest is assumed to be zero."
  *
  */
-class VALGRINDSHARED_EXPORT Parser : public QObject {
+class VALGRINDSHARED_EXPORT Parser : public QObject
+{
     Q_OBJECT
+
 public:
-    explicit Parser(QObject *parent=0);
+    explicit Parser(QObject *parent = 0);
     ~Parser();
 
     // get and take ownership of the parsing results. If this method is not called the repository
@@ -81,4 +83,4 @@ private:
 } // Callgrind
 } // Valgrind
 
-#endif //LIBVALGRIND_CALLGRIND_PARSER_H
+#endif // LIBVALGRIND_CALLGRIND_PARSER_H

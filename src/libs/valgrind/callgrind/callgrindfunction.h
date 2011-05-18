@@ -50,7 +50,8 @@ class FunctionCall;
 class CostItem;
 class ParseData;
 
-class VALGRINDSHARED_EXPORT Function {
+class VALGRINDSHARED_EXPORT Function
+{
 public:
     /// @p data the ParseData for the file this function was part of
     ///         required for the decompression of string data like function name etc.
@@ -143,6 +144,7 @@ public:
      * for example
      */
     void finalize();
+
 protected:
     class Private;
     Private *d;
@@ -153,8 +155,8 @@ private:
     Q_DISABLE_COPY(Function)
 };
 
-}
-}
+} // namespace Callgrind
+} // namespace Valgrind
 
 Q_DECLARE_METATYPE(const Valgrind::Callgrind::Function *);
 

@@ -35,7 +35,7 @@
 #ifndef VALGRIND_GLOBAL_H
 #define VALGRIND_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+#include <QtCore/QtGlobal>
 
 #if defined(VALGRIND_LIBRARY)
 #  define VALGRINDSHARED_EXPORT Q_DECL_EXPORT

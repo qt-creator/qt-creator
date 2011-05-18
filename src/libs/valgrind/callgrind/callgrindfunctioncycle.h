@@ -46,7 +46,8 @@ namespace Callgrind {
  *                              excluding calees inside the cycle
  * inclusive cost of a function cycle: sum of inclusive cost of callees of the cycle (see above)
  */
-class VALGRINDSHARED_EXPORT FunctionCycle : public Function {
+class VALGRINDSHARED_EXPORT FunctionCycle : public Function
+{
 public:
     explicit FunctionCycle(const ParseData *data);
     virtual ~FunctionCycle();
@@ -61,8 +62,7 @@ private:
     class Private;
 };
 
-}
-}
-
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // LIBVALGRIND_CALLGRINDFUNCTIONCYCLE_H

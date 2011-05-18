@@ -49,7 +49,8 @@ class ParseData;
 /**
  * This class represents the cost(s) at given position(s).
  */
-class VALGRINDSHARED_EXPORT CostItem {
+class VALGRINDSHARED_EXPORT CostItem
+{
 public:
     /// @p data the file data this cost item was parsed in.
     ///         required for decompression of string data like differing source file information
@@ -90,13 +91,13 @@ public:
     void setDifferingFile(qint64 fileId);
 
 private:
-    Q_DISABLE_COPY(CostItem);
+    Q_DISABLE_COPY(CostItem)
 
     class Private;
     Private *d;
 };
 
-} // Callgrind
-} // Valgrind
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // LIBVALGRIND_CALLGRIND_COSTITEM_H

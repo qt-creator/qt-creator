@@ -49,7 +49,8 @@ class Function;
 /**
  * Represents all the information extracted from a callgrind data file.
  */
-class VALGRINDSHARED_EXPORT ParseData {
+class VALGRINDSHARED_EXPORT ParseData
+{
 public:
     explicit ParseData();
     ~ParseData();
@@ -133,12 +134,13 @@ public:
     QString stringForFunctionCompression(qint64 id) const;
     /// @p id if it is -1, an uncompressed string is assumed and it will be compressed internally
     void addCompressedFunction(const QString &function, qint64 &id);
+
 private:
     class Private;
     Private *d;
 };
 
-}
-}
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // LIBVALGRIND_CALLGRIND_PARSEDATA_P_H

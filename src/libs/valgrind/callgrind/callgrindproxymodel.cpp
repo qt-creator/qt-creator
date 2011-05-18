@@ -41,7 +41,8 @@
 
 #include <QDebug>
 
-using namespace Valgrind::Callgrind;
+namespace Valgrind {
+namespace Callgrind {
 
 DataProxyModel::DataProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -163,3 +164,6 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
 
     return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 }
+
+} // namespace Callgrind
+} // namespace Valgrind

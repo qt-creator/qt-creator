@@ -78,7 +78,7 @@ public:
         virtual Frame findRelevant(const Error &error) const = 0;
     };
 
-    explicit ErrorListModel(QObject *parent=0);
+    explicit ErrorListModel(QObject *parent = 0);
     ~ErrorListModel();
 
     QSharedPointer<const RelevantFrameFinder> relevantFrameFinder() const;
@@ -106,7 +106,7 @@ private:
     Private *const d;
 };
 
-}
-}
+} // namespace XmlProtocol
+} // namespace Valgrind
 
 #endif // LIBVALGRIND_PROTOCOL_ERRORLISTMODEL_H

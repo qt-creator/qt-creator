@@ -37,20 +37,19 @@
 #include "callgrindparsedata.h"
 #include "callgrindfunctioncycle.h"
 
-#include <QtCore/QDebug>
-
 #include <utils/qtcassert.h>
+
+#include <QtCore/QDebug>
 
 namespace Valgrind {
 namespace Callgrind {
 namespace Internal {
 
 CycleDetection::CycleDetection(ParseData *data)
-: m_data(data)
-, m_depth(0)
-, m_cycle(0)
+    : m_data(data)
+    , m_depth(0)
+    , m_cycle(0)
 {
-
 }
 
 QVector<const Function *> CycleDetection::run(const QVector<const Function *> &input)
@@ -119,6 +118,6 @@ void CycleDetection::tarjanForChildNode(Node *node, Node *childNode)
     }
 }
 
-}
-}
-}
+} // namespace Internal
+} // namespace Callgrind
+} // namespace Valgrind

@@ -33,11 +33,11 @@
 #ifndef VALGRIND_CALLGRIND_CALLGRINDDATAMODEL_H
 #define VALGRIND_CALLGRIND_CALLGRINDDATAMODEL_H
 
-#include <QtCore/QAbstractItemModel>
-
 #include "../valgrind_global.h"
 
 #include "callgrindabstractmodel.h"
+
+#include <QtCore/QAbstractItemModel>
 
 namespace Valgrind {
 namespace Callgrind {
@@ -101,7 +101,7 @@ private:
     Private *d;
 };
 
-} // Callgrind
-} // Valgrind
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // VALGRIND_CALLGRIND_CALLGRINDDATAMODEL_H

@@ -32,8 +32,8 @@
 
 #include "callgrindstackbrowser.h"
 
-using namespace Valgrind::Callgrind;
-
+namespace Valgrind {
+namespace Callgrind {
 
 StackBrowser::StackBrowser(QObject *parent)
     : QObject(parent)
@@ -73,3 +73,6 @@ void StackBrowser::goBack()
     m_stack.pop();
     emit currentChanged();
 }
+
+} // namespace Callgrind
+} // namespace Valgrind

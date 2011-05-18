@@ -38,15 +38,8 @@
 #include <valgrind/valgrind_global.h>
 #include <valgrind/valgrindrunner.h>
 
-QT_BEGIN_NAMESPACE
-class QProcessEnvironment;
-QT_END_NAMESPACE
-
-namespace Utils {
-class Environment;
-}
-
 namespace Valgrind {
+
 namespace XmlProtocol{
 class ThreadedParser;
 }
@@ -73,16 +66,15 @@ private slots:
     void xmlSocketConnected();
     void logSocketConnected();
     void readLogSocket();
+
 private:
     QString tool() const;
 
-    Q_DISABLE_COPY(MemcheckRunner);
     class Private;
     Private *d;
 };
 
-}
-
-}
+} // namespace Memcheck
+} // namespace Valgrind
 
 #endif // VALGRIND_PROTOCOL_MEMCHECKRUNNER_H

@@ -52,10 +52,12 @@ class Status;
 /**
  * ThreadedParser for the Valgrind Output XmlProtocol 4
  */
-class VALGRINDSHARED_EXPORT ThreadedParser : public QObject {
+class VALGRINDSHARED_EXPORT ThreadedParser : public QObject
+{
     Q_OBJECT
+
 public:
-    explicit ThreadedParser(QObject *parent=0);
+    explicit ThreadedParser(QObject *parent = 0);
     ~ThreadedParser();
 
     QString errorString() const;
@@ -81,8 +83,6 @@ Q_SIGNALS:
     void finished();
 
 private:
-    Q_DISABLE_COPY(ThreadedParser)
-
     class Private;
     Private *const d;
 };

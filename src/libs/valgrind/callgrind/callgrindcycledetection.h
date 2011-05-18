@@ -52,7 +52,8 @@ namespace Internal {
  *      M.  McKusick; Proceedings of the SIGPLAN '82 Symposium on Compiler Construction,
  * SIGPLAN Notices, Vol. 17, No   6, pp. 120-126, June 1982.
  */
-class CycleDetection {
+class CycleDetection
+{
 public:
     explicit CycleDetection(ParseData *data);
     QVector<const Function *> run(const QVector<const Function *> &input);
@@ -77,8 +78,9 @@ private:
     int m_cycle;
 };
 
-}
-}
-}
+} // namespace Internal
+
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // LIBVALGRIND_CALLGRINDCYCLEDETECTION_H

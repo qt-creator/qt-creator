@@ -37,8 +37,6 @@
 #include <QtCore/QDebug>
 
 using namespace Analyzer;
-using namespace Callgrind::Internal;
-using namespace Callgrind;
 
 static const char callgrindEnableCacheSimC[] = "Analyzer.Valgrind.Callgrind.EnableCacheSim";
 static const char callgrindEnableBranchSimC[] = "Analyzer.Valgrind.Callgrind.EnableBranchSim";
@@ -51,10 +49,12 @@ static const char callgrindVisualisationMinimumCostRatioC[] = "Analyzer.Valgrind
 static const char callgrindCycleDetectionC[] = "Analyzer.Valgrind.Callgrind.CycleDetection";
 static const char callgrindCostFormatC[] = "Analyzer.Valgrind.Callgrind.CostFormat";
 
+namespace Callgrind {
+namespace Internal {
+
 AbstractCallgrindSettings::AbstractCallgrindSettings(QObject *parent)
     : AbstractAnalyzerSubConfig(parent)
 {
-
 }
 
 void AbstractCallgrindSettings::setEnableCacheSim(bool enable)
@@ -181,12 +181,6 @@ QWidget *AbstractCallgrindSettings::createConfigWidget(QWidget *parent)
 CallgrindGlobalSettings::CallgrindGlobalSettings(QObject *parent)
     : AbstractCallgrindSettings(parent)
 {
-
-}
-
-CallgrindGlobalSettings::~CallgrindGlobalSettings()
-{
-
 }
 
 QVariantMap CallgrindGlobalSettings::defaults() const
@@ -241,10 +235,7 @@ void CallgrindGlobalSettings::setDetectCycles(bool detect)
 CallgrindProjectSettings::CallgrindProjectSettings(QObject *parent)
     : AbstractCallgrindSettings(parent)
 {
-
 }
 
-CallgrindProjectSettings::~CallgrindProjectSettings()
-{
-
-}
+} // namespace Internal
+} // namespace Callgrind

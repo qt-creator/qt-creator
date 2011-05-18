@@ -46,19 +46,16 @@ class AbstractCallgrindSettings;
 
 class CallgrindConfigWidget : public QWidget
 {
-    Q_OBJECT
-
 public:
     CallgrindConfigWidget(AbstractCallgrindSettings *settings, QWidget *parent);
     virtual ~CallgrindConfigWidget();
 
 private:
     Ui::CallgrindConfigWidget *m_ui;
-
     AbstractCallgrindSettings *m_settings;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Callgrind
 
 #endif // ANALYZER_INTERNAL_CALLGRINDCONFIGWIDGET_H

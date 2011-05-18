@@ -39,10 +39,6 @@
 
 #include "valgrind_global.h"
 
-QT_BEGIN_NAMESPACE
-class QProcessEnvironment;
-QT_END_NAMESPACE
-
 namespace Utils {
 class Environment;
 class SshConnectionParameters;
@@ -101,11 +97,10 @@ protected slots:
     virtual void processFinished(int, QProcess::ExitStatus);
 
 private:
-    Q_DISABLE_COPY(ValgrindRunner);
     class Private;
     Private *d;
 };
 
-}
+} // namespace Valgrind
 
 #endif // VALGRIND_RUNNER_H

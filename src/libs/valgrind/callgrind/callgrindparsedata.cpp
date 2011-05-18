@@ -372,5 +372,5 @@ void ParseData::addCompressedFunction(const QString &function, qint64 &id)
     d->addCompressedString(d->m_functionCompression, function, id);
 }
 
-} // Callgrind
-} // Valgrind
+} // namespace Callgrind
+} // namespace Valgrind

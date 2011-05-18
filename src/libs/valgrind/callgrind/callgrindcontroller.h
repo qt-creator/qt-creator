@@ -52,7 +52,7 @@ namespace Callgrind {
 class VALGRINDSHARED_EXPORT CallgrindController : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Option);
+    Q_ENUMS(Option)
 
 public:
     enum Option {
@@ -68,7 +68,7 @@ public:
     void run(Valgrind::Callgrind::CallgrindController::Option option);
 
     void setValgrindProcess(ValgrindProcess *process);
-    inline ValgrindProcess *valgrindProcess() { return m_valgrindProc; }
+    ValgrindProcess *valgrindProcess() { return m_valgrindProc; }
 
     /**
      * Make data file available locally, triggers @c localParseDataAvailable.
@@ -112,7 +112,7 @@ private:
     QByteArray m_remoteFile;
 };
 
-}
-}
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // CALLGRINDCONTROLLER_H

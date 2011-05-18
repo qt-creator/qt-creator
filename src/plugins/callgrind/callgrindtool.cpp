@@ -212,7 +212,7 @@ void CallgrindTool::extensionsInitialized()
         action = new QAction(tr("Profile Costs of this Function and its Callees"), this);
         action->setIcon(QIcon(Analyzer::Constants::ANALYZER_CONTROL_START_ICON));
         connect(action, SIGNAL(triggered()), SLOT(handleShowCostsOfFunction()));
-        cmd = actionManager->registerAction(action, Callgrind::Constants::A_SHOWCOSTSOFFUNCTION,
+        cmd = actionManager->registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",
             analyzerContext);
         editorContextMenu->addAction(cmd);
         cmd->setAttribute(Core::Command::CA_Hide);

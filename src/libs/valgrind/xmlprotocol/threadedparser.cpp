@@ -44,21 +44,15 @@
 #include <QtCore/QThread>
 #include <QtCore/QSharedPointer>
 
-using namespace Valgrind;
-using namespace Valgrind::XmlProtocol;
-
 namespace {
 
-class Thread : public QThread {
+class Thread : public QThread
+{
 public:
-    Thread()
-        : QThread()
-        , parser(0)
-        , device(0)
-    {
-    }
+    Thread() : parser(0) , device(0) {}
 
-    void run() {
+    void run()
+    {
         QTC_ASSERT(QThread::currentThread() == this, return);
         parser->parse(device);
         delete parser;
@@ -67,10 +61,16 @@ public:
         device = 0;
     }
 
-    XmlProtocol::Parser *parser;
+    Valgrind::XmlProtocol::Parser *parser;
     QIODevice *device;
 };
-}
+
+} // namespace anon
+
+
+namespace Valgrind {
+namespace XmlProtocol {
+
 class ThreadedParser::Private
 {
 public:
@@ -146,7 +146,11 @@ void ThreadedParser::slotInternalError(const QString &errorString)
     d->errorString = errorString;
     emit internalError(errorString);
 }
+
 bool ThreadedParser::waitForFinished()
 {
     return d->parserThread ? d->parserThread.data()->wait() : true;
 }
+
+} // namespace XmlProtocol
+} // namespace Valgrind

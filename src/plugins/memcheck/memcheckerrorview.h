@@ -39,13 +39,7 @@
 #include <QtGui/QStyledItemDelegate>
 #include <QtGui/QLabel>
 
-QT_BEGIN_NAMESPACE
-class QListView;
-class QVBoxLayout;
-QT_END_NAMESPACE
-
-namespace Analyzer
-{
+namespace Analyzer {
 class AnalyzerSettings;
 }
 
@@ -63,8 +57,7 @@ class MemcheckErrorDelegate : public QStyledItemDelegate
 public:
     /// This delegate can only work on one view at a time, parent. parent will also be the parent
     /// in the QObject parent-child system.
-    MemcheckErrorDelegate(QListView *parent);
-    virtual ~MemcheckErrorDelegate();
+    explicit MemcheckErrorDelegate(QListView *parent);
 
     virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,

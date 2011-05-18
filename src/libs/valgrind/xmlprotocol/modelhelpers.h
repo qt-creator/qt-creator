@@ -35,13 +35,11 @@
 #ifndef LIBVALGRIND_PROTOCOL_MODELHELPERS_H
 #define LIBVALGRIND_PROTOCOL_MODELHELPERS_H
 
-#include <QtCore/QtGlobal>
+#include "../valgrind_global.h"
 
 QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
-
-#include "../valgrind_global.h"
 
 namespace Valgrind {
 namespace XmlProtocol {
@@ -50,7 +48,7 @@ class Frame;
 
 VALGRINDSHARED_EXPORT QString toolTipForFrame(const Frame &frame);
 
-}
-}
+} // namespace XmlProtocol
+} // namespace Valgrind
 
 #endif // LIBVALGRIND_PROTOCOL_MODELHELPERS_H

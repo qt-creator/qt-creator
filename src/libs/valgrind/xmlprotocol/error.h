@@ -55,7 +55,8 @@ class Suppression;
 /**
  * Error kinds, specific to memcheck
  */
-enum MemcheckErrorKind {
+enum MemcheckErrorKind
+{
     InvalidFree,
     MismatchedFree,
     InvalidRead,
@@ -74,14 +75,16 @@ enum MemcheckErrorKind {
     MemcheckErrorKindCount
 };
 
-enum PtrcheckErrorKind {
+enum PtrcheckErrorKind
+{
     SorG,
     Heap,
     Arith,
     SysParam
 };
 
-enum HelgrindErrorKind {
+enum HelgrindErrorKind
+{
     Race,
     UnlockUnlocked,
     UnlockForeign,
@@ -91,9 +94,9 @@ enum HelgrindErrorKind {
     Misc
 };
 
-class VALGRINDSHARED_EXPORT Error {
+class VALGRINDSHARED_EXPORT Error
+{
 public:
-
     Error();
     ~Error();
 
@@ -146,4 +149,4 @@ private:
 
 Q_DECLARE_METATYPE(Valgrind::XmlProtocol::Error)
 
-#endif
+#endif // LIBVALGRIND_PROTOCOL_ERROR_H

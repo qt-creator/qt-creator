@@ -49,39 +49,25 @@
 #include <QtCore/QThread>
 #include <QtCore/QXmlStreamReader>
 
-using namespace Valgrind;
-using namespace Valgrind::XmlProtocol;
-
 namespace {
-    class Exception {
+
+    class ParserException
+    {
     public:
-        explicit Exception(const QString &msg)
-            : m_message(msg)
-        {
-        }
+        explicit ParserException(const QString &message)
+            : m_message(message)
+        {}
 
-        ~Exception() throw() {}
+        ~ParserException() throw() {}
 
-        QString message() const
-        {
-            return m_message;
-        }
+        QString message() const { return m_message; }
 
     private:
         QString m_message;
     };
 
-    class ParserException : public Exception {
-    public:
-        explicit ParserException(const QString &message)
-            : Exception(message)
-        {
-        }
-
-        ~ParserException() throw() {}
-    };
-
-    struct XWhat {
+    struct XWhat
+    {
         XWhat() : leakedblocks(0), leakedbytes(0), hthreadid(-1) {}
         QString text;
         qint64 leakedblocks;
@@ -89,12 +75,10 @@ namespace {
         qint64 hthreadid;
     };
 
-    struct XauxWhat {
+    struct XauxWhat
+    {
         XauxWhat() : line(-1), hthreadid(-1) {}
-        void clear()
-        {
-            *this = XauxWhat();
-        }
+        void clear() { *this = XauxWhat(); }
 
         QString text;
         QString file;
@@ -102,20 +86,24 @@ namespace {
         qint64 line;
         qint64 hthreadid;
     };
-}
 
-class Parser::Private {
+} // namespace anon
+
+namespace Valgrind {
+namespace XmlProtocol {
+
+class Parser::Private
+{
     Parser *const q;
 public:
-
     explicit Private(Parser *qq);
 
     void parse(QIODevice *device);
 
     void parse_error();
-    QVector<Frame> parse_stack();
-    Suppression parse_suppression();
-    SuppressionFrame parse_suppFrame();
+    QVector<Frame> parseStack();
+    Suppression parseSuppression();
+    SuppressionFrame parseSuppressionFrame();
     Frame parse_frame();
     void parse_status();
     void parse_errorcounts();
@@ -425,7 +413,7 @@ void Parser::Private::reportInternalError(const QString &e)
     emit q->internalError(e);
 }
 
-static Stack makeStack( const XauxWhat &xauxwhat, const QVector<Frame> &frames)
+static Stack makeStack(const XauxWhat &xauxwhat, const QVector<Frame> &frames)
 {
     Stack s;
     s.setFrames(frames);
@@ -458,7 +446,7 @@ void Parser::Private::parse_error()
         else if (reader.name() == QLatin1String("kind")) //TODO this is memcheck-specific:
             e.setKind(parseErrorKind(blockingReadElementText()));
         else if (reader.name() == QLatin1String("suppression"))
-            e.setSuppression(parse_suppression());
+            e.setSuppression(parseSuppression());
         else if (reader.name() == QLatin1String("xwhat")) {
             const XWhat xw = parseXWhat();
             e.setWhat(xw.text);
@@ -489,7 +477,7 @@ void Parser::Private::parse_error()
             lastAuxWhat = 0;
         }
         else if (reader.name() == QLatin1String("stack")) {
-            frames.push_back(parse_stack());
+            frames.push_back(parseStack());
         }
         else if (reader.isStartElement())
             reader.skipCurrentElement();
@@ -552,7 +540,7 @@ void Parser::Private::parse_announcethread()
             if (reader.name() == QLatin1String("hthreadid"))
                 at.setHelgrindThreadId(parseInt64(blockingReadElementText(), QLatin1String("announcethread/hthreadid")));
             else if (reader.name() == QLatin1String("stack"))
-                at.setStack(parse_stack());
+                at.setStack(parseStack());
             else if (reader.isStartElement())
                 reader.skipCurrentElement();
         }
@@ -645,7 +633,7 @@ void Parser::Private::parse_status()
     emit q->status(s);
 }
 
-QVector<Frame> Parser::Private::parse_stack()
+QVector<Frame> Parser::Private::parseStack()
 {
     QVector<Frame> frames;
     while (notAtEnd()) {
@@ -661,7 +649,7 @@ QVector<Frame> Parser::Private::parse_stack()
     return frames;
 }
 
-SuppressionFrame Parser::Private::parse_suppFrame()
+SuppressionFrame Parser::Private::parseSuppressionFrame()
 {
     SuppressionFrame frame;
 
@@ -682,10 +670,10 @@ SuppressionFrame Parser::Private::parse_suppFrame()
     return frame;
 }
 
-Suppression Parser::Private::parse_suppression()
+Suppression Parser::Private::parseSuppression()
 {
     Suppression supp;
-    QVector<SuppressionFrame> frames;
+    SuppressionFrames frames;
     while (notAtEnd()) {
         blockingReadNext();
         if (reader.isEndElement())
@@ -700,7 +688,7 @@ Suppression Parser::Private::parse_suppression()
             else if (reader.name() == QLatin1String("rawtext"))
                 supp.setRawText(blockingReadElementText());
             else if (reader.name() == QLatin1String("sframe"))
-                frames.push_back(parse_suppFrame());
+                frames.push_back(parseSuppressionFrame());
         }
     }
 
@@ -760,3 +748,6 @@ void Parser::parse(QIODevice *device)
 {
     d->parse(device);
 }
+
+} // namespace XmlParser
+} // namespace Valgrind

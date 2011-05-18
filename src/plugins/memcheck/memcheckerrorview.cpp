@@ -67,9 +67,10 @@
 #include <QtGui/QApplication>
 #include <QtGui/QMenu>
 
-using namespace Memcheck;
-using namespace Memcheck::Internal;
 using namespace Valgrind::XmlProtocol;
+
+namespace Memcheck {
+namespace Internal {
 
 MemcheckErrorDelegate::MemcheckErrorDelegate(QListView *parent)
     : QStyledItemDelegate(parent),
@@ -77,10 +78,6 @@ MemcheckErrorDelegate::MemcheckErrorDelegate(QListView *parent)
 {
     connect(parent->verticalScrollBar(), SIGNAL(valueChanged(int)),
             SLOT(verticalScrolled()));
-}
-
-MemcheckErrorDelegate::~MemcheckErrorDelegate()
-{
 }
 
 QSize MemcheckErrorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const
@@ -152,10 +149,9 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
 
     if (!fn.isEmpty())
         return QCoreApplication::translate("Memcheck::Internal", "%1 in %2").arg(Qt::escape(fn), path);
-    else if (!path.isEmpty())
+    if (!path.isEmpty())
         return path;
-    else
-        return QString("0x%1").arg(frame.instructionPointer(), 0, 16);
+    return QString("0x%1").arg(frame.instructionPointer(), 0, 16);
 }
 
 QString relativeToPath()
@@ -179,7 +175,7 @@ QString errorLocation(const QModelIndex &index, const Error &error,
     while (!model && proxy) {
         model = qobject_cast<const ErrorListModel *>(proxy->sourceModel());
         proxy = qobject_cast<const QAbstractProxyModel *>(proxy->sourceModel());
-    };
+    }
     QTC_ASSERT(model, return QString());
 
     return QCoreApplication::translate("Memcheck::Internal", "in %1").
@@ -448,8 +444,8 @@ MemcheckErrorView::~MemcheckErrorView()
 void MemcheckErrorView::setModel(QAbstractItemModel *model)
 {
     QListView::setModel(model);
-    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-            itemDelegate(), SLOT(currentChanged(QModelIndex, QModelIndex)));
+    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            itemDelegate(), SLOT(currentChanged(QModelIndex,QModelIndex)));
 
     connect(model, SIGNAL(layoutChanged()),
             itemDelegate(), SLOT(layoutChanged()));
@@ -476,7 +472,6 @@ QString MemcheckErrorView::defaultSuppressionFile() const
 void MemcheckErrorView::settingsChanged(Analyzer::AnalyzerSettings *settings)
 {
     QTC_ASSERT(settings, return);
-
     m_settings = settings;
 }
 
@@ -485,7 +480,6 @@ void MemcheckErrorView::contextMenuEvent(QContextMenuEvent *e)
     const QModelIndexList indizes = selectionModel()->selectedRows();
     if (indizes.isEmpty())
         return;
-
 
     QList<Error> errors;
     foreach (const QModelIndex &index, indizes) {
@@ -513,3 +507,6 @@ void MemcheckErrorView::suppressError()
         delete dialog;
     }
 }
+
+} // namespace Internal
+} // namespace Memcheck

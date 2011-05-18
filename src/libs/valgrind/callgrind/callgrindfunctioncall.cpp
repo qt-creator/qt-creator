@@ -34,15 +34,16 @@
 
 #include "callgrindfunction.h"
 
-#include <QtCore/QVector>
-
 #include <utils/qtcassert.h>
+
+#include <QtCore/QVector>
 
 namespace Valgrind {
 namespace Callgrind {
 
 //BEGIN FunctionCall::Private
-class FunctionCall::Private {
+class FunctionCall::Private
+{
 public:
     explicit Private();
 
@@ -55,20 +56,18 @@ public:
 };
 
 FunctionCall::Private::Private()
-: m_callee(0)
-, m_caller(0)
-, m_calls(0)
-, m_totalInclusiveCost(0)
+    : m_callee(0)
+    , m_caller(0)
+    , m_calls(0)
+    , m_totalInclusiveCost(0)
 {
-
 }
 
 //BEGIN FunctionCall
 
 FunctionCall::FunctionCall()
-: d(new Private)
+    : d(new Private)
 {
-
 }
 
 FunctionCall::~FunctionCall()
@@ -137,6 +136,5 @@ void FunctionCall::setCosts(const QVector<quint64> &costs)
     d->m_costs = costs;
 }
 
-
-} // Callgrind
-} // Valgrind
+} // namespace Callgrind
+} // namespace Valgrind

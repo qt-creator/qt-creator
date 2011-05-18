@@ -40,10 +40,6 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QSharedDataPointer>
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
-
 namespace Valgrind {
 namespace XmlProtocol {
 

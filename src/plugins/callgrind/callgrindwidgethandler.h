@@ -61,7 +61,6 @@ class CallModel;
 namespace Callgrind {
 namespace Internal {
 
-class CallgrindEngine;
 class Visualisation;
 class CostView;
 

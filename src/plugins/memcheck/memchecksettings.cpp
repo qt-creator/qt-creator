@@ -40,9 +40,6 @@
 #include <utils/qtcassert.h>
 
 using namespace Analyzer;
-using namespace Memcheck;
-
-using namespace Memcheck::Internal;
 
 static const char numCallersC[]  = "Analyzer.Valgrind.NumCallers";
 static const char trackOriginsC[] = "Analyzer.Valgrind.TrackOrigins";
@@ -55,14 +52,12 @@ static const char visibleErrorKindsC[] = "Analyzer.Valgrind.VisibleErrorKinds";
 static const char lastSuppressionDirectoryC[] = "Analyzer.Valgrind.LastSuppressionDirectory";
 static const char lastSuppressionHistoryC[] = "Analyzer.Valgrind.LastSuppressionHistory";
 
+namespace Memcheck {
+namespace Internal {
+
 AbstractMemcheckSettings::AbstractMemcheckSettings(QObject *parent)
-: AbstractAnalyzerSubConfig(parent)
+    : AbstractAnalyzerSubConfig(parent)
 {
-}
-
-AbstractMemcheckSettings::~AbstractMemcheckSettings()
-{
-
 }
 
 QVariantMap AbstractMemcheckSettings::defaults() const
@@ -163,10 +158,6 @@ MemcheckGlobalSettings::MemcheckGlobalSettings(QObject *parent)
 {
 }
 
-MemcheckGlobalSettings::~MemcheckGlobalSettings()
-{
-}
-
 QStringList MemcheckGlobalSettings::suppressionFiles() const
 {
     return m_suppressionFiles;
@@ -244,10 +235,6 @@ MemcheckProjectSettings::MemcheckProjectSettings(QObject *parent)
 {
 }
 
-MemcheckProjectSettings::~MemcheckProjectSettings()
-{
-}
-
 QVariantMap MemcheckProjectSettings::defaults() const
 {
     QVariantMap ret = AbstractMemcheckSettings::defaults();
@@ -302,3 +289,6 @@ QStringList MemcheckProjectSettings::suppressionFiles() const
     ret.append(m_addedSuppressionFiles);
     return ret;
 }
+
+} // namespace Internal
+} // namespace Memcheck

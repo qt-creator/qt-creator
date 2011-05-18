@@ -333,36 +333,36 @@ void Visualisation::setMinimumInclusiveCostRatio(double ratio)
     d->m_model->setMinimumInclusiveCostRatio(ratio);
 }
 
-void Visualisation::setModel(DataModel *model)
+void Visualisation::setModel(QAbstractItemModel *model)
 {
     QTC_ASSERT(!d->m_model->sourceModel() && model, return); // only set once!
     d->m_model->setSourceModel(model);
 
     connect(model,
-            SIGNAL(columnsInserted(const QModelIndex&, int, int)),
+            SIGNAL(columnsInserted(QModelIndex,int,int)),
             SLOT(populateScene()));
     connect(model,
-            SIGNAL(columnsMoved(const QModelIndex&, int, int, const QModelIndex&, int)),
+            SIGNAL(columnsMoved(QModelIndex,int,int,QModelIndex,int)),
             SLOT(populateScene()));
     connect(model,
-            SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
+            SIGNAL(columnsRemoved(QModelIndex,int,int)),
             SLOT(populateScene()));
     connect(model,
-            SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+            SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(populateScene()));
     connect(model,
-            SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+            SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
             SLOT(populateScene()));
     connect(model, SIGNAL(layoutChanged()), SLOT(populateScene()));
     connect(model, SIGNAL(modelReset()), SLOT(populateScene()));
     connect(model,
-            SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+            SIGNAL(rowsInserted(QModelIndex,int,int)),
             SLOT(populateScene()));
     connect(model,
-            SIGNAL(rowsMoved(const QModelIndex&, int, int, const QModelIndex&, int)),
+            SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
             SLOT(populateScene()));
     connect(model,
-            SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+            SIGNAL(rowsRemoved(QModelIndex,int,int)),
             SLOT(populateScene()));
 
     populateScene();
@@ -392,8 +392,7 @@ void Visualisation::populateScene()
 
     typedef QPair<QModelIndex, qreal> Pair;
     QLinkedList<Pair> costs;
-    for (int row=0; row < d->m_model->rowCount(); ++row)
-    {
+    for (int row = 0; row < d->m_model->rowCount(); ++row) {
         const QModelIndex index = d->m_model->index(row, DataModel::InclusiveCostColumn);
 
         bool ok = false;
@@ -407,9 +406,9 @@ void Visualisation::populateScene()
         // item showing the current filter function
 
         QString text;
-        if (d->m_model->filterFunction())
+        if (d->m_model->filterFunction()) {
             text = d->m_model->filterFunction()->name();
-        else {
+        } else {
             const float ratioPercent = d->m_model->minimumInclusiveCostRatio() * 100;
             QString ratioPercentString = QString::number(ratioPercent);
             ratioPercentString.append(QLocale::system().percent());
@@ -419,7 +418,7 @@ void Visualisation::populateScene()
                     .arg(hiddenFunctions);
         }
 
-        const qreal height = sceneHeight* (costs.isEmpty() ? 1.0 : 0.1);
+        const qreal height = sceneHeight * (costs.isEmpty() ? 1.0 : 0.1);
         FunctionGraphicsItem *item = new FunctionGraphicsItem(text, 0, 0, sceneWidth, height);
         const QColor background = CallgrindHelper::colorForString(text);
         item->setBrush(background);
@@ -431,8 +430,7 @@ void Visualisation::populateScene()
 
     // add the canvas elements to the scene
     qreal used = sceneHeight * 0.1;
-    foreach (const Pair &cost, costs)
-    {
+    foreach (const Pair &cost, costs) {
         const QModelIndex &index = cost.first;
         const QString text = index.data().toString();
 
@@ -467,7 +465,6 @@ void Visualisation::resizeEvent(QResizeEvent *event)
 
     QGraphicsView::resizeEvent(event);
 }
-
 
 } // Internal
 } // Callgrind

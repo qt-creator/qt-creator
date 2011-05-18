@@ -93,7 +93,7 @@ private:
     Private *d;
 };
 
-} // Callgrind
-} // Valgrind
+} // namespace Callgrind
+} // namespace Valgrind
 
 #endif // VALGRIND_CALLGRIND_CALLGRINDCALLMODEL_H

@@ -37,10 +37,11 @@
 #include <QtCore/QString>
 #include <QtCore/QtAlgorithms>
 
-using namespace Valgrind;
-using namespace Valgrind::XmlProtocol;
+namespace Valgrind {
+namespace XmlProtocol {
 
-class Frame::Private : public QSharedData {
+class Frame::Private : public QSharedData
+{
 public:
     explicit Private() :
         ip(0), line( -1 )
@@ -158,3 +159,6 @@ void Frame::setLine(int line)
 {
     d->line = line;
 }
+
+} // namespace XmlProtocol
+} // namespace Valgrind

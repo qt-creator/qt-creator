@@ -62,7 +62,6 @@ namespace Internal {
 
 class CallgrindEngine;
 class CallgrindWidgetHandler;
-class CallgrindOutputPaneAdapter;
 class CallgrindTextMark;
 
 class CallgrindTool : public Analyzer::IAnalyzerTool

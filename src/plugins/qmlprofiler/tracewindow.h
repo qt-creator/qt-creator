@@ -34,19 +34,12 @@
 #ifndef TRACEWINDOW_H
 #define TRACEWINDOW_H
 
-#include <QtCore/qpointer.h>
-#include <QtGui/qwidget.h>
-
 #include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 
+#include <QtCore/QPointer>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-class QTabWidget;
-class QSlider;
-class QGroupBox;
-class QLabel;
-class QSpinBox;
-class QPushButton;
 class QDeclarativeView;
 QT_END_NAMESPACE
 
@@ -60,6 +53,7 @@ class TracePlugin;
 class TraceWindow : public QWidget
 {
     Q_OBJECT
+
 public:
     TraceWindow(QWidget *parent = 0);
     ~TraceWindow();

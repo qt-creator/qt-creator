@@ -43,7 +43,7 @@
 #include <QtGui/QGroupBox>
 #include <QtGui/QVBoxLayout>
 
-using namespace Analyzer;
+namespace Analyzer {
 
 AnalyzerRunConfigWidget::AnalyzerRunConfigWidget()
     : m_detailsWidget(new Utils::DetailsWidget(this))
@@ -79,9 +79,10 @@ void AnalyzerRunConfigWidget::setRunConfiguration(ProjectExplorer::RunConfigurat
     // add group boxes for each sub config
     QLayout *layout = m_detailsWidget->widget()->layout();
     foreach (AbstractAnalyzerSubConfig *config, settings->subConfigs()) {
-        QGroupBox *box = new QGroupBox(config->displayName());
-        Q_UNUSED(box)
+        (void) new QGroupBox(config->displayName());
         QWidget *widget = config->createConfigWidget(this);
         layout->addWidget(widget);
     }
 }
+
+} // namespace Analyzer

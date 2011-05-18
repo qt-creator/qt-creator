@@ -43,14 +43,8 @@
 namespace Valgrind {
 
 ValgrindProcess::ValgrindProcess(QObject *parent)
-: QObject(parent)
+    : QObject(parent)
 {
-
-}
-
-ValgrindProcess::~ValgrindProcess()
-{
-
 }
 
 ////////////////////////
@@ -68,11 +62,6 @@ LocalValgrindProcess::LocalValgrindProcess(QObject *parent)
             this, SLOT(readyReadStandardError()));
     connect(&m_process, SIGNAL(readyReadStandardOutput()),
             this, SLOT(readyReadStandardOutput()));
-}
-
-LocalValgrindProcess::~LocalValgrindProcess()
-{
-
 }
 
 void LocalValgrindProcess::setProcessChannelMode(QProcess::ProcessChannelMode mode)
@@ -153,28 +142,19 @@ void LocalValgrindProcess::readyReadStandardOutput()
 
 RemoteValgrindProcess::RemoteValgrindProcess(const Utils::SshConnectionParameters &sshParams,
                                              QObject *parent)
-: ValgrindProcess(parent)
-, m_params(sshParams)
-, m_error(QProcess::UnknownError)
-, m_pid(0)
-{
-
-}
+    : ValgrindProcess(parent)
+    , m_params(sshParams)
+    , m_error(QProcess::UnknownError)
+    , m_pid(0)
+{}
 
 RemoteValgrindProcess::RemoteValgrindProcess(const Utils::SshConnection::Ptr &connection, QObject *parent)
-: ValgrindProcess(parent)
-, m_params(connection->connectionParameters())
-, m_connection(connection)
-, m_error(QProcess::UnknownError)
-, m_pid(0)
-{
-
-}
-
-RemoteValgrindProcess::~RemoteValgrindProcess()
-{
-
-}
+    : ValgrindProcess(parent)
+    , m_params(connection->connectionParameters())
+    , m_connection(connection)
+    , m_error(QProcess::UnknownError)
+    , m_pid(0)
+{}
 
 bool RemoteValgrindProcess::isRunning() const
 {
@@ -368,4 +348,4 @@ Q_PID RemoteValgrindProcess::pid() const
     return m_pid;
 }
 
-}
+} // namespace Valgrind

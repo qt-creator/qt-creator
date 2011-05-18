@@ -44,16 +44,16 @@ namespace Callgrind {
 
 //BEGIN FunctionCycle::Private
 
-class FunctionCycle::Private : public Function::Private {
+class FunctionCycle::Private : public Function::Private
+{
 public:
     Private(const ParseData *data);
     QVector<const Function *> m_functions;
 };
 
 FunctionCycle::Private::Private(const ParseData *data)
-: Function::Private(data)
+    : Function::Private(data)
 {
-
 }
 
 #define CYCLE_D static_cast<FunctionCycle::Private *>(this->d)
@@ -61,7 +61,7 @@ FunctionCycle::Private::Private(const ParseData *data)
 //BEGIN FunctionCycle
 
 FunctionCycle::FunctionCycle(const ParseData *data)
-: Function(new Private(data))
+    : Function(new Private(data))
 {
 }
 
@@ -114,5 +114,5 @@ QVector<const Function *> FunctionCycle::functions() const
     return CYCLE_D->m_functions;
 }
 
-}
-}
+} // namespace Callgrind
+} // namespace Valgrind

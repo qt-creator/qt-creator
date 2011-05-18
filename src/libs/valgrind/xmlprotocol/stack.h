@@ -48,7 +48,8 @@ namespace XmlProtocol {
 
 class Frame;
 
-class VALGRINDSHARED_EXPORT Stack {
+class VALGRINDSHARED_EXPORT Stack
+{
 public:
     Stack();
     Stack(const Stack &other);
@@ -82,7 +83,7 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-}
-}
+} // namespace XmlProtocol
+} // namespace Stack
 
 #endif // LIBVALGRIND_PROTOCOL_STACK_H

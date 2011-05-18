@@ -129,7 +129,7 @@ public:
     QString kind;
     QString auxkind;
     QString rawText;
-    QVector<SuppressionFrame> frames;
+    SuppressionFrames frames;
 };
 
 Suppression::Suppression()
@@ -216,13 +216,13 @@ QString Suppression::rawText() const
     return d->rawText;
 }
 
-void Suppression::setFrames(const QVector<SuppressionFrame> &frames)
+void Suppression::setFrames(const SuppressionFrames &frames)
 {
     d->isNull = false;
     d->frames = frames;
 }
 
-QVector<SuppressionFrame> Suppression::frames() const
+SuppressionFrames Suppression::frames() const
 {
     return d->frames;
 }
@@ -236,9 +236,8 @@ QString Suppression::toString() const
     stream << "{\n";
     stream << indent << d->name << '\n';
     stream << indent << d->kind << '\n';
-    foreach (const SuppressionFrame &frame, d->frames) {
+    foreach (const SuppressionFrame &frame, d->frames)
         stream << indent << frame.toString() << '\n';
-    }
     stream << "}\n";
     return ret;
 }

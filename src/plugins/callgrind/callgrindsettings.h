@@ -33,10 +33,11 @@
 #ifndef ANALYZER_INTERNAL_CALLGRINDSETTINGS_H
 #define ANALYZER_INTERNAL_CALLGRINDSETTINGS_H
 
+#include "callgrindcostdelegate.h"
+
 #include <analyzerbase/analyzersettings.h>
 
 #include <QtCore/QString>
-#include "callgrindcostdelegate.h"
 
 namespace Callgrind {
 namespace Internal {
@@ -51,17 +52,17 @@ class AbstractCallgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
 public:
     AbstractCallgrindSettings(QObject *parent = 0);
 
-    inline bool enableCacheSim() const { return m_enableCacheSim; }
-    inline bool enableBranchSim() const { return m_enableBranchSim; }
-    inline bool collectSystime() const { return m_collectSystime; }
-    inline bool collectBusEvents() const { return m_collectBusEvents; }
-    inline bool enableEventToolTips() const { return m_enableEventToolTips; }
+    bool enableCacheSim() const { return m_enableCacheSim; }
+    bool enableBranchSim() const { return m_enableBranchSim; }
+    bool collectSystime() const { return m_collectSystime; }
+    bool collectBusEvents() const { return m_collectBusEvents; }
+    bool enableEventToolTips() const { return m_enableEventToolTips; }
 
     /// \return Minimum cost ratio, range [0.0..100.0]
-    inline double minimumInclusiveCostRatio() const { return m_minimumInclusiveCostRatio; }
+    double minimumInclusiveCostRatio() const { return m_minimumInclusiveCostRatio; }
 
     /// \return Minimum cost ratio, range [0.0..100.0]
-    inline double visualisationMinimumInclusiveCostRatio() const { return m_visualisationMinimumInclusiveCostRatio; }
+    double visualisationMinimumInclusiveCostRatio() const { return m_visualisationMinimumInclusiveCostRatio; }
 
     // abstract virtual methods from base class
     virtual bool fromMap(const QVariantMap &map);
@@ -72,7 +73,7 @@ public:
     virtual QString displayName() const;
     virtual QWidget *createConfigWidget(QWidget *parent);
 
-public Q_SLOTS:
+public slots:
     void setEnableCacheSim(bool enable);
     void setEnableBranchSim(bool enable);
     void setCollectSystime(bool collect);
@@ -85,7 +86,7 @@ public Q_SLOTS:
     /// \param minimumInclusiveCostRatio Minimum inclusive cost ratio, valid values are [0.0..100.0]
     void setVisualisationMinimumInclusiveCostRatio(double minimumInclusiveCostRatio);
 
-Q_SIGNALS:
+signals:
     void enableCacheSimChanged(bool);
     void enableBranchSimChanged(bool);
     void collectSystimeChanged(bool);
@@ -116,7 +117,6 @@ class CallgrindGlobalSettings : public AbstractCallgrindSettings
 
 public:
     CallgrindGlobalSettings(QObject *parent = 0);
-    virtual ~CallgrindGlobalSettings();
 
     virtual bool fromMap(const QVariantMap &map);
     virtual QVariantMap defaults() const;
@@ -145,10 +145,9 @@ class CallgrindProjectSettings : public AbstractCallgrindSettings
 
 public:
     CallgrindProjectSettings(QObject *parent = 0);
-    virtual ~CallgrindProjectSettings();
 };
 
-}
-}
+} // namespace Internal
+} // namespace Callgrind
 
 #endif // ANALYZER_INTERNAL_CALLGRINDSETTINGS_H

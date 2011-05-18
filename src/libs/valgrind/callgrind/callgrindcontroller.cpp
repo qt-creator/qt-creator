@@ -267,5 +267,5 @@ void CallgrindController::cleanupTempFile()
     m_tempDataFile.clear();
 }
 
-}
-}
+} // namespace Callgrind
+} // namespace Valgrind

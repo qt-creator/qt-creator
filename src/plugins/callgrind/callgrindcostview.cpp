@@ -50,10 +50,10 @@ namespace Internal {
 
 //BEGIN CostView::Private
 
-class CostView::Private {
+class CostView::Private
+{
 public:
     explicit Private(CostView *qq);
-    ~Private();
 
     CostDelegate *m_costDelegate;
     NameDelegate *m_nameDelegate;
@@ -62,12 +62,7 @@ public:
 CostView::Private::Private(CostView *qq)
     : m_costDelegate(new CostDelegate(qq))
     , m_nameDelegate(new NameDelegate(qq))
-{
-}
-
-CostView::Private::~Private()
-{
-}
+{}
 
 //END CostView::Private
 
@@ -109,21 +104,21 @@ void CostView::setModel(QAbstractItemModel *model)
     headerView->setStretchLastSection(false);
 
     if (qobject_cast<CallModel *>(model)) {
-        setItemDelegateForColumn(CallModel::CostColumn, d->m_costDelegate);
-        headerView->setResizeMode(CallModel::CostColumn, QHeaderView::ResizeToContents);
-        headerView->setResizeMode(CallModel::CallsColumn, QHeaderView::ResizeToContents);
         headerView->setResizeMode(CallModel::CalleeColumn, QHeaderView::Stretch);
-        setItemDelegateForColumn(CallModel::CalleeColumn, d->m_nameDelegate);
         headerView->setResizeMode(CallModel::CallerColumn, QHeaderView::Stretch);
+        headerView->setResizeMode(CallModel::CallsColumn, QHeaderView::ResizeToContents);
+        headerView->setResizeMode(CallModel::CostColumn, QHeaderView::ResizeToContents);
+        setItemDelegateForColumn(CallModel::CalleeColumn, d->m_nameDelegate);
         setItemDelegateForColumn(CallModel::CallerColumn, d->m_nameDelegate);
+        setItemDelegateForColumn(CallModel::CostColumn, d->m_costDelegate);
     } else if (qobject_cast<DataModel *>(model)) {
-        setItemDelegateForColumn(DataModel::SelfCostColumn, d->m_costDelegate);
+        headerView->setResizeMode(DataModel::InclusiveCostColumn, QHeaderView::ResizeToContents);
+        headerView->setResizeMode(DataModel::LocationColumn, QHeaderView::Stretch);
+        headerView->setResizeMode(DataModel::NameColumn, QHeaderView::Stretch);
         headerView->setResizeMode(DataModel::SelfCostColumn, QHeaderView::ResizeToContents);
         setItemDelegateForColumn(DataModel::InclusiveCostColumn, d->m_costDelegate);
-        headerView->setResizeMode(DataModel::InclusiveCostColumn, QHeaderView::ResizeToContents);
         setItemDelegateForColumn(DataModel::NameColumn, d->m_nameDelegate);
-        headerView->setResizeMode(DataModel::NameColumn, QHeaderView::Stretch);
-        headerView->setResizeMode(DataModel::LocationColumn, QHeaderView::Stretch);
+        setItemDelegateForColumn(DataModel::SelfCostColumn, d->m_costDelegate);
     }
 
     d->m_costDelegate->setModel(model);

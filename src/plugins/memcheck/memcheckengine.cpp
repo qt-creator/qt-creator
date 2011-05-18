@@ -44,17 +44,17 @@
 #include <utils/qtcassert.h>
 
 using namespace Analyzer;
-using namespace Memcheck;
 using namespace Valgrind::XmlProtocol;
 
-using namespace Memcheck::Internal;
+namespace Memcheck {
+namespace Internal {
 
 MemcheckEngine::MemcheckEngine(const Analyzer::AnalyzerStartParameters &sp,
                                ProjectExplorer::RunConfiguration *runConfiguration)
     : ValgrindEngine(sp, runConfiguration)
 {
-    connect(&m_parser, SIGNAL(error(const Valgrind::XmlProtocol::Error &)),
-            SIGNAL(parserError(const Valgrind::XmlProtocol::Error &)));
+    connect(&m_parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
+            SIGNAL(parserError(Valgrind::XmlProtocol::Error)));
     connect(&m_parser, SIGNAL(suppressionCount(QString,qint64)),
             SIGNAL(suppressionCount(QString,qint64)));
     connect(&m_parser, SIGNAL(internalError(QString)),
@@ -143,3 +143,6 @@ void MemcheckEngine::receiveLogMessage(const QByteArray &b)
 
     emit taskToBeAdded(ProjectExplorer::Task::Error, error, file, line);
 }
+
+} // namespace Internal
+} // namespace Memcheck

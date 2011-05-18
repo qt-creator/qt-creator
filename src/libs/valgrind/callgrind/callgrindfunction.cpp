@@ -37,12 +37,12 @@
 #include "callgrindparsedata.h"
 #include "callgrindfunction_p.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
-
-#include <utils/qtcassert.h>
 
 namespace Valgrind {
 namespace Callgrind {
@@ -50,13 +50,13 @@ namespace Callgrind {
 //BEGIN Function::Private
 
 Function::Private::Private(const ParseData *data)
-: m_data(data)
-, m_fileId(-1)
-, m_objectId(-1)
-, m_nameId(-1)
-, m_selfCost(data->events().size(), 0)
-, m_inclusiveCost(data->events().size(), 0)
-, m_called(0)
+    : m_data(data)
+    , m_fileId(-1)
+    , m_objectId(-1)
+    , m_nameId(-1)
+    , m_selfCost(data->events().size(), 0)
+    , m_inclusiveCost(data->events().size(), 0)
+    , m_called(0)
 {
 }
 
@@ -114,15 +114,13 @@ FunctionCall *Function::Private::accumulateCall(const FunctionCall *call, CallTy
 
 //BEGIN Function
 Function::Function(const ParseData *data)
-: d(new Private(data))
+    : d(new Private(data))
 {
-
 }
 
 Function::Function(Function::Private *d)
-: d(d)
+    : d(d)
 {
-
 }
 
 Function::~Function()
@@ -332,5 +330,5 @@ void Function::finalize()
     }
 }
 
-} // Callgrind
-} // Valgrind
+} // namespace Callgrind
+} // namespace Valgrind

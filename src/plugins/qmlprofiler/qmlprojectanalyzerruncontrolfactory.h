@@ -63,7 +63,7 @@ signals:
     void runControlCreated(Analyzer::AnalyzerRunControl *);
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler
 
 #endif // QMLPROJECTANALYZERRUNCONTROLFACTORY_H

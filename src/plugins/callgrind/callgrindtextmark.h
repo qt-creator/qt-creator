@@ -37,9 +37,6 @@
 
 #include <QtCore/QPersistentModelIndex>
 
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
-
 namespace Valgrind {
 namespace Callgrind {
 class Function;
@@ -62,7 +59,6 @@ public:
      */
     explicit CallgrindTextMark(const QPersistentModelIndex &index,
                                const QString &fileName, int lineNumber);
-    virtual ~CallgrindTextMark();
 
     const Valgrind::Callgrind::Function *function() const;
 

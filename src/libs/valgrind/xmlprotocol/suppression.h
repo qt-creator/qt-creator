@@ -47,7 +47,8 @@ QT_END_NAMESPACE
 namespace Valgrind {
 namespace XmlProtocol {
 
-class VALGRINDSHARED_EXPORT SuppressionFrame {
+class VALGRINDSHARED_EXPORT SuppressionFrame
+{
 public:
     SuppressionFrame();
     SuppressionFrame(const SuppressionFrame &other);
@@ -73,12 +74,16 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-class VALGRINDSHARED_EXPORT Suppression {
+typedef QVector<SuppressionFrame> SuppressionFrames;
+
+class VALGRINDSHARED_EXPORT Suppression
+{
 public:
     Suppression();
     Suppression(const Suppression &other);
     ~Suppression();
     Suppression &operator=(const Suppression &other);
+
     void swap(Suppression &other);
     bool operator==(const Suppression &other) const;
 
@@ -96,8 +101,8 @@ public:
     QString rawText() const;
     void setRawText(const QString &text);
 
-    QVector<SuppressionFrame> frames() const;
-    void setFrames(const QVector<SuppressionFrame> &frames);
+    SuppressionFrames frames() const;
+    void setFrames(const SuppressionFrames &frames);
 
     QString toString() const;
 

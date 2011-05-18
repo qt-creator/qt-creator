@@ -46,9 +46,9 @@ namespace Internal {
 class AbstractMemcheckSettings : public Analyzer::AbstractAnalyzerSubConfig
 {
     Q_OBJECT
+
 public:
     AbstractMemcheckSettings(QObject *parent);
-    virtual ~AbstractMemcheckSettings();
 
     virtual bool fromMap(const QVariantMap &map);
 
@@ -95,10 +95,8 @@ protected:
  */
 class MemcheckGlobalSettings : public AbstractMemcheckSettings
 {
-    Q_OBJECT
 public:
     MemcheckGlobalSettings(QObject *parent);
-    virtual ~MemcheckGlobalSettings();
 
     QStringList suppressionFiles() const;
     // in the global settings we change the internal list directly
@@ -129,10 +127,8 @@ private:
  */
 class MemcheckProjectSettings : public AbstractMemcheckSettings
 {
-    Q_OBJECT
 public:
     MemcheckProjectSettings(QObject *parent);
-    virtual ~MemcheckProjectSettings();
 
     QStringList suppressionFiles() const;
     // in the project-specific settings we store a diff to the global list
@@ -150,7 +146,7 @@ private:
     QStringList m_addedSuppressionFiles;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Memcheck
 
 #endif // ANALYZER_INTERNAL_MEMCHECKSETTINGS_H

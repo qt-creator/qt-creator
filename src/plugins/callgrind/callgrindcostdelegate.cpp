@@ -40,9 +40,8 @@
 
 #include <utils/qtcassert.h>
 
-#include <QtGui/QPainter>
 #include <QtGui/QApplication>
-#include <QtCore/QDebug>
+#include <QtGui/QPainter>
 
 using namespace Valgrind::Callgrind;
 
@@ -63,10 +62,9 @@ public:
 };
 
 CostDelegate::Private::Private()
-: m_model(0)
-, m_format(CostDelegate::FormatAbsolute)
-{
-}
+    : m_model(0)
+    , m_format(CostDelegate::FormatAbsolute)
+{}
 
 int CostDelegate::Private::toNativeRole(CostDelegate::CostFormat format)
 {

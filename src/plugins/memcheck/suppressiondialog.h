@@ -32,7 +32,6 @@
 **
 **************************************************************************/
 
-
 #ifndef ANALYZER_VALGRIND_INTERNAL_SUPPRESSIONDIALOG_H
 #define ANALYZER_VALGRIND_INTERNAL_SUPPRESSIONDIALOG_H
 
@@ -40,8 +39,7 @@
 
 #include <valgrind/xmlprotocol/error.h>
 
-namespace Analyzer
-{
+namespace Analyzer {
 class AnalyzerSettings;
 }
 
@@ -77,7 +75,7 @@ private:
     QList<Valgrind::XmlProtocol::Error> m_errors;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Memcheck
 
 #endif // ANALYZER_VALGRIND_INTERNAL_SUPPRESSIONDIALOG_H
