@@ -777,16 +777,6 @@ QByteArray CppModelManager::internalDefinedMacros() const
     return macros;
 }
 
-void CppModelManager::setIncludesInPaths(const QMap<QString, QStringList> &includesInPaths)
-{
-    QMutexLocker locker(&mutex);
-    QMapIterator<QString, QStringList> i(includesInPaths);
-    while (i.hasNext()) {
-        i.next();
-        m_includesInPaths.insert(i.key(), i.value());
-    }
-}
-
 void CppModelManager::addEditorSupport(AbstractEditorSupport *editorSupport)
 {
     m_addtionalEditorSupport.insert(editorSupport);
@@ -877,25 +867,6 @@ void CppModelManager::updateProjectInfo(const ProjectInfo &pinfo)
 
     m_projects.insert(pinfo.project, pinfo);
     m_dirty = true;
-
-    if (m_indexerEnabled) {
-        QFuture<void> result = QtConcurrent::run(&CppModelManager::updateIncludesInPaths,
-                                                 this,
-                                                 pinfo.includePaths,
-                                                 pinfo.frameworkPaths,
-                                                 m_headerSuffixes);
-
-        if (pinfo.includePaths.size() > 1) {
-            m_core->progressManager()->addTask(result, tr("Scanning"),
-                                               CppTools::Constants::TASK_INDEX);
-        }
-    }
-}
-
-QStringList CppModelManager::includesInPath(const QString &path) const
-{
-    QMutexLocker locker(&mutex);
-    return m_includesInPaths.value(path);
 }
 
 QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles)
@@ -1194,122 +1165,6 @@ void CppModelManager::onAboutToUnloadSession()
     } while (0);
 
     GC();
-}
-
-void CppModelManager::updateIncludesInPaths(QFutureInterface<void> &future,
-                                            CppModelManager *manager,
-                                            QStringList paths,
-                                            QStringList frameworkPaths,
-                                            QStringList suffixes)
-{
-    QMap<QString, QStringList> entriesInPaths;
-    typedef QPair<QString, QString> SymLink;
-    typedef QList<SymLink> SymLinks;
-    SymLinks symlinks;
-    int processed = 0;
-
-    future.setProgressRange(0, paths.size());
-
-    static const int MAX_DEPTH = 3;
-    QList<int> pathDepths;
-    pathDepths.reserve(paths.size());
-    for (int i = 0; i < paths.size(); ++i) {
-        pathDepths.append(0);
-    }
-
-    // Add framework header directories to path list
-    QStringList frameworkFilter;
-    frameworkFilter << QLatin1String("*.framework");
-    QStringListIterator fwPathIt(frameworkPaths);
-    while (fwPathIt.hasNext()) {
-        const QString &fwPath = fwPathIt.next();
-        QStringList entriesInFrameworkPath;
-        const QStringList &frameworks = QDir(fwPath).entryList(frameworkFilter, QDir::Dirs | QDir::NoDotAndDotDot);
-        QStringListIterator fwIt(frameworks);
-        while (fwIt.hasNext()) {
-            QString framework = fwIt.next();
-            paths.append(fwPath + QLatin1Char('/') + framework + QLatin1String("/Headers"));
-            pathDepths.append(0);
-            framework.chop(10); // remove the ".framework"
-            entriesInFrameworkPath.append(framework + QLatin1Char('/'));
-        }
-        entriesInPaths.insert(fwPath, entriesInFrameworkPath);
-    }
-
-    while (!paths.isEmpty()) {
-        if (future.isPaused())
-            future.waitForResume();
-
-        if (future.isCanceled())
-            return;
-
-        const QString path = paths.takeFirst();
-        const int depth = pathDepths.takeFirst();
-
-        // Skip non-existing paths
-        if (!QFile::exists(path))
-            continue;
-
-        // Skip already scanned paths
-        if (entriesInPaths.contains(path))
-            continue;
-
-        QStringList entries;
-
-        QDirIterator i(path, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-        while (i.hasNext()) {
-            const QString fileName = i.next();
-            const QFileInfo fileInfo = i.fileInfo();
-            QString text = fileInfo.fileName();
-            if (depth < MAX_DEPTH && fileInfo.isDir()) {
-                text += QLatin1Char('/');
-
-                // Also scan subdirectory, but avoid endless recursion with symbolic links
-                if (fileInfo.isSymLink()) {
-                    QString target = fileInfo.symLinkTarget();
-
-                    // Don't add broken symlinks
-                    if (!QFileInfo(target).exists())
-                        continue;
-
-                    QMap<QString, QStringList>::const_iterator result = entriesInPaths.find(target);
-                    if (result != entriesInPaths.constEnd()) {
-                        entriesInPaths.insert(fileName, result.value());
-                    } else {
-                        paths.append(target);
-                        pathDepths.append(depth + 1);
-                        symlinks.append(SymLink(fileName, target));
-                    }
-                } else {
-                    paths.append(fileName);
-                    pathDepths.append(depth + 1);
-                }
-                entries.append(text);
-            } else {
-                const QString suffix = fileInfo.suffix();
-                if (suffix.isEmpty() || suffixes.contains(suffix))
-                    entries.append(text);
-            }
-        }
-
-        entriesInPaths.insert(path, entries);
-
-        ++processed;
-        future.setProgressRange(0, processed + paths.size());
-        future.setProgressValue(processed);
-    }
-    // link symlinks
-    QListIterator<SymLink> it(symlinks);
-    it.toBack();
-    while (it.hasPrevious()) {
-        SymLink v = it.previous();
-        QMap<QString, QStringList>::const_iterator result = entriesInPaths.find(v.second);
-        entriesInPaths.insert(v.first, result.value());
-    }
-
-    manager->setIncludesInPaths(entriesInPaths);
-
-    future.reportFinished();
 }
 
 void CppModelManager::parse(QFutureInterface<void> &future,

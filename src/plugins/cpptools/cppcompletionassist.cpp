@@ -1156,11 +1156,14 @@ bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
     }
 
     // Make completion for all relevant includes
-    CppModelManagerInterface *manager = CppModelManagerInterface::instance();
     QStringList includePaths = m_interface->includePaths();
     const QString &currentFilePath = QFileInfo(m_interface->file()->fileName()).path();
     if (!includePaths.contains(currentFilePath))
         includePaths.append(currentFilePath);
+
+    const Core::MimeType mimeType =
+            Core::ICore::instance()->mimeDatabase()->findByType(QLatin1String("text/x-c++hdr"));
+    const QStringList suffixes = mimeType.suffixes();
 
     foreach (const QString &includePath, includePaths) {
         QString realPath = includePath;
@@ -1168,8 +1171,7 @@ bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
             realPath += QLatin1Char('/');
             realPath += directoryPrefix;
         }
-        foreach (const QString &itemText, manager->includesInPath(realPath))
-            addCompletionItem(itemText, m_icons.keywordIcon());
+        completeInclude(realPath, suffixes);
     }
 
     foreach (const QString &frameworkPath, m_interface->frameworkPaths()) {
@@ -1179,11 +1181,27 @@ bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
             realPath += directoryPrefix;
             realPath += QLatin1String(".framework/Headers");
         }
-        foreach (const QString &itemText, manager->includesInPath(realPath))
-            addCompletionItem(itemText, m_icons.keywordIcon());
+        completeInclude(realPath, suffixes);
     }
 
     return !m_completions.isEmpty();
+}
+
+void CppCompletionAssistProcessor::completeInclude(const QString &realPath,
+                                                   const QStringList &suffixes)
+{
+    QDirIterator i(realPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+    while (i.hasNext()) {
+        const QString fileName = i.next();
+        const QFileInfo fileInfo = i.fileInfo();
+        const QString suffix = fileInfo.suffix();
+        if (suffix.isEmpty() || suffixes.contains(suffix)) {
+            QString text = fileName.mid(realPath.length() + 1);
+            if (fileInfo.isDir())
+                text += QLatin1Char('/');
+            addCompletionItem(text, m_icons.keywordIcon());
+        }
+    }
 }
 
 void CppCompletionAssistProcessor::completePreprocessor()
