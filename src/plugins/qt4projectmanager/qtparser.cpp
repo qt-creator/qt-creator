@@ -98,12 +98,12 @@ void Qt4ProjectManagerPlugin::testQtOutputParser_data()
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext") << QString()
+            << QString::fromLatin1("Sometext\n") << QString()
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext")
+            << QString() << QString::fromLatin1("Sometext\n")
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("pass-through gcc infos")
@@ -111,7 +111,7 @@ void Qt4ProjectManagerPlugin::testQtOutputParser_data()
                                    "../../scriptbug/main.cpp: At global scope:\n"
                                    "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
                                    "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
-                                   "../../scriptbug/main.cpp:22: instantiated from here\n")
+                                   "../../scriptbug/main.cpp:22: instantiated from here")
             << OutputParserTester::STDERR
             << QString()
             << QString::fromLatin1("/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"

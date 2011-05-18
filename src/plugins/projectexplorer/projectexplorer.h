@@ -224,6 +224,9 @@ private slots:
     void testGccOutputParsers_data();
     void testGccOutputParsers();
 
+    void testClangOutputParser_data();
+    void testClangOutputParser();
+
     void testLinuxIccOutputParsers_data();
     void testLinuxIccOutputParsers();
 

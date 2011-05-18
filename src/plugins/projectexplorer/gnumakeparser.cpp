@@ -204,14 +204,14 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
     QTest::newRow("pass-through stdout")
             << QStringList()
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext") << QString()
+            << QString::fromLatin1("Sometext\n") << QString()
             << QList<Task>()
             << QString()
             << QStringList();
     QTest::newRow("pass-through stderr")
             << QStringList()
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext")
+            << QString() << QString::fromLatin1("Sometext\n")
             << QList<Task>()
             << QString()
             << QStringList();
@@ -221,7 +221,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                                    "../../scriptbug/main.cpp: At global scope:\n"
                                    "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
                                    "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
-                                   "../../scriptbug/main.cpp:22: instantiated from here\n")
+                                   "../../scriptbug/main.cpp:22: instantiated from here")
             << OutputParserTester::STDERR
             << QString()
             << QString::fromLatin1("/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"
@@ -237,7 +237,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
     QTest::newRow("entering directory")
             << (QStringList() << QString::fromLatin1("/test/dir") )
             << QString::fromLatin1("make[4]: Entering directory `/home/code/build/qt/examples/opengl/grabber'\n"
-                                   "make[4]: Entering directory `/home/code/build/qt/examples/opengl/grabber'\n")
+                                   "make[4]: Entering directory `/home/code/build/qt/examples/opengl/grabber'")
             << OutputParserTester::STDOUT
             << QString() << QString()
             << QList<Task>()
@@ -320,7 +320,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QStringList()
             << QString::fromLatin1("/home/dev/creator/share/qtcreator/gdbmacros/gdbmacros.cpp:1079: note: initialized from here")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("/home/dev/creator/share/qtcreator/gdbmacros/gdbmacros.cpp:1079: note: initialized from here")
+            << QString() << QString::fromLatin1("/home/dev/creator/share/qtcreator/gdbmacros/gdbmacros.cpp:1079: note: initialized from here\n")
             << QList<ProjectExplorer::Task>()
             << QString()
             << QStringList();

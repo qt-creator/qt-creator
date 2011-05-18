@@ -152,12 +152,12 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext") << QString()
+            << QString::fromLatin1("Sometext\n") << QString()
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext")
+            << QString() << QString::fromLatin1("Sometext\n")
             << QList<ProjectExplorer::Task>()
             << QString();
 
@@ -337,7 +337,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                    "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead")
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("distcc[73168] (dcc_get_hostlist) Warning: no hostlist is set; can't distribute work\n"
-                                                "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead")
+                                                "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead\n")
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("ld warning (QTCREATORBUG-905)")
@@ -363,7 +363,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
     QTest::newRow("Teambuilder issues")
             << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
+            << QString() << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...\n")
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("note")
@@ -394,13 +394,13 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
     QTest::newRow("rm false positive")
             << QString::fromLatin1("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
             << OutputParserTester::STDERR
-            << QString() << QString("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
+            << QString() << QString("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory\n")
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("ranlib false positive")
             << QString::fromLatin1("ranlib: file: libSupport.a(HashTable.o) has no symbols")
             << OutputParserTester::STDERR
-            << QString() << QString("ranlib: file: libSupport.a(HashTable.o) has no symbols")
+            << QString() << QString("ranlib: file: libSupport.a(HashTable.o) has no symbols\n")
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("ld: missing library")

@@ -157,12 +157,12 @@ void Qt4ProjectManagerPlugin::testRvctOutputParser_data()
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext") << QString()
+            << QString::fromLatin1("Sometext\n") << QString()
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext")
+            << QString() << QString::fromLatin1("Sometext\n")
             << QList<ProjectExplorer::Task>()
             << QString();
 

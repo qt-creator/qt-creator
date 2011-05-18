@@ -131,12 +131,12 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext") << QString()
+            << QString::fromLatin1("Sometext\n") << QString()
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext")
+            << QString() << QString::fromLatin1("Sometext\n")
             << QList<ProjectExplorer::Task>()
             << QString();
 
@@ -146,7 +146,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                                    "      ^\n"
                                    "\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QString() << QString::fromLatin1("\n")
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("identifier \"f\" is undefined\nf(0);"),
@@ -160,7 +160,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                                    "        ^\n"
                                    "\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QString() << QString::fromLatin1("\n")
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible\nb.privatefunc();"),
@@ -174,7 +174,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
                                    "             ^\n"
                                    "\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QString() << QString::fromLatin1("\n")
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("use of \"=\" where \"==\" may have been intended\nwhile (a = true)"),
