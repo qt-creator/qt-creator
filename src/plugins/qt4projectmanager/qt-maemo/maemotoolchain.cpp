@@ -303,7 +303,7 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
 
     foreach (int i, changes) {
         BaseQtVersion *v = vm->version(i);
-        if (!v) {
+        if (!v || !v->isValid()) {
             // remove tool chain:
             QList<ProjectExplorer::ToolChain *> toRemove;
             foreach (ProjectExplorer::ToolChain *tc, tcm->toolChains()) {
