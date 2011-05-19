@@ -113,6 +113,7 @@ private:
     QLabel *m_headerLabel;
     bool m_running;
     bool m_applied;
+    bool m_finished;
     QList<QEventLoop *> m_eventLoops;
     static QPointer<SettingsDialog> m_instance;
 };

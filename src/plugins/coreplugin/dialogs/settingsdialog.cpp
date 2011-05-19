@@ -290,7 +290,8 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_categoryList(new CategoryListView),
     m_headerLabel(new QLabel),
     m_running(false),
-    m_applied(false)
+    m_applied(false),
+    m_finished(false)
 {
     m_applied = false;
 
@@ -507,6 +508,9 @@ void SettingsDialog::filter(const QString &text)
 
 void SettingsDialog::accept()
 {
+    if (m_finished)
+        return;
+    m_finished = true;
     disconnectTabWidgets();
     m_applied = true;
     foreach (IOptionsPage *page, m_visitedPages)
@@ -518,6 +522,9 @@ void SettingsDialog::accept()
 
 void SettingsDialog::reject()
 {
+    if (m_finished)
+        return;
+    m_finished = true;
     disconnectTabWidgets();
     foreach (IOptionsPage *page, m_pages)
         page->finish();
@@ -571,6 +578,7 @@ bool SettingsDialog::execDialog()
 {
     if (!m_running) {
         m_running = true;
+        m_finished = false;
         exec();
         m_running = false;
         m_instance = 0;
