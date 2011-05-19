@@ -92,6 +92,7 @@ private Q_SLOTS:
     void indentToNextToken();
     void labels();
     void functionsWithExtraSpecifier();
+    void externSpec();
 };
 
 struct Line {
@@ -1186,6 +1187,22 @@ void tst_CodeFormatter::functionsWithExtraSpecifier()
          << Line("struct Foo bar() {}")
          << Line("enum Foo bar() {}")
          << Line("namespace foo {")
+         << Line("}")
+         << Line("int a;")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::externSpec()
+{
+    QList<Line> data;
+    data << Line("extern void foo() {}")
+         << Line("extern \"C\" {")
+         << Line("void foo() {}")
+         << Line("int a;")
+         << Line("class C {")
+         << Line("    int a;")
+         << Line("}")
          << Line("}")
          << Line("int a;")
          ;

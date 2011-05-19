@@ -134,6 +134,9 @@ public: // must be public to make Q_GADGET introspection work
         namespace_start, // after the namespace token, before the opening brace.
         namespace_open, // Brace that opens a C++ namespace block.
 
+        extern_start, // after the extern token, before the opening brace.
+        extern_open, // Brace that opens a C++ extern block.
+
         declaration_start, // shifted a token which could start a declaration.
         operator_declaration, // after 'operator' in declaration_start
 

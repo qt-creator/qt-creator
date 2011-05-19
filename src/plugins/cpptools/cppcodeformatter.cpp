@@ -107,6 +107,20 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_RBRACE:      leave(); continue; // always nested in namespace_start
             } break;
 
+        case extern_start:
+            switch (kind) {
+            case T_STRING_LITERAL: break; // continue looking for the lbrace
+            case T_LBRACE:      enter(extern_open); break;
+            default:            leave(); continue;
+            } break;
+
+        case extern_open:
+            if (tryDeclaration())
+                break;
+            switch (kind) {
+            case T_RBRACE:      leave(); leave(); break; // always nested in extern_start
+            } break;
+
         case class_start:
             switch (kind) {
             case T_SEMICOLON:   leave(); break;
@@ -680,6 +694,7 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
                     || type == substatement_open
                     || type == defun_open
                     || type == namespace_open
+                    || type == extern_open
                     || type == class_open
                     || type == brace_list_open) {
                 break;
@@ -757,6 +772,10 @@ bool CodeFormatter::tryDeclaration()
 
     case T_NAMESPACE:
         enter(namespace_start);
+        return true;
+
+    case T_EXTERN:
+        enter(extern_start);
         return true;
 
     case T_STRUCT:
@@ -1067,6 +1086,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
         *paddingDepth = 0;
 
     switch (newState) {
+    case extern_start:
     case namespace_start:
         if (firstToken) {
             *savedIndentDepth = tokenPosition;
@@ -1364,6 +1384,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
             const int type = state(i).type;
             if (type == class_open
                     || type == namespace_open
+                    || type == extern_open
                     || type == enum_open
                     || type == defun_open) {
                 *indentDepth = state(i).savedIndentDepth;
@@ -1468,6 +1489,8 @@ bool QtStyleCodeFormatter::shouldClearPaddingOnEnter(int state)
     case enum_open:
     case namespace_start:
     case namespace_open:
+    case extern_start:
+    case extern_open:
     case template_start:
     case if_statement:
     case else_clause:
