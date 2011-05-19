@@ -192,7 +192,7 @@ public:
     bool m_sortable;
     unsigned m_completionOperator;
     bool m_replaceDotForArrow;
-    LookupContext m_context;
+    Snapshot m_snapshot;
 };
 
 // ---------------------
@@ -210,13 +210,13 @@ public:
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
     void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
-    void keepContext(const LookupContext &context) { m_context = context; }
+    void keepSnapshot(const Snapshot &snapshot) { m_snapshot = snapshot; }
 
 private:
     bool m_isOverloaded;
     unsigned m_completionOperator;
     mutable QChar m_typedChar;
-    LookupContext m_context;
+    Snapshot m_snapshot;
 };
 
 } // Internal
@@ -231,7 +231,7 @@ IAssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
     if (!item->data().canConvert<QString>()) {
         CppAssistProposalItem *cppItem = static_cast<CppAssistProposalItem *>(item);
         cppItem->keepCompletionOperator(m_completionOperator);
-        cppItem->keepContext(m_context);
+        cppItem->keepSnapshot(m_snapshot);
     }
     return item;
 }
@@ -413,10 +413,9 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 class CppFunctionHintModel : public TextEditor::IFunctionHintProposalModel
 {
 public:
-    CppFunctionHintModel(QList<Function *> functionSymbols, const LookupContext &context)
+    CppFunctionHintModel(QList<Function *> functionSymbols)
         : m_functionSymbols(functionSymbols)
         , m_currentArg(-1)
-        , m_context(context)
     {}
 
     virtual void reset() {}
@@ -427,7 +426,6 @@ public:
 private:
     QList<Function *> m_functionSymbols;
     mutable int m_currentArg;
-    LookupContext m_context;
 };
 
 QString CppFunctionHintModel::text(int index) const
@@ -677,6 +675,8 @@ IAssistProposal * CppCompletionAssistProcessor::perform(const IAssistInterface *
     if (interface->reason() != ExplicitlyInvoked && !accepts())
         return 0;
 
+    m_model->m_snapshot = m_interface->snapshot();
+
     int index = startCompletionHelper();
     if (index != -1) {
         if (m_hintProposal)
@@ -804,8 +804,7 @@ IAssistProposal *CppCompletionAssistProcessor::createContentProposal()
 IAssistProposal *CppCompletionAssistProcessor::createHintProposal(
     QList<CPlusPlus::Function *> functionSymbols) const
 {
-    IFunctionHintProposalModel *model =
-            new CppFunctionHintModel(functionSymbols, m_model->m_context);
+    IFunctionHintProposalModel *model = new CppFunctionHintModel(functionSymbols);
     IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
     return proposal;
 }
@@ -1044,13 +1043,11 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
     const int startPos = tokens[start].begin() + tokens.startPosition();
     const QString expr = m_interface->textAt(startPos, m_interface->position() - startPos);
 
-    Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->file()->fileName());
+    Document::Ptr thisDocument = m_model->m_snapshot.document(m_interface->file()->fileName());
     if (! thisDocument)
         return false;
 
-    typeOfExpression.init(thisDocument, m_interface->snapshot());
-    m_model->m_context = typeOfExpression.context();
-
+    typeOfExpression.init(thisDocument, m_model->m_snapshot);
     int line = 0, column = 0;
     Convenience::convertPosition(m_interface->document(), m_interface->position(), &line, &column);
     Scope *scope = thisDocument->scopeAt(line, column);
@@ -1058,7 +1055,7 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
         return false;
 
     const QList<LookupItem> items = typeOfExpression(expr, scope);
-    LookupContext lookupContext(thisDocument, m_interface->snapshot());
+    LookupContext lookupContext(thisDocument, m_model->m_snapshot);
 
     foreach (const LookupItem &item, items) {
         FullySpecifiedType ty = item.type().simplified();
@@ -1249,12 +1246,11 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
 {
     QString expression = expr.trimmed();
 
-    Document::Ptr thisDocument = m_interface->snapshot().document(fileName);
+    Document::Ptr thisDocument = m_model->m_snapshot.document(fileName);
     if (! thisDocument)
         return -1;
 
-    typeOfExpression.init(thisDocument, m_interface->snapshot());
-    m_model->m_context = typeOfExpression.context();
+    typeOfExpression.init(thisDocument, m_model->m_snapshot);
 
     Scope *scope = thisDocument->scopeAt(line, column);
     Q_ASSERT(scope != 0);
