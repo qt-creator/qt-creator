@@ -698,7 +698,7 @@ void Internal::GccToolChainConfigWidget::handleAbiChange()
 // --------------------------------------------------------------------------
 
 ClangToolChain::ClangToolChain(bool autodetect) :
-    GccToolChain(QLatin1String(Constants::MINGW_TOOLCHAIN_ID), autodetect)
+    GccToolChain(QLatin1String(Constants::CLANG_TOOLCHAIN_ID), autodetect)
 { }
 
 QString ClangToolChain::typeName() const
