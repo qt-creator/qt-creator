@@ -814,7 +814,7 @@ void Qt4BuildConfiguration::importFromBuildDirectory()
             }
 
             QPair<BaseQtVersion::QmakeBuildConfigs, QString> result =
-                    QtVersionManager::scanMakeFile(directory, version->defaultBuildConfig());
+                    QtVersionManager::scanMakeFile(mkfile, version->defaultBuildConfig());
             BaseQtVersion::QmakeBuildConfigs qmakeBuildConfig = result.first;
 
             QString aa = result.second;
