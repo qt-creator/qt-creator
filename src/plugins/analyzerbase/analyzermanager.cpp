@@ -876,14 +876,14 @@ void AnalyzerManager::showPermanentStatusMessage(const QString &message)
 
 QString AnalyzerManager::msgToolStarted(const QString &name)
 {
-    return tr("Tool '%1' started...").arg(name);
+    return tr("Tool \"%1\" started...").arg(name);
 }
 
 QString AnalyzerManager::msgToolFinished(const QString &name, int issuesFound)
 {
     return issuesFound ?
-        tr("Tool '%1' finished, %n issues were found.", 0, issuesFound).arg(name) :
-        tr("Tool '%1' finished, no issues were found.").arg(name);
+        tr("Tool \"%1\" finished, %n issues were found.", 0, issuesFound).arg(name) :
+        tr("Tool \"%1\" finished, no issues were found.").arg(name);
 }
 
 AnalyzerRunControl *AnalyzerManager::createAnalyzer(const AnalyzerStartParameters &sp,
