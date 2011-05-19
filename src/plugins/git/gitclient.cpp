@@ -489,8 +489,8 @@ VCSBase::VCSBaseEditorWidget *GitClient::createVCSEditor(const QString &id,
     if (setSourceCodec)
         rc->setCodec(VCSBase::VCSBaseEditorWidget::getCodec(source));
 
-    m_core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     rc->setForceReadOnly(true);
+    m_core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
 
     if (configWidget)
         rc->setConfigurationWidget(configWidget);

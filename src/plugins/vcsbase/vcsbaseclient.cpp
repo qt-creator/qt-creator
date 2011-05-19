@@ -494,8 +494,8 @@ VCSBase::VCSBaseEditorWidget *VCSBaseClient::createVCSEditor(const QString &kind
             baseEditor->setCodec(VCSBase::VCSBaseEditorWidget::getCodec(source));
     }
 
-    d->m_core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     baseEditor->setForceReadOnly(true);
+    d->m_core->editorManager()->activateEditor(outputEditor, Core::EditorManager::ModeSwitch);
     return baseEditor;
 }
 
