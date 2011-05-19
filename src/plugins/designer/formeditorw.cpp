@@ -63,13 +63,17 @@
 #include <utils/qtcassert.h>
 
 #include <QtDesigner/QDesignerFormEditorPluginInterface>
-#include "qt_private/pluginmanager_p.h"
-
-#include "qt_private/iconloader_p.h"  // createIconSet
-#include "qt_private/qdesigner_formwindowmanager_p.h"
-#include "qt_private/formwindowbase_p.h"
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerComponents>
+
+#if QT_VERSION >= 0x050000
+#    include <QtDesigner/QDesignerFormWindowManagerInterface>
+#else
+#    include "qt_private/pluginmanager_p.h"
+#    include "qt_private/iconloader_p.h"  // createIconSet
+#    include "qt_private/qdesigner_formwindowmanager_p.h"
+#    include "qt_private/formwindowbase_p.h"
+#endif
 
 #include <QtDesigner/QDesignerWidgetBoxInterface>
 #include <QtDesigner/abstractobjectinspector.h>
@@ -117,7 +121,11 @@ static const char settingsGroup[] = "Designer";
 
 static inline QIcon designerIcon(const QString &iconName)
 {
+#if QT_VERSION >= 0x050000
+    const QIcon icon = QDesignerFormEditorInterface::createIcon(iconName);
+#else
     const QIcon icon = qdesigner_internal::createIconSet(iconName);
+#endif
     if (icon.isNull())
         qWarning() << "Unable to locate " << iconName;
     return icon;
@@ -180,7 +188,11 @@ FormEditorW::FormEditorW() :
     m_formeditor->setTopLevel(qobject_cast<QWidget *>(m_core->editorManager()));
     m_formeditor->setSettingsManager(new SettingsManager());
 
+#if QT_VERSION >= 0x050000
+    m_fwm = m_formeditor->formWindowManager();
+#else
     m_fwm = qobject_cast<qdesigner_internal::QDesignerFormWindowManager*>(m_formeditor->formWindowManager());
+#endif
     QTC_ASSERT(m_fwm, return);
 
     m_contexts.add(Designer::Constants::C_FORMEDITOR);
@@ -295,7 +307,11 @@ void FormEditorW::fullInit()
      * This will initialize our TabOrder, Signals and slots and Buddy editors.
      */
     QList<QObject*> plugins = QPluginLoader::staticInstances();
+#if QT_VERSION >= 0x050000
+    plugins += m_formeditor->pluginInstances();
+#else
     plugins += m_formeditor->pluginManager()->instances();
+#endif
     foreach (QObject *plugin, plugins) {
         if (QDesignerFormEditorPluginInterface *formEditorPlugin = qobject_cast<QDesignerFormEditorPluginInterface*>(plugin)) {
             if (!formEditorPlugin->isInitialized())
@@ -535,13 +551,22 @@ void FormEditorW::setupActions()
     // Commands that do not go into the editor toolbar
     createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator2"));
 
+#if QT_VERSION >= 0x050000
+    m_actionPreview = m_fwm->action(QDesignerFormWindowManagerInterface::DefaultPreviewAction);
+#else
     m_actionPreview = m_fwm->actionDefaultPreview();
+#endif
     QTC_ASSERT(m_actionPreview, return);
     addToolAction(m_actionPreview,  am,  m_contexts,
                    QLatin1String("FormEditor.Preview"), mformtools, tr("Alt+Shift+R"));
 
     // Preview in style...
+#if QT_VERSION >= 0x050000
+    m_actionGroupPreviewInStyle = m_fwm->actionGroup(QDesignerFormWindowManagerInterface::StyledPreviewActionGroup);
+#else
     m_actionGroupPreviewInStyle = m_fwm->actionGroupPreviewInStyle();
+#endif
+
     Core::ActionContainer *previewAC = createPreviewStyleMenu(am, m_actionGroupPreviewInStyle);
     m_previewInStyleMenu = previewAC->menu();
     mformtools->addMenu(previewAC);
@@ -562,14 +587,24 @@ void FormEditorW::setupActions()
                   tr("Shift+F4"));
 
     createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator4"));
+#if QT_VERSION >= 0x050000
+    QAction *actionFormSettings = m_fwm->action(QDesignerFormWindowManagerInterface::FormWindowSettingsDialogAction);
+#else
     QAction *actionFormSettings = m_fwm->actionShowFormWindowSettingsDialog();
+#endif
     addToolAction(actionFormSettings, am, m_contexts, QLatin1String("FormEditor.FormSettings"), mformtools);
 
     createSeparator(this, am, m_contexts, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator5"));
     m_actionAboutPlugins = new QAction(tr("About Qt Designer plugins...."), this);
     addToolAction(m_actionAboutPlugins,  am,  m_contexts,
                    QLatin1String("FormEditor.AboutPlugins"), mformtools);
-    connect(m_actionAboutPlugins,  SIGNAL(triggered()), m_fwm, SLOT(aboutPlugins()));
+    connect(m_actionAboutPlugins,  SIGNAL(triggered()), m_fwm,
+#if QT_VERSION >= 0x050000
+            SLOT(showPluginDialog())
+#else
+            SLOT(aboutPlugins())
+#endif
+            );
     m_actionAboutPlugins->setEnabled(false);
 
     // FWM
@@ -706,12 +741,18 @@ EditorData FormEditorW::createEditor(QWidget *parent)
     // Create and associate form and text editor.
     EditorData data;
     m_fwm->closeAllPreviews();
+#if QT_VERSION >= 0x050000
+    QDesignerFormWindowInterface *form = m_fwm->createFormWindow(0);
+#else
     qdesigner_internal::FormWindowBase *form = qobject_cast<qdesigner_internal::FormWindowBase *>(m_fwm->createFormWindow(0));
+#endif
     QTC_ASSERT(form, return data);
     connect(form, SIGNAL(toolChanged(int)), this, SLOT(toolChanged(int)));
     ResourceHandler *resourceHandler = new ResourceHandler(form);
+#if QT_VERSION < 0x050000
     form->setDesignerGrid(qdesigner_internal::FormWindowBase::defaultDesignerGrid());
     qdesigner_internal::FormWindowBase::setupDefaultAction(form);
+#endif
     data.widgetHost = new SharedTools::WidgetHost( /* parent */ 0, form);
     DesignerXmlEditor *xmlEditor = new DesignerXmlEditor(form, parent);
     TextEditor::TextEditorSettings::instance()->initializeEditor(xmlEditor);
@@ -815,10 +856,13 @@ void FormEditorW::print()
     const QPrinter::Orientation oldOrientation =  m_core->printer()->orientation ();
     m_core->printer()->setFullPage(false);
     do {
-
         // Grab the image to be able to a suggest suitable orientation
         QString errorMessage;
+#if QT_VERSION >= 0x050000
+        const QPixmap pixmap = m_fwm->createPreviewPixmap();
+#else
         const QPixmap pixmap = m_fwm->createPreviewPixmap(&errorMessage);
+#endif
         if (pixmap.isNull()) {
             critical(tr("The image could not be created: %1").arg(errorMessage));
             break;

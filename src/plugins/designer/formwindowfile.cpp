@@ -41,7 +41,9 @@
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
-#include "qt_private/qsimpleresource_p.h"
+#if QT_VERSION < 0x050000
+#    include "qt_private/qsimpleresource_p.h"
+#endif
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
@@ -83,10 +85,13 @@ bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSa
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
         m_formWindow->setFileName(fi.absoluteFilePath());
-
+#if QT_VERSION >= 0x050000
+    const bool writeOK = writeFile(actualName, errorString);
+#else
     const bool warningsEnabled = qdesigner_internal::QSimpleResource::setWarningsEnabled(false);
     const bool writeOK = writeFile(actualName, errorString);
     qdesigner_internal::QSimpleResource::setWarningsEnabled(warningsEnabled);
+#endif
     m_shouldAutoSave = false;
     if (autoSave)
         return writeOK;

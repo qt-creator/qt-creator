@@ -35,7 +35,11 @@
 #include "formeditorw.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include "qt_private/abstractoptionspage_p.h"
+#if QT_VERSION >= 0x050000
+#    include <QtDesigner/QDesignerOptionsPageInterface>
+#else
+#    include "qt_private/abstractoptionspage_p.h"
+#endif
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>

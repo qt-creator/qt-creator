@@ -34,7 +34,11 @@
 #include "formeditorw.h"
 #include "designerconstants.h"
 
-#include "qt_private/abstractnewformwidget_p.h"
+#if QT_VERSION >= 0x050000
+#    include <QtDesigner/QDesignerNewFormWidgetInterface>
+#else
+#    include "qt_private/abstractnewformwidget_p.h"
+#endif
 
 #include <QtCore/QDebug>
 #include <QtCore/QXmlStreamReader>

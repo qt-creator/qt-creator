@@ -55,9 +55,13 @@ class QSignalMapper;
 class QSettings;
 class QToolBar;
 
+#if QT_VERSION >= 0x050000
+class QDesignerFormWindowManagerInterface;
+#else
 namespace qdesigner_internal {
     class QDesignerFormWindowManager;
 }
+#endif
 
 QT_END_NAMESPACE
 
@@ -172,7 +176,12 @@ private:
 
     QDesignerFormEditorInterface *m_formeditor;
     QDesignerIntegrationInterface *m_integration;
+
+#if QT_VERSION >= 0x050000
+    QDesignerFormWindowManagerInterface *m_fwm;
+#else
     qdesigner_internal::QDesignerFormWindowManager *m_fwm;
+#endif
     Core::ICore *m_core;
     InitializationStage m_initStage;
 

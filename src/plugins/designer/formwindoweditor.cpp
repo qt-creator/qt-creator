@@ -34,7 +34,6 @@
 #include "formwindowfile.h"
 #include "designerconstants.h"
 #include "resourcehandler.h"
-#include "qt_private/formwindowbase_p.h"
 #include "designerxmleditor.h"
 #include <widgethost.h>
 
@@ -48,7 +47,12 @@
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
-#include <QtDesigner/QDesignerFormWindowInterface>
+#if QT_VERSION >= 0x050000
+#    include <QtDesigner/QDesignerFormWindowInterface>
+#    include <QtCore/QBuffer>
+#else
+#    include "qt_private/formwindowbase_p.h"
+#endif
 
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -114,12 +118,17 @@ bool FormWindowEditor::createNew(const QString &contents)
         QApplication::restoreOverrideCursor();
     }
 
+#if QT_VERSION >= 0x050000
+    const bool success = form->setContents(contents);
+#else
     form->setContents(contents);
+    const bool success = form->mainContainer() != 0;
+#endif
 
     if (hasOverrideCursor)
         QApplication::setOverrideCursor(overrideCursor);
 
-    if (form->mainContainer() == 0)
+    if (!success)
         return false;
 
     syncXmlEditor(contents);
@@ -154,11 +163,17 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
         return false;
 
     form->setFileName(absfileName);
-
-    const QString contents = QString::fromUtf8(reader.data());
-    form->setContents(contents);
+    QByteArray contents = reader.data();
+#if QT_VERSION >= 0x050000
+    QBuffer str(&contents);
+    str.open(QIODevice::ReadOnly);
+    if (!form->setContents(&str, errorString))
+        return false;
+#else
+    form->setContents(QString::fromUtf8(contents));
     if (!form->mainContainer())
         return false;
+#endif
     form->setDirty(fileName != realFileName);
     syncXmlEditor(contents);
 
@@ -249,9 +264,16 @@ QWidget *FormWindowEditor::toolBar()
 
 QString FormWindowEditor::contents() const
 {
+#if QT_VERSION >= 0x050000    // TODO: No warnings about spacers here
+    const QDesignerFormWindowInterface *fw = d->m_file.formWindow();
+    QTC_ASSERT(fw, return QString());
+    return fw->contents();
+#else
+    // No warnings about spacers here
     const qdesigner_internal::FormWindowBase *fw = qobject_cast<const qdesigner_internal::FormWindowBase *>(d->m_file.formWindow());
     QTC_ASSERT(fw, return QString());
-    return fw->fileContents(); // No warnings about spacers here
+    return fw->fileContents();
+#endif
 }
 
 TextEditor::BaseTextDocument *FormWindowEditor::textDocument()

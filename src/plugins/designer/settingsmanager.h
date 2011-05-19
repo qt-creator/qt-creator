@@ -33,7 +33,11 @@
 #ifndef SETTINGSMANAGER_H
 #define SETTINGSMANAGER_H
 
-#include "qt_private/abstractsettings_p.h"
+#if QT_VERSION >= 0x050000
+#    include <QtDesigner/QDesignerSettingsInterface>
+#else
+#    include "qt_private/abstractsettings_p.h"
+#endif
 
 namespace Designer {
 namespace Internal {

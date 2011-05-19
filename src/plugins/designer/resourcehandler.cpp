@@ -39,8 +39,12 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 
-#include "qt_private/formwindowbase_p.h"
-#include "qt_private/qtresourcemodel_p.h"
+#if QT_VERSION >= 0x050000
+#    include <QtDesigner/QDesignerFormWindowInterface>
+#else
+#    include "qt_private/formwindowbase_p.h"
+#    include "qt_private/qtresourcemodel_p.h"
+#endif
 
 #include <utils/qtcassert.h>
 
@@ -83,7 +87,11 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 }
 
 // ------------ ResourceHandler
+#if QT_VERSION >= 0x050000
+ResourceHandler::ResourceHandler(QDesignerFormWindowInterface *fw) :
+#else
 ResourceHandler::ResourceHandler(qdesigner_internal::FormWindowBase *fw) :
+#endif
     QObject(fw),
     m_form(fw),
     m_sessionNode(0),
@@ -106,8 +114,11 @@ void ResourceHandler::ensureInitialized()
     connect(m_sessionWatcher, SIGNAL(foldersAdded()), this, SLOT(updateResources()));
     connect(m_sessionWatcher, SIGNAL(foldersRemoved()), this, SLOT(updateResources()));
     m_sessionNode->registerWatcher(m_sessionWatcher);
-
+#if QT_VERSION >= 0x050000
+    m_originalUiQrcPaths = m_form->activeResourceFilePaths();
+#else
     m_originalUiQrcPaths = m_form->resourceSet()->activeQrcPaths();
+#endif
     if (Designer::Constants::Internal::debug)
         qDebug() << "ResourceHandler::ensureInitialized() origPaths=" << m_originalUiQrcPaths;
 }
@@ -142,16 +153,26 @@ void ResourceHandler::updateResources()
         QrcFilesVisitor qrcVisitor;
         root->accept(&qrcVisitor);
         const QStringList projectQrcFiles = qrcVisitor.qrcFiles();
+#if QT_VERSION >= 0x050000
+        m_form->activateResourceFilePaths(projectQrcFiles);
+        m_form->setResourceFileSaveMode(QDesignerFormWindowInterface::SaveOnlyUsedResourceFiles);
+#else
         m_form->resourceSet()->activateQrcPaths(projectQrcFiles);
         m_form->setSaveResourcesBehaviour(qdesigner_internal::FormWindowBase::SaveOnlyUsedQrcFiles);
+#endif
         if (Designer::Constants::Internal::debug)
             qDebug() << "ResourceHandler::updateResources()" << fileName
                     << " associated with project" << project->rootProjectNode()->path()
                     <<  " using project qrc files" << projectQrcFiles.size();
     } else {
         // Use resource file originally used in form
+#if QT_VERSION >= 0x050000
+        m_form->activateResourceFilePaths(m_originalUiQrcPaths);
+        m_form->setResourceFileSaveMode(QDesignerFormWindowInterface::SaveAllResourceFiles);
+#else
         m_form->resourceSet()->activateQrcPaths(m_originalUiQrcPaths);
         m_form->setSaveResourcesBehaviour(qdesigner_internal::FormWindowBase::SaveAll);
+#endif
         if (Designer::Constants::Internal::debug)
             qDebug() << "ResourceHandler::updateResources()" << fileName << " not associated with project, using loaded qrc files.";
     }

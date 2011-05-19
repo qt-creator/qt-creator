@@ -7,19 +7,25 @@ include(../../shared/designerintegrationv2/designerintegration.pri)
 include(cpp/cpp.pri)
 include(designer_dependencies.pri)
 
-# -- figure out shared dir location
-!exists($$[QT_INSTALL_HEADERS]/QtDesigner/private/qdesigner_integration_p.h) {
-    QT_SOURCE_TREE=$$fromfile($$(QTDIR)/.qmake.cache,QT_SOURCE_TREE)
-    INCLUDEPATH += $$QT_SOURCE_TREE/include
+INCLUDEPATH += ../../tools/utils
+
+minQtVersion(5, 0, 0) {
+    CONFIG += designer
+#   -- Fixme: Make tools available
+    INCLUDEPATH += $$QMAKE_INCDIR_QT/../../qttools/include
+} else {
+    # -- figure out shared dir location
+    !exists($$[QT_INSTALL_HEADERS]/QtDesigner/private/qdesigner_integration_p.h) {
+        QT_SOURCE_TREE=$$fromfile($$(QTDIR)/.qmake.cache,QT_SOURCE_TREE)
+        INCLUDEPATH += $$QT_SOURCE_TREE/include
+    }
+    INCLUDEPATH += $$QMAKE_INCDIR_QT/QtDesigner
+    qtAddLibrary(QtDesigner)
 }
 
-INCLUDEPATH += $$QMAKE_INCDIR_QT/QtDesigner \
-    ../../tools/utils
+QT += xml
 
-qtAddLibrary(QtDesigner)
 qtAddLibrary(QtDesignerComponents)
-
-QT+=xml
 
 HEADERS += formeditorplugin.h \
         formeditorfactory.h \
