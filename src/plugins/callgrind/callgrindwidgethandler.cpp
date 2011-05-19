@@ -325,9 +325,11 @@ void CallgrindWidgetHandler::doClear(bool clearParseData)
         setParseData(0);
 
     // clear filters
-    m_filterProjectCosts->setChecked(false);
+    if (m_filterProjectCosts)
+        m_filterProjectCosts->setChecked(false);
     m_dataProxy->setFilterBaseDir(QString());
-    m_searchFilter->setText(QString());
+    if (m_searchFilter)
+        m_searchFilter->setText(QString());
     m_dataProxy->setFilterFixedString(QString());
 }
 
