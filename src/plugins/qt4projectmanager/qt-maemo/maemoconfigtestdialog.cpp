@@ -265,10 +265,6 @@ QString MaemoConfigTestDialog::parseTestOutput()
 
     output = tr("Hardware architecture: %1\n").arg(unamePattern.cap(2));
     output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
-    if (m_config->osVersion() == MaemoDeviceConfig::GenericLinux) {
-        m_qtVersionOk = true;
-        return output;
-    }
 
     QString patternString;
     switch (MaemoGlobal::packagingSystem(m_config->osVersion())) {
@@ -279,6 +275,7 @@ QString MaemoConfigTestDialog::parseTestOutput()
         patternString = QLatin1String("(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+");
         break;
     default:
+        m_qtVersionOk = true;
         return output;
     }
 
