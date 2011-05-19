@@ -184,7 +184,9 @@ public:
         , m_sortable(false)
         , m_completionOperator(T_EOF_SYMBOL)
         , m_replaceDotForArrow(false)
+        , m_typeOfExpression(new TypeOfExpression)
     {}
+    virtual ~CppAssistProposalModel();
 
     virtual bool isSortable() const { return m_sortable; }
     virtual IAssistProposalItem *proposalItem(int index) const;
@@ -192,8 +194,13 @@ public:
     bool m_sortable;
     unsigned m_completionOperator;
     bool m_replaceDotForArrow;
-    Snapshot m_snapshot;
+    mutable TypeOfExpression *m_typeOfExpression;
 };
+
+CppAssistProposalModel::~CppAssistProposalModel()
+{
+    delete m_typeOfExpression;
+}
 
 // ---------------------
 // CppAssistProposalItem
@@ -201,7 +208,9 @@ public:
 class CppAssistProposalItem : public TextEditor::BasicProposalItem
 {
 public:
-    CppAssistProposalItem() : m_isOverloaded(false) {}
+    CppAssistProposalItem() :
+        m_isOverloaded(false), m_typeOfExpression(0) {}
+    virtual ~CppAssistProposalItem();
 
     virtual bool prematurelyApplies(const QChar &c) const;
     virtual void applyContextualContent(TextEditor::BaseTextEditor *editor,
@@ -210,14 +219,20 @@ public:
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
     void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
-    void keepSnapshot(const Snapshot &snapshot) { m_snapshot = snapshot; }
+    void ownTypeOfExpression(TypeOfExpression *typeOfExp) { m_typeOfExpression = typeOfExp; }
 
 private:
     bool m_isOverloaded;
     unsigned m_completionOperator;
     mutable QChar m_typedChar;
-    Snapshot m_snapshot;
+    TypeOfExpression *m_typeOfExpression;
 };
+
+CppAssistProposalItem::~CppAssistProposalItem()
+{
+    if (m_typeOfExpression)
+        delete m_typeOfExpression;
+}
 
 } // Internal
 } // CppTools
@@ -231,7 +246,8 @@ IAssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
     if (!item->data().canConvert<QString>()) {
         CppAssistProposalItem *cppItem = static_cast<CppAssistProposalItem *>(item);
         cppItem->keepCompletionOperator(m_completionOperator);
-        cppItem->keepSnapshot(m_snapshot);
+        cppItem->ownTypeOfExpression(m_typeOfExpression);
+        m_typeOfExpression = 0;
     }
     return item;
 }
@@ -413,9 +429,10 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 class CppFunctionHintModel : public TextEditor::IFunctionHintProposalModel
 {
 public:
-    CppFunctionHintModel(QList<Function *> functionSymbols)
+    CppFunctionHintModel(QList<Function *> functionSymbols, TypeOfExpression *typeOfExp)
         : m_functionSymbols(functionSymbols)
         , m_currentArg(-1)
+        , m_typeOfExpression(typeOfExp)
     {}
 
     virtual void reset() {}
@@ -426,6 +443,7 @@ public:
 private:
     QList<Function *> m_functionSymbols;
     mutable int m_currentArg;
+    TypeOfExpression *m_typeOfExpression;
 };
 
 QString CppFunctionHintModel::text(int index) const
@@ -675,8 +693,6 @@ IAssistProposal * CppCompletionAssistProcessor::perform(const IAssistInterface *
     if (interface->reason() != ExplicitlyInvoked && !accepts())
         return 0;
 
-    m_model->m_snapshot = m_interface->snapshot();
-
     int index = startCompletionHelper();
     if (index != -1) {
         if (m_hintProposal)
@@ -804,7 +820,9 @@ IAssistProposal *CppCompletionAssistProcessor::createContentProposal()
 IAssistProposal *CppCompletionAssistProcessor::createHintProposal(
     QList<CPlusPlus::Function *> functionSymbols) const
 {
-    IFunctionHintProposalModel *model = new CppFunctionHintModel(functionSymbols);
+    IFunctionHintProposalModel *model =
+            new CppFunctionHintModel(functionSymbols, m_model->m_typeOfExpression);
+    m_model->m_typeOfExpression = 0;
     IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
     return proposal;
 }
@@ -1043,19 +1061,20 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
     const int startPos = tokens[start].begin() + tokens.startPosition();
     const QString expr = m_interface->textAt(startPos, m_interface->position() - startPos);
 
-    Document::Ptr thisDocument = m_model->m_snapshot.document(m_interface->file()->fileName());
+    Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->file()->fileName());
     if (! thisDocument)
         return false;
 
-    typeOfExpression.init(thisDocument, m_model->m_snapshot);
+    m_model->m_typeOfExpression->init(thisDocument, m_interface->snapshot());
+
     int line = 0, column = 0;
     Convenience::convertPosition(m_interface->document(), m_interface->position(), &line, &column);
     Scope *scope = thisDocument->scopeAt(line, column);
     if (!scope)
         return false;
 
-    const QList<LookupItem> items = typeOfExpression(expr, scope);
-    LookupContext lookupContext(thisDocument, m_model->m_snapshot);
+    const QList<LookupItem> items = (*m_model->m_typeOfExpression)(expr, scope);
+    LookupContext lookupContext(thisDocument, m_interface->snapshot());
 
     foreach (const LookupItem &item, items) {
         FullySpecifiedType ty = item.type().simplified();
@@ -1246,18 +1265,18 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
 {
     QString expression = expr.trimmed();
 
-    Document::Ptr thisDocument = m_model->m_snapshot.document(fileName);
+    Document::Ptr thisDocument = m_interface->snapshot().document(fileName);
     if (! thisDocument)
         return -1;
 
-    typeOfExpression.init(thisDocument, m_model->m_snapshot);
+    m_model->m_typeOfExpression->init(thisDocument, m_interface->snapshot());
 
     Scope *scope = thisDocument->scopeAt(line, column);
     Q_ASSERT(scope != 0);
 
     if (expression.isEmpty()) {
         if (m_model->m_completionOperator == T_EOF_SYMBOL || m_model->m_completionOperator == T_COLON_COLON) {
-            (void) typeOfExpression(expression, scope);
+            (void) (*m_model->m_typeOfExpression)(expression, scope);
             globalCompletion(scope);
             if (m_completions.isEmpty())
                 return -1;
@@ -1270,13 +1289,14 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
         }
     }
 
-    QList<LookupItem> results = typeOfExpression(expression, scope, TypeOfExpression::Preprocess);
+    QList<LookupItem> results =
+            (*m_model->m_typeOfExpression)(expression, scope, TypeOfExpression::Preprocess);
 
     if (results.isEmpty()) {
         if (m_model->m_completionOperator == T_SIGNAL || m_model->m_completionOperator == T_SLOT) {
             if (! (expression.isEmpty() || expression == QLatin1String("this"))) {
                 expression = QLatin1String("this");
-                results = typeOfExpression(expression, scope);
+                results = (*m_model->m_typeOfExpression)(expression, scope);
             }
 
             if (results.isEmpty())
@@ -1297,7 +1317,7 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
 
             // Resolve the type of this expression
             const QList<LookupItem> results =
-                    typeOfExpression(baseExpression, scope,
+                    (*m_model->m_typeOfExpression)(baseExpression, scope,
                                      TypeOfExpression::Preprocess);
 
             // If it's a class, add completions for the constructors
@@ -1355,7 +1375,7 @@ int CppCompletionAssistProcessor::startCompletionInternal(const QString fileName
 
 void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentScope)
 {
-    const LookupContext &context = typeOfExpression.context();
+    const LookupContext &context = m_model->m_typeOfExpression->context();
 
     if (m_model->m_completionOperator == T_COLON_COLON) {
         completeNamespace(context.globalNamespace());
@@ -1422,7 +1442,7 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
 
 bool CppCompletionAssistProcessor::completeMember(const QList<CPlusPlus::LookupItem> &baseResults)
 {
-    const LookupContext &context = typeOfExpression.context();
+    const LookupContext &context = m_model->m_typeOfExpression->context();
 
     if (baseResults.isEmpty())
         return false;
@@ -1444,7 +1464,7 @@ bool CppCompletionAssistProcessor::completeMember(const QList<CPlusPlus::LookupI
 
 bool CppCompletionAssistProcessor::completeScope(const QList<CPlusPlus::LookupItem> &results)
 {
-    const LookupContext &context = typeOfExpression.context();
+    const LookupContext &context = m_model->m_typeOfExpression->context();
     if (results.isEmpty())
         return false;
 
@@ -1574,7 +1594,7 @@ bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::Looku
     if (results.isEmpty())
         return false;
 
-    const LookupContext &context = typeOfExpression.context();
+    const LookupContext &context = m_model->m_typeOfExpression->context();
 
     ConvertToCompletionItem toCompletionItem;
     Overview o;
@@ -1727,7 +1747,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                                                                  int endOfExpression,
                                                                  bool toolTipOnly)
 {
-    const LookupContext &context = typeOfExpression.context();
+    const LookupContext &context = m_model->m_typeOfExpression->context();
     QList<Function *> functions;
 
     foreach (const LookupItem &result, results) {

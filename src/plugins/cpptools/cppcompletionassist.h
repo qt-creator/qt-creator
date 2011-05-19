@@ -133,7 +133,6 @@ private:
     TextEditor::SnippetAssistCollector m_snippetCollector;
     const CppCompletionAssistProvider *m_provider;
     CPlusPlus::Icons m_icons;
-    CPlusPlus::TypeOfExpression typeOfExpression;
     QStringList preprocessorCompletions;
     QScopedPointer<CppAssistProposalModel> m_model;
     TextEditor::IAssistProposal *m_hintProposal;
