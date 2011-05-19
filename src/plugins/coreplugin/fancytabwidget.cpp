@@ -365,8 +365,11 @@ public:
 
     void mousePressEvent(QMouseEvent *ev)
     {
-        if (ev->modifiers() & Qt::ShiftModifier)
-            Utils::StyleHelper::setBaseColor(QColorDialog::getColor(Utils::StyleHelper::requestedBaseColor(), m_parent));
+        if (ev->modifiers() & Qt::ShiftModifier) {
+            QColor color = QColorDialog::getColor(Utils::StyleHelper::requestedBaseColor(), m_parent);
+            if (color.isValid())
+                Utils::StyleHelper::setBaseColor(color);
+        }
     }
 private:
     QWidget *m_parent;
