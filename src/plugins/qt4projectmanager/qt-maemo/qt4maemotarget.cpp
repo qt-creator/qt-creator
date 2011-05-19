@@ -662,15 +662,17 @@ void AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial()
             setPackageManagerIcon(iconPath);
     }
     m_filesWatcher->addDirectory(debianDirPath(), Utils::FileSystemWatcher::WatchAllChanges);
-    m_filesWatcher->addFile(changeLogFilePath(), Utils::FileSystemWatcher::WatchAllChanges);
-    m_filesWatcher->addFile(controlFilePath(), Utils::FileSystemWatcher::WatchAllChanges);
+    m_controlFile = new WatchableFile(controlFilePath(), this);
+    connect(m_controlFile, SIGNAL(modified()), SIGNAL(controlChanged()));
+    m_changeLogFile = new WatchableFile(changeLogFilePath(), this);
+    connect(m_changeLogFile, SIGNAL(modified()), SIGNAL(changeLogChanged()));
+    Core::FileManager::instance()->addFiles(QList<Core::IFile *>()
+        << m_controlFile << m_changeLogFile);
     connect(m_filesWatcher, SIGNAL(directoryChanged(QString)), this,
         SLOT(handleDebianDirContentsChanged()));
-    connect(m_filesWatcher, SIGNAL(fileChanged(QString)), this,
-        SLOT(handleDebianFileChanged(QString)));
     handleDebianDirContentsChanged();
-    handleDebianFileChanged(changeLogFilePath());
-    handleDebianFileChanged(controlFilePath());
+    emit controlChanged();
+    emit changeLogChanged();
 }
 
 bool AbstractDebBasedQt4MaemoTarget::targetCanBeRemoved() const
@@ -683,14 +685,6 @@ void AbstractDebBasedQt4MaemoTarget::removeTarget()
     QString error;
     if (!MaemoGlobal::removeRecursively(debianDirPath(), error))
         qDebug("%s", qPrintable(error));
-}
-
-void AbstractDebBasedQt4MaemoTarget::handleDebianFileChanged(const QString &filePath)
-{
-    if (filePath == changeLogFilePath())
-        emit changeLogChanged();
-    else if (filePath == controlFilePath())
-        emit controlChanged();
 }
 
 void AbstractDebBasedQt4MaemoTarget::handleDebianDirContentsChanged()
@@ -985,9 +979,10 @@ AbstractQt4MaemoTarget::ActionStatus AbstractRpmBasedQt4MaemoTarget::createSpeci
 
 void AbstractRpmBasedQt4MaemoTarget::handleTargetAddedSpecial()
 {
-    m_filesWatcher->addFile(specFilePath(), Utils::FileSystemWatcher::WatchAllChanges);
-    connect(m_filesWatcher, SIGNAL(fileChanged(QString)), this,
-        SIGNAL(specFileChanged()));
+    m_specFile = new WatchableFile(specFilePath(), this);
+    connect(m_specFile, SIGNAL(modified()), SIGNAL(specFileChanged()));
+    Core::FileManager::instance()->addFile(m_specFile);
+    emit specFileChanged();
 }
 
 bool AbstractRpmBasedQt4MaemoTarget::targetCanBeRemoved() const

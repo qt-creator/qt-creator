@@ -48,6 +48,7 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 namespace Internal {
 class Qt4MaemoDeployConfigurationFactory;
+class WatchableFile;
 
 class AbstractQt4MaemoTarget : public Qt4BaseTarget
 {
@@ -141,7 +142,6 @@ protected:
 
 private slots:
     void handleDebianDirContentsChanged();
-    void handleDebianFileChanged(const QString &filePath);
 
 private:
     virtual bool setProjectVersionInternal(const QString &version,
@@ -172,6 +172,9 @@ private:
         QString *error = 0);
     QString defaultPackageFileName() const;
     bool setPackageManagerNameInternal(const QString &name, QString *error = 0);
+
+    WatchableFile *m_controlFile;
+    WatchableFile *m_changeLogFile;
 };
 
 
@@ -213,6 +216,8 @@ private:
     QByteArray getValueForTag(const QByteArray &tag, QString *error) const;
     bool setValueForTag(const QByteArray &tag, const QByteArray &value,
         QString *error);
+
+    WatchableFile *m_specFile;
 };
 
 

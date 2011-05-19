@@ -35,6 +35,7 @@
 
 #include "maemodeviceconfigurations.h"
 
+#include <coreplugin/ifile.h>
 #include <utils/environment.h>
 
 #include <projectexplorer/buildstep.h>
@@ -58,6 +59,32 @@ namespace Utils { class SshConnection; }
 namespace Qt4ProjectManager {
 class BaseQtVersion;
 namespace Internal {
+
+class WatchableFile : public Core::IFile
+{
+    Q_OBJECT
+public:
+    WatchableFile(const QString &fileName, QObject *parent = 0)
+        : Core::IFile(parent), m_fileName(fileName) {}
+
+    bool save(QString *, const QString &, bool) { return false; }
+    QString fileName() const { return m_fileName; }
+    QString defaultPath() const { return QString(); }
+    QString suggestedFileName() const { return QString(); }
+    QString mimeType() const { return QLatin1String("text/plain"); }
+    bool isModified() const { return false; }
+    bool isReadOnly() const { return false; }
+    bool isSaveAsAllowed() const { return false; }
+    ReloadBehavior reloadBehavior(ChangeTrigger, ChangeType) const { return BehaviorSilent; }
+    bool reload(QString *, ReloadFlag, ChangeType) { emit modified(); return true; }
+    void rename(const QString &) {}
+
+signals:
+    void modified();
+
+private:
+    QString m_fileName;
+};
 
 class MaemoGlobal
 {
