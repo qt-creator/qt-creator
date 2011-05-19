@@ -41,6 +41,7 @@
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QList>
 
 namespace TextEditor {
 
@@ -186,6 +187,7 @@ private:
     QAction *m_insertLineBelowAction;
     QAction *m_upperCaseSelectionAction;
     QAction *m_lowerCaseSelectionAction;
+    QList<QAction *> m_modifyingActions;
 
     uint m_optionalActions;
     QPointer<BaseTextEditorWidget> m_currentEditor;

@@ -133,6 +133,7 @@ void TextEditorActionHandler::createActions()
     m_copyAction      = registerNewAction(QLatin1String(Core::Constants::COPY),      this, SLOT(copyAction()), true);
     m_cutAction       = registerNewAction(QLatin1String(Core::Constants::CUT),       this, SLOT(cutAction()), true);
     m_pasteAction     = registerNewAction(QLatin1String(Core::Constants::PASTE),     this, SLOT(pasteAction()), true);
+    m_modifyingActions << m_pasteAction;
     m_selectAllAction = registerNewAction(QLatin1String(Core::Constants::SELECTALL), this, SLOT(selectAllAction()), true);
     m_gotoAction      = registerNewAction(QLatin1String(Core::Constants::GOTO),      this, SLOT(gotoAction()));
     m_printAction     = registerNewAction(QLatin1String(Core::Constants::PRINT),     this, SLOT(printAction()));
@@ -149,6 +150,7 @@ void TextEditorActionHandler::createActions()
 
 
     m_formatAction = new QAction(tr("Auto-&indent Selection"), this);
+    m_modifyingActions << m_formatAction;
     command = am->registerAction(m_formatAction, TextEditor::Constants::AUTO_INDENT_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+I")));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
@@ -161,6 +163,7 @@ void TextEditorActionHandler::createActions()
 #endif
 
     m_rewrapParagraphAction = new QAction(tr("&Rewrap Paragraph"), this);
+    m_modifyingActions << m_rewrapParagraphAction;
     command = am->registerAction(m_rewrapParagraphAction, TextEditor::Constants::REWRAP_PARAGRAPH, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("%1+E, R").arg(modifier)));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
@@ -176,6 +179,7 @@ void TextEditorActionHandler::createActions()
     connect(m_visualizeWhitespaceAction, SIGNAL(triggered(bool)), this, SLOT(setVisualizeWhitespace(bool)));
 
     m_cleanWhitespaceAction = new QAction(tr("Clean Whitespace"), this);
+    m_modifyingActions << m_cleanWhitespaceAction;
     command = am->registerAction(m_cleanWhitespaceAction,
                                  TextEditor::Constants::CLEAN_WHITESPACE, m_contextId, true);
 
@@ -191,12 +195,14 @@ void TextEditorActionHandler::createActions()
 
 
     m_unCommentSelectionAction = new QAction(tr("(Un)Comment &Selection"), this);
+    m_modifyingActions << m_unCommentSelectionAction;
     command = am->registerAction(m_unCommentSelectionAction, Constants::UN_COMMENT_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+/")));
     connect(m_unCommentSelectionAction, SIGNAL(triggered()), this, SLOT(unCommentSelection()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
 
     m_cutLineAction = new QAction(tr("Cut &Line"), this);
+    m_modifyingActions << m_cutLineAction;
     command = am->registerAction(m_cutLineAction, Constants::CUT_LINE, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Shift+Del")));
     connect(m_cutLineAction, SIGNAL(triggered()), this, SLOT(cutLine()));
@@ -207,6 +213,7 @@ void TextEditorActionHandler::createActions()
     connect(m_copyLineAction, SIGNAL(triggered()), this, SLOT(copyLine()));
 
     m_deleteLineAction = new QAction(tr("Delete &Line"), this);
+    m_modifyingActions << m_deleteLineAction;
     command = am->registerAction(m_deleteLineAction, Constants::DELETE_LINE, m_contextId, true);
     connect(m_deleteLineAction, SIGNAL(triggered()), this, SLOT(deleteLine()));
 
@@ -281,46 +288,55 @@ void TextEditorActionHandler::createActions()
     advancedMenu->addAction(command, Core::Constants::G_EDIT_BLOCKS);
 
     m_moveLineUpAction = new QAction(tr("Move Line Up"), this);
+    m_modifyingActions << m_moveLineUpAction;
     command = am->registerAction(m_moveLineUpAction, Constants::MOVE_LINE_UP, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Up")));
     connect(m_moveLineUpAction, SIGNAL(triggered()), this, SLOT(moveLineUp()));
 
     m_moveLineDownAction = new QAction(tr("Move Line Down"), this);
+    m_modifyingActions << m_moveLineDownAction;
     command = am->registerAction(m_moveLineDownAction, Constants::MOVE_LINE_DOWN, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Down")));
     connect(m_moveLineDownAction, SIGNAL(triggered()), this, SLOT(moveLineDown()));
 
     m_copyLineUpAction = new QAction(tr("Copy Line Up"), this);
+    m_modifyingActions << m_copyLineUpAction;
     command = am->registerAction(m_copyLineUpAction, Constants::COPY_LINE_UP, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Up")));
     connect(m_copyLineUpAction, SIGNAL(triggered()), this, SLOT(copyLineUp()));
 
     m_copyLineDownAction = new QAction(tr("Copy Line Down"), this);
+    m_modifyingActions << m_copyLineDownAction;
     command = am->registerAction(m_copyLineDownAction, Constants::COPY_LINE_DOWN, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Down")));
     connect(m_copyLineDownAction, SIGNAL(triggered()), this, SLOT(copyLineDown()));
 
     m_joinLinesAction = new QAction(tr("Join Lines"), this);
+    m_modifyingActions << m_joinLinesAction;
     command = am->registerAction(m_joinLinesAction, Constants::JOIN_LINES, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+J")));
     connect(m_joinLinesAction, SIGNAL(triggered()), this, SLOT(joinLines()));
 
     m_insertLineAboveAction = new QAction(tr("Insert Line Above Current Line"), this);
+    m_modifyingActions << m_insertLineAboveAction;
     command = am->registerAction(m_insertLineAboveAction, Constants::INSERT_LINE_ABOVE, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Return")));
     connect(m_insertLineAboveAction, SIGNAL(triggered()), this, SLOT(insertLineAbove()));
 
     m_insertLineBelowAction = new QAction(tr("Insert Line Below Current Line"), this);
+    m_modifyingActions << m_insertLineBelowAction;
     command = am->registerAction(m_insertLineBelowAction, Constants::INSERT_LINE_BELOW, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Return")));
     connect(m_insertLineBelowAction, SIGNAL(triggered()), this, SLOT(insertLineBelow()));
 
     m_upperCaseSelectionAction = new QAction(tr("Uppercase Selection"), this);
+    m_modifyingActions << m_upperCaseSelectionAction;
     command = am->registerAction(m_upperCaseSelectionAction, Constants::UPPERCASE_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+U")));
     connect(m_upperCaseSelectionAction, SIGNAL(triggered()), this, SLOT(uppercaseSelection()));
 
     m_lowerCaseSelectionAction = new QAction(tr("Lowercase Selection"), this);
+    m_modifyingActions << m_lowerCaseSelectionAction;
     command = am->registerAction(m_lowerCaseSelectionAction, Constants::LOWERCASE_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+U")));
     connect(m_lowerCaseSelectionAction, SIGNAL(triggered()), this, SLOT(lowercaseSelection()));
@@ -422,7 +438,7 @@ QAction *TextEditorActionHandler::registerNewAction(const QString &id,
 TextEditorActionHandler::UpdateMode TextEditorActionHandler::updateMode() const
 {
     Q_ASSERT(m_currentEditor != 0);
-    return m_currentEditor->file()->isReadOnly() ? ReadOnlyMode : WriteMode;
+    return m_currentEditor->isReadOnly() ? ReadOnlyMode : WriteMode;
 }
 
 void TextEditorActionHandler::updateActions()
@@ -434,13 +450,11 @@ void TextEditorActionHandler::updateActions()
 
 void TextEditorActionHandler::updateActions(UpdateMode um)
 {
-    m_pasteAction->setEnabled(um != ReadOnlyMode);
+    foreach (QAction *a, m_modifyingActions)
+        a->setEnabled(um != ReadOnlyMode);
     m_formatAction->setEnabled((m_optionalActions & Format) && um != ReadOnlyMode);
     m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection) && um != ReadOnlyMode);
-    m_moveLineUpAction->setEnabled(um != ReadOnlyMode);
-    m_moveLineDownAction->setEnabled(um != ReadOnlyMode);
 
-    m_formatAction->setEnabled((m_optionalActions & Format));
     m_unfoldAllAction->setEnabled((m_optionalActions & UnCollapseAll));
     m_visualizeWhitespaceAction->setChecked(m_currentEditor->displaySettings().m_visualizeWhitespace);
     if (m_textWrappingAction) {
