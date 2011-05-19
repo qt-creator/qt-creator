@@ -110,6 +110,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case class_start:
             switch (kind) {
             case T_SEMICOLON:   leave(); break;
+            case T_LPAREN:      turnInto(declaration_start); continue; // "struct Foo bar() {"
             case T_LBRACE:      enter(class_open); break;
             } break;
 
@@ -123,6 +124,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case enum_start:
             switch (kind) {
             case T_SEMICOLON:   leave(); break;
+            case T_LPAREN:      turnInto(declaration_start); continue; // "enum Foo bar() {"
             case T_LBRACE:      enter(enum_open); break;
             } break;
 
