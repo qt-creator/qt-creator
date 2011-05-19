@@ -476,20 +476,19 @@ void AnalyzerManager::AnalyzerManagerPrivate::addDock(IAnalyzerTool *tool, Qt::D
 }
 
 bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
-                        ProjectExplorer::BuildConfiguration::BuildType buildType)
+                       ProjectExplorer::BuildConfiguration::BuildType buildType)
 {
     if (toolMode == IAnalyzerTool::AnyMode)
         return true;
-    else if (buildType == ProjectExplorer::BuildConfiguration::Unknown)
+    if (buildType == ProjectExplorer::BuildConfiguration::Unknown)
         return true;
-    else if (buildType == ProjectExplorer::BuildConfiguration::Debug &&
-             toolMode == IAnalyzerTool::DebugMode)
+    if (buildType == ProjectExplorer::BuildConfiguration::Debug
+            && toolMode == IAnalyzerTool::DebugMode)
         return true;
-    else if (buildType == ProjectExplorer::BuildConfiguration::Release &&
-             toolMode == IAnalyzerTool::ReleaseMode)
+    if (buildType == ProjectExplorer::BuildConfiguration::Release
+            && toolMode == IAnalyzerTool::ReleaseMode)
         return true;
-    else
-        return false;
+    return false;
 }
 
 bool AnalyzerManager::AnalyzerManagerPrivate::showPromptDialog(const QString &title,
