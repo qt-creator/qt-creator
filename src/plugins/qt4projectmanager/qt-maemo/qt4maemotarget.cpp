@@ -268,9 +268,11 @@ void AbstractQt4MaemoTarget::handleTargetAdded(ProjectExplorer::Target *target)
         this, SLOT(handleTargetAdded(ProjectExplorer::Target*)));
     connect(project(), SIGNAL(aboutToRemoveTarget(ProjectExplorer::Target*)),
         SLOT(handleTargetToBeRemoved(ProjectExplorer::Target*)));
-    if (createTemplates() == ActionFailed)
+    const ActionStatus status = createTemplates();
+    if (status == ActionFailed)
         return;
-    initPackagingSettingsFromOtherTarget();
+    if (status == ActionSuccessful) // Don't do this when the packaging data already exists.
+        initPackagingSettingsFromOtherTarget();
     handleTargetAddedSpecial();
     m_isInitialized = true;
 }
