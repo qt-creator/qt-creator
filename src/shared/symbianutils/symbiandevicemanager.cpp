@@ -49,6 +49,17 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QTimer>
 
+#ifdef Q_OS_MACX
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/IOKitLib.h>
+#include <IOKit/serial/IOSerialKeys.h>
+#include <IOKit/usb/USBSpec.h>
+#if defined(MAC_OS_X_VERSION_10_3) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3)
+#include <IOKit/serial/ioss.h>
+#endif
+#include <IOKit/IOBSD.h>
+#endif
+
 namespace SymbianUtils {
 
 enum { debug = 0 };
@@ -266,7 +277,14 @@ SYMBIANUTILS_EXPORT QDebug operator<<(QDebug d, const SymbianDevice &cd)
 
 // ------------- SymbianDeviceManagerPrivate
 struct SymbianDeviceManagerPrivate {
-    SymbianDeviceManagerPrivate() : m_initialized(false), m_devicesLock(QMutex::Recursive) {}
+    SymbianDeviceManagerPrivate() :
+        m_initialized(false),
+        m_devicesLock(QMutex::Recursive)
+    {
+#ifdef Q_OS_MACX
+        m_deviceListChangedNotification = 0;
+#endif
+    }
 
     bool m_initialized;
     SymbianDeviceManager::SymbianDeviceList m_devices;
@@ -274,6 +292,9 @@ struct SymbianDeviceManagerPrivate {
     // The following 2 variables are needed to manage requests for a CODA port not coming from the main thread
     int m_constructCodaPortEventType;
     QMutex m_codaPortWaitMutex;
+#ifdef Q_OS_MACX
+    IONotificationPortRef m_deviceListChangedNotification;
+#endif
 };
 
 class QConstructCodaPortEvent : public QEvent
@@ -298,6 +319,10 @@ SymbianDeviceManager::SymbianDeviceManager(QObject *parent) :
 
 SymbianDeviceManager::~SymbianDeviceManager()
 {
+#ifdef Q_OS_MACX
+    if (d && d->m_deviceListChangedNotification)
+        IONotificationPortDestroy(d->m_deviceListChangedNotification);
+#endif
     delete d;
 }
 
@@ -551,10 +576,30 @@ void SymbianDeviceManager::update(bool emitSignals)
         qDebug("<SerialDeviceLister::update\n%s\n", qPrintable(toString()));
 }
 
+#ifdef Q_OS_MACX
+QString CFStringToQString(CFStringRef cfstring)
+{
+    QString result;
+    int len = CFStringGetLength(cfstring);
+    result.resize(len);
+    CFStringGetCharacters(cfstring, CFRangeMake(0, len), static_cast<UniChar *>(result.data()));
+    return result;
+}
+
+void deviceListChanged(void *refCon, io_iterator_t iter)
+{
+    // The way we're structured, it's easier to rescan rather than take advantage of the finer-grained device addition and removal info that OS X gives us
+    io_object_t obj;
+    while ((obj = IOIteratorNext(iter))) IOObjectRelease(obj);
+    static_cast<SymbianDeviceManager *>(refCon)->update();
+}
+
+#endif
+
 SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::serialPorts() const
 {
     SymbianDeviceList rc;
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     const QSettings registry(REGKEY_CURRENT_CONTROL_SET, QSettings::NativeFormat);
     const QString usbSerialRootKey = QLatin1String(USBSER) + QLatin1Char('/');
     const int count = registry.value(usbSerialRootKey + QLatin1String("Count")).toInt();
@@ -575,6 +620,100 @@ SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::serialPorts() cons
             rc.append(SymbianDevice(device.take()));
         }
     }
+#elif defined(Q_OS_MACX)
+    CFMutableDictionaryRef classesToMatch = IOServiceMatching(kIOSerialBSDServiceValue);
+    if (!classesToMatch) return rc;
+
+    CFDictionarySetValue(classesToMatch,
+                         CFSTR(kIOSerialBSDTypeKey),
+                         CFSTR(kIOSerialBSDAllTypes));
+
+    // Setup notifier if necessary
+    if (d->m_deviceListChangedNotification == 0) {
+        d->m_deviceListChangedNotification = IONotificationPortCreate(kIOMasterPortDefault);
+        if (d->m_deviceListChangedNotification) {
+            CFRunLoopSourceRef runloopSource = IONotificationPortGetRunLoopSource(d->m_deviceListChangedNotification);
+            CFRunLoopAddSource(CFRunLoopGetCurrent(), runloopSource, kCFRunLoopDefaultMode);
+            // IOServiceAddMatchingNotification eats a reference each time we call it, so make sure it's still valid for the IOServiceGetMatchingServices later
+            CFRetain(classesToMatch);
+            CFRetain(classesToMatch);
+            io_iterator_t devicesAddedIterator;
+            io_iterator_t devicesRemovedIterator;
+            IOServiceAddMatchingNotification(d->m_deviceListChangedNotification, kIOMatchedNotification, classesToMatch, &deviceListChanged, (void*)this, &devicesAddedIterator);
+            IOServiceAddMatchingNotification(d->m_deviceListChangedNotification, kIOTerminatedNotification, classesToMatch, &deviceListChanged, (void*)this, &devicesRemovedIterator);
+            // Arm the iterators - we're not interested in the lists at this point, and the API rather expects that we will be
+            io_object_t obj;
+            while ((obj = IOIteratorNext(devicesAddedIterator))) IOObjectRelease(obj);
+            while ((obj = IOIteratorNext(devicesRemovedIterator))) IOObjectRelease(obj);
+        }
+    }
+    io_iterator_t matchingServices;
+    kern_return_t kernResult = IOServiceGetMatchingServices(kIOMasterPortDefault, classesToMatch, &matchingServices);
+    if (kernResult != KERN_SUCCESS) {
+        if (debug)
+            qDebug("IOServiceGetMatchingServices returned %d", kernResult);
+        return rc;
+    }
+
+    io_object_t serialPort;
+    kernResult = KERN_FAILURE;
+    while ((serialPort = IOIteratorNext(matchingServices))) {
+        // Check if it's Bluetooth or USB, and if so we can apply additional filters to weed out things that definitely aren't valid ports
+        io_object_t parent, grandparent;
+        kernResult = IORegistryEntryGetParentEntry(serialPort, kIOServicePlane, &parent);
+        bool match = true;
+        DeviceCommunicationType deviceType = SerialPortCommunication;
+        CFStringRef name = NULL;
+        if (kernResult == KERN_SUCCESS) {
+            kernResult = IORegistryEntryGetParentEntry(parent, kIOServicePlane, &grandparent);
+            if (kernResult == KERN_SUCCESS) {
+                CFStringRef className = IOObjectCopyClass(grandparent);
+                if (CFStringCompare(className, CFSTR("IOBluetoothSerialClient"), 0) == 0) {
+                    // CODA doesn't support bluetooth and TRK makes connections back to the PC so we're not going to support it - use CODA :)
+                    match = false;
+                }
+                else if (CFStringCompare(className, CFSTR("AppleUSBCDCACMData"), 0) == 0) {
+                    match = false;
+                    CFNumberRef interfaceNumber = (CFNumberRef)IORegistryEntrySearchCFProperty(grandparent, kIOServicePlane, CFSTR(kUSBInterfaceNumber), kCFAllocatorDefault, kIORegistryIterateParents | kIORegistryIterateRecursively);
+                    if (interfaceNumber) {
+                        int val;
+                        if (CFNumberGetValue(interfaceNumber, kCFNumberIntType, &val) && val == 4) match = true;
+                        CFRelease(interfaceNumber);
+                    }
+                    if (match) {
+                        CFStringRef deviceName = (CFStringRef)IORegistryEntrySearchCFProperty(grandparent, kIOServicePlane, CFSTR(kUSBProductString), kCFAllocatorDefault, kIORegistryIterateParents | kIORegistryIterateRecursively);
+                        CFStringRef vendorName = (CFStringRef)IORegistryEntrySearchCFProperty(grandparent, kIOServicePlane, CFSTR(kUSBVendorString), kCFAllocatorDefault, kIORegistryIterateParents | kIORegistryIterateRecursively);
+                        if (deviceName && vendorName) name = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@ %@"), vendorName, deviceName);
+                        if (deviceName) CFRelease(deviceName);
+                        if (vendorName) CFRelease(vendorName);
+                    }
+                }
+                else {
+                    // We don't expect TRK/CODA on any other type of serial port
+                    match = false;
+                }
+                CFRelease(className);
+                IOObjectRelease(grandparent);
+            }
+            IOObjectRelease(parent);
+        }
+
+        if (match) {
+            CFStringRef devPath = (CFStringRef)IORegistryEntryCreateCFProperty(serialPort, CFSTR(kIODialinDeviceKey), kCFAllocatorDefault, 0);
+            if (name == NULL)
+                name = (CFStringRef)IORegistryEntryCreateCFProperty(serialPort, CFSTR(kIOTTYBaseNameKey), kCFAllocatorDefault, 0);
+            QScopedPointer<SymbianDeviceData> device(new SymbianDeviceData);
+            device->type = deviceType;
+            device->friendlyName = CFStringToQString(name);
+            device->portName = CFStringToQString(devPath);
+
+            CFRelease(devPath);
+            CFRelease(name);
+            rc.append(SymbianDevice(device.take()));
+        }
+        IOObjectRelease(serialPort);
+    }
+    IOObjectRelease(matchingServices);
 #endif
     return rc;
 }

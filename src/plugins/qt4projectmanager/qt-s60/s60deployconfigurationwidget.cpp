@@ -269,8 +269,8 @@ QWidget *S60DeployConfigurationWidget::createCommunicationChannel()
     serialPortHBoxLayout->addWidget(m_serialPortsCombo);
     serialPortHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
 
-#ifndef Q_OS_WIN
-    // Update device list: on Linux only.
+#if !defined(Q_OS_WIN) && !defined(Q_OS_MACX)
+    // Update device list: only needed on linux.
     QToolButton *updateSerialDevicesButton(new QToolButton);
     updateSerialDevicesButton->setIcon(qApp->style()->standardIcon(QStyle::SP_BrowserReload));
     connect(updateSerialDevicesButton, SIGNAL(clicked()),

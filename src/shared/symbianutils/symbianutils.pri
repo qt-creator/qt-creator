@@ -39,3 +39,5 @@ contains(QT, gui) {
 } else {
     message(Trk: Console ...)
 }
+
+macx:LIBS += -framework IOKit -framework CoreFoundation
