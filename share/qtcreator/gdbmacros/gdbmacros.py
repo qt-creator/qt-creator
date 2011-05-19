@@ -1732,18 +1732,23 @@ def qdump__QxXmlAttributes(d, item):
 #######################################################################
 
 def qdump__std__deque(d, item):
+    innerType = templateArgument(item.value.type, 0)
+    innerSize = innerType.sizeof
+    bufsize = 1
+    if innerSize < 512:
+        bufsize = 512 / innerSize
+
     impl = item.value["_M_impl"]
     start = impl["_M_start"]
-    size = impl["_M_finish"]["_M_cur"] - start["_M_cur"]
+    finish = impl["_M_finish"]
+    size = (bufsize * (finish["_M_node"] - start["_M_node"] - 1)
+        + (finish["_M_cur"] - finish["_M_first"])
+        + (start["_M_last"] - start["_M_cur"]))
+
     check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded(item):
-        innerType = templateArgument(item.value.type, 0)
-        innerSize = innerType.sizeof
-        bufsize = 1
-        if innerSize < 512:
-            bufsize = 512 / innerSize
         with Children(d, [size, 2000], innerType):
             pcur = start["_M_cur"]
             pfirst = start["_M_first"]
