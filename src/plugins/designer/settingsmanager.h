@@ -34,7 +34,6 @@
 #define SETTINGSMANAGER_H
 
 #include "qt_private/abstractsettings_p.h"
-#include <QtCore/QSettings>
 
 namespace Designer {
 namespace Internal {
@@ -50,12 +49,11 @@ public:
 
     virtual bool contains(const QString &key) const;
     virtual void setValue(const QString &key, const QVariant &value);
-    virtual QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const ;
+    virtual QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
     virtual void remove(const QString &key);
 
 private:
     QString addPrefix(const QString &name) const;
-    QSettings m_settings;
 };
 
 } // namespace Internal

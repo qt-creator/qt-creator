@@ -33,53 +33,69 @@
 #include "settingsmanager.h"
 #include "designerconstants.h"
 
+#include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
+
+#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
 using namespace Designer::Internal;
 
+static inline QSettings *coreSettings()
+{
+    if (const Core::ICore *core = Core::ICore::instance())
+        return core->settings();
+    return 0;
+}
+
 void SettingsManager::beginGroup(const QString &prefix)
 {
-    if (Designer::Constants::Internal::debug > 1)
-        qDebug() << Q_FUNC_INFO << addPrefix(prefix);
-    m_settings.beginGroup(addPrefix(prefix));
+    QSettings *settings = coreSettings();
+    QTC_ASSERT(settings, return; )
+    settings->beginGroup(addPrefix(prefix));
 }
 
 void SettingsManager::endGroup()
 {
-    if (Designer::Constants::Internal::debug > 1)
-        qDebug() << Q_FUNC_INFO;
-    m_settings.endGroup();
+    QSettings *settings = coreSettings();
+    QTC_ASSERT(settings, return; )
+    settings->endGroup();
 }
 
 bool SettingsManager::contains(const QString &key) const
 {
-    return m_settings.contains(addPrefix(key));
+    const QSettings *settings = coreSettings();
+    QTC_ASSERT(settings, return false; )
+    return settings->contains(addPrefix(key));
 }
 
 void SettingsManager::setValue(const QString &key, const QVariant &value)
 {
-    if (Designer::Constants::Internal::debug > 1)
-        qDebug() << Q_FUNC_INFO  << addPrefix(key) << ": " << value;
-    m_settings.setValue(addPrefix(key), value);
+    QSettings *settings = coreSettings();
+    QTC_ASSERT(settings, return; )
+    settings->setValue(addPrefix(key), value);
 }
 
 QVariant SettingsManager::value(const QString &key, const QVariant &defaultValue) const
 {
-    QVariant result = m_settings.value(addPrefix(key), defaultValue);
-    if (Designer::Constants::Internal::debug > 1)
-        qDebug() << Q_FUNC_INFO << addPrefix(key) << ": " << result;
-    return result;
+    const QSettings *settings = coreSettings();
+    QTC_ASSERT(settings, return QVariant(); )
+    return settings->value(addPrefix(key), defaultValue);
 }
 
 void SettingsManager::remove(const QString &key)
 {
-    m_settings.remove(addPrefix(key));
+    QSettings *settings = coreSettings();
+    QTC_ASSERT(settings, return; )
+    settings->remove(addPrefix(key));
 }
 
 QString SettingsManager::addPrefix(const QString &name) const
 {
+    const QSettings *settings = coreSettings();
+    QTC_ASSERT(settings, return name; )
     QString result = name;
-    if (m_settings.group().isEmpty())
-        result.insert(0, QLatin1String("Designer"));
+    if (settings->group().isEmpty())
+        result.prepend(QLatin1String("Designer"));
     return result;
 }
