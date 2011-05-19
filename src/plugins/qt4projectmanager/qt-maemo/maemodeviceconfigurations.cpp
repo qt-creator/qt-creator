@@ -351,7 +351,7 @@ QString MaemoDeviceConfig::defaultHost(DeviceType type, MaemoDeviceConfig::OsVer
     case MaemoDeviceConfig::GenericLinux:
         return QString();
     default:
-        qFatal("%s: Missing case in switch", Q_FUNC_INFO);
+        qDebug("%s: Unknown OS version %d.", Q_FUNC_INFO, osVersion);
         return QString();
     }
 }
