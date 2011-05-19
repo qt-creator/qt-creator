@@ -439,8 +439,12 @@ void GettingStartedWelcomePageWidget::slotOpenExample()
     }
     if (ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFile)) {
         Core::ICore::instance()->openFiles(files);
-        if (!helpFile.isEmpty())
-            slotOpenContextHelpPage(helpFile);
+        if (!helpFile.isEmpty()) {
+            // queue this to make sure it gets executed after the editor widget
+            // has been drawn, so we know whether to show a split help or not
+            QMetaObject::invokeMethod(this, "slotOpenContextHelpPage",
+                                      Qt::QueuedConnection, Q_ARG(QString, helpFile));
+        }
     }
 }
 

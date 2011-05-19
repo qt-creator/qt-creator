@@ -837,9 +837,9 @@ HelpViewer* HelpPlugin::viewerForContextMode()
     }
 
     if (placeHolder && showSideBySide) {
+        createRightPaneContextViewer();
         RightPaneWidget::instance()->setWidget(m_rightPaneSideBarWidget);
         RightPaneWidget::instance()->setShown(true);
-        createRightPaneContextViewer();
         return m_helpViewerForSideBar;
     }
 
