@@ -34,9 +34,33 @@
 #include "projectexplorerconstants.h"
 
 namespace {
-const char * const FILE_POS_PATTERN = "(cl|LINK|[^\\(]+)(\\((\\d+)\\))?";
+const char * const FILE_POS_PATTERN = "(cl|LINK|.+) : ";
 const char * const ERROR_PATTERN = "[A-Z]+\\d\\d\\d\\d ?:";
+
+static QPair<QString, int> parseFileName(const QString &input)
+{
+    QString fileName = input;
+    if (fileName.startsWith(QLatin1String("LINK"))
+            || fileName.startsWith(QLatin1String("cl")))
+        return qMakePair(QString(), -1);
+
+    // Extract linenumber (if it is there):
+    int linenumber = -1;
+    if (fileName.endsWith(QLatin1Char(')'))) {
+        int pos = fileName.lastIndexOf(QLatin1Char('('));
+        if (pos >= 0) {
+            bool ok = false;
+            int n = fileName.mid(pos + 1, fileName.count() - pos - 2).toInt(&ok);
+            if (ok) {
+                fileName = fileName.left(pos);
+                linenumber = n;
+            }
+        }
+    }
+    return qMakePair(fileName, linenumber);
 }
+
+} // namespace
 
 using namespace ProjectExplorer;
 
@@ -44,12 +68,10 @@ MsvcParser::MsvcParser()
 {
     setObjectName(QLatin1String("MsvcParser"));
     m_compileRegExp.setPattern(QString::fromLatin1("^") + QLatin1String(FILE_POS_PATTERN)
-                               + QLatin1String(" : .*(warning|error) (")
+                               + QLatin1String("(Command line |fatal )?(warning|error) (")
                                + QLatin1String(ERROR_PATTERN) + QLatin1String(".*)$"));
     m_compileRegExp.setMinimal(true);
-    m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        ")
-                                      + QLatin1String(FILE_POS_PATTERN)
-                                      + QLatin1String(" : (.*)$"));
+    m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        (.*)\\((\\d+)\\) : (.*)$"));
     m_additionalInfoRegExp.setMinimal(true);
 }
 
@@ -60,7 +82,8 @@ MsvcParser::~MsvcParser()
 
 void MsvcParser::stdOutput(const QString &line)
 {
-    if (line.startsWith(QLatin1String("        ")) && m_additionalInfoRegExp.indexIn(line) < 0) {
+    int infoPos = m_additionalInfoRegExp.indexIn(line);
+    if (line.startsWith(QLatin1String("        ")) && infoPos < 0) {
         if (m_lastTask.isNull())
             return;
 
@@ -88,11 +111,11 @@ void MsvcParser::stdOutput(const QString &line)
 
     if (processCompileLine(line))
         return;
-    if (m_additionalInfoRegExp.indexIn(line) > -1) {
+    if (infoPos > -1) {
         m_lastTask = Task(Task::Unknown,
-                          m_additionalInfoRegExp.cap(4).trimmed(), /* description */
+                          m_additionalInfoRegExp.cap(3).trimmed(), /* description */
                           m_additionalInfoRegExp.cap(1), /* fileName */
-                          m_additionalInfoRegExp.cap(3).toInt(), /* linenumber */
+                          m_additionalInfoRegExp.cap(2).toInt(), /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
         return;
     }
@@ -111,19 +134,14 @@ bool MsvcParser::processCompileLine(const QString &line)
     sendQueuedTask();
 
     if (m_compileRegExp.indexIn(line) > -1) {
-        QString fileName = m_compileRegExp.cap(1);
-        if (fileName == QLatin1String("LINK") || fileName == QLatin1String("cl"))
-            fileName.clear();
-        int linenumber = -1;
-        if (!m_compileRegExp.cap(3).isEmpty())
-            linenumber = m_compileRegExp.cap(3).toInt();
+        QPair<QString, int> position = parseFileName( m_compileRegExp.cap(1));
         m_lastTask = Task(Task::Unknown,
-                          m_compileRegExp.cap(5).trimmed() /* description */,
-                          fileName, linenumber,
+                          m_compileRegExp.cap(4).trimmed() /* description */,
+                          position.first, position.second,
                           Constants::TASK_CATEGORY_COMPILE);
-        if (m_compileRegExp.cap(4) == QLatin1String("warning"))
+        if (m_compileRegExp.cap(3) == QLatin1String("warning"))
             m_lastTask.type = Task::Warning;
-        else if (m_compileRegExp.cap(4) == QLatin1String("error"))
+        else if (m_compileRegExp.cap(3) == QLatin1String("error"))
             m_lastTask.type = Task::Error;
 
         return true;
@@ -266,6 +284,36 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                 << Task(Task::Error,
                         QLatin1String("LNK1120: 1 unresolved externals"),
                         QLatin1String("debug\\Experimentation.exe"), -1,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << QString();
+    QTest::newRow("Multiline error")
+            << QString::fromLatin1("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility(2227) : warning C4996: 'std::_Copy_impl': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'\n"
+                                   "        c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility(2212) : see declaration of 'std::_Copy_impl'\n"
+                                   "        symbolgroupvalue.cpp(2314) : see reference to function template instantiation '_OutIt std::copy<const unsigned char*,unsigned short*>(_InIt,_InIt,_OutIt)' being compiled\n"
+                                   "        with\n"
+                                   "        [\n"
+                                   "            _OutIt=unsigned short *,\n"
+                                   "            _InIt=const unsigned char *\n"
+                                   "        ]")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QLatin1String("C4996: 'std::_Copy_impl': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'"),
+                        QLatin1String("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility"), 2227,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                << Task(Task::Unknown,
+                        QLatin1String("see declaration of 'std::_Copy_impl'"),
+                        QLatin1String("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility"), 2212,
+                        QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+                << Task(Task::Unknown,
+                        QLatin1String("see reference to function template instantiation '_OutIt std::copy<const unsigned char*,unsigned short*>(_InIt,_InIt,_OutIt)' being compiled\n"
+                                      "with\n"
+                                      "[\n"
+                                      "    _OutIt=unsigned short *,\n"
+                                      "    _InIt=const unsigned char *\n"
+                                      "]"),
+                        QLatin1String("symbolgroupvalue.cpp"), 2314,
                         QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 }
