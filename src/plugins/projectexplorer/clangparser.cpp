@@ -127,6 +127,7 @@ void ClangParser::stdError(const QString &line)
             QTextLayout::FormatRange fr;
             fr.start = m_currentTask.description.count() + 1;
             fr.length = m_codeSnippet.count() + lne.count() + 1;
+            fr.format.setFontFamily("Monospaced");
             fr.format.setFontStyleHint(QFont::TypeWriter);
             m_currentTask.description.append(QLatin1Char('\n'));
             m_currentTask.description.append(m_codeSnippet);
