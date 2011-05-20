@@ -155,9 +155,11 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     m_ui->qtdirList->installEventFilter(this);
     autoItem->setText(0, tr("Auto-detected"));
     autoItem->setFirstColumnSpanned(true);
+    autoItem->setFlags(Qt::ItemIsEnabled);
     QTreeWidgetItem *manualItem = new QTreeWidgetItem(m_ui->qtdirList);
     manualItem->setText(0, tr("Manual"));
     manualItem->setFirstColumnSpanned(true);
+    manualItem->setFlags(Qt::ItemIsEnabled);
 
     for (int i = 0; i < m_versions.count(); ++i) {
         BaseQtVersion *version = m_versions.at(i);
@@ -673,17 +675,18 @@ void QtOptionsPageWidget::qtVersionChanged()
 
 void QtOptionsPageWidget::updateDescriptionLabel()
 {
-    BaseQtVersion *version = currentVersion();
-    if (!version)
-        m_versionUi->errorLabel->setText("");
-    else if (version->isValid())
+    QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
+    const BaseQtVersion *version = currentVersion();
+    if (!version) {
+        m_versionUi->errorLabel->setText(QString());
+    } else if (version->isValid()) {
         m_versionUi->errorLabel->setText( tr("Qt version %1 for %2").arg(version->qtVersionString(),
                                                                          version->description()));
-    else
+        item->setIcon(0, m_validVersionIcon);
+    } else {
         m_versionUi->errorLabel->setText(version->invalidReason());
-    QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
-    if (item)
-        item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
+        item->setIcon(0, m_invalidVersionIcon);
+    }
 }
 
 int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const
