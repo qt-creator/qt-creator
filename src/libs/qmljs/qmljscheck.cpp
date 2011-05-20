@@ -469,12 +469,42 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
         return;
     }
 
-    _scopeBuilder.push(ast);
-
-    if (! _context.lookupType(_doc.data(), typeId)) {
+    bool typeError = false;
+    const ObjectValue *prototype = _context.lookupType(_doc.data(), typeId);
+    if (!prototype) {
+        typeError = true;
         if (_options & ErrCheckTypeErrors)
             error(typeId->identifierToken,
                   Check::tr("unknown type"));
+    } else {
+        PrototypeIterator iter(prototype, &_context);
+        QList<const ObjectValue *> prototypes = iter.all();
+        if (iter.error() != PrototypeIterator::NoError)
+            typeError = true;
+        if (_options & ErrCheckTypeErrors) {
+            const ObjectValue *lastPrototype = prototypes.last();
+            if (iter.error() == PrototypeIterator::ReferenceResolutionError) {
+                if (const QmlPrototypeReference *ref =
+                        dynamic_cast<const QmlPrototypeReference *>(lastPrototype->prototype())) {
+                    error(typeId->identifierToken,
+                          Check::tr("could not resolve the prototype %1 of %2").arg(
+                              Bind::toString(ref->qmlTypeName()), lastPrototype->className()));
+                } else {
+                    error(typeId->identifierToken,
+                          Check::tr("could not resolve the prototype of %1").arg(
+                              lastPrototype->className()));
+                }
+            } else if (iter.error() == PrototypeIterator::CycleError) {
+                error(typeId->identifierToken,
+                      Check::tr("prototype cycle, the last non-repeated object is %1").arg(
+                          lastPrototype->className()));
+            }
+        }
+    }
+
+    _scopeBuilder.push(ast);
+
+    if (typeError) {
         // suppress subsequent errors about scope object lookup by clearing
         // the scope object list
         // ### todo: better way?

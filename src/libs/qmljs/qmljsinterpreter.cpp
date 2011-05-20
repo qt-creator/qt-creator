@@ -1482,8 +1482,12 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QString
     return objectValue;
 }
 
-const Value *Context::lookupReference(const Reference *reference) const
+const Value *Context::lookupReference(const Value *value) const
 {
+    const Reference *reference = value_cast<const Reference *>(value);
+    if (!reference)
+        return value;
+
     if (_referenceStack.contains(reference))
         return 0;
 
@@ -1630,6 +1634,11 @@ void ObjectValue::setClassName(const QString &className)
     _className = className;
 }
 
+const Value *ObjectValue::prototype() const
+{
+    return _prototype;
+}
+
 const ObjectValue *ObjectValue::prototype(const Context *context) const
 {
     const ObjectValue *prototypeObject = value_cast<const ObjectValue *>(_prototype);
@@ -1643,7 +1652,6 @@ const ObjectValue *ObjectValue::prototype(const Context *context) const
 
 void ObjectValue::setPrototype(const Value *prototype)
 {
-    // ### FIXME: Check for cycles.
     _prototype = prototype;
 }
 
@@ -1751,8 +1759,19 @@ bool PrototypeIterator::hasNext()
         return true;
     if (!m_current)
         return false;
-    m_next = m_current->prototype(m_context);
-    if (!m_next || m_prototypes.contains(m_next)) {
+    const Value *proto = m_current->prototype();
+    if (!proto)
+        return false;
+
+    m_next = value_cast<const ObjectValue *>(proto);
+    if (! m_next)
+        m_next = value_cast<const ObjectValue *>(m_context->lookupReference(proto));
+    if (!m_next) {
+        m_error = ReferenceResolutionError;
+        return false;
+    }
+    if (m_prototypes.contains(m_next)) {
+        m_error = CycleError;
         m_next = 0;
         return false;
     }
@@ -1776,6 +1795,11 @@ const ObjectValue *PrototypeIterator::peekNext()
         return m_next;
     }
     return 0;
+}
+
+PrototypeIterator::Error PrototypeIterator::error() const
+{
+    return m_error;
 }
 
 QList<const ObjectValue *> PrototypeIterator::all()

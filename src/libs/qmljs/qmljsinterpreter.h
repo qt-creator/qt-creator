@@ -332,7 +332,7 @@ public:
     const Value *lookup(const QString &name, const ObjectValue **foundInScope = 0) const;
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName) const;
     const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName) const;
-    const Value *lookupReference(const Reference *reference) const;
+    const Value *lookupReference(const Value *value) const;
 
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);
@@ -400,7 +400,9 @@ public:
     QString className() const;
     void setClassName(const QString &className);
 
-    // not guaranteed to not recurse, use PrototypeIterator!
+    // may return a reference, prototypes may form a cycle: use PrototypeIterator!
+    const Value *prototype() const;
+    // prototypes may form a cycle: use PrototypeIterator!
     const ObjectValue *prototype(const Context *context) const;
     void setPrototype(const Value *prototype);
 
@@ -433,11 +435,19 @@ protected:
 class QMLJS_EXPORT PrototypeIterator
 {
 public:
+    enum Error
+    {
+        NoError,
+        ReferenceResolutionError,
+        CycleError
+    };
+
     PrototypeIterator(const ObjectValue *start, const Context *context);
 
     bool hasNext();
     const ObjectValue *peekNext();
     const ObjectValue *next();
+    Error error() const;
 
     QList<const ObjectValue *> all();
 
@@ -446,6 +456,7 @@ private:
     const ObjectValue *m_next;
     QList<const ObjectValue *> m_prototypes;
     const Context *m_context;
+    Error m_error;
 };
 
 // A ObjectValue based on a FakeMetaObject.
