@@ -61,7 +61,7 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
         foreach (ProjectExplorer::BuildConfiguration * const bc, target->buildConfigurations()) {
             Qt4BuildConfiguration * const qt4bc
                 = qobject_cast<Qt4BuildConfiguration *>(bc);
-            if (!qt4bc)
+            if (!qt4bc || !qt4bc->qtVersion())
                 continue;
             if (qt4bc->qtVersion()->qtVersion() > QtVersionNumber(4, 6, 2))
                 list << qt4bc;
