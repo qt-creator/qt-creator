@@ -839,7 +839,7 @@ void Qt4BuildConfiguration::importFromBuildDirectory()
             // Adjust command line arguments, this is ugly as hell
             // If we are switching to BuildAll we want "release" in there and no "debug"
             // or "debug" in there and no "release"
-            // If we are switching to not BuildAl we want neither "release" nor "debug" in there
+            // If we are switching to not BuildAll we want neither "release" nor "debug" in there
             bool debug = qmakeBuildConfig & BaseQtVersion::DebugBuild;
             bool haveTag = !(qmakeBuildConfig & BaseQtVersion::BuildAll);
             QString makeCmdArguments = makeStep()->userArguments();
@@ -871,4 +871,3 @@ BuildConfiguration::BuildType Qt4BuildConfiguration::buildType() const
     else
         return Release;
 }
-
