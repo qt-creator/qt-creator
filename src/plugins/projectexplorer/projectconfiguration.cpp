@@ -75,7 +75,11 @@ void ProjectConfiguration::setDisplayName(const QString &name)
 {
     if (displayName() == name)
         return;
-    m_displayName = name;
+    if (name == m_defaultDisplayName) {
+        m_displayName.clear();
+    } else {
+        m_displayName = name;
+    }
     emit displayNameChanged();
 }
 
@@ -87,6 +91,11 @@ void ProjectConfiguration::setDefaultDisplayName(const QString &name)
     m_defaultDisplayName = name;
     if (originalName != displayName())
         emit displayNameChanged();
+}
+
+bool ProjectConfiguration::usesDefaultDisplayName() const
+{
+    return m_displayName.isEmpty();
 }
 
 QVariantMap ProjectConfiguration::toMap() const

@@ -177,7 +177,7 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
     Qt4DesktopTarget *t = new Qt4DesktopTarget(static_cast<Qt4Project *>(parent), id);
 
     foreach (const BuildConfigurationInfo &info, infos)
-        t->addQt4BuildConfiguration(msgBuildConfigurationName(info),
+        t->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(),
                                     info.version, info.buildConfig,
                                     info.additionalArguments, info.directory);
 

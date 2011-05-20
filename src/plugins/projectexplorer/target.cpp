@@ -144,7 +144,13 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
     foreach (const BuildConfiguration *bc, d->m_buildConfigurations)
         displayNames << bc->displayName();
     configurationDisplayName = Project::makeUnique(configurationDisplayName, displayNames);
-    configuration->setDisplayName(configurationDisplayName);
+    if (configurationDisplayName != configuration->displayName()) {
+        if (configuration->usesDefaultDisplayName()) {
+            configuration->setDefaultDisplayName(configurationDisplayName);
+        } else {
+            configuration->setDisplayName(configurationDisplayName);
+        }
+    }
 
     // Make sure we have a sane tool chain if at all possible
     if (!configuration->toolChain()

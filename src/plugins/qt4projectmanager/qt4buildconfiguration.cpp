@@ -734,14 +734,24 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target
         return 0;
 
     //: Debug build configuration. We recommend not translating it.
-    BuildConfiguration *bc = qt4Target->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
+    QString defaultDebugName = tr("%1 Debug").arg(version->displayName());
+    QString customDebugName;
+    if (buildConfigurationName != version->displayName())
+        customDebugName = tr("%1 Debug").arg(buildConfigurationName);
+
+    BuildConfiguration *bc = qt4Target->addQt4BuildConfiguration(defaultDebugName, customDebugName,
                                         version,
                                         (version->defaultBuildConfig() | QtSupport::BaseQtVersion::DebugBuild),
                                         QString(), QString());
 
     if (qt4Target->id() != Constants::S60_EMULATOR_TARGET_ID) {
         //: Release build configuration. We recommend not translating it.
-        bc = qt4Target->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
+        QString defaultReleaseName = tr("%1 Release").arg(version->displayName());
+        QString customReleaseName;
+        if (buildConfigurationName != version->displayName())
+            customReleaseName = tr("%1 Release").arg(buildConfigurationName);
+
+        bc = qt4Target->addQt4BuildConfiguration(defaultReleaseName, customReleaseName,
                                                  version,
                                                  (version->defaultBuildConfig() & ~QtSupport::BaseQtVersion::DebugBuild),
                                                  QString(), QString());

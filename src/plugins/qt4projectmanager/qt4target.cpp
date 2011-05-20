@@ -277,7 +277,8 @@ void Qt4BaseTarget::removeUnconfiguredCustomExectutableRunConfigurations()
     }
 }
 
-Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString displayName, QtSupport::BaseQtVersion *qtversion,
+Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString defaultDisplayName,
+                                                           QString displayName, QtSupport::BaseQtVersion *qtversion,
                                                            QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                                            QString additionalArguments,
                                                            QString directory)
@@ -287,7 +288,8 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString displayNa
 
     // Add the buildconfiguration
     Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this);
-    bc->setDefaultDisplayName(displayName);
+    bc->setDefaultDisplayName(defaultDisplayName);
+    bc->setDisplayName(displayName);
 
     ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);

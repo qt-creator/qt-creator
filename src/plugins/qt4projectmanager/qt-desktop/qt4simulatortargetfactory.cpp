@@ -162,7 +162,7 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Proj
     Qt4SimulatorTarget *t = new Qt4SimulatorTarget(static_cast<Qt4Project *>(parent), id);
 
     foreach (const BuildConfigurationInfo &info, infos)
-        t->addQt4BuildConfiguration(msgBuildConfigurationName(info), info.version, info.buildConfig,
+        t->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(), info.version, info.buildConfig,
                                     info.additionalArguments, info.directory);
 
     t->addDeployConfiguration(t->createDeployConfiguration(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID));

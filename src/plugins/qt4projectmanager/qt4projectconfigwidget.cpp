@@ -473,9 +473,29 @@ void Qt4ProjectConfigWidget::qtVersionSelected(const QString &)
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     QtSupport::BaseQtVersion *newQtVersion = vm->version(newQtVersionId);
 
+    if (newQtVersion) {
+        const QString qtVersionName = newQtVersion->displayName();
+        QString defaultConfigName = (m_buildConfiguration->buildType() & BuildConfiguration::Debug) ?
+            //: Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
+            tr("%1 Debug").arg(qtVersionName) :
+            //: Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
+            tr("%1 Release").arg(qtVersionName);
+
+        // make name unique
+        QStringList displayNames;
+        foreach (const BuildConfiguration *bc, m_buildConfiguration->target()->buildConfigurations()) {
+            if (bc != m_buildConfiguration)
+                displayNames << bc->displayName();
+        }
+        defaultConfigName = Project::makeUnique(defaultConfigName, displayNames);
+
+        m_buildConfiguration->setDefaultDisplayName(defaultConfigName);
+    }
+
     m_ignoreChange = true;
     m_buildConfiguration->setQtVersion(newQtVersion);
     m_ignoreChange = false;
+
     m_ui->qtVersionComboBox->setToolTip(newQtVersion ? newQtVersion->toHtml(false) : QString());
 
     updateShadowBuildUi();

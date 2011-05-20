@@ -219,7 +219,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
         return 0;
     Qt4SymbianTarget *t = new Qt4SymbianTarget(static_cast<Qt4Project *>(parent), id);
     foreach (const BuildConfigurationInfo &info, infos)
-        t->addQt4BuildConfiguration(msgBuildConfigurationName(info),
+        t->addQt4BuildConfiguration(msgBuildConfigurationName(info), QString(),
                                     info.version, info.buildConfig,
                                     info.additionalArguments, info.directory);
 

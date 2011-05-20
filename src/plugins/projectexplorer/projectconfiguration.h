@@ -53,6 +53,8 @@ public:
 
     QString id() const;
     QString displayName() const;
+
+    bool usesDefaultDisplayName() const;
     void setDisplayName(const QString &name);
     void setDefaultDisplayName(const QString &name);
 
