@@ -575,15 +575,15 @@ void CallgrindTool::initializeDockWidgets()
 void CallgrindToolPrivate::initializeDockWidgets()
 {
     AnalyzerManager *am = AnalyzerManager::instance();
-    QWidget *parenWidget = am->mainWindow();
-    m_visualisation = new Visualisation(parenWidget);
+    Utils::FancyMainWindow *mw = am->mainWindow();
+    m_visualisation = new Visualisation(mw);
     m_visualisation->setFrameStyle(QFrame::NoFrame);
     m_visualisation->setObjectName("Valgrind.CallgrindToolPrivate.Visualisation");
     m_visualisation->setModel(m_dataModel);
     connect(m_visualisation, SIGNAL(functionActivated(const Valgrind::Callgrind::Function*)),
             this, SLOT(visualisationFunctionSelected(const Valgrind::Callgrind::Function*)));
 
-    m_callersView = new CostView(parenWidget);
+    m_callersView = new CostView(mw);
     m_callersView->sortByColumn(CallModel::CostColumn);
     m_callersView->setObjectName("Valgrind.CallgrindToolPrivate.CallersView");
     m_callersView->setFrameStyle(QFrame::NoFrame);
@@ -595,7 +595,7 @@ void CallgrindToolPrivate::initializeDockWidgets()
     connect(m_callersView, SIGNAL(activated(QModelIndex)),
             this, SLOT(callerFunctionSelected(QModelIndex)));
 
-    m_calleesView = new CostView(parenWidget);
+    m_calleesView = new CostView(mw);
     m_calleesView->sortByColumn(CallModel::CostColumn);
     m_calleesView->setObjectName("Valgrind.CallgrindToolPrivate.CalleesView");
     m_calleesView->setFrameStyle(QFrame::NoFrame);
@@ -607,7 +607,7 @@ void CallgrindToolPrivate::initializeDockWidgets()
     connect(m_calleesView, SIGNAL(activated(QModelIndex)),
             this, SLOT(calleeFunctionSelected(QModelIndex)));
 
-    m_flatView = new CostView(parenWidget);
+    m_flatView = new CostView(mw);
     m_flatView->sortByColumn(DataModel::SelfCostColumn);
     m_flatView->setFrameStyle(QFrame::NoFrame);
     m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -618,24 +618,27 @@ void CallgrindToolPrivate::initializeDockWidgets()
 
     updateCostFormat();
 
-    //QDockWidget *callersDock =
+    QDockWidget *callersDock =
         am->createDockWidget(q, tr("Callers"), m_callersView,
                              Qt::BottomDockWidgetArea);
 
     QDockWidget *flatDock =
         am->createDockWidget(q, tr("Functions"), m_flatView,
-                             Qt::LeftDockWidgetArea);
+                             Qt::BottomDockWidgetArea);
 
     QDockWidget *calleesDock =
         am->createDockWidget(q, tr("Callees"), m_calleesView,
                              Qt::BottomDockWidgetArea);
 
-    //QDockWidget *visDock =
+    QDockWidget *visualizationDock =
         am->createDockWidget(q, tr("Visualization"), m_visualisation,
-                             Qt::LeftDockWidgetArea);
+                             Qt::RightDockWidgetArea);
+    visualizationDock->hide();
 
-    am->mainWindow()->splitDockWidget(flatDock, calleesDock, Qt::Vertical);
-    am->mainWindow()->tabifyDockWidget(flatDock, calleesDock);
+    mw->splitDockWidget(mw->toolBarDockWidget(), calleesDock, Qt::Vertical);
+    mw->splitDockWidget(mw->toolBarDockWidget(), callersDock, Qt::Vertical);
+    mw->splitDockWidget(mw->toolBarDockWidget(), flatDock, Qt::Vertical);
+    mw->tabifyDockWidget(callersDock, calleesDock);
 }
 
 IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,

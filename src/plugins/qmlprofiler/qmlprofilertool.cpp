@@ -181,7 +181,7 @@ void QmlProfilerTool::extensionsInitialized()
 void QmlProfilerTool::initializeDockWidgets()
 {
     Analyzer::AnalyzerManager *analyzerMgr = Analyzer::AnalyzerManager::instance();
-    QMainWindow *mw = analyzerMgr->mainWindow();
+    Utils::FancyMainWindow *mw = analyzerMgr->mainWindow();
 
     d->m_traceWindow = new TraceWindow(mw);
     d->m_traceWindow->reset(d->m_client);
@@ -223,7 +223,7 @@ void QmlProfilerTool::initializeDockWidgets()
         analyzerMgr->createDockWidget(this, tr("Timeline"),
                             d->m_traceWindow, Qt::BottomDockWidgetArea);
 
-    //mw->splitDockWidget(flatDock, calleesDock, Qt::Vertical);
+    mw->splitDockWidget(mw->toolBarDockWidget(), summaryDock, Qt::Vertical);
     mw->tabifyDockWidget(summaryDock, timelineDock);
 }
 

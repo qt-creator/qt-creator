@@ -200,7 +200,7 @@ public:
                                 const QString &stopButtonText,
                                 const QString &cancelButtonText) const;
 
-    void addDock(IAnalyzerTool *tool, Qt::DockWidgetArea area, QDockWidget *dockWidget);
+    void addDock(Qt::DockWidgetArea area, QDockWidget *dockWidget);
     void startTool();
 
     AnalyzerManager *q;
@@ -450,11 +450,9 @@ QWidget *AnalyzerManager::AnalyzerManagerPrivate::createModeMainWindow()
     return m_mainWindow;
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::addDock(IAnalyzerTool *tool, Qt::DockWidgetArea area,
+void AnalyzerManager::AnalyzerManagerPrivate::addDock(Qt::DockWidgetArea area,
                                                       QDockWidget *dockWidget)
 {
-    QTC_ASSERT(tool == q->currentTool(), return)
-
     dockWidget->setParent(m_mainWindow);
     m_mainWindow->addDockWidget(area, dockWidget);
 
@@ -467,11 +465,6 @@ void AnalyzerManager::AnalyzerManagerPrivate::addDock(IAnalyzerTool *tool, Qt::D
                                       globalContext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd);
-
-    // just add the dock below the toolbar by default
-    m_mainWindow->splitDockWidget(m_mainWindow->toolBarDockWidget(), dockWidget,
-                                  Qt::Vertical);
-    dockWidget->show();
 }
 
 bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
@@ -687,7 +680,7 @@ void AnalyzerManager::toolSelected(int idx)
         d->m_defaultSettings.insert(newTool, d->m_mainWindow->saveSettings());
     } else {
         foreach (const ToolDockWidgetData &widget, d->m_toolWidgets.value(newTool))
-            d->addDock(newTool, widget.area, widget.widget);
+            d->addDock(widget.area, widget.widget);
     }
 
     loadToolSettings(newTool);
@@ -748,7 +741,7 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
     dockWidget->setWindowTitle(title);
 
     d->m_toolWidgets[tool].push_back(ToolDockWidgetData(area, dockWidget));
-    d->addDock(tool, area, dockWidget);
+    d->addDock(area, dockWidget);
     dockWidget->installEventFilter(d->m_resizeEventFilter);
     return dockWidget;
 }
