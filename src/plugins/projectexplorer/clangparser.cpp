@@ -45,9 +45,9 @@ namespace {
 }
 
 ClangParser::ClangParser() :
-    m_commandRegExp(QLatin1String("^clang(\\+\\+)?: (warning|error|note): (.*)$")),
+    m_commandRegExp(QLatin1String("^clang(\\+\\+)?: +(fatal +)?(warning|error|note): (.*)$")),
     m_inLineRegExp(QLatin1String("^In (.*) included from (.*):(\\d+):$")),
-    m_messageRegExp(QLatin1String("^") + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) ): +(error|warning|note): (.*)$"))
+    m_messageRegExp(QLatin1String("^") + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$"))
 {
     setObjectName(QLatin1String("ClangParser"));
 
@@ -66,13 +66,13 @@ void ClangParser::stdError(const QString &line)
     if (m_commandRegExp.indexIn(lne) > -1) {
         m_codeSnippet.clear();
         newTask(Task::Error,
-                m_commandRegExp.cap(3),
+                m_commandRegExp.cap(4),
                 QString(), /* filename */
                 -1, /* line */
                 Constants::TASK_CATEGORY_COMPILE);
-        if (m_commandRegExp.cap(2) == QLatin1String("warning"))
+        if (m_commandRegExp.cap(3) == QLatin1String("warning"))
             m_currentTask.type = Task::Warning;
-        else if (m_commandRegExp.cap(2) == QLatin1String("note"))
+        else if (m_commandRegExp.cap(3) == QLatin1String("note"))
             m_currentTask.type = Task::Unknown;
         return;
     }
@@ -94,13 +94,13 @@ void ClangParser::stdError(const QString &line)
         if (!ok)
             lineNo = m_messageRegExp.cap(5).toInt(&ok);
         newTask(Task::Error,
-                m_messageRegExp.cap(7),
+                m_messageRegExp.cap(8),
                 m_messageRegExp.cap(1), /* filename */
                 lineNo,
                 Constants::TASK_CATEGORY_COMPILE);
-        if (m_messageRegExp.cap(6) == "warning")
+        if (m_messageRegExp.cap(7) == "warning")
             m_currentTask.type = Task::Warning;
-        else if (m_messageRegExp.cap(6) == "note")
+        else if (m_messageRegExp.cap(7) == "note")
             m_currentTask.type = Task::Unknown;
         return;
     }
@@ -231,6 +231,20 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                           "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
                                           "                          ^"),
                             QLatin1String("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"), 1289,
+                            Constants::TASK_CATEGORY_COMPILE))
+                << QString();
+        QTest::newRow("fatal error")
+                << QString::fromLatin1("/usr/include/c++/4.6/utility:68:10: fatal error: 'bits/c++config.h' file not found\n"
+                                       "#include <bits/c++config.h>\n"
+                                       "         ^")
+                << OutputParserTester::STDERR
+                << QString() << QString::fromLatin1("#include <bits/c++config.h>\n")
+                << (QList<ProjectExplorer::Task>()
+                    << Task(Task::Error,
+                            QLatin1String("'bits/c++config.h' file not found\n"
+                                          "#include <bits/c++config.h>\n"
+                                          "         ^"),
+                            QLatin1String("/usr/include/c++/4.6/utility"), 68,
                             Constants::TASK_CATEGORY_COMPILE))
                 << QString();
 }
