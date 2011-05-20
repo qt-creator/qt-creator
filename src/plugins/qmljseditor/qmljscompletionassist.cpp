@@ -681,7 +681,7 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
             if (column >= tk.begin() && column <= tk.end()) {
                 if (charBeforeCursor == QLatin1Char('/') && tk.is(Token::String))
                     return true; // path completion inside string literals
-                if (tk.is(Token::Comment) || tk.is(Token::String))
+                if (tk.is(Token::Comment) || tk.is(Token::String) || tk.is(Token::RegExp))
                     return false;
                 break;
             }

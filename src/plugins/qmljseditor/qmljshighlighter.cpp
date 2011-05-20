@@ -116,6 +116,10 @@ void Highlighter::highlightBlock(const QString &text)
                 setFormat(token.offset, token.length, m_formats[CommentFormat]);
                 break;
 
+            case Token::RegExp:
+                setFormat(token.offset, token.length, m_formats[StringFormat]);
+                break;
+
             case Token::LeftParenthesis:
                 onOpeningParenthesis('(', token.offset, index == 0);
                 break;
@@ -229,7 +233,8 @@ void Highlighter::highlightBlock(const QString &text)
 
         switch (token.kind) {
         case Token::Comment:
-        case Token::String: {
+        case Token::String:
+        case Token::RegExp: {
             int i = token.begin(), e = token.end();
             while (i < e) {
                 const QChar ch = text.at(i);

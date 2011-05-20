@@ -59,7 +59,8 @@ public:
         Colon,
         Comma,
         Dot,
-        Delimiter
+        Delimiter,
+        RegExp
     };
 
     inline Token(): offset(0), length(0), kind(EndOfFile) {}
@@ -82,7 +83,8 @@ public:
         Normal = 0,
         MultiLineComment = 1,
         MultiLineStringDQuote = 2,
-        MultiLineStringSQuote = 3
+        MultiLineStringSQuote = 3,
+        RegexpMayFollow = 4 // flag that may be combined with the above
     };
 
     Scanner();
