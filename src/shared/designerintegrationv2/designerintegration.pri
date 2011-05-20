@@ -7,5 +7,5 @@ SOURCES += $$PWD/widgethost.cpp \
 HEADERS += $$PWD/widgethost.h \
     $$PWD/sizehandlerect.h \
     $$PWD/formresizer.h \
-    $$PWD/widgethostconstants.h \
-    $$PWD/../namespace_global.h
+    $$PWD/widgethostconstants.h
+

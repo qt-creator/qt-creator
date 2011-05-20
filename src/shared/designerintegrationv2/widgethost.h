@@ -33,8 +33,6 @@
 #ifndef WIDGETHOST_H
 #define WIDGETHOST_H
 
-#include "namespace_global.h"
-
 #include <QtGui/QScrollArea>
 
 QT_FORWARD_DECLARE_CLASS(QDesignerFormWindowInterface)

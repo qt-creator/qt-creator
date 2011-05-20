@@ -33,8 +33,6 @@
 #ifndef RESOURCEVIEW_H
 #define RESOURCEVIEW_H
 
-#include "namespace_global.h"
-
 #include "resourcefile_p.h"
 
 #include <QtGui/QTreeView>

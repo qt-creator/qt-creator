@@ -33,8 +33,6 @@
 #ifndef PROWRITER_H
 #define PROWRITER_H
 
-#include "namespace_global.h"
-
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE

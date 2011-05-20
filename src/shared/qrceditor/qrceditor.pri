@@ -14,8 +14,7 @@ HEADERS += \
     $$PWD/resourcefile_p.h \
     $$PWD/resourceview.h \
     $$PWD/qrceditor.h \
-    $$PWD/undocommands_p.h \
-    $$PWD/../namespace_global.h \
+    $$PWD/undocommands_p.h
 
 FORMS += $$PWD/qrceditor.ui
 

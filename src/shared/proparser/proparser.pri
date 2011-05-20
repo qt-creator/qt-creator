@@ -10,8 +10,7 @@ HEADERS += \
         profileevaluator.h \
         proitems.h \
         prowriter.h \
-        ioutils.h \
-        $$PWD/../namespace_global.h
+        ioutils.h
 
 SOURCES += \
         profileparser.cpp \

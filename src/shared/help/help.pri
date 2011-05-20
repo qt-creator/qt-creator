@@ -12,8 +12,7 @@ HEADERS += \
         $$PWD/contentwindow.h \
         $$PWD/filternamedialog.h \
         $$PWD/indexwindow.h \
-        $$PWD/topicchooser.h \
-        $$PWD/../namespace_global.h
+        $$PWD/topicchooser.h
 
 SOURCES += \
         $$PWD/bookmarkmanager.cpp \

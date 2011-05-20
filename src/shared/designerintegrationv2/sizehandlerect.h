@@ -32,8 +32,6 @@
 #ifndef SIZEHANDLERECT_H
 #define SIZEHANDLERECT_H
 
-#include "namespace_global.h"
-
 #include "widgethostconstants.h"
 
 #include <QtGui/QWidget>

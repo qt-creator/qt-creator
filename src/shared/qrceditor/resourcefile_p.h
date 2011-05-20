@@ -33,8 +33,6 @@
 #ifndef RESOURCEFILE_P_H
 #define RESOURCEFILE_P_H
 
-#include "namespace_global.h"
-
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QMap>
 #include <QtCore/QString>
