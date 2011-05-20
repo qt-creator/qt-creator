@@ -78,7 +78,6 @@
 #include <utils/ssh/sshconnection.h>
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QtCore/QVariant>
 #include <QtCore/QDebug>
