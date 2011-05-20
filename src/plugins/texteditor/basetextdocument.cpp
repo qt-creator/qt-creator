@@ -228,6 +228,7 @@ public:
 
     bool m_fileIsReadOnly;
     bool m_hasDecodingError;
+    bool m_hasHighlightWarning;
     QByteArray m_decodingErrorSample;
     static const int kChunkSize;
 
@@ -245,6 +246,7 @@ BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
     m_fileHasUtf8Bom(false),
     m_fileIsReadOnly(false),
     m_hasDecodingError(false),
+    m_hasHighlightWarning(false),
     m_autoSaveRevision(-1)
 {
 }
@@ -714,6 +716,16 @@ void BaseTextDocument::documentClosing()
             data->documentClosing();
         block = block.next();
     }
+}
+
+bool BaseTextDocument::hasHighlightWarning() const
+{
+    return d->m_hasHighlightWarning;
+}
+
+void BaseTextDocument::setHighlightWarning(bool has)
+{
+    d->m_hasHighlightWarning = has;
 }
 
 } // namespace TextEditor

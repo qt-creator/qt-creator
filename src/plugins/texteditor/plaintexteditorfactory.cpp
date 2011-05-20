@@ -32,6 +32,7 @@
 
 #include "plaintexteditor.h"
 #include "plaintexteditorfactory.h"
+#include "basetextdocument.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
 #include "texteditoractionhandler.h"
@@ -94,20 +95,29 @@ void PlainTextEditorFactory::updateEditorInfoBar(Core::IEditor *editor)
 {
     PlainTextEditor *editorEditable = qobject_cast<PlainTextEditor *>(editor);
     if (editorEditable) {
+        BaseTextDocument *file = qobject_cast<BaseTextDocument *>(editor->file());
+        if (!file)
+            return;
         PlainTextEditorWidget *textEditor = static_cast<PlainTextEditorWidget *>(editorEditable->editorWidget());
         if (textEditor->isMissingSyntaxDefinition() &&
             !textEditor->ignoreMissingSyntaxDefinition() &&
             TextEditorSettings::instance()->highlighterSettings().alertWhenNoDefinition()) {
+            if (file->hasHighlightWarning())
+                return;
             Core::InfoBarEntry info(Constants::INFO_SYNTAX_DEFINITION,
                                     tr("A highlight definition was not found for this file. "
                                        "Would you like to try to find one?"));
             info.setCustomButtonInfo(tr("Show highlighter options"),
                                      textEditor, SLOT(acceptMissingSyntaxDefinitionInfo()));
             info.setCancelButtonInfo(textEditor, SLOT(ignoreMissingSyntaxDefinitionInfo()));
-            editor->file()->infoBar()->addInfo(info);
+            file->infoBar()->addInfo(info);
+            file->setHighlightWarning(true);
             return;
         }
-        editor->file()->infoBar()->removeInfo(Constants::INFO_SYNTAX_DEFINITION);
+        if (!file->hasHighlightWarning())
+            return;
+        file->infoBar()->removeInfo(Constants::INFO_SYNTAX_DEFINITION);
+        file->setHighlightWarning(false);
     }
 }
 
