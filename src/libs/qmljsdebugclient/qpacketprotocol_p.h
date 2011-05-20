@@ -35,8 +35,6 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qdatastream.h>
 
-QT_BEGIN_HEADER
-
 QT_BEGIN_NAMESPACE
 class QIODevice;
 class QBuffer;
@@ -51,9 +49,10 @@ class QPacketProtocolPrivate;
 
 class QPacketProtocol : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
+
 public:
-    explicit QPacketProtocol(QIODevice * dev, QObject * parent = 0);
+    explicit QPacketProtocol(QIODevice *dev, QObject *parent = 0);
     virtual ~QPacketProtocol();
 
     qint32 maximumPacketSize() const;
@@ -67,7 +66,7 @@ public:
 
     void clear();
 
-    QIODevice * device();
+    QIODevice *device();
 
 Q_SIGNALS:
     void readyRead();
@@ -75,7 +74,7 @@ Q_SIGNALS:
     void packetWritten();
 
 private:
-    QPacketProtocolPrivate * d;
+    QPacketProtocolPrivate *d;
 };
 
 
@@ -91,9 +90,9 @@ public:
 
 protected:
     friend class QPacketProtocol;
-    QPacket(const QByteArray & ba);
+    QPacket(const QByteArray &ba);
     QByteArray b;
-    QBuffer * buf;
+    QBuffer *buf;
 };
 
 class QPacketAutoSend : public QPacket
@@ -104,11 +103,9 @@ public:
 private:
     friend class QPacketProtocol;
     QPacketAutoSend(QPacketProtocol *);
-    QPacketProtocol * p;
+    QPacketProtocol *p;
 };
 
-}
-
-QT_END_HEADER
+} // QmlJsDebugClient
 
 #endif

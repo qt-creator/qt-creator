@@ -44,13 +44,13 @@ namespace Internal {
 class QmlProjectAnalyzerRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
+
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
 
     QmlProjectAnalyzerRunControlFactory(QObject *parent = 0);
-    ~QmlProjectAnalyzerRunControlFactory();
 
-    // virtuals from IRunControlFactory
+    // IRunControlFactory implementation
     bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
     ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
     Analyzer::AnalyzerRunControl *create(const Analyzer::AnalyzerStartParameters &sp, RunConfiguration *runConfiguration = 0);

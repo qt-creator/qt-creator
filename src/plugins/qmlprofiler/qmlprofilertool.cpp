@@ -103,17 +103,17 @@ public:
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate(this))
 {
-     d->m_client = 0;
-     d->m_connectionAttempts = 0;
-     d->m_traceWindow = 0;
-     d->m_project = 0;
-     d->m_runConfiguration = 0;
-     d->m_isAttached = false;
-     d->m_attachAction = 0;
-     d->m_recordingEnabled = true;
+    d->m_client = 0;
+    d->m_connectionAttempts = 0;
+    d->m_traceWindow = 0;
+    d->m_project = 0;
+    d->m_runConfiguration = 0;
+    d->m_isAttached = false;
+    d->m_attachAction = 0;
+    d->m_recordingEnabled = true;
 
-     d->m_connectionTimer.setInterval(200);
-     connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(tryToConnect()));
+    d->m_connectionTimer.setInterval(200);
+    connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(tryToConnect()));
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -247,12 +247,12 @@ QWidget *QmlProfilerTool::createControlWidget()
     d->m_recordButton->setChecked(true);
     layout->addWidget(d->m_recordButton);
 
-    QLabel *timeLabel = new QLabel(tr("elapsed:      0 s"));
+    QLabel *timeLabel = new QLabel(QLatin1Char(' ') + tr("Elapsed:      0 s"));
     QPalette palette = timeLabel->palette();
     palette.setColor(QPalette::WindowText, Qt::white);
     timeLabel->setPalette(palette);
 
-    connect(this,SIGNAL(setTimeLabel(QString)),timeLabel,SLOT(setText(QString)));
+    connect(this, SIGNAL(setTimeLabel(QString)), timeLabel, SLOT(setText(QString)));
     layout->addWidget(timeLabel);
     toolbarWidget->setLayout(layout);
 

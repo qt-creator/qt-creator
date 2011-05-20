@@ -58,7 +58,6 @@ class QmlProfilerSummaryView::QmlProfilerSummaryViewPrivate
 {
 public:
     QmlProfilerSummaryViewPrivate(QmlProfilerSummaryView *qq) : q(qq) {}
-    ~QmlProfilerSummaryViewPrivate() {}
 
     QmlProfilerSummaryView *q;
 
@@ -79,9 +78,9 @@ public:
 class ProfilerItem : public QStandardItem
 {
 public:
-    ProfilerItem(const QString &text):QStandardItem ( text ) {}
+    ProfilerItem(const QString &text) : QStandardItem(text) {}
 
-    virtual bool operator< ( const QStandardItem & other ) const
+    virtual bool operator<(const QStandardItem &other) const
     {
         if (data().type() == QVariant::String) {
             // first column
@@ -124,7 +123,7 @@ void QmlProfilerSummaryView::clean()
     d->m_model->setColumnCount(7);
 
     // clean the hash
-    QHashIterator<QString, BindingData *>it(d->m_bindingHash);
+    QHashIterator<QString, BindingData *> it(d->m_bindingHash);
     while (it.hasNext()) {
         it.next();
         delete it.value();
@@ -135,7 +134,8 @@ void QmlProfilerSummaryView::clean()
     setSortingEnabled(false);
 }
 
-void QmlProfilerSummaryView::addRangedEvent(int type, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line)
+void QmlProfilerSummaryView::addRangedEvent(int type, qint64 startTime, qint64 length,
+    const QStringList &data, const QString &fileName, int line)
 {
     Q_UNUSED(startTime);
     Q_UNUSED(data);
@@ -191,7 +191,7 @@ void QmlProfilerSummaryView::complete()
         it.next();
         BindingData *binding = it.value();
         binding->percent = binding->duration * 100.0 / totalTime;
-        binding->tpc = binding->calls>0? (double)binding->duration / binding->calls : 0;
+        binding->tpc = binding->calls > 0 ? double(binding->duration) / binding->calls : 0;
 
         appendRow(binding->displayname,
                   binding->filename,
@@ -228,7 +228,7 @@ void QmlProfilerSummaryView::appendRow(const QString &displayName,
                 double maxTime,
                 double minTime)
 {
-    QString location =fileName+QLatin1Char(':')+QString::number(line);
+    QString location = fileName + QLatin1Char(':') + QString::number(line);
     ProfilerItem *locationColumn = new ProfilerItem(displayName);
     locationColumn->setData(QVariant(location),Qt::UserRole+1);
     locationColumn->setData(QVariant(fileName),Qt::UserRole+2);
@@ -260,9 +260,9 @@ void QmlProfilerSummaryView::appendRow(const QString &displayName,
 
 QString QmlProfilerSummaryView::displayTime(double time) const
 {
-    if (time<1e6)
+    if (time < 1e6)
         return QString::number(time/1e3,'f',3) + QString::fromWCharArray(L" \u03BCs");
-    if (time<1e9)
+    if (time < 1e9)
         return QString::number(time/1e6,'f',3) + QLatin1String(" ms");
 
     return QString::number(time/1e9,'f',3) + QLatin1String(" s");
@@ -270,11 +270,11 @@ QString QmlProfilerSummaryView::displayTime(double time) const
 
 void QmlProfilerSummaryView::setHeaderLabels()
 {
-    d->m_model->setHeaderData(0,Qt::Horizontal,QVariant(tr("location")));
-    d->m_model->setHeaderData(1,Qt::Horizontal,QVariant(tr("% time")));
-    d->m_model->setHeaderData(2,Qt::Horizontal,QVariant(tr("total time")));
-    d->m_model->setHeaderData(3,Qt::Horizontal,QVariant(tr("calls")));
-    d->m_model->setHeaderData(4,Qt::Horizontal,QVariant(tr("time per call")));
-    d->m_model->setHeaderData(5,Qt::Horizontal,QVariant(tr("longest time")));
-    d->m_model->setHeaderData(6,Qt::Horizontal,QVariant(tr("shortest time")));
+    d->m_model->setHeaderData(0, Qt::Horizontal, QVariant(tr("Location")));
+    d->m_model->setHeaderData(1, Qt::Horizontal, QVariant(tr("Time in Percent")));
+    d->m_model->setHeaderData(2, Qt::Horizontal, QVariant(tr("Total Time")));
+    d->m_model->setHeaderData(3, Qt::Horizontal, QVariant(tr("Calls")));
+    d->m_model->setHeaderData(4, Qt::Horizontal, QVariant(tr("Time per Call")));
+    d->m_model->setHeaderData(5, Qt::Horizontal, QVariant(tr("Longest Time")));
+    d->m_model->setHeaderData(6, Qt::Horizontal, QVariant(tr("Shortest Time")));
 }

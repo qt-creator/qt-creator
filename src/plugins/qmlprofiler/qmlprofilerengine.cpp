@@ -55,34 +55,15 @@
 #include "canvas/qdeclarativetiledcanvas_p.h"
 
 
-
-using namespace QmlProfiler::Internal;
-
+namespace QmlProfiler {
+namespace Internal {
 
 //
 // QmlProfilerEnginePrivate
 //
 
-class QmlProfilerEngine::QmlProfilerEnginePrivate
-{
-public:
-    QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq), m_runner(0) {}
-    ~QmlProfilerEnginePrivate() {}
-
-    bool attach(const QString &address, uint port);
-    static AbstractQmlProfilerRunner *createRunner(const Analyzer::AnalyzerStartParameters &m_params, QObject *parent);
-
-    QmlProfilerEngine *q;
-
-    Analyzer::AnalyzerStartParameters m_params;
-    AbstractQmlProfilerRunner *m_runner;
-    bool m_running;
-    bool m_fetchingData;
-    bool m_delayedDelete;
-};
-
-AbstractQmlProfilerRunner *
-QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(const Analyzer::AnalyzerStartParameters &m_params, QObject *parent)
+static AbstractQmlProfilerRunner *
+createRunner(const Analyzer::AnalyzerStartParameters &m_params, QObject *parent)
 {
     AbstractQmlProfilerRunner *runner = 0;
     if (m_params.startMode == Analyzer::StartLocal) {
@@ -101,16 +82,35 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(const Analyzer::Analyz
     return runner;
 }
 
+
+class QmlProfilerEngine::QmlProfilerEnginePrivate
+{
+public:
+    QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq), m_runner(0) {}
+    ~QmlProfilerEnginePrivate() {}
+
+    bool attach(const QString &address, uint port);
+
+    QmlProfilerEngine *q;
+
+    Analyzer::AnalyzerStartParameters m_params;
+    AbstractQmlProfilerRunner *m_runner;
+    bool m_running;
+    bool m_fetchingData;
+    bool m_delayedDelete;
+};
+
+
 //
 // QmlProfilerEngine
 //
 
-QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp, ProjectExplorer::RunConfiguration *runConfiguration)
+QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
+                                     ProjectExplorer::RunConfiguration *runConfiguration)
     : IAnalyzerEngine(sp, runConfiguration)
     , d(new QmlProfilerEnginePrivate(this))
 {
     d->m_params = sp;
-
     d->m_running = false;
     d->m_fetchingData = false;
     d->m_delayedDelete = false;
@@ -126,7 +126,7 @@ QmlProfilerEngine::~QmlProfilerEngine()
 void QmlProfilerEngine::start()
 {
     QTC_ASSERT(!d->m_runner, return);
-    d->m_runner = QmlProfilerEnginePrivate::createRunner(d->m_params, this);
+    d->m_runner = createRunner(d->m_params, this);
     QTC_ASSERT(d->m_runner, return);
 
     connect(d->m_runner, SIGNAL(started()), this, SIGNAL(processRunning()));
@@ -163,7 +163,8 @@ void QmlProfilerEngine::setFetchingData(bool b)
     d->m_fetchingData = b;
 }
 
-void QmlProfilerEngine::dataReceived() {
+void QmlProfilerEngine::dataReceived()
+{
     if (d->m_delayedDelete)
         finishProcess();
     d->m_delayedDelete = false;
@@ -175,7 +176,6 @@ void QmlProfilerEngine::finishProcess()
     if (d->m_running) {
         d->m_running = false;
         d->m_runner->stop();
-
         emit finished();
     }
 }
@@ -184,3 +184,6 @@ void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputF
 {
     qDebug() << "app: " << msg;
 }
+
+} // namespace Internal
+} // namespace QmlProfiler

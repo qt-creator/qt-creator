@@ -33,6 +33,8 @@
 
 #include "tracewindow.h"
 
+#include "qmlprofilerplugin.h"
+
 #include <QtCore/qdebug.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qdatastream.h>
@@ -50,11 +52,7 @@
 #include <QtDeclarative/qdeclarativecontext.h>
 #include <QtDeclarative/qdeclarative.h>
 
-#include "qmlprofilerplugin.h"
-//#include <jsdebuggeragent.h>
-//#include <qdeclarativeviewobserver.h>
-
-#define GAP_TIME 150
+static const int GAP_TIME = 150;
 
 using QmlJsDebugClient::QDeclarativeDebugClient;
 
@@ -72,7 +70,7 @@ struct Location
 class TracePlugin : public QDeclarativeDebugClient
 {
     Q_OBJECT
-    Q_PROPERTY(bool recording READ recording WRITE setRecording NOTIFY recordingChanged)
+    Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
 
 public:
     TracePlugin(QDeclarativeDebugConnection *client);
@@ -106,10 +104,7 @@ public:
         MaximumRangeType
     };
 
-    bool recording() const
-    {
-        return m_recording;
-    }
+    bool isRecording() const { return m_recording; }
 
 public slots:
     void setRecording(bool);
@@ -133,7 +128,6 @@ protected:
     virtual void messageReceived(const QByteArray &);
 
 private:
-
     qint64 m_inProgressRanges;
     QStack<qint64> m_rangeStartTimes[MaximumRangeType];
     QStack<QStringList> m_rangeDatas[MaximumRangeType];
@@ -143,13 +137,9 @@ private:
     bool m_recording;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
-
-using namespace QmlProfiler::Internal;
-
 TracePlugin::TracePlugin(QDeclarativeDebugConnection *client)
-    : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client), m_inProgressRanges(0), m_maximumTime(0), m_recording(false)
+    : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client),
+      m_inProgressRanges(0), m_maximumTime(0), m_recording(false)
 {
     ::memset(m_rangeCount, 0, MaximumRangeType * sizeof(int));
 }
@@ -268,7 +258,7 @@ void TracePlugin::messageReceived(const QByteArray &data)
 }
 
 TraceWindow::TraceWindow(QWidget *parent)
-: QWidget(parent)
+    : QWidget(parent)
 {
     setObjectName(tr("QML Performance Monitor"));
 
@@ -340,7 +330,11 @@ void TraceWindow::setRecording(bool recording)
 
 bool TraceWindow::isRecording() const
 {
-    return (m_plugin.data()->recording());
+    return m_plugin.data()->isRecording();
 }
+
+} // namespace Internal
+} // namespace QmlProfiler
+
 
 #include "tracewindow.moc"

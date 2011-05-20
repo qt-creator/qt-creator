@@ -65,12 +65,6 @@ AnalyzerStartParameters localStartParameters(ProjectExplorer::RunConfiguration *
 QmlProjectAnalyzerRunControlFactory::QmlProjectAnalyzerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {
-
-}
-
-QmlProjectAnalyzerRunControlFactory::~QmlProjectAnalyzerRunControlFactory()
-{
-
 }
 
 bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
@@ -82,8 +76,8 @@ bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigurat
 
 RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
 {
-    if (!qobject_cast<QmlProjectManager::QmlProjectRunConfiguration  *>(runConfiguration) ||
-         mode != Constants::MODE_ANALYZE) {
+    if (!qobject_cast<QmlProjectManager::QmlProjectRunConfiguration  *>(runConfiguration)
+            || mode != Constants::MODE_ANALYZE) {
         return 0;
     }
     const AnalyzerStartParameters sp = localStartParameters(runConfiguration);
@@ -109,7 +103,7 @@ IRunConfigurationAspect *QmlProjectAnalyzerRunControlFactory::createRunConfigura
 
 RunConfigWidget *QmlProjectAnalyzerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
-    QmlProjectManager::QmlProjectRunConfiguration  *localRc =
+    QmlProjectManager::QmlProjectRunConfiguration *localRc =
         qobject_cast<QmlProjectManager::QmlProjectRunConfiguration  *>(runConfiguration);
     if (!localRc)
         return 0;
@@ -121,5 +115,4 @@ RunConfigWidget *QmlProjectAnalyzerRunControlFactory::createConfigurationWidget(
     Analyzer::AnalyzerRunConfigWidget *ret = new Analyzer::AnalyzerRunConfigWidget;
     ret->setRunConfiguration(runConfiguration);
     return ret;
-//    return 0;
 }
