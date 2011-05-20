@@ -56,6 +56,10 @@ namespace Core {
 class ICore;
 }
 
+namespace QtSupport {
+class ProFileReader;
+}
+
 namespace Qt4ProjectManager {
 
 // Import base classes into namespace
@@ -79,7 +83,6 @@ class Qt4Project;
 namespace Internal {
 
 using ProjectExplorer::FileType;
-class ProFileReader;
 class Qt4UiCodeModelSupport;
 
 //  Type of projects
@@ -142,7 +145,7 @@ class Qt4PriFileNode : public ProjectExplorer::ProjectNode
 public:
     Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNode, const QString &filePath);
 
-    void update(ProFile *includeFileExact, ProFileReader *readerExact, ProFile *includeFileCumlative, ProFileReader *readerCumalative);
+    void update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumalative);
 
 
 // ProjectNode interface
@@ -172,7 +175,7 @@ public:
 protected:
     void clear();
     static QStringList varNames(FileType type);
-    static QStringList dynamicVarNames(ProFileReader *readerExact, ProFileReader *readerCumulative);
+    static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative);
     static QSet<QString> filterFiles(ProjectExplorer::FileType fileType, const QSet<QString> &files);
 
     enum ChangeType {
@@ -197,8 +200,8 @@ private:
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors();
     QStringList formResources(const QString &formFile) const;
-    QStringList baseVPaths(ProFileReader *reader, const QString &projectDir);
-    QStringList fullVPaths(const QStringList &baseVPaths, ProFileReader *reader, FileType type, const QString &qmakeVariable, const QString &projectDir);
+    QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir);
+    QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, FileType type, const QString &qmakeVariable, const QString &projectDir);
     void watchFolders(const QSet<QString> &folders);
 
     Qt4Project *m_project;
@@ -343,14 +346,14 @@ private:
     void createUiCodeModelSupport();
     QStringList updateUiFiles();
 
-    QString uiDirPath(ProFileReader *reader) const;
-    QString mocDirPath(ProFileReader *reader) const;
-    QStringList includePaths(ProFileReader *reader) const;
-    QStringList libDirectories(ProFileReader *reader) const;
-    QStringList subDirsPaths(ProFileReader *reader) const;
-    TargetInformation targetInformation(ProFileReader *reader) const;
-    void setupInstallsList(const ProFileReader *reader);
-    void setupProjectVersion(const ProFileReader *reader);
+    QString uiDirPath(QtSupport::ProFileReader *reader) const;
+    QString mocDirPath(QtSupport::ProFileReader *reader) const;
+    QStringList includePaths(QtSupport::ProFileReader *reader) const;
+    QStringList libDirectories(QtSupport::ProFileReader *reader) const;
+    QStringList subDirsPaths(QtSupport::ProFileReader *reader) const;
+    TargetInformation targetInformation(QtSupport::ProFileReader *reader) const;
+    void setupInstallsList(const QtSupport::ProFileReader *reader);
+    void setupProjectVersion(const QtSupport::ProFileReader *reader);
 
     void invalidate();
 
@@ -368,8 +371,8 @@ private:
 
     // Async stuff
     QFutureWatcher<EvalResult> m_parseFutureWatcher;
-    ProFileReader *m_readerExact;
-    ProFileReader *m_readerCumulative;
+    QtSupport::ProFileReader *m_readerExact;
+    QtSupport::ProFileReader *m_readerCumulative;
 };
 
 class Qt4NodesWatcher : public ProjectExplorer::NodesWatcher

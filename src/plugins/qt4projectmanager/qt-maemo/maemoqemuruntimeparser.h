@@ -37,14 +37,17 @@
 #include <QtCore/QString>
 #include <QtXml/QXmlStreamReader>
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 class BaseQtVersion;
+}
+
+namespace Qt4ProjectManager {
 namespace Internal {
 
 class MaemoQemuRuntimeParser
 {
 public:
-    static MaemoQemuRuntime parseRuntime(const BaseQtVersion *qtVersion);
+    static MaemoQemuRuntime parseRuntime(const QtSupport::BaseQtVersion *qtVersion);
 
 protected:
     MaemoQemuRuntimeParser(const QString &madInfoOutput,

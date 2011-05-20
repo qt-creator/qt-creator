@@ -34,16 +34,18 @@
 #include "symbianqtversion.h"
 #include "qt-s60/sbsv2parser.h"
 #include "qt-s60/abldparser.h"
-#include "profileevaluator.h"
 
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <utils/pathchooser.h>
+#include <proparser/profileevaluator.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
+#include <QtCore/QSettings>
 #include <QtGui/QLabel>
 #include <QtGui/QFormLayout>
 
@@ -84,7 +86,7 @@ bool SymbianQtVersion::equals(BaseQtVersion *other)
 
 QString SymbianQtVersion::type() const
 {
-    return QLatin1String(Constants::SYMBIANQT);
+    return QLatin1String(QtSupport::Constants::SYMBIANQT);
 }
 
 bool SymbianQtVersion::isValid() const
@@ -132,6 +134,12 @@ bool SymbianQtVersion::toolChainAvailable(const QString &id) const
         return false;
     }
     return false;
+}
+
+void SymbianQtVersion::restoreLegacySettings(QSettings *s)
+{
+    setSystemRoot(QDir::fromNativeSeparators(s->value("S60SDKDirectory").toString()));
+    setSbsV2Directory(QDir::fromNativeSeparators(s->value(QLatin1String("SBSv2Directory")).toString()));
 }
 
 void SymbianQtVersion::fromMap(const QVariantMap &map)
@@ -344,7 +352,7 @@ QString SymbianQtVersion::systemRoot() const
     return m_systemRoot;
 }
 
-QtConfigWidget *SymbianQtVersion::createConfigurationWidget() const
+QtSupport::QtConfigWidget *SymbianQtVersion::createConfigurationWidget() const
 {
     return new SymbianQtConfigWidget(const_cast<SymbianQtVersion *>(this));
 }

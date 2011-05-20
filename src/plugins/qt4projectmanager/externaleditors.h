@@ -44,9 +44,12 @@ class QTcpSocket;
 class QSignalMapper;
 QT_END_NAMESPACE
 
+namespace QtSupport {
+class BaseQtVersion;
+}
+
 namespace Qt4ProjectManager {
 
-class BaseQtVersion;
 
 namespace Internal {
 
@@ -66,7 +69,7 @@ public:
 
 protected:
     // Method pointer for a QtVersion method return a string (command)
-    typedef QString (BaseQtVersion::*QtVersionCommandAccessor)() const;
+    typedef QString (QtSupport::BaseQtVersion::*QtVersionCommandAccessor)() const;
 
     // Data required to launch the editor
     struct EditorLaunchData {

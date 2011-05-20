@@ -30,8 +30,6 @@
 **
 **************************************************************************/
 
-#include "profilereader.h"
-#include "prowriter.h"
 #include "qt4nodes.h"
 #include "qt4project.h"
 #include "qt4projectmanager.h"
@@ -54,10 +52,12 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
+#include <qtsupport/profilereader.h>
 
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/fileutils.h>
+#include <proparser/prowriter.h>
 #include <algorithm>
 
 #include <QtCore/QDebug>
@@ -266,7 +266,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
 
 void Qt4PriFileNode::scheduleUpdate()
 {
-    ProFileCacheManager::instance()->discardFile(m_projectFilePath);
+    QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath);
     m_qt4ProFileNode->scheduleUpdate();
 }
 
@@ -488,7 +488,7 @@ struct InternalNode
 };
 
 
-QStringList Qt4PriFileNode::baseVPaths(ProFileReader *reader, const QString &projectDir)
+QStringList Qt4PriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir)
 {
     QStringList result;
     if (!reader)
@@ -500,7 +500,7 @@ QStringList Qt4PriFileNode::baseVPaths(ProFileReader *reader, const QString &pro
     return result;
 }
 
-QStringList Qt4PriFileNode::fullVPaths(const QStringList &baseVPaths, ProFileReader *reader, FileType type, const QString &qmakeVariable, const QString &projectDir)
+QStringList Qt4PriFileNode::fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, FileType type, const QString &qmakeVariable, const QString &projectDir)
 {
     QStringList vPaths;
     if (!reader)
@@ -534,7 +534,7 @@ static QSet<QString> recursiveEnumerate(const QString &folder)
     return result;
 }
 
-void Qt4PriFileNode::update(ProFile *includeFileExact, ProFileReader *readerExact, ProFile *includeFileCumlative, ProFileReader *readerCumulative)
+void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumulative)
 {
     // add project file node
     if (m_fileNodes.isEmpty())
@@ -1022,7 +1022,7 @@ bool Qt4PriFileNode::saveModifiedEditors()
         if (cancelled)
             return false;
         // force instant reload of ourselves
-        ProFileCacheManager::instance()->discardFile(m_projectFilePath);
+        QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath);
         m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
     }
     return true;
@@ -1106,7 +1106,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
             lines = contents.split(QLatin1Char('\n'));
         }
 
-        ProMessageHandler handler;
+        QtSupport::ProMessageHandler handler;
         ProFileParser parser(0, &handler);
         includeFile = parser.parsedProBlock(m_projectFilePath, contents);
     }
@@ -1205,7 +1205,7 @@ QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
 }
 
 
-QStringList Qt4PriFileNode::dynamicVarNames(ProFileReader *readerExact, ProFileReader *readerCumulative)
+QStringList Qt4PriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative)
 {
     QStringList result;
     // Figure out DEPLOYMENT and INSTALLS
@@ -1929,7 +1929,7 @@ QStringList Qt4ProFileNode::updateUiFiles()
     return toUpdate;
 }
 
-QString Qt4ProFileNode::uiDirPath(ProFileReader *reader) const
+QString Qt4ProFileNode::uiDirPath(QtSupport::ProFileReader *reader) const
 {
     QString path = reader->value("UI_DIR");
     if (QFileInfo(path).isRelative())
@@ -1937,7 +1937,7 @@ QString Qt4ProFileNode::uiDirPath(ProFileReader *reader) const
     return path;
 }
 
-QString Qt4ProFileNode::mocDirPath(ProFileReader *reader) const
+QString Qt4ProFileNode::mocDirPath(QtSupport::ProFileReader *reader) const
 {
     QString path = reader->value("MOC_DIR");
     if (QFileInfo(path).isRelative())
@@ -1945,7 +1945,7 @@ QString Qt4ProFileNode::mocDirPath(ProFileReader *reader) const
     return path;
 }
 
-QStringList Qt4ProFileNode::includePaths(ProFileReader *reader) const
+QStringList Qt4ProFileNode::includePaths(QtSupport::ProFileReader *reader) const
 {
     QStringList paths;
     foreach (const QString &cxxflags, m_readerExact->values("QMAKE_CXXFLAGS")) {
@@ -1962,7 +1962,7 @@ QStringList Qt4ProFileNode::includePaths(ProFileReader *reader) const
     return paths;
 }
 
-QStringList Qt4ProFileNode::libDirectories(ProFileReader *reader) const
+QStringList Qt4ProFileNode::libDirectories(QtSupport::ProFileReader *reader) const
 {
     QStringList result;
     foreach (const QString &str, reader->values(QLatin1String("LIBS"))) {
@@ -1973,7 +1973,7 @@ QStringList Qt4ProFileNode::libDirectories(ProFileReader *reader) const
     return result;
 }
 
-QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
+QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader) const
 {
     QStringList subProjectPaths;
 
@@ -2020,7 +2020,7 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
     return subProjectPaths;
 }
 
-TargetInformation Qt4ProFileNode::targetInformation(ProFileReader *reader) const
+TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *reader) const
 {
     TargetInformation result;
     if (!reader)
@@ -2068,7 +2068,7 @@ TargetInformation Qt4ProFileNode::targetInformation(ProFileReader *reader) const
         // Hmm can we find out whether it's debug or release in a saner way?
         // Theoretically it's in CONFIG
         QString qmakeBuildConfig = "release";
-        if (m_project->activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
+        if (m_project->activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
             qmakeBuildConfig = "debug";
         wd += QLatin1Char('/') + qmakeBuildConfig;
     }
@@ -2088,7 +2088,7 @@ TargetInformation Qt4ProFileNode::targetInformation() const
     return m_qt4targetInformation;
 }
 
-void Qt4ProFileNode::setupInstallsList(const ProFileReader *reader)
+void Qt4ProFileNode::setupInstallsList(const QtSupport::ProFileReader *reader)
 {
     m_installsList.clear();
     if (!reader)
@@ -2132,7 +2132,7 @@ void Qt4ProFileNode::setupInstallsList(const ProFileReader *reader)
     }
 }
 
-void Qt4ProFileNode::setupProjectVersion(const ProFileReader *reader)
+void Qt4ProFileNode::setupProjectVersion(const QtSupport::ProFileReader *reader)
 {
     m_projectVersion.major = m_projectVersion.minor = m_projectVersion.patch = -1;
     bool ok;

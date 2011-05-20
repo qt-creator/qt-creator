@@ -56,8 +56,10 @@ class QString;
 QT_END_NAMESPACE
 
 namespace Utils { class SshConnection; }
-namespace Qt4ProjectManager {
+namespace QtSupport {
 class BaseQtVersion;
+}
+namespace Qt4ProjectManager {
 namespace Internal {
 
 class WatchableFile : public Core::IFile
@@ -100,7 +102,7 @@ public:
     static bool isValidHarmattanQtVersion(const QString &qmakePath);
     static bool isValidMeegoQtVersion(const QString &qmakePath);
 
-    static bool isLinuxQt(const BaseQtVersion *qtVersion);
+    static bool isLinuxQt(const QtSupport::BaseQtVersion *qtVersion);
     static bool hasLinuxQt(const ProjectExplorer::Target *target);
 
     static QString homeDirOnDevice(const QString &uname);
@@ -116,7 +118,7 @@ public:
         const QSharedPointer<const MaemoDeviceConfig> &deviceConfig);
     static QString deviceConfigurationName(const QSharedPointer<const MaemoDeviceConfig> &devConf);
     static MaemoPortList freePorts(const QSharedPointer<const MaemoDeviceConfig> &devConf,
-        const BaseQtVersion *qtVersion);
+        const QtSupport::BaseQtVersion *qtVersion);
 
     static QString maddeRoot(const QString &qmakePath);
     static QString targetRoot(const QString &qmakePath);

@@ -36,8 +36,9 @@
 #include "qtquickappwizard.h"
 #include "qtquickappwizardpages.h"
 #include "targetsetuppage.h"
-
 #include "qt4projectmanagerconstants.h"
+
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QIcon>
@@ -58,7 +59,7 @@ private:
 };
 
 QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent)
-    : AbstractMobileAppWizardDialog(parent, QtVersionNumber(4, 7, 0))
+    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(4, 7, 0))
     , m_qmlSourcesPage(0)
 {
     setWindowTitle(tr("New Qt Quick Application"));
@@ -93,7 +94,7 @@ QtQuickAppWizard::~QtQuickAppWizard()
 Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(QLatin1String(Constants::ICON_QTQUICK_APP)));
+    parameters.setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
     parameters.setDisplayName(tr("Qt Quick Application"));
     parameters.setId(QLatin1String("QA.QMLA Application"));
     parameters.setDescription(tr("Creates a Qt Quick application project that can contain "
@@ -102,9 +103,9 @@ Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
                                  "mobile target platforms. For example, you can create signed "
                                  "Symbian Installation System (SIS) packages for this type of "
                                  "projects."));
-    parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
-                                                              Constants::QML_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(QtSupport::Constants::QML_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate(QtSupport::Constants::QML_WIZARD_TR_SCOPE,
+                                                              QtSupport::Constants::QML_WIZARD_TR_CATEGORY));
     return parameters;
 }
 

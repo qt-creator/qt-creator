@@ -32,19 +32,20 @@
 
 #include "winceqtversion.h"
 #include "qt4projectmanagerconstants.h"
+#include <qtsupport/qtsupportconstants.h>
 #include <QtCore/QCoreApplication>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 WinCeQtVersion::WinCeQtVersion()
-    : BaseQtVersion()
+    : QtSupport::BaseQtVersion()
 {
 
 }
 
 WinCeQtVersion::WinCeQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
-    : BaseQtVersion(path, isAutodetected, autodetectionSource)
+    : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
 
 }
@@ -61,7 +62,7 @@ WinCeQtVersion *WinCeQtVersion::clone() const
 
 QString WinCeQtVersion::type() const
 {
-    return Constants::WINCEQT;
+    return QtSupport::Constants::WINCEQT;
 }
 
 QList<ProjectExplorer::Abi> WinCeQtVersion::qtAbis() const

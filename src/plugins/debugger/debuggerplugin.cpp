@@ -96,7 +96,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/abi.h>
 
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <texteditor/basetexteditor.h>
 #include <texteditor/fontsettings.h>
@@ -2326,8 +2326,8 @@ void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
         ICore::instance()->showOptionsDialog(
-            _(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY),
-            _(Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID));
+            _(QtSupport::Constants::QT_SETTINGS_CATEGORY),
+            _(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
     } else if (dialog.clickedButton() == helperOff) {
         action(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
     }

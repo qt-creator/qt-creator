@@ -4,6 +4,7 @@ DEFINES += QT_CREATOR QT4PROJECTMANAGER_LIBRARY
 QT += network
 include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
+
 HEADERS += \
     qtparser.h \
     qt4projectmanagerplugin.h \
@@ -13,7 +14,6 @@ HEADERS += \
     profileeditor.h \
     profilehighlighter.h \
     profileeditorfactory.h \
-    profilereader.h \
     wizards/qtprojectparameters.h \
     wizards/guiappwizard.h \
     wizards/mobileapp.h \
@@ -52,8 +52,6 @@ HEADERS += \
     qtmodulesinfo.h \
     qt4projectconfigwidget.h \
     projectloadwizard.h \
-    qtversionmanager.h \
-    qtoptionspage.h \
     qtuicodemodelsupport.h \
     externaleditors.h \
     gettingstartedwelcomepagewidget.h \
@@ -61,24 +59,17 @@ HEADERS += \
     qt4buildconfiguration.h \
     qt4target.h \
     qmakeparser.h \
-    qtoutputformatter.h \
     addlibrarywizard.h \
     librarydetailscontroller.h \
     findqt4profiles.h \
     qt4projectmanager_global.h \
-    qmldumptool.h \
-    qmlobservertool.h \
-    qmldebugginglibrary.h \
     profilekeywords.h \
-    debugginghelperbuildtask.h \
     qt4targetsetupwidget.h \
-    qt4basetargetfactory.h \
     buildconfigurationinfo.h \
-    qtversionfactory.h \
     winceqtversionfactory.h \
-    baseqtversion.h \
     winceqtversion.h \
-    profilecompletionassist.h
+    profilecompletionassist.h \
+    qt4basetargetfactory.h
 
 SOURCES += qt4projectmanagerplugin.cpp \
     qtparser.cpp \
@@ -88,7 +79,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
     profileeditor.cpp \
     profilehighlighter.cpp \
     profileeditorfactory.cpp \
-    profilereader.cpp \
     wizards/qtprojectparameters.cpp \
     wizards/guiappwizard.cpp \
     wizards/mobileapp.cpp \
@@ -126,8 +116,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qtmodulesinfo.cpp \
     qt4projectconfigwidget.cpp \
     projectloadwizard.cpp \
-    qtversionmanager.cpp \
-    qtoptionspage.cpp \
     qtuicodemodelsupport.cpp \
     externaleditors.cpp \
     gettingstartedwelcomepagewidget.cpp \
@@ -135,27 +123,20 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qt4buildconfiguration.cpp \
     qt4target.cpp \
     qmakeparser.cpp \
-    qtoutputformatter.cpp \
     addlibrarywizard.cpp \
     librarydetailscontroller.cpp \
     findqt4profiles.cpp \
-    qmldumptool.cpp \
-    qmlobservertool.cpp \
-    qmldebugginglibrary.cpp \
     profilekeywords.cpp \
-    debugginghelperbuildtask.cpp \
-    qtversionfactory.cpp \
     winceqtversionfactory.cpp \
-    baseqtversion.cpp \
     winceqtversion.cpp \
     profilecompletionassist.cpp
 
 FORMS += makestep.ui \
     qmakestep.ui \
     qt4projectconfigwidget.ui \
-    qtversionmanager.ui \
-    showbuildlog.ui \
     gettingstartedwelcomepagewidget.ui \
+    showbuildlog.ui \
+    librarydetailswidget.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \
     wizards/qtquickappwizardsourcespage.ui \
@@ -163,15 +144,11 @@ FORMS += makestep.ui \
     wizards/mobilelibrarywizardoptionpage.ui \
     wizards/mobileappwizardgenericoptionspage.ui \
     wizards/mobileappwizardsymbianoptionspage.ui \
-    wizards/mobileappwizardmaemooptionspage.ui \
-    librarydetailswidget.ui \
-    qtversioninfo.ui \
-    debugginghelper.ui
+    wizards/mobileappwizardmaemooptionspage.ui
+
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
 
-DEFINES += PROPARSER_THREAD_SAFE PROEVALUATOR_THREAD_SAFE
-include(../../shared/proparser/proparser.pri)
 include(qt-s60/qt-s60.pri)
 include(qt-maemo/qt-maemo.pri)
 include(qt-desktop/qt-desktop.pri)

@@ -54,7 +54,7 @@ using ProjectExplorer::idFromMap;
 Qt4DesktopTargetFactory::Qt4DesktopTargetFactory(QObject *parent) :
     Qt4BaseTargetFactory(parent)
 {
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
             this, SIGNAL(supportedTargetIdsChanged()));
 }
 
@@ -71,7 +71,7 @@ QStringList Qt4DesktopTargetFactory::supportedTargetIds(ProjectExplorer::Project
 {
     if (parent && !qobject_cast<Qt4Project *>(parent))
         return QStringList();
-    if (!QtVersionManager::instance()->supportsTargetId(Constants::DESKTOP_TARGET_ID))
+    if (!QtSupport::QtVersionManager::instance()->supportsTargetId(Constants::DESKTOP_TARGET_ID))
         return QStringList();
     return QStringList() << QLatin1String(Constants::DESKTOP_TARGET_ID);
 }
@@ -123,7 +123,7 @@ ProjectExplorer::Target  *Qt4DesktopTargetFactory::restore(ProjectExplorer::Proj
     return 0;
 }
 
-Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
+Qt4TargetSetupWidget *Qt4DesktopTargetFactory::createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &number, bool importEnabled, QList<BuildConfigurationInfo> importInfos)
 {
 
     QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, number);
@@ -142,16 +142,16 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
     if (!canCreate(parent, id))
         return 0;
 
-    QList<BaseQtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id);
+    QList<QtSupport::BaseQtVersion *> knownVersions = QtSupport::QtVersionManager::instance()->versionsForTargetId(id);
     if (knownVersions.isEmpty())
         return 0;
 
-    BaseQtVersion *qtVersion = knownVersions.first();
-    BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
+    QtSupport::BaseQtVersion *qtVersion = knownVersions.first();
+    QtSupport::BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
 
     QList<BuildConfigurationInfo> infos;
     infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
-    infos.append(BuildConfigurationInfo(qtVersion, config ^ BaseQtVersion::DebugBuild, QString(), QString()));
+    infos.append(BuildConfigurationInfo(qtVersion, config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
 
     return create(parent, id, infos);
 }

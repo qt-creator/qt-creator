@@ -40,9 +40,12 @@
 
 #include <QtCore/QList>
 
+namespace QtSupport {
+class QtVersionNumber;
+}
+
 namespace Qt4ProjectManager {
 class Qt4TargetSetupWidget;
-class QtVersionNumber;
 struct BuildConfigurationInfo;
 
 class QT4PROJECTMANAGER_EXPORT Qt4BaseTargetFactory : public ProjectExplorer::ITargetFactory
@@ -54,7 +57,7 @@ public:
 
     virtual Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id,
                                                           const QString &proFilePath,
-                                                          const QtVersionNumber &minimumQtVersion,
+                                                          const QtSupport::QtVersionNumber &minimumQtVersion,
                                                           bool importEnabled,
                                                           QList<BuildConfigurationInfo> importInfos);
 
@@ -66,7 +69,7 @@ public:
     /// used by the default implementation of createTargetSetupWidget
     /// not needed otherwise
     /// by default creates one debug + one release buildconfiguration per qtversion
-    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion);
+    virtual QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &minimumQtVersion);
 
     virtual QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
     /// only used in the TargetSetupPage
@@ -80,6 +83,8 @@ public:
     virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, Qt4TargetSetupWidget *widget);
 
     static Qt4BaseTargetFactory *qt4BaseTargetFactoryForId(const QString &id);
+
+    static QList<Qt4BaseTargetFactory *> qt4BaseTargetFactoriesForIds(const QStringList &ids);
 
 protected:
     static QString msgBuildConfigurationName(const BuildConfigurationInfo &info);

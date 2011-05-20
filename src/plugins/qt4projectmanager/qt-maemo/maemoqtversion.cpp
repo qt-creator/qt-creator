@@ -34,6 +34,8 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt-maemo/maemoglobal.h"
 
+#include <qtsupport/qtsupportconstants.h>
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 #include <QtCore/QDir>
@@ -42,13 +44,13 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 MaemoQtVersion::MaemoQtVersion()
-    : BaseQtVersion()
+    : QtSupport::BaseQtVersion()
 {
 
 }
 
 MaemoQtVersion::MaemoQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
-    : BaseQtVersion(path, isAutodetected, autodetectionSource),
+    : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource),
       m_osVersion(MaemoGlobal::version(path)),
       m_isvalidVersion(MaemoGlobal::isValidMaemoQtVersion(path, m_osVersion))
 {
@@ -62,7 +64,7 @@ MaemoQtVersion::~MaemoQtVersion()
 
 void MaemoQtVersion::fromMap(const QVariantMap &map)
 {
-    BaseQtVersion::fromMap(map);
+    QtSupport::BaseQtVersion::fromMap(map);
     QString path = qmakeCommand();
     m_osVersion = MaemoGlobal::version(path);
     m_isvalidVersion = MaemoGlobal::isValidMaemoQtVersion(path, m_osVersion);
@@ -70,7 +72,7 @@ void MaemoQtVersion::fromMap(const QVariantMap &map)
 
 QString MaemoQtVersion::type() const
 {
-    return Constants::MAEMOQT;
+    return QtSupport::Constants::MAEMOQT;
 }
 
 MaemoQtVersion *MaemoQtVersion::clone() const

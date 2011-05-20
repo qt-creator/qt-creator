@@ -38,10 +38,8 @@
 #include "s60manager.h"
 #include "s60runconfigbluetoothstarter.h"
 #include "qt4projectmanagerconstants.h"
-#include "qtoutputformatter.h"
 #include "qt4symbiantarget.h"
 #include "codaruncontrol.h"
-#include "baseqtversion.h"
 #include "symbianqtversion.h"
 
 #include <utils/qtcassert.h>
@@ -51,6 +49,8 @@
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
+#include <qtsupport/qtoutputformatter.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
@@ -175,7 +175,7 @@ QWidget *S60DeviceRunConfiguration::createConfigurationWidget()
 
 Utils::OutputFormatter *S60DeviceRunConfiguration::createOutputFormatter() const
 {
-    return new QtOutputFormatter(qt4Target()->qt4Project());
+    return new QtSupport::QtOutputFormatter(qt4Target()->qt4Project());
 }
 
 QVariantMap S60DeviceRunConfiguration::toMap() const
@@ -236,7 +236,7 @@ SymbianQtVersion *S60DeviceRunConfiguration::qtVersion() const
 bool S60DeviceRunConfiguration::isDebug() const
 {
     const Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
-    return (qt4bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild);
+    return (qt4bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild);
 }
 
 QString S60DeviceRunConfiguration::symbianTarget() const

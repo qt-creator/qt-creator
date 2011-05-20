@@ -32,7 +32,9 @@
 
 #include "desktopqtversion.h"
 #include "qt4projectmanagerconstants.h"
-#include "profileevaluator.h"
+
+#include <qtsupport/qtsupportconstants.h>
+#include <proparser/profileevaluator.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -67,7 +69,7 @@ DesktopQtVersion *DesktopQtVersion::clone() const
 
 QString DesktopQtVersion::type() const
 {
-    return Constants::DESKTOPQT;
+    return QtSupport::Constants::DESKTOPQT;
 }
 
 bool DesktopQtVersion::isValid() const

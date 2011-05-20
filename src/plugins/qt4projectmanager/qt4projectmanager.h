@@ -48,6 +48,9 @@ namespace ProjectExplorer {
 class Project;
 class ProjectExplorerPlugin;
 class Node;
+}
+
+namespace QtSupport {
 class QtVersionManager;
 }
 

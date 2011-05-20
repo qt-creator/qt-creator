@@ -38,8 +38,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QtSupport;
 
 static QString format(const QString &fileName, int lineNo, const QString &msg)
 {

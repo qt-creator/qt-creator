@@ -39,16 +39,15 @@
 #include "qmakestep.h"
 #include "makestep.h"
 #include "qt4project.h"
-#include "qtversionmanager.h"
-
-#include "profilereader.h"
-#include "prowriter.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildstep.h>
+#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/profilereader.h>
 
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
+#include <proparser/prowriter.h>
 
 #include <QtCore/QProcess>
 
@@ -400,7 +399,7 @@ void S60PublisherOvi::runCreateSis(int result)
     const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
     QString makeTarget = QLatin1String(" unsigned_installer_sis");
 
-    if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
+    if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         makeTarget =  QLatin1String(" installer_sis");
     runStep(result,
             tr("Making Sis File"),
@@ -416,7 +415,7 @@ void S60PublisherOvi::endBuild(int result)
     emit progressReport(QString(m_createSisProc->readAllStandardError() + '\n'), m_errorColor);
 
     QString fileNamePostFix =  QLatin1String("_installer_unsigned.sis");
-    if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
+    if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         fileNamePostFix =  QLatin1String("_installer.sis");
 
     QString resultFile = m_qt4bc->buildDirectory() + QLatin1Char('/') + m_qt4project->displayName() + fileNamePostFix;
@@ -436,7 +435,7 @@ void S60PublisherOvi::endBuild(int result)
 QString S60PublisherOvi::createdSisFileContainingFolder()
 {
     QString fileNamePostFix =  QLatin1String("_installer_unsigned.sis");
-    if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
+    if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         fileNamePostFix =  QLatin1String("_installer.sis");
 
     QString resultFile = m_qt4bc->buildDirectory() + '/' + m_qt4project->displayName() + fileNamePostFix;
@@ -448,7 +447,7 @@ QString S60PublisherOvi::createdSisFileContainingFolder()
 QString S60PublisherOvi::createdSisFilePath()
 {
     QString fileNamePostFix =  QLatin1String("_installer_unsigned.sis");
-    if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
+    if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         fileNamePostFix =  QLatin1String("_installer.sis");
 
     QString resultFile = m_qt4bc->buildDirectory() + '/' + m_qt4project->displayName() + fileNamePostFix;

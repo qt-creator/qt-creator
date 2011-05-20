@@ -49,9 +49,6 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4project.h"
 #include "profileeditor.h"
-#include "profilereader.h"
-#include "qtversionmanager.h"
-#include "qtoptionspage.h"
 #include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
 #include "profilecompletionassist.h"
@@ -113,9 +110,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     const Core::Context projectContext(Qt4ProjectManager::Constants::PROJECT_ID);
     Core::Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
-    ProFileParser::initialize();
-    ProFileEvaluator::initialize();
-
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
         return false;
@@ -123,15 +117,10 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     Core::ActionManager *am = core->actionManager();
 
-    new ProFileCacheManager(this);
-
-    QtVersionManager *mgr = new QtVersionManager;
-    addAutoReleasedObject(mgr);
-    addAutoReleasedObject(new QtOptionsPage);
 
     m_welcomePage = new GettingStartedWelcomePage;
     addObject(m_welcomePage);
-    connect(mgr, SIGNAL(updateExamples(QString,QString,QString)),
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(updateExamples(QString,QString,QString)),
             m_welcomePage, SLOT(updateExamples(QString,QString,QString)));
 
     //create and register objects
@@ -288,7 +277,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 void Qt4ProjectManagerPlugin::extensionsInitialized()
 {
     m_qt4ProjectManager->init();
-    QtVersionManager::instance()->extensionsInitialized();
 }
 
 void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,

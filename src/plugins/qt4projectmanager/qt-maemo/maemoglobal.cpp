@@ -39,7 +39,7 @@
 #include <coreplugin/filemanager.h>
 #include <utils/ssh/sshconnection.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qt4projectmanager/qtversionmanager.h>
+#include <qtsupport/qtversionmanager.h>
 #include <qt4projectmanager/qt4target.h>
 #include <utils/environment.h>
 
@@ -92,7 +92,7 @@ bool MaemoGlobal::isValidMeegoQtVersion(const QString &qmakePath)
     return isValidMaemoQtVersion(qmakePath, MaemoDeviceConfig::Meego);
 }
 
-bool MaemoGlobal::isLinuxQt(const BaseQtVersion *qtVersion)
+bool MaemoGlobal::isLinuxQt(const QtSupport::BaseQtVersion *qtVersion)
 {
     if (!qtVersion)
         return false;
@@ -223,7 +223,7 @@ QString MaemoGlobal::deviceConfigurationName(const MaemoDeviceConfig::ConstPtr &
 }
 
 MaemoPortList MaemoGlobal::freePorts(const MaemoDeviceConfig::ConstPtr &devConf,
-    const BaseQtVersion *qtVersion)
+    const QtSupport::BaseQtVersion *qtVersion)
 {
     if (!devConf || !qtVersion)
         return MaemoPortList();

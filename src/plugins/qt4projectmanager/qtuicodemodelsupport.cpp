@@ -35,7 +35,7 @@
 
 #include "qt4project.h"
 #include "qt4target.h"
-#include "baseqtversion.h"
+#include <qtsupport/baseqtversion.h>
 
 using namespace Qt4ProjectManager;
 using namespace Internal;

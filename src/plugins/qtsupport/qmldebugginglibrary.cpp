@@ -33,7 +33,7 @@
 #include "qmldebugginglibrary.h"
 
 #include "baseqtversion.h"
-#include "qt4projectmanagerconstants.h"
+#include "qtsupportconstants.h"
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
@@ -43,7 +43,7 @@
 #include <QDir>
 #include <QDebug>
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 
 
 QString QmlDebuggingLibrary::libraryByInstallData(const QString &qtInstallData, bool debugBuild)

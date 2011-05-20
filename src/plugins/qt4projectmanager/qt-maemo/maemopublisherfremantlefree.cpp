@@ -37,13 +37,13 @@
 #include "maemopublishingfileselectiondialog.h"
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
-#include "baseqtversion.h"
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qmakestep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/baseqtversion.h>
 #include <utils/fileutils.h>
 
 #include <QtCore/QCoreApplication>
@@ -364,7 +364,7 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
         }
     }
 
-    BaseQtVersion *lqt = m_buildConfig->qtVersion();
+    QtSupport::BaseQtVersion *lqt = m_buildConfig->qtVersion();
     if (!lqt)
         finishWithFailure(QString(), tr("No qt version set"));
 

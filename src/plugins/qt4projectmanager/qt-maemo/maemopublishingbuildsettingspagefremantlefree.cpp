@@ -39,7 +39,7 @@
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qt4projectmanager/baseqtversion.h>
+#include <qtsupport/baseqtversion.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -81,7 +81,7 @@ void MaemoPublishingBuildSettingsPageFremantleFree::collectBuildConfigurations(c
             if (!qt4Bc)
                 continue;
 
-            BaseQtVersion *lqt = qt4Bc->qtVersion();
+            QtSupport::BaseQtVersion *lqt = qt4Bc->qtVersion();
             if (!lqt)
                 continue;
             if (MaemoGlobal::version(lqt->qmakeCommand()) == MaemoDeviceConfig::Maemo5)

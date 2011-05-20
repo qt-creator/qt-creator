@@ -33,17 +33,20 @@
 #ifndef PROFILEREADER_H
 #define PROFILEREADER_H
 
-#include "profileparser.h"
-#include "profileevaluator.h"
+#include "qtsupport_global.h"
+#include "proparser/profileparser.h"
+#include "proparser/profileevaluator.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 #include <QtCore/QTimer>
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 namespace Internal {
+class QtSupportPlugin;
+}
 
-class ProMessageHandler : public QObject,
+class QTSUPPORT_EXPORT ProMessageHandler : public QObject,
                           public ProFileParserHandler, public ProFileEvaluatorHandler
 {
     Q_OBJECT
@@ -66,7 +69,7 @@ private:
     bool m_verbose;
 };
 
-class ProFileReader : public ProMessageHandler, public ProFileParser, public ProFileEvaluator
+class QTSUPPORT_EXPORT ProFileReader : public ProMessageHandler, public ProFileParser, public ProFileEvaluator
 {
     Q_OBJECT
 
@@ -87,7 +90,7 @@ private:
     int m_ignoreLevel;
 };
 
-class ProFileCacheManager : public QObject
+class QTSUPPORT_EXPORT ProFileCacheManager : public QObject
 {
     Q_OBJECT
 
@@ -109,10 +112,9 @@ private:
 
     static ProFileCacheManager *s_instance;
 
-    friend class Qt4ProjectManagerPlugin;
+    friend class QtSupport::Internal::QtSupportPlugin;
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QtSupport
 
 #endif // PROFILEREADER_H

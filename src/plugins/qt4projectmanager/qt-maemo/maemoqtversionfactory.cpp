@@ -35,13 +35,15 @@
 #include "qt4projectmanagerconstants.h"
 #include "maemoqtversion.h"
 
+#include <qtsupport/qtsupportconstants.h>
+
 #include <QtCore/QFileInfo>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 MaemoQtVersionFactory::MaemoQtVersionFactory(QObject *parent)
-    : QtVersionFactory(parent)
+    : QtSupport::QtVersionFactory(parent)
 {
 
 }
@@ -53,10 +55,10 @@ MaemoQtVersionFactory::~MaemoQtVersionFactory()
 
 bool MaemoQtVersionFactory::canRestore(const QString &type)
 {
-    return type == QLatin1String(Constants::MAEMOQT);
+    return type == QLatin1String(QtSupport::Constants::MAEMOQT);
 }
 
-BaseQtVersion *MaemoQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *MaemoQtVersionFactory::restore(const QVariantMap &data)
 {
     MaemoQtVersion *v = new MaemoQtVersion;
     v->fromMap(data);
@@ -68,7 +70,7 @@ int MaemoQtVersionFactory::priority() const
     return 50;
 }
 
-BaseQtVersion *MaemoQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+QtSupport::BaseQtVersion *MaemoQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
     Q_UNUSED(evaluator);
     // we are the fallback :) so we don't care what kinf of qt it is

@@ -38,7 +38,6 @@
 #include "qt4buildconfiguration.h"
 #include "qt4symbiantarget.h"
 #include "qt4target.h"
-#include "qtoutputformatter.h"
 
 #include <utils/qtcassert.h>
 
@@ -93,7 +92,7 @@ S60RunControlBase::S60RunControlBase(RunConfiguration *runConfiguration, const Q
         m_commandLineArguments.prepend(' ');
         m_commandLineArguments.prepend(qmlArgs);
     }
-    if (const BaseQtVersion *qtv = activeBuildConf->qtVersion()) {
+    if (const QtSupport::BaseQtVersion *qtv = activeBuildConf->qtVersion()) {
         m_qtDir = qtv->versionInfo().value("QT_INSTALL_DATA");
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     }

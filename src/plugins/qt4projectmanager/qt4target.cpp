@@ -38,8 +38,6 @@
 #include "qt4project.h"
 #include "qt4basetargetfactory.h"
 #include "qt4projectconfigwidget.h"
-#include "qtversionfactory.h"
-#include "baseqtversion.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -49,6 +47,8 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
+#include <qtsupport/qtversionfactory.h>
+#include <qtsupport/baseqtversion.h>
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
 
@@ -57,6 +57,8 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QMainWindow>
+
+#include <algorithm>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -78,7 +80,7 @@ Qt4BaseTargetFactory::~Qt4BaseTargetFactory()
 
 Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QString &id,
                                                                     const QString &proFilePath,
-                                                                    const QtVersionNumber &number,
+                                                                    const QtSupport::QtVersionNumber &number,
                                                                     bool importEnabled,
                                                                     QList<BuildConfigurationInfo> importInfos)
 {
@@ -103,20 +105,20 @@ ProjectExplorer::Target *Qt4BaseTargetFactory::create(ProjectExplorer::Project *
     return create(parent, id, w->buildConfigurationInfos());
 }
 
-QList<BuildConfigurationInfo> Qt4BaseTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion)
+QList<BuildConfigurationInfo> Qt4BaseTargetFactory::availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &minimumQtVersion)
 {
     QList<BuildConfigurationInfo> infoList;
-    QList<BaseQtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
+    QList<QtSupport::BaseQtVersion *> knownVersions = QtSupport::QtVersionManager::instance()->versionsForTargetId(id, minimumQtVersion);
 
-    foreach (BaseQtVersion *version, knownVersions) {
+    foreach (QtSupport::BaseQtVersion *version, knownVersions) {
         if (!version->isValid() || !version->toolChainAvailable(id))
             continue;
-        BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
+        QtSupport::BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
         BuildConfigurationInfo info = BuildConfigurationInfo(version, config, QString(), QString());
         info.directory = shadowBuildDirectory(proFilePath, id, msgBuildConfigurationName(info));
         infoList.append(info);
 
-        info.buildConfig = config ^ BaseQtVersion::DebugBuild;
+        info.buildConfig = config ^ QtSupport::BaseQtVersion::DebugBuild;
         info.directory = shadowBuildDirectory(proFilePath, id, msgBuildConfigurationName(info));
         infoList.append(info);
     }
@@ -174,11 +176,23 @@ Qt4BaseTargetFactory *Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(const QStr
     return 0;
 }
 
+QList<Qt4BaseTargetFactory *> Qt4BaseTargetFactory::qt4BaseTargetFactoriesForIds(const QStringList &ids)
+{
+    QList<Qt4BaseTargetFactory *> factories;
+    foreach (const QString &id, ids)
+        if (Qt4BaseTargetFactory *factory = qt4BaseTargetFactoryForId(id))
+            factories << factory;
+
+    qSort(factories);
+    factories.erase(std::unique(factories.begin(), factories.end()), factories.end());
+    return factories;
+}
+
 // Return name of a build configuration.
 QString Qt4BaseTargetFactory::msgBuildConfigurationName(const BuildConfigurationInfo &info)
 {
     const QString qtVersionName = info.version->displayName();
-    return (info.buildConfig & BaseQtVersion::DebugBuild) ?
+    return (info.buildConfig & QtSupport::BaseQtVersion::DebugBuild) ?
         //: Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
         tr("%1 Debug").arg(qtVersionName) :
         //: Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
@@ -263,13 +277,13 @@ void Qt4BaseTarget::removeUnconfiguredCustomExectutableRunConfigurations()
     }
 }
 
-Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString displayName, BaseQtVersion *qtversion,
-                                                           BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
+Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString displayName, QtSupport::BaseQtVersion *qtversion,
+                                                           QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                                            QString additionalArguments,
                                                            QString directory)
 {
     Q_ASSERT(qtversion);
-    bool debug = qmakeBuildConfiguration & BaseQtVersion::DebugBuild;
+    bool debug = qmakeBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild;
 
     // Add the buildconfiguration
     Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(this);
@@ -294,7 +308,7 @@ Qt4BuildConfiguration *Qt4BaseTarget::addQt4BuildConfiguration(QString displayNa
         qmakeStep->setUserArguments(additionalArguments);
 
     // set some options for qmake and make
-    if (qmakeBuildConfiguration & BaseQtVersion::BuildAll) // debug_and_release => explicit targets
+    if (qmakeBuildConfiguration & QtSupport::BaseQtVersion::BuildAll) // debug_and_release => explicit targets
         makeStep->setUserArguments(debug ? "debug" : "release");
 
     bc->setQMakeBuildConfiguration(qmakeBuildConfiguration);
@@ -368,7 +382,7 @@ Qt4DefaultTargetSetupWidget::Qt4DefaultTargetSetupWidget(Qt4BaseTargetFactory *f
                                                          const QString &id,
                                                          const QString &proFilePath,
                                                          const QList<BuildConfigurationInfo> &infos,
-                                                         const QtVersionNumber &minimumQtVersion,
+                                                         const QtSupport::QtVersionNumber &minimumQtVersion,
                                                          bool importEnabled,
                                                          const QList<BuildConfigurationInfo> &importInfos,
                                                          ShadowBuildOption shadowBuild)
@@ -584,8 +598,8 @@ void Qt4DefaultTargetSetupWidget::targetCheckBoxToggled(bool b)
 QString Qt4DefaultTargetSetupWidget::displayNameFrom(const BuildConfigurationInfo &info)
 {
     QString buildType;
-    if ((info.buildConfig & BaseQtVersion::BuildAll) == 0) {
-        if (info.buildConfig & BaseQtVersion::DebugBuild)
+    if ((info.buildConfig & QtSupport::BaseQtVersion::BuildAll) == 0) {
+        if (info.buildConfig & QtSupport::BaseQtVersion::DebugBuild)
             //: Debug build
             buildType = tr("debug");
         else
@@ -774,14 +788,14 @@ void Qt4DefaultTargetSetupWidget::setBuildConfigurationInfos(const QList<BuildCo
     int oldQtVersionId = -1;
     if (m_versionComboBox->currentIndex() != -1)
         oldQtVersionId = m_versionComboBox->itemData(m_versionComboBox->currentIndex()).toInt();
-    QList<BaseQtVersion *> list;
+    QList<QtSupport::BaseQtVersion *> list;
     foreach (const BuildConfigurationInfo &info, m_infos) {
         if (!list.contains(info.version))
             list << info.version;
     }
     m_ignoreChange = true;
     m_versionComboBox->clear();
-    foreach (BaseQtVersion *v, list) {
+    foreach (QtSupport::BaseQtVersion *v, list) {
         m_versionComboBox->addItem(v->displayName(), v->uniqueId());
         if (v->uniqueId() == oldQtVersionId)
             m_versionComboBox->setCurrentIndex(m_versionComboBox->count() - 1);
@@ -1005,9 +1019,9 @@ QPair<ProjectExplorer::Task::TaskType, QString> Qt4DefaultTargetSetupWidget::fin
     QString buildDir = info.directory;
     if (!m_shadowBuildEnabled->isChecked())
         buildDir = QFileInfo(m_proFilePath).absolutePath();
-    BaseQtVersion *version = info.version;
+    QtSupport::BaseQtVersion *version = info.version;
 
-    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath, buildDir, false);
+    QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath, buildDir);
 
     QString text;
     ProjectExplorer::Task::TaskType highestType = ProjectExplorer::Task::Unknown;
@@ -1080,23 +1094,23 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
 BuildConfigurationInfo BuildConfigurationInfo::checkForBuild(const QString &directory, const QString &proFilePath)
 {
     QString makefile = directory + "/Makefile";
-    QString qmakeBinary = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
+    QString qmakeBinary = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
     if (qmakeBinary.isEmpty())
         return BuildConfigurationInfo();
-    if (QtVersionManager::makefileIsFor(makefile, proFilePath) != QtVersionManager::SameProject)
+    if (QtSupport::QtVersionManager::makefileIsFor(makefile, proFilePath) != QtSupport::QtVersionManager::SameProject)
         return BuildConfigurationInfo();
 
     bool temporaryQtVersion = false;
-    BaseQtVersion *version = QtVersionManager::instance()->qtVersionForQMakeBinary(qmakeBinary);
+    QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(qmakeBinary);
     if (!version) {
-        version = QtVersionFactory::createQtVersionFromQMakePath(qmakeBinary);
+        version = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(qmakeBinary);
         temporaryQtVersion = true;
         if (!version)
             return BuildConfigurationInfo();
     }
 
-    QPair<BaseQtVersion::QmakeBuildConfigs, QString> makefileBuildConfig =
-            QtVersionManager::scanMakeFile(makefile, version->defaultBuildConfig());
+    QPair<QtSupport::BaseQtVersion::QmakeBuildConfigs, QString> makefileBuildConfig =
+            QtSupport::QtVersionManager::scanMakeFile(makefile, version->defaultBuildConfig());
 
     QString additionalArguments = makefileBuildConfig.second;
     QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, directory, version);

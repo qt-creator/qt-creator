@@ -33,22 +33,22 @@
 #ifndef DESKTOPQTVERSIONFACTORY_H
 #define DESKTOPQTVERSIONFACTORY_H
 
-#include "qtversionfactory.h"
+#include <qtsupport/qtversionfactory.h>
 
 namespace Qt4ProjectManager{
 namespace Internal {
 
-class DesktopQtVersionFactory : public QtVersionFactory
+class DesktopQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
     explicit DesktopQtVersionFactory(QObject *parent = 0);
     ~DesktopQtVersionFactory();
 
     virtual bool canRestore(const QString &type);
-    virtual BaseQtVersion *restore(const QVariantMap &data);
+    virtual QtSupport::BaseQtVersion *restore(const QVariantMap &data);
 
     virtual int priority() const;
-    virtual BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+    virtual QtSupport::BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
 } // Internal

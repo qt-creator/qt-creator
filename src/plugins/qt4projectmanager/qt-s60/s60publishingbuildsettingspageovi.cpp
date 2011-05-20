@@ -63,7 +63,7 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
                 = qobject_cast<Qt4BuildConfiguration *>(bc);
             if (!qt4bc || !qt4bc->qtVersion())
                 continue;
-            if (qt4bc->qtVersion()->qtVersion() > QtVersionNumber(4, 6, 2))
+            if (qt4bc->qtVersion()->qtVersion() > QtSupport::QtVersionNumber(4, 6, 2))
                 list << qt4bc;
         }
         break;
@@ -74,7 +74,7 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
 
     // todo more intelligent selection? prefer newer versions?
     foreach (Qt4BuildConfiguration *qt4bc, list)
-        if (!m_bc && !(qt4bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild))
+        if (!m_bc && !(qt4bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild))
             m_bc = qt4bc;
 
     if (!m_bc && !list.isEmpty())

@@ -55,7 +55,7 @@ using ProjectExplorer::idFromMap;
 Qt4MaemoTargetFactory::Qt4MaemoTargetFactory(QObject *parent) :
     Qt4BaseTargetFactory(parent)
 {
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
             this, SIGNAL(supportedTargetIdsChanged()));
 }
 
@@ -73,11 +73,11 @@ QStringList Qt4MaemoTargetFactory::supportedTargetIds(ProjectExplorer::Project *
     QStringList targetIds;
     if (parent && !qobject_cast<Qt4Project *>(parent))
         return targetIds;
-    if (!QtVersionManager::instance()->versionsForTargetId(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID)).isEmpty())
+    if (!QtSupport::QtVersionManager::instance()->versionsForTargetId(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID)).isEmpty())
         targetIds << QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID);
-    if (!QtVersionManager::instance()->versionsForTargetId(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID)).isEmpty())
+    if (!QtSupport::QtVersionManager::instance()->versionsForTargetId(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID)).isEmpty())
         targetIds << QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID);
-    if (!QtVersionManager::instance()->versionsForTargetId(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID)).isEmpty())
+    if (!QtSupport::QtVersionManager::instance()->versionsForTargetId(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID)).isEmpty())
         targetIds << QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID);
     return targetIds;
 }
@@ -176,16 +176,16 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project 
     if (!canCreate(parent, id))
         return 0;
 
-    QList<BaseQtVersion *> knownVersions = QtVersionManager::instance()->versionsForTargetId(id);
+    QList<QtSupport::BaseQtVersion *> knownVersions = QtSupport::QtVersionManager::instance()->versionsForTargetId(id);
     if (knownVersions.isEmpty())
         return 0;
 
-    BaseQtVersion *qtVersion = knownVersions.first();
-    BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
+    QtSupport::BaseQtVersion *qtVersion = knownVersions.first();
+    QtSupport::BaseQtVersion::QmakeBuildConfigs config = qtVersion->defaultBuildConfig();
 
     QList<BuildConfigurationInfo> infos;
     infos.append(BuildConfigurationInfo(qtVersion, config, QString(), QString()));
-    infos.append(BuildConfigurationInfo(qtVersion, config ^ BaseQtVersion::DebugBuild, QString(), QString()));
+    infos.append(BuildConfigurationInfo(qtVersion, config ^ QtSupport::BaseQtVersion::DebugBuild, QString(), QString()));
 
     return create(parent, id, infos);
 }

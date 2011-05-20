@@ -33,6 +33,7 @@
 #ifndef PROWRITER_H
 #define PROWRITER_H
 
+#include "proparser_global.h"
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
@@ -43,7 +44,7 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class ProWriter
+class PROPARSER_EXPORT ProWriter
 {
 public:
     enum PutFlag {

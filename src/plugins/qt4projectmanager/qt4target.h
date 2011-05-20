@@ -35,8 +35,8 @@
 
 #include "qt4buildconfiguration.h"
 #include "qt4targetsetupwidget.h"
-#include "qtversionmanager.h"
 
+#include <qtsupport/qtversionmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/projectnodes.h>
@@ -78,8 +78,8 @@ public:
     // This is the same for almost all Qt4Targets
     // so for now offer a convience function
     Qt4BuildConfiguration *addQt4BuildConfiguration(QString displayName,
-                                                            BaseQtVersion *qtversion,
-                                                            BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
+                                                            QtSupport::BaseQtVersion *qtversion,
+                                                            QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                                             QString additionalArguments,
                                                             QString directory);
 
@@ -113,7 +113,7 @@ public:
                                 const QString &id,
                                 const QString &proFilePath,
                                 const QList<BuildConfigurationInfo> &info,
-                                const QtVersionNumber &minimumQtVersion,
+                                const QtSupport::QtVersionNumber &minimumQtVersion,
                                 bool importEnabled,
                                 const QList<BuildConfigurationInfo> &importInfos,
                                 ShadowBuildOption shadowBuild);
@@ -155,7 +155,7 @@ private:
     QString m_id;
     Qt4BaseTargetFactory *m_factory;
     QString m_proFilePath;
-    QtVersionNumber m_minimumQtVersion;
+    QtSupport::QtVersionNumber m_minimumQtVersion;
     Utils::DetailsWidget *m_detailsWidget;
     QGridLayout *m_importLayout;
     QGridLayout *m_newBuildsLayout;

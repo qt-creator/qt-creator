@@ -33,22 +33,22 @@
 #ifndef SIMULATORQTVERSIONFACTORY_H
 #define SIMULATORQTVERSIONFACTORY_H
 
-#include "qtversionfactory.h"
+#include <qtsupport/qtversionfactory.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class SimulatorQtVersionFactory : public QtVersionFactory
+class SimulatorQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
     explicit SimulatorQtVersionFactory(QObject *parent = 0);
     ~SimulatorQtVersionFactory();
 
     virtual bool canRestore(const QString &type);
-    virtual BaseQtVersion *restore(const QVariantMap &data);
+    virtual QtSupport::BaseQtVersion *restore(const QVariantMap &data);
 
     virtual int priority() const;
-    virtual BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+    virtual QtSupport::BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
 } // Internal

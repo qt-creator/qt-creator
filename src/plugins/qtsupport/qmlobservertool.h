@@ -30,62 +30,46 @@
 **
 **************************************************************************/
 
-#ifndef QTOUTPUTFORMATTER_H
-#define QTOUTPUTFORMATTER_H
+#ifndef QMLOBSERVERTOOL_H
+#define QMLOBSERVERTOOL_H
 
-#include "qt4projectmanager_global.h"
+#include "qtsupport_global.h"
+#include <utils/buildablehelperlibrary.h>
 
-#include <utils/outputformatter.h>
-#include <utils/fileinprojectfinder.h>
+QT_FORWARD_DECLARE_CLASS(QDir)
 
-#include <QtCore/QRegExp>
-#include <QtCore/QWeakPointer>
-
-QT_FORWARD_DECLARE_CLASS(QTextCursor)
+namespace Utils {
+    class Environment;
+}
 
 namespace ProjectExplorer {
-class Project;
-} // namespace ProjectExplorer
+    class Project;
+}
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 
-struct LinkResult
+class BaseQtVersion;
+
+class QTSUPPORT_EXPORT QmlObserverTool : public Utils::BuildableHelperLibrary
 {
-    int start;
-    int end;
-    QString href;
-};
-
-class QT4PROJECTMANAGER_EXPORT QtOutputFormatter
-    : public Utils::OutputFormatter
-{
-    Q_OBJECT
 public:
-    QtOutputFormatter(ProjectExplorer::Project *project);
+    static bool canBuild(const BaseQtVersion *qtVersion, QString *reason = 0);
+    static QString toolByInstallData(const QString &qtInstallData);
+    static QStringList locationsByInstallData(const QString &qtInstallData);
 
-    virtual void appendMessage(const QString &text,
-        Utils::OutputFormat format);
-    virtual void handleLink(const QString &href);
+    // Build the helpers and return the output log/errormessage.
+    static bool build(BuildHelperArguments arguments, QString *out,  QString *err);
 
-private slots:
-    void updateProjectFileList();
+    // Copy the source files to a target location and return the chosen target location.
+    static QString copy(const QString &qtInstallData, QString *errorMessage);
 
 private:
-    LinkResult matchLine(const QString &line) const;
-    void appendLine(QTextCursor & cursor, LinkResult lr,
-        const QString &line, Utils::OutputFormat);
-
-    QRegExp m_qmlError;
-    QRegExp m_qtError;
-    QRegExp m_qtAssert;
-    QRegExp m_qtTestFail;
-    QWeakPointer<ProjectExplorer::Project> m_project;
-    QString m_lastLine;
-    QString m_deferedText;
-    Utils::FileInProjectFinder m_projectFinder;
+    static QStringList recursiveFileList(const QDir &dir, const QString &prefix = QString());
+    static QStringList installDirectories(const QString &qtInstallData);
+    static QString sourcePath();
+    static QStringList sourceFileNames();
 };
 
+} // namespace
 
-} // namespace Qt4ProjectManager
-
-#endif // QTOUTPUTFORMATTER_H
+#endif // QMLOBSERVERTOOL_H

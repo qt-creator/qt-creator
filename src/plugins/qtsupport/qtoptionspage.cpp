@@ -35,7 +35,7 @@
 #include "ui_qtversionmanager.h"
 #include "ui_qtversioninfo.h"
 #include "ui_debugginghelper.h"
-#include "qt4projectmanagerconstants.h"
+#include "qtsupportconstants.h"
 #include "qtversionmanager.h"
 #include "qtversionfactory.h"
 #include "qmldumptool.h"
@@ -57,8 +57,8 @@
 
 enum ModelRoles { VersionIdRole = Qt::UserRole, BuildLogRole, BuildRunningRole};
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
 ///
 // QtOptionsPage

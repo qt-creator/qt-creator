@@ -37,13 +37,13 @@
 #include "s60manager.h"
 #include "qt4symbiantarget.h"
 #include "qt4projectmanagerconstants.h"
-#include "qtoutputformatter.h"
-#include "baseqtversion.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
+#include <qtsupport/qtoutputformatter.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
@@ -158,7 +158,7 @@ QWidget *S60EmulatorRunConfiguration::createConfigurationWidget()
 
 Utils::OutputFormatter *S60EmulatorRunConfiguration::createOutputFormatter() const
 {
-    return new QtOutputFormatter(qt4Target()->qt4Project());
+    return new QtSupport::QtOutputFormatter(qt4Target()->qt4Project());
 }
 
 QVariantMap S60EmulatorRunConfiguration::toMap() const
@@ -188,10 +188,10 @@ bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
 QString S60EmulatorRunConfiguration::executable() const
 {
     Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
-    BaseQtVersion *qtVersion = qt4bc->qtVersion();
+    QtSupport::BaseQtVersion *qtVersion = qt4bc->qtVersion();
     QString baseDir = qtVersion->systemRoot();
     QString qmakeBuildConfig = "urel";
-    if (qt4bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
+    if (qt4bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
         qmakeBuildConfig = "udeb";
     baseDir += "/epoc32/release/winscw/" + qmakeBuildConfig;
 

@@ -43,7 +43,7 @@ QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 
 class BaseQtVersion;
 class QtConfigWidget;

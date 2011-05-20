@@ -35,9 +35,10 @@
 #include "qtversionmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <QtCore/QSettings>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
 QtVersionFactory::QtVersionFactory(QObject *parent) :
     QObject(parent)
@@ -53,6 +54,17 @@ QtVersionFactory::~QtVersionFactory()
 bool sortByPriority(QtVersionFactory *a, QtVersionFactory *b)
 {
     return a->priority() > b->priority();
+}
+
+BaseQtVersion *QtVersionFactory::createQtVersionFromLegacySettings(const QString &qmakePath, int id, QSettings *s)
+{
+    BaseQtVersion *v = createQtVersionFromQMakePath(qmakePath);
+    if (!v)
+        return 0;
+    v->setId(id);
+    v->setDisplayName(s->value("Name").toString());
+    v->restoreLegacySettings(s);
+    return v;
 }
 
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const QString &qmakePath, bool isAutoDetected, const QString &autoDetectionSource)

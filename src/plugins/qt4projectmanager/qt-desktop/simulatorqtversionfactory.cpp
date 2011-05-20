@@ -34,6 +34,9 @@
 #include "qt4projectmanagerconstants.h"
 #include "simulatorqtversion.h"
 
+#include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/profilereader.h>
+
 #include <QtCore/QFileInfo>
 
 using namespace Qt4ProjectManager;
@@ -52,12 +55,12 @@ SimulatorQtVersionFactory::~SimulatorQtVersionFactory()
 
 bool SimulatorQtVersionFactory::canRestore(const QString &type)
 {
-    return type == QLatin1String(Constants::SIMULATORQT);
+    return type == QLatin1String(QtSupport::Constants::SIMULATORQT);
 }
 
-BaseQtVersion *SimulatorQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *SimulatorQtVersionFactory::restore(const QVariantMap &data)
 {
-    BaseQtVersion *v = new SimulatorQtVersion;
+    QtSupport::BaseQtVersion *v = new SimulatorQtVersion;
     v->fromMap(data);
     return v;
 }
@@ -68,12 +71,11 @@ int SimulatorQtVersionFactory::priority() const
     return 50;
 }
 
-BaseQtVersion *SimulatorQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+QtSupport::BaseQtVersion *SimulatorQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
     QFileInfo fi(qmakePath);
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;
-
     QStringList configValues = evaluator->values("CONFIG");
     if (!configValues.contains(QLatin1String("simulator")))
         return 0;

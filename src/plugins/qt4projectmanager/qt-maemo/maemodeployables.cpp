@@ -33,7 +33,7 @@
 
 #include "maemoprofilesupdatedialog.h"
 
-#include <profileevaluator.h>
+#include <proparser/profileevaluator.h>
 #include <projectexplorer/buildstep.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>

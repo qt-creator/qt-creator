@@ -33,12 +33,12 @@
 #ifndef SYMBIANQTVERSION_H
 #define SYMBIANQTVERSION_H
 
-#include "baseqtversion.h"
+#include <qtsupport/baseqtversion.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class SymbianQtVersion : public BaseQtVersion
+class SymbianQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     SymbianQtVersion();
@@ -55,6 +55,7 @@ public:
 
     virtual bool toolChainAvailable(const QString &id) const;
 
+    virtual void restoreLegacySettings(QSettings *s);
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
 
@@ -80,7 +81,7 @@ public:
     QString sbsV2Directory() const;
     void setSbsV2Directory(const QString &directory);
 
-    virtual QtConfigWidget *createConfigurationWidget() const;
+    virtual QtSupport::QtConfigWidget *createConfigurationWidget() const;
 
 protected:
     QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir);
@@ -92,7 +93,7 @@ private:
     mutable bool m_isBuildUsingSbsV2;
 };
 
-class SymbianQtConfigWidget : public QtConfigWidget
+class SymbianQtConfigWidget : public QtSupport::QtConfigWidget
 {
     Q_OBJECT
 public:

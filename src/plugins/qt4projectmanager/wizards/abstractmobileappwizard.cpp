@@ -49,7 +49,7 @@
 
 namespace Qt4ProjectManager {
 
-AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent, const QtVersionNumber &minimumQtVersionNumber)
+AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber)
     : ProjectExplorer::BaseProjectWizardDialog(parent)
 {
     m_targetsPage = new TargetSetupPage;

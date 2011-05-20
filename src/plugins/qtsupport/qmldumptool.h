@@ -33,7 +33,7 @@
 #ifndef QMLDUMPTOOL_H
 #define QMLDUMPTOOL_H
 
-#include "qt4projectmanager_global.h"
+#include "qtsupport_global.h"
 
 #include <utils/buildablehelperlibrary.h>
 
@@ -45,14 +45,14 @@ namespace ProjectExplorer {
     class Project;
 }
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 class BaseQtVersion;
 
-class QT4PROJECTMANAGER_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrary
+class QTSUPPORT_EXPORT QmlDumpTool : public Utils::BuildableHelperLibrary
 {
 public:
     static bool canBuild(const BaseQtVersion *qtVersion, QString *reason = 0);
-    static QString toolForProject(ProjectExplorer::Project *project, bool debugDump);
+    static QString toolForVersion(BaseQtVersion *version, bool debugDump);
     static QString toolByInstallData(const QString &qtInstallData, const QString &qtInstallHeaders,
                                      bool debugDump);
     static QStringList locationsByInstallData(const QString &qtInstallData, bool debugDump);
@@ -63,8 +63,8 @@ public:
     // Copy the source files to a target location and return the chosen target location.
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
-    static void pathAndEnvironment(ProjectExplorer::Project *project, bool preferDebug,
-                                   QString *path, Utils::Environment *env);
+    static void pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVersion *version,
+                                   bool preferDebug, QString *path, Utils::Environment *env);
 
 private:
     static QStringList installDirectories(const QString &qtInstallData);

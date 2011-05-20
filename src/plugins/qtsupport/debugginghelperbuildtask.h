@@ -33,17 +33,17 @@
 #ifndef DEBUGGINGHELPERBUILDTASK_H
 #define DEBUGGINGHELPERBUILDTASK_H
 
+#include "qtsupport_global.h"
 #include <utils/environment.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QFutureInterface>
 #include <QtCore/QMetaType>
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 class BaseQtVersion;
-namespace Internal {
 
-class DebuggingHelperBuildTask : public QObject {
+class QTSUPPORT_EXPORT DebuggingHelperBuildTask : public QObject {
     Q_DISABLE_COPY(DebuggingHelperBuildTask)
     Q_OBJECT
 public:
@@ -87,9 +87,8 @@ private:
     bool m_showErrors;
 };
 
-} //namespace Internal
 } //namespace Qt4ProjectManager
 
-Q_DECLARE_METATYPE(Qt4ProjectManager::Internal::DebuggingHelperBuildTask::Tools)
+Q_DECLARE_METATYPE(QtSupport::DebuggingHelperBuildTask::Tools)
 
 #endif // DEBUGGINGHELPERBUILDTASK_H

@@ -32,7 +32,6 @@
 
 #include "qt4project.h"
 
-#include "profilereader.h"
 #include "qt4projectmanager.h"
 #include "makestep.h"
 #include "qmakestep.h"
@@ -42,8 +41,6 @@
 #include "projectloadwizard.h"
 #include "qt4buildconfiguration.h"
 #include "findqt4profiles.h"
-#include "qmldumptool.h"
-#include "baseqtversion.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -60,6 +57,9 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
+#include <qtsupport/qmldumptool.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/profilereader.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -554,15 +554,16 @@ void Qt4Project::updateQmlJSCodeModel()
     }
     bool preferDebugDump = false;
     if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
-        preferDebugDump = activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild;
-        BaseQtVersion *qtVersion = activeTarget()->activeBuildConfiguration()->qtVersion();
+        preferDebugDump = activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
+        QtSupport::BaseQtVersion *qtVersion = activeTarget()->activeBuildConfiguration()->qtVersion();
         if (qtVersion && qtVersion->isValid()) {
             const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
             if (!qtVersionImportPath.isEmpty())
                 projectInfo.importPaths += qtVersionImportPath;
         }
     }
-    QmlDumpTool::pathAndEnvironment(this, preferDebugDump, &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
+    QtSupport::QmlDumpTool::pathAndEnvironment(this, activeTarget()->activeBuildConfiguration()->qtVersion(),
+                                               preferDebugDump, &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
     projectInfo.importPaths.removeDuplicates();
 
     modelManager->updateProjectInfo(projectInfo);
@@ -864,7 +865,7 @@ void Qt4Project::proFileParseError(const QString &errorMessage)
     Core::ICore::instance()->messageManager()->printToOutputPanePopup(errorMessage);
 }
 
-ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)
+QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)
 {
     if (!m_proFileOption) {
         m_proFileOption = new ProFileOption;
@@ -874,7 +875,7 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Q
             bc = activeTarget()->activeBuildConfiguration();
 
         if (bc) {
-            BaseQtVersion *version = bc->qtVersion();
+            QtSupport::BaseQtVersion *version = bc->qtVersion();
             if (version && version->isValid()) {
                 m_proFileOption->properties = version->versionInfo();
                 if (bc->toolChain())
@@ -894,26 +895,26 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Q
             m_proFileOption->setCommandLineArguments(args);
         }
 
-        ProFileCacheManager::instance()->incRefCount();
+        QtSupport::ProFileCacheManager::instance()->incRefCount();
     }
     ++m_proFileOptionRefCnt;
 
-    ProFileReader *reader = new ProFileReader(m_proFileOption);
+    QtSupport::ProFileReader *reader = new QtSupport::ProFileReader(m_proFileOption);
 
     reader->setOutputDir(qt4ProFileNode->buildDir());
 
     return reader;
 }
 
-void Qt4Project::destroyProFileReader(ProFileReader *reader)
+void Qt4Project::destroyProFileReader(QtSupport::ProFileReader *reader)
 {
     delete reader;
     if (!--m_proFileOptionRefCnt) {
         QString dir = QFileInfo(m_fileInfo->fileName()).absolutePath();
         if (!dir.endsWith(QLatin1Char('/')))
             dir += QLatin1Char('/');
-        ProFileCacheManager::instance()->discardFiles(dir);
-        ProFileCacheManager::instance()->decRefCount();
+        QtSupport::ProFileCacheManager::instance()->discardFiles(dir);
+        QtSupport::ProFileCacheManager::instance()->decRefCount();
 
         delete m_proFileOption;
         m_proFileOption = 0;
@@ -1041,7 +1042,7 @@ void Qt4Project::notifyChanged(const QString &name)
         QList<Qt4ProFileNode *> list;
         findProFile(name, rootProjectNode(), list);
         foreach(Qt4ProFileNode *node, list) {
-            ProFileCacheManager::instance()->discardFile(name);
+            QtSupport::ProFileCacheManager::instance()->discardFile(name);
             node->update();
         }
     }

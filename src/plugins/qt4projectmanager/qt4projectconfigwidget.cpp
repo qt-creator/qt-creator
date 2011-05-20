@@ -39,8 +39,7 @@
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
 #include "qt4buildconfiguration.h"
-#include "qtversionfactory.h"
-#include "baseqtversion.h"
+#include "qt4basetargetfactory.h"
 #include "ui_qt4projectconfigwidget.h"
 
 #include <coreplugin/icore.h>
@@ -48,6 +47,9 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <qtsupport/qtversionfactory.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <extensionsystem/pluginmanager.h>
@@ -127,7 +129,7 @@ Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
 
 void Qt4ProjectConfigWidget::updateDetails()
 {
-    BaseQtVersion *version = m_buildConfiguration->qtVersion();
+    QtSupport::BaseQtVersion *version = m_buildConfiguration->qtVersion();
 
     QString versionString;
     if (version)
@@ -160,7 +162,7 @@ void Qt4ProjectConfigWidget::environmentChanged()
 
 void Qt4ProjectConfigWidget::updateShadowBuildUi()
 {
-    BaseQtVersion *version = m_buildConfiguration->qtVersion();
+    QtSupport::BaseQtVersion *version = m_buildConfiguration->qtVersion();
     m_ui->shadowBuildCheckBox->setEnabled(version && version->supportsShadowBuilds());
     bool isShadowbuilding = m_buildConfiguration->shadowBuild();
     m_ui->shadowBuildDirEdit->setEnabled(isShadowbuilding && version && version->supportsShadowBuilds());
@@ -171,7 +173,7 @@ void Qt4ProjectConfigWidget::updateShadowBuildUi()
 void Qt4ProjectConfigWidget::manageQtVersions()
 {
     Core::ICore *core = Core::ICore::instance();
-    core->showOptionsDialog(Constants::QT_SETTINGS_CATEGORY, Constants::QTVERSION_SETTINGS_PAGE_ID);
+    core->showOptionsDialog(QtSupport::Constants::QT_SETTINGS_CATEGORY, QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
 void Qt4ProjectConfigWidget::manageToolChains()
@@ -216,7 +218,7 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
             this, SLOT(toolChainChanged()));
 
     qtVersionsChanged();
-    QtVersionManager *vm = QtVersionManager::instance();
+    QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
             this, SLOT(qtVersionsChanged()));
 
@@ -256,15 +258,15 @@ void Qt4ProjectConfigWidget::qtVersionChanged()
 void Qt4ProjectConfigWidget::qtVersionsChanged()
 {
     m_ignoreChange = true;
-    QtVersionManager *vm = QtVersionManager::instance();
+    QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
 
     m_ui->qtVersionComboBox->clear();
-    BaseQtVersion *qtVersion = m_buildConfiguration->qtVersion();
+    QtSupport::BaseQtVersion *qtVersion = m_buildConfiguration->qtVersion();
 
-    QList<BaseQtVersion *> validVersions = vm->versionsForTargetId(m_buildConfiguration->target()->id());
+    QList<QtSupport::BaseQtVersion *> validVersions = vm->versionsForTargetId(m_buildConfiguration->target()->id());
     if (!validVersions.isEmpty()) {
         for (int i = 0; i < validVersions.size(); ++i) {
-            const BaseQtVersion *version = validVersions.at(i);
+            const QtSupport::BaseQtVersion *version = validVersions.at(i);
             m_ui->qtVersionComboBox->addItem(version->displayName(),
                                              version->uniqueId());
 
@@ -339,7 +341,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     bool incompatibleBuild = false;
     bool couldnotparse = false;
 
-    QtVersionManager *vm = QtVersionManager::instance();
+    QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     // we only show if we actually have a qmake and makestep
     if (m_buildConfiguration->qmakeStep() && m_buildConfiguration->makeStep()) {
         QString makefile = m_buildConfiguration->buildDirectory();
@@ -348,24 +350,24 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         else
             makefile.append(m_buildConfiguration->makefile());
 
-        QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
-        BaseQtVersion *version = m_buildConfiguration->qtVersion();
+        QString qmakePath = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
+        QtSupport::BaseQtVersion *version = m_buildConfiguration->qtVersion();
         // check that there's a makefile
         if (!qmakePath.isEmpty()) {
             // Is it from the same build?
-            QtVersionManager::MakefileCompatible mc =
-                    QtVersionManager::makefileIsFor(makefile, m_buildConfiguration->target()->project()->file()->fileName());
-            if (mc == QtVersionManager::DifferentProject) {
+            QtSupport::QtVersionManager::MakefileCompatible mc =
+                    QtSupport::QtVersionManager::makefileIsFor(makefile, m_buildConfiguration->target()->project()->file()->fileName());
+            if (mc == QtSupport::QtVersionManager::DifferentProject) {
                 incompatibleBuild = true;
-            } else if (mc == QtVersionManager::SameProject) {
+            } else if (mc == QtSupport::QtVersionManager::SameProject) {
                 if (qmakePath != (version ? version->qmakeCommand() : QString())) {
                     // and that the qmake path is different from the current version
                     // import enable
                     visible = true;
-                    BaseQtVersion *newVersion = vm->qtVersionForQMakeBinary(qmakePath);
+                    QtSupport::BaseQtVersion *newVersion = vm->qtVersionForQMakeBinary(qmakePath);
                     bool mustDelete(false);
                     if (!newVersion) {
-                        newVersion = QtVersionFactory::createQtVersionFromQMakePath(qmakePath);
+                        newVersion = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(qmakePath);
                         mustDelete = true;
                     }
                     targetMatches = newVersion->supportsTargetId(m_buildConfiguration->target()->id());
@@ -376,7 +378,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
                     visible = !m_buildConfiguration->compareToImportFrom(makefile);
                     targetMatches = true;
                 }
-            } else if (mc == QtVersionManager::CouldNotParse) {
+            } else if (mc == QtSupport::QtVersionManager::CouldNotParse) {
                 couldnotparse = true;
             }
         }
@@ -386,10 +388,16 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     if (m_buildConfiguration->shadowBuild())
         buildDirectory = m_buildConfiguration->buildDirectory();
     QList<ProjectExplorer::Task> issues;
-    if (m_buildConfiguration->qtVersion())
-        issues = m_buildConfiguration->qtVersion()->reportIssues(m_buildConfiguration->target()->project()->file()->fileName(),
-                                                                 buildDirectory,
-                                                                 true);
+    QtSupport::BaseQtVersion *version = m_buildConfiguration->qtVersion();
+    if (version)
+        issues = version->reportIssues(m_buildConfiguration->target()->project()->file()->fileName(),
+                                                                 buildDirectory);
+
+    foreach (Qt4BaseTargetFactory *factory,
+             Qt4BaseTargetFactory::qt4BaseTargetFactoriesForIds(version->supportedTargetIds().toList()))
+        issues.append(factory->reportIssues(m_buildConfiguration->target()->project()->file()->fileName()));
+
+    qSort(issues);
 
     if (incompatibleBuild) {
         m_ui->problemLabel->setVisible(true);
@@ -463,8 +471,8 @@ void Qt4ProjectConfigWidget::qtVersionSelected(const QString &)
     if (m_ui->qtVersionComboBox->itemData(m_ui->qtVersionComboBox->count() - 1).toInt() == -1)
         m_ui->qtVersionComboBox->removeItem(m_ui->qtVersionComboBox->count() - 1);
 
-    QtVersionManager *vm = QtVersionManager::instance();
-    BaseQtVersion *newQtVersion = vm->version(newQtVersionId);
+    QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
+    QtSupport::BaseQtVersion *newQtVersion = vm->version(newQtVersionId);
 
     m_ignoreChange = true;
     m_buildConfiguration->setQtVersion(newQtVersion);

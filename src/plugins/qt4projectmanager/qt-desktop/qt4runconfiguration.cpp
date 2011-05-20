@@ -33,16 +33,13 @@
 #include "qt4runconfiguration.h"
 
 #include "makestep.h"
-#include "profilereader.h"
 #include "qt4nodes.h"
 #include "qt4project.h"
 #include "qt4target.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
-#include "qtoutputformatter.h"
 #include "qt4desktoptarget.h"
 #include "qmakestep.h"
-#include "baseqtversion.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -59,6 +56,9 @@
 #include <utils/pathchooser.h>
 #include <utils/detailswidget.h>
 #include <utils/debuggerlanguagechooser.h>
+#include <qtsupport/qtoutputformatter.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/profilereader.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QInputDialog>
@@ -655,7 +655,7 @@ QString Qt4RunConfiguration::proFilePath() const
 
 QString Qt4RunConfiguration::dumperLibrary() const
 {
-    BaseQtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
+    QtSupport::BaseQtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
     if (version)
         return version->gdbDebuggingHelperLibrary();
     return QString();
@@ -663,7 +663,7 @@ QString Qt4RunConfiguration::dumperLibrary() const
 
 QStringList Qt4RunConfiguration::dumperLibraryLocations() const
 {
-    BaseQtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
+    QtSupport::BaseQtVersion *version = qt4Target()->activeBuildConfiguration()->qtVersion();
     if (version)
         return version->debuggingHelperLibraryLocations();
     return QStringList();
@@ -694,7 +694,7 @@ Qt4RunConfiguration::BaseEnvironmentBase Qt4RunConfiguration::baseEnvironmentBas
 
 Utils::OutputFormatter *Qt4RunConfiguration::createOutputFormatter() const
 {
-    return new QtOutputFormatter(qt4Target()->qt4Project());
+    return new QtSupport::QtOutputFormatter(qt4Target()->qt4Project());
 }
 
 ///

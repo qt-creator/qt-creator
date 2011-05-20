@@ -43,8 +43,8 @@
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qt4projectmanager/qtversionmanager.h>
+#include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QComboBox>
@@ -55,7 +55,7 @@
 
 using Core::ICore;
 using Utils::DebuggerLanguageChooser;
-using Qt4ProjectManager::QtVersionManager;
+using QtSupport::QtVersionManager;
 
 namespace QmlProjectManager {
 namespace Internal {
@@ -280,8 +280,8 @@ void QmlProjectRunConfigurationWidget::qmlDebugServerPortChanged(uint port)
 void QmlProjectRunConfigurationWidget::manageQtVersions()
 {
     ICore *core = ICore::instance();
-    core->showOptionsDialog(Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY,
-                            Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID);
+    core->showOptionsDialog(QtSupport::Constants::QT_SETTINGS_CATEGORY,
+                            QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
 void QmlProjectRunConfigurationWidget::updateQtVersionComboBox()
@@ -289,7 +289,7 @@ void QmlProjectRunConfigurationWidget::updateQtVersionComboBox()
     m_qtVersionComboBox->clear();
 
     QtVersionManager *qtVersions = QtVersionManager::instance();
-    foreach (Qt4ProjectManager::BaseQtVersion *version, qtVersions->validVersions()) {
+    foreach (QtSupport::BaseQtVersion *version, qtVersions->validVersions()) {
         if (m_runConfiguration->isValidVersion(version)) {
             m_qtVersionComboBox->addItem(version->displayName(), version->uniqueId());
         }

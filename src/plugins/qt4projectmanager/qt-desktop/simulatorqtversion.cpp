@@ -32,7 +32,9 @@
 
 #include "simulatorqtversion.h"
 #include "qt4projectmanagerconstants.h"
-#include "profileevaluator.h"
+
+#include <qtsupport/qtsupportconstants.h>
+#include <proparser/profileevaluator.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -42,14 +44,14 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 SimulatorQtVersion::SimulatorQtVersion()
-    : BaseQtVersion(),
+    : QtSupport::BaseQtVersion(),
       m_qtAbisUpToDate(false)
 {
 
 }
 
 SimulatorQtVersion::SimulatorQtVersion(const QString &path, bool isAutodetected, const QString &autodetectionSource)
-    : BaseQtVersion(path, isAutodetected, autodetectionSource),
+    : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource),
       m_qtAbisUpToDate(false)
 {
 
@@ -67,7 +69,7 @@ SimulatorQtVersion *SimulatorQtVersion::clone() const
 
 QString SimulatorQtVersion::type() const
 {
-    return Constants::SIMULATORQT;
+    return QtSupport::Constants::SIMULATORQT;
 }
 
 bool SimulatorQtVersion::isValid() const

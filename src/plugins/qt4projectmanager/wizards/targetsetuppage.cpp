@@ -37,12 +37,12 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
-#include "qtversionmanager.h"
 #include "qt4basetargetfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
+#include <qtsupport/qtversionfactory.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -103,7 +103,7 @@ void TargetSetupPage::setPreferMobile(bool mobile)
     m_preferMobile = mobile;
 }
 
-void TargetSetupPage::setMinimumQtVersion(const QtVersionNumber &number)
+void TargetSetupPage::setMinimumQtVersion(const QtSupport::QtVersionNumber &number)
 {
     m_minimumQtVersionNumber = number;
 }
@@ -207,11 +207,11 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
         Qt4BaseTargetFactory *factory = m_factories.value(it.value());
 
         foreach (const BuildConfigurationInfo &info, it.value()->usedImportInfos()) {
-            BaseQtVersion *version = info.version;
+            QtSupport::BaseQtVersion *version = info.version;
             for (int i=0; i < m_importInfos.size(); ++i) {
                 if (m_importInfos.at(i).version == version) {
                     if (m_importInfos[i].temporaryQtVersion) {
-                        QtVersionManager::instance()->addVersion(m_importInfos[i].version);
+                        QtSupport::QtVersionManager::instance()->addVersion(m_importInfos[i].version);
                         m_importInfos[i].temporaryQtVersion = false;
                     }
                 }

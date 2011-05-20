@@ -30,47 +30,28 @@
 **
 **************************************************************************/
 
-#ifndef QMLOBSERVERTOOL_H
-#define QMLOBSERVERTOOL_H
+#ifndef QTSUPPORTPLUGIN_H
+#define QTSUPPORTPLUGIN_H
 
-#include <utils/buildablehelperlibrary.h>
-#include "qt4projectmanager_global.h"
+#include <extensionsystem/iplugin.h>
+#include <coreplugin/icontext.h>
 
-QT_FORWARD_DECLARE_CLASS(QDir)
 
-namespace Utils {
-    class Environment;
-}
+namespace QtSupport {
 
-namespace ProjectExplorer {
-    class Project;
-}
+namespace Internal {
 
-namespace Qt4ProjectManager {
-
-class BaseQtVersion;
-
-class QT4PROJECTMANAGER_EXPORT QmlObserverTool : public Utils::BuildableHelperLibrary
+class QtSupportPlugin : public ExtensionSystem::IPlugin
 {
+    Q_OBJECT
+
 public:
-    static bool canBuild(const BaseQtVersion *qtVersion, QString *reason = 0);
-    static QString toolForProject(ProjectExplorer::Project *project);
-    static QString toolByInstallData(const QString &qtInstallData);
-    static QStringList locationsByInstallData(const QString &qtInstallData);
-
-    // Build the helpers and return the output log/errormessage.
-    static bool build(BuildHelperArguments arguments, QString *out,  QString *err);
-
-    // Copy the source files to a target location and return the chosen target location.
-    static QString copy(const QString &qtInstallData, QString *errorMessage);
-
-private:
-    static QStringList recursiveFileList(const QDir &dir, const QString &prefix = QString());
-    static QStringList installDirectories(const QString &qtInstallData);
-    static QString sourcePath();
-    static QStringList sourceFileNames();
+    ~QtSupportPlugin();
+    bool initialize(const QStringList &arguments, QString *error_message);
+    void extensionsInitialized();
 };
 
-} // namespace
+} // namespace Internal
+} // namespace QtSupport
 
-#endif // QMLOBSERVERTOOL_H
+#endif // QTSUPPORTPLUGIN_H

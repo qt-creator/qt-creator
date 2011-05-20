@@ -31,8 +31,7 @@
 **************************************************************************/
 
 #include "qmldumptool.h"
-#include "qt4project.h"
-#include "qt4projectmanagerconstants.h"
+#include "qtsupportconstants.h"
 #include "qtversionmanager.h"
 #include "debugginghelperbuildtask.h"
 
@@ -53,8 +52,8 @@
 
 namespace {
 
-using namespace Qt4ProjectManager;
-using Qt4ProjectManager::Internal::DebuggingHelperBuildTask;
+using namespace QtSupport;
+using QtSupport::DebuggingHelperBuildTask;
 
 
 class QmlDumpBuildTask;
@@ -154,13 +153,13 @@ private:
     };
 
     QList<ProjectToUpdate> m_projectsToUpdate;
-    Internal::DebuggingHelperBuildTask *m_buildTask; // deletes itself after run()
+    DebuggingHelperBuildTask *m_buildTask; // deletes itself after run()
     bool m_failed;
 };
 } // end of anonymous namespace
 
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 
 static inline QStringList validBinaryFilenames(bool debugBuild)
 {
@@ -185,8 +184,8 @@ bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 {
     const QString installHeaders = qtVersion->versionInfo().value("QT_INSTALL_HEADERS");
 
-    if (!qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
-            && !(qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID))) {
+    if (qtVersion->type() != Constants::DESKTOPQT
+            && qtVersion->type() != Constants::SIMULATORQT) {
         if (reason)
             *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Only available for Qt for Desktop and Qt for Qt Simulator.");
         return false;
@@ -205,54 +204,8 @@ bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
     return true;
 }
 
-static BaseQtVersion *qtVersionForProject(ProjectExplorer::Project *project)
+QString QmlDumpTool::toolForVersion(BaseQtVersion *version, bool debugDump)
 {
-    if (project && project->id() == Qt4ProjectManager::Constants::QT4PROJECT_ID) {
-        Qt4Project *qt4Project = static_cast<Qt4Project*>(project);
-        if (qt4Project && qt4Project->activeTarget()
-                && qt4Project->activeTarget()->activeBuildConfiguration()) {
-            BaseQtVersion *version = qt4Project->activeTarget()->activeBuildConfiguration()->qtVersion();
-            if (version && version->isValid())
-                return version;
-        }
-        return 0;
-    }
-
-    if (project && project->id() == QLatin1String("QmlProjectManager.QmlProject")) {
-        // We cannot access the QmlProject interfaces here, therefore use the metatype system
-        if (!project->activeTarget() || !project->activeTarget()->activeRunConfiguration())
-            return 0;
-        QVariant variant = project->activeTarget()->activeRunConfiguration()->property("qtVersionId");
-        QTC_ASSERT(variant.isValid() && variant.canConvert(QVariant::Int), return 0);
-        BaseQtVersion *version = QtVersionManager::instance()->version(variant.toInt());
-        if (version && version->isValid()) {
-            return version;
-        }
-        return 0;
-    }
-
-    // else, find any desktop or simulator Qt version that has qmldump, or
-    // - if there isn't any - one that could build it
-    BaseQtVersion *canBuildQmlDump = 0;
-    QtVersionManager *qtVersions = QtVersionManager::instance();
-    foreach (BaseQtVersion *version, qtVersions->validVersions()) {
-        if (version->supportsTargetId(Constants::DESKTOP_TARGET_ID)
-                || version->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID)) {
-            if (version->hasQmlDump())
-                return version;
-
-            if (!canBuildQmlDump && QmlDumpTool::canBuild(version)) {
-                canBuildQmlDump = version;
-            }
-        }
-    }
-
-    return canBuildQmlDump;
-}
-
-QString QmlDumpTool::toolForProject(ProjectExplorer::Project *project, bool debugDump)
-{
-    BaseQtVersion *version = qtVersionForProject(project);
     if (version) {
         QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
         QString qtInstallHeaders = version->versionInfo().value("QT_INSTALL_HEADERS");
@@ -340,12 +293,10 @@ QStringList QmlDumpTool::installDirectories(const QString &qtInstallData)
     return directories;
 }
 
-void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, bool preferDebug,
-                                     QString *dumperPath, Utils::Environment *env)
+void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVersion *version,
+                                     bool preferDebug, QString *dumperPath, Utils::Environment *env)
 {
     QString path;
-
-    BaseQtVersion *version = qtVersionForProject(project);
     if (version && !version->hasQmlDump() && QmlDumpTool::canBuild(version)) {
         QmlDumpBuildTask *qmlDumpBuildTask = qmlDumpBuilds()->value(version->uniqueId());
         if (qmlDumpBuildTask) {
@@ -362,9 +313,9 @@ void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, bool pre
         return;
     }
 
-    path = Qt4ProjectManager::QmlDumpTool::toolForProject(project, preferDebug);
+    path = toolForVersion(version, preferDebug);
     if (path.isEmpty())
-        path = Qt4ProjectManager::QmlDumpTool::toolForProject(project, !preferDebug);
+        path = toolForVersion(version, !preferDebug);
 
     if (!path.isEmpty()) {
         QFileInfo qmldumpFileInfo(path);

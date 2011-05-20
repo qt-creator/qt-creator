@@ -35,11 +35,11 @@
 #include "maemoglobal.h"
 #include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
-#include "baseqtversion.h"
 
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocess.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/baseqtversion.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QTimer>
@@ -75,7 +75,7 @@ void MaemoRemoteMounter::setConnection(const SshConnection::Ptr &connection,
 void MaemoRemoteMounter::setBuildConfiguration(const Qt4BuildConfiguration *bc)
 {
     ASSERT_STATE(Inactive);
-    const BaseQtVersion * const qtVersion = bc->qtVersion();
+    const QtSupport::BaseQtVersion * const qtVersion = bc->qtVersion();
     const AbstractQt4MaemoTarget * const maemoTarget
         = qobject_cast<AbstractQt4MaemoTarget *>(bc->target());
     m_remoteMountsAllowed = maemoTarget && maemoTarget->allowsRemoteMounts();

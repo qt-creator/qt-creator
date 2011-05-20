@@ -32,12 +32,12 @@
 
 #include "gccetoolchain.h"
 #include "qt4projectmanagerconstants.h"
-#include "qtversionmanager.h"
 
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QtCore/QDir>
 
@@ -173,7 +173,7 @@ QList<ProjectExplorer::ToolChain *> GcceToolChainFactory::autoDetect()
 
     // Compatibility to pre-2.2:
     while (true) {
-        const QString path = QtVersionManager::instance()->popPendingGcceUpdate();
+        const QString path = QtSupport::QtVersionManager::instance()->popPendingGcceUpdate();
         if (path.isNull())
             break;
 

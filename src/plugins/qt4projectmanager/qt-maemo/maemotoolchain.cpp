@@ -36,12 +36,12 @@
 #include "maemomanager.h"
 #include "maemoqtversion.h"
 #include "qt4projectmanagerconstants.h"
-#include "qtversionmanager.h"
 
 #include <projectexplorer/gccparser.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/environment.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -99,7 +99,7 @@ bool MaemoToolChain::canClone() const
 
 void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    BaseQtVersion *v = QtVersionManager::instance()->version(m_qtVersionId);
+    QtSupport::BaseQtVersion *v = QtSupport::QtVersionManager::instance()->version(m_qtVersionId);
     if (!v)
         return;
     const QString maddeRoot = MaemoGlobal::maddeRoot(v->qmakeCommand());
@@ -129,7 +129,7 @@ void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
 
 QString MaemoToolChain::sysroot() const
 {
-    BaseQtVersion *v = QtVersionManager::instance()->version(m_qtVersionId);
+    QtSupport::BaseQtVersion *v = QtSupport::QtVersionManager::instance()->version(m_qtVersionId);
     if (!v)
         return QString();
 
@@ -188,7 +188,7 @@ void MaemoToolChain::setQtVersionId(int id)
         return;
     }
 
-    MaemoQtVersion *version = dynamic_cast<MaemoQtVersion *>(QtVersionManager::instance()->version(id));
+    MaemoQtVersion *version = dynamic_cast<MaemoQtVersion *>(QtSupport::QtVersionManager::instance()->version(id));
     Q_ASSERT(version);
     ProjectExplorer::Abi::OSFlavor flavour = ProjectExplorer::Abi::HarmattanLinuxFlavor;
     if (version->osVersion() == MaemoDeviceConfig::Maemo5)
@@ -229,7 +229,7 @@ MaemoToolChainConfigWidget::MaemoToolChainConfigWidget(MaemoToolChain *tc) :
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     QLabel *label = new QLabel;
-    BaseQtVersion *v = QtVersionManager::instance()->version(tc->qtVersionId());
+    QtSupport::BaseQtVersion *v = QtSupport::QtVersionManager::instance()->version(tc->qtVersionId());
     Q_ASSERT(v);
     label->setText(tr("<html><head/><body><table>"
                       "<tr><td>Path to MADDE:</td><td>%1</td></tr>"
@@ -276,12 +276,12 @@ QString MaemoToolChainFactory::id() const
 
 QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::autoDetect()
 {
-    QtVersionManager *vm = QtVersionManager::instance();
+    QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
             this, SLOT(handleQtVersionChanges(QList<int>)));
 
     QList<int> versionList;
-    foreach (BaseQtVersion *v, vm->versions())
+    foreach (QtSupport::BaseQtVersion *v, vm->versions())
         versionList.append(v->uniqueId());
 
     return createToolChainList(versionList);
@@ -298,11 +298,11 @@ void MaemoToolChainFactory::handleQtVersionChanges(const QList<int> &changes)
 QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(const QList<int> &changes)
 {
     ProjectExplorer::ToolChainManager *tcm = ProjectExplorer::ToolChainManager::instance();
-    QtVersionManager *vm = QtVersionManager::instance();
+    QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     QList<ProjectExplorer::ToolChain *> result;
 
     foreach (int i, changes) {
-        BaseQtVersion *v = vm->version(i);
+        QtSupport::BaseQtVersion *v = vm->version(i);
         if (!v || !v->isValid()) {
             // remove tool chain:
             QList<ProjectExplorer::ToolChain *> toRemove;

@@ -40,7 +40,7 @@
 #include <projectexplorer/session.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4target.h>
-#include <qt4projectmanager/baseqtversion.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
@@ -258,7 +258,7 @@ bool MaemoDeployableListModel::addDesktopFile()
             return false;
     }
 
-    const BaseQtVersion * const version = qtVersion();
+    const QtSupport::BaseQtVersion * const version = qtVersion();
     QTC_ASSERT(version, return false);
     QString remoteDir = QLatin1String("/usr/share/applications");
     if (MaemoGlobal::version(version->qmakeCommand()) == MaemoDeviceConfig::Maemo5)
@@ -325,7 +325,7 @@ bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
     return saver.finalize(Core::ICore::instance()->mainWindow());
 }
 
-const BaseQtVersion *MaemoDeployableListModel::qtVersion() const
+const QtSupport::BaseQtVersion *MaemoDeployableListModel::qtVersion() const
 {
     const ProjectExplorer::Project *const activeProject
         = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->startupProject();
@@ -341,7 +341,7 @@ const BaseQtVersion *MaemoDeployableListModel::qtVersion() const
 
 QString MaemoDeployableListModel::proFileScope() const
 {
-    const BaseQtVersion *const qv = qtVersion();
+    const QtSupport::BaseQtVersion *const qv = qtVersion();
     QTC_ASSERT(qv, return QString());
     return QLatin1String(MaemoGlobal::version(qv->qmakeCommand()) == MaemoDeviceConfig::Maemo5
         ? "maemo5" : "unix:!symbian:!maemo5");
@@ -354,7 +354,7 @@ QString MaemoDeployableListModel::installPrefix() const
 
 QString MaemoDeployableListModel::remoteIconDir() const
 {
-    const BaseQtVersion *const qv = qtVersion();
+    const QtSupport::BaseQtVersion *const qv = qtVersion();
     QTC_ASSERT(qv, return QString());
     return QString::fromLocal8Bit("/usr/share/icons/hicolor/%1x%1/apps")
             .arg(MaemoGlobal::applicationIconSize(MaemoGlobal::version(qv->qmakeCommand())));

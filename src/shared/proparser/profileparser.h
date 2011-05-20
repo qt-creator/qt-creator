@@ -33,8 +33,8 @@
 #ifndef PROFILEPARSER_H
 #define PROFILEPARSER_H
 
+#include "proparser_global.h"
 #include "proitems.h"
-
 #include <QtCore/QHash>
 #include <QtCore/QStack>
 #ifdef PROPARSER_THREAD_SAFE
@@ -52,8 +52,7 @@
 #endif
 
 QT_BEGIN_NAMESPACE
-
-class ProFileParserHandler
+class PROPARSER_EXPORT ProFileParserHandler
 {
 public:
     // Some error during parsing
@@ -62,7 +61,7 @@ public:
 
 class ProFileCache;
 
-class ProFileParser
+class PROPARSER_EXPORT ProFileParser
 {
 public:
     // Call this from a concurrency-free context
@@ -146,7 +145,7 @@ private:
     friend class ProFileCache;
 };
 
-class ProFileCache
+class PROPARSER_EXPORT ProFileCache
 {
 public:
     ProFileCache() {}

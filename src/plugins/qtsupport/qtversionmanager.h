@@ -33,7 +33,7 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
-#include "qt4projectmanager_global.h"
+#include "qtsupport_global.h"
 #include "baseqtversion.h"
 
 #include <projectexplorer/abi.h>
@@ -55,7 +55,7 @@ class IOutputParser;
 class Task;
 }
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 class BaseQtVersion;
 
 namespace Internal {
@@ -70,7 +70,7 @@ struct QMakeAssignment
     QString value;
 };
 
-class QT4PROJECTMANAGER_EXPORT QtVersionManager : public QObject
+class QTSUPPORT_EXPORT QtVersionManager : public QObject
 {
     Q_OBJECT
     // for getUniqueId();
@@ -166,7 +166,5 @@ private:
 };
 
 } // namespace Qt4ProjectManager
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt4ProjectManager::BaseQtVersion::QmakeBuildConfigs)
 
 #endif // QTVERSIONMANAGER_H

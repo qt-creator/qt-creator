@@ -18,6 +18,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_git \
             plugin_cvs \
             plugin_cpptools \
+            plugin_qtsupport \
             plugin_qt4projectmanager \
             plugin_locator \
             plugin_debugger \
@@ -138,9 +139,13 @@ plugin_projectexplorer.depends += plugin_find
 plugin_projectexplorer.depends += plugin_coreplugin
 plugin_projectexplorer.depends += plugin_texteditor
 
+plugin_qtsupport.subdir = qtsupport
+plugin_qtsupport.depends = plugin_projectexplorer
+
 plugin_qt4projectmanager.subdir = qt4projectmanager
 plugin_qt4projectmanager.depends = plugin_texteditor
 plugin_qt4projectmanager.depends += plugin_projectexplorer
+plugin_qt4projectmanager.depends += plugin_qtsupport
 plugin_qt4projectmanager.depends += plugin_cpptools
 plugin_qt4projectmanager.depends += plugin_debugger
 plugin_qt4projectmanager.depends += plugin_qmljseditor
@@ -217,7 +222,7 @@ plugin_qmlprojectmanager.depends = plugin_texteditor
 plugin_qmlprojectmanager.depends += plugin_projectexplorer
 plugin_qmlprojectmanager.depends += plugin_qmljseditor
 plugin_qmlprojectmanager.depends += plugin_debugger
-plugin_qmlprojectmanager.depends += plugin_qt4projectmanager
+plugin_qmlprojectmanager.depends += plugin_qtsupport
 
 plugin_qmldesigner.subdir = qmldesigner
 plugin_qmldesigner.depends = plugin_coreplugin

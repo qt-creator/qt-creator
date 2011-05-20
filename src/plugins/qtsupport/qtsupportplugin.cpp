@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -30,43 +30,42 @@
 **
 **************************************************************************/
 
-#ifndef QMLDEBUGGINGLIBRARY_H
-#define QMLDEBUGGINGLIBRARY_H
+#include "qtsupportplugin.h"
 
-#include <utils/buildablehelperlibrary.h>
-#include "qt4projectmanager_global.h"
+#include "qtoptionspage.h"
+#include "qtversionmanager.h"
 
-QT_FORWARD_DECLARE_CLASS(QDir)
+#include "profilereader.h"
 
-namespace Utils {
-    class Environment;
-}
+#include <extensionsystem/pluginmanager.h>
 
-namespace ProjectExplorer {
-    class Project;
-}
+#include <QtCore/QtPlugin>
+#include <QtGui/QMenu>
 
-namespace Qt4ProjectManager {
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
-class BaseQtVersion;
-
-class QmlDebuggingLibrary : public Utils::BuildableHelperLibrary
+QtSupportPlugin::~QtSupportPlugin()
 {
-public:
-    static QString libraryByInstallData(const QString &qtInstallData, bool debugBuild);
+}
 
-    static bool canBuild(const BaseQtVersion *qtVersion, QString *reason = 0);
-    static bool build(BuildHelperArguments arguments, QString *log, QString *errorMessage);
+bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+{
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorMessage);
+    ProFileParser::initialize();
+    ProFileEvaluator::initialize();
+    new ProFileCacheManager(this);
 
-    static QString copy(const QString &qtInstallData, QString *errorMessage);
+    QtVersionManager *mgr = new QtVersionManager;
+    addAutoReleasedObject(mgr);
+    addAutoReleasedObject(new QtOptionsPage);
+    return true;
+}
 
-private:
-    static QStringList recursiveFileList(const QDir &dir, const QString &prefix = QString());
-    static QStringList installDirectories(const QString &qtInstallData);
-    static QString sourcePath();
-    static QStringList sourceFileNames();
-};
+void QtSupportPlugin::extensionsInitialized()
+{
+    QtVersionManager::instance()->extensionsInitialized();
+}
 
-} // namespace
-
-#endif // QMLDEBUGGINGLIBRARY_H
+Q_EXPORT_PLUGIN(QtSupportPlugin)

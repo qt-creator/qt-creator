@@ -39,6 +39,10 @@ QT_BEGIN_NAMESPACE
 class QProcess;
 QT_END_NAMESPACE
 
+namespace QtSupport {
+class ProFileReader;
+}
+
 namespace ProjectExplorer {
 class Project;
 }
@@ -48,7 +52,6 @@ class Qt4BuildConfiguration;
 class Qt4Project;
 namespace Internal {
 class Qt4SymbianTarget;
-class ProFileReader;
 
 namespace Constants {
 const char * const REJECTED_VENDOR_NAMES_VENDOR = "Vendor";
@@ -163,7 +166,7 @@ private:
     Qt4BuildConfiguration * m_qt4bc;
     const Qt4SymbianTarget * m_activeTargetOfProject;
     Qt4Project * m_qt4project;
-    ProFileReader *m_reader;
+    QtSupport::ProFileReader *m_reader;
     QStringList m_rejectedVendorNames;
     QStringList m_capabilitiesForCertifiedSigned;
     QStringList m_capabilitesForManufacturerApproved;

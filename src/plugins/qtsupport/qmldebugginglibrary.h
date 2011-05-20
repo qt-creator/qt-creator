@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -30,37 +30,43 @@
 **
 **************************************************************************/
 
-#ifndef QTVERSIONFACTORY_H
-#define QTVERSIONFACTORY_H
+#ifndef QMLDEBUGGINGLIBRARY_H
+#define QMLDEBUGGINGLIBRARY_H
 
-#include "baseqtversion.h"
-#include "qt4projectmanager_global.h"
+#include "qtsupport_global.h"
+#include <utils/buildablehelperlibrary.h>
 
-#include "profilereader.h"
+QT_FORWARD_DECLARE_CLASS(QDir)
 
-#include <QtCore/QObject>
-#include <QtCore/QVariantMap>
+namespace Utils {
+    class Environment;
+}
 
-namespace Qt4ProjectManager {
+namespace ProjectExplorer {
+    class Project;
+}
 
-class QT4PROJECTMANAGER_EXPORT QtVersionFactory : public QObject
+namespace QtSupport {
+
+class BaseQtVersion;
+
+class QmlDebuggingLibrary : public Utils::BuildableHelperLibrary
 {
-    Q_OBJECT
 public:
-    explicit QtVersionFactory(QObject *parent = 0);
-    ~QtVersionFactory();
+    static QString libraryByInstallData(const QString &qtInstallData, bool debugBuild);
 
-    virtual bool canRestore(const QString &type) = 0;
-    virtual BaseQtVersion *restore(const QVariantMap &data) = 0;
+    static bool canBuild(const BaseQtVersion *qtVersion, QString *reason = 0);
+    static bool build(BuildHelperArguments arguments, QString *log, QString *errorMessage);
 
-    /// factories with higher priority are asked first to identify
-    /// a qtversion, the priority of the desktop factory is 0 and
-    /// the desktop factory claims to handle all paths
-    virtual int priority() const = 0;
-    virtual BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString()) = 0;
+    static QString copy(const QString &qtInstallData, QString *errorMessage);
 
-    static BaseQtVersion *createQtVersionFromQMakePath(const QString &qmakePath, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+private:
+    static QStringList recursiveFileList(const QDir &dir, const QString &prefix = QString());
+    static QStringList installDirectories(const QString &qtInstallData);
+    static QString sourcePath();
+    static QStringList sourceFileNames();
 };
 
-}
-#endif // QTVERSIONFACTORY_H
+} // namespace
+
+#endif // QMLDEBUGGINGLIBRARY_H

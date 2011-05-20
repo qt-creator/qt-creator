@@ -37,10 +37,10 @@
 #include "maemopackagecreationstep.h"
 #include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
-#include "baseqtversion.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4target.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <QtCore/QLatin1Char>
 #include <QtCore/QProcess>
@@ -181,7 +181,7 @@ void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
         SLOT(handleInstallerStderr()));
 
     emit addOutput(tr("Installing package to sysroot ..."), MessageOutput);
-    const BaseQtVersion * const qtVersion = bc->qtVersion();
+    const QtSupport::BaseQtVersion * const qtVersion = bc->qtVersion();
     const QString packageFilePath = pStep->packageFilePath();
     const int packageFileSize = QFileInfo(packageFilePath).size() / (1024*1024);
     const QStringList args = madArguments() << packageFilePath;
@@ -370,7 +370,7 @@ bool MaemoMakeInstallToSysrootStep::init()
             ErrorMessageOutput);
         return false;
     }
-    const BaseQtVersion * const qtVersion = bc->qtVersion();
+    const QtSupport::BaseQtVersion * const qtVersion = bc->qtVersion();
     if (!qtVersion) {
         addOutput("Can't deploy: Unusable build configuration.",
             ErrorMessageOutput);

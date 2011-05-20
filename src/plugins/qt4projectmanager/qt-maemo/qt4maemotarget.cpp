@@ -50,7 +50,7 @@
 #include <qt4projectmanager/qt4project.h>
 #include <utils/fileutils.h>
 #include <utils/filesystemwatcher.h>
-#include <qt4projectmanager/baseqtversion.h>
+#include <qtsupport/baseqtversion.h>
 
 
 #include <QtGui/QApplication>
@@ -709,7 +709,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
         << QLatin1String("-s") << QLatin1String("-n") << QLatin1String("-p")
         << (defaultPackageFileName() + QLatin1Char('_')
             + AbstractMaemoPackageCreationStep::DefaultVersionNumber);
-    BaseQtVersion *lqt = activeBuildConfiguration()->qtVersion();
+    QtSupport::BaseQtVersion *lqt = activeBuildConfiguration()->qtVersion();
     if (!lqt) {
         raiseError(tr("Unable to create Debian templates: No qt version set"));
         return ActionFailed;
@@ -913,7 +913,7 @@ QString AbstractRpmBasedQt4MaemoTarget::shortDescription() const
 
 QString AbstractRpmBasedQt4MaemoTarget::packageFileName() const
 {
-    BaseQtVersion *lqt = activeBuildConfiguration()->qtVersion();
+    QtSupport::BaseQtVersion *lqt = activeBuildConfiguration()->qtVersion();
     if (!lqt)
         return QString();
     return packageName() + QLatin1Char('-') + projectVersion() + QLatin1Char('-')

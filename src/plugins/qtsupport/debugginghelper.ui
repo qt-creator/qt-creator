@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Qt4ProjectManager::Internal::DebuggingHelper</class>
- <widget class="QWidget" name="Qt4ProjectManager::Internal::DebuggingHelper">
+ <class>QtSupport::Internal::DebuggingHelper</class>
+ <widget class="QWidget" name="QtSupport::Internal::DebuggingHelper">
   <property name="geometry">
    <rect>
     <x>0</x>

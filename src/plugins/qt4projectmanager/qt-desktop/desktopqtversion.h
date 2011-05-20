@@ -33,13 +33,13 @@
 #ifndef DESKTOPQTVERSION_H
 #define DESKTOPQTVERSION_H
 
-#include "baseqtversion.h"
+#include <qtsupport/baseqtversion.h>
 
 namespace Qt4ProjectManager {
 
 namespace Internal {
 
-class DesktopQtVersion : public BaseQtVersion
+class DesktopQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     DesktopQtVersion();

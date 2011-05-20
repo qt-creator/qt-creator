@@ -51,10 +51,13 @@ QT_BEGIN_NAMESPACE
 struct ProFileOption;
 QT_END_NAMESPACE
 
+namespace QtSupport {
+class ProFileReader;
+}
+
 namespace Qt4ProjectManager {
 
 namespace Internal {
-    class ProFileReader;
     class DeployHelperRunStep;
     class FileItem;
     class Qt4ProFileNode;
@@ -166,9 +169,9 @@ public:
     void notifyChanged(const QString &name);
 
     /// \internal
-    Internal::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
+    QtSupport::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
     /// \internal
-    void destroyProFileReader(Internal::ProFileReader *reader);
+    void destroyProFileReader(QtSupport::ProFileReader *reader);
 
     /// \internal
     void scheduleAsyncUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *node);

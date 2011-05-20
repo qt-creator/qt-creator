@@ -34,11 +34,9 @@
 #include "qmldumptool.h"
 #include "qmlobservertool.h"
 #include "qmldebugginglibrary.h"
-#include <qt4projectmanager/baseqtversion.h>
+#include "baseqtversion.h"
+#include "qtversionmanager.h"
 #include <coreplugin/messagemanager.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qt4projectmanager/qtversionmanager.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/abi.h>
@@ -46,8 +44,8 @@
 
 #include <QtCore/QCoreApplication>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 using ProjectExplorer::DebuggingHelperLibrary;
 
 DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version, Tools tools) :

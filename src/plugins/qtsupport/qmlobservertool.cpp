@@ -32,8 +32,7 @@
 
 #include "qmlobservertool.h"
 
-#include "qt4project.h"
-#include "qt4projectmanagerconstants.h"
+#include "qtsupportconstants.h"
 #include "baseqtversion.h"
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -44,7 +43,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 
 static inline QStringList validBinaryFilenames()
 {
@@ -57,8 +56,8 @@ static inline QStringList validBinaryFilenames()
 
 bool QmlObserverTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 {
-    if (!qtVersion->supportsTargetId(Constants::DESKTOP_TARGET_ID)
-            && !qtVersion->supportsTargetId(Constants::QT_SIMULATOR_TARGET_ID)) {
+    if (qtVersion->type() != Constants::DESKTOPQT
+            && qtVersion->type() != Constants::SIMULATORQT) {
         if (reason)
             *reason = QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "Only available for Qt for Desktop or Qt for Qt Simulator.");
         return false;
@@ -70,23 +69,6 @@ bool QmlObserverTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
         return false;
     }
     return true;
-}
-
-QString QmlObserverTool::toolForProject(ProjectExplorer::Project *project)
-{
-    if (project->id() == Qt4ProjectManager::Constants::QT4PROJECT_ID) {
-        Qt4Project *qt4Project = static_cast<Qt4Project*>(project);
-        if (qt4Project && qt4Project->activeTarget()
-         && qt4Project->activeTarget()->activeBuildConfiguration()) {
-            BaseQtVersion *version = qt4Project->activeTarget()->activeBuildConfiguration()->qtVersion();
-            if (version && version->isValid()) {
-                QString qtInstallData = version->versionInfo().value("QT_INSTALL_DATA");
-                QString toolPath = toolByInstallData(qtInstallData);
-                return toolPath;
-            }
-        }
-    }
-    return QString();
 }
 
 QString QmlObserverTool::toolByInstallData(const QString &qtInstallData)

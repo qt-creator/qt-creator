@@ -54,7 +54,7 @@ public:
 
     virtual bool supportsTargetId(const QString &id) const;
 
-    Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtVersionNumber &minimumQtVersion, bool importEnabled, QList<BuildConfigurationInfo> importInfos);
+    Qt4TargetSetupWidget *createTargetSetupWidget(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &minimumQtVersion, bool importEnabled, QList<BuildConfigurationInfo> importInfos);
     QString buildNameForId(const QString &id) const;
     bool isMobileTarget(const QString &id);
     bool supportsShadowBuilds(const QString &id);

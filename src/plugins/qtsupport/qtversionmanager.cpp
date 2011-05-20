@@ -32,12 +32,7 @@
 
 #include "qtversionmanager.h"
 
-#include "qt4projectmanagerconstants.h"
 #include "qtversionfactory.h"
-
-// only for legay restore
-#include "qt-desktop/desktopqtversion.h"
-#include "qt-s60/symbianqtversion.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/persistentsettings.h>
@@ -65,8 +60,8 @@
 
 #include <algorithm>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
 using ProjectExplorer::DebuggingHelperLibrary;
 
@@ -400,16 +395,9 @@ bool QtVersionManager::legacyRestore()
         if (qmakePath.isEmpty())
             continue; //skip this version
 
-        // autodetection = false, from now on only sdk versions are autodetected
-        BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qmakePath);
+        BaseQtVersion *version = QtVersionFactory::createQtVersionFromLegacySettings(qmakePath, id, s);
         if (!version) // Likely to be a invalid version
             continue;
-        version->setId(id);
-        version->setDisplayName(s->value("Name").toString());
-        if (SymbianQtVersion *sqv = dynamic_cast<SymbianQtVersion *>(version)) {
-            sqv->setSystemRoot(QDir::fromNativeSeparators(s->value("S60SDKDirectory").toString()));
-            sqv->setSbsV2Directory(QDir::fromNativeSeparators(s->value(QLatin1String("SBSv2Directory")).toString()));
-        }
 
         if (m_versions.contains(version->uniqueId())) {
             // oh uh;

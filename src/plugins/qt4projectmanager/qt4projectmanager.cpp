@@ -37,7 +37,6 @@
 #include "qt4nodes.h"
 #include "qt4project.h"
 #include "qt4target.h"
-#include "profilereader.h"
 #include "profileeditor.h"
 #include "qmakestep.h"
 #include "qt4buildconfiguration.h"
@@ -58,6 +57,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
+#include <qtsupport/profilereader.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -192,7 +192,7 @@ void Qt4Manager::updateVariable(const QString &variable)
             return;
         }
         QString value;
-        BaseQtVersion *qtv = qt4pro->activeTarget()->activeBuildConfiguration()->qtVersion();
+        QtSupport::BaseQtVersion *qtv = qt4pro->activeTarget()->activeBuildConfiguration()->qtVersion();
         if (qtv)
             value = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
         Core::VariableManager::instance()->insert(QLatin1String(kInstallBins), value);

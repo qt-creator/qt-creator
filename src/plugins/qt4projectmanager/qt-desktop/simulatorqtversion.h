@@ -33,13 +33,13 @@
 #ifndef SIMULATORQTVERSION_H
 #define SIMULATORQTVERSION_H
 
-#include "baseqtversion.h"
+#include <qtsupport/baseqtversion.h>
 
 namespace Qt4ProjectManager{
 
 namespace Internal {
 
-class SimulatorQtVersion : public BaseQtVersion
+class SimulatorQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     SimulatorQtVersion();

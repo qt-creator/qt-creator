@@ -41,7 +41,6 @@
 #include "qt4buildconfiguration.h"
 #include "qt4symbiantarget.h"
 #include "qt4target.h"
-#include "qtoutputformatter.h"
 #include "symbiandevicemanager.h"
 
 #include <coreplugin/icore.h>

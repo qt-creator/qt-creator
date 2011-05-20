@@ -39,7 +39,7 @@
 #include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
-#include <qt4projectmanager/qtversionmanager.h>
+#include <qtsupport/qtversionmanager.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -50,9 +50,9 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
 #include <qmljsinspector/qmljsinspectorconstants.h>
-#include <qt4projectmanager/qtversionmanager.h>
-#include <qt4projectmanager/qmlobservertool.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/qmlobservertool.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QtGui/QApplication>
 #include <QtGui/QLabel>
@@ -163,7 +163,7 @@ bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
         if (!(config->qtVersion() && config->qtVersion()->needsQmlDebuggingLibrary())
                 || !config->observerPath().isEmpty())
             return true;
-        if (config->qtVersion() && Qt4ProjectManager::QmlObserverTool::canBuild(config->qtVersion()))
+        if (config->qtVersion() && QtSupport::QmlObserverTool::canBuild(config->qtVersion()))
             return true;
     }
 
@@ -236,8 +236,8 @@ void QmlProjectRunControlFactory::showQmlObserverToolWarning()
     dialog.exec();
     if (dialog.clickedButton() == qtPref) {
         Core::ICore::instance()->showOptionsDialog(
-                    Qt4ProjectManager::Constants::QT_SETTINGS_CATEGORY,
-                    Qt4ProjectManager::Constants::QTVERSION_SETTINGS_PAGE_ID);
+                    QtSupport::Constants::QT_SETTINGS_CATEGORY,
+                    QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
     }
 }
 

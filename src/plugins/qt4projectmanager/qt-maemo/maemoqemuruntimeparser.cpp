@@ -33,9 +33,8 @@
 
 #include "maemoglobal.h"
 #include "maemoqemusettings.h"
-#include "baseqtversion.h"
 
-#include <qt4projectmanager/qtversionmanager.h>
+#include <qtsupport/baseqtversion.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QDir>
@@ -89,7 +88,7 @@ MaemoQemuRuntimeParser::MaemoQemuRuntimeParser(const QString &madInfoOutput,
 {
 }
 
-MaemoQemuRuntime MaemoQemuRuntimeParser::parseRuntime(const BaseQtVersion *qtVersion)
+MaemoQemuRuntime MaemoQemuRuntimeParser::parseRuntime(const QtSupport::BaseQtVersion *qtVersion)
 {
     MaemoQemuRuntime runtime;
     const QString maddeRootPath = MaemoGlobal::maddeRoot(qtVersion->qmakeCommand());

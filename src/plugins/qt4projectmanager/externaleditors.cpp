@@ -33,12 +33,12 @@
 #include "externaleditors.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
-#include "qtversionmanager.h"
 #include "qt4buildconfiguration.h"
 
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <qtsupport/qtversionmanager.h>
 #include <designer/designerconstants.h>
 
 #include <QtCore/QProcess>
@@ -146,7 +146,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
             !project->activeTarget()->activeBuildConfiguration())
             return false;
         Qt4BuildConfiguration *qt4bc = project->activeTarget()->activeBuildConfiguration();
-        BaseQtVersion *qtVersion = qt4bc->qtVersion();
+        QtSupport::BaseQtVersion *qtVersion = qt4bc->qtVersion();
         if (!qtVersion)
             return false;
 
@@ -198,7 +198,7 @@ LinguistExternalEditor::LinguistExternalEditor(QObject *parent) :
 bool LinguistExternalEditor::startEditor(const QString &fileName, QString *errorMessage)
 {
     EditorLaunchData data;
-    return getEditorLaunchData(fileName, &BaseQtVersion::linguistCommand,
+    return getEditorLaunchData(fileName, &QtSupport::BaseQtVersion::linguistCommand,
                             QLatin1String(linguistBinaryC),
                             QStringList(), true, &data, errorMessage)
     && startEditorProcess(data, errorMessage);
@@ -216,7 +216,7 @@ MacDesignerExternalEditor::MacDesignerExternalEditor(QObject *parent) :
 bool MacDesignerExternalEditor::startEditor(const QString &fileName, QString *errorMessage)
 {
     EditorLaunchData data;
-    return getEditorLaunchData(fileName, &BaseQtVersion::designerCommand,
+    return getEditorLaunchData(fileName, &QtSupport::BaseQtVersion::designerCommand,
                             QLatin1String(designerBinaryC),
                             QStringList(), true, &data, errorMessage)
         && startEditorProcess(data, errorMessage);
@@ -252,7 +252,7 @@ bool DesignerExternalEditor::startEditor(const QString &fileName, QString *error
 {
     EditorLaunchData data;
     // Find the editor binary
-    if (!getEditorLaunchData(fileName, &BaseQtVersion::designerCommand,
+    if (!getEditorLaunchData(fileName, &QtSupport::BaseQtVersion::designerCommand,
                             QLatin1String(designerBinaryC),
                             QStringList(), false, &data, errorMessage)) {
         return false;

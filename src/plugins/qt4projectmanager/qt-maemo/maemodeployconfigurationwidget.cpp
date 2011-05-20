@@ -37,7 +37,6 @@
 #include "maemodeployables.h"
 #include "qt4maemodeployconfiguration.h"
 
-#include <qt4projectmanager/qtversionmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QFileDialog>

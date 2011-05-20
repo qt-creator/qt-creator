@@ -42,7 +42,7 @@
 #include <QtGui/QTextCursor>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QtSupport;
 
 QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     : OutputFormatter()
@@ -57,7 +57,7 @@ QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     , m_project(project)
 {
     if(project) {
-        m_projectFinder.setProjectFiles(project->files(Qt4Project::ExcludeGeneratedFiles));
+        m_projectFinder.setProjectFiles(project->files(Project::ExcludeGeneratedFiles));
         m_projectFinder.setProjectDirectory(project->projectDirectory());
 
         connect(project, SIGNAL(fileListChanged()),
@@ -264,5 +264,5 @@ void QtOutputFormatter::handleLink(const QString &href)
 void QtOutputFormatter::updateProjectFileList()
 {
     if (m_project)
-        m_projectFinder.setProjectFiles(m_project.data()->files(Qt4Project::ExcludeGeneratedFiles));
+        m_projectFinder.setProjectFiles(m_project.data()->files(Project::ExcludeGeneratedFiles));
 }

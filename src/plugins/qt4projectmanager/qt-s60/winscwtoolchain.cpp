@@ -33,7 +33,6 @@
 #include "winscwtoolchain.h"
 
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
-#include "qtversionmanager.h"
 
 #include "ui_winscwtoolchainconfigwidget.h"
 #include "winscwparser.h"
@@ -41,6 +40,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
 #include <utils/environment.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -387,7 +387,7 @@ QList<ProjectExplorer::ToolChain *> WinscwToolChainFactory::autoDetect()
 
     // Compatibility to pre-2.2:
     while (true) {
-        const QString path = QtVersionManager::instance()->popPendingMwcUpdate();
+        const QString path = QtSupport::QtVersionManager::instance()->popPendingMwcUpdate();
         if (path.isNull())
             break;
 

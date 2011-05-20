@@ -31,14 +31,12 @@
 **************************************************************************/
 
 #include "baseqtversion.h"
-#include "qt4projectmanagerconstants.h"
 #include "qmlobservertool.h"
 #include "qmldumptool.h"
 #include "qmldebugginglibrary.h"
-#include "profilereader.h"
-#include "qt4basetargetfactory.h"
 
 #include "qtversionmanager.h"
+#include "profilereader.h"
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/gnumakeparser.h>
@@ -54,10 +52,8 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QProcess>
 
-#include <algorithm>
-
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
 static const char QTVERSIONID[] = "Id";
 static const char QTVERSIONNAME[] = "Name";
@@ -259,6 +255,11 @@ QString BaseQtVersion::defaultDisplayName(const QString &versionString, const QS
 void BaseQtVersion::setId(int id)
 {
     m_id = id;
+}
+
+void BaseQtVersion::restoreLegacySettings(QSettings *s)
+{
+    Q_UNUSED(s);
 }
 
 void BaseQtVersion::fromMap(const QVariantMap &map)
@@ -958,22 +959,9 @@ QList<ProjectExplorer::Task> BaseQtVersion::reportIssuesImpl(const QString &proF
 }
 
 QList<ProjectExplorer::Task>
-BaseQtVersion::reportIssues(const QString &proFile, const QString &buildDir, bool includeTargetSpecificErrors)
+BaseQtVersion::reportIssues(const QString &proFile, const QString &buildDir)
 {
     QList<ProjectExplorer::Task> results = reportIssuesImpl(proFile, buildDir);
-    if (includeTargetSpecificErrors) {
-        QList<Qt4BaseTargetFactory *> factories;
-        foreach (const QString &id, supportedTargetIds())
-            if (Qt4BaseTargetFactory *factory = Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(id))
-                factories << factory;
-
-        qSort(factories);
-        QList<Qt4BaseTargetFactory *>::iterator newend = std::unique(factories.begin(), factories.end());
-        QList<Qt4BaseTargetFactory *>::iterator it = factories.begin();
-        for ( ; it != newend; ++it)
-            results.append((*it)->reportIssues(proFile));
-    }
-
     qSort(results);
     return results;
 }

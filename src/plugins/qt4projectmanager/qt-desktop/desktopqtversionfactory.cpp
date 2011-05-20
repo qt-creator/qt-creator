@@ -32,9 +32,10 @@
 #include "desktopqtversionfactory.h"
 #include "qt4projectmanagerconstants.h"
 #include "desktopqtversion.h"
-#include "qtversionmanager.h"
 
 #include <projectexplorer/debugginghelper.h>
+#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <QtCore/QFileInfo>
 
@@ -42,7 +43,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 DesktopQtVersionFactory::DesktopQtVersionFactory(QObject *parent)
-    : QtVersionFactory(parent)
+    : QtSupport::QtVersionFactory(parent)
 {
 
 }
@@ -54,10 +55,10 @@ DesktopQtVersionFactory::~DesktopQtVersionFactory()
 
 bool DesktopQtVersionFactory::canRestore(const QString &type)
 {
-    return type == QLatin1String(Constants::DESKTOPQT);
+    return type == QLatin1String(QtSupport::Constants::DESKTOPQT);
 }
 
-BaseQtVersion *DesktopQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *DesktopQtVersionFactory::restore(const QVariantMap &data)
 {
     DesktopQtVersion *v = new DesktopQtVersion;
     v->fromMap(data);
@@ -70,7 +71,7 @@ int DesktopQtVersionFactory::priority() const
     return 0;
 }
 
-BaseQtVersion *DesktopQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+QtSupport::BaseQtVersion *DesktopQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
     Q_UNUSED(evaluator);
     // we are the fallback :) so we don't care what kind of qt it is

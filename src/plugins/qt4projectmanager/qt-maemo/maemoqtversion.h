@@ -32,13 +32,13 @@
 #ifndef MAEMOQTVERSION_H
 #define MAEMOQTVERSION_H
 
-#include "baseqtversion.h"
 #include "maemodeviceconfigurations.h"
+#include <qtsupport/baseqtversion.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoQtVersion : public BaseQtVersion
+class MaemoQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     MaemoQtVersion();

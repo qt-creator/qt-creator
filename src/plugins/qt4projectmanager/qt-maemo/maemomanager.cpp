@@ -46,7 +46,6 @@
 #include "qt4maemodeployconfiguration.h"
 #include "maemoqtversionfactory.h"
 #include "qt4maemotargetfactory.h"
-#include "qt4projectmanager/qtversionmanager.h"
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
 
 #include <extensionsystem/pluginmanager.h>

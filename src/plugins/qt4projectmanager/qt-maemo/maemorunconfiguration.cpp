@@ -41,7 +41,6 @@
 #include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
-#include "qtoutputformatter.h"
 #include "maemoqtversion.h"
 
 #include <coreplugin/icore.h>
@@ -50,6 +49,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
+#include <qtsupport/qtoutputformatter.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4target.h>
@@ -141,7 +141,7 @@ QWidget *MaemoRunConfiguration::createConfigurationWidget()
 
 Utils::OutputFormatter *MaemoRunConfiguration::createOutputFormatter() const
 {
-    return new QtOutputFormatter(qt4Target()->qt4Project());
+    return new QtSupport::QtOutputFormatter(qt4Target()->qt4Project());
 }
 
 void MaemoRunConfiguration::handleParseState(bool success)
@@ -237,7 +237,7 @@ AbstractLinuxDeviceDeployStep *MaemoRunConfiguration::deployStep() const
 const QString MaemoRunConfiguration::targetRoot() const
 {
     QTC_ASSERT(activeQt4BuildConfiguration(), return QString());
-    BaseQtVersion *v = activeQt4BuildConfiguration()->qtVersion();
+    QtSupport::BaseQtVersion *v = activeQt4BuildConfiguration()->qtVersion();
     if (!v)
         return QString();
     return MaemoGlobal::targetRoot(v->qmakeCommand());

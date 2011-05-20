@@ -34,7 +34,7 @@
 #define ABSTRACTMOBILEAPPWIZARD_H
 
 #include <qt4projectmanager/qt4projectmanager_global.h>
-#include <qt4projectmanager/qtversionmanager.h>
+#include <qtsupport/qtversionmanager.h>
 #include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
@@ -55,7 +55,7 @@ class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizardDialog : public ProjectExp
     Q_OBJECT
 
 protected:
-    explicit AbstractMobileAppWizardDialog(QWidget *parent, const QtVersionNumber &minimumQtVersionNumber);
+    explicit AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber);
 
 public:
     TargetSetupPage *targetsPage() const;

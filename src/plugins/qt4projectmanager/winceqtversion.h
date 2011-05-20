@@ -32,12 +32,13 @@
 
 #ifndef WINCEQTVERSION_H
 #define WINCEQTVERSION_H
-#include "baseqtversion.h"
+
+#include <qtsupport/baseqtversion.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class WinCeQtVersion : public BaseQtVersion
+class WinCeQtVersion : public QtSupport::BaseQtVersion
 {
 public:
     WinCeQtVersion();

@@ -33,22 +33,22 @@
 #ifndef SYMBIANQTVERSIONFACTORY_H
 #define SYMBIANQTVERSIONFACTORY_H
 
-#include "qtversionfactory.h"
+#include <qtsupport/qtversionfactory.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class SymbianQtVersionFactory : public QtVersionFactory
+class SymbianQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
     explicit SymbianQtVersionFactory(QObject *parent = 0);
     ~SymbianQtVersionFactory();
 
     virtual bool canRestore(const QString &type);
-    virtual BaseQtVersion *restore(const QVariantMap &data);
+    virtual QtSupport::BaseQtVersion *restore(const QVariantMap &data);
 
     virtual int priority() const;
-    virtual BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+    virtual QtSupport::BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
 } // Internal

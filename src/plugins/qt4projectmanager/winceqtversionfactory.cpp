@@ -32,7 +32,8 @@
 
 #include "winceqtversionfactory.h"
 #include "winceqtversion.h"
-#include "qt4projectmanagerconstants.h"
+#include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/profilereader.h>
 #include <QtCore/QFileInfo>
 
 using namespace Qt4ProjectManager;
@@ -51,10 +52,10 @@ WinCeQtVersionFactory::~WinCeQtVersionFactory()
 
 bool WinCeQtVersionFactory::canRestore(const QString &type)
 {
-    return type == QLatin1String(Constants::WINCEQT);
+    return type == QLatin1String(QtSupport::Constants::WINCEQT);
 }
 
-BaseQtVersion *WinCeQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *WinCeQtVersionFactory::restore(const QVariantMap &data)
 {
     WinCeQtVersion *v = new WinCeQtVersion;
     v->fromMap(data);
@@ -66,9 +67,8 @@ int WinCeQtVersionFactory::priority() const
     return 50;
 }
 
-BaseQtVersion *WinCeQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+QtSupport::BaseQtVersion *WinCeQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
-    // we are the fallback :) so we don't care what kinf of qt it is
     QFileInfo fi(qmakePath);
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
         return 0;

@@ -35,6 +35,9 @@
 #include "qt4projectmanagerconstants.h"
 #include "symbianqtversion.h"
 
+#include <qtsupport/profilereader.h>
+#include <qtsupport/qtsupportconstants.h>
+
 #include <QtCore/QFileInfo>
 
 using namespace Qt4ProjectManager;
@@ -53,10 +56,10 @@ SymbianQtVersionFactory::~SymbianQtVersionFactory()
 
 bool SymbianQtVersionFactory::canRestore(const QString &type)
 {
-    return type == QLatin1String(Constants::SYMBIANQT);
+    return type == QLatin1String(QtSupport::Constants::SYMBIANQT);
 }
 
-BaseQtVersion *SymbianQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *SymbianQtVersionFactory::restore(const QVariantMap &data)
 {
     SymbianQtVersion *v = new SymbianQtVersion;
     v->fromMap(data);
@@ -68,7 +71,7 @@ int SymbianQtVersionFactory::priority() const
     return 50;
 }
 
-BaseQtVersion *SymbianQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+QtSupport::BaseQtVersion *SymbianQtVersionFactory::create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
 {
     QFileInfo fi(qmakePath);
     if (!fi.exists() || !fi.isExecutable() || !fi.isFile())

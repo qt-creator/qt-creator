@@ -50,7 +50,7 @@ namespace Utils {
     class EnvironmentItem;
 }
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
     class BaseQtVersion;
 }
 
@@ -82,7 +82,7 @@ public:
     QString viewerArguments() const;
     QString workingDirectory() const;
     int qtVersionId() const;
-    Qt4ProjectManager::BaseQtVersion *qtVersion() const;
+    QtSupport::BaseQtVersion *qtVersion() const;
 
     enum MainScriptSource {
         FileInEditor,
@@ -119,7 +119,7 @@ protected:
 
 private:
     void ctor();
-    static bool isValidVersion(Qt4ProjectManager::BaseQtVersion *version);
+    static bool isValidVersion(QtSupport::BaseQtVersion *version);
     void setQtVersionId(int id);
     
     static QString canonicalCapsPath(const QString &filePath);

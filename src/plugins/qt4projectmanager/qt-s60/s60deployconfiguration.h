@@ -41,8 +41,11 @@ class RunConfiguration;
 class ToolChain;
 }
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 class BaseQtVersion;
+}
+
+namespace Qt4ProjectManager {
 
 namespace Internal {
 class Qt4SymbianTarget;
@@ -71,7 +74,7 @@ public:
 
     ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
-    const BaseQtVersion *qtVersion() const;
+    const QtSupport::BaseQtVersion *qtVersion() const;
     Qt4SymbianTarget *qt4Target() const;
     ProjectExplorer::ToolChain *toolChain() const;
 

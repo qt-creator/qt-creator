@@ -66,23 +66,10 @@ const char * const ADDLIBRARY          = "Qt4.AddLibrary";
 const char * const JUMP_TO_FILE        = "Qt4.JumpToFile";
 const char * const SEPARATOR           = "Qt4.Separator";
 
-//Qt4 settings pages
-const char * const QT_SETTINGS_CATEGORY       = "L.Qt4";
-const char * const QT_SETTINGS_CATEGORY_ICON  = ":/core/images/category_qt.png";
-const char * const QT_SETTINGS_TR_CATEGORY    = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt4");
-const char * const QTVERSION_SETTINGS_PAGE_ID = "Qt Versions";
-const char * const QTVERSION_SETTINGS_PAGE_NAME = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");
-
 // C++ wizard categories
 const char * const QT_APP_WIZARD_CATEGORY = "F.QtApplicationProjects";
 const char * const QT_APP_WIZARD_TR_SCOPE = "Qt4ProjectManager";
 const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Widget Project");
-
-// QML wizard categories
-const char * const QML_WIZARD_CATEGORY = "C.Projects"; // (before Qt)
-const char * const QML_WIZARD_TR_SCOPE = "QmlProjectManager";
-const char * const QML_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("QmlProjectManager", "Qt Quick Project");
-const char * const QML_WIZARD_ICON = ":/qmlproject/images/qml_wizard.png";
 
 // Html5 wizard categories
 const char * const HTML5_WIZARD_CATEGORY = "I.Projects"; // (after Qt)
@@ -110,13 +97,6 @@ const char * const GCCE_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.GCCE";
 const char * const MAEMO_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.Maemo";
 const char * const RVCT_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.RVCT";
 const char * const WINSCW_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.WINSCW";
-
-// QtVersions
-const char * const SYMBIANQT   = "Qt4ProjectManager.QtVersion.Symbian";
-const char * const MAEMOQT     = "Qt4ProjectManager.QtVersion.Maemo";
-const char * const DESKTOPQT   = "Qt4ProjectManager.QtVersion.Desktop";
-const char * const SIMULATORQT = "Qt4ProjectManager.QtVersion.Simulator";
-const char * const WINCEQT     = "Qt4ProjectManager.QtVersion.WinCE";
 
 // ICONS
 const char * const ICON_QT_PROJECT = ":/qt4projectmanager/images/qt_project.png";

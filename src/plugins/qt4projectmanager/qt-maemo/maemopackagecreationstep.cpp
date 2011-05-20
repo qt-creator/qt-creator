@@ -255,7 +255,7 @@ bool AbstractMaemoPackageCreationStep::callPackagingCommand(QProcess *proc,
     const QStringList &arguments)
 {
     preparePackagingProcess(proc, qt4BuildConfiguration(), buildDirectory());
-    const BaseQtVersion * const qtVersion = qt4BuildConfiguration()->qtVersion();
+    const QtSupport::BaseQtVersion * const qtVersion = qt4BuildConfiguration()->qtVersion();
     if (!qtVersion) {
         raiseError(tr("Packaging failed."), tr("Packaging error: No qt version."));
         return false;
@@ -291,7 +291,7 @@ void AbstractMaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
     const Qt4BuildConfiguration *bc, const QString &workingDir)
 {
     Utils::Environment env = bc->environment();
-    if (bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild) {
+    if (bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild) {
         env.appendOrSet(QLatin1String("DEB_BUILD_OPTIONS"),
             QLatin1String("nostrip"), QLatin1String(" "));
     }
@@ -470,7 +470,7 @@ QString MaemoDebianPackageCreationStep::packagingCommand(const Qt4BuildConfigura
     const QString &commandName)
 {
     QString perl;
-    BaseQtVersion *v = bc->qtVersion();
+    QtSupport::BaseQtVersion *v = bc->qtVersion();
     const QString maddeRoot = MaemoGlobal::maddeRoot(v->qmakeCommand());
 #ifdef Q_OS_WIN
     perl = maddeRoot + QLatin1String("/bin/perl.exe ");
@@ -502,7 +502,7 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
     const Qt4BuildConfiguration * const bc = qt4BuildConfiguration();
 
     // Always check for dependencies in release builds.
-    if (!(bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild))
+    if (!(bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild))
         ensureShlibdeps(content);
 
     Utils::FileSaver saver(rulesFilePath);

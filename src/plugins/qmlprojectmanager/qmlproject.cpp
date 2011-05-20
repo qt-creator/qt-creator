@@ -41,8 +41,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qt4projectmanager/qmldumptool.h>
-#include <qt4projectmanager/baseqtversion.h>
+#include <qtsupport/qmldumptool.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/fileutils.h>
 
@@ -142,7 +143,10 @@ void QmlProject::refresh(RefreshOptions options)
     QmlJS::ModelManagerInterface::ProjectInfo pinfo(this);
     pinfo.sourceFiles = files();
     pinfo.importPaths = importPaths();
-    Qt4ProjectManager::QmlDumpTool::pathAndEnvironment(this, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
+    QtSupport::BaseQtVersion *version = 0;
+    if (QmlProjectRunConfiguration *rc = qobject_cast<QmlProjectRunConfiguration *>(activeTarget()->activeRunConfiguration()))
+        version = rc->qtVersion();
+    QtSupport::QmlDumpTool::pathAndEnvironment(this, version, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
     m_modelManager->updateProjectInfo(pinfo);
 }
 
@@ -192,7 +196,7 @@ QStringList QmlProject::importPaths() const
         const QmlProjectRunConfiguration *runConfig =
                 qobject_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
         if (runConfig) {
-            const Qt4ProjectManager::BaseQtVersion *qtVersion = runConfig->qtVersion();
+            const QtSupport::BaseQtVersion *qtVersion = runConfig->qtVersion();
             if (qtVersion && qtVersion->isValid()) {
                 const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
                 if (!qtVersionImportPath.isEmpty())

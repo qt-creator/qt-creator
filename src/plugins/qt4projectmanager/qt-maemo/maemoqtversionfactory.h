@@ -33,22 +33,22 @@
 #ifndef MAEMOQTVERSIONFACTORY_H
 #define MAEMOQTVERSIONFACTORY_H
 
-#include "qtversionfactory.h"
+#include <qtsupport/qtversionfactory.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class MaemoQtVersionFactory : public QtVersionFactory
+class MaemoQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
     explicit MaemoQtVersionFactory(QObject *parent = 0);
     ~MaemoQtVersionFactory();
 
     virtual bool canRestore(const QString &type);
-    virtual BaseQtVersion *restore(const QVariantMap &data);
+    virtual QtSupport::BaseQtVersion *restore(const QVariantMap &data);
 
     virtual int priority() const;
-    virtual BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+    virtual QtSupport::BaseQtVersion *create(const QString &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
 } // Internal

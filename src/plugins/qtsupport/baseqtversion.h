@@ -33,7 +33,7 @@
 #ifndef BASEQTVERSION_H
 #define BASEQTVERSION_H
 
-#include "qt4projectmanager_global.h"
+#include "qtsupport_global.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/headerpath.h>
@@ -45,10 +45,12 @@
 
 QT_BEGIN_NAMESPACE
 class ProFileEvaluator;
+class QSettings;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
-class QT4PROJECTMANAGER_EXPORT QtVersionNumber
+namespace QtSupport
+{
+class QTSUPPORT_EXPORT QtVersionNumber
 {
 public:
     QtVersionNumber(int ma, int mi, int p);
@@ -68,7 +70,7 @@ private:
     bool checkVersionString(const QString &version) const;
 };
 
-class QT4PROJECTMANAGER_EXPORT QtConfigWidget : public QWidget
+class QTSUPPORT_EXPORT QtConfigWidget : public QWidget
 {
     Q_OBJECT
 public:
@@ -77,13 +79,16 @@ signals:
     void changed();
 };
 
-class QT4PROJECTMANAGER_EXPORT BaseQtVersion
+class QTSUPPORT_EXPORT BaseQtVersion
 {
+    friend class QtVersionFactory;
     friend class QtVersionManager;
 public:
     virtual ~BaseQtVersion();
 
     virtual void fromMap(const QVariantMap &map);
+    // pre 2.3 settings, only used by SymbianQt
+    virtual void restoreLegacySettings(QSettings *s);
     virtual BaseQtVersion *clone() const = 0;
     virtual bool equals(BaseQtVersion *other);
 
@@ -165,7 +170,7 @@ public:
     /// Check a .pro-file/Qt version combination on possible issues
     /// @return a list of tasks, ordered on severity (errors first, then
     ///         warnings and finally info items.
-    QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir, bool includeTargetSpecificErrors);
+    QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir);
 
     virtual ProjectExplorer::IOutputParser *createOutputParser() const;
 
@@ -250,4 +255,6 @@ private:
     mutable bool m_qmakeIsExecutable;
 };
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QtSupport::BaseQtVersion::QmakeBuildConfigs)
 #endif // BASEQTVERSION_H

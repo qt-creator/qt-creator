@@ -33,6 +33,7 @@
 #ifndef PROFILEEVALUATOR_H
 #define PROFILEEVALUATOR_H
 
+#include "proparser_global.h"
 #include "proitems.h"
 
 #include <QtCore/QHash>
@@ -50,7 +51,7 @@ QT_BEGIN_NAMESPACE
 struct ProFileOption;
 class ProFileParser;
 
-class ProFileEvaluatorHandler
+class PROPARSER_EXPORT ProFileEvaluatorHandler
 {
 public:
     // qmake/project configuration error
@@ -66,7 +67,7 @@ public:
 };
 
 
-class ProFileEvaluator
+class PROPARSER_EXPORT ProFileEvaluator
 {
     class Private;
 
@@ -145,7 +146,7 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(ProFileEvaluator::LoadFlags)
 
 // This struct is from qmake, but we are not using everything.
-struct ProFileOption
+struct PROPARSER_EXPORT ProFileOption
 {
     ProFileOption();
     ~ProFileOption();
