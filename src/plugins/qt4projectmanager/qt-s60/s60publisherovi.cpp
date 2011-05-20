@@ -362,9 +362,11 @@ void S60PublisherOvi::runBuild(int result)
     ProjectExplorer::AbstractProcessStep * makeStep = m_qt4bc->makeStep();
     makeStep->init();
     const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
+    // freeze all the libraries
+    const QString makeArg = QLatin1String("freeze-") + makepp->arguments();
     runStep(result,
             QLatin1String("Running Build Steps"),
-            makepp->effectiveCommand() + ' ' + makepp->arguments(),
+            makepp->effectiveCommand() + ' ' + makeArg,
             m_buildProc,
             m_qmakeProc);
 }
