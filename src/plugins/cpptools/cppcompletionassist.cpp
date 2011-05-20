@@ -698,28 +698,6 @@ IAssistProposal * CppCompletionAssistProcessor::perform(const IAssistInterface *
         if (m_hintProposal)
             return m_hintProposal;
 
-        if (interface->reason() == IdleEditor) {
-            const int pos = m_interface->position();
-            const QChar ch = m_interface->characterAt(pos);
-            if (! (ch.isLetterOrNumber() || ch == QLatin1Char('_'))) {
-                for (int i = pos - 1;; --i) {
-                    const QChar ch = m_interface->characterAt(i);
-                    if (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
-                        const QString wordUnderCursor = m_interface->textAt(i, pos - i);
-                        if (wordUnderCursor.at(0).isLetter() || wordUnderCursor.at(0) == QLatin1Char('_')) {
-                            foreach (const BasicProposalItem *item, m_completions) {
-                                if (item->text() == wordUnderCursor)
-                                    return 0;
-                            }
-                        } else {
-                            return 0;
-                        }
-                    } else
-                        break;
-                }
-            }
-        }
-
         if (m_model->m_completionOperator != T_EOF_SYMBOL)
             m_model->m_sortable = true;
         else

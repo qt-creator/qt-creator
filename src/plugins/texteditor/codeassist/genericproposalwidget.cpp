@@ -57,7 +57,52 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QLabel>
 
+
 namespace TextEditor {
+
+namespace {
+
+QString cleanText(const QString &original)
+{
+    QString clean = original;
+    int ignore = 0;
+    for (int i = clean.length() - 1; i >= 0; --i, ++ignore) {
+        const QChar &c = clean.at(i);
+        if (c.isLetterOrNumber() || c == QLatin1Char('_'))
+            break;
+    }
+    if (ignore)
+        clean.chop(ignore);
+    return clean;
+}
+
+bool hasMatch(const QString &prefix, const IGenericProposalModel *model)
+{
+    if (prefix.isEmpty())
+        return false;
+
+    for (int i = 0; i < model->size(); ++i) {
+        const QString &current = cleanText(model->text(i));
+        if (!current.isEmpty()) {
+            TextEditor::CaseSensitivity cs =
+                TextEditor::TextEditorSettings::instance()->completionSettings().m_caseSensitivity;
+            if (cs == TextEditor::CaseSensitive) {
+                if (prefix == current)
+                    return true;
+            } else if (cs == TextEditor::CaseInsensitive) {
+                if (prefix.compare(current, Qt::CaseInsensitive) == 0)
+                    return true;
+            } else if (cs == TextEditor::FirstLetterCaseSensitive) {
+                if (prefix.at(0) == current.at(0)
+                        && prefix.midRef(1).compare(current.midRef(1), Qt::CaseInsensitive) == 0)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
+}
 
 // ------------
 // ModelAdapter
@@ -380,7 +425,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
     if (!prefix.isEmpty())
         m_d->m_model->filter(prefix);
     if (m_d->m_model->size() == 0
-            || (m_d->m_model->size() == 1 && prefix == m_d->m_model->proposalPrefix())) {
+            || (m_d->m_reason == IdleEditor && hasMatch(prefix, m_d->m_model))) {
         abort();
         return false;
     }
