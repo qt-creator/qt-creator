@@ -59,7 +59,8 @@ struct
         SymbianSvgIconFile,
         MaemoPngIconFile64,
         MaemoPngIconFile80,
-        DesktopFile,
+        DesktopFileFremantle,
+        DesktopFileHarmattan,
         ExtendedFile
     };
 
@@ -97,7 +98,8 @@ public:
         AppPro,
         AppProOrigin,
         AppProPath,
-        Desktop,
+        DesktopFremantle,
+        DesktopHarmattan,
         DesktopOrigin,
         DeploymentPri,
         DeploymentPriOrigin,
@@ -166,7 +168,7 @@ protected:
 
     QString m_error;
 private:
-    QByteArray generateDesktopFile(QString *errorMessage) const;
+    QByteArray generateDesktopFile(QString *errorMessage, int fileType) const;
     QByteArray generateMainCpp(QString *errorMessage) const;
     QByteArray generateProFile(QString *errorMessage) const;
 

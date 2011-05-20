@@ -170,7 +170,8 @@ QString AbstractMobileApp::path(int fileType) const
         case AppPro:                return outputPathBase() + cleanProjectName + QLatin1String(".pro");
         case AppProOrigin:          return originsRootApp + QLatin1String("app.pro");
         case AppProPath:            return outputPathBase();
-        case Desktop:               return outputPathBase() + cleanProjectName + QLatin1String(".desktop");
+        case DesktopFremantle:      return outputPathBase() + cleanProjectName + QLatin1String(".desktop");
+        case DesktopHarmattan:      return outputPathBase() + cleanProjectName + QLatin1String("_harmattan.desktop");
         case DesktopOrigin:         return originsRootShared + QLatin1String("app.desktop");
         case DeploymentPri:         return outputPathBase() + DeploymentPriFileName;
         case DeploymentPriOrigin:   return originsRootShared + DeploymentPriFileName;
@@ -197,13 +198,18 @@ bool AbstractMobileApp::readTemplate(int fileType, QByteArray *data, QString *er
     return true;
 }
 
-QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage) const
+QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage, int fileType) const
 {
     QByteArray desktopFileContent;
     if (!readTemplate(DesktopOrigin, &desktopFileContent, errorMessage))
         return QByteArray();
-    desktopFileContent.replace("Icon=thisApp",
-        "Icon=" + projectName().toUtf8() + "64");
+    if (fileType == AbstractGeneratedFileInfo::DesktopFileFremantle) {
+        desktopFileContent.replace("Icon=thisApp",
+            "Icon=" + projectName().toUtf8() + "64");
+    } else if (fileType == AbstractGeneratedFileInfo::DesktopFileHarmattan) {
+        desktopFileContent.replace("Icon=thisApp",
+            "Icon=/usr/share/icons/hicolor/80x80/apps/" + projectName().toUtf8() + "80.png");
+    }
     return desktopFileContent.replace("thisApp", projectName().toUtf8());
 }
 
@@ -395,7 +401,8 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
     files << file(generateFile(AbstractGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon));
     files << file(generateFile(AbstractGeneratedFileInfo::MaemoPngIconFile64, errorMessage), path(MaemoPngIcon64));
     files << file(generateFile(AbstractGeneratedFileInfo::MaemoPngIconFile80, errorMessage), path(MaemoPngIcon80));
-    files << file(generateFile(AbstractGeneratedFileInfo::DesktopFile, errorMessage), path(Desktop));
+    files << file(generateFile(AbstractGeneratedFileInfo::DesktopFileFremantle, errorMessage), path(DesktopFremantle));
+    files << file(generateFile(AbstractGeneratedFileInfo::DesktopFileHarmattan, errorMessage), path(DesktopHarmattan));
     return files;
 }
 #endif // CREATORLESSTEST
@@ -437,8 +444,9 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
         case AbstractGeneratedFileInfo::MaemoPngIconFile80:
             data = readBlob(path(MaemoPngIconOrigin80), errorMessage);
             break;
-        case AbstractGeneratedFileInfo::DesktopFile:
-            data = generateDesktopFile(errorMessage);
+        case AbstractGeneratedFileInfo::DesktopFileFremantle:
+        case AbstractGeneratedFileInfo::DesktopFileHarmattan:
+            data = generateDesktopFile(errorMessage, fileType);
             break;
         case AbstractGeneratedFileInfo::DeploymentPriFile:
             data = readBlob(path(DeploymentPriOrigin), errorMessage);

@@ -51,10 +51,12 @@ symbian {
     }
 } else:unix {
     maemo5 {
+        desktopfile.files = $${TARGET}.desktop
         desktopfile.path = /usr/share/applications/hildon
         icon.files = $${TARGET}64.png
         icon.path = /usr/share/icons/hicolor/64x64/apps
     } else {
+        desktopfile.files = $${TARGET}_harmattan.desktop
         desktopfile.path = /usr/share/applications
         icon.files = $${TARGET}80.png
         icon.path = /usr/share/icons/hicolor/80x80/apps
@@ -96,7 +98,6 @@ symbian {
         export($$itempath)
         INSTALLS += $$item
     }
-    desktopfile.files = $${TARGET}.desktop
     target.path = $${installPrefix}/bin
     export(icon.files)
     export(icon.path)

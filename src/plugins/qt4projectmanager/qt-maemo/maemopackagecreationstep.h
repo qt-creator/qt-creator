@@ -130,12 +130,6 @@ private:
     static QString packagingCommand(const Qt4BuildConfiguration *bc,
         const QString &commandName);
     bool copyDebianFiles(bool inSourceBuild);
-    void addSedCmdToRulesFile(QByteArray &rulesFileContent, int &insertPos,
-        const QString &desktopFilePath, const QByteArray &oldString,
-        const QByteArray &newString);
-    void addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,
-        int &insertPos, const MaemoDeployableListModel *model,
-        const QString &desktopFileDir);
     void checkProjectName();
     bool adaptRulesFile(const QString &templatePath, const QString &rulesFilePath);
 

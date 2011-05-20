@@ -499,51 +499,7 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
         return false;
     }
     QByteArray content = reader.data();
-    const int makeInstallLine = content.indexOf("\t$(MAKE) INSTALL_ROOT");
-    if (makeInstallLine == -1)
-        return true;
-    const int makeInstallEol = content.indexOf('\n', makeInstallLine);
-    if (makeInstallEol == -1)
-        return true;
-    QString desktopFileDir = QFileInfo(rulesFilePath).path()
-        + QLatin1Char('/') + maemoTarget()->packageName()
-        + QLatin1String("/usr/share/applications/");
     const Qt4BuildConfiguration * const bc = qt4BuildConfiguration();
-
-    const BaseQtVersion *const lqt = bc->qtVersion();
-    if (!lqt)
-        return false;
-    const MaemoDeviceConfig::OsVersion version
-        = MaemoGlobal::version(lqt->qmakeCommand());
-    if (version == MaemoDeviceConfig::Maemo5)
-        desktopFileDir += QLatin1String("hildon/");
-#ifdef Q_OS_WIN
-    desktopFileDir.remove(QLatin1Char(':'));
-    desktopFileDir.prepend(QLatin1Char('/'));
-#endif
-    int insertPos = makeInstallEol + 1;
-    for (int i = 0; i < deployConfig()->deployables()->modelCount(); ++i) {
-        const MaemoDeployableListModel * const model
-            = deployConfig()->deployables()->modelAt(i);
-        if (!model->hasDesktopFile())
-            continue;
-        if (version == MaemoDeviceConfig::Maemo6) {
-            addWorkaroundForHarmattanBug(content, insertPos,
-                model, desktopFileDir);
-        }
-        const QString executableFilePath = model->remoteExecutableFilePath();
-        if (executableFilePath.isEmpty()) {
-            qDebug("%s: Skipping subproject %s with missing deployment information.",
-                Q_FUNC_INFO, qPrintable(model->proFilePath()));
-            continue;
-        }
-        const QByteArray lineBefore("Exec=.*");
-        const QByteArray lineAfter("Exec=" + executableFilePath.toUtf8());
-        const QString desktopFilePath = desktopFileDir
-            + model->applicationName() + QLatin1String(".desktop");
-        addSedCmdToRulesFile(content, insertPos, desktopFilePath, lineBefore,
-            lineAfter);
-    }
 
     // Always check for dependencies in release builds.
     if (!(bc->qmakeBuildConfiguration() & BaseQtVersion::DebugBuild))
@@ -558,37 +514,6 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
     QFile rulesFile(rulesFilePath);
     rulesFile.setPermissions(rulesFile.permissions() | QFile::ExeUser);
     return true;
-}
-
-void MaemoDebianPackageCreationStep::addWorkaroundForHarmattanBug(QByteArray &rulesFileContent,
-    int &insertPos, const MaemoDeployableListModel *model,
-    const QString &desktopFileDir)
-{
-    const QString iconFilePath = model->remoteIconFilePath();
-    if (iconFilePath.isEmpty())
-        return;
-    const QByteArray lineBefore("^Icon=.*");
-    const QByteArray lineAfter("Icon=" + iconFilePath.toUtf8());
-    const QString desktopFilePath
-        = desktopFileDir + model->applicationName() + QLatin1String(".desktop");
-    addSedCmdToRulesFile(rulesFileContent, insertPos, desktopFilePath,
-        lineBefore, lineAfter);
-}
-
-void MaemoDebianPackageCreationStep::addSedCmdToRulesFile(QByteArray &rulesFileContent,
-    int &insertPos, const QString &desktopFilePath, const QByteArray &oldString,
-    const QByteArray &newString)
-{
-    const QString tmpFilePath = desktopFilePath + QLatin1String(".sed");
-    const QByteArray sedCmd = "\tsed 's:" + oldString + ':' + newString
-        + ":' " + desktopFilePath.toLocal8Bit() + " > "
-        + tmpFilePath.toLocal8Bit() + " || echo -n\n";
-    const QByteArray mvCmd = "\tmv " + tmpFilePath.toLocal8Bit() + ' '
-        + desktopFilePath.toLocal8Bit() + " || echo -n\n";
-    rulesFileContent.insert(insertPos, sedCmd);
-    insertPos += sedCmd.length();
-    rulesFileContent.insert(insertPos, mvCmd);
-    insertPos += mvCmd.length();
 }
 
 
