@@ -86,7 +86,7 @@ public:
 
     void setQmlDir(const QString &qmlDirPath);
 
-    QWidget* createPropertiesPage();
+    QWidget *widget();
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList);

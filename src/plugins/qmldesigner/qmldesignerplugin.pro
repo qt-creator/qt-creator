@@ -19,7 +19,6 @@ include(components/resources/resources.pri)
 HEADERS += qmldesignerconstants.h \
     qmldesignerplugin.h \
     designmodewidget.h \
-    application.h \
     designersettings.h \
     settingspage.h \
     designmodecontext.h \
@@ -27,7 +26,6 @@ HEADERS += qmldesignerconstants.h \
 
 SOURCES += qmldesignerplugin.cpp \
     designmodewidget.cpp \
-    application.cpp \
     designersettings.cpp \
     settingspage.cpp \
     designmodecontext.cpp \

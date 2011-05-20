@@ -56,7 +56,7 @@ class QmlObjectNode;
 class RewriterView;
 class ItemLibraryView;
 class NavigatorView;
-class AllPropertiesBox;
+class PropertyEditor;
 class StatesEditorView;
 class FormEditorView;
 
@@ -94,7 +94,7 @@ public:
 
     void setItemLibraryView(ItemLibraryView* itemLibraryView);
     void setNavigator(NavigatorView* navigatorView);
-    void setAllPropertiesBox(AllPropertiesBox* allPropertiesBox);
+    void setPropertyEditorView(PropertyEditor *propertyEditor);
     void setStatesEditorView(StatesEditorView* statesEditorView);
     void setFormEditorView(FormEditorView *formEditorView);
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);

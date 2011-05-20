@@ -37,7 +37,6 @@
 #include "subcomponentmanager.h"
 #include "model/viewlogger.h"
 
-#include <allpropertiesbox.h>
 #include <itemlibraryview.h>
 #include <itemlibrarywidget.h>
 #include <navigatorview.h>
@@ -94,7 +93,7 @@ public:
 
     QWeakPointer<ItemLibraryView> itemLibraryView;
     QWeakPointer<NavigatorView> navigator;
-    QWeakPointer<AllPropertiesBox> allPropertiesBox;
+    QWeakPointer<PropertyEditor> propertyEditorView;
     QWeakPointer<StatesEditorView> statesEditorView;
     QWeakPointer<QStackedWidget> stackedWidget;
     QWeakPointer<NodeInstanceView> nodeInstanceView;
@@ -213,8 +212,8 @@ void DesignDocumentController::blockModelSync(bool block)
             if (state.isValid() && m_d->statesEditorView)
                 m_d->statesEditorView->setCurrentState(state);
             attachNodeInstanceView();
-            if (m_d->allPropertiesBox->view())
-                m_d->allPropertiesBox->view()->resetView();
+            if (m_d->propertyEditorView)
+                m_d->propertyEditorView->resetView();
         }
     }
 }
@@ -237,9 +236,9 @@ void DesignDocumentController::setNavigator(NavigatorView* navigatorView)
     m_d->navigator = navigatorView;
 }
 
-void DesignDocumentController::setAllPropertiesBox(AllPropertiesBox* allPropertiesBox)
+void DesignDocumentController::setPropertyEditorView(PropertyEditor *propertyEditor)
 {
-    m_d->allPropertiesBox = allPropertiesBox;
+    m_d->propertyEditorView = propertyEditor;
 }
 
 void DesignDocumentController::setStatesEditorView(StatesEditorView* statesEditorView)
@@ -414,7 +413,7 @@ void DesignDocumentController::loadCurrentModel()
     // Will call setCurrentState (formEditorView etc has to be constructed first)
     m_d->model->attachView(m_d->statesEditorView.data());
 
-    m_d->allPropertiesBox->setModel(m_d->model.data());
+    m_d->model->attachView(m_d->propertyEditorView.data());
 
     m_d->documentLoaded = true;
     Q_ASSERT(m_d->masterModel);

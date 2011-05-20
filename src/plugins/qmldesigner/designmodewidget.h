@@ -40,7 +40,6 @@
 
 #include <integrationcore.h>
 
-#include <allpropertiesbox.h>
 #include <designdocumentcontroller.h>
 #include <itemlibraryview.h>
 #include <navigatorwidget.h>
@@ -48,6 +47,7 @@
 #include <stateseditorview.h>
 #include <modelnode.h>
 #include <formeditorview.h>
+#include <propertyeditor.h>
 
 #include <QWeakPointer>
 #include <QDeclarativeError>
@@ -182,7 +182,7 @@ private:
 
     QWeakPointer<ItemLibraryView> m_itemLibraryView;
     QWeakPointer<NavigatorView> m_navigatorView;
-    QWeakPointer<AllPropertiesBox> m_allPropertiesBox;
+    QWeakPointer<PropertyEditor> m_propertyEditorView;
     QWeakPointer<StatesEditorView> m_statesEditorView;
     QWeakPointer<FormEditorView> m_formEditorView;
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;

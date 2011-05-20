@@ -87,6 +87,20 @@ const int collapseButtonOffset = 114;
 
 namespace QmlDesigner {
 
+#ifdef Q_OS_MAC
+#  define SHARE_PATH "/../Resources/qmldesigner"
+#else
+#  define SHARE_PATH "/../share/qtcreator/qmldesigner"
+#endif
+
+static inline QString sharedDirPath()
+{
+    QString appPath = QCoreApplication::applicationDirPath();
+
+    return QFileInfo(appPath + SHARE_PATH).absoluteFilePath();
+}
+
+
 PropertyEditor::NodeType::NodeType(PropertyEditor *propertyEditor) :
         m_view(new DeclarativeWidgetView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
         m_contextObject(new PropertyEditorContextObject())
@@ -305,11 +319,12 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
         OriginWidget::registerDeclarativeType();
         GradientLineQmlAdaptor::registerDeclarativeType();
     }
+    setQmlDir(sharedDirPath() + QLatin1String("/propertyeditor"));
+    m_stackedWidget->setWindowTitle(tr("Properties"));
 }
 
 PropertyEditor::~PropertyEditor()
 {
-    delete m_stackedWidget;
     qDeleteAll(m_typeHash);
 }
 
@@ -912,7 +927,7 @@ void PropertyEditor::select(const ModelNode &node)
     delayedResetView();
 }
 
-QWidget *PropertyEditor::createPropertiesPage()
+QWidget *PropertyEditor::widget()
 {
     delayedResetView();
     return m_stackedWidget;

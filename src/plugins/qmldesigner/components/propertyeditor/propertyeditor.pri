@@ -2,7 +2,6 @@ VPATH += $$PWD
 INCLUDEPATH += $$PWD
 SOURCES += propertyeditor.cpp \
     qmlanchorbindingproxy.cpp \
-    allpropertiesbox.cpp \
     resetwidget.cpp \
     qlayoutobject.cpp \
     basiclayouts.cpp \
@@ -22,7 +21,6 @@ SOURCES += propertyeditor.cpp \
 
 HEADERS += propertyeditor.h \
     qmlanchorbindingproxy.h \
-    allpropertiesbox.h \
     resetwidget.h \
     qlayoutobject.h \
     basiclayouts.h \

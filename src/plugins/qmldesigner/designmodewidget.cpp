@@ -307,7 +307,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
             DesignDocumentController *newDocument = new DesignDocumentController(this);
 
             newDocument->setNodeInstanceView(m_nodeInstanceView.data());
-            newDocument->setAllPropertiesBox(m_allPropertiesBox.data());
+            newDocument->setPropertyEditorView(m_propertyEditorView.data());
             newDocument->setNavigator(m_navigatorView.data());
             newDocument->setStatesEditorView(m_statesEditorView.data());
             newDocument->setItemLibraryView(m_itemLibraryView.data());
@@ -667,7 +667,7 @@ void DesignModeWidget::setup()
     connect(m_nodeInstanceView.data(), SIGNAL(qmlPuppetCrashed()), this, SLOT(qmlPuppetCrashed()));
      // Sidebar takes ownership
     m_navigatorView = new NavigatorView;
-    m_allPropertiesBox = new AllPropertiesBox;
+    m_propertyEditorView = new PropertyEditor(this);
     m_itemLibraryView = new ItemLibraryView(this);
 
     m_statesEditorView = new StatesEditorView(this);
@@ -685,7 +685,7 @@ void DesignModeWidget::setup()
 
     Core::SideBarItem *navigatorItem = new NavigatorSideBarItem(m_navigatorView->widget(), QLatin1String(SB_NAVIGATOR));
     Core::SideBarItem *libraryItem = new ItemLibrarySideBarItem(m_itemLibraryView->widget(), QLatin1String(SB_LIBRARY));
-    Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_allPropertiesBox.data(), QLatin1String(SB_PROPERTIES));
+    Core::SideBarItem *propertiesItem = new Core::SideBarItem(m_propertyEditorView->widget(), QLatin1String(SB_PROPERTIES));
 
     // default items
     m_sideBarItems << navigatorItem << libraryItem << propertiesItem;
