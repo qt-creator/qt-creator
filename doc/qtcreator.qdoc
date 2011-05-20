@@ -3316,9 +3316,7 @@
 
     Qt Creator parses all the source files in the project and performs a semantic
     analysis to build up the information that it needs for functions such as
-    navigation and finding usages. Qt Creator also scans for all include files in
-    your include path recursively, so that it can complete them.
-    Progress bars are displayed during parsing and scanning.
+    navigation and finding usages. A progress bar is displayed during parsing.
 
 */
 
