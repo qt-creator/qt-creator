@@ -374,7 +374,7 @@ void QtVersionManager::findSystemQt()
         return;
 
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(systemQMakePath);
-    version->setDisplayName(tr("Qt in PATH (%1)").arg(version->qtVersionString()));
+    version->setDisplayName(BaseQtVersion::defaultDisplayName(version->qtVersionString(), systemQMakePath, true));
     m_versions.insert(version->uniqueId(), version);
 }
 

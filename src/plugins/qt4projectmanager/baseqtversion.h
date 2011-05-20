@@ -189,6 +189,10 @@ public:
 
     virtual QtConfigWidget *createConfigurationWidget() const;
 
+    static QString defaultDisplayName(const QString &versionString,
+                                      const QString &qmakePath,
+                                      bool fromPath = false);
+
 protected:
     BaseQtVersion();
     BaseQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());

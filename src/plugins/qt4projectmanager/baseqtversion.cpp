@@ -50,6 +50,7 @@
 #include <utils/synchronousprocess.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QProcess>
 
@@ -183,7 +184,7 @@ BaseQtVersion::BaseQtVersion(const QString &qmakeCommand, bool isAutodetected, c
       m_qmakeIsExecutable(false)
 {
     ctor(qmakeCommand);
-    setDisplayName(qtVersionString());
+    setDisplayName(defaultDisplayName(qtVersionString(), qmakeCommand, false));
 }
 
 BaseQtVersion::BaseQtVersion()
@@ -222,10 +223,37 @@ void BaseQtVersion::ctor(const QString& qmakePath)
     m_sourcePath.clear();
 }
 
-
 BaseQtVersion::~BaseQtVersion()
 {
+}
 
+QString BaseQtVersion::defaultDisplayName(const QString &versionString, const QString &qmakePath,
+                                          bool fromPath)
+{
+    QString location;
+    if (qmakePath.isEmpty()) {
+        location = QCoreApplication::translate("QtVersion", "<unknown>");
+    } else {
+        // Deduce a description from '/foo/qt-folder/[qtbase]/bin/qmake' -> '/foo/qt-folder'.
+        // '/usr' indicates System Qt 4.X on Linux.
+        QDir dir = QFileInfo(qmakePath).absoluteDir();
+        do {
+            const QString dirName = dir.dirName();
+            if (dirName == QLatin1String("usr")) { // System-installed Qt.
+                location = QCoreApplication::translate("QtVersion", "System");
+                break;
+            }
+            if (dirName.compare(QLatin1String("bin"), Qt::CaseInsensitive)
+                && dirName.compare(QLatin1String("qtbase"), Qt::CaseInsensitive)) {
+                location = dirName;
+                break;
+            }
+        } while (dir.cdUp());
+    }
+
+    return fromPath ?
+        QCoreApplication::translate("QtVersion", "Qt %1 in PATH (%2)").arg(versionString, location) :
+        QCoreApplication::translate("QtVersion", "Qt %1 (%2)").arg(versionString, location);
 }
 
 void BaseQtVersion::setId(int id)
