@@ -38,5 +38,6 @@
         <file>images/targetpanel_gradient.png</file>
         <file>images/targetaddbutton_disabled.png</file>
         <file>images/targetremovebutton_disabled.png</file>
+        <file>images/window.png</file>
     </qresource>
 </RCC>

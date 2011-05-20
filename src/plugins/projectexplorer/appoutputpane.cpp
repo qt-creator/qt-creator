@@ -47,7 +47,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/outputformatter.h>
 
@@ -259,8 +258,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     Core::Context context(Constants::C_APP_OUTPUT, counter++);
     Core::OutputWindow *ow = new Core::OutputWindow(context, m_tabWidget);
     ow->setWindowTitle(tr("Application Output Window"));
-    // TODO the following is a hidden impossible dependency of projectexplorer on qt4projectmanager
-    ow->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
+    ow->setWindowIcon(QIcon(QLatin1String(Constants::ICON_WINDOW)));
     ow->setFormatter(formatter);
     ow->setWordWrapEnabled(ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput);
     ow->setMaxLineCount(ProjectExplorerPlugin::instance()->projectExplorerSettings().maxAppOutputLines);

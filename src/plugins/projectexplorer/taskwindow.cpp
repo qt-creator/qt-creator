@@ -43,7 +43,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -623,7 +622,7 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
     d->m_listview->setSelectionMode(QAbstractItemView::SingleSelection);
     Internal::TaskDelegate *tld = new Internal::TaskDelegate(this);
     d->m_listview->setItemDelegate(tld);
-    d->m_listview->setWindowIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_WINDOW)));
+    d->m_listview->setWindowIcon(QIcon(QLatin1String(Constants::ICON_WINDOW)));
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
     d->m_listview->setAttribute(Qt::WA_MacShowFocusRect, false);
 

@@ -120,7 +120,6 @@ const char * const WINCEQT     = "Qt4ProjectManager.QtVersion.WinCE";
 
 // ICONS
 const char * const ICON_QT_PROJECT = ":/qt4projectmanager/images/qt_project.png";
-const char * const ICON_WINDOW = ":/qt4projectmanager/images/window.png";
 const char * const ICON_QTQUICK_APP = ":/wizards/images/qtquickapp.png";
 const char * const ICON_HTML5_APP = ":/wizards/images/html5app.png";
 

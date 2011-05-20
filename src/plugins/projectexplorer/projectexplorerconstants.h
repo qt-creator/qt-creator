@@ -165,6 +165,7 @@ const char * const ICON_RUN_SMALL       = ":/projectexplorer/images/run_small.pn
 const char * const ICON_DEBUG_SMALL     = ":/projectexplorer/images/debugger_start_small.png";
 const char * const ICON_STOP            = ":/projectexplorer/images/stop.png";
 const char * const ICON_TOOLCHAIN_SETTINGS_CATEGORY = ":projectexplorer/images/build.png"; // FIXME: Need an icon!
+const char * const ICON_WINDOW          = ":/projectexplorer/images/window.png";
 
 const char * const TASK_BUILD           = "ProjectExplorer.Task.Build";
 
