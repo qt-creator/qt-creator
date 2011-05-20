@@ -516,6 +516,8 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
 
     // make sure mode is shown
     q->showMode();
+    if (q->currentTool()->needsOutputPane())
+        q->popupOutputPane();
 
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
 
@@ -896,6 +898,10 @@ void AnalyzerManager::showMode()
 {
     if (d->m_mode)
         ModeManager::instance()->activateMode(d->m_mode->id());
+}
+
+void AnalyzerManager::popupOutputPane()
+{
     d->m_outputpane->popup();
 }
 

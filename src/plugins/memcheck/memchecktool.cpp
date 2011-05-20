@@ -320,9 +320,11 @@ IAnalyzerTool::ToolMode MemcheckTool::mode() const
     return DebugMode;
 }
 
-class FrameFinder : public ErrorListModel::RelevantFrameFinder {
+class FrameFinder : public ErrorListModel::RelevantFrameFinder
+{
 public:
-    Frame findRelevant(const Error &error) const {
+    Frame findRelevant(const Error &error) const
+    {
         const QVector<Stack> stacks = error.stacks();
         if (stacks.isEmpty())
             return Frame();
@@ -467,7 +469,7 @@ void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)
 
 QMenu *MemcheckTool::filterMenu() const
 {
-    QTC_ASSERT(m_suppressionSeparator, return 0; )
+    QTC_ASSERT(m_suppressionSeparator, return 0);
     foreach (QWidget *w, m_suppressionSeparator->associatedWidgets())
         if (QMenu *menu = qobject_cast<QMenu *>(w))
             return menu;
@@ -491,7 +493,8 @@ void MemcheckTool::parserError(const Valgrind::XmlProtocol::Error &error)
 
 void MemcheckTool::internalParserError(const QString &errorString)
 {
-    QMessageBox::critical(m_errorView, tr("Internal Error"), tr("Error occurred parsing valgrind output: %1").arg(errorString));
+    QMessageBox::critical(m_errorView, tr("Internal Error"),
+        tr("Error occurred parsing valgrind output: %1").arg(errorString));
 }
 
 void MemcheckTool::clearErrorView()

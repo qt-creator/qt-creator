@@ -61,10 +61,6 @@ CallgrindEngine::CallgrindEngine(const AnalyzerStartParameters &sp,
     m_progress->setProgressRange(0, 2);
 }
 
-CallgrindEngine::~CallgrindEngine()
-{
-}
-
 QStringList CallgrindEngine::toolArguments() const
 {
     QStringList arguments;

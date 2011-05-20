@@ -38,7 +38,8 @@
 #include <QtCore/QMap>
 #include <QtCore/QString>
 
-using namespace Callgrind::Internal;
+namespace Callgrind {
+namespace Internal {
 
 QColor CallgrindHelper::colorForString(const QString &text)
 {
@@ -65,10 +66,12 @@ QString CallgrindHelper::toPercent(float costs, const QLocale &locale)
 {
     if (costs > 99.9f)
         return locale.toString(100) + locale.percent();
-    else if (costs > 9.99f)
+    if (costs > 9.99f)
         return locale.toString(costs, 'f', 1) + locale.percent();
-    else if (costs > 0.009f)
+    if (costs > 0.009f)
         return locale.toString(costs, 'f', 2) + locale.percent();
-    else
-        return QString("<") + locale.toString(0.01f) + locale.percent();
+    return QString("<") + locale.toString(0.01f) + locale.percent();
 }
+
+} // namespace Internal
+} // namespace Callgrind

@@ -64,6 +64,7 @@ class AnalyzerSettings;
 
 namespace Memcheck {
 namespace Internal {
+
 class MemCheckOutputPaneAdapter;
 class MemcheckErrorView;
 class FrameFinder;
@@ -71,6 +72,7 @@ class FrameFinder;
 class MemcheckErrorFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
+
 public:
     MemcheckErrorFilterProxyModel(QObject *parent = 0);
 
@@ -80,6 +82,7 @@ public slots:
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+
 private:
     QList<int> m_acceptedKinds;
     bool m_filterExternalIssues;
@@ -88,6 +91,7 @@ private:
 class MemcheckTool : public Analyzer::IAnalyzerTool
 {
     Q_OBJECT
+
 public:
     explicit MemcheckTool(QObject *parent = 0);
 
@@ -96,18 +100,19 @@ public:
     ToolMode mode() const;
 
     void initialize();
-    virtual void extensionsInitialized() {}
+    void extensionsInitialized() {}
 
-    virtual Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();
-    virtual Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
-                                  ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();
+    Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
+                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     // For the output pane adapter.
     MemcheckErrorView *ensurePaneErrorView();
     QWidget *createPaneToolBarWidget();
     void clearErrorView();
 
-    virtual bool canRunRemotely() const;
+    bool canRunRemotely() const;
+    bool needsOutputPane() const { return true; }
 
 private slots:
     void settingsDestroyed(QObject *settings);

@@ -110,6 +110,9 @@ public:
 
     /// @return true when this tool can be run remotely, e.g. on a meego or maemo device
     virtual bool canRunRemotely() const = 0;
+
+    /// @return true when this tool needs the output pane to be show on startup
+    virtual bool needsOutputPane() const = 0;
 };
 
 } // namespace Analyzer

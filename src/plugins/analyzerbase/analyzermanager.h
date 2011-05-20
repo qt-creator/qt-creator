@@ -102,6 +102,7 @@ public:
     AnalyzerRunControl *createAnalyzer(const AnalyzerStartParameters &sp,
                                        ProjectExplorer::RunConfiguration *rc = 0);
     void showMode();
+    void popupOutputPane();
 
 public slots:
     void startTool();

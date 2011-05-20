@@ -36,15 +36,16 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerattachdialog.h"
+#include "qmlprofilersummaryview.h"
 
 #include "tracewindow.h"
+#include "timelineview.h"
+
 #include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
 #include <analyzerbase/ianalyzeroutputpaneadapter.h>
-
-#include "timelineview.h"
 
 #include "canvas/qdeclarativecanvas_p.h"
 #include "canvas/qdeclarativecontext2d_p.h"
@@ -69,10 +70,8 @@
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
-#include <QtGui/QToolButton>
-
 #include <QtGui/QTabWidget>
-#include "qmlprofilersummaryview.h"
+#include <QtGui/QToolButton>
 
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;
@@ -95,7 +94,6 @@ public:
     virtual bool canPrevious() const { return false; /*TODO*/ }
     virtual void goToNext() { /*TODO*/ }
     virtual void goToPrev() { /*TODO*/ }
-
 
 private:
     QmlProfilerTool *m_tool;
@@ -402,6 +400,7 @@ void QmlProfilerTool::attach()
 
         connectClient();
         AnalyzerManager::instance()->showMode();
+        AnalyzerManager::instance()->popupOutputPane();
     } else {
         stopRecording();
     }

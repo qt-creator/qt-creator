@@ -43,6 +43,7 @@ namespace Internal {
 class QmlProfilerTool : public Analyzer::IAnalyzerTool
 {
     Q_OBJECT
+
 public:
     explicit QmlProfilerTool(QObject *parent = 0);
     ~QmlProfilerTool();
@@ -62,6 +63,7 @@ public:
     QWidget *createTimeLineWidget();
 
     bool canRunRemotely() const;
+    bool needsOutputPane() const { return false; }
 
     void clearDisplay();
 

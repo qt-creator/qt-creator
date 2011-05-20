@@ -44,10 +44,10 @@ namespace Internal {
 class CallgrindEngine : public Valgrind::Internal::ValgrindEngine
 {
     Q_OBJECT
+
 public:
     explicit CallgrindEngine(const Analyzer::AnalyzerStartParameters &sp,
                              ProjectExplorer::RunConfiguration *runConfiguration);
-    virtual ~CallgrindEngine();
 
     void start();
 

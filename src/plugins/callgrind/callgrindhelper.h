@@ -62,7 +62,7 @@ namespace CallgrindHelper
     QString toPercent(float costs, const QLocale &locale = QLocale());
 }
 
-}
-}
+} // namespace Internal
+} // namespace Callgrind
 
 #endif // CALLGRINDHELPER_H

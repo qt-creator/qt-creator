@@ -85,10 +85,10 @@ public:
     virtual QWidget *createControlWidget();
 
     // For the output pane adapter.
-    CallgrindWidgetHandler *callgrindWidgetHandler() const;
     void clearErrorView();
 
     virtual bool canRunRemotely() const;
+    bool needsOutputPane() const { return false; }
 
 signals:
     void dumpRequested();

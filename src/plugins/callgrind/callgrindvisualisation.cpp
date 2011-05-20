@@ -57,7 +57,7 @@
 // QGraphicsView::fitInView(const QRectF &rect,
 //                          Qt::AspectRatioMode aspectRatioMode)
 // Bug report here: http://bugreports.qt.nokia.com/browse/QTBUG-11945
-#define FIT_IN_VIEW_MARGIN 2;
+static const int FIT_IN_VIEW_MARGIN = 2;
 
 using namespace Valgrind::Callgrind;
 
@@ -218,7 +218,6 @@ class Visualisation::Private
 {
 public:
     Private(Visualisation *qq);
-    ~Private();
 
     void handleMousePressEvent(QMouseEvent *event, bool doubleClicked);
     qreal sceneHeight() const;
@@ -243,11 +242,6 @@ Visualisation::Private::Private(Visualisation *qq)
     connect(m_model,
             SIGNAL(filterFunctionChanged(const Function*,const Function*)),
             qq, SLOT(populateScene()));
-}
-
-Visualisation::Private::~Private()
-{
-
 }
 
 void Visualisation::Private::handleMousePressEvent(QMouseEvent *event,
@@ -466,5 +460,5 @@ void Visualisation::resizeEvent(QResizeEvent *event)
     QGraphicsView::resizeEvent(event);
 }
 
-} // Internal
-} // Callgrind
+} // namespace Internal
+} // namespace Callgrind

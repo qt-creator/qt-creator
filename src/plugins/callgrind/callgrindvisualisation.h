@@ -88,7 +88,7 @@ private:
     Private *d;
 };
 
-} // Internal
-} // Callgrind
+} // namespace Internal
+} // namespace Callgrind
 
 #endif // VALGRIND_CALLGRIND_CALLGRINDVISUALISATION_H

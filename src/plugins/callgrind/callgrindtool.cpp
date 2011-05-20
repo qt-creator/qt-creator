@@ -43,7 +43,6 @@
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzersettings.h>
 #include <analyzerbase/analyzerutils.h>
-#include <analyzerbase/ianalyzeroutputpaneadapter.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
@@ -98,13 +97,13 @@ static QToolButton *createToolButton(QAction *action)
 }
 
 CallgrindTool::CallgrindTool(QObject *parent)
-: Analyzer::IAnalyzerTool(parent)
-, m_callgrindWidgetHandler(0)
-, m_dumpAction(0)
-, m_resetAction(0)
-, m_pauseAction(0)
-, m_showCostsOfFunctionAction(0)
-, m_toolbarWidget(0)
+    : Analyzer::IAnalyzerTool(parent)
+    , m_callgrindWidgetHandler(0)
+    , m_dumpAction(0)
+    , m_resetAction(0)
+    , m_pauseAction(0)
+    , m_showCostsOfFunctionAction(0)
+    , m_toolbarWidget(0)
 {
     Core::ICore *core = Core::ICore::instance();
 
@@ -226,12 +225,12 @@ IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
 {
     CallgrindEngine *engine = new CallgrindEngine(sp, runConfiguration);
 
-    connect(engine, SIGNAL(parserDataReady(CallgrindEngine *)), SLOT(takeParserData(CallgrindEngine *)));
-
+    connect(engine, SIGNAL(parserDataReady(CallgrindEngine *)),
+            SLOT(takeParserData(CallgrindEngine *)));
     connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
-            this, SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
+            SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
     connect(engine, SIGNAL(finished()),
-            this, SLOT(engineFinished()));
+            SLOT(engineFinished()));
 
     connect(this, SIGNAL(dumpRequested()), engine, SLOT(dump()));
     connect(this, SIGNAL(resetRequested()), engine, SLOT(reset()));
@@ -297,11 +296,6 @@ QWidget *CallgrindTool::createControlWidget()
     layout->addStretch();
 
     return widget;
-}
-
-CallgrindWidgetHandler *CallgrindTool::callgrindWidgetHandler() const
-{
-  return m_callgrindWidgetHandler;
 }
 
 void CallgrindTool::clearErrorView()
