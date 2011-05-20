@@ -333,7 +333,7 @@ void GenericProposalWidget::setIsSynchronized(bool isSync)
 void GenericProposalWidget::showProposal(const QString &prefix)
 {
     ensurePolished();
-    if (m_d->m_isSynchronized && !prefix.isEmpty())
+    if (!prefix.isEmpty())
         m_d->m_gotContent = true;
     m_d->m_model->removeDuplicates();
     if (!updateAndCheck(prefix))
@@ -407,7 +407,8 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
 
     if (TextEditorSettings::instance()->completionSettings().m_partiallyComplete
             && m_d->m_reason == ExplicitlyInvoked
-            && m_d->m_gotContent) {
+            && m_d->m_gotContent
+            && m_d->m_isSynchronized) {
         if (m_d->m_model->size() == 1) {
             IAssistProposalItem *item = m_d->m_model->proposalItem(0);
             if (item->implicitlyApplies()) {
