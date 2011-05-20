@@ -54,13 +54,12 @@ public:
 
     void initialize();
     void extensionsInitialized();
+    void initializeDockWidgets();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
                                             ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
-    Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();
-    QWidget *createToolBarWidget();
-    QWidget *createTimeLineWidget();
+    QWidget *createControlWidget();
 
     bool canRunRemotely() const;
     bool needsOutputPane() const { return false; }

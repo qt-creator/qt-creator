@@ -45,13 +45,13 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
-#include <analyzerbase/ianalyzeroutputpaneadapter.h>
 
 #include "canvas/qdeclarativecanvas_p.h"
 #include "canvas/qdeclarativecontext2d_p.h"
 #include "canvas/qdeclarativetiledcanvas_p.h"
 
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+#include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
 #include <projectexplorer/projectexplorer.h>
@@ -76,29 +76,6 @@
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;
 
-// Adapter for output pane.
-class QmlProfilerOutputPaneAdapter : public Analyzer::IAnalyzerOutputPaneAdapter
-{
-public:
-    explicit QmlProfilerOutputPaneAdapter(QmlProfilerTool *mct) :
-        IAnalyzerOutputPaneAdapter(mct), m_tool(mct) {}
-
-    virtual QWidget *toolBarWidget() { return m_tool->createToolBarWidget(); }
-    virtual QWidget *paneWidget() { return m_tool->createTimeLineWidget(); }
-    virtual void clearContents() { m_tool->clearDisplay(); }
-    virtual void setFocus() { /*TODO*/ }
-    virtual bool hasFocus() const { return false; /*TODO*/ }
-    virtual bool canFocus() const { return false; /*TODO*/ }
-    virtual bool canNavigate() const { return false; /*TODO*/ }
-    virtual bool canNext() const { return false; /*TODO*/ }
-    virtual bool canPrevious() const { return false; /*TODO*/ }
-    virtual void goToNext() { /*TODO*/ }
-    virtual void goToPrev() { /*TODO*/ }
-
-private:
-    QmlProfilerTool *m_tool;
-};
-
 class QmlProfilerTool::QmlProfilerToolPrivate
 {
 public:
@@ -111,9 +88,7 @@ public:
     QTimer m_connectionTimer;
     int m_connectionAttempts;
     TraceWindow *m_traceWindow;
-    QTabWidget *m_tabbed;
     QmlProfilerSummaryView *m_summary;
-    QmlProfilerOutputPaneAdapter *m_outputPaneAdapter;
     ProjectExplorer::Project *m_project;
     Utils::FileInProjectFinder m_projectFinder;
     ProjectExplorer::RunConfiguration *m_runConfiguration;
@@ -131,7 +106,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
      d->m_client = 0;
      d->m_connectionAttempts = 0;
      d->m_traceWindow = 0;
-     d->m_outputPaneAdapter = 0;
      d->m_project = 0;
      d->m_runConfiguration = 0;
      d->m_isAttached = false;
@@ -144,11 +118,7 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
 QmlProfilerTool::~QmlProfilerTool()
 {
-    if (d->m_client)
-        delete d->m_client;
-    delete d->m_tabbed;
-
-    delete d->m_outputPaneAdapter;
+    delete d->m_client;
     delete d;
 }
 
@@ -201,25 +171,32 @@ void QmlProfilerTool::initialize()
     qmlRegisterType<Context2D>();
     qmlRegisterType<CanvasImage>();
     qmlRegisterType<CanvasGradient>();
-
     qmlRegisterType<TimelineView>("Monitor", 1, 0,"TimelineView");
+}
 
-    d->m_tabbed = new QTabWidget();
+void QmlProfilerTool::extensionsInitialized()
+{
+}
 
-    d->m_traceWindow = new TraceWindow(d->m_tabbed);
+void QmlProfilerTool::initializeDockWidgets()
+{
+    Analyzer::AnalyzerManager *analyzerMgr = Analyzer::AnalyzerManager::instance();
+    QMainWindow *mw = analyzerMgr->mainWindow();
+
+    d->m_traceWindow = new TraceWindow(mw);
     d->m_traceWindow->reset(d->m_client);
 
-    connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)),this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
 
-    d->m_summary = new QmlProfilerSummaryView(d->m_tabbed);
-    d->m_tabbed->addTab(d->m_traceWindow, "timeline");
-    d->m_tabbed->addTab(d->m_summary, "summary");
+    d->m_summary = new QmlProfilerSummaryView(mw);
 
-    connect(d->m_traceWindow,SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),
-            d->m_summary,SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
-    connect(d->m_traceWindow,SIGNAL(viewUpdated()), d->m_summary, SLOT(complete()));
-    connect(d->m_summary,SIGNAL(gotoSourceLocation(QString,int)), this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_traceWindow, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),
+            d->m_summary, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
+    connect(d->m_traceWindow, SIGNAL(viewUpdated()),
+            d->m_summary, SLOT(complete()));
+    connect(d->m_summary, SIGNAL(gotoSourceLocation(QString,int)),
+            this, SLOT(gotoSourceLocation(QString,int)));
 
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
@@ -233,25 +210,25 @@ void QmlProfilerTool::initialize()
     manalyzer->addAction(command, Analyzer::Constants::G_ANALYZER_STARTSTOP);
     connect(d->m_attachAction, SIGNAL(triggered()), this, SLOT(attach()));
 
-    Analyzer::AnalyzerManager *analyzerMgr = Analyzer::AnalyzerManager::instance();
     connect(analyzerMgr, SIGNAL(currentToolChanged(Analyzer::IAnalyzerTool*)),
             this, SLOT(updateAttachAction()));
 
     updateAttachAction();
+
+    QDockWidget *summaryDock =
+        analyzerMgr->createDockWidget(this, tr("Summary"),
+                             d->m_summary, Qt::BottomDockWidgetArea);
+
+    QDockWidget *timelineDock =
+        analyzerMgr->createDockWidget(this, tr("Timeline"),
+                            d->m_traceWindow, Qt::BottomDockWidgetArea);
+
+    //mw->splitDockWidget(flatDock, calleesDock, Qt::Vertical);
+    mw->tabifyDockWidget(summaryDock, timelineDock);
 }
 
-void QmlProfilerTool::extensionsInitialized()
-{
-}
 
-IAnalyzerOutputPaneAdapter *QmlProfilerTool::outputPaneAdapter()
-{
-    if (!d->m_outputPaneAdapter)
-        d->m_outputPaneAdapter = new QmlProfilerOutputPaneAdapter(this);
-    return d->m_outputPaneAdapter;
-}
-
-QWidget *QmlProfilerTool::createToolBarWidget()
+QWidget *QmlProfilerTool::createControlWidget()
 {
     // custom toolbar (TODO)
     QWidget *toolbarWidget = new QWidget;
@@ -282,11 +259,6 @@ QWidget *QmlProfilerTool::createToolBarWidget()
     return toolbarWidget;
 }
 
-QWidget *QmlProfilerTool::createTimeLineWidget()
-{
-    return d->m_tabbed;
-}
-
 void QmlProfilerTool::connectClient()
 {
     QTC_ASSERT(!d->m_client, return;)
@@ -303,7 +275,6 @@ void QmlProfilerTool::connectToClient()
         return;
     if (QmlProfilerPlugin::debugOutput)
         qWarning("QmlProfiler: Connecting to %s:%lld ...", qPrintable(d->m_host), d->m_port);
-
 
     d->m_client->connectToHost(d->m_host, d->m_port);
 }

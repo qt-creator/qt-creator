@@ -73,6 +73,7 @@ class TracePlugin : public QDeclarativeDebugClient
 {
     Q_OBJECT
     Q_PROPERTY(bool recording READ recording WRITE setRecording NOTIFY recordingChanged)
+
 public:
     TracePlugin(QDeclarativeDebugConnection *client);
 

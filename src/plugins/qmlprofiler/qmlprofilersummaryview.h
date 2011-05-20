@@ -42,6 +42,7 @@ namespace Internal {
 class QmlProfilerSummaryView : public QTreeView
 {
     Q_OBJECT
+
 public:
     explicit QmlProfilerSummaryView(QWidget *parent = 0);
     ~QmlProfilerSummaryView();
@@ -51,7 +52,8 @@ signals:
 
 public slots:
     void clean();
-    void addRangedEvent(int type, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
+    void addRangedEvent(int type, qint64 startTime, qint64 length,
+                        const QStringList &data, const QString &fileName, int line);
     void complete();
     void jumpToItem(const QModelIndex &index);
 
@@ -70,10 +72,9 @@ private:
                    double mintime);
     void setHeaderLabels();
     QString displayTime(double time) const;
-
 };
 
-}
-}
+} // namespace Internal
+} // namespace QmlProfiler
 
 #endif // QMLPROFILERSUMMARYVIEW_H

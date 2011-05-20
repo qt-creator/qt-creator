@@ -41,7 +41,8 @@
 
 using namespace QmlProfiler::Internal;
 
-struct BindingData {
+struct BindingData
+{
     QString displayname;
     QString filename;
     int line;
@@ -56,7 +57,7 @@ struct BindingData {
 class QmlProfilerSummaryView::QmlProfilerSummaryViewPrivate
 {
 public:
-    QmlProfilerSummaryViewPrivate(QmlProfilerSummaryView *qq):q(qq) {}
+    QmlProfilerSummaryViewPrivate(QmlProfilerSummaryView *qq) : q(qq) {}
     ~QmlProfilerSummaryViewPrivate() {}
 
     QmlProfilerSummaryView *q;
@@ -96,6 +97,7 @@ public:
 QmlProfilerSummaryView::QmlProfilerSummaryView(QWidget *parent) :
     QTreeView(parent), d(new QmlProfilerSummaryViewPrivate(this))
 {
+    setObjectName("QmlProfilerSummaryView");
     setRootIsDecorated(false);
     header()->setResizeMode(QHeaderView::Interactive);
     header()->setMinimumSectionSize(100);
