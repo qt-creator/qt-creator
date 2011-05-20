@@ -241,6 +241,14 @@ QString BasicProposalItemListModel::proposalPrefix() const
 
     // Compute common prefix
     QString firstKey = m_currentItems.first()->text();
+    int ignore = 0;
+    for (int i = firstKey.length() - 1; i >= 0; --i, ++ignore) {
+        const QChar &c = firstKey.at(i);
+        if (c.isLetterOrNumber() || c == QLatin1Char('_'))
+            break;
+    }
+    if (ignore)
+        firstKey.chop(ignore);
     QString lastKey = m_currentItems.last()->text();
     const int length = qMin(firstKey.length(), lastKey.length());
     firstKey.truncate(length);
