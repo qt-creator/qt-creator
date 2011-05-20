@@ -264,11 +264,14 @@ void Qt4ProjectConfigWidget::qtVersionsChanged()
     QList<BaseQtVersion *> validVersions = vm->versionsForTargetId(m_buildConfiguration->target()->id());
     if (!validVersions.isEmpty()) {
         for (int i = 0; i < validVersions.size(); ++i) {
-            m_ui->qtVersionComboBox->addItem(validVersions.at(i)->displayName(),
-                                             validVersions.at(i)->uniqueId());
+            const BaseQtVersion *version = validVersions.at(i);
+            m_ui->qtVersionComboBox->addItem(version->displayName(),
+                                             version->uniqueId());
 
-            if (validVersions.at(i) == qtVersion)
+            if (version == qtVersion) {
                 m_ui->qtVersionComboBox->setCurrentIndex(i);
+                m_ui->qtVersionComboBox->setToolTip(version->toHtml(false));
+            }
         }
     }
     if (!qtVersion || !qtVersion->isValid()) {
@@ -466,6 +469,7 @@ void Qt4ProjectConfigWidget::qtVersionSelected(const QString &)
     m_ignoreChange = true;
     m_buildConfiguration->setQtVersion(newQtVersion);
     m_ignoreChange = false;
+    m_ui->qtVersionComboBox->setToolTip(newQtVersion ? newQtVersion->toHtml(false) : QString());
 
     updateShadowBuildUi();
     updateToolChainCombo();
