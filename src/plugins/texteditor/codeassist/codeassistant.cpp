@@ -126,6 +126,7 @@ private:
     bool m_receivedContentWhileWaiting;
     QTimer m_automaticProposalTimer;
     CompletionSettings m_settings;
+    static const QChar m_null;
 };
 
 } // TextEditor
@@ -133,6 +134,8 @@ private:
 // --------------------
 // CodeAssistantPrivate
 // --------------------
+const QChar CodeAssistantPrivate::m_null;
+
 CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     : m_q(assistant)
     , m_textEditor(0)
@@ -373,7 +376,10 @@ CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
         const int length = provider->activationCharSequenceLength();
         if (length == 0)
             continue;
-        const QString &sequence = m_textEditor->textAt(m_textEditor->position() - length, length);
+        QString sequence = m_textEditor->textAt(m_textEditor->position() - length, length);
+        const int lengthDiff = length - sequence.length();
+        for (int j = 0; j < lengthDiff; ++j)
+            sequence.prepend(m_null);
         if (provider->isActivationCharSequence(sequence))
             return provider;
     }
