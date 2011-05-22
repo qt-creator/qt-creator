@@ -786,21 +786,29 @@ void BaseTextEditorWidget::gotoNextCharacterWithSelection()
 void BaseTextEditorWidget::gotoPreviousWord()
 {
     moveCursor(QTextCursor::PreviousWord);
+    // workaround to ensure blinking cursor is visible after move
+    setTextCursor(textCursor());
 }
 
 void BaseTextEditorWidget::gotoPreviousWordWithSelection()
 {
     moveCursor(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+    // workaround to ensure blinking cursor is visible after move
+    setTextCursor(textCursor());
 }
 
 void BaseTextEditorWidget::gotoNextWord()
 {
     moveCursor(QTextCursor::NextWord);
+    // workaround to ensure blinking cursor is visible after move
+    setTextCursor(textCursor());
 }
 
 void BaseTextEditorWidget::gotoNextWordWithSelection()
 {
     moveCursor(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+    // workaround to ensure blinking cursor is visible after move
+    setTextCursor(textCursor());
 }
 
 void BaseTextEditorWidget::gotoPreviousWordCamelCase()
