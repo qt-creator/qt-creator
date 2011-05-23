@@ -1472,7 +1472,11 @@ class Dumper:
 
     def putAddress(self, addr):
         if self.printsAddress:
-            self.put('addr="0x%x",' % long(addr))
+            try:
+                # addr can be "None", long(None) fails.
+                self.put('addr="0x%x",' % long(addr))
+            except:
+                pass
 
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
