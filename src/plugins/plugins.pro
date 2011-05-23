@@ -44,9 +44,7 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmlprofiler
 
 !win32 {
-     SUBDIRS += plugin_valgrindtoolbase \
-                plugin_memcheck \
-                plugin_callgrind
+     SUBDIRS += plugin_valgrind
 }
 
 linux-* {
@@ -256,19 +254,9 @@ plugin_analyzerbase.depends = plugin_coreplugin
 plugin_analyzerbase.depends += plugin_projectexplorer
 
 !win32 {
-    plugin_valgrindtoolbase.subdir = valgrindtoolbase
-    plugin_valgrindtoolbase.depends = plugin_coreplugin
-    plugin_valgrindtoolbase.depends += plugin_analyzerbase
-
-    plugin_memcheck.subdir = memcheck
-    plugin_memcheck.depends = plugin_coreplugin
-    plugin_memcheck.depends += plugin_analyzerbase
-    plugin_memcheck.depends += plugin_valgrindtoolbase
-
-    plugin_callgrind.subdir = callgrind
-    plugin_callgrind.depends = plugin_coreplugin
-    plugin_callgrind.depends += plugin_analyzerbase
-    plugin_callgrind.depends += plugin_valgrindtoolbase
+    plugin_valgrind.subdir = valgrind
+    plugin_valgrind.depends = plugin_coreplugin
+    plugin_valgrind.depends += plugin_analyzerbase
 }
 
 plugin_qmlprofiler.subdir = qmlprofiler
