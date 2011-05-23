@@ -101,6 +101,7 @@ QmlProfilerSummaryView::QmlProfilerSummaryView(QWidget *parent) :
     header()->setResizeMode(QHeaderView::Interactive);
     header()->setMinimumSectionSize(100);
     setSortingEnabled(false);
+    setFrameStyle(QFrame::NoFrame);
 
     d->m_model = new QStandardItemModel(this);
 
