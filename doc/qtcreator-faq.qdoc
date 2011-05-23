@@ -21,9 +21,15 @@
 
 /*!
     \contentspage index.html
+    \if defined(qcmanual)
     \previouspage creator-keyboard-shortcuts.html
+    \else
+    \endif
     \page creator-faq.html
+    \if defined(qcmanual)
     \nextpage creator-tips.html
+    \else
+    \endif
 
     \title FAQ
 
