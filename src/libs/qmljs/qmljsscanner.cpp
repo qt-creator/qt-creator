@@ -166,22 +166,22 @@ static int findRegExpEnd(const QString &text, int start)
 
 static inline int multiLineState(int state)
 {
-    return state & 0b11;
+    return state & 0x3;
 }
 
 static inline void setMultiLineState(int *state, int s)
 {
-    *state = s | (*state & ~0b11);
+    *state = s | (*state & ~0x3);
 }
 
 static inline bool regexpMayFollow(int state)
 {
-    return state & 0b100;
+    return state & 0x4;
 }
 
 static inline void setRegexpMayFollow(int *state, bool on)
 {
-    *state = (on << 2) | (*state & 0b11);
+    *state = (on << 2) | (*state & 0x3);
 }
 
 QList<Token> Scanner::operator()(const QString &text, int startState)
