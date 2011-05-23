@@ -164,14 +164,9 @@ public:
     }
 };
 
-struct ToolDockWidgetData
-{
-    ToolDockWidgetData(Qt::DockWidgetArea a, QDockWidget *w) :
-        area(a), widget(w) {}
+const char * const INITIAL_DOCK_AREA = "initial_dock_area";
 
-    Qt::DockWidgetArea area;
-    QDockWidget *widget;
-};
+
 } // namespace Internal
 } // namespace Analyzer
 
@@ -221,7 +216,7 @@ public:
     ActionContainer *m_viewsMenu;
     Utils::StatusLabel *m_statusLabel;
     typedef QMap<IAnalyzerTool *, FancyMainWindowSettings> MainWindowSettingsMap;
-    QMap<IAnalyzerTool *, QList<ToolDockWidgetData> > m_toolWidgets;
+    QMap<IAnalyzerTool *, QList<QDockWidget *> > m_toolWidgets;
     DockWidgetEventFilter *m_resizeEventFilter;
 
     MainWindowSettingsMap m_defaultSettings;
@@ -655,16 +650,16 @@ void AnalyzerManager::toolSelected(int idx)
 
         ActionManager *am = ICore::instance()->actionManager();
 
-        foreach (const ToolDockWidgetData &widget, d->m_toolWidgets.value(oldTool)) {
-            QAction *toggleViewAction = widget.widget->toggleViewAction();
-            am->unregisterAction(toggleViewAction, QString("Analyzer." + widget.widget->objectName()));
-            d->m_mainWindow->removeDockWidget(widget.widget);
+        foreach (QDockWidget *widget, d->m_toolWidgets.value(oldTool)) {
+            QAction *toggleViewAction = widget->toggleViewAction();
+            am->unregisterAction(toggleViewAction, QString("Analyzer." + widget->objectName()));
+            d->m_mainWindow->removeDockWidget(widget);
             ///NOTE: QMainWindow (and FancyMainWindow) just look at @c findChildren<QDockWidget*>()
             ///if we don't do this, all kind of havoc might happen, including:
             ///- improper saveState/restoreState
             ///- improper list of qdockwidgets in popup menu
             ///- ...
-            widget.widget->setParent(0);
+            widget->setParent(0);
         }
     }
 
@@ -679,8 +674,8 @@ void AnalyzerManager::toolSelected(int idx)
         newTool->initializeDockWidgets();
         d->m_defaultSettings.insert(newTool, d->m_mainWindow->saveSettings());
     } else {
-        foreach (const ToolDockWidgetData &widget, d->m_toolWidgets.value(newTool))
-            d->addDock(widget.area, widget.widget);
+        foreach (QDockWidget *widget, d->m_toolWidgets.value(newTool))
+            d->addDock(Qt::DockWidgetArea(widget->property(INITIAL_DOCK_AREA).toInt()), widget);
     }
 
     loadToolSettings(newTool);
@@ -737,10 +732,11 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
     QTC_ASSERT(!widget->objectName().isEmpty(), return 0;);
 
     QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
+    dockWidget->setProperty(INITIAL_DOCK_AREA, int(area));
     d->m_dockWidgets << AnalyzerManagerPrivate::DockPtr(dockWidget);
     dockWidget->setWindowTitle(title);
 
-    d->m_toolWidgets[tool].push_back(ToolDockWidgetData(area, dockWidget));
+    d->m_toolWidgets[tool].push_back(dockWidget);
     d->addDock(area, dockWidget);
     dockWidget->installEventFilter(d->m_resizeEventFilter);
     return dockWidget;
