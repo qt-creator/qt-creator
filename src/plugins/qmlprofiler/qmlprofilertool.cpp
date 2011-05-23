@@ -247,10 +247,11 @@ QWidget *QmlProfilerTool::createControlWidget()
     d->m_recordButton->setChecked(true);
     layout->addWidget(d->m_recordButton);
 
-    QLabel *timeLabel = new QLabel(QLatin1Char(' ') + tr("Elapsed:      0 s"));
+    QLabel *timeLabel = new QLabel(tr("Elapsed:      0 s"));
     QPalette palette = timeLabel->palette();
     palette.setColor(QPalette::WindowText, Qt::white);
     timeLabel->setPalette(palette);
+    timeLabel->setIndent(10);
 
     connect(this, SIGNAL(setTimeLabel(QString)), timeLabel, SLOT(setText(QString)));
     layout->addWidget(timeLabel);
@@ -336,7 +337,7 @@ void QmlProfilerTool::updateTimer(qreal elapsedSeconds)
 {
     QString timeString = QString::number(elapsedSeconds,'f',1);
     timeString = QString("      ").left(6-timeString.length()) + timeString;
-    emit setTimeLabel(tr("elapsed: ")+timeString+QLatin1String(" s"));
+    emit setTimeLabel(tr("Elapsed: %1 s").arg(timeString));
 }
 
 void QmlProfilerTool::updateProjectFileList()
