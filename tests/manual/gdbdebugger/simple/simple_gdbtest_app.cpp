@@ -2613,8 +2613,31 @@ void testEigen()
 }
 
 
+// http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4019
+class A4019
+{
+public:
+    A4019() : test(7) {}
+    int test;
+    void doSomething() const;
+};
+
+void A4019::doSomething() const
+{
+    std::cout << test << std::endl;
+}
+
+void test4019()
+{
+    A4019 a;
+    a.doSomething();
+}
+
+
+
 int main(int argc, char *argv[])
 {
+    test4019();
     testEigen();
     testKR();
     int *x = new int(32);
