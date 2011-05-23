@@ -234,8 +234,8 @@ const char * const ICON_CLOSE_DARK       = ":/core/images/darkclosebutton.png";
 const char * const ICON_SPLIT_HORIZONTAL = ":/core/images/splitbutton_horizontal.png";
 const char * const ICON_FILTER           = ":/core/images/filtericon.png";
 const char * const ICON_LINK             = ":/core/images/linkicon.png";
-const char * const ICON_QTLOGO_32        = ":/core/images/qtcreator_logo_32.png";
-const char * const ICON_QTLOGO_128       = ":/core/images/qtcreator_logo_128.png";
+const char * const ICON_QTLOGO_32        = ":/core/images/logo/32/qtcreator.png";
+const char * const ICON_QTLOGO_128       = ":/core/images/logo/128/qtcreator.png";
 
 const char * const WIZARD_CATEGORY_QT = "R.Qt";
 const char * const WIZARD_TR_CATEGORY_QT = QT_TRANSLATE_NOOP("Core", "Qt");

@@ -144,7 +144,7 @@ QString LoggerMode::name() const
 
 QIcon LoggerMode::icon() const
 {
-    return QIcon(QLatin1String(":/core/images/qtcreator_logo_32.png"));
+    return QIcon(QLatin1String(":/core/images/logo/32/qtcreator.png"));
 }
 
 

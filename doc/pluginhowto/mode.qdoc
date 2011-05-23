@@ -147,7 +147,7 @@ The \bold {icon()} method  returns a logo for the new mode selector.
 \code
 QIcon LoggerMode::icon() const
 {
-    return QIcon(QLatin1String(":/core/images/qtcreator_logo_32.png"));
+    return QIcon(QLatin1String(":/core/images/logo/32/qtcreator.png"));
 }
 \endcode
 
