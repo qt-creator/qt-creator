@@ -739,8 +739,14 @@ static void setWatchDataAddress(WatchData &data, quint64 address , quint64 origA
     } else {
         data.address = address;
     }
-    if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$'))
-        data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" +data.hexAddress();
+    if (data.exp.isEmpty() && !data.dumperFlags.startsWith('$')) {
+        if (data.iname.startsWith("local.") && data.iname.count('.') == 1)
+            // Solve one common case of adding 'class' in
+            // *(class X*)0xdeadbeef for gdb.
+            data.exp = data.name.toLatin1();
+        else
+            data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" +data.hexAddress();
+    }
 }
 
 void setWatchDataAddress(WatchData &data, const GdbMi &addressMi, const GdbMi &origAddressMi)

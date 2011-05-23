@@ -595,16 +595,16 @@ static inline QString expression(const WatchItem *item)
 {
     if (!item->exp.isEmpty())
          return QString::fromAscii(item->exp);
-     if (item->address && !item->type.isEmpty()) {
-         return QString::fromAscii("*(%1*)%2").
-                 arg(QLatin1String(item->type), QLatin1String(item->hexAddress()));
-     }
-     if (const WatchItem *parent = item->parent) {
-         if (!parent->exp.isEmpty())
-            return QString::fromAscii("(%1).%2")
-             .arg(QString::fromLatin1(parent->exp), item->name);
-     }
-     return QString();
+    if (item->address && !item->type.isEmpty()) {
+        return QString::fromAscii("*(%1*)%2").
+                arg(QLatin1String(item->type), QLatin1String(item->hexAddress()));
+    }
+    if (const WatchItem *parent = item->parent) {
+        if (!parent->exp.isEmpty())
+           return QString::fromAscii("(%1).%2")
+            .arg(QString::fromLatin1(parent->exp), item->name);
+    }
+    return QString();
 }
 
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
