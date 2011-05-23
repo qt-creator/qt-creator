@@ -377,6 +377,10 @@ CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
         if (length == 0)
             continue;
         QString sequence = m_textEditor->textAt(m_textEditor->position() - length, length);
+        // In pretty much all cases the sequence will have the appropriate length. Only in the
+        // case of typing the very first characters in the document for providers that request a
+        // length greater than 1 (currently only C++, which specifies 3), the sequence needs to
+        // be preprended so it has the expected length.
         const int lengthDiff = length - sequence.length();
         for (int j = 0; j < lengthDiff; ++j)
             sequence.prepend(m_null);
