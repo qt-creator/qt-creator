@@ -136,7 +136,10 @@ qint64 VirtualSerialDevice::bytesAvailable() const
     if (!isOpen()) return 0;
 
     int avail = 0;
-    if (ioctl(d->portHandle, FIONREAD, &avail) == -1) {
+    d->readNotifier->setEnabled(false);
+    int res = ioctl(d->portHandle, FIONREAD, &avail);
+    d->readNotifier->setEnabled(true);
+    if (res == -1) {
         return 0;
     }
     return (qint64)avail + QIODevice::bytesAvailable();
@@ -145,7 +148,9 @@ qint64 VirtualSerialDevice::bytesAvailable() const
 qint64 VirtualSerialDevice::readData(char *data, qint64 maxSize)
 {
     QMutexLocker locker(&lock);
+    d->readNotifier->setEnabled(false);
     int result = ::read(d->portHandle, data, maxSize);
+    d->readNotifier->setEnabled(true);
     if (result == -1 && errno == EAGAIN)
         result = 0; // To Qt, 0 here means nothing ready right now, and -1 is reserved for permanent errors
     return result;
