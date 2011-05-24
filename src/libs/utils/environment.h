@@ -35,17 +35,17 @@
 
 #include "utils_global.h"
 
+#include <QtCore/QList>
+#include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QMap>
-#include <QtCore/QList>
 
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT EnvironmentItem
 {
 public:
-    EnvironmentItem(QString n, QString v)
+    EnvironmentItem(const QString &n, const QString &v)
             : name(n), value(v), unset(false)
     {}
 
@@ -55,26 +55,27 @@ public:
 
     bool operator==(const EnvironmentItem &other) const
     {
-        return (unset == other.unset) && (name == other.name) && (value == other.value);
+        return unset == other.unset && name == other.name && value == other.value;
     }
 
-    static QList<EnvironmentItem> fromStringList(QStringList list);
-    static QStringList toStringList(QList<EnvironmentItem> list);
+    static QList<EnvironmentItem> fromStringList(const QStringList &list);
+    static QStringList toStringList(const QList<EnvironmentItem> &list);
 };
 
-class QTCREATOR_UTILS_EXPORT Environment {
+class QTCREATOR_UTILS_EXPORT Environment
+{
 public:
     typedef QMap<QString, QString>::const_iterator const_iterator;
 
-    Environment();
-    explicit Environment(QStringList env);
+    Environment() {}
+    explicit Environment(const QStringList &env);
     static Environment systemEnvironment();
 
     QStringList toStringList() const;
     QString value(const QString &key) const;
     void set(const QString &key, const QString &value);
     void unset(const QString &key);
-    void modify(const QList<EnvironmentItem> & list);
+    void modify(const QList<EnvironmentItem> &list);
     /// Return the Environment changes necessary to modify this into the other environment.
     QList<EnvironmentItem> diff(const Environment &other) const;
     bool hasKey(const QString &key);
@@ -98,17 +99,18 @@ public:
     Environment::const_iterator constFind(const QString &name) const;
 
     QString searchInPath(const QString &executable,
-                         const QStringList & additionalDirs = QStringList()) const;
+                         const QStringList &additionalDirs = QStringList()) const;
     QStringList path() const;
 
-    QString expandVariables(const QString &) const;
-    QStringList expandVariables(const QStringList &) const;
+    QString expandVariables(const QString &input) const;
+    QStringList expandVariables(const QStringList &input) const;
 
     bool operator!=(const Environment &other) const;
     bool operator==(const Environment &other) const;
+
 private:
     QString searchInPath(const QStringList &executables,
-                         const QStringList & additionalDirs = QStringList()) const;
+                         const QStringList &additionalDirs = QStringList()) const;
     QMap<QString, QString> m_values;
 };
 

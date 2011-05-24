@@ -32,13 +32,13 @@
 
 #include "environment.h"
 
-#include <QtCore/QProcess>
 #include <QtCore/QDir>
+#include <QtCore/QProcess>
 #include <QtCore/QString>
 
-using namespace Utils;
+namespace Utils {
 
-QList<EnvironmentItem> EnvironmentItem::fromStringList(QStringList list)
+QList<EnvironmentItem> EnvironmentItem::fromStringList(const QStringList &list)
 {
     QList<EnvironmentItem> result;
     foreach (const QString &string, list) {
@@ -55,7 +55,7 @@ QList<EnvironmentItem> EnvironmentItem::fromStringList(QStringList list)
     return result;
 }
 
-QStringList EnvironmentItem::toStringList(QList<EnvironmentItem> list)
+QStringList EnvironmentItem::toStringList(const QList<EnvironmentItem> &list)
 {
     QStringList result;
     foreach (const EnvironmentItem &item, list) {
@@ -67,11 +67,7 @@ QStringList EnvironmentItem::toStringList(QList<EnvironmentItem> list)
     return result;
 }
 
-Environment::Environment()
-{
-}
-
-Environment::Environment(QStringList env)
+Environment::Environment(const QStringList &env)
 {
     foreach (const QString &s, env) {
         int i = s.indexOf(QLatin1Char('='));
@@ -218,6 +214,7 @@ QString Environment::searchInPath(const QString &executable,
 QString Environment::searchInPath(const QStringList &executables,
                                   const QStringList &additionalDirs) const
 {
+    const QChar slash = QLatin1Char('/');
     foreach (const QString &executable, executables) {
         QString exec = QDir::cleanPath(expandVariables(executable));
 
@@ -238,7 +235,6 @@ QString Environment::searchInPath(const QStringList &executables,
         }
 
         // Check in path:
-        const QChar slash = QLatin1Char('/');
         if (exec.indexOf(slash) != -1)
             continue;
         foreach (const QString &p, path()) {
@@ -461,7 +457,9 @@ QString Environment::expandVariables(const QString &input) const
 QStringList Environment::expandVariables(const QStringList &variables) const
 {
     QStringList results;
-    foreach (const QString & i, variables)
+    foreach (const QString &i, variables)
         results << expandVariables(i);
     return results;
 }
+
+} // namespace Utils
