@@ -56,7 +56,7 @@ using namespace Bazaar;
 BazaarEditor::BazaarEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent)
     : VCSBase::VCSBaseEditorWidget(type, parent),
       m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT)),
-      m_diffFileId(QLatin1String("^(=== modified file '.*'$)"))
+      m_diffFileId(QLatin1String("^=== modified file '(.*)'\\s*$"))
 {
     setAnnotateRevisionTextFormat(tr("Annotate %1"));
     setAnnotatePreviousRevisionTextFormat(tr("Annotate parent revision %1"));
@@ -110,20 +110,10 @@ QString BazaarEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) c
 {
     // Check for:
     // === modified file 'mainwindow.cpp'
-    // --- mainwindow.cpp<tab>2011-03-28 08:12:28 +0000
-    // +++ mainwindow.cpp<tab>2011-03-28 08:53:55 +0000
-    const QString newFileIndicator = QLatin1String("+++ ");
-    const QChar tab = QLatin1Char('\t');
     for (QTextBlock  block = inBlock; block.isValid(); block = block.previous()) {
         const QString line = block.text();
-        if (line.startsWith(newFileIndicator)) {
-            const int tabIndex = line.indexOf(tab);
-            if (tabIndex != -1) {
-                const QString diffFileName = line.mid(newFileIndicator.size(),
-                                                      tabIndex - newFileIndicator.size());
-                return findDiffFile(diffFileName);
-            }
-        }
+        if (m_diffFileId.indexIn(line) != -1)
+            return findDiffFile(m_diffFileId.cap(1), BazaarPlugin::instance()->versionControl());
     }
     return QString();
 }
