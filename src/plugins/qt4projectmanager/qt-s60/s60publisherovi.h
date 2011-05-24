@@ -52,6 +52,7 @@ class Qt4BuildConfiguration;
 class Qt4Project;
 namespace Internal {
 class Qt4SymbianTarget;
+class S60PublishStep;
 
 namespace Constants {
 const char * const REJECTED_VENDOR_NAMES_VENDOR = "Vendor";
@@ -144,24 +145,20 @@ signals:
     void finished();
 
 public slots:
-    void runClean();
-    void runQMake(int result);
-    void runBuild(int result);
-    void runCreateSis(int result);
-    void endBuild(int result);
+    void publishStepFinished(bool succeeded);
+    void printMessage(QString message, bool error);
 
 private:
-    void runStep(int result, const QString& buildStep, const QString& command, QProcess* currProc, QProcess* prevProc);
+    bool nextStep();
+    bool runStep();
 
+    bool sisExists(QString &sisFile);
+
+private:
     QColor m_errorColor;
     QColor m_commandColor;
     QColor m_okColor;
     QColor m_normalColor;
-
-    QProcess* m_cleanProc;
-    QProcess* m_qmakeProc;
-    QProcess* m_buildProc;
-    QProcess* m_createSisProc;
 
     Qt4BuildConfiguration * m_qt4bc;
     const Qt4SymbianTarget * m_activeTargetOfProject;
@@ -176,7 +173,57 @@ private:
     QString m_appUid;
     QString m_displayName;
 
+    QList<S60PublishStep *> m_publishSteps;
+
     bool m_finishedAndSuccessful;
+};
+
+class S60PublishStep : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit S60PublishStep(bool mandatory, QObject *parent = 0);
+    virtual void start() = 0;
+
+    virtual QString displayDescription() const = 0;
+    bool succeeded() const;
+    bool mandatory() const;
+
+signals:
+    void finished(bool succeeded);
+    void output(QString output, bool error);
+
+protected:
+    void setSucceeded(bool succeeded);
+
+private:
+    bool m_succeeded;
+    bool m_mandatory;
+};
+
+class S60CommandPublishStep : public S60PublishStep
+{
+    Q_OBJECT
+
+public:
+    explicit S60CommandPublishStep(const Qt4BuildConfiguration& bc,
+                                   const QString &command,
+                                   const QString &name,
+                                   bool mandatory = true,
+                                   QObject *parent = 0);
+
+    virtual void start();
+    virtual QString displayDescription() const;
+
+private slots:
+    void processFinished(int exitCode);
+
+private:
+    QProcess* m_proc;
+    const QString m_command;
+    const QString m_name;
+
 };
 
 } // namespace Internal

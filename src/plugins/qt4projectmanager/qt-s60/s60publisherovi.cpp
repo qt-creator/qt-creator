@@ -56,7 +56,8 @@ namespace Internal {
 
 S60PublisherOvi::S60PublisherOvi(QObject *parent) :
     QObject(parent),
-    m_reader(0)
+    m_reader(0),
+    m_finishedAndSuccessful(false)
 {
     // build m_rejectedVendorNames
     m_rejectedVendorNames.append(Constants::REJECTED_VENDOR_NAMES_NOKIA);
@@ -80,18 +81,6 @@ S60PublisherOvi::S60PublisherOvi(QObject *parent) :
     m_commandColor = Qt::blue;
     m_okColor = Qt::darkGreen;
     m_normalColor = Qt::black;
-
-    m_finishedAndSuccessful = false;
-
-    m_cleanProc = new QProcess(this);
-    m_qmakeProc = new QProcess(this);
-    m_buildProc = new QProcess(this);
-    m_createSisProc = new QProcess(this);
-
-    connect(m_cleanProc,SIGNAL(finished(int)), SLOT(runQMake(int)));
-    connect(m_qmakeProc,SIGNAL(finished(int)), SLOT(runBuild(int)));
-    connect(m_buildProc,SIGNAL(finished(int)), SLOT(runCreateSis(int)));
-    connect(m_createSisProc,SIGNAL(finished(int)), SLOT(endBuild(int)));
 }
 
 S60PublisherOvi::~S60PublisherOvi()
@@ -136,6 +125,7 @@ void S60PublisherOvi::cleanUp()
         m_qt4project->destroyProFileReader(m_reader);
         m_reader = 0;
     }
+    m_publishSteps.clear();
 }
 
 void S60PublisherOvi::completeCreation()
@@ -156,17 +146,52 @@ void S60PublisherOvi::completeCreation()
     profile->deref();
 
     // set up process for creating the resulting sis files
-    m_cleanProc->setEnvironment(m_qt4bc->environment().toStringList());
-    m_cleanProc->setWorkingDirectory(m_qt4bc->buildDirectory());
+    ProjectExplorer::AbstractProcessStep * makeStep = m_qt4bc->makeStep();
+    makeStep->init();
+    const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
 
-    m_qmakeProc->setEnvironment(m_qt4bc->environment().toStringList());
-    m_qmakeProc->setWorkingDirectory(m_qt4bc->buildDirectory());
+    ProjectExplorer::AbstractProcessStep *qmakeStep = m_qt4bc->qmakeStep();
+    qmakeStep->init();
+    const ProjectExplorer::ProcessParameters * const qmakepp = qmakeStep->processParameters();
 
-    m_buildProc->setEnvironment(m_qt4bc->environment().toStringList());
-    m_buildProc->setWorkingDirectory(m_qt4bc->buildDirectory());
+    m_publishSteps.clear();
+    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                    makepp->effectiveCommand() + ' ' + QLatin1String("clean -w"),
+                                                    tr("Clean"),
+                                                    false));
 
-    m_createSisProc->setEnvironment(m_qt4bc->environment().toStringList());
-    m_createSisProc->setWorkingDirectory(m_qt4bc->buildDirectory());
+    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                    qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
+                                                    tr("QMake")));
+
+    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                    makepp->effectiveCommand() + ' ' + makepp->arguments(),
+                                                    tr("Build")));
+
+    const QString freezeArg = QLatin1String("freeze-") + makepp->arguments();
+    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                    makepp->effectiveCommand() + ' ' + freezeArg,
+                                                    tr("Freeze")));
+
+    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                    makepp->effectiveCommand() + ' ' + QLatin1String("clean -w"),
+                                                    tr("Secondary Clean"),
+                                                    false));
+
+    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                    qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
+                                                    tr("Secondary QMake")));
+
+    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                    makepp->effectiveCommand() + ' ' + makepp->arguments(),
+                                                    tr("Secondary Build")));
+
+    QString signArg = QLatin1String("unsigned_installer_sis");
+    if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
+        signArg =  QLatin1String("installer_sis");
+    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                    makepp->effectiveCommand() + ' ' + signArg,
+                                                    tr("Making Sis File")));
 
     // set up access to vendor names
     QStringList deploymentLevelVars = m_reader->values(QLatin1String("DEPLOYMENT"));
@@ -345,91 +370,68 @@ void S60PublisherOvi::updateProFile()
 void S60PublisherOvi::buildSis()
 {
     updateProFile();
-    runClean();
+    if (!runStep()) {
+        emit progressReport(tr("Done!\n"), m_commandColor);
+        emit finished();
+    }
 }
 
-void S60PublisherOvi::runClean()
+bool S60PublisherOvi::runStep()
 {
-    m_finishedAndSuccessful = false;
+    QTC_ASSERT(m_publishSteps.count(), return false);
 
-    ProjectExplorer::AbstractProcessStep * makeStep = m_qt4bc->makeStep();
-    makeStep->init();
-    const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
-    QString makeTarget =  QLatin1String(" clean -w");
-
-    runStep(QProcess::NormalExit,
-            tr("Running Clean Step"),
-            makepp->effectiveCommand() + makeTarget,
-            m_cleanProc,
-            0);
+    S60PublishStep *step = m_publishSteps.at(0);
+    emit progressReport(step->displayDescription() + '\n', m_commandColor);
+    connect(step, SIGNAL(finished(bool)), this, SLOT(publishStepFinished(bool)));
+    connect(step, SIGNAL(output(QString,bool)), this, SLOT(printMessage(QString,bool)));
+    step->start();
+    return true;
 }
 
-void S60PublisherOvi::runQMake(int result)
+bool S60PublisherOvi::nextStep()
 {
-    Q_UNUSED(result)
-
-    ProjectExplorer::AbstractProcessStep *qmakeStep = m_qt4bc->qmakeStep();
-    qmakeStep->init();
-    const ProjectExplorer::ProcessParameters * const qmakepp = qmakeStep->processParameters();
-    runStep(QProcess::NormalExit, // ignore all errors from Clean step
-            tr("Running QMake"),
-            qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
-            m_qmakeProc,
-            m_cleanProc);
+    QTC_ASSERT(m_publishSteps.count(), return false);
+    m_publishSteps.removeAt(0);
+    return m_publishSteps.count();
 }
 
-void S60PublisherOvi::runBuild(int result)
+void S60PublisherOvi::printMessage(QString message, bool error)
 {
-    ProjectExplorer::AbstractProcessStep * makeStep = m_qt4bc->makeStep();
-    makeStep->init();
-    const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
-    // freeze all the libraries
-    const QString makeArg = QLatin1String("freeze-") + makepp->arguments();
-    runStep(result,
-            tr("Running Build Steps"),
-            makepp->effectiveCommand() + ' ' + makeArg,
-            m_buildProc,
-            m_qmakeProc);
+    emit progressReport(message + '\n', error ? m_errorColor : m_okColor);
 }
 
-void S60PublisherOvi::runCreateSis(int result)
+void S60PublisherOvi::publishStepFinished(bool success)
 {
-    ProjectExplorer::AbstractProcessStep * makeStep = m_qt4bc->makeStep();
-    makeStep->init();
-    const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
-    QString makeTarget = QLatin1String(" unsigned_installer_sis");
+    if (!success && m_publishSteps.at(0)->mandatory()) {
+        emit progressReport(tr("Sis file not created due to previous errors\n") , m_errorColor);
+        emit finished();
+        return;
+    }
 
-    if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
-        makeTarget =  QLatin1String(" installer_sis");
-    runStep(result,
-            tr("Making Sis File"),
-            makepp->effectiveCommand() + makeTarget,
-            m_createSisProc,
-            m_buildProc);
+    if (nextStep())
+        runStep();
+    else {
+        QString sisFile;
+        if (sisExists(sisFile)) {
+            emit progressReport(tr("Created %1\n").arg(QDir::toNativeSeparators(sisFile)), m_normalColor);
+            m_finishedAndSuccessful = true;
+            emit succeeded();
+        }
+        emit progressReport(tr("Done!\n"), m_commandColor);
+        emit finished();
+    }
 }
 
-void S60PublisherOvi::endBuild(int result)
+bool S60PublisherOvi::sisExists(QString &sisFile)
 {
-    // show what happened in last step
-    emit progressReport(QString(m_createSisProc->readAllStandardOutput() + '\n'), m_okColor);
-    emit progressReport(QString(m_createSisProc->readAllStandardError() + '\n'), m_errorColor);
-
-    QString fileNamePostFix =  QLatin1String("_installer_unsigned.sis");
+    QString fileNamePostFix = QLatin1String("_installer_unsigned.sis");
     if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
         fileNamePostFix =  QLatin1String("_installer.sis");
 
-    QString resultFile = m_qt4bc->buildDirectory() + QLatin1Char('/') + m_qt4project->displayName() + fileNamePostFix;
+    sisFile = m_qt4bc->buildDirectory() + QLatin1Char('/') + m_qt4project->displayName() + fileNamePostFix;
 
-    QFileInfo fi(resultFile);
-    if (result == QProcess::NormalExit && fi.exists()) {
-        emit progressReport(tr("Created %1\n").arg(QDir::toNativeSeparators(resultFile)), m_normalColor);
-        m_finishedAndSuccessful = true;
-        emit succeeded();
-    } else {
-        emit progressReport(tr(" Sis file not created due to previous errors\n"), m_errorColor);
-    }
-    emit progressReport(tr("Done!\n"), m_commandColor);
-    emit finished();
+    QFileInfo fi(sisFile);
+    return fi.exists();
 }
 
 QString S60PublisherOvi::createdSisFileContainingFolder()
@@ -461,25 +463,72 @@ bool S60PublisherOvi::hasSucceeded()
     return m_finishedAndSuccessful;
 }
 
-void S60PublisherOvi::runStep(int result, const QString& buildStep, const QString& command, QProcess* currProc, QProcess* prevProc)
+// ======== S60PublishStep
+
+S60PublishStep::S60PublishStep(bool mandatory, QObject *parent)
+    : QObject(parent),
+      m_succeeded(false),
+      m_mandatory(mandatory)
 {
-    // todo react to readyRead() instead of reading all at the end
-    // show what happened in last step
-    if (prevProc) {
-        emit progressReport(QString(prevProc->readAllStandardOutput() + '\n'), m_okColor);
-        emit progressReport(QString(prevProc->readAllStandardError() + '\n'), m_errorColor);
-    }
+}
 
-    // if the last state finished ok then run the build.
-    if (result == QProcess::NormalExit) {
-         emit progressReport(buildStep + '\n', m_commandColor);
-         emit progressReport(command + '\n', m_commandColor);
+bool S60PublishStep::succeeded() const
+{
+    return m_succeeded;
+}
 
-         currProc->start(command);
-    } else {
-        emit progressReport(tr("Sis file not created due to previous errors\n") , m_errorColor);
-        emit finished();
-    }
+bool S60PublishStep::mandatory() const
+{
+    return m_mandatory;
+}
+
+void S60PublishStep::setSucceeded(bool succeeded)
+{
+    m_succeeded = succeeded;
+}
+
+// ======== S60CommandPublishStep
+
+S60CommandPublishStep::S60CommandPublishStep(const Qt4ProjectManager::Qt4BuildConfiguration &bc,
+                                             const QString &command,
+                                             const QString &name,
+                                             bool mandatory,
+                                             QObject *parent)
+    : S60PublishStep(mandatory, parent),
+      m_proc(new QProcess(this)),
+      m_command(command),
+      m_name(name)
+{
+    m_proc->setEnvironment(bc.environment().toStringList());
+    m_proc->setWorkingDirectory(bc.buildDirectory());
+
+    connect(m_proc, SIGNAL(finished(int)), SLOT(processFinished(int)));
+}
+
+void S60CommandPublishStep::processFinished(int exitCode)
+{
+    QByteArray outputText = m_proc->readAllStandardOutput();
+    if (!outputText.isEmpty())
+        emit output(outputText, false);
+
+    outputText = m_proc->readAllStandardError();
+    if (!outputText.isEmpty())
+        emit output(outputText, true);
+
+    setSucceeded(exitCode == QProcess::NormalExit);
+    emit finished(succeeded());
+}
+
+void S60CommandPublishStep::start()
+{
+    emit output(m_command, false);
+    m_proc->start(m_command);
+}
+
+QString S60CommandPublishStep::displayDescription() const
+{
+    //: %1 is a name of the Publish Step i.e. Clean Step
+    return tr("Running %1").arg(m_name);
 }
 
 } // namespace Internal

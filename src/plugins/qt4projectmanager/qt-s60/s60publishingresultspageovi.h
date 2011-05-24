@@ -53,12 +53,14 @@ public:
     virtual void initializePage();
     virtual bool isComplete() const;
 
-signals:
-
 public slots:
     void updateResultsPage(const QString &status, QColor c);
     void openFileLocation();
     void packageCreationFinished();
+
+private:
+    void scrollToBottom();
+    bool isScrollbarAtBottom() const;
 
 private:
     Ui::S60PublishingResultsPageOvi *ui;
