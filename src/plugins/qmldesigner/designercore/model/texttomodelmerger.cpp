@@ -811,6 +811,9 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     if (isCustomParserType(typeName))
         setupCustomParserNode(modelNode);
 
+    if (isComponentType(typeNameFixedForImplicitComponents))
+        return; //No need to enter components
+
     context->enterScope(astNode);
 
     QSet<QString> modelPropertyNames = QSet<QString>::fromList(modelNode.propertyNames());
