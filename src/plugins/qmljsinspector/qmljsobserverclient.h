@@ -58,7 +58,7 @@ public:
     void showAppOnTop(bool showOnTop);
 
     void createQmlObject(const QString &qmlText, int parentDebugId,
-                         const QStringList &imports, const QString &filename);
+                         const QStringList &imports, const QString &filename, int order);
     void destroyQmlObject(int debugId);
     void reparentQmlObject(int debugId, int newParent);
 

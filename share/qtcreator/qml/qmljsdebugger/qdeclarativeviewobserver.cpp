@@ -159,8 +159,10 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     connect(data->debugService, SIGNAL(selectToolRequested()), data.data(), SLOT(_q_changeToSingleSelectTool()));
     connect(data->debugService, SIGNAL(zoomToolRequested()), data.data(), SLOT(_q_changeToZoomTool()));
     connect(data->debugService,
-            SIGNAL(objectCreationRequested(QString,QObject*,QStringList,QString)),
-            data.data(), SLOT(_q_createQmlObject(QString,QObject*,QStringList,QString)));
+            SIGNAL(objectCreationRequested(QString,QObject*,QStringList,QString,int)),
+            data.data(), SLOT(_q_createQmlObject(QString,QObject*,QStringList,QString,int)));
+    connect(data->debugService,
+            SIGNAL(objectDeletionRequested(QObject *)), data.data(), SLOT(_q_deleteQmlObject(QObject *)));
     connect(data->debugService,
             SIGNAL(objectReparentRequested(QObject *, QObject *)),
             data.data(), SLOT(_q_reparentQmlObject(QObject *, QObject *)));
@@ -400,9 +402,56 @@ bool QDeclarativeViewObserver::keyReleaseEvent(QKeyEvent *event)
     return true;
 }
 
+bool insertObjectInListProperty(QDeclarativeListReference &fromList, int position, QObject *object)
+{
+    QList<QObject *> tmpList;
+    int i;
+
+    if (!(fromList.canCount() && fromList.canAt() && fromList.canAppend() && fromList.canClear()))
+        return false;
+
+    if (position == fromList.count()) {
+        fromList.append(object);
+        return true;
+    }
+
+    for (i=0; i<fromList.count(); ++i)
+        tmpList << fromList.at(i);
+
+    fromList.clear();
+    for (i=0; i<position; ++i)
+        fromList.append(tmpList.at(i));
+
+    fromList.append(object);
+    for (; i<tmpList.count(); ++i)
+        fromList.append(tmpList.at(i));
+
+    return true;
+}
+
+bool removeObjectFromListProperty(QDeclarativeListReference &fromList, QObject *object)
+{
+    QList<QObject *> tmpList;
+    int i;
+
+    if (!(fromList.canCount() && fromList.canAt() && fromList.canAppend() && fromList.canClear()))
+        return false;
+
+    for (i=0; i<fromList.count(); ++i)
+        if (object != fromList.at(i))
+            tmpList << fromList.at(i);
+
+    fromList.clear();
+
+    foreach (QObject *item, tmpList)
+        fromList.append(item);
+
+    return true;
+}
+
 void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QObject *parent,
                                                          const QStringList &importList,
-                                                         const QString &filename)
+                                                         const QString &filename, int order)
 {
     if (!parent)
         return;
@@ -458,15 +507,22 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
             if (parent->inherits("QDeclarativeAnimationGroup") &&
                     newObject->inherits("QDeclarativeAbstractAnimation")) {
                 QDeclarativeListReference animationsList(parent, "animations");
-                animationsList.append(newObject);
+                if (order==-1) {
+                    animationsList.append(newObject);
+                } else {
+                    if (!insertObjectInListProperty(animationsList, order, newObject)) {
+                        animationsList.append(newObject);
+                    }
+                }
                 break;
             }
 
             // add transition
             if (parentItem && newObject->inherits("QDeclarativeTransition")) {
                 QDeclarativeListReference transitionsList(parentItem,"transitions");
-                if (transitionsList.count() == 1 && transitionsList.at(0) == 0)
+                if (transitionsList.count() == 1 && transitionsList.at(0) == 0) {
                     transitionsList.clear();
+                }
                 transitionsList.append(newObject);
                 break;
             }
@@ -485,6 +541,26 @@ void QDeclarativeViewObserverPrivate::_q_reparentQmlObject(QObject *object, QObj
     QDeclarativeItem *item    = qobject_cast<QDeclarativeItem*>(object);
     if (newParentItem && item)
         item->setParentItem(newParentItem);
+}
+
+void QDeclarativeViewObserverPrivate::_q_deleteQmlObject(QObject *object)
+{
+    // special cases for transitions/animations
+    if (object->inherits("QDeclarativeAbstractAnimation")) {
+        if (object->parent()) {
+            QDeclarativeListReference animationsList(object->parent(), "animations");
+            if (removeObjectFromListProperty(animationsList, object))
+                object->deleteLater();
+            return;
+        }
+    }
+
+    if (object->inherits("QDeclarativeTransition")) {
+        QDeclarativeListReference transitionsList(object->parent(), "transitions");
+        if (removeObjectFromListProperty(transitionsList, object))
+            object->deleteLater();
+        return;
+    }
 }
 
 void QDeclarativeViewObserverPrivate::_q_clearComponentCache()

@@ -130,7 +130,7 @@ public slots:
     void changeToSelectMarqueeTool();
     void showAppOnTop(bool showOnTop);
     void createQmlObject(const QString &qmlText, int parentDebugId,
-                         const QStringList &imports, const QString &filename = QString());
+                         const QStringList &imports, const QString &filename = QString(), int order = 0);
     void destroyQmlObject(int debugId);
     void reparentQmlObject(int debugId, int newParent);
     void setContextPathIndex(int contextIndex);

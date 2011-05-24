@@ -581,10 +581,10 @@ void ClientProxy::showAppOnTop(bool showOnTop)
 }
 
 void ClientProxy::createQmlObject(const QString &qmlText, int parentDebugId,
-                                  const QStringList &imports, const QString &filename)
+                                  const QStringList &imports, const QString &filename, int order)
 {
     if (isConnected())
-        m_observerClient->createQmlObject(qmlText, parentDebugId, imports, filename);
+        m_observerClient->createQmlObject(qmlText, parentDebugId, imports, filename, order);
 }
 
 void ClientProxy::destroyQmlObject(int debugId)

@@ -391,13 +391,19 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
                          + QLatin1Char(':') + QString::number(startLine-importList.count());
         foreach(DebugId debugId, debugReferences) {
             if (debugId != -1) {
-                createObject(qmlText, debugId, importList, filename);
+                int order = 0;
+                // skip children which are not objects
+                foreach (const UiObjectMember *child, children(parentMember)) {
+                    if (child == member) break;
+                    if (child->kind == AST::Node::Kind_UiObjectDefinition)
+                        order++;
+                }
+                createObject(qmlText, debugId, importList, filename, order);
             }
         }
         newObjects += member;
     }
 }
-
 
 void Delta::update(UiObjectMember* oldObject, const QmlJS::Document::Ptr& oldDoc,
                    UiObjectMember* newObject, const QmlJS::Document::Ptr& newDoc,
@@ -567,7 +573,7 @@ Document::Ptr Delta::previousDocument() const
     return m_previousDoc;
 }
 
-void Delta::createObject(const QString &, DebugId, const QStringList &, const QString&)
+void Delta::createObject(const QString &, DebugId, const QStringList &, const QString&, int)
 {}
 void Delta::removeObject(int)
 {}

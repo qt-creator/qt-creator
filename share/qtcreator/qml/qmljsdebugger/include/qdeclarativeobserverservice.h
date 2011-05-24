@@ -82,8 +82,9 @@ Q_SIGNALS:
     void colorPickerToolRequested();
 
     void objectCreationRequested(const QString &qml, QObject *parent,
-                                 const QStringList &imports, const QString &filename = QString());
+                                 const QStringList &imports, const QString &filename = QString(), int order = -1);
     void objectReparentRequested(QObject *object, QObject *newParent);
+    void objectDeletionRequested(QObject *object);
 
     // 1 = normal speed,
     // 1 < x < 16 = slowdown by some factor

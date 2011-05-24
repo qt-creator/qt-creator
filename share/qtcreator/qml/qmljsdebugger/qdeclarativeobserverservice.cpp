@@ -135,14 +135,19 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         QString filename;
         QStringList imports;
         ds >> qml >> parentId >> imports >> filename;
-        emit objectCreationRequested(qml, objectForId(parentId), imports, filename);
+        int order = -1;
+        if (!ds.atEnd()) {
+            ds >> order;
+        }
+        emit objectCreationRequested(qml, objectForId(parentId), imports, filename, order);
         break;
     }
     case ObserverProtocol::DestroyObject: {
         int debugId;
         ds >> debugId;
-        if (QObject* obj = objectForId(debugId))
-            obj->deleteLater();
+        if (QObject* obj = objectForId(debugId)) {
+            emit objectDeletionRequested(obj);
+        }
         break;
     }
     case ObserverProtocol::MoveObject: {

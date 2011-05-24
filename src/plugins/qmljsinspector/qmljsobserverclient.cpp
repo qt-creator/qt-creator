@@ -414,7 +414,7 @@ void QmlJSObserverClient::showAppOnTop(bool showOnTop)
 }
 
 void QmlJSObserverClient::createQmlObject(const QString &qmlText, int parentDebugId,
-                                             const QStringList &imports, const QString &filename)
+                                             const QStringList &imports, const QString &filename, int order)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -427,7 +427,8 @@ void QmlJSObserverClient::createQmlObject(const QString &qmlText, int parentDebu
        << qmlText
        << parentDebugId
        << imports
-       << filename;
+       << filename
+       << order;
 
     log(LogSend, cmd, QString("%1 %2 [%3] %4").arg(qmlText, QString::number(parentDebugId),
                                                    imports.join(","), filename));

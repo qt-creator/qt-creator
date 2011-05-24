@@ -130,8 +130,9 @@ public slots:
     void _q_onCurrentObjectsChanged(QList<QObject*> objects);
     void _q_applyChangesFromClient();
     void _q_createQmlObject(const QString &qml, QObject *parent,
-                            const QStringList &imports, const QString &filename = QString());
+                            const QStringList &imports, const QString &filename = QString(), int order = 0);
     void _q_reparentQmlObject(QObject *, QObject *);
+    void _q_deleteQmlObject(QObject *);
 
     void _q_changeToSingleSelectTool();
     void _q_changeToMarqueeSelectTool();

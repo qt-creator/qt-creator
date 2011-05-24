@@ -480,11 +480,11 @@ protected:
     }
 
     virtual void createObject(const QString& qmlText, DebugId ref,
-                         const QStringList& importList, const QString& filename)
+                         const QStringList& importList, const QString& filename, int order)
     {
         appliedChangesToViewer = true;
         referenceRefreshRequired = true;
-        m_clientProxy->createQmlObject(qmlText, ref, importList, filename);
+        m_clientProxy->createQmlObject(qmlText, ref, importList, filename, order);
     }
 
     virtual void reparentObject(int debugId, int newParent)

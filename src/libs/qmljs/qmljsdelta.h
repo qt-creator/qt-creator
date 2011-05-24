@@ -74,7 +74,7 @@ protected:
     virtual void removeObject(int debugId);
     virtual void reparentObject(int debugId, int newParent);
     virtual void createObject(const QString &qmlText, DebugId ref,
-                              const QStringList &importList, const QString &filename);
+                              const QStringList &importList, const QString &filename, int order = 0);
     virtual void notifyUnsyncronizableElementChange(AST::UiObjectMember *parent);
 
 private:
