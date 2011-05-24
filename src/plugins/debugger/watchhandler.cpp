@@ -370,8 +370,10 @@ static inline QString formattedValue(const WatchData &data, int format)
         return reformatInteger(data.value.toLongLong(), format);
     }
 
-    if (data.value.toULongLong(0, 0))
-        return reformatInteger(data.value.toLongLong(), format);
+    bool ok = false;
+    qulonglong integer = data.value.toULongLong(&ok, 0);
+    if (ok)
+       return reformatInteger(integer, format);
 
     QString result = data.value;
     result.replace(QLatin1Char('\n'), QLatin1String("\\n"));
@@ -721,8 +723,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                 return QStringList()
                     << tr("Latin1 string")
                     << tr("UTF8 string");
-            if ((isIntType(data.type) && data.type != "bool")
-                || data.value.toULongLong(0, 0))
+            bool ok = false;
+            (void)data.value.toULongLong(&ok, 0);
+            if ((isIntType(data.type) && data.type != "bool") || ok)
                 return QStringList()
                     << tr("Decimal")
                     << tr("Hexadecimal")
