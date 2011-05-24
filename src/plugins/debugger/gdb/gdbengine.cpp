@@ -1461,19 +1461,54 @@ void GdbEngine::handleStop1(const GdbMi &data)
         return;
     }
 
+    // A user initiated stop looks like the following. Note that there is
+    // this extra "stopper thread" created and "properly" reported by gdb.
+    //
+    // dNOTE: INFERIOR RUN OK
+    // dState changed from InferiorRunRequested(10) to InferiorRunOk(11).
+    // >*running,thread-id="all"
+    // >=thread-exited,id="11",group-id="i1"
+    // sThread 11 in group i1 exited
+    // dState changed from InferiorRunOk(11) to InferiorStopRequested(13).
+    // dCALL: INTERRUPT INFERIOR
+    // sStop requested...
+    // dTRYING TO INTERRUPT INFERIOR
+    // >=thread-created,id="12",group-id="i1"
+    // sThread 12 created
+    // >~"[New Thread 8576.0x1154]\n"
+    // s[New Thread 8576.0x1154]
+    // >*running,thread-id="all"
+    // >~"[Switching to Thread 8576.0x1154]\n"
+    // >*stopped,reason="signal-received",signal-name="SIGTRAP",
+    // signal-meaning="Trace/breakpointtrap",frame={addr="0x7c90120f",func=
+    // "ntdll!DbgUiConnectToDbg",args=[],from="C:\\WINDOWS\\system32\\ntdll.dll"},
+    // thread-id="12",stopped-threads="all"
+    // dNOTE: INFERIOR STOP OK
+    // dState changed from InferiorStopRequested(13) to InferiorStopOk(14).
+
     const QByteArray reason = data.findChild("reason").data();
     const DebuggerStartParameters &sp = startParameters();
     const Abi abi = sp.toolChainAbi;
+
+    bool isStopperThread = false;
 
     if (abi.os() == Abi::WindowsOS
             && sp.useTerminal
             && reason == "signal-received"
             && data.findChild("signal-name").data() == "SIGTRAP")
     {
-        // Command line start up trap
-        showMessage(_("INTERNAL CONTINUE"), LogMisc);
-        continueInferiorInternal();
-        return;
+        const GdbMi frame = data.findChild("frame");
+        const QByteArray func = frame.findChild("func").data();
+        if (func != "ntdll!DbgUiConnectToDbg" && func != "ntdll|DbgBreakPoint") {
+            // Ignore signals from command line start up traps.
+            showMessage(_("INTERNAL CONTINUE"), LogMisc);
+            continueInferiorInternal();
+            return;
+        }
+        // This is the stopper thread. That also means that the
+        // reported thread is not the one we'd like to expose
+        // to the user.
+        isStopperThread = true;
     }
 
     // This is for display only.
@@ -1533,7 +1568,8 @@ void GdbEngine::handleStop1(const GdbMi &data)
                 showMessage(_(name + " CONSIDERED HARMLESS. CONTINUING."));
             } else {
                 showMessage(_("HANDLING SIGNAL" + name));
-                if (debuggerCore()->boolSetting(UseMessageBoxForSignals))
+                if (debuggerCore()->boolSetting(UseMessageBoxForSignals)
+                        && !isStopperThread)
                     showStoppedBySignalMessageBox(_(meaning), _(name));
                 if (!name.isEmpty() && !meaning.isEmpty())
                     reasontr = msgStoppedBySignal(_(meaning), _(name));
@@ -1548,7 +1584,10 @@ void GdbEngine::handleStop1(const GdbMi &data)
 
     // Let the event loop run before deciding whether to update the stack.
     m_stackNeeded = true; // setTokenBarrier() might reset this.
-    m_currentThreadId = data.findChild("thread-id").data().toInt();
+    if (isStopperThread)
+        m_currentThreadId = 0;
+    else
+        m_currentThreadId = data.findChild("thread-id").data().toInt();
     QTimer::singleShot(0, this, SLOT(handleStop2()));
 }
 
@@ -1564,12 +1603,10 @@ void GdbEngine::handleStop2()
         if (m_gdbAdapter->isTrkAdapter()) {
             m_gdbAdapter->trkReloadThreads();
         } else if (m_isMacGdb) {
-            postCommand("-thread-list-ids", Discardable,
-                CB(handleThreadListIds), m_currentThreadId);
+            postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds));
         } else {
             // This is only available in gdb 7.1+.
-            postCommand("-thread-info", Discardable,
-                CB(handleThreadInfo), m_currentThreadId);
+            postCommand("-thread-info", Discardable, CB(handleThreadInfo));
         }
     }
 
@@ -3255,7 +3292,6 @@ void GdbEngine::handleStackSelectFrame(const GdbResponse &response)
 
 void GdbEngine::handleThreadInfo(const GdbResponse &response)
 {
-    const int id = response.cookie.toInt();
     if (response.resultClass == GdbResultDone) {
         int currentThreadId;
         const Threads threads =
@@ -3266,18 +3302,17 @@ void GdbEngine::handleThreadInfo(const GdbResponse &response)
         if (m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
             postCommand("threadnames " +
                 debuggerCore()->action(MaximalStackDepth)->value().toByteArray(),
-                Discardable, CB(handleThreadNames), id);
+                Discardable, CB(handleThreadNames));
         }
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.
-        postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds), id);
+        postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds));
     }
 }
 
 void GdbEngine::handleThreadListIds(const GdbResponse &response)
 {
-    const int id = response.cookie.toInt();
     // "72^done,{thread-ids={thread-id="2",thread-id="1"},number-of-threads="2"}
     // In gdb 7.1+ additionally: current-thread-id="1"
     const QList<GdbMi> items = response.data.findChild("thread-ids").children();
@@ -3288,7 +3323,7 @@ void GdbEngine::handleThreadListIds(const GdbResponse &response)
         threads.append(thread);
     }
     threadsHandler()->setThreads(threads);
-    threadsHandler()->setCurrentThreadId(id);
+    threadsHandler()->setCurrentThreadId(m_currentThreadId);
 }
 
 void GdbEngine::handleThreadNames(const GdbResponse &response)
@@ -3303,8 +3338,8 @@ void GdbEngine::handleThreadNames(const GdbResponse &response)
         foreach (const GdbMi &name, names.children()) {
             int id = name.findChild("id").data().toInt();
             for (int index = 0, n = threads.size(); index != n; ++index) {
-                ThreadData & thread = threads[index];
-                if (thread.id == (quint64)id) {
+                ThreadData &thread = threads[index];
+                if (thread.id == quint64(id)) {
                     thread.name = decodeData(name.findChild("value").data(),
                         name.findChild("valueencoded").data().toInt());
                     break;
