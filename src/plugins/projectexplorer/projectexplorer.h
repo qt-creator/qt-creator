@@ -247,6 +247,7 @@ private slots:
 
     void testAbiOfBinary_data();
     void testAbiOfBinary();
+    void testFlavorForOs();
 #endif
 
 private:

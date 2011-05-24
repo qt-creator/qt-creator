@@ -532,6 +532,30 @@ QString Abi::toString(int w)
     return QString::fromLatin1("%1bit").arg(w);
 }
 
+QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
+{
+    QList<OSFlavor> result;
+    switch (o) {
+    case BsdOS:
+        return result << FreeBsdFlavor << OpenBsdFlavor << NetBsdFlavor;
+    case LinuxOS:
+        return result << GenericLinuxFlavor << HarmattanLinuxFlavor << MaemoLinuxFlavor << MeegoLinuxFlavor;
+    case MacOS:
+        return result << GenericMacFlavor;
+    case SymbianOS:
+        return  result << SymbianDeviceFlavor << SymbianEmulatorFlavor;
+    case UnixOS:
+        return result << GenericUnixFlavor << SolarisUnixFlavor;
+    case WindowsOS:
+        return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
+                      << WindowsMSysFlavor << WindowsCEFlavor;
+    case UnknownOS:
+        return result << UnknownFlavor;
+    default:
+        break;
+    }
+    return result;
+}
 
 Abi Abi::hostAbi()
 {
@@ -740,6 +764,25 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()
     QCOMPARE(result.count(), abis.count());
     for (int i = 0; i < abis.count(); ++i)
         QCOMPARE(result.at(i).toString(), abis.at(i));
+}
+
+void ProjectExplorer::ProjectExplorerPlugin::testFlavorForOs()
+{
+    QList<QList<ProjectExplorer::Abi::OSFlavor> > flavorLists;
+    for (int i = 0; i != static_cast<int>(Abi::UnknownOS); ++i)
+        flavorLists.append(Abi::flavorsForOs(static_cast<Abi::OS>(i)));
+
+    int foundCounter = 0;
+    for (int i = 0; i != Abi::UnknownFlavor; ++i) {
+        foundCounter = 0;
+        // make sure i is in exactly on of the flavor lists!
+        foreach (const QList<Abi::OSFlavor> &l, flavorLists) {
+            QVERIFY(!l.contains(Abi::UnknownFlavor));
+            if (l.contains(static_cast<Abi::OSFlavor>(i)))
+                ++foundCounter;
+        }
+        QCOMPARE(foundCounter, 1);
+    }
 }
 
 #endif

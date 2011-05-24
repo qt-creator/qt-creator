@@ -47,28 +47,26 @@ class PROJECTEXPLORER_EXPORT Abi
 {
 public:
     enum Architecture {
-        UnknownArchitecture,
         ArmArchitecture,
         X86Architecture,
         ItaniumArchitecture,
         MipsArcitecture,
-        PowerPCArchitecture
+        PowerPCArchitecture,
+        UnknownArchitecture
     };
 
     enum OS {
-        UnknownOS,
         BsdOS,
         LinuxOS,
         MacOS,
         SymbianOS,
         UnixOS,
-        WindowsOS
+        WindowsOS,
+        UnknownOS
     };
 
     enum OSFlavor {
-        UnknownFlavor,
-
-        // FreeBSD
+        // BSDs
         FreeBsdFlavor,
         NetBsdFlavor,
         OpenBsdFlavor,
@@ -95,15 +93,17 @@ public:
         WindowsMsvc2008Flavor,
         WindowsMsvc2010Flavor,
         WindowsMSysFlavor,
-        WindowsCEFlavor
+        WindowsCEFlavor,
+
+        UnknownFlavor
     };
 
     enum BinaryFormat {
-        UnknownFormat,
         ElfFormat,
         MachOFormat,
         PEFormat,
-        RuntimeQmlFormat
+        RuntimeQmlFormat,
+        UnknownFormat
     };
 
     Abi() :
@@ -134,6 +134,8 @@ public:
     static QString toString(const OSFlavor &of);
     static QString toString(const BinaryFormat &bf);
     static QString toString(int w);
+
+    static QList<OSFlavor> flavorsForOs(const OS &o);
 
     static Abi hostAbi();
     static QList<Abi> abisOfBinary(const QString &path);

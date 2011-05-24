@@ -36,6 +36,7 @@
 #include "toolchain.h"
 #include "toolchainconfigwidget.h"
 #include "abi.h"
+#include "abiwidget.h"
 
 #include <QtCore/QList>
 
@@ -97,11 +98,11 @@ private slots:
     void handleAbiChange();
 
 private:
-    void populateAbiList(const QList<Abi> &);
+    void populateAbiList(const QList<Abi> &supported, const Abi &current);
     void setFromToolchain();
 
     Utils::PathChooser *m_compilerPath;
-    QComboBox *m_abiComboBox;
+    AbiWidget *m_abiWidget;
     QString m_autoDebuggerCommand;
 
     QList<Abi> m_abiList;

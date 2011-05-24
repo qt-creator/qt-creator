@@ -322,10 +322,8 @@ void GccToolChain::setTargetAbi(const Abi &abi)
         return;
 
     updateSupportedAbis();
-    if (m_supportedAbis.contains(abi)) {
-        m_targetAbi = abi;
-        toolChainUpdated();
-    }
+    m_targetAbi = abi;
+    toolChainUpdated();
 }
 
 QList<Abi> GccToolChain::supportedAbis() const
@@ -596,7 +594,7 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
 Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     ToolChainConfigWidget(tc),
     m_compilerPath(new Utils::PathChooser),
-    m_abiComboBox(new QComboBox)
+    m_abiWidget(new AbiWidget)
 {
     Q_ASSERT(tc);
 
@@ -607,14 +605,14 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     m_compilerPath->setCommandVersionArguments(gnuVersionArgs);
     connect(m_compilerPath, SIGNAL(changed(QString)), this, SLOT(handlePathChange()));
     layout->addRow(tr("&Compiler path:"), m_compilerPath);
-    layout->addRow(tr("&ABI:"), m_abiComboBox);
+    layout->addRow(tr("&ABI:"), m_abiWidget);
 
     addDebuggerCommandControls(layout, gnuVersionArgs);
     addErrorLabel(layout);
 
-    populateAbiList(tc->supportedAbis());
+    populateAbiList(tc->supportedAbis(), tc->targetAbi());
 
-    connect(m_abiComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(handleAbiChange()));
+    connect(m_abiWidget, SIGNAL(abiChanged()), this, SLOT(handleAbiChange()));
 
     setFromToolchain();
 }
@@ -631,28 +629,15 @@ void Internal::GccToolChainConfigWidget::apply()
     if (path.isEmpty())
         path = m_compilerPath->rawPath();
     tc->setCompilerPath(path);
-    tc->setTargetAbi(m_abiList.at(m_abiComboBox->currentIndex()));
+    tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName); // reset display name
     tc->setDebuggerCommand(debuggerCommand());
     m_autoDebuggerCommand = QLatin1String("<manually set>");
 }
 
-void Internal::GccToolChainConfigWidget::populateAbiList(const QList<Abi> &list)
+void Internal::GccToolChainConfigWidget::populateAbiList(const QList<Abi> &list, const Abi &current)
 {
-    GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
-    Abi currentAbi = tc->targetAbi();
-
-    m_abiComboBox->clear();
-    m_abiList = list;
-
-    if (m_abiList.isEmpty())
-        m_abiList.append(Abi());
-
-    for (int i = 0; i < m_abiList.count(); ++i) {
-        m_abiComboBox->addItem(m_abiList.at(i).toString());
-        if (m_abiList.at(i) == currentAbi)
-            m_abiComboBox->setCurrentIndex(i);
-    }
+    m_abiWidget->setAbis(list, current);
     handleAbiChange();
 }
 
@@ -662,7 +647,7 @@ void Internal::GccToolChainConfigWidget::setFromToolchain()
     Q_ASSERT(tc);
     m_compilerPath->setPath(tc->compilerPath());
     setDebuggerCommand(tc->debuggerCommand());
-    populateAbiList(tc->supportedAbis());
+    populateAbiList(tc->supportedAbis(), tc->targetAbi());
 }
 
 bool Internal::GccToolChainConfigWidget::isDirty() const
@@ -670,13 +655,13 @@ bool Internal::GccToolChainConfigWidget::isDirty() const
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerPath->path() != tc->compilerPath()
-            || m_abiList.at(m_abiComboBox->currentIndex()) != tc->targetAbi();
+            || m_abiWidget->currentAbi() != tc->targetAbi();
 }
 
 void Internal::GccToolChainConfigWidget::makeReadOnly()
 {
     m_compilerPath->setEnabled(false);
-    m_abiComboBox->setEnabled(false);
+    m_abiWidget->setEnabled(false);
     ToolChainConfigWidget::makeReadOnly();
 }
 
@@ -686,14 +671,14 @@ void Internal::GccToolChainConfigWidget::handlePathChange()
     QList<Abi> abiList;
     if (QFileInfo(path).isExecutable())
         abiList = guessGccAbi(path, Utils::Environment::systemEnvironment().toStringList());
-    populateAbiList(abiList);
+    populateAbiList(abiList, m_abiWidget->currentAbi());
     emit dirty(toolChain());
 }
 
 void Internal::GccToolChainConfigWidget::handleAbiChange()
 {
-    if (m_autoDebuggerCommand == debuggerCommand() && m_abiComboBox->currentIndex() >= 0) {
-        ProjectExplorer::Abi abi = m_abiList.at(m_abiComboBox->currentIndex());
+    if (m_autoDebuggerCommand == debuggerCommand()) {
+        ProjectExplorer::Abi abi = m_abiWidget->currentAbi();
         m_autoDebuggerCommand = ToolChainManager::instance()->defaultDebugger(abi);
         setDebuggerCommand(m_autoDebuggerCommand);
     }
