@@ -44,6 +44,8 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class ComponentAction;
+
 class ComponentView : public AbstractView
 {
     Q_OBJECT
@@ -58,6 +60,8 @@ public:
 
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
+
+    ComponentAction *action();
 
     void nodeCreated(const ModelNode &createdNode);
     void nodeAboutToBeRemoved(const ModelNode &removedNode);
@@ -107,13 +111,14 @@ signals:
 private: //functions
     void updateModel();
     void searchForComponentAndAddToList(const ModelNode &node);
-//    void searchForComponentAndRemoveFromList(const ModelNode &node);
+    void searchForComponentAndRemoveFromList(const ModelNode &node);
     void appendWholeDocumentAsComponent();
 
 private:
     QStringList m_componentList;
     QStandardItemModel *m_standardItemModel;
     bool m_listChanged;
+    ComponentAction *m_componentAction;
 };
 
 } // namespace QmlDesigner

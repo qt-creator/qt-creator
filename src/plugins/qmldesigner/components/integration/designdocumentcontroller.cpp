@@ -48,12 +48,12 @@
 #include <componenttextmodifier.h>
 #include <metainfo.h>
 #include <invalidargumentexception.h>
+#include <componentview.h>
 #include <componentaction.h>
 #include <qmlobjectnode.h>
 #include <rewriterview.h>
 #include <rewritingexception.h>
 #include <nodelistproperty.h>
-#include <toolbox.h>
 #include <variantproperty.h>
 #include <rewritingexception.h>
 
@@ -97,6 +97,7 @@ public:
     QWeakPointer<StatesEditorView> statesEditorView;
     QWeakPointer<QStackedWidget> stackedWidget;
     QWeakPointer<NodeInstanceView> nodeInstanceView;
+    QWeakPointer<ComponentView> componentView;
 
     QWeakPointer<QmlDesigner::Model> model;
     QWeakPointer<QmlDesigner::Model> subComponentModel;
@@ -112,7 +113,6 @@ public:
     QUrl searchPath;
     bool documentLoaded;
     bool syncBlocked;
-    QWeakPointer<ComponentAction> componentAction;
 
 };
 
@@ -256,6 +256,12 @@ void DesignDocumentController::setNodeInstanceView(NodeInstanceView *nodeInstanc
     m_d->nodeInstanceView = nodeInstanceView;
 }
 
+void DesignDocumentController::setComponentView(ComponentView *componentView)
+{
+    m_d->componentView = componentView;
+    connect(m_d->componentView->action(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));
+}
+
 QString DesignDocumentController::displayName() const
 {
     if (fileName().isEmpty())
@@ -331,6 +337,8 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 
     loadCurrentModel();
 
+    m_d->masterModel->attachView(m_d->componentView.data());
+
     return m_d->rewriterView->errors();
 }
 
@@ -339,6 +347,17 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
     Q_ASSERT(m_d->masterModel);
     QWeakPointer<Model> oldModel = m_d->model;
     Q_ASSERT(oldModel.data());
+
+    QString componentText = m_d->rewriterView->extractText(QList<ModelNode>() << componentNode).value(componentNode);
+
+    if (componentText.isEmpty())
+        return;
+
+
+    bool explicitComponent = false;
+    if (componentText.contains("Component")) { //explicit component
+        explicitComponent = true;
+    }
 
     if (m_d->model == m_d->subComponentModel) {
         //change back to master model
@@ -356,9 +375,19 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
         if (m_d->componentTextModifier)
             delete m_d->componentTextModifier;
 
-        int componentStartOffset = m_d->rewriterView->firstDefinitionInsideOffset(componentNode);
-        int componentEndOffset = componentStartOffset + m_d->rewriterView->firstDefinitionInsideLength(componentNode);
+
+        int componentStartOffset;
+        int componentEndOffset;
+
         int rootStartOffset = m_d->rewriterView->nodeOffset(rootModelNode);
+
+        if (explicitComponent) { //the component is explciit we have to find the first definition inside
+            componentStartOffset = m_d->rewriterView->firstDefinitionInsideOffset(componentNode);
+            componentEndOffset = componentStartOffset + m_d->rewriterView->firstDefinitionInsideLength(componentNode);
+        } else { //the component is implicit
+            componentStartOffset = m_d->rewriterView->nodeOffset(componentNode);
+            componentEndOffset = componentStartOffset + m_d->rewriterView->nodeLength(componentNode);
+        }
 
         m_d->componentTextModifier = new ComponentTextModifier (m_d->textModifier, componentStartOffset, componentEndOffset, rootStartOffset);
 
@@ -392,20 +421,10 @@ void DesignDocumentController::loadCurrentModel()
     m_d->model->attachView(m_d->navigator.data());
     m_d->itemLibraryView->widget()->setResourcePath(QFileInfo(m_d->fileName).absolutePath());
 
-    if (!m_d->componentAction) {
-        m_d->componentAction = new ComponentAction(m_d->formEditorView->widget());
-        m_d->componentAction->setModel(m_d->model.data());
-        connect(m_d->componentAction.data(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));
-        m_d->formEditorView->widget()->toolBox()->addAction(m_d->componentAction.data());
-    }
-    // Disable switching between in file components for the time being
-    m_d->componentAction->setVisible(false);
-
     connect(m_d->itemLibraryView->widget(), SIGNAL(itemActivated(const QString&)), m_d->formEditorView.data(), SLOT(activateItemCreator(const QString&)));
 
     m_d->model->attachView(m_d->formEditorView.data());
     m_d->model->attachView(m_d->itemLibraryView.data());
-
 
     if (!m_d->textEdit->parent()) // hack to prevent changing owner of external text edit
         m_d->stackedWidget->addWidget(m_d->textEdit.data());

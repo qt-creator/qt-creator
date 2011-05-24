@@ -39,7 +39,7 @@ ComponentTextModifier::ComponentTextModifier(TextModifier *originalModifier, int
         m_componentEndOffset(componentEndOffset),
         m_rootStartOffset(rootStartOffset)
 {
-    connect(m_originalModifier->textDocument(), SIGNAL(contentsChange(int,int,int)), this, SLOT(contentsChange(int,int,int)));
+    connect(m_originalModifier, SIGNAL(replaced(int, int, int)), this, SLOT(contentsChange(int,int,int)));
     connect(m_originalModifier, SIGNAL(textChanged()), this, SIGNAL(textChanged()));
 
     connect(m_originalModifier, SIGNAL(replaced(int, int, int)), this, SIGNAL(replaced(int, int, int)));

@@ -39,30 +39,17 @@
 
 namespace QmlDesigner {
 
-ComponentAction::ComponentAction(QObject *parent)
-  :  QWidgetAction(parent),
-     m_componentView(new ComponentView(this))
+ComponentAction::ComponentAction(ComponentView  *componentView)
+  :  QWidgetAction(componentView),
+     m_componentView(componentView)
 {
-}
-
-void ComponentAction::setModel(Model* model)
-{
-    if (model == m_componentView->model())
-        return;
-
-    blockSignals(true);
-
-    if (model)
-        model->attachView(m_componentView.data());
-    else if (m_componentView->model())
-        m_componentView->model()->detachView(m_componentView.data());
-
-    blockSignals(false);
 }
 
 QWidget  *ComponentAction::createWidget(QWidget *parent)
 {
     QComboBox *comboBox = new QComboBox(parent);
+    comboBox->setMinimumWidth(120);
+    comboBox->setToolTip(tr("Edit sub components defined in this file"));
     comboBox->setModel(m_componentView->standardItemModel());
     connect(comboBox, SIGNAL(currentIndexChanged(int)), SLOT(emitCurrentComponentChanged(int)));
 

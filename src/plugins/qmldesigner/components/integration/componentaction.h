@@ -50,8 +50,7 @@ class ComponentAction : public QWidgetAction
 {
     Q_OBJECT
 public:
-    ComponentAction(QObject *parent);
-    void setModel(Model* model);
+    ComponentAction(ComponentView  *componentView);
 
 protected:
     QWidget  *createWidget(QWidget *parent);

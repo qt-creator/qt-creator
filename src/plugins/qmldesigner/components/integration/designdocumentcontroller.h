@@ -56,6 +56,7 @@ class QmlObjectNode;
 class RewriterView;
 class ItemLibraryView;
 class NavigatorView;
+class ComponentView;
 class PropertyEditor;
 class StatesEditorView;
 class FormEditorView;
@@ -98,6 +99,7 @@ public:
     void setStatesEditorView(StatesEditorView* statesEditorView);
     void setFormEditorView(FormEditorView *formEditorView);
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
+    void setComponentView(ComponentView *componentView);
 
 signals:
     void displayNameChanged(const QString &newFileName);

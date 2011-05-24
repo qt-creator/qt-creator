@@ -45,6 +45,7 @@
 #include <navigatorwidget.h>
 #include <navigatorview.h>
 #include <stateseditorview.h>
+#include <componentview.h>
 #include <modelnode.h>
 #include <formeditorview.h>
 #include <propertyeditor.h>
@@ -185,6 +186,7 @@ private:
     QWeakPointer<PropertyEditor> m_propertyEditorView;
     QWeakPointer<StatesEditorView> m_statesEditorView;
     QWeakPointer<FormEditorView> m_formEditorView;
+    QWeakPointer<ComponentView> m_componentView;
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
 
     bool m_syncWithTextEdit;

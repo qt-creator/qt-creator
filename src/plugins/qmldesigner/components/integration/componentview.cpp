@@ -31,9 +31,11 @@
 **************************************************************************/
 
 #include "componentview.h"
+#include "componentaction.h"
 #include <QtDebug>
 
 #include <nodemetainfo.h>
+#include <nodeabstractproperty.h>
 #include <QStandardItemModel>
 
 // silence gcc warnings about unused parameters
@@ -43,7 +45,8 @@ namespace QmlDesigner {
 ComponentView::ComponentView(QObject *parent)
   : AbstractView(parent),
     m_standardItemModel(new QStandardItemModel(this)),
-    m_listChanged(false)
+    m_listChanged(false),
+    m_componentAction(new ComponentAction(this))
 {
 }
 
@@ -56,6 +59,7 @@ void ComponentView::nodeAboutToBeRemoved(const ModelNode &removedNode)
         if (item->data(ModelNodeRole).value<ModelNode>() == removedNode)
             m_standardItemModel->removeRow(index);
     }
+    searchForComponentAndRemoveFromList(removedNode);
 }
 
 QStandardItemModel *ComponentView::standardItemModel() const
@@ -86,17 +90,29 @@ void ComponentView::modelAttached(Model *model)
     if (AbstractView::model() == model)
         return;
 
+    bool block = m_componentAction->blockSignals(true);
+    m_standardItemModel->clear();
+
     AbstractView::modelAttached(model);
 
     Q_ASSERT(model->masterModel());
     appendWholeDocumentAsComponent();
     searchForComponentAndAddToList(rootModelNode());
+
+    m_componentAction->blockSignals(block);
 }
 
 void ComponentView::modelAboutToBeDetached(Model *model)
 {
+    bool block = m_componentAction->blockSignals(true);
     m_standardItemModel->clear();
     AbstractView::modelAboutToBeDetached(model);
+    m_componentAction->blockSignals(block);
+}
+
+ComponentAction *ComponentView::action()
+{
+    return m_componentAction;
 }
 
 void ComponentView::nodeCreated(const ModelNode &createdNode)
@@ -112,9 +128,20 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
 
 
     foreach (const ModelNode &childNode, nodeList) {
-        if (childNode.type() == "Qt/Component") {
+        if (childNode.type() == "QtQuick.Component") {
             if (!childNode.id().isEmpty()) {
                 QStandardItem *item = new QStandardItem(childNode.id());
+                item->setData(QVariant::fromValue(childNode), ModelNodeRole);
+                item->setEditable(false);
+                m_standardItemModel->appendRow(item);
+            } else {
+                QString description;
+                if (!childNode.parentProperty().parentModelNode().id().isEmpty())
+                    description = childNode.parentProperty().parentModelNode().id() + QLatin1Char(' ');
+                else
+                    description = childNode.parentProperty().parentModelNode().simplifiedTypeName() + QLatin1Char(' ');
+                description += childNode.parentProperty().name();
+                QStandardItem *item = new QStandardItem(description);
                 item->setData(QVariant::fromValue(childNode), ModelNodeRole);
                 item->setEditable(false);
                 m_standardItemModel->appendRow(item);
@@ -123,37 +150,37 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
             m_componentList.append(node.type());
             m_componentList.sort();
             m_listChanged = true;
-    }
+        }
     }
 }
 
-void ComponentView::nodeRemoved(const ModelNode & /*removedNode*/, const NodeAbstractProperty & /*parentProperty*/, PropertyChangeFlags /*propertyChange*/)
+void ComponentView::nodeRemoved(const ModelNode & /* removedNode */, const NodeAbstractProperty & /*parentProperty*/, PropertyChangeFlags /*propertyChange*/)
 {
-
 }
 
-//void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
-//{
-//    QList<ModelNode> nodeList;
-//    nodeList.append(node);
-//    nodeList.append(node.allSubModelNodes());
-//
-//
-//    foreach (const ModelNode &childNode, nodeList) {
-//        if (node.type() == "Qt/Component") {
-//            if (!node.id().isEmpty()) {
-//                for(int row = 0; row < m_standardItemModel->rowCount(); row++) {
-//                    if (m_standardItemModel->item(row)->text() == node.id())
-//                        m_standardItemModel->removeRow(row);
-//                }
-//            }
-//        } else if (node.metaInfo().isComponent() && !m_componentList.contains(node.type())) {
-//            m_componentList.append(node.type());
-//            m_componentList.sort();
-//            m_listChanged = true;
-//    }
-//    }
-//}
+void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
+{
+    QList<ModelNode> nodeList;
+    nodeList.append(node);
+    nodeList.append(node.allSubModelNodes());
+
+
+    foreach (const ModelNode &childNode, nodeList) {
+        if (childNode.type() == "QtQuick.Component") {
+            if (!childNode.id().isEmpty()) {
+                for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
+                    if (m_standardItemModel->item(row)->text() == childNode.id())
+                        m_standardItemModel->removeRow(row);
+                }
+            }
+        } else if (node.metaInfo().isComponent() && !m_componentList.contains(childNode.type())) {
+            m_componentList.append(childNode.type());
+            m_componentList.sort();
+            m_listChanged = true;
+        }
+    }
+}
+
 void ComponentView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
 void ComponentView::nodeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
 void ComponentView::nodeIdChanged(const ModelNode& /*node*/, const QString& /*newId*/, const QString& /*oldId*/) {}

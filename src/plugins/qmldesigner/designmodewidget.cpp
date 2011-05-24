@@ -40,7 +40,8 @@
 #include <formeditorwidget.h>
 #include <stateseditorwidget.h>
 #include <itemlibrarywidget.h>
-
+#include <componentaction.h>
+#include <toolbox.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -312,6 +313,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
             newDocument->setStatesEditorView(m_statesEditorView.data());
             newDocument->setItemLibraryView(m_itemLibraryView.data());
             newDocument->setFormEditorView(m_formEditorView.data());
+            newDocument->setComponentView(m_componentView.data());
 
 
             newDocument->setFileName(fileName);
@@ -674,6 +676,8 @@ void DesignModeWidget::setup()
     
     m_formEditorView = new FormEditorView(this);
 
+    m_componentView = new ComponentView(this);
+    m_formEditorView->widget()->toolBox()->addLeftSideAction(m_componentView->action());
     m_fakeToolBar = Core::EditorManager::createToolBar(this);
 
     m_mainSplitter = new MiniSplitter(this);
