@@ -33,14 +33,14 @@
 #ifndef QTPARSER_H
 #define QTPARSER_H
 
+#include "qtsupport_global.h"
 #include <projectexplorer/ioutputparser.h>
 
-namespace Qt4ProjectManager {
-namespace Internal {
+namespace QtSupport {
 
 // Parser for Qt-specific utilities like moc, uic, etc.
 
-class QtParser : public ProjectExplorer::IOutputParser
+class QTSUPPORT_EXPORT QtParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 
@@ -52,7 +52,6 @@ private:
     QRegExp m_mocRegExp;
 };
 
-} // namesapce Internal
 } // namespace ProjectExplorer
 
 #endif // QTPARSER_H

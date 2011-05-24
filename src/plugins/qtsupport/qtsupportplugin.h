@@ -49,6 +49,12 @@ public:
     ~QtSupportPlugin();
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
+
+private slots:
+#ifdef WITH_TESTS
+    void testQtOutputParser_data();
+    void testQtOutputParser();
+#endif
 };
 
 } // namespace Internal

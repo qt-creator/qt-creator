@@ -37,7 +37,6 @@
 #include "qt4target.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
-#include "qtparser.h"
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildsteplist.h>
@@ -45,6 +44,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcprocess.h>
+#include <qtsupport/qtparser.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -207,9 +207,9 @@ bool MakeStep::init()
     if (bc->qtVersion())
         parser = bc->qtVersion()->createOutputParser();
     if (parser)
-        parser->appendOutputParser(new QtParser);
+        parser->appendOutputParser(new QtSupport::QtParser);
     else
-        parser = new QtParser;
+        parser = new QtSupport::QtParser;
     if (toolchain)
         parser->appendOutputParser(toolchain->outputParser());
 

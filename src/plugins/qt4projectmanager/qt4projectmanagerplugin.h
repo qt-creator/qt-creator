@@ -74,11 +74,8 @@ private slots:
 
 #ifdef WITH_TESTS
     void testBasicProjectLoading(); // Test fails!
-
     void testAbldOutputParsers_data();
     void testAbldOutputParsers();
-    void testQtOutputParser_data();
-    void testQtOutputParser();
     void testSbsV2OutputParsers_data();
     void testSbsV2OutputParsers();
     void testRvctOutputParser_data();

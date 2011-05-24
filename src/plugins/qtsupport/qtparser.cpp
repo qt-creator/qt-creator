@@ -31,14 +31,12 @@
 **************************************************************************/
 
 #include "qtparser.h"
-#include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/taskwindow.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QtSupport;
 using ProjectExplorer::Task;
 
 namespace {
@@ -79,14 +77,15 @@ void QtParser::stdError(const QString &line)
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include "qt4projectmanagerplugin.h"
+#   include "qtsupportplugin.h"
 #   include <projectexplorer/projectexplorerconstants.h>
 #   include <projectexplorer/metatypedeclarations.h>
 #   include <projectexplorer/outputparser_test.h>
 
 using namespace ProjectExplorer;
+using namespace QtSupport::Internal;
 
-void Qt4ProjectManagerPlugin::testQtOutputParser_data()
+void QtSupportPlugin::testQtOutputParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -141,7 +140,7 @@ void Qt4ProjectManagerPlugin::testQtOutputParser_data()
             << QString();
 }
 
-void Qt4ProjectManagerPlugin::testQtOutputParser()
+void QtSupportPlugin::testQtOutputParser()
 {
     OutputParserTester testbench;
     testbench.appendOutputParser(new QtParser);

@@ -21,6 +21,7 @@ HEADERS += \
     debugginghelperbuildtask.h \
     qtsupportconstants.h \
     profilereader.h \
+    qtparser.h
 
 SOURCES += \
     qtsupportplugin.cpp \
@@ -34,6 +35,7 @@ SOURCES += \
     qtoptionspage.cpp \
     debugginghelperbuildtask.cpp \
     profilereader.cpp \
+    qtparser.cpp
 
 FORMS   +=  \
     showbuildlog.ui \

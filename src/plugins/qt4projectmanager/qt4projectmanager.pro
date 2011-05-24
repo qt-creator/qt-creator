@@ -6,7 +6,6 @@ include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
 
 HEADERS += \
-    qtparser.h \
     qt4projectmanagerplugin.h \
     qt4projectmanager.h \
     qt4project.h \
@@ -72,7 +71,6 @@ HEADERS += \
     qt4basetargetfactory.h
 
 SOURCES += qt4projectmanagerplugin.cpp \
-    qtparser.cpp \
     qt4projectmanager.cpp \
     qt4project.cpp \
     qt4nodes.cpp \
