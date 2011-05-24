@@ -71,9 +71,7 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         for (int i = 0; i < itemCount; ++i) {
             int debugId = -1;
             ds >> debugId;
-            QObject *obj = objectForId(debugId);
-
-            if (obj)
+            if (QObject *obj = objectForId(debugId))
                 selectedObjects << obj;
         }
 
@@ -168,12 +166,6 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
 
             m_stringIdForObjectId.insert(itemDebugId, itemIdString);
         }
-        break;
-    }
-    case ObserverProtocol::SetContextPathIdx: {
-        int contextPathIndex;
-        ds >> contextPathIndex;
-        emit contextPathIndexChanged(contextPathIndex);
         break;
     }
     case ObserverProtocol::ClearComponentCache: {
@@ -272,17 +264,6 @@ void QDeclarativeObserverService::selectedColorChanged(const QColor &color)
 
     ds << ObserverProtocol::ColorChanged
        << color;
-
-    sendMessage(message);
-}
-
-void QDeclarativeObserverService::contextPathUpdated(const QStringList &contextPath)
-{
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    ds << ObserverProtocol::ContextPathUpdated
-       << contextPath;
 
     sendMessage(message);
 }

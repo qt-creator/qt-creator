@@ -243,12 +243,10 @@ void BoundingRectHighlighter::highlightAll(bool animate)
             return;
         }
         QGraphicsObject *item = box->highlightedObject.data();
-        QRectF itemAndChildRect = item->boundingRect() | item->childrenBoundingRect();
 
-        QPolygonF boundingRectInSceneSpace(item->mapToScene(itemAndChildRect));
-        QPolygonF boundingRectInLayerItemSpace = mapFromScene(boundingRectInSceneSpace);
-        QRectF bboxRect
-                = m_view->adjustToScreenBoundaries(boundingRectInLayerItemSpace.boundingRect());
+        QRectF boundingRectInSceneSpace(item->mapToScene(item->boundingRect()).boundingRect());
+        QRectF boundingRectInLayerItemSpace = mapRectFromScene(boundingRectInSceneSpace);
+        QRectF bboxRect = m_view->adjustToScreenBoundaries(boundingRectInLayerItemSpace);
         QRectF edgeRect = bboxRect;
         edgeRect.adjust(-1, -1, 1, 1);
 

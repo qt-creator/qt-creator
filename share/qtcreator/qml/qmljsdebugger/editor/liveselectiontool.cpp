@@ -125,9 +125,6 @@ void LiveSelectionTool::mousePressEvent(QMouseEvent *event)
 
 void LiveSelectionTool::createContextMenu(QList<QGraphicsItem*> itemList, QPoint globalPos)
 {
-    if (!QDeclarativeViewObserverPrivate::get(observer())->mouseInsideContextItem())
-        return;
-
     QMenu contextMenu;
     connect(&contextMenu, SIGNAL(hovered(QAction*)),
             this, SLOT(contextMenuElementHovered(QAction*)));
@@ -183,7 +180,6 @@ void LiveSelectionTool::contextMenuElementSelected()
                                             QList<QGraphicsItem*>() << item,
                                             false);
         m_singleSelectionManipulator.end(updatePt);
-        enterContext(item);
     }
 }
 

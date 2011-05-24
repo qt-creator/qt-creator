@@ -75,8 +75,6 @@ public Q_SLOTS:
     void setAnimationSpeed(qreal factor);
     void setAnimationPaused(bool paused);
 
-    void setObserverContext(int contextIndex);
-
 Q_SIGNALS:
     void designModeBehaviorChanged(bool inDesignMode);
     void showAppOnTopChanged(bool showAppOnTop);
@@ -89,10 +87,6 @@ Q_SIGNALS:
 
     void animationSpeedChanged(qreal factor);
     void animationPausedChanged(bool paused);
-
-    void inspectorContextCleared();
-    void inspectorContextPushed(const QString &contextTitle);
-    void inspectorContextPopped();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

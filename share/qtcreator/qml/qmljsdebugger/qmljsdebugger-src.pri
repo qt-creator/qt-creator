@@ -21,7 +21,6 @@ HEADERS += \
     $$PWD/editor/liveselectionrectangle.h \
     $$PWD/editor/liveselectionindicator.h \
     $$PWD/editor/boundingrecthighlighter.h \
-    $$PWD/editor/subcomponenteditortool.h \
     $$PWD/editor/subcomponentmasklayeritem.h \
     $$PWD/editor/zoomtool.h \
     $$PWD/editor/colorpickertool.h \
@@ -40,7 +39,6 @@ SOURCES += \
     $$PWD/editor/liveselectionrectangle.cpp \
     $$PWD/editor/liveselectionindicator.cpp \
     $$PWD/editor/boundingrecthighlighter.cpp \
-    $$PWD/editor/subcomponenteditortool.cpp \
     $$PWD/editor/subcomponentmasklayeritem.cpp \
     $$PWD/editor/zoomtool.cpp \
     $$PWD/editor/colorpickertool.cpp \

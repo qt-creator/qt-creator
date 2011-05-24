@@ -67,7 +67,6 @@ public:
 
 public Q_SLOTS:
     void selectedColorChanged(const QColor &color);
-    void contextPathUpdated(const QStringList &contextPath);
 
 Q_SIGNALS:
     void debuggingClientChanged(bool hasDebuggingClient);
@@ -91,7 +90,6 @@ Q_SIGNALS:
     void animationSpeedChangeRequested(qreal speedFactor);
     void executionPauseChangeRequested(bool paused);
 
-    void contextPathIndexChanged(int contextPathIndex);
     void clearComponentCacheRequested();
 
 protected:

@@ -77,11 +77,6 @@ QList<QGraphicsItem*> AbstractLiveEditTool::items() const
     return observer()->selectedItems();
 }
 
-void AbstractLiveEditTool::enterContext(QGraphicsItem *itemToEnter)
-{
-    observer()->data->enterContext(itemToEnter);
-}
-
 bool AbstractLiveEditTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
 {
     QGraphicsItem *firstSelectableItem = topMovableGraphicsItem(itemList);

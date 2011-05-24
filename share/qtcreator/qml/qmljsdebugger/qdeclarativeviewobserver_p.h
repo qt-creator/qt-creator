@@ -48,7 +48,6 @@ class ZoomTool;
 class ColorPickerTool;
 class LiveLayerItem;
 class BoundingRectHighlighter;
-class SubcomponentEditorTool;
 class ToolBox;
 class CrumblePath;
 class AbstractLiveEditTool;
@@ -57,11 +56,6 @@ class QDeclarativeViewObserverPrivate : public QObject
 {
     Q_OBJECT
 public:
-    enum ContextFlags {
-        IgnoreContext,
-        ContextSensitive
-    };
-
     QDeclarativeViewObserverPrivate(QDeclarativeViewObserver *);
     ~QDeclarativeViewObserverPrivate();
 
@@ -79,7 +73,6 @@ public:
     LiveSelectionTool *selectionTool;
     ZoomTool *zoomTool;
     ColorPickerTool *colorPickerTool;
-    SubcomponentEditorTool *subcomponentEditorTool;
     LiveLayerItem *manipulatorLayer;
 
     BoundingRectHighlighter *boundingRectHighlighter;
@@ -97,7 +90,6 @@ public:
     void clearEditorItems();
     void createToolBox();
     void changeToSelectTool();
-    QList<QGraphicsItem*> filterForCurrentContext(QList<QGraphicsItem*> &itemlist) const;
     QList<QGraphicsItem*> filterForSelection(QList<QGraphicsItem*> &itemlist) const;
 
     QList<QGraphicsItem*> selectableItems(const QPoint &pos) const;
@@ -112,15 +104,11 @@ public:
                     Constants::ToolFlags flags = Constants::NoToolFlags);
 
     void clearHighlight();
-    void highlight(QList<QGraphicsObject *> item, ContextFlags flags = ContextSensitive);
-    void highlight(QGraphicsObject *item, ContextFlags flags = ContextSensitive);
+    void highlight(const QList<QGraphicsObject *> &item);
+    inline void highlight(QGraphicsObject *item)
+    { highlight(QList<QGraphicsObject*>() << item); }
 
-    bool mouseInsideContextItem() const;
     bool isEditorItem(QGraphicsItem *item) const;
-
-    QGraphicsItem *currentRootItem() const;
-
-    void enterContext(QGraphicsItem *itemToEnter);
 
 public slots:
     void _q_setToolBoxVisible(bool visible);
@@ -138,7 +126,6 @@ public slots:
     void _q_changeToMarqueeSelectTool();
     void _q_changeToZoomTool();
     void _q_changeToColorPickerTool();
-    void _q_changeContextPathIndex(int index);
     void _q_clearComponentCache();
     void _q_removeFromSelection(QObject *);
 
