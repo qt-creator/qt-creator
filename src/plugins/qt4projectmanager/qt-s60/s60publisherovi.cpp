@@ -359,7 +359,7 @@ void S60PublisherOvi::runClean()
     QString makeTarget =  QLatin1String(" clean -w");
 
     runStep(QProcess::NormalExit,
-            QLatin1String("Running Clean Step"),
+            tr("Running Clean Step"),
             makepp->effectiveCommand() + makeTarget,
             m_cleanProc,
             0);
@@ -373,7 +373,7 @@ void S60PublisherOvi::runQMake(int result)
     qmakeStep->init();
     const ProjectExplorer::ProcessParameters * const qmakepp = qmakeStep->processParameters();
     runStep(QProcess::NormalExit, // ignore all errors from Clean step
-            QLatin1String("Running QMake"),
+            tr("Running QMake"),
             qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
             m_qmakeProc,
             m_cleanProc);
@@ -387,7 +387,7 @@ void S60PublisherOvi::runBuild(int result)
     // freeze all the libraries
     const QString makeArg = QLatin1String("freeze-") + makepp->arguments();
     runStep(result,
-            QLatin1String("Running Build Steps"),
+            tr("Running Build Steps"),
             makepp->effectiveCommand() + ' ' + makeArg,
             m_buildProc,
             m_qmakeProc);
@@ -403,7 +403,7 @@ void S60PublisherOvi::runCreateSis(int result)
     if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
         makeTarget =  QLatin1String(" installer_sis");
     runStep(result,
-            QLatin1String("Making Sis File"),
+            tr("Making Sis File"),
             makepp->effectiveCommand() + makeTarget,
             m_createSisProc,
             m_buildProc);
