@@ -74,7 +74,7 @@ Environment::Environment()
 Environment::Environment(QStringList env)
 {
     foreach (const QString &s, env) {
-        int i = s.indexOf("=");
+        int i = s.indexOf(QLatin1Char('='));
         if (i >= 0) {
 #ifdef Q_OS_WIN
             m_values.insert(s.left(i).toUpper(), s.mid(i+1));
