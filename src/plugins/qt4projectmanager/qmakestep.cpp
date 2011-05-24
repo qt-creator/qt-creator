@@ -530,12 +530,8 @@ void QMakeStepConfigWidget::qmakeBuildConfigChanged()
 {
     Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
     bool debug = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
-    int index = debug ? 0 : 1;
-    if (bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::BuildAll)
-        index = 2;
     m_ignoreChange = true;
-    m_ui.buildConfigurationComboBox->setCurrentIndex(index);
-
+    m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
     m_ignoreChange = false;
     updateSummaryLabel();
     updateEffectiveQMakeCall();
@@ -577,18 +573,11 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
         return;
     Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
     QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
-    switch (m_ui.buildConfigurationComboBox->currentIndex()) {
-    case 0:
-        buildConfiguration = QtSupport::BaseQtVersion::DebugBuild;
-        break;
-    case 1:
-        buildConfiguration = 0;
-        break;
-    case 2:
-        buildConfiguration = QtSupport::BaseQtVersion::BuildAll;
-        break;
+    if (m_ui.buildConfigurationComboBox->currentIndex() == 0) { // debug
+        buildConfiguration = buildConfiguration | QtSupport::BaseQtVersion::DebugBuild;
+    } else {
+        buildConfiguration = buildConfiguration & ~QtSupport::BaseQtVersion::DebugBuild;
     }
-
     m_ignoreChange = true;
     bc->setQMakeBuildConfiguration(buildConfiguration);
     m_ignoreChange = false;

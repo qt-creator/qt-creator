@@ -413,20 +413,16 @@ void Qt4BuildConfiguration::emitS60CreatesSmartInstallerChanged()
 QStringList Qt4BuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;
-    QtSupport::BaseQtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion() ? qtVersion()->defaultBuildConfig() : (QtSupport::BaseQtVersion::DebugBuild | QtSupport::BaseQtVersion::BuildAll);
+    QtSupport::BaseQtVersion::QmakeBuildConfigs defaultBuildConfiguration =  qtVersion() ? qtVersion()->defaultBuildConfig() : (QtSupport::BaseQtVersion::DebugBuild | QtSupport::BaseQtVersion::BuildAll);
     QtSupport::BaseQtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
     if ((defaultBuildConfiguration & QtSupport::BaseQtVersion::BuildAll) && !(userBuildConfiguration & QtSupport::BaseQtVersion::BuildAll))
         result << "CONFIG-=debug_and_release";
 
     if (!(defaultBuildConfiguration & QtSupport::BaseQtVersion::BuildAll) && (userBuildConfiguration & QtSupport::BaseQtVersion::BuildAll))
         result << "CONFIG+=debug_and_release";
-    if ((defaultBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild)
-            && !(userBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild)
-            && !(userBuildConfiguration & QtSupport::BaseQtVersion::BuildAll))
+    if ((defaultBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild) && !(userBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild))
         result << "CONFIG+=release";
-    if (!(defaultBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild)
-            && (userBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild)
-            && !(userBuildConfiguration & QtSupport::BaseQtVersion::BuildAll))
+    if (!(defaultBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild) && (userBuildConfiguration & QtSupport::BaseQtVersion::DebugBuild))
         result << "CONFIG+=debug";
     return result;
 }
