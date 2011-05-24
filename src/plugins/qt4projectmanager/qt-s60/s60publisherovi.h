@@ -135,14 +135,14 @@ public:
     void setLocalVendorNames(const QString &localVendorNames);
     void setAppUid(const QString &appuid);
 
-
 signals:
     void progressReport(const QString& status, QColor c);
     void succeeded();
     void finished();
 
 public slots:
-    void runQMake();
+    void runClean();
+    void runQMake(int result);
     void runBuild(int result);
     void runCreateSis(int result);
     void endBuild(int result);
@@ -155,6 +155,7 @@ private:
     QColor m_okColor;
     QColor m_normalColor;
 
+    QProcess* m_cleanProc;
     QProcess* m_qmakeProc;
     QProcess* m_buildProc;
     QProcess* m_createSisProc;

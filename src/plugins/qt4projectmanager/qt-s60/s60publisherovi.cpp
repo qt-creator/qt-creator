@@ -84,9 +84,12 @@ S60PublisherOvi::S60PublisherOvi(QObject *parent) :
 
     m_finishedAndSuccessful = false;
 
+    m_cleanProc = new QProcess(this);
     m_qmakeProc = new QProcess(this);
     m_buildProc = new QProcess(this);
     m_createSisProc = new QProcess(this);
+
+    connect(m_cleanProc,SIGNAL(finished(int)), SLOT(runQMake(int)));
     connect(m_qmakeProc,SIGNAL(finished(int)), SLOT(runBuild(int)));
     connect(m_buildProc,SIGNAL(finished(int)), SLOT(runCreateSis(int)));
     connect(m_createSisProc,SIGNAL(finished(int)), SLOT(endBuild(int)));
@@ -154,6 +157,9 @@ void S60PublisherOvi::completeCreation()
     profile->deref();
 
     // set up process for creating the resulting sis files
+    m_cleanProc->setEnvironment(m_qt4bc->environment().toStringList());
+    m_cleanProc->setWorkingDirectory(m_qt4bc->buildDirectory());
+
     m_qmakeProc->setEnvironment(m_qt4bc->environment().toStringList());
     m_qmakeProc->setWorkingDirectory(m_qt4bc->buildDirectory());
 
@@ -340,21 +346,37 @@ void S60PublisherOvi::updateProFile()
 void S60PublisherOvi::buildSis()
 {
     updateProFile();
-    runQMake();
+    runClean();
 }
 
-void S60PublisherOvi::runQMake()
+void S60PublisherOvi::runClean()
 {
     m_finishedAndSuccessful = false;
+
+    ProjectExplorer::AbstractProcessStep * makeStep = m_qt4bc->makeStep();
+    makeStep->init();
+    const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
+    QString makeTarget =  QLatin1String(" clean -w");
+
+    runStep(QProcess::NormalExit,
+            QLatin1String("Running Clean Step"),
+            makepp->effectiveCommand() + makeTarget,
+            m_cleanProc,
+            0);
+}
+
+void S60PublisherOvi::runQMake(int result)
+{
+    Q_UNUSED(result)
 
     ProjectExplorer::AbstractProcessStep *qmakeStep = m_qt4bc->qmakeStep();
     qmakeStep->init();
     const ProjectExplorer::ProcessParameters * const qmakepp = qmakeStep->processParameters();
-    runStep(QProcess::NormalExit,
+    runStep(QProcess::NormalExit, // ignore all errors from Clean step
             QLatin1String("Running QMake"),
             qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
             m_qmakeProc,
-            0);
+            m_cleanProc);
 }
 
 void S60PublisherOvi::runBuild(int result)
@@ -376,7 +398,7 @@ void S60PublisherOvi::runCreateSis(int result)
     ProjectExplorer::AbstractProcessStep * makeStep = m_qt4bc->makeStep();
     makeStep->init();
     const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
-    QString makeTarget =  QLatin1String(" unsigned_installer_sis");
+    QString makeTarget = QLatin1String(" unsigned_installer_sis");
 
     if (m_qt4bc->qtVersion()->qtVersion() == QtVersionNumber(4,6,3) )
         makeTarget =  QLatin1String(" installer_sis");
