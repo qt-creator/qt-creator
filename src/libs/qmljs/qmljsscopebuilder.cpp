@@ -268,7 +268,7 @@ const Value *ScopeBuilder::scopeObjectLookup(AST::UiQualifiedId *id)
         for (UiQualifiedId *it = id; it; it = it->next) {
             if (!it->name)
                 return 0;
-            result = object->property(it->name->asString(), _context);
+            result = object->lookupMember(it->name->asString(), _context);
             if (!result)
                 break;
             if (it->next) {

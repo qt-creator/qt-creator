@@ -199,7 +199,7 @@ const Interpreter::Value *getPropertyValue(const Interpreter::ObjectValue *objec
     const Interpreter::Value *value = object;
     foreach (const QString &name, propertyNames) {
         if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
-            value = objectValue->property(name, context);
+            value = objectValue->lookupMember(name, context);
             if (!value)
                 return 0;
         } else {

@@ -216,7 +216,7 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
     parentObjectValue = switchObjectValue(objectValue);
 
     if (parentObjectValue)
-        objectValue->setProperty(QLatin1String("parent"), parentObjectValue);
+        objectValue->setMember(QLatin1String("parent"), parentObjectValue);
     else {
         _rootObjectValue = objectValue;
         _rootObjectValue->setClassName(_doc->componentName());
@@ -329,7 +329,7 @@ bool Bind::visit(UiScriptBinding *ast)
         if (ExpressionStatement *e = cast<ExpressionStatement*>(ast->statement))
             if (IdentifierExpression *i = cast<IdentifierExpression*>(e->expression))
                 if (i->name)
-                    _idEnvironment->setProperty(i->name->asString(), _currentObjectValue);
+                    _idEnvironment->setMember(i->name->asString(), _currentObjectValue);
     }
 
     return true;
@@ -348,7 +348,7 @@ bool Bind::visit(VariableDeclaration *ast)
         return false;
 
     ASTVariableReference *ref = new ASTVariableReference(ast, &_engine);
-    _currentObjectValue->setProperty(ast->name->asString(), ref);
+    _currentObjectValue->setMember(ast->name->asString(), ref);
     return true;
 }
 
@@ -360,7 +360,7 @@ bool Bind::visit(FunctionExpression *ast)
 
     ASTFunctionValue *function = new ASTFunctionValue(ast, _doc, &_engine);
     if (ast->name && cast<FunctionDeclaration *>(ast))
-        _currentObjectValue->setProperty(ast->name->asString(), function);
+        _currentObjectValue->setMember(ast->name->asString(), function);
 
     // build function scope
     ObjectValue *functionScope = _engine.newObject(/*prototype=*/0);
@@ -373,7 +373,7 @@ bool Bind::visit(FunctionExpression *ast)
     // 1. Function formal arguments
     for (FormalParameterList *it = ast->formals; it; it = it->next) {
         if (it->name)
-            functionScope->setProperty(it->name->asString(), _engine.undefinedValue());
+            functionScope->setMember(it->name->asString(), _engine.undefinedValue());
     }
 
     // 2. Functions defined inside the function body
@@ -381,9 +381,9 @@ bool Bind::visit(FunctionExpression *ast)
 
     // 3. Arguments object
     ObjectValue *arguments = _engine.newObject(/*prototype=*/0);
-    arguments->setProperty(QLatin1String("callee"), function);
-    arguments->setProperty(QLatin1String("length"), _engine.numberValue());
-    functionScope->setProperty(QLatin1String("arguments"), arguments);
+    arguments->setMember(QLatin1String("callee"), function);
+    arguments->setMember(QLatin1String("length"), _engine.numberValue());
+    functionScope->setMember(QLatin1String("arguments"), arguments);
 
     // 4. Variables defined inside the function body
     // ### TODO, currently covered by the accept(body)

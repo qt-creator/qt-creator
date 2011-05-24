@@ -178,7 +178,7 @@ bool Evaluate::visit(AST::UiQualifiedId *ast)
             if (! name)
                 break;
 
-            const Value *value = base->property(name->asString(), _context);
+            const Value *value = base->lookupMember(name->asString(), _context);
             if (! it->next)
                 _result = value;
             else
@@ -312,7 +312,7 @@ bool Evaluate::visit(AST::FieldMemberExpression *ast)
 
     if (const Interpreter::Value *base = _engine->convertToObject(reference(ast->base))) {
         if (const Interpreter::ObjectValue *obj = base->asObjectValue()) {
-            _result = obj->property(ast->name->asString(), _context);
+            _result = obj->lookupMember(ast->name->asString(), _context);
         }
     }
 

@@ -238,10 +238,10 @@ private:
         if (!chain || !chain->document)
             return false;
 
-        if (chain->document->bind()->idEnvironment()->property(_name, _context))
+        if (chain->document->bind()->idEnvironment()->lookupMember(_name, _context))
             return chain->document->bind()->idEnvironment() == _scope;
         const ObjectValue *root = chain->document->bind()->rootObjectValue();
-        if (root->property(_name, _context)) {
+        if (root->lookupMember(_name, _context)) {
             return check(root);
         }
 

@@ -1013,7 +1013,7 @@ const Value *ObjectCtor::invoke(const Activation *activation) const
 
     thisObject->setClassName("Object");
     thisObject->setPrototype(engine()->objectPrototype());
-    thisObject->setProperty("length", engine()->numberValue());
+    thisObject->setMember("length", engine()->numberValue());
     return thisObject;
 }
 
@@ -1025,7 +1025,7 @@ const Value *FunctionCtor::invoke(const Activation *activation) const
 
     thisObject->setClassName("Function");
     thisObject->setPrototype(engine()->functionPrototype());
-    thisObject->setProperty("length", engine()->numberValue());
+    thisObject->setMember("length", engine()->numberValue());
     return thisObject;
 }
 
@@ -1037,7 +1037,7 @@ const Value *ArrayCtor::invoke(const Activation *activation) const
 
     thisObject->setClassName("Array");
     thisObject->setPrototype(engine()->arrayPrototype());
-    thisObject->setProperty("length", engine()->numberValue());
+    thisObject->setMember("length", engine()->numberValue());
     return thisObject;
 }
 
@@ -1049,7 +1049,7 @@ const Value *StringCtor::invoke(const Activation *activation) const
     ObjectValue *thisObject = activation->thisObject();
     thisObject->setClassName("String");
     thisObject->setPrototype(engine()->stringPrototype());
-    thisObject->setProperty("length", engine()->numberValue());
+    thisObject->setMember("length", engine()->numberValue());
     return thisObject;
 }
 
@@ -1094,11 +1094,11 @@ const Value *RegExpCtor::invoke(const Activation *activation) const
 
     thisObject->setClassName("RegExp");
     thisObject->setPrototype(engine()->regexpPrototype());
-    thisObject->setProperty("source", engine()->stringValue());
-    thisObject->setProperty("global", engine()->booleanValue());
-    thisObject->setProperty("ignoreCase", engine()->booleanValue());
-    thisObject->setProperty("multiline", engine()->booleanValue());
-    thisObject->setProperty("lastIndex", engine()->numberValue());
+    thisObject->setMember("source", engine()->stringValue());
+    thisObject->setMember("global", engine()->booleanValue());
+    thisObject->setMember("ignoreCase", engine()->booleanValue());
+    thisObject->setMember("multiline", engine()->booleanValue());
+    thisObject->setMember("lastIndex", engine()->numberValue());
     return thisObject;
 }
 
@@ -1454,7 +1454,7 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId
         if (! iter->name)
             return 0;
 
-        const Value *value = objectValue->property(iter->name->asString(), this);
+        const Value *value = objectValue->lookupMember(iter->name->asString(), this);
         if (!value)
             return 0;
 
@@ -1472,7 +1472,7 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QString
         if (!objectValue)
             return 0;
 
-        const Value *value = objectValue->property(name, this);
+        const Value *value = objectValue->lookupMember(name, this);
         if (!value)
             return 0;
 
@@ -1655,12 +1655,12 @@ void ObjectValue::setPrototype(const Value *prototype)
     _prototype = prototype;
 }
 
-void ObjectValue::setProperty(const QString &name, const Value *value)
+void ObjectValue::setMember(const QString &name, const Value *value)
 {
     _members[name] = value;
 }
 
-void ObjectValue::removeProperty(const QString &name)
+void ObjectValue::removeMember(const QString &name)
 {
     _members.remove(name);
 }
@@ -1673,11 +1673,6 @@ const ObjectValue *ObjectValue::asObjectValue() const
 void ObjectValue::accept(ValueVisitor *visitor) const
 {
     visitor->visit(this);
-}
-
-const Value *ObjectValue::property(const QString &name, const Context *context) const
-{
-    return lookupMember(name, context);
 }
 
 bool ObjectValue::checkPrototype(const ObjectValue *, QSet<const ObjectValue *> *) const
@@ -1982,12 +1977,16 @@ const Value *Function::argument(int index) const
     return _arguments.at(index);
 }
 
-const Value *Function::property(const QString &name, const Context *context) const
+const Value *Function::lookupMember(const QString &name, const Context *context,
+                                    const ObjectValue **foundInScope, bool examinePrototypes) const
 {
-    if (name == "length")
+    if (name == "length") {
+        if (foundInScope)
+            *foundInScope = this;
         return engine()->numberValue();
+    }
 
-    return FunctionValue::property(name, context);
+    return FunctionValue::lookupMember(name, context, foundInScope, examinePrototypes);
 }
 
 const Value *Function::invoke(const Activation *activation) const
@@ -2717,7 +2716,7 @@ void Engine::addFunction(ObjectValue *object, const QString &name, const Value *
     function->setReturnValue(result);
     for (int i = 0; i < argumentCount; ++i)
         function->addArgument(undefinedValue()); // ### introduce unknownValue
-    object->setProperty(name, function);
+    object->setMember(name, function);
 }
 
 void Engine::addFunction(ObjectValue *object, const QString &name, int argumentCount)
@@ -2725,7 +2724,7 @@ void Engine::addFunction(ObjectValue *object, const QString &name, int argumentC
     Function *function = newFunction();
     for (int i = 0; i < argumentCount; ++i)
         function->addArgument(undefinedValue()); // ### introduce unknownValue
-    object->setProperty(name, function);
+    object->setMember(name, function);
 }
 
 void Engine::initializePrototypes()
@@ -2746,42 +2745,42 @@ void Engine::initializePrototypes()
     // set up the default Object prototype
     _objectCtor = new ObjectCtor(this);
     _objectCtor->setPrototype(_functionPrototype);
-    _objectCtor->setProperty("prototype", _objectPrototype);
+    _objectCtor->setMember("prototype", _objectPrototype);
     _objectCtor->setReturnValue(newObject());
 
     _functionCtor = new FunctionCtor(this);
     _functionCtor->setPrototype(_functionPrototype);
-    _functionCtor->setProperty("prototype", _functionPrototype);
+    _functionCtor->setMember("prototype", _functionPrototype);
     _functionCtor->setReturnValue(newFunction());
 
     _arrayCtor = new ArrayCtor(this);
     _arrayCtor->setPrototype(_functionPrototype);
-    _arrayCtor->setProperty("prototype", _arrayPrototype);
+    _arrayCtor->setMember("prototype", _arrayPrototype);
     _arrayCtor->setReturnValue(newArray());
 
     _stringCtor = new StringCtor(this);
     _stringCtor->setPrototype(_functionPrototype);
-    _stringCtor->setProperty("prototype", _stringPrototype);
+    _stringCtor->setMember("prototype", _stringPrototype);
     _stringCtor->setReturnValue(stringValue());
 
     _booleanCtor = new BooleanCtor(this);
     _booleanCtor->setPrototype(_functionPrototype);
-    _booleanCtor->setProperty("prototype", _booleanPrototype);
+    _booleanCtor->setMember("prototype", _booleanPrototype);
     _booleanCtor->setReturnValue(booleanValue());
 
     _numberCtor = new NumberCtor(this);
     _numberCtor->setPrototype(_functionPrototype);
-    _numberCtor->setProperty("prototype", _numberPrototype);
+    _numberCtor->setMember("prototype", _numberPrototype);
     _numberCtor->setReturnValue(numberValue());
 
     _dateCtor = new DateCtor(this);
     _dateCtor->setPrototype(_functionPrototype);
-    _dateCtor->setProperty("prototype", _datePrototype);
+    _dateCtor->setMember("prototype", _datePrototype);
     _dateCtor->setReturnValue(_datePrototype);
 
     _regexpCtor = new RegExpCtor(this);
     _regexpCtor->setPrototype(_functionPrototype);
-    _regexpCtor->setProperty("prototype", _regexpPrototype);
+    _regexpCtor->setMember("prototype", _regexpPrototype);
     _regexpCtor->setReturnValue(_regexpPrototype);
 
     addFunction(_objectCtor, "getPrototypeOf", 1);
@@ -2806,7 +2805,7 @@ void Engine::initializePrototypes()
     addFunction(_objectPrototype, "propertyIsEnumerable", booleanValue(), 1);
 
     // set up the default Function prototype
-    _functionPrototype->setProperty("constructor", _functionCtor);
+    _functionPrototype->setMember("constructor", _functionCtor);
     addFunction(_functionPrototype, "toString", stringValue(), 0);
     addFunction(_functionPrototype, "apply", 2);
     addFunction(_functionPrototype, "call", 1);
@@ -2815,7 +2814,7 @@ void Engine::initializePrototypes()
     // set up the default Array prototype
     addFunction(_arrayCtor, "isArray", booleanValue(), 1);
 
-    _arrayPrototype->setProperty("constructor", _arrayCtor);
+    _arrayPrototype->setMember("constructor", _arrayCtor);
     addFunction(_arrayPrototype, "toString", stringValue(), 0);
     addFunction(_arrayPrototype, "toLocalString", stringValue(), 0);
     addFunction(_arrayPrototype, "concat", 0);
@@ -2841,7 +2840,7 @@ void Engine::initializePrototypes()
     // set up the default String prototype
     addFunction(_stringCtor, "fromCharCode", stringValue(), 0);
 
-    _stringPrototype->setProperty("constructor", _stringCtor);
+    _stringPrototype->setMember("constructor", _stringCtor);
     addFunction(_stringPrototype, "toString", stringValue(), 0);
     addFunction(_stringPrototype, "valueOf", stringValue(), 0);
     addFunction(_stringPrototype, "charAt", stringValue(), 1);
@@ -2865,20 +2864,20 @@ void Engine::initializePrototypes()
     // set up the default Boolean prototype
     addFunction(_booleanCtor, "fromCharCode", 0);
 
-    _booleanPrototype->setProperty("constructor", _booleanCtor);
+    _booleanPrototype->setMember("constructor", _booleanCtor);
     addFunction(_booleanPrototype, "toString", stringValue(), 0);
     addFunction(_booleanPrototype, "valueOf", booleanValue(), 0);
 
     // set up the default Number prototype
-    _numberCtor->setProperty("MAX_VALUE", numberValue());
-    _numberCtor->setProperty("MIN_VALUE", numberValue());
-    _numberCtor->setProperty("NaN", numberValue());
-    _numberCtor->setProperty("NEGATIVE_INFINITY", numberValue());
-    _numberCtor->setProperty("POSITIVE_INFINITY", numberValue());
+    _numberCtor->setMember("MAX_VALUE", numberValue());
+    _numberCtor->setMember("MIN_VALUE", numberValue());
+    _numberCtor->setMember("NaN", numberValue());
+    _numberCtor->setMember("NEGATIVE_INFINITY", numberValue());
+    _numberCtor->setMember("POSITIVE_INFINITY", numberValue());
 
     addFunction(_numberCtor, "fromCharCode", 0);
 
-    _numberPrototype->setProperty("constructor", _numberCtor);
+    _numberPrototype->setMember("constructor", _numberCtor);
     addFunction(_numberPrototype, "toString", stringValue(), 0);
     addFunction(_numberPrototype, "toLocaleString", stringValue(), 0);
     addFunction(_numberPrototype, "valueOf", numberValue(), 0);
@@ -2888,14 +2887,14 @@ void Engine::initializePrototypes()
 
     // set up the Math object
     _mathObject = newObject();
-    _mathObject->setProperty("E", numberValue());
-    _mathObject->setProperty("LN10", numberValue());
-    _mathObject->setProperty("LN2", numberValue());
-    _mathObject->setProperty("LOG2E", numberValue());
-    _mathObject->setProperty("LOG10E", numberValue());
-    _mathObject->setProperty("PI", numberValue());
-    _mathObject->setProperty("SQRT1_2", numberValue());
-    _mathObject->setProperty("SQRT2", numberValue());
+    _mathObject->setMember("E", numberValue());
+    _mathObject->setMember("LN10", numberValue());
+    _mathObject->setMember("LN2", numberValue());
+    _mathObject->setMember("LOG2E", numberValue());
+    _mathObject->setMember("LOG10E", numberValue());
+    _mathObject->setMember("PI", numberValue());
+    _mathObject->setMember("SQRT1_2", numberValue());
+    _mathObject->setMember("SQRT2", numberValue());
 
     addFunction(_mathObject, "abs", numberValue(), 1);
     addFunction(_mathObject, "acos", numberValue(), 1);
@@ -2920,7 +2919,7 @@ void Engine::initializePrototypes()
     addFunction(_dateCtor, "parse", numberValue(), 1);
     addFunction(_dateCtor, "now", numberValue(), 0);
 
-    _datePrototype->setProperty("constructor", _dateCtor);
+    _datePrototype->setMember("constructor", _dateCtor);
     addFunction(_datePrototype, "toString", stringValue(), 0);
     addFunction(_datePrototype, "toDateString", stringValue(), 0);
     addFunction(_datePrototype, "toTimeString", stringValue(), 0);
@@ -2964,21 +2963,21 @@ void Engine::initializePrototypes()
     addFunction(_datePrototype, "toJSON", stringValue(), 1);
 
     // set up the default Boolean prototype
-    _regexpPrototype->setProperty("constructor", _regexpCtor);
+    _regexpPrototype->setMember("constructor", _regexpCtor);
     addFunction(_regexpPrototype, "exec", newArray(), 1);
     addFunction(_regexpPrototype, "test", booleanValue(), 1);
     addFunction(_regexpPrototype, "toString", stringValue(), 0);
 
     // fill the Global object
-    _globalObject->setProperty("Math", _mathObject);
-    _globalObject->setProperty("Object", objectCtor());
-    _globalObject->setProperty("Function", functionCtor());
-    _globalObject->setProperty("Array", arrayCtor());
-    _globalObject->setProperty("String", stringCtor());
-    _globalObject->setProperty("Boolean", booleanCtor());
-    _globalObject->setProperty("Number", numberCtor());
-    _globalObject->setProperty("Date", dateCtor());
-    _globalObject->setProperty("RegExp", regexpCtor());
+    _globalObject->setMember("Math", _mathObject);
+    _globalObject->setMember("Object", objectCtor());
+    _globalObject->setMember("Function", functionCtor());
+    _globalObject->setMember("Array", arrayCtor());
+    _globalObject->setMember("String", stringCtor());
+    _globalObject->setMember("Boolean", booleanCtor());
+    _globalObject->setMember("Number", numberCtor());
+    _globalObject->setMember("Date", dateCtor());
+    _globalObject->setMember("RegExp", regexpCtor());
 
 
     // global Qt object, in alphabetic order
@@ -3013,48 +3012,48 @@ void Engine::initializePrototypes()
     addFunction(consoleObject, QLatin1String("log"), 1);
     addFunction(consoleObject, QLatin1String("debug"), 1);
 
-    _globalObject->setProperty(QLatin1String("console"), consoleObject);
+    _globalObject->setMember(QLatin1String("console"), consoleObject);
 
-    _globalObject->setProperty(QLatin1String("Qt"), _qtObject);
+    _globalObject->setMember(QLatin1String("Qt"), _qtObject);
 
     // QML objects
     _qmlFontObject = newObject(/*prototype =*/ 0);
     _qmlFontObject->setClassName(QLatin1String("Font"));
-    _qmlFontObject->setProperty("family", stringValue());
-    _qmlFontObject->setProperty("weight", undefinedValue()); // ### make me an object
-    _qmlFontObject->setProperty("capitalization", undefinedValue()); // ### make me an object
-    _qmlFontObject->setProperty("bold", booleanValue());
-    _qmlFontObject->setProperty("italic", booleanValue());
-    _qmlFontObject->setProperty("underline", booleanValue());
-    _qmlFontObject->setProperty("overline", booleanValue());
-    _qmlFontObject->setProperty("strikeout", booleanValue());
-    _qmlFontObject->setProperty("pointSize", intValue());
-    _qmlFontObject->setProperty("pixelSize", intValue());
-    _qmlFontObject->setProperty("letterSpacing", realValue());
-    _qmlFontObject->setProperty("wordSpacing", realValue());
+    _qmlFontObject->setMember("family", stringValue());
+    _qmlFontObject->setMember("weight", undefinedValue()); // ### make me an object
+    _qmlFontObject->setMember("capitalization", undefinedValue()); // ### make me an object
+    _qmlFontObject->setMember("bold", booleanValue());
+    _qmlFontObject->setMember("italic", booleanValue());
+    _qmlFontObject->setMember("underline", booleanValue());
+    _qmlFontObject->setMember("overline", booleanValue());
+    _qmlFontObject->setMember("strikeout", booleanValue());
+    _qmlFontObject->setMember("pointSize", intValue());
+    _qmlFontObject->setMember("pixelSize", intValue());
+    _qmlFontObject->setMember("letterSpacing", realValue());
+    _qmlFontObject->setMember("wordSpacing", realValue());
 
     _qmlPointObject = newObject(/*prototype =*/ 0);
     _qmlPointObject->setClassName(QLatin1String("Point"));
-    _qmlPointObject->setProperty("x", numberValue());
-    _qmlPointObject->setProperty("y", numberValue());
+    _qmlPointObject->setMember("x", numberValue());
+    _qmlPointObject->setMember("y", numberValue());
 
     _qmlSizeObject = newObject(/*prototype =*/ 0);
     _qmlSizeObject->setClassName(QLatin1String("Size"));
-    _qmlSizeObject->setProperty("width", numberValue());
-    _qmlSizeObject->setProperty("height", numberValue());
+    _qmlSizeObject->setMember("width", numberValue());
+    _qmlSizeObject->setMember("height", numberValue());
 
     _qmlRectObject = newObject(/*prototype =*/ 0);
     _qmlRectObject->setClassName("Rect");
-    _qmlRectObject->setProperty("x", numberValue());
-    _qmlRectObject->setProperty("y", numberValue());
-    _qmlRectObject->setProperty("width", numberValue());
-    _qmlRectObject->setProperty("height", numberValue());
+    _qmlRectObject->setMember("x", numberValue());
+    _qmlRectObject->setMember("y", numberValue());
+    _qmlRectObject->setMember("width", numberValue());
+    _qmlRectObject->setMember("height", numberValue());
 
     _qmlVector3DObject = newObject(/*prototype =*/ 0);
     _qmlVector3DObject->setClassName(QLatin1String("Vector3D"));
-    _qmlVector3DObject->setProperty("x", realValue());
-    _qmlVector3DObject->setProperty("y", realValue());
-    _qmlVector3DObject->setProperty("z", realValue());
+    _qmlVector3DObject->setMember("x", realValue());
+    _qmlVector3DObject->setMember("y", realValue());
+    _qmlVector3DObject->setMember("z", realValue());
 }
 
 const ObjectValue *Engine::qmlKeysObject()
@@ -3491,7 +3490,7 @@ ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *conte
             if (import->className() == firstId)
                 return info;
         } else {
-            if (import->property(firstId, context))
+            if (import->lookupMember(firstId, context))
                 return info;
         }
     }

@@ -485,7 +485,7 @@ public:
         Interpreter::PrototypeIterator iter(containingObject, m_context);
         while (iter.hasNext()) {
             const Interpreter::ObjectValue *proto = iter.next();
-            if (proto->property(name, m_context) == m_context->engine()->arrayPrototype())
+            if (proto->lookupMember(name, m_context) == m_context->engine()->arrayPrototype())
                 return true;
             if (const Interpreter::QmlObjectValue *qmlIter = dynamic_cast<const Interpreter::QmlObjectValue *>(proto)) {
                 if (qmlIter->isListProperty(name))

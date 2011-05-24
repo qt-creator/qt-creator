@@ -192,7 +192,7 @@ QList<PropertyInfo> getQmlTypes(const Interpreter::QmlObjectValue *ov, LookupCon
         QString name = property.first;
         if (!ov->isWritable(name) && ov->isPointer(name)) {
             //dot property
-            const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ov->property(name, context->context()));
+            const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ov->lookupMember(name, context->context()));
             if (qmlValue) {
                 QList<PropertyInfo> dotProperties = getQmlTypes(qmlValue, context);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {
@@ -204,7 +204,7 @@ QList<PropertyInfo> getQmlTypes(const Interpreter::QmlObjectValue *ov, LookupCon
             }
         }
         if (isValueType(ov->propertyType(name))) {
-            const Interpreter::ObjectValue *dotObjectValue = dynamic_cast<const Interpreter::ObjectValue *>(ov->property(name, context->context()));
+            const Interpreter::ObjectValue *dotObjectValue = dynamic_cast<const Interpreter::ObjectValue *>(ov->lookupMember(name, context->context()));
             if (dotObjectValue) {
                 QList<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context);
                 foreach (const PropertyInfo &propertyInfo, dotProperties) {

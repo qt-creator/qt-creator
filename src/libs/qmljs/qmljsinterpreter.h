@@ -408,9 +408,8 @@ public:
 
     virtual void processMembers(MemberProcessor *processor) const;
 
-    virtual const Value *property(const QString &name, const Context *context) const;
-    virtual void setProperty(const QString &name, const Value *value);
-    virtual void removeProperty(const QString &name);
+    virtual void setMember(const QString &name, const Value *value);
+    virtual void removeMember(const QString &name);
 
     virtual const Value *lookupMember(const QString &name, const Context *context,
                                       const ObjectValue **foundInObject = 0,
@@ -590,7 +589,9 @@ public:
     void setReturnValue(const Value *returnValue);
 
     // ObjectValue interface
-    virtual const Value *property(const QString &name, const Context *context) const;
+    virtual const Value *lookupMember(const QString &name, const Context *context,
+                                      const ObjectValue **foundInObject = 0,
+                                      bool examinePrototypes = true) const;
 
     // FunctionValue interface
     virtual const Value *returnValue() const;
