@@ -3951,7 +3951,8 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
             const QByteArray addr = ba.mid(pos0x);
             if (addr.toULongLong(0, 0)) { // Non-null pointer
                 const QByteArray ns = qtNamespace();
-                const QByteArray type = ns.isEmpty() ? "QWidget*" : QByteArray("'" + ns + "QWidget'*");
+                const QByteArray type = ns.isEmpty() ? "QWidget*"
+                    : QByteArray("'" + ns + "QWidget'*");
                 const QString exp = _("(*(struct %1)%2)").arg(_(type)).arg(_(addr));
                 // qDebug() << posNs << posWidget << pos0x << addr << ns << type;
                 watchHandler()->watchExpression(exp);
@@ -3962,13 +3963,16 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
     }
 }
 
-
-struct MemoryAgentCookie
+class MemoryAgentCookie
 {
+public:
     MemoryAgentCookie() : agent(0), token(0), address(0) {}
+
     MemoryAgentCookie(MemoryAgent *agent_, QObject *token_, quint64 address_)
         : agent(agent_), token(token_), address(address_)
     {}
+
+public:
     QPointer<MemoryAgent> agent;
     QPointer<QObject> token;
     quint64 address;
@@ -3978,10 +3982,9 @@ void GdbEngine::changeMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, const QByteArray &data)
 {
     QByteArray cmd = "-data-write-memory " + QByteArray::number(addr) + " d 1";
-    foreach (char c, data) {
+    foreach (unsigned char c, data) {
         cmd.append(' ');
-        const unsigned char uc = (unsigned char)c;
-        cmd.append(QByteArray::number(uint(uc)));
+        cmd.append(QByteArray::number(uint(c)));
     }
     postCommand(cmd, NeedsStop, CB(handleChangeMemory),
         QVariant::fromValue(MemoryAgentCookie(agent, token, addr)));
