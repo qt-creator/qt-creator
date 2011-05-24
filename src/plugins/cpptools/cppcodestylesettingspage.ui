@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CppCodeStyleSettingsPage</class>
- <widget class="QWidget" name="CppCodeStyleSettingsPage">
+ <class>CppTools::Internal::CppCodeStyleSettingsPage</class>
+ <widget class="QWidget" name="CppTools::Internal::CppCodeStyleSettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>759</width>
-    <height>467</height>
+    <width>757</width>
+    <height>465</height>
    </rect>
   </property>
   <property name="windowTitle">

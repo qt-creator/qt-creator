@@ -179,7 +179,7 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     : QWidget(parent),
       m_tabPreferences(0),
       m_cppCodeStylePreferences(0),
-      m_ui(new ::Ui::CppCodeStyleSettingsPage)
+      m_ui(new Ui::CppCodeStyleSettingsPage)
 {
     m_ui->setupUi(this);
 

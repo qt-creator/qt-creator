@@ -13,12 +13,6 @@
 #include "cppcodestylesettings.h"
 #include "cppcodeformatter.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-    class CppCodeStyleSettingsPage;
-}
-QT_END_NAMESPACE
-
 namespace TextEditor {
     class FontSettings;
     class TabSettings;
@@ -32,6 +26,10 @@ namespace CppTools {
 class CppCodeStylePreferences;
 
 namespace Internal {
+
+namespace Ui {
+class CppCodeStyleSettingsPage;
+}
 
 class CppCodeStylePreferencesWidget : public QWidget
 {
