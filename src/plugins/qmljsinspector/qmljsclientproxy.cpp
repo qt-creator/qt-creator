@@ -95,8 +95,6 @@ void ClientProxy::connectToServer()
         SIGNAL(serverReloaded()));
     connect(m_observerClient, SIGNAL(selectedColorChanged(QColor)),
         SIGNAL(selectedColorChanged(QColor)));
-    connect(m_observerClient, SIGNAL(contextPathUpdated(QStringList)),
-        SIGNAL(contextPathUpdated(QStringList)));
     connect(m_observerClient, SIGNAL(logActivity(QString,QString)),
             m_adapter, SLOT(logServiceActivity(QString,QString)));
 
@@ -597,12 +595,6 @@ void ClientProxy::reparentQmlObject(int debugId, int newParent)
 {
     if (isConnected())
         m_observerClient->reparentQmlObject(debugId, newParent);
-}
-
-void ClientProxy::setContextPathIndex(int contextIndex)
-{
-    if (isConnected())
-        m_observerClient->setContextPathIndex(contextIndex);
 }
 
 void ClientProxy::updateConnected()

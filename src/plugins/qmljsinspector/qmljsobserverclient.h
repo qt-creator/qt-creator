@@ -70,7 +70,6 @@ public:
     // ### Qt 4.8: remove if we can have access to qdeclarativecontextdata or id's
     void setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots);
 
-    void setContextPathIndex(int contextPathIndex);
     void clearComponentCache();
 
 signals:
@@ -87,7 +86,6 @@ signals:
     void designModeBehaviorChanged(bool inDesignMode);
     void showAppOnTopChanged(bool showAppOnTop);
     void reloaded(); // the server has reloadetd he document
-    void contextPathUpdated(const QStringList &path);
 
     void logActivity(QString client, QString message);
 

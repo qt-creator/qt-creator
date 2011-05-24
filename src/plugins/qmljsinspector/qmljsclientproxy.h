@@ -113,7 +113,6 @@ signals:
     void showAppOnTopChanged(bool showAppOnTop);
     void serverReloaded();
     void selectedColorChanged(const QColor &color);
-    void contextPathUpdated(const QStringList &contextPath);
     void propertyChanged(int debugId, const QByteArray &propertyName, const QVariant &propertyValue);
 
 public slots:
@@ -133,7 +132,6 @@ public slots:
                          const QStringList &imports, const QString &filename = QString(), int order = 0);
     void destroyQmlObject(int debugId);
     void reparentQmlObject(int debugId, int newParent);
-    void setContextPathIndex(int contextIndex);
 
 private slots:
     void connectToServer();

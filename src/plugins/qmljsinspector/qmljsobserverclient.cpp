@@ -145,15 +145,6 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         emit selectedColorChanged(col);
         break;
     }
-    case ObserverProtocol::ContextPathUpdated: {
-        QStringList contextPath;
-        ds >> contextPath;
-
-        log(LogReceive, type, contextPath.join(", "));
-
-        emit contextPathUpdated(contextPath);
-        break;
-    }
     default:
         qWarning() << "Warning: Not handling message:" << type;
     }
@@ -220,23 +211,6 @@ void QmlJSObserverClient::setObjectIdList(const QList<QDeclarativeDebugObjectRef
     }
 
     log(LogSend, cmd, QString("%1 %2 [list of debug / object ids]").arg(debugIds.length()));
-
-    sendMessage(message);
-}
-
-void QmlJSObserverClient::setContextPathIndex(int contextPathIndex)
-{
-    if (!m_connection || !m_connection->isConnected())
-        return;
-
-    QByteArray message;
-    QDataStream ds(&message, QIODevice::WriteOnly);
-
-    ObserverProtocol::Message cmd = ObserverProtocol::SetContextPathIdx;
-    ds << cmd
-       << contextPathIndex;
-
-    log(LogSend, cmd, QString::number(contextPathIndex));
 
     sendMessage(message);
 }
