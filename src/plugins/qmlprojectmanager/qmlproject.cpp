@@ -144,9 +144,11 @@ void QmlProject::refresh(RefreshOptions options)
     pinfo.sourceFiles = files();
     pinfo.importPaths = importPaths();
     QtSupport::BaseQtVersion *version = 0;
-    if (QmlProjectRunConfiguration *rc = qobject_cast<QmlProjectRunConfiguration *>(activeTarget()->activeRunConfiguration()))
-        version = rc->qtVersion();
-    QtSupport::QmlDumpTool::pathAndEnvironment(this, version, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
+    if (activeTarget()) {
+        if (QmlProjectRunConfiguration *rc = qobject_cast<QmlProjectRunConfiguration *>(activeTarget()->activeRunConfiguration()))
+            version = rc->qtVersion();
+        QtSupport::QmlDumpTool::pathAndEnvironment(this, version, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
+    }
     m_modelManager->updateProjectInfo(pinfo);
 }
 
@@ -289,9 +291,11 @@ bool QmlProject::fromMap(const QVariantMap &map)
 
     refresh(Everything);
     // FIXME workaround to guarantee that run/debug actions are enabled if a valid file exists
-    QmlProjectRunConfiguration *runConfig = qobject_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
-    if (runConfig)
-        runConfig->changeCurrentFile(0);
+    if (activeTarget()) {
+        QmlProjectRunConfiguration *runConfig = qobject_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
+        if (runConfig)
+            runConfig->changeCurrentFile(0);
+    }
 
     return true;
 }
