@@ -75,7 +75,8 @@ static bool colonIsElectric(const QString &text)
             || text.contains(QLatin1String("public"))
             || text.contains(QLatin1String("private"))
             || text.contains(QLatin1String("protected"))
-            || text.contains(QLatin1String("signals"))) {
+            || text.contains(QLatin1String("signals"))
+            || text.contains(QLatin1String("Q_SIGNALS"))) {
         return true;
     }
 
