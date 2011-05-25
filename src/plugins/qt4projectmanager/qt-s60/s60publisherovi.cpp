@@ -371,7 +371,7 @@ void S60PublisherOvi::buildSis()
 {
     updateProFile();
     if (!runStep()) {
-        emit progressReport(tr("Done!\n"), m_commandColor);
+        emit progressReport(tr("Done.\n"), m_commandColor);
         emit finished();
     }
 }
@@ -403,7 +403,7 @@ void S60PublisherOvi::printMessage(QString message, bool error)
 void S60PublisherOvi::publishStepFinished(bool success)
 {
     if (!success && m_publishSteps.at(0)->mandatory()) {
-        emit progressReport(tr("Sis file not created due to previous errors\n") , m_errorColor);
+        emit progressReport(tr("Sis file not created due to previous errors.\n") , m_errorColor);
         emit finished();
         return;
     }
@@ -413,11 +413,11 @@ void S60PublisherOvi::publishStepFinished(bool success)
     else {
         QString sisFile;
         if (sisExists(sisFile)) {
-            emit progressReport(tr("Created %1\n").arg(QDir::toNativeSeparators(sisFile)), m_normalColor);
+            emit progressReport(tr("Created %1.\n").arg(QDir::toNativeSeparators(sisFile)), m_normalColor);
             m_finishedAndSuccessful = true;
             emit succeeded();
         }
-        emit progressReport(tr("Done!\n"), m_commandColor);
+        emit progressReport(tr("Done.\n"), m_commandColor);
         emit finished();
     }
 }
