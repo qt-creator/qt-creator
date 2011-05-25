@@ -37,13 +37,12 @@
 #include "addlibrarywizard.h"
 
 namespace Qt4ProjectManager {
+class Qt4ProFileNode;
 namespace Internal {
 
 namespace Ui {
     class LibraryDetailsWidget;
 }
-
-class Qt4ProFileNode;
 
 class LibraryDetailsController : public QObject
 {

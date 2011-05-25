@@ -47,11 +47,11 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 class Qt4BaseTarget;
+class Qt4ProFileNode;
 
 namespace Internal {
 class SymbianQtVersion;
 class Qt4SymbianTarget;
-class Qt4ProFileNode;
 class S60DeviceRunConfigurationFactory;
 class CodaRunControl;
 
@@ -97,8 +97,8 @@ protected:
     QString defaultDisplayName() const;
     virtual bool fromMap(const QVariantMap &map);
 private slots:
-    void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
-    void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success);
+    void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro);
+    void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success);
 
 private:
     void ctor();

@@ -153,7 +153,7 @@ void Qt4RunConfiguration::handleParseState(bool success)
         emit isEnabledChanged(!enabled);
 }
 
-void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success)
+void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success)
 {
     if (m_proFilePath != pro->path())
         return;
@@ -161,7 +161,7 @@ void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFile
     emit effectiveTargetInformationChanged();
 }
 
-void Qt4RunConfiguration::proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+void Qt4RunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
 {
     if (pro->path() != m_proFilePath)
         return;
@@ -174,11 +174,11 @@ void Qt4RunConfiguration::ctor()
 
     connect(qt4Target(), SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
-    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
-            this, SLOT(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)));
+    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
+            this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)));
 
-    connect(qt4Target()->qt4Project(), SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SLOT(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+    connect(qt4Target()->qt4Project(), SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)),
+            this, SLOT(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)));
 }
 
 //////

@@ -100,10 +100,10 @@ void S60EmulatorRunConfiguration::ctor()
         //: S60 emulator run configuration default display name (no pro-file name)
         setDefaultDisplayName(tr("Run on Symbian Emulator"));
     Qt4Project *pro = qt4Target()->qt4Project();
-    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)));
-    connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
-            this, SLOT(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool)));
+    connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *)),
+            this, SLOT(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *)));
 }
 
 
@@ -120,14 +120,14 @@ void S60EmulatorRunConfiguration::handleParserState(bool success)
     }
 }
 
-void S60EmulatorRunConfiguration::proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+void S60EmulatorRunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
 {
     if (m_proFilePath != pro->path())
         return;
     handleParserState(false);
 }
 
-void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success)
+void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success)
 {
     if (m_proFilePath != pro->path())
         return;

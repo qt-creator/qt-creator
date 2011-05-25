@@ -53,7 +53,6 @@
 #include "gettingstartedwelcomepage.h"
 #include "profilecompletionassist.h"
 
-#include "qt-maemo/maemomanager.h"
 #include "qt-s60/s60manager.h"
 #include "qt-desktop/qt4desktoptargetfactory.h"
 #include "qt-desktop/qt4simulatortargetfactory.h"
@@ -160,7 +159,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new LinguistExternalEditor);
 
     addAutoReleasedObject(new S60Manager);
-    addAutoReleasedObject(new MaemoManager);
 
     addAutoReleasedObject(new Qt4DesktopTargetFactory);
     addAutoReleasedObject(new Qt4SimulatorTargetFactory);

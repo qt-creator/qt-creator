@@ -56,11 +56,11 @@ class ProFileReader;
 }
 
 namespace Qt4ProjectManager {
+class Qt4ProFileNode;
 
 namespace Internal {
     class DeployHelperRunStep;
     class FileItem;
-    class Qt4ProFileNode;
     class Qt4PriFileNode;
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
@@ -153,7 +153,7 @@ public:
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
 
-    Internal::Qt4ProFileNode *rootProjectNode() const;
+    Qt4ProFileNode *rootProjectNode() const;
     bool validParse(const QString &proFilePath) const;
 
     virtual QStringList files(FilesMode fileMode) const;
@@ -161,20 +161,20 @@ public:
 
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
-    QList<Internal::Qt4ProFileNode *> allProFiles() const;
-    QList<Internal::Qt4ProFileNode *> applicationProFiles() const;
+    QList<Qt4ProFileNode *> allProFiles() const;
+    QList<Qt4ProFileNode *> applicationProFiles() const;
     bool hasApplicationProFile(const QString &path) const;
     QStringList applicationProFilePathes(const QString &prepend = QString()) const;
 
     void notifyChanged(const QString &name);
 
     /// \internal
-    QtSupport::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
+    QtSupport::ProFileReader *createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
     /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
     /// \internal
-    void scheduleAsyncUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
+    void scheduleAsyncUpdate(Qt4ProjectManager::Qt4ProFileNode *node);
     /// \internal
     void incrementPendingEvaluateFutures();
     /// \internal
@@ -188,8 +188,8 @@ public:
     void updateFileList();
 
 signals:
-    void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node, bool);
-    void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
+    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool);
+    void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *node);
     void buildDirectoryInitialized();
     void fromMapFinished();
 
@@ -216,9 +216,9 @@ private:
     void updateQmlJSCodeModel();
 
 
-    static void collectAllfProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);
-    static void collectApplicationProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);
-    static void findProFile(const QString& fileName, Internal::Qt4ProFileNode *root, QList<Internal::Qt4ProFileNode *> &list);
+    static void collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node);
+    static void collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node);
+    static void findProFile(const QString& fileName, Qt4ProFileNode *root, QList<Qt4ProFileNode *> &list);
     static bool hasSubNode(Internal::Qt4PriFileNode *root, const QString &path);
 
     static bool equalFileList(const QStringList &a, const QStringList &b);
@@ -228,7 +228,7 @@ private:
     static QString qmakeVarName(ProjectExplorer::FileType type);
 
     Qt4Manager *m_manager;
-    Internal::Qt4ProFileNode *m_rootProjectNode;
+    Qt4ProFileNode *m_rootProjectNode;
     Internal::Qt4NodesWatcher *m_nodesWatcher;
 
     Qt4ProjectFile *m_fileInfo;
@@ -250,7 +250,7 @@ private:
     enum AsyncUpdateState { NoState, Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState m_asyncUpdateState;
     bool m_cancelEvaluate;
-    QList<Internal::Qt4ProFileNode *> m_partialEvaluate;
+    QList<Qt4ProFileNode *> m_partialEvaluate;
 
     QFuture<void> m_codeModelFuture;
 

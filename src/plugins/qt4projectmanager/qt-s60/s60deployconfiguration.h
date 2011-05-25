@@ -46,10 +46,10 @@ class BaseQtVersion;
 }
 
 namespace Qt4ProjectManager {
+class Qt4ProFileNode;
 
 namespace Internal {
 class Qt4SymbianTarget;
-class Qt4ProFileNode;
 class S60DeployConfigurationFactory;
 class S60DeviceRunConfiguration;
 

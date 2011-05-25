@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "qmakestep.h"
+#include "ui_qmakestep.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include "qmakeparser.h"
@@ -465,16 +466,17 @@ bool QMakeStep::fromMap(const QVariantMap &map)
 ////
 
 QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
-    : BuildStepConfigWidget(), m_step(step), m_ignoreChange(false)
+    : BuildStepConfigWidget(), m_ui(new Ui::QMakeStep), m_step(step),
+      m_ignoreChange(false)
 {
-    m_ui.setupUi(this);
-    connect(m_ui.qmakeAdditonalArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
+    m_ui->setupUi(this);
+    connect(m_ui->qmakeAdditonalArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(qmakeArgumentsLineEdited()));
-    connect(m_ui.buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
+    connect(m_ui->buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(buildConfigurationSelected()));
-    connect(m_ui.qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
+    connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
-    connect(m_ui.qmlDebuggingWarningText, SIGNAL(linkActivated(QString)),
+    connect(m_ui->qmlDebuggingWarningText, SIGNAL(linkActivated(QString)),
             this, SLOT(buildQmlDebuggingHelper()));
     connect(step, SIGNAL(userArgumentsChanged()),
             this, SLOT(userArgumentsChanged()));
@@ -490,10 +492,15 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(qtVersionsDumpUpdated(QString)));
 }
 
+QMakeStepConfigWidget::~QMakeStepConfigWidget()
+{
+    delete m_ui;
+}
+
 void QMakeStepConfigWidget::init()
 {
-    m_ui.qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
-    m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
+    m_ui->qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
+    m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
 
     qmakeBuildConfigChanged();
 
@@ -531,7 +538,7 @@ void QMakeStepConfigWidget::qmakeBuildConfigChanged()
     Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
     bool debug = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
     m_ignoreChange = true;
-    m_ui.buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
+    m_ui->buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
     m_ignoreChange = false;
     updateSummaryLabel();
     updateEffectiveQMakeCall();
@@ -541,7 +548,7 @@ void QMakeStepConfigWidget::userArgumentsChanged()
 {
     if (m_ignoreChange)
         return;
-    m_ui.qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
+    m_ui->qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
     updateSummaryLabel();
     updateEffectiveQMakeCall();
 }
@@ -550,7 +557,7 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged()
 {
     if (m_ignoreChange)
         return;
-    m_ui.qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
+    m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
 
     updateSummaryLabel();
     updateEffectiveQMakeCall();
@@ -560,7 +567,7 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged()
 void QMakeStepConfigWidget::qmakeArgumentsLineEdited()
 {
     m_ignoreChange = true;
-    m_step->setUserArguments(m_ui.qmakeAdditonalArgumentsLineEdit->text());
+    m_step->setUserArguments(m_ui->qmakeAdditonalArgumentsLineEdit->text());
     m_ignoreChange = false;
 
     updateSummaryLabel();
@@ -573,7 +580,7 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
         return;
     Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
     QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
-    if (m_ui.buildConfigurationComboBox->currentIndex() == 0) { // debug
+    if (m_ui->buildConfigurationComboBox->currentIndex() == 0) { // debug
         buildConfiguration = buildConfiguration | QtSupport::BaseQtVersion::DebugBuild;
     } else {
         buildConfiguration = buildConfiguration & ~QtSupport::BaseQtVersion::DebugBuild;
@@ -638,13 +645,13 @@ void QMakeStepConfigWidget::updateSummaryLabel()
 
 void QMakeStepConfigWidget::updateQmlDebuggingOption()
 {
-    m_ui.qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
+    m_ui->qmlDebuggingLibraryCheckBox->setEnabled(m_step->isQmlDebuggingLibrarySupported());
 
     QtSupport::BaseQtVersion *qtVersion = m_step->qt4BuildConfiguration()->qtVersion();
     if (!qtVersion || !qtVersion->needsQmlDebuggingLibrary())
-        m_ui.debuggingLibraryLabel->setText(tr("Enable QML debugging:"));
+        m_ui->debuggingLibraryLabel->setText(tr("Enable QML debugging:"));
     else
-        m_ui.debuggingLibraryLabel->setText(tr("Link QML debugging library:"));
+        m_ui->debuggingLibraryLabel->setText(tr("Link QML debugging library:"));
 
     QString warningText;
 
@@ -653,8 +660,8 @@ void QMakeStepConfigWidget::updateQmlDebuggingOption()
     else if (m_step->linkQmlDebuggingLibrary())
         warningText = tr("Might make your application vulnerable. Only use in a safe environment!");
 
-    m_ui.qmlDebuggingWarningText->setText(warningText);
-    m_ui.qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
+    m_ui->qmlDebuggingWarningText->setText(warningText);
+    m_ui->qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
 }
 
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()
@@ -664,7 +671,7 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
     QString program = tr("<No qtversion>");
     if (qtVersion)
         program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-    m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + m_step->allArguments());
+    m_ui->qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + m_step->allArguments());
 }
 
 ////

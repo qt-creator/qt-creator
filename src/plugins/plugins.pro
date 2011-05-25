@@ -42,7 +42,8 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmljstools \
             plugin_macros \
             debugger/dumper.pro \
-            plugin_qmlprofiler
+            plugin_qmlprofiler \
+            plugin_remotelinux
 
 !win32 {
      SUBDIRS += plugin_valgrind
@@ -149,7 +150,13 @@ plugin_qt4projectmanager.depends += plugin_qtsupport
 plugin_qt4projectmanager.depends += plugin_cpptools
 plugin_qt4projectmanager.depends += plugin_debugger
 plugin_qt4projectmanager.depends += plugin_qmljseditor
-plugin_qt4projectmanager.depends += plugin_analyzerbase
+
+plugin_remotelinux.subdir = remotelinux
+plugin_remotelinux.depends = plugin_analyzerbase
+plugin_remotelinux.depends += plugin_coreplugin
+plugin_remotelinux.depends += plugin_debugger
+plugin_remotelinux.depends += plugin_projectexplorer
+plugin_remotelinux.depends += plugin_qt4projectmanager
 
 plugin_locator.subdir = locator
 plugin_locator.depends = plugin_coreplugin

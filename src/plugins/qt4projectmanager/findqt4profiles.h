@@ -36,9 +36,8 @@
 #include <projectexplorer/nodesvisitor.h>
 
 namespace Qt4ProjectManager {
-namespace Internal {
-
 class Qt4ProFileNode;
+namespace Internal {
 
 class FindQt4ProFiles: protected ProjectExplorer::NodesVisitor {
 

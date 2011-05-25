@@ -249,7 +249,7 @@ QString Qt4BuildConfiguration::buildDirectory() const
 /// If only a sub tree should be build this function returns which sub node
 /// should be build
 /// \see Qt4BuildConfiguration::setSubNodeBuild
-Qt4ProjectManager::Internal::Qt4ProFileNode *Qt4BuildConfiguration::subNodeBuild() const
+Qt4ProjectManager::Qt4ProFileNode *Qt4BuildConfiguration::subNodeBuild() const
 {
     return m_subNodeBuild;
 }
@@ -260,7 +260,7 @@ Qt4ProjectManager::Internal::Qt4ProFileNode *Qt4BuildConfiguration::subNodeBuild
 /// calling BuildManager::buildProject( BuildConfiguration * )
 /// and reset immediately afterwards
 /// That is m_subNodesBuild is set only temporarly
-void Qt4BuildConfiguration::setSubNodeBuild(Qt4ProjectManager::Internal::Qt4ProFileNode *node)
+void Qt4BuildConfiguration::setSubNodeBuild(Qt4ProjectManager::Qt4ProFileNode *node)
 {
     m_subNodeBuild = node;
 }

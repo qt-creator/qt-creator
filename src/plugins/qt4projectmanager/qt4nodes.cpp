@@ -464,7 +464,7 @@ struct InternalNode
                 filesToRemove << *existingNodeIter;
                 ++existingNodeIter;
             } else if ((*existingNodeIter)->path() > *newPathIter) {
-                filesToAdd << new FileNode(*newPathIter, type, false);
+                filesToAdd << new ProjectExplorer::FileNode(*newPathIter, type, false);
                 ++newPathIter;
             } else { // *existingNodeIter->path() == *newPathIter
                 ++existingNodeIter;
@@ -476,7 +476,7 @@ struct InternalNode
             ++existingNodeIter;
         }
         while (newPathIter != files.constEnd()) {
-            filesToAdd << new FileNode(*newPathIter, type, false);
+            filesToAdd << new ProjectExplorer::FileNode(*newPathIter, type, false);
             ++newPathIter;
         }
 
@@ -538,7 +538,7 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
 {
     // add project file node
     if (m_fileNodes.isEmpty())
-        addFileNodes(QList<FileNode*>() << new FileNode(m_projectFilePath, ProjectFileType, false), this);
+        addFileNodes(QList<FileNode*>() << new ProjectExplorer::FileNode(m_projectFilePath, ProjectExplorer::ProjectFileType, false), this);
 
     const QString &projectDir = m_qt4ProFileNode->m_projectDir;
 
@@ -825,7 +825,7 @@ QList<ProjectNode::ProjectAction> Qt4PriFileNode::supportedActions(Node *node) c
         break;
     }
 
-    FileNode *fileNode = qobject_cast<FileNode *>(node);
+    ProjectExplorer::FileNode *fileNode = qobject_cast<FileNode *>(node);
     if (fileNode && fileNode->fileType() != ProjectExplorer::ProjectFileType)
         actions << Rename;
 
@@ -1251,6 +1251,51 @@ QSet<QString> Qt4PriFileNode::filterFiles(ProjectExplorer::FileType fileType, co
     return result;
 }
 
+static Qt4ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
+{
+    switch (type) {
+    case ProFileEvaluator::TT_Unknown:
+    case ProFileEvaluator::TT_Application:
+        return ApplicationTemplate;
+    case ProFileEvaluator::TT_Library:
+        return LibraryTemplate;
+    case ProFileEvaluator::TT_Script:
+        return ScriptTemplate;
+    case ProFileEvaluator::TT_Aux:
+        return AuxTemplate;
+    case ProFileEvaluator::TT_Subdirs:
+        return SubDirsTemplate;
+    default:
+        return InvalidProject;
+    }
+}
+
+namespace {
+    // find all ui files in project
+    class FindUiFileNodesVisitor : public ProjectExplorer::NodesVisitor {
+    public:
+        void visitProjectNode(ProjectNode *projectNode)
+        {
+            visitFolderNode(projectNode);
+        }
+        void visitFolderNode(FolderNode *folderNode)
+        {
+            foreach (FileNode *fileNode, folderNode->fileNodes()) {
+                if (fileNode->fileType() == ProjectExplorer::FormType)
+                    uiFileNodes << fileNode;
+            }
+        }
+        QList<FileNode*> uiFileNodes;
+    };
+}
+
+Qt4NodesWatcher::Qt4NodesWatcher(QObject *parent)
+        : NodesWatcher(parent)
+{
+}
+
+} // namespace Internal
+
 
 const Qt4ProFileNode *Qt4ProFileNode::findProFileFor(const QString &fileName) const
 {
@@ -1355,7 +1400,7 @@ Qt4ProFileNode::~Qt4ProFileNode()
 {
     CPlusPlus::CppModelManagerInterface *modelManager
             = CPlusPlus::CppModelManagerInterface::instance();
-    QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it, end;
+    QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it, end;
     end = m_uiCodeModelSupport.constEnd();
     for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
         modelManager->removeEditorSupport(it.value());
@@ -1408,8 +1453,8 @@ QStringList Qt4ProFileNode::variableValue(const Qt4Variable var) const
 
 void Qt4ProFileNode::emitProFileUpdated()
 {
-    foreach (NodesWatcher *watcher, watchers())
-        if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
             emit qt4Watcher->proFileUpdated(this, m_validParse);
 
     foreach (ProjectNode *subNode, subProjectNodes()) {
@@ -1421,8 +1466,8 @@ void Qt4ProFileNode::emitProFileUpdated()
 
 void Qt4ProFileNode::emitProFileInvalidated()
 {
-    foreach (NodesWatcher *watcher, watchers())
-        if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
             emit qt4Watcher->proFileInvalidated(this);
 
     foreach (ProjectNode *subNode, subProjectNodes()) {
@@ -1459,8 +1504,8 @@ void Qt4ProFileNode::update()
 {
     if (m_validParse) {
         m_validParse = false;
-        foreach (NodesWatcher *watcher, watchers())
-            if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+        foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+            if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
                 emit qt4Watcher->proFileInvalidated(this);
     }
 
@@ -1507,25 +1552,6 @@ void Qt4ProFileNode::applyAsyncEvaluate()
     m_project->decrementPendingEvaluateFutures();
 }
 
-static Qt4ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
-{
-    switch (type) {
-    case ProFileEvaluator::TT_Unknown:
-    case ProFileEvaluator::TT_Application:
-        return ApplicationTemplate;
-    case ProFileEvaluator::TT_Library:
-        return LibraryTemplate;
-    case ProFileEvaluator::TT_Script:
-        return ScriptTemplate;
-    case ProFileEvaluator::TT_Aux:
-        return AuxTemplate;
-    case ProFileEvaluator::TT_Subdirs:
-        return SubDirsTemplate;
-    default:
-        return InvalidProject;
-    }
-}
-
 void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 {
     if (!m_readerExact)
@@ -1538,8 +1564,8 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
             invalidate();
         }
-        foreach (NodesWatcher *watcher, watchers())
-            if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+        foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+            if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
                 emit qt4Watcher->proFileUpdated(this, false);
         return;
     }
@@ -1547,7 +1573,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     if (debug)
         qDebug() << "Qt4ProFileNode - updating files for file " << m_projectFilePath;
 
-    Qt4ProjectType projectType = proFileTemplateTypeToProjectType(
+    Qt4ProjectType projectType = Internal::proFileTemplateTypeToProjectType(
                 (evalResult == EvalOk ? m_readerExact : m_readerCumulative)->templateType());
     if (projectType != m_projectType) {
         Qt4ProjectType oldType = m_projectType;
@@ -1565,8 +1591,8 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
         // really emit here? or at the end? Nobody is connected to this signal at the moment
         // so we kind of can ignore that question for now
-        foreach (NodesWatcher *watcher, watchers())
-            if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+        foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+            if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
                 emit qt4Watcher->projectTypeChanged(this, oldType, projectType);
     }
 
@@ -1777,8 +1803,8 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             Qt4VariablesHash oldValues = m_varValues;
             m_varValues = newVarValues;
 
-            foreach (NodesWatcher *watcher, watchers())
-                if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+            foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+                if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
                     emit qt4Watcher->variablesChanged(this, oldValues, m_varValues);
         }
 
@@ -1789,8 +1815,8 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
     m_validParse = true;
 
-    foreach (NodesWatcher *watcher, watchers())
-        if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
             emit qt4Watcher->proFileUpdated(this, true);
 
     m_project->destroyProFileReader(m_readerExact);
@@ -1798,25 +1824,6 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
     m_readerExact = 0;
     m_readerCumulative = 0;
-}
-
-namespace {
-    // find all ui files in project
-    class FindUiFileNodesVisitor : public ProjectExplorer::NodesVisitor {
-    public:
-        void visitProjectNode(ProjectNode *projectNode)
-        {
-            visitFolderNode(projectNode);
-        }
-        void visitFolderNode(FolderNode *folderNode)
-        {
-            foreach (FileNode *fileNode, folderNode->fileNodes()) {
-                if (fileNode->fileType() == ProjectExplorer::FormType)
-                    uiFileNodes << fileNode;
-            }
-        }
-        QList<FileNode*> uiFileNodes;
-    };
 }
 
 // This function is triggered after a build, and updates the state ui files
@@ -1832,9 +1839,9 @@ QStringList Qt4ProFileNode::updateUiFiles()
         return QStringList();
 
     // Find all ui files
-    FindUiFileNodesVisitor uiFilesVisitor;
+    Internal::FindUiFileNodesVisitor uiFilesVisitor;
     this->accept(&uiFilesVisitor);
-    const QList<FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
+    const QList<ProjectExplorer::FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
     // Find the UiDir, there can only ever be one
     QString uiDir = buildDir();
@@ -1843,8 +1850,8 @@ QStringList Qt4ProFileNode::updateUiFiles()
         uiDir = tmp.first();
 
     // Collect all existing generated files
-    QList<FileNode*> existingFileNodes;
-    foreach (FileNode *file, fileNodes()) {
+    QList<ProjectExplorer::FileNode*> existingFileNodes;
+    foreach (ProjectExplorer::FileNode *file, fileNodes()) {
         if (file->isGenerated())
             existingFileNodes << file;
     }
@@ -1852,7 +1859,7 @@ QStringList Qt4ProFileNode::updateUiFiles()
     // Convert uiFile to uiHeaderFilePath, find all headers that correspond
     // and try to find them in uiDir
     QStringList newFilePaths;
-    foreach (FileNode *uiFile, uiFiles) {
+    foreach (ProjectExplorer::FileNode *uiFile, uiFiles) {
         const QString uiHeaderFilePath
                 = QString("%1/ui_%2.h").arg(uiDir, QFileInfo(uiFile->path()).completeBaseName());
         if (QFileInfo(uiHeaderFilePath).exists())
@@ -1860,15 +1867,15 @@ QStringList Qt4ProFileNode::updateUiFiles()
     }
 
     // Create a diff between those lists
-    QList<FileNode*> toRemove;
-    QList<FileNode*> toAdd;
+    QList<ProjectExplorer::FileNode*> toRemove;
+    QList<ProjectExplorer::FileNode*> toAdd;
     // The list of files for which we call updateSourceFile
     QStringList toUpdate;
 
     qSort(newFilePaths);
     qSort(existingFileNodes.begin(), existingFileNodes.end(), ProjectNode::sortNodesByPath);
 
-    QList<FileNode*>::const_iterator existingNodeIter = existingFileNodes.constBegin();
+    QList<ProjectExplorer::FileNode*>::const_iterator existingNodeIter = existingFileNodes.constBegin();
     QList<QString>::const_iterator newPathIter = newFilePaths.constBegin();
     while (existingNodeIter != existingFileNodes.constEnd()
            && newPathIter != newFilePaths.constEnd()) {
@@ -1876,7 +1883,7 @@ QStringList Qt4ProFileNode::updateUiFiles()
             toRemove << *existingNodeIter;
             ++existingNodeIter;
         } else if ((*existingNodeIter)->path() > *newPathIter) {
-            toAdd << new FileNode(*newPathIter, ProjectExplorer::HeaderType, true);
+            toAdd << new ProjectExplorer::FileNode(*newPathIter, ProjectExplorer::HeaderType, true);
             ++newPathIter;
         } else { // *existingNodeIter->path() == *newPathIter
             QString fileName = (*existingNodeIter)->path();
@@ -1895,13 +1902,13 @@ QStringList Qt4ProFileNode::updateUiFiles()
         ++existingNodeIter;
     }
     while (newPathIter != newFilePaths.constEnd()) {
-        toAdd << new FileNode(*newPathIter, ProjectExplorer::HeaderType, true);
+        toAdd << new ProjectExplorer::FileNode(*newPathIter, ProjectExplorer::HeaderType, true);
         ++newPathIter;
     }
 
     // Update project tree
     if (!toRemove.isEmpty()) {
-        foreach (FileNode *file, toRemove)
+        foreach (ProjectExplorer::FileNode *file, toRemove)
             m_uitimestamps.remove(file->path());
         removeFileNodes(toRemove, this);
     }
@@ -1910,7 +1917,7 @@ QStringList Qt4ProFileNode::updateUiFiles()
         CPlusPlus::CppModelManagerInterface::instance();
 
     if (!toAdd.isEmpty()) {
-        foreach (FileNode *file, toAdd) {
+        foreach (ProjectExplorer::FileNode *file, toAdd) {
             m_uitimestamps.insert(file->path(), QFileInfo(file->path()).lastModified());
             toUpdate << file->path();
 
@@ -2216,15 +2223,15 @@ void Qt4ProFileNode::invalidate()
     m_projectType = InvalidProject;
 
 
-    foreach (NodesWatcher *watcher, watchers())
-        if (Qt4NodesWatcher *qt4Watcher = qobject_cast<Qt4NodesWatcher*>(watcher))
+    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
             emit qt4Watcher->projectTypeChanged(this, oldType, InvalidProject);
 }
 
 void Qt4ProFileNode::updateCodeModelSupportFromBuild(const QStringList &files)
 {
     foreach (const QString &file, files) {
-        QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it, end;
+        QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it, end;
         end = m_uiCodeModelSupport.constEnd();
         for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
             if (it.value()->fileName() == file)
@@ -2236,7 +2243,7 @@ void Qt4ProFileNode::updateCodeModelSupportFromBuild(const QStringList &files)
 void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName,
                                                       const QString &contents)
 {
-    const QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it =
+    const QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it =
             m_uiCodeModelSupport.constFind(uiFileName);
     if (it != m_uiCodeModelSupport.constEnd())
         it.value()->updateFromEditor(contents);
@@ -2269,39 +2276,39 @@ void Qt4ProFileNode::createUiCodeModelSupport()
             = CPlusPlus::CppModelManagerInterface::instance();
 
     // First move all to
-    QMap<QString, Qt4UiCodeModelSupport *> oldCodeModelSupport;
+    QMap<QString, Internal::Qt4UiCodeModelSupport *> oldCodeModelSupport;
     oldCodeModelSupport = m_uiCodeModelSupport;
     m_uiCodeModelSupport.clear();
 
     // Only those two project types can have ui files for us
     if (m_projectType == ApplicationTemplate || m_projectType == LibraryTemplate) {
         // Find all ui files
-        FindUiFileNodesVisitor uiFilesVisitor;
+        Internal::FindUiFileNodesVisitor uiFilesVisitor;
         this->accept(&uiFilesVisitor);
-        const QList<FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
+        const QList<ProjectExplorer::FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
 
         // Find the UiDir, there can only ever be one
         const  QString uiDir = uiDirectory();
-        foreach (const FileNode *uiFile, uiFiles) {
+        foreach (const ProjectExplorer::FileNode *uiFile, uiFiles) {
             const QString uiHeaderFilePath = uiHeaderFile(uiDir, uiFile->path());
 //            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
-            QMap<QString, Qt4UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
+            QMap<QString, Internal::Qt4UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
             if (it != oldCodeModelSupport.end()) {
 //                qDebug()<<"updated old codemodelsupport";
-                Qt4UiCodeModelSupport *cms = it.value();
+                Internal::Qt4UiCodeModelSupport *cms = it.value();
                 cms->setFileName(uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(it.key(), cms);
                 oldCodeModelSupport.erase(it);
             } else {
 //                qDebug()<<"adding new codemodelsupport";
-                Qt4UiCodeModelSupport *cms = new Qt4UiCodeModelSupport(modelManager, m_project, uiFile->path(), uiHeaderFilePath);
+                Internal::Qt4UiCodeModelSupport *cms = new Internal::Qt4UiCodeModelSupport(modelManager, m_project, uiFile->path(), uiHeaderFilePath);
                 m_uiCodeModelSupport.insert(uiFile->path(), cms);
                 modelManager->addEditorSupport(cms);
             }
         }
     }
     // Remove old
-    QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it, end;
+    QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it, end;
     end = oldCodeModelSupport.constEnd();
     for (it = oldCodeModelSupport.constBegin(); it!=end; ++it) {
         modelManager->removeEditorSupport(it.value());
@@ -2309,10 +2316,4 @@ void Qt4ProFileNode::createUiCodeModelSupport()
     }
 }
 
-Qt4NodesWatcher::Qt4NodesWatcher(QObject *parent)
-        : NodesWatcher(parent)
-{
-}
-
-} // namespace Internal
 } // namespace Qt4ProjectManager

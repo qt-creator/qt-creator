@@ -62,11 +62,11 @@ namespace Qt4ProjectManager {
 
 class Qt4Project;
 class Qt4BaseTarget;
+class Qt4ProFileNode;
 
 namespace Internal {
 class Qt4DesktopTarget;
 class Qt4PriFileNode;
-class Qt4ProFileNode;
 class Qt4RunConfigurationFactory;
 
 class Qt4RunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
@@ -117,8 +117,8 @@ signals:
     void effectiveTargetInformationChanged();
 
 private slots:
-    void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro, bool success);
-    void proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
+    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success);
+    void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro);
 
 protected:
     Qt4RunConfiguration(Qt4BaseTarget *parent, Qt4RunConfiguration *source);

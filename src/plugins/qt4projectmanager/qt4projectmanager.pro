@@ -148,7 +148,6 @@ RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
 
 include(qt-s60/qt-s60.pri)
-include(qt-maemo/qt-maemo.pri)
 include(qt-desktop/qt-desktop.pri)
 include(customwidgetwizard/customwidgetwizard.pri)
 

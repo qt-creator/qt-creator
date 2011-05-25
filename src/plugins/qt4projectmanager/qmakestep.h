@@ -33,7 +33,11 @@
 #ifndef QMAKESTEP_H
 #define QMAKESTEP_H
 
-#include "ui_qmakestep.h"
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class QMakeStep; }
+QT_END_NAMESPACE
 
 #include <projectexplorer/abstractprocessstep.h>
 
@@ -137,6 +141,7 @@ class QMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     QMakeStepConfigWidget(QMakeStep *step);
+    ~QMakeStepConfigWidget();
     void init();
     QString summaryText() const;
     QString displayName() const;
@@ -160,7 +165,7 @@ private:
     void updateSummaryLabel();
     void updateQmlDebuggingOption();
     void updateEffectiveQMakeCall();
-    Ui::QMakeStep m_ui;
+    Ui::QMakeStep *m_ui;
     QMakeStep *m_step;
     QString m_summaryText;
     bool m_ignoreChange;

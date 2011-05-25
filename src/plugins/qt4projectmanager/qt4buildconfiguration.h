@@ -48,10 +48,7 @@ class QMakeStep;
 class MakeStep;
 class Qt4BaseTarget;
 class Qt4BuildConfigurationFactory;
-
-namespace Internal {
 class Qt4ProFileNode;
-}
 
 class QT4PROJECTMANAGER_EXPORT Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -71,8 +68,8 @@ public:
     QString shadowBuildDirectory() const;
     void setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory);
 
-    void setSubNodeBuild(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
-    Qt4ProjectManager::Internal::Qt4ProFileNode *subNodeBuild() const;
+    void setSubNodeBuild(Qt4ProjectManager::Qt4ProFileNode *node);
+    Qt4ProjectManager::Qt4ProFileNode *subNodeBuild() const;
 
     // returns the qtVersion
     QtSupport::BaseQtVersion *qtVersion() const;
@@ -166,7 +163,7 @@ private:
     QString m_lastEmmitedBuildDirectory;
     int m_qtVersionId;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
-    Qt4ProjectManager::Internal::Qt4ProFileNode *m_subNodeBuild;
+    Qt4ProjectManager::Qt4ProFileNode *m_subNodeBuild;
 };
 
 class QT4PROJECTMANAGER_EXPORT Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

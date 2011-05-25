@@ -58,10 +58,7 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 class Qt4Project;
 class Qt4BaseTargetFactory;
-
-namespace Internal {
 class Qt4ProFileNode;
-}
 
 class QT4PROJECTMANAGER_EXPORT Qt4BaseTarget : public ProjectExplorer::Target
 {

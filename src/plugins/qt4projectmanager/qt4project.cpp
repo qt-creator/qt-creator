@@ -338,11 +338,11 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     foreach (Target *t, targets())
         onAddedTarget(t);
 
-    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*,bool)),
-            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *,bool)));
+    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
+            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *,bool)));
 
-    connect(m_nodesWatcher, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SIGNAL(proFileInvalidated(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+    connect(m_nodesWatcher, SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)),
+            this, SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)));
 
     // Now we emit update once :)
     m_rootProjectNode->emitProFileUpdated();
@@ -616,7 +616,7 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
         // Add the node
         m_asyncUpdateState = AsyncPartialUpdatePending;
 
-        QList<Internal::Qt4ProFileNode *>::iterator it;
+        QList<Qt4ProFileNode *>::iterator it;
         bool add = true;
         if (debug)
             qDebug()<<"scheduleAsyncUpdate();"<<m_partialEvaluate.size()<<"nodes";
@@ -954,8 +954,8 @@ void Qt4Project::collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNo
 
 void Qt4Project::collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node)
 {
-    if (node->projectType() == Internal::ApplicationTemplate
-        || node->projectType() == Internal::ScriptTemplate) {
+    if (node->projectType() == ApplicationTemplate
+        || node->projectType() == ScriptTemplate) {
         list.append(node);
     }
     foreach (ProjectNode *n, node->subProjectNodes()) {
