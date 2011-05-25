@@ -581,7 +581,7 @@ void CodaDevice::deviceReadyReadTcp()
             break;
         if (messageEndPos == 0) {
             // CODA 4.0.5 emits empty messages on errors.
-            emitLogMessage(QString::fromLatin1("An empty Coda message has been received."));
+            emitLogMessage(QString::fromLatin1("An empty CODA message has been received."));
         } else {
             processMessage(d->m_readBuffer.left(messageEndPos));
         }

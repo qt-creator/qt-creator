@@ -71,7 +71,7 @@
 enum { debug = 0 };
 
 /* Libraries we want to be notified about (pending introduction of a 'notify all'
- * setting in Coda, Bug #11842 */
+ * setting in CODA, Bug #11842 */
 static const char *librariesC[] = {
 "pipelib.ldd", "rpipe.dll", "libc.dll",
 "libdl.dll", "libm.dll", "libpthread.dll",
@@ -114,7 +114,7 @@ static inline QString startMsg(const trk::Session &session)
  * When continuing in sendTrkContinue(), we delete this thread, since we cannot
  * know whether it will exist at the next stop.
  * Also note that threads continue running in Symbian even if one crashes.
- * TODO: - Maybe thread reporting will be improved in Coda?
+ * TODO: - Maybe thread reporting will be improved in CODA?
  *       - Stop all threads once one stops?
  *       - Breakpoints do not trigger in threads other than the main thread. */
 
@@ -245,7 +245,7 @@ void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const C
                 m_session.modules.removeAt(index);
                 m_session.libraries.removeAt(index);
             } else {
-                // Might happen with preliminary version of Coda.
+                // Might happen with preliminary version of CODA.
                 qWarning("Received unload for module '%s' for which no load was received.",
                          qPrintable(moduleName));
             }
@@ -987,7 +987,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 void CodaGdbAdapter::sendRunControlTerminateCommand()
 {
     // Requires id of main thread to terminate.
-    // Note that calling 'Settings|set|removeExecutable' crashes Coda,
+    // Note that calling 'Settings|set|removeExecutable' crashes CODA,
     // so, it is apparently not required.
     m_codaDevice->sendRunControlTerminateCommand(
         CodaCallback(this, &CodaGdbAdapter::handleRunControlTerminate),
@@ -1106,7 +1106,7 @@ void CodaGdbAdapter::startAdapter()
 
     if (parameters.communicationChannel ==
             DebuggerStartParameters::CommunicationChannelTcpIp) {
-        logMessage(_("Connecting to Coda on %1:%2")
+        logMessage(_("Connecting to CODA on %1:%2")
                    .arg(codaServerAddress).arg(codaServerPort));
         codaSocket->connectToHost(codaServerAddress, codaServerPort);
     } else {
@@ -1142,7 +1142,7 @@ void CodaGdbAdapter::addThread(unsigned id)
                 m_session.mainTid = id;
         }
         // We cannot retrieve register values unless the registers of that
-        // thread have been retrieved (Coda oddity).
+        // thread have been retrieved (CODA oddity).
         const QByteArray contextId = RunControlContext::codaId(m_session.pid, id);
         m_codaDevice->sendRegistersGetChildrenCommand(
             CodaCallback(this, &CodaGdbAdapter::handleRegisterChildren),
