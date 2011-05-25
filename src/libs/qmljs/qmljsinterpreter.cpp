@@ -1743,6 +1743,7 @@ PrototypeIterator::PrototypeIterator(const ObjectValue *start, const Context *co
     : m_current(0)
     , m_next(start)
     , m_context(context)
+    , m_error(NoError)
 {
     if (start)
         m_prototypes.reserve(10);
