@@ -167,24 +167,25 @@ void S60PublisherOvi::completeCreation()
     m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
                                                     makepp->effectiveCommand() + ' ' + makepp->arguments(),
                                                     tr("Build")));
+    if (isDynamicLibrary(*m_qt4project)) {
+        const QString freezeArg = QLatin1String("freeze-") + makepp->arguments();
+        m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                        makepp->effectiveCommand() + ' ' + freezeArg,
+                                                        tr("Freeze")));
 
-    const QString freezeArg = QLatin1String("freeze-") + makepp->arguments();
-    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                    makepp->effectiveCommand() + ' ' + freezeArg,
-                                                    tr("Freeze")));
+        m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                        makepp->effectiveCommand() + ' ' + QLatin1String("clean -w"),
+                                                        tr("Secondary Clean"),
+                                                        false));
 
-    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                    makepp->effectiveCommand() + ' ' + QLatin1String("clean -w"),
-                                                    tr("Secondary Clean"),
-                                                    false));
+        m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                        qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
+                                                        tr("Secondary QMake")));
 
-    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                    qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
-                                                    tr("Secondary QMake")));
-
-    m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
-                                                    makepp->effectiveCommand() + ' ' + makepp->arguments(),
-                                                    tr("Secondary Build")));
+        m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
+                                                        makepp->effectiveCommand() + ' ' + makepp->arguments(),
+                                                        tr("Secondary Build")));
+    }
 
     QString signArg = QLatin1String("unsigned_installer_sis");
     if (m_qt4bc->qtVersion()->qtVersion() == QtSupport::QtVersionNumber(4,6,3) )
@@ -210,6 +211,17 @@ void S60PublisherOvi::completeCreation()
             }
         }
     }
+}
+
+bool S60PublisherOvi::isDynamicLibrary(const Qt4Project &project) const
+{
+    Qt4ProFileNode *proFile = project.rootProjectNode();
+    if (proFile->projectType() == LibraryTemplate) {
+        const QStringList &config(proFile->variableValue(ConfigVar));
+        if (!config.contains(QLatin1String("static")) && !config.contains(QLatin1String("staticlib")))
+            return true;
+    }
+    return false;
 }
 
 QString S60PublisherOvi::nameFromTarget() const

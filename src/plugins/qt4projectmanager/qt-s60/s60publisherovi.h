@@ -153,6 +153,7 @@ private:
     bool runStep();
 
     bool sisExists(QString &sisFile);
+    bool isDynamicLibrary(const Qt4Project &project) const;
 
 private:
     QColor m_errorColor;
