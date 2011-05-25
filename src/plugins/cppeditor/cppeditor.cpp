@@ -105,6 +105,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QTreeView>
 #include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QMainWindow>
 
 #include <sstream>
 
@@ -160,7 +161,26 @@ public:
     void sync()
     {
         expandAll();
-        setMinimumWidth(qMax(sizeHintForColumn(0), minimumSizeHint().width()));
+    }
+
+    void adjustWidth()
+    {
+        const int w = Core::ICore::instance()->mainWindow()->geometry().width();
+        setMaximumWidth(w);
+        setMinimumWidth(qMin(qMax(sizeHintForColumn(0), minimumSizeHint().width()), w));
+    }
+};
+
+class OverviewCombo : public QComboBox
+{
+public:
+    OverviewCombo(QWidget *parent = 0) : QComboBox(parent)
+    {}
+
+    void showPopup()
+    {
+        static_cast<OverviewTreeView *>(view())->adjustWidth();
+        QComboBox::showPopup();
     }
 };
 
@@ -467,7 +487,7 @@ TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
 
 void CPPEditorWidget::createToolBar(CPPEditor *editor)
 {
-    m_outlineCombo = new QComboBox;
+    m_outlineCombo = new OverviewCombo;
     m_outlineCombo->setMinimumContentsLength(22);
 
     // Make the combo box prefer to expand
