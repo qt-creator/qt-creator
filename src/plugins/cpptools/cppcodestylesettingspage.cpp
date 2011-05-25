@@ -182,6 +182,7 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
       m_ui(new Ui::CppCodeStyleSettingsPage)
 {
     m_ui->setupUi(this);
+    m_ui->categoryTab->setProperty("_q_custom_style_disabled", true);
 
     m_previews << m_ui->previewTextEditGeneral << m_ui->previewTextEditContent
                << m_ui->previewTextEditBraces << m_ui->previewTextEditSwitch
