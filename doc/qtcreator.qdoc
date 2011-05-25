@@ -10790,6 +10790,12 @@
         \row
             \o Switch between header and source file
             \o F4
+        \row
+            \o Turn selected text into lowercase
+            \o Alt+U
+        \row
+            \o Turn selected text into uppercase
+            \o Alt+Shift+U
     \endtable
 
     \section2 Debugging Keyboard Shortcuts
