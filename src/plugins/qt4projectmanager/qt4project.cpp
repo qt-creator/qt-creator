@@ -1045,6 +1045,7 @@ void Qt4Project::notifyChanged(const QString &name)
             QtSupport::ProFileCacheManager::instance()->discardFile(name);
             node->update();
         }
+        updateFileList();
     }
 }
 
