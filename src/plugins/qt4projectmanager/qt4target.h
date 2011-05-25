@@ -77,16 +77,10 @@ public:
 
     // This is the same for almost all Qt4Targets
     // so for now offer a convience function
-<<<<<<< HEAD
-    Qt4BuildConfiguration *addQt4BuildConfiguration(QString displayName,
-                                                            QtSupport::BaseQtVersion *qtversion,
-                                                            QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-=======
     Qt4BuildConfiguration *addQt4BuildConfiguration(QString defaultDisplayName,
                                                             QString displayName,
-                                                            BaseQtVersion *qtversion,
-                                                            BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
->>>>>>> BuildConfiguration: Adapt name if Qt version changes
+                                                            QtSupport::BaseQtVersion *qtversion,
+                                                            QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
                                                             QString additionalArguments,
                                                             QString directory);
 
