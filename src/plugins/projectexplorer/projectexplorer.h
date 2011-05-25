@@ -249,6 +249,7 @@ private slots:
 
 private:
     QString directoryFor(Node *node);
+    QString pathFor(Node *node);
     void deploy(QList<Project *>);
     int queue(QList<Project *>, QStringList stepIds);
     void updateContextMenuActions();

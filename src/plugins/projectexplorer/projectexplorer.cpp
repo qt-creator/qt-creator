@@ -2235,7 +2235,7 @@ void ProjectExplorerPlugin::updateContextMenuActions()
     }
 }
 
-QString ProjectExplorerPlugin::directoryFor(Node *node)
+QString pathOrDirectoryFor(Node *node, bool dir)
 {
     QString path = node->path();
     QString location;
@@ -2252,9 +2252,20 @@ QString ProjectExplorerPlugin::directoryFor(Node *node)
             location = Utils::commonPath(list);
     } else {
         QFileInfo fi(path);
-        location = (fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
+        location = (fi.isDir() && dir) ? fi.absoluteFilePath() : fi.absolutePath();
     }
     return location;
+}
+
+QString ProjectExplorerPlugin::pathFor(Node *node)
+{
+    return pathOrDirectoryFor(node, false);
+}
+
+
+QString ProjectExplorerPlugin::directoryFor(Node *node)
+{
+    return pathOrDirectoryFor(node, true);
 }
 
 void ProjectExplorerPlugin::addNewFile()
@@ -2371,13 +2382,13 @@ void ProjectExplorerPlugin::showInGraphicalShell()
 {
     QTC_ASSERT(d->m_currentNode, return)
     FolderNavigationWidget::showInGraphicalShell(Core::ICore::instance()->mainWindow(),
-                                                 directoryFor(d->m_currentNode));
+                                                 pathFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::openTerminalHere()
 {
     QTC_ASSERT(d->m_currentNode, return)
-    FolderNavigationWidget::openTerminal(directoryFor(d->m_currentNode));
+    FolderNavigationWidget::openTerminal(pathFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::removeFile()
