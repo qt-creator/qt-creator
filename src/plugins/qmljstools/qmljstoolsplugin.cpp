@@ -36,9 +36,12 @@
 #include "qmljslocatordata.h"
 #include "qmljscodestylesettingspage.h"
 #include "qmljstoolsconstants.h"
+#include "qmljstoolssettings.h"
+#include "qmljscodestylesettingsfactory.h"
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
+#include <texteditor/codestylepreferencesmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -74,6 +77,8 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
     Q_UNUSED(error)
 //    Core::ICore *core = Core::ICore::instance();
 
+    m_settings = new QmlJSToolsSettings(this); // force registration of qmljstools settings
+
     // Objects
     m_modelManager = new ModelManager(this);
 //    Core::VCSManager *vcsManager = core->vcsManager();
@@ -87,7 +92,10 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
     LocatorData *locatorData = new LocatorData;
     addAutoReleasedObject(locatorData);
     addAutoReleasedObject(new FunctionFilter(locatorData));
-//    addAutoReleasedObject(new QmlJSCodeStyleSettingsPage);
+    addAutoReleasedObject(new QmlJSCodeStyleSettingsPage);
+
+    TextEditor::CodeStylePreferencesManager::instance()->registerFactory(
+                new QmlJSTools::QmlJSCodeStylePreferencesFactory());
 
     return true;
 }

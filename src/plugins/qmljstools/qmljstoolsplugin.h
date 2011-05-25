@@ -45,6 +45,9 @@ class QDir;
 QT_END_NAMESPACE
 
 namespace QmlJSTools {
+
+class QmlJSToolsSettings;
+
 namespace Internal {
 
 class ModelManager;
@@ -66,6 +69,7 @@ public:
 
 private:
     ModelManager *m_modelManager;
+    QmlJSToolsSettings *m_settings;
 
     static QmlJSToolsPlugin *m_instance;
 };

@@ -21,13 +21,13 @@ namespace TextEditor {
 namespace QmlJSTools {
 namespace Internal {
 
-class QmlJSCodeStyleSettingsWidget : public QWidget
+class QmlJSCodeStylePreferencesWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit QmlJSCodeStyleSettingsWidget(QWidget *parent = 0);
-    virtual ~QmlJSCodeStyleSettingsWidget();
+    explicit QmlJSCodeStylePreferencesWidget(QWidget *parent = 0);
+    virtual ~QmlJSCodeStylePreferencesWidget();
 
     void setTabPreferences(TextEditor::TabPreferences *tabPreferences);
 
@@ -36,7 +36,7 @@ public:
 private slots:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
-    void slotTabSettingsChanged();
+    void slotSettingsChanged();
     void updatePreview();
 
 private:
@@ -68,7 +68,8 @@ public:
 
 private:
     QString m_searchKeywords;
-    QPointer<QmlJSCodeStyleSettingsWidget> m_widget;
+    TextEditor::TabPreferences *m_pageTabPreferences;
+    QPointer<QmlJSCodeStylePreferencesWidget> m_widget;
 };
 
 } // namespace Internal

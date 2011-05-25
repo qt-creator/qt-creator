@@ -8,6 +8,8 @@ HEADERS += \
     $$PWD/qmljstools_global.h \
     $$PWD/qmljstoolsplugin.h \
     $$PWD/qmljstoolsconstants.h \
+    $$PWD/qmljstoolssettings.h \
+    $$PWD/qmljscodestylesettingsfactory.h \
     $$PWD/qmljsmodelmanager.h \
     $$PWD/qmljsqtstylecodeformatter.h \
     $$PWD/qmljsrefactoringchanges.h \
@@ -19,6 +21,8 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/qmljstoolsplugin.cpp \
+    $$PWD/qmljstoolssettings.cpp \
+    $$PWD/qmljscodestylesettingsfactory.cpp \
     $$PWD/qmljsmodelmanager.cpp \
     $$PWD/qmljsqtstylecodeformatter.cpp \
     $$PWD/qmljsrefactoringchanges.cpp \
