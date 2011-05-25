@@ -815,7 +815,7 @@ void Qt4DefaultTargetSetupWidget::setupImportWidgets()
 void Qt4DefaultTargetSetupWidget::createImportWidget(const BuildConfigurationInfo &info, int pos)
 {
     QCheckBox *checkBox = new QCheckBox;
-    checkBox->setText(tr("Import build from %1").arg(info.directory));
+    checkBox->setText(tr("Import build from %1").arg(QDir::toNativeSeparators(info.directory)));
     checkBox->setChecked(m_importEnabled.at(pos));
     if (info.version)
         checkBox->setToolTip(info.version->toHtml(false));
