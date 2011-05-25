@@ -104,11 +104,11 @@ struct SYMBIANUTILS_EXPORT RunControlContext {
     void format(QTextStream &str) const;
     QString toString() const;
 
-    // Helper for converting the TCF ids ("p12" or "p12.t34")
-    static Type typeFromTcfId(const QByteArray &id);
+    // Helper for converting the CODA ids ("p12" or "p12.t34")
+    static Type typeFromCodaId(const QByteArray &id);
     static unsigned processIdFromTcdfId(const QByteArray &id);
     static unsigned threadIdFromTcdfId(const QByteArray &id);
-    static QByteArray tcfId(unsigned processId,  unsigned threadId = 0);
+    static QByteArray codaId(unsigned processId,  unsigned threadId = 0);
 
     unsigned flags;
     unsigned resumeFlags;

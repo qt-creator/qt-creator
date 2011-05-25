@@ -140,7 +140,7 @@ void RunControlContext::clear()
     parentId.clear();
 }
 
-RunControlContext::Type RunControlContext::typeFromTcfId(const QByteArray &id)
+RunControlContext::Type RunControlContext::typeFromCodaId(const QByteArray &id)
 {
     // "p12" or "p12.t34"?
     return id.contains(".t") ? Thread : Process;
@@ -172,7 +172,7 @@ unsigned RunControlContext::threadIdFromTcdfId(const QByteArray &id)
     return tPos != -1 ? id.mid(tPos + 2).toUInt() : uint(0);
 }
 
-QByteArray RunControlContext::tcfId(unsigned processId,  unsigned threadId /* = 0 */)
+QByteArray RunControlContext::codaId(unsigned processId,  unsigned threadId /* = 0 */)
 {
     QByteArray rc("p");
     rc += QByteArray::number(processId);
@@ -185,7 +185,7 @@ QByteArray RunControlContext::tcfId(unsigned processId,  unsigned threadId /* = 
 
 RunControlContext::Type RunControlContext::type() const
 {
-    return RunControlContext::typeFromTcfId(id);
+    return RunControlContext::typeFromCodaId(id);
 }
 
 bool RunControlContext::parse(const JsonValue &val)
@@ -303,7 +303,7 @@ Breakpoint::Breakpoint(quint64 loc) :
 
 void Breakpoint::setContextId(unsigned processId, unsigned threadId)
 {
-    contextIds = QVector<QByteArray>(1, RunControlContext::tcfId(processId, threadId));
+    contextIds = QVector<QByteArray>(1, RunControlContext::codaId(processId, threadId));
 }
 
 QByteArray Breakpoint::idFromLocation(quint64 loc)

@@ -271,15 +271,15 @@ struct SymbianDeviceManagerPrivate {
     bool m_initialized;
     SymbianDeviceManager::SymbianDeviceList m_devices;
     QMutex m_devicesLock; // Used for protecting access to m_devices and serialising getCodaDevice/delayedClosePort
-    // The following 2 variables are needed to manage requests for a TCF port not coming from the main thread
-    int m_constructTcfPortEventType;
+    // The following 2 variables are needed to manage requests for a CODA port not coming from the main thread
+    int m_constructCodaPortEventType;
     QMutex m_codaPortWaitMutex;
 };
 
-class QConstructTcfPortEvent : public QEvent
+class QConstructCodaPortEvent : public QEvent
 {
 public:
-    QConstructTcfPortEvent(QEvent::Type eventId, const QString &portName, CodaDevicePtr *device, QWaitCondition *waiter) :
+    QConstructCodaPortEvent(QEvent::Type eventId, const QString &portName, CodaDevicePtr *device, QWaitCondition *waiter) :
         QEvent(eventId), m_portName(portName), m_device(device), m_waiter(waiter)
        {}
 
@@ -293,7 +293,7 @@ SymbianDeviceManager::SymbianDeviceManager(QObject *parent) :
     QObject(parent),
     d(new SymbianDeviceManagerPrivate)
 {
-    d->m_constructTcfPortEventType = QEvent::registerEventType();
+    d->m_constructCodaPortEventType = QEvent::registerEventType();
 }
 
 SymbianDeviceManager::~SymbianDeviceManager()
@@ -381,7 +381,7 @@ CodaDevicePtr SymbianDeviceManager::getCodaDevice(const QString &port)
             // SymbianDeviceManager is owned by the main thread
             d->m_codaPortWaitMutex.lock();
             QWaitCondition waiter;
-            QCoreApplication::postEvent(this, new QConstructTcfPortEvent((QEvent::Type)d->m_constructTcfPortEventType, port, &devicePtr, &waiter));
+            QCoreApplication::postEvent(this, new QConstructCodaPortEvent((QEvent::Type)d->m_constructCodaPortEventType, port, &devicePtr, &waiter));
             waiter.wait(&d->m_codaPortWaitMutex);
             // When the wait returns (due to the wakeAll in SymbianDeviceManager::customEvent), the CodaDevice will be fully set up
             d->m_codaPortWaitMutex.unlock();
@@ -415,8 +415,8 @@ void SymbianDeviceManager::constructCodaPort(CodaDevicePtr& device, const QStrin
 
 void SymbianDeviceManager::customEvent(QEvent *event)
 {
-    if (event->type() == d->m_constructTcfPortEventType) {
-        QConstructTcfPortEvent* constructEvent = static_cast<QConstructTcfPortEvent*>(event);
+    if (event->type() == d->m_constructCodaPortEventType) {
+        QConstructCodaPortEvent* constructEvent = static_cast<QConstructCodaPortEvent*>(event);
         constructCodaPort(*constructEvent->m_device, constructEvent->m_portName);
         constructEvent->m_waiter->wakeAll(); // Should only ever be one thing waiting on this
     }

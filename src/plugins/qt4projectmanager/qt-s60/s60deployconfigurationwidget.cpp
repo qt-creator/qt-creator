@@ -596,7 +596,7 @@ void S60DeployConfigurationWidget::updateDeviceInfo()
     } else if(m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection) {
         // collectingInfoFinished, which deletes m_codaDevice, can get called from within a coda callback, so need to use deleteLater
         m_codaInfoDevice =  QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice, &QObject::deleteLater);
-        connect(m_codaInfoDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(codaEvent(Coda::CodaEvent)));
+        connect(m_codaInfoDevice.data(), SIGNAL(codaEvent(Coda::CodaEvent)), this, SLOT(codaEvent(Coda::CodaEvent)));
 
         const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);
         m_codaInfoDevice->setDevice(codaSocket);

@@ -355,7 +355,7 @@ void S60DeployStep::setupConnections()
     } else {
         connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
         connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-        connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)), Qt::DirectConnection);
+        connect(m_codaDevice.data(), SIGNAL(codaEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)), Qt::DirectConnection);
         connect(m_codaDevice.data(), SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
         connect(this, SIGNAL(manualInstallation()), this, SLOT(showManualInstallationInfo()));
     }

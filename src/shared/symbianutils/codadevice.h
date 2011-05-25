@@ -55,11 +55,11 @@ namespace Coda {
 struct CodaDevicePrivate;
 struct Breakpoint;
 
-/* Command error handling in TCF:
+/* Command error handling in CODA:
  * 1) 'Severe' errors (JSON format, parameter format): Trk emits a
  *     nonstandard message (\3\2 error parameters) and closes the connection.
  * 2) Protocol errors: 'N' without error message is returned.
- * 3) Errors in command execution: 'R' with a TCF error hash is returned
+ * 3) Errors in command execution: 'R' with a CODA error hash is returned
  *    (see CodaCommandError). */
 
 /* Error code return in 'R' reply to command
@@ -81,7 +81,7 @@ struct SYMBIANUTILS_EXPORT CodaCommandError {
     qint64 alternativeCode;
 };
 
-/* Answer to a Tcf command passed to the callback. */
+/* Answer to a CODA command passed to the callback. */
 struct SYMBIANUTILS_EXPORT CodaCommandResult {
     enum Type
     {
@@ -101,7 +101,7 @@ struct SYMBIANUTILS_EXPORT CodaCommandResult {
     QString errorString() const;
     operator bool() const { return type == SuccessReply || type == ProgressReply; }
 
-    static QDateTime tcfTimeToQDateTime(quint64 tcfTimeMS);
+    static QDateTime codaTimeToQDateTime(quint64 codaTimeMS);
 
     Type type;
     Services service;
@@ -123,8 +123,8 @@ struct SYMBIANUTILS_EXPORT CodaStatResponse
 
 typedef trk::Callback<const CodaCommandResult &> CodaCallback;
 
-/* CodaDevice: TCF communication helper using an asynchronous QIODevice
- * implementing the TCF protocol according to:
+/* CodaDevice: CODA communication helper using an asynchronous QIODevice
+ * implementing the CODA protocol according to:
 http://dev.eclipse.org/svnroot/dsdp/org.eclipse.tm.tcf/trunk/docs/TCF%20Specification.html
 http://dev.eclipse.org/svnroot/dsdp/org.eclipse.tm.tcf/trunk/docs/TCF%20Services.html
  * Commands can be sent along with callbacks that are passed a
@@ -213,7 +213,7 @@ public:
                                QStringList arguments = QStringList(),
                                const QVariant &cookie = QVariant());
 
-    // Preferred over Processes:Terminate by TCF TRK.
+    // Preferred over Processes:Terminate by CODA.
     void sendRunControlTerminateCommand(const CodaCallback &callBack,
                                         const QByteArray &id,
                                         const QVariant &cookie = QVariant());
@@ -385,8 +385,8 @@ public:
     static CodaStatResponse parseStat(const CodaCommandResult &r);
 
 signals:
-    void genericTcfEvent(int service, const QByteArray &name, const QVector<JsonValue> &value);
-    void tcfEvent(const Coda::CodaEvent &knownEvent);
+    void genericCodaEvent(int service, const QByteArray &name, const QVector<JsonValue> &value);
+    void codaEvent(const Coda::CodaEvent &knownEvent);
     void unknownEvent(uchar protocolId, const QByteArray& data);
     void serialPong(const QString &codaVersion);
 
@@ -412,8 +412,8 @@ private:
     inline int parseMessage(const QByteArray &);
     void processMessage(const QByteArray &message);
     inline void processSerialMessage(const QByteArray &message);
-    int parseTcfCommandReply(char type, const QVector<QByteArray> &tokens);
-    int parseTcfEvent(const QVector<QByteArray> &tokens);
+    int parseCodaCommandReply(char type, const QVector<QByteArray> &tokens);
+    int parseCodaEvent(const QVector<QByteArray> &tokens);
 
 private:
     QPair<int, int> findSerialHeader(QByteArray &in);

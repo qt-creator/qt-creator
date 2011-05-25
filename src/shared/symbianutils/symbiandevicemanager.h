@@ -146,7 +146,7 @@ public:
     // Acquire a TRK device for use. Assuming the port is found, equivalent to devices()[findByPortName(port)].acquireDevice(). See also releaseDevice().
     TrkDevicePtr acquireDevice(const QString &port);
 
-    //// The TCF code prefers to set up the CodaDevice object itself, so we let it and just handle opening the underlying QIODevice and keeping track of the CodaDevice
+    //// The CODA code prefers to set up the CodaDevice object itself, so we let it and just handle opening the underlying QIODevice and keeping track of the CodaDevice
     //// Returns true if port was opened successfully.
 
     // Gets the CodaDevice, which may or may not be open depending on what other clients have already acquired it.

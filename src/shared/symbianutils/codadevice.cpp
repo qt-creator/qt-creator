@@ -127,17 +127,17 @@ void CodaCommandError::clear()
     alternativeOrganization.clear();
 }
 
-QDateTime CodaCommandResult::tcfTimeToQDateTime(quint64 tcfTimeMS)
+QDateTime CodaCommandResult::codaTimeToQDateTime(quint64 codaTimeMS)
 {
     const QDateTime time(QDate(1970, 1, 1));
-    return time.addMSecs(tcfTimeMS);
+    return time.addMSecs(codaTimeMS);
 }
 
 void CodaCommandError::write(QTextStream &str) const
 {
     if (isError()) {
         if (debug && timeMS)
-            str << CodaCommandResult::tcfTimeToQDateTime(timeMS).toString(Qt::ISODate) << ": ";
+            str << CodaCommandResult::codaTimeToQDateTime(timeMS).toString(Qt::ISODate) << ": ";
         str << "'" << format << '\'' //for symbian the format is the real error message
                 << " Code: " << code;
         if (!alternativeOrganization.isEmpty())
@@ -232,7 +232,7 @@ CodaCommandResult::CodaCommandResult(char typeChar, Services s,
         type = commandError.parse(values) ? CommandErrorReply : SuccessReply;
         break;
     default:
-        qWarning("Unknown TCF reply type '%c'", typeChar);
+        qWarning("Unknown CODA's reply type '%c'", typeChar);
     }
 }
 
@@ -487,7 +487,7 @@ QPair<int, int> CodaDevice::findSerialHeader(QByteArray &in)
             const int length = trk::extractShort(in.constData() + 2);
             return QPair<int, int>(4, length);
         } else if (in.at(0) == header1 && in.at(1) >= validProtocolIdStart && in.at(1) <= validProtocolIdEnd) {
-            // We recognise it but it's not a TCF message - emit it for any interested party to handle
+            // We recognise it but it's not a CODA message - emit it for any interested party to handle
             const int length = trk::extractShort(in.constData() + 2);
             if (4 + length <= in.size()) {
                 // We have all the data
@@ -580,8 +580,8 @@ void CodaDevice::deviceReadyReadTcp()
         if (messageEndPos == -1)
             break;
         if (messageEndPos == 0) {
-            // TCF TRK 4.0.5 emits empty messages on errors.
-            emitLogMessage(QString::fromLatin1("An empty TCF TRK message has been received."));
+            // CODA 4.0.5 emits empty messages on errors.
+            emitLogMessage(QString::fromLatin1("An empty Coda message has been received."));
         } else {
             processMessage(d->m_readBuffer.left(messageEndPos));
         }
@@ -622,7 +622,7 @@ static inline QVector<QByteArray> splitMessage(const QByteArray &message)
 int CodaDevice::parseMessage(const QByteArray &message)
 {
     if (d->m_verbose)
-        emitLogMessage(debugMessage(message, "TCF ->"));
+        emitLogMessage(debugMessage(message, "CODA ->"));
     // Special JSON parse error message or protocol format error.
     // The port is usually closed after receiving it.
     // "\3\2{"Time":1276096098255,"Code":3,"Format": "Protocol format error"}"
@@ -639,11 +639,11 @@ int CodaDevice::parseMessage(const QByteArray &message)
     const QVector<QByteArray> tokens = splitMessage(message);
     switch (type) {
     case 'E':
-        return parseTcfEvent(tokens);
+        return parseCodaEvent(tokens);
     case 'R': // Command replies
     case 'N':
     case 'P':
-        return parseTcfCommandReply(type, tokens);
+        return parseCodaCommandReply(type, tokens);
     default:
         emitLogMessage(QString::fromLatin1("Unhandled message type: %1").arg(debugMessage(message)));
         return 756;
@@ -651,7 +651,7 @@ int CodaDevice::parseMessage(const QByteArray &message)
     return 0;
 }
 
-int CodaDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &tokens)
+int CodaDevice::parseCodaCommandReply(char type, const QVector<QByteArray> &tokens)
 {
     typedef CodaDevicePrivate::TokenWrittenMessageMap::iterator TokenWrittenMessageMapIterator;
     // Find the corresponding entry in the written messages hash.
@@ -700,7 +700,7 @@ int CodaDevice::parseTcfCommandReply(char type, const QVector<QByteArray> &token
     return 0;
 }
 
-int CodaDevice::parseTcfEvent(const QVector<QByteArray> &tokens)
+int CodaDevice::parseCodaEvent(const QVector<QByteArray> &tokens)
 {
     // Event: Ignore the periodical heartbeat event, answer 'Hello',
     // emit signal for the rest
@@ -723,9 +723,9 @@ int CodaDevice::parseTcfEvent(const QVector<QByteArray> &tokens)
         if (knownEvent->type() == CodaEvent::LocatorHello)
             if (!d->m_serialFrame)
                 writeMessage(QByteArray(locatorAnswerC, sizeof(locatorAnswerC)));
-        emit tcfEvent(*knownEvent);
+        emit codaEvent(*knownEvent);
     }
-    emit genericTcfEvent(service, tokens.at(1), values);
+    emit genericCodaEvent(service, tokens.at(1), values);
 
     if (debug || d->m_verbose) {
         QString msg;
@@ -846,7 +846,7 @@ void CodaDevice::writeMessage(QByteArray data, bool ensureTerminating0)
     }
 
     if (d->m_verbose)
-        emitLogMessage(debugMessage(data, "TCF <-"));
+        emitLogMessage(debugMessage(data, "CODA <-"));
 
     // Ensure \0-termination which easily gets lost in QByteArray CT.
     if (ensureTerminating0 && !data.endsWith('\0'))
@@ -952,9 +952,9 @@ void CodaDevice::sendProcessStartCommand(const CodaCallback &callBack,
             << ']';
     sendCodaMessage(
 #if 1
-                MessageWithReply,    // TCF TRK 4.0.5 onwards
+                MessageWithReply,    // CODA 4.0.5 onwards
 #else
-                MessageWithoutReply, // TCF TRK 4.0.2
+                MessageWithoutReply, // CODA 4.0.2
 #endif
                 SettingsService, "set", setData);
 
@@ -993,9 +993,9 @@ void CodaDevice::sendSettingsEnableLogCommand()
             << ']';
     sendCodaMessage(
 #if 1
-                MessageWithReply,    // TCF TRK 4.0.5 onwards
+                MessageWithReply,    // CODA 4.0.5 onwards
 #else
-                MessageWithoutReply, // TCF TRK 4.0.2
+                MessageWithoutReply, // CODA 4.0.2
 #endif
                 SettingsService, "set", setData);
 }
@@ -1198,10 +1198,10 @@ CodaStatResponse CodaDevice::parseStat(const CodaCommandResult &r)
             rc.size = v.data().toULongLong();
         } else if (v.name() == "ATime") {
             if (const quint64 atime = v.data().toULongLong())
-                rc.accessTime = CodaCommandResult::tcfTimeToQDateTime(atime);
+                rc.accessTime = CodaCommandResult::codaTimeToQDateTime(atime);
         } else if (v.name() == "MTime") {
             if (const quint64 mtime = v.data().toULongLong())
-                rc.modTime = CodaCommandResult::tcfTimeToQDateTime(mtime);
+                rc.modTime = CodaCommandResult::codaTimeToQDateTime(mtime);
         }
     }
     return rc;

@@ -66,7 +66,7 @@ const char * const DEVICE_ADDRESS_KEY("Qt4ProjectManager.S60DeployConfiguration.
 const char * const DEVICE_PORT_KEY("Qt4ProjectManager.S60DeployConfiguration.DevicePort");
 const char * const COMMUNICATION_CHANNEL_KEY("Qt4ProjectManager.S60DeployConfiguration.CommunicationChannel");
 
-const char * const DEFAULT_TCF_TRK_TCP_PORT("65029");
+const char * const DEFAULT_CODA_TCP_PORT("65029");
 
 QString pathFromId(const QString &id)
 {
@@ -93,7 +93,7 @@ S60DeployConfiguration::S60DeployConfiguration(Target *parent) :
 #endif
     m_installationDrive('C'),
     m_silentInstall(true),
-    m_devicePort(QLatin1String(DEFAULT_TCF_TRK_TCP_PORT)),
+    m_devicePort(QLatin1String(DEFAULT_CODA_TCP_PORT)),
     m_communicationChannel(CommunicationTrkSerialConnection)
 {
     ctor();
@@ -332,7 +332,7 @@ bool S60DeployConfiguration::fromMap(const QVariantMap &map)
                           .toChar().toAscii();
     m_silentInstall = map.value(QLatin1String(SILENT_INSTALL_KEY), QVariant(true)).toBool();
     m_deviceAddress = map.value(QLatin1String(DEVICE_ADDRESS_KEY)).toString();
-    m_devicePort = map.value(QLatin1String(DEVICE_PORT_KEY), QString(QLatin1String(DEFAULT_TCF_TRK_TCP_PORT))).toString();
+    m_devicePort = map.value(QLatin1String(DEVICE_PORT_KEY), QString(QLatin1String(DEFAULT_CODA_TCP_PORT))).toString();
     m_communicationChannel = static_cast<CommunicationChannel>(map.value(QLatin1String(COMMUNICATION_CHANNEL_KEY),
                                                                          QVariant(CommunicationTrkSerialConnection)).toInt());
 
@@ -404,7 +404,7 @@ void S60DeployConfiguration::setDevicePort(const QString &port)
 {
     if (m_devicePort != port) {
         if (port.isEmpty()) //setup the default CODA's port
-            m_devicePort = QLatin1String(DEFAULT_TCF_TRK_TCP_PORT);
+            m_devicePort = QLatin1String(DEFAULT_CODA_TCP_PORT);
         else
             m_devicePort = port;
         emit devicePortChanged();

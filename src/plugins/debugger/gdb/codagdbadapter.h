@@ -196,7 +196,7 @@ private:
     bool m_firstResumableExeLoadedEvent;
     // gdb wants registers, but we don't have the names yet. Continue in handler for names
     bool m_registerRequestPending;
-    QByteArray m_tcfProcessId;
+    QByteArray m_codaProcessId;
     LocalGdbProcess m_gdbProc;
     bool m_firstHelloEvent;
 };

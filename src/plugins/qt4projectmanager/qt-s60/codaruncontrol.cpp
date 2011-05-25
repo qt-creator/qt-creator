@@ -135,7 +135,7 @@ bool CodaRunControl::setupLauncher()
                 this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
         connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
         connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-        connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)));
+        connect(m_codaDevice.data(), SIGNAL(codaEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)));
         connect(m_codaDevice.data(), SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
         m_state = StateConnecting;
         m_codaDevice->sendSerialPing(false);
@@ -144,7 +144,7 @@ bool CodaRunControl::setupLauncher()
         m_codaDevice = QSharedPointer<Coda::CodaDevice>(new Coda::CodaDevice, &QObject::deleteLater); // finishRunControl, which deletes m_codaDevice, can get called from within a coda callback, so need to use deleteLater
         connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
         connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-        connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)));
+        connect(m_codaDevice.data(), SIGNAL(codaEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)));
 
         const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);
         m_codaDevice->setDevice(codaSocket);
@@ -257,9 +257,9 @@ void CodaRunControl::handleContextRemoved(const CodaEvent &event)
 
 void CodaRunControl::handleContextAdded(const CodaEvent &event)
 {
-    typedef CodaRunControlContextAddedEvent TcfAddedEvent;
+    typedef CodaRunControlContextAddedEvent CodaAddedEvent;
 
-    const TcfAddedEvent &me = static_cast<const TcfAddedEvent &>(event);
+    const CodaAddedEvent &me = static_cast<const CodaAddedEvent &>(event);
     foreach (const RunControlContext &context, me.contexts()) {
         if (context.parentId == "root") //is the created context a process
             m_runningProcessId = QLatin1String(context.id);
@@ -268,16 +268,16 @@ void CodaRunControl::handleContextAdded(const CodaEvent &event)
 
 void CodaRunControl::handleContextSuspended(const CodaEvent &event)
 {
-    typedef CodaRunControlContextSuspendedEvent TcfSuspendEvent;
+    typedef CodaRunControlContextSuspendedEvent CodaSuspendEvent;
 
-    const TcfSuspendEvent &me = static_cast<const TcfSuspendEvent &>(event);
+    const CodaSuspendEvent &me = static_cast<const CodaSuspendEvent &>(event);
 
     switch (me.reason()) {
-    case TcfSuspendEvent::Other:
-    case TcfSuspendEvent::Crash:
+    case CodaSuspendEvent::Other:
+    case CodaSuspendEvent::Crash:
         appendMessage(tr("Thread has crashed: %1\n").arg(QString::fromLatin1(me.message())), Utils::ErrorMessageFormat);
 
-        if (me.reason() == TcfSuspendEvent::Crash)
+        if (me.reason() == CodaSuspendEvent::Crash)
             stop();
         else
             m_codaDevice->sendRunControlResumeCommand(CodaCallback(), me.id()); //TODO: Should I resume automatically
@@ -292,9 +292,9 @@ void CodaRunControl::handleContextSuspended(const CodaEvent &event)
 void CodaRunControl::handleModuleLoadSuspended(const CodaEvent &event)
 {
     // Debug mode start: Continue:
-    typedef CodaRunControlModuleLoadContextSuspendedEvent TcfModuleLoadSuspendedEvent;
+    typedef CodaRunControlModuleLoadContextSuspendedEvent CodaModuleLoadSuspendedEvent;
 
-    const TcfModuleLoadSuspendedEvent &me = static_cast<const TcfModuleLoadSuspendedEvent &>(event);
+    const CodaModuleLoadSuspendedEvent &me = static_cast<const CodaModuleLoadSuspendedEvent &>(event);
     if (me.info().requireResume)
         m_codaDevice->sendRunControlResumeCommand(CodaCallback(), me.id());
 }

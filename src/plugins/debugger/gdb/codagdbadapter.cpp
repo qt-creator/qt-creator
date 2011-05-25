@@ -100,14 +100,14 @@ static inline QString startMsg(const trk::Session &session)
 /* -------------- CodaGdbAdapter:
  * Startup-sequence:
  *  - startAdapter connects both sockets/devices
- *  - In the TCF Locator Event, gdb is started and the engine is notified
+ *  - In the CODA Locator Event, gdb is started and the engine is notified
  *    that the adapter has started.
  *  - Engine calls setupInferior(), which starts the process.
- *  - Initial TCF module load suspended event is emitted (process is suspended).
+ *  - Initial CODA module load suspended event is emitted (process is suspended).
  *    In the event handler, gdb is connected to the remote target. In the
  *    gdb answer to conntect remote, inferiorStartPrepared() is emitted.
  *  - Engine sets up breakpoints,etc and calls inferiorStartPhase2(), which
- *    resumes the suspended TCF process via gdb 'continue'.
+ *    resumes the suspended CODA process via gdb 'continue'.
  * Thread handling (30.06.2010):
  * TRK does not report thread creation/termination. So, if we receive
  * a stop in a different thread, we store an additional thread in snapshot.
@@ -155,7 +155,7 @@ void CodaGdbAdapter::setupTrkDeviceSignals()
         this, SLOT(codaDeviceError(QString)));
     connect(m_codaDevice.data(), SIGNAL(logMessage(QString)),
         this, SLOT(codaLogMessage(QString)));
-    connect(m_codaDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)),
+    connect(m_codaDevice.data(), SIGNAL(codaEvent(Coda::CodaEvent)),
         this, SLOT(codaEvent(Coda::CodaEvent)));
     connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
             this, SLOT(codaDeviceRemoved(SymbianUtils::SymbianDevice)));
@@ -338,7 +338,7 @@ void CodaGdbAdapter::codaEvent(const CodaEvent &e)
     case CodaEvent::RunControlContextRemoved: // Thread/process removed
         foreach (const QByteArray &id,
             static_cast<const CodaRunControlContextRemovedEvent &>(e).ids())
-            switch (RunControlContext::typeFromTcfId(id)) {
+            switch (RunControlContext::typeFromCodaId(id)) {
             case RunControlContext::Thread:
                 m_snapshot.removeThread(RunControlContext::threadIdFromTcdfId(id));
                 break;
@@ -712,7 +712,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                    arg(QString::fromAscii(data.toHex())));
         m_codaDevice->sendMemorySetCommand(
             CodaCallback(this, &CodaGdbAdapter::handleWriteMemory),
-            m_tcfProcessId, addrLength.first, data);
+            m_codaProcessId, addrLength.first, data);
     }
 
     else if (cmd.startsWith('p')) {
@@ -1024,7 +1024,7 @@ void CodaGdbAdapter::gdbSetCurrentThread(const QByteArray &cmd, const char *why)
 
 void CodaGdbAdapter::interruptInferior()
 {
-    m_codaDevice->sendRunControlSuspendCommand(CodaCallback(), m_tcfProcessId);
+    m_codaDevice->sendRunControlSuspendCommand(CodaCallback(), m_codaProcessId);
 }
 
 void CodaGdbAdapter::startAdapter()
@@ -1032,7 +1032,7 @@ void CodaGdbAdapter::startAdapter()
     m_snapshot.fullReset();
     m_session.reset();
     m_firstResumableExeLoadedEvent = true;
-    m_tcfProcessId.clear();
+    m_codaProcessId.clear();
     m_firstHelloEvent = true;
 
     // Retrieve parameters.
@@ -1143,7 +1143,7 @@ void CodaGdbAdapter::addThread(unsigned id)
         }
         // We cannot retrieve register values unless the registers of that
         // thread have been retrieved (Coda oddity).
-        const QByteArray contextId = RunControlContext::tcfId(m_session.pid, id);
+        const QByteArray contextId = RunControlContext::codaId(m_session.pid, id);
         m_codaDevice->sendRegistersGetChildrenCommand(
             CodaCallback(this, &CodaGdbAdapter::handleRegisterChildren),
                          contextId, QVariant(contextId));
@@ -1167,7 +1167,7 @@ void CodaGdbAdapter::handleCreateProcess(const CodaCommandResult &result)
     logMessage(ctx.toString());
 
     m_session.pid = ctx.processId();
-    m_tcfProcessId = RunControlContext::tcfId(m_session.pid);
+    m_codaProcessId = RunControlContext::codaId(m_session.pid);
     if (const unsigned threadId = ctx.threadId())
         addThread(threadId);
     // See ModuleLoadSuspendedEvent for the rest.
@@ -1592,12 +1592,12 @@ void CodaGdbAdapter::handleWriteMemory(const CodaCommandResult &result)
 
 QByteArray CodaGdbAdapter::mainThreadContextId() const
 {
-    return RunControlContext::tcfId(m_session.pid, m_session.mainTid);
+    return RunControlContext::codaId(m_session.pid, m_session.mainTid);
 }
 
 QByteArray CodaGdbAdapter::currentThreadContextId() const
 {
-    return RunControlContext::tcfId(m_session.pid, m_session.tid);
+    return RunControlContext::codaId(m_session.pid, m_session.tid);
 }
 
 void CodaGdbAdapter::sendTrkContinue()
@@ -1606,7 +1606,7 @@ void CodaGdbAdapter::sendTrkContinue()
     // at the next stop.
     if (m_snapshot.threadInfo.size() > 1)
         m_snapshot.threadInfo.remove(1, m_snapshot.threadInfo.size() - 1);
-    m_codaDevice->sendRunControlResumeCommand(CodaCallback(), m_tcfProcessId);
+    m_codaDevice->sendRunControlResumeCommand(CodaCallback(), m_codaProcessId);
 }
 
 void CodaGdbAdapter::sendTrkStepRange()
