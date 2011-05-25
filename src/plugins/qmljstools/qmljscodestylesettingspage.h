@@ -6,9 +6,6 @@
 #include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-    class QmlJSCodeStyleSettingsPage;
-}
 class QSettings;
 QT_END_NAMESPACE
 
@@ -20,6 +17,10 @@ namespace TextEditor {
 
 namespace QmlJSTools {
 namespace Internal {
+
+namespace Ui {
+class QmlJSCodeStyleSettingsPage;
+}
 
 class QmlJSCodeStylePreferencesWidget : public QWidget
 {

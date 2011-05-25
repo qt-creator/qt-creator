@@ -28,7 +28,7 @@ namespace Internal {
 QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent) :
     QWidget(parent),
     m_tabPreferences(0),
-    m_ui(new ::Ui::QmlJSCodeStyleSettingsPage)
+    m_ui(new Ui::QmlJSCodeStyleSettingsPage)
 {
     m_ui->setupUi(this);
 
