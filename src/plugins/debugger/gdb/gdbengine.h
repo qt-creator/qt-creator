@@ -723,6 +723,7 @@ private: ////////// View & Data Stuff //////////
     QByteArray m_currentThread;
     QString m_lastWinException;
     int m_qFatalBreakpointNumber;
+    bool m_actingOnExpectedStop;
 };
 
 } // namespace Internal

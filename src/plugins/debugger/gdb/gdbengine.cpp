@@ -216,6 +216,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
     m_preparedForQmlBreak = false;
     m_disassembleUsesComma = false;
     m_qFatalBreakpointNumber = 0;
+    m_actingOnExpectedStop = false;
 
     invalidateSourcesList();
 
@@ -1201,6 +1202,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 {
     // This is gdb 7+'s initial *stopped in response to attach.
     // For consistency, we just discard it.
+    m_actingOnExpectedStop = false;
     if (state() == InferiorSetupRequested)
         return;
 
@@ -1271,6 +1273,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state())
+        m_actingOnExpectedStop = true;
         notifyInferiorStopOk();
         flushQueuedCommands();
         if (state() == InferiorStopOk) {
@@ -1299,6 +1302,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // That's expected.
     } else {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
+        m_actingOnExpectedStop = true;
         notifyInferiorStopOk();
     }
 
@@ -1497,9 +1501,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
             && reason == "signal-received"
             && data.findChild("signal-name").data() == "SIGTRAP")
     {
-        const GdbMi frame = data.findChild("frame");
-        const QByteArray func = frame.findChild("func").data();
-        if (func != "ntdll!DbgUiConnectToDbg" && func != "ntdll|DbgBreakPoint") {
+        if (!m_actingOnExpectedStop) {
             // Ignore signals from command line start up traps.
             showMessage(_("INTERNAL CONTINUE"), LogMisc);
             continueInferiorInternal();
