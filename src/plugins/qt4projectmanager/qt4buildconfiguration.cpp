@@ -186,7 +186,7 @@ void Qt4BuildConfiguration::ctor()
     connect(this, SIGNAL(environmentChanged()),
             this, SLOT(emitBuildDirectoryChanged()));
     connect(this, SIGNAL(environmentChanged()),
-            this, SLOT(emitProFileEvaluteNeeded()));
+            this, SLOT(emitProFileEvaluateNeeded()));
 
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
@@ -389,7 +389,7 @@ void Qt4BuildConfiguration::setQMakeBuildConfiguration(QtSupport::BaseQtVersion:
     emitBuildDirectoryChanged();
 }
 
-void Qt4BuildConfiguration::emitProFileEvaluteNeeded()
+void Qt4BuildConfiguration::emitProFileEvaluateNeeded()
 {
     emit proFileEvaluateNeeded(this);
 }

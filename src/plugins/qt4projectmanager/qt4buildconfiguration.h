@@ -125,7 +125,7 @@ public:
 
 public slots:
     void importFromBuildDirectory();
-    void emitProFileEvaluteNeeded();
+    void emitProFileEvaluateNeeded();
 
 signals:
     /// emitted if the qt version changes (either directly, or because the default qt version changed
