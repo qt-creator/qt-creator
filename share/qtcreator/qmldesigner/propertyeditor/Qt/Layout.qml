@@ -72,8 +72,9 @@ GroupBox {
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_topMargin
                             baseStateFlag: isInBaseState;
-                            maximumValue: 1000
-                            minimumValue: -1000
+                            maximumValue: 999
+                            minimumValue: -999
+                            step: 1
                         }
 
                         PlaceHolder {
@@ -121,8 +122,9 @@ GroupBox {
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_bottomMargin
                             baseStateFlag: isInBaseState;
-                            maximumValue: 1000
-                            minimumValue: -1000
+                            maximumValue: 999
+                            minimumValue: -999
+                            step: 1
                         }
 
                         PlaceHolder {
@@ -169,8 +171,9 @@ GroupBox {
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_leftMargin
                             baseStateFlag: isInBaseState;
-                            maximumValue: 1000
-                            minimumValue: -1000
+                            maximumValue: 999
+                            minimumValue: -999
+                            step: 1
                         }
 
                         PlaceHolder {
@@ -217,8 +220,9 @@ GroupBox {
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_rightMargin
                             baseStateFlag: isInBaseState;
-                            maximumValue: 1000
-                            minimumValue: -1000
+                            maximumValue: 999
+                            minimumValue: -999
+                            step: 1
                         }
 
                         PlaceHolder {
@@ -265,8 +269,9 @@ GroupBox {
                             caption: qsTr("Margin")
                             baseStateFlag: isInBaseState;
                             backendValue: backendValues.anchors_horizontalCenterOffset
-                            maximumValue: 1000
-                            minimumValue: -1000
+                            maximumValue: 999
+                            minimumValue: -999
+                            step: 1
                         }
 
                         PlaceHolder {
@@ -313,8 +318,9 @@ GroupBox {
                             caption: qsTr("Margin")
                             backendValue: backendValues.anchors_verticalCenterOffset
                             baseStateFlag: isInBaseState;
-                            maximumValue: 1000
-                            minimumValue: -1000
+                            maximumValue: 999
+                            minimumValue: -999
+                            step: 1
                         }
 
                         PlaceHolder {

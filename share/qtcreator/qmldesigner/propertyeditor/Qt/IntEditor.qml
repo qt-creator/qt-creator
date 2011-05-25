@@ -26,6 +26,7 @@ QWidget {
             backendValue: (intEditor.backendValue === undefined ||
             intEditor.backendValue === null)
             ? null : intEditor.backendValue;
+            singleStep: step
 
             property variant backendValueValue: (intEditor.backendValue === undefined ||
             intEditor.backendValue === null)
