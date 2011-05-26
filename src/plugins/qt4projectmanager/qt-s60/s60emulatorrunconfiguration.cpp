@@ -140,15 +140,9 @@ Qt4SymbianTarget *S60EmulatorRunConfiguration::qt4Target() const
     return static_cast<Qt4SymbianTarget *>(target());
 }
 
-bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
+bool S60EmulatorRunConfiguration::isEnabled() const
 {
-    if (!m_validParse)
-        return false;
-    Q_ASSERT(configuration->target() == target());
-    Q_ASSERT(target()->id() == Constants::S60_EMULATOR_TARGET_ID);
-
-    const Qt4BuildConfiguration *qt4bc = qobject_cast<const Qt4BuildConfiguration *>(configuration);
-    return qt4bc && qt4bc->toolChain();
+    return m_validParse;
 }
 
 QWidget *S60EmulatorRunConfiguration::createConfigurationWidget()

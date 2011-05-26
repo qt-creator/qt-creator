@@ -80,8 +80,7 @@ public:
         const QString &proFilePath);
     virtual ~MaemoRunConfiguration();
 
-    using ProjectExplorer::RunConfiguration::isEnabled;
-    bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
+    bool isEnabled() const;
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
     Qt4ProjectManager::Qt4BaseTarget *qt4Target() const;

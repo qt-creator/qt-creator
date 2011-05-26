@@ -319,9 +319,9 @@ void CMakeRunConfiguration::setEnabled(bool b)
     setDefaultDisplayName(defaultDisplayName());
 }
 
-bool CMakeRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *bc) const
+bool CMakeRunConfiguration::isEnabled() const
 {
-    return m_enabled && LocalApplicationRunConfiguration::isEnabled(bc);
+    return m_enabled;
 }
 
 // Configuration widget

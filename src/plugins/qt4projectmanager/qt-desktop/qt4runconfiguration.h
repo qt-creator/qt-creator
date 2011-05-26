@@ -82,8 +82,7 @@ public:
 
     Qt4DesktopTarget *qt4Target() const;
 
-    virtual bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
-    using ProjectExplorer::LocalApplicationRunConfiguration::isEnabled;
+    virtual bool isEnabled() const;
     virtual QWidget *createConfigurationWidget();
 
     virtual QString executable() const;

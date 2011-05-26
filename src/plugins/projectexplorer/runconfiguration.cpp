@@ -198,13 +198,11 @@ void RunConfiguration::addExtraAspects()
 }
 
 /*!
-    \brief Used to find out whether a runconfiguration works with the given buildconfiguration.
-    \note bc may be 0!
+    \brief Used to find out whether a runconfiguration is enabled
 */
 
-bool RunConfiguration::isEnabled(BuildConfiguration *bc) const
+bool RunConfiguration::isEnabled() const
 {
-    Q_UNUSED(bc);
     return true;
 }
 
@@ -213,18 +211,6 @@ bool RunConfiguration::isEnabled(BuildConfiguration *bc) const
 
     \brief Returns the widget used to configure this run configuration. Ownership is transferred to the caller
 */
-
-/*!
-    \brief Used to find out whether a runconfiguration works with the active buildconfiguration.
-*/
-
-bool RunConfiguration::isEnabled() const
-{
-    if (target()->project()->hasActiveBuildSettings()
-        && !activeBuildConfiguration())
-        return false;
-    return isEnabled(activeBuildConfiguration());
-}
 
 BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
 {

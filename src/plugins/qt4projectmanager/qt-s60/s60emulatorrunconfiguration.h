@@ -68,8 +68,7 @@ public:
 
     Qt4SymbianTarget *qt4Target() const;
 
-    using ProjectExplorer::RunConfiguration::isEnabled;
-    bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
+    bool isEnabled() const;
     QWidget *createConfigurationWidget();
 
     Utils::OutputFormatter *createOutputFormatter() const;

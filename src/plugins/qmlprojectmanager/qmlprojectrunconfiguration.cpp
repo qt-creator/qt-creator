@@ -86,10 +86,8 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent,
     updateQtVersions();
 }
 
-bool QmlProjectRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *bc) const
+bool QmlProjectRunConfiguration::isEnabled() const
 {
-    Q_UNUSED(bc);
-
     return m_isEnabled;
 }
 

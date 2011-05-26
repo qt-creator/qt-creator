@@ -59,8 +59,7 @@ class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 public:
     virtual ~RunConfiguration();
 
-    virtual bool isEnabled(BuildConfiguration *bc) const;
-    bool isEnabled() const;
+    virtual bool isEnabled() const;
     virtual QWidget *createConfigurationWidget() = 0;
 
     Target *target() const;

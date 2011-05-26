@@ -2262,7 +2262,6 @@ QString ProjectExplorerPlugin::pathFor(Node *node)
     return pathOrDirectoryFor(node, false);
 }
 
-
 QString ProjectExplorerPlugin::directoryFor(Node *node)
 {
     return pathOrDirectoryFor(node, true);

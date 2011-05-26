@@ -90,8 +90,7 @@ public:
 
     void setEnabled(bool b);
 
-    bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
-    using LocalApplicationRunConfiguration::isEnabled;
+    bool isEnabled() const;
 
 signals:
     void baseEnvironmentChanged();

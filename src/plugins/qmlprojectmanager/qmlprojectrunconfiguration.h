@@ -97,7 +97,7 @@ public:
     Utils::Environment environment() const;
 
     // RunConfiguration
-    bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
+    bool isEnabled() const;
     virtual QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
     QVariantMap toMap() const;

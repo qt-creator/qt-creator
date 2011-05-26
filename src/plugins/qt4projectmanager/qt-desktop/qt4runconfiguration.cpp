@@ -138,11 +138,9 @@ Qt4DesktopTarget *Qt4RunConfiguration::qt4Target() const
     return static_cast<Qt4DesktopTarget *>(target());
 }
 
-bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration * /* configuration */) const
+bool Qt4RunConfiguration::isEnabled() const
 {
-    if (!m_parseSuccess)
-        return false;
-    return true;
+    return m_parseSuccess;
 }
 
 void Qt4RunConfiguration::handleParseState(bool success)
