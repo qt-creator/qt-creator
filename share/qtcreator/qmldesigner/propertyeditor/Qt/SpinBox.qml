@@ -62,12 +62,12 @@ QWidget { //This is a special spinBox that does color coding for states
     ColorScheme { id:scheme; }
 
     layout: HorizontalLayout {
-	    spacing: 4
+        spacing: 4
         QSpinBox {
             property alias backendValue: spinBox.backendValue
             toolTip: backendValue.isBound ? backendValue.expression : ""
-			
-			enabled: !backendValue.isBound && spinBox.enabled;
+
+            enabled: !backendValue.isBound && spinBox.enabled;
 
             keyboardTracking: false;
             id: box;
@@ -80,20 +80,26 @@ QWidget { //This is a special spinBox that does color coding for states
                     maximum = valueFromBackend;
                 if (minimum > valueFromBackend)
                     minimum = valueFromBackend;
-                value = valueFromBackend;
+                if (valueFromBackend !== value)
+                    value = valueFromBackend;
                 readingFromBackend = false;
-                evaluate();
+
+                if (!focus)
+                    evaluate();
             }
 
-            onValueChanged: {                
-                backendValue.value = value;
+            onValueChanged: {
+                if (backendValue.value !== value)
+                    backendValue.value = value;
             }
 
             onFocusChanged: {
-                if (focus)
-                transaction.start();
-                else
-                transaction.end();
+                if (focus) {
+                    transaction.start();
+                } else {
+                    transaction.end();
+                    evaluate();
+                }
             }
             onEditingFinished: {
             }

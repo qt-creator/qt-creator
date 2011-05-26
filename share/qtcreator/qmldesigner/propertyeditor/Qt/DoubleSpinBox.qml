@@ -87,12 +87,17 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
 
             onValueFromBackendChanged: {
                 readingFromBackend = true;
-                value = valueFromBackend
+                if (value !== valueFromBackend)
+                    value = valueFromBackend
                 readingFromBackend = false;
+
+                if (!focus)
+                    evaluate();
             }
 
             onValueChanged: {
-                doubleSpinBox.backendValue.value = value;
+                if (doubleSpinBox.backendValue.value !== value)
+                    doubleSpinBox.backendValue.value = value;
             }
 
             onMouseOverChanged: {
@@ -100,10 +105,12 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
             }
 
             onFocusChanged: {
-                if (focus)
+                if (focus) {
                     transaction.start();
-                else
+                } else {
                     transaction.end();
+                    evaluate();
+                }
             }
         }
     }
