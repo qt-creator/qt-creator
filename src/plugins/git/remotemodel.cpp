@@ -58,11 +58,6 @@ RemoteModel::RemoteModel(GitClient *client, QObject *parent) :
     m_client(client)
 { }
 
-bool RemoteModel::refresh(const QString &workingDirectory, QString *errorMessage)
-{
-    return refreshRemotes(workingDirectory, errorMessage);
-}
-
 QString RemoteModel::remoteName(int row) const
 {
     return m_remotes.at(row).name;
@@ -77,11 +72,11 @@ bool RemoteModel::removeRemote(int row)
 {
     QString output;
     QString error;
-    bool success = runGitRemoteCommand(m_workingDirectory,
-                                       QStringList() << QLatin1String("rm") << remoteName(row),
-                                       &output, &error);
+    bool success = m_client->synchronousRemoteCmd(m_workingDirectory,
+                                                  QStringList() << QLatin1String("rm") << remoteName(row),
+                                                  &output, &error);
     if (success)
-        success = refreshRemotes(m_workingDirectory, &error);
+        success = refresh(m_workingDirectory, &error);
     return success;
 }
 
@@ -92,11 +87,11 @@ bool RemoteModel::addRemote(const QString &name, const QString &url)
     if (name.isEmpty() || url.isEmpty())
         return false;
 
-    bool success = runGitRemoteCommand(m_workingDirectory,
-                                       QStringList() << QLatin1String("add") << name << url,
-                                       &output, &error);
+    bool success = m_client->synchronousRemoteCmd(m_workingDirectory,
+                                                  QStringList() << QLatin1String("add") << name << url,
+                                                  &output, &error);
     if (success)
-        success = refreshRemotes(m_workingDirectory, &error);
+        success = refresh(m_workingDirectory, &error);
     return success;
 }
 
@@ -104,11 +99,11 @@ bool RemoteModel::renameRemote(const QString &oldName, const QString &newName)
 {
     QString output;
     QString error;
-    bool success = runGitRemoteCommand(m_workingDirectory,
-                                       QStringList() << QLatin1String("rename") << oldName << newName,
-                                       &output, &error);
+    bool success = m_client->synchronousRemoteCmd(m_workingDirectory,
+                                                  QStringList() << QLatin1String("rename") << oldName << newName,
+                                                  &output, &error);
     if (success)
-        success = refreshRemotes(m_workingDirectory, &error);
+        success = refresh(m_workingDirectory, &error);
     return success;
 }
 
@@ -116,11 +111,11 @@ bool RemoteModel::updateUrl(const QString &name, const QString &newUrl)
 {
     QString output;
     QString error;
-    bool success = runGitRemoteCommand(m_workingDirectory,
-                                       QStringList() << QLatin1String("set-url") << name << newUrl,
-                                       &output, &error);
+    bool success = m_client->synchronousRemoteCmd(m_workingDirectory,
+                                                  QStringList() << QLatin1String("set-url") << name << newUrl,
+                                                  &output, &error);
     if (success)
-        success = refreshRemotes(m_workingDirectory, &error);
+        success = refresh(m_workingDirectory, &error);
     return success;
 }
 
@@ -189,11 +184,6 @@ Qt::ItemFlags RemoteModel::flags(const QModelIndex &index) const
     return m_flags;
 }
 
-bool RemoteModel::runGitRemoteCommand(const QString &workingDirectory, const QStringList &additionalArgs, QString *output, QString *errorMessage)
-{
-    return m_client->synchronousRemoteCmd(workingDirectory, additionalArgs, output, errorMessage);
-}
-
 void RemoteModel::clear()
 {
     if (m_remotes.isEmpty())
@@ -202,13 +192,13 @@ void RemoteModel::clear()
     reset();
 }
 
-bool RemoteModel::refreshRemotes(const QString &workingDirectory, QString *errorMessage)
+bool RemoteModel::refresh(const QString &workingDirectory, QString *errorMessage)
 {
     // Run branch command with verbose.
     QStringList remoteArgs;
     remoteArgs << QLatin1String("-v");
     QString output;
-    if (!runGitRemoteCommand(workingDirectory, remoteArgs, &output, errorMessage))
+    if (!m_client->synchronousRemoteCmd(workingDirectory, remoteArgs, &output, errorMessage))
         return false;
     // Parse output
     m_workingDirectory = workingDirectory;

@@ -47,8 +47,8 @@ class RemoteModel : public QAbstractTableModel {
 public:
     explicit RemoteModel(GitClient *client, QObject *parent = 0);
 
-    virtual void clear();
-    virtual bool refresh(const QString &workingDirectory, QString *errorMessage);
+    void clear();
+    bool refresh(const QString &workingDirectory, QString *errorMessage);
 
     QString remoteName(int row) const;
     QString remoteUrl(int row) const;
@@ -79,10 +79,6 @@ protected:
         QString url;
     };
     typedef QList<Remote> RemoteList;
-
-    /* Parse git output and populate m_branches. */
-    bool refreshRemotes(const QString &workingDirectory, QString *errorMessage);
-    bool runGitRemoteCommand(const QString &workingDirectory, const QStringList &additionalArgs, QString *output, QString *errorMessage);
 
 private:
     const Qt::ItemFlags m_flags;

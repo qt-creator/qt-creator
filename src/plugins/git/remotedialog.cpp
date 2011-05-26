@@ -103,6 +103,7 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
     connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(addRemote()));
     connect(m_ui->fetchButton, SIGNAL(clicked()), this, SLOT(fetchFromRemote()));
     connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(removeRemote()));
+    connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(refreshRemotes()));
 }
 
 RemoteDialog::~RemoteDialog()
@@ -124,6 +125,11 @@ void RemoteDialog::refresh(const QString &repository, bool force)
         if (!m_remoteModel->refresh(m_repository, &errorMessage))
             VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
     }
+}
+
+void RemoteDialog::refreshRemotes()
+{
+    refresh(m_remoteModel->workingDirectory(), true);
 }
 
 void RemoteDialog::addRemote()
