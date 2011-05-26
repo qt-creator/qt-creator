@@ -186,7 +186,6 @@ public:
         , m_replaceDotForArrow(false)
         , m_typeOfExpression(new TypeOfExpression)
     {}
-    virtual ~CppAssistProposalModel();
 
     virtual bool isSortable() const { return m_sortable; }
     virtual IAssistProposalItem *proposalItem(int index) const;
@@ -194,13 +193,8 @@ public:
     bool m_sortable;
     unsigned m_completionOperator;
     bool m_replaceDotForArrow;
-    mutable TypeOfExpression *m_typeOfExpression;
+    QSharedPointer<TypeOfExpression> m_typeOfExpression;
 };
-
-CppAssistProposalModel::~CppAssistProposalModel()
-{
-    delete m_typeOfExpression;
-}
 
 // ---------------------
 // CppAssistProposalItem
@@ -209,8 +203,7 @@ class CppAssistProposalItem : public TextEditor::BasicProposalItem
 {
 public:
     CppAssistProposalItem() :
-        m_isOverloaded(false), m_typeOfExpression(0) {}
-    virtual ~CppAssistProposalItem();
+        m_isOverloaded(false) {}
 
     virtual bool prematurelyApplies(const QChar &c) const;
     virtual void applyContextualContent(TextEditor::BaseTextEditor *editor,
@@ -219,20 +212,15 @@ public:
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
     void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
-    void ownTypeOfExpression(TypeOfExpression *typeOfExp) { m_typeOfExpression = typeOfExp; }
+    void keepTypeOfExpression(const QSharedPointer<TypeOfExpression> &typeOfExp)
+    { m_typeOfExpression = typeOfExp; }
 
 private:
     bool m_isOverloaded;
     unsigned m_completionOperator;
     mutable QChar m_typedChar;
-    TypeOfExpression *m_typeOfExpression;
+    QSharedPointer<TypeOfExpression> m_typeOfExpression;
 };
-
-CppAssistProposalItem::~CppAssistProposalItem()
-{
-    if (m_typeOfExpression)
-        delete m_typeOfExpression;
-}
 
 } // Internal
 } // CppTools
@@ -246,8 +234,7 @@ IAssistProposalItem *CppAssistProposalModel::proposalItem(int index) const
     if (!item->data().canConvert<QString>()) {
         CppAssistProposalItem *cppItem = static_cast<CppAssistProposalItem *>(item);
         cppItem->keepCompletionOperator(m_completionOperator);
-        cppItem->ownTypeOfExpression(m_typeOfExpression);
-        m_typeOfExpression = 0;
+        cppItem->keepTypeOfExpression(m_typeOfExpression);
     }
     return item;
 }
@@ -429,7 +416,8 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
 class CppFunctionHintModel : public TextEditor::IFunctionHintProposalModel
 {
 public:
-    CppFunctionHintModel(QList<Function *> functionSymbols, TypeOfExpression *typeOfExp)
+    CppFunctionHintModel(QList<Function *> functionSymbols,
+                         const QSharedPointer<TypeOfExpression> &typeOfExp)
         : m_functionSymbols(functionSymbols)
         , m_currentArg(-1)
         , m_typeOfExpression(typeOfExp)
@@ -443,7 +431,7 @@ public:
 private:
     QList<Function *> m_functionSymbols;
     mutable int m_currentArg;
-    TypeOfExpression *m_typeOfExpression;
+    QSharedPointer<TypeOfExpression> m_typeOfExpression;
 };
 
 QString CppFunctionHintModel::text(int index) const
@@ -800,7 +788,6 @@ IAssistProposal *CppCompletionAssistProcessor::createHintProposal(
 {
     IFunctionHintProposalModel *model =
             new CppFunctionHintModel(functionSymbols, m_model->m_typeOfExpression);
-    m_model->m_typeOfExpression = 0;
     IAssistProposal *proposal = new FunctionHintProposal(m_startPosition, model);
     return proposal;
 }
