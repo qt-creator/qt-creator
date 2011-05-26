@@ -80,6 +80,16 @@ enum DebuggingHelperState
 };
 
 
+class UpdateParameters
+{
+public:
+    UpdateParameters() { tryPartial = tooltipOnly = false; }
+
+    bool tryPartial;
+    bool tooltipOnly;
+    QByteArray varList;
+};
+
 /* This is only used with Mac gdb since 2.2
  *
  * "Custom dumper" is a library compiled against the current
@@ -646,7 +656,7 @@ private: ////////// View & Data Stuff //////////
 
     void updateLocals();
         void updateLocalsClassic();
-        void updateLocalsPython(bool tryPartial, const QByteArray &varList);
+        void updateLocalsPython(const UpdateParameters &parameters);
             void handleStackFramePython(const GdbResponse &response);
 
     void handleStackListLocalsClassic(const GdbResponse &response);

@@ -3628,7 +3628,11 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
         qDebug() << "GdbEngine::setToolTipExpression2 " << exp << (*m_toolTipContext);
 
     if (isSynchronous()) {
-        updateLocalsPython(true, tooltipIName(exp));
+        UpdateParameters params;
+        params.tryPartial = true;
+        params.tooltipOnly = true;
+        params.varList = tooltipIName(exp);
+        updateLocalsPython(params);
     } else {
         WatchData toolTip;
         toolTip.exp = exp.toLatin1();
@@ -3709,12 +3713,15 @@ void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &f
         //        << (m_pendingWatchRequests == 0)
         //        << (m_pendingBreakpointRequests == 0);
 
-        bool tryPartial = flags.tryIncremental
+        UpdateParameters params;
+        params.tryPartial = flags.tryIncremental
                 && hasPython()
                 && m_pendingWatchRequests == 0
                 && m_pendingBreakpointRequests == 0;
+        params.tooltipOnly = false;
+        params.varList = data.iname;
 
-        updateLocalsPython(tryPartial, data.iname);
+        updateLocalsPython(params);
 #endif
     } else {
         // Bump requests to avoid model rebuilding during the nested
@@ -3845,7 +3852,7 @@ void GdbEngine::handleDebuggingHelperSetup(const GdbResponse &response)
 void GdbEngine::updateLocals()
 {
     if (hasPython())
-        updateLocalsPython(false, QByteArray());
+        updateLocalsPython(UpdateParameters());
     else
         updateLocalsClassic();
 }

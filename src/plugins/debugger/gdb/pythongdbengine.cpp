@@ -51,14 +51,14 @@
 namespace Debugger {
 namespace Internal {
 
-void GdbEngine::updateLocalsPython(bool tryPartial, const QByteArray &varList)
+void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 {
     PRECONDITION;
     m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
     m_processedNames.clear();
     WatchHandler *handler = watchHandler();
-    handler->beginCycle(!tryPartial);
+    handler->beginCycle(!params.tryPartial);
 
     QByteArray expanded = "expanded:" + handler->expansionRequests() + ' ';
     expanded += "typeformats:" + handler->typeFormatRequests() + ' ';
@@ -100,17 +100,19 @@ void GdbEngine::updateLocalsPython(bool tryPartial, const QByteArray &varList)
         options += "pe,";
     if (options.isEmpty())
         options += "defaults,";
-    if (tryPartial)
+    if (params.tryPartial)
         options += "partial,";
+    if (params.tooltipOnly)
+        options += "tooltiponly,";
     options.chop(1);
 
     QByteArray resultVar;
     if (!m_resultVarName.isEmpty())
         resultVar = "resultvarname:" + m_resultVarName + ' ';
 
-    postCommand("bb options:" + options + " vars:" + varList + ' '
+    postCommand("bb options:" + options + " vars:" + params.varList + ' '
             + resultVar + expanded + " watchers:" + watchers.toHex(),
-        WatchUpdate, CB(handleStackFramePython), QVariant(tryPartial));
+        WatchUpdate, CB(handleStackFramePython), QVariant(params.tryPartial));
 }
 
 void GdbEngine::handleStackListLocalsPython(const GdbResponse &response)
@@ -123,7 +125,8 @@ void GdbEngine::handleStackListLocalsPython(const GdbResponse &response)
             varList.append(',');
             varList.append(child.data());
         }
-        updateLocalsPython(false, varList);
+        UpdateParameters params;
+        updateLocalsPython(params);
     }
 }
 

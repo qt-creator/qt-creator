@@ -1233,6 +1233,8 @@ class Dumper:
         self.passExceptions = "pe" in options
         self.autoDerefPointers = "autoderef" in options
         self.partialUpdate = "partial" in options
+        self.tooltipOnly = "tooltiponly" in options
+        self.noLocals = "nolocals" in options
         self.ns = qtNamespace()
         self.alienSource = False
         #try:
@@ -1244,6 +1246,8 @@ class Dumper:
         #warn("VARIABLES: %s" % varList)
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
         #warn("WATCHERS: %s" % watchers)
+        #warn("PARTIAL: %s" % self.partialUpdate)
+        #warn("NO LOCALS: %s" % self.noLocals)
         module = sys.modules[__name__]
 
         #
@@ -1268,10 +1272,9 @@ class Dumper:
                 pass
             varList = []
 
-        if fullUpdateNeeded:
+        locals = []
+        if fullUpdateNeeded and not self.tooltipOnly and not self.noLocals:
             locals = listOfLocals(varList)
-            if "nolocals" in options:
-                locals = []
 
         # Take care of the return value of the last function call.
         if len(resultVarName) > 0:
