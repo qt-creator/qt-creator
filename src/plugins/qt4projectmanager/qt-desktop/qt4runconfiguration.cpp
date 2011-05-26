@@ -329,8 +329,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(qt4RunConfiguration, SIGNAL(isEnabledChanged(bool)),
             this, SLOT(runConfigurationEnabledChange(bool)));
-
-    setEnabled(qt4RunConfiguration->isEnabled());
 }
 
 Qt4RunConfigurationWidget::~Qt4RunConfigurationWidget()
