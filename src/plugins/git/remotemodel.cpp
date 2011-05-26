@@ -168,10 +168,15 @@ bool RemoteModel::setData(const QModelIndex &index, const QVariant &value, int r
         return false;
 
     const QString name = remoteName(index.row());
+    const QString url = remoteUrl(index.row());
     switch (index.column()) {
     case 0:
+        if (name == value.toString())
+            return true;
         return renameRemote(name, value.toString());
     case 1:
+        if (url == value.toString())
+            return true;
         return updateUrl(name, value.toString());
     default:
         return false;
