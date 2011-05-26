@@ -3628,16 +3628,15 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
         qDebug() << "GdbEngine::setToolTipExpression2 " << exp << (*m_toolTipContext);
 
     if (isSynchronous()) {
-        updateLocals(QVariant());
-        return true;
+        updateLocalsPython(true, tooltipIName(exp));
+    } else {
+        WatchData toolTip;
+        toolTip.exp = exp.toLatin1();
+        toolTip.name = exp;
+        toolTip.iname = tooltipIName(exp);
+        watchHandler()->removeData(toolTip.iname);
+        watchHandler()->insertData(toolTip);
     }
-
-    WatchData toolTip;
-    toolTip.exp = exp.toLatin1();
-    toolTip.name = exp;
-    toolTip.iname = tooltipIName(exp);
-    watchHandler()->removeData(toolTip.iname);
-    watchHandler()->insertData(toolTip);
     return true;
 }
 
@@ -3715,10 +3714,7 @@ void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &f
                 && m_pendingWatchRequests == 0
                 && m_pendingBreakpointRequests == 0;
 
-        if (tryPartial)
-            updateLocalsPython(true, data.iname);
-        else
-            updateLocals();
+        updateLocalsPython(tryPartial, data.iname);
 #endif
     } else {
         // Bump requests to avoid model rebuilding during the nested
@@ -3846,14 +3842,12 @@ void GdbEngine::handleDebuggingHelperSetup(const GdbResponse &response)
     }
 }
 
-void GdbEngine::updateLocals(const QVariant &cookie)
+void GdbEngine::updateLocals()
 {
-    m_pendingWatchRequests = 0;
-    m_pendingBreakpointRequests = 0;
     if (hasPython())
         updateLocalsPython(false, QByteArray());
     else
-        updateLocalsClassic(cookie);
+        updateLocalsClassic();
 }
 
 // Parse a local variable from GdbMi.

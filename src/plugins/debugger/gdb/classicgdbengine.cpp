@@ -695,9 +695,11 @@ static bool parseConsoleStream(const GdbResponse &response, GdbMi *contents)
     return contents->isValid();
 }
 
-void GdbEngine::updateLocalsClassic(const QVariant &cookie)
+void GdbEngine::updateLocalsClassic()
 {
     PRECONDITION;
+    m_pendingWatchRequests = 0;
+    m_pendingBreakpointRequests = 0;
     m_processedNames.clear();
 
     if (0 && debugPending)
@@ -713,7 +715,7 @@ void GdbEngine::updateLocalsClassic(const QVariant &cookie)
         CB(handleStackListArgumentsClassic));
     // '2' is 'list with type and value'
     postCommand("-stack-list-locals 2", WatchUpdate,
-        CB(handleStackListLocalsClassic), cookie); // stage 2/2
+        CB(handleStackListLocalsClassic)); // stage 2/2
 }
 
 static inline QString msgRetrievingWatchData(int pending)

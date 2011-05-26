@@ -54,6 +54,8 @@ namespace Internal {
 void GdbEngine::updateLocalsPython(bool tryPartial, const QByteArray &varList)
 {
     PRECONDITION;
+    m_pendingWatchRequests = 0;
+    m_pendingBreakpointRequests = 0;
     m_processedNames.clear();
     WatchHandler *handler = watchHandler();
     handler->beginCycle(!tryPartial);

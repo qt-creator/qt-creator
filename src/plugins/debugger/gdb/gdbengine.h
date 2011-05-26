@@ -644,8 +644,8 @@ private: ////////// View & Data Stuff //////////
     Q_SLOT void createFullBacktrace();
     void handleCreateFullBacktrace(const GdbResponse &response);
 
-    void updateLocals(const QVariant &cookie = QVariant());
-        void updateLocalsClassic(const QVariant &cookie);
+    void updateLocals();
+        void updateLocalsClassic();
         void updateLocalsPython(bool tryPartial, const QByteArray &varList);
             void handleStackFramePython(const GdbResponse &response);
 
