@@ -425,7 +425,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
     if (!prefix.isEmpty())
         m_d->m_model->filter(prefix);
     if (m_d->m_model->size() == 0
-            || (m_d->m_reason == IdleEditor && hasMatch(prefix, m_d->m_model))) {
+            || (m_d->m_reason != ExplicitlyInvoked && hasMatch(prefix, m_d->m_model))) {
         abort();
         return false;
     }
