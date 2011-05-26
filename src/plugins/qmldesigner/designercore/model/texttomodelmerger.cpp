@@ -1450,7 +1450,7 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
     if (propertyTakesComponent)
         m_merger->setupComponent(newNode);
 
-    if (modelProperty.isDefaultProperty()) { //In the default property case we do some magic
+    if (modelProperty.isDefaultProperty() || isComponentType(modelProperty.parentModelNode().type())) { //In the default property case we do some magic
         if (modelProperty.isNodeListProperty()) {
             modelProperty.reparentHere(newNode);
         } else { //The default property could a NodeProperty implicitly (delegate:)
@@ -1490,7 +1490,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
                                                              context,
                                                              *this);
         parentProperty.reparentHere(newNode);
-        if (nodeIndex >= 0) {
+        if (parentProperty.isNodeListProperty()) {
             int currentIndex = parentProperty.toNodeListProperty().toModelNodeList().indexOf(newNode);
             if (nodeIndex != currentIndex)
                 parentProperty.toNodeListProperty().slide(currentIndex, nodeIndex);
