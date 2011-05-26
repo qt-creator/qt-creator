@@ -143,6 +143,13 @@ bool Qt4RunConfiguration::isEnabled() const
     return m_parseSuccess;
 }
 
+QString Qt4RunConfiguration::disabledReason() const
+{
+    if (!m_parseSuccess)
+        return tr("The .pro file could not be parsed");
+    return QString();
+}
+
 void Qt4RunConfiguration::handleParseState(bool success)
 {
     bool enabled = isEnabled();

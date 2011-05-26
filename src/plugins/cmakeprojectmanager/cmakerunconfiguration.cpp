@@ -324,6 +324,13 @@ bool CMakeRunConfiguration::isEnabled() const
     return m_enabled;
 }
 
+QString CMakeRunConfiguration::disabledReason() const
+{
+    if (!m_enabled)
+        return tr("The executable is not built by the current buildconfiguration");
+    return QString();
+}
+
 // Configuration widget
 CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent)
     : QWidget(parent), m_ignoreChange(false), m_cmakeRunConfiguration(cmakeRunConfiguration)

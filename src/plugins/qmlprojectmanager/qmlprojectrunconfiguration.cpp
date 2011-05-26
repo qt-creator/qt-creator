@@ -91,6 +91,13 @@ bool QmlProjectRunConfiguration::isEnabled() const
     return m_isEnabled;
 }
 
+QString QmlProjectRunConfiguration::disabledReason() const
+{
+    if (!m_isEnabled)
+        return tr("No qmlviewer or qmlobserver found.");
+    return QString();
+}
+
 void QmlProjectRunConfiguration::ctor()
 {
     // reset default settings in constructor

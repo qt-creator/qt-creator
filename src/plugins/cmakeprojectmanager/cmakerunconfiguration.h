@@ -91,6 +91,7 @@ public:
     void setEnabled(bool b);
 
     bool isEnabled() const;
+    QString disabledReason() const;
 
 signals:
     void baseEnvironmentChanged();

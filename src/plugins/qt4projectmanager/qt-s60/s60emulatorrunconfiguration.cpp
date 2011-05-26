@@ -145,6 +145,13 @@ bool S60EmulatorRunConfiguration::isEnabled() const
     return m_validParse;
 }
 
+QString S60EmulatorRunConfiguration::disabledReason() const
+{
+    if (!m_validParse)
+        return tr("The .pro file could not be parsed");
+    return QString();
+}
+
 QWidget *S60EmulatorRunConfiguration::createConfigurationWidget()
 {
     return new S60EmulatorRunConfigurationWidget(this);

@@ -206,6 +206,11 @@ bool RunConfiguration::isEnabled() const
     return true;
 }
 
+QString RunConfiguration::disabledReason() const
+{
+    return QString();
+}
+
 /*!
     \fn virtual QWidget *ProjectExplorer::RunConfiguration::createConfigurationWidget()
 

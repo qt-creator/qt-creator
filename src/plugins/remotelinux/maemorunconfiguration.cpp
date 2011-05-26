@@ -134,6 +134,13 @@ bool MaemoRunConfiguration::isEnabled() const
     return m_validParse;
 }
 
+QString MaemoRunConfiguration::disabledReason() const
+{
+    if (!m_validParse)
+        return tr("The .pro file could not be parsed");
+    return QString();
+}
+
 QWidget *MaemoRunConfiguration::createConfigurationWidget()
 {
     return new MaemoRunConfigurationWidget(this);

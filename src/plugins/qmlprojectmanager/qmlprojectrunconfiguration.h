@@ -98,6 +98,7 @@ public:
 
     // RunConfiguration
     bool isEnabled() const;
+    QString disabledReason() const;
     virtual QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
     QVariantMap toMap() const;

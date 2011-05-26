@@ -68,6 +68,7 @@ public:
     SymbianQtVersion *qtVersion() const;
 
     bool isEnabled() const;
+    QString disabledReason() const;
     QWidget *createConfigurationWidget();
 
     Utils::OutputFormatter *createOutputFormatter() const;

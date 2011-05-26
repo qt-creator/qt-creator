@@ -83,6 +83,7 @@ public:
     Qt4DesktopTarget *qt4Target() const;
 
     virtual bool isEnabled() const;
+    virtual QString disabledReason() const;
     virtual QWidget *createConfigurationWidget();
 
     virtual QString executable() const;

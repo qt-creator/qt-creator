@@ -161,6 +161,13 @@ bool S60DeviceRunConfiguration::isEnabled() const
     return m_validParse;
 }
 
+QString S60DeviceRunConfiguration::disabledReason() const
+{
+    if (!m_validParse)
+        return tr("The .pro file could not be parsed");
+    return QString();
+}
+
 QWidget *S60DeviceRunConfiguration::createConfigurationWidget()
 {
     return new S60DeviceRunConfigurationWidget(this);

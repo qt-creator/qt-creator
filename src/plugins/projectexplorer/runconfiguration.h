@@ -60,6 +60,7 @@ public:
     virtual ~RunConfiguration();
 
     virtual bool isEnabled() const;
+    virtual QString disabledReason() const;
     virtual QWidget *createConfigurationWidget() = 0;
 
     Target *target() const;

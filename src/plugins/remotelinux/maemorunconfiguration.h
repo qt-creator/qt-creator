@@ -81,6 +81,7 @@ public:
     virtual ~MaemoRunConfiguration();
 
     bool isEnabled() const;
+    QString disabledReason() const;
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
     Qt4ProjectManager::Qt4BaseTarget *qt4Target() const;
