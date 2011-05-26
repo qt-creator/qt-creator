@@ -1908,8 +1908,6 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabledForSession()
     return result;
 }
 
-
-
 bool ProjectExplorerPlugin::coreAboutToClose()
 {
     if (d->m_buildManager->isBuilding()) {
@@ -2135,10 +2133,47 @@ bool ProjectExplorerPlugin::canRun(Project *project, const QString &runMode)
     return (canRun && !building);
 }
 
+QString ProjectExplorerPlugin::cannotRunReason(Project *project, const QString &runMode)
+{
+    if (!project)
+        return tr("No active project");
+
+    if (!project->activeTarget())
+        return tr("The project '%1' has no active target").arg(project->displayName());
+
+    if (!project->activeTarget()->activeRunConfiguration())
+        return tr("The target '%1' for project '%2' has no active run configuration")
+                .arg(project->activeTarget()->displayName(), project->displayName());
+
+
+    if (d->m_projectExplorerSettings.buildBeforeDeploy
+            && d->m_projectExplorerSettings.deployBeforeRun
+            && hasBuildSettings(project)) {
+        QPair<bool, QString> buildState = buildSettingsEnabled(project);
+        if (!buildState.first)
+            return buildState.second;
+    }
+
+
+    RunConfiguration *activeRC = project->activeTarget()->activeRunConfiguration();
+    // shouldn't actually be shown to the user...
+    if (!findRunControlFactory(activeRC, runMode))
+        return tr("Cannot run '%1' in mode '%2'.")
+                .arg(activeRC->displayName(), runMode);
+
+    if (!activeRC->isEnabled())
+        return activeRC->disabledReason();
+
+    if (d->m_buildManager->isBuilding())
+        return tr("A build is still in progress.");
+    return QString();
+}
+
 void ProjectExplorerPlugin::slotUpdateRunActions()
 {
     Project *project = startupProject();
     d->m_runAction->setEnabled(canRun(project, ProjectExplorer::Constants::RUNMODE));
+    d->m_runAction->setToolTip(cannotRunReason(project, ProjectExplorer::Constants::RUNMODE));
 }
 
 void ProjectExplorerPlugin::cancelBuild()

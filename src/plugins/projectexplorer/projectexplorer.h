@@ -118,6 +118,7 @@ public:
     bool coreAboutToClose();
 
     bool canRun(Project *pro, const QString &runMode);
+    QString cannotRunReason(Project *project, const QString &runMode);
     void runProject(Project *pro, const QString &mode);
     void runRunConfiguration(ProjectExplorer::RunConfiguration *rc, const QString &mode);
 

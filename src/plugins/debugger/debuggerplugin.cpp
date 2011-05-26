@@ -2094,9 +2094,13 @@ void DebuggerPluginPrivate::updateDebugActions()
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = pe->startupProject();
     m_debugAction->setEnabled(pe->canRun(project, _(Constants::DEBUGMODE)));
+    m_debugAction->setToolTip(pe->cannotRunReason(project, _(Constants::DEBUGMODE)));
     const bool canStepInto = pe->canRun(project, _(Constants::DEBUGMODE2));
+    const QString cannotStepIntoReason = pe->cannotRunReason(project, _(Constants::DEBUGMODE2));
     m_stepAction->setEnabled(canStepInto);
     m_nextAction->setEnabled(canStepInto);
+    m_stepAction->setToolTip(cannotStepIntoReason);
+    m_nextAction->setToolTip(cannotStepIntoReason);
 }
 
 void DebuggerPluginPrivate::onCoreAboutToOpen()
@@ -2773,6 +2777,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = am->registerAction(m_debugAction, Constants::DEBUG, globalcontext);
     cmd->setDefaultText(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(Constants::DEBUG_KEY));
+    cmd->setAttribute(Command::CA_UpdateText);
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     m_visibleDebugAction = new Utils::ProxyAction(this);

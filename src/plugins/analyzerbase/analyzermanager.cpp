@@ -845,9 +845,21 @@ void AnalyzerManager::updateRunActions()
     ProjectExplorer::Project *project = pe->startupProject();
     bool startEnabled = !d->m_currentRunControl && pe->canRun(project, Constants::MODE_ANALYZE)
             && currentTool();
+    QString disabledReason;
+    if (d->m_currentRunControl)
+        disabledReason = tr("An analysis is still in progress.");
+    else if (!currentTool())
+        disabledReason = tr("No analyzer tool selected.");
+    else
+        disabledReason = pe->cannotRunReason(project, Constants::MODE_ANALYZE);
+
     d->m_startAction->setEnabled(startEnabled);
+    d->m_startAction->setToolTip(disabledReason);
+    if (currentTool() && !currentTool()->canRunRemotely())
+        disabledReason = tr("Current analyzer tool can not be run remotely.");
     d->m_startRemoteAction->setEnabled(!d->m_currentRunControl && currentTool()
                                         && currentTool()->canRunRemotely());
+    d->m_startRemoteAction->setToolTip(disabledReason);
     d->m_toolBox->setEnabled(!d->m_currentRunControl);
     d->m_toolGroup->setEnabled(!d->m_currentRunControl);
 
