@@ -193,9 +193,9 @@
 
     \list
 
-        \o  Coda does not support debugging over a Bluetooth connection.
+        \o  CODA does not support debugging over a Bluetooth connection.
 
-        \o  Coda supports only Symbian^1 and Symbian^3 devices. It does not
+        \o  CODA supports only Symbian^1 and Symbian^3 devices. It does not
             support S60 3rd Edition devices.
 
     \endlist
