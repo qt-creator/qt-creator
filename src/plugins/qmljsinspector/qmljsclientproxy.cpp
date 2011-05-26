@@ -145,6 +145,14 @@ void ClientProxy::onCurrentObjectsChanged(const QList<int> &debugIds, bool reque
     emit selectedItemsChanged(selectedItems);
 }
 
+void ClientProxy::setSelectedItemsByDebugId(const QList<int> &debugIds)
+{
+    if (!isConnected())
+        return;
+
+    m_observerClient->setCurrentObjects(debugIds);
+}
+
 void ClientProxy::setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs)
 {
     if (isConnected()) {

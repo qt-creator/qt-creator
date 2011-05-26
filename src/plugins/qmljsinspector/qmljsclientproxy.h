@@ -85,6 +85,7 @@ public:
 
     bool isConnected() const;
 
+    void setSelectedItemsByDebugId(const QList<int> &debugIds);
     void setSelectedItemsByObjectId(const QList<QDeclarativeDebugObjectReference> &objectRefs);
 
     QList<QDeclarativeDebugEngineReference> engines() const;
