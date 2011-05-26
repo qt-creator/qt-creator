@@ -99,7 +99,7 @@ public:
     MaemoPortList freePorts() const;
     bool useRemoteGdb() const;
     void setUseRemoteGdb(bool useRemoteGdb) { m_useRemoteGdb = useRemoteGdb; }
-    void updateFactoryState() { emit isEnabledChanged(true); }
+    void updateFactoryState() { emit isEnabledChanged(isEnabled()); }
     DebuggingType debuggingType() const;
 
     const QString gdbCmd() const;
