@@ -61,12 +61,11 @@ public:
 
 private slots:
     void refresh();
-    void animTimeout();
     void itemDestroyed(QObject *);
 
 private:
     BoundingBox *boxFor(QGraphicsObject *item) const;
-    void highlightAll(bool animate);
+    void highlightAll();
     BoundingBox *createBoundingBox(QGraphicsObject *itemToHighlight);
     void removeBoundingBox(BoundingBox *box);
     void freeBoundingBox(BoundingBox *box);
@@ -77,10 +76,6 @@ private:
     QDeclarativeViewInspector *m_view;
     QList<BoundingBox* > m_boxes;
     QList<BoundingBox* > m_freeBoxes;
-    QTimer *m_animTimer;
-    qreal m_animScale;
-    int m_animFrame;
-
 };
 
 class BoundingBox : public QObject
