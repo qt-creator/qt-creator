@@ -36,6 +36,7 @@
 #include "projectexplorer_export.h"
 
 #include <extensionsystem/iplugin.h>
+#include <QtCore/QPair>
 
 QT_BEGIN_NAMESPACE
 class QPoint;
@@ -256,7 +257,8 @@ private:
     bool parseArguments(const QStringList &arguments, QString *error);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);
     bool hasBuildSettings(Project *pro);
-    bool buildSettingsEnabled(Project *pro);
+    QPair<bool, QString> buildSettingsEnabledForSession();
+    QPair<bool, QString> buildSettingsEnabled(Project *pro);
     bool hasDeploySettings(Project *pro);
 
     void setCurrent(Project *project, QString filePath, Node *node);

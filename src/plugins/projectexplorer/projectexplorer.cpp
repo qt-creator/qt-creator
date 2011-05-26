@@ -1561,54 +1561,65 @@ void ProjectExplorerPlugin::updateActions()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::updateActions";
 
+    QPair<bool, QString> buildActionState = buildSettingsEnabled(startupProject());
+    QPair<bool, QString> buildActionContextState = buildSettingsEnabled(d->m_currentProject);
+    QPair<bool, QString> buildSessionState = buildSettingsEnabledForSession();
+
     Project *project = startupProject();
-    bool enableBuildActions = project
-                              && ! (d->m_buildManager->isBuilding(project))
-                              && hasBuildSettings(project)
-                              && buildSettingsEnabled(project);
-
-    bool enableBuildActionsContextMenu = d->m_currentProject
-                              && ! (d->m_buildManager->isBuilding(d->m_currentProject))
-                              && hasBuildSettings(d->m_currentProject)
-                              && buildSettingsEnabled(d->m_currentProject);
-
-    bool hasProjects = !d->m_session->projects().isEmpty();
-    bool enabledSessionBuildActions = !d->m_buildManager->isBuilding()
-            && hasBuildSettings(0)
-            && buildSettingsEnabled(0);
     QString projectName = project ? project->displayName() : QString();
     QString projectNameContextMenu = d->m_currentProject ? d->m_currentProject->displayName() : QString();
 
     d->m_unloadAction->setParameter(projectNameContextMenu);
 
+    // Normal actions
     d->m_buildAction->setParameter(projectName);
     d->m_rebuildAction->setParameter(projectName);
     d->m_cleanAction->setParameter(projectName);
 
-    d->m_buildAction->setEnabled(enableBuildActions);
-    d->m_rebuildAction->setEnabled(enableBuildActions);
-    d->m_cleanAction->setEnabled(enableBuildActions);
+    d->m_buildAction->setEnabled(buildActionState.first);
+    d->m_rebuildAction->setEnabled(buildActionState.first);
+    d->m_cleanAction->setEnabled(buildActionState.first);
 
+    d->m_buildAction->setToolTip(buildActionState.second);
+    d->m_rebuildAction->setToolTip(buildActionState.second);
+    d->m_cleanAction->setToolTip(buildActionState.second);
+
+    // Context menu actions
     d->m_buildActionContextMenu->setParameter(projectNameContextMenu);
     d->m_rebuildActionContextMenu->setParameter(projectNameContextMenu);
     d->m_cleanActionContextMenu->setParameter(projectNameContextMenu);
 
-    d->m_buildActionContextMenu->setEnabled(enableBuildActionsContextMenu);
-    d->m_rebuildActionContextMenu->setEnabled(enableBuildActionsContextMenu);
-    d->m_cleanActionContextMenu->setEnabled(enableBuildActionsContextMenu);
+    d->m_buildActionContextMenu->setEnabled(buildActionContextState.first);
+    d->m_rebuildActionContextMenu->setEnabled(buildActionContextState.first);
+    d->m_cleanActionContextMenu->setEnabled(buildActionContextState.first);
 
-    d->m_buildProjectOnlyAction->setEnabled(enableBuildActions);
-    d->m_rebuildProjectOnlyAction->setEnabled(enableBuildActions);
-    d->m_cleanProjectOnlyAction->setEnabled(enableBuildActions);
+    d->m_buildActionContextMenu->setToolTip(buildActionState.second);
+    d->m_rebuildActionContextMenu->setToolTip(buildActionState.second);
+    d->m_cleanActionContextMenu->setToolTip(buildActionState.second);
 
-    d->m_clearSession->setEnabled(hasProjects);
+    // build project only
+    d->m_buildProjectOnlyAction->setEnabled(buildActionState.first);
+    d->m_rebuildProjectOnlyAction->setEnabled(buildActionState.first);
+    d->m_cleanProjectOnlyAction->setEnabled(buildActionState.first);
 
-    d->m_buildSessionAction->setEnabled(hasProjects && enabledSessionBuildActions);
-    d->m_rebuildSessionAction->setEnabled(hasProjects && enabledSessionBuildActions);
-    d->m_cleanSessionAction->setEnabled(hasProjects && enabledSessionBuildActions);
+    d->m_buildProjectOnlyAction->setToolTip(buildActionState.second);
+    d->m_rebuildProjectOnlyAction->setToolTip(buildActionState.second);
+    d->m_cleanProjectOnlyAction->setToolTip(buildActionState.second);
+
+    // Session actions
+    d->m_clearSession->setEnabled(!d->m_session->projects().isEmpty());
+
+    d->m_buildSessionAction->setEnabled(buildSessionState.first);
+    d->m_rebuildSessionAction->setEnabled(buildSessionState.first);
+    d->m_cleanSessionAction->setEnabled(buildSessionState.first);
+
+    d->m_buildSessionAction->setToolTip(buildSessionState.second);
+    d->m_rebuildSessionAction->setToolTip(buildSessionState.second);
+    d->m_cleanSessionAction->setToolTip(buildSessionState.second);
+
     d->m_cancelBuildAction->setEnabled(d->m_buildManager->isBuilding());
 
-    d->m_publishAction->setEnabled(hasProjects);
+    d->m_publishAction->setEnabled(!d->m_session->projects().isEmpty());
 
     d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
     d->m_projectSelectorActionMenu->setEnabled(!session()->projects().isEmpty());
@@ -1837,18 +1848,67 @@ bool ProjectExplorerPlugin::hasBuildSettings(Project *pro)
     return false;
 }
 
-bool ProjectExplorerPlugin::buildSettingsEnabled(Project *pro)
+QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabled(Project *pro)
 {
-    const QList<Project *> & projects = d->m_session->projectOrder(pro);
-
-    foreach(Project *project, projects)
-        if (project
-                && project->activeTarget()
-                && project->activeTarget()->activeBuildConfiguration()
-                && !project->activeTarget()->activeBuildConfiguration()->isEnabled())
-            return false;
-    return true;
+    QPair<bool, QString> result;
+    result.first = true;
+    if (!pro) {
+        result.first = false;
+        result.second = tr("No project loaded");
+    } else if (d->m_buildManager->isBuilding(pro)) {
+        result.first = false;
+        result.second = tr("Currently building the active project");
+    } else if (!hasBuildSettings(pro)) {
+        result.first = false;
+        result.second = tr("Project has no build settings");
+    } else {
+        const QList<Project *> & projects = d->m_session->projectOrder(pro);
+        foreach(Project *project, projects) {
+            if (project
+                    && project->activeTarget()
+                    && project->activeTarget()->activeBuildConfiguration()
+                    && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
+                result.first = false;
+                result.second += tr("Building '%1' is disabled: %2<br>")
+                        .arg(project->displayName(),
+                             project->activeTarget()->activeBuildConfiguration()->disabledReason());
+            }
+        }
+    }
+    return result;
 }
+
+QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabledForSession()
+{
+    QPair<bool, QString> result;
+    result.first = true;
+    if (d->m_session->projects().isEmpty()) {
+        result.first = false;
+        result.second = tr("No project loaded");
+    } else if (d->m_buildManager->isBuilding()) {
+        result.first = false;
+        result.second = tr("A build is in progress");
+    } else if (!hasBuildSettings(0)) {
+        result.first = false;
+        result.second = tr("Project has no build settings");
+    } else {
+        const QList<Project *> & projects = d->m_session->projectOrder(0);
+        foreach(Project *project, projects) {
+            if (project
+                    && project->activeTarget()
+                    && project->activeTarget()->activeBuildConfiguration()
+                    && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
+                result.first = false;
+                result.second += tr("Building '%1' is disabled: %2\n")
+                        .arg(project->displayName(),
+                             project->activeTarget()->activeBuildConfiguration()->disabledReason());
+            }
+        }
+    }
+    return result;
+}
+
+
 
 bool ProjectExplorerPlugin::coreAboutToClose()
 {
@@ -2027,10 +2087,10 @@ void ProjectExplorerPlugin::updateDeployActions()
 
     if (d->m_projectExplorerSettings.buildBeforeDeploy) {
         if (hasBuildSettings(project)
-                && !buildSettingsEnabled(project))
+                && !buildSettingsEnabled(project).first)
             enableDeployActions = false;
         if (hasBuildSettings(d->m_currentProject)
-                && !buildSettingsEnabled(d->m_currentProject))
+                && !buildSettingsEnabled(d->m_currentProject).first)
             enableDeployActionsContextMenu = false;
     }
 
@@ -2063,7 +2123,7 @@ bool ProjectExplorerPlugin::canRun(Project *project, const QString &runMode)
     if (d->m_projectExplorerSettings.buildBeforeDeploy
             && d->m_projectExplorerSettings.deployBeforeRun
             && hasBuildSettings(project)
-            && !buildSettingsEnabled(project))
+            && !buildSettingsEnabled(project).first)
         return false;
 
 
