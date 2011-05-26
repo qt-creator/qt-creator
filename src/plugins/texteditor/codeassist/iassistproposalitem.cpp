@@ -35,8 +35,12 @@
 using namespace TextEditor;
 
 /*!
-    \class IAssistProposalItem
-    \brief The IAssistProposalItem is an interface for representing an assist proposal item.
+    \class TextEditor::IAssistProposalItem
+    \brief The IAssistProposalItem class acts as an interface for representing an assist
+    proposal item.
+    \ingroup CodeAssist
+
+    This is class is part of the CodeAssist API.
 */
 
 IAssistProposalItem::IAssistProposalItem()
@@ -46,20 +50,20 @@ IAssistProposalItem::~IAssistProposalItem()
 {}
 
 /*!
-    \fn bool implicitlyApplies() const
+    \fn bool TextEditor::IAssistProposalItem::implicitlyApplies() const
 
     Returns whether this item should implicitly apply in the case it is the only proposal
     item available.
 */
 
 /*!
-    \fn bool prematurelyApplies(const QChar &c) const
+    \fn bool TextEditor::IAssistProposalItem::prematurelyApplies(const QChar &c) const
 
     Returns whether the character \a c causes this item to be applied.
 */
 
 /*!
-    \fn void apply(BaseTextEditor *editor, int basePosition) const
+    \fn void TextEditor::IAssistProposalItem::apply(BaseTextEditor *editor, int basePosition) const
 
     This is the place to implement the actual application of the item.
 */

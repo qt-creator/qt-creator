@@ -35,8 +35,10 @@
 using namespace TextEditor;
 
 /*!
-    \class IAssistProposalWidget
-    \brief The IAssistProposalWidget is an interface for widgets that display assist proposals.
+    \class TextEditor::IAssistProposalWidget
+    \brief The IAssistProposalWidget class acts as an interface for widgets that display
+    assist proposals.
+    \ingroup CodeAssist
 
     Known implenters of this interface are FunctionHintProposalWidget and GenericProposalWidget.
     The former is recommeded to be used when assisting function calls constructs (overloads
@@ -47,6 +49,8 @@ using namespace TextEditor;
     In general this API tries to be as decoupled as possible from the base text editor.
     This is in order to make the design a bit more generic and allow code assist to be
     pluggable into different types of documents (there are still issues to be treated).
+
+    This is class is part of the CodeAssist API.
 
     \sa IAssistProposal
 */
@@ -59,38 +63,38 @@ IAssistProposalWidget::~IAssistProposalWidget()
 {}
 
 /*!
-    \fn void setAssistant(CodeAssistant *assistant)
+    \fn void TextEditor::IAssistProposalWidget::setAssistant(CodeAssistant *assistant)
 
     Sets the code assistant which is the owner of this widget. This is used so that the code
     assistant can be notified when changes on the underlying widget happen.
 */
 
 /*!
-    \fn void setReason(AssistReason reason)
+    \fn void TextEditor::IAssistProposalWidget::setReason(AssistReason reason)
 
     Sets the reason which triggered the assist.
 */
 
 /*!
-    \fn void setUnderlyingWidget(const QWidget *underlyingWidget)
+    \fn void TextEditor::IAssistProposalWidget::setUnderlyingWidget(const QWidget *underlyingWidget)
 
     Sets the underlying widget upon which this proposal operates.
 */
 
 /*!
-    \fn void setModel(IAssistModel *model)
+    \fn void TextEditor::IAssistProposalWidget::setModel(IAssistModel *model)
 
     Sets the model.
 */
 
 /*!
-    \fn void setDisplayRect(const QRect &rect)
+    \fn void TextEditor::IAssistProposalWidget::setDisplayRect(const QRect &rect)
 
     Sets the \a rect on which this widget should be displayed.
 */
 
 /*!
-    \fn void showProposal(const QString &prefix)
+    \fn void TextEditor::IAssistProposalWidget::showProposal(const QString &prefix)
 
     Shows the proposal. The \a prefix is the string comprised from the character at the base
     position of the proposal until the character immediately after the cursor at the moment
@@ -100,7 +104,7 @@ IAssistProposalWidget::~IAssistProposalWidget()
 */
 
 /*!
-    \fn virtual void updateProposal(const QString &prefix)
+    \fn void TextEditor::IAssistProposalWidget::updateProposal(const QString &prefix)
 
     Updates the proposal base on the give \a prefix.
 
@@ -108,13 +112,13 @@ IAssistProposalWidget::~IAssistProposalWidget()
 */
 
 /*!
-    \fn void closeProposal()
+    \fn void TextEditor::IAssistProposalWidget::closeProposal()
 
     Closes the proposal.
 */
 
 /*!
-    \fn void setIsSynchronized(bool isSync)
+    \fn void TextEditor::IAssistProposalWidget::setIsSynchronized(bool isSync)
 
     Sets whether this widget is synchronized. If a widget is synchronized it means that from
     the moment a proposal started being computed until the moment it is actually displayed,
@@ -126,7 +130,7 @@ IAssistProposalWidget::~IAssistProposalWidget()
 */
 
 /*!
-    \fn void prefixExpanded(const QString &newPrefix)
+    \fn void TextEditor::IAssistProposalWidget::prefixExpanded(const QString &newPrefix)
 
     The signal is emitted whenever this widget automatically expands the prefix of the proposal.
     This can happen if all available proposal items share the same prefix and if the proposal's
@@ -136,7 +140,7 @@ IAssistProposalWidget::~IAssistProposalWidget()
 */
 
 /*!
-    void proposalItemActivated(IAssistProposalItem *proposalItem)
+    \fn void TextEditor::IAssistProposalWidget::proposalItemActivated(IAssistProposalItem *proposalItem)
 
     This signal is emitted whenever \a proposalItem is chosen to be applied.
 */

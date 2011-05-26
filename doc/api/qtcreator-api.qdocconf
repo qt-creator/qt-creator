@@ -16,7 +16,8 @@ headerdirs              = . \
                           ../../src/plugins/locator \
                           ../../src/plugins/debugger \
                           ../../src/plugins/vcsbase \
-                          ../../src/plugins/projectexplorer
+                          ../../src/plugins/projectexplorer \
+                          ../../src/plugins/texteditor
 
 sourcedirs              = . \
                           ../../src/libs/aggregation \
@@ -29,7 +30,8 @@ sourcedirs              = . \
                           ../../src/plugins/locator \
                           ../../src/plugins/debugger \
                           ../../src/plugins/vcsbase \
-                          ../../src/plugins/projectexplorer
+                          ../../src/plugins/projectexplorer \
+                          ../../src/plugins/texteditor
 
 # -- Generate complete documentation. Set this to 'false'
 #    to generate public API documentation only.

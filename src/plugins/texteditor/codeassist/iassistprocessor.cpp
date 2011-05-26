@@ -35,8 +35,10 @@
 using namespace TextEditor;
 
 /*!
-    \class IAssistProcessor
-    \brief The IAssistProcessor is an interface that actually computes an assist proposal.
+    \class TextEditor::IAssistProcessor
+    \brief The IAssistProcessor class acts as an interface that actually computes an assist
+    proposal.
+    \ingroup CodeAssist
 
     \sa IAssistProposal, IAssistProvider
 */
@@ -48,7 +50,7 @@ IAssistProcessor::~IAssistProcessor()
 {}
 
 /*!
-    \fn IAssistProposal *perform(const IAssistInterface *interface)
+    \fn IAssistProposal *TextEditor::IAssistProcessor::perform(const IAssistInterface *interface)
 
     Computes a proposal and returns it. Access to the document is made through the \a interface.
     If this is an asynchronous processor the \a interface will be detached.

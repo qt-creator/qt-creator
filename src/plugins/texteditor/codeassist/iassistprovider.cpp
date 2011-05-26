@@ -35,8 +35,9 @@
 using namespace TextEditor;
 
 /*!
-    \class IAssistProvider
-    \brief The IAssistProvider is an interface for providing code assist.
+    \class TextEditor::IAssistProvider
+    \brief The IAssistProvider class acts as an interface for providing code assist.
+    \ingroup CodeAssist
 
     There might be different kinds of assist such as completions or refactoring
     actions (quickfixes).
@@ -45,6 +46,8 @@ using namespace TextEditor;
     to the user in order to auxiliate her to "complete" a particular code construction.
     Examples of completions currently supported are snippets, function hints, and
     contextual contents.
+
+    This is class is part of the CodeAssist API.
 
     \sa IAssistProposal, IAssistProcessor
 */
@@ -56,13 +59,13 @@ IAssistProvider::~IAssistProvider()
 {}
 
 /*!
-    \fn bool supportsEditor(const QString &editorId) const
+    \fn bool TextEditor::IAssistProvider::supportsEditor(const QString &editorId) const
 
     Returns whether this provider supports the editor which has the give \a editorId.
 */
 
 /*!
-    \fn IAssistProcessor *createProcessor() const
+    \fn IAssistProcessor *TextEditor::IAssistProvider::createProcessor() const
 
     Creates and returns the IAssistProcessor responsible for computing an IAssistProposal.
 */

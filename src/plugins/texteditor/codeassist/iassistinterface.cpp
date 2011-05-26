@@ -35,9 +35,10 @@
 using namespace TextEditor;
 
 /*!
-    \class IAssistInterface
-    \brief The IAssistInterface is an interface for providing access to the document from which
-    a proposal is computed.
+    \class TextEditor::IAssistInterface
+    \brief The IAssistInterface class acts as an interface for providing access to the document
+    from which a proposal is computed.
+    \ingroup CodeAssist
 
     This interface existis in order to avoid a direct dependency on the text editor. This is
     particularly important and safer for asynchronous providers, since in such cases computation
@@ -46,6 +47,8 @@ using namespace TextEditor;
     In general this API tries to be as decoupled as possible from the base text editor.
     This is in order to make the design a bit more generic and allow code assist to be
     pluggable into different types of documents (there are still issues to be treated).
+
+    This class is part of the CodeAssist API.
 
     \sa IAssistProposal, IAssistProvider, IAssistProcessor
 */
@@ -57,36 +60,36 @@ IAssistInterface::~IAssistInterface()
 {}
 
 /*!
-    \fn int position() const
+    \fn int TextEditor::IAssistInterface::position() const
 
     Returns the cursor position.
 */
 
 /*!
-    \fn QChar characterAt(int position) const
+    \fn QChar TextEditor::IAssistInterface::characterAt(int position) const
 
     Returns the character at \a position.
 */
 
 /*!
-    \fn QString textAt(int position, int length) const
+    \fn QString TextEditor::IAssistInterface::textAt(int position, int length) const
 
     Returns the text at \a position with the given \a length.
 */
 
 /*!
-    \fn const Core::IFile *file() const
+    \fn const Core::IFile *TextEditor::IAssistInterface::file() const
 
     Returns the file associated.
 */
 
 /*!
-    \fn QTextDocument *document() const
+    \fn QTextDocument *TextEditor::IAssistInterface::document() const
     Returns the document.
 */
 
 /*!
-    \fn void detach(QThread *destination)
+    \fn void TextEditor::IAssistInterface::detach(QThread *destination)
 
     Detaches the interface. If it is necessary to take any special care in order to allow
     this interface to be run in a separate thread \a destination this needs to be done
@@ -94,7 +97,7 @@ IAssistInterface::~IAssistInterface()
 */
 
 /*!
-    \fn AssistReason reason() const
+    \fn AssistReason TextEditor::IAssistInterface::reason() const
 
     The reason which triggered the assist.
 */

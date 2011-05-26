@@ -98,6 +98,18 @@
 
 //#define DO_FOO
 
+/*!
+    \namespace TextEditor
+    \brief The TextEditor namespace contains the base text editor and several classes which
+    provide supporting functionality like snippets, highlighting, \l{CodeAssist}{code assist},
+    indentation and style, and others.
+*/
+
+/*!
+    \namespace TextEditor::Internal
+    \internal
+*/
+
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 

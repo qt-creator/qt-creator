@@ -35,14 +35,29 @@
 using namespace TextEditor;
 
 /*!
-    \class IAssistProposal
-    \brief The IAssistProposal is an interface for representing an assist proposal.
+    \group CodeAssist
+    \title Code Assist for Editors
+
+    These classes are used to provide code assist support such as completions and refactoring
+    actions for editors.
+
+    Completions can be of a variety of kind like function hints, snippets, and regular
+    context-aware content. The later are usually represented by semantic proposals, but
+    it is also possible that they are simply plain text as supported in the fake vim mode.
+*/
+
+/*!
+    \class TextEditor::IAssistProposal
+    \brief The IAssistProposal class acts as an interface for representing an assist proposal.
+    \ingroup CodeAssist
 
     Known implenters of this interface are FunctionHintProposal and GenericProposal. The
     former is recommended to be used when assisting function call constructs (overloads
     and parameters) while the latter is quite generic so that it could be used to propose
     snippets, refactoring operations (quickfixes), and contextual content (the member of
     class or a string existent in the document, for example).
+
+    This class is part of the CodeAssist API.
 
     \sa IAssistProposalWidget, IAssistModel
 */
@@ -54,7 +69,7 @@ IAssistProposal::~IAssistProposal()
 {}
 
 /*!
-    \fn bool isFragile() const
+    \fn bool TextEditor::IAssistProposal::isFragile() const
 
     Returns whether this is a fragile proposal. When a proposal is fragile it means that
     it will be replaced by a new proposal in the case one is created, even if due to an
@@ -62,13 +77,13 @@ IAssistProposal::~IAssistProposal()
 */
 
 /*!
-    \fn int basePosition() const
+    \fn int TextEditor::IAssistProposal::basePosition() const
 
     Returns the position from which this proposal starts.
 */
 
 /*!
-    \fn bool isCorrective() const
+    \fn bool TextEditor::IAssistProposal::isCorrective() const
 
     Returns whether this proposal is also corrective. This could happen in C++, for example,
     when a dot operator (.) needs to be replaced by an arrow operator (->) before the proposal
@@ -76,13 +91,13 @@ IAssistProposal::~IAssistProposal()
 */
 
 /*!
-    \fn void makeCorrection(BaseTextEditor *editor)
+    \fn void TextEditor::IAssistProposal::makeCorrection(BaseTextEditor *editor)
 
     This allows a correction to be made in the case this is a corrective proposal.
 */
 
 /*!
-    \fn IAssistModel *model() const
+    \fn IAssistModel *TextEditor::IAssistProposal::model() const
 
     Returns the model associated with this proposal.
 
@@ -93,7 +108,7 @@ IAssistProposal::~IAssistProposal()
 */
 
 /*!
-    \fn IAssistProposalWidget *createWidget() const
+    \fn IAssistProposalWidget *TextEditor::IAssistProposal::createWidget() const
 
     Returns the widget associated with this proposal. The IAssistProposalWidget implementor
     recommended for function hint proposals is FunctionHintProposalWidget. For snippets,
