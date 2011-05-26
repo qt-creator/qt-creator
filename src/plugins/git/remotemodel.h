@@ -69,6 +69,7 @@ public:
 
     QString workingDirectory() const;
     int findRemoteByName(const QString &name) const;
+    GitClient *client() const;
 
 protected:
     struct Remote {

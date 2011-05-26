@@ -802,7 +802,7 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
 
 void GitPlugin::fetch()
 {
-    m_gitClient->synchronousFetch(currentState().topLevel());
+    m_gitClient->synchronousFetch(currentState().topLevel(), QString());
 }
 
 void GitPlugin::pull()

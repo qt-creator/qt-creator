@@ -101,6 +101,7 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
     m_ui->remoteView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
 
     connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(addRemote()));
+    connect(m_ui->fetchButton, SIGNAL(clicked()), this, SLOT(fetchFromRemote()));
     connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(removeRemote()));
 }
 
@@ -150,6 +151,17 @@ void RemoteDialog::removeRemote()
                               QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
         m_remoteModel->removeRemote(row);
     }
+}
+
+void RemoteDialog::fetchFromRemote()
+{
+    const QModelIndexList indexList = m_ui->remoteView->selectionModel()->selectedIndexes();
+    if (indexList.count() == 0)
+        return;
+
+    int row = indexList.at(0).row();
+    const QString remoteName = m_remoteModel->remoteName(row);
+    m_remoteModel->client()->synchronousFetch(m_remoteModel->workingDirectory(), remoteName);
 }
 
 void RemoteDialog::changeEvent(QEvent *e)

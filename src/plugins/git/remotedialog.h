@@ -82,6 +82,7 @@ public slots:
 
     void addRemote();
     void removeRemote();
+    void fetchFromRemote();
 
 private slots:
 

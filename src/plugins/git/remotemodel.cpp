@@ -227,6 +227,11 @@ int RemoteModel::findRemoteByName(const QString &name) const
     return -1;
 }
 
+GitClient *RemoteModel::client() const
+{
+    return m_client;
+}
+
 } // namespace Internal
 } // namespace Git
 
