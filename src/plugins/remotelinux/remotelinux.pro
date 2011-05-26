@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET = RemoteLinux
 
 include(../../qtcreatorplugin.pri)
-include(../../shared/proparser/proparser.pri)
 include(remotelinux_dependencies.pri)
 
 message(target.path = $$target.path)
