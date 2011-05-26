@@ -284,8 +284,12 @@ static bool isPropertyChangesType(const QString &type)
     return  type == QLatin1String("PropertyChanges") || type == QLatin1String("QtQuick.PropertyChanges") || type == QLatin1String("Qt.PropertyChanges");
 }
 
-static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property)
+static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QString &type)
 {
+    if (property.parentModelNode().model()->metaInfo(type, -1, -1).isSubclassOf(QLatin1String("QtQuick.Component"), -1, -1) && !isComponentType(type)) {
+        return false; //If the type is already a subclass of Component keep it
+    }
+
     return property.parentModelNode().isValid() &&
             isComponentType(property.parentModelNode().metaInfo().propertyTypeName(property.name()));
 }
@@ -790,7 +794,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     }
 
     const QString typeNameFixedForImplicitComponents = modelNode.parentProperty().isValid() &&
-                                                       propertyIsComponentType(modelNode.parentProperty()) ?
+                                                       propertyIsComponentType(modelNode.parentProperty(), typeName) ?
                                                        QLatin1String("QtQuick.Component") : typeName;
 
     if ((modelNode.parentProperty().isValid() || modelNode.isRootNode()) && modelNode.type() != typeNameFixedForImplicitComponents //If there is no valid parentProperty
@@ -798,7 +802,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             /*|| modelNode.majorVersion() != domObject.objectTypeMajorVersion()
             || modelNode.minorVersion() != domObject.objectTypeMinorVersion()*/) {
         const bool isRootNode = m_rewriterView->rootModelNode() == modelNode;
-        differenceHandler.typeDiffers(isRootNode, modelNode, typeName,
+        differenceHandler.typeDiffers(isRootNode, modelNode, typeNameFixedForImplicitComponents,
                                       majorVersion, minorVersion,
                                       astNode, context);
         if (!isRootNode)
@@ -810,9 +814,6 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (isCustomParserType(typeName))
         setupCustomParserNode(modelNode);
-
-    if (isComponentType(typeNameFixedForImplicitComponents))
-        return; //No need to enter components
 
     context->enterScope(astNode);
 
@@ -1122,7 +1123,7 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
     for (int j = i; j < arrayMembers.size(); ++j) {
         // more elements in the dom-list, so add them to the model
         UiObjectMember *arrayMember = arrayMembers.at(j);
-        const ModelNode newNode = differenceHandler.listPropertyMissingModelNode(modelListProperty, context, arrayMember);        
+        const ModelNode newNode = differenceHandler.listPropertyMissingModelNode(modelListProperty, context, arrayMember);
     }
 
     for (int j = i; j < modelNodes.size(); ++j) {
@@ -1387,7 +1388,7 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
     ModelNode theNode = modelProperty.parentModelNode();
     NodeProperty newNodeProperty = theNode.nodeProperty(modelProperty.name());
 
-    const bool propertyTakesComponent = propertyIsComponentType(newNodeProperty);
+    const bool propertyTakesComponent = propertyIsComponentType(newNodeProperty, typeName);
 
     const ModelNode &newNode = m_merger->createModelNode(propertyTakesComponent ? QLatin1String("QtQuick.Component") : typeName,
                                                           majorVersion,
@@ -1435,7 +1436,8 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
         return ModelNode();
     }
 
-    const bool propertyTakesComponent = propertyIsComponentType(modelProperty);
+    const bool propertyTakesComponent = propertyIsComponentType(modelProperty, typeName);
+
 
     const ModelNode &newNode = m_merger->createModelNode(propertyTakesComponent ? QLatin1String("QtQuick.Component") : typeName,
                                                          majorVersion,
