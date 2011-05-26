@@ -725,7 +725,7 @@ bool CppCompletionAssistProcessor::accepts() const
     } else {
         // Trigger completion after three characters of a name have been typed, when not editing an existing name
         QChar characterUnderCursor = m_interface->characterAt(pos);
-        if (!characterUnderCursor.isLetterOrNumber()) {
+        if (!characterUnderCursor.isLetterOrNumber() && characterUnderCursor != QLatin1Char('_')) {
             const int startOfName = findStartOfName(pos);
             if (pos - startOfName >= 3) {
                 const QChar firstCharacter = m_interface->characterAt(startOfName);
