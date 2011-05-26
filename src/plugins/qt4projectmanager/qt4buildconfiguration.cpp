@@ -631,6 +631,13 @@ bool Qt4BuildConfiguration::isEnabled() const
     return m_isEnabled;
 }
 
+QString Qt4BuildConfiguration::disabledReason() const
+{
+    if (!m_isEnabled)
+        return tr("Parsing the .pro file");
+    return QString();
+}
+
 void Qt4BuildConfiguration::setEnabled(bool enabled)
 {
     if (m_isEnabled == enabled)

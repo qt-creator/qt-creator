@@ -279,6 +279,11 @@ bool BuildConfiguration::isEnabled() const
     return true;
 }
 
+QString BuildConfiguration::disabledReason() const
+{
+    return QString();
+}
+
 bool BuildConfigMacroExpander::resolveMacro(const QString &name, QString *ret)
 {
     if (name == QLatin1String("sourceDir")) {

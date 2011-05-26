@@ -92,6 +92,7 @@ public:
     Target *target() const;
 
     virtual bool isEnabled() const;
+    virtual QString disabledReason() const;
 
     Utils::AbstractMacroExpander *macroExpander() { return &m_macroExpander; }
 
