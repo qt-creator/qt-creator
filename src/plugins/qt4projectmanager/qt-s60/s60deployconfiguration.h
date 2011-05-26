@@ -70,8 +70,6 @@ public:
     explicit S60DeployConfiguration(ProjectExplorer::Target *parent);
     virtual ~S60DeployConfiguration();
 
-    bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
-
     ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
     const QtSupport::BaseQtVersion *qtVersion() const;
