@@ -3542,7 +3542,7 @@ bool GdbEngine::showToolTip()
         watchHandler()->removeData(iname);
         return false;
     }
-    DebuggerTreeViewToolTipWidget *tw = new DebuggerTreeViewToolTipWidget;
+    DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
     tw->setDebuggerModel(TooltipsWatch);
     tw->setExpression(expression);
     tw->setContext(*m_toolTipContext);
@@ -3716,11 +3716,11 @@ void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &f
         //        << (m_pendingBreakpointRequests == 0);
 
         UpdateParameters params;
+        params.tooltipOnly = data.iname.startsWith("tooltip");
         params.tryPartial = flags.tryIncremental
                 && hasPython()
                 && m_pendingWatchRequests == 0
                 && m_pendingBreakpointRequests == 0;
-        params.tooltipOnly = false;
         params.varList = data.iname;
 
         updateLocalsPython(params);

@@ -550,7 +550,7 @@ bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
         if (!index.isValid())
             return false;
     }
-    DebuggerTreeViewToolTipWidget *tw = new DebuggerTreeViewToolTipWidget;
+    DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
     tw->setContext(context);
     tw->setDebuggerModel(LocalsWatch);
     tw->setExpression(exp);

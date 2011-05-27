@@ -47,10 +47,7 @@
 QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 class QToolButton;
-class QSortFilterProxyModel;
 class QStandardItemModel;
-class QPlainTextEdit;
-class QLabel;
 class QToolBar;
 class QDebug;
 QT_END_NAMESPACE
@@ -71,42 +68,6 @@ namespace Internal {
 class DraggableLabel;
 class DebuggerToolTipEditor;
 
-class PinnableToolTipWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    enum PinState
-    {
-        Unpinned,
-        Pinned
-    };
-
-    explicit PinnableToolTipWidget(QWidget *parent = 0);
-
-    PinState pinState() const  { return m_pinState; }
-
-    void addWidget(QWidget *w);
-    void addToolBarWidget(QWidget *w);
-
-public slots:
-    void pin();
-
-signals:
-    void pinned();
-
-private slots:
-    void toolButtonClicked();
-
-private:
-    virtual void doPin();
-
-    PinState m_pinState;
-    QVBoxLayout *m_mainVBoxLayout;
-    QToolBar *m_toolBar;
-    QToolButton *m_toolButton;
-};
-
 class DebuggerToolTipContext
 {
 public:
@@ -123,12 +84,19 @@ public:
 
 QDebug operator<<(QDebug, const DebuggerToolTipContext &);
 
-class AbstractDebuggerToolTipWidget : public PinnableToolTipWidget
+class DebuggerToolTipTreeView;
+
+class DebuggerToolTipWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit AbstractDebuggerToolTipWidget(QWidget *parent = 0);
+    bool isPinned() const  { return m_isPinned; }
+
+    void addWidget(QWidget *w);
+    void addToolBarWidget(QWidget *w);
+
+    explicit DebuggerToolTipWidget(QWidget *parent = 0);
     bool engineAcquired() const { return m_engineAcquired; }
 
     QString fileName() const { return m_context.fileName; }
@@ -151,66 +119,7 @@ public:
     QPoint offset() const { return m_offset; }
     void setOffset(const QPoint &o) { m_offset = o; }
 
-    static AbstractDebuggerToolTipWidget *loadSessionData(QXmlStreamReader &r);
-
-public slots:
-    void saveSessionData(QXmlStreamWriter &w) const;
-
-    void acquireEngine(Debugger::DebuggerEngine *engine);
-    void releaseEngine();
-    void copy();
-    bool positionShow(const DebuggerToolTipEditor &pe);
-
-private slots:
-    virtual void doPin();
-    void slotDragged(const QPoint &p);
-
-protected:
-    virtual void doAcquireEngine(Debugger::DebuggerEngine *engine) = 0;
-    virtual void doReleaseEngine() = 0;
-    virtual void doSaveSessionData(QXmlStreamWriter &w) const = 0;
-    virtual void doLoadSessionData(QXmlStreamReader &r) = 0;
-    // Return a string suitable for copying contents
-    virtual QString clipboardContents() const { return QString(); }
-
-private:
-    static AbstractDebuggerToolTipWidget *loadSessionDataI(QXmlStreamReader &r);
-    DraggableLabel *m_titleLabel;
-    bool m_engineAcquired;
-    QString m_engineType;
-    DebuggerToolTipContext m_context;
-    QDate m_creationDate;
-    QPoint m_offset; //!< Offset to text cursor position (user dragging).
-};
-
-class DebuggerToolTipTreeView : public QTreeView
-{
-    Q_OBJECT
-
-public:
-    explicit DebuggerToolTipTreeView(QWidget *parent = 0);
-
-    QAbstractItemModel *swapModel(QAbstractItemModel *model);
-
-    QSize sizeHint() const { return m_size; }
-
-    int computeHeight(const QModelIndex &index) const;
-
-public slots:
-    void computeSize();
-
-private:
-    void init(QAbstractItemModel *model);
-
-    QSize m_size;
-};
-
-class DebuggerTreeViewToolTipWidget : public AbstractDebuggerToolTipWidget
-{
-    Q_OBJECT
-
-public:
-    explicit DebuggerTreeViewToolTipWidget(QWidget *parent = 0);
+    static DebuggerToolTipWidget *loadSessionData(QXmlStreamReader &r);
 
     int debuggerModel() const { return m_debuggerModel; }
     void setDebuggerModel(int m) { m_debuggerModel = m; }
@@ -219,12 +128,39 @@ public:
 
     static QString treeModelClipboardContents(const QAbstractItemModel *m);
 
-protected:
-    virtual void doAcquireEngine(Debugger::DebuggerEngine *engine);
-    virtual void doReleaseEngine();
-    virtual void doSaveSessionData(QXmlStreamWriter &w) const;
-    virtual void doLoadSessionData(QXmlStreamReader &r);
-    virtual QString clipboardContents() const;
+public slots:
+    void saveSessionData(QXmlStreamWriter &w) const;
+
+    void acquireEngine(Debugger::DebuggerEngine *engine);
+    void releaseEngine();
+    void copy();
+    bool positionShow(const DebuggerToolTipEditor &pe);
+    void pin();
+
+private slots:
+    void slotDragged(const QPoint &p);
+    void toolButtonClicked();
+
+private:
+    bool m_isPinned;
+    QVBoxLayout *m_mainVBoxLayout;
+    QToolBar *m_toolBar;
+    QToolButton *m_toolButton;
+
+private:
+    static DebuggerToolTipWidget *loadSessionDataI(QXmlStreamReader &r);
+    void doAcquireEngine(Debugger::DebuggerEngine *engine);
+    void doReleaseEngine();
+    void doSaveSessionData(QXmlStreamWriter &w) const;
+    void doLoadSessionData(QXmlStreamReader &r);
+    QString clipboardContents() const;
+
+    DraggableLabel *m_titleLabel;
+    bool m_engineAcquired;
+    QString m_engineType;
+    DebuggerToolTipContext m_context;
+    QDate m_creationDate;
+    QPoint m_offset; //!< Offset to text cursor position (user dragging).
 
 private:
     QAbstractItemModel *swapModel(QAbstractItemModel *newModel);
@@ -237,6 +173,26 @@ private:
     QStandardItemModel *m_defaultModel;
 };
 
+class DebuggerToolTipTreeView : public QTreeView
+{
+    Q_OBJECT
+
+public:
+    explicit DebuggerToolTipTreeView(QWidget *parent = 0);
+
+    QAbstractItemModel *swapModel(QAbstractItemModel *model);
+    QSize sizeHint() const { return m_size; }
+    int computeHeight(const QModelIndex &index) const;
+
+public slots:
+    void computeSize();
+
+private:
+    void init(QAbstractItemModel *model);
+
+    QSize m_size;
+};
+
 class DebuggerToolTipManager : public QObject
 {
     Q_OBJECT
@@ -247,14 +203,14 @@ public:
 
     static DebuggerToolTipManager *instance() { return m_instance; }
     void registerEngine(DebuggerEngine *engine);
-    bool hasToolTips() const { return !m_pinnedTooltips.isEmpty(); }
+    bool hasToolTips() const { return !m_tooltips.isEmpty(); }
 
     // Collect all expressions of DebuggerTreeViewToolTipWidget
     QStringList treeWidgetExpressions(const QString &fileName,
                                       const QString &engineType = QString(),
                                       const QString &function= QString()) const;
 
-    void showToolTip(const QPoint &p, Core::IEditor *editor, AbstractDebuggerToolTipWidget *);
+    void showToolTip(const QPoint &p, Core::IEditor *editor, DebuggerToolTipWidget *);
 
     virtual bool eventFilter(QObject *, QEvent *);
 
@@ -267,29 +223,28 @@ public slots:
     void loadSessionData();
     void saveSessionData();
     void closeAllToolTips();
-    void hide()
-;
+    void hide();
 
 private slots:
     void slotUpdateVisibleToolTips();
     void slotDebuggerStateChanged(Debugger::DebuggerState);
     void slotStackFrameCompleted();
     void slotEditorOpened(Core::IEditor *);
-    void slotPinnedFirstTime();
     void slotTooltipOverrideRequested(TextEditor::ITextEditor *editor,
             const QPoint &point, int pos, bool *handled);
 
 private:
-    typedef QList<QPointer<AbstractDebuggerToolTipWidget> > DebuggerToolTipWidgetList;
+    typedef QList<QPointer<DebuggerToolTipWidget> > DebuggerToolTipWidgetList;
 
-    void registerToolTip(AbstractDebuggerToolTipWidget *toolTipWidget);
+    void registerToolTip(DebuggerToolTipWidget *toolTipWidget);
     void moveToolTipsBy(const QPoint &distance);
     // Purge out closed (null) tooltips and return list for convenience
-    DebuggerToolTipWidgetList &purgeClosedToolTips();
+    void purgeClosedToolTips();
 
     static DebuggerToolTipManager *m_instance;
 
-    DebuggerToolTipWidgetList m_pinnedTooltips;
+    DebuggerToolTipWidgetList m_tooltips;
+
     bool m_debugModeActive;
     QPoint m_lastToolTipPoint;
     Core::IEditor *m_lastToolTipEditor;

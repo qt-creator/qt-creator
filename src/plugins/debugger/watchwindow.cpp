@@ -910,7 +910,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actRemoveWatchExpression) {
         removeWatchExpression(exp);
     } else if (act == actCopy) {
-        copyToClipboard(DebuggerTreeViewToolTipWidget::treeModelClipboardContents(model()));
+        copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
     } else if (act == actCopyValue) {
         copyToClipboard(mi1.data().toString());
     } else if (act == actRemoveWatches) {

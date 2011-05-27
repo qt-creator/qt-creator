@@ -1254,7 +1254,7 @@ class Dumper:
         # Locals
         #
         fullUpdateNeeded = True
-        if self.partialUpdate and len(varList) == 1:
+        if self.partialUpdate and len(varList) == 1 and not self.tooltipOnly:
             #warn("PARTIAL: %s" % varList)
             parts = varList[0].split('.')
             #warn("PARTIAL PARTS: %s" % parts)
