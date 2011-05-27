@@ -44,6 +44,7 @@ class LANGUAGEUTILS_EXPORT ComponentVersion
 
 public:
     static const int NoVersion;
+    static const int MaxVersion;
 
     ComponentVersion();
     ComponentVersion(int major, int minor);

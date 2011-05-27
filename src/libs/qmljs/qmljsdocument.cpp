@@ -357,14 +357,14 @@ void Document::extractPragmas(QString *source)
     }
 }
 
-LibraryInfo::LibraryInfo()
-    : _valid(false)
+LibraryInfo::LibraryInfo(Status status)
+    : _status(status)
     , _dumpStatus(DumpNotStartedOrRunning)
 {
 }
 
 LibraryInfo::LibraryInfo(const QmlDirParser &parser)
-    : _valid(true)
+    : _status(Found)
     , _components(parser.components())
     , _plugins(parser.plugins())
     , _dumpStatus(DumpNotStartedOrRunning)

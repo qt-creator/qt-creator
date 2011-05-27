@@ -34,9 +34,12 @@
 
 #include <QtCore/QString>
 
+#include <limits>
+
 using namespace LanguageUtils;
 
 const int ComponentVersion::NoVersion = -1;
+const int ComponentVersion::MaxVersion = std::numeric_limits<int>::max();
 
 ComponentVersion::ComponentVersion()
     : _major(NoVersion), _minor(NoVersion)
