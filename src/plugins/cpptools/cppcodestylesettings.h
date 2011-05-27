@@ -12,8 +12,9 @@ QT_END_NAMESPACE
 
 namespace CppTools {
 
-struct CPPTOOLS_EXPORT CppCodeStyleSettings
+class CPPTOOLS_EXPORT CppCodeStyleSettings
 {
+public:
     CppCodeStyleSettings();
 
     bool indentBlockBraces;

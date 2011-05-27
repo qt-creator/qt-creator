@@ -44,6 +44,7 @@
 #include "cppcompletionassist.h"
 #include "cpptoolssettings.h"
 #include "cppcodestylesettingsfactory.h"
+#include "cppcodestylesettings.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -105,6 +106,9 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(error)
+
+    qRegisterMetaType<CppTools::CppCodeStyleSettings>("CppTools::CppCodeStyleSettings");
+
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 
