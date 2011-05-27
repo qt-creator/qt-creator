@@ -278,8 +278,8 @@ struct QT4PROJECTMANAGER_EXPORT TargetInformation
         return workingDir == other.workingDir
                 && target == other.target
                 && executable == other.executable
-                && valid == valid
-                && buildDir == buildDir;
+                && valid == other.valid
+                && buildDir == other.buildDir;
     }
     bool operator!=(const TargetInformation &other) const
     {
