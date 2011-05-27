@@ -1253,6 +1253,7 @@ class Dumper:
         #
         # Locals
         #
+        locals = []
         fullUpdateNeeded = True
         if self.partialUpdate and len(varList) == 1 and not self.tooltipOnly:
             #warn("PARTIAL: %s" % varList)
@@ -1272,7 +1273,6 @@ class Dumper:
                 pass
             varList = []
 
-        locals = []
         if fullUpdateNeeded and not self.tooltipOnly and not self.noLocals:
             locals = listOfLocals(varList)
 
