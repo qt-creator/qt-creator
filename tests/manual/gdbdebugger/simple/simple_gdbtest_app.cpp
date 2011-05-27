@@ -2331,7 +2331,7 @@ void testWCout()
         j++;
     }
     cout.flush();
-};
+}
 
 void testWCout0()
 {
@@ -2634,9 +2634,27 @@ void test4019()
 }
 
 
+void test4497()
+{
+    using namespace std;
+    //cin.get(); // if commented out, the debugger doesn't stop at the breakpoint in the next line.
+    cout << "Hello, world!" << endl; // breakpoint
+
+    int sum = 0;
+    for (int i = 1; i <= 10; i++)
+        sum += i;
+
+    cout << sum << endl;
+    cout << "Enter a number: ";
+    int n;
+    cin >> n;
+    cout << "You entered " << n << "!" << endl;
+}
+
 
 int main(int argc, char *argv[])
 {
+    //test4497();
     test4019();
     testEigen();
     testKR();
