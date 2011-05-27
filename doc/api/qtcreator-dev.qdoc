@@ -130,6 +130,7 @@
     \o \l{Creating Plugins}
     \o \l{Qt Creator Coding Rules}
     \o \l{Text Editors}
+    \o \l{CodeAssist} {Providing Code Assist}
     \endlist
 
     \section2 Other Custom Editors

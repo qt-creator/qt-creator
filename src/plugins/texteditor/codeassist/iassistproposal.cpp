@@ -38,12 +38,16 @@ using namespace TextEditor;
     \group CodeAssist
     \title Code Assist for Editors
 
-    These classes are used to provide code assist support such as completions and refactoring
-    actions for editors.
+    Code assist is available in the form of completions and refactoring actions pop-ups
+    which are triggered under particular circumstances. This group contains the classes
+    used to provide such support.
 
     Completions can be of a variety of kind like function hints, snippets, and regular
     context-aware content. The later are usually represented by semantic proposals, but
-    it is also possible that they are simply plain text as supported in the fake vim mode.
+    it is also possible that they are simply plain text like in the fake vim mode.
+
+    Completions also have the possibility to run asynchronously in a separate thread and
+    then not blocking the GUI. This is the default behavior.
 */
 
 /*!
