@@ -81,6 +81,7 @@ private:
     Attributes m_attributes;
     bool m_showShortcut;
     QString m_toolTip;
+    bool m_block;
 };
 
 } // namespace Utils

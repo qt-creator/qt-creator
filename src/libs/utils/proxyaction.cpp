@@ -38,7 +38,8 @@ ProxyAction::ProxyAction(QObject *parent) :
     QAction(parent),
     m_action(0),
     m_attributes(0),
-    m_showShortcut(false)
+    m_showShortcut(false),
+    m_block(false)
 {
     connect(this, SIGNAL(changed()), this, SLOT(updateToolTipWithKeySequence()));
     updateState();
@@ -161,15 +162,14 @@ void ProxyAction::setShortcutVisibleInToolTip(bool visible)
 
 void ProxyAction::updateToolTipWithKeySequence()
 {
-    static bool block = false;
-    if (block)
+    if (m_block)
         return;
-    block = true;
+    m_block = true;
     if (!m_showShortcut || shortcut().isEmpty())
         setToolTip(m_toolTip);
     else
         setToolTip(stringWithAppendedShortcut(m_toolTip, shortcut()));
-    block = false;
+    m_block = false;
 }
 
 QString ProxyAction::stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut)
