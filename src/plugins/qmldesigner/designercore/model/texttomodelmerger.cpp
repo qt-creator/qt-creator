@@ -358,8 +358,8 @@ public:
             majorVersion = ComponentVersion::NoVersion;
             minorVersion = ComponentVersion::NoVersion;
 
-            const Interpreter::TypeEnvironment *typeEnv = m_lookupContext->context()->typeEnvironment(m_lookupContext->document().data());
-            Interpreter::ImportInfo importInfo = typeEnv->importInfo(fullTypeName, m_context);
+            const Interpreter::Imports *imports = m_lookupContext->context()->imports(m_lookupContext->document().data());
+            Interpreter::ImportInfo importInfo = imports->info(fullTypeName, m_context);
             if (importInfo.isValid() && importInfo.type() == Interpreter::ImportInfo::LibraryImport) {
                 QString name = importInfo.name().replace("\\", ".");
                 majorVersion = importInfo.version().majorVersion();

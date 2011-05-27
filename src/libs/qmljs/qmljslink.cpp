@@ -89,7 +89,7 @@ public:
     Interpreter::Context *context;
     QStringList importPaths;
 
-    QHash<ImportCacheKey, TypeEnvironment::Import> importCache;
+    QHash<ImportCacheKey, Import> importCache;
 
     Document::Ptr doc;
     QList<DiagnosticMessage> *diagnosticMessages;
@@ -161,22 +161,22 @@ void Link::linkImports()
 
     if (d->doc) {
         // do it on d->doc first, to make sure import errors are shown
-        TypeEnvironment *typeEnv = new TypeEnvironment(engine());
-        populateImportedTypes(typeEnv, d->doc);
-        d->context->setTypeEnvironment(d->doc.data(), typeEnv);
+        Imports *imports = new Imports(engine());
+        populateImportedTypes(imports, d->doc);
+        d->context->setImports(d->doc.data(), imports);
     }
 
     foreach (Document::Ptr doc, d->snapshot) {
         if (doc == d->doc)
             continue;
 
-        TypeEnvironment *typeEnv = new TypeEnvironment(engine());
-        populateImportedTypes(typeEnv, doc);
-        d->context->setTypeEnvironment(doc.data(), typeEnv);
+        Imports *imports = new Imports(engine());
+        populateImportedTypes(imports, doc);
+        d->context->setImports(doc.data(), imports);
     }
 }
 
-void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
+void Link::populateImportedTypes(Imports *imports, Document::Ptr doc)
 {
     Q_D(Link);
 
@@ -184,15 +184,15 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
         return;
 
     // implicit imports: the <default> package is always available
-    loadImplicitDefaultImports(typeEnv);
+    loadImplicitDefaultImports(imports);
 
     // implicit imports:
     // qml files in the same directory are available without explicit imports
-    loadImplicitDirectoryImports(typeEnv, doc);
+    loadImplicitDirectoryImports(imports, doc);
 
     // explicit imports, whether directories, files or libraries
     foreach (const ImportInfo &info, doc->bind()->imports()) {
-        TypeEnvironment::Import import = d->importCache.value(ImportCacheKey(info));
+        Import import = d->importCache.value(ImportCacheKey(info));
 
         if (!import.object) {
             switch (info.type()) {
@@ -210,7 +210,7 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
                 d->importCache.insert(ImportCacheKey(info), import);
         }
         if (import.object)
-            typeEnv->addImport(import);
+            imports->append(import);
     }
 }
 
@@ -221,12 +221,14 @@ void Link::populateImportedTypes(TypeEnvironment *typeEnv, Document::Ptr doc)
     import "content" 4.6 as Xxx
 
     import "http://www.ovi.com/" as Ovi
+
+    import "file.js" as Foo
 */
-TypeEnvironment::Import Link::importFileOrDirectory(Document::Ptr doc, const ImportInfo &importInfo)
+Import Link::importFileOrDirectory(Document::Ptr doc, const ImportInfo &importInfo)
 {
     Q_D(Link);
 
-    TypeEnvironment::Import import;
+    Import import;
     import.info = importInfo;
     import.object = 0;
 
@@ -259,11 +261,11 @@ TypeEnvironment::Import Link::importFileOrDirectory(Document::Ptr doc, const Imp
   import Qt 4.6 as Xxx
   (import com.nokia.qt is the same as the ones above)
 */
-TypeEnvironment::Import Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
+Import Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
 {
     Q_D(Link);
 
-    TypeEnvironment::Import import;
+    Import import;
     import.info = importInfo;
     import.object = new ObjectValue(engine());
 
@@ -305,7 +307,7 @@ TypeEnvironment::Import Link::importNonFile(Document::Ptr doc, const ImportInfo 
 
 bool Link::importLibrary(Document::Ptr doc,
                          const QString &libraryPath,
-                         TypeEnvironment::Import *import,
+                         Import *import,
                          const QString &importPath)
 {
     Q_D(Link);
@@ -435,32 +437,32 @@ void Link::loadQmldirComponents(Interpreter::ObjectValue *import, ComponentVersi
     }
 }
 
-void Link::loadImplicitDirectoryImports(TypeEnvironment *typeEnv, Document::Ptr doc)
+void Link::loadImplicitDirectoryImports(Imports *imports, Document::Ptr doc)
 {
     Q_D(Link);
 
     ImportInfo implcitDirectoryImportInfo(
                 ImportInfo::ImplicitDirectoryImport, doc->path());
 
-    TypeEnvironment::Import directoryImport = d->importCache.value(ImportCacheKey(implcitDirectoryImportInfo));
+    Import directoryImport = d->importCache.value(ImportCacheKey(implcitDirectoryImportInfo));
     if (!directoryImport.object) {
         directoryImport = importFileOrDirectory(doc, implcitDirectoryImportInfo);
         if (directoryImport.object)
             d->importCache.insert(ImportCacheKey(implcitDirectoryImportInfo), directoryImport);
     }
     if (directoryImport.object) {
-        typeEnv->addImport(directoryImport);
+        imports->append(directoryImport);
     }
 }
 
-void Link::loadImplicitDefaultImports(TypeEnvironment *typeEnv)
+void Link::loadImplicitDefaultImports(Imports *imports)
 {
     Q_D(Link);
 
     const QString defaultPackage = CppQmlTypes::defaultPackage;
     if (engine()->cppQmlTypes().hasPackage(defaultPackage)) {
         ImportInfo info(ImportInfo::LibraryImport, defaultPackage);
-        TypeEnvironment::Import import = d->importCache.value(ImportCacheKey(info));
+        Import import = d->importCache.value(ImportCacheKey(info));
         if (!import.object) {
             import.info = info;
             import.object = new ObjectValue(engine());
@@ -470,6 +472,6 @@ void Link::loadImplicitDefaultImports(TypeEnvironment *typeEnv)
             }
             d->importCache.insert(ImportCacheKey(info), import);
         }
-        typeEnv->addImport(import);
+        imports->append(import);
     }
 }

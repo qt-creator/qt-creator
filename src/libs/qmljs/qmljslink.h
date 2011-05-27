@@ -73,25 +73,25 @@ private:
 
     void linkImports();
 
-    void populateImportedTypes(Interpreter::TypeEnvironment *typeEnv, Document::Ptr doc);
-    Interpreter::TypeEnvironment::Import importFileOrDirectory(
+    void populateImportedTypes(Interpreter::Imports *imports, Document::Ptr doc);
+    Interpreter::Import importFileOrDirectory(
         Document::Ptr doc,
         const Interpreter::ImportInfo &importInfo);
-    Interpreter::TypeEnvironment::Import importNonFile(
+    Interpreter::Import importNonFile(
         Document::Ptr doc,
         const Interpreter::ImportInfo &importInfo);
     void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
 
     bool importLibrary(Document::Ptr doc,
                        const QString &libraryPath,
-                       Interpreter::TypeEnvironment::Import *import,
+                       Interpreter::Import *import,
                        const QString &importPath = QString());
     void loadQmldirComponents(Interpreter::ObjectValue *import,
                               LanguageUtils::ComponentVersion version,
                               const LibraryInfo &libraryInfo,
                               const QString &libraryPath);
-    void loadImplicitDirectoryImports(Interpreter::TypeEnvironment *typeEnv, Document::Ptr doc);
-    void loadImplicitDefaultImports(Interpreter::TypeEnvironment *typeEnv);
+    void loadImplicitDirectoryImports(Interpreter::Imports *imports, Document::Ptr doc);
+    void loadImplicitDefaultImports(Interpreter::Imports *imports);
 
     void error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);
     void warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message);

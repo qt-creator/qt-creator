@@ -71,8 +71,9 @@ class FunctionValue;
 class Reference;
 class ColorValue;
 class AnchorLineValue;
-class TypeEnvironment;
-class AttachedTypeEnvironment;
+class Imports;
+class TypeScope;
+class JSImportScope;
 
 typedef QList<const Value *> ValueList;
 
@@ -303,7 +304,8 @@ public:
     const ObjectValue *globalScope;
     QSharedPointer<const QmlComponentChain> qmlComponentScope;
     QList<const ObjectValue *> qmlScopeObjects;
-    const TypeEnvironment *qmlTypes;
+    const TypeScope *qmlTypes;
+    const JSImportScope *jsImports;
     QList<const ObjectValue *> jsScopes;
 
     // rebuilds the flat list of all scopes
@@ -326,8 +328,8 @@ public:
     const ScopeChain &scopeChain() const;
     ScopeChain &scopeChain();
 
-    const TypeEnvironment *typeEnvironment(const Document *doc) const;
-    void setTypeEnvironment(const Document *doc, const TypeEnvironment *typeEnvironment);
+    const Imports *imports(const Document *doc) const;
+    void setImports(const Document *doc, const Imports *imports);
 
     const Value *lookup(const QString &name, const ObjectValue **foundInScope = 0) const;
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName) const;
@@ -345,7 +347,7 @@ private:
     Snapshot _snapshot;
     QSharedPointer<Engine> _engine;
     QHash<const ObjectValue *, Properties> _properties;
-    QHash<const Document *, const TypeEnvironment *> _typeEnvironments;
+    QHash<const Document *, QSharedPointer<const Imports> > _imports;
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;
     bool _qmlScopeObjectSet;
@@ -1030,32 +1032,59 @@ private:
     AST::UiImport *_ast;
 };
 
-class QMLJS_EXPORT TypeEnvironment: public ObjectValue
+class QMLJS_EXPORT Import {
+public:
+    Import();
+
+    // const!
+    ObjectValue *object;
+    ImportInfo info;
+    // uri imports: path to library, else empty
+    QString libraryPath;
+};
+
+class Imports;
+
+class QMLJS_EXPORT TypeScope: public ObjectValue
 {
 public:
-    class Import {
-    public:
-        Import();
-
-        // const!
-        ObjectValue *object;
-        ImportInfo info;
-        // uri imports: path to library, else empty
-        QString libraryPath;
-    };
-
-public:
-    TypeEnvironment(Engine *engine);
+    TypeScope(const Imports *imports, Engine *engine);
 
     virtual const Value *lookupMember(const QString &name, const Context *context,
                                       const ObjectValue **foundInObject = 0,
                                       bool examinePrototypes = true) const;
     virtual void processMembers(MemberProcessor *processor) const;
 
-    void addImport(const Import &import);
+private:
+    const Imports *_imports;
+};
 
-    ImportInfo importInfo(const QString &name, const Context *context) const;
-    QList<Import> imports() const;
+class QMLJS_EXPORT JSImportScope: public ObjectValue
+{
+public:
+    JSImportScope(const Imports *imports, Engine *engine);
+
+    virtual const Value *lookupMember(const QString &name, const Context *context,
+                                      const ObjectValue **foundInObject = 0,
+                                      bool examinePrototypes = true) const;
+    virtual void processMembers(MemberProcessor *processor) const;
+
+private:
+    const Imports *_imports;
+};
+
+class QMLJS_EXPORT Imports
+{
+public:
+    Imports(Engine *engine);
+
+    void append(const Import &import);
+
+    ImportInfo info(const QString &name, const Context *context) const;
+    QList<Import> all() const;
+
+    const TypeScope *typeScope() const;
+    const JSImportScope *jsImportScope() const;
 
 #ifdef QT_DEBUG
     void dump() const;
@@ -1065,6 +1094,8 @@ private:
     // holds imports in the order they appeared,
     // lookup order is back to front
     QList<Import> _imports;
+    TypeScope *_typeScope;
+    JSImportScope *_jsImportScope;
 };
 
 } } // namespace QmlJS::Interpreter

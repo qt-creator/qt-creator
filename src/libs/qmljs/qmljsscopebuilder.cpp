@@ -127,8 +127,9 @@ void ScopeBuilder::initializeRootScope()
         componentScopes.insert(_doc.data(), chain);
         makeComponentChain(_doc, snapshot, chain, &componentScopes);
 
-        if (const TypeEnvironment *typeEnvironment = _context->typeEnvironment(_doc.data())) {
-            scopeChain.qmlTypes = typeEnvironment;
+        if (const Imports *imports = _context->imports(_doc.data())) {
+            scopeChain.qmlTypes = imports->typeScope();
+            scopeChain.jsImports = imports->jsImportScope();
         }
     } else {
         // add scope chains for all components that import this file

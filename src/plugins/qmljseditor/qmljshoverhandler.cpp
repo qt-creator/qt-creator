@@ -219,11 +219,11 @@ void HoverHandler::handleOrdinaryMatch(const LookupContext::Ptr &lookupContext, 
 
 void HoverHandler::handleImport(const LookupContext::Ptr &lookupContext, AST::UiImport *node)
 {
-    const Interpreter::TypeEnvironment *typeEnv = lookupContext->context()->typeEnvironment(lookupContext->document().data());
-    if (!typeEnv)
+    const Interpreter::Imports *imports = lookupContext->context()->imports(lookupContext->document().data());
+    if (!imports)
         return;
 
-    foreach (const Interpreter::TypeEnvironment::Import &import, typeEnv->imports()) {
+    foreach (const Interpreter::Import &import, imports->all()) {
         if (import.info.ast() == node) {
             if (import.info.type() == Interpreter::ImportInfo::LibraryImport
                     && !import.libraryPath.isEmpty()) {

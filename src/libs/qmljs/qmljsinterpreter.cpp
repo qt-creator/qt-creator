@@ -1308,6 +1308,7 @@ void StringValue::accept(ValueVisitor *visitor) const
 ScopeChain::ScopeChain()
     : globalScope(0)
     , qmlTypes(0)
+    , jsImports(0)
 {
 }
 
@@ -1369,7 +1370,8 @@ void ScopeChain::update()
         _all += ids;
     if (qmlTypes)
         _all += qmlTypes;
-    // qmlTypes are not added on purpose
+    if (jsImports)
+        _all += jsImports;
     _all += jsScopes;
 }
 
@@ -1412,18 +1414,18 @@ ScopeChain &Context::scopeChain()
     return _scopeChain;
 }
 
-const TypeEnvironment *Context::typeEnvironment(const QmlJS::Document *doc) const
+const Imports *Context::imports(const QmlJS::Document *doc) const
 {
     if (!doc)
         return 0;
-    return _typeEnvironments.value(doc, 0);
+    return _imports.value(doc).data();
 }
 
-void Context::setTypeEnvironment(const QmlJS::Document *doc, const TypeEnvironment *typeEnvironment)
+void Context::setImports(const QmlJS::Document *doc, const Imports *imports)
 {
     if (!doc)
         return;
-    _typeEnvironments[doc] = typeEnvironment;
+    _imports[doc] = QSharedPointer<const Imports>(imports);
 }
 
 const Value *Context::lookup(const QString &name, const ObjectValue **foundInScope) const
@@ -1446,7 +1448,10 @@ const Value *Context::lookup(const QString &name, const ObjectValue **foundInSco
 
 const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId *qmlTypeName) const
 {
-    const ObjectValue *objectValue = typeEnvironment(doc);
+    const Imports *importsObj = imports(doc);
+    if (!importsObj)
+        return 0;
+    const ObjectValue *objectValue = importsObj->typeScope();
     if (!objectValue)
         return 0;
 
@@ -1466,7 +1471,12 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId
 
 const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QStringList &qmlTypeName) const
 {
-    const ObjectValue *objectValue = typeEnvironment(doc);
+    const Imports *importsObj = imports(doc);
+    if (!importsObj)
+        return 0;
+    const ObjectValue *objectValue = importsObj->typeScope();
+    if (!objectValue)
+        return 0;
 
     foreach (const QString &name, qmlTypeName) {
         if (!objectValue)
@@ -3398,24 +3408,29 @@ UiImport *ImportInfo::ast() const
     return _ast;
 }
 
-TypeEnvironment::Import::Import()
+Import::Import()
     : object(0)
 {}
 
-TypeEnvironment::TypeEnvironment(Engine *engine)
+TypeScope::TypeScope(const Imports *imports, Engine *engine)
     : ObjectValue(engine)
+    , _imports(imports)
 {
 }
 
-const Value *TypeEnvironment::lookupMember(const QString &name, const Context *context,
+const Value *TypeScope::lookupMember(const QString &name, const Context *context,
                                            const ObjectValue **foundInObject, bool) const
 {
-    QListIterator<Import> it(_imports);
+    QListIterator<Import> it(_imports->all());
     it.toBack();
     while (it.hasPrevious()) {
         const Import &i = it.previous();
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
+
+        // JS import has no types
+        if (info.type() == ImportInfo::FileImport)
+            continue;
 
         if (!info.id().isEmpty()) {
             if (info.id() == name) {
@@ -3426,15 +3441,59 @@ const Value *TypeEnvironment::lookupMember(const QString &name, const Context *c
             continue;
         }
 
-        if (info.type() == ImportInfo::FileImport) {
-            if (import->className() == name) {
-                if (foundInObject)
-                    *foundInObject = this;
-                return import;
-            }
+        if (const Value *v = import->lookupMember(name, context, foundInObject))
+            return v;
+    }
+    if (foundInObject)
+        *foundInObject = 0;
+    return 0;
+}
+
+void TypeScope::processMembers(MemberProcessor *processor) const
+{
+    QListIterator<Import> it(_imports->all());
+    it.toBack();
+    while (it.hasPrevious()) {
+        const Import &i = it.previous();
+        const ObjectValue *import = i.object;
+        const ImportInfo &info = i.info;
+
+        // JS import has no types
+        if (info.type() == ImportInfo::FileImport)
+            continue;
+
+        if (!info.id().isEmpty()) {
+            processor->processProperty(info.id(), import);
         } else {
-            if (const Value *v = import->lookupMember(name, context, foundInObject))
-                return v;
+            import->processMembers(processor);
+        }
+    }
+}
+
+JSImportScope::JSImportScope(const Imports *imports, Engine *engine)
+    : ObjectValue(engine)
+    , _imports(imports)
+{
+}
+
+const Value *JSImportScope::lookupMember(const QString &name, const Context *,
+                                         const ObjectValue **foundInObject, bool) const
+{
+    QListIterator<Import> it(_imports->all());
+    it.toBack();
+    while (it.hasPrevious()) {
+        const Import &i = it.previous();
+        const ObjectValue *import = i.object;
+        const ImportInfo &info = i.info;
+
+        // JS imports are always: import "somefile.js" as Foo
+        if (info.type() != ImportInfo::FileImport)
+            continue;
+
+        if (info.id() == name) {
+            if (foundInObject)
+                *foundInObject = this;
+            return import;
         }
     }
     if (foundInObject)
@@ -3442,32 +3501,31 @@ const Value *TypeEnvironment::lookupMember(const QString &name, const Context *c
     return 0;
 }
 
-void TypeEnvironment::processMembers(MemberProcessor *processor) const
+void JSImportScope::processMembers(MemberProcessor *processor) const
 {
-    QListIterator<Import> it(_imports);
+    QListIterator<Import> it(_imports->all());
     it.toBack();
     while (it.hasPrevious()) {
         const Import &i = it.previous();
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
-        if (!info.id().isEmpty()) {
+        if (info.type() == ImportInfo::FileImport)
             processor->processProperty(info.id(), import);
-        } else {
-            if (info.type() == ImportInfo::FileImport)
-                processor->processProperty(import->className(), import);
-            else
-                import->processMembers(processor);
-        }
     }
 }
 
-void TypeEnvironment::addImport(const Import &import)
+Imports::Imports(Engine *engine)
+    : _typeScope(new TypeScope(this, engine))
+    , _jsImportScope(new JSImportScope(this, engine))
+{}
+
+void Imports::append(const Import &import)
 {
     _imports.append(import);
 }
 
-ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *context) const
+ImportInfo Imports::info(const QString &name, const Context *context) const
 {
     QString firstId = name;
     int dotIdx = firstId.indexOf(QLatin1Char('.'));
@@ -3498,9 +3556,19 @@ ImportInfo TypeEnvironment::importInfo(const QString &name, const Context *conte
     return ImportInfo();
 }
 
-QList<TypeEnvironment::Import> TypeEnvironment::imports() const
+QList<Import> Imports::all() const
 {
     return _imports;
+}
+
+const TypeScope *Imports::typeScope() const
+{
+    return _typeScope;
+}
+
+const JSImportScope *Imports::jsImportScope() const
+{
+    return _jsImportScope;
 }
 
 #ifdef QT_DEBUG
@@ -3541,9 +3609,9 @@ public:
     }
 };
 
-void TypeEnvironment::dump() const
+void Imports::dump() const
 {
-    qDebug() << "Type environment contents, in search order:";
+    qDebug() << "Imports contents, in search order:";
     QListIterator<Import> it(_imports);
     it.toBack();
     while (it.hasPrevious()) {
