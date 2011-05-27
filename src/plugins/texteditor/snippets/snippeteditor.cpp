@@ -41,6 +41,13 @@
 
 using namespace TextEditor;
 
+/*!
+    \class TextEditor::SnippetEditorWidget
+    \brief The SnippetEditorWidget class is a lightweight editor for code snippets
+    with basic support for syntax highlighting, indentation, and others.
+    \ingroup Snippets
+*/
+
 SnippetEditor::SnippetEditor(SnippetEditorWidget *editor)
     : BaseTextEditor(editor)
 {

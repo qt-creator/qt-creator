@@ -115,8 +115,8 @@
     \o \l{TextEditor}
     \o This is where everything starts if you want to create a text editor. Besides
     the base editor itself, this plugin contains APIs for supporting functionality
-    like snippets, highlighting, \l{CodeAssist}{code assist}, indentation and style,
-    and others.
+    like \l{Snippets}{snippets}, highlighting, \l{CodeAssist}{code assist}, indentation
+    and style, and others.
 
     \endtable
 */

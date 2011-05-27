@@ -45,19 +45,21 @@
     whole files or classes spread over multiple files, or complete projects,
     you can create code snippets, templates, and wizards for that purpose.
 
-    \section2 Code Snippets
+    \section2 Snippets
 
-    Typically, code snippets consist of a few lines of code that you regularly
+    Typically, snippets consist of a few lines of code (although they
+    can also be plain text) that you regularly
     want to insert into a bigger body of code, but do not want to type each
     time. For example, \c while and \c for loops, \c if-else and \c try-catch
     constructs, and class skeletons. Snippets are triggered in the same way as
-    normal code completion. Qt Creator contains a set of preconfigured snippets
+    normal code completion (see \l{Code Assist}{Providing Code Assist}).
+    Qt Creator contains a set of preconfigured snippets groups
     to which you can add your own snippets.
 
     \list
     \o \l{http://doc.qt.nokia.com/qtcreator/creator-completing-code.html#editing-code-snippets}
-         {Adding Code Snippets in Qt Creator}
-    \o \l{Code Snippet Configuration Files}
+         {Snippets User Interface}
+    \o \l{Snippets} {Adding Snippets Groups}
     \endlist
 
     \section2 File, Class and Project Templates
@@ -239,7 +241,6 @@
             \endlist
         \o  Reference
             \list
-                \o  \l{Code Snippet Configuration Files}
                 \o  \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
                     {MIME Type Specification Files}
                 \o  \l{External Tool Specification Files}
