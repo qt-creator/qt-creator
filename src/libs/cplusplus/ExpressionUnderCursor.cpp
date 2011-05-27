@@ -44,9 +44,6 @@ ExpressionUnderCursor::ExpressionUnderCursor()
     : _jumpedComma(false)
 { }
 
-ExpressionUnderCursor::~ExpressionUnderCursor()
-{ }
-
 int ExpressionUnderCursor::startOfExpression(BackwardsScanner &tk, int index)
 {
     if (tk[index - 1].is(T_GREATER)) {

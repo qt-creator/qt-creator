@@ -39,7 +39,6 @@
 QT_BEGIN_NAMESPACE
 class QString;
 class QTextCursor;
-class QTextBlock;
 QT_END_NAMESPACE
 
 namespace CPlusPlus {
@@ -50,7 +49,6 @@ class CPLUSPLUS_EXPORT ExpressionUnderCursor
 {
 public:
     ExpressionUnderCursor();
-    ~ExpressionUnderCursor();
 
     QString operator()(const QTextCursor &cursor);
     int startOfFunctionCall(const QTextCursor &cursor) const;
