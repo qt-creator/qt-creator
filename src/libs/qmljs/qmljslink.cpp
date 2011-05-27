@@ -194,6 +194,10 @@ void Link::populateImportedTypes(Imports *imports, Document::Ptr doc)
     foreach (const ImportInfo &info, doc->bind()->imports()) {
         Import import = d->importCache.value(ImportCacheKey(info));
 
+        // ensure usage of the right ImportInfo, the cached import
+        // can have a different 'as' clause...
+        import.info = info;
+
         if (!import.object) {
             switch (info.type()) {
             case ImportInfo::FileImport:
