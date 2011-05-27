@@ -3104,7 +3104,20 @@ Imports::Imports(Engine *engine)
 
 void Imports::append(const Import &import)
 {
-    _imports.append(import);
+    // when doing lookup, imports with 'as' clause are looked at first
+    if (!import.info.id().isEmpty()) {
+        _imports.append(import);
+    } else {
+        // find first as-import and prepend
+        for (int i = 0; i < _imports.size(); ++i) {
+            if (!_imports.at(i).info.id().isEmpty()) {
+                _imports.insert(i, import);
+                return;
+            }
+        }
+        // not found, append
+        _imports.append(import);
+    }
 }
 
 ImportInfo Imports::info(const QString &name, const Context *context) const
