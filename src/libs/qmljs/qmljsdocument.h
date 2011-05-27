@@ -132,8 +132,14 @@ public:
         TypeInfoFileError
     };
 
+    enum Status {
+        NotScanned,
+        NotFound,
+        Found
+    };
+
 private:
-    bool _valid;
+    Status _status;
     QList<QmlDirParser::Component> _components;
     QList<QmlDirParser::Plugin> _plugins;
     typedef QList<LanguageUtils::FakeMetaObject::ConstPtr> FakeMetaObjectList;
@@ -143,8 +149,8 @@ private:
     QString _dumpError;
 
 public:
-    LibraryInfo();
-    LibraryInfo(const QmlDirParser &parser);
+    explicit LibraryInfo(Status status = NotScanned);
+    explicit LibraryInfo(const QmlDirParser &parser);
     ~LibraryInfo();
 
     QList<QmlDirParser::Component> components() const
@@ -160,7 +166,10 @@ public:
     { _metaObjects = objects; }
 
     bool isValid() const
-    { return _valid; }
+    { return _status == Found; }
+
+    bool wasScanned() const
+    { return _status != NotScanned; }
 
     PluginTypeInfoStatus pluginTypeInfoStatus() const
     { return _dumpStatus; }

@@ -42,8 +42,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 
-#include <limits>
-
 using namespace LanguageUtils;
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
@@ -278,16 +276,34 @@ Import Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
 
     bool importFound = false;
 
-    // check the filesystem
     const QString &packagePath = importInfo.name();
+    // check the filesystem with full version
     foreach (const QString &importPath, d->importPaths) {
-        QString libraryPath = importPath;
-        libraryPath += QDir::separator();
-        libraryPath += packagePath;
-
+        QString libraryPath = QString("%1/%2.%3").arg(importPath, packagePath, version.toString());
         if (importLibrary(doc, libraryPath, &import, importPath)) {
             importFound = true;
             break;
+        }
+    }
+    if (!importFound) {
+        // check the filesystem with major version
+        foreach (const QString &importPath, d->importPaths) {
+            QString libraryPath = QString("%1/%2.%3").arg(importPath, packagePath,
+                                                          QString::number(version.majorVersion()));
+            if (importLibrary(doc, libraryPath, &import, importPath)) {
+                importFound = true;
+                break;
+            }
+        }
+    }
+    if (!importFound) {
+        // check the filesystem with no version
+        foreach (const QString &importPath, d->importPaths) {
+            QString libraryPath = QString("%1/%2").arg(importPath, packagePath);
+            if (importLibrary(doc, libraryPath, &import, importPath)) {
+                importFound = true;
+                break;
+            }
         }
     }
 
@@ -417,8 +433,7 @@ void Link::loadQmldirComponents(Interpreter::ObjectValue *import, ComponentVersi
 
     // if the version isn't valid, import the latest
     if (!version.isValid()) {
-        const int maxVersion = std::numeric_limits<int>::max();
-        version = ComponentVersion(maxVersion, maxVersion);
+        version = ComponentVersion(ComponentVersion::MaxVersion, ComponentVersion::MaxVersion);
     }
 
 
