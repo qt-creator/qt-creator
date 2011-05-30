@@ -167,7 +167,7 @@ void RemoteGdbServerAdapter::setupInferior()
         QFileInfo fi(startParameters().executable);
         fileName = fi.absoluteFilePath();
     }
-    const QByteArray sysRoot = startParameters().sysRoot.toLocal8Bit();
+    const QByteArray sysroot = startParameters().sysroot.toLocal8Bit();
     const QByteArray remoteArch = startParameters().remoteArchitecture.toLatin1();
     const QByteArray gnuTarget = startParameters().gnuTarget.toLatin1();
     const QByteArray solibPath =
@@ -178,8 +178,8 @@ void RemoteGdbServerAdapter::setupInferior()
         m_engine->postCommand("set architecture " + remoteArch);
     if (!gnuTarget.isEmpty())
         m_engine->postCommand("set gnutarget " + gnuTarget);
-    if (!sysRoot.isEmpty())
-        m_engine->postCommand("set sysroot " + sysRoot);
+    if (!sysroot.isEmpty())
+        m_engine->postCommand("set sysroot " + sysroot);
     if (!solibPath.isEmpty())
         m_engine->postCommand("set solib-search-path " + solibPath);
     if (!args.isEmpty())

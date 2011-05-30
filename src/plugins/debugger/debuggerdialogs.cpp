@@ -251,13 +251,12 @@ QString AttachCoreDialog::debuggerCommand()
     return m_ui->toolchainComboBox->debuggerCommand();
 }
 
-QString AttachCoreDialog::sysRoot() const
-
+QString AttachCoreDialog::sysroot() const
 {
     return m_ui->sysrootPathChooser->path();
 }
 
-void AttachCoreDialog::setSysRoot(const QString &sysroot)
+void AttachCoreDialog::setSysroot(const QString &sysroot)
 {
     m_ui->sysrootPathChooser->setPath(sysroot);
 }
@@ -789,12 +788,12 @@ bool StartRemoteDialog::useServerStartScript() const
     return m_ui->useServerStartScriptCheckBox->isChecked();
 }
 
-void StartRemoteDialog::setSysRoot(const QString &sysroot)
+void StartRemoteDialog::setSysroot(const QString &sysroot)
 {
     m_ui->sysrootPathChooser->setPath(sysroot);
 }
 
-QString StartRemoteDialog::sysRoot() const
+QString StartRemoteDialog::sysroot() const
 {
     return m_ui->sysrootPathChooser->path();
 }

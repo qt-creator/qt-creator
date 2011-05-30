@@ -88,8 +88,8 @@ public:
     ProjectExplorer::Abi abi() const;
     QString debuggerCommand();
 
-    QString sysRoot() const;
-    void setSysRoot(const QString &sysRoot);
+    QString sysroot() const;
+    void setSysroot(const QString &sysroot);
 
     QString overrideStartScript() const;
     void setOverrideStartScript(const QString &scriptName);
@@ -203,8 +203,8 @@ public:
     QString serverStartScript() const;
     void setServerStartScript(const QString &scriptName);
 
-    QString sysRoot() const;
-    void setSysRoot(const QString &sysRoot);
+    QString sysroot() const;
+    void setSysroot(const QString &sysroot);
 
     QString debugger() const;
     void setDebugger(const QString &debugger);
@@ -237,7 +237,8 @@ private:
     QLineEdit *m_lineEdit;
 };
 
-class AddressDialog : public QDialog {
+class AddressDialog : public QDialog
+{
     Q_OBJECT
 public:
      explicit AddressDialog(QWidget *parent = 0);

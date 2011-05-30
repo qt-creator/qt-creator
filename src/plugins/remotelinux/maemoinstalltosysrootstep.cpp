@@ -312,7 +312,7 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
     }
 
     emit addOutput(tr("Copying files to sysroot ..."), MessageOutput);
-    QDir sysRootDir(tc->sysroot());
+    QDir sysrootDir(tc->sysroot());
     const QSharedPointer<MaemoDeployables> deployables
         = qobject_cast<Qt4MaemoDeployConfiguration *>(deployConfiguration())->deployables();
     const QChar sep = QLatin1Char('/');
@@ -321,7 +321,7 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
         const QFileInfo localFileInfo(deployable.localFilePath);
         const QString targetFilePath = tc->sysroot() + sep
             + deployable.remoteDir + sep + localFileInfo.fileName();
-        sysRootDir.mkpath(deployable.remoteDir.mid(1));
+        sysrootDir.mkpath(deployable.remoteDir.mid(1));
         QString errorMsg;
         MaemoGlobal::removeRecursively(targetFilePath, errorMsg);
         if (!MaemoGlobal::copyRecursively(deployable.localFilePath,

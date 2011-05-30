@@ -695,7 +695,7 @@ public slots:
     void attachCore();
     void attachCore(const QString &core, const QString &exeFileName,
                     const ProjectExplorer::Abi &abi = ProjectExplorer::Abi(),
-                    const QString &sysRoot = QString(),
+                    const QString &sysroot = QString(),
                     const QString &overrideStartScript = QString(),
                     const QString &debuggerCommand = QString());
     void attachRemote(const QString &spec);
@@ -1440,7 +1440,7 @@ void DebuggerPluginPrivate::attachCore()
     dlg.setExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setCoreFile(configValue(_("LastExternalCoreFile")).toString());
     dlg.setAbiIndex(configValue(_("LastExternalCoreAbiIndex")).toInt());
-    dlg.setSysRoot(configValue(_("LastSysroot")).toString());
+    dlg.setSysroot(configValue(_("LastSysroot")).toString());
     dlg.setOverrideStartScript(configValue(_("LastExternalStartScript")).toString());
 
     if (dlg.exec() != QDialog::Accepted)
@@ -1449,16 +1449,16 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue(_("LastExternalExecutableFile"), dlg.executableFile());
     setConfigValue(_("LastExternalCoreFile"), dlg.coreFile());
     setConfigValue(_("LastExternalCoreAbiIndex"), QVariant(dlg.abiIndex()));
-    setConfigValue(_("LastSysroot"), dlg.sysRoot());
+    setConfigValue(_("LastSysroot"), dlg.sysroot());
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
     attachCore(dlg.coreFile(), dlg.executableFile(), dlg.abi(),
-               dlg.sysRoot(), dlg.overrideStartScript());
+               dlg.sysroot(), dlg.overrideStartScript());
 }
 
 void DebuggerPluginPrivate::attachCore(const QString &core,
                                        const QString &exe,
                                        const ProjectExplorer::Abi &abi,
-                                       const QString &sysRoot,
+                                       const QString &sysroot,
                                        const QString &overrideStartScript,
                                        const QString &debuggerCommand)
 {
@@ -1469,7 +1469,7 @@ void DebuggerPluginPrivate::attachCore(const QString &core,
     sp.startMode = AttachCore;
     sp.debuggerCommand = debuggerCommand;
     sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.coreFile);
-    sp.sysRoot = sysRoot;
+    sp.sysroot = sysroot;
     sp.overrideStartScript = overrideStartScript;
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
@@ -1547,7 +1547,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
             configValue(_("LastServerStartScript")).toString());
     dlg.setUseServerStartScript(
             configValue(_("LastUseServerStartScript")).toBool());
-    dlg.setSysRoot(configValue(_("LastSysroot")).toString());
+    dlg.setSysroot(configValue(_("LastSysroot")).toString());
     if (dlg.exec() != QDialog::Accepted)
         return;
     setConfigValue(_("LastRemoteChannel"), dlg.remoteChannel());
@@ -1558,7 +1558,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     setConfigValue(_("LastRemoteStartScript"), dlg.overrideStartScript());
     setConfigValue(_("LastServerStartScript"), dlg.serverStartScript());
     setConfigValue(_("LastUseServerStartScript"), dlg.useServerStartScript());
-    setConfigValue(_("LastSysroot"), dlg.sysRoot());
+    setConfigValue(_("LastSysroot"), dlg.sysroot());
     sp.remoteChannel = dlg.remoteChannel();
     sp.remoteArchitecture = dlg.remoteArchitecture();
     sp.gnuTarget = dlg.gnuTarget();
@@ -1571,7 +1571,7 @@ void DebuggerPluginPrivate::startRemoteApplication()
     sp.overrideStartScript = dlg.overrideStartScript();
     sp.useServerStartScript = dlg.useServerStartScript();
     sp.serverStartScript = dlg.serverStartScript();
-    sp.sysRoot = dlg.sysRoot();
+    sp.sysroot = dlg.sysroot();
     if (RunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -2399,8 +2399,8 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     }
     if (!sp.gnuTarget.isEmpty())
         str << "Gnu target: " << sp.gnuTarget << '\n';
-    if (!sp.sysRoot.isEmpty())
-        str << "Sysroot: " << sp.sysRoot << '\n';
+    if (!sp.sysroot.isEmpty())
+        str << "Sysroot: " << sp.sysroot << '\n';
     if (!sp.symbolFileName.isEmpty())
         str << "Symbol file: " << sp.symbolFileName << '\n';
     if (sp.useServerStartScript)

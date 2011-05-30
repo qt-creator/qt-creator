@@ -164,10 +164,10 @@ void CoreGdbAdapter::setupInferior()
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
-    const QByteArray sysRoot = startParameters().sysRoot.toLocal8Bit();
+    const QByteArray sysroot = startParameters().sysroot.toLocal8Bit();
     QByteArray path = fi.absoluteFilePath().toLocal8Bit();
-    if (!sysRoot.isEmpty())
-        m_engine->postCommand("set sysroot " + sysRoot);
+    if (!sysroot.isEmpty())
+        m_engine->postCommand("set sysroot " + sysroot);
     m_engine->postCommand("-file-exec-and-symbols \"" + path + '"',
          CB(handleFileExecAndSymbols));
 }

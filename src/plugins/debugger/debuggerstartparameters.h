@@ -107,7 +107,7 @@ public:
     QString symbolFileName;
     bool useServerStartScript;
     QString serverStartScript;
-    QString sysRoot;
+    QString sysroot;
     QByteArray remoteDumperLib;
     QByteArray remoteSourcesDir;
     QString remoteMountPoint;
