@@ -45,7 +45,7 @@
 #include <limits>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
 
