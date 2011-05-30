@@ -77,7 +77,7 @@ AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *
 AppOutputPane::AppOutputPane() :
     m_mainWidget(new QWidget),
     m_tabWidget(new QTabWidget),
-    m_stopAction(new QAction(QIcon(QLatin1String(Constants::ICON_STOP)), tr("Stop"), this)),
+    m_stopAction(new QAction(tr("Stop"), this)),
     m_reRunButton(new QToolButton),
     m_stopButton(new QToolButton),
     m_attachButton(new QToolButton)
@@ -94,6 +94,9 @@ AppOutputPane::AppOutputPane() :
     Core::ActionManager *am = Core::ICore::instance()->actionManager();
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
+    QIcon stopIcon = QIcon(QLatin1String(Constants::ICON_STOP));
+    stopIcon.addFile(QLatin1String(Constants::ICON_STOP_SMALL));
+    m_stopAction->setIcon(stopIcon);
     m_stopAction->setToolTip(tr("Stop"));
     m_stopAction->setEnabled(false);
 
