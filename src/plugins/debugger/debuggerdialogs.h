@@ -88,6 +88,9 @@ public:
     ProjectExplorer::Abi abi() const;
     QString debuggerCommand();
 
+    QString sysRoot() const;
+    void setSysRoot(const QString &sysRoot);
+
     QString overrideStartScript() const;
     void setOverrideStartScript(const QString &scriptName);
 

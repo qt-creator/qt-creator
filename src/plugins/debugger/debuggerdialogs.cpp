@@ -189,6 +189,9 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     m_ui->coreFileName->setExpectedKind(PathChooser::File);
     m_ui->coreFileName->setPromptDialogTitle(tr("Select Core File"));
 
+    m_ui->sysrootPathChooser->setExpectedKind(PathChooser::Directory);
+    m_ui->sysrootPathChooser->setPromptDialogTitle(tr("Select Sysroot"));
+
     m_ui->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     m_ui->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
 
@@ -246,6 +249,17 @@ int AttachCoreDialog::abiIndex() const
 QString AttachCoreDialog::debuggerCommand()
 {
     return m_ui->toolchainComboBox->debuggerCommand();
+}
+
+QString AttachCoreDialog::sysRoot() const
+
+{
+    return m_ui->sysrootPathChooser->path();
+}
+
+void AttachCoreDialog::setSysRoot(const QString &sysroot)
+{
+    m_ui->sysrootPathChooser->setPath(sysroot);
 }
 
 QString AttachCoreDialog::overrideStartScript() const

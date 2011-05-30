@@ -695,6 +695,7 @@ public slots:
     void attachCore();
     void attachCore(const QString &core, const QString &exeFileName,
                     const ProjectExplorer::Abi &abi = ProjectExplorer::Abi(),
+                    const QString &sysRoot = QString(),
                     const QString &overrideStartScript = QString(),
                     const QString &debuggerCommand = QString());
     void attachRemote(const QString &spec);
@@ -1439,6 +1440,7 @@ void DebuggerPluginPrivate::attachCore()
     dlg.setExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setCoreFile(configValue(_("LastExternalCoreFile")).toString());
     dlg.setAbiIndex(configValue(_("LastExternalCoreAbiIndex")).toInt());
+    dlg.setSysRoot(configValue(_("LastSysroot")).toString());
     dlg.setOverrideStartScript(configValue(_("LastExternalStartScript")).toString());
 
     if (dlg.exec() != QDialog::Accepted)
@@ -1447,13 +1449,16 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue(_("LastExternalExecutableFile"), dlg.executableFile());
     setConfigValue(_("LastExternalCoreFile"), dlg.coreFile());
     setConfigValue(_("LastExternalCoreAbiIndex"), QVariant(dlg.abiIndex()));
+    setConfigValue(_("LastSysroot"), dlg.sysRoot());
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
-    attachCore(dlg.coreFile(), dlg.executableFile(), dlg.abi(), dlg.overrideStartScript());
+    attachCore(dlg.coreFile(), dlg.executableFile(), dlg.abi(),
+               dlg.sysRoot(), dlg.overrideStartScript());
 }
 
 void DebuggerPluginPrivate::attachCore(const QString &core,
                                        const QString &exe,
                                        const ProjectExplorer::Abi &abi,
+                                       const QString &sysRoot,
                                        const QString &overrideStartScript,
                                        const QString &debuggerCommand)
 {
@@ -1464,6 +1469,7 @@ void DebuggerPluginPrivate::attachCore(const QString &core,
     sp.startMode = AttachCore;
     sp.debuggerCommand = debuggerCommand;
     sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.coreFile);
+    sp.sysRoot = sysRoot;
     sp.overrideStartScript = overrideStartScript;
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
