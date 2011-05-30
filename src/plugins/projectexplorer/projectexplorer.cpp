@@ -2156,13 +2156,14 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, const QString &
 
 
     RunConfiguration *activeRC = project->activeTarget()->activeRunConfiguration();
+    if (!activeRC->isEnabled())
+        return activeRC->disabledReason();
+
     // shouldn't actually be shown to the user...
     if (!findRunControlFactory(activeRC, runMode))
         return tr("Cannot run '%1' in mode '%2'.")
                 .arg(activeRC->displayName(), runMode);
 
-    if (!activeRC->isEnabled())
-        return activeRC->disabledReason();
 
     if (d->m_buildManager->isBuilding())
         return tr("A build is still in progress.");
