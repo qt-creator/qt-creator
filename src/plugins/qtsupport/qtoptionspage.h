@@ -96,6 +96,7 @@ private slots:
     void versionChanged(QTreeWidgetItem *item, QTreeWidgetItem *old);
     void addQtDir();
     void removeQtDir();
+    void editPath();
     void updateCleanUpButton();
     void updateCurrentQtName();
     void buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools

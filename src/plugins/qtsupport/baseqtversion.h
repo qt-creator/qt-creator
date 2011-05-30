@@ -70,6 +70,8 @@ private:
     bool checkVersionString(const QString &version) const;
 };
 
+namespace Internal { class QtOptionsPageWidget; }
+
 class QTSUPPORT_EXPORT QtConfigWidget : public QWidget
 {
     Q_OBJECT
@@ -83,6 +85,7 @@ class QTSUPPORT_EXPORT BaseQtVersion
 {
     friend class QtVersionFactory;
     friend class QtVersionManager;
+    friend class QtSupport::Internal::QtOptionsPageWidget;
 public:
     virtual ~BaseQtVersion();
 
@@ -219,6 +222,7 @@ private:
     QString findQtBinary(const QStringList &possibleName) const;
     void updateMkspec() const;
     void setId(int id); // used by the qtversionmanager for legacy restore
+                        // and by the qtoptionspage to replace qt versions
     QString m_displayName;
     int m_id;
     bool m_isAutodetected;

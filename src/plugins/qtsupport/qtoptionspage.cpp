@@ -174,6 +174,9 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     connect(m_versionUi->nameEdit, SIGNAL(textEdited(const QString &)),
             this, SLOT(updateCurrentQtName()));
 
+    connect(m_versionUi->editPathPushButton, SIGNAL(clicked()),
+            this, SLOT(editPath()));
+
     connect(m_ui->addButton, SIGNAL(clicked()),
             this, SLOT(addQtDir()));
     connect(m_ui->delButton, SIGNAL(clicked()),
@@ -434,16 +437,21 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
     qDeleteAll(m_versions);
 }
 
-void QtOptionsPageWidget::addQtDir()
+static QString filterForQmakeFileDialog()
 {
     QString filter("qmake (");
     foreach (const QString &s, Utils::BuildableHelperLibrary::possibleQMakeCommands()) {
         filter += s + " ";
     }
     filter += ")";
+    return filter;
+}
 
+void QtOptionsPageWidget::addQtDir()
+{
     QString qtVersion = QFileDialog::getOpenFileName(this,
-                                                     tr("Select a qmake executable"), QString(), filter);
+                                                     tr("Select a qmake executable"),
+                                                     QString(), filterForQmakeFileDialog());
     if (qtVersion.isNull())
         return;
     if (QtVersionManager::instance()->qtVersionForQMakeBinary(qtVersion)) {
@@ -479,6 +487,39 @@ void QtOptionsPageWidget::removeQtDir()
     m_versions.removeAt(index);
     delete version;
     updateCleanUpButton();
+}
+
+void QtOptionsPageWidget::editPath()
+{
+   // TODO Here be dragons
+    QString qtVersion = QFileDialog::getOpenFileName(this,
+                                                     tr("Select a qmake executable"),
+                                                     QString(), filterForQmakeFileDialog());
+    if (qtVersion.isNull())
+        return;
+    BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
+    BaseQtVersion *current = currentVersion();
+    // Same type? then replace!
+    if (current->type() != version->type()) {
+        // not the same type, error out
+        QMessageBox::critical(this, tr("Qt versions incompatible"),
+                              tr("The qt version selected must be for the same target."),
+                              QMessageBox::Ok);
+        delete version;
+        return;
+    }
+    // same type, replace
+    version->setId(current->uniqueId());
+    m_versions.replace(m_versions.indexOf(current), version);
+    delete current;
+
+    // Update ui
+    userChangedCurrentVersion();
+    QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
+    item->setText(0, version->displayName());
+    item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
+    item->setData(0, VersionIdRole, version->uniqueId());
+    item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
 }
 
 void QtOptionsPageWidget::updateDebuggingHelperUi()
@@ -748,6 +789,7 @@ void QtOptionsPageWidget::updateWidgets()
     const bool isAutodetected = enabled && version->isAutodetected();
     m_ui->delButton->setEnabled(enabled && !isAutodetected);
     m_versionUi->nameEdit->setEnabled(enabled && !isAutodetected);
+    m_versionUi->editPathPushButton->setEnabled(enabled && !isAutodetected);
 }
 
 void QtOptionsPageWidget::updateCurrentQtName()
