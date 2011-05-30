@@ -562,7 +562,7 @@ int main(int argc, char *argv[])
     QmlStreamWriter qml(&bytes);
 
     qml.writeStartDocument();
-    qml.writeLibraryImport(QLatin1String("QtQuick.tooling"), 1, 0);
+    qml.writeLibraryImport(QLatin1String("QtQuick.tooling"), 1, 1);
     qml.write("\n"
               "// This file describes the plugin-supplied types contained in the library.\n"
               "// It is used for QML tooling purposes only.\n"

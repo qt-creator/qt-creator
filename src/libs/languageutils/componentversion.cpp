@@ -97,6 +97,16 @@ bool operator<=(const ComponentVersion &lhs, const ComponentVersion &rhs)
             || (lhs.majorVersion() == rhs.majorVersion() && lhs.minorVersion() <= rhs.minorVersion());
 }
 
+bool operator>(const ComponentVersion &lhs, const ComponentVersion &rhs)
+{
+    return rhs < lhs;
+}
+
+bool operator>=(const ComponentVersion &lhs, const ComponentVersion &rhs)
+{
+    return rhs <= lhs;
+}
+
 bool operator==(const ComponentVersion &lhs, const ComponentVersion &rhs)
 {
     return lhs.majorVersion() == rhs.majorVersion() && lhs.minorVersion() == rhs.minorVersion();

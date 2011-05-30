@@ -62,6 +62,8 @@ public:
 
 bool LANGUAGEUTILS_EXPORT operator<(const ComponentVersion &lhs, const ComponentVersion &rhs);
 bool LANGUAGEUTILS_EXPORT operator<=(const ComponentVersion &lhs, const ComponentVersion &rhs);
+bool LANGUAGEUTILS_EXPORT operator>(const ComponentVersion &lhs, const ComponentVersion &rhs);
+bool LANGUAGEUTILS_EXPORT operator>=(const ComponentVersion &lhs, const ComponentVersion &rhs);
 bool LANGUAGEUTILS_EXPORT operator==(const ComponentVersion &lhs, const ComponentVersion &rhs);
 bool LANGUAGEUTILS_EXPORT operator!=(const ComponentVersion &lhs, const ComponentVersion &rhs);
 
