@@ -134,10 +134,8 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
         actEditFile->setEnabled(false);
         actShowModuleSymbols = new QAction(tr("Show Symbols"), &menu);
         actShowModuleSymbols->setEnabled(false);
-#ifdef Q_OS_WIN
         actShowDependencies = new QAction(tr("Show Dependencies"), &menu);
         actShowDependencies->setEnabled(false);
-#endif
     } else {
         actLoadSymbolsForModule
             = new QAction(tr("Load Symbols for Module \"%1\"").arg(name), &menu);
@@ -149,16 +147,17 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
             = new QAction(tr("Show Symbols in File \"%1\"").arg(name), &menu);
         actShowModuleSymbols
             ->setEnabled(capabilities & ShowModuleSymbolsCapability);
-#ifdef Q_OS_WIN
         actShowDependencies = new QAction(tr("Show Dependencies of \"%1\"").arg(name), &menu);
         actShowDependencies->setEnabled(!fileName.isEmpty());
+#ifndef Q_OS_WIN
+        // FIXME: Dependencies only available on Windows, when "depends" is installed.
+        actShowDependencies->setEnabled(false);
 #endif
     }
 
     menu.addAction(actUpdateModuleList);
     //menu.addAction(actShowModuleSources);  // FIXME
-    if (actShowDependencies)
-        menu.addAction(actShowDependencies);
+    menu.addAction(actShowDependencies);
     menu.addAction(actLoadSymbolsForAllModules);
     menu.addAction(actExamineAllModules);
     menu.addAction(actLoadSymbolsForModule);
