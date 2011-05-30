@@ -1356,10 +1356,12 @@ static void populate(LanguageUtils::FakeMetaObject::Ptr fmo, Class *klass,
             const bool isList = false; // ### fixme
             const bool isWritable = propDecl->flags() & QtPropertyDeclaration::WriteFunction;
             const bool isPointer = type.type() && type.type()->isPointerType();
+            const int revision = 0; // ### fixme
             FakeMetaProperty property(
                         namePrinter(propDecl->name()),
                         toQmlType(type),
-                        isList, isWritable, isPointer);
+                        isList, isWritable, isPointer,
+                        revision);
             fmo->addProperty(property);
         }
         if (QtEnum *qtEnum = member->asQtEnum()) {

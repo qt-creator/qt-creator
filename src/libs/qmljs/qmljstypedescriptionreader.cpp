@@ -239,6 +239,8 @@ void TypeDescriptionReader::readSignalOrMethod(UiObjectDefinition *ast, bool isM
                 fmm.setMethodName(readStringBinding(script));
             } else if (name == "type") {
                 fmm.setReturnType(readStringBinding(script));
+            } else if (name == "revision") {
+                fmm.setRevision(readIntBinding(script));
             } else {
                 addError(script->firstSourceLocation(), "Expected only name and type script bindings");
                 return;
@@ -265,6 +267,7 @@ void TypeDescriptionReader::readProperty(UiObjectDefinition *ast, FakeMetaObject
     bool isPointer = false;
     bool isReadonly = false;
     bool isList = false;
+    int revision = 0;
 
     for (UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
         UiObjectMember *member = it->member;
@@ -285,8 +288,10 @@ void TypeDescriptionReader::readProperty(UiObjectDefinition *ast, FakeMetaObject
             isReadonly = readBoolBinding(script);
         } else if (id == "isList") {
             isList = readBoolBinding(script);
+        } else if (id == "revision") {
+            revision = readIntBinding(script);
         } else {
-            addError(script->firstSourceLocation(), "Expected only type, name, isPointer, isReadonly and isList script bindings");
+            addError(script->firstSourceLocation(), "Expected only type, name, revision, isPointer, isReadonly and isList script bindings");
             return;
         }
     }
@@ -296,7 +301,7 @@ void TypeDescriptionReader::readProperty(UiObjectDefinition *ast, FakeMetaObject
         return;
     }
 
-    fmo->addProperty(FakeMetaProperty(name, type, isList, !isReadonly, isPointer));
+    fmo->addProperty(FakeMetaProperty(name, type, isList, !isReadonly, isPointer, revision));
 }
 
 void TypeDescriptionReader::readEnum(UiObjectDefinition *ast, FakeMetaObject::Ptr fmo)
@@ -401,6 +406,41 @@ bool TypeDescriptionReader::readBoolBinding(AST::UiScriptBinding *ast)
     }
 
     return trueLit;
+}
+
+double TypeDescriptionReader::readNumericBinding(AST::UiScriptBinding *ast)
+{
+    if (!ast || !ast->statement) {
+        addError(ast->colonToken, "Expected numeric literal after colon");
+        return 0;
+    }
+
+    ExpressionStatement *expStmt = AST::cast<ExpressionStatement *>(ast->statement);
+    if (!expStmt) {
+        addError(ast->statement->firstSourceLocation(), "Expected numeric literal after colon");
+        return 0;
+    }
+
+    NumericLiteral *numericLit = AST::cast<NumericLiteral *>(expStmt->expression);
+    if (!numericLit) {
+        addError(expStmt->firstSourceLocation(), "Expected numeric literal after colon");
+        return 0;
+    }
+
+    return numericLit->value;
+}
+
+int TypeDescriptionReader::readIntBinding(AST::UiScriptBinding *ast)
+{
+    double v = readNumericBinding(ast);
+    int i = (int)v;
+
+    if (i != v) {
+        addError(ast->firstSourceLocation(), "Expected integer after colon");
+        return 0;
+    }
+
+    return i;
 }
 
 void TypeDescriptionReader::readExports(UiScriptBinding *ast, FakeMetaObject::Ptr fmo)

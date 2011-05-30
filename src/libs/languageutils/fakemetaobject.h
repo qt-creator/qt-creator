@@ -94,6 +94,9 @@ public:
 
     int access() const;
 
+    int revision() const;
+    void setRevision(int r);
+
 private:
     QString m_name;
     QString m_returnType;
@@ -101,6 +104,7 @@ private:
     QStringList m_paramTypes;
     int m_methodTy;
     int m_methodAccess;
+    int m_revision;
 };
 
 class LANGUAGEUTILS_EXPORT FakeMetaProperty {
@@ -109,9 +113,10 @@ class LANGUAGEUTILS_EXPORT FakeMetaProperty {
     bool m_isList;
     bool m_isWritable;
     bool m_isPointer;
+    int m_revision;
 
 public:
-    FakeMetaProperty(const QString &name, const QString &type, bool isList, bool isWritable, bool isPointer);
+    FakeMetaProperty(const QString &name, const QString &type, bool isList, bool isWritable, bool isPointer, int revision);
 
     QString name() const;
     QString typeName() const;
@@ -119,6 +124,7 @@ public:
     bool isList() const;
     bool isWritable() const;
     bool isPointer() const;
+    int revision() const;
 };
 
 class LANGUAGEUTILS_EXPORT FakeMetaObject {
