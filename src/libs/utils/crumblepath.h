@@ -50,6 +50,7 @@ class QTCREATOR_UTILS_EXPORT CrumblePath : public QWidget
 public:
     explicit CrumblePath(QWidget *parent = 0);
     ~CrumblePath();
+
     void selectIndex(int index);
     QVariant dataForIndex(int index) const;
 
@@ -60,13 +61,13 @@ public slots:
     virtual void clear();
 
 signals:
-    void elementClicked(int debugId);
+    void elementClicked(const QVariant &data);
 
 protected:
     void resizeEvent(QResizeEvent *);
 
 private slots:
-    void mapClickToIndex();
+    void emitElementClicked();
 
 private:
     void resizeButtons();

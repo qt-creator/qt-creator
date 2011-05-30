@@ -129,7 +129,7 @@ private slots:
     QmlJSLiveTextPreview *createPreviewForEditor(Core::IEditor *newEditor);
 
     void disableLivePreview();
-    void crumblePathElementClicked(int);
+    void crumblePathElementClicked(const QVariant &data);
 
     void currentDebugProjectRemoved();
     void updatePendingPreviewDocuments(QmlJS::Document::Ptr doc);

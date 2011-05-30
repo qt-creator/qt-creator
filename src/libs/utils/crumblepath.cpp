@@ -50,6 +50,8 @@ static const int ArrowBorderSize = 12;
 
 class CrumblePathButton : public QPushButton
 {
+    Q_OBJECT
+
 public:
     enum SegmentType {
         LastSegment = 1,
@@ -201,11 +203,10 @@ void CrumblePathButton::mouseReleaseEvent(QMouseEvent *e)
     update();
 }
 
-void CrumblePathButton::changeEvent(QEvent * e)
+void CrumblePathButton::changeEvent(QEvent *e)
 {
-    if (e && e->type() == QEvent::EnabledChange) {
+    if (e && e->type() == QEvent::EnabledChange)
         update();
-    }
 }
 
 void CrumblePathButton::select(bool s)
@@ -279,7 +280,7 @@ void CrumblePath::pushElement(const QString &title, const QVariant &data)
 {
     CrumblePathButton *newButton = new CrumblePathButton(title, this);
     newButton->hide();
-    connect(newButton, SIGNAL(clicked()), SLOT(mapClickToIndex()));
+    connect(newButton, SIGNAL(clicked()), SLOT(emitElementClicked()));
 
     int segType = CrumblePathButton::MiddleSegment;
     if (!d->m_buttons.isEmpty()) {
@@ -298,7 +299,7 @@ void CrumblePath::pushElement(const QString &title, const QVariant &data)
 
 void CrumblePath::addChild(const QString &title, const QVariant &data)
 {
-    QTC_ASSERT(d->m_buttons.count() > 0,return);
+    QTC_ASSERT(!d->m_buttons.isEmpty(), return);
 
     QPushButton *lastButton = d->m_buttons.last();
 
@@ -308,7 +309,7 @@ void CrumblePath::addChild(const QString &title, const QVariant &data)
 
     QAction *childAction = new QAction(title, lastButton);
     childAction->setData(data);
-    connect(childAction, SIGNAL(triggered()), this, SLOT(mapClickToIndex()));
+    connect(childAction, SIGNAL(triggered()), this, SLOT(emitElementClicked()));
     childList->addAction(childAction);
     lastButton->setMenu(childList);
 }
@@ -344,7 +345,7 @@ void CrumblePath::resizeButtons()
 {
     int totalWidthLeft = width();
 
-    if (d->m_buttons.length() >= 1) {
+    if (!d->m_buttons.isEmpty()) {
         QPoint nextElementPosition(0, 0);
 
         d->m_buttons.first()->raise();
@@ -389,13 +390,15 @@ void CrumblePath::resizeButtons()
     }
 }
 
-void CrumblePath::mapClickToIndex()
+void CrumblePath::emitElementClicked()
 {
     QObject *element = sender();
-    if (QString("QAction") == element->metaObject()->className())
-        emit elementClicked(static_cast<QAction *>(element)->data().toInt());
-    else if (QString("QPushButton") == element->metaObject()->className())
-        emit elementClicked(static_cast<CrumblePathButton *>(element)->data().toInt());
+    if (QAction *action = qobject_cast<QAction*>(element))
+        emit elementClicked(action->data());
+    else if (CrumblePathButton *button = qobject_cast<CrumblePathButton*>(element))
+        emit elementClicked(button->data());
 }
 
 } // namespace Utils
+
+#include "crumblepath.moc"

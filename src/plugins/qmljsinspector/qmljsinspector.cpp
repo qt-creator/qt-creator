@@ -726,7 +726,7 @@ void InspectorUi::setupDockWidgets()
     m_crumblePath = new ContextCrumblePath;
     m_crumblePath->setObjectName("QmlContextPath");
     m_crumblePath->setWindowTitle(tr("Context Path"));
-    connect(m_crumblePath, SIGNAL(elementClicked(int)), SLOT(crumblePathElementClicked(int)));
+    connect(m_crumblePath, SIGNAL(elementClicked(QVariant)), SLOT(crumblePathElementClicked(QVariant)));
 
     m_propertyInspector = new QmlJSPropertyInspector;
 
@@ -759,9 +759,11 @@ void InspectorUi::setupDockWidgets()
     dock->setTitleBarWidget(new QWidget(dock));
 }
 
-void InspectorUi::crumblePathElementClicked(int debugId)
+void InspectorUi::crumblePathElementClicked(const QVariant &data)
 {
-    if (debugId == -1)
+    bool ok;
+    const int debugId = data.toInt(&ok);
+    if (!ok || debugId == -1)
         return;
 
     QList<int> debugIds;
