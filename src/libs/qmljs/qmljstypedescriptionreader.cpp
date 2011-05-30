@@ -437,7 +437,7 @@ double TypeDescriptionReader::readNumericBinding(AST::UiScriptBinding *ast)
 int TypeDescriptionReader::readIntBinding(AST::UiScriptBinding *ast)
 {
     double v = readNumericBinding(ast);
-    int i = (int)v;
+    int i = static_cast<int>(v);
 
     if (i != v) {
         addError(ast->firstSourceLocation(), "Expected integer after colon");
