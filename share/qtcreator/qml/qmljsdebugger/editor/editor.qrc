@@ -18,7 +18,7 @@
         <file>images/zoom-24.png</file>
         <file>images/select-24.png</file>
         <file>images/select-marquee-24.png</file>
-        <file>images/observermode.png</file>
-        <file>images/observermode-24.png</file>
+        <file>images/inspectormode.png</file>
+        <file>images/inspectormode-24.png</file>
     </qresource>
 </RCC>

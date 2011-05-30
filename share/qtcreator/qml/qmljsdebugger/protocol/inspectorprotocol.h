@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef OBSERVERPROTOCOL_H
-#define OBSERVERPROTOCOL_H
+#ifndef INSPECTORPROTOCOL_H
+#define INSPECTORPROTOCOL_H
 
 #include <QtCore/QDebug>
 #include <QtCore/QMetaType>
@@ -40,7 +40,7 @@
 
 namespace QmlJSDebugger {
 
-class ObserverProtocol : public QObject
+class InspectorProtocol : public QObject
 {
     Q_OBJECT
     Q_ENUMS(Message Tool)
@@ -85,44 +85,44 @@ public:
     }
 };
 
-inline QDataStream & operator<< (QDataStream &stream, ObserverProtocol::Message message)
+inline QDataStream & operator<< (QDataStream &stream, InspectorProtocol::Message message)
 {
     return stream << static_cast<quint32>(message);
 }
 
-inline QDataStream & operator>> (QDataStream &stream, ObserverProtocol::Message &message)
+inline QDataStream & operator>> (QDataStream &stream, InspectorProtocol::Message &message)
 {
     quint32 i;
     stream >> i;
-    message = static_cast<ObserverProtocol::Message>(i);
+    message = static_cast<InspectorProtocol::Message>(i);
     return stream;
 }
 
-inline QDebug operator<< (QDebug dbg, ObserverProtocol::Message message)
+inline QDebug operator<< (QDebug dbg, InspectorProtocol::Message message)
 {
-    dbg << ObserverProtocol::toString(message);
+    dbg << InspectorProtocol::toString(message);
     return dbg;
 }
 
-inline QDataStream & operator<< (QDataStream &stream, ObserverProtocol::Tool tool)
+inline QDataStream & operator<< (QDataStream &stream, InspectorProtocol::Tool tool)
 {
     return stream << static_cast<quint32>(tool);
 }
 
-inline QDataStream & operator>> (QDataStream &stream, ObserverProtocol::Tool &tool)
+inline QDataStream & operator>> (QDataStream &stream, InspectorProtocol::Tool &tool)
 {
     quint32 i;
     stream >> i;
-    tool = static_cast<ObserverProtocol::Tool>(i);
+    tool = static_cast<InspectorProtocol::Tool>(i);
     return stream;
 }
 
-inline QDebug operator<< (QDebug dbg, ObserverProtocol::Tool tool)
+inline QDebug operator<< (QDebug dbg, InspectorProtocol::Tool tool)
 {
-    dbg << ObserverProtocol::toString(tool);
+    dbg << InspectorProtocol::toString(tool);
     return dbg;
 }
 
 } // namespace QmlJSDebugger
 
-#endif // OBSERVERPROTOCOL_H
+#endif // INSPECTORPROTOCOL_H

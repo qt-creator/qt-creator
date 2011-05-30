@@ -45,7 +45,7 @@ class ColorPickerTool : public AbstractLiveEditTool
 {
     Q_OBJECT
 public:
-    explicit ColorPickerTool(QDeclarativeViewObserver *view);
+    explicit ColorPickerTool(QDeclarativeViewInspector *view);
 
     virtual ~ColorPickerTool();
 

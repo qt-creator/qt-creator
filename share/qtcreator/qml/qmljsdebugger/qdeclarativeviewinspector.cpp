@@ -30,9 +30,9 @@
 **
 **************************************************************************/
 
-#include "qdeclarativeviewobserver.h"
-#include "qdeclarativeviewobserver_p.h"
-#include "qdeclarativeobserverservice.h"
+#include "qdeclarativeviewinspector.h"
+#include "qdeclarativeviewinspector_p.h"
+#include "qdeclarativeinspectorservice.h"
 #include "editor/liveselectiontool.h"
 #include "editor/zoomtool.h"
 #include "editor/colorpickertool.h"
@@ -81,7 +81,7 @@ private:
 
 ToolBox::ToolBox(QWidget *parent)
     : QWidget(parent, Qt::Tool)
-    , m_settings(QLatin1String("Nokia"), QLatin1String("QmlObserver"), this)
+    , m_settings(QLatin1String("Nokia"), QLatin1String("QmlInspector"), this)
     , m_toolBar(new QmlToolBar)
 {
     setWindowFlags((windowFlags() & ~Qt::WindowCloseButtonHint) | Qt::CustomizeWindowHint);
@@ -101,7 +101,7 @@ ToolBox::~ToolBox()
 }
 
 
-QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeViewObserver *q) :
+QDeclarativeViewInspectorPrivate::QDeclarativeViewInspectorPrivate(QDeclarativeViewInspector *q) :
     q(q),
     designModeBehavior(false),
     showAppOnTop(false),
@@ -111,12 +111,12 @@ QDeclarativeViewObserverPrivate::QDeclarativeViewObserverPrivate(QDeclarativeVie
 {
 }
 
-QDeclarativeViewObserverPrivate::~QDeclarativeViewObserverPrivate()
+QDeclarativeViewInspectorPrivate::~QDeclarativeViewInspectorPrivate()
 {
 }
 
-QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObject *parent) :
-    QObject(parent), data(new QDeclarativeViewObserverPrivate(this))
+QDeclarativeViewInspector::QDeclarativeViewInspector(QDeclarativeView *view, QObject *parent) :
+    QObject(parent), data(new QDeclarativeViewInspectorPrivate(this))
 {
     initEditorResource();
 
@@ -133,7 +133,7 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
 
     data->setViewport(data->view->viewport());
 
-    data->debugService = QDeclarativeObserverService::instance();
+    data->debugService = QDeclarativeInspectorService::instance();
 
     // tool box is disabled
     //connect(data->debugService, SIGNAL(debuggingClientChanged(bool)),
@@ -179,11 +179,11 @@ QDeclarativeViewObserver::QDeclarativeViewObserver(QDeclarativeView *view, QObje
     data->_q_changeToSingleSelectTool();
 }
 
-QDeclarativeViewObserver::~QDeclarativeViewObserver()
+QDeclarativeViewInspector::~QDeclarativeViewInspector()
 {
 }
 
-void QDeclarativeViewObserverPrivate::_q_setToolBoxVisible(bool visible)
+void QDeclarativeViewInspectorPrivate::_q_setToolBoxVisible(bool visible)
 {
 #if !defined(Q_OS_SYMBIAN) && !defined(Q_WS_MAEMO_5) && !defined(Q_WS_SIMULATOR)
     if (!toolBox && visible)
@@ -195,13 +195,13 @@ void QDeclarativeViewObserverPrivate::_q_setToolBoxVisible(bool visible)
 #endif
 }
 
-void QDeclarativeViewObserverPrivate::_q_reloadView()
+void QDeclarativeViewInspectorPrivate::_q_reloadView()
 {
     clearHighlight();
     emit q->reloadRequested();
 }
 
-void QDeclarativeViewObserverPrivate::setViewport(QWidget *widget)
+void QDeclarativeViewInspectorPrivate::setViewport(QWidget *widget)
 {
     if (viewport.data() == widget)
         return;
@@ -217,13 +217,13 @@ void QDeclarativeViewObserverPrivate::setViewport(QWidget *widget)
     }
 }
 
-void QDeclarativeViewObserverPrivate::clearEditorItems()
+void QDeclarativeViewInspectorPrivate::clearEditorItems()
 {
     clearHighlight();
     setSelectedItems(QList<QGraphicsItem*>());
 }
 
-bool QDeclarativeViewObserver::eventFilter(QObject *obj, QEvent *event)
+bool QDeclarativeViewInspector::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == data->view) {
         // Event from view
@@ -286,7 +286,7 @@ bool QDeclarativeViewObserver::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-bool QDeclarativeViewObserver::leaveEvent(QEvent * /*event*/)
+bool QDeclarativeViewInspector::leaveEvent(QEvent * /*event*/)
 {
     if (!data->designModeBehavior)
         return false;
@@ -294,7 +294,7 @@ bool QDeclarativeViewObserver::leaveEvent(QEvent * /*event*/)
     return true;
 }
 
-bool QDeclarativeViewObserver::mousePressEvent(QMouseEvent *event)
+bool QDeclarativeViewInspector::mousePressEvent(QMouseEvent *event)
 {
     if (!data->designModeBehavior)
         return false;
@@ -303,7 +303,7 @@ bool QDeclarativeViewObserver::mousePressEvent(QMouseEvent *event)
     return true;
 }
 
-bool QDeclarativeViewObserver::mouseMoveEvent(QMouseEvent *event)
+bool QDeclarativeViewInspector::mouseMoveEvent(QMouseEvent *event)
 {
     if (!data->designModeBehavior) {
         data->clearEditorItems();
@@ -325,7 +325,7 @@ bool QDeclarativeViewObserver::mouseMoveEvent(QMouseEvent *event)
     return true;
 }
 
-bool QDeclarativeViewObserver::mouseReleaseEvent(QMouseEvent *event)
+bool QDeclarativeViewInspector::mouseReleaseEvent(QMouseEvent *event)
 {
     if (!data->designModeBehavior)
         return false;
@@ -335,7 +335,7 @@ bool QDeclarativeViewObserver::mouseReleaseEvent(QMouseEvent *event)
     return true;
 }
 
-bool QDeclarativeViewObserver::keyPressEvent(QKeyEvent *event)
+bool QDeclarativeViewInspector::keyPressEvent(QKeyEvent *event)
 {
     if (!data->designModeBehavior)
         return false;
@@ -344,7 +344,7 @@ bool QDeclarativeViewObserver::keyPressEvent(QKeyEvent *event)
     return true;
 }
 
-bool QDeclarativeViewObserver::keyReleaseEvent(QKeyEvent *event)
+bool QDeclarativeViewInspector::keyReleaseEvent(QKeyEvent *event)
 {
     if (!data->designModeBehavior)
         return false;
@@ -421,7 +421,7 @@ bool removeObjectFromListProperty(QDeclarativeListReference &fromList, QObject *
     return true;
 }
 
-void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QObject *parent,
+void QDeclarativeViewInspectorPrivate::_q_createQmlObject(const QString &qml, QObject *parent,
                                                          const QStringList &importList,
                                                          const QString &filename, int order)
 {
@@ -503,7 +503,7 @@ void QDeclarativeViewObserverPrivate::_q_createQmlObject(const QString &qml, QOb
     }
 }
 
-void QDeclarativeViewObserverPrivate::_q_reparentQmlObject(QObject *object, QObject *newParent)
+void QDeclarativeViewInspectorPrivate::_q_reparentQmlObject(QObject *object, QObject *newParent)
 {
     if (!newParent)
         return;
@@ -515,7 +515,7 @@ void QDeclarativeViewObserverPrivate::_q_reparentQmlObject(QObject *object, QObj
         item->setParentItem(newParentItem);
 }
 
-void QDeclarativeViewObserverPrivate::_q_deleteQmlObject(QObject *object)
+void QDeclarativeViewInspectorPrivate::_q_deleteQmlObject(QObject *object)
 {
     // special cases for transitions/animations
     if (object->inherits("QDeclarativeAbstractAnimation")) {
@@ -535,12 +535,12 @@ void QDeclarativeViewObserverPrivate::_q_deleteQmlObject(QObject *object)
     }
 }
 
-void QDeclarativeViewObserverPrivate::_q_clearComponentCache()
+void QDeclarativeViewInspectorPrivate::_q_clearComponentCache()
 {
     view->engine()->clearComponentCache();
 }
 
-void QDeclarativeViewObserverPrivate::_q_removeFromSelection(QObject *obj)
+void QDeclarativeViewInspectorPrivate::_q_removeFromSelection(QObject *obj)
 {
     QList<QGraphicsItem*> items = selectedItems();
     if (QGraphicsItem *item = qobject_cast<QGraphicsObject*>(obj))
@@ -548,7 +548,7 @@ void QDeclarativeViewObserverPrivate::_q_removeFromSelection(QObject *obj)
     setSelectedItems(items);
 }
 
-bool QDeclarativeViewObserver::mouseDoubleClickEvent(QMouseEvent * /*event*/)
+bool QDeclarativeViewInspector::mouseDoubleClickEvent(QMouseEvent * /*event*/)
 {
     if (!data->designModeBehavior)
         return false;
@@ -556,7 +556,7 @@ bool QDeclarativeViewObserver::mouseDoubleClickEvent(QMouseEvent * /*event*/)
     return true;
 }
 
-bool QDeclarativeViewObserver::wheelEvent(QWheelEvent *event)
+bool QDeclarativeViewInspector::wheelEvent(QWheelEvent *event)
 {
     if (!data->designModeBehavior)
         return false;
@@ -564,7 +564,7 @@ bool QDeclarativeViewObserver::wheelEvent(QWheelEvent *event)
     return true;
 }
 
-void QDeclarativeViewObserver::setDesignModeBehavior(bool value)
+void QDeclarativeViewInspector::setDesignModeBehavior(bool value)
 {
     emit designModeBehaviorChanged(value);
 
@@ -578,17 +578,17 @@ void QDeclarativeViewObserver::setDesignModeBehavior(bool value)
         data->clearEditorItems();
 }
 
-bool QDeclarativeViewObserver::designModeBehavior()
+bool QDeclarativeViewInspector::designModeBehavior()
 {
     return data->designModeBehavior;
 }
 
-bool QDeclarativeViewObserver::showAppOnTop() const
+bool QDeclarativeViewInspector::showAppOnTop() const
 {
     return data->showAppOnTop;
 }
 
-void QDeclarativeViewObserver::setShowAppOnTop(bool appOnTop)
+void QDeclarativeViewInspector::setShowAppOnTop(bool appOnTop)
 {
     if (data->view) {
         QWidget *window = data->view->window();
@@ -608,7 +608,7 @@ void QDeclarativeViewObserver::setShowAppOnTop(bool appOnTop)
     emit showAppOnTopChanged(appOnTop);
 }
 
-void QDeclarativeViewObserverPrivate::changeTool(Constants::DesignTool tool,
+void QDeclarativeViewInspectorPrivate::changeTool(Constants::DesignTool tool,
                                                  Constants::ToolFlags /*flags*/)
 {
     switch(tool) {
@@ -622,7 +622,7 @@ void QDeclarativeViewObserverPrivate::changeTool(Constants::DesignTool tool,
     }
 }
 
-void QDeclarativeViewObserverPrivate::setSelectedItemsForTools(QList<QGraphicsItem *> items)
+void QDeclarativeViewInspectorPrivate::setSelectedItemsForTools(QList<QGraphicsItem *> items)
 {
     foreach (const QWeakPointer<QGraphicsObject> &obj, currentSelection) {
         if (QGraphicsItem *item = obj.data()) {
@@ -647,7 +647,7 @@ void QDeclarativeViewObserverPrivate::setSelectedItemsForTools(QList<QGraphicsIt
     currentTool->updateSelectedItems();
 }
 
-void QDeclarativeViewObserverPrivate::setSelectedItems(QList<QGraphicsItem *> items)
+void QDeclarativeViewInspectorPrivate::setSelectedItems(QList<QGraphicsItem *> items)
 {
     QList<QWeakPointer<QGraphicsObject> > oldList = currentSelection;
     setSelectedItemsForTools(items);
@@ -662,7 +662,7 @@ void QDeclarativeViewObserverPrivate::setSelectedItems(QList<QGraphicsItem *> it
     }
 }
 
-QList<QGraphicsItem *> QDeclarativeViewObserverPrivate::selectedItems()
+QList<QGraphicsItem *> QDeclarativeViewInspectorPrivate::selectedItems()
 {
     QList<QGraphicsItem *> selection;
     foreach (const QWeakPointer<QGraphicsObject> &selectedObject, currentSelection) {
@@ -673,27 +673,27 @@ QList<QGraphicsItem *> QDeclarativeViewObserverPrivate::selectedItems()
     return selection;
 }
 
-void QDeclarativeViewObserver::setSelectedItems(QList<QGraphicsItem *> items)
+void QDeclarativeViewInspector::setSelectedItems(QList<QGraphicsItem *> items)
 {
     data->setSelectedItems(items);
 }
 
-QList<QGraphicsItem *> QDeclarativeViewObserver::selectedItems()
+QList<QGraphicsItem *> QDeclarativeViewInspector::selectedItems()
 {
     return data->selectedItems();
 }
 
-QDeclarativeView *QDeclarativeViewObserver::declarativeView()
+QDeclarativeView *QDeclarativeViewInspector::declarativeView()
 {
     return data->view;
 }
 
-void QDeclarativeViewObserverPrivate::clearHighlight()
+void QDeclarativeViewInspectorPrivate::clearHighlight()
 {
     boundingRectHighlighter->clear();
 }
 
-void QDeclarativeViewObserverPrivate::highlight(const QList<QGraphicsObject *> &items)
+void QDeclarativeViewInspectorPrivate::highlight(const QList<QGraphicsObject *> &items)
 {
     if (items.isEmpty())
         return;
@@ -712,27 +712,27 @@ void QDeclarativeViewObserverPrivate::highlight(const QList<QGraphicsObject *> &
     boundingRectHighlighter->highlight(objectList);
 }
 
-QList<QGraphicsItem*> QDeclarativeViewObserverPrivate::selectableItems(
+QList<QGraphicsItem*> QDeclarativeViewInspectorPrivate::selectableItems(
     const QPointF &scenePos) const
 {
     QList<QGraphicsItem*> itemlist = view->scene()->items(scenePos);
     return filterForSelection(itemlist);
 }
 
-QList<QGraphicsItem*> QDeclarativeViewObserverPrivate::selectableItems(const QPoint &pos) const
+QList<QGraphicsItem*> QDeclarativeViewInspectorPrivate::selectableItems(const QPoint &pos) const
 {
     QList<QGraphicsItem*> itemlist = view->items(pos);
     return filterForSelection(itemlist);
 }
 
-QList<QGraphicsItem*> QDeclarativeViewObserverPrivate::selectableItems(
+QList<QGraphicsItem*> QDeclarativeViewInspectorPrivate::selectableItems(
     const QRectF &sceneRect, Qt::ItemSelectionMode selectionMode) const
 {
     QList<QGraphicsItem*> itemlist = view->scene()->items(sceneRect, selectionMode);
     return filterForSelection(itemlist);
 }
 
-void QDeclarativeViewObserverPrivate::_q_changeToSingleSelectTool()
+void QDeclarativeViewInspectorPrivate::_q_changeToSingleSelectTool()
 {
     currentToolMode = Constants::SelectionToolMode;
     selectionTool->setRubberbandSelectionMode(false);
@@ -743,7 +743,7 @@ void QDeclarativeViewObserverPrivate::_q_changeToSingleSelectTool()
     debugService->setCurrentTool(Constants::SelectionToolMode);
 }
 
-void QDeclarativeViewObserverPrivate::changeToSelectTool()
+void QDeclarativeViewInspectorPrivate::changeToSelectTool()
 {
     if (currentTool == selectionTool)
         return;
@@ -754,7 +754,7 @@ void QDeclarativeViewObserverPrivate::changeToSelectTool()
     currentTool->updateSelectedItems();
 }
 
-void QDeclarativeViewObserverPrivate::_q_changeToMarqueeSelectTool()
+void QDeclarativeViewInspectorPrivate::_q_changeToMarqueeSelectTool()
 {
     changeToSelectTool();
     currentToolMode = Constants::MarqueeSelectionToolMode;
@@ -764,7 +764,7 @@ void QDeclarativeViewObserverPrivate::_q_changeToMarqueeSelectTool()
     debugService->setCurrentTool(Constants::MarqueeSelectionToolMode);
 }
 
-void QDeclarativeViewObserverPrivate::_q_changeToZoomTool()
+void QDeclarativeViewInspectorPrivate::_q_changeToZoomTool()
 {
     currentToolMode = Constants::ZoomMode;
     currentTool->clear();
@@ -775,7 +775,7 @@ void QDeclarativeViewObserverPrivate::_q_changeToZoomTool()
     debugService->setCurrentTool(Constants::ZoomMode);
 }
 
-void QDeclarativeViewObserverPrivate::_q_changeToColorPickerTool()
+void QDeclarativeViewInspectorPrivate::_q_changeToColorPickerTool()
 {
     if (currentTool == colorPickerTool)
         return;
@@ -789,7 +789,7 @@ void QDeclarativeViewObserverPrivate::_q_changeToColorPickerTool()
     debugService->setCurrentTool(Constants::ColorPickerMode);
 }
 
-void QDeclarativeViewObserver::setAnimationSpeed(qreal slowDownFactor)
+void QDeclarativeViewInspector::setAnimationSpeed(qreal slowDownFactor)
 {
     Q_ASSERT(slowDownFactor > 0);
     if (data->slowDownFactor == slowDownFactor)
@@ -799,7 +799,7 @@ void QDeclarativeViewObserver::setAnimationSpeed(qreal slowDownFactor)
     data->debugService->setAnimationSpeed(slowDownFactor);
 }
 
-void QDeclarativeViewObserver::setAnimationPaused(bool paused)
+void QDeclarativeViewInspector::setAnimationPaused(bool paused)
 {
     if (data->animationPaused == paused)
         return;
@@ -808,7 +808,7 @@ void QDeclarativeViewObserver::setAnimationPaused(bool paused)
     data->debugService->setAnimationPaused(paused);
 }
 
-void QDeclarativeViewObserver::animationSpeedChangeRequested(qreal factor)
+void QDeclarativeViewInspector::animationSpeedChangeRequested(qreal factor)
 {
     if (data->slowDownFactor != factor) {
         data->slowDownFactor = factor;
@@ -819,7 +819,7 @@ void QDeclarativeViewObserver::animationSpeedChangeRequested(qreal factor)
     QDeclarativeDebugHelper::setAnimationSlowDownFactor(effectiveFactor);
 }
 
-void QDeclarativeViewObserver::animationPausedChangeRequested(bool paused)
+void QDeclarativeViewInspector::animationPausedChangeRequested(bool paused)
 {
     if (data->animationPaused != paused) {
         data->animationPaused = paused;
@@ -831,12 +831,12 @@ void QDeclarativeViewObserver::animationPausedChangeRequested(bool paused)
 }
 
 
-void QDeclarativeViewObserverPrivate::_q_applyChangesFromClient()
+void QDeclarativeViewInspectorPrivate::_q_applyChangesFromClient()
 {
 }
 
 
-QList<QGraphicsItem*> QDeclarativeViewObserverPrivate::filterForSelection(
+QList<QGraphicsItem*> QDeclarativeViewInspectorPrivate::filterForSelection(
     QList<QGraphicsItem*> &itemlist) const
 {
     foreach (QGraphicsItem *item, itemlist) {
@@ -847,20 +847,20 @@ QList<QGraphicsItem*> QDeclarativeViewObserverPrivate::filterForSelection(
     return itemlist;
 }
 
-bool QDeclarativeViewObserverPrivate::isEditorItem(QGraphicsItem *item) const
+bool QDeclarativeViewInspectorPrivate::isEditorItem(QGraphicsItem *item) const
 {
     return (item->type() == Constants::EditorItemType
             || item->type() == Constants::ResizeHandleItemType
             || item->data(Constants::EditorItemDataKey).toBool());
 }
 
-void QDeclarativeViewObserverPrivate::_q_onStatusChanged(QDeclarativeView::Status status)
+void QDeclarativeViewInspectorPrivate::_q_onStatusChanged(QDeclarativeView::Status status)
 {
     if (status == QDeclarativeView::Ready)
         debugService->reloaded();
 }
 
-void QDeclarativeViewObserverPrivate::_q_onCurrentObjectsChanged(QList<QObject*> objects)
+void QDeclarativeViewInspectorPrivate::_q_onCurrentObjectsChanged(QList<QObject*> objects)
 {
     QList<QGraphicsItem*> items;
     QList<QGraphicsObject*> gfxObjects;
@@ -877,13 +877,13 @@ void QDeclarativeViewObserverPrivate::_q_onCurrentObjectsChanged(QList<QObject*>
     }
 }
 
-QString QDeclarativeViewObserver::idStringForObject(QObject *obj)
+QString QDeclarativeViewInspector::idStringForObject(QObject *obj)
 {
-    return QDeclarativeObserverService::instance()->idStringForObject(obj);
+    return QDeclarativeInspectorService::instance()->idStringForObject(obj);
 }
 
 // adjusts bounding boxes on edges of screen to be visible
-QRectF QDeclarativeViewObserver::adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace)
+QRectF QDeclarativeViewInspector::adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace)
 {
     int marginFromEdge = 1;
     QRectF boundingRect(boundingRectInSceneSpace);
@@ -904,7 +904,7 @@ QRectF QDeclarativeViewObserver::adjustToScreenBoundaries(const QRectF &bounding
     return boundingRect;
 }
 
-void QDeclarativeViewObserverPrivate::createToolBox()
+void QDeclarativeViewInspectorPrivate::createToolBox()
 {
     toolBox = new ToolBox(q->declarativeView());
 
@@ -947,4 +947,4 @@ void QDeclarativeViewObserverPrivate::createToolBox()
 
 } // namespace QmlJSDebugger
 
-#include "qdeclarativeviewobserver.moc"
+#include "qdeclarativeviewinspector.moc"

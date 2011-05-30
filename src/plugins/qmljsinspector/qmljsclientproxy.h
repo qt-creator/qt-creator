@@ -50,7 +50,7 @@ typedef QHash<QPair<QString, int>, QHash<QPair<int, int>, QList<int> > > DebugId
 namespace Internal {
 
 class InspectorPlugin;
-class QmlJSObserverClient;
+class QmlJSInspectorClient;
 
 class ClientProxy : public QObject
 {
@@ -167,7 +167,7 @@ private:
 
     Debugger::QmlAdapter *m_adapter;
     QDeclarativeEngineDebug *m_engineClient;
-    QmlJSObserverClient *m_observerClient;
+    QmlJSInspectorClient *m_inspectorClient;
 
     QDeclarativeDebugEnginesQuery *m_engineQuery;
     QDeclarativeDebugRootContextQuery *m_contextQuery;

@@ -31,8 +31,8 @@
 **************************************************************************/
 
 #include "abstractliveedittool.h"
-#include "qdeclarativeviewobserver.h"
-#include "../qdeclarativeviewobserver_p.h"
+#include "qdeclarativeviewinspector.h"
+#include "../qdeclarativeviewinspector_p.h"
 
 #include <QDeclarativeEngine>
 
@@ -42,8 +42,8 @@
 
 namespace QmlJSDebugger {
 
-AbstractLiveEditTool::AbstractLiveEditTool(QDeclarativeViewObserver *editorView)
-    : QObject(editorView), m_observer(editorView)
+AbstractLiveEditTool::AbstractLiveEditTool(QDeclarativeViewInspector *editorView)
+    : QObject(editorView), m_inspector(editorView)
 {
 }
 
@@ -52,14 +52,14 @@ AbstractLiveEditTool::~AbstractLiveEditTool()
 {
 }
 
-QDeclarativeViewObserver *AbstractLiveEditTool::observer() const
+QDeclarativeViewInspector *AbstractLiveEditTool::inspector() const
 {
-    return m_observer;
+    return m_inspector;
 }
 
 QDeclarativeView *AbstractLiveEditTool::view() const
 {
-    return m_observer->declarativeView();
+    return m_inspector->declarativeView();
 }
 
 QGraphicsScene* AbstractLiveEditTool::scene() const
@@ -74,7 +74,7 @@ void AbstractLiveEditTool::updateSelectedItems()
 
 QList<QGraphicsItem*> AbstractLiveEditTool::items() const
 {
-    return observer()->selectedItems();
+    return inspector()->selectedItems();
 }
 
 bool AbstractLiveEditTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
@@ -91,7 +91,7 @@ bool AbstractLiveEditTool::topItemIsMovable(const QList<QGraphicsItem*> & itemLi
 
 bool AbstractLiveEditTool::topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList)
 {
-    QList<QGraphicsItem*> selectedItems = observer()->selectedItems();
+    QList<QGraphicsItem*> selectedItems = inspector()->selectedItems();
 
     foreach (QGraphicsItem *item, itemList) {
         QDeclarativeItem *declarativeItem = toQDeclarativeItem(item);
@@ -167,7 +167,7 @@ QString AbstractLiveEditTool::titleForItem(QGraphicsItem *item)
 
         QDeclarativeItem *declarativeItem = qobject_cast<QDeclarativeItem*>(gfxObject);
         if (declarativeItem) {
-            objectStringId = QDeclarativeViewObserver::idStringForObject(declarativeItem);
+            objectStringId = QDeclarativeViewInspector::idStringForObject(declarativeItem);
         }
 
         if (!objectStringId.isEmpty()) {

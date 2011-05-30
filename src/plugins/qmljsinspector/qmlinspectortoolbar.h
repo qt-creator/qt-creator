@@ -127,7 +127,7 @@ private:
     QToolButton *m_operateByInstructionButton;
 
     QAction *m_fromQmlAction;
-    QAction *m_observerModeAction;
+    QAction *m_inspectorModeAction;
     QAction *m_playAction;
     QAction *m_selectAction;
     QAction *m_zoomAction;

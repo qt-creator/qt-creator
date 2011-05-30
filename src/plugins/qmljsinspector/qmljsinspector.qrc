@@ -18,7 +18,7 @@
         <file>images/zoom-small.png</file>
         <file>images/select-marquee-small.png</file>
         <file>images/color-picker-small-hicontrast.png</file>
-        <file>images/observermode.png</file>
+        <file>images/inspectormode.png</file>
         <file>images/app-on-top.png</file>
     </qresource>
 </RCC>

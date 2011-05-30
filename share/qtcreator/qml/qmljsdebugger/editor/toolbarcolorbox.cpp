@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "toolbarcolorbox.h"
-#include "qmlobserverconstants.h"
+#include "qmlinspectorconstants.h"
 
 #include <QtGui/QPixmap>
 #include <QtGui/QPainter>

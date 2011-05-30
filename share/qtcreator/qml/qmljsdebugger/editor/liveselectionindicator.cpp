@@ -31,8 +31,8 @@
 **************************************************************************/
 
 #include "liveselectionindicator.h"
-#include "../qdeclarativeviewobserver_p.h"
-#include "qmlobserverconstants.h"
+#include "../qdeclarativeviewinspector_p.h"
+#include "qmlinspectorconstants.h"
 
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsObject>
@@ -41,10 +41,10 @@
 
 namespace QmlJSDebugger {
 
-LiveSelectionIndicator::LiveSelectionIndicator(QDeclarativeViewObserver *viewObserver,
+LiveSelectionIndicator::LiveSelectionIndicator(QDeclarativeViewInspector *viewInspector,
                                                QGraphicsObject *layerItem)
     : m_layerItem(layerItem)
-    , m_view(viewObserver)
+    , m_view(viewInspector)
 {
 }
 

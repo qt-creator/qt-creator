@@ -40,7 +40,7 @@
 #include "loggerwidget.h"
 
 namespace QmlJSDebugger {
-    class QDeclarativeViewObserver;
+    class QDeclarativeViewInspector;
 }
 
 QT_BEGIN_NAMESPACE
@@ -156,7 +156,7 @@ private:
 
     LoggerWidget *loggerWindow;
     QDeclarativeView *canvas;
-    QmlJSDebugger::QDeclarativeViewObserver *observer;
+    QmlJSDebugger::QDeclarativeViewInspector *inspector;
     QSize initialSize;
     QString currentFileOrUrl;
     QTimer recordTimer;

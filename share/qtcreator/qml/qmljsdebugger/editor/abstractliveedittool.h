@@ -49,7 +49,7 @@ QT_END_NAMESPACE
 
 namespace QmlJSDebugger {
 
-class QDeclarativeViewObserver;
+class QDeclarativeViewInspector;
 
 class FormEditorView;
 
@@ -57,7 +57,7 @@ class AbstractLiveEditTool : public QObject
 {
     Q_OBJECT
 public:
-    AbstractLiveEditTool(QDeclarativeViewObserver *observer);
+    AbstractLiveEditTool(QDeclarativeViewInspector *inspector);
 
     virtual ~AbstractLiveEditTool();
 
@@ -93,12 +93,12 @@ public:
 protected:
     virtual void selectedItemsChanged(const QList<QGraphicsItem*> &objectList) = 0;
 
-    QDeclarativeViewObserver *observer() const;
+    QDeclarativeViewInspector *inspector() const;
     QDeclarativeView *view() const;
     QGraphicsScene *scene() const;
 
 private:
-    QDeclarativeViewObserver *m_observer;
+    QDeclarativeViewInspector *m_inspector;
     QList<QGraphicsItem*> m_itemList;
 };
 

@@ -29,7 +29,7 @@
 **
 **************************************************************************/
 
-#include "qmljsobserverclient.h"
+#include "qmljsinspectorclient.h"
 #include "qmljsclientproxy.h"
 #include "qmljsinspectorconstants.h"
 
@@ -40,27 +40,27 @@ using namespace QmlJSDebugger;
 namespace QmlJSInspector {
 namespace Internal {
 
-QmlJSObserverClient::QmlJSObserverClient(QDeclarativeDebugConnection *client,
+QmlJSInspectorClient::QmlJSInspectorClient(QDeclarativeDebugConnection *client,
                                          QObject * /*parent*/)
     : QDeclarativeDebugClient(QLatin1String("QDeclarativeObserverMode"), client) ,
     m_connection(client)
 {
 }
 
-void QmlJSObserverClient::statusChanged(Status status)
+void QmlJSInspectorClient::statusChanged(Status status)
 {
     emit connectedStatusChanged(status);
 }
 
-void QmlJSObserverClient::messageReceived(const QByteArray &message)
+void QmlJSInspectorClient::messageReceived(const QByteArray &message)
 {
     QDataStream ds(message);
 
-    ObserverProtocol::Message type;
+    InspectorProtocol::Message type;
     ds >> type;
 
     switch (type) {
-    case ObserverProtocol::CurrentObjectsChanged: {
+    case InspectorProtocol::CurrentObjectsChanged: {
         int objectCount;
         ds >> objectCount;
 
@@ -78,7 +78,7 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         emit currentObjectsChanged(m_currentDebugIds);
         break;
     }
-    case ObserverProtocol::ToolChanged: {
+    case InspectorProtocol::ToolChanged: {
         int toolId;
         ds >> toolId;
 
@@ -95,7 +95,7 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         }
         break;
     }
-    case ObserverProtocol::AnimationSpeedChanged: {
+    case InspectorProtocol::AnimationSpeedChanged: {
         qreal slowDownFactor;
         ds >> slowDownFactor;
 
@@ -104,7 +104,7 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         emit animationSpeedChanged(slowDownFactor);
         break;
     }
-    case ObserverProtocol::AnimationPausedChanged: {
+    case InspectorProtocol::AnimationPausedChanged: {
         bool paused;
         ds >> paused;
 
@@ -113,7 +113,7 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         emit animationPausedChanged(paused);
         break;
     }
-    case ObserverProtocol::SetDesignMode: {
+    case InspectorProtocol::SetDesignMode: {
         bool inDesignMode;
         ds >> inDesignMode;
 
@@ -122,7 +122,7 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         emit designModeBehaviorChanged(inDesignMode);
         break;
     }
-    case ObserverProtocol::ShowAppOnTop: {
+    case InspectorProtocol::ShowAppOnTop: {
         bool showAppOnTop;
         ds >> showAppOnTop;
 
@@ -131,12 +131,12 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
         emit showAppOnTopChanged(showAppOnTop);
         break;
     }
-    case ObserverProtocol::Reloaded: {
+    case InspectorProtocol::Reloaded: {
         log(LogReceive, type);
         emit reloaded();
         break;
     }
-    case ObserverProtocol::ColorChanged: {
+    case InspectorProtocol::ColorChanged: {
         QColor col;
         ds >> col;
 
@@ -150,12 +150,12 @@ void QmlJSObserverClient::messageReceived(const QByteArray &message)
     }
 }
 
-QList<int> QmlJSObserverClient::currentObjects() const
+QList<int> QmlJSInspectorClient::currentObjects() const
 {
     return m_currentDebugIds;
 }
 
-void QmlJSObserverClient::setCurrentObjects(const QList<int> &debugIds)
+void QmlJSInspectorClient::setCurrentObjects(const QList<int> &debugIds)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -168,7 +168,7 @@ void QmlJSObserverClient::setCurrentObjects(const QList<int> &debugIds)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::SetCurrentObjects;
+    InspectorProtocol::Message cmd = InspectorProtocol::SetCurrentObjects;
     ds << cmd
        << debugIds.length();
 
@@ -189,7 +189,7 @@ void recurseObjectIdList(const QDeclarativeDebugObjectReference &ref, QList<int>
         recurseObjectIdList(child, debugIds, objectIds);
 }
 
-void QmlJSObserverClient::setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots)
+void QmlJSInspectorClient::setObjectIdList(const QList<QDeclarativeDebugObjectReference> &objectRoots)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
@@ -200,7 +200,7 @@ void QmlJSObserverClient::setObjectIdList(const QList<QDeclarativeDebugObjectRef
     foreach (const QDeclarativeDebugObjectReference &ref, objectRoots)
         recurseObjectIdList(ref, debugIds, objectIds);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::ObjectIdList;
+    InspectorProtocol::Message cmd = InspectorProtocol::ObjectIdList;
     ds << cmd
        << debugIds.length();
 
@@ -215,7 +215,7 @@ void QmlJSObserverClient::setObjectIdList(const QList<QDeclarativeDebugObjectRef
     sendMessage(message);
 }
 
-void QmlJSObserverClient::clearComponentCache()
+void QmlJSInspectorClient::clearComponentCache()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -223,7 +223,7 @@ void QmlJSObserverClient::clearComponentCache()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::ClearComponentCache;
+    InspectorProtocol::Message cmd = InspectorProtocol::ClearComponentCache;
     ds << cmd;
 
     log(LogSend, cmd);
@@ -231,7 +231,7 @@ void QmlJSObserverClient::clearComponentCache()
     sendMessage(message);
 }
 
-void QmlJSObserverClient::reloadViewer()
+void QmlJSInspectorClient::reloadViewer()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -239,7 +239,7 @@ void QmlJSObserverClient::reloadViewer()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::Reload;
+    InspectorProtocol::Message cmd = InspectorProtocol::Reload;
     ds << cmd;
 
     log(LogSend, cmd);
@@ -247,7 +247,7 @@ void QmlJSObserverClient::reloadViewer()
     sendMessage(message);
 }
 
-void QmlJSObserverClient::setDesignModeBehavior(bool inDesignMode)
+void QmlJSInspectorClient::setDesignModeBehavior(bool inDesignMode)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -255,7 +255,7 @@ void QmlJSObserverClient::setDesignModeBehavior(bool inDesignMode)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::SetDesignMode;
+    InspectorProtocol::Message cmd = InspectorProtocol::SetDesignMode;
     ds << cmd
        << inDesignMode;
 
@@ -264,7 +264,7 @@ void QmlJSObserverClient::setDesignModeBehavior(bool inDesignMode)
     sendMessage(message);
 }
 
-void QmlJSObserverClient::setAnimationSpeed(qreal slowDownFactor)
+void QmlJSInspectorClient::setAnimationSpeed(qreal slowDownFactor)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -272,7 +272,7 @@ void QmlJSObserverClient::setAnimationSpeed(qreal slowDownFactor)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::SetAnimationSpeed;
+    InspectorProtocol::Message cmd = InspectorProtocol::SetAnimationSpeed;
     ds << cmd
        << slowDownFactor;
 
@@ -282,7 +282,7 @@ void QmlJSObserverClient::setAnimationSpeed(qreal slowDownFactor)
     sendMessage(message);
 }
 
-void QmlJSObserverClient::setAnimationPaused(bool paused)
+void QmlJSInspectorClient::setAnimationPaused(bool paused)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -290,7 +290,7 @@ void QmlJSObserverClient::setAnimationPaused(bool paused)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::SetAnimationPaused;
+    InspectorProtocol::Message cmd = InspectorProtocol::SetAnimationPaused;
     ds << cmd
        << paused;
 
@@ -299,7 +299,7 @@ void QmlJSObserverClient::setAnimationPaused(bool paused)
     sendMessage(message);
 }
 
-void QmlJSObserverClient::changeToColorPickerTool()
+void QmlJSInspectorClient::changeToColorPickerTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -307,17 +307,17 @@ void QmlJSObserverClient::changeToColorPickerTool()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::ChangeTool;
-    ObserverProtocol::Tool tool = ObserverProtocol::ColorPickerTool;
+    InspectorProtocol::Message cmd = InspectorProtocol::ChangeTool;
+    InspectorProtocol::Tool tool = InspectorProtocol::ColorPickerTool;
     ds << cmd
        << tool;
 
-    log(LogSend, cmd, ObserverProtocol::toString(tool));
+    log(LogSend, cmd, InspectorProtocol::toString(tool));
 
     sendMessage(message);
 }
 
-void QmlJSObserverClient::changeToSelectTool()
+void QmlJSInspectorClient::changeToSelectTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -325,17 +325,17 @@ void QmlJSObserverClient::changeToSelectTool()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::ChangeTool;
-    ObserverProtocol::Tool tool = ObserverProtocol::SelectTool;
+    InspectorProtocol::Message cmd = InspectorProtocol::ChangeTool;
+    InspectorProtocol::Tool tool = InspectorProtocol::SelectTool;
     ds << cmd
        << tool;
 
-    log(LogSend, cmd, ObserverProtocol::toString(tool));
+    log(LogSend, cmd, InspectorProtocol::toString(tool));
 
     sendMessage(message);
 }
 
-void QmlJSObserverClient::changeToSelectMarqueeTool()
+void QmlJSInspectorClient::changeToSelectMarqueeTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -343,17 +343,17 @@ void QmlJSObserverClient::changeToSelectMarqueeTool()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::ChangeTool;
-    ObserverProtocol::Tool tool = ObserverProtocol::SelectMarqueeTool;
+    InspectorProtocol::Message cmd = InspectorProtocol::ChangeTool;
+    InspectorProtocol::Tool tool = InspectorProtocol::SelectMarqueeTool;
     ds << cmd
        << tool;
 
-    log(LogSend, cmd, ObserverProtocol::toString(tool));
+    log(LogSend, cmd, InspectorProtocol::toString(tool));
 
     sendMessage(message);
 }
 
-void QmlJSObserverClient::changeToZoomTool()
+void QmlJSInspectorClient::changeToZoomTool()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -361,17 +361,17 @@ void QmlJSObserverClient::changeToZoomTool()
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::ChangeTool;
-    ObserverProtocol::Tool tool = ObserverProtocol::ZoomTool;
+    InspectorProtocol::Message cmd = InspectorProtocol::ChangeTool;
+    InspectorProtocol::Tool tool = InspectorProtocol::ZoomTool;
     ds << cmd
        << tool;
 
-    log(LogSend, cmd, ObserverProtocol::toString(tool));
+    log(LogSend, cmd, InspectorProtocol::toString(tool));
 
     sendMessage(message);
 }
 
-void QmlJSObserverClient::showAppOnTop(bool showOnTop)
+void QmlJSInspectorClient::showAppOnTop(bool showOnTop)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -379,7 +379,7 @@ void QmlJSObserverClient::showAppOnTop(bool showOnTop)
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::ShowAppOnTop;
+    InspectorProtocol::Message cmd = InspectorProtocol::ShowAppOnTop;
     ds << cmd << showOnTop;
 
     log(LogSend, cmd, QLatin1String(showOnTop ? "true" : "false"));
@@ -387,7 +387,7 @@ void QmlJSObserverClient::showAppOnTop(bool showOnTop)
     sendMessage(message);
 }
 
-void QmlJSObserverClient::createQmlObject(const QString &qmlText, int parentDebugId,
+void QmlJSInspectorClient::createQmlObject(const QString &qmlText, int parentDebugId,
                                              const QStringList &imports, const QString &filename, int order)
 {
     if (!m_connection || !m_connection->isConnected())
@@ -396,7 +396,7 @@ void QmlJSObserverClient::createQmlObject(const QString &qmlText, int parentDebu
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::CreateObject;
+    InspectorProtocol::Message cmd = InspectorProtocol::CreateObject;
     ds << cmd
        << qmlText
        << parentDebugId
@@ -410,14 +410,14 @@ void QmlJSObserverClient::createQmlObject(const QString &qmlText, int parentDebu
     sendMessage(message);
 }
 
-void QmlJSObserverClient::destroyQmlObject(int debugId)
+void QmlJSInspectorClient::destroyQmlObject(int debugId)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::DestroyObject;
+    InspectorProtocol::Message cmd = InspectorProtocol::DestroyObject;
     ds << cmd << debugId;
 
     log(LogSend, cmd, QString::number(debugId));
@@ -425,14 +425,14 @@ void QmlJSObserverClient::destroyQmlObject(int debugId)
     sendMessage(message);
 }
 
-void QmlJSObserverClient::reparentQmlObject(int debugId, int newParent)
+void QmlJSInspectorClient::reparentQmlObject(int debugId, int newParent)
 {
     if (!m_connection || !m_connection->isConnected())
         return;
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ObserverProtocol::Message cmd = ObserverProtocol::MoveObject;
+    InspectorProtocol::Message cmd = InspectorProtocol::MoveObject;
     ds << cmd
        << debugId
        << newParent;
@@ -444,7 +444,7 @@ void QmlJSObserverClient::reparentQmlObject(int debugId, int newParent)
 }
 
 
-void QmlJSObserverClient::applyChangesToQmlFile()
+void QmlJSInspectorClient::applyChangesToQmlFile()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -452,7 +452,7 @@ void QmlJSObserverClient::applyChangesToQmlFile()
     // TODO
 }
 
-void QmlJSObserverClient::applyChangesFromQmlFile()
+void QmlJSInspectorClient::applyChangesFromQmlFile()
 {
     if (!m_connection || !m_connection->isConnected())
         return;
@@ -460,7 +460,7 @@ void QmlJSObserverClient::applyChangesFromQmlFile()
     // TODO
 }
 
-void QmlJSObserverClient::log(LogDirection direction, ObserverProtocol::Message message,
+void QmlJSInspectorClient::log(LogDirection direction, InspectorProtocol::Message message,
                               const QString &extra)
 {
     QString msg;
@@ -469,7 +469,7 @@ void QmlJSObserverClient::log(LogDirection direction, ObserverProtocol::Message 
     else
         msg += QLatin1String(" receiving ");
 
-    msg += ObserverProtocol::toString(message);
+    msg += InspectorProtocol::toString(message);
     msg += QLatin1Char(' ');
     msg += extra;
     emit logActivity(name(), msg);

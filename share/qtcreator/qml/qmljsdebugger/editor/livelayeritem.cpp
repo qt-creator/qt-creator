@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "livelayeritem.h"
-#include "qmlobserverconstants.h"
+#include "qmlinspectorconstants.h"
 
 #include <QGraphicsScene>
 

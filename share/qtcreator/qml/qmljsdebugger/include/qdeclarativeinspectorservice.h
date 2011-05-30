@@ -33,7 +33,7 @@
 #define QDECLARATIVEDESIGNDEBUGSERVER_H
 
 #include "qt_private/qdeclarativedebugservice_p.h"
-#include "qmlobserverconstants.h"
+#include "qmlinspectorconstants.h"
 #include "qmljsdebugger_global.h"
 
 #include <QtCore/QHash>
@@ -46,12 +46,12 @@ QT_FORWARD_DECLARE_CLASS(QDataStream)
 
 namespace QmlJSDebugger {
 
-class QMLJSDEBUGGER_EXPORT QDeclarativeObserverService : public QDeclarativeDebugService
+class QMLJSDEBUGGER_EXPORT QDeclarativeInspectorService : public QDeclarativeDebugService
 {
     Q_OBJECT
 public:
-    QDeclarativeObserverService();
-    static QDeclarativeObserverService *instance();
+    QDeclarativeInspectorService();
+    static QDeclarativeInspectorService *instance();
 
     void setDesignModeBehavior(bool inDesignMode);
     void setCurrentObjects(QList<QObject*> items);

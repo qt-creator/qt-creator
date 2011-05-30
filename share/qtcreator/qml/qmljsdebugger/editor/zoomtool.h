@@ -49,7 +49,7 @@ public:
         ZoomOut
     };
 
-    explicit ZoomTool(QDeclarativeViewObserver *view);
+    explicit ZoomTool(QDeclarativeViewInspector *view);
 
     virtual ~ZoomTool();
 

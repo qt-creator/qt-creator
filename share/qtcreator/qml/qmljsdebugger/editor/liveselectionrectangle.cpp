@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "liveselectionrectangle.h"
-#include "qmlobserverconstants.h"
+#include "qmlinspectorconstants.h"
 
 #include <QtGui/QPen>
 #include <QtGui/QGraphicsRectItem>

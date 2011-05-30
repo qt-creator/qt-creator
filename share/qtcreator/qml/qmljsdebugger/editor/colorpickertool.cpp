@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "colorpickertool.h"
-#include "qdeclarativeviewobserver.h"
+#include "qdeclarativeviewinspector.h"
 
 #include <QtGui/QMouseEvent>
 #include <QtGui/QKeyEvent>
@@ -43,7 +43,7 @@
 
 namespace QmlJSDebugger {
 
-ColorPickerTool::ColorPickerTool(QDeclarativeViewObserver *view) :
+ColorPickerTool::ColorPickerTool(QDeclarativeViewInspector *view) :
     AbstractLiveEditTool(view)
 {
     m_selectedColor.setRgb(0,0,0);

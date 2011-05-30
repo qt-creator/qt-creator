@@ -66,7 +66,7 @@ static QToolButton *toolButton(QAction *action)
 QmlInspectorToolBar::QmlInspectorToolBar(QObject *parent) :
     QObject(parent),
     m_fromQmlAction(0),
-    m_observerModeAction(0),
+    m_inspectorModeAction(0),
     m_playAction(0),
     m_selectAction(0),
     m_zoomAction(0),
@@ -88,7 +88,7 @@ void QmlInspectorToolBar::setEnabled(bool value)
 {
     m_fromQmlAction->setEnabled(value);
     m_showAppOnTopAction->setEnabled(value);
-    m_observerModeAction->setEnabled(value);
+    m_inspectorModeAction->setEnabled(value);
     m_playAction->setEnabled(value);
     m_selectAction->setEnabled(value);
     m_zoomAction->setEnabled(value);
@@ -101,7 +101,7 @@ void QmlInspectorToolBar::enable()
     setEnabled(true);
     m_emitSignals = false;
     m_showAppOnTopAction->setChecked(false);
-    m_observerModeAction->setChecked(false);
+    m_inspectorModeAction->setChecked(false);
     setAnimationSpeed(1.0f);
     activateDesignModeOnClick();
     m_emitSignals = true;
@@ -165,7 +165,7 @@ void QmlInspectorToolBar::setAnimationPaused(bool paused)
 void QmlInspectorToolBar::setDesignModeBehavior(bool inDesignMode)
 {
     m_emitSignals = false;
-    m_observerModeAction->setChecked(inDesignMode);
+    m_inspectorModeAction->setChecked(inDesignMode);
     activateDesignModeOnClick();
     m_emitSignals = true;
 }
@@ -188,9 +188,9 @@ void QmlInspectorToolBar::createActions(const Core::Context &context)
     m_showAppOnTopAction =
             new QAction(QIcon(QLatin1String(":/qml/images/app-on-top.png")),
                         tr("Show application on top"), this);
-    m_observerModeAction =
-            new QAction(QIcon(QLatin1String(":/qml/images/observermode.png")),
-                        tr("Observer Mode"), this);
+    m_inspectorModeAction =
+            new QAction(QIcon(QLatin1String(":/qml/images/inspectormode.png")),
+                        tr("Inspector Mode"), this);
     m_playAction =
             new QAction(m_pauseIcon, tr("Play/Pause Animations"), this);
     m_selectAction =
@@ -207,13 +207,13 @@ void QmlInspectorToolBar::createActions(const Core::Context &context)
     m_fromQmlAction->setChecked(true);
     m_showAppOnTopAction->setCheckable(true);
     m_showAppOnTopAction->setChecked(false);
-    m_observerModeAction->setCheckable(true);
-    m_observerModeAction->setChecked(false);
+    m_inspectorModeAction->setCheckable(true);
+    m_inspectorModeAction->setChecked(false);
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
     m_colorPickerAction->setCheckable(true);
 
-    am->registerAction(m_observerModeAction, Constants::DESIGNMODE_ACTION, context);
+    am->registerAction(m_inspectorModeAction, Constants::DESIGNMODE_ACTION, context);
     Core::Command *command = am->registerAction(m_playAction, Constants::PLAY_ACTION, context);
     command->setAttribute(Core::Command::CA_UpdateIcon);
     am->registerAction(m_selectAction, Constants::SELECT_ACTION, context);
@@ -292,7 +292,7 @@ void QmlInspectorToolBar::createActions(const Core::Context &context)
 
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
     connect(m_showAppOnTopAction, SIGNAL(triggered()), SLOT(showAppOnTopClick()));
-    connect(m_observerModeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
+    connect(m_inspectorModeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
     connect(m_playAction, SIGNAL(triggered()), SLOT(activatePlayOnClick()));
     connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
     connect(m_selectAction, SIGNAL(triggered()), SLOT(activateSelectToolOnClick()));
@@ -322,7 +322,7 @@ void QmlInspectorToolBar::changeAnimationSpeed()
 
 void QmlInspectorToolBar::activateDesignModeOnClick()
 {
-    bool checked = m_observerModeAction->isChecked();
+    bool checked = m_inspectorModeAction->isChecked();
 
     m_selectAction->setEnabled(checked);
     m_zoomAction->setEnabled(checked);

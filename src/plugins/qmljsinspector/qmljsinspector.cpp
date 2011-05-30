@@ -338,7 +338,7 @@ void InspectorUi::disconnected()
     m_qmlEngine = 0;
     resetViews();
 
-    applyChangesToQmlObserverHelper(false);
+    applyChangesToQmlInspectorHelper(false);
 
     QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
     while (iter.hasNext()) {
@@ -417,7 +417,7 @@ void InspectorUi::initializeDocuments()
         createPreviewForEditor(editor);
     }
 
-    applyChangesToQmlObserverHelper(true);
+    applyChangesToQmlInspectorHelper(true);
 }
 
 void InspectorUi::serverReloaded()
@@ -730,9 +730,9 @@ void InspectorUi::setupDockWidgets()
 
     m_propertyInspector = new QmlJSPropertyInspector;
 
-    QWidget *observerWidget = new QWidget;
-    observerWidget->setWindowTitle(tr("QML Observer"));
-    observerWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
+    QWidget *inspectorWidget = new QWidget;
+    inspectorWidget->setWindowTitle(tr("QML Inspector"));
+    inspectorWidget->setObjectName(Debugger::Constants::DOCKWIDGET_QML_INSPECTOR);
 
     QWidget *pathAndFilterWidget = new StyledBackground;
     pathAndFilterWidget->setMaximumHeight(m_crumblePath->height());
@@ -747,14 +747,14 @@ void InspectorUi::setupDockWidgets()
     pathAndFilterLayout->addWidget(m_crumblePath);
     pathAndFilterLayout->addWidget(m_filterExp);
 
-    QVBoxLayout *wlay = new QVBoxLayout(observerWidget);
+    QVBoxLayout *wlay = new QVBoxLayout(inspectorWidget);
     wlay->setMargin(0);
     wlay->setSpacing(0);
-    observerWidget->setLayout(wlay);
+    inspectorWidget->setLayout(wlay);
     wlay->addWidget(pathAndFilterWidget);
     wlay->addWidget(m_propertyInspector);
 
-    QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage, observerWidget);
+    QDockWidget *dock = mw->createDockWidget(Debugger::QmlLanguage, inspectorWidget);
     dock->setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     dock->setTitleBarWidget(new QWidget(dock));
 }
@@ -793,18 +793,18 @@ QString InspectorUi::findFileInProject(const QString &originalPath) const
     return m_projectFinder.findFile(originalPath);
 }
 
-void InspectorUi::setApplyChangesToQmlObserver(bool applyChanges)
+void InspectorUi::setApplyChangesToQmlInspector(bool applyChanges)
 {
     emit livePreviewActivated(applyChanges);
-    applyChangesToQmlObserverHelper(applyChanges);
+    applyChangesToQmlInspectorHelper(applyChanges);
 }
 
-void InspectorUi::applyChangesToQmlObserverHelper(bool applyChanges)
+void InspectorUi::applyChangesToQmlInspectorHelper(bool applyChanges)
 {
     QHashIterator<QString, QmlJSLiveTextPreview *> iter(m_textPreviews);
     while (iter.hasNext()) {
         iter.next();
-        iter.value()->setApplyChangesToQmlObserver(applyChanges);
+        iter.value()->setApplyChangesToQmlInspector(applyChanges);
     }
 }
 
@@ -833,7 +833,7 @@ void InspectorUi::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc)
 
 void InspectorUi::disableLivePreview()
 {
-    setApplyChangesToQmlObserver(false);
+    setApplyChangesToQmlInspector(false);
 }
 
 void InspectorUi::connectSignals()
@@ -875,7 +875,7 @@ void InspectorUi::connectSignals()
             m_toolBar, SLOT(setAnimationPaused(bool)));
 
     connect(m_toolBar, SIGNAL(applyChangesFromQmlFileTriggered(bool)),
-            this, SLOT(setApplyChangesToQmlObserver(bool)));
+            this, SLOT(setApplyChangesToQmlInspector(bool)));
 
     connect(m_toolBar, SIGNAL(designModeSelected(bool)),
             m_clientProxy, SLOT(setDesignModeBehavior(bool)));

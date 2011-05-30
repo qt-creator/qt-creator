@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "zoomtool.h"
-#include "../qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewinspector_p.h"
 
 #include <QtGui/QMouseEvent>
 #include <QtGui/QWheelEvent>
@@ -44,7 +44,7 @@
 
 namespace QmlJSDebugger {
 
-ZoomTool::ZoomTool(QDeclarativeViewObserver *view) :
+ZoomTool::ZoomTool(QDeclarativeViewInspector *view) :
     AbstractLiveEditTool(view),
     m_rubberbandManipulator(),
     m_smoothZoomMultiplier(0.05f),
@@ -57,7 +57,7 @@ ZoomTool::ZoomTool(QDeclarativeViewObserver *view) :
     m_zoomOutAction->setShortcut(QKeySequence(Qt::Key_Minus));
 
 
-    LiveLayerItem *layerItem = QDeclarativeViewObserverPrivate::get(view)->manipulatorLayer;
+    LiveLayerItem *layerItem = QDeclarativeViewInspectorPrivate::get(view)->manipulatorLayer;
     QGraphicsObject *layerObject = reinterpret_cast<QGraphicsObject *>(layerItem);
     m_rubberbandManipulator = new LiveRubberBandSelectionManipulator(layerObject, view);
 

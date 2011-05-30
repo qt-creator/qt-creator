@@ -46,14 +46,14 @@ QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace QmlJSDebugger {
 
-class QDeclarativeViewObserver;
+class QDeclarativeViewInspector;
 class BoundingBox;
 
 class BoundingRectHighlighter : public LiveLayerItem
 {
     Q_OBJECT
 public:
-    explicit BoundingRectHighlighter(QDeclarativeViewObserver *view);
+    explicit BoundingRectHighlighter(QDeclarativeViewInspector *view);
     ~BoundingRectHighlighter();
     void clear();
     void highlight(QList<QGraphicsObject*> items);
@@ -74,7 +74,7 @@ private:
 private:
     Q_DISABLE_COPY(BoundingRectHighlighter)
 
-    QDeclarativeViewObserver *m_view;
+    QDeclarativeViewInspector *m_view;
     QList<BoundingBox* > m_boxes;
     QList<BoundingBox* > m_freeBoxes;
     QTimer *m_animTimer;

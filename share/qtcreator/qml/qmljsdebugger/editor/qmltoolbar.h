@@ -36,7 +36,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QIcon>
 
-#include "qmlobserverconstants.h"
+#include "qmlinspectorconstants.h"
 
 QT_FORWARD_DECLARE_CLASS(QActionGroup)
 

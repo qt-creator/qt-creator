@@ -30,19 +30,19 @@
 **
 **************************************************************************/
 
-#ifndef QDECLARATIVEVIEWOBSERVER_P_H
-#define QDECLARATIVEVIEWOBSERVER_P_H
+#ifndef QDECLARATIVEVIEWINSPECTOR_P_H
+#define QDECLARATIVEVIEWINSPECTOR_P_H
 
 #include <QtCore/QWeakPointer>
 #include <QtCore/QPointF>
 
-#include "qdeclarativeviewobserver.h"
-#include "qdeclarativeobserverservice.h"
+#include "qdeclarativeviewinspector.h"
+#include "qdeclarativeinspectorservice.h"
 
 namespace QmlJSDebugger {
 
 class JSDebuggerAgent;
-class QDeclarativeViewObserver;
+class QDeclarativeViewInspector;
 class LiveSelectionTool;
 class ZoomTool;
 class ColorPickerTool;
@@ -52,16 +52,16 @@ class ToolBox;
 class CrumblePath;
 class AbstractLiveEditTool;
 
-class QDeclarativeViewObserverPrivate : public QObject
+class QDeclarativeViewInspectorPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QDeclarativeViewObserverPrivate(QDeclarativeViewObserver *);
-    ~QDeclarativeViewObserverPrivate();
+    QDeclarativeViewInspectorPrivate(QDeclarativeViewInspector *);
+    ~QDeclarativeViewInspectorPrivate();
 
     QDeclarativeView *view;
-    QDeclarativeViewObserver *q;
-    QDeclarativeObserverService *debugService;
+    QDeclarativeViewInspector *q;
+    QDeclarativeInspectorService *debugService;
     QWeakPointer<QWidget> viewport;
 
     QPointF cursorPos;
@@ -130,9 +130,9 @@ public slots:
     void _q_removeFromSelection(QObject *);
 
 public:
-    static QDeclarativeViewObserverPrivate *get(QDeclarativeViewObserver *v) { return v->d_func(); }
+    static QDeclarativeViewInspectorPrivate *get(QDeclarativeViewInspector *v) { return v->d_func(); }
 };
 
 } // namespace QmlJSDebugger
 
-#endif // QDECLARATIVEVIEWOBSERVER_P_H
+#endif // QDECLARATIVEVIEWINSPECTOR_P_H

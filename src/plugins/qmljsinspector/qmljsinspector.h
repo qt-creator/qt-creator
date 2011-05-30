@@ -111,7 +111,7 @@ signals:
 public slots:
     void reloadQmlViewer();
     void serverReloaded();
-    void setApplyChangesToQmlObserver(bool applyChanges);
+    void setApplyChangesToQmlInspector(bool applyChanges);
 
 private slots:
     void enable();
@@ -141,7 +141,7 @@ private:
     void resetViews();
 
     void initializeDocuments();
-    void applyChangesToQmlObserverHelper(bool applyChanges);
+    void applyChangesToQmlInspectorHelper(bool applyChanges);
     void setupDockWidgets();
     QString filenameForShadowBuildFile(const QString &filename) const;
     void populateCrumblePath(const QDeclarativeDebugObjectReference &objRef);

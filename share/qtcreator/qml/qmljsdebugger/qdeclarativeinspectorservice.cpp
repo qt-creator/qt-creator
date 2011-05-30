@@ -29,41 +29,41 @@
 **
 **************************************************************************/
 
-#include "qdeclarativeobserverservice.h"
+#include "qdeclarativeinspectorservice.h"
 
-#include <observerprotocol.h>
+#include <inspectorprotocol.h>
 
 #include <QStringList>
 #include <QColor>
 
 namespace QmlJSDebugger {
 
-Q_GLOBAL_STATIC(QDeclarativeObserverService, serviceInstance)
+Q_GLOBAL_STATIC(QDeclarativeInspectorService, serviceInstance)
 
-QDeclarativeObserverService::QDeclarativeObserverService()
+QDeclarativeInspectorService::QDeclarativeInspectorService()
     : QDeclarativeDebugService(QLatin1String("QDeclarativeObserverMode"))
 {
 }
 
-QDeclarativeObserverService *QDeclarativeObserverService::instance()
+QDeclarativeInspectorService *QDeclarativeInspectorService::instance()
 {
     return serviceInstance();
 }
 
-void QDeclarativeObserverService::statusChanged(Status status)
+void QDeclarativeInspectorService::statusChanged(Status status)
 {
     emit debuggingClientChanged((status == Enabled));
 }
 
-void QDeclarativeObserverService::messageReceived(const QByteArray &message)
+void QDeclarativeInspectorService::messageReceived(const QByteArray &message)
 {
     QDataStream ds(message);
 
-    ObserverProtocol::Message type;
+    InspectorProtocol::Message type;
     ds >> type;
 
     switch (type) {
-    case ObserverProtocol::SetCurrentObjects: {
+    case InspectorProtocol::SetCurrentObjects: {
         int itemCount = 0;
         ds >> itemCount;
 
@@ -78,36 +78,36 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         emit currentObjectsChanged(selectedObjects);
         break;
     }
-    case ObserverProtocol::Reload: {
+    case InspectorProtocol::Reload: {
         emit reloadRequested();
         break;
     }
-    case ObserverProtocol::SetAnimationSpeed: {
+    case InspectorProtocol::SetAnimationSpeed: {
         qreal speed;
         ds >> speed;
         emit animationSpeedChangeRequested(speed);
         break;
     }
-    case ObserverProtocol::SetAnimationPaused: {
+    case InspectorProtocol::SetAnimationPaused: {
         bool paused;
         ds >> paused;
         emit executionPauseChangeRequested(paused);
         break;
     }
-    case ObserverProtocol::ChangeTool: {
-        ObserverProtocol::Tool tool;
+    case InspectorProtocol::ChangeTool: {
+        InspectorProtocol::Tool tool;
         ds >> tool;
         switch (tool) {
-        case ObserverProtocol::ColorPickerTool:
+        case InspectorProtocol::ColorPickerTool:
             emit colorPickerToolRequested();
             break;
-        case ObserverProtocol::SelectTool:
+        case InspectorProtocol::SelectTool:
             emit selectToolRequested();
             break;
-        case ObserverProtocol::SelectMarqueeTool:
+        case InspectorProtocol::SelectMarqueeTool:
             emit selectMarqueeToolRequested();
             break;
-        case ObserverProtocol::ZoomTool:
+        case InspectorProtocol::ZoomTool:
             emit zoomToolRequested();
             break;
         default:
@@ -115,19 +115,19 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         }
         break;
     }
-    case ObserverProtocol::SetDesignMode: {
+    case InspectorProtocol::SetDesignMode: {
         bool inDesignMode;
         ds >> inDesignMode;
         emit designModeBehaviorChanged(inDesignMode);
         break;
     }
-    case ObserverProtocol::ShowAppOnTop: {
+    case InspectorProtocol::ShowAppOnTop: {
         bool showOnTop;
         ds >> showOnTop;
         emit showAppOnTopChanged(showOnTop);
         break;
     }
-    case ObserverProtocol::CreateObject: {
+    case InspectorProtocol::CreateObject: {
         QString qml;
         int parentId;
         QString filename;
@@ -140,7 +140,7 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         emit objectCreationRequested(qml, objectForId(parentId), imports, filename, order);
         break;
     }
-    case ObserverProtocol::DestroyObject: {
+    case InspectorProtocol::DestroyObject: {
         int debugId;
         ds >> debugId;
         if (QObject* obj = objectForId(debugId)) {
@@ -148,13 +148,13 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         }
         break;
     }
-    case ObserverProtocol::MoveObject: {
+    case InspectorProtocol::MoveObject: {
         int debugId, newParent;
         ds >> debugId >> newParent;
         emit objectReparentRequested(objectForId(debugId), objectForId(newParent));
         break;
     }
-    case ObserverProtocol::ObjectIdList: {
+    case InspectorProtocol::ObjectIdList: {
         int itemCount;
         ds >> itemCount;
         m_stringIdForObjectId.clear();
@@ -168,7 +168,7 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
         }
         break;
     }
-    case ObserverProtocol::ClearComponentCache: {
+    case InspectorProtocol::ClearComponentCache: {
         emit clearComponentCacheRequested();
         break;
     }
@@ -177,23 +177,23 @@ void QDeclarativeObserverService::messageReceived(const QByteArray &message)
     }
 }
 
-void QDeclarativeObserverService::setDesignModeBehavior(bool inDesignMode)
+void QDeclarativeInspectorService::setDesignModeBehavior(bool inDesignMode)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << ObserverProtocol::SetDesignMode
+    ds << InspectorProtocol::SetDesignMode
        << inDesignMode;
 
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::setCurrentObjects(QList<QObject*> objects)
+void QDeclarativeInspectorService::setCurrentObjects(QList<QObject*> objects)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << ObserverProtocol::CurrentObjectsChanged
+    ds << InspectorProtocol::CurrentObjectsChanged
        << objects.length();
 
     foreach (QObject *object, objects) {
@@ -204,78 +204,78 @@ void QDeclarativeObserverService::setCurrentObjects(QList<QObject*> objects)
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::setCurrentTool(QmlJSDebugger::Constants::DesignTool toolId)
+void QDeclarativeInspectorService::setCurrentTool(QmlJSDebugger::Constants::DesignTool toolId)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << ObserverProtocol::ToolChanged
+    ds << InspectorProtocol::ToolChanged
        << toolId;
 
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::setAnimationSpeed(qreal slowDownFactor)
+void QDeclarativeInspectorService::setAnimationSpeed(qreal slowDownFactor)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << ObserverProtocol::AnimationSpeedChanged
+    ds << InspectorProtocol::AnimationSpeedChanged
        << slowDownFactor;
 
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::setAnimationPaused(bool paused)
+void QDeclarativeInspectorService::setAnimationPaused(bool paused)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << ObserverProtocol::AnimationPausedChanged
+    ds << InspectorProtocol::AnimationPausedChanged
        << paused;
 
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::reloaded()
+void QDeclarativeInspectorService::reloaded()
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << ObserverProtocol::Reloaded;
+    ds << InspectorProtocol::Reloaded;
 
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::setShowAppOnTop(bool showAppOnTop)
+void QDeclarativeInspectorService::setShowAppOnTop(bool showAppOnTop)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << ObserverProtocol::ShowAppOnTop << showAppOnTop;
+    ds << InspectorProtocol::ShowAppOnTop << showAppOnTop;
 
     sendMessage(message);
 }
 
-void QDeclarativeObserverService::selectedColorChanged(const QColor &color)
+void QDeclarativeInspectorService::selectedColorChanged(const QColor &color)
 {
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
 
-    ds << ObserverProtocol::ColorChanged
+    ds << InspectorProtocol::ColorChanged
        << color;
 
     sendMessage(message);
 }
 
-QString QDeclarativeObserverService::idStringForObject(QObject *obj) const
+QString QDeclarativeInspectorService::idStringForObject(QObject *obj) const
 {
     int id = idForObject(obj);
     QString idString = m_stringIdForObjectId.value(id, QString());
     return idString;
 }
 
-void QDeclarativeObserverService::sendMessage(const QByteArray &message)
+void QDeclarativeInspectorService::sendMessage(const QByteArray &message)
 {
     if (status() != Enabled)
         return;

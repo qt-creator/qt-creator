@@ -10,9 +10,10 @@ SOURCES += \
     $$PWD/jsdebuggeragent.cpp
 
 HEADERS += \
+    $$PWD/include/qdeclarativeviewinspector.h \
     $$PWD/include/qdeclarativeviewobserver.h \
-    $$PWD/include/qdeclarativeobserverservice.h \
-    $$PWD/include/qmlobserverconstants.h \
+    $$PWD/include/qdeclarativeinspectorservice.h \
+    $$PWD/include/qmlinspectorconstants.h \
     $$PWD/editor/abstractliveedittool.h \
     $$PWD/editor/liveselectiontool.h \
     $$PWD/editor/livelayeritem.h \
@@ -26,11 +27,11 @@ HEADERS += \
     $$PWD/editor/colorpickertool.h \
     $$PWD/editor/qmltoolbar.h \
     $$PWD/editor/toolbarcolorbox.h \
-    $$PWD/qdeclarativeviewobserver_p.h
+    $$PWD/qdeclarativeviewinspector_p.h
 
 SOURCES += \
-    $$PWD/qdeclarativeviewobserver.cpp \
-    $$PWD/qdeclarativeobserverservice.cpp \
+    $$PWD/qdeclarativeviewinspector.cpp \
+    $$PWD/qdeclarativeinspectorservice.cpp \
     $$PWD/editor/abstractliveedittool.cpp \
     $$PWD/editor/liveselectiontool.cpp \
     $$PWD/editor/livelayeritem.cpp \

@@ -90,7 +90,7 @@ signals:
     void disableLivePreviewRequested();
 
 public slots:
-    void setApplyChangesToQmlObserver(bool applyChanges);
+    void setApplyChangesToQmlInspector(bool applyChanges);
     void updateDebugIds();
 
 private slots:
@@ -117,7 +117,7 @@ private:
 
     QList<QWeakPointer<QmlJSEditor::QmlJSTextEditorWidget> > m_editors;
 
-    bool m_applyChangesToQmlObserver;
+    bool m_applyChangesToQmlInspector;
     QmlJS::Document::Ptr m_docWithUnappliedChanges;
     QWeakPointer<ClientProxy> m_clientProxy;
 

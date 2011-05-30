@@ -42,7 +42,7 @@ QT_FORWARD_DECLARE_CLASS(QGraphicsItem)
 
 namespace QmlJSDebugger {
 
-class QDeclarativeViewObserver;
+class QDeclarativeViewInspector;
 
 class LiveRubberBandSelectionManipulator
 {
@@ -54,7 +54,7 @@ public:
     };
 
     LiveRubberBandSelectionManipulator(QGraphicsObject *layerItem,
-                                       QDeclarativeViewObserver *editorView);
+                                       QDeclarativeViewInspector *editorView);
 
     void setItems(const QList<QGraphicsItem*> &itemList);
 
@@ -78,7 +78,7 @@ private:
     QList<QGraphicsItem*> m_oldSelectionList;
     LiveSelectionRectangle m_selectionRectangleElement;
     QPointF m_beginPoint;
-    QDeclarativeViewObserver *m_editorView;
+    QDeclarativeViewInspector *m_editorView;
     QGraphicsItem *m_beginFormEditorItem;
     bool m_isActive;
 };

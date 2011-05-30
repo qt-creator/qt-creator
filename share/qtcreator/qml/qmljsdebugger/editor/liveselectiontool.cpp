@@ -33,7 +33,7 @@
 #include "liveselectiontool.h"
 #include "livelayeritem.h"
 
-#include "../qdeclarativeviewobserver_p.h"
+#include "../qdeclarativeviewinspector_p.h"
 
 #include <QtGui/QApplication>
 #include <QtGui/QWheelEvent>
@@ -50,14 +50,14 @@
 
 namespace QmlJSDebugger {
 
-LiveSelectionTool::LiveSelectionTool(QDeclarativeViewObserver *editorView) :
+LiveSelectionTool::LiveSelectionTool(QDeclarativeViewInspector *editorView) :
     AbstractLiveEditTool(editorView),
     m_rubberbandSelectionMode(false),
     m_rubberbandSelectionManipulator(
-        QDeclarativeViewObserverPrivate::get(editorView)->manipulatorLayer, editorView),
+        QDeclarativeViewInspectorPrivate::get(editorView)->manipulatorLayer, editorView),
     m_singleSelectionManipulator(editorView),
     m_selectionIndicator(editorView,
-        QDeclarativeViewObserverPrivate::get(editorView)->manipulatorLayer),
+        QDeclarativeViewInspectorPrivate::get(editorView)->manipulatorLayer),
     //m_resizeIndicator(editorView->manipulatorLayer()),
     m_selectOnlyContentItems(true)
 {
@@ -88,9 +88,9 @@ LiveSingleSelectionManipulator::SelectionType LiveSelectionTool::getSelectionTyp
 
 bool LiveSelectionTool::alreadySelected(const QList<QGraphicsItem*> &itemList) const
 {
-    QDeclarativeViewObserverPrivate *observerPrivate
-            = QDeclarativeViewObserverPrivate::get(observer());
-    const QList<QGraphicsItem*> selectedItems = observerPrivate->selectedItems();
+    QDeclarativeViewInspectorPrivate *inspectorPrivate
+            = QDeclarativeViewInspectorPrivate::get(inspector());
+    const QList<QGraphicsItem*> selectedItems = inspectorPrivate->selectedItems();
 
     if (selectedItems.isEmpty())
         return false;
@@ -104,9 +104,9 @@ bool LiveSelectionTool::alreadySelected(const QList<QGraphicsItem*> &itemList) c
 
 void LiveSelectionTool::mousePressEvent(QMouseEvent *event)
 {
-    QDeclarativeViewObserverPrivate *observerPrivate
-            = QDeclarativeViewObserverPrivate::get(observer());
-    QList<QGraphicsItem*> itemList = observerPrivate->selectableItems(event->pos());
+    QDeclarativeViewInspectorPrivate *inspectorPrivate
+            = QDeclarativeViewInspectorPrivate::get(inspector());
+    QList<QGraphicsItem*> itemList = inspectorPrivate->selectableItems(event->pos());
     LiveSingleSelectionManipulator::SelectionType selectionType = getSelectionType(event->modifiers());
 
     if (event->buttons() & Qt::LeftButton) {
@@ -142,7 +142,7 @@ void LiveSelectionTool::createContextMenu(QList<QGraphicsItem*> itemList, QPoint
         QAction *elementAction = contextMenu.addAction(itemTitle, this,
                                                        SLOT(contextMenuElementSelected()));
 
-        if (observer()->selectedItems().contains(item)) {
+        if (inspector()->selectedItems().contains(item)) {
             QFont boldFont = elementAction->font();
             boldFont.setBold(true);
             elementAction->setFont(boldFont);
@@ -188,7 +188,7 @@ void LiveSelectionTool::contextMenuElementHovered(QAction *action)
     int itemListIndex = action->data().toInt();
     if (itemListIndex >= 0 && itemListIndex < m_contextMenuItemList.length()) {
         QGraphicsObject *item = m_contextMenuItemList.at(itemListIndex)->toGraphicsObject();
-        QDeclarativeViewObserverPrivate::get(observer())->highlight(item);
+        QDeclarativeViewInspectorPrivate::get(inspector())->highlight(item);
     }
 }
 
@@ -241,19 +241,19 @@ void LiveSelectionTool::hoverMoveEvent(QMouseEvent * event)
 //        if (topSelectedItemIsMovable(itemList))
 //            view()->changeTool(Constants::MoveToolMode);
 //    }
-    QDeclarativeViewObserverPrivate *observerPrivate
-            = QDeclarativeViewObserverPrivate::get(observer());
+    QDeclarativeViewInspectorPrivate *inspectorPrivate
+            = QDeclarativeViewInspectorPrivate::get(inspector());
 
-    QList<QGraphicsItem*> selectableItemList = observerPrivate->selectableItems(event->pos());
+    QList<QGraphicsItem*> selectableItemList = inspectorPrivate->selectableItems(event->pos());
     if (!selectableItemList.isEmpty()) {
         QGraphicsObject *item = selectableItemList.first()->toGraphicsObject();
         if (item)
-            QDeclarativeViewObserverPrivate::get(observer())->highlight(item);
+            QDeclarativeViewInspectorPrivate::get(inspector())->highlight(item);
 
         return;
     }
 
-    QDeclarativeViewObserverPrivate::get(observer())->clearHighlight();
+    QDeclarativeViewInspectorPrivate::get(inspector())->clearHighlight();
 }
 
 void LiveSelectionTool::mouseReleaseEvent(QMouseEvent *event)
@@ -324,16 +324,16 @@ void LiveSelectionTool::wheelEvent(QWheelEvent *event)
     if (event->orientation() == Qt::Horizontal || m_rubberbandSelectionMode)
         return;
 
-    QDeclarativeViewObserverPrivate *observerPrivate
-            = QDeclarativeViewObserverPrivate::get(observer());
-    QList<QGraphicsItem*> itemList = observerPrivate->selectableItems(event->pos());
+    QDeclarativeViewInspectorPrivate *inspectorPrivate
+            = QDeclarativeViewInspectorPrivate::get(inspector());
+    QList<QGraphicsItem*> itemList = inspectorPrivate->selectableItems(event->pos());
 
     if (itemList.isEmpty())
         return;
 
     int selectedIdx = 0;
-    if (!observer()->selectedItems().isEmpty()) {
-        selectedIdx = itemList.indexOf(observer()->selectedItems().first());
+    if (!inspector()->selectedItems().isEmpty()) {
+        selectedIdx = itemList.indexOf(inspector()->selectedItems().first());
         if (selectedIdx >= 0) {
             if (event->delta() > 0) {
                 selectedIdx++;

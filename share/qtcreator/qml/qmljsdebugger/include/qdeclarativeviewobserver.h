@@ -33,86 +33,19 @@
 #ifndef QDECLARATIVEVIEWOBSERVER_H
 #define QDECLARATIVEVIEWOBSERVER_H
 
-#include "qmljsdebugger_global.h"
-#include "qmlobserverconstants.h"
-
-#include <QtCore/QScopedPointer>
-#include <QtDeclarative/QDeclarativeView>
-
-QT_FORWARD_DECLARE_CLASS(QDeclarativeItem)
-QT_FORWARD_DECLARE_CLASS(QMouseEvent)
-QT_FORWARD_DECLARE_CLASS(QToolBar)
+#include "qdeclarativeviewinspector.h"
 
 namespace QmlJSDebugger {
 
-class CrumblePath;
-class QDeclarativeViewObserverPrivate;
-
-class QMLJSDEBUGGER_EXPORT QDeclarativeViewObserver : public QObject
+// Provided for compatibility with QmlApplicationViewer
+class QMLJSDEBUGGER_EXPORT QDeclarativeViewObserver : public QDeclarativeViewInspector
 {
     Q_OBJECT
+
 public:
-
-    explicit QDeclarativeViewObserver(QDeclarativeView *view, QObject *parent = 0);
-    ~QDeclarativeViewObserver();
-
-    void setSelectedItems(QList<QGraphicsItem *> items);
-    QList<QGraphicsItem *> selectedItems();
-
-    QDeclarativeView *declarativeView();
-
-    static QString idStringForObject(QObject *obj);
-    QRectF adjustToScreenBoundaries(const QRectF &boundingRectInSceneSpace);
-
-    bool showAppOnTop() const;
-
-public Q_SLOTS:
-    void setDesignModeBehavior(bool value);
-    bool designModeBehavior();
-
-    void setShowAppOnTop(bool appOnTop);
-
-    void setAnimationSpeed(qreal factor);
-    void setAnimationPaused(bool paused);
-
-Q_SIGNALS:
-    void designModeBehaviorChanged(bool inDesignMode);
-    void showAppOnTopChanged(bool showAppOnTop);
-    void reloadRequested();
-    void marqueeSelectToolActivated();
-    void selectToolActivated();
-    void zoomToolActivated();
-    void colorPickerActivated();
-    void selectedColorChanged(const QColor &color);
-
-    void animationSpeedChanged(qreal factor);
-    void animationPausedChanged(bool paused);
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-
-    bool leaveEvent(QEvent *);
-    bool mousePressEvent(QMouseEvent *event);
-    bool mouseMoveEvent(QMouseEvent *event);
-    bool mouseReleaseEvent(QMouseEvent *event);
-    bool keyPressEvent(QKeyEvent *event);
-    bool keyReleaseEvent(QKeyEvent *keyEvent);
-    bool mouseDoubleClickEvent(QMouseEvent *event);
-    bool wheelEvent(QWheelEvent *event);
-
-    void setSelectedItemsForTools(QList<QGraphicsItem *> items);
-
-private slots:
-    void animationSpeedChangeRequested(qreal factor);
-    void animationPausedChangeRequested(bool paused);
-
-private:
-    Q_DISABLE_COPY(QDeclarativeViewObserver)
-
-    inline QDeclarativeViewObserverPrivate *d_func() { return data.data(); }
-    QScopedPointer<QDeclarativeViewObserverPrivate> data;
-    friend class QDeclarativeViewObserverPrivate;
-    friend class AbstractLiveEditTool;
+    explicit QDeclarativeViewObserver(QDeclarativeView *view, QObject *parent = 0)
+        : QDeclarativeViewInspector(view, parent)
+    {}
 };
 
 } // namespace QmlJSDebugger

@@ -45,12 +45,12 @@ QT_END_NAMESPACE
 
 namespace QmlJSDebugger {
 
-class QDeclarativeViewObserver;
+class QDeclarativeViewInspector;
 
 class LiveSelectionIndicator
 {
 public:
-    LiveSelectionIndicator(QDeclarativeViewObserver *viewObserver, QGraphicsObject *layerItem);
+    LiveSelectionIndicator(QDeclarativeViewInspector *viewInspector, QGraphicsObject *layerItem);
     ~LiveSelectionIndicator();
 
     void show();
@@ -63,7 +63,7 @@ public:
 private:
     QHash<QGraphicsItem*, QGraphicsRectItem *> m_indicatorShapeHash;
     QWeakPointer<QGraphicsObject> m_layerItem;
-    QDeclarativeViewObserver *m_view;
+    QDeclarativeViewInspector *m_view;
 };
 
 }

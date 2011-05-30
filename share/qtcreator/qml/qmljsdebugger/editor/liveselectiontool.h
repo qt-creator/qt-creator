@@ -54,7 +54,7 @@ class LiveSelectionTool : public AbstractLiveEditTool
     Q_OBJECT
 
 public:
-    LiveSelectionTool(QDeclarativeViewObserver* editorView);
+    LiveSelectionTool(QDeclarativeViewInspector* editorView);
     ~LiveSelectionTool();
 
     void mousePressEvent(QMouseEvent *event);

@@ -1,3 +1,3 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
-HEADERS += $$PWD/observerprotocol.h
+HEADERS += $$PWD/inspectorprotocol.h

@@ -31,16 +31,16 @@
 **************************************************************************/
 
 #include "subcomponentmasklayeritem.h"
-#include "qmlobserverconstants.h"
-#include "qdeclarativeviewobserver.h"
+#include "qmlinspectorconstants.h"
+#include "qdeclarativeviewinspector.h"
 #include <QtGui/QPolygonF>
 
 namespace QmlJSDebugger {
 
-SubcomponentMaskLayerItem::SubcomponentMaskLayerItem(QDeclarativeViewObserver *observer,
+SubcomponentMaskLayerItem::SubcomponentMaskLayerItem(QDeclarativeViewInspector *inspector,
                                                      QGraphicsItem *parentItem) :
     QGraphicsPolygonItem(parentItem),
-    m_observer(observer),
+    m_inspector(inspector),
     m_currentItem(0),
     m_borderRect(new QGraphicsRectItem(this))
 {
@@ -91,8 +91,8 @@ void SubcomponentMaskLayerItem::setCurrentItem(QGraphicsItem *item)
     if (!m_currentItem)
         return;
 
-    QRect viewRect = m_observer->declarativeView()->rect();
-    viewRect = m_observer->declarativeView()->mapToScene(viewRect).boundingRect().toRect();
+    QRect viewRect = m_inspector->declarativeView()->rect();
+    viewRect = m_inspector->declarativeView()->mapToScene(viewRect).boundingRect().toRect();
 
     QRectF itemRect = item->boundingRect() | item->childrenBoundingRect();
     itemRect = item->mapRectToScene(itemRect);

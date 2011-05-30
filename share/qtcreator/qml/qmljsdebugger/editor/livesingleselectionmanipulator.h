@@ -40,12 +40,12 @@ QT_FORWARD_DECLARE_CLASS(QGraphicsItem);
 
 namespace QmlJSDebugger {
 
-class QDeclarativeViewObserver;
+class QDeclarativeViewInspector;
 
 class LiveSingleSelectionManipulator
 {
 public:
-    LiveSingleSelectionManipulator(QDeclarativeViewObserver *editorView);
+    LiveSingleSelectionManipulator(QDeclarativeViewInspector *editorView);
 
     enum SelectionType {
         ReplaceSelection,
@@ -71,7 +71,7 @@ public:
 private:
     QList<QGraphicsItem*> m_oldSelectionList;
     QPointF m_beginPoint;
-    QDeclarativeViewObserver *m_editorView;
+    QDeclarativeViewInspector *m_editorView;
     bool m_isActive;
 };
 

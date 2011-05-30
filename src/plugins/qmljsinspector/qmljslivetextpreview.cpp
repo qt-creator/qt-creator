@@ -176,7 +176,7 @@ QmlJSLiveTextPreview::QmlJSLiveTextPreview(const QmlJS::Document::Ptr &doc,
     : QObject(parent)
     , m_previousDoc(doc)
     , m_initialDoc(initDoc)
-    , m_applyChangesToQmlObserver(true)
+    , m_applyChangesToQmlInspector(true)
     , m_clientProxy(clientProxy)
 {
     Q_ASSERT(doc->fileName() == initDoc->fileName());
@@ -341,7 +341,7 @@ void QmlJSLiveTextPreview::updateDebugIds()
 }
 
 
-class UpdateObserver : public Delta {
+class UpdateInspector : public Delta {
 private:
     static inline QString stripQuotes(const QString &str)
     {
@@ -509,7 +509,7 @@ protected:
     }
 
 public:
-    UpdateObserver(ClientProxy *clientProxy)
+    UpdateInspector(ClientProxy *clientProxy)
         : appliedChangesToViewer(false)
         , referenceRefreshRequired(false)
         , unsyncronizableChanges(QmlJSLiveTextPreview::NoUnsyncronizableChanges)
@@ -534,13 +534,13 @@ void QmlJSLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 
     bool experimentalWarningShown = false;
 
-    if (m_applyChangesToQmlObserver) {
+    if (m_applyChangesToQmlInspector) {
         m_docWithUnappliedChanges.clear();
 
         if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
             && doc->qmlProgram() && m_previousDoc->qmlProgram())
         {
-            UpdateObserver delta(m_clientProxy.data());
+            UpdateInspector delta(m_clientProxy.data());
             m_debugIds = delta(m_previousDoc, doc, m_debugIds);
 
             if (delta.referenceRefreshRequired)
@@ -622,16 +622,16 @@ void QmlJSLiveTextPreview::disableLivePreview()
     emit disableLivePreviewRequested();
 }
 
-void QmlJSLiveTextPreview::setApplyChangesToQmlObserver(bool applyChanges)
+void QmlJSLiveTextPreview::setApplyChangesToQmlInspector(bool applyChanges)
 {
-    if (applyChanges && !m_applyChangesToQmlObserver) {
+    if (applyChanges && !m_applyChangesToQmlInspector) {
         if (m_docWithUnappliedChanges) {
-            m_applyChangesToQmlObserver = true;
+            m_applyChangesToQmlInspector = true;
             documentChanged(m_docWithUnappliedChanges);
         }
     }
 
-    m_applyChangesToQmlObserver = applyChanges;
+    m_applyChangesToQmlInspector = applyChanges;
 }
 
 void QmlJSLiveTextPreview::setClientProxy(ClientProxy *clientProxy)

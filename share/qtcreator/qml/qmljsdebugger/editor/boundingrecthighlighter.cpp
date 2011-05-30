@@ -31,8 +31,8 @@
 **************************************************************************/
 
 #include "boundingrecthighlighter.h"
-#include "qdeclarativeviewobserver.h"
-#include "qmlobserverconstants.h"
+#include "qdeclarativeviewinspector.h"
+#include "qmlinspectorconstants.h"
 
 #include <QtGui/QGraphicsPolygonItem>
 
@@ -81,7 +81,7 @@ int BoundingBoxPolygonItem::type() const
     return Constants::EditorItemType;
 }
 
-BoundingRectHighlighter::BoundingRectHighlighter(QDeclarativeViewObserver *view) :
+BoundingRectHighlighter::BoundingRectHighlighter(QDeclarativeViewInspector *view) :
     LiveLayerItem(view->declarativeView()->scene()),
     m_view(view),
     m_animFrame(0)

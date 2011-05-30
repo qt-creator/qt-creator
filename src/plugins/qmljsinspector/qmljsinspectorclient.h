@@ -34,16 +34,16 @@
 
 #include "qmljsprivateapi.h"
 
-#include <observerprotocol.h>
+#include <inspectorprotocol.h>
 
 namespace QmlJSInspector {
 namespace Internal {
 
-class QmlJSObserverClient : public QDeclarativeDebugClient
+class QmlJSInspectorClient : public QDeclarativeDebugClient
 {
     Q_OBJECT
 public:
-    explicit QmlJSObserverClient(QDeclarativeDebugConnection *client,
+    explicit QmlJSInspectorClient(QDeclarativeDebugConnection *client,
                                     QObject *parent = 0);
 
     void setCurrentObjects(const QList<int> &debugIds);
@@ -100,7 +100,7 @@ private:
     };
 
     void log(LogDirection direction,
-             QmlJSDebugger::ObserverProtocol::Message message,
+             QmlJSDebugger::InspectorProtocol::Message message,
              const QString &extra = QString());
 
     QList<int> m_currentDebugIds;

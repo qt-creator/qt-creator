@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLOBSERVERCONSTANTS_H
-#define QMLOBSERVERCONSTANTS_H
+#ifndef QMLINSPECTORCONSTANTS_H
+#define QMLINSPECTORCONSTANTS_H
 
 namespace QmlJSDebugger {
 namespace Constants {
@@ -68,4 +68,4 @@ enum GraphicsItemTypes {
 } // namespace Constants
 } // namespace QmlJSDebugger
 
-#endif // QMLOBSERVERCONSTANTS_H
+#endif // QMLINSPECTORCONSTANTS_H
