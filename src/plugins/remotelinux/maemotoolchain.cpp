@@ -304,19 +304,20 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
 
     foreach (int i, changes) {
         QtSupport::BaseQtVersion *v = vm->version(i);
-        if (!v || !v->isValid()) {
-            // remove tool chain:
-            QList<ProjectExplorer::ToolChain *> toRemove;
-            foreach (ProjectExplorer::ToolChain *tc, tcm->toolChains()) {
-                if (!tc->id().startsWith(QLatin1String(Constants::MAEMO_TOOLCHAIN_ID)))
-                    continue;
-                MaemoToolChain *mTc = static_cast<MaemoToolChain *>(tc);
-                if (mTc->qtVersionId() == i)
-                    toRemove.append(mTc);
-            }
-            foreach (ProjectExplorer::ToolChain *tc, toRemove)
-                tcm->deregisterToolChain(tc);
-        } else if (MaemoQtVersion *mqv = dynamic_cast<MaemoQtVersion *>(v)) {
+        // remove tool chain (on removal, change or addition:
+        QList<ProjectExplorer::ToolChain *> toRemove;
+        foreach (ProjectExplorer::ToolChain *tc, tcm->toolChains()) {
+            if (!tc->id().startsWith(QLatin1String(Constants::MAEMO_TOOLCHAIN_ID)))
+                continue;
+            MaemoToolChain *mTc = static_cast<MaemoToolChain *>(tc);
+            if (mTc->qtVersionId() == i)
+                toRemove.append(mTc);
+        }
+        foreach (ProjectExplorer::ToolChain *tc, toRemove)
+            tcm->deregisterToolChain(tc);
+
+        // (Re-)add toolchain:
+        if (MaemoQtVersion *mqv = dynamic_cast<MaemoQtVersion *>(v)) {
             // add tool chain:
             MaemoToolChain *mTc = new MaemoToolChain(true);
             mTc->setQtVersionId(i);
