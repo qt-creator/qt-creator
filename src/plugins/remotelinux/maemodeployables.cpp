@@ -129,7 +129,7 @@ void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
                 ? it.value() : MaemoDeployableListModel::AskToUpdateProFile;
         }
         MaemoDeployableListModel *const newModel
-            = new MaemoDeployableListModel(proFileNode, updateSetting, this);
+            = new MaemoDeployableListModel(m_target, proFileNode, updateSetting, this);
         m_listModels << newModel;
         break;
     }

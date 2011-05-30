@@ -46,6 +46,9 @@
 namespace QtSupport {
 class BaseQtVersion;
 }
+namespace Qt4ProjectManager {
+class Qt4BaseTarget;
+}
 
 namespace RemoteLinux {
 namespace Internal {
@@ -58,8 +61,9 @@ public:
         UpdateProFile, DontUpdateProFile, AskToUpdateProFile
     };
 
-    MaemoDeployableListModel(const Qt4ProjectManager::Qt4ProFileNode *proFileNode,
-        ProFileUpdateSetting updateSetting, QObject *parent);
+    MaemoDeployableListModel(const Qt4ProjectManager::Qt4BaseTarget *target,
+        const Qt4ProjectManager::Qt4ProFileNode *proFileNode, ProFileUpdateSetting updateSetting,
+        QObject *parent);
     ~MaemoDeployableListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -107,6 +111,7 @@ private:
     QString remoteIconDir() const;
     QStringList localLibraryFilePaths() const;
 
+    const Qt4ProjectManager::Qt4BaseTarget * const m_target;
     const Qt4ProjectManager::Qt4ProjectType m_projectType;
     const QString m_proFilePath;
     const QString m_projectName;

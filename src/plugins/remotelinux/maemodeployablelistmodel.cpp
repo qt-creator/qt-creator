@@ -57,9 +57,10 @@ using namespace Qt4ProjectManager;
 namespace RemoteLinux {
 namespace Internal {
 
-MaemoDeployableListModel::MaemoDeployableListModel(const Qt4ProFileNode *proFileNode,
-    ProFileUpdateSetting updateSetting, QObject *parent)
+MaemoDeployableListModel::MaemoDeployableListModel(const Qt4BaseTarget *target,
+    const Qt4ProFileNode *proFileNode, ProFileUpdateSetting updateSetting, QObject *parent)
     : QAbstractTableModel(parent),
+      m_target(target),
       m_projectType(proFileNode->projectType()),
       m_proFilePath(proFileNode->path()),
       m_projectName(proFileNode->displayName()),
@@ -330,14 +331,7 @@ bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
 
 const QtSupport::BaseQtVersion *MaemoDeployableListModel::qtVersion() const
 {
-    const ProjectExplorer::Project *const activeProject
-        = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->startupProject();
-    QTC_ASSERT(activeProject, return 0);
-    const Qt4BaseTarget *const activeTarget
-        = qobject_cast<Qt4BaseTarget *>(activeProject->activeTarget());
-    QTC_ASSERT(activeTarget, return 0);
-    const Qt4BuildConfiguration *const bc
-        = activeTarget->activeBuildConfiguration();
+    const Qt4BuildConfiguration *const bc = m_target->activeBuildConfiguration();
     QTC_ASSERT(bc, return 0);
     return bc->qtVersion();
 }
