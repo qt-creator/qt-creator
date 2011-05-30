@@ -120,6 +120,7 @@ private Q_SLOTS:
     void caseBody5();
     void caseBody6();
     void blockBraces1();
+    void functionDefaultArgument();
 };
 
 struct Line {
@@ -1891,6 +1892,18 @@ void tst_CodeFormatter::blockBraces1()
     CppCodeStyleSettings codeStyle;
     codeStyle.indentBlockBraces = true;
     checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::functionDefaultArgument()
+{
+    QList<Line> data;
+    data << Line("void foo(int a = 3) {")
+         << Line("    if (a)")
+         << Line("        int a;")
+         << Line("}")
+         << Line("int b;")
+         ;
+    checkIndent(data);
 }
 
 QTEST_APPLESS_MAIN(tst_CodeFormatter)
