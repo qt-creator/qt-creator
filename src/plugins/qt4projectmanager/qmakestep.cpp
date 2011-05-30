@@ -470,6 +470,16 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
       m_ignoreChange(false)
 {
     m_ui->setupUi(this);
+
+    m_ui->qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
+    m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
+
+    qmakeBuildConfigChanged();
+
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
+    updateQmlDebuggingOption();
+
     connect(m_ui->qmakeAdditonalArgumentsLineEdit, SIGNAL(textEdited(const QString&)),
             this, SLOT(qmakeArgumentsLineEdited()));
     connect(m_ui->buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
@@ -499,14 +509,7 @@ QMakeStepConfigWidget::~QMakeStepConfigWidget()
 
 void QMakeStepConfigWidget::init()
 {
-    m_ui->qmakeAdditonalArgumentsLineEdit->setText(m_step->userArguments());
-    m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->linkQmlDebuggingLibrary());
 
-    qmakeBuildConfigChanged();
-
-    updateSummaryLabel();
-    updateEffectiveQMakeCall();
-    updateQmlDebuggingOption();
 }
 
 QString QMakeStepConfigWidget::summaryText() const
