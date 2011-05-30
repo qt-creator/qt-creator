@@ -263,7 +263,8 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_asyncUpdateFutureInterface(0),
     m_pendingEvaluateFuturesCount(0),
     m_asyncUpdateState(NoState),
-    m_cancelEvaluate(false)
+    m_cancelEvaluate(false),
+    m_codeModelCanceled(false)
 {
     setProjectContext(Core::Context(Qt4ProjectManager::Constants::PROJECT_ID));
     setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -513,7 +514,8 @@ void Qt4Project::updateCppCodeModel()
         && pinfo.includePaths == allIncludePaths
         && pinfo.frameworkPaths == allFrameworkPaths
         && fileList
-        && pinfo.precompiledHeaders == allPrecompileHeaders) {
+        && pinfo.precompiledHeaders == allPrecompileHeaders
+        && !m_codeModelCanceled) {
         // Nothing to update...
     } else {
         pinfo.sourceFiles.clear();
@@ -534,6 +536,7 @@ void Qt4Project::updateCppCodeModel()
 
         modelmanager->updateProjectInfo(pinfo);
         m_codeModelFuture = modelmanager->updateSourceFiles(pinfo.sourceFiles);
+        m_codeModelCanceled = false;
     }
 }
 
@@ -687,6 +690,7 @@ void Qt4Project::scheduleAsyncUpdate()
 
     // Cancel running code model update
     m_codeModelFuture.cancel();
+    m_codeModelCanceled = true;
 }
 
 
