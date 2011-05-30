@@ -582,7 +582,7 @@ QString CFStringToQString(CFStringRef cfstring)
     QString result;
     int len = CFStringGetLength(cfstring);
     result.resize(len);
-    CFStringGetCharacters(cfstring, CFRangeMake(0, len), static_cast<UniChar *>(result.data()));
+    CFStringGetCharacters(cfstring, CFRangeMake(0, len), reinterpret_cast<UniChar *>(result.data()));
     return result;
 }
 
