@@ -40,7 +40,6 @@
 #include "parser/qmljsast_p.h"
 
 #include <languageutils/fakemetaobject.h>
-#include <coreplugin/messagemanager.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>
@@ -1581,10 +1580,9 @@ const Value *Function::invoke(const Activation *activation) const
 QHash<QString, FakeMetaObject::ConstPtr> CppQmlTypesLoader::builtinObjects;
 QHash<QString, QList<LanguageUtils::ComponentVersion> > CppQmlTypesLoader::builtinPackages;
 
-void CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles)
+void CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles, QStringList *errors, QStringList *warnings)
 {
     QHash<QString, FakeMetaObject::ConstPtr> newObjects;
-    Core::MessageManager *messageManager = Core::MessageManager::instance();
 
     foreach (const QFileInfo &qmlTypeFile, qmlTypeFiles) {
         QString error, warning;
@@ -1601,14 +1599,14 @@ void CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles)
             error = file.errorString();
         }
         if (!error.isEmpty()) {
-            messageManager->printToOutputPane(
-                        TypeDescriptionReader::tr("Errors while loading qmltypes from %1:\n%2").arg(
-                            qmlTypeFile.absoluteFilePath(), error));
+            errors->append(TypeDescriptionReader::tr(
+                               "Errors while loading qmltypes from %1:\n%2").arg(
+                               qmlTypeFile.absoluteFilePath(), error));
         }
         if (!warning.isEmpty()) {
-            messageManager->printToOutputPane(
-                        TypeDescriptionReader::tr("Warnings while loading qmltypes from %1:\n%2").arg(
-                            qmlTypeFile.absoluteFilePath(), warning));
+            warnings->append(TypeDescriptionReader::tr(
+                                 "Warnings while loading qmltypes from %1:\n%2").arg(
+                                 qmlTypeFile.absoluteFilePath(), error));
         }
     }
 

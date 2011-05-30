@@ -38,6 +38,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
+#include <coreplugin/messagemanager.h>
 #include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TypeOfExpression.h>
@@ -118,7 +119,15 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
                 QDir::Files,
                 QDir::Name);
 
-    Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles);
+    QStringList errors;
+    QStringList warnings;
+    Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings);
+
+    Core::MessageManager *messageManager = Core::MessageManager::instance();
+    foreach (const QString &error, errors)
+        messageManager->printToOutputPane(error);
+    foreach (const QString &warning, warnings)
+        messageManager->printToOutputPane(warning);
 
     // disabled for now: Prefer the xml file until the type dumping functionality
     // has been moved into Qt.

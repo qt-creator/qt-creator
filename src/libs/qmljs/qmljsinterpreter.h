@@ -615,9 +615,10 @@ class QMLJS_EXPORT CppQmlTypesLoader
 {
 public:
     /** Loads a set of qmltypes files into the builtin objects list
-        and prints any errors to the General Messages pane
+        and returns errors and warnings
     */
-    static void loadQmlTypes(const QFileInfoList &qmltypesFiles);
+    static void loadQmlTypes(const QFileInfoList &qmltypesFiles,
+                             QStringList *errors, QStringList *warnings);
 
     static QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> builtinObjects;
     static QHash<QString, QList<LanguageUtils::ComponentVersion> > builtinPackages;
