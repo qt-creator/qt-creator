@@ -118,9 +118,7 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
                 QDir::Files,
                 QDir::Name);
 
-    const QStringList errors = Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles);
-    foreach (const QString &error, errors)
-        qWarning() << qPrintable(error);
+    Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles);
 
     // disabled for now: Prefer the xml file until the type dumping functionality
     // has been moved into Qt.

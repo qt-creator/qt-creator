@@ -64,6 +64,7 @@ public:
 
     bool operator()(QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> *objects);
     QString errorMessage() const;
+    QString warningMessage() const;
 
 private:
     void readDocument(AST::UiProgram *ast);
@@ -80,10 +81,13 @@ private:
     int readIntBinding(AST::UiScriptBinding *ast);
     void readExports(AST::UiScriptBinding *ast, LanguageUtils::FakeMetaObject::Ptr fmo);
     void readEnumValues(AST::UiScriptBinding *ast, LanguageUtils::FakeMetaEnum *fme);
+
     void addError(const AST::SourceLocation &loc, const QString &message);
+    void addWarning(const AST::SourceLocation &loc, const QString &message);
 
     QString _source;
     QString _errorMessage;
+    QString _warningMessage;
     QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> *_objects;
 };
 

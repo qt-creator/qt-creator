@@ -40,6 +40,7 @@
 #include "parser/qmljsast_p.h"
 
 #include <languageutils/fakemetaobject.h>
+#include <coreplugin/messagemanager.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QDir>
@@ -1580,31 +1581,38 @@ const Value *Function::invoke(const Activation *activation) const
 QHash<QString, FakeMetaObject::ConstPtr> CppQmlTypesLoader::builtinObjects;
 QHash<QString, QList<LanguageUtils::ComponentVersion> > CppQmlTypesLoader::builtinPackages;
 
-QStringList CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles)
+void CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles)
 {
     QHash<QString, FakeMetaObject::ConstPtr> newObjects;
-    QStringList errorMsgs;
+    Core::MessageManager *messageManager = Core::MessageManager::instance();
 
     foreach (const QFileInfo &qmlTypeFile, qmlTypeFiles) {
+        QString error, warning;
         QFile file(qmlTypeFile.absoluteFilePath());
         if (file.open(QIODevice::ReadOnly)) {
             QString contents = QString::fromUtf8(file.readAll());
             file.close();
 
             QmlJS::TypeDescriptionReader reader(contents);
-            if (!reader(&newObjects)) {
-                errorMsgs.append(reader.errorMessage());
-            }
+            if (!reader(&newObjects))
+                error = reader.errorMessage();
+            warning = reader.warningMessage();
         } else {
-            errorMsgs.append(QmlJS::TypeDescriptionReader::tr("%1: %2")
-                             .arg(qmlTypeFile.absoluteFilePath(),
-                                  file.errorString()));
+            error = file.errorString();
+        }
+        if (!error.isEmpty()) {
+            messageManager->printToOutputPane(
+                        TypeDescriptionReader::tr("Errors while loading qmltypes from %1:\n%2").arg(
+                            qmlTypeFile.absoluteFilePath(), error));
+        }
+        if (!warning.isEmpty()) {
+            messageManager->printToOutputPane(
+                        TypeDescriptionReader::tr("Warnings while loading qmltypes from %1:\n%2").arg(
+                            qmlTypeFile.absoluteFilePath(), warning));
         }
     }
 
-    if (errorMsgs.isEmpty()) {
-        builtinObjects.unite(newObjects);
-    }
+    builtinObjects.unite(newObjects);
 
     QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr>::const_iterator iter
             = builtinObjects.constBegin();
@@ -1617,18 +1625,24 @@ QStringList CppQmlTypesLoader::loadQmlTypes(const QFileInfoList &qmlTypeFiles)
             }
         }
     }
-    return errorMsgs;
 }
 
-QString CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &xml, QHash<QString, FakeMetaObject::ConstPtr> *newObjects)
+void CppQmlTypesLoader::parseQmlTypeDescriptions(const QByteArray &xml,
+                                                 QHash<QString, FakeMetaObject::ConstPtr> *newObjects,
+                                                 QString *errorMessage,
+                                                 QString *warningMessage)
 {
+    errorMessage->clear();
+    warningMessage->clear();
     QmlJS::TypeDescriptionReader reader(QString::fromUtf8(xml));
     if (!reader(newObjects)) {
-        if (reader.errorMessage().isEmpty())
-            return QLatin1String("unknown error");
-        return reader.errorMessage();
+        if (reader.errorMessage().isEmpty()) {
+            *errorMessage = QLatin1String("unknown error");
+        } else {
+            *errorMessage = reader.errorMessage();
+        }
     }
-    return QString();
+    *warningMessage = reader.warningMessage();
 }
 
 const QLatin1String CppQmlTypes::defaultPackage("<default>");

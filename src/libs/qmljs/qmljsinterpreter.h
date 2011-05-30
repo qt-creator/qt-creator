@@ -614,15 +614,19 @@ private:
 class QMLJS_EXPORT CppQmlTypesLoader
 {
 public:
-    /** \return an empty list when successful, error messages otherwise. */
-    static QStringList loadQmlTypes(const QFileInfoList &xmlFiles);
+    /** Loads a set of qmltypes files into the builtin objects list
+        and prints any errors to the General Messages pane
+    */
+    static void loadQmlTypes(const QFileInfoList &qmltypesFiles);
 
     static QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> builtinObjects;
     static QHash<QString, QList<LanguageUtils::ComponentVersion> > builtinPackages;
 
-    // parses the xml string and fills the newObjects map
-    static QString parseQmlTypeDescriptions(const QByteArray &xml,
-                                   QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> *newObjects);
+    // parses the contents of a qmltypes file and fills the newObjects map
+    static void parseQmlTypeDescriptions(
+        const QByteArray &qmlTypes,
+        QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> *newObjects,
+        QString *errorMessage, QString *warningMessage);
 };
 
 class QMLJS_EXPORT CppQmlTypes
