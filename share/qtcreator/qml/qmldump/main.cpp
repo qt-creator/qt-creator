@@ -330,6 +330,10 @@ private:
         qml->writeStartObject("Property");
 
         qml->writeScriptBinding(QLatin1String("name"), enquote(QString::fromUtf8(prop.name())));
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 4))
+        if (int revision = prop.revision())
+            qml->writeScriptBinding(QLatin1String("revision"), QString::number(revision));
+#endif
         writeTypeProperties(prop.typeName(), prop.isWritable());
 
         qml->writeEndObject();
@@ -357,6 +361,11 @@ private:
             qml->writeStartObject(QLatin1String("Method"));
 
         qml->writeScriptBinding(QLatin1String("name"), enquote(name));
+
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 4))
+        if (int revision = meth.revision())
+            qml->writeScriptBinding(QLatin1String("revision"), QString::number(revision));
+#endif
 
         const QString typeName = convertToId(meth.typeName());
         if (! typeName.isEmpty())
