@@ -43,10 +43,15 @@
 #include "qt4maemotarget.h"
 #include "maemoqtversion.h"
 
+#include <analyzerbase/analyzerconstants.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <debugger/debuggerconstants.h>
+
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 
 #include <qtsupport/qtoutputformatter.h>
@@ -131,14 +136,33 @@ Qt4BuildConfiguration *MaemoRunConfiguration::activeQt4BuildConfiguration() cons
 
 bool MaemoRunConfiguration::isEnabled() const
 {
-    return m_validParse;
+    if (!m_validParse) {
+        m_disabledReason = tr("The .pro file could not be parsed/");
+        return false;
+    }
+    if (!deviceConfig()) {
+        m_disabledReason = tr("No device configuration set.");
+        return false;
+    }
+    if (!activeQt4BuildConfiguration()) {
+        m_disabledReason = tr("No active build configuration.");
+        return false;
+    }
+    if (remoteExecutableFilePath().isEmpty()) {
+        m_disabledReason = tr("Don't know what to run.");
+        return false;
+    }
+    if (!hasEnoughFreePorts(ProjectExplorer::Constants::RUNMODE)) {
+        m_disabledReason = tr("Not enough free ports on the device.");
+        return false;
+    }
+    m_disabledReason.clear();
+    return true;
 }
 
 QString MaemoRunConfiguration::disabledReason() const
 {
-    if (!m_validParse)
-        return tr("The .pro file could not be parsed");
-    return QString();
+    return m_disabledReason;
 }
 
 QWidget *MaemoRunConfiguration::createConfigurationWidget()
@@ -343,6 +367,23 @@ int MaemoRunConfiguration::portsUsedByDebuggers() const
     default:
         return 2;
     }
+}
+
+bool MaemoRunConfiguration::hasEnoughFreePorts(const QString &mode) const
+{
+    const int freePortCount = freePorts().count();
+    const AbstractQt4MaemoTarget * const maemoTarget
+        = qobject_cast<AbstractQt4MaemoTarget *>(target());
+    const bool remoteMountsAllowed = maemoTarget && maemoTarget->allowsRemoteMounts();
+    if (remoteMountsAllowed && freePortCount == 0)
+        return false;
+    const int mountDirCount = remoteMountsAllowed
+        ? remoteMounts()->validMountSpecificationCount() : 0;
+    if (mode == Debugger::Constants::DEBUGMODE)
+        return freePortCount >= mountDirCount + portsUsedByDebuggers();
+    if (mode == ProjectExplorer::Constants::RUNMODE || Analyzer::Constants::MODE_ANALYZE)
+        return freePortCount >= mountDirCount;
+    return false;
 }
 
 void MaemoRunConfiguration::updateDeviceConfigurations()

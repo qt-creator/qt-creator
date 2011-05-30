@@ -122,6 +122,7 @@ public:
     void setSystemEnvironment(const Utils::Environment &environment);
 
     int portsUsedByDebuggers() const;
+    bool hasEnoughFreePorts(const QString &mode) const;
 
     QString proFilePath() const;
 
@@ -160,6 +161,7 @@ private:
     Utils::Environment m_systemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     bool m_validParse;
+    mutable QString m_disabledReason;
 };
 
     } // namespace Internal

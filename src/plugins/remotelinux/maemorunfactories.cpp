@@ -162,29 +162,9 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
 {
     const MaemoRunConfiguration * const maemoRunConfig
         = qobject_cast<MaemoRunConfiguration *>(runConfiguration);
-    if (!maemoRunConfig
-        || !maemoRunConfig->deviceConfig()
-        || !maemoRunConfig->activeQt4BuildConfiguration()
-        || maemoRunConfig->remoteExecutableFilePath().isEmpty())
+    if (!maemoRunConfig || !maemoRunConfig->isEnabled())
         return false;
-    const int freePortCount = maemoRunConfig->freePorts().count();
-
-    const AbstractQt4MaemoTarget * const maemoTarget
-        = qobject_cast<AbstractQt4MaemoTarget *>(maemoRunConfig->target());
-    const bool remoteMountsAllowed
-        = maemoTarget && maemoTarget->allowsRemoteMounts();
-    if (remoteMountsAllowed && freePortCount == 0)
-        return false;
-    const int mountDirCount
-        = remoteMountsAllowed
-            ? maemoRunConfig->remoteMounts()->validMountSpecificationCount()
-            : 0;
-    if (mode == Debugger::Constants::DEBUGMODE)
-        return freePortCount >= mountDirCount + maemoRunConfig->portsUsedByDebuggers();
-    if (mode == ProjectExplorer::Constants::RUNMODE
-        || Analyzer::Constants::MODE_ANALYZE)
-        return freePortCount >= mountDirCount;
-    return false;
+    return maemoRunConfig->hasEnoughFreePorts(mode);
 }
 
 RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
