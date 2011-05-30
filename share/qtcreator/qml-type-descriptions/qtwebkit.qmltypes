@@ -121,6 +121,7 @@ Module {
         exports: [
             "QtWebKit/WebView 1.0"
         ]
+        attachedType: "QDeclarativeWebViewAttached"
         Enum {
             name: "Status"
             values: {
@@ -205,5 +206,10 @@ Module {
             Parameter { name: "clickY"; type: "int" }
             Parameter { name: "maxzoom"; type: "qreal" }
         }
+    }
+    Component {
+        name: "QDeclarativeWebViewAttached"
+        prototype: "QObject"
+        Property { name: "windowObjectName"; type: "string" }
     }
 }

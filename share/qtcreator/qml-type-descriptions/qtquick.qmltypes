@@ -473,11 +473,12 @@ Module {
         Signal { name: "flickEnded" }
         Method {
             name: "resizeContent"
+            revision: 1
             Parameter { name: "w"; type: "qreal" }
             Parameter { name: "h"; type: "qreal" }
             Parameter { name: "center"; type: "QPointF" }
         }
-        Method { name: "returnToBounds" }
+        Method { name: "returnToBounds"; revision: 1 }
     }
     Component {
         name: "QDeclarativeFlickableVisibleArea"
@@ -541,10 +542,10 @@ Module {
                 "TopToBottom": 1
             }
         }
-        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
         Property { name: "flow"; type: "Flow" }
+        Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
         Signal { name: "flowChanged" }
-        Signal { name: "layoutDirectionChanged" }
+        Signal { name: "layoutDirectionChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeFocusPanel"
@@ -669,11 +670,11 @@ Module {
         Property { name: "rows"; type: "int" }
         Property { name: "columns"; type: "int" }
         Property { name: "flow"; type: "Flow" }
-        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
+        Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
         Signal { name: "rowsChanged" }
         Signal { name: "columnsChanged" }
         Signal { name: "flowChanged" }
-        Signal { name: "layoutDirectionChanged" }
+        Signal { name: "layoutDirectionChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeGridView"
@@ -731,6 +732,7 @@ Module {
         Property { name: "preferredHighlightEnd"; type: "qreal" }
         Property { name: "highlightRangeMode"; type: "HighlightRangeMode" }
         Property { name: "flow"; type: "Flow" }
+        Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
         Property { name: "keyNavigationWraps"; type: "bool" }
         Property { name: "cacheBuffer"; type: "int" }
         Property { name: "cellWidth"; type: "int" }
@@ -751,6 +753,7 @@ Module {
         Signal { name: "modelChanged" }
         Signal { name: "delegateChanged" }
         Signal { name: "flowChanged" }
+        Signal { name: "layoutDirectionChanged"; revision: 1 }
         Signal { name: "keyNavigationWrapsChanged" }
         Signal { name: "cacheBufferChanged" }
         Signal { name: "snapModeChanged" }
@@ -768,11 +771,11 @@ Module {
         Method {
             name: "indexAt"
             type: "int"
-            Parameter { name: "x"; type: "int" }
-            Parameter { name: "y"; type: "int" }
+            Parameter { name: "x"; type: "qreal" }
+            Parameter { name: "y"; type: "qreal" }
         }
-        Method { name: "positionViewAtBeginning" }
-        Method { name: "positionViewAtEnd" }
+        Method { name: "positionViewAtBeginning"; revision: 1 }
+        Method { name: "positionViewAtEnd"; revision: 1 }
     }
     Component {
         name: "QDeclarativeGridViewAttached"
@@ -830,9 +833,9 @@ Module {
         Property { name: "source"; type: "QUrl" }
         Property { name: "progress"; type: "qreal"; isReadonly: true }
         Property { name: "asynchronous"; type: "bool" }
-        Property { name: "cache"; type: "bool" }
+        Property { name: "cache"; revision: 1; type: "bool" }
         Property { name: "sourceSize"; type: "QSize" }
-        Property { name: "mirror"; type: "bool" }
+        Property { name: "mirror"; revision: 1; type: "bool" }
         Signal {
             name: "sourceChanged"
             Parameter { type: "QUrl" }
@@ -847,8 +850,8 @@ Module {
             Parameter { name: "progress"; type: "qreal" }
         }
         Signal { name: "asynchronousChanged" }
-        Signal { name: "cacheChanged" }
-        Signal { name: "mirrorChanged" }
+        Signal { name: "cacheChanged"; revision: 1 }
+        Signal { name: "mirrorChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeImplicitSizeItem"
@@ -856,10 +859,10 @@ Module {
         prototype: "QDeclarativeItem"
         exports: [
         ]
-        Property { name: "implicitWidth"; type: "qreal"; isReadonly: true }
-        Property { name: "implicitHeight"; type: "qreal"; isReadonly: true }
-        Signal { name: "implicitWidthChanged" }
-        Signal { name: "implicitHeightChanged" }
+        Property { name: "implicitWidth"; revision: 1; type: "qreal"; isReadonly: true }
+        Property { name: "implicitHeight"; revision: 1; type: "qreal"; isReadonly: true }
+        Signal { name: "implicitWidthChanged"; revision: 1 }
+        Signal { name: "implicitHeightChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeImplicitSizePaintedItem"
@@ -867,10 +870,10 @@ Module {
         prototype: "QDeclarativePaintedItem"
         exports: [
         ]
-        Property { name: "implicitWidth"; type: "qreal"; isReadonly: true }
-        Property { name: "implicitHeight"; type: "qreal"; isReadonly: true }
-        Signal { name: "implicitWidthChanged" }
-        Signal { name: "implicitHeightChanged" }
+        Property { name: "implicitWidth"; revision: 1; type: "qreal"; isReadonly: true }
+        Property { name: "implicitHeight"; revision: 1; type: "qreal"; isReadonly: true }
+        Signal { name: "implicitWidthChanged"; revision: 1 }
+        Signal { name: "implicitHeightChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeItem"
@@ -918,8 +921,8 @@ Module {
         Property { name: "transformOrigin"; type: "TransformOrigin" }
         Property { name: "transformOriginPoint"; type: "QPointF"; isReadonly: true }
         Property { name: "smooth"; type: "bool" }
-        Property { name: "implicitWidth"; type: "qreal" }
-        Property { name: "implicitHeight"; type: "qreal" }
+        Property { name: "implicitWidth"; revision: 1; type: "qreal" }
+        Property { name: "implicitHeight"; revision: 1; type: "qreal" }
         Signal {
             name: "childrenRectChanged"
             Parameter { type: "QRectF" }
@@ -956,8 +959,8 @@ Module {
             name: "clipChanged"
             Parameter { type: "bool" }
         }
-        Signal { name: "implicitWidthChanged" }
-        Signal { name: "implicitHeightChanged" }
+        Signal { name: "implicitWidthChanged"; revision: 1 }
+        Signal { name: "implicitHeightChanged"; revision: 1 }
         Method {
             name: "mapFromItem"
             type: "QScriptValue"
@@ -1207,6 +1210,18 @@ Module {
         Signal { name: "preferredSizeChanged" }
     }
     Component {
+        name: "QDeclarativeLayoutMirroringAttached"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/LayoutMirroring 1.1"
+        ]
+        attachedType: "QDeclarativeLayoutMirroringAttached"
+        Property { name: "enabled"; type: "bool" }
+        Property { name: "childrenInherit"; type: "bool" }
+        Signal { name: "enabledChanged" }
+        Signal { name: "childrenInheritChanged" }
+    }
+    Component {
         name: "QDeclarativeListElement"
         prototype: "QObject"
         exports: [
@@ -1321,6 +1336,7 @@ Module {
         Property { name: "highlightRangeMode"; type: "HighlightRangeMode" }
         Property { name: "spacing"; type: "qreal" }
         Property { name: "orientation"; type: "Orientation" }
+        Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
         Property { name: "keyNavigationWraps"; type: "bool" }
         Property { name: "cacheBuffer"; type: "int" }
         Property { name: "section"; type: "QDeclarativeViewSection"; isReadonly: true; isPointer: true }
@@ -1331,6 +1347,7 @@ Module {
         Signal { name: "countChanged" }
         Signal { name: "spacingChanged" }
         Signal { name: "orientationChanged" }
+        Signal { name: "layoutDirectionChanged"; revision: 1 }
         Signal { name: "currentIndexChanged" }
         Signal { name: "currentSectionChanged" }
         Signal { name: "highlightMoveSpeedChanged" }
@@ -1360,11 +1377,11 @@ Module {
         Method {
             name: "indexAt"
             type: "int"
-            Parameter { name: "x"; type: "int" }
-            Parameter { name: "y"; type: "int" }
+            Parameter { name: "x"; type: "qreal" }
+            Parameter { name: "y"; type: "qreal" }
         }
-        Method { name: "positionViewAtBeginning" }
-        Method { name: "positionViewAtEnd" }
+        Method { name: "positionViewAtBeginning"; revision: 1 }
+        Method { name: "positionViewAtEnd"; revision: 1 }
     }
     Component {
         name: "QDeclarativeListViewAttached"
@@ -1418,7 +1435,8 @@ Module {
         prototype: "QDeclarativeItem"
         exports: [
             "Qt/MouseArea 4.7",
-            "QtQuick/MouseArea 1.0"
+            "QtQuick/MouseArea 1.0",
+            "QtQuick/MouseArea 1.1"
         ]
         Property { name: "mouseX"; type: "qreal"; isReadonly: true }
         Property { name: "mouseY"; type: "qreal"; isReadonly: true }
@@ -1429,6 +1447,8 @@ Module {
         Property { name: "acceptedButtons"; type: "Qt::MouseButtons" }
         Property { name: "hoverEnabled"; type: "bool" }
         Property { name: "drag"; type: "QDeclarativeDrag"; isReadonly: true; isPointer: true }
+        Property { name: "preventStealing"; revision: 1; type: "bool" }
+        Property { name: "forwardTo"; type: "QGraphicsObject"; isList: true; isReadonly: true }
         Signal { name: "hoveredChanged" }
         Signal { name: "pressedChanged" }
         Signal { name: "enabledChanged" }
@@ -1442,6 +1462,7 @@ Module {
             name: "mousePositionChanged"
             Parameter { name: "mouse"; type: "QDeclarativeMouseEvent"; isPointer: true }
         }
+        Signal { name: "preventStealingChanged"; revision: 1 }
         Signal {
             name: "pressed"
             Parameter { name: "mouse"; type: "QDeclarativeMouseEvent"; isPointer: true }
@@ -1881,16 +1902,19 @@ Module {
         Signal { name: "countChanged" }
         Signal {
             name: "itemAdded"
+            revision: 1
             Parameter { name: "index"; type: "int" }
             Parameter { name: "item"; type: "QDeclarativeItem"; isPointer: true }
         }
         Signal {
             name: "itemRemoved"
+            revision: 1
             Parameter { name: "index"; type: "int" }
             Parameter { name: "item"; type: "QDeclarativeItem"; isPointer: true }
         }
         Method {
             name: "itemAt"
+            revision: 1
             type: "QDeclarativeItem*"
             Parameter { name: "index"; type: "int" }
         }
@@ -1925,8 +1949,8 @@ Module {
             "QtQuick/Row 1.0",
             "QtQuick/Row 1.1"
         ]
-        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
-        Signal { name: "layoutDirectionChanged" }
+        Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
+        Signal { name: "layoutDirectionChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeScaleGrid"
@@ -2133,8 +2157,8 @@ Module {
         Enum {
             name: "LineHeightMode"
             values: {
-                "MultiplyHeight": 0,
-                "PixelHeight": 1
+                "ProportionalHeight": 0,
+                "FixedHeight": 1
             }
         }
         Property { name: "text"; type: "string" }
@@ -2145,15 +2169,15 @@ Module {
         Property { name: "horizontalAlignment"; type: "HAlignment" }
         Property { name: "verticalAlignment"; type: "VAlignment" }
         Property { name: "wrapMode"; type: "WrapMode" }
-        Property { name: "lineCount"; type: "int"; isReadonly: true }
-        Property { name: "truncated"; type: "bool"; isReadonly: true }
-        Property { name: "maximumLineCount"; type: "int" }
+        Property { name: "lineCount"; revision: 1; type: "int"; isReadonly: true }
+        Property { name: "truncated"; revision: 1; type: "bool"; isReadonly: true }
+        Property { name: "maximumLineCount"; revision: 1; type: "int" }
         Property { name: "textFormat"; type: "TextFormat" }
         Property { name: "elide"; type: "TextElideMode" }
         Property { name: "paintedWidth"; type: "qreal"; isReadonly: true }
         Property { name: "paintedHeight"; type: "qreal"; isReadonly: true }
-        Property { name: "lineHeight"; type: "qreal" }
-        Property { name: "lineHeightMode"; type: "LineHeightMode" }
+        Property { name: "lineHeight"; revision: 1; type: "qreal" }
+        Property { name: "lineHeightMode"; revision: 1; type: "LineHeightMode" }
         Signal {
             name: "textChanged"
             Parameter { name: "text"; type: "string" }
@@ -2187,9 +2211,9 @@ Module {
             Parameter { name: "alignment"; type: "VAlignment" }
         }
         Signal { name: "wrapModeChanged" }
-        Signal { name: "lineCountChanged" }
-        Signal { name: "truncatedChanged" }
-        Signal { name: "maximumLineCountChanged" }
+        Signal { name: "lineCountChanged"; revision: 1 }
+        Signal { name: "truncatedChanged"; revision: 1 }
+        Signal { name: "maximumLineCountChanged"; revision: 1 }
         Signal {
             name: "textFormatChanged"
             Parameter { name: "textFormat"; type: "TextFormat" }
@@ -2201,10 +2225,12 @@ Module {
         Signal { name: "paintedSizeChanged" }
         Signal {
             name: "lineHeightChanged"
+            revision: 1
             Parameter { name: "lineHeight"; type: "qreal" }
         }
         Signal {
             name: "lineHeightModeChanged"
+            revision: 1
             Parameter { name: "mode"; type: "LineHeightMode" }
         }
     }
@@ -2267,7 +2293,7 @@ Module {
         Property { name: "horizontalAlignment"; type: "HAlignment" }
         Property { name: "verticalAlignment"; type: "VAlignment" }
         Property { name: "wrapMode"; type: "WrapMode" }
-        Property { name: "lineCount"; type: "int"; isReadonly: true }
+        Property { name: "lineCount"; revision: 1; type: "int"; isReadonly: true }
         Property { name: "paintedWidth"; type: "qreal"; isReadonly: true }
         Property { name: "paintedHeight"; type: "qreal"; isReadonly: true }
         Property { name: "textFormat"; type: "TextFormat" }
@@ -2284,8 +2310,9 @@ Module {
         Property { name: "textMargin"; type: "qreal" }
         Property { name: "inputMethodHints"; type: "Qt::InputMethodHints" }
         Property { name: "selectByMouse"; type: "bool" }
-        Property { name: "mouseSelectionMode"; type: "SelectionMode" }
-        Property { name: "canPaste"; type: "bool"; isReadonly: true }
+        Property { name: "mouseSelectionMode"; revision: 1; type: "SelectionMode" }
+        Property { name: "canPaste"; revision: 1; type: "bool"; isReadonly: true }
+        Property { name: "inputMethodComposing"; revision: 1; type: "bool"; isReadonly: true }
         Signal {
             name: "textChanged"
             Parameter { type: "string" }
@@ -2353,13 +2380,16 @@ Module {
         }
         Signal {
             name: "mouseSelectionModeChanged"
+            revision: 1
             Parameter { name: "mode"; type: "SelectionMode" }
         }
         Signal {
             name: "linkActivated"
+            revision: 1
             Parameter { name: "link"; type: "string" }
         }
-        Signal { name: "canPasteChanged" }
+        Signal { name: "canPasteChanged"; revision: 1 }
+        Signal { name: "inputMethodComposingChanged"; revision: 1 }
         Method { name: "selectAll" }
         Method { name: "selectWord" }
         Method {
@@ -2367,7 +2397,14 @@ Module {
             Parameter { name: "start"; type: "int" }
             Parameter { name: "end"; type: "int" }
         }
-        Method { name: "deselect" }
+        Method { name: "deselect"; revision: 1 }
+        Method {
+            name: "isRightToLeft"
+            revision: 1
+            type: "bool"
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+        }
         Method { name: "cut" }
         Method { name: "copy" }
         Method { name: "paste" }
@@ -2390,6 +2427,7 @@ Module {
         }
         Method {
             name: "moveCursorSelection"
+            revision: 1
             Parameter { name: "pos"; type: "int" }
             Parameter { name: "mode"; type: "SelectionMode" }
         }
@@ -2452,10 +2490,12 @@ Module {
         Property { name: "displayText"; type: "string"; isReadonly: true }
         Property { name: "autoScroll"; type: "bool" }
         Property { name: "selectByMouse"; type: "bool" }
-        Property { name: "mouseSelectionMode"; type: "SelectionMode" }
-        Property { name: "canPaste"; type: "bool"; isReadonly: true }
+        Property { name: "mouseSelectionMode"; revision: 1; type: "SelectionMode" }
+        Property { name: "canPaste"; revision: 1; type: "bool"; isReadonly: true }
+        Property { name: "inputMethodComposing"; revision: 1; type: "bool"; isReadonly: true }
         Signal { name: "textChanged" }
         Signal { name: "cursorPositionChanged" }
+        Signal { name: "cursorRectangleChanged" }
         Signal { name: "selectionStartChanged" }
         Signal { name: "selectionEndChanged" }
         Signal { name: "selectedTextChanged" }
@@ -2519,9 +2559,11 @@ Module {
         }
         Signal {
             name: "mouseSelectionModeChanged"
+            revision: 1
             Parameter { name: "mode"; type: "SelectionMode" }
         }
-        Signal { name: "canPasteChanged" }
+        Signal { name: "canPasteChanged"; revision: 1 }
+        Signal { name: "inputMethodComposingChanged"; revision: 1 }
         Method { name: "selectAll" }
         Method { name: "selectWord" }
         Method {
@@ -2529,7 +2571,14 @@ Module {
             Parameter { name: "start"; type: "int" }
             Parameter { name: "end"; type: "int" }
         }
-        Method { name: "deselect" }
+        Method { name: "deselect"; revision: 1 }
+        Method {
+            name: "isRightToLeft"
+            revision: 1
+            type: "bool"
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+        }
         Method { name: "cut" }
         Method { name: "copy" }
         Method { name: "paste" }
@@ -2537,6 +2586,13 @@ Module {
             name: "positionAt"
             type: "int"
             Parameter { name: "x"; type: "int" }
+        }
+        Method {
+            name: "positionAt"
+            revision: 1
+            type: "int"
+            Parameter { name: "x"; type: "int" }
+            Parameter { name: "position"; type: "CursorPosition" }
         }
         Method {
             name: "positionToRectangle"
@@ -2549,6 +2605,7 @@ Module {
         }
         Method {
             name: "moveCursorSelection"
+            revision: 1
             Parameter { name: "pos"; type: "int" }
             Parameter { name: "mode"; type: "SelectionMode" }
         }
@@ -3289,7 +3346,8 @@ Module {
                 "WA_LockLandscapeOrientation": 129,
                 "WA_AutoOrientation": 130,
                 "WA_X11DoNotAcceptFocus": 132,
-                "WA_AttributeCount": 133
+                "WA_SymbianNoSystemRotation": 133,
+                "WA_AttributeCount": 134
             }
         }
         Enum {
@@ -3304,7 +3362,8 @@ Module {
                 "AA_DontUseNativeMenuBar": 6,
                 "AA_MacDontSwapCtrlAndMeta": 7,
                 "AA_S60DontConstructApplicationPanes": 8,
-                "AA_AttributeCount": 9
+                "AA_S60DisablePartialScreenInputMode": 9,
+                "AA_AttributeCount": 10
             }
         }
         Enum {
@@ -3327,7 +3386,8 @@ Module {
                 "AutoDither": 0,
                 "PreferDither": 64,
                 "AvoidDither": 128,
-                "NoOpaqueDetection": 256
+                "NoOpaqueDetection": 256,
+                "NoFormatConversion": 512
             }
         }
         Enum {
