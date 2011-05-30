@@ -150,6 +150,7 @@ enum DebuggerActionCode
     SelectedPluginBreakpointsPattern,
     BreakOnThrow,
     BreakOnCatch,
+    BreakOnWarning,
 
     // Registers
     AlwaysAdjustRegistersColumnWidths,

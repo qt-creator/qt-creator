@@ -4726,11 +4726,14 @@ void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
         setQtNamespace(ns + "::");
     }
 
-    if (startParameters().startMode == AttachCore)
+    if (startParameters().startMode == AttachCore) {
         notifyInferiorSetupOk(); // No breakpoints in core files.
-    else
+    } else {
         postCommand("-break-insert -f '" + qtNamespace() + "qFatal'",
              CB(handleBreakOnQFatal));
+        if (debuggerCore()->boolSetting(BreakOnWarning))
+            postCommand("-break-insert -f '" + qtNamespace() + "qWarning'");
+    }
 }
 
 void GdbEngine::handleBreakOnQFatal(const GdbResponse &response)

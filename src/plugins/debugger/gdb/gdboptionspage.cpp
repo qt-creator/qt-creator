@@ -94,6 +94,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui->checkBoxTargetAsync);
     m_group.insert(debuggerCore()->action(AdjustBreakpointLocations),
         m_ui->checkBoxAdjustBreakpointLocations);
+    m_group.insert(debuggerCore()->action(BreakOnWarning),
+        m_ui->checkBoxBreakOnWarning);
     m_group.insert(debuggerCore()->action(GdbWatchdogTimeout),
         m_ui->spinBoxGdbWatchdogTimeout);
 

@@ -2612,6 +2612,13 @@ void testEigen()
 #endif
 }
 
+// http://bugreports.qt.nokia.com/browse/QTCREATORBUG-842
+void test842()
+{
+    qWarning("Test");
+    int x = 0;
+    ++x;
+}
 
 // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4019
 class A4019
@@ -2654,8 +2661,9 @@ void test4497()
 
 int main(int argc, char *argv[])
 {
-    //test4497();
+    test842();
     test4019();
+    //test4497();
     testEigen();
     testKR();
     int *x = new int(32);
