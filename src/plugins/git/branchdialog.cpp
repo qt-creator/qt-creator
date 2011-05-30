@@ -31,12 +31,14 @@
 **************************************************************************/
 
 #include "branchdialog.h"
+#include "branchadddialog.h"
 #include "branchmodel.h"
 #include "gitclient.h"
 #include "gitplugin.h"
 #include "ui_branchdialog.h"
 #include "stashdialog.h" // Label helpers
 
+#include <utils/checkablemessagebox.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtGui/QItemSelectionModel>
@@ -45,42 +47,13 @@
 
 #include <QtCore/QDebug>
 
-enum { debug = 0 };
-
-// Single selection helper
-static inline int selectedRow(const QAbstractItemView *listView)
-{
-    const QModelIndexList indexList = listView->selectionModel()->selectedIndexes();
-    if (indexList.size() == 1)
-        return indexList.front().row();
-    return -1;
-}
-
-// Helper to select a row. No sooner said then done
-static inline void selectListRow(QAbstractItemView *iv, int row)
-{
-    const QModelIndex index = iv->model()->index(row, 0);
-    iv->selectionModel()->select(index, QItemSelectionModel::Select);
-}
-
 namespace Git {
-    namespace Internal {
-
-static inline GitClient *gitClient()
-{
-    return GitPlugin::instance()->gitClient();
-}
+namespace Internal {
 
 BranchDialog::BranchDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::BranchDialog),
-    m_checkoutButton(0),
-    m_diffButton(0),
-    m_logButton(0),
-    m_refreshButton(0),
-    m_deleteButton(0),
-    m_localModel(new LocalBranchModel(gitClient(), this)),
-    m_remoteModel(new RemoteBranchModel(gitClient(), this))
+    m_model(new BranchModel(GitPlugin::instance()->gitClient(), this))
 {
     setModal(false);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -88,273 +61,135 @@ BranchDialog::BranchDialog(QWidget *parent) :
 
     m_ui->setupUi(this);
 
-    m_checkoutButton = m_ui->buttonBox->addButton(tr("Checkout"), QDialogButtonBox::ActionRole);
-    connect(m_checkoutButton, SIGNAL(clicked()), this, SLOT(slotCheckoutSelectedBranch()));
+    connect(m_ui->refreshButton, SIGNAL(clicked()), this, SLOT(refresh()));
+    connect(m_ui->addButton, SIGNAL(clicked()), this, SLOT(add()));
+    connect(m_ui->checkoutButton, SIGNAL(clicked()), this, SLOT(checkout()));
+    connect(m_ui->removeButton, SIGNAL(clicked()), this, SLOT(remove()));
+    connect(m_ui->diffButton, SIGNAL(clicked()), this, SLOT(diff()));
+    connect(m_ui->logButton, SIGNAL(clicked()), this, SLOT(log()));
 
-    m_diffButton = m_ui->buttonBox->addButton(tr("Diff"), QDialogButtonBox::ActionRole);
-    connect(m_diffButton, SIGNAL(clicked()), this, SLOT(slotDiffSelected()));
+    m_ui->branchView->setModel(m_model);
 
-    m_logButton = m_ui->buttonBox->addButton(tr("Log"), QDialogButtonBox::ActionRole);
-    connect(m_logButton, SIGNAL(clicked()), this, SLOT(slotLog()));
+    connect(m_ui->branchView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(enableButtons()));
 
-    m_refreshButton = m_ui->buttonBox->addButton(tr("Refresh"), QDialogButtonBox::ActionRole);
-    connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(slotRefresh()));
-
-    m_deleteButton = m_ui->buttonBox->addButton(tr("Delete..."), QDialogButtonBox::ActionRole);
-    connect(m_deleteButton, SIGNAL(clicked()), this, SLOT(slotDeleteSelectedBranch()));
-
-    connect(m_ui->localBranchListView, SIGNAL(doubleClicked(QModelIndex)), this,
-            SLOT(slotLocalBranchActivated()));
-    connect(m_ui->remoteBranchListView, SIGNAL(doubleClicked(QModelIndex)), this,
-            SLOT(slotRemoteBranchActivated(QModelIndex)));
-
-    connect(m_localModel, SIGNAL(newBranchEntered(QString)), this, SLOT(slotCreateLocalBranch(QString)));
-    m_ui->localBranchListView->setModel(m_localModel);
-    m_ui->remoteBranchListView->setModel(m_remoteModel);
-
-    connect(m_ui->localBranchListView->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(slotEnableButtons(QItemSelection)));
-    connect(m_ui->remoteBranchListView->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(slotEnableButtons(QItemSelection)));
-
-    slotEnableButtons();
+    enableButtons();
 }
 
 BranchDialog::~BranchDialog()
 {
     delete m_ui;
+    delete m_model;
+    m_model = 0;
 }
 
 void BranchDialog::refresh(const QString &repository, bool force)
 {
     if (m_repository == repository && !force)
-            return;
-        // Refresh
+        return;
+
     m_repository = repository;
     m_ui->repositoryLabel->setText(StashDialog::msgRepositoryLabel(m_repository));
-    if (m_repository.isEmpty()) {
-        m_localModel->clear();
-        m_remoteModel->clear();
-    } else {
-        QString errorMessage;
-        const bool success = m_localModel->refresh(m_repository, &errorMessage)
-                             && m_remoteModel->refresh(m_repository, &errorMessage);
-        if (!success)
-            VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
-    }
-    slotEnableButtons();
+    QString errorMessage;
+    if (!m_model->refresh(m_repository, &errorMessage))
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+
+    m_ui->branchView->expandAll();
 }
 
-int BranchDialog::selectedLocalBranchIndex() const
+void BranchDialog::enableButtons()
 {
-    return selectedRow(m_ui->localBranchListView);
+    QModelIndex idx = selectedIndex();
+    const bool hasSelection = idx.isValid();
+    const bool currentSelected = hasSelection && idx == m_model->currentBranch();
+    const bool isLocal = m_model->isLocal(idx);
+    const bool isLeaf = m_model->isLeaf(idx);
+
+    m_ui->removeButton->setEnabled(hasSelection && !currentSelected && isLocal && isLeaf);
+    m_ui->logButton->setEnabled(hasSelection && isLeaf);
+    m_ui->diffButton->setEnabled(hasSelection && isLeaf);
+    m_ui->checkoutButton->setEnabled(hasSelection && !currentSelected && isLocal && isLeaf);
 }
 
-int BranchDialog::selectedRemoteBranchIndex() const
-{
-    return selectedRow(m_ui->remoteBranchListView);
-}
-
-void BranchDialog::slotEnableButtons(const QItemSelection &selected)
-{
-    if (!selected.indexes().isEmpty()) {
-        if (selected.indexes().at(0).model() == m_localModel)
-            m_ui->remoteBranchListView->clearSelection();
-        else
-            m_ui->localBranchListView->clearSelection();
-    }
-
-    // We can switch to or delete branches that are not current.
-    const int selectedLocalRow = selectedLocalBranchIndex();
-    const bool hasRepository = !m_repository.isEmpty();
-    const bool hasLocalSelection = selectedLocalRow != -1 && !m_localModel->isNewBranchRow(selectedLocalRow);
-    const bool otherLocalSelected = hasLocalSelection && selectedLocalRow != m_localModel->currentBranch();
-    const bool branchSelected = hasLocalSelection || selectedRemoteBranchIndex() != -1;
-
-    m_checkoutButton->setEnabled(otherLocalSelected);
-    m_diffButton->setEnabled(branchSelected);
-    m_logButton->setEnabled(branchSelected);
-    m_deleteButton->setEnabled(otherLocalSelected);
-    m_refreshButton->setEnabled(hasRepository);
-    // Also disable <New Branch> entry of list view
-    m_ui->localBranchListView->setEnabled(hasRepository);
-    m_ui->remoteBranchListView->setEnabled(hasRepository);
-}
-
-void BranchDialog::slotRefresh()
+void BranchDialog::refresh()
 {
     refresh(m_repository, true);
 }
 
-void BranchDialog::selectLocalBranch(const QString &b)
+void BranchDialog::add()
 {
-    // Select the newly created branch
-    const int row = m_localModel->findBranchByName(b);
-    if (row != -1)
-        selectListRow(m_ui->localBranchListView, row);
+    QString trackedBranch = m_model->branchName(selectedIndex());
+    bool isLocal = m_model->isLocal(selectedIndex());
+    if (trackedBranch.isEmpty()) {
+        trackedBranch = m_model->branchName(m_model->currentBranch());
+        isLocal = true;
+    }
+
+    QStringList localNames = m_model->localBranchNames();
+
+    QString suggestedNameBase = trackedBranch.mid(trackedBranch.lastIndexOf(QLatin1Char('/')) + 1);
+    QString suggestedName = suggestedNameBase;
+    int i = 2;
+    while (localNames.contains(suggestedName)) {
+        suggestedName = suggestedNameBase + QString::number(i);
+        ++i;
+    }
+
+    BranchAddDialog branchAddDialog;
+    branchAddDialog.setBranchName(suggestedName);
+    branchAddDialog.setTrackedBranchName(trackedBranch, !isLocal);
+
+    if (branchAddDialog.exec() == QDialog::Accepted && m_model) {
+        QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(), trackedBranch);
+        m_ui->branchView->selectionModel()->select(idx, QItemSelectionModel::Clear
+                                                        | QItemSelectionModel::Select
+                                                        | QItemSelectionModel::Current);
+        m_ui->branchView->scrollTo(idx);
+    }
 }
 
-bool BranchDialog::ask(const QString &title, const QString &what, bool defaultButton)
+void BranchDialog::checkout()
 {
-    return QMessageBox::question(this, title, what, QMessageBox::Yes|QMessageBox::No,
-                                 defaultButton ? QMessageBox::Yes : QMessageBox::No) == QMessageBox::Yes;
+    QModelIndex idx = selectedIndex();
+    Q_ASSERT(m_model->isLocal(idx));
+
+    m_model->checkoutBranch(idx);
 }
 
 /* Prompt to delete a local branch and do so. */
-void BranchDialog::slotDeleteSelectedBranch()
+void BranchDialog::remove()
 {
-    const int idx = selectedLocalBranchIndex();
-    if (idx == -1)
+    QModelIndex selected = selectedIndex();
+    Q_ASSERT(selected != m_model->currentBranch()); // otherwise the button would not be enabled!
+
+    QString branchName = m_model->branchName(selected);
+    if (branchName.isEmpty())
         return;
-    const QString name = m_localModel->branchName(idx);
-    if (!ask(tr("Delete Branch"), tr("Would you like to delete the branch '%1'?").arg(name), true))
-        return;
-    QString errorMessage;
-    bool ok = false;
-    do {
-        QString output;
-        QStringList args(QLatin1String("-D"));
-        args << name;
-        if (!gitClient()->synchronousBranchCmd(m_repository, args, &output, &errorMessage))
-            break;
-        if (!m_localModel->refresh(m_repository, &errorMessage))
-            break;
-        ok = true;
-    } while (false);
-    slotEnableButtons();
-    if (!ok)
-        QMessageBox::warning(this, tr("Failed to delete branch"), errorMessage);
+
+    QString message = tr("Would you like to delete the branch '%1'?").arg(branchName);
+    bool wasMerged = m_model->branchIsMerged(selected);
+    if (!wasMerged)
+        message = tr("Would you like to delete the <b>unmerged</b> branch '%1'?").arg(branchName);
+
+    if (QMessageBox::question(this, tr("Delete Branch"), message, QMessageBox::Yes|QMessageBox::No,
+                              wasMerged ? QMessageBox::Yes : QMessageBox::No) == QMessageBox::Yes)
+        m_model->removeBranch(selected);
 }
 
-void BranchDialog::slotCreateLocalBranch(const QString &branchName)
+void BranchDialog::diff()
 {
-    // Create
-    QString output;
-    QString errorMessage;
-    bool ok = false;
-    do {
-        if (!gitClient()->synchronousBranchCmd(m_repository, QStringList(branchName), &output, &errorMessage))
-            break;
-        if (!m_localModel->refresh(m_repository, &errorMessage))
-            break;
-        ok = true;
-    } while (false);
-    if (!ok) {
-        QMessageBox::warning(this, tr("Failed to create branch"), errorMessage);
+    QString branchName = m_model->branchName(selectedIndex());
+    if (branchName.isEmpty())
         return;
-    }
-    selectLocalBranch(branchName);
+    GitPlugin::instance()->gitClient()->diffBranch(m_repository, QStringList(), branchName);
 }
 
-void BranchDialog::slotLocalBranchActivated()
+void BranchDialog::log()
 {
-    if (m_checkoutButton->isEnabled())
-        m_checkoutButton->animateClick();
-}
-
-void BranchDialog::slotDiffSelected()
-{
-    int idx = selectedLocalBranchIndex();
-    if (idx != -1) {
-        gitClient()->diffBranch(m_repository, QStringList(), m_localModel->branchName(idx));
+    QString branchName = m_model->branchName(selectedIndex());
+    if (branchName.isEmpty())
         return;
-    }
-    idx = selectedRemoteBranchIndex();
-    if (idx != -1)
-        gitClient()->diffBranch(m_repository, QStringList(), m_remoteModel->branchName(idx));
-}
-
-void BranchDialog::slotLog()
-{
-    int idx = selectedLocalBranchIndex();
-    if (idx != -1) {
-        gitClient()->graphLog(m_repository, m_localModel->branchName(idx));
-        return;
-    }
-    idx = selectedRemoteBranchIndex();
-    if (idx != -1)
-        gitClient()->graphLog(m_repository, m_remoteModel->branchName(idx));
-}
-
-/* Ask to stash away changes and then close dialog and do an asynchronous
- * checkout. */
-void BranchDialog::slotCheckoutSelectedBranch()
-{
-    const int idx = selectedLocalBranchIndex();
-    if (idx == -1)
-        return;
-    const QString name = m_localModel->branchName(idx);
-    QString errorMessage;
-    switch (gitClient()->ensureStash(m_repository, &errorMessage)) {
-        case GitClient::StashUnchanged:
-        case GitClient::Stashed:
-        case GitClient::NotStashed:
-        break;
-        case GitClient::StashCanceled:
-        return;
-        case GitClient::StashFailed:
-        QMessageBox::warning(this, tr("Failed to stash"), errorMessage);
-        return;
-    }
-    if (gitClient()->synchronousCheckoutBranch(m_repository, name, &errorMessage)) {
-        refresh(m_repository, true);
-    } else {
-        QMessageBox::warning(this, tr("Checkout failed"), errorMessage);
-    }
-}
-
-void BranchDialog::slotRemoteBranchActivated(const QModelIndex &i)
-{
-    // Double click on a remote branch (origin/foo): Switch to matching
-    // local (foo) one or offer to create a tracking branch.
-    const QString remoteName = m_remoteModel->branchName(i.row());
-    // build the name of the corresponding local branch
-    // and look for it in the local model.
-    const int slashPos = remoteName.indexOf(QLatin1Char('/'));
-    if (slashPos == -1)
-        return;
-    const QString localBranch = remoteName.mid(slashPos + 1);
-    if (localBranch == QLatin1String("HEAD") || localBranch == QLatin1String("master"))
-        return;
-   const int localIndex = m_localModel->findBranchByName(localBranch);
-   if (debug)
-        qDebug() << Q_FUNC_INFO << remoteName << localBranch << localIndex;
-   // There is a matching a local one!
-   if (localIndex != -1) {
-       // Is it the current one? Just close.
-       if (m_localModel->currentBranch() == localIndex) {
-           accept();
-           return;
-       }
-       // Nope, select and trigger checkout
-       selectListRow(m_ui->localBranchListView, localIndex);
-       slotLocalBranchActivated();
-       return;
-    }
-    // Does not exist yet. Ask to create.
-    const QString msg = tr("Would you like to create a local branch '%1' tracking the remote branch '%2'?").arg(localBranch, remoteName);
-    if (!ask(tr("Create branch"), msg, true))
-        return;
-    QStringList args(QLatin1String("--track"));
-    args << localBranch << remoteName;
-    QString errorMessage;
-    bool ok = false;
-    do {
-        QString output;
-        if (!gitClient()->synchronousBranchCmd(m_repository, args, &output, &errorMessage))
-            break;
-        if (!m_localModel->refresh(m_repository, &errorMessage))
-            break;
-        ok = true;
-    } while (false);
-    if (!ok) {
-        QMessageBox::warning(this, tr("Failed to create a tracking branch"), errorMessage);
-        return;
-    }
-    // Select it
-    selectLocalBranch(localBranch);
+    GitPlugin::instance()->gitClient()->graphLog(m_repository, branchName);
 }
 
 void BranchDialog::changeEvent(QEvent *e)
@@ -367,6 +202,14 @@ void BranchDialog::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+QModelIndex BranchDialog::selectedIndex()
+{
+    QModelIndexList selected = m_ui->branchView->selectionModel()->selectedIndexes();
+    if (selected.isEmpty())
+        return QModelIndex();
+    return selected.at(0);
 }
 
 } // namespace Internal

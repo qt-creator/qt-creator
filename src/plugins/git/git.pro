@@ -27,6 +27,7 @@ HEADERS += gitplugin.h \
     gitutils.h \
     remotemodel.h \
     remotedialog.h \
+    branchadddialog.h
 
 SOURCES += gitplugin.cpp \
     gitclient.cpp \
@@ -48,6 +49,7 @@ SOURCES += gitplugin.cpp \
     gitutils.cpp \
     remotemodel.cpp \
     remotedialog.cpp \
+    branchadddialog.cpp
 
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
@@ -56,8 +58,12 @@ FORMS += changeselectiondialog.ui \
     stashdialog.ui \
     remotedialog.ui \
     remoteadditiondialog.ui \
+    branchadddialog.ui
 
 include(gitorious/gitorious.pri)
 
 RESOURCES += \
     git.qrc
+
+
+

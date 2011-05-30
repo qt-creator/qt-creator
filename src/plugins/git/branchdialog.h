@@ -48,9 +48,8 @@ namespace Ui {
 class BranchDialog;
 }
 
-class GitClient;
-class LocalBranchModel;
-class RemoteBranchModel;
+class BranchAddDialog;
+class BranchModel;
 
 /**
  * Branch dialog. Displays a list of local branches at the top and remote
@@ -59,44 +58,33 @@ class RemoteBranchModel;
  */
 class BranchDialog : public QDialog {
     Q_OBJECT
-    Q_DISABLE_COPY(BranchDialog)
+
 public:
     explicit BranchDialog(QWidget *parent = 0);
-    virtual ~BranchDialog();
+    ~BranchDialog();
 
 public slots:
     void refresh(const QString &repository, bool force);
 
 private slots:
-    void slotEnableButtons(const QItemSelection &selected = QItemSelection());
-    void slotCheckoutSelectedBranch();
-    void slotDeleteSelectedBranch();
-    void slotDiffSelected();
-    void slotLog();
-    void slotRefresh();
-    void slotLocalBranchActivated();
-    void slotRemoteBranchActivated(const QModelIndex &);
-    void slotCreateLocalBranch(const QString &branchName);
+    void enableButtons();
+    void refresh();
+    void add();
+    void checkout();
+    void remove();
+    void diff();
+    void log();
 
 protected:
-    virtual void changeEvent(QEvent *e);
+    void changeEvent(QEvent *e);
 
 private:
-    bool ask(const QString &title, const QString &what, bool defaultButton);
-    void selectLocalBranch(const QString &b);
-
-    int selectedLocalBranchIndex() const;
-    int selectedRemoteBranchIndex() const;
+    QModelIndex selectedIndex();
 
     Ui::BranchDialog *m_ui;
-    QPushButton *m_checkoutButton;
-    QPushButton *m_diffButton;
-    QPushButton *m_logButton;
-    QPushButton *m_refreshButton;
-    QPushButton *m_deleteButton;
 
-    LocalBranchModel *m_localModel;
-    RemoteBranchModel *m_remoteModel;
+    BranchModel *m_model;
+
     QString m_repository;
 };
 

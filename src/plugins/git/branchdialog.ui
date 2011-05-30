@@ -16,11 +16,30 @@
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QGroupBox" name="infoGroupBox">
-     <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="topMargin">
+       <number>4</number>
+      </property>
+      <property name="bottomMargin">
+       <number>4</number>
+      </property>
+      <item>
        <widget class="QLabel" name="repositoryLabel">
         <property name="text">
          <string notr="true">Repository: Dummy</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="refreshButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Re&amp;fresh</string>
         </property>
        </widget>
       </item>
@@ -32,21 +51,63 @@
      <property name="title">
       <string>Branches</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QListView" name="localBranchListView"/>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="topMargin">
+       <number>4</number>
+      </property>
+      <property name="bottomMargin">
+       <number>4</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>9</number>
+      </property>
+      <item row="0" column="0" colspan="3">
+       <widget class="QTreeView" name="branchView">
+        <property name="rootIsDecorated">
+         <bool>false</bool>
+        </property>
+        <property name="uniformRowHeights">
+         <bool>true</bool>
+        </property>
+        <attribute name="headerVisible">
+         <bool>false</bool>
+        </attribute>
+       </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="remoteBranchGroupBox">
-     <property name="title">
-      <string>Remote Branches</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QListView" name="remoteBranchListView"/>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="addButton">
+        <property name="text">
+         <string>&amp;Add...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="removeButton">
+        <property name="text">
+         <string>&amp;Remove</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="diffButton">
+        <property name="text">
+         <string>&amp;Diff</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="logButton">
+        <property name="text">
+         <string>&amp;Log</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="checkoutButton">
+        <property name="text">
+         <string>&amp;Checkout</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -63,6 +124,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>branchView</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>checkoutButton</tabstop>
+  <tabstop>removeButton</tabstop>
+  <tabstop>diffButton</tabstop>
+  <tabstop>logButton</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>refreshButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
