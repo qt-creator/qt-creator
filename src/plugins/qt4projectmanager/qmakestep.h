@@ -142,7 +142,6 @@ class QMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     QMakeStepConfigWidget(QMakeStep *step);
     ~QMakeStepConfigWidget();
-    void init();
     QString summaryText() const;
     QString displayName() const;
 private slots:

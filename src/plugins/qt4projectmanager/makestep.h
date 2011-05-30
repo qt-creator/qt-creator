@@ -128,7 +128,6 @@ public:
     virtual ~MakeStepConfigWidget();
 
     QString displayName() const;
-    void init();
     QString summaryText() const;
 private slots:
     // User changes to our widgets

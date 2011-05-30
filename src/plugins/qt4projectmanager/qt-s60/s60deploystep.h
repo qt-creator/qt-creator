@@ -234,7 +234,6 @@ class S60DeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
 public:
     S60DeployStepWidget();
 
-    void init();
     QString summaryText() const;
     QString displayName() const;
 };

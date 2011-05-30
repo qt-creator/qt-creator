@@ -68,10 +68,6 @@ MaemoPackageCreationWidget::~MaemoPackageCreationWidget()
     delete m_ui;
 }
 
-void MaemoPackageCreationWidget::init()
-{
-}
-
 void MaemoPackageCreationWidget::initGui()
 {
     m_ui->shortDescriptionLineEdit->setMaxLength(60);

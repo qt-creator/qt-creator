@@ -191,7 +191,6 @@ class S60CreatePackageStepConfigWidget : public ProjectExplorer::BuildStepConfig
 public:
     S60CreatePackageStepConfigWidget(S60CreatePackageStep *signStep);
     QString displayName() const;
-    void init();
     QString summaryText() const;
 
 private slots:

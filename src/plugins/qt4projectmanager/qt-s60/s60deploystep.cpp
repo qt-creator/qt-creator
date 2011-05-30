@@ -858,10 +858,6 @@ S60DeployStepWidget::S60DeployStepWidget() : ProjectExplorer::BuildStepConfigWid
 {
 }
 
-void S60DeployStepWidget::init()
-{
-}
-
 QString S60DeployStepWidget::summaryText() const
 {
     return QString("<b>%1</b>").arg(displayName());

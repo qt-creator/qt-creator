@@ -63,15 +63,7 @@ MaemoDeployStepBaseWidget::MaemoDeployStepBaseWidget(AbstractLinuxDeviceDeploySt
     connect(list, SIGNAL(stepRemoved(int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(aboutToRemoveStep(int)),
         SLOT(handleStepToBeRemoved(int)));
-}
 
-MaemoDeployStepBaseWidget::~MaemoDeployStepBaseWidget()
-{
-    delete ui;
-}
-
-void MaemoDeployStepBaseWidget::init()
-{
     ui->deviceConfigComboBox->setModel(m_step->maemoDeployConfig()->deviceConfigModel().data());
     connect(&m_step->helper(), SIGNAL(deviceConfigChanged()),
         SLOT(handleDeviceUpdate()));
@@ -80,6 +72,11 @@ void MaemoDeployStepBaseWidget::init()
         SLOT(setCurrentDeviceConfig(int)));
     connect(ui->manageDevConfsLabel, SIGNAL(linkActivated(QString)),
         SLOT(showDeviceConfigurations()));
+}
+
+MaemoDeployStepBaseWidget::~MaemoDeployStepBaseWidget()
+{
+    delete ui;
 }
 
 void MaemoDeployStepBaseWidget::handleDeviceUpdate()

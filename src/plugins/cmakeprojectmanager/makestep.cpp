@@ -223,8 +223,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     m_additionalArguments = new QLineEdit(this);
     fl->addRow(tr("Additional arguments:"), m_additionalArguments);
-
-    connect(m_additionalArguments, SIGNAL(textEdited(const QString &)), this, SLOT(additionalArgumentsEdited()));
+    m_additionalArguments->setText(m_makeStep->additionalArguments());
 
     m_buildTargetsList = new QListWidget;
     m_buildTargetsList->setMinimumHeight(200);
@@ -236,12 +235,18 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     foreach(const QString& buildTarget, pro->buildTargetTitles()) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(Qt::Unchecked);
+        item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
 
+    updateDetails();
+
+    connect(m_additionalArguments, SIGNAL(textEdited(const QString &)), this, SLOT(additionalArgumentsEdited()));
     connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
+
+    connect(pro, SIGNAL(buildTargetsChanged()),
+            this, SLOT(buildTargetsChanged()));
 }
 
 void MakeStepConfigWidget::additionalArgumentsEdited()
@@ -259,26 +264,6 @@ void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 QString MakeStepConfigWidget::displayName() const
 {
     return tr("Make", "CMakeProjectManager::MakeStepConfigWidget display name.");
-}
-
-void MakeStepConfigWidget::init()
-{
-    // disconnect to make the changes to the items
-    disconnect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
-    int count = m_buildTargetsList->count();
-    for(int i = 0; i < count; ++i) {
-        QListWidgetItem *item = m_buildTargetsList->item(i);
-        item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
-    }
-    // and connect again
-    connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
-
-    m_additionalArguments->setText(m_makeStep->additionalArguments());
-    updateDetails();
-
-    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();
-    connect(pro, SIGNAL(buildTargetsChanged()),
-            this, SLOT(buildTargetsChanged()));
 }
 
 void MakeStepConfigWidget::buildTargetsChanged()

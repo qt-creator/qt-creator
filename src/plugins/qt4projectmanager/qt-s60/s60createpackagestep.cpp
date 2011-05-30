@@ -955,7 +955,3 @@ QString S60CreatePackageStepConfigWidget::displayName() const
 {
     return m_signStep->displayName();
 }
-
-void S60CreatePackageStepConfigWidget::init()
-{
-}

@@ -54,7 +54,6 @@ public:
     MaemoDeployStepBaseWidget(AbstractLinuxDeviceDeployStep *step);
     ~MaemoDeployStepBaseWidget();
 
-    void init();
     QString summaryText() const;
 
 signals:
@@ -77,7 +76,6 @@ public:
     MaemoDeployStepWidget(AbstractMaemoDeployStep *step);
 
 private:
-    virtual void init() { return m_baseWidget.init(); }
     virtual QString summaryText() const { return m_baseWidget.summaryText(); }
     virtual QString displayName() const { return QString(); }
 

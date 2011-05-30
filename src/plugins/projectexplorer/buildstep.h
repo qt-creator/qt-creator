@@ -132,7 +132,6 @@ public:
     BuildStepConfigWidget()
         : QWidget()
         {}
-    virtual void init() = 0;
     virtual QString summaryText() const = 0;
     virtual QString displayName() const = 0;
 signals:

@@ -288,6 +288,14 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     m_ui->makePathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->makePathChooser->setBaseDirectory(Utils::PathChooser::homePath());
 
+
+    const QString &makeCmd = m_makeStep->m_makeCmd;
+    m_ui->makePathChooser->setPath(makeCmd);
+    m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
+
+    updateMakeOverrideLabel();
+    updateDetails();
+
     connect(m_ui->makePathChooser, SIGNAL(changed(QString)),
             this, SLOT(makeEdited()));
     connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
@@ -378,17 +386,6 @@ void MakeStepConfigWidget::userArgumentsChanged()
 {
     if (m_ignoreChange)
         return;
-    m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
-    updateDetails();
-}
-
-void MakeStepConfigWidget::init()
-{
-    updateMakeOverrideLabel();
-
-    const QString &makeCmd = m_makeStep->m_makeCmd;
-    m_ui->makePathChooser->setPath(makeCmd);
-
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
     updateDetails();
 }

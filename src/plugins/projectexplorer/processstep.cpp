@@ -259,6 +259,18 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
     m_ui.setupUi(this);
     m_ui.command->setExpectedKind(Utils::PathChooser::Command);
     m_ui.workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
+
+    m_ui.command->setEnvironment(m_step->buildConfiguration()->environment());
+    m_ui.command->setPath(m_step->command());
+
+    m_ui.workingDirectory->setEnvironment(m_step->buildConfiguration()->environment());
+    m_ui.workingDirectory->setPath(m_step->workingDirectory());
+
+    m_ui.commandArgumentsLineEdit->setText(m_step->arguments());
+    m_ui.enabledCheckBox->setChecked(m_step->enabled());
+
+    updateDetails();
+
     connect(m_ui.command, SIGNAL(changed(QString)),
             this, SLOT(commandLineEditTextEdited()));
     connect(m_ui.workingDirectory, SIGNAL(changed(QString)),
@@ -292,20 +304,6 @@ void ProcessStepConfigWidget::updateDetails()
 QString ProcessStepConfigWidget::displayName() const
 {
     return m_step->displayName();
-}
-
-void ProcessStepConfigWidget::init()
-{
-    m_ui.command->setEnvironment(m_step->buildConfiguration()->environment());
-    m_ui.command->setPath(m_step->command());
-
-    m_ui.workingDirectory->setEnvironment(m_step->buildConfiguration()->environment());
-    m_ui.workingDirectory->setPath(m_step->workingDirectory());
-
-    m_ui.commandArgumentsLineEdit->setText(m_step->arguments());
-    m_ui.enabledCheckBox->setChecked(m_step->enabled());
-
-    updateDetails();
 }
 
 QString ProcessStepConfigWidget::summaryText() const

@@ -57,9 +57,7 @@ class AbstractMaemoInstallPackageToSysrootWidget : public BuildStepConfigWidget
     Q_OBJECT
 public:
     AbstractMaemoInstallPackageToSysrootWidget(AbstractMaemoInstallPackageToSysrootStep *step)
-        : m_step(step) {}
-
-    virtual void init()
+        : m_step(step)
     {
         BuildStepList * const list
              = qobject_cast<BuildStepList *>(m_step->parent());
@@ -117,9 +115,7 @@ class MaemoCopyFilesToSysrootWidget : public BuildStepConfigWidget
     Q_OBJECT
 public:
     MaemoCopyFilesToSysrootWidget(const BuildStep *buildStep)
-        : m_buildStep(buildStep) {}
-
-    virtual void init()
+        : m_buildStep(buildStep)
     {
         if (m_buildStep) {
             connect(m_buildStep.data(), SIGNAL(displayNameChanged()),

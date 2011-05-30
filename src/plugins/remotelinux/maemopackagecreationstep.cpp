@@ -578,9 +578,7 @@ class CreateTarStepWidget : public BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    CreateTarStepWidget(MaemoTarPackageCreationStep *step) : m_step(step) {}
-
-    virtual void init()
+    CreateTarStepWidget(MaemoTarPackageCreationStep *step) : m_step(step)
     {
         connect(m_step, SIGNAL(packageFilePathChanged()),
             SIGNAL(updateSummary()));

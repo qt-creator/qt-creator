@@ -109,7 +109,6 @@ class ProcessStepConfigWidget : public BuildStepConfigWidget
 public:
     ProcessStepConfigWidget(ProcessStep *step);
     virtual QString displayName() const;
-    virtual void init();
     virtual QString summaryText() const;
 private slots:
     void commandLineEditTextEdited();

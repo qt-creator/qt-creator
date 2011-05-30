@@ -49,7 +49,6 @@ public:
     MaemoPackageCreationWidget(AbstractMaemoPackageCreationStep *step);
     ~MaemoPackageCreationWidget();
 
-    virtual void init();
     virtual QString summaryText() const;
     virtual QString displayName() const;
 

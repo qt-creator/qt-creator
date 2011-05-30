@@ -207,8 +207,13 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     foreach (const QString &target, pro->buildTargets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_ui->targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(Qt::Unchecked);
+        item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
+
+    m_ui->makeLineEdit->setText(m_makeStep->m_makeCommand);
+    m_ui->makeArgumentsLineEdit->setText(m_makeStep->m_makeArguments);
+    updateMakeOverrrideLabel();
+    updateDetails();
 
     connect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)),
             this, SLOT(itemChanged(QListWidgetItem*)));
@@ -232,27 +237,6 @@ QString GenericMakeStepConfigWidget::displayName() const
 void GenericMakeStepConfigWidget::updateMakeOverrrideLabel()
 {
     m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand()));
-}
-
-void GenericMakeStepConfigWidget::init()
-{
-    updateMakeOverrrideLabel();
-
-    m_ui->makeLineEdit->setText(m_makeStep->m_makeCommand);
-    m_ui->makeArgumentsLineEdit->setText(m_makeStep->m_makeArguments);
-
-    // Disconnect to make the changes to the items
-    disconnect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
-
-    int count = m_ui->targetsList->count();
-    for (int i = 0; i < count; ++i) {
-        QListWidgetItem *item = m_ui->targetsList->item(i);
-        item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
-    }
-
-    updateDetails();
-    // and connect again
-    connect(m_ui->targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 }
 
 void GenericMakeStepConfigWidget::updateDetails()

@@ -507,11 +507,6 @@ QMakeStepConfigWidget::~QMakeStepConfigWidget()
     delete m_ui;
 }
 
-void QMakeStepConfigWidget::init()
-{
-
-}
-
 QString QMakeStepConfigWidget::summaryText() const
 {
     return m_summaryText;

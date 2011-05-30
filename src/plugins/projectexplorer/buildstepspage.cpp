@@ -62,7 +62,6 @@ BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
 {
     widget = s->createConfigWidget();
     Q_ASSERT(widget);
-    widget->init();
 
     detailsWidget = new Utils::DetailsWidget;
     detailsWidget->setWidget(widget);
