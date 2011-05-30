@@ -75,6 +75,7 @@
                 \o \l{Semantic Highlighting}
                 \o \l{Checking Code Syntax}
                 \o \l{Completing Code}
+                \o \l{Indenting Code}
                 \o \l{Finding and Replacing}
                 \o \l{Refactoring}
                 \o \l{Using Qt Quick Toolbars}
@@ -114,6 +115,7 @@
                    \endlist
                 \o \l{Specifying Run Settings}
                 \o \l{Specifying Editor Settings}
+                \o \l{Specifying Code Style Settings}
                 \o \l{Specifying Dependencies}
             \endlist
        \o \l{Debugging}
@@ -1843,7 +1845,7 @@
     \contentspage index.html
     \previouspage creator-checking-code-syntax.html
     \page creator-completing-code.html
-    \nextpage creator-editor-finding.html
+    \nextpage creator-indenting-code.html
 
     \title Completing Code
 
@@ -2268,6 +2270,10 @@
     open project, select \gui {Projects > Editor Settings}. For more
     information, see \l{Specifying Editor Settings}.
 
+    You can also specify indentation settings separately for C++ and QML files
+    either globally or for the open project. For more information, see
+    \l{Indenting Code}.
+
     \image qtcreator-font-colors.png "Text editor options"
 
     You can perform the following configuration actions:
@@ -2279,7 +2285,7 @@
            for other types of files than
              C++ or QML in \gui{Generic Highlighter}.
         \o Set tabs, indentation, the handling of whitespace, and mouse operations in
-           \gui Behavior.
+           \gui Behavior. For more information, see \l{Indenting Code}.
         \o Set various display properties, for example,
            \l{Highlighting and folding blocks}{highlighting and folding blocks},
            text wrapping or \l{Moving to symbol definition or declaration}
@@ -2334,73 +2340,7 @@
     format. The latter makes sure that syntax highlighting is preserved when
     pasting to a rich-text editor.
 
-    \section2 Indenting Code
-
-    \image qtcreator-indentation.png "Text Editor Behavior options"
-
-    When you type code, it is indented automatically according to the selected
-    options. Select a block to indent it when you press \key Tab.
-    Press \key {Shift+Tab} to decrease the indentation.
-
-    When you press \gui Backspace the indentation is decreased by one level,
-    instead of one space, by default.
-
-    By default, the tab-length in code editor is 8 spaces, but you can change
-    it. The code editor can also determine whether tabs or spaces are used
-    on the previous or next line and copy the style.
-
-    You can determine whether the block indent style includes braces,
-    or you can use the GNU indent style. The GNU style places braces on a separate
-    line, indented by 2 spaces, except when they open a function definition, where
-    they are not indented.
-
-    You can also specify whether continuation lines are aligned with the previous
-    code or just indented to the logical depth. You can always use spaces for
-    alignment or use spaces or tabs depending on the other options you selected.
-
-    The following code snippet illustrates excluding braces from the indented block:
-
-    \code
-
-    void foobar(bool zoo)
-    {
-        if (zoo)
-        {
-            foo();
-        }
-    }
-
-    \endcode
-
-    The following code snippet illustrates including braces in the indented block:
-
-    \code
-
-    void foobar(bool zoo)
-    {
-        if (zoo)
-            {
-            foo();
-            }
-    }
-
-    \endcode
-
-    The following code snippet illustrates the GNU style:
-
-    \code
-
-    void foobar(bool zoo)
-    {
-      if (zoo)
-        {
-          foo();
-        }
-    }
-
-    \endcode
-
-\section2 File Encoding
+    \section2 File Encoding
 
     To define the default file encoding, select the desired encoding in
     \gui {Default encoding}. By default, Qt Creator uses the file encoding
@@ -2412,6 +2352,165 @@
 /*!
     \contentspage index.html
     \previouspage creator-completing-code.html
+    \page creator-indenting-code.html
+    \nextpage creator-editor-finding.html
+
+    \title Indenting Code
+
+    When you type code, it is indented automatically according to the selected
+    text editor and code style options. Select a block to indent it when you
+    press \key Tab. Press \key {Shift+Tab} to decrease the indentation. You
+    can disable automatic indentation.
+
+    When you press \gui Backspace, the indentation is decreased by one level
+    in leading white space, by default. You can disable this setting.
+
+    Continuation lines are aligned with the previous line by using spaces. You
+    can disable automatic alignment to have them indented to the logical depth.
+    You can always use spaces for alignment or use spaces or tabs depending on
+    the other options you selected.
+
+    You can specify indentation either globally for all files or separately
+    for:
+
+    \list
+
+        \o  Text files
+
+        \o  C++ files
+
+        \o  QML files
+
+    \endlist
+
+    You can specify indentation either globally for all files of a particular
+    type or separately for each project.
+
+    \section1 Indenting Text Files
+
+    To specify global indentation settings for the text editor, select
+    \gui {Tools > Options... > Text Editor > Behavior}. You can also use these
+    settings globally for all editors and files.
+
+    \image qtcreator-indentation.png "Text Editor Behavior options"
+
+    To specify settings for a particular project, select \gui {Projects >
+    Editor Settings}.
+
+    \section1 Indenting C++ Files
+
+    To specify global indentation settings for the C++ editor, select
+    \gui {Tools > Options... > C++}.
+
+    \image qtcreator-options-code-style-cpp.png "C++ Code Style options"
+
+    To specify the settings for a particular project, select \gui {Projects >
+    Code Style Settings}.
+
+    You can specify how to:
+
+    \list
+
+        \o  Interpret the \key Tab and \key Backspace key presses.
+
+        \o  Indent the contents of classes, methods, blocks, and namespaces.
+
+        \o  Indent braces in classes, namespaces, enums, methods, and blocks.
+
+        \o  Control switch statements and their contents.
+
+        \o  Align continuation lines.
+
+    \endlist
+
+    You can use the live preview to see how the options change the indentation.
+
+    \section1 Indenting QML Files
+
+    To specify global settings for the Qt Quick editor, select \gui {Tools >
+    Options... > Qt Quick}.
+
+    \image qtcreator-options-code-style-qml.png "QML Code Style options"
+
+    To specify the settings for a particular project, select \gui {Projects >
+    Code Style Settings}.
+
+    You can specify how to interpret the \key Tab and \key Backspace key
+    presses.
+
+    \section1 Specifying Tab Settings
+
+    You can specify tab settings at the following levels:
+
+    \list
+
+        \o  Global settings for all files
+
+        \o  Global C++ settings for C++ files
+
+        \o  Global Qt Quick settings for QML files
+
+        \o  Project specific settings for all editors of files in the project
+
+        \o  Project specific settings for C++ files in the project
+
+        \o  Project specific settings for QML files in the project
+
+    \endlist
+
+    By default, the tab-length in code editor is 8 spaces. You can specify the
+    tab length separately for each project and for
+    different types of files.
+
+    The code editor can also determine whether tabs or spaces are used
+    on the previous or next line and copy the style.
+
+    The \key Tab key can automatically indent text when you press it, or only
+    when the cursor is located within leading white space.
+
+    \section1 Specifying Settings for Content
+
+    You can indent public, protected, and private statements and declarations
+    related to them within classes.
+
+    You can also indent statements within methods and blocks and declarations
+    within namespaces.
+
+    \image qtcreator-code-style-content.png "Content options"
+
+    \section1 Specifying Settings for Braces
+
+    You can indent class, namespace, enum and method declarations and code
+    blocks.
+
+    \image qtcreator-code-style-braces.png "Braces options"
+
+    \section1 Specifying Settings for Switch Statements
+
+    You can indent case or default statements, or statements or blocks related
+    to them within switch statements.
+
+    \image qtcreator-code-style-switch.png "Switch options"
+
+    \section1 Specifying Alignment
+
+    To align continuation lines to tokens after assignments, such as = or
+    +=, select the \gui {Align after assignments} check box. You can specify
+    additional settings for aligning continuation lines in the \gui General
+    tab.
+
+    You can also add spaces to conditional statements, so that they are not
+    aligned with the following line. Usually, this only affects \c if
+    statements.
+
+    \image qtcreator-code-style-alignment.png "Alignment options"
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-indenting-code.html
     \page creator-editor-finding.html
     \nextpage creator-editor-refactoring.html
 
@@ -4171,6 +4270,7 @@
        \o \l{Specifying Build Settings}{Build Settings}
        \o \l{Specifying Run Settings}{Run Settings}
        \o \l{Specifying Editor Settings}{Editor Settings}
+       \o \l{Specifying Code Style Settings}{Code Style Settings}
        \o \l{Specifying Dependencies}{Dependencies}
     \endlist
 
@@ -5530,18 +5630,34 @@
     \contentspage index.html
     \previouspage creator-run-settings.html
     \page creator-editor-settings.html
-    \nextpage creator-build-dependencies.html
+    \nextpage creator-code-style-settings.html
 
     \title Specifying Editor Settings
 
-    You can configure the code editor according to your needs. You can specify
+    Qt Creator uses the \l{Editing MIME Types}{MIME type} of the file to
+    determine which mode and editor to use for opening the file. For example,
+    Qt Creator opens .txt files in \gui Edit mode in the text editor.
+
+    You can configure the text editor according to your needs. You can specify
     editor behavior either globally for all projects or separately for each
     project. To specify global editor behavior, select \gui {Tools > Options...
     > Text Editor > Behavior}.
 
-    To configure the editor behavior for the current project, deselect the
-    \gui {Use global settings} check box in the \gui {Editor Settings} for the
-    project. For more information about the settings, see:
+    To configure the text editor behavior for the current project:
+
+    \list
+
+        \o  Select \gui {Projects > Editor Settings}.
+
+        \o  Deselect the \gui {Use global settings} check box.
+
+        \o  Specify text editor settings for the project.
+
+    \endlist
+
+    \image qtcreator-editor-settings.png "Editor Settings view"
+
+    For more information about the settings, see:
 
     \list
 
@@ -5555,14 +5671,57 @@
 
     \endlist
 
-    \image qtcreator-editor-settings.png "Editor Settings view"
-
 */
 
 
 /*!
     \contentspage index.html
     \previouspage creator-editor-settings.html
+    \page creator-code-style-settings.html
+    \nextpage creator-build-dependencies.html
+
+    \title Specifying Code Style Settings
+
+    Qt Creator uses the \l{Editing MIME Types}{MIME type} of the file to
+    determine which mode and editor to use for opening the file.
+    Qt Creator opens C++ files in \gui Edit mode in the C++ code editor and
+    QML files in the Qt Quick editor.
+
+    You can configure the code style according to your needs. You can specify
+    code style either globally for all projects or separately for each
+    project. To specify global code style for C++ files, select \gui {Tools >
+    Options... > C++}.
+
+    To specify global code style for QML files, select \gui {Tools > Options...
+    > Qt Quick}.
+
+    To configure the editor behavior for the current project:
+
+    \list
+
+        \o  Select \gui {Projects > Code Style Settings}.
+
+        \o  In the \gui Language field, select \gui C++ or \gui Qt Quick.
+
+        \o  Deselect the \gui {Use global settings} check box.
+
+        \o  In the \gui Settings field, select \gui Custom.
+
+        \o  Specify code style settings for the project. Only \gui General
+            settings are available for QML files.
+
+    \endlist
+
+    \image qtcreator-code-style-settings.png "Code Style Settings view"
+
+    For more information about the settings, see \l{Indenting Code}.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-code-style-settings.html
     \page creator-build-dependencies.html
     \nextpage creator-debugging.html
 
