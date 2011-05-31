@@ -689,16 +689,8 @@ public slots:
     void startRemoteEngine();
     void attachExternalApplication();
     Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
-    void attachExternalApplication(qint64 pid, const QString &binary,
-                                   const ProjectExplorer::Abi &abi,
-                                   const QString &debuggerCommand);
     void runScheduled();
     void attachCore();
-    void attachCore(const QString &core, const QString &exeFileName,
-                    const ProjectExplorer::Abi &abi = ProjectExplorer::Abi(),
-                    const QString &sysroot = QString(),
-                    const QString &overrideStartScript = QString(),
-                    const QString &debuggerCommand = QString());
     void attachRemote(const QString &spec);
 
     void enableReverseDebuggingTriggered(const QVariant &value);
@@ -1412,26 +1404,21 @@ void DebuggerPluginPrivate::attachExternalApplication()
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    setConfigValue(_("LastAttachExternalAbiIndex"), QVariant(dlg.abiIndex()));
-    attachExternalApplication(dlg.attachPID(), dlg.executable(), dlg.abi(), dlg.debuggerCommand());
-}
-
-void DebuggerPluginPrivate::attachExternalApplication(qint64 pid, const QString &binary,
-                                                      const ProjectExplorer::Abi &abi,
-                                                      const QString &debuggerCommand)
-{
-    if (pid == 0) {
+    if (dlg.attachPID() == 0) {
         QMessageBox::warning(mainWindow(), tr("Warning"),
-            tr("Cannot attach to PID 0"));
+            tr("Cannot attach to process with PID 0"));
         return;
     }
+
+    setConfigValue(_("LastAttachExternalAbiIndex"), QVariant(dlg.abiIndex()));
+
     DebuggerStartParameters sp;
-    sp.attachPID = pid;
-    sp.displayName = tr("Process %1").arg(pid);
-    sp.executable = binary;
+    sp.attachPID = dlg.attachPID();
+    sp.displayName = tr("Process %1").arg(dlg.attachPID());
+    sp.executable = dlg.executable();
     sp.startMode = AttachExternal;
-    sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.executable);
-    sp.debuggerCommand = debuggerCommand;
+    sp.toolChainAbi = dlg.abi();
+    sp.debuggerCommand = dlg.debuggerCommand();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1465,26 +1452,16 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue(_("LastExternalCoreAbiIndex"), QVariant(dlg.abiIndex()));
     setConfigValue(_("LastSysroot"), dlg.sysroot());
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
-    attachCore(dlg.coreFile(), dlg.executableFile(), dlg.abi(),
-               dlg.sysroot(), dlg.overrideStartScript());
-}
 
-void DebuggerPluginPrivate::attachCore(const QString &core,
-                                       const QString &exe,
-                                       const ProjectExplorer::Abi &abi,
-                                       const QString &sysroot,
-                                       const QString &overrideStartScript,
-                                       const QString &debuggerCommand)
-{
     DebuggerStartParameters sp;
-    sp.executable = exe;
-    sp.coreFile = core;
-    sp.displayName = tr("Core file \"%1\"").arg(core);
+    sp.executable = dlg.executableFile();
+    sp.coreFile = dlg.coreFile();
+    sp.displayName = tr("Core file \"%1\"").arg(dlg.coreFile());
     sp.startMode = AttachCore;
-    sp.debuggerCommand = debuggerCommand;
-    sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.coreFile);
-    sp.sysroot = sysroot;
-    sp.overrideStartScript = overrideStartScript;
+    sp.debuggerCommand = dlg.debuggerCommand();
+    sp.toolChainAbi = dlg.abi();
+    sp.sysroot = dlg.sysroot();
+    sp.overrideStartScript = dlg.overrideStartScript();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
