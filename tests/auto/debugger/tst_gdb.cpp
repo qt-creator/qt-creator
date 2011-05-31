@@ -36,15 +36,10 @@
 
 //bool checkUninitialized = true;
 bool checkUninitialized = false;
-//#define DO_DEBUG 1
+#define DO_DEBUG 1
 //TESTED_COMPONENT=src/plugins/debugger/gdb
 
 #include "gdb/gdbmi.h"
-
-#include <QtCore/QThread>
-#include <QtCore/QMutex>
-#include <QtCore/QSignalMapper>
-#include <QtCore/QWaitCondition>
 
 #ifdef QT_GUI_LIB
 #include <QtGui/QBitmap>
@@ -97,7 +92,7 @@ bool checkUninitialized = false;
 #endif
 #define DEBUGX(s) qDebug() << s
 
-#define gettid()  QString("0x%1").arg((qulonglong)(void *)currentThread(), 0, 16)
+#define gettid()  QString("0x%1").arg((qulonglong)(void *)currentGdbWrapper(), 0, 16)
 
 #ifdef Q_OS_WIN
 QString gdbBinary = "c:\\MinGw\\bin\\gdb.exe";
@@ -186,12 +181,14 @@ struct QString3
 
 class tst_Gdb;
 
-class Thread : public QThread
+class GdbWrapper : public QObject
 {
     Q_OBJECT
 
 public:
-    Thread(tst_Gdb *test);
+    GdbWrapper(tst_Gdb *test);
+    ~GdbWrapper();
+
     void startup(QProcess *proc);
     void run();
 
@@ -199,25 +196,34 @@ public:
 
 public slots:
     void readStandardOutput();
+    bool parseOutput(const QByteArray &ba);
     void readStandardError();
     void handleGdbStarted();
     void handleGdbError(QProcess::ProcessError);
     void handleGdbFinished(int, QProcess::ExitStatus);
-    void writeToGdbRequested(const QByteArray &ba)
+
+    QByteArray writeToGdbRequested(const QByteArray &ba)
     {
-        DEBUG("THREAD GDB IN: " << ba);
-        m_proc->write(ba);
-        m_proc->write("\n");
+        DEBUG("GDB IN: " << ba);
+        m_proc.write(ba);
+        m_proc.write("\n");
+        while (true) {
+            m_proc.waitForReadyRead();
+            QByteArray output = m_proc.readAllStandardOutput();
+            if (parseOutput(output))
+                break;
+        }
+        return m_buffer;
     }
 
 
 public:
-    QByteArray m_output;
     QByteArray m_lastStopped; // last seen "*stopped" message
     int m_line; // line extracted from last "*stopped" message
-    QProcess *m_proc; // owned
+    QProcess m_proc;
     tst_Gdb *m_test; // not owned
     QString m_errorString;
+    QByteArray m_buffer;
 };
 
 class tst_Gdb : public QObject
@@ -232,8 +238,10 @@ public:
         const QByteArray &expanded = QByteArray(), bool fancy = true);
     void next(int n = 1);
 
-signals:
-    void writeToGdb(const QByteArray &ba);
+    QByteArray writeToGdb(const QByteArray &ba)
+    {
+        return m_gdb->writeToGdbRequested(ba);
+    }
 
 private slots:
     void initTestCase();
@@ -307,12 +315,9 @@ private:
 
     QHash<QByteArray, int> m_lineForLabel;
     QByteArray m_function;
-    Thread m_thread;
+    GdbWrapper *m_gdb;
 };
 
-QByteArray buffer;
-QSemaphore freeBytes(1);
-QSemaphore usedBytes(0);
 
 //
 // Dumpers
@@ -358,66 +363,82 @@ static const QByteArray specQChar(QChar ch)
 
 /////////////////////////////////////////////////////////////////////////
 //
-// Gdb Thread
+// GdbWrapper
 //
 /////////////////////////////////////////////////////////////////////////
 
 
-Thread::Thread(tst_Gdb *test) : m_proc(0), m_test(test)
+GdbWrapper::GdbWrapper(tst_Gdb *test) : m_test(test)
 {
-//#ifdef Q_OS_WIN
-//    qDebug() << "\nTHREAD CREATED" << GetCurrentProcessId() << GetCurrentThreadId();
-//#else
-//    qDebug() << "\nTHREAD CREATED" << getpid() << gettid();
-//#endif
-    moveToThread(this);
-    connect(m_test, SIGNAL(writeToGdb(QByteArray)),
-            this, SLOT(writeToGdbRequested(QByteArray)), Qt::QueuedConnection);
-}
+    qWarning() << "SETUP START\n\n";
+#ifndef Q_CC_GNU
+    QSKIP("gdb test not applicable for compiler", SkipAll);
+#endif
+    //qDebug() << "\nRUN" << getpid() << gettid();
+    QStringList args;
+    args << QLatin1String("-i")
+            << QLatin1String("mi") << QLatin1String("--args")
+            << qApp->applicationFilePath();
+    qWarning() << "Starting" << gdbBinary << args;
+    m_proc.start(gdbBinary, args);
+    if (!m_proc.waitForStarted()) {
+        const QString msg = QString::fromLatin1("Unable to run %1: %2")
+            .arg(gdbBinary, m_proc.errorString());
+        QSKIP(msg.toLatin1().constData(), SkipAll);
+    }
 
-void Thread::startup(QProcess *proc)
-{
-    m_proc = proc;
-    m_proc->moveToThread(this);
-    connect(m_proc, SIGNAL(error(QProcess::ProcessError)),
+    connect(&m_proc, SIGNAL(error(QProcess::ProcessError)),
         this, SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(&m_proc, SIGNAL(finished(int, QProcess::ExitStatus)),
         this, SLOT(handleGdbFinished(int, QProcess::ExitStatus)));
-    connect(m_proc, SIGNAL(started()),
+    connect(&m_proc, SIGNAL(started()),
         this, SLOT(handleGdbStarted()));
-    connect(m_proc, SIGNAL(readyReadStandardOutput()),
+    connect(&m_proc, SIGNAL(readyReadStandardOutput()),
         this, SLOT(readStandardOutput()));
-    connect(m_proc, SIGNAL(readyReadStandardError()),
+    connect(&m_proc, SIGNAL(readyReadStandardError()),
         this, SLOT(readStandardError()));
-    start();
+
+    m_proc.write("python execfile('../../../share/qtcreator/gdbmacros/dumper.py')\n");
+    m_proc.write("python execfile('../../../share/qtcreator/gdbmacros/gdbmacros.py')\n");
+    m_proc.write("bbsetup\n");
+    m_proc.write("break breaker\n");
+    m_proc.write("handle SIGSTOP stop pass\n");
+    m_proc.write("run\n");
 }
 
-void Thread::handleGdbError(QProcess::ProcessError error)
+GdbWrapper::~GdbWrapper()
+{
+}
+
+void GdbWrapper::handleGdbError(QProcess::ProcessError error)
 {
     qDebug() << "GDB ERROR: " << error;
-    //this->exit();
 }
 
-void Thread::handleGdbFinished(int code, QProcess::ExitStatus st)
+void GdbWrapper::handleGdbFinished(int code, QProcess::ExitStatus st)
 {
     qDebug() << "GDB FINISHED: " << code << st;
-    //m_waitCondition.wakeAll();
-    //this->exit();
-    //throw 42;
 }
 
-void Thread::readStandardOutput()
+void GdbWrapper::readStandardOutput()
 {
-    QByteArray ba = m_proc->readAllStandardOutput();
-    DEBUG("THREAD GDB OUT: " << ba);
+    //parseOutput(m_proc.readAllStandardOutput());
+}
+
+bool GdbWrapper::parseOutput(const QByteArray &ba0)
+{
+    if (ba0.isEmpty())
+        return false;
+    QByteArray ba = ba0;
+    DEBUG("GDB OUT: " << ba);
     // =library-loaded...
     if (ba.startsWith("=")) {
-        //DEBUG("LIBRARY LOADED");
-        return;
+        DEBUG("LIBRARY LOADED");
+        return false;
     }
     if (ba.startsWith("*stopped")) {
         m_lastStopped = ba;
-        DEBUG("THREAD GDB OUT 2: " << ba);
+        DEBUG("GDB OUT 2: " << ba);
         if (!ba.contains("func=\"breaker\"")) {
             int pos1 = ba.indexOf(",line=\"") + 7;
             int pos2 = ba.indexOf("\"", pos1);
@@ -467,59 +488,39 @@ void Thread::readStandardOutput()
 
     // No interesting output before 'locals=...'
     int pos = ba.indexOf("locals={iname=");
-    if (pos == -1 && m_output.isEmpty())
-        return;
+    if (pos == -1 && ba.isEmpty())
+        return true;
 
-    if (m_output.isEmpty())
-        m_output = ba.mid(pos);
+    QByteArray output;
+    if (output.isEmpty())
+        output = ba.mid(pos);
     else
-        m_output += ba;
+        output += ba;
     // Up to ^done\n(gdb)
-    pos = m_output.indexOf("(gdb)");
+    pos = output.indexOf("(gdb)");
     if (pos == -1)
-        return;
-    m_output = m_output.left(pos);
-    pos = m_output.indexOf("^done");
+        return true;
+    output = output.left(pos);
+    pos = output.indexOf("^done");
     if (pos >= 4)
-        m_output = m_output.left(pos - 4);
+        output = output.left(pos - 4);
 
-    if (m_output.isEmpty())
-        return;
+    if (output.isEmpty())
+        return true;
 
-    //qWarning() << "WAKE UP: " << m_output;
-    //qDebug() << "\n2 ABOUT TO ACQUIRE FREE ";
-    freeBytes.acquire();
-    //qDebug() << "\n2 ACQUIRED FREE ";
-    buffer = m_output;
-    m_output.clear();
-    //m_waitCondition.wakeAll();
-    //qDebug() << "\n2 ABOUT TO RELEASE USED";
-    usedBytes.release();
-    //qDebug() << "\n2 RELEASED USED";
+    m_buffer += output;
+    return true;
 }
 
-void Thread::readStandardError()
+void GdbWrapper::readStandardError()
 {
-    QByteArray ba = m_proc->readAllStandardError();
-    qDebug() << "THREAD GDB ERR: " << ba;
+    QByteArray ba = m_proc.readAllStandardError();
+    qDebug() << "GDB ERR: " << ba;
 }
 
-void Thread::handleGdbStarted()
+void GdbWrapper::handleGdbStarted()
 {
     //qDebug() << "\n\nGDB STARTED" << getpid() << gettid() << "\n\n";
-}
-
-void Thread::run()
-{
-    m_proc->write("python execfile('../../../share/qtcreator/gdbmacros/dumper.py')\n");
-    m_proc->write("python execfile('../../../share/qtcreator/gdbmacros/gdbmacros.py')\n");
-    m_proc->write("bbsetup\n");
-    m_proc->write("break breaker\n");
-    m_proc->write("handle SIGSTOP stop pass\n");
-    m_proc->write("run\n");
-    qDebug() << "\n2 THREAD RUNNING, RELEASE FREE";
-    freeBytes.release();
-    exec();
 }
 
 
@@ -530,32 +531,12 @@ void Thread::run()
 /////////////////////////////////////////////////////////////////////////
 
 tst_Gdb::tst_Gdb()
-    : m_thread(this)
+    : m_gdb(0)
 {
-
 }
 
 void tst_Gdb::initTestCase()
 {
-    qWarning() << "SETUP START\n\n";
-#ifndef Q_CC_GNU
-    QSKIP("gdb test not applicable for compiler", SkipAll);
-#endif
-    //qDebug() << "\nTHREAD RUN" << getpid() << gettid();
-    QProcess *gdbProc = new QProcess;
-    QStringList args;
-    args << QLatin1String("-i")
-            << QLatin1String("mi") << QLatin1String("--args")
-            << qApp->applicationFilePath();
-    qWarning() << "Starting" << gdbBinary << args;
-    gdbProc->start(gdbBinary, args);
-    if (!gdbProc->waitForStarted()) {
-        const QString msg = QString::fromLatin1("Unable to run %1: %2")
-            .arg(gdbBinary, gdbProc->errorString());
-        delete gdbProc;
-        QSKIP(msg.toLatin1().constData(), SkipAll);
-    }
-
     const QString fileName = "tst_gdb.cpp";
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -577,13 +558,14 @@ void tst_Gdb::initTestCase()
             m_lineForLabel[QByteArray(funcName + ba.mid(7, pos - 8)).trimmed()] = i + 1;
         }
     }
-    //freeBytes.acquire();
-    m_thread.startup(gdbProc);
-    //usedBytes.release();
+
+    Q_ASSERT(!m_gdb);
+    m_gdb = new GdbWrapper(this);
 }
 
 void tst_Gdb::prepare(const QByteArray &function)
 {
+    Q_ASSERT(m_gdb);
     m_function = function;
     writeToGdb("b " + function);
     writeToGdb("call " + function + "()");
@@ -603,26 +585,15 @@ void tst_Gdb::check(const QByteArray &label, const QByteArray &expected0,
     if (fancy)
         options += ",fancy";
     options += ",autoderef";
-    writeToGdb("bb options:" + options + " vars: expanded:" + expanded
+    QByteArray ba = writeToGdb("bb options:" + options
+        + " vars: expanded:" + expanded
         + " typeformats: formats: watchers:\n");
 
     //bb options:fancy,autoderef vars: expanded: typeformats:63686172202a=1
     //formats: watchers:
 
-    //qDebug() << "\n1 ABOUT TO ACQUIRE USED ";
-    usedBytes.acquire();
-    //qDebug() << "\n1 ACQUIRED USED ";
-    QByteArray ba = buffer;
-    buffer.clear();
-    //qDebug() << "\n1 ABOUT TO RELEASE FREE ";
-    freeBytes.release();
-    //qDebug() << "\n1 RELEASED FREE ";
-
     //locals.fromString("{" + ba + "}");
     QByteArray received = ba.replace("\"", "'");
-    //qDebug() << "OUTPUT: " << ba << "\n\n";
-    //qDebug() << "OUTPUT: " << locals.toString() << "\n\n";
-
     QByteArray actual = received.trimmed();
     int pos = actual.indexOf("^done");
     if (pos != -1)
@@ -633,7 +604,7 @@ void tst_Gdb::check(const QByteArray &label, const QByteArray &expected0,
         actual.chop(2);
     QByteArray expected = "locals={iname='local',name='Locals',value=' ',type=' ',"
         "children=[" + expected0 + "]}";
-    int line = m_thread.m_line;
+    int line = m_gdb->m_line;
 
     QByteArrayList l1_0 = actual.split(',');
     QByteArrayList l1;
@@ -688,7 +659,7 @@ void tst_Gdb::check(const QByteArray &label, const QByteArray &expected0,
     int expline = m_lineForLabel.value(m_function + '@' + label);
     int actline = line;
     if (actline != expline) {
-        qWarning() << "LAST STOPPED: " << m_thread.m_lastStopped;
+        qWarning() << "LAST STOPPED: " << m_gdb->m_lastStopped;
     }
     QCOMPARE(actline, expline);
 }
@@ -701,10 +672,13 @@ void tst_Gdb::next(int n)
 
 void tst_Gdb::cleanupTestCase()
 {
+    Q_ASSERT(m_gdb);
     writeToGdb("kill");
     writeToGdb("quit");
-    //m_thread.m_proc->waitForFinished();
-    //m_thread.wait();
+    //m_gdb.m_proc.waitForFinished();
+    //m_gdb.wait();
+    delete m_gdb;
+    m_gdb = 0;
 }
 
 
