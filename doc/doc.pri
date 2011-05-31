@@ -3,17 +3,20 @@ HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator)
 
 VERSION_TAG = $$replace(QTCREATOR_VERSION, "[-.]", )
 
-equals(QMAKE_DIR_SEP, /) {   # unix, mingw+msys
-    QDOC = SRCDIR=$$PWD OUTDIR=$$OUT_PWD/doc/html QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG $$QDOC_BIN
-} else:win32-g++* {   # just mingw
-    # The lack of spaces in front of the && is necessary!
-    QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$OUT_PWD/doc/html&& set QTC_VERSION=$$QTCREATOR_VERSION&& set QTC_VERSION_TAG=$$VERSION_TAG&& $$QDOC_BIN
-} else {   # nmake
-    QDOC = set SRCDIR=$$PWD $$escape_expand(\\n\\t) \
-           set OUTDIR=$$OUT_PWD/doc/html $$escape_expand(\\n\\t) \
-           set QTC_VERSION=$$QTCREATOR_VERSION $$escape_expand(\\n\\t) \
-           set QTC_VERSION_TAG=$$VERSION_TAG $$escape_expand(\\n\\t) \
-           $$QDOC_BIN
+defineReplace(qdoc) {
+    equals(QMAKE_DIR_SEP, /) {   # unix, mingw+msys
+        QDOC = SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG $$QDOC_BIN
+    } else:win32-g++* {   # just mingw
+        # The lack of spaces in front of the && is necessary!
+        QDOC = set SRCDIR=$$PWD&& set OUTDIR=$$1&& set QTC_VERSION=$$QTCREATOR_VERSION&& set QTC_VERSION_TAG=$$VERSION_TAG&& $$QDOC_BIN
+    } else {   # nmake
+        QDOC = set SRCDIR=$$PWD $$escape_expand(\\n\\t) \
+               set OUTDIR=$$1 $$escape_expand(\\n\\t) \
+               set QTC_VERSION=$$QTCREATOR_VERSION $$escape_expand(\\n\\t) \
+               set QTC_VERSION_TAG=$$VERSION_TAG $$escape_expand(\\n\\t) \
+               $$QDOC_BIN
+    }
+    return($$QDOC)
 }
 
 QHP_FILE = $$OUT_PWD/doc/html/qtcreator.qhp
@@ -29,30 +32,53 @@ HELP_DEP_FILES = $$PWD/qtcreator.qdoc \
                  $$PWD/config/qt-html-default-styles.qdocconf \
                  $$PWD/qtcreator.qdocconf
 
-html_docs.commands = $$QDOC $$PWD/qtcreator.qdocconf
+html_docs.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator.qdocconf
 html_docs.depends += $$HELP_DEP_FILES
 html_docs.files = $$QHP_FILE
 
-html_docs_online.commands = $$QDOC $$PWD/qtcreator-online.qdocconf
+html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html) $$PWD/qtcreator-online.qdocconf
 html_docs_online.depends += $$HELP_DEP_FILES
 
 qch_docs.commands = $$HELPGENERATOR -o \"$$QCH_FILE\" $$QHP_FILE
 qch_docs.depends += html_docs
+
+DEV_QHP_FILE = $$OUT_PWD/doc/api/html/qtcreator-dev.qhp
+DEV_QCH_FILE = $$IDE_DOC_PATH/qtcreator-dev.qch
+
+DEV_HELP_DEP_FILES = \
+    $$PWD/api/qtcreator-api.qdoc \
+    $$PWD/api/coding-style.qdoc \
+    $$PWD/api/external-tool-spec.qdoc \
+    $$PWD/api/qtcreator-dev.qdoc \
+    $$PWD/api/qtcreator-dev-wizards.qdoc \
+    $$PWD/api/qtcreator-dev.qdocconf
+
+dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/api/html) $$PWD/api/qtcreator-dev.qdocconf
+dev_html_docs.depends += $$DEV_HELP_DEP_FILES
+
+dev_html_docs_online.commands = $$qdoc($$OUT_PWD/doc/api/html) $$PWD/api/qtcreator-dev-online.qdocconf
+dev_html_docs_online.depends += $$DEV_HELP_DEP_FILES
+
+dev_qch_docs.commands = $$HELPGENERATOR -o \"$$DEV_QCH_FILE\" $$DEV_QHP_FILE
+dev_qch_docs.depends += dev_html_docs
 
 unix:!macx {
     inst_qch_docs.files = $$QCH_FILE
     inst_qch_docs.path = /share/doc/qtcreator
     inst_qch_docs.CONFIG += no_check_exist
     INSTALLS += inst_qch_docs
+
+    inst_dev_qch_docs.files = $$DEV_QCH_FILE
+    inst_dev_qch_docs.path = /share/doc/qtcreator
+    inst_dev_qch_docs.CONFIG += no_check_exist
+    INSTALLS += inst_dev_qch_docs
 }
 
-docs_online.depends = html_docs_online
-docs.depends = qch_docs
-QMAKE_EXTRA_TARGETS += html_docs html_docs_online qch_docs docs docs_online
+docs_online.depends = html_docs_online dev_html_docs_online
+docs.depends = qch_docs dev_qch_docs
+QMAKE_EXTRA_TARGETS += html_docs dev_html_docs html_docs_online dev_html_docs_online qch_docs dev_qch_docs docs docs_online
 
-OTHER_FILES = $$HELP_DEP_FILES \
-              $$PWD/api/qtcreator-api.qdoc \
-              $$PWD/api/qtcreator-api.qdocconf
+OTHER_FILES = $$HELP_DEP_FILES $$DEV_HELP_DEP_FILES
 
 fixnavi.commands = \
     cd $$targetPath($$PWD) && \
