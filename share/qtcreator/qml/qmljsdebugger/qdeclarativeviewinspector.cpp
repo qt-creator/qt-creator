@@ -164,8 +164,6 @@ QDeclarativeViewInspector::QDeclarativeViewInspector(QDeclarativeView *view, QOb
     connect(data->debugService,
             SIGNAL(objectReparentRequested(QObject *, QObject *)),
             data.data(), SLOT(_q_reparentQmlObject(QObject *, QObject *)));
-    connect(data->debugService, SIGNAL(contextPathIndexChanged(int)),
-            data.data(), SLOT(_q_changeContextPathIndex(int)));
     connect(data->debugService, SIGNAL(clearComponentCacheRequested()),
             data.data(), SLOT(_q_clearComponentCache()));
     connect(data->view, SIGNAL(statusChanged(QDeclarativeView::Status)),
