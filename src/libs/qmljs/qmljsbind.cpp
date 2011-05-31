@@ -269,7 +269,10 @@ bool Bind::visit(UiImport *ast)
                         errorMessage(ast, tr("package import requires a version number")));
         }
     } else if (ast->fileName) {
-        const QFileInfo importFileInfo(_doc->path() + QDir::separator() + ast->fileName->asString());
+        QFileInfo importFileInfo(ast->fileName->asString());
+        if (!importFileInfo.isAbsolute()) {
+            importFileInfo=QFileInfo(_doc->path() + QDir::separator() + ast->fileName->asString());
+        }
         name = importFileInfo.absoluteFilePath();
         if (importFileInfo.isFile())
             type = ImportInfo::FileImport;
