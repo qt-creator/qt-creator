@@ -135,27 +135,32 @@ static QList<Abi> abiOf(const QByteArray &data)
             && static_cast<unsigned char>(data.at(2)) == 'L' && static_cast<unsigned char>(data.at(3)) == 'F') {
         // ELF format:
         quint16 machine = (data.at(19) << 8) + data.at(18);
+
+        //http://www.sco.com/developers/gabi/latest/ch4.eheader.html#elfid
+        const Abi::OS os = static_cast<quint8>(data.at(7)) == 9 ? Abi::FreeBSDOS : Abi::LinuxOS;
+        const Abi::OSFlavor flavor = os == Abi::FreeBSDOS ? Abi::GenericFreeBSDFlavor : Abi::GenericLinuxFlavor;
+
         switch (machine) {
         case 3: // EM_386
-            result.append(Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
+            result.append(Abi(Abi::X86Architecture, os, flavor, Abi::ElfFormat, 32));
             break;
         case 8: // EM_MIPS
-            result.append(Abi(Abi::MipsArcitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
+            result.append(Abi(Abi::MipsArcitecture, os, flavor, Abi::ElfFormat, 32));
             break;
         case 20: // EM_PPC
-            result.append(Abi(Abi::PowerPCArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
+            result.append(Abi(Abi::PowerPCArchitecture, os, flavor, Abi::ElfFormat, 32));
             break;
         case 21: // EM_PPC64
-            result.append(Abi(Abi::PowerPCArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
+            result.append(Abi(Abi::PowerPCArchitecture, os, flavor, Abi::ElfFormat, 64));
             break;
         case 40: // EM_ARM
-            result.append(Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 32));
+            result.append(Abi(Abi::ArmArchitecture, os, flavor, Abi::ElfFormat, 32));
             break;
         case 62: // EM_X86_64
-            result.append(Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
+            result.append(Abi(Abi::X86Architecture, os, flavor, Abi::ElfFormat, 64));
             break;
         case 50: // EM_IA_64
-            result.append(Abi(Abi::ItaniumArchitecture, Abi::LinuxOS, Abi::GenericLinuxFlavor, Abi::ElfFormat, 64));
+            result.append(Abi(Abi::ItaniumArchitecture, os, flavor, Abi::ElfFormat, 64));
             break;
         default:
             ;;
@@ -211,6 +216,9 @@ Abi::Abi(const Architecture &a, const OS &o,
         if (m_osFlavor < GenericLinuxFlavor || m_osFlavor > MeegoLinuxFlavor)
             m_osFlavor = UnknownFlavor;
         break;
+    case ProjectExplorer::Abi::FreeBSDOS:
+        m_osFlavor = GenericFreeBSDFlavor;
+        break;
     case ProjectExplorer::Abi::MacOS:
         if (m_osFlavor < GenericMacFlavor || m_osFlavor > GenericMacFlavor)
             m_osFlavor = UnknownFlavor;
@@ -257,6 +265,8 @@ Abi::Abi(const QString &abiString) :
             m_os = UnknownOS;
         else if (abiParts.at(1) == QLatin1String("linux"))
             m_os = LinuxOS;
+        else if (abiParts.at(1) == QLatin1String("freebsd"))
+            m_os = FreeBSDOS;
         else if (abiParts.at(1) == QLatin1String("macos"))
             m_os = MacOS;
         else if (abiParts.at(1) == QLatin1String("symbian"))
@@ -275,6 +285,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = UnknownFlavor;
         else if (abiParts.at(2) == QLatin1String("generic") && m_os == LinuxOS)
             m_osFlavor = GenericLinuxFlavor;
+        else if (abiParts.at(2) == QLatin1String("generic") && m_os == FreeBSDOS)
+            m_osFlavor = GenericFreeBSDFlavor;
         else if (abiParts.at(2) == QLatin1String("maemo") && m_os == LinuxOS)
             m_osFlavor = MaemoLinuxFlavor;
         else if (abiParts.at(2) == QLatin1String("meego") && m_os == LinuxOS)
@@ -408,6 +420,8 @@ QString Abi::toString(const OS &o)
     switch (o) {
     case LinuxOS:
         return QLatin1String("linux");
+    case FreeBSDOS:
+        return QLatin1String("freebsd");
     case MacOS:
         return QLatin1String("macos");
     case SymbianOS:
@@ -426,6 +440,8 @@ QString Abi::toString(const OSFlavor &of)
 {
     switch (of) {
     case ProjectExplorer::Abi::GenericLinuxFlavor:
+        return QLatin1String("generic");
+    case ProjectExplorer::Abi::GenericFreeBSDFlavor:
         return QLatin1String("generic");
     case ProjectExplorer::Abi::MaemoLinuxFlavor:
         return QLatin1String("maemo");

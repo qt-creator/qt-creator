@@ -57,6 +57,7 @@ public:
 
     enum OS {
         UnknownOS,
+        FreeBSDOS,
         LinuxOS,
         MacOS,
         SymbianOS,
@@ -66,6 +67,9 @@ public:
 
     enum OSFlavor {
         UnknownFlavor,
+
+        // FreeBSD
+        GenericFreeBSDFlavor,
 
         // Linux
         GenericLinuxFlavor,

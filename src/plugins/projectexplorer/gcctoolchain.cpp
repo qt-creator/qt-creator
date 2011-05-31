@@ -206,6 +206,11 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
             if (flavor == Abi::UnknownFlavor)
                 flavor = ProjectExplorer::Abi::GenericLinuxFlavor;
             format = ProjectExplorer::Abi::ElfFormat;
+        } else if (p.contains("freebsd")) {
+            os = ProjectExplorer::Abi::FreeBSDOS;
+            if (flavor == Abi::UnknownFlavor)
+                flavor = ProjectExplorer::Abi::GenericFreeBSDFlavor;
+            format = ProjectExplorer::Abi::ElfFormat;
         } else if (p == QLatin1String("meego")) {
             os = ProjectExplorer::Abi::LinuxOS;
             flavor = ProjectExplorer::Abi::MeegoLinuxFlavor;
@@ -383,6 +388,8 @@ QString GccToolChain::mkspec() const
         return QLatin1String("macx-g++");
     if (abi.os() == Abi::LinuxOS)
         return QLatin1String("linux-g++-") + QString::number(m_targetAbi.wordWidth());
+    if (abi.os() == Abi::FreeBSDOS)
+        return QLatin1String("freebsd-g++");
     return QString();
 }
 
