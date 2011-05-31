@@ -42,7 +42,7 @@ html_docs_online.depends += $$HELP_DEP_FILES
 qch_docs.commands = $$HELPGENERATOR -o \"$$QCH_FILE\" $$QHP_FILE
 qch_docs.depends += html_docs
 
-DEV_QHP_FILE = $$OUT_PWD/doc/api/html/qtcreator-dev.qhp
+DEV_QHP_FILE = $$OUT_PWD/doc/html-dev/qtcreator-dev.qhp
 DEV_QCH_FILE = $$IDE_DOC_PATH/qtcreator-dev.qch
 
 DEV_HELP_DEP_FILES = \
@@ -53,10 +53,10 @@ DEV_HELP_DEP_FILES = \
     $$PWD/api/qtcreator-dev-wizards.qdoc \
     $$PWD/api/qtcreator-dev.qdocconf
 
-dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/api/html) $$PWD/api/qtcreator-dev.qdocconf
+dev_html_docs.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev.qdocconf
 dev_html_docs.depends += $$DEV_HELP_DEP_FILES
 
-dev_html_docs_online.commands = $$qdoc($$OUT_PWD/doc/api/html) $$PWD/api/qtcreator-dev-online.qdocconf
+dev_html_docs_online.commands = $$qdoc($$OUT_PWD/doc/html-dev) $$PWD/api/qtcreator-dev-online.qdocconf
 dev_html_docs_online.depends += $$DEV_HELP_DEP_FILES
 
 dev_qch_docs.commands = $$HELPGENERATOR -o \"$$DEV_QCH_FILE\" $$DEV_QHP_FILE
