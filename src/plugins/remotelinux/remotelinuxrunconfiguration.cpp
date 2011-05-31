@@ -292,18 +292,20 @@ AbstractLinuxDeviceDeployStep *RemoteLinuxRunConfiguration::deployStep() const
     return MaemoGlobal::earlierBuildStep<AbstractLinuxDeviceDeployStep>(deployConfig(), 0);
 }
 
-QString RemoteLinuxRunConfiguration::targetRoot() const
-{
-    QTC_ASSERT(activeQt4BuildConfiguration(), return QString());
-    QtSupport::BaseQtVersion *v = activeQt4BuildConfiguration()->qtVersion();
-    if (!v)
-        return QString();
-    return MaemoGlobal::targetRoot(v->qmakeCommand());
-}
-
 QString RemoteLinuxRunConfiguration::arguments() const
 {
     return m_d->arguments;
+}
+
+QString RemoteLinuxRunConfiguration::commandPrefix() const
+{
+    if (!deviceConfig())
+        return QString();
+
+    return QString::fromLocal8Bit("%1 %2")
+        .arg(MaemoGlobal::remoteCommandPrefix(deviceConfig()->osVersion(),
+             deviceConfig()->sshParameters().userName, remoteExecutableFilePath()))
+        .arg(MaemoGlobal::remoteEnvironment(userEnvironmentChanges()));
 }
 
 QString RemoteLinuxRunConfiguration::localDirToMountForRemoteGdb() const

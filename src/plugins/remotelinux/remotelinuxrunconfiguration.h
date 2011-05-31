@@ -96,8 +96,8 @@ public:
 
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
-    QString targetRoot() const;
     QString arguments() const;
+    QString commandPrefix() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const;
     PortList freePorts() const;
     bool useRemoteGdb() const;

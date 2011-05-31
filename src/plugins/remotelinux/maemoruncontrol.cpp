@@ -96,11 +96,8 @@ void MaemoRunControl::handleSshError(const QString &error)
 void MaemoRunControl::startExecution()
 {
     appendMessage(tr("Starting remote process ...\n"), Utils::NormalMessageFormat);
-    m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3 %4")
-        .arg(MaemoGlobal::remoteCommandPrefix(m_runner->devConfig()->osVersion(),
-            m_runner->connection()->connectionParameters().userName,
-            m_runner->remoteExecutable()))
-        .arg(MaemoGlobal::remoteEnvironment(m_runner->userEnvChanges()))
+    m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3")
+        .arg(m_runner->commandPrefix())
         .arg(m_runner->remoteExecutable())
         .arg(m_runner->arguments()).toUtf8());
 }

@@ -35,8 +35,6 @@
 #include "linuxdeviceconfiguration.h"
 #include "maemomountspecification.h"
 
-#include <utils/environment.h>
-
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
@@ -71,7 +69,7 @@ public:
     PortList *freePorts() { return &m_freePorts; }
     QString remoteExecutable() const { return m_remoteExecutable; }
     QString arguments() const { return m_appArguments; }
-    QList<Utils::EnvironmentItem> userEnvChanges() const { return m_userEnvChanges; }
+    QString commandPrefix() const { return m_commandPrefix; }
     const QSharedPointer<const LinuxDeviceConfiguration> devConfig() const { return m_devConfig; }
 
     static const qint64 InvalidExitCode;
@@ -116,7 +114,7 @@ private:
     const QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
     const QString m_remoteExecutable;
     const QString m_appArguments;
-    const QList<Utils::EnvironmentItem> m_userEnvChanges;
+    const QString m_commandPrefix;
     const PortList m_initialFreePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
 

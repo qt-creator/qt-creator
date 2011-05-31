@@ -75,11 +75,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(RemoteLinuxRunConfiguration
         if (runConfig->useRemoteGdb()) {
             params.startMode = StartRemoteGdb;
             params.executable = runConfig->remoteExecutableFilePath();
-            params.debuggerCommand = MaemoGlobal::remoteCommandPrefix(runConfig->deviceConfig()->osVersion(),
-                runConfig->deviceConfig()->sshParameters().userName,
-                runConfig->remoteExecutableFilePath())
-                + MaemoGlobal::remoteEnvironment(runConfig->userEnvironmentChanges())
-                + QLatin1String(" /usr/bin/gdb");
+            params.debuggerCommand = runConfig->commandPrefix() + QLatin1String(" /usr/bin/gdb");
             params.connParams = devConf->sshParameters();
             params.localMountDir = runConfig->localDirToMountForRemoteGdb();
             params.remoteMountPoint
@@ -127,7 +123,6 @@ MaemoDebugSupport::MaemoDebugSupport(RemoteLinuxRunConfiguration *runConfig,
       m_deviceConfig(m_runConfig->deviceConfig()),
       m_runner(new MaemoSshRunner(this, runConfig, true)),
       m_debuggingType(runConfig->debuggingType()),
-      m_userEnvChanges(runConfig->userEnvironmentChanges()),
       m_state(Inactive), m_gdbServerPort(-1), m_qmlPort(-1),
       m_useGdb(useGdb)
 {
@@ -205,9 +200,6 @@ void MaemoDebugSupport::startExecution()
             SLOT(handleRemoteProcessStarted()));
     }
     const QString &remoteExe = m_runner->remoteExecutable();
-    const QString cmdPrefix = MaemoGlobal::remoteCommandPrefix(m_deviceConfig->osVersion(),
-        m_deviceConfig->sshParameters().userName, remoteExe);
-    const QString env = MaemoGlobal::remoteEnvironment(m_userEnvChanges);
     QString args = m_runner->arguments();
     if (m_debuggingType != RemoteLinuxRunConfiguration::DebugCppOnly) {
         args += QString(QLatin1String(" -qmljsdebugger=port:%1,block"))
@@ -215,11 +207,9 @@ void MaemoDebugSupport::startExecution()
     }
 
     const QString remoteCommandLine = m_debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly
-        ? QString::fromLocal8Bit("%1 %2 %3 %4").arg(cmdPrefix).arg(env)
-            .arg(remoteExe).arg(args)
-        : QString::fromLocal8Bit("%1 %2 gdbserver :%3 %4 %5")
-            .arg(cmdPrefix).arg(env).arg(m_gdbServerPort)
-            .arg(remoteExe).arg(args);
+        ? QString::fromLocal8Bit("%1 %2 %3").arg(m_runner->commandPrefix()).arg(remoteExe).arg(args)
+        : QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4").arg(m_runner->commandPrefix())
+              .arg(m_gdbServerPort).arg(remoteExe).arg(args);
     connect(m_runner, SIGNAL(remoteProcessFinished(qint64)),
         SLOT(handleRemoteProcessFinished(qint64)));
     m_runner->startExecution(remoteCommandLine.toUtf8());

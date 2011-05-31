@@ -34,8 +34,6 @@
 
 #include "remotelinuxrunconfiguration.h"
 
-#include <utils/environment.h>
-
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QSharedPointer>
@@ -90,7 +88,6 @@ private:
     const QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfig;
     MaemoSshRunner * const m_runner;
     const RemoteLinuxRunConfiguration::DebuggingType m_debuggingType;
-    const QList<Utils::EnvironmentItem> m_userEnvChanges;
 
     QByteArray m_gdbserverOutput;
     State m_state;

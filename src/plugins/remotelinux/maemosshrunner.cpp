@@ -62,7 +62,7 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
       m_devConfig(runConfig->deviceConfig()),
       m_remoteExecutable(runConfig->remoteExecutableFilePath()),
       m_appArguments(runConfig->arguments()),
-      m_userEnvChanges(runConfig->userEnvironmentChanges()),
+      m_commandPrefix(runConfig->commandPrefix()),
       m_initialFreePorts(runConfig->freePorts()),
       m_mountSpecs(runConfig->remoteMounts()->mountSpecs()),
       m_state(Inactive)
