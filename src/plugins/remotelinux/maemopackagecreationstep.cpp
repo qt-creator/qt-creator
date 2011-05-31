@@ -485,9 +485,9 @@ void MaemoDebianPackageCreationStep::ensureShlibdeps(QByteArray &rulesContent)
     const QString whiteSpace(QLatin1String("[ \\t]*"));
     const QString pattern = QLatin1String("\\n") + whiteSpace
         + QLatin1Char('#') + whiteSpace + QLatin1String("dh_shlibdeps")
-        + QLatin1String("[^\\n]*\\n");
+        + QLatin1String("([^\\n]*)\\n");
     contentAsString.replace(QRegExp(pattern),
-        QLatin1String("\n\tdh_shlibdeps\n"));
+        QLatin1String("\n\tdh_shlibdeps\\1\n"));
     rulesContent = contentAsString.toLocal8Bit();
 }
 
