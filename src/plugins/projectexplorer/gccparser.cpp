@@ -623,17 +623,17 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << QString();
 
     QTest::newRow("enumeration warning")
-            << QString::fromLatin1("../../../src/shared/proparser/profileevaluator.cpp: In member function ‘ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)’:\n"
-                                   "../../../src/shared/proparser/profileevaluator.cpp:2817:9: warning: case value ‘0’ not in enumerated type ‘ProFileEvaluator::Private::TestFunc’")
+            << QString::fromLatin1("../../../src/shared/proparser/profileevaluator.cpp: In member function 'ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)':\n"
+                                   "../../../src/shared/proparser/profileevaluator.cpp:2817:9: warning: case value '0' not in enumerated type â€˜ProFileEvaluator::Private::TestFuncâ€™")
             << OutputParserTester::STDERR
             << QString() << QString()
             << ( QList<ProjectExplorer::Task>()
                 << Task(Task::Unknown,
-                        QLatin1String("In member function ‘ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)’:"),
+                        QLatin1String("In member function 'ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)':"),
                         QLatin1String("../../../src/shared/proparser/profileevaluator.cpp"), -1,
                         Constants::TASK_CATEGORY_COMPILE)
                 << Task(Task::Warning,
-                        QLatin1String("case value ‘0’ not in enumerated type ‘ProFileEvaluator::Private::TestFunc’"),
+                        QLatin1String("case value '0' not in enumerated type â€˜ProFileEvaluator::Private::TestFuncâ€™"),
                         QLatin1String("../../../src/shared/proparser/profileevaluator.cpp"), 2817,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();

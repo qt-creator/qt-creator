@@ -480,7 +480,7 @@
     }
 	\endcode
 	
-	The \bold{readFile()} method is implemented to read a file and return its contents as a string. Before returning the file’s
+	The \bold{readFile()} method is implemented to read a file and return its contents as a string. Before returning the file's
 	contents as string, the function uses the replacement table passed as second parameter to fix the string.
 	
 	\code

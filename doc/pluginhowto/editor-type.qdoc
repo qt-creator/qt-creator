@@ -34,7 +34,7 @@
     \section2  10.1.1 The Core::IFile interface
     
     This interface abstracts file operations from the user-interface point of view. It provides virtual methods to load and
-    save files, given a file name. It also helps in understanding the mime-type of file and value of certain flags like “modified”
+    save files, given a file name. It also helps in understanding the mime-type of file and value of certain flags like "modified"
     and "read-only". The \bold{Core::IFile} interface is declared as follows in src/plugins/coreplugin/ifile.h
     
    \code
@@ -77,7 +77,7 @@
         actual disk-file contents have not been modified. \bold {QFile} emits the \bold {bytesWritten()} signal only when the
         disk-file contents have been modified.
         
-    \o  \bold {IFile} has to handle how a modified file, on the disk, is reloaded. \bold {QFile} on the other-hand doesn’t need to
+    \o  \bold {IFile} has to handle how a modified file, on the disk, is reloaded. \bold {QFile} on the other-hand doesn't need to
         handle this.    
     \endlist
 

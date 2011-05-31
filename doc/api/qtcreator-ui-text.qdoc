@@ -236,7 +236,7 @@
             \o  Different languages have different word order rules.
 
                 Do not use run-time concatenation. Use complete phrases
-                and “%1” formatting instead. For example, use:
+                and "%1" formatting instead. For example, use:
 
                 \c{tr("Foo failed: %1").arg(message)}
 
