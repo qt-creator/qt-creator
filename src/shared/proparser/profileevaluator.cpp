@@ -275,7 +275,11 @@ public:
 
     int m_skipLevel;
     int m_loopLevel; // To report unexpected break() and next()s
+#ifdef PROEVALUATOR_CUMULATIVE
     bool m_cumulative;
+#else
+    enum { m_cumulative = 0 };
+#endif
 
     struct Location {
         Location() : pro(0), line(0) {}
@@ -502,7 +506,9 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option,
     initStatics();
 
     // Configuration, more or less
+#ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = true;
+#endif
 
     // Evaluator state
     m_skipLevel = 0;
@@ -1218,8 +1224,10 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                 locker.unlock();
 #endif
 
+#ifdef PROEVALUATOR_CUMULATIVE
                 bool cumulative = m_cumulative;
                 m_cumulative = false;
+#endif
 
                 // ### init QMAKE_QMAKE, QMAKE_SH
                 // ### init QMAKE_EXT_{C,H,CPP,OBJ}
@@ -1333,7 +1341,9 @@ ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::visitProFile(
                 m_option->base_valuemap = m_valuemapStack.top();
                 m_option->base_functions = m_functionDefs;
 
+#ifdef PROEVALUATOR_CUMULATIVE
                 m_cumulative = cumulative;
+#endif
 
 #ifdef PROEVALUATOR_THREAD_SAFE
                 locker.relock();
@@ -3237,14 +3247,18 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(const QString &fileName)
         fn = resolvePath(fn);
     }
 
+#ifdef PROEVALUATOR_CUMULATIVE
     bool cumulative = m_cumulative;
     m_cumulative = false;
+#endif
 
     // The path is fully normalized already.
     bool ok = evaluateFileDirect(fn, ProFileEvaluatorHandler::EvalFeatureFile,
                                  ProFileEvaluator::LoadProOnly);
 
+#ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = cumulative;
+#endif
     return ok;
 }
 
@@ -3253,7 +3267,9 @@ bool ProFileEvaluator::Private::evaluateFileInto(
         QHash<ProString, ProStringList> *values, FunctionDefs *funcs, EvalIntoMode mode)
 {
     ProFileEvaluator visitor(m_option, m_parser, m_handler);
+#ifdef PROEVALUATOR_CUMULATIVE
     visitor.d->m_cumulative = false;
+#endif
     visitor.d->m_outputDir = m_outputDir;
 //    visitor.d->m_valuemapStack.top() = *values;
     if (funcs)
@@ -3424,10 +3440,12 @@ QString ProFileEvaluator::propertyValue(const QString &name) const
     return d->propertyValue(name, false);
 }
 
+#ifdef PROEVALUATOR_CUMULATIVE
 void ProFileEvaluator::setCumulative(bool on)
 {
     d->m_cumulative = on;
 }
+#endif
 
 void ProFileEvaluator::setOutputDir(const QString &dir)
 {

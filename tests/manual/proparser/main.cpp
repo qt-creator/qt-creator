@@ -91,7 +91,9 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
     visited.insert(fileName);
 
     ProFileEvaluator visitor(option, parser, &evalHandler);
+#ifdef PROEVALUATOR_CUMULATIVE
     visitor.setCumulative(cumulative);
+#endif
     visitor.setOutputDir(out_pwd);
 
     ProFile *pro;

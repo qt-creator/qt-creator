@@ -115,7 +115,9 @@ public:
     ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType() const;
+#ifdef PROEVALUATOR_CUMULATIVE
     void setCumulative(bool on); // Default is true!
+#endif
     void setOutputDir(const QString &dir); // Default is empty
 
     enum LoadFlag {
