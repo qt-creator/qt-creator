@@ -55,7 +55,8 @@ class VCSBaseEditorParameterWidgetPrivate
 {
 public:
     VCSBaseEditorParameterWidgetPrivate() :
-        m_layout(0), m_comboBoxOptionTemplate(QLatin1String("%1=%2")) {}
+        m_layout(0), m_comboBoxOptionTemplate(QLatin1String("%{option}=%{value}"))
+    { }
 
     QStringList m_baseArguments;
     QHBoxLayout *m_layout;
