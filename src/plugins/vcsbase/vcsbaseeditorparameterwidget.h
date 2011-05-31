@@ -66,6 +66,10 @@ public:
     static QString msgIgnoreBlankLinesLabel();
     static QString msgIgnoreBlankLinesToolTip();
 
+public slots:
+    virtual void executeCommand();
+    virtual void handleArgumentsChanged();
+
 signals:
     // Trigger a re-run to show changed output according to new argument list.
     void argumentsChanged();

@@ -118,6 +118,7 @@ VCSBaseEditorParameterWidget::VCSBaseEditorParameterWidget(QWidget *parent) :
     d->m_layout = new QHBoxLayout(this);
     d->m_layout->setContentsMargins(3, 0, 3, 0);
     d->m_layout->setSpacing(2);
+    connect(this, SIGNAL(argumentsChanged()), this, SLOT(handleArgumentsChanged()));
 }
 
 VCSBaseEditorParameterWidget::~VCSBaseEditorParameterWidget()
@@ -184,6 +185,15 @@ QString VCSBaseEditorParameterWidget::msgIgnoreBlankLinesLabel()
 QString VCSBaseEditorParameterWidget::msgIgnoreBlankLinesToolTip()
 {
     return tr("Ignore changes in blank lines");
+}
+
+void VCSBaseEditorParameterWidget::executeCommand()
+{
+}
+
+void VCSBaseEditorParameterWidget::handleArgumentsChanged()
+{
+    executeCommand();
 }
 
 } // namespace VCSBase
