@@ -1905,7 +1905,7 @@ void tst_Dumpers::dumpQObjectSignalHelper(QObject &o, int sigNum)
 {
     //qDebug() << o.objectName() << sigNum;
     QByteArray expected("addr='<synthetic>',numchild='1',type='"NS"QObjectSignal'");
-#if QT_VERSION >= 0x040400
+#if QT_VERSION >= 0x040400 && QT_VERSION <= 0x040700
     expected.append(",children=[");
     const QObjectPrivate *p = Cheater::getPrivate(o);
     Q_ASSERT(p != 0);
