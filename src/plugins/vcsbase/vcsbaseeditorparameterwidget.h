@@ -38,6 +38,10 @@
 #include <QtGui/QWidget>
 #include <QtCore/QStringList>
 
+QT_BEGIN_NAMESPACE
+class QToolButton;
+QT_END_NAMESPACE
+
 namespace VCSBase {
 class VCSBaseEditorParameterWidgetPrivate;
 
@@ -52,13 +56,13 @@ public:
     QStringList baseArguments() const;
     void setBaseArguments(const QStringList &);
 
-    void addToggleButton(const QString &option, const QString &label,
-                         const QString &tooltip = QString());
-    void addIgnoreWhiteSpaceButton(const QString &option);
-    void addIgnoreBlankLinesButton(const QString &option);
+    QToolButton *addToggleButton(const QString &option, const QString &label,
+                                 const QString &tooltip = QString());
+    QToolButton *addIgnoreWhiteSpaceButton(const QString &option);
+    QToolButton *addIgnoreBlankLinesButton(const QString &option);
 
     // Return the effective arguments according to setting.
-    QStringList arguments() const;
+    virtual QStringList arguments() const;
 
     // Standard texts
     static QString msgIgnoreWhiteSpaceLabel();
@@ -74,7 +78,20 @@ signals:
     // Trigger a re-run to show changed output according to new argument list.
     void argumentsChanged();
 
+protected:
+    struct OptionMapping
+    {
+        OptionMapping();
+        OptionMapping(const QString &optName, QWidget *w);
+        QString optionName;
+        QWidget *widget;
+    };
+
+    const QList<OptionMapping> &optionMappings() const;
+    virtual QStringList argumentsForOption(const OptionMapping &mapping) const;
+
 private:
+    friend class VCSBaseEditorParameterWidgetPrivate;
     QScopedPointer<VCSBaseEditorParameterWidgetPrivate> d;
 };
 

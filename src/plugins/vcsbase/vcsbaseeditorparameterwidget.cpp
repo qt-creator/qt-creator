@@ -38,58 +38,6 @@
 #include <QtCore/QDebug>
 
 namespace VCSBase {
-namespace Internal {
-
-/*!
-    \class VCSBase::Internal::VCSBaseEditorParameterToggleButton
-
-    \brief ToggleButton to be inserted into VCSBase::VCSBaseEditorParameterWidget
-
-    Inserts a single option into the argument list depending on whether it is checked.
-*/
-
-class VCSBaseEditorParameterToggleButton : public QToolButton
-{
-    Q_OBJECT
-public:
-    explicit VCSBaseEditorParameterToggleButton(QWidget *parent = 0);
-
-    void applyToArguments(QStringList *w) const;
-    void setFromArguments(const QStringList &a);
-
-    void setOption(const QString &o)  { m_option = o; }
-    QString option() const { return m_option; }
-
-signals:
-    void changed();
-
-private:
-    QString m_option;
-};
-
-VCSBaseEditorParameterToggleButton::VCSBaseEditorParameterToggleButton(QWidget *parent) :
-    QToolButton(parent)
-{
-    setCheckable(true);
-    connect(this, SIGNAL(toggled(bool)), this, SIGNAL(changed()));
-}
-
-void VCSBaseEditorParameterToggleButton::applyToArguments(QStringList *a) const
-{
-    if (isChecked()) {
-        if (!a->contains(m_option))
-            a->append(m_option);
-    } else {
-        a->removeAll(m_option);
-    }
-}
-
-void VCSBaseEditorParameterToggleButton::setFromArguments(const QStringList &a)
-{
-    setChecked(a.contains(m_option));
-}
-
-} // namespace Internal
 
 class VCSBaseEditorParameterWidgetPrivate
 {
@@ -98,7 +46,7 @@ public:
 
     QStringList m_baseArguments;
     QHBoxLayout *m_layout;
-    QList<Internal::VCSBaseEditorParameterToggleButton *> m_toggles;
+    QList<VCSBaseEditorParameterWidget::OptionMapping> m_optionMappings;
 };
 
 /*!
@@ -138,33 +86,34 @@ void VCSBaseEditorParameterWidget::setBaseArguments(const QStringList &b)
 QStringList VCSBaseEditorParameterWidget::arguments() const
 {
     // Compile effective arguments
-    QStringList args = d->m_baseArguments;
-    foreach (const Internal::VCSBaseEditorParameterToggleButton *tb, d->m_toggles)
-        tb->applyToArguments(&args);
+    QStringList args = baseArguments();
+    foreach (const OptionMapping &mapping, optionMappings())
+        args += argumentsForOption(mapping);
     return args;
 }
 
-void VCSBaseEditorParameterWidget::addToggleButton(const QString &option,
-                                                   const QString &label,
-                                                   const QString &toolTip)
+QToolButton *VCSBaseEditorParameterWidget::addToggleButton(const QString &option,
+                                                           const QString &label,
+                                                           const QString &toolTip)
 {
-    Internal::VCSBaseEditorParameterToggleButton *tb = new Internal::VCSBaseEditorParameterToggleButton;
-    tb->setOption(option);
+    QToolButton *tb = new QToolButton;
     tb->setText(label);
     tb->setToolTip(toolTip);
-    connect(tb, SIGNAL(changed()), this, SIGNAL(argumentsChanged()));
+    tb->setCheckable(true);
+    connect(tb, SIGNAL(toggled(bool)), this, SIGNAL(argumentsChanged()));
     d->m_layout->addWidget(tb);
-    d->m_toggles.append(tb);
+    d->m_optionMappings.append(OptionMapping(option, tb));
+    return tb;
 }
 
-void VCSBaseEditorParameterWidget::addIgnoreWhiteSpaceButton(const QString &option)
+QToolButton *VCSBaseEditorParameterWidget::addIgnoreWhiteSpaceButton(const QString &option)
 {
-    addToggleButton(option, msgIgnoreWhiteSpaceLabel(), msgIgnoreWhiteSpaceToolTip());
+    return addToggleButton(option, msgIgnoreWhiteSpaceLabel(), msgIgnoreWhiteSpaceToolTip());
 }
 
-void VCSBaseEditorParameterWidget::addIgnoreBlankLinesButton(const QString &option)
+QToolButton *VCSBaseEditorParameterWidget::addIgnoreBlankLinesButton(const QString &option)
 {
-    addToggleButton(option, msgIgnoreBlankLinesLabel(), msgIgnoreBlankLinesToolTip());
+    return addToggleButton(option, msgIgnoreBlankLinesLabel(), msgIgnoreBlankLinesToolTip());
 }
 
 QString VCSBaseEditorParameterWidget::msgIgnoreWhiteSpaceLabel()
@@ -196,6 +145,28 @@ void VCSBaseEditorParameterWidget::handleArgumentsChanged()
     executeCommand();
 }
 
-} // namespace VCSBase
+VCSBaseEditorParameterWidget::OptionMapping::OptionMapping() :
+    widget(0)
+{
+}
 
-#include "vcsbaseeditorparameterwidget.moc"
+VCSBaseEditorParameterWidget::OptionMapping::OptionMapping(const QString &optName, QWidget *w) :
+    optionName(optName), widget(w)
+{
+}
+
+const QList<VCSBaseEditorParameterWidget::OptionMapping> &VCSBaseEditorParameterWidget::optionMappings() const
+{
+    return d->m_optionMappings;
+}
+
+QStringList VCSBaseEditorParameterWidget::argumentsForOption(const OptionMapping &mapping) const
+{
+    QStringList args;
+    const QToolButton *tb = qobject_cast<const QToolButton *>(mapping.widget);
+    if (tb != 0 && tb->isChecked())
+        args += mapping.optionName;
+    return args;
+}
+
+} // namespace VCSBase
