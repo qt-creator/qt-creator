@@ -51,6 +51,20 @@ class IRunConfigurationAspect;
 class RunControl;
 class Target;
 
+// FIXME: This should also contain a handle to an remote device if used.
+class PROJECTEXPLORER_EXPORT ProcessHandle
+{
+public:
+    explicit ProcessHandle(quint64 pid = 0) : m_pid(pid) {}
+
+    bool isValid() const { return m_pid != 0; }
+    void setPid(quint64 pid) { m_pid = pid; }
+    quint64 pid() const { return m_pid; }
+
+private:
+    quint64 m_pid;
+};
+
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 {
@@ -210,6 +224,9 @@ public:
     virtual QString displayName() const;
     virtual QIcon icon() const = 0;
 
+    ProcessHandle applicationProcessHandle() const;
+    void setApplicationProcessHandle(const ProcessHandle &handle);
+
     bool sameRunConfiguration(const RunControl *other) const;
 
     Utils::OutputFormatter *outputFormatter();
@@ -240,6 +257,9 @@ private:
     const QWeakPointer<RunConfiguration> m_runConfiguration;
     Utils::OutputFormatter *m_outputFormatter;
 
+    // A handle to the actual application process.
+    ProcessHandle m_applicationProcessHandle;
+
 #ifdef Q_OS_MAC
     //these two are used to bring apps in the foreground on Mac
     qint64 m_internalPid;
@@ -251,5 +271,6 @@ private:
 
 // Allow a RunConfiguration to be stored in a QVariant
 Q_DECLARE_METATYPE(ProjectExplorer::RunConfiguration*)
+Q_DECLARE_METATYPE(ProjectExplorer::RunControl*)
 
 #endif // RUNCONFIGURATION_H

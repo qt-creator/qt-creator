@@ -151,6 +151,12 @@ IRunConfigurationFactory *findRunConfigurationFactory(RunConfigurationFactoryMat
 } // namespace
 
 /*!
+    \class ProjectExplorer::ProcessHandle
+    \brief  Helper class to describe a process.
+
+*/
+
+/*!
     \class ProjectExplorer::RunConfiguration
     \brief  Base class for a run configuration. A run configuration specifies how a
     target should be run, while the runner (see below) does the actual running.
@@ -351,6 +357,7 @@ Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
     return new Utils::OutputFormatter();
 }
 
+
 /*!
     \class ProjectExplorer::IRunConfigurationFactory
 
@@ -490,6 +497,16 @@ QString RunControl::runMode() const
 QString RunControl::displayName() const
 {
     return m_displayName;
+}
+
+ProcessHandle RunControl::applicationProcessHandle() const
+{
+    return m_applicationProcessHandle;
+}
+
+void RunControl::setApplicationProcessHandle(const ProcessHandle &handle)
+{
+    m_applicationProcessHandle = handle;
 }
 
 bool RunControl::promptToStop(bool *optionalPrompt) const

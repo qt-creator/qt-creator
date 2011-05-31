@@ -97,6 +97,7 @@ public slots:
 private slots:
     void reRunRunControl();
     void stopRunControl();
+    void attachToRunControl();
     bool closeTab(int index);
     void tabChanged(int);
     void runControlStarted();
@@ -132,6 +133,7 @@ private:
     QAction *m_stopAction;
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
+    QToolButton *m_attachButton;
 };
 
 } // namespace Internal

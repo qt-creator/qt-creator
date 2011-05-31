@@ -348,13 +348,14 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
             this, SLOT(slotAppendMessage(QString, Utils::OutputFormat)));
     connect(&m_applicationLauncher, SIGNAL(processExited(int)),
             this, SLOT(processExited(int)));
-    connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
-            this, SLOT(bringApplicationToForeground(qint64)));
+    connect(&m_applicationLauncher, SIGNAL(bringToForegroundRequested(quint64)),
+            this, SLOT(bringApplicationToForeground(quint64)));
 }
 
 void S60EmulatorRunControl::start()
 {
     m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable, QString());
+    setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
     emit started();
 
     QString msg = tr("Starting %1...\n").arg(QDir::toNativeSeparators(m_executable));

@@ -520,6 +520,8 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
 
     d->m_inferiorPid = d->m_startParameters.attachPID > 0
         ? d->m_startParameters.attachPID : 0;
+    if (d->m_inferiorPid)
+        d->m_runControl->setApplicationProcessHandle(ProcessHandle(d->m_inferiorPid));
 
     if (!d->m_startParameters.environment.size())
         d->m_startParameters.environment = Utils::Environment();
@@ -1174,6 +1176,7 @@ void DebuggerEngine::notifyInferiorPid(qint64 pid)
         return;
     d->m_inferiorPid = pid;
     if (pid) {
+        d->m_runControl->setApplicationProcessHandle(ProcessHandle(pid));
         showMessage(tr("Taking notice of pid %1").arg(pid));
         if (d->m_startParameters.startMode == StartInternal
             || d->m_startParameters.startMode == StartExternal

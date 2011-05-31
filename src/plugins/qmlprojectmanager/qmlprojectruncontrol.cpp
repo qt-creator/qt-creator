@@ -96,7 +96,7 @@ void QmlProjectRunControl::start()
 {
     m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable,
                                 m_commandLineArguments);
-
+    setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
     emit started();
     QString msg = tr("Starting %1 %2\n")
         .arg(QDir::toNativeSeparators(m_executable), m_commandLineArguments);

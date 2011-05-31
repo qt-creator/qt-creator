@@ -46,6 +46,8 @@
 #include <aggregation/aggregate.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/invoker.h>
 
 #include <utils/qtcassert.h>
 #include <utils/outputformatter.h>
@@ -62,6 +64,11 @@ enum { debug = 0 };
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+static QObject *debuggerCore()
+{
+    return ExtensionSystem::PluginManager::instance()->getObjectByName("DebuggerCore");
+}
+
 AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *w) :
     runControl(rc), window(w), asyncClosing(false)
 {
@@ -72,7 +79,8 @@ AppOutputPane::AppOutputPane() :
     m_tabWidget(new QTabWidget),
     m_stopAction(new QAction(QIcon(QLatin1String(Constants::ICON_STOP)), tr("Stop"), this)),
     m_reRunButton(new QToolButton),
-    m_stopButton(new QToolButton)
+    m_stopButton(new QToolButton),
+    m_attachButton(new QToolButton)
 {
     // Rerun
     m_reRunButton->setIcon(QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL));
@@ -96,6 +104,15 @@ AppOutputPane::AppOutputPane() :
 
     connect(m_stopAction, SIGNAL(triggered()),
             this, SLOT(stopRunControl()));
+
+    // Attach
+    m_attachButton->setToolTip(tr("Attach debugger to this process"));
+    m_attachButton->setEnabled(false);
+    m_attachButton->setIcon(QIcon(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
+    m_attachButton->setAutoRaise(true);
+
+    connect(m_attachButton, SIGNAL(clicked()),
+            this, SLOT(attachToRunControl()));
 
     // Spacer (?)
 
@@ -185,7 +202,7 @@ QWidget *AppOutputPane::outputWidget(QWidget *)
 
 QList<QWidget*> AppOutputPane::toolBarWidgets() const
 {
-    return QList<QWidget*>() << m_reRunButton << m_stopButton;
+    return QList<QWidget*>() << m_reRunButton << m_stopButton << m_attachButton;
 }
 
 QString AppOutputPane::displayName() const
@@ -313,6 +330,15 @@ void AppOutputPane::reRunRunControl()
     tab.runControl->start();
 }
 
+void AppOutputPane::attachToRunControl()
+{
+    const int index = currentIndex();
+    QTC_ASSERT(index != -1, return);
+    ProjectExplorer::RunControl *rc = m_runControlTabs.at(index).runControl;
+    QTC_ASSERT(rc->isRunning(), return);
+    ExtensionSystem::Invoker<void>(debuggerCore(), "attachExternalApplication", rc);
+}
+
 void AppOutputPane::stopRunControl()
 {
     const int index = currentIndex();
@@ -399,6 +425,7 @@ void AppOutputPane::tabChanged(int i)
     if (i == -1) {
         m_stopAction->setEnabled(false);
         m_reRunButton->setEnabled(false);
+        m_attachButton->setEnabled(false);
     } else {
         const int index = indexOf(m_tabWidget->widget(i));
         QTC_ASSERT(index != -1, return; )
@@ -407,6 +434,7 @@ void AppOutputPane::tabChanged(int i)
         m_stopAction->setEnabled(rc->isRunning());
         m_reRunButton->setEnabled(!rc->isRunning());
         m_reRunButton->setIcon(rc->icon());
+        m_attachButton->setEnabled(debuggerCore());
     }
 }
 
@@ -416,6 +444,7 @@ void AppOutputPane::runControlStarted()
     if (current && current == sender()) {
         m_reRunButton->setEnabled(false);
         m_stopAction->setEnabled(true);
+        m_attachButton->setEnabled(debuggerCore());
         m_reRunButton->setIcon(current->icon());
     }
 }
@@ -437,6 +466,7 @@ void AppOutputPane::runControlFinished()
     if (current && current == sender()) {
         m_reRunButton->setEnabled(true);
         m_stopAction->setEnabled(false);
+        m_attachButton->setEnabled(false);
         m_reRunButton->setIcon(current->icon());
     }
     // Check for asynchronous close. Close the tab.

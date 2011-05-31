@@ -688,9 +688,10 @@ public slots:
     void startRemoteApplication();
     void startRemoteEngine();
     void attachExternalApplication();
+    Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
     void attachExternalApplication(qint64 pid, const QString &binary,
-                                   const ProjectExplorer::Abi &abi = ProjectExplorer::Abi(),
-                                   const QString &debuggerCommand = QString());
+                                   const ProjectExplorer::Abi &abi,
+                                   const QString &debuggerCommand);
     void runScheduled();
     void attachCore();
     void attachCore(const QString &core, const QString &exeFileName,
@@ -1065,6 +1066,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_dummyEngine(0),
     m_globalDebuggerOptions(new GlobalDebuggerOptions)
 {
+    setObjectName("DebuggerCore");
     qRegisterMetaType<WatchData>("WatchData");
     qRegisterMetaType<ContextData>("ContextData");
     qRegisterMetaType<DebuggerStartParameters>("DebuggerStartParameters");
@@ -1430,6 +1432,18 @@ void DebuggerPluginPrivate::attachExternalApplication(qint64 pid, const QString 
     sp.startMode = AttachExternal;
     sp.toolChainAbi = abi.isValid() ? abi : abiOfBinary(sp.executable);
     sp.debuggerCommand = debuggerCommand;
+    if (DebuggerRunControl *rc = createDebugger(sp))
+        startDebugger(rc);
+}
+
+void DebuggerPluginPrivate::attachExternalApplication(ProjectExplorer::RunControl *rc)
+{
+    DebuggerStartParameters sp;
+    sp.attachPID = rc->applicationProcessHandle().pid();
+    sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
+    sp.startMode = AttachExternal;
+    //sp.toolChainAbi = abiOfBinary(sp.executable);
+    sp.toolChainAbi = ProjectExplorer::Abi::hostAbi(); // FIXME: Extract from RunControl?
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -2538,6 +2552,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     Core::ActionManager *am = core->actionManager();
     QTC_ASSERT(am, return);
 
+    m_plugin->addObject(this);
+
     const Context globalcontext(CC::C_GLOBAL);
     const Context cppDebuggercontext(C_CPPDEBUGGER);
     const Context qmlDebuggerContext(C_QMLDEBUGGER);
@@ -3128,6 +3144,7 @@ void DebuggerPluginPrivate::showModuleSymbols(const QString &moduleName,
 
 void DebuggerPluginPrivate::aboutToShutdown()
 {
+    m_plugin->removeObject(this);
     disconnect(sessionManager(),
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         this, 0);

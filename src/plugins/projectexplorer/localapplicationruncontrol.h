@@ -71,6 +71,7 @@ private:
     QString m_executable;
     QString m_commandLineArguments;
     ProjectExplorer::ApplicationLauncher::Mode m_runMode;
+    ProcessHandle m_applicationProcessHandle;
 };
 
 } // namespace Internal
