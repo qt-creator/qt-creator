@@ -4712,7 +4712,8 @@ void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
     QFile file(response.cookie.toString());
     file.open(QIODevice::ReadOnly);
     QByteArray ba = file.readAll();
-    //file.remove();
+    file.close();
+    file.remove();
     int pos = ba.indexOf("7QString9fromAscii");
     int pos1 = pos - 1;
     while (pos1 > 0 && ba.at(pos1) != 'N' && ba.at(pos1) > '@')
