@@ -719,7 +719,7 @@ void InspectorUi::setupDockWidgets()
 {
     Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
 
-    m_toolBar->createActions(Core::Context(Debugger::Constants::C_QMLDEBUGGER));
+    m_toolBar->createActions();
     m_toolBar->setObjectName("QmlInspectorToolbar");
     mw->setToolBar(Debugger::QmlLanguage, m_toolBar->widget());
 

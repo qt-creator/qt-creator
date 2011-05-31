@@ -38,14 +38,12 @@
 #include <QtCore/QObject>
 #include <QtGui/QIcon>
 
-QT_FORWARD_DECLARE_CLASS(QAction)
-QT_FORWARD_DECLARE_CLASS(QActionGroup)
-QT_FORWARD_DECLARE_CLASS(QColor)
-QT_FORWARD_DECLARE_CLASS(QToolButton)
-
-namespace Core {
-class Context;
-}
+QT_BEGIN_NAMESPACE
+class QAction;
+class QActionGroup;
+class QColor;
+class QToolButton;
+QT_END_NAMESPACE
 
 namespace Utils {
 class StyledBar;
@@ -73,7 +71,7 @@ public:
     };
 
     explicit QmlInspectorToolBar(QObject *parent = 0);
-    void createActions(const Core::Context &context);
+    void createActions();
     QWidget *widget() const;
 
 public slots:

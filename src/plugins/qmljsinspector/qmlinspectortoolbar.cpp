@@ -177,8 +177,9 @@ void QmlInspectorToolBar::setShowAppOnTop(bool showAppOnTop)
     m_emitSignals = true;
 }
 
-void QmlInspectorToolBar::createActions(const Core::Context &context)
+void QmlInspectorToolBar::createActions()
 {
+    Core::Context context(Debugger::Constants::C_QMLDEBUGGER);
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
 
