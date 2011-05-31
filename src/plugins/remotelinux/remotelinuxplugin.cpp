@@ -35,7 +35,7 @@
 #include "maemoconstants.h"
 #include "maemodeployable.h"
 #include "maemodeploystepfactory.h"
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfigurations.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationfactory.h"
 #include "maemopublishingwizardfactories.h"
@@ -68,7 +68,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     Q_UNUSED(error_message)
 
     MaemoQemuManager::instance(this);
-    MaemoDeviceConfigurations::instance(this);
+    LinuxDeviceConfigurations::instance(this);
 
     addAutoReleasedObject(new MaemoRunControlFactory);
     addAutoReleasedObject(new MaemoRunConfigurationFactory);

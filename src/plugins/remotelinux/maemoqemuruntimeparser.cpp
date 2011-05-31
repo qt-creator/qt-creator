@@ -188,7 +188,7 @@ void MaemoQemuRuntimeParserV1::fillRuntimeInformation(MaemoQemuRuntime *runtime)
             runtime->m_args = map.value(QLatin1String("qemu_args"));
             setEnvironment(runtime, map.value(QLatin1String("libpath")));
             runtime->m_sshPort = map.value(QLatin1String("sshport"));
-            runtime->m_freePorts = MaemoPortList();
+            runtime->m_freePorts = PortList();
             int i = 2;
             while (true) {
                 const QString port = map.value(QLatin1String("redirport")

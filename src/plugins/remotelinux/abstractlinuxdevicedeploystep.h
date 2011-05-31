@@ -32,7 +32,7 @@
 #ifndef ABSTRACTLINUXDEVICEDEPLOYSTEP_H
 #define ABSTRACTLINUXDEVICEDEPLOYSTEP_H
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSharedPointer>
@@ -52,8 +52,8 @@ public:
     LinuxDeviceDeployStepHelper(Qt4MaemoDeployConfiguration *dc);
     ~LinuxDeviceDeployStepHelper();
 
-    QSharedPointer<const MaemoDeviceConfig> deviceConfig() const { return m_deviceConfig; }
-    QSharedPointer<const MaemoDeviceConfig> cachedDeviceConfig() const { return m_cachedDeviceConfig; }
+    QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const { return m_deviceConfig; }
+    QSharedPointer<const LinuxDeviceConfiguration> cachedDeviceConfig() const { return m_cachedDeviceConfig; }
     Qt4MaemoDeployConfiguration *deployConfiguration() const { return m_deployConfiguration; }
 
     void setDeviceConfig(int i);
@@ -66,11 +66,11 @@ signals:
     void deviceConfigChanged();
 
 private:
-    void setDeviceConfig(MaemoDeviceConfig::Id internalId);
+    void setDeviceConfig(LinuxDeviceConfiguration::Id internalId);
     Q_SLOT void handleDeviceConfigurationsUpdated();
 
-    QSharedPointer<const MaemoDeviceConfig> m_deviceConfig;
-    QSharedPointer<const MaemoDeviceConfig> m_cachedDeviceConfig;
+    QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfig;
+    QSharedPointer<const LinuxDeviceConfiguration> m_cachedDeviceConfig;
     Qt4MaemoDeployConfiguration * const m_deployConfiguration;
 };
 

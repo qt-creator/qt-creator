@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 
 #include "abstractlinuxdevicedeploystep.h"
 #include "maemodeployables.h"
@@ -69,44 +69,66 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
-namespace Internal {
 
 namespace {
 const bool DefaultUseRemoteGdbValue = false;
 } // anonymous namespace
 
-MaemoRunConfiguration::MaemoRunConfiguration(Qt4BaseTarget *parent,
+namespace Internal {
+class RemoteLinuxRunConfigurationPrivate {
+public:
+    RemoteLinuxRunConfigurationPrivate(const QString &proFilePath, const Qt4BaseTarget *target)
+        : proFilePath(proFilePath), useRemoteGdb(DefaultUseRemoteGdbValue),
+          baseEnvironmentType(RemoteLinuxRunConfiguration::SystemBaseEnvironment),
+          validParse(target->qt4Project()->validParse(proFilePath))
+    {
+    }
+
+    RemoteLinuxRunConfigurationPrivate(const RemoteLinuxRunConfigurationPrivate *other)
+        : proFilePath(other->proFilePath), gdbPath(other->gdbPath), arguments(other->arguments),
+          useRemoteGdb(other->useRemoteGdb), baseEnvironmentType(other->baseEnvironmentType),
+          systemEnvironment(other->systemEnvironment),
+          userEnvironmentChanges(other->userEnvironmentChanges), validParse(other->validParse)
+    {
+    }
+
+    QString proFilePath;
+    QString gdbPath;
+    MaemoRemoteMountsModel *remoteMounts;
+    QString arguments;
+    bool useRemoteGdb;
+    RemoteLinuxRunConfiguration::BaseEnvironmentType baseEnvironmentType;
+    Utils::Environment systemEnvironment;
+    QList<Utils::EnvironmentItem> userEnvironmentChanges;
+    bool validParse;
+    QString disabledReason;
+};
+} // namespace Internal
+
+using namespace Internal;
+
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent,
         const QString &proFilePath)
-    : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID))
-    , m_proFilePath(proFilePath)
-    , m_useRemoteGdb(DefaultUseRemoteGdbValue)
-    , m_baseEnvironmentBase(SystemEnvironmentBase)
-    , m_validParse(parent->qt4Project()->validParse(m_proFilePath))
+    : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID)),
+      m_d(new RemoteLinuxRunConfigurationPrivate(proFilePath, parent))
 {
     init();
 }
 
-MaemoRunConfiguration::MaemoRunConfiguration(Qt4BaseTarget *parent,
-        MaemoRunConfiguration *source)
-    : RunConfiguration(parent, source)
-    , m_proFilePath(source->m_proFilePath)
-    , m_gdbPath(source->m_gdbPath)
-    , m_arguments(source->m_arguments)
-    , m_useRemoteGdb(source->useRemoteGdb())
-    , m_baseEnvironmentBase(source->m_baseEnvironmentBase)
-    , m_systemEnvironment(source->m_systemEnvironment)
-    , m_userEnvironmentChanges(source->m_userEnvironmentChanges)
-    , m_validParse(source->m_validParse)
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent,
+        RemoteLinuxRunConfiguration *source)
+    : RunConfiguration(parent, source),
+      m_d(new RemoteLinuxRunConfigurationPrivate(source->m_d))
 {
     init();
 }
 
-void MaemoRunConfiguration::init()
+void RemoteLinuxRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
     setUseCppDebugger(true);
     setUseQmlDebugger(false);
-    m_remoteMounts = new MaemoRemoteMountsModel(this);
+    m_d->remoteMounts = new MaemoRemoteMountsModel(this);
 
     connect(target(),
         SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
@@ -120,152 +142,157 @@ void MaemoRunConfiguration::init()
             this, SLOT(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)));
 }
 
-MaemoRunConfiguration::~MaemoRunConfiguration()
+RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
 {
 }
 
-Qt4BaseTarget *MaemoRunConfiguration::qt4Target() const
+Qt4BaseTarget *RemoteLinuxRunConfiguration::qt4Target() const
 {
     return static_cast<Qt4BaseTarget *>(target());
 }
 
-Qt4BuildConfiguration *MaemoRunConfiguration::activeQt4BuildConfiguration() const
+Qt4BuildConfiguration *RemoteLinuxRunConfiguration::activeQt4BuildConfiguration() const
 {
     return static_cast<Qt4BuildConfiguration *>(activeBuildConfiguration());
 }
 
-bool MaemoRunConfiguration::isEnabled() const
+bool RemoteLinuxRunConfiguration::isEnabled() const
 {
-    if (!m_validParse) {
-        m_disabledReason = tr("The .pro file could not be parsed/");
+    if (!m_d->validParse) {
+        m_d->disabledReason = tr("The .pro file could not be parsed/");
         return false;
     }
     if (!deviceConfig()) {
-        m_disabledReason = tr("No device configuration set.");
+        m_d->disabledReason = tr("No device configuration set.");
         return false;
     }
     if (!activeQt4BuildConfiguration()) {
-        m_disabledReason = tr("No active build configuration.");
+        m_d->disabledReason = tr("No active build configuration.");
         return false;
     }
     if (remoteExecutableFilePath().isEmpty()) {
-        m_disabledReason = tr("Don't know what to run.");
+        m_d->disabledReason = tr("Don't know what to run.");
         return false;
     }
     if (!hasEnoughFreePorts(ProjectExplorer::Constants::RUNMODE)) {
-        m_disabledReason = tr("Not enough free ports on the device.");
+        m_d->disabledReason = tr("Not enough free ports on the device.");
         return false;
     }
-    m_disabledReason.clear();
+    m_d->disabledReason.clear();
     return true;
 }
 
-QString MaemoRunConfiguration::disabledReason() const
+QString RemoteLinuxRunConfiguration::disabledReason() const
 {
-    return m_disabledReason;
+    return m_d->disabledReason;
 }
 
-QWidget *MaemoRunConfiguration::createConfigurationWidget()
+QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()
 {
     return new MaemoRunConfigurationWidget(this);
 }
 
-Utils::OutputFormatter *MaemoRunConfiguration::createOutputFormatter() const
+Utils::OutputFormatter *RemoteLinuxRunConfiguration::createOutputFormatter() const
 {
     return new QtSupport::QtOutputFormatter(qt4Target()->qt4Project());
 }
 
-void MaemoRunConfiguration::handleParseState(bool success)
+void RemoteLinuxRunConfiguration::handleParseState(bool success)
 {
     bool enabled = isEnabled();
-    m_validParse = success;
+    m_d->validParse = success;
     if (enabled != isEnabled()) {
         emit isEnabledChanged(!enabled);
     }
 }
 
-void MaemoRunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
+void RemoteLinuxRunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
 {
-    if (m_proFilePath != pro->path())
+    if (m_d->proFilePath != pro->path())
         return;
     handleParseState(false);
 }
 
-void MaemoRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success)
+void RemoteLinuxRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success)
 {
-    if (m_proFilePath == pro->path()) {
+    if (m_d->proFilePath == pro->path()) {
         handleParseState(success);
         emit targetInformationChanged();
     }
 }
 
-QVariantMap MaemoRunConfiguration::toMap() const
+QVariantMap RemoteLinuxRunConfiguration::toMap() const
 {
     QVariantMap map(RunConfiguration::toMap());
-    map.insert(ArgumentsKey, m_arguments);
+    map.insert(ArgumentsKey, m_d->arguments);
     const QDir dir = QDir(target()->project()->projectDirectory());
-    map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
+    map.insert(ProFileKey, dir.relativeFilePath(m_d->proFilePath));
     map.insert(UseRemoteGdbKey, useRemoteGdb());
-    map.insert(BaseEnvironmentBaseKey, m_baseEnvironmentBase);
+    map.insert(BaseEnvironmentBaseKey, m_d->baseEnvironmentType);
     map.insert(UserEnvironmentChangesKey,
-        Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    map.unite(m_remoteMounts->toMap());
+        Utils::EnvironmentItem::toStringList(m_d->userEnvironmentChanges));
+    map.unite(m_d->remoteMounts->toMap());
     return map;
 }
 
-bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
+bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
 {
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    m_arguments = map.value(ArgumentsKey).toString();
+    m_d->arguments = map.value(ArgumentsKey).toString();
     const QDir dir = QDir(target()->project()->projectDirectory());
-    m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
-    m_useRemoteGdb = map.value(UseRemoteGdbKey, DefaultUseRemoteGdbValue).toBool();
-    m_userEnvironmentChanges =
+    m_d->proFilePath = dir.filePath(map.value(ProFileKey).toString());
+    m_d->useRemoteGdb = map.value(UseRemoteGdbKey, DefaultUseRemoteGdbValue).toBool();
+    m_d->userEnvironmentChanges =
         Utils::EnvironmentItem::fromStringList(map.value(UserEnvironmentChangesKey)
         .toStringList());
-    m_baseEnvironmentBase = static_cast<BaseEnvironmentBase> (map.value(BaseEnvironmentBaseKey,
-        SystemEnvironmentBase).toInt());
-    m_remoteMounts->fromMap(map);
+    m_d->baseEnvironmentType = static_cast<BaseEnvironmentType> (map.value(BaseEnvironmentBaseKey,
+        SystemBaseEnvironment).toInt());
+    m_d->remoteMounts->fromMap(map);
 
-    m_validParse = qt4Target()->qt4Project()->validParse(m_proFilePath);
+    m_d->validParse = qt4Target()->qt4Project()->validParse(m_d->proFilePath);
 
     setDefaultDisplayName(defaultDisplayName());
 
     return true;
 }
 
-QString MaemoRunConfiguration::defaultDisplayName()
+QString RemoteLinuxRunConfiguration::defaultDisplayName()
 {
-    if (!m_proFilePath.isEmpty())
-        return (QFileInfo(m_proFilePath).completeBaseName()) + QLatin1String(" (remote)");
-    //: Maemo run configuration default display name
+    if (!m_d->proFilePath.isEmpty())
+        return (QFileInfo(m_d->proFilePath).completeBaseName()) + QLatin1String(" (remote)");
+    //: Remote Linux run configuration default display name
     return tr("Run on remote device");
 }
 
-MaemoDeviceConfig::ConstPtr MaemoRunConfiguration::deviceConfig() const
+LinuxDeviceConfiguration::ConstPtr RemoteLinuxRunConfiguration::deviceConfig() const
 {
     const AbstractLinuxDeviceDeployStep * const step = deployStep();
-    return step ? step->helper().deviceConfig() : MaemoDeviceConfig::ConstPtr();
+    return step ? step->helper().deviceConfig() : LinuxDeviceConfiguration::ConstPtr();
 }
 
-const QString MaemoRunConfiguration::gdbCmd() const
+QString RemoteLinuxRunConfiguration::gdbCmd() const
 {
     return QDir::toNativeSeparators(activeBuildConfiguration()->toolChain()->debuggerCommand());
 }
 
-Qt4MaemoDeployConfiguration *MaemoRunConfiguration::deployConfig() const
+Qt4MaemoDeployConfiguration *RemoteLinuxRunConfiguration::deployConfig() const
 {
     return qobject_cast<Qt4MaemoDeployConfiguration *>(target()->activeDeployConfiguration());
 }
 
-AbstractLinuxDeviceDeployStep *MaemoRunConfiguration::deployStep() const
+MaemoRemoteMountsModel *RemoteLinuxRunConfiguration::remoteMounts() const
+{
+    return m_d->remoteMounts;
+}
+
+AbstractLinuxDeviceDeployStep *RemoteLinuxRunConfiguration::deployStep() const
 {
     return MaemoGlobal::earlierBuildStep<AbstractLinuxDeviceDeployStep>(deployConfig(), 0);
 }
 
-const QString MaemoRunConfiguration::targetRoot() const
+QString RemoteLinuxRunConfiguration::targetRoot() const
 {
     QTC_ASSERT(activeQt4BuildConfiguration(), return QString());
     QtSupport::BaseQtVersion *v = activeQt4BuildConfiguration()->qtVersion();
@@ -274,12 +301,12 @@ const QString MaemoRunConfiguration::targetRoot() const
     return MaemoGlobal::targetRoot(v->qmakeCommand());
 }
 
-const QString MaemoRunConfiguration::arguments() const
+QString RemoteLinuxRunConfiguration::arguments() const
 {
-    return m_arguments;
+    return m_d->arguments;
 }
 
-QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
+QString RemoteLinuxRunConfiguration::localDirToMountForRemoteGdb() const
 {
     const QString projectDir
         = QDir::fromNativeSeparators(QDir::cleanPath(activeBuildConfiguration()
@@ -298,52 +325,57 @@ QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
         ? projectDir : projectDir.left(lastSeparatorPos);
 }
 
-QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
+QString RemoteLinuxRunConfiguration::remoteProjectSourcesMountPoint() const
 {
     return MaemoGlobal::homeDirOnDevice(deviceConfig()->sshParameters().userName)
         + QLatin1String("/gdbSourcesDir_")
         + QFileInfo(localExecutableFilePath()).fileName();
 }
 
-QString MaemoRunConfiguration::localExecutableFilePath() const
+QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
 {
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()
-        ->targetInformation(m_proFilePath);
+        ->targetInformation(m_d->proFilePath);
     if (!ti.valid)
         return QString();
 
     return QDir::cleanPath(ti.workingDir + QLatin1Char('/') + ti.target);
 }
 
-QString MaemoRunConfiguration::remoteExecutableFilePath() const
+QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
 {
     return deployConfig()->deployables()->remoteExecutableFilePath(localExecutableFilePath());
 }
 
-MaemoPortList MaemoRunConfiguration::freePorts() const
+PortList RemoteLinuxRunConfiguration::freePorts() const
 {
     const Qt4BuildConfiguration * const bc = activeQt4BuildConfiguration();
     const AbstractLinuxDeviceDeployStep * const step = deployStep();
     return bc && step
         ? MaemoGlobal::freePorts(deployStep()->helper().deviceConfig(), bc->qtVersion())
-        : MaemoPortList();
+        : PortList();
 }
 
-bool MaemoRunConfiguration::useRemoteGdb() const
+bool RemoteLinuxRunConfiguration::useRemoteGdb() const
 {
-    if (!m_useRemoteGdb)
+    if (!m_d->useRemoteGdb)
         return false;
     const AbstractQt4MaemoTarget * const maemoTarget
         = qobject_cast<AbstractQt4MaemoTarget *>(target());
     return maemoTarget && maemoTarget->allowsRemoteMounts();
 }
 
-void MaemoRunConfiguration::setArguments(const QString &args)
+void RemoteLinuxRunConfiguration::setUseRemoteGdb(bool useRemoteGdb)
 {
-    m_arguments = args;
+    m_d->useRemoteGdb = useRemoteGdb;
 }
 
-MaemoRunConfiguration::DebuggingType MaemoRunConfiguration::debuggingType() const
+void RemoteLinuxRunConfiguration::setArguments(const QString &args)
+{
+    m_d->arguments = args;
+}
+
+RemoteLinuxRunConfiguration::DebuggingType RemoteLinuxRunConfiguration::debuggingType() const
 {
     const AbstractQt4MaemoTarget * const maemoTarget
         = qobject_cast<AbstractQt4MaemoTarget *>(target());
@@ -357,7 +389,7 @@ MaemoRunConfiguration::DebuggingType MaemoRunConfiguration::debuggingType() cons
     return DebugQmlOnly;
 }
 
-int MaemoRunConfiguration::portsUsedByDebuggers() const
+int RemoteLinuxRunConfiguration::portsUsedByDebuggers() const
 {
     switch (debuggingType()) {
     case DebugCppOnly:
@@ -369,7 +401,7 @@ int MaemoRunConfiguration::portsUsedByDebuggers() const
     }
 }
 
-bool MaemoRunConfiguration::hasEnoughFreePorts(const QString &mode) const
+bool RemoteLinuxRunConfiguration::hasEnoughFreePorts(const QString &mode) const
 {
     const int freePortCount = freePorts().count();
     const AbstractQt4MaemoTarget * const maemoTarget
@@ -386,12 +418,12 @@ bool MaemoRunConfiguration::hasEnoughFreePorts(const QString &mode) const
     return false;
 }
 
-void MaemoRunConfiguration::updateDeviceConfigurations()
+void RemoteLinuxRunConfiguration::updateDeviceConfigurations()
 {
     emit deviceConfigurationChanged(target());
 }
 
-void MaemoRunConfiguration::handleDeployConfigChanged()
+void RemoteLinuxRunConfiguration::handleDeployConfigChanged()
 {
     DeployConfiguration * const activeDeployConf
         = target()->activeDeployConfiguration();
@@ -416,72 +448,71 @@ void MaemoRunConfiguration::handleDeployConfigChanged()
     updateFactoryState();
 }
 
-QString MaemoRunConfiguration::baseEnvironmentText() const
+QString RemoteLinuxRunConfiguration::baseEnvironmentText() const
 {
-    if (m_baseEnvironmentBase == CleanEnvironmentBase)
+    if (m_d->baseEnvironmentType == CleanBaseEnvironment)
         return tr("Clean Environment");
-    else  if (m_baseEnvironmentBase == SystemEnvironmentBase)
+    else  if (m_d->baseEnvironmentType == SystemBaseEnvironment)
         return tr("System Environment");
     return QString();
 }
 
-MaemoRunConfiguration::BaseEnvironmentBase MaemoRunConfiguration::baseEnvironmentBase() const
+RemoteLinuxRunConfiguration::BaseEnvironmentType RemoteLinuxRunConfiguration::baseEnvironmentType() const
 {
-    return m_baseEnvironmentBase;
+    return m_d->baseEnvironmentType;
 }
 
-void MaemoRunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
+void RemoteLinuxRunConfiguration::setBaseEnvironmentType(BaseEnvironmentType env)
 {
-    if (m_baseEnvironmentBase != env) {
-        m_baseEnvironmentBase = env;
+    if (m_d->baseEnvironmentType != env) {
+        m_d->baseEnvironmentType = env;
         emit baseEnvironmentChanged();
     }
 }
 
-Utils::Environment MaemoRunConfiguration::environment() const
+Utils::Environment RemoteLinuxRunConfiguration::environment() const
 {
     Utils::Environment env = baseEnvironment();
     env.modify(userEnvironmentChanges());
     return env;
 }
 
-Utils::Environment MaemoRunConfiguration::baseEnvironment() const
+Utils::Environment RemoteLinuxRunConfiguration::baseEnvironment() const
 {
-    return (m_baseEnvironmentBase == SystemEnvironmentBase ? systemEnvironment()
+    return (m_d->baseEnvironmentType == SystemBaseEnvironment ? systemEnvironment()
         : Utils::Environment());
 }
 
-QList<Utils::EnvironmentItem> MaemoRunConfiguration::userEnvironmentChanges() const
+QList<Utils::EnvironmentItem> RemoteLinuxRunConfiguration::userEnvironmentChanges() const
 {
-    return m_userEnvironmentChanges;
+    return m_d->userEnvironmentChanges;
 }
 
-void MaemoRunConfiguration::setUserEnvironmentChanges(
+void RemoteLinuxRunConfiguration::setUserEnvironmentChanges(
     const QList<Utils::EnvironmentItem> &diff)
 {
-    if (m_userEnvironmentChanges != diff) {
-        m_userEnvironmentChanges = diff;
+    if (m_d->userEnvironmentChanges != diff) {
+        m_d->userEnvironmentChanges = diff;
         emit userEnvironmentChangesChanged(diff);
     }
 }
 
-Utils::Environment MaemoRunConfiguration::systemEnvironment() const
+Utils::Environment RemoteLinuxRunConfiguration::systemEnvironment() const
 {
-    return m_systemEnvironment;
+    return m_d->systemEnvironment;
 }
 
-void MaemoRunConfiguration::setSystemEnvironment(const Utils::Environment &environment)
+void RemoteLinuxRunConfiguration::setSystemEnvironment(const Utils::Environment &environment)
 {
-    if (m_systemEnvironment.size() == 0 || m_systemEnvironment != environment) {
-        m_systemEnvironment = environment;
+    if (m_d->systemEnvironment.size() == 0 || m_d->systemEnvironment != environment) {
+        m_d->systemEnvironment = environment;
         emit systemEnvironmentChanged();
     }
 }
 
-QString MaemoRunConfiguration::proFilePath() const
+QString RemoteLinuxRunConfiguration::proFilePath() const
 {
-    return m_proFilePath;
+    return m_d->proFilePath;
 }
 
-} // namespace Internal
 } // namespace RemoteLinux

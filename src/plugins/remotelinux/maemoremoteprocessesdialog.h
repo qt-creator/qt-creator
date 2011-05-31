@@ -43,8 +43,9 @@ class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
-class MaemoDeviceConfig;
 class MaemoRemoteProcessList;
 
 class MaemoRemoteProcessesDialog : public QDialog
@@ -52,7 +53,7 @@ class MaemoRemoteProcessesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit MaemoRemoteProcessesDialog(const QSharedPointer<const MaemoDeviceConfig> &devConfig,
+    explicit MaemoRemoteProcessesDialog(const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
         QWidget *parent = 0);
     ~MaemoRemoteProcessesDialog();
 

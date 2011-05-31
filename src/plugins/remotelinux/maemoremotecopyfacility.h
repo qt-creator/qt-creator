@@ -46,8 +46,9 @@ class SshRemoteProcessRunner;
 }
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
-class MaemoDeviceConfig;
 
 class MaemoRemoteCopyFacility : public QObject
 {
@@ -57,7 +58,7 @@ public:
     ~MaemoRemoteCopyFacility();
 
     void copyFiles(const QSharedPointer<Utils::SshConnection> &connection,
-        const QSharedPointer<const MaemoDeviceConfig> &devConf,
+        const QSharedPointer<const LinuxDeviceConfiguration> &devConf,
         const QList<MaemoDeployable> &deployables, const QString &mountPoint);
     void cancel();
 
@@ -79,7 +80,7 @@ private:
     void setFinished();
 
     QSharedPointer<Utils::SshRemoteProcessRunner> m_copyRunner;
-    QSharedPointer<const MaemoDeviceConfig> m_devConf;
+    QSharedPointer<const LinuxDeviceConfiguration> m_devConf;
     QList<MaemoDeployable> m_deployables;
     QString m_mountPoint;
     bool m_isCopying;

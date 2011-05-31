@@ -37,9 +37,10 @@
 #include <QtCore/QString>
 
 namespace RemoteLinux {
+class RemoteLinuxRunConfiguration;
+
 namespace Internal {
 
-class MaemoRunConfiguration;
 class MaemoSshRunner;
 
 class MaemoRunControl : public ProjectExplorer::RunControl

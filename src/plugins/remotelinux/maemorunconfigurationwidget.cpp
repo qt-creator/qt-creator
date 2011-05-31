@@ -35,7 +35,7 @@
 #include "maemodeviceenvreader.h"
 #include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 #include "maemosettingspages.h"
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
@@ -74,7 +74,7 @@ const QString FetchEnvButtonText
 } // anonymous namespace
 
 MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
-        MaemoRunConfiguration *runConfiguration, QWidget *parent)
+        RemoteLinuxRunConfiguration *runConfiguration, QWidget *parent)
     : QWidget(parent),
     m_runConfiguration(runConfiguration),
     m_ignoreChange(false),
@@ -273,7 +273,7 @@ void MaemoRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
     m_baseEnvironmentComboBox = new QComboBox(this);
     m_baseEnvironmentComboBox->addItems(QStringList() << tr("Clean Environment")
         << tr("System Environment"));
-    m_baseEnvironmentComboBox->setCurrentIndex(m_runConfiguration->baseEnvironmentBase());
+    m_baseEnvironmentComboBox->setCurrentIndex(m_runConfiguration->baseEnvironmentType());
     baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
 
     m_fetchEnv = new QPushButton(FetchEnvButtonText);
@@ -444,7 +444,7 @@ void MaemoRunConfigurationWidget::userChangesEdited()
 void MaemoRunConfigurationWidget::baseEnvironmentSelected(int index)
 {
     m_ignoreChange = true;
-    m_runConfiguration->setBaseEnvironmentBase(MaemoRunConfiguration::BaseEnvironmentBase(index));
+    m_runConfiguration->setBaseEnvironmentType(RemoteLinuxRunConfiguration::BaseEnvironmentType(index));
 
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
@@ -456,7 +456,7 @@ void MaemoRunConfigurationWidget::baseEnvironmentChanged()
     if (m_ignoreChange)
         return;
 
-    m_baseEnvironmentComboBox->setCurrentIndex(m_runConfiguration->baseEnvironmentBase());
+    m_baseEnvironmentComboBox->setCurrentIndex(m_runConfiguration->baseEnvironmentType());
     m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
 }
@@ -507,7 +507,7 @@ void MaemoRunConfigurationWidget::handleDebuggingTypeChanged()
 void MaemoRunConfigurationWidget::updateMountWarning()
 {
     QString mountWarning;
-    const MaemoPortList &portList = m_runConfiguration->freePorts();
+    const PortList &portList = m_runConfiguration->freePorts();
     const int availablePortCount = portList.count();
     const int mountDirCount
             = m_runConfiguration->remoteMounts()->validMountSpecificationCount();

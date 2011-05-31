@@ -31,6 +31,7 @@
 **************************************************************************/
 #include "abstractlinuxdevicedeploystep.h"
 
+#include "linuxdeviceconfigurations.h"
 #include "maemoconstants.h"
 #include "maemodeploystepwidget.h"
 #include "maemopertargetdeviceconfigurationlistmodel.h"
@@ -77,10 +78,10 @@ LinuxDeviceDeployStepHelper::~LinuxDeviceDeployStepHelper() {}
 
 void LinuxDeviceDeployStepHelper::handleDeviceConfigurationsUpdated()
 {
-    setDeviceConfig(MaemoDeviceConfigurations::instance()->internalId(m_deviceConfig));
+    setDeviceConfig(LinuxDeviceConfigurations::instance()->internalId(m_deviceConfig));
 }
 
-void LinuxDeviceDeployStepHelper::setDeviceConfig(MaemoDeviceConfig::Id internalId)
+void LinuxDeviceDeployStepHelper::setDeviceConfig(LinuxDeviceConfiguration::Id internalId)
 {
     m_deviceConfig = deployConfiguration()->deviceConfigModel()->find(internalId);
     emit deviceConfigChanged();
@@ -96,13 +97,13 @@ QVariantMap LinuxDeviceDeployStepHelper::toMap() const
 {
     QVariantMap map;
     map.insert(DeviceIdKey,
-        MaemoDeviceConfigurations::instance()->internalId(m_deviceConfig));
+        LinuxDeviceConfigurations::instance()->internalId(m_deviceConfig));
     return map;
 }
 
 bool LinuxDeviceDeployStepHelper::fromMap(const QVariantMap &map)
 {
-    setDeviceConfig(map.value(DeviceIdKey, MaemoDeviceConfig::InvalidId).toULongLong());
+    setDeviceConfig(map.value(DeviceIdKey, LinuxDeviceConfiguration::InvalidId).toULongLong());
     return true;
 }
 

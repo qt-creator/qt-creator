@@ -32,7 +32,7 @@
 #include "maemoruncontrol.h"
 
 #include "maemoglobal.h"
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 #include "maemosshrunner.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -49,7 +49,7 @@ using ProjectExplorer::RunConfiguration;
 
 MaemoRunControl::MaemoRunControl(RunConfiguration *rc)
     : RunControl(rc, ProjectExplorer::Constants::RUNMODE)
-    , m_runner(new MaemoSshRunner(this, qobject_cast<MaemoRunConfiguration *>(rc), false))
+    , m_runner(new MaemoSshRunner(this, qobject_cast<RemoteLinuxRunConfiguration *>(rc), false))
     , m_running(false)
 {
 }

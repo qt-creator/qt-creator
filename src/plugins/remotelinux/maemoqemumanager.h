@@ -61,8 +61,9 @@ class BaseQtVersion;
 }
 
 namespace RemoteLinux {
+class RemoteLinuxRunConfiguration;
+
 namespace Internal {
-class MaemoRunConfiguration;
 
 class MaemoQemuManager : public QObject
 {
@@ -122,7 +123,7 @@ private:
         QtSupport::BaseQtVersion **qtVersion = 0);
 
     void notify(const QList<int> uniqueIds);
-    void toggleDeviceConnections(MaemoRunConfiguration *mrc, bool connect);
+    void toggleDeviceConnections(RemoteLinuxRunConfiguration *mrc, bool connect);
     void showOrHideQemuButton();
 
 private:

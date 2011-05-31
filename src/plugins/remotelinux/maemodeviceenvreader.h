@@ -42,16 +42,16 @@ namespace Utils {
 }
 
 namespace RemoteLinux {
-namespace Internal {
+class LinuxDeviceConfiguration;
+class RemoteLinuxRunConfiguration;
 
-class MaemoDeviceConfig;
-class MaemoRunConfiguration;
+namespace Internal {
 
 class MaemoDeviceEnvReader : public QObject
 {
     Q_OBJECT
 public:
-    MaemoDeviceEnvReader(QObject *parent, MaemoRunConfiguration *config);
+    MaemoDeviceEnvReader(QObject *parent, RemoteLinuxRunConfiguration *config);
     ~MaemoDeviceEnvReader();
 
     void start();
@@ -78,8 +78,8 @@ private:
     QString m_remoteOutput;
     QByteArray m_remoteErrorOutput;
     Utils::Environment m_env;
-    QSharedPointer<const MaemoDeviceConfig> m_devConfig;
-    MaemoRunConfiguration *m_runConfig;
+    QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
+    RemoteLinuxRunConfiguration *m_runConfig;
     QSharedPointer<Utils::SshRemoteProcessRunner> m_remoteProcessRunner;
 };
 

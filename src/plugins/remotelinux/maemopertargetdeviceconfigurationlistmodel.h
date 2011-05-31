@@ -32,7 +32,7 @@
 #ifndef MAEMOPERTARGETDEVICECONFIGURATIONLISTMODEL_H
 #define MAEMOPERTARGETDEVICECONFIGURATIONLISTMODEL_H
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
 
 #include <QtCore/QAbstractListModel>
@@ -55,16 +55,16 @@ public:
     virtual QVariant data(const QModelIndex &index,
         int role = Qt::DisplayRole) const;
 
-    QSharedPointer<const MaemoDeviceConfig> deviceAt(int idx) const;
-    QSharedPointer<const MaemoDeviceConfig> defaultDeviceConfig() const;
-    QSharedPointer<const MaemoDeviceConfig> find(MaemoDeviceConfig::Id id) const;
-    int indexForInternalId(MaemoDeviceConfig::Id id) const;
+    QSharedPointer<const LinuxDeviceConfiguration> deviceAt(int idx) const;
+    QSharedPointer<const LinuxDeviceConfiguration> defaultDeviceConfig() const;
+    QSharedPointer<const LinuxDeviceConfiguration> find(LinuxDeviceConfiguration::Id id) const;
+    int indexForInternalId(LinuxDeviceConfiguration::Id id) const;
 
 signals:
     void updated();
 
 private:
-    MaemoDeviceConfig::OsVersion m_targetOsVersion;
+    LinuxDeviceConfiguration::OsVersion m_targetOsVersion;
 };
 
 } // namespace Internal

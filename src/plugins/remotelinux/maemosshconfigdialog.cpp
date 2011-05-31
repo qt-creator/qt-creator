@@ -31,7 +31,7 @@
 
 #include "maemosshconfigdialog.h"
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 
 #include <utils/ssh/sshkeygenerator.h>
 #include <utils/fileutils.h>

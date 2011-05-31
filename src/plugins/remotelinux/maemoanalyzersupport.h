@@ -33,14 +33,14 @@
 #ifndef MAEMOANALYZERSUPPORT_H
 #define MAEMOANALYZERSUPPORT_H
 
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 
 namespace RemoteLinux {
 namespace Internal {
 
 namespace MaemoAnalyzerSupport {
 
-ProjectExplorer::RunControl *createAnalyzerRunControl(MaemoRunConfiguration *runConfig);
+ProjectExplorer::RunControl *createAnalyzerRunControl(RemoteLinuxRunConfiguration *runConfig);
 
 }
 

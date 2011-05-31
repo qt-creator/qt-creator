@@ -56,18 +56,18 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 namespace Internal {
 
-RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runConfig)
+RunControl *MaemoDebugSupport::createDebugRunControl(RemoteLinuxRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
-    const MaemoDeviceConfig::ConstPtr &devConf = runConfig->deviceConfig();
+    const LinuxDeviceConfiguration::ConstPtr &devConf = runConfig->deviceConfig();
 
-    const MaemoRunConfiguration::DebuggingType debuggingType
+    const RemoteLinuxRunConfiguration::DebuggingType debuggingType
         = runConfig->debuggingType();
-    if (debuggingType != MaemoRunConfiguration::DebugCppOnly) {
+    if (debuggingType != RemoteLinuxRunConfiguration::DebugCppOnly) {
         params.qmlServerAddress = runConfig->deviceConfig()->sshParameters().host;
         params.qmlServerPort = -1;
     }
-    if (debuggingType != MaemoRunConfiguration::DebugQmlOnly) {
+    if (debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly) {
         params.processArgs = runConfig->arguments();
         if (runConfig->activeQt4BuildConfiguration()->qtVersion())
             params.sysroot = runConfig->activeQt4BuildConfiguration()->qtVersion()->systemRoot();
@@ -113,7 +113,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
     DebuggerRunControl * const runControl =
         DebuggerPlugin::createDebugger(params, runConfig);
     bool useGdb = params.startMode == StartRemoteGdb
-        && debuggingType != MaemoRunConfiguration::DebugQmlOnly;
+        && debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly;
     MaemoDebugSupport *debugSupport =
         new MaemoDebugSupport(runConfig, runControl->engine(), useGdb);
     connect(runControl, SIGNAL(finished()),
@@ -121,7 +121,7 @@ RunControl *MaemoDebugSupport::createDebugRunControl(MaemoRunConfiguration *runC
     return runControl;
 }
 
-MaemoDebugSupport::MaemoDebugSupport(MaemoRunConfiguration *runConfig,
+MaemoDebugSupport::MaemoDebugSupport(RemoteLinuxRunConfiguration *runConfig,
     DebuggerEngine *engine, bool useGdb)
     : QObject(engine), m_engine(engine), m_runConfig(runConfig),
       m_deviceConfig(m_runConfig->deviceConfig()),
@@ -180,11 +180,11 @@ void MaemoDebugSupport::startExecution()
 
     ASSERT_STATE(StartingRunner);
 
-    if (!useGdb() && m_debuggingType != MaemoRunConfiguration::DebugQmlOnly) {
+    if (!useGdb() && m_debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly) {
         if (!setPort(m_gdbServerPort))
             return;
     }
-    if (m_debuggingType != MaemoRunConfiguration::DebugCppOnly) {
+    if (m_debuggingType != RemoteLinuxRunConfiguration::DebugCppOnly) {
         if (!setPort(m_qmlPort))
             return;
     }
@@ -200,7 +200,7 @@ void MaemoDebugSupport::startExecution()
         SLOT(handleRemoteErrorOutput(QByteArray)));
     connect(m_runner, SIGNAL(remoteOutput(QByteArray)), this,
         SLOT(handleRemoteOutput(QByteArray)));
-    if (m_debuggingType == MaemoRunConfiguration::DebugQmlOnly) {
+    if (m_debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly) {
         connect(m_runner, SIGNAL(remoteProcessStarted()),
             SLOT(handleRemoteProcessStarted()));
     }
@@ -209,12 +209,12 @@ void MaemoDebugSupport::startExecution()
         m_deviceConfig->sshParameters().userName, remoteExe);
     const QString env = MaemoGlobal::remoteEnvironment(m_userEnvChanges);
     QString args = m_runner->arguments();
-    if (m_debuggingType != MaemoRunConfiguration::DebugCppOnly) {
+    if (m_debuggingType != RemoteLinuxRunConfiguration::DebugCppOnly) {
         args += QString(QLatin1String(" -qmljsdebugger=port:%1,block"))
             .arg(m_qmlPort);
     }
 
-    const QString remoteCommandLine = m_debuggingType == MaemoRunConfiguration::DebugQmlOnly
+    const QString remoteCommandLine = m_debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly
         ? QString::fromLocal8Bit("%1 %2 %3 %4").arg(cmdPrefix).arg(env)
             .arg(remoteExe).arg(args)
         : QString::fromLocal8Bit("%1 %2 gdbserver :%3 %4 %5")
@@ -231,10 +231,10 @@ void MaemoDebugSupport::handleRemoteProcessFinished(qint64 exitCode)
         return;
 
     if (m_state == Debugging) {
-        if (m_debuggingType != MaemoRunConfiguration::DebugQmlOnly)
+        if (m_debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly)
             m_engine->notifyInferiorIll();
     } else {
-        const QString errorMsg = m_debuggingType == MaemoRunConfiguration::DebugQmlOnly
+        const QString errorMsg = m_debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly
             ? tr("Remote application failed with exit code %1.").arg(exitCode)
             : tr("The gdbserver process closed unexpectedly.");
         m_engine->handleRemoteSetupFailed(errorMsg);
@@ -261,7 +261,7 @@ void MaemoDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 
     showMessage(QString::fromUtf8(output), AppOutput);
     if (m_state == StartingRemoteProcess
-            && m_debuggingType != MaemoRunConfiguration::DebugQmlOnly) {
+            && m_debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly) {
         m_gdbserverOutput += output;
         if (m_gdbserverOutput.contains("Listening on port")) {
             handleAdapterSetupDone();
@@ -289,7 +289,7 @@ void MaemoDebugSupport::handleAdapterSetupDone()
 
 void MaemoDebugSupport::handleRemoteProcessStarted()
 {
-    Q_ASSERT(m_debuggingType == MaemoRunConfiguration::DebugQmlOnly);
+    Q_ASSERT(m_debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly);
     ASSERT_STATE(StartingRemoteProcess);
     handleAdapterSetupDone();
 }

@@ -66,7 +66,7 @@ MaemoRemoteMounter::~MaemoRemoteMounter()
 }
 
 void MaemoRemoteMounter::setConnection(const SshConnection::Ptr &connection,
-    const MaemoDeviceConfig::ConstPtr &devConf)
+    const LinuxDeviceConfiguration::ConstPtr &devConf)
 {
     ASSERT_STATE(Inactive);
     m_connection = connection;
@@ -97,7 +97,7 @@ bool MaemoRemoteMounter::hasValidMountSpecifications() const
     return !m_mountSpecs.isEmpty();
 }
 
-void MaemoRemoteMounter::mount(MaemoPortList *freePorts,
+void MaemoRemoteMounter::mount(PortList *freePorts,
     const MaemoUsedPortsGatherer *portsGatherer)
 {
     ASSERT_STATE(Inactive);

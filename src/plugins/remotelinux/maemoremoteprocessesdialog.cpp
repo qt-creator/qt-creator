@@ -32,7 +32,7 @@
 #include "maemoremoteprocessesdialog.h"
 #include "ui_maemoremoteprocessesdialog.h"
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 #include "maemoremoteprocesslist.h"
 
 #include <QtGui/QMessageBox>
@@ -41,7 +41,7 @@
 namespace RemoteLinux {
 namespace Internal {
 
-MaemoRemoteProcessesDialog::MaemoRemoteProcessesDialog(const MaemoDeviceConfig::ConstPtr &devConfig,
+MaemoRemoteProcessesDialog::MaemoRemoteProcessesDialog(const LinuxDeviceConfiguration::ConstPtr &devConfig,
     QWidget *parent):
     QDialog(parent),
     m_ui(new Ui::MaemoRemoteProcessesDialog),
@@ -59,7 +59,7 @@ MaemoRemoteProcessesDialog::MaemoRemoteProcessesDialog(const MaemoDeviceConfig::
 
     // Manually gathered process information is missing the command line for
     // some system processes. Dont's show these lines by default.
-    if (devConfig->osVersion() == MaemoDeviceConfig::Maemo5)
+    if (devConfig->osVersion() == LinuxDeviceConfiguration::Maemo5)
         m_ui->processFilterLineEdit->setText(QLatin1String("[^ ]+"));
 
     connect(m_ui->tableView->selectionModel(),

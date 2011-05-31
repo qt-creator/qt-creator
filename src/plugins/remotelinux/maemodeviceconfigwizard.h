@@ -37,15 +37,14 @@
 
 namespace RemoteLinux {
 namespace Internal {
-class MaemoDeviceConfig;
-class MaemoDeviceConfigurations;
+class LinuxDeviceConfigurations;
 struct MaemoDeviceConfigWizardPrivate;
 
 class MaemoDeviceConfigWizard : public QWizard
 {
     Q_OBJECT
 public:
-    explicit MaemoDeviceConfigWizard(MaemoDeviceConfigurations *devConfigs,
+    explicit MaemoDeviceConfigWizard(LinuxDeviceConfigurations *devConfigs,
         QWidget *parent = 0);
     ~MaemoDeviceConfigWizard();
     void createDeviceConfig();

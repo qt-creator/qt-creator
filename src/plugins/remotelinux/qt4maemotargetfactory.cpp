@@ -33,7 +33,7 @@
 #include "qt4maemotargetfactory.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
 

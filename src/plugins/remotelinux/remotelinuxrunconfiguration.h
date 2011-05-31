@@ -33,9 +33,10 @@
 #ifndef MAEMORUNCONFIGURATION_H
 #define MAEMORUNCONFIGURATION_H
 
+#include "linuxdeviceconfiguration.h"
 #include "maemoconstants.h"
-#include "maemodeviceconfigurations.h"
 #include "maemodeployable.h"
+#include "remotelinux_export.h"
 
 #include <utils/environment.h>
 
@@ -55,30 +56,33 @@ class Qt4ProFileNode;
 
 namespace RemoteLinux {
 namespace Internal {
-
 class AbstractLinuxDeviceDeployStep;
 class MaemoDeviceConfigListModel;
 class MaemoRemoteMountsModel;
 class MaemoRunConfigurationFactory;
+class MaemoRunConfigurationWidget;
 class MaemoToolChain;
 class Qt4MaemoDeployConfiguration;
+class RemoteLinuxRunConfigurationPrivate;
+} // namespace Internal
 
-class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
+class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class MaemoRunConfigurationFactory;
+    friend class Internal::MaemoRunConfigurationFactory;
+    friend class Internal::MaemoRunConfigurationWidget;
 
 public:
-    enum BaseEnvironmentBase {
-        CleanEnvironmentBase = 0,
-        SystemEnvironmentBase = 1
+    enum BaseEnvironmentType {
+        CleanBaseEnvironment = 0,
+        SystemBaseEnvironment = 1
     };
 
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
 
-    MaemoRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent,
+    RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent,
         const QString &proFilePath);
-    virtual ~MaemoRunConfiguration();
+    virtual ~RemoteLinuxRunConfiguration();
 
     bool isEnabled() const;
     QString disabledReason() const;
@@ -87,39 +91,31 @@ public:
     Qt4ProjectManager::Qt4BaseTarget *qt4Target() const;
     Qt4ProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
-    Qt4MaemoDeployConfiguration *deployConfig() const;
-    MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
+    Internal::Qt4MaemoDeployConfiguration *deployConfig() const;
+    Internal::MaemoRemoteMountsModel *remoteMounts() const;
 
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
-    const QString targetRoot() const;
-    const QString arguments() const;
-    void setArguments(const QString &args);
-    QSharedPointer<const MaemoDeviceConfig> deviceConfig() const;
-    MaemoPortList freePorts() const;
+    QString targetRoot() const;
+    QString arguments() const;
+    QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const;
+    PortList freePorts() const;
     bool useRemoteGdb() const;
-    void setUseRemoteGdb(bool useRemoteGdb) { m_useRemoteGdb = useRemoteGdb; }
     void updateFactoryState() { emit isEnabledChanged(isEnabled()); }
     DebuggingType debuggingType() const;
 
-    const QString gdbCmd() const;
+    QString gdbCmd() const;
     QString localDirToMountForRemoteGdb() const;
     QString remoteProjectSourcesMountPoint() const;
 
     virtual QVariantMap toMap() const;
 
     QString baseEnvironmentText() const;
-    BaseEnvironmentBase baseEnvironmentBase() const;
-    void setBaseEnvironmentBase(BaseEnvironmentBase env);
-
+    BaseEnvironmentType baseEnvironmentType() const;
     Utils::Environment environment() const;
     Utils::Environment baseEnvironment() const;
-
     QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
-    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
-
     Utils::Environment systemEnvironment() const;
-    void setSystemEnvironment(const Utils::Environment &environment);
 
     int portsUsedByDebuggers() const;
     bool hasEnoughFreePorts(const QString &mode) const;
@@ -129,14 +125,13 @@ public:
 signals:
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;
-
     void baseEnvironmentChanged();
     void systemEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
 
 protected:
-    MaemoRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent,
-        MaemoRunConfiguration *source);
+    RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent,
+        RemoteLinuxRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     QString defaultDisplayName();
 
@@ -149,22 +144,17 @@ private slots:
 private:
     void init();
     void handleParseState(bool success);
-    AbstractLinuxDeviceDeployStep *deployStep() const;
+    Internal::AbstractLinuxDeviceDeployStep *deployStep() const;
 
-    QString m_proFilePath;
-    mutable QString m_gdbPath;
-    MaemoRemoteMountsModel *m_remoteMounts;
-    QString m_arguments;
-    bool m_useRemoteGdb;
+    void setArguments(const QString &args);
+    void setUseRemoteGdb(bool useRemoteGdb);
+    void setBaseEnvironmentType(BaseEnvironmentType env);
+    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
+    void setSystemEnvironment(const Utils::Environment &environment);
 
-    BaseEnvironmentBase m_baseEnvironmentBase;
-    Utils::Environment m_systemEnvironment;
-    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
-    bool m_validParse;
-    mutable QString m_disabledReason;
+    Internal::RemoteLinuxRunConfigurationPrivate * const m_d;
 };
 
-    } // namespace Internal
 } // namespace RemoteLinux
 
 #endif // MAEMORUNCONFIGURATION_H

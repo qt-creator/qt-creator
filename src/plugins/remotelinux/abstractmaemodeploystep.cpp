@@ -248,7 +248,7 @@ void AbstractMaemoDeployStep::start()
 
     m_hasError = false;
     if (isDeploymentNeeded(helper().cachedDeviceConfig()->sshParameters().host)) {
-        if (helper().cachedDeviceConfig()->type() == MaemoDeviceConfig::Emulator
+        if (helper().cachedDeviceConfig()->type() == LinuxDeviceConfiguration::Emulator
                 && !MaemoQemuManager::instance().qemuIsRunning()) {
             MaemoQemuManager::instance().startRuntime();
             raiseError(tr("Cannot deploy: Qemu was not running. "

@@ -32,7 +32,7 @@
 #ifndef MAEMOUSEDPORTSGATHERER_H
 #define MAEMOUSEDPORTSGATHERER_H
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -45,8 +45,9 @@ class SshRemoteProcessRunner;
 }
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
-class MaemoDeviceConfig;
 
 class MaemoUsedPortsGatherer : public QObject
 {
@@ -55,9 +56,9 @@ public:
     explicit MaemoUsedPortsGatherer(QObject *parent = 0);
     ~MaemoUsedPortsGatherer();
     void start(const QSharedPointer<Utils::SshConnection> &connection,
-        const QSharedPointer<const MaemoDeviceConfig> &devConf);
+        const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
     void stop();
-    int getNextFreePort(MaemoPortList *freePorts) const; // returns -1 if no more are left
+    int getNextFreePort(PortList *freePorts) const; // returns -1 if no more are left
     QList<int> usedPorts() const { return m_usedPorts; }
 
 signals:

@@ -47,11 +47,11 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 namespace Internal {
 
-RunControl *MaemoAnalyzerSupport::createAnalyzerRunControl(MaemoRunConfiguration *runConfig)
+RunControl *MaemoAnalyzerSupport::createAnalyzerRunControl(RemoteLinuxRunConfiguration *runConfig)
 {
     AnalyzerStartParameters params;
 
-    const MaemoDeviceConfig::ConstPtr &devConf = runConfig->deviceConfig();
+    const LinuxDeviceConfiguration::ConstPtr &devConf = runConfig->deviceConfig();
     params.debuggee = runConfig->remoteExecutableFilePath();
     params.debuggeeArgs = runConfig->arguments();
     params.analyzerCmdPrefix = MaemoGlobal::remoteCommandPrefix(devConf->osVersion(),

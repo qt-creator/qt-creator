@@ -37,7 +37,7 @@
 #include "ui_maemodeviceconfigwizardreusekeyscheckpage.h"
 #include "ui_maemodeviceconfigwizardstartpage.h"
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfigurations.h"
 #include "maemoglobal.h"
 #include "maemokeydeployer.h"
 
@@ -61,9 +61,9 @@ struct WizardData
 {
     QString configName;
     QString hostName;
-    MaemoDeviceConfig::OsVersion osVersion;
+    LinuxDeviceConfiguration::OsVersion osVersion;
     SshConnectionParameters::AuthenticationType authType;
-    MaemoDeviceConfig::DeviceType deviceType;
+    LinuxDeviceConfiguration::DeviceType deviceType;
     QString privateKeyFilePath;
     QString publicKeyFilePath;
     QString userName;
@@ -85,10 +85,10 @@ public:
         m_ui->setupUi(this);
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        m_ui->fremantleButton->setText(MaemoGlobal::osVersionToString(MaemoDeviceConfig::Maemo5));
-        m_ui->harmattanButton->setText(MaemoGlobal::osVersionToString(MaemoDeviceConfig::Maemo6));
-        m_ui->meegoButton->setText(MaemoGlobal::osVersionToString(MaemoDeviceConfig::Meego));
-        m_ui->genericLinuxButton->setText(MaemoGlobal::osVersionToString(MaemoDeviceConfig::GenericLinux));
+        m_ui->fremantleButton->setText(MaemoGlobal::osVersionToString(LinuxDeviceConfiguration::Maemo5));
+        m_ui->harmattanButton->setText(MaemoGlobal::osVersionToString(LinuxDeviceConfiguration::Maemo6));
+        m_ui->meegoButton->setText(MaemoGlobal::osVersionToString(LinuxDeviceConfiguration::Meego));
+        m_ui->genericLinuxButton->setText(MaemoGlobal::osVersionToString(LinuxDeviceConfiguration::GenericLinux));
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
@@ -110,7 +110,7 @@ public:
         m_ui->harmattanButton->setChecked(true);
         m_ui->hwButton->setChecked(true);
         handleDeviceTypeChanged();
-        m_ui->hostNameLineEdit->setText(MaemoDeviceConfig::defaultHost(deviceType(),
+        m_ui->hostNameLineEdit->setText(LinuxDeviceConfiguration::defaultHost(deviceType(),
             osVersion()));
         connect(m_ui->nameLineEdit, SIGNAL(textChanged(QString)), this,
             SIGNAL(completeChanged()));
@@ -127,36 +127,36 @@ public:
 
     QString hostName() const
     {
-        return deviceType() == MaemoDeviceConfig::Emulator
-            ? MaemoDeviceConfig::defaultHost(MaemoDeviceConfig::Emulator, osVersion())
+        return deviceType() == LinuxDeviceConfiguration::Emulator
+            ? LinuxDeviceConfiguration::defaultHost(LinuxDeviceConfiguration::Emulator, osVersion())
             : m_ui->hostNameLineEdit->text().trimmed();
     }
 
-    MaemoDeviceConfig::OsVersion osVersion() const
+    LinuxDeviceConfiguration::OsVersion osVersion() const
     {
-        return m_ui->fremantleButton->isChecked() ? MaemoDeviceConfig::Maemo5
-            : m_ui->harmattanButton->isChecked() ? MaemoDeviceConfig::Maemo6
-            : m_ui->meegoButton->isChecked() ? MaemoDeviceConfig::Meego
-            : MaemoDeviceConfig::GenericLinux;
+        return m_ui->fremantleButton->isChecked() ? LinuxDeviceConfiguration::Maemo5
+            : m_ui->harmattanButton->isChecked() ? LinuxDeviceConfiguration::Maemo6
+            : m_ui->meegoButton->isChecked() ? LinuxDeviceConfiguration::Meego
+            : LinuxDeviceConfiguration::GenericLinux;
     }
 
-    MaemoDeviceConfig::DeviceType deviceType() const
+    LinuxDeviceConfiguration::DeviceType deviceType() const
     {
         return m_ui->hwButton->isChecked()
-            ? MaemoDeviceConfig::Physical : MaemoDeviceConfig::Emulator;
+            ? LinuxDeviceConfiguration::Physical : LinuxDeviceConfiguration::Emulator;
     }
 
 private slots:
     void handleDeviceTypeChanged()
     {
-        const bool enable = deviceType() == MaemoDeviceConfig::Physical;
+        const bool enable = deviceType() == LinuxDeviceConfiguration::Physical;
         m_ui->hostNameLabel->setEnabled(enable);
         m_ui->hostNameLineEdit->setEnabled(enable);
     }
 
     void handleOsTypeChanged()
     {
-        if (osVersion() == MaemoDeviceConfig::GenericLinux) {
+        if (osVersion() == LinuxDeviceConfiguration::GenericLinux) {
             m_ui->hwButton->setChecked(true);
             m_ui->hwButton->setEnabled(false);
             m_ui->qemuButton->setEnabled(false);
@@ -202,10 +202,10 @@ public:
 
     virtual void initializePage()
     {
-        m_ui->userNameLineEdit->setText(MaemoDeviceConfig::defaultUser(m_wizardData.osVersion));
+        m_ui->userNameLineEdit->setText(LinuxDeviceConfiguration::defaultUser(m_wizardData.osVersion));
         m_ui->passwordButton->setChecked(true);
         m_ui->passwordLineEdit->clear();
-        m_ui->privateKeyPathChooser->setPath(MaemoDeviceConfig::defaultPrivateKeyFilePath());
+        m_ui->privateKeyPathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
         handleAuthTypeChanged();
     }
 
@@ -263,7 +263,7 @@ public:
     virtual void initializePage()
     {
         m_ui->keyWasNotSetUpButton->setChecked(true);
-        m_ui->privateKeyFilePathChooser->setPath(MaemoDeviceConfig::defaultPrivateKeyFilePath());
+        m_ui->privateKeyFilePathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
         handleSelectionChanged();
     }
 
@@ -319,8 +319,8 @@ public:
     virtual void initializePage()
     {
         m_ui->dontReuseButton->setChecked(true);
-        m_ui->privateKeyFilePathChooser->setPath(MaemoDeviceConfig::defaultPrivateKeyFilePath());
-        m_ui->publicKeyFilePathChooser->setPath(MaemoDeviceConfig::defaultPublicKeyFilePath());
+        m_ui->privateKeyFilePathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
+        m_ui->publicKeyFilePathChooser->setPath(LinuxDeviceConfiguration::defaultPublicKeyFilePath());
         handleSelectionChanged();
     }
 
@@ -504,10 +504,10 @@ private:
         SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
         sshParams.authenticationType = SshConnectionParameters::AuthenticationByPassword;
         sshParams.host = hostAddress();
-        sshParams.port = MaemoDeviceConfig::defaultSshPort(MaemoDeviceConfig::Physical);
+        sshParams.port = LinuxDeviceConfiguration::defaultSshPort(LinuxDeviceConfiguration::Physical);
         sshParams.password = password();
         sshParams.timeout = 30;
-        sshParams.userName = MaemoDeviceConfig::defaultUser(m_wizardData.osVersion);
+        sshParams.userName = LinuxDeviceConfiguration::defaultUser(m_wizardData.osVersion);
         m_ui->statusLabel->setText(tr("Deploying... "));
         m_keyDeployer->deployPublicKey(sshParams, m_wizardData.publicKeyFilePath);
     }
@@ -569,7 +569,7 @@ public:
     virtual void initializePage()
     {
         QString infoText;
-        if (m_wizardData.deviceType == MaemoDeviceConfig::Physical) {
+        if (m_wizardData.deviceType == LinuxDeviceConfiguration::Physical) {
             infoText = tr("The new device configuration will now be "
                 "created and a test procedure will be run to check whether "
                 "Qt Creator can connect to the device and to provide some "
@@ -589,7 +589,7 @@ private:
 
 struct MaemoDeviceConfigWizardPrivate
 {
-    MaemoDeviceConfigWizardPrivate(MaemoDeviceConfigurations *devConfigs,
+    MaemoDeviceConfigWizardPrivate(LinuxDeviceConfigurations *devConfigs,
             QWidget *parent)
         : devConfigs(devConfigs),
           startPage(parent),
@@ -603,7 +603,7 @@ struct MaemoDeviceConfigWizardPrivate
     }
 
     WizardData wizardData;
-    MaemoDeviceConfigurations * const devConfigs;
+    LinuxDeviceConfigurations * const devConfigs;
     MaemoDeviceConfigWizardStartPage startPage;
     MaemoDeviceConfigWizardLoginDataPage loginDataPage;
     MaemoDeviceConfigWizardPreviousKeySetupCheckPage previousKeySetupPage;
@@ -614,7 +614,7 @@ struct MaemoDeviceConfigWizardPrivate
 };
 
 
-MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(MaemoDeviceConfigurations *devConfigs,
+MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(LinuxDeviceConfigurations *devConfigs,
     QWidget *parent)
         : QWizard(parent),
           d(new MaemoDeviceConfigWizardPrivate(devConfigs, this))
@@ -643,7 +643,7 @@ void MaemoDeviceConfigWizard::createDeviceConfig()
         while (d->devConfigs->hasConfig(name));
     }
 
-    if (d->wizardData.osVersion == MaemoDeviceConfig::GenericLinux) {
+    if (d->wizardData.osVersion == LinuxDeviceConfiguration::GenericLinux) {
         if (d->wizardData.authType == SshConnectionParameters::AuthenticationByPassword) {
            d->devConfigs->addGenericLinuxConfigurationUsingPassword(name,
                d->wizardData.hostName, d->wizardData.userName,
@@ -653,7 +653,7 @@ void MaemoDeviceConfigWizard::createDeviceConfig()
                 d->wizardData.hostName, d->wizardData.userName,
                 d->wizardData.privateKeyFilePath);
         }
-    } else if (d->wizardData.deviceType == MaemoDeviceConfig::Physical) {
+    } else if (d->wizardData.deviceType == LinuxDeviceConfiguration::Physical) {
         d->devConfigs->addHardwareDeviceConfiguration(name,
             d->wizardData.osVersion, d->wizardData.hostName,
             d->wizardData.privateKeyFilePath);
@@ -672,9 +672,9 @@ int MaemoDeviceConfigWizard::nextId() const
         d->wizardData.deviceType = d->startPage.deviceType();
         d->wizardData.hostName = d->startPage.hostName();
 
-        if (d->wizardData.deviceType == MaemoDeviceConfig::Emulator) {
+        if (d->wizardData.deviceType == LinuxDeviceConfiguration::Emulator) {
             return FinalPageId;
-        } else if (d->wizardData.osVersion == MaemoDeviceConfig::GenericLinux) {
+        } else if (d->wizardData.osVersion == LinuxDeviceConfiguration::GenericLinux) {
             return LoginDataPageId;
         } else {
             return PreviousKeySetupCheckPageId;

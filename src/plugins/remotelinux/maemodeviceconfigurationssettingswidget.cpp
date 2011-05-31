@@ -33,9 +33,9 @@
 
 #include "ui_maemodeviceconfigurationssettingswidget.h"
 
+#include "linuxdeviceconfigurations.h"
 #include "maemoconfigtestdialog.h"
 #include "maemodeviceconfigwizard.h"
-#include "maemodeviceconfigurations.h"
 #include "maemoglobal.h"
 #include "maemokeydeployer.h"
 #include "maemoremoteprocessesdialog.h"
@@ -68,7 +68,7 @@ const QLatin1String LastDeviceConfigIndexKey("LastDisplayedMaemoDeviceConfig");
 class NameValidator : public QValidator
 {
 public:
-    NameValidator(const MaemoDeviceConfigurations *devConfigs,
+    NameValidator(const LinuxDeviceConfigurations *devConfigs,
             QWidget *parent = 0)
         : QValidator(parent), m_devConfigs(devConfigs)
     {
@@ -93,14 +93,14 @@ public:
 
 private:
     QString m_oldName;
-    const MaemoDeviceConfigurations * const m_devConfigs;
+    const LinuxDeviceConfigurations * const m_devConfigs;
 };
 
 
 MaemoDeviceConfigurationsSettingsWidget::MaemoDeviceConfigurationsSettingsWidget(QWidget *parent)
     : QWidget(parent),
       m_ui(new Ui_MaemoDeviceConfigurationsSettingsWidget),
-      m_devConfigs(MaemoDeviceConfigurations::cloneInstance()),
+      m_devConfigs(LinuxDeviceConfigurations::cloneInstance()),
       m_nameValidator(new NameValidator(m_devConfigs.data(), this)),
       m_keyDeployer(new MaemoKeyDeployer(this)),
       m_saveSettingsRequested(false)
@@ -117,7 +117,7 @@ MaemoDeviceConfigurationsSettingsWidget::~MaemoDeviceConfigurationsSettingsWidge
     if (m_saveSettingsRequested) {
         Core::ICore::instance()->settings()->setValue(LastDeviceConfigIndexKey,
             currentIndex());
-        MaemoDeviceConfigurations::replaceInstance(m_devConfigs.data());
+        LinuxDeviceConfigurations::replaceInstance(m_devConfigs.data());
     }
     delete m_ui;
 }
@@ -155,7 +155,7 @@ void MaemoDeviceConfigurationsSettingsWidget::initGui()
     m_ui->nameLineEdit->setValidator(m_nameValidator);
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     QRegExpValidator * const portsValidator
-        = new QRegExpValidator(QRegExp(MaemoDeviceConfig::portsRegExpr()), this);
+        = new QRegExpValidator(QRegExp(LinuxDeviceConfiguration::portsRegExpr()), this);
     m_ui->portsLineEdit->setValidator(portsValidator);
     connect(m_ui->makeKeyFileDefaultButton, SIGNAL(clicked()),
         SLOT(setDefaultKeyFilePath()));
@@ -179,7 +179,7 @@ void MaemoDeviceConfigurationsSettingsWidget::addConfig()
         wizard.createDeviceConfig();
         m_ui->removeConfigButton->setEnabled(true);
         m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
-        if (currentConfig()->type() != MaemoDeviceConfig::Emulator)
+        if (currentConfig()->type() != LinuxDeviceConfiguration::Emulator)
             testConfig();
     }
 }
@@ -193,11 +193,11 @@ void MaemoDeviceConfigurationsSettingsWidget::deleteConfig()
 
 void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
 {
-    const MaemoDeviceConfig::ConstPtr &current = currentConfig();
+    const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
     m_ui->osTypeValueLabel->setText(MaemoGlobal::osVersionToString(current->osVersion()));
     const SshConnectionParameters &sshParams = current->sshParameters();
-    if (current->type() == MaemoDeviceConfig::Physical) {
+    if (current->type() == LinuxDeviceConfiguration::Physical) {
         m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));
         m_ui->portsLineEdit->setReadOnly(false);
     } else {
@@ -216,7 +216,7 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
 
 void MaemoDeviceConfigurationsSettingsWidget::fillInValues()
 {
-    const MaemoDeviceConfig::ConstPtr &current = currentConfig();
+    const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
     m_ui->nameLineEdit->setText(current->name());
     const SshConnectionParameters &sshParams = current->sshParameters();
     m_ui->hostLineEdit->setText(sshParams.host);
@@ -228,7 +228,7 @@ void MaemoDeviceConfigurationsSettingsWidget::fillInValues()
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
     m_ui->showPasswordCheckBox->setChecked(false);
     updatePortsWarningLabel();
-    const bool isSimulator = current->type() == MaemoDeviceConfig::Emulator;
+    const bool isSimulator = current->type() == LinuxDeviceConfiguration::Emulator;
     m_ui->hostLineEdit->setReadOnly(isSimulator);
     m_ui->sshPortSpinBox->setReadOnly(isSimulator);
 }
@@ -244,7 +244,7 @@ int MaemoDeviceConfigurationsSettingsWidget::currentIndex() const
     return m_ui->configurationComboBox->currentIndex();
 }
 
-MaemoDeviceConfig::ConstPtr MaemoDeviceConfigurationsSettingsWidget::currentConfig() const
+LinuxDeviceConfiguration::ConstPtr MaemoDeviceConfigurationsSettingsWidget::currentConfig() const
 {
     Q_ASSERT(currentIndex() != -1);
     return m_devConfigs->deviceAt(currentIndex());

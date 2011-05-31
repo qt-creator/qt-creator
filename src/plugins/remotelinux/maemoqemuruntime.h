@@ -32,7 +32,7 @@
 #ifndef MAEMOQEMURUNTIME_H
 #define MAEMOQEMURUNTIME_H
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 #include "maemoqemusettings.h"
 
 #include <QtCore/QHash>
@@ -78,7 +78,7 @@ struct MaemoQemuRuntime
     QString m_args;
     QString m_sshPort;
     QString m_watchPath;
-    MaemoPortList m_freePorts;
+    PortList m_freePorts;
     QList<Variable> m_normalVars;
     QString m_openGlBackendVarName;
     QHash<MaemoQemuSettings::OpenGlMode, QString> m_openGlBackendVarValues;

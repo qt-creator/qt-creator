@@ -109,16 +109,16 @@ QList<ProjectExplorer::Abi> MaemoQtVersion::qtAbis() const
     QList<ProjectExplorer::Abi> result;
     if (!m_isvalidVersion)
         return result;
-    if (m_osVersion == MaemoDeviceConfig::Maemo5) {
+    if (m_osVersion == LinuxDeviceConfiguration::Maemo5) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::MaemoLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
                                            32));
-    } else if (m_osVersion == MaemoDeviceConfig::Maemo6) {
+    } else if (m_osVersion == LinuxDeviceConfiguration::Maemo6) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::HarmattanLinuxFlavor,
                                            ProjectExplorer::Abi::ElfFormat,
                                            32));
-    } else if (m_osVersion == MaemoDeviceConfig::Meego) {
+    } else if (m_osVersion == LinuxDeviceConfiguration::Meego) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::MeegoLinuxFlavor,
                                            ProjectExplorer::Abi::ElfFormat, 32));
@@ -136,11 +136,11 @@ QSet<QString> MaemoQtVersion::supportedTargetIds() const
     QSet<QString> result;
     if (!m_isvalidVersion)
         return result;
-    if (m_osVersion == MaemoDeviceConfig::Maemo5) {
+    if (m_osVersion == LinuxDeviceConfiguration::Maemo5) {
         result.insert(QLatin1String(Constants::MAEMO5_DEVICE_TARGET_ID));
-    } else if (m_osVersion == MaemoDeviceConfig::Maemo6) {
+    } else if (m_osVersion == LinuxDeviceConfiguration::Maemo6) {
         result.insert(QLatin1String(Constants::HARMATTAN_DEVICE_TARGET_ID));
-    } else if (m_osVersion == MaemoDeviceConfig::Meego) {
+    } else if (m_osVersion == LinuxDeviceConfiguration::Meego) {
         result.insert(QLatin1String(Constants::MEEGO_DEVICE_TARGET_ID));
     }
     return result;
@@ -148,11 +148,11 @@ QSet<QString> MaemoQtVersion::supportedTargetIds() const
 
 QString MaemoQtVersion::description() const
 {
-    if (m_osVersion == MaemoDeviceConfig::Maemo5)
+    if (m_osVersion == LinuxDeviceConfiguration::Maemo5)
         return QCoreApplication::translate("QtVersion", "Maemo", "Qt Version is meant for Maemo5");
-    else if (m_osVersion == MaemoDeviceConfig::Maemo6)
+    else if (m_osVersion == LinuxDeviceConfiguration::Maemo6)
         return QCoreApplication::translate("QtVersion", "Harmattan ", "Qt Version is meant for Harmattan");
-    else if (m_osVersion == MaemoDeviceConfig::Meego)
+    else if (m_osVersion == LinuxDeviceConfiguration::Meego)
         return QCoreApplication::translate("QtVersion", "Meego", "Qt Version is meant for Meego");
     return QString();
 }
@@ -165,7 +165,7 @@ bool MaemoQtVersion::supportsShadowBuilds() const
     return true;
 }
 
-MaemoDeviceConfig::OsVersion MaemoQtVersion::osVersion() const
+LinuxDeviceConfiguration::OsVersion MaemoQtVersion::osVersion() const
 {
     return m_osVersion;
 }

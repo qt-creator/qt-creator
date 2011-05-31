@@ -68,7 +68,7 @@ MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
 }
 
 void MaemoDeploymentMounter::setupMounts(const SshConnection::Ptr &connection,
-    const MaemoDeviceConfig::ConstPtr &devConf,
+    const LinuxDeviceConfiguration::ConstPtr &devConf,
     const QList<MaemoMountSpecification> &mountSpecs,
     const Qt4BuildConfiguration *bc)
 {

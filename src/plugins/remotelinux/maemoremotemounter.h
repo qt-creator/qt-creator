@@ -33,7 +33,7 @@
 #ifndef MAEMOREMOTEMOUNTER_H
 #define MAEMOREMOTEMOUNTER_H
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 #include "maemomountspecification.h"
 
 #include <QtCore/QList>
@@ -53,8 +53,9 @@ class SshRemoteProcess;
 namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
-class MaemoDeviceConfig;
 class MaemoUsedPortsGatherer;
 
 class MaemoRemoteMounter : public QObject
@@ -66,14 +67,14 @@ public:
 
     // Must already be connected.
     void setConnection(const QSharedPointer<Utils::SshConnection> &connection,
-        const QSharedPointer<const MaemoDeviceConfig> &devConf);
+        const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
 
     void setBuildConfiguration(const Qt4ProjectManager::Qt4BuildConfiguration *bc);
     void addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
     bool hasValidMountSpecifications() const;
     void resetMountSpecifications() { m_mountSpecs.clear(); }
-    void mount(MaemoPortList *freePorts,
+    void mount(PortList *freePorts,
         const MaemoUsedPortsGatherer *portsGatherer);
     void unmount();
     void stop();
@@ -123,7 +124,7 @@ private:
     };
 
     QSharedPointer<Utils::SshConnection> m_connection;
-    QSharedPointer<const MaemoDeviceConfig> m_devConf;
+    QSharedPointer<const LinuxDeviceConfiguration> m_devConf;
     QList<MountInfo> m_mountSpecs;
     QSharedPointer<Utils::SshRemoteProcess> m_mountProcess;
     QSharedPointer<Utils::SshRemoteProcess> m_unmountProcess;
@@ -133,7 +134,7 @@ private:
 
     QByteArray m_utfsClientStderr;
     QByteArray m_umountStderr;
-    MaemoPortList *m_freePorts;
+    PortList *m_freePorts;
     const MaemoUsedPortsGatherer *m_portsGatherer;
     bool m_remoteMountsAllowed;
     QString m_maddeRoot;

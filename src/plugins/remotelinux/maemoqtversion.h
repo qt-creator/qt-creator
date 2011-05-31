@@ -32,7 +32,7 @@
 #ifndef MAEMOQTVERSION_H
 #define MAEMOQTVERSION_H
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 #include <qtsupport/baseqtversion.h>
 
 namespace RemoteLinux {
@@ -59,10 +59,10 @@ public:
     virtual QString description() const;
 
     virtual bool supportsShadowBuilds() const;
-    MaemoDeviceConfig::OsVersion osVersion() const;
+    LinuxDeviceConfiguration::OsVersion osVersion() const;
 private:
     mutable QString m_systemRoot;
-    mutable MaemoDeviceConfig::OsVersion m_osVersion;
+    mutable LinuxDeviceConfiguration::OsVersion m_osVersion;
     mutable bool m_isvalidVersion;
 };
 

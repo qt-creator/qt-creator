@@ -32,7 +32,7 @@
 #ifndef MAEMOSSHRUNNER_H
 #define MAEMOSSHRUNNER_H
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 #include "maemomountspecification.h"
 
 #include <utils/environment.h>
@@ -47,16 +47,17 @@ namespace Utils {
 }
 
 namespace RemoteLinux {
+class RemoteLinuxRunConfiguration;
+
 namespace Internal {
 class MaemoRemoteMounter;
-class MaemoRunConfiguration;
 class MaemoUsedPortsGatherer;
 
 class MaemoSshRunner : public QObject
 {
     Q_OBJECT
 public:
-    MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig,
+    MaemoSshRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig,
         bool debugging);
     ~MaemoSshRunner();
 
@@ -67,11 +68,11 @@ public:
 
     QSharedPointer<Utils::SshConnection> connection() const { return m_connection; }
     const MaemoUsedPortsGatherer *usedPortsGatherer() const { return m_portsGatherer; }
-    MaemoPortList *freePorts() { return &m_freePorts; }
+    PortList *freePorts() { return &m_freePorts; }
     QString remoteExecutable() const { return m_remoteExecutable; }
     QString arguments() const { return m_appArguments; }
     QList<Utils::EnvironmentItem> userEnvChanges() const { return m_userEnvChanges; }
-    const QSharedPointer<const MaemoDeviceConfig> devConfig() const { return m_devConfig; }
+    const QSharedPointer<const LinuxDeviceConfiguration> devConfig() const { return m_devConfig; }
 
     static const qint64 InvalidExitCode;
 
@@ -112,18 +113,18 @@ private:
 
     MaemoRemoteMounter * const m_mounter;
     MaemoUsedPortsGatherer * const m_portsGatherer;
-    const QSharedPointer<const MaemoDeviceConfig> m_devConfig;
+    const QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
     const QString m_remoteExecutable;
     const QString m_appArguments;
     const QList<Utils::EnvironmentItem> m_userEnvChanges;
-    const MaemoPortList m_initialFreePorts;
+    const PortList m_initialFreePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
 
     QSharedPointer<Utils::SshConnection> m_connection;
     QSharedPointer<Utils::SshRemoteProcess> m_runner;
     QSharedPointer<Utils::SshRemoteProcess> m_cleaner;
     QStringList m_procsToKill;
-    MaemoPortList m_freePorts;
+    PortList m_freePorts;
 
     int m_exitStatus;
     State m_state;

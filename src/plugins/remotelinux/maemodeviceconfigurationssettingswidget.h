@@ -48,11 +48,12 @@ class SshRemoteProcessRunner;
 }
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
 
 class NameValidator;
-class MaemoDeviceConfig;
-class MaemoDeviceConfigurations;
+class LinuxDeviceConfigurations;
 class MaemoKeyDeployer;
 
 class MaemoDeviceConfigurationsSettingsWidget : public QWidget
@@ -98,7 +99,7 @@ private slots:
 private:
     void initGui();
     void displayCurrent();
-    QSharedPointer<const MaemoDeviceConfig> currentConfig() const;
+    QSharedPointer<const LinuxDeviceConfiguration> currentConfig() const;
     int currentIndex() const;
     void clearDetails();
     QString parseTestOutput();
@@ -106,7 +107,7 @@ private:
     void updatePortsWarningLabel();
 
     Ui_MaemoDeviceConfigurationsSettingsWidget *m_ui;
-    const QScopedPointer<MaemoDeviceConfigurations> m_devConfigs;
+    const QScopedPointer<LinuxDeviceConfigurations> m_devConfigs;
     NameValidator * const m_nameValidator;
     MaemoKeyDeployer *const m_keyDeployer;
     bool m_saveSettingsRequested;

@@ -35,7 +35,7 @@
 #include "maemoqemumanager.h"
 #include "maemoremotemounter.h"
 #include "maemoremotemountsmodel.h"
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 #include "maemousedportsgatherer.h"
 
 #include <utils/ssh/sshconnection.h>
@@ -55,7 +55,7 @@ namespace RemoteLinux {
 namespace Internal {
 
 MaemoSshRunner::MaemoSshRunner(QObject *parent,
-    MaemoRunConfiguration *runConfig, bool debugging)
+    RemoteLinuxRunConfiguration *runConfig, bool debugging)
     : QObject(parent),
       m_mounter(new MaemoRemoteMounter(this)),
       m_portsGatherer(new MaemoUsedPortsGatherer(this)),
@@ -103,7 +103,7 @@ void MaemoSshRunner::start()
         return;
     }
 
-    if (m_devConfig->type() == MaemoDeviceConfig::Emulator
+    if (m_devConfig->type() == LinuxDeviceConfiguration::Emulator
             && !MaemoQemuManager::instance().qemuIsRunning()) {
         MaemoQemuManager::instance().startRuntime();
         emitError(tr("Cannot run: Qemu was not running. "

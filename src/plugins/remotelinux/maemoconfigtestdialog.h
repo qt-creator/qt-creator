@@ -45,9 +45,9 @@ namespace Utils {
 } // namespace Utils
 
 namespace RemoteLinux {
-namespace Internal {
+class LinuxDeviceConfiguration;
 
-class MaemoDeviceConfig;
+namespace Internal {
 class MaemoUsedPortsGatherer;
 
 /**
@@ -57,7 +57,7 @@ class MaemoConfigTestDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit MaemoConfigTestDialog(const QSharedPointer<const MaemoDeviceConfig> &config,
+    explicit MaemoConfigTestDialog(const QSharedPointer<const LinuxDeviceConfiguration> &config,
         QWidget *parent = 0);
     ~MaemoConfigTestDialog();
 
@@ -80,7 +80,7 @@ private:
     Ui_MaemoConfigTestDialog *m_ui;
     QPushButton *m_closeButton;
 
-    const QSharedPointer<const MaemoDeviceConfig> m_config;
+    const QSharedPointer<const LinuxDeviceConfiguration> m_config;
     QSharedPointer<Utils::SshRemoteProcessRunner> m_testProcessRunner;
     QString m_deviceTestOutput;
     bool m_qtVersionOk;

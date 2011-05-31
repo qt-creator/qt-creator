@@ -34,7 +34,7 @@
 
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 #include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
 
@@ -166,12 +166,12 @@ void AbstractQt4MaemoTarget::createApplicationProFiles()
         paths << pro->path();
 
     foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations())
-        if (MaemoRunConfiguration *qt4rc = qobject_cast<MaemoRunConfiguration *>(rc))
+        if (RemoteLinuxRunConfiguration *qt4rc = qobject_cast<RemoteLinuxRunConfiguration *>(rc))
             paths.remove(qt4rc->proFilePath());
 
     // Only add new runconfigurations if there are none.
     foreach (const QString &path, paths)
-        addRunConfiguration(new MaemoRunConfiguration(this, path));
+        addRunConfiguration(new RemoteLinuxRunConfiguration(this, path));
 
     // Oh still none? Add a custom executable runconfiguration
     if (runConfigurations().isEmpty()) {
@@ -183,7 +183,7 @@ QList<ProjectExplorer::RunConfiguration *> AbstractQt4MaemoTarget::runConfigurat
 {
     QList<ProjectExplorer::RunConfiguration *> result;
     foreach (ProjectExplorer::RunConfiguration *rc, runConfigurations())
-        if (MaemoRunConfiguration *mrc = qobject_cast<MaemoRunConfiguration *>(rc))
+        if (RemoteLinuxRunConfiguration *mrc = qobject_cast<RemoteLinuxRunConfiguration *>(rc))
             if (mrc->proFilePath() == n->path())
                 result << rc;
     return result;

@@ -118,7 +118,7 @@ QString MaemoDeviceConfigurationsSettingsPage::id() const
 
 QString MaemoDeviceConfigurationsSettingsPage::displayName() const
 {
-    return tr("Maemo Device Configurations");
+    return tr("Device Configurations");
 }
 
 QString MaemoDeviceConfigurationsSettingsPage::category() const
@@ -181,7 +181,7 @@ QString MaemoQemuSettingsPage::id() const
 
 QString MaemoQemuSettingsPage::displayName() const
 {
-    return tr("Qemu Settings");
+    return tr("Maemo Qemu Settings");
 }
 
 QString MaemoQemuSettingsPage::category() const

@@ -32,7 +32,7 @@
 #include "maemoconfigtestdialog.h"
 #include "ui_maemoconfigtestdialog.h"
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
 #include "maemousedportsgatherer.h"
 
@@ -46,7 +46,7 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-MaemoConfigTestDialog::MaemoConfigTestDialog(const MaemoDeviceConfig::ConstPtr &config,
+MaemoConfigTestDialog::MaemoConfigTestDialog(const LinuxDeviceConfiguration::ConstPtr &config,
         QWidget *parent)
     : QDialog(parent)
     , m_ui(new Ui_MaemoConfigTestDialog)
@@ -78,7 +78,7 @@ void MaemoConfigTestDialog::startConfigTest()
         return;
 
     m_currentTest = GeneralTest;
-    const QString testingText = m_config->type() == MaemoDeviceConfig::Emulator
+    const QString testingText = m_config->type() == LinuxDeviceConfiguration::Emulator
         ? tr("Testing configuration. This may take a while.")
         : tr("Testing configuration...");
     m_ui->testResultEdit->setPlainText(testingText);
@@ -122,7 +122,7 @@ void MaemoConfigTestDialog::handleConnectionError()
         return;
     QString output = tr("Could not connect to host: %1")
         .arg(m_testProcessRunner->connection()->errorString());
-    if (m_config->type() == MaemoDeviceConfig::Emulator)
+    if (m_config->type() == LinuxDeviceConfiguration::Emulator)
         output += tr("\nDid you start Qemu?");
     m_ui->testResultEdit->setPlainText(output);
     stopConfigTest();
@@ -159,9 +159,9 @@ void MaemoConfigTestDialog::handleGeneralTestResult(int exitStatus)
     }
 
     switch (m_config->osVersion()) {
-    case MaemoDeviceConfig::Maemo5:
-    case MaemoDeviceConfig::Maemo6:
-    case MaemoDeviceConfig::Meego:
+    case LinuxDeviceConfiguration::Maemo5:
+    case LinuxDeviceConfiguration::Maemo6:
+    case LinuxDeviceConfiguration::Meego:
         m_currentTest = MadDeveloperTest;
         disconnect(m_testProcessRunner.data(),
             SIGNAL(processOutputAvailable(QByteArray)), this,
@@ -184,7 +184,7 @@ void MaemoConfigTestDialog::handleMadDeveloperTestResult(int exitStatus)
             + tr("%1 is not installed.<br>You will not be able to deploy "
                  "to this device.")
                 .arg(MaemoGlobal::madDeveloperUiName(m_config->osVersion()));
-        if (m_config->osVersion() == MaemoDeviceConfig::Maemo6) {
+        if (m_config->osVersion() == LinuxDeviceConfiguration::Maemo6) {
             errorMsg += QLatin1String("<br>")
                 + tr("Please switch the device to developer mode via Settings -> Security.");
         }

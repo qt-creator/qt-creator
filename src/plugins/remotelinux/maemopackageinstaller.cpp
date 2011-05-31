@@ -50,7 +50,7 @@ AbstractMaemoPackageInstaller::AbstractMaemoPackageInstaller(QObject *parent)
 AbstractMaemoPackageInstaller::~AbstractMaemoPackageInstaller() {}
 
 void AbstractMaemoPackageInstaller::installPackage(const SshConnection::Ptr &connection,
-    const MaemoDeviceConfig::ConstPtr &devConf, const QString &packageFilePath,
+    const LinuxDeviceConfiguration::ConstPtr &devConf, const QString &packageFilePath,
     bool removePackageFile)
 {
     Q_ASSERT(connection && connection->state() == SshConnection::Connected);

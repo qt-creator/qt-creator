@@ -51,7 +51,7 @@ MaemoRemoteCopyFacility::MaemoRemoteCopyFacility(QObject *parent) :
 MaemoRemoteCopyFacility::~MaemoRemoteCopyFacility() {}
 
 void MaemoRemoteCopyFacility::copyFiles(const SshConnection::Ptr &connection,
-    const MaemoDeviceConfig::ConstPtr &devConf,
+    const LinuxDeviceConfiguration::ConstPtr &devConf,
     const QList<MaemoDeployable> &deployables, const QString &mountPoint)
 {
     Q_ASSERT(connection->state() == SshConnection::Connected);

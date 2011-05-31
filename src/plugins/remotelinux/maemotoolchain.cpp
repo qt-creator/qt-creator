@@ -192,11 +192,11 @@ void MaemoToolChain::setQtVersionId(int id)
     MaemoQtVersion *version = dynamic_cast<MaemoQtVersion *>(QtSupport::QtVersionManager::instance()->version(id));
     Q_ASSERT(version);
     ProjectExplorer::Abi::OSFlavor flavour = ProjectExplorer::Abi::HarmattanLinuxFlavor;
-    if (version->osVersion() == MaemoDeviceConfig::Maemo5)
+    if (version->osVersion() == LinuxDeviceConfiguration::Maemo5)
         flavour = ProjectExplorer::Abi::MaemoLinuxFlavor;
-    else if (version->osVersion() == MaemoDeviceConfig::Maemo6)
+    else if (version->osVersion() == LinuxDeviceConfiguration::Maemo6)
         flavour = ProjectExplorer::Abi::HarmattanLinuxFlavor;
-    else if (version->osVersion() == MaemoDeviceConfig::Meego)
+    else if (version->osVersion() == LinuxDeviceConfiguration::Meego)
         flavour = ProjectExplorer::Abi::MeegoLinuxFlavor;
     else
         return;

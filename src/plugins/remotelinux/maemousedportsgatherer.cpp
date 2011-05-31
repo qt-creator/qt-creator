@@ -48,7 +48,7 @@ MaemoUsedPortsGatherer::MaemoUsedPortsGatherer(QObject *parent) :
 MaemoUsedPortsGatherer::~MaemoUsedPortsGatherer() {}
 
 void MaemoUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connection,
-    const MaemoDeviceConfig::ConstPtr &devConf)
+    const LinuxDeviceConfiguration::ConstPtr &devConf)
 {
     if (m_running)
         qWarning("Unexpected call of %s in running state", Q_FUNC_INFO);
@@ -82,7 +82,7 @@ void MaemoUsedPortsGatherer::stop()
         m_procRunner->process()->closeChannel();
 }
 
-int MaemoUsedPortsGatherer::getNextFreePort(MaemoPortList *freePorts) const
+int MaemoUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
 {
     while (freePorts->hasMore()) {
         const int port = freePorts->getNext();

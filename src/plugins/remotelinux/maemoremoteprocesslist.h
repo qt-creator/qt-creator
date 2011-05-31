@@ -40,14 +40,15 @@
 #include <utils/ssh/sshremoteprocessrunner.h>
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
-class MaemoDeviceConfig;
 
 class MaemoRemoteProcessList : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit MaemoRemoteProcessList(const QSharedPointer<const MaemoDeviceConfig> &devConfig,
+    explicit MaemoRemoteProcessList(const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
         QObject *parent = 0);
     ~MaemoRemoteProcessList();
     void update();
@@ -90,7 +91,7 @@ private:
         QString cmdLine;
     };
     QList<RemoteProc> m_remoteProcs;
-    const QSharedPointer<const MaemoDeviceConfig> m_devConfig;
+    const QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
 };
 
 } // namespace Internal

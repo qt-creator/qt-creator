@@ -65,7 +65,7 @@ static const QLatin1String UseRemoteGdbKey(PREFIX ".UseRemoteGdb");
 
 namespace Constants {
 const char * const MAEMO_SETTINGS_CATEGORY = "X.Maemo";
-const char * const MAEMO_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Maemo");
+const char * const MAEMO_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Linux Devices");
 const char * const MAEMO_SETTINGS_CATEGORY_ICON = ":/projectexplorer/images/MaemoDevice.png";
 }
 

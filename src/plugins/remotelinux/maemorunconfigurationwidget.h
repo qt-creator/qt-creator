@@ -60,15 +60,16 @@ class Qt4BuildConfiguration;
 }
 
 namespace RemoteLinux {
+class RemoteLinuxRunConfiguration;
+
 namespace Internal {
 class MaemoDeviceEnvReader;
-class MaemoRunConfiguration;
 
 class MaemoRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MaemoRunConfigurationWidget(MaemoRunConfiguration *runConfiguration,
+    explicit MaemoRunConfigurationWidget(RemoteLinuxRunConfiguration *runConfiguration,
                                          QWidget *parent = 0);
 
 private slots:
@@ -116,7 +117,7 @@ private:
     QToolButton *m_removeMountButton;
     Utils::DetailsWidget *m_mountDetailsContainer;
     Utils::DetailsWidget *m_debugDetailsContainer;
-    MaemoRunConfiguration *m_runConfiguration;
+    RemoteLinuxRunConfiguration *m_runConfiguration;
 
     bool m_ignoreChange;
     QPushButton *m_fetchEnv;

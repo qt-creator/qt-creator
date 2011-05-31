@@ -32,7 +32,7 @@
 #ifndef MAEMODEBUGSUPPORT_H
 #define MAEMODEBUGSUPPORT_H
 
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 
 #include <utils/environment.h>
 
@@ -46,19 +46,19 @@ class DebuggerEngine;
 namespace ProjectExplorer { class RunControl; }
 
 namespace RemoteLinux {
-namespace Internal {
+class LinuxDeviceConfiguration;
+class RemoteLinuxRunConfiguration;
 
-class MaemoDeviceConfig;
-class MaemoRunConfiguration;
+namespace Internal {
 class MaemoSshRunner;
 
 class MaemoDebugSupport : public QObject
 {
     Q_OBJECT
 public:
-    static ProjectExplorer::RunControl *createDebugRunControl(MaemoRunConfiguration *runConfig);
+    static ProjectExplorer::RunControl *createDebugRunControl(RemoteLinuxRunConfiguration *runConfig);
 
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig,
+    MaemoDebugSupport(RemoteLinuxRunConfiguration *runConfig,
         Debugger::DebuggerEngine *engine, bool useGdb);
     ~MaemoDebugSupport();
 
@@ -86,10 +86,10 @@ private:
     void showMessage(const QString &msg, int channel);
 
     const QPointer<Debugger::DebuggerEngine> m_engine;
-    const QPointer<MaemoRunConfiguration> m_runConfig;
-    const QSharedPointer<const MaemoDeviceConfig> m_deviceConfig;
+    const QPointer<RemoteLinuxRunConfiguration> m_runConfig;
+    const QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfig;
     MaemoSshRunner * const m_runner;
-    const MaemoRunConfiguration::DebuggingType m_debuggingType;
+    const RemoteLinuxRunConfiguration::DebuggingType m_debuggingType;
     const QList<Utils::EnvironmentItem> m_userEnvChanges;
 
     QByteArray m_gdbserverOutput;

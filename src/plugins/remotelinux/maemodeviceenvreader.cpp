@@ -31,16 +31,16 @@
 
 #include "maemodeviceenvreader.h"
 
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 
 #include <utils/ssh/sshremoteprocessrunner.h>
 
 namespace RemoteLinux {
     namespace Internal {
 
-MaemoDeviceEnvReader::MaemoDeviceEnvReader(QObject *parent, MaemoRunConfiguration *config)
+MaemoDeviceEnvReader::MaemoDeviceEnvReader(QObject *parent, RemoteLinuxRunConfiguration *config)
     : QObject(parent)
     , m_stop(false)
     , m_devConfig(config->deviceConfig())

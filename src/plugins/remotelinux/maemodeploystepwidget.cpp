@@ -34,11 +34,11 @@
 #include "ui_maemodeploystepwidget.h"
 
 #include "abstractmaemodeploystep.h"
-#include "maemodeviceconfigurations.h"
+#include "linuxdeviceconfigurations.h"
 #include "maemosettingspages.h"
 #include "maemoglobal.h"
 #include "maemopertargetdeviceconfigurationlistmodel.h"
-#include "maemorunconfiguration.h"
+#include "remotelinuxrunconfiguration.h"
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
 
@@ -81,9 +81,9 @@ MaemoDeployStepBaseWidget::~MaemoDeployStepBaseWidget()
 
 void MaemoDeployStepBaseWidget::handleDeviceUpdate()
 {
-    const MaemoDeviceConfig::ConstPtr &devConf = m_step->helper().deviceConfig();
-    const MaemoDeviceConfig::Id internalId
-        = MaemoDeviceConfigurations::instance()->internalId(devConf);
+    const LinuxDeviceConfiguration::ConstPtr &devConf = m_step->helper().deviceConfig();
+    const LinuxDeviceConfiguration::Id internalId
+        = LinuxDeviceConfigurations::instance()->internalId(devConf);
     const int newIndex = m_step->maemoDeployConfig()->deviceConfigModel()
         ->indexForInternalId(internalId);
     ui->deviceConfigComboBox->setCurrentIndex(newIndex);

@@ -11,8 +11,6 @@ HEADERS += \
     remotelinux_export.h \
     maemoconfigtestdialog.h \
     maemoconstants.h \
-    maemodeviceconfigurations.h \
-    maemorunconfiguration.h \
     maemorunconfigurationwidget.h \
     maemoruncontrol.h \
     maemorunfactories.h \
@@ -71,13 +69,14 @@ HEADERS += \
     maemodirectdeviceuploadstep.h \
     abstractlinuxdevicedeploystep.h \
     maemoqtversionfactory.h \
-    maemoqtversion.h
+    maemoqtversion.h \
+    linuxdeviceconfiguration.h \
+    linuxdeviceconfigurations.h \
+    remotelinuxrunconfiguration.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
     maemoconfigtestdialog.cpp \
-    maemodeviceconfigurations.cpp \
-    maemorunconfiguration.cpp \
     maemorunconfigurationwidget.cpp \
     maemoruncontrol.cpp \
     maemorunfactories.cpp \
@@ -134,7 +133,10 @@ SOURCES += \
     maemodirectdeviceuploadstep.cpp \
     abstractlinuxdevicedeploystep.cpp \
     maemoqtversionfactory.cpp \
-    maemoqtversion.cpp
+    maemoqtversion.cpp \
+    linuxdeviceconfiguration.cpp \
+    linuxdeviceconfigurations.cpp \
+    remotelinuxrunconfiguration.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \
