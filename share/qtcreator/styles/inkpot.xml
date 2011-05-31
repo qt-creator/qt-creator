@@ -22,7 +22,7 @@
   <style name="Keyword" foreground="#808bed"/>
   <style name="Label" foreground="#e76000"/>
   <style name="LineNumber" foreground="#8b8bcd" background="#2e2e2e"/>
-  <style name="Link" foreground="#0000ff"/>
+  <style name="Link" foreground="#409090"/>
   <style name="Local"/>
   <style name="Number" foreground="#506bbd"/>
   <style name="Occurrences" foreground="#000000" background="#616161"/>
