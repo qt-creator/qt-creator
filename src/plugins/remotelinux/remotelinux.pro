@@ -30,7 +30,6 @@ HEADERS += \
     maemoglobal.h \
     maemosshrunner.h \
     maemodebugsupport.h \
-    maemoanalyzersupport.h \
     maemoremotemountsmodel.h \
     maemodeviceenvreader.h \
     maemomountspecification.h \
@@ -95,7 +94,6 @@ SOURCES += \
     maemoglobal.cpp \
     maemosshrunner.cpp \
     maemodebugsupport.cpp \
-    maemoanalyzersupport.cpp \
     maemoremotemountsmodel.cpp \
     maemodeviceenvreader.cpp \
     maemomountspecification.cpp \

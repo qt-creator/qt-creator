@@ -43,8 +43,6 @@
 #include "qt4maemotarget.h"
 #include "maemoqtversion.h"
 
-#include <analyzerbase/analyzerconstants.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -415,7 +413,7 @@ bool RemoteLinuxRunConfiguration::hasEnoughFreePorts(const QString &mode) const
         ? remoteMounts()->validMountSpecificationCount() : 0;
     if (mode == Debugger::Constants::DEBUGMODE)
         return freePortCount >= mountDirCount + portsUsedByDebuggers();
-    if (mode == ProjectExplorer::Constants::RUNMODE || Analyzer::Constants::MODE_ANALYZE)
+    if (mode == ProjectExplorer::Constants::RUNMODE)
         return freePortCount >= mountDirCount;
     return false;
 }

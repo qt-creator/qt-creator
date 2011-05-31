@@ -14,7 +14,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <category>Device Support</category>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-    <dependency name=\"AnalyzerBase\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"Debugger\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"ProjectExplorer\" version=\"$$QTCREATOR_VERSION\"/>

@@ -33,7 +33,6 @@
 
 #include "maemoconstants.h"
 #include "maemodebugsupport.h"
-#include "maemoanalyzersupport.h"
 #include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
 #include "remotelinuxrunconfiguration.h"
@@ -44,7 +43,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <debugger/debuggerconstants.h>
 #include <qt4projectmanager/qt4project.h>
-#include <analyzerbase/analyzerconstants.h>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
@@ -171,15 +169,12 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
     const QString &mode)
 {
     Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE
-        || mode == Debugger::Constants::DEBUGMODE
-        || mode == Analyzer::Constants::MODE_ANALYZE);
+        || mode == Debugger::Constants::DEBUGMODE);
     Q_ASSERT(canRun(runConfig, mode));
     RemoteLinuxRunConfiguration *rc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
     if (mode == ProjectExplorer::Constants::RUNMODE)
         return new MaemoRunControl(rc);
-    if (mode == Analyzer::Constants::MODE_ANALYZE)
-        return MaemoAnalyzerSupport::createAnalyzerRunControl(rc);
     return MaemoDebugSupport::createDebugRunControl(rc);
 }
 

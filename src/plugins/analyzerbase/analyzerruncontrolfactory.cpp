@@ -41,6 +41,8 @@
 
 #include <projectexplorer/applicationrunconfiguration.h>
 
+#include <remotelinux/remotelinuxrunconfiguration.h>
+
 #include <QtCore/QDebug>
 
 using namespace Analyzer;
@@ -65,6 +67,23 @@ AnalyzerStartParameters localStartParameters(ProjectExplorer::RunConfiguration *
     return sp;
 }
 
+AnalyzerStartParameters remoteLinuxStartParameters(ProjectExplorer::RunConfiguration *runConfiguration)
+{
+    AnalyzerStartParameters sp;
+    RemoteLinux::RemoteLinuxRunConfiguration * const rc
+        = qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration);
+    QTC_ASSERT(rc, return sp);
+
+    sp.debuggee = rc->remoteExecutableFilePath();
+    sp.debuggeeArgs = rc->arguments();
+    sp.connParams = rc->deviceConfig()->sshParameters();
+    sp.analyzerCmdPrefix = rc->commandPrefix();
+    sp.startMode = StartRemote;
+    sp.displayName = rc->displayName();
+    return sp;
+}
+
+
 // AnalyzerRunControlFactory ////////////////////////////////////////////////////
 AnalyzerRunControlFactory::AnalyzerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
@@ -73,19 +92,19 @@ AnalyzerRunControlFactory::AnalyzerRunControlFactory(QObject *parent)
 
 bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
-    if (!qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration))
-        return false;
-    return mode == Constants::MODE_ANALYZE;
+    return runConfiguration->isEnabled() && mode == Constants::MODE_ANALYZE
+            && (qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration)
+                || qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration));
 }
 
 ProjectExplorer::RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,
                                                                const QString &mode)
 {
-    if (!qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration) ||
-         mode != Constants::MODE_ANALYZE) {
-        return 0;
-    }
-    const AnalyzerStartParameters sp = localStartParameters(runConfiguration);
+    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
+
+    const AnalyzerStartParameters sp
+        = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration)
+            ? localStartParameters(runConfiguration) : remoteLinuxStartParameters(runConfiguration);
     return create(sp, runConfiguration);
 }
 
