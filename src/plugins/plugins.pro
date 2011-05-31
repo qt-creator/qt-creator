@@ -152,7 +152,6 @@ plugin_qt4projectmanager.depends += plugin_debugger
 plugin_qt4projectmanager.depends += plugin_qmljseditor
 
 plugin_remotelinux.subdir = remotelinux
-plugin_remotelinux.depends = plugin_analyzerbase
 plugin_remotelinux.depends += plugin_coreplugin
 plugin_remotelinux.depends += plugin_debugger
 plugin_remotelinux.depends += plugin_projectexplorer
@@ -264,6 +263,7 @@ plugin_tasklist.depends += plugin_projectexplorer
 plugin_analyzerbase.subdir = analyzerbase
 plugin_analyzerbase.depends = plugin_coreplugin
 plugin_analyzerbase.depends += plugin_projectexplorer
+plugin_analyzerbase.depends += plugin_remotelinux
 
 !win32 {
     plugin_valgrind.subdir = valgrind
