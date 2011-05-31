@@ -37,8 +37,10 @@
 
 #include <QtGui/QWidget>
 #include <QtCore/QStringList>
+#include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
+class QComboBox;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -50,6 +52,14 @@ class VCSBASE_EXPORT VCSBaseEditorParameterWidget : public QWidget
 {
     Q_OBJECT
 public:
+    struct ComboBoxItem
+    {
+        ComboBoxItem();
+        ComboBoxItem(const QString &text, const QVariant &val);
+        QString displayText;
+        QVariant value;
+    };
+
     explicit VCSBaseEditorParameterWidget(QWidget *parent = 0);
     ~VCSBaseEditorParameterWidget();
 
@@ -60,6 +70,10 @@ public:
                                  const QString &tooltip = QString());
     QToolButton *addIgnoreWhiteSpaceButton(const QString &option);
     QToolButton *addIgnoreBlankLinesButton(const QString &option);
+    QComboBox *addComboBox(const QString &option, const QList<ComboBoxItem> &items);
+
+    QStringList comboBoxOptionTemplate() const;
+    void setComboBoxOptionTemplate(const QStringList &optTemplate) const;
 
     // Return the effective arguments according to setting.
     virtual QStringList arguments() const;

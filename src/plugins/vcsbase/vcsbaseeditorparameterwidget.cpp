@@ -32,6 +32,7 @@
 
 #include "vcsbaseeditorparameterwidget.h"
 
+#include <QtGui/QComboBox>
 #include <QtGui/QToolButton>
 #include <QtGui/QHBoxLayout>
 
@@ -39,14 +40,27 @@
 
 namespace VCSBase {
 
+VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem()
+{
+}
+
+VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem(const QString &text,
+                                                         const QVariant &val) :
+    displayText(text),
+    value(val)
+{
+}
+
 class VCSBaseEditorParameterWidgetPrivate
 {
 public:
-    VCSBaseEditorParameterWidgetPrivate() : m_layout(0) {}
+    VCSBaseEditorParameterWidgetPrivate() :
+        m_layout(0), m_comboBoxOptionTemplate(QLatin1String("%1=%2")) {}
 
     QStringList m_baseArguments;
     QHBoxLayout *m_layout;
     QList<VCSBaseEditorParameterWidget::OptionMapping> m_optionMappings;
+    QStringList m_comboBoxOptionTemplate;
 };
 
 /*!
@@ -116,6 +130,42 @@ QToolButton *VCSBaseEditorParameterWidget::addIgnoreBlankLinesButton(const QStri
     return addToggleButton(option, msgIgnoreBlankLinesLabel(), msgIgnoreBlankLinesToolTip());
 }
 
+QComboBox *VCSBaseEditorParameterWidget::addComboBox(const QString &option,
+                                                     const QList<ComboBoxItem> &items)
+{
+    QComboBox *cb = new QComboBox;
+    foreach (const ComboBoxItem &item, items)
+        cb->addItem(item.displayText, item.value);
+    connect(cb, SIGNAL(currentIndexChanged(int)), this, SIGNAL(argumentsChanged()));
+    d->m_layout->addWidget(cb);
+    d->m_optionMappings.append(OptionMapping(option, cb));
+    return cb;
+}
+
+/*!
+    \brief This property holds the format (template) of assignable command line
+    options (like --file=<file> for example)
+
+    The option's name and its actual value are specified with place markers
+    within the template :
+      \li %{option} for the option
+      \li %{value} for the actual value
+
+    \code
+    QStringList("%{option}=%{value}"); // eg --file=a.out
+    QStringList() << "%{option}" << "%{value}"; // eg --file a.out (two distinct arguments)
+    \endcode
+*/
+QStringList VCSBaseEditorParameterWidget::comboBoxOptionTemplate() const
+{
+    return d->m_comboBoxOptionTemplate;
+}
+
+void VCSBaseEditorParameterWidget::setComboBoxOptionTemplate(const QStringList &optTemplate) const
+{
+    d->m_comboBoxOptionTemplate = optTemplate;
+}
+
 QString VCSBaseEditorParameterWidget::msgIgnoreWhiteSpaceLabel()
 {
     return tr("Ignore whitespace");
@@ -162,11 +212,24 @@ const QList<VCSBaseEditorParameterWidget::OptionMapping> &VCSBaseEditorParameter
 
 QStringList VCSBaseEditorParameterWidget::argumentsForOption(const OptionMapping &mapping) const
 {
-    QStringList args;
     const QToolButton *tb = qobject_cast<const QToolButton *>(mapping.widget);
     if (tb != 0 && tb->isChecked())
-        args += mapping.optionName;
-    return args;
+        return QStringList(mapping.optionName);
+
+    const QComboBox *cb = qobject_cast<const QComboBox *>(mapping.widget);
+    if (cb != 0) {
+        const QString value = cb->itemData(cb->currentIndex()).toString();
+        QStringList args;
+        foreach (const QString &t, d->m_comboBoxOptionTemplate) {
+            QString a = t;
+            a.replace(QLatin1String("%{option}"), mapping.optionName);
+            a.replace(QLatin1String("%{value}"), value);
+            args += a;
+        }
+        return args;
+    }
+
+    return QStringList();
 }
 
 } // namespace VCSBase
