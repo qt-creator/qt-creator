@@ -44,6 +44,33 @@
 
 using namespace CPlusPlus;
 
+namespace {
+
+QString fetchLine(const QByteArray &bytes, const int line)
+{
+    int current = 0;
+    const char *s = bytes.constData();
+    while (*s) {
+        if (*s == '\n') {
+            ++current;
+            if (current == line)
+                break;
+        }
+        ++s;
+    }
+
+    if (current == line) {
+        ++s;
+        const char *e = s;
+        while (*e && *e != '\n')
+            ++e;
+        return QString::fromUtf8(s, e - s);
+    }
+    return QString();
+}
+
+} // Anonymous
+
 FindUsages::FindUsages(const QByteArray &originalSource, Document::Ptr doc, const Snapshot &snapshot)
     : ASTVisitor(doc->translationUnit()),
       _id(0),
@@ -167,9 +194,9 @@ void FindUsages::reportResult(unsigned tokenIndex)
     unsigned line, col;
     getTokenStartPosition(tokenIndex, &line, &col);
     QString lineText;
-    QList<QByteArray> lines = _originalSource.split('\n');
-    if (((int) line - 1) < lines.size())
-        lineText = QString::fromUtf8(lines.at(line - 1));
+    const int lines = _originalSource.count('\n') + 1;
+    if (((int) line - 1) < lines)
+        lineText = fetchLine(_originalSource, line - 1);
     else
         lineText = matchingLine(tk);
 
