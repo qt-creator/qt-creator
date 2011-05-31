@@ -44,7 +44,7 @@ public:
     QString searchKeywords() const;
 
 private slots:
-    void setFontSettings(const TextEditor::FontSettings &fontSettings);
+    void decorateEditors(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
     void slotCppCodeStyleSettingsChanged();
     void slotSettingsChanged();

@@ -191,19 +191,10 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
         m_previews[i]->setPlainText(defaultCodeStyleSnippets[i]);
     }
 
-    const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
-    foreach (ISnippetProvider *provider, providers) {
-        if (provider->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID)) {
-            foreach (TextEditor::SnippetEditorWidget *preview, m_previews)
-                provider->decorateEditor(preview);
-            break;
-        }
-    }
     TextEditor::TextEditorSettings *settings = TextEditorSettings::instance();
-    setFontSettings(settings->fontSettings());
+    decorateEditors(settings->fontSettings());
     connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-       this, SLOT(setFontSettings(TextEditor::FontSettings)));
+       this, SLOT(decorateEditors(TextEditor::FontSettings)));
 
     setVisualizeWhitespace(true);
 
@@ -420,10 +411,23 @@ void CppCodeStylePreferencesWidget::updatePreview()
     }
 }
 
-void CppCodeStylePreferencesWidget::setFontSettings(const TextEditor::FontSettings &fontSettings)
+void CppCodeStylePreferencesWidget::decorateEditors(const TextEditor::FontSettings &fontSettings)
 {
-    foreach (TextEditor::SnippetEditorWidget *editor, m_previews)
-        editor->setFont(fontSettings.font());
+    const ISnippetProvider *provider = 0;
+    const QList<ISnippetProvider *> &providers =
+        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
+    foreach (const ISnippetProvider *current, providers) {
+        if (current->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID)) {
+            provider = current;
+            break;
+        }
+    }
+
+    foreach (TextEditor::SnippetEditorWidget *editor, m_previews) {
+        editor->setFontSettings(fontSettings);
+        if (provider)
+            provider->decorateEditor(editor);
+    }
 }
 
 void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
