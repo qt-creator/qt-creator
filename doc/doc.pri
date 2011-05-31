@@ -38,12 +38,12 @@ html_docs_online.depends += $$HELP_DEP_FILES
 
 qch_docs.commands = $$HELPGENERATOR -o \"$$QCH_FILE\" $$QHP_FILE
 qch_docs.depends += html_docs
-qch_docs.files = $$QCH_FILE
 
 unix:!macx {
-    qch_docs.path = /share/doc/qtcreator
-    qch_docs.CONFIG += no_check_exist
-    INSTALLS += qch_docs
+    inst_qch_docs.files = $$QCH_FILE
+    inst_qch_docs.path = /share/doc/qtcreator
+    inst_qch_docs.CONFIG += no_check_exist
+    INSTALLS += inst_qch_docs
 }
 
 docs_online.depends = html_docs_online
