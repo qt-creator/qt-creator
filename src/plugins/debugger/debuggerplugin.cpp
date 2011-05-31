@@ -455,7 +455,7 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
-static Abi abiOfBinary(const QString &fileName)
+static Abi anyAbiOfBinary(const QString &fileName)
 {
     QList<Abi> abis = Abi::abisOfBinary(fileName);
     if (abis.isEmpty())
@@ -1183,7 +1183,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
             sp.startMessage = tr("Attaching to remote server %1.")
                 .arg(sp.remoteChannel);
-            sp.toolChainAbi = abiOfBinary(sp.executable);
+            sp.toolChainAbi = anyAbiOfBinary(sp.executable);
         } else {
             // Fixme: Distinguish between core-file and executable by argument syntax?
             // (default up to 2.2 was core-file).
@@ -1198,7 +1198,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
                 sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
             }
-            sp.toolChainAbi = abiOfBinary(*it);
+            sp.toolChainAbi = anyAbiOfBinary(*it);
         }
         m_scheduledStarts.append(sp);
         return true;
@@ -1429,7 +1429,7 @@ void DebuggerPluginPrivate::attachExternalApplication(ProjectExplorer::RunContro
     sp.attachPID = rc->applicationProcessHandle().pid();
     sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
     sp.startMode = AttachExternal;
-    //sp.toolChainAbi = abiOfBinary(sp.executable);
+    //sp.toolChainAbi = anyAbiOfBinary(sp.executable);
     sp.toolChainAbi = ProjectExplorer::Abi::hostAbi(); // FIXME: Extract from RunControl?
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
@@ -1475,7 +1475,7 @@ void DebuggerPluginPrivate::attachRemote(const QString &spec)
     sp.remoteArchitecture = spec.section('@', 2, 2);
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemote;
-    sp.toolChainAbi = abiOfBinary(sp.executable);
+    sp.toolChainAbi = anyAbiOfBinary(sp.executable);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
