@@ -68,7 +68,7 @@ void UiCodeModelSupport::init() const
     QDateTime uiHeaderTime = uiHeaderFileInfo.exists() ? uiHeaderFileInfo.lastModified() : QDateTime();
     if (uiHeaderTime.isValid() && (uiHeaderTime > sourceTime)) {
         QFile file(m_fileName);
-        if (file.open(QFile::ReadOnly)) {
+        if (file.open(QFile::ReadOnly | QFile::Text)) {
             if (debug)
                 qDebug()<<"ui*h file is more recent then source file, using information from ui*h file"<<m_fileName;
             QTextStream stream(&file);
@@ -81,7 +81,7 @@ void UiCodeModelSupport::init() const
     if (debug)
         qDebug()<<"ui*h file not found, or not recent enough, trying to create it on the fly";
     QFile file(m_sourceName);
-    if (file.open(QFile::ReadOnly)) {
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream stream(&file);
         const QString contents = stream.readAll();
         if (runUic(contents)) {
@@ -189,7 +189,7 @@ void UiCodeModelSupport::updateFromBuild()
                 qDebug()<<"found ui*h updating from it";
 
             QFile file(m_fileName);
-            if (file.open(QFile::ReadOnly)) {
+            if (file.open(QFile::ReadOnly | QFile::Text)) {
                 QTextStream stream(&file);
                 m_contents = stream.readAll().toUtf8();
                 m_cacheTime = uiHeaderTime;

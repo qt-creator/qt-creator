@@ -79,7 +79,7 @@ static QString getSource(const QString &fileName,
         return workingCopy.source(fileName);
     } else {
         Utils::FileReader reader;
-        if (!reader.fetch(fileName)) // ### FIXME error reporting
+        if (!reader.fetch(fileName, QFile::Text)) // ### FIXME error reporting
             return QString();
 
         return QString::fromLocal8Bit(reader.data()); // ### FIXME encoding
