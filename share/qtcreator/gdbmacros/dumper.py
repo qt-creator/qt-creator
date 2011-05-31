@@ -5,6 +5,7 @@ import gdb
 import base64
 import __builtin__
 import os
+import tempfile
 
 # Fails on Windows.
 try:
@@ -22,7 +23,6 @@ except:
 # Fails on SimulatorQt.
 tempFileCounter = 0
 try:
-    import tempfile
 #   Test if 2.6 is used (Windows), trigger exception and default
 #   to 2nd version.
     tempfile.NamedTemporaryFile(prefix="gdbpy_",delete=True)
@@ -35,7 +35,8 @@ except:
     def createTempFile():
         global tempFileCounter
         tempFileCounter += 1
-        fileName = "%s/gdbpy_tmp_%d_%d" % (tempfile.gettempdir(), os.getpid(), tempFileCounter)
+        fileName = "%s/gdbpy_tmp_%d_%d" \
+            % (tempfile.gettempdir(), os.getpid(), tempFileCounter)
         return fileName, None
 
 def removeTempFile(name, file):
