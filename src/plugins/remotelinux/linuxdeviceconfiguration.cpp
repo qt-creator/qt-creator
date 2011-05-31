@@ -34,6 +34,8 @@
 #include <QtCore/QSettings>
 #include <QtGui/QDesktopServices>
 
+#include <cctype>
+
 typedef Utils::SshConnectionParameters::AuthenticationType AuthType;
 
 namespace RemoteLinux {

@@ -40,7 +40,6 @@
 #include <QtCore/QStringBuilder>
 
 #include <algorithm>
-#include <cctype>
 
 namespace RemoteLinux {
 namespace Internal {
