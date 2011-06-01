@@ -97,37 +97,36 @@ void FileInProjectFinder::setProjectFiles(const QStringList &projectFiles)
   */
 QString FileInProjectFinder::findFile(const QString &originalPath, bool *success) const
 {
-    if (m_projectDir.isEmpty())
-        return originalPath;
+    if (!m_projectDir.isEmpty()) {
+        const QChar separator = QLatin1Char('/');
+        if (originalPath.startsWith(m_projectDir + separator)) {
+            if (success)
+                *success = true;
+            return originalPath;
+        }
 
-    const QChar separator = QLatin1Char('/');
-    if (originalPath.startsWith(m_projectDir + separator)) {
-        if (success)
-            *success = true;
-        return originalPath;
-    }
+        if (m_cache.contains(originalPath)) {
+            if (success)
+                *success = true;
+            return m_cache.value(originalPath);
+        }
 
-    if (m_cache.contains(originalPath)) {
-        if (success)
-            *success = true;
-        return m_cache.value(originalPath);
-    }
+        // Strip directories one by one from the beginning of the path,
+        // and see if the new relative path exists in the build directory.
+        if (originalPath.contains(separator)) {
+            for (int pos = originalPath.indexOf(separator); pos != -1;
+                 pos = originalPath.indexOf(separator, pos + 1)) {
+                QString candidate = originalPath;
+                candidate.remove(0, pos);
+                candidate.prepend(m_projectDir);
+                QFileInfo candidateInfo(candidate);
+                if (candidateInfo.exists() && candidateInfo.isFile()) {
+                    if (success)
+                        *success = true;
 
-    // Strip directories one by one from the beginning of the path,
-    // and see if the new relative path exists in the build directory.
-    if (originalPath.contains(separator)) {
-        for (int pos = originalPath.indexOf(separator); pos != -1;
-             pos = originalPath.indexOf(separator, pos + 1)) {
-            QString candidate = originalPath;
-            candidate.remove(0, pos);
-            candidate.prepend(m_projectDir);
-            QFileInfo candidateInfo(candidate);
-            if (candidateInfo.exists() && candidateInfo.isFile()) {
-                if (success)
-                    *success = true;
-
-                m_cache.insert(originalPath, candidate);
-                return candidate;
+                    m_cache.insert(originalPath, candidate);
+                    return candidate;
+                }
             }
         }
     }
