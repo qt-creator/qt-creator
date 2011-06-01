@@ -519,7 +519,7 @@ int TaskModel::sizeOfLineNumber(const QFont &font)
     if (m_sizeOfLineNumber == 0 || fontKey != m_lineMeasurementFont) {
         QFontMetrics fm(font);
         m_lineMeasurementFont = fontKey;
-        m_sizeOfLineNumber = fm.width("8888");
+        m_sizeOfLineNumber = fm.width("88888");
     }
     return m_sizeOfLineNumber;
 }
