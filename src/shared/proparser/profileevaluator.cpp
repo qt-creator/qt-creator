@@ -172,6 +172,39 @@ QString ProFileOption::getEnv(const QString &var) const
     return QString::fromLocal8Bit(qgetenv(var.toLocal8Bit().constData()));
 }
 
+#ifdef PROEVALUATOR_INIT_PROPS
+bool ProFileOption::initProperties(const QString &qmake)
+{
+    QByteArray data;
+#ifndef QT_BOOTSTRAPPED
+    QProcess proc;
+    proc.start(qmake, QStringList() << QLatin1String("-query"));
+    if (!proc.waitForFinished())
+        return false;
+    data = proc.readAll();
+#else
+    if (FILE *proc = QT_POPEN(QString(IoUtils::shellQuote(qmake) + QLatin1String(" -query"))
+                              .toLocal8Bit(), "r")) {
+        char buff[1024];
+        while (!feof(proc))
+            data.append(buff, int(fread(buff, 1, 1023, proc)));
+        QT_PCLOSE(proc);
+    }
+#endif
+    foreach (QByteArray line, data.split('\n'))
+        if (!line.startsWith("QMAKE_")) {
+            int off = line.indexOf(':');
+            if (off < 0) // huh?
+                continue;
+            if (line.endsWith('\r'))
+                line.chop(1);
+            properties.insert(QString::fromLatin1(line.left(off)),
+                              QString::fromLocal8Bit(line.mid(off + 1)));
+        }
+    return true;
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////
 //
 // ProFileEvaluator::Private

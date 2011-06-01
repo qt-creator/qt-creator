@@ -186,6 +186,9 @@ struct PROPARSER_EXPORT ProFileOption
     // -nocache, -cache, -spec, QMAKESPEC
     // -set persistent value
     void setCommandLineArguments(const QStringList &args);
+#ifdef PROEVALUATOR_INIT_PROPS
+    bool initProperties(const QString &qmake);
+#endif
 
   private:
     friend class ProFileEvaluator;
