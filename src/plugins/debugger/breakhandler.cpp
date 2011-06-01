@@ -1048,15 +1048,17 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
     Iterator it = m_storage.find(id);
     it->response.pending = false;
     BREAK_ASSERT(it != m_storage.end(), return);
+    // Ignore updates to the "real" line number while the debugger is
+    // running, as this can be triggered by moving the breakpoint to
+    // the next line that generated code.
+    if (isEngineRunning(id))
+        it->data.lineNumber += lineNumber - it->response.lineNumber;
+    else
+        it->data.lineNumber = lineNumber;
     if (it->response.lineNumber != lineNumber) {
         // FIXME: Should we tell gdb about the change?
         it->response.lineNumber = lineNumber;
     }
-    // Ignore updates to the "real" line number while the debugger is
-    // running, as this can be triggered by moving the breakpoint to
-    // the next line that generated code.
-    if (!isEngineRunning(id))
-        it->data.lineNumber = lineNumber;
     updateMarker(id);
     emit layoutChanged();
 }
