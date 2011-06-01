@@ -47,22 +47,22 @@ namespace {
 ClangParser::ClangParser() :
     m_commandRegExp(QLatin1String("^clang(\\+\\+)?: +(fatal +)?(warning|error|note): (.*)$")),
     m_inLineRegExp(QLatin1String("^In (.*) included from (.*):(\\d+):$")),
-    m_messageRegExp(QLatin1String("^") + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$"))
+    m_messageRegExp(QLatin1String("^") + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
+    m_summaryRegExp(QLatin1String("^\\d+ (warnings?|errors?)( and \\d (warnings?|errors?))? generated.$"))
 {
     setObjectName(QLatin1String("ClangParser"));
 
     appendOutputParser(new LdParser);
 }
 
-ClangParser::~ClangParser()
-{
-    if (!m_currentTask.isNull())
-        emit addTask(m_currentTask);
-}
-
 void ClangParser::stdError(const QString &line)
 {
     const QString lne = line.left(line.count() - 1);
+    if (m_summaryRegExp.indexIn(lne) > -1) {
+        emitTask();
+        return;
+    }
+
     if (m_commandRegExp.indexIn(lne) > -1) {
         m_codeSnippet.clear();
         newTask(Task::Error,
@@ -145,9 +145,15 @@ void ClangParser::stdError(const QString &line)
 void ClangParser::newTask(Task::TaskType type_, const QString &description_,
                           const QString &file_, int line_, const QString &category_)
 {
+    emitTask();
+    m_currentTask = Task(type_, description_, file_, line_, category_);
+}
+
+void ClangParser::emitTask()
+{
     if (!m_currentTask.isNull())
         emit addTask(m_currentTask);
-    m_currentTask = Task(type_, description_, file_, line_, category_);
+    m_currentTask = Task();
 }
 
 // Unit tests:

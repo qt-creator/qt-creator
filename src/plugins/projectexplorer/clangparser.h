@@ -45,16 +45,18 @@ class ClangParser : public ProjectExplorer::IOutputParser
 
 public:
     ClangParser();
-    ~ClangParser();
-    virtual void stdError(const QString &line);
+    void stdError(const QString &line);
 
 private:
     void newTask(Task::TaskType type_, const QString &description_,
                  const QString &file_, int line_, const QString &category_);
 
+    void emitTask();
+
     QRegExp m_commandRegExp;
     QRegExp m_inLineRegExp;
     QRegExp m_messageRegExp;
+    QRegExp m_summaryRegExp;
     QString m_codeSnippet;
 
     Task m_currentTask;
