@@ -1176,7 +1176,8 @@ void DebuggerEngine::notifyInferiorPid(qint64 pid)
         return;
     d->m_inferiorPid = pid;
     if (pid) {
-        d->m_runControl->setApplicationProcessHandle(ProcessHandle(pid));
+        if (d->m_runControl)
+            d->m_runControl->setApplicationProcessHandle(ProcessHandle(pid));
         showMessage(tr("Taking notice of pid %1").arg(pid));
         if (d->m_startParameters.startMode == StartInternal
             || d->m_startParameters.startMode == StartExternal
