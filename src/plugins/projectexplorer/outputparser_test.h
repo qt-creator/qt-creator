@@ -77,7 +77,7 @@ signals:
     void aboutToDeleteParser();
 
 private slots:
-    void outputAdded(const QString &line, const QTextCharFormat &textCharFormat);
+    void outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format);
     void taskAdded(const ProjectExplorer::Task &task);
 
 private:

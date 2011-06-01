@@ -153,9 +153,9 @@ void OutputParserTester::appendOutputParser(IOutputParser *parser)
     parser->appendOutputParser(this);
 }
 
-void OutputParserTester::outputAdded(const QString &line, const QTextCharFormat &textCharFormat)
+void OutputParserTester::outputAdded(const QString &line, ProjectExplorer::BuildStep::OutputFormat format)
 {
-    Q_UNUSED(textCharFormat);
+    Q_UNUSED(format);
     if (!m_receivedOutput.isEmpty())
         m_receivedOutput.append(QChar('\n'));
     m_receivedOutput.append(line);
