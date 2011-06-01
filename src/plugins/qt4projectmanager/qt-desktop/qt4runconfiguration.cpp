@@ -164,6 +164,7 @@ void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro,
         return;
     handleParseState(success);
     emit effectiveTargetInformationChanged();
+    emit baseEnvironmentChanged();
 }
 
 void Qt4RunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
