@@ -73,6 +73,7 @@ private Q_SLOTS:
     void bug1();
     void bug2();
     void bug3();
+    void bug4();
     void switch1();
     void switch2();
     void switch3();
@@ -774,6 +775,20 @@ void tst_CodeFormatter::bug3()
          << Line("private:")
          << Line("    unsigned mWarmup;")
          << Line("}")
+            ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::bug4()
+{
+    QList<Line> data;
+    data << Line("void test()")
+         << Line("{")
+         << Line("    int a = 0, b = {0};")
+         << Line("    int a = {0}, b = {0};")
+         << Line("    int b;")
+         << Line("}")
+         << Line("int c;")
             ;
     checkIndent(data);
 }

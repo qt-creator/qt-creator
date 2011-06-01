@@ -195,6 +195,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_RBRACE:      leave(true); continue;
             case T_SEMICOLON:   leave(); continue;
             case T_RPAREN:      leave(); continue;
+            case T_COMMA:       leave(); continue;
             default:            enter(assign_open); continue;
             } break;
 
@@ -218,6 +219,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_RBRACE:      leave(true); continue;
             case T_SEMICOLON:   leave(); continue;
             case T_RPAREN:      leave(); continue;
+            case T_COMMA:       leave(); continue;
             default:            tryExpression(); break;
             } break;
 
