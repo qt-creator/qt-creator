@@ -101,7 +101,6 @@ public:
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const;
     PortList freePorts() const;
     bool useRemoteGdb() const;
-    void updateFactoryState() { emit isEnabledChanged(isEnabled()); }
     DebuggingType debuggingType() const;
 
     QString gdbCmd() const;
@@ -124,10 +123,12 @@ public:
 
 signals:
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
+    void deploySpecsChanged();
     void targetInformationChanged() const;
     void baseEnvironmentChanged();
     void systemEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
+    void remoteMountsChanged();
 
 protected:
     RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent,
@@ -140,6 +141,9 @@ private slots:
     void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro);
     void updateDeviceConfigurations();
     void handleDeployConfigChanged();
+    void handleDeployablesUpdated();
+    void handleRemoteMountsChanged();
+    void updateEnabledState() { emit isEnabledChanged(isEnabled()); }
 
 private:
     void init();

@@ -183,10 +183,8 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
         SLOT(handleDebuggingTypeChanged()));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
         SLOT(updateTargetInformation()));
-    connect(m_runConfiguration->target(),
-        SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
-        SLOT(handleActiveDeployConfigurationChanged()));
-    handleActiveDeployConfigurationChanged();
+    connect(m_runConfiguration, SIGNAL(deploySpecsChanged()), SLOT(handleDeploySpecsChanged()));
+    handleDeploySpecsChanged();
 }
 
 void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
@@ -248,18 +246,8 @@ void MaemoRunConfigurationWidget::addMountWidgets(QVBoxLayout *mainLayout)
     connect(m_mountView->selectionModel(),
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this,
         SLOT(enableOrDisableRemoveMountSpecButton()));
-    connect(m_runConfiguration->remoteMounts(),
-        SIGNAL(rowsInserted(QModelIndex, int, int)), this,
-        SLOT(handleRemoteMountsChanged()));
-    connect(m_runConfiguration->remoteMounts(),
-        SIGNAL(rowsRemoved(QModelIndex, int, int)), this,
-        SLOT(handleRemoteMountsChanged()));
-    connect(m_runConfiguration->remoteMounts(),
-        SIGNAL(dataChanged(QModelIndex, QModelIndex)), this,
-        SLOT(handleRemoteMountsChanged()));
-    connect(m_runConfiguration->remoteMounts(), SIGNAL(modelReset()), this,
-        SLOT(handleRemoteMountsChanged()));
     enableOrDisableRemoveMountSpecButton();
+    connect(m_runConfiguration, SIGNAL(remoteMountsChanged()), SLOT(handleRemoteMountsChanged()));
     handleRemoteMountsChanged();
 }
 
@@ -314,25 +302,9 @@ void MaemoRunConfigurationWidget::updateTargetInformation()
         ->setText(QDir::toNativeSeparators(m_runConfiguration->localExecutableFilePath()));
 }
 
-void MaemoRunConfigurationWidget::handleActiveDeployConfigurationChanged()
-{
-    if (m_deployablesConnected)
-        return;
-    connect(m_runConfiguration->deployConfig()->deployables().data(),
-        SIGNAL(modelReset()), SLOT(handleDeploySpecsChanged()));
-   handleDeploySpecsChanged();
-   m_deployablesConnected = true;
-   disconnect(m_runConfiguration->target(),
-       SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
-       this,
-       SLOT(handleActiveDeployConfigurationChanged()));
-
-}
-
 void MaemoRunConfigurationWidget::handleDeploySpecsChanged()
 {
     m_remoteExecutableLabel->setText(m_runConfiguration->remoteExecutableFilePath());
-    m_runConfiguration->updateFactoryState();
 }
 
 void MaemoRunConfigurationWidget::showDeviceConfigurationsDialog(const QString &link)
@@ -535,7 +507,6 @@ void MaemoRunConfigurationWidget::updateMountWarning()
         m_mountWarningLabel->show();
         m_mountDetailsContainer->setState(Utils::DetailsWidget::Expanded);
     }
-    m_runConfiguration->updateFactoryState();
 }
 
 } // namespace Internal

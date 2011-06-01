@@ -95,7 +95,6 @@ private slots:
     void handleRemoteMountsChanged();
     void handleDebuggingTypeChanged();
     void handleDeploySpecsChanged();
-    void handleActiveDeployConfigurationChanged();
 
 private:
     void addGenericWidgets(QVBoxLayout *mainLayout);

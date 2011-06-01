@@ -138,6 +138,14 @@ void RemoteLinuxRunConfiguration::init()
             this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool)));
     connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *)),
             this, SLOT(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)));
+    connect(this, SIGNAL(debuggersChanged()), SLOT(updateEnabledState()));
+    connect(m_d->remoteMounts, SIGNAL(rowsInserted(QModelIndex, int, int)), this,
+        SLOT(handleRemoteMountsChanged()));
+    connect(m_d->remoteMounts, SIGNAL(rowsRemoved(QModelIndex, int, int)), this,
+        SLOT(handleRemoteMountsChanged()));
+    connect(m_d->remoteMounts, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this,
+        SLOT(handleRemoteMountsChanged()));
+    connect(m_d->remoteMounts, SIGNAL(modelReset()), SLOT(handleRemoteMountsChanged()));
 }
 
 RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
@@ -199,9 +207,8 @@ void RemoteLinuxRunConfiguration::handleParseState(bool success)
 {
     bool enabled = isEnabled();
     m_d->validParse = success;
-    if (enabled != isEnabled()) {
-        emit isEnabledChanged(!enabled);
-    }
+    if (enabled != isEnabled())
+        updateEnabledState();
 }
 
 void RemoteLinuxRunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
@@ -407,8 +414,6 @@ bool RemoteLinuxRunConfiguration::hasEnoughFreePorts(const QString &mode) const
     const AbstractQt4MaemoTarget * const maemoTarget
         = qobject_cast<AbstractQt4MaemoTarget *>(target());
     const bool remoteMountsAllowed = maemoTarget && maemoTarget->allowsRemoteMounts();
-    if (remoteMountsAllowed && freePortCount == 0)
-        return false;
     const int mountDirCount = remoteMountsAllowed
         ? remoteMounts()->validMountSpecificationCount() : 0;
     if (mode == Debugger::Constants::DEBUGMODE)
@@ -421,13 +426,15 @@ bool RemoteLinuxRunConfiguration::hasEnoughFreePorts(const QString &mode) const
 void RemoteLinuxRunConfiguration::updateDeviceConfigurations()
 {
     emit deviceConfigurationChanged(target());
+    updateEnabledState();
 }
 
 void RemoteLinuxRunConfiguration::handleDeployConfigChanged()
 {
-    DeployConfiguration * const activeDeployConf
-        = target()->activeDeployConfiguration();
+    Qt4MaemoDeployConfiguration * const activeDeployConf = deployConfig();
     if (activeDeployConf) {
+        connect(activeDeployConf->deployables().data(), SIGNAL(modelReset()),
+            SLOT(handleDeployablesUpdated()), Qt::UniqueConnection);
         connect(activeDeployConf->stepList(), SIGNAL(stepInserted(int)),
             SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
         connect(activeDeployConf->stepList(), SIGNAL(stepInserted(int)),
@@ -445,7 +452,19 @@ void RemoteLinuxRunConfiguration::handleDeployConfigChanged()
     }
 
     updateDeviceConfigurations();
-    updateFactoryState();
+    updateEnabledState();
+}
+
+void RemoteLinuxRunConfiguration::handleDeployablesUpdated()
+{
+    emit deploySpecsChanged();
+    updateEnabledState();
+}
+
+void RemoteLinuxRunConfiguration::handleRemoteMountsChanged()
+{
+    emit remoteMountsChanged();
+    updateEnabledState();
 }
 
 QString RemoteLinuxRunConfiguration::baseEnvironmentText() const
