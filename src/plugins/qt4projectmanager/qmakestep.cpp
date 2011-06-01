@@ -121,7 +121,6 @@ Qt4BuildConfiguration *QMakeStep::qt4BuildConfiguration() const
 /// user arguments
 QString QMakeStep::allArguments(bool shorted)
 {
-    QString additonalArguments = m_userArgs;
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
     if (bc->subNodeBuild())
@@ -131,24 +130,19 @@ QString QMakeStep::allArguments(bool shorted)
                 buildConfiguration()->target()->project()->file()->fileName()).fileName());
     else
         arguments << QDir::toNativeSeparators(buildConfiguration()->target()->project()->file()->fileName());
+
     arguments << "-r";
-
-    bool haveSpec = false;
-    for (Utils::QtcProcess::ArgIterator ait(&additonalArguments); ait.next(); )
-        if (ait.value() == QLatin1String("-spec"))
-            haveSpec = true;
-
-    if (!haveSpec) {
-        const QString tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : QString();
-        if (tcSpec.isEmpty()) {
-            if (bc->qtVersion())
-                arguments << "-spec" << bc->qtVersion()->mkspec();
-        } else if (!bc->qtVersion() || bc->qtVersion()->hasMkspec(tcSpec)) {
-            arguments << "-spec" << tcSpec;
-        } else {
-            arguments << "-spec" << bc->qtVersion()->mkspec();
+    bool userProvidedMkspec = false;
+    for (Utils::QtcProcess::ConstArgIterator ait(&m_userArgs); ait.next(); ) {
+        if (ait.value() == QLatin1String("-spec")) {
+            if (ait.next()) {
+                userProvidedMkspec = true;
+                break;
+            }
         }
     }
+    if (!userProvidedMkspec)
+        arguments << "-spec" << mkspec();
 
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
@@ -156,7 +150,7 @@ QString QMakeStep::allArguments(bool shorted)
     arguments << moreArguments();
 
     QString args = Utils::QtcProcess::joinArgs(arguments);
-    Utils::QtcProcess::addArgs(&args, additonalArguments);
+    Utils::QtcProcess::addArgs(&args, m_userArgs);
     return args;
 }
 
@@ -432,6 +426,25 @@ QStringList QMakeStep::parserArguments()
 QString QMakeStep::userArguments()
 {
     return m_userArgs;
+}
+
+QString QMakeStep::mkspec()
+{
+    Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+    QString additionalArguments = m_userArgs;
+    for (Utils::QtcProcess::ArgIterator ait(&additionalArguments); ait.next(); ) {
+        if (ait.value() == QLatin1String("-spec")) {
+            if (ait.next())
+                return ait.value();
+        }
+    }
+
+    const QString tcSpec = bc->toolChain() ? bc->toolChain()->mkspec() : QString();
+    if (!bc->qtVersion())
+        return tcSpec;
+    if (!tcSpec.isEmpty() && bc->qtVersion()->hasMkspec(tcSpec))
+        return tcSpec;
+    return bc->qtVersion()->mkspec();
 }
 
 QVariantMap QMakeStep::toMap() const

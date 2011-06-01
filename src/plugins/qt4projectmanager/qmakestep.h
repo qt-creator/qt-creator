@@ -103,6 +103,7 @@ public:
     QStringList moreArguments();
     QStringList parserArguments();
     QString userArguments();
+    QString mkspec();
     void setUserArguments(const QString &arguments);
     bool linkQmlDebuggingLibrary() const;
     void setLinkQmlDebuggingLibrary(bool enable);

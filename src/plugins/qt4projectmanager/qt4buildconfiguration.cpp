@@ -46,6 +46,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
 
@@ -475,14 +476,8 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
                 QString workingDirectory = QFileInfo(makefile).absolutePath();
-                QString userArgs = qs->userArguments();
-                QStringList actualArgs;
-                QString actualSpec = extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs);
-                if (actualSpec.isEmpty()) {
-                    // Easy one: the user has chosen not to override the settings
-                    actualSpec = version->mkspec();
-                }
-                actualArgs += qs->moreArguments();
+                QStringList actualArgs = qs->moreArguments();
+                QString actualSpec = qs->mkspec();
 
                 QString qmakeArgs = result.second;
                 QStringList parsedArgs;
@@ -830,23 +825,19 @@ void Qt4BuildConfiguration::importFromBuildDirectory()
                     QtSupport::QtVersionManager::scanMakeFile(mkfile, version->defaultBuildConfig());
             QtSupport::BaseQtVersion::QmakeBuildConfigs qmakeBuildConfig = result.first;
 
-            QString aa = result.second;
-            QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&aa, directory, version);
-            QString versionSpec = version->mkspec();
-            QString additionalArguments;
-            if (parsedSpec.isEmpty() || parsedSpec == versionSpec || parsedSpec == "default") {
-                // using the default spec, don't modify additional arguments
-            } else {
-                additionalArguments = "-spec " + Utils::QtcProcess::quoteArg(parsedSpec);
-            }
-            Utils::QtcProcess::addArgs(&additionalArguments, aa);
-
+            QString additionalArguments = result.second;
+            QString parsedSpec = Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, directory, version);
             Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
 
             // So we got all the information now apply it...
             setQtVersion(version);
 
-            qmakeStep()->setUserArguments(additionalArguments);
+            QMakeStep *qs = qmakeStep();
+            qs->setUserArguments(additionalArguments);
+            if (!parsedSpec.isEmpty() && parsedSpec != QLatin1String("default") && qs->mkspec() != parsedSpec) {
+                Utils::QtcProcess::addArgs(&additionalArguments, (QStringList() << "-spec" << parsedSpec));
+                qs->setUserArguments(additionalArguments);
+            }
 
             setQMakeBuildConfiguration(qmakeBuildConfig);
             // Adjust command line arguments, this is ugly as hell
