@@ -552,11 +552,13 @@ std::string SymbolGroupValue::pointedToSymbolName(ULONG64 address, const std::st
  * as 'QtCored4![namespace::]qstrdup'. In the event someone really uses a different
  * library prefix or namespaced Qt, this should be found.
  * The crux is here that the underlying IDebugSymbols::StartSymbolMatch()
- * does not accept module wildcards (as opposed to the 'x' command where 'x QtCo*!*qstrdup'
- * would be acceptable and fast). OTOH, doing a wildcard search like '*qstrdup' is
- * very slow and should be done only if there is really a different namespace or lib prefix.
- * Parameter 'modulePatternC' is used to do a search on the modules returned (due to
- * the amiguities and artifacts that appear like 'QGuid4!qstrdup'). */
+ * does not accept module wildcards (as opposed to the 'x' command where
+ * 'x QtCo*!*qstrdup' would be acceptable and fast). OTOH, doing a wildcard search
+ * like '*qstrdup' is very slow and should be done only if there is really a
+ * different namespace or lib prefix.
+ * Parameter 'modulePatternC' is used to do a search on the modules returned
+ * (due to the amiguities and artifacts that appear like 'QGuid4!qstrdup'). */
+
 static inline std::string resolveQtSymbol(const char *symbolC,
                                           const char *defaultModuleNameC,
                                           const char *modulePatternC,
@@ -569,19 +571,22 @@ static inline std::string resolveQtSymbol(const char *symbolC,
     if (debugResolveQtSymbol)
         DebugPrint() << ">resolveQtSymbol" << symbolC << " def=" << defaultModuleNameC << " defModName="
                      << defaultModuleNameC << " modPattern=" << modulePatternC;
-    // First try a match with the default module name 'QtCored4!qstrdup' for speed reasons
-    std::string defaultPattern = defaultModuleNameC;
-    defaultPattern.push_back('!');
-    defaultPattern += symbolC;
-    const StringList defaultMatches = SymbolGroupValue::resolveSymbolName(defaultPattern.c_str(), ctx);
-    if (debugResolveQtSymbol)
-        DebugPrint() << "resolveQtSymbol: defaultMatches=" << DebugSequence<StringListConstIt>(defaultMatches.begin(), defaultMatches.end());
     const SubStringPredicate modulePattern(modulePatternC);
-    const StringListConstIt defaultIt = std::find_if(defaultMatches.begin(), defaultMatches.end(), modulePattern);
-    if (defaultIt != defaultMatches.end()) {
+    // First try a match with the default module name 'QtCored4!qstrdup' for speed reasons
+    for (int qtVersion = 4; qtVersion < 6; qtVersion++) {
+        std::ostringstream str;
+        str << defaultModuleNameC << qtVersion << '!' << symbolC;
+        const std::string defaultPattern = str.str();
+        const StringList defaultMatches = SymbolGroupValue::resolveSymbolName(defaultPattern.c_str(), ctx);
         if (debugResolveQtSymbol)
-            DebugPrint() << "<resolveQtSymbol return1 " << *defaultIt;
-        return *defaultIt;
+            DebugPrint() << "resolveQtSymbol: defaultMatches=" << qtVersion
+                         << DebugSequence<StringListConstIt>(defaultMatches.begin(), defaultMatches.end());
+        const StringListConstIt defaultIt = std::find_if(defaultMatches.begin(), defaultMatches.end(), modulePattern);
+        if (defaultIt != defaultMatches.end()) {
+            if (debugResolveQtSymbol)
+                DebugPrint() << "<resolveQtSymbol return1 " << *defaultIt;
+            return *defaultIt;
+        }
     }
     // Fail, now try a search with '*qstrdup' in all modules. This might return several matches
     // like 'QtCored4!qstrdup', 'QGuid4!qstrdup'
@@ -604,10 +609,10 @@ static inline std::string resolveQtSymbol(const char *symbolC,
 
 const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
 {
-    static const char qtCoreDefaultModule[] = "QtCored4";
-    static const char qtGuiDefaultModule[] = "QtGuid4";
-    static const char qtNetworkDefaultModule[] = "QtNetworkd4";
-    static const char qtScriptDefaultModule[] = "QtScriptd4";
+    static const char qtCoreDefaultModule[] = "QtCored";
+    static const char qtGuiDefaultModule[] = "QtGuid";
+    static const char qtNetworkDefaultModule[] = "QtNetworkd";
+    static const char qtScriptDefaultModule[] = "QtScriptd";
     static QtInfo rc;
     if (!rc.coreModule.empty())
         return rc;
@@ -618,14 +623,17 @@ const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
         const std::string qualifiedSymbol = resolveQtSymbol("qstrdup", qtCoreDefaultModule, "Core", ctx);
         const std::string::size_type exclPos = qualifiedSymbol.find('!'); // Resolved: 'QtCored4!qstrdup'
         if (exclPos == std::string::npos) {
-            rc.coreModule = qtCoreDefaultModule;
-            rc.guiModule = qtGuiDefaultModule;
-            rc.networkModule = qtNetworkDefaultModule;
-            rc.scriptModule = qtScriptDefaultModule;
+            const char defaultVersion = '4';
+            rc.version = 4;
+            rc.coreModule = qtCoreDefaultModule + defaultVersion;
+            rc.guiModule = qtGuiDefaultModule + defaultVersion;
+            rc.networkModule = qtNetworkDefaultModule + defaultVersion;
+            rc.scriptModule = qtScriptDefaultModule + defaultVersion;
             break;
         }
         // Should be 'QtCored4!qstrdup'
         rc.coreModule = qualifiedSymbol.substr(0, exclPos);
+        rc.version = qualifiedSymbol.at(exclPos - 1) - '0';
         // Derive other module names 'QtXX<infix>d4'
         rc.guiModule = rc.coreModule;
         rc.guiModule.replace(0, 6, "QtGui");
@@ -679,9 +687,11 @@ std::string QtInfo::prependModuleAndNameSpace(const std::string &type,
 
 std::ostream &operator<<(std::ostream &os, const QtInfo &i)
 {
-    os << "Qt Info: Modules '" << i.coreModule << "', '" << i.guiModule
+    os << "Qt Info: Version: " << i.version << " Modules '"
+       << i.coreModule << "', '" << i.guiModule
        << "', Namespace='" << i.nameSpace
-       << "', types: " << i.qObjectType << ',' << i.qObjectPrivateType << ',' << i.qWidgetPrivateType;
+       << "', types: " << i.qObjectType << ','
+       << i.qObjectPrivateType << ',' << i.qWidgetPrivateType;
     return os;
 }
 

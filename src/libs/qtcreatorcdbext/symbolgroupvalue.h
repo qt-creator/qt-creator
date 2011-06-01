@@ -169,6 +169,8 @@ std::ostream &operator<<(std::ostream &, const SymbolGroupValue &v);
 
 struct QtInfo
 {
+    QtInfo() : version(0) {}
+
     static const QtInfo &get(const SymbolGroupValueContext &ctx);
 
     // Prepend core module and Qt namespace. To be able to work with some
@@ -188,6 +190,7 @@ struct QtInfo
                                                  const std::string &module,
                                                  const std::string &nameSpace);
 
+    int version;
     std::string nameSpace;
     std::string coreModule;
     std::string guiModule;
