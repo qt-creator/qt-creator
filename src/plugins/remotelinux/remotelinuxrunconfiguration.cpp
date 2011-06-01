@@ -146,6 +146,8 @@ void RemoteLinuxRunConfiguration::init()
     connect(m_d->remoteMounts, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this,
         SLOT(handleRemoteMountsChanged()));
     connect(m_d->remoteMounts, SIGNAL(modelReset()), SLOT(handleRemoteMountsChanged()));
+//    connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+//        SLOT(updateEnabledState()));
 }
 
 RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
