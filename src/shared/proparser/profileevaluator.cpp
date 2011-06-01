@@ -2312,7 +2312,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
             }
             break;
         case E_SIZE:
-            if(args.count() != 1)
+            if (args.count() != 1)
                 evalError(fL1S("size(var) requires one argument."));
             else
                 ret.append(ProString(QString::number(values(map(args.at(0))).size()), NoHash));
