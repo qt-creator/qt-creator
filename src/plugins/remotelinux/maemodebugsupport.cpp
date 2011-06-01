@@ -106,6 +106,14 @@ RunControl *MaemoDebugSupport::createDebugRunControl(RemoteLinuxRunConfiguration
     }
     params.displayName = runConfig->displayName();
 
+    if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
+        params.projectSourceDirectory = project->projectDirectory();
+        if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration()) {
+            params.projectBuildDirectory = buildConfig->buildDirectory();
+        }
+        params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
+    }
+
     DebuggerRunControl * const runControl =
         DebuggerPlugin::createDebugger(params, runConfig);
     bool useGdb = params.startMode == StartRemoteGdb

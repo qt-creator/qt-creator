@@ -475,6 +475,14 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
                 Debugger::DebuggerStartParameters::SymbianDebugClientTrk:
                 Debugger::DebuggerStartParameters::SymbianDebugClientCoda;
 
+    if (const ProjectExplorer::Project *project = rc->target()->project()) {
+        sp.projectSourceDirectory = project->projectDirectory();
+        if (const ProjectExplorer::BuildConfiguration *buildConfig = rc->target()->activeBuildConfiguration()) {
+            sp.projectBuildDirectory = buildConfig->buildDirectory();
+        }
+        sp.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
+    }
+
     QTC_ASSERT(sp.executableUid, return sp);
 
     // Prefer the '*.sym' file over the '.exe', which should exist at the same
