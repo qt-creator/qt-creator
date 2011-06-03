@@ -136,6 +136,7 @@ BazaarPlugin::BazaarPlugin() :
 
 BazaarPlugin::~BazaarPlugin()
 {
+    m_bazaarSettings.writeSettings(m_core->settings(), Constants::BAZAAR);
     if (m_client) {
         delete m_client;
         m_client = 0;
