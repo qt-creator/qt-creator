@@ -84,6 +84,8 @@ public:
         MultiLineComment = 1,
         MultiLineStringDQuote = 2,
         MultiLineStringSQuote = 3,
+        MultiLineMask = 3,
+
         RegexpMayFollow = 4 // flag that may be combined with the above
     };
 

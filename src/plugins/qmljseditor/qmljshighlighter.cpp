@@ -108,7 +108,7 @@ void Highlighter::highlightBlock(const QString &text)
                     onClosingParenthesis('-', token.end() - 1, index == tokens.size()-1);
                     m_inMultilineComment = false;
                 } else if (!m_inMultilineComment
-                           && m_scanner.state() == Scanner::MultiLineComment
+                           && (m_scanner.state() & Scanner::MultiLineMask) == Scanner::MultiLineComment
                            && index == tokens.size() - 1) {
                     onOpeningParenthesis('+', token.offset, index == 0);
                     m_inMultilineComment = true;
@@ -337,7 +337,7 @@ int Highlighter::onBlockStart()
     if (previousState != -1) {
         state = previousState & 0xff;
         m_braceDepth = (previousState >> 8);
-        m_inMultilineComment = (state == Scanner::MultiLineComment);
+        m_inMultilineComment = ((state & Scanner::MultiLineMask) == Scanner::MultiLineComment);
     }
     m_foldingIndent = m_braceDepth;
 

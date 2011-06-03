@@ -463,7 +463,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
                 leave();
                 continue;
             } else if (m_tokenIndex == m_tokens.size() - 1
-                       && lexerState == Scanner::Normal) {
+                       && (lexerState & Scanner::MultiLineMask) == Scanner::Normal) {
                 leave();
             } else if (m_tokenIndex == 0) {
                 // to allow enter/leave to update the indentDepth
@@ -488,7 +488,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
     }
     if (topState != multiline_comment_start
             && topState != multiline_comment_cont
-            && lexerState == Scanner::MultiLineComment) {
+            && (lexerState & Scanner::MultiLineMask) == Scanner::MultiLineComment) {
         enter(multiline_comment_start);
     }
 
