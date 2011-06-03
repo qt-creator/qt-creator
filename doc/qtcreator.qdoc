@@ -1560,6 +1560,9 @@
         \o  \l{Completing Code} describes how code and code snippets are
             completed for elements, properties, an IDs.
 
+        \o  \l{Indenting Code} describes how to specify indentation either
+            globally for all files or separately for: text, C++, or QML files.
+
         \o  \l{Finding and Replacing} describes the incremental search that
             highlights the matching strings in the window while typing and the
             advanced search that allows you to search from currently open
@@ -1587,7 +1590,8 @@
         \o  \l{Configuring the Editor} describes how to change the text editor
             options to suit your specific needs.
 
-        \o  \l{Using FakeVim Mode} run the main editor in a manner similar to
+        \o  \l{Using FakeVim Mode} describes how to run the main editor in a
+            manner similar to
             the Vim editor.
 
     \endlist
