@@ -121,16 +121,6 @@ QToolButton *VCSBaseEditorParameterWidget::addToggleButton(const QString &option
     return tb;
 }
 
-QToolButton *VCSBaseEditorParameterWidget::addIgnoreWhiteSpaceButton(const QString &option)
-{
-    return addToggleButton(option, msgIgnoreWhiteSpaceLabel(), msgIgnoreWhiteSpaceToolTip());
-}
-
-QToolButton *VCSBaseEditorParameterWidget::addIgnoreBlankLinesButton(const QString &option)
-{
-    return addToggleButton(option, msgIgnoreBlankLinesLabel(), msgIgnoreBlankLinesToolTip());
-}
-
 QComboBox *VCSBaseEditorParameterWidget::addComboBox(const QString &option,
                                                      const QList<ComboBoxItem> &items)
 {
@@ -165,26 +155,6 @@ QStringList VCSBaseEditorParameterWidget::comboBoxOptionTemplate() const
 void VCSBaseEditorParameterWidget::setComboBoxOptionTemplate(const QStringList &optTemplate) const
 {
     d->m_comboBoxOptionTemplate = optTemplate;
-}
-
-QString VCSBaseEditorParameterWidget::msgIgnoreWhiteSpaceLabel()
-{
-    return tr("Ignore whitespace");
-}
-
-QString VCSBaseEditorParameterWidget::msgIgnoreWhiteSpaceToolTip()
-{
-    return tr("Ignore whitespace only changes");
-}
-
-QString VCSBaseEditorParameterWidget::msgIgnoreBlankLinesLabel()
-{
-    return tr("Ignore blank lines ");
-}
-
-QString VCSBaseEditorParameterWidget::msgIgnoreBlankLinesToolTip()
-{
-    return tr("Ignore changes in blank lines");
 }
 
 void VCSBaseEditorParameterWidget::executeCommand()

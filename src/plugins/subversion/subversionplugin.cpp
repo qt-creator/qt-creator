@@ -558,7 +558,7 @@ SubversionDiffParameterWidget::SubversionDiffParameterWidget(const SubversionDif
     VCSBase::VCSBaseEditorParameterWidget(parent), m_parameters(p)
 {
     setBaseArguments(p.arguments);
-    addIgnoreWhiteSpaceButton(QString(QLatin1Char('w')));
+    addToggleButton(QLatin1String("w"), tr("Ignore whitespace"));
     connect(this, SIGNAL(argumentsChanged()), this, SLOT(triggerReRun()));
 }
 

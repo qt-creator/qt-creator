@@ -552,8 +552,8 @@ CvsDiffParameterWidget::CvsDiffParameterWidget(const CvsDiffParameters &p, QWidg
     VCSBase::VCSBaseEditorParameterWidget(parent), m_parameters(p)
 {
     setBaseArguments(p.arguments);
-    addIgnoreWhiteSpaceButton(QLatin1String("-w"));
-    addIgnoreBlankLinesButton(QLatin1String("-B"));
+    addToggleButton(QLatin1String("-w"), tr("Ignore whitespace"));
+    addToggleButton(QLatin1String("-B"), tr("Ignore blank lines"));
     connect(this, SIGNAL(argumentsChanged()),
             this, SLOT(triggerReRun()));
 }

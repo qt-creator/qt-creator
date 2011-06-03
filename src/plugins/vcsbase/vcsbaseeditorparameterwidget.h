@@ -68,8 +68,6 @@ public:
 
     QToolButton *addToggleButton(const QString &option, const QString &label,
                                  const QString &tooltip = QString());
-    QToolButton *addIgnoreWhiteSpaceButton(const QString &option);
-    QToolButton *addIgnoreBlankLinesButton(const QString &option);
     QComboBox *addComboBox(const QString &option, const QList<ComboBoxItem> &items);
 
     QStringList comboBoxOptionTemplate() const;
@@ -77,12 +75,6 @@ public:
 
     // Return the effective arguments according to setting.
     virtual QStringList arguments() const;
-
-    // Standard texts
-    static QString msgIgnoreWhiteSpaceLabel();
-    static QString msgIgnoreWhiteSpaceToolTip();
-    static QString msgIgnoreBlankLinesLabel();
-    static QString msgIgnoreBlankLinesToolTip();
 
 public slots:
     virtual void executeCommand();
