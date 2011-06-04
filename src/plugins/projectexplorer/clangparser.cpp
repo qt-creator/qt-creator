@@ -48,11 +48,17 @@ ClangParser::ClangParser() :
     m_commandRegExp(QLatin1String("^clang(\\+\\+)?: +(fatal +)?(warning|error|note): (.*)$")),
     m_inLineRegExp(QLatin1String("^In (.*) included from (.*):(\\d+):$")),
     m_messageRegExp(QLatin1String("^") + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
-    m_summaryRegExp(QLatin1String("^\\d+ (warnings?|errors?)( and \\d (warnings?|errors?))? generated.$"))
+    m_summaryRegExp(QLatin1String("^\\d+ (warnings?|errors?)( and \\d (warnings?|errors?))? generated.$")),
+    m_expectSnippet(false)
 {
     setObjectName(QLatin1String("ClangParser"));
 
     appendOutputParser(new LdParser);
+}
+
+ClangParser::~ClangParser()
+{
+    emitTask();
 }
 
 void ClangParser::stdError(const QString &line)
@@ -60,11 +66,12 @@ void ClangParser::stdError(const QString &line)
     const QString lne = line.left(line.count() - 1);
     if (m_summaryRegExp.indexIn(lne) > -1) {
         emitTask();
+        m_expectSnippet = false;
         return;
     }
 
     if (m_commandRegExp.indexIn(lne) > -1) {
-        m_codeSnippet.clear();
+        m_expectSnippet = true;
         newTask(Task::Error,
                 m_commandRegExp.cap(4),
                 QString(), /* filename */
@@ -78,7 +85,7 @@ void ClangParser::stdError(const QString &line)
     }
 
     if (m_inLineRegExp.indexIn(lne) > -1) {
-        m_codeSnippet.clear();
+        m_expectSnippet = true;
         newTask(Task::Unknown,
                 lne.trimmed(),
                 m_inLineRegExp.cap(2), /* filename */
@@ -88,7 +95,7 @@ void ClangParser::stdError(const QString &line)
     }
 
     if (m_messageRegExp.indexIn(lne) > -1) {
-        m_codeSnippet.clear();
+        m_expectSnippet = true;
         bool ok = false;
         int lineNo = m_messageRegExp.cap(4).toInt(&ok);
         if (!ok)
@@ -105,40 +112,18 @@ void ClangParser::stdError(const QString &line)
         return;
     }
 
-    if (!m_codeSnippet.isEmpty()) {
-        bool caretSeen = false;
-        bool valid = true;
-        for (int i = 0; i < lne.count() && valid; ++i) {
-            if (QChar(' ') == lne.at(i))
-                continue;
-            if (QChar('~') == lne.at(i))
-                continue;
-            if (QChar('^') == lne.at(i)) {
-                if (caretSeen)
-                    valid = false;
-                else
-                    caretSeen = true;
-                continue;
-            }
-            valid = false;
-        }
-
-        if (valid && caretSeen) {
-            QTextLayout::FormatRange fr;
-            fr.start = m_currentTask.description.count() + 1;
-            fr.length = m_codeSnippet.count() + lne.count() + 1;
-            fr.format.setFontFamily("Monospaced");
-            fr.format.setFontStyleHint(QFont::TypeWriter);
-            m_currentTask.description.append(QLatin1Char('\n'));
-            m_currentTask.description.append(m_codeSnippet);
-            m_currentTask.description.append(QLatin1Char('\n'));
-            m_currentTask.description.append(lne);
-            m_currentTask.formats.append(fr);
-            return;
-        }
+    if (m_expectSnippet && !m_currentTask.isNull()) {
+        QTextLayout::FormatRange fr;
+        fr.start = m_currentTask.description.count() + 1;
+        fr.length = lne.count() + 1;
+        fr.format.setFontFamily("Monospaced");
+        fr.format.setFontStyleHint(QFont::TypeWriter);
+        m_currentTask.description.append(QLatin1Char('\n'));
+        m_currentTask.description.append(lne);
+        m_currentTask.formats.append(fr);
+        return;
     }
 
-    m_codeSnippet = lne;
     IOutputParser::stdError(line);
 }
 
@@ -212,7 +197,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                    "class Q_CORE_EXPORT QSysInfo {\n"
                                    "      ^")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("class Q_CORE_EXPORT QSysInfo {\n")
+            << QString() << QString()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Unknown,
                         QLatin1String("In file included from ..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h:45:"),
@@ -230,7 +215,7 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
                                        "                          ^")
                 << OutputParserTester::STDERR
-                << QString() << QString::fromLatin1("#    define Q_CORE_EXPORT Q_DECL_IMPORT\n")
+                << QString() << QString()
                 << (QList<ProjectExplorer::Task>()
                     << Task(Task::Unknown,
                             QLatin1String("instantiated from:\n"
@@ -244,13 +229,28 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                        "#include <bits/c++config.h>\n"
                                        "         ^")
                 << OutputParserTester::STDERR
-                << QString() << QString::fromLatin1("#include <bits/c++config.h>\n")
+                << QString() << QString()
                 << (QList<ProjectExplorer::Task>()
                     << Task(Task::Error,
                             QLatin1String("'bits/c++config.h' file not found\n"
                                           "#include <bits/c++config.h>\n"
                                           "         ^"),
                             QLatin1String("/usr/include/c++/4.6/utility"), 68,
+                            Constants::TASK_CATEGORY_COMPILE))
+                << QString();
+
+        QTest::newRow("line confusion")
+                << QString::fromLatin1("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp:567:51: warning: ?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
+                                       "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
+                                       "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^")
+                << OutputParserTester::STDERR
+                << QString() << QString()
+                << (QList<ProjectExplorer::Task>()
+                    << Task(Task::Warning,
+                            QLatin1String("?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
+                                          "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
+                                          "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^"),
+                            QLatin1String("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp"), 567,
                             Constants::TASK_CATEGORY_COMPILE))
                 << QString();
 }

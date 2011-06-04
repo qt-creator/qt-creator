@@ -45,6 +45,7 @@ class ClangParser : public ProjectExplorer::IOutputParser
 
 public:
     ClangParser();
+    ~ClangParser();
     void stdError(const QString &line);
 
 private:
@@ -57,7 +58,7 @@ private:
     QRegExp m_inLineRegExp;
     QRegExp m_messageRegExp;
     QRegExp m_summaryRegExp;
-    QString m_codeSnippet;
+    bool m_expectSnippet;
 
     Task m_currentTask;
 };
