@@ -24,6 +24,7 @@ QString QmlJSCodeStylePreferencesFactory::displayName()
 TextEditor::IFallbackPreferences *QmlJSCodeStylePreferencesFactory::createPreferences(
     const QList<TextEditor::IFallbackPreferences *> &fallbacks) const
 {
+    Q_UNUSED(fallbacks);
     return 0;
 }
 
