@@ -178,7 +178,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Ta
                           QString(),
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
-        return false;
+        return 0;
     GenericBuildConfiguration *bc = new GenericBuildConfiguration(target);
     bc->setDisplayName(buildConfigurationName);
 
