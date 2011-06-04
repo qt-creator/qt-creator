@@ -136,7 +136,7 @@ static bool parse(const QString &fileName,
     return true;
 }
 
-bool FileShareProtocol::checkConfiguration(QString *errorMessage) const
+bool FileShareProtocol::checkConfiguration(QString *errorMessage)
 {
     if (m_settings->path.isEmpty()) {
         if (errorMessage)
