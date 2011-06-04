@@ -285,7 +285,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     typedef VCSBase::VCSEditorFactory<GitEditor> GitEditorFactory;
     typedef VCSBase::VCSSubmitEditorFactory<GitSubmitEditor> GitSubmitEditorFactory;
 
-    VCSBase::VCSBasePlugin::initialize(new GitVersionControl(m_gitClient));
+    initializeVcs(new GitVersionControl(m_gitClient));
 
     // Create the globalcontext list to register actions accordingly
     Core::Context globalcontext(Core::Constants::C_GLOBAL);

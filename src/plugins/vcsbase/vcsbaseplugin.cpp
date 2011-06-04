@@ -525,7 +525,7 @@ VCSBasePlugin::~VCSBasePlugin()
     delete d;
 }
 
-void VCSBasePlugin::initialize(Core::IVersionControl *vc)
+void VCSBasePlugin::initializeVcs(Core::IVersionControl *vc)
 {
     d->m_versionControl = vc;
     addAutoReleasedObject(vc);

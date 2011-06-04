@@ -235,7 +235,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     typedef VCSBase::VCSEditorFactory<PerforceEditor> PerforceEditorFactory;
     typedef VCSBase::VCSSubmitEditorFactory<PerforceSubmitEditor> PerforceSubmitEditorFactory;
 
-    VCSBase::VCSBasePlugin::initialize(new PerforceVersionControl(this));
+    initializeVcs(new PerforceVersionControl(this));
 
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))

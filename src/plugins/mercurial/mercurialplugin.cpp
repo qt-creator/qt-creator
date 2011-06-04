@@ -157,7 +157,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     typedef VCSBase::VCSEditorFactory<MercurialEditor> MercurialEditorFactory;
 
     m_client = new MercurialClient(mercurialSettings);
-    VCSBase::VCSBasePlugin::initialize(new MercurialControl(m_client));
+    initializeVcs(new MercurialControl(m_client));
 
     core = Core::ICore::instance();
     actionManager = core->actionManager();

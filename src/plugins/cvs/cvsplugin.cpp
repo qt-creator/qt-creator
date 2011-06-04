@@ -239,7 +239,7 @@ bool CVSPlugin::initialize(const QStringList & /*arguments */, QString *errorMes
     using namespace Core::Constants;
     using namespace ExtensionSystem;
 
-    VCSBase::VCSBasePlugin::initialize(new CVSControl(this));
+    initializeVcs(new CVSControl(this));
 
     m_cvsPluginInstance = this;
     Core::ICore *core = Core::ICore::instance();

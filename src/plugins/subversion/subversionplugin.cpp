@@ -267,7 +267,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     using namespace Core::Constants;
     using namespace ExtensionSystem;
 
-    VCSBase::VCSBasePlugin::initialize(new SubversionControl(this));
+    initializeVcs(new SubversionControl(this));
 
     m_subversionPluginInstance = this;
     Core::ICore *core = Core::ICore::instance();

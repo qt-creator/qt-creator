@@ -154,7 +154,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
     typedef VCSBase::VCSEditorFactory<BazaarEditor> BazaarEditorFactory;
 
     m_client = new BazaarClient(m_bazaarSettings);
-    VCSBase::VCSBasePlugin::initialize(new BazaarControl(m_client));
+    initializeVcs(new BazaarControl(m_client));
 
     m_core = Core::ICore::instance();
     m_actionManager = m_core->actionManager();
