@@ -159,14 +159,6 @@ static void clearQt4NodeStaticData()
 
 enum { debug = 0 };
 
-namespace {
-    // sorting helper function
-    bool sortProjectFilesByPath(ProFile *f1, ProFile *f2)
-    {
-        return f1->fileName() < f2->fileName();
-    }
-}
-
 namespace Qt4ProjectManager {
 namespace Internal {
 
