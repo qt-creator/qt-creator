@@ -66,11 +66,6 @@ QString pathFromId(const QString &id)
     return id.mid(QString::fromLatin1(S60_EMULATOR_RC_PREFIX).size());
 }
 
-QString pathToId(const QString &path)
-{
-    return QString::fromLatin1(S60_EMULATOR_RC_PREFIX) + path;
-}
-
 }
 
 // ======== S60EmulatorRunConfiguration
