@@ -111,7 +111,7 @@ QByteArray MobileApp::generateFileExtended(int fileType,
 {
     Q_UNUSED(comment);
     QByteArray data;
-    versionAndCheckSum = false;
+    *versionAndCheckSum = false;
     switch (fileType) {
         case MobileAppGeneratedFileInfo::MainWindowCppFile:
             data = readBlob(path(MainWindowCppOrigin), errorMessage);
