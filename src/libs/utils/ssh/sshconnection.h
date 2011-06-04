@@ -50,8 +50,9 @@ namespace Internal {
 class SshConnectionPrivate;
 } // namespace Internal
 
-struct QTCREATOR_UTILS_EXPORT SshConnectionParameters
+class QTCREATOR_UTILS_EXPORT SshConnectionParameters
 {
+public:
     enum ProxyType { DefaultProxy, NoProxy };
     enum AuthenticationType { AuthenticationByPassword, AuthenticationByKey };
     SshConnectionParameters(ProxyType proxyType);
