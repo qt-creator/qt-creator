@@ -157,19 +157,6 @@ bool isEnum(AST::ExpressionNode *ast)
         return false;
 }
 
-bool isEnum(AST::ExpressionStatement *ast)
-{
-    if (!ast)
-        return false;
-
-    if (FieldMemberExpression *memberExpr = cast<AST::FieldMemberExpression*>(ast->expression))
-        return isEnum(memberExpr->base);
-    else if (cast<IdentifierExpression*>(ast->expression))
-        return true;
-    else
-        return false;
-}
-
 static bool isEnum(AST::Statement *ast)
 {
     if (!ast)
