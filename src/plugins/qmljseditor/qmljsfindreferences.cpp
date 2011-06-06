@@ -77,9 +77,8 @@ class FindUsages: protected Visitor
 public:
     typedef QList<AST::SourceLocation> Result;
 
-    FindUsages(Document::Ptr doc, const Snapshot &snapshot, Context *context)
+    FindUsages(Document::Ptr doc, Context *context)
         : _doc(doc)
-        , _snapshot(snapshot)
         , _context(context)
         , _builder(context, doc)
     {
@@ -292,7 +291,6 @@ private:
     Result _usages;
 
     Document::Ptr _doc;
-    Snapshot _snapshot;
     Context *_context;
     ScopeBuilder _builder;
 
@@ -694,32 +692,30 @@ static QString matchingLine(unsigned position, const QString &source)
 
 class ProcessFile: public std::unary_function<QString, QList<FindReferences::Usage> >
 {
-    const Snapshot &snapshot;
     const Context &context;
     typedef FindReferences::Usage Usage;
     QString name;
     const ObjectValue *scope;
 
 public:
-    ProcessFile(const Snapshot &snapshot,
-                const Context &context,
+    ProcessFile(const Context &context,
                 QString name,
                 const ObjectValue *scope)
-        : snapshot(snapshot), context(context), name(name), scope(scope)
+        : context(context), name(name), scope(scope)
     { }
 
     QList<Usage> operator()(const QString &fileName)
     {
         QList<Usage> usages;
 
-        Document::Ptr doc = snapshot.document(fileName);
+        Document::Ptr doc = context.snapshot().document(fileName);
         if (!doc)
             return usages;
 
         Context contextCopy(context);
 
         // find all idenfifier expressions, try to resolve them and check if the result is in scope
-        FindUsages findUsages(doc, snapshot, &contextCopy);
+        FindUsages findUsages(doc, &contextCopy);
         FindUsages::Result results = findUsages(name, scope);
         foreach (const AST::SourceLocation &loc, results)
             usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
@@ -864,7 +860,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         // report a dummy usage to indicate the search is starting
          future.reportResult(FindReferences::Usage());
 
-        ProcessFile process(snapshot, context, name, scope);
+        ProcessFile process(context, name, scope);
         UpdateUI reduce(&future);
 
         QtConcurrent::blockingMappedReduced<QList<FindReferences::Usage> > (files, process, reduce);
