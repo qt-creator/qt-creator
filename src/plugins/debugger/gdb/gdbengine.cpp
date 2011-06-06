@@ -1289,7 +1289,12 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         notifyInferiorSpontaneousStop();
     } else if (state() == InferiorRunRequested) {
         // Stop triggered by something like "-exec-step\n"
-        // "&"Cannot access memory at address 0xbfffedd4\n"
+        //  "&"Cannot access memory at address 0xbfffedd4\n"
+        // or, on S40,
+        //  "*running,thread-id="30""
+        //  "&"Warning:\n""
+        //  "&"Cannot insert breakpoint -33.\n"
+        //  "&"Error accessing memory address 0x11673fc: Input/output error.\n""
         // In this case a proper response 94^error,msg="" will follow and
         // be handled in the result handler.
         // -- or --
@@ -1999,7 +2004,10 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
         return;
     }
     QByteArray msg = response.data.findChild("msg").data();
-    if (msg.startsWith("Cannot find bounds of current function")) {
+    if (msg.startsWith("Cannot find bounds of current function")
+            || msg.contains("Error accessing memory address")) {
+        // On S40: "40^error,msg="Warning:\nCannot insert breakpoint -39.\n"
+        //" Error accessing memory address 0x11673fc: Input/output error.\n"
         notifyInferiorRunFailed();
         if (isDying())
             return;
