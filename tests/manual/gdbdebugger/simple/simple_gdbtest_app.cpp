@@ -2250,26 +2250,6 @@ void testStuff4()
     Q_UNUSED(s);
 }
 
-void testStuff3()
-{
-    typedef unsigned char byte;
-    byte f = '2';
-    Q_UNUSED(f);
-    testConditional("foo");
-    testConditional(fooxx());
-    testConditional("bar");
-    testConditional("zzz");
-    Foo *f1 = new Foo(1);
-    X *x = new X();
-    Foo *f2 = x;
-    XX *xx = new XX();
-    Foo *f3 = xx;
-    Y *y = new Y();
-    Foo *f4 = y;
-    //Foo *f5 = new D();
-    qDebug() << f1 << f2 << f3 << f4;
-}
-
 void testStuff2()
 {
     QList<QList<int> > list1;
@@ -2620,6 +2600,36 @@ void test842()
     ++x;
 }
 
+// http://bugreports.qt.nokia.com/browse/QTCREATORBUG-3611
+void test3611()
+{
+    typedef unsigned char byte;
+    byte f = '2';
+    Q_UNUSED(f);
+    int *x = (int*)&f;
+    f += 1;
+    f += 1;
+    f += 1;
+}
+
+
+void testStuff3()
+{
+    testConditional("foo");
+    testConditional(fooxx());
+    testConditional("bar");
+    testConditional("zzz");
+    Foo *f1 = new Foo(1);
+    X *x = new X();
+    Foo *f2 = x;
+    XX *xx = new XX();
+    Foo *f3 = xx;
+    Y *y = new Y();
+    Foo *f4 = y;
+    //Foo *f5 = new D();
+    qDebug() << f1 << f2 << f3 << f4;
+}
+
 // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4019
 class A4019
 {
@@ -2662,6 +2672,7 @@ void test4497()
 int main(int argc, char *argv[])
 {
     test842();
+    test3611();
     test4019();
     //test4497();
     testEigen();
