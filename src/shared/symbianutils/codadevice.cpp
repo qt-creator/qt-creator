@@ -668,12 +668,15 @@ int CodaDevice::parseCodaCommandReply(char type, const QVector<QByteArray> &toke
                  token, qPrintable(joinByteArrays(tokens)));
         return 236;
     }
+
+    CodaSendQueueEntry entry = it.value(); // FIXME: const?
+    d->m_writtenMessages.erase(it);
+
     // No callback: remove entry from map, happy
-    const unsigned specialHandling = it.value().specialHandling;
-    if (!it.value().callback && specialHandling == 0u) {
-        d->m_writtenMessages.erase(it);
+    const unsigned specialHandling = entry.specialHandling;
+    if (!entry.callback && specialHandling == 0u)
         return 0;
-    }
+
     // Parse values into JSON
     QVector<JsonValue> values;
     values.reserve(tokenCount);
@@ -685,18 +688,15 @@ int CodaDevice::parseCodaCommandReply(char type, const QVector<QByteArray> &toke
             } else {
                 qWarning("JSON parse error for reply to command token %d: #%d '%s'",
                          token, i, tokens.at(i).constData());
-                d->m_writtenMessages.erase(it);
                 return -1;
             }
         }
     }
     // Construct result and invoke callback, remove entry from map.
-    CodaCommandResult result(type, it.value().service, it.value().data,
-                               values, it.value().cookie);
+    CodaCommandResult result(type, entry.service, entry.data, values, entry.cookie);
+    if (entry.callback)
+        entry.callback(result);
 
-    if (it.value().callback)
-        it.value().callback(result);
-    d->m_writtenMessages.erase(it);
     return 0;
 }
 

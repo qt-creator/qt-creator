@@ -1297,6 +1297,7 @@ void CodaGdbAdapter::reportRegisters()
 
 void CodaGdbAdapter::handleRegisterChildren(const CodaCommandResult &result)
 {
+    QTC_ASSERT(m_codaDevice, return);
     const QByteArray contextId = result.cookie.toByteArray();
     if (!result) {
         logMessage("Error retrieving register children of " + contextId
