@@ -1896,11 +1896,7 @@ void DebuggerPluginPrivate::setInitialState()
 
     m_startExternalAction->setEnabled(true);
     m_attachExternalAction->setEnabled(true);
-#ifdef Q_OS_WIN
-    m_attachCoreAction->setEnabled(false);
-#else
     m_attachCoreAction->setEnabled(true);
-#endif
     m_startRemoteAction->setEnabled(true);
     m_detachAction->setEnabled(false);
 
