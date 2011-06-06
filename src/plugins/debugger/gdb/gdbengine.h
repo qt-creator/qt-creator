@@ -80,6 +80,11 @@ enum DebuggingHelperState
 };
 
 
+enum GdbTestCase
+{
+    GdbTestNoBoundsOfCurrentFunction = 1
+};
+
 class UpdateParameters
 {
 public:
@@ -389,6 +394,9 @@ private: ////////// Gdb Command Management //////////
     Q_SLOT void commandTimeout();
     void setTokenBarrier();
 
+    // Sets up an "unexpected result" for the following commeand.
+    void scheduleTestResponse(int testCase, const QByteArray &response);
+
     QHash<int, GdbCommand> m_cookieForToken;
     int commandTimeoutTime() const;
     QTimer m_commandTimer;
@@ -413,7 +421,7 @@ private: ////////// Gdb Command Management //////////
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 
-    void handleResponse(const QByteArray &buff);
+    Q_SLOT void handleResponse(const QByteArray &buff);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(GdbResponse *response);
     void handleStop0(const GdbMi &data);
@@ -724,6 +732,9 @@ private: ////////// View & Data Stuff //////////
     QString m_lastWinException;
     int m_qFatalBreakpointNumber;
     bool m_actingOnExpectedStop;
+
+    QHash<int, QByteArray> m_scheduledTestResponses;
+    QSet<int> m_testCases;
 };
 
 } // namespace Internal

@@ -338,17 +338,6 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 {
     showMessage(QString::fromLocal8Bit(buff, buff.length()), LogOutput);
 
-#if 0
-    static QTime lastTime;
-    qDebug() // << "#### start response handling #### "
-        << lastTime.msecsTo(QTime::currentTime()) << "ms,"
-        << "buf:" << buff.left(1500) << "..."
-        //<< "buf:" << buff
-        << "size:" << buff.size();
-    lastTime = QTime::currentTime();
-#else
-    //qDebug() << "buf:" << buff;
-#endif
     if (buff.isEmpty() || buff == "(gdb) ")
         return;
 
@@ -357,19 +346,17 @@ void GdbEngine::handleResponse(const QByteArray &buff)
     const char *inner;
 
     int token = -1;
-    // token is a sequence of numbers
+    // Token is a sequence of numbers.
     for (inner = from; inner != to; ++inner)
         if (*inner < '0' || *inner > '9')
             break;
     if (from != inner) {
         token = QByteArray(from, inner - from).toInt();
         from = inner;
-        //qDebug() << "found token" << token;
     }
 
-    // next char decides kind of response
+    // Next char decides kind of response.
     const char c = *from++;
-    //qDebug() << "CODE:" << c;
     switch (c) {
         case '*':
         case '+':
@@ -381,7 +368,6 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     break;
                 asyncClass += *from;
             }
-            //qDebug() << "ASYNCCLASS" << asyncClass;
 
             GdbMi result;
             while (from != to) {
@@ -820,29 +806,41 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
 
     QTC_ASSERT(gdbProc()->state() == QProcess::Running, return;)
 
-    ++currentToken();
+    const int token = ++currentToken();
+
     GdbCommand cmd = cmd0;
     cmd.postTime = QTime::currentTime();
-    m_cookieForToken[currentToken()] = cmd;
+    m_cookieForToken[token] = cmd;
     if (cmd.flags & ConsoleCommand)
         cmd.command = "-interpreter-exec console \"" + cmd.command + '"';
-    cmd.command = QByteArray::number(currentToken()) + cmd.command;
+    cmd.command = QByteArray::number(token) + cmd.command;
     showMessage(_(cmd.command), LogInput);
 
-    m_gdbAdapter->write(cmd.command + "\r\n");
+    if (m_scheduledTestResponses.contains(token)) {
+        // Fake response for test cases.
+        QByteArray buffer = m_scheduledTestResponses.value(token);
+        buffer.replace("@TOKEN@", QByteArray::number(token));
+        m_scheduledTestResponses.remove(token);
+        showMessage(_("FAKING TEST RESPONSE (TOKEN: %2, RESPONSE: '%3')")
+            .arg(token).arg(_(buffer)));
+        QMetaObject::invokeMethod(this, "handleResponse",
+            Q_ARG(QByteArray, buffer));
+    } else {
+        m_gdbAdapter->write(cmd.command + "\r\n");
 
-    // Start Watchdog.
-    if (m_commandTimer.interval() <= 20000)
-        m_commandTimer.setInterval(commandTimeoutTime());
-    // The process can die for external reason between the "-gdb-exit" was
-    // sent and a response could be retrieved. We don't want the watchdog
-    // to bark in that case since the only possible outcome is a dead
-    // process anyway.
-    if (!cmd.command.endsWith("-gdb-exit"))
-        m_commandTimer.start();
+        // Start Watchdog.
+        if (m_commandTimer.interval() <= 20000)
+            m_commandTimer.setInterval(commandTimeoutTime());
+        // The process can die for external reason between the "-gdb-exit" was
+        // sent and a response could be retrieved. We don't want the watchdog
+        // to bark in that case since the only possible outcome is a dead
+        // process anyway.
+        if (!cmd.command.endsWith("-gdb-exit"))
+            m_commandTimer.start();
 
-    //if (cmd.flags & LosesChild)
-    //    notifyInferiorIll();
+        //if (cmd.flags & LosesChild)
+        //    notifyInferiorIll();
+    }
 }
 
 int GdbEngine::commandTimeoutTime() const
@@ -894,9 +892,9 @@ void GdbEngine::commandTimeout()
 
 void GdbEngine::handleResultRecord(GdbResponse *response)
 {
-    //qDebug() << "TOKEN:" << response.token
+    //qDebug() << "TOKEN:" << response->token
     //    << " ACCEPTABLE:" << m_oldestAcceptableToken;
-    //qDebug() << "\nRESULT" << response.token << response.toString();
+    //qDebug() << "\nRESULT" << response->token << response->toString();
 
     int token = response->token;
     if (token == -1)
@@ -1984,10 +1982,11 @@ void GdbEngine::executeStep()
     showStatusMessage(tr("Step requested..."), 5000);
     if (m_gdbAdapter->isTrkAdapter() && stackHandler()->stackSize() > 0)
         postCommand("sal step,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
-    if (isReverseDebugging())
+    if (isReverseDebugging()) {
         postCommand("reverse-step", RunRequest, CB(handleExecuteStep));
-    else
+    } else {
         postCommand("-exec-step", RunRequest, CB(handleExecuteStep));
+    }
 }
 
 void GdbEngine::handleExecuteStep(const GdbResponse &response)
@@ -2050,10 +2049,14 @@ void GdbEngine::executeNext()
     showStatusMessage(tr("Step next requested..."), 5000);
     if (m_gdbAdapter->isTrkAdapter() && stackHandler()->stackSize() > 0)
         postCommand("sal next,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
-    if (isReverseDebugging())
+    if (isReverseDebugging()) {
         postCommand("reverse-next", RunRequest, CB(handleExecuteNext));
-    else
+    } else {
+        scheduleTestResponse(GdbTestNoBoundsOfCurrentFunction,
+            "@TOKEN@^error,msg=\"Warning:\\nCannot insert breakpoint -39.\\n"
+            " Error accessing memory address 0x11673fc: Input/output error.\\n\"");
         postCommand("-exec-next", RunRequest, CB(handleExecuteNext));
+    }
 }
 
 void GdbEngine::handleExecuteNext(const GdbResponse &response)
@@ -2071,7 +2074,8 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
     }
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     QByteArray msg = response.data.findChild("msg").data();
-    if (msg.startsWith("Cannot find bounds of current function")) {
+    if (msg.startsWith("Cannot find bounds of current function") 
+            || msg.contains("Error accessing memory address ")) {
         if (!m_commandsToRunOnTemporaryBreak.isEmpty())
             flushQueuedCommands();
         notifyInferiorRunFailed();
@@ -4383,6 +4387,12 @@ bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
 
 bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 {
+    const QByteArray tests = qgetenv("QTC_DEBUGGER_TESTS");
+    foreach (const QByteArray &test, tests.split(','))
+        m_testCases.insert(test.toInt());
+    foreach (int test, m_testCases)
+        showMessage(_("ENABLING TEST CASE: " + QByteArray::number(test)));
+
     gdbProc()->disconnect(); // From any previous runs
 
     const DebuggerStartParameters &sp = startParameters();
@@ -4894,6 +4904,18 @@ bool GdbEngine::isQFatalBreakpoint(int bpnr) const
 {
     return bpnr && m_qFatalBreakpointNumber == bpnr;
 }
+
+void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)
+{
+    if (!m_testCases.contains(testCase))
+        return;
+
+    int token = currentToken() + 1;
+    showMessage(_("SCHEDULING TEST RESPONSE (CASE: %1, TOKEN: %2, RESPONSE: '%3')")
+        .arg(testCase).arg(token).arg(_(response)));
+    m_scheduledTestResponses[token] = response;
+}
+
 
 //
 // Factory
