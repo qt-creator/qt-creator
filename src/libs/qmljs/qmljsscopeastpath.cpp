@@ -66,6 +66,31 @@ bool ScopeAstPath::preVisit(Node *node)
     return true;
 }
 
+bool ScopeAstPath::visit(UiPublicMember *node)
+{
+    if (node && node->statement && node->statement->kind == node->Kind_Block
+            && containsOffset(node->statement->firstSourceLocation(),
+                              node->statement->lastSourceLocation())) {
+        _result.append(node);
+        Node::accept(node->statement, this);
+        return false;
+    }
+    return true;
+}
+
+bool ScopeAstPath::visit(UiScriptBinding *node)
+{
+    if (node && node->statement && node->statement->kind == node->Kind_Block
+            && containsOffset(node->statement->firstSourceLocation(),
+                              node->statement->lastSourceLocation()))
+    {
+        _result.append(node);
+        Node::accept(node->statement, this);
+        return false;
+    }
+    return true;
+}
+
 bool ScopeAstPath::visit(UiObjectDefinition *node)
 {
     _result.append(node);

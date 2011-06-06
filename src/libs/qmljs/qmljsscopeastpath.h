@@ -52,6 +52,8 @@ protected:
     using Visitor::visit;
 
     virtual bool preVisit(AST::Node *node);
+    virtual bool visit(AST::UiPublicMember *node);
+    virtual bool visit(AST::UiScriptBinding *node);
     virtual bool visit(AST::UiObjectDefinition *node);
     virtual bool visit(AST::UiObjectBinding *node);
     virtual bool visit(AST::FunctionDeclaration *node);

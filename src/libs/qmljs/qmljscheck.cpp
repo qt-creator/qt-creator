@@ -580,6 +580,11 @@ bool Check::visit(UiScriptBinding *ast)
     if (Block *block = cast<Block *>(ast->statement)) {
         FunctionBodyCheck bodyCheck;
         _messages.append(bodyCheck(block->statements, _options));
+        Node::accept(ast->qualifiedId, this);
+        _scopeBuilder.push(ast);
+        Node::accept(block->statements, this);
+        _scopeBuilder.pop();
+        return false;
     }
 
     return true;

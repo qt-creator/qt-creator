@@ -109,7 +109,12 @@ protected:
                 && _context->scopeChain().qmlScopeObjects.contains(_scope)) {
             _usages.append(node->identifierToken);
         }
-
+        if (AST::cast<Block *>(node->statement)) {
+            _builder.push(node);
+            Node::accept(node->statement, this);
+            _builder.pop();
+            return false;
+        }
         return true;
     }
 
@@ -143,6 +148,13 @@ protected:
                 && node->qualifiedId->name->asString() == _name
                 && checkQmlScope()) {
             _usages.append(node->qualifiedId->identifierToken);
+        }
+        if (AST::cast<Block *>(node->statement)) {
+            Node::accept(node->qualifiedId, this);
+            _builder.push(node);
+            Node::accept(node->statement, this);
+            _builder.pop();
+            return false;
         }
         return true;
     }
@@ -324,6 +336,12 @@ protected:
             if (tVal == _typeValue)
                 _usages.append(node->typeToken);
         }
+        if (AST::cast<Block *>(node->statement)) {
+            _builder.push(node);
+            Node::accept(node->statement, this);
+            _builder.pop();
+            return false;
+        }
         return true;
     }
 
@@ -343,6 +361,18 @@ protected:
         Node::accept(node->initializer, this);
         _builder.pop();
         return false;
+    }
+
+    virtual bool visit(AST::UiScriptBinding *node)
+    {
+        if (AST::cast<Block *>(node->statement)) {
+            Node::accept(node->qualifiedId, this);
+            _builder.push(node);
+            Node::accept(node->statement, this);
+            _builder.pop();
+            return false;
+        }
+        return true;
     }
 
     virtual bool visit(AST::IdentifierExpression *node)
@@ -495,9 +525,9 @@ protected:
             _name = node->name->asString();
             if ((!_name.isEmpty()) && _name.at(0).isUpper()) {
                 // a possible type
-                _targetValue = _context->lookupType(_doc.data(), QStringList(_name));
-                _scope = 0;
-                _typeKind = TypeKind;
+                _targetValue = _context->lookup(_name, &_scope);
+                if (value_cast<const ObjectValue*>(_targetValue))
+                    _typeKind = TypeKind;
             }
         }
         return true;
@@ -517,7 +547,7 @@ protected:
                 const ObjectValue *lhsObj = lhsValue->asObjectValue();
                 if (lhsObj) {
                     _scope = lhsObj;
-                    _targetValue = value_cast<const ObjectValue*>(lhsObj->lookupMember(_name, _context));
+                    _targetValue = lhsObj->lookupMember(_name, _context);
                     _typeKind = TypeKind;
                 }
             }

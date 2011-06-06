@@ -171,9 +171,9 @@ bool Bind::usesQmlPrototype(ObjectValue *prototype,
     return false;
 }
 
-Interpreter::ObjectValue *Bind::findFunctionScope(AST::FunctionExpression *node) const
+Interpreter::ObjectValue *Bind::findAttachedJSScope(AST::Node *node) const
 {
-    return _functionScopes.value(node);
+    return _attachedJSScopes.value(node);
 }
 
 bool Bind::isGroupedPropertyBinding(AST::Node *node) const
@@ -289,9 +289,18 @@ bool Bind::visit(UiImport *ast)
     return false;
 }
 
-bool Bind::visit(UiPublicMember *)
+bool Bind::visit(UiPublicMember *ast)
 {
-    // nothing to do.
+    const Block *block = AST::cast<const Block*>(ast->statement);
+    if (block) {
+        // build block scope
+        ObjectValue *blockScope = _engine.newObject(/*prototype=*/0);
+        _attachedJSScopes.insert(ast, blockScope); // associated with the UiPublicMember, not with the block
+        ObjectValue *parent = switchObjectValue(blockScope);
+        accept(ast->statement);
+        switchObjectValue(parent);
+        return false;
+    }
     return true;
 }
 
@@ -334,7 +343,16 @@ bool Bind::visit(UiScriptBinding *ast)
                 if (i->name)
                     _idEnvironment->setMember(i->name->asString(), _currentObjectValue);
     }
-
+    const Block *block = AST::cast<const Block*>(ast->statement);
+    if (block) {
+        // build block scope
+        ObjectValue *blockScope = _engine.newObject(/*prototype=*/0);
+        _attachedJSScopes.insert(ast, blockScope); // associated with the UiScriptBinding, not with the block
+        ObjectValue *parent = switchObjectValue(blockScope);
+        accept(ast->statement);
+        switchObjectValue(parent);
+        return false;
+    }
     return true;
 }
 
@@ -367,7 +385,7 @@ bool Bind::visit(FunctionExpression *ast)
 
     // build function scope
     ObjectValue *functionScope = _engine.newObject(/*prototype=*/0);
-    _functionScopes.insert(ast, functionScope);
+    _attachedJSScopes.insert(ast, functionScope);
     ObjectValue *parent = switchObjectValue(functionScope);
 
     // The order of the following is important. Example: A function with name "arguments"

@@ -62,11 +62,20 @@ void ScopeBuilder::push(AST::Node *node)
     if (qmlObject)
         setQmlScopeObject(qmlObject);
 
-    // JS scopes (catch both, FunctionExpression and FunctionDeclaration)
-    if (FunctionExpression *fun = dynamic_cast<FunctionExpression *>(node)) {
-        ObjectValue *functionScope = _doc->bind()->findFunctionScope(fun);
-        if (functionScope)
-            _context->scopeChain().jsScopes += functionScope;
+    // JS scopes
+    switch (node->kind) {
+    case Node::Kind_UiScriptBinding:
+    case Node::Kind_FunctionDeclaration:
+    case Node::Kind_FunctionExpression:
+    case Node::Kind_UiPublicMember:
+    {
+        ObjectValue *scope = _doc->bind()->findAttachedJSScope(node);
+        if (scope)
+            _context->scopeChain().jsScopes += scope;
+        break;
+    }
+    default:
+        break;
     }
 
     _context->scopeChain().update();
@@ -84,9 +93,19 @@ void ScopeBuilder::pop()
     _nodes.removeLast();
 
     // JS scopes
-    if (FunctionExpression *fun = dynamic_cast<FunctionExpression *>(toRemove)) {
-        if (_doc->bind()->findFunctionScope(fun))
+    switch (toRemove->kind) {
+    case Node::Kind_UiScriptBinding:
+    case Node::Kind_FunctionDeclaration:
+    case Node::Kind_FunctionExpression:
+    case Node::Kind_UiPublicMember:
+    {
+        ObjectValue *scope = _doc->bind()->findAttachedJSScope(toRemove);
+        if (scope)
             _context->scopeChain().jsScopes.removeLast();
+        break;
+    }
+    default:
+        break;
     }
 
     // QML scope object
