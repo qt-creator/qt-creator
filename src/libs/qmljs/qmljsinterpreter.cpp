@@ -1014,7 +1014,8 @@ const Value *Context::lookup(const QString &name, const ObjectValue **foundInSco
     return _engine->undefinedValue();
 }
 
-const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId *qmlTypeName) const
+const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId *qmlTypeName,
+                                       UiQualifiedId *qmlTypeNameEnd) const
 {
     const Imports *importsObj = imports(doc);
     if (!importsObj)
@@ -1023,7 +1024,8 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId
     if (!objectValue)
         return 0;
 
-    for (UiQualifiedId *iter = qmlTypeName; objectValue && iter; iter = iter->next) {
+    for (UiQualifiedId *iter = qmlTypeName; objectValue && iter && iter != qmlTypeNameEnd;
+         iter = iter->next) {
         if (! iter->name)
             return 0;
 

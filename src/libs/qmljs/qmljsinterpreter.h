@@ -332,7 +332,8 @@ public:
     void setImports(const Document *doc, const Imports *imports);
 
     const Value *lookup(const QString &name, const ObjectValue **foundInScope = 0) const;
-    const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName) const;
+    const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName,
+                                  AST::UiQualifiedId *qmlTypeNameEnd = 0) const;
     const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName) const;
     const Value *lookupReference(const Value *value) const;
 
