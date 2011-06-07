@@ -94,7 +94,6 @@ RemoteDialog::RemoteDialog(QWidget *parent) :
     m_ui->setupUi(this);
 
     m_ui->remoteView->setModel(m_remoteModel);
-    m_ui->remoteView->setMinimumHeight(400);
     m_ui->remoteView->horizontalHeader()->setStretchLastSection(true);
     m_ui->remoteView->horizontalHeader()->setResizeMode(0, QHeaderView::ResizeToContents);
     QFontMetrics fm(font());
