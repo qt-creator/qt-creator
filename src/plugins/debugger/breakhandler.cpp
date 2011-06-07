@@ -1051,7 +1051,9 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointId id, int lineNumber)
     // Ignore updates to the "real" line number while the debugger is
     // running, as this can be triggered by moving the breakpoint to
     // the next line that generated code.
-    if (isEngineRunning(id))
+    if (it->data.lineNumber == lineNumber)
+        ; // Nothing
+    else if (isEngineRunning(id))
         it->data.lineNumber += lineNumber - it->response.lineNumber;
     else
         it->data.lineNumber = lineNumber;
