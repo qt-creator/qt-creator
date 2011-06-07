@@ -2454,7 +2454,9 @@ static const char *qConnectionType(uint type)
     return output;
 }
 
-#if QT_VERSION >= 0x040400
+#if QT_VERSION < 0x040400
+
+#else
 static const ConnectionList &qConnectionList(const QObject *ob, int signalNumber)
 {
     static const ConnectionList emptyList;
@@ -2515,7 +2517,8 @@ static void qDumpQObjectSignal(QDumper &d)
                 d.endItem();
                 d.putItem("type", "");
                 if (conn.receiver)
-                    d.putItem("value", conn.receiver->metaObject()->method(conn.method).signature());
+                    d.putItem("value", conn.receiver->metaObject()
+                        ->method(conn.method_()).signature());
                 else
                     d.putItem("value", "<invalid receiver>");
                 d.putItem("numchild", "0");
@@ -2592,7 +2595,7 @@ static void qDumpQObjectSlot(QDumper &d)
         for (SenderList senderList = p->senders; senderList != 0;
              senderList = senderList->next, ++s) {
             const QObject *sender = senderList->sender;
-            int signal = senderList->method; // FIXME: 'method' is wrong.
+            int signal = senderList->method_(); // FIXME: 'method' is wrong.
 #else
         for (int s = 0; s != p->senders.size(); ++s) {
             const QObject *sender = senderAt(p->senders, s);
@@ -2601,7 +2604,7 @@ static void qDumpQObjectSlot(QDumper &d)
             const ConnectionList &connList = qConnectionList(sender, signal);
             for (int i = 0; i != connList.size(); ++i) {
                 const Connection &conn = connectionAt(connList, i);
-                if (conn.receiver == ob && conn.method == slotNumber) {
+                if (conn.receiver == ob && conn.method_() == slotNumber) {
                     ++numchild;
                     const QMetaMethod &method = sender->metaObject()->method(signal);
                     qDumpQObjectConnectionPart(d, ob, sender, s, " sender");
@@ -2619,7 +2622,7 @@ static void qDumpQObjectSlot(QDumper &d)
                         d.endItem();
                         d.putItem("type", "");
                         d.beginItem("value");
-                            d.put("<").put(qConnectionType(conn.method));
+                            d.put("<").put(qConnectionType(conn.method_()));
                             d.put(" connection>");
                         d.endItem();
                         d.putItem("numchild", "0");
@@ -2668,7 +2671,7 @@ static void qDumpQObjectSlotList(QDumper &d)
                 for (SenderList senderList = p->senders; senderList != 0;
                      senderList = senderList->next, ++s) {
                     const QObject *sender = senderList->sender;
-                    int signal = senderList->method; // FIXME: 'method' is wrong.
+                    int signal = senderList->method_(); // FIXME: 'method' is wrong.
 #else
                 for (int s = 0; s != p->senders.size(); ++s) {
                     const QObject *sender = senderAt(p->senders, s);
@@ -2677,7 +2680,7 @@ static void qDumpQObjectSlotList(QDumper &d)
                     const ConnectionList &connList = qConnectionList(sender, signal);
                     for (int c = 0; c != connList.size(); ++c) {
                         const Connection &conn = connectionAt(connList, c);
-                        if (conn.receiver == ob && conn.method == k)
+                        if (conn.receiver == ob && conn.method_() == k)
                             ++numchild;
                     }
                 }

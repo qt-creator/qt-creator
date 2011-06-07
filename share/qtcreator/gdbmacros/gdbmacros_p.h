@@ -35,6 +35,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
+#include <QtCore/QSharedPointer>
 
 #ifndef QT_BOOTSTRAPPED
 
@@ -58,58 +59,92 @@ QT_BEGIN_NAMESPACE
 struct Sender { QObject *sender; int signal; int ref; };
 
 #if QT_VERSION < 0x040600
-struct Connection
-{
-    QObject *receiver;
-    int method;
-    uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
-    QBasicAtomicPointer<int> argumentTypes;
-};
-
-typedef QList<Connection> ConnectionList;
-typedef QList<Sender> SenderList;
-
-static inline const Connection &connectionAt(const ConnectionList &l, int i) { return l.at(i); }
-static inline const QObject *senderAt(const SenderList &l, int i) { return l.at(i).sender; }
-static inline int signalAt(const SenderList &l, int i) { return l.at(i).signal; }
-#else
-struct Connection
-{
-    QObject *sender;
-    QObject *receiver;
-    int method;
-    uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
-    QBasicAtomicPointer<int> argumentTypes;
-    Connection *nextConnectionList;
-    //senders linked list
-    Connection *next;
-    Connection **prev;
-};
-
-struct ConnectionList
-{
-    ConnectionList() : first(0), last(0) { }
-    int size() const
+    struct Connection
     {
-        int count = 0;
-        for (Connection *c = first; c != 0; c = c->nextConnectionList)
-            ++count;
-        return count;
+        QObject *receiver;
+        int method;
+        uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
+        QBasicAtomicPointer<int> argumentTypes;
+        int method_() const { return method; }
+    };
+#elif QT_VERSION < 0x040800
+    struct Connection
+    {
+        QObject *sender;
+        QObject *receiver;
+        int method;
+        uint connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
+        QBasicAtomicPointer<int> argumentTypes;
+        Connection *nextConnectionList;
+        //senders linked list
+        Connection *next;
+        Connection **prev;
+        int method_() const { return method; }
+    };
+#else
+    typedef void (*StaticMetaCallFunction)(QObject *, QMetaObject::Call, int, void **);
+    struct Connection
+    {
+        QObject *sender;
+        QObject *receiver;
+        StaticMetaCallFunction callFunction;
+        // The next pointer for the singly-linked ConnectionList
+        Connection *nextConnectionList;
+        //senders linked list
+        Connection *next;
+        Connection **prev;
+        QBasicAtomicPointer<int> argumentTypes;
+        ushort method_offset;
+        ushort method_relative;
+        ushort connectionType : 3; // 0 == auto, 1 == direct, 2 == queued, 4 == blocking
+        ~Connection();
+        int method() const { return method_offset + method_relative; }
+        int method_() const { return method(); }
+    };
+#endif
+
+#if QT_VERSION < 0x040600
+    typedef QList<Connection> ConnectionList;
+    typedef QList<Sender> SenderList;
+
+    static inline const Connection &connectionAt(const ConnectionList &l, int i)
+    {
+        return l.at(i);
     }
+    static inline const QObject *senderAt(const SenderList &l, int i)
+    {
+        return l.at(i).sender;
+    }
+    static inline int signalAt(const SenderList &l, int i)
+    {
+        return l.at(i).signal;
+    }
+//#elif QT_VERSION < 0x040800
+#else
+    struct ConnectionList
+    {
+        ConnectionList() : first(0), last(0) { }
+        int size() const
+        {
+            int count = 0;
+            for (Connection *c = first; c != 0; c = c->nextConnectionList)
+                ++count;
+            return count;
+        }
 
-    Connection *first;
-    Connection *last;
-};
+        Connection *first;
+        Connection *last;
+    };
 
-typedef Connection *SenderList;
+    typedef Connection *SenderList;
 
-static inline const Connection &connectionAt(const ConnectionList &l, int i)
-{
-    Connection *conn = l.first;
-    for (int cnt = 0; cnt < i; ++cnt)
-        conn = conn->nextConnectionList;
-    return *conn;
-}
+    static inline const Connection &connectionAt(const ConnectionList &l, int i)
+    {
+        Connection *conn = l.first;
+        for (int cnt = 0; cnt < i; ++cnt)
+            conn = conn->nextConnectionList;
+        return *conn;
+    }
 #endif
 
 class ObjectPrivate : public QObjectData
@@ -124,15 +159,13 @@ public:
     void *currentSender;
     void *currentChildBeingDeleted;
     QList<QPointer<QObject> > eventFilters;
-
     void *extraData;
     mutable quint32 connectedSignals;
     QString objectName;
-
     void *connectionLists;
     SenderList senders;
     int *deleteWatch;
-#else
+#elif QT_VERSION < 0x040800
     QString objectName;
     void *extraData;
     void *threadData;
@@ -145,6 +178,24 @@ public:
     void *currentChildBeingDeleted;
     QAtomicPointer<void> sharedRefcount;
     int *deleteWatch;
+#else
+    QString objectName;
+    void *extraData;
+    void *threadData;
+    void *connectionLists;
+    Connection *senders;
+    Sender *currentSender;
+    mutable quint32 connectedSignals[2];
+    void *unused;
+    QList<QPointer<QObject> > eventFilters;
+    union {
+        QObject *currentChildBeingDeleted;
+        void *declarativeData;
+    };
+    QAtomicPointer<void> sharedRefcount;
+    #ifdef QT_JAMBI_BUILD
+    int *deleteWatch;
+    #endif
 #endif
 };
 
