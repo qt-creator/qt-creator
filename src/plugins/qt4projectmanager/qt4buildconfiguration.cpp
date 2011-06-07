@@ -476,7 +476,12 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own
                 QString workingDirectory = QFileInfo(makefile).absolutePath();
-                QStringList actualArgs = qs->moreArguments();
+                QStringList actualArgs;
+                QString userArgs = qs->userArguments();
+                // This copies the settings from userArgs to actualArgs (minus some we
+                // are not interested in), splitting them up into individual strings:
+                extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs),
+                actualArgs += qs->moreArguments();
                 QString actualSpec = qs->mkspec();
 
                 QString qmakeArgs = result.second;
