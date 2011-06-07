@@ -144,6 +144,8 @@ private:
 namespace nsX {
 namespace nsY {
 int z;
+Vector<int> vi(10);
+Vector<float> vf(10);
 }
 }
 

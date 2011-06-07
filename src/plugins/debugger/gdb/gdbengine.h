@@ -442,6 +442,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     int m_gdbVersion; // 6.8.0 is 60800
     int m_gdbBuildVersion; // MAC only?
     bool m_isMacGdb;
+    bool m_hasBreakpointNotifications;
     bool m_hasPython;
     bool m_hasInferiorThreadList;
 
@@ -502,7 +503,6 @@ private: ////////// View & Data Stuff //////////
     void handleBreakInsert2(const GdbResponse &response);
     void handleTraceInsert2(const GdbResponse &response);
     void handleBreakCondition(const GdbResponse &response);
-    void handleBreakInfo(const GdbResponse &response);
     void handleBreakThreadSpec(const GdbResponse &response);
     void handleWatchInsert(const GdbResponse &response);
     void handleCatchInsert(const GdbResponse &response);
