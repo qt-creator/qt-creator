@@ -387,7 +387,8 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
         }
 
         // encode editorRevision, lineNumber in URL. See ClientProxy::buildDebugIdHashRecursive
-        QString filename = QLatin1String("file://") + doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
+        // Also, a relative URL is expected (no "file://" prepending!)
+        QString filename =  doc->fileName() + QLatin1Char('_') + QString::number(doc->editorRevision())
                          + QLatin1Char(':') + QString::number(startLine-importList.count());
         foreach(DebugId debugId, debugReferences) {
             if (debugId != -1) {
