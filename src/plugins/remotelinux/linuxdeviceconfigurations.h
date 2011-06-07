@@ -56,7 +56,7 @@ public:
 
     LinuxDeviceConfiguration::ConstPtr deviceAt(int index) const;
     LinuxDeviceConfiguration::ConstPtr find(LinuxDeviceConfiguration::Id id) const;
-    LinuxDeviceConfiguration::ConstPtr defaultDeviceConfig(const LinuxDeviceConfiguration::OsVersion osVersion) const;
+    LinuxDeviceConfiguration::ConstPtr defaultDeviceConfig(const QString &osType) const;
     bool hasConfig(const QString &name) const;
     int indexForInternalId(LinuxDeviceConfiguration::Id internalId) const;
     LinuxDeviceConfiguration::Id internalId(LinuxDeviceConfiguration::ConstPtr devConf) const;
@@ -64,17 +64,15 @@ public:
     void setDefaultSshKeyFilePath(const QString &path) { m_defaultSshKeyFilePath = path; }
     QString defaultSshKeyFilePath() const { return m_defaultSshKeyFilePath; }
 
-    void addHardwareDeviceConfiguration(const QString &name,
-        LinuxDeviceConfiguration::OsVersion osVersion, const QString &hostName,
-        const QString &privateKeyFilePath);
+    void addHardwareDeviceConfiguration(const QString &name, const QString &osType,
+        const QString &hostName, const QString &privateKeyFilePath);
     void addGenericLinuxConfigurationUsingPassword(const QString &name,
         const QString &hostName, const QString &userName,
         const QString &password);
     void addGenericLinuxConfigurationUsingKey(const QString &name,
         const QString &hostName, const QString &userName,
         const QString &privateKeyFilePath);
-    void addEmulatorDeviceConfiguration(const QString &name,
-        LinuxDeviceConfiguration::OsVersion osVersion);
+    void addEmulatorDeviceConfiguration(const QString &name, const QString &osType);
     void removeConfiguration(int index);
     void setConfigurationName(int i, const QString &name);
     void setSshParameters(int i, const Utils::SshConnectionParameters &params);
@@ -95,7 +93,7 @@ private:
     static void copy(const LinuxDeviceConfigurations *source,
         LinuxDeviceConfigurations *target, bool deep);
     void addConfiguration(const LinuxDeviceConfiguration::Ptr &devConfig);
-    void ensureDefaultExists(LinuxDeviceConfiguration::OsVersion osVersion);
+    void ensureDefaultExists(const QString &osType);
 
     static LinuxDeviceConfigurations *m_instance;
     LinuxDeviceConfiguration::Id m_nextId;

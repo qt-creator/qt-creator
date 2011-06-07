@@ -99,7 +99,7 @@ void MaemoConfigTestDialog::startConfigTest()
     const QLatin1String sysInfoCmd("uname -rsm");
     QString command = sysInfoCmd;
     QString qtInfoCmd;
-    switch (MaemoGlobal::packagingSystem(m_config->osVersion())) {
+    switch (MaemoGlobal::packagingSystem(m_config->osType())) {
     case MaemoGlobal::Rpm:
         qtInfoCmd = QLatin1String("rpm -qa 'libqt*' "
             "--queryformat '%{NAME} %{VERSION}\\n'");
@@ -158,18 +158,16 @@ void MaemoConfigTestDialog::handleGeneralTestResult(int exitStatus)
         m_ui->testResultEdit->setPlainText(output);
     }
 
-    switch (m_config->osVersion()) {
-    case LinuxDeviceConfiguration::Maemo5:
-    case LinuxDeviceConfiguration::Maemo6:
-    case LinuxDeviceConfiguration::Meego:
+    if (m_config->osType() == LinuxDeviceConfiguration::Maemo5OsType
+            || m_config->osType() == LinuxDeviceConfiguration::HarmattanOsType
+            || m_config->osType() == LinuxDeviceConfiguration::MeeGoOsType) {
         m_currentTest = MadDeveloperTest;
         disconnect(m_testProcessRunner.data(),
             SIGNAL(processOutputAvailable(QByteArray)), this,
             SLOT(processSshOutput(QByteArray)));
         m_testProcessRunner->run("test -x "
             + MaemoGlobal::devrootshPath().toUtf8());
-        break;
-    default:
+    } else {
         testPorts();
     }
 }
@@ -183,8 +181,8 @@ void MaemoConfigTestDialog::handleMadDeveloperTestResult(int exitStatus)
         QString errorMsg = m_ui->errorLabel->text() + QLatin1String("<br>")
             + tr("%1 is not installed.<br>You will not be able to deploy "
                  "to this device.")
-                .arg(MaemoGlobal::madDeveloperUiName(m_config->osVersion()));
-        if (m_config->osVersion() == LinuxDeviceConfiguration::Maemo6) {
+                .arg(MaemoGlobal::madDeveloperUiName(m_config->osType()));
+        if (m_config->osType() == LinuxDeviceConfiguration::HarmattanOsType) {
             errorMsg += QLatin1String("<br>")
                 + tr("Please switch the device to developer mode via Settings -> Security.");
         }
@@ -267,7 +265,7 @@ QString MaemoConfigTestDialog::parseTestOutput()
     output.append(tr("Kernel version: %1\n").arg(unamePattern.cap(1)));
 
     QString patternString;
-    switch (MaemoGlobal::packagingSystem(m_config->osVersion())) {
+    switch (MaemoGlobal::packagingSystem(m_config->osType())) {
     case MaemoGlobal::Rpm:
         patternString = QLatin1String("(libqt\\S+) ((\\d+)\\.(\\d+)\\.(\\d+))");
         break;

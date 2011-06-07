@@ -106,10 +106,9 @@ public:
 
     static QString homeDirOnDevice(const QString &uname);
     static QString devrootshPath();
-    static int applicationIconSize(LinuxDeviceConfiguration::OsVersion osVersion);
-    static QString remoteSudo(LinuxDeviceConfiguration::OsVersion,
-        const QString &uname);
-    static QString remoteCommandPrefix(LinuxDeviceConfiguration::OsVersion osVersion,
+    static int applicationIconSize(const QString &osType);
+    static QString remoteSudo(const QString &osType, const QString &uname);
+    static QString remoteCommandPrefix(const QString &osType,
         const QString &userName, const QString &commandFilePath);
     static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);
     static QString remoteSourceProfilesCommand();
@@ -123,8 +122,8 @@ public:
     static QString targetRoot(const QString &qmakePath);
     static QString targetName(const QString &qmakePath);
     static QString madCommand(const QString &qmakePath);
-    static QString madDeveloperUiName(LinuxDeviceConfiguration::OsVersion maemoVersion);
-    static LinuxDeviceConfiguration::OsVersion version(const QString &qmakePath);
+    static QString madDeveloperUiName(const QString &osType);
+    static QString osType(const QString &qmakePath);
 
     // TODO: IS this still needed with Qt Version having an Abi?
     static QString architecture(const QString &qmakePath);
@@ -134,9 +133,9 @@ public:
     static bool callMadAdmin(QProcess &proc, const QStringList &args,
         const QString &qmakePath, bool useTarget);
 
-    static QString osVersionToString(LinuxDeviceConfiguration::OsVersion version);
+    static QString osTypeToString(const QString &osType);
 
-    static PackagingSystem packagingSystem(LinuxDeviceConfiguration::OsVersion osVersion);
+    static PackagingSystem packagingSystem(const QString &osType);
 
     static bool removeRecursively(const QString &filePath, QString &error);
     static bool copyRecursively(const QString &srcFilePath,
@@ -176,8 +175,7 @@ public:
         }
     }
 
-    static bool isValidMaemoQtVersion(const QString &qmakePath,
-        LinuxDeviceConfiguration::OsVersion maemoVersion);
+    static bool isValidMaemoQtVersion(const QString &qmakePath, const QString &osType);
 private:
     static QString madAdminCommand(const QString &qmakePath);
     static bool callMaddeShellScript(QProcess &proc, const QString &qmakePath,

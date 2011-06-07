@@ -59,7 +59,7 @@ MaemoRemoteProcessesDialog::MaemoRemoteProcessesDialog(const LinuxDeviceConfigur
 
     // Manually gathered process information is missing the command line for
     // some system processes. Dont's show these lines by default.
-    if (devConfig->osVersion() == LinuxDeviceConfiguration::Maemo5)
+    if (devConfig->osType() == LinuxDeviceConfiguration::Maemo5OsType)
         m_ui->processFilterLineEdit->setText(QLatin1String("[^ ]+"));
 
     connect(m_ui->tableView->selectionModel(),

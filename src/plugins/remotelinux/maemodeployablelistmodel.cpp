@@ -265,7 +265,7 @@ bool MaemoDeployableListModel::addDesktopFile()
     const QtSupport::BaseQtVersion * const version = qtVersion();
     QTC_ASSERT(version, return false);
     QString remoteDir = QLatin1String("/usr/share/applications");
-    if (MaemoGlobal::version(version->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5)
+    if (MaemoGlobal::osType(version->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5OsType)
         remoteDir += QLatin1String("/hildon");
     const QLatin1String filesLine("desktopfile.files = $${TARGET}.desktop");
     const QString pathLine = QLatin1String("desktopfile.path = ") + remoteDir;
@@ -340,7 +340,7 @@ QString MaemoDeployableListModel::proFileScope() const
 {
     const QtSupport::BaseQtVersion *const qv = qtVersion();
     QTC_ASSERT(qv, return QString());
-    return QLatin1String(MaemoGlobal::version(qv->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5
+    return QLatin1String(MaemoGlobal::osType(qv->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5OsType
         ? "maemo5" : "unix:!symbian:!maemo5");
 }
 
@@ -354,7 +354,7 @@ QString MaemoDeployableListModel::remoteIconDir() const
     const QtSupport::BaseQtVersion *const qv = qtVersion();
     QTC_ASSERT(qv, return QString());
     return QString::fromLocal8Bit("/usr/share/icons/hicolor/%1x%1/apps")
-            .arg(MaemoGlobal::applicationIconSize(MaemoGlobal::version(qv->qmakeCommand())));
+            .arg(MaemoGlobal::applicationIconSize(MaemoGlobal::osType(qv->qmakeCommand())));
 }
 
 } // namespace RemoteLinux

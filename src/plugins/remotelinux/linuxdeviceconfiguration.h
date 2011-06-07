@@ -72,31 +72,36 @@ class REMOTELINUX_EXPORT LinuxDeviceConfiguration
 public:
     typedef QSharedPointer<const LinuxDeviceConfiguration> ConstPtr;
     typedef quint64 Id;
-    enum OsVersion { Maemo5, Maemo6, Meego, GenericLinux };
+
+    static const QString Maemo5OsType;
+    static const QString HarmattanOsType;
+    static const QString MeeGoOsType;
+    static const QString GenericLinuxOsType;
+
     enum DeviceType { Physical, Emulator };
 
     PortList freePorts() const;
     Utils::SshConnectionParameters sshParameters() const { return m_sshParameters; }
     QString name() const { return m_name; }
-    OsVersion osVersion() const { return m_osVersion; }
+    QString osType() const { return m_osType; }
     DeviceType type() const { return m_type; }
     QString portsSpec() const { return m_portsSpec; }
     Id internalId() const { return m_internalId; }
     bool isDefault() const { return m_isDefault; }
     static QString portsRegExpr();
-    static QString defaultHost(DeviceType type, OsVersion osVersion);
+    static QString defaultHost(DeviceType type, const QString &osType);
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
-    static QString defaultUser(OsVersion osVersion);
+    static QString defaultUser(const QString &osType);
     static int defaultSshPort(DeviceType type);
-    static QString defaultQemuPassword(OsVersion osVersion);
+    static QString defaultQemuPassword(const QString &osType);
 
     static const Id InvalidId;
 
 private:
     typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
 
-    LinuxDeviceConfiguration(const QString &name, OsVersion osVersion,
+    LinuxDeviceConfiguration(const QString &name, const QString &osType,
         DeviceType type, const Utils::SshConnectionParameters &sshParams,
         Id &nextId);
     LinuxDeviceConfiguration(const QSettings &settings, Id &nextId);
@@ -105,7 +110,7 @@ private:
     LinuxDeviceConfiguration(const LinuxDeviceConfiguration &);
     LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
 
-    static Ptr createHardwareConfig(const QString &name, OsVersion osVersion,
+    static Ptr createHardwareConfig(const QString &name, const QString &osType,
         const QString &hostName, const QString &privateKeyFilePath, Id &nextId);
     static Ptr createGenericLinuxConfigUsingPassword(const QString &name,
         const QString &hostName, const QString &userName,
@@ -113,7 +118,7 @@ private:
     static Ptr createGenericLinuxConfigUsingKey(const QString &name,
         const QString &hostName, const QString &userName,
         const QString &privateKeyFilePath, Id &nextId);
-    static Ptr createEmulatorConfig(const QString &name, OsVersion osVersion,
+    static Ptr createEmulatorConfig(const QString &name, const QString &osType,
         Id &nextId);
     static Ptr create(const QSettings &settings, Id &nextId);
     static Ptr create(const ConstPtr &other);
@@ -123,7 +128,7 @@ private:
 
     Utils::SshConnectionParameters m_sshParameters;
     QString m_name;
-    OsVersion m_osVersion;
+    QString m_osType;
     DeviceType m_type;
     QString m_portsSpec;
     bool m_isDefault;

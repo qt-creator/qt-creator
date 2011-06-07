@@ -119,11 +119,10 @@ void LinuxDeviceConfigurations::save()
 }
 
 void LinuxDeviceConfigurations::addHardwareDeviceConfiguration(const QString &name,
-    LinuxDeviceConfiguration::OsVersion osVersion, const QString &hostName,
-    const QString &privateKeyFilePath)
+    const QString &osType, const QString &hostName, const QString &privateKeyFilePath)
 {
     const LinuxDeviceConfiguration::Ptr &devConf = LinuxDeviceConfiguration::createHardwareConfig(name,
-        osVersion, hostName, privateKeyFilePath, m_nextId);
+        osType, hostName, privateKeyFilePath, m_nextId);
     addConfiguration(devConf);
 }
 
@@ -145,17 +144,17 @@ void LinuxDeviceConfigurations::addGenericLinuxConfigurationUsingKey(const QStri
 }
 
 void LinuxDeviceConfigurations::addEmulatorDeviceConfiguration(const QString &name,
-    LinuxDeviceConfiguration::OsVersion osVersion)
+    const QString &osType)
 {
     const LinuxDeviceConfiguration::Ptr &devConf
-        = LinuxDeviceConfiguration::createEmulatorConfig(name, osVersion, m_nextId);
+        = LinuxDeviceConfiguration::createEmulatorConfig(name, osType, m_nextId);
     addConfiguration(devConf);
 }
 
 void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration::Ptr &devConfig)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    if (!defaultDeviceConfig(devConfig->osVersion()))
+    if (!defaultDeviceConfig(devConfig->osType()))
         devConfig->m_isDefault = true;
     m_devConfigs << devConfig;
     endInsertRows();
@@ -166,12 +165,12 @@ void LinuxDeviceConfigurations::removeConfiguration(int idx)
     Q_ASSERT(idx >= 0 && idx < rowCount());
     beginRemoveRows(QModelIndex(), idx, idx);
     const bool wasDefault = deviceAt(idx)->m_isDefault;
-    const LinuxDeviceConfiguration::OsVersion osVersion = deviceAt(idx)->osVersion();
+    const QString osType = deviceAt(idx)->osType();
     m_devConfigs.removeAt(idx);
     endRemoveRows();
     if (wasDefault) {
         for (int i = 0; i < m_devConfigs.count(); ++i) {
-            if (deviceAt(i)->osVersion() == osVersion) {
+            if (deviceAt(i)->osType() == osType) {
                 m_devConfigs.at(i)->m_isDefault = true;
                 const QModelIndex changedIndex = index(i, 0);
                 emit dataChanged(changedIndex, changedIndex);
@@ -212,7 +211,7 @@ void LinuxDeviceConfigurations::setDefaultDevice(int idx)
     for (int i = 0; i < m_devConfigs.count(); ++i) {
         const LinuxDeviceConfiguration::Ptr &oldDefaultDev = m_devConfigs.at(i);
         if (oldDefaultDev->m_isDefault
-                && oldDefaultDev->osVersion() == devConf->osVersion()) {
+                && oldDefaultDev->osType() == devConf->osType()) {
             oldDefaultDev->m_isDefault = false;
             oldDefaultIndex = index(i, 0);
             break;
@@ -246,10 +245,10 @@ void LinuxDeviceConfigurations::load()
     }
     settings->endArray();
     settings->endGroup();
-    ensureDefaultExists(LinuxDeviceConfiguration::Maemo5);
-    ensureDefaultExists(LinuxDeviceConfiguration::Maemo6);
-    ensureDefaultExists(LinuxDeviceConfiguration::Meego);
-    ensureDefaultExists(LinuxDeviceConfiguration::GenericLinux);
+    ensureDefaultExists(LinuxDeviceConfiguration::Maemo5OsType);
+    ensureDefaultExists(LinuxDeviceConfiguration::HarmattanOsType);
+    ensureDefaultExists(LinuxDeviceConfiguration::MeeGoOsType);
+    ensureDefaultExists(LinuxDeviceConfiguration::GenericLinuxOsType);
 }
 
 LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::deviceAt(int idx) const
@@ -272,10 +271,10 @@ LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::find(LinuxDeviceCo
     return index == -1 ? LinuxDeviceConfiguration::ConstPtr() : deviceAt(index);
 }
 
-LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::defaultDeviceConfig(const LinuxDeviceConfiguration::OsVersion osVersion) const
+LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::defaultDeviceConfig(const QString &osType) const
 {
     foreach (const LinuxDeviceConfiguration::ConstPtr &devConf, m_devConfigs) {
-        if (devConf->m_isDefault && devConf->osVersion() == osVersion)
+        if (devConf->m_isDefault && devConf->osType() == osType)
             return devConf;
     }
     return LinuxDeviceConfiguration::ConstPtr();
@@ -295,11 +294,11 @@ LinuxDeviceConfiguration::Id LinuxDeviceConfigurations::internalId(LinuxDeviceCo
     return devConf ? devConf->m_internalId : LinuxDeviceConfiguration::InvalidId;
 }
 
-void LinuxDeviceConfigurations::ensureDefaultExists(LinuxDeviceConfiguration::OsVersion osVersion)
+void LinuxDeviceConfigurations::ensureDefaultExists(const QString &osType)
 {
-    if (!defaultDeviceConfig(osVersion)) {
+    if (!defaultDeviceConfig(osType)) {
         foreach (const LinuxDeviceConfiguration::Ptr &devConf, m_devConfigs) {
-            if (devConf->osVersion() == osVersion) {
+            if (devConf->osType() == osType) {
                 devConf->m_isDefault = true;
                 break;
             }
@@ -321,7 +320,7 @@ QVariant LinuxDeviceConfigurations::data(const QModelIndex &index, int role) con
     QString name = devConf->name();
     if (devConf->m_isDefault) {
         name += QLatin1Char(' ') + tr("(default for %1)")
-            .arg(MaemoGlobal::osVersionToString(devConf->osVersion()));
+            .arg(MaemoGlobal::osTypeToString(devConf->osType()));
     }
     return name;
 }

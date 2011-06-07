@@ -70,7 +70,7 @@ void AbstractMaemoPackageInstaller::installPackage(const SshConnection::Ptr &con
     const QString space = QLatin1String(" ");
     QString cmdLine = QLatin1String("cd ") + workingDirectory()
         + QLatin1String(" && ")
-        + MaemoGlobal::remoteSudo(devConf->osVersion(),
+        + MaemoGlobal::remoteSudo(devConf->osType(),
               m_installer->connection()->connectionParameters().userName)
         + space + installCommand()
         + space + installCommandArguments().join(space) + space

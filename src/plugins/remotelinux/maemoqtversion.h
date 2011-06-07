@@ -59,10 +59,10 @@ public:
     virtual QString description() const;
 
     virtual bool supportsShadowBuilds() const;
-    LinuxDeviceConfiguration::OsVersion osVersion() const;
+    QString osType() const;
 private:
     mutable QString m_systemRoot;
-    mutable LinuxDeviceConfiguration::OsVersion m_osVersion;
+    mutable QString m_osType;
     mutable bool m_isvalidVersion;
 };
 

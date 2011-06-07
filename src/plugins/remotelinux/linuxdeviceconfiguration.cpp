@@ -41,7 +41,8 @@ typedef Utils::SshConnectionParameters::AuthenticationType AuthType;
 namespace RemoteLinux {
 namespace {
 const QLatin1String NameKey("Name");
-const QLatin1String OsVersionKey("OsVersion");
+const QLatin1String OldOsVersionKey("OsVersion"); // Outdated, only use for upgrading.
+const QLatin1String OsTypeKey("OsType");
 const QLatin1String TypeKey("Type");
 const QLatin1String HostKey("Host");
 const QLatin1String SshPortKey("SshPort");
@@ -202,15 +203,15 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const ConstPtr &o
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createHardwareConfig(const QString &name,
-    LinuxDeviceConfiguration::OsVersion osVersion, const QString &hostName,
+    const QString &osType, const QString &hostName,
     const QString &privateKeyFilePath, Id &nextId)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByKey;
     sshParams.host = hostName;
-    sshParams.userName = defaultUser(osVersion);
+    sshParams.userName = defaultUser(osType);
     sshParams.privateKeyFile = privateKeyFilePath;
-    return Ptr(new LinuxDeviceConfiguration(name, osVersion, Physical, sshParams, nextId));
+    return Ptr(new LinuxDeviceConfiguration(name, osType, Physical, sshParams, nextId));
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createGenericLinuxConfigUsingPassword(const QString &name,
@@ -223,7 +224,7 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createGenericLinuxConfig
     sshParams.host = hostName;
     sshParams.userName = userName;
     sshParams.password = password;
-    return Ptr(new LinuxDeviceConfiguration(name, LinuxDeviceConfiguration::GenericLinux, Physical,
+    return Ptr(new LinuxDeviceConfiguration(name, LinuxDeviceConfiguration::GenericLinuxOsType, Physical,
         sshParams, nextId));
 }
 
@@ -237,27 +238,27 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createGenericLinuxConfig
     sshParams.host = hostName;
     sshParams.userName = userName;
     sshParams.privateKeyFile = privateKeyFile;
-    return Ptr(new LinuxDeviceConfiguration(name, LinuxDeviceConfiguration::GenericLinux, Physical,
+    return Ptr(new LinuxDeviceConfiguration(name, LinuxDeviceConfiguration::GenericLinuxOsType, Physical,
         sshParams, nextId));
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createEmulatorConfig(const QString &name,
-    LinuxDeviceConfiguration::OsVersion osVersion, Id &nextId)
+    const QString &osType, Id &nextId)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
-    sshParams.host = defaultHost(Emulator, osVersion);
-    sshParams.userName = defaultUser(osVersion);
-    sshParams.password = defaultQemuPassword(osVersion);
-    return Ptr(new LinuxDeviceConfiguration(name, osVersion, Emulator, sshParams, nextId));
+    sshParams.host = defaultHost(Emulator, osType);
+    sshParams.userName = defaultUser(osType);
+    sshParams.password = defaultQemuPassword(osType);
+    return Ptr(new LinuxDeviceConfiguration(name, osType, Emulator, sshParams, nextId));
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name,
-    LinuxDeviceConfiguration::OsVersion osVersion, DeviceType devType,
+    const QString &osType, DeviceType devType,
     const Utils::SshConnectionParameters &sshParams, Id &nextId)
     : m_sshParameters(sshParams),
       m_name(name),
-      m_osVersion(osVersion),
+      m_osType(osType),
       m_type(devType),
       m_portsSpec(defaultPortsSpec(m_type)),
       m_isDefault(false),
@@ -271,17 +272,29 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings,
         Id &nextId)
     : m_sshParameters(Utils::SshConnectionParameters::NoProxy),
       m_name(settings.value(NameKey).toString()),
-      m_osVersion(static_cast<LinuxDeviceConfiguration::OsVersion>(settings.value(OsVersionKey, LinuxDeviceConfiguration::Maemo5).toInt())),
+      m_osType(settings.value(OsTypeKey).toString()),
       m_type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
-      m_portsSpec(settings.value(PortsSpecKey, defaultPortsSpec(m_type)).toString()),
       m_isDefault(settings.value(IsDefaultKey, false).toBool()),
       m_internalId(settings.value(InternalIdKey, nextId).toULongLong())
 {
     if (m_internalId == nextId)
         ++nextId;
-    m_sshParameters.host = settings.value(HostKey, defaultHost(m_type, m_osVersion)).toString();
+
+    // Convert from version < 2.3.
+    if (m_osType.isEmpty()) {
+        const int oldOsType = settings.value(OldOsVersionKey, -1).toInt();
+        switch (oldOsType) {
+        case 0: m_osType = Maemo5OsType; break;
+        case 1: m_osType = HarmattanOsType; break;
+        case 2: m_osType = MeeGoOsType; break;
+        default: m_osType = GenericLinuxOsType;
+        }
+    }
+
+    m_portsSpec = settings.value(PortsSpecKey, defaultPortsSpec(m_type)).toString();
+    m_sshParameters.host = settings.value(HostKey, defaultHost(m_type, m_osType)).toString();
     m_sshParameters.port = settings.value(SshPortKey, defaultSshPort(m_type)).toInt();
-    m_sshParameters.userName = settings.value(UserNameKey, defaultUser(m_osVersion)).toString();
+    m_sshParameters.userName = settings.value(UserNameKey, defaultUser(m_osType)).toString();
     m_sshParameters.authenticationType
         = static_cast<AuthType>(settings.value(AuthKey, DefaultAuthType).toInt());
     m_sshParameters.password = settings.value(PasswordKey).toString();
@@ -293,7 +306,7 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings,
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguration::ConstPtr &other)
     : m_sshParameters(other->m_sshParameters),
       m_name(other->m_name),
-      m_osVersion(other->m_osVersion),
+      m_osType(other->m_osType),
       m_type(other->type()),
       m_portsSpec(other->m_portsSpec),
       m_isDefault(other->m_isDefault),
@@ -318,19 +331,11 @@ QString LinuxDeviceConfiguration::defaultPortsSpec(DeviceType type) const
     return QLatin1String(type == Physical ? "10000-10100" : "13219,14168");
 }
 
-QString LinuxDeviceConfiguration::defaultHost(DeviceType type, LinuxDeviceConfiguration::OsVersion osVersion)
+QString LinuxDeviceConfiguration::defaultHost(DeviceType type, const QString &osType)
 {
-    switch (osVersion) {
-    case LinuxDeviceConfiguration::Maemo5:
-    case LinuxDeviceConfiguration::Maemo6:
-    case LinuxDeviceConfiguration::Meego:
+    if (osType == Maemo5OsType || osType == HarmattanOsType || osType == MeeGoOsType)
         return QLatin1String(type == Physical ? "192.168.2.15" : "localhost");
-    case LinuxDeviceConfiguration::GenericLinux:
-        return QString();
-    default:
-        qDebug("%s: Unknown OS version %d.", Q_FUNC_INFO, osVersion);
-        return QString();
-    }
+    return QString();
 }
 
 QString LinuxDeviceConfiguration::defaultPrivateKeyFilePath()
@@ -344,34 +349,20 @@ QString LinuxDeviceConfiguration::defaultPublicKeyFilePath()
     return defaultPrivateKeyFilePath() + QLatin1String(".pub");
 }
 
-QString LinuxDeviceConfiguration::defaultUser(LinuxDeviceConfiguration::OsVersion osVersion)
+QString LinuxDeviceConfiguration::defaultUser(const QString &osType)
 {
-    switch (osVersion) {
-    case LinuxDeviceConfiguration::Maemo5:
-    case LinuxDeviceConfiguration::Maemo6:
+    if (osType == Maemo5OsType || osType == HarmattanOsType)
         return QLatin1String("developer");
-    case LinuxDeviceConfiguration::Meego:
+    if (osType == MeeGoOsType)
         return QLatin1String("meego");
-    case LinuxDeviceConfiguration::GenericLinux:
         return QString();
-    default:
-        qDebug("%s: Unknown OS Version %d.", Q_FUNC_INFO, osVersion);
-        return QString();
-    }
 }
 
-QString LinuxDeviceConfiguration::defaultQemuPassword(LinuxDeviceConfiguration::OsVersion osVersion)
+QString LinuxDeviceConfiguration::defaultQemuPassword(const QString &osType)
 {
-    switch (osVersion) {
-    case LinuxDeviceConfiguration::Maemo5:
-    case LinuxDeviceConfiguration::Maemo6:
-        return QString();
-    case LinuxDeviceConfiguration::Meego:
+    if (osType == MeeGoOsType)
         return QLatin1String("meego");
-    default:
-        qDebug("%s: Unknown OS Version %d.", Q_FUNC_INFO, osVersion);
-        return QString();
-    }
+    return QString();
 }
 
 PortList LinuxDeviceConfiguration::freePorts() const
@@ -382,7 +373,7 @@ PortList LinuxDeviceConfiguration::freePorts() const
 void LinuxDeviceConfiguration::save(QSettings &settings) const
 {
     settings.setValue(NameKey, m_name);
-    settings.setValue(OsVersionKey, m_osVersion);
+    settings.setValue(OsTypeKey, m_osType);
     settings.setValue(TypeKey, m_type);
     settings.setValue(HostKey, m_sshParameters.host);
     settings.setValue(SshPortKey, m_sshParameters.port);
@@ -397,5 +388,8 @@ void LinuxDeviceConfiguration::save(QSettings &settings) const
 }
 
 const LinuxDeviceConfiguration::Id LinuxDeviceConfiguration::InvalidId = 0;
-
+const QString LinuxDeviceConfiguration::Maemo5OsType = QLatin1String("Maemo5OsType");
+const QString LinuxDeviceConfiguration::HarmattanOsType = QLatin1String("HarmattanOsType");
+const QString LinuxDeviceConfiguration::MeeGoOsType = QLatin1String("MeeGoOsType");
+const QString LinuxDeviceConfiguration::GenericLinuxOsType = QLatin1String("GenericLinuxOsType");
 } // namespace RemoteLinux

@@ -43,13 +43,13 @@ MaemoPerTargetDeviceConfigurationListModel::MaemoPerTargetDeviceConfigurationLis
     const Target *target) : QAbstractListModel(parent)
 {
     if (qobject_cast<const Qt4Maemo5Target *>(target))
-        m_targetOsVersion = LinuxDeviceConfiguration::Maemo5;
+        m_targetOsType = LinuxDeviceConfiguration::Maemo5OsType;
     else if (qobject_cast<const Qt4HarmattanTarget *>(target))
-        m_targetOsVersion = LinuxDeviceConfiguration::Maemo6;
+        m_targetOsType = LinuxDeviceConfiguration::HarmattanOsType;
     else if (qobject_cast<const Qt4MeegoTarget *>(target))
-        m_targetOsVersion = LinuxDeviceConfiguration::Meego;
+        m_targetOsType = LinuxDeviceConfiguration::MeeGoOsType;
     else
-        m_targetOsVersion = LinuxDeviceConfiguration::GenericLinux;
+        m_targetOsType = LinuxDeviceConfiguration::GenericLinuxOsType;
     const LinuxDeviceConfigurations * const devConfs
         = LinuxDeviceConfigurations::instance();
     connect(devConfs, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
@@ -68,10 +68,10 @@ int MaemoPerTargetDeviceConfigurationListModel::rowCount(const QModelIndex &pare
     const LinuxDeviceConfigurations * const devConfs
         = LinuxDeviceConfigurations::instance();
     const int devConfsCount = devConfs->rowCount();
-    if (m_targetOsVersion == LinuxDeviceConfiguration::GenericLinux)
+    if (m_targetOsType == LinuxDeviceConfiguration::GenericLinuxOsType)
         return devConfsCount;
     for (int i = 0; i < devConfsCount; ++i) {
-        if (devConfs->deviceAt(i)->osVersion() == m_targetOsVersion)
+        if (devConfs->deviceAt(i)->osType() == m_targetOsType)
             ++count;
     }
     return count;
@@ -85,7 +85,7 @@ QVariant MaemoPerTargetDeviceConfigurationListModel::data(const QModelIndex &ind
     const LinuxDeviceConfiguration::ConstPtr &devConf = deviceAt(index.row());
     Q_ASSERT(devConf);
     QString displayedName = devConf->name();
-    if (devConf->isDefault() && devConf->osVersion() == m_targetOsVersion)
+    if (devConf->isDefault() && devConf->osType() == m_targetOsType)
         displayedName += QLatin1Char(' ') + tr("(default)");
     return displayedName;
 }
@@ -95,11 +95,11 @@ LinuxDeviceConfiguration::ConstPtr MaemoPerTargetDeviceConfigurationListModel::d
     int currentRow = -1;
     const LinuxDeviceConfigurations * const devConfs
         = LinuxDeviceConfigurations::instance();
-    if (m_targetOsVersion == LinuxDeviceConfiguration::GenericLinux)
+    if (m_targetOsType == LinuxDeviceConfiguration::GenericLinuxOsType)
         return devConfs->deviceAt(idx);
     const int devConfsCount = devConfs->rowCount();
     for (int i = 0; i < devConfsCount; ++i) {
-        if (devConfs->deviceAt(i)->osVersion() == m_targetOsVersion) {
+        if (devConfs->deviceAt(i)->osType() == m_targetOsType) {
             if (++currentRow == idx)
                 return devConfs->deviceAt(i);
         }
@@ -110,15 +110,15 @@ LinuxDeviceConfiguration::ConstPtr MaemoPerTargetDeviceConfigurationListModel::d
 
 LinuxDeviceConfiguration::ConstPtr MaemoPerTargetDeviceConfigurationListModel::defaultDeviceConfig() const
 {
-    return LinuxDeviceConfigurations::instance()->defaultDeviceConfig(m_targetOsVersion);
+    return LinuxDeviceConfigurations::instance()->defaultDeviceConfig(m_targetOsType);
 }
 
 LinuxDeviceConfiguration::ConstPtr MaemoPerTargetDeviceConfigurationListModel::find(LinuxDeviceConfiguration::Id id) const
 {
     const LinuxDeviceConfiguration::ConstPtr &devConf
         = LinuxDeviceConfigurations::instance()->find(id);
-    return devConf && (devConf->osVersion() == m_targetOsVersion
-            || m_targetOsVersion == LinuxDeviceConfiguration::GenericLinux)
+    return devConf && (devConf->osType() == m_targetOsType
+            || m_targetOsType == LinuxDeviceConfiguration::GenericLinuxOsType)
         ? devConf : defaultDeviceConfig();
 }
 

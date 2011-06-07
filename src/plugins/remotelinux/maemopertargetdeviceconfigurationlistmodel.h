@@ -64,7 +64,7 @@ signals:
     void updated();
 
 private:
-    LinuxDeviceConfiguration::OsVersion m_targetOsVersion;
+    QString m_targetOsType;
 };
 
 } // namespace Internal

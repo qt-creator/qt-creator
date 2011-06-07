@@ -139,7 +139,7 @@ void MaemoRemoteCopyFacility::copyNextFile()
 #endif
 
     QString command = QString::fromLatin1("%1 mkdir -p %3 && %1 cp -r %2 %3")
-        .arg(MaemoGlobal::remoteSudo(m_devConf->osVersion(),
+        .arg(MaemoGlobal::remoteSudo(m_devConf->osType(),
             m_copyRunner->connection()->connectionParameters().userName),
             sourceFilePath, d.remoteDir);
     emit progress(tr("Copying file '%1' to directory '%2' on the device...")

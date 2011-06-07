@@ -137,7 +137,7 @@ void MaemoDeployConfigurationWidget::addIcon()
 
     MaemoDeployableListModel *const model
         = m_deployConfig->deployables()->modelAt(modelRow);
-    const int iconDim = MaemoGlobal::applicationIconSize(MaemoGlobal::version(model->qtVersion()->qmakeCommand()));
+    const int iconDim = MaemoGlobal::applicationIconSize(MaemoGlobal::osType(model->qtVersion()->qmakeCommand()));
     const QString origFilePath = QFileDialog::getOpenFileName(this,
         tr("Choose Icon (will be scaled to %1x%1 pixels, if necessary)").arg(iconDim),
         model->projectDir(), QLatin1String("(*.png)"));

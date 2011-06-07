@@ -82,7 +82,7 @@ bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *p
             QtSupport::BaseQtVersion *qt = qt4Bc->qtVersion();
             if (!qt)
                 continue;
-            if (MaemoGlobal::version(qt->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5)
+            if (MaemoGlobal::osType(qt->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5OsType)
                 return true;
         }
         break;
