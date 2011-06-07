@@ -133,7 +133,7 @@ QString QMakeStep::allArguments(bool shorted)
 
     arguments << "-r";
     bool userProvidedMkspec = false;
-    for (Utils::QtcProcess::ConstArgIterator ait(&m_userArgs); ait.next(); ) {
+    for (Utils::QtcProcess::ConstArgIterator ait(m_userArgs); ait.next(); ) {
         if (ait.value() == QLatin1String("-spec")) {
             if (ait.next()) {
                 userProvidedMkspec = true;
