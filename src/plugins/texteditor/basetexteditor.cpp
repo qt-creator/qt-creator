@@ -3633,9 +3633,7 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
     const int collapseColumnWidth = d->m_codeFoldingVisible ? foldBoxWidth(fm): 0;
     const int extraAreaWidth = d->m_extraArea->width() - collapseColumnWidth;
 
-    painter.fillRect(e->rect(), pal.color(QPalette::Base));
-    painter.fillRect(e->rect().intersected(QRect(0, 0, extraAreaWidth, INT_MAX)),
-                     pal.color(QPalette::Background));
+    painter.fillRect(e->rect(), pal.color(QPalette::Background));
 
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
