@@ -58,6 +58,7 @@ public:
     virtual ~TaskWindow();
 
     int taskCount() const;
+    int warningTaskCount() const;
     int errorTaskCount() const;
 
     // IOutputPane

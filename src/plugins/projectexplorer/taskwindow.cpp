@@ -109,6 +109,7 @@ public:
 
     int taskCount();
     int errorTaskCount();
+    int warningTaskCount();
 
     bool hasFile(const QModelIndex &index) const;
 
@@ -124,6 +125,7 @@ private:
     const QIcon m_warningIcon;
     int m_taskCount;
     int m_errorTaskCount;
+    int m_warningTaskCount;
     int m_sizeOfLineNumber;
     QString m_lineMeasurementFont;
 };
@@ -292,6 +294,7 @@ TaskModel::TaskModel() :
     m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png")),
     m_taskCount(0),
     m_errorTaskCount(0),
+    m_warningTaskCount(0),
     m_sizeOfLineNumber(0)
 {
 }
@@ -304,6 +307,11 @@ int TaskModel::taskCount()
 int TaskModel::errorTaskCount()
 {
     return m_errorTaskCount;
+}
+
+int TaskModel::warningTaskCount()
+{
+    return m_warningTaskCount;
 }
 
 bool TaskModel::hasFile(const QModelIndex &index) const
@@ -362,6 +370,8 @@ void TaskModel::addTask(const Task &task)
     ++m_taskCount;
     if (task.type == Task::Error)
         ++m_errorTaskCount;
+    if (task.type == Task::Warning)
+        ++m_warningTaskCount;
 }
 
 void TaskModel::removeTask(const Task &task)
@@ -373,6 +383,8 @@ void TaskModel::removeTask(const Task &task)
         --m_taskCount;
         if (task.type == Task::Error)
             --m_errorTaskCount;
+        if (task.type == Task::Warning)
+            --m_warningTaskCount;
         endRemoveRows();
     }
 }
@@ -387,12 +399,14 @@ void TaskModel::clearTasks(const QString &categoryId)
         m_tasksInCategory.clear();
         m_taskCount = 0;
         m_errorTaskCount = 0;
+        m_warningTaskCount = 0;
         endRemoveRows();
         m_maxSizeOfFileName = 0;
     } else {
         int index = 0;
         int start = 0;
         int subErrorTaskCount = 0;
+        int subWarningTaskCount = 0;
         while (index < m_tasks.size()) {
             while (index < m_tasks.size() && m_tasks.at(index).category != categoryId) {
                 ++start;
@@ -403,6 +417,8 @@ void TaskModel::clearTasks(const QString &categoryId)
             while (index < m_tasks.size() && m_tasks.at(index).category == categoryId) {
                 if (m_tasks.at(index).type == Task::Error)
                     ++subErrorTaskCount;
+                if (m_tasks.at(index).type == Task::Warning)
+                    ++subWarningTaskCount;
                 ++index;
             }
             // Index is now on the first non category
@@ -416,6 +432,7 @@ void TaskModel::clearTasks(const QString &categoryId)
 
             m_taskCount -= index - start;
             m_errorTaskCount -= subErrorTaskCount;
+            m_warningTaskCount -= subWarningTaskCount;
 
             endRemoveRows();
             index = start;
@@ -851,6 +868,11 @@ int TaskWindow::taskCount() const
 int TaskWindow::errorTaskCount() const
 {
     return d->m_model->errorTaskCount();
+}
+
+int TaskWindow::warningTaskCount() const
+{
+    return d->m_model->warningTaskCount();
 }
 
 int TaskWindow::priorityInStatusBar() const
