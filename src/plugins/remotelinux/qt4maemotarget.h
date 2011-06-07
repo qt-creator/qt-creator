@@ -255,7 +255,7 @@ public:
 
     virtual bool allowsRemoteMounts() const { return false; }
     virtual bool allowsPackagingDisabling() const { return false; }
-    virtual bool allowsQmlDebugging() const { return false; }
+    virtual bool allowsQmlDebugging() const { return true; }
 
     static QString defaultDisplayName();
 
