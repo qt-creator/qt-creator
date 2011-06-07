@@ -574,7 +574,7 @@ bool Qt4DefaultTargetSetupWidget::isTargetSelected() const
 void Qt4DefaultTargetSetupWidget::setTargetSelected(bool b)
 {
     // Only check target if there are build configurations possible
-    b == b && !buildConfigurationInfos().isEmpty();
+    b &= !buildConfigurationInfos().isEmpty();
     m_ignoreChange = true;
     m_detailsWidget->setChecked(b);
     m_detailsWidget->widget()->setEnabled(b);
