@@ -536,9 +536,13 @@ void DesignModeWidget::setAutoSynchronization(bool sync)
     if (debug)
         qDebug() << Q_FUNC_INFO << sync;
 
+    RewriterView *rewriter = m_currentDesignDocumentController->rewriterView();
+
     m_currentDesignDocumentController->blockModelSync(!sync);
 
     if (sync) {
+        if (rewriter && m_currentDesignDocumentController->model())
+            rewriter->setSelectedModelNodes(QList<ModelNode>());
         // text editor -> visual editor
         if (!m_currentDesignDocumentController->model()) {
             m_currentDesignDocumentController->loadMaster(m_currentTextEdit.data());
@@ -549,10 +553,9 @@ void DesignModeWidget::setAutoSynchronization(bool sync)
         QList<RewriterView::Error> errors = m_currentDesignDocumentController->qmlErrors();
         if (errors.isEmpty()) {
             // set selection to text cursor
-            RewriterView *rewriter = m_currentDesignDocumentController->rewriterView();
             const int cursorPos = m_currentTextEdit->textCursor().position();
             ModelNode node = nodeForPosition(cursorPos);
-            if (node.isValid()) {
+            if (rewriter && node.isValid()) {
                 rewriter->setSelectedModelNodes(QList<ModelNode>() << node);
             }
             enable();
