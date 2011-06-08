@@ -70,6 +70,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QDebug>
 #include <QtGui/QMessageBox>
+#include <QtGui/QErrorMessage>
 
 using namespace ProjectExplorer;
 using namespace Debugger::Internal;
@@ -249,19 +250,15 @@ void DebuggerRunControl::start()
     }
 
     foreach (const BreakpointId &id, debuggerCore()->breakHandler()->allBreakpointIds()) {
-        if (!d->m_engine->acceptsBreakpoint(id)) {
-            debuggerCore()->showMessage(DebuggerPlugin::tr("Some breakpoints cannot be handled by the current debugger, and will be ignored."), LogWarning);
+        if (d->m_engine->breakHandler()->breakpointData(id).enabled
+                && !d->m_engine->acceptsBreakpoint(id)) {
 
-            int result = QMessageBox::warning(debuggerCore()->mainWindow(),
-                                          DebuggerPlugin::tr("Warning"), DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger, and will be ignored. Do you want to continue?"),
-                                          QMessageBox::Yes | QMessageBox::No);
+            QString warningMessage =
+                    DebuggerPlugin::tr("Some breakpoints cannot be handled by the debugger "
+                                       "languages currently active, and will be ignored.");
 
-            if (result == QMessageBox::Cancel) {
-                emit started();
-                emit finished();
-                return;
-            }
-            break;
+            debuggerCore()->showMessage(warningMessage, LogWarning);
+            QErrorMessage::qtHandler()->showMessage(warningMessage);
         }
     }
 
