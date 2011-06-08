@@ -65,10 +65,9 @@ protected:
     virtual void initializePage(int id);
     virtual void cleanupPage(int id);
 
-private:
-
     virtual int nextId() const;
 
+private:
     int idOfNextGenericPage() const;
     Utils::WizardProgressItem *itemOfNextGenericPage() const;
 
