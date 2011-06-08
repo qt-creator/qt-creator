@@ -620,6 +620,10 @@ QList<ServerNodeInstance>  ObjectNodeInstance::stateInstances() const
     return QList<ServerNodeInstance>();
 }
 
+void ObjectNodeInstance::setNodeSource(const QString &source)
+{
+}
+
 void ObjectNodeInstance::setDeleteHeldInstance(bool deleteInstance)
 {
     m_deleteHeldInstance = deleteInstance;
@@ -737,8 +741,34 @@ void tweakObjects(QObject *object)
     }
 }
 
+QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, const QStringList &imports, QDeclarativeContext *context)
+{
+    QDeclarativeComponent *component = new QDeclarativeComponent(context->engine());
 
-static QObject *createComponent(const QString &componentPath, QDeclarativeContext *context)
+    QByteArray importArray;
+
+    foreach (const QString &import, imports) {
+        importArray.append(import.toUtf8());
+    }
+
+    QByteArray data(nodeSource.toUtf8());
+
+    data.prepend(importArray);
+
+    component->setData(data, context->baseUrl().resolved(QUrl("createComponent.qml")));
+
+    QObject *object = component;
+    tweakObjects(object);
+
+    if (object && context)
+        QDeclarativeEngine::setContextForObject(object, context);
+
+    QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
+
+    return object;
+}
+
+QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QDeclarativeContext *context)
 {    
     QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(componentPath));
     QObject *object = component.beginCreate(context);
@@ -751,10 +781,12 @@ static QObject *createComponent(const QString &componentPath, QDeclarativeContex
             qDebug() << error;
     }
 
+    QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
+
     return object;
 }
 
-static QObject *createCustomParserObject(const QString &customParserSource, QStringList imports, QDeclarativeContext *context)
+QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QStringList &imports, QDeclarativeContext *context)
 {
     QDeclarativeComponent component(context->engine());
 
@@ -763,7 +795,7 @@ static QObject *createCustomParserObject(const QString &customParserSource, QStr
         importArray.append(import.toUtf8());
     }
 
-    QByteArray data(customParserSource.toUtf8());
+    QByteArray data(nodeSource.toUtf8());
 
     data.prepend(importArray);
 
@@ -773,11 +805,12 @@ static QObject *createCustomParserObject(const QString &customParserSource, QStr
     tweakObjects(object);
     component.completeCreate();
 
-    return object;
+    QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
 
+    return object;
 }
 
-static QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QDeclarativeContext *context)
+QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QDeclarativeContext *context)
 {
     QObject *object = 0;
     QDeclarativeType *type = QDeclarativeMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
@@ -797,20 +830,6 @@ static QObject *createPrimitive(const QString &typeName, int majorNumber, int mi
 
     if (object && context)
         QDeclarativeEngine::setContextForObject(object, context);
-
-    return object;
-}
-
-QObject* ObjectNodeInstance::createObject(const QString &typeName, int majorNumber, int minorNumber, const QString &componentPath, const QString &customParserSource, NodeInstanceServer* nodeInstanceServer, QDeclarativeContext *context)
-{
-    QObject *object = 0;
-    if (componentPath.isEmpty() && customParserSource.isEmpty()) {
-        object = createPrimitive(typeName, majorNumber, minorNumber, context);
-    } else if (componentPath.isEmpty()) {
-        object = createCustomParserObject(customParserSource, nodeInstanceServer->imports(), context);
-    } else {
-        object = createComponent(componentPath, context);
-    }
 
     QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
 

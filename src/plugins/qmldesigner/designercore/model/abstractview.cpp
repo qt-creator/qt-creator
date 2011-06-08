@@ -81,9 +81,11 @@ ModelNode AbstractView::createModelNode(const QString &typeString,
                             int majorVersion,
                             int minorVersion,
                             const QList<QPair<QString, QVariant> > &propertyList,
-                            const QString &customParserSource)
+                            const QList<QPair<QString, QVariant> > &auxPropertyList,
+                            const QString &nodeSource,
+                            ModelNode::NodeSourceType nodeSourceType)
 {
-    return ModelNode(model()->m_d->createNode(typeString, majorVersion, minorVersion, propertyList, customParserSource), model(), this);
+    return ModelNode(model()->m_d->createNode(typeString, majorVersion, minorVersion, propertyList, auxPropertyList, nodeSource, nodeSourceType), model(), this);
 }
 
 

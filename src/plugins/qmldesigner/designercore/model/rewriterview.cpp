@@ -407,7 +407,7 @@ void RewriterView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList
 
 }
 
-void RewriterView::customParserSourceChanged(const ModelNode &, const QString & /*newCustomParserSource*/)
+void RewriterView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
 {
 
 }
@@ -711,6 +711,12 @@ void RewriterView::qmlTextChanged()
             }
         }
     }
+}
+
+void RewriterView::delayedSetup()
+{
+    if (m_textToModelMerger)
+        m_textToModelMerger->delayedSetup();
 }
 
 } //QmlDesigner

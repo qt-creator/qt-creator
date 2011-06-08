@@ -256,9 +256,9 @@ void ViewLogger::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
         m_output << time() << indent("node: ") << node << endl;
 }
 
-void ViewLogger::customParserSourceChanged(const ModelNode &node, const QString & /*newCustomParserSource*/)
+void ViewLogger::nodeSourceChanged(const ModelNode &node, const QString & /*newNodeSource*/)
 {
-    m_output << time() << indent("customParserSourceChanged:") << endl;
+    m_output << time() << indent("nodeSourceChanged:") << endl;
     m_output << time() << indent("node: ") << node << endl;
 }
 

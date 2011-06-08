@@ -52,6 +52,7 @@ class ClearSceneCommand;
 class ReparentInstancesCommand;
 class ChangeFileUrlCommand;
 class ChangeValuesCommand;
+class ChangeAuxiliaryCommand;
 class ChangeBindingsCommand;
 class ChangeIdsCommand;
 class RemoveInstancesCommand;
@@ -59,7 +60,7 @@ class RemovePropertiesCommand;
 class AddImportCommand;
 class CompleteComponentCommand;
 class ChangeStateCommand;
-class ChangeCustomParserSourceCommand;
+class ChangeNodeSourceCommand;
 
 class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterface
 {
@@ -92,12 +93,13 @@ protected:
     void removeProperties(const RemovePropertiesCommand &command);
     void changePropertyBindings(const ChangeBindingsCommand &command);
     void changePropertyValues(const ChangeValuesCommand &command);
+    void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command);
     void reparentInstances(const ReparentInstancesCommand &command);
     void changeIds(const ChangeIdsCommand &command);
     void changeState(const ChangeStateCommand &command);
     void addImport(const AddImportCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
-    void changeCustomParserSource(const ChangeCustomParserSourceCommand &command);
+    void changeNodeSource(const ChangeNodeSourceCommand &command);
 
 private slots:
     void readDataStream();

@@ -81,6 +81,7 @@ public:
     void changeFileUrl(const ChangeFileUrlCommand &command);
     void changePropertyValues(const ChangeValuesCommand &command);
     void changePropertyBindings(const ChangeBindingsCommand &command);
+    void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command);
     void changeIds(const ChangeIdsCommand &command);
     void createScene(const CreateSceneCommand &command);
     void clearScene(const ClearSceneCommand &command);
@@ -90,7 +91,7 @@ public:
     void changeState(const ChangeStateCommand &command);
     void addImport(const AddImportCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
-    void changeCustomParserSource(const ChangeCustomParserSourceCommand &command);
+    void changeNodeSource(const ChangeNodeSourceCommand &command);
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;
@@ -136,6 +137,7 @@ protected:
     void resetInstanceProperty(const PropertyAbstractContainer &propertyContainer);
     void setInstancePropertyBinding(const PropertyBindingContainer &bindingContainer);
     void setInstancePropertyVariant(const PropertyValueContainer &valueContainer);
+    void setInstanceAuxiliaryData(const PropertyValueContainer &auxiliaryContainer);
     void removeProperties(const QList<PropertyAbstractContainer> &propertyList);
 
     void insertInstanceRelationship(const ServerNodeInstance &instance);

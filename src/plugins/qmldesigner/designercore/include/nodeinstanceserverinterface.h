@@ -44,6 +44,7 @@ class PropertyValueContainer;
 class ChangeFileUrlCommand;
 class ChangeValuesCommand;
 class ChangeBindingsCommand;
+class ChangeAuxiliaryCommand;
 class CreateSceneCommand;
 class CreateInstancesCommand;
 class ClearSceneCommand;
@@ -54,7 +55,7 @@ class RemovePropertiesCommand;
 class ChangeStateCommand;
 class AddImportCommand;
 class CompleteComponentCommand;
-class ChangeCustomParserSourceCommand;
+class ChangeNodeSourceCommand;
 
 class NodeInstanceServerInterface : public QObject
 {
@@ -75,12 +76,13 @@ public:
     virtual void removeProperties(const RemovePropertiesCommand &command) = 0;
     virtual void changePropertyBindings(const ChangeBindingsCommand &command) = 0;
     virtual void changePropertyValues(const ChangeValuesCommand &command) = 0;
+    virtual void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command) = 0;
     virtual void reparentInstances(const ReparentInstancesCommand &command) = 0;
     virtual void changeIds(const ChangeIdsCommand &command) = 0;
     virtual void changeState(const ChangeStateCommand &command) = 0;
     virtual void addImport(const AddImportCommand &command) = 0;
     virtual void completeComponent(const CompleteComponentCommand &command) = 0;
-    virtual void changeCustomParserSource(const ChangeCustomParserSourceCommand &command) = 0;
+    virtual void changeNodeSource(const ChangeNodeSourceCommand &command) = 0;
 
     static void registerCommands();
 };

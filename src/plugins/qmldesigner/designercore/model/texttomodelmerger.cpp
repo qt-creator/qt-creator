@@ -294,6 +294,30 @@ static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &pro
             isComponentType(property.parentModelNode().metaInfo().propertyTypeName(property.name()));
 }
 
+static inline QString extractComponentFromQml(const QString &source)
+{
+    if (source.isEmpty())
+        return QString();
+
+    QString result;
+    if (source.contains("Component")) { //explicit component
+        QmlDesigner::FirstDefinitionFinder firstDefinitionFinder(source);
+        int offset = firstDefinitionFinder(0);
+        if (offset < 0) {
+            return QString(); //No object definition found
+        }
+        QmlDesigner::ObjectLengthCalculator objectLengthCalculator;
+        unsigned length;
+        if (objectLengthCalculator(source, offset, length)) {
+            result = source.mid(offset, length);
+        } else {
+            result = source;
+        }
+    } else {
+        result = source; //implicit component
+    }
+    return result;
+}
 
 } // anonymous namespace
 
@@ -625,11 +649,13 @@ static inline bool equals(const QVariant &a, const QVariant &b)
         return a == b;
 }
 
-TextToModelMerger::TextToModelMerger(RewriterView *reWriterView):
+TextToModelMerger::TextToModelMerger(RewriterView *reWriterView) :
         m_rewriterView(reWriterView),
         m_isActive(false)
 {
     Q_ASSERT(reWriterView);
+    m_setupTimer.setSingleShot(true);
+    RewriterView::connect(&m_setupTimer, SIGNAL(timeout()), reWriterView, SLOT(delayedSetup()));
 }
 
 void TextToModelMerger::setActive(bool active)
@@ -793,27 +819,26 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         return;
     }
 
-    const QString typeNameFixedForImplicitComponents = modelNode.parentProperty().isValid() &&
-                                                       propertyIsComponentType(modelNode.parentProperty(), typeName) ?
-                                                       QLatin1String("QtQuick.Component") : typeName;
+    bool isImplicitComponent = modelNode.parentProperty().isValid() && propertyIsComponentType(modelNode.parentProperty(), typeName);
 
-    if ((modelNode.parentProperty().isValid() || modelNode.isRootNode()) && modelNode.type() != typeNameFixedForImplicitComponents //If there is no valid parentProperty
+
+    if (modelNode.type() != typeName //If there is no valid parentProperty
                                                                                                        //the node has just been created. The type is correct then.
             /*|| modelNode.majorVersion() != domObject.objectTypeMajorVersion()
             || modelNode.minorVersion() != domObject.objectTypeMinorVersion()*/) {
         const bool isRootNode = m_rewriterView->rootModelNode() == modelNode;
-        differenceHandler.typeDiffers(isRootNode, modelNode, typeNameFixedForImplicitComponents,
+        differenceHandler.typeDiffers(isRootNode, modelNode, typeName,
                                       majorVersion, minorVersion,
                                       astNode, context);
         if (!isRootNode)
             return; // the difference handler will create a new node, so we're done.
     }
 
-    if (isComponentType(typeNameFixedForImplicitComponents))
-        setupComponent(modelNode);
+    if (isComponentType(typeName) || isImplicitComponent)
+        setupComponentDelayed(modelNode, !differenceHandler.isValidator());
 
     if (isCustomParserType(typeName))
-        setupCustomParserNode(modelNode);
+        setupCustomParserNodeDelayed(modelNode, !differenceHandler.isValidator());
 
     context->enterScope(astNode);
 
@@ -906,12 +931,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     }
 
     if (!defaultPropertyItems.isEmpty()) {
+        if (isComponentType(modelNode.type()))
+            setupComponentDelayed(modelNode, !differenceHandler.isValidator());
         if (defaultPropertyName.isEmpty()) {
-            if (!isComponentType(modelNode.type())) {
-                qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
-            } else {
-                setupComponent(modelNode);
-            }
+            qWarning() << "No default property for node type" << modelNode.type() << ", ignoring child items.";
         } else {
             AbstractProperty modelProperty = modelNode.property(defaultPropertyName);
             if (modelProperty.isNodeListProperty()) {
@@ -1136,22 +1159,43 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
 ModelNode TextToModelMerger::createModelNode(const QString &typeName,
                                              int majorVersion,
                                              int minorVersion,
+                                             bool isImplicitComponent,
                                              UiObjectMember *astNode,
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
-    QString customParserSource;
+    QString nodeSource;
 
     if (isCustomParserType(typeName))
-        customParserSource = textAt(context->doc(),
+        nodeSource = textAt(context->doc(),
                                     astNode->firstSourceLocation(),
                                     astNode->lastSourceLocation());
+
+
+    if (isComponentType(typeName) || isImplicitComponent) {
+        QString componentSource = extractComponentFromQml(textAt(context->doc(),
+                                  astNode->firstSourceLocation(),
+                                  astNode->lastSourceLocation()));
+
+
+        nodeSource = componentSource;
+    }
+
+    ModelNode::NodeSourceType nodeSourceType = ModelNode::NoSource;
+
+    if (isComponentType(typeName) || isImplicitComponent)
+        nodeSourceType = ModelNode::ComponentSource;
+    else if (isCustomParserType(typeName))
+        nodeSourceType = ModelNode::CustomParserSource;
 
     ModelNode newNode = m_rewriterView->createModelNode(typeName,
                                                         majorVersion,
                                                         minorVersion,
                                                         PropertyListType(),
-                                                        customParserSource);
+                                                        PropertyListType(),
+                                                        nodeSource,
+                                                        nodeSourceType);
+
     syncNode(newNode, astNode, context, differenceHandler);
     return newNode;
 }
@@ -1390,9 +1434,10 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
 
     const bool propertyTakesComponent = propertyIsComponentType(newNodeProperty, typeName);
 
-    const ModelNode &newNode = m_merger->createModelNode(propertyTakesComponent ? QLatin1String("QtQuick.Component") : typeName,
+    const ModelNode &newNode = m_merger->createModelNode(typeName,
                                                           majorVersion,
                                                           minorVersion,
+                                                          propertyTakesComponent,
                                                           astNode,
                                                           context,
                                                           *this);
@@ -1400,7 +1445,7 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
     newNodeProperty.setModelNode(newNode);
 
     if (propertyTakesComponent)
-        m_merger->setupComponent(newNode);
+        m_merger->setupComponentDelayed(newNode, true);
 
 }
 
@@ -1439,16 +1484,17 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
     const bool propertyTakesComponent = propertyIsComponentType(modelProperty, typeName);
 
 
-    const ModelNode &newNode = m_merger->createModelNode(propertyTakesComponent ? QLatin1String("QtQuick.Component") : typeName,
+    const ModelNode &newNode = m_merger->createModelNode(typeName,
                                                          majorVersion,
                                                          minorVersion,
+                                                         propertyTakesComponent,
                                                          arrayMember,
                                                          context,
                                                          *this);
 
 
     if (propertyTakesComponent)
-        m_merger->setupComponent(newNode);
+        m_merger->setupComponentDelayed(newNode, true);
 
     if (modelProperty.isDefaultProperty() || isComponentType(modelProperty.parentModelNode().type())) { //In the default property case we do some magic
         if (modelProperty.isNodeListProperty()) {
@@ -1471,6 +1517,8 @@ void ModelAmender::typeDiffers(bool isRootNode,
                                QmlJS::AST::UiObjectMember *astNode,
                                ReadingContext *context)
 {
+    const bool propertyTakesComponent = propertyIsComponentType(modelNode.parentProperty(), typeName);
+
     if (isRootNode) {
         modelNode.view()->changeRootNodeType(typeName, majorVersion, minorVersion);
     } else {
@@ -1486,6 +1534,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
         const ModelNode &newNode = m_merger->createModelNode(typeName,
                                                              majorVersion,
                                                              minorVersion,
+                                                             propertyTakesComponent,
                                                              astNode,
                                                              context,
                                                              *this);
@@ -1510,50 +1559,70 @@ void ModelAmender::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 
 void TextToModelMerger::setupComponent(const ModelNode &node)
 {
-    Q_ASSERT(isComponentType(node.type()));
+    if (!node.isValid())
+        return;
 
     QString componentText = m_rewriterView->extractText(QList<ModelNode>() << node).value(node);
 
     if (componentText.isEmpty())
         return;
 
-    QString result;
-    if (componentText.contains("Component")) { //explicit component
-        FirstDefinitionFinder firstDefinitionFinder(componentText);
-        int offset = firstDefinitionFinder(0);
-        if (offset < 0) {
-            node.setAuxiliaryData("__component_data", QLatin1String(""));
-            return; //No object definition found
-        }
-        ObjectLengthCalculator objectLengthCalculator;
-        unsigned length;
-        if (objectLengthCalculator(componentText, offset, length)) {
-            result = componentText.mid(offset, length);
-        } else {
-            result = componentText;
-        }
-    } else {
-        result = componentText; //implicit component
+    QString result = extractComponentFromQml(componentText);
+
+    if (result.isEmpty()) {
+        return; //No object definition found
     }
 
-    if (node.hasAuxiliaryData("__component_data")
-            && node.auxiliaryData("__component_data").toString() == result)
-        return;
+    if (node.nodeSource() != result)
+        ModelNode(node).setNodeSource(result);
+}
 
-    node.setAuxiliaryData("__component_data", result);
+void TextToModelMerger::setupComponentDelayed(const ModelNode &node, bool synchron)
+{
+    if (synchron) {
+        setupComponent(node);
+    } else {
+        m_setupComponentList.insert(node);
+        m_setupTimer.start();
+    }
 }
 
 void TextToModelMerger::setupCustomParserNode(const ModelNode &node)
 {
-    Q_ASSERT(isCustomParserType(node.type()));
+    if (!node.isValid())
+        return;
 
     QString modelText = m_rewriterView->extractText(QList<ModelNode>() << node).value(node);
 
     if (modelText.isEmpty())
         return;
 
-    if (node.customParserSource() != modelText)
-        ModelNode(node).setCustomParserSource(modelText);
+    if (node.nodeSource() != modelText)
+        ModelNode(node).setNodeSource(modelText);
+
+}
+
+void TextToModelMerger::setupCustomParserNodeDelayed(const ModelNode &node, bool synchron)
+{
+    Q_ASSERT(isCustomParserType(node.type()));
+
+    if (synchron) {
+        setupCustomParserNode(node);
+    } else {
+        m_setupCustomParserList.insert(node);
+        m_setupTimer.start();
+    }
+}
+
+void TextToModelMerger::delayedSetup()
+{
+    foreach (const ModelNode node, m_setupComponentList)
+        setupComponent(node);
+
+    foreach (const ModelNode node, m_setupCustomParserList)
+        setupCustomParserNode(node);
+        m_setupCustomParserList.clear();
+        m_setupComponentList.clear();
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,

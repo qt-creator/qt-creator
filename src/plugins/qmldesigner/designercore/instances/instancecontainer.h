@@ -48,23 +48,31 @@ class InstanceContainer
     friend QDataStream &operator>>(QDataStream &in, InstanceContainer &container);
 
 public:
+    enum NodeSourceType {
+        NoSource = 0,
+        CustomParserSource = 1,
+        ComponentSource = 2
+    };
+
     InstanceContainer();
-    InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &customParserSource);
+    InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType);
 
     qint32 instanceId() const;
     QString type() const;
     int majorNumber() const;
     int minorNumber() const;
     QString componentPath() const;
-    QString customParserSource() const;
+    QString nodeSource() const;
+    NodeSourceType nodeSourceType() const;
 
 private:
     qint32 m_instanceId;
     QString m_type;
-    int m_majorNumber;
-    int m_minorNumber;
+    qint32 m_majorNumber;
+    qint32 m_minorNumber;
     QString m_componentPath;
-    QString m_customParserSource;
+    QString m_nodeSource;
+    qint32 m_nodeSourceType;
 };
 
 } // namespace QmlDesigner

@@ -49,6 +49,7 @@
 #include "createscenecommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
+#include "changeauxiliarycommand.h"
 #include "changefileurlcommand.h"
 #include "removeinstancescommand.h"
 #include "clearscenecommand.h"
@@ -67,7 +68,7 @@
 #include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
 #include "componentcompletedcommand.h"
-#include "changecustomparsersourcecommand.h"
+#include "changenodesourcecommand.h"
 
 namespace QmlDesigner {
 
@@ -239,6 +240,11 @@ void NodeInstanceClientProxy::changePropertyValues(const ChangeValuesCommand &co
     nodeInstanceServer()->changePropertyValues(command);
 }
 
+void NodeInstanceClientProxy::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
+{
+    nodeInstanceServer()->changeAuxiliaryValues(command);
+}
+
 void NodeInstanceClientProxy::reparentInstances(const ReparentInstancesCommand &command)
 {
     nodeInstanceServer()->reparentInstances(command);
@@ -264,9 +270,9 @@ void NodeInstanceClientProxy::completeComponent(const CompleteComponentCommand &
     nodeInstanceServer()->completeComponent(command);
 }
 
-void NodeInstanceClientProxy::changeCustomParserSource(const ChangeCustomParserSourceCommand &command)
+void NodeInstanceClientProxy::changeNodeSource(const ChangeNodeSourceCommand &command)
 {
-    nodeInstanceServer()->changeCustomParserSource(command);
+    nodeInstanceServer()->changeNodeSource(command);
 }
 
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
@@ -279,13 +285,14 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int removePropertiesCommandType = QMetaType::type("RemovePropertiesCommand");
     static const int changeBindingsCommandType = QMetaType::type("ChangeBindingsCommand");
     static const int changeValuesCommandType = QMetaType::type("ChangeValuesCommand");
+    static const int changeAuxiliaryCommandType = QMetaType::type("ChangeAuxiliaryCommand");
     static const int reparentInstancesCommandType = QMetaType::type("ReparentInstancesCommand");
     static const int changeIdsCommandType = QMetaType::type("ChangeIdsCommand");
     static const int changeStateCommandType = QMetaType::type("ChangeStateCommand");
     static const int addImportCommandType = QMetaType::type("AddImportCommand");
     static const int completeComponentCommandType = QMetaType::type("CompleteComponentCommand");
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
-    static const int changeCustomParserSourceCommandType = QMetaType::type("ChangeCustomParserSourceCommand");
+    static const int changeNodeSourceCommandType = QMetaType::type("ChangeNodeSourceCommand");
 
     if (command.userType() ==  createInstancesCommandType) {
         createInstances(command.value<CreateInstancesCommand>());
@@ -303,6 +310,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         changePropertyBindings(command.value<ChangeBindingsCommand>());
     else if (command.userType() ==  changeValuesCommandType)
         changePropertyValues(command.value<ChangeValuesCommand>());
+    else if (command.userType() ==  changeAuxiliaryCommandType)
+        changeAuxiliaryValues(command.value<ChangeAuxiliaryCommand>());
     else if (command.userType() ==  reparentInstancesCommandType)
         reparentInstances(command.value<ReparentInstancesCommand>());
     else if (command.userType() ==  changeIdsCommandType)
@@ -313,8 +322,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         addImport(command.value<AddImportCommand>());
     else if (command.userType() ==  completeComponentCommandType)
         completeComponent(command.value<CompleteComponentCommand>());
-    else if (command.userType() ==  changeCustomParserSourceCommandType)
-        changeCustomParserSource(command.value<ChangeCustomParserSourceCommand>());
+    else if (command.userType() ==  changeNodeSourceCommandType)
+        changeNodeSource(command.value<ChangeNodeSourceCommand>());
     else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();

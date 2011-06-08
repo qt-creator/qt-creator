@@ -43,6 +43,7 @@
 #include <qmljs/qmljslookupcontext.h>
 
 #include <QtCore/QStringList>
+#include <QtCore/QTimer>
 
 namespace QmlDesigner {
 
@@ -112,6 +113,7 @@ public:
     ModelNode createModelNode(const QString &typeName,
                               int majorVersion,
                               int minorVersion,
+                              bool isImplicitComponent,
                               QmlJS::AST::UiObjectMember *astNode,
                               ReadingContext *context,
                               DifferenceHandler &differenceHandler);
@@ -121,10 +123,15 @@ public:
                                       ReadingContext *context,
                                       DifferenceHandler &differenceHandler);
 
-    void setupComponent(const ModelNode &node);
-    void setupCustomParserNode(const ModelNode &node);
+    void setupComponentDelayed(const ModelNode &node, bool synchron);
+    void setupCustomParserNodeDelayed(const ModelNode &node, bool synchron);
+
+    void delayedSetup();
 
 private:
+    void setupCustomParserNode(const ModelNode &node);
+    void setupComponent(const ModelNode &node);
+
     static QString textAt(const QmlJS::Document::Ptr &doc,
                           const QmlJS::AST::SourceLocation &location);
     static QString textAt(const QmlJS::Document::Ptr &doc,
@@ -136,6 +143,9 @@ private:
     bool m_isActive;
     QmlJS::LookupContext::Ptr m_lookupContext;
     QmlJS::Document::Ptr m_document;
+    QTimer m_setupTimer;
+    QSet<ModelNode> m_setupComponentList;
+    QSet<ModelNode> m_setupCustomParserList;
 };
 
 class DifferenceHandler
@@ -179,6 +189,7 @@ public:
                              ReadingContext *context) = 0;
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty) = 0;
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId) = 0;
+    virtual bool isValidator() const = 0;
 
 protected:
     TextToModelMerger *m_merger;
@@ -225,6 +236,7 @@ public:
                              ReadingContext *context);
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);
+    virtual bool isValidator() const {return false; }
 };
 
 class ModelAmender: public DifferenceHandler
@@ -268,6 +280,7 @@ public:
                              ReadingContext *context);
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);
+    virtual bool isValidator() const {return true; }
 };
 
 } //Internal

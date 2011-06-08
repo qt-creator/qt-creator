@@ -302,7 +302,9 @@ public:
 
     QString defaultPropertyName() const
     {
-        return m_defaultPropertyName;
+        if (!m_defaultPropertyName.isEmpty())
+            return m_defaultPropertyName;
+        return QLatin1String("data");
     }
 
     QString propertyType(const QString &propertyName) const;

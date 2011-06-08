@@ -147,6 +147,11 @@ bool ServerNodeInstance::isSubclassOf(QObject *object, const QByteArray &superTy
     return false;
 }
 
+void ServerNodeInstance::setNodeSource(const QString &source)
+{
+    m_nodeInstance->setNodeSource(source);
+}
+
 bool ServerNodeInstance::isSubclassOf(const QString &superTypeName) const
 {
     return isSubclassOf(internalObject(), superTypeName.toUtf8());
@@ -189,16 +194,21 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
     return instance;
 }
 
-ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceServer, const InstanceContainer &instanceContainer)
+ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceServer, const InstanceContainer &instanceContainer, ComponentWrap componentWrap)
 {
     Q_ASSERT(instanceContainer.instanceId() != -1);
     Q_ASSERT(nodeInstanceServer);
 
-    QDeclarativeContext *context = nodeInstanceServer->context();
-
-    QObject *object = Internal::ObjectNodeInstance::createObject(instanceContainer.type(), instanceContainer.majorNumber(),
-                                                                 instanceContainer.minorNumber(), instanceContainer.componentPath(),
-                                                                 instanceContainer.customParserSource(), nodeInstanceServer, context);
+    QObject *object = 0;
+    if (componentWrap == WrapAsComponent) {
+        object = Internal::ObjectNodeInstance::createComponentWrap(instanceContainer.nodeSource(), nodeInstanceServer->imports(), nodeInstanceServer->context());
+    } else if (!instanceContainer.nodeSource().isEmpty()) {
+        object = Internal::ObjectNodeInstance::createCustomParserObject(instanceContainer.nodeSource(), nodeInstanceServer->imports(), nodeInstanceServer->context());
+    } else if (!instanceContainer.componentPath().isEmpty()) {
+        object = Internal::ObjectNodeInstance::createComponent(instanceContainer.componentPath(), nodeInstanceServer->context());
+    } else {
+        object = Internal::ObjectNodeInstance::createPrimitive(instanceContainer.type(), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
+    }
 
     ServerNodeInstance instance(createInstance(object));
 
@@ -212,7 +222,6 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
 
     return instance;
 }
-
 
 void ServerNodeInstance::reparent(const ServerNodeInstance &oldParentInstance, const QString &oldParentProperty, const ServerNodeInstance &newParentInstance, const QString &newParentProperty)
 {

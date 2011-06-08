@@ -92,6 +92,7 @@ public:
     QVariant auxiliaryData(const QString &name) const;
     void setAuxiliaryData(const QString &name, const QVariant &data);
     bool hasAuxiliaryData(const QString &name) const;
+    QHash<QString, QVariant> auxiliaryData() const;
 
     InternalProperty::Pointer property(const QString &name) const;
     InternalBindingProperty::Pointer bindingProperty(const QString &name) const;
@@ -121,8 +122,11 @@ public:
 
     qint32 internalId() const;
 
-    void setCustomParserSource(const QString&);
-    QString customParserSource() const;
+    void setNodeSource(const QString&);
+    QString nodeSource() const;
+
+    int nodeSourceType() const;
+    void setNodeSourceType(int i);
 
 protected:
     Pointer internalPointer() const;
@@ -148,7 +152,8 @@ private:
     QHash<QString, InternalPropertyPointer> m_namePropertyHash;
     QStringList m_scriptFunctionList;
 
-    QString m_customParserSource;
+    QString m_nodeSource;
+    int m_nodeSourceType;
 };
 
 uint qHash(const InternalNodePointer& node);

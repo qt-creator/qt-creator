@@ -30,43 +30,32 @@
 **
 **************************************************************************/
 
-#include "changecustomparsersourcecommand.h"
+#ifndef CHANGENODESOURCECOMMAND_H
+#define CHANGENODESOURCECOMMAND_H
+
+#include <QMetaType>
 
 namespace QmlDesigner {
 
-ChangeCustomParserSourceCommand::ChangeCustomParserSourceCommand()
+class ChangeNodeSourceCommand
 {
-}
+    friend QDataStream &operator>>(QDataStream &in, ChangeNodeSourceCommand &command);
+public:
+    ChangeNodeSourceCommand();
+    ChangeNodeSourceCommand(qint32 instanceId, const QString &nodeSource);
+    qint32 instanceId() const;
+    QString nodeSource() const;
 
-ChangeCustomParserSourceCommand::ChangeCustomParserSourceCommand(qint32 newInstanceId, const QString &newCustomParserSource)
-    : m_instanceId(newInstanceId), m_customParserSource(newCustomParserSource)
-{
-}
+private:
+    qint32 m_instanceId;
+    QString m_nodeSource;
+};
 
-qint32 ChangeCustomParserSourceCommand::instanceId() const
-{
-    return m_instanceId;
-}
-
-QString ChangeCustomParserSourceCommand::customParserSource() const
-{
-    return m_customParserSource;
-}
-
-QDataStream &operator<<(QDataStream &out, const ChangeCustomParserSourceCommand &command)
-{
-    out << command.instanceId();
-    out << command.customParserSource();
-
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, ChangeCustomParserSourceCommand &command)
-{
-    in >> command.m_instanceId;
-    in >> command.m_customParserSource;
-
-    return in;
-}
+QDataStream &operator<<(QDataStream &out, const ChangeNodeSourceCommand &command);
+QDataStream &operator>>(QDataStream &in, ChangeNodeSourceCommand &command);
 
 } // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::ChangeNodeSourceCommand)
+
+#endif // CHANGENODESOURCECOMMAND_H

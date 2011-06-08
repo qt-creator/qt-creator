@@ -50,9 +50,9 @@ public:
     ComponentNodeInstance(QDeclarativeComponent *component);
     static Pointer create(QObject *objectToBeWrapped);
 
-    void setPropertyVariant(const QString &name, const QVariant &value);
-
     bool hasContent() const;
+
+    void setNodeSource(const QString &source);
 
 private: //function
     QDeclarativeComponent *component() const;

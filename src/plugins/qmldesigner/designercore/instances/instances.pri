@@ -3,6 +3,7 @@ INCLUDEPATH += $$PWD/../include
 
 
 HEADERS += $$PWD/behaviornodeinstance.h
+HEADERS += $$PWD/changeauxiliarycommand.h
 HEADERS += $$PWD/informationnodeinstanceserver.h
 HEADERS += $$PWD/dummycontextobject.h
 HEADERS += $$PWD/rendernodeinstanceserver.h
@@ -18,7 +19,7 @@ HEADERS += $$PWD/addimportcommand.h
 HEADERS += $$PWD/changebindingscommand.h
 HEADERS += $$PWD/changefileurlcommand.h
 HEADERS += $$PWD/changeidscommand.h
-HEADERS += $$PWD/changecustomparsersourcecommand.h
+HEADERS += $$PWD/changenodesourcecommand.h
 HEADERS += $$PWD/changestatecommand.h
 HEADERS += $$PWD/changevaluescommand.h
 HEADERS += $$PWD/childrenchangeeventfilter.h
@@ -54,6 +55,7 @@ HEADERS += $$PWD/../include/nodeinstanceserverinterface.h
 
 
 SOURCES +=  $$PWD/behaviornodeinstance.cpp
+SOURCES +=  $$PWD/changeauxiliarycommand.cpp
 SOURCES +=  $$PWD/informationnodeinstanceserver.cpp
 SOURCES +=  $$PWD/dummycontextobject.cpp
 SOURCES +=  $$PWD/rendernodeinstanceserver.cpp
@@ -69,7 +71,7 @@ SOURCES +=  $$PWD/addimportcommand.cpp
 SOURCES +=  $$PWD/changebindingscommand.cpp
 SOURCES +=  $$PWD/changefileurlcommand.cpp
 SOURCES +=  $$PWD/changeidscommand.cpp
-SOURCES +=  $$PWD/changecustomparsersourcecommand.cpp
+SOURCES +=  $$PWD/changenodesourcecommand.cpp
 SOURCES +=  $$PWD/changestatecommand.cpp
 SOURCES +=  $$PWD/changevaluescommand.cpp
 SOURCES +=  $$PWD/childrenchangeeventfilter.cpp

@@ -86,6 +86,12 @@ class CORESHARED_EXPORT  ModelNode
     friend class QmlDesigner::NodeProperty;
 
 public:
+    enum NodeSourceType {
+        NoSource = 0,
+        CustomParserSource = 1,
+        ComponentSource = 2
+    };
+
     ModelNode();
     ModelNode(const Internal::InternalNodePointer &internalNode, Model *model, AbstractView *view);
     ModelNode(const ModelNode modelNode, AbstractView *view);
@@ -167,13 +173,16 @@ public:
     QVariant auxiliaryData(const QString &name) const;
     void setAuxiliaryData(const QString &name, const QVariant &data) const;
     bool hasAuxiliaryData(const QString &name) const;
+    QHash<QString, QVariant> auxiliaryData() const;
 
     qint32 internalId() const;
 
-    void setCustomParserSource(const QString&);
-    QString customParserSource() const;
+    void setNodeSource(const QString&);
+    QString nodeSource() const;
 
     QString convertTypeToImportAlias() const;
+
+    NodeSourceType nodeSourceType() const;
 
 private: // functions
     Internal::InternalNodePointer internalNode() const;

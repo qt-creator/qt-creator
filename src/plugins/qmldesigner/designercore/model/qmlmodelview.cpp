@@ -384,7 +384,7 @@ void QmlModelView::importsChanged(const QList<Import> &/*addedImports*/, const Q
 
 }
 
-void QmlModelView::customParserSourceChanged(const ModelNode &, const QString & /*newCustomParserSource*/)
+void QmlModelView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
 {
 
 }

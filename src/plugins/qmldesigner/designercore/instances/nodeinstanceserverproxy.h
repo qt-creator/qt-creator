@@ -65,12 +65,13 @@ public:
     void removeProperties(const RemovePropertiesCommand &command);
     void changePropertyBindings(const ChangeBindingsCommand &command);
     void changePropertyValues(const ChangeValuesCommand &command);
+    void changeAuxiliaryValues(const ChangeAuxiliaryCommand &command);
     void reparentInstances(const ReparentInstancesCommand &command);
     void changeIds(const ChangeIdsCommand &command);
     void changeState(const ChangeStateCommand &command);
     void addImport(const AddImportCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
-    void changeCustomParserSource(const ChangeCustomParserSourceCommand &command);
+    void changeNodeSource(const ChangeNodeSourceCommand &command);
 
 protected:
     void writeCommand(const QVariant &command);

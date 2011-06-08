@@ -196,7 +196,7 @@ void ComponentView::instanceInformationsChange(const QVector<ModelNode> &/*nodeL
 void ComponentView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/) {}
 void ComponentView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/) {}
 void ComponentView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/) {}
-void ComponentView::customParserSourceChanged(const ModelNode &, const QString & /*newCustomParserSource*/) {}
+void ComponentView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/) {}
 
 void ComponentView::rewriterBeginTransaction() {}
 void ComponentView::rewriterEndTransaction() {}

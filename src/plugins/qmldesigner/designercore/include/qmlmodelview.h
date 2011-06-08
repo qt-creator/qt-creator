@@ -119,7 +119,7 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);
 
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
-    void customParserSourceChanged(const ModelNode &modelNode, const QString &newCustomParserSource);
+    void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
 
 protected:
     NodeInstance instanceForModelNode(const ModelNode &modelNode);

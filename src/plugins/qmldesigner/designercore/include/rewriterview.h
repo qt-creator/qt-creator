@@ -143,7 +143,7 @@ public:
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
-    void customParserSourceChanged(const ModelNode &modelNode, const QString &newCustomParserSource);
+    void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
 
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
@@ -200,6 +200,7 @@ signals:
 
 public slots:
     void qmlTextChanged();
+    void delayedSetup();
 
 protected: // functions
     Internal::ModelToTextMerger *modelToTextMerger() const;

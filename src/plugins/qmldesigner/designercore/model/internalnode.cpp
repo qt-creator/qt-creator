@@ -184,6 +184,11 @@ bool InternalNode::hasAuxiliaryData(const QString &name) const
     return m_auxiliaryDataHash.contains(name);
 }
 
+QHash<QString, QVariant> InternalNode::auxiliaryData() const
+{
+    return m_auxiliaryDataHash;
+}
+
 InternalProperty::Pointer InternalNode::property(const QString &name) const
 {
     return m_namePropertyHash.value(name);
@@ -342,14 +347,24 @@ qint32 InternalNode::internalId() const
     return m_internalId;
 }
 
-void InternalNode::setCustomParserSource(const QString &customParserSource)
+void InternalNode::setNodeSource(const QString &nodeSource)
 {
-    m_customParserSource = customParserSource;
+    m_nodeSource = nodeSource;
 }
 
-QString InternalNode::customParserSource() const
+QString InternalNode::nodeSource() const
 {
-    return m_customParserSource;
+    return m_nodeSource;
+}
+
+int InternalNode::nodeSourceType() const
+{
+    return m_nodeSourceType;
+}
+
+void InternalNode::setNodeSourceType(int i)
+{
+    m_nodeSourceType = i;
 }
 
 }

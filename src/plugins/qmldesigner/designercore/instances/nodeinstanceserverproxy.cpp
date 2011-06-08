@@ -46,6 +46,7 @@
 #include "createscenecommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
+#include "changeauxiliarycommand.h"
 #include "changefileurlcommand.h"
 #include "removeinstancescommand.h"
 #include "clearscenecommand.h"
@@ -55,7 +56,7 @@
 #include "changestatecommand.h"
 #include "addimportcommand.h"
 #include "completecomponentcommand.h"
-#include "changecustomparsersourcecommand.h"
+#include "changenodesourcecommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -428,6 +429,11 @@ void NodeInstanceServerProxy::changePropertyValues(const ChangeValuesCommand &co
     writeCommand(QVariant::fromValue(command));
 }
 
+void NodeInstanceServerProxy::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
 void NodeInstanceServerProxy::reparentInstances(const ReparentInstancesCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
@@ -453,7 +459,7 @@ void NodeInstanceServerProxy::completeComponent(const CompleteComponentCommand &
     writeCommand(QVariant::fromValue(command));
 }
 
-void NodeInstanceServerProxy::changeCustomParserSource(const ChangeCustomParserSourceCommand &command)
+void NodeInstanceServerProxy::changeNodeSource(const ChangeNodeSourceCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

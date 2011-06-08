@@ -77,7 +77,10 @@ public:
     //void setModelNode(const ModelNode &node);
 
     static Pointer create(QObject *objectToBeWrapped);
-    static QObject* createObject(const QString &typeName, int majorNumber, int minorNumber, const QString &componentPath, const QString &customParserSource, NodeInstanceServer* nodeInstanceServer, QDeclarativeContext *context);
+    static QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QDeclarativeContext *context);
+    static QObject *createCustomParserObject(const QString &nodeSource, const QStringList &imports, QDeclarativeContext *context);
+    static QObject *createComponent(const QString &componentPath, QDeclarativeContext *context);
+    static QObject *createComponentWrap(const QString &nodeSource, const QStringList &imports, QDeclarativeContext *context);
 
     void setInstanceId(qint32 id);
     qint32 instanceId() const;
@@ -174,6 +177,8 @@ public:
     virtual void doComponentComplete();
 
     virtual QList<ServerNodeInstance> stateInstances() const;
+
+    virtual void setNodeSource(const QString &source);
 
 protected:
     void doResetProperty(const QString &propertyName);

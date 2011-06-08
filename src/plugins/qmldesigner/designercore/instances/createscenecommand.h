@@ -57,6 +57,7 @@ public:
                        const QVector<IdContainer> &idVector,
                        const QVector<PropertyValueContainer> &valueChangeVector,
                        const QVector<PropertyBindingContainer> &bindingChangeVector,
+                       const QVector<PropertyValueContainer> &auxiliaryChangeVector,
                        const QVector<AddImportContainer> &importVector,
                        const QUrl &fileUrl);
 
@@ -65,6 +66,7 @@ public:
     QVector<IdContainer> ids() const;
     QVector<PropertyValueContainer> valueChanges() const;
     QVector<PropertyBindingContainer> bindingChanges() const;
+    QVector<PropertyValueContainer> auxiliaryChanges() const;
     QVector<AddImportContainer> imports() const;
     QUrl fileUrl() const;
 
@@ -74,6 +76,7 @@ private:
     QVector<IdContainer> m_idVector;
     QVector<PropertyValueContainer> m_valueChangeVector;
     QVector<PropertyBindingContainer> m_bindingChangeVector;
+    QVector<PropertyValueContainer> m_auxiliaryChangeVector;
     QVector<AddImportContainer> m_importVector;
     QUrl m_fileUrl;
 };

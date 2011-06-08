@@ -172,7 +172,7 @@ void ItemLibraryView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeL
 
 }
 
-void ItemLibraryView::customParserSourceChanged(const ModelNode &, const QString & /*newCustomParserSource*/)
+void ItemLibraryView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
 {
 
 }

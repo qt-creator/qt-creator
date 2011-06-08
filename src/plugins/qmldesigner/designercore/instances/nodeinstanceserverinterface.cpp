@@ -41,6 +41,7 @@
 #include "createscenecommand.h"
 #include "changevaluescommand.h"
 #include "changebindingscommand.h"
+#include "changeauxiliarycommand.h"
 #include "changefileurlcommand.h"
 #include "removeinstancescommand.h"
 #include "clearscenecommand.h"
@@ -50,7 +51,7 @@
 #include "changestatecommand.h"
 #include "completecomponentcommand.h"
 #include "addimportcontainer.h"
-#include "changecustomparsersourcecommand.h"
+#include "changenodesourcecommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -167,9 +168,11 @@ void NodeInstanceServerInterface::registerCommands()
     qRegisterMetaType<SynchronizeCommand>("SynchronizeCommand");
     qRegisterMetaTypeStreamOperators<SynchronizeCommand>("SynchronizeCommand");
 
-    qRegisterMetaType<ChangeCustomParserSourceCommand>("ChangeCustomParserSourceCommand");
-    qRegisterMetaTypeStreamOperators<ChangeCustomParserSourceCommand>("ChangeCustomParserSourceCommand");
+    qRegisterMetaType<ChangeNodeSourceCommand>("ChangeNodeSourceCommand");
+    qRegisterMetaTypeStreamOperators<ChangeNodeSourceCommand>("ChangeNodeSourceCommand");
 
+    qRegisterMetaType<ChangeAuxiliaryCommand>("ChangeAuxiliaryCommand");
+    qRegisterMetaTypeStreamOperators<ChangeAuxiliaryCommand>("ChangeAuxiliaryCommand");
 }
 
 }

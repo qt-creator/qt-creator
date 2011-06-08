@@ -48,6 +48,7 @@
 #include <private/qlistmodelinterface_p.h>
 #include <QAbstractAnimation>
 #include <private/qabstractanimation_p.h>
+#include <QMutableVectorIterator>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
@@ -60,6 +61,7 @@
 #include "clearscenecommand.h"
 #include "reparentinstancescommand.h"
 #include "changevaluescommand.h"
+#include "changeauxiliarycommand.h"
 #include "changebindingscommand.h"
 #include "changeidscommand.h"
 #include "removeinstancescommand.h"
@@ -76,7 +78,7 @@
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
-#include "changecustomparsersourcecommand.h"
+#include "changenodesourcecommand.h"
 
 #include "dummycontextobject.h"
 
@@ -108,7 +110,12 @@ QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<Ins
     Q_ASSERT(m_declarativeView);
     QList<ServerNodeInstance> instanceList;
     foreach(const InstanceContainer &instanceContainer, containerVector) {
-        ServerNodeInstance instance = ServerNodeInstance::create(this, instanceContainer);
+        ServerNodeInstance instance;
+        if (instanceContainer.nodeSourceType() == InstanceContainer::ComponentSource) {
+            instance = ServerNodeInstance::create(this, instanceContainer, ServerNodeInstance::WrapAsComponent);
+        } else {
+            instance = ServerNodeInstance::create(this, instanceContainer, ServerNodeInstance::DoNotWrapAsComponent);
+        }
         insertInstanceRelationship(instance);
         instanceList.append(instance);
         instance.internalObject()->installEventFilter(childrenChangeEventFilter());
@@ -119,7 +126,6 @@ QList<ServerNodeInstance>  NodeInstanceServer::createInstances(const QVector<Ins
                 m_declarativeView->scene()->addItem(rootGraphicsObject);
                 m_declarativeView->setSceneRect(rootGraphicsObject->boundingRect());
             }
-
         }
 
         foreach (QDeclarativeContext* context, allSubContextsForObject(instance.internalObject()))
@@ -331,11 +337,12 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
     startRenderTimer();
 }
 
-void NodeInstanceServer::changeCustomParserSource(const ChangeCustomParserSourceCommand &command)
+void NodeInstanceServer::changeNodeSource(const ChangeNodeSourceCommand &command)
 {
     if (hasInstanceForId(command.instanceId())) {
         ServerNodeInstance instance = instanceForId(command.instanceId());
-        ;
+        if (instance.isValid())
+            instance.setNodeSource(command.nodeSource());
     }
 
     startRenderTimer();
@@ -410,6 +417,14 @@ void NodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command
     startRenderTimer();
 }
 
+void NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
+{
+    foreach (const PropertyValueContainer &container, command.auxiliaryChanges()) {
+        setInstanceAuxiliaryData(container);
+    }
+
+    startRenderTimer();
+}
 
 void NodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
 {
@@ -716,6 +731,16 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
 
         if (valueContainer.isDynamic() && valueContainer.instanceId() == 0 && engine())
             engine()->rootContext()->setContextProperty(name, value);
+    }
+}
+
+void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &auxiliaryContainer)
+{
+    //instanceId() == 0: the item is root
+    if (auxiliaryContainer.instanceId() == 0 && (auxiliaryContainer.name() == QLatin1String("width") ||
+                                        auxiliaryContainer.name() == QLatin1String("height"))) {
+
+        setInstancePropertyVariant(auxiliaryContainer);
     }
 }
 
@@ -1115,32 +1140,36 @@ QList<ServerNodeInstance> NodeInstanceServer::setupScene(const CreateSceneComman
     QList<ServerNodeInstance> instanceList = createInstances(command.instances());
     reparentInstances(command.reparentInstances());
 
-    foreach(const IdContainer &container, command.ids()) {
+    foreach (const IdContainer &container, command.ids()) {
         if (hasInstanceForId(container.instanceId()))
             instanceForId(container.instanceId()).setId(container.id());
     }
 
-    foreach(const PropertyValueContainer &container, command.valueChanges()) {
+    foreach (const PropertyValueContainer &container, command.valueChanges()) {
         if (container.isDynamic())
             setInstancePropertyVariant(container);
     }
 
-    foreach(const PropertyValueContainer &container, command.valueChanges()) {
+    foreach (const PropertyValueContainer &container, command.valueChanges()) {
         if (!container.isDynamic())
             setInstancePropertyVariant(container);
     }
 
-    foreach(const PropertyBindingContainer &container, command.bindingChanges()) {
+    foreach (const PropertyBindingContainer &container, command.bindingChanges()) {
         if (container.isDynamic())
             setInstancePropertyBinding(container);
     }
 
-    foreach(const PropertyBindingContainer &container, command.bindingChanges()) {
+    foreach (const PropertyBindingContainer &container, command.bindingChanges()) {
         if (!container.isDynamic())
             setInstancePropertyBinding(container);
     }
 
-    foreach(ServerNodeInstance instance, instanceList)
+    foreach (const PropertyValueContainer &container, command.auxiliaryChanges()) {
+            setInstanceAuxiliaryData(container);
+    }
+
+    foreach (ServerNodeInstance instance, instanceList)
         instance.doComponentComplete();
 
     m_declarativeView->scene()->setSceneRect(rootNodeInstance().boundingRect());

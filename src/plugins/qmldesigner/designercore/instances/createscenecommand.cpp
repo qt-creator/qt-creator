@@ -43,6 +43,7 @@ CreateSceneCommand::CreateSceneCommand(const QVector<InstanceContainer> &instanc
                                        const QVector<IdContainer> &idVector,
                                        const QVector<PropertyValueContainer> &valueChangeVector,
                                        const QVector<PropertyBindingContainer> &bindingChangeVector,
+                                       const QVector<PropertyValueContainer> &auxiliaryChangeVector,
                                        const QVector<AddImportContainer> &importVector,
                                        const QUrl &fileUrl)
     : m_instanceVector(instanceContainer),
@@ -50,6 +51,7 @@ CreateSceneCommand::CreateSceneCommand(const QVector<InstanceContainer> &instanc
       m_idVector(idVector),
       m_valueChangeVector(valueChangeVector),
       m_bindingChangeVector(bindingChangeVector),
+      m_auxiliaryChangeVector(auxiliaryChangeVector),
       m_importVector(importVector),
       m_fileUrl(fileUrl)
 {
@@ -80,6 +82,11 @@ QVector<PropertyBindingContainer> CreateSceneCommand::bindingChanges() const
     return m_bindingChangeVector;
 }
 
+QVector<PropertyValueContainer> CreateSceneCommand::auxiliaryChanges() const
+{
+    return m_auxiliaryChangeVector;
+}
+
 QVector<AddImportContainer> CreateSceneCommand::imports() const
 {
     return m_importVector;
@@ -97,6 +104,7 @@ QDataStream &operator<<(QDataStream &out, const CreateSceneCommand &command)
     out << command.ids();
     out << command.valueChanges();
     out << command.bindingChanges();
+    out << command.auxiliaryChanges();
     out << command.imports();
     out << command.fileUrl();
 
@@ -110,6 +118,7 @@ QDataStream &operator>>(QDataStream &in, CreateSceneCommand &command)
     in >> command.m_idVector;
     in >> command.m_valueChangeVector;
     in >> command.m_bindingChangeVector;
+    in >> command.m_auxiliaryChangeVector;
     in >> command.m_importVector;
     in >> command.m_fileUrl;
 

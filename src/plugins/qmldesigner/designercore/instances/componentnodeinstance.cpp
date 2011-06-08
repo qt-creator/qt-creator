@@ -70,27 +70,24 @@ bool ComponentNodeInstance::hasContent() const
     return true;
 }
 
-void ComponentNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void ComponentNodeInstance::setNodeSource(const QString &source)
 {
-    if (name == "__component_data") {
-
-        QByteArray importArray;
-        foreach(const QString &import, nodeInstanceServer()->imports()) {
-            importArray.append(import.toUtf8());
-        }
-
-        QByteArray data(value.toByteArray());
-
-        data.prepend(importArray);
-        data.append("\n");
-
-        component()->setData(data, QUrl(nodeInstanceServer()->fileUrl().toString() +
-                                        QLatin1Char('_')+ id()));
-        setId(id());
+    QByteArray importArray;
+    foreach (const QString &import, nodeInstanceServer()->imports()) {
+        importArray.append(import.toUtf8());
     }
 
+    QByteArray data(source.toUtf8());
+
+    data.prepend(importArray);
+    data.append("\n");
+
+    component()->setData(data, QUrl(nodeInstanceServer()->fileUrl().toString() +
+                                    QLatin1Char('_')+ id()));
+    setId(id());
+
     if (component()->isError()) {
-        qDebug() << value;
+        qDebug() << source;
         foreach(const QDeclarativeError &error, component()->errors())
             qDebug() << error;
     }

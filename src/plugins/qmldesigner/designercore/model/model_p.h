@@ -105,7 +105,9 @@ public:
                                      int majorVersion,
                                      int minorVersion,
                                      const QList<QPair<QString, QVariant> > &propertyList,
-                                     const QString &customParserSource,
+                                     const QList<QPair<QString, QVariant> > &auxPropertyList,
+                                     const QString &nodeSource,
+                                     ModelNode::NodeSourceType nodeSourceType,
                                      bool isRootNode = false);
 
 
@@ -143,7 +145,7 @@ public:
 
     void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListPropertyPointer, const InternalNodePointer &internalNodePointer, int oldIndex);
     void notifyAuxiliaryDataChanged(const InternalNodePointer &internalNode, const QString &name, const QVariant &data);
-    void notifyCustomParserSourceChanged(const InternalNodePointer &internalNode, const QString &newCustomParserSource);
+    void notifyNodeSourceChanged(const InternalNodePointer &internalNode, const QString &newNodeSource);
 
     void notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
@@ -196,7 +198,7 @@ public:
     void clearParent(const InternalNodePointer &internalNode);
     void changeRootNodeType(const QString &type, int majorVersion, int minorVersion);
     void setScriptFunctions(const InternalNodePointer &internalNode, const QStringList &scriptFunctionList);
-    void setCustomParserSource(const InternalNodePointer &internalNode, const QString &customParserSource);
+    void setNodeSource(const InternalNodePointer &internalNode, const QString &nodeSource);
 
     InternalNodePointer nodeForId(const QString &id) const;
     bool hasId(const QString &id) const;

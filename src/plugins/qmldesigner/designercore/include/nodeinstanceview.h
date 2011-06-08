@@ -109,7 +109,7 @@ public:
     void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
-    void customParserSourceChanged(const ModelNode &modelNode, const QString &newCustomParserSource);
+    void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
 
     void rewriterBeginTransaction();
     void rewriterEndTransaction();

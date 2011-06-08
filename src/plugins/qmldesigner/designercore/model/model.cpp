@@ -94,7 +94,7 @@ ModelPrivate::ModelPrivate(Model *model) :
         m_writeLock(false),
         m_internalIdCounter(1)
 {
-    m_rootInternalNode = createNode("QtQuick/Item", 1, 0, PropertyListType(), QString(), true);
+    m_rootInternalNode = createNode("QtQuick/Item", 1, 0, PropertyListType(), PropertyListType(), QString(), ModelNode::NoSource,true);
 }
 
 ModelPrivate::~ModelPrivate()
@@ -202,7 +202,9 @@ InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
                                                int majorVersion,
                                                int minorVersion,
                                                const QList<QPair<QString, QVariant> > &propertyList,
-                                               const QString &customParserSource,
+                                               const QList<QPair<QString, QVariant> > &auxPropertyList,
+                                               const QString &nodeSource,
+                                               ModelNode::NodeSourceType nodeSourceType,
                                                bool isRootNode)
 {
     if (typeString.isEmpty())
@@ -214,6 +216,7 @@ InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
         internalId = m_internalIdCounter++;
 
     InternalNode::Pointer newInternalNodePointer = InternalNode::create(typeString, majorVersion, minorVersion, internalId);
+    newInternalNodePointer->setNodeSourceType(nodeSourceType);
 
     typedef QPair<QString, QVariant> PropertyPair;
 
@@ -222,11 +225,15 @@ InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
         newInternalNodePointer->variantProperty(propertyPair.first)->setValue(propertyPair.second);
     }
 
+    foreach (const PropertyPair &propertyPair, auxPropertyList) {
+        newInternalNodePointer->setAuxiliaryData(propertyPair.first, propertyPair.second);
+    }
+
     m_nodeSet.insert(newInternalNodePointer);
     m_internalIdNodeHash.insert(newInternalNodePointer->internalId(), newInternalNodePointer);
 
-    if (!customParserSource.isNull())
-        newInternalNodePointer->setCustomParserSource(customParserSource);
+    if (!nodeSource.isNull())
+        newInternalNodePointer->setNodeSource(nodeSource);
 
     notifyNodeCreated(newInternalNodePointer);
 
@@ -359,7 +366,7 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &interna
     }
 }
 
-void ModelPrivate::notifyCustomParserSourceChanged(const InternalNodePointer &internalNode, const QString &newCustomParserSource)
+void ModelPrivate::notifyNodeSourceChanged(const InternalNodePointer &internalNode, const QString &newNodeSource)
 {
     bool resetModel = false;
     QString description;
@@ -367,7 +374,7 @@ void ModelPrivate::notifyCustomParserSourceChanged(const InternalNodePointer &in
     try {
         if (rewriterView()) {
             ModelNode node(internalNode, model(), rewriterView());
-            rewriterView()->customParserSourceChanged(node, newCustomParserSource);
+            rewriterView()->nodeSourceChanged(node, newNodeSource);
         }
     } catch (RewritingException &e) {
         description = e.description();
@@ -377,13 +384,13 @@ void ModelPrivate::notifyCustomParserSourceChanged(const InternalNodePointer &in
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
         ModelNode node(internalNode, model(), view.data());
-        view->customParserSourceChanged(node, newCustomParserSource);
+        view->nodeSourceChanged(node, newNodeSource);
 
     }
 
     if (nodeInstanceView()) {
         ModelNode node(internalNode, model(), nodeInstanceView());
-        nodeInstanceView()->customParserSourceChanged(node, newCustomParserSource);
+        nodeInstanceView()->nodeSourceChanged(node, newNodeSource);
     }
 
     if (resetModel) {
@@ -1492,10 +1499,10 @@ void ModelPrivate::setScriptFunctions(const InternalNode::Pointer &internalNode,
     notifyScriptFunctionsChanged(internalNode, scriptFunctionList);
 }
 
-void ModelPrivate::setCustomParserSource(const InternalNodePointer &internalNode, const QString &customParserSource)
+void ModelPrivate::setNodeSource(const InternalNodePointer &internalNode, const QString &nodeSource)
 {
-    internalNode->setCustomParserSource(customParserSource);
-    notifyCustomParserSourceChanged(internalNode, customParserSource);
+    internalNode->setNodeSource(nodeSource);
+    notifyNodeSourceChanged(internalNode, nodeSource);
 }
 
 void ModelPrivate::changeNodeOrder(const InternalNode::Pointer &internalParentNode, const QString &listPropertyName, int from, int to)

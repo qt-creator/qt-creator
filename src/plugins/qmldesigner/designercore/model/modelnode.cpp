@@ -918,6 +918,15 @@ bool ModelNode::hasAuxiliaryData(const QString &name) const
     return internalNode()->hasAuxiliaryData(name);
 }
 
+QHash<QString, QVariant> ModelNode::auxiliaryData() const
+{
+    if (!isValid()) {
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    }
+
+    return internalNode()->auxiliaryData();
+}
+
 void  ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)
 {
     model()->m_d->setScriptFunctions(internalNode(), scriptFunctionList);
@@ -936,7 +945,7 @@ qint32 ModelNode::internalId() const
     return m_internalNode->internalId();
 }
 
-void ModelNode::setCustomParserSource(const QString &newCustomParserSource)
+void ModelNode::setNodeSource(const QString &newNodeSource)
 {
     Internal::WriteLocker locker(m_model.data());
 
@@ -945,19 +954,19 @@ void ModelNode::setCustomParserSource(const QString &newCustomParserSource)
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    if (internalNode()->customParserSource() == newCustomParserSource)
+    if (internalNode()->nodeSource() == newNodeSource)
         return;
 
-    m_model.data()->m_d->setCustomParserSource(internalNode(), newCustomParserSource);
+    m_model.data()->m_d->setNodeSource(internalNode(), newNodeSource);
 }
 
-QString ModelNode::customParserSource() const
+QString ModelNode::nodeSource() const
 {
     if (!isValid()) {
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    return internalNode()->customParserSource();
+    return internalNode()->nodeSource();
 }
 
 QString ModelNode::convertTypeToImportAlias() const
@@ -970,6 +979,16 @@ QString ModelNode::convertTypeToImportAlias() const
         return model()->rewriterView()->convertTypeToImportAlias(type());
 
     return type();
+}
+
+ModelNode::NodeSourceType ModelNode::nodeSourceType() const
+{
+    if (!isValid()) {
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    }
+
+    return static_cast<ModelNode::NodeSourceType>(internalNode()->nodeSourceType());
+
 }
 
 }

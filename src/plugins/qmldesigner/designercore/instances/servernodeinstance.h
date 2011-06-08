@@ -79,6 +79,11 @@ class CORESHARED_EXPORT ServerNodeInstance
     friend class QmlDesigner::Internal::QmlStateNodeInstance;
 
 public:
+    enum ComponentWrap {
+        WrapAsComponent,
+        DoNotWrapAsComponent
+    };
+
     ServerNodeInstance();
     ~ServerNodeInstance();
     ServerNodeInstance(const ServerNodeInstance &other);
@@ -168,7 +173,7 @@ private: // functions
     bool updateStateBinding(const ServerNodeInstance &target, const QString &propertyName, const QString &expression);
     bool resetStateProperty(const ServerNodeInstance &target, const QString &propertyName, const QVariant &resetValue);
 
-    static ServerNodeInstance create(NodeInstanceServer *nodeInstanceServer, const InstanceContainer &instanceContainer);
+    static ServerNodeInstance create(NodeInstanceServer *nodeInstanceServer, const InstanceContainer &instanceContainer, ComponentWrap componentWrap);
 
     void setDeleteHeldInstance(bool deleteInstance);
     void reparent(const ServerNodeInstance &oldParentInstance, const QString &oldParentProperty, const ServerNodeInstance &newParentInstance, const QString &newParentProperty);
@@ -182,6 +187,8 @@ private: // functions
     void paintUpdate();
 
     static bool isSubclassOf(QObject *object, const QByteArray &superTypeName);
+
+    void setNodeSource(const QString &source);
 
 
     QObject *internalObject() const; // should be not used outside of the nodeinstances!!!!
