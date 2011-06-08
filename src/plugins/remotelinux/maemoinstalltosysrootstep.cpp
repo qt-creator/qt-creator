@@ -35,7 +35,7 @@
 #include "maemodeployables.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
-#include "maemotoolchain.h"
+#include "maemoqtversion.h"
 #include "qt4maemodeployconfiguration.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -298,24 +298,23 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
         return;
     }
 
-    const MaemoToolChain * const tc
-        = dynamic_cast<MaemoToolChain *>(bc->toolChain());
-    if (!tc) {
-        addOutput(tr("Can't copy to sysroot without toolchain."),
+    const MaemoQtVersion * const qtVersion = dynamic_cast<MaemoQtVersion *>(bc->qtVersion());
+    if (!qtVersion) {
+        addOutput(tr("Can't copy to sysroot without valid Qt version."),
             ErrorMessageOutput);
         fi.reportResult(false);
         return;
     }
 
     emit addOutput(tr("Copying files to sysroot ..."), MessageOutput);
-    QDir sysrootDir(tc->sysroot());
+    QDir sysrootDir(qtVersion->systemRoot());
     const QSharedPointer<MaemoDeployables> deployables
         = qobject_cast<Qt4MaemoDeployConfiguration *>(deployConfiguration())->deployables();
     const QChar sep = QLatin1Char('/');
     for (int i = 0; i < deployables->deployableCount(); ++i) {
         const MaemoDeployable &deployable = deployables->deployableAt(i);
         const QFileInfo localFileInfo(deployable.localFilePath);
-        const QString targetFilePath = tc->sysroot() + sep
+        const QString targetFilePath = qtVersion->systemRoot() + sep
             + deployable.remoteDir + sep + localFileInfo.fileName();
         sysrootDir.mkpath(deployable.remoteDir.mid(1));
         QString errorMsg;

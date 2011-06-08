@@ -52,6 +52,7 @@ public:
 
     virtual QString systemRoot() const;
     virtual QList<ProjectExplorer::Abi> qtAbis() const;
+    void addToEnvironment(Utils::Environment &env) const;
 
     virtual bool supportsTargetId(const QString &id) const;
     virtual QSet<QString> supportedTargetIds() const;

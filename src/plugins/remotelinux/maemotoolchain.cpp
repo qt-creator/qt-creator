@@ -100,24 +100,6 @@ bool MaemoToolChain::canClone() const
 
 void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
 {
-    QtSupport::BaseQtVersion *v = QtSupport::QtVersionManager::instance()->version(m_qtVersionId);
-    if (!v)
-        return;
-    const QString maddeRoot = MaemoGlobal::maddeRoot(v->qmakeCommand());
-
-    // put this into environment to make pkg-config stuff work
-    env.prependOrSet(QLatin1String("SYSROOT_DIR"), QDir::toNativeSeparators(sysroot()));
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madbin")
-        .arg(maddeRoot)));
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madlib")
-        .arg(maddeRoot)));
-    env.prependOrSet(QLatin1String("PERL5LIB"),
-        QDir::toNativeSeparators(QString("%1/madlib/perl5").arg(maddeRoot)));
-
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin").arg(maddeRoot)));
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
-                                                  .arg(MaemoGlobal::targetRoot(v->qmakeCommand()))));
-
     const QString manglePathsKey = QLatin1String("GCCWRAPPER_PATHMANGLE");
     if (!env.hasKey(manglePathsKey)) {
         const QStringList pathsToMangle = QStringList() << QLatin1String("/lib")
@@ -126,27 +108,6 @@ void MaemoToolChain::addToEnvironment(Utils::Environment &env) const
         foreach (const QString &path, pathsToMangle)
             env.appendOrSet(manglePathsKey, path, QLatin1String(":"));
     }
-}
-
-QString MaemoToolChain::sysroot() const
-{
-    QtSupport::BaseQtVersion *v = QtSupport::QtVersionManager::instance()->version(m_qtVersionId);
-    if (!v)
-        return QString();
-
-    if (m_sysroot.isEmpty()) {
-        QFile file(QDir::cleanPath(MaemoGlobal::targetRoot(v->qmakeCommand())) + QLatin1String("/information"));
-        if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream stream(&file);
-            while (!stream.atEnd()) {
-                const QString &line = stream.readLine().trimmed();
-                const QStringList &list = line.split(QLatin1Char(' '));
-                if (list.count() > 1 && list.at(0) == QLatin1String("sysroot"))
-                    m_sysroot = MaemoGlobal::maddeRoot(v->qmakeCommand()) + QLatin1String("/sysroots/") + list.at(1);
-            }
-        }
-    }
-    return m_sysroot;
 }
 
 bool MaemoToolChain::operator ==(const ProjectExplorer::ToolChain &tc) const

@@ -170,5 +170,23 @@ QString MaemoQtVersion::osType() const
     return m_osType;
 }
 
+void MaemoQtVersion::addToEnvironment(Utils::Environment &env) const
+{
+    const QString maddeRoot = MaemoGlobal::maddeRoot(qmakeCommand());
+
+    // Needed to make pkg-config stuff work.
+    env.prependOrSet(QLatin1String("SYSROOT_DIR"), QDir::toNativeSeparators(systemRoot()));
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madbin")
+        .arg(maddeRoot)));
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madlib")
+        .arg(maddeRoot)));
+    env.prependOrSet(QLatin1String("PERL5LIB"),
+        QDir::toNativeSeparators(QString("%1/madlib/perl5").arg(maddeRoot)));
+
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin").arg(maddeRoot)));
+    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
+        .arg(MaemoGlobal::targetRoot(qmakeCommand()))));
+}
+
 } // namespace Internal
 } // namespace RemoteLinux
