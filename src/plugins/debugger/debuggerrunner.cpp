@@ -745,8 +745,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
             sp.environment.set(optimizerKey, _("1"));
         }
 
-        Utils::QtcProcess::addArg(&sp.processArgs, _("-qmljsdebugger=port:")
-                                  + QString::number(sp.qmlServerPort));
+        Utils::QtcProcess::addArg(&sp.processArgs, QString("-qmljsdebugger=port:%1,block").arg(
+                                      sp.qmlServerPort));
     }
 
     // FIXME: If it's not yet build this will be empty and not filled

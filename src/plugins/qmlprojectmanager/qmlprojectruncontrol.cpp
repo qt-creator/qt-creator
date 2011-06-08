@@ -202,7 +202,7 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     params.executable = runConfig->observerPath();
     params.qmlServerAddress = "127.0.0.1";
     params.qmlServerPort = runConfig->qmlDebugServerPort();
-    params.processArgs = QLatin1String("-qmljsdebugger=port:") + QString::number(runConfig->qmlDebugServerPort());
+    params.processArgs = QString("-qmljsdebugger=port:%1,block").arg(runConfig->qmlDebugServerPort());
     params.processArgs += QLatin1Char(' ') + runConfig->viewerArguments();
     params.workingDirectory = runConfig->workingDirectory();
     params.environment = runConfig->environment();
