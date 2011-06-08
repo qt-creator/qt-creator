@@ -12,6 +12,7 @@ TabPreferencesWidget::TabPreferencesWidget(QWidget *parent) :
     m_tabPreferences(0)
 {
     m_ui->setupUi(this);
+    m_ui->fallbackWidget->setLabelText(tr("Tab settings:"));
 }
 
 TabPreferencesWidget::~TabPreferencesWidget()

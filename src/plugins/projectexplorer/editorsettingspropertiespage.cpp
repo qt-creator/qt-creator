@@ -72,12 +72,10 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
     const EditorConfiguration *config = m_project->editorConfiguration();
     settingsToUi(config);
 
-    setGlobalSettingsEnabled(config->useGlobalSettings());
+    globalSettingsActivated(config->useGlobalSettings() ? 0 : 1);
 
-    connect(m_ui.useGlobalCheckBox, SIGNAL(clicked(bool)),
-            this, SLOT(setGlobalSettingsEnabled(bool)));
-    connect(m_ui.useGlobalCheckBox, SIGNAL(clicked(bool)),
-            config, SLOT(setUseGlobalSettings(bool)));
+    connect(m_ui.globalSelector, SIGNAL(activated(int)),
+            this, SLOT(globalSettingsActivated(int)));
     connect(m_ui.restoreButton, SIGNAL(clicked()), this, SLOT(restoreDefaultValues()));
     connect(m_ui.behaviorSettingsWidget, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             config, SLOT(setStorageSettings(TextEditor::StorageSettings)));
@@ -94,17 +92,20 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : QWidget(), m_proj
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 {
     m_ui.behaviorSettingsWidget->setTabPreferences(config->tabPreferences());
-    m_ui.useGlobalCheckBox->setChecked(config->useGlobalSettings());
+    m_ui.globalSelector->setCurrentIndex(config->useGlobalSettings() ? 0 : 1);
     m_ui.behaviorSettingsWidget->setAssignedCodec(config->textCodec());
     m_ui.behaviorSettingsWidget->setAssignedStorageSettings(config->storageSettings());
     m_ui.behaviorSettingsWidget->setAssignedBehaviorSettings(config->behaviorSettings());
     m_ui.behaviorSettingsWidget->setAssignedExtraEncodingSettings(config->extraEncodingSettings());
 }
 
-void EditorSettingsWidget::setGlobalSettingsEnabled(bool enabled)
+void EditorSettingsWidget::globalSettingsActivated(int index)
 {
-    m_ui.behaviorSettingsWidget->setActive(!enabled);
-    m_ui.restoreButton->setEnabled(!enabled);
+    const bool useGlobal = !index;
+    m_ui.behaviorSettingsWidget->setActive(!useGlobal);
+    m_ui.restoreButton->setEnabled(!useGlobal);
+    EditorConfiguration *config = m_project->editorConfiguration();
+    config->setUseGlobalSettings(useGlobal);
 }
 
 void EditorSettingsWidget::restoreDefaultValues()

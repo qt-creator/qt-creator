@@ -42,14 +42,14 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
                                                  << textEditorSettings->tabPreferences(), this);
         m_d->m_tabPreferences->setCurrentFallback(textEditorSettings->tabPreferences());
         m_d->m_tabPreferences->fromSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
-        m_d->m_tabPreferences->setDisplayName(tr("global C++"));
+        m_d->m_tabPreferences->setDisplayName(tr("Global C++", "Settings"));
         m_d->m_tabPreferences->setId(idKey);
         textEditorSettings->registerLanguageTabPreferences(CppTools::Constants::CPP_SETTINGS_ID, m_d->m_tabPreferences);
 
         m_d->m_cppCodeStylePreferences
                 = new CppCodeStylePreferences(QList<TextEditor::IFallbackPreferences *>(), this);
         m_d->m_cppCodeStylePreferences->fromSettings(CppTools::Constants::CPP_SETTINGS_ID, s);
-        m_d->m_cppCodeStylePreferences->setDisplayName(tr("global C++"));
+        m_d->m_cppCodeStylePreferences->setDisplayName(tr("Global C++", "Settings"));
         m_d->m_cppCodeStylePreferences->setId(idKey);
         textEditorSettings->registerLanguageCodeStylePreferences(CppTools::Constants::CPP_SETTINGS_ID, m_d->m_cppCodeStylePreferences);
     }

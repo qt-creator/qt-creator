@@ -62,6 +62,7 @@ public:
     EditorConfiguration();
     ~EditorConfiguration();
 
+    void setUseGlobalSettings(bool use);
     bool useGlobalSettings() const;
     void cloneGlobalSettings();
 
@@ -89,7 +90,6 @@ signals:
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
 
 private slots:
-    void setUseGlobalSettings(bool use);
 
     void setStorageSettings(const TextEditor::StorageSettings &settings);
     void setBehaviorSettings(const TextEditor::BehaviorSettings &settings);

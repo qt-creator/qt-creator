@@ -11,6 +11,7 @@ class QHBoxLayout;
 class QComboBox;
 class QLabel;
 class QCheckBox;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace TextEditor {
@@ -27,27 +28,26 @@ public:
     QString searchKeywords() const;
 
     void setFallbacksVisible(bool on);
+    void setLabelText(const QString &text);
 
 signals:
 
 private slots:
     void slotComboBoxActivated(int index);
-    void slotCheckBoxClicked(bool checked);
     void slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *);
+    void slotRestoreValues(QObject *);
 
 private:
     IFallbackPreferences *m_fallbackPreferences;
 
     QHBoxLayout *m_layout;
 
-    QCheckBox *m_checkBox;
     QComboBox *m_comboBox;
     QLabel *m_comboBoxLabel;
+    QToolButton *m_restoreButton;
 
     bool m_fallbackWidgetVisible;
-    QMap<IFallbackPreferences *, int> m_fallbackToIndex;
-    QMap<int, IFallbackPreferences *> m_indexToFallback;
-
+    QString m_labelText;
 };
 
 } // namespace TextEditor

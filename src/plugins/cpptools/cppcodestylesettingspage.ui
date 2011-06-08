@@ -17,7 +17,7 @@
    <item>
     <widget class="QWidget" name="fallbackContainer" native="true">
      <layout class="QHBoxLayout" name="fallbackLayout">
-      <property name="leftMargin">
+      <property name="margin">
        <number>0</number>
       </property>
       <item>

@@ -60,7 +60,7 @@ public:
     EditorSettingsWidget(Project *project);
 
 private slots:
-    void setGlobalSettingsEnabled(bool enabled);
+    void globalSettingsActivated(int index);
     void restoreDefaultValues();
 
 private:

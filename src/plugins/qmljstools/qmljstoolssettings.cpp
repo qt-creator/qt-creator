@@ -40,7 +40,7 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
                                                  << textEditorSettings->tabPreferences(), this);
         m_d->m_tabPreferences->setCurrentFallback(textEditorSettings->tabPreferences());
         m_d->m_tabPreferences->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
-        m_d->m_tabPreferences->setDisplayName(tr("global QML"));
+        m_d->m_tabPreferences->setDisplayName(tr("Global Qt Quick", "Settings"));
         m_d->m_tabPreferences->setId(idKey);
         textEditorSettings->registerLanguageTabPreferences(QmlJSTools::Constants::QML_JS_SETTINGS_ID, m_d->m_tabPreferences);
     }

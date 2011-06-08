@@ -92,7 +92,7 @@ BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters 
     m_d(new BehaviorSettingsPagePrivate(p))
 {
     m_d->m_tabPreferences = new TabPreferences(QList<IFallbackPreferences *>(), this);
-    m_d->m_tabPreferences->setDisplayName(tr("global text editor"));
+    m_d->m_tabPreferences->setDisplayName(tr("Global", "Settings"));
     m_d->m_tabPreferences->setId(idKey);
     m_d->init();
 }

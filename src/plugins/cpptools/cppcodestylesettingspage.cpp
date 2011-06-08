@@ -234,6 +234,7 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     m_ui->categoryTab->setCurrentIndex(0);
 
     m_ui->tabPreferencesWidget->setFlat(true);
+    m_ui->fallbackWidget->setLabelText(tr("Code style settings:"));
 }
 
 CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()
@@ -321,15 +322,11 @@ void CppCodeStylePreferencesWidget::setCppCodeStyleSettings(const CppCodeStyleSe
 
 void CppCodeStylePreferencesWidget::slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *fallback)
 {
-    m_ui->tabPreferencesWidget->setEnabled(!fallback);
     m_ui->contentGroupBox->setEnabled(!fallback);
     m_ui->bracesGroupBox->setEnabled(!fallback);
     m_ui->switchGroupBox->setEnabled(!fallback);
     m_ui->alignmentGroupBox->setEnabled(!fallback);
 
-    // if C++ global is used for style, use it for tab settings as well
-    if (fallback && m_tabPreferences && m_cppCodeStylePreferences->currentFallback())
-        m_tabPreferences->setCurrentFallback(m_cppCodeStylePreferences->currentFallback()->id());
     updatePreview();
 }
 

@@ -94,7 +94,7 @@ EditorConfiguration::EditorConfiguration() : m_d(new EditorConfigurationPrivate)
     QList<IFallbackPreferences *> fallbacks;
     fallbacks << TextEditorSettings::instance()->tabPreferences();
     m_d->m_tabPreferences = new TabPreferences(fallbacks, this);
-    m_d->m_tabPreferences->setDisplayName(tr("project text editor"));
+    m_d->m_tabPreferences->setDisplayName(tr("Project", "Settings"));
     m_d->m_tabPreferences->setId(kId);
 
     CodeStylePreferencesManager *manager =
@@ -127,7 +127,7 @@ EditorConfiguration::EditorConfiguration() : m_d(new EditorConfigurationPrivate)
         IFallbackPreferences *preferences = factory->createPreferences(
                     QList<IFallbackPreferences *>() << originalPreferences);
         preferences->setId(languageId + QLatin1String("Project"));
-        preferences->setDisplayName(tr("project %1").arg(factory->displayName()));
+        preferences->setDisplayName(tr("Project %1", "Settings, %1 is a language (C++ or QML)").arg(factory->displayName()));
         preferences->setCurrentFallback(originalPreferences);
         m_d->m_languageCodeStylePreferences.insert(languageId, preferences);
     }
