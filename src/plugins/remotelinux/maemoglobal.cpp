@@ -383,6 +383,34 @@ bool MaemoGlobal::isFileNewerThan(const QString &filePath,
     return false;
 }
 
+void MaemoGlobal::addMaddeEnvironment(Utils::Environment &env, const QString &qmakePath)
+{
+    Utils::Environment maddeEnv;
+#ifdef Q_OS_WIN
+    const QString root = maddeRoot(qmakePath);
+    env.prependOrSetPath(root + QLatin1String("/bin"));
+    env.prependOrSet(QLatin1String("HOME"),
+        QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
+#else
+    Q_UNUSED(qmakePath);
+#endif
+    for (Utils::Environment::const_iterator it = maddeEnv.constBegin(); it != maddeEnv.constEnd(); ++it)
+        env.prependOrSet(it.key(), it.value());
+}
+
+void MaemoGlobal::transformMaddeCall(QString &command, QStringList &args, const QString &qmakePath)
+{
+#ifdef Q_OS_WIN
+    const QString root = maddeRoot(qmakePath);
+    args.prepend(command);
+    command = root + QLatin1String("/bin/sh.exe");
+#else
+    Q_UNUSED(command);
+    Q_UNUSED(args);
+    Q_UNUSED(qmakePath);
+#endif
+}
+
 bool MaemoGlobal::callMad(QProcess &proc, const QStringList &args,
     const QString &qmakePath, bool useTarget)
 {
@@ -405,16 +433,10 @@ bool MaemoGlobal::callMaddeShellScript(QProcess &proc,
         return false;
     QString actualCommand = command;
     QStringList actualArgs = targetArgs(qmakePath, useTarget) + args;
-#ifdef Q_OS_WIN
     Utils::Environment env(proc.systemEnvironment());
-    const QString root = maddeRoot(qmakePath);
-    env.prependOrSetPath(root + QLatin1String("/bin"));
-    env.prependOrSet(QLatin1String("HOME"),
-        QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
+    addMaddeEnvironment(env, qmakePath);
     proc.setEnvironment(env.toStringList());
-    actualArgs.prepend(command);
-    actualCommand = root + QLatin1String("/bin/sh.exe");
-#endif
+    transformMaddeCall(actualCommand, actualArgs, qmakePath);
     proc.start(actualCommand, actualArgs);
     return true;
 }

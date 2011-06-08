@@ -118,6 +118,8 @@ public:
     static PortList freePorts(const QSharedPointer<const LinuxDeviceConfiguration> &devConf,
         const QtSupport::BaseQtVersion *qtVersion);
 
+    static void addMaddeEnvironment(Utils::Environment &env, const QString &qmakePath);
+    static void transformMaddeCall(QString &command, QStringList &args, const QString &qmakePath);
     static QString maddeRoot(const QString &qmakePath);
     static QString targetRoot(const QString &qmakePath);
     static QString targetName(const QString &qmakePath);

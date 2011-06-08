@@ -374,13 +374,16 @@ bool MaemoMakeInstallToSysrootStep::init()
         return false;
 
     }
-    processParameters()->setCommand(MaemoGlobal::madCommand(qtVersion->qmakeCommand()));
-    const QStringList args = QStringList() << QLatin1String("-t")
+    Utils::Environment env = bc->environment();
+    MaemoGlobal::addMaddeEnvironment(env, qtVersion->qmakeCommand());
+    QString command = MaemoGlobal::madCommand(qtVersion->qmakeCommand());
+    QStringList args = QStringList() << QLatin1String("-t")
         << MaemoGlobal::targetName(qtVersion->qmakeCommand()) << QLatin1String("make")
-        << QLatin1String("install")
-        << (QLatin1String("INSTALL_ROOT=") + qtVersion->systemRoot());
+        << QLatin1String("install") << (QLatin1String("INSTALL_ROOT=") + qtVersion->systemRoot());
+    MaemoGlobal::transformMaddeCall(command, args, qtVersion->qmakeCommand());
+    processParameters()->setCommand(command);
     processParameters()->setArguments(args.join(QLatin1String(" ")));
-    processParameters()->setEnvironment(bc->environment());
+    processParameters()->setEnvironment(env);
     processParameters()->setWorkingDirectory(bc->buildDirectory());
     return true;
 }
