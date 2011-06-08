@@ -44,7 +44,7 @@
 namespace QmlDesigner {
 
 NavigatorView::NavigatorView(QObject* parent) :
-        AbstractView(parent),
+        QmlModelView(parent),
         m_blockSelectionChangedSignal(false),
         m_widget(new NavigatorWidget(this)),
         m_treeModel(new NavigatorTreeModel(this))
