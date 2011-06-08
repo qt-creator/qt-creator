@@ -43,7 +43,9 @@
 #include "qt4basetargetfactory.h"
 #include "ui_showbuildlog.h"
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
 
 #include <coreplugin/icore.h>
@@ -58,6 +60,7 @@
 #include <QtCore/QFile>
 #include <qtconcurrent/runextensions.h>
 #include <QtCore/QtConcurrentRun>
+#include <QtGui/QMessageBox>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -412,6 +415,19 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
 
     qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
     qt4BuildConfiguration()->emitProFileEvaluateNeeded();
+
+    int button = QMessageBox::question(QApplication::activeWindow(), tr("QML Debugging"),
+                                   tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"),
+                                   QMessageBox::Yes, QMessageBox::No);
+
+    if (button == QMessageBox::Yes) {
+        Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+
+        QList<ProjectExplorer::BuildStepList *> stepLists;
+        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        ProjectExplorerPlugin::instance()->buildManager()->buildLists(stepLists);
+    }
 }
 
 QStringList QMakeStep::parserArguments()
