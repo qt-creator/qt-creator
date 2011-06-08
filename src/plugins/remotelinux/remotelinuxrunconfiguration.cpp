@@ -310,8 +310,7 @@ QString RemoteLinuxRunConfiguration::commandPrefix() const
         return QString();
 
     return QString::fromLocal8Bit("%1 %2")
-        .arg(MaemoGlobal::remoteCommandPrefix(deviceConfig()->osType(),
-             deviceConfig()->sshParameters().userName, remoteExecutableFilePath()))
+        .arg(MaemoGlobal::remoteCommandPrefix(deviceConfig()->osType()))
         .arg(MaemoGlobal::remoteEnvironment(userEnvironmentChanges()));
 }
 

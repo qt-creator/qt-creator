@@ -108,8 +108,7 @@ public:
     static QString devrootshPath();
     static int applicationIconSize(const QString &osType);
     static QString remoteSudo(const QString &osType, const QString &uname);
-    static QString remoteCommandPrefix(const QString &osType,
-        const QString &userName, const QString &commandFilePath);
+    static QString remoteCommandPrefix(const QString &osType);
     static QString remoteEnvironment(const QList<Utils::EnvironmentItem> &list);
     static QString remoteSourceProfilesCommand();
     static QString failedToConnectToServerMessage(const QSharedPointer<Utils::SshConnection> &connection,

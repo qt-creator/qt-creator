@@ -170,11 +170,9 @@ QString MaemoGlobal::remoteSudo(const QString &osType, const QString &uname)
     return QString(); // Using sudo would open a can of worms.
 }
 
-QString MaemoGlobal::remoteCommandPrefix(const QString &osType, const QString &userName,
-    const QString &commandFilePath)
+QString MaemoGlobal::remoteCommandPrefix(const QString &osType)
 {
-    QString prefix = QString::fromLocal8Bit("%1 chmod a+x %2; %3; ")
-        .arg(remoteSudo(osType, userName), commandFilePath, remoteSourceProfilesCommand());
+    QString prefix = QString::fromLocal8Bit("%1; ").arg(remoteSourceProfilesCommand());
     if (osType != LinuxDeviceConfiguration::Maemo5OsType
             && osType != LinuxDeviceConfiguration::HarmattanOsType) {
         prefix += QLatin1String("DISPLAY=:0.0 ");
