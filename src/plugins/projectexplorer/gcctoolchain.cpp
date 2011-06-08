@@ -606,11 +606,10 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     connect(m_compilerPath, SIGNAL(changed(QString)), this, SLOT(handlePathChange()));
     layout->addRow(tr("&Compiler path:"), m_compilerPath);
     layout->addRow(tr("&ABI:"), m_abiWidget);
+    m_abiWidget->setEnabled(false);
 
     addDebuggerCommandControls(layout, gnuVersionArgs);
     addErrorLabel(layout);
-
-    populateAbiList(tc->supportedAbis(), tc->targetAbi());
 
     connect(m_abiWidget, SIGNAL(abiChanged()), this, SLOT(handleAbiChange()));
 
@@ -635,19 +634,14 @@ void Internal::GccToolChainConfigWidget::apply()
     m_autoDebuggerCommand = QLatin1String("<manually set>");
 }
 
-void Internal::GccToolChainConfigWidget::populateAbiList(const QList<Abi> &list, const Abi &current)
-{
-    m_abiWidget->setAbis(list, current);
-    handleAbiChange();
-}
-
 void Internal::GccToolChainConfigWidget::setFromToolchain()
 {
+    blockSignals(true);
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
-    Q_ASSERT(tc);
     m_compilerPath->setPath(tc->compilerPath());
+    m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
     setDebuggerCommand(tc->debuggerCommand());
-    populateAbiList(tc->supportedAbis(), tc->targetAbi());
+    blockSignals(false);
 }
 
 bool Internal::GccToolChainConfigWidget::isDirty() const
@@ -669,10 +663,17 @@ void Internal::GccToolChainConfigWidget::handlePathChange()
 {
     QString path = m_compilerPath->path();
     QList<Abi> abiList;
-    if (QFileInfo(path).isExecutable())
+    bool haveCompiler = false;
+    if (!path.isEmpty()) {
+        QFileInfo fi(path);
+        haveCompiler = fi.isExecutable() && fi.isFile();
+    }
+    if (haveCompiler)
         abiList = guessGccAbi(path, Utils::Environment::systemEnvironment().toStringList());
-    populateAbiList(abiList, m_abiWidget->currentAbi());
-    emit dirty(toolChain());
+    m_abiWidget->setEnabled(haveCompiler);
+    Abi currentAbi = m_abiWidget->currentAbi();
+    m_abiWidget->setAbis(abiList, abiList.contains(currentAbi) ? currentAbi : Abi());
+    handleAbiChange();
 }
 
 void Internal::GccToolChainConfigWidget::handleAbiChange()

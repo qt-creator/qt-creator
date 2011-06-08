@@ -159,21 +159,24 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
     }
 
     if (d->m_abi->currentIndex() == 0) {
-        d->m_abi->setCurrentIndex(0);
-        d->m_architectureComboBox->setCurrentIndex(static_cast<int>(current.architecture()));
-        d->m_osComboBox->setCurrentIndex(static_cast<int>(current.os()));
-        osChanged();
-        for (int i = 0; i < d->m_osFlavorComboBox->count(); ++i) {
-            if (d->m_osFlavorComboBox->itemData(i).toInt() == current.osFlavor()) {
-                d->m_osFlavorComboBox->setCurrentIndex(i);
-                break;
+        if (!current.isValid() && !abiList.isEmpty()) {
+            d->m_abi->setCurrentIndex(1); // default to the first Abi if none is selected.
+        } else {
+            d->m_architectureComboBox->setCurrentIndex(static_cast<int>(current.architecture()));
+            d->m_osComboBox->setCurrentIndex(static_cast<int>(current.os()));
+            osChanged();
+            for (int i = 0; i < d->m_osFlavorComboBox->count(); ++i) {
+                if (d->m_osFlavorComboBox->itemData(i).toInt() == current.osFlavor()) {
+                    d->m_osFlavorComboBox->setCurrentIndex(i);
+                    break;
+                }
             }
-        }
-        d->m_binaryFormatComboBox->setCurrentIndex(static_cast<int>(current.binaryFormat()));
-        for (int i = 0; i < d->m_wordWidthComboBox->count(); ++i) {
-            if (d->m_wordWidthComboBox->itemData(i).toInt() == current.wordWidth()) {
-                d->m_wordWidthComboBox->setCurrentIndex(i);
-                break;
+            d->m_binaryFormatComboBox->setCurrentIndex(static_cast<int>(current.binaryFormat()));
+            for (int i = 0; i < d->m_wordWidthComboBox->count(); ++i) {
+                if (d->m_wordWidthComboBox->itemData(i).toInt() == current.wordWidth()) {
+                    d->m_wordWidthComboBox->setCurrentIndex(i);
+                    break;
+                }
             }
         }
     }

@@ -98,7 +98,6 @@ private slots:
     void handleAbiChange();
 
 private:
-    void populateAbiList(const QList<Abi> &supported, const Abi &current);
     void setFromToolchain();
 
     Utils::PathChooser *m_compilerPath;
