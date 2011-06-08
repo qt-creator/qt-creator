@@ -48,7 +48,7 @@ public:
 
     static Pointer create();
 
-    void paint(QPainter *painter) const;
+    void paint(QPainter *painter);
 
     QRectF boundingRect() const;
     QPointF position() const;

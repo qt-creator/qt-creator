@@ -49,7 +49,7 @@ DummyNodeInstance::Pointer DummyNodeInstance::create()
     return Pointer(new DummyNodeInstance);
 }
 
-void DummyNodeInstance::paint(QPainter * /*painter*/) const
+void DummyNodeInstance::paint(QPainter * /*painter*/)
 {
 }
 

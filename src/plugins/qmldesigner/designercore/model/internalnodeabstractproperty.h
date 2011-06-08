@@ -57,6 +57,9 @@ public:
     virtual int indexOf(const InternalNodePointer &node) const = 0;
 
     virtual bool isValid() const;
+
+    using InternalProperty::remove; // keep the virtual remove(...) method around
+
 protected:
     InternalNodeAbstractProperty(const QString &name, const InternalNodePointer &propertyOwner);
     virtual void remove(const InternalNodePointer &node) = 0;

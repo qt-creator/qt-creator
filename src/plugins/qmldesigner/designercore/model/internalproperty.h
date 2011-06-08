@@ -88,7 +88,6 @@ public:
 
     virtual void remove();
 
-
     QString dynamicTypeName() const;
 
     void resetDynamicTypeName();
