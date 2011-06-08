@@ -159,6 +159,7 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
     debugButtonsLayout->addWidget(m_debugCppOnlyButton);
     debugButtonsLayout->addWidget(m_debugQmlOnlyButton);
     debugButtonsLayout->addWidget(m_debugCppAndQmlButton);
+    debugButtonsLayout->addStretch(1);
     formLayout->addRow(m_debuggingLanguagesLabel, debugButtonsLayout);
     if (m_runConfiguration->useCppDebugger()) {
         if (m_runConfiguration->useQmlDebugger())
