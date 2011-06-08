@@ -635,7 +635,7 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     m_semanticRehighlightTimer = new QTimer(this);
     m_semanticRehighlightTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_semanticRehighlightTimer->setSingleShot(true);
-    connect(m_semanticRehighlightTimer, SIGNAL(timeout()), this, SLOT(forceSemanticRehighlight()));
+    connect(m_semanticRehighlightTimer, SIGNAL(timeout()), this, SLOT(forceSemanticRehighlightIfCurrentEditor()));
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
@@ -808,6 +808,9 @@ void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     if (file()->fileName() != doc->fileName()
             || doc->editorRevision() != document()->revision()) {
+        // maybe a dependency changed: schedule a potential rehighlight
+        // will not rehighlight if the current editor changes away from this file
+        m_semanticRehighlightTimer->start();
         return;
     }
 
