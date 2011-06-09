@@ -44,9 +44,6 @@ class QDebug;
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace trk {
-    class TrkDevice;
-}
 namespace Coda {
     class CodaDevice;
 }
@@ -64,16 +61,15 @@ enum DeviceCommunicationType {
 
 typedef QSharedPointer<Coda::CodaDevice> CodaDevicePtr;
 
-// SymbianDevice: Explicitly shared device data and a TrkDevice
+// SymbianDevice: Explicitly shared device data and a CodaDevice
 // instance that can be acquired (exclusively) for use.
 // A device removal from the manager will result in the
 // device being closed.
 class SYMBIANUTILS_EXPORT SymbianDevice {
     explicit SymbianDevice(SymbianDeviceData *data);
     friend class SymbianDeviceManager;
-public:
-    typedef QSharedPointer<trk::TrkDevice> TrkDevicePtr;
 
+public:
     SymbianDevice();
     SymbianDevice(const SymbianDevice &rhs);
     SymbianDevice &operator=(const SymbianDevice &rhs);
@@ -97,14 +93,6 @@ public:
     QString toString() const;
 
 private:
-    // Acquire: Mark the device as 'out' and return a shared pointer
-    // unless it is already in use by another owner. The result should not
-    // be passed on further.
-    // TRK only
-    TrkDevicePtr acquireDevice();
-    // Give back a device and mark it as 'free'. TRK only.
-    void releaseDevice(TrkDevicePtr *ptr = 0);
-
     void forcedClose();
 
     QExplicitlySharedDataPointer<SymbianDeviceData> m_data;
@@ -129,7 +117,6 @@ class SYMBIANUTILS_EXPORT SymbianDeviceManager : public QObject
     Q_OBJECT
 public:
     typedef QList<SymbianDevice> SymbianDeviceList;
-    typedef QSharedPointer<trk::TrkDevice> TrkDevicePtr;
 
     static const char *linuxBlueToothDeviceRootC;
 
@@ -142,9 +129,6 @@ public:
 
     SymbianDeviceList devices() const;
     QString toString() const;
-
-    // Acquire a TRK device for use. Assuming the port is found, equivalent to devices()[findByPortName(port)].acquireDevice(). See also releaseDevice().
-    TrkDevicePtr acquireDevice(const QString &port);
 
     //// The CODA code prefers to set up the CodaDevice object itself, so we let it and just handle opening the underlying QIODevice and keeping track of the CodaDevice
     //// Returns true if port was opened successfully.
@@ -167,8 +151,6 @@ public:
 
 public slots:
     void update();
-    // Release a device, make it available for further use. Only for use with a TRK device
-    void releaseDevice(const QString &port);
     void setAdditionalInformation(const QString &port, const QString &ai);
 
 signals:

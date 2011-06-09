@@ -97,7 +97,7 @@ enum TargetConstants
     RegisterLR = 14, // Return address
     RegisterPC = 15, // Program counter
     RegisterPSGdb = 25, // gdb's view of the world
-    RegisterPSTrk = 16, // TRK's view of the world
+    RegisterPSCoda = 16, // CODA's view of the world
 
     MemoryChunkSize = 256
 };

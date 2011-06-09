@@ -31,7 +31,6 @@
 **************************************************************************/
 
 #include "symbiandevicemanager.h"
-#include "trkdevice.h"
 #include "codadevice.h"
 #include "virtualserialdevice.h"
 
@@ -85,7 +84,6 @@ public:
     QString additionalInformation;
 
     DeviceCommunicationType type;
-    QSharedPointer<trk::TrkDevice> device;
     QSharedPointer<Coda::CodaDevice> codaDevice;
     int deviceAcquired;
 };
@@ -98,11 +96,7 @@ SymbianDeviceData::SymbianDeviceData() :
 
 bool SymbianDeviceData::isOpen() const
 {
-    if (device)
-        return device->isOpen();
-    if (codaDevice)
-        return codaDevice->device()->isOpen();
-    return false;
+    return codaDevice && codaDevice->device()->isOpen();
 }
 
 SymbianDeviceData::~SymbianDeviceData()
@@ -120,10 +114,7 @@ void SymbianDeviceData::forcedClose()
         if (deviceAcquired)
             qWarning("Device on '%s' unplugged while an operation is in progress.",
                      qPrintable(portName));
-        if (device)
-            device->close();
-        else
-            codaDevice->device()->close();
+        codaDevice->device()->close();
     }
 }
 
@@ -175,41 +166,6 @@ QString SymbianDevice::additionalInformation() const
 void SymbianDevice::setAdditionalInformation(const QString &a)
 {
     m_data->additionalInformation = a;
-}
-
-SymbianDevice::TrkDevicePtr SymbianDevice::acquireDevice()
-{
-    if (debug)
-        qDebug() << "SymbianDevice::acquireDevice" << m_data->portName
-                << "acquired: " << m_data->deviceAcquired << " open: " << isOpen();
-    if (isNull() || m_data->deviceAcquired)
-        return TrkDevicePtr();
-    if (m_data->device.isNull()) {
-        m_data->device = TrkDevicePtr(new trk::TrkDevice);
-        m_data->device->setPort(m_data->portName);
-        m_data->device->setSerialFrame(m_data->type == SerialPortCommunication);
-    }
-    m_data->deviceAcquired = 1;
-    return m_data->device;
-}
-
-void SymbianDevice::releaseDevice(TrkDevicePtr *ptr /* = 0 */)
-{
-    if (debug)
-        qDebug() << "SymbianDevice::releaseDevice" << m_data->portName
-                << " open: " << isOpen();
-    if (m_data->deviceAcquired) {
-        if (m_data->device->isOpen())
-            m_data->device->clearWriteQueue();
-        // Release if a valid pointer was passed in.
-        if (ptr && !ptr->isNull()) {
-            ptr->data()->disconnect();
-            *ptr = TrkDevicePtr();
-        }
-        m_data->deviceAcquired = 0;
-    } else {
-        qWarning("Internal error: Attempt to release device that is not acquired.");
-    }
 }
 
 QString SymbianDevice::deviceDesc() const
@@ -365,23 +321,6 @@ QString SymbianDeviceManager::friendlyNameForPort(const QString &port) const
     return idx == -1 ? QString() : d->m_devices.at(idx).friendlyName();
 }
 
-SymbianDeviceManager::TrkDevicePtr
-        SymbianDeviceManager::acquireDevice(const QString &port)
-{
-    ensureInitialized();
-    const int idx = findByPortName(port);
-    if (idx == -1) {
-        qWarning("Attempt to acquire device '%s' that does not exist.", qPrintable(port));
-        if (debug)
-            qDebug() << *this;
-        return TrkDevicePtr();
-      }
-    const TrkDevicePtr rc = d->m_devices[idx].acquireDevice();
-    if (debug)
-        qDebug() << "SymbianDeviceManager::acquireDevice" << port << " returns " << !rc.isNull();
-    return rc;
-}
-
 CodaDevicePtr SymbianDeviceManager::getCodaDevice(const QString &port)
 {
     ensureInitialized();
@@ -394,10 +333,6 @@ CodaDevicePtr SymbianDeviceManager::getCodaDevice(const QString &port)
         return CodaDevicePtr();
     }
     SymbianDevice& device = d->m_devices[idx];
-    if (device.m_data->device && device.m_data->device.data()->isOpen()) {
-        qWarning("Attempting to open a port '%s' that is configured for TRK!", qPrintable(port));
-        return CodaDevicePtr();
-    }
     CodaDevicePtr& devicePtr = device.m_data->codaDevice;
     if (devicePtr.isNull() || !devicePtr->device()->isOpen()) {
         // Check we instanciate in the correct thread - we can't afford to create the CodaDevice (and more specifically, open the VirtualSerialDevice) in a thread that isn't guaranteed to be long-lived.
@@ -485,17 +420,6 @@ void SymbianDeviceManager::delayedClosePort()
 void SymbianDeviceManager::update()
 {
     update(true);
-}
-
-void SymbianDeviceManager::releaseDevice(const QString &port)
-{
-    const int idx = findByPortName(port);
-    if (debug)
-        qDebug() << "SymbianDeviceManager::releaseDevice" << port << idx << sender();
-    if (idx != -1)
-        d->m_devices[idx].releaseDevice();
-    else
-        qWarning("Attempt to release non-existing device %s.", qPrintable(port));
 }
 
 void SymbianDeviceManager::setAdditionalInformation(const QString &port, const QString &ai)
@@ -669,7 +593,7 @@ SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::serialPorts() cons
             if (kernResult == KERN_SUCCESS) {
                 CFStringRef className = IOObjectCopyClass(grandparent);
                 if (CFStringCompare(className, CFSTR("IOBluetoothSerialClient"), 0) == 0) {
-                    // CODA doesn't support bluetooth and TRK makes connections back to the PC so we're not going to support it - use CODA :)
+                    // CODA doesn't support bluetooth
                     match = false;
                 }
                 else if (CFStringCompare(className, CFSTR("AppleUSBCDCACMData"), 0) == 0) {
@@ -689,7 +613,7 @@ SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::serialPorts() cons
                     }
                 }
                 else {
-                    // We don't expect TRK/CODA on any other type of serial port
+                    // We don't expect CODA on any other type of serial port
                     match = false;
                 }
                 CFRelease(className);
@@ -735,8 +659,7 @@ SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::blueToothDevices()
             rc.push_back(SymbianDevice(device.take()));
         }
     }
-    // New kernel versions support /dev/ttyUSB0, /dev/ttyUSB1. Trk responds
-    // on the latter (usually), try first.
+    // New kernel versions support /dev/ttyUSB0, /dev/ttyUSB1.
     static const char *usbTtyDevices[] = {
         "/dev/ttyUSB3", "/dev/ttyUSB2", "/dev/ttyUSB1", "/dev/ttyUSB0",
         "/dev/ttyACM3", "/dev/ttyACM2", "/dev/ttyACM1", "/dev/ttyACM0"};

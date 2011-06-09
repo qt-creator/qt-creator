@@ -34,18 +34,12 @@
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
 
-#include "s60runconfigbluetoothstarter.h"
-#include <symbianutils/bluetoothlistener_gui.h>
-
-#include <symbianutils/launcher.h>
-#include <symbianutils/bluetoothlistener.h>
 #include <symbianutils/symbiandevicemanager.h>
 #include <codadevice.h>
 
 #include <coreplugin/helpmanager.h>
 
 #include "codaruncontrol.h"
-#include "trkruncontrol.h"
 
 #include <utils/detailswidget.h>
 #include <utils/ipaddresslineedit.h>
@@ -139,9 +133,6 @@ S60DeployConfigurationWidget::S60DeployConfigurationWidget(QWidget *parent)
       m_serialRadioButton(new QRadioButton(tr("Serial:"))),
       m_wlanRadioButton(new QRadioButton(tr("WLAN:"))),
       m_ipAddress(new Utils::IpAddressLineEdit),
-      m_trkRadioButton(new QRadioButton(tr("TRK"))),
-      m_codaRadioButton(new QRadioButton(tr("CODA"))),
-      m_codaInfoLabel(new QLabel(tr("<a href=\"qthelp://com.nokia.qtcreator/doc/creator-developing-symbian.html\">What are the prerequisites?</a>"))),
       m_codaTimeout(new QTimer(this))
 {
 }
@@ -196,41 +187,11 @@ void S60DeployConfigurationWidget::init(ProjectExplorer::DeployConfiguration *dc
     connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(updated()),
             this, SLOT(updateSerialDevices()));
 
-    //Debug Client
-    QVBoxLayout *debugClientContentVBoxLayout = new QVBoxLayout;
-    debugClientContentVBoxLayout->addWidget(m_codaInfoLabel);
-
-    QHBoxLayout *debugClientHBoxLayout = new QHBoxLayout;
-    debugClientContentVBoxLayout->addLayout(debugClientHBoxLayout);
-
-    QVBoxLayout *debugClientVBoxLayout = new QVBoxLayout;
-    debugClientVBoxLayout->addWidget(m_trkRadioButton);
-    debugClientVBoxLayout->addWidget(m_codaRadioButton);
-
-    debugClientVBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding));
-
-    debugClientHBoxLayout->addLayout(debugClientVBoxLayout);
-
-    debugClientHBoxLayout->addWidget(createCommunicationChannel());
-    debugClientHBoxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
-
-    QGroupBox *debugClientGroupBox = new QGroupBox(tr("Device Agent"));
-    debugClientGroupBox->setLayout(debugClientContentVBoxLayout);
-
-    bool usingTrk = m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection;
-    m_trkRadioButton->setChecked(usingTrk);
-    m_codaRadioButton->setChecked(!usingTrk);
-
     bool usingTcp = m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaTcpConnection;
     m_serialRadioButton->setChecked(!usingTcp);
     m_wlanRadioButton->setChecked(usingTcp);
 
-    connect(m_trkRadioButton, SIGNAL(clicked()), this, SLOT(updateCommunicationChannel()));
-    connect(m_codaRadioButton, SIGNAL(clicked()), this, SLOT(updateCommunicationChannel()));
-    connect(m_codaInfoLabel, SIGNAL(linkActivated(QString)),
-            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
-
-    formLayout->addRow(debugClientGroupBox);
+    formLayout->addRow(createCommunicationChannel());
 
     // Device Info with button. Widgets are enabled in above call to updateSerialDevices()
     QHBoxLayout *infoHBoxLayout = new QHBoxLayout;
@@ -415,58 +376,32 @@ void S60DeployConfigurationWidget::setSerialPort(int index)
 void S60DeployConfigurationWidget::updateCommunicationChannelUi()
 {
     S60DeployConfiguration::CommunicationChannel channel = m_deployConfiguration->communicationChannel();
-    if (channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
-        m_trkRadioButton->setChecked(true);
-        m_codaRadioButton->setChecked(false);
-        m_serialRadioButton->setChecked(true);
-        m_wlanRadioButton->setDisabled(true);
+    if (channel == S60DeployConfiguration::CommunicationCodaTcpConnection) {
+        m_ipAddress->setDisabled(false);
+        m_serialPortsCombo->setDisabled(true);
+        m_deviceInfoButton->setEnabled(true);
+    } else {
         m_ipAddress->setDisabled(true);
         m_serialPortsCombo->setDisabled(false);
         updateSerialDevices();
-    } else {
-        m_trkRadioButton->setChecked(false);
-        m_codaRadioButton->setChecked(true);
-        m_wlanRadioButton->setDisabled(false);
-        if (channel == S60DeployConfiguration::CommunicationCodaTcpConnection) {
-            m_ipAddress->setDisabled(false);
-            m_serialPortsCombo->setDisabled(true);
-            m_deviceInfoButton->setEnabled(true);
-        } else {
-            m_ipAddress->setDisabled(true);
-            m_serialPortsCombo->setDisabled(false);
-            updateSerialDevices();
-        }
     }
 }
 
 void S60DeployConfigurationWidget::updateCommunicationChannel()
 {
-    if (!m_trkRadioButton->isChecked() && !m_codaRadioButton->isChecked())
-        m_trkRadioButton->setChecked(true);
-
-    if (m_trkRadioButton->isChecked()) {
+    if (!m_wlanRadioButton->isChecked() && !m_serialRadioButton->isChecked())
         m_serialRadioButton->setChecked(true);
-        m_wlanRadioButton->setDisabled(true);
+
+    if (m_wlanRadioButton->isChecked()) {
+        m_ipAddress->setDisabled(false);
+        m_serialPortsCombo->setDisabled(true);
+        m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationCodaTcpConnection);
+        m_deviceInfoButton->setEnabled(true);
+    } else {
         m_ipAddress->setDisabled(true);
         m_serialPortsCombo->setDisabled(false);
-        m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationTrkSerialConnection);
+        m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationCodaSerialConnection);
         updateSerialDevices();
-    } else if (m_codaRadioButton->isChecked()) {
-        if (!m_wlanRadioButton->isChecked() && !m_serialRadioButton->isChecked())
-            m_serialRadioButton->setChecked(true);
-        m_wlanRadioButton->setDisabled(false);
-
-        if (m_wlanRadioButton->isChecked()) {
-            m_ipAddress->setDisabled(false);
-            m_serialPortsCombo->setDisabled(true);
-            m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationCodaTcpConnection);
-            m_deviceInfoButton->setEnabled(true);
-        } else {
-            m_ipAddress->setDisabled(true);
-            m_serialPortsCombo->setDisabled(false);
-            m_deployConfiguration->setCommunicationChannel(S60DeployConfiguration::CommunicationCodaSerialConnection);
-            updateSerialDevices();
-        }
     }
 }
 
@@ -507,78 +442,10 @@ void S60DeployConfigurationWidget::setDeviceInfoLabel(const QString &message, bo
     m_deviceInfoLabel->adjustSize();
 }
 
-void S60DeployConfigurationWidget::slotLauncherStateChanged(int s)
-{
-    switch (s) {
-    case trk::Launcher::WaitingForTrk: {
-        // Entered trk wait state..open message box
-        QMessageBox *mb = TrkRunControl::createTrkWaitingMessageBox(m_infoLauncher->trkServerName(), this);
-        connect(m_infoLauncher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
-        connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));
-        mb->open();
-    }
-    break;
-    case trk::Launcher::DeviceDescriptionReceived: // All ok, done
-        setDeviceInfoLabel(m_infoLauncher->deviceDescription());
-        m_deviceInfoButton->setEnabled(true);
-        m_infoLauncher->deleteLater();
-        break;
-    }
-}
-
-void S60DeployConfigurationWidget::slotWaitingForTrkClosed()
-{
-    if (m_infoLauncher && m_infoLauncher->state() == trk::Launcher::WaitingForTrk) {
-        m_infoLauncher->deleteLater();
-        clearDeviceInfo();
-        m_deviceInfoButton->setEnabled(true);
-    }
-}
-
 void S60DeployConfigurationWidget::updateDeviceInfo()
 {
     setDeviceInfoLabel(tr("Connecting"));
-    if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection) {
-        QTC_ASSERT(!m_infoLauncher, return)
-
-        // Do a launcher run with the ping protocol. Prompt to connect and
-        // go asynchronous afterwards to pop up launch trk box if a timeout occurs.
-        QString message;
-        const SymbianUtils::SymbianDevice commDev = currentDevice();
-        m_infoLauncher = trk::Launcher::acquireFromDeviceManager(commDev.portName(), this, &message);
-        if (!m_infoLauncher) {
-            setDeviceInfoLabel(message, true);
-            return;
-        }
-        connect(m_infoLauncher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
-
-        m_infoLauncher->setSerialFrame(commDev.type() == SymbianUtils::SerialPortCommunication);
-        m_infoLauncher->setTrkServerName(commDev.portName());
-
-        // Prompt user
-        const trk::PromptStartCommunicationResult src =
-                S60RunConfigBluetoothStarter::startCommunication(m_infoLauncher->trkDevice(),
-                                                                 this, &message);
-        switch (src) {
-        case trk::PromptStartCommunicationConnected:
-            break;
-        case trk::PromptStartCommunicationCanceled:
-            clearDeviceInfo();
-            m_infoLauncher->deleteLater();
-            return;
-        case trk::PromptStartCommunicationError:
-            setDeviceInfoLabel(message, true);
-            m_infoLauncher->deleteLater();
-            return;
-        };
-        if (!m_infoLauncher->startServer(&message)) {
-            setDeviceInfoLabel(message, true);
-            m_infoLauncher->deleteLater();
-            return;
-        }
-        // Wait for either timeout or results
-        m_deviceInfoButton->setEnabled(false);
-    } else if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaSerialConnection) {
+    if (m_deployConfiguration->communicationChannel() == S60DeployConfiguration::CommunicationCodaSerialConnection) {
         const SymbianUtils::SymbianDevice commDev = currentDevice();
         m_codaInfoDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(commDev.portName());
         if (m_codaInfoDevice.isNull()) {

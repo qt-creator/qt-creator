@@ -69,7 +69,6 @@ class AttachGdbAdapter;
 class CoreGdbAdapter;
 class LocalPlainGdbAdapter;
 class RemoteGdbServerAdapter;
-class TrkGdbAdapter;
 
 enum DebuggingHelperState
 {
@@ -230,7 +229,6 @@ private:
     friend class TermGdbAdapter;
     friend class RemoteGdbServerAdapter;
     friend class RemotePlainGdbAdapter;
-    friend class TrkGdbAdapter;
     friend class CodaGdbAdapter;
 
 private: ////////// General Interface //////////

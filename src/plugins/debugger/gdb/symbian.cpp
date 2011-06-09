@@ -33,7 +33,7 @@
 #include "symbian.h"
 #include "registerhandler.h"
 #include "threadshandler.h"
-#include <trkutils.h>
+#include <codautils.h>
 
 #include <utils/qtcassert.h>
 
@@ -120,7 +120,7 @@ QByteArray dumpRegister(uint n, uint value)
         ba += QByteArray::number(n);
     }
     ba += '=';
-    ba += trk::hexxNumber(value);
+    ba += Coda::hexxNumber(value);
     return ba;
 }
 
@@ -145,8 +145,8 @@ QByteArray Thread::gdbReportRegisters() const
 {
     QByteArray ba;
     for (int i = 0; i < 16; ++i) {
-        const uint reg = trk::swapEndian(registers[i]);
-        ba += trk::hexNumber(reg, 8);
+        const uint reg = Coda::swapEndian(registers[i]);
+        ba += Coda::hexNumber(reg, 8);
     }
     return ba;
 }
@@ -174,18 +174,18 @@ QByteArray Thread::gdbRegisterLogMessage(bool verbose) const
 QByteArray Thread::gdbReportSingleRegister(unsigned i) const
 {
     if (i == RegisterPSGdb)
-        i = RegisterPSTrk;
+        i = RegisterPSCoda;
     if (i >= RegisterCount)
         return QByteArray("0000"); // Unknown
     QByteArray ba;
-    appendInt(&ba, registers[i], trk::LittleEndian);
+    appendInt(&ba, registers[i], Coda::LittleEndian);
     return ba.toHex();
 }
 
 QByteArray Thread::gdbSingleRegisterLogMessage(unsigned i) const
 {
     if (i == RegisterPSGdb)
-        i = RegisterPSTrk;
+        i = RegisterPSCoda;
     if (i >= RegisterCount)
         return QByteArray("Read single unknown register #") + QByteArray::number(i);
     QByteArray logMsg = "Read Register ";
@@ -395,7 +395,7 @@ QByteArray Snapshot::gdbQsThreadInfo() const
     for (int i = 0; i < count; i++) {
         if (i)
             response += ',';
-        response += trk::hexNumber(threadInfo.at(i).id);
+        response += Coda::hexNumber(threadInfo.at(i).id);
     }
     return response;
 }
@@ -415,18 +415,18 @@ QByteArray Snapshot::gdbQThreadExtraInfo(const QByteArray &cmd) const
 
 static void gdbAppendRegister(QByteArray *ba, uint regno, uint value)
 {
-    ba->append(trk::hexNumber(regno, 2));
+    ba->append(Coda::hexNumber(regno, 2));
     ba->append(':');
-    ba->append(trk::hexNumber(trk::swapEndian(value), 8));
+    ba->append(Coda::hexNumber(Coda::swapEndian(value), 8));
     ba->append(';');
 }
 
 QByteArray Snapshot::gdbStopMessage(uint threadId, int signalNumber, bool reportThreadId) const
 {
-    QByteArray ba = ('T' + trk::hexNumber(signalNumber, 2));
+    QByteArray ba = ('T' + Coda::hexNumber(signalNumber, 2));
     if (reportThreadId) {
         ba += "thread:";
-        ba += trk::hexNumber(threadId, 3);
+        ba += Coda::hexNumber(threadId, 3);
         ba += ';';
     }
     const int threadIndex = indexOfThread(threadId);
@@ -437,7 +437,7 @@ QByteArray Snapshot::gdbStopMessage(uint threadId, int signalNumber, bool report
     // FIXME: those are not understood by gdb 6.4
     //for (int i = 16; i < 25; ++i)
     //    appendRegister(&ba, i, 0x0);
-    gdbAppendRegister(&ba, RegisterPSGdb, thread.registers[RegisterPSTrk]);
+    gdbAppendRegister(&ba, RegisterPSGdb, thread.registers[RegisterPSCoda]);
     return ba;
 }
 
@@ -447,12 +447,12 @@ QByteArray Snapshot::memoryReadLogMessage(uint addr, uint threadId, bool verbose
     QByteArray logMsg = "memory contents";
     const uint *regs = registers(threadId);
     if (verbose && regs) {
-        logMsg += " addr: " + trk::hexxNumber(addr);
+        logMsg += " addr: " + Coda::hexxNumber(addr);
         // indicate dereferencing of registers
         if (ba.size() == 4) {
             if (addr == regs[RegisterPC]) {
                 logMsg += "[PC]";
-            } else if (addr == regs[RegisterPSTrk]) {
+            } else if (addr == regs[RegisterPSCoda]) {
                 logMsg += "[PSTrk]";
             } else if (addr == regs[RegisterSP]) {
                 logMsg += "[SP]";
@@ -468,7 +468,7 @@ QByteArray Snapshot::memoryReadLogMessage(uint addr, uint threadId, bool verbose
         logMsg += " length ";
         logMsg += QByteArray::number(ba.size());
         logMsg += " :";
-        logMsg += trk::stringFromArray(ba, ba.size()).toAscii();
+        logMsg += Coda::stringFromArray(ba, ba.size()).toAscii();
     }
     return logMsg;
 }
@@ -486,9 +486,9 @@ void Snapshot::syncRegisters(uint threadId, RegisterHandler *handler) const
         qDebug() << "HAVE: " << debuggerRegisters.size(); return);
 
     for (int i = 0; i < RegisterCount; ++i) {
-        const int gdbIndex = i == RegisterPSTrk ? int(RegisterPSGdb) : i;
+        const int gdbIndex = i == RegisterPSCoda ? int(RegisterPSGdb) : i;
         Register &reg = debuggerRegisters[gdbIndex];
-        reg.value = trk::hexxNumber(thread.registers[i]);
+        reg.value = Coda::hexxNumber(thread.registers[i]);
     }
     handler->setAndMarkRegisters(debuggerRegisters);
 }
@@ -658,7 +658,7 @@ QPair<uint, uint> parseGdbWriteRegisterWriteRequest(const QByteArray &cmd)
     const QByteArray valueName = cmd.mid(pos + 1);
     bool ok = false;
     const uint registerNumber = regName.toUInt(&ok, 16);
-    const uint value = trk::swapEndian(valueName.toUInt(&ok, 16));
+    const uint value = Coda::swapEndian(valueName.toUInt(&ok, 16));
     return QPair<uint, uint>(registerNumber, value);
 }
 

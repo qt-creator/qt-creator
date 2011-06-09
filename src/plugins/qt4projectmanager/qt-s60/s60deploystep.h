@@ -44,10 +44,6 @@ namespace SymbianUtils {
 class SymbianDevice;
 }
 
-namespace trk{
-class Launcher;
-}
-
 namespace Coda {
     struct CodaCommandResult;
     class CodaDevice;
@@ -102,8 +98,6 @@ public:
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    void setReleaseDeviceAfterLauncherFinish(bool);
-
     virtual QVariantMap toMap() const;
 
 protected:
@@ -113,24 +107,12 @@ protected slots:
     void deviceRemoved(const SymbianUtils::SymbianDevice &);
 
 private slots:
-    void connectFailed(const QString &errorMessage);
-    void printCopyingNotice(const QString &fileName);
-    void printCopyingFinished(const QString &fileName);
-    void createFileFailed(const QString &filename, const QString &errorMessage);
-    void writeFileFailed(const QString &filename, const QString &errorMessage);
-    void closeFileFailed(const QString &filename, const QString &errorMessage);
-    void printInstallingNotice(const QString &packageName);
-    void installFailed(const QString &filename, const QString &errorMessage);
-    void printInstallingFinished();
-    void launcherFinished(bool success = true);
-    void slotLauncherStateChanged(int);
-    void slotWaitingForTrkClosed();
     void checkForCancel();
     void checkForTimeout();
     void timeout();
 
     void slotError(const QString &error);
-    void slotTrkLogMessage(const QString &log);
+    void slotCodaLogMessage(const QString &log);
     void slotSerialPong(const QString &message);
     void slotCodaEvent(const Coda::CodaEvent &event);
 
@@ -138,7 +120,7 @@ private slots:
     void startTransferring();
 
     void deploymentFinished(bool success);
-    void slotWaitingForTckTrkClosed(int result);
+    void slotWaitingForCodaClosed(int result);
     void showManualInstallationInfo();
 
     void setCopyProgress(int progress);
@@ -204,12 +186,7 @@ private:
     QTimer *m_timer;
     QTimer* m_timeoutTimer;
 
-    bool m_releaseDeviceAfterLauncherFinish;
-    bool m_handleDeviceRemoval;
-
     QFutureInterface<bool> *m_futureInterface; //not owned
-
-    trk::Launcher *m_launcher;
 
     QSharedPointer<Coda::CodaDevice> m_codaDevice;
 

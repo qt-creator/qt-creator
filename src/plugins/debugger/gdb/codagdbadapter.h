@@ -36,7 +36,7 @@
 #include "abstractgdbadapter.h"
 #include "localgdbprocess.h"
 #include "callback.h"
-#include "trkutils.h"
+#include "codautils.h"
 #include "symbian.h"
 
 #include <QtCore/QPointer>
@@ -78,9 +78,9 @@ class CodaGdbAdapter : public AbstractGdbAdapter
     Q_OBJECT
 
 public:
-    typedef trk::Callback<const GdbResult &> GdbResultCallback;
-    typedef trk::Callback<const Coda::CodaCommandResult &> CodaCallback;
-    typedef trk::Callback<const GdbResponse &> GdbCallback;
+    typedef Coda::Callback<const GdbResult &> GdbResultCallback;
+    typedef Coda::Callback<const Coda::CodaCommandResult &> CodaCallback;
+    typedef Coda::Callback<const GdbResponse &> GdbCallback;
 
     explicit CodaGdbAdapter(GdbEngine *engine);
     virtual ~CodaGdbAdapter();
@@ -91,8 +91,8 @@ public:
     void setVerbose(int verbose);
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
 
-    void trkReloadRegisters();
-    void trkReloadThreads();
+    void codaReloadRegisters();
+    void codaReloadThreads();
 
 signals:
     void output(const QString &msg);
@@ -104,12 +104,12 @@ public:
     void start(const QString &program, const QStringList &args,
         QIODevice::OpenMode mode = QIODevice::ReadWrite);
     void write(const QByteArray &data);
-    bool isTrkAdapter() const { return true; }
+    bool isCodaAdapter() const { return true; }
 
     virtual DumperHandling dumperHandling() const { return DumperNotAvailable; }
 
 private:
-    void setupTrkDeviceSignals();
+    void setupDeviceSignals();
     void startAdapter();
     void setupInferior();
     void runEngine();
@@ -162,8 +162,8 @@ private:
     void startGdb();
     Q_SLOT void codaEvent(const Coda::CodaEvent &knownEvent);
     void handleCodaRunControlModuleLoadContextSuspendedEvent(const Coda::CodaRunControlModuleLoadContextSuspendedEvent &e);
-    inline void sendTrkContinue();
-    void sendTrkStepRange();
+    inline void sendContinue();
+    void sendStepRange();
     void handleStep(const Coda::CodaCommandResult &result);
     void handleCreateProcess(const Coda::CodaCommandResult &result);
 
@@ -184,7 +184,7 @@ private:
     bool m_gdbAckMode;
 
     // Debuggee state
-    trk::Session m_session; // global-ish data (process id, target information)
+    Coda::Session m_session; // global-ish data (process id, target information)
     Symbian::Snapshot m_snapshot; // local-ish data (memory and registers)
     QString m_remoteExecutable;
     unsigned m_uid;

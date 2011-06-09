@@ -107,9 +107,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
                 Debugger::DebuggerStartParameters::CommunicationChannelTcpIp:
                 Debugger::DebuggerStartParameters::CommunicationChannelUsb;
 
-    sp.debugClient = activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection?
-                Debugger::DebuggerStartParameters::SymbianDebugClientTrk:
-                Debugger::DebuggerStartParameters::SymbianDebugClientCoda;
+    sp.debugClient = Debugger::DebuggerStartParameters::SymbianDebugClientCoda;
 
     if (const ProjectExplorer::Project *project = rc->target()->project()) {
         sp.projectSourceDirectory = project->projectDirectory();

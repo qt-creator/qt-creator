@@ -56,7 +56,7 @@ struct CodaDevicePrivate;
 struct Breakpoint;
 
 /* Command error handling in CODA:
- * 1) 'Severe' errors (JSON format, parameter format): Trk emits a
+ * 1) 'Severe' errors (JSON format, parameter format): Coda emits a
  *     nonstandard message (\3\2 error parameters) and closes the connection.
  * 2) Protocol errors: 'N' without error message is returned.
  * 3) Errors in command execution: 'R' with a CODA error hash is returned
@@ -121,7 +121,7 @@ struct SYMBIANUTILS_EXPORT CodaStatResponse
     QDateTime accessTime;
 };
 
-typedef trk::Callback<const CodaCommandResult &> CodaCallback;
+typedef Coda::Callback<const CodaCommandResult &> CodaCallback;
 
 /* CodaDevice: CODA communication helper using an asynchronous QIODevice
  * implementing the CODA protocol according to:

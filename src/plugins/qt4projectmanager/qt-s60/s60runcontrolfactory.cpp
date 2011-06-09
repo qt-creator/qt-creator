@@ -35,7 +35,6 @@
 #include "codaruncontrol.h"
 #include "s60devicerunconfiguration.h"
 #include "s60deployconfiguration.h"
-#include "trkruncontrol.h"
 #include "qt4symbiantarget.h"
 
 #include <utils/qtcassert.h>
@@ -72,9 +71,6 @@ RunControl* S60RunControlFactory::create(RunConfiguration *runConfiguration, con
     S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->target()->activeDeployConfiguration());
     if (!activeDeployConf)
         return 0;
-
-    if (activeDeployConf->communicationChannel() == S60DeployConfiguration::CommunicationTrkSerialConnection)
-        return new TrkRunControl(rc, mode);
     return new CodaRunControl(rc, mode);
 }
 

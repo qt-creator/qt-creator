@@ -32,7 +32,7 @@
 
 #include "codadevice.h"
 #include "json.h"
-#include "trkutils.h"
+#include "codautils.h"
 
 #include <QtNetwork/QAbstractSocket>
 #include <QtCore/QDebug>
@@ -71,7 +71,7 @@ static inline void encodeSerialFrame(const QByteArray &data, QByteArray *target,
 {
     target->append(char(0x01));
     target->append(protocolId);
-    appendShort(target, ushort(data.size()), trk::BigEndian);
+    appendShort(target, ushort(data.size()), Coda::BigEndian);
     target->append(data);
 }
 
@@ -465,7 +465,7 @@ void CodaDevice::slotDeviceReadyRead()
     const QByteArray newData = d->m_device->readAll();
     d->m_readBuffer += newData;
     if (debug)
-        qDebug("ReadBuffer: %s", qPrintable(trk::stringFromArray(newData)));
+        qDebug("ReadBuffer: %s", qPrintable(Coda::stringFromArray(newData)));
     if (d->m_serialFrame) {
         deviceReadyReadSerial();
     } else {
@@ -484,11 +484,11 @@ QPair<int, int> CodaDevice::findSerialHeader(QByteArray &in)
     while (in.size() >= 4) {
         if (in.at(0) == header1 && in.at(1) == codaProtocolId) {
             // Good packet
-            const int length = trk::extractShort(in.constData() + 2);
+            const int length = Coda::extractShort(in.constData() + 2);
             return QPair<int, int>(4, length);
         } else if (in.at(0) == header1 && in.at(1) >= validProtocolIdStart && in.at(1) <= validProtocolIdEnd) {
             // We recognise it but it's not a CODA message - emit it for any interested party to handle
-            const int length = trk::extractShort(in.constData() + 2);
+            const int length = Coda::extractShort(in.constData() + 2);
             if (4 + length <= in.size()) {
                 // We have all the data
                 QByteArray data(in.mid(4, length));
@@ -505,7 +505,7 @@ QPair<int, int> CodaDevice::findSerialHeader(QByteArray &in)
             int nextHeader = in.indexOf(header1, 1);
             QByteArray bad = in.mid(0, nextHeader);
             qWarning("Bogus data received on serial line: %s\n"
-                     "Frame Header at: %d", qPrintable(trk::stringFromArray(bad)), nextHeader);
+                     "Frame Header at: %d", qPrintable(Coda::stringFromArray(bad)), nextHeader);
             in.remove(0, bad.length());
             // and continue
         }
@@ -533,7 +533,7 @@ void CodaDevice::deviceReadyReadSerial()
 void CodaDevice::processSerialMessage(const QByteArray &message)
 {
     if (debug > 1)
-        qDebug("Serial message: %s",qPrintable(trk::stringFromArray(message)));
+        qDebug("Serial message: %s",qPrintable(Coda::stringFromArray(message)));
     if (message.isEmpty())
         return;
     // Is thing a ping/pong response

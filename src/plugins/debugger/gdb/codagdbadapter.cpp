@@ -34,7 +34,7 @@
 
 #include "debuggerstartparameters.h"
 #include "codadevice.h"
-#include "trkutils.h"
+#include "codautils.h"
 #include "gdbmi.h"
 #include "symbiandevicemanager.h"
 
@@ -89,7 +89,7 @@ namespace Internal {
 using namespace Symbian;
 using namespace Coda;
 
-static inline QString startMsg(const trk::Session &session)
+static inline QString startMsg(const Coda::Session &session)
 {
     return CodaGdbAdapter::tr("Process started, PID: 0x%1, thread id: 0x%2, "
        "code segment: 0x%3, data segment: 0x%4.")
@@ -109,9 +109,9 @@ static inline QString startMsg(const trk::Session &session)
  *  - Engine sets up breakpoints,etc and calls inferiorStartPhase2(), which
  *    resumes the suspended CODA process via gdb 'continue'.
  * Thread handling (30.06.2010):
- * TRK does not report thread creation/termination. So, if we receive
+ * CODA does not report thread creation/termination. So, if we receive
  * a stop in a different thread, we store an additional thread in snapshot.
- * When continuing in sendTrkContinue(), we delete this thread, since we cannot
+ * When continuing in sendContinue(), we delete this thread, since we cannot
  * know whether it will exist at the next stop.
  * Also note that threads continue running in Symbian even if one crashes.
  * TODO: - Maybe thread reporting will be improved in CODA?
@@ -149,7 +149,7 @@ CodaGdbAdapter::CodaGdbAdapter(GdbEngine *engine) :
         this, SLOT(setVerbose(QVariant)));
 }
 
-void CodaGdbAdapter::setupTrkDeviceSignals()
+void CodaGdbAdapter::setupDeviceSignals()
 {
     connect(m_codaDevice.data(), SIGNAL(error(QString)),
         this, SLOT(codaDeviceError(QString)));
@@ -186,7 +186,7 @@ void CodaGdbAdapter::setVerbose(int verbose)
 
 void CodaGdbAdapter::codaLogMessage(const QString &msg)
 {
-    logMessage(_("TRK ") + msg);
+    logMessage(_("CODA ") + msg);
 }
 
 void CodaGdbAdapter::setGdbServerName(const QString &name)
@@ -221,7 +221,7 @@ void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const C
     if (!isExe) {
         if (minfo.loaded) {
             m_session.modules.push_back(moduleName);
-            trk::Library library;
+            Coda::Library library;
             library.name = minfo.name;
             library.codeseg = minfo.codeAddress;
             library.dataseg = minfo.dataAddress;
@@ -268,7 +268,7 @@ void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const C
             } else {
                 // Does not seem to be necessary anymore.
                 // FIXME: Startup sequence can be streamlined now as we do not
-                // have to wait for the TRK startup to learn the load address.
+                // have to wait for the CODA startup to learn the load address.
                 //m_engine->postCommand("add-symbol-file \"" + symbolFile + "\" "
                 //    + QByteArray::number(m_session.codeseg));
                 m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
@@ -466,7 +466,7 @@ void CodaGdbAdapter::readGdbServerCommand()
 
         if (code != '$') {
             logMessage("Broken package (2) " + quoteUnprintableLatin1(ba)
-                + trk::hexNumber(code), LogError);
+                + Coda::hexNumber(code), LogError);
             continue;
         }
 
@@ -486,7 +486,7 @@ void CodaGdbAdapter::readGdbServerCommand()
         }
 
         //logMessage(QString("Packet checksum: %1").arg(checkSum));
-        trk::byte sum = 0;
+        Coda::byte sum = 0;
         for (int i = 0; i < pos; ++i)
             sum += ba.at(i);
 
@@ -533,7 +533,7 @@ void CodaGdbAdapter::sendGdbServerAck()
 
 void CodaGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArray &logNote)
 {
-    trk::byte sum = 0;
+    Coda::byte sum = 0;
     for (int i = 0; i != msg.size(); ++i)
         sum += msg.at(i);
 
@@ -593,7 +593,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "c") {
         logMessage(msgGdbPacket(_("Continue")));
         sendGdbServerAck();
-        sendTrkContinue();
+        sendContinue();
     }
 
     else if (cmd.startsWith('C')) {
@@ -608,7 +608,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             LogWarning);
         sendGdbServerMessage('O' + QByteArray("Console output").toHex());
         sendGdbServerMessage("W81"); // "Process exited with result 1
-        sendTrkContinue();
+        sendContinue();
     }
 
     else if (cmd.startsWith('D')) {
@@ -746,12 +746,12 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         logMessage(_("Setting register #%1 to 0x%2").arg(regnumValue.first)
             .arg(regnumValue.second, 0, 16));
         QByteArray registerValue;
-        trk::appendInt(&registerValue, trk::BigEndian); // Registers are big endian
+        Coda::appendInt(&registerValue, Coda::BigEndian); // Registers are big endian
         m_codaDevice->sendRegistersSetCommand(
             CodaCallback(this, &CodaGdbAdapter::handleWriteRegister),
             currentThreadContextId(), regnumValue.first, registerValue,
             QVariant(regnumValue.first));
-        // Note that App TRK refuses to write registers 13 and 14
+        // Note that App CODA refuses to write registers 13 and 14
     }
 
     else if (cmd == "qAttached") {
@@ -890,7 +890,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                                 arg(pc, 0, 16)));
         sendGdbServerAck();
         m_running = true;
-        sendTrkStepRange();
+        sendStepRange();
     }
 
     else if (cmd.startsWith('T')) {
@@ -909,7 +909,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // vCont[;action[:thread-id]]...'
         sendGdbServerAck();
         m_running = true;
-        sendTrkContinue();
+        sendContinue();
     }
 
     else if (cmd.startsWith("Z0,") || cmd.startsWith("Z1,")) {
@@ -1047,7 +1047,7 @@ void CodaGdbAdapter::startAdapter()
     if (parameters.communicationChannel ==
             DebuggerStartParameters::CommunicationChannelTcpIp) {
         m_codaDevice = QSharedPointer<CodaDevice>(new CodaDevice, &CodaDevice::deleteLater);
-        setupTrkDeviceSignals();
+        setupDeviceSignals();
         codaSocket = QSharedPointer<QTcpSocket>(new QTcpSocket);
         m_codaDevice->setDevice(codaSocket);
     } else {
@@ -1065,7 +1065,7 @@ void CodaGdbAdapter::startAdapter()
             m_engine->handleAdapterStartFailed(msg, QString());
             return;
         }
-        setupTrkDeviceSignals();
+        setupDeviceSignals();
         m_codaDevice->setVerbose(m_verbose);
     }
 
@@ -1209,7 +1209,7 @@ void CodaGdbAdapter::write(const QByteArray &data)
         QByteArray ba = QByteArray::fromHex(data.mid(2));
         qDebug() << "Writing: " << quoteUnprintableLatin1(ba);
         // if (ba.size() >= 1)
-        // sendTrkMessage(ba.at(0), TrkCB(handleDirectTrk), ba.mid(1));
+        // sendMessage(ba.at(0), TrkCB(handleDirectTrk), ba.mid(1));
         return;
     }
     if (data.startsWith("@@")) {
@@ -1252,13 +1252,13 @@ void CodaGdbAdapter::shutdownAdapter()
     }
 }
 
-void CodaGdbAdapter::trkReloadRegisters()
+void CodaGdbAdapter::codaReloadRegisters()
 {
     // Take advantage of direct access to cached register values.
     m_snapshot.syncRegisters(m_session.tid, m_engine->registerHandler());
 }
 
-void CodaGdbAdapter::trkReloadThreads()
+void CodaGdbAdapter::codaReloadThreads()
 {
     m_snapshot.syncThreads(m_engine->threadsHandler());
 }
@@ -1557,7 +1557,7 @@ void CodaGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         it = m_snapshot.memory.begin();
         et = m_snapshot.memory.end();
         for ( ; it != et; ++it)
-            qDebug() << trk::hexNumber(it.key().from) << trk::hexNumber(it.key().to);
+            qDebug() << Coda::hexNumber(it.key().from) << Coda::hexNumber(it.key().to);
         qDebug() << "WANTED" << wanted.from << wanted.to;
 #        endif
         sendGdbServerMessage("E22", "");
@@ -1601,7 +1601,7 @@ QByteArray CodaGdbAdapter::currentThreadContextId() const
     return RunControlContext::codaId(m_session.pid, m_session.tid);
 }
 
-void CodaGdbAdapter::sendTrkContinue()
+void CodaGdbAdapter::sendContinue()
 {
     // Remove all but main thread as we do not know whether they will exist
     // at the next stop.
@@ -1610,7 +1610,7 @@ void CodaGdbAdapter::sendTrkContinue()
     m_codaDevice->sendRunControlResumeCommand(CodaCallback(), m_codaProcessId);
 }
 
-void CodaGdbAdapter::sendTrkStepRange()
+void CodaGdbAdapter::sendStepRange()
 {
     uint from = m_snapshot.lineFromAddress;
     uint to = m_snapshot.lineToAddress;
@@ -1641,10 +1641,10 @@ void CodaGdbAdapter::handleStep(const CodaCommandResult &result)
     if (!result) { // Try fallback with Continue.
         logMessage(_("Error while stepping: %1 (fallback to 'continue')").
             arg(result.errorString()), LogWarning);
-        sendTrkContinue();
+        sendContinue();
         // Doing nothing as below does not work as gdb seems to insist on
         // making some progress through a 'step'.
-        //sendTrkMessage(0x12,
+        //sendMessage(0x12,
         //    TrkCB(handleAndReportReadRegistersAfterStop),
         //    trkReadRegistersMessage());
         return;

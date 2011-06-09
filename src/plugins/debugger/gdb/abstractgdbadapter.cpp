@@ -74,7 +74,7 @@ void AbstractGdbAdapter::write(const QByteArray &data)
     gdbProc()->write(data);
 }
 
-bool AbstractGdbAdapter::isTrkAdapter() const
+bool AbstractGdbAdapter::isCodaAdapter() const
 {
     return false;
 }

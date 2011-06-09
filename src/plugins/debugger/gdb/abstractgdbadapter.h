@@ -49,9 +49,9 @@ class AbstractGdbProcess;
 class GdbResponse;
 
 // AbstractGdbAdapter is inherited by PlainGdbAdapter used for local
-// debugging and TrkGdbAdapter used for on-device debugging.
+// debugging and CodaGdbAdapter used for on-device debugging.
 // In the PlainGdbAdapter case it's just a wrapper around a QProcess running
-// gdb, in the TrkGdbAdapter case it's the interface to the gdb process in
+// gdb, in the CodaGdbAdapter case it's the interface to the gdb process in
 // the whole rfcomm/gdb/gdbserver combo.
 class AbstractGdbAdapter : public QObject
 {
@@ -88,10 +88,10 @@ public:
     static QString msgInferiorRunOk();
     static QString msgConnectRemoteServerFailed(const QString &why);
 
-    // Trk specific stuff
-    virtual bool isTrkAdapter() const;
-    virtual void trkReloadRegisters() {}
-    virtual void trkReloadThreads() {}
+    // CODA specific stuff
+    virtual bool isCodaAdapter() const;
+    virtual void codaReloadRegisters() {}
+    virtual void codaReloadThreads() {}
 
     virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     virtual void handleRemoteSetupFailed(const QString &reason);

@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef TRCFTRKMESSAGE_H
-#define TRCFTRKMESSAGE_H
+#ifndef CODAMESSAGE_H
+#define CODAMESSAGE_H
 
 #include "symbianutils_global.h"
 
@@ -52,13 +52,13 @@ enum Services {
     RunControlService,
     ProcessesService,
     MemoryService,
-    SettingsService,  // non-standard, trk specific
+    SettingsService,  // non-standard, CODA specific
     BreakpointsService,
     RegistersService,
-    LoggingService,    // non-standard, trk specific
+    LoggingService,    // non-standard, CODA specific
     FileSystemService,
-    SymbianInstallService,    // non-standard, trk specific
-    SymbianOSData,    // non-standard, trk specific
+    SymbianInstallService,    // non-standard, CODA specific
+    SymbianOSData,    // non-standard, CODA specific
     UnknownService
 }; // Note: Check string array 'serviceNamesC' of same size when modifying this.
 
@@ -196,7 +196,7 @@ private:
     QStringList m_services;
 };
 
-// Logging event (non-standard, trk specific)
+// Logging event (non-standard, CODA specific)
 class SYMBIANUTILS_EXPORT CodaLoggingWriteEvent : public CodaEvent {
 public:
     explicit CodaLoggingWriteEvent(const QByteArray &console, const QByteArray &message);
@@ -306,4 +306,4 @@ private:
 };
 
 } // namespace Coda
-#endif // TRCFTRKMESSAGE_H
+#endif // CODAMESSAGE_H

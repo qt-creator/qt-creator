@@ -153,7 +153,7 @@
     \brief Base class of a debugger engine.
 
     Note: the Debugger process itself and any helper processes like
-    gdbserver, the trk client etc are referred to as 'Engine',
+    gdbserver, the CODA client etc are referred to as 'Engine',
     whereas the debugged process is referred to as 'Inferior'.
 
     Transitions marked by '---' are done in the individual engines.

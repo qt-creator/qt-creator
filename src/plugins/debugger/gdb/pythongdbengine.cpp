@@ -205,8 +205,8 @@ void GdbEngine::updateAllPython()
     postCommand("-stack-list-frames", CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     stackHandler()->setCurrentIndex(0);
-    if (m_gdbAdapter->isTrkAdapter())
-        m_gdbAdapter->trkReloadThreads();
+    if (m_gdbAdapter->isCodaAdapter())
+        m_gdbAdapter->codaReloadThreads();
     else
         postCommand("-thread-list-ids", CB(handleThreadListIds), 0);
     reloadRegisters();

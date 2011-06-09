@@ -56,7 +56,6 @@ public:
     };
 
     enum SymbianDebugClient {
-        SymbianDebugClientTrk,
         SymbianDebugClientCoda
     };
 
@@ -73,7 +72,7 @@ public:
         executableUid(0),
         communicationChannel(CommunicationChannelTcpIp),
         serverPort(0),
-        debugClient(SymbianDebugClientTrk)
+        debugClient(SymbianDebugClientCoda)
     {}
 
     QString executable;

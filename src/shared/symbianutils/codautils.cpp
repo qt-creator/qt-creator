@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "trkutils.h"
+#include "codautils.h"
 #include <ctype.h>
 
 #include <QtCore/QCoreApplication>
@@ -39,18 +39,18 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QTime>
 
-#define logMessage(s)  do { qDebug() << "TRKCLIENT: " << s; } while (0)
+#define logMessage(s)  do { qDebug() << "CODACLIENT: " << s; } while (0)
 
-namespace trk {
+namespace Coda {
 
 Library::Library() : codeseg(0), dataseg(0), pid(0)
 {
 }
 
-Library::Library(const TrkResult &result) : codeseg(0), dataseg(0), pid(0)
+Library::Library(const CodaResult &result) : codeseg(0), dataseg(0), pid(0)
 {
     if (result.data.size() < 20) {
-        qWarning("Invalid trk creation notification received.");
+        qWarning("Invalid CODA creation notification received.");
         return;
     }
 
@@ -62,14 +62,14 @@ Library::Library(const TrkResult &result) : codeseg(0), dataseg(0), pid(0)
     name = result.data.mid(20, len);
 }
 
-TrkAppVersion::TrkAppVersion()
+CodaAppVersion::CodaAppVersion()
 {
     reset();
 }
 
-void TrkAppVersion::reset()
+void CodaAppVersion::reset()
 {
-    trkMajor = trkMinor= protocolMajor = protocolMinor = 0;
+    codaMajor = codaMinor = protocolMajor = protocolMinor = 0;
 }
 
 Session::Session()
@@ -93,7 +93,7 @@ void Session::reset()
     dataseg = 0;
 
     libraries.clear();
-    trkAppVersion.reset();
+    codaAppVersion.reset();
 }
 
 static QString formatCpu(int major, int minor)
@@ -101,7 +101,7 @@ static QString formatCpu(int major, int minor)
     //: CPU description of an S60 device
     //: %1 major verison, %2 minor version
     //: %3 real name of major verison, %4 real name of minor version
-    const QString str = QCoreApplication::translate("trk::Session", "CPU: v%1.%2%3%4");
+    const QString str = QCoreApplication::translate("Coda::Session", "CPU: v%1.%2%3%4");
     QString majorStr;
     QString minorStr;
     switch (major) {
@@ -117,11 +117,11 @@ static QString formatCpu(int major, int minor)
     return str.arg(major).arg(minor).arg(majorStr).arg(minorStr);
  }
 
-QString formatTrkVersion(const TrkAppVersion &version)
+QString formatCodaVersion(const CodaAppVersion &version)
 {
-    QString str = QCoreApplication::translate("trk::Session",
-                                              "App TRK: v%1.%2 TRK protocol: v%3.%4");
-    str = str.arg(version.trkMajor).arg(version.trkMinor);
+    QString str = QCoreApplication::translate("Coda::Session",
+                                              "CODA: v%1.%2 CODA protocol: v%3.%4");
+    str = str.arg(version.codaMajor).arg(version.codaMinor);
     return str.arg(version.protocolMajor).arg(version.protocolMinor);
 }
 
@@ -134,22 +134,22 @@ QString Session::deviceDescription(unsigned verbose) const
     //: description of an S60 device
     //: %1 CPU description, %2 endianness
     //: %3 default type size (if any), %4 float size (if any)
-    //: %5 TRK version
-    QString msg = QCoreApplication::translate("trk::Session", "%1, %2%3%4, %5");
+    //: %5 Coda version
+    QString msg = QCoreApplication::translate("Coda::Session", "%1, %2%3%4, %5");
     QString endianness = bigEndian
-                         ? QCoreApplication::translate("trk::Session", "big endian")
-                         : QCoreApplication::translate("trk::Session", "little endian");
+                         ? QCoreApplication::translate("Coda::Session", "big endian")
+                         : QCoreApplication::translate("Coda::Session", "little endian");
     msg = msg.arg(formatCpu(cpuMajor, cpuMinor)).arg(endianness);
     QString defaultTypeSizeStr;
     QString fpTypeSizeStr;
     if (verbose && defaultTypeSize)
         //: will be inserted into s60description
-        defaultTypeSizeStr = QCoreApplication::translate("trk::Session", ", type size: %1").arg(defaultTypeSize);
+        defaultTypeSizeStr = QCoreApplication::translate("Coda::Session", ", type size: %1").arg(defaultTypeSize);
     if (verbose && fpTypeSize)
         //: will be inserted into s60description
-        fpTypeSizeStr = QCoreApplication::translate("trk::Session", ", float size: %1").arg(fpTypeSize);
+        fpTypeSizeStr = QCoreApplication::translate("Coda::Session", ", float size: %1").arg(fpTypeSize);
     msg = msg.arg(defaultTypeSizeStr).arg(fpTypeSizeStr);
-    return msg.arg(formatTrkVersion(trkAppVersion));
+    return msg.arg(formatCodaVersion(codaAppVersion));
 }
 
 QByteArray Session::gdbLibraryList() const
@@ -157,18 +157,18 @@ QByteArray Session::gdbLibraryList() const
     const int count = libraries.size();
     QByteArray response = "l<library-list>";
     for (int i = 0; i != count; ++i) {
-        const trk::Library &lib = libraries.at(i);
+        const Coda::Library &lib = libraries.at(i);
         response += "<library name=\"";
         response += lib.name;
         response += "\">";
         response += "<section address=\"0x";
-        response += trk::hexNumber(lib.codeseg);
+        response += Coda::hexNumber(lib.codeseg);
         response += "\"/>";
         response += "<section address=\"0x";
-        response += trk::hexNumber(lib.dataseg);
+        response += Coda::hexNumber(lib.dataseg);
         response += "\"/>";
         response += "<section address=\"0x";
-        response += trk::hexNumber(lib.dataseg);
+        response += Coda::hexNumber(lib.dataseg);
         response += "\"/>";
         response += "</library>";
     }
@@ -305,14 +305,14 @@ SYMBIANUTILS_EXPORT QByteArray hexxNumber(uint n, int digits)
     return "0x" + hexNumber(n, digits);
 }
 
-TrkResult::TrkResult() :
+CodaResult::CodaResult() :
     code(0),
     token(0),
     isDebugOutput(false)
 {
 }
 
-void TrkResult::clear()
+void CodaResult::clear()
 {
     code = token= 0;
     isDebugOutput = false;
@@ -320,7 +320,7 @@ void TrkResult::clear()
     cookie = QVariant();
 }
 
-QString TrkResult::toString() const
+QString CodaResult::toString() const
 {
     QString res = stringFromByte(code);
     res += QLatin1String(" [");
@@ -366,7 +366,7 @@ QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool s
 
 /* returns 0 if array doesn't represent a result,
 otherwise returns the length of the result data */
-ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame, ushort& mux)
+ushort isValidCodaResult(const QByteArray &buffer, bool serialFrame, ushort& mux)
 {
     if (serialFrame) {
         // Serial protocol with length info
@@ -381,7 +381,7 @@ ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame, ushort& mux)
     const int firstDelimiterPos = buffer.indexOf(delimiter);
     // Regular message delimited by 0x7e..0x7e
     if (firstDelimiterPos == 0) {
-        mux = MuxTrk;
+        mux = MuxCoda;
         const int endPos = buffer.indexOf(delimiter, firstDelimiterPos + 1);
         return endPos != -1 ? endPos + 1 - firstDelimiterPos : 0;
     }
@@ -389,22 +389,22 @@ ushort isValidTrkResult(const QByteArray &buffer, bool serialFrame, ushort& mux)
     return firstDelimiterPos != -1 ? firstDelimiterPos : buffer.size();
 }
 
-bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, bool &linkEstablishmentMode, QByteArray *rawData)
+bool extractResult(QByteArray *buffer, bool serialFrame, CodaResult *result, bool &linkEstablishmentMode, QByteArray *rawData)
 {
     result->clear();
     if(rawData)
         rawData->clear();
-    ushort len = isValidTrkResult(*buffer, serialFrame, result->multiplex);
+    ushort len = isValidCodaResult(*buffer, serialFrame, result->multiplex);
     // handle receiving application output, which is not a regular command
     const int delimiterPos = serialFrame ? 4 : 0;
     if (linkEstablishmentMode) {
         //when "hot connecting" a device, we can receive partial frames.
-        //this code resyncs by discarding data until a TRK frame is found
+        //this code resyncs by discarding data until a CODA frame is found
         while (buffer->length() > delimiterPos
                && result->multiplex != MuxTextTrace
-               && !(result->multiplex == MuxTrk && buffer->at(delimiterPos) == 0x7e)) {
+               && !(result->multiplex == MuxCoda && buffer->at(delimiterPos) == 0x7e)) {
             buffer->remove(0,1);
-            len = isValidTrkResult(*buffer, serialFrame, result->multiplex);
+            len = isValidCodaResult(*buffer, serialFrame, result->multiplex);
         }
     }
     if (!len)
@@ -435,7 +435,7 @@ bool extractResult(QByteArray *buffer, bool serialFrame, TrkResult *result, bool
     //logMessage("   CURR DATA: " << stringFromArray(data));
     //QByteArray prefix = "READ BUF:                                       ";
     //logMessage((prefix + "HEADER: " + stringFromArray(header).toLatin1()).data());
-    linkEstablishmentMode = false; //have received a good TRK packet, therefore in sync
+    linkEstablishmentMode = false; //have received a good CODA packet, therefore in sync
     return true;
 }
 
@@ -568,7 +568,7 @@ uint swapEndian(uint in)
     return (in>>24) | ((in<<8) & 0x00FF0000) | ((in>>8) & 0x0000FF00) | (in<<24);
 }
 
-int TrkResult::errorCode() const
+int CodaResult::errorCode() const
 {
     // NAK means always error, else data sized 1 with a non-null element
     const bool isNAK = code == 0xff;
@@ -579,7 +579,7 @@ int TrkResult::errorCode() const
     return isNAK ? 0xff : 0;
 }
 
-QString TrkResult::errorString() const
+QString CodaResult::errorString() const
 {
     // NAK means always error, else data sized 1 with a non-null element
     if (code == 0xff)
@@ -589,5 +589,5 @@ QString TrkResult::errorString() const
     return errorMessage(data.at(0));
 }
 
-} // namespace trk
+} // namespace Coda
 

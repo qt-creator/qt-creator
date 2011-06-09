@@ -30,37 +30,24 @@
 **
 **************************************************************************/
 
-#ifndef S60DEBUGGERBLUETOOTHSTARTER_H
-#define S60DEBUGGERBLUETOOTHSTARTER_H
+#ifndef DEBUGGER_CODA_PRIVATE_UTILS
+#define DEBUGGER_CODA_PRIVATE_UTILS
 
-#include "communicationstarter.h"
-#include "bluetoothlistener_gui.h"
+#include "codautils.h"
+#include "symbianutils_global.h"
 
-namespace Debugger {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QDateTime;
+QT_END_NAMESPACE
 
-/* S60DebuggerBluetoothStarter: Creates a listener in 'Listen' mode
- * parented on the Debugger manager which outputs to the debugger window.
- * Note: This is a "last resort" starter, normally, the run configuration
- * should have already started a listener.
- * Provides a static convenience to prompt for both connection types.  */
+namespace Coda {
 
-class S60DebuggerBluetoothStarter : public trk::AbstractBluetoothStarter
-{
-public:
-    static trk::PromptStartCommunicationResult
-        startCommunication(const TrkDevicePtr &trkDevice,
-                           QWidget *msgBoxParent,
-                           QString *errorMessage);
+void appendDateTime(QByteArray *ba, QDateTime dateTime, Endianness = TargetByteOrder);
+// returns a QByteArray containing optionally
+// the serial frame [0x01 0x90 <len>] and 0x7e encoded7d(ba) 0x7e
+QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool serialFrame);
+bool extractResult(QByteArray *buffer, bool serialFrame, CodaResult *r, bool& linkEstablishmentMode, QByteArray *rawData = 0);
 
-protected:
-    virtual trk::BluetoothListener *createListener();
+} // namespace Coda
 
-private:
-    explicit S60DebuggerBluetoothStarter(const TrkDevicePtr& trkDevice, QObject *parent = 0);
-};
-
-} // namespace Internal
-} // namespace Debugger
-
-#endif // S60DEBUGGERBLUETOOTHSTARTER_H
+#endif // DEBUGGER_CODA_PRIVATE_UTILS

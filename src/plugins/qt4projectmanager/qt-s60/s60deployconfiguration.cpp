@@ -90,7 +90,7 @@ S60DeployConfiguration::S60DeployConfiguration(Target *parent) :
     m_installationDrive('C'),
     m_silentInstall(true),
     m_devicePort(QLatin1String(DEFAULT_CODA_TCP_PORT)),
-    m_communicationChannel(CommunicationTrkSerialConnection)
+    m_communicationChannel(CommunicationCodaSerialConnection)
 {
     ctor();
 }
@@ -330,7 +330,7 @@ bool S60DeployConfiguration::fromMap(const QVariantMap &map)
     m_deviceAddress = map.value(QLatin1String(DEVICE_ADDRESS_KEY)).toString();
     m_devicePort = map.value(QLatin1String(DEVICE_PORT_KEY), QString(QLatin1String(DEFAULT_CODA_TCP_PORT))).toString();
     m_communicationChannel = static_cast<CommunicationChannel>(map.value(QLatin1String(COMMUNICATION_CHANNEL_KEY),
-                                                                         QVariant(CommunicationTrkSerialConnection)).toInt());
+                                                                         QVariant(CommunicationCodaSerialConnection)).toInt());
 
     setDefaultDisplayName(defaultDisplayName());
     return true;

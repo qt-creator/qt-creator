@@ -43,7 +43,6 @@
 #include "termgdbadapter.h"
 #include "remotegdbserveradapter.h"
 #include "remoteplaingdbadapter.h"
-#include "trkgdbadapter.h"
 #include "codagdbadapter.h"
 
 #include "debuggeractions.h"
@@ -1618,8 +1617,8 @@ void GdbEngine::handleStop2()
     reloadStack(false); // Will trigger register reload.
 
     if (supportsThreads()) {
-        if (m_gdbAdapter->isTrkAdapter()) {
-            m_gdbAdapter->trkReloadThreads();
+        if (m_gdbAdapter->isCodaAdapter()) {
+            m_gdbAdapter->codaReloadThreads();
         } else if (m_isMacGdb) {
             postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds));
         } else {
@@ -1894,8 +1893,7 @@ AbstractGdbAdapter *GdbEngine::createAdapter()
         // FIXME: 1 of 3 testing hacks.
         if (sp.debugClient == DebuggerStartParameters::SymbianDebugClientCoda)
             return new CodaGdbAdapter(this);
-        else
-            return new TrkGdbAdapter(this);
+        return 0;
     }
 
     switch (sp.startMode) {
@@ -1998,7 +1996,7 @@ void GdbEngine::executeStep()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
-    if (m_gdbAdapter->isTrkAdapter() && stackHandler()->stackSize() > 0)
+    if (m_gdbAdapter->isCodaAdapter() && stackHandler()->stackSize() > 0)
         postCommand("sal step,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging()) {
         postCommand("reverse-step", RunRequest, CB(handleExecuteStep));
@@ -2065,7 +2063,7 @@ void GdbEngine::executeNext()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
-    if (m_gdbAdapter->isTrkAdapter() && stackHandler()->stackSize() > 0)
+    if (m_gdbAdapter->isCodaAdapter() && stackHandler()->stackSize() > 0)
         postCommand("sal next,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging()) {
         postCommand("reverse-next", RunRequest, CB(handleExecuteNext));
@@ -2805,7 +2803,7 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
         cmd = "-break-insert -a -f ";
     } else if (m_isMacGdb) {
         cmd = "-break-insert -l -1 -f ";
-    } else if (m_gdbAdapter->isTrkAdapter()) {
+    } else if (m_gdbAdapter->isCodaAdapter()) {
         cmd = "-break-insert -h -f ";
     } else if (m_gdbVersion >= 70000) {
         int spec = handler->threadSpec(id);
@@ -3185,7 +3183,7 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     PENDING_DEBUG("RELOAD STACK");
     QByteArray cmd = "-stack-list-frames";
     int stackDepth = debuggerCore()->action(MaximalStackDepth)->value().toInt();
-    if (stackDepth && !m_gdbAdapter->isTrkAdapter())
+    if (stackDepth && !m_gdbAdapter->isCodaAdapter())
         cmd += " 0 " + QByteArray::number(stackDepth);
     // FIXME: gdb 6.4 symbianelf likes to be asked twice. The first time it
     // returns with "^error,msg="Previous frame identical to this frame
@@ -3194,7 +3192,7 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     // this sometimes happens, ask the second time immediately instead
     // of waiting for the first request to fail.
     // FIXME: Seems to work with 6.8.
-    if (m_gdbAdapter->isTrkAdapter() && m_gdbVersion < 6.8)
+    if (m_gdbAdapter->isCodaAdapter() && m_gdbVersion < 6.8)
         postCommand(cmd);
     postCommand(cmd, Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
@@ -3435,13 +3433,13 @@ void GdbEngine::reloadRegisters()
     if (!m_registerNamesListed) {
         postCommand("-data-list-register-names", CB(handleRegisterListNames));
         m_registerNamesListed = true;
-        // FIXME: Maybe better completely re-do this logic in TRK adapter.
-        if (m_gdbAdapter->isTrkAdapter())
+        // FIXME: Maybe better completely re-do this logic in CODA adapter.
+        if (m_gdbAdapter->isCodaAdapter())
             return;
     }
 
-    if (m_gdbAdapter->isTrkAdapter()) {
-        m_gdbAdapter->trkReloadRegisters();
+    if (m_gdbAdapter->isCodaAdapter()) {
+        m_gdbAdapter->codaReloadRegisters();
     } else {
         postCommand("-data-list-register-values x",
                     Discardable, CB(handleRegisterListValues));
@@ -3475,8 +3473,8 @@ void GdbEngine::handleRegisterListNames(const GdbResponse &response)
 
     registerHandler()->setRegisters(registers);
 
-    if (m_gdbAdapter->isTrkAdapter())
-        m_gdbAdapter->trkReloadRegisters();
+    if (m_gdbAdapter->isCodaAdapter())
+        m_gdbAdapter->codaReloadRegisters();
 }
 
 void GdbEngine::handleRegisterListValues(const GdbResponse &response)

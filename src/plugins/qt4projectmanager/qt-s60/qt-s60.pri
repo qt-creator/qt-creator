@@ -6,7 +6,6 @@ SOURCES += $$PWD/s60manager.cpp \
     $$PWD/s60devicerunconfiguration.cpp \
     $$PWD/s60devicerunconfigurationwidget.cpp \
     $$PWD/rvcttoolchain.cpp \
-    $$PWD/s60runconfigbluetoothstarter.cpp \
     $$PWD/abldparser.cpp \
     $$PWD/rvctparser.cpp \
     $$PWD/winscwparser.cpp \
@@ -24,7 +23,6 @@ SOURCES += $$PWD/s60manager.cpp \
     $$PWD/qt4symbiantarget.cpp \
     $$PWD/s60runcontrolfactory.cpp \
     $$PWD/codaruncontrol.cpp \
-    $$PWD/trkruncontrol.cpp \
     $$PWD/s60runcontrolbase.cpp \
     $$PWD/s60publishingwizardfactories.cpp \
     $$PWD/s60publishingwizardovi.cpp \
@@ -44,7 +42,6 @@ HEADERS += $$PWD/s60manager.h \
     $$PWD/s60devicerunconfiguration.h \
     $$PWD/s60devicerunconfigurationwidget.h \
     $$PWD/rvcttoolchain.h \
-    $$PWD/s60runconfigbluetoothstarter.h \
     $$PWD/abldparser.h \
     $$PWD/rvctparser.h \
     $$PWD/winscwparser.h \
@@ -62,7 +59,6 @@ HEADERS += $$PWD/s60manager.h \
     $$PWD/qt4symbiantarget.h \
     $$PWD/s60runcontrolfactory.h \
     $$PWD/codaruncontrol.h \
-    $$PWD/trkruncontrol.h \
     $$PWD/s60runcontrolbase.h \
     $$PWD/s60publishingwizardfactories.h \
     $$PWD/s60publishingwizardovi.h \

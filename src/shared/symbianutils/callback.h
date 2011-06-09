@@ -35,7 +35,7 @@
 
 #include "symbianutils_global.h"
 
-namespace trk {
+namespace Coda {
 namespace Internal {
 
 /* Helper class for the 1-argument functor:
@@ -146,6 +146,6 @@ private:
     Internal::CallbackImplBase<Argument> *m_impl;
 };
 
-} // namespace trk
+} // namespace Coda
 
 #endif // DEBUGGER_CALLBACK_H

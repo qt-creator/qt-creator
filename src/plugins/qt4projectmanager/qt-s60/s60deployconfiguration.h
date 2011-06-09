@@ -61,7 +61,6 @@ class QT4PROJECTMANAGER_EXPORT S60DeployConfiguration : public ProjectExplorer::
 
 public:
     enum CommunicationChannel {
-        CommunicationTrkSerialConnection,
         CommunicationCodaSerialConnection,
         CommunicationCodaTcpConnection
     };

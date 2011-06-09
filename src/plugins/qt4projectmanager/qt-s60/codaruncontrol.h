@@ -85,7 +85,7 @@ protected slots:
 
 private slots:
     void slotError(const QString &error);
-    void slotTrkLogMessage(const QString &log);
+    void slotCodaLogMessage(const QString &log);
     void slotCodaEvent(const Coda::CodaEvent &event);
     void slotSerialPong(const QString &message);
 

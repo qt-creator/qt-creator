@@ -35,9 +35,7 @@
 #include "qt4buildconfiguration.h"
 #include "s60deployconfiguration.h"
 #include "s60devicerunconfiguration.h"
-#include "s60runconfigbluetoothstarter.h"
 #include "codadevice.h"
-#include "trkruncontrol.h"
 #include "codaruncontrol.h"
 
 #include <coreplugin/icore.h>
@@ -46,7 +44,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanagerconstants.h>
 
-#include <symbianutils/launcher.h>
 #include <symbianutils/symbiandevicemanager.h>
 #include <utils/qtcassert.h>
 
@@ -63,6 +60,7 @@
 #include <QtNetwork/QTcpSocket>
 
 using namespace ProjectExplorer;
+using namespace SymbianUtils;
 using namespace Qt4ProjectManager::Internal;
 
 enum { debug = 0 };
@@ -105,9 +103,6 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc,
                              S60DeployStep *bs):
     BuildStep(bc, bs), m_timer(0),
     m_timeoutTimer(new QTimer(this)),
-    m_releaseDeviceAfterLauncherFinish(bs->m_releaseDeviceAfterLauncherFinish),
-    m_handleDeviceRemoval(bs->m_handleDeviceRemoval),
-    m_launcher(0),
     m_eventLoop(0),
     m_state(StateUninit),
     m_putWriteOk(false),
@@ -124,16 +119,13 @@ S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc,
 S60DeployStep::S60DeployStep(ProjectExplorer::BuildStepList *bc):
     BuildStep(bc, QLatin1String(S60_DEPLOY_STEP_ID)), m_timer(0),
     m_timeoutTimer(new QTimer(this)),
-    m_releaseDeviceAfterLauncherFinish(true),
-    m_handleDeviceRemoval(true),
-    m_launcher(0),
     m_eventLoop(0),
     m_state(StateUninit),
     m_putWriteOk(false),
     m_putLastChunkSize(0),
     m_putChunkSize(DEFAULT_CHUNK_SIZE),
     m_currentFileIndex(0),
-    m_channel(S60DeployConfiguration::CommunicationTrkSerialConnection),
+    m_channel(S60DeployConfiguration::CommunicationCodaSerialConnection),
     m_deployCanceled(false),
     m_copyProgress(0)
 {
@@ -152,7 +144,6 @@ void S60DeployStep::ctor()
 S60DeployStep::~S60DeployStep()
 {
     delete m_timer;
-    delete m_launcher;
     delete m_eventLoop;
 }
 
@@ -164,21 +155,11 @@ bool S60DeployStep::init()
     if (!deployConfiguration)
         return false;
     m_serialPortName = deployConfiguration->serialPortName();
-    m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
+    m_serialPortFriendlyName = SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
     m_packageFileNamesWithTarget = deployConfiguration->packageFileNamesWithTargetInfo();
     m_signedPackages = deployConfiguration->signedPackages();
     m_installationDrive = deployConfiguration->installationDrive();
     m_silentInstall = deployConfiguration->silentInstall();
-
-    switch (deployConfiguration->communicationChannel()) {
-    case S60DeployConfiguration::CommunicationTrkSerialConnection:
-        break;
-    case S60DeployConfiguration::CommunicationCodaTcpConnection:
-        m_address = deployConfiguration->deviceAddress();
-        m_port = deployConfiguration->devicePort().toInt();
-    default:
-        break;
-    }
     m_channel = deployConfiguration->communicationChannel();
 
     if (m_signedPackages.isEmpty()) {
@@ -186,36 +167,9 @@ bool S60DeployStep::init()
         return false;
     }
 
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
-        QString message;
-        if (m_launcher) {
-            trk::Launcher::releaseToDeviceManager(m_launcher);
-            delete m_launcher;
-            m_launcher = 0;
-        }
-
-        m_launcher = trk::Launcher::acquireFromDeviceManager(m_serialPortName, this, &message);
-        if (!message.isEmpty() || !m_launcher) {
-            if (m_launcher)
-                trk::Launcher::releaseToDeviceManager(m_launcher);
-            delete m_launcher;
-            m_launcher = 0;
-            appendMessage(message, true);
-            return true;
-        }
-
-        // Prompt the user to start up the Bluetooth connection
-        const trk::PromptStartCommunicationResult src =
-                S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
-                                                                 0, &message);
-        if (src != trk::PromptStartCommunicationConnected) {
-            if (!message.isEmpty())
-                trk::Launcher::releaseToDeviceManager(m_launcher);
-            delete m_launcher;
-            m_launcher = 0;
-            appendMessage(message, true);
-            return false;
-        }
+    if (m_channel == S60DeployConfiguration::CommunicationCodaTcpConnection) {
+        m_address = deployConfiguration->deviceAddress();
+        m_port = deployConfiguration->devicePort().toInt();
     }
     return true;
 }
@@ -281,29 +235,24 @@ void S60DeployStep::start()
 {
     QString errorMessage;
 
-    bool serialConnection = (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection
-            || m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection);
-    bool trkClient = m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection;
+    bool serialConnection = m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection;
 
-    if ((serialConnection && m_serialPortName.isEmpty())
-            || (trkClient && !m_launcher)) {
+    if (serialConnection && m_serialPortName.isEmpty()) {
         errorMessage = tr("No device is connected. Please connect a device and try again.");
         reportError(errorMessage);
         return;
     }
-    if (!trkClient) {
-        QTC_ASSERT(!m_codaDevice.data(), return);
-        if (m_address.isEmpty() && !serialConnection) {
-            errorMessage = tr("No address for a device has been defined. Please define an address and try again.");
-            reportError(errorMessage);
-            return;
-        }
+    QTC_ASSERT(!m_codaDevice.data(), return);
+    if (m_address.isEmpty() && !serialConnection) {
+        errorMessage = tr("No address for a device has been defined. Please define an address and try again.");
+        reportError(errorMessage);
+        return;
     }
 
     // make sure we have the right name of the sis package
-    if (processPackageName(errorMessage)) {
+    if (processPackageName(errorMessage))
         startDeployment();
-    } else {
+    else {
         errorMessage = tr("Failed to find package %1").arg(errorMessage);
         reportError(errorMessage);
         stop();
@@ -312,21 +261,16 @@ void S60DeployStep::start()
 
 void S60DeployStep::stop()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
-        if (m_launcher)
-            m_launcher->terminate();
-    } else {
-        if (m_codaDevice) {
-            switch (state()) {
-            case StateSendingData:
-                closeFiles();
-                break;
-            default:
-                break; //should also stop the package installatrion, but CODA does not support it yet
-            }
-            disconnect(m_codaDevice.data(), 0, this, 0);
-            SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
+    if (m_codaDevice) {
+        switch (state()) {
+        case StateSendingData:
+            closeFiles();
+            break;
+        default:
+            break; //should also stop the package installation, but CODA does not support it yet
         }
+        disconnect(m_codaDevice.data(), 0, this, 0);
+        SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
     }
     setState(StateUninit);
     emit finished(false);
@@ -334,69 +278,26 @@ void S60DeployStep::stop()
 
 void S60DeployStep::setupConnections()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection
-            || m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection)
-        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)),
-                this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
+    if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection)
+        connect(SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianDevice)), this, SLOT(deviceRemoved(SymbianDevice)));
 
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
-        connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
-        connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(connectFailed(QString)));
-        connect(m_launcher, SIGNAL(copyingStarted(QString)), this, SLOT(printCopyingNotice(QString)));
-        connect(m_launcher, SIGNAL(fileCopied(QString)), this, SLOT(printCopyingFinished(QString)));
-        connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(createFileFailed(QString,QString)));
-        connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(writeFileFailed(QString,QString)));
-        connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(closeFileFailed(QString,QString)));
-        connect(m_launcher, SIGNAL(installingStarted(QString)), this, SLOT(printInstallingNotice(QString)));
-        connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(installFailed(QString,QString)));
-        connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
-        connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
-        connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(setCopyProgress(int)));
-    } else {
-        connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
-        connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotTrkLogMessage(QString)));
-        connect(m_codaDevice.data(), SIGNAL(codaEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)), Qt::DirectConnection);
-        connect(m_codaDevice.data(), SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
-        connect(this, SIGNAL(manualInstallation()), this, SLOT(showManualInstallationInfo()));
-    }
+    connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
+    connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotCodaLogMessage(QString)));
+    connect(m_codaDevice.data(), SIGNAL(codaEvent(Coda::CodaEvent)), this, SLOT(slotCodaEvent(Coda::CodaEvent)), Qt::DirectConnection);
+    connect(m_codaDevice.data(), SIGNAL(serialPong(QString)), this, SLOT(slotSerialPong(QString)));
+    connect(this, SIGNAL(manualInstallation()), this, SLOT(showManualInstallationInfo()));
 }
 
 void S60DeployStep::startDeployment()
 {
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
-        QTC_ASSERT(m_launcher, return);
-    }
     QTC_ASSERT(!m_codaDevice.data(), return);
 
     // We need to defer setupConnections() in the case of CommunicationCodaSerialConnection
     //setupConnections();
 
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
-        setupConnections();
-        QStringList copyDst;
-        foreach (const QString &signedPackage, m_signedPackages)
-            copyDst << QString::fromLatin1("%1:\\Data\\%2").arg(m_installationDrive).arg(QFileInfo(signedPackage).fileName());
-
-        m_launcher->setCopyFileNames(m_signedPackages, copyDst);
-        m_launcher->setInstallFileNames(copyDst);
-        m_launcher->setInstallationDrive(m_installationDrive);
-        m_launcher->setInstallationMode(m_silentInstall?trk::Launcher::InstallationModeSilentAndUser:
-                                                        trk::Launcher::InstallationModeUser);
-        m_launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
-
-        // TODO readd information about packages? msgListFile(m_signedPackage)
-        appendMessage(tr("Deploying application to '%2'...").arg(m_serialPortFriendlyName), false);
-
-        QString errorMessage;
-        if (!m_launcher->startServer(&errorMessage)) {
-            errorMessage = tr("Could not connect to phone on port '%1': %2\n"
-                              "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage);
-            reportError(errorMessage);
-            stop();
-        }
-    } else if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
+    if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection) {
         appendMessage(tr("Deploying application to '%1'...").arg(m_serialPortFriendlyName), false);
-        m_codaDevice = SymbianUtils::SymbianDeviceManager::instance()->getCodaDevice(m_serialPortName);       
+        m_codaDevice = SymbianDeviceManager::instance()->getCodaDevice(m_serialPortName);
         bool ok = m_codaDevice && m_codaDevice->device()->isOpen();
         if (!ok) {
             QString deviceError = tr("No such port");
@@ -430,16 +331,10 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
 
     m_futureInterface->setProgressRange(0, 100*m_signedPackages.count());
 
-    if (m_channel == S60DeployConfiguration::CommunicationTrkSerialConnection) {
-        connect(this, SIGNAL(finished(bool)), this, SLOT(launcherFinished(bool)));
-        connect(this, SIGNAL(finishNow(bool)), this, SLOT(launcherFinished(bool)), Qt::DirectConnection);
-    } else {
-        connect(this, SIGNAL(finished(bool)), this, SLOT(deploymentFinished(bool)));
-        connect(this, SIGNAL(finishNow(bool)), this, SLOT(deploymentFinished(bool)), Qt::DirectConnection);
-        connect(this, SIGNAL(allFilesSent()), this, SLOT(startInstalling()), Qt::DirectConnection);
-        connect(this, SIGNAL(allFilesInstalled()), this, SIGNAL(finished()), Qt::DirectConnection);
-    }
-
+    connect(this, SIGNAL(finished(bool)), this, SLOT(deploymentFinished(bool)));
+    connect(this, SIGNAL(finishNow(bool)), this, SLOT(deploymentFinished(bool)), Qt::DirectConnection);
+    connect(this, SIGNAL(allFilesSent()), this, SLOT(startInstalling()), Qt::DirectConnection);
+    connect(this, SIGNAL(allFilesInstalled()), this, SIGNAL(finished()), Qt::DirectConnection);
     connect(this, SIGNAL(copyProgressChanged(int)), this, SLOT(updateProgress(int)));
 
     start();
@@ -454,7 +349,7 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
 
     if (m_codaDevice) {
         disconnect(m_codaDevice.data(), 0, this, 0);
-        SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
+        SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
     }
 
     delete m_eventLoop;
@@ -463,12 +358,18 @@ void S60DeployStep::run(QFutureInterface<bool> &fi)
     m_futureInterface = 0;
 }
 
+void S60DeployStep::slotWaitingForCodaClosed(int result)
+{
+    if (result == QMessageBox::Cancel)
+        m_deployCanceled = true;
+}
+
 void S60DeployStep::slotError(const QString &error)
 {
     reportError(tr("Error: %1").arg(error));
 }
 
-void S60DeployStep::slotTrkLogMessage(const QString &log)
+void S60DeployStep::slotCodaLogMessage(const QString &log)
 {
     if (debug > 1)
         qDebug() << "CODA log:" << log;
@@ -678,7 +579,7 @@ void S60DeployStep::checkForTimeout()
     connect(this, SIGNAL(codaConnected()), mb, SLOT(close()));
     connect(this, SIGNAL(finished()), mb, SLOT(close()));
     connect(this, SIGNAL(finishNow()), mb, SLOT(close()));
-    connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTckTrkClosed(int)));
+    connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForCodaClosed(int)));
     mb->open();
 }
 
@@ -692,81 +593,6 @@ void S60DeployStep::showManualInstallationInfo()
     connect(this, SIGNAL(finished()), mb, SLOT(close()));
     connect(this, SIGNAL(finishNow()), mb, SLOT(close()));
     mb->open();
-}
-
-void S60DeployStep::slotWaitingForTckTrkClosed(int result)
-{
-    if (result == QMessageBox::Cancel)
-        m_deployCanceled = true;
-}
-
-void S60DeployStep::setReleaseDeviceAfterLauncherFinish(bool v)
-{
-    m_releaseDeviceAfterLauncherFinish = v;
-}
-
-void S60DeployStep::slotLauncherStateChanged(int s)
-{
-    if (s == trk::Launcher::WaitingForTrk) {
-        QMessageBox *mb = TrkRunControl::createTrkWaitingMessageBox(m_launcher->trkServerName(),
-                                                                          Core::ICore::instance()->mainWindow());
-        connect(m_launcher, SIGNAL(stateChanged(int)), mb, SLOT(close()));
-        connect(mb, SIGNAL(finished(int)), this, SLOT(slotWaitingForTrkClosed()));
-        mb->open();
-    }
-}
-
-void S60DeployStep::slotWaitingForTrkClosed()
-{
-    if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk)
-        m_deployCanceled = true;
-}
-
-void S60DeployStep::createFileFailed(const QString &filename, const QString &errorMessage)
-{
-    reportError(tr("Could not create file %1 on device: %2").arg(filename, errorMessage));
-}
-
-void S60DeployStep::writeFileFailed(const QString &filename, const QString &errorMessage)
-{
-    reportError(tr("Could not write to file %1 on device: %2").arg(filename, errorMessage));
-}
-
-void S60DeployStep::closeFileFailed(const QString &filename, const QString &errorMessage)
-{
-    const QString msg = tr("Could not close file %1 on device: %2. It will be closed when App TRK is closed.");
-    reportError( msg.arg(filename, errorMessage));
-}
-
-void S60DeployStep::connectFailed(const QString &errorMessage)
-{
-    reportError(tr("Could not connect to App TRK on device: %1. Restarting App TRK might help.").arg(errorMessage));
-}
-
-void S60DeployStep::printCopyingNotice(const QString &fileName)
-{
-    appendMessage(tr("Copying \"%1\"...").arg(fileName), false);
-}
-
-void S60DeployStep::printCopyingFinished(const QString &fileName)
-{
-    Q_UNUSED(fileName)
-    appendMessage(QLatin1String("\n"), false);
-}
-
-void S60DeployStep::printInstallingNotice(const QString &packageName)
-{
-    appendMessage(tr("Installing package \"%1\" on drive %2:...").arg(packageName).arg(m_installationDrive), false);
-}
-
-void S60DeployStep::printInstallingFinished()
-{
-    appendMessage(tr("Installation has finished"), false);
-}
-
-void S60DeployStep::installFailed(const QString &filename, const QString &errorMessage)
-{
-    reportError(tr("Could not install from package %1 on device: %2").arg(filename, errorMessage));
 }
 
 void S60DeployStep::checkForCancel()
@@ -784,22 +610,6 @@ void S60DeployStep::checkForCancel()
     }
 }
 
-void S60DeployStep::launcherFinished(bool success)
-{
-    m_deployResult = success;
-    if(m_deployResult && m_futureInterface)
-        m_futureInterface->setProgressValue(m_futureInterface->progressMaximum());
-    if (m_releaseDeviceAfterLauncherFinish && m_launcher) {
-        m_handleDeviceRemoval = false;
-        trk::Launcher::releaseToDeviceManager(m_launcher);
-    }
-    if (m_launcher)
-        m_launcher->deleteLater();
-    m_launcher = 0;
-    if (m_eventLoop)
-        m_eventLoop->exit();
-}
-
 void S60DeployStep::deploymentFinished(bool success)
 {
     m_deployResult = success;
@@ -809,10 +619,10 @@ void S60DeployStep::deploymentFinished(bool success)
         m_eventLoop->exit();
 }
 
-void S60DeployStep::deviceRemoved(const SymbianUtils::SymbianDevice &d)
+void S60DeployStep::deviceRemoved(const SymbianDevice &device)
 {
-    if (m_handleDeviceRemoval && d.portName() == m_serialPortName)
-        reportError(tr("The device '%1' has been disconnected").arg(d.friendlyName()));
+    if (device.portName() == m_serialPortName)
+        reportError(tr("The device '%1' has been disconnected").arg(device.friendlyName()));
 }
 
 void S60DeployStep::setCopyProgress(int progress)
