@@ -707,7 +707,7 @@ void ExternalToolManager::initialize()
     // add the external tools menu
     ActionManager *am = m_core->actionManager();
     ActionContainer *mexternaltools = am->createMenu(Id(Constants::M_TOOLS_EXTERNAL));
-    mexternaltools->menu()->setTitle(tr("External"));
+    mexternaltools->menu()->setTitle(tr("&External"));
     ActionContainer *mtools = am->actionContainer(Constants::M_TOOLS);
     mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
 
