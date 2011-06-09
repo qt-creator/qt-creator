@@ -437,6 +437,7 @@ void DesignDocumentController::loadCurrentModel()
     Q_ASSERT(m_d->model);
     m_d->model->setMasterModel(m_d->masterModel.data());
 
+    m_d->nodeInstanceView->setPathToQt(pathToQt());
     m_d->model->attachView(m_d->nodeInstanceView.data());
     m_d->model->attachView(m_d->navigator.data());
     m_d->itemLibraryView->widget()->setResourcePath(QFileInfo(m_d->fileName).absolutePath());
@@ -822,8 +823,13 @@ void DesignDocumentController::activeQtVersionChanged()
         return;
     }
 
+    if (m_d->qt_versionId == newQtVersion->uniqueId())
+        return;
+
     m_d->qt_versionId = newQtVersion->uniqueId();
 
+    if (m_d->nodeInstanceView)
+        m_d->nodeInstanceView->setPathToQt(pathToQt());
 }
 
 #ifdef ENABLE_TEXT_VIEW

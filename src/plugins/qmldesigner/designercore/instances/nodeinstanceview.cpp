@@ -164,7 +164,7 @@ bool isSkippedNode(const ModelNode &node)
 void NodeInstanceView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus);
+    m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_pathToQt);
     m_lastCrashTime.start();
     connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
@@ -203,7 +203,7 @@ void NodeInstanceView::restartProcess()
     if (model()) {
         delete nodeInstanceServer();
 
-        m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus);
+        m_nodeInstanceServer = new NodeInstanceServerProxy(this, m_runModus, m_pathToQt);
         connect(m_nodeInstanceServer.data(), SIGNAL(processCrashed()), this, SLOT(handleChrash()));
 
         if (!isSkippedRootNode(rootModelNode()))
@@ -1074,6 +1074,12 @@ QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
         return m_baseStatePreviewImage;
 
     return m_statePreviewImage.value(stateNode);
+}
+
+void NodeInstanceView::setPathToQt(const QString &pathToQt)
+{
+    m_pathToQt = pathToQt;
+    restartProcess();
 }
 
 void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedCommand &command)

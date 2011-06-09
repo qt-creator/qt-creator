@@ -88,7 +88,7 @@ static bool hasQtQuick1(NodeInstanceView *nodeInstanceView)
     return false;
 }
 
-NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus)
+NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus, const QString &pathToQt)
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
       m_nodeInstanceView(nodeInstanceView),

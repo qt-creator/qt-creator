@@ -138,6 +138,8 @@ public:
 
     QImage statePreviewImage(const ModelNode &stateNode) const;
 
+    void setPathToQt(const QString &pathToQt);
+
 signals:
     void qmlPuppetCrashed();
 
@@ -195,6 +197,7 @@ private: //variables
     QImage m_baseStatePreviewImage;
     QTime m_lastCrashTime;
     NodeInstanceServerInterface::RunModus m_runModus;
+    QString m_pathToQt;
 };
 
 } // namespace ProxyNodeInstanceView

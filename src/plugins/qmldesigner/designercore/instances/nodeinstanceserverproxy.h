@@ -55,7 +55,7 @@ class NodeInstanceServerProxy : public NodeInstanceServerInterface
 {
     Q_OBJECT
 public:
-    explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus = NormalModus);
+    explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus = NormalModus, const QString &pathToQt = QString());
     ~NodeInstanceServerProxy();
     void createInstances(const CreateInstancesCommand &command);
     void changeFileUrl(const ChangeFileUrlCommand &command);
