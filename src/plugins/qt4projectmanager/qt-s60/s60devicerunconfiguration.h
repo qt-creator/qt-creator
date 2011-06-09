@@ -48,12 +48,12 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 class Qt4BaseTarget;
 class Qt4ProFileNode;
+class CodaRunControl;
 
 namespace Internal {
 class SymbianQtVersion;
 class Qt4SymbianTarget;
 class S60DeviceRunConfigurationFactory;
-class CodaRunControl;
 
 class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
 {

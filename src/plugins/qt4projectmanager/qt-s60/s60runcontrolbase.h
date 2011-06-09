@@ -33,15 +33,15 @@
 #ifndef S60RUNCONTROLBASE_H
 #define S60RUNCONTROLBASE_H
 
+#include <qt4projectmanager/qt4projectmanager_global.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/toolchain.h>
 
 #include <QtCore/QFutureInterface>
 
 namespace Qt4ProjectManager {
-namespace Internal {
 
-class S60RunControlBase : public ProjectExplorer::RunControl
+class QT4PROJECTMANAGER_EXPORT S60RunControlBase : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
@@ -96,7 +96,6 @@ private:
     char m_installationDrive;
 };
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif // S60RUNCONTROLBASE_H

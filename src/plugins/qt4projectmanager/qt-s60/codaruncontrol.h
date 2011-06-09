@@ -51,10 +51,9 @@ class SymbianDevice;
 }
 
 namespace Qt4ProjectManager {
-namespace Internal {
 
 // CodaRunControl configures Coda to run the application
-class CodaRunControl : public S60RunControlBase
+class QT4PROJECTMANAGER_EXPORT CodaRunControl : public S60RunControlBase
 {
     Q_OBJECT
 public:
@@ -124,7 +123,6 @@ private:
     bool m_stopAfterConnect;
 };
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif // CODARUNCONTROL_H
