@@ -88,7 +88,7 @@ void ProgressView::removeOldTasks(const QString &type, bool keepOne)
     while (i != m_taskList.begin()) {
         --i;
         if ((*i)->type() == type) {
-            if (firstFound && (*i)->future().isFinished()) {
+            if (firstFound && ((*i)->future().isFinished() || (*i)->future().isCanceled())) {
                 deleteTask(*i);
                 i = m_taskList.erase(i);
             }
