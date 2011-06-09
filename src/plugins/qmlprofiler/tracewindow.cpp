@@ -260,7 +260,7 @@ void TracePlugin::messageReceived(const QByteArray &data)
 TraceWindow::TraceWindow(QWidget *parent)
     : QWidget(parent)
 {
-    setObjectName(tr("QML Performance Monitor"));
+    setObjectName(tr("QML Profiler"));
 
     QVBoxLayout *groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0, 0, 0, 0);
