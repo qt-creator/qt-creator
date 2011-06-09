@@ -66,6 +66,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <qt4projectmanager/qt-s60/s60deployconfiguration.h>
+
 #include <QtCore/QFile>
 
 #include <QtGui/QHBoxLayout>
@@ -96,8 +98,15 @@ public:
     QAction *m_attachAction;
     QToolButton *m_recordButton;
     bool m_recordingEnabled;
-    QString m_host;
-    quint64 m_port;
+
+    enum ConnectMode {
+        TcpConnection, OstConnection
+    };
+
+    ConnectMode m_connectMode;
+    QString m_tcpHost;
+    quint64 m_tcpPort;
+    QString m_ostDevice;
 };
 
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
@@ -142,8 +151,22 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
 {
     QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
 
-    d->m_host = sp.connParams.host;
-    d->m_port = sp.connParams.port;
+    d->m_connectMode = QmlProfilerToolPrivate::TcpConnection;
+
+    if (Qt4ProjectManager::S60DeployConfiguration *deployConfig
+            = qobject_cast<Qt4ProjectManager::S60DeployConfiguration*>(
+                runConfiguration->target()->activeDeployConfiguration())) {
+        if (deployConfig->communicationChannel()
+                == Qt4ProjectManager::S60DeployConfiguration::CommunicationCodaSerialConnection) {
+            d->m_connectMode = QmlProfilerToolPrivate::OstConnection;
+            d->m_ostDevice = deployConfig->serialPortName();
+        }
+    }
+
+    if (d->m_connectMode == QmlProfilerToolPrivate::TcpConnection) {
+        d->m_tcpHost = sp.connParams.host;
+        d->m_tcpPort = sp.connParams.port;
+    }
 
     d->m_runConfiguration = runConfiguration;
     d->m_project = runConfiguration->target()->project();
@@ -274,10 +297,18 @@ void QmlProfilerTool::connectToClient()
 {
     if (!d->m_client || d->m_client->state() != QAbstractSocket::UnconnectedState)
         return;
-    if (QmlProfilerPlugin::debugOutput)
-        qWarning("QmlProfiler: Connecting to %s:%lld ...", qPrintable(d->m_host), d->m_port);
 
-    d->m_client->connectToHost(d->m_host, d->m_port);
+    if (d->m_connectMode == QmlProfilerToolPrivate::TcpConnection) {
+        if (QmlProfilerPlugin::debugOutput)
+            qWarning("QmlProfiler: Connecting to %s:%lld ...", qPrintable(d->m_tcpHost), d->m_tcpPort);
+
+        d->m_client->connectToHost(d->m_tcpHost, d->m_tcpPort);
+    } else {
+        if (QmlProfilerPlugin::debugOutput)
+            qWarning("QmlProfiler: Connecting to ost device %s...", qPrintable(d->m_ostDevice));
+
+        d->m_client->connectToOst(d->m_ostDevice);
+    }
 }
 
 void QmlProfilerTool::disconnectClient()
@@ -367,8 +398,8 @@ void QmlProfilerTool::attach()
         if (result == QDialog::Rejected)
             return;
 
-        d->m_port = dialog.port();
-        d->m_host = dialog.address();
+        d->m_tcpPort = dialog.port();
+        d->m_tcpHost = dialog.address();
 
         connectClient();
         AnalyzerManager::instance()->showMode();

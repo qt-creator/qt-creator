@@ -7,6 +7,7 @@ include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/analyzerbase/analyzerbase.pri)
 include(../../plugins/qmlprojectmanager/qmlprojectmanager.pri)
+include(../../plugins/qt4projectmanager/qt4projectmanager.pri)
 include(../../libs/qmljsdebugclient/qmljsdebugclient-lib.pri)
 
 QT += network script declarative
@@ -22,7 +23,8 @@ SOURCES += \
     qmlprofilerattachdialog.cpp \
     qmlprofilersummaryview.cpp \
     qmlprojectanalyzerruncontrolfactory.cpp \
-    localqmlprofilerrunner.cpp
+    localqmlprofilerrunner.cpp \
+    codaqmlprofilerrunner.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -36,7 +38,8 @@ HEADERS += \
     qmlprofilersummaryview.h \
     qmlprojectanalyzerruncontrolfactory.h \
     abstractqmlprofilerrunner.h \
-    localqmlprofilerrunner.h
+    localqmlprofilerrunner.h \
+    codaqmlprofilerrunner.h
 
 RESOURCES += \
     qml/qml.qrc

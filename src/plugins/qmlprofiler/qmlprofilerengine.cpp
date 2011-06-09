@@ -36,6 +36,7 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilertool.h"
 #include "localqmlprofilerrunner.h"
+#include "codaqmlprofilerrunner.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
@@ -43,6 +44,7 @@
 #include <coreplugin/icore.h>
 
 #include <qmljsdebugclient/qdeclarativedebugclient_p.h>
+#include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 
 #include <utils/qtcassert.h>
 
@@ -65,8 +67,30 @@ namespace Internal {
 // QmlProfilerEnginePrivate
 //
 
-static AbstractQmlProfilerRunner *
-createRunner(const Analyzer::AnalyzerStartParameters &m_params, QObject *parent)
+class QmlProfilerEngine::QmlProfilerEnginePrivate
+{
+public:
+    QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq), m_runner(0) {}
+    ~QmlProfilerEnginePrivate() {}
+
+    bool attach(const QString &address, uint port);
+    static AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
+                                                   const Analyzer::AnalyzerStartParameters &m_params,
+                                                   QObject *parent);
+
+    QmlProfilerEngine *q;
+
+    Analyzer::AnalyzerStartParameters m_params;
+    AbstractQmlProfilerRunner *m_runner;
+    bool m_running;
+    bool m_fetchingData;
+    bool m_delayedDelete;
+};
+
+AbstractQmlProfilerRunner *
+QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunConfiguration *configuration,
+                                                          const Analyzer::AnalyzerStartParameters &m_params,
+                                                          QObject *parent)
 {
     AbstractQmlProfilerRunner *runner = 0;
     if (m_params.startMode == Analyzer::StartLocal) {
@@ -78,31 +102,14 @@ createRunner(const Analyzer::AnalyzerStartParameters &m_params, QObject *parent)
         configuration.port = m_params.connParams.port;
 
         runner = new LocalQmlProfilerRunner(configuration, parent);
-
     } else if (m_params.startMode == Analyzer::StartRemote) {
-
+        if (Qt4ProjectManager::S60DeviceRunConfiguration *s60Config
+                = qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration*>(configuration)) {
+            runner = new CodaQmlProfilerRunner(s60Config, parent);
+        }
     }
     return runner;
 }
-
-
-class QmlProfilerEngine::QmlProfilerEnginePrivate
-{
-public:
-    QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq), m_runner(0) {}
-    ~QmlProfilerEnginePrivate() {}
-
-    bool attach(const QString &address, uint port);
-
-    QmlProfilerEngine *q;
-
-    Analyzer::AnalyzerStartParameters m_params;
-    AbstractQmlProfilerRunner *m_runner;
-    bool m_running;
-    bool m_fetchingData;
-    bool m_delayedDelete;
-};
-
 
 //
 // QmlProfilerEngine
@@ -129,10 +136,9 @@ QmlProfilerEngine::~QmlProfilerEngine()
 void QmlProfilerEngine::start()
 {
     QTC_ASSERT(!d->m_runner, return);
-    d->m_runner = createRunner(d->m_params, this);
+    d->m_runner = QmlProfilerEnginePrivate::createRunner(runConfiguration(), d->m_params, this);
     QTC_ASSERT(d->m_runner, return);
 
-    connect(d->m_runner, SIGNAL(started()), this, SIGNAL(processRunning()));
     connect(d->m_runner, SIGNAL(stopped()), this, SLOT(stopped()));
     connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
             this, SLOT(logApplicationMessage(QString,Utils::OutputFormat)));
@@ -148,6 +154,7 @@ void QmlProfilerEngine::stop()
     if (d->m_fetchingData) {
         if (d->m_running)
             d->m_delayedDelete = true;
+        // will result in dataReceived() call
         emit stopRecording();
     } else {
         finishProcess();

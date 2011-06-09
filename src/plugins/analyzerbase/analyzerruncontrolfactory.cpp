@@ -92,9 +92,7 @@ AnalyzerRunControlFactory::AnalyzerRunControlFactory(QObject *parent)
 
 bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
-    return runConfiguration->isEnabled() && mode == Constants::MODE_ANALYZE
-            && (qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration)
-                || qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration));
+    return runConfiguration->isEnabled() && mode == Constants::MODE_ANALYZE;
 }
 
 ProjectExplorer::RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,
@@ -102,9 +100,16 @@ ProjectExplorer::RunControl *AnalyzerRunControlFactory::create(RunConfiguration 
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
-    const AnalyzerStartParameters sp
-        = qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration)
-            ? localStartParameters(runConfiguration) : remoteLinuxStartParameters(runConfiguration);
+    AnalyzerStartParameters sp;
+    if (qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration)) {
+        sp = localStartParameters(runConfiguration);
+    } else if (qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
+        sp = remoteLinuxStartParameters(runConfiguration);
+    } else {
+        // might be S60DeviceRunfiguration, or something else ...
+        sp.startMode = StartRemote;
+    }
+
     return create(sp, runConfiguration);
 }
 
