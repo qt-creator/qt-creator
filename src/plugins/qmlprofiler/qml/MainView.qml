@@ -152,14 +152,14 @@ Rectangle {
         anchors.left: labels.right
         anchors.bottom: canvas.top
         contentWidth: view.totalWidth
-        contentHeight: view.height
+        contentHeight: height
         flickableDirection: Flickable.HorizontalFlick
 
         TimelineView {
             id: view
 
             width: flick.width;
-            height: 50 * 5;
+            height: flick.contentHeight;
 
             startX: flick.contentX
             onStartXChanged: {
@@ -192,7 +192,8 @@ Rectangle {
                         mouseArea.exited()
                 }
 
-                height: 50
+                height: view.height / labels.rowCount
+                y: type * view.height / labels.rowCount;
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: myColor }
                     GradientStop { position: 0.5; color: Qt.darker(myColor, 1.1) }
@@ -241,20 +242,6 @@ Rectangle {
         }
     }
 
-    VerticalScrollbar {
-        id: verticalScrollbar
-
-        flickable: flick
-        anchors.top: parent.top
-        anchors.right : flick.right
-        anchors.bottom : canvas.top
-        anchors.topMargin: 1
-        anchors.bottomMargin: 1
-        anchors.rightMargin: 0
-        anchors.leftMargin: 0
-        width: 10
-    }
-
     //popup showing the details for the hovered range
     RangeDetails {
         id: rangeDetails
@@ -267,13 +254,16 @@ Rectangle {
         y: -flick.contentY
         height: flick.contentHeight
 
+        property int rowCount: 5
+
         Column {
+            id: col
             //### change to use Repeater + Plotter.names?
-            Label { text: "Painting" }
-            Label { text: "Compiling" }
-            Label { text: "Creating" }
-            Label { text: "Binding" }
-            Label { text: "Signal Handler" }
+            Label { text: "Painting"; height: labels.height/labels.rowCount}
+            Label { text: "Compiling"; height: labels.height/labels.rowCount }
+            Label { text: "Creating"; height: labels.height/labels.rowCount }
+            Label { text: "Binding"; height: labels.height/labels.rowCount }
+            Label { text: "Signal Handler"; height: labels.height/labels.rowCount }
         }
 
         //right border divider

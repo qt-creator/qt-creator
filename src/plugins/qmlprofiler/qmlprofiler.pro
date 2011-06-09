@@ -50,8 +50,7 @@ OTHER_FILES += \
     qml/RangeMover.qml \
     qml/RecordButton.qml \
     qml/ToolButton.qml \
-    qml/MainView.js \
-    qml/VerticalScrollbar.qml
+    qml/MainView.js
 
 FORMS += \
     qmlprofilerattachdialog.ui

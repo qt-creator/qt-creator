@@ -221,7 +221,6 @@ void TimelineView::updateTimeline(bool updateStartX)
             }
             ctxt->setContextProperty("label", label);
             ctxt->setContextProperty("type", type);
-            item->setY(type*50);
             item->setParentItem(this);
         }
         if (item) {
