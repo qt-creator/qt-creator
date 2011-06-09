@@ -74,7 +74,6 @@
 #include "pixmapchangedcommand.h"
 #include "informationchangedcommand.h"
 #include "changestatecommand.h"
-#include "addimportcommand.h"
 #include "childrenchangedcommand.h"
 #include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
@@ -1003,11 +1002,6 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
     }
 
     return RemovePropertiesCommand(containerList);
-}
-
-AddImportCommand NodeInstanceView::createImportCommand(const Import &import)
-{
-    return AddImportCommand(AddImportContainer(import.url(), import.file(), import.version(), import.alias(), import.importPaths()));
 }
 
 void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)

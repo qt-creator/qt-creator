@@ -30,33 +30,63 @@
 **
 **************************************************************************/
 
-#ifndef NODEINSTANCESERVERPROXY_H
-#define NODEINSTANCESERVERPROXY_H
+#ifndef NODEINSTANCECLIENTPROXY_H
+#define NODEINSTANCECLIENTPROXY_H
 
-#include "nodeinstanceserverinterface.h"
+#include "nodeinstanceclientinterface.h"
 
-#include <QDataStream>
+#include <QObject>
+#include <QHash>
 #include <QWeakPointer>
-#include <QProcess>
 
 QT_BEGIN_NAMESPACE
-class QLocalServer;
 class QLocalSocket;
-class QProcess;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class NodeInstanceClientInterface;
-class NodeInstanceView;
-class NodeInstanceClientProxy;
+class NodeInstanceServerInterface;
+class CreateSceneCommand;
+class CreateInstancesCommand;
+class ClearSceneCommand;
+class ReparentInstancesCommand;
+class ChangeFileUrlCommand;
+class ChangeValuesCommand;
+class ChangeAuxiliaryCommand;
+class ChangeBindingsCommand;
+class ChangeIdsCommand;
+class RemoveInstancesCommand;
+class RemovePropertiesCommand;
+class CompleteComponentCommand;
+class ChangeStateCommand;
+class ChangeNodeSourceCommand;
 
-class NodeInstanceServerProxy : public NodeInstanceServerInterface
+
+class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterface
 {
     Q_OBJECT
+
 public:
-    explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus = NormalModus);
-    ~NodeInstanceServerProxy();
+    NodeInstanceClientProxy(QObject *parent = 0);
+
+    void informationChanged(const InformationChangedCommand &command);
+    void valuesChanged(const ValuesChangedCommand &command);
+    void pixmapChanged(const PixmapChangedCommand &command);
+    void childrenChanged(const ChildrenChangedCommand &command);
+    void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
+    void componentCompleted(const ComponentCompletedCommand &command);    
+
+    void flush();
+    void synchronizeWithClientProcess();
+    qint64 bytesToWrite() const;
+
+protected:
+    void initializeSocket();
+    void writeCommand(const QVariant &command);
+    void dispatchCommand(const QVariant &command);
+    NodeInstanceServerInterface *nodeInstanceServer() const;
+    void setNodeInstanceServer(NodeInstanceServerInterface *nodeInstanceServer);
+
     void createInstances(const CreateInstancesCommand &command);
     void changeFileUrl(const ChangeFileUrlCommand &command);
     void createScene(const CreateSceneCommand &command);
@@ -72,40 +102,18 @@ public:
     void completeComponent(const CompleteComponentCommand &command);
     void changeNodeSource(const ChangeNodeSourceCommand &command);
 
-protected:
-    void writeCommand(const QVariant &command);
-    void dispatchCommand(const QVariant &command);
-    NodeInstanceClientInterface *nodeInstanceClient() const;
-
-signals:
-    void processCrashed();
-
 private slots:
-    void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void readFirstDataStream();
-    void readSecondDataStream();
-    void readThirdDataStream();
+    void readDataStream();
 
 private:
-    QWeakPointer<QLocalServer> m_localServer;
-    QWeakPointer<QLocalSocket> m_firstSocket;
-    QWeakPointer<QLocalSocket> m_secondSocket;
-    QWeakPointer<QLocalSocket> m_thirdSocket;
-    QWeakPointer<NodeInstanceView> m_nodeInstanceView;
-    QWeakPointer<QProcess> m_qmlPuppetEditorProcess;
-    QWeakPointer<QProcess> m_qmlPuppetPreviewProcess;
-    QWeakPointer<QProcess> m_qmlPuppetRenderProcess;
-    quint32 m_firstBlockSize;
-    quint32 m_secondBlockSize;
-    quint32 m_thirdBlockSize;
+    QLocalSocket *m_socket;
+    NodeInstanceServerInterface *m_nodeInstanceServer;
+    quint32 m_blockSize;
     quint32 m_writeCommandCounter;
-    quint32 m_firstLastReadCommandCounter;
-    quint32 m_secondLastReadCommandCounter;
-    quint32 m_thirdLastReadCommandCounter;
-    RunModus m_runModus;
+    quint32 m_lastReadCommandCounter;
     int m_synchronizeId;
 };
 
 } // namespace QmlDesigner
 
-#endif // NODEINSTANCESERVERPROXY_H
+#endif // NODEINSTANCECLIENTPROXY_H

@@ -68,7 +68,6 @@ class ChangeBindingsCommand;
 class ChangeIdsCommand;
 class RemoveInstancesCommand;
 class RemovePropertiesCommand;
-class AddImportCommand;
 class CompleteComponentCommand;
 
 class CORESHARED_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
@@ -175,7 +174,6 @@ private: // functions
     RemoveInstancesCommand createRemoveInstancesCommand(const QList<ModelNode> &nodeList) const;
     RemoveInstancesCommand createRemoveInstancesCommand(const ModelNode &node) const;
     RemovePropertiesCommand createRemovePropertiesCommand(const QList<AbstractProperty> &propertyList) const;
-    AddImportCommand createImportCommand(const Import &import);
 
     void resetHorizontalAnchors(const ModelNode &node);
     void resetVerticalAnchors(const ModelNode &node);

@@ -7,8 +7,13 @@ QT += script \
 DEFINES += TEST_EXPORTS
 INCLUDEPATH += $$PWD \
     $$PWD/include
+
+include (instances/instances.pri)
+include (../../../tools/qmlpuppet/interfaces/interfaces.pri)
+include (../../../tools/qmlpuppet/commands/commands.pri)
+include (../../../tools/qmlpuppet/container/container.pri)
+
 SOURCES += $$PWD/model/abstractview.cpp \
-    $$PWD/instances/nodeinstanceview.cpp \
     $$PWD/model/rewriterview.cpp \
     $$PWD/metainfo/metainfo.cpp \
     $$PWD/metainfo/metainfoparser.cpp \
@@ -25,15 +30,12 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/pluginmanager/widgetpluginmanager.cpp \
     $$PWD/pluginmanager/widgetpluginpath.cpp \
     $$PWD/exceptions/exception.cpp \
-    $$PWD/exceptions/invalidnodeinstanceexception.cpp \
     $$PWD/exceptions/invalidpropertyexception.cpp \
     $$PWD/exceptions/invalidmodelnodeexception.cpp \
     $$PWD/exceptions/invalidreparentingexception.cpp \
     $$PWD/exceptions/invalidmetainfoexception.cpp \
     $$PWD/exceptions/invalidargumentexception.cpp \
-    $$PWD/exceptions/noanchoringpossibleexception.cpp \
     $$PWD/exceptions/notimplementedexception.cpp \
-    $$PWD/exceptions/invalidnodestateexception.cpp \
     $$PWD/model/variantparser.cpp \
     $$PWD/exceptions/invalidmodelstateexception.cpp \
     $$PWD/exceptions/removebasestateexception.cpp \
@@ -73,43 +75,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/rewriteactioncompressor.cpp \
     $$PWD/model/qmltextgenerator.cpp \
     $$PWD/model/modelmerger.cpp \
-    $$PWD/exceptions/rewritingexception.cpp \
-    $$PWD/instances/declarativedesignercommunicationinterface.cpp \
-    $$PWD/instances/createinstancescommand.cpp \
-    $$PWD/instances/nodeinstanceserverinterface.cpp \
-    $$PWD/instances/nodeinstance.cpp \
-    $$PWD/instances/propertyvaluecontainer.cpp \
-    $$PWD/instances/childrenchangeeventfilter.cpp \
-    $$PWD/instances/propertybindingcontainer.cpp \
-    $$PWD/instances/propertyabstractcontainer.cpp \
-    $$PWD/instances/createscenecommand.cpp \
-    $$PWD/instances/instancecontainer.cpp \
-    $$PWD/instances/changefileurlcommand.cpp \
-    $$PWD/instances/clearscenecommand.cpp \
-    $$PWD/instances/reparentcontainer.cpp \
-    $$PWD/instances/reparentinstancescommand.cpp \
-    $$PWD/instances/changevaluescommand.cpp \
-    $$PWD/instances/changebindingscommand.cpp \
-    $$PWD/instances/changeidscommand.cpp \
-    $$PWD/instances/idcontainer.cpp \
-    $$PWD/instances/synchronizecommand.cpp \
-    $$PWD/instances/removeinstancescommand.cpp \
-    $$PWD/instances/removepropertiescommand.cpp \
-    $$PWD/instances/valueschangedcommand.cpp \
-    $$PWD/instances/pixmapchangedcommand.cpp \
-    $$PWD/instances/informationchangedcommand.cpp \
-    $$PWD/instances/informationcontainer.cpp \
-    $$PWD/instances/changestatecommand.cpp \
-    $$PWD/instances/nodeinstanceserverproxy.cpp \
-    $$PWD/instances/addimportcommand.cpp \
-    $$PWD/instances/childrenchangedcommand.cpp \
-    $$PWD/instances/statepreviewimagechangedcommand.cpp \
-    $$PWD/instances/imagecontainer.cpp \
-    $$PWD/instances/completecomponentcommand.cpp \
-    $$PWD/instances/componentcompletedcommand.cpp \
-    $$PWD/instances/changenodesourcecommand.cpp \
-    $$PWD/instances/changeauxiliarycommand.cpp \
-    $$PWD/instances/addimportcontainer.cpp
+    $$PWD/exceptions/rewritingexception.cpp
 
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
@@ -132,8 +98,6 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/pluginmanager/widgetpluginmanager.h \
     $$PWD/pluginmanager/widgetpluginpath.h \
     $$PWD/include/exception.h \
-    $$PWD/include/invalidnodeinstanceexception.h \
-    $$PWD/include/invalidmodelnodeexception.h \
     $$PWD/include/invalidreparentingexception.h \
     $$PWD/include/invalidmetainfoexception.h \
     $$PWD/include/invalidargumentexception.h \
@@ -181,45 +145,8 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/modelmerger.h \
     $$PWD/include/mathutils.h \
     $$PWD/include/customnotifications.h \
-    $$PWD/include/rewritingexception.h \
-    $$PWD/instances/declarativedesignercommunicationinterface.h \
-    $$PWD/instances/createinstancescommand.h \
-    $$PWD/include/nodeinstanceserverinterface.h \
-    $$PWD/include/nodeinstance.h \
-    $$PWD/include/propertyvaluecontainer.h \
-    $$PWD/instances/childrenchangeeventfilter.h \
-    $$PWD/include/propertybindingcontainer.h \
-    $$PWD/include/propertyabstractcontainer.h \
-    $$PWD/instances/createscenecommand.h \
-    $$PWD/instances/instancecontainer.h \
-    $$PWD/instances/changefileurlcommand.h \
-    $$PWD/instances/clearscenecommand.h \
-    $$PWD/instances/reparentcontainer.h \
-    $$PWD/instances/reparentinstancescommand.h \
-    $$PWD/instances/synchronizecommand.h \
-    $$PWD/instances/changevaluescommand.h \
-    $$PWD/instances/changebindingscommand.h \
-    $$PWD/instances/changeidscommand.h \
-    $$PWD/instances/idcontainer.h \
-    $$PWD/instances/removeinstancescommand.h \
-    $$PWD/instances/removepropertiescommand.h \
-    $$PWD/include/nodeinstanceclientinterface.h \
-    $$PWD/instances/valueschangedcommand.h \
-    $$PWD/instances/pixmapchangedcommand.h \
-    $$PWD/instances/informationchangedcommand.h \
-    $$PWD/instances/informationcontainer.h \
-    $$PWD/include/commondefines.h \
-    $$PWD/instances/changestatecommand.h \
-    $$PWD/instances/nodeinstanceserverproxy.h \
-    $$PWD/instances/addimportcommand.h \
-    $$PWD/instances/childrenchangedcommand.h \
-    $$PWD/instances/statepreviewimagechangedcommand.h \
-    $$PWD/instances/imagecontainer.h \
-    $$PWD/instances/completecomponentcommand.h \
-    $$PWD/instances/componentcompletedcommand.h \
-    $$PWD/instances/changenodesourcecommand.h \
-    $$PWD/instances/changeauxiliarycommand.h \
-    $$PWD/instances/addimportcontainer.h
+    $$PWD/include/rewritingexception.h
+
 contains(CONFIG, plugin) {
   # If core.pri has been included in the qmldesigner plugin
   SOURCES += $$PWD/model/basetexteditmodifier.cpp

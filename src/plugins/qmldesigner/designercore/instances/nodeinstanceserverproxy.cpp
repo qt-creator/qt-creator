@@ -37,6 +37,7 @@
 #include <QProcess>
 #include <QCoreApplication>
 #include <QUuid>
+#include <QFileInfo>
 
 #include "propertyabstractcontainer.h"
 #include "propertyvaluecontainer.h"
@@ -54,7 +55,6 @@
 #include "reparentinstancescommand.h"
 #include "changeidscommand.h"
 #include "changestatecommand.h"
-#include "addimportcommand.h"
 #include "completecomponentcommand.h"
 #include "changenodesourcecommand.h"
 
@@ -69,9 +69,24 @@
 #include "synchronizecommand.h"
 
 #include "nodeinstanceview.h"
-#include "nodeinstanceclientproxy.h"
+
+#include "import.h"
+#include <QMessageBox>
+
 
 namespace QmlDesigner {
+
+static bool hasQtQuick1(NodeInstanceView *nodeInstanceView)
+{
+    if (nodeInstanceView && nodeInstanceView->model()) {
+        foreach (const Import &import ,nodeInstanceView->model()->imports()) {
+            if (import.url() ==  "QtQuick" && import.version().toDouble() < 2.0)
+                return true;
+        }
+    }
+
+    return false;
+}
 
 NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus)
     : NodeInstanceServerInterface(nodeInstanceView),
@@ -98,74 +113,84 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 #ifdef Q_OS_MACX
    applicationPath += "/qmlpuppet.app/Contents/MacOS";
 #endif
-   applicationPath += "/qmlpuppet";
+
+   if (hasQtQuick1(nodeInstanceView)) {
+       applicationPath += "/qmlpuppet";
+   } else {
+       applicationPath += "/qml2puppet";
+   }
 
    QByteArray envImportPath = qgetenv("QTCREATOR_QMLPUPPET_PATH");
    if (!envImportPath.isEmpty()) {
        applicationPath = envImportPath;
    }
 
-   m_qmlPuppetEditorProcess = new QProcess;
-   connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
-   connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
-   bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QMLPUPPET_OUTPUT").isEmpty();
-   if (fowardQmlpuppetOutput)
-       m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
-   m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
-
-   if (runModus == NormalModus) {
-       m_qmlPuppetPreviewProcess = new QProcess;
-       connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
-       connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
+   if (QFileInfo(applicationPath).exists()) {
+       m_qmlPuppetEditorProcess = new QProcess;
+       connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+       connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
+       bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QMLPUPPET_OUTPUT").isEmpty();
        if (fowardQmlpuppetOutput)
-           m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
-       m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
+           m_qmlPuppetEditorProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+       m_qmlPuppetEditorProcess->start(applicationPath, QStringList() << socketToken << "editormode" << "-graphicssystem raster");
 
-       m_qmlPuppetRenderProcess = new QProcess;
-       connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
-       connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetRenderProcess.data(), SLOT(kill()));
-       if (fowardQmlpuppetOutput)
-           m_qmlPuppetRenderProcess->setProcessChannelMode(QProcess::ForwardedChannels);
-       m_qmlPuppetRenderProcess->start(applicationPath, QStringList() << socketToken << "rendermode" << "-graphicssystem raster");
+       if (runModus == NormalModus) {
+           m_qmlPuppetPreviewProcess = new QProcess;
+           connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+           connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
+           if (fowardQmlpuppetOutput)
+               m_qmlPuppetPreviewProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+           m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
 
-   }
+           m_qmlPuppetRenderProcess = new QProcess;
+           connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+           connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetRenderProcess.data(), SLOT(kill()));
+           if (fowardQmlpuppetOutput)
+               m_qmlPuppetRenderProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+           m_qmlPuppetRenderProcess->start(applicationPath, QStringList() << socketToken << "rendermode" << "-graphicssystem raster");
 
-   connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
+       }
 
-   m_qmlPuppetEditorProcess->waitForStarted();
+       connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
-   connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int)), m_qmlPuppetEditorProcess.data(),SLOT(deleteLater()));
+       m_qmlPuppetEditorProcess->waitForStarted();
 
-   if (runModus == NormalModus) {
-       m_qmlPuppetPreviewProcess->waitForStarted();
-       connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int)), m_qmlPuppetPreviewProcess.data(),SLOT(deleteLater()));
+       connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int)), m_qmlPuppetEditorProcess.data(),SLOT(deleteLater()));
 
-       m_qmlPuppetRenderProcess->waitForStarted();
-       connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int)), m_qmlPuppetRenderProcess.data(),SLOT(deleteLater()));
-   }
+       if (runModus == NormalModus) {
+           m_qmlPuppetPreviewProcess->waitForStarted();
+           connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int)), m_qmlPuppetPreviewProcess.data(),SLOT(deleteLater()));
 
-   if (!m_localServer->hasPendingConnections())
-       m_localServer->waitForNewConnection(-1);
-
-   m_firstSocket = m_localServer->nextPendingConnection();
-   connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
-
-   if (runModus == NormalModus) {
-       if (!m_localServer->hasPendingConnections())
-           m_localServer->waitForNewConnection(-1);
-
-       m_secondSocket = m_localServer->nextPendingConnection();
-       connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+           m_qmlPuppetRenderProcess->waitForStarted();
+           connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int)), m_qmlPuppetRenderProcess.data(),SLOT(deleteLater()));
+       }
 
        if (!m_localServer->hasPendingConnections())
            m_localServer->waitForNewConnection(-1);
 
-       m_thirdSocket = m_localServer->nextPendingConnection();
-       connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+       m_firstSocket = m_localServer->nextPendingConnection();
+       connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
 
+       if (runModus == NormalModus) {
+           if (!m_localServer->hasPendingConnections())
+               m_localServer->waitForNewConnection(-1);
+
+           m_secondSocket = m_localServer->nextPendingConnection();
+           connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+
+           if (!m_localServer->hasPendingConnections())
+               m_localServer->waitForNewConnection(-1);
+
+           m_thirdSocket = m_localServer->nextPendingConnection();
+           connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+
+       }
+
+       m_localServer->close();
+
+   } else {
+       QMessageBox::warning(0, tr("Cannot find qml puppet"), tr("Qml Puppet is a process which runs in the backgound to render the the items. If QtCreator cannot find the puppet something with the installation is wrong."));
    }
-
-   m_localServer->close();
 }
 
 NodeInstanceServerProxy::~NodeInstanceServerProxy()
@@ -445,11 +470,6 @@ void NodeInstanceServerProxy::changeIds(const ChangeIdsCommand &command)
 }
 
 void NodeInstanceServerProxy::changeState(const ChangeStateCommand &command)
-{
-    writeCommand(QVariant::fromValue(command));
-}
-
-void NodeInstanceServerProxy::addImport(const AddImportCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

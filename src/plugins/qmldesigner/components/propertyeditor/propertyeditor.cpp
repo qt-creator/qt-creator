@@ -37,7 +37,6 @@
 
 #include <invalididexception.h>
 #include <rewritingexception.h>
-#include <invalidnodestateexception.h>
 #include <variantproperty.h>
 
 #include <bindingproperty.h>

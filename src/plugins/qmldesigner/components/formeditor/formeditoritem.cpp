@@ -50,7 +50,6 @@
 #include <cmath>
 
 #include <invalidmodelnodeexception.h>
-#include <invalidnodestateexception.h>
 
 namespace QmlDesigner {
 
