@@ -67,9 +67,10 @@ namespace Coda {
 }
 
 namespace Qt4ProjectManager {
-namespace Internal {
 
 class S60DeployConfiguration;
+
+namespace Internal {
 
 /* Configuration widget for S60 devices on serial ports that are
  * provided by the SerialDeviceLister class. Has an info/test
