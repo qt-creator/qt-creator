@@ -45,7 +45,6 @@ namespace QmlDesigner {
 ComponentView::ComponentView(QObject *parent)
   : AbstractView(parent),
     m_standardItemModel(new QStandardItemModel(this)),
-    m_listChanged(false),
     m_componentAction(new ComponentAction(this))
 {
 }
@@ -54,11 +53,7 @@ ComponentView::ComponentView(QObject *parent)
 
 void ComponentView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    for (int index = 1; index < m_standardItemModel->rowCount(); index++) {
-        QStandardItem *item = m_standardItemModel->item(index);
-        if (item->data(ModelNodeRole).value<ModelNode>() == removedNode)
-            m_standardItemModel->removeRow(index);
-    }
+    removeSingleNodeFromList(removedNode);
     searchForComponentAndRemoveFromList(removedNode);
 }
 
@@ -83,6 +78,14 @@ void ComponentView::appendWholeDocumentAsComponent()
     item->setData(QVariant::fromValue(rootModelNode()), ModelNodeRole);
     item->setEditable(false);
     m_standardItemModel->appendRow(item);
+}
+
+void ComponentView::removeSingleNodeFromList(const ModelNode &node)
+{
+    for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
+        if (m_standardItemModel->item(row)->data(ModelNodeRole).value<ModelNode>() == node)
+            m_standardItemModel->removeRow(row);
+    }
 }
 
 void ComponentView::modelAttached(Model *model)
@@ -133,6 +136,7 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
                 QStandardItem *item = new QStandardItem(node.id());
                 item->setData(QVariant::fromValue(node), ModelNodeRole);
                 item->setEditable(false);
+                removeSingleNodeFromList(node); //remove node if already present
                 m_standardItemModel->appendRow(item);
             } else {
                 QString description;
@@ -146,12 +150,9 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
                 QStandardItem *item = new QStandardItem(description);
                 item->setData(QVariant::fromValue(node), ModelNodeRole);
                 item->setEditable(false);
+                removeSingleNodeFromList(node); //remove node if already present
                 m_standardItemModel->appendRow(item);
             }
-        } else if (node.metaInfo().isValid() && node.metaInfo().isComponent() && !m_componentList.contains(node.type())) {
-            m_componentList.append(node.type());
-            m_componentList.sort();
-            m_listChanged = true;
         }
     }
 }
@@ -169,16 +170,7 @@ void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
 
     foreach (const ModelNode &childNode, nodeList) {
         if (childNode.nodeSourceType() == ModelNode::ComponentSource) {
-            if (!childNode.id().isEmpty()) {
-                for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
-                    if (m_standardItemModel->item(row)->text() == childNode.id())
-                        m_standardItemModel->removeRow(row);
-                }
-            }
-        } else if (node.metaInfo().isComponent() && !m_componentList.contains(childNode.type())) {
-            m_componentList.append(childNode.type());
-            m_componentList.sort();
-            m_listChanged = true;
+            removeSingleNodeFromList(childNode);
         }
     }
 }
