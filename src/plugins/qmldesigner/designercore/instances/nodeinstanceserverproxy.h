@@ -87,6 +87,9 @@ private slots:
     void readThirdDataStream();
 
 private:
+    QString qmlPuppetApplicationName() const;
+    QString macOSBundlePath(const QString &path) const;
+
     QWeakPointer<QLocalServer> m_localServer;
     QWeakPointer<QLocalSocket> m_firstSocket;
     QWeakPointer<QLocalSocket> m_secondSocket;

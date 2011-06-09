@@ -108,21 +108,19 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    m_localServer->listen(socketToken);
    m_localServer->setMaxPendingConnections(3);
 
-   QString applicationPath =  QCoreApplication::applicationDirPath();
-   if (runModus == TestModus)
-       applicationPath += QLatin1String("/../../../../../bin");
-#ifdef Q_OS_MACX
-   applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
-#endif
-
-   if (hasQtQuick1(nodeInstanceView)) {
-       applicationPath += QLatin1String("/qmlpuppet");
+   QString applicationPath =  pathToQt + QLatin1String("/bin");
+   if (runModus == TestModus) {
+       applicationPath = QCoreApplication::applicationDirPath() + QLatin1String("/../../../../../bin");
    } else {
-       applicationPath += QLatin1String("/qml2puppet");
+       applicationPath = macOSBundlePath(applicationPath);
+       applicationPath += "/" + qmlPuppetApplicationName();
+       if (!QFileInfo(applicationPath).exists()) { //No qmlpuppet in Qt
+           //We have to find out how to give not too intrusive feedback
+           applicationPath =  QCoreApplication::applicationDirPath();
+           applicationPath = macOSBundlePath(applicationPath);
+           applicationPath += "/" + qmlPuppetApplicationName();
+       }
    }
-#ifdef Q_OS_WIN
-   applicationPath += QLatin1String(".exe");
-#endif
 
    QByteArray envImportPath = qgetenv("QTCREATOR_QMLPUPPET_PATH");
    if (!envImportPath.isEmpty()) {
@@ -431,6 +429,29 @@ void NodeInstanceServerProxy::readThirdDataStream()
     }
 }
 
+QString NodeInstanceServerProxy::qmlPuppetApplicationName() const
+{
+    QString appName;
+    if (hasQtQuick1(m_nodeInstanceView.data())) {
+        appName = QLatin1String("qmlpuppet");
+    } else {
+        appName = QLatin1String("qml2puppet");
+    }
+ #ifdef Q_OS_WIN
+    appName += QLatin1String(".exe");
+ #endif
+
+    return appName;
+}
+
+QString NodeInstanceServerProxy::macOSBundlePath(const QString &path) const
+{
+    QString applicationPath = path;
+#ifdef Q_OS_MACX
+   applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
+#endif
+   return applicationPath;
+}
 
 void NodeInstanceServerProxy::createInstances(const CreateInstancesCommand &command)
 {
