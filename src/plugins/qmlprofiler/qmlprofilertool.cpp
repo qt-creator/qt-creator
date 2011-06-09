@@ -216,7 +216,7 @@ void QmlProfilerTool::initializeDockWidgets()
     updateAttachAction();
 
     QDockWidget *summaryDock =
-        analyzerMgr->createDockWidget(this, tr("Summary"),
+        analyzerMgr->createDockWidget(this, tr("Bindings"),
                              d->m_summary, Qt::BottomDockWidgetArea);
 
     QDockWidget *timelineDock =
