@@ -35,6 +35,7 @@
 #include <coreplugin/ifile.h>
 
 #include <FullySpecifiedType.h>
+#include <Literals.h>
 #include <Names.h>
 #include <CoreTypes.h>
 #include <Scope.h>
@@ -192,8 +193,10 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
             if (m_lookupBaseClasses)
                 cppClass->lookupBases(declaration, context);
             m_element = QSharedPointer<CppElement>(cppClass);
-        } else if (declaration->isEnum() || declaration->enclosingScope()->isEnum()) {
-            m_element = QSharedPointer<CppElement>(new CppEnum(declaration));
+        } else if (Enum *enumDecl = declaration->asEnum()) {
+            m_element = QSharedPointer<CppElement>(new CppEnum(enumDecl));
+        } else if (EnumeratorDeclaration *enumerator = dynamic_cast<EnumeratorDeclaration *>(declaration)) {
+            m_element = QSharedPointer<CppElement>(new CppEnumerator(enumerator));
         } else if (declaration->isTypedef()) {
             m_element = QSharedPointer<CppElement>(new CppTypedef(declaration));
         } else if (declaration->isFunction() || (type.isValid() && type->isFunctionType())) {
@@ -449,18 +452,11 @@ CppFunction::~CppFunction()
 {}
 
 // CppEnum
-CppEnum::CppEnum(Symbol *declaration) : CppDeclarableElement(declaration)
+CppEnum::CppEnum(Enum *declaration)
+    : CppDeclarableElement(declaration)
 {
     setHelpCategory(TextEditor::HelpItem::Enum);
-
-    if (declaration->enclosingScope()->isEnum()) {
-        Symbol *enumSymbol = declaration->enclosingScope()->asEnum();
-        Overview overview;
-        setHelpMark(overview.prettyName(enumSymbol->name()));
-        setTooltip(overview.prettyName(LookupContext::fullyQualifiedName(enumSymbol)));
-    } else {
-        setTooltip(qualifiedName());
-    }
+    setTooltip(qualifiedName());
 }
 
 CppEnum::~CppEnum()
@@ -546,3 +542,31 @@ bool CppTemplate::isFunctionTemplate() const
 {
     return !m_isClassTemplate;
 }
+
+CppEnumerator::CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration)
+    : CppDeclarableElement(declaration)
+{
+    setHelpCategory(TextEditor::HelpItem::Enum);
+
+    Overview overview;
+
+    Symbol *enumSymbol = declaration->enclosingScope()->asEnum();
+    const QString enumName = overview.prettyName(LookupContext::fullyQualifiedName(enumSymbol));
+    const QString enumeratorName = overview.prettyName(declaration->name());
+    QString enumeratorValue;
+    if (const StringLiteral *value = declaration->constantValue()) {
+        enumeratorValue = QString::fromUtf8(value->chars(), value->size());
+    }
+
+    setHelpMark(overview.prettyName(enumSymbol->name()));
+
+    QString tooltip = enumeratorName;
+    if (!enumName.isEmpty())
+        tooltip.prepend(enumName + QLatin1Char(' '));
+    if (!enumeratorValue.isEmpty())
+        tooltip.append(QLatin1String(" = ") + enumeratorValue);
+    setTooltip(tooltip);
+}
+
+CppEnumerator::~CppEnumerator()
+{}

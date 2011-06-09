@@ -64,7 +64,7 @@ class CppElement;
 class CppElementEvaluator
 {
 public:
-    CppElementEvaluator(CPPEditorWidget *editor);
+    explicit CppElementEvaluator(CPPEditorWidget *editor);
 
     void setTextCursor(const QTextCursor &tc);
     void setLookupBaseClasses(const bool lookup);
@@ -124,7 +124,7 @@ private:
 class Unknown : public CppElement
 {
 public:
-    Unknown(const QString &type);
+    explicit Unknown(const QString &type);
     virtual ~Unknown();
 
     const QString &type() const;
@@ -136,7 +136,7 @@ private:
 class CppInclude : public CppElement
 {
 public:
-    CppInclude(const CPlusPlus::Document::Include &includeFile);
+    explicit CppInclude(const CPlusPlus::Document::Include &includeFile);
     virtual ~CppInclude();
 
     const QString &path() const;
@@ -150,14 +150,14 @@ private:
 class CppMacro : public CppElement
 {
 public:
-    CppMacro(const CPlusPlus::Macro &macro);
+    explicit CppMacro(const CPlusPlus::Macro &macro);
     virtual ~CppMacro();
 };
 
 class CppDeclarableElement : public CppElement
 {
 public:
-    CppDeclarableElement(CPlusPlus::Symbol *declaration);
+    explicit CppDeclarableElement(CPlusPlus::Symbol *declaration);
     virtual ~CppDeclarableElement();
 
     const QString &name() const;
@@ -181,14 +181,14 @@ private:
 class CppNamespace : public CppDeclarableElement
 {
 public:
-    CppNamespace(CPlusPlus::Symbol *declaration);
+    explicit CppNamespace(CPlusPlus::Symbol *declaration);
     virtual ~CppNamespace();
 };
 
 class CppClass : public CppDeclarableElement
 {
 public:
-    CppClass(CPlusPlus::Symbol *declaration);
+    explicit CppClass(CPlusPlus::Symbol *declaration);
     virtual ~CppClass();
 
     void lookupBases(CPlusPlus::Symbol *declaration, const CPlusPlus::LookupContext &context);
@@ -202,21 +202,21 @@ private:
 class CppFunction : public CppDeclarableElement
 {
 public:
-    CppFunction(CPlusPlus::Symbol *declaration);
+    explicit CppFunction(CPlusPlus::Symbol *declaration);
     virtual ~CppFunction();
 };
 
 class CppEnum : public CppDeclarableElement
 {
 public:
-    CppEnum(CPlusPlus::Symbol *declaration);
+    explicit CppEnum(CPlusPlus::Enum *declaration);
     virtual ~CppEnum();
 };
 
 class CppTypedef : public CppDeclarableElement
 {
 public:
-    CppTypedef(CPlusPlus::Symbol *declaration);
+    explicit CppTypedef(CPlusPlus::Symbol *declaration);
     virtual ~CppTypedef();
 };
 
@@ -232,7 +232,7 @@ public:
 class CppTemplate : public CppDeclarableElement
 {
 public:
-    CppTemplate(CPlusPlus::Symbol *declaration);
+    explicit CppTemplate(CPlusPlus::Symbol *declaration);
     virtual ~CppTemplate();
 
     bool isClassTemplate() const;
@@ -240,6 +240,13 @@ public:
 
 private:
     bool m_isClassTemplate;
+};
+
+class CppEnumerator : public CppDeclarableElement
+{
+public:
+    explicit CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration);
+    virtual ~CppEnumerator();
 };
 
 } // namespace Internal
