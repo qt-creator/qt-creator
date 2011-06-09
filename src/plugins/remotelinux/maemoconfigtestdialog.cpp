@@ -53,8 +53,6 @@ MaemoConfigTestDialog::MaemoConfigTestDialog(const LinuxDeviceConfiguration::Con
     , m_config(config)
     , m_portsGatherer(new MaemoUsedPortsGatherer(this))
 {
-    setAttribute(Qt::WA_DeleteOnClose);
-
     m_ui->setupUi(this);
     m_closeButton = m_ui->buttonBox->button(QDialogButtonBox::Close);
 

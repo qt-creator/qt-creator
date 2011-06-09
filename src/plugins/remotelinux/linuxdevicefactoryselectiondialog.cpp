@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,35 +29,51 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#ifndef MAEMODEVICECONFIGWIZARD_H
-#define MAEMODEVICECONFIGWIZARD_H
+#include "linuxdevicefactoryselectiondialog.h"
+#include "ui_linuxdevicefactoryselectiondialog.h"
 
 #include "linuxdeviceconfiguration.h"
 
-#include <QtCore/QScopedPointer>
+#include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
+
+#include <QtGui/QPushButton>
 
 namespace RemoteLinux {
 namespace Internal {
-class LinuxDeviceConfigurations;
-struct MaemoDeviceConfigWizardPrivate;
 
-class MaemoDeviceConfigWizard : public ILinuxDeviceConfigurationWizard
+LinuxDeviceFactorySelectionDialog::LinuxDeviceFactorySelectionDialog(QWidget *parent) :
+    QDialog(parent), ui(new Ui::LinuxDeviceFactorySelectionDialog)
 {
-    Q_OBJECT
-public:
-    explicit MaemoDeviceConfigWizard(QWidget *parent = 0);
-    ~MaemoDeviceConfigWizard();
+    ui->setupUi(this);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start Wizard"));
 
-    LinuxDeviceConfiguration::Ptr deviceConfiguration();
+    const QList<ILinuxDeviceConfigurationFactory *> &factories
+        = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
+    foreach (const ILinuxDeviceConfigurationFactory * const factory, factories) {
+        m_factories << factory;
+        ui->listWidget->addItem(factory->displayName());
+    }
 
-    virtual int nextId() const;
+    connect(ui->listWidget, SIGNAL(itemSelectionChanged()), SLOT(handleItemSelectionChanged()));
+    handleItemSelectionChanged();
+}
 
-private:
-    const QScopedPointer<MaemoDeviceConfigWizardPrivate> d;
-};
+LinuxDeviceFactorySelectionDialog::~LinuxDeviceFactorySelectionDialog()
+{
+    delete ui;
+}
+
+void LinuxDeviceFactorySelectionDialog::handleItemSelectionChanged()
+{
+    ui->buttonBox->button(QDialogButtonBox::Ok)
+        ->setEnabled(!ui->listWidget->selectedItems().isEmpty());
+}
+
+const ILinuxDeviceConfigurationFactory *LinuxDeviceFactorySelectionDialog::selectedFactory() const
+{
+    return m_factories.at(ui->listWidget->row(ui->listWidget->selectedItems().first()));
+}
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // MAEMODEVICECONFIGWIZARD_H

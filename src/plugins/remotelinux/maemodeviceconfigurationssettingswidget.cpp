@@ -34,19 +34,19 @@
 #include "ui_maemodeviceconfigurationssettingswidget.h"
 
 #include "linuxdeviceconfigurations.h"
-#include "maemoconfigtestdialog.h"
-#include "maemodeviceconfigwizard.h"
+#include "linuxdevicefactoryselectiondialog.h"
 #include "maemoglobal.h"
 #include "maemokeydeployer.h"
-#include "maemoremoteprocessesdialog.h"
 #include "maemosshconfigdialog.h"
 
 #include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>
 #include <QtCore/QSettings>
+#include <QtCore/QSignalMapper>
 #include <QtCore/QTextStream>
 
 #include <QtGui/QFileDialog>
@@ -103,13 +103,16 @@ MaemoDeviceConfigurationsSettingsWidget::MaemoDeviceConfigurationsSettingsWidget
       m_devConfigs(LinuxDeviceConfigurations::cloneInstance()),
       m_nameValidator(new NameValidator(m_devConfigs.data(), this)),
       m_keyDeployer(new MaemoKeyDeployer(this)),
-      m_saveSettingsRequested(false)
+      m_saveSettingsRequested(false),
+      m_additionalActionsMapper(new QSignalMapper(this))
 {
     initGui();
     connect(m_keyDeployer, SIGNAL(error(QString)), this,
         SLOT(handleDeploymentError(QString)), Qt::QueuedConnection);
     connect(m_keyDeployer, SIGNAL(finishedSuccessfully()),
         SLOT(handleDeploymentSuccess()));
+    connect(m_additionalActionsMapper, SIGNAL(mapped(QString)),
+        SLOT(handleAdditionalActionRequest(QString)));
 }
 
 MaemoDeviceConfigurationsSettingsWidget::~MaemoDeviceConfigurationsSettingsWidget()
@@ -174,14 +177,44 @@ void MaemoDeviceConfigurationsSettingsWidget::initGui()
 
 void MaemoDeviceConfigurationsSettingsWidget::addConfig()
 {
-    MaemoDeviceConfigWizard wizard(m_devConfigs.data(), this);
-    if (wizard.exec() == QDialog::Accepted) {
-        wizard.createDeviceConfig();
-        m_ui->removeConfigButton->setEnabled(true);
-        m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
-        if (currentConfig()->type() != LinuxDeviceConfiguration::Emulator)
-            testConfig();
+    const QList<ILinuxDeviceConfigurationFactory *> &factories
+        = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
+
+    if (factories.isEmpty()) // Can't happen, because this plugin provides the generic one.
+        return;
+
+    const ILinuxDeviceConfigurationFactory *factory;
+
+    if (factories.count() == 1) {
+        // Don't show dialog when there's nothing to choose from.
+        // TODO: This is transitional. Remove it once the MADDE plugin exists.
+        factory = factories.first();
+    } else {
+        LinuxDeviceFactorySelectionDialog d;
+        if (d.exec() != QDialog::Accepted)
+            return;
+        factory = d.selectedFactory();
     }
+
+    ILinuxDeviceConfigurationWizard *wizard = factory->createWizard();
+    if (wizard->exec() != QDialog::Accepted)
+        return;
+
+    LinuxDeviceConfiguration::Ptr devConf = wizard->deviceConfiguration();
+    QString name = devConf->name();
+    if (m_devConfigs->hasConfig(name)) {
+        const QString nameTemplate = name + QLatin1String(" (%1)");
+        int suffix = 2;
+        do
+            name = nameTemplate.arg(QString::number(suffix++));
+        while (m_devConfigs->hasConfig(name));
+    }
+    devConf->setName(name);
+    m_devConfigs->addConfiguration(devConf);
+    m_ui->removeConfigButton->setEnabled(true);
+    m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
+
+    delete wizard;
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::deleteConfig()
@@ -329,22 +362,10 @@ void MaemoDeviceConfigurationsSettingsWidget::showPassword(bool showClearText)
         ? QLineEdit::Normal : QLineEdit::Password);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::testConfig()
-{
-    QDialog *dialog = new MaemoConfigTestDialog(currentConfig(), this);
-    dialog->open();
-}
-
 void MaemoDeviceConfigurationsSettingsWidget::showGenerateSshKeyDialog()
 {
     MaemoSshConfigDialog dialog(this);
     dialog.exec();
-}
-
-void MaemoDeviceConfigurationsSettingsWidget::showRemoteProcesses()
-{
-    MaemoRemoteProcessesDialog dlg(currentConfig(), this);
-    dlg.exec();
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::setDefaultKeyFilePath()
@@ -405,21 +426,30 @@ void MaemoDeviceConfigurationsSettingsWidget::finishDeployment()
 void MaemoDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
 {
     finishDeployment();
+    qDeleteAll(m_additionalActionButtons);
+    m_additionalActionButtons.clear();
     if (index == -1) {
         m_ui->removeConfigButton->setEnabled(false);
-        m_ui->testConfigButton->setEnabled(false);
         m_ui->generateKeyButton->setEnabled(false);
         m_ui->deployKeyButton->setEnabled(false);
-        m_ui->remoteProcessesButton->setEnabled(false);
         clearDetails();
         m_ui->detailsWidget->setEnabled(false);
         m_ui->defaultDeviceButton->setEnabled(false);
     } else {
         m_ui->removeConfigButton->setEnabled(true);
-        m_ui->testConfigButton->setEnabled(true);
         m_ui->generateKeyButton->setEnabled(true);
         m_ui->deployKeyButton->setEnabled(true);
-        m_ui->remoteProcessesButton->setEnabled(true);
+        const ILinuxDeviceConfigurationFactory * const factory = factoryForCurrentConfig();
+        if (factory) {
+            const QStringList &actionIds = factory->supportedDeviceActionIds();
+            foreach (const QString &actionId, actionIds) {
+                QPushButton * const button = new QPushButton(factory->displayNameForId(actionId));
+                m_additionalActionButtons << button;
+                connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
+                m_additionalActionsMapper->setMapping(button, actionId);
+                m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
+            }
+        }
         m_ui->configurationComboBox->setCurrentIndex(index);
         displayCurrent();
     }
@@ -448,6 +478,28 @@ void MaemoDeviceConfigurationsSettingsWidget::updatePortsWarningLabel()
         m_ui->portsWarningLabel->setText(QLatin1String("<font color=\"red\">")
             + tr("You will need at least one port.") + QLatin1String("</font>"));
     }
+}
+
+const ILinuxDeviceConfigurationFactory *MaemoDeviceConfigurationsSettingsWidget::factoryForCurrentConfig() const
+{
+    Q_ASSERT(currentConfig());
+    const QList<ILinuxDeviceConfigurationFactory *> &factories
+        = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
+    foreach (const ILinuxDeviceConfigurationFactory * const factory, factories) {
+        if (factory->supportsOsType(currentConfig()->osType()))
+            return factory;
+    }
+    return 0;
+}
+
+void MaemoDeviceConfigurationsSettingsWidget::handleAdditionalActionRequest(const QString &actionId)
+{
+    const ILinuxDeviceConfigurationFactory * const factory = factoryForCurrentConfig();
+    Q_ASSERT(factory);
+    QDialog * const action = factory->createDeviceAction(actionId, currentConfig(), this);
+    Q_ASSERT(action);
+    action->exec();
+    delete action;
 }
 
 } // namespace Internal

@@ -203,20 +203,18 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const ConstPtr &o
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createHardwareConfig(const QString &name,
-    const QString &osType, const QString &hostName,
-    const QString &privateKeyFilePath, Id &nextId)
+    const QString &osType, const QString &hostName, const QString &privateKeyFilePath)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByKey;
     sshParams.host = hostName;
     sshParams.userName = defaultUser(osType);
     sshParams.privateKeyFile = privateKeyFilePath;
-    return Ptr(new LinuxDeviceConfiguration(name, osType, Physical, sshParams, nextId));
+    return Ptr(new LinuxDeviceConfiguration(name, osType, Physical, sshParams));
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createGenericLinuxConfigUsingPassword(const QString &name,
-    const QString &hostName, const QString &userName, const QString &password,
-    Id &nextId)
+    const QString &hostName, const QString &userName, const QString &password)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.authenticationType
@@ -225,12 +223,11 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createGenericLinuxConfig
     sshParams.userName = userName;
     sshParams.password = password;
     return Ptr(new LinuxDeviceConfiguration(name, LinuxDeviceConfiguration::GenericLinuxOsType, Physical,
-        sshParams, nextId));
+        sshParams));
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createGenericLinuxConfigUsingKey(const QString &name,
-    const QString &hostName, const QString &userName, const QString &privateKeyFile,
-    Id &nextId)
+    const QString &hostName, const QString &userName, const QString &privateKeyFile)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.authenticationType
@@ -238,31 +235,29 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createGenericLinuxConfig
     sshParams.host = hostName;
     sshParams.userName = userName;
     sshParams.privateKeyFile = privateKeyFile;
-    return Ptr(new LinuxDeviceConfiguration(name, LinuxDeviceConfiguration::GenericLinuxOsType, Physical,
-        sshParams, nextId));
+    return Ptr(new LinuxDeviceConfiguration(name, LinuxDeviceConfiguration::GenericLinuxOsType,
+        Physical, sshParams));
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createEmulatorConfig(const QString &name,
-    const QString &osType, Id &nextId)
+    const QString &osType)
 {
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
     sshParams.host = defaultHost(Emulator, osType);
     sshParams.userName = defaultUser(osType);
     sshParams.password = defaultQemuPassword(osType);
-    return Ptr(new LinuxDeviceConfiguration(name, osType, Emulator, sshParams, nextId));
+    return Ptr(new LinuxDeviceConfiguration(name, osType, Emulator, sshParams));
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name,
-    const QString &osType, DeviceType devType,
-    const Utils::SshConnectionParameters &sshParams, Id &nextId)
+    const QString &osType, DeviceType devType, const Utils::SshConnectionParameters &sshParams)
     : m_sshParameters(sshParams),
       m_name(name),
       m_osType(osType),
       m_type(devType),
       m_portsSpec(defaultPortsSpec(m_type)),
-      m_isDefault(false),
-      m_internalId(nextId++)
+      m_isDefault(false)
 {
     m_sshParameters.port = defaultSshPort(m_type);
     m_sshParameters.timeout = DefaultTimeout;

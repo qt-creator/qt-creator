@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,35 +29,40 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef LINUXDEVICEFACTORYSELECTIONDIALOG_H
+#define LINUXDEVICEFACTORYSELECTIONDIALOG_H
 
-#ifndef MAEMODEVICECONFIGWIZARD_H
-#define MAEMODEVICECONFIGWIZARD_H
+#include <QtCore/QList>
+#include <QtGui/QDialog>
 
-#include "linuxdeviceconfiguration.h"
-
-#include <QtCore/QScopedPointer>
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class LinuxDeviceFactorySelectionDialog;
+} // namespace Ui
+QT_END_NAMESPACE
 
 namespace RemoteLinux {
-namespace Internal {
-class LinuxDeviceConfigurations;
-struct MaemoDeviceConfigWizardPrivate;
+class ILinuxDeviceConfigurationFactory;
 
-class MaemoDeviceConfigWizard : public ILinuxDeviceConfigurationWizard
+namespace Internal {
+
+class LinuxDeviceFactorySelectionDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-    explicit MaemoDeviceConfigWizard(QWidget *parent = 0);
-    ~MaemoDeviceConfigWizard();
-
-    LinuxDeviceConfiguration::Ptr deviceConfiguration();
-
-    virtual int nextId() const;
+    explicit LinuxDeviceFactorySelectionDialog(QWidget *parent = 0);
+    ~LinuxDeviceFactorySelectionDialog();
+    const ILinuxDeviceConfigurationFactory *selectedFactory() const;
 
 private:
-    const QScopedPointer<MaemoDeviceConfigWizardPrivate> d;
+    Q_SLOT void handleItemSelectionChanged();
+
+    Ui::LinuxDeviceFactorySelectionDialog *ui;
+    QList<const ILinuxDeviceConfigurationFactory *> m_factories;
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEVICECONFIGWIZARD_H
+#endif // LINUXDEVICEFACTORYSELECTIONDIALOG_H

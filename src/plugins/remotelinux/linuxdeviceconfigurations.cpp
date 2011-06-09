@@ -118,41 +118,9 @@ void LinuxDeviceConfigurations::save()
     settings->endGroup();
 }
 
-void LinuxDeviceConfigurations::addHardwareDeviceConfiguration(const QString &name,
-    const QString &osType, const QString &hostName, const QString &privateKeyFilePath)
-{
-    const LinuxDeviceConfiguration::Ptr &devConf = LinuxDeviceConfiguration::createHardwareConfig(name,
-        osType, hostName, privateKeyFilePath, m_nextId);
-    addConfiguration(devConf);
-}
-
-void LinuxDeviceConfigurations::addGenericLinuxConfigurationUsingPassword(const QString &name,
-    const QString &hostName, const QString &userName, const QString &password)
-{
-    const LinuxDeviceConfiguration::Ptr &devConf
-        = LinuxDeviceConfiguration::createGenericLinuxConfigUsingPassword(name,
-              hostName, userName, password, m_nextId);
-    addConfiguration(devConf);
-}
-
-void LinuxDeviceConfigurations::addGenericLinuxConfigurationUsingKey(const QString &name,
-    const QString &hostName, const QString &userName, const QString &privateKeyFilePath)
-{
-    const LinuxDeviceConfiguration::Ptr &devConf = LinuxDeviceConfiguration::createGenericLinuxConfigUsingKey(name,
-        hostName, userName, privateKeyFilePath, m_nextId);
-    addConfiguration(devConf);
-}
-
-void LinuxDeviceConfigurations::addEmulatorDeviceConfiguration(const QString &name,
-    const QString &osType)
-{
-    const LinuxDeviceConfiguration::Ptr &devConf
-        = LinuxDeviceConfiguration::createEmulatorConfig(name, osType, m_nextId);
-    addConfiguration(devConf);
-}
-
 void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration::Ptr &devConfig)
 {
+    devConfig->m_internalId = m_nextId++;
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     if (!defaultDeviceConfig(devConfig->osType()))
         devConfig->m_isDefault = true;

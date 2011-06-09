@@ -48,6 +48,7 @@ class LinuxDeviceConfigurations : public QAbstractListModel
 {
     Q_OBJECT
     Q_DISABLE_COPY(LinuxDeviceConfigurations)
+    friend class MaemoDeviceConfigurationsSettingsWidget;
 public:
     static LinuxDeviceConfigurations *instance(QObject *parent = 0);
 
@@ -64,15 +65,6 @@ public:
     void setDefaultSshKeyFilePath(const QString &path) { m_defaultSshKeyFilePath = path; }
     QString defaultSshKeyFilePath() const { return m_defaultSshKeyFilePath; }
 
-    void addHardwareDeviceConfiguration(const QString &name, const QString &osType,
-        const QString &hostName, const QString &privateKeyFilePath);
-    void addGenericLinuxConfigurationUsingPassword(const QString &name,
-        const QString &hostName, const QString &userName,
-        const QString &password);
-    void addGenericLinuxConfigurationUsingKey(const QString &name,
-        const QString &hostName, const QString &userName,
-        const QString &privateKeyFilePath);
-    void addEmulatorDeviceConfiguration(const QString &name, const QString &osType);
     void removeConfiguration(int index);
     void setConfigurationName(int i, const QString &name);
     void setSshParameters(int i, const Utils::SshConnectionParameters &params);

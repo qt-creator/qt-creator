@@ -39,8 +39,11 @@
 #include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
+#include <QtGui/QWizard>
 
 QT_BEGIN_NAMESPACE
+class QDialog;
 class QSettings;
 QT_END_NAMESPACE
 
@@ -70,7 +73,9 @@ class REMOTELINUX_EXPORT LinuxDeviceConfiguration
 {
     friend class Internal::LinuxDeviceConfigurations;
 public:
+    typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
     typedef QSharedPointer<const LinuxDeviceConfiguration> ConstPtr;
+
     typedef quint64 Id;
 
     static const QString Maemo5OsType;
@@ -83,11 +88,14 @@ public:
     PortList freePorts() const;
     Utils::SshConnectionParameters sshParameters() const { return m_sshParameters; }
     QString name() const { return m_name; }
+    void setName(const QString &name) { m_name = name; }
     QString osType() const { return m_osType; }
     DeviceType type() const { return m_type; }
     QString portsSpec() const { return m_portsSpec; }
     Id internalId() const { return m_internalId; }
     bool isDefault() const { return m_isDefault; }
+    QString displayName() const { return m_displayName; }
+
     static QString portsRegExpr();
     static QString defaultHost(DeviceType type, const QString &osType);
     static QString defaultPrivateKeyFilePath();
@@ -98,28 +106,23 @@ public:
 
     static const Id InvalidId;
 
-private:
-    typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
+    static Ptr createHardwareConfig(const QString &name, const QString &osType,
+        const QString &hostName, const QString &privateKeyFilePath);
+    static Ptr createGenericLinuxConfigUsingPassword(const QString &name, const QString &hostName,
+        const QString &userName, const QString &password);
+    static Ptr createGenericLinuxConfigUsingKey(const QString &name, const QString &hostName,
+        const QString &userName, const QString &privateKeyFilePath);
+    static Ptr createEmulatorConfig(const QString &name, const QString &osType);
 
+private:
     LinuxDeviceConfiguration(const QString &name, const QString &osType,
-        DeviceType type, const Utils::SshConnectionParameters &sshParams,
-        Id &nextId);
+        DeviceType type, const Utils::SshConnectionParameters &sshParams);
     LinuxDeviceConfiguration(const QSettings &settings, Id &nextId);
     LinuxDeviceConfiguration(const ConstPtr &other);
 
     LinuxDeviceConfiguration(const LinuxDeviceConfiguration &);
     LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
 
-    static Ptr createHardwareConfig(const QString &name, const QString &osType,
-        const QString &hostName, const QString &privateKeyFilePath, Id &nextId);
-    static Ptr createGenericLinuxConfigUsingPassword(const QString &name,
-        const QString &hostName, const QString &userName,
-        const QString &password, Id &nextId);
-    static Ptr createGenericLinuxConfigUsingKey(const QString &name,
-        const QString &hostName, const QString &userName,
-        const QString &privateKeyFilePath, Id &nextId);
-    static Ptr createEmulatorConfig(const QString &name, const QString &osType,
-        Id &nextId);
     static Ptr create(const QSettings &settings, Id &nextId);
     static Ptr create(const ConstPtr &other);
 
@@ -132,9 +135,89 @@ private:
     DeviceType m_type;
     QString m_portsSpec;
     bool m_isDefault;
+    QString m_displayName;
     Id m_internalId;
 };
 
+
+/*!
+  \class RemoteLinux::ILinuxDeviceConfigurationWizard
+
+  \brief Provides an interface for wizards creating a LinuxDeviceConfiguration
+
+  A class implementing this interface is a wizard whose final result is
+  a LinuxDeviceConfiguration object. The wizard will be started when the user chooses the
+  "Add..." action from the "Linux devices" options page.
+*/
+class REMOTELINUX_EXPORT ILinuxDeviceConfigurationWizard : public QWizard
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(ILinuxDeviceConfigurationWizard)
+public:
+    virtual LinuxDeviceConfiguration::Ptr deviceConfiguration()=0;
+
+protected:
+    ILinuxDeviceConfigurationWizard(QWidget *parent) : QWizard(parent) {}
+};
+
+
+/*!
+  \class ProjectExplorer::ILinuxDeviceConfiguration factory.
+
+  \brief Provides an interface for classes providing services related to certain type of Linux devices.
+
+  The main service is a wizard providing the device configuration itself.
+
+  The factory objects have to be added to the global object pool via
+  \c ExtensionSystem::PluginManager::addObject().
+  \sa ExtensionSystem::PluginManager::addObject()
+*/
+class REMOTELINUX_EXPORT ILinuxDeviceConfigurationFactory : public QObject
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(ILinuxDeviceConfigurationFactory)
+public:
+    /*!
+      A short, one-line description of what kind of device this factory supports.
+    */
+    virtual QString displayName() const=0;
+
+    /*!
+      A wizard that can create the types of device configuration this factory supports.
+    */
+    virtual ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent = 0) const=0;
+
+
+    /*!
+      Returns true iff this factory supports the given device type.
+    */
+    virtual bool supportsOsType(const QString &osType) const=0;
+
+    /*!
+      Returns a list of ids representing actions that can be run on device configurations
+      that this factory supports. These actions will be available in the "Linux Devices"
+      options page.
+    */
+    virtual QStringList supportedDeviceActionIds() const=0;
+
+    /*!
+      A human-readable string for the given id. Will be displayed on a button which, when clicked,
+      will start the respective action.
+    */
+    virtual QString displayNameForId(const QString &actionId) const=0;
+
+
+    /*!
+      Produces a dialog implementing the respective action. The dialog is supposed to be
+      modal, so implementers must make sure to make it interruptible as to not needlessly
+      block the UI.
+    */
+    virtual QDialog *createDeviceAction(const QString &actionId,
+        const LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent = 0) const=0;
+
+protected:
+    ILinuxDeviceConfigurationFactory(QObject *parent) : QObject(parent) {}
+};
 
 } // namespace RemoteLinux
 

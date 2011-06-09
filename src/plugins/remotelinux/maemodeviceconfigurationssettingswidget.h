@@ -35,10 +35,12 @@
 #include <QtCore/QList>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QString>
+#include <QtGui/QPushButton>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
+class QSignalMapper;
 
 class Ui_MaemoDeviceConfigurationsSettingsWidget;
 QT_END_NAMESPACE
@@ -48,6 +50,7 @@ class SshRemoteProcessRunner;
 }
 
 namespace RemoteLinux {
+class ILinuxDeviceConfigurationFactory;
 class LinuxDeviceConfiguration;
 
 namespace Internal {
@@ -80,15 +83,13 @@ private slots:
     void keyFileEditingFinished();
     void showPassword(bool showClearText);
     void handleFreePortsChanged();
-    void showRemoteProcesses();
     void setDefaultKeyFilePath();
     void setDefaultDevice();
 
-    // For configuration testing.
-    void testConfig();
-
     void showGenerateSshKeyDialog();
     void setPrivateKey(const QString &path);
+
+    void handleAdditionalActionRequest(const QString &actionId);
 
     // For key deploying.
     void deployKey();
@@ -105,12 +106,15 @@ private:
     QString parseTestOutput();
     void fillInValues();
     void updatePortsWarningLabel();
+    const ILinuxDeviceConfigurationFactory *factoryForCurrentConfig() const;
 
     Ui_MaemoDeviceConfigurationsSettingsWidget *m_ui;
     const QScopedPointer<LinuxDeviceConfigurations> m_devConfigs;
     NameValidator * const m_nameValidator;
     MaemoKeyDeployer *const m_keyDeployer;
     bool m_saveSettingsRequested;
+    QList<QPushButton *> m_additionalActionButtons;
+    QSignalMapper * const m_additionalActionsMapper;
 };
 
 } // namespace Internal

@@ -71,7 +71,9 @@ HEADERS += \
     maemoqtversion.h \
     linuxdeviceconfiguration.h \
     linuxdeviceconfigurations.h \
-    remotelinuxrunconfiguration.h
+    remotelinuxrunconfiguration.h \
+    linuxdevicefactoryselectiondialog.h \
+    deviceconfigurationfactory.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -134,7 +136,9 @@ SOURCES += \
     maemoqtversion.cpp \
     linuxdeviceconfiguration.cpp \
     linuxdeviceconfigurations.cpp \
-    remotelinuxrunconfiguration.cpp
+    remotelinuxrunconfiguration.cpp \
+    linuxdevicefactoryselectiondialog.cpp \
+    deviceconfigurationfactory.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \
@@ -155,7 +159,8 @@ FORMS += \
     maemodeviceconfigwizardkeycreationpage.ui \
     maemodeviceconfigwizardkeydeploymentpage.ui \
     maemodeployconfigurationwidget.ui \
-    maemodeviceconfigwizardlogindatapage.ui
+    maemodeviceconfigwizardlogindatapage.ui \
+    linuxdevicefactoryselectiondialog.ui
 
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII

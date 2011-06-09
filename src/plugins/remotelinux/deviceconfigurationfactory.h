@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,35 +29,31 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#ifndef MAEMODEVICECONFIGWIZARD_H
-#define MAEMODEVICECONFIGWIZARD_H
+#ifndef DEVICECONFIGURATIONFACTORY_H
+#define DEVICECONFIGURATIONFACTORY_H
 
 #include "linuxdeviceconfiguration.h"
 
-#include <QtCore/QScopedPointer>
-
 namespace RemoteLinux {
 namespace Internal {
-class LinuxDeviceConfigurations;
-struct MaemoDeviceConfigWizardPrivate;
 
-class MaemoDeviceConfigWizard : public ILinuxDeviceConfigurationWizard
+class DeviceConfigurationFactory : public ILinuxDeviceConfigurationFactory
 {
     Q_OBJECT
+    Q_DISABLE_COPY(DeviceConfigurationFactory)
 public:
-    explicit MaemoDeviceConfigWizard(QWidget *parent = 0);
-    ~MaemoDeviceConfigWizard();
+    DeviceConfigurationFactory(QObject *parent = 0);
 
-    LinuxDeviceConfiguration::Ptr deviceConfiguration();
-
-    virtual int nextId() const;
-
-private:
-    const QScopedPointer<MaemoDeviceConfigWizardPrivate> d;
+    QString displayName() const;
+    ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent) const;
+    bool supportsOsType(const QString &osType) const;
+    QStringList supportedDeviceActionIds() const;
+    QString displayNameForId(const QString &actionId) const;
+    QDialog *createDeviceAction(const QString &actionId,
+        const LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent) const;
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEVICECONFIGWIZARD_H
+#endif // DEVICECONFIGURATIONFACTORY_H

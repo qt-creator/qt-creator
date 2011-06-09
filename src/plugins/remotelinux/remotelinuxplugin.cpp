@@ -36,6 +36,7 @@
 #include "maemodeployable.h"
 #include "maemodeploystepfactory.h"
 #include "linuxdeviceconfigurations.h"
+#include "deviceconfigurationfactory.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationfactory.h"
 #include "maemopublishingwizardfactories.h"
@@ -81,6 +82,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new MaemoPublishingWizardFactoryFremantleFree);
     addAutoReleasedObject(new Qt4MaemoTargetFactory);
     addAutoReleasedObject(new MaemoQtVersionFactory);
+    addAutoReleasedObject(new DeviceConfigurationFactory);
 
     qRegisterMetaType<MaemoDeployable>("MaemoDeployable");
 

@@ -38,6 +38,7 @@
 #include "ui_maemodeviceconfigwizardstartpage.h"
 
 #include "linuxdeviceconfigurations.h"
+#include "maemoconfigtestdialog.h"
 #include "maemoglobal.h"
 #include "maemokeydeployer.h"
 
@@ -589,10 +590,8 @@ private:
 
 struct MaemoDeviceConfigWizardPrivate
 {
-    MaemoDeviceConfigWizardPrivate(LinuxDeviceConfigurations *devConfigs,
-            QWidget *parent)
-        : devConfigs(devConfigs),
-          startPage(parent),
+    MaemoDeviceConfigWizardPrivate(QWidget *parent)
+        : startPage(parent),
           loginDataPage(wizardData, parent),
           previousKeySetupPage(parent),
           reuseKeysCheckPage(parent),
@@ -603,7 +602,6 @@ struct MaemoDeviceConfigWizardPrivate
     }
 
     WizardData wizardData;
-    LinuxDeviceConfigurations * const devConfigs;
     MaemoDeviceConfigWizardStartPage startPage;
     MaemoDeviceConfigWizardLoginDataPage loginDataPage;
     MaemoDeviceConfigWizardPreviousKeySetupCheckPage previousKeySetupPage;
@@ -614,10 +612,8 @@ struct MaemoDeviceConfigWizardPrivate
 };
 
 
-MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(LinuxDeviceConfigurations *devConfigs,
-    QWidget *parent)
-        : QWizard(parent),
-          d(new MaemoDeviceConfigWizardPrivate(devConfigs, this))
+MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(QWidget *parent)
+    : ILinuxDeviceConfigurationWizard(parent), d(new MaemoDeviceConfigWizardPrivate(this))
 {
     setWindowTitle(tr("New Device Configuration Setup"));
     setPage(StartPageId, &d->startPage);
@@ -632,35 +628,31 @@ MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(LinuxDeviceConfigurations *devC
 
 MaemoDeviceConfigWizard::~MaemoDeviceConfigWizard() {}
 
-void MaemoDeviceConfigWizard::createDeviceConfig()
+LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
 {
-    QString name = d->wizardData.configName;
-    if (d->devConfigs->hasConfig(name)) {
-        const QString nameTemplate = name + QLatin1String(" (%1)");
-        int suffix = 2;
-        do
-            name = nameTemplate.arg(QString::number(suffix++));
-        while (d->devConfigs->hasConfig(name));
-    }
+    LinuxDeviceConfiguration::Ptr devConf;
 
     if (d->wizardData.osType == LinuxDeviceConfiguration::GenericLinuxOsType) {
         if (d->wizardData.authType == SshConnectionParameters::AuthenticationByPassword) {
-           d->devConfigs->addGenericLinuxConfigurationUsingPassword(name,
-               d->wizardData.hostName, d->wizardData.userName,
-               d->wizardData.password);
+            devConf = LinuxDeviceConfiguration::createGenericLinuxConfigUsingPassword(d->wizardData.configName,
+               d->wizardData.hostName, d->wizardData.userName, d->wizardData.password);
         } else {
-            d->devConfigs->addGenericLinuxConfigurationUsingKey(name,
-                d->wizardData.hostName, d->wizardData.userName,
-                d->wizardData.privateKeyFilePath);
+            devConf = LinuxDeviceConfiguration::createGenericLinuxConfigUsingKey(d->wizardData.configName,
+                d->wizardData.hostName, d->wizardData.userName, d->wizardData.privateKeyFilePath);
         }
     } else if (d->wizardData.deviceType == LinuxDeviceConfiguration::Physical) {
-        d->devConfigs->addHardwareDeviceConfiguration(name,
-            d->wizardData.osType, d->wizardData.hostName,
-            d->wizardData.privateKeyFilePath);
+        devConf = LinuxDeviceConfiguration::createHardwareConfig(d->wizardData.configName,
+            d->wizardData.osType, d->wizardData.hostName, d->wizardData.privateKeyFilePath);
     } else {
-        d->devConfigs->addEmulatorDeviceConfiguration(name,
+        devConf = LinuxDeviceConfiguration::createEmulatorConfig(d->wizardData.configName,
             d->wizardData.osType);
     }
+
+    if (devConf->type() != LinuxDeviceConfiguration::Emulator) {
+        MaemoConfigTestDialog dlg(devConf, this);
+        dlg.exec();
+    }
+    return devConf;
 }
 
 int MaemoDeviceConfigWizard::nextId() const
