@@ -2569,7 +2569,7 @@ void ProjectExplorerPlugin::renameFile()
         ProjectTreeWidget *treeWidget = qobject_cast<ProjectTreeWidget*>(focusWidget);
         if (treeWidget) {
             treeWidget->editCurrentItem();
-            break;
+            return;
         }
         focusWidget = focusWidget->parentWidget();
     }

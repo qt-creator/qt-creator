@@ -273,8 +273,8 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
 
 void ProjectTreeWidget::editCurrentItem()
 {
-    if (!m_view->selectionModel()->selectedIndexes().isEmpty())
-        m_view->edit(m_view->selectionModel()->selectedIndexes().first());
+    if (m_view->selectionModel()->currentIndex().isValid())
+        m_view->edit(m_view->selectionModel()->currentIndex());
 }
 
 void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
