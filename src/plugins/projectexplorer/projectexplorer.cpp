@@ -119,6 +119,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
+#include <QtCore/QAbstractFileEngine>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
@@ -2582,13 +2583,26 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
     QString orgFilePath = QFileInfo(node->path()).absoluteFilePath();
     QString dir = QFileInfo(orgFilePath).absolutePath();
     QString newFilePath = dir + QLatin1Char('/') + to;
+
+    if (orgFilePath == newFilePath)
+        return;
+
     Core::ICore *core = Core::ICore::instance();
     Core::IVersionControl *vc = core->vcsManager()->findVersionControlForDirectory(dir);
+
     bool result = false;
     if (vc && vc->supportsOperation(Core::IVersionControl::MoveOperation))
         result = vc->vcsMove(orgFilePath, newFilePath);
-    if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
-        result = QFile::rename(orgFilePath, newFilePath);
+    if (!result) { // The moving via vcs failed or the vcs does not support moving, fall back
+        QFile f(orgFilePath);
+        if (!f.fileEngine()->caseSensitive()
+                && orgFilePath.compare(newFilePath, Qt::CaseInsensitive) == 0) {
+            // Due to QTBUG-3570
+            result = f.fileEngine()->rename(newFilePath);
+        } else {
+            result = QFile::rename(orgFilePath, newFilePath);
+        }
+    }
     if (result) {
         // yeah we moved, tell the filemanager about it
         Core::ICore::instance()->fileManager()->renamedFile(orgFilePath, newFilePath);
