@@ -39,6 +39,7 @@ var frameFps = [ ];
 var valuesdone = false;
 var xmargin = 0;
 var ymargin = 0;
+var drawFpsGraph = false;
 
 var names = [ "Painting", "Compiling", "Creating", "Binding", "Handling Signal"]
 //### need better way to manipulate color from QML. In the meantime, these need to be kept in sync.
@@ -113,21 +114,23 @@ function drawData(canvas, ctxt, region)
         }
     }
 
-    //draw fps overlay
-    var heightScale = height / 60;
-    ctxt.beginPath();
-    ctxt.moveTo(0,0);
-    for (var i = 1; i < values.length; ++i) {
-        var xx = (values[i] - ranges[0].start) * spacing + xmargin;
-        ctxt.lineTo(xx, height - frameFps[i-1]*heightScale)
+    if (drawFpsGraph) {
+        //draw fps overlay
+        var heightScale = height / 60;
+        ctxt.beginPath();
+        ctxt.moveTo(0,0);
+        for (var i = 1; i < values.length; ++i) {
+            var xx = (values[i] - ranges[0].start) * spacing + xmargin;
+            ctxt.lineTo(xx, height - frameFps[i-1]*heightScale)
+        }
+        ctxt.lineTo(width, 0);
+        ctxt.closePath();
+        var grad = ctxt.createLinearGradient(0, 0, 0, canvas.canvasSize.height);
+        grad.addColorStop(0, "rgba(255,128,128,.5)");
+        grad.addColorStop(1, "rgba(255,0,0,.5)");
+        ctxt.fillStyle = grad;
+        ctxt.fill();
     }
-    ctxt.lineTo(width, 0);
-    ctxt.closePath();
-    var grad = ctxt.createLinearGradient(0, 0, 0, canvas.canvasSize.height);
-    grad.addColorStop(0, "rgba(255,128,128,.5)");
-    grad.addColorStop(1, "rgba(255,0,0,.5)");
-    ctxt.fillStyle = grad;
-    ctxt.fill();
 }
 
 function plot(canvas, ctxt, region)
