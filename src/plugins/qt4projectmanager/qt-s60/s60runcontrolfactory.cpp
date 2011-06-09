@@ -58,7 +58,7 @@ bool S60RunControlFactory::canRun(RunConfiguration *runConfiguration, const QStr
     S60DeviceRunConfiguration *rc = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     if (!rc)
         return false;
-    S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
+    S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->target()->activeDeployConfiguration());
     return activeDeployConf != 0;
 }
 
@@ -69,7 +69,7 @@ RunControl* S60RunControlFactory::create(RunConfiguration *runConfiguration, con
     QTC_ASSERT(rc, return 0);
     QTC_ASSERT(mode == m_mode, return 0);
 
-    S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->qt4Target()->activeDeployConfiguration());
+    S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(rc->target()->activeDeployConfiguration());
     if (!activeDeployConf)
         return 0;
 

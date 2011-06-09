@@ -33,39 +33,35 @@
 #ifndef S60DEVICERUNCONFIGURATION_H
 #define S60DEVICERUNCONFIGURATION_H
 
-#include <debugger/debuggerrunner.h>
 #include <projectexplorer/runconfiguration.h>
+#include <qt4projectmanager/qt4projectmanager_global.h>
 
 #include <QtCore/QFutureInterface>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
-class QMessageBox;
 class QWidget;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 class Qt4BaseTarget;
 class Qt4ProFileNode;
-class CodaRunControl;
 
 namespace Internal {
 class SymbianQtVersion;
 class Qt4SymbianTarget;
+}
+
 class S60DeviceRunConfigurationFactory;
 
-class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
-{
+class QT4PROJECTMANAGER_EXPORT S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration {
     Q_OBJECT
     friend class S60DeviceRunConfigurationFactory;
 
 public:
     S60DeviceRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, const QString &proFilePath);
     virtual ~S60DeviceRunConfiguration();
-
-    Qt4SymbianTarget *qt4Target() const;
-    SymbianQtVersion *qtVersion() const;
 
     bool isEnabled() const;
     QString disabledReason() const;
@@ -96,6 +92,7 @@ protected:
     S60DeviceRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, S60DeviceRunConfiguration *source);
     QString defaultDisplayName() const;
     virtual bool fromMap(const QVariantMap &map);
+
 private slots:
     void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro);
     void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success);
@@ -103,6 +100,8 @@ private slots:
 private:
     void ctor();
     void handleParserState(bool success);
+    Internal::Qt4SymbianTarget *qt4Target() const;
+    Internal::SymbianQtVersion *qtVersion() const;
 
     QString m_proFilePath;
     QString m_commandLineArguments;
@@ -129,48 +128,6 @@ public:
     QString displayNameForId(const QString &id) const;
 };
 
-// S60DeviceDebugRunControl starts debugging
-
-class S60DeviceDebugRunControl : public Debugger::DebuggerRunControl
-{
-    Q_DISABLE_COPY(S60DeviceDebugRunControl)
-    Q_OBJECT
-public:
-    explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration,
-                                      const Debugger::DebuggerStartParameters &sp,
-                                      const QPair<Debugger::DebuggerEngineType, Debugger::DebuggerEngineType> &masterSlaveEngineTypes);
-    virtual void start();
-    virtual bool promptToStop(bool *optionalPrompt = 0) const;
-
-private slots:
-    void remoteSetupRequested();
-    void codaConnected();
-    void qmlEngineStateChanged(const Debugger::DebuggerState &state);
-    void codaFinished();
-    void handleDebuggingFinished();
-    void handleMessageFromCoda(ProjectExplorer::RunControl *aCodaRunControl, const QString &msg, Utils::OutputFormat format);
-
-private:
-    CodaRunControl *m_codaRunControl;
-    enum {
-        ENotUsingCodaRunControl = 0,
-        EWaitingForCodaConnection,
-        ECodaConnected
-    } m_codaState;
-};
-
-class S60DeviceDebugRunControlFactory : public ProjectExplorer::IRunControlFactory
-{
-public:
-    explicit S60DeviceDebugRunControlFactory(QObject *parent = 0);
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
-
-    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
-    QString displayName() const;
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration * /*runConfiguration */);
-};
-
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
 #endif // S60DEVICERUNCONFIGURATION_H

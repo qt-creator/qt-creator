@@ -41,6 +41,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <debugger/debuggerconstants.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -79,9 +81,9 @@ S60RunControlBase::S60RunControlBase(RunConfiguration *runConfiguration, const Q
 
     const S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     QTC_ASSERT(s60runConfig, return);
-    const Qt4BuildConfiguration *activeBuildConf = s60runConfig->qt4Target()->activeBuildConfiguration();
+    const Qt4BuildConfiguration *activeBuildConf = qobject_cast<Qt4BuildConfiguration *>(s60runConfig->target()->activeBuildConfiguration());
     QTC_ASSERT(activeBuildConf, return);
-    const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(s60runConfig->qt4Target()->activeDeployConfiguration());
+    const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(s60runConfig->target()->activeDeployConfiguration());
     QTC_ASSERT(activeDeployConf, return);
 
     m_executableUid = s60runConfig->executableUid();

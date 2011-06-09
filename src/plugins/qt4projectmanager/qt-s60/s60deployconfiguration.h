@@ -47,11 +47,11 @@ class BaseQtVersion;
 
 namespace Qt4ProjectManager {
 class Qt4ProFileNode;
+class S60DeviceRunConfiguration;
 
 namespace Internal {
 class Qt4SymbianTarget;
 class S60DeployConfigurationFactory;
-class S60DeviceRunConfiguration;
 
 class S60DeployConfiguration : public ProjectExplorer::DeployConfiguration
 {

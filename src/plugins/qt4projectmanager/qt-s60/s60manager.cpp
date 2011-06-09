@@ -40,6 +40,7 @@
 #include "s60deployconfiguration.h"
 #include "s60deploystep.h"
 #include "s60runcontrolfactory.h"
+#include "s60devicedebugruncontrol.h"
 
 #include "qt4symbiantargetfactory.h"
 #include "s60publishingwizardfactories.h"

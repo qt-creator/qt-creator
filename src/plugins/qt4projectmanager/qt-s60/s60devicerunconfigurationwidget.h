@@ -45,9 +45,10 @@ namespace Utils {
 }
 
 namespace Qt4ProjectManager {
-namespace Internal {
 
 class S60DeviceRunConfiguration;
+
+namespace Internal {
 
 class S60DeviceRunConfigurationWidget : public QWidget
 {

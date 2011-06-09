@@ -64,7 +64,7 @@ TrkRunControl::TrkRunControl(RunConfiguration *runConfiguration, const QString &
 {
     const S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     QTC_ASSERT(s60runConfig, return);
-    const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(s60runConfig->qt4Target()->activeDeployConfiguration());
+    const S60DeployConfiguration *activeDeployConf = qobject_cast<S60DeployConfiguration *>(s60runConfig->target()->activeDeployConfiguration());
     QTC_ASSERT(activeDeployConf, return);
 
     m_serialPortName = activeDeployConf->serialPortName();

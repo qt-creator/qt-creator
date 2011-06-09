@@ -59,10 +59,12 @@ class IOutputParser;
 }
 
 namespace Qt4ProjectManager {
+
+class S60DeviceRunConfiguration;
+
 namespace Internal {
 
 class BuildConfiguration;
-class S60DeviceRunConfiguration;
 struct CommunicationChannel;
 
 class S60DeployStepFactory : public ProjectExplorer::IBuildStepFactory

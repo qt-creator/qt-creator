@@ -33,7 +33,8 @@ SOURCES += $$PWD/s60manager.cpp \
     $$PWD/s60publishingbuildsettingspageovi.cpp \
     $$PWD/s60publishingresultspageovi.cpp \
     $$PWD/symbianqtversionfactory.cpp \
-    $$PWD/symbianqtversion.cpp
+    $$PWD/symbianqtversion.cpp \
+    $$PWD/s60devicedebugruncontrol.cpp
 
 HEADERS += $$PWD/s60manager.h \
     $$PWD/sbsv2parser.h \
@@ -70,7 +71,8 @@ HEADERS += $$PWD/s60manager.h \
     $$PWD/s60publishingbuildsettingspageovi.h \
     $$PWD/s60publishingresultspageovi.h \
     $$PWD/symbianqtversionfactory.h \
-    $$PWD/symbianqtversion.h
+    $$PWD/symbianqtversion.h \
+    $$PWD/s60devicedebugruncontrol.h
 
 FORMS += $$PWD/s60createpackagestep.ui \
     $$PWD/s60certificatedetailsdialog.ui \
