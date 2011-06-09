@@ -40,6 +40,7 @@
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
+#include <coreplugin/icore.h>
 
 #include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 
@@ -49,6 +50,8 @@
 #include "tracewindow.h"
 
 #include <QDebug>
+#include <QtGui/QMessageBox>
+#include <QtGui/QMainWindow>
 
 #include "canvas/qdeclarativecanvas_p.h"
 #include "canvas/qdeclarativecontext2d_p.h"
@@ -180,9 +183,66 @@ void QmlProfilerEngine::finishProcess()
     }
 }
 
+void QmlProfilerEngine::filterApplicationMessage(const QString &msg)
+{
+    static const QString qddserver = QLatin1String("QDeclarativeDebugServer: ");
+    static const QString cannotRetrieveDebuggingOutput = ProjectExplorer::ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput();
+
+    const int index = msg.indexOf(qddserver);
+    if (index != -1) {
+        QString status = msg;
+        status.remove(0, index + qddserver.length()); // chop of 'QDeclarativeDebugServer: '
+
+        static QString waitingForConnection = QLatin1String("Waiting for connection ");
+        static QString unableToListen = QLatin1String("Unable to listen ");
+        static QString debuggingNotEnabled = QLatin1String("Ignoring \"-qmljsdebugger=");
+        static QString debuggingNotEnabled2 = QLatin1String("Ignoring\"-qmljsdebugger="); // There is (was?) a bug in one of the error strings - safest to handle both
+        static QString connectionEstablished = QLatin1String("Connection established");
+
+        QString errorMessage;
+        if (status.startsWith(waitingForConnection)) {
+            emit processRunning();
+        } else if (status.startsWith(unableToListen)) {
+            //: Error message shown after 'Could not connect ... debugger:"
+            errorMessage = tr("The port seems to be in use.");
+        } else if (status.startsWith(debuggingNotEnabled) || status.startsWith(debuggingNotEnabled2)) {
+            //: Error message shown after 'Could not connect ... debugger:"
+            errorMessage = tr("The application is not set up for QML/JS debugging.");
+        } else if (status.startsWith(connectionEstablished)) {
+            // nothing to do
+        } else {
+            qWarning() << "Unknown QDeclarativeDebugServer status message: " << status;
+        }
+
+        if (!errorMessage.isEmpty()) {
+            Core::ICore * const core = Core::ICore::instance();
+            QMessageBox *infoBox = new QMessageBox(core->mainWindow());
+            infoBox->setIcon(QMessageBox::Critical);
+            infoBox->setWindowTitle(tr("Qt Creator"));
+            //: %1 is detailed error message
+            infoBox->setText(tr("Could not connect to the in-process QML debugger:\n%1")
+                             .arg(errorMessage));
+            infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
+            infoBox->setDefaultButton(QMessageBox::Ok);
+            infoBox->setModal(true);
+
+            connect(infoBox, SIGNAL(finished(int)),
+                    this, SLOT(wrongSetupMessageBoxFinished(int)));
+
+            infoBox->show();
+        }
+    } else if (msg.contains(cannotRetrieveDebuggingOutput)) {
+        // we won't get debugging output, so just try to connect ...
+        emit processRunning();
+    }
+}
+
+
 void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat /*format*/)
 {
     qDebug() << "app: " << msg;
+
+    filterApplicationMessage(msg);
 }
 
 } // namespace Internal
