@@ -122,6 +122,7 @@ public slots:
     void selectAll();
     void undo();
     void redo();
+    void activeQtVersionChanged();
 
 #ifdef ENABLE_TEXT_VIEW
     void showText();
@@ -136,6 +137,8 @@ private:
     void detachNodeInstanceView();
     void attachNodeInstanceView();
     QWidget *centralWidget() const;
+    QString pathToQt() const;
+
     class DesignDocumentControllerPrivate *m_d;
 };
 

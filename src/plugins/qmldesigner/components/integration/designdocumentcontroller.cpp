@@ -81,6 +81,13 @@
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QApplication>
 
+#include <projectexplorer/projectexplorer.h>
+#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4target.h>
+#include <qtsupport/qtversionmanager.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+
 enum {
     debug = false
 };
@@ -113,7 +120,7 @@ public:
     QUrl searchPath;
     bool documentLoaded;
     bool syncBlocked;
-
+    int qt_versionId;
 };
 
 /**
@@ -128,6 +135,10 @@ DesignDocumentController::DesignDocumentController(QObject *parent) :
 {
     m_d->documentLoaded = false;
     m_d->syncBlocked = false;
+
+    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+    connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), this, SLOT(activeQtVersionChanged()));
+    activeQtVersionChanged();
 }
 
 DesignDocumentController::~DesignDocumentController()
@@ -162,14 +173,22 @@ void DesignDocumentController::detachNodeInstanceView()
 
 void DesignDocumentController::attachNodeInstanceView()
 {
-    if (m_d->nodeInstanceView)
+    if (m_d->nodeInstanceView) {
         model()->attachView(m_d->nodeInstanceView.data());
-
+    }
 }
 
 QWidget *DesignDocumentController::centralWidget() const
 {
     return qobject_cast<QWidget*>(parent());
+}
+
+QString DesignDocumentController::pathToQt() const
+{
+    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::instance()->version(m_d->qt_versionId);
+    if (activeQtVersion && (activeQtVersion->qtVersion().majorVersion > 3) && (activeQtVersion->supportsTargetId(Qt4ProjectManager::Constants::QT_SIMULATOR_TARGET_ID) || activeQtVersion->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)))
+        return activeQtVersion->versionInfo().value("QT_INSTALL_DATA");
+    return QString();
 }
 
 /*!
@@ -199,6 +218,7 @@ void DesignDocumentController::blockModelSync(bool block)
             detachNodeInstanceView();
             m_d->textModifier->deactivateChangeSignals();
         } else {
+            activeQtVersionChanged();
             QmlModelState state;
             //We go back to base state (and back again) to avoid side effects from text editing.
             if (m_d->statesEditorView && m_d->statesEditorView->model()) {
@@ -754,6 +774,56 @@ void DesignDocumentController::redo()
 {
     if (m_d->rewriterView && !m_d->rewriterView->modificationGroupActive())
         m_d->textEdit->redo();
+}
+
+static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocumentController *controller)
+{
+    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorer::Project *currentProject = projectExplorer->currentProject();
+
+    if (!currentProject)
+        return 0;
+
+    controller->disconnect(controller,  SLOT(activeQtVersionChanged()));
+    controller->connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), controller, SLOT(activeQtVersionChanged()));
+
+    controller->connect(currentProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)), controller, SLOT(activeQtVersionChanged()));
+
+
+    ProjectExplorer::Target *target = currentProject->activeTarget();
+
+    if (!target)
+        return 0;
+
+    ProjectExplorer::RunConfiguration *runConfiguration = target->activeRunConfiguration();
+    QmlProjectManager::QmlProjectRunConfiguration *qmlRunConfiguration = qobject_cast<QmlProjectManager::QmlProjectRunConfiguration* >(runConfiguration);
+
+    if (qmlRunConfiguration) {
+        controller->connect(target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)), controller, SLOT(activeQtVersionChanged()));
+        return qmlRunConfiguration->qtVersion();
+    }
+
+    Qt4ProjectManager::Qt4BuildConfiguration *activeBuildConfiguration = qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target->activeBuildConfiguration());
+
+    if (activeBuildConfiguration) {
+        controller->connect(target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)), controller, SLOT(activeQtVersionChanged()));
+        return activeBuildConfiguration->qtVersion();
+    }
+
+    return 0;
+}
+
+void DesignDocumentController::activeQtVersionChanged()
+{
+    QtSupport::BaseQtVersion *newQtVersion = getActiveQtVersion(this);
+
+    if (!newQtVersion ) {
+        m_d->qt_versionId = -1;
+        return;
+    }
+
+    m_d->qt_versionId = newQtVersion->uniqueId();
+
 }
 
 #ifdef ENABLE_TEXT_VIEW
