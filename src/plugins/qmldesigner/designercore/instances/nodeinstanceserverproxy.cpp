@@ -109,16 +109,19 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
    QString applicationPath =  QCoreApplication::applicationDirPath();
    if (runModus == TestModus)
-       applicationPath += "/../../../../../bin";
+       applicationPath += QLatin1String("/../../../../../bin");
 #ifdef Q_OS_MACX
-   applicationPath += "/qmlpuppet.app/Contents/MacOS";
+   applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
 #endif
 
    if (hasQtQuick1(nodeInstanceView)) {
-       applicationPath += "/qmlpuppet";
+       applicationPath += QLatin1String("/qmlpuppet");
    } else {
-       applicationPath += "/qml2puppet";
+       applicationPath += QLatin1String("/qml2puppet");
    }
+#ifdef Q_OS_WIN
+   applicationPath += QLatin1String(".exe");
+#endif
 
    QByteArray envImportPath = qgetenv("QTCREATOR_QMLPUPPET_PATH");
    if (!envImportPath.isEmpty()) {
