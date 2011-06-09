@@ -127,22 +127,24 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
     nodeList.append(node.allSubModelNodes());
 
 
-    foreach (const ModelNode &childNode, nodeList) {
-        if (childNode.type() == "QtQuick.Component") {
-            if (!childNode.id().isEmpty()) {
-                QStandardItem *item = new QStandardItem(childNode.id());
-                item->setData(QVariant::fromValue(childNode), ModelNodeRole);
+    foreach (const ModelNode &node, nodeList) {
+        if (node.nodeSourceType() == ModelNode::ComponentSource) {
+            if (!node.id().isEmpty()) {
+                QStandardItem *item = new QStandardItem(node.id());
+                item->setData(QVariant::fromValue(node), ModelNodeRole);
                 item->setEditable(false);
                 m_standardItemModel->appendRow(item);
             } else {
                 QString description;
-                if (!childNode.parentProperty().parentModelNode().id().isEmpty())
-                    description = childNode.parentProperty().parentModelNode().id() + QLatin1Char(' ');
-                else
-                    description = childNode.parentProperty().parentModelNode().simplifiedTypeName() + QLatin1Char(' ');
-                description += childNode.parentProperty().name();
+                ModelNode parentNode = node.parentProperty().parentModelNode();
+                if (parentNode.isValid())
+                    if (!parentNode.id().isEmpty())
+                        description = node.parentProperty().parentModelNode().id() + QLatin1Char(' ');
+                    else
+                        description = node.parentProperty().parentModelNode().simplifiedTypeName() + QLatin1Char(' ');
+                description += node.parentProperty().name();
                 QStandardItem *item = new QStandardItem(description);
-                item->setData(QVariant::fromValue(childNode), ModelNodeRole);
+                item->setData(QVariant::fromValue(node), ModelNodeRole);
                 item->setEditable(false);
                 m_standardItemModel->appendRow(item);
             }
@@ -166,7 +168,7 @@ void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
 
 
     foreach (const ModelNode &childNode, nodeList) {
-        if (childNode.type() == "QtQuick.Component") {
+        if (childNode.nodeSourceType() == ModelNode::ComponentSource) {
             if (!childNode.id().isEmpty()) {
                 for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
                     if (m_standardItemModel->item(row)->text() == childNode.id())
@@ -182,7 +184,12 @@ void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
 }
 
 void ComponentView::nodeAboutToBeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
-void ComponentView::nodeReparented(const ModelNode &/*node*/, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {}
+
+void ComponentView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &/*oldPropertyParent*/, AbstractView::PropertyChangeFlags /*propertyChange*/)
+{
+    searchForComponentAndAddToList(node);
+}
+
 void ComponentView::nodeIdChanged(const ModelNode& /*node*/, const QString& /*newId*/, const QString& /*oldId*/) {}
 void ComponentView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
 void ComponentView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
