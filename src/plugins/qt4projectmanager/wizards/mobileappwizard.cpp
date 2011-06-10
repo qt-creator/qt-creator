@@ -64,6 +64,7 @@ public:
     {
         setWindowTitle(DisplayName);
         setIntroDescription(Description);
+        addMobilePages();
     }
 };
 

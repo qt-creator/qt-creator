@@ -51,22 +51,39 @@ namespace Qt4ProjectManager {
 
 AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber)
     : ProjectExplorer::BaseProjectWizardDialog(parent)
+    , m_genericOptionsPageId(-1)
+    , m_symbianOptionsPageId(-1)
+    , m_maemoOptionsPageId(-1)
+    , m_harmattanOptionsPageId(-1)
+    , m_targetsPageId(-1)
+    , m_ignoreGeneralOptions(false)
+    , m_targetItem(0)
+    , m_genericItem(0)
+    , m_symbianItem(0)
+    , m_maemoItem(0)
+    , m_harmattanItem(0)
 {
     m_targetsPage = new TargetSetupPage;
     m_targetsPage->setPreferMobile(true);
     m_targetsPage->setMinimumQtVersion(minimumQtVersionNumber);
     resize(900, 450);
-    m_targetsPageId = addPageWithTitle(m_targetsPage, tr("Qt Versions"));
+
     m_genericOptionsPage = new Internal::MobileAppWizardGenericOptionsPage;
+    m_symbianOptionsPage = new Internal::MobileAppWizardSymbianOptionsPage;
+    m_maemoOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage(64);
+    m_harmattanOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage(80);
+}
+
+void AbstractMobileAppWizardDialog::addMobilePages()
+{
+    m_targetsPageId = addPageWithTitle(m_targetsPage, tr("Qt Versions"));
+
     m_genericOptionsPageId = addPageWithTitle(m_genericOptionsPage,
         tr("Mobile Options"));
-    m_symbianOptionsPage = new Internal::MobileAppWizardSymbianOptionsPage;
     m_symbianOptionsPageId = addPageWithTitle(m_symbianOptionsPage,
         QLatin1String("    ") + tr("Symbian Specific"));
-    m_maemoOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage(64);
     m_maemoOptionsPageId = addPageWithTitle(m_maemoOptionsPage,
         QLatin1String("    ") + tr("Maemo5 And Meego Specific"));
-    m_harmattanOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage(80);
     m_harmattanOptionsPageId = addPageWithTitle(m_harmattanOptionsPage,
         QLatin1String("    ") + tr("Harmattan Specific"));
 
@@ -76,7 +93,6 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent, co
     m_maemoItem = wizardProgress()->item(m_maemoOptionsPageId);
     m_harmattanItem = wizardProgress()->item(m_harmattanOptionsPageId);
 
-    m_targetItem->setNextShownItem(0);
     m_genericItem->setNextShownItem(0);
     m_symbianItem->setNextShownItem(0);
 }
@@ -96,8 +112,11 @@ int AbstractMobileAppWizardDialog::addPageWithTitle(QWizardPage *page, const QSt
 int AbstractMobileAppWizardDialog::nextId() const
 {
     if (currentPage() == m_targetsPage) {
-        if (isSymbianTargetSelected() || isFremantleTargetSelected())
+        if (isSymbianTargetSelected() && !m_ignoreGeneralOptions || isFremantleTargetSelected())
             return m_genericOptionsPageId;
+        // If Symbian target and Qt Quick components for Symbian, skip the mobile options page.
+        else if (isSymbianTargetSelected() && m_ignoreGeneralOptions)
+            return m_symbianOptionsPageId;
         else if (isMeegoTargetSelected())
             return m_maemoOptionsPageId;
         else if (isHarmattanTargetSelected())
@@ -163,6 +182,16 @@ void AbstractMobileAppWizardDialog::cleanupPage(int id)
     BaseProjectWizardDialog::cleanupPage(id);
 }
 
+void AbstractMobileAppWizardDialog::setIgnoreGenericOptionsPage(bool ignore)
+{
+    m_ignoreGeneralOptions = ignore;
+}
+
+Utils::WizardProgressItem *AbstractMobileAppWizardDialog::targetsPageItem() const
+{
+    return m_targetItem;
+}
+
 int AbstractMobileAppWizardDialog::idOfNextGenericPage() const
 {
     return pageIds().at(pageIds().indexOf(m_harmattanOptionsPageId) + 1);
@@ -222,7 +251,6 @@ QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
 Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizard,
     QString *errorMessage) const
 {
-    prepareGenerateFiles(wizard, errorMessage);
     const AbstractMobileAppWizardDialog *wdlg
         = qobject_cast<const AbstractMobileAppWizardDialog*>(wizard);
     app()->setOrientation(wdlg->m_genericOptionsPage->orientation());
@@ -231,6 +259,7 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     app()->setNetworkEnabled(wdlg->m_symbianOptionsPage->networkEnabled());
     app()->setMaemoPngIcon64(wdlg->m_maemoOptionsPage->pngIcon());
     app()->setMaemoPngIcon80(wdlg->m_harmattanOptionsPage->pngIcon());
+    prepareGenerateFiles(wizard, errorMessage);
     return app()->generateFiles(errorMessage);
 }
 

@@ -39,6 +39,25 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+class QtQuickComponentSetOptionsPage : public QWizardPage
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(QtQuickComponentSetOptionsPage)
+
+public:
+    explicit QtQuickComponentSetOptionsPage(QWidget *parent = 0);
+    virtual ~QtQuickComponentSetOptionsPage();
+
+    QtQuickApp::ComponentSet componentSet() const;
+    void setComponentSet(QtQuickApp::ComponentSet componentSet);
+
+private slots:
+    void radioButtonChecked(int index);
+
+private:
+    class QtQuickComponentSetOptionsPagePrivate *m_d;
+};
+
 class QtQuickAppWizardSourcesPage : public QWizardPage
 {
     Q_OBJECT

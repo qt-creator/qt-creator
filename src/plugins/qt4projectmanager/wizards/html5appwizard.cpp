@@ -66,6 +66,7 @@ Html5AppWizardDialog::Html5AppWizardDialog(QWidget *parent)
 
     m_htmlOptionsPage = new Html5AppWizardOptionsPage;
     addPageWithTitle(m_htmlOptionsPage, tr("HTML Options"));
+    addMobilePages();
 }
 
 

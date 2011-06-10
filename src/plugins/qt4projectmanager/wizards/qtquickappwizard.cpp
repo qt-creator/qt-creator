@@ -53,22 +53,49 @@ class QtQuickAppWizardDialog : public AbstractMobileAppWizardDialog
 public:
     explicit QtQuickAppWizardDialog(QWidget *parent = 0);
 
+protected:
+    bool validateCurrentPage();
+
 private:
     class QtQuickAppWizardSourcesPage *m_qmlSourcesPage;
+    class QtQuickComponentSetOptionsPage *m_componentOptionsPage;
+    int m_componentOptionsPageId;
+
+    Utils::WizardProgressItem *m_componentItem;
+
     friend class QtQuickAppWizard;
 };
 
 QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent)
-    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(4, 7, 0))
+    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(4, 7, 1))
     , m_qmlSourcesPage(0)
 {
     setWindowTitle(tr("New Qt Quick Application"));
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));
 
+    m_componentOptionsPage = new Internal::QtQuickComponentSetOptionsPage;
+    m_componentOptionsPageId = addPageWithTitle(m_componentOptionsPage, tr("Component Set"));
+    m_componentItem = wizardProgress()->item(m_componentOptionsPageId);
+
+    AbstractMobileAppWizardDialog::addMobilePages();
+
+    m_componentItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                  << targetsPageItem());
+
     m_qmlSourcesPage = new QtQuickAppWizardSourcesPage;
     addPageWithTitle(m_qmlSourcesPage, tr("QML Sources"));
 }
 
+bool QtQuickAppWizardDialog::validateCurrentPage()
+{
+    if (currentPage() == m_componentOptionsPage) {
+        if (m_componentOptionsPage->componentSet() == QtQuickApp::Symbian10Components) {
+            setIgnoreGenericOptionsPage(true);
+            targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 3));
+        }
+    }
+    return AbstractMobileAppWizardDialog::validateCurrentPage();
+}
 
 class QtQuickAppWizardPrivate
 {
@@ -102,7 +129,9 @@ Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
                                  "You can build the application and deploy it on desktop and "
                                  "mobile target platforms. For example, you can create signed "
                                  "Symbian Installation System (SIS) packages for this type of "
-                                 "projects."));
+                                 "projects. Moreover, you can select to use a set of premade "
+                                 "UI components in your Qt Quick application. "
+                                 "To utilize the components, Qt 4.7.3 or newer is required."));
     parameters.setCategory(QLatin1String(QtSupport::Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(QtSupport::Constants::QML_WIZARD_TR_SCOPE,
                                                               QtSupport::Constants::QML_WIZARD_TR_CATEGORY));
@@ -112,6 +141,7 @@ Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
 AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new QtQuickAppWizardDialog(parent);
+    m_d->wizardDialog->m_componentOptionsPage->setComponentSet(m_d->app->componentSet());
     return m_d->wizardDialog;
 }
 
@@ -131,6 +161,9 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
         const QString mainQmlFile = wizard->m_qmlSourcesPage->mainQmlFile();
         m_d->app->setMainQml(QtQuickApp::ModeImport, mainQmlFile);
     }
+    m_d->app->setComponentSet(wizard->m_componentOptionsPage->componentSet());
+    if (m_d->app->componentSet() == QtQuickApp::Symbian10Components)
+        m_d->app->setOrientation(AbstractMobileApp::ScreenOrientationImplicit);
 }
 
 QString QtQuickAppWizard::fileToOpenPostGeneration() const

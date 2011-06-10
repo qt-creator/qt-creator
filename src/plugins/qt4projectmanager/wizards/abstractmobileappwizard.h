@@ -37,6 +37,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
+#include <qt4projectmanager/wizards/abstractmobileapp.h>
 
 namespace Qt4ProjectManager {
 
@@ -56,6 +57,7 @@ class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizardDialog : public ProjectExp
 
 protected:
     explicit AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber);
+    void addMobilePages();
 
 public:
     TargetSetupPage *targetsPage() const;
@@ -64,11 +66,12 @@ protected:
     int addPageWithTitle(QWizardPage *page, const QString &title);
     virtual void initializePage(int id);
     virtual void cleanupPage(int id);
-
-private:
-
+    virtual void setIgnoreGenericOptionsPage(bool);
     virtual int nextId() const;
 
+    Utils::WizardProgressItem *targetsPageItem() const;
+
+private:
     int idOfNextGenericPage() const;
     Utils::WizardProgressItem *itemOfNextGenericPage() const;
     bool isSymbianTargetSelected() const;
@@ -87,6 +90,7 @@ private:
     int m_maemoOptionsPageId;
     int m_harmattanOptionsPageId;
     int m_targetsPageId;
+    bool m_ignoreGeneralOptions; // If true, do not show generic mobile options page.
     Utils::WizardProgressItem *m_targetItem;
     Utils::WizardProgressItem *m_genericItem;
     Utils::WizardProgressItem *m_symbianItem;

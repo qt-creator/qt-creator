@@ -238,6 +238,9 @@ QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
             case ScreenOrientationAuto:
                 orientationString = "ScreenOrientationAuto";
                 break;
+            case ScreenOrientationImplicit:
+            default:
+                continue; // omit line
             }
             insertParameter(line, mainWindowClassName() + QLatin1String("::")
                 + QLatin1String(orientationString));

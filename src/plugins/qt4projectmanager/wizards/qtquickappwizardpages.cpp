@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "qtquickappwizardpages.h"
+#include "ui_qtquickcomponentsetoptionspage.h"
 #include "ui_qtquickappwizardsourcespage.h"
 #include <coreplugin/coreconstants.h>
 
@@ -42,11 +43,57 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
+
+class QtQuickComponentSetOptionsPagePrivate
+{
+    Ui::QtQuickComponentSetOptionsPage ui;
+    friend class QtQuickComponentSetOptionsPage;
+};
+
 class QtQuickAppWizardSourcesPagePrivate
 {
     Ui::QtQuickAppWizardSourcesPage ui;
     friend class QtQuickAppWizardSourcesPage;
 };
+
+
+QtQuickComponentSetOptionsPage::QtQuickComponentSetOptionsPage(QWidget *parent)
+    : QWizardPage(parent)
+    , m_d(new QtQuickComponentSetOptionsPagePrivate)
+{
+    m_d->ui.setupUi(this);
+    m_d->ui.buttonGroup->setId(m_d->ui.qtquick10RadioButton, 0);
+    m_d->ui.buttonGroup->setId(m_d->ui.symbian10RadioButton, 1);
+    connect(m_d->ui.buttonGroup, SIGNAL(buttonClicked(int)), this, SLOT(radioButtonChecked(int)));
+}
+
+QtQuickComponentSetOptionsPage::~QtQuickComponentSetOptionsPage()
+{
+    delete m_d;
+}
+
+QtQuickApp::ComponentSet QtQuickComponentSetOptionsPage::componentSet() const
+{
+    switch (m_d->ui.buttonGroup->checkedId()) {
+    case 1: return QtQuickApp::Symbian10Components;
+    case 0:
+    default: return QtQuickApp::QtQuick10Components;
+    }
+}
+
+void QtQuickComponentSetOptionsPage::setComponentSet(QtQuickApp::ComponentSet componentSet)
+{
+    switch (componentSet) {
+    case QtQuickApp::Symbian10Components: m_d->ui.symbian10RadioButton->click(); break;
+    case QtQuickApp::QtQuick10Components:
+    default: m_d->ui.qtquick10RadioButton->click(); break;
+    }
+}
+
+void QtQuickComponentSetOptionsPage::radioButtonChecked(int index)
+{
+    m_d->ui.descriptionStackedWidget->setCurrentIndex(index);
+}
 
 QtQuickAppWizardSourcesPage::QtQuickAppWizardSourcesPage(QWidget *parent)
     : QWizardPage(parent)

@@ -89,7 +89,8 @@ public:
     enum ScreenOrientation {
         ScreenOrientationLockLandscape,
         ScreenOrientationLockPortrait,
-        ScreenOrientationAuto
+        ScreenOrientationAuto,
+        ScreenOrientationImplicit // Don't set in application at all (used by Symbian components)
     };
 
     enum FileType {

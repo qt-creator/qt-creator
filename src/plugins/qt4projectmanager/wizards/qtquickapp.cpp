@@ -100,12 +100,23 @@ QmlCppPlugin::QmlCppPlugin(const QString &name, const QFileInfo &path,
 QtQuickApp::QtQuickApp()
     : AbstractMobileApp()
     , m_mainQmlMode(ModeGenerate)
+    , m_componentSet(QtQuick10Components)
 {
 }
 
 QtQuickApp::~QtQuickApp()
 {
     clearModulesAndPlugins();
+}
+
+void QtQuickApp::setComponentSet(ComponentSet componentSet)
+{
+    m_componentSet = componentSet;
+}
+
+QtQuickApp::ComponentSet QtQuickApp::componentSet() const
+{
+    return m_componentSet;
 }
 
 void QtQuickApp::setMainQml(Mode mode, const QString &file)
@@ -169,16 +180,24 @@ QString QtQuickApp::pathExtended(int fileType) const
                               + (importQmlFile ? m_mainQmlFile.dir().dirName() : cleanProjectName)
                               + QLatin1Char('/');
     const QString appViewerTargetSubDir = appViewerOriginsSubDir;
-    const QString mainQml = QLatin1String("main.qml");
+
+    const QString mainQmlFile = QLatin1String("main.qml");
+    const QString mainPageQmlFile = QLatin1String("MainPage.qml");
+
+    const QString qmlOriginDir = originsRoot() + QLatin1String("qml/app/")
+                        + componentSetDir(componentSet()) + QLatin1Char('/');
+
     const QString pathBase = outputPathBase();
     const QDir appProFilePath(pathBase);
 
     switch (fileType) {
-        case MainQml:                       return importQmlFile ? m_mainQmlFile.canonicalFilePath()
-                                                                 : pathBase + qmlSubDir + mainQml;
+        case MainQml:
+            return importQmlFile ? m_mainQmlFile.canonicalFilePath() : pathBase + qmlSubDir + mainQmlFile;
         case MainQmlDeployed:               return importQmlFile ? qmlSubDir + m_mainQmlFile.fileName()
-                                                                 : QString(qmlSubDir + mainQml);
-        case MainQmlOrigin:                 return originsRoot() + QLatin1String("qml/app/") + mainQml;
+                                                                 : QString(qmlSubDir + mainQmlFile);
+        case MainQmlOrigin:                 return qmlOriginDir + mainQmlFile;
+        case MainPageQml:                   return pathBase + qmlSubDir + mainPageQmlFile;
+        case MainPageQmlOrigin:             return qmlOriginDir + mainPageQmlFile;
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
         case AppViewerPriOrigin:            return originsRoot() + appViewerOriginsSubDir + appViewerPriFileName;
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + appViewerCppFileName;
@@ -239,6 +258,11 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
         }
 
         proFile << endl;
+    } else if (line.contains(QLatin1String("# QTQUICKCOMPONENTS"))) {
+        QString nextLine = proFileTemplate.readLine(); // eats '# CONFIG += qtquickcomponents'
+        if (componentSet() == Symbian10Components)
+            nextLine.remove(0, 2); // remove comment
+        proFile << nextLine << endl;
     }
 }
 
@@ -325,6 +349,8 @@ Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
     Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
     if (!useExistingMainQml()) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
+        if (componentSet() == QtQuickApp::Symbian10Components)
+            files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainPageQmlFile, errorMessage), path(MainPageQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
 
@@ -353,6 +379,9 @@ QByteArray QtQuickApp::generateFileExtended(int fileType,
     switch (fileType) {
         case QtQuickAppGeneratedFileInfo::MainQmlFile:
             data = readBlob(path(MainQmlOrigin), errorMessage);
+            break;
+        case QtQuickAppGeneratedFileInfo::MainPageQmlFile:
+            data = readBlob(path(MainPageQmlOrigin), errorMessage);
             break;
         case QtQuickAppGeneratedFileInfo::AppViewerPriFile:
             data = readBlob(path(AppViewerPriOrigin), errorMessage);
@@ -415,6 +444,17 @@ QList<DeploymentFolder> QtQuickApp::deploymentFolders() const
         if (module->isExternal)
             result.append(DeploymentFolder(module->path(QmlModule::ContentDir), module->path(QmlModule::DeployedContentBase)));
     return result;
+}
+
+QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
+{
+    switch (componentSet) {
+    case Symbian10Components:
+        return QLatin1String("symbian10");
+    case QtQuick10Components:
+    default:
+        return QLatin1String("qtquick10");
+    }
 }
 
 const int QtQuickApp::StubVersion = 12;
