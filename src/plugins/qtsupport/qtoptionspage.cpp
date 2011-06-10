@@ -510,6 +510,8 @@ void QtOptionsPageWidget::editPath()
     }
     // same type, replace
     version->setId(current->uniqueId());
+    if (current->displayName() != current->defaultDisplayName(current->qtVersionString(), current->qmakeCommand()))
+        version->setDisplayName(current->displayName());
     m_versions.replace(m_versions.indexOf(current), version);
     delete current;
 
