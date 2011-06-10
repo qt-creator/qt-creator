@@ -278,10 +278,17 @@ QPair<QString, QString> BazaarClient::parseStatusLine(const QString &line) const
     return status;
 }
 
-// Collect all parameters required for a diff to be able to associate them
-// with a diff editor and re-run the diff with parameters.
-struct BazaarDiffParameters
+// Collect all parameters required for a diff or log to be able to associate
+// them with an editor and re-run the command with parameters.
+struct BazaarCommandParameters
 {
+    BazaarCommandParameters(const QString &workDir,
+                            const QStringList &inFiles,
+                            const QStringList &options) :
+        workingDir(workDir), files(inFiles), extraOptions(options)
+    {
+    }
+
     QString workingDir;
     QStringList files;
     QStringList extraOptions;
@@ -292,61 +299,44 @@ class BazaarDiffParameterWidget : public VCSBase::VCSBaseEditorParameterWidget
 {
     Q_OBJECT
 public:
-    explicit BazaarDiffParameterWidget(const BazaarDiffParameters &p, QWidget *parent = 0);
+    BazaarDiffParameterWidget(BazaarClient *client,
+                              const BazaarCommandParameters &p, QWidget *parent = 0) :
+        VCSBase::VCSBaseEditorParameterWidget(parent), m_client(client), m_params(p)
+    {
+        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore whitespace")),
+                   &client->settings()->diffIgnoreWhiteSpace);
+        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore blank lines")),
+                   &client->settings()->diffIgnoreBlankLines);
+    }
 
-signals:
-    void reRunDiff(const Bazaar::Internal::BazaarDiffParameters &);
+    QStringList arguments() const
+    {
+        QStringList args;
+        // Bazaar wants "--diff-options=-w -B.."
+        const QStringList formatArguments = VCSBaseEditorParameterWidget::arguments();
+        if (!formatArguments.isEmpty()) {
+            const QString a = QLatin1String("--diff-options=")
+                              + formatArguments.join(QString(QLatin1Char(' ')));
+            args.append(a);
+        }
+        return args;
+    }
 
-private slots:
-    void triggerReRun();
+    void executeCommand()
+    {
+        m_client->diff(m_params.workingDir, m_params.files, m_params.extraOptions);
+    }
 
 private:
-    const BazaarDiffParameters m_parameters;
+    BazaarClient *m_client;
+    const BazaarCommandParameters m_params;
 };
 
-BazaarDiffParameterWidget::BazaarDiffParameterWidget(const BazaarDiffParameters &p, QWidget *parent) :
-    VCSBase::VCSBaseEditorParameterWidget(parent), m_parameters(p)
+VCSBase::VCSBaseEditorParameterWidget *BazaarClient::createDiffEditor(
+    const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
 {
-    addToggleButton(QLatin1String("-w"), tr("Ignore whitespace"));
-    addToggleButton(QLatin1String("-B"), tr("Ignore blank lines"));
-    connect(this, SIGNAL(argumentsChanged()), this, SLOT(triggerReRun()));
-}
-
-void BazaarDiffParameterWidget::triggerReRun()
-{
-    BazaarDiffParameters effectiveParameters = m_parameters;
-    // Bazaar wants "--diff-options=-w -B.."
-    const QStringList formatArguments = arguments();
-    if (!formatArguments.isEmpty()) {
-        const QString a = QLatin1String("--diff-options=")
-                          + formatArguments.join(QString(QLatin1Char(' ')));
-        effectiveParameters.extraOptions.append(a);
-    }
-    emit reRunDiff(effectiveParameters);
-}
-
-void BazaarClient::bazaarDiff(const Bazaar::Internal::BazaarDiffParameters &p)
-{
-    diff(p.workingDir, p.files, p.extraOptions);
-}
-
-void BazaarClient::initializeDiffEditor(const QString &workingDir, const QStringList &files,
-                                        const QStringList &extraOptions,
-                                        VCSBase::VCSBaseEditorWidget *diffEditorWidget)
-{
-    // Wire up the parameter widget to trigger a re-run on
-    // parameter change and 'revert' from inside the diff editor.
-    BazaarDiffParameters parameters;
-    parameters.workingDir = workingDir;
-    parameters.files = files;
-    parameters.extraOptions = extraOptions;
-    diffEditorWidget->setRevertDiffChunkEnabled(true);
-    BazaarDiffParameterWidget *pw = new BazaarDiffParameterWidget(parameters);
-    connect(pw, SIGNAL(reRunDiff(Bazaar::Internal::BazaarDiffParameters)),
-            this, SLOT(bazaarDiff(Bazaar::Internal::BazaarDiffParameters)));
-    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)),
-            pw, SLOT(triggerReRun()));
-    diffEditorWidget->setConfigurationWidget(pw);
+    const BazaarCommandParameters parameters(workingDir, files, extraOptions);
+    return new BazaarDiffParameterWidget(this, parameters);
 }
 
 } //namespace Internal

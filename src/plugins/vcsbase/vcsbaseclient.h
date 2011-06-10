@@ -61,6 +61,7 @@ class VCSBaseEditorWidget;
 class VCSBaseClientSettings;
 class VCSJob;
 class VCSBaseClientPrivate;
+class VCSBaseEditorParameterWidget;
 
 class VCSBASE_EXPORT VCSBaseClient : public QObject
 {
@@ -154,8 +155,9 @@ protected:
                                           const QString &revision, int lineNumber) const = 0;
     virtual QStringList diffArguments(const QStringList &files,
                                       const QStringList &extraOptions) const = 0;
-    virtual void initializeDiffEditor(const QString &workingDir, const QStringList &files,
-                                      const QStringList &extraOptions, VCSBaseEditorWidget *ed);
+    virtual VCSBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
+                                                           const QStringList &files,
+                                                           const QStringList &extraOptions);
     virtual QStringList logArguments(const QStringList &files,
                                      const QStringList &extraOptions) const = 0;
     virtual QStringList statusArguments(const QString &file) const = 0;

@@ -44,6 +44,13 @@ public:
     BazaarSettings();
     BazaarSettings& operator=(const BazaarSettings& other);
     bool sameUserId(const BazaarSettings& other) const;
+
+    virtual void writeSettings(QSettings *settings, const QString &group) const;
+    virtual void readSettings(const QSettings *settings, const QString &group);
+    virtual bool equals(const VCSBaseClientSettings &rhs) const;
+
+    bool diffIgnoreWhiteSpace;
+    bool diffIgnoreBlankLines;
 };
 
 } // namespace Internal

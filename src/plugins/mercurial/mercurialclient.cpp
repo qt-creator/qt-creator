@@ -51,9 +51,14 @@
 namespace Mercurial {
 namespace Internal  {
 
-MercurialClient::MercurialClient(VCSBase::VCSBaseClientSettings *settings) :
+MercurialClient::MercurialClient(MercurialSettings *settings) :
     VCSBase::VCSBaseClient(settings)
 {
+}
+
+MercurialSettings *MercurialClient::settings() const
+{
+    return dynamic_cast<MercurialSettings *>(VCSBase::VCSBaseClient::settings());
 }
 
 bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)
@@ -486,55 +491,34 @@ class MercurialDiffParameterWidget : public VCSBase::VCSBaseEditorParameterWidge
 {
     Q_OBJECT
 public:
-    explicit MercurialDiffParameterWidget(const MercurialDiffParameters &p, QWidget *parent = 0);
+    MercurialDiffParameterWidget(MercurialClient *client,
+                                 const MercurialDiffParameters &p, QWidget *parent = 0) :
+        VCSBase::VCSBaseEditorParameterWidget(parent), m_client(client), m_params(p)
+    {
+        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore whitespace")),
+                   &client->settings()->diffIgnoreWhiteSpace);
+        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore blank lines")),
+                   &client->settings()->diffIgnoreBlankLines);
+    }
 
-signals:
-    void reRunDiff(const Mercurial::Internal::MercurialDiffParameters &);
-
-private slots:
-    void triggerReRun();
+    void executeCommand()
+    {
+        m_client->diff(m_params.workingDir, m_params.files, m_params.extraOptions);
+    }
 
 private:
-    const MercurialDiffParameters m_parameters;
+    MercurialClient *m_client;
+    const MercurialDiffParameters m_params;
 };
 
-MercurialDiffParameterWidget::MercurialDiffParameterWidget(const MercurialDiffParameters &p, QWidget *parent) :
-    VCSBase::VCSBaseEditorParameterWidget(parent), m_parameters(p)
+VCSBase::VCSBaseEditorParameterWidget *MercurialClient::createDiffEditor(
+    const QString &workingDir, const QStringList &files, const QStringList &extraOptions)
 {
-    addToggleButton(QLatin1String("-w"), tr("Ignore whitespace"));
-    addToggleButton(QLatin1String("-B"), tr("Ignore blank lines"));
-    connect(this, SIGNAL(argumentsChanged()), this, SLOT(triggerReRun()));
-}
-
-void MercurialDiffParameterWidget::triggerReRun()
-{
-    MercurialDiffParameters effectiveParameters = m_parameters;
-    effectiveParameters.extraOptions += arguments();
-    emit reRunDiff(effectiveParameters);
-}
-
-void MercurialClient::mercurialDiff(const Mercurial::Internal::MercurialDiffParameters &p)
-{
-    diff(p.workingDir, p.files, p.extraOptions);
-}
-
-void MercurialClient::initializeDiffEditor(const QString &workingDir, const QStringList &files,
-                                           const QStringList &extraOptions,
-                                           VCSBase::VCSBaseEditorWidget *diffEditorWidget)
-{
-    // Wire up the parameter widget to trigger a re-run on
-    // parameter change and 'revert' from inside the diff editor.
     MercurialDiffParameters parameters;
     parameters.workingDir = workingDir;
     parameters.files = files;
     parameters.extraOptions = extraOptions;
-    diffEditorWidget->setRevertDiffChunkEnabled(true);
-    MercurialDiffParameterWidget *pw = new MercurialDiffParameterWidget(parameters);
-    connect(pw, SIGNAL(reRunDiff(Mercurial::Internal::MercurialDiffParameters)),
-            this, SLOT(mercurialDiff(Mercurial::Internal::MercurialDiffParameters)));
-    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)),
-            pw, SLOT(triggerReRun()));
-    diffEditorWidget->setConfigurationWidget(pw);
+    return new MercurialDiffParameterWidget(this, parameters);
 }
 
 } // namespace Internal

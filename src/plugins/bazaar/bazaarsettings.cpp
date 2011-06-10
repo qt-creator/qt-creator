@@ -33,10 +33,17 @@
 #include "bazaarsettings.h"
 #include "constants.h"
 
+#include <QtCore/QSettings>
+
 namespace Bazaar {
 namespace Internal {
 
-BazaarSettings::BazaarSettings()
+const QLatin1String diffIgnoreWhiteSpaceKey("diffIgnoreWhiteSpace");
+const QLatin1String diffIgnoreBlankLinesKey("diffIgnoreBlankLines");
+
+BazaarSettings::BazaarSettings() :
+    diffIgnoreWhiteSpace(false),
+    diffIgnoreBlankLines(false)
 {
     setBinary(QLatin1String(Constants::BAZAARDEFAULT));
 }
@@ -44,12 +51,43 @@ BazaarSettings::BazaarSettings()
 BazaarSettings& BazaarSettings::operator=(const BazaarSettings& other)
 {
     VCSBase::VCSBaseClientSettings::operator=(other);
+    if (this != &other) {
+        diffIgnoreWhiteSpace = other.diffIgnoreWhiteSpace;
+        diffIgnoreBlankLines = other.diffIgnoreBlankLines;
+    }
     return *this;
 }
 
 bool BazaarSettings::sameUserId(const BazaarSettings& other) const
 {
     return userName() == other.userName() && email() == other.email();
+}
+
+void BazaarSettings::writeSettings(QSettings *settings, const QString &group) const
+{
+    VCSBaseClientSettings::writeSettings(settings, group);
+    settings->beginGroup(group);
+    settings->setValue(diffIgnoreWhiteSpaceKey, diffIgnoreWhiteSpace);
+    settings->setValue(diffIgnoreBlankLinesKey, diffIgnoreBlankLines);
+    settings->endGroup();
+}
+
+void BazaarSettings::readSettings(const QSettings *settings, const QString &group)
+{
+    VCSBaseClientSettings::readSettings(settings, group);
+    const QString keyRoot = group + QLatin1Char('/');
+    diffIgnoreWhiteSpace = settings->value(keyRoot + diffIgnoreWhiteSpaceKey, false).toBool();
+    diffIgnoreBlankLines = settings->value(keyRoot + diffIgnoreBlankLinesKey, false).toBool();
+}
+
+bool BazaarSettings::equals(const VCSBaseClientSettings &rhs) const
+{
+    const BazaarSettings *bzrRhs = dynamic_cast<const BazaarSettings *>(&rhs);
+    if (bzrRhs == 0)
+        return false;
+    return VCSBaseClientSettings::equals(rhs)
+            && diffIgnoreWhiteSpace == bzrRhs->diffIgnoreWhiteSpace
+            && diffIgnoreBlankLines == bzrRhs->diffIgnoreBlankLines;
 }
 
 } // namespace Internal

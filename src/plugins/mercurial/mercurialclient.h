@@ -33,6 +33,7 @@
 #ifndef MERCURIALCLIENT_H
 #define MERCURIALCLIENT_H
 
+#include "mercurialsettings.h"
 #include <vcsbase/vcsbaseclient.h>
 
 namespace Mercurial {
@@ -43,7 +44,10 @@ class MercurialClient : public VCSBase::VCSBaseClient
 {
     Q_OBJECT
 public:
-    MercurialClient(VCSBase::VCSBaseClientSettings *settings);
+    MercurialClient(MercurialSettings *settings);
+
+    MercurialSettings *settings() const;
+
     virtual bool synchronousClone(const QString &workingDir,
                                   const QString &srcLocation,
                                   const QString &dstLocation,
@@ -63,9 +67,6 @@ public:
     void incoming(const QString &repositoryRoot, const QString &repository = QString());
     void outgoing(const QString &repositoryRoot);
     QString vcsGetRepositoryURL(const QString &directory);
-
-private slots:
-    void mercurialDiff(const Mercurial::Internal::MercurialDiffParameters &);
 
 public:
     QString findTopLevelForFile(const QFileInfo &file) const;
@@ -91,9 +92,9 @@ protected:
                                   const QString &revision, int lineNumber) const;
     QStringList diffArguments(const QStringList &files,
                               const QStringList &extraOptions) const;
-    void initializeDiffEditor(const QString &workingDir, const QStringList &files,
-                              const QStringList &extraOptions,
-                              VCSBase::VCSBaseEditorWidget *ed);
+    VCSBase::VCSBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
+                                                            const QStringList &files,
+                                                            const QStringList &extraOptions);
     QStringList logArguments(const QStringList &files,
                              const QStringList &extraOptions) const;
     QStringList statusArguments(const QString &file) const;

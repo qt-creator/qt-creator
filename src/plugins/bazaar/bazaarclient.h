@@ -39,7 +39,6 @@
 
 namespace Bazaar {
 namespace Internal {
-struct BazaarDiffParameters;
 
 class BazaarSettings;
 
@@ -54,9 +53,6 @@ public:
     bool synchronousSetUserId();
     BranchInfo synchronousBranchQuery(const QString &repositoryRoot) const;
     QString findTopLevelForFile(const QFileInfo &file) const;
-
-private slots:
-    void bazaarDiff(const Bazaar::Internal::BazaarDiffParameters &p);
 
 protected:
     QString vcsEditorKind(VCSCommand cmd) const;
@@ -79,9 +75,9 @@ protected:
                                   const QString &revision, int lineNumber) const;
     QStringList diffArguments(const QStringList &files,
                               const QStringList &extraOptions) const;
-    void initializeDiffEditor(const QString &workingDir, const QStringList &files,
-                              const QStringList &extraOptions,
-                              VCSBase::VCSBaseEditorWidget *diffEditorWidget);
+    VCSBase::VCSBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
+                                                            const QStringList &files,
+                                                            const QStringList &extraOptions);
     QStringList logArguments(const QStringList &files,
                              const QStringList &extraOptions) const;
     QStringList statusArguments(const QString &file) const;

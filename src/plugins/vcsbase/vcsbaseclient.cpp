@@ -33,6 +33,7 @@
 #include "vcsbaseclient.h"
 #include "vcsjobrunner.h"
 #include "vcsbaseclientsettings.h"
+#include "vcsbaseeditorparameterwidget.h"
 
 #include <QtDebug>
 
@@ -275,17 +276,25 @@ void VCSBaseClient::diff(const QString &workingDir, const QStringList &files,
                          const QStringList &extraOptions)
 {
     const QString vcsCmdString = vcsCommandString(DiffCommand);
-    QStringList args;
-    args << vcsCmdString << diffArguments(files, extraOptions);
     const QString kind = vcsEditorKind(DiffCommand);
     const QString id = VCSBase::VCSBaseEditorWidget::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VCSBase::VCSBaseEditorWidget::getSource(workingDir, files);
     VCSBase::VCSBaseEditorWidget *editor = createVCSEditor(kind, title, source, true,
                                                            vcsCmdString.toLatin1().constData(), id);
+    editor->setRevertDiffChunkEnabled(true);
     editor->setDiffBaseDirectory(workingDir);
-    initializeDiffEditor(workingDir, files, extraOptions, editor);
 
+    VCSBaseEditorParameterWidget *paramWidget = createDiffEditor(workingDir, files, extraOptions);
+    if (paramWidget != 0) {
+        connect(editor, SIGNAL(diffChunkReverted(VCSBase::DiffChunk)),
+                paramWidget, SLOT(executeCommand()));
+        editor->setConfigurationWidget(paramWidget);
+    }
+
+    QStringList args;
+    const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
+    args << vcsCmdString << diffArguments(files, extraOptions + paramArgs);
     QSharedPointer<VCSJob> job(new VCSJob(workingDir, args, editor));
     enqueueJob(job);
 }
@@ -456,11 +465,16 @@ void VCSBaseClient::settingsChanged()
     }
 }
 
-void VCSBaseClient::initializeDiffEditor(const QString & /* workingDir */, const QStringList & /* files */,
-                                         const QStringList & /* extraOptions */,
-                                         VCSBaseEditorWidget *)
+VCSBaseEditorParameterWidget *VCSBaseClient::createDiffEditor(const QString &workingDir,
+                                                              const QStringList &files,
+                                                              const QStringList &extraOptions)
 {
+    Q_UNUSED(workingDir);
+    Q_UNUSED(files);
+    Q_UNUSED(extraOptions);
+    return 0;
 }
+
 
 QString VCSBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {
