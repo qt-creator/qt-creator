@@ -235,6 +235,7 @@ bool QMakeStep::init()
             makefile.append("/Makefile");
         }
     } else if (!qt4bc->makefile().isEmpty()) {
+        makefile.append("/");
         makefile.append(qt4bc->makefile());
     } else {
         makefile.append("/Makefile");
