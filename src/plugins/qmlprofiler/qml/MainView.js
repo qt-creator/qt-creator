@@ -59,11 +59,13 @@ function reset()
 
 function calcFps()
 {
-    if (values.length)
-        frameFps = new Array(values.length - 1);
-    for (var i = 0; i < values.length - 1; ++i) {
-        var frameTime = (values[i + 1] - values[i]) / 1000000;
-        frameFps[i] = 1000 / frameTime;
+    if (drawFpsGraph) {
+        if (values.length)
+            frameFps = new Array(values.length - 1);
+        for (var i = 0; i < values.length - 1; ++i) {
+            var frameTime = (values[i + 1] - values[i]) / 1000000;
+            frameFps[i] = 1000 / frameTime;
+        }
     }
 }
 
