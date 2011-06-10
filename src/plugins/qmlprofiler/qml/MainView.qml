@@ -156,6 +156,8 @@ Rectangle {
         contentHeight: height
         flickableDirection: Flickable.HorizontalFlick
 
+        clip:true
+
         TimelineView {
             id: view
 
