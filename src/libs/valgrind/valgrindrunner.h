@@ -36,6 +36,7 @@
 #define VALGRIND_RUNNER_H
 
 #include <QtCore/QProcess>
+#include <utils/outputformat.h>
 
 #include "valgrind_global.h"
 
@@ -85,8 +86,7 @@ protected:
     virtual QString tool() const = 0;
 
 signals:
-    void standardOutputReceived(const QByteArray &);
-    void standardErrorReceived(const QByteArray &);
+    void processOutputReceived(const QByteArray &, Utils::OutputFormat);
     void processErrorReceived(const QString &, QProcess::ProcessError);
     void started();
     void finished();

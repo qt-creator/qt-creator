@@ -40,6 +40,7 @@
 
 #include <projectexplorer/task.h>
 #include <utils/ssh/sshconnection.h>
+#include <utils/outputformat.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -76,9 +77,7 @@ public:
 
 signals:
     /// should be emitted when the debuggee outputted something
-    void standardOutputReceived(const QString &);
-    /// should be emitted when the debuggee outputted an error
-    void standardErrorReceived(const QString &);
+    void outputReceived(const QString &, Utils::OutputFormat format);
     /// can be emitted when you want to show a task, e.g. to display an error
     void taskToBeAdded(ProjectExplorer::Task::TaskType type, const QString &description,
                        const QString &file, int line);

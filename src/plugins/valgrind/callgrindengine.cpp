@@ -101,7 +101,7 @@ Valgrind::ValgrindRunner * CallgrindEngine::runner()
 
 void CallgrindEngine::start()
 {
-    emit standardOutputReceived(tr("Profiling %1").arg(executable()));
+    emit outputReceived(tr("Profiling %1\n").arg(executable()), Utils::NormalMessageFormat);
     ValgrindEngine::start();
 }
 

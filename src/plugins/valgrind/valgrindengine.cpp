@@ -88,9 +88,9 @@ void ValgrindEngine::start()
     m_progressWatcher->setFuture(m_progress->future());
 
 #if VALGRIND_DEBUG_OUTPUT
-    emit standardOutputReceived(tr("Valgrind options: %1").arg(toolArguments().join(" ")));
-    emit standardOutputReceived(tr("Working directory: %1").arg(m_workingDirectory));
-    emit standardOutputReceived(tr("Command-line arguments: %1").arg(m_commandLineArguments));
+    emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(" ")), Utils::DebugFormat);
+    emit outputReceived(tr("Working directory: %1").arg(m_workingDirectory), Utils::DebugFormat);
+    emit outputReceived(tr("Command-line arguments: %1").arg(m_commandLineArguments), Utils::DebugFormat);
 #endif
 
     const AnalyzerStartParameters &sp = startParameters();
@@ -104,10 +104,8 @@ void ValgrindEngine::start()
     runner()->setDebuggeeArguments(sp.debuggeeArgs);
     runner()->setEnvironment(sp.environment);
 
-    connect(runner(), SIGNAL(standardOutputReceived(QByteArray)),
-            SLOT(receiveStandardOutput(QByteArray)));
-    connect(runner(), SIGNAL(standardErrorReceived(QByteArray)),
-            SLOT(receiveStandardError(QByteArray)));
+    connect(runner(), SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
+            SLOT(receiveProcessOutput(QByteArray,Utils::OutputFormat)));
     connect(runner(), SIGNAL(processErrorReceived(QString, QProcess::ProcessError)),
             SLOT(receiveProcessError(QString, QProcess::ProcessError)));
     connect(runner(), SIGNAL(finished()),
@@ -142,29 +140,20 @@ void ValgrindEngine::handleProgressFinished()
 
 void ValgrindEngine::runnerFinished()
 {
-    emit standardOutputReceived(tr("** Analyzing finished **"));
+    emit outputReceived(tr("** Analyzing finished **\n"), Utils::NormalMessageFormat);
     emit finished();
 
     m_progress->reportFinished();
 
-    disconnect(runner(), SIGNAL(standardOutputReceived(QByteArray)),
-               this, SLOT(receiveStandardOutput(QByteArray)));
-    disconnect(runner(), SIGNAL(standardErrorReceived(QByteArray)),
-               this, SLOT(receiveStandardError(QByteArray)));
-    disconnect(runner(), SIGNAL(processErrorReceived(QString, QProcess::ProcessError)),
-               this, SLOT(receiveProcessError(QString, QProcess::ProcessError)));
+    disconnect(runner(), SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
+               this, SLOT(receiveProcessOutput(QByteArray,Utils::OutputFormat)));
     disconnect(runner(), SIGNAL(finished()),
                this, SLOT(runnerFinished()));
 }
 
-void ValgrindEngine::receiveStandardOutput(const QByteArray &b)
+void ValgrindEngine::receiveProcessOutput(const QByteArray &b, Utils::OutputFormat format)
 {
-    emit standardOutputReceived(QString::fromLocal8Bit(b));
-}
-
-void ValgrindEngine::receiveStandardError(const QByteArray &b)
-{
-    emit standardErrorReceived(QString::fromLocal8Bit(b));
+    emit outputReceived(QString::fromLocal8Bit(b), format);
 }
 
 void ValgrindEngine::receiveProcessError(const QString &error, QProcess::ProcessError e)
@@ -172,14 +161,14 @@ void ValgrindEngine::receiveProcessError(const QString &error, QProcess::Process
     if (e == QProcess::FailedToStart) {
         const QString &valgrind = m_settings->subConfig<ValgrindSettings>()->valgrindExecutable();
         if (!valgrind.isEmpty()) {
-            emit standardErrorReceived(tr("** Error: \"%1\" could not be started: %2 **").arg(valgrind).arg(error));
+            emit outputReceived(tr("** Error: \"%1\" could not be started: %2 **\n").arg(valgrind).arg(error), Utils::ErrorMessageFormat);
         } else {
-            emit standardErrorReceived(tr("** Error: no valgrind executable set **"));
+            emit outputReceived(tr("** Error: no valgrind executable set **\n"), Utils::ErrorMessageFormat);
         }
     } else if (m_isStopping && e == QProcess::Crashed) { // process gets killed on stop
-        emit standardErrorReceived(tr("** Process Terminated **"));
+        emit outputReceived(tr("** Process Terminated **\n"), Utils::ErrorMessageFormat);
     } else {
-        emit standardErrorReceived(QString("** %1 **").arg(error));
+        emit outputReceived(QString("** %1 **\n").arg(error), Utils::ErrorMessageFormat);
     }
 
     if (m_isStopping)

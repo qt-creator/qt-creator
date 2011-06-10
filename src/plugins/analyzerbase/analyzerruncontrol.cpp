@@ -76,10 +76,8 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
     IAnalyzerTool *tool = AnalyzerManager::instance()->currentTool();
     d->m_engine = tool->createEngine(sp, runConfiguration);
 
-    connect(d->m_engine, SIGNAL(standardErrorReceived(QString)),
-            SLOT(receiveStandardError(QString)));
-    connect(d->m_engine, SIGNAL(standardOutputReceived(QString)),
-            SLOT(receiveStandardOutput(QString)));
+    connect(d->m_engine, SIGNAL(outputReceived(QString,Utils::OutputFormat)),
+            SLOT(receiveOutput(QString,Utils::OutputFormat)));
     connect(d->m_engine, SIGNAL(taskToBeAdded(ProjectExplorer::Task::TaskType,QString,QString,int)),
             SLOT(addTask(ProjectExplorer::Task::TaskType,QString,QString,int)));
     connect(d->m_engine, SIGNAL(finished()),
@@ -138,14 +136,9 @@ QIcon AnalyzerRunControl::icon() const
     return QIcon(QLatin1String(":/images/analyzer_start_small.png"));
 }
 
-void AnalyzerRunControl::receiveStandardOutput(const QString &text)
+void AnalyzerRunControl::receiveOutput(const QString &text, Utils::OutputFormat format)
 {
-    appendMessage(text, Utils::StdOutFormat);
-}
-
-void AnalyzerRunControl::receiveStandardError(const QString &text)
-{
-    appendMessage(text, Utils::StdErrFormat);
+    appendMessage(text, format);
 }
 
 void AnalyzerRunControl::addTask(ProjectExplorer::Task::TaskType type, const QString &description,

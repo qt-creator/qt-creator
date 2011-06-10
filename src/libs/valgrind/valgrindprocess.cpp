@@ -128,14 +128,14 @@ void LocalValgrindProcess::readyReadStandardError()
 {
     const QByteArray b = m_process.readAllStandardError();
     if (!b.isEmpty())
-        emit standardErrorReceived(b);
+        emit processOutput(b, Utils::StdErrFormat);
 }
 
 void LocalValgrindProcess::readyReadStandardOutput()
 {
     const QByteArray b = m_process.readAllStandardOutput();
     if (!b.isEmpty())
-        emit standardOutputReceived(b);
+        emit processOutput(b, Utils::StdOutFormat);
 }
 
 ////////////////////////
@@ -202,9 +202,9 @@ void RemoteValgrindProcess::connected()
 
     m_process = m_connection->createRemoteProcess(cmd.toUtf8());
     connect(m_process.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-            this, SIGNAL(standardErrorReceived(QByteArray)));
+            this, SLOT(standardError(QByteArray)));
     connect(m_process.data(), SIGNAL(outputAvailable(QByteArray)),
-            this, SIGNAL(standardOutputReceived(QByteArray)));
+            this, SLOT(standardOutput(QByteArray)));
     connect(m_process.data(), SIGNAL(closed(int)),
             this, SLOT(closed(int)));
     connect(m_process.data(), SIGNAL(started()),
@@ -242,7 +242,7 @@ void RemoteValgrindProcess::processStarted()
 
     m_findPID = m_connection->createRemoteProcess(cmd.toUtf8());
     connect(m_findPID.data(), SIGNAL(errorOutputAvailable(QByteArray)),
-            this, SIGNAL(standardErrorReceived(QByteArray)));
+            this, SLOT(standardOutput(QByteArray)));
     connect(m_findPID.data(), SIGNAL(outputAvailable(QByteArray)),
             this, SLOT(findPIDOutputReceived(QByteArray)));
     m_findPID->start();
@@ -261,6 +261,16 @@ void RemoteValgrindProcess::findPIDOutputReceived(const QByteArray &output)
     } else {
         emit started();
     }
+}
+
+void RemoteValgrindProcess::standardOutput(const QByteArray &output)
+{
+    emit processOutput(output, Utils::StdOutFormat);
+}
+
+void RemoteValgrindProcess::standardError(const QByteArray &output)
+{
+    emit processOutput(output, Utils::StdErrFormat);
 }
 
 void RemoteValgrindProcess::error(Utils::SshError error)

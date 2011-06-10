@@ -40,6 +40,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/ssh/sshremoteprocess.h>
 #include <utils/ssh/sshconnection.h>
+#include <utils/outputformat.h>
 
 namespace Valgrind {
 
@@ -73,8 +74,7 @@ signals:
     void started();
     void finished(int, QProcess::ExitStatus);
     void error(QProcess::ProcessError);
-    void standardOutputReceived(const QByteArray &);
-    void standardErrorReceived(const QByteArray &);
+    void processOutput(const QByteArray &, Utils::OutputFormat format);
 };
 
 /**
@@ -149,6 +149,8 @@ private slots:
     void error(Utils::SshError error);
     void processStarted();
     void findPIDOutputReceived(const QByteArray &output);
+    void standardOutput(const QByteArray &output);
+    void standardError(const QByteArray &output);
 
 private:
     Utils::SshConnectionParameters m_params;

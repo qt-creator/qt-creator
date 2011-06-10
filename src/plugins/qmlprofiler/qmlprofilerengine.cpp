@@ -245,9 +245,9 @@ void QmlProfilerEngine::filterApplicationMessage(const QString &msg)
 }
 
 
-void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat /*format*/)
+void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat format)
 {
-    qDebug() << "app: " << msg;
+    emit outputReceived(msg, format);
 
     filterApplicationMessage(msg);
 }

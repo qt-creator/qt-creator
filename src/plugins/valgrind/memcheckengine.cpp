@@ -79,7 +79,8 @@ void MemcheckEngine::start()
 {
     m_runner.setParser(&m_parser);
 
-    emit standardOutputReceived(tr("Analyzing memory of %1").arg(executable()));
+    emit outputReceived(tr("Analyzing memory of %1\n").arg(executable()),
+                        Utils::NormalMessageFormat);
     ValgrindEngine::start();
 }
 

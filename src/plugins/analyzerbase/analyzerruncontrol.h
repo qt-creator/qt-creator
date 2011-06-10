@@ -64,8 +64,7 @@ public:
     QIcon icon() const;
 
 private slots:
-    void receiveStandardOutput(const QString &);
-    void receiveStandardError(const QString &);
+    void receiveOutput(const QString &, Utils::OutputFormat format);
 
     void addTask(ProjectExplorer::Task::TaskType type, const QString &description,
                  const QString &file, int line);
