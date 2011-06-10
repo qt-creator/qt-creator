@@ -90,6 +90,7 @@ Rectangle {
             view.updateTimeline();
             canvas.requestPaint();
             rangeMover.x = 1    //### hack to get view to display things immediately
+            rangeMover.x = 0
             rangeMover.opacity = 1
         }
 
