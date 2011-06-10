@@ -84,8 +84,7 @@ signals:
     void targetInformationChanged();
 
 private slots:
-    void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success);
-    void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro);
+    void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
 
 protected:
     S60EmulatorRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, S60EmulatorRunConfiguration *source);
@@ -93,11 +92,11 @@ protected:
 
 private:
     void ctor();
-    void handleParserState(bool success);
     void updateTarget();
 
     QString m_proFilePath;
     bool m_validParse;
+    bool m_parseInProgress;
 };
 
 class S60EmulatorRunConfigurationWidget : public QWidget
@@ -113,6 +112,8 @@ private slots:
 
 private:
     S60EmulatorRunConfiguration *m_runConfiguration;
+    QLabel *m_disabledIcon;
+    QLabel *m_disabledReason;
     Utils::DetailsWidget *m_detailsWidget;
     QLabel *m_executableLabel;
 };

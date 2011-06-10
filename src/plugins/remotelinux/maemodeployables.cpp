@@ -59,12 +59,19 @@ MaemoDeployables::~MaemoDeployables() {}
 void MaemoDeployables::init()
 {
     Qt4Project * const pro = m_target->qt4Project();
-    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
-            m_updateTimer, SLOT(start()));
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 
     // TODO do we want to disable the view
 
     createModels();
+}
+
+void MaemoDeployables::startTimer(Qt4ProjectManager::Qt4ProFileNode*, bool success, bool parseInProgress)
+{
+    Q_UNUSED(success)
+    if (!parseInProgress)
+        m_updateTimer->start();
 }
 
 void MaemoDeployables::createModels()
@@ -77,8 +84,8 @@ void MaemoDeployables::createModels()
         return;
     m_updateTimer->stop();
     disconnect(m_target->qt4Project(),
-        SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
-        m_updateTimer, SLOT(start()));
+        SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+        this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
     beginResetModel();
     qDeleteAll(m_listModels);
     m_listModels.clear();
@@ -109,8 +116,8 @@ void MaemoDeployables::createModels()
 
     endResetModel();
     connect(m_target->qt4Project(),
-            SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
-            m_updateTimer, SLOT(start()));
+            SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 }
 
 void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)

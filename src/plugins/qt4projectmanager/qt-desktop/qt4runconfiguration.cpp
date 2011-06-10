@@ -105,7 +105,8 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4BaseTarget *parent, const QString &p
     m_runMode(Gui),
     m_isUsingDyldImageSuffix(false),
     m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase),
-    m_parseSuccess(parent->qt4Project()->validParse(m_proFilePath))
+    m_parseSuccess(parent->qt4Project()->validParse(m_proFilePath)),
+    m_parseInProgress(parent->qt4Project()->parseInProgress(m_proFilePath))
 {
     ctor();
 }
@@ -119,7 +120,8 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4BaseTarget *parent, Qt4RunConfigurat
     m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_baseEnvironmentBase(source->m_baseEnvironmentBase),
-    m_parseSuccess(source->m_parseSuccess)
+    m_parseSuccess(source->m_parseSuccess),
+    m_parseInProgress(source->m_parseInProgress)
 {
     ctor();
 }
@@ -135,38 +137,33 @@ Qt4DesktopTarget *Qt4RunConfiguration::qt4Target() const
 
 bool Qt4RunConfiguration::isEnabled() const
 {
-    return m_parseSuccess;
+    return m_parseSuccess && !m_parseInProgress;
 }
 
 QString Qt4RunConfiguration::disabledReason() const
 {
+    if (m_parseInProgress)
+        return tr("The .pro file is currently being parsed.");
     if (!m_parseSuccess)
-        return tr("The .pro file could not be parsed");
+        return tr("The .pro file could not be parsed.");
     return QString();
 }
 
-void Qt4RunConfiguration::handleParseState(bool success)
-{
-    bool enabled = isEnabled();
-    m_parseSuccess = success;
-    if (enabled != isEnabled())
-        emit isEnabledChanged(!enabled);
-}
-
-void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success)
+void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
     if (m_proFilePath != pro->path())
         return;
-    handleParseState(success);
-    emit effectiveTargetInformationChanged();
-    emit baseEnvironmentChanged();
-}
 
-void Qt4RunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
-{
-    if (pro->path() != m_proFilePath)
-        return;
-    handleParseState(false);
+    bool enabled = isEnabled();
+    m_parseSuccess = success;
+    m_parseInProgress = parseInProgress;
+    if (enabled != isEnabled())
+        emit isEnabledChanged(!enabled);
+
+    if (!parseInProgress) {
+        emit effectiveTargetInformationChanged();
+        emit baseEnvironmentChanged();
+    }
 }
 
 void Qt4RunConfiguration::ctor()
@@ -175,11 +172,8 @@ void Qt4RunConfiguration::ctor()
 
     connect(qt4Target(), SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
-    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
-            this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)));
-
-    connect(qt4Target()->qt4Project(), SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)),
-            this, SLOT(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)));
+    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 }
 
 //////
@@ -195,6 +189,17 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 {
     QVBoxLayout *vboxTopLayout = new QVBoxLayout(this);
     vboxTopLayout->setMargin(0);
+
+    QHBoxLayout *hl = new QHBoxLayout();
+    hl->addStretch();
+    m_disabledIcon = new QLabel(this);
+    m_disabledIcon->setPixmap(QPixmap(QString::fromUtf8(":/projectexplorer/images/compile_warning.png")));
+    hl->addWidget(m_disabledIcon);
+    m_disabledReason = new QLabel(this);
+    m_disabledReason->setVisible(false);
+    hl->addWidget(m_disabledReason);
+    hl->addStretch();
+    vboxTopLayout->addLayout(hl);
 
     m_detailsContainer = new Utils::DetailsWidget(this);
     m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
@@ -285,7 +290,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_environmentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     vboxTopLayout->addWidget(m_environmentWidget);
 
-    setEnabled(m_qt4RunConfiguration->isEnabled());
+    runConfigurationEnabledChange(m_qt4RunConfiguration->isEnabled());
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(workDirectoryEdited()));
@@ -387,7 +392,11 @@ void Qt4RunConfigurationWidget::userChangesEdited()
 
 void Qt4RunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
 {
-    setEnabled(enabled);
+    m_detailsContainer->setEnabled(enabled);
+    m_environmentWidget->setEnabled(enabled);
+    m_disabledIcon->setVisible(!enabled);
+    m_disabledReason->setVisible(!enabled);
+    m_disabledReason->setText(m_qt4RunConfiguration->disabledReason());
 }
 
 void Qt4RunConfigurationWidget::workDirectoryEdited()
@@ -510,6 +519,7 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
     m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(Qt4RunConfiguration::BuildEnvironmentBase)).toInt());
 
     m_parseSuccess = qt4Target()->qt4Project()->validParse(m_proFilePath);
+    m_parseInProgress = qt4Target()->qt4Project()->parseInProgress(m_proFilePath);
 
     return RunConfiguration::fromMap(map);
 }

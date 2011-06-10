@@ -73,7 +73,8 @@ QString pathFromId(const QString &id)
 S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4BaseTarget *parent, const QString &proFilePath) :
     RunConfiguration(parent, QLatin1String(S60_EMULATOR_RC_ID)),
     m_proFilePath(proFilePath),
-    m_validParse(parent->qt4Project()->validParse(proFilePath))
+    m_validParse(parent->qt4Project()->validParse(proFilePath)),
+    m_parseInProgress(parent->qt4Project()->parseInProgress(proFilePath))
 {
     ctor();
 }
@@ -81,7 +82,8 @@ S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4BaseTarget *parent, 
 S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Qt4BaseTarget *parent, S60EmulatorRunConfiguration *source) :
     RunConfiguration(parent, source),
     m_proFilePath(source->m_proFilePath),
-    m_validParse(source->m_validParse)
+    m_validParse(source->m_validParse),
+    m_parseInProgress(source->m_parseInProgress)
 {
     ctor();
 }
@@ -95,10 +97,8 @@ void S60EmulatorRunConfiguration::ctor()
         //: S60 emulator run configuration default display name (no pro-file name)
         setDefaultDisplayName(tr("Run on Symbian Emulator"));
     Qt4Project *pro = qt4Target()->qt4Project();
-    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool)));
-    connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *)),
-            this, SLOT(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *)));
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 }
 
 
@@ -106,28 +106,18 @@ S60EmulatorRunConfiguration::~S60EmulatorRunConfiguration()
 {
 }
 
-void S60EmulatorRunConfiguration::handleParserState(bool success)
+void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
+    if (m_proFilePath != pro->path())
+        return;
     bool enabled = isEnabled();
     m_validParse = success;
+    m_parseInProgress = parseInProgress;
     if (enabled != isEnabled()) {
         emit isEnabledChanged(!enabled);
     }
-}
-
-void S60EmulatorRunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
-{
-    if (m_proFilePath != pro->path())
-        return;
-    handleParserState(false);
-}
-
-void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success)
-{
-    if (m_proFilePath != pro->path())
-        return;
-    handleParserState(success);
-    emit targetInformationChanged();
+    if (parseInProgress)
+        emit targetInformationChanged();
 }
 
 Qt4SymbianTarget *S60EmulatorRunConfiguration::qt4Target() const
@@ -137,13 +127,15 @@ Qt4SymbianTarget *S60EmulatorRunConfiguration::qt4Target() const
 
 bool S60EmulatorRunConfiguration::isEnabled() const
 {
-    return m_validParse;
+    return m_validParse && !m_parseInProgress;
 }
 
 QString S60EmulatorRunConfiguration::disabledReason() const
 {
+    if (m_parseInProgress)
+        return tr("The .pro file is currently being parsed.");
     if (!m_validParse)
-        return tr("The .pro file could not be parsed");
+        return tr("The .pro file could not be parsed.");
     return QString();
 }
 
@@ -174,6 +166,7 @@ bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     m_validParse = qt4Target()->qt4Project()->validParse(m_proFilePath);
+    m_parseInProgress = qt4Target()->qt4Project()->parseInProgress(m_proFilePath);
 
     //: S60 emulator run configuration default display name, %1 is base pro-File name
     setDefaultDisplayName(tr("%1 in Symbian Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
@@ -217,6 +210,18 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
     m_detailsWidget->setState(Utils::DetailsWidget::NoSummary);
     QVBoxLayout *mainBoxLayout = new QVBoxLayout();
     mainBoxLayout->setMargin(0);
+
+    QHBoxLayout *hl = new QHBoxLayout();
+    hl->addStretch();
+    m_disabledIcon = new QLabel(this);
+    m_disabledIcon->setPixmap(QPixmap(QString::fromUtf8(":/projectexplorer/images/compile_warning.png")));
+    hl->addWidget(m_disabledIcon);
+    m_disabledReason = new QLabel(this);
+    m_disabledReason->setVisible(false);
+    hl->addWidget(m_disabledReason);
+    hl->addStretch();
+    mainBoxLayout->addLayout(hl);
+
     setLayout(mainBoxLayout);
     mainBoxLayout->addWidget(m_detailsWidget);
     QWidget *detailsContainer = new QWidget;
@@ -234,7 +239,7 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
     connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
             this, SLOT(runConfigurationEnabledChange(bool)));
 
-    setEnabled(m_runConfiguration->isEnabled());
+    runConfigurationEnabledChange(m_runConfiguration->isEnabled());
 }
 
 void S60EmulatorRunConfigurationWidget::updateTargetInformation()
@@ -244,7 +249,10 @@ void S60EmulatorRunConfigurationWidget::updateTargetInformation()
 
 void S60EmulatorRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
 {
-    setEnabled(enabled);
+    m_detailsWidget->setEnabled(enabled);
+    m_disabledIcon->setVisible(!enabled);
+    m_disabledReason->setVisible(!enabled);
+    m_disabledReason->setText(m_runConfiguration->disabledReason());
 }
 
 // ======== S60EmulatorRunConfigurationFactory

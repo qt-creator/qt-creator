@@ -242,8 +242,7 @@ signals:
                           const QHash<Qt4Variable, QStringList> &oldValues,
                           const QHash<Qt4Variable, QStringList> &newValues);
 
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *projectNode, bool success);
-    void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *projectNode);
+    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *projectNode, bool success, bool parseInProgress);
 
 private:
     // let them emit signals
@@ -347,10 +346,10 @@ public:
     void update();
     void scheduleUpdate();
 
-    void emitProFileInvalidated();
     void emitProFileUpdated();
 
     bool validParse() const;
+    bool parseInProgress() const;
 
     bool hasBuildTargets(Qt4ProjectType projectType) const;
 
@@ -396,6 +395,7 @@ private:
     friend class Qt4NodeHierarchy;
 
     bool m_validParse;
+    bool m_parseInProgress;
 
     // Async stuff
     QFutureWatcher<EvalResult> m_parseFutureWatcher;

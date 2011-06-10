@@ -81,8 +81,14 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_deviceEnvReader(new MaemoDeviceEnvReader(this, runConfiguration)),
     m_deployablesConnected(false)
 {
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    setLayout(mainLayout);
+    QVBoxLayout *topLayout = new QVBoxLayout(this);
+    topLayout->setMargin(0);
+    addDisabledLabel(topLayout);
+
+    topWidget = new QWidget;
+    topLayout->addWidget(topWidget);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(topWidget);
     addGenericWidgets(mainLayout);
     mainLayout->addSpacing(20);
     addDebuggingWidgets(mainLayout);
@@ -109,12 +115,29 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_debugQmlOnlyButton->setVisible(qmlDebuggingAvailable);
     m_debugCppAndQmlButton->setVisible(qmlDebuggingAvailable);
 
-    setEnabled(m_runConfiguration->isEnabled());
+    runConfigurationEnabledChange(m_runConfiguration->isEnabled());
 }
 
 void MaemoRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
 {
-    setEnabled(enabled);
+    topWidget->setEnabled(enabled);
+    m_disabledIcon->setVisible(!enabled);
+    m_disabledReason->setVisible(!enabled);
+    m_disabledReason->setText(m_runConfiguration->disabledReason());
+}
+
+void MaemoRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
+{
+    QHBoxLayout *hl = new QHBoxLayout();
+    hl->addStretch();
+    m_disabledIcon = new QLabel(this);
+    m_disabledIcon->setPixmap(QPixmap(QString::fromUtf8(":/projectexplorer/images/compile_warning.png")));
+    hl->addWidget(m_disabledIcon);
+    m_disabledReason = new QLabel(this);
+    m_disabledReason->setVisible(false);
+    hl->addWidget(m_disabledReason);
+    hl->addStretch();
+    topLayout->addLayout(hl);
 }
 
 void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)

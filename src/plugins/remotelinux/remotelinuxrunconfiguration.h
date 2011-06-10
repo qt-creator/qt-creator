@@ -137,8 +137,7 @@ protected:
     QString defaultDisplayName();
 
 private slots:
-    void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success);
-    void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro);
+    void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
     void updateDeviceConfigurations();
     void handleDeployConfigChanged();
     void handleDeployablesUpdated();
@@ -147,7 +146,6 @@ private slots:
 
 private:
     void init();
-    void handleParseState(bool success);
     Internal::AbstractLinuxDeviceDeployStep *deployStep() const;
 
     void setArguments(const QString &args);

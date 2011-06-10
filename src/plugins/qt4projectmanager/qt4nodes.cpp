@@ -1374,6 +1374,7 @@ Qt4ProFileNode::Qt4ProFileNode(Qt4Project *project,
         : Qt4PriFileNode(project, this, filePath),
           m_projectType(InvalidProject),
           m_validParse(false),
+          m_parseInProgress(false),
           m_readerExact(0),
           m_readerCumulative(0)
 {
@@ -1447,24 +1448,11 @@ void Qt4ProFileNode::emitProFileUpdated()
 {
     foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
         if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-            emit qt4Watcher->proFileUpdated(this, m_validParse);
+            emit qt4Watcher->proFileUpdated(this, m_validParse, m_parseInProgress);
 
     foreach (ProjectNode *subNode, subProjectNodes()) {
         if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
             node->emitProFileUpdated();
-        }
-    }
-}
-
-void Qt4ProFileNode::emitProFileInvalidated()
-{
-    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
-        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-            emit qt4Watcher->proFileInvalidated(this);
-
-    foreach (ProjectNode *subNode, subProjectNodes()) {
-        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
-            node->emitProFileInvalidated();
         }
     }
 }
@@ -1474,12 +1462,15 @@ bool Qt4ProFileNode::validParse() const
     return m_validParse;
 }
 
+bool Qt4ProFileNode::parseInProgress() const
+{
+    return m_parseInProgress;
+}
+
 void Qt4ProFileNode::scheduleUpdate()
 {
-    if (m_validParse) {
-        m_validParse = false;
-        emitProFileInvalidated();
-    }
+    m_parseInProgress = true;
+    emitProFileUpdated();
     m_project->scheduleAsyncUpdate(this);
 }
 
@@ -1494,12 +1485,10 @@ void Qt4ProFileNode::asyncUpdate()
 
 void Qt4ProFileNode::update()
 {
-    if (m_validParse) {
-        m_validParse = false;
-        foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
-            if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-                emit qt4Watcher->proFileInvalidated(this);
-    }
+    m_parseInProgress = true;
+    foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
+        if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
+            emit qt4Watcher->proFileUpdated(this, m_validParse, m_parseInProgress);
 
     setupReader();
     EvalResult evalResult = evaluate();
@@ -1558,7 +1547,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         }
         foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
             if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-                emit qt4Watcher->proFileUpdated(this, false);
+                emit qt4Watcher->proFileUpdated(this, false, false);
         return;
     }
 
@@ -1751,7 +1740,8 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
     Qt4PriFileNode::update(fileForCurrentProjectExact, m_readerExact, fileForCurrentProjectCumlative, m_readerCumulative);
 
-    if (evalResult == EvalOk) {
+    m_validParse = (evalResult == EvalOk);
+    if (m_validParse) {
 
         // update TargetInformation
         m_qt4targetInformation = targetInformation(m_readerExact);
@@ -1799,17 +1789,16 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
                 if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
                     emit qt4Watcher->variablesChanged(this, oldValues, m_varValues);
         }
-
     } // evalResult == EvalOk
+
+    m_parseInProgress = false;
 
     createUiCodeModelSupport();
     updateUiFiles();
 
-    m_validParse = true;
-
     foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
         if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-            emit qt4Watcher->proFileUpdated(this, true);
+            emit qt4Watcher->proFileUpdated(this, true, false);
 
     m_project->destroyProFileReader(m_readerExact);
     m_project->destroyProFileReader(m_readerCumulative);

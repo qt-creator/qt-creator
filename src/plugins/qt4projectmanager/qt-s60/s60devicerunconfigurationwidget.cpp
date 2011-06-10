@@ -56,6 +56,18 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     m_detailsWidget->setState(Utils::DetailsWidget::NoSummary);
     QVBoxLayout *mainBoxLayout = new QVBoxLayout();
     mainBoxLayout->setMargin(0);
+
+    QHBoxLayout *hl = new QHBoxLayout();
+    hl->addStretch();
+    m_disabledIcon = new QLabel(this);
+    m_disabledIcon->setPixmap(QPixmap(QString::fromUtf8(":/projectexplorer/images/compile_warning.png")));
+    hl->addWidget(m_disabledIcon);
+    m_disabledReason = new QLabel(this);
+    m_disabledReason->setVisible(false);
+    hl->addWidget(m_disabledReason);
+    hl->addStretch();
+    mainBoxLayout->addLayout(hl);
+
     setLayout(mainBoxLayout);
     mainBoxLayout->addWidget(m_detailsWidget);
     QWidget *detailsContainer = new QWidget;
@@ -93,7 +105,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
             this, SLOT(qmlDebugServerPortChanged(uint)));
 
-    setEnabled(m_runConfiguration->isEnabled());
+    runConfigurationEnabledChange(m_runConfiguration->isEnabled());
 }
 
 void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
@@ -103,7 +115,10 @@ void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
 
 void S60DeviceRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
 {
-    setEnabled(enabled);
+    m_detailsWidget->setEnabled(enabled);
+    m_disabledIcon->setVisible(!enabled);
+    m_disabledReason->setVisible(!enabled);
+    m_disabledReason->setText(m_runConfiguration->disabledReason());
 }
 
 void S60DeviceRunConfigurationWidget::useCppDebuggerToggled(bool enabled)

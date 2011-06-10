@@ -73,7 +73,8 @@ QString pathFromId(const QString &id)
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Qt4BaseTarget *parent, const QString &proFilePath) :
     RunConfiguration(parent,  QLatin1String(S60_DEVICE_RC_ID)),
     m_proFilePath(proFilePath),
-    m_validParse(parent->qt4Project()->validParse(proFilePath))
+    m_validParse(parent->qt4Project()->validParse(proFilePath)),
+    m_parseInProgress(parent->qt4Project()->parseInProgress(proFilePath))
 {
     ctor();
 }
@@ -82,7 +83,8 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Qt4BaseTarget *target, S60D
     RunConfiguration(target, source),
     m_proFilePath(source->m_proFilePath),
     m_commandLineArguments(source->m_commandLineArguments),
-    m_validParse(source->m_validParse)
+    m_validParse(source->m_validParse),
+    m_parseInProgress(source->m_parseInProgress)
 {
     ctor();
 }
@@ -97,33 +99,21 @@ void S60DeviceRunConfiguration::ctor()
         setDefaultDisplayName(tr("Run on Symbian device"));
 
     Qt4Project *pro = qt4Target()->qt4Project();
-    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool)));
-    connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *)),
-            this, SLOT(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *)));
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 }
 
-void S60DeviceRunConfiguration::handleParserState(bool success)
+void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
+    if (m_proFilePath != pro->path())
+        return;
     bool enabled = isEnabled();
     m_validParse = success;
+    m_parseInProgress = parseInProgress;
     if (enabled != isEnabled())
         emit isEnabledChanged(!enabled);
-}
-
-void S60DeviceRunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
-{
-    if (m_proFilePath != pro->path())
-        return;
-    handleParserState(false);
-}
-
-void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success)
-{
-    if (m_proFilePath != pro->path())
-        return;
-    handleParserState(success);
-    emit targetInformationChanged();
+    if (!parseInProgress)
+        emit targetInformationChanged();
 }
 
 S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
@@ -137,13 +127,15 @@ Qt4SymbianTarget *S60DeviceRunConfiguration::qt4Target() const
 
 bool S60DeviceRunConfiguration::isEnabled() const
 {
-    return m_validParse;
+    return m_validParse && !m_parseInProgress;
 }
 
 QString S60DeviceRunConfiguration::disabledReason() const
 {
+    if (m_parseInProgress)
+        return tr("The .pro file is currently being parsed.");
     if (!m_validParse)
-        return tr("The .pro file could not be parsed");
+        return tr("The .pro file could not be parsed.");
     return QString();
 }
 
@@ -181,6 +173,7 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     m_validParse = qt4Target()->qt4Project()->validParse(m_proFilePath);
+    m_parseInProgress = qt4Target()->qt4Project()->parseInProgress(m_proFilePath);
 
     setDefaultDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
 

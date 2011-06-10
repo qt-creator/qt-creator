@@ -97,12 +97,16 @@ private slots:
     void handleDeploySpecsChanged();
 
 private:
+    void addDisabledLabel(QVBoxLayout *topLayout);
     void addGenericWidgets(QVBoxLayout *mainLayout);
     void addDebuggingWidgets(QVBoxLayout *mainLayout);
     void addMountWidgets(QVBoxLayout *mainLayout);
     void addEnvironmentWidgets(QVBoxLayout *mainLayout);
     void updateMountWarning();
 
+    QWidget *topWidget;
+    QLabel *m_disabledIcon;
+    QLabel *m_disabledReason;
     QLineEdit *m_argsLineEdit;
     QLabel *m_localExecutableLabel;
     QLabel *m_remoteExecutableLabel;

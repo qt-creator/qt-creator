@@ -155,6 +155,7 @@ public:
 
     Qt4ProFileNode *rootProjectNode() const;
     bool validParse(const QString &proFilePath) const;
+    bool parseInProgress(const QString &proFilePath) const;
 
     virtual QStringList files(FilesMode fileMode) const;
     virtual QString generatedUiHeader(const QString &formFile) const;
@@ -188,8 +189,7 @@ public:
     void updateFileList();
 
 signals:
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool);
-    void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *node);
+    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
     void buildDirectoryInitialized();
     void fromMapFinished();
 

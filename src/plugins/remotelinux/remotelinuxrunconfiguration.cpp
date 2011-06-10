@@ -78,7 +78,8 @@ public:
     RemoteLinuxRunConfigurationPrivate(const QString &proFilePath, const Qt4BaseTarget *target)
         : proFilePath(proFilePath), useRemoteGdb(DefaultUseRemoteGdbValue),
           baseEnvironmentType(RemoteLinuxRunConfiguration::SystemBaseEnvironment),
-          validParse(target->qt4Project()->validParse(proFilePath))
+          validParse(target->qt4Project()->validParse(proFilePath)),
+          parseInProgress(target->qt4Project()->parseInProgress(proFilePath))
     {
     }
 
@@ -86,7 +87,9 @@ public:
         : proFilePath(other->proFilePath), gdbPath(other->gdbPath), arguments(other->arguments),
           useRemoteGdb(other->useRemoteGdb), baseEnvironmentType(other->baseEnvironmentType),
           systemEnvironment(other->systemEnvironment),
-          userEnvironmentChanges(other->userEnvironmentChanges), validParse(other->validParse)
+          userEnvironmentChanges(other->userEnvironmentChanges),
+          validParse(other->validParse),
+          parseInProgress(other->parseInProgress)
     {
     }
 
@@ -99,6 +102,7 @@ public:
     Utils::Environment systemEnvironment;
     QList<Utils::EnvironmentItem> userEnvironmentChanges;
     bool validParse;
+    bool parseInProgress;
     QString disabledReason;
 };
 } // namespace Internal
@@ -134,10 +138,8 @@ void RemoteLinuxRunConfiguration::init()
     handleDeployConfigChanged();
 
     Qt4Project *pro = qt4Target()->qt4Project();
-    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool)));
-    connect(pro, SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *)),
-            this, SLOT(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)));
+    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
     connect(this, SIGNAL(debuggersChanged()), SLOT(updateEnabledState()));
     connect(m_d->remoteMounts, SIGNAL(rowsInserted(QModelIndex, int, int)), this,
         SLOT(handleRemoteMountsChanged()));
@@ -166,8 +168,12 @@ Qt4BuildConfiguration *RemoteLinuxRunConfiguration::activeQt4BuildConfiguration(
 
 bool RemoteLinuxRunConfiguration::isEnabled() const
 {
+    if (m_d->parseInProgress) {
+        m_d->disabledReason = tr("The .pro file is being parsed.");
+        return false;
+    }
     if (!m_d->validParse) {
-        m_d->disabledReason = tr("The .pro file could not be parsed/");
+        m_d->disabledReason = tr("The .pro file could not be parsed.");
         return false;
     }
     if (!deviceConfig()) {
@@ -205,26 +211,16 @@ Utils::OutputFormatter *RemoteLinuxRunConfiguration::createOutputFormatter() con
     return new QtSupport::QtOutputFormatter(qt4Target()->qt4Project());
 }
 
-void RemoteLinuxRunConfiguration::handleParseState(bool success)
-{
-    bool enabled = isEnabled();
-    m_d->validParse = success;
-    if (enabled != isEnabled())
-        updateEnabledState();
-}
-
-void RemoteLinuxRunConfiguration::proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro)
-{
-    if (m_d->proFilePath != pro->path())
-        return;
-    handleParseState(false);
-}
-
-void RemoteLinuxRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success)
+void RemoteLinuxRunConfiguration::proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
     if (m_d->proFilePath == pro->path()) {
-        handleParseState(success);
-        emit targetInformationChanged();
+        bool enabled = isEnabled();
+        m_d->validParse = success;
+        m_d->parseInProgress = parseInProgress;
+        if (enabled != isEnabled())
+            updateEnabledState();
+        if (!parseInProgress)
+            emit targetInformationChanged();
     }
 }
 
@@ -259,6 +255,7 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     m_d->remoteMounts->fromMap(map);
 
     m_d->validParse = qt4Target()->qt4Project()->validParse(m_d->proFilePath);
+    m_d->parseInProgress = qt4Target()->qt4Project()->parseInProgress(m_d->proFilePath);
 
     setDefaultDisplayName(defaultDisplayName());
 

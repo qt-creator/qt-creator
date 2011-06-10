@@ -34,6 +34,7 @@
 #define S60DEVICERUNCONFIGURATIONWIDGET_H
 
 #include <QtGui/QWidget>
+#include <QtGui/QLabel>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -65,6 +66,8 @@ private slots:
 
 private:
     S60DeviceRunConfiguration *m_runConfiguration;
+    QLabel *m_disabledIcon;
+    QLabel *m_disabledReason;
     Utils::DetailsWidget *m_detailsWidget;
     Utils::DebuggerLanguageChooser *m_debuggerLanguageChooser;
     QLineEdit *m_argumentsLineEdit;

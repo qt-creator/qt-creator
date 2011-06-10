@@ -94,18 +94,17 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private slots:
-    void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro);
-    void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success);
+    void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
 
 private:
     void ctor();
-    void handleParserState(bool success);
     Internal::Qt4SymbianTarget *qt4Target() const;
     Internal::SymbianQtVersion *qtVersion() const;
 
     QString m_proFilePath;
     QString m_commandLineArguments;
     bool m_validParse;
+    bool m_parseInProgress;
 };
 
 class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

@@ -339,11 +339,8 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     foreach (Target *t, targets())
         onAddedTarget(t);
 
-    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool)),
-            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *,bool)));
-
-    connect(m_nodesWatcher, SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)),
-            this, SIGNAL(proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode*)));
+    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *,bool,bool)));
 
     // Now we emit update once :)
     m_rootProjectNode->emitProFileUpdated();
@@ -676,7 +673,7 @@ void Qt4Project::scheduleAsyncUpdate()
         m_cancelEvaluate = true;
         m_asyncUpdateState = AsyncFullUpdatePending;
         activeTarget()->activeBuildConfiguration()->setEnabled(false);
-        m_rootProjectNode->emitProFileInvalidated();
+        m_rootProjectNode->emitProFileUpdated();
         return;
     }
 
@@ -684,7 +681,7 @@ void Qt4Project::scheduleAsyncUpdate()
         qDebug()<<"  starting timer for full update, setting state to full update pending";
     m_partialEvaluate.clear();
     activeTarget()->activeBuildConfiguration()->setEnabled(false);
-    m_rootProjectNode->emitProFileInvalidated();
+    m_rootProjectNode->emitProFileUpdated();
     m_asyncUpdateState = AsyncFullUpdatePending;
     m_asyncUpdateTimer.start();
 
@@ -936,6 +933,14 @@ bool Qt4Project::validParse(const QString &proFilePath) const
         return false;
     const Qt4ProFileNode *node = m_rootProjectNode->findProFileFor(proFilePath);
     return node && node->validParse();
+}
+
+bool Qt4Project::parseInProgress(const QString &proFilePath) const
+{
+    if (!m_rootProjectNode)
+        return false;
+    const Qt4ProFileNode *node = m_rootProjectNode->findProFileFor(proFilePath);
+    return node && node->parseInProgress();
 }
 
 QList<BuildConfigWidget*> Qt4Project::subConfigWidgets()

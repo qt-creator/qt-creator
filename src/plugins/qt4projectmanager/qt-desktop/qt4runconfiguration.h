@@ -38,8 +38,9 @@
 #include <utils/environment.h>
 
 #include <QtCore/QStringList>
-#include <QtGui/QWidget>
 #include <QtCore/QMetaType>
+#include <QtGui/QLabel>
+#include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -117,15 +118,13 @@ signals:
     void effectiveTargetInformationChanged();
 
 private slots:
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success);
-    void proFileInvalidated(Qt4ProjectManager::Qt4ProFileNode *pro);
+    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
 
 protected:
     Qt4RunConfiguration(Qt4BaseTarget *parent, Qt4RunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
-    void handleParseState(bool success);
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     void setCommandLineArguments(const QString &argumentsString);
@@ -156,6 +155,7 @@ private:
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     BaseEnvironmentBase m_baseEnvironmentBase;
     bool m_parseSuccess;
+    bool m_parseInProgress;
 };
 
 class Qt4RunConfigurationWidget : public QWidget
@@ -195,6 +195,8 @@ private slots:
 private:
     Qt4RunConfiguration *m_qt4RunConfiguration;
     bool m_ignoreChange;
+    QLabel *m_disabledIcon;
+    QLabel *m_disabledReason;
     QLineEdit *m_executableLineEdit;
     Utils::PathChooser *m_workingDirectoryEdit;
     QLineEdit *m_argumentsLineEdit;

@@ -64,6 +64,9 @@ public:
     int modelCount() const { return m_listModels.count(); }
     MaemoDeployableListModel *modelAt(int i) const { return m_listModels.at(i); }
 
+private slots:
+    void startTimer(Qt4ProjectManager::Qt4ProFileNode *, bool success, bool parseInProgress);
+
 private:
     typedef QHash<QString, MaemoDeployableListModel::ProFileUpdateSetting> UpdateSettingsMap;
 
