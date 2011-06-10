@@ -75,6 +75,9 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
     IAnalyzerTool *tool = AnalyzerManager::instance()->currentTool();
     d->m_engine = tool->createEngine(sp, runConfiguration);
 
+    if (!d->m_engine)
+        return;
+
     connect(d->m_engine, SIGNAL(outputReceived(QString,Utils::OutputFormat)),
             SLOT(receiveOutput(QString,Utils::OutputFormat)));
     connect(d->m_engine, SIGNAL(taskToBeAdded(ProjectExplorer::Task::TaskType,QString,QString,int)),
@@ -94,6 +97,11 @@ AnalyzerRunControl::~AnalyzerRunControl()
 
 void AnalyzerRunControl::start()
 {
+    if (!d->m_engine) {
+        emit finished();
+        return;
+    }
+
     // clear about-to-be-outdated tasks
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     ProjectExplorer::TaskHub *hub = pm->getObject<ProjectExplorer::TaskHub>();
@@ -106,7 +114,7 @@ void AnalyzerRunControl::start()
 
 ProjectExplorer::RunControl::StopResult AnalyzerRunControl::stop()
 {
-    if (!d->m_isRunning)
+    if (!d->m_engine || !d->m_isRunning)
         return StoppedSynchronously;
 
     d->m_engine->stop();
@@ -127,6 +135,8 @@ bool AnalyzerRunControl::isRunning() const
 
 QString AnalyzerRunControl::displayName() const
 {
+    if (!d->m_engine)
+        return QString();
     return d->m_engine->startParameters().displayName;
 }
 

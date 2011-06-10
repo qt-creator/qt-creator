@@ -68,14 +68,17 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60deployconfiguration.h>
 
 #include <QtCore/QFile>
 
+#include <QtGui/QApplication>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolButton>
+#include <QtGui/QMessageBox>
 
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;
@@ -155,6 +158,22 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
                                                ProjectExplorer::RunConfiguration *runConfiguration)
 {
     QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
+
+    // Check minimum Qt Version. We cannot really be sure what the Qt version at runtime is,
+    // but guess that the active build configuraiton has been used.
+    QtSupport::QtVersionNumber minimumVersion(4,7,4);
+    if (Qt4ProjectManager::Qt4BuildConfiguration *qt4Config
+            = qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration*>(
+                runConfiguration->target()->activeBuildConfiguration())) {
+        if (qt4Config->qtVersion()->isValid() && qt4Config->qtVersion()->qtVersion() < minimumVersion) {
+            int result = QMessageBox::warning(QApplication::activeWindow(), tr("QML Profiler"),
+                                 "The QML profiler requires Qt 4.7.4 or newer.\n"
+                                 "The Qt version configured in your active build configuration is too old.\n"
+                                 "Do you want to continue?", QMessageBox::Yes, QMessageBox::No);
+            if (result == QMessageBox::No)
+                return 0;
+        }
+    }
 
     d->m_connectMode = QmlProfilerToolPrivate::TcpConnection;
 
