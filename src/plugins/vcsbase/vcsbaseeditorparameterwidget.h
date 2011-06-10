@@ -70,6 +70,9 @@ public:
                                  const QString &tooltip = QString());
     QComboBox *addComboBox(const QString &option, const QList<ComboBoxItem> &items);
 
+    void mapSetting(QToolButton *button, bool *setting);
+    void mapSetting(QComboBox *comboBox, QString *setting);
+
     QStringList comboBoxOptionTemplate() const;
     void setComboBoxOptionTemplate(const QStringList &optTemplate) const;
 
@@ -95,6 +98,7 @@ protected:
 
     const QList<OptionMapping> &optionMappings() const;
     virtual QStringList argumentsForOption(const OptionMapping &mapping) const;
+    void updateMappedSettings();
 
 private:
     friend class VCSBaseEditorParameterWidgetPrivate;

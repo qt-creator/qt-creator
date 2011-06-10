@@ -40,6 +40,41 @@
 
 namespace VCSBase {
 
+namespace Internal {
+
+struct SettingMappingData
+{
+    enum Type
+    {
+        Invalid,
+        Bool,
+        String
+    };
+
+    SettingMappingData() : boolSetting(0), stringSetting(0)
+    { }
+
+    SettingMappingData(bool *setting) : boolSetting(setting), stringSetting(0)
+    { }
+
+    SettingMappingData(QString *setting) : boolSetting(0), stringSetting(setting)
+    { }
+
+    Type type() const
+    {
+        if (boolSetting)
+            return Bool;
+        if (stringSetting)
+            return String;
+        return Invalid;
+    }
+
+    bool *boolSetting;
+    QString *stringSetting;
+};
+
+} // namespace Internal
+
 VCSBaseEditorParameterWidget::ComboBoxItem::ComboBoxItem()
 {
 }
@@ -61,6 +96,7 @@ public:
     QStringList m_baseArguments;
     QHBoxLayout *m_layout;
     QList<VCSBaseEditorParameterWidget::OptionMapping> m_optionMappings;
+    QHash<QWidget*, Internal::SettingMappingData> m_settingMapping;
     QStringList m_comboBoxOptionTemplate;
 };
 
@@ -133,6 +169,32 @@ QComboBox *VCSBaseEditorParameterWidget::addComboBox(const QString &option,
     return cb;
 }
 
+void VCSBaseEditorParameterWidget::mapSetting(QToolButton *button, bool *setting)
+{
+    if (!d->m_settingMapping.contains(button) && button) {
+        d->m_settingMapping.insert(button, Internal::SettingMappingData(setting));
+        if (setting) {
+            button->blockSignals(true);
+            button->setChecked(*setting);
+            button->blockSignals(false);
+        }
+    }
+}
+
+void VCSBaseEditorParameterWidget::mapSetting(QComboBox *comboBox, QString *setting)
+{
+    if (!d->m_settingMapping.contains(comboBox) && comboBox) {
+        d->m_settingMapping.insert(comboBox, Internal::SettingMappingData(setting));
+        if (setting) {
+            comboBox->blockSignals(true);
+            const int itemIndex = comboBox->findData(*setting);
+            if (itemIndex != -1)
+                comboBox->setCurrentIndex(itemIndex);
+            comboBox->blockSignals(false);
+        }
+    }
+}
+
 /*!
     \brief This property holds the format (template) of assignable command line
     options (like --file=<file> for example)
@@ -163,6 +225,7 @@ void VCSBaseEditorParameterWidget::executeCommand()
 
 void VCSBaseEditorParameterWidget::handleArgumentsChanged()
 {
+    updateMappedSettings();
     executeCommand();
 }
 
@@ -184,11 +247,11 @@ const QList<VCSBaseEditorParameterWidget::OptionMapping> &VCSBaseEditorParameter
 QStringList VCSBaseEditorParameterWidget::argumentsForOption(const OptionMapping &mapping) const
 {
     const QToolButton *tb = qobject_cast<const QToolButton *>(mapping.widget);
-    if (tb != 0 && tb->isChecked())
+    if (tb && tb->isChecked())
         return QStringList(mapping.optionName);
 
     const QComboBox *cb = qobject_cast<const QComboBox *>(mapping.widget);
-    if (cb != 0) {
+    if (cb) {
         const QString value = cb->itemData(cb->currentIndex()).toString();
         QStringList args;
         foreach (const QString &t, d->m_comboBoxOptionTemplate) {
@@ -201,6 +264,32 @@ QStringList VCSBaseEditorParameterWidget::argumentsForOption(const OptionMapping
     }
 
     return QStringList();
+}
+
+void VCSBaseEditorParameterWidget::updateMappedSettings()
+{
+    foreach (const OptionMapping &optMapping, d->m_optionMappings) {
+        if (d->m_settingMapping.contains(optMapping.widget)) {
+            Internal::SettingMappingData& settingData = d->m_settingMapping[optMapping.widget];
+            switch (settingData.type()) {
+            case Internal::SettingMappingData::Bool :
+            {
+                const QToolButton *tb = qobject_cast<const QToolButton *>(optMapping.widget);
+                if (tb)
+                    *settingData.boolSetting = tb->isChecked();
+                break;
+            }
+            case Internal::SettingMappingData::String :
+            {
+                const QComboBox *cb = qobject_cast<const QComboBox *>(optMapping.widget);
+                if (cb && cb->currentIndex() != -1)
+                    *settingData.stringSetting = cb->itemData(cb->currentIndex()).toString();
+                break;
+            }
+            case Internal::SettingMappingData::Invalid : break;
+            } // end switch ()
+        }
+    }
 }
 
 } // namespace VCSBase
