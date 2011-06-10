@@ -33,6 +33,7 @@
 #ifndef BAZAARCLIENT_H
 #define BAZAARCLIENT_H
 
+#include "bazaarsettings.h"
 #include "branchinfo.h"
 #include <vcsbase/vcsbaseclient.h>
 
@@ -40,11 +41,15 @@ namespace Bazaar {
 namespace Internal {
 struct BazaarDiffParameters;
 
+class BazaarSettings;
+
 class BazaarClient : public VCSBase::VCSBaseClient
 {
     Q_OBJECT
 public:
-    BazaarClient(const VCSBase::VCSBaseClientSettings &settings);
+    BazaarClient(BazaarSettings *settings);
+
+    BazaarSettings *settings() const;
 
     bool synchronousSetUserId();
     BranchInfo synchronousBranchQuery(const QString &repositoryRoot) const;

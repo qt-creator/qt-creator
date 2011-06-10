@@ -48,16 +48,21 @@
 namespace Bazaar {
 namespace Internal {
 
-BazaarClient::BazaarClient(const VCSBase::VCSBaseClientSettings &settings) :
+BazaarClient::BazaarClient(BazaarSettings *settings) :
     VCSBase::VCSBaseClient(settings)
 {
+}
+
+BazaarSettings *BazaarClient::settings() const
+{
+    return dynamic_cast<BazaarSettings *>(VCSBase::VCSBaseClient::settings());
 }
 
 bool BazaarClient::synchronousSetUserId()
 {
     QStringList args;
     args << QLatin1String("whoami")
-         << QString("%1 <%2>").arg(settings().userName()).arg(settings().email());
+         << QString("%1 <%2>").arg(settings()->userName()).arg(settings()->email());
     QByteArray stdOut;
     return vcsFullySynchronousExec(QDir::currentPath(), args, &stdOut);
 }

@@ -80,19 +80,19 @@ namespace VCSBase {
 class VCSBaseClientPrivate
 {
 public:
-    explicit VCSBaseClientPrivate(const VCSBaseClientSettings &settings);
+    explicit VCSBaseClientPrivate(VCSBaseClientSettings *settings);
 
     VCSJobRunner *m_jobManager;
     Core::ICore *m_core;
-    const VCSBaseClientSettings& m_clientSettings;
+    VCSBaseClientSettings* m_clientSettings;
 };
 
-VCSBaseClientPrivate::VCSBaseClientPrivate(const VCSBaseClientSettings &settings) :
+VCSBaseClientPrivate::VCSBaseClientPrivate(VCSBaseClientSettings *settings) :
     m_jobManager(0), m_core(Core::ICore::instance()), m_clientSettings(settings)
 {
 }
 
-VCSBaseClient::VCSBaseClient(const VCSBaseClientSettings &settings) :
+VCSBaseClient::VCSBaseClient(VCSBaseClientSettings *settings) :
     d(new VCSBaseClientPrivate(settings))
 {
     qRegisterMetaType<QVariant>();
@@ -197,8 +197,8 @@ bool VCSBaseClient::vcsFullySynchronousExec(const QString &workingDir,
         vcsProcess.setWorkingDirectory(workingDir);
     VCSJobRunner::setProcessEnvironment(&vcsProcess);
 
-    const QString binary = d->m_clientSettings.binary();
-    const QStringList arguments = d->m_clientSettings.standardArguments() + args;
+    const QString binary = settings()->binary();
+    const QStringList arguments = settings()->standardArguments() + args;
 
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     outputWindow->appendCommand(workingDir, binary, args);
@@ -213,10 +213,10 @@ bool VCSBaseClient::vcsFullySynchronousExec(const QString &workingDir,
     vcsProcess.closeWriteChannel();
 
     QByteArray stdErr;
-    if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, d->m_clientSettings.timeoutMilliSeconds(),
+    if (!Utils::SynchronousProcess::readDataFromProcess(vcsProcess, settings()->timeoutMilliSeconds(),
                                                         output, &stdErr, true)) {
         Utils::SynchronousProcess::stopProcess(vcsProcess);
-        outputWindow->appendError(VCSJobRunner::msgTimeout(binary, d->m_clientSettings.timeoutSeconds()));
+        outputWindow->appendError(VCSJobRunner::msgTimeout(binary, settings()->timeoutSeconds()));
         return false;
     }
     if (!stdErr.isEmpty())
@@ -231,10 +231,10 @@ Utils::SynchronousProcessResponse VCSBaseClient::vcsSynchronousExec(
     unsigned flags,
     QTextCodec *outputCodec)
 {
-    const QString binary = d->m_clientSettings.binary();
-    const QStringList arguments = d->m_clientSettings.standardArguments() + args;
+    const QString binary = settings()->binary();
+    const QStringList arguments = settings()->standardArguments() + args;
     return VCSBase::VCSBasePlugin::runVCS(workingDirectory, binary, arguments,
-                                          d->m_clientSettings.timeoutMilliSeconds(),
+                                          settings()->timeoutMilliSeconds(),
                                           flags, outputCodec);
 }
 
@@ -441,7 +441,7 @@ void VCSBaseClient::commit(const QString &repositoryRoot,
     enqueueJob(job);
 }
 
-const VCSBaseClientSettings &VCSBaseClient::settings() const
+VCSBaseClientSettings *VCSBaseClient::settings() const
 {
     return d->m_clientSettings;
 }
@@ -449,9 +449,9 @@ const VCSBaseClientSettings &VCSBaseClient::settings() const
 void VCSBaseClient::settingsChanged()
 {
     if (d->m_jobManager) {
-        d->m_jobManager->setSettings(d->m_clientSettings.binary(),
-                                     d->m_clientSettings.standardArguments(),
-                                     d->m_clientSettings.timeoutMilliSeconds());
+        d->m_jobManager->setSettings(settings()->binary(),
+                                     settings()->standardArguments(),
+                                     settings()->timeoutMilliSeconds());
         d->m_jobManager->restart();
     }
 }
@@ -464,7 +464,7 @@ void VCSBaseClient::initializeDiffEditor(const QString & /* workingDir */, const
 
 QString VCSBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {
-    return QFileInfo(d->m_clientSettings.binary()).baseName() +
+    return QFileInfo(settings()->binary()).baseName() +
             QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') +
             QFileInfo(sourceId).fileName();
 }
@@ -503,9 +503,9 @@ void VCSBaseClient::enqueueJob(const QSharedPointer<VCSJob> &job)
 {
     if (!d->m_jobManager) {
         d->m_jobManager = new VCSJobRunner();
-        d->m_jobManager->setSettings(d->m_clientSettings.binary(),
-                                     d->m_clientSettings.standardArguments(),
-                                     d->m_clientSettings.timeoutMilliSeconds());
+        d->m_jobManager->setSettings(settings()->binary(),
+                                     settings()->standardArguments(),
+                                     settings()->timeoutMilliSeconds());
         d->m_jobManager->start();
     }
     d->m_jobManager->enqueueJob(job);

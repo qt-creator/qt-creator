@@ -66,7 +66,7 @@ class VCSBASE_EXPORT VCSBaseClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit VCSBaseClient(const VCSBaseClientSettings &settings);
+    explicit VCSBaseClient(VCSBaseClientSettings *settings);
     ~VCSBaseClient();
     virtual bool synchronousCreateRepository(const QString &workingDir);
     virtual bool synchronousClone(const QString &workingDir,
@@ -103,7 +103,7 @@ public:
 
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
-    const VCSBaseClientSettings &settings() const;
+    virtual VCSBaseClientSettings *settings() const;
 
 signals:
     void parsedStatus(const QList<QPair<QString, QString> > &statusList);

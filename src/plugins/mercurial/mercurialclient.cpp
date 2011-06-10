@@ -51,7 +51,7 @@
 namespace Mercurial {
 namespace Internal  {
 
-MercurialClient::MercurialClient(const VCSBase::VCSBaseClientSettings &settings) :
+MercurialClient::MercurialClient(VCSBase::VCSBaseClientSettings *settings) :
     VCSBase::VCSBaseClient(settings)
 {
 }
