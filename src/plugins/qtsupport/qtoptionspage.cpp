@@ -491,14 +491,14 @@ void QtOptionsPageWidget::removeQtDir()
 
 void QtOptionsPageWidget::editPath()
 {
-   // TODO Here be dragons
+    BaseQtVersion *current = currentVersion();
+    QString dir = QFileInfo(currentVersion()->qmakeCommand()).absolutePath();
     QString qtVersion = QFileDialog::getOpenFileName(this,
                                                      tr("Select a qmake executable"),
-                                                     QString(), filterForQmakeFileDialog());
+                                                     dir, filterForQmakeFileDialog());
     if (qtVersion.isNull())
         return;
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
-    BaseQtVersion *current = currentVersion();
     // Same type? then replace!
     if (current->type() != version->type()) {
         // not the same type, error out
