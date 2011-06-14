@@ -798,7 +798,8 @@ static Utils::SynchronousProcessResponse
         process->setProcessChannelMode(QProcess::MergedChannels);
 
     // Start
-    process->start(binary, arguments);
+    process->start(binary, arguments, QIODevice::ReadOnly);
+    process->closeWriteChannel();
     Utils::SynchronousProcessResponse response;
     if (!process->waitForStarted()) {
         response.result = Utils::SynchronousProcessResponse::StartFailed;

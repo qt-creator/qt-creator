@@ -373,6 +373,7 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     // event loop in that case.
     m_d->m_binary = binary;
     m_d->m_process.start(binary, args, QIODevice::ReadOnly);
+    m_d->m_process.closeWriteChannel();
     if (!m_d->m_startFailure) {
         m_d->m_timer.start();
         QApplication::setOverrideCursor(Qt::WaitCursor);
