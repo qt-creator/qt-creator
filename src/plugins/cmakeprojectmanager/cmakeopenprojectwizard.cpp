@@ -383,56 +383,62 @@ void CMakeRunPage::initializePage()
     } else if (m_mode == CMakeRunPage::WantToUpdate) {
         m_descriptionLabel->setText(tr("Refreshing cbp file in %1.").arg(m_buildDirectory));
     }
-    if (m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator()) {
-        // Try to find out generator from CMakeCache file, if it exists
-        QString cachedGenerator;
 
-        QFile fi(m_buildDirectory + "/CMakeCache.txt");
-        if (fi.exists()) {
-            // Cache exists, then read it...
-            if (fi.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                while (!fi.atEnd()) {
-                    QString line = fi.readLine();
-                    if (line.startsWith("CMAKE_GENERATOR:INTERNAL=")) {
-                        int splitpos = line.indexOf('=');
-                        if (splitpos != -1) {
-                            cachedGenerator = line.mid(splitpos + 1).trimmed();
-                        }
-                        break;
-                    }
+
+    // Try figuring out generator and toolchain from CMakeCache.txt
+    QString cachedGenerator;
+    QString cmakeCxxCompiler;
+    QFile fi(m_buildDirectory + "/CMakeCache.txt");
+    if (fi.exists()) {
+        // Cache exists, then read it...
+        if (fi.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            while (!fi.atEnd()) {
+                QString line = fi.readLine();
+                if (line.startsWith("CMAKE_GENERATOR:INTERNAL=")) {
+                    int splitpos = line.indexOf('=');
+                    if (splitpos != -1)
+                        cachedGenerator = line.mid(splitpos + 1).trimmed();
                 }
+                if (line.startsWith("CMAKE_CXX_COMPILER:FILEPATH=")) {
+                    int splitpos = line.indexOf("=");
+                    if (splitpos != -1)
+                        cmakeCxxCompiler = line.mid(splitpos +1).trimmed();
+                }
+                if (!cachedGenerator.isEmpty() && !cmakeCxxCompiler.isEmpty())
+                    break;
             }
         }
+    }
 
-        m_generatorComboBox->setVisible(true);
-        m_generatorComboBox->clear();
-        ProjectExplorer::Abi abi = ProjectExplorer::Abi::hostAbi();
-        abi = ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::UnknownFlavor,
-                                   abi.binaryFormat(), abi.wordWidth() == 32 ? 32 : 0);
-        QList<ProjectExplorer::ToolChain *> tcs =
-                ProjectExplorer::ToolChainManager::instance()->findToolChains(abi);
-        foreach (ProjectExplorer::ToolChain *tc, tcs) {
-            ProjectExplorer::Abi targetAbi = tc->targetAbi();
-            QVariant tcVariant = qVariantFromValue(static_cast<void *>(tc));
-            if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
-                if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
-                        || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
-                        || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor)
+    // Build the list of generators/toolchains we want to offer
+    // todo restrict toolchains based on CMAKE_CXX_COMPILER ?
+    Q_UNUSED(cmakeCxxCompiler);
+    m_generatorComboBox->clear();
+    bool hasCodeBlocksGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator();
+    ProjectExplorer::Abi abi = ProjectExplorer::Abi::hostAbi();
+    abi = ProjectExplorer::Abi(abi.architecture(), abi.os(), ProjectExplorer::Abi::UnknownFlavor,
+                               abi.binaryFormat(), abi.wordWidth() == 32 ? 32 : 0);
+    QList<ProjectExplorer::ToolChain *> tcs =
+            ProjectExplorer::ToolChainManager::instance()->findToolChains(abi);
+
+    foreach (ProjectExplorer::ToolChain *tc, tcs) {
+        ProjectExplorer::Abi targetAbi = tc->targetAbi();
+        QVariant tcVariant = qVariantFromValue(static_cast<void *>(tc));
+        if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
+            if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor) {
+                if (hasCodeBlocksGenerator && (cachedGenerator.isEmpty() || cachedGenerator == "NMake Makefiles"))
                     m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(tc->displayName()), tcVariant);
-                else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor)
+             } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
+                if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
                     m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(tc->displayName()), tcVariant);
-                else
-                    continue;
             }
+        } else {
+            // Non windows
+            if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
+                m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(tc->displayName()), tcVariant);
         }
-    } else {
-        // No new enough cmake, simply hide the combo box
-        m_generatorComboBox->setVisible(false);
-        QList<ProjectExplorer::ToolChain *> tcs =
-                ProjectExplorer::ToolChainManager::instance()->findToolChains(ProjectExplorer::Abi::hostAbi());
-        if (tcs.isEmpty())
-            return;
-        m_cmakeWizard->setToolChain(tcs.at(0));
     }
 }
 
@@ -441,15 +447,10 @@ void CMakeRunPage::runCMake()
     int index = m_generatorComboBox->currentIndex();
 
     ProjectExplorer::ToolChain *tc = 0;
-    if (index >= 0) {
+    if (index >= 0)
         tc = static_cast<ProjectExplorer::ToolChain *>(m_generatorComboBox->itemData(index).value<void *>());
-        if (!tc)
-            return;
-        m_cmakeWizard->setToolChain(tc);
-    } else {
-        tc = m_cmakeWizard->toolChain();
-    }
-    Q_ASSERT(tc);
+
+    m_cmakeWizard->setToolChain(tc);
 
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);
