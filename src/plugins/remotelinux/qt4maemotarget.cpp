@@ -712,7 +712,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
             + AbstractMaemoPackageCreationStep::DefaultVersionNumber);
     QtSupport::BaseQtVersion *lqt = activeBuildConfiguration()->qtVersion();
     if (!lqt) {
-        raiseError(tr("Unable to create Debian templates: No qt version set"));
+        raiseError(tr("Unable to create Debian templates: No Qt version set"));
         return ActionFailed;
     }
     if (!MaemoGlobal::callMad(dh_makeProc, dh_makeArgs, lqt->qmakeCommand(), true)

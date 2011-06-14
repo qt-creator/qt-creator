@@ -686,7 +686,7 @@ void QMakeStepConfigWidget::updateQmlDebuggingOption()
     if (!m_step->isQmlDebuggingLibrarySupported(&warningText))
         ;
     else if (m_step->linkQmlDebuggingLibrary())
-        warningText = tr("Might make your application vulnerable. Only use in a safe environment!");
+        warningText = tr("Might make your application vulnerable. Only use in a safe environment.");
 
     m_ui->qmlDebuggingWarningText->setText(warningText);
     m_ui->qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
@@ -696,7 +696,7 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 {
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     QtSupport::BaseQtVersion *qtVersion = qt4bc->qtVersion();
-    QString program = tr("<No qtversion>");
+    QString program = tr("<No Qt version>");
     if (qtVersion)
         program = QFileInfo(qtVersion->qmakeCommand()).fileName();
     m_ui->qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + m_step->allArguments());

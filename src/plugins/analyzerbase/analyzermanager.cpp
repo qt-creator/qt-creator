@@ -856,7 +856,7 @@ void AnalyzerManager::updateRunActions()
     d->m_startAction->setEnabled(startEnabled);
     d->m_startAction->setToolTip(disabledReason);
     if (currentTool() && !currentTool()->canRunRemotely())
-        disabledReason = tr("Current analyzer tool can not be run remotely.");
+        disabledReason = tr("Current analyzer tool cannot be run remotely.");
     d->m_startRemoteAction->setEnabled(!d->m_currentRunControl && currentTool()
                                         && currentTool()->canRunRemotely());
     d->m_startRemoteAction->setToolTip(disabledReason);

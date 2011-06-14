@@ -143,7 +143,7 @@ void S60PublishingSisSettingsPageOvi::displayNameChanged()
                         ui->displayNameErrorLabel,
                         ui->displayNameErrorReasonLabel,
                         tr("This should be application's display name. <br>"
-                           "It can't' be empty.<br>"));
+                           "It cannot be empty.<br>"));
 
     const int visibleCharacters = 12;
     if (ui->displayNameLineEdit->text().length() > visibleCharacters) {

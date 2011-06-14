@@ -3603,7 +3603,7 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     QString fileName = cmd.args;
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
-        showRedMessage(FakeVimHandler::tr("Can't open file %1").arg(fileName));
+        showRedMessage(FakeVimHandler::tr("Cannot open file %1").arg(fileName));
         return true;
     }
 

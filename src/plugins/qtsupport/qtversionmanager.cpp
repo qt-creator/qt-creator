@@ -179,7 +179,7 @@ bool QtVersionManager::restoreQtVersions()
                 if (BaseQtVersion *qtv = f->restore(qtversionMap)) {
                     if (m_versions.contains(qtv->uniqueId())) {
                         // This shouldn't happen, we are restoring the same id multiple times?
-                        qWarning() << "A qt version with id"<<qtv->uniqueId()<<"already exists";
+                        qWarning() << "A Qt version with id"<<qtv->uniqueId()<<"already exists";
                         delete qtv;
                     } else {
                         m_versions.insert(qtv->uniqueId(), qtv);
@@ -191,7 +191,7 @@ bool QtVersionManager::restoreQtVersions()
             }
         }
         if (!restored)
-            qWarning("Warning: Unable to restore qtversion '%s' stored in %s.",
+            qWarning("Warning: Unable to restore Qt version '%s' stored in %s.",
                      qPrintable(type),
                      qPrintable(QDir::toNativeSeparators(settingsFileName())));
     }
@@ -212,7 +212,7 @@ void QtVersionManager::updateFromInstaller()
     QVariantMap data = reader.restoreValues();
 
     if (debug) {
-        qDebug()<< "======= Existing qt versions =======";
+        qDebug()<< "======= Existing Qt versions =======";
         foreach (BaseQtVersion *version, m_versions) {
             qDebug() << version->qmakeCommand() << "id:"<<version->uniqueId();
             qDebug() << "  autodetection source:"<< version->autodetectionSource();

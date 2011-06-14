@@ -149,7 +149,7 @@ void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
     const Qt4BuildConfiguration * const bc
         = qobject_cast<Qt4BaseTarget *>(target())->activeBuildConfiguration();
     if (!bc) {
-        addOutput(tr("Can't install to sysroot without build configuration."),
+        addOutput(tr("Cannot install to sysroot without build configuration."),
             ErrorMessageOutput);
         fi.reportResult(false);
         return;
@@ -158,14 +158,14 @@ void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
     const AbstractMaemoPackageCreationStep * const pStep
         = MaemoGlobal::earlierBuildStep<AbstractMaemoPackageCreationStep>(deployConfiguration(), this);
     if (!pStep) {
-        addOutput(tr("Can't install package to sysroot without packaging step."),
+        addOutput(tr("Cannot install package to sysroot without packaging step."),
             ErrorMessageOutput);
         fi.reportResult(false);
         return;
     }
 
     if (!bc->qtVersion()) {
-        addOutput(tr("Can't install package to sysroot without a qt version."),
+        addOutput(tr("Cannot install package to sysroot without a Qt version."),
             ErrorMessageOutput);
         fi.reportResult(false);
         return;
@@ -297,7 +297,7 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
     const Qt4BuildConfiguration * const bc
         = qobject_cast<Qt4BaseTarget *>(target())->activeBuildConfiguration();
     if (!bc) {
-        addOutput(tr("Can't copy to sysroot without build configuration."),
+        addOutput(tr("Cannot copy to sysroot without build configuration."),
             ErrorMessageOutput);
         fi.reportResult(false);
         return;
@@ -305,7 +305,7 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
 
     const MaemoQtVersion * const qtVersion = dynamic_cast<MaemoQtVersion *>(bc->qtVersion());
     if (!qtVersion) {
-        addOutput(tr("Can't copy to sysroot without valid Qt version."),
+        addOutput(tr("Cannot copy to sysroot without valid Qt version."),
             ErrorMessageOutput);
         fi.reportResult(false);
         return;
@@ -368,13 +368,13 @@ bool MaemoMakeInstallToSysrootStep::init()
     const Qt4BuildConfiguration * const bc
         = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc) {
-        addOutput("Can't deploy: No active build dconfiguration.",
+        addOutput("Cannot deploy: No active build dconfiguration.",
             ErrorMessageOutput);
         return false;
     }
     const QtSupport::BaseQtVersion * const qtVersion = bc->qtVersion();
     if (!qtVersion) {
-        addOutput("Can't deploy: Unusable build configuration.",
+        addOutput("Cannot deploy: Unusable build configuration.",
             ErrorMessageOutput);
         return false;
 

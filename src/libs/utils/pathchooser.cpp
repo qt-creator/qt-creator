@@ -447,7 +447,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
         }
         if (!fi.isExecutable()) {
             if (errorMessage)
-                *errorMessage = tr("Can not execute '%1'.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("Cannot execute '%1'.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
         break;
@@ -461,7 +461,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     case PathChooser::Command: // fall through
         if (fi.exists() && !fi.isExecutable()) {
             if (errorMessage)
-                *errorMessage = tr("Can not execute '%1'.").arg(QDir::toNativeSeparators(expandedPath));
+                *errorMessage = tr("Cannot execute '%1'.").arg(QDir::toNativeSeparators(expandedPath));
             return false;
         }
         break;

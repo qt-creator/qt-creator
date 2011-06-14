@@ -258,7 +258,7 @@ bool AbstractMaemoPackageCreationStep::callPackagingCommand(QProcess *proc,
     preparePackagingProcess(proc, qt4BuildConfiguration(), buildDirectory());
     const QtSupport::BaseQtVersion * const qtVersion = qt4BuildConfiguration()->qtVersion();
     if (!qtVersion) {
-        raiseError(tr("Packaging failed."), tr("Packaging error: No qt version."));
+        raiseError(tr("Packaging failed."), tr("Packaging error: No Qt version."));
         return false;
     }
     const QString madCommand = MaemoGlobal::madCommand(qtVersion->qmakeCommand());
