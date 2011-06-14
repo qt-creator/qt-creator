@@ -60,6 +60,7 @@
 #include <QGraphicsObject>
 
 #include <QTextDocument>
+#include <QLibraryInfo>
 
 #include <private/qdeclarativebinding_p.h>
 #include <private/qdeclarativemetatype_p.h>
@@ -736,10 +737,31 @@ void tweakObjects(QObject *object)
 }
 
 
+//The component might also be shipped with Creator.
+//To avoid trouble with import "." we use the component shipped with Creator.
+static inline QString fixComponentPathForIncompatibleQt(const QString &componentPath)
+{
+    QString result = componentPath;
+    const QLatin1String importString("import");
+
+    if (componentPath.contains(importString)) {
+        int index = componentPath.indexOf(importString) + 7;
+        const QString relativeImportPath = componentPath.right(componentPath.length() - index);
+        QString fixedComponentPath = QLibraryInfo::location(QLibraryInfo::ImportsPath) + relativeImportPath;
+        fixedComponentPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
+        if (QFileInfo(fixedComponentPath).exists())
+            return fixedComponentPath;
+    }
+
+    return result;
+
+}
+
 QObject *createComponent(const QString &componentPath, QDeclarativeContext *context)
 {
-    QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(componentPath));
+    QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(fixComponentPathForIncompatibleQt(componentPath)));
     QObject *object = component.beginCreate(context);
+
     tweakObjects(object);
     component.completeCreate();
 
