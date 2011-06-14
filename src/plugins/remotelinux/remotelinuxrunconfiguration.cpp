@@ -67,16 +67,12 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
-
-namespace {
-const bool DefaultUseRemoteGdbValue = false;
-} // anonymous namespace
-
 namespace Internal {
+
 class RemoteLinuxRunConfigurationPrivate {
 public:
     RemoteLinuxRunConfigurationPrivate(const QString &proFilePath, const Qt4BaseTarget *target)
-        : proFilePath(proFilePath), useRemoteGdb(DefaultUseRemoteGdbValue),
+        : proFilePath(proFilePath),
           baseEnvironmentType(RemoteLinuxRunConfiguration::SystemBaseEnvironment),
           validParse(target->qt4Project()->validParse(proFilePath)),
           parseInProgress(target->qt4Project()->parseInProgress(proFilePath))
@@ -85,7 +81,7 @@ public:
 
     RemoteLinuxRunConfigurationPrivate(const RemoteLinuxRunConfigurationPrivate *other)
         : proFilePath(other->proFilePath), gdbPath(other->gdbPath), arguments(other->arguments),
-          useRemoteGdb(other->useRemoteGdb), baseEnvironmentType(other->baseEnvironmentType),
+          baseEnvironmentType(other->baseEnvironmentType),
           systemEnvironment(other->systemEnvironment),
           userEnvironmentChanges(other->userEnvironmentChanges),
           validParse(other->validParse),
@@ -97,7 +93,6 @@ public:
     QString gdbPath;
     MaemoRemoteMountsModel *remoteMounts;
     QString arguments;
-    bool useRemoteGdb;
     RemoteLinuxRunConfiguration::BaseEnvironmentType baseEnvironmentType;
     Utils::Environment systemEnvironment;
     QList<Utils::EnvironmentItem> userEnvironmentChanges;
@@ -230,7 +225,6 @@ QVariantMap RemoteLinuxRunConfiguration::toMap() const
     map.insert(ArgumentsKey, m_d->arguments);
     const QDir dir = QDir(target()->project()->projectDirectory());
     map.insert(ProFileKey, dir.relativeFilePath(m_d->proFilePath));
-    map.insert(UseRemoteGdbKey, useRemoteGdb());
     map.insert(BaseEnvironmentBaseKey, m_d->baseEnvironmentType);
     map.insert(UserEnvironmentChangesKey,
         Utils::EnvironmentItem::toStringList(m_d->userEnvironmentChanges));
@@ -246,7 +240,6 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
     m_d->arguments = map.value(ArgumentsKey).toString();
     const QDir dir = QDir(target()->project()->projectDirectory());
     m_d->proFilePath = dir.filePath(map.value(ProFileKey).toString());
-    m_d->useRemoteGdb = map.value(UseRemoteGdbKey, DefaultUseRemoteGdbValue).toBool();
     m_d->userEnvironmentChanges =
         Utils::EnvironmentItem::fromStringList(map.value(UserEnvironmentChangesKey)
         .toStringList());
@@ -311,32 +304,6 @@ QString RemoteLinuxRunConfiguration::commandPrefix() const
         .arg(MaemoGlobal::remoteEnvironment(userEnvironmentChanges()));
 }
 
-QString RemoteLinuxRunConfiguration::localDirToMountForRemoteGdb() const
-{
-    const QString projectDir
-        = QDir::fromNativeSeparators(QDir::cleanPath(activeBuildConfiguration()
-            ->target()->project()->projectDirectory()));
-    const QString execDir
-        = QDir::fromNativeSeparators(QFileInfo(localExecutableFilePath()).path());
-    const int length = qMin(projectDir.length(), execDir.length());
-    int lastSeparatorPos = 0;
-    for (int i = 0; i < length; ++i) {
-        if (projectDir.at(i) != execDir.at(i))
-            return projectDir.left(lastSeparatorPos);
-        if (projectDir.at(i) == QLatin1Char('/'))
-            lastSeparatorPos = i;
-    }
-    return projectDir.length() == execDir.length()
-        ? projectDir : projectDir.left(lastSeparatorPos);
-}
-
-QString RemoteLinuxRunConfiguration::remoteProjectSourcesMountPoint() const
-{
-    return MaemoGlobal::homeDirOnDevice(deviceConfig()->sshParameters().userName)
-        + QLatin1String("/gdbSourcesDir_")
-        + QFileInfo(localExecutableFilePath()).fileName();
-}
-
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
 {
     TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()
@@ -359,20 +326,6 @@ PortList RemoteLinuxRunConfiguration::freePorts() const
     return bc && step
         ? MaemoGlobal::freePorts(deployStep()->helper().deviceConfig(), bc->qtVersion())
         : PortList();
-}
-
-bool RemoteLinuxRunConfiguration::useRemoteGdb() const
-{
-    if (!m_d->useRemoteGdb)
-        return false;
-    const AbstractQt4MaemoTarget * const maemoTarget
-        = qobject_cast<AbstractQt4MaemoTarget *>(target());
-    return maemoTarget && maemoTarget->allowsRemoteMounts();
-}
-
-void RemoteLinuxRunConfiguration::setUseRemoteGdb(bool useRemoteGdb)
-{
-    m_d->useRemoteGdb = useRemoteGdb;
 }
 
 void RemoteLinuxRunConfiguration::setArguments(const QString &args)

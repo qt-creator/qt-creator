@@ -49,7 +49,7 @@ using ProjectExplorer::RunConfiguration;
 
 MaemoRunControl::MaemoRunControl(RunConfiguration *rc)
     : RunControl(rc, ProjectExplorer::Constants::RUNMODE)
-    , m_runner(new MaemoSshRunner(this, qobject_cast<RemoteLinuxRunConfiguration *>(rc), false))
+    , m_runner(new MaemoSshRunner(this, qobject_cast<RemoteLinuxRunConfiguration *>(rc)))
     , m_running(false)
 {
 }

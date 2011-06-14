@@ -55,8 +55,7 @@ class MaemoSshRunner : public QObject
 {
     Q_OBJECT
 public:
-    MaemoSshRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig,
-        bool debugging);
+    MaemoSshRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig);
     ~MaemoSshRunner();
 
     void start();

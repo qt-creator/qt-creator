@@ -56,8 +56,7 @@ class MaemoDebugSupport : public QObject
 public:
     static ProjectExplorer::RunControl *createDebugRunControl(RemoteLinuxRunConfiguration *runConfig);
 
-    MaemoDebugSupport(RemoteLinuxRunConfiguration *runConfig,
-        Debugger::DebuggerEngine *engine, bool useGdb);
+    MaemoDebugSupport(RemoteLinuxRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
     ~MaemoDebugSupport();
 
 private slots:
@@ -78,7 +77,6 @@ private:
 
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();
-    bool useGdb() const;
     void setState(State newState);
     bool setPort(int &port);
     void showMessage(const QString &msg, int channel);
@@ -93,7 +91,6 @@ private:
     State m_state;
     int m_gdbServerPort;
     int m_qmlPort;
-    bool m_useGdb;
 };
 
 } // namespace Internal

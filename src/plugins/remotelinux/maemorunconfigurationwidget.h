@@ -82,7 +82,6 @@ private slots:
     void removeMount();
     void changeLocalMountDir(const QModelIndex &index);
     void enableOrDisableRemoveMountSpecButton();
-    void handleDebuggingTypeChanged(bool useGdb);
     void fetchEnvironment();
     void fetchEnvironmentFinished();
     void fetchEnvironmentError(const QString &error);
@@ -99,7 +98,6 @@ private slots:
 private:
     void addDisabledLabel(QVBoxLayout *topLayout);
     void addGenericWidgets(QVBoxLayout *mainLayout);
-    void addDebuggingWidgets(QVBoxLayout *mainLayout);
     void addMountWidgets(QVBoxLayout *mainLayout);
     void addEnvironmentWidgets(QVBoxLayout *mainLayout);
     void updateMountWarning();
@@ -119,7 +117,6 @@ private:
     QTableView *m_mountView;
     QToolButton *m_removeMountButton;
     Utils::DetailsWidget *m_mountDetailsContainer;
-    Utils::DetailsWidget *m_debugDetailsContainer;
     RemoteLinuxRunConfiguration *m_runConfiguration;
 
     bool m_ignoreChange;

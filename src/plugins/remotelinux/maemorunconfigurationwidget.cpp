@@ -91,7 +91,6 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     QVBoxLayout *mainLayout = new QVBoxLayout(topWidget);
     addGenericWidgets(mainLayout);
     mainLayout->addSpacing(20);
-    addDebuggingWidgets(mainLayout);
     addMountWidgets(mainLayout);
     addEnvironmentWidgets(mainLayout);
     connect(m_runConfiguration,
@@ -106,7 +105,6 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
         = qobject_cast<AbstractQt4MaemoTarget *>(runConfiguration->target());
     const bool remoteMountsAvailable
         = maemoTarget && maemoTarget->allowsRemoteMounts();
-    m_debugDetailsContainer->setVisible(remoteMountsAvailable);
     m_mountDetailsContainer->setVisible(remoteMountsAvailable);
     const bool qmlDebuggingAvailable
         = !maemoTarget || maemoTarget->allowsQmlDebugging();
@@ -209,27 +207,6 @@ void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
         SLOT(updateTargetInformation()));
     connect(m_runConfiguration, SIGNAL(deploySpecsChanged()), SLOT(handleDeploySpecsChanged()));
     handleDeploySpecsChanged();
-}
-
-void MaemoRunConfigurationWidget::addDebuggingWidgets(QVBoxLayout *mainLayout)
-{
-    m_debugDetailsContainer = new Utils::DetailsWidget(this);
-    QWidget *debugWidget = new QWidget;
-    m_debugDetailsContainer->setWidget(debugWidget);
-    mainLayout->addWidget(m_debugDetailsContainer);
-    QFormLayout *debugLayout = new QFormLayout(debugWidget);
-    QHBoxLayout *debugRadioButtonsLayout = new QHBoxLayout;
-    debugLayout->addRow(debugRadioButtonsLayout);
-    QRadioButton *gdbButton = new QRadioButton(tr("Use remote GDB"));
-    QRadioButton *gdbServerButton = new QRadioButton(tr("Use remote GDB server"));
-    debugRadioButtonsLayout->addWidget(gdbButton);
-    debugRadioButtonsLayout->addWidget(gdbServerButton);
-    debugRadioButtonsLayout->addStretch(1);
-    gdbButton->setChecked(m_runConfiguration->useRemoteGdb());
-    gdbServerButton->setChecked(!gdbButton->isChecked());
-    connect(gdbButton, SIGNAL(toggled(bool)), this,
-        SLOT(handleDebuggingTypeChanged(bool)));
-    handleDebuggingTypeChanged(gdbButton->isChecked());
 }
 
 void MaemoRunConfigurationWidget::addMountWidgets(QVBoxLayout *mainLayout)
@@ -390,15 +367,6 @@ void MaemoRunConfigurationWidget::changeLocalMountDir(const QModelIndex &index)
         if (!localDir.isEmpty())
             mountsModel->setLocalDir(index.row(), localDir);
     }
-}
-
-void MaemoRunConfigurationWidget::handleDebuggingTypeChanged(bool useGdb)
-{
-    m_runConfiguration->setUseRemoteGdb(useGdb);
-    const QString detailsText = useGdb ?
-                tr("<b>Debugging details:</b> Use GDB") :
-                tr("<b>Debugging details:</b> Use GDB server");
-    m_debugDetailsContainer->setSummaryText(detailsText);
 }
 
 void MaemoRunConfigurationWidget::fetchEnvironment()

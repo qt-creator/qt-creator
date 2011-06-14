@@ -54,8 +54,7 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-MaemoSshRunner::MaemoSshRunner(QObject *parent,
-    RemoteLinuxRunConfiguration *runConfig, bool debugging)
+MaemoSshRunner::MaemoSshRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig)
     : QObject(parent),
       m_mounter(new MaemoRemoteMounter(this)),
       m_portsGatherer(new MaemoUsedPortsGatherer(this)),
@@ -68,11 +67,6 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent,
       m_state(Inactive)
 {
     m_mounter->setBuildConfiguration(runConfig->activeQt4BuildConfiguration());
-    if (debugging && runConfig->useRemoteGdb()) {
-        m_mountSpecs << MaemoMountSpecification(runConfig->localDirToMountForRemoteGdb(),
-            runConfig->remoteProjectSourcesMountPoint());
-    }
-
     m_procsToKill << QFileInfo(m_remoteExecutable).fileName();
     connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));

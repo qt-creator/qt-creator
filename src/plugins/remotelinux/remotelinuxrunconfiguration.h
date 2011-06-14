@@ -100,12 +100,9 @@ public:
     QString commandPrefix() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const;
     PortList freePorts() const;
-    bool useRemoteGdb() const;
     DebuggingType debuggingType() const;
 
     QString gdbCmd() const;
-    QString localDirToMountForRemoteGdb() const;
-    QString remoteProjectSourcesMountPoint() const;
 
     virtual QVariantMap toMap() const;
 
@@ -149,7 +146,6 @@ private:
     Internal::AbstractLinuxDeviceDeployStep *deployStep() const;
 
     void setArguments(const QString &args);
-    void setUseRemoteGdb(bool useRemoteGdb);
     void setBaseEnvironmentType(BaseEnvironmentType env);
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
     void setSystemEnvironment(const Utils::Environment &environment);

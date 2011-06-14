@@ -72,35 +72,18 @@ RunControl *MaemoDebugSupport::createDebugRunControl(RemoteLinuxRunConfiguration
         if (runConfig->activeQt4BuildConfiguration()->qtVersion())
             params.sysroot = runConfig->activeQt4BuildConfiguration()->qtVersion()->systemRoot();
         params.toolChainAbi = runConfig->abi();
-        if (runConfig->useRemoteGdb()) {
-            params.startMode = StartRemoteGdb;
-            params.executable = runConfig->remoteExecutableFilePath();
-            params.debuggerCommand = runConfig->commandPrefix() + QLatin1String(" /usr/bin/gdb");
-            params.connParams = devConf->sshParameters();
-            params.localMountDir = runConfig->localDirToMountForRemoteGdb();
-            params.remoteMountPoint
-                = runConfig->remoteProjectSourcesMountPoint();
-            const QString execDirAbs
-                = QDir::fromNativeSeparators(QFileInfo(runConfig->localExecutableFilePath()).path());
-            const QString execDirRel
-                = QDir(params.localMountDir).relativeFilePath(execDirAbs);
-            params.remoteSourcesDir = QString(params.remoteMountPoint
-                + QLatin1Char('/') + execDirRel).toUtf8();
-        } else {
-            params.startMode = AttachToRemote;
-            params.executable = runConfig->localExecutableFilePath();
-            params.debuggerCommand = runConfig->gdbCmd();
-            params.remoteChannel
-                = devConf->sshParameters().host + QLatin1String(":-1");
-            params.useServerStartScript = true;
+        params.startMode = AttachToRemote;
+        params.executable = runConfig->localExecutableFilePath();
+        params.debuggerCommand = runConfig->gdbCmd();
+        params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
+        params.useServerStartScript = true;
 
-            // TODO: This functionality should be inside the debugger.
-            const ProjectExplorer::Abi &abi = runConfig->target()
-                ->activeBuildConfiguration()->toolChain()->targetAbi();
-            params.remoteArchitecture = abi.toString();
-            params.gnuTarget = QLatin1String(abi.architecture() == ProjectExplorer::Abi::ArmArchitecture
-                ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
-        }
+        // TODO: This functionality should be inside the debugger.
+        const ProjectExplorer::Abi &abi = runConfig->target()
+            ->activeBuildConfiguration()->toolChain()->targetAbi();
+        params.remoteArchitecture = abi.toString();
+        params.gnuTarget = QLatin1String(abi.architecture() == ProjectExplorer::Abi::ArmArchitecture
+            ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
     } else {
         params.startMode = AttachToRemote;
     }
@@ -116,23 +99,19 @@ RunControl *MaemoDebugSupport::createDebugRunControl(RemoteLinuxRunConfiguration
 
     DebuggerRunControl * const runControl =
         DebuggerPlugin::createDebugger(params, runConfig);
-    bool useGdb = params.startMode == StartRemoteGdb
-        && debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly;
     MaemoDebugSupport *debugSupport =
-        new MaemoDebugSupport(runConfig, runControl->engine(), useGdb);
+        new MaemoDebugSupport(runConfig, runControl->engine());
     connect(runControl, SIGNAL(finished()),
         debugSupport, SLOT(handleDebuggingFinished()));
     return runControl;
 }
 
-MaemoDebugSupport::MaemoDebugSupport(RemoteLinuxRunConfiguration *runConfig,
-    DebuggerEngine *engine, bool useGdb)
+MaemoDebugSupport::MaemoDebugSupport(RemoteLinuxRunConfiguration *runConfig, DebuggerEngine *engine)
     : QObject(engine), m_engine(engine), m_runConfig(runConfig),
       m_deviceConfig(m_runConfig->deviceConfig()),
-      m_runner(new MaemoSshRunner(this, runConfig, true)),
+      m_runner(new MaemoSshRunner(this, runConfig)),
       m_debuggingType(runConfig->debuggingType()),
-      m_state(Inactive), m_gdbServerPort(-1), m_qmlPort(-1),
-      m_useGdb(useGdb)
+      m_state(Inactive), m_gdbServerPort(-1), m_qmlPort(-1)
 {
     connect(m_engine, SIGNAL(requestRemoteSetup()), this,
         SLOT(handleAdapterSetupRequested()));
@@ -183,18 +162,13 @@ void MaemoDebugSupport::startExecution()
 
     ASSERT_STATE(StartingRunner);
 
-    if (!useGdb() && m_debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly) {
+    if (m_debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly) {
         if (!setPort(m_gdbServerPort))
             return;
     }
     if (m_debuggingType != RemoteLinuxRunConfiguration::DebugCppOnly) {
         if (!setPort(m_qmlPort))
             return;
-    }
-
-    if (useGdb()) {
-        handleAdapterSetupDone();
-        return;
     }
 
     setState(StartingRemoteProcess);
@@ -299,11 +273,6 @@ void MaemoDebugSupport::setState(State newState)
     m_state = newState;
     if (m_state == Inactive)
         m_runner->stop();
-}
-
-bool MaemoDebugSupport::useGdb() const
-{
-    return m_useGdb;
 }
 
 bool MaemoDebugSupport::setPort(int &port)
