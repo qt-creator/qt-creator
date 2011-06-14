@@ -77,7 +77,7 @@ public:
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 private:
     virtual QStringList madArguments() const;
 };
@@ -93,7 +93,7 @@ public:
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 private:
     virtual QStringList madArguments() const;
 };
@@ -111,7 +111,7 @@ public:
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 };
 
 class MaemoMakeInstallToSysrootStep : public ProjectExplorer::AbstractProcessStep
@@ -127,7 +127,7 @@ public:
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 };
 
 } // namespace Internal

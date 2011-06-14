@@ -41,6 +41,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVector>
 #include <QtCore/QHash>
+#include <QtCore/QCoreApplication>
 
 namespace Valgrind {
 namespace Callgrind {
@@ -48,6 +49,7 @@ namespace Callgrind {
 //BEGIN ParseData::Private
 
 class ParseData::Private {
+    Q_DECLARE_TR_FUNCTIONS(Valgrind::Callgrind::ParseData)
 public:
     Private(ParseData *q)
     : m_lineNumberPositionIndex(-1)
@@ -177,37 +179,36 @@ QString ParseData::prettyStringForEvent(const QString &event)
 
     QTC_ASSERT(event.size() >= 2, return event) // should not happen
 
-    bool isMiss = event.contains("m"); // else hit
-    bool isRead = event.contains("r"); // else write
+    const bool isMiss = event.contains(QLatin1Char('m')); // else hit
+    const bool isRead = event.contains(QLatin1Char('r')); // else write
 
     QString type;
-    if (event.contains("L"))
-        type = QT_TR_NOOP("Last-level"); // first, "L" overwrites the others
+    if (event.contains(QLatin1Char('L')))
+        type = ParseData::Private::tr("Last-level"); // first, "L" overwrites the others
     else if (event.at(0) == 'I')
-        type = QT_TR_NOOP("Instruction");
+        type = ParseData::Private::tr("Instruction");
     else if (event.at(0) == 'D')
-        type = QT_TR_NOOP("Cache");
+        type = ParseData::Private::tr("Cache");
     else if (event.leftRef(2) == "Bc")
-        type = QT_TR_NOOP("Conditional branches");
+        type = ParseData::Private::tr("Conditional branches");
     else if (event.leftRef(2) == "Bi")
-        type = QT_TR_NOOP("Indirect branches");
+        type = ParseData::Private::tr("Indirect branches");
 
     QStringList prettyString;
     prettyString << type;
 
     if (event.at(1).isNumber())
-        prettyString << QString("level %1").arg(event.at(1));
-    prettyString << (isRead ? QT_TR_NOOP("read") : QT_TR_NOOP("write"));
+        prettyString << ParseData::Private::tr("level %1").arg(event.at(1));
+    prettyString << (isRead ? ParseData::Private::tr("read") : ParseData::Private::tr("write"));
 
     if (event.at(0) == 'B')
-        prettyString << (isMiss ? QT_TR_NOOP("mispredicted") : QT_TR_NOOP("executed"));
+        prettyString << (isMiss ? ParseData::Private::tr("mispredicted") : ParseData::Private::tr("executed"));
     else
-        prettyString << (isMiss ? QT_TR_NOOP("miss") : QT_TR_NOOP("access"));
+        prettyString << (isMiss ? ParseData::Private::tr("miss") : ParseData::Private::tr("access"));
 
     // add original abbreviation
-    prettyString << QString("(%1)").arg(event);
-
-    return prettyString.join(" ");
+    prettyString << QLatin1Char('(') + event + QLatin1Char(')');
+    return prettyString.join(QString(QLatin1Char(' ')));
 }
 
 QStringList ParseData::events() const
@@ -224,10 +225,10 @@ void ParseData::setEvents(const QStringList &events)
 QString ParseData::prettyStringForPosition(const QString &position)
 {
     if (position == "line")
-        return QT_TR_NOOP("Line:"); // as in: "line number"
+        return ParseData::Private::tr("Line:"); // as in: "line number"
     else if (position == "instr")
-        return QT_TR_NOOP("Instruction"); // as in: "instruction address"
-    return QT_TR_NOOP("Position:"); // never reached, in theory
+        return ParseData::Private::tr("Instruction"); // as in: "instruction address"
+    return ParseData::Private::tr("Position:"); // never reached, in theory
 }
 
 QStringList ParseData::positions() const

@@ -94,7 +94,7 @@ public:
         MaemoMountAndInstallDeployStep *other);
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 private:
     virtual const AbstractMaemoPackageCreationStep *packagingStep() const;
     virtual bool isDeploymentPossibleInternal(QString &whynot) const;
@@ -120,7 +120,7 @@ public:
         MaemoMountAndCopyDeployStep *other);
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 private:
     virtual const AbstractMaemoPackageCreationStep *packagingStep() const { return 0; }
     virtual bool isDeploymentPossibleInternal(QString &whynot) const;

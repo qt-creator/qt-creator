@@ -51,7 +51,7 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT FileReader
 {
-    Q_DECLARE_TR_FUNCTIONS(FileUtils) // sic!
+    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     static QByteArray fetchQrc(const QString &fileName); // Only for internal resources
     bool fetch(const QString &fileName, QIODevice::OpenMode mode = QIODevice::NotOpen); // QIODevice::ReadOnly is implicit
@@ -70,7 +70,7 @@ private:
 
 class QTCREATOR_UTILS_EXPORT FileSaverBase
 {
-    Q_DECLARE_TR_FUNCTIONS(FileUtils) // sic!
+    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     FileSaverBase();
     virtual ~FileSaverBase();
@@ -101,6 +101,7 @@ private:
 
 class QTCREATOR_UTILS_EXPORT FileSaver : public FileSaverBase
 {
+    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     explicit FileSaver(const QString &filename, QIODevice::OpenMode mode = QIODevice::NotOpen); // QIODevice::WriteOnly is implicit
 
@@ -115,6 +116,7 @@ private:
 
 class QTCREATOR_UTILS_EXPORT TempFileSaver : public FileSaverBase
 {
+    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     explicit TempFileSaver(const QString &templ = QString());
     ~TempFileSaver();

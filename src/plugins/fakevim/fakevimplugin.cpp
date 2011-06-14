@@ -460,6 +460,7 @@ void FakeVimExCommandsPage::defaultAction()
 
 class FakeVimUserCommandsModel : public QAbstractTableModel
 {
+    Q_OBJECT
 public:
     FakeVimUserCommandsModel(FakeVimPluginPrivate *q) : m_q(q) {}
     ~FakeVimUserCommandsModel() {}

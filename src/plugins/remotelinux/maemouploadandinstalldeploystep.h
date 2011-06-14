@@ -83,7 +83,7 @@ public:
         MaemoUploadAndInstallDpkgPackageStep *other);
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 
 private:
     void ctor();
@@ -100,7 +100,7 @@ public:
         MaemoUploadAndInstallRpmPackageStep *other);
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 
 private:
     void ctor();
@@ -117,7 +117,7 @@ public:
         MaemoUploadAndInstallTarPackageStep *other);
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 
 private:
     void ctor();

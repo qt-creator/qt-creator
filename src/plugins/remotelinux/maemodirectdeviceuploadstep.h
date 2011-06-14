@@ -59,7 +59,7 @@ public:
     ~MaemoDirectDeviceUploadStep();
 
     static const QString Id;
-    static const QString DisplayName;
+    static QString displayName();
 
 private slots:
     void handleSftpInitialized();

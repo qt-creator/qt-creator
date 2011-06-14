@@ -89,25 +89,25 @@ QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) 
 QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
 {
     if (id == MaemoMountAndInstallDeployStep::Id)
-        return MaemoMountAndInstallDeployStep::DisplayName;
+        return MaemoMountAndInstallDeployStep::displayName();
     else if (id == MaemoMountAndCopyDeployStep::Id)
-        return MaemoMountAndCopyDeployStep::DisplayName;
+        return MaemoMountAndCopyDeployStep::displayName();
     else if (id == MaemoUploadAndInstallDpkgPackageStep::Id)
-        return MaemoUploadAndInstallDpkgPackageStep::DisplayName;
+        return MaemoUploadAndInstallDpkgPackageStep::displayName();
     else if (id == MaemoUploadAndInstallRpmPackageStep::Id)
-        return MaemoUploadAndInstallRpmPackageStep::DisplayName;
+        return MaemoUploadAndInstallRpmPackageStep::displayName();
     else if (id == MaemoUploadAndInstallTarPackageStep::Id)
-        return MaemoUploadAndInstallTarPackageStep::DisplayName;
+        return MaemoUploadAndInstallTarPackageStep::displayName();
     else if (id == MaemoInstallDebianPackageToSysrootStep::Id)
-        return MaemoInstallDebianPackageToSysrootStep::DisplayName;
+        return MaemoInstallDebianPackageToSysrootStep::displayName();
     else if (id == MaemoInstallRpmPackageToSysrootStep::Id)
-        return MaemoInstallRpmPackageToSysrootStep::DisplayName;
+        return MaemoInstallRpmPackageToSysrootStep::displayName();
     else if (id == MaemoCopyToSysrootStep::Id)
-        return MaemoCopyToSysrootStep::DisplayName;
+        return MaemoCopyToSysrootStep::displayName();
     else if (id == MaemoMakeInstallToSysrootStep::Id)
-        return MaemoMakeInstallToSysrootStep::DisplayName;
+        return MaemoMakeInstallToSysrootStep::displayName();
     else if (id == MaemoDirectDeviceUploadStep::Id)
-        return MaemoDirectDeviceUploadStep::DisplayName;
+        return MaemoDirectDeviceUploadStep::displayName();
     return QString();
 }
 

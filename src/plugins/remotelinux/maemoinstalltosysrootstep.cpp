@@ -97,7 +97,7 @@ public:
     MaemoInstallDebianPackageToSysrootWidget(AbstractMaemoInstallPackageToSysrootStep *step)
         : AbstractMaemoInstallPackageToSysrootWidget(step) {}
 
-    virtual QString displayName() const { return MaemoInstallDebianPackageToSysrootStep::DisplayName; }
+    virtual QString displayName() const { return MaemoInstallDebianPackageToSysrootStep::displayName(); }
 };
 
 class MaemoInstallRpmPackageToSysrootWidget : public AbstractMaemoInstallPackageToSysrootWidget
@@ -107,7 +107,7 @@ public:
     MaemoInstallRpmPackageToSysrootWidget(AbstractMaemoInstallPackageToSysrootStep *step)
         : AbstractMaemoInstallPackageToSysrootWidget(step) {}
 
-    virtual QString displayName() const { return MaemoInstallRpmPackageToSysrootStep::DisplayName; }
+    virtual QString displayName() const { return MaemoInstallRpmPackageToSysrootStep::displayName(); }
 };
 
 class MaemoCopyFilesToSysrootWidget : public BuildStepConfigWidget
@@ -218,14 +218,14 @@ void AbstractMaemoInstallPackageToSysrootStep::handleInstallerStderr()
 MaemoInstallDebianPackageToSysrootStep::MaemoInstallDebianPackageToSysrootStep(BuildStepList *bsl)
     : AbstractMaemoInstallPackageToSysrootStep(bsl, Id)
 {
-    setDisplayName(DisplayName);
+    setDisplayName(displayName());
 }
 
 MaemoInstallDebianPackageToSysrootStep::MaemoInstallDebianPackageToSysrootStep(BuildStepList *bsl,
     MaemoInstallDebianPackageToSysrootStep *other)
         : AbstractMaemoInstallPackageToSysrootStep(bsl, other)
 {
-    setDisplayName(DisplayName);
+    setDisplayName(displayName());
 }
 
 BuildStepConfigWidget *MaemoInstallDebianPackageToSysrootStep::createConfigWidget()
@@ -242,20 +242,23 @@ QStringList MaemoInstallDebianPackageToSysrootStep::madArguments() const
 
 const QString MaemoInstallDebianPackageToSysrootStep::Id
     = QLatin1String("MaemoInstallDebianPackageToSysrootStep");
-const QString MaemoInstallDebianPackageToSysrootStep::DisplayName
-    = tr("Install Debian package to sysroot");
+
+QString MaemoInstallDebianPackageToSysrootStep::displayName()
+{
+    return tr("Install Debian package to sysroot");
+}
 
 MaemoInstallRpmPackageToSysrootStep::MaemoInstallRpmPackageToSysrootStep(BuildStepList *bsl)
     : AbstractMaemoInstallPackageToSysrootStep(bsl, Id)
 {
-    setDisplayName(DisplayName);
+    setDisplayName(displayName());
 }
 
 MaemoInstallRpmPackageToSysrootStep::MaemoInstallRpmPackageToSysrootStep(BuildStepList *bsl,
     MaemoInstallRpmPackageToSysrootStep *other)
         : AbstractMaemoInstallPackageToSysrootStep(bsl, other)
 {
-    setDisplayName(DisplayName);
+    setDisplayName(displayName());
 }
 
 BuildStepConfigWidget *MaemoInstallRpmPackageToSysrootStep::createConfigWidget()
@@ -270,21 +273,23 @@ QStringList MaemoInstallRpmPackageToSysrootStep::madArguments() const
 
 const QString MaemoInstallRpmPackageToSysrootStep::Id
     = QLatin1String("MaemoInstallRpmPackageToSysrootStep");
-const QString MaemoInstallRpmPackageToSysrootStep::DisplayName
-    = tr("Install RPM package to sysroot");
 
+QString MaemoInstallRpmPackageToSysrootStep::displayName()
+{
+    return tr("Install RPM package to sysroot");
+}
 
 MaemoCopyToSysrootStep::MaemoCopyToSysrootStep(BuildStepList *bsl)
     : BuildStep(bsl, Id)
 {
-    setDisplayName(DisplayName);
+    setDisplayName(displayName());
 }
 
 MaemoCopyToSysrootStep::MaemoCopyToSysrootStep(BuildStepList *bsl,
     MaemoCopyToSysrootStep *other)
         : BuildStep(bsl, other)
 {
-    setDisplayName(DisplayName);
+    setDisplayName(displayName());
 }
 
 void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
@@ -340,21 +345,22 @@ BuildStepConfigWidget *MaemoCopyToSysrootStep::createConfigWidget()
 
 const QString MaemoCopyToSysrootStep::Id
     = QLatin1String("MaemoCopyToSysrootStep");
-const QString MaemoCopyToSysrootStep::DisplayName
-    = tr("Copy files to sysroot");
-
+QString MaemoCopyToSysrootStep::displayName()
+{
+    return tr("Copy files to sysroot");
+}
 
 MaemoMakeInstallToSysrootStep::MaemoMakeInstallToSysrootStep(BuildStepList *bsl)
     : AbstractProcessStep(bsl, Id)
 {
-    setDefaultDisplayName(DisplayName);
+    setDefaultDisplayName(displayName());
 }
 
 MaemoMakeInstallToSysrootStep::MaemoMakeInstallToSysrootStep(BuildStepList *bsl,
         MaemoMakeInstallToSysrootStep *other)
     : AbstractProcessStep(bsl, other)
 {
-    setDefaultDisplayName(DisplayName);
+    setDefaultDisplayName(displayName());
 }
 
 bool MaemoMakeInstallToSysrootStep::init()
@@ -394,8 +400,10 @@ BuildStepConfigWidget *MaemoMakeInstallToSysrootStep::createConfigWidget()
 
 const QString MaemoMakeInstallToSysrootStep::Id
     = QLatin1String("MaemoMakeInstallToSysrootStep");
-const QString MaemoMakeInstallToSysrootStep::DisplayName
-    = tr("Copy files to sysroot");
+QString MaemoMakeInstallToSysrootStep::displayName()
+{
+    return tr("Copy files to sysroot");
+}
 
 } // namespace Internal
 } // namespace RemoteLinux

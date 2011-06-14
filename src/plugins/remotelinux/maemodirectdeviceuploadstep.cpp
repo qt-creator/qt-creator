@@ -69,7 +69,7 @@ MaemoDirectDeviceUploadStep::~MaemoDirectDeviceUploadStep() {}
 
 void MaemoDirectDeviceUploadStep::ctor()
 {
-    setDefaultDisplayName(DisplayName);
+    setDefaultDisplayName(displayName());
     m_extendedState = Inactive;
 }
 
@@ -242,8 +242,11 @@ void MaemoDirectDeviceUploadStep::setFinished()
 }
 
 const QString MaemoDirectDeviceUploadStep::Id("MaemoDirectDeviceUploadStep");
-const QString MaemoDirectDeviceUploadStep::DisplayName
-    = tr("Upload files via SFTP");
+
+QString MaemoDirectDeviceUploadStep::displayName()
+{
+    return tr("Upload files via SFTP");
+}
 
 } // namespace Internal
 } // namespace RemoteLinux

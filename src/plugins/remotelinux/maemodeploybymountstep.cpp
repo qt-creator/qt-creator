@@ -210,8 +210,8 @@ MaemoMountAndInstallDeployStep::MaemoMountAndInstallDeployStep(BuildStepList *bc
 
 void MaemoMountAndInstallDeployStep::ctor()
 {
-    //: MaemoMountAndInstallDeployStep default display name
-    setDefaultDisplayName(DisplayName);
+    // MaemoMountAndInstallDeployStep default display name
+    setDefaultDisplayName(displayName());
 
     if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(target()))
         m_installer = new MaemoDebianPackageInstaller(this);
@@ -276,9 +276,10 @@ void MaemoMountAndInstallDeployStep::handleInstallationSuccess()
 }
 
 const QString MaemoMountAndInstallDeployStep::Id("MaemoMountAndInstallDeployStep");
-const QString MaemoMountAndInstallDeployStep::DisplayName
-    = tr("Deploy package via UTFS mount");
-
+QString MaemoMountAndInstallDeployStep::displayName()
+{
+    return tr("Deploy package via UTFS mount");
+}
 
 MaemoMountAndCopyDeployStep::MaemoMountAndCopyDeployStep(BuildStepList *bc)
     : AbstractMaemoDeployByMountStep(bc, Id)
@@ -295,8 +296,8 @@ MaemoMountAndCopyDeployStep::MaemoMountAndCopyDeployStep(BuildStepList *bc,
 
 void MaemoMountAndCopyDeployStep::ctor()
 {
-    //: MaemoMountAndCopyDeployStep default display name
-    setDefaultDisplayName(DisplayName);
+    // MaemoMountAndCopyDeployStep default display name
+    setDefaultDisplayName(displayName());
 
     m_copyFacility = new MaemoRemoteCopyFacility(this);
     connect(m_copyFacility, SIGNAL(stdoutData(QString)),
@@ -386,8 +387,11 @@ void MaemoMountAndCopyDeployStep::handleInstallationSuccess()
 }
 
 const QString MaemoMountAndCopyDeployStep::Id("MaemoMountAndCopyDeployStep");
-const QString MaemoMountAndCopyDeployStep::DisplayName
-    = tr("Deploy files via UTFS mount");
+
+QString MaemoMountAndCopyDeployStep::displayName()
+{
+    return tr("Deploy files via UTFS mount");
+}
 
 } // namespace Internal
 } // namespace RemoteLinux

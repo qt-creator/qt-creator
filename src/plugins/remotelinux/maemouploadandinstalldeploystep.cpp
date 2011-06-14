@@ -204,7 +204,7 @@ MaemoUploadAndInstallDpkgPackageStep::MaemoUploadAndInstallDpkgPackageStep(Proje
 
 void MaemoUploadAndInstallDpkgPackageStep::ctor()
 {
-    finishInitialization(DisplayName, new MaemoDebianPackageInstaller(this));
+    finishInitialization(displayName(), new MaemoDebianPackageInstaller(this));
 }
 
 
@@ -214,9 +214,11 @@ const AbstractMaemoPackageCreationStep *MaemoUploadAndInstallDpkgPackageStep::pa
 }
 
 const QString MaemoUploadAndInstallDpkgPackageStep::Id("MaemoUploadAndInstallDpkgPackageStep");
-const QString MaemoUploadAndInstallDpkgPackageStep::DisplayName
-    = tr("Deploy Debian package via SFTP upload");
 
+QString MaemoUploadAndInstallDpkgPackageStep::displayName()
+{
+    return tr("Deploy Debian package via SFTP upload");
+}
 
 MaemoUploadAndInstallRpmPackageStep::MaemoUploadAndInstallRpmPackageStep(ProjectExplorer::BuildStepList *bc)
     : AbstractMaemoUploadAndInstallStep(bc, Id)
@@ -233,7 +235,7 @@ MaemoUploadAndInstallRpmPackageStep::MaemoUploadAndInstallRpmPackageStep(Project
 
 void MaemoUploadAndInstallRpmPackageStep::ctor()
 {
-    finishInitialization(DisplayName, new MaemoRpmPackageInstaller(this));
+    finishInitialization(displayName(), new MaemoRpmPackageInstaller(this));
 }
 
 const AbstractMaemoPackageCreationStep *MaemoUploadAndInstallRpmPackageStep::packagingStep() const
@@ -242,9 +244,11 @@ const AbstractMaemoPackageCreationStep *MaemoUploadAndInstallRpmPackageStep::pac
 }
 
 const QString MaemoUploadAndInstallRpmPackageStep::Id("MaemoUploadAndInstallRpmPackageStep");
-const QString MaemoUploadAndInstallRpmPackageStep::DisplayName
-    = tr("Deploy RPM package via SFTP upload");
 
+QString MaemoUploadAndInstallRpmPackageStep::displayName()
+{
+    return tr("Deploy RPM package via SFTP upload");
+}
 
 MaemoUploadAndInstallTarPackageStep::MaemoUploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bc)
     : AbstractMaemoUploadAndInstallStep(bc, Id)
@@ -266,13 +270,15 @@ const AbstractMaemoPackageCreationStep *MaemoUploadAndInstallTarPackageStep::pac
 
 void MaemoUploadAndInstallTarPackageStep::ctor()
 {
-    finishInitialization(DisplayName, new MaemoTarPackageInstaller(this));
+    finishInitialization(displayName(), new MaemoTarPackageInstaller(this));
 }
 
 const QString MaemoUploadAndInstallTarPackageStep::Id("MaemoUploadAndInstallTarPackageStep");
-const QString MaemoUploadAndInstallTarPackageStep::DisplayName
-    = tr("Deploy tar package via SFTP upload");
 
+QString MaemoUploadAndInstallTarPackageStep::displayName()
+{
+    return tr("Deploy tar package via SFTP upload");
+}
 
 } // namespace Internal
 } // namespace RemoteLinux
