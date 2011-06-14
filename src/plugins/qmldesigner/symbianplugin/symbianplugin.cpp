@@ -41,12 +41,12 @@ SymbianPlugin::SymbianPlugin()
 {
 }
 
-QString SymbianPlugin::pluginName()
+QString SymbianPlugin::pluginName() const
 {
     return ("SymbianPlugin");
 }
 
-QString SymbianPlugin::metaInfo()
+QString SymbianPlugin::metaInfo() const
 {
     return QString(":/symbianplugin/symbian.metainfo");
 }

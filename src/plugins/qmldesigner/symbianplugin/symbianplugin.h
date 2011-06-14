@@ -50,8 +50,8 @@ public:
     SymbianPlugin();
     ~SymbianPlugin() {}
 
-    QString metaInfo();
-    QString pluginName();
+    QString metaInfo() const;
+    QString pluginName() const;
 
 };
 

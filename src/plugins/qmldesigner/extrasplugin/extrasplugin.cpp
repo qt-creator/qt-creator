@@ -41,12 +41,12 @@ ExtrasPlugin::ExtrasPlugin()
 {
 }
 
-QString ExtrasPlugin::pluginName()
+QString ExtrasPlugin::pluginName() const
 {
     return ("ExtrasPlugin");
 }
 
-QString ExtrasPlugin::metaInfo()
+QString ExtrasPlugin::metaInfo() const
 {
     return QString(":/extrasplugin/extras.metainfo");
 }

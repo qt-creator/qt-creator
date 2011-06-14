@@ -41,12 +41,12 @@ MeegoPlugin::MeegoPlugin()
 {
 }
 
-QString MeegoPlugin::pluginName()
+QString MeegoPlugin::pluginName() const
 {
     return ("MeegoPlugin");
 }
 
-QString MeegoPlugin::metaInfo()
+QString MeegoPlugin::metaInfo() const
 {
     return QString(":/meegoplugin/meego.metainfo");
 }

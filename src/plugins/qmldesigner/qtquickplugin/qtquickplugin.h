@@ -50,8 +50,8 @@ public:
     QtQuickPlugin();
     ~QtQuickPlugin() {}
 
-    QString metaInfo();
-    QString pluginName();
+    QString metaInfo() const;
+    QString pluginName() const;
 
 };
 

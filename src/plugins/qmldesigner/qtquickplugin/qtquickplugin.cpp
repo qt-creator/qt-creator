@@ -46,12 +46,12 @@ QtQuickPlugin::QtQuickPlugin()
     qmlRegisterType<QDeclarativeScaleGrid>("Qt", 4, 7, "ScaleGrid");
 }
 
-QString QtQuickPlugin::pluginName()
+QString QtQuickPlugin::pluginName() const
 {
     return ("QtQuickPlugin");
 }
 
-QString QtQuickPlugin::metaInfo()
+QString QtQuickPlugin::metaInfo() const
 {
     return QString(":/qtquickplugin/quick.metainfo");
 }
