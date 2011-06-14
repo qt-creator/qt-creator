@@ -33,11 +33,11 @@
       <property name="height" type="int" value="30"/>
     </itemlibraryentry>
   </node>
-  <node name="ChoiceList" icon=":/symbianplugin/images/choicelist16.png">
-    <itemlibraryentry name="ChoiceList" category="Components Symbian" libraryIcon=":/symbianplugin/images/choicelist.png"  version="1.0" requiredImport="com.nokia.symbian">
-      <property name="width" type="int" value="180"/>
-      <property name="height" type="int" value="40"/>
-      <property name="currentValue" type="QString" value="ChoiceList"/>
+  <node name="SelectionListItem" icon=":/symbianplugin/images/choicelist16.png">
+    <itemlibraryentry name="SelectionListItem" category="Components Symbian" libraryIcon=":/symbianplugin/images/choicelist.png"  version="1.0" requiredImport="com.nokia.symbian">
+      <property name="width" type="int" value="360"/>
+      <property name="height" type="int" value="84"/>
+      <property name="title" type="QString" value="Selection List"/>
     </itemlibraryentry>
   </node>
   <node name="ProgressBar" icon=":/symbianplugin/images/progressbar16.png">
