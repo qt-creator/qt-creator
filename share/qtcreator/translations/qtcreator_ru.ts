@@ -12481,6 +12481,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Файл вершинного шейдера GLSL/ES</translation>
     </message>
     <message>
+        <source>GLSL/ES Geometry Shader file</source>
+        <translation>Файл геометрического шейдера GLSL/ES</translation>
+    </message>
+    <message>
         <source>QML file</source>
         <translation>Файл QML</translation>
     </message>
