@@ -77,6 +77,11 @@ QString MaemoQtVersion::type() const
     return QtSupport::Constants::MAEMOQT;
 }
 
+bool MaemoQtVersion::isValid() const
+{
+    return BaseQtVersion::isValid() && m_isvalidVersion;
+}
+
 MaemoQtVersion *MaemoQtVersion::clone() const
 {
     return new MaemoQtVersion(*this);

@@ -152,19 +152,11 @@ void MaemoToolChain::setQtVersionId(int id)
 
     MaemoQtVersion *version = dynamic_cast<MaemoQtVersion *>(QtSupport::QtVersionManager::instance()->version(id));
     Q_ASSERT(version);
-    ProjectExplorer::Abi::OSFlavor flavour = ProjectExplorer::Abi::HarmattanLinuxFlavor;
-    if (version->osType() == LinuxDeviceConfiguration::Maemo5OsType)
-        flavour = ProjectExplorer::Abi::MaemoLinuxFlavor;
-    else if (version->osType() == LinuxDeviceConfiguration::HarmattanOsType)
-        flavour = ProjectExplorer::Abi::HarmattanLinuxFlavor;
-    else if (version->osType() == LinuxDeviceConfiguration::MeeGoOsType)
-        flavour = ProjectExplorer::Abi::MeegoLinuxFlavor;
-    else
+    if (!version->isValid())
         return;
+    Q_ASSERT(version->qtAbis().count() == 1);
 
     m_qtVersionId = id;
-
-    Q_ASSERT(version->qtAbis().count() == 1);
     m_targetAbi = version->qtAbis().at(0);
 
     updateId(); // Will trigger toolChainUpdated()!
@@ -277,23 +269,25 @@ QList<ProjectExplorer::ToolChain *> MaemoToolChainFactory::createToolChainList(c
         foreach (ProjectExplorer::ToolChain *tc, toRemove)
             tcm->deregisterToolChain(tc);
 
+        const MaemoQtVersion * const mqv = dynamic_cast<MaemoQtVersion *>(v);
+        if (!mqv || !mqv->isValid())
+            continue;
+
         // (Re-)add toolchain:
-        if (MaemoQtVersion *mqv = dynamic_cast<MaemoQtVersion *>(v)) {
-            // add tool chain:
-            MaemoToolChain *mTc = new MaemoToolChain(true);
-            mTc->setQtVersionId(i);
-            QString target = "Maemo 5";
-            if (v->supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID))
-                target = "Maemo 6";
-            else if (v->supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID))
-                target = "Meego";
-            mTc->setDisplayName(tr("%1 GCC (%2)").arg(target).arg(MaemoGlobal::maddeRoot(mqv->qmakeCommand())));
-            mTc->setCompilerPath(MaemoGlobal::targetRoot(mqv->qmakeCommand()) + QLatin1String("/bin/gcc"));
-            mTc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(mqv->qtAbis().at(0)));
-            if (mTc->debuggerCommand().isEmpty())
-                mTc->setDebuggerCommand(MaemoGlobal::targetRoot(mqv->qmakeCommand()) + QLatin1String("/bin/gdb"));
-            result.append(mTc);
-        }
+        // add tool chain:
+        MaemoToolChain *mTc = new MaemoToolChain(true);
+        mTc->setQtVersionId(i);
+        QString target = "Maemo 5";
+        if (v->supportsTargetId(Constants::HARMATTAN_DEVICE_TARGET_ID))
+            target = "Maemo 6";
+        else if (v->supportsTargetId(Constants::MEEGO_DEVICE_TARGET_ID))
+            target = "Meego";
+        mTc->setDisplayName(tr("%1 GCC (%2)").arg(target).arg(MaemoGlobal::maddeRoot(mqv->qmakeCommand())));
+        mTc->setCompilerPath(MaemoGlobal::targetRoot(mqv->qmakeCommand()) + QLatin1String("/bin/gcc"));
+        mTc->setDebuggerCommand(ProjectExplorer::ToolChainManager::instance()->defaultDebugger(mqv->qtAbis().at(0)));
+        if (mTc->debuggerCommand().isEmpty())
+            mTc->setDebuggerCommand(MaemoGlobal::targetRoot(mqv->qmakeCommand()) + QLatin1String("/bin/gdb"));
+        result.append(mTc);
     }
     return result;
 }

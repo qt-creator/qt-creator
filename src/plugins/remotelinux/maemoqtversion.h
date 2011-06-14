@@ -49,7 +49,7 @@ public:
     MaemoQtVersion *clone() const;
 
     virtual QString type() const;
-
+    virtual bool isValid() const;
     virtual QString systemRoot() const;
     virtual QList<ProjectExplorer::Abi> qtAbis() const;
     void addToEnvironment(Utils::Environment &env) const;
