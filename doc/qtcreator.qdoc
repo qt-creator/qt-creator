@@ -65,7 +65,7 @@
                 \o \l{Creating a Project}
                 \o \l{Opening a Project}
                 \o \l{Adding Libraries to Projects}
-                \o \l{Connecting Maemo Devices}
+                \o \l{Connecting Maemo and MeeGo Harmattan Devices}
                 \o \l{Connecting Symbian Devices}
                 \o \l{Managing Sessions}
             \endlist
@@ -129,7 +129,7 @@
        \o \l{Deploying Applications to Mobile Devices}
             \list
                 \o \l{Deploying Applications to Symbian Devices}
-                \o \l{Deploying Applications to Maemo Devices}
+                \o \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}
                 \o \l{Publishing Maemo Applications to Extras-devel}
                 \o \l{Publishing Applications to Ovi Store}
                 \o \l{Building with Remote Compiler}
@@ -144,7 +144,7 @@
                \o \l{Using Version Control Systems}
                \o \l{Adding Qt Designer Plugins}
                \o \l{Using External Tools}
-               \o \l{Using the Maemo Emulator}
+               \o \l{Using Maemo or MeeGo Harmattan Emulator}
                \o \l{Editing MIME Types}
                \o \l{Showing Task List Files in the Build Issues Pane}
                \o \l{Using Command Line Options}
@@ -337,10 +337,12 @@
     or CMake, and specify that Qt Creator ignores your build system.
 
     Qt Creator provides support for building and running Qt applications for
-    desktop environment (Windows, Linux, and Mac OS) and mobile devices (Symbian and Maemo).
+    desktop environment (Windows, Linux, and Mac OS) and mobile devices
+    (Symbian, Maemo, and MeeGo Harmattan).
     Build settings allow you to quickly switch between build targets.
 
-    When you install the \QSDK, the build and run settings for the Maemo and Symbian
+    When you install the \QSDK, the build and run settings for the Harmattan,
+    Maemo, and Symbian
     targets are set up automatically. However, you need to install and configure some
     additional software on the devices to be able to connect to them from the
     development PC.
@@ -357,8 +359,9 @@
     You can connect mobile devices to your development PC and debug processes
     running on the devices.
 
-    You can test applications that are intended for mobile devices in the Qt
-    Simulator and Maemo Emulator, but you also need to test the applications
+    You can test applications that are intended for mobile devices in Qt
+    Simulator and Maemo or MeeGo Harmattan emulator, but you also need to test
+    the applications
     on real devices.
 
     \section2 Debuggers
@@ -438,16 +441,21 @@
     The Qt Simulator is installed as part of the \QSDK. After it is
     installed, you can select it as a build target in Qt Creator.
 
-    \section2 Maemo Emulator
+    \section2 Maemo and MeeGo Harmattan Emulator
+
+    The Maemo 5 (Fremantle) and MeeGo Harmattan emulator are installed as part
+    of the \QSDK. After they are installed, you can start them from Qt Creator.
 
     The Maemo 5 emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
     on a Nokia N900 device with the software update release 1.3 (V20.2010.36-2).
-    However, it is faster to test on a real device connected to the development
-    PC.
 
-    The Maemo Emulator is installed as part of the \QSDK. After it is
-    installed, you can start it from Qt Creator.
+    The Harmattan emulator emulates the Nokia N950 device environment.
+
+    With the emulators, you can test how your application reacts to hardware
+    controls, such as the power button, and to the touch screen.
+    Usually, it is faster to test on a real device connected to the development
+    PC than to use the emulators.
 
     \section1 Deploying
 
@@ -456,7 +464,8 @@
     The files can be copied to a location in the file system of the development PC
     or to a mobile device.
 
-    Qt Creator allows you to create installation packages for Symbian and Maemo
+    Qt Creator allows you to create installation packages for Symbian, Maemo,
+    and MeeGo Harmattan
     devices that are suitable for publishing on Ovi Store and other channels.
 
 */
@@ -521,6 +530,8 @@
 
         \o Maemo 5
 
+        \o MeeGo Harmattan
+
         \o Symbian
 
     \endlist
@@ -530,16 +541,18 @@
 
     \table
         \header
-            \o {1,4} Operating system
-            \o {4,1} Platform
+            \o {1,5} Operating system
+            \o {5,1} Platform
         \header
             \o Desktop
             \o Qt Simulator
-            \o Maemo
+            \o Maemo 5
+            \o MeeGo Harmattan
             \o Symbian
 
         \row
             \o Windows
+            \o Yes
             \o Yes
             \o Yes
             \o Yes
@@ -549,9 +562,11 @@
             \o Yes
             \o Yes
             \o Yes
+            \o Yes
             \o Yes (by using Remote Compiler for building)
         \row
             \o Mac OS X
+            \o Yes
             \o Yes
             \o Yes
             \o Yes
@@ -3040,7 +3055,8 @@
     Compiler, is installed as a part of the \QSDK. For more information, see
     \l{Building with Remote Compiler}.
 
-    When you install the \QSDK, the build and run settings for the Maemo and
+    When you install the \QSDK, the build and run settings for the Maemo, MeeGo
+    Harmattan, and
     Symbian targets are set up automatically. However, you need to install and
     configure some additional software on the devices to be able to connect to
     them from the development PC.
@@ -3056,7 +3072,7 @@
         \o \l{Creating a Project}
         \o \l{Opening a Project}
         \o \l{Adding Libraries to Projects}
-        \o \l{Connecting Maemo Devices}
+        \o \l{Connecting Maemo and MeeGo Harmattan Devices}
         \o \l{Connecting Symbian Devices}
         \o \l{Managing Sessions}
     \endlist
@@ -3285,7 +3301,7 @@
 
     By default, Qt Creator does a \l{glossary-shadow-build}{shadow build} and also
     creates the directory. However, shadow building is not supported for the Symbian
-    Devices or Maemo5 target on Windows.
+    Devices, Maemo5, or Harmattan target on Windows.
 
     If you have built the project before, Qt Creator can use the existing build
     configuration to make the exact same build as found in the directory available to
@@ -3796,7 +3812,7 @@
     Qt Creator allows you to have multiple versions of Qt installed on
     your development PC and use different versions to build your projects for
     different targets. For example, \QSDK contains special Qt versions for
-    Maemo and Symbian development.
+    MeeGo Harmattan, Maemo, and Symbian development.
 
     Qt Creator checks the directories listed in the \c{PATH} environment
     variable for the qmake executable. If a qmake executable is found, it is
@@ -4303,21 +4319,22 @@
     For more information about using the Qt Simulator, see the
     \l{http://doc.qt.nokia.com/qtsimulator/index.html}{Qt Simulator Manual}.
 
-    \section1 Running on Maemo
+    \section1 Running on Maemo or MeeGo Harmattan
 
     \list 1
 
         \o Build and run the application for \l{Running on Qt Simulator}{Qt Simulator}.
 
-        \o Build and run the application for \l{Using the Maemo Emulator}{Maemo Emulator}.
+        \o  Build and run the application for
+            \l{Using Maemo or MeeGo Harmattan Emulator}
+            {the Maemo or MeeGo Harmattan emulator}.
 
         \o Alternatively, you can build and run the application for a device:
 
         \list 1
 
-        \o Set up the MADDE development environment and specify a connection
-        to the device. For more information, see
-        \l{Connecting Maemo Devices}.
+        \o  Configure the device and specify a connection to it. For more
+            information, see \l{Connecting Maemo and MeeGo Harmattan Devices}.
 
         \o Connect the device to the development PC.
 
@@ -4332,13 +4349,14 @@
 
         Qt Creator generates an installation package, installs it on the device,
         and executes the selected application.
-        The application views are displayed on the Nokia N900.
+        The application views are displayed on the device.
         Command-line
         output is visible in the Qt Creator \gui {Application Output} view.
 
         Choose \gui {Projects > Maemo Run} to view the settings for deploying the
         application on the connected device and creating the installation package.
-        For more information, see \l{Specifying Run Settings for Maemo Devices}.
+        For more information, see
+        \l{Specifying Run Settings for Maemo and MeeGo Harmattan Devices}.
 
         Debugging also works transparently.
 
@@ -4443,7 +4461,8 @@
 
     The \gui {Remote Compiler} target is an interface to a compilation service at
     Forum Nokia. It provides a simple, standardized environment for building Qt
-    applications and creating installation packages for Symbian and Maemo devices
+    applications and creating installation packages for Symbian, Maemo, and
+    MeeGo Harmattan devices
     when you do not have the necessary tool chains and SDKs installed or they are
     not supported on the development PC. You can choose from a set of supported
     devices, such as S60 3rd Edition or S60 5th Edition devices.
@@ -4540,7 +4559,8 @@
                This keeps the files generated for each target platform separate.
 
                \note Shadow building is not supported by the Symbian build system.
-               Also, shadow building on Windows is not supported for Maemo.
+               Also, shadow building on Windows is not supported for Maemo or
+               MeeGo Harmattan.
                If you only build for one target platform, you can deselect
                the \gui{Shadow build} checkbox.
     \endlist
@@ -4741,30 +4761,35 @@
     publishing and installing applications on Symbian devices. For more information,
     see \l{Deploying Applications to Symbian Devices}.
 
-    \section2 Specifying Run Settings for Maemo Devices
+    \section2 Specifying Run Settings for Maemo and MeeGo Harmattan Devices
 
-    To run an application on a Maemo device, create and select
-    a device configuration in the Maemo run settings for your project.
+    To run an application on a Maemo or MeeGo Harmattan device, create and
+    select a device configuration in the Maemo 5 or Harmattan run settings for
+    your project.
     You can also pass command line arguments to your application.
 
     \image qtcreator-screenshot-run-settings-maemo.png "Run settings for Maemo devices"
 
-    To run and debug applications on Maemo devices, you must create connections
+    To run and debug applications on Maemo or MeeGo Harmattan devices, you must
+    create connections
     from the development PC to the devices. Click \gui {Manage device
     configurations} to create connections. For more information, see
     \l {Configuring Connections in Qt Creator}.
 
     By default, Qt Creator runs the remote gdbserver daemon on the device for
-    debugging. However, if the sysroot does not match that of the device, you
+    debugging. On Maemo 5, if the sysroot does not match that of the device,
+    you
     can run remote GDB, instead. Select the \gui {Use remote GDB} option in
     \gui {Debugging details}. Select the \gui {Set debugger} link to specify
     settings for GDB.
 
-    When you run the application on the \gui{Maemo} target, Qt Creator generates
+    When you run the application on the \gui{Maemo5} or \gui Harmattan target,
+    Qt Creator generates
     a Debian installation package in the build directory by default. You can deliver
-    the installation package to users for installation on Maemo devices that are of
+    the installation package to users for installation on devices that are of
     the same type and run the same firmware as the connected device. For more
-    information, see \l{Deploying Applications to Maemo Devices}.
+    information, see
+    \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}.
 
     \section1 Specifying a Custom Executable to Run
 
@@ -4817,9 +4842,10 @@
     \page creator-deployment-maemo.html
     \nextpage creator-publishing-to-maemo-extras.html
 
-    \title Deploying Applications to Maemo Devices
+    \title Deploying Applications to Maemo or MeeGo Harmattan Devices
 
-    You can specify settings for deploying applications to Maemo devices in the
+    You can specify settings for deploying applications to Maemo 5 and MeeGo
+    Harmattan devices in the
     project .pro file. You can view the settings in the \gui {Run Settings}.
 
     \image qtcreator-maemo-deployment.png "Deploy to device"
@@ -4847,9 +4873,10 @@
 
     \section1 Creating Debian Installation Packages
 
-    When you run the application on the \gui{Maemo} target, Qt Creator generates
+    When you run the application on the \gui{Maemo5} or \gui Harmattan target,
+    Qt Creator generates
     a Debian installation package in the build directory by default. You can deliver
-    the installation package to users for installation on Maemo devices that are of
+    the installation package to users for installation on devices that are of
     the same type and run the same firmware as the connected device.
 
     \image qtcreator-maemo-deb-package.png "Create installation package"
@@ -4872,7 +4899,8 @@
     \note Qt Creator automates this process for you.
 
     Qt Creator provides templates for a set of files that must be included
-    in Debian packages. When you create a Maemo target for a project, Qt Creator
+    in Debian packages. When you create a \gui Maemo5 or \gui Harmattan target
+    for a project, Qt Creator
     asks whether packaging files are to be added to the project and to version
     control. If you plan to edit the packaging files, add them to version
     control.
@@ -4967,11 +4995,12 @@
     channel, you must make sure that the installation file meets the requirements for
     publishing and installing applications to Symbian or Maemo devices. The following
     sections describe the steps that you have to take to create installation packages
-    for Symbian and Maemo devices and for publishing on Ovi Store:
+    for Symbian, Maemo, or MeeGo Harmattan devices and for publishing on Ovi
+    Store:
 
     \list
         \o \l{Deploying Applications to Symbian Devices}
-        \o \l{Deploying Applications to Maemo Devices}
+        \o \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}
         \o \l{Publishing Maemo Applications to Extras-devel}
         \o \l{Publishing Applications to Ovi Store}
         \o \l{Building with Remote Compiler}
@@ -5516,14 +5545,20 @@
 
     You set the application name and installation folder in the
     \gui {Run Settings} for the project. For more information, see
-    \l{Deploying Applications to Maemo Devices}. Qt Creator specifies the correct
+    \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}. Qt Creator
+    specifies the correct
     category settings by default when it creates the Debian directory and
     the necessary files.
 
-    You can test the application on Qt Simulator and Maemo Emulator to make
+    You can test the application on Qt Simulator and Maemo emulator to make
     sure that it does not crash or hang and to check how it handles different
     memory situations. Before you submit the application to Ovi Publishing, you
     must also fully test it on a Maemo device.
+
+    \section1 Publishing Qt Content for MeeGo Harmattan Devices
+
+    You cannot publish applications that are built with the beta version of the
+    MeeGo Harmattan tool chain to Ovi Store.
 
 */
 
@@ -5663,8 +5698,8 @@
 
         \image qtcreator-mobile-project-qt-versions.png "Target Setup dialog"
 
-        \o Select \gui {Maemo5}, \gui {Qt Simulator}, and \gui {Symbian
-        Device} targets,
+        \o Select \gui {Symbian Device}, \gui {Maemo5}, \gui Harmattan, and
+        \gui {Qt Simulator} targets,
         and click \gui{Next}.
 
         \note Targets are listed if you installed the appropriate development
@@ -5679,7 +5714,8 @@
         behaves when the orientation of the device display rotates between portrait
         and landscape, and then click \gui{Next}.
 
-        \note This dialog opens only if you select \gui Maemo5 or
+        \note This dialog opens only if you select \gui Maemo5, \gui Harmattan,
+        or
         \gui {Symbian Device} target in the \gui {Target Setup} dialog.
 
         The \gui {Symbian Specific} dialog opens.
@@ -5697,7 +5733,8 @@
         \image qtcreator-mobile-project-maemo-options.png "Maemo Specific dialog"
 
         \o In the \gui {Application icon (64x64)} field, select the application
-         icon to use on Maemo targets, or click \gui Next to use the default icon.
+         icon to use on Maemo 5 or Harmattan targets, or click \gui Next to use
+         the default icon.
 
         The \gui{Project Management} dialog opens.
 
@@ -5859,13 +5896,18 @@
 
     \endlist
 
-    \section1 Testing on the Maemo Emulator
+    \section1 Testing on the Maemo or MeeGo Harmattan Emulator
+
+    The Maemo 5 (Fremantle) and MeeGo Harmattan emulator are installed as part
+    of the \QSDK. After they are installed, you can start them from Qt Creator.
 
     The Maemo emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
     on a Nokia N900 device with the software update release 1.3 (V20.2010.36-2).
 
-    For more information, see \l{Using the Maemo Emulator}.
+    The MeeGo Harmattan emulator emulates the Nokia N950 device environment.
+
+    For more information, see \l{Using Maemo or MeeGo Harmattan Emulator}.
 
 */
 
@@ -5889,7 +5931,8 @@
         \image qtcreator-gs-build-example-open.png "Selecting an example"
 
         \o Select targets for the project. Select at least Qt Simulator
-        and one of the mobile targets, Maemo or Symbian Device, depending on
+        and one of the mobile targets, Symbian Device, Maemo 5, or Harmattan,
+        depending on
         the device you develop for.
 
         \image qtcreator-gs-build-example-targets.png "Selecting targets"
@@ -7531,7 +7574,7 @@
     The on-device mode is a special mode available for run configurations
     targeting mobile devices. It debugs processes running on mobile
     devices using on-device debugging agents, such as CODA on Symbian and
-    gdbserver on Maemo and MeeGo.
+    gdbserver on Maemo and MeeGo Harmattan.
 
     To launch the debugger in the on-device mode, open the project, select a
     run configuration that targets a mobile device, and click the
@@ -7569,7 +7612,8 @@
     with and without the ability to use Python scripting. The Python enabled
     versions are preferred, but they are not available on Mac and on older
     versions of Linux.
-    On Windows, Symbian, and Maemo, only the Python version is supported.
+    On Windows, Symbian, Maemo, and MeeGo Harmattan, only the Python version is
+    supported.
 
     The non-Python versions use the compiled version of the debugging helpers,
     that you must enable separately. For more information, see
@@ -7629,6 +7673,12 @@
             \o On-device
         \row
             \o Maemo
+            \o GCC
+            \o GDB
+            \o Yes
+            \o On-device
+        \row
+            \o MeeGo Harmattan
             \o GCC
             \o GDB
             \o Yes
@@ -9094,7 +9144,8 @@
         behaves when the orientation of the device display rotates between portrait
         and landscape, and then click \gui Next.
 
-        \note This dialog opens only if you select \gui Maemo5 or
+        \note This dialog opens only if you select \gui Harmattan, \gui Maemo5,
+        or
         \gui {Symbian Device} target in the \gui {Target Setup} dialog.
 
         The \gui {Symbian Specific} dialog opens.
@@ -9118,7 +9169,7 @@
         \image qmldesigner-new-project-maemo-options.png "Maemo Specific dialog"
 
         \o In the \gui {Application icon (64x64)} field, select the application
-         icon to use on Maemo targets, or use the default icon.
+         icon to use on Maemo or Harmattan targets, or use the default icon.
 
         The \gui {QML Sources} dialog opens.
 
@@ -9142,7 +9193,7 @@
     \endlist
 
     Qt Creator creates the necessary boilerplate files. Some of the files are
-    specific to the Symbian or Maemo platform.
+    specific to the Symbian, Maemo, or MeeGo Harmattan platform.
 
     \section1 Importing QML Applications
 
@@ -9946,40 +9997,48 @@
     \page creator-maemo-emulator.html
     \nextpage creator-mime-types.html
 
-    \title Using the Maemo Emulator
+    \title Using Maemo or MeeGo Harmattan Emulator
+
+    The Maemo 5 (Fremantle) and MeeGo Harmattan emulator are installed as part
+    of the \QSDK. After they are installed, you can start them from Qt Creator.
 
     The Maemo 5 emulator emulates the Nokia N900 device environment. You can test
     applications in conditions practically identical to running the application
     on a Nokia N900 device with software update release 1.3 (V20.2010.36-2).
-    You can test user interaction by using the keypad and
-    touch emulation.
+
+    The MeeGo Harmattan emulator emulates the Nokia N950 device environment.
+
+    With the emulators, you can test how your application reacts to hardware
+    controls, such as the power button, and to the touch screen.
 
     To test the application UI, user interaction with the application, and
     functionality that uses the mobility APIs, use the Qt Simulator,
     instead. For more information, see the
     \l{http://doc.qt.nokia.com/qtsimulator/index.html}{Qt Simulator Manual}.
 
-    The Maemo 5 emulator is installed and configured as part of the \QSDK
-    package. You can also install and configure the MADDE environment and
-    Maemo emulator separately. For more information, see
-    \l{Connecting Maemo Devices}.
+    The difference between Qt Simulator and the emulators is that when you
+    compile your application binary for Qt Simulator, it is compiled against a
+    host library. The binary run on the emulator is compiled for the actual
+    device, using the Maemo 5 or Harmattan tool chain.
 
-    \section1 Starting the Maemo Emulator
+    \section1 Starting the Emulator
 
     The \gui {Start Maemo Emulator} button is visible if you have a project
-    open in Qt Creator for which you have added the Maemo build target.
+    open in Qt Creator for which you have added the Maemo or MeeGo Harmattan
+    build target. It starts the Maemo or MeeGo Harmattan emulator, depending
+    on the selected target.
 
-    To start the Maemo emulator, click
+    To start the emulator, click
     \inlineimage qtcreator-maemo-emulator-button.png "Start Maemo Emulator button"
     .
 
     Test your application on the Maemo emulator as on a device. For a list of
-    keyboard shortcuts that you can use to emulate Nokia N900 keys and functions, see
-    \l {Emulating Nokia N900 Keys}.
+    keyboard shortcuts that you can use to emulate keys and functions, see
+    \l {Emulating Device Keys}.
 
     \section1 Rendering Graphics
 
-    The Maemo emulator supports OpenGL to improve graphics rendering. Hardware
+    The emulators support OpenGL to improve graphics rendering. Hardware
     acceleration produces better results than software rendering. By default,
     Qt Creator automatically detects, whether hardware acceleration is
     supported on the development PC and tries to use it. However, sometimes
@@ -9987,20 +10046,20 @@
     hardware acceleration might be selected even if it is actually not
     available on the development PC. This causes the emulator to crash.
 
-    If the Maemo emulator crashes, you are asked whether you want to try
-    software rendering, instead.
+    If the emulator crashes, you are asked whether you want to try software
+    rendering, instead.
 
     To specify the OpenGL mode, select \gui {Tools > Options... > Maemo > Qemu
     Settings}.
 
-    \section1 Emulating Nokia N900 Keys
+    \section1 Emulating Device Keys
 
     The following table summarizes the keyboard shortcuts that you can use
-    to emulate Nokia N900 keys and functions.
+    to emulate device keys and functions.
 
     \table
         \header
-            \o Nokia N900 Key
+            \o Device Key
             \o Keyboard Shortcut
         \row
             \o \list
@@ -10015,13 +10074,19 @@
             \o Respective keys on the development PC keyboard.
         \row
             \o Shift
-            \o Left Shift key
+            \o Left Shift key (Maemo 5)
+
+               Shift (Harmattan)
         \row
             \o Ctrl
-            \o Left Ctrl key
+            \o Left Ctrl key (Maemo 5)
+
+               Ctrl (Harmattan)
         \row
             \o Mode
-            \o Left Alt key
+            \o Left Alt key (Maemo 5)
+
+               Alt (Harmattan)
         \row
             \o Power
             \o Esc
@@ -10029,10 +10094,10 @@
             \o Keypad slider open and close
             \o F1
         \row
-            \o Keypad lock
+            \o Keypad lock (Maemo 5 only)
             \o F2
         \row
-            \o Camera lens open and close
+            \o Camera lens open and close (Maemo 5 only)
             \o F3
         \row
             \o Camera focus
@@ -10040,9 +10105,10 @@
         \row
             \o Camera take picture
             \o F5
+
             \note The actual camera functionality is not emulated.
         \row
-            \o Stereo headphones connect and disconnect
+            \o Stereo headphones connect and disconnect (Maemo 5 only)
             \o F6
         \row
             \o Volume down
@@ -10071,6 +10137,15 @@
 
     \endtable
 
+    \note Each press of the accelerometer key turns the acceleration by 50
+    percent.
+
+    \section1 Closing the Emulator
+
+    To close the emulator, click the X at the top right corner of the device
+    emulator view. The emulator interprets this as a press of the power button
+    and displays the text \e {Shutting down} in the emulator window title pane.
+    The emulator closes shortly after this.
 
 */
 
@@ -10265,6 +10340,7 @@
        available for connections constantly change.
 
        \o Remember the processing limits of the device
+
 
        The memory available on devices is limited
        and you should use it carefully. Although all mobile devices have common functionality,
@@ -11132,9 +11208,8 @@
 
         \o Creating new CMake projects with Qt Creator is not supported.
 
-        \o Building and packaging subprojects is not supported for Maemo devices.
-
-        \o You must create projects for Maemo targets on the same partition where
+        \o On Windows, you must create projects for Maemo 5 and Harmattan
+        targets on the same partition where
         you installed \QSDK, Qt Creator, and MADDE.
 
         \o If error messages displayed in the \gui {Compile Output} pane contain
@@ -11716,7 +11791,7 @@
         \o \l{Using Version Control Systems}
         \o \l{Adding Qt Designer Plugins}
         \o \l{Using External Tools}
-        \o \l{Using the Maemo Emulator}
+        \o \l{Using Maemo or MeeGo Harmattan Emulator}
         \o \l{Editing MIME Types}
         \o \l{Showing Task List Files in the Build Issues Pane}
         \o \l{Using Command Line Options}
