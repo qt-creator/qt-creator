@@ -49,41 +49,6 @@ Item {
     }
 
     property real value
-    //onValueChanged: console.log("*************** " + value)
-
-    /*Image {
-        id: leftRange
-        source: "range.png"
-        anchors.horizontalCenter: parent.left
-        anchors.bottom: parent.bottom
-    }*/
-
-    Rectangle {
-        id: rect
-
-        color: "#cc80b2f6"
-        width: 20
-        //anchors.left: parent.left
-        //anchors.right: rightRange.horizontalCenter
-
-        height: parent.height
-    }
-
-    /*Image {
-        id: rightRange
-        source: "range.png"
-        x: 13
-        anchors.bottom: parent.bottom
-
-        MouseArea {
-            width: parent.width
-            height: 15
-            drag.target: rightRange
-            drag.axis: "XAxis"
-            drag.minimumX: -7    //###
-            drag.maximumX: canvas.width - rangeMover.width  //###
-        }
-    }*/
 
     MouseArea {
         anchors.fill: parent
@@ -92,4 +57,67 @@ Item {
         drag.minimumX: 0
         drag.maximumX: canvas.width - rangeMover.width //###
     }
+
+    Rectangle {
+        id: rect
+
+        color: "#cc80b2f6"
+        width: 20
+        height: parent.height
+    }
+
+    Rectangle {
+        id: leftRange
+
+        property int currentX: rangeMover.x
+        property int currentWidth : rect.width
+
+        height: parent.height
+        width: 5
+        color: Qt.darker(rect.color);
+        opacity: 0.3
+        MouseArea {
+            anchors.fill: parent
+            drag.target: leftRange
+            drag.axis: "XAxis"
+            drag.minimumX: -parent.currentX
+            drag.maximumX: parent.currentWidth - 20
+            onPressed: {
+                parent.currentX = rangeMover.x;
+                parent.currentWidth = rect.width;
+            }
+        }
+        onXChanged: {
+            if (x!=0) {
+                rect.width = currentWidth - x;
+                rangeMover.x = currentX + x;
+                x = 0;
+            }
+        }
+    }
+
+    Rectangle {
+        id: rightRange
+        property int currentX: rangeMover.x
+
+        height: parent.height
+        width: 5
+        anchors.right: parent.right
+        color: Qt.darker(rect.color);
+        opacity: 0.3
+        MouseArea {
+            anchors.fill: parent
+            drag.target: rightRange
+            drag.axis: "XAxis"
+            drag.minimumX: 15
+            drag.maximumX: canvas.width - parent.currentX;
+            onPressed: parent.currentX = rangeMover.x;
+        }
+        onXChanged: {
+            if (x != rect.width - width) {
+                rect.width = x + width;
+            }
+        }
+    }
+
 }
