@@ -33,6 +33,7 @@
 #ifndef DEBUGGER_BREAKPOINT_H
 #define DEBUGGER_BREAKPOINT_H
 
+#include <QtCore/QDebug>
 #include <QtCore/QList>
 #include <QtCore/QMetaType>
 #include <QtCore/QString>
@@ -40,7 +41,36 @@
 namespace Debugger {
 namespace Internal {
 
-typedef quint64 BreakpointId;
+class BreakpointId
+{
+public:
+    BreakpointId() { m_majorPart = m_minorPart = 0; }
+    explicit BreakpointId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
+    BreakpointId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
+
+    bool isValid() const { return m_majorPart != 0; }
+    bool isMajor() const { return m_majorPart != 0 && m_minorPart == 0; }
+    bool isMinor() const { return m_majorPart != 0 && m_minorPart != 0; }
+    bool operator!() const { return !isValid(); }
+    operator const void*() const { return isValid() ? this : 0; }
+    quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
+    QString toString() const;
+    bool operator==(const BreakpointId &id) const
+        { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
+    quint16 majorPart() const { return m_majorPart; }
+    quint16 minorPart() const { return m_minorPart; }
+    BreakpointId parent() const;
+    BreakpointId child(int row) const;
+
+    static BreakpointId fromInternalId(quint32 id)
+        { return BreakpointId(id & 0xff, id >> 16); }
+
+private:
+    quint16 m_majorPart;
+    quint16 m_minorPart;
+};
+
+QDebug operator<<(QDebug d, const BreakpointId &id);
 
 //////////////////////////////////////////////////////////////////
 //
@@ -165,6 +195,7 @@ public:
     void fromParameters(const BreakpointParameters &p);
 
     int number;             //!< Breakpoint number assigned by the debugger engine.
+    int subNumber;          //!< Breakpoint sub-number assigned by the engine.
     bool pending;           //!< Breakpoint not fully resolved.
     QString fullName;       //!< Full file name acknowledged by the debugger engine.
     bool multiple;          //!< Happens in constructors/gdb.
@@ -175,7 +206,15 @@ public:
 
 typedef QList<BreakpointId> BreakpointIds;
 
+inline uint qHash(const Debugger::Internal::BreakpointId &id)
+{
+    return id.toInternalId();
+}
+
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::BreakpointId)
+
 
 #endif // DEBUGGER_BREAKPOINT_H

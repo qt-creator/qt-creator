@@ -70,6 +70,7 @@ public:
 
     // The only way to add a new breakpoint.
     void appendBreakpoint(const BreakpointParameters &data);
+    void appendSubBreakpoint(BreakpointId id, const BreakpointResponse &data);
 
     BreakpointIds allBreakpointIds() const;
     BreakpointIds engineBreakpointIds(DebuggerEngine *engine) const;
@@ -169,7 +170,11 @@ private:
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QModelIndex index(int row, int col, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &parent) const;
+    QModelIndex createIndex(int row, int column, quint32 id) const;
+    QModelIndex createIndex(int row, int column, void *ptr) const;
 
+    int indexOf(BreakpointId id) const;
+    BreakpointId at(int index) const;
     bool isEngineRunning(BreakpointId id) const;
     void setState(BreakpointId id, BreakpointState state);
     void loadBreakpoints();
@@ -195,6 +200,7 @@ private:
         DebuggerEngine *engine;  // Engine currently handling the breakpoint.
         BreakpointResponse response;
         BreakpointMarker *marker;
+        QList<BreakpointResponse> subItems;
     };
     typedef QHash<BreakpointId, BreakpointItem> BreakpointStorage;
     typedef BreakpointStorage::ConstIterator ConstIterator;

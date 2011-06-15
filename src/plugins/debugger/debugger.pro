@@ -123,10 +123,11 @@ FORMS += attachexternaldialog.ui \
 
 RESOURCES += debugger.qrc
 
-false {
+true {
     SOURCES += $$PWD/modeltest.cpp
     HEADERS += $$PWD/modeltest.h
-    DEFINES += USE_MODEL_TEST=1
+    #DEFINES += USE_WATCH_MODEL_TEST=1
+    #DEFINES += USE_BREAK_MODEL_TEST=1
 }
 win32 {
 include(../../shared/registryaccess/registryaccess.pri)

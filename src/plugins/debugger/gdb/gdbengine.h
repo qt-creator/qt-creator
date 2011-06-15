@@ -435,6 +435,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
 
     // Gdb initialization sequence
     void handleShowVersion(const GdbResponse &response);
+    void handleListFeatures(const GdbResponse &response);
     void handleHasPython(const GdbResponse &response);
 
     int m_gdbVersion; // 6.8.0 is 60800
@@ -506,7 +507,7 @@ private: ////////// View & Data Stuff //////////
     void handleCatchInsert(const GdbResponse &response);
     void handleInfoLine(const GdbResponse &response);
     void extractDataFromInfoBreak(const QString &output, BreakpointId);
-    void updateBreakpointDataFromOutput(BreakpointId id, const GdbMi &bkpt);
+    void updateResponse(BreakpointResponse &response, const GdbMi &bkpt);
     QByteArray breakpointLocation(BreakpointId id); // For gdb/MI.
     QByteArray breakpointLocation2(BreakpointId id); // For gdb/CLI fallback.
     QString breakLocation(const QString &file) const;
@@ -721,6 +722,7 @@ private: ////////// View & Data Stuff //////////
     bool m_preparedForQmlBreak;
     bool setupQmlStep(bool on);
     void handleSetQmlStepBreakpoint(const GdbResponse &response);
+    bool isQmlStepBreakpoint(int bpnr) const;
     bool isQmlStepBreakpoint1(int bpnr) const;
     bool isQmlStepBreakpoint2(int bpnr) const;
     bool isQFatalBreakpoint(int bpnr) const;

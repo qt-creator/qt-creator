@@ -32,11 +32,46 @@
 
 #include "breakpoint.h"
 
+#include "utils/qtcassert.h"
+
 #include <QtCore/QByteArray>
 #include <QtCore/QDebug>
 
 namespace Debugger {
 namespace Internal {
+
+//////////////////////////////////////////////////////////////////
+//
+// BreakpointId
+//
+//////////////////////////////////////////////////////////////////
+
+QDebug operator<<(QDebug d, const BreakpointId &id)
+{
+    d << qPrintable(id.toString());
+    return d;
+}
+
+QString BreakpointId::toString() const
+{
+    if (!isValid())
+        return "<invalid bkpt>";
+    if (isMinor())
+        return QString("%1.%2").arg(m_majorPart).arg(m_minorPart);
+    return QString::number(m_majorPart);
+}
+
+BreakpointId BreakpointId::parent() const
+{
+    QTC_ASSERT(isMinor(), return BreakpointId());
+    return BreakpointId(m_majorPart, 0);
+}
+
+BreakpointId BreakpointId::child(int row) const
+{
+    QTC_ASSERT(isMajor(), return BreakpointId());
+    return BreakpointId(m_majorPart, row + 1);
+}
 
 //////////////////////////////////////////////////////////////////
 //
@@ -163,24 +198,34 @@ QString BreakpointParameters::toString() const
 */
 
 BreakpointResponse::BreakpointResponse()
-    : number(0), pending(true), multiple(false), correctedLineNumber(0)
-{}
+{
+    number = 0;
+    subNumber = 0;
+    pending = true;
+    multiple = false;
+    correctedLineNumber = 0;
+}
 
 QString BreakpointResponse::toString() const
 {
     QString result = BreakpointParameters::toString();
     QTextStream ts(&result);
     ts << " Number: " << number;
+    if (subNumber)
+        ts << "." << subNumber;
     if (pending)
         ts << " [pending]";
     if (!fullName.isEmpty())
         ts << " FullName: " << fullName;
+    if (!functionName.isEmpty())
+        ts << " Function: " << functionName;
     if (multiple)
         ts << " Multiple: " << multiple;
     if (!extra.isEmpty())
         ts << " Extra: " << extra;
     if (correctedLineNumber)
         ts << " CorrectedLineNumber: " << correctedLineNumber;
+    ts << ' ';
     return result + BreakpointParameters::toString();
 }
 
@@ -188,6 +233,7 @@ void BreakpointResponse::fromParameters(const BreakpointParameters &p)
 {
     BreakpointParameters::operator=(p);
     number = 0;
+    subNumber = 0;
     fullName.clear();
     multiple = false;
     extra.clear();

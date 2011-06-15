@@ -608,21 +608,24 @@ public slots:
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        m_breakHandler->removeBreakpoint(act->data().toInt());
+        BreakpointId id = act->data().value<BreakpointId>();
+        m_breakHandler->removeBreakpoint(id);
      }
 
     void breakpointEnableMarginActionTriggered()
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        breakHandler()->setEnabled(act->data().toInt(), true);
+        BreakpointId id = act->data().value<BreakpointId>();
+        breakHandler()->setEnabled(id, true);
     }
 
     void breakpointDisableMarginActionTriggered()
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        breakHandler()->setEnabled(act->data().toInt(), false);
+        BreakpointId id = act->data().value<BreakpointId>();;
+        breakHandler()->setEnabled(id, false);
     }
 
     void updateWatchersHeader(int section, int, int newSize)
@@ -869,7 +872,7 @@ public slots:
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        const BreakpointId id = act->data().toInt();
+        const BreakpointId id = act->data().value<BreakpointId>();
         QTC_ASSERT(id > 0, return);
         BreakWindow::editBreakpoint(id, mainWindow());
     }
@@ -1660,21 +1663,21 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     if (id) {
         // Remove existing breakpoint.
         QAction *act = new QAction(menu);
-        act->setData(int(id));
-        act->setText(tr("Remove Breakpoint %1").arg(id));
+        act->setData(QVariant::fromValue(id));
+        act->setText(tr("Remove Breakpoint %1").arg(id.toString()));
         connect(act, SIGNAL(triggered()),
             SLOT(breakpointRemoveMarginActionTriggered()));
         menu->addAction(act);
 
         // Enable/disable existing breakpoint.
         act = new QAction(menu);
-        act->setData(int(id));
+        act->setData(QVariant::fromValue(id));
         if (breakHandler()->isEnabled(id)) {
-            act->setText(tr("Disable Breakpoint %1").arg(id));
+            act->setText(tr("Disable Breakpoint %1").arg(id.toString()));
             connect(act, SIGNAL(triggered()),
                 SLOT(breakpointDisableMarginActionTriggered()));
         } else {
-            act->setText(tr("Enable Breakpoint %1").arg(id));
+            act->setText(tr("Enable Breakpoint %1").arg(id.toString()));
             connect(act, SIGNAL(triggered()),
                 SLOT(breakpointEnableMarginActionTriggered()));
         }
@@ -1682,9 +1685,9 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
 
         // Edit existing breakpoint.
         act = new QAction(menu);
-        act->setText(tr("Edit Breakpoint %1...").arg(id));
+        act->setText(tr("Edit Breakpoint %1...").arg(id.toString()));
         connect(act, SIGNAL(triggered()), SLOT(slotEditBreakpoint()));
-        act->setData(int(id));
+        act->setData(QVariant::fromValue(id));
         menu->addAction(act);
     } else {
         // Handle non-existing breakpoint.

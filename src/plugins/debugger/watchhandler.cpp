@@ -39,7 +39,7 @@
 #include "debuggerengine.h"
 #include "watchutils.h"
 
-#if USE_MODEL_TEST
+#if USE_WATCH_MODEL_TEST
 #include "modeltest.h"
 #endif
 
@@ -216,8 +216,8 @@ void WatchModel::removeOutdated()
     foreach (WatchItem *child, m_root->children)
         removeOutdatedHelper(child);
 #if DEBUG_MODEL
-#if USE_MODEL_TEST
-    //(void) new ModelTest(this, this);
+#if USE_WATCH_MODEL_TEST
+    (void) new ModelTest(this, this);
 #endif
 #endif
 }

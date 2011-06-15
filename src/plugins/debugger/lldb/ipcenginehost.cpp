@@ -506,8 +506,9 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 attemptBreakpointSynchronization();
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
-                s >> id;
+                quint64 d;
+                s >> d;
+                BreakpointId id = BreakpointId::fromInternalId(d);
                 breakHandler()->notifyBreakpointInsertOk(id);
             }
             break;
@@ -515,8 +516,9 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
-                s >> id;
+                quint64 d;
+                s >> d;
+                BreakpointId id = BreakpointId::fromInternalId(d);
                 breakHandler()->notifyBreakpointInsertFailed(id);
             }
             break;
@@ -524,8 +526,9 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
-                s >> id;
+                quint64 d;
+                s >> d;
+                BreakpointId id = BreakpointId::fromInternalId(d);
                 breakHandler()->notifyBreakpointRemoveOk(id);
             }
             break;
@@ -533,8 +536,9 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
-                s >> id;
+                quint64 d;
+                s >> d;
+                BreakpointId id = BreakpointId::fromInternalId(d);
                 breakHandler()->notifyBreakpointRemoveFailed(id);
             }
             break;
@@ -542,8 +546,9 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
-                s >> id;
+                quint64 d;
+                s >> d;
+                BreakpointId id = BreakpointId::fromInternalId(d);
                 breakHandler()->notifyBreakpointChangeOk(id);
             }
             break;
@@ -551,8 +556,9 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
-                s >> id;
+                quint64 d;
+                s >> d;
+                BreakpointId id = BreakpointId::fromInternalId(d);
                 breakHandler()->notifyBreakpointChangeFailed(id);
             }
             break;
@@ -560,9 +566,10 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
+                quint64 dd;
                 BreakpointParameters d;
-                s >> id >> d;
+                s >> dd >> d;
+                BreakpointId id = BreakpointId::fromInternalId(dd);
                 breakHandler()->notifyBreakpointAdjusted(id, d);
             }
             break;

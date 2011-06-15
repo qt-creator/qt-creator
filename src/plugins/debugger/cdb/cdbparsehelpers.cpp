@@ -135,7 +135,7 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
 
 QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
                                    const QList<QPair<QString, QString> > &sourcePathMapping,
-                                   BreakpointId id /* = BreakpointId(-1) */,
+                                   BreakpointId id /* = BreakpointId() */,
                                    bool oneshot)
 {
     const BreakpointParameters bp = fixWinMSVCBreakpoint(bpIn);
@@ -149,8 +149,8 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     // is kept when reporting back breakpoints (which is otherwise discarded
     // when resolving).
     str << (bp.type == WatchpointAtAddress ? "ba" : "bu");
-    if (id != BreakpointId(-1))
-        str << id;
+    if (id.isValid())
+        str << id.toString();
     str << ' ';
     if (oneshot)
         str << "/1 ";
@@ -308,7 +308,7 @@ BreakpointId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     const GdbMi idG = gdbmi.findChild("id");
     if (idG.isValid()) { // Might not be valid if there is not id
         bool ok;
-        const BreakpointId cid = idG.data().toULongLong(&ok);
+        const BreakpointId cid(idG.data().toInt(&ok));
         if (ok)
             id = cid;
     }

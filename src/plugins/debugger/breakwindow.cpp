@@ -524,6 +524,7 @@ void BreakWindow::setModel(QAbstractItemModel *model)
     resizeColumnToContents(0); // Number
     resizeColumnToContents(3); // Line
     resizeColumnToContents(6); // Ignore count
+    connect(model, SIGNAL(layoutChanged()), this, SLOT(expandAll()));
 }
 
 void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)

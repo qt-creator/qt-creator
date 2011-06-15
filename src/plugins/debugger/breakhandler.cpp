@@ -42,6 +42,10 @@
 
 #include <utils/qtcassert.h>
 
+#if USE_BREAK_MODEL_TEST
+#include "modeltest.h"
+#endif
+
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTimerEvent>
@@ -126,7 +130,11 @@ static QString typeToString(BreakpointType type)
 
 BreakHandler::BreakHandler()
   : m_syncTimerId(-1)
-{}
+{
+#if USE_BREAK_MODEL_TEST
+    new ModelTest(this, 0);
+#endif
+}
 
 BreakHandler::~BreakHandler()
 {}
@@ -167,16 +175,6 @@ QIcon BreakHandler::emptyIcon()
     //static QIcon icon(_(":/debugger/images/watchpoint.png"));
     //static QIcon icon(_(":/debugger/images/debugger_empty_14.png"));
     return icon;
-}
-
-int BreakHandler::columnCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : 8;
-}
-
-int BreakHandler::rowCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : m_storage.size();
 }
 
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
@@ -431,12 +429,9 @@ QVariant BreakHandler::headerData(int section,
 
 BreakpointId BreakHandler::findBreakpointByIndex(const QModelIndex &index) const
 {
-    int r = index.row();
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
-    for (int i = 0; it != et; ++it, ++i)
-        if (i == r)
-            return it.key();
-    return BreakpointId();
+    //qDebug() << "FIND: " << index <<
+    //    BreakpointId::fromInternalId(index.internalId());
+    return BreakpointId::fromInternalId(index.internalId());
 }
 
 BreakpointIds BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list) const
@@ -469,15 +464,72 @@ int BreakHandler::threadSpecFromDisplay(const QString &str)
     return ok ? result : -1;
 }
 
-QModelIndex BreakHandler::index(int row, int col, const QModelIndex &parent) const
+QModelIndex BreakHandler::createIndex(int row, int column, quint32 id) const
 {
-    Q_UNUSED(parent);
-    return createIndex(row, col, 0);
+    return QAbstractItemModel::createIndex(row, column, id);
 }
 
-QModelIndex BreakHandler::parent(const QModelIndex &parent) const
+QModelIndex BreakHandler::createIndex(int row, int column, void *ptr) const
 {
-    Q_UNUSED(parent);
+    QTC_ASSERT(false, /**/); // This function is not used.
+    return QAbstractItemModel::createIndex(row, column, ptr);
+}
+
+int BreakHandler::columnCount(const QModelIndex &idx) const
+{
+    if (idx.column() > 0)
+        return 0;
+    const BreakpointId id = findBreakpointByIndex(idx);
+    return id.isMinor() ? 0 : 8;
+}
+
+int BreakHandler::rowCount(const QModelIndex &idx) const
+{
+    if (idx.column() > 0)
+        return 0;
+    if (!idx.isValid())
+        return m_storage.size();
+    const BreakpointId id = findBreakpointByIndex(idx);
+    if (id.isMajor())
+        return m_storage.value(id).subItems.size();
+    return 0;
+}
+
+QModelIndex BreakHandler::index(int row, int col, const QModelIndex &parent) const
+{
+    if (row < 0 || col < 0)
+        return QModelIndex();
+    if (parent.column() > 0)
+        return QModelIndex();
+    BreakpointId id = findBreakpointByIndex(parent);
+    if (id.isMajor()) {
+        ConstIterator it = m_storage.find(id);
+        if (row >= it->subItems.size())
+            return QModelIndex();
+        BreakpointId sub = id.child(row);
+        return createIndex(row, col, sub.toInternalId());
+    }
+    if (id.isMinor())
+        return QModelIndex();
+    QTC_ASSERT(!id.isValid(), return QModelIndex());
+    if (row >= m_storage.size())
+        return QModelIndex();
+    id = at(row);
+    return createIndex(row, col, id.toInternalId());
+}
+
+QModelIndex BreakHandler::parent(const QModelIndex &idx) const
+{
+    if (!idx.isValid())
+        return QModelIndex();
+    BreakpointId id = findBreakpointByIndex(idx);
+    if (id.isMajor())
+        return QModelIndex();
+    if (id.isMinor()) {
+        BreakpointId pid = id.parent();
+        int row = indexOf(pid);
+        return createIndex(row, 0, pid.toInternalId());
+    }
     return QModelIndex();
 }
 
@@ -489,9 +541,13 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         return QVariant();
 
     BreakpointId id = findBreakpointByIndex(mi);
-    //qDebug() << "DATA: " << id << role << mi.column();
-    ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return QVariant());
+
+    BreakpointId pid = id;
+    if (id.isMinor())
+        pid = id.parent();
+
+    ConstIterator it = m_storage.find(pid);
+    QTC_ASSERT(it != m_storage.end(), return QVariant());
     const BreakpointParameters &data = it->data;
     const BreakpointResponse &response = it->response;
 
@@ -511,10 +567,24 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
     };
 
+    if (id.isMinor()) {
+        QTC_ASSERT(id.minorPart() <= it->subItems.size(), return QVariant());
+        const BreakpointResponse &res = it->subItems.at(id.minorPart() - 1);
+        switch (mi.column()) {
+        case 0:
+            if (role == Qt::DisplayRole)
+                return id.toString();
+        case 1:
+            if (role == Qt::DisplayRole)
+                return res.functionName;
+        }
+        return QVariant();
+    }
+
     switch (mi.column()) {
         case 0:
             if (role == Qt::DisplayRole) {
-                return QString::number(id);
+                return id.toString();
                 //return QString("%1 - %2").arg(id).arg(response.number);
             }
             if (role == Qt::DecorationRole)
@@ -894,6 +964,7 @@ void BreakHandler::notifyBreakpointReleased(BreakpointId id)
     it->state = BreakpointNew;
     it->engine = 0;
     it->response = BreakpointResponse();
+    it->subItems.clear();
     delete it->marker;
     it->marker = 0;
     if (it->data.type == WatchpointAtAddress
@@ -937,8 +1008,8 @@ void BreakHandler::removeBreakpoint(BreakpointId id)
         cleanupBreakpoint(id);
         break;
     default:
-        qWarning("Warning: Cannot remove breakpoint %llu in state '%s'.",
-               id, qPrintable(stateToString(it->state)));
+        qWarning("Warning: Cannot remove breakpoint %s in state '%s'.",
+               qPrintable(id.toString()), qPrintable(stateToString(it->state)));
         it->state = BreakpointRemoveRequested;
         break;
     }
@@ -963,9 +1034,42 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
     m_storage.insert(id, item);
     endInsertRows();
 
+    layoutChanged();
+
     updateMarker(id);
     scheduleSynchronization();
+}
 
+BreakpointId BreakHandler::at(int n) const
+{
+    if (n < 0 || n >= m_storage.size())
+        return BreakpointId();
+    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
+    for ( ; --n >= 0; ++it)
+        ;
+    return it.key();
+}
+
+int BreakHandler::indexOf(BreakpointId id) const
+{
+    int row = 0;
+    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
+    for ( ; it != et; ++it, ++row)
+        if (it.key() == id)
+            return row;
+    return -1;
+}
+
+void BreakHandler::appendSubBreakpoint(BreakpointId id, const BreakpointResponse &data)
+{
+    Iterator it = m_storage.find(id);
+    QTC_ASSERT(it != m_storage.end(), return);
+    int row = indexOf(id);
+    QTC_ASSERT(row != -1, return);
+    QModelIndex idx = createIndex(row, 0, id.toInternalId());
+    beginInsertRows(idx, it->subItems.size(), it->subItems.size());
+    it->subItems.append(data);
+    endInsertRows();
 }
 
 void BreakHandler::saveSessionData()

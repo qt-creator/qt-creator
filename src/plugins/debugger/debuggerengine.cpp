@@ -1497,7 +1497,7 @@ QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
 {
     return id
         ? tr("Data breakpoint %1 (%2) at %3 triggered.")
-            .arg(id).arg(number).arg(expr)
+            .arg(id.toString()).arg(number).arg(expr)
         : tr("Internal data breakpoint %1 at %2 triggered.")
             .arg(number).arg(expr);
 }
@@ -1507,7 +1507,7 @@ QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
 {
     return id
         ? tr("Data breakpoint %1 (%2) at %3 in thread %4 triggered.")
-            .arg(id).arg(number).arg(expr).arg(threadId)
+            .arg(id.toString()).arg(number).arg(expr).arg(threadId)
         : tr("Internal data breakpoint %1 at %2 in thread %4 triggered.")
             .arg(number).arg(expr).arg(threadId);
 }
@@ -1517,7 +1517,7 @@ QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
 {
     return id
         ? tr("Data breakpoint %1 (%2) at 0x%3 triggered.")
-            .arg(id).arg(number).arg(address, 0, 16)
+            .arg(id.toString()).arg(number).arg(address, 0, 16)
         : tr("Internal data breakpoint %1 at 0x%2 triggered.")
             .arg(number).arg(address, 0, 16);
 }
@@ -1527,9 +1527,9 @@ QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
 {
     return id
         ? tr("Data breakpoint %1 (%2) at 0x%3 in thread %4 triggered.")
-            .arg(id).arg(number).arg(address, 0, 16).arg(threadId)
+            .arg(id.toString()).arg(number).arg(address, 0, 16).arg(threadId)
         : tr("Internal data breakpoint %1 at 0x%2 in thread %3 triggered.")
-            .arg(id).arg(number).arg(address, 0, 16).arg(threadId);
+            .arg(id.toString()).arg(number).arg(address, 0, 16).arg(threadId);
 }
 
 QString DebuggerEngine::msgBreakpointTriggered(BreakpointId id,
@@ -1537,7 +1537,7 @@ QString DebuggerEngine::msgBreakpointTriggered(BreakpointId id,
 {
     return id
         ? tr("Stopped at breakpoint %1 (%2) in thread %3.")
-            .arg(id).arg(number).arg(threadId)
+            .arg(id.toString()).arg(number).arg(threadId)
         : tr("Stopped at internal breakpoint %1 in thread %2.")
             .arg(number).arg(threadId);
 }
