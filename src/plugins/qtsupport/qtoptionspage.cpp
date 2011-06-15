@@ -441,9 +441,13 @@ static QString filterForQmakeFileDialog()
 {
     QString filter("qmake (");
     foreach (const QString &s, Utils::BuildableHelperLibrary::possibleQMakeCommands()) {
-        filter += s + " ";
+#ifdef Q_WS_MAC
+        // work around QTBUG-7739 that prohibits filters that don't start with *
+        filter += QLatin1Char('*');
+#endif
+        filter += s + QLatin1Char(' ');
     }
-    filter += ")";
+    filter += QLatin1Char(')');
     return filter;
 }
 
