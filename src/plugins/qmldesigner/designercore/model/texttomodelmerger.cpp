@@ -746,6 +746,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
         }
 
+        setupImports(doc, differenceHandler);
+
         if (view()->checkSemanticErrors()) {
             Check check(doc, m_lookupContext->context());
             check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
@@ -759,8 +761,6 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
                 return false;
             }
         }
-
-        setupImports(doc, differenceHandler);
 
         UiObjectMember *astRootNode = 0;
         if (UiProgram *program = doc->qmlProgram())
