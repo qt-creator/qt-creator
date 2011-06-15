@@ -57,10 +57,10 @@ def qdump__QChar(d, item):
 
 def qdump__QAbstractItemModel(d, item):
     # Create a default-constructed QModelIndex on the stack.
-    ri = makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
-    this_ = makeExpression(item.value)
-    ri_ = makeExpression(ri)
     try:
+        ri = makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
+        this_ = makeExpression(item.value)
+        ri_ = makeExpression(ri)
         rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
         columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (this_, ri_)))
     except:
@@ -97,10 +97,10 @@ def qdump__QModelIndex(d, item):
     m = item.value["m"]
     mm = m.dereference()
     mm = mm.cast(mm.type.unqualified())
-    mi = makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
-    mm_ = makeExpression(mm)
-    mi_ = makeExpression(mi)
     try:
+        mi = makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
+        mm_ = makeExpression(mm)
+        mi_ = makeExpression(mi)
         rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
         columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
     except:
@@ -2487,7 +2487,6 @@ if False:
     #}
 
     def qdump__KRBase(d, item):
-        warn("DIR %s " % dir(item))
         if getattr(item, "__nested__", None) is None:
             base = ["KRA", "KRB"][int(item.value["type"])]
             nest = Item(item.value.cast(lookupType(base)), item.iname)
@@ -2500,3 +2499,10 @@ if False:
             d.putType(" ")
 
 
+
+if True:
+    def qdump__A5106(d, item):
+        d.putName("a")
+        d.putValue(item.value["m_a"])
+        d.putType(" ")
+        d.putNumChild(0)
