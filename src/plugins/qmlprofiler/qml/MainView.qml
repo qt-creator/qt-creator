@@ -158,6 +158,20 @@ Rectangle {
 
         clip:true
 
+        MouseArea {
+            width: flick.width
+            height: flick.contentHeight
+            x:  flick.contentX
+            onClicked: {
+                rangeDetails.visible = false
+                rangeDetails.duration = ""
+                rangeDetails.label = ""
+                rangeDetails.type = ""
+                rangeDetails.file = ""
+                rangeDetails.line = -1
+            }
+        }
+
         TimelineView {
             id: view
 
@@ -232,12 +246,6 @@ Rectangle {
                     }
                     onExited: {
                         myColor = baseColor
-                        rangeDetails.visible = false
-                        rangeDetails.duration = ""
-                        rangeDetails.label = ""
-                        rangeDetails.type = ""
-                        rangeDetails.file = ""
-                        rangeDetails.line = -1
                     }
                     onClicked: root.gotoSourceLocation(rangeDetails.file, rangeDetails.line);
                 }
