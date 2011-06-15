@@ -379,7 +379,7 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
 
 void NodeInstanceServer::setupFileUrl(const QUrl &fileUrl)
 {
-    if (fileUrl.isEmpty()) {
+    if (!fileUrl.isEmpty()) {
         engine()->setBaseUrl(fileUrl);
         m_fileUrl = fileUrl;
     }
