@@ -954,7 +954,7 @@ bool VCSBasePlugin::runPatch(const QByteArray &input, const QString &workingDire
     VCSBaseOutputWindow *ow = VCSBaseOutputWindow::instance();
     const QString patch = Internal::VCSPlugin::instance()->settings().patchCommand;
     if (patch.isEmpty()) {
-        ow->appendError(tr("There is no patch-command configured in the commone 'Version Control' settings."));
+        ow->appendError(tr("There is no patch-command configured in the common 'Version Control' settings."));
         return false;
     }
 

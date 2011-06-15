@@ -144,7 +144,7 @@ void MemcheckRunner::startRemotely(const Utils::SshConnectionParameters &sshPara
     QHostAddress hostAddr;
 
     if (possibleHostAddresses.isEmpty()) {
-        emit processErrorReceived(tr("No network interface found to use for remote analyzation."),
+        emit processErrorReceived(tr("No network interface found for remote analysis."),
                                   QProcess::FailedToStart);
         return;
     } else if (possibleHostAddresses.size() > 1) {
@@ -153,7 +153,7 @@ void MemcheckRunner::startRemotely(const Utils::SshConnectionParameters &sshPara
         QVBoxLayout *layout = new QVBoxLayout;
         QLabel *description = new QLabel;
         description->setWordWrap(true);
-        description->setText(tr("More than one network interface was found on your machine. Please select which one you want to use for remote analyzation."));
+        description->setText(tr("More than one network interface was found on your machine. Please select which one you want to use for remote analysis."));
         layout->addWidget(description);
         QListWidget *list = new QListWidget;
         foreach (const QHostAddress &address, possibleHostAddresses)

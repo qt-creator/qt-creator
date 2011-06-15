@@ -151,13 +151,13 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
         const QString error
                 = QCoreApplication::translate(
                     "QtVersion",
-                    "Build failed!");
+                    "Build failed.");
         log(QString(), error);
     } else {
         const QString result
                 = QCoreApplication::translate(
                     "QtVersion",
-                    "Build succeeded!");
+                    "Build succeeded.");
         log(result, QString());
     }
 

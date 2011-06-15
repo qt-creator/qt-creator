@@ -367,7 +367,7 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
 
     QtSupport::BaseQtVersion *lqt = m_buildConfig->qtVersion();
     if (!lqt)
-        finishWithFailure(QString(), tr("No qt version set"));
+        finishWithFailure(QString(), tr("No Qt version set"));
 
     if (m_state == Inactive)
         return;

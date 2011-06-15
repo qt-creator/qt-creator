@@ -340,7 +340,7 @@
            <widget class="QCheckBox" name="alignAssignments">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Enables alignment to tokens after =, += etc. When the option is disabled regular continuation line indentation will be used.&lt;br&gt;
+Enables alignment to tokens after =, += etc. When the option is disabled, regular continuation line indentation will be used.&lt;br&gt;
 &lt;br&gt;
 With alignment:
 &lt;pre&gt;

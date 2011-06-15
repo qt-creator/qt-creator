@@ -43,6 +43,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
+#include <QtCore/QCoreApplication>
 
 namespace Valgrind {
 namespace Callgrind {
@@ -214,9 +215,9 @@ QString Function::location() const
     if (f.isEmpty() || f == "???")
         return o;
     if (pos.isEmpty())
-        return QObject::tr("%1 in %2").arg(f, o);
+        return QCoreApplication::translate("Valgrind::Callgrind::Function", "%1 in %2").arg(f, o);
 
-    return QObject::tr("%1:%2 in %3").arg(f, pos, o);
+    return QCoreApplication::translate("Valgrind::Callgrind::Function", "%1:%2 in %3").arg(f, pos, o);
 }
 
 int Function::lineNumber() const
