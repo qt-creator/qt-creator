@@ -146,6 +146,8 @@ namespace nsY {
 int z;
 Vector<int> vi(10);
 Vector<float> vf(10);
+Vector<double> vd(10);
+Vector<char> vc(10);
 }
 }
 
@@ -2670,12 +2672,42 @@ void test4497()
     cout << "You entered " << n << "!" << endl;
 }
 
+class A5106
+{
+public:
+        A5106(int a, int b) : m_a(a), m_b(b) {}
+
+        virtual int test() { return 5; }
+
+private:
+        int m_a, m_b;
+};
+
+class B5106 : public A5106
+{
+public:
+        B5106(int c, int a, int b) : A5106(a, b), m_c(c) {}
+
+        virtual int test() { return 4; }
+
+private:
+        int m_c;
+};
+
+void test5106()
+{
+    B5106 b(1,2,3);
+    b.test();
+    b.test();
+}
+
 
 int main(int argc, char *argv[])
 {
     test842();
     test3611();
     test4019();
+    test5106();
     //test4497();
     testEigen();
     testKR();
