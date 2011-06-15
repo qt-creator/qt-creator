@@ -411,4 +411,14 @@ Module {
             "QtMobility.gallery/GalleryWildcardFilter 1.1"
         ]
     }
+    Component {
+        name: "QDeclarativePropertyMap"
+        prototype: "QObject"
+        Signal {
+            name: "valueChanged"
+            Parameter { name: "key"; type: "string" }
+            Parameter { name: "value"; type: "QVariant" }
+        }
+        Method { name: "keys"; type: "QStringList" }
+    }
 }

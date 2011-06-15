@@ -5,13 +5,33 @@ import QtQuick.tooling 1.0
 
 Module {
     Component {
-        name: "QValueSpaceSubscriber"
+        name: "QDeclarativeValueSpacePublisher"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.publishsubscribe/ValueSpacePublisher 1.2"
+        ]
+        Property { name: "path"; type: "string" }
+        Property { name: "hasSubscribers"; type: "bool"; isReadonly: true }
+        Property { name: "keys"; type: "QStringList" }
+        Property { name: "value"; type: "QVariant" }
+        Property { name: "server"; type: "bool" }
+        Signal { name: "subscribersChanged" }
+    }
+    Component {
+        name: "QDeclarativeValueSpaceSubscriber"
         prototype: "QObject"
         exports: [
             "QtMobility.publishsubscribe/ValueSpaceSubscriber 1.1"
         ]
         Property { name: "path"; type: "string" }
         Property { name: "value"; type: "QVariant"; isReadonly: true }
+        Property { name: "connected"; type: "bool"; isReadonly: true }
+        Property { name: "subPaths"; type: "QStringList"; isReadonly: true }
         Signal { name: "contentsChanged" }
+        Signal { name: "pathChanged" }
+        Method {
+            name: "setPath"
+            Parameter { name: "path"; type: "string" }
+        }
     }
 }

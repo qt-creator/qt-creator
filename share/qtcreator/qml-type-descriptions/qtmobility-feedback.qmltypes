@@ -5,10 +5,29 @@ import QtQuick.tooling 1.0
 
 Module {
     Component {
-        name: "QDeclarativeFeedback"
+        name: "QDeclarativeFeedbackActuator"
         prototype: "QObject"
         exports: [
-            "QtMobility.feedback/Feedback 1.1"
+            "QtMobility.feedback/Actuator 1.1"
+        ]
+        Property { name: "actuatorId"; type: "int"; isReadonly: true }
+        Property { name: "name"; type: "string"; isReadonly: true }
+        Property { name: "state"; type: "QFeedbackActuator::State"; isReadonly: true }
+        Property { name: "valid"; type: "bool"; isReadonly: true }
+        Property { name: "enabled"; type: "bool" }
+        Signal { name: "enabledChanged" }
+        Method {
+            name: "isCapabilitySupported"
+            type: "bool"
+            Parameter { name: "capbility"; type: "QFeedbackActuator::Capability" }
+        }
+    }
+    Component {
+        name: "QDeclarativeFeedbackEffect"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.feedback/Feedback 1.1",
+            "QtMobility.feedback/FeedbackEffect 1.1"
         ]
         Enum {
             name: "Duration"
@@ -32,32 +51,58 @@ Module {
                 "DeviceBusy": 1
             }
         }
+        Property { name: "running"; type: "bool" }
+        Property { name: "paused"; type: "bool" }
+        Property { name: "duration"; type: "int" }
+        Property { name: "state"; type: "State" }
+        Property { name: "error"; type: "ErrorType"; isReadonly: true }
+        Signal { name: "runningChanged" }
+        Signal { name: "pausedChanged" }
+        Signal { name: "durationChanged" }
+        Signal { name: "stateChanged" }
+        Signal { name: "errorChanged" }
+        Method { name: "updateState" }
     }
     Component {
         name: "QDeclarativeFileEffect"
-        prototype: "QFeedbackFileEffect"
+        prototype: "QDeclarativeFeedbackEffect"
         exports: [
             "QtMobility.feedback/FileEffect 1.1"
         ]
-        Property { name: "running"; type: "bool" }
-        Property { name: "paused"; type: "bool" }
-        Signal { name: "runningChanged" }
-        Signal { name: "pausedChanged" }
-        Method { name: "updateState" }
+        Property { name: "loaded"; type: "bool" }
+        Property { name: "source"; type: "QUrl" }
+        Property { name: "supportedMimeTypes"; type: "QStringList"; isReadonly: true }
+        Signal { name: "loadedChanged" }
+        Signal { name: "sourceChanged" }
+        Method { name: "load" }
+        Method { name: "unload" }
     }
     Component {
         name: "QDeclarativeHapticsEffect"
-        prototype: "QFeedbackHapticsEffect"
+        prototype: "QDeclarativeFeedbackEffect"
         exports: [
             "QtMobility.feedback/HapticsEffect 1.1"
         ]
-        Property { name: "actuators"; type: "QFeedbackActuator"; isList: true; isReadonly: true }
-        Property { name: "running"; type: "bool" }
-        Property { name: "paused"; type: "bool" }
-        Signal { name: "runningChanged" }
-        Signal { name: "pausedChanged" }
-        Signal { name: "actuatorsChanged" }
-        Method { name: "updateState" }
+        Property {
+            name: "availableActuators"
+            type: "QDeclarativeFeedbackActuator"
+            isList: true
+            isReadonly: true
+        }
+        Property { name: "intensity"; type: "qreal" }
+        Property { name: "attackTime"; type: "int" }
+        Property { name: "attackIntensity"; type: "qreal" }
+        Property { name: "fadeTime"; type: "int" }
+        Property { name: "fadeIntensity"; type: "qreal" }
+        Property { name: "period"; type: "int" }
+        Property { name: "actuator"; type: "QDeclarativeFeedbackActuator"; isPointer: true }
+        Signal { name: "intensityChanged" }
+        Signal { name: "attackTimeChanged" }
+        Signal { name: "attackIntensityChanged" }
+        Signal { name: "fadeTimeChanged" }
+        Signal { name: "fadeIntensityChanged" }
+        Signal { name: "periodChanged" }
+        Signal { name: "actuatorChanged" }
     }
     Component {
         name: "QDeclarativeThemeEffect"
@@ -109,132 +154,5 @@ Module {
         Property { name: "effect"; type: "ThemeEffect" }
         Signal { name: "effectChanged" }
         Method { name: "play" }
-    }
-    Component {
-        name: "QFeedbackActuator"
-        prototype: "QObject"
-        exports: [
-            "QtMobility.feedback/Actuator 1.1"
-        ]
-        Enum {
-            name: "Capability"
-            values: {
-                "Envelope": 0,
-                "Period": 1
-            }
-        }
-        Enum {
-            name: "State"
-            values: {
-                "Busy": 0,
-                "Ready": 1,
-                "Unknown": 2
-            }
-        }
-        Property { name: "id"; type: "int"; isReadonly: true }
-        Property { name: "name"; type: "string"; isReadonly: true }
-        Property { name: "state"; type: "QFeedbackActuator::State"; isReadonly: true }
-        Property { name: "valid"; type: "bool"; isReadonly: true }
-        Property { name: "enabled"; type: "bool" }
-        Signal { name: "enabledChanged" }
-        Method {
-            name: "isCapabilitySupported"
-            type: "bool"
-            Parameter { type: "Capability" }
-        }
-    }
-    Component {
-        name: "QFeedbackEffect"
-        prototype: "QObject"
-        Enum {
-            name: "ThemeEffect"
-            values: {
-                "ThemeBasic": 0,
-                "ThemeSensitive": 1,
-                "ThemeBasicButton": 2,
-                "ThemeSensitiveButton": 3,
-                "ThemeBasicKeypad": 4,
-                "ThemeSensitiveKeypad": 5,
-                "ThemeBasicSlider": 6,
-                "ThemeSensitiveSlider": 7,
-                "ThemeBasicItem": 8,
-                "ThemeSensitiveItem": 9,
-                "ThemeItemScroll": 10,
-                "ThemeItemPick": 11,
-                "ThemeItemDrop": 12,
-                "ThemeItemMoveOver": 13,
-                "ThemeBounceEffect": 14,
-                "ThemeCheckBox": 15,
-                "ThemeMultipleCheckBox": 16,
-                "ThemeEditor": 17,
-                "ThemeTextSelection": 18,
-                "ThemeBlankSelection": 19,
-                "ThemeLineSelection": 20,
-                "ThemeEmptyLineSelection": 21,
-                "ThemePopUp": 22,
-                "ThemePopupOpen": 23,
-                "ThemePopupClose": 24,
-                "ThemeFlick": 25,
-                "ThemeStopFlick": 26,
-                "ThemeMultiPointTouchActivate": 27,
-                "ThemeRotateStep": 28,
-                "ThemeLongPress": 29,
-                "ThemePositiveTacticon": 30,
-                "ThemeNeutralTacticon": 31,
-                "ThemeNegativeTacticon": 32,
-                "NumberOfThemeEffects": 33,
-                "ThemeUser": 65535
-            }
-        }
-        Enum {
-            name: "Duration"
-            values: {
-                "Infinite": -1
-            }
-        }
-        Enum {
-            name: "State"
-            values: {
-                "Stopped": 0,
-                "Paused": 1,
-                "Running": 2,
-                "Loading": 3
-            }
-        }
-        Enum {
-            name: "ErrorType"
-            values: {
-                "UnknownError": 0,
-                "DeviceBusy": 1
-            }
-        }
-        Property { name: "duration"; type: "int"; isReadonly: true }
-        Property { name: "state"; type: "State"; isReadonly: true }
-        Signal {
-            name: "error"
-            Parameter { type: "QFeedbackEffect::ErrorType" }
-        }
-        Signal { name: "stateChanged" }
-        Method { name: "start" }
-        Method { name: "stop" }
-        Method { name: "pause" }
-    }
-    Component {
-        name: "QFeedbackFileEffect"
-        prototype: "QFeedbackEffect"
-        Property { name: "loaded"; type: "bool" }
-        Property { name: "source"; type: "QUrl" }
-    }
-    Component {
-        name: "QFeedbackHapticsEffect"
-        prototype: "QFeedbackEffect"
-        Property { name: "duration"; type: "int" }
-        Property { name: "intensity"; type: "qreal" }
-        Property { name: "attackTime"; type: "int" }
-        Property { name: "attackIntensity"; type: "qreal" }
-        Property { name: "fadeTime"; type: "int" }
-        Property { name: "fadeIntensity"; type: "int" }
-        Property { name: "period"; type: "int" }
-        Property { name: "actuator"; type: "QFeedbackActuator"; isPointer: true }
     }
 }

@@ -8,14 +8,16 @@ Module {
         name: "QAccelerometer"
         prototype: "QSensor"
         exports: [
-            "QtMobility.sensors/Accelerometer 1.1"
+            "QtMobility.sensors/Accelerometer 1.1",
+            "QtMobility.sensors/Accelerometer 1.2"
         ]
     }
     Component {
         name: "QAccelerometerReading"
         prototype: "QSensorReading"
         exports: [
-            "QtMobility.sensors/AccelerometerReading 1.1"
+            "QtMobility.sensors/AccelerometerReading 1.1",
+            "QtMobility.sensors/AccelerometerReading 1.2"
         ]
         Property { name: "x"; type: "qreal"; isReadonly: true }
         Property { name: "y"; type: "qreal"; isReadonly: true }
@@ -25,7 +27,8 @@ Module {
         name: "QAmbientLightReading"
         prototype: "QSensorReading"
         exports: [
-            "QtMobility.sensors/AmbientLightReading 1.1"
+            "QtMobility.sensors/AmbientLightReading 1.1",
+            "QtMobility.sensors/AmbientLightReading 1.2"
         ]
         Enum {
             name: "LightLevel"
@@ -44,37 +47,74 @@ Module {
         name: "QAmbientLightSensor"
         prototype: "QSensor"
         exports: [
-            "QtMobility.sensors/AmbientLightSensor 1.1"
+            "QtMobility.sensors/AmbientLightSensor 1.1",
+            "QtMobility.sensors/AmbientLightSensor 1.2"
         ]
     }
     Component {
         name: "QCompass"
         prototype: "QSensor"
         exports: [
-            "QtMobility.sensors/Compass 1.1"
+            "QtMobility.sensors/Compass 1.1",
+            "QtMobility.sensors/Compass 1.2"
         ]
     }
     Component {
         name: "QCompassReading"
         prototype: "QSensorReading"
         exports: [
-            "QtMobility.sensors/CompassReading 1.1"
+            "QtMobility.sensors/CompassReading 1.1",
+            "QtMobility.sensors/CompassReading 1.2"
         ]
         Property { name: "azimuth"; type: "qreal"; isReadonly: true }
         Property { name: "calibrationLevel"; type: "qreal"; isReadonly: true }
     }
     Component {
+        name: "QGyroscope"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/Gyroscope 1.2"
+        ]
+    }
+    Component {
+        name: "QGyroscopeReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/GyroscopeReading 1.2"
+        ]
+        Property { name: "x"; type: "qreal"; isReadonly: true }
+        Property { name: "y"; type: "qreal"; isReadonly: true }
+        Property { name: "z"; type: "qreal"; isReadonly: true }
+    }
+    Component {
+        name: "QLightReading"
+        prototype: "QSensorReading"
+        exports: [
+            "QtMobility.sensors/LightReading 1.2"
+        ]
+        Property { name: "lux"; type: "qreal"; isReadonly: true }
+    }
+    Component {
+        name: "QLightSensor"
+        prototype: "QSensor"
+        exports: [
+            "QtMobility.sensors/LightSensor 1.2"
+        ]
+    }
+    Component {
         name: "QMagnetometer"
         prototype: "QSensor"
         exports: [
-            "QtMobility.sensors/Magnetometer 1.1"
+            "QtMobility.sensors/Magnetometer 1.1",
+            "QtMobility.sensors/Magnetometer 1.2"
         ]
     }
     Component {
         name: "QMagnetometerReading"
         prototype: "QSensorReading"
         exports: [
-            "QtMobility.sensors/MagnetometerReading 1.1"
+            "QtMobility.sensors/MagnetometerReading 1.1",
+            "QtMobility.sensors/MagnetometerReading 1.2"
         ]
         Property { name: "x"; type: "qreal"; isReadonly: true }
         Property { name: "y"; type: "qreal"; isReadonly: true }
@@ -85,7 +125,8 @@ Module {
         name: "QOrientationReading"
         prototype: "QSensorReading"
         exports: [
-            "QtMobility.sensors/OrientationReading 1.1"
+            "QtMobility.sensors/OrientationReading 1.1",
+            "QtMobility.sensors/OrientationReading 1.2"
         ]
         Enum {
             name: "Orientation"
@@ -105,14 +146,16 @@ Module {
         name: "QOrientationSensor"
         prototype: "QSensor"
         exports: [
-            "QtMobility.sensors/OrientationSensor 1.1"
+            "QtMobility.sensors/OrientationSensor 1.1",
+            "QtMobility.sensors/OrientationSensor 1.2"
         ]
     }
     Component {
         name: "QProximityReading"
         prototype: "QSensorReading"
         exports: [
-            "QtMobility.sensors/ProximityReading 1.1"
+            "QtMobility.sensors/ProximityReading 1.1",
+            "QtMobility.sensors/ProximityReading 1.2"
         ]
         Property { name: "close"; type: "bool"; isReadonly: true }
     }
@@ -120,14 +163,16 @@ Module {
         name: "QProximitySensor"
         prototype: "QSensor"
         exports: [
-            "QtMobility.sensors/ProximitySensor 1.1"
+            "QtMobility.sensors/ProximitySensor 1.1",
+            "QtMobility.sensors/ProximitySensor 1.2"
         ]
     }
     Component {
         name: "QRotationReading"
         prototype: "QSensorReading"
         exports: [
-            "QtMobility.sensors/RotationReading 1.1"
+            "QtMobility.sensors/RotationReading 1.1",
+            "QtMobility.sensors/RotationReading 1.2"
         ]
         Property { name: "x"; type: "qreal"; isReadonly: true }
         Property { name: "y"; type: "qreal"; isReadonly: true }
@@ -137,7 +182,8 @@ Module {
         name: "QRotationSensor"
         prototype: "QSensor"
         exports: [
-            "QtMobility.sensors/RotationSensor 1.1"
+            "QtMobility.sensors/RotationSensor 1.1",
+            "QtMobility.sensors/RotationSensor 1.2"
         ]
     }
     Component {
@@ -162,6 +208,7 @@ Module {
             name: "sensorError"
             Parameter { name: "error"; type: "int" }
         }
+        Signal { name: "availableSensorsChanged" }
         Method { name: "start"; type: "bool" }
         Method { name: "stop" }
         Method { name: "connectToBackend"; type: "bool" }
@@ -175,7 +222,8 @@ Module {
         name: "QTapReading"
         prototype: "QSensorReading"
         exports: [
-            "QtMobility.sensors/TapReading 1.1"
+            "QtMobility.sensors/TapReading 1.1",
+            "QtMobility.sensors/TapReading 1.2"
         ]
         Enum {
             name: "TapDirection"
@@ -189,7 +237,10 @@ Module {
                 "Z_Pos": 68,
                 "X_Neg": 257,
                 "Y_Neg": 514,
-                "Z_Neg": 1028
+                "Z_Neg": 1028,
+                "X_Both": 273,
+                "Y_Both": 546,
+                "Z_Both": 1092
             }
         }
         Property { name: "tapDirection"; type: "TapDirection"; isReadonly: true }
@@ -199,7 +250,8 @@ Module {
         name: "QTapSensor"
         prototype: "QSensor"
         exports: [
-            "QtMobility.sensors/TapSensor 1.1"
+            "QtMobility.sensors/TapSensor 1.1",
+            "QtMobility.sensors/TapSensor 1.2"
         ]
     }
 }
