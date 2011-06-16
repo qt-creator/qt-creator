@@ -59,7 +59,6 @@ static const QLatin1String ExportedLocalDirsKey(PREFIX ".ExportedLocalDirs");
 static const QLatin1String RemoteMountPointsKey(PREFIX ".RemoteMountPoints");
 static const QLatin1String BaseEnvironmentBaseKey(PREFIX ".BaseEnvironmentBase");
 static const QLatin1String UserEnvironmentChangesKey(PREFIX ".UserEnvironmentChanges");
-static const QLatin1String UseRemoteGdbKey(PREFIX ".UseRemoteGdb");
 
 } // namespace Internal
 

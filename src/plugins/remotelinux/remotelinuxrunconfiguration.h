@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef MAEMORUNCONFIGURATION_H
-#define MAEMORUNCONFIGURATION_H
+#ifndef REMOTELINUXRUNCONFIGURATION_H
+#define REMOTELINUXRUNCONFIGURATION_H
 
 #include "linuxdeviceconfiguration.h"
 #include "maemoconstants.h"
@@ -55,22 +55,21 @@ class Qt4ProFileNode;
 } // namespace Qt4ProjectManager
 
 namespace RemoteLinux {
+class RemoteLinuxRunConfigurationWidget;
+
 namespace Internal {
 class AbstractLinuxDeviceDeployStep;
 class MaemoDeviceConfigListModel;
-class MaemoRemoteMountsModel;
-class MaemoRunConfigurationFactory;
-class MaemoRunConfigurationWidget;
-class MaemoToolChain;
 class Qt4MaemoDeployConfiguration;
 class RemoteLinuxRunConfigurationPrivate;
+class RemoteLinuxRunConfigurationFactory;
 } // namespace Internal
 
 class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-    friend class Internal::MaemoRunConfigurationFactory;
-    friend class Internal::MaemoRunConfigurationWidget;
+    friend class Internal::RemoteLinuxRunConfigurationFactory;
+    friend class RemoteLinuxRunConfigurationWidget;
 
 public:
     enum BaseEnvironmentType {
@@ -80,7 +79,7 @@ public:
 
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
 
-    RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent,
+    RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, const QString &id,
         const QString &proFilePath);
     virtual ~RemoteLinuxRunConfiguration();
 
@@ -92,16 +91,15 @@ public:
     Qt4ProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     Internal::Qt4MaemoDeployConfiguration *deployConfig() const;
-    Internal::MaemoRemoteMountsModel *remoteMounts() const;
+
+    virtual QString commandPrefix() const;
+    virtual PortList freePorts() const;
+    virtual DebuggingType debuggingType() const;
 
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
     QString arguments() const;
-    QString commandPrefix() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const;
-    PortList freePorts() const;
-    DebuggingType debuggingType() const;
-
     QString gdbCmd() const;
 
     virtual QVariantMap toMap() const;
@@ -114,9 +112,10 @@ public:
     Utils::Environment systemEnvironment() const;
 
     int portsUsedByDebuggers() const;
-    bool hasEnoughFreePorts(const QString &mode) const;
 
     QString proFilePath() const;
+
+    static const QString Id;
 
 signals:
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
@@ -125,25 +124,25 @@ signals:
     void baseEnvironmentChanged();
     void systemEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
-    void remoteMountsChanged();
 
 protected:
     RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent,
         RemoteLinuxRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     QString defaultDisplayName();
+    void setDisabledReason(const QString &reason) const;
+    QString userEnvironmentChangesAsString() const;
+    Internal::AbstractLinuxDeviceDeployStep *deployStep() const;
+    Q_SLOT void updateEnabledState() { emit isEnabledChanged(isEnabled()); }
 
 private slots:
     void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
     void updateDeviceConfigurations();
     void handleDeployConfigChanged();
     void handleDeployablesUpdated();
-    void handleRemoteMountsChanged();
-    void updateEnabledState() { emit isEnabledChanged(isEnabled()); }
 
 private:
     void init();
-    Internal::AbstractLinuxDeviceDeployStep *deployStep() const;
 
     void setArguments(const QString &args);
     void setBaseEnvironmentType(BaseEnvironmentType env);
@@ -155,4 +154,4 @@ private:
 
 } // namespace RemoteLinux
 
-#endif // MAEMORUNCONFIGURATION_H
+#endif // REMOTELINUXRUNCONFIGURATION_H

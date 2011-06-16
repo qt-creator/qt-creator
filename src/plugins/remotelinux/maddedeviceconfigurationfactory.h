@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,31 +29,25 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef MADDEDEVICECONFIGURATIONFACTORY_H
+#define MADDEDEVICECONFIGURATIONFACTORY_H
 
-#ifndef MAEMODEBUGSUPPORT_H
-#define MAEMODEBUGSUPPORT_H
-
-#include <remotelinux/remotelinuxdebugsupport.h>
+#include "genericlinuxdeviceconfigurationfactory.h"
 
 namespace RemoteLinux {
 namespace Internal {
-class MaemoRunConfiguration;
-class MaemoSshRunner;
 
-class MaemoDebugSupport : public AbstractRemoteLinuxDebugSupport
+class MaddeDeviceConfigurationFactory : public GenericLinuxDeviceConfigurationFactory
 {
-    Q_OBJECT
 public:
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~MaemoDebugSupport();
+    MaddeDeviceConfigurationFactory(QObject *parent = 0);
 
-private:
-    RemoteLinuxApplicationRunner *runner() const;
-
-    MaemoSshRunner * const m_runner;
+    QString displayName() const;
+    ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent) const;
+    bool supportsOsType(const QString &osType) const;
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEBUGSUPPORT_H
+#endif // MADDEDEVICECONFIGURATIONFACTORY_H

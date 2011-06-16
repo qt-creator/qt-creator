@@ -28,31 +28,31 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef GENERICLINUXDEVICECONFIGURATIONWIZARD_H
+#define GENERICLINUXDEVICECONFIGURATIONWIZARD_H
 
-#ifndef MAEMODEBUGSUPPORT_H
-#define MAEMODEBUGSUPPORT_H
-
-#include <remotelinux/remotelinuxdebugsupport.h>
+#include "linuxdeviceconfiguration.h"
 
 namespace RemoteLinux {
 namespace Internal {
-class MaemoRunConfiguration;
-class MaemoSshRunner;
+class GenericLinuxDeviceConfigurationWizardPrivate;
+} // namespace Internal
 
-class MaemoDebugSupport : public AbstractRemoteLinuxDebugSupport
+class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizard
+        : public ILinuxDeviceConfigurationWizard
 {
     Q_OBJECT
+    Q_DISABLE_COPY(GenericLinuxDeviceConfigurationWizard)
 public:
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~MaemoDebugSupport();
+    GenericLinuxDeviceConfigurationWizard(QWidget *parent = 0);
+    ~GenericLinuxDeviceConfigurationWizard();
+
+    LinuxDeviceConfiguration::Ptr deviceConfiguration();
 
 private:
-    RemoteLinuxApplicationRunner *runner() const;
-
-    MaemoSshRunner * const m_runner;
+    Internal::GenericLinuxDeviceConfigurationWizardPrivate * const m_d;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEBUGSUPPORT_H
+#endif // GENERICLINUXDEVICECONFIGURATIONWIZARD_H

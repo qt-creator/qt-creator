@@ -89,7 +89,6 @@ public:
         m_ui->fremantleButton->setText(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::Maemo5OsType));
         m_ui->harmattanButton->setText(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::HarmattanOsType));
         m_ui->meegoButton->setText(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::MeeGoOsType));
-        m_ui->genericLinuxButton->setText(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::GenericLinuxOsType));
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
@@ -103,9 +102,6 @@ public:
         buttonGroup->addButton(m_ui->fremantleButton);
         buttonGroup->addButton(m_ui->harmattanButton);
         buttonGroup->addButton(m_ui->meegoButton);
-        buttonGroup->addButton(m_ui->genericLinuxButton);
-        connect(buttonGroup, SIGNAL(buttonClicked(int)),
-           SLOT(handleOsTypeChanged()));
 
         m_ui->nameLineEdit->setText(QLatin1String("(New Configuration)"));
         m_ui->harmattanButton->setChecked(true);
@@ -137,8 +133,7 @@ public:
     {
         return m_ui->fremantleButton->isChecked() ? LinuxDeviceConfiguration::Maemo5OsType
             : m_ui->harmattanButton->isChecked() ? LinuxDeviceConfiguration::HarmattanOsType
-            : m_ui->meegoButton->isChecked() ? LinuxDeviceConfiguration::MeeGoOsType
-            : LinuxDeviceConfiguration::GenericLinuxOsType;
+            : LinuxDeviceConfiguration::MeeGoOsType;
     }
 
     LinuxDeviceConfiguration::DeviceType deviceType() const
@@ -153,19 +148,6 @@ private slots:
         const bool enable = deviceType() == LinuxDeviceConfiguration::Physical;
         m_ui->hostNameLabel->setEnabled(enable);
         m_ui->hostNameLineEdit->setEnabled(enable);
-    }
-
-    void handleOsTypeChanged()
-    {
-        if (osType() == LinuxDeviceConfiguration::GenericLinuxOsType) {
-            m_ui->hwButton->setChecked(true);
-            m_ui->hwButton->setEnabled(false);
-            m_ui->qemuButton->setEnabled(false);
-        } else {
-            m_ui->hwButton->setEnabled(true);
-            m_ui->qemuButton->setEnabled(true);
-        }
-        handleDeviceTypeChanged();
     }
 
 private:
@@ -630,28 +612,16 @@ MaemoDeviceConfigWizard::~MaemoDeviceConfigWizard() {}
 
 LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
 {
-    LinuxDeviceConfiguration::Ptr devConf;
-
-    if (d->wizardData.osType == LinuxDeviceConfiguration::GenericLinuxOsType) {
-        if (d->wizardData.authType == SshConnectionParameters::AuthenticationByPassword) {
-            devConf = LinuxDeviceConfiguration::createGenericLinuxConfigUsingPassword(d->wizardData.configName,
-               d->wizardData.hostName, d->wizardData.userName, d->wizardData.password);
-        } else {
-            devConf = LinuxDeviceConfiguration::createGenericLinuxConfigUsingKey(d->wizardData.configName,
-                d->wizardData.hostName, d->wizardData.userName, d->wizardData.privateKeyFilePath);
-        }
-    } else if (d->wizardData.deviceType == LinuxDeviceConfiguration::Physical) {
-        devConf = LinuxDeviceConfiguration::createHardwareConfig(d->wizardData.configName,
-            d->wizardData.osType, d->wizardData.hostName, d->wizardData.privateKeyFilePath);
-    } else {
-        devConf = LinuxDeviceConfiguration::createEmulatorConfig(d->wizardData.configName,
+    if (d->wizardData.deviceType == LinuxDeviceConfiguration::Emulator) {
+        return LinuxDeviceConfiguration::createEmulatorConfig(d->wizardData.configName,
             d->wizardData.osType);
     }
 
-    if (devConf->type() != LinuxDeviceConfiguration::Emulator) {
-        MaemoConfigTestDialog dlg(devConf, this);
-        dlg.exec();
-    }
+    const LinuxDeviceConfiguration::Ptr devConf
+        = LinuxDeviceConfiguration::createHardwareConfig(d->wizardData.configName,
+              d->wizardData.osType, d->wizardData.hostName, d->wizardData.privateKeyFilePath);
+    MaemoConfigTestDialog dlg(devConf, this);
+    dlg.exec();
     return devConf;
 }
 
@@ -664,13 +634,9 @@ int MaemoDeviceConfigWizard::nextId() const
         d->wizardData.deviceType = d->startPage.deviceType();
         d->wizardData.hostName = d->startPage.hostName();
 
-        if (d->wizardData.deviceType == LinuxDeviceConfiguration::Emulator) {
+        if (d->wizardData.deviceType == LinuxDeviceConfiguration::Emulator)
             return FinalPageId;
-        } else if (d->wizardData.osType == LinuxDeviceConfiguration::GenericLinuxOsType) {
-            return LoginDataPageId;
-        } else {
-            return PreviousKeySetupCheckPageId;
-        }
+        return PreviousKeySetupCheckPageId;
     case LoginDataPageId:
         d->wizardData.userName = d->loginDataPage.userName();
         d->wizardData.authType = d->loginDataPage.authType();

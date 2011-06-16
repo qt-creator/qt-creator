@@ -31,13 +31,9 @@
 
 #include "maemorunconfigurationwidget.h"
 
-#include "maemodeployables.h"
-#include "maemodeviceenvreader.h"
 #include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
-#include "remotelinuxrunconfiguration.h"
-#include "maemosettingspages.h"
-#include "qt4maemodeployconfiguration.h"
+#include "maemorunconfiguration.h"
 #include "qt4maemotarget.h"
 
 #include <coreplugin/coreconstants.h>
@@ -45,6 +41,7 @@
 #include <projectexplorer/environmentwidget.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4target.h>
+#include <remotelinux/remotelinuxrunconfigurationwidget.h>
 #include <utils/detailswidget.h>
 
 #include <QtGui/QButtonGroup>
@@ -67,151 +64,47 @@ using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
 namespace Internal {
-namespace {
-const QString FetchEnvButtonText
-    = QCoreApplication::translate("ReoteLinux::Internal::MaemoRunConfigurationWidget",
-          "Fetch Device Environment");
-} // anonymous namespace
 
 MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
-        RemoteLinuxRunConfiguration *runConfiguration, QWidget *parent)
-    : QWidget(parent),
-    m_runConfiguration(runConfiguration),
-    m_ignoreChange(false),
-    m_deviceEnvReader(new MaemoDeviceEnvReader(this, runConfiguration)),
-    m_deployablesConnected(false)
+        MaemoRunConfiguration *runConfiguration, QWidget *parent)
+    : QWidget(parent), m_runConfiguration(runConfiguration)
 {
     QVBoxLayout *topLayout = new QVBoxLayout(this);
     topLayout->setMargin(0);
-    addDisabledLabel(topLayout);
-
-    topWidget = new QWidget;
+    QWidget *topWidget = new QWidget;
     topLayout->addWidget(topWidget);
-
     QVBoxLayout *mainLayout = new QVBoxLayout(topWidget);
-    addGenericWidgets(mainLayout);
-    mainLayout->addSpacing(20);
-    addMountWidgets(mainLayout);
-    addEnvironmentWidgets(mainLayout);
-    connect(m_runConfiguration,
-        SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
-        this, SLOT(handleCurrentDeviceConfigChanged()));
-    handleCurrentDeviceConfigChanged();
-
-    connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
-            this, SLOT(runConfigurationEnabledChange(bool)));
+    mainLayout->setMargin(0);
+    m_remoteLinuxRunConfigWidget = new RemoteLinuxRunConfigurationWidget(runConfiguration, parent);
+    mainLayout->addWidget(m_remoteLinuxRunConfigWidget);
+    m_subWidget = new QWidget;
+    mainLayout->addWidget(m_subWidget);
+    QVBoxLayout *subLayout = new QVBoxLayout(m_subWidget);
+    subLayout->setMargin(0);
+    addMountWidgets(subLayout);
+    connect(m_runConfiguration, SIGNAL(deviceConfigurationChanged(ProjectExplorer::Target*)),
+        this, SLOT(updateMountWarning()));
+    connect(m_runConfiguration, SIGNAL(debuggersChanged()), SLOT(updateMountWarning()));
+    updateMountWarning();
 
     const AbstractQt4MaemoTarget * const maemoTarget
         = qobject_cast<AbstractQt4MaemoTarget *>(runConfiguration->target());
-    const bool remoteMountsAvailable
-        = maemoTarget && maemoTarget->allowsRemoteMounts();
-    m_mountDetailsContainer->setVisible(remoteMountsAvailable);
-    const bool qmlDebuggingAvailable
-        = !maemoTarget || maemoTarget->allowsQmlDebugging();
-    m_debuggingLanguagesLabel->setVisible(qmlDebuggingAvailable);
-    m_debugCppOnlyButton->setVisible(qmlDebuggingAvailable);
-    m_debugQmlOnlyButton->setVisible(qmlDebuggingAvailable);
-    m_debugCppAndQmlButton->setVisible(qmlDebuggingAvailable);
+    m_mountDetailsContainer->setVisible(maemoTarget->allowsRemoteMounts());
+    if (!maemoTarget->allowsQmlDebugging())
+        m_remoteLinuxRunConfigWidget->suppressQmlDebuggingOptions();
 
+    connect(m_runConfiguration, SIGNAL(isEnabledChanged(bool)),
+            this, SLOT(runConfigurationEnabledChange(bool)));
     runConfigurationEnabledChange(m_runConfiguration->isEnabled());
 }
 
 void MaemoRunConfigurationWidget::runConfigurationEnabledChange(bool enabled)
 {
-    topWidget->setEnabled(enabled);
-    m_disabledIcon->setVisible(!enabled);
-    m_disabledReason->setVisible(!enabled);
-    m_disabledReason->setText(m_runConfiguration->disabledReason());
-}
-
-void MaemoRunConfigurationWidget::addDisabledLabel(QVBoxLayout *topLayout)
-{
-    QHBoxLayout *hl = new QHBoxLayout();
-    hl->addStretch();
-    m_disabledIcon = new QLabel(this);
-    m_disabledIcon->setPixmap(QPixmap(QString::fromUtf8(":/projectexplorer/images/compile_warning.png")));
-    hl->addWidget(m_disabledIcon);
-    m_disabledReason = new QLabel(this);
-    m_disabledReason->setVisible(false);
-    hl->addWidget(m_disabledReason);
-    hl->addStretch();
-    topLayout->addLayout(hl);
-}
-
-void MaemoRunConfigurationWidget::addGenericWidgets(QVBoxLayout *mainLayout)
-{
-    QFormLayout *formLayout = new QFormLayout;
-    mainLayout->addLayout(formLayout);
-    formLayout->setFormAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-
-    QWidget *devConfWidget = new QWidget;
-    QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
-    m_devConfLabel = new QLabel;
-    devConfLayout->setMargin(0);
-    devConfLayout->addWidget(m_devConfLabel);
-    QLabel *addDevConfLabel= new QLabel(tr("<a href=\"%1\">Manage device configurations</a>")
-        .arg(QLatin1String("deviceconfig")));
-    addDevConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    devConfLayout->addWidget(addDevConfLabel);
-
-    QLabel *debuggerConfLabel = new QLabel(tr("<a href=\"%1\">Set Debugger</a>")
-        .arg(QLatin1String("debugger")));
-    debuggerConfLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    devConfLayout->addWidget(debuggerConfLabel);
-
-    formLayout->addRow(new QLabel(tr("Device configuration:")), devConfWidget);
-    m_localExecutableLabel
-        = new QLabel(m_runConfiguration->localExecutableFilePath());
-    formLayout->addRow(tr("Executable on host:"), m_localExecutableLabel);
-    m_remoteExecutableLabel = new QLabel;
-    formLayout->addRow(tr("Executable on device:"), m_remoteExecutableLabel);
-    m_argsLineEdit = new QLineEdit(m_runConfiguration->arguments());
-    formLayout->addRow(tr("Arguments:"), m_argsLineEdit);
-
-    QHBoxLayout * const debugButtonsLayout = new QHBoxLayout;
-    m_debugCppOnlyButton = new QRadioButton(tr("C++ only"));
-    m_debugQmlOnlyButton = new QRadioButton(tr("QML only"));
-    m_debugCppAndQmlButton = new QRadioButton(tr("C++ and QML"));
-    m_debuggingLanguagesLabel = new QLabel(tr("Debugging type:"));
-    QButtonGroup * const buttonGroup = new QButtonGroup;
-    buttonGroup->addButton(m_debugCppOnlyButton);
-    buttonGroup->addButton(m_debugQmlOnlyButton);
-    buttonGroup->addButton(m_debugCppAndQmlButton);
-    debugButtonsLayout->addWidget(m_debugCppOnlyButton);
-    debugButtonsLayout->addWidget(m_debugQmlOnlyButton);
-    debugButtonsLayout->addWidget(m_debugCppAndQmlButton);
-    debugButtonsLayout->addStretch(1);
-    formLayout->addRow(m_debuggingLanguagesLabel, debugButtonsLayout);
-    if (m_runConfiguration->useCppDebugger()) {
-        if (m_runConfiguration->useQmlDebugger())
-            m_debugCppAndQmlButton->setChecked(true);
-        else
-            m_debugCppOnlyButton->setChecked(true);
-    } else {
-        m_debugQmlOnlyButton->setChecked(true);
-    }
-
-    connect(addDevConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showDeviceConfigurationsDialog(QString)));
-    connect(debuggerConfLabel, SIGNAL(linkActivated(QString)), this,
-        SLOT(showDeviceConfigurationsDialog(QString)));
-    connect(m_argsLineEdit, SIGNAL(textEdited(QString)), this,
-        SLOT(argumentsEdited(QString)));
-    connect(m_debugCppOnlyButton, SIGNAL(toggled(bool)), this,
-        SLOT(handleDebuggingTypeChanged()));
-    connect(m_debugQmlOnlyButton, SIGNAL(toggled(bool)), this,
-        SLOT(handleDebuggingTypeChanged()));
-    connect(m_debugCppAndQmlButton, SIGNAL(toggled(bool)), this,
-        SLOT(handleDebuggingTypeChanged()));
-    connect(m_runConfiguration, SIGNAL(targetInformationChanged()), this,
-        SLOT(updateTargetInformation()));
-    connect(m_runConfiguration, SIGNAL(deploySpecsChanged()), SLOT(handleDeploySpecsChanged()));
-    handleDeploySpecsChanged();
+    m_subWidget->setEnabled(enabled);
 }
 
 void MaemoRunConfigurationWidget::addMountWidgets(QVBoxLayout *mainLayout)
 {
-
     m_mountDetailsContainer = new Utils::DetailsWidget(this);
     QWidget *mountViewWidget = new QWidget;
     m_mountDetailsContainer->setWidget(mountViewWidget);
@@ -250,79 +143,6 @@ void MaemoRunConfigurationWidget::addMountWidgets(QVBoxLayout *mainLayout)
     enableOrDisableRemoveMountSpecButton();
     connect(m_runConfiguration, SIGNAL(remoteMountsChanged()), SLOT(handleRemoteMountsChanged()));
     handleRemoteMountsChanged();
-}
-
-void MaemoRunConfigurationWidget::addEnvironmentWidgets(QVBoxLayout *mainLayout)
-{
-    QWidget *baseEnvironmentWidget = new QWidget;
-    QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
-    baseEnvironmentLayout->setMargin(0);
-    QLabel *label = new QLabel(tr("Base environment for this run configuration:"), this);
-    baseEnvironmentLayout->addWidget(label);
-    m_baseEnvironmentComboBox = new QComboBox(this);
-    m_baseEnvironmentComboBox->addItems(QStringList() << tr("Clean Environment")
-        << tr("System Environment"));
-    m_baseEnvironmentComboBox->setCurrentIndex(m_runConfiguration->baseEnvironmentType());
-    baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
-
-    m_fetchEnv = new QPushButton(FetchEnvButtonText);
-    baseEnvironmentLayout->addWidget(m_fetchEnv);
-    baseEnvironmentLayout->addStretch(10);
-
-    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
-    m_environmentWidget->setBaseEnvironment(m_deviceEnvReader->deviceEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
-    m_environmentWidget->setUserChanges(m_runConfiguration->userEnvironmentChanges());
-    mainLayout->addWidget(m_environmentWidget);
-
-    connect(m_environmentWidget, SIGNAL(userChangesChanged()), this,
-        SLOT(userChangesEdited()));
-    connect(m_baseEnvironmentComboBox, SIGNAL(currentIndexChanged(int)),
-        this, SLOT(baseEnvironmentSelected(int)));
-    connect(m_runConfiguration, SIGNAL(baseEnvironmentChanged()),
-        this, SLOT(baseEnvironmentChanged()));
-    connect(m_runConfiguration, SIGNAL(systemEnvironmentChanged()),
-        this, SLOT(systemEnvironmentChanged()));
-    connect(m_runConfiguration,
-        SIGNAL(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)),
-        this, SLOT(userEnvironmentChangesChanged(QList<Utils::EnvironmentItem>)));
-    connect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
-    connect(m_deviceEnvReader, SIGNAL(finished()), this, SLOT(fetchEnvironmentFinished()));
-    connect(m_deviceEnvReader, SIGNAL(error(QString)), this,
-        SLOT(fetchEnvironmentError(QString)));
-}
-
-void MaemoRunConfigurationWidget::argumentsEdited(const QString &text)
-{
-    m_runConfiguration->setArguments(text);
-}
-
-void MaemoRunConfigurationWidget::updateTargetInformation()
-{
-    m_localExecutableLabel
-        ->setText(QDir::toNativeSeparators(m_runConfiguration->localExecutableFilePath()));
-}
-
-void MaemoRunConfigurationWidget::handleDeploySpecsChanged()
-{
-    m_remoteExecutableLabel->setText(m_runConfiguration->remoteExecutableFilePath());
-}
-
-void MaemoRunConfigurationWidget::showDeviceConfigurationsDialog(const QString &link)
-{
-    if (link == QLatin1String("deviceconfig")) {
-        Core::ICore::instance()->showOptionsDialog(MaemoDeviceConfigurationsSettingsPage::Category,
-            MaemoDeviceConfigurationsSettingsPage::Id);
-    } else if (link == QLatin1String("debugger")) {
-        Core::ICore::instance()->showOptionsDialog(QLatin1String("O.Debugger"),
-            QLatin1String("M.Gdb"));
-    }
-}
-
-void MaemoRunConfigurationWidget::handleCurrentDeviceConfigChanged()
-{
-    m_devConfLabel->setText(MaemoGlobal::deviceConfigurationName(m_runConfiguration->deviceConfig()));
-    updateMountWarning();
 }
 
 void MaemoRunConfigurationWidget::enableOrDisableRemoveMountSpecButton()
@@ -369,74 +189,6 @@ void MaemoRunConfigurationWidget::changeLocalMountDir(const QModelIndex &index)
     }
 }
 
-void MaemoRunConfigurationWidget::fetchEnvironment()
-{
-    disconnect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
-    connect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(stopFetchEnvironment()));
-    m_fetchEnv->setText(tr("Cancel Fetch Operation"));
-    m_deviceEnvReader->start();
-}
-
-void MaemoRunConfigurationWidget::stopFetchEnvironment()
-{
-    m_deviceEnvReader->stop();
-    fetchEnvironmentFinished();
-}
-
-void MaemoRunConfigurationWidget::fetchEnvironmentFinished()
-{
-    disconnect(m_fetchEnv, SIGNAL(clicked()), this,
-        SLOT(stopFetchEnvironment()));
-    connect(m_fetchEnv, SIGNAL(clicked()), this, SLOT(fetchEnvironment()));
-    m_fetchEnv->setText(FetchEnvButtonText);
-    m_runConfiguration->setSystemEnvironment(m_deviceEnvReader->deviceEnvironment());
-}
-
-void MaemoRunConfigurationWidget::fetchEnvironmentError(const QString &error)
-{
-    QMessageBox::warning(this, tr("Device error"),
-        tr("Fetching environment failed: %1").arg(error));
-}
-
-void MaemoRunConfigurationWidget::userChangesEdited()
-{
-    m_ignoreChange = true;
-    m_runConfiguration->setUserEnvironmentChanges(m_environmentWidget->userChanges());
-    m_ignoreChange = false;
-}
-
-void MaemoRunConfigurationWidget::baseEnvironmentSelected(int index)
-{
-    m_ignoreChange = true;
-    m_runConfiguration->setBaseEnvironmentType(RemoteLinuxRunConfiguration::BaseEnvironmentType(index));
-
-    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
-    m_ignoreChange = false;
-}
-
-void MaemoRunConfigurationWidget::baseEnvironmentChanged()
-{
-    if (m_ignoreChange)
-        return;
-
-    m_baseEnvironmentComboBox->setCurrentIndex(m_runConfiguration->baseEnvironmentType());
-    m_environmentWidget->setBaseEnvironment(m_runConfiguration->baseEnvironment());
-    m_environmentWidget->setBaseEnvironmentText(m_runConfiguration->baseEnvironmentText());
-}
-
-void MaemoRunConfigurationWidget::systemEnvironmentChanged()
-{
-    m_environmentWidget->setBaseEnvironment(m_runConfiguration->systemEnvironment());
-}
-
-void MaemoRunConfigurationWidget::userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &userChanges)
-{
-    if (m_ignoreChange)
-        return;
-    m_environmentWidget->setUserChanges(userChanges);
-}
-
 void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
 {
     const int mountCount
@@ -456,15 +208,6 @@ void MaemoRunConfigurationWidget::handleRemoteMountsChanged()
     }
     m_mountDetailsContainer->setSummaryText(QLatin1String("<b>") + text
         + QLatin1String("</b>"));
-    updateMountWarning();
-}
-
-void MaemoRunConfigurationWidget::handleDebuggingTypeChanged()
-{
-    m_runConfiguration->setUseCppDebugger(m_debugCppOnlyButton->isChecked()
-        || m_debugCppAndQmlButton->isChecked());
-    m_runConfiguration->setUseQmlDebugger(m_debugQmlOnlyButton->isChecked()
-        || m_debugCppAndQmlButton->isChecked());
     updateMountWarning();
 }
 

@@ -28,31 +28,30 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef REMOTELINUXRUNCONTROLFACTORY_H
+#define REMOTELINUXRUNCONTROLFACTORY_H
 
-#ifndef MAEMODEBUGSUPPORT_H
-#define MAEMODEBUGSUPPORT_H
-
-#include <remotelinux/remotelinuxdebugsupport.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace RemoteLinux {
 namespace Internal {
-class MaemoRunConfiguration;
-class MaemoSshRunner;
 
-class MaemoDebugSupport : public AbstractRemoteLinuxDebugSupport
+class RemoteLinuxRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~MaemoDebugSupport();
+    explicit RemoteLinuxRunControlFactory(QObject *parent = 0);
+    ~RemoteLinuxRunControlFactory();
 
-private:
-    RemoteLinuxApplicationRunner *runner() const;
+    QString displayName() const;
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 
-    MaemoSshRunner * const m_runner;
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
+    ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
+        const QString &mode);
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEBUGSUPPORT_H
+#endif // REMOTELINUXRUNCONTROLFACTORY_H

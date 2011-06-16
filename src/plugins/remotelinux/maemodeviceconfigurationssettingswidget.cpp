@@ -36,7 +36,6 @@
 #include "linuxdeviceconfigurations.h"
 #include "linuxdevicefactoryselectiondialog.h"
 #include "maemoglobal.h"
-#include "maemokeydeployer.h"
 #include "maemosshconfigdialog.h"
 
 #include <coreplugin/icore.h>
@@ -102,15 +101,10 @@ MaemoDeviceConfigurationsSettingsWidget::MaemoDeviceConfigurationsSettingsWidget
       m_ui(new Ui_MaemoDeviceConfigurationsSettingsWidget),
       m_devConfigs(LinuxDeviceConfigurations::cloneInstance()),
       m_nameValidator(new NameValidator(m_devConfigs.data(), this)),
-      m_keyDeployer(new MaemoKeyDeployer(this)),
       m_saveSettingsRequested(false),
       m_additionalActionsMapper(new QSignalMapper(this))
 {
     initGui();
-    connect(m_keyDeployer, SIGNAL(error(QString)), this,
-        SLOT(handleDeploymentError(QString)), Qt::QueuedConnection);
-    connect(m_keyDeployer, SIGNAL(finishedSuccessfully()),
-        SLOT(handleDeploymentSuccess()));
     connect(m_additionalActionsMapper, SIGNAL(mapped(QString)),
         SLOT(handleAdditionalActionRequest(QString)));
 }
@@ -183,38 +177,17 @@ void MaemoDeviceConfigurationsSettingsWidget::addConfig()
     if (factories.isEmpty()) // Can't happen, because this plugin provides the generic one.
         return;
 
-    const ILinuxDeviceConfigurationFactory *factory;
+    LinuxDeviceFactorySelectionDialog d;
+    if (d.exec() != QDialog::Accepted)
+        return;
 
-    if (factories.count() == 1) {
-        // Don't show dialog when there's nothing to choose from.
-        // TODO: This is transitional. Remove it once the MADDE plugin exists.
-        factory = factories.first();
-    } else {
-        LinuxDeviceFactorySelectionDialog d;
-        if (d.exec() != QDialog::Accepted)
-            return;
-        factory = d.selectedFactory();
-    }
-
-    ILinuxDeviceConfigurationWizard *wizard = factory->createWizard();
+    const QScopedPointer<ILinuxDeviceConfigurationWizard> wizard(d.selectedFactory()->createWizard(this));
     if (wizard->exec() != QDialog::Accepted)
         return;
 
-    LinuxDeviceConfiguration::Ptr devConf = wizard->deviceConfiguration();
-    QString name = devConf->name();
-    if (m_devConfigs->hasConfig(name)) {
-        const QString nameTemplate = name + QLatin1String(" (%1)");
-        int suffix = 2;
-        do
-            name = nameTemplate.arg(QString::number(suffix++));
-        while (m_devConfigs->hasConfig(name));
-    }
-    devConf->setName(name);
-    m_devConfigs->addConfiguration(devConf);
+    m_devConfigs->addConfiguration(wizard->deviceConfiguration());
     m_ui->removeConfigButton->setEnabled(true);
     m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
-
-    delete wizard;
 }
 
 void MaemoDeviceConfigurationsSettingsWidget::deleteConfig()
@@ -385,60 +358,19 @@ void MaemoDeviceConfigurationsSettingsWidget::setPrivateKey(const QString &path)
     keyFileEditingFinished();
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::deployKey()
-{
-    const SshConnectionParameters sshParams = currentConfig()->sshParameters();
-    const QString &dir = QFileInfo(sshParams.privateKeyFile).path();
-    QString publicKeyFileName = QFileDialog::getOpenFileName(this,
-        tr("Choose Public Key File"), dir,
-        tr("Public Key Files(*.pub);;All Files (*)"));
-    if (publicKeyFileName.isEmpty())
-        return;
-
-    disconnect(m_ui->deployKeyButton, 0, this, 0);
-    m_ui->deployKeyButton->setText(tr("Stop Deploying"));
-    connect(m_ui->deployKeyButton, SIGNAL(clicked()), this,
-        SLOT(finishDeployment()));
-    m_keyDeployer->deployPublicKey(sshParams, publicKeyFileName);
-}
-
-void MaemoDeviceConfigurationsSettingsWidget::handleDeploymentError(const QString &errorMsg)
-{
-    QMessageBox::critical(this, tr("Deployment Failed"), errorMsg);
-    finishDeployment();
-}
-
-void MaemoDeviceConfigurationsSettingsWidget::handleDeploymentSuccess()
-{
-    QMessageBox::information(this, tr("Deployment Succeeded"),
-        tr("Key was successfully deployed."));
-    finishDeployment();
-}
-
-void MaemoDeviceConfigurationsSettingsWidget::finishDeployment()
-{
-    m_keyDeployer->stopDeployment();
-    m_ui->deployKeyButton->disconnect();
-    m_ui->deployKeyButton->setText(tr("&Deploy Public Key..."));
-    connect(m_ui->deployKeyButton, SIGNAL(clicked()), this, SLOT(deployKey()));
-}
-
 void MaemoDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
 {
-    finishDeployment();
     qDeleteAll(m_additionalActionButtons);
     m_additionalActionButtons.clear();
     if (index == -1) {
         m_ui->removeConfigButton->setEnabled(false);
         m_ui->generateKeyButton->setEnabled(false);
-        m_ui->deployKeyButton->setEnabled(false);
         clearDetails();
         m_ui->detailsWidget->setEnabled(false);
         m_ui->defaultDeviceButton->setEnabled(false);
     } else {
         m_ui->removeConfigButton->setEnabled(true);
         m_ui->generateKeyButton->setEnabled(true);
-        m_ui->deployKeyButton->setEnabled(true);
         const ILinuxDeviceConfigurationFactory * const factory = factoryForCurrentConfig();
         if (factory) {
             const QStringList &actionIds = factory->supportedDeviceActionIds();

@@ -388,6 +388,19 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="defaultDeviceButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
+       <property name="text">
+        <string>Set As Default</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="generateKeyButton">
        <property name="enabled">
         <bool>false</bool>
@@ -400,35 +413,6 @@
        </property>
        <property name="text">
         <string>&amp;Generate SSH Key...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="deployKeyButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="toolTip">
-        <string>This will enable you to log into the device without a password.</string>
-       </property>
-       <property name="text">
-        <string>&amp;Deploy Public Key...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="defaultDeviceButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="text">
-        <string>Set As Default</string>
        </property>
       </widget>
      </item>
@@ -579,22 +563,6 @@
     <hint type="destinationlabel">
      <x>257</x>
      <y>185</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>deployKeyButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
-   <slot>deployKey()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>697</x>
-     <y>163</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>510</x>
-     <y>351</y>
     </hint>
    </hints>
   </connection>

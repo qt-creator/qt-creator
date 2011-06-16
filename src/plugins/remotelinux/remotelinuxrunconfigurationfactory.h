@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,31 +29,38 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef REMOTELINUXRUNCONFIGURATIONFACTORY_H
+#define REMOTELINUXRUNCONFIGURATIONFACTORY_H
 
-#ifndef MAEMODEBUGSUPPORT_H
-#define MAEMODEBUGSUPPORT_H
-
-#include <remotelinux/remotelinuxdebugsupport.h>
+#include <projectexplorer/runconfiguration.h>
 
 namespace RemoteLinux {
 namespace Internal {
-class MaemoRunConfiguration;
-class MaemoSshRunner;
 
-class MaemoDebugSupport : public AbstractRemoteLinuxDebugSupport
+class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
+
 public:
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~MaemoDebugSupport();
+    explicit RemoteLinuxRunConfigurationFactory(QObject *parent = 0);
+    ~RemoteLinuxRunConfigurationFactory();
 
-private:
-    RemoteLinuxApplicationRunner *runner() const;
+    QString displayNameForId(const QString &id) const;
+    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
 
-    MaemoSshRunner * const m_runner;
+    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent,
+        const QVariantMap &map);
+
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
+        ProjectExplorer::RunConfiguration *source);
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEBUGSUPPORT_H
+#endif // REMOTELINUXRUNCONFIGURATIONFACTORY_H

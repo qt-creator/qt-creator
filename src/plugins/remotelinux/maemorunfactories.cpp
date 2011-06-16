@@ -33,17 +33,19 @@
 
 #include "maemoconstants.h"
 #include "maemodebugsupport.h"
-#include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
-#include "remotelinuxrunconfiguration.h"
+#include "maemorunconfiguration.h"
 #include "maemoruncontrol.h"
 #include "maemotoolchain.h"
 #include "qt4maemotarget.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
 #include <debugger/debuggerconstants.h>
+#include <debugger/debuggerplugin.h>
+#include <debugger/debuggerrunner.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4project.h>
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
@@ -73,8 +75,6 @@ MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
 bool MaemoRunConfigurationFactory::canCreate(Target *parent,
     const QString &id) const
 {
-    if (!MaemoGlobal::hasLinuxQt(parent))
-        return false;
     return qobject_cast<Qt4BaseTarget *>(parent)->qt4Project()
         ->hasApplicationProFile(pathFromId(id));
 }
@@ -82,8 +82,7 @@ bool MaemoRunConfigurationFactory::canCreate(Target *parent,
 bool MaemoRunConfigurationFactory::canRestore(Target *parent,
     const QVariantMap &map) const
 {
-    if (!MaemoGlobal::hasLinuxQt(parent))
-        return false;
+    Q_UNUSED(parent);
     return ProjectExplorer::idFromMap(map)
         .startsWith(QLatin1String(MAEMO_RC_ID));
 }
@@ -96,19 +95,15 @@ bool MaemoRunConfigurationFactory::canClone(Target *parent,
 
 QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    if (Qt4BaseTarget *t = qobject_cast<Qt4BaseTarget *>(parent)) {
-        if (t && MaemoGlobal::hasLinuxQt(t)) {
-            return t->qt4Project()->
-                applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
-        }
-    }
+    if (AbstractQt4MaemoTarget *t = qobject_cast<AbstractQt4MaemoTarget *>(parent))
+        return t->qt4Project()->applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
     return QStringList();
 }
 
 QString MaemoRunConfigurationFactory::displayNameForId(const QString &id) const
 {
     return QFileInfo(pathFromId(id)).completeBaseName()
-        + QLatin1String(" (remote)");
+        + QLatin1String(" (on remote Maemo device)");
 }
 
 RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
@@ -116,7 +111,7 @@ RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
 {
     if (!canCreate(parent, id))
         return 0;
-    return new RemoteLinuxRunConfiguration(qobject_cast<Qt4BaseTarget *>(parent),
+    return new MaemoRunConfiguration(qobject_cast<AbstractQt4MaemoTarget *>(parent),
         pathFromId(id));
 }
 
@@ -125,8 +120,8 @@ RunConfiguration *MaemoRunConfigurationFactory::restore(Target *parent,
 {
     if (!canRestore(parent, map))
         return 0;
-    RemoteLinuxRunConfiguration *rc
-        = new RemoteLinuxRunConfiguration(qobject_cast<Qt4BaseTarget *>(parent), QString());
+    MaemoRunConfiguration *rc
+        = new MaemoRunConfiguration(qobject_cast<AbstractQt4MaemoTarget *>(parent), QString());
     if (rc->fromMap(map))
         return rc;
 
@@ -140,8 +135,8 @@ RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent,
     if (!canClone(parent, source))
         return 0;
 
-    RemoteLinuxRunConfiguration *old = static_cast<RemoteLinuxRunConfiguration *>(source);
-    return new RemoteLinuxRunConfiguration(static_cast<Qt4BaseTarget *>(parent), old);
+    MaemoRunConfiguration *old = static_cast<MaemoRunConfiguration *>(source);
+    return new MaemoRunConfiguration(static_cast<AbstractQt4MaemoTarget *>(parent), old);
 }
 
 // #pragma mark -- MaemoRunControlFactory
@@ -158,8 +153,8 @@ MaemoRunControlFactory::~MaemoRunControlFactory()
 bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
     const QString &mode) const
 {
-    const RemoteLinuxRunConfiguration * const maemoRunConfig
-        = qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration);
+    const MaemoRunConfiguration * const maemoRunConfig
+        = qobject_cast<MaemoRunConfiguration *>(runConfiguration);
     if (!maemoRunConfig || !maemoRunConfig->isEnabled())
         return false;
     return maemoRunConfig->hasEnoughFreePorts(mode);
@@ -168,14 +163,21 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration,
 RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
     const QString &mode)
 {
-    Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE
-        || mode == Debugger::Constants::DEBUGMODE);
+    Q_ASSERT(mode == ProjectExplorer::Constants::RUNMODE || mode == Debugger::Constants::DEBUGMODE);
     Q_ASSERT(canRun(runConfig, mode));
-    RemoteLinuxRunConfiguration *rc = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig);
+
+    MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
+
     if (mode == ProjectExplorer::Constants::RUNMODE)
         return new MaemoRunControl(rc);
-    return MaemoDebugSupport::createDebugRunControl(rc);
+
+    const DebuggerStartParameters params
+        = AbstractRemoteLinuxDebugSupport::startParameters(rc);
+    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
+    MaemoDebugSupport *debugSupport = new MaemoDebugSupport(rc, runControl->engine());
+    connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
+    return runControl;
 }
 
 QString MaemoRunControlFactory::displayName() const

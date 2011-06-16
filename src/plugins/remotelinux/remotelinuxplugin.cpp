@@ -32,6 +32,8 @@
 
 #include "remotelinuxplugin.h"
 
+#include "genericlinuxdeviceconfigurationfactory.h"
+#include "maddedeviceconfigurationfactory.h"
 #include "maemoconstants.h"
 #include "maemodeployable.h"
 #include "maemodeploystepfactory.h"
@@ -48,6 +50,8 @@
 #include "maemoqtversionfactory.h"
 #include "qt4maemotargetfactory.h"
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
+#include "remotelinuxrunconfigurationfactory.h"
+#include "remotelinuxruncontrolfactory.h"
 
 #include <QtCore/QtPlugin>
 
@@ -82,7 +86,10 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new MaemoPublishingWizardFactoryFremantleFree);
     addAutoReleasedObject(new Qt4MaemoTargetFactory);
     addAutoReleasedObject(new MaemoQtVersionFactory);
-    addAutoReleasedObject(new DeviceConfigurationFactory);
+    addAutoReleasedObject(new GenericLinuxDeviceConfigurationFactory);
+    addAutoReleasedObject(new MaddeDeviceConfigurationFactory);
+    addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
+    addAutoReleasedObject(new RemoteLinuxRunControlFactory);
 
     qRegisterMetaType<MaemoDeployable>("MaemoDeployable");
 

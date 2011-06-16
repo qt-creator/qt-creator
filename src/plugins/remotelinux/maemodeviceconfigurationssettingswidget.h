@@ -45,10 +45,6 @@ class QSignalMapper;
 class Ui_MaemoDeviceConfigurationsSettingsWidget;
 QT_END_NAMESPACE
 
-namespace Utils {
-class SshRemoteProcessRunner;
-}
-
 namespace RemoteLinux {
 class ILinuxDeviceConfigurationFactory;
 class LinuxDeviceConfiguration;
@@ -57,7 +53,6 @@ namespace Internal {
 
 class NameValidator;
 class LinuxDeviceConfigurations;
-class MaemoKeyDeployer;
 
 class MaemoDeviceConfigurationsSettingsWidget : public QWidget
 {
@@ -91,12 +86,6 @@ private slots:
 
     void handleAdditionalActionRequest(const QString &actionId);
 
-    // For key deploying.
-    void deployKey();
-    void finishDeployment();
-    void handleDeploymentError(const QString &errorMsg);
-    void handleDeploymentSuccess();
-
 private:
     void initGui();
     void displayCurrent();
@@ -111,7 +100,6 @@ private:
     Ui_MaemoDeviceConfigurationsSettingsWidget *m_ui;
     const QScopedPointer<LinuxDeviceConfigurations> m_devConfigs;
     NameValidator * const m_nameValidator;
-    MaemoKeyDeployer *const m_keyDeployer;
     bool m_saveSettingsRequested;
     QList<QPushButton *> m_additionalActionButtons;
     QSignalMapper * const m_additionalActionsMapper;

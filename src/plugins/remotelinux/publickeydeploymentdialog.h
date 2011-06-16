@@ -28,31 +28,44 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef PUBLICKEYDEPLOYMENTDIALOG_H
+#define PUBLICKEYDEPLOYMENTDIALOG_H
 
-#ifndef MAEMODEBUGSUPPORT_H
-#define MAEMODEBUGSUPPORT_H
+#include "remotelinux_export.h"
 
-#include <remotelinux/remotelinuxdebugsupport.h>
+#include <QtCore/QSharedPointer>
+#include <QtGui/QProgressDialog>
+
+QT_BEGIN_NAMESPACE
+class QString;
+QT_END_NAMESPACE
 
 namespace RemoteLinux {
-namespace Internal {
-class MaemoRunConfiguration;
-class MaemoSshRunner;
+class LinuxDeviceConfiguration;
 
-class MaemoDebugSupport : public AbstractRemoteLinuxDebugSupport
+namespace Internal {
+class PublicKeyDeploymentDialogPrivate;
+} // namespace Internal
+
+class REMOTELINUX_EXPORT PublicKeyDeploymentDialog : public QProgressDialog
 {
     Q_OBJECT
 public:
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~MaemoDebugSupport();
+    explicit PublicKeyDeploymentDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig,
+        QWidget *parent = 0);
+    ~PublicKeyDeploymentDialog();
+
+private slots:
+    void handleDeploymentError(const QString &errorMsg);
+    void handleDeploymentSuccess();
+    void handleCanceled();
 
 private:
-    RemoteLinuxApplicationRunner *runner() const;
+    void handleDeploymentFinished(const QString &errorMsg);
 
-    MaemoSshRunner * const m_runner;
+    Internal::PublicKeyDeploymentDialogPrivate * const m_d;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEBUGSUPPORT_H
+#endif // PUBLICKEYDEPLOYMENTDIALOG_H

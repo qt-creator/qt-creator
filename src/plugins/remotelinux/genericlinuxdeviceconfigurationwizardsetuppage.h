@@ -28,31 +28,48 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef GENERICLINUXDEVICECONFIGURATIONWIZARDSETUPPAGE_H
+#define GENERICLINUXDEVICECONFIGURATIONWIZARDSETUPPAGE_H
 
-#ifndef MAEMODEBUGSUPPORT_H
-#define MAEMODEBUGSUPPORT_H
+#include "remotelinux_export.h"
 
-#include <remotelinux/remotelinuxdebugsupport.h>
+#include <utils/ssh/sshconnection.h>
+
+#include <QtGui/QWizardPage>
 
 namespace RemoteLinux {
 namespace Internal {
-class MaemoRunConfiguration;
-class MaemoSshRunner;
+class GenericLinuxDeviceConfigurationWizardSetupPagePrivate;
+} // namespace Internal
 
-class MaemoDebugSupport : public AbstractRemoteLinuxDebugSupport
+class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardSetupPage : public QWizardPage
 {
     Q_OBJECT
+    Q_DISABLE_COPY(GenericLinuxDeviceConfigurationWizardSetupPage)
+
 public:
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~MaemoDebugSupport();
+    explicit GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent = 0);
+    ~GenericLinuxDeviceConfigurationWizardSetupPage();
+
+    void initializePage();
+    bool isComplete() const;
+
+    QString configurationName() const;
+    QString hostName() const;
+    QString userName() const;
+    Utils::SshConnectionParameters::AuthenticationType authenticationType() const;
+    QString password() const;
+    QString privateKeyFilePath() const;
+
+    virtual QString defaultHostName() const;
+    virtual QString defaultUserName() const;
 
 private:
-    RemoteLinuxApplicationRunner *runner() const;
+    Q_SLOT void handleAuthTypeChanged();
 
-    MaemoSshRunner * const m_runner;
+    Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate * const m_d;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEBUGSUPPORT_H
+#endif // GENERICLINUXDEVICECONFIGURATIONWIZARDSETUPPAGE_H

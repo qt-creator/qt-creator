@@ -73,7 +73,18 @@ HEADERS += \
     linuxdeviceconfigurations.h \
     remotelinuxrunconfiguration.h \
     linuxdevicefactoryselectiondialog.h \
-    deviceconfigurationfactory.h
+    publickeydeploymentdialog.h \
+    genericlinuxdeviceconfigurationwizard.h \
+    genericlinuxdeviceconfigurationwizardsetuppage.h \
+    genericlinuxdeviceconfigurationfactory.h \
+    maddedeviceconfigurationfactory.h \
+    maemorunconfiguration.h \
+    remotelinuxrunconfigurationwidget.h \
+    remotelinuxrunconfigurationfactory.h \
+    remotelinuxapplicationrunner.h \
+    remotelinuxruncontrol.h \
+    remotelinuxruncontrolfactory.h \
+    remotelinuxdebugsupport.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -138,7 +149,18 @@ SOURCES += \
     linuxdeviceconfigurations.cpp \
     remotelinuxrunconfiguration.cpp \
     linuxdevicefactoryselectiondialog.cpp \
-    deviceconfigurationfactory.cpp
+    publickeydeploymentdialog.cpp \
+    genericlinuxdeviceconfigurationwizard.cpp \
+    genericlinuxdeviceconfigurationwizardsetuppage.cpp \
+    genericlinuxdeviceconfigurationfactory.cpp \
+    maddedeviceconfigurationfactory.cpp \
+    maemorunconfiguration.cpp \
+    remotelinuxrunconfigurationwidget.cpp \
+    remotelinuxrunconfigurationfactory.cpp \
+    remotelinuxapplicationrunner.cpp \
+    remotelinuxruncontrol.cpp \
+    remotelinuxruncontrolfactory.cpp \
+    remotelinuxdebugsupport.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \
@@ -160,7 +182,8 @@ FORMS += \
     maemodeviceconfigwizardkeydeploymentpage.ui \
     maemodeployconfigurationwidget.ui \
     maemodeviceconfigwizardlogindatapage.ui \
-    linuxdevicefactoryselectiondialog.ui
+    linuxdevicefactoryselectiondialog.ui \
+    genericlinuxdeviceconfigurationwizardsetuppage.ui
 
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII

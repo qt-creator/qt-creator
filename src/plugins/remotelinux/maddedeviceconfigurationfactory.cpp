@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,31 +29,34 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#include "maddedeviceconfigurationfactory.h"
 
-#ifndef MAEMODEBUGSUPPORT_H
-#define MAEMODEBUGSUPPORT_H
-
-#include <remotelinux/remotelinuxdebugsupport.h>
+#include "maemodeviceconfigwizard.h"
 
 namespace RemoteLinux {
 namespace Internal {
-class MaemoRunConfiguration;
-class MaemoSshRunner;
 
-class MaemoDebugSupport : public AbstractRemoteLinuxDebugSupport
+MaddeDeviceConfigurationFactory::MaddeDeviceConfigurationFactory(QObject *parent)
+    : GenericLinuxDeviceConfigurationFactory(parent)
 {
-    Q_OBJECT
-public:
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~MaemoDebugSupport();
+}
 
-private:
-    RemoteLinuxApplicationRunner *runner() const;
+QString MaddeDeviceConfigurationFactory::displayName() const
+{
+    return tr("Devices with MADDE support (Fremantle, Harmattan, MeeGo)");
+}
 
-    MaemoSshRunner * const m_runner;
-};
+ILinuxDeviceConfigurationWizard *MaddeDeviceConfigurationFactory::createWizard(QWidget *parent) const
+{
+    return new MaemoDeviceConfigWizard(parent);
+}
+
+bool MaddeDeviceConfigurationFactory::supportsOsType(const QString &osType) const
+{
+    return osType == LinuxDeviceConfiguration::Maemo5OsType
+            || osType == LinuxDeviceConfiguration::HarmattanOsType
+            || osType == LinuxDeviceConfiguration::MeeGoOsType;
+}
 
 } // namespace Internal
 } // namespace RemoteLinux
-
-#endif // MAEMODEBUGSUPPORT_H

@@ -29,36 +29,62 @@
 **
 **************************************************************************/
 
-#ifndef MAEMORUNCONTROL_H
-#define MAEMORUNCONTROL_H
+#ifndef REMOTELINUXRUNCONTROL_H
+#define REMOTELINUXRUNCONTROL_H
 
-#include <remotelinux/remotelinuxruncontrol.h>
+#include "remotelinux_export.h"
+
+#include <projectexplorer/runconfiguration.h>
+
+#include <QtCore/QString>
 
 namespace RemoteLinux {
-class RemoteLinuxRunConfiguration;
+class RemoteLinuxApplicationRunner;
 
-namespace Internal {
-class MaemoSshRunner;
-
-class MaemoRunControl : public AbstractRemoteLinuxRunControl
+class REMOTELINUX_EXPORT AbstractRemoteLinuxRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 public:
-    explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfig);
-    virtual ~MaemoRunControl();
+    explicit AbstractRemoteLinuxRunControl(ProjectExplorer::RunConfiguration *runConfig);
+    virtual ~AbstractRemoteLinuxRunControl();
 
-    void start();
+    virtual void start();
+    virtual StopResult stop();
+    virtual bool isRunning() const;
+    virtual QIcon icon() const;
 
 private slots:
-    void handleMountDebugOutput(const QString &output);
+    void startExecution();
+    void handleSshError(const QString &error);
+    void handleRemoteProcessStarted() {}
+    void handleRemoteProcessFinished(qint64 exitCode);
+    void handleRemoteOutput(const QByteArray &output);
+    void handleRemoteErrorOutput(const QByteArray &output);
+    void handleProgressReport(const QString &progressString);
 
+private:
+    virtual RemoteLinuxApplicationRunner *runner() const=0;
+
+    void setFinished();
+    void handleError(const QString &errString);
+
+    bool m_running;
+};
+
+
+class REMOTELINUX_EXPORT RemoteLinuxRunControl : public AbstractRemoteLinuxRunControl
+{
+    Q_OBJECT
+
+public:
+    explicit RemoteLinuxRunControl(ProjectExplorer::RunConfiguration *runConfig);
+    virtual ~RemoteLinuxRunControl();
 private:
     virtual RemoteLinuxApplicationRunner *runner() const;
 
-    MaemoSshRunner * const m_runner;
+    RemoteLinuxApplicationRunner * const m_runner;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMORUNCONTROL_H
+#endif // REMOTELINUXRUNCONTROL_H

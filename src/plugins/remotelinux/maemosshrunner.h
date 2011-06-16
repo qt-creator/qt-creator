@@ -32,99 +32,45 @@
 #ifndef MAEMOSSHRUNNER_H
 #define MAEMOSSHRUNNER_H
 
-#include "linuxdeviceconfiguration.h"
+#include "remotelinuxapplicationrunner.h"
 #include "maemomountspecification.h"
-
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QStringList>
-
-namespace Utils {
-    class SshConnection;
-    class SshRemoteProcess;
-}
+#include "maemorunconfiguration.h"
 
 namespace RemoteLinux {
-class RemoteLinuxRunConfiguration;
-
 namespace Internal {
 class MaemoRemoteMounter;
-class MaemoUsedPortsGatherer;
 
-class MaemoSshRunner : public QObject
+class MaemoSshRunner : public RemoteLinuxApplicationRunner
 {
     Q_OBJECT
 public:
-    MaemoSshRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig);
+    MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig);
     ~MaemoSshRunner();
 
-    void start();
-    void stop();
-
-    void startExecution(const QByteArray &remoteCall);
-
-    QSharedPointer<Utils::SshConnection> connection() const { return m_connection; }
-    const MaemoUsedPortsGatherer *usedPortsGatherer() const { return m_portsGatherer; }
-    PortList *freePorts() { return &m_freePorts; }
-    QString remoteExecutable() const { return m_remoteExecutable; }
-    QString arguments() const { return m_appArguments; }
-    QString commandPrefix() const { return m_commandPrefix; }
-    const QSharedPointer<const LinuxDeviceConfiguration> devConfig() const { return m_devConfig; }
-
-    static const qint64 InvalidExitCode;
-
 signals:
-    void error(const QString &error);
     void mountDebugOutput(const QString &output);
-    void readyForExecution();
-    void remoteOutput(const QByteArray &output);
-    void remoteErrorOutput(const QByteArray &output);
-    void reportProgress(const QString &progressOutput);
-    void remoteProcessStarted();
-    void remoteProcessFinished(qint64 exitCode);
 
 private slots:
-    void handleConnected();
-    void handleConnectionFailure();
-    void handleCleanupFinished(int exitStatus);
-    void handleRemoteProcessFinished(int exitStatus);
     void handleMounted();
     void handleUnmounted();
     void handleMounterError(const QString &errorMsg);
-    void handlePortsGathererError(const QString &errorMsg);
-    void handleUsedPortsAvailable();
 
 private:
-    enum State { Inactive, Connecting, PreRunCleaning, PostRunCleaning,
-        PreMountUnmounting, Mounting, ReadyForExecution,
-        ProcessStarting, StopRequested, GatheringPorts
-    };
+    enum MountState { InactiveMountState, InitialUnmounting, Mounting, Mounted, PostRunUnmounting };
 
-    void setState(State newState);
-    void emitError(const QString &errorMsg, bool force = false);
+    bool canRun(QString &whyNot) const;
+    void doAdditionalInitialCleanup();
+    void doAdditionalInitializations();
+    void doAdditionalPostRunCleanup();
+    void doAdditionalConnectionErrorHandling();
 
-    void cleanup();
-    bool isConnectionUsable() const;
     void mount();
     void unmount();
 
     MaemoRemoteMounter * const m_mounter;
-    MaemoUsedPortsGatherer * const m_portsGatherer;
-    const QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
-    const QString m_remoteExecutable;
-    const QString m_appArguments;
-    const QString m_commandPrefix;
-    const PortList m_initialFreePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
 
-    QSharedPointer<Utils::SshConnection> m_connection;
-    QSharedPointer<Utils::SshRemoteProcess> m_runner;
-    QSharedPointer<Utils::SshRemoteProcess> m_cleaner;
-    QStringList m_procsToKill;
-    PortList m_freePorts;
-
-    int m_exitStatus;
-    State m_state;
+    MountState m_mountState;
 };
 
 } // namespace Internal

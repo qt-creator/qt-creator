@@ -90,11 +90,11 @@ public:
     QString name() const { return m_name; }
     void setName(const QString &name) { m_name = name; }
     QString osType() const { return m_osType; }
+    QString osTypeDisplayName() const { return m_osTypeDisplayName; }
     DeviceType type() const { return m_type; }
     QString portsSpec() const { return m_portsSpec; }
     Id internalId() const { return m_internalId; }
     bool isDefault() const { return m_isDefault; }
-    QString displayName() const { return m_displayName; }
 
     static QString portsRegExpr();
     static QString defaultHost(DeviceType type, const QString &osType);
@@ -135,7 +135,7 @@ private:
     DeviceType m_type;
     QString m_portsSpec;
     bool m_isDefault;
-    QString m_displayName;
+    QString m_osTypeDisplayName;
     Id m_internalId;
 };
 

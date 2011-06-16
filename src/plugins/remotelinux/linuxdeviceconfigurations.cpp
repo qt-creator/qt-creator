@@ -120,6 +120,17 @@ void LinuxDeviceConfigurations::save()
 
 void LinuxDeviceConfigurations::addConfiguration(const LinuxDeviceConfiguration::Ptr &devConfig)
 {
+    // Ensure uniqueness of name.
+    QString name = devConfig->name();
+    if (hasConfig(name)) {
+        const QString nameTemplate = name + QLatin1String(" (%1)");
+        int suffix = 2;
+        do
+            name = nameTemplate.arg(QString::number(suffix++));
+        while (hasConfig(name));
+    }
+    devConfig->m_name = name;
+
     devConfig->m_internalId = m_nextId++;
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     if (!defaultDeviceConfig(devConfig->osType()))

@@ -35,21 +35,13 @@
 #include "abstractlinuxdevicedeploystep.h"
 #include "maemodeployables.h"
 #include "maemoglobal.h"
-#include "maemoqemumanager.h"
-#include "maemoremotemountsmodel.h"
-#include "maemorunconfigurationwidget.h"
+#include "maemoqtversion.h"
 #include "maemotoolchain.h"
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
-#include "maemoqtversion.h"
-
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-
-#include <debugger/debuggerconstants.h>
+#include "remotelinuxrunconfigurationwidget.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 
 #include <qtsupport/qtoutputformatter.h>
@@ -91,7 +83,6 @@ public:
 
     QString proFilePath;
     QString gdbPath;
-    MaemoRemoteMountsModel *remoteMounts;
     QString arguments;
     RemoteLinuxRunConfiguration::BaseEnvironmentType baseEnvironmentType;
     Utils::Environment systemEnvironment;
@@ -104,9 +95,9 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent,
+RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Qt4BaseTarget *parent, const QString &id,
         const QString &proFilePath)
-    : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID)),
+    : RunConfiguration(parent, id),
       m_d(new RemoteLinuxRunConfigurationPrivate(proFilePath, parent))
 {
     init();
@@ -125,7 +116,6 @@ void RemoteLinuxRunConfiguration::init()
     setDefaultDisplayName(defaultDisplayName());
     setUseCppDebugger(true);
     setUseQmlDebugger(false);
-    m_d->remoteMounts = new MaemoRemoteMountsModel(this);
 
     connect(target(),
         SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
@@ -136,13 +126,6 @@ void RemoteLinuxRunConfiguration::init()
     connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
     connect(this, SIGNAL(debuggersChanged()), SLOT(updateEnabledState()));
-    connect(m_d->remoteMounts, SIGNAL(rowsInserted(QModelIndex, int, int)), this,
-        SLOT(handleRemoteMountsChanged()));
-    connect(m_d->remoteMounts, SIGNAL(rowsRemoved(QModelIndex, int, int)), this,
-        SLOT(handleRemoteMountsChanged()));
-    connect(m_d->remoteMounts, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this,
-        SLOT(handleRemoteMountsChanged()));
-    connect(m_d->remoteMounts, SIGNAL(modelReset()), SLOT(handleRemoteMountsChanged()));
     connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
         SLOT(updateEnabledState()));
 }
@@ -183,10 +166,6 @@ bool RemoteLinuxRunConfiguration::isEnabled() const
         m_d->disabledReason = tr("Don't know what to run.");
         return false;
     }
-    if (!hasEnoughFreePorts(ProjectExplorer::Constants::RUNMODE)) {
-        m_d->disabledReason = tr("Not enough free ports on the device.");
-        return false;
-    }
     m_d->disabledReason.clear();
     return true;
 }
@@ -198,7 +177,7 @@ QString RemoteLinuxRunConfiguration::disabledReason() const
 
 QWidget *RemoteLinuxRunConfiguration::createConfigurationWidget()
 {
-    return new MaemoRunConfigurationWidget(this);
+    return new RemoteLinuxRunConfigurationWidget(this);
 }
 
 Utils::OutputFormatter *RemoteLinuxRunConfiguration::createOutputFormatter() const
@@ -228,7 +207,6 @@ QVariantMap RemoteLinuxRunConfiguration::toMap() const
     map.insert(BaseEnvironmentBaseKey, m_d->baseEnvironmentType);
     map.insert(UserEnvironmentChangesKey,
         Utils::EnvironmentItem::toStringList(m_d->userEnvironmentChanges));
-    map.unite(m_d->remoteMounts->toMap());
     return map;
 }
 
@@ -245,7 +223,6 @@ bool RemoteLinuxRunConfiguration::fromMap(const QVariantMap &map)
         .toStringList());
     m_d->baseEnvironmentType = static_cast<BaseEnvironmentType> (map.value(BaseEnvironmentBaseKey,
         SystemBaseEnvironment).toInt());
-    m_d->remoteMounts->fromMap(map);
 
     m_d->validParse = qt4Target()->qt4Project()->validParse(m_d->proFilePath);
     m_d->parseInProgress = qt4Target()->qt4Project()->parseInProgress(m_d->proFilePath);
@@ -279,11 +256,6 @@ Qt4MaemoDeployConfiguration *RemoteLinuxRunConfiguration::deployConfig() const
     return qobject_cast<Qt4MaemoDeployConfiguration *>(target()->activeDeployConfiguration());
 }
 
-MaemoRemoteMountsModel *RemoteLinuxRunConfiguration::remoteMounts() const
-{
-    return m_d->remoteMounts;
-}
-
 AbstractLinuxDeviceDeployStep *RemoteLinuxRunConfiguration::deployStep() const
 {
     return MaemoGlobal::earlierBuildStep<AbstractLinuxDeviceDeployStep>(deployConfig(), 0);
@@ -296,12 +268,8 @@ QString RemoteLinuxRunConfiguration::arguments() const
 
 QString RemoteLinuxRunConfiguration::commandPrefix() const
 {
-    if (!deviceConfig())
-        return QString();
-
-    return QString::fromLocal8Bit("%1 %2")
-        .arg(MaemoGlobal::remoteCommandPrefix(deviceConfig()->osType()))
-        .arg(MaemoGlobal::remoteEnvironment(userEnvironmentChanges()));
+    return QString::fromLocal8Bit("%1; DISPLAY=:0.0 %2")
+        .arg(MaemoGlobal::remoteSourceProfilesCommand(), userEnvironmentChangesAsString());
 }
 
 QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
@@ -321,11 +289,10 @@ QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
 
 PortList RemoteLinuxRunConfiguration::freePorts() const
 {
-    const Qt4BuildConfiguration * const bc = activeQt4BuildConfiguration();
-    const AbstractLinuxDeviceDeployStep * const step = deployStep();
-    return bc && step
-        ? MaemoGlobal::freePorts(deployStep()->helper().deviceConfig(), bc->qtVersion())
-        : PortList();
+    const LinuxDeviceConfiguration::ConstPtr &devConf = deviceConfig();
+    if (!devConf)
+        return PortList();
+    return devConf->freePorts();
 }
 
 void RemoteLinuxRunConfiguration::setArguments(const QString &args)
@@ -335,10 +302,6 @@ void RemoteLinuxRunConfiguration::setArguments(const QString &args)
 
 RemoteLinuxRunConfiguration::DebuggingType RemoteLinuxRunConfiguration::debuggingType() const
 {
-    const AbstractQt4MaemoTarget * const maemoTarget
-        = qobject_cast<AbstractQt4MaemoTarget *>(target());
-    if (!maemoTarget || !maemoTarget->allowsQmlDebugging())
-        return DebugCppOnly;
     if (useCppDebugger()) {
         if (useQmlDebugger())
             return DebugCppAndQml;
@@ -357,21 +320,6 @@ int RemoteLinuxRunConfiguration::portsUsedByDebuggers() const
     default:
         return 2;
     }
-}
-
-bool RemoteLinuxRunConfiguration::hasEnoughFreePorts(const QString &mode) const
-{
-    const int freePortCount = freePorts().count();
-    const AbstractQt4MaemoTarget * const maemoTarget
-        = qobject_cast<AbstractQt4MaemoTarget *>(target());
-    const bool remoteMountsAllowed = maemoTarget && maemoTarget->allowsRemoteMounts();
-    const int mountDirCount = remoteMountsAllowed
-        ? remoteMounts()->validMountSpecificationCount() : 0;
-    if (mode == Debugger::Constants::DEBUGMODE)
-        return freePortCount >= mountDirCount + portsUsedByDebuggers();
-    if (mode == ProjectExplorer::Constants::RUNMODE)
-        return freePortCount >= mountDirCount;
-    return false;
 }
 
 void RemoteLinuxRunConfiguration::updateDeviceConfigurations()
@@ -409,12 +357,6 @@ void RemoteLinuxRunConfiguration::handleDeployConfigChanged()
 void RemoteLinuxRunConfiguration::handleDeployablesUpdated()
 {
     emit deploySpecsChanged();
-    updateEnabledState();
-}
-
-void RemoteLinuxRunConfiguration::handleRemoteMountsChanged()
-{
-    emit remoteMountsChanged();
     updateEnabledState();
 }
 
@@ -458,6 +400,15 @@ QList<Utils::EnvironmentItem> RemoteLinuxRunConfiguration::userEnvironmentChange
     return m_d->userEnvironmentChanges;
 }
 
+QString RemoteLinuxRunConfiguration::userEnvironmentChangesAsString() const
+{
+    QString env;
+    QString placeHolder = QLatin1String("%1=%2 ");
+    foreach (const Utils::EnvironmentItem &item, userEnvironmentChanges())
+        env.append(placeHolder.arg(item.name, item.value));
+    return env.mid(0, env.size() - 1);
+}
+
 void RemoteLinuxRunConfiguration::setUserEnvironmentChanges(
     const QList<Utils::EnvironmentItem> &diff)
 {
@@ -484,5 +435,12 @@ QString RemoteLinuxRunConfiguration::proFilePath() const
 {
     return m_d->proFilePath;
 }
+
+void RemoteLinuxRunConfiguration::setDisabledReason(const QString &reason) const
+{
+    m_d->disabledReason = reason;
+}
+
+const QString RemoteLinuxRunConfiguration::Id = QLatin1String("RemoteLinuxRunConfiguration");
 
 } // namespace RemoteLinux

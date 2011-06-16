@@ -190,15 +190,6 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
     return QString::fromAscii(remoteCall);
 }
 
-QString MaemoGlobal::remoteEnvironment(const QList<Utils::EnvironmentItem> &list)
-{
-    QString env;
-    QString placeHolder = QLatin1String("%1=%2 ");
-    foreach (const Utils::EnvironmentItem &item, list)
-        env.append(placeHolder.arg(item.name).arg(item.value));
-    return env.mid(0, env.size() - 1);
-}
-
 QString MaemoGlobal::failedToConnectToServerMessage(const Utils::SshConnection::Ptr &connection,
     const LinuxDeviceConfiguration::ConstPtr &deviceConfig)
 {

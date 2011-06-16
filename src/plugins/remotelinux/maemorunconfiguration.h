@@ -28,31 +28,53 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef MAEMORUNCONFIGURATION_H
+#define MAEMORUNCONFIGURATION_H
 
-#ifndef MAEMODEBUGSUPPORT_H
-#define MAEMODEBUGSUPPORT_H
-
-#include <remotelinux/remotelinuxdebugsupport.h>
+#include "remotelinuxrunconfiguration.h"
 
 namespace RemoteLinux {
 namespace Internal {
-class MaemoRunConfiguration;
-class MaemoSshRunner;
+class AbstractQt4MaemoTarget;
+class MaemoRemoteMountsModel;
 
-class MaemoDebugSupport : public AbstractRemoteLinuxDebugSupport
+class MaemoRunConfiguration : public RemoteLinuxRunConfiguration
 {
     Q_OBJECT
+    Q_DISABLE_COPY(MaemoRunConfiguration)
 public:
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~MaemoDebugSupport();
+    MaemoRunConfiguration(AbstractQt4MaemoTarget *parent, const QString &proFilePath);
+    MaemoRunConfiguration(AbstractQt4MaemoTarget *parent, MaemoRunConfiguration *source);
+
+    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map);
+    bool isEnabled() const;
+    QWidget *createConfigurationWidget();
+    QString commandPrefix() const;
+    PortList freePorts() const;
+    DebuggingType debuggingType() const;
+
+    Internal::MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
+    bool hasEnoughFreePorts(const QString &mode) const;
+    QString localDirToMountForRemoteGdb() const;
+    QString remoteProjectSourcesMountPoint() const;
+
+    static const QString Id;
+
+signals:
+    void remoteMountsChanged();
+
+private slots:
+    void handleRemoteMountsChanged();
 
 private:
-    RemoteLinuxApplicationRunner *runner() const;
+    void init();
+    const AbstractQt4MaemoTarget *maemoTarget() const;
 
-    MaemoSshRunner * const m_runner;
+    MaemoRemoteMountsModel *m_remoteMounts;
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEBUGSUPPORT_H
+#endif // MAEMORUNCONFIGURATION_H

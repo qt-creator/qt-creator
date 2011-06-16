@@ -32,15 +32,8 @@
 #include "maemoruncontrol.h"
 
 #include "maemoglobal.h"
-#include "remotelinuxrunconfiguration.h"
+#include "maemorunconfiguration.h"
 #include "maemosshrunner.h"
-
-#include <projectexplorer/projectexplorerconstants.h>
-#include <utils/qtcassert.h>
-
-#include <QtGui/QMessageBox>
-
-using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -48,82 +41,19 @@ namespace Internal {
 using ProjectExplorer::RunConfiguration;
 
 MaemoRunControl::MaemoRunControl(RunConfiguration *rc)
-    : RunControl(rc, ProjectExplorer::Constants::RUNMODE)
-    , m_runner(new MaemoSshRunner(this, qobject_cast<RemoteLinuxRunConfiguration *>(rc)))
-    , m_running(false)
+    : AbstractRemoteLinuxRunControl(rc)
+    , m_runner(new MaemoSshRunner(this, qobject_cast<MaemoRunConfiguration *>(rc)))
 {
 }
 
 MaemoRunControl::~MaemoRunControl()
 {
-    stop();
 }
 
 void MaemoRunControl::start()
 {
-    m_running = true;
-    emit started();
-    disconnect(m_runner, 0, this, 0);
-    connect(m_runner, SIGNAL(error(QString)), SLOT(handleSshError(QString)));
-    connect(m_runner, SIGNAL(readyForExecution()), SLOT(startExecution()));
-    connect(m_runner, SIGNAL(remoteErrorOutput(QByteArray)),
-        SLOT(handleRemoteErrorOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
-        SLOT(handleRemoteOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteProcessStarted()),
-        SLOT(handleRemoteProcessStarted()));
-    connect(m_runner, SIGNAL(remoteProcessFinished(qint64)),
-        SLOT(handleRemoteProcessFinished(qint64)));
-    connect(m_runner, SIGNAL(reportProgress(QString)),
-        SLOT(handleProgressReport(QString)));
-    connect(m_runner, SIGNAL(mountDebugOutput(QString)),
-        SLOT(handleMountDebugOutput(QString)));
-    m_runner->start();
-}
-
-RunControl::StopResult MaemoRunControl::stop()
-{
-    m_runner->stop();
-    return StoppedSynchronously;
-}
-
-void MaemoRunControl::handleSshError(const QString &error)
-{
-    handleError(error);
-    setFinished();
-}
-
-void MaemoRunControl::startExecution()
-{
-    appendMessage(tr("Starting remote process ...\n"), Utils::NormalMessageFormat);
-    m_runner->startExecution(QString::fromLocal8Bit("%1 %2 %3")
-        .arg(m_runner->commandPrefix())
-        .arg(m_runner->remoteExecutable())
-        .arg(m_runner->arguments()).toUtf8());
-}
-
-void MaemoRunControl::handleRemoteProcessFinished(qint64 exitCode)
-{
-    if (exitCode != MaemoSshRunner::InvalidExitCode) {
-        appendMessage(tr("Finished running remote process. Exit code was %1.\n")
-            .arg(exitCode), Utils::NormalMessageFormat);
-    }
-    setFinished();
-}
-
-void MaemoRunControl::handleRemoteOutput(const QByteArray &output)
-{
-    appendMessage(QString::fromUtf8(output), Utils::StdOutFormatSameLine);
-}
-
-void MaemoRunControl::handleRemoteErrorOutput(const QByteArray &output)
-{
-    appendMessage(QString::fromUtf8(output), Utils::StdErrFormatSameLine);
-}
-
-void MaemoRunControl::handleProgressReport(const QString &progressString)
-{
-    appendMessage(progressString + QLatin1Char('\n'), Utils::NormalMessageFormat);
+    AbstractRemoteLinuxRunControl::start();
+    connect(m_runner, SIGNAL(mountDebugOutput(QString)), SLOT(handleMountDebugOutput(QString)));
 }
 
 void MaemoRunControl::handleMountDebugOutput(const QString &output)
@@ -131,29 +61,7 @@ void MaemoRunControl::handleMountDebugOutput(const QString &output)
     appendMessage(output, Utils::StdErrFormatSameLine);
 }
 
-bool MaemoRunControl::isRunning() const
-{
-    return m_running;
-}
-
-QIcon MaemoRunControl::icon() const
-{
-    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
-}
-
-void MaemoRunControl::handleError(const QString &errString)
-{
-    stop();
-    appendMessage(errString, Utils::ErrorMessageFormat);
-    QMessageBox::critical(0, tr("Remote Execution Failure"), errString);
-}
-
-void MaemoRunControl::setFinished()
-{
-    disconnect(m_runner, 0, this, 0);
-    m_running = false;
-    emit finished();
-}
+RemoteLinuxApplicationRunner *MaemoRunControl::runner() const { return m_runner; }
 
 } // namespace Internal
 } // namespace RemoteLinux
