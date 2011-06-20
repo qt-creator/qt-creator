@@ -53,8 +53,10 @@ public:
 
     Valgrind::Callgrind::ParseData *takeParserData();
 
+    bool canPause() const { return true; }
+
 public slots:
-    // controller actions
+    /// controller actions
     void dump();
     void reset();
     void pause();

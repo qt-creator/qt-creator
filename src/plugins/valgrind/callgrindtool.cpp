@@ -191,6 +191,7 @@ public:
     // navigation
     QAction *m_goToOverview;
     QAction *m_goBack;
+    QAction *m_goNext;
     QLineEdit *m_searchFilter;
 
     // cost formatting
@@ -228,6 +229,7 @@ CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     , m_visualisation(0)
     , m_goToOverview(0)
     , m_goBack(0)
+    , m_goNext(0)
     , m_searchFilter(0)
     , m_filterProjectCosts(0)
     , m_costAbsolute(0)
@@ -241,11 +243,8 @@ CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     , m_showCostsOfFunctionAction(0)
     , m_settings(0)
 {
-    connect(m_stackBrowser, SIGNAL(currentChanged()), this, SLOT(stackBrowserChanged()));
-
     m_updateTimer->setInterval(200);
     m_updateTimer->setSingleShot(true);
-    connect(m_updateTimer, SIGNAL(timeout()), SLOT(updateFilterString()));
 
     m_proxyModel->setSourceModel(m_dataModel);
     m_proxyModel->setDynamicSortFilter(true);
@@ -254,6 +253,9 @@ CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     m_settings = AnalyzerGlobalSettings::instance()->subConfig<CallgrindGlobalSettings>();
+
+    connect(m_stackBrowser, SIGNAL(currentChanged()), SLOT(stackBrowserChanged()));
+    connect(m_updateTimer, SIGNAL(timeout()), SLOT(updateFilterString()));
 }
 
 CallgrindToolPrivate::~CallgrindToolPrivate()
@@ -333,8 +335,9 @@ void CallgrindToolPrivate::selectFunction(const Function *func)
 
 void CallgrindToolPrivate::stackBrowserChanged()
 {
+    m_goBack->setEnabled(m_stackBrowser->hasPrevious());
+    m_goNext->setEnabled(m_stackBrowser->hasNext());
     const Function *item = m_stackBrowser->current();
-    m_goBack->setEnabled(item != 0);
     selectFunction(item);
 }
 
@@ -495,7 +498,7 @@ static QToolButton *createToolButton(QAction *action)
 {
     QToolButton *button = new QToolButton;
     button->setDefaultAction(action);
-    button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    //button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     return button;
 }
 
@@ -703,7 +706,7 @@ QWidget *CallgrindToolPrivate::createControlWidget()
     action = new QAction(this);
     action->setDisabled(true);
     action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_REDO)));
-    action->setText(tr("Dump"));
+    //action->setText(tr("Dump"));
     action->setToolTip(tr("Request the dumping of profile information. This will update the callgrind visualization."));
     connect(action, SIGNAL(triggered()), this, SLOT(slotRequestDump()));
     layout->addWidget(createToolButton(action));
@@ -713,8 +716,8 @@ QWidget *CallgrindToolPrivate::createControlWidget()
     action = new QAction(this);
     action->setDisabled(true);
     action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_CLEAR)));
-    action->setText(tr("Reset"));
-    action->setToolTip(tr("Zero all event counters."));
+    //action->setText(tr("Reset"));
+    action->setToolTip(tr("Reset all event counters."));
     connect(action, SIGNAL(triggered()), this, SIGNAL(resetRequested()));
     layout->addWidget(createToolButton(action));
     m_resetAction = action;
@@ -723,8 +726,8 @@ QWidget *CallgrindToolPrivate::createControlWidget()
     action = new QAction(this);
     action->setCheckable(true);
     action->setIcon(QIcon(QLatin1String(":/qml/images/pause-small.png")));
-    action->setText(tr("Ignore"));
-    action->setToolTip(tr("If enabled, no events are counted which will speed up program execution during profiling."));
+    //action->setText(tr("Ignore"));
+    action->setToolTip(tr("Pause event logging. No events are counted which will speed up program execution during profiling."));
     connect(action, SIGNAL(toggled(bool)), this, SIGNAL(pauseToggled(bool)));
     layout->addWidget(createToolButton(action));
     m_pauseAction = action;
@@ -733,18 +736,26 @@ QWidget *CallgrindToolPrivate::createControlWidget()
     // go back
     action = new QAction(this);
     action->setDisabled(true);
-    action->setIcon(QIcon::fromTheme("go-previous"));
-    action->setText(tr("Back"));
+    action->setIcon(QIcon(QLatin1String(":core/images/prev.png")));
     action->setToolTip(tr("Go back one step in history. This will select the previously selected item."));
     connect(action, SIGNAL(triggered(bool)), m_stackBrowser, SLOT(goBack()));
     layout->addWidget(createToolButton(action));
     m_goBack = action;
 
+    // go forward
+    action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(QIcon(QLatin1String(":core/images/next.png")));
+    action->setToolTip(tr("Go forward one step in history."));
+    connect(action, SIGNAL(triggered(bool)), m_stackBrowser, SLOT(goNext()));
+    layout->addWidget(createToolButton(action));
+    m_goNext = action;
     // overview
+
     action = new QAction(this);
     action->setDisabled(true);
     action->setIcon(QIcon::fromTheme("go-up"));
-    action->setText(tr("All Functions"));
+    //action->setText(tr("All Functions"));
     action->setToolTip(tr("Show the overview of all function calls."));
     connect(action, SIGNAL(triggered(bool)), this, SLOT(slotGoToOverview()));
     layout->addWidget(createToolButton(action));

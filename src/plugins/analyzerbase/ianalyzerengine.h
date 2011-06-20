@@ -69,6 +69,11 @@ public:
     /// trigger async stop of the analyzation process
     virtual void stop() = 0;
 
+    /// controller actions
+    virtual bool canPause() const { return false; }
+    virtual void pause() {}
+    virtual void unpause() {}
+
     /// the active run configuration for this engine, might be zero
     ProjectExplorer::RunConfiguration *runConfiguration() const;
 

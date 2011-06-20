@@ -52,18 +52,20 @@ public:
 
     void select(const Function *item);
     const Function *current() const;
-
     void clear();
-    int size() const;
+    bool hasPrevious() const { return !m_stack.isEmpty(); }
+    bool hasNext() const { return !m_redoStack.isEmpty(); }
 
-public Q_SLOTS:
+public slots:
     void goBack();
+    void goNext();
 
-Q_SIGNALS:
+signals:
     void currentChanged();
 
 private:
     QStack<const Function *> m_stack;
+    QStack<const Function *> m_redoStack;
 };
 
 } // namespace Callgrind
