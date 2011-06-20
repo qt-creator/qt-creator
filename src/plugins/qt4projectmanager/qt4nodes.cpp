@@ -1187,6 +1187,7 @@ QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
         vars << QLatin1String("SUBDIRS");
         break;
     case ProjectExplorer::QMLType:
+        vars << QLatin1String("OTHER_FILES");
         break;
     default:
         vars << QLatin1String("OTHER_FILES");

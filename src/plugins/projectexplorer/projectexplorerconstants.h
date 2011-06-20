@@ -174,6 +174,7 @@ const char * const C_HEADER_MIMETYPE = "text/x-chdr";
 const char * const CPP_SOURCE_MIMETYPE = "text/x-c++src";
 const char * const CPP_HEADER_MIMETYPE = "text/x-c++hdr";
 const char * const FORM_MIMETYPE = "application/x-designer";
+const char * const QML_MIMETYPE = "application/x-qml";
 const char * const RESOURCE_MIMETYPE = "application/vnd.nokia.xml.qt.resource";
 
 // settings page

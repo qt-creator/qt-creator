@@ -213,7 +213,7 @@ QString FileFilterBaseItem::absoluteDir() const
         absoluteDir = m_defaultDir + QLatin1Char('/') + m_rootDir;
     }
 
-    return absoluteDir;
+    return QDir::cleanPath(absoluteDir);
 }
 
 void FileFilterBaseItem::updateFileList()
