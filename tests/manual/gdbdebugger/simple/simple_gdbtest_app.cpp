@@ -2733,7 +2733,10 @@ namespace qc42170 {
 
     void test()
     {
-        helper(new Circle(1.5, -2.5, 3.0, 15));
+        Circle *circle = new Circle(1.5, -2.5, 3.0, 15);
+        Object *obj = circle;
+        helper(circle);
+        helper(obj);
     }
 
 } // namespace qc42170

@@ -93,6 +93,13 @@ def hasInferiorThreadList():
     except:
         return False
 
+def upcast(value):
+    try:
+        type = value.dynamic_type
+        return value.cast(type)
+    except:
+        return value
+
 typeCache = {}
 
 class TypeInfo:
@@ -1287,6 +1294,7 @@ class Dumper:
                 pass
 
         for item in locals:
+          item.value = upcast(item.value)
           with OutputSafer(self, "", ""):
             self.anonNumber = -1
             #warn("ITEM NAME %s: " % item.name)
@@ -1614,10 +1622,7 @@ class Dumper:
         #    warn("REAL VALUE: <unprintable>")
 
         value = item.value
-        try:
-            realtype = value.dynamic_type
-        except:
-            realtype = value.type
+        realtype = value.type
         type = realtype;
         format = self.itemFormat(item)
 
@@ -1886,7 +1891,7 @@ class Dumper:
         #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
         fields = extractFields(type)
 
-        self.putType(item.value.type)
+        self.putType(type)
         try:
             self.putAddress(item.value.address)
         except:
@@ -1907,7 +1912,7 @@ class Dumper:
         if self.isExpanded(item):
             innerType = None
             if len(fields) == 1 and fields[0].name is None:
-                innerType = value.type.target()
+                innerType = type.target()
             with Children(self, 1, innerType):
                 child = Item(value, item.iname, None, item.name)
                 self.putFields(child)
@@ -1923,7 +1928,7 @@ class Dumper:
     def putFields(self, item, dumpBase = True):
             value = item.value
             type = stripTypedefs(value.type)
-            fields = extractFields(type)
+            fields = extractFields(value.type)
             baseNumber = 0
             for field in fields:
                 #warn("FIELD: %s" % field)
@@ -1974,7 +1979,7 @@ class Dumper:
                 else:
                     # Named field.
                     with SubItem(self):
-                        child = Item(value[field.name],
+                        child = Item(upcast(value[field.name]),
                             item.iname, field.name, field.name)
                         bitsize = getattr(field, "bitsize", None)
                         if not bitsize is None:
