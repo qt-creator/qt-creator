@@ -99,8 +99,6 @@ public:
     bool m_smartBackspace;
     int m_tabSize;
     int m_indentSize;
-    bool m_indentBraces;
-    bool m_doubleIndentBlocks;
     TabKeyBehavior m_tabKeyBehavior;
     ContinuationAlignBehavior m_continuationAlignBehavior;
 

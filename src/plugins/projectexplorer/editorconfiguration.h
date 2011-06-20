@@ -104,10 +104,6 @@ private:
                                const OldSenderT *oldSender,
                                TextEditor::BaseTextEditorWidget *baseTextEditor) const;
 
-    void emitStorageSettingsChanged();
-    void emitBehaviorSettingsChanged();
-    void emitExtraEncodingSettingsChanged();
-
     QScopedPointer<EditorConfigurationPrivate> m_d;
 };
 

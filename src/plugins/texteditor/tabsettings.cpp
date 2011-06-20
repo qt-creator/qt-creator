@@ -61,8 +61,6 @@ TabSettings::TabSettings() :
     m_smartBackspace(false),
     m_tabSize(8),
     m_indentSize(4),
-    m_indentBraces(false),
-    m_doubleIndentBlocks(false),
     m_tabKeyBehavior(TabNeverIndents),
     m_continuationAlignBehavior(ContinuationAlignWithSpaces)
 {
@@ -87,8 +85,6 @@ void TabSettings::toMap(const QString &prefix, QVariantMap *map) const
     map->insert(prefix + QLatin1String(smartBackspaceKey), m_smartBackspace);
     map->insert(prefix + QLatin1String(tabSizeKey), m_tabSize);
     map->insert(prefix + QLatin1String(indentSizeKey), m_indentSize);
-    map->insert(prefix + QLatin1String(indentBracesKey), m_indentBraces);
-    map->insert(prefix + QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks);
     map->insert(prefix + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior);
     map->insert(prefix + QLatin1String(paddingModeKey), m_continuationAlignBehavior);
 }
@@ -104,9 +100,6 @@ void TabSettings::fromMap(const QString &prefix, const QVariantMap &map)
             map.value(prefix + QLatin1String(smartBackspaceKey), m_smartBackspace).toBool();
     m_tabSize = map.value(prefix + QLatin1String(tabSizeKey), m_tabSize).toInt();
     m_indentSize = map.value(prefix + QLatin1String(indentSizeKey), m_indentSize).toInt();
-    m_indentBraces = map.value(prefix + QLatin1String(indentBracesKey), m_indentBraces).toBool();
-    m_doubleIndentBlocks =
-        map.value(prefix + QLatin1String(doubleIndentBlocksKey), m_doubleIndentBlocks).toBool();
     m_tabKeyBehavior = (TabKeyBehavior)
         map.value(prefix + QLatin1String(tabKeyBehaviorKey), m_tabKeyBehavior).toInt();
     m_continuationAlignBehavior = (ContinuationAlignBehavior)
@@ -406,8 +399,6 @@ bool TabSettings::equals(const TabSettings &ts) const
         && m_smartBackspace == ts.m_smartBackspace
         && m_tabSize == ts.m_tabSize
         && m_indentSize == ts.m_indentSize
-        && m_indentBraces == ts.m_indentBraces
-        && m_doubleIndentBlocks == ts.m_doubleIndentBlocks
         && m_tabKeyBehavior == ts.m_tabKeyBehavior
         && m_continuationAlignBehavior == ts.m_continuationAlignBehavior;
 }
