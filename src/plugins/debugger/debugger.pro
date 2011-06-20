@@ -123,9 +123,8 @@ FORMS += attachexternaldialog.ui \
 
 RESOURCES += debugger.qrc
 
-true {
-    SOURCES += $$PWD/modeltest.cpp
-    HEADERS += $$PWD/modeltest.h
+false {
+    include(../../shared/modeltest/modeltest.pri)
     #DEFINES += USE_WATCH_MODEL_TEST=1
     #DEFINES += USE_BREAK_MODEL_TEST=1
 }
