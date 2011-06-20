@@ -42,10 +42,8 @@ Item {
     property real prevXStep: -1
     property real possibleValue: (canvas.canvasWindow.x + x) * Plotter.xScale(canvas)
     onPossibleValueChanged:  {
-        var set = (!zooming || (zooming && prevXStep != canvas.canvasWindow.x))
         prevXStep = canvas.canvasWindow.x;
-        if (set)
-            value = possibleValue
+        value = possibleValue
     }
 
     property real value

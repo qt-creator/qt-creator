@@ -42,8 +42,6 @@ Rectangle {
     property bool xRay: false                 //useful for seeing "nested" ranges (but redraw is buggy -- QGV problem?)
     property Item currentItem                 //currently selected item in the view
 
-    property bool zooming:false
-
     // move the cursor in the editor
     signal updateCursorPosition
     property string fileName: ""
@@ -184,10 +182,8 @@ Rectangle {
             property real prevXStep:  -1
             property real possibleEndTime: startTime + (rangeMover.width*Plotter.xScale(canvas))
             onPossibleEndTimeChanged:  {
-                var set = ((zooming && prevXStep != canvas.canvasWindow.x) || !zooming);
                 prevXStep = canvas.canvasWindow.x;
-                if (set)
-                    endTime = possibleEndTime
+                endTime = possibleEndTime
             }
             onEndTimeChanged: updateTimeline()
 

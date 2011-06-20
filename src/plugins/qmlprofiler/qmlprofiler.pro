@@ -51,7 +51,6 @@ OTHER_FILES += \
     qml/MainView.qml \
     qml/RangeDetails.qml \
     qml/RangeMover.qml \
-    qml/RecordButton.qml \
     qml/ToolButton.qml \
     qml/MainView.js \
     qml/TimeDisplay.qml

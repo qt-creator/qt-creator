@@ -9,7 +9,6 @@
         <file>range.png</file>
         <file>RangeDetails.qml</file>
         <file>RangeMover.qml</file>
-        <file>RecordButton.qml</file>
         <file>ToolButton.qml</file>
         <file>analyzer_category_small.png</file>
         <file>TimeDisplay.qml</file>
