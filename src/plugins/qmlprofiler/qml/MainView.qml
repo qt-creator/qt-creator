@@ -128,27 +128,20 @@ Rectangle {
         }
     }
 
-    //timeline background
-    Item {
-        anchors.fill: flick
-        Column {
-            anchors.fill: parent
-
-            Repeater {
-                model: labels.rowCount //### values.length?
-                delegate: Rectangle {
-                    width:  parent.width
-                    height: flick.height/labels.rowCount //###
-                    color: index % 2 ? "#f3f3f3" : "white"
-                }
-            }
-        }
+    // time markers
+    TimeDisplay {
+        height: flick.height + labels.y
+        anchors.left: flick.left
+        anchors.right: flick.right
+        startTime: rangeMover.x * Plotter.xScale(canvas);
+        endTime: (rangeMover.x + rangeMover.width) * Plotter.xScale(canvas);
     }
 
     //our main interaction view
     Flickable {
         id: flick
         anchors.top: parent.top
+        anchors.topMargin: labels.y
         anchors.right: parent.right
         anchors.left: labels.right
         anchors.bottom: canvas.top
@@ -262,8 +255,8 @@ Rectangle {
         id: labels
         width: 150
         color: "#dcdcdc"
-        y: -flick.contentY
-        height: flick.contentHeight
+        y: 12
+        height: flick.height
 
         property int rowCount: 5
 
@@ -312,7 +305,7 @@ Rectangle {
         tileSize.height: height
 
         canvasWindow.width: width
-        canvasWindow.height: 50
+        canvasWindow.height: height
 
         onDrawRegion: {
              if (Plotter.valuesdone)

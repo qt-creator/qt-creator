@@ -53,7 +53,8 @@ OTHER_FILES += \
     qml/RangeMover.qml \
     qml/RecordButton.qml \
     qml/ToolButton.qml \
-    qml/MainView.js
+    qml/MainView.js \
+    qml/TimeDisplay.qml
 
 FORMS += \
     qmlprofilerattachdialog.ui
