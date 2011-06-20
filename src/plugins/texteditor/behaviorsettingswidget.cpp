@@ -205,9 +205,9 @@ void BehaviorSettingsWidget::slotStorageSettingsChanged()
 
 void BehaviorSettingsWidget::slotBehaviorSettingsChanged()
 {
-    StorageSettings settings;
-    assignedStorageSettings(&settings);
-    emit storageSettingsChanged(settings);
+    BehaviorSettings settings;
+    assignedBehaviorSettings(&settings);
+    emit behaviorSettingsChanged(settings);
 }
 
 void BehaviorSettingsWidget::slotExtraEncodingChanged()
