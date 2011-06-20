@@ -47,6 +47,7 @@
 #include <utils/treewidgetcolumnstretcher.h>
 #include <utils/qtcassert.h>
 #include <utils/buildablehelperlibrary.h>
+#include <utils/pathchooser.h>
 #include <qtconcurrent/runextensions.h>
 
 #include <QtCore/QDir>
@@ -136,6 +137,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
 
     QWidget *versionInfoWidget = new QWidget();
     m_versionUi->setupUi(versionInfoWidget);
+    m_versionUi->editPathPushButton->setText(tr(Utils::PathChooser::browseButtonLabel));
 
     QWidget *debuggingHelperDetailsWidget = new QWidget();
     m_debuggingHelperUi->setupUi(debuggingHelperDetailsWidget);
