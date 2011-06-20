@@ -475,15 +475,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_BUILD);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_RUN);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_FILES);
-    mprojectContextMenu->appendGroup(Constants::G_PROJECT_OTHER);
-    mprojectContextMenu->appendGroup(Constants::G_PROJECT_CONFIG);
+    mprojectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
 
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FIRST);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_BUILD);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_RUN);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FILES);
-    msubProjectContextMenu->appendGroup(Constants::G_PROJECT_OTHER);
-    msubProjectContextMenu->appendGroup(Constants::G_PROJECT_CONFIG);
+    msubProjectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
 
     Core::ActionContainer *runMenu = Core::ICore::instance()->actionManager()->createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
@@ -534,8 +532,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     sep->setSeparator(true);
     cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Config.Sep"), projecTreeContext);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_CONFIG);
-    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_CONFIG);
-    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_CONFIG);
 
     sep = new QAction(this);
     sep->setSeparator(true);
@@ -547,8 +543,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Other.Sep"), globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_OTHER);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_OTHER);
-    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_OTHER);
-    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_OTHER);
 
     sep = new QAction(this);
     sep->setSeparator(true);
@@ -808,7 +802,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
     // unload project again, in right position
-    mprojectContextMenu->addAction(am->command(Constants::UNLOAD), Constants::G_PROJECT_FILES);
+    mprojectContextMenu->addAction(am->command(Constants::UNLOAD), Constants::G_PROJECT_LAST);
 
     // remove file action
     d->m_removeFileAction = new QAction(tr("Remove File..."), this);

@@ -133,12 +133,11 @@ const char * const G_SESSION_FILES      = "Session.Group.Files";
 const char * const G_SESSION_OTHER      = "Session.Group.Other";
 const char * const G_SESSION_CONFIG     = "Session.Group.Config";
 
-const char * const G_PROJECT_FILES      = "Project.Group.Files";
 const char * const G_PROJECT_FIRST      = "Project.Group.Open";
 const char * const G_PROJECT_BUILD      = "Project.Group.Build";
-const char * const G_PROJECT_OTHER      = "Project.Group.Other";
 const char * const G_PROJECT_RUN        = "Project.Group.Run";
-const char * const G_PROJECT_CONFIG     = "Project.Group.Config";
+const char * const G_PROJECT_FILES      = "Project.Group.Files";
+const char * const G_PROJECT_LAST       = "Project.Group.Last";
 
 const char * const G_FOLDER_FILES       = "ProjectFolder.Group.Files";
 const char * const G_FOLDER_OTHER       = "ProjectFolder.Group.Other";

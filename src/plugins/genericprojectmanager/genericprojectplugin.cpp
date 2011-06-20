@@ -37,14 +37,25 @@
 #include "genericprojectfileseditor.h"
 #include "genericmakestep.h"
 #include "generictarget.h"
+#include "genericproject.h"
+#include "selectablefilesmodel.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorer.h>
+
 
 #include <texteditor/texteditoractionhandler.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
+
+#include <QtGui/QTreeView>
+#include <QtGui/QMainWindow>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
@@ -84,10 +95,41 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     addAutoReleasedObject(new GenericProjectWizard);
     addAutoReleasedObject(new GenericTargetFactory);
 
+    const Core::Context projectContext(Constants::PROJECTCONTEXT);
+    Core::ActionManager *am = core->actionManager();
+    Core::ActionContainer *mproject =
+            am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+    m_editFilesAction = new QAction(tr("Edit Files..."), this);
+    Core::Command *command = am->registerAction(m_editFilesAction, Constants::EDITFILESACTION, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
+    connect(m_editFilesAction, SIGNAL(triggered()), this, SLOT(editFiles()));
+
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+            SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)),
+            this, SLOT(updateContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)));
+
     return true;
 }
 
 void GenericProjectPlugin::extensionsInitialized()
 { }
+
+void GenericProjectPlugin::updateContextMenu(ProjectExplorer::Project *project, ProjectExplorer::Node*)
+{
+    m_contextMenuProject = project;
+}
+
+void GenericProjectPlugin::editFiles()
+{
+    GenericProject *genericProject = static_cast<GenericProject *>(m_contextMenuProject);
+
+    Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    SelectableFilesDialog sfd(QFileInfo(genericProject->file()->fileName()).path(), genericProject->files(),
+                              mimeDatabase->suffixes().toSet(), Core::ICore::instance()->mainWindow());
+    if (sfd.exec() == QDialog::Accepted) {
+        genericProject->setFiles(sfd.selectedFiles());
+    }
+}
 
 Q_EXPORT_PLUGIN(GenericProjectPlugin)

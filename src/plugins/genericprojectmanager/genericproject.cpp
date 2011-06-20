@@ -179,6 +179,16 @@ bool GenericProject::removeFiles(const QStringList &filePaths)
     return saveRawFileList(newList);
 }
 
+bool GenericProject::setFiles(const QStringList &filePaths)
+{
+    QStringList newList;
+    QDir baseDir(QFileInfo(m_fileName).dir());
+    foreach (const QString &filePath, filePaths)
+        newList.append(baseDir.relativeFilePath(filePath));
+
+    return saveRawFileList(newList);
+}
+
 void GenericProject::parseProject(RefreshOptions options)
 {
     if (options & Files) {

@@ -36,6 +36,12 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QObject>
+#include <QtGui/QAction>
+
+namespace ProjectExplorer {
+    class Project;
+    class Node;
+}
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -52,9 +58,14 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
+private slots:
+    void updateContextMenu(ProjectExplorer::Project *, ProjectExplorer::Node *);
+    void editFiles();
 
 private:
     ProjectFilesFactory *m_projectFilesEditorFactory;
+    QAction *m_editFilesAction;
+    ProjectExplorer::Project *m_contextMenuProject;
 };
 
 } // namespace Internal

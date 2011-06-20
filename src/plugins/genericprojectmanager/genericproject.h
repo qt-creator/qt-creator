@@ -96,6 +96,7 @@ public:
 
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
+    bool setFiles(const QStringList &filePaths);
 
     enum RefreshOptions {
         Files         = 0x01,

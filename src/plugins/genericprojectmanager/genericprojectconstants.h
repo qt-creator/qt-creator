@@ -54,6 +54,8 @@ const char *const CONFIG_MIMETYPE    = "application/vnd.nokia.qt.generic.config"
 // Project
 const char *const GENERICPROJECT_ID  = "GenericProjectManager.GenericProject";
 
+const char *const EDITFILESACTION = "GenericProjectManager.EditFiles";
+
 } // namespace Constants
 } // namespace GenericProjectManager
 
