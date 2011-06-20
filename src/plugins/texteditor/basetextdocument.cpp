@@ -372,11 +372,21 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
 {
     QTextCursor cursor(d->m_document);
 
+    // When autosaving, we don't want to modify the document/location under the user's fingers.
+    BaseTextEditorWidget *editorWidget = 0;
+    int savedPosition, savedAnchor;
+    int undos = d->m_document->availableUndoSteps();
+
     // When saving the current editor, make sure to maintain the cursor position for undo
     Core::IEditor *currentEditor = Core::EditorManager::instance()->currentEditor();
     if (BaseTextEditor *editable = qobject_cast<BaseTextEditor*>(currentEditor)) {
-        if (editable->file() == this)
-            cursor.setPosition(editable->editorWidget()->textCursor().position());
+        if (editable->file() == this) {
+            editorWidget = editable->editorWidget();
+            QTextCursor cur = editorWidget->textCursor();
+            savedPosition = cur.position();
+            savedAnchor = cur.anchor();
+            cursor.setPosition(cur.position());
+        }
     }
 
     cursor.beginEditBlock();
@@ -408,6 +418,17 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
 
         saver.write(d->m_codec->fromUnicode(plainText));
     }
+
+    if (autoSave && undos < d->m_document->availableUndoSteps()) {
+        d->m_document->undo();
+        if (editorWidget) {
+            QTextCursor cur = editorWidget->textCursor();
+            cur.setPosition(savedAnchor);
+            cur.setPosition(savedPosition, QTextCursor::KeepAnchor);
+            editorWidget->setTextCursor(cur);
+        }
+    }
+
     if (!saver.finalize(errorString))
         return false;
     d->m_autoSaveRevision = d->m_document->revision();
