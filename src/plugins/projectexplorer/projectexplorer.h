@@ -196,6 +196,7 @@ private slots:
     void setStartupProject(ProjectExplorer::Project *project);
 
     void updateRecentProjectMenu();
+    void clearRecentProjects();
     void openRecentProject();
     void openTerminalHere();
 

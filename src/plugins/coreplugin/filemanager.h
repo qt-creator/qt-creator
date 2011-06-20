@@ -84,7 +84,9 @@ public:
 
     // recent files
     void addToRecentFiles(const QString &fileName, const QString &editorId = QString());
+    Q_SLOT void clearRecentFiles();
     QList<RecentFile> recentFiles() const;
+
     void saveSettings();
 
     // current file

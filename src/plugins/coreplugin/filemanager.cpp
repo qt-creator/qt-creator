@@ -1078,6 +1078,17 @@ void FileManager::addToRecentFiles(const QString &fileName, const QString &edito
 }
 
 /*!
+    \fn void FileManager::clearRecentFiles()
+
+    Clears the list of recent files. Should only be called by
+    the core plugin when the user chooses to clear it.
+*/
+void FileManager::clearRecentFiles()
+{
+    d->m_recentFiles.clear();
+}
+
+/*!
     \fn QStringList FileManager::recentFiles() const
 
     Returns the list of recent files.

@@ -2221,8 +2221,7 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
     QMenu *menu = aci->menu();
     menu->clear();
 
-    menu->setEnabled(!d->m_recentProjects.isEmpty());
-
+    bool hasRecentProjects = false;
     //projects (ignore sessions, they used to be in this list)
     const StringPairListConstIterator end = d->m_recentProjects.constEnd();
     for (StringPairListConstIterator it = d->m_recentProjects.constBegin(); it != end; ++it) {
@@ -2232,7 +2231,22 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
         QAction *action = menu->addAction(Utils::withTildeHomePath(s.first));
         action->setData(s.first);
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentProject()));
+        hasRecentProjects = true;
     }
+    menu->setEnabled(hasRecentProjects);
+
+    // add the Clear Menu item
+    if (hasRecentProjects) {
+        menu->addSeparator();
+        QAction *action = menu->addAction(tr(QT_TRANSLATE_NOOP("Core::MainWindow", "Clear Menu")));
+        connect(action, SIGNAL(triggered()), this, SLOT(clearRecentProjects()));
+    }
+}
+
+void ProjectExplorerPlugin::clearRecentProjects()
+{
+    d->m_recentProjects.clear();
+    updateWelcomePage();
 }
 
 void ProjectExplorerPlugin::openRecentProject()

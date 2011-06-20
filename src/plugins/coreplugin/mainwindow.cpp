@@ -1317,6 +1317,13 @@ void MainWindow::aboutToShowRecentFiles()
         connect(action, SIGNAL(triggered()), this, SLOT(openRecentFile()));
     }
     aci->menu()->setEnabled(hasRecentFiles);
+
+    // add the Clear Menu item
+    if (hasRecentFiles) {
+        aci->menu()->addSeparator();
+        QAction *action = aci->menu()->addAction(tr(QT_TRANSLATE_NOOP("Core::MainWindow", "Clear Menu")));
+        connect(action, SIGNAL(triggered()), m_fileManager, SLOT(clearRecentFiles()));
+    }
 }
 
 void MainWindow::openRecentFile()
