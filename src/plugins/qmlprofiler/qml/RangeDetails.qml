@@ -71,7 +71,9 @@ BorderImage {
         anchors.top: typeTitle.bottom
         Detail {
             label: "Duration"
-            content: rangeDetails.duration + "μs"
+            content: rangeDetails.duration < 1000 ?
+                        rangeDetails.duration + "μs" :
+                        Math.floor(rangeDetails.duration/1000) + "ms"
         }
         Detail {
             opacity: content.length !== 0 ? 1 : 0
