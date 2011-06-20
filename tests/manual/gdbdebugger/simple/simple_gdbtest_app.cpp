@@ -2742,8 +2742,31 @@ namespace qc42170 {
 } // namespace qc42170
 
 
+// http://www.qtcentre.org/threads/41700-How-to-watch-STL-containers-iterators-during-debugging
+namespace qc41700 {
+
+    void test()
+    {
+        using namespace std;
+        typedef map<string, list<string> > map_t;
+        map_t m;
+        m["one"].push_back("a");
+        m["one"].push_back("b");
+        m["one"].push_back("c");
+        m["two"].push_back("1");
+        m["two"].push_back("2");
+        m["two"].push_back("3");
+        map_t::const_iterator it = m.begin();
+        ++it;
+        ++it;
+        ++it;
+    }
+
+} // namespace qc41700
+
 int main(int argc, char *argv[])
 {
+    qc41700::test();
     qc42170::test();
     test842();
     test842();
