@@ -413,6 +413,8 @@ void SnippetsSettingsPagePrivate::finish()
         SnippetsCollection::instance()->reload();
         m_snippetsCollectionChanged = false;
     }
+
+    disconnect(TextEditorSettings::instance(), 0, this, 0);
 }
 
 void SnippetsSettingsPagePrivate::loadSettings()
