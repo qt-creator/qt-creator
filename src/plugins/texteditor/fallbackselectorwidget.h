@@ -24,7 +24,7 @@ class TEXTEDITOR_EXPORT FallbackSelectorWidget : public QWidget
 public:
     explicit FallbackSelectorWidget(QWidget *parent = 0);
 
-    void setFallbackPreferences(TextEditor::IFallbackPreferences *tabPreferences);
+    void setFallbackPreferences(TextEditor::IFallbackPreferences *fallbackPreferences);
     QString searchKeywords() const;
 
     void setFallbacksVisible(bool on);

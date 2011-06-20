@@ -1,5 +1,6 @@
 #include "tabpreferences.h"
 #include "tabsettings.h"
+#include "texteditorconstants.h"
 
 using namespace TextEditor;
 
@@ -7,9 +8,26 @@ static const char *settingsSuffixKey = "TabPreferences";
 
 static const char *currentFallbackKey = "CurrentFallback";
 
+static QList<IFallbackPreferences *> toFallbackList(
+    const QList<TabPreferences *> &fallbacks)
+{
+    QList<IFallbackPreferences *> fallbackList;
+    for (int i = 0; i < fallbacks.count(); i++)
+        fallbackList << fallbacks.at(i);
+    return fallbackList;
+}
+
 TabPreferences::TabPreferences(
     const QList<IFallbackPreferences *> &fallbacks, QObject *parent)
     : IFallbackPreferences(fallbacks, parent)
+{
+    connect(this, SIGNAL(currentValueChanged(QVariant)),
+            this, SLOT(slotCurrentValueChanged(QVariant)));
+}
+
+TabPreferences::TabPreferences(
+    const QList<TabPreferences *> &fallbacks, QObject *parent)
+    : IFallbackPreferences(toFallbackList(fallbacks), parent)
 {
     connect(this, SIGNAL(currentValueChanged(QVariant)),
             this, SLOT(slotCurrentValueChanged(QVariant)));
@@ -83,6 +101,6 @@ void TabPreferences::toMap(const QString &prefix, QVariantMap *map) const
 void TabPreferences::fromMap(const QString &prefix, const QVariantMap &map)
 {
     m_data.fromMap(prefix, map);
-    setCurrentFallback(map.value(prefix + QLatin1String(currentFallbackKey), QLatin1String("Global")).toString());
+    setCurrentFallback(map.value(prefix + QLatin1String(currentFallbackKey), Constants::GLOBAL_SETTINGS_ID).toString());
 }
 

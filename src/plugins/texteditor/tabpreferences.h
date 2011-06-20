@@ -14,12 +14,16 @@ public:
         const QList<IFallbackPreferences *> &fallbacks,
         QObject *parentObject = 0);
 
+    explicit TabPreferences(
+        const QList<TabPreferences *> &fallbacks,
+        QObject *parentObject = 0);
+
     virtual QVariant value() const;
     virtual void setValue(const QVariant &);
 
     TabSettings settings() const;
 
-    // tracks parent hierarchy until currentParentSettings is null
+    // tracks parent fallbacks until null and extracts settings from it
     TabSettings currentSettings() const;
 
     virtual void toMap(const QString &prefix, QVariantMap *map) const;

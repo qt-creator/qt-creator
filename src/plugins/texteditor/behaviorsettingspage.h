@@ -83,8 +83,7 @@ signals:
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
 
 private:
-    void settingsFromUI(TabSettings *tabSettings,
-                        StorageSettings *storageSettings,
+    void settingsFromUI(StorageSettings *storageSettings,
                         BehaviorSettings *behaviorSettings,
                         ExtraEncodingSettings *extraEncodingSettings) const;
     void settingsToUI();

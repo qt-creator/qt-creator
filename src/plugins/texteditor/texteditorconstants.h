@@ -148,6 +148,8 @@ const char * const TEXT_EDITOR_SNIPPETS_SETTINGS = "F.SnippetsSettings";
 const char * const SNIPPET_EDITOR_ID     = "TextEditor.SnippetEditor";
 const char * const TEXT_SNIPPET_GROUP_ID = "Text";
 
+const char * const GLOBAL_SETTINGS_ID    = "Global";
+
 } // namespace Constants
 } // namespace TextEditor
 

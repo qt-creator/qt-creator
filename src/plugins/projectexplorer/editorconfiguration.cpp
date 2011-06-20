@@ -91,9 +91,10 @@ struct EditorConfigurationPrivate
 
 EditorConfiguration::EditorConfiguration() : m_d(new EditorConfigurationPrivate)
 {
-    QList<IFallbackPreferences *> fallbacks;
-    fallbacks << TextEditorSettings::instance()->tabPreferences();
-    m_d->m_tabPreferences = new TabPreferences(fallbacks, this);
+    TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
+    QList<TabPreferences *> tabFallbacks;
+    tabFallbacks << textEditorSettings->tabPreferences();
+    m_d->m_tabPreferences = new TabPreferences(tabFallbacks, this);
     m_d->m_tabPreferences->setDisplayName(tr("Project", "Settings"));
     m_d->m_tabPreferences->setId(kId);
 

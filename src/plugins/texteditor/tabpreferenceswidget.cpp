@@ -27,12 +27,13 @@ void TabPreferencesWidget::setTabPreferences(TabPreferences *tabPreferences)
 
     // cleanup old
     if (m_tabPreferences) {
-        disconnect(m_tabPreferences, SIGNAL(settingsChanged(TabSettings)),
-                m_ui->tabSettingsWidget, SLOT(setSettings(TabSettings)));
-        disconnect(m_tabPreferences, SIGNAL(currentFallbackChanged(IFallbackPreferences*)),
-                this, SLOT(slotCurrentFallbackChanged(IFallbackPreferences*)));
-        disconnect(m_ui->tabSettingsWidget, SIGNAL(settingsChanged(TabSettings)),
-                m_tabPreferences, SLOT(setSettings(TabSettings)));
+        disconnect(m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
+                m_ui->tabSettingsWidget, SLOT(setSettings(TextEditor::TabSettings)));
+        disconnect(m_tabPreferences, SIGNAL(currentFallbackChanged(TextEditor::IFallbackPreferences*)),
+                this, SLOT(slotCurrentFallbackChanged(TextEditor::IFallbackPreferences*)));
+        disconnect(m_ui->tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
+                m_tabPreferences, SLOT(setSettings(TextEditor::TabSettings)));
+
         m_ui->tabSettingsWidget->setEnabled(true);
     }
     m_tabPreferences = tabPreferences;
@@ -41,14 +42,14 @@ void TabPreferencesWidget::setTabPreferences(TabPreferences *tabPreferences)
     if (m_tabPreferences) {
         slotCurrentFallbackChanged(m_tabPreferences->currentFallback());
 
-        connect(m_tabPreferences, SIGNAL(settingsChanged(TextEditor::TabSettings)),
+        connect(m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
                 m_ui->tabSettingsWidget, SLOT(setSettings(TextEditor::TabSettings)));
         connect(m_tabPreferences, SIGNAL(currentFallbackChanged(TextEditor::IFallbackPreferences*)),
                 this, SLOT(slotCurrentFallbackChanged(TextEditor::IFallbackPreferences*)));
         connect(m_ui->tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
                 m_tabPreferences, SLOT(setSettings(TextEditor::TabSettings)));
 
-        m_ui->tabSettingsWidget->setSettings(m_tabPreferences->settings());
+        m_ui->tabSettingsWidget->setSettings(m_tabPreferences->currentSettings());
     }
 }
 

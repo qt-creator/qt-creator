@@ -38,6 +38,7 @@
 #include "extraencodingsettings.h"
 #include "ui_behaviorsettingspage.h"
 #include "tabpreferences.h"
+#include "texteditorconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -45,8 +46,6 @@
 
 #include <QtCore/QSettings>
 #include <QtCore/QTextCodec>
-
-static const char *idKey = "Global";
 
 using namespace TextEditor;
 
@@ -77,9 +76,7 @@ BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
 void BehaviorSettingsPage::BehaviorSettingsPagePrivate::init()
 {
     if (const QSettings *s = Core::ICore::instance()->settings()) {
-        TabSettings ts;
-        ts.fromSettings(m_parameters.settingsPrefix, s);
-        m_tabPreferences->setSettings(ts);
+        m_tabPreferences->fromSettings(m_parameters.settingsPrefix, s);
         m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_behaviorSettings.fromSettings(m_parameters.settingsPrefix, s);
         m_extraEncodingSettings.fromSettings(m_parameters.settingsPrefix, s);
@@ -93,7 +90,7 @@ BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters 
 {
     m_d->m_tabPreferences = new TabPreferences(QList<IFallbackPreferences *>(), this);
     m_d->m_tabPreferences->setDisplayName(tr("Global", "Settings"));
-    m_d->m_tabPreferences->setId(idKey);
+    m_d->m_tabPreferences->setId(Constants::GLOBAL_SETTINGS_ID);
     m_d->init();
 }
 
@@ -117,7 +114,9 @@ QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
     QWidget *w = new QWidget(parent);
     m_d->m_page = new Ui::BehaviorSettingsPage;
     m_d->m_page->setupUi(w);
-    m_d->m_pageTabPreferences = new TabPreferences(QList<IFallbackPreferences *>(), w);
+    m_d->m_pageTabPreferences = new TabPreferences(m_d->m_tabPreferences->fallbacks(), w);
+    m_d->m_pageTabPreferences->setSettings(m_d->m_tabPreferences->settings());
+    m_d->m_pageTabPreferences->setCurrentFallback(m_d->m_tabPreferences->currentFallback());
     m_d->m_page->behaviorWidget->setTabPreferences(m_d->m_pageTabPreferences);
 
     settingsToUI();
@@ -133,20 +132,25 @@ void BehaviorSettingsPage::apply()
     if (!m_d->m_page) // page was never shown
         return;
 
-    TabSettings newTabSettings;
     StorageSettings newStorageSettings;
     BehaviorSettings newBehaviorSettings;
     ExtraEncodingSettings newExtraEncodingSettings;
 
-    settingsFromUI(&newTabSettings, &newStorageSettings, &newBehaviorSettings,
+    settingsFromUI(&newStorageSettings, &newBehaviorSettings,
                    &newExtraEncodingSettings);
 
     QSettings *s = Core::ICore::instance()->settings();
 
-    if (newTabSettings != m_d->m_tabPreferences->settings()) {
-        m_d->m_tabPreferences->setSettings(newTabSettings);
+    if (m_d->m_tabPreferences->settings() != m_d->m_pageTabPreferences->settings()) {
+        m_d->m_tabPreferences->setSettings(m_d->m_pageTabPreferences->settings());
         if (s)
-            m_d->m_tabPreferences->settings().toSettings(m_d->m_parameters.settingsPrefix, s);
+            m_d->m_tabPreferences->toSettings(m_d->m_parameters.settingsPrefix, s);
+    }
+
+    if (m_d->m_tabPreferences->currentFallback() != m_d->m_pageTabPreferences->currentFallback()) {
+        m_d->m_tabPreferences->setCurrentFallback(m_d->m_pageTabPreferences->currentFallback());
+        if (s)
+            m_d->m_tabPreferences->toSettings(m_d->m_parameters.settingsPrefix, s);
     }
 
     if (newStorageSettings != m_d->m_storageSettings) {
@@ -179,12 +183,10 @@ void BehaviorSettingsPage::apply()
     }
 }
 
-void BehaviorSettingsPage::settingsFromUI(TabSettings *tabSettings,
-                                          StorageSettings *storageSettings,
+void BehaviorSettingsPage::settingsFromUI(StorageSettings *storageSettings,
                                           BehaviorSettings *behaviorSettings,
                                           ExtraEncodingSettings *extraEncodingSettings) const
 {
-    *tabSettings = m_d->m_pageTabPreferences->settings();
     m_d->m_page->behaviorWidget->assignedStorageSettings(storageSettings);
     m_d->m_page->behaviorWidget->assignedBehaviorSettings(behaviorSettings);
     m_d->m_page->behaviorWidget->assignedExtraEncodingSettings(extraEncodingSettings);
@@ -192,7 +194,6 @@ void BehaviorSettingsPage::settingsFromUI(TabSettings *tabSettings,
 
 void BehaviorSettingsPage::settingsToUI()
 {
-    m_d->m_pageTabPreferences->setSettings(m_d->m_tabPreferences->settings());
     m_d->m_page->behaviorWidget->setAssignedStorageSettings(m_d->m_storageSettings);
     m_d->m_page->behaviorWidget->setAssignedBehaviorSettings(m_d->m_behaviorSettings);
     m_d->m_page->behaviorWidget->setAssignedExtraEncodingSettings(m_d->m_extraEncodingSettings);
