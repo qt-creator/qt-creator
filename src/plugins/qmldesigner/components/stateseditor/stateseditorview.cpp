@@ -133,7 +133,7 @@ void StatesEditorView::addState()
     QString newStateName;
     int index = 1;
     while (true) {
-        newStateName = tr("State%1", "Default name for newly created states").arg(index++);
+        newStateName = QString("State%1").arg(index++);
         if (!modelStateNames.contains(newStateName))
             break;
     }
