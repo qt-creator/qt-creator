@@ -135,11 +135,11 @@ Rectangle {
             anchors.fill: parent
 
             Repeater {
-                model: 5 //### values.length?
+                model: labels.rowCount //### values.length?
                 delegate: Rectangle {
                     width:  parent.width
-                    height: 50 //###
-                    color: index % 2 ? "#fafafa" : "white"
+                    height: flick.height/labels.rowCount //###
+                    color: index % 2 ? "#f3f3f3" : "white"
                 }
             }
         }
