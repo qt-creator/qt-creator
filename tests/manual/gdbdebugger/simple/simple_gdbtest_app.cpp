@@ -2702,8 +2702,47 @@ void test5106()
 }
 
 
+// http://www.qtcentre.org/threads/42170-How-to-watch-data-of-actual-type-in-debugger
+namespace qc42170 {
+
+    struct Object
+    {
+        Object(int id_) : id(id_) {}
+        virtual ~Object() {}
+        int id;
+    };
+
+    struct Point: Object
+    {
+        Point(double x_, double y_, int id_) : Object(id_), x(x_), y(y_) {}
+        double x, y;
+    };
+
+    struct Circle : Point
+    {
+        Circle(double x_, double y_, double r_, int id_)
+        : Point(x_, y_, id_), r(r_) {}
+        double r;
+    };
+
+
+    int helper(Object *obj)
+    {
+        return 0; // <== break point here
+    }
+
+    void test()
+    {
+        helper(new Circle(1.5, -2.5, 3.0, 15));
+    }
+
+} // namespace qc42170
+
+
 int main(int argc, char *argv[])
 {
+    qc42170::test();
+    test842();
     test842();
     test3611();
     test4019();
