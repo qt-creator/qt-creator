@@ -102,6 +102,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
       m_runModus(runModus),
       m_synchronizeId(-1)
 {
+   Q_UNUSED(pathToQt);
    QString socketToken(QUuid::createUuid().toString());
 
    m_localServer->listen(socketToken);
@@ -192,7 +193,11 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        m_localServer->close();
 
    } else {
-       QMessageBox::warning(0, tr("Cannot find qml puppet"), tr("Qml Puppet is a process which runs in the backgound to render the the items. If QtCreator cannot find the puppet something with the installation is wrong."));
+       QMessageBox::warning(0, tr("Cannot Find QML Puppet Executable"),
+                            tr("The executable of the QML Puppet process (%1) cannot be found. "
+                               "Please check your installation. "
+                               "QML Puppet is a process which runs in the background to render the the items.").
+                            arg(applicationPath));
    }
 }
 

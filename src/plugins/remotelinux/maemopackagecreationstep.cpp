@@ -740,7 +740,7 @@ bool MaemoTarPackageCreationStep::writeHeader(QFile &tarFile,
     const int maxFilePathLength = sizeof header.fileNamePrefix
         + sizeof header.fileName;
     if (filePath.count() > maxFilePathLength) {
-        raiseError(tr("Cannot tar file '%1': path is too long.")
+        raiseError(tr("Cannot add file '%1' to tar-archive: path too long.")
             .arg(QDir::toNativeSeparators(filePath)));
         return false;
     }

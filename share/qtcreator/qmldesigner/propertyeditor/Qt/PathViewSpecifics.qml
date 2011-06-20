@@ -92,7 +92,7 @@ QWidget {
         }
         GroupBox {
             finished: finishedNotify;
-            caption: qsTr("Grid View ViewHighlight")
+            caption: qsTr("Path View Highlight")
             layout: VerticalLayout {
                 QWidget {
                     layout: HorizontalLayout {
