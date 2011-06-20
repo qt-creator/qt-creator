@@ -141,11 +141,13 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
             } else {
                 QString description;
                 ModelNode parentNode = node.parentProperty().parentModelNode();
-                if (parentNode.isValid())
-                    if (!parentNode.id().isEmpty())
+                if (parentNode.isValid()) {
+                    if (!parentNode.id().isEmpty()) {
                         description = node.parentProperty().parentModelNode().id() + QLatin1Char(' ');
-                    else
+                    } else {
                         description = node.parentProperty().parentModelNode().simplifiedTypeName() + QLatin1Char(' ');
+                    }
+                }
                 description += node.parentProperty().name();
                 QStandardItem *item = new QStandardItem(description);
                 item->setData(QVariant::fromValue(node), ModelNodeRole);
