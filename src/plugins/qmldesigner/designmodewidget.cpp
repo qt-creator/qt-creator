@@ -185,7 +185,6 @@ void DocumentWarningWidget::goToError()
 DesignModeWidget::DesignModeWidget(QWidget *parent) :
     QWidget(parent),
     m_syncWithTextEdit(false),
-    m_textEditor(0),
     m_mainSplitter(0),
     m_leftSideBar(0),
     m_rightSideBar(0),
@@ -271,8 +270,12 @@ void DesignModeWidget::toggleSidebars()
 void DesignModeWidget::showEditor(Core::IEditor *editor)
 {
     if (m_textEditor && editor)
-        if (m_textEditor->file()->fileName() == editor->file()->fileName())
-            return;
+        if (m_textEditor->file()->fileName() != editor->file()->fileName()) {
+            if (!m_keepNavigatorHistory)
+                addNavigatorHistoryEntry(editor->file()->fileName());
+            setupNavigatorHistory();
+        }
+
     //
     // Prevent recursive calls to function by explicitly managing initialization status
     // (QApplication::processEvents is called explicitly at a number of places)
@@ -295,9 +298,6 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
         textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
         if (textEditor)
             m_fakeToolBar->addEditor(textEditor);
-        if (!m_keepNavigatorHistory)
-            addNavigatorHistoryEntry(fileName);
-        setupNavigatorHistory();
     }
 
     if (debug)

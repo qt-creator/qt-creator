@@ -130,7 +130,7 @@ public:
     void saveSettings();
     void setAutoSynchronization(bool sync);
 
-    TextEditor::ITextEditor *textEditor() const {return m_textEditor; }
+    TextEditor::ITextEditor *textEditor() const {return m_textEditor.data(); }
 
 private slots:
     void undo();
@@ -200,7 +200,7 @@ private:
     void setupNavigatorHistory();
     void addNavigatorHistoryEntry(const QString &fileName);
 
-    TextEditor::ITextEditor *m_textEditor;
+    QWeakPointer<TextEditor::ITextEditor> m_textEditor;
 
     QSplitter *m_mainSplitter;
     Core::SideBar *m_leftSideBar;
