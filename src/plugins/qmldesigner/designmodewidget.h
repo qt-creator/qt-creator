@@ -157,6 +157,9 @@ private slots:
     void deleteSidebarWidgets();
     void qmlPuppetCrashed();
 
+    void onGoBackClicked();
+    void onGoForwardClicked();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 
@@ -194,6 +197,8 @@ private:
     void setup();
     bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
     QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;
+    void setupNavigatorHistory();
+    void addNavigatorHistoryEntry(const QString &fileName);
 
     TextEditor::ITextEditor *m_textEditor;
 
@@ -211,6 +216,9 @@ private:
     InitializeStatus m_initStatus;
 
     DocumentWarningWidget *m_warningWidget;
+    QStringList m_navigatorHistory;
+    int m_navigatorHistoryCounter;
+    bool m_keepNavigatorHistory;
 };
 
 } // namespace Internal

@@ -185,13 +185,16 @@ void DocumentWarningWidget::goToError()
 DesignModeWidget::DesignModeWidget(QWidget *parent) :
     QWidget(parent),
     m_syncWithTextEdit(false),
+    m_textEditor(0),
     m_mainSplitter(0),
     m_leftSideBar(0),
     m_rightSideBar(0),
     m_isDisabled(false),
     m_showSidebars(true),
     m_initStatus(NotInitialized),
-    m_warningWidget(0)
+    m_warningWidget(0),
+    m_navigatorHistoryCounter(-1),
+    m_keepNavigatorHistory(false)
 {
     m_undoAction = new QAction(tr("&Undo"), this);
     connect(m_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
@@ -267,6 +270,9 @@ void DesignModeWidget::toggleSidebars()
 
 void DesignModeWidget::showEditor(Core::IEditor *editor)
 {
+    if (m_textEditor && editor)
+        if (m_textEditor->file()->fileName() == editor->file()->fileName())
+            return;
     //
     // Prevent recursive calls to function by explicitly managing initialization status
     // (QApplication::processEvents is called explicitly at a number of places)
@@ -289,6 +295,9 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
         textEditor = qobject_cast<TextEditor::ITextEditor*>(editor);
         if (textEditor)
             m_fakeToolBar->addEditor(textEditor);
+        if (!m_keepNavigatorHistory)
+            addNavigatorHistoryEntry(fileName);
+        setupNavigatorHistory();
     }
 
     if (debug)
@@ -723,9 +732,12 @@ void DesignModeWidget::setup()
 
     m_fakeToolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
     //m_fakeToolBar->addEditor(textEditor()); ### what does this mean?
-    m_fakeToolBar->setNavigationVisible(false);
+    m_fakeToolBar->setNavigationVisible(true);
 
     connect(m_fakeToolBar, SIGNAL(closeClicked()), this, SLOT(closeCurrentEditor()));
+    connect(m_fakeToolBar, SIGNAL(goForwardClicked()), this, SLOT(onGoForwardClicked()));
+    connect(m_fakeToolBar, SIGNAL(goBackClicked()), this, SLOT(onGoBackClicked()));
+    setupNavigatorHistory();
 
     // right area:
     QWidget *centerWidget = new QWidget;
@@ -808,6 +820,30 @@ void DesignModeWidget::qmlPuppetCrashed()
     disable(errorList);
 }
 
+void DesignModeWidget::onGoBackClicked()
+{
+    if (m_navigatorHistoryCounter > 0) {
+        --m_navigatorHistoryCounter;
+        m_keepNavigatorHistory = true;
+
+        Core::EditorManager::instance()->openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter));
+
+        m_keepNavigatorHistory = false;
+    }
+}
+
+void DesignModeWidget::onGoForwardClicked()
+{
+    if (m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1)) {
+        ++m_navigatorHistoryCounter;
+        m_keepNavigatorHistory = true;
+
+        Core::EditorManager::instance()->openEditor(m_navigatorHistory.at(m_navigatorHistoryCounter));
+
+        m_keepNavigatorHistory = false;
+    }
+}
+
 void DesignModeWidget::resizeEvent(QResizeEvent *event)
 {
     if (m_warningWidget)
@@ -840,6 +876,24 @@ ModelNode DesignModeWidget::nodeForPosition(int cursorPos) const
     }
 
     return bestNode;
+}
+
+void DesignModeWidget::setupNavigatorHistory()
+{
+    const bool canGoBack = m_navigatorHistoryCounter > 0;
+    const bool canGoForward = m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1);
+    m_fakeToolBar->setCanGoBack(canGoBack);
+    m_fakeToolBar->setCanGoForward(canGoForward);
+}
+
+void DesignModeWidget::addNavigatorHistoryEntry(const QString &fileName)
+{
+    if (m_navigatorHistoryCounter > 0)
+        m_navigatorHistory.insert(m_navigatorHistoryCounter + 1, fileName);
+    else
+        m_navigatorHistory.append(fileName);
+
+    ++m_navigatorHistoryCounter;
 }
 
 
