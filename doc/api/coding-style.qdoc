@@ -450,7 +450,12 @@
     \section3 Declaring Variables
 
     \list
-        \o  Avoid global or static variables.
+        \o  Avoid global variables of class type to rule out initialization order problems.
+            Consider using \c Q_GLOBAL_STATIC if they cannot be avoided.
+        \o  Declare global string literals as
+            \code
+            const char aString[] = "Hello";
+            \endcode
         \o  Avoid short names (such as, a, rbarr, nughdeget) whenever possible.
             Use single-character variable names only for counters and
             temporaries, where the purpose of the variable is obvious.
