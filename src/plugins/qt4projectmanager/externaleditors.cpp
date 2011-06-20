@@ -78,8 +78,8 @@ static inline QString msgAppNotFound(const QString &id)
 
 // -- Commands and helpers
 #ifdef Q_OS_MAC
-static const char * const linguistBinaryC = "Linguist";
-static const char * const designerBinaryC = "Designer";
+static const char linguistBinaryC[] = "Linguist";
+static const char designerBinaryC[] = "Designer";
 
 // Mac: Change the call 'Foo.app/Contents/MacOS/Foo <filelist>' to
 // 'open -a Foo.app <filelist>'. doesn't support generic command line arguments
@@ -94,15 +94,15 @@ static void createMacOpenCommand(QString *binary, QStringList *arguments)
     }
 }
 #else
-static const char * const linguistBinaryC = "linguist";
-static const char * const designerBinaryC = "designer";
+static const char linguistBinaryC[] = "linguist";
+static const char designerBinaryC[] = "designer";
 #endif
 
-static const char * const designerIdC = "Qt.Designer";
-static const char * const linguistIdC = "Qt.Linguisr";
+static const char designerIdC[] = "Qt.Designer";
+static const char linguistIdC[] = "Qt.Linguist";
 
-static const char * const designerDisplayName = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Designer");
-static const char * const linguistDisplayName = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist");
+static const char designerDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Designer");
+static const char linguistDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist");
 
 // -------------- ExternalQtEditor
 ExternalQtEditor::ExternalQtEditor(const QString &id,
@@ -139,20 +139,18 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
                                            EditorLaunchData *data,
                                            QString *errorMessage) const
 {
-    const Qt4Project *project = qt4ProjectFor(fileName);
     // Get the binary either from the current Qt version of the project or Path
-    if (project) {
-        if (!project->activeTarget() ||
-            !project->activeTarget()->activeBuildConfiguration())
-            return false;
-        Qt4BuildConfiguration *qt4bc = project->activeTarget()->activeBuildConfiguration();
-        QtSupport::BaseQtVersion *qtVersion = qt4bc->qtVersion();
-        if (!qtVersion)
-            return false;
-
-        data->binary = (qtVersion->*commandAccessor)();
-        data->workingDirectory = project->projectDirectory();
-    } else {
+    if (const Qt4Project *project = qt4ProjectFor(fileName)) {
+        if (const Qt4BaseTarget *target = project->activeTarget()) {
+            if (const Qt4BuildConfiguration *qt4bc = target->activeBuildConfiguration()) {
+                if (const QtSupport::BaseQtVersion *qtVersion = qt4bc->qtVersion()) {
+                    data->binary = (qtVersion->*commandAccessor)();
+                    data->workingDirectory = project->projectDirectory();
+                }
+            }
+        }
+    }
+    if (data->binary.isEmpty()) {
         data->workingDirectory.clear();
         data->binary = Utils::SynchronousProcess::locateBinary(fallbackBinary);
     }
