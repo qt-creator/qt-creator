@@ -300,12 +300,12 @@ void QmlProfilerTool::connectToClient()
 
     if (d->m_connectMode == QmlProfilerToolPrivate::TcpConnection) {
         if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: Connecting to %s:%lld ...", qPrintable(d->m_tcpHost), d->m_tcpPort);
+            qWarning("QML Profiler: Connecting to %s:%lld ...", qPrintable(d->m_tcpHost), d->m_tcpPort);
 
         d->m_client->connectToHost(d->m_tcpHost, d->m_tcpPort);
     } else {
         if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: Connecting to ost device %s...", qPrintable(d->m_ostDevice));
+            qWarning("QML Profiler: Connecting to ost device %s...", qPrintable(d->m_ostDevice));
 
         d->m_client->connectToOst(d->m_ostDevice);
     }
@@ -437,9 +437,9 @@ void QmlProfilerTool::tryToConnect()
         d->m_connectionAttempts = 0;
         if (QmlProfilerPlugin::debugOutput) {
             if (d->m_client) {
-                qWarning("QmlProfiler: Failed to connect: %s", qPrintable(d->m_client->errorString()));
+                qWarning("QML Profiler: Failed to connect: %s", qPrintable(d->m_client->errorString()));
             } else {
-                qWarning("QmlProfiler: Failed to connect.");
+                qWarning("QML Profiler: Failed to connect.");
             }
         }
         emit connectionFailed();
@@ -456,26 +456,26 @@ void QmlProfilerTool::connectionStateChanged()
     case QAbstractSocket::UnconnectedState:
     {
         if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: disconnected");
+            qWarning("QML Profiler: disconnected");
         break;
     }
     case QAbstractSocket::HostLookupState:
         break;
     case QAbstractSocket::ConnectingState: {
         if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: Connecting to debug server ...");
+            qWarning("QML Profiler: Connecting to debug server ...");
         break;
     }
     case QAbstractSocket::ConnectedState:
     {
         if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: connected and running");
+            qWarning("QML Profiler: connected and running");
         updateRecordingState();
         break;
     }
     case QAbstractSocket::ClosingState:
         if (QmlProfilerPlugin::debugOutput)
-            qWarning("QmlProfiler: closing ...");
+            qWarning("QML Profiler: closing ...");
         break;
     case QAbstractSocket::BoundState:
     case QAbstractSocket::ListeningState:

@@ -93,7 +93,7 @@ AnalyzerRunControl *QmlProjectAnalyzerRunControlFactory::create(const Analyzer::
 
 QString QmlProjectAnalyzerRunControlFactory::displayName() const
 {
-    return tr("QmlAnalyzer");
+    return tr("QML Profiler");
 }
 
 IRunConfigurationAspect *QmlProjectAnalyzerRunControlFactory::createRunConfigurationAspect()
