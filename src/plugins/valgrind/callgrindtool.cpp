@@ -189,7 +189,6 @@ public:
     Visualisation *m_visualisation;
 
     // navigation
-    QAction *m_goToOverview;
     QAction *m_goBack;
     QAction *m_goNext;
     QLineEdit *m_searchFilter;
@@ -227,7 +226,6 @@ CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     , m_callersView(0)
     , m_calleesView(0)
     , m_visualisation(0)
-    , m_goToOverview(0)
     , m_goBack(0)
     , m_goNext(0)
     , m_searchFilter(0)
@@ -300,15 +298,12 @@ void CallgrindToolPrivate::setBusy(bool busy)
 void CallgrindToolPrivate::selectFunction(const Function *func)
 {
     if (!func) {
-        m_goToOverview->setDisabled(true);
         m_flatView->clearSelection();
         m_visualisation->setFunction(0);
         m_callersModel->clear();
         m_calleesModel->clear();
         return;
     }
-
-    m_goToOverview->setEnabled(true);
 
     const QModelIndex index = m_dataModel->indexForObject(func);
     const QModelIndex proxyIndex = m_proxyModel->mapFromSource(index);
@@ -750,16 +745,6 @@ QWidget *CallgrindToolPrivate::createControlWidget()
     connect(action, SIGNAL(triggered(bool)), m_stackBrowser, SLOT(goNext()));
     layout->addWidget(createToolButton(action));
     m_goNext = action;
-    // overview
-
-    action = new QAction(this);
-    action->setDisabled(true);
-    action->setIcon(QIcon::fromTheme("go-up"));
-    //action->setText(tr("All Functions"));
-    action->setToolTip(tr("Show the overview of all function calls."));
-    connect(action, SIGNAL(triggered(bool)), this, SLOT(slotGoToOverview()));
-    layout->addWidget(createToolButton(action));
-    m_goToOverview = action;
 
     layout->addWidget(new Utils::StyledSeparator);
 
