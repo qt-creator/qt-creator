@@ -191,6 +191,9 @@ void CodeAssistantPrivate::invoke(AssistKind kind, IAssistProvider *provider)
 
     if (isDisplayingProposal() && m_assistKind == kind && !m_proposal->isFragile()) {
         m_proposalWidget->setReason(ExplicitlyInvoked);
+        m_proposalWidget->updateProposal(
+            m_textEditor->textAt(m_proposal->basePosition(),
+                                 m_textEditor->position() - m_proposal->basePosition()));
     } else {
         destroyContext();
         requestProposal(ExplicitlyInvoked, kind, provider);
