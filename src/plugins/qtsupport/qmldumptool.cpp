@@ -174,6 +174,17 @@ static inline QStringList validBinaryFilenames(bool debugBuild)
     return list;
 }
 
+static inline QStringList validPrebuiltFilenames(bool debugBuild)
+{
+    QStringList list = QStringList(QLatin1String("qmlplugindump"));
+    list.append(QLatin1String("qmlplugindump.app/Contents/MacOS/qmlplugindump"));
+    if (debugBuild)
+        list.prepend(QLatin1String("qmlplugindumpd.exe"));
+    else
+        list.prepend(QLatin1String("qmlplugindump.exe"));
+    return list;
+}
+
 static bool hasPrivateHeaders(const QString &qtInstallHeaders) {
     const QString header = qtInstallHeaders
             + QLatin1String("/QtDeclarative/private/qdeclarativemetatype_p.h");
@@ -238,6 +249,11 @@ QString QmlDumpTool::toolByInstallData(const QString &qtInstallData, const QStri
 {
     if (!Core::ICore::instance())
         return QString();
+
+    // check for prebuilt binary first
+    QFileInfo fileInfo;
+    if (getHelperFileInfoFor(validPrebuiltFilenames(debugDump), qtInstallData + QLatin1String("/bin/"), &fileInfo))
+        return fileInfo.absoluteFilePath();
 
     const QStringList directories = installDirectories(qtInstallData);
     const QStringList binFilenames = validBinaryFilenames(debugDump);
