@@ -45,6 +45,9 @@ using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
+namespace {
+const char QmlToolingDirectory[] = "/usr/lib/qt4/plugins/qmltooling";
+} // anonymous namespace
 
 MaemoConfigTestDialog::MaemoConfigTestDialog(const LinuxDeviceConfiguration::ConstPtr &config,
         QWidget *parent)
@@ -135,10 +138,19 @@ void MaemoConfigTestDialog::handleTestProcessFinished(int exitStatus)
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    if (m_currentTest == GeneralTest)
+    switch (m_currentTest) {
+    case GeneralTest:
         handleGeneralTestResult(exitStatus);
-    else
+        break;
+    case MadDeveloperTest:
         handleMadDeveloperTestResult(exitStatus);
+        break;
+    case QmlToolingTest:
+        handleQmlToolingTestResult(exitStatus);
+        break;
+    default:
+        qDebug("%s: Unexpected test state %d.", Q_FUNC_INFO, m_currentTest);
+    }
 }
 
 void MaemoConfigTestDialog::handleGeneralTestResult(int exitStatus)
@@ -186,6 +198,27 @@ void MaemoConfigTestDialog::handleMadDeveloperTestResult(int exitStatus)
         }
         m_ui->errorLabel->setText(errorMsg);
     }
+
+    if (m_config->osType() == LinuxDeviceConfiguration::HarmattanOsType) {
+        m_currentTest = QmlToolingTest;
+        m_testProcessRunner->run(QByteArray("test -d ") + QmlToolingDirectory);
+    } else {
+        testPorts();
+    }
+}
+
+void MaemoConfigTestDialog::handleQmlToolingTestResult(int exitStatus)
+{
+    if (exitStatus != SshRemoteProcess::ExitedNormally) {
+        m_ui->testResultEdit->setPlainText(tr("Remote process failed: %1")
+            .arg(m_testProcessRunner->process()->errorString()));
+    } else if (m_testProcessRunner->process()->exitCode() != 0) {
+        QString errorMsg = m_ui->errorLabel->text() + QLatin1String("<br>")
+            + tr("Missing directory '%1'. You will not be able to do QML debugging on this device.")
+                .arg(QmlToolingDirectory);
+        m_ui->errorLabel->setText(errorMsg);
+    }
+
     testPorts();
 }
 

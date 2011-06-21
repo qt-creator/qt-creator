@@ -74,6 +74,7 @@ private:
     QString parseTestOutput();
     void handleGeneralTestResult(int exitStatus);
     void handleMadDeveloperTestResult(int exitStatus);
+    void handleQmlToolingTestResult(int exitStatus);
     void testPorts();
     void finish();
 
@@ -86,7 +87,7 @@ private:
     bool m_qtVersionOk;
     MaemoUsedPortsGatherer *const m_portsGatherer;
 
-    enum DeviceTest { GeneralTest, MadDeveloperTest };
+    enum DeviceTest { GeneralTest, MadDeveloperTest, QmlToolingTest };
     DeviceTest m_currentTest;
 };
 
