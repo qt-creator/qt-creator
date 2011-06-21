@@ -46,10 +46,34 @@ namespace Internal {
 //
 //////////////////////////////////////////////////////////////////
 
+BreakpointId::BreakpointId(const QByteArray &ba)
+{
+    int pos = ba.indexOf('.');
+    if (pos == -1) {
+        m_majorPart = ba.toInt();
+        m_minorPart = 0;
+    } else {
+        m_majorPart = ba.left(pos).toInt();
+        m_minorPart = ba.mid(pos + 1).toInt();
+    }
+}
+
 QDebug operator<<(QDebug d, const BreakpointId &id)
 {
     d << qPrintable(id.toString());
     return d;
+}
+
+QByteArray BreakpointId::toByteArray() const
+{
+    if (!isValid())
+        return "<invalid bkpt>";
+    QByteArray ba = QByteArray::number(m_majorPart);
+    if (isMinor()) {
+        ba.append('.');
+        ba.append(QByteArray::number(m_minorPart));
+    }
+    return ba;
 }
 
 QString BreakpointId::toString() const
@@ -199,9 +223,8 @@ QString BreakpointParameters::toString() const
 
 BreakpointResponse::BreakpointResponse()
 {
-    number = 0;
-    subNumber = 0;
     pending = true;
+    hitCount = 0;
     multiple = false;
     correctedLineNumber = 0;
 }
@@ -210,9 +233,7 @@ QString BreakpointResponse::toString() const
 {
     QString result = BreakpointParameters::toString();
     QTextStream ts(&result);
-    ts << " Number: " << number;
-    if (subNumber)
-        ts << "." << subNumber;
+    ts << " Number: " << id.toString();
     if (pending)
         ts << " [pending]";
     if (!fullName.isEmpty())
@@ -225,6 +246,7 @@ QString BreakpointResponse::toString() const
         ts << " Extra: " << extra;
     if (correctedLineNumber)
         ts << " CorrectedLineNumber: " << correctedLineNumber;
+    ts << " Hit: " << hitCount << " times";
     ts << ' ';
     return result + BreakpointParameters::toString();
 }
@@ -232,12 +254,12 @@ QString BreakpointResponse::toString() const
 void BreakpointResponse::fromParameters(const BreakpointParameters &p)
 {
     BreakpointParameters::operator=(p);
-    number = 0;
-    subNumber = 0;
+    id = BreakpointId();
     fullName.clear();
     multiple = false;
     extra.clear();
     correctedLineNumber = 0;
+    hitCount = 0;
 }
 
 } // namespace Internal

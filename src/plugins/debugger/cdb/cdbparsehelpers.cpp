@@ -302,9 +302,11 @@ BreakpointId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
                              QString *expression /*  = 0 */)
 {
     BreakpointId id = BreakpointId(-1);
-    gdbmiChildToInt(gdbmi, "number", &(r->number));
+    int majorPart = 0;
+    gdbmiChildToInt(gdbmi, "number", &majorPart);
     gdbmiChildToBool(gdbmi, "enabled", &(r->enabled));
     gdbmiChildToBool(gdbmi, "deferred", &(r->pending));
+    r->id = BreakpointId(majorPart);
     const GdbMi idG = gdbmi.findChild("id");
     if (idG.isValid()) { // Might not be valid if there is not id
         bool ok;

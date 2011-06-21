@@ -498,16 +498,14 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 BreakpointResponse br;
                 foreach (const GdbMi &bkpt, result.children()) {
                     const QByteArray nr = bkpt.findChild("number").data();
-                    if (nr.contains(".")) {
+                    if (nr.contains('.')) {
                         // A sub-breakpoint.
-                        int subNumber = nr.mid(nr.indexOf('.') + 1).toInt();
                         BreakpointResponse sub;
                         updateResponse(sub, bkpt);
-                        sub.number = br.number;
+                        sub.id = BreakpointId(nr);
                         sub.type = br.type;
-                        sub.subNumber = subNumber;
                         sub.extra.clear();
-                        handler->appendSubBreakpoint(id, sub);
+                        handler->insertSubBreakpoint(sub);
                     } else {
                         // A primary breakpoint.
                         id = handler->findBreakpointByNumber(nr.toInt());
@@ -515,7 +513,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                         updateResponse(br, bkpt);
                     }
                 }
-                if (!isQmlStepBreakpoint(br.number)) {
+                if (!isQmlStepBreakpoint(br.id.majorPart())) {
                     handler->setResponse(id, br);
                     attemptAdjustBreakpointLocation(id);
                 }
@@ -2129,7 +2127,7 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
     }
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
     QByteArray msg = response.data.findChild("msg").data();
-    if (msg.startsWith("Cannot find bounds of current function") 
+    if (msg.startsWith("Cannot find bounds of current function")
             || msg.contains("Error accessing memory address ")) {
         if (!m_commandsToRunOnTemporaryBreak.isEmpty())
             flushQueuedCommands();
@@ -2291,7 +2289,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
     QByteArray file, fullName;
     foreach (const GdbMi &child, bkpt.children()) {
         if (child.hasName("number")) {
-            response.number = child.data().toInt();
+            response.id = BreakpointId(child.data());
         } else if (child.hasName("func")) {
             response.functionName = _(child.data());
         } else if (child.hasName("addr")) {
@@ -2419,7 +2417,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
         if (wpt.isValid()) {
             // Mac yields:
             //>32^done,wpt={number="4",exp="*4355182176"}
-            br.number = wpt.findChild("number").data().toInt();
+            br.id = BreakpointId(wpt.findChild("number").data());
             QByteArray exp = wpt.findChild("exp").data();
             if (exp.startsWith('*'))
                 br.address = exp.mid(1).toULongLong(0, 0);
@@ -2432,7 +2430,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
             const int end = ba.indexOf(':');
             const int begin = ba.lastIndexOf(' ', end) + 1;
             const QByteArray address = ba.mid(end + 2).trimmed();
-            br.number = ba.mid(begin, end - begin).toInt();
+            br.id = BreakpointId(ba.mid(begin, end - begin));
             if (address.startsWith('*'))
                 br.address = address.mid(1).toULongLong(0, 0);
             handler->setResponse(id, br);
@@ -2489,8 +2487,8 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         }
         br = handler->response(id);
         attemptAdjustBreakpointLocation(id);
-        if (br.multiple && br.addresses.isEmpty())
-            postCommand("info break " + QByteArray::number(br.number),
+        if (br.multiple)
+            postCommand("info break " + QByteArray::number(br.id.majorPart()),
                 NeedsStop, CB(handleBreakListMultiple), QVariant(id));
     } else if (response.data.findChild("msg").data().contains("Unknown option")) {
         // Older version of gdb don't know the -a option to set tracepoints
@@ -2583,10 +2581,10 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     BreakHandler *handler = breakHandler();
     foreach (const GdbMi &bkpt, bkpts) {
         BreakpointResponse needle;
-        needle.number = bkpt.findChild("number").data().toInt();
-        if (isQmlStepBreakpoint2(needle.number))
+        needle.id = BreakpointId(bkpt.findChild("number").data());
+        if (isQmlStepBreakpoint2(needle.id.majorPart()))
             continue;
-        if (isQFatalBreakpoint(needle.number))
+        if (isQFatalBreakpoint(needle.id.majorPart()))
             continue;
         BreakpointId id = handler->findSimilarBreakpoint(needle);
         if (id.isValid()) {
@@ -2595,8 +2593,8 @@ void GdbEngine::handleBreakList(const GdbMi &table)
             handler->setResponse(id, response);
             attemptAdjustBreakpointLocation(id);
             response = handler->response(id);
-            if (response.multiple && response.addresses.isEmpty())
-                postCommand("info break " + QByteArray::number(response.number),
+            if (response.multiple)
+                postCommand("info break " + response.id.toString().toLatin1(),
                     NeedsStop, CB(handleBreakListMultiple),
                     QVariant::fromValue(id));
         } else {
@@ -2720,43 +2718,108 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
     // 2.1    y     0x0040168e in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7
     // 2.2    y     0x00401792 in MainWindow::MainWindow(QWidget*) at mainwindow.cpp:7
 
-    // tested in ../../../tests/auto/debugger/
-    QRegExp re(_("MULTIPLE.*(0x[0-9a-f]+) in (.*)\\s+at (.*):([\\d]+)([^\\d]|$)"));
-    re.setMinimal(true);
+    // "Num     Type           Disp Enb Address    What
+    // 3       breakpoint     keep y   <MULTIPLE> \n"
+    // 3.1           y   0x0806094e in Vector<int>::Vector(int) at simple.cpp:141
+    // 3.2           y   0x08060994 in Vector<float>::Vector(int) at simple.cpp:141
+    // 3.3           y   0x080609da in Vector<double>::Vector(int) at simple.cpp:141
+    // 3.4           y   0x08060a1d in Vector<char>::Vector(int) at simple.cpp:141
 
-    BreakpointResponse response = breakHandler()->response(id);
-    response.fileName = _("<MULTIPLE>");
+    BreakHandler *handler = breakHandler();
+    BreakpointResponse response = handler->response(id);
+    int posMultiple = output.indexOf(_("<MULTIPLE>"));
+    if (posMultiple != -1) {
+        QByteArray data = output.toUtf8();
+        data.replace('\n', ' ');
+        data.replace("  ", " ");
+        data.replace("  ", " ");
+        data.replace("  ", " ");
+        int majorPart = 0;
+        int minorPart = 0;
+        int hitCount = 0;
+        bool hitCountComing = false;
+        bool functionComing = false;
+        bool locationComing = false;
+        QByteArray location;
+        QByteArray function;
+        qulonglong address;
+        foreach (const QByteArray &part, data.split(' ')) {
+            if (part.isEmpty())
+                continue;
+            //qDebug() << "PART: " << part;
+            if (majorPart == 0) {
+                majorPart = part.toInt();
+                if (majorPart > 0)
+                    continue;
+            }
+            if (part == "hit") {
+                hitCountComing = true;
+                continue;
+            }
+            if (hitCountComing) {
+                hitCountComing = false;
+                hitCount = part.toInt();
+                continue;
+            }
+            if (part == "at") {
+                locationComing = true;
+                continue;
+            }
+            if (locationComing) {
+                locationComing = false;
+                location = part;
+                continue;
+            }
+            if (part == "in") {
+                functionComing = true;
+                continue;
+            }
+            if (functionComing) {
+                functionComing = false;
+                function = part;
+                continue;
+            }
+            if (part.startsWith("0x")) {
+                address = part.toInt(0, 0);
+                continue;
+            }
+            if (part.size() >= 3 && part.count('.') == 1) {
+                BreakpointId subId(part);
+                int tmpMajor = subId.majorPart();
+                int tmpMinor = subId.minorPart();
+                if (tmpMajor == majorPart) {
+                    if (minorPart) {
+                        // Commit what we had before.
+                        BreakpointResponse sub;
+                        sub.address = address;
+                        sub.functionName = QString::fromUtf8(function);
+                        if (location.size()) {
+                            int pos = location.indexOf(':');
+                            sub.lineNumber = location.mid(pos + 1).toInt();
+                            sub.fileName = QString::fromUtf8(location.left(pos));
+                        }
+                        sub.id = subId;
+                        sub.type = response.type;
+                        sub.address = address;
+                        sub.extra.clear();
+                        handler->insertSubBreakpoint(sub);
+                        location.clear();
+                        function.clear();
+                        address = 0;
+                    }
 
-    QString requestedFileName = breakHandler()->fileName(id);
-
-    if (re.indexIn(output) != -1) {
-        response.address = re.cap(1).toULongLong(0, 16);
-        response.functionName = re.cap(2).trimmed();
-        response.lineNumber = re.cap(4).toInt();
-        QString full = fullName(re.cap(3));
-        if (full.isEmpty()) {
-            // FIXME: This happens without UsePreciseBreakpoints regularly.
-            // We need to revive that "fill full name mapping bit by bit"
-            // approach of 1.2.x
-            //qDebug() << "NO FULL NAME KNOWN FOR" << re.cap(3);
-            full = cleanupFullName(re.cap(3));
-            if (full.isEmpty()) {
-                qDebug() << "FILE IS NOT RESOLVABLE" << re.cap(3);
-                full = re.cap(3); // FIXME: wrong, but prevents recursion
+                    // Now start new.
+                    minorPart = tmpMinor;
+                    continue;
+                }
             }
         }
-        // The variable full could still contain, say "foo.cpp" when we asked
-        // for "/full/path/to/foo.cpp". In this case, using the requested
-        // instead of the acknowledged name makes sense as it will allow setting
-        // the marker in more cases.
-        if (requestedFileName.endsWith(full))
-            full = requestedFileName;
-        response.fileName = full;
+        // Commit main data.
     } else {
-        qDebug() << "COULD NOT MATCH " << re.pattern() << " AND " << output;
-        response.number = -1; // <unavailable>
+        qDebug() << "COULD NOT MATCH" << output;
+        response.id = BreakpointId(); // Unavailable.
     }
-    breakHandler()->setResponse(id, response);
+    //handler->setResponse(id, response);
 }
 
 void GdbEngine::handleInfoLine(const GdbResponse &response)
@@ -2874,9 +2937,8 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
     const BreakpointParameters &data = handler->breakpointData(id);
     QTC_ASSERT(data.type != UnknownType, return);
     const BreakpointResponse &response = handler->response(id);
-    QTC_ASSERT(response.number > 0, return);
-    const QByteArray bpnr = QByteArray::number(response.number);
-    QTC_ASSERT(response.number > 0, return);
+    QTC_ASSERT(response.id.isValid(), return);
+    const QByteArray bpnr = response.id.toByteArray();
     const BreakpointState state = handler->state(id);
     if (state == BreakpointChangeRequested)
         handler->notifyBreakpointChangeProceeding(id);
@@ -2938,9 +3000,9 @@ void GdbEngine::removeBreakpoint(BreakpointId id)
     QTC_ASSERT(handler->state(id) == BreakpointRemoveRequested, /**/);
     handler->notifyBreakpointRemoveProceeding(id);
     BreakpointResponse br = handler->response(id);
-    showMessage(_("DELETING BP %1 IN %2").arg(br.number)
+    showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString())
         .arg(handler->fileName(id)));
-    postCommand("-break-delete " + QByteArray::number(br.number),
+    postCommand("-break-delete " + br.id.toByteArray(),
         NeedsStop | RebuildBreakpointModel);
     // Pretend it succeeds without waiting for response. Feels better.
     // FIXME: Really?

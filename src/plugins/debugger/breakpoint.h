@@ -47,6 +47,7 @@ public:
     BreakpointId() { m_majorPart = m_minorPart = 0; }
     explicit BreakpointId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
     BreakpointId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
+    explicit BreakpointId(const QByteArray &ba); // "21.2"
 
     bool isValid() const { return m_majorPart != 0; }
     bool isMajor() const { return m_majorPart != 0 && m_minorPart == 0; }
@@ -54,6 +55,7 @@ public:
     bool operator!() const { return !isValid(); }
     operator const void*() const { return isValid() ? this : 0; }
     quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
+    QByteArray toByteArray() const;
     QString toString() const;
     bool operator==(const BreakpointId &id) const
         { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
@@ -194,13 +196,12 @@ public:
 public:
     void fromParameters(const BreakpointParameters &p);
 
-    int number;             //!< Breakpoint number assigned by the debugger engine.
-    int subNumber;          //!< Breakpoint sub-number assigned by the engine.
+    BreakpointId id;        //!< Breakpoint number assigned by the debugger engine.
     bool pending;           //!< Breakpoint not fully resolved.
+    int hitCount;           //!< Number of times this has been hit.
     QString fullName;       //!< Full file name acknowledged by the debugger engine.
     bool multiple;          //!< Happens in constructors/gdb.
     QByteArray extra;       //!< gdb: <PENDING>, <MULTIPLE>
-    QList<quint64> addresses;//!< Extra addresses for templated code.
     int correctedLineNumber; //!< Line number as seen by gdb.
 };
 

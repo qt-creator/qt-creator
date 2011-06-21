@@ -70,7 +70,7 @@ public:
 
     // The only way to add a new breakpoint.
     void appendBreakpoint(const BreakpointParameters &data);
-    void appendSubBreakpoint(BreakpointId id, const BreakpointResponse &data);
+    void insertSubBreakpoint(const BreakpointResponse &data);
 
     BreakpointIds allBreakpointIds() const;
     BreakpointIds engineBreakpointIds(DebuggerEngine *engine) const;

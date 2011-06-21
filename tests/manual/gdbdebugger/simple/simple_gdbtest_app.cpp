@@ -131,7 +131,7 @@ Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
 
 
 // tests multiple breakpoints
-namespace multiple_breakpoints {
+namespace multibp {
 
     template <typename T> class Vector
     {
@@ -155,7 +155,8 @@ namespace multiple_breakpoints {
         Vector<char> vc(10);
         return vi.size() + vf.size() + vd.size() + vc.size();
     }
-} // namespace multiple_breakpoints
+
+} // namespace multibp
 
 
 #if USE_PRIVATE
@@ -2775,7 +2776,7 @@ int main(int argc, char *argv[])
 {
     qc41700::test();
     qc42170::test();
-    multiple_breakpoints::test();
+    multibp::test();
     test842();
     test842();
     test3611();

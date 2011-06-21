@@ -365,7 +365,7 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
     QByteArray file = response.data.mid(pos1 + 4, pos2 - pos1 - 4);
     QByteArray line = response.data.mid(pos2 + 1);
     BreakpointResponse br;
-    br.number = bpnr.toInt();
+    br.id = BreakpointId(bpnr);
     br.fileName = _(file);
     br.lineNumber = line.toInt();
     handler->setResponse(id, br);
@@ -377,9 +377,9 @@ void PdbEngine::removeBreakpoint(BreakpointId id)
     QTC_ASSERT(handler->state(id) == BreakpointRemoveRequested, /**/);
     handler->notifyBreakpointRemoveProceeding(id);
     BreakpointResponse br = handler->response(id);
-    showMessage(_("DELETING BP %1 IN %2").arg(br.number)
+    showMessage(_("DELETING BP %1 IN %2").arg(br.id.toString())
         .arg(handler->fileName(id)));
-    postCommand("clear " + QByteArray::number(br.number));
+    postCommand("clear " + br.id.toByteArray());
     // Pretend it succeeds without waiting for response.
     handler->notifyBreakpointRemoveOk(id);
 }

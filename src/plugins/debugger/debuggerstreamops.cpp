@@ -147,7 +147,7 @@ QDataStream &operator>>(QDataStream &stream, StackFrames &frames)
 
 QDataStream &operator<<(QDataStream &stream, const BreakpointResponse &s)
 {
-    stream << s.number;
+    stream << s.id.majorPart();
     stream << s.condition;
     stream << s.ignoreCount;
     stream << s.fileName;
@@ -157,12 +157,15 @@ QDataStream &operator<<(QDataStream &stream, const BreakpointResponse &s)
     stream << s.threadSpec;
     stream << s.functionName;
     stream << s.address;
+    stream << s.hitCount;
     return stream;
 }
 
 QDataStream &operator>>(QDataStream &stream, BreakpointResponse &s)
 {
-    stream >> s.number;
+    int majorPart;
+    stream >> majorPart;
+    s.id = BreakpointId(majorPart);
     stream >> s.condition;
     stream >> s.ignoreCount;
     stream >> s.fileName;
@@ -172,6 +175,7 @@ QDataStream &operator>>(QDataStream &stream, BreakpointResponse &s)
     stream >> s.threadSpec;
     stream >> s.functionName;
     stream >> s.address;
+    stream >> s.hitCount;
     return stream;
 }
 

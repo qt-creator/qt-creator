@@ -1864,7 +1864,7 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
             if (id && breakHandler()->engineBreakpointIds(this).contains(id)) {
                 const BreakpointResponse parameters =  breakHandler()->response(id);
                 // Trace point? Just report.
-                number = parameters.number;
+                number = parameters.id.majorPart();
                 if (parameters.tracepoint) {
                     *message = msgTracePointTriggered(id, number, QString::number(threadId));
                     return StopReportLog|StopIgnoreContinue;
@@ -2786,7 +2786,7 @@ void CdbEngine::handleWidgetAt(const CdbExtensionCommandPtr &reply)
 static inline void formatCdbBreakPointResponse(BreakpointId id, const BreakpointResponse &r,
                                                   QTextStream &str)
 {
-    str << "Obtained breakpoint " << id << " (#" << r.number << ')';
+    str << "Obtained breakpoint " << id << " (#" << r.id.majorPart() << ')';
     if (r.pending) {
         str << ", pending";
     } else {
@@ -2840,7 +2840,7 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
             if (it != m_pendingBreakpointMap.end()) {
                 // Complete the response and set on handler.
                 BreakpointResponse &currentResponse = it.value();
-                currentResponse.number = reportedResponse.number;
+                currentResponse.id = reportedResponse.id;
                 currentResponse.address = reportedResponse.address;
                 currentResponse.module = reportedResponse.module;
                 currentResponse.pending = reportedResponse.pending;

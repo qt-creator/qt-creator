@@ -224,7 +224,7 @@ BreakpointId BreakHandler::findSimilarBreakpoint(const BreakpointResponse &needl
         const BreakpointParameters &data = it->data;
         const BreakpointResponse &response = it->response;
         //qDebug() << "COMPARING " << data.toString() << " WITH " << needle.toString();
-        if (response.number && response.number == needle.number)
+        if (response.id.isValid() && response.id.majorPart() == needle.id.majorPart())
             return id;
 
         if (isSimilarTo(data, needle))
@@ -237,7 +237,7 @@ BreakpointId BreakHandler::findBreakpointByNumber(int bpNumber) const
 {
     ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
     for ( ; it != et; ++it)
-        if (it->response.number == bpNumber)
+        if (it->response.id.majorPart() == bpNumber)
             return it.key();
     return BreakpointId();
 }
@@ -577,16 +577,18 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
         case 1:
             if (role == Qt::DisplayRole)
                 return res.functionName;
+        case 4:
+            if (role == Qt::DisplayRole)
+                if (res.address)
+                    return QString::fromAscii("0x%1").arg(res.address, 0, 16);
         }
         return QVariant();
     }
 
     switch (mi.column()) {
         case 0:
-            if (role == Qt::DisplayRole) {
+            if (role == Qt::DisplayRole)
                 return id.toString();
-                //return QString("%1 - %2").arg(id).arg(response.number);
-            }
             if (role == Qt::DecorationRole)
                 return it->icon();
             break;
@@ -644,16 +646,10 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 4:
             if (role == Qt::DisplayRole) {
-                QString displayValue;
                 const quint64 address = orig ? data.address : response.address;
                 if (address)
-                    displayValue += QString::fromAscii("0x%1").arg(address, 0, 16);
-                if (0 && !response.extra.isEmpty()) {
-                    if (!displayValue.isEmpty())
-                        displayValue += QLatin1Char(' ');
-                    displayValue += QString::fromAscii(response.extra);
-                }
-                return displayValue;
+                    return QString::fromAscii("0x%1").arg(address, 0, 16);
+                return QVariant();
             }
             break;
         case 5:
@@ -1060,16 +1056,34 @@ int BreakHandler::indexOf(BreakpointId id) const
     return -1;
 }
 
-void BreakHandler::appendSubBreakpoint(BreakpointId id, const BreakpointResponse &data)
+void BreakHandler::insertSubBreakpoint(const BreakpointResponse &data)
 {
-    Iterator it = m_storage.find(id);
+    BreakpointId id = data.id;
+    QTC_ASSERT(id.isMinor(), return);
+    BreakpointId majorId = id.parent();
+    Iterator it = m_storage.find(majorId);
     QTC_ASSERT(it != m_storage.end(), return);
-    int row = indexOf(id);
+    int row = indexOf(majorId);
     QTC_ASSERT(row != -1, return);
-    QModelIndex idx = createIndex(row, 0, id.toInternalId());
-    beginInsertRows(idx, it->subItems.size(), it->subItems.size());
-    it->subItems.append(data);
-    endInsertRows();
+    int minorPart = id.minorPart();
+    int pos = -1;
+    for (int i = 0; i != it->subItems.size(); ++i) {
+        if (it->subItems.at(i).id.minorPart() == minorPart) {
+            pos = i;
+            break;
+        }
+    }
+    if (pos == -1) {
+        // This is a new sub-breakpoint.
+        QModelIndex idx = createIndex(row, 0, id.toInternalId());
+        beginInsertRows(idx, it->subItems.size(), it->subItems.size());
+        it->subItems.append(data);
+        endInsertRows();
+    } else {
+        // This modifies an existing sub-breakpoint.
+        it->subItems[pos] = data;
+        layoutChanged();
+    }
 }
 
 void BreakHandler::saveSessionData()
@@ -1364,7 +1378,7 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     }
     if (!response.pending) {
         str << "<tr><td>" << tr("Breakpoint Number:")
-            << "</td><td>" << response.number << "</td></tr>";
+            << "</td><td>" << response.id.toString() << "</td></tr>";
     }
     str << "<tr><td>" << tr("Breakpoint Type:")
         << "</td><td>" << typeToString(data.type) << "</td></tr>";
@@ -1380,7 +1394,7 @@ QString BreakHandler::BreakpointItem::toToolTip() const
         << "</th><th>" << tr("Requested")
         << "</th><th>" << tr("Obtained") << "</th></tr>"
         << "<tr><td>" << tr("Internal Number:")
-        << "</td><td>&mdash;</td><td>" << response.number << "</td></tr>";
+        << "</td><td>&mdash;</td><td>" << response.id.toString() << "</td></tr>";
     if (data.type == BreakpointByFunction) {
         str << "<tr><td>" << tr("Function Name:")
         << "</td><td>" << data.functionName
@@ -1413,12 +1427,8 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     str << "</td></tr>";
     if (response.multiple) {
         str << "<tr><td>" << tr("Multiple Addresses:")
-            << "</td><td>";
-        foreach (quint64 address, response.addresses) {
-            formatAddress(str, address);
-            str << " ";
-        }
-        str << "</td></tr>";
+            << "</td><td>"
+            << "</td></tr>";
     }
     if (!data.command.isEmpty() || !response.command.isEmpty()) {
         str << "<tr><td>" << tr("Command:")
