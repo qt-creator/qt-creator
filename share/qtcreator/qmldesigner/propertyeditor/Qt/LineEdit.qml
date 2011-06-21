@@ -9,6 +9,7 @@ QWidget {
     property variant baseStateFlag
     property alias text: lineEditWidget.text
     property alias readOnly: lineEditWidget.readOnly
+    property alias translation: trCheckbox.visible
 
     minimumHeight: 24;
 
@@ -68,7 +69,11 @@ QWidget {
         }
 
         onEditingFinished: {
-            backendValue.value = text
+            if (backendValue.isTranslated) {
+                backendValue.expression = "qsTr(\"" + text + "\")"
+            } else {
+                backendValue.value = text
+            }
             evaluate();
         }
 
@@ -86,5 +91,31 @@ QWidget {
         y: 6
         x: 0
         visible: lineEdit.enabled
+    }
+    QCheckBox {
+        id: trCheckbox
+        y: 2
+        styleSheetFile: "checkbox_tr.css";
+        toolTip: qsTr("Translate this string")
+        x: lineEditWidget.width - 22
+        height: lineEdit.height - 2;
+        width: 24
+        visible: false
+        checked: backendValue.isTranslated
+        onToggled: {
+            if (trCheckbox.checked) {
+                backendValue.expression = "qsTr(\"" + lineEditWidget.text + "\")"
+            } else {
+                backendValue.value = lineEditWidget.text
+            }
+            evaluate();
+        }
+
+        onVisibleChanged: {
+            if (trCheckbox.visible) {
+                trCheckbox.raise();
+                lineEditWidget.styleSheet =  "QLineEdit { padding-left: 32; padding-right: 62;}"
+            }
+        }
     }
 }

@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "propertyeditorvalue.h"
+#include <QRegExp>
 #include <abstractview.h>
 #include <nodeabstractproperty.h>
 #include <nodeproperty.h>
@@ -97,7 +98,7 @@ static bool cleverColorCompare(QVariant value1, QVariant value2)
 
 void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 {
-    if (m_value != value) {
+    if (m_value != value || isBound()) {
         QVariant newValue = value;
         if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
             if (modelNode().metaInfo().propertyTypeName(name()) == QLatin1String("QUrl")) {
@@ -188,6 +189,22 @@ bool PropertyEditorValue::isValid() const
 void PropertyEditorValue::setIsValid(bool valid)
 {
     m_isValid = valid;
+}
+
+bool PropertyEditorValue::isTranslated() const
+{
+    if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name()))
+        if (modelNode().metaInfo().propertyTypeName(name()) == QLatin1String("QString") || modelNode().metaInfo().propertyTypeName(name()) == QLatin1String("string")) {
+            const QmlDesigner::QmlObjectNode objectNode(modelNode());
+            if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
+                //qsTr()
+                QRegExp rx("qsTr(\"*\")");
+                rx.setPatternSyntax(QRegExp::Wildcard);
+                return rx.exactMatch(expression());
+            }
+            return false;
+        }
+    return false;
 }
 
 QmlDesigner::ModelNode PropertyEditorValue::modelNode() const

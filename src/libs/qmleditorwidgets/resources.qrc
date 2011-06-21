@@ -6,6 +6,12 @@
         <file>images/checkbox_unchecked.png</file>
         <file>images/checkbox_unchecked_hover.png</file>
         <file>images/checkbox_unchecked_pressed.png</file>
+        <file>images/checkbox_tr_checked.png</file>
+        <file>images/checkbox_tr_checked_hover.png</file>
+        <file>images/checkbox_tr_checked_pressed.png</file>
+        <file>images/checkbox_tr_unchecked.png</file>
+        <file>images/checkbox_tr_unchecked_hover.png</file>
+        <file>images/checkbox_tr_unchecked_pressed.png</file>
         <file>images/eye_open.png</file>
         <file>images/eye_crossed.png</file>
         <file>images/lock.png</file>

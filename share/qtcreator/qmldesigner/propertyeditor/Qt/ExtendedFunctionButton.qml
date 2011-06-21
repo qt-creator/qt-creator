@@ -11,8 +11,12 @@ AnimatedToolButton {
     function setIcon() {
         if (backendValue == null)
             extendedFunctionButton.iconFromFile = "images/placeholder.png"
-        else if (backendValue.isBound) {
-            extendedFunctionButton.iconFromFile = "images/expression.png"
+        else if (backendValue.isBound ) {
+            if (backendValue.isTranslated) { //translations are a special case
+                extendedFunctionButton.iconFromFile = "images/placeholder.png"
+            } else {
+                extendedFunctionButton.iconFromFile = "images/expression.png"
+            }
         } else {
             if (backendValue.complexNode != null && backendValue.complexNode.exists) {
                 extendedFunctionButton.iconFromFile = "images/behaivour.png"
@@ -26,8 +30,13 @@ AnimatedToolButton {
         setIcon();
     }
     property bool isBoundBackend: backendValue.isBound;
+    property string backendExpression: backendValue.expression;
 
     onIsBoundBackendChanged: {
+        setIcon();
+    }
+
+    onBackendExpressionChanged: {
         setIcon();
     }
 
