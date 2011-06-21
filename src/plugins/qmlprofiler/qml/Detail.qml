@@ -51,17 +51,23 @@ Item {
     }
     Text {
         id: lbl
-        text: label + ":"
+        text: label
         font.pixelSize: 12
         font.bold: true
-        anchors.right: guideline.left
+    }
+    Text {
+        text:":"
+        font.pixelSize: 12
+        font.bold: true
+        anchors.right: baseline.left
+        anchors.baseline: lbl.baseline
     }
     Text {
         text: content
         font.pixelSize: 12
         anchors.baseline: lbl.baseline
         anchors.left: guideline.right
-        // maximumLineCount: maxLines
+        maximumLineCount: maxLines
         onLinkActivated: detail.linkActivated(link)
     }
 }
