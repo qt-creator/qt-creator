@@ -140,12 +140,12 @@ void MaemoPublisherFremantleFree::createPackage()
         return;
     }
     if (!copyRecursively(m_project->projectDirectory(), m_tmpProjectDir)) {
-        finishWithFailure(tr("Error: Could not copy project directory"),
+        finishWithFailure(tr("Error: Could not copy project directory."),
             tr("Publishing failed: Could not create source package."));
         return;
     }
     if (!fixNewlines()) {
-        finishWithFailure(tr("Error: Could not fix newlines"),
+        finishWithFailure(tr("Error: Could not fix newlines."),
             tr("Publishing failed: Could not create source package."));
         return;
     }
@@ -367,7 +367,7 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
 
     QtSupport::BaseQtVersion *lqt = m_buildConfig->qtVersion();
     if (!lqt)
-        finishWithFailure(QString(), tr("No Qt version set"));
+        finishWithFailure(QString(), tr("No Qt version set."));
 
     if (m_state == Inactive)
         return;
@@ -421,7 +421,7 @@ void MaemoPublisherFremantleFree::handleUploadJobFinished(int exitStatus)
             || m_uploader->process()->exitCode() != 0)) {
         QString error;
         if (exitStatus != SshRemoteProcess::ExitedNormally) {
-            error = tr("Error uploading file: %1")
+            error = tr("Error uploading file: %1.")
                 .arg(m_uploader->process()->errorString());
         } else {
             error = tr("Error uploading file.");
@@ -459,7 +459,7 @@ void MaemoPublisherFremantleFree::sendFile()
     const QString filePath = m_filesToUpload.takeFirst();
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
-        finishWithFailure(tr("Cannot open file for reading: %1")
+        finishWithFailure(tr("Cannot open file for reading: %1.")
             .arg(file.errorString()), tr("Upload failed."));
         return;
     }
@@ -506,7 +506,7 @@ void MaemoPublisherFremantleFree::handleScpStdOut(const QByteArray &output)
         const QByteArray error = m_scpOutput.mid(1, m_scpOutput.count() - 2);
         QString progressError;
         if (!error.isEmpty()) {
-            progressError = tr("Error uploading file: %1")
+            progressError = tr("Error uploading file: %1.")
                 .arg(QString::fromUtf8(error));
         } else {
             progressError = tr("Error uploading file.");

@@ -640,7 +640,7 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
         return false;
     }
     if (checkProcess.exitStatus() != QProcess::NormalExit) {
-        *errorMessage = tr("The check script '%1' crashed").
+        *errorMessage = tr("The check script '%1' crashed.").
                         arg(QDir::toNativeSeparators(checkScript));
         return false;
     }

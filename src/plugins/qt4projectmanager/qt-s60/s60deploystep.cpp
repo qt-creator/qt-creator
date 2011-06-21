@@ -163,7 +163,7 @@ bool S60DeployStep::init()
     m_channel = deployConfiguration->communicationChannel();
 
     if (m_signedPackages.isEmpty()) {
-        appendMessage(tr("No package has been found. Please specify at least one installation package."), true);
+        appendMessage(tr("No package has been found. Specify at least one installation package."), true);
         return false;
     }
 
@@ -238,13 +238,13 @@ void S60DeployStep::start()
     bool serialConnection = m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection;
 
     if (serialConnection && m_serialPortName.isEmpty()) {
-        errorMessage = tr("No device is connected. Please connect a device and try again.");
+        errorMessage = tr("No device is connected. Connect a device and try again.");
         reportError(errorMessage);
         return;
     }
     QTC_ASSERT(!m_codaDevice.data(), return);
     if (m_address.isEmpty() && !serialConnection) {
-        errorMessage = tr("No address for a device has been defined. Please define an address and try again.");
+        errorMessage = tr("No address for a device has been defined. Define an address and try again.");
         reportError(errorMessage);
         return;
     }
@@ -444,7 +444,7 @@ void S60DeployStep::initFileInstallation()
     } else {
         m_codaDevice->sendSymbianInstallUIInstallCommand(Coda::CodaCallback(this, &S60DeployStep::handleSymbianInstall),
                                                         remoteFileLocation.toAscii());
-        appendMessage(tr("Please continue the installation on your device."), false);
+        appendMessage(tr("Continue the installation on your device."), false);
         emit manualInstallation();
     }
 }
@@ -586,7 +586,7 @@ void S60DeployStep::checkForTimeout()
 void S60DeployStep::showManualInstallationInfo()
 {
     const QString title  = tr("Installation");
-    const QString text = tr("Please continue the installation on your device.");
+    const QString text = tr("Continue the installation on your device.");
     QMessageBox *mb = new QMessageBox(QMessageBox::Information, title, text,
                                       QMessageBox::Ok, Core::ICore::instance()->mainWindow());
     connect(this, SIGNAL(allFilesInstalled()), mb, SLOT(close()));

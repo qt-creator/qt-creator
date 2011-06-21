@@ -1469,7 +1469,7 @@ EditorManager::makeFileWritable(IFile *file)
     switch (FileManager::promptReadOnlyFile(fileName, versionControl, m_d->m_core->mainWindow(), file->isSaveAsAllowed())) {
     case FileManager::RO_OpenVCS:
         if (!versionControl->vcsOpen(fileName)) {
-            QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"), tr("Could not open the file for editing with SCC."));
+            QMessageBox::warning(m_d->m_core->mainWindow(), tr("Cannot Open File"), tr("Cannot open the file for editing with SCC."));
             return Failed;
         }
         file->checkPermissions();
@@ -1477,7 +1477,7 @@ EditorManager::makeFileWritable(IFile *file)
     case FileManager::RO_MakeWriteable: {
         const bool permsOk = QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
         if (!permsOk) {
-            QMessageBox::warning(m_d->m_core->mainWindow(), tr("Failed!"),  tr("Could not set permissions to writable."));
+            QMessageBox::warning(m_d->m_core->mainWindow(), tr("Cannot Set Permissions"),  tr("Cannot set permissions to writable."));
             return Failed;
         }
     }

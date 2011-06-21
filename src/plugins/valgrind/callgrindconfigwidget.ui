@@ -26,7 +26,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="minimumInclusiveCostRatioLabel">
         <property name="toolTip">
-         <string>This option limits the amount of results the profiler will give you. A lower limit will likely increase performance.</string>
+         <string>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</string>
         </property>
         <property name="text">
          <string>Result view: Show events with inclusive costs higher than:</string>
@@ -65,7 +65,7 @@
           <widget class="QCheckBox" name="enableCacheSim">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Specify if you want to do full cache simulation.&lt;/p&gt;
+&lt;p&gt;Does full cache simulation.&lt;/p&gt;
 &lt;p&gt;By default, only instruction read accesses will be counted (&quot;Ir&quot;).&lt;/p&gt;
 &lt;p&gt;
 With cache simulation, further event counters are enabled:
@@ -74,7 +74,7 @@ With cache simulation, further event counters are enabled:
 &lt;li&gt;Data write accesses (&quot;Dw&quot;) and related cache misses (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
 &lt;/p&gt;
 
-For more information, see ???.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
             <string>Enable cache simulation</string>
@@ -85,7 +85,7 @@ For more information, see ???.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           <widget class="QCheckBox" name="enableBranchSim">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Specify if you want to do branch prediction simulation.&lt;/p&gt;
+&lt;p&gt;Do branch prediction simulation.&lt;/p&gt;
 &lt;p&gt;Further event counters are enabled: &lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;Number of executed conditional branches and related predictor misses (
 &quot;Bc&quot;/&quot;Bcm&quot;)&lt;/li&gt;
@@ -100,7 +100,7 @@ For more information, see ???.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          <item row="2" column="0">
           <widget class="QCheckBox" name="collectSystime">
            <property name="toolTip">
-            <string>This specifies whether information for system call times should be collected.</string>
+            <string>Collect information for system call times.</string>
            </property>
            <property name="text">
             <string>Collect system call time</string>
@@ -110,7 +110,7 @@ For more information, see ???.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          <item row="3" column="0">
           <widget class="QCheckBox" name="collectBusEvents">
            <property name="toolTip">
-            <string>This specifies whether the number of global bus events executed should be collected. The event type &quot;Ge&quot; is used for these events.</string>
+            <string>Collect the number of global bus events that are executed. The event type &quot;Ge&quot; is used for these events.</string>
            </property>
            <property name="text">
             <string>Collect global bus events</string>

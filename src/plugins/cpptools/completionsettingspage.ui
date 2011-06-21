@@ -107,7 +107,7 @@
       <item row="3" column="0" colspan="3">
        <widget class="QCheckBox" name="autoInsertBrackets">
         <property name="toolTip">
-         <string>Automatically insert (, ) and ; when appropriate.</string>
+         <string>Automatically insert brackets and semicolons when appropriate.</string>
         </property>
         <property name="text">
          <string>&amp;Automatically insert brackets</string>

@@ -255,7 +255,7 @@ void GeneralSettingsPage::importBookmarks()
     }
 
     m_ui->errorLabel->setVisible(true);
-    m_ui->errorLabel->setText(tr("There was an error while importing bookmarks!"));
+    m_ui->errorLabel->setText(tr("Cannot import bookmarks."));
 }
 
 void GeneralSettingsPage::exportBookmarks()

@@ -199,7 +199,7 @@ QString Qt4BaseTargetFactory::msgBuildConfigurationName(const BuildConfiguration
     return (info.buildConfig & QtSupport::BaseQtVersion::DebugBuild) ?
         //: Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
         tr("%1 Debug").arg(qtVersionName) :
-        //: Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
+        //: Name of a release build configuration to be created by a project wizard, %1 being the Qt version name. We recommend not translating it.
         tr("%1 Release").arg(qtVersionName);
 }
 
@@ -709,14 +709,14 @@ void Qt4DefaultTargetSetupWidget::addImportClicked()
     if (!info.isValid()) {
         QMessageBox::critical(this,
                               tr("No build found"),
-                              tr("No Build found in %1 matching project %2.").arg(m_importLinePath->path()).arg(m_proFilePath));
+                              tr("No build found in %1 matching project %2.").arg(m_importLinePath->path()).arg(m_proFilePath));
         return;
     }
 
     if (!info.version->supportsTargetId(m_id)) {
         QMessageBox::critical(this,
                               tr("Incompatible build found"),
-                              tr("The Build found in %1 is incompatible with this target").arg(m_importLinePath->path()));
+                              tr("The build found in %1 is incompatible with this target").arg(m_importLinePath->path()));
         return;
     }
 

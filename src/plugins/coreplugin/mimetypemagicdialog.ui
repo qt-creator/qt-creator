@@ -149,7 +149,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>&lt;i&gt;Note: Wide range values might impact on Qt Creator's performance when opening files.&lt;/i&gt;</string>
+         <string>&lt;i&gt;Note: Wide range values might impact Qt Creator's performance when opening files.&lt;/i&gt;</string>
         </property>
         <property name="textFormat">
          <enum>Qt::RichText</enum>

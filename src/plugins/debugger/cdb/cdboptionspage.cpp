@@ -62,9 +62,9 @@ const EventsDescription eventDescriptions[] =
     {"et", false, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
                                     "Thread exit")},
     {"ld", true,  QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
-                                    "Load Module:")},
+                                    "Load module:")},
     {"ud", true,  QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
-                                    "Unload Module:")},
+                                    "Unload module:")},
     {"out", true, QT_TRANSLATE_NOOP("Debugger::Cdb::CdbBreakEventWidget",
                                     "Output:")}
 };

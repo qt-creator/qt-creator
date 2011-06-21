@@ -38,7 +38,7 @@
        <widget class="QCheckBox" name="isLocalCheckBox">
         <property name="toolTip">
          <string>Perform a local commit in a bound branch.
-Local commits are not pushed to the master branch until a normal commit is performed</string>
+Local commits are not pushed to the master branch until a normal commit is performed.</string>
         </property>
         <property name="text">
          <string>Local commit</string>

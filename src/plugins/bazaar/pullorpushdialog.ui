@@ -47,7 +47,7 @@
       <item row="2" column="0">
        <widget class="QRadioButton" name="urlButton">
         <property name="toolTip">
-         <string>for example https://[user[:pass]@]host[:port]/[path]</string>
+         <string>For example: https://[user[:pass]@]host[:port]/[path]</string>
         </property>
         <property name="text">
          <string>Specify URL:</string>
@@ -60,7 +60,7 @@
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>for example https://[user[:pass]@]host[:port]/[path]</string>
+         <string>For example: https://[user[:pass]@]host[:port]/[path]</string>
         </property>
        </widget>
       </item>
@@ -87,7 +87,7 @@
        <widget class="QCheckBox" name="overwriteCheckBox">
         <property name="toolTip">
          <string>Ignore differences between branches and overwrite
-unconditionally</string>
+unconditionally.</string>
         </property>
         <property name="text">
          <string>Overwrite</string>
@@ -98,7 +98,7 @@ unconditionally</string>
        <widget class="QCheckBox" name="useExistingDirCheckBox">
         <property name="toolTip">
          <string>By default, push will fail if the target directory exists, but does not already have a control directory.
-This flag will allow push to proceed</string>
+This flag will allow push to proceed.</string>
         </property>
         <property name="text">
          <string>Use existing directory</string>
@@ -108,7 +108,7 @@ This flag will allow push to proceed</string>
       <item row="4" column="0" colspan="2">
        <widget class="QCheckBox" name="createPrefixCheckBox">
         <property name="toolTip">
-         <string>Create the path leading up to the branch if it does not already exist</string>
+         <string>Create the path leading up to the branch if it does not already exist.</string>
         </property>
         <property name="text">
          <string>Create prefix</string>
@@ -129,7 +129,7 @@ This flag will allow push to proceed</string>
        <widget class="QCheckBox" name="localCheckBox">
         <property name="toolTip">
          <string>Perform a local pull in a bound branch.
-Local pulls are not applied to the master branch</string>
+Local pulls are not applied to the master branch.</string>
         </property>
         <property name="text">
          <string>Local</string>

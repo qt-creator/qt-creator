@@ -1356,7 +1356,7 @@ bool PerforcePlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *subm
     const VCSBase::VCSBaseSubmitEditor::PromptSubmitResult answer =
             perforceEditor->promptSubmit(tr("Closing p4 Editor"),
                                          tr("Do you want to submit this change list?"),
-                                         tr("The commit message check failed. Do you want to submit this change list"),
+                                         tr("The commit message check failed. Do you want to submit this change list?"),
                                          &wantsPrompt, !m_submitActionTriggered);
     m_submitActionTriggered = false;
 

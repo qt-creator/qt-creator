@@ -133,7 +133,7 @@ bool MakeStep::init()
     m_tasks.clear();
     if (!bc->toolChain()) {
         m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                             tr("Qt Creator needs a tool chain set up to build. Please configure a tool chain in Project mode."),
+                                             tr("Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode."),
                                              QString(), -1,
                                              QLatin1String(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
@@ -229,7 +229,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
 
     if (!QFileInfo(m_makeFileToCheck).exists()) {
         if (!m_clean)
-            emit addOutput(tr("Makefile not found. Please check your build settings"), BuildStep::MessageOutput);
+            emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::MessageOutput);
         fi.reportResult(m_clean);
         return;
     }
@@ -242,7 +242,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
             canContinue = false;
     }
     if (!canContinue) {
-        emit addOutput(tr("Configuration is faulty, please check the Build Issues view for details."), BuildStep::MessageOutput);
+        emit addOutput(tr("Configuration is faulty. Check the Build Issues view for details."), BuildStep::MessageOutput);
         fi.reportResult(false);
         return;
     }

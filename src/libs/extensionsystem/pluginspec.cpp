@@ -490,7 +490,7 @@ bool PluginSpecPrivate::read(const QString &fileName)
     dependencies.clear();
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly))
-        return reportError(tr("Could not open file %1 for read: %2")
+        return reportError(tr("Cannot open file %1 for reading: %2")
                            .arg(QDir::toNativeSeparators(file.fileName()), file.errorString()));
     QFileInfo fileInfo(file);
     location = fileInfo.absolutePath();

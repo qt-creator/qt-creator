@@ -83,7 +83,7 @@
       <item row="3" column="2">
        <widget class="QCheckBox" name="checkBoxPassControlKey">
         <property name="toolTip">
-         <string>Checking this box passes key sequences like Ctrl-S to the Creator core instead of interpreting them in FakeVim. This gives easier access to Creator core functionality at the price of losing some features of FakeVim.</string>
+         <string>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</string>
         </property>
         <property name="text">
          <string>Pass control key</string>

@@ -78,7 +78,7 @@
         <item>
          <widget class="QPushButton" name="resetButton">
           <property name="toolTip">
-           <string>Reset to default</string>
+           <string>Reset to default.</string>
           </property>
           <property name="text">
            <string>Reset</string>
@@ -196,7 +196,7 @@
       <item row="0" column="2">
        <widget class="QPushButton" name="resetTerminalButton">
         <property name="toolTip">
-         <string>Reset to default</string>
+         <string>Reset to default.</string>
         </property>
         <property name="text">
          <string>Reset</string>
@@ -206,7 +206,7 @@
       <item row="1" column="2">
        <widget class="QPushButton" name="resetFileBrowserButton">
         <property name="toolTip">
-         <string>Reset to default</string>
+         <string>Reset to default.</string>
         </property>
         <property name="text">
          <string>Reset</string>
@@ -218,7 +218,7 @@
         <item>
          <widget class="QCheckBox" name="autoSaveCheckBox">
           <property name="toolTip">
-           <string>If checked, temporary copies of modified files will be created automatically. If Qt Creator is restarted after a crash or power failure, it will ask whether the auto-saved content should be recovered.</string>
+           <string>Automatically create temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</string>
           </property>
           <property name="text">
            <string>Auto-save modified files</string>

@@ -33,7 +33,7 @@
       <item row="1" column="0">
        <widget class="QPushButton" name="resetButton">
         <property name="toolTip">
-         <string>Reset all to default</string>
+         <string>Reset all to default.</string>
         </property>
         <property name="text">
          <string>Reset All</string>
