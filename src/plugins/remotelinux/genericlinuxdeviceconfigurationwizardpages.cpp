@@ -72,7 +72,6 @@ void GenericLinuxDeviceConfigurationWizardSetupPage::initializePage()
     m_d->ui.userNameLineEdit->setText(defaultUserName());
     m_d->ui.passwordButton->setChecked(true);
     m_d->ui.passwordLineEdit->setText(defaultPassWord());
-    m_d->ui.passwordLineEdit->clear();
     m_d->ui.privateKeyPathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
     handleAuthTypeChanged();
 }
