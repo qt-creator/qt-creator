@@ -91,12 +91,11 @@ TiledCanvas {
         if (t<1000) return t+" μs";
         t = Math.floor(t/100)/10;
         if (t<1000) return t+" ms";
-        t = Math.floor(t/100)/10;
+        t = Math.floor(t)/1000;
         if (t<60) return t+" s";
-        t = Math.floor(t)/60;
-        if (t<60) return t+" m";
-        t = Math.floor(t)/60;
-        return t+" h";
+        var m = Math.floor(t/60);
+        t = Math.floor(t - m*60);
+        return m+"m"+t+"s";
     }
 
     function detailedPrintTime( t )
