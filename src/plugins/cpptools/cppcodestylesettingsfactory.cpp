@@ -38,8 +38,7 @@ QWidget *CppCodeStylePreferencesFactory::createEditor(TextEditor::IFallbackPrefe
         return 0;
     Internal::CppCodeStylePreferencesWidget *widget = new Internal::CppCodeStylePreferencesWidget(parent);
     widget->layout()->setMargin(0);
-    widget->setCppCodeStylePreferences(cppPreferences);
-    widget->setTabPreferences(tabPreferences);
+    widget->setPreferences(cppPreferences, tabPreferences);
     return widget;
 }
 

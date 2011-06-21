@@ -38,8 +38,8 @@ public:
     explicit CppCodeStylePreferencesWidget(QWidget *parent = 0);
     virtual ~CppCodeStylePreferencesWidget();
 
-    void setTabPreferences(TextEditor::TabPreferences *tabPreferences);
-    void setCppCodeStylePreferences(CppTools::CppCodeStylePreferences *codeStylePreferences);
+    void setPreferences(CppTools::CppCodeStylePreferences *codeStylePreferences,
+                        TextEditor::TabPreferences *tabPreferences);
 
     QString searchKeywords() const;
 
@@ -49,8 +49,8 @@ private slots:
     void slotCppCodeStyleSettingsChanged();
     void slotSettingsChanged();
     void updatePreview();
-    void setCppCodeStyleSettings(const CppTools::CppCodeStyleSettings &settings);
-    void slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *);
+    void setCppCodeStyleSettings(const CppTools::CppCodeStyleSettings &settings, bool preview = true);
+    void slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *, bool preview = true);
 
 signals:
     void cppCodeStyleSettingsChanged(const CppTools::CppCodeStyleSettings &);
@@ -61,6 +61,7 @@ private:
     CppCodeStylePreferences *m_cppCodeStylePreferences;
     Ui::CppCodeStyleSettingsPage *m_ui;
     QList<TextEditor::SnippetEditorWidget *> m_previews;
+    bool m_blockUpdates;
 };
 
 

@@ -179,7 +179,8 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     : QWidget(parent),
       m_tabPreferences(0),
       m_cppCodeStylePreferences(0),
-      m_ui(new Ui::CppCodeStyleSettingsPage)
+      m_ui(new Ui::CppCodeStyleSettingsPage),
+      m_blockUpdates(false)
 {
     m_ui->setupUi(this);
     m_ui->categoryTab->setProperty("_q_custom_style_disabled", true);
@@ -242,19 +243,18 @@ CppCodeStylePreferencesWidget::~CppCodeStylePreferencesWidget()
     delete m_ui;
 }
 
-void CppCodeStylePreferencesWidget::setTabPreferences(TextEditor::TabPreferences *preferences)
+void CppCodeStylePreferencesWidget::setPreferences(CppTools::CppCodeStylePreferences *codeStylePreferences,
+                                                   TextEditor::TabPreferences *tabPreferences)
 {
-    m_tabPreferences = preferences;
-    m_ui->tabPreferencesWidget->setTabPreferences(preferences);
+    // tab preferences
+    m_tabPreferences = tabPreferences;
+    m_ui->tabPreferencesWidget->setTabPreferences(tabPreferences);
     connect(m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
             this, SLOT(slotSettingsChanged()));
-    updatePreview();
-}
 
-void CppCodeStylePreferencesWidget::setCppCodeStylePreferences(CppCodeStylePreferences *preferences)
-{
-    m_cppCodeStylePreferences = preferences;
-    m_ui->fallbackWidget->setFallbackPreferences(preferences);
+    // code preferences
+    m_cppCodeStylePreferences = codeStylePreferences;
+    m_ui->fallbackWidget->setFallbackPreferences(codeStylePreferences);
     m_ui->fallbackContainer->setVisible(!m_ui->fallbackWidget->isHidden());
 
     connect(m_cppCodeStylePreferences, SIGNAL(settingsChanged(CppTools::CppCodeStyleSettings)),
@@ -264,11 +264,12 @@ void CppCodeStylePreferencesWidget::setCppCodeStylePreferences(CppCodeStylePrefe
     connect(this, SIGNAL(cppCodeStyleSettingsChanged(CppTools::CppCodeStyleSettings)),
             m_cppCodeStylePreferences, SLOT(setSettings(CppTools::CppCodeStyleSettings)));
 
-    setCppCodeStyleSettings(m_cppCodeStylePreferences->settings());
-    slotCurrentFallbackChanged(m_cppCodeStylePreferences->currentFallback());
+    setCppCodeStyleSettings(m_cppCodeStylePreferences->settings(), false);
+    slotCurrentFallbackChanged(m_cppCodeStylePreferences->currentFallback(), false);
 
     connect(m_cppCodeStylePreferences, SIGNAL(currentSettingsChanged(CppTools::CppCodeStyleSettings)),
             this, SLOT(slotSettingsChanged()));
+
     updatePreview();
 }
 
@@ -296,9 +297,10 @@ CppCodeStyleSettings CppCodeStylePreferencesWidget::cppCodeStyleSettings() const
     return set;
 }
 
-void CppCodeStylePreferencesWidget::setCppCodeStyleSettings(const CppCodeStyleSettings &s)
+void CppCodeStylePreferencesWidget::setCppCodeStyleSettings(const CppCodeStyleSettings &s, bool preview)
 {
-    const bool wasBlocked = blockSignals(true);
+    const bool wasBlocked = m_blockUpdates;
+    m_blockUpdates = true;
     m_ui->indentBlockBraces->setChecked(s.indentBlockBraces);
     m_ui->indentBlockBody->setChecked(s.indentBlockBody);
     m_ui->indentClassBraces->setChecked(s.indentClassBraces);
@@ -315,19 +317,19 @@ void CppCodeStylePreferencesWidget::setCppCodeStyleSettings(const CppCodeStyleSe
     m_ui->indentCaseBreak->setChecked(s.indentControlFlowRelativeToSwitchLabels);
     m_ui->extraPaddingConditions->setChecked(s.extraPaddingForConditionsIfConfusingAlign);
     m_ui->alignAssignments->setChecked(s.alignAssignments);
-    blockSignals(wasBlocked);
-
-    updatePreview();
+    m_blockUpdates = wasBlocked;
+    if (preview)
+        updatePreview();
 }
 
-void CppCodeStylePreferencesWidget::slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *fallback)
+void CppCodeStylePreferencesWidget::slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *fallback, bool preview)
 {
     m_ui->contentGroupBox->setEnabled(!fallback);
     m_ui->bracesGroupBox->setEnabled(!fallback);
     m_ui->switchGroupBox->setEnabled(!fallback);
     m_ui->alignmentGroupBox->setEnabled(!fallback);
-
-    updatePreview();
+    if (preview)
+        updatePreview();
 }
 
 QString CppCodeStylePreferencesWidget::searchKeywords() const
@@ -366,6 +368,8 @@ QString CppCodeStylePreferencesWidget::searchKeywords() const
 
 void CppCodeStylePreferencesWidget::slotCppCodeStyleSettingsChanged()
 {
+    if (m_blockUpdates)
+        return;
     emit cppCodeStyleSettingsChanged(cppCodeStyleSettings());
     updatePreview();
 }
@@ -484,14 +488,13 @@ QWidget *CppCodeStyleSettingsPage::createPage(QWidget *parent)
     m_pageTabPreferences = new TextEditor::TabPreferences(originalTabPreferences->fallbacks(), m_widget);
     m_pageTabPreferences->setSettings(originalTabPreferences->settings());
     m_pageTabPreferences->setCurrentFallback(originalTabPreferences->currentFallback());
-    m_widget->setTabPreferences(m_pageTabPreferences);
 
     CppCodeStylePreferences *originalCodeStylePreferences
             = CppToolsSettings::instance()->cppCodeStylePreferences();
     m_pageCppCodeStylePreferences = new CppCodeStylePreferences(originalCodeStylePreferences->fallbacks(), m_widget);
     m_pageCppCodeStylePreferences->setSettings(originalCodeStylePreferences->settings());
     m_pageCppCodeStylePreferences->setCurrentFallback(originalCodeStylePreferences->currentFallback());
-    m_widget->setCppCodeStylePreferences(m_pageCppCodeStylePreferences);
+    m_widget->setPreferences(m_pageCppCodeStylePreferences, m_pageTabPreferences);
 
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
