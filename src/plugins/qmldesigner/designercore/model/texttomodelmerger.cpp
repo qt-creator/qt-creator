@@ -822,10 +822,9 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     bool isImplicitComponent = modelNode.parentProperty().isValid() && propertyIsComponentType(modelNode.parentProperty(), typeName);
 
 
-    if (modelNode.type() != typeName //If there is no valid parentProperty
-                                                                                                       //the node has just been created. The type is correct then.
-            /*|| modelNode.majorVersion() != domObject.objectTypeMajorVersion()
-            || modelNode.minorVersion() != domObject.objectTypeMinorVersion()*/) {
+    if (modelNode.type() != typeName //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
+            || modelNode.majorVersion() != majorVersion
+            || modelNode.minorVersion() != minorVersion) {
         const bool isRootNode = m_rewriterView->rootModelNode() == modelNode;
         differenceHandler.typeDiffers(isRootNode, modelNode, typeName,
                                       majorVersion, minorVersion,
