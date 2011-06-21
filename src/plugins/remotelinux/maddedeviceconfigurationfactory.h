@@ -39,6 +39,7 @@ namespace Internal {
 
 class MaddeDeviceConfigurationFactory : public GenericLinuxDeviceConfigurationFactory
 {
+    Q_OBJECT
 public:
     MaddeDeviceConfigurationFactory(QObject *parent = 0);
 
