@@ -175,6 +175,8 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig,
     const DebuggerStartParameters params
         = AbstractRemoteLinuxDebugSupport::startParameters(rc);
     DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
+    if (!runControl)
+        return 0;
     MaemoDebugSupport *debugSupport = new MaemoDebugSupport(rc, runControl->engine());
     connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
     return runControl;

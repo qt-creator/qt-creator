@@ -87,6 +87,8 @@ RunControl* RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig,
     const DebuggerStartParameters params
         = AbstractRemoteLinuxDebugSupport::startParameters(rc);
     DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
+    if (!runControl)
+        return 0;
     RemoteLinuxDebugSupport *debugSupport =
         new RemoteLinuxDebugSupport(rc, runControl->engine());
     connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
