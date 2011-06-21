@@ -214,7 +214,7 @@ void QmlInspectorToolBar::createActions()
     m_zoomAction->setCheckable(true);
     m_colorPickerAction->setCheckable(true);
 
-    am->registerAction(m_inspectorModeAction, Constants::DESIGNMODE_ACTION, context);
+    am->registerAction(m_inspectorModeAction, Constants::INSPECTORMODE_ACTION, context);
     Core::Command *command = am->registerAction(m_playAction, Constants::PLAY_ACTION, context);
     command->setAttribute(Core::Command::CA_UpdateIcon);
     am->registerAction(m_selectAction, Constants::SELECT_ACTION, context);
@@ -269,17 +269,19 @@ void QmlInspectorToolBar::createActions()
     toolBarLayout->addWidget(toolButton(am->command(Debugger::Constants::STEP)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Debugger::Constants::STEPOUT)->action()));
     toolBarLayout->addWidget(m_operateByInstructionButton);
-    toolBarLayout->addWidget(new Utils::StyledSeparator);
     toolBarLayout->addStretch(1);
 
+    // QML Helpers
+    toolBarLayout->addWidget(new Utils::StyledSeparator);
     toolBarLayout->addWidget(toolButton(am->command(Constants::FROM_QML_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::SHOW_APP_ON_TOP_ACTION)->action()));
-    toolBarLayout->addSpacing(10);
-
-    toolBarLayout->addWidget(toolButton(am->command(Constants::DESIGNMODE_ACTION)->action()));
     m_playButton = toolButton(am->command(Constants::PLAY_ACTION)->action());
     m_playButton->setMenu(playSpeedMenu);
     toolBarLayout->addWidget(m_playButton);
+
+    // Inspector
+    toolBarLayout->addWidget(new Utils::StyledSeparator);
+    toolBarLayout->addWidget(toolButton(am->command(Constants::INSPECTORMODE_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::SELECT_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::ZOOM_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::COLOR_PICKER_ACTION)->action()));
