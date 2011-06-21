@@ -75,6 +75,7 @@ public:
     {}
 
     virtual void sort();
+    virtual bool keepPerfectMatch(TextEditor::AssistReason reason) const;
 };
 
 

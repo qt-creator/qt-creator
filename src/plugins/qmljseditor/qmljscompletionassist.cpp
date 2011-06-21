@@ -852,3 +852,8 @@ void QmlJSAssistProposalModel::sort()
 {
     qSort(currentItems().first, currentItems().second, QmlJSLessThan());
 }
+
+bool QmlJSAssistProposalModel::keepPerfectMatch(TextEditor::AssistReason reason) const
+{
+    return reason == ExplicitlyInvoked;
+}

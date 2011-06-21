@@ -64,6 +64,7 @@ public:
     virtual void sort();
     virtual bool supportsPrefixExpansion() const;
     virtual QString proposalPrefix() const;
+    virtual bool keepPerfectMatch(AssistReason reason) const;
     virtual IAssistProposalItem *proposalItem(int index) const;
 
     void loadContent(const QList<BasicProposalItem *> &items);

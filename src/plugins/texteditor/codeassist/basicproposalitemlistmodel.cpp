@@ -234,6 +234,11 @@ bool BasicProposalItemListModel::supportsPrefixExpansion() const
     return true;
 }
 
+bool BasicProposalItemListModel::keepPerfectMatch(AssistReason reason) const
+{
+    return reason != IdleEditor;
+}
+
 QString BasicProposalItemListModel::proposalPrefix() const
 {
     if (m_currentItems.size() >= kMaxPrefixFilter)

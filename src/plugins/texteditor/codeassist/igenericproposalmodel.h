@@ -34,6 +34,7 @@
 #define IGENERICPROPOSALMODEL_H
 
 #include "iassistproposalmodel.h"
+#include "assistenums.h"
 
 #include <texteditor/texteditor_global.h>
 
@@ -58,6 +59,7 @@ public:
     virtual void sort() = 0;
     virtual bool supportsPrefixExpansion() const = 0;
     virtual QString proposalPrefix() const = 0;
+    virtual bool keepPerfectMatch(AssistReason reason) const = 0;
     virtual IAssistProposalItem *proposalItem(int index) const = 0;
 };
 
