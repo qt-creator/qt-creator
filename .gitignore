@@ -82,6 +82,8 @@ bin/qtcreator_process_stub*
 bin/qtcreator.exe
 bin/qmlpuppet
 bin/qmlpuppet.exe
+bin/qml2puppet
+bin/qml2puppet.exe
 bin/qtpromaker
 bin/qtpromaker.exe
 share/doc/qtcreator/qtcreator.qch
