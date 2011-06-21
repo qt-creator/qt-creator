@@ -60,6 +60,7 @@
 #endif
 
 QString pluginImportPath;
+bool verbose = false;
 
 void collectReachableMetaObjects(const QMetaObject *meta, QSet<const QMetaObject *> *metas)
 {
@@ -82,13 +83,15 @@ void collectReachableMetaObjects(QObject *object, QSet<const QMetaObject *> *met
         return;
 
     const QMetaObject *meta = object->metaObject();
-    qDebug() << "Processing object" << meta->className();
+    if (verbose)
+        qDebug() << "Processing object" << meta->className();
     collectReachableMetaObjects(meta, metas);
 
     for (int index = 0; index < meta->propertyCount(); ++index) {
         QMetaProperty prop = meta->property(index);
         if (QDeclarativeMetaType::isQObject(prop.userType())) {
-            qDebug() << "  Processing property" << prop.name();
+            if (verbose)
+                qDebug() << "  Processing property" << prop.name();
             currentProperty = QString("%1::%2").arg(meta->className(), prop.name());
 
             // if the property was not initialized during construction,
@@ -181,9 +184,15 @@ QSet<const QMetaObject *> collectReachableMetaObjects(const QString &importCode,
     foreach (const QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {
         if (ty->isExtendedType())
             continue;
+        if (!ty->isCreatable())
+            continue;
+        if (ty->typeName() == "QDeclarativeComponent")
+            continue;
 
         QByteArray tyName = ty->qmlTypeName();
         tyName = tyName.mid(tyName.lastIndexOf('/') + 1);
+        if (tyName.isEmpty())
+            continue;
 
         QByteArray code = importCode.toUtf8();
         code += tyName;
@@ -196,7 +205,7 @@ QSet<const QMetaObject *> collectReachableMetaObjects(const QString &importCode,
         if (object)
             collectReachableMetaObjects(object, &metas);
         else
-            qDebug() << "Could not create" << tyName << ":" << c.errorString();
+            qWarning() << "Could not create" << tyName << ":" << c.errorString();
     }
 
     return metas;
@@ -418,9 +427,9 @@ void sigSegvHandler(int) {
 void printUsage(const QString &appName)
 {
     qWarning() << qPrintable(QString(
-                                 "Usage: %1 [-notrelocatable] module.uri version [module/import/path]\n"
-                                 "       %1 -path path/to/qmldir/directory [version]\n"
-                                 "       %1 -builtins\n"
+                                 "Usage: %1 [-v] [-notrelocatable] module.uri version [module/import/path]\n"
+                                 "       %1 [-v] -path path/to/qmldir/directory [version]\n"
+                                 "       %1 [-v] -builtins\n"
                                  "Example: %1 Qt.labs.particles 4.7 /home/user/dev/qt-install/imports").arg(
                                  appName));
 }
@@ -430,13 +439,13 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_UNIX
     // qmldump may crash, but we don't want any crash handlers to pop up
     // therefore we intercept the segfault and just exit() ourselves
-    struct sigaction action;
+    struct sigaction sigAction;
 
-    sigemptyset(&action.sa_mask);
-    action.sa_handler = &sigSegvHandler;
-    action.sa_flags   = 0;
+    sigemptyset(&sigAction.sa_mask);
+    sigAction.sa_handler = &sigSegvHandler;
+    sigAction.sa_flags   = 0;
 
-    sigaction(SIGSEGV, &action, 0);
+    sigaction(SIGSEGV, &sigAction, 0);
 #endif
 
 #ifdef QT_SIMULATOR
@@ -446,20 +455,17 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     const QStringList args = app.arguments();
     const QString appName = QFileInfo(app.applicationFilePath()).baseName();
-    if (!(args.size() >= 3
-          || (args.size() == 2
-              && (args.at(1) == QLatin1String("--builtins")
-                  || args.at(1) == QLatin1String("-builtins"))))) {
+    if (args.size() < 2) {
         printUsage(appName);
         return EXIT_INVALIDARGUMENTS;
     }
 
     QString pluginImportUri;
     QString pluginImportVersion;
-
     bool relocatable = true;
-    bool pathImport = false;
-    if (args.size() >= 3) {
+    enum Action { Uri, Path, Builtins };
+    Action action = Uri;
+    {
         QStringList positionalArgs;
         foreach (const QString &arg, args) {
             if (!arg.startsWith(QLatin1Char('-'))) {
@@ -472,14 +478,19 @@ int main(int argc, char *argv[])
                 relocatable = false;
             } else if (arg == QLatin1String("--path")
                        || arg == QLatin1String("-path")) {
-                pathImport = true;
+                action = Path;
+            } else if (arg == QLatin1String("--builtins")
+                       || arg == QLatin1String("-builtins")) {
+                action = Builtins;
+            } else if (arg == QLatin1String("-v")) {
+                verbose = true;
             } else {
                 qWarning() << "Invalid argument: " << arg;
                 return EXIT_INVALIDARGUMENTS;
             }
         }
 
-        if (!pathImport) {
+        if (action == Uri) {
             if (positionalArgs.size() != 3 && positionalArgs.size() != 4) {
                 qWarning() << "Incorrect number of positional arguments";
                 return EXIT_INVALIDARGUMENTS;
@@ -488,7 +499,7 @@ int main(int argc, char *argv[])
             pluginImportVersion = positionalArgs[2];
             if (positionalArgs.size() >= 4)
                 pluginImportPath = positionalArgs[3];
-        } else {
+        } else if (action == Path) {
             if (positionalArgs.size() != 2 && positionalArgs.size() != 3) {
                 qWarning() << "Incorrect number of positional arguments";
                 return EXIT_INVALIDARGUMENTS;
@@ -496,6 +507,11 @@ int main(int argc, char *argv[])
             pluginImportPath = QDir::fromNativeSeparators(positionalArgs[1]);
             if (positionalArgs.size() == 3)
                 pluginImportVersion = positionalArgs[2];
+        } else if (action == Builtins) {
+            if (positionalArgs.size() != 1) {
+                qWarning() << "Incorrect number of positional arguments";
+                return EXIT_INVALIDARGUMENTS;
+            }
         }
     }
 
@@ -505,17 +521,17 @@ int main(int argc, char *argv[])
         engine->addImportPath(pluginImportPath);
 
     // find all QMetaObjects reachable from the builtin module
-    QByteArray importCode("import QtQuick 1.0\n");
+    QByteArray importCode("import QtQuick 1.1\n");
     QSet<const QMetaObject *> defaultReachable = collectReachableMetaObjects(importCode, engine);
 
     // this will hold the meta objects we want to dump information of
     QSet<const QMetaObject *> metas;
 
-    if (pluginImportUri.isEmpty() && !pathImport) {
+    if (action == Builtins) {
         metas = defaultReachable;
     } else {
         // find all QMetaObjects reachable when the specified module is imported
-        if (!pathImport) {
+        if (action != Path) {
             importCode += QString("import %0 %1\n").arg(pluginImportUri, pluginImportVersion).toAscii();
         } else {
             // pluginImportVersion can be empty
