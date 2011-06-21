@@ -61,6 +61,7 @@ namespace ProjectExplorer {
 
 static const char compilerPathKeyC[] = "ProjectExplorer.GccToolChain.Path";
 static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
+static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 static const char debuggerCommandKeyC[] = "ProjectExplorer.GccToolChain.Debugger";
 
 static QByteArray runGcc(const QString &gcc, const QStringList &arguments, const QStringList &env)
@@ -444,6 +445,10 @@ QVariantMap GccToolChain::toMap() const
     QVariantMap data = ToolChain::toMap();
     data.insert(QLatin1String(compilerPathKeyC), m_compilerPath);
     data.insert(QLatin1String(targetAbiKeyC), m_targetAbi.toString());
+    QStringList abiList;
+    foreach (const ProjectExplorer::Abi &a, m_supportedAbis)
+        abiList.append(a.toString());
+    data.insert(QLatin1String(supportedAbisKeyC), abiList);
     data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand);
     return data;
 }
@@ -455,6 +460,14 @@ bool GccToolChain::fromMap(const QVariantMap &data)
 
     m_compilerPath = data.value(QLatin1String(compilerPathKeyC)).toString();
     m_targetAbi = Abi(data.value(QLatin1String(targetAbiKeyC)).toString());
+    QStringList abiList = data.value(QLatin1String(supportedAbisKeyC)).toStringList();
+    m_supportedAbis.clear();
+    foreach (const QString &a, abiList) {
+        ProjectExplorer::Abi abi(a);
+        if (!abi.isValid())
+            continue;
+        m_supportedAbis.append(abi);
+    }
     m_debuggerCommand = data.value(QLatin1String(debuggerCommandKeyC)).toString();
     updateId();
     return true;
@@ -603,7 +616,6 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     const QStringList gnuVersionArgs = QStringList(QLatin1String("--version"));
     m_compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_compilerPath->setCommandVersionArguments(gnuVersionArgs);
-    connect(m_compilerPath, SIGNAL(changed(QString)), this, SLOT(handlePathChange()));
     layout->addRow(tr("&Compiler path:"), m_compilerPath);
     layout->addRow(tr("&ABI:"), m_abiWidget);
     m_abiWidget->setEnabled(false);
@@ -611,9 +623,10 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     addDebuggerCommandControls(layout, gnuVersionArgs);
     addErrorLabel(layout);
 
-    connect(m_abiWidget, SIGNAL(abiChanged()), this, SLOT(handleAbiChange()));
-
     setFromToolchain();
+
+    connect(m_compilerPath, SIGNAL(changed(QString)), this, SLOT(handlePathChange()));
+    connect(m_abiWidget, SIGNAL(abiChanged()), this, SLOT(handleAbiChange()));
 }
 
 void Internal::GccToolChainConfigWidget::apply()
@@ -636,12 +649,13 @@ void Internal::GccToolChainConfigWidget::apply()
 
 void Internal::GccToolChainConfigWidget::setFromToolchain()
 {
-    blockSignals(true);
+    // subwidgets are not yet connected!
+    bool blocked = blockSignals(true);
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     m_compilerPath->setPath(tc->compilerPath());
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
     setDebuggerCommand(tc->debuggerCommand());
-    blockSignals(false);
+    blockSignals(blocked);
 }
 
 bool Internal::GccToolChainConfigWidget::isDirty() const
