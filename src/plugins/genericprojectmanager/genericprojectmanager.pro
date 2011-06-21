@@ -13,7 +13,8 @@ HEADERS = genericproject.h \
     pkgconfigtool.h \
     genericmakestep.h \
     genericbuildconfiguration.h \
-    selectablefilesmodel.h
+    selectablefilesmodel.h \
+    filesselectionwizardpage.h
 SOURCES = genericproject.cpp \
     genericprojectplugin.cpp \
     generictarget.cpp \
@@ -24,6 +25,9 @@ SOURCES = genericproject.cpp \
     pkgconfigtool.cpp \
     genericmakestep.cpp \
     genericbuildconfiguration.cpp \
-    selectablefilesmodel.cpp
+    selectablefilesmodel.cpp \
+    filesselectionwizardpage.cpp
 RESOURCES += genericproject.qrc
 FORMS += genericmakestep.ui
+
+

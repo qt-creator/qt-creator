@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "genericprojectwizard.h"
+#include "filesselectionwizardpage.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -69,8 +70,15 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     m_firstPage->setFileNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
 
+    // second page
+    m_secondPage = new FilesSelectionWizardPage(this);
+    m_secondPage->setTitle(tr("File Selection"));
+
     const int firstPageId = addPage(m_firstPage);
     wizardProgress()->item(firstPageId)->setTitle(tr("Location"));
+
+    const int secondPageId = addPage(m_secondPage);
+    wizardProgress()->item(secondPageId)->setTitle(tr("Files"));
 }
 
 GenericProjectWizardDialog::~GenericProjectWizardDialog()
@@ -79,6 +87,16 @@ GenericProjectWizardDialog::~GenericProjectWizardDialog()
 QString GenericProjectWizardDialog::path() const
 {
     return m_firstPage->path();
+}
+
+QStringList GenericProjectWizardDialog::selectedPaths() const
+{
+    return m_secondPage->selectedPaths();
+}
+
+QStringList GenericProjectWizardDialog::selectedFiles() const
+{
+    return m_secondPage->selectedFiles();
 }
 
 void GenericProjectWizardDialog::setPath(const QString &path)
@@ -188,14 +206,11 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     const QString filesFileName = QFileInfo(dir, projectName + QLatin1String(".files")).absoluteFilePath();
     const QString includesFileName = QFileInfo(dir, projectName + QLatin1String(".includes")).absoluteFilePath();
     const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
+    const QStringList sources = wizard->selectedFiles();
+    const QStringList paths = wizard->selectedPaths();
 
     Core::ICore *core = Core::ICore::instance();
     Core::MimeDatabase *mimeDatabase = core->mimeDatabase();
-
-    const QStringList suffixes = mimeDatabase->suffixes();
-
-    QStringList sources, paths;
-    getFileList(dir, projectPath, suffixes, &sources, &paths);
 
     Core::MimeType headerTy = mimeDatabase->findByType(QLatin1String("text/x-chdr"));
 

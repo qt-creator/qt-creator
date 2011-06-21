@@ -50,7 +50,9 @@ class FileWizardPage;
 namespace GenericProjectManager {
 namespace Internal {
 
-    class GenericProjectWizardDialog : public Utils::Wizard
+class FilesSelectionWizardPage;
+
+class GenericProjectWizardDialog : public Utils::Wizard
 {
     Q_OBJECT
 
@@ -60,10 +62,13 @@ public:
 
     QString path() const;
     void setPath(const QString &path);
+    QStringList selectedFiles() const;
+    QStringList selectedPaths() const;
 
     QString projectName() const;
 
     Utils::FileWizardPage *m_firstPage;
+    FilesSelectionWizardPage *m_secondPage;
 };
 
 class GenericProjectWizard : public Core::BaseFileWizard

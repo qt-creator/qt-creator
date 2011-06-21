@@ -35,10 +35,12 @@
 
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QSet>
+#include <QtCore/QFutureInterface>
+#include <QtCore/QFutureWatcher>
 #include <QtGui/QFileSystemModel>
-#include <QtGui/QFileIconProvider>
 #include <QtGui/QDialog>
 #include <QtGui/QTreeView>
+#include <QtGui/QLabel>
 
 namespace GenericProjectManager {
 namespace Internal {
@@ -50,7 +52,6 @@ struct Tree
     Qt::CheckState checked;
     QList<Tree *> childDirectories;
     QList<Tree *> files;
-    bool isDir;
     QIcon icon;
     QString fullPath;
     Tree *parent;
@@ -60,8 +61,11 @@ class SelectableFilesModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    SelectableFilesModel(const QString &baseDir, const QStringList &files, const QSet<QString> &suffixes, QObject *parent);
+    SelectableFilesModel(const QString &baseDir, QObject *parent);
     ~SelectableFilesModel();
+
+    void setSuffixes(QSet<QString> suffixes);
+    void setInitialMarkedFiles(const QStringList &files);
 
     int columnCount(const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent) const;
@@ -73,17 +77,35 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     QStringList selectedFiles() const;
+    QStringList selectedPaths() const;
+
+    // only call this once
+    void startParsing();
+    void waitForFinished();
+    void cancel();
+signals:
+    void parsingFinished();
+    void parsingProgress(const QString &filename);
+private slots:
+    void buildTreeFinished();
 private:
+    void init();
+    void run(QFutureInterface<void> &fi);
     void collectFiles(Tree *root, QStringList *result) const;
-    void buildTree(const QString &baseDir, Tree *tree);
+    void collectPaths(Tree *root, QStringList *result) const;
+    void buildTree(const QString &baseDir, Tree *tree, QFutureInterface<void> &fi);
     void deleteTree(Tree *tree);
     void propagateUp(const QModelIndex &index);
     void propagateDown(const QModelIndex &index);
+    Tree *m_root;
+    // Used in the future thread need to all not used after calling startParsing
     QString m_baseDir;
     QSet<QString> m_files;
     QSet<QString> m_suffixes;
-    Tree *m_root;
-    QFileIconProvider m_iconProvider;
+    QFutureWatcher<void> m_watcher;
+    Tree *m_rootForFuture;
+    int m_futureCount;
+    bool m_allFiles;
 };
 
 class SelectableFilesDialog : public QDialog
@@ -91,10 +113,18 @@ class SelectableFilesDialog : public QDialog
     Q_OBJECT
 public:
     SelectableFilesDialog(const QString &path, const QStringList files, const QSet<QString> &suffixes, QWidget *parent);
+    ~SelectableFilesDialog();
     QStringList selectedFiles() const;
+
+private slots:
+    void parsingProgress(const QString &fileName);
+    void parsingFinished();
+
 private:
-    void smartExpand(QTreeView *view, const QModelIndex &index);
+    void smartExpand(const QModelIndex &index);
     SelectableFilesModel *m_selectableFilesModel;
+    QTreeView *m_view;
+    QLabel *m_progressLabel;
 };
 
 }
