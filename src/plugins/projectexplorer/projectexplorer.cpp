@@ -2232,7 +2232,8 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
     // add the Clear Menu item
     if (hasRecentProjects) {
         menu->addSeparator();
-        QAction *action = menu->addAction(tr(QT_TRANSLATE_NOOP("Core::MainWindow", "Clear Menu")));
+        QAction *action = menu->addAction(QCoreApplication::translate(
+                                          "Core", Core::Constants::TR_CLEAR_MENU));
         connect(action, SIGNAL(triggered()), this, SLOT(clearRecentProjects()));
     }
 }
