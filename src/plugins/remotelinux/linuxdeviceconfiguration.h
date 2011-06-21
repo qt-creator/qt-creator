@@ -63,6 +63,8 @@ public:
     int getNext();
     QString toString() const;
 
+    static QString regularExpression();
+
 private:
     typedef QPair<int, int> Range;
     QList<Range> m_ranges;
@@ -90,33 +92,22 @@ public:
     QString name() const { return m_name; }
     void setName(const QString &name) { m_name = name; }
     QString osType() const { return m_osType; }
-    QString osTypeDisplayName() const { return m_osTypeDisplayName; }
     DeviceType type() const { return m_type; }
     QString portsSpec() const { return m_portsSpec; }
     Id internalId() const { return m_internalId; }
     bool isDefault() const { return m_isDefault; }
 
-    static QString portsRegExpr();
-    static QString defaultHost(DeviceType type, const QString &osType);
     static QString defaultPrivateKeyFilePath();
     static QString defaultPublicKeyFilePath();
-    static QString defaultUser(const QString &osType);
-    static int defaultSshPort(DeviceType type);
-    static QString defaultQemuPassword(const QString &osType);
 
     static const Id InvalidId;
 
-    static Ptr createHardwareConfig(const QString &name, const QString &osType,
-        const QString &hostName, const QString &privateKeyFilePath);
-    static Ptr createGenericLinuxConfigUsingPassword(const QString &name, const QString &hostName,
-        const QString &userName, const QString &password);
-    static Ptr createGenericLinuxConfigUsingKey(const QString &name, const QString &hostName,
-        const QString &userName, const QString &privateKeyFilePath);
-    static Ptr createEmulatorConfig(const QString &name, const QString &osType);
-
+    static Ptr create(const QString &name, const QString &osType, DeviceType deviceType,
+        const QString &freePortsSpec, const Utils::SshConnectionParameters &sshParams);
 private:
-    LinuxDeviceConfiguration(const QString &name, const QString &osType,
-        DeviceType type, const Utils::SshConnectionParameters &sshParams);
+    LinuxDeviceConfiguration(const QString &name, const QString &osType, DeviceType deviceType,
+        const QString &freePortsSpec, const Utils::SshConnectionParameters &sshParams);
+
     LinuxDeviceConfiguration(const QSettings &settings, Id &nextId);
     LinuxDeviceConfiguration(const ConstPtr &other);
 
@@ -135,7 +126,6 @@ private:
     DeviceType m_type;
     QString m_portsSpec;
     bool m_isDefault;
-    QString m_osTypeDisplayName;
     Id m_internalId;
 };
 
@@ -194,6 +184,11 @@ public:
     virtual bool supportsOsType(const QString &osType) const=0;
 
     /*!
+      Returns a human-readable string for the given OS type, if this factory supports that type.
+    */
+    virtual QString displayNameForOsType(const QString &osType) const=0;
+
+    /*!
       Returns a list of ids representing actions that can be run on device configurations
       that this factory supports. These actions will be available in the "Linux Devices"
       options page.
@@ -204,7 +199,7 @@ public:
       A human-readable string for the given id. Will be displayed on a button which, when clicked,
       will start the respective action.
     */
-    virtual QString displayNameForId(const QString &actionId) const=0;
+    virtual QString displayNameForActionId(const QString &actionId) const=0;
 
 
     /*!

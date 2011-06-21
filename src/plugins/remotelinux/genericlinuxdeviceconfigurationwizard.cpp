@@ -71,15 +71,19 @@ GenericLinuxDeviceConfigurationWizard::~GenericLinuxDeviceConfigurationWizard()
 
 LinuxDeviceConfiguration::Ptr GenericLinuxDeviceConfigurationWizard::deviceConfiguration()
 {
-    LinuxDeviceConfiguration::Ptr devConf;
-    if (m_d->setupPage.authenticationType() == SshConnectionParameters::AuthenticationByPassword) {
-        devConf = LinuxDeviceConfiguration::createGenericLinuxConfigUsingPassword(m_d->setupPage.configurationName(),
-            m_d->setupPage.hostName(), m_d->setupPage.userName(), m_d->setupPage.password());
-    } else {
-        devConf = LinuxDeviceConfiguration::createGenericLinuxConfigUsingKey(m_d->setupPage.configurationName(),
-            m_d->setupPage.hostName(), m_d->setupPage.userName(), m_d->setupPage.privateKeyFilePath());
-    }
-
+    Utils::SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
+    sshParams.host = m_d->setupPage.hostName();
+    sshParams.userName = m_d->setupPage.userName();
+    sshParams.port = 22;
+    sshParams.timeout = 10;
+    sshParams.authenticationType = m_d->setupPage.authenticationType();
+    if (sshParams.authenticationType == SshConnectionParameters::AuthenticationByPassword)
+        sshParams.password = m_d->setupPage.password();
+    else
+        sshParams.privateKeyFile = m_d->setupPage.privateKeyFilePath();
+    LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(m_d->setupPage.configurationName(),
+        LinuxDeviceConfiguration::GenericLinuxOsType, LinuxDeviceConfiguration::Physical,
+        QLatin1String("10000-10100"), sshParams);
     Internal::MaemoConfigTestDialog dlg(devConf, this);
     dlg.exec();
     return devConf;

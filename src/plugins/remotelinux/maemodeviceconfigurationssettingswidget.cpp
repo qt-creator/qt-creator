@@ -152,7 +152,7 @@ void MaemoDeviceConfigurationsSettingsWidget::initGui()
     m_ui->nameLineEdit->setValidator(m_nameValidator);
     m_ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
     QRegExpValidator * const portsValidator
-        = new QRegExpValidator(QRegExp(LinuxDeviceConfiguration::portsRegExpr()), this);
+        = new QRegExpValidator(QRegExp(PortList::regularExpression()), this);
     m_ui->portsLineEdit->setValidator(portsValidator);
     connect(m_ui->makeKeyFileDefaultButton, SIGNAL(clicked()),
         SLOT(setDefaultKeyFilePath()));
@@ -375,7 +375,7 @@ void MaemoDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
         if (factory) {
             const QStringList &actionIds = factory->supportedDeviceActionIds();
             foreach (const QString &actionId, actionIds) {
-                QPushButton * const button = new QPushButton(factory->displayNameForId(actionId));
+                QPushButton * const button = new QPushButton(factory->displayNameForActionId(actionId));
                 m_additionalActionButtons << button;
                 connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
                 m_additionalActionsMapper->setMapping(button, actionId);

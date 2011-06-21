@@ -33,6 +33,8 @@
 
 #include "maemodeviceconfigwizard.h"
 
+#include <utils/qtcassert.h>
+
 namespace RemoteLinux {
 namespace Internal {
 
@@ -56,6 +58,16 @@ bool MaddeDeviceConfigurationFactory::supportsOsType(const QString &osType) cons
     return osType == LinuxDeviceConfiguration::Maemo5OsType
             || osType == LinuxDeviceConfiguration::HarmattanOsType
             || osType == LinuxDeviceConfiguration::MeeGoOsType;
+}
+
+QString MaddeDeviceConfigurationFactory::displayNameForOsType(const QString &osType) const
+{
+    QTC_ASSERT(supportsOsType(osType), return QString());
+    if (osType == LinuxDeviceConfiguration::Maemo5OsType)
+        return tr("Maemo5/Fremantle");
+    if (osType == LinuxDeviceConfiguration::HarmattanOsType)
+        return tr("Harmattan");
+    return tr("MeeGo");
 }
 
 } // namespace Internal

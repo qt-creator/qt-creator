@@ -55,12 +55,8 @@ const QLatin1String TimeoutKey("Timeout");
 const QLatin1String IsDefaultKey("IsDefault");
 const QLatin1String InternalIdKey("InternalId");
 
-const int DefaultSshPortHW(22);
-const int DefaultSshPortSim(6666);
-const int DefaultGdbServerPortHW(10000);
-const int DefaultGdbServerPortSim(13219);
 const AuthType DefaultAuthType(Utils::SshConnectionParameters::AuthenticationByKey);
-const int DefaultTimeout(30);
+const int DefaultTimeout(10);
 const LinuxDeviceConfiguration::DeviceType DefaultDeviceType(LinuxDeviceConfiguration::Physical);
 
 
@@ -190,6 +186,13 @@ QString PortList::toString() const
     return stringRep;
 }
 
+QString PortList::regularExpression()
+{
+    const QLatin1String portExpr("(\\d)+");
+    const QString listElemExpr = QString::fromLatin1("%1(-%1)?").arg(portExpr);
+    return QString::fromLatin1("((%1)(,%1)*)?").arg(listElemExpr);
+}
+
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QSettings &settings,
     Id &nextId)
@@ -202,65 +205,19 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const ConstPtr &o
     return Ptr(new LinuxDeviceConfiguration(other));
 }
 
-LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createHardwareConfig(const QString &name,
-    const QString &osType, const QString &hostName, const QString &privateKeyFilePath)
+LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &name,
+    const QString &osType, DeviceType deviceType, const QString &freePortsSpec,
+    const Utils::SshConnectionParameters &sshParams)
 {
-    Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
-    sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByKey;
-    sshParams.host = hostName;
-    sshParams.userName = defaultUser(osType);
-    sshParams.privateKeyFile = privateKeyFilePath;
-    return Ptr(new LinuxDeviceConfiguration(name, osType, Physical, sshParams));
+    return Ptr(new LinuxDeviceConfiguration(name, osType, deviceType, freePortsSpec, sshParams));
 }
 
-LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createGenericLinuxConfigUsingPassword(const QString &name,
-    const QString &hostName, const QString &userName, const QString &password)
+LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QString &osType,
+        DeviceType deviceType, const QString &freePortsSpec,
+        const Utils::SshConnectionParameters &sshParams)
+    : m_sshParameters(sshParams), m_name(name), m_osType(osType), m_type(deviceType),
+      m_portsSpec(freePortsSpec), m_isDefault(false)
 {
-    Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
-    sshParams.authenticationType
-        = Utils::SshConnectionParameters::AuthenticationByPassword;
-    sshParams.host = hostName;
-    sshParams.userName = userName;
-    sshParams.password = password;
-    return Ptr(new LinuxDeviceConfiguration(name, LinuxDeviceConfiguration::GenericLinuxOsType, Physical,
-        sshParams));
-}
-
-LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createGenericLinuxConfigUsingKey(const QString &name,
-    const QString &hostName, const QString &userName, const QString &privateKeyFile)
-{
-    Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
-    sshParams.authenticationType
-        = Utils::SshConnectionParameters::AuthenticationByKey;
-    sshParams.host = hostName;
-    sshParams.userName = userName;
-    sshParams.privateKeyFile = privateKeyFile;
-    return Ptr(new LinuxDeviceConfiguration(name, LinuxDeviceConfiguration::GenericLinuxOsType,
-        Physical, sshParams));
-}
-
-LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::createEmulatorConfig(const QString &name,
-    const QString &osType)
-{
-    Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
-    sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
-    sshParams.host = defaultHost(Emulator, osType);
-    sshParams.userName = defaultUser(osType);
-    sshParams.password = defaultQemuPassword(osType);
-    return Ptr(new LinuxDeviceConfiguration(name, osType, Emulator, sshParams));
-}
-
-LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name,
-    const QString &osType, DeviceType devType, const Utils::SshConnectionParameters &sshParams)
-    : m_sshParameters(sshParams),
-      m_name(name),
-      m_osType(osType),
-      m_type(devType),
-      m_portsSpec(defaultPortsSpec(m_type)),
-      m_isDefault(false)
-{
-    m_sshParameters.port = defaultSshPort(m_type);
-    m_sshParameters.timeout = DefaultTimeout;
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings,
@@ -287,9 +244,9 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings,
     }
 
     m_portsSpec = settings.value(PortsSpecKey, defaultPortsSpec(m_type)).toString();
-    m_sshParameters.host = settings.value(HostKey, defaultHost(m_type, m_osType)).toString();
-    m_sshParameters.port = settings.value(SshPortKey, defaultSshPort(m_type)).toInt();
-    m_sshParameters.userName = settings.value(UserNameKey, defaultUser(m_osType)).toString();
+    m_sshParameters.host = settings.value(HostKey).toString();
+    m_sshParameters.port = settings.value(SshPortKey, 22).toInt();
+    m_sshParameters.userName = settings.value(UserNameKey).toString();
     m_sshParameters.authenticationType
         = static_cast<AuthType>(settings.value(AuthKey, DefaultAuthType).toInt());
     m_sshParameters.password = settings.value(PasswordKey).toString();
@@ -309,28 +266,9 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguratio
 {
 }
 
-QString LinuxDeviceConfiguration::portsRegExpr()
-{
-    const QLatin1String portExpr("(\\d)+");
-    const QString listElemExpr = QString::fromLatin1("%1(-%1)?").arg(portExpr);
-    return QString::fromLatin1("((%1)(,%1)*)?").arg(listElemExpr);
-}
-
-int LinuxDeviceConfiguration::defaultSshPort(DeviceType type)
-{
-    return type == Physical ? DefaultSshPortHW : DefaultSshPortSim;
-}
-
 QString LinuxDeviceConfiguration::defaultPortsSpec(DeviceType type) const
 {
     return QLatin1String(type == Physical ? "10000-10100" : "13219,14168");
-}
-
-QString LinuxDeviceConfiguration::defaultHost(DeviceType type, const QString &osType)
-{
-    if (osType == Maemo5OsType || osType == HarmattanOsType || osType == MeeGoOsType)
-        return QLatin1String(type == Physical ? "192.168.2.15" : "localhost");
-    return QString();
 }
 
 QString LinuxDeviceConfiguration::defaultPrivateKeyFilePath()
@@ -342,22 +280,6 @@ QString LinuxDeviceConfiguration::defaultPrivateKeyFilePath()
 QString LinuxDeviceConfiguration::defaultPublicKeyFilePath()
 {
     return defaultPrivateKeyFilePath() + QLatin1String(".pub");
-}
-
-QString LinuxDeviceConfiguration::defaultUser(const QString &osType)
-{
-    if (osType == Maemo5OsType || osType == HarmattanOsType)
-        return QLatin1String("developer");
-    if (osType == MeeGoOsType)
-        return QLatin1String("meego");
-        return QString();
-}
-
-QString LinuxDeviceConfiguration::defaultQemuPassword(const QString &osType)
-{
-    if (osType == MeeGoOsType)
-        return QLatin1String("meego");
-    return QString();
 }
 
 PortList LinuxDeviceConfiguration::freePorts() const

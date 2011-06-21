@@ -37,6 +37,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <coreplugin/filemanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/ssh/sshconnection.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtversionmanager.h>
@@ -441,13 +442,13 @@ QStringList MaemoGlobal::targetArgs(const QString &qmakePath, bool useTarget)
 
 QString MaemoGlobal::osTypeToString(const QString &osType)
 {
-    if (osType == LinuxDeviceConfiguration::Maemo5OsType)
-        return QLatin1String("Maemo5/Fremantle");
-    if (osType == LinuxDeviceConfiguration::HarmattanOsType)
-        return QLatin1String("Harmattan");
-    if (osType == LinuxDeviceConfiguration::MeeGoOsType)
-        return QLatin1String("MeeGo");
-    return QLatin1String("Other Linux");
+    const QList<ILinuxDeviceConfigurationFactory *> &factories
+        = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
+    foreach (const ILinuxDeviceConfigurationFactory * const factory, factories) {
+        if (factory->supportsOsType(osType))
+            return factory->displayNameForOsType(osType);
+    }
+    return tr("Unknown OS");
 }
 
 MaemoGlobal::PackagingSystem MaemoGlobal::packagingSystem(const QString &osType)

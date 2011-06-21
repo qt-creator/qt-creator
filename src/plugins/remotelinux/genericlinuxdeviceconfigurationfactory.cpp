@@ -36,6 +36,8 @@
 #include "maemoremoteprocessesdialog.h"
 #include "publickeydeploymentdialog.h"
 
+#include <utils/qtcassert.h>
+
 namespace RemoteLinux {
 namespace Internal {
 namespace {
@@ -64,13 +66,19 @@ bool GenericLinuxDeviceConfigurationFactory::supportsOsType(const QString &osTyp
     return osType == LinuxDeviceConfiguration::GenericLinuxOsType;
 }
 
+QString GenericLinuxDeviceConfigurationFactory::displayNameForOsType(const QString &osType) const
+{
+    QTC_ASSERT(supportsOsType(osType), return QString());
+    return tr("Generic Linux");
+}
+
 QStringList GenericLinuxDeviceConfigurationFactory::supportedDeviceActionIds() const
 {
     return QStringList() << QLatin1String(TestDeviceActionId)
         << QLatin1String(DeployKeyToDeviceActionId) << QLatin1String(RemoteProcessesActionId);
 }
 
-QString GenericLinuxDeviceConfigurationFactory::displayNameForId(const QString &actionId) const
+QString GenericLinuxDeviceConfigurationFactory::displayNameForActionId(const QString &actionId) const
 {
     Q_ASSERT(supportedDeviceActionIds().contains(actionId));
     if (actionId == QLatin1String(TestDeviceActionId))

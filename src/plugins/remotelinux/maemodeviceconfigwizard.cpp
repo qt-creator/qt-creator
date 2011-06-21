@@ -59,6 +59,18 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 
+QString defaultUser(const QString &osType)
+{
+    if (osType == LinuxDeviceConfiguration::MeeGoOsType)
+        return QLatin1String("meego");
+    return QLatin1String("developer");
+}
+
+QString defaultHost(LinuxDeviceConfiguration::DeviceType type)
+{
+    return QLatin1String(type == LinuxDeviceConfiguration::Physical ? "192.168.2.15" : "localhost");
+}
+
 struct WizardData
 {
     QString configName;
@@ -108,8 +120,7 @@ public:
         m_ui->harmattanButton->setChecked(true);
         m_ui->hwButton->setChecked(true);
         handleDeviceTypeChanged();
-        m_ui->hostNameLineEdit->setText(LinuxDeviceConfiguration::defaultHost(deviceType(),
-            osType()));
+        m_ui->hostNameLineEdit->setText(defaultHost(deviceType()));
         connect(m_ui->nameLineEdit, SIGNAL(textChanged(QString)), this,
             SIGNAL(completeChanged()));
         connect(m_ui->hostNameLineEdit, SIGNAL(textChanged(QString)), this,
@@ -126,7 +137,7 @@ public:
     QString hostName() const
     {
         return deviceType() == LinuxDeviceConfiguration::Emulator
-            ? LinuxDeviceConfiguration::defaultHost(LinuxDeviceConfiguration::Emulator, osType())
+            ? defaultHost(LinuxDeviceConfiguration::Emulator)
             : m_ui->hostNameLineEdit->text().trimmed();
     }
 
@@ -186,7 +197,7 @@ public:
 
     virtual void initializePage()
     {
-        m_ui->userNameLineEdit->setText(LinuxDeviceConfiguration::defaultUser(m_wizardData.osType));
+        m_ui->userNameLineEdit->setText(defaultUser(m_wizardData.osType));
         m_ui->passwordButton->setChecked(true);
         m_ui->passwordLineEdit->clear();
         m_ui->privateKeyPathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
@@ -488,10 +499,10 @@ private:
         SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
         sshParams.authenticationType = SshConnectionParameters::AuthenticationByPassword;
         sshParams.host = hostAddress();
-        sshParams.port = LinuxDeviceConfiguration::defaultSshPort(LinuxDeviceConfiguration::Physical);
+        sshParams.port = 22;
         sshParams.password = password();
         sshParams.timeout = 30;
-        sshParams.userName = LinuxDeviceConfiguration::defaultUser(m_wizardData.osType);
+        sshParams.userName = defaultUser(m_wizardData.osType);
         m_ui->statusLabel->setText(tr("Deploying... "));
         m_keyDeployer->deployPublicKey(sshParams, m_wizardData.publicKeyFilePath);
     }
@@ -597,16 +608,33 @@ MaemoDeviceConfigWizard::~MaemoDeviceConfigWizard() {}
 
 LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
 {
+    bool doTest;
+    QString freePortsSpec;
+    Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
+    sshParams.userName = defaultUser(d->wizardData.osType);
+    sshParams.host = d->wizardData.hostName;
     if (d->wizardData.deviceType == LinuxDeviceConfiguration::Emulator) {
-        return LinuxDeviceConfiguration::createEmulatorConfig(d->wizardData.configName,
-            d->wizardData.osType);
+        sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
+        sshParams.password = d->wizardData.osType == LinuxDeviceConfiguration::MeeGoOsType
+            ? QLatin1String("meego") : QString();
+        sshParams.port = 6666;
+        sshParams.timeout = 30;
+        freePortsSpec = QLatin1String("13219,14168");
+        doTest = false;
+    } else {
+        sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByKey;
+        sshParams.privateKeyFile = d->wizardData.privateKeyFilePath;
+        sshParams.port = 22;
+        sshParams.timeout = 10;
+        freePortsSpec = QLatin1String("10000-10100");
+        doTest = true;
     }
-
-    const LinuxDeviceConfiguration::Ptr devConf
-        = LinuxDeviceConfiguration::createHardwareConfig(d->wizardData.configName,
-              d->wizardData.osType, d->wizardData.hostName, d->wizardData.privateKeyFilePath);
-    MaemoConfigTestDialog dlg(devConf, this);
-    dlg.exec();
+    const LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(d->wizardData.configName,
+        d->wizardData.osType, LinuxDeviceConfiguration::Physical, freePortsSpec, sshParams);
+    if (doTest) {
+        MaemoConfigTestDialog dlg(devConf, this);
+        dlg.exec();
+    }
     return devConf;
 }
 
