@@ -227,7 +227,7 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
 
 const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
 {
-    const QString typeName = prop.typeName();
+    QString typeName = prop.typeName();
 
     // ### Verify type resolving.
     QmlObjectValue *objectValue = engine()->cppQmlTypes().typeByCppName(typeName);
@@ -276,10 +276,16 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
     }
 
     // might be an enum
-    int enumIndex = _metaObject->enumeratorIndex(prop.typeName());
-    if (enumIndex != -1) {
-        const FakeMetaEnum &metaEnum = _metaObject->enumerator(enumIndex);
-        value = new QmlEnumValue(metaEnum, engine());
+    const QmlObjectValue *base = this;
+    const QStringList components = typeName.split(QLatin1String("::"));
+    if (components.size() == 2) {
+        base = engine()->cppQmlTypes().typeByCppName(components.first());
+        typeName = components.last();
+    }
+    if (base) {
+        const FakeMetaEnum &metaEnum = base->getEnum(typeName);
+        if (metaEnum.isValid())
+            value = new QmlEnumValue(metaEnum, engine());
     }
 
     return value;
@@ -342,6 +348,15 @@ bool QmlObjectValue::isListProperty(const QString &propertyName) const
 bool QmlObjectValue::isEnum(const QString &typeName) const
 {
     return _metaObject->enumeratorIndex(typeName) != -1;
+}
+
+FakeMetaEnum QmlObjectValue::getEnum(const QString &typeName) const
+{
+    const int index = _metaObject->enumeratorIndex(typeName);
+    if (index == -1)
+        return FakeMetaEnum();
+
+    return _metaObject->enumerator(index);
 }
 
 bool QmlObjectValue::isWritable(const QString &propertyName) const

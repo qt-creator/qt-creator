@@ -41,6 +41,9 @@ FakeMetaEnum::FakeMetaEnum(const QString &name)
     : m_name(name)
 {}
 
+bool FakeMetaEnum::isValid() const
+{ return !m_name.isEmpty(); }
+
 QString FakeMetaEnum::name() const
 { return m_name; }
 

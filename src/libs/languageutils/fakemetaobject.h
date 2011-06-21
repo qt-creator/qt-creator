@@ -53,6 +53,8 @@ public:
     FakeMetaEnum();
     explicit FakeMetaEnum(const QString &name);
 
+    bool isValid() const;
+
     QString name() const;
     void setName(const QString &name);
 
