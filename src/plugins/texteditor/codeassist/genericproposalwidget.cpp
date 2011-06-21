@@ -241,7 +241,7 @@ public:
     bool m_isSynchronized;
     bool m_explicitlySelected;
     AssistReason m_reason;
-    bool m_gotContent;
+    bool m_justInvoked;
     QPointer<GenericProposalInfoFrame> m_infoFrame;
     QTimer m_infoTimer;
     CodeAssistant *m_assistant;
@@ -257,7 +257,7 @@ GenericProposalWidgetPrivate::GenericProposalWidgetPrivate(QWidget *completionWi
     , m_model(0)
     , m_isSynchronized(true)
     , m_explicitlySelected(false)
-    , m_gotContent(false)
+    , m_justInvoked(false)
     , m_assistant(0)
 {
     connect(m_completionListView, SIGNAL(activated(QModelIndex)),
@@ -345,6 +345,8 @@ void GenericProposalWidget::setAssistant(CodeAssistant *assistant)
 void GenericProposalWidget::setReason(AssistReason reason)
 {
     m_d->m_reason = reason;
+    if (m_d->m_reason == ExplicitlyInvoked)
+        m_d->m_justInvoked = true;
 }
 
 void GenericProposalWidget::setUnderlyingWidget(const QWidget *underlyingWidget)
@@ -378,8 +380,6 @@ void GenericProposalWidget::setIsSynchronized(bool isSync)
 void GenericProposalWidget::showProposal(const QString &prefix)
 {
     ensurePolished();
-    if (!prefix.isEmpty())
-        m_d->m_gotContent = true;
     m_d->m_model->removeDuplicates();
     if (!updateAndCheck(prefix))
         return;
@@ -452,8 +452,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
     }
 
     if (TextEditorSettings::instance()->completionSettings().m_partiallyComplete
-            && m_d->m_reason == ExplicitlyInvoked
-            && m_d->m_gotContent
+            && m_d->m_justInvoked
             && m_d->m_isSynchronized) {
         if (m_d->m_model->size() == 1) {
             IAssistProposalItem *item = m_d->m_model->proposalItem(0);
@@ -469,6 +468,9 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
                 emit prefixExpanded(proposalPrefix);
         }
     }
+
+    if (m_d->m_justInvoked)
+        m_d->m_justInvoked = false;
 
     updatePositionAndSize();
     return true;
@@ -526,7 +528,6 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
             }
         }
     } else if (e->type() == QEvent::KeyPress) {
-        m_d->m_gotContent = false;
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
         switch (ke->key()) {
         case Qt::Key_Escape:
@@ -546,7 +547,6 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
                     m_d->m_completionListView->selectRow(newRow);
                 return true;
             }
-            m_d->m_gotContent = true;
             break;
 
         case Qt::Key_Tab:
@@ -592,7 +592,6 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
             // Only forward keys that insert text and refine the completion.
             if (ke->text().isEmpty())
                 return true;
-            m_d->m_gotContent = true;
             break;
         }
 
