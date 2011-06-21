@@ -115,7 +115,7 @@ signals:
     void installationDriveChanged();
 
 private slots:
-    void slotTargetInformationChanged(bool success, bool parseInProgress);
+    void slotTargetInformationChanged(Qt4ProjectManager::Qt4ProFileNode*,bool success, bool parseInProgress);
     void updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *buildConfiguration);
     void updateActiveRunConfiguration(ProjectExplorer::RunConfiguration *runConfiguration);
 

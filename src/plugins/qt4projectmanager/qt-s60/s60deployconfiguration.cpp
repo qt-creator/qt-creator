@@ -114,7 +114,7 @@ void S60DeployConfiguration::ctor()
     // TODO disable S60 Deploy Configuration while parsing
     // requires keeping track of the parsing state of the project
     connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool, bool)),
-            this, SLOT(slotTargetInformationChanged(bool,bool)));
+            this, SLOT(slotTargetInformationChanged(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
     connect(qt4Target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(updateActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
     connect(qt4Target(), SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
@@ -131,7 +131,7 @@ ProjectExplorer::DeployConfigurationWidget *S60DeployConfiguration::configuratio
     return new S60DeployConfigurationWidget();
 }
 
-void S60DeployConfiguration::slotTargetInformationChanged(bool success, bool parseInProgress)
+void S60DeployConfiguration::slotTargetInformationChanged(Qt4ProjectManager::Qt4ProFileNode*,bool success, bool parseInProgress)
 {
     Q_UNUSED(success)
     if (!parseInProgress)
