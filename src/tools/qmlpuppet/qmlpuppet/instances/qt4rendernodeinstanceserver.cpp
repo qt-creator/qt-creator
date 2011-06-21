@@ -148,7 +148,7 @@ void Qt4RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
 void Qt4RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    NodeInstanceServer::createScene(command);
+    Qt4NodeInstanceServer::createScene(command);
 
     QList<ServerNodeInstance> instanceList;
     foreach(const InstanceContainer &container, command.instances()) {
@@ -163,14 +163,14 @@ void Qt4RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
 
 void Qt4RenderNodeInstanceServer::clearScene(const ClearSceneCommand &command)
 {
-    NodeInstanceServer::clearScene(command);
+    Qt4NodeInstanceServer::clearScene(command);
 
     m_dirtyInstanceSet.clear();
 }
 
 void Qt4RenderNodeInstanceServer::completeComponent(const CompleteComponentCommand &command)
 {
-    NodeInstanceServer::completeComponent(command);
+    Qt4NodeInstanceServer::completeComponent(command);
 
     QList<ServerNodeInstance> instanceList;
     foreach(qint32 instanceId, command.instances()) {

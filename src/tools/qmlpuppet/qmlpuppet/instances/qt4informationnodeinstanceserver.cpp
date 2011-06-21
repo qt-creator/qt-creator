@@ -210,7 +210,7 @@ void Qt4InformationNodeInstanceServer::reparentInstances(const ReparentInstances
         }
     }
 
-    NodeInstanceServer::reparentInstances(command);
+    Qt4NodeInstanceServer::reparentInstances(command);
 }
 
 void Qt4InformationNodeInstanceServer::clearScene(const ClearSceneCommand &command)
@@ -223,7 +223,7 @@ void Qt4InformationNodeInstanceServer::clearScene(const ClearSceneCommand &comma
 
 void Qt4InformationNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    NodeInstanceServer::createScene(command);
+    Qt4NodeInstanceServer::createScene(command);
 
     QList<ServerNodeInstance> instanceList;
     foreach(const InstanceContainer &container, command.instances()) {
@@ -263,7 +263,7 @@ void Qt4InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<Se
 
 void Qt4InformationNodeInstanceServer::completeComponent(const CompleteComponentCommand &command)
 {
-    NodeInstanceServer::completeComponent(command);
+    Qt4NodeInstanceServer::completeComponent(command);
 
     QList<ServerNodeInstance> instanceList;
     foreach(qint32 instanceId, command.instances()) {

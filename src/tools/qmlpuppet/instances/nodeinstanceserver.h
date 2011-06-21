@@ -123,6 +123,9 @@ public:
     QStringList imports() const;
     QObject *dummyContextObject() const;
 
+    virtual QDeclarativeView *declarativeView() const = 0;
+    virtual QSGView *sgView() const = 0;
+
 public slots:
     void refreshLocalFileProperty(const QString &path);
     void refreshDummyData(const QString &path);
@@ -176,8 +179,6 @@ protected:
     void setTimerId(int timerId);
     int timerId() const;
 
-    virtual QDeclarativeView *declarativeView() const = 0;
-    virtual QSGView *sgView() const = 0;
     QDeclarativeContext *rootContext() const;
 
 

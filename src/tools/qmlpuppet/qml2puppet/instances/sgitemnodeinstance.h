@@ -86,7 +86,7 @@ public:
     ~SGItemNodeInstance();
 
     static Pointer create(QObject *objectToBeWrapped);
-    void initialize(const Pointer &objectNodeInstance);
+    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance);
 
     bool isSGItem() const;
 

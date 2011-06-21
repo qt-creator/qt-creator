@@ -129,8 +129,13 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        applicationPath = envImportPath;
    }
 
+   QProcessEnvironment enviroment = QProcessEnvironment::systemEnvironment();
+   enviroment.insert("QML_NO_THREADED_RENDERER", "true");
+
    if (QFileInfo(applicationPath).exists()) {
        m_qmlPuppetEditorProcess = new QProcess;
+       m_qmlPuppetEditorProcess->setProcessEnvironment(enviroment);
+       m_qmlPuppetEditorProcess->setObjectName("EditorProcess");
        connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
        connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetEditorProcess.data(), SLOT(kill()));
        bool fowardQmlpuppetOutput = !qgetenv("FORWARD_QMLPUPPET_OUTPUT").isEmpty();
@@ -140,6 +145,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
        if (runModus == NormalModus) {
            m_qmlPuppetPreviewProcess = new QProcess;
+           m_qmlPuppetPreviewProcess->setProcessEnvironment(enviroment);
+           m_qmlPuppetPreviewProcess->setObjectName("PreviewProcess");
            connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
            connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetPreviewProcess.data(), SLOT(kill()));
            if (fowardQmlpuppetOutput)
@@ -147,6 +154,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
            m_qmlPuppetPreviewProcess->start(applicationPath, QStringList() << socketToken << "previewmode" << "-graphicssystem raster");
 
            m_qmlPuppetRenderProcess = new QProcess;
+           m_qmlPuppetRenderProcess->setProcessEnvironment(enviroment);
+           m_qmlPuppetRenderProcess->setObjectName("RenderProcess");
            connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
            connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), m_qmlPuppetRenderProcess.data(), SLOT(kill()));
            if (fowardQmlpuppetOutput)
@@ -298,6 +307,7 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 
 void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus exitStatus)
 {
+    qDebug() << "Process finished:" << sender();
     if (m_firstSocket)
         m_firstSocket->close();
     if (m_secondSocket)

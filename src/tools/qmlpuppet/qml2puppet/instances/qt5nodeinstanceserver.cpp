@@ -106,6 +106,7 @@ void Qt5NodeInstanceServer::initializeView(const QVector<AddImportContainer> &/*
 #ifdef Q_WS_MAC
     sgView()->setAttribute(Qt::WA_DontShowOnScreen, true);
 #endif
+    sgView()->setUpdatesEnabled(false);
 }
 
 QDeclarativeView *Qt5NodeInstanceServer::declarativeView() const
@@ -129,7 +130,8 @@ void Qt5NodeInstanceServer::resizeCanvasSizeToRootItemSize()
 
 void Qt5NodeInstanceServer::resetAllItems()
 {
-
+    foreach (QSGItem *item, allItems())
+        DesignerSupport::resetDirty(item);
 }
 
 QList<ServerNodeInstance> Qt5NodeInstanceServer::setupScene(const CreateSceneCommand &command)

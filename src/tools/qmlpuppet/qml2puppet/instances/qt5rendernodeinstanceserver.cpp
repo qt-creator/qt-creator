@@ -64,6 +64,8 @@
 
 #include "qt5rendernodeinstanceserver.h"
 
+#include <QSGItem>
+
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
 #include "propertyabstractcontainer.h"
@@ -93,6 +95,8 @@
 
 #include "dummycontextobject.h"
 
+#include "designersupportfunctions.h"
+
 namespace QmlDesigner {
 
 Qt5RenderNodeInstanceServer::Qt5RenderNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -102,7 +106,45 @@ Qt5RenderNodeInstanceServer::Qt5RenderNodeInstanceServer(NodeInstanceClientInter
 
 void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
+    static bool inFunction = false;
+    if (!inFunction) {
+        inFunction = true;
+
+        bool adjustSceneRect = false;
+
+        if (sgView()) {
+            foreach (QSGItem *item, allItems()) {
+                if (item && hasInstanceForObject(item)) {
+                    ServerNodeInstance instance = instanceForObject(item);
+                    if (DesignerSupport::dirty(item, DesignerSupport::ContentUpdateMask))
+                        m_dirtyInstanceSet.insert(instance);
+                }
+            }
+
+            clearChangedPropertyList();
+            resetAllItems();
+
+            if (!m_dirtyInstanceSet.isEmpty() && nodeInstanceClient()->bytesToWrite() < 10000) {
+                nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(m_dirtyInstanceSet.toList()));
+                m_dirtyInstanceSet.clear();
+            }
+
+//            if (adjustSceneRect) {
+//                QRectF boundingRect = rootNodeInstance().boundingRect();
+//                if (boundingRect.isValid()) {
+//                    declarativeView()->setSceneRect(boundingRect);
+//                }
+//            }
+
+            slowDownRenderTimer();
+            nodeInstanceClient()->flush();
+            nodeInstanceClient()->synchronizeWithClientProcess();
+        }
+
+        inFunction = false;
+    }
 }
+
 
 void Qt5RenderNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {

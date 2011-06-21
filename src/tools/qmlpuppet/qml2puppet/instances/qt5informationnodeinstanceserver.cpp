@@ -64,6 +64,8 @@
 
 #include "qt5informationnodeinstanceserver.h"
 
+#include <QSGItem>
+
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
 #include "propertyabstractcontainer.h"
@@ -93,6 +95,8 @@
 
 #include "dummycontextobject.h"
 
+#include "designersupportfunctions.h"
+
 namespace QmlDesigner {
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -102,6 +106,87 @@ Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceC
 
 void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
+    static bool inFunction = false;
+    if (!inFunction) {
+        inFunction = true;
+
+        QSet<ServerNodeInstance> informationChangedInstanceSet;
+        QVector<InstancePropertyPair> propertyChangedList;
+        bool adjustSceneRect = false;
+
+        if (sgView()) {
+            foreach (QSGItem *item, allItems()) {
+                if (item && hasInstanceForObject(item)) {
+                    ServerNodeInstance instance = instanceForObject(item);
+
+                    DesignerSupport::DirtyType informationsDirty = DesignerSupport::DirtyType(DesignerSupport::TransformUpdateMask
+                                                                                              | DesignerSupport::Visible
+                                                                                              | DesignerSupport::ZValue
+                                                                                              | DesignerSupport::OpacityValue);
+                    if (DesignerSupport::dirty(item, informationsDirty))
+                        informationChangedInstanceSet.insert(instance);
+
+
+                    if (DesignerSupport::dirty(item, DesignerSupport::ParentChanged)) {
+                        m_parentChangedSet.insert(instance);
+                        informationChangedInstanceSet.insert(instance);
+                    }
+//                    if (d->geometryChanged) {
+//                        if (instance.isRootNodeInstance())
+//                            declarativeView()->scene()->setSceneRect(item->boundingRect());
+//                    }
+
+                }
+            }
+
+            foreach (const InstancePropertyPair& property, changedPropertyList()) {
+                const ServerNodeInstance instance = property.first;
+                const QString propertyName = property.second;
+
+                if (instance.isValid()) {
+                    if (instance.isRootNodeInstance() && (propertyName == "width" || propertyName == "height"))
+                        adjustSceneRect = true;
+
+                    if (propertyName.contains("anchors"))
+                        informationChangedInstanceSet.insert(instance);
+
+                    propertyChangedList.append(property);
+                }
+            }
+
+            resetAllItems();
+            clearChangedPropertyList();
+
+            if (!informationChangedInstanceSet.isEmpty())
+                nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(informationChangedInstanceSet.toList()));
+
+            if (!propertyChangedList.isEmpty())
+                nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
+
+            if (!m_parentChangedSet.isEmpty()) {
+                sendChildrenChangedCommand(m_parentChangedSet.toList());
+                m_parentChangedSet.clear();
+            }
+
+//            if (adjustSceneRect) {
+//                QRectF boundingRect = rootNodeInstance().boundingRect();
+//                if (boundingRect.isValid()) {
+//                    declarativeView()->setSceneRect(boundingRect);
+//                }
+//            }
+
+            if (!m_completedComponentList.isEmpty()) {
+                nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(m_completedComponentList));
+                m_completedComponentList.clear();
+            }
+
+            slowDownRenderTimer();
+            nodeInstanceClient()->flush();
+            nodeInstanceClient()->synchronizeWithClientProcess();
+        }
+
+        inFunction = false;
+    }
 }
 
 void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstancesCommand &command)
@@ -113,12 +198,12 @@ void Qt5InformationNodeInstanceServer::reparentInstances(const ReparentInstances
         }
     }
 
-    NodeInstanceServer::reparentInstances(command);
+    Qt5NodeInstanceServer::reparentInstances(command);
 }
 
 void Qt5InformationNodeInstanceServer::clearScene(const ClearSceneCommand &command)
 {
-    NodeInstanceServer::clearScene(command);
+    Qt5NodeInstanceServer::clearScene(command);
 
     m_parentChangedSet.clear();
     m_completedComponentList.clear();
@@ -126,7 +211,7 @@ void Qt5InformationNodeInstanceServer::clearScene(const ClearSceneCommand &comma
 
 void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
-    NodeInstanceServer::createScene(command);
+    Qt5NodeInstanceServer::createScene(command);
 
     QList<ServerNodeInstance> instanceList;
     foreach (const InstanceContainer &container, command.instances()) {
@@ -149,12 +234,17 @@ void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<Se
     QList<ServerNodeInstance> noParentList;
 
     foreach (const ServerNodeInstance &child, childList) {
-        if (!child.hasParent())
+        if (!child.hasParent()) {
             noParentList.append(child);
-        else
-            parentSet.insert(child.parent());
+        } else {
+            ServerNodeInstance parent = child.parent();
+            if (parent.isValid()) {
+                parentSet.insert(parent);
+            } else {
+                noParentList.append(child);
+            }
+        }
     }
-
 
     foreach (const ServerNodeInstance &parent, parentSet)
         nodeInstanceClient()->childrenChanged(createChildrenChangedCommand(parent, parent.childItems()));
@@ -166,7 +256,7 @@ void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<Se
 
 void Qt5InformationNodeInstanceServer::completeComponent(const CompleteComponentCommand &command)
 {
-    NodeInstanceServer::completeComponent(command);
+    Qt5NodeInstanceServer::completeComponent(command);
 
     QList<ServerNodeInstance> instanceList;
     foreach (qint32 instanceId, command.instances()) {

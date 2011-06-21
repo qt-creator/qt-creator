@@ -69,10 +69,12 @@
 #include "qt5nodeinstanceserver.h"
 
 #include <QDeclarativeExpression>
-
+#include <QSGView>
 #include <cmath>
 
 #include <QHash>
+
+#include <QtDebug>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -233,7 +235,7 @@ void SGItemNodeInstance::setMovable(bool movable)
 
 SGItemNodeInstance::Pointer SGItemNodeInstance::create(QObject *object)
 {
-    QSGItem *sgItem = dynamic_cast<QSGItem*>(object);
+    QSGItem *sgItem = qobject_cast<QSGItem*>(object);
 
     Q_ASSERT(sgItem);
 
@@ -252,10 +254,17 @@ SGItemNodeInstance::Pointer SGItemNodeInstance::create(QObject *object)
     return instance;
 }
 
-void SGItemNodeInstance::initialize(const Pointer &objectNodeInstance)
+void SGItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
+    if (instanceId() == 0) {
+        DesignerSupport::setRootItem(nodeInstanceServer()->sgView(), sgItem());
+    } else {
+        sgItem()->setParentItem(qobject_cast<QSGItem*>(nodeInstanceServer()->sgView()->rootObject()));
+    }
+
     designerSupport()->refFromEffectItem(sgItem());
     ObjectNodeInstance::initialize(objectNodeInstance);
+    sgItem()->update();
 }
 
 bool SGItemNodeInstance::isSGItem() const
@@ -559,6 +568,7 @@ void SGItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentIn
     }
 
     refresh();
+    DesignerSupport::updateDirtyNode(sgItem());
 }
 
 static bool isValidAnchorName(const QString &name)
