@@ -17,7 +17,7 @@
 }</snippet>
 <snippet group="QML" trigger="Text" id="qml_text">Text {
     id: $name$
-    text: "$text$"
+    text: qsTr("$text$")
 }</snippet>
 <snippet group="QML" trigger="states" id="qml_states">states: [
     State {
