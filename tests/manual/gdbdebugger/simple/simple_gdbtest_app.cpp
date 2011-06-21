@@ -129,27 +129,33 @@ typedef QMap<uint, QStringList> MyType;
 #define COMMA ,
 Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
 
-template <typename T> class Vector
-{
-public:
-    explicit Vector(int size) : m_size(size), m_data(new T[size]) {}
-    ~Vector() { delete [] m_data; }
-    //...
-private:
-    int m_size;
-    T *m_data;
-};
+
+// tests multiple breakpoints
+namespace multiple_breakpoints {
+
+    template <typename T> class Vector
+    {
+    public:
+        explicit Vector(int size)
+            : m_size(size), m_data(new T[size])
+        {} // put breakpoint here
+        ~Vector() { delete [] m_data; }
+        int size() const { return m_size; }
+    private:
+        int m_size;
+        T *m_data;
+    };
 
 
-namespace nsX {
-namespace nsY {
-int z;
-Vector<int> vi(10);
-Vector<float> vf(10);
-Vector<double> vd(10);
-Vector<char> vc(10);
-}
-}
+    int test()
+    {
+        Vector<int> vi(10);
+        Vector<float> vf(10);
+        Vector<double> vd(10);
+        Vector<char> vc(10);
+        return vi.size() + vf.size() + vd.size() + vc.size();
+    }
+} // namespace multiple_breakpoints
 
 
 #if USE_PRIVATE
@@ -261,6 +267,7 @@ void testPrivate()
 #endif
 }
 
+namespace nsX { namespace nsY { int z; } }
 namespace nsXY = nsX::nsY;
 
 int qwert()
@@ -2768,6 +2775,7 @@ int main(int argc, char *argv[])
 {
     qc41700::test();
     qc42170::test();
+    multiple_breakpoints::test();
     test842();
     test842();
     test3611();
