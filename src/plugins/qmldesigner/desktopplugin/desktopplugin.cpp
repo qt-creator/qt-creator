@@ -41,12 +41,12 @@ DesktopPlugin::DesktopPlugin()
 {
 }
 
-QString DesktopPlugin::pluginName()
+QString DesktopPlugin::pluginName() const
 {
     return ("DesktopPlugin");
 }
 
-QString DesktopPlugin::metaInfo()
+QString DesktopPlugin::metaInfo() const
 {
     return QString(":/desktopplugin/desktop.metainfo");
 }
