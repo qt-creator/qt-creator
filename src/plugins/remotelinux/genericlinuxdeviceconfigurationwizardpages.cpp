@@ -28,7 +28,7 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#include "genericlinuxdeviceconfigurationwizardsetuppage.h"
+#include "genericlinuxdeviceconfigurationwizardpages.h"
 #include "ui_genericlinuxdeviceconfigurationwizardsetuppage.h"
 
 #include "linuxdeviceconfiguration.h"
@@ -71,6 +71,7 @@ void GenericLinuxDeviceConfigurationWizardSetupPage::initializePage()
     m_d->ui.hostNameLineEdit->setText(defaultHostName());
     m_d->ui.userNameLineEdit->setText(defaultUserName());
     m_d->ui.passwordButton->setChecked(true);
+    m_d->ui.passwordLineEdit->setText(defaultPassWord());
     m_d->ui.passwordLineEdit->clear();
     m_d->ui.privateKeyPathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
     handleAuthTypeChanged();
@@ -125,11 +126,38 @@ QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultUserName() const
     return QString();
 }
 
+QString GenericLinuxDeviceConfigurationWizardSetupPage::defaultPassWord() const
+{
+    return QString();
+}
+
 void GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged()
 {
     m_d->ui.passwordLineEdit->setEnabled(authenticationType() == SshConnectionParameters::AuthenticationByPassword);
     m_d->ui.privateKeyPathChooser->setEnabled(authenticationType() == SshConnectionParameters::AuthenticationByKey);
     emit completeChanged();
+}
+
+
+GenericLinuxDeviceConfigurationWizardFinalPage::GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent)
+    : QWizardPage(parent), m_infoLabel(new QLabel(this))
+{
+    setTitle(tr("Setup Finished"));
+    setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
+    m_infoLabel->setWordWrap(true);
+    QVBoxLayout * const layout = new QVBoxLayout(this);
+    layout->addWidget(m_infoLabel);
+}
+
+void GenericLinuxDeviceConfigurationWizardFinalPage::initializePage()
+{
+    m_infoLabel->setText(infoText());
+}
+
+QString GenericLinuxDeviceConfigurationWizardFinalPage::infoText() const
+{
+    return tr("The new device configuration will now be created.\n"
+        "In addition, device connectivity will be tested.");
 }
 
 } // namespace RemoteLinux

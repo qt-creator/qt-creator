@@ -75,7 +75,6 @@ HEADERS += \
     linuxdevicefactoryselectiondialog.h \
     publickeydeploymentdialog.h \
     genericlinuxdeviceconfigurationwizard.h \
-    genericlinuxdeviceconfigurationwizardsetuppage.h \
     genericlinuxdeviceconfigurationfactory.h \
     maddedeviceconfigurationfactory.h \
     maemorunconfiguration.h \
@@ -84,7 +83,8 @@ HEADERS += \
     remotelinuxapplicationrunner.h \
     remotelinuxruncontrol.h \
     remotelinuxruncontrolfactory.h \
-    remotelinuxdebugsupport.h
+    remotelinuxdebugsupport.h \
+    genericlinuxdeviceconfigurationwizardpages.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -151,7 +151,6 @@ SOURCES += \
     linuxdevicefactoryselectiondialog.cpp \
     publickeydeploymentdialog.cpp \
     genericlinuxdeviceconfigurationwizard.cpp \
-    genericlinuxdeviceconfigurationwizardsetuppage.cpp \
     genericlinuxdeviceconfigurationfactory.cpp \
     maddedeviceconfigurationfactory.cpp \
     maemorunconfiguration.cpp \
@@ -160,7 +159,8 @@ SOURCES += \
     remotelinuxapplicationrunner.cpp \
     remotelinuxruncontrol.cpp \
     remotelinuxruncontrolfactory.cpp \
-    remotelinuxdebugsupport.cpp
+    remotelinuxdebugsupport.cpp \
+    genericlinuxdeviceconfigurationwizardpages.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \

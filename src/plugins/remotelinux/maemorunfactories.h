@@ -47,7 +47,7 @@ using ProjectExplorer::RunControl;
 using ProjectExplorer::Target;
 
 namespace RemoteLinux {
-    namespace Internal {
+namespace Internal {
 
 class MaemoRunConfigurationFactory : public IRunConfigurationFactory
 {

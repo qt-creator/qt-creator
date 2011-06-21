@@ -37,6 +37,10 @@
 
 #include <QtGui/QWizardPage>
 
+QT_BEGIN_NAMESPACE
+class QLabel;
+QT_END_NAMESPACE
+
 namespace RemoteLinux {
 namespace Internal {
 class GenericLinuxDeviceConfigurationWizardSetupPagePrivate;
@@ -63,11 +67,28 @@ public:
 
     virtual QString defaultHostName() const;
     virtual QString defaultUserName() const;
+    virtual QString defaultPassWord() const;
 
 private:
     Q_SLOT void handleAuthTypeChanged();
 
     Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate * const m_d;
+};
+
+
+class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardFinalPage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent);
+
+    void initializePage();
+
+protected:
+    virtual QString infoText() const;
+
+private:
+    QLabel * const m_infoLabel;
 };
 
 } // namespace RemoteLinux

@@ -30,46 +30,15 @@
 **************************************************************************/
 #include "genericlinuxdeviceconfigurationwizard.h"
 
-#include "genericlinuxdeviceconfigurationwizardsetuppage.h"
+#include "genericlinuxdeviceconfigurationwizardpages.h"
 #include "maemoconfigtestdialog.h"
-
-#include <QtGui/QLabel>
-#include <QtGui/QVBoxLayout>
 
 using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
 namespace {
-
 enum PageId { SetupPageId, FinalPageId };
-
-class GenericLinuxDeviceConfigurationWizardFinalPage : public QWizardPage
-{
-    Q_OBJECT
-public:
-    GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent)
-        : QWizardPage(parent), m_infoLabel(new QLabel(this))
-    {
-        setTitle(tr("Setup Finished"));
-        setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        m_infoLabel->setWordWrap(true);
-        QVBoxLayout * const layout = new QVBoxLayout(this);
-        layout->addWidget(m_infoLabel);
-    }
-
-    virtual void initializePage()
-    {
-        const QString infoText = tr("The new device configuration will now be "
-            "created. In addition, a test procedure will be run to check whether "
-            "Qt Creator can connect to the device and to provide some information about it.");
-        m_infoLabel->setText(infoText);
-    }
-
-private:
-    QLabel * const m_infoLabel;
-};
-
 } // anonymous namespace
 
 class GenericLinuxDeviceConfigurationWizardPrivate
@@ -117,5 +86,3 @@ LinuxDeviceConfiguration::Ptr GenericLinuxDeviceConfigurationWizard::deviceConfi
 }
 
 } // namespace RemoteLinux
-
-#include "genericlinuxdeviceconfigurationwizard.moc"

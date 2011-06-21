@@ -42,6 +42,7 @@
 #include "maemoglobal.h"
 #include "maemokeydeployer.h"
 
+#include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <utils/fileutils.h>
 #include <utils/ssh/sshkeygenerator.h>
 
@@ -532,39 +533,23 @@ private:
     QString m_instructionTextTemplate;
 };
 
-class MaemoDeviceConfigWizardFinalPage : public QWizardPage
+class MaemoDeviceConfigWizardFinalPage : public GenericLinuxDeviceConfigurationWizardFinalPage
 {
     Q_OBJECT
 public:
-    MaemoDeviceConfigWizardFinalPage(const WizardData &wizardData,
-        QWidget *parent)
-            : QWizardPage(parent),
-              m_infoLabel(new QLabel(this)),
-              m_wizardData(wizardData)
+    MaemoDeviceConfigWizardFinalPage(const WizardData &wizardData, QWidget *parent)
+        : GenericLinuxDeviceConfigurationWizardFinalPage(parent), m_wizardData(wizardData)
     {
-        setTitle(tr("Setup Finished"));
-        setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        m_infoLabel->setWordWrap(true);
-        QVBoxLayout * const layout = new QVBoxLayout(this);
-        layout->addWidget(m_infoLabel);
-    }
-
-    virtual void initializePage()
-    {
-        QString infoText;
-        if (m_wizardData.deviceType == LinuxDeviceConfiguration::Physical) {
-            infoText = tr("The new device configuration will now be "
-                "created and a test procedure will be run to check whether "
-                "Qt Creator can connect to the device and to provide some "
-                "information about its features.");
-        } else {
-            infoText = tr("The new device configuration will now be created.");
-        }
-        m_infoLabel->setText(infoText);
     }
 
 private:
-    QLabel * const m_infoLabel;
+    QString infoText() const
+    {
+        if (m_wizardData.deviceType == LinuxDeviceConfiguration::Emulator)
+            return tr("The new device configuration will now be created.");
+        return GenericLinuxDeviceConfigurationWizardFinalPage::infoText();
+    }
+
     const WizardData &m_wizardData;
 };
 
