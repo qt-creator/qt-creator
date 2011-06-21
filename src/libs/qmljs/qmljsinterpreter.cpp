@@ -2598,16 +2598,21 @@ void Engine::initializePrototypes()
     addFunction(_qtObject, QLatin1String("size"), 2);
     addFunction(_qtObject, QLatin1String("tint"), 2);
     addFunction(_qtObject, QLatin1String("vector3d"), 3);
+    _globalObject->setMember(QLatin1String("Qt"), _qtObject);
 
-
-    //firebug/webkit compat
+    // firebug/webkit compat
     ObjectValue *consoleObject = newObject(/*prototype */ 0);
     addFunction(consoleObject, QLatin1String("log"), 1);
     addFunction(consoleObject, QLatin1String("debug"), 1);
-
     _globalObject->setMember(QLatin1String("console"), consoleObject);
 
-    _globalObject->setMember(QLatin1String("Qt"), _qtObject);
+    // translation functions
+    addFunction(_globalObject, QLatin1String("qsTr"), 3);
+    addFunction(_globalObject, QLatin1String("QT_TR_NOOP"), 1);
+    addFunction(_globalObject, QLatin1String("qsTranslate"), 5);
+    addFunction(_globalObject, QLatin1String("QT_TRANSLATE_NOOP"), 2);
+    addFunction(_globalObject, QLatin1String("qsTrId"), 2);
+    addFunction(_globalObject, QLatin1String("QT_TRID_NOOP"), 1);
 
     // QML objects
     _qmlFontObject = newObject(/*prototype =*/ 0);
