@@ -2725,6 +2725,23 @@ namespace bug4904 {
 } // namespace bug4904
 
 
+namespace bug5046 {
+
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5046
+
+    struct Foo { int a, b, c; };
+
+    void test5046()
+    {
+        Foo f;
+        f.a = 1;
+        f.a = 2;
+        f.a = 3;
+    }
+
+} // namespace bug5046
+
+
 namespace bug5106 {
 
     // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5106
@@ -2851,6 +2868,7 @@ namespace qc41700 {
 
 int main(int argc, char *argv[])
 {
+    bug5046::test5046();
     bug4904::test4904();
     qc41700::test41700();
     qc42170::test42170();
