@@ -87,21 +87,23 @@ private slots:
     void slotError(const QString &error);
     void slotCodaLogMessage(const QString &log);
     void slotCodaEvent(const Coda::CodaEvent &event);
-    void slotSerialPong(const QString &message);
 
 private:
     void initCommunication();
 
-    void handleConnected();
+    void handleConnected(const Coda::CodaEvent &event);
     void handleModuleLoadSuspended(const Coda::CodaEvent &event);
     void handleContextSuspended(const Coda::CodaEvent &event);
     void handleContextAdded(const Coda::CodaEvent &event);
     void handleContextRemoved(const Coda::CodaEvent &event);
     void handleLogging(const Coda::CodaEvent &event);
+    void handleProcessExited(const Coda::CodaEvent &event);
 
 private:
     void handleCreateProcess(const Coda::CodaCommandResult &result);
     void handleAddListener(const Coda::CodaCommandResult &result);
+    void handleDebugSessionStarted(const Coda::CodaCommandResult &result);
+    void handleDebugSessionEnded(const Coda::CodaCommandResult &result);
     void handleFindProcesses(const Coda::CodaCommandResult &result);
 
 private:
@@ -109,7 +111,14 @@ private:
         StateUninit,
         StateConnecting,
         StateConnected,
-        StateProcessRunning
+        StateDebugSessionStarted,
+        StateProcessRunning,
+        StateDebugSessionEnded
+    };
+
+    enum Options {
+        OptionsNone = 0,
+        OptionsUseDebugSession = 1
     };
 
     QSharedPointer<Coda::CodaDevice> m_codaDevice;
@@ -118,8 +127,10 @@ private:
     unsigned short m_port;
     QString m_serialPort;
     QString m_runningProcessId;
+    QStringList m_codaServices;
 
     State m_state;
+    quint32 m_codaFlags;
     bool m_stopAfterConnect;
 };
 

@@ -59,6 +59,7 @@ enum Services {
     FileSystemService,
     SymbianInstallService,    // non-standard, CODA specific
     SymbianOSData,    // non-standard, CODA specific
+    DebugSessionControl,    // non-standard, CODA specific
     UnknownService
 }; // Note: Check string array 'serviceNamesC' of same size when modifying this.
 
@@ -167,7 +168,8 @@ public:
                 RunControlBreakpointSuspended,
                 RunControlModuleLoadSuspended,
                 RunControlResumed,
-                LoggingWriteEvent // Non-standard
+                LoggingWriteEvent, // Non-standard
+                ProcessExitedEvent // Non-standard
               };
 
     virtual ~CodaEvent();
@@ -189,7 +191,7 @@ class SYMBIANUTILS_EXPORT CodaLocatorHelloEvent : public CodaEvent {
 public:
     explicit CodaLocatorHelloEvent(const QStringList &);
 
-    const QStringList &services() { return m_services; }
+    const QStringList &services() const { return m_services; }
     virtual QString toString() const;
 
 private:
@@ -303,6 +305,19 @@ public:
 
 private:
     const ModuleLoadEventInfo m_mi;
+};
+
+// Process exited event
+class SYMBIANUTILS_EXPORT CodaProcessExitedEvent : public CodaEvent {
+public:
+    explicit CodaProcessExitedEvent(const QByteArray &id);
+
+    QByteArray id() const { return m_id; }
+    QString idString() const { return QString::fromUtf8(m_id); }
+    virtual QString toString() const;
+
+private:
+    const QByteArray m_id;
 };
 
 } // namespace Coda

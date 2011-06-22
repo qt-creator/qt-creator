@@ -218,6 +218,8 @@ public:
                                         const QByteArray &id,
                                         const QVariant &cookie = QVariant());
 
+    // TODO: In CODA 4.1.13 the Terminate option does order CODA to kill
+    // a process and CODA reports contextRemoved but does not kill the process
     void sendProcessTerminateCommand(const CodaCallback &callBack,
                                      const QByteArray &id,
                                      const QVariant &cookie = QVariant());
@@ -373,6 +375,13 @@ public:
 
     void sendSymbianOsDataGetHalInfoCommand(const CodaCallback &callBack,
                                             const QStringList &keys = QStringList(),
+                                            const QVariant &cookie = QVariant());
+
+    // DebugSessionControl
+    void sendDebugSessionControlSessionStartCommand(const CodaCallback &callBack,
+                                            const QVariant &cookie = QVariant());
+
+    void sendDebugSessionControlSessionEndCommand(const CodaCallback &callBack,
                                             const QVariant &cookie = QVariant());
 
     // Settings

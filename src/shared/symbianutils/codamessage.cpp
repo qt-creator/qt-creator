@@ -40,6 +40,7 @@
 static const char *serviceNamesC[] =
 { "Locator", "RunControl", "Processes", "Memory", "Settings", "Breakpoints",
   "Registers", "Logging", "FileSystem", "SymbianInstall", "SymbianOSData",
+  "DebugSessionControl",
   "UnknownService"};
 
 namespace Coda {
@@ -414,6 +415,10 @@ CodaEvent *CodaEvent::parseEvent(Services s, const QByteArray &nameBA, const QVe
         if ((nameBA == "writeln" || nameBA == "write" /*not yet used*/) && values.size() >= 2)
             return new CodaLoggingWriteEvent(values.at(0).data(), values.at(1).data());
         break;
+    case ProcessesService:
+        if (nameBA == "exited" && values.size() >= 2)
+            return new CodaProcessExitedEvent(values.at(0).data());
+        break;
    default:
         break;
     }
@@ -574,5 +579,15 @@ QString CodaRunControlModuleLoadContextSuspendedEvent::toString() const
     return rc;
 }
 
+// -------------- CodaIdEvent
+CodaProcessExitedEvent::CodaProcessExitedEvent(const QByteArray &id) :
+   CodaEvent(ProcessExitedEvent), m_id(id)
+{
+}
+
+QString CodaProcessExitedEvent::toString() const
+{
+    return QString("Process \"%1\" exited").arg(idString());
+}
 
 } // namespace Coda

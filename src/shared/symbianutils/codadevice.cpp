@@ -1465,5 +1465,16 @@ void Coda::CodaDevice::sendSymbianInstallGetPackageInfoCommand(const Coda::CodaC
     sendCodaMessage(MessageWithReply, SymbianInstallService, "getPackageInfo", data, callBack, cookie);
 }
 
+void  Coda::CodaDevice::sendDebugSessionControlSessionStartCommand(const Coda::CodaCallback &callBack,
+                                                                   const QVariant &cookie)
+{
+    sendCodaMessage(MessageWithReply, DebugSessionControl, "sessionStart", QByteArray(), callBack, cookie);
+}
+
+void  Coda::CodaDevice::sendDebugSessionControlSessionEndCommand(const Coda::CodaCallback &callBack,
+                                                                 const QVariant &cookie)
+{
+    sendCodaMessage(MessageWithReply, DebugSessionControl, "sessionEnd ", QByteArray(), callBack, cookie);
+}
 
 } // namespace Coda
