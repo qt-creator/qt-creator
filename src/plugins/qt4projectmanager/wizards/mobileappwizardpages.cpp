@@ -67,7 +67,6 @@ class MobileAppWizardMaemoOptionsPagePrivate
     friend class MobileAppWizardMaemoOptionsPage;
 };
 
-
 MobileAppWizardGenericOptionsPage::MobileAppWizardGenericOptionsPage(QWidget *parent)
     : QWizardPage(parent)
     , m_d(new MobileAppWizardGenericOptionsPagePrivate)
@@ -89,17 +88,19 @@ MobileAppWizardGenericOptionsPage::~MobileAppWizardGenericOptionsPage()
 void MobileAppWizardGenericOptionsPage::setOrientation(AbstractMobileApp::ScreenOrientation orientation)
 {
     QComboBox *const comboBox = m_d->ui.orientationBehaviorComboBox;
-    for (int i = 0; i < comboBox->count(); ++i)
+    for (int i = 0; i < comboBox->count(); ++i) {
         if (comboBox->itemData(i).toInt() == static_cast<int>(orientation)) {
             comboBox->setCurrentIndex(i);
             break;
         }
+    }
 }
 
 AbstractMobileApp::ScreenOrientation MobileAppWizardGenericOptionsPage::orientation() const
 {
-    const int index = m_d->ui.orientationBehaviorComboBox->currentIndex();
-    return static_cast<AbstractMobileApp::ScreenOrientation>(m_d->ui.orientationBehaviorComboBox->itemData(index).toInt());
+    QComboBox *const comboBox = m_d->ui.orientationBehaviorComboBox;
+    const int index = comboBox->currentIndex();
+    return static_cast<AbstractMobileApp::ScreenOrientation>(comboBox->itemData(index).toInt());
 }
 
 
