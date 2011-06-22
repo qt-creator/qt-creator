@@ -139,7 +139,7 @@ namespace multibp {
     public:
         explicit Vector(int size)
             : m_size(size), m_data(new T[size])
-        {} // put breakpoint here
+        {} // <=== break here
         ~Vector() { delete [] m_data; }
         int size() const { return m_size; }
     private:
@@ -2678,13 +2678,15 @@ namespace bug4019 {
 } // namespave bug4019
 
 
-namespace bug4497 { // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4497
+namespace bug4497 {
+
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4497
 
     void test4497()
     {
         using namespace std;
         //cin.get(); // if commented out, the debugger doesn't stop at the breakpoint in the next line.
-        cout << "Hello, world!" << endl; // breakpoint
+        cout << "Hello, world!" << endl; // <=== break here
 
         int sum = 0;
         for (int i = 1; i <= 10; i++)
@@ -2701,7 +2703,7 @@ namespace bug4497 { // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4497
 
 namespace bug5106 {
 
-    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4497
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5106
 
     class A5106
     {
@@ -2719,7 +2721,7 @@ namespace bug5106 {
     public:
             B5106(int c, int a, int b) : A5106(a, b), m_c(c) {}
 
-            virtual int test() { return 4; }
+            virtual int test() { return 4; } // <=== break here
 
     private:
             int m_c;
@@ -2729,7 +2731,7 @@ namespace bug5106 {
     {
         B5106 b(1,2,3);
         b.test();
-        b.test();
+        b.A5106::test();
     }
 
 } // namespace bug5106
@@ -2739,12 +2741,21 @@ namespace bug5184 {
 
     // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5184
 
-    int test5184()
+    // Note: The report there shows type field "QUrl &" instead of QUrl.
+    // It's unclear how this can happen. It should never have been like
+    // that with a stock 7.2 and any version of Creator.
+
+    int helper(const QUrl &url)
     {
-        QUrl url(QString("http://127.0.0.1/"));
         QNetworkRequest request(url);
         QList<QByteArray> raw = request.rawHeaderList();
         return raw.size();  // <=== break here
+    }
+
+    void test5184()
+    {
+        QUrl url(QString("http://127.0.0.1/"));
+        helper(url);
     }
 
 } // namespace bug5184
@@ -2777,7 +2788,7 @@ namespace qc42170 {
 
     int helper(Object *obj)
     {
-        return 0; // <== break point here
+        return 0; // <== break here
     }
 
     void test42170()

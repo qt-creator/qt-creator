@@ -2500,9 +2500,9 @@ if False:
 
 
 
-if True:
-    def qdump__A5106(d, item):
+if False:
+    def qdump__bug5106__A5106(d, item):
         d.putName("a")
-        d.putValue(item.value["m_a"])
+        d.putValue("This is the value: %s" % item.value["m_a"])
         d.putType(" ")
         d.putNumChild(0)
