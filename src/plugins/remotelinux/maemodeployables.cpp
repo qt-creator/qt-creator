@@ -64,7 +64,8 @@ void MaemoDeployables::init()
 
     // TODO do we want to disable the view
 
-    createModels();
+    if (!m_target->qt4Project()->rootProjectNode()->parseInProgress())
+        createModels();
 }
 
 void MaemoDeployables::startTimer(Qt4ProjectManager::Qt4ProFileNode*, bool success, bool parseInProgress)
