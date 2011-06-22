@@ -101,6 +101,7 @@ private:
     void ensurePageVisible(int idx);
     int findIndexForPage(IOutputPane *out);
     QComboBox *m_widgetComboBox;
+    QAction *m_clearAction;
     QToolButton *m_clearButton;
     QToolButton *m_closeButton;
 

@@ -104,7 +104,6 @@ void OutputPaneManager::updateStatusButtons(bool visible)
 OutputPaneManager::OutputPaneManager(QWidget *parent) :
     QWidget(parent),
     m_widgetComboBox(new QComboBox),
-    m_clearButton(new QToolButton),
     m_closeButton(new QToolButton),
     m_minMaxAction(0),
     m_minMaxButton(new QToolButton),
@@ -120,9 +119,10 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     setWindowTitle(tr("Output"));
     connect(m_widgetComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changePage()));
 
-    m_clearButton->setIcon(QIcon(QLatin1String(Constants::ICON_CLEAN_PANE)));
-    m_clearButton->setToolTip(tr("Clear"));
-    connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clearPage()));
+    m_clearAction = new QAction(this);
+    m_clearAction->setIcon(QIcon(QLatin1String(Constants::ICON_CLEAN_PANE)));
+    m_clearAction->setText(tr("Clear"));
+    connect(m_clearAction, SIGNAL(triggered()), this, SLOT(clearPage()));
 
     m_nextAction = new QAction(this);
     m_nextAction->setIcon(QIcon(QLatin1String(Constants::ICON_NEXT)));
@@ -149,6 +149,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     toolLayout->setMargin(0);
     toolLayout->setSpacing(0);
     toolLayout->addWidget(m_widgetComboBox);
+    m_clearButton = new QToolButton;
     toolLayout->addWidget(m_clearButton);
     m_prevToolButton = new QToolButton;
     toolLayout->addWidget(m_prevToolButton);
@@ -203,6 +204,10 @@ void OutputPaneManager::init()
     mpanes->appendGroup("Coreplugin.OutputPane.PanesGroup");
 
     Core::Command *cmd;
+
+    cmd = am->registerAction(m_clearAction, "Coreplugin.OutputPane.clear", globalcontext);
+    m_clearButton->setDefaultAction(cmd->action());
+    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = am->registerAction(m_prevAction, "Coreplugin.OutputPane.previtem", globalcontext);
     cmd->setDefaultKeySequence(QKeySequence("Shift+F6"));
