@@ -223,7 +223,6 @@ void ApplicationLauncher::guiProcessError()
         error = tr("Some error has occurred while running the program.");
     }
     emit appendMessage(error + QLatin1Char('\n'), Utils::ErrorMessageFormat);
-    emit processExited(d->m_guiProcess.exitCode());
 }
 
 void ApplicationLauncher::consoleProcessError(const QString &error)
