@@ -84,6 +84,7 @@ class EnumerateProperties: private Interpreter::MemberProcessor
     QHash<QString, const Interpreter::Value *> _properties;
     bool _globalCompletion;
     bool _enumerateGeneratedSlots;
+    bool _enumerateSlots;
     const Interpreter::Context *_context;
     const Interpreter::ObjectValue *_currentObject;
 
@@ -91,6 +92,7 @@ public:
     EnumerateProperties(const Interpreter::Context *context)
         : _globalCompletion(false),
           _enumerateGeneratedSlots(false),
+          _enumerateSlots(true),
           _context(context),
           _currentObject(0)
     {
@@ -104,6 +106,11 @@ public:
     void setEnumerateGeneratedSlots(bool enumerate)
     {
         _enumerateGeneratedSlots = enumerate;
+    }
+
+    void setEnumerateSlots(bool enumerate)
+    {
+        _enumerateSlots = enumerate;
     }
 
     QHash<QString, const Interpreter::Value *> operator ()(const Interpreter::Value *value)
@@ -155,7 +162,8 @@ private:
 
     virtual bool processSlot(const QString &name, const Interpreter::Value *value)
     {
-        insertProperty(name, value);
+        if (_enumerateSlots)
+            insertProperty(name, value);
         return true;
     }
 
@@ -494,6 +502,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             EnumerateProperties enumerateProperties(context);
             enumerateProperties.setGlobalCompletion(true);
             enumerateProperties.setEnumerateGeneratedSlots(true);
+            enumerateProperties.setEnumerateSlots(false);
 
             // id: is special
             BasicProposalItem *idProposalItem = new QmlJSAssistProposalItem;
