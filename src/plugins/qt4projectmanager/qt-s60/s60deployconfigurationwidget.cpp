@@ -532,6 +532,9 @@ void S60DeployConfigurationWidget::getQtVersionCommandResult(const Coda::CodaCom
             case 60:
                 systemVersion.append("Symbian^4");
                 break;
+            case 70:
+                systemVersion.append("Symbian^3"); // TODO: might change
+                break;
             default:
                 systemVersion.append(tr("Unrecognised Symbian version 0x%1").arg(symVer, 0, 16));
                 break;
@@ -553,6 +556,9 @@ void S60DeployConfigurationWidget::getQtVersionCommandResult(const Coda::CodaCom
                 break;
             case 50:
                 systemVersion.append("S60 5th Edition Feature Pack 2");
+                break;
+            case 70:
+                systemVersion.append("S60 5th Edition Feature Pack 3"); // TODO: might change
                 break;
             default:
                 systemVersion.append(tr("Unrecognised S60 version 0x%1").arg(symVer, 0, 16));
