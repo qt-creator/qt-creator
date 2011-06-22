@@ -35,7 +35,6 @@
 
 #include "qt4nodes.h"
 #include "qt4target.h"
-#include "qt4projectmanager_global.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
@@ -131,7 +130,7 @@ private:
 
 }
 
-class QT4PROJECTMANAGER_EXPORT Qt4Project : public ProjectExplorer::Project
+class Qt4Project : public ProjectExplorer::Project
 {
     Q_OBJECT
 

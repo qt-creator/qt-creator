@@ -33,7 +33,6 @@
 #ifndef QT4BUILDCONFIGURATION_H
 #define QT4BUILDCONFIGURATION_H
 
-#include "qt4projectmanager_global.h"
 #include "qtversionmanager.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -53,7 +52,7 @@ class Qt4ProFileNode;
 class Qt4BuildConfigurationFactory;
 }
 
-class QT4PROJECTMANAGER_EXPORT Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
+class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
     friend class Internal::Qt4BuildConfigurationFactory;
@@ -169,7 +168,7 @@ private:
 };
 
 namespace Internal {
-class QT4PROJECTMANAGER_EXPORT Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
 {
     Q_OBJECT
 
