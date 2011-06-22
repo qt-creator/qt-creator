@@ -450,7 +450,7 @@
     applications in conditions practically identical to running the application
     on a Nokia N900 device with the software update release 1.3 (V20.2010.36-2).
 
-    The Harmattan emulator emulates the Nokia N950 device environment.
+    The Harmattan emulator emulates the Nokia N9 device environment.
 
     With the emulators, you can test how your application reacts to hardware
     controls, such as the power button, and to the touch screen.
@@ -4776,13 +4776,6 @@
     configurations} to create connections. For more information, see
     \l {Configuring Connections in Qt Creator}.
 
-    By default, Qt Creator runs the remote gdbserver daemon on the device for
-    debugging. On Maemo 5, if the sysroot does not match that of the device,
-    you
-    can run remote GDB, instead. Select the \gui {Use remote GDB} option in
-    \gui {Debugging details}. Select the \gui {Set debugger} link to specify
-    settings for GDB.
-
     When you run the application on the \gui{Maemo5} or \gui Harmattan target,
     Qt Creator generates
     a Debian installation package in the build directory by default. You can deliver
@@ -5560,6 +5553,11 @@
     You cannot publish applications that are built with the beta version of the
     MeeGo Harmattan tool chain to Ovi Store.
 
+    However, you can prepare for publishing by making sure that your application
+    meets the
+    \l{http://www.developer.nokia.com/info/sw.nokia.com/id/44affcd1-ceba-4aca-8b65-670ce2cbbd1e/MeeGo_1_2_Harmattan_Applications_Ovi_Store_Entry_Requirements.html}
+    {MeeGo 1.2 Harmattan Applications: Ovi Store Entry Requirements}.
+
 */
 
 /*!
@@ -5714,9 +5712,10 @@
         behaves when the orientation of the device display rotates between portrait
         and landscape, and then click \gui{Next}.
 
-        \note This dialog opens only if you select \gui Maemo5, \gui Harmattan,
-        or
-        \gui {Symbian Device} target in the \gui {Target Setup} dialog.
+        \note This dialog opens only if you select \gui Maemo5 or
+        \gui {Symbian Device} target in the \gui {Target Setup} dialog. On
+        Harmattan, the Qt Quick Components for MeeGo provide native-looking
+        rotation.
 
         The \gui {Symbian Specific} dialog opens.
 
@@ -5732,7 +5731,7 @@
 
         \image qtcreator-mobile-project-maemo-options.png "Maemo Specific dialog"
 
-        \o In the \gui {Application icon (64x64)} field, select the application
+        \o In the \gui {Application icon} field, select the application
          icon to use on Maemo 5 or Harmattan targets, or click \gui Next to use
          the default icon.
 
@@ -5905,7 +5904,7 @@
     applications in conditions practically identical to running the application
     on a Nokia N900 device with the software update release 1.3 (V20.2010.36-2).
 
-    The MeeGo Harmattan emulator emulates the Nokia N950 device environment.
+    The MeeGo Harmattan emulator emulates the Nokia N9 device environment.
 
     For more information, see \l{Using Maemo or MeeGo Harmattan Emulator}.
 
@@ -9144,9 +9143,10 @@
         behaves when the orientation of the device display rotates between portrait
         and landscape, and then click \gui Next.
 
-        \note This dialog opens only if you select \gui Harmattan, \gui Maemo5,
-        or
-        \gui {Symbian Device} target in the \gui {Target Setup} dialog.
+        \note This dialog opens only if you select \gui Maemo5 or
+        \gui {Symbian Device} target in the \gui {Target Setup} dialog. On
+        Harmattan, the Qt Quick Components for MeeGo provide native-looking
+        rotation.
 
         The \gui {Symbian Specific} dialog opens.
 
@@ -9168,7 +9168,7 @@
 
         \image qmldesigner-new-project-maemo-options.png "Maemo Specific dialog"
 
-        \o In the \gui {Application icon (64x64)} field, select the application
+        \o In the \gui {Application icon} field, select the application
          icon to use on Maemo or Harmattan targets, or use the default icon.
 
         The \gui {QML Sources} dialog opens.
@@ -10006,7 +10006,7 @@
     applications in conditions practically identical to running the application
     on a Nokia N900 device with software update release 1.3 (V20.2010.36-2).
 
-    The MeeGo Harmattan emulator emulates the Nokia N950 device environment.
+    The MeeGo Harmattan emulator emulates the Nokia N9 device environment.
 
     With the emulators, you can test how your application reacts to hardware
     controls, such as the power button, and to the touch screen.
@@ -10146,6 +10146,11 @@
     emulator view. The emulator interprets this as a press of the power button
     and displays the text \e {Shutting down} in the emulator window title pane.
     The emulator closes shortly after this.
+
+    You can also select the \gui {Start Maemo Emulator} button to close the
+    emulator. This is a faster way to close the emulator, because it does not
+    wait for the operating system running on the emulated machine to shut down,
+    but this also means that it is less safe.
 
 */
 
