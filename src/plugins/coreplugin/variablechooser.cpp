@@ -35,6 +35,8 @@
 #include "variablemanager.h"
 #include "coreconstants.h"
 
+#include <QtCore/QTimer>
+
 using namespace Core;
 
 VariableChooser::VariableChooser(QWidget *parent) :
@@ -173,5 +175,13 @@ void VariableChooser::insertVariable(const QString &variable)
     } else if (m_plainTextEdit) {
         m_plainTextEdit->insertPlainText(text);
         m_plainTextEdit->activateWindow();
+    }
+}
+
+void VariableChooser::keyPressEvent(QKeyEvent *ke)
+{
+    if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+        ke->accept();
+        QTimer::singleShot(0, this, SLOT(close()));
     }
 }

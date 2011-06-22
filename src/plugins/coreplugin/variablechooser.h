@@ -58,6 +58,9 @@ public:
     explicit VariableChooser(QWidget *parent = 0);
     ~VariableChooser();
 
+protected:
+    void keyPressEvent(QKeyEvent *ke);
+
 private slots:
     void updateDescription(const QString &variable);
     void updateCurrentEditor(QWidget *old, QWidget *widget);
