@@ -53,6 +53,15 @@
 #include <IOKit/IOKitLib.h>
 #include <IOKit/serial/IOSerialKeys.h>
 #include <IOKit/usb/USBSpec.h>
+
+// 10.5 doesn't have kUSBProductString or kUSBVendorString
+#ifndef kUSBProductString
+#define kUSBProductString  "USB Product Name"
+#endif
+#ifndef kUSBVendorString
+#define kUSBVendorString   "USB Vendor Name"
+#endif
+
 #if defined(MAC_OS_X_VERSION_10_3) && (MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3)
 #include <IOKit/serial/ioss.h>
 #endif
