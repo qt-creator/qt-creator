@@ -1799,7 +1799,11 @@ def qdump__std__map(d, item):
     if d.isExpanded(item):
         keyType = templateArgument(item.value.type, 0)
         valueType = templateArgument(item.value.type, 1)
-        pairType = templateArgument(templateArgument(item.value.type, 3), 0)
+        # Does not work on gcc 4.4, the allocator type (fourth template
+        # argument) seems not to be available.
+        #   pairType = templateArgument(templateArgument(item.value.type, 3), 0)
+        # So use this as workaround:
+        pairType = templateArgument(impl.type, 1)
         isSimpleKey = isSimpleType(keyType)
         isSimpleValue = isSimpleType(valueType)
         innerType = pairType
