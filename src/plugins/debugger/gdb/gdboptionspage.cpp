@@ -134,6 +134,10 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
                    ;
         m_searchKeywords.remove(QLatin1Char('&'));
     }
+
+    // FIXME: Not fully working on the gdb side yet.
+    m_ui->checkBoxTargetAsync->hide();
+
     return w;
 }
 

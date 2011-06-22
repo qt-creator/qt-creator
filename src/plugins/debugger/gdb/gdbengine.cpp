@@ -702,7 +702,7 @@ void GdbEngine::interruptInferior()
     QTC_ASSERT(state() == InferiorStopRequested,
         qDebug() << "INTERRUPT INFERIOR: " << state(); return);
 
-    if (debuggerCore()->boolSetting(TargetAsync)) {
+    if (0 && debuggerCore()->boolSetting(TargetAsync)) {
         postCommand("-exec-interrupt");
     } else {
         showStatusMessage(tr("Stop requested..."), 5000);
@@ -4642,7 +4642,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     postCommand("set height 0");
     postCommand("set auto-solib-add on");
 
-    if (debuggerCore()->boolSetting(TargetAsync)) {
+    if (0 && debuggerCore()->boolSetting(TargetAsync)) {
         postCommand("set target-async on");
         postCommand("set non-stop on");
     }
