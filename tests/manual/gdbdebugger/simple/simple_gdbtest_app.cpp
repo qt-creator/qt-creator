@@ -2700,6 +2700,30 @@ namespace bug4497 {
     }
 }
 
+namespace bug4904 {
+
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4904
+
+    struct CustomStruct {
+        int id;
+        double dvalue;
+    };
+
+    int test4904()
+    {
+        QMap<int, CustomStruct> map;
+        CustomStruct cs1;
+        cs1.id = 1;
+        cs1.dvalue = 3.14;
+        CustomStruct cs2 = cs1;
+        cs2.id = -1;
+        map.insert(cs1.id, cs1);
+        map.insert(cs2.id, cs2);
+        return map.size();   // <=== break here
+    }
+
+} // namespace bug4904
+
 
 namespace bug5106 {
 
@@ -2827,6 +2851,7 @@ namespace qc41700 {
 
 int main(int argc, char *argv[])
 {
+    bug4904::test4904();
     qc41700::test41700();
     qc42170::test42170();
     multibp::test();
