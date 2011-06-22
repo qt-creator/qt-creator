@@ -99,9 +99,13 @@ public:
         m_ui->setupUi(this);
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        m_ui->fremantleButton->setText(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::Maemo5OsType));
-        m_ui->harmattanButton->setText(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::HarmattanOsType));
-        m_ui->meegoButton->setText(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::MeeGoOsType));
+
+        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::Maemo5OsType),
+            LinuxDeviceConfiguration::Maemo5OsType);
+        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::HarmattanOsType),
+            LinuxDeviceConfiguration::HarmattanOsType);
+        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::MeeGoOsType),
+            LinuxDeviceConfiguration::MeeGoOsType);
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
@@ -110,14 +114,8 @@ public:
         connect(buttonGroup, SIGNAL(buttonClicked(int)),
            SLOT(handleDeviceTypeChanged()));
 
-        buttonGroup = new QButtonGroup(this);
-        buttonGroup->setExclusive(true);
-        buttonGroup->addButton(m_ui->fremantleButton);
-        buttonGroup->addButton(m_ui->harmattanButton);
-        buttonGroup->addButton(m_ui->meegoButton);
-
         m_ui->nameLineEdit->setText(QLatin1String("(New Configuration)"));
-        m_ui->harmattanButton->setChecked(true);
+        m_ui->osTypeComboBox->setCurrentIndex(m_ui->osTypeComboBox->findData(LinuxDeviceConfiguration::HarmattanOsType));
         m_ui->hwButton->setChecked(true);
         handleDeviceTypeChanged();
         m_ui->hostNameLineEdit->setText(defaultHost(deviceType()));
@@ -143,9 +141,7 @@ public:
 
     QString osType() const
     {
-        return m_ui->fremantleButton->isChecked() ? LinuxDeviceConfiguration::Maemo5OsType
-            : m_ui->harmattanButton->isChecked() ? LinuxDeviceConfiguration::HarmattanOsType
-            : LinuxDeviceConfiguration::MeeGoOsType;
+        return m_ui->osTypeComboBox->itemData(m_ui->osTypeComboBox->currentIndex()).toString();
     }
 
     LinuxDeviceConfiguration::DeviceType deviceType() const

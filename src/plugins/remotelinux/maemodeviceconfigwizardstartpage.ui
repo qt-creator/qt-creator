@@ -37,25 +37,7 @@
    <item row="1" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QRadioButton" name="fremantleButton">
-       <property name="text">
-        <string>Maemo 5 (Fremantle)</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="harmattanButton">
-       <property name="text">
-        <string>Maemo 6 (Harmattan)</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="meegoButton">
-       <property name="text">
-        <string>Meego</string>
-       </property>
-      </widget>
+      <widget class="QComboBox" name="osTypeComboBox"/>
      </item>
      <item>
       <spacer name="horizontalSpacer">
