@@ -31,21 +31,21 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERCALLTREEVIEW_H
-#define QMLPROFILERCALLTREEVIEW_H
+#ifndef QMLPROFILERCALLERVIEW_H
+#define QMLPROFILERCALLERVIEW_H
 
 #include <QTreeView>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerCallTreeView : public QTreeView
+class QmlProfilerCallerView : public QTreeView
 {
     Q_OBJECT
 
 public:
-    explicit QmlProfilerCallTreeView(QWidget *parent = 0);
-    ~QmlProfilerCallTreeView();
+    explicit QmlProfilerCallerView(QWidget *parent = 0);
+    ~QmlProfilerCallerView();
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber);
@@ -58,8 +58,8 @@ public slots:
     void jumpToItem(const QModelIndex &index);
 
 private:
-    class QmlProfilerCallTreeViewPrivate;
-    QmlProfilerCallTreeViewPrivate *d;
+    class QmlProfilerCallerViewPrivate;
+    QmlProfilerCallerViewPrivate *d;
 
     void setHeaderLabels();
 };
@@ -67,4 +67,4 @@ private:
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // QMLPROFILERCALLTREEVIEW_H
+#endif // QMLPROFILERCALLERVIEW_H

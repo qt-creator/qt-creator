@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "qmlprofilercalltreeview.h"
+#include "qmlprofilercalleeview.h"
 
 #include <QtCore/QUrl>
 #include <QtCore/QHash>
@@ -74,15 +74,15 @@ enum ItemRole {
     LineRole = Qt::UserRole+3
 };
 
-class QmlProfilerCallTreeView::QmlProfilerCallTreeViewPrivate
+class QmlProfilerCalleeView::QmlProfilerCalleeViewPrivate
 {
 public:
-    QmlProfilerCallTreeViewPrivate(QmlProfilerCallTreeView *qq) : q(qq) {}
+    QmlProfilerCalleeViewPrivate(QmlProfilerCalleeView *qq) : q(qq) {}
 
     void recursiveClearHash(BindingHash *hash);
     void buildModelFromHash( BindingHash *hash, QStandardItem *parentItem );
 
-    QmlProfilerCallTreeView *q;
+    QmlProfilerCalleeView *q;
 
     QStandardItemModel *m_model;
 //  ToDo: avoid unnecessary allocations by using global hash
@@ -91,10 +91,10 @@ public:
     QList<BindingData *> m_bindingBuffer;
 };
 
-QmlProfilerCallTreeView::QmlProfilerCallTreeView(QWidget *parent) :
-    QTreeView(parent), d(new QmlProfilerCallTreeViewPrivate(this))
+QmlProfilerCalleeView::QmlProfilerCalleeView(QWidget *parent) :
+    QTreeView(parent), d(new QmlProfilerCalleeViewPrivate(this))
 {
-    setObjectName("QmlProfilerCallTreeView");
+    setObjectName("QmlProfilerCalleeView");
     setRootIsDecorated(true);
     header()->setResizeMode(QHeaderView::Interactive);
     header()->setMinimumSectionSize(50);
@@ -111,26 +111,25 @@ QmlProfilerCallTreeView::QmlProfilerCallTreeView(QWidget *parent) :
     connect(this,SIGNAL(clicked(QModelIndex)), this,SLOT(jumpToItem(QModelIndex)));
 }
 
-QmlProfilerCallTreeView::~QmlProfilerCallTreeView()
+QmlProfilerCalleeView::~QmlProfilerCalleeView()
 {
     clean();
     delete d->m_model;
 }
 
-void QmlProfilerCallTreeView::clean()
+void QmlProfilerCalleeView::clean()
 {
     d->m_model->clear();
     d->m_model->setColumnCount(3);
 
     // clean the hashes
     d->recursiveClearHash(&d->m_rootHash);
-//    d->recursiveClearHash(&d->m_globalHash);
 
     setHeaderLabels();
     setSortingEnabled(false);
 }
 
-void QmlProfilerCallTreeView::addRangedEvent(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length,
+void QmlProfilerCalleeView::addRangedEvent(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length,
     const QStringList &data, const QString &fileName, int line)
 {
     Q_UNUSED(startTime);
@@ -206,7 +205,7 @@ void QmlProfilerCallTreeView::addRangedEvent(int type, int nestingLevel, int nes
     }
 }
 
-void QmlProfilerCallTreeView::complete()
+void QmlProfilerCalleeView::complete()
 {
     // build the model from the hashed data
     d->buildModelFromHash( &d->m_rootHash, d->m_model->invisibleRootItem());
@@ -216,7 +215,7 @@ void QmlProfilerCallTreeView::complete()
     resizeColumnToContents(1);
 }
 
-void QmlProfilerCallTreeView::jumpToItem(const QModelIndex &index)
+void QmlProfilerCalleeView::jumpToItem(const QModelIndex &index)
 {
     QStandardItem *clickedItem = d->m_model->itemFromIndex(index);
     QStandardItem *infoItem;
@@ -232,14 +231,14 @@ void QmlProfilerCallTreeView::jumpToItem(const QModelIndex &index)
     emit gotoSourceLocation(fileName, line);
 }
 
-void QmlProfilerCallTreeView::setHeaderLabels()
+void QmlProfilerCalleeView::setHeaderLabels()
 {
     d->m_model->setHeaderData(0, Qt::Horizontal, QVariant(tr("Location")));
     d->m_model->setHeaderData(1, Qt::Horizontal, QVariant(tr("Type")));
     d->m_model->setHeaderData(2, Qt::Horizontal, QVariant(tr("Details")));
 }
 
-void QmlProfilerCallTreeView::QmlProfilerCallTreeViewPrivate::recursiveClearHash(BindingHash *hash) {
+void QmlProfilerCalleeView::QmlProfilerCalleeViewPrivate::recursiveClearHash(BindingHash *hash) {
     QHashIterator<QString, BindingData *> it(*hash);
     while (it.hasNext()) {
         it.next();
@@ -253,16 +252,16 @@ void QmlProfilerCallTreeView::QmlProfilerCallTreeViewPrivate::recursiveClearHash
 inline QString nameForType(int typeNumber)
 {
     switch (typeNumber) {
-    case 0: return QmlProfilerCallTreeView::tr("Paint");
-    case 1: return QmlProfilerCallTreeView::tr("Compile");
-    case 2: return QmlProfilerCallTreeView::tr("Create");
-    case 3: return QmlProfilerCallTreeView::tr("Binding");
-    case 4: return QmlProfilerCallTreeView::tr("Signal");
+    case 0: return QmlProfilerCalleeView::tr("Paint");
+    case 1: return QmlProfilerCalleeView::tr("Compile");
+    case 2: return QmlProfilerCalleeView::tr("Create");
+    case 3: return QmlProfilerCalleeView::tr("Binding");
+    case 4: return QmlProfilerCalleeView::tr("Signal");
     }
     return QString();
 }
 
-void QmlProfilerCallTreeView::QmlProfilerCallTreeViewPrivate::buildModelFromHash( BindingHash *hash, QStandardItem *parentItem )
+void QmlProfilerCalleeView::QmlProfilerCalleeViewPrivate::buildModelFromHash( BindingHash *hash, QStandardItem *parentItem )
 {
     QHashIterator<QString, BindingData *> it(*hash);
 
