@@ -39,4 +39,7 @@ macx {
     info.input = Info.plist.in
     info.output = $$IDE_BIN_PATH/$${TARGET}.app/Contents/Info.plist
     QMAKE_SUBSTITUTES += info
+} else {
+    target.path  = /bin
+    INSTALLS    += target
 }
