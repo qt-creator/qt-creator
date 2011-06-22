@@ -250,25 +250,20 @@ void CppCodeStylePreferencesWidget::setPreferences(CppTools::CppCodeStylePrefere
     m_tabPreferences = tabPreferences;
     m_ui->tabPreferencesWidget->setTabPreferences(tabPreferences);
     connect(m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
-            this, SLOT(slotSettingsChanged()));
+            this, SLOT(updatePreview()));
 
     // code preferences
     m_cppCodeStylePreferences = codeStylePreferences;
     m_ui->fallbackWidget->setFallbackPreferences(codeStylePreferences);
     m_ui->fallbackContainer->setVisible(!m_ui->fallbackWidget->isHidden());
 
-    connect(m_cppCodeStylePreferences, SIGNAL(settingsChanged(CppTools::CppCodeStyleSettings)),
+    connect(m_cppCodeStylePreferences, SIGNAL(currentSettingsChanged(CppTools::CppCodeStyleSettings)),
             this, SLOT(setCppCodeStyleSettings(CppTools::CppCodeStyleSettings)));
-    connect(m_cppCodeStylePreferences, SIGNAL(currentFallbackChanged(TextEditor::IFallbackPreferences*)),
-            this, SLOT(slotCurrentFallbackChanged(TextEditor::IFallbackPreferences*)));
-    connect(this, SIGNAL(cppCodeStyleSettingsChanged(CppTools::CppCodeStyleSettings)),
-            m_cppCodeStylePreferences, SLOT(setSettings(CppTools::CppCodeStyleSettings)));
+    connect(m_cppCodeStylePreferences, SIGNAL(currentPreferencesChanged(TextEditor::IFallbackPreferences*)),
+            this, SLOT(slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences*)));
 
     setCppCodeStyleSettings(m_cppCodeStylePreferences->settings(), false);
-    slotCurrentFallbackChanged(m_cppCodeStylePreferences->currentFallback(), false);
-
-    connect(m_cppCodeStylePreferences, SIGNAL(currentSettingsChanged(CppTools::CppCodeStyleSettings)),
-            this, SLOT(slotSettingsChanged()));
+    slotCurrentPreferencesChanged(m_cppCodeStylePreferences->currentPreferences(), false);
 
     updatePreview();
 }
@@ -322,12 +317,13 @@ void CppCodeStylePreferencesWidget::setCppCodeStyleSettings(const CppCodeStyleSe
         updatePreview();
 }
 
-void CppCodeStylePreferencesWidget::slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *fallback, bool preview)
+void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences *preferences, bool preview)
 {
-    m_ui->contentGroupBox->setEnabled(!fallback);
-    m_ui->bracesGroupBox->setEnabled(!fallback);
-    m_ui->switchGroupBox->setEnabled(!fallback);
-    m_ui->alignmentGroupBox->setEnabled(!fallback);
+    const bool enable = !preferences->isReadOnly() && m_cppCodeStylePreferences->isFallbackEnabled(m_cppCodeStylePreferences->currentFallback());
+    m_ui->contentGroupBox->setEnabled(enable);
+    m_ui->bracesGroupBox->setEnabled(enable);
+    m_ui->switchGroupBox->setEnabled(enable);
+    m_ui->alignmentGroupBox->setEnabled(enable);
     if (preview)
         updatePreview();
 }
@@ -370,12 +366,13 @@ void CppCodeStylePreferencesWidget::slotCppCodeStyleSettingsChanged()
 {
     if (m_blockUpdates)
         return;
-    emit cppCodeStyleSettingsChanged(cppCodeStyleSettings());
-    updatePreview();
-}
 
-void CppCodeStylePreferencesWidget::slotSettingsChanged()
-{
+    if (m_cppCodeStylePreferences) {
+        CppCodeStylePreferences *current = qobject_cast<CppCodeStylePreferences *>(m_cppCodeStylePreferences->currentPreferences());
+        if (current)
+            current->setSettings(cppCodeStyleSettings());
+    }
+
     updatePreview();
 }
 
@@ -485,13 +482,23 @@ QWidget *CppCodeStyleSettingsPage::createPage(QWidget *parent)
 
     TextEditor::TabPreferences *originalTabPreferences
             = CppToolsSettings::instance()->tabPreferences();
-    m_pageTabPreferences = new TextEditor::TabPreferences(originalTabPreferences->fallbacks(), m_widget);
+    QList<TextEditor::IFallbackPreferences *> originalTabFallbacks = originalTabPreferences->fallbacks();
+    m_pageTabPreferences = new TextEditor::TabPreferences(originalTabFallbacks, m_widget);
+    for (int i = 0; i < originalTabFallbacks.count(); i++) {
+        TextEditor::IFallbackPreferences *fallback = originalTabFallbacks.at(i);
+        m_pageTabPreferences->setFallbackEnabled(fallback, originalTabPreferences->isFallbackEnabled(fallback));
+    }
     m_pageTabPreferences->setSettings(originalTabPreferences->settings());
     m_pageTabPreferences->setCurrentFallback(originalTabPreferences->currentFallback());
 
     CppCodeStylePreferences *originalCodeStylePreferences
             = CppToolsSettings::instance()->cppCodeStylePreferences();
-    m_pageCppCodeStylePreferences = new CppCodeStylePreferences(originalCodeStylePreferences->fallbacks(), m_widget);
+    QList<TextEditor::IFallbackPreferences *> originalCodeStyleFallbacks = originalCodeStylePreferences->fallbacks();
+    m_pageCppCodeStylePreferences = new CppCodeStylePreferences(originalCodeStyleFallbacks, m_widget);
+    for (int i = 0; i < originalCodeStyleFallbacks.count(); i++) {
+        TextEditor::IFallbackPreferences *fallback = originalCodeStyleFallbacks.at(i);
+        m_pageCppCodeStylePreferences->setFallbackEnabled(fallback, originalCodeStylePreferences->isFallbackEnabled(fallback));
+    }
     m_pageCppCodeStylePreferences->setSettings(originalCodeStylePreferences->settings());
     m_pageCppCodeStylePreferences->setCurrentFallback(originalCodeStylePreferences->currentFallback());
     m_widget->setPreferences(m_pageCppCodeStylePreferences, m_pageTabPreferences);

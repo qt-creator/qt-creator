@@ -13,6 +13,7 @@ TabPreferencesWidget::TabPreferencesWidget(QWidget *parent) :
 {
     m_ui->setupUi(this);
     m_ui->fallbackWidget->setLabelText(tr("Tab settings:"));
+    m_ui->tabSettingsWidget->setEnabled(false);
 }
 
 TabPreferencesWidget::~TabPreferencesWidget()
@@ -29,33 +30,44 @@ void TabPreferencesWidget::setTabPreferences(TabPreferences *tabPreferences)
     if (m_tabPreferences) {
         disconnect(m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
                 m_ui->tabSettingsWidget, SLOT(setSettings(TextEditor::TabSettings)));
-        disconnect(m_tabPreferences, SIGNAL(currentFallbackChanged(TextEditor::IFallbackPreferences*)),
-                this, SLOT(slotCurrentFallbackChanged(TextEditor::IFallbackPreferences*)));
+        disconnect(m_tabPreferences, SIGNAL(currentPreferencesChanged(TextEditor::IFallbackPreferences*)),
+                this, SLOT(slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences*)));
         disconnect(m_ui->tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
-                m_tabPreferences, SLOT(setSettings(TextEditor::TabSettings)));
-
-        m_ui->tabSettingsWidget->setEnabled(true);
+                this, SLOT(slotTabSettingsChanged(TextEditor::TabSettings)));
     }
     m_tabPreferences = tabPreferences;
     m_ui->fallbackWidget->setFallbackPreferences(tabPreferences);
     // fillup new
     if (m_tabPreferences) {
-        slotCurrentFallbackChanged(m_tabPreferences->currentFallback());
+        slotCurrentPreferencesChanged(m_tabPreferences->currentPreferences());
+        m_ui->tabSettingsWidget->setSettings(m_tabPreferences->currentSettings());
 
         connect(m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
                 m_ui->tabSettingsWidget, SLOT(setSettings(TextEditor::TabSettings)));
-        connect(m_tabPreferences, SIGNAL(currentFallbackChanged(TextEditor::IFallbackPreferences*)),
-                this, SLOT(slotCurrentFallbackChanged(TextEditor::IFallbackPreferences*)));
+        connect(m_tabPreferences, SIGNAL(currentPreferencesChanged(TextEditor::IFallbackPreferences*)),
+                this, SLOT(slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences*)));
         connect(m_ui->tabSettingsWidget, SIGNAL(settingsChanged(TextEditor::TabSettings)),
-                m_tabPreferences, SLOT(setSettings(TextEditor::TabSettings)));
-
-        m_ui->tabSettingsWidget->setSettings(m_tabPreferences->currentSettings());
+                this, SLOT(slotTabSettingsChanged(TextEditor::TabSettings)));
+    } else {
+        m_ui->tabSettingsWidget->setEnabled(false);
     }
 }
 
-void TabPreferencesWidget::slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *fallback)
+void TabPreferencesWidget::slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences *preferences)
 {
-    m_ui->tabSettingsWidget->setEnabled(!fallback);
+    m_ui->tabSettingsWidget->setEnabled(!preferences->isReadOnly() && m_tabPreferences->isFallbackEnabled(m_tabPreferences->currentFallback()));
+}
+
+void TabPreferencesWidget::slotTabSettingsChanged(const TextEditor::TabSettings &settings)
+{
+    if (!m_tabPreferences)
+        return;
+
+    TabPreferences *current = qobject_cast<TabPreferences *>(m_tabPreferences->currentPreferences());
+    if (!current)
+        return;
+
+    current->setSettings(settings);
 }
 
 QString TabPreferencesWidget::searchKeywords() const

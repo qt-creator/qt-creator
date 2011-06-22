@@ -21,6 +21,7 @@ class TabSettings;
 class TEXTEDITOR_EXPORT IFallbackPreferences : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
 public:
     explicit IFallbackPreferences(const QList<IFallbackPreferences *> &fallbacks, QObject *parentObject = 0);
     virtual ~IFallbackPreferences();
@@ -30,6 +31,14 @@ public:
 
     QString displayName() const;
     void setDisplayName(const QString &name);
+
+    bool isReadOnly() const;
+    void setReadOnly(bool on);
+
+    bool isFallbackEnabled(IFallbackPreferences *fallback) const;
+    void setFallbackEnabled(IFallbackPreferences *fallback, bool on);
+
+    virtual IFallbackPreferences *clone() const;
 
     virtual QVariant value() const = 0;
     virtual void setValue(const QVariant &) = 0;
@@ -56,6 +65,7 @@ signals:
     void valueChanged(const QVariant &);
     void currentValueChanged(const QVariant &);
     void currentFallbackChanged(TextEditor::IFallbackPreferences *currentFallback);
+    void currentPreferencesChanged(TextEditor::IFallbackPreferences *currentPreferences);
 
 protected:
     virtual QString settingsSuffix() const = 0;

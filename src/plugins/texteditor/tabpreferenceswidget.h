@@ -9,6 +9,7 @@
 
 namespace TextEditor {
 
+class TabSettings;
 class TabPreferences;
 class IFallbackPreferences;
 
@@ -34,7 +35,8 @@ protected:
     void changeEvent(QEvent *e);
 
 private slots:
-    void slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *fallback);
+    void slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences *preferences);
+    void slotTabSettingsChanged(const TextEditor::TabSettings &settings);
 
 private:
     Ui::TabPreferencesWidget *m_ui;

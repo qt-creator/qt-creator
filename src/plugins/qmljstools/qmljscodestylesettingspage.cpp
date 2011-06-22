@@ -161,7 +161,12 @@ QWidget *QmlJSCodeStyleSettingsPage::createPage(QWidget *parent)
 
     TextEditor::TabPreferences *originalTabPreferences
             = QmlJSToolsSettings::instance()->tabPreferences();
-    m_pageTabPreferences = new TextEditor::TabPreferences(originalTabPreferences->fallbacks(), m_widget);
+    QList<TextEditor::IFallbackPreferences *> originalTabFallbacks = originalTabPreferences->fallbacks();
+    m_pageTabPreferences = new TextEditor::TabPreferences(originalTabFallbacks, m_widget);
+    for (int i = 0; i < originalTabFallbacks.count(); i++) {
+        TextEditor::IFallbackPreferences *fallback = originalTabFallbacks.at(i);
+        m_pageTabPreferences->setFallbackEnabled(fallback, originalTabPreferences->isFallbackEnabled(fallback));
+    }
     m_pageTabPreferences->setSettings(originalTabPreferences->settings());
     m_pageTabPreferences->setCurrentFallback(originalTabPreferences->currentFallback());
     m_widget->setTabPreferences(m_pageTabPreferences);

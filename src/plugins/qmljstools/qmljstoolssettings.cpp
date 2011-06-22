@@ -35,10 +35,12 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
 
     if (const QSettings *s = Core::ICore::instance()->settings()) {
         TextEditor::TextEditorSettings *textEditorSettings = TextEditor::TextEditorSettings::instance();
+        TextEditor::TabPreferences *tabPrefs = textEditorSettings->tabPreferences();
         m_d->m_tabPreferences
                 = new TextEditor::TabPreferences(QList<TextEditor::IFallbackPreferences *>()
-                                                 << textEditorSettings->tabPreferences(), this);
-        m_d->m_tabPreferences->setCurrentFallback(textEditorSettings->tabPreferences());
+                                                 << tabPrefs, this);
+        m_d->m_tabPreferences->setCurrentFallback(tabPrefs);
+        m_d->m_tabPreferences->setFallbackEnabled(tabPrefs, false);
         m_d->m_tabPreferences->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
         m_d->m_tabPreferences->setDisplayName(tr("Global Qt Quick", "Settings"));
         m_d->m_tabPreferences->setId(idKey);

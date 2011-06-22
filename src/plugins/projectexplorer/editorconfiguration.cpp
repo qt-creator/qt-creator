@@ -95,6 +95,7 @@ EditorConfiguration::EditorConfiguration() : m_d(new EditorConfigurationPrivate)
     QList<TabPreferences *> tabFallbacks;
     tabFallbacks << textEditorSettings->tabPreferences();
     m_d->m_tabPreferences = new TabPreferences(tabFallbacks, this);
+    m_d->m_tabPreferences->setFallbackEnabled(textEditorSettings->tabPreferences(), false);
     m_d->m_tabPreferences->setDisplayName(tr("Project", "Settings"));
     m_d->m_tabPreferences->setId(kId);
 
@@ -108,11 +109,14 @@ EditorConfiguration::EditorConfiguration() : m_d(new EditorConfigurationPrivate)
         itTab.next();
         const QString languageId = itTab.key();
         TabPreferences *originalPreferences = itTab.value();
+        QList<IFallbackPreferences *> fallbacks;
+        fallbacks << originalPreferences->fallbacks();
+        fallbacks << originalPreferences;
+        fallbacks << tabPreferences();
         TabPreferences *preferences = new TabPreferences(
-                    QList<IFallbackPreferences *>()
-                    << originalPreferences->fallbacks()
-                    << originalPreferences
-                    << tabPreferences(), this);
+                    fallbacks, this);
+        for (int i = 0; i < fallbacks.count(); i++)
+            preferences->setFallbackEnabled(fallbacks.at(i), false);
         preferences->setId(languageId + QLatin1String("Project"));
         preferences->setCurrentFallback(originalPreferences);
         m_d->m_languageTabPreferences.insert(languageId, preferences);
@@ -127,6 +131,7 @@ EditorConfiguration::EditorConfiguration() : m_d(new EditorConfigurationPrivate)
         ICodeStylePreferencesFactory *factory = manager->factory(languageId);
         IFallbackPreferences *preferences = factory->createPreferences(
                     QList<IFallbackPreferences *>() << originalPreferences);
+        preferences->setFallbackEnabled(originalPreferences, false);
         preferences->setId(languageId + QLatin1String("Project"));
         preferences->setDisplayName(tr("Project %1", "Settings, %1 is a language (C++ or QML)").arg(factory->displayName()));
         preferences->setCurrentFallback(originalPreferences);

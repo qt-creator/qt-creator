@@ -47,13 +47,10 @@ private slots:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
     void slotCppCodeStyleSettingsChanged();
-    void slotSettingsChanged();
     void updatePreview();
     void setCppCodeStyleSettings(const CppTools::CppCodeStyleSettings &settings, bool preview = true);
-    void slotCurrentFallbackChanged(TextEditor::IFallbackPreferences *, bool preview = true);
+    void slotCurrentPreferencesChanged(TextEditor::IFallbackPreferences *, bool preview = true);
 
-signals:
-    void cppCodeStyleSettingsChanged(const CppTools::CppCodeStyleSettings &);
 private:
     CppCodeStyleSettings cppCodeStyleSettings() const;
 
