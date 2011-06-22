@@ -37,6 +37,7 @@
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerattachdialog.h"
 #include "qmlprofilersummaryview.h"
+#include "qmlprofilercalltreeview.h"
 
 #include "tracewindow.h"
 #include "timelineview.h"
@@ -91,6 +92,7 @@ public:
     int m_connectionAttempts;
     TraceWindow *m_traceWindow;
     QmlProfilerSummaryView *m_summary;
+    QmlProfilerCallTreeView *m_calltree;
     ProjectExplorer::Project *m_project;
     Utils::FileInProjectFinder m_projectFinder;
     ProjectExplorer::RunConfiguration *m_runConfiguration;
@@ -214,11 +216,19 @@ void QmlProfilerTool::initializeDockWidgets()
 
     d->m_summary = new QmlProfilerSummaryView(mw);
 
-    connect(d->m_traceWindow, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),
-            d->m_summary, SLOT(addRangedEvent(int,qint64,qint64,QStringList,QString,int)));
+    connect(d->m_traceWindow, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
+            d->m_summary, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()),
             d->m_summary, SLOT(complete()));
     connect(d->m_summary, SIGNAL(gotoSourceLocation(QString,int)),
+            this, SLOT(gotoSourceLocation(QString,int)));
+
+    d->m_calltree = new QmlProfilerCallTreeView(mw);
+    connect(d->m_traceWindow, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
+            d->m_calltree, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
+    connect(d->m_traceWindow, SIGNAL(viewUpdated()),
+            d->m_calltree, SLOT(complete()));
+    connect(d->m_calltree, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
 
     Core::ICore *core = Core::ICore::instance();
@@ -246,8 +256,13 @@ void QmlProfilerTool::initializeDockWidgets()
         analyzerMgr->createDockWidget(this, tr("Timeline"),
                             d->m_traceWindow, Qt::BottomDockWidgetArea);
 
+    QDockWidget *calltreeDock =
+        analyzerMgr->createDockWidget(this, tr("Dependencies"),
+                             d->m_calltree, Qt::BottomDockWidgetArea);
+
     mw->splitDockWidget(mw->toolBarDockWidget(), summaryDock, Qt::Vertical);
     mw->tabifyDockWidget(summaryDock, timelineDock);
+    mw->tabifyDockWidget(timelineDock, calltreeDock);
 }
 
 
@@ -387,6 +402,7 @@ void QmlProfilerTool::clearDisplay()
 {
     d->m_traceWindow->clearDisplay();
     d->m_summary->clean();
+    d->m_calltree->clean();
 }
 
 void QmlProfilerTool::attach()

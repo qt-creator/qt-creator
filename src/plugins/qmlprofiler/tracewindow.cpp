@@ -114,7 +114,7 @@ signals:
     void complete();
     void gap(qint64);
     void event(int event, qint64 time);
-    void range(int type, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
+    void range(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
 
     void sample(int, int, int, bool);
 
@@ -135,18 +135,23 @@ private:
     int m_rangeCount[MaximumRangeType];
     qint64 m_maximumTime;
     bool m_recording;
+    int m_nestingLevel;
+    int m_nestingInType[MaximumRangeType];
 };
 
 TracePlugin::TracePlugin(QDeclarativeDebugConnection *client)
     : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client),
-      m_inProgressRanges(0), m_maximumTime(0), m_recording(false)
+      m_inProgressRanges(0), m_maximumTime(0), m_recording(false), m_nestingLevel(0)
 {
     ::memset(m_rangeCount, 0, MaximumRangeType * sizeof(int));
+    ::memset(m_nestingInType, 0, MaximumRangeType * sizeof(int));
 }
 
 void TracePlugin::clearView()
 {
     ::memset(m_rangeCount, 0, MaximumRangeType * sizeof(int));
+    ::memset(m_nestingInType, 0, MaximumRangeType * sizeof(int));
+    m_nestingLevel = 0;
     emit clear();
 }
 
@@ -214,6 +219,8 @@ void TracePlugin::messageReceived(const QByteArray &data)
             m_rangeStartTimes[range].push(time);
             m_inProgressRanges |= (static_cast<qint64>(1) << range);
             ++m_rangeCount[range];
+            ++m_nestingLevel;
+            ++m_nestingInType[range];
         } else if (messageType == RangeData) {
             QString data;
             stream >> data;
@@ -244,7 +251,9 @@ void TracePlugin::messageReceived(const QByteArray &data)
                 Location location = m_rangeLocations[range].count() ? m_rangeLocations[range].pop() : Location();
 
                 qint64 startTime = m_rangeStartTimes[range].pop();
-                emit this->range((RangeType)range, startTime, time - startTime, data, location.fileName, location.line);
+                emit this->range((RangeType)range, m_nestingLevel, m_nestingInType[range], startTime, time - startTime, data, location.fileName, location.line);
+                --m_nestingLevel;
+                --m_nestingInType[range];
                 if (m_rangeCount[range] == 0) {
                     int count = m_rangeDatas[range].count() +
                                 m_rangeStartTimes[range].count() +
@@ -295,8 +304,8 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     delete m_plugin.data();
     m_plugin = new TracePlugin(conn);
     connect(m_plugin.data(), SIGNAL(complete()), this, SIGNAL(viewUpdated()));
-    connect(m_plugin.data(), SIGNAL(range(int,qint64,qint64,QStringList,QString,int)),
-            this, SIGNAL(range(int,qint64,qint64,QStringList,QString,int)));
+    connect(m_plugin.data(), SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
+            this, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)));
 
     m_view->rootContext()->setContextProperty("connection", m_plugin.data());
     m_view->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));

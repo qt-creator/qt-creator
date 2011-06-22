@@ -135,11 +135,13 @@ void QmlProfilerSummaryView::clean()
     setSortingEnabled(false);
 }
 
-void QmlProfilerSummaryView::addRangedEvent(int type, qint64 startTime, qint64 length,
+void QmlProfilerSummaryView::addRangedEvent(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length,
     const QStringList &data, const QString &fileName, int line)
 {
     Q_UNUSED(startTime);
     Q_UNUSED(data);
+    Q_UNUSED(nestingLevel);
+    Q_UNUSED(nestingInType);
 
     if (type != QmlProfilerSummaryViewPrivate::Binding && type != QmlProfilerSummaryViewPrivate::HandlingSignal)
         return;

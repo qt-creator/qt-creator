@@ -24,7 +24,8 @@ SOURCES += \
     qmlprofilersummaryview.cpp \
     qmlprojectanalyzerruncontrolfactory.cpp \
     localqmlprofilerrunner.cpp \
-    codaqmlprofilerrunner.cpp
+    codaqmlprofilerrunner.cpp \
+    qmlprofilercalltreeview.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -39,7 +40,8 @@ HEADERS += \
     qmlprojectanalyzerruncontrolfactory.h \
     abstractqmlprofilerrunner.h \
     localqmlprofilerrunner.h \
-    codaqmlprofilerrunner.h
+    codaqmlprofilerrunner.h \
+    qmlprofilercalltreeview.h
 
 RESOURCES += \
     qml/qml.qrc

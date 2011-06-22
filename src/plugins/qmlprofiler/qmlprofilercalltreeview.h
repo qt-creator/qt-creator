@@ -31,21 +31,21 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERSUMMARYVIEW_H
-#define QMLPROFILERSUMMARYVIEW_H
+#ifndef QMLPROFILERCALLTREEVIEW_H
+#define QMLPROFILERCALLTREEVIEW_H
 
 #include <QTreeView>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerSummaryView : public QTreeView
+class QmlProfilerCallTreeView : public QTreeView
 {
     Q_OBJECT
 
 public:
-    explicit QmlProfilerSummaryView(QWidget *parent = 0);
-    ~QmlProfilerSummaryView();
+    explicit QmlProfilerCallTreeView(QWidget *parent = 0);
+    ~QmlProfilerCallTreeView();
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber);
@@ -58,23 +58,13 @@ public slots:
     void jumpToItem(const QModelIndex &index);
 
 private:
-    class QmlProfilerSummaryViewPrivate;
-    QmlProfilerSummaryViewPrivate *d;
+    class QmlProfilerCallTreeViewPrivate;
+    QmlProfilerCallTreeViewPrivate *d;
 
-    void appendRow(const QString &displayname,
-                   const QString &filename,
-                   int line,
-                   double percentTime,
-                   double totalTime,
-                   int ncalls,
-                   double timepercall,
-                   double maxtime,
-                   double mintime);
     void setHeaderLabels();
-    QString displayTime(double time) const;
 };
 
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // QMLPROFILERSUMMARYVIEW_H
+#endif // QMLPROFILERCALLTREEVIEW_H

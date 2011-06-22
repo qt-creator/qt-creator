@@ -76,6 +76,7 @@ Rectangle {
                 root.clearAll();
             }
 
+            // todo: consider nestingLevel
             if (!Plotter.valuesdone)
                 Plotter.ranges.push( { type: type, start: startTime, duration: length, label: data, fileName: fileName, line: line } );
         }
