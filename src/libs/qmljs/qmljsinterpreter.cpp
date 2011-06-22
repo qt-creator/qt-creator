@@ -446,18 +446,18 @@ QStringList QmlObjectValue::keysForEnum(const QString &enumName) const
 // has this one in its prototype chain and is itself in a package.
 bool QmlObjectValue::hasChildInPackage() const
 {
-    if (!packageName().isEmpty())
+    if (!packageName().isEmpty()
+            && packageName() != CppQmlTypes::cppPackage)
         return true;
     QHashIterator<QString, QmlObjectValue *> it(engine()->cppQmlTypes().types());
     while (it.hasNext()) {
         it.next();
-        FakeMetaObject::ConstPtr other = it.value()->_metaObject;
-        // if it has only the default no-package export, it is not really exported
-        if (other->exports().size() <= 1)
+        FakeMetaObject::ConstPtr otherMeta = it.value()->_metaObject;
+        // if it has only a cpp-package export, it is not really exported
+        if (otherMeta->exports().size() <= 1)
             continue;
-        for (const QmlObjectValue *it = this; it; it = it->prototype()) {
-            FakeMetaObject::ConstPtr iter = it->_metaObject;
-            if (iter == _metaObject) // this object is a parent of other
+        for (const QmlObjectValue *other = it.value(); other; other = other->prototype()) {
+            if (other->metaObject() == _metaObject) // this object is a parent of other
                 return true;
         }
     }
