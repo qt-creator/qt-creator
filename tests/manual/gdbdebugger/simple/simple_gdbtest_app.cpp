@@ -78,6 +78,7 @@
 #include <QtXml/QXmlAttributes>
 
 #include <QtNetwork/QHostAddress>
+#include <QtNetwork/QNetworkRequest>
 
 #include <deque>
 #include <iostream>
@@ -2604,25 +2605,34 @@ void testEigen()
 #endif
 }
 
-// http://bugreports.qt.nokia.com/browse/QTCREATORBUG-842
-void test842()
-{
-    qWarning("Test");
-    int x = 0;
-    ++x;
-}
+namespace bug842 {
 
-// http://bugreports.qt.nokia.com/browse/QTCREATORBUG-3611
-void test3611()
-{
-    typedef unsigned char byte;
-    byte f = '2';
-    Q_UNUSED(f);
-    int *x = (int*)&f;
-    f += 1;
-    f += 1;
-    f += 1;
-}
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-842
+    void test842()
+    {
+        qWarning("Test");
+        int x = 0;
+        ++x;
+    }
+
+} // namespace bug842
+
+
+namespace bug3611 {
+
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-3611
+    void test3611()
+    {
+        typedef unsigned char byte;
+        byte f = '2';
+        Q_UNUSED(f);
+        int *x = (int*)&f;
+        f += 1;
+        f += 1;
+        f += 1;
+    }
+
+} // namespace bug3611
 
 
 void testStuff3()
@@ -2642,76 +2652,107 @@ void testStuff3()
     qDebug() << f1 << f2 << f3 << f4;
 }
 
+
 // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4019
-class A4019
-{
-public:
-    A4019() : test(7) {}
-    int test;
-    void doSomething() const;
-};
+namespace bug4019 {
 
-void A4019::doSomething() const
-{
-    std::cout << test << std::endl;
-}
+    class A4019
+    {
+    public:
+        A4019() : test(7) {}
+        int test;
+        void doSomething() const;
+    };
 
-void test4019()
-{
-    A4019 a;
-    a.doSomething();
-}
+    void A4019::doSomething() const
+    {
+        std::cout << test << std::endl;
+    }
+
+    void test4019()
+    {
+        A4019 a;
+        a.doSomething();
+    }
+
+} // namespave bug4019
 
 
-void test4497()
-{
-    using namespace std;
-    //cin.get(); // if commented out, the debugger doesn't stop at the breakpoint in the next line.
-    cout << "Hello, world!" << endl; // breakpoint
+namespace bug4497 { // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4497
 
-    int sum = 0;
-    for (int i = 1; i <= 10; i++)
-        sum += i;
+    void test4497()
+    {
+        using namespace std;
+        //cin.get(); // if commented out, the debugger doesn't stop at the breakpoint in the next line.
+        cout << "Hello, world!" << endl; // breakpoint
 
-    cout << sum << endl;
-    cout << "Enter a number: ";
-    int n;
-    cin >> n;
-    cout << "You entered " << n << "!" << endl;
-}
+        int sum = 0;
+        for (int i = 1; i <= 10; i++)
+            sum += i;
 
-class A5106
-{
-public:
-        A5106(int a, int b) : m_a(a), m_b(b) {}
-
-        virtual int test() { return 5; }
-
-private:
-        int m_a, m_b;
-};
-
-class B5106 : public A5106
-{
-public:
-        B5106(int c, int a, int b) : A5106(a, b), m_c(c) {}
-
-        virtual int test() { return 4; }
-
-private:
-        int m_c;
-};
-
-void test5106()
-{
-    B5106 b(1,2,3);
-    b.test();
-    b.test();
+        cout << sum << endl;
+        cout << "Enter a number: ";
+        int n;
+        cin >> n;
+        cout << "You entered " << n << "!" << endl;
+    }
 }
 
 
-// http://www.qtcentre.org/threads/42170-How-to-watch-data-of-actual-type-in-debugger
+namespace bug5106 {
+
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4497
+
+    class A5106
+    {
+    public:
+            A5106(int a, int b) : m_a(a), m_b(b) {}
+
+            virtual int test() { return 5; }
+
+    private:
+            int m_a, m_b;
+    };
+
+    class B5106 : public A5106
+    {
+    public:
+            B5106(int c, int a, int b) : A5106(a, b), m_c(c) {}
+
+            virtual int test() { return 4; }
+
+    private:
+            int m_c;
+    };
+
+    void test5106()
+    {
+        B5106 b(1,2,3);
+        b.test();
+        b.test();
+    }
+
+} // namespace bug5106
+
+
+namespace bug5184 {
+
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5184
+
+    int test5184()
+    {
+        QUrl url(QString("http://127.0.0.1/"));
+        QNetworkRequest request(url);
+        QList<QByteArray> raw = request.rawHeaderList();
+        return raw.size();  // <=== break here
+    }
+
+} // namespace bug5184
+
+
 namespace qc42170 {
+
+    // http://www.qtcentre.org/threads/42170-How-to-watch-data-of-actual-type-in-debugger
 
     struct Object
     {
@@ -2739,7 +2780,7 @@ namespace qc42170 {
         return 0; // <== break point here
     }
 
-    void test()
+    void test42170()
     {
         Circle *circle = new Circle(1.5, -2.5, 3.0, 15);
         Object *obj = circle;
@@ -2750,10 +2791,11 @@ namespace qc42170 {
 } // namespace qc42170
 
 
-// http://www.qtcentre.org/threads/41700-How-to-watch-STL-containers-iterators-during-debugging
 namespace qc41700 {
 
-    void test()
+    // http://www.qtcentre.org/threads/41700-How-to-watch-STL-containers-iterators-during-debugging
+
+    void test41700()
     {
         using namespace std;
         typedef map<string, list<string> > map_t;
@@ -2764,7 +2806,7 @@ namespace qc41700 {
         m["two"].push_back("1");
         m["two"].push_back("2");
         m["two"].push_back("3");
-        map_t::const_iterator it = m.begin();
+        map_t::const_iterator it = m.begin();  // [BP]
         ++it;
         ++it;
         ++it;
@@ -2774,15 +2816,15 @@ namespace qc41700 {
 
 int main(int argc, char *argv[])
 {
-    qc41700::test();
-    qc42170::test();
+    qc41700::test41700();
+    qc42170::test42170();
     multibp::test();
-    test842();
-    test842();
-    test3611();
-    test4019();
-    test5106();
-    //test4497();
+    bug842::test842();
+    bug3611::test3611();
+    bug4019::test4019();
+    bug5106::test5106();
+    bug5184::test5184();
+    //bug4497::test4497();
     testEigen();
     testKR();
     int *x = new int(32);
