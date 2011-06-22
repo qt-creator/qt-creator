@@ -31,6 +31,8 @@
 **************************************************************************/
 #include "portlist.h"
 
+#include <cctype>
+
 namespace RemoteLinux {
 namespace {
 
