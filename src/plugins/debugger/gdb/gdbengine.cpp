@@ -1990,6 +1990,10 @@ unsigned GdbEngine::debuggerCapabilities() const
     if (startParameters().startMode == AttachCore)
         return caps;
 
+    // FIXME: Remove in case we have gdb 7.x on Mac.
+    if (startParameters().toolChainAbi.os() == Abi::MacOS)
+        return caps;
+
     return caps | SnapshotCapability;
 }
 
@@ -3492,7 +3496,7 @@ void GdbEngine::createSnapshot()
         fileName = tf.fileName();
         tf.close();
         postCommand("gcore " + fileName.toLocal8Bit(),
-            NeedsStop, CB(handleMakeSnapshot), fileName);
+            NeedsStop|ConsoleCommand, CB(handleMakeSnapshot), fileName);
     } else {
         showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
             tr("Cannot create snapshot file."));
