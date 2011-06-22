@@ -2719,7 +2719,12 @@ namespace bug4904 {
         cs2.id = -1;
         map.insert(cs1.id, cs1);
         map.insert(cs2.id, cs2);
-        return map.size();   // <=== break here
+        QMap<int, CustomStruct>::iterator it = map.begin();
+        int n = map.size();   // <=== break here
+        // - expand map/[0]/value
+        // - verify  map[0].key == -1
+        // - verify  map[0].value.id == -1
+        return n;
     }
 
 } // namespace bug4904
@@ -2731,12 +2736,16 @@ namespace bug5046 {
 
     struct Foo { int a, b, c; };
 
-    void test5046()
+    int test5046()
     {
         Foo f;
         f.a = 1;
-        f.a = 2;
-        f.a = 3;
+        f.b = 2;
+        f.c = 3;
+        f.a = 4; // <= break here
+        // - pop up main editor tooltip over 'f'
+        // - verify that the entry is expandable, and expansion works
+        return f.a;
     }
 
 } // namespace bug5046
@@ -2858,7 +2867,7 @@ namespace qc41700 {
         m["two"].push_back("1");
         m["two"].push_back("2");
         m["two"].push_back("3");
-        map_t::const_iterator it = m.begin();  // [BP]
+        map_t::const_iterator it = m.begin();  // <=== break here
         ++it;
         ++it;
         ++it;
