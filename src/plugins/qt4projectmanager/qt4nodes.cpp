@@ -1462,6 +1462,16 @@ bool Qt4ProFileNode::validParse() const
     return m_validParse;
 }
 
+void Qt4ProFileNode::setParseInProgressRecursive()
+{
+    m_parseInProgress = true;
+    foreach (ProjectNode *subNode, subProjectNodes()) {
+        if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
+            node->setParseInProgressRecursive();
+        }
+    }
+}
+
 bool Qt4ProFileNode::parseInProgress() const
 {
     return m_parseInProgress;
@@ -1469,7 +1479,7 @@ bool Qt4ProFileNode::parseInProgress() const
 
 void Qt4ProFileNode::scheduleUpdate()
 {
-    m_parseInProgress = true;
+    setParseInProgressRecursive();
     emitProFileUpdated();
     m_project->scheduleAsyncUpdate(this);
 }

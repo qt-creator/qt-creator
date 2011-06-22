@@ -673,6 +673,7 @@ void Qt4Project::scheduleAsyncUpdate()
         m_cancelEvaluate = true;
         m_asyncUpdateState = AsyncFullUpdatePending;
         activeTarget()->activeBuildConfiguration()->setEnabled(false);
+        m_rootProjectNode->setParseInProgressRecursive();
         m_rootProjectNode->emitProFileUpdated();
         return;
     }
@@ -681,6 +682,7 @@ void Qt4Project::scheduleAsyncUpdate()
         qDebug()<<"  starting timer for full update, setting state to full update pending";
     m_partialEvaluate.clear();
     activeTarget()->activeBuildConfiguration()->setEnabled(false);
+    m_rootProjectNode->setParseInProgressRecursive();
     m_rootProjectNode->emitProFileUpdated();
     m_asyncUpdateState = AsyncFullUpdatePending;
     m_asyncUpdateTimer.start();

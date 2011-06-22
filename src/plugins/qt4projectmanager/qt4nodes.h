@@ -353,6 +353,7 @@ public:
 
     bool hasBuildTargets(Qt4ProjectType projectType) const;
 
+    void setParseInProgressRecursive();
 public slots:
     void asyncUpdate();
 
