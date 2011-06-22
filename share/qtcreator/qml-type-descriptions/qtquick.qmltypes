@@ -652,6 +652,22 @@ Module {
         Property { name: "color"; type: "QColor" }
     }
     Component {
+        name: "QDeclarativeGraphicsWidget"
+        defaultProperty: "children"
+        prototype: "QGraphicsWidget"
+        exports: [
+            "Qt/QGraphicsWidget 4.7",
+            "QtQuick/QGraphicsWidget 1.0"
+        ]
+        Property { name: "anchors"; type: "QDeclarativeAnchors"; isReadonly: true; isPointer: true }
+        Property { name: "left"; type: "QDeclarativeAnchorLine"; isReadonly: true }
+        Property { name: "right"; type: "QDeclarativeAnchorLine"; isReadonly: true }
+        Property { name: "horizontalCenter"; type: "QDeclarativeAnchorLine"; isReadonly: true }
+        Property { name: "top"; type: "QDeclarativeAnchorLine"; isReadonly: true }
+        Property { name: "bottom"; type: "QDeclarativeAnchorLine"; isReadonly: true }
+        Property { name: "verticalCenter"; type: "QDeclarativeAnchorLine"; isReadonly: true }
+    }
+    Component {
         name: "QDeclarativeGrid"
         defaultProperty: "data"
         prototype: "QDeclarativeBasePositioner"
@@ -2948,18 +2964,24 @@ Module {
     Component {
         name: "QGraphicsWidget"
         defaultProperty: "children"
-        prototype: "__extended__.QGraphicsWidget"
-        exports: [
-            "Qt/QGraphicsWidget 4.7",
-            "QtQuick/QGraphicsWidget 1.0"
-        ]
-        Property { name: "anchors"; type: "QDeclarativeAnchors"; isReadonly: true; isPointer: true }
-        Property { name: "left"; type: "QDeclarativeAnchorLine"; isReadonly: true }
-        Property { name: "right"; type: "QDeclarativeAnchorLine"; isReadonly: true }
-        Property { name: "horizontalCenter"; type: "QDeclarativeAnchorLine"; isReadonly: true }
-        Property { name: "top"; type: "QDeclarativeAnchorLine"; isReadonly: true }
-        Property { name: "bottom"; type: "QDeclarativeAnchorLine"; isReadonly: true }
-        Property { name: "verticalCenter"; type: "QDeclarativeAnchorLine"; isReadonly: true }
+        prototype: "QGraphicsObject"
+        Property { name: "palette"; type: "QPalette" }
+        Property { name: "font"; type: "QFont" }
+        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
+        Property { name: "size"; type: "QSizeF" }
+        Property { name: "minimumSize"; type: "QSizeF" }
+        Property { name: "preferredSize"; type: "QSizeF" }
+        Property { name: "maximumSize"; type: "QSizeF" }
+        Property { name: "sizePolicy"; type: "QSizePolicy" }
+        Property { name: "focusPolicy"; type: "Qt::FocusPolicy" }
+        Property { name: "windowFlags"; type: "Qt::WindowFlags" }
+        Property { name: "windowTitle"; type: "string" }
+        Property { name: "geometry"; type: "QRectF" }
+        Property { name: "autoFillBackground"; type: "bool" }
+        Property { name: "layout"; type: "QGraphicsLayout"; isPointer: true }
+        Signal { name: "geometryChanged" }
+        Signal { name: "layoutChanged" }
+        Method { name: "close"; type: "bool" }
     }
     Component {
         name: "QIntValidator"
@@ -4304,32 +4326,6 @@ Module {
                 "LastGestureType": -1
             }
         }
-    }
-    Component {
-        name: "__extended__.QGraphicsWidget"
-        defaultProperty: "children"
-        prototype: "QGraphicsObject"
-        exports: [
-            "Qt/QGraphicsWidget 4.7",
-            "QtQuick/QGraphicsWidget 1.0"
-        ]
-        Property { name: "palette"; type: "QPalette" }
-        Property { name: "font"; type: "QFont" }
-        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
-        Property { name: "size"; type: "QSizeF" }
-        Property { name: "minimumSize"; type: "QSizeF" }
-        Property { name: "preferredSize"; type: "QSizeF" }
-        Property { name: "maximumSize"; type: "QSizeF" }
-        Property { name: "sizePolicy"; type: "QSizePolicy" }
-        Property { name: "focusPolicy"; type: "Qt::FocusPolicy" }
-        Property { name: "windowFlags"; type: "Qt::WindowFlags" }
-        Property { name: "windowTitle"; type: "string" }
-        Property { name: "geometry"; type: "QRectF" }
-        Property { name: "autoFillBackground"; type: "bool" }
-        Property { name: "layout"; type: "QGraphicsLayout"; isPointer: true }
-        Signal { name: "geometryChanged" }
-        Signal { name: "layoutChanged" }
-        Method { name: "close"; type: "bool" }
     }
     Component { name: "QEasingCurve"; prototype: "QDeclarativeEasingValueType" }
 }
