@@ -935,16 +935,8 @@
 <context>
     <name>CommonOptionsPage</name>
     <message>
-        <source>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</source>
-        <translation>Die Quelldatei-Ansicht wird automatisch aktualisiert, was den Start des Debuggers beträchtlich verlangsamen kann.</translation>
-    </message>
-    <message>
         <source>Populate source file view automatically</source>
         <translation>Quelldatei-Ansicht automatisch aktualisieren</translation>
-    </message>
-    <message>
-        <source>Maximal stack depth:</source>
-        <translation>Maximale Stack-Tiefe</translation>
     </message>
     <message>
         <source>&lt;unlimited&gt;</source>
@@ -991,16 +983,20 @@
         <translation>Schriftgröße des Debuggers mit Editor synchronisieren</translation>
     </message>
     <message>
-        <source>Selecting this results in font size changes in the debugger views whenever the font size in the main editor changes.</source>
+        <source>Change the font size in the debugger views when the font size in the main editor changes.</source>
         <translation>Passt die Schriftgröße der Debuggerfenster der der Editoren an.</translation>
+    </message>
+    <message>
+        <source>Populate the source file view automatically. This might slow down debugger startup considerably.</source>
+        <translation>Die Quelldatei-Ansicht wird automatisch aktualisiert, was den Start des Debuggers beträchtlich verlangsamen kann.</translation>
+    </message>
+    <message>
+        <source>Maximum stack depth:</source>
+        <translation>Maximale Stack-Tiefe:</translation>
     </message>
 </context>
 <context>
     <name>CompletionSettingsPage</name>
-    <message>
-        <source>Automatically insert (, ) and ; when appropriate.</source>
-        <translation>(, ), ; automatisch einfügen</translation>
-    </message>
     <message>
         <source>Insert the common prefix of available completion items.</source>
         <translation>Gemeinsamen Präfix der passenden Ergänzungsvorschläge einfügen.</translation>
@@ -1052,6 +1048,10 @@
     <message>
         <source>Always</source>
         <translation>Immer</translation>
+    </message>
+    <message>
+        <source>Automatically insert brackets and semicolons when appropriate.</source>
+        <translation>Klammern und Semikola automatisch an den entsprechenden Stellen einfügen.</translation>
     </message>
 </context>
 <context>
@@ -1217,6 +1217,22 @@
         <translation>Dateifehler</translation>
     </message>
     <message>
+        <source>Cannot Open File</source>
+        <translation>Datei kann nicht geöffnet werden</translation>
+    </message>
+    <message>
+        <source>Cannot open the file for editing with SCC.</source>
+        <translation>Die Datei konnte nicht mit Hilfe der Versionsverwaltung schreibbar gemacht werden.</translation>
+    </message>
+    <message>
+        <source>Cannot Set Permissions</source>
+        <translation>Fehlschlag bei Setzen von Dateizugriffsrechten</translation>
+    </message>
+    <message>
+        <source>Cannot set permissions to writable.</source>
+        <translation>Die Datei konnte nicht schreibbar gemacht werden.</translation>
+    </message>
+    <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
     </message>
@@ -1227,18 +1243,6 @@
     <message>
         <source>Opening File</source>
         <translation>Datei Öffnen</translation>
-    </message>
-    <message>
-        <source>Failed!</source>
-        <translation>Fehler</translation>
-    </message>
-    <message>
-        <source>Could not open the file for editing with SCC.</source>
-        <translation>Die Datei konnte nicht mit Hilfe der Versionsverwaltung schreibbar gemacht werden.</translation>
-    </message>
-    <message>
-        <source>Could not set permissions to writable.</source>
-        <translation>Die Datei konnte nicht schreibbar gemacht werden.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
@@ -1394,10 +1398,6 @@
         <translation>Variablen</translation>
     </message>
     <message>
-        <source>Reset to default</source>
-        <translation>Zurücksetzen</translation>
-    </message>
-    <message>
         <source>Terminal:</source>
         <translation>Terminal:</translation>
     </message>
@@ -1446,10 +1446,6 @@
         <translation>Rücksetzen</translation>
     </message>
     <message>
-        <source>If checked, temporary copies of modified files will be created automatically. If Qt Creator is restarted after a crash or power failure, it will ask whether the auto-saved content should be recovered.</source>
-        <translation>Bewirkt, dass automatisch temporäre Kopien der geänderten Dateien erstellt werden. Bei einem Neustart von Qt Creator nach einem Absturz oder Stromausfall wird nachgefragt, ob der automatisch gesicherte Stand wiederhergestellt werden soll.</translation>
-    </message>
-    <message>
         <source>Auto-save modified files</source>
         <translation>Sicherungskopien der geänderten Dateien automatisch erstellen</translation>
     </message>
@@ -1461,6 +1457,14 @@
         <source>min</source>
         <extracomment>unit for minutes</extracomment>
         <translation>min</translation>
+    </message>
+    <message>
+        <source>Reset to default.</source>
+        <translation>Zurücksetzen.</translation>
+    </message>
+    <message>
+        <source>Automatically create temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</source>
+        <translation>Bewirkt, dass automatisch temporäre Kopien der geänderten Dateien erstellt werden. Bei einem Neustart von Qt Creator nach einem Absturz oder Stromausfall wird nachgefragt, ob der automatisch gesicherte Stand wiederhergestellt werden soll.</translation>
     </message>
 </context>
 <context>
@@ -3974,7 +3978,7 @@ Sie können die Umgebungsvariable PYTHONPATH setzen, um auf die Installation zu 
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Watchers&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+&lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 Die Ausgabe-Hilfsbibliothek dient lediglich zur formatierten Ausgabe von Objekten bestimmten Typs wie QString oder std::map im Fenster &quot;Lokale Variablen und überwachte Ausdrücke&quot;.&lt;/p&gt;
 &lt;p&gt;Zum Debuggen mit Qt Creator ist sie jedoch nicht unbedingt erforderlich. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -4367,8 +4371,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
 <context>
     <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
-        <source>Could not open file %1 for read: %2</source>
-        <translation>Die Datei %1 konnte nicht zum Lesen geöffnet werden: %1</translation>
+        <source>Cannot open file %1 for reading: %2</source>
+        <translation>Die Datei %1 kann nicht zum Lesen geöffnet werden: %2</translation>
     </message>
     <message>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
@@ -4695,12 +4699,12 @@ Grund: %3</translation>
         <translation>Vim-Tabulator-Einstellung</translation>
     </message>
     <message>
-        <source>Checking this box passes key sequences like Ctrl-S to the Creator core instead of interpreting them in FakeVim. This gives easier access to Creator core functionality at the price of losing some features of FakeVim.</source>
-        <translation>Bewirkt, dass bestimmte Tastenfolgen wie Strg-S nicht in FakeVim behandelt werden, sondern an Qt Creator weitergeleitet werden. Das erleichtert den Zugang zu Kernfunktionen von Qt Creator auf Kosten einiger Funktionen von FakeVim.</translation>
-    </message>
-    <message>
         <source>Pass control key</source>
         <translation>Strg-Taste weiterleiten</translation>
+    </message>
+    <message>
+        <source>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</source>
+        <translation>Bewirkt, dass bestimmte Tastenfolgen wie Strg-S nicht in FakeVim behandelt werden, sondern an Qt Creator weitergeleitet werden. Das erleichtert den Zugang zu Kernfunktionen von Qt Creator auf Kosten einiger Funktionen von FakeVim.</translation>
     </message>
 </context>
 <context>
@@ -6248,8 +6252,8 @@ rückgängig machen?</translation>
         <translation>XBEL-Dateien (*.xbel)</translation>
     </message>
     <message>
-        <source>There was an error while importing bookmarks!</source>
-        <translation>Beim Importieren der Lesezeichen trat ein Fehler auf.</translation>
+        <source>Cannot import bookmarks.</source>
+        <translation>Lesezeichen konnten nicht importiert werden.</translation>
     </message>
     <message>
         <source>Save File</source>
@@ -7024,6 +7028,10 @@ rückgängig machen?</translation>
         <translation>Der Prozess wurde beendet, Rückgabewert %1.</translation>
     </message>
     <message>
+        <source>The commit message check failed. Do you want to submit this change list?</source>
+        <translation>Die Überprüfung der Beschreibung schlug fehl. Möchten Sie den Submit-Vorgang trotzdem ausführen?</translation>
+    </message>
+    <message>
         <source>p4 submit failed: %1</source>
         <translation>Fehler beim Abgeben: %1</translation>
     </message>
@@ -7084,10 +7092,6 @@ rückgängig machen?</translation>
     <message>
         <source>Do you want to submit this change list?</source>
         <translation>Möchten Sie die Änderungen abgeben?</translation>
-    </message>
-    <message>
-        <source>The commit message check failed. Do you want to submit this change list</source>
-        <translation>Die Überprüfung der Beschreibung schlug fehl. Möchten Sie den Submit-Vorgang trotzdem ausführen?</translation>
     </message>
     <message>
         <source>Pending change</source>
@@ -9192,20 +9196,28 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Andere Dateien</translation>
     </message>
     <message>
+        <source>Cannot Open File</source>
+        <translation>Datei kann nicht geöffnet werden</translation>
+    </message>
+    <message>
+        <source>Cannot open the file for edit with VCS.</source>
+        <translation>Die Datei konnte nicht mit Hilfe der Versionsverwaltung schreibbar gemacht werden.</translation>
+    </message>
+    <message>
+        <source>Cannot Set Permissions</source>
+        <translation>Fehlschlag bei Setzen von Dateizugriffsrechten</translation>
+    </message>
+    <message>
+        <source>Cannot set permissions to writable.</source>
+        <translation>Die Datei konnte nicht schreibbar gemacht werden.</translation>
+    </message>
+    <message>
         <source>Failed!</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <source>Could not open the file for edit with VCS.</source>
-        <translation>Die Datei konnte nicht mit Hilfe der Versionsverwaltung schreibbar gemacht werden.</translation>
-    </message>
-    <message>
         <source>File Error</source>
         <translation>Dateifehler</translation>
-    </message>
-    <message>
-        <source>Could not set permissions to writable.</source>
-        <translation>Die Datei konnte schreibbar gemacht werden.</translation>
     </message>
     <message>
         <source>There are unsaved changes for project file %1.</source>
@@ -9524,15 +9536,15 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation>Make</translation>
     </message>
     <message>
-        <source>Qt Creator needs a tool chain set up to build. Please configure a tool chain in Project mode.</source>
+        <source>Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode.</source>
         <translation>Qt Creator benötigt eine Toolchain zum Erstellen des Projekts. Bitte richten Sie eine Toolchain im Projektmodus ein.</translation>
     </message>
     <message>
-        <source>Makefile not found. Please check your build settings</source>
+        <source>Cannot find Makefile. Check your build settings.</source>
         <translation>Die Makefile-Datei konnte nicht gefunden werden. Bitte überprüfen Sie die Einstellungen zur Erstellung.</translation>
     </message>
     <message>
-        <source>Configuration is faulty, please check the Build Issues view for details.</source>
+        <source>Configuration is faulty. Check the Build Issues view for details.</source>
         <translation>Die Konfiguration ist fehlerhaft. Details befinden sich in der Ansicht &quot;Build-Probleme&quot;.</translation>
     </message>
 </context>
@@ -10138,7 +10150,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
         <translation>&amp;Server-Startskript:</translation>
     </message>
     <message>
-        <source>Override S&amp;tart script:</source>
+        <source>Override s&amp;tart script:</source>
         <translation>Startskript &amp;überschreiben:</translation>
     </message>
 </context>
@@ -11843,8 +11855,8 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Zeitüberschreitung bei Ausführung des Skripts &apos;%1&apos; zur Überprüfung der Beschreibung.</translation>
     </message>
     <message>
-        <source>The check script &apos;%1&apos; crashed</source>
-        <translation>Das Skript zur Überprüfung der Beschreibung ist abgestürzt</translation>
+        <source>The check script &apos;%1&apos; crashed.</source>
+        <translation>Das Skript zur Überprüfung der Beschreibung ist abgestürzt.</translation>
     </message>
     <message>
         <source>The check script returned exit code %1.</source>
@@ -12554,6 +12566,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>All Files (*)</source>
         <translation>Alle Dateien (*)</translation>
+    </message>
+    <message>
+        <source>Clear Menu</source>
+        <translation>Menü löschen</translation>
     </message>
 </context>
 <context>
@@ -16818,16 +16834,12 @@ Server: %2.</translation>
         <translation>Diese Anwendung erfordert den Debugger &apos;%1&apos;, der gegenwärtig deaktiviert ist.</translation>
     </message>
     <message>
-        <source>Some breakpoints cannot be handled by the current debugger, and will be ignored.</source>
-        <translation>Einige Haltepunkte werden vom gegenwärtig aktiven Debugger nicht unterstützt und werden daher nicht berücksichtigt.</translation>
-    </message>
-    <message>
         <source>Warning</source>
         <translation>Warnung</translation>
     </message>
     <message>
-        <source>Some breakpoints cannot be handled by the debugger, and will be ignored. Do you want to continue?</source>
-        <translation>Einige Haltepunkte werden vom gegenwärtig aktiven Debugger nicht unterstützt und werden daher nicht berücksichtigt. Möchten Sie fortsetzen?</translation>
+        <source>Some breakpoints cannot be handled by the debugger languages currently active, and will be ignored.</source>
+        <translation>Einige Haltepunkte werden von den Debuggern der gegenwärtig aktiven Sprachen nicht unterstützt und werden daher nicht berücksichtigt. Möchten Sie fortsetzen?</translation>
     </message>
     <message>
         <source>The debugger engine &apos;%1&apos; is disabled.</source>
@@ -17637,10 +17649,6 @@ Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei 
         <translation>Deployment</translation>
     </message>
     <message>
-        <source>No package has been found. Please specify at least one installation package.</source>
-        <translation>Es konnte kein Installationspaket gefunden werden. Bitte geben Sie mindestens eines an.</translation>
-    </message>
-    <message>
         <source>Renaming new package &apos;%1&apos; to &apos;%2&apos;</source>
         <translation>Die Paketdatei wird von &apos;%1&apos; zu &apos;%2&apos; umbenannt</translation>
     </message>
@@ -17669,6 +17677,22 @@ Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei 
         <translation>Die serielle Schnittstelle konnte nicht geöffnet werden: %1</translation>
     </message>
     <message>
+        <source>No package has been found. Specify at least one installation package.</source>
+        <translation>Es konnte kein Installationspaket gefunden werden. Bitte geben Sie mindestens eines an.</translation>
+    </message>
+    <message>
+        <source>No device is connected. Connect a device and try again.</source>
+        <translation>Es ist kein Gerät verbunden. Bitte stellen Sie die Verbindung zu einem Gerät her und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>No address for a device has been defined. Define an address and try again.</source>
+        <translation>Es wurde kein Adresse für das Gerät angegeben. Bitte geben Sie eine Adresse an und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>Continue the installation on your device.</source>
+        <translation>Bitte setzen Sie die Installation auf dem Mobilgerät fort.</translation>
+    </message>
+    <message>
         <source>Could not open remote file: %1</source>
         <translation>Die entfernte Datei konnte nicht geöffnet werden: %1</translation>
     </message>
@@ -17689,14 +17713,6 @@ Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei 
         <translation>Kopieren &quot;%1&quot;...</translation>
     </message>
     <message>
-        <source>No device is connected. Please connect a device and try again.</source>
-        <translation>Es ist kein Gerät verbunden. Bitte stellen Sie die Verbindung zu einem Gerät her und versuchen Sie es erneut.</translation>
-    </message>
-    <message>
-        <source>No address for a device has been defined. Please define an address and try again.</source>
-        <translation>Es wurde kein Adresse für das Gerät angegeben. Bitte geben Sie eine Adresse an und versuchen Sie es erneut.</translation>
-    </message>
-    <message>
         <source>Deploying application to &apos;%1&apos;...</source>
         <translation>Deployment der Anwendung auf &apos;%1&apos;...</translation>
     </message>
@@ -17715,10 +17731,6 @@ Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei 
     <message>
         <source>Installing package &quot;%1&quot; on drive %2:...</source>
         <translation>Installiere Paket &quot;%1&quot; auf Laufwerk %2:...</translation>
-    </message>
-    <message>
-        <source>Please continue the installation on your device.</source>
-        <translation>Bitte setzen Sie die Installation auf dem Mobilgerät fort.</translation>
     </message>
     <message>
         <source>Internal error: No filehandle obtained</source>
@@ -18971,10 +18983,6 @@ Fehler: %2</translation>
         <translation>&amp;Entfernen</translation>
     </message>
     <message>
-        <source>This will enable you to log into the device without a password.</source>
-        <translation>Ermöglicht es Ihnen, sich ohne Passwort auf dem Mobilgerät einzuloggen.</translation>
-    </message>
-    <message>
         <source>Set As Default</source>
         <translation>Als Vorgabe setzen</translation>
     </message>
@@ -18985,10 +18993,6 @@ Fehler: %2</translation>
     <message>
         <source>&amp;Generate SSH Key...</source>
         <translation>&amp;Erzeuge SSH-Schlüssel...</translation>
-    </message>
-    <message>
-        <source>&amp;Deploy Public Key...</source>
-        <translation>&amp;Öffentlichen Schlüssel senden...</translation>
     </message>
 </context>
 <context>
@@ -19108,18 +19112,6 @@ Fehler: %2</translation>
         <translation>Auf dem Mobilgerät laufendes System:</translation>
     </message>
     <message>
-        <source>Maemo 5 (Fremantle)</source>
-        <translation>Maemo 5 (Fremantle)</translation>
-    </message>
-    <message>
-        <source>Maemo 6 (Harmattan)</source>
-        <translation>Maemo 6 (Harmattan)</translation>
-    </message>
-    <message>
-        <source>Meego</source>
-        <translation>Meego</translation>
-    </message>
-    <message>
         <source>The kind of device:</source>
         <translation>Gerätetyp:</translation>
     </message>
@@ -19134,10 +19126,6 @@ Fehler: %2</translation>
     <message>
         <source>The device&apos;s host name or IP address:</source>
         <translation>Hostname oder IP-Adresse des Geräts:</translation>
-    </message>
-    <message>
-        <source>Generic Linux</source>
-        <translation>Generisches Linux</translation>
     </message>
 </context>
 <context>
@@ -19492,11 +19480,11 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
         <translation>Thread-Terminierung</translation>
     </message>
     <message>
-        <source>Load Module:</source>
+        <source>Load module:</source>
         <translation>Laden eines Moduls:</translation>
     </message>
     <message>
-        <source>Unload Module:</source>
+        <source>Unload module:</source>
         <translation>Entladen eines Moduls:</translation>
     </message>
     <message>
@@ -19827,7 +19815,7 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
 <context>
     <name>DebuggerEngine</name>
     <message>
-        <source>Debugging complex command lines is currently not supported under Windows</source>
+        <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>Komplexe Kommandozeilen werden beim Debuggen unter Windows gegenwärtig nicht unterstützt.</translation>
     </message>
 </context>
@@ -20252,11 +20240,6 @@ Soll es noch einmal versucht werden?</translation>
 </context>
 <context>
     <name>QmlDesigner::StatesEditorView</name>
-    <message>
-        <source>State%1</source>
-        <comment>Default name for newly created states</comment>
-        <translation>State%1</translation>
-    </message>
     <message>
         <source>base state</source>
         <translation>Grundzustand</translation>
@@ -20915,7 +20898,7 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
     </message>
     <message>
         <source>%1 Release</source>
-        <extracomment>Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
+        <extracomment>Name of a release build configuration to be created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
         <translation>%1 Release</translation>
     </message>
 </context>
@@ -20928,12 +20911,6 @@ Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen
     <message>
         <source>Branch:</source>
         <translation>Branch:</translation>
-    </message>
-    <message>
-        <source>Perform a local commit in a bound branch.
-Local commits are not pushed to the master branch until a normal commit is performed</source>
-        <translation>Lokalen Commit in einem gebundenen Branch ausführen.
-Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit erfolgt.</translation>
     </message>
     <message>
         <source>Local commit</source>
@@ -20955,6 +20932,12 @@ Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit e
         <source>Fixed bugs:</source>
         <translation>Behobene Bugs:</translation>
     </message>
+    <message>
+        <source>Perform a local commit in a bound branch.
+Local commits are not pushed to the master branch until a normal commit is performed.</source>
+        <translation>Lokalen Commit in einem gebundenen Branch ausführen.
+Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit erfolgt.</translation>
+    </message>
 </context>
 <context>
     <name>Bazaar::Internal::CloneOptionsPanel</name>
@@ -20967,18 +20950,8 @@ Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit e
         <translation>Vorhandenen Ordner verwenden</translation>
     </message>
     <message>
-        <source>Create a stacked branch referring to the source branch.
-The new branch will depend on the availability of the source branch for all operations</source>
-        <translation>Erstelle einen Branch vom Typ &apos;stacked&apos;, der sich auf den Quell-Branch bezieht.
-Der neue Branch benötigt den Quell-Branch für alle Operationen</translation>
-    </message>
-    <message>
         <source>Stacked</source>
         <translation>Stacked</translation>
-    </message>
-    <message>
-        <source>Do not use a shared repository, even if available</source>
-        <translation>Kein gemeinsame Repository verwenden, selbst wenn eines verfügbar sein sollte</translation>
     </message>
     <message>
         <source>Standalone</source>
@@ -20989,24 +20962,12 @@ Der neue Branch benötigt den Quell-Branch für alle Operationen</translation>
         <translation>Neuen Branch an Quelle binden</translation>
     </message>
     <message>
-        <source>Switch the checkout in the current directory to the new branch</source>
-        <translation>Checkout im aktuellen Ordner auf neuen Branch setzen</translation>
-    </message>
-    <message>
         <source>Switch checkout</source>
         <translation>Checkout umsetzen</translation>
     </message>
     <message>
-        <source>Hard-link working tree files where possible</source>
-        <translation>Hardlinks für Dateien in der Arbeitshierarchie benutzen, sofern möglich</translation>
-    </message>
-    <message>
         <source>Hardlink</source>
         <translation>Hardlink</translation>
-    </message>
-    <message>
-        <source>Create a branch without a working-tree</source>
-        <translation>Branch ohne Arbeitsdateibaum erzeugen</translation>
     </message>
     <message>
         <source>No working-tree</source>
@@ -21018,9 +20979,31 @@ Der neue Branch benötigt den Quell-Branch für alle Operationen</translation>
     </message>
     <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
-This flag will allow branch to proceed</source>
+This flag will allow branch to proceed.</source>
         <translation>Normalerweise schlägt eine Branch-Operation fehl, wenn der Zielordner vorhanden ist und keinen Versionskontroll-Ordner hat.
 Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
+    </message>
+    <message>
+        <source>Create a stacked branch referring to the source branch.
+The new branch will depend on the availability of the source branch for all operations.</source>
+        <translation>Erstelle einen Branch vom Typ &apos;stacked&apos;, der sich auf den Quell-Branch bezieht.
+Der neue Branch benötigt den Quell-Branch für alle Operationen.</translation>
+    </message>
+    <message>
+        <source>Do not use a shared repository, even if available.</source>
+        <translation>Kein gemeinsame Repository verwenden, selbst wenn eines verfügbar sein sollte.</translation>
+    </message>
+    <message>
+        <source>Switch the checkout in the current directory to the new branch.</source>
+        <translation>Checkout im aktuellen Ordner auf neuen Branch setzen.</translation>
+    </message>
+    <message>
+        <source>Hard-link working tree files where possible.</source>
+        <translation>Hardlinks für Dateien in der Arbeitshierarchie benutzen, sofern möglich.</translation>
+    </message>
+    <message>
+        <source>Create a branch without a working-tree.</source>
+        <translation>Branch ohne Arbeitsdateibaum erzeugen</translation>
     </message>
 </context>
 <context>
@@ -21066,10 +21049,6 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <translation>Log-Anzeige beschränken auf:</translation>
     </message>
     <message>
-        <source>The number of recent commit logs to show, choose 0 to see all enteries</source>
-        <translation>Zahl der anzuzeigenden Logeinträge, 0 für unbegrenzt</translation>
-    </message>
-    <message>
         <source>Timeout:</source>
         <translation>Zeitlimit:</translation>
     </message>
@@ -21084,6 +21063,10 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
+    </message>
+    <message>
+        <source>The number of recent commit logs to show. Choose 0 to see all entries.</source>
+        <translation>Zahl der anzuzeigenden Logeinträge, 0 für unbegrenzt.</translation>
     </message>
 </context>
 <context>
@@ -21105,12 +21088,6 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <translation>Obige Einstellung als Vorgabe übernehmen</translation>
     </message>
     <message>
-        <source>Ignore differences between branches and overwrite
-unconditionally</source>
-        <translation>Unterschiede zwischen Branches nicht berücksichtigen
-und stets überschreiben</translation>
-    </message>
-    <message>
         <source>Overwrite</source>
         <translation>Überschreiben</translation>
     </message>
@@ -21119,22 +21096,12 @@ und stets überschreiben</translation>
         <translation>Vorhandenen Ordner verwenden</translation>
     </message>
     <message>
-        <source>Create the path leading up to the branch if it does not already exist</source>
-        <translation>Pfad bis zu Branch anlegen, sofern er nicht existiert</translation>
-    </message>
-    <message>
         <source>Create prefix</source>
         <translation>Präfix erzeugen</translation>
     </message>
     <message>
         <source>Revision:</source>
         <translation>Revision:</translation>
-    </message>
-    <message>
-        <source>Perform a local pull in a bound branch.
-Local pulls are not applied to the master branch</source>
-        <translation>Lokale Pull-Operation in gebundenem Branch ausführen.
-Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt</translation>
     </message>
     <message>
         <source>Local</source>
@@ -21149,16 +21116,6 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt</translatio
         <translation>Ziel für Push-Operation</translation>
     </message>
     <message>
-        <source>for example https://[user[:pass]@]host[:port]/[path]</source>
-        <translation>zum Beispiel https://[user[:pass]@]host[:port]/[path]</translation>
-    </message>
-    <message>
-        <source>By default, push will fail if the target directory exists, but does not already have a control directory.
-This flag will allow push to proceed</source>
-        <translation>Normalerweise schlägt eine Branch-Operation fehl, wenn der Zielordner vorhanden ist und keinen Versionskontroll-Ordner hat.
-Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
-    </message>
-    <message>
         <source>Branch Location</source>
         <translation>Branch</translation>
     </message>
@@ -21169,6 +21126,32 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
     <message>
         <source>Specify URL:</source>
         <translation>URL:</translation>
+    </message>
+    <message>
+        <source>For example: https://[user[:pass]@]host[:port]/[path]</source>
+        <translation>zum Beispiel: https://[user[:pass]@]host[:port]/[path]</translation>
+    </message>
+    <message>
+        <source>Ignore differences between branches and overwrite
+unconditionally.</source>
+        <translation>Unterschiede zwischen Branches nicht berücksichtigen
+und stets überschreiben.</translation>
+    </message>
+    <message>
+        <source>By default, push will fail if the target directory exists, but does not already have a control directory.
+This flag will allow push to proceed.</source>
+        <translation>Normalerweise schlägt eine Branch-Operation fehl, wenn der Zielordner vorhanden ist und keinen Versionskontroll-Ordner hat.
+Die Einstellung gestattet es, unter diesem Umständen fortzusetzen.</translation>
+    </message>
+    <message>
+        <source>Create the path leading up to the branch if it does not already exist.</source>
+        <translation>Pfad bis zu Branch anlegen, sofern er nicht existiert.</translation>
+    </message>
+    <message>
+        <source>Perform a local pull in a bound branch.
+Local pulls are not applied to the master branch.</source>
+        <translation>Lokale Pull-Operation in gebundenem Branch ausführen.
+Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translation>
     </message>
 </context>
 <context>
@@ -21338,7 +21321,7 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <translation>Priorität:</translation>
     </message>
     <message>
-        <source>&lt;i&gt;Note: Wide range values might impact on Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
+        <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Hinweise: Große Bereiche können sich negativ auf die Geschwindigkeit des Öffnens von Dateien auswirken.&lt;/i&gt;</translation>
     </message>
 </context>
@@ -21385,16 +21368,16 @@ Die Einstellung gestattet es, unter diesem Umständen fortzusetzen</translation>
         <translation>Löschen</translation>
     </message>
     <message>
-        <source>Reset all to default</source>
-        <translation>Alle auf Vorgabewert zurücksetzen</translation>
-    </message>
-    <message>
         <source>Reset All</source>
         <translation>Alle rücksetzen</translation>
     </message>
     <message>
         <source>Registered MIME Types</source>
         <translation>Registrierte MIME-Typen</translation>
+    </message>
+    <message>
+        <source>Reset all to default.</source>
+        <translation>Alle auf Vorgabewert zurücksetzen.</translation>
     </message>
 </context>
 <context>
@@ -22191,16 +22174,16 @@ Fehler: %2</translation>
         <translation>Keine Builds gefunden</translation>
     </message>
     <message>
-        <source>No Build found in %1 matching project %2.</source>
-        <translation>In %1 wurde kein dem Projekt %2 entsprechender Build gefunden</translation>
+        <source>No build found in %1 matching project %2.</source>
+        <translation>In %1 wurde kein dem Projekt %2 entsprechender Build gefunden.</translation>
+    </message>
+    <message>
+        <source>The build found in %1 is incompatible with this target</source>
+        <translation>Der im Ordner %1 befindliche Build ist nicht zu diesem Ziel kompatibel.</translation>
     </message>
     <message>
         <source>Incompatible build found</source>
         <translation>Inkompatibler Build gefunden</translation>
-    </message>
-    <message>
-        <source>The Build found in %1 is incompatible with this target</source>
-        <translation>Der im Ordner %1 befindliche Build ist nicht zu diesem Ziel kompatibel</translation>
     </message>
     <message>
         <source>Import build from %1</source>
@@ -23144,16 +23127,8 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
         <translation>Nutzer:</translation>
     </message>
     <message>
-        <source>You need to pass either a password or a SSH Key.</source>
-        <translation>Sie benötigen entweder ein Passwort oder einen SSH-Schlüssel.</translation>
-    </message>
-    <message>
         <source>Password:</source>
         <translation>Passwort:</translation>
-    </message>
-    <message>
-        <source>Private Key:</source>
-        <translation>Privater Schlüssel:</translation>
     </message>
     <message>
         <source>Target</source>
@@ -23168,12 +23143,20 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
         <translation>Argumente:</translation>
     </message>
     <message>
-        <source>Working Directory:</source>
-        <translation>Arbeitsverzeichnis:</translation>
-    </message>
-    <message>
         <source>Port:</source>
         <translation>Port:</translation>
+    </message>
+    <message>
+        <source>You need to pass either a password or an SSH key.</source>
+        <translation>Sie benötigen entweder ein Passwort oder einen SSH-Schlüssel.</translation>
+    </message>
+    <message>
+        <source>Private key:</source>
+        <translation>Privater Schlüssel:</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Arbeitsverzeichnis:</translation>
     </message>
 </context>
 <context>
@@ -23725,10 +23708,6 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Einstellungen des Profilers</translation>
     </message>
     <message>
-        <source>This option limits the amount of results the profiler will give you. A lower limit will likely increase performance.</source>
-        <translation>Diese Einstellung beschränkt die Anzahl der Ergebnisse des Profilers. Kleinere Werte steigern die Geschwindigkeit.</translation>
-    </message>
-    <message>
         <source>Result view: Show events with inclusive costs higher than:</source>
         <translation>Ergebnisanzeige: Zeige Ereignisse mit einschließlichen Kosten höher als:</translation>
     </message>
@@ -23749,24 +23728,47 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Verzweigungsvorhersage aktivieren</translation>
     </message>
     <message>
-        <source>This specifies whether information for system call times should be collected.</source>
-        <translation>Gibt an, ob Informationen bezüglich der Zeiten von Systemaufrufen gesammelt werden soll.</translation>
-    </message>
-    <message>
         <source>Collect system call time</source>
         <translation>In Systemaufrufen verbrachte Zeit aufnehmen</translation>
-    </message>
-    <message>
-        <source>This specifies whether the number of global bus events executed should be collected. The event type &quot;Ge&quot; is used for these events.</source>
-        <translation>Gibt an, ob die Anzahl der ausgeführten globalen Bus-Ereignisse aufgenommen werden soll. Der Ereignistyp &quot;Ge&quot; wird dafür verwendet.</translation>
     </message>
     <message>
         <source>Visualisation: Show events with inclusive costs higher than:</source>
         <translation>Visualisierung: Zeige Ereignisse mit einschließlichen Kosten höher als:</translation>
     </message>
     <message>
+        <source>Collect global bus events</source>
+        <translation>Globale Bus-Ereignisse aufnehmen</translation>
+    </message>
+    <message>
+        <source>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</source>
+        <translation>Diese Einstellung beschränkt die Anzahl der Ergebnisse des Profilers. Kleinere Werte steigern die Geschwindigkeit.</translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Specify if you want to do branch prediction simulation.&lt;/p&gt;
+&lt;p&gt;Does full cache simulation.&lt;/p&gt;
+&lt;p&gt;By default, only instruction read accesses will be counted (&quot;Ir&quot;).&lt;/p&gt;
+&lt;p&gt;
+With cache simulation, further event counters are enabled:
+&lt;ul&gt;&lt;li&gt;Cache misses on instruction reads (&quot;I1mr&quot;/&quot;I2mr&quot;)&lt;/li&gt;
+&lt;li&gt;Data read accesses (&quot;Dr&quot;) and related cache misses (&quot;D1mr&quot;/&quot;D2mr&quot;)&lt;/li&gt;
+&lt;li&gt;Data write accesses (&quot;Dw&quot;) and related cache misses (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
+&lt;/p&gt;
+
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Gibt an, ob eine vollständige Simulation des Caches erfolgen soll.&lt;/p&gt;
+&lt;p&gt;In der Vorgabeinstellungen werden nur Lesezugriffe für Anweisungen gezählt (&quot;Ir&quot;).&lt;/p&gt;
+&lt;p&gt;
+Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
+&lt;ul&gt;&lt;li&gt;Cache-Fehlzugriffe bei Lesen von Anweisungen (&quot;I1mr&quot;/&quot;I2mr&quot;)&lt;/li&gt;
+&lt;li&gt;Daten-Lesezugriffe (&quot;Dr&quot;) und diesbezügliche Fehlzugriffe (&quot;D1mr&quot;/&quot;D2mr&quot;)&lt;/li&gt;
+&lt;li&gt;Daten-Schreibzugriffe (&quot;Dw&quot;) und diesbezügliche Fehlzugriffe (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
+&lt;/p&gt;
+&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Do branch prediction simulation.&lt;/p&gt;
 &lt;p&gt;Further event counters are enabled: &lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;Number of executed conditional branches and related predictor misses (
 &quot;Bc&quot;/&quot;Bcm&quot;)&lt;/li&gt;
@@ -23781,32 +23783,12 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
 &quot;Bi&quot;/&quot;Bim&quot;)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Specify if you want to do full cache simulation.&lt;/p&gt;
-&lt;p&gt;By default, only instruction read accesses will be counted (&quot;Ir&quot;).&lt;/p&gt;
-&lt;p&gt;
-With cache simulation, further event counters are enabled:
-&lt;ul&gt;&lt;li&gt;Cache misses on instruction reads (&quot;I1mr&quot;/&quot;I2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Data read accesses (&quot;Dr&quot;) and related cache misses (&quot;D1mr&quot;/&quot;D2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Data write accesses (&quot;Dw&quot;) and related cache misses (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
-&lt;/p&gt;
-
-For more information, see ???.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Gibt an, ob eine vollständige Simulation des Caches erfolgen soll.&lt;/p&gt;
-&lt;p&gt;In der Vorgabeinstellungen werden nur Lesezugriffe für Anweisungen gezählt (&quot;Ir&quot;).&lt;/p&gt;
-&lt;p&gt;
-Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
-&lt;ul&gt;&lt;li&gt;Cache-Fehlzugriffe bei Lesen von Anweisungen (&quot;I1mr&quot;/&quot;I2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Daten-Lesezugriffe (&quot;Dr&quot;) und diesbezügliche Fehlzugriffe (&quot;D1mr&quot;/&quot;D2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Daten-Schreibzugriffe (&quot;Dw&quot;) und diesbezügliche Fehlzugriffe (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
-&lt;/p&gt;
-
-Siehe dazu auch ???.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>Collect information for system call times.</source>
+        <translation>In Systemaufrufen verbrachte Zeit aufnehmen.</translation>
     </message>
     <message>
-        <source>Collect global bus events</source>
-        <translation>Globale Bus-Ereignisse aufnehmen</translation>
+        <source>Collect the number of global bus events that are executed. The event type &quot;Ge&quot; is used for these events.</source>
+        <translation>Gibt an, ob die Anzahl der ausgeführten globalen Bus-Ereignisse aufgenommen werden soll. Der Ereignistyp &quot;Ge&quot; wird dafür verwendet.</translation>
     </message>
 </context>
 <context>
@@ -24485,152 +24467,6 @@ Siehe dazu auch ???.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Callgrind::Internal::CallgrindTool</name>
-    <message>
-        <source>Profile</source>
-        <translation>Profiler</translation>
-    </message>
-    <message>
-        <source>Profile Costs of this Function and its Callees</source>
-        <translation>Kosten der Funktion und der von ihr aufgerufenen Funktionen aufnehmen</translation>
-    </message>
-</context>
-<context>
-    <name>Callgrind::Internal::CallgrindToolPrivate</name>
-    <message>
-        <source>Callers</source>
-        <translation>Aufrufer</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Funktionen</translation>
-    </message>
-    <message>
-        <source>Callees</source>
-        <translation>Aufgerufene Funktionen</translation>
-    </message>
-    <message>
-        <source>Visualization</source>
-        <translation>Visualisierung</translation>
-    </message>
-    <message>
-        <source>Dump</source>
-        <translation>Ausschreiben</translation>
-    </message>
-    <message>
-        <source>Request the dumping of profile information. This will update the callgrind visualization.</source>
-        <translation>Fordere das Ausschreiben der Profiler-Informationen an. Die Visualisierung wird dadurch akualisiert.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Rücksetzen</translation>
-    </message>
-    <message>
-        <source>Zero all event counters.</source>
-        <translation>Alle Ereigniszähler rücksetzen.</translation>
-    </message>
-    <message>
-        <source>Ignore</source>
-        <translation>Ignorieren</translation>
-    </message>
-    <message>
-        <source>If enabled, no events are counted which will speed up program execution during profiling.</source>
-        <translation>Bewirkt, dass keine Ereignisse aufgenommen werden, was die Ausführung des Programmes während des Profilens beschleunigt.</translation>
-    </message>
-    <message>
-        <source>Back</source>
-        <translation>Zurück</translation>
-    </message>
-    <message>
-        <source>Go back one step in history. This will select the previously selected item.</source>
-        <translation>Gehe einen Schritt im Verlauf zurück. Das vorher ausgewählte Element wird wieder ausgewählt.</translation>
-    </message>
-    <message>
-        <source>All Functions</source>
-        <translation>Alle Funktionen</translation>
-    </message>
-    <message>
-        <source>Show the overview of all function calls.</source>
-        <translation>Zeige eine Übersicht aller Funktionsaufrufe.</translation>
-    </message>
-    <message>
-        <source>Selects which events from the profiling data are shown and visualized.</source>
-        <translation>Bestimmt, welche Ereignisse der Profiler-Daten angezeigt werden.</translation>
-    </message>
-    <message>
-        <source>Absolute Costs</source>
-        <translation>Absolute Kosten</translation>
-    </message>
-    <message>
-        <source>Show costs as absolute numbers.</source>
-        <translation>Kosten als absolute Werte anzeigen.</translation>
-    </message>
-    <message>
-        <source>Relative Costs</source>
-        <translation>Relative Kosten</translation>
-    </message>
-    <message>
-        <source>Show costs relative to total inclusive cost.</source>
-        <translation>Zeige Kosten relativ zur Summe der einschließlichen Kosten.</translation>
-    </message>
-    <message>
-        <source>Relative Costs to Parent</source>
-        <translation>Kosten relativ zu übergeordnetem Element</translation>
-    </message>
-    <message>
-        <source>Show costs relative to parent functions inclusive cost.</source>
-        <translation>Zeige Kosten relativ zu den einschließlichen Kosten der rufenden Funktion.</translation>
-    </message>
-    <message>
-        <source>Cost Format</source>
-        <translation>Format der Kosten</translation>
-    </message>
-    <message>
-        <source>Cycle Detection</source>
-        <translation>Schleifenerkennung</translation>
-    </message>
-    <message>
-        <source>Enable cycle detection to properly handle recursive or circular function calls.</source>
-        <translation>Aktivieren Sie die Schleifenerkennung, um rekursive oder zyklische Funktionsaufrufe richtig zu behandeln.</translation>
-    </message>
-    <message>
-        <source>Show Project Costs Only</source>
-        <translation>Nur Projektkosten anzeigen</translation>
-    </message>
-    <message>
-        <source>Show only profiling info that originated from this project source.</source>
-        <translation>Nur Profiler-Informationen anzeigen, die aus den Quellen des Projekts herrühren.</translation>
-    </message>
-    <message>
-        <source>Filter...</source>
-        <translation>Filter...</translation>
-    </message>
-    <message>
-        <source>Profiling aborted.</source>
-        <translation>Profiling abgebrochen.</translation>
-    </message>
-    <message>
-        <source>Parsing finished, no data.</source>
-        <translation>Auswertung beendet, keine Daten erhalten.</translation>
-    </message>
-    <message>
-        <source>Parsing finished, total cost of %1 reported.</source>
-        <translation>Auswertung beendet, erhaltene Gesamtkosten: %1.</translation>
-    </message>
-    <message>
-        <source>Parsing failed.</source>
-        <translation>Die Auswertung schlug fehl.</translation>
-    </message>
-    <message>
-        <source>Select this Function in the Analyzer Output</source>
-        <translation>Diese Funktion in der Analyse-Ausgabe auswählen</translation>
-    </message>
-    <message>
-        <source>Populating...</source>
-        <translation>Erstelle Ansicht...</translation>
-    </message>
-</context>
-<context>
     <name>CMakeProjectManager::Internal::CMakeEditor</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
@@ -25201,12 +25037,12 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
     <message>
-        <source>No valid build configuration has been detected.&lt;br&gt;Please define a correct  build configuration in &quot;Options &gt; Qt4&quot;</source>
-        <translation>Es konnte keine gültige Build-Konfiguration gefunden werden. &lt;br&gt; Bitte geben Sie eine korrekte Build-Konfiguration an.</translation>
+        <source>No valid build configuration has been detected.&lt;br&gt;Define a correct  build configuration in &quot;Options &gt; Qt4&quot;</source>
+        <translation>Es konnte keine gültige Build-Konfiguration gefunden werden. &lt;br&gt; Bitte geben Sie eine korrekte Build-Konfiguration in &quot;Einstellungen &gt; Qt4&quot; an.</translation>
     </message>
     <message>
-        <source>No valid tool chain has been detected.&lt;br&gt;Please define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
-        <translation>Es konnte keine gültige Toolchain gefunden werden. &lt;br&gt; Bitte geben Sie eine korrekte Toolchain unter &quot;Extras/Toolchains&quot; an</translation>
+        <source>No valid tool chain has been detected.&lt;br&gt;Define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
+        <translation>Es konnte keine gültige Toolchain gefunden werden. &lt;br&gt; Bitte geben Sie eine korrekte Toolchain unter &quot;Einstellungen/Toolchains&quot; an</translation>
     </message>
 </context>
 <context>
@@ -25506,6 +25342,10 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Bitte schalten sie das Mobilgerät über Einstellungen -&gt; Sicherheit in den Entwicklermodus.</translation>
     </message>
     <message>
+        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.</source>
+        <translation>Es fehlt der Order &apos;%1&apos;. QML-Debuggen ist auf diesem Mobilgerät nicht möglich.</translation>
+    </message>
+    <message>
         <source>Error retrieving list of used ports: %1</source>
         <translation>Fehler bei der Bestimmung der verwendeten Ports: %1</translation>
     </message>
@@ -25550,31 +25390,6 @@ Haben Sie Qemu gestartet?</translation>
     <message>
         <source>List of installed Qt packages:</source>
         <translation>Liste der installierten Qt-Pakete:</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDebugSupport</name>
-    <message>
-        <source>Preparing remote side ...
-</source>
-        <translation>Bereite Gegenseite vor...
-</translation>
-    </message>
-    <message>
-        <source>Remote application failed with exit code %1.</source>
-        <translation>Die Anwendung wurde beendet, Rückgabewert %1.</translation>
-    </message>
-    <message>
-        <source>The gdbserver process closed unexpectedly.</source>
-        <translation>Der Gdb-Prozess wurde plötzlich beendet.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Initialisierung fehlgeschlagen: %1</translation>
-    </message>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation>Auf dem Gerät sind nicht genügend freie Ports für das Debuggen vorhanden.</translation>
     </message>
 </context>
 <context>
@@ -25677,34 +25492,6 @@ Haben Sie Qemu gestartet?</translation>
         <translation>Emulator (Qemu)</translation>
     </message>
     <message>
-        <source>Choose Public Key File</source>
-        <translation>Datei mit öffentlichem Schlüssel</translation>
-    </message>
-    <message>
-        <source>Public Key Files(*.pub);;All Files (*)</source>
-        <translation>Öffentliche Schlüssel (*.pub);;Alle Dateien (*)</translation>
-    </message>
-    <message>
-        <source>Stop Deploying</source>
-        <translation>Deployment beenden</translation>
-    </message>
-    <message>
-        <source>Deployment Failed</source>
-        <translation>Deployment fehlgeschlagen</translation>
-    </message>
-    <message>
-        <source>Deployment Succeeded</source>
-        <translation>Deployment beendet</translation>
-    </message>
-    <message>
-        <source>Key was successfully deployed.</source>
-        <translation>Der Schlüssel wurde erfolgreich versandt.</translation>
-    </message>
-    <message>
-        <source>&amp;Deploy Public Key...</source>
-        <translation>&amp;Öffentlichen Schlüssel senden...</translation>
-    </message>
-    <message>
         <source>You will need at least one port.</source>
         <translation>Sie benötigen mindestens einen freien Port.</translation>
     </message>
@@ -25801,14 +25588,6 @@ Haben Sie Qemu gestartet?</translation>
 </context>
 <context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardFinalPage</name>
-    <message>
-        <source>Setup Finished</source>
-        <translation>Einrichtung beendet</translation>
-    </message>
-    <message>
-        <source>The new device configuration will now be created and a test procedure will be run to check whether Qt Creator can connect to the device and to provide some information about its features.</source>
-        <translation>Die neue Gerätekonfiguration wird nun erstellt und eine Testprozedur ausgeführt, die prüft, ob Qt Creator eine Verbindung zum Gerät herstellen kann und einige Informationen zum Gerät bereitstellt.</translation>
-    </message>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation>Die neue Gerätekonfiguration wird nun erzeugt.</translation>
@@ -25914,6 +25693,10 @@ Ist das Gerät verbunden und für Netzwerkzugriff eingerichtet?</translation>
     <message>
         <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
         <translation>Die Datei &apos;%1&apos; konnte nicht nach &apos;%2&apos; kopiert werden.</translation>
+    </message>
+    <message>
+        <source>Unknown OS</source>
+        <translation>unbekanntes Betriebssystem</translation>
     </message>
 </context>
 <context>
@@ -26318,12 +26101,24 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
         <translation>Fehler: Es konnte kein temporärer Ordner erstellt werden.</translation>
     </message>
     <message>
-        <source>Error: Could not copy project directory</source>
+        <source>Error: Could not copy project directory.</source>
         <translation>Fehler: Der Projektordner konnte nicht kopiert werden.</translation>
     </message>
     <message>
-        <source>Error: Could not fix newlines</source>
-        <translation>Fehler: Die Zeilenende-Zeichen konnten nicht angepasst werden</translation>
+        <source>Error: Could not fix newlines.</source>
+        <translation>Fehler: Die Zeilenende-Zeichen konnten nicht angepasst werden.</translation>
+    </message>
+    <message>
+        <source>No Qt version set.</source>
+        <translation>Keine Qt-Version gesetzt.</translation>
+    </message>
+    <message>
+        <source>Error uploading file: %1.</source>
+        <translation>Fehler beim Hochladen der Datei: %1.</translation>
+    </message>
+    <message>
+        <source>Cannot open file for reading: %1.</source>
+        <translation>Die Datei %1. kann nicht zum Lesen geöffnet werden.</translation>
     </message>
     <message>
         <source>Publishing failed: Could not create package.</source>
@@ -26364,10 +26159,6 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
 </translation>
     </message>
     <message>
-        <source>No Qt version set</source>
-        <translation>Keine Qt-Version gesetzt.</translation>
-    </message>
-    <message>
         <source>Building source package...</source>
         <translation>Erzeuge Quellpaket...</translation>
     </message>
@@ -26384,10 +26175,6 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
         <translation>Fehlschlag beim Hochladen.</translation>
     </message>
     <message>
-        <source>Error uploading file: %1</source>
-        <translation>Fehler beim Hochladen der Datei: %1</translation>
-    </message>
-    <message>
         <source>Error uploading file.</source>
         <translation>Fehler beim Hochladen der Datei.</translation>
     </message>
@@ -26402,10 +26189,6 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <message>
         <source>Uploading file %1 ...</source>
         <translation>Lade Datei %1 hoch...</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1</source>
-        <translation>Die Datei %1 kann nicht zum Lesen geöffnet werden</translation>
     </message>
     <message>
         <source>Cannot read file: %1</source>
@@ -26626,81 +26409,10 @@ Fehlerausgabe: %1</translation>
     </message>
 </context>
 <context>
-    <name>ReoteLinux::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>Fetch Device Environment</source>
-        <translation>Umgebung vom Mobilgerät abfragen</translation>
-    </message>
-</context>
-<context>
     <name>RemoteLinux::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;%1&quot;&gt;Gerätekonfigurationen verwalten&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;%1&quot;&gt;Set Debugger&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;%1&quot;&gt;Debugger einstellen&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation>Geräte-Konfiguration:</translation>
-    </message>
-    <message>
-        <source>Executable on host:</source>
-        <translation>Ausführbare Datei auf Hostrechner:</translation>
-    </message>
-    <message>
-        <source>Executable on device:</source>
-        <translation>Ausführbare Datei auf Mobilgerät:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumente:</translation>
-    </message>
-    <message>
-        <source>C++ only</source>
-        <translation>nur C++</translation>
-    </message>
-    <message>
-        <source>QML only</source>
-        <translation>nur QML</translation>
-    </message>
-    <message>
-        <source>C++ and QML</source>
-        <translation>C++ und QML</translation>
-    </message>
-    <message>
-        <source>Debugging type:</source>
-        <translation>Debuggen:</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation>Basisumgebung für diese Ausführungskonfiguration:</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Umgebung löschen</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Systemumgebung</translation>
-    </message>
     <message>
         <source>Choose directory to mount</source>
         <translation>Ordner für mount-Vorgang auswählen</translation>
-    </message>
-    <message>
-        <source>Cancel Fetch Operation</source>
-        <translation>Abfragen der Umgebung abbrechen</translation>
-    </message>
-    <message>
-        <source>Device error</source>
-        <translation>Gerätefehler</translation>
-    </message>
-    <message>
-        <source>Fetching environment failed: %1</source>
-        <translation>Das Abfragen der Umgebung schlug fehl: %1</translation>
     </message>
     <message>
         <source>No local directories to be mounted on the device.</source>
@@ -26731,25 +26443,6 @@ Fehlerausgabe: %1</translation>
             <numerusform>Warnhinweis: Sie möchten %1 Ordner anhängen, aber Ihr Mobilgerät hat im Debug-Modus nur einen freien Port.&lt;br&gt;Diese Konfiguration kann nicht ausgeführt werden.</numerusform>
             <numerusform>Warnhinweis: Sie möchten %1 Ordner anhängen, aber Ihr Mobilgerät hat im Debug-Modus nur %n freie Ports.&lt;br&gt;Diese Konfiguration kann nicht ausgeführt werden.</numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRunControl</name>
-    <message>
-        <source>Starting remote process ...
-</source>
-        <translation>Starte entfernten Prozess...
-</translation>
-    </message>
-    <message>
-        <source>Finished running remote process. Exit code was %1.
-</source>
-        <translation>Der entfernte Prozess wurde beendet, Rückgabewert %1.
-</translation>
-    </message>
-    <message>
-        <source>Remote Execution Failure</source>
-        <translation>Fehler bei Ausführung auf dem Gerät</translation>
     </message>
 </context>
 <context>
@@ -26810,44 +26503,12 @@ Fehlerausgabe: %1</translation>
 <context>
     <name>RemoteLinux::Internal::MaemoSshRunner</name>
     <message>
-        <source>Cannot run: No remote executable set.</source>
-        <translation>Keine Ausführung möglich: Es wurde keine ausführbaren Datei gesetzt.</translation>
-    </message>
-    <message>
-        <source>Cannot run: No device configuration set.</source>
-        <translation>Ausführung nicht möglich: Es ist keine Gerätekonfiguration ausgewählt.</translation>
-    </message>
-    <message>
-        <source>Cannot run: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready.</source>
-        <translation>Das Deployment schlug fehl, da Qemu nicht lief. Es wurde soeben gestartet, benötigt jedoch noch einige Zeit.</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation>Verbinde zu Mobilgerät...</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation>Verbindungsfehler: %1</translation>
-    </message>
-    <message>
-        <source>Killing remote process(es)...</source>
-        <translation>Stoppe entfernte Prozesse...</translation>
-    </message>
-    <message>
-        <source>Initial cleanup failed: %1</source>
-        <translation>Die zu Anfang durchzuführende Bereinigung schlug fehl: %1</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation>Fehler bei Ausführung des Prozesses auf dem Gerät: %1</translation>
-    </message>
-    <message>
         <source>Mounting host directories...</source>
         <translation>Anhängen der Ordner...</translation>
     </message>
     <message>
-        <source>Unmounting left-over host directory mounts...</source>
-        <translation>Abhängen der übriggebliebenen Ordner...</translation>
+        <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready.</source>
+        <translation>Das Deployment schlug fehl, da Qemu nicht lief. Es wurde soeben gestartet, benötigt jedoch noch einige Zeit.</translation>
     </message>
     <message>
         <source>Potentially unmounting left-over host directory mounts...</source>
@@ -27061,10 +26722,6 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <translation>Keine ausführbare Datei vorhanden.</translation>
     </message>
     <message>
-        <source>Not enough free ports on the device.</source>
-        <translation>Nicht genügend freie Ports auf dem Gerät.</translation>
-    </message>
-    <message>
         <source>Run on remote device</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation>Auf Mobilgerät ausführen</translation>
@@ -27177,44 +26834,24 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <translation>Visualisierung</translation>
     </message>
     <message>
-        <source>Dump</source>
-        <translation>Ausschreiben</translation>
-    </message>
-    <message>
         <source>Request the dumping of profile information. This will update the callgrind visualization.</source>
         <translation>Fordere das Ausschreiben der Profiler-Informationen an. Die Visualisierung wird dadurch akualisiert.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Rücksetzen</translation>
-    </message>
-    <message>
-        <source>Zero all event counters.</source>
-        <translation>Alle Ereigniszähler rücksetzen.</translation>
-    </message>
-    <message>
-        <source>Ignore</source>
-        <translation>Ignorieren</translation>
-    </message>
-    <message>
-        <source>If enabled, no events are counted which will speed up program execution during profiling.</source>
-        <translation>Bewirkt, dass keine Ereignisse aufgenommen werden, was die Ausführung des Programmes während des Profilens beschleunigt.</translation>
-    </message>
-    <message>
-        <source>Back</source>
-        <translation>Zurück</translation>
     </message>
     <message>
         <source>Go back one step in history. This will select the previously selected item.</source>
         <translation>Gehe einen Schritt im Verlauf zurück. Das vorher ausgewählte Element wird wieder ausgewählt.</translation>
     </message>
     <message>
-        <source>All Functions</source>
-        <translation>Alle Funktionen</translation>
+        <source>Reset all event counters.</source>
+        <translation>Alle Ereigniszähler rücksetzen.</translation>
     </message>
     <message>
-        <source>Show the overview of all function calls.</source>
-        <translation>Zeige eine Übersicht aller Funktionsaufrufe.</translation>
+        <source>Pause event logging. No events are counted which will speed up program execution during profiling.</source>
+        <translation>Bewirkt, dass keine Ereignisse aufgenommen werden, was die Ausführung des Programmes während des Profilens beschleunigt.</translation>
+    </message>
+    <message>
+        <source>Go forward one step in history.</source>
+        <translation>Gehe einen Schritt weiter.</translation>
     </message>
     <message>
         <source>Selects which events from the profiling data are shown and visualized.</source>
@@ -27585,27 +27222,12 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
 <context>
     <name>LinuxDeviceFactorySelectionDialog</name>
     <message>
-        <source>Publishing Wizard Selection</source>
-        <translation>Wizard zur Veröffentlichung wählen</translation>
-    </message>
-    <message>
         <source>Available wizards:</source>
         <translation>Verfügbare Wizards:</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::DeviceConfigurationFactory</name>
     <message>
-        <source>Fremantle, Harmattan, MeeGo, GenericLinux</source>
-        <translation>Fremantle, Harmattan, MeeGo, GenericLinux</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation>Test</translation>
-    </message>
-    <message>
-        <source>Remote processes</source>
-        <translation>Prozesse auf Gerät</translation>
+        <source>Device Configuration Wizard Selection</source>
+        <translation>Einrichtung einer neuen Geräte-Konfiguration</translation>
     </message>
 </context>
 <context>
@@ -27631,6 +27253,330 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
     <message>
         <source>QML Profiler</source>
         <translation>QML-Profiler</translation>
+    </message>
+</context>
+<context>
+    <name>GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <source>The name to identify this configuration:</source>
+        <translation>Name der Konfiguration:</translation>
+    </message>
+    <message>
+        <source>The device&apos;s host name or IP address:</source>
+        <translation>Hostname oder IP-Adresse des Geräts:</translation>
+    </message>
+    <message>
+        <source>User name:</source>
+        <translation>Nutzername:</translation>
+    </message>
+    <message>
+        <source>Authentication type:</source>
+        <translation>Art der Authentifizierung:</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Passwort</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Schlüssel</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Passwort:</translation>
+    </message>
+    <message>
+        <source>Private key:</source>
+        <translation>Privater Schlüssel:</translation>
+    </message>
+</context>
+<context>
+    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
+    <message>
+        <source>Edit Files...</source>
+        <translation>Dateien bearbeiten...</translation>
+    </message>
+</context>
+<context>
+    <name>GenericProjectManager::Internal::SelectableFilesDialog</name>
+    <message>
+        <source>Edit Files</source>
+        <translation>Datei zum Bearbeiten anfordern</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationFactory</name>
+    <message>
+        <source>Generic Linux Devices</source>
+        <translation>Generische Linux-Geräte</translation>
+    </message>
+    <message>
+        <source>Generic Linux</source>
+        <translation>Generisches Linux</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Test</translation>
+    </message>
+    <message>
+        <source>Remote Processes</source>
+        <translation>Prozesse auf Gerät</translation>
+    </message>
+    <message>
+        <source>Deploy Public Key</source>
+        <translation>Öffentlichen Schlüssel senden</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
+    <message>
+        <source>New Generic Linux Device Configuration Setup</source>
+        <translation>Einrichtung einer neuen Geräte-Konfiguration für generisches Linux</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <message>
+        <source>Connection Data</source>
+        <translation>Verbindungsdaten</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::MaddeDeviceConfigurationFactory</name>
+    <message>
+        <source>Devices with MADDE support (Fremantle, Harmattan, MeeGo)</source>
+        <translation>Geräte mit Unterstützung für MADDE-(Fremantle, Harmattan, MeeGo)</translation>
+    </message>
+    <message>
+        <source>Maemo5/Fremantle</source>
+        <translation>Maemo 5/Fremantle</translation>
+    </message>
+    <message>
+        <source>Harmattan</source>
+        <translation>Harmattan</translation>
+    </message>
+    <message>
+        <source>MeeGo</source>
+        <translation>Meego</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::MaemoRunConfiguration</name>
+    <message>
+        <source>Not enough free ports on the device.</source>
+        <translation>Nicht genügend freie Ports auf dem Gerät.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
+    <message>
+        <source>Waiting for file name...</source>
+        <translation>Warte auf Dateiname...</translation>
+    </message>
+    <message>
+        <source>Choose Public Key File</source>
+        <translation>Datei mit öffentlichem Schlüssel auswählen</translation>
+    </message>
+    <message>
+        <source>Public Key Files(*.pub);;All Files (*)</source>
+        <translation>Öffentliche Schlüssel (*.pub);;Alle Dateien (*)</translation>
+    </message>
+    <message>
+        <source>Deploying...</source>
+        <translation>Sende Schlüssel...</translation>
+    </message>
+    <message>
+        <source>Deployment finished successfully.</source>
+        <translation>Schlüssel erfolgreich versandt.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Schließen</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxApplicationRunner</name>
+    <message>
+        <source>Cannot run: %1</source>
+        <translation>Fehlschlag bei Ausführung: %1</translation>
+    </message>
+    <message>
+        <source>Connecting to device...</source>
+        <translation>Verbinde zu Mobilgerät...</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>Verbindungsfehler: %1</translation>
+    </message>
+    <message>
+        <source>Killing remote process(es)...</source>
+        <translation>Stoppe entfernte Prozesse...</translation>
+    </message>
+    <message>
+        <source>Initial cleanup failed: %1</source>
+        <translation>Die zu Anfang durchzuführende Bereinigung schlug fehl: %1</translation>
+    </message>
+    <message>
+        <source>Remote process started.</source>
+        <translation>Der entfernte Prozess wurde gestartet.</translation>
+    </message>
+    <message>
+        <source>No remote executable set.</source>
+        <translation>Es wurde keine ausführbare Datei angegeben.</translation>
+    </message>
+    <message>
+        <source>No device configuration set.</source>
+        <translation>Es ist keine Geräte-Konfiguration eingestellt.</translation>
+    </message>
+    <message>
+        <source>Error running remote process: %1</source>
+        <translation>Fehler bei Ausführung des Prozesses auf dem Gerät: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxDebugSupport</name>
+    <message>
+        <source>Preparing remote side ...
+</source>
+        <translation>Bereite Gegenseite vor...
+</translation>
+    </message>
+    <message>
+        <source>Remote application failed with exit code %1.</source>
+        <translation>Die Anwendung wurde beendet, Rückgabewert %1.</translation>
+    </message>
+    <message>
+        <source>The gdbserver process closed unexpectedly.</source>
+        <translation>Der Gdb-Prozess wurde plötzlich beendet.</translation>
+    </message>
+    <message>
+        <source>Initial setup failed: %1</source>
+        <translation>Initialisierung fehlgeschlagen: %1</translation>
+    </message>
+    <message>
+        <source>Not enough free ports on device for debugging.</source>
+        <translation>Auf dem Gerät sind nicht genügend freie Ports für das Debuggen vorhanden.</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxRunConfigurationWidget</name>
+    <message>
+        <source>Fetch Device Environment</source>
+        <translation>Umgebung vom Mobilgerät abfragen</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;%1&quot;&gt;Gerätekonfigurationen verwalten&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;%1&quot;&gt;Set Debugger&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;%1&quot;&gt;Debugger einstellen&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Device configuration:</source>
+        <translation>Gerätekonfiguration:</translation>
+    </message>
+    <message>
+        <source>Executable on host:</source>
+        <translation>Ausführbare Datei auf Hostrechner:</translation>
+    </message>
+    <message>
+        <source>Executable on device:</source>
+        <translation>Ausführbare Datei auf Mobilgerät:</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Argumente:</translation>
+    </message>
+    <message>
+        <source>C++ only</source>
+        <translation>nur C++</translation>
+    </message>
+    <message>
+        <source>QML only</source>
+        <translation>nur QML</translation>
+    </message>
+    <message>
+        <source>C++ and QML</source>
+        <translation>C++ und QML</translation>
+    </message>
+    <message>
+        <source>Debugging type:</source>
+        <translation>Debuggen:</translation>
+    </message>
+    <message>
+        <source>Base environment for this run configuration:</source>
+        <translation>Basisumgebung für diese Ausführungskonfiguration:</translation>
+    </message>
+    <message>
+        <source>Clean Environment</source>
+        <translation>Umgebung löschen</translation>
+    </message>
+    <message>
+        <source>System Environment</source>
+        <translation>Systemumgebung</translation>
+    </message>
+    <message>
+        <source>Cancel Fetch Operation</source>
+        <translation>Abfragen der Umgebung abbrechen</translation>
+    </message>
+    <message>
+        <source>Device error</source>
+        <translation>Gerätefehler</translation>
+    </message>
+    <message>
+        <source>Fetching environment failed: %1</source>
+        <translation>Das Abfragen der Umgebung schlug fehl: %1</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::AbstractRemoteLinuxRunControl</name>
+    <message>
+        <source>Starting remote process ...
+</source>
+        <translation>Starte entfernten Prozess...
+</translation>
+    </message>
+    <message>
+        <source>Finished running remote process. Exit code was %1.
+</source>
+        <translation>Der entfernte Prozess wurde beendet, Rückgabewert %1.
+</translation>
+    </message>
+    <message>
+        <source>Remote Execution Failure</source>
+        <translation>Fehler bei Ausführung auf dem Gerät</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::Internal::RemoteLinuxRunControlFactory</name>
+    <message>
+        <source>Run on remote Linux device</source>
+        <translation>Auf Linux-Mobilgerät ausführen</translation>
+    </message>
+</context>
+<context>
+    <name>LineEdit</name>
+    <message>
+        <source>Translate this string</source>
+        <translation>Zeichenkette übersetzen</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <message>
+        <source>Setup Finished</source>
+        <translation>Einrichtung beendet</translation>
+    </message>
+    <message>
+        <source>The new device configuration will now be created.
+In addition, device connectivity will be tested.</source>
+        <translation>Es wird eine neue Gerätekonfiguration erzeugt.
+Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
 </context>
 </TS>
