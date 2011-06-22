@@ -32,7 +32,7 @@
 #ifndef REMOTELINUXAPPLICATIONRUNNER_H
 #define REMOTELINUXAPPLICATIONRUNNER_H
 
-#include "linuxdeviceconfiguration.h"
+#include "portlist.h"
 #include "remotelinux_export.h"
 
 #include <QtCore/QObject>
@@ -45,6 +45,7 @@ class SshRemoteProcess;
 }
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfiguration;
 
 namespace Internal { class MaemoUsedPortsGatherer; }
@@ -61,13 +62,13 @@ public:
 
     void startExecution(const QByteArray &remoteCall);
 
-    QSharedPointer<Utils::SshConnection> connection() const { return m_connection; }
+    QSharedPointer<Utils::SshConnection> connection() const;
     const Internal::MaemoUsedPortsGatherer *usedPortsGatherer() const { return m_portsGatherer; }
     PortList *freePorts() { return &m_freePorts; }
     QString remoteExecutable() const { return m_remoteExecutable; }
     QString arguments() const { return m_appArguments; }
     QString commandPrefix() const { return m_commandPrefix; }
-    const QSharedPointer<const LinuxDeviceConfiguration> devConfig() const { return m_devConfig; }
+    QSharedPointer<const LinuxDeviceConfiguration> devConfig() const;
 
     static const qint64 InvalidExitCode;
 

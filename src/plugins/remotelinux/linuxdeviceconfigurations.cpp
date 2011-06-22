@@ -174,10 +174,10 @@ void LinuxDeviceConfigurations::setSshParameters(int i,
     m_devConfigs.at(i)->m_sshParameters = params;
 }
 
-void LinuxDeviceConfigurations::setPortsSpec(int i, const QString &portsSpec)
+void LinuxDeviceConfigurations::setFreePorts(int i, const PortList &freePorts)
 {
     Q_ASSERT(i >= 0 && i < rowCount());
-    m_devConfigs.at(i)->m_portsSpec = portsSpec;
+    m_devConfigs.at(i)->m_freePorts = freePorts;
 }
 
 void LinuxDeviceConfigurations::setDefaultDevice(int idx)

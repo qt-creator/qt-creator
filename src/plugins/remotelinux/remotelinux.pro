@@ -84,7 +84,8 @@ HEADERS += \
     remotelinuxruncontrol.h \
     remotelinuxruncontrolfactory.h \
     remotelinuxdebugsupport.h \
-    genericlinuxdeviceconfigurationwizardpages.h
+    genericlinuxdeviceconfigurationwizardpages.h \
+    portlist.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -160,7 +161,8 @@ SOURCES += \
     remotelinuxruncontrol.cpp \
     remotelinuxruncontrolfactory.cpp \
     remotelinuxdebugsupport.cpp \
-    genericlinuxdeviceconfigurationwizardpages.cpp
+    genericlinuxdeviceconfigurationwizardpages.cpp \
+    portlist.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \

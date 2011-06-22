@@ -33,8 +33,8 @@
 #ifndef MAEMODEPLOYMENTMOUNTER_H
 #define MAEMODEPLOYMENTMOUNTER_H
 
-#include "linuxdeviceconfiguration.h"
 #include "maemomountspecification.h"
+#include "portlist.h"
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -55,6 +55,7 @@ class MaemoDeploymentMounter : public QObject
     Q_OBJECT
 public:
     explicit MaemoDeploymentMounter(QObject *parent = 0);
+    ~MaemoDeploymentMounter();
 
     // Connection must be in connected state.
     void setupMounts(const QSharedPointer<Utils::SshConnection> &connection,

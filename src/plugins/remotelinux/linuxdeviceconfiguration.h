@@ -32,11 +32,11 @@
 #ifndef LINUXDEVICECONFIGURATION_H
 #define LINUXDEVICECONFIGURATION_H
 
+#include "portlist.h"
 #include "remotelinux_export.h"
 
 #include <utils/ssh/sshconnection.h>
 
-#include <QtCore/QPair>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -52,24 +52,6 @@ namespace RemoteLinux {
 namespace Internal {
 class LinuxDeviceConfigurations;
 }
-
-class REMOTELINUX_EXPORT PortList
-{
-public:
-    void addPort(int port);
-    void addRange(int startPort, int endPort);
-    bool hasMore() const;
-    int count() const;
-    int getNext();
-    QString toString() const;
-
-    static QString regularExpression();
-
-private:
-    typedef QPair<int, int> Range;
-    QList<Range> m_ranges;
-};
-
 
 class REMOTELINUX_EXPORT LinuxDeviceConfiguration
 {
@@ -87,13 +69,14 @@ public:
 
     enum DeviceType { Physical, Emulator };
 
-    PortList freePorts() const;
+    ~LinuxDeviceConfiguration();
+
+    PortList freePorts() const { return m_freePorts; }
     Utils::SshConnectionParameters sshParameters() const { return m_sshParameters; }
     QString name() const { return m_name; }
     void setName(const QString &name) { m_name = name; }
     QString osType() const { return m_osType; }
     DeviceType type() const { return m_type; }
-    QString portsSpec() const { return m_portsSpec; }
     Id internalId() const { return m_internalId; }
     bool isDefault() const { return m_isDefault; }
 
@@ -103,10 +86,10 @@ public:
     static const Id InvalidId;
 
     static Ptr create(const QString &name, const QString &osType, DeviceType deviceType,
-        const QString &freePortsSpec, const Utils::SshConnectionParameters &sshParams);
+        const PortList &freePorts, const Utils::SshConnectionParameters &sshParams);
 private:
     LinuxDeviceConfiguration(const QString &name, const QString &osType, DeviceType deviceType,
-        const QString &freePortsSpec, const Utils::SshConnectionParameters &sshParams);
+        const PortList &freePorts, const Utils::SshConnectionParameters &sshParams);
 
     LinuxDeviceConfiguration(const QSettings &settings, Id &nextId);
     LinuxDeviceConfiguration(const ConstPtr &other);
@@ -118,13 +101,12 @@ private:
     static Ptr create(const ConstPtr &other);
 
     void save(QSettings &settings) const;
-    QString defaultPortsSpec(DeviceType type) const;
 
     Utils::SshConnectionParameters m_sshParameters;
     QString m_name;
     QString m_osType;
     DeviceType m_type;
-    QString m_portsSpec;
+    PortList m_freePorts;
     bool m_isDefault;
     Id m_internalId;
 };

@@ -31,6 +31,7 @@
 
 #include "remotelinuxapplicationrunner.h"
 
+#include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
 #include "remotelinuxrunconfiguration.h"
 #include "maemousedportsgatherer.h"
@@ -70,6 +71,16 @@ RemoteLinuxApplicationRunner::RemoteLinuxApplicationRunner(QObject *parent,
 }
 
 RemoteLinuxApplicationRunner::~RemoteLinuxApplicationRunner() {}
+
+SshConnection::Ptr RemoteLinuxApplicationRunner::connection() const
+{
+    return m_connection;
+}
+
+LinuxDeviceConfiguration::ConstPtr RemoteLinuxApplicationRunner::devConfig() const
+{
+    return m_devConfig;
+}
 
 void RemoteLinuxApplicationRunner::start()
 {

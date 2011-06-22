@@ -68,7 +68,7 @@ public:
     void removeConfiguration(int index);
     void setConfigurationName(int i, const QString &name);
     void setSshParameters(int i, const Utils::SshConnectionParameters &params);
-    void setPortsSpec(int i, const QString &portsSpec);
+    void setFreePorts(int i, const PortList &freePorts);
     void setDefaultDevice(int index);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

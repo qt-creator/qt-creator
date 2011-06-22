@@ -67,6 +67,8 @@ MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
         SLOT(handlePortListReady()));
 }
 
+MaemoDeploymentMounter::~MaemoDeploymentMounter() {}
+
 void MaemoDeploymentMounter::setupMounts(const SshConnection::Ptr &connection,
     const LinuxDeviceConfiguration::ConstPtr &devConf,
     const QList<MaemoMountSpecification> &mountSpecs,

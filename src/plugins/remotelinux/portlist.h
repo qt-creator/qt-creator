@@ -29,44 +29,34 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef MAEMOQTVERSION_H
-#define MAEMOQTVERSION_H
+#ifndef PORTLIST_H
+#define PORTLIST_H
 
-#include <qtsupport/baseqtversion.h>
+#include "remotelinux_export.h"
+
+#include <QtCore/QPair>
+#include <QtCore/QString>
 
 namespace RemoteLinux {
-namespace Internal {
 
-class MaemoQtVersion : public QtSupport::BaseQtVersion
+class REMOTELINUX_EXPORT PortList
 {
 public:
-    MaemoQtVersion();
-    MaemoQtVersion(const QString &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~MaemoQtVersion();
+    void addPort(int port);
+    void addRange(int startPort, int endPort);
+    bool hasMore() const;
+    int count() const;
+    int getNext();
+    QString toString() const;
 
-    void fromMap(const QVariantMap &map);
-    MaemoQtVersion *clone() const;
+    static PortList fromString(const QString &portsSpec);
+    static QString regularExpression();
 
-    virtual QString type() const;
-    virtual bool isValid() const;
-    virtual QString systemRoot() const;
-    virtual QList<ProjectExplorer::Abi> qtAbis() const;
-    void addToEnvironment(Utils::Environment &env) const;
-
-    virtual bool supportsTargetId(const QString &id) const;
-    virtual QSet<QString> supportedTargetIds() const;
-
-    virtual QString description() const;
-
-    virtual bool supportsShadowBuilds() const;
-    QString osType() const;
 private:
-    mutable QString m_systemRoot;
-    mutable QString m_osType;
-    mutable bool m_isvalidVersion;
+    typedef QPair<int, int> Range;
+    QList<Range> m_ranges;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMOQTVERSION_H
+#endif // PORTLIST_H

@@ -58,141 +58,10 @@ const QLatin1String InternalIdKey("InternalId");
 const AuthType DefaultAuthType(Utils::SshConnectionParameters::AuthenticationByKey);
 const int DefaultTimeout(10);
 const LinuxDeviceConfiguration::DeviceType DefaultDeviceType(LinuxDeviceConfiguration::Physical);
-
-
-class PortsSpecParser
-{
-    struct ParseException {
-        ParseException(const char *error) : error(error) {}
-        const char * const error;
-    };
-
-public:
-    PortsSpecParser(const QString &portsSpec)
-        : m_pos(0), m_portsSpec(portsSpec) { }
-
-    /*
-     * Grammar: Spec -> [ ElemList ]
-     *          ElemList -> Elem [ ',' ElemList ]
-     *          Elem -> Port [ '-' Port ]
-     */
-    PortList parse()
-    {
-        try {
-            if (!atEnd())
-                parseElemList();
-        } catch (ParseException &e) {
-            qWarning("Malformed ports specification: %s", e.error);
-        }
-        return m_portList;
-    }
-
-private:
-    void parseElemList()
-    {
-        if (atEnd())
-            throw ParseException("Element list empty.");
-        parseElem();
-        if (atEnd())
-            return;
-        if (nextChar() != ',') {
-            throw ParseException("Element followed by something else "
-                "than a comma.");
-        }
-        ++m_pos;
-        parseElemList();
-    }
-
-    void parseElem()
-    {
-        const int startPort = parsePort();
-        if (atEnd() || nextChar() != '-') {
-            m_portList.addPort(startPort);
-            return;
-        }
-        ++m_pos;
-        const int endPort = parsePort();
-        if (endPort < startPort)
-            throw ParseException("Invalid range (end < start).");
-        m_portList.addRange(startPort, endPort);
-    }
-
-    int parsePort()
-    {
-        if (atEnd())
-            throw ParseException("Empty port string.");
-        int port = 0;
-        do {
-            const char next = nextChar();
-            if (!std::isdigit(next))
-                break;
-            port = 10*port + next - '0';
-            ++m_pos;
-        } while (!atEnd());
-        if (port == 0 || port >= 2 << 16)
-            throw ParseException("Invalid port value.");
-        return port;
-    }
-
-    bool atEnd() const { return m_pos == m_portsSpec.length(); }
-    char nextChar() const { return m_portsSpec.at(m_pos).toAscii(); }
-
-    PortList m_portList;
-    int m_pos;
-    const QString &m_portsSpec;
-};
-
 } // anonymous namespace
 
 
-void PortList::addPort(int port) { addRange(port, port); }
-
-void PortList::addRange(int startPort, int endPort)
-{
-    m_ranges << Range(startPort, endPort);
-}
-
-bool PortList::hasMore() const { return !m_ranges.isEmpty(); }
-
-int PortList::count() const
-{
-    int n = 0;
-    foreach (const Range &r, m_ranges)
-        n += r.second - r.first + 1;
-    return n;
-}
-
-int PortList::getNext()
-{
-    Q_ASSERT(!m_ranges.isEmpty());
-    Range &firstRange = m_ranges.first();
-    const int next = firstRange.first++;
-    if (firstRange.first > firstRange.second)
-        m_ranges.removeFirst();
-    return next;
-}
-
-QString PortList::toString() const
-{
-    QString stringRep;
-    foreach (const Range &range, m_ranges) {
-        stringRep += QString::number(range.first);
-        if (range.second != range.first)
-            stringRep += QLatin1Char('-') + QString::number(range.second);
-        stringRep += QLatin1Char(',');
-    }
-    if (!stringRep.isEmpty())
-        stringRep.remove(stringRep.length() - 1, 1); // Trailing comma.
-    return stringRep;
-}
-
-QString PortList::regularExpression()
-{
-    const QLatin1String portExpr("(\\d)+");
-    const QString listElemExpr = QString::fromLatin1("%1(-%1)?").arg(portExpr);
-    return QString::fromLatin1("((%1)(,%1)*)?").arg(listElemExpr);
-}
-
+LinuxDeviceConfiguration::~LinuxDeviceConfiguration() {}
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QSettings &settings,
     Id &nextId)
@@ -206,17 +75,17 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const ConstPtr &o
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &name,
-    const QString &osType, DeviceType deviceType, const QString &freePortsSpec,
+    const QString &osType, DeviceType deviceType, const PortList &freePorts,
     const Utils::SshConnectionParameters &sshParams)
 {
-    return Ptr(new LinuxDeviceConfiguration(name, osType, deviceType, freePortsSpec, sshParams));
+    return Ptr(new LinuxDeviceConfiguration(name, osType, deviceType, freePorts, sshParams));
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, const QString &osType,
-        DeviceType deviceType, const QString &freePortsSpec,
+        DeviceType deviceType, const PortList &freePorts,
         const Utils::SshConnectionParameters &sshParams)
     : m_sshParameters(sshParams), m_name(name), m_osType(osType), m_type(deviceType),
-      m_portsSpec(freePortsSpec), m_isDefault(false)
+      m_freePorts(freePorts), m_isDefault(false)
 {
 }
 
@@ -243,7 +112,7 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings,
         }
     }
 
-    m_portsSpec = settings.value(PortsSpecKey, defaultPortsSpec(m_type)).toString();
+    m_freePorts = PortList::fromString(settings.value(PortsSpecKey, QLatin1String("10000-10100")).toString());
     m_sshParameters.host = settings.value(HostKey).toString();
     m_sshParameters.port = settings.value(SshPortKey, 22).toInt();
     m_sshParameters.userName = settings.value(UserNameKey).toString();
@@ -260,15 +129,10 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguratio
       m_name(other->m_name),
       m_osType(other->m_osType),
       m_type(other->type()),
-      m_portsSpec(other->m_portsSpec),
+      m_freePorts(other->freePorts()),
       m_isDefault(other->m_isDefault),
       m_internalId(other->m_internalId)
 {
-}
-
-QString LinuxDeviceConfiguration::defaultPortsSpec(DeviceType type) const
-{
-    return QLatin1String(type == Physical ? "10000-10100" : "13219,14168");
 }
 
 QString LinuxDeviceConfiguration::defaultPrivateKeyFilePath()
@@ -282,11 +146,6 @@ QString LinuxDeviceConfiguration::defaultPublicKeyFilePath()
     return defaultPrivateKeyFilePath() + QLatin1String(".pub");
 }
 
-PortList LinuxDeviceConfiguration::freePorts() const
-{
-    return PortsSpecParser(m_portsSpec).parse();
-}
-
 void LinuxDeviceConfiguration::save(QSettings &settings) const
 {
     settings.setValue(NameKey, m_name);
@@ -294,7 +153,7 @@ void LinuxDeviceConfiguration::save(QSettings &settings) const
     settings.setValue(TypeKey, m_type);
     settings.setValue(HostKey, m_sshParameters.host);
     settings.setValue(SshPortKey, m_sshParameters.port);
-    settings.setValue(PortsSpecKey, m_portsSpec);
+    settings.setValue(PortsSpecKey, m_freePorts.toString());
     settings.setValue(UserNameKey, m_sshParameters.userName);
     settings.setValue(AuthKey, m_sshParameters.authenticationType);
     settings.setValue(PasswordKey, m_sshParameters.password);

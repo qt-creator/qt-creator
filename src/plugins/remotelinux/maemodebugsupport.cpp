@@ -28,7 +28,6 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "maemodebugsupport.h"
 
 #include "maemosshrunner.h"

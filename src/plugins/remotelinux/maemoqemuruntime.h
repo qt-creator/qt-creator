@@ -32,8 +32,9 @@
 #ifndef MAEMOQEMURUNTIME_H
 #define MAEMOQEMURUNTIME_H
 
-#include "linuxdeviceconfiguration.h"
 #include "maemoqemusettings.h"
+
+#include <remotelinux/portlist.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QList>

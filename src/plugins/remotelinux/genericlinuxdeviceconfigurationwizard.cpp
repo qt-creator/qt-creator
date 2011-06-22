@@ -83,7 +83,7 @@ LinuxDeviceConfiguration::Ptr GenericLinuxDeviceConfigurationWizard::deviceConfi
         sshParams.privateKeyFile = m_d->setupPage.privateKeyFilePath();
     LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(m_d->setupPage.configurationName(),
         LinuxDeviceConfiguration::GenericLinuxOsType, LinuxDeviceConfiguration::Physical,
-        QLatin1String("10000-10100"), sshParams);
+        PortList::fromString(QLatin1String("10000-10100")), sshParams);
     Internal::MaemoConfigTestDialog dlg(devConf, this);
     dlg.exec();
     return devConf;

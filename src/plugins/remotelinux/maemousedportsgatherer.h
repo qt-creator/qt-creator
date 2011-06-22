@@ -32,8 +32,6 @@
 #ifndef MAEMOUSEDPORTSGATHERER_H
 #define MAEMOUSEDPORTSGATHERER_H
 
-#include "linuxdeviceconfiguration.h"
-
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
@@ -46,6 +44,7 @@ class SshRemoteProcessRunner;
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
+class PortList;
 
 namespace Internal {
 

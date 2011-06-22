@@ -34,7 +34,6 @@
 #define ABSTRACTMAEMODEPLOYSTEP_H
 
 #include "abstractlinuxdevicedeploystep.h"
-#include "linuxdeviceconfiguration.h"
 #include "maemodeployable.h"
 #include "maemodeployables.h"
 
@@ -53,8 +52,6 @@ namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 namespace Utils { class SshConnection; }
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
-
 namespace Internal {
 class AbstractMaemoPackageCreationStep;
 class Qt4MaemoDeployConfiguration;

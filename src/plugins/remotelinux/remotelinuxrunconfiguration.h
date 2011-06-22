@@ -33,9 +33,9 @@
 #ifndef REMOTELINUXRUNCONFIGURATION_H
 #define REMOTELINUXRUNCONFIGURATION_H
 
-#include "linuxdeviceconfiguration.h"
 #include "maemoconstants.h"
 #include "maemodeployable.h"
+#include "portlist.h"
 #include "remotelinux_export.h"
 
 #include <utils/environment.h>
@@ -55,6 +55,7 @@ class Qt4ProFileNode;
 } // namespace Qt4ProjectManager
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfigurationWidget;
 
 namespace Internal {

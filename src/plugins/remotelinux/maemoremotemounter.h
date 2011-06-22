@@ -33,7 +33,6 @@
 #ifndef MAEMOREMOTEMOUNTER_H
 #define MAEMOREMOTEMOUNTER_H
 
-#include "linuxdeviceconfiguration.h"
 #include "maemomountspecification.h"
 
 #include <QtCore/QList>
@@ -54,6 +53,7 @@ namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
+class PortList;
 
 namespace Internal {
 class MaemoUsedPortsGatherer;

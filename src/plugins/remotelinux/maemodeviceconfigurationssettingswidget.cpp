@@ -227,7 +227,7 @@ void MaemoDeviceConfigurationsSettingsWidget::fillInValues()
     const SshConnectionParameters &sshParams = current->sshParameters();
     m_ui->hostLineEdit->setText(sshParams.host);
     m_ui->sshPortSpinBox->setValue(sshParams.port);
-    m_ui->portsLineEdit->setText(current->portsSpec());
+    m_ui->portsLineEdit->setText(current->freePorts().toString());
     m_ui->timeoutSpinBox->setValue(sshParams.timeout);
     m_ui->userLineEdit->setText(sshParams.userName);
     m_ui->pwdLineEdit->setText(sshParams.password);
@@ -325,7 +325,7 @@ void MaemoDeviceConfigurationsSettingsWidget::keyFileEditingFinished()
 
 void MaemoDeviceConfigurationsSettingsWidget::handleFreePortsChanged()
 {
-    m_devConfigs->setPortsSpec(currentIndex(), m_ui->portsLineEdit->text());
+    m_devConfigs->setFreePorts(currentIndex(), PortList::fromString(m_ui->portsLineEdit->text()));
     updatePortsWarningLabel();
 }
 

@@ -626,7 +626,8 @@ LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
         doTest = true;
     }
     const LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(d->wizardData.configName,
-        d->wizardData.osType, LinuxDeviceConfiguration::Physical, freePortsSpec, sshParams);
+        d->wizardData.osType, LinuxDeviceConfiguration::Physical,
+        PortList::fromString(freePortsSpec), sshParams);
     if (doTest) {
         MaemoConfigTestDialog dlg(devConf, this);
         dlg.exec();
