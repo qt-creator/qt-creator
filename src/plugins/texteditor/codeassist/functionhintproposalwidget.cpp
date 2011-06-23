@@ -132,10 +132,11 @@ void FunctionHintProposalWidget::setAssistant(CodeAssistant *assistant)
     m_d->m_assistant = assistant;
 }
 
-void FunctionHintProposalWidget::setReason(AssistReason reason)
-{
-    Q_UNUSED(reason);
-}
+void FunctionHintProposalWidget::setReason(AssistReason)
+{}
+
+void FunctionHintProposalWidget::setKind(AssistKind)
+{}
 
 void FunctionHintProposalWidget::setUnderlyingWidget(const QWidget *underlyingWidget)
 {

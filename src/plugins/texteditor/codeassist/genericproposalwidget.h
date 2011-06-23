@@ -52,6 +52,7 @@ public:
 
     virtual void setAssistant(CodeAssistant *assistant);
     virtual void setReason(AssistReason reason);
+    virtual void setKind(AssistKind kind);
     virtual void setUnderlyingWidget(const QWidget *underlyingWidget);
     virtual void setModel(IAssistProposalModel *model);
     virtual void setDisplayRect(const QRect &rect);

@@ -241,6 +241,7 @@ public:
     bool m_isSynchronized;
     bool m_explicitlySelected;
     AssistReason m_reason;
+    AssistKind m_kind;
     bool m_justInvoked;
     QPointer<GenericProposalInfoFrame> m_infoFrame;
     QTimer m_infoTimer;
@@ -349,6 +350,11 @@ void GenericProposalWidget::setReason(AssistReason reason)
         m_d->m_justInvoked = true;
 }
 
+void GenericProposalWidget::setKind(AssistKind kind)
+{
+    m_d->m_kind = kind;
+}
+
 void GenericProposalWidget::setUnderlyingWidget(const QWidget *underlyingWidget)
 {
     setFont(underlyingWidget->font());
@@ -452,6 +458,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
     }
 
     if (TextEditorSettings::instance()->completionSettings().m_partiallyComplete
+            && m_d->m_kind == Completion
             && m_d->m_justInvoked
             && m_d->m_isSynchronized) {
         if (m_d->m_model->size() == 1) {

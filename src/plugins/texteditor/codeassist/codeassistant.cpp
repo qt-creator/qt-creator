@@ -315,6 +315,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
             this, SLOT(processProposalItem(IAssistProposalItem*)));
     m_proposalWidget->setAssistant(m_q);
     m_proposalWidget->setReason(reason);
+    m_proposalWidget->setKind(m_assistKind);
     m_proposalWidget->setUnderlyingWidget(m_textEditor->widget());
     m_proposalWidget->setModel(m_proposal->model());
     m_proposalWidget->setDisplayRect(m_textEditor->cursorRect(m_proposal->basePosition()));
