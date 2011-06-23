@@ -194,7 +194,10 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
 
     // process the meta methods
     for (int index = 0; index < _metaObject->methodCount(); ++index) {
-        FakeMetaMethod method = _metaObject->method(index);
+        const FakeMetaMethod method = _metaObject->method(index);
+        if (_componentVersion.isValid() && _componentVersion.minorVersion() < method.revision())
+            continue;
+
         QString methodName;
         const Value *signature = findOrCreateSignature(index, method, &methodName);
 
@@ -217,7 +220,9 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
 
     // process the meta properties
     for (int index = 0; index < _metaObject->propertyCount(); ++index) {
-        FakeMetaProperty prop = _metaObject->property(index);
+        const FakeMetaProperty prop = _metaObject->property(index);
+        if (_componentVersion.isValid() && _componentVersion.minorVersion() < prop.revision())
+            continue;
 
         const QString propertyName = prop.name();
         processor->processProperty(propertyName, propertyValue(prop));
