@@ -549,6 +549,7 @@ void Qt4Project::updateQmlJSCodeModel()
     FindQt4ProFiles findQt4ProFiles;
     QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
 
+    projectInfo.importPaths.clear();
     foreach (Qt4ProFileNode *node, proFiles) {
         projectInfo.importPaths.append(node->variableValue(QmlImportPathVar));
     }
