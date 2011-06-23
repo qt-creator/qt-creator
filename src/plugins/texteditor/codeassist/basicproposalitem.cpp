@@ -61,7 +61,7 @@ void BasicProposalItem::setText(const QString &text)
     m_text = text;
 }
 
-const QString &BasicProposalItem::text() const
+QString BasicProposalItem::text() const
 {
     return m_text;
 }

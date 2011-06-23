@@ -604,12 +604,12 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 
         if (ke->text().length() == 1
                 && m_d->m_completionListView->currentIndex().isValid()
-                && m_d->m_reason == ExplicitlyInvoked
                 && qApp->focusWidget() == o) {
             const QChar &typedChar = ke->text().at(0);
             IAssistProposalItem *item =
                 m_d->m_model->proposalItem(m_d->m_completionListView->currentIndex().row());
-            if (item->prematurelyApplies(typedChar)) {
+            if (item->prematurelyApplies(typedChar)
+                    && (m_d->m_reason == ExplicitlyInvoked || item->text().endsWith(typedChar))) {
                 abort();
                 emit proposalItemActivated(item);
                 return true;

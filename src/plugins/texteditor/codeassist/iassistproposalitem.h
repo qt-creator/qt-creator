@@ -35,9 +35,7 @@
 
 #include <texteditor/texteditor_global.h>
 
-QT_BEGIN_NAMESPACE
-class QChar;
-QT_END_NAMESPACE
+#include <QtCore/QString>
 
 namespace TextEditor {
 
@@ -49,6 +47,7 @@ public:
     IAssistProposalItem();
     virtual ~IAssistProposalItem();
 
+    virtual QString text() const = 0;
     virtual bool implicitlyApplies() const = 0;
     virtual bool prematurelyApplies(const QChar &c) const = 0;
     virtual void apply(BaseTextEditor *editor, int basePosition) const = 0;

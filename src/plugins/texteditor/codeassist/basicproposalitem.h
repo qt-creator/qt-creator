@@ -52,7 +52,7 @@ public:
     const QIcon &icon() const;
 
     void setText(const QString &text);
-    const QString &text() const;
+    virtual QString text() const;
 
     void setDetail(const QString &detail);
     const QString &detail() const;
