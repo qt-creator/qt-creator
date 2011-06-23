@@ -421,98 +421,6 @@ class Children:
         return True
 
 
-class Breakpoint:
-    def __init__(self):
-        self.number = None
-        self.filename = None
-        self.linenumber = None
-        self.address = []
-        self.function = None
-        self.fullname = None
-        self.condition = None
-        self.times = None
-
-def listOfBreakpoints(d):
-    # [bkpt={number="1",type="breakpoint",disp="keep",enabled="y",
-    #addr="0x0804da6d",func="testHidden()",file="../app.cpp",
-    #fullname="...",line="1292",times="1",original-location="\"app.cpp\":1292"},
-    # Num     Type           Disp Enb Address    What\n"
-    #1       breakpoint     keep y   0x0804da6d in testHidden() at app.cpp:1292
-    #\tbreakpoint already hit 1 time
-    #2       breakpoint     keep y   0x080564d3 in espace::..doit(int) at ../app.cpp:1210\n"
-    #3       breakpoint     keep y   <PENDING>  \"plugin.cpp\":38\n"
-    #4       breakpoint     keep y   <MULTIPLE> \n"
-    #4.1                         y     0x08056673 in Foo at ../app.cpp:126\n"
-    #4.2                         y     0x0805678b in Foo at ../app.cpp:126\n"
-    #5       hw watchpoint  keep y              &main\n"
-    #6       breakpoint     keep y   0xb6cf18e5 <__cxa_throw+5>\n"
-    lines = catchCliOutput("info break")
-
-    lines.reverse()
-    bp = Breakpoint()
-    for line in lines:
-        if len(line) == 0 or line.startswith(" "):
-            continue
-        if line[0] < '0' or line[0] > '9':
-            continue
-        if line.startswith("\tstop only if "):
-            bp.condition = line[14:]
-            continue
-        if line.startswith("\tbreakpoint already hit "):
-            bp.times = line[24:]
-            continue
-        number = line[0:5]
-        pos0x = line.find(" 0x")
-        posin = line.find(" in ", pos0x)
-        poslt = line.find(" <", pos0x)
-        posat = line.find(" at ", posin)
-        poscol = line.find(":", posat)
-        if pos0x != -1:
-            if pos0x < posin:
-                bp.address.append(line[pos0x + 1 : posin])
-            elif pos0x < poslt:
-                bp.address.append(line[pos0x + 1 : poslt])
-                bp.function = line[poslt + 2 : line.find('>', poslt)]
-        # Take "no address" as indication that the bp is pending.
-        #if line.find("<PENDING>") >= 0:
-        #    bp.address.append("<PENDING>")
-        if posin < posat and posin != -1:
-            bp.function = line[posin + 4 : posat]
-        if posat < poscol and poscol != -1:
-            bp.filename = line[posat + 4 : poscol]
-        if poscol != -1:
-            bp.linenumber = line[poscol + 1 : -1]
-
-        if '.' in number: # Part of multiple breakpoint.
-            continue
-
-        # A breakpoint of its own
-        bp.number = int(number)
-        d.put('bkpt={number="%s",' % bp.number)
-        d.put('type="breakpoint",')
-        d.put('disp="keep",')
-        d.put('enabled="y",')
-        for address in bp.address:
-            d.put('addr="%s",' % address)
-        if not bp.function is None:
-            d.put('func="%s",' % bp.function)
-        if not bp.filename is None:
-            d.put('file="%s",' % bp.filename)
-        if not bp.fullname is None:
-            d.put('fullname="%s",' % bp.fullname)
-        if not bp.linenumber is None:
-            d.put('line="%s",' % bp.linenumber)
-        if not bp.condition is None:
-            d.put('cond="%s",' % bp.condition)
-        if not bp.fullname is None:
-            d.put('fullname="%s",' % bt.fullname)
-        if not bp.times is None:
-            d.put('times="1",' % bp.times)
-        #d.put('original-location="-"')
-        d.put('},')
-        bp = Breakpoint()
-
-
 # Creates a list of field names of an anon union or struct
 def listOfFields(type):
     fields = []
@@ -1375,12 +1283,7 @@ class Dumper:
                     (exp, iname) = watcher.split("#")
                     self.handleWatch(exp, iname)
 
-        #
-        # Breakpoints
-        #
-        #listOfBreakpoints(d)
-
-        #print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
+        #print('data=[' + locals + sep + watchers + ']\n')
 
     def checkForQObjectBase(self, type):
         if type.code != gdb.TYPE_CODE_STRUCT:
