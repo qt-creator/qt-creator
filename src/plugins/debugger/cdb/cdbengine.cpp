@@ -866,8 +866,8 @@ void CdbEngine::shutdownInferior()
         return;
     }
 
-    if (m_accessible) {
-        if (m_effectiveStartMode == AttachExternal || m_effectiveStartMode == AttachCrashedExternal)
+    if (m_accessible) { // except console.
+        if (startParameters().startMode == AttachExternal || startParameters().startMode == AttachCrashedExternal)
             detachDebugger();
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorShutdownOk")
         notifyInferiorShutdownOk();
@@ -915,8 +915,8 @@ void CdbEngine::shutdownEngine()
     m_ignoreCdbOutput = true;
     // Go for kill if there are commands pending.
     if (m_accessible && !commandsPending()) {
-        // detach: Wait for debugger to finish.
-        if (m_effectiveStartMode == AttachExternal)
+        // detach (except console): Wait for debugger to finish.
+        if (startParameters().startMode == AttachExternal || startParameters().startMode == AttachCrashedExternal)
             detachDebugger();
         // Remote requires a bit more force to quit.
         if (m_effectiveStartMode == AttachToRemote) {
