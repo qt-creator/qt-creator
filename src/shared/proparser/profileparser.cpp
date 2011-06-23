@@ -515,7 +515,6 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                             goto newWord;
                         }
                         if (term) {
-                            cur++;
                           checkTerm:
                             if (c != term) {
                                 parseError(fL1S("Missing %1 terminator [found %2]")
@@ -523,9 +522,9 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                                     .arg(c ? QString(c) : QString::fromLatin1("end-of-line")));
                                 pro->setOk(false);
                                 m_inError = true;
-                                if (c)
-                                    cur--;
                                 // Just parse on, as if there was a terminator ...
+                            } else {
+                                cur++;
                             }
                         }
                       joinToken:
@@ -585,7 +584,7 @@ bool ProFileParser::read(ProFile *pro, const QString &in)
                                 finalizeCall(tokPtr, buf, ptr, theargc);
                                 goto nextItem;
                             } else if (term == '}') {
-                                c = (cur == end) ? 0 : *cur++;
+                                c = (cur == end) ? 0 : *cur;
                                 goto checkTerm;
                             } else {
                                 Q_ASSERT(!term);

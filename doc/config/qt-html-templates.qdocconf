@@ -3,7 +3,7 @@ include(qt-html-default-styles.qdocconf)
 HTML.postheader = \
     "<div class=\"header\" id=\"qtdocheader\">\n" \
     "  <div class=\"content\"> \n" \
-    "    <a href=\"index.html\" class=\"qtref\"><span>Qt Creator Documentation</span></a>\n" \
+    "    <a href=\"index.html\" class=\"qtref\"><span>Qt Creator Documentation $QTC_VERSION</span></a>\n" \
     "  </div>\n" \
     "  <div class=\"breadcrumb\">\n" \
     "    <ul>\n" \

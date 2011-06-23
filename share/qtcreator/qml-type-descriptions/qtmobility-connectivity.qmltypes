@@ -1,0 +1,327 @@
+import QtQuick.tooling 1.0
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QAbstractItemModel"
+        prototype: "QObject"
+        Signal {
+            name: "dataChanged"
+            Parameter { name: "topLeft"; type: "QModelIndex" }
+            Parameter { name: "bottomRight"; type: "QModelIndex" }
+        }
+        Signal {
+            name: "headerDataChanged"
+            Parameter { name: "orientation"; type: "Qt::Orientation" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "layoutChanged" }
+        Signal { name: "layoutAboutToBeChanged" }
+        Signal {
+            name: "rowsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "rowsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsInserted"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal {
+            name: "columnsRemoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "first"; type: "int" }
+            Parameter { name: "last"; type: "int" }
+        }
+        Signal { name: "modelAboutToBeReset" }
+        Signal { name: "modelReset" }
+        Signal {
+            name: "rowsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationRow"; type: "int" }
+        }
+        Signal {
+            name: "rowsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "row"; type: "int" }
+        }
+        Signal {
+            name: "columnsAboutToBeMoved"
+            Parameter { name: "sourceParent"; type: "QModelIndex" }
+            Parameter { name: "sourceStart"; type: "int" }
+            Parameter { name: "sourceEnd"; type: "int" }
+            Parameter { name: "destinationParent"; type: "QModelIndex" }
+            Parameter { name: "destinationColumn"; type: "int" }
+        }
+        Signal {
+            name: "columnsMoved"
+            Parameter { name: "parent"; type: "QModelIndex" }
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+            Parameter { name: "destination"; type: "QModelIndex" }
+            Parameter { name: "column"; type: "int" }
+        }
+        Method { name: "submit"; type: "bool" }
+        Method { name: "revert" }
+    }
+    Component { name: "QAbstractListModel"; prototype: "QAbstractItemModel" }
+    Component {
+        name: "QDeclarativeBluetoothDiscoveryModel"
+        prototype: "QAbstractListModel"
+        exports: [
+            "QtMobility.connectivity/BluetoothDiscoveryModel 1.2"
+        ]
+        Property { name: "error"; type: "string"; isReadonly: true }
+        Property { name: "minimalDiscovery"; type: "bool" }
+        Property { name: "discovery"; type: "bool" }
+        Property { name: "uuidFilter"; type: "string" }
+        Signal { name: "errorChanged" }
+        Signal { name: "minimalDiscoveryChanged" }
+        Signal {
+            name: "newServiceDiscovered"
+            Parameter { name: "service"; type: "QDeclarativeBluetoothService"; isPointer: true }
+        }
+        Signal { name: "discoveryChanged" }
+        Signal { name: "uuidFilterChanged" }
+        Method {
+            name: "setDiscovery"
+            Parameter { name: "discovery_"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QDeclarativeBluetoothService"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.connectivity/BluetoothService 1.2"
+        ]
+        Property { name: "deviceName"; type: "string"; isReadonly: true }
+        Property { name: "deviceAddress"; type: "string" }
+        Property { name: "serviceName"; type: "string" }
+        Property { name: "serviceDescription"; type: "string" }
+        Property { name: "serviceUuid"; type: "string" }
+        Property { name: "serviceProtocol"; type: "string" }
+        Property { name: "servicePort"; type: "qint32" }
+        Property { name: "registered"; type: "bool" }
+        Signal { name: "detailsChanged" }
+        Signal { name: "registeredChanged" }
+        Signal { name: "newClient" }
+        Method {
+            name: "setServiceName"
+            Parameter { name: "name"; type: "string" }
+        }
+        Method {
+            name: "setDeviceAddress"
+            Parameter { name: "address"; type: "string" }
+        }
+        Method {
+            name: "setServiceDescription"
+            Parameter { name: "description"; type: "string" }
+        }
+        Method {
+            name: "setServiceUuid"
+            Parameter { name: "uuid"; type: "string" }
+        }
+        Method {
+            name: "setServiceProtocol"
+            Parameter { name: "protocol"; type: "string" }
+        }
+        Method {
+            name: "setServicePort"
+            Parameter { name: "port"; type: "qint32" }
+        }
+        Method {
+            name: "setRegistered"
+            Parameter { name: "registered"; type: "bool" }
+        }
+        Method { name: "nextClient"; type: "QDeclarativeBluetoothSocket*" }
+        Method {
+            name: "assignNextClient"
+            Parameter { name: "dbs"; type: "QDeclarativeBluetoothSocket"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QDeclarativeBluetoothSocket"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.connectivity/BluetoothSocket 1.2"
+        ]
+        Property { name: "service"; type: "QDeclarativeBluetoothService"; isPointer: true }
+        Property { name: "connected"; type: "bool" }
+        Property { name: "error"; type: "string"; isReadonly: true }
+        Property { name: "state"; type: "string"; isReadonly: true }
+        Property { name: "stringData"; type: "string" }
+        Signal { name: "serviceChanged" }
+        Signal { name: "connectedChanged" }
+        Signal { name: "errorChanged" }
+        Signal { name: "stateChanged" }
+        Signal { name: "dataAvailable" }
+        Method {
+            name: "setService"
+            Parameter { name: "service"; type: "QDeclarativeBluetoothService"; isPointer: true }
+        }
+        Method {
+            name: "setConnected"
+            Parameter { name: "connected"; type: "bool" }
+        }
+        Method {
+            name: "sendStringData"
+            Parameter { name: "data"; type: "string" }
+        }
+    }
+    Component {
+        name: "QDeclarativeNdefFilter"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.connectivity/NdefFilter 1.2"
+        ]
+        Property { name: "type"; type: "string" }
+        Property { name: "minimum"; type: "int" }
+        Property { name: "maximum"; type: "int" }
+        Signal { name: "typeChanged" }
+        Signal { name: "minimumChanged" }
+        Signal { name: "maximumChanged" }
+    }
+    Component {
+        name: "QDeclarativeNdefMimeRecord"
+        prototype: "QDeclarativeNdefRecord"
+        exports: [
+            "QtMobility.connectivity/NdefMimeRecord 1.2"
+        ]
+        Property { name: "uri"; type: "string"; isReadonly: true }
+        Signal { name: "uriChanged" }
+    }
+    Component {
+        name: "QDeclarativeNdefRecord"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.connectivity/NdefRecord 1.2"
+        ]
+        Property { name: "recordType"; type: "string" }
+        Signal { name: "recordTypeChanged" }
+    }
+    Component {
+        name: "QDeclarativeNdefTextRecord"
+        prototype: "QDeclarativeNdefRecord"
+        exports: [
+            "QtMobility.connectivity/NdefTextRecord 1.2"
+        ]
+        Enum {
+            name: "LocaleMatch"
+            values: {
+                "LocaleMatchedNone": 0,
+                "LocaleMatchedEnglish": 1,
+                "LocaleMatchedLanguage": 2,
+                "LocaleMatchedLanguageAndCountry": 3
+            }
+        }
+        Property { name: "text"; type: "string" }
+        Property { name: "locale"; type: "string" }
+        Property { name: "localeMatch"; type: "LocaleMatch"; isReadonly: true }
+        Signal { name: "textChanged" }
+        Signal { name: "localeChanged" }
+        Signal { name: "localeMatchChanged" }
+    }
+    Component {
+        name: "QDeclarativeNdefUriRecord"
+        prototype: "QDeclarativeNdefRecord"
+        exports: [
+            "QtMobility.connectivity/NdefUriRecord 1.2"
+        ]
+        Property { name: "uri"; type: "string" }
+        Signal { name: "uriChanged" }
+    }
+    Component {
+        name: "QDeclarativeNearField"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.connectivity/NearField 1.2"
+        ]
+        Property {
+            name: "messageRecords"
+            type: "QDeclarativeNdefRecord"
+            isList: true
+            isReadonly: true
+        }
+        Property { name: "filter"; type: "QDeclarativeNdefFilter"; isList: true; isReadonly: true }
+        Property { name: "orderMatch"; type: "bool" }
+        Signal { name: "messageRecordsChanged" }
+        Signal { name: "filterChanged" }
+        Signal { name: "orderMatchChanged" }
+    }
+    Component {
+        name: "QDeclarativeNearFieldSocket"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.connectivity/NearFieldSocket 1.2"
+        ]
+        Property { name: "uri"; type: "string" }
+        Property { name: "connected"; type: "bool" }
+        Property { name: "error"; type: "string"; isReadonly: true }
+        Property { name: "state"; type: "string"; isReadonly: true }
+        Property { name: "listening"; type: "bool" }
+        Property { name: "stringData"; type: "string" }
+        Signal { name: "uriChanged" }
+        Signal { name: "connectedChanged" }
+        Signal { name: "errorChanged" }
+        Signal { name: "stateChanged" }
+        Signal { name: "listeningChanged" }
+        Signal { name: "dataAvailable" }
+        Method {
+            name: "setUri"
+            Parameter { name: "service"; type: "string" }
+        }
+        Method {
+            name: "setConnected"
+            Parameter { name: "connected"; type: "bool" }
+        }
+        Method {
+            name: "setListening"
+            Parameter { name: "listen"; type: "bool" }
+        }
+        Method {
+            name: "sendStringData"
+            Parameter { name: "data"; type: "string" }
+        }
+    }
+}

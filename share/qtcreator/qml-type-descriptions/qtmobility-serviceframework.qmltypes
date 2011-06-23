@@ -42,6 +42,7 @@ Module {
         Property { name: "minorVersion"; type: "int" }
         Property { name: "services"; type: "QDeclarativeService"; isList: true; isReadonly: true }
         Property { name: "versionMatch"; type: "MatchRule" }
+        Signal { name: "resultsChanged" }
         Signal {
             name: "servicesChanged"
             Parameter { type: "QDeclarativeService"; isList: true }

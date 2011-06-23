@@ -4421,10 +4421,6 @@ Note: This might remove the local file.</source>
         <translation>Помощник отладчика</translation>
     </message>
     <message>
-        <source>Choose DebuggingHelper Location</source>
-        <translation>Выберите размещение помощника</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F11</source>
         <translation></translation>
     </message>
@@ -4461,10 +4457,6 @@ Note: This might remove the local file.</source>
     <message>
         <source>Launching</source>
         <translation>Запуск</translation>
-    </message>
-    <message>
-        <source>%1 (explicitly set in the Debugger Options)</source>
-        <translation>%1 (установлено в параметрах отладчика)</translation>
     </message>
     <message>
         <source>This debugger cannot handle user input.</source>
@@ -7538,14 +7530,6 @@ Do you want to retry?</source>
 <context>
     <name>DebuggingHelperOptionPage</name>
     <message>
-        <source>Use debugging helper from custom location</source>
-        <translation>Использовать особый путь к помощнику</translation>
-    </message>
-    <message>
-        <source>Location: </source>
-        <translation>Размещение:</translation>
-    </message>
-    <message>
         <source>Makes use of Qt Creator&apos;s code model to find out if a variable has already been assigned a value at the point the debugger interrupts.</source>
         <translation>Включить использование модели кода Qt Creator для определения
 было ли переменной присвоено значение в точке прерывания отладчиком.</translation>
@@ -9718,7 +9702,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Blame</source>
-        <translation>Аннотация (Blame)</translation>
+        <translation>Аннотация (blame)</translation>
     </message>
     <message>
         <source>Blame for &quot;%1&quot;</source>
@@ -9800,11 +9784,11 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Diff</source>
-        <translation>Сравнить</translation>
+        <translation>Сравнить (diff)</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>Состояние</translation>
+        <translation>Состояние (status)</translation>
     </message>
     <message>
         <source>Clean...</source>
@@ -9888,7 +9872,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Commit...</source>
-        <translation>Фиксировать...</translation>
+        <translation>Фиксировать (commit)...</translation>
     </message>
     <message>
         <source>Alt+G,Alt+C</source>
@@ -9916,7 +9900,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <source>Log</source>
-        <translation>История</translation>
+        <translation>История (log)</translation>
     </message>
     <message>
         <source>Closing Git Editor</source>
@@ -11280,6 +11264,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
+    <name>Macros</name>
+    <message>
+        <source>Macros</source>
+        <translation>Сценарии</translation>
+    </message>
+</context>
+<context>
     <name>Macros::Internal::MacroLocatorFilter</name>
     <message>
         <source>Macros</source>
@@ -12488,6 +12479,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>GLSL/ES Vertex Shader file</source>
         <translation>Файл вершинного шейдера GLSL/ES</translation>
+    </message>
+    <message>
+        <source>GLSL/ES Geometry Shader file</source>
+        <translation>Файл геометрического шейдера GLSL/ES</translation>
     </message>
     <message>
         <source>QML file</source>
@@ -25333,13 +25328,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Connecting to %1...</source>
         <translation>Подключение к %1...</translation>
-    </message>
-</context>
-<context>
-    <name>Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>Сценарии</translation>
     </message>
 </context>
 </TS>

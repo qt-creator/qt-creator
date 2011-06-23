@@ -27,7 +27,7 @@ OTHER_FILES = qmldir
 
 qmldir.files = qmldir
 symbian {
-    # ...
+    TARGET.EPOCALLOWDLLDATA = 1
 } else:unix {
     installPath = /usr/lib/qt4/imports/$$replace(uri, \\., /)
     qmldir.path = $$installPath

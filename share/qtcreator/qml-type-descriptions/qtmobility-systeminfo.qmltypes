@@ -5,36 +5,68 @@ import QtQuick.tooling 1.0
 
 Module {
     Component {
+        name: "QDeclarativeBatteryInfo"
+        prototype: "QSystemBatteryInfo"
+        exports: [
+            "QtMobility.systeminfo/BatteryInfo 1.2"
+        ]
+        Property { name: "monitorBatteryStatusChanges"; type: "bool" }
+        Property { name: "monitorChargingStateChanges"; type: "bool" }
+        Property { name: "monitorChargerTypeChanges"; type: "bool" }
+        Property { name: "monitorNominalCapacityChanges"; type: "bool" }
+        Property { name: "monitorRemainingCapacityPercentChanges"; type: "bool" }
+        Property { name: "monitorRemainingCapacityChanges"; type: "bool" }
+        Property { name: "monitorCurrentFlowChanges"; type: "bool" }
+        Property { name: "monitorRemainingCapacityBarsChanges"; type: "bool" }
+        Property { name: "monitorRemainingChargingTimeChanges"; type: "bool" }
+    }
+    Component {
         name: "QDeclarativeDeviceInfo"
         prototype: "QSystemDeviceInfo"
         exports: [
             "QtMobility.systeminfo/DeviceInfo 1.1"
         ]
-        Signal {
-            name: "batteryLevelChanged"
-            Parameter { name: "level"; type: "int" }
+        Property { name: "monitorBatteryLevelChanges"; type: "bool" }
+        Property { name: "monitorBatteryStatusChanges"; type: "bool" }
+        Property { name: "monitorPowerStateChanges"; type: "bool" }
+        Property { name: "monitorCurrentProfileChanges"; type: "bool" }
+        Property { name: "monitorBluetoothStateChanges"; type: "bool" }
+        Property { name: "monitorThermalStateChanges"; type: "bool" }
+        Property { name: "monitorWirelessKeyboardConnects"; type: "bool" }
+        Property { name: "monitorKeyboardFlips"; type: "bool" }
+        Property { name: "monitorDeviceLocks"; type: "bool" }
+        Property { name: "monitorLockStatusChanges"; type: "bool" }
+        Property { name: "messageRingtoneVolume"; type: "int"; isReadonly: true }
+        Property { name: "voiceRingtoneVolume"; type: "int"; isReadonly: true }
+        Property { name: "vibrationActive"; type: "bool"; isReadonly: true }
+        Property { name: "primaryKeypadLightOn"; type: "bool"; isReadonly: true }
+        Property { name: "secondaryKeypadLightOn"; type: "bool"; isReadonly: true }
+    }
+    Component {
+        name: "QDeclarativeDisplayInfo"
+        prototype: "QSystemDisplayInfo"
+        exports: [
+            "QtMobility.systeminfo/DisplayInfo 1.1"
+        ]
+        Property { name: "screen"; type: "int" }
+        Property { name: "displayBrightness"; type: "int"; isReadonly: true }
+        Property { name: "colorDepth"; type: "int"; isReadonly: true }
+        Property {
+            name: "orientation"
+            type: "QSystemDisplayInfo::DisplayOrientation"
+            isReadonly: true
         }
-        Signal {
-            name: "batteryStatusChanged"
-            Parameter { name: "batteryStatus"; type: "QSystemDeviceInfo::BatteryStatus" }
+        Property { name: "contrast"; type: "float"; isReadonly: true }
+        Property { name: "dpiWidth"; type: "int"; isReadonly: true }
+        Property { name: "dpiHeight"; type: "int"; isReadonly: true }
+        Property { name: "physicalWidth"; type: "int"; isReadonly: true }
+        Property { name: "physicalHeight"; type: "int"; isReadonly: true }
+        Property {
+            name: "backlightStatus"
+            type: "QSystemDisplayInfo::BacklightState"
+            isReadonly: true
         }
-        Signal {
-            name: "powerStateChanged"
-            Parameter { name: "powerState"; type: "QSystemDeviceInfo::PowerState" }
-        }
-        Signal {
-            name: "currentProfileChanged"
-            Parameter { name: "currentProfile"; type: "QSystemDeviceInfo::Profile" }
-        }
-        Signal {
-            name: "bluetoothStateChanged"
-            Parameter { name: "on"; type: "bool" }
-        }
-        Method { name: "startBatteryLevelChanged" }
-        Method { name: "startBatteryStatusChanged" }
-        Method { name: "startPowerStateChanged" }
-        Method { name: "startCurrentProfileChanged" }
-        Method { name: "startBluetoothStateChanged" }
+        Signal { name: "orientationChanged" }
     }
     Component {
         name: "QDeclarativeGeneralInfo"
@@ -42,11 +74,19 @@ Module {
         exports: [
             "QtMobility.systeminfo/GeneralInfo 1.1"
         ]
+        Property { name: "osVersion"; type: "string"; isReadonly: true }
+        Property { name: "qtCoreVersion"; type: "string"; isReadonly: true }
+        Property { name: "firmwareVersion"; type: "string"; isReadonly: true }
+        Property { name: "qtMobilityVersion"; type: "string"; isReadonly: true }
         Signal {
             name: "currentLanguageChanged"
             Parameter { name: "language"; type: "string" }
         }
         Method { name: "startCurrentLanguageChanged" }
+        Method { name: "osVersion"; type: "string" }
+        Method { name: "qtCoreVersion"; type: "string" }
+        Method { name: "firmwareVersion"; type: "string" }
+        Method { name: "qtMobilityVersion"; type: "string" }
     }
     Component {
         name: "QDeclarativeNetworkInfo"
@@ -64,6 +104,14 @@ Module {
             type: "QList<QSystemNetworkInfo::NetworkMode>"
             isReadonly: true
         }
+        Property { name: "monitorStatusChanges"; type: "bool" }
+        Property { name: "monitorSignalStrengthChanges"; type: "bool" }
+        Property { name: "monitorNameChanges"; type: "bool" }
+        Property { name: "monitorModeChanges"; type: "bool" }
+        Property { name: "monitorCurrentMobileCountryCodeChanges"; type: "bool" }
+        Property { name: "monitorCurrentMobileNetworkCodeChanges"; type: "bool" }
+        Property { name: "monitorCellDataChanges"; type: "bool" }
+        Property { name: "monitorCellIdChanges"; type: "bool" }
         Signal {
             name: "statusChanged"
             Parameter { name: "newStatus"; type: "string" }
@@ -85,13 +133,15 @@ Module {
             name: "currentMobileNetworkCodeChanged"
             Parameter { name: "newMnc"; type: "string" }
         }
+        Signal {
+            name: "cellIdChanges"
+            Parameter { name: "cellId"; type: "int" }
+        }
+        Signal {
+            name: "cellDataTechnologyChanges"
+            Parameter { name: "cellTech"; type: "QSystemNetworkInfo::CellDataTechnology" }
+        }
         Method { name: "interfaceForMode"; type: "QNetworkInterface" }
-        Method { name: "startStatusChanged" }
-        Method { name: "startSignalStrengthChanged" }
-        Method { name: "startNameChanged" }
-        Method { name: "startModeChanged" }
-        Method { name: "startCurrentMobileCountryCodeChanged" }
-        Method { name: "startCurrentMobileNetworkCodeChanged" }
         Method { name: "availableModes"; type: "QList<QSystemNetworkInfo::NetworkMode>" }
     }
     Component {
@@ -101,12 +151,135 @@ Module {
             "QtMobility.systeminfo/ScreenSaver 1.1"
         ]
         Property { name: "screenSaverDelayed"; type: "bool" }
-        Property { name: "screenSaverInhibited"; type: "bool"; isReadonly: true }
+        Property { name: "screenSaverInhibited"; type: "bool" }
         Method {
             name: "setScreenSaverDelayed"
             Parameter { name: "on"; type: "bool" }
         }
         Method { name: "setScreenSaverInhibit"; type: "bool" }
+    }
+    Component {
+        name: "QSystemAlignedTimer"
+        prototype: "QObject"
+        exports: [
+            "QtMobility.systeminfo/AlignedTimer 1.2"
+        ]
+        Property { name: "minimumInterval"; type: "int" }
+        Property { name: "maximumInterval"; type: "int" }
+        Property { name: "singleShot"; type: "bool" }
+        Property { name: "active"; type: "bool"; isReadonly: true }
+        Signal { name: "timeout" }
+        Signal {
+            name: "error"
+            Parameter { name: "error"; type: "QSystemAlignedTimer::AlignedTimerError" }
+        }
+        Method {
+            name: "start"
+            Parameter { name: "minimumTime"; type: "int" }
+            Parameter { name: "maximumTime"; type: "int" }
+        }
+        Method { name: "start" }
+        Method { name: "stop" }
+        Method { name: "wokeUp" }
+        Method {
+            name: "singleShot"
+            Parameter { name: "minimumTime"; type: "int" }
+            Parameter { name: "maximumTime"; type: "int" }
+            Parameter { name: "receiver"; type: "QObject"; isPointer: true }
+            Parameter { name: "member"; type: "const char"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QSystemBatteryInfo"
+        prototype: "QObject"
+        Enum {
+            name: "BatteryStatus"
+            values: {
+                "BatteryUnknown": -1,
+                "BatteryEmpty": 0,
+                "BatteryCritical": 1,
+                "BatteryVeryLow": 2,
+                "BatteryLow": 3,
+                "BatteryOk": 4,
+                "BatteryFull": 5
+            }
+        }
+        Enum {
+            name: "ChargingState"
+            values: {
+                "ChargingError": -1,
+                "NotCharging": 0,
+                "Charging": 1
+            }
+        }
+        Enum {
+            name: "ChargerType"
+            values: {
+                "UnknownCharger": -1,
+                "NoCharger": 0,
+                "WallCharger": 1,
+                "USBCharger": 2,
+                "USB_500mACharger": 3,
+                "USB_100mACharger": 4,
+                "VariableCurrentCharger": 5
+            }
+        }
+        Enum {
+            name: "EnergyUnit"
+            values: {
+                "UnitUnknown": -1,
+                "UnitmAh": 0,
+                "UnitmWh": 1
+            }
+        }
+        Property { name: "nominalCapacity"; type: "int"; isReadonly: true }
+        Property { name: "remainingCapacityPercent"; type: "int"; isReadonly: true }
+        Property { name: "remainingCapacity"; type: "int"; isReadonly: true }
+        Property { name: "voltage"; type: "int"; isReadonly: true }
+        Property { name: "remainingChargingTime"; type: "int"; isReadonly: true }
+        Property { name: "currentFlow"; type: "int"; isReadonly: true }
+        Property { name: "remainingCapacityBars"; type: "int"; isReadonly: true }
+        Property { name: "maxBars"; type: "int"; isReadonly: true }
+        Property { name: "chargerType"; type: "ChargerType"; isReadonly: true }
+        Property { name: "chargingState"; type: "ChargingState"; isReadonly: true }
+        Property { name: "energyMeasurementUnit"; type: "EnergyUnit"; isReadonly: true }
+        Property { name: "batteryStatus"; type: "BatteryStatus"; isReadonly: true }
+        Signal {
+            name: "batteryStatusChanged"
+            Parameter { name: "batteryStatus"; type: "QSystemBatteryInfo::BatteryStatus" }
+        }
+        Signal {
+            name: "chargingStateChanged"
+            Parameter { name: "chargingState"; type: "QSystemBatteryInfo::ChargingState" }
+        }
+        Signal {
+            name: "chargerTypeChanged"
+            Parameter { name: "chargerType"; type: "QSystemBatteryInfo::ChargerType" }
+        }
+        Signal {
+            name: "nominalCapacityChanged"
+            Parameter { name: "cap"; type: "int" }
+        }
+        Signal {
+            name: "remainingCapacityPercentChanged"
+            Parameter { name: "level"; type: "int" }
+        }
+        Signal {
+            name: "remainingCapacityChanged"
+            Parameter { name: "level"; type: "int" }
+        }
+        Signal {
+            name: "currentFlowChanged"
+            Parameter { name: "level"; type: "int" }
+        }
+        Signal {
+            name: "remainingCapacityBarsChanged"
+            Parameter { name: "bars"; type: "int" }
+        }
+        Signal {
+            name: "remainingChargingTimeChanged"
+            Parameter { name: "time"; type: "int" }
+        }
     }
     Component {
         name: "QSystemDeviceInfo"
@@ -128,6 +301,16 @@ Module {
                 "BatteryPower": 1,
                 "WallPower": 2,
                 "WallPowerChargingBattery": 3
+            }
+        }
+        Enum {
+            name: "ThermalState"
+            values: {
+                "UnknownThermal": 0,
+                "NormalThermal": 1,
+                "WarningThermal": 2,
+                "AlertThermal": 3,
+                "ErrorThermal": 4
             }
         }
         Enum {
@@ -175,11 +358,63 @@ Module {
                 "SimLocked": 3
             }
         }
+        Enum {
+            name: "KeyboardType"
+            values: {
+                "UnknownKeyboard": 0,
+                "SoftwareKeyboard": 1,
+                "ITUKeypad": 2,
+                "HalfQwertyKeyboard": 4,
+                "FullQwertyKeyboard": 8,
+                "WirelessKeyboard": 16,
+                "FlipKeyboard": 32
+            }
+        }
+        Enum {
+            name: "KeyboardTypeFlags"
+            values: {
+                "UnknownKeyboard": 0,
+                "SoftwareKeyboard": 1,
+                "ITUKeypad": 2,
+                "HalfQwertyKeyboard": 4,
+                "FullQwertyKeyboard": 8,
+                "WirelessKeyboard": 16,
+                "FlipKeyboard": 32
+            }
+        }
+        Enum {
+            name: "KeypadType"
+            values: {
+                "PrimaryKeypad": 0,
+                "SecondaryKeypad": 1
+            }
+        }
+        Enum {
+            name: "LockType"
+            values: {
+                "UnknownLock": 0,
+                "PinLocked": 1,
+                "TouchAndKeyboardLocked": 2
+            }
+        }
+        Enum {
+            name: "LockTypeFlags"
+            values: {
+                "UnknownLock": 0,
+                "PinLocked": 1,
+                "TouchAndKeyboardLocked": 2
+            }
+        }
         Property { name: "currentProfile"; type: "Profile"; isReadonly: true }
-        Property { name: "powerState"; type: "PowerState"; isReadonly: true }
+        Property { name: "currentPowerState"; type: "PowerState"; isReadonly: true }
+        Property { name: "currentThermalState"; type: "ThermalState"; isReadonly: true }
         Property { name: "simStatus"; type: "SimStatus"; isReadonly: true }
         Property { name: "batteryStatus"; type: "BatteryStatus"; isReadonly: true }
-        Property { name: "inputMethodType"; type: "InputMethodFlags"; isReadonly: true }
+        Property {
+            name: "inputMethodType"
+            type: "QSystemDeviceInfo::InputMethodFlags"
+            isReadonly: true
+        }
         Property { name: "imei"; type: "string"; isReadonly: true }
         Property { name: "imsi"; type: "string"; isReadonly: true }
         Property { name: "manufacturer"; type: "string"; isReadonly: true }
@@ -188,7 +423,11 @@ Module {
         Property { name: "batteryLevel"; type: "int"; isReadonly: true }
         Property { name: "isDeviceLocked"; type: "bool"; isReadonly: true }
         Property { name: "currentBluetoothPowerState"; type: "bool"; isReadonly: true }
-        Property { name: "currentPowerState"; type: "QSystemDeviceInfo::PowerState"; isReadonly: true }
+        Property { name: "keyboardTypes"; type: "KeyboardTypeFlags"; isReadonly: true }
+        Property { name: "isWirelessKeyboardConnected"; type: "bool"; isReadonly: true }
+        Property { name: "isKeyboardFlippedOpen"; type: "bool"; isReadonly: true }
+        Property { name: "lockStatus"; type: "QSystemDeviceInfo::LockTypeFlags"; isReadonly: true }
+        Property { name: "uniqueDeviceID"; type: "QByteArray"; isReadonly: true }
         Signal {
             name: "batteryLevelChanged"
             Parameter { name: "level"; type: "int" }
@@ -202,6 +441,10 @@ Module {
             Parameter { name: "powerState"; type: "QSystemDeviceInfo::PowerState" }
         }
         Signal {
+            name: "thermalStateChanged"
+            Parameter { name: "thermalState"; type: "QSystemDeviceInfo::ThermalState" }
+        }
+        Signal {
             name: "currentProfileChanged"
             Parameter { name: "currentProfile"; type: "QSystemDeviceInfo::Profile" }
         }
@@ -209,13 +452,55 @@ Module {
             name: "bluetoothStateChanged"
             Parameter { name: "on"; type: "bool" }
         }
+        Signal {
+            name: "wirelessKeyboardConnected"
+            Parameter { name: "connected"; type: "bool" }
+        }
+        Signal {
+            name: "keyboardFlipped"
+            Parameter { name: "open"; type: "bool" }
+        }
+        Signal {
+            name: "deviceLocked"
+            Parameter { name: "isLocked"; type: "bool" }
+        }
+        Signal {
+            name: "lockStatusChanged"
+            Parameter { type: "QSystemDeviceInfo::LockTypeFlags" }
+        }
+        Method {
+            name: "keypadLightOn"
+            type: "bool"
+            Parameter { name: "type"; type: "QSystemDeviceInfo::KeypadType" }
+        }
+        Method { name: "activeProfileDetails"; type: "ProfileDetails" }
     }
     Component {
         name: "QSystemDisplayInfo"
         prototype: "QObject"
-        exports: [
-            "QtMobility.systeminfo/DisplayInfo 1.1"
-        ]
+        Enum {
+            name: "DisplayOrientation"
+            values: {
+                "Unknown": 0,
+                "Landscape": 1,
+                "Portrait": 2,
+                "InvertedLandscape": 3,
+                "InvertedPortrait": 4
+            }
+        }
+        Enum {
+            name: "BacklightState"
+            values: {
+                "BacklightStateUnknown": -1,
+                "BacklightStateOff": 0,
+                "BacklightStateDimmed": 1,
+                "BacklightStateOn": 2
+            }
+        }
+        Signal {
+            name: "orientationChanged"
+            Parameter { name: "newOrientation"; type: "QSystemDisplayInfo::DisplayOrientation" }
+        }
     }
     Component {
         name: "QSystemInfo"
@@ -244,7 +529,8 @@ Module {
                 "SimFeature": 9,
                 "LocationFeature": 10,
                 "VideoOutFeature": 11,
-                "HapticsFeature": 12
+                "HapticsFeature": 12,
+                "FmTransmitterFeature": 13
             }
         }
         Property { name: "currentLanguage"; type: "string"; isReadonly: true }
@@ -252,7 +538,12 @@ Module {
         Property { name: "currentCountryCode"; type: "string"; isReadonly: true }
         Signal {
             name: "currentLanguageChanged"
-            Parameter { type: "string" }
+            Parameter { name: "lang"; type: "string" }
+        }
+        Method {
+            name: "hasFeatureSupported"
+            type: "bool"
+            Parameter { name: "feature"; type: "QSystemInfo::Feature" }
         }
     }
     Component {
@@ -282,7 +573,18 @@ Module {
                 "WlanMode": 4,
                 "EthernetMode": 5,
                 "BluetoothMode": 6,
-                "WimaxMode": 7
+                "WimaxMode": 7,
+                "LteMode": 8
+            }
+        }
+        Enum {
+            name: "CellDataTechnology"
+            values: {
+                "UnknownDataTechnology": 0,
+                "GprsDataTechnology": 1,
+                "EdgeDataTechnology": 2,
+                "UmtsDataTechnology": 3,
+                "HspaDataTechnology": 4
             }
         }
         Property { name: "cellId"; type: "int"; isReadonly: true }
@@ -292,32 +594,45 @@ Module {
         Property { name: "homeMobileCountryCode"; type: "string"; isReadonly: true }
         Property { name: "homeMobileNetworkCode"; type: "string"; isReadonly: true }
         Property { name: "currentMode"; type: "QSystemNetworkInfo::NetworkMode"; isReadonly: true }
+        Property {
+            name: "cellDataTechnology"
+            type: "QSystemNetworkInfo::CellDataTechnology"
+            isReadonly: true
+        }
         Signal {
             name: "networkStatusChanged"
-            Parameter { type: "QSystemNetworkInfo::NetworkMode" }
-            Parameter { type: "QSystemNetworkInfo::NetworkStatus" }
+            Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+            Parameter { name: "status"; type: "QSystemNetworkInfo::NetworkStatus" }
         }
         Signal {
             name: "networkSignalStrengthChanged"
-            Parameter { type: "QSystemNetworkInfo::NetworkMode" }
-            Parameter { type: "int" }
+            Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+            Parameter { name: "strength"; type: "int" }
         }
         Signal {
             name: "currentMobileCountryCodeChanged"
-            Parameter { type: "string" }
+            Parameter { name: "mcc"; type: "string" }
         }
         Signal {
             name: "currentMobileNetworkCodeChanged"
-            Parameter { type: "string" }
+            Parameter { name: "mnc"; type: "string" }
         }
         Signal {
             name: "networkNameChanged"
-            Parameter { type: "QSystemNetworkInfo::NetworkMode" }
-            Parameter { type: "string" }
+            Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+            Parameter { name: "name"; type: "string" }
         }
         Signal {
             name: "networkModeChanged"
-            Parameter { type: "QSystemNetworkInfo::NetworkMode" }
+            Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+        }
+        Signal {
+            name: "cellIdChanged"
+            Parameter { name: "cellId"; type: "int" }
+        }
+        Signal {
+            name: "cellDataTechnologyChanged"
+            Parameter { name: "cellTech"; type: "QSystemNetworkInfo::CellDataTechnology" }
         }
         Method {
             name: "networkStatus"
@@ -340,6 +655,11 @@ Module {
             type: "string"
             Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
         }
+        Method {
+            name: "interfaceForMode"
+            type: "QNetworkInterface"
+            Parameter { name: "mode"; type: "QSystemNetworkInfo::NetworkMode" }
+        }
     }
     Component {
         name: "QSystemStorageInfo"
@@ -354,7 +674,19 @@ Module {
                 "InternalDrive": 1,
                 "RemovableDrive": 2,
                 "RemoteDrive": 3,
-                "CdromDrive": 4
+                "CdromDrive": 4,
+                "InternalFlashDrive": 5,
+                "RamDrive": 6
+            }
+        }
+        Enum {
+            name: "StorageState"
+            values: {
+                "UnknownStorageState": 0,
+                "NormalStorageState": 1,
+                "LowStorageState": 2,
+                "VeryLowStorageState": 3,
+                "CriticalStorageState": 4
             }
         }
         Property { name: "logicalDrives"; type: "QStringList"; isReadonly: true }
@@ -362,6 +694,11 @@ Module {
             name: "logicalDriveChanged"
             Parameter { name: "added"; type: "bool" }
             Parameter { name: "vol"; type: "string" }
+        }
+        Signal {
+            name: "storageStateChanged"
+            Parameter { name: "vol"; type: "string" }
+            Parameter { name: "state"; type: "QSystemStorageInfo::StorageState" }
         }
         Method {
             name: "totalDiskSpace"
@@ -377,6 +714,16 @@ Module {
             name: "typeForDrive"
             type: "QSystemStorageInfo::DriveType"
             Parameter { name: "driveVolume"; type: "string" }
+        }
+        Method {
+            name: "uriForDrive"
+            type: "string"
+            Parameter { name: "driveVolume"; type: "string" }
+        }
+        Method {
+            name: "getStorageState"
+            type: "QSystemStorageInfo::StorageState"
+            Parameter { name: "volume"; type: "string" }
         }
     }
 }
