@@ -42,6 +42,7 @@
 QT_BEGIN_NAMESPACE
 class QFileInfo;
 class QDir;
+class QAction;
 QT_END_NAMESPACE
 
 namespace QmlJSTools {
@@ -67,9 +68,14 @@ public:
     ShutdownFlag aboutToShutdown();
     ModelManager *modelManager() { return m_modelManager; }
 
+private slots:
+    void onTaskStarted(const QString &type);
+    void onAllTasksFinished(const QString &type);
+
 private:
     ModelManager *m_modelManager;
     QmlJSToolsSettings *m_settings;
+    QAction *m_resetCodeModelAction;
 
     static QmlJSToolsPlugin *m_instance;
 };

@@ -137,6 +137,9 @@ public:
     virtual CppQmlTypeHash cppQmlTypes() const = 0;
     virtual BuiltinPackagesHash builtinPackages() const = 0;
 
+public slots:
+    virtual void resetCodeModel() = 0;
+
 signals:
     void documentUpdated(QmlJS::Document::Ptr doc);
     void documentChangedOnDisk(QmlJS::Document::Ptr doc);

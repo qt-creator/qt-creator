@@ -88,6 +88,9 @@ public:
     virtual CppQmlTypeHash cppQmlTypes() const;
     virtual BuiltinPackagesHash builtinPackages() const;
 
+public slots:
+    virtual void resetCodeModel();
+
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
 

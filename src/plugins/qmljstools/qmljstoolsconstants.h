@@ -49,6 +49,9 @@ const char * const QML_JS_CODE_STYLE_SETTINGS_NAME = QT_TRANSLATE_NOOP("QmlJSToo
 const char * const QML_JS_SETTINGS_ID = "QmlJS";
 const char * const QML_JS_SETTINGS_NAME = QT_TRANSLATE_NOOP("QmlJSTools", "Qt Quick");
 
+const char * const M_TOOLS_QMLJS = "QmlJSTools.Tools.Menu";
+const char * const RESET_CODEMODEL = "QmlJSTools.ResetCodeModel";
+
 } // namespace Constants
 } // namespace QmlJSEditor
 

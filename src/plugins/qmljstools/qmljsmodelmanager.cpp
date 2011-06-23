@@ -695,3 +695,22 @@ ModelManagerInterface::BuiltinPackagesHash ModelManager::builtinPackages() const
 {
     return Interpreter::CppQmlTypesLoader::builtinPackages;
 }
+
+void ModelManager::resetCodeModel()
+{
+    QStringList documents;
+
+    {
+        QMutexLocker locker(&m_mutex);
+
+        // find all documents currently in the code model
+        foreach (Document::Ptr doc, _snapshot)
+            documents.append(doc->fileName());
+
+        // reset the snapshot
+        _snapshot = Snapshot();
+    }
+
+    // start a reparse thread
+    updateSourceFiles(documents, false);
+}
