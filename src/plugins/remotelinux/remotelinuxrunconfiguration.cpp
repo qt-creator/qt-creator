@@ -284,7 +284,9 @@ QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
 
 QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
 {
-    return deployConfig()->deployables()->remoteExecutableFilePath(localExecutableFilePath());
+    return deployConfig()
+        ? deployConfig()->deployables()->remoteExecutableFilePath(localExecutableFilePath())
+        : QString();
 }
 
 PortList RemoteLinuxRunConfiguration::freePorts() const
