@@ -443,7 +443,7 @@ def listOfLocals(varList):
         warn("FRAME NOT ACCESSIBLE FOR UNKNOWN REASONS")
         return []
 
-    # gdb-6.8-symbianelf fails here
+    # New in 7.2
     hasBlock = 'block' in __builtin__.dir(frame)
 
     items = []
