@@ -189,12 +189,8 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
         }
     }
 
-    // process the meta properties
-    for (int index = 0; index < _metaObject->propertyCount(); ++index) {
-        FakeMetaProperty prop = _metaObject->property(index);
-
-        processor->processProperty(prop.name(), propertyValue(prop));
-    }
+    // all explicitly defined signal names
+    QSet<QString> explicitSignals;
 
     // process the meta methods
     for (int index = 0; index < _metaObject->methodCount(); ++index) {
@@ -208,14 +204,35 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
         } else if (method.methodType() == FakeMetaMethod::Signal && method.access() != FakeMetaMethod::Private) {
             // process the signal
             processor->processSignal(methodName, signature);
+            explicitSignals.insert(methodName);
 
-            QString slotName;
-            slotName += QLatin1String("on");
+            QString slotName = QLatin1String("on");
             slotName += methodName.at(0).toUpper();
             slotName += methodName.midRef(1);
 
             // process the generated slot
             processor->processGeneratedSlot(slotName, signature);
+        }
+    }
+
+    // process the meta properties
+    for (int index = 0; index < _metaObject->propertyCount(); ++index) {
+        FakeMetaProperty prop = _metaObject->property(index);
+
+        const QString propertyName = prop.name();
+        processor->processProperty(propertyName, propertyValue(prop));
+
+        // every property always has a onXyzChanged slot, even if the NOTIFY
+        // signal has a different name
+        QString signalName = propertyName;
+        signalName += QLatin1String("Changed");
+        if (!explicitSignals.contains(signalName)) {
+            QString slotName = QLatin1String("on");
+            slotName += signalName.at(0).toUpper();
+            slotName += signalName.midRef(1);
+
+            // process the generated slot
+            processor->processGeneratedSlot(slotName, engine()->undefinedValue());
         }
     }
 
