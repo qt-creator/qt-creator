@@ -34,6 +34,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
+#include <QtCore/QtEndian>
 #include <QtCore/QFile>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -134,7 +135,10 @@ static QList<Abi> abiOf(const QByteArray &data)
             && static_cast<unsigned char>(data.at(0)) == 0x7f && static_cast<unsigned char>(data.at(1)) == 'E'
             && static_cast<unsigned char>(data.at(2)) == 'L' && static_cast<unsigned char>(data.at(3)) == 'F') {
         // ELF format:
+        bool isLsbEncoded = (static_cast<quint8>(data.at(5)) == 1);
         quint16 machine = (data.at(19) << 8) + data.at(18);
+        if (!isLsbEncoded)
+            machine = qFromBigEndian(machine);
         quint8 osAbi = static_cast<quint8>(data.at(7));
 
         Abi::OS os = Abi::UnixOS;
