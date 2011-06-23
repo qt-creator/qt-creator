@@ -112,7 +112,7 @@ int AbstractMobileAppWizardDialog::addPageWithTitle(QWizardPage *page, const QSt
 int AbstractMobileAppWizardDialog::nextId() const
 {
     if (currentPage() == m_targetsPage) {
-        if (isSymbianTargetSelected() && !m_ignoreGeneralOptions || isFremantleTargetSelected())
+        if ((isSymbianTargetSelected() && !m_ignoreGeneralOptions) || isFremantleTargetSelected())
             return m_genericOptionsPageId;
         // If Symbian target and Qt Quick components for Symbian, skip the mobile options page.
         else if (isSymbianTargetSelected() && m_ignoreGeneralOptions)
