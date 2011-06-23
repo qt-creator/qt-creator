@@ -20,7 +20,6 @@ SOURCES += mainwindow.cpp \
     tabpositionindicator.cpp \
     fancyactionbar.cpp \
     fancytabwidget.cpp \
-    flowlayout.cpp \
     generalsettings.cpp \
     filemanager.cpp \
     uniqueidmanager.cpp \
@@ -99,7 +98,6 @@ HEADERS += mainwindow.h \
     tabpositionindicator.h \
     fancyactionbar.h \
     fancytabwidget.h \
-    flowlayout.h \
     generalsettings.h \
     filemanager.h \
     uniqueidmanager.h \

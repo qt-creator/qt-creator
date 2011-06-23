@@ -33,19 +33,24 @@
 #ifndef FLOWLAYOUT_H
 #define FLOWLAYOUT_H
 
+#include "utils_global.h"
+
 #include <QtGui/QLayout>
+#include <QtGui/QWidget>
+#include <QtGui/QStyle>
 
-namespace Core {
-namespace Internal {
+namespace Utils {
 
-class FlowLayout : public QLayout
+class QTCREATOR_UTILS_EXPORT FlowLayout : public QLayout
 {
 public:
-    explicit FlowLayout(QWidget *parent, int margin = 0, int spacing = -1);
-    FlowLayout(int spacing = -1);
+    explicit FlowLayout(QWidget *parent, int margin = -1, int hSpacing = -1, int vSpacing = -1);
+    FlowLayout(int margin = -1, int hSpacing = -1, int vSpacing = -1);
     ~FlowLayout();
 
     void addItem(QLayoutItem *item);
+    int horizontalSpacing() const;
+    int verticalSpacing() const;
     Qt::Orientations expandingDirections() const;
     bool hasHeightForWidth() const;
     int heightForWidth(int) const;
@@ -58,11 +63,13 @@ public:
 
 private:
     int doLayout(const QRect &rect, bool testOnly) const;
+    int smartSpacing(QStyle::PixelMetric pm) const;
 
     QList<QLayoutItem *> itemList;
+    int m_hSpace;
+    int m_vSpace;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Utils
 
 #endif // FLOWLAYOUT_H
