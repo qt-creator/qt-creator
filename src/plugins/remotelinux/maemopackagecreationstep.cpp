@@ -442,10 +442,16 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
     QDir templatesDir(templatesDirPath);
     const QStringList &files = templatesDir.entryList(QDir::Files);
     foreach (const QString &fileName, files) {
-        const QString srcFile
-                = templatesDirPath + QLatin1Char('/') + fileName;
-        const QString destFile
-                = debianDirPath + QLatin1Char('/') + fileName;
+        const QString srcFile = templatesDirPath + QLatin1Char('/') + fileName;
+        QString newFileName = fileName;
+        if (newFileName == Qt4HarmattanTarget::aegisManifestFileName()) {
+            // If the user has touched the Aegis manifest file, we copy it for use
+            // by MADDE. Otherwise the required capabilities will be auto-detected.
+            if (QFileInfo(srcFile).size() == 0)
+                continue;
+            newFileName = maemoTarget()->packageName() + QLatin1String(".aegis");
+        }
+        const QString destFile = debianDirPath + QLatin1Char('/') + newFileName;
         if (fileName == QLatin1String("rules")) {
             if (!adaptRulesFile(srcFile, destFile))
                 return false;

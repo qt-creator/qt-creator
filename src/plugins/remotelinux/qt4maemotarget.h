@@ -138,6 +138,7 @@ signals:
     void controlChanged();
 
 protected:
+    virtual void handleTargetAddedSpecial();
     bool adaptControlFileField(QByteArray &document, const QByteArray &fieldName,
         const QByteArray &newFieldValue);
 
@@ -151,7 +152,6 @@ private:
     virtual bool setShortDescriptionInternal(const QString &description);
 
     virtual ActionStatus createSpecialTemplates();
-    virtual void handleTargetAddedSpecial();
     virtual bool targetCanBeRemoved() const;
     virtual void removeTarget();
     virtual bool initAdditionalPackagingSettingsFromOtherTarget();
@@ -258,8 +258,10 @@ public:
     virtual bool allowsQmlDebugging() const { return true; }
 
     static QString defaultDisplayName();
+    static QString aegisManifestFileName();
 
 private:
+    void handleTargetAddedSpecial();
     virtual void addAdditionalControlFileFields(QByteArray &controlContents);
     virtual QString debianDirName() const;
     virtual QByteArray packageManagerNameFieldName() const;

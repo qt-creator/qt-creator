@@ -1083,6 +1083,17 @@ QString Qt4HarmattanTarget::defaultDisplayName()
         "Qt4 Harmattan target display name");
 }
 
+QString Qt4HarmattanTarget::aegisManifestFileName()
+{
+    return QLatin1String("manifest.aegis");
+}
+
+void Qt4HarmattanTarget::handleTargetAddedSpecial()
+{
+    AbstractDebBasedQt4MaemoTarget::handleTargetAddedSpecial();
+    QFile(debianDirPath() + QLatin1Char('/') + aegisManifestFileName()).open(QIODevice::WriteOnly);
+}
+
 void Qt4HarmattanTarget::addAdditionalControlFileFields(QByteArray &controlContents)
 {
     Q_UNUSED(controlContents);
