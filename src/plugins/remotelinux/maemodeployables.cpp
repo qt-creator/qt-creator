@@ -64,8 +64,7 @@ void MaemoDeployables::init()
 
     // TODO do we want to disable the view
 
-    if (!m_target->qt4Project()->rootProjectNode()->parseInProgress())
-        createModels();
+    createModels();
 }
 
 void MaemoDeployables::startTimer(Qt4ProjectManager::Qt4ProFileNode*, bool success, bool parseInProgress)
@@ -81,7 +80,7 @@ void MaemoDeployables::createModels()
         return;
     const Qt4ProFileNode *const rootNode
         = m_target->qt4Project()->rootProjectNode();
-    if (!rootNode) // Happens on project creation by wizard.
+    if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
     m_updateTimer->stop();
     disconnect(m_target->qt4Project(),
