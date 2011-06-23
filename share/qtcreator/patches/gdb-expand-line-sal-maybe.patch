@@ -83,7 +83,7 @@ Jan
 
 --- a/gdb/breakpoint.c
 +++ b/gdb/breakpoint.c
-@@ -7048,7 +7048,6 @@ expand_line_sal_maybe (struct symtab_and_line sal)
+@@ -7532,7 +7532,6 @@ expand_line_sal_maybe (struct symtab_and_line sal)
    struct symtabs_and_lines expanded;
    CORE_ADDR original_pc = sal.pc;
    char *original_function = NULL;
@@ -91,7 +91,7 @@ Jan
    int i;
    struct cleanup *old_chain;
  
-@@ -7131,17 +7130,8 @@ expand_line_sal_maybe (struct symtab_and_line sal)
+@@ -7616,17 +7615,8 @@ expand_line_sal_maybe (struct symtab_and_line sal)
        return expanded;      
      }
  
@@ -99,11 +99,11 @@ Jan
 -    {
 -      found = 0;
 -      for (i = 0; i < expanded.nelts; ++i)
--       if (expanded.sals[i].pc == original_pc)
--         {
--           found = 1;
--           break;
--         }
+-	if (expanded.sals[i].pc == original_pc)
+-	  {
+-	    found = 1;
+-	    break;
+-	  }
 -      gdb_assert (found);
 -    }
 +  /* ORIGINAL_PC may not be found between EXPANDED.SALS.  expand_line_sal may
@@ -113,7 +113,7 @@ Jan
  }
 --- a/gdb/symtab.c
 +++ b/gdb/symtab.c
-@@ -4636,11 +4636,20 @@ expand_line_sal (struct symtab_and_line sal)
+@@ -4750,11 +4750,20 @@ expand_line_sal (struct symtab_and_line sal)
    blocks = alloca (ret.nelts * sizeof (struct block *));
    for (i = 0; i < ret.nelts; ++i)
      {

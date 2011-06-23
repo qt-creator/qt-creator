@@ -9,7 +9,7 @@ this problem.
 
 --- a/gdb/infrun.c
 +++ b/gdb/infrun.c
-@@ -4754,9 +4754,9 @@ infrun: not switching back to stepped thread, it has vanished\n");
+@@ -5061,9 +5061,9 @@ process_event_stop_test:
        return;
      }
 

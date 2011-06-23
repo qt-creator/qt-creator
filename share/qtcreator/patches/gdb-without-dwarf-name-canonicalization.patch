@@ -8,7 +8,7 @@ diff --git a/gdb/dwarf2read.c b/gdb/dwarf2read.c
 index a05c946..761fa34 100644
 --- a/gdb/dwarf2read.c
 +++ b/gdb/dwarf2read.c
-@@ -9097,7 +9097,7 @@ static char *
+@@ -12157,7 +12157,7 @@ static char *
  dwarf2_canonicalize_name (char *name, struct dwarf2_cu *cu,
  			  struct obstack *obstack)
  {
