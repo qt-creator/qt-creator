@@ -45,6 +45,7 @@ namespace Internal {
         diffIgnoreWhiteSpace(false),
         diffIgnoreBlankLines(false)
     {
+        setSettingsGroup(QLatin1String("Mercurial"));
         setBinary(QLatin1String(Constants::MERCURIALDEFAULT));
     }
 
@@ -58,19 +59,19 @@ namespace Internal {
         return *this;
     }
 
-    void MercurialSettings::writeSettings(QSettings *settings, const QString &group) const
+    void MercurialSettings::writeSettings(QSettings *settings) const
     {
-        VCSBaseClientSettings::writeSettings(settings, group);
-        settings->beginGroup(group);
+        VCSBaseClientSettings::writeSettings(settings);
+        settings->beginGroup(this->settingsGroup());
         settings->setValue(diffIgnoreWhiteSpaceKey, diffIgnoreWhiteSpace);
         settings->setValue(diffIgnoreBlankLinesKey, diffIgnoreBlankLines);
         settings->endGroup();
     }
 
-    void MercurialSettings::readSettings(const QSettings *settings, const QString &group)
+    void MercurialSettings::readSettings(const QSettings *settings)
     {
-        VCSBaseClientSettings::readSettings(settings, group);
-        const QString keyRoot = group + QLatin1Char('/');
+        VCSBaseClientSettings::readSettings(settings);
+        const QString keyRoot = this->settingsGroup() + QLatin1Char('/');
         diffIgnoreWhiteSpace = settings->value(keyRoot + diffIgnoreWhiteSpaceKey, false).toBool();
         diffIgnoreBlankLines = settings->value(keyRoot + diffIgnoreBlankLinesKey, false).toBool();
     }

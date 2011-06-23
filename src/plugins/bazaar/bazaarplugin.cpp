@@ -136,7 +136,6 @@ BazaarPlugin::BazaarPlugin() :
 
 BazaarPlugin::~BazaarPlugin()
 {
-    m_bazaarSettings.writeSettings(m_core->settings(), Constants::BAZAAR);
     if (m_client) {
         delete m_client;
         m_client = 0;
@@ -162,7 +161,7 @@ bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     m_optionsPage = new OptionsPage();
     addAutoReleasedObject(m_optionsPage);
-    m_bazaarSettings.readSettings(m_core->settings(), Constants::BAZAAR);
+    m_bazaarSettings.readSettings(m_core->settings());
 
     connect(m_optionsPage, SIGNAL(settingsChanged()), m_client, SLOT(settingsChanged()));
     connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));

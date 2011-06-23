@@ -44,8 +44,8 @@ public:
     MercurialSettings();
     MercurialSettings& operator=(const MercurialSettings& other);
 
-    virtual void writeSettings(QSettings *settings, const QString &group) const;
-    virtual void readSettings(const QSettings *settings, const QString &group);
+    virtual void writeSettings(QSettings *settings) const;
+    virtual void readSettings(const QSettings *settings);
     virtual bool equals(const VCSBaseClientSettings &rhs) const;
 
     bool diffIgnoreWhiteSpace;

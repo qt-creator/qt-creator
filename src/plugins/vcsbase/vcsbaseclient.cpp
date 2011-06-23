@@ -97,6 +97,7 @@ VCSBaseClient::VCSBaseClient(VCSBaseClientSettings *settings) :
     d(new VCSBaseClientPrivate(settings))
 {
     qRegisterMetaType<QVariant>();
+    connect(d->m_core, SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
 }
 
 VCSBaseClient::~VCSBaseClient()
@@ -250,6 +251,11 @@ void VCSBaseClient::slotAnnotateRevisionRequested(const QString &source,
         change.truncate(blankPos);
     const QFileInfo fi(source);
     annotate(fi.absolutePath(), fi.fileName(), change, lineNumber);
+}
+
+void VCSBaseClient::saveSettings()
+{
+    d->m_clientSettings->writeSettings(d->m_core->settings());
 }
 
 void VCSBaseClient::annotate(const QString &workingDir, const QString &file,

@@ -45,6 +45,7 @@ BazaarSettings::BazaarSettings() :
     diffIgnoreWhiteSpace(false),
     diffIgnoreBlankLines(false)
 {
+    setSettingsGroup(QLatin1String(Constants::BAZAAR));
     setBinary(QLatin1String(Constants::BAZAARDEFAULT));
 }
 
@@ -63,19 +64,19 @@ bool BazaarSettings::sameUserId(const BazaarSettings& other) const
     return userName() == other.userName() && email() == other.email();
 }
 
-void BazaarSettings::writeSettings(QSettings *settings, const QString &group) const
+void BazaarSettings::writeSettings(QSettings *settings) const
 {
-    VCSBaseClientSettings::writeSettings(settings, group);
-    settings->beginGroup(group);
+    VCSBaseClientSettings::writeSettings(settings);
+    settings->beginGroup(settingsGroup());
     settings->setValue(diffIgnoreWhiteSpaceKey, diffIgnoreWhiteSpace);
     settings->setValue(diffIgnoreBlankLinesKey, diffIgnoreBlankLines);
     settings->endGroup();
 }
 
-void BazaarSettings::readSettings(const QSettings *settings, const QString &group)
+void BazaarSettings::readSettings(const QSettings *settings)
 {
-    VCSBaseClientSettings::readSettings(settings, group);
-    const QString keyRoot = group + QLatin1Char('/');
+    VCSBaseClientSettings::readSettings(settings);
+    const QString keyRoot = settingsGroup() + QLatin1Char('/');
     diffIgnoreWhiteSpace = settings->value(keyRoot + diffIgnoreWhiteSpaceKey, false).toBool();
     diffIgnoreBlankLines = settings->value(keyRoot + diffIgnoreBlankLinesKey, false).toBool();
 }

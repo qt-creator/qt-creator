@@ -185,6 +185,7 @@ protected:
 private slots:
     void statusParser(const QByteArray &data);
     void slotAnnotateRevisionRequested(const QString &source, QString change, int lineNumber);
+    void saveSettings();
 
 private:
     QScopedPointer<VCSBaseClientPrivate> d;

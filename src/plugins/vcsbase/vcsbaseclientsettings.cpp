@@ -129,9 +129,19 @@ void VCSBaseClientSettings::setTimeoutSeconds(int s)
     m_timeoutSeconds = s;
 }
 
-void VCSBaseClientSettings::writeSettings(QSettings *settings, const QString &group) const
+QString VCSBaseClientSettings::settingsGroup() const
 {
-    settings->beginGroup(group);
+    return m_settingsGroup;
+}
+
+void VCSBaseClientSettings::setSettingsGroup(const QString &group)
+{
+    m_settingsGroup = group;
+}
+
+void VCSBaseClientSettings::writeSettings(QSettings *settings) const
+{
+    settings->beginGroup(settingsGroup());
     settings->setValue(QLatin1String("VCS_Path"), m_binary);
     settings->setValue(QLatin1String("VCS_Username"), m_user);
     settings->setValue(QLatin1String("VCS_Email"), m_mail);
@@ -141,9 +151,9 @@ void VCSBaseClientSettings::writeSettings(QSettings *settings, const QString &gr
     settings->endGroup();
 }
 
-void VCSBaseClientSettings::readSettings(const QSettings *settings, const QString &group)
+void VCSBaseClientSettings::readSettings(const QSettings *settings)
 {
-    const QString keyRoot = group + QLatin1Char('/');
+    const QString keyRoot = settingsGroup() + QLatin1Char('/');
     m_binary = settings->value(keyRoot + QLatin1String("VCS_Path"), QString()).toString();
     m_user = settings->value(keyRoot + QLatin1String("VCS_Username"), QString()).toString();
     m_mail = settings->value(keyRoot + QLatin1String("VCS_Email"), QString()).toString();

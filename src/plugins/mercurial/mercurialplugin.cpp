@@ -164,7 +164,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
 
     optionsPage = new OptionsPage();
     addAutoReleasedObject(optionsPage);
-    mercurialSettings.readSettings(core->settings(), QLatin1String("Mercurial"));
+    mercurialSettings.readSettings(core->settings());
 
     connect(optionsPage, SIGNAL(settingsChanged()), m_client, SLOT(settingsChanged()));
 
