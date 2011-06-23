@@ -433,14 +433,35 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
 
     const Interpreter::ObjectValue *qmlScopeType = 0;
     if (contextFinder.isInQmlContext()) {
+        // find the enclosing qml object
         // ### this should use semanticInfo.declaringMember instead, but that may also return functions
-        for (int i = path.size() - 1; i >= 0; --i) {
+        int i;
+        for (i = path.size() - 1; i >= 0; --i) {
             AST::Node *node = path[i];
             if (AST::cast<AST::UiObjectDefinition *>(node) || AST::cast<AST::UiObjectBinding *>(node)) {
                 qmlScopeType = document->bind()->findQmlObject(node);
                 if (qmlScopeType)
                     break;
             }
+        }
+        // grouped property bindings change the scope type
+        for (i++; i < path.size(); ++i) {
+            AST::UiObjectDefinition *objDef = AST::cast<AST::UiObjectDefinition *>(path[i]);
+            if (!objDef || !document->bind()->isGroupedPropertyBinding(objDef))
+                break;
+            const Interpreter::ObjectValue *newScopeType = qmlScopeType;
+            for (AST::UiQualifiedId *it = objDef->qualifiedTypeNameId; it; it = it->next) {
+                if (!newScopeType || !it->name) {
+                    newScopeType = 0;
+                    break;
+                }
+                const Interpreter::Value *v = newScopeType->lookupMember(it->name->asString(), context);
+                v = context->lookupReference(v);
+                newScopeType = Interpreter::value_cast<const Interpreter::ObjectValue *>(v);
+            }
+            if (!newScopeType)
+                break;
+            qmlScopeType = newScopeType;
         }
         // fallback to getting the base type object
         if (!qmlScopeType)

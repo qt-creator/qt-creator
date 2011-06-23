@@ -308,17 +308,18 @@ bool Bind::visit(UiObjectDefinition *ast)
 {
     // an UiObjectDefinition may be used to group property bindings
     // think anchors { ... }
-    bool isGroupedBinding = false;
-    for (UiQualifiedId *it = ast->qualifiedTypeNameId; it; it = it->next) {
-        if (!it->next && it->name)
-            isGroupedBinding = it->name->asString().at(0).isLower();
-    }
+    bool isGroupedBinding = ast->qualifiedTypeNameId
+            && ast->qualifiedTypeNameId->name
+            && ast->qualifiedTypeNameId->name->asString().at(0).isLower();
 
     if (!isGroupedBinding) {
         ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
         _qmlObjects.insert(ast, value);
     } else {
         _groupedPropertyBindings.insert(ast);
+        Interpreter::ObjectValue *oldObjectValue = switchObjectValue(0);
+        accept(ast->initializer);
+        switchObjectValue(oldObjectValue);
     }
 
     return false;
@@ -337,7 +338,7 @@ bool Bind::visit(UiObjectBinding *ast)
 
 bool Bind::visit(UiScriptBinding *ast)
 {
-    if (toString(ast->qualifiedId) == QLatin1String("id")) {
+    if (_currentObjectValue && toString(ast->qualifiedId) == QLatin1String("id")) {
         if (ExpressionStatement *e = cast<ExpressionStatement*>(ast->statement))
             if (IdentifierExpression *i = cast<IdentifierExpression*>(e->expression))
                 if (i->name)
@@ -369,7 +370,8 @@ bool Bind::visit(VariableDeclaration *ast)
         return false;
 
     ASTVariableReference *ref = new ASTVariableReference(ast, &_engine);
-    _currentObjectValue->setMember(ast->name->asString(), ref);
+    if (_currentObjectValue)
+        _currentObjectValue->setMember(ast->name->asString(), ref);
     return true;
 }
 
@@ -380,7 +382,7 @@ bool Bind::visit(FunctionExpression *ast)
     //    return false;
 
     ASTFunctionValue *function = new ASTFunctionValue(ast, _doc, &_engine);
-    if (ast->name && cast<FunctionDeclaration *>(ast))
+    if (_currentObjectValue && ast->name && cast<FunctionDeclaration *>(ast))
         _currentObjectValue->setMember(ast->name->asString(), function);
 
     // build function scope
