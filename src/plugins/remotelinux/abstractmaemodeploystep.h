@@ -90,7 +90,7 @@ protected:
 
     QString deployMountPoint() const;
     const Qt4ProjectManager::Qt4BuildConfiguration *qt4BuildConfiguration() const;
-    QSharedPointer<Utils::SshConnection> connection() const { return m_connection; }
+    QSharedPointer<Utils::SshConnection> connection() const;
 
 private slots:
     void start();

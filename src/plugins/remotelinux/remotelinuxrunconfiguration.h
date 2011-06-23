@@ -133,7 +133,6 @@ protected:
     QString defaultDisplayName();
     void setDisabledReason(const QString &reason) const;
     QString userEnvironmentChangesAsString() const;
-    Internal::AbstractLinuxDeviceDeployStep *deployStep() const;
     Q_SLOT void updateEnabledState() { emit isEnabledChanged(isEnabled()); }
 
 private slots:

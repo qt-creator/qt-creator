@@ -30,6 +30,8 @@
 **************************************************************************/
 #include "maemodebugsupport.h"
 
+#include <remotelinux/linuxdeviceconfiguration.h>
+
 #include "maemosshrunner.h"
 
 namespace RemoteLinux {

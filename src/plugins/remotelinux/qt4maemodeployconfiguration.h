@@ -33,8 +33,7 @@
 #ifndef QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 #define QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 
-#include"maemodeployables.h"
-#include "maemopertargetdeviceconfigurationlistmodel.h"
+#include "linuxdeviceconfiguration.h"
 
 #include <projectexplorer/deployconfiguration.h>
 
@@ -42,6 +41,7 @@
 
 namespace RemoteLinux {
 namespace Internal {
+class MaemoDeployables;
 class MaemoPerTargetDeviceConfigurationListModel;
 
 class Qt4MaemoDeployConfiguration : public ProjectExplorer::DeployConfiguration
@@ -53,14 +53,20 @@ public:
 
     virtual ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
-    QSharedPointer<MaemoDeployables> deployables() const { return m_deployables; }
-    QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> deviceConfigModel() const { return m_devConfModel; }
+    void setDeviceConfiguration(int index);
+    QSharedPointer<MaemoDeployables> deployables() const;
+    QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> deviceConfigModel() const;
+    QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
 
     static const QString FremantleWithPackagingId;
     static const QString FremantleWithoutPackagingId;
     static const QString HarmattanId;
     static const QString MeegoId;
     static const QString GenericLinuxId;
+
+signals:
+    void deviceConfigurationListChanged();
+    void currentDeviceConfigurationChanged();
 
 private:
     friend class Qt4MaemoDeployConfigurationFactory;
@@ -70,8 +76,16 @@ private:
     Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         ProjectExplorer::DeployConfiguration *source);
 
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+
+    void initialize();
+    void setDeviceConfig(LinuxDeviceConfiguration::Id internalId);
+    Q_SLOT void handleDeviceConfigurationListUpdated();
+
     QSharedPointer<MaemoDeployables> m_deployables;
     QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> m_devConfModel;
+    QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfiguration;
 };
 
 

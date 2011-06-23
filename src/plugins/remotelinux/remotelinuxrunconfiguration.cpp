@@ -242,8 +242,8 @@ QString RemoteLinuxRunConfiguration::defaultDisplayName()
 
 LinuxDeviceConfiguration::ConstPtr RemoteLinuxRunConfiguration::deviceConfig() const
 {
-    const AbstractLinuxDeviceDeployStep * const step = deployStep();
-    return step ? step->helper().deviceConfig() : LinuxDeviceConfiguration::ConstPtr();
+    return deployConfig()
+        ? deployConfig()->deviceConfiguration() : LinuxDeviceConfiguration::ConstPtr();
 }
 
 QString RemoteLinuxRunConfiguration::gdbCmd() const
@@ -254,11 +254,6 @@ QString RemoteLinuxRunConfiguration::gdbCmd() const
 Qt4MaemoDeployConfiguration *RemoteLinuxRunConfiguration::deployConfig() const
 {
     return qobject_cast<Qt4MaemoDeployConfiguration *>(target()->activeDeployConfiguration());
-}
-
-AbstractLinuxDeviceDeployStep *RemoteLinuxRunConfiguration::deployStep() const
-{
-    return MaemoGlobal::earlierBuildStep<AbstractLinuxDeviceDeployStep>(deployConfig(), 0);
 }
 
 QString RemoteLinuxRunConfiguration::arguments() const
@@ -336,24 +331,11 @@ void RemoteLinuxRunConfiguration::handleDeployConfigChanged()
     if (activeDeployConf) {
         connect(activeDeployConf->deployables().data(), SIGNAL(modelReset()),
             SLOT(handleDeployablesUpdated()), Qt::UniqueConnection);
-        connect(activeDeployConf->stepList(), SIGNAL(stepInserted(int)),
-            SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
-        connect(activeDeployConf->stepList(), SIGNAL(stepInserted(int)),
-            SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
-        connect(activeDeployConf->stepList(), SIGNAL(stepMoved(int,int)),
-            SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
-        connect(activeDeployConf->stepList(), SIGNAL(stepRemoved(int)),
-            SLOT(handleDeployConfigChanged()), Qt::UniqueConnection);
-        AbstractLinuxDeviceDeployStep * const step
-            = MaemoGlobal::earlierBuildStep<AbstractLinuxDeviceDeployStep>(activeDeployConf, 0);
-        if (step) {
-            connect(&step->helper(), SIGNAL(deviceConfigChanged()),
-                SLOT(updateDeviceConfigurations()), Qt::UniqueConnection);
-        }
+        connect(activeDeployConf, SIGNAL(currentDeviceConfigurationChanged()),
+            SLOT(updateDeviceConfigurations()), Qt::UniqueConnection);
     }
 
     updateDeviceConfigurations();
-    updateEnabledState();
 }
 
 void RemoteLinuxRunConfiguration::handleDeployablesUpdated()

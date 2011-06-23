@@ -31,10 +31,7 @@
 **************************************************************************/
 #include "abstractlinuxdevicedeploystep.h"
 
-#include "linuxdeviceconfigurations.h"
-#include "maemoconstants.h"
-#include "maemodeploystepwidget.h"
-#include "maemopertargetdeviceconfigurationlistmodel.h"
+#include "linuxdeviceconfiguration.h"
 #include "qt4maemodeployconfiguration.h"
 
 using namespace ProjectExplorer;
@@ -44,13 +41,22 @@ namespace Internal {
 
 
 AbstractLinuxDeviceDeployStep::AbstractLinuxDeviceDeployStep(DeployConfiguration *dc)
-    : m_helper(qobject_cast<Qt4MaemoDeployConfiguration *>(dc))
+    : m_deployConfiguration(qobject_cast<Qt4MaemoDeployConfiguration *>(dc))
 {
+}
+
+AbstractLinuxDeviceDeployStep::~AbstractLinuxDeviceDeployStep()
+{
+}
+
+LinuxDeviceConfiguration::ConstPtr AbstractLinuxDeviceDeployStep::deviceConfiguration() const
+{
+    return m_deviceConfiguration;
 }
 
 bool AbstractLinuxDeviceDeployStep::isDeploymentPossible(QString &whyNot) const
 {
-    if (!m_helper.deviceConfig()) {
+    if (!m_deployConfiguration->deviceConfiguration()) {
         whyNot = tr("No valid device set.");
         return false;
     }
@@ -61,49 +67,7 @@ bool AbstractLinuxDeviceDeployStep::initialize(QString &errorMsg)
 {
     if (!isDeploymentPossible(errorMsg))
         return false;
-    m_helper.prepareDeployment();
-    return true;
-}
-
-
-LinuxDeviceDeployStepHelper::LinuxDeviceDeployStepHelper(Qt4MaemoDeployConfiguration *dc)
-    : m_deployConfiguration(dc)
-{
-    m_deviceConfig = dc->deviceConfigModel()->defaultDeviceConfig();
-    connect(dc->deviceConfigModel().data(), SIGNAL(updated()),
-        SLOT(handleDeviceConfigurationsUpdated()));
-}
-
-LinuxDeviceDeployStepHelper::~LinuxDeviceDeployStepHelper() {}
-
-void LinuxDeviceDeployStepHelper::handleDeviceConfigurationsUpdated()
-{
-    setDeviceConfig(LinuxDeviceConfigurations::instance()->internalId(m_deviceConfig));
-}
-
-void LinuxDeviceDeployStepHelper::setDeviceConfig(LinuxDeviceConfiguration::Id internalId)
-{
-    m_deviceConfig = deployConfiguration()->deviceConfigModel()->find(internalId);
-    emit deviceConfigChanged();
-}
-
-void LinuxDeviceDeployStepHelper::setDeviceConfig(int i)
-{
-    m_deviceConfig = deployConfiguration()->deviceConfigModel()->deviceAt(i);
-    emit deviceConfigChanged();
-}
-
-QVariantMap LinuxDeviceDeployStepHelper::toMap() const
-{
-    QVariantMap map;
-    map.insert(DeviceIdKey,
-        LinuxDeviceConfigurations::instance()->internalId(m_deviceConfig));
-    return map;
-}
-
-bool LinuxDeviceDeployStepHelper::fromMap(const QVariantMap &map)
-{
-    setDeviceConfig(map.value(DeviceIdKey, LinuxDeviceConfiguration::InvalidId).toULongLong());
+    m_deviceConfiguration = m_deployConfiguration->deviceConfiguration();
     return true;
 }
 

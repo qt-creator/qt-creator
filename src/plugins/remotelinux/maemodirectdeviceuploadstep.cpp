@@ -185,7 +185,7 @@ void MaemoDirectDeviceUploadStep::handleMkdirFinished(int exitStatus)
         raiseError(tr("Failed to upload file '%1'.").arg(nativePath));
         setFinished();
     } else if (fi.isDir()) {
-        setDeployed(helper().cachedDeviceConfig()->sshParameters().host, d);
+        setDeployed(deviceConfiguration()->sshParameters().host, d);
         m_filesToUpload.removeFirst();
         uploadNextFile();
     } else {

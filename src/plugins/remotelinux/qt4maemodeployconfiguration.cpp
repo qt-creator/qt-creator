@@ -32,11 +32,14 @@
 
 #include "qt4maemodeployconfiguration.h"
 
+#include "linuxdeviceconfigurations.h"
+#include "maemoconstants.h"
 #include "maemodeploybymountstep.h"
 #include "maemodeployconfigurationwidget.h"
 #include "maemodeployables.h"
 #include "maemoinstalltosysrootstep.h"
 #include "maemopackagecreationstep.h"
+#include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemouploadandinstalldeploystep.h"
 #include "qt4maemotarget.h"
 
@@ -77,12 +80,62 @@ Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(Target *target,
         m_devConfModel = QSharedPointer<MaemoPerTargetDeviceConfigurationListModel>
             (new MaemoPerTargetDeviceConfigurationListModel(0, target));
     }
+
+    initialize();
 }
 
 Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
     DeployConfiguration *source) : DeployConfiguration(target, source)
 {
-    m_deployables = qobject_cast<Qt4MaemoDeployConfiguration *>(source)->deployables();
+    const Qt4MaemoDeployConfiguration * const mdc
+        = qobject_cast<Qt4MaemoDeployConfiguration *>(source);
+    m_deployables = mdc->deployables();
+    m_devConfModel = mdc->deviceConfigModel();
+    initialize();
+}
+
+void Qt4MaemoDeployConfiguration::initialize()
+{
+    m_deviceConfiguration = deviceConfigModel()->defaultDeviceConfig();
+    connect(deviceConfigModel().data(), SIGNAL(updated()),
+            SLOT(handleDeviceConfigurationListUpdated()));
+}
+
+void Qt4MaemoDeployConfiguration::handleDeviceConfigurationListUpdated()
+{
+    setDeviceConfig(LinuxDeviceConfigurations::instance()->internalId(m_deviceConfiguration));
+}
+
+void Qt4MaemoDeployConfiguration::setDeviceConfig(LinuxDeviceConfiguration::Id internalId)
+{
+    m_deviceConfiguration = deviceConfigModel()->find(internalId);
+    emit deviceConfigurationListChanged();
+    emit currentDeviceConfigurationChanged();
+}
+
+bool Qt4MaemoDeployConfiguration::fromMap(const QVariantMap &map)
+{
+    if (!DeployConfiguration::fromMap(map))
+        return false;
+    setDeviceConfig(map.value(DeviceIdKey, LinuxDeviceConfiguration::InvalidId).toULongLong());
+    return true;
+}
+
+QVariantMap Qt4MaemoDeployConfiguration::toMap() const
+{
+    QVariantMap map = DeployConfiguration::toMap();
+    map.insert(DeviceIdKey,
+        LinuxDeviceConfigurations::instance()->internalId(m_deviceConfiguration));
+    return map;
+}
+
+void Qt4MaemoDeployConfiguration::setDeviceConfiguration(int index)
+{
+    const LinuxDeviceConfiguration::ConstPtr &newDevConf = deviceConfigModel()->deviceAt(index);
+    if (m_deviceConfiguration != newDevConf) {
+        m_deviceConfiguration = newDevConf;
+        emit currentDeviceConfigurationChanged();
+    }
 }
 
 Qt4MaemoDeployConfiguration::~Qt4MaemoDeployConfiguration() {}
@@ -90,6 +143,21 @@ Qt4MaemoDeployConfiguration::~Qt4MaemoDeployConfiguration() {}
 DeployConfigurationWidget *Qt4MaemoDeployConfiguration::configurationWidget() const
 {
     return new MaemoDeployConfigurationWidget;
+}
+
+QSharedPointer<MaemoDeployables> Qt4MaemoDeployConfiguration::deployables() const
+{
+    return m_deployables;
+}
+
+QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> Qt4MaemoDeployConfiguration::deviceConfigModel() const
+{
+    return m_devConfModel;
+}
+
+LinuxDeviceConfiguration::ConstPtr Qt4MaemoDeployConfiguration::deviceConfiguration() const
+{
+    return m_deviceConfiguration;
 }
 
 const QString Qt4MaemoDeployConfiguration::FremantleWithPackagingId

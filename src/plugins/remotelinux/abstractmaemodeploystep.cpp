@@ -129,14 +129,13 @@ void AbstractMaemoDeployStep::run(QFutureInterface<bool> &fi)
 
 BuildStepConfigWidget *AbstractMaemoDeployStep::createConfigWidget()
 {
-    return new MaemoDeployStepWidget(this);
+    return new MaemoDeployStepBaseWidget(this);
 }
 
 QVariantMap AbstractMaemoDeployStep::toMap() const
 {
     QVariantMap map(BuildStep::toMap());
     addDeployTimesToMap(map);
-    map.unite(helper().toMap());
     return map;
 }
 
@@ -162,8 +161,6 @@ void AbstractMaemoDeployStep::addDeployTimesToMap(QVariantMap &map) const
 bool AbstractMaemoDeployStep::fromMap(const QVariantMap &map)
 {
     if (!BuildStep::fromMap(map))
-        return false;
-    if (!helper().fromMap(map))
         return false;
     getDeployTimesFromMap(map);
     return true;
@@ -247,8 +244,8 @@ void AbstractMaemoDeployStep::start()
     }
 
     m_hasError = false;
-    if (isDeploymentNeeded(helper().cachedDeviceConfig()->sshParameters().host)) {
-        if (helper().cachedDeviceConfig()->type() == LinuxDeviceConfiguration::Emulator
+    if (isDeploymentNeeded(deviceConfiguration()->sshParameters().host)) {
+        if (deviceConfiguration()->type() == LinuxDeviceConfiguration::Emulator
                 && !MaemoQemuManager::instance().qemuIsRunning()) {
             MaemoQemuManager::instance().startRuntime();
             raiseError(tr("Cannot deploy: Qemu was not running. "
@@ -271,7 +268,7 @@ void AbstractMaemoDeployStep::handleConnectionFailure()
         return;
 
     const QString errorMsg = m_baseState == Connecting
-        ? MaemoGlobal::failedToConnectToServerMessage(m_connection, helper().cachedDeviceConfig())
+        ? MaemoGlobal::failedToConnectToServerMessage(m_connection, deviceConfiguration())
         : tr("Connection error: %1").arg(m_connection->errorString());
     raiseError(errorMsg);
     setDeploymentFinished();
@@ -282,7 +279,7 @@ void AbstractMaemoDeployStep::connectToDevice()
     ASSERT_STATE(QList<BaseState>() << BaseInactive);
     setBaseState(Connecting);
 
-    m_connection = SshConnectionManager::instance().acquireConnection(helper().cachedDeviceConfig()->sshParameters());
+    m_connection = SshConnectionManager::instance().acquireConnection(deviceConfiguration()->sshParameters());
     connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
         SLOT(handleConnectionFailure()));
     if (m_connection->state() == SshConnection::Connected) {
@@ -372,6 +369,11 @@ void AbstractMaemoDeployStep::handleRemoteStderr(const QString &output)
 const Qt4BuildConfiguration *AbstractMaemoDeployStep::qt4BuildConfiguration() const
 {
     return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+}
+
+SshConnection::Ptr AbstractMaemoDeployStep::connection() const
+{
+    return m_connection;
 }
 
 MaemoDeployEventHandler::MaemoDeployEventHandler(AbstractMaemoDeployStep *deployStep,

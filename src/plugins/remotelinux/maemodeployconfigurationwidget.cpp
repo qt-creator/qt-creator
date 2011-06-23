@@ -33,10 +33,15 @@
 #include "maemodeployconfigurationwidget.h"
 #include "ui_maemodeployconfigurationwidget.h"
 
+#include "linuxdeviceconfigurations.h"
 #include "maemodeployablelistmodel.h"
 #include "maemodeployables.h"
+#include "maemoglobal.h"
+#include "maemopertargetdeviceconfigurationlistmodel.h"
+#include "maemosettingspages.h"
 #include "qt4maemodeployconfiguration.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
 #include <QtGui/QFileDialog>
@@ -65,7 +70,16 @@ void MaemoDeployConfigurationWidget::init(DeployConfiguration *dc)
     m_deployConfig = qobject_cast<Qt4MaemoDeployConfiguration *>(dc);
     Q_ASSERT(m_deployConfig);
 
-    ui->modelComboBox->setModel(m_deployConfig->deployables().data());
+    connect(ui->manageDevConfsLabel, SIGNAL(linkActivated(QString)),
+        SLOT(showDeviceConfigurations()));
+
+    ui->deviceConfigsComboBox->setModel(m_deployConfig->deviceConfigModel().data());
+    connect(ui->deviceConfigsComboBox, SIGNAL(activated(int)),
+        SLOT(handleSelectedDeviceConfigurationChanged(int)));
+    connect(m_deployConfig, SIGNAL(deviceConfigurationListChanged()),
+        SLOT(handleDeviceConfigurationListChanged()));
+
+    ui->projectsComboBox->setModel(m_deployConfig->deployables().data());
     connect(m_deployConfig->deployables().data(), SIGNAL(modelAboutToBeReset()),
         SLOT(handleModelListToBeReset()));
 
@@ -74,7 +88,7 @@ void MaemoDeployConfigurationWidget::init(DeployConfiguration *dc)
     connect(m_deployConfig->deployables().data(), SIGNAL(modelReset()),
         SLOT(handleModelListReset()), Qt::QueuedConnection);
 
-    connect(ui->modelComboBox, SIGNAL(currentIndexChanged(int)),
+    connect(ui->projectsComboBox, SIGNAL(currentIndexChanged(int)),
         SLOT(setModel(int)));
     connect(ui->addDesktopFileButton, SIGNAL(clicked()),
         SLOT(addDesktopFile()));
@@ -92,12 +106,12 @@ void MaemoDeployConfigurationWidget::handleModelListToBeReset()
 
 void MaemoDeployConfigurationWidget::handleModelListReset()
 {
-    QTC_ASSERT(m_deployConfig->deployables()->modelCount() == ui->modelComboBox->count(), return);
+    QTC_ASSERT(m_deployConfig->deployables()->modelCount() == ui->projectsComboBox->count(), return);
     if (m_deployConfig->deployables()->modelCount() > 0) {
-        if (ui->modelComboBox->currentIndex() == -1)
-            ui->modelComboBox->setCurrentIndex(0);
+        if (ui->projectsComboBox->currentIndex() == -1)
+            ui->projectsComboBox->setCurrentIndex(0);
         else
-            setModel(ui->modelComboBox->currentIndex());
+            setModel(ui->projectsComboBox->currentIndex());
     }
 }
 
@@ -117,9 +131,27 @@ void MaemoDeployConfigurationWidget::setModel(int row)
     ui->addIconButton->setEnabled(canAddIconFile);
 }
 
+void MaemoDeployConfigurationWidget::handleSelectedDeviceConfigurationChanged(int index)
+{
+    disconnect(m_deployConfig, SIGNAL(deviceConfigurationListChanged()), this,
+        SLOT(handleDeviceConfigurationListChanged()));
+    m_deployConfig->setDeviceConfiguration(index);
+    connect(m_deployConfig, SIGNAL(deviceConfigurationListChanged()),
+        SLOT(handleDeviceConfigurationListChanged()));
+}
+
+void MaemoDeployConfigurationWidget::handleDeviceConfigurationListChanged()
+{
+    const LinuxDeviceConfiguration::ConstPtr &devConf = m_deployConfig->deviceConfiguration();
+    const LinuxDeviceConfiguration::Id internalId
+        = LinuxDeviceConfigurations::instance()->internalId(devConf);
+    const int newIndex = m_deployConfig->deviceConfigModel()->indexForInternalId(internalId);
+    ui->deviceConfigsComboBox->setCurrentIndex(newIndex);
+}
+
 void MaemoDeployConfigurationWidget::addDesktopFile()
 {
-    const int modelRow = ui->modelComboBox->currentIndex();
+    const int modelRow = ui->projectsComboBox->currentIndex();
     if (modelRow == -1)
         return;
     MaemoDeployableListModel *const model
@@ -131,7 +163,7 @@ void MaemoDeployConfigurationWidget::addDesktopFile()
 
 void MaemoDeployConfigurationWidget::addIcon()
 {
-    const int modelRow = ui->modelComboBox->currentIndex();
+    const int modelRow = ui->projectsComboBox->currentIndex();
     if (modelRow == -1)
         return;
 
@@ -165,6 +197,12 @@ void MaemoDeployConfigurationWidget::addIcon()
     model->addIcon(newFileName);
     ui->addIconButton->setEnabled(model->canAddIcon());
     ui->tableView->resizeRowsToContents();
+}
+
+void MaemoDeployConfigurationWidget::showDeviceConfigurations()
+{
+    Core::ICore::instance()->showOptionsDialog(MaemoDeviceConfigurationsSettingsPage::Category,
+        MaemoDeviceConfigurationsSettingsPage::Id);
 }
 
 } // namespace Internal

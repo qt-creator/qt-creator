@@ -36,6 +36,7 @@
 #include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfigurationwidget.h"
+#include "qt4maemodeployconfiguration.h"
 
 #include <debugger/debuggerconstants.h>
 #include <projectexplorer/project.h>
@@ -121,9 +122,8 @@ QString MaemoRunConfiguration::commandPrefix() const
 PortList MaemoRunConfiguration::freePorts() const
 {
     const Qt4BuildConfiguration * const bc = activeQt4BuildConfiguration();
-    const AbstractLinuxDeviceDeployStep * const step = deployStep();
-    return bc && step
-        ? MaemoGlobal::freePorts(deployStep()->helper().deviceConfig(), bc->qtVersion())
+    return bc && deployConfig()
+            ? MaemoGlobal::freePorts(deployConfig()->deviceConfiguration(), bc->qtVersion())
         : PortList();
 }
 

@@ -32,6 +32,7 @@
 #include "maemopublisherfremantlefree.h"
 
 #include "maemodeployablelistmodel.h"
+#include "maemodeployables.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"

@@ -59,8 +59,11 @@ private:
     Q_SLOT void handleModelListToBeReset();
     Q_SLOT void handleModelListReset();
     Q_SLOT void setModel(int row);
+    Q_SLOT void handleSelectedDeviceConfigurationChanged(int index);
+    Q_SLOT void handleDeviceConfigurationListChanged();
     Q_SLOT void addDesktopFile();
     Q_SLOT void addIcon();
+    Q_SLOT void showDeviceConfigurations();
 
     Ui::MaemoDeployConfigurationWidget *ui;
     Qt4MaemoDeployConfiguration * m_deployConfig;

@@ -35,18 +35,12 @@
 
 #include <projectexplorer/buildstep.h>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-    class MaemoDeployStepWidget;
-}
-QT_END_NAMESPACE
-
 namespace RemoteLinux {
 namespace Internal {
 class AbstractLinuxDeviceDeployStep;
 class AbstractMaemoDeployStep;
 
-class MaemoDeployStepBaseWidget : public QWidget
+class MaemoDeployStepBaseWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 
@@ -55,31 +49,12 @@ public:
     ~MaemoDeployStepBaseWidget();
 
     QString summaryText() const;
-
-signals:
-    void updateSummary();
+    QString displayName() const { return QString(); }
 
 private:
-    Q_SLOT void handleDeviceUpdate();
-    Q_SLOT void setCurrentDeviceConfig(int index);
-    Q_SLOT void showDeviceConfigurations();
     Q_SLOT void handleStepToBeRemoved(int step);
 
-    Ui::MaemoDeployStepWidget *ui;
     AbstractLinuxDeviceDeployStep *const m_step;
-};
-
-class MaemoDeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    MaemoDeployStepWidget(AbstractMaemoDeployStep *step);
-
-private:
-    virtual QString summaryText() const { return m_baseWidget.summaryText(); }
-    virtual QString displayName() const { return QString(); }
-
-    MaemoDeployStepBaseWidget m_baseWidget;
 };
 
 } // namespace Internal

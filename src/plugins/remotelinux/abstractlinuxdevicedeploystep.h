@@ -32,68 +32,37 @@
 #ifndef ABSTRACTLINUXDEVICEDEPLOYSTEP_H
 #define ABSTRACTLINUXDEVICEDEPLOYSTEP_H
 
-#include "linuxdeviceconfiguration.h"
-
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QVariantMap>
 
 namespace ProjectExplorer { class DeployConfiguration; }
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
 class Qt4MaemoDeployConfiguration;
-
-
-class LinuxDeviceDeployStepHelper : public QObject
-{
-    Q_OBJECT
-public:
-    LinuxDeviceDeployStepHelper(Qt4MaemoDeployConfiguration *dc);
-    ~LinuxDeviceDeployStepHelper();
-
-    QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const { return m_deviceConfig; }
-    QSharedPointer<const LinuxDeviceConfiguration> cachedDeviceConfig() const { return m_cachedDeviceConfig; }
-    Qt4MaemoDeployConfiguration *deployConfiguration() const { return m_deployConfiguration; }
-
-    void setDeviceConfig(int i);
-    void prepareDeployment() { m_cachedDeviceConfig = m_deviceConfig; }
-
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &map);
-
-signals:
-    void deviceConfigChanged();
-
-private:
-    void setDeviceConfig(LinuxDeviceConfiguration::Id internalId);
-    Q_SLOT void handleDeviceConfigurationsUpdated();
-
-    QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfig;
-    QSharedPointer<const LinuxDeviceConfiguration> m_cachedDeviceConfig;
-    Qt4MaemoDeployConfiguration * const m_deployConfiguration;
-};
 
 class AbstractLinuxDeviceDeployStep
 {
     Q_DECLARE_TR_FUNCTIONS(AbstractLinuxDeviceDeployStep)
 public:
-    virtual ~AbstractLinuxDeviceDeployStep() {}
+    virtual ~AbstractLinuxDeviceDeployStep();
 
-    Qt4MaemoDeployConfiguration *maemoDeployConfig() const { return m_helper.deployConfiguration(); }
+    Qt4MaemoDeployConfiguration *maemoDeployConfig() const { return m_deployConfiguration; }
     bool isDeploymentPossible(QString &whyNot) const;
-    LinuxDeviceDeployStepHelper &helper() { return m_helper; }
-    const LinuxDeviceDeployStepHelper &helper() const { return m_helper; }
 
 protected:
     AbstractLinuxDeviceDeployStep(ProjectExplorer::DeployConfiguration *dc);
 
+    QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
     bool initialize(QString &errorMsg);
 
 private:
     virtual bool isDeploymentPossibleInternal(QString &whynot) const=0;
 
-    LinuxDeviceDeployStepHelper m_helper;
+    Qt4MaemoDeployConfiguration * const m_deployConfiguration;
+    mutable QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfiguration;
 };
 
 } // namespace Internal

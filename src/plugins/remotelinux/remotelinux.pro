@@ -169,7 +169,6 @@ FORMS += \
     maemodeviceconfigurationssettingswidget.ui \
     maemosshconfigdialog.ui \
     maemopackagecreationwidget.ui \
-    maemodeploystepwidget.ui \
     maemoprofilesupdatedialog.ui \
     maemoremoteprocessesdialog.ui \
     maemopublishingbuildsettingspagefremantlefree.ui \
