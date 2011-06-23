@@ -185,6 +185,7 @@ void tst_Aggregate::queryAll()
 void tst_Aggregate::parentAggregate()
 {
     Aggregation::Aggregate aggregation;
+    Aggregation::Aggregate aggregation2;
     Interface1 *component1 = new Interface1;
     Interface11 *component11 = new Interface11;
     QObject *component2 = new QObject;
@@ -194,6 +195,15 @@ void tst_Aggregate::parentAggregate()
     QCOMPARE(Aggregation::Aggregate::parentAggregate(component1), &aggregation);
     QCOMPARE(Aggregation::Aggregate::parentAggregate(component11), &aggregation);
     QCOMPARE(Aggregation::Aggregate::parentAggregate(component2), (Aggregation::Aggregate *)0);
+    // test reparenting a component to another aggregate (should warn but not work)
+    aggregation2.add(component11);
+    QCOMPARE(Aggregation::Aggregate::parentAggregate(component11), &aggregation);
+    // test adding an aggregate to an aggregate (should warn but not work)
+    aggregation.add(&aggregation2);
+    QCOMPARE(Aggregation::Aggregate::parentAggregate(&aggregation2), &aggregation2);
+    // test removing an object from an aggregation.
+    aggregation.remove(component11);
+    QCOMPARE(Aggregation::Aggregate::parentAggregate(component11), (Aggregation::Aggregate *)0);
 }
 
 QTEST_MAIN(tst_Aggregate)

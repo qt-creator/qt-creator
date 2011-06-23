@@ -33,6 +33,7 @@
 #include "aggregate.h"
 
 #include <QtCore/QWriteLocker>
+#include <QtCore/QDebug>
 
 /*!
     \namespace Aggregation
@@ -228,6 +229,8 @@ void Aggregate::deleteSelf(QObject *obj)
     \fn void Aggregate::add(QObject *component)
 
     Adds the \a component to the aggregate.
+    You can't add a component that is part of a different aggregate
+    or an aggregate itself.
 
     \sa Aggregate::remove()
 */
@@ -240,8 +243,10 @@ void Aggregate::add(QObject *component)
         Aggregate *parentAggregation = aggregateMap().value(component);
         if (parentAggregation == this)
             return;
-        if (parentAggregation)
-            parentAggregation->remove(component);
+        if (parentAggregation) {
+            qWarning() << "Cannot add a component that belongs to a different aggregate" << component;
+            return;
+        }
         m_components.append(component);
         connect(component, SIGNAL(destroyed(QObject*)), this, SLOT(deleteSelf(QObject*)));
         aggregateMap().insert(component, this);
