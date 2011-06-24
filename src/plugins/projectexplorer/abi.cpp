@@ -682,6 +682,8 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QString prefix = qgetenv("QTC_TEST_EXTRADATALOCATION");
     if (prefix.isEmpty())
         return;
+    prefix += "/projectexplorer/abi";
+
     QFileInfo fi(prefix);
     if (!fi.exists() || !fi.isDir())
         return;
@@ -692,70 +694,70 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
             << (QStringList());
 
     QTest::newRow("static QtCore: win msvc2008")
-            << QString::fromLatin1("%1/abi/static/win-msvc2008-release.lib").arg(prefix)
+            << QString::fromLatin1("%1/static/win-msvc2008-release.lib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
     QTest::newRow("static QtCore: win msvc2008 II")
-            << QString::fromLatin1("%1/abi/static/win-msvc2008-release2.lib").arg(prefix)
+            << QString::fromLatin1("%1/static/win-msvc2008-release2.lib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-64bit"));
     QTest::newRow("static QtCore: win msvc2008 (debug)")
-            << QString::fromLatin1("%1/abi/static/win-msvc2008-debug.lib").arg(prefix)
+            << QString::fromLatin1("%1/static/win-msvc2008-debug.lib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
     QTest::newRow("static QtCore: win mingw")
-            << QString::fromLatin1("%1/abi/static/win-mingw.a").arg(prefix)
+            << QString::fromLatin1("%1/static/win-mingw.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
     QTest::newRow("static QtCore: mac (debug)")
-            << QString::fromLatin1("%1/abi/static/mac-32bit-debug.a").arg(prefix)
+            << QString::fromLatin1("%1/static/mac-32bit-debug.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-macos-generic-mach_o-32bit"));
     QTest::newRow("static QtCore: linux 32bit")
-            << QString::fromLatin1("%1/abi/static/linux-32bit-release.a").arg(prefix)
+            << QString::fromLatin1("%1/static/linux-32bit-release.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-linux-generic-elf-32bit"));
     QTest::newRow("static QtCore: linux 64bit")
-            << QString::fromLatin1("%1/abi/static/linux-64bit-release.a").arg(prefix)
+            << QString::fromLatin1("%1/static/linux-64bit-release.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-linux-generic-elf-64bit"));
 
     QTest::newRow("static stdc++: mac fat")
-            << QString::fromLatin1("%1/abi/static/mac-fat.a").arg(prefix)
+            << QString::fromLatin1("%1/static/mac-fat.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-macos-generic-mach_o-32bit")
                               << QString::fromLatin1("ppc-macos-generic-mach_o-32bit")
                               << QString::fromLatin1("x86-macos-generic-mach_o-64bit"));
 
     QTest::newRow("dynamic QtCore: symbian")
-            << QString::fromLatin1("%1/abi/dynamic/symbian.dll").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/symbian.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-symbian-device-elf-32bit"));
     QTest::newRow("dynamic QtCore: win msvc2010 64bit")
-            << QString::fromLatin1("%1/abi/dynamic/win-msvc2010-64bit.dll").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/win-msvc2010-64bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2010-pe-64bit"));
     QTest::newRow("dynamic QtCore: win msvc2008 32bit")
-            << QString::fromLatin1("%1/abi/dynamic/win-msvc2008-32bit.dll").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/win-msvc2008-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2008-pe-32bit"));
     QTest::newRow("dynamic QtCore: win msvc2005 32bit")
-            << QString::fromLatin1("%1/abi/dynamic/win-msvc2005-32bit.dll").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/win-msvc2005-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2005-pe-32bit"));
     QTest::newRow("dynamic QtCore: win msys 32bit")
-            << QString::fromLatin1("%1/abi/dynamic/win-mingw-32bit.dll").arg(prefix)
-            << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
-    QTest::newRow("dynamic QtCore: win msys 32bit")
-            << QString::fromLatin1("%1/abi/dynamic/win-mingw-32bit.dll").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/win-mingw-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
     QTest::newRow("dynamic stdc++: mac fat")
-            << QString::fromLatin1("%1/abi/dynamic/mac-fat.dylib").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/mac-fat.dylib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-macos-generic-mach_o-32bit")
                               << QString::fromLatin1("ppc-macos-generic-mach_o-32bit")
                               << QString::fromLatin1("x86-macos-generic-mach_o-64bit"));
     QTest::newRow("dynamic QtCore: arm linux 32bit")
-            << QString::fromLatin1("%1/abi/dynamic/arm-linux.so").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/arm-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
     QTest::newRow("dynamic QtCore: mips linux 32bit")
-            << QString::fromLatin1("%1/abi/dynamic/mips-linux.so").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/mips-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("mips-linux-generic-elf-32bit"));
+    QTest::newRow("dynamic QtCore: projectexplorer/abi/static/win-msvc2010-32bit.libppc be linux 32bit")
+            << QString::fromLatin1("%1/dynamic/ppcbe-linux-32bit.so").arg(prefix)
+            << (QStringList() << QString::fromLatin1("ppc-linux-generic-elf-32bit"));
     QTest::newRow("dynamic QtCore: x86 freebsd 64bit")
-            << QString::fromLatin1("%1/abi/dynamic/freebsd-elf-64bit.so").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/freebsd-elf-64bit.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-bsd-freebsd-elf-64bit"));
     QTest::newRow("dynamic QtCore: x86 freebsd 64bit")
-            << QString::fromLatin1("%1/abi/dynamic/freebsd-elf-64bit.so").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/freebsd-elf-64bit.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-bsd-freebsd-elf-64bit"));
     QTest::newRow("dynamic QtCore: x86 freebsd 32bit")
-            << QString::fromLatin1("%1/abi/dynamic/freebsd-elf-32bit.so").arg(prefix)
+            << QString::fromLatin1("%1/dynamic/freebsd-elf-32bit.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-bsd-freebsd-elf-32bit"));
 }
 
