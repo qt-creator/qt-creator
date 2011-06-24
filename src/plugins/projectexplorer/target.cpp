@@ -550,6 +550,9 @@ bool Target::fromMap(const QVariantMap &map)
 
 ITargetFactory::ITargetFactory(QObject *parent) :
     QObject(parent)
-{ }
+{
+    connect(ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
+            this, SIGNAL(supportedTargetIdsChanged()));
+}
 
 } // namespace ProjectExplorer
