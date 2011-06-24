@@ -163,6 +163,7 @@ void MetaInfoParser::handleNodeItemLibraryEntryElement(QXmlStreamReader &reader,
         while (!reader.atEnd() && !(reader.isEndElement() && reader.name() == "itemlibraryentry")) {
             reader.readNext();
             handleItemLibraryEntryPropertyElement(reader, entry);
+            handleItemLibraryEntryQmlElement(reader, entry);
         }
 
         m_metaInfo.itemLibraryInfo()->addEntry(entry);
@@ -178,6 +179,18 @@ void MetaInfoParser::handleItemLibraryEntryPropertyElement(QXmlStreamReader &rea
         QString type = attributes.value("type").toString();
         QString value = attributes.value("value").toString();
         itemLibraryEntry.addProperty(name, type, value);
+
+        reader.readNext();
+    }
+}
+
+void MetaInfoParser::handleItemLibraryEntryQmlElement(QXmlStreamReader &reader, ItemLibraryEntry &itemLibraryEntry)
+{
+    if (reader.isStartElement() && reader.name() == "qml")
+    {
+        QXmlStreamAttributes attributes(reader.attributes());
+        QString source = attributes.value("source").toString();
+        itemLibraryEntry.setQml(source);
 
         reader.readNext();
     }

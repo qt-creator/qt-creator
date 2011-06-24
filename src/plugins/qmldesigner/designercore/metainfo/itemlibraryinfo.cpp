@@ -227,6 +227,7 @@ QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.forceImport();
 
     stream << itemLibraryEntry.m_data->properties;
+    stream << itemLibraryEntry.m_data->qml;
 
     return stream;
 }
@@ -245,6 +246,7 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->forceImport;
 
     stream >> itemLibraryEntry.m_data->properties;
+    stream >> itemLibraryEntry.m_data->qml;
 
     return stream;
 }
