@@ -394,24 +394,9 @@ void BreakHandler::loadBreakpoints()
 
 void BreakHandler::updateMarkers()
 {
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
+    Iterator it = m_storage.begin(), et = m_storage.end();
     for ( ; it != et; ++it)
-        updateMarker(it.key());
-}
-
-void BreakHandler::updateMarker(BreakpointModelId id)
-{
-    Iterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(), return);
-
-    QString markerFileName = it->markerFileName();
-    int markerLineNumber = it->markerLineNumber();
-    if (it->marker && (markerFileName != it->marker->fileName()
-                || markerLineNumber != it->marker->lineNumber()))
-        it->destroyMarker();
-
-    if (!it->marker && !markerFileName.isEmpty() && markerLineNumber > 0)
-        it->marker = new BreakpointMarker(id, markerFileName, markerLineNumber);
+        it->updateMarker(it.key());
 }
 
 QVariant BreakHandler::headerData(int section,
@@ -752,7 +737,7 @@ void BreakHandler::setEnabled(BreakpointModelId id, bool on)
         return;
     it->data.enabled = on;
     it->destroyMarker();
-    updateMarker(id);
+    it->updateMarker(id);
     if (it->engine) {
         it->state = BreakpointChangeRequested;
         scheduleSynchronization();
@@ -788,8 +773,8 @@ void BreakHandler::setTracepoint(BreakpointModelId id, bool on)
         return;
     it->data.tracepoint = on;
     it->destroyMarker();
+    it->updateMarker(id);
 
-    updateMarker(id);
     if (it->engine) {
         it->state = BreakpointChangeRequested;
         scheduleSynchronization();
@@ -807,7 +792,7 @@ void BreakHandler::setMarkerFileAndLine(BreakpointModelId id,
     it->response.fileName = fileName;
     it->response.lineNumber = lineNumber;
     it->destroyMarker();
-    updateMarker(id);
+    it->updateMarker(id);
     emit layoutChanged();
 }
 
@@ -836,7 +821,7 @@ void BreakHandler::setEngine(BreakpointModelId id, DebuggerEngine *value)
     it->state = BreakpointInsertRequested;
     it->response = BreakpointResponse();
     it->response.fileName = it->data.fileName;
-    updateMarker(id);
+    it->updateMarker(id);
     scheduleSynchronization();
 }
 
@@ -899,7 +884,7 @@ void BreakHandler::setState(BreakpointModelId id, BreakpointState state)
     // FIXME: updateMarker() should recognize the need for icon changes.
     if (state == BreakpointInserted) {
         it->destroyMarker();
-        updateMarker(id);
+        it->updateMarker(id);
     }
     layoutChanged();
 }
@@ -977,13 +962,12 @@ void BreakHandler::notifyBreakpointReleased(BreakpointModelId id)
     it->engine = 0;
     it->response = BreakpointResponse();
     it->subItems.clear();
-    delete it->marker;
-    it->marker = 0;
+    it->destroyMarker();
+    it->updateMarker(id);
     if (it->data.type == WatchpointAtAddress
             || it->data.type == WatchpointAtExpression
             || it->data.type == BreakpointByAddress)
         it->data.enabled = false;
-    updateMarker(id);
     layoutChanged();
 }
 
@@ -1053,9 +1037,10 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
     m_storage.insert(id, item);
     endInsertRows();
 
+    item.updateMarker(id);
+
     layoutChanged();
 
-    updateMarker(id);
     scheduleSynchronization();
 }
 
@@ -1075,6 +1060,7 @@ void BreakHandler::handleAlienBreakpoint(BreakpointModelId id,
         item.response = response;
         item.state = BreakpointInserted;
         item.engine = engine;
+        item.updateMarker(id);
 
         const int row = m_storage.size();
         beginInsertRows(QModelIndex(), row, row);
@@ -1082,8 +1068,6 @@ void BreakHandler::handleAlienBreakpoint(BreakpointModelId id,
         endInsertRows();
 
         layoutChanged();
-
-        updateMarker(id);
         scheduleSynchronization();
     }
 }
@@ -1245,7 +1229,7 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointModelId id, int lineNumb
         // FIXME: Should we tell gdb about the change?
         it->response.lineNumber = lineNumber;
     }
-    updateMarker(id);
+    it->updateMarker(id);
     emit layoutChanged();
 }
 
@@ -1304,15 +1288,14 @@ void BreakHandler::setResponse(BreakpointModelId id,
 {
     Iterator it = m_storage.find(id);
     BREAK_ASSERT(it != m_storage.end(), return);
-    BreakpointItem &item = it.value();
-    item.response = response;
-    item.destroyMarker();
+    it->response = response;
+    it->destroyMarker();
+    it->updateMarker(id);
     // Take over corrected values from response.
-    if ((item.data.type == BreakpointByFileAndLine
-                || item.data.type == BreakpointByFunction)
+    if ((it->data.type == BreakpointByFileAndLine
+                || it->data.type == BreakpointByFunction)
             && !response.module.isEmpty())
-        item.data.module = response.module;
-    updateMarker(id);
+        it->data.module = response.module;
 }
 
 void BreakHandler::changeBreakpointData(BreakpointModelId id,
@@ -1325,7 +1308,7 @@ void BreakHandler::changeBreakpointData(BreakpointModelId id,
     it->data = data;
     if (parts == NoParts) {
         it->destroyMarker();
-        updateMarker(id);
+        it->updateMarker(id);
         layoutChanged();
     } else if (it->needsChange() && it->engine && it->state != BreakpointNew) {
         setState(id, BreakpointChangeRequested);
@@ -1409,6 +1392,17 @@ bool BreakHandler::BreakpointItem::isLocatedAt
     return lineNumber == line
         && (fileNameMatch(fileName, response.fileName)
             || fileNameMatch(fileName, markerFileName()));
+}
+
+void BreakHandler::BreakpointItem::updateMarker(BreakpointModelId id)
+{
+    QString file = markerFileName();
+    int line = markerLineNumber();
+    if (marker && (file != marker->fileName() || line != marker->lineNumber()))
+        destroyMarker();
+
+    if (!marker && !file.isEmpty() && line > 0)
+        marker = new BreakpointMarker(id, file, line);
 }
 
 QIcon BreakHandler::BreakpointItem::icon() const

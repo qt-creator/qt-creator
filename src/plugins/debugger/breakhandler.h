@@ -183,7 +183,6 @@ private:
     void setState(BreakpointModelId id, BreakpointState state);
     void loadBreakpoints();
     void saveBreakpoints();
-    void updateMarker(BreakpointModelId id);
     void cleanupBreakpoint(BreakpointModelId id);
 
     struct BreakpointItem
@@ -194,6 +193,7 @@ private:
         bool needsChange() const;
         bool isLocatedAt(const QString &fileName, int lineNumber,
             bool useMarkerPosition) const;
+        void updateMarker(BreakpointModelId id);
         QString toToolTip() const;
         QString markerFileName() const;
         int markerLineNumber() const;
