@@ -43,7 +43,6 @@ const int AbstractSftpPacket::TypeOffset = 4;
 const int AbstractSftpPacket::RequestIdOffset = TypeOffset + 1;
 const int AbstractSftpPacket::PayloadOffset = RequestIdOffset + 4;
 
-
 AbstractSftpPacket::AbstractSftpPacket()
 {
 }

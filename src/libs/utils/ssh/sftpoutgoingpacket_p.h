@@ -55,7 +55,7 @@ public:
     SftpOutgoingPacket &generateRename(const QString &oldPath,
         const QString &newPath, quint32 requestId);
     SftpOutgoingPacket &generateOpenFileForWriting(const QString &path,
-         SftpOverwriteMode mode, quint32 requestId);
+         SftpOverwriteMode mode, quint32 permissions, quint32 requestId);
     SftpOutgoingPacket &generateOpenFileForReading(const QString &path,
         quint32 requestId);
     SftpOutgoingPacket &generateReadFile(const QByteArray &handle,
@@ -65,12 +65,14 @@ public:
     SftpOutgoingPacket &generateWriteFile(const QByteArray &handle,
         quint64 offset, const QByteArray &data, quint32 requestId);
 
+    static const quint32 DefaultPermissions;
+
 private:
     static QByteArray encodeString(const QString &string);
 
     enum OpenType { Read, Write };
     SftpOutgoingPacket &generateOpenFile(const QString &path, OpenType openType,
-        SftpOverwriteMode mode, quint32 requestId);
+        SftpOverwriteMode mode, const QList<quint32> &attributes, quint32 requestId);
 
     SftpOutgoingPacket &init(SftpPacketType type, quint32 requestId);
     SftpOutgoingPacket &appendInt(quint32 value);

@@ -36,6 +36,8 @@
 
 #include <QtCore/QtEndian>
 
+#include <limits>
+
 namespace Utils {
 namespace Internal {
 
@@ -103,16 +105,22 @@ SftpOutgoingPacket &SftpOutgoingPacket::generateRename(const QString &oldPath,
 }
 
 SftpOutgoingPacket &SftpOutgoingPacket::generateOpenFileForWriting(const QString &path,
-    SftpOverwriteMode mode, quint32 requestId)
+    SftpOverwriteMode mode, quint32 permissions, quint32 requestId)
 {
-    return generateOpenFile(path, Write, mode, requestId);
+    QList<quint32> attributes;
+    if (permissions != DefaultPermissions)
+        attributes << SSH_FILEXFER_ATTR_PERMISSIONS << permissions;
+    else
+        attributes << DefaultAttributes;
+    return generateOpenFile(path, Write, mode, attributes, requestId);
 }
 
 SftpOutgoingPacket &SftpOutgoingPacket::generateOpenFileForReading(const QString &path,
     quint32 requestId)
 {
     // Note: Overwrite mode is irrelevant and will be ignored.
-    return generateOpenFile(path, Read, SftpSkipExisting, requestId);
+    return generateOpenFile(path, Read, SftpSkipExisting, QList<quint32>() << DefaultAttributes,
+        requestId);
 }
 
 SftpOutgoingPacket &SftpOutgoingPacket::generateReadFile(const QByteArray &handle,
@@ -136,7 +144,7 @@ SftpOutgoingPacket &SftpOutgoingPacket::generateWriteFile(const QByteArray &hand
 }
 
 SftpOutgoingPacket &SftpOutgoingPacket::generateOpenFile(const QString &path,
-    OpenType openType, SftpOverwriteMode mode, quint32 requestId)
+    OpenType openType, SftpOverwriteMode mode, const QList<quint32> &attributes, quint32 requestId)
 {
     quint32 pFlags;
     switch (openType) {
@@ -152,8 +160,11 @@ SftpOutgoingPacket &SftpOutgoingPacket::generateOpenFile(const QString &path,
         }
         break;
     }
-    return init(SSH_FXP_OPEN, requestId).appendString(path).appendInt(pFlags)
-        .appendInt(DefaultAttributes).finalize();
+
+    init(SSH_FXP_OPEN, requestId).appendString(path).appendInt(pFlags);
+    foreach (const quint32 attribute, attributes)
+        appendInt(attribute);
+    return finalize();
 }
 
 SftpOutgoingPacket &SftpOutgoingPacket::init(SftpPacketType type,
@@ -200,6 +211,8 @@ SftpOutgoingPacket &SftpOutgoingPacket::finalize()
     AbstractSshPacket::setLengthField(m_data);
     return *this;
 }
+
+const quint32 SftpOutgoingPacket::DefaultPermissions = std::numeric_limits<quint32>::max();
 
 } // namespace Internal
 } // namespace Utils

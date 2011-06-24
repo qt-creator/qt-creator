@@ -121,7 +121,8 @@ SftpCreateFile::SftpCreateFile(SftpJobId jobId, const QString &path,
 SftpOutgoingPacket & SftpCreateFile::initialPacket(SftpOutgoingPacket &packet)
 {
     state = OpenRequested;
-    return packet.generateOpenFileForWriting(remotePath, mode, jobId);
+    return packet.generateOpenFileForWriting(remotePath, mode,
+        SftpOutgoingPacket::DefaultPermissions, jobId);
 }
 
 
@@ -176,9 +177,28 @@ SftpUploadFile::SftpUploadFile(SftpJobId jobId, const QString &remotePath,
 SftpOutgoingPacket &SftpUploadFile::initialPacket(SftpOutgoingPacket &packet)
 {
     state = OpenRequested;
-    return packet.generateOpenFileForWriting(remotePath, mode, jobId);
+    quint32 permissions = 0;
+    const QFile::Permissions &qtPermissions = localFile->permissions();
+    if (qtPermissions & QFile::ExeOther)
+        permissions |= 1 << 0;
+    if (qtPermissions & QFile::WriteOther)
+        permissions |= 1 << 1;
+    if (qtPermissions & QFile::ReadOther)
+        permissions |= 1 << 2;
+    if (qtPermissions & QFile::ExeGroup)
+        permissions |= 1<< 3;
+    if (qtPermissions & QFile::WriteGroup)
+        permissions |= 1<< 4;
+    if (qtPermissions & QFile::ReadGroup)
+        permissions |= 1<< 5;
+    if (qtPermissions & QFile::ExeOwner)
+        permissions |= 1<< 6;
+    if (qtPermissions & QFile::WriteOwner)
+        permissions |= 1<< 7;
+    if (qtPermissions & QFile::ReadOwner)
+        permissions |= 1<< 8;
+    return packet.generateOpenFileForWriting(remotePath, mode, permissions, jobId);
 }
-
 
 SftpUploadDir::~SftpUploadDir() {}
 
