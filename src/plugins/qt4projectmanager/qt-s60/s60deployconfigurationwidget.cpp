@@ -76,6 +76,7 @@ const char LAST_DRIVE_LETTER = 'Z';
 
 static const quint32 CODA_UID = 0x20021F96;
 static const quint32 QTMOBILITY_UID = 0x2002AC89;
+static const quint32 QTCOMPONENTS_UID = 0x200346DE;
 
 QString formatDriveText(const S60DeployConfiguration::DeviceDrive &drive)
 {
@@ -593,6 +594,7 @@ void S60DeployConfigurationWidget::getRomInfoResult(const Coda::CodaCommandResul
     QList<quint32> packagesOfInterest;
     packagesOfInterest.append(CODA_UID);
     packagesOfInterest.append(QTMOBILITY_UID);
+    packagesOfInterest.append(QTCOMPONENTS_UID);
     m_codaInfoDevice->sendSymbianInstallGetPackageInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getInstalledPackagesResult), packagesOfInterest);
 }
 
@@ -631,6 +633,10 @@ void S60DeployConfigurationWidget::getInstalledPackagesResult(const Coda::CodaCo
                         addErrorToTable(str, tr("QtMobility version: "), tr("Error reading QtMobility version"));
                     else
                         addToTable(str, tr("QtMobility version: "), versionString);
+                }
+                break;
+                case QTCOMPONENTS_UID: {
+                    addToTable(str, tr("QtQuick components version: "), error ? tr("Not installed") : versionString);
                 }
                 break;
                 default: break;
