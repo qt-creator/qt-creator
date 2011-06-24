@@ -1229,7 +1229,7 @@ QVariantMap Version3Handler::update(Project *, const QVariantMap &map)
             QVariantMap buildConfig = targetIt.value().toMap();
             int stepCount = buildConfig.value(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount")).toInt();
             QVariantMap signBuildStep;
-            signBuildStep.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"), QLatin1String("Create sis package"));
+            signBuildStep.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"), QLatin1String("Create SIS package"));
             signBuildStep.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), QLatin1String("Qt4ProjectManager.S60SignBuildStep"));
             signBuildStep.insert(QLatin1String("Qt4ProjectManager.MakeStep.Clean"), false);
             signBuildStep.insert(QLatin1String("Qt4ProjectManager.S60CreatePackageStep.Certificate"), customSignaturePath);

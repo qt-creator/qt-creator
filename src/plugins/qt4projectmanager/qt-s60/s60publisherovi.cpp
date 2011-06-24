@@ -145,7 +145,7 @@ void S60PublisherOvi::completeCreation()
     m_reader->accept(profile, ProFileEvaluator::LoadProOnly);
     profile->deref();
 
-    // set up process for creating the resulting sis files
+    // set up process for creating the resulting SIS files
     ProjectExplorer::AbstractProcessStep * makeStep = m_qt4bc->makeStep();
     makeStep->init();
     const ProjectExplorer::ProcessParameters * const makepp = makeStep->processParameters();
@@ -192,7 +192,7 @@ void S60PublisherOvi::completeCreation()
         signArg = QLatin1String("installer_sis");
     m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
                                                     makepp->effectiveCommand() + ' ' + signArg,
-                                                    tr("Making sis file")));
+                                                    tr("Making SIS file")));
 
     // set up access to vendor names
     QStringList deploymentLevelVars = m_reader->values(QLatin1String("DEPLOYMENT"));
@@ -415,7 +415,7 @@ void S60PublisherOvi::printMessage(QString message, bool error)
 void S60PublisherOvi::publishStepFinished(bool success)
 {
     if (!success && m_publishSteps.at(0)->mandatory()) {
-        emit progressReport(tr("Sis file not created due to previous errors.\n") , m_errorColor);
+        emit progressReport(tr("SIS file not created due to previous errors.\n") , m_errorColor);
         emit finished();
         return;
     }
