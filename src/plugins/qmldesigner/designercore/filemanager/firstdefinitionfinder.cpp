@@ -44,6 +44,12 @@ FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
     m_doc->setSource(text);
     bool ok = m_doc->parseQml();
 
+    if (!ok) {
+        qDebug() << text;
+        foreach (const QmlJS::DiagnosticMessage &message, m_doc->diagnosticMessages())
+                qDebug() << message.message;
+    }
+
     Q_ASSERT(ok);
 }
 
