@@ -882,7 +882,8 @@ bool BreakHandler::isEngineRunning(BreakpointModelId id) const
 void BreakHandler::setState(BreakpointModelId id, BreakpointState state)
 {
     Iterator it = m_storage.find(id);
-    //qDebug() << "BREAKPOINT STATE TRANSITION" << id << it->state << state;
+    //qDebug() << "BREAKPOINT STATE TRANSITION, ID: " << id
+    //    << " FROM: " << it->state << " TO: " << state;
     BREAK_ASSERT(it != m_storage.end(), qDebug() << id; return);
     QTC_ASSERT(isAllowedTransition(it->state, state),
         qDebug() << "UNEXPECTED BREAKPOINT STATE TRANSITION"
@@ -894,6 +895,12 @@ void BreakHandler::setState(BreakpointModelId id, BreakpointState state)
     }
 
     it->state = state;
+
+    // FIXME: updateMarker() should recognize the need for icon changes.
+    if (state == BreakpointInserted) {
+        it->destroyMarker();
+        updateMarker(id);
+    }
     layoutChanged();
 }
 
@@ -1278,8 +1285,8 @@ const BreakpointResponse &BreakHandler::response(BreakpointModelId id) const
 {
     static BreakpointResponse dummy;
     ConstIterator it = m_storage.find(id);
-    //BREAK_ASSERT(it != m_storage.end(),
-    //    qDebug() << "NO RESPONSE FOR " << id; return dummy);
+    BREAK_ASSERT(it != m_storage.end(),
+        qDebug() << "NO RESPONSE FOR " << id; return dummy);
     if (it == m_storage.end())
         return dummy;
     return it->response;
