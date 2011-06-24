@@ -20,7 +20,7 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Select Qt Quick component set to be used:</string>
+      <string>Qt Quick Component Set</string>
      </property>
      <property name="flat">
       <bool>false</bool>
@@ -32,7 +32,7 @@
       <item>
        <widget class="QRadioButton" name="qtquick10RadioButton">
         <property name="text">
-         <string>QtQuick 1.0</string>
+         <string>Built-in elements only (for all platforms)</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -45,7 +45,7 @@
       <item>
        <widget class="QRadioButton" name="symbian10RadioButton">
         <property name="text">
-         <string>com.nokia.symbian 1.0</string>
+         <string>Qt Quick Components for Symbian</string>
         </property>
         <attribute name="buttonGroup">
          <string>buttonGroup</string>
@@ -78,7 +78,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="qtquick10DescriptionLabel">
             <property name="text">
-             <string>The QtQuick 1.0 namespace contains basic elements which allow you to write cross-platform applications with a custom look and feel.
+             <string>The built-in elements in the QtQuick namespace allow you to write cross-platform applications with a custom look and feel.
 
 Requires Qt 4.7.1 or newer.</string>
             </property>
@@ -97,7 +97,7 @@ Requires Qt 4.7.1 or newer.</string>
           <item row="0" column="0">
            <widget class="QLabel" name="symbian10DescriptionLabel">
             <property name="text">
-             <string>The Qt Quick components for Symbian are a set of ready-made elements that are designed with specific native appearance for the target platform.
+             <string>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
 
 Requires Qt 4.7.3 or newer, and the component set installed for your Qt version / Symbian device.</string>
             </property>
