@@ -263,21 +263,6 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     return app()->generateFiles(errorMessage);
 }
 
-// TODO remove this workaround:
-// SessionManager::projectContainsFile() incorrectly returns false if the
-// file name in the .pro file (and thus also in m_projectFileCache)
-// contains relative path segments ("../").
-inline static QString fileInCurrentProject(const QString &file)
-{
-    const ProjectExplorer::Project *p = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject();
-    QTC_ASSERT(p, return QString(); )
-    const QStringList filesInProject = p->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
-    foreach (const QString &uncleanFile, filesInProject)
-        if (QDir::cleanPath(uncleanFile) == file)
-            return uncleanFile;
-    return QString();
-}
-
 bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
     const Core::GeneratedFiles &l, QString *errorMessage)
 {
@@ -293,7 +278,7 @@ bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
         project.saveSettings();
         success = ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
         if (success) {
-            const QString fileToOpen = fileInCurrentProject(fileToOpenPostGeneration());
+            const QString fileToOpen = fileToOpenPostGeneration();
             if (!fileToOpen.isEmpty()) {
                 Core::EditorManager::instance()->openEditor(fileToOpen, QString(), Core::EditorManager::ModeSwitch);
                 ProjectExplorer::ProjectExplorerPlugin::instance()->setCurrentFile(0, fileToOpen);
