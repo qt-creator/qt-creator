@@ -87,8 +87,8 @@ S60PublishingBuildSettingsPageOvi::S60PublishingBuildSettingsPageOvi(S60Publishe
     m_publisher->setBuildConfiguration(static_cast<Qt4BuildConfiguration *>(m_bc));
     m_ui->buildConfigInfoLabel->setVisible(list.isEmpty());
 
-    m_ui->buildConfigInfoLabel->setToolTip(tr("No valid build configuration has been detected.<br>"
-                                         "Define a correct  build configuration in \"Options > Qt4\""));
+    m_ui->buildConfigInfoLabel->setToolTip(tr("No valid Qt version has been detected.<br>"
+                                         "Define a correct Qt version in \"Options > Qt4\""));
     m_ui->toolchainInfoIconLabel->setToolTip(tr("No valid tool chain has been detected.<br>"
                                          "Define a correct tool chain in \"Options > Tool Chains\""));
     populateToolchainList(m_bc);

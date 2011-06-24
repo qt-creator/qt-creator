@@ -162,7 +162,7 @@ void S60PublisherOvi::completeCreation()
 
     m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
                                                     qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
-                                                    tr("QMake")));
+                                                    tr("qmake")));
 
     m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
                                                     makepp->effectiveCommand() + ' ' + makepp->arguments(),
@@ -175,16 +175,16 @@ void S60PublisherOvi::completeCreation()
 
         m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
                                                         makepp->effectiveCommand() + ' ' + QLatin1String("clean -w"),
-                                                        tr("Secondary Clean"),
+                                                        tr("Secondary clean"),
                                                         false));
 
         m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
                                                         qmakepp->effectiveCommand() + ' ' + qmakepp->arguments(),
-                                                        tr("Secondary QMake")));
+                                                        tr("Secondary qmake")));
 
         m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
                                                         makepp->effectiveCommand() + ' ' + makepp->arguments(),
-                                                        tr("Secondary Build")));
+                                                        tr("Secondary build")));
     }
 
     QString signArg = QLatin1String("unsigned_installer_sis");
@@ -192,7 +192,7 @@ void S60PublisherOvi::completeCreation()
         signArg = QLatin1String("installer_sis");
     m_publishSteps.append(new S60CommandPublishStep(*m_qt4bc,
                                                     makepp->effectiveCommand() + ' ' + signArg,
-                                                    tr("Making Sis File")));
+                                                    tr("Making sis file")));
 
     // set up access to vendor names
     QStringList deploymentLevelVars = m_reader->values(QLatin1String("DEPLOYMENT"));
