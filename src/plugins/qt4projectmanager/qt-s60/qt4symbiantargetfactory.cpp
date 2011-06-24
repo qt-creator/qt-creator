@@ -177,7 +177,11 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
 
 QSet<QString> Qt4SymbianTargetFactory::targetFeatures(const QString & /*id*/) const
 {
-    return QSet<QString>() << Constants::MOBILE_TARGETFEATURE_ID;
+    QSet<QString> features;
+    features << Constants::MOBILE_TARGETFEATURE_ID;
+    // ideally we should check whether they're really installed
+    features << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
+    return features;
 }
 
 ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)

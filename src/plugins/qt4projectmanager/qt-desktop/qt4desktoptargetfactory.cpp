@@ -158,8 +158,12 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
 
 QSet<QString> Qt4DesktopTargetFactory::targetFeatures(const QString & /*id*/) const
 {
-    return QSet<QString>() << Constants::DESKTOP_TARGETFEATURE_ID
-                           << Constants::SHADOWBUILD_TARGETFEATURE_ID;
+    QSet<QString> features;
+    features << Constants::DESKTOP_TARGETFEATURE_ID;
+    features << Constants::SHADOWBUILD_TARGETFEATURE_ID;
+    // how to check check whether they component set is really installed?
+    features << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
+    return features;
 }
 
 ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)

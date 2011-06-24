@@ -92,6 +92,9 @@ bool QtQuickAppWizardDialog::validateCurrentPage()
         if (m_componentOptionsPage->componentSet() == QtQuickApp::Symbian10Components) {
             setIgnoreGenericOptionsPage(true);
             targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 3));
+            QSet<QString> requiredFeatures;
+            requiredFeatures << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
+            targetsPage()->setRequiredFeatures(requiredFeatures);
         } else if (m_componentOptionsPage->componentSet() == QtQuickApp::QtQuick11Components) {
             targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 4));
         }

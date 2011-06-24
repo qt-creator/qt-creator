@@ -96,6 +96,9 @@ const char * const QT_SIMULATOR_TARGET_ID = "Qt4ProjectManager.Target.QtSimulato
 const char * const MOBILE_TARGETFEATURE_ID = "Qt4ProjectManager.TargetFeature.Mobile";
 const char * const DESKTOP_TARGETFEATURE_ID = "Qt4ProjectManager.TargetFeature.Desktop";
 const char * const SHADOWBUILD_TARGETFEATURE_ID = "Qt4ProjectManager.TargetFeature.ShadowBuild";
+const char * const QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID
+                               = "Qt4ProjectManager.TargetFeature.QtQuickComponentsSymbian";
+
 
 // Tool chains:
 const char * const GCCE_TOOLCHAIN_ID = "Qt4ProjectManager.ToolChain.GCCE";

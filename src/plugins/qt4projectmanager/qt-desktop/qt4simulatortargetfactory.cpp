@@ -125,8 +125,13 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::restore(ProjectExplorer::Pro
 
 QSet<QString> Qt4SimulatorTargetFactory::targetFeatures(const QString & /*id*/) const
 {
-    return QSet<QString>() << Constants::MOBILE_TARGETFEATURE_ID
-                           << Constants::SHADOWBUILD_TARGETFEATURE_ID;
+    QSet<QString> features;
+
+    features << Constants::MOBILE_TARGETFEATURE_ID;
+    features << Constants::SHADOWBUILD_TARGETFEATURE_ID;
+    // how to check check whether the component set is really installed?
+    features << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
+    return features;
 }
 
 ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
