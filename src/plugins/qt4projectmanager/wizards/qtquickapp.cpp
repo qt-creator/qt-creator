@@ -451,8 +451,6 @@ QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
     switch (componentSet) {
     case Symbian10Components:
         return QLatin1String("symbian10");
-    case QtQuick11Components:
-        return QLatin1String("qtquick11");
     case QtQuick10Components:
     default:
         return QLatin1String("qtquick10");

@@ -95,8 +95,6 @@ bool QtQuickAppWizardDialog::validateCurrentPage()
             QSet<QString> requiredFeatures;
             requiredFeatures << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
             targetsPage()->setRequiredFeatures(requiredFeatures);
-        } else if (m_componentOptionsPage->componentSet() == QtQuickApp::QtQuick11Components) {
-            targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 4));
         }
     }
     return AbstractMobileAppWizardDialog::validateCurrentPage();
@@ -135,7 +133,8 @@ Core::BaseFileWizardParameters QtQuickAppWizard::parameters()
                                  "mobile target platforms. For example, you can create signed "
                                  "Symbian Installation System (SIS) packages for this type of "
                                  "projects. Moreover, you can select to use a set of premade "
-                                 "UI components in your Qt Quick application."));
+                                 "UI components in your Qt Quick application. "
+                                 "To utilize the components, Qt 4.7.3 or newer is required."));
     parameters.setCategory(QLatin1String(QtSupport::Constants::QML_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QCoreApplication::translate(QtSupport::Constants::QML_WIZARD_TR_SCOPE,
                                                               QtSupport::Constants::QML_WIZARD_TR_CATEGORY));

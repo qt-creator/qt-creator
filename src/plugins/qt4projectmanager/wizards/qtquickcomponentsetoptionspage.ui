@@ -32,33 +32,23 @@
       <item>
        <widget class="QRadioButton" name="qtquick10RadioButton">
         <property name="text">
-         <string notr="true">QtQuick 1.0</string>
+         <string>QtQuick 1.0</string>
         </property>
         <property name="checked">
          <bool>true</bool>
         </property>
         <attribute name="buttonGroup">
-         <string notr="true">buttonGroup</string>
-        </attribute>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="qtquick11RadioButton">
-        <property name="text">
-         <string notr="true">QtQuick 1.1</string>
-        </property>
-        <attribute name="buttonGroup">
-         <string notr="true">buttonGroup</string>
+         <string>buttonGroup</string>
         </attribute>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="symbian10RadioButton">
         <property name="text">
-         <string notr="true">com.nokia.symbian 1.0</string>
+         <string>com.nokia.symbian 1.0</string>
         </property>
         <attribute name="buttonGroup">
-         <string notr="true">buttonGroup</string>
+         <string>buttonGroup</string>
         </attribute>
        </widget>
       </item>
@@ -81,7 +71,7 @@
       <item>
        <widget class="QStackedWidget" name="descriptionStackedWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="qtquick10DescriptionWidget">
          <layout class="QGridLayout" name="gridLayout">
@@ -91,25 +81,6 @@
              <string>The QtQuick 1.0 namespace contains basic elements which allow you to write cross-platform applications with a custom look and feel.
 
 Requires Qt 4.7.1 or newer.</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="qtquick11DescriptionWidget">
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0">
-           <widget class="QLabel" name="qtquick11DescriptionLabel">
-            <property name="text">
-             <string>The QtQuick 1.1 namespace contains basic elements which allow you to write cross-platform applications with a custom look and feel.
-
-Requires Qt 4.7.4 or newer.</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
