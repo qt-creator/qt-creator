@@ -48,24 +48,16 @@ namespace Internal {
 MaemoDeployables::MaemoDeployables(const Qt4BaseTarget *target)
     : m_target(target), m_updateTimer(new QTimer(this))
 {
-    QTimer::singleShot(0, this, SLOT(init()));
-    m_updateTimer->setInterval(1500);
-    m_updateTimer->setSingleShot(true);
-    connect(m_updateTimer, SIGNAL(timeout()), this, SLOT(createModels()));
-}
-
-MaemoDeployables::~MaemoDeployables() {}
-
-void MaemoDeployables::init()
-{
     Qt4Project * const pro = m_target->qt4Project();
     connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
             this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
-
-    // TODO do we want to disable the view
-
+    m_updateTimer->setInterval(1500);
+    m_updateTimer->setSingleShot(true);
+    connect(m_updateTimer, SIGNAL(timeout()), this, SLOT(createModels()));
     createModels();
 }
+
+MaemoDeployables::~MaemoDeployables() {}
 
 void MaemoDeployables::startTimer(Qt4ProjectManager::Qt4ProFileNode*, bool success, bool parseInProgress)
 {

@@ -74,7 +74,6 @@ private:
     virtual QVariant data(const QModelIndex &index, int role) const;
 
     Q_SLOT void createModels();
-    Q_SLOT void init();
     void createModels(const Qt4ProjectManager::Qt4ProFileNode *proFileNode);
 
     QList<MaemoDeployableListModel *> m_listModels;
