@@ -234,6 +234,8 @@ void DesignDocumentController::blockModelSync(bool block)
             attachNodeInstanceView();
             if (m_d->propertyEditorView)
                 m_d->propertyEditorView->resetView();
+            if (m_d->formEditorView)
+                m_d->formEditorView->resetView();
         }
     }
 }
