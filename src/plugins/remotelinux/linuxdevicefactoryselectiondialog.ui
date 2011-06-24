@@ -26,6 +26,9 @@
      <property name="resizeMode">
       <enum>QListView::Adjust</enum>
      </property>
+     <property name="uniformItemSizes">
+      <bool>true</bool>
+     </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>
