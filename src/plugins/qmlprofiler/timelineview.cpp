@@ -201,6 +201,7 @@ void TimelineView::updateTimeline(bool updateStartX)
             ctxt->setContextProperty("duration", qMax(qRound(m_ranges.property(i).property("duration").toNumber()/qreal(1000)),1));
             ctxt->setContextProperty("fileName", m_ranges.property(i).property("fileName").toString());
             ctxt->setContextProperty("line", m_ranges.property(i).property("line").toNumber());
+            ctxt->setContextProperty("index", i);
             QString label;
             QVariantList list = m_ranges.property(i).property("label").toVariant().value<QVariantList>();
             for (int i = 0; i < list.size(); ++i) {

@@ -64,8 +64,6 @@ public:
     bool canRunRemotely() const;
     bool needsOutputPane() const { return false; }
 
-    void clearDisplay();
-
 public slots:
     void connectClient();
     void disconnectClient();
@@ -76,6 +74,8 @@ public slots:
 
     void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void updateTimer(qreal elapsedSeconds);
+
+    void clearDisplay();
 
 signals:
     void setTimeLabel(const QString &);

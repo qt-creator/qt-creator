@@ -101,6 +101,7 @@ public:
     bool m_isAttached;
     QAction *m_attachAction;
     QToolButton *m_recordButton;
+    QToolButton *m_clearButton;
     bool m_recordingEnabled;
 
     enum ConnectMode {
@@ -300,6 +301,11 @@ QWidget *QmlProfilerTool::createControlWidget()
     d->m_recordButton->setChecked(true);
     layout->addWidget(d->m_recordButton);
 
+    d->m_clearButton = new QToolButton(toolbarWidget);
+    d->m_clearButton->setIcon(QIcon(QLatin1String(":/qmlprofiler/clean_pane_small.png")));
+    connect(d->m_clearButton,SIGNAL(clicked()), this, SLOT(clearDisplay()));
+    layout->addWidget(d->m_clearButton);
+
     QLabel *timeLabel = new QLabel(tr("Elapsed:      0 s"));
     QPalette palette = timeLabel->palette();
     palette.setColor(QPalette::WindowText, Qt::white);
@@ -308,6 +314,7 @@ QWidget *QmlProfilerTool::createControlWidget()
 
     connect(this, SIGNAL(setTimeLabel(QString)), timeLabel, SLOT(setText(QString)));
     layout->addWidget(timeLabel);
+
     toolbarWidget->setLayout(layout);
 
     return toolbarWidget;

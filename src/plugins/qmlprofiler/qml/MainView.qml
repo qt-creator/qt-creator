@@ -52,19 +52,32 @@ Rectangle {
         root.updateCursorPosition();
     }
 
-    function clearAll() {
+    function clearData() {
         Plotter.reset();
         view.clearData();
         rangeMover.x = 2
         rangeMover.opacity = 0
     }
 
+    function clearAll() {
+        clearData();
+        selectedEventIndex = -1;
+        Plotter.valuesdone = false;
+        canvas.requestPaint();
+        view.visible = false;
+        root.elapsedTime = 0;
+        root.updateTimer();
+    }
+
+    property int selectedEventIndex : -1;
+    property bool mouseTracking: false;
+
     //handle debug data coming from C++
     Connections {
         target: connection
         onEvent: {
             if (Plotter.valuesdone) {
-                root.clearAll();
+                root.clearData();
             }
 
             if (!Plotter.valuesdone && event === 0) //### only handle paint event
@@ -73,7 +86,7 @@ Rectangle {
 
         onRange: {
             if (Plotter.valuesdone) {
-                root.clearAll();
+                root.clearData();
             }
 
             // todo: consider nestingLevel
@@ -95,11 +108,6 @@ Rectangle {
 
         onClear: {
             root.clearAll();
-            Plotter.valuesdone = false;
-            canvas.requestPaint();
-            view.visible = false;
-            root.elapsedTime = 0;
-            root.updateTimer();
         }
 
     }
@@ -136,6 +144,15 @@ Rectangle {
         endTime: (rangeMover.x + rangeMover.width) * Plotter.xScale(canvas);
     }
 
+    function hideRangeDetails() {
+        rangeDetails.visible = false
+        rangeDetails.duration = ""
+        rangeDetails.label = ""
+        rangeDetails.type = ""
+        rangeDetails.file = ""
+        rangeDetails.line = -1
+    }
+
     //our main interaction view
     Flickable {
         id: flick
@@ -155,12 +172,11 @@ Rectangle {
             height: flick.contentHeight
             x:  flick.contentX
             onClicked: {
-                rangeDetails.visible = false
-                rangeDetails.duration = ""
-                rangeDetails.label = ""
-                rangeDetails.type = ""
-                rangeDetails.file = ""
-                rangeDetails.line = -1
+                root.hideRangeDetails();
+            }
+            hoverEnabled: true
+            onExited: {
+                root.hideRangeDetails();
             }
         }
 
@@ -207,36 +223,63 @@ Rectangle {
                     GradientStop { position: 1.0; color: myColor }
                 }
                 smooth: true
+
+                property bool componentIsCompleted: false
+                Component.onCompleted: componentIsCompleted = true;
+
+                property bool isSelected: root.selectedEventIndex == index;
+                onIsSelectedChanged: {
+                    if (!root.mouseTracking && componentIsCompleted) {
+                        if (isSelected) {
+                            enableSelected(0, 0);
+                        }
+                        else
+                            disableSelected();
+                    }
+                }
+
+                function enableSelected(x,y) {
+                    currentItem = obj
+                    myColor = Qt.darker(baseColor, 1.2)
+                    rangeDetails.duration = duration
+                    rangeDetails.label = label
+                    rangeDetails.file = fileName
+                    rangeDetails.line = line
+                    rangeDetails.type = Plotter.names[type]
+
+                    var pos = mapToItem(rangeDetails.parent, x, y+height)
+                    var preferredX = Math.max(10, pos.x - rangeDetails.width/2)
+                    if (preferredX + rangeDetails.width > rangeDetails.parent.width)
+                        preferredX = rangeDetails.parent.width - rangeDetails.width
+                    rangeDetails.x = preferredX
+
+                    var preferredY = pos.y - rangeDetails.height/2;
+                    if (preferredY + rangeDetails.height > root.height - 10)
+                        preferredY = root.height - 10 - rangeDetails.height;
+                    if (preferredY < 10)
+                        preferredY=10;
+                    rangeDetails.y = preferredY;
+                    rangeDetails.visible = true
+                }
+
+                function disableSelected() {
+                    myColor = baseColor
+                }
+
                 MouseArea {
                     id: mouseArea
                     anchors.fill: parent
                     hoverEnabled: true
                     onEntered: {
-                        currentItem = obj
-                        myColor = Qt.darker(baseColor, 1.2)
-                        rangeDetails.duration = duration
-                        rangeDetails.label = label
-                        rangeDetails.file = fileName
-                        rangeDetails.line = line
-                        rangeDetails.type = Plotter.names[type]
-
-                        var pos = mapToItem(rangeDetails.parent, mouseX, y+height)
-                        var preferredX = Math.max(10, pos.x - rangeDetails.width/2)
-                        if (preferredX + rangeDetails.width > rangeDetails.parent.width)
-                            preferredX = rangeDetails.parent.width - rangeDetails.width
-                        rangeDetails.x = preferredX
-
-                        var preferredY = pos.y - rangeDetails.height/2;
-                        if (preferredY + rangeDetails.height > root.height - 10)
-                            preferredY = root.height - 10 - rangeDetails.height;
-                        if (preferredY < 10)
-                            preferredY=10;
-                        rangeDetails.y = preferredY;
-                        rangeDetails.visible = true
+                        root.mouseTracking = true;
+                        root.selectedEventIndex = index;
+                        enableSelected(mouseX, y);
+                        root.mouseTracking = false;
                     }
                     onExited: {
-                        myColor = baseColor
+                        disableSelected();
                     }
+
                     onClicked: root.gotoSourceLocation(rangeDetails.file, rangeDetails.line);
                 }
             }
@@ -246,6 +289,18 @@ Rectangle {
     //popup showing the details for the hovered range
     RangeDetails {
         id: rangeDetails
+
+        // follow the flickable
+        property int flickableX: flick.contentX;
+        property int lastFlickableX;
+        onXChanged: lastFlickableX = flickableX;
+        onFlickableXChanged: {
+            x = x - flickableX + lastFlickableX;
+            if (visible && (x + width <= 0 || x > root.width)) {
+                root.hideRangeDetails();
+                visible = false;
+            }
+        }
     }
 
     Rectangle {
@@ -324,5 +379,4 @@ Rectangle {
         opacity: 0
         anchors.top: canvas.top
     }
-
 }

@@ -63,6 +63,7 @@ public:
     void setRecording(bool recording);
     bool isRecording() const;
 
+
 public slots:
     void updateCursorPosition();
     void updateTimer();
@@ -73,6 +74,8 @@ signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void timeChanged(qreal newTime);
     void range(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
+
+    void internalClearDisplay();
 
 private:
     QWeakPointer<TracePlugin> m_plugin;

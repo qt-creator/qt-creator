@@ -312,6 +312,8 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
 
     connect(m_view->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
     connect(m_view->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
+
+    connect(this, SIGNAL(internalClearDisplay()), m_view->rootObject(), SLOT(clearAll()));
 }
 
 void TraceWindow::updateCursorPosition()
@@ -329,6 +331,8 @@ void TraceWindow::clearDisplay()
 {
     if (m_plugin)
         m_plugin.data()->clearView();
+    else
+        emit internalClearDisplay();
 }
 
 void TraceWindow::setRecording(bool recording)

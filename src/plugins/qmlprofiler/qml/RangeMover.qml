@@ -43,7 +43,8 @@ Item {
     property real possibleValue: (canvas.canvasWindow.x + x) * Plotter.xScale(canvas)
     onPossibleValueChanged:  {
         prevXStep = canvas.canvasWindow.x;
-        value = possibleValue
+        if (value != possibleValue)
+            value = possibleValue;
     }
 
     property real value
