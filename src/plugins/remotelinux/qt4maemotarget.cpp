@@ -360,7 +360,7 @@ bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
             break;
         }
     }
-    return initAdditionalPackagingSettingsFromOtherTarget();
+    return initAdditionalPackagingSettingsFromOtherTarget() && success;
 }
 
 void AbstractQt4MaemoTarget::raiseError(const QString &reason)
