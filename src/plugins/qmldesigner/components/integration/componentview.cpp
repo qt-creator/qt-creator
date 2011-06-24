@@ -142,10 +142,10 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
                 QString description;
                 ModelNode parentNode = node.parentProperty().parentModelNode();
                 if (parentNode.isValid()) {
-                    if (!parentNode.id().isEmpty()) {
-                        description = node.parentProperty().parentModelNode().id() + QLatin1Char(' ');
+                    if (parentNode.id().isEmpty()) {
+                        description = parentNode.simplifiedTypeName() + QLatin1Char(' ');
                     } else {
-                        description = node.parentProperty().parentModelNode().simplifiedTypeName() + QLatin1Char(' ');
+                        description = parentNode.id() + QLatin1Char(' ');
                     }
                 }
                 description += node.parentProperty().name();
