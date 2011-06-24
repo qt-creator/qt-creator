@@ -70,8 +70,8 @@ CodaRunControl::CodaRunControl(RunConfiguration *runConfiguration, const QString
     S60RunControlBase(runConfiguration, mode),
     m_port(0),
     m_state(StateUninit),
-    m_stopAfterConnect(false),
-    m_codaFlags(0)
+    m_codaFlags(0),
+    m_stopAfterConnect(false)
 {
     const S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     QTC_ASSERT(s60runConfig, return);
