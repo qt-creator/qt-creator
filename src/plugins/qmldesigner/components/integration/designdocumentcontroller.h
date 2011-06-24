@@ -136,6 +136,8 @@ private slots:
 private:
     void detachNodeInstanceView();
     void attachNodeInstanceView();
+    void changeToMasterModel();
+
     QWidget *centralWidget() const;
     QString pathToQt() const;
 

@@ -176,6 +176,17 @@ void DesignDocumentController::attachNodeInstanceView()
     if (m_d->nodeInstanceView) {
         model()->attachView(m_d->nodeInstanceView.data());
     }
+    if (m_d->formEditorView) {
+        m_d->formEditorView->resetView();
+    }
+}
+
+void DesignDocumentController::changeToMasterModel()
+{
+    m_d->model->detachView(m_d->rewriterView.data());
+    m_d->rewriterView->setTextModifier(m_d->textModifier);
+    m_d->model = m_d->masterModel;
+    m_d->model->attachView(m_d->rewriterView.data());
 }
 
 QWidget *DesignDocumentController::centralWidget() const
