@@ -75,7 +75,7 @@ FutureProgress *ProgressView::addTask(const QFuture<void> &future,
     if (flags.testFlag(ProgressManager::KeepOnFinish)) {
         progress->setKeepOnFinish(FutureProgress::KeepOnFinishTillUserInteraction);
     } else {
-        progress->setKeepOnFinish(FutureProgress::DontKeepOnFinish);
+        progress->setKeepOnFinish(FutureProgress::HideOnFinish);
     }
     connect(progress, SIGNAL(removeMe()), this, SLOT(slotRemoveTask()));
     return progress;

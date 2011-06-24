@@ -103,7 +103,7 @@ struct FutureProgressPrivate {
 
 FutureProgressPrivate::FutureProgressPrivate(FutureProgress *q) :
     m_progress(new Internal::ProgressBar), m_widget(0), m_widgetLayout(new QHBoxLayout),
-    m_keep(FutureProgress::DontKeepOnFinish), m_waitingForUserInteraction(false),
+    m_keep(FutureProgress::HideOnFinish), m_waitingForUserInteraction(false),
     m_faderWidget(new Internal::FadeWidgetHack(q)), m_q(q), m_isFading(false)
 {
 }
@@ -259,13 +259,13 @@ void FutureProgressPrivate::tryToFadeAway()
     if (m_isFading)
         return;
     if (m_keep == FutureProgress::KeepOnFinishTillUserInteraction
-            || (m_keep == FutureProgress::DontKeepOnFinish && m_progress->hasError())) {
+            || (m_keep == FutureProgress::HideOnFinish && m_progress->hasError())) {
         m_waitingForUserInteraction = true;
         //eventfilter is needed to get user interaction
         //events to start QTimer::singleShot later
         qApp->installEventFilter(m_q);
         m_isFading = true;
-    } else if (m_keep == FutureProgress::DontKeepOnFinish) {
+    } else if (m_keep == FutureProgress::HideOnFinish) {
         QTimer::singleShot(shortNotificationTimeout, m_q, SLOT(fadeAway()));
         m_isFading = true;
     }

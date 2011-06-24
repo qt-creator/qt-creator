@@ -50,7 +50,7 @@ class CORE_EXPORT FutureProgress : public QWidget
 
 public:
     enum KeepOnFinishType {
-        DontKeepOnFinish = 0,
+        HideOnFinish = 0,
         KeepOnFinishTillUserInteraction = 1,
         KeepOnFinish = 2
     };

@@ -513,7 +513,7 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     Core::FutureProgress *fp = Core::ICore::instance()->progressManager()
         ->addTask(d->m_progress.future(),
         tr("Launching"), _("Debugger.Launcher"));
-    fp->setKeepOnFinish(Core::FutureProgress::DontKeepOnFinish);
+    fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     d->m_progress.reportStarted();
 
     d->m_runControl = runControl;

@@ -83,7 +83,7 @@ void ValgrindEngine::start()
 
     Core::FutureProgress *fp = Core::ICore::instance()->progressManager()->addTask(m_progress->future(),
                                                         progressTitle(), "valgrind");
-    fp->setKeepOnFinish(Core::FutureProgress::DontKeepOnFinish);
+    fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress->reportStarted();
     m_progressWatcher->setFuture(m_progress->future());
 
