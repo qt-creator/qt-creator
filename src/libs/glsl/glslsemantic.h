@@ -48,6 +48,8 @@ public:
         ExprResult(const Type *type = 0, bool isConstant = false)
             : type(type), isConstant(isConstant) {}
 
+        ~ExprResult() { }
+
         bool isValid() const {
             if (! type)
                 return false;
