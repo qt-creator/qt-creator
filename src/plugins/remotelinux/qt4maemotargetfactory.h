@@ -62,8 +62,7 @@ public:
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id,
         const QList<Qt4ProjectManager::BuildConfigurationInfo> &infos);
 
-    bool isMobileTarget(const QString &id);
-    bool supportsShadowBuilds(const QString &id);
+    QSet<QString> targetFeatures(const QString &id) const;
 };
 
 } // namespace Internal

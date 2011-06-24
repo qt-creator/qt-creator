@@ -38,6 +38,7 @@
 #include "qt4project.h"
 #include "qt4basetargetfactory.h"
 #include "qt4projectconfigwidget.h"
+#include "qt4projectmanagerconstants.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -91,11 +92,14 @@ Qt4TargetSetupWidget *Qt4BaseTargetFactory::createTargetSetupWidget(const QStrin
     QList<BuildConfigurationInfo> infos = this->availableBuildConfigurations(id, proFilePath, number);
     if (infos.isEmpty())
         return 0;
-    Qt4DefaultTargetSetupWidget *widget = new Qt4DefaultTargetSetupWidget(this, id, proFilePath,  infos,
-                                                                          number,  importEnabled && supportsShadowBuilds(id),
-                                                                          importInfos,
-                                                                          supportsShadowBuilds(id) ? Qt4DefaultTargetSetupWidget::ENABLE :
-                                                                                                     Qt4DefaultTargetSetupWidget::DISABLE);
+    const bool supportsShadowBuilds
+            = targetFeatures(id).contains(Constants::SHADOWBUILD_TARGETFEATURE_ID);
+    Qt4DefaultTargetSetupWidget *widget
+            = new Qt4DefaultTargetSetupWidget(this, id, proFilePath, infos, number,
+                                              importEnabled && supportsShadowBuilds, importInfos,
+                                              (supportsShadowBuilds
+                                               ? Qt4DefaultTargetSetupWidget::ENABLE
+                                               : Qt4DefaultTargetSetupWidget::DISABLE));
     return widget;
 }
 

@@ -123,16 +123,10 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::restore(ProjectExplorer::Pro
     return 0;
 }
 
-bool Qt4SimulatorTargetFactory::isMobileTarget(const QString &id)
+QSet<QString> Qt4SimulatorTargetFactory::targetFeatures(const QString & /*id*/) const
 {
-    Q_UNUSED(id)
-    return true;
-}
-
-bool Qt4SimulatorTargetFactory::supportsShadowBuilds(const QString &id)
-{
-    Q_UNUSED(id);
-    return true;
+    return QSet<QString>() << Constants::MOBILE_TARGETFEATURE_ID
+                           << Constants::SHADOWBUILD_TARGETFEATURE_ID;
 }
 
 ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)

@@ -156,16 +156,10 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
     return create(parent, id, infos);
 }
 
-bool Qt4DesktopTargetFactory::isMobileTarget(const QString &id)
+QSet<QString> Qt4DesktopTargetFactory::targetFeatures(const QString & /*id*/) const
 {
-    Q_UNUSED(id)
-    return false;
-}
-
-bool Qt4DesktopTargetFactory::supportsShadowBuilds(const QString &id)
-{
-    Q_UNUSED(id);
-    return true;
+    return QSet<QString>() << Constants::DESKTOP_TARGETFEATURE_ID
+                           << Constants::SHADOWBUILD_TARGETFEATURE_ID;
 }
 
 ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos)

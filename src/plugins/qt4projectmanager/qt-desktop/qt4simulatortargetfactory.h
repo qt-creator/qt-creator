@@ -56,10 +56,9 @@ public:
     ProjectExplorer::Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 
     bool supportsTargetId(const QString &id) const;
+    QSet<QString> targetFeatures(const QString &id) const;
 
-    bool isMobileTarget(const QString &id);
     QString buildNameForId(const QString &id) const;
-    bool supportsShadowBuilds(const QString &id);
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id);
     ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos);
 };

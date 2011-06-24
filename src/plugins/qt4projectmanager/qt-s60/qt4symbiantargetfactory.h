@@ -60,8 +60,8 @@ public:
     QString shadowBuildDirectory(const QString &profilePath, const QString &id, const QString &suffix);
     QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
     QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &minimumQtVersion);
-    bool isMobileTarget(const QString &id);
-    bool supportsShadowBuilds(const QString &id);
+
+    QSet<QString> targetFeatures(const QString &id) const;
 };
 
 } // namespace Internal

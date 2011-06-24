@@ -72,10 +72,9 @@ public:
     /// Initializes the TargetSetupPage
     /// \note The import information is gathered in initializePage(), make sure that the right proFilePath is set before
     void initializePage();
-    /// Changes the default set of checked targets. For mobile Symbian, maemo5, simulator is checked
-    /// For non mobile, destkop is checked
+    /// Changes the default set of checked targets.
     /// call this before \sa initializePage()
-    void setPreferMobile(bool mobile);
+    void setPreferredFeatures(const QSet<QString> &featureIds);
     /// Sets the minimum qt version
     /// calls this before \sa initializePage()
     void setMinimumQtVersion(const QtSupport::QtVersionNumber &number);
@@ -96,7 +95,7 @@ private:
     void setupWidgets();
     void deleteWidgets();
 
-    bool m_preferMobile;
+    QSet<QString> m_preferredFeatures;
     bool m_importSearch;
     QtSupport::QtVersionNumber m_minimumQtVersionNumber;
     QString m_proFilePath;

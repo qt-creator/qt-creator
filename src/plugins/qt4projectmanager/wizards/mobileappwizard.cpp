@@ -105,7 +105,6 @@ Core::BaseFileWizardParameters MobileAppWizard::parameters()
 AbstractMobileAppWizardDialog *MobileAppWizard::createWizardDialogInternal(QWidget *parent) const
 {
     m_d->wizardDialog = new MobileAppWizardDialog(parent);
-    m_d->wizardDialog->targetsPage()->setPreferMobile(true);
     return m_d->wizardDialog;
 }
 

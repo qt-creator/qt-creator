@@ -75,8 +75,7 @@ public:
     /// only used in the TargetSetupPage
     virtual QIcon iconForId(const QString &id) const = 0;
 
-    virtual bool isMobileTarget(const QString &id) = 0;
-    virtual bool supportsShadowBuilds(const QString &id) = 0;
+    virtual QSet<QString> targetFeatures(const QString &id) const = 0;
 
     virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id) = 0;
     virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos) = 0;

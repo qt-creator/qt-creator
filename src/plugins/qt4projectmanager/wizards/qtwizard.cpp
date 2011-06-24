@@ -244,7 +244,11 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(QSet<QString> targets, bool m
     m_targets = targets;
     resize(900, 450);
 
-    m_targetSetupPage->setPreferMobile(mobile);
+    if (mobile) {
+        m_targetSetupPage->setPreferredFeatures(QSet<QString>() << Constants::MOBILE_TARGETFEATURE_ID);
+    } else {
+        m_targetSetupPage->setPreferredFeatures(QSet<QString>() << Constants::DESKTOP_TARGETFEATURE_ID);
+    }
 
     if (id >= 0)
         setPage(id, m_targetSetupPage);

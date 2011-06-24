@@ -158,20 +158,15 @@ QString Qt4MaemoTargetFactory::shadowBuildDirectory(const QString &profilePath, 
 #endif
 }
 
-bool Qt4MaemoTargetFactory::isMobileTarget(const QString &id)
+QSet<QString> Qt4MaemoTargetFactory::targetFeatures(const QString & /*id*/) const
 {
-    Q_UNUSED(id)
-    return true;
-}
-
-bool Qt4MaemoTargetFactory::supportsShadowBuilds(const QString &id)
-{
-    Q_UNUSED(id);
-#ifdef Q_OS_WIN
-    return false;
-#else
-    return true;
+    QSet<QString> features;
+    features << Qt4ProjectManager::Constants::MOBILE_TARGETFEATURE_ID;
+#ifndef Q_OS_WIN
+    features << Qt4ProjectManager::Constants::SHADOWBUILD_TARGETFEATURE_ID;
 #endif
+
+    return features;
 }
 
 ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)

@@ -53,7 +53,6 @@ using namespace Qt4ProjectManager;
 
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
-    m_preferMobile(false),
     m_importSearch(false),
     m_spacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)),
     m_ui(new Internal::Ui::TargetSetupPage)
@@ -98,9 +97,9 @@ bool TargetSetupPage::isComplete() const
     return false;
 }
 
-void TargetSetupPage::setPreferMobile(bool mobile)
+void TargetSetupPage::setPreferredFeatures(const QSet<QString> &featureIds)
 {
-    m_preferMobile = mobile;
+    m_preferredFeatures = featureIds;
 }
 
 void TargetSetupPage::setMinimumQtVersion(const QtSupport::QtVersionNumber &number)
@@ -124,9 +123,15 @@ void TargetSetupPage::setupWidgets()
             Qt4TargetSetupWidget *widget =
                     factory->createTargetSetupWidget(id, m_proFilePath, m_minimumQtVersionNumber, m_importSearch, infos);
             if (widget) {
-                bool selectTarget = (m_preferMobile == factory->isMobileTarget(id) && m_importInfos.isEmpty())
-                        || !infos.isEmpty();
-                widget->setTargetSelected(selectTarget) ;
+                bool selectTarget = false;
+                if (!m_importInfos.isEmpty()) {
+                    selectTarget = !infos.isEmpty();
+                } else {
+                    if (!m_preferredFeatures.isEmpty()) {
+                        selectTarget = factory->targetFeatures(id).contains(m_preferredFeatures);
+                    }
+                }
+                widget->setTargetSelected(selectTarget);
                 atLeastOneTargetSelected |= selectTarget;
                 m_widgets.insert(id, widget);
                 m_factories.insert(widget, factory);

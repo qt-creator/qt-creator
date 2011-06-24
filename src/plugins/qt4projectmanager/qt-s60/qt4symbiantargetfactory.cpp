@@ -175,16 +175,9 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
     return tmp;
 }
 
-bool Qt4SymbianTargetFactory::isMobileTarget(const QString &id)
+QSet<QString> Qt4SymbianTargetFactory::targetFeatures(const QString & /*id*/) const
 {
-    Q_UNUSED(id)
-    return true;
-}
-
-bool Qt4SymbianTargetFactory::supportsShadowBuilds(const QString &id)
-{
-    Q_UNUSED(id);
-    return false;
+    return QSet<QString>() << Constants::MOBILE_TARGETFEATURE_ID;
 }
 
 ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
