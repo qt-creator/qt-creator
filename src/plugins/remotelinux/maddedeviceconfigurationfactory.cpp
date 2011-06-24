@@ -66,8 +66,8 @@ QString MaddeDeviceConfigurationFactory::displayNameForOsType(const QString &osT
     if (osType == LinuxDeviceConfiguration::Maemo5OsType)
         return tr("Maemo5/Fremantle");
     if (osType == LinuxDeviceConfiguration::HarmattanOsType)
-        return tr("Harmattan");
-    return tr("MeeGo");
+        return tr("MeeGo 1.2 Harmattan");
+    return tr("Other MeeGo OS");
 }
 
 } // namespace Internal
