@@ -494,6 +494,7 @@ private: ////////// View & Data Stuff //////////
     //
     void handleBreakList(const GdbResponse &response);
     void handleBreakList(const GdbMi &table);
+    void handleBreakModifications(const GdbMi &bkpts);
     void handleBreakListMultiple(const GdbResponse &response);
     void handleBreakIgnore(const GdbResponse &response);
     void handleBreakDisable(const GdbResponse &response);

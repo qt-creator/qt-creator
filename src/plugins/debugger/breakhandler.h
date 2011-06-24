@@ -70,9 +70,9 @@ public:
 
     // The only way to add a new breakpoint.
     void appendBreakpoint(const BreakpointParameters &data);
-    void handleAlienBreakpoint(const BreakpointResponse &response,
-        DebuggerEngine *engine);
-    void insertSubBreakpoint(const BreakpointResponse &data);
+    void handleAlienBreakpoint(BreakpointModelId id,
+        const BreakpointResponse &response, DebuggerEngine *engine);
+    void insertSubBreakpoint(BreakpointModelId id, const BreakpointResponse &data);
     void removeAlienBreakpoint(BreakpointModelId id);
 
     BreakpointModelIds allBreakpointIds() const;
@@ -143,6 +143,7 @@ public:
     const BreakpointResponse &response(BreakpointModelId id) const;
     void setResponse(BreakpointModelId id, const BreakpointResponse &data);
     bool needsChange(BreakpointModelId id) const;
+    bool needsChildren(BreakpointModelId id) const;
 
     // State transitions.
     void notifyBreakpointChangeAfterInsertNeeded(BreakpointModelId id);

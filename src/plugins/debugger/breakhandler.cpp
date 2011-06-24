@@ -773,6 +773,13 @@ bool BreakHandler::isTracepoint(BreakpointModelId id) const
     return it->data.tracepoint;
 }
 
+bool BreakHandler::needsChildren(BreakpointModelId id) const
+{
+    ConstIterator it = m_storage.find(id);
+    BREAK_ASSERT(it != m_storage.end(), return false);
+    return it->response.multiple && it->subItems.isEmpty();
+}
+
 void BreakHandler::setTracepoint(BreakpointModelId id, bool on)
 {
     Iterator it = m_storage.find(id);
@@ -1045,11 +1052,11 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
     scheduleSynchronization();
 }
 
-void BreakHandler::handleAlienBreakpoint(const BreakpointResponse &response,
-    DebuggerEngine *engine)
+void BreakHandler::handleAlienBreakpoint(BreakpointModelId id,
+    const BreakpointResponse &response, DebuggerEngine *engine)
 {
     if (response.id.isMinor()) {
-        insertSubBreakpoint(response);
+        insertSubBreakpoint(id, response);
     } else {
         BreakpointParameters data = response;
         data.type = BreakpointByFileAndLine;
@@ -1094,15 +1101,15 @@ int BreakHandler::indexOf(BreakpointModelId id) const
     return -1;
 }
 
-void BreakHandler::insertSubBreakpoint(const BreakpointResponse &data)
+void BreakHandler::insertSubBreakpoint(BreakpointModelId id,
+    const BreakpointResponse &data)
 {
-    BreakpointResponseId id = data.id;
-    QTC_ASSERT(id.isMinor(), return);
-    BreakpointModelId modelId = findBreakpointByResponseId(id.parent());
-    Iterator it = m_storage.find(modelId);
+    QTC_ASSERT(data.id.isMinor(), return);
+    QTC_ASSERT(id.isMajor(), return);
+    Iterator it = m_storage.find(id);
 
     if (it == m_storage.end()) {
-        qDebug() << "FAILED: " << id.toString() << modelId.toString();
+        qDebug() << "FAILED: " << id.toString();
         for (ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
             it != et; ++it) {
             qDebug() << "   ID: " << it->response.id.toString();
@@ -1112,7 +1119,7 @@ void BreakHandler::insertSubBreakpoint(const BreakpointResponse &data)
     }
 
     QTC_ASSERT(it != m_storage.end(), return);
-    int minorPart = id.minorPart();
+    int minorPart = data.id.minorPart();
     int pos = -1;
     for (int i = 0; i != it->subItems.size(); ++i) {
         if (it->subItems.at(i).id.minorPart() == minorPart) {
@@ -1122,7 +1129,8 @@ void BreakHandler::insertSubBreakpoint(const BreakpointResponse &data)
     }
     if (pos == -1) {
         // This is a new sub-breakpoint.
-        int row = indexOf(modelId);
+        //qDebug() << "NEW ID" << id;
+        int row = indexOf(id);
         QTC_ASSERT(row != -1, return);
         QModelIndex idx = createIndex(row, 0, id.toInternalId());
         beginInsertRows(idx, it->subItems.size(), it->subItems.size());
@@ -1130,6 +1138,7 @@ void BreakHandler::insertSubBreakpoint(const BreakpointResponse &data)
         endInsertRows();
     } else {
         // This modifies an existing sub-breakpoint.
+        //qDebug() << "EXISTING ID" << id;
         it->subItems[pos] = data;
         layoutChanged();
     }
@@ -1269,8 +1278,8 @@ const BreakpointResponse &BreakHandler::response(BreakpointModelId id) const
 {
     static BreakpointResponse dummy;
     ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(),
-        qDebug() << "NO RESPONSE FOR " << id; return dummy);
+    //BREAK_ASSERT(it != m_storage.end(),
+    //    qDebug() << "NO RESPONSE FOR " << id; return dummy);
     if (it == m_storage.end())
         return dummy;
     return it->response;

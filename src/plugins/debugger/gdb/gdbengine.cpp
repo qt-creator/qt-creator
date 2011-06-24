@@ -493,7 +493,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 result = GdbMi();
                 result.fromString(ba);
                 BreakHandler *handler = breakHandler();
-                BreakpointModelId id = BreakpointModelId(-1);
+                BreakpointModelId id;
                 BreakpointResponse br;
                 foreach (const GdbMi &bkpt, result.children()) {
                     const QByteArray nr = bkpt.findChild("number").data();
@@ -505,31 +505,31 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                             updateResponse(sub, bkpt);
                             sub.id = rid;
                             sub.type = br.type;
-                            handler->insertSubBreakpoint(sub);
+                            handler->insertSubBreakpoint(id, sub);
                         } else {
                             // A primary breakpoint.
-                            BreakpointModelId id =
-                                handler->findBreakpointByResponseId(rid);
+                            id = handler->findBreakpointByResponseId(rid);
+                            //qDebug() << "NR: " << nr << "RID: " << rid
+                            //    << "ID: " << id;
+                            //BreakpointModelId id =
+                            //    handler->findBreakpointByResponseId(rid);
                             br = handler->response(id);
                             updateResponse(br, bkpt);
+                            handler->setResponse(id, br);
                         }
                     }
-                }
-                if (!isQmlStepBreakpoint(br.id)) {
-                    handler->setResponse(id, br);
-                    attemptAdjustBreakpointLocation(id);
                 }
                 m_hasBreakpointNotifications = true;
             } else if (asyncClass == "breakpoint-created") {
                 // "{bkpt={number="1",type="breakpoint",disp="del",enabled="y",
                 //  addr="<PENDING>",pending="main",times="0",
                 //original-location="main"}}"
+                BreakHandler *handler = breakHandler();
                 foreach (const GdbMi &bkpt, result.children()) {
-                    QByteArray nr = bkpt.findChild("number").data();
                     BreakpointResponse br;
                     updateResponse(br, bkpt);
-                    br.id = BreakpointResponseId(nr);
-                    breakHandler()->handleAlienBreakpoint(br, this);
+                    BreakpointModelId id = handler->findBreakpointByResponseId(br.id);
+                    handler->handleAlienBreakpoint(id, br, this);
                 }
             } else if (asyncClass == "breakpoint-deleted") {
                 // "breakpoint-deleted" "{id="1"}"
@@ -2504,22 +2504,40 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
     BreakHandler *handler = breakHandler();
     BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     if (response.resultClass == GdbResultDone) {
-        // Interesting only on Mac?
-        GdbMi bkpt = response.data.findChild("bkpt");
-        BreakpointResponse br = handler->response(id);
-        updateResponse(br, bkpt);
-        handler->setResponse(id, br);
-        if (handler->needsChange(id)) {
-            handler->notifyBreakpointChangeAfterInsertNeeded(id);
-            changeBreakpoint(id);
-        } else {
-            handler->notifyBreakpointInsertOk(id);
+        const GdbMi bkpt = response.data.findChild("bkpt");
+        const BreakpointResponseId rid(bkpt.findChild("number").data());
+        if (!isHiddenBreakpoint(rid)) {
+            BreakpointResponse br = handler->response(id);
+            foreach (const GdbMi bkpt, response.data.children()) {
+                QByteArray nr = bkpt.findChild("number").data();
+                BreakpointResponseId rid(nr);
+                if (nr.contains('.')) {
+                    // A sub-breakpoint.
+                    BreakpointResponse sub;
+                    updateResponse(sub, bkpt);
+                    sub.id = rid;
+                    sub.type = br.type;
+                    handler->insertSubBreakpoint(id, sub);
+                } else {
+                    // A primary breakpoint.
+                    updateResponse(br, bkpt);
+                    br.id = rid;
+                    handler->setResponse(id, br);
+                }
+            }
+            if (handler->needsChange(id)) {
+                handler->notifyBreakpointChangeAfterInsertNeeded(id);
+                changeBreakpoint(id);
+            } else {
+                handler->notifyBreakpointInsertOk(id);
+            }
+            br = handler->response(id);
+            attemptAdjustBreakpointLocation(id);
+            // Remove if we only support 7.4 or later.
+            if (br.multiple && !m_hasBreakpointNotifications)
+                postCommand("info break " + QByteArray::number(br.id.majorPart()),
+                    NeedsStop, CB(handleBreakListMultiple), QVariant::fromValue(id));
         }
-        br = handler->response(id);
-        attemptAdjustBreakpointLocation(id);
-        if (br.multiple)
-            postCommand("info break " + QByteArray::number(br.id.majorPart()),
-                NeedsStop, CB(handleBreakListMultiple), QVariant::fromValue(id));
     } else if (response.data.findChild("msg").data().contains("Unknown option")) {
         // Older version of gdb don't know the -a option to set tracepoints
         // ^error,msg="mi_cmd_break_insert: Unknown option ``a''"
@@ -2827,7 +2845,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
                         sub.id = subId;
                         sub.type = response.type;
                         sub.address = address;
-                        handler->insertSubBreakpoint(sub);
+                        handler->insertSubBreakpoint(id, sub);
                         location.clear();
                         function.clear();
                         address = 0;
@@ -2963,6 +2981,7 @@ void GdbEngine::changeBreakpoint(BreakpointModelId id)
     QTC_ASSERT(data.type != UnknownType, return);
     const BreakpointResponse &response = handler->response(id);
     QTC_ASSERT(response.id.isValid(), return);
+    qDebug() << "DELETING: " << response.id;
     const QByteArray bpnr = response.id.toByteArray();
     const BreakpointState state = handler->state(id);
     if (state == BreakpointChangeRequested)
