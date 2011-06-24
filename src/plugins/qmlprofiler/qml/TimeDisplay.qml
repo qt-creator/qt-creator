@@ -66,7 +66,7 @@ TiledCanvas {
                 ctxt.stroke();
             }
 
-            ctxt.fillText(prettyPrintTime(ii*timePerBlock + realStartTime), x + 5, 10);
+            ctxt.fillText(prettyPrintTime(ii*timePerBlock + realStartTime), x + 5, 5 + labels.y/2);
         }
     }
 
@@ -119,6 +119,7 @@ TiledCanvas {
             displayRect.visible = true
         }
         onExited: displayRect.visible = false
+        onEntered: root.hideRangeDetails();
     }
 
     Rectangle {
@@ -127,12 +128,14 @@ TiledCanvas {
         border.color: Qt.darker(color)
         border.width: 1
         radius: 2
-        height: labels.y
+        height: labels.y - 2
+        y: 1
         width: displayText.width + 10
         visible: false
         Text {
             id: displayText
             x: 5
+            y: labels.y/2 - 6
             font.pointSize: 8
         }
     }

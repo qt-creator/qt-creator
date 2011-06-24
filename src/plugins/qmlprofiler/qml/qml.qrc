@@ -2,16 +2,17 @@
     <qresource prefix="/qmlprofiler">
         <file>Detail.qml</file>
         <file>Label.qml</file>
-        <file>lock.png</file>
         <file>MainView.js</file>
         <file>MainView.qml</file>
         <file>popup.png</file>
         <file>range.png</file>
         <file>RangeDetails.qml</file>
         <file>RangeMover.qml</file>
-        <file>ToolButton.qml</file>
         <file>analyzer_category_small.png</file>
         <file>TimeDisplay.qml</file>
         <file>clean_pane_small.png</file>
+        <file>prev.png</file>
+        <file>next.png</file>
+        <file>toolbarbg.png</file>
     </qresource>
 </RCC>

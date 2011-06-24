@@ -76,6 +76,8 @@ signals:
     void range(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
 
     void internalClearDisplay();
+    void jumpToPrev();
+    void jumpToNext();
 
 private:
     QWeakPointer<TracePlugin> m_plugin;

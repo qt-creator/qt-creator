@@ -34,7 +34,7 @@
 #include "tracewindow.h"
 
 #include "qmlprofilerplugin.h"
-
+#include <utils/styledbar.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qdatastream.h>
@@ -47,6 +47,7 @@
 #include <QtCore/qstack.h>
 
 #include <QGraphicsObject>
+#include <QToolButton>
 
 #include <QtDeclarative/qdeclarativeview.h>
 #include <QtDeclarative/qdeclarativecontext.h>
@@ -282,6 +283,21 @@ TraceWindow::TraceWindow(QWidget *parent)
         //new QmlJSDebugger::QDeclarativeViewObserver(m_view, m_view);
     }
 
+    Utils::StyledBar *bar = new Utils::StyledBar(this);
+    bar->setSingleRow(true);
+    bar->setMinimumWidth(150);
+    QHBoxLayout *toolBarLayout = new QHBoxLayout(bar);
+    toolBarLayout->setMargin(0);
+    toolBarLayout->setSpacing(0);
+    QToolButton *buttonPrev= new QToolButton;
+    buttonPrev->setIcon(QIcon(":/qmlprofiler/prev.png"));
+    connect(buttonPrev, SIGNAL(clicked()), this, SIGNAL(jumpToPrev()));
+    QToolButton *buttonNext= new QToolButton;
+    buttonNext->setIcon(QIcon(":/qmlprofiler/next.png"));
+    connect(buttonNext, SIGNAL(clicked()), this, SIGNAL(jumpToNext()));
+    toolBarLayout->addWidget(buttonPrev);
+    toolBarLayout->addWidget(buttonNext);
+
     m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     m_view->setFocus();
     groupLayout->addWidget(m_view);
@@ -312,6 +328,8 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
 
     connect(m_view->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
     connect(m_view->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
+    connect(this, SIGNAL(jumpToPrev()), m_view->rootObject(), SLOT(prevEvent()));
+    connect(this, SIGNAL(jumpToNext()), m_view->rootObject(), SLOT(nextEvent()));
 
     connect(this, SIGNAL(internalClearDisplay()), m_view->rootObject(), SLOT(clearAll()));
 }

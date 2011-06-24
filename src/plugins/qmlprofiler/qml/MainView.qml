@@ -72,6 +72,38 @@ Rectangle {
     property int selectedEventIndex : -1;
     property bool mouseTracking: false;
 
+    onSelectedEventIndexChanged: {
+        if ((!mouseTracking) && Plotter.ranges.length > 0
+                && selectedEventIndex > -1 && selectedEventIndex < Plotter.ranges.length) {
+            // re-center flickable if necessary
+            var event = Plotter.ranges[selectedEventIndex];
+            var xs = Plotter.xScale(canvas);
+            var startTime = Plotter.ranges[0].start;
+            if (rangeMover.value + startTime> event.start) {
+                rangeMover.x = Math.max(0,
+                    Math.floor((event.start - startTime) / xs - canvas.canvasWindow.x - rangeMover.width/2) );
+            } else if (rangeMover.value + startTime + rangeMover.width * xs < event.start + event.duration) {
+                rangeMover.x = Math.floor((event.start + event.duration - startTime) / xs - canvas.canvasWindow.x - rangeMover.width/2);
+            }
+        }
+    }
+
+    function nextEvent() {
+        if (Plotter.ranges.length > 0) {
+            ++selectedEventIndex;
+            if (selectedEventIndex >= Plotter.ranges.length)
+                selectedEventIndex = 0;
+        }
+    }
+
+    function prevEvent() {
+        if (Plotter.ranges.length > 0) {
+            --selectedEventIndex;
+            if (selectedEventIndex < 0)
+                selectedEventIndex = Plotter.ranges.length - 1;
+        }
+    }
+
     //handle debug data coming from C++
     Connections {
         target: connection
@@ -225,10 +257,14 @@ Rectangle {
                 smooth: true
 
                 property bool componentIsCompleted: false
-                Component.onCompleted: componentIsCompleted = true;
+                Component.onCompleted: {
+                    componentIsCompleted = true;
+                    updateDetails();
+                }
 
                 property bool isSelected: root.selectedEventIndex == index;
-                onIsSelectedChanged: {
+                onIsSelectedChanged: updateDetails();
+                function updateDetails() {
                     if (!root.mouseTracking && componentIsCompleted) {
                         if (isSelected) {
                             enableSelected(0, 0);
@@ -307,7 +343,7 @@ Rectangle {
         id: labels
         width: 150
         color: "#dcdcdc"
-        y: 12
+        y: 24
         height: flick.height
 
         property int rowCount: 5
@@ -328,6 +364,12 @@ Rectangle {
             height: parent.height
             anchors.right: parent.right
             color: "#cccccc"
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            onEntered: root.hideRangeDetails();
         }
     }
 

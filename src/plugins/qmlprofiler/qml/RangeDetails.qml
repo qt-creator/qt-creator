@@ -69,6 +69,7 @@ BorderImage {
     Column {
         id: col
         anchors.top: typeTitle.bottom
+        x: 2
         Detail {
             label: "Duration"
             content: rangeDetails.duration < 1000 ?
