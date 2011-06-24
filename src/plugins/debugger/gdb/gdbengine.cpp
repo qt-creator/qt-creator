@@ -518,6 +518,26 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     attemptAdjustBreakpointLocation(id);
                 }
                 m_hasBreakpointNotifications = true;
+            } else if (asyncClass == "breakpoint-created") {
+                // "{bkpt={number="1",type="breakpoint",disp="del",enabled="y",
+                //  addr="<PENDING>",pending="main",times="0",
+                //original-location="main"}}"
+                foreach (const GdbMi &bkpt, result.children()) {
+                    QByteArray nr = bkpt.findChild("number").data();
+                    BreakpointResponse br;
+                    updateResponse(br, bkpt);
+                    br.id = BreakpointId(nr);
+                    qDebug() << "NR: " << nr << " ID: " << br.id.toString();
+                    breakHandler()->handleAlienBreakpoint(br, this);
+                }
+            } else if (asyncClass == "breakpoint-deleted") {
+                // "breakpoint-deleted" "{id="1"}"
+                // New in FSF gdb since 2011-04-27.
+                BreakHandler *handler = breakHandler();
+                QByteArray nr = result.findChild("id").data();
+                BreakpointId id = handler->findBreakpointByNumber(nr.toInt());
+                if (id.isValid())
+                    handler->removeAlienBreakpoint(id);
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
@@ -838,7 +858,7 @@ void GdbEngine::flushQueuedCommands()
     while (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         GdbCommand cmd = m_commandsToRunOnTemporaryBreak.takeFirst();
         showMessage(_("RUNNING QUEUED COMMAND " + cmd.command + ' '
-            + cmd.callbackName));
+            + (cmd.callbackName ? cmd.callbackName : "<unnamed callback>")));
         flushCommand(cmd);
     }
 }
@@ -2286,6 +2306,8 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
 {
     QTC_ASSERT(bkpt.isValid(), return);
 
+    QByteArray originalLocation;
+
     response.multiple = false;
     response.enabled = true;
     response.pending = false;
@@ -2341,6 +2363,8 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
                 response.tracepoint = true;
             else if (!child.data().contains("reakpoint"))
                 response.type = WatchpointAtAddress;
+        } else if (child.hasName("original-location")) {
+            originalLocation = child.data();
         }
         // This field is not present.  Contents needs to be parsed from
         // the plain "ignore" response.
@@ -2361,6 +2385,9 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
     }
     if (!name.isEmpty())
         response.fileName = name;
+
+    if (name.isEmpty())
+        response.setLocation(originalLocation);
 }
 
 QString GdbEngine::breakLocation(const QString &file) const
@@ -2797,11 +2824,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
                         BreakpointResponse sub;
                         sub.address = address;
                         sub.functionName = QString::fromUtf8(function);
-                        if (location.size()) {
-                            int pos = location.indexOf(':');
-                            sub.lineNumber = location.mid(pos + 1).toInt();
-                            sub.fileName = QString::fromUtf8(location.left(pos));
-                        }
+                        sub.setLocation(location);
                         sub.id = subId;
                         sub.type = response.type;
                         sub.address = address;

@@ -990,6 +990,14 @@ void BreakHandler::notifyBreakpointNeedsReinsertion(BreakpointId id)
     it->state = BreakpointInsertRequested;
 }
 
+void BreakHandler::removeAlienBreakpoint(BreakpointId id)
+{
+    Iterator it = m_storage.find(id);
+    BREAK_ASSERT(it != m_storage.end(), return);
+    it->state = BreakpointDead;
+    cleanupBreakpoint(id);
+}
+
 void BreakHandler::removeBreakpoint(BreakpointId id)
 {
     Iterator it = m_storage.find(id);
@@ -1011,14 +1019,13 @@ void BreakHandler::removeBreakpoint(BreakpointId id)
     }
 }
 
+// Ok to be not thread-safe. The order does not matter and only the gui
+// produces authoritative ids.
+static int currentId = 0;
+
 void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
 {
     QTC_ASSERT(data.type != UnknownType, return);
-
-    // Ok to be not thread-safe. The order does not matter and only the gui
-    // produces authoritative ids.
-    static quint64 currentId = 0;
-
     BreakpointId id(++currentId);
     BreakpointItem item;
     item.data = data;
@@ -1034,6 +1041,35 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
 
     updateMarker(id);
     scheduleSynchronization();
+}
+
+void BreakHandler::handleAlienBreakpoint(const BreakpointResponse &response,
+    DebuggerEngine *engine)
+{
+    if (response.id.isMinor()) {
+        insertSubBreakpoint(response);
+    } else {
+        BreakpointParameters data = response;
+        data.type = BreakpointByFileAndLine;
+        data.functionName.clear();
+
+        BreakpointId id(++currentId);
+        BreakpointItem item;
+        item.data = data;
+        item.response = response;
+        item.state = BreakpointInserted;
+        item.engine = engine;
+
+        const int row = m_storage.size();
+        beginInsertRows(QModelIndex(), row, row);
+        m_storage.insert(id, item);
+        endInsertRows();
+
+        layoutChanged();
+
+        updateMarker(id);
+        scheduleSynchronization();
+    }
 }
 
 BreakpointId BreakHandler::at(int n) const
@@ -1062,6 +1098,17 @@ void BreakHandler::insertSubBreakpoint(const BreakpointResponse &data)
     QTC_ASSERT(id.isMinor(), return);
     BreakpointId majorId = id.parent();
     Iterator it = m_storage.find(majorId);
+
+    if (it == m_storage.end()) {
+        qDebug() << "FAILED: " << id.toString() << majorId.toString();
+        for (ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
+            it != et; ++it) {
+            qDebug() << "   ID: " << it->response.id.toString();
+            qDebug() << "   DATA: " << it->data.toString();
+            qDebug() << "   RESP: " << it->response.toString();
+        }
+    }
+
     QTC_ASSERT(it != m_storage.end(), return);
     int row = indexOf(majorId);
     QTC_ASSERT(row != -1, return);
@@ -1094,6 +1141,7 @@ void BreakHandler::saveSessionData()
 void BreakHandler::loadSessionData()
 {
     m_storage.clear();
+    reset();
     loadBreakpoints();
 }
 
@@ -1103,7 +1151,7 @@ void BreakHandler::removeSessionData()
     for ( ; it != et; ++it)
         it->destroyMarker();
     m_storage.clear();
-    layoutChanged();
+    reset();
 }
 
 void BreakHandler::breakByFunction(const QString &functionName)

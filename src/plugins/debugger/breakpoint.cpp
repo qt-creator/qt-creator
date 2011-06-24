@@ -164,6 +164,15 @@ bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
     return s1 == s2;
 }
 
+void BreakpointParameters::setLocation(const QByteArray &location)
+{
+    if (location.size()) {
+        int pos = location.indexOf(':');
+        lineNumber = location.mid(pos + 1).toInt();
+        fileName = QString::fromUtf8(location.left(pos));
+    }
+}
+
 QString BreakpointParameters::toString() const
 {
     QString result;
