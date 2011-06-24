@@ -131,6 +131,7 @@ QSet<QString> Qt4SimulatorTargetFactory::targetFeatures(const QString & /*id*/) 
     features << Constants::SHADOWBUILD_TARGETFEATURE_ID;
     // how to check check whether the component set is really installed?
     features << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
+    features << Constants::QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID;
     return features;
 }
 

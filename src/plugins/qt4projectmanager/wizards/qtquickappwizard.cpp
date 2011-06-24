@@ -95,6 +95,11 @@ bool QtQuickAppWizardDialog::validateCurrentPage()
             QSet<QString> requiredFeatures;
             requiredFeatures << Constants::QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID;
             targetsPage()->setRequiredFeatures(requiredFeatures);
+        } else if (m_componentOptionsPage->componentSet() == QtQuickApp::Meego10Components) {
+            targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 4));
+            QSet<QString> requiredFeatures;
+            requiredFeatures << Constants::QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID;
+            targetsPage()->setRequiredFeatures(requiredFeatures);
         }
     }
     return AbstractMobileAppWizardDialog::validateCurrentPage();

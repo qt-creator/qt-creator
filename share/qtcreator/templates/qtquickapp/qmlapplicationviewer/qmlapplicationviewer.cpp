@@ -146,7 +146,7 @@ void QmlApplicationViewer::setOrientation(ScreenOrientation orientation)
 
 void QmlApplicationViewer::showExpanded()
 {
-#ifdef Q_OS_SYMBIAN
+#if defined(Q_OS_SYMBIAN) || defined(MEEGO_EDITION_HARMATTAN)
     showFullScreen();
 #elif defined(Q_WS_MAEMO_5)
     showMaximized();

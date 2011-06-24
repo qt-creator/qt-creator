@@ -349,7 +349,8 @@ Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
     Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
     if (!useExistingMainQml()) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
-        if (componentSet() == QtQuickApp::Symbian10Components)
+        if ((componentSet() == QtQuickApp::Symbian10Components)
+                || (componentSet() == QtQuickApp::Meego10Components))
             files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainPageQmlFile, errorMessage), path(MainPageQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
@@ -451,13 +452,15 @@ QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
     switch (componentSet) {
     case Symbian10Components:
         return QLatin1String("symbian10");
+    case Meego10Components:
+        return QLatin1String("meego10");
     case QtQuick10Components:
     default:
         return QLatin1String("qtquick10");
     }
 }
 
-const int QtQuickApp::StubVersion = 12;
+const int QtQuickApp::StubVersion = 13;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

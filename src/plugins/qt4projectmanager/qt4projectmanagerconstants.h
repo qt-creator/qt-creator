@@ -98,6 +98,8 @@ const char * const DESKTOP_TARGETFEATURE_ID = "Qt4ProjectManager.TargetFeature.D
 const char * const SHADOWBUILD_TARGETFEATURE_ID = "Qt4ProjectManager.TargetFeature.ShadowBuild";
 const char * const QTQUICKCOMPONENTS_SYMBIAN_TARGETFEATURE_ID
                                = "Qt4ProjectManager.TargetFeature.QtQuickComponentsSymbian";
+const char * const QTQUICKCOMPONENTS_MEEGO_TARGETFEATURE_ID
+                               = "Qt4ProjectManager.TargetFeature.QtQuickComponentsMeego";
 
 
 // Tool chains:

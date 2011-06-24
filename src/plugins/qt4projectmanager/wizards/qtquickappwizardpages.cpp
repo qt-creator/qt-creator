@@ -64,6 +64,7 @@ QtQuickComponentSetOptionsPage::QtQuickComponentSetOptionsPage(QWidget *parent)
     m_d->ui.setupUi(this);
     m_d->ui.buttonGroup->setId(m_d->ui.qtquick10RadioButton, 0);
     m_d->ui.buttonGroup->setId(m_d->ui.symbian10RadioButton, 1);
+    m_d->ui.buttonGroup->setId(m_d->ui.meego10RadioButton, 2);
     connect(m_d->ui.buttonGroup, SIGNAL(buttonClicked(int)), this, SLOT(radioButtonChecked(int)));
 }
 
@@ -75,6 +76,7 @@ QtQuickComponentSetOptionsPage::~QtQuickComponentSetOptionsPage()
 QtQuickApp::ComponentSet QtQuickComponentSetOptionsPage::componentSet() const
 {
     switch (m_d->ui.buttonGroup->checkedId()) {
+    case 2: return QtQuickApp::Meego10Components;
     case 1: return QtQuickApp::Symbian10Components;
     case 0:
     default: return QtQuickApp::QtQuick10Components;
@@ -84,6 +86,7 @@ QtQuickApp::ComponentSet QtQuickComponentSetOptionsPage::componentSet() const
 void QtQuickComponentSetOptionsPage::setComponentSet(QtQuickApp::ComponentSet componentSet)
 {
     switch (componentSet) {
+    case QtQuickApp::Meego10Components: m_d->ui.meego10RadioButton->click(); break;
     case QtQuickApp::Symbian10Components: m_d->ui.symbian10RadioButton->click(); break;
     case QtQuickApp::QtQuick10Components:
     default: m_d->ui.qtquick10RadioButton->click(); break;
