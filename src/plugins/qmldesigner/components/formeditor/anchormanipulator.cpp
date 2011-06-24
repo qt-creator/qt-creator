@@ -79,10 +79,6 @@ void AnchorManipulator::setMargin(FormEditorItem *endItem, AnchorLine::Type endA
     QPointF beginItemBottomRight(m_beginFormEditorItem->mapToParent(m_beginFormEditorItem->qmlItemNode().instanceBoundingRect().bottomRight()));
     QPointF endItemBottomRight(m_beginFormEditorItem->parentItem()->mapFromItem(endItem, endItem->qmlItemNode().instanceBoundingRect().bottomRight()));
 
-    QPointF topLeftAnchorOffset = beginItemTopLeft - endItemTopLeft;
-    QPointF bottomRightAnchorOffset = endItemBottomRight - beginItemBottomRight;
-
-
     double anchorOffset = 0.0;
     if (m_beginAnchorLine & (AnchorLine::Bottom | AnchorLine::Right)) {
         anchorOffset = offset(endItemTopLeft, endItemBottomRight, endAnchorLine) -
