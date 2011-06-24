@@ -79,9 +79,9 @@ public:
     virtual void activateFrame(qint64 token) = 0;
     virtual void selectThread(qint64 token) = 0;
     virtual void disassemble(quint64 pc) = 0;
-    virtual void addBreakpoint(BreakpointId id, const BreakpointParameters &bp) = 0;
-    virtual void removeBreakpoint(BreakpointId id) = 0;
-    virtual void changeBreakpoint(BreakpointId id, const BreakpointParameters &bp) = 0;
+    virtual void addBreakpoint(BreakpointModelId id, const BreakpointParameters &bp) = 0;
+    virtual void removeBreakpoint(BreakpointModelId id) = 0;
+    virtual void changeBreakpoint(BreakpointModelId id, const BreakpointParameters &bp) = 0;
     virtual void requestUpdateWatchData(const WatchData &data,
             const WatchUpdateFlags & flags = WatchUpdateFlags()) = 0;
     virtual void fetchFrameSource(qint64 frame) = 0;
@@ -161,13 +161,13 @@ public:
     void listThreads(const Threads &);
     void disassembled(quint64 pc, const DisassemblerLines &da);
 
-    void notifyAddBreakpointOk(BreakpointId id);
-    void notifyAddBreakpointFailed(BreakpointId id);
-    void notifyRemoveBreakpointOk(BreakpointId id);
-    void notifyRemoveBreakpointFailed(BreakpointId id);
-    void notifyChangeBreakpointOk(BreakpointId id);
-    void notifyChangeBreakpointFailed(BreakpointId id);
-    void notifyBreakpointAdjusted(BreakpointId id, const BreakpointParameters &bp);
+    void notifyAddBreakpointOk(BreakpointModelId id);
+    void notifyAddBreakpointFailed(BreakpointModelId id);
+    void notifyRemoveBreakpointOk(BreakpointModelId id);
+    void notifyRemoveBreakpointFailed(BreakpointModelId id);
+    void notifyChangeBreakpointOk(BreakpointModelId id);
+    void notifyChangeBreakpointFailed(BreakpointModelId id);
+    void notifyBreakpointAdjusted(BreakpointModelId id, const BreakpointParameters &bp);
 
     void updateWatchData(bool fullCycle, const QList<WatchData> &);
 

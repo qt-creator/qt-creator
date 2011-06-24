@@ -447,7 +447,7 @@ void ScriptEngine::selectThread(int index)
     Q_UNUSED(index)
 }
 
-bool ScriptEngine::acceptsBreakpoint(BreakpointId id) const
+bool ScriptEngine::acceptsBreakpoint(BreakpointModelId id) const
 {
     const QString fileName = breakHandler()->fileName(id);
     return fileName.endsWith(QLatin1String(".js"));
@@ -622,7 +622,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
         if (byFunction && functionName.isEmpty())
             return false;
         BreakHandler *handler = breakHandler();
-        BreakpointId id = byFunction ?
+        BreakpointModelId id = byFunction ?
            handler->findBreakpointByFunction(functionName) :
            handler->findBreakpointByFileAndLine(fileName, lineNumber, false);
 

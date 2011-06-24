@@ -94,9 +94,9 @@ public:
     void activateFrame(qint64);
     void selectThread(qint64);
     void disassemble(quint64 pc);
-    void addBreakpoint(BreakpointId id, const BreakpointParameters &bp);
-    void removeBreakpoint(BreakpointId id);
-    void changeBreakpoint(BreakpointId id, const BreakpointParameters &bp);
+    void addBreakpoint(BreakpointModelId id, const BreakpointParameters &bp);
+    void removeBreakpoint(BreakpointModelId id);
+    void changeBreakpoint(BreakpointModelId id, const BreakpointParameters &bp);
     void requestUpdateWatchData(const WatchData &data,
             const WatchUpdateFlags &flags);
     void fetchFrameSource(qint64 frame);
@@ -117,7 +117,7 @@ private:
     lldb::SBThread m_currentThread;
     bool m_relistFrames;
     QHash<QString, lldb::SBValue> m_localesCache;
-    QHash<BreakpointId, lldb::SBBreakpoint> m_breakpoints;
+    QHash<BreakpointModelId, lldb::SBBreakpoint> m_breakpoints;
     QHash<qint64, QString> m_frame_to_file;
 
     void updateThreads();

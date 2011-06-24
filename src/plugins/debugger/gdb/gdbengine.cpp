@@ -213,7 +213,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
     m_stackNeeded = false;
     m_preparedForQmlBreak = false;
     m_disassembleUsesComma = false;
-    m_qFatalBreakpointNumber = 0;
     m_actingOnExpectedStop = false;
 
     invalidateSourcesList();
@@ -464,10 +463,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // addr="0x0000000115cc3ddf",func="foo()",file="../foo.cpp",
                 // line="1584",shlib="/../libFoo_debug.dylib",times="0"}
                 const GdbMi bkpt = result.findChild("bkpt");
-                const int number = bkpt.findChild("number").data().toInt();
-                if (!isQmlStepBreakpoint(number)) {
+                const BreakpointResponseId rid(bkpt.findChild("number").data());
+                if (!isQmlStepBreakpoint(rid)) {
                     BreakHandler *handler = breakHandler();
-                    BreakpointId id = handler->findBreakpointByNumber(number);
+                    BreakpointModelId id = handler->findBreakpointByResponseId(rid);
                     BreakpointResponse br = handler->response(id);
                     updateResponse(br, bkpt);
                     handler->setResponse(id, br);
@@ -494,26 +493,29 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 result = GdbMi();
                 result.fromString(ba);
                 BreakHandler *handler = breakHandler();
-                BreakpointId id = BreakpointId(-1);
+                BreakpointModelId id = BreakpointModelId(-1);
                 BreakpointResponse br;
                 foreach (const GdbMi &bkpt, result.children()) {
                     const QByteArray nr = bkpt.findChild("number").data();
-                    if (nr.contains('.')) {
-                        // A sub-breakpoint.
-                        BreakpointResponse sub;
-                        updateResponse(sub, bkpt);
-                        sub.id = BreakpointId(nr);
-                        sub.type = br.type;
-                        sub.extra.clear();
-                        handler->insertSubBreakpoint(sub);
-                    } else {
-                        // A primary breakpoint.
-                        id = handler->findBreakpointByNumber(nr.toInt());
-                        br = handler->response(id);
-                        updateResponse(br, bkpt);
+                    BreakpointResponseId rid(nr);
+                    if (!isHiddenBreakpoint(rid)) { 
+                        if (nr.contains('.')) {
+                            // A sub-breakpoint.
+                            BreakpointResponse sub;
+                            updateResponse(sub, bkpt);
+                            sub.id = rid;
+                            sub.type = br.type;
+                            handler->insertSubBreakpoint(sub);
+                        } else {
+                            // A primary breakpoint.
+                            BreakpointModelId id =
+                                handler->findBreakpointByResponseId(rid);
+                            br = handler->response(id);
+                            updateResponse(br, bkpt);
+                        }
                     }
                 }
-                if (!isQmlStepBreakpoint(br.id.majorPart())) {
+                if (!isQmlStepBreakpoint(br.id)) {
                     handler->setResponse(id, br);
                     attemptAdjustBreakpointLocation(id);
                 }
@@ -526,8 +528,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     QByteArray nr = bkpt.findChild("number").data();
                     BreakpointResponse br;
                     updateResponse(br, bkpt);
-                    br.id = BreakpointId(nr);
-                    qDebug() << "NR: " << nr << " ID: " << br.id.toString();
+                    br.id = BreakpointResponseId(nr);
                     breakHandler()->handleAlienBreakpoint(br, this);
                 }
             } else if (asyncClass == "breakpoint-deleted") {
@@ -535,7 +536,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // New in FSF gdb since 2011-04-27.
                 BreakHandler *handler = breakHandler();
                 QByteArray nr = result.findChild("id").data();
-                BreakpointId id = handler->findBreakpointByNumber(nr.toInt());
+                BreakpointResponseId rid(nr);
+                BreakpointModelId id = handler->findBreakpointByResponseId(rid);
                 if (id.isValid())
                     handler->removeAlienBreakpoint(id);
             } else {
@@ -588,7 +590,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
             if (data.startsWith("QMLBP:")) {
                 int pos1 = 6;
                 int pos2 = data.indexOf(' ', pos1);
-                m_qmlBreakpointNumbers[2] = data.mid(pos1, pos2 - pos1).toInt();
+                m_qmlBreakpointResponseId2 = BreakpointResponseId(data.mid(pos1, pos2 - pos1));
                 //qDebug() << "FOUND QMLBP: " << m_qmlBreakpointNumbers[2];
                 //qDebug() << "CURRENT: " << m_qmlBreakpointNumbers;
             }
@@ -1296,7 +1298,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
-    const int bkptno = data.findChild("bkptno").data().toInt();
+    BreakpointResponseId rid(data.findChild("bkptno").data());
     const GdbMi frame = data.findChild("frame");
 
     const int lineNumber = frame.findChild("line").data().toInt();
@@ -1305,15 +1307,15 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (fullName.isEmpty())
         fullName = QString::fromUtf8(frame.findChild("file").data());
 
-    if (bkptno && frame.isValid()
-            && !isQmlStepBreakpoint(bkptno)
-            && !isQFatalBreakpoint(bkptno)) {
+    if (rid.isValid() && frame.isValid()
+            && !isQmlStepBreakpoint(rid)
+            && !isQFatalBreakpoint(rid)) {
         // Use opportunity to update the breakpoint marker position.
         BreakHandler *handler = breakHandler();
-        //qDebug() << " PROBLEM: " << m_qmlBreakpointNumbers << bkptno
-        //    << isQmlStepBreakpoint1(bkptno)
-        //    << isQmlStepBreakpoint2(bkptno)
-        BreakpointId id = handler->findBreakpointByNumber(bkptno);
+        //qDebug() << " PROBLEM: " << m_qmlBreakpointNumbers << rid
+        //    << isQmlStepBreakpoint1(rid)
+        //    << isQmlStepBreakpoint2(rid)
+        BreakpointModelId id = handler->findBreakpointByResponseId(rid);
         const BreakpointResponse &response = handler->response(id);
         QString fileName = response.fileName;
         if (fileName.isEmpty())
@@ -1324,12 +1326,12 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             handler->setMarkerFileAndLine(id, fileName, lineNumber);
     }
 
-    //qDebug() << "BP " << bkptno << data.toString();
+    //qDebug() << "BP " << rid << data.toString();
     // Quickly set the location marker.
     if (lineNumber && !debuggerCore()->boolSetting(OperateByInstruction)
             && QFileInfo(fullName).exists()
-            && !isQmlStepBreakpoint(bkptno)
-            && !isQFatalBreakpoint(bkptno))
+            && !isQmlStepBreakpoint(rid)
+            && !isQFatalBreakpoint(rid))
         gotoLocation(Location(fullName, lineNumber));
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
@@ -1364,7 +1366,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // *stopped arriving earlier than ^done response to an -exec-step
         doNotifyInferiorRunOk();
         notifyInferiorSpontaneousStop();
-    } else if (state() == InferiorStopOk && isQmlStepBreakpoint2(bkptno)) {
+    } else if (state() == InferiorStopOk && isQmlStepBreakpoint2(rid)) {
         // That's expected.
     } else {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
@@ -1394,7 +1396,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         m_entryPoint.clear();
     }
 
-    if (isQmlStepBreakpoint1(bkptno))
+    if (isQmlStepBreakpoint1(rid))
         return;
 
     handleStop0(data);
@@ -1598,16 +1600,16 @@ void GdbEngine::handleStop1(const GdbMi &data)
         // func="QScopedPointer",args=[{name="this",value="0xbfffed40"},
         // {name="p",value="0x0"}],file="x.h",fullname="/home/.../x.h",line="95"},
         // thread-id="1",stopped-threads="all",core="2"
-        GdbMi wpt = data.findChild("wpt");
-        const int bpNumber = wpt.findChild("number").data().toInt();
-        const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
+        const GdbMi wpt = data.findChild("wpt");
+        const BreakpointResponseId rid(wpt.findChild("number").data());
+        const BreakpointModelId id = breakHandler()->findBreakpointByResponseId(rid);
         const quint64 bpAddress = wpt.findChild("exp").data().mid(1).toULongLong(0, 0);
         QString msg;
         if (id && breakHandler()->type(id) == WatchpointAtExpression)
-            msg = msgWatchpointByExpressionTriggered(id, bpNumber,
+            msg = msgWatchpointByExpressionTriggered(id, rid.majorPart(),
                 breakHandler()->expression(id));
         if (id && breakHandler()->type(id) == WatchpointAtAddress)
-            msg = msgWatchpointByAddressTriggered(id, bpNumber, bpAddress);
+            msg = msgWatchpointByAddressTriggered(id, rid.majorPart(), bpAddress);
         GdbMi value = data.findChild("value");
         GdbMi oldValue = value.findChild("old");
         GdbMi newValue = value.findChild("new");
@@ -1621,10 +1623,10 @@ void GdbEngine::handleStop1(const GdbMi &data)
         GdbMi gNumber = data.findChild("bkptno"); // 'number' or 'bkptno'?
         if (!gNumber.isValid())
             gNumber = data.findChild("number");
-        const int bpNumber = gNumber.data().toInt();
+        const BreakpointResponseId rid(gNumber.data());
         const QByteArray threadId = data.findChild("thread-id").data();
-        const BreakpointId id = breakHandler()->findBreakpointByNumber(bpNumber);
-        showStatusMessage(msgBreakpointTriggered(id, bpNumber, _(threadId)));
+        const BreakpointModelId id = breakHandler()->findBreakpointByResponseId(rid);
+        showStatusMessage(msgBreakpointTriggered(id, rid.majorPart(), _(threadId)));
         m_currentThread = threadId;
     } else {
         QString reasontr = msgStopped(_(reason));
@@ -2315,7 +2317,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
     QByteArray file, fullName;
     foreach (const GdbMi &child, bkpt.children()) {
         if (child.hasName("number")) {
-            response.id = BreakpointId(child.data());
+            response.id = BreakpointResponseId(child.data());
         } else if (child.hasName("func")) {
             response.functionName = _(child.data());
         } else if (child.hasName("addr")) {
@@ -2326,11 +2328,8 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
             //qDebug() << "ADDR: " << child.data() << (child.data() == "<MULTIPLE>");
             if (child.data() == "<MULTIPLE>")
                 response.multiple = true;
-            if (child.data().startsWith("0x")) {
+            if (child.data().startsWith("0x"))
                 response.address = child.toAddress();
-            } else {
-                response.extra = child.data();
-            }
         } else if (child.hasName("file")) {
             file = child.data();
         } else if (child.hasName("fullname")) {
@@ -2386,7 +2385,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
     if (!name.isEmpty())
         response.fileName = name;
 
-    if (name.isEmpty())
+    if (response.fileName.isEmpty())
         response.setLocation(originalLocation);
 }
 
@@ -2399,7 +2398,7 @@ QString GdbEngine::breakLocation(const QString &file) const
     return where;
 }
 
-QByteArray GdbEngine::breakpointLocation(BreakpointId id)
+QByteArray GdbEngine::breakpointLocation(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
     const BreakpointParameters &data = handler->breakpointData(id);
@@ -2426,7 +2425,7 @@ QByteArray GdbEngine::breakpointLocation(BreakpointId id)
         + QByteArray::number(data.lineNumber) + '"';
 }
 
-QByteArray GdbEngine::breakpointLocation2(BreakpointId id)
+QByteArray GdbEngine::breakpointLocation2(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
     const BreakpointParameters &data = handler->breakpointData(id);
@@ -2438,7 +2437,7 @@ QByteArray GdbEngine::breakpointLocation2(BreakpointId id)
 
 void GdbEngine::handleWatchInsert(const GdbResponse &response)
 {
-    BreakpointId id = response.cookie.value<BreakpointId>();
+    BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     if (response.resultClass == GdbResultDone) {
         BreakHandler *handler = breakHandler();
         BreakpointResponse br = handler->response(id);
@@ -2448,7 +2447,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
         if (wpt.isValid()) {
             // Mac yields:
             //>32^done,wpt={number="4",exp="*4355182176"}
-            br.id = BreakpointId(wpt.findChild("number").data());
+            br.id = BreakpointResponseId(wpt.findChild("number").data());
             QByteArray exp = wpt.findChild("exp").data();
             if (exp.startsWith('*'))
                 br.address = exp.mid(1).toULongLong(0, 0);
@@ -2461,7 +2460,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
             const int end = ba.indexOf(':');
             const int begin = ba.lastIndexOf(' ', end) + 1;
             const QByteArray address = ba.mid(end + 2).trimmed();
-            br.id = BreakpointId(ba.mid(begin, end - begin));
+            br.id = BreakpointResponseId(ba.mid(begin, end - begin));
             if (address.startsWith('*'))
                 br.address = address.mid(1).toULongLong(0, 0);
             handler->setResponse(id, br);
@@ -2473,7 +2472,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
     }
 }
 
-void GdbEngine::attemptAdjustBreakpointLocation(BreakpointId id)
+void GdbEngine::attemptAdjustBreakpointLocation(BreakpointModelId id)
 {
     if (m_hasBreakpointNotifications)
         return;
@@ -2493,7 +2492,7 @@ void GdbEngine::attemptAdjustBreakpointLocation(BreakpointId id)
 void GdbEngine::handleCatchInsert(const GdbResponse &response)
 {
     BreakHandler *handler = breakHandler();
-    BreakpointId id = response.cookie.value<BreakpointId>();
+    BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     if (response.resultClass == GdbResultDone) {
         handler->notifyBreakpointInsertOk(id);
         attemptAdjustBreakpointLocation(id);
@@ -2503,7 +2502,7 @@ void GdbEngine::handleCatchInsert(const GdbResponse &response)
 void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 {
     BreakHandler *handler = breakHandler();
-    BreakpointId id = response.cookie.value<BreakpointId>();
+    BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     if (response.resultClass == GdbResultDone) {
         // Interesting only on Mac?
         GdbMi bkpt = response.data.findChild("bkpt");
@@ -2520,7 +2519,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         attemptAdjustBreakpointLocation(id);
         if (br.multiple)
             postCommand("info break " + QByteArray::number(br.id.majorPart()),
-                NeedsStop, CB(handleBreakListMultiple), QVariant(id));
+                NeedsStop, CB(handleBreakListMultiple), QVariant::fromValue(id));
     } else if (response.data.findChild("msg").data().contains("Unknown option")) {
         // Older version of gdb don't know the -a option to set tracepoints
         // ^error,msg="mi_cmd_break_insert: Unknown option ``a''"
@@ -2546,7 +2545,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 void GdbEngine::handleBreakInsert2(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        BreakpointId id = response.cookie.value<BreakpointId>();
+        BreakpointModelId id = response.cookie.value<BreakpointModelId>();
         attemptAdjustBreakpointLocation(id);
         breakHandler()->notifyBreakpointInsertOk(id);
     } else {
@@ -2612,12 +2611,12 @@ void GdbEngine::handleBreakList(const GdbMi &table)
     BreakHandler *handler = breakHandler();
     foreach (const GdbMi &bkpt, bkpts) {
         BreakpointResponse needle;
-        needle.id = BreakpointId(bkpt.findChild("number").data());
-        if (isQmlStepBreakpoint2(needle.id.majorPart()))
+        needle.id = BreakpointResponseId(bkpt.findChild("number").data());
+        if (isQmlStepBreakpoint2(needle.id))
             continue;
-        if (isQFatalBreakpoint(needle.id.majorPart()))
+        if (isQFatalBreakpoint(needle.id))
             continue;
-        BreakpointId id = handler->findSimilarBreakpoint(needle);
+        BreakpointModelId id = handler->findSimilarBreakpoint(needle);
         if (id.isValid()) {
             BreakpointResponse response = handler->response(id);
             updateResponse(response, bkpt);
@@ -2640,7 +2639,7 @@ void GdbEngine::handleBreakList(const GdbMi &table)
 void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
-    const BreakpointId id = response.cookie.value<BreakpointId>();
+    const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     const QString str = QString::fromLocal8Bit(
         response.data.findChild("consolestreamoutput").data());
     extractDataFromInfoBreak(str, id);
@@ -2649,7 +2648,7 @@ void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
 void GdbEngine::handleBreakDisable(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
-    const BreakpointId id = response.cookie.value<BreakpointId>();
+    const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     // This should only be the requested state.
     QTC_ASSERT(!handler->isEnabled(id), /* Prevent later recursion */);
@@ -2662,7 +2661,7 @@ void GdbEngine::handleBreakDisable(const GdbResponse &response)
 void GdbEngine::handleBreakEnable(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
-    const BreakpointId id = response.cookie.value<BreakpointId>();
+    const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     // This should only be the requested state.
     QTC_ASSERT(handler->isEnabled(id), /* Prevent later recursion */);
@@ -2675,7 +2674,7 @@ void GdbEngine::handleBreakEnable(const GdbResponse &response)
 void GdbEngine::handleBreakThreadSpec(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
-    const BreakpointId id = response.cookie.value<BreakpointId>();
+    const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     BreakpointResponse br = handler->response(id);
     br.threadSpec = handler->threadSpec(id);
@@ -2698,7 +2697,7 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     // gdb 6.3 does not produce any console output
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     QString msg = _(response.data.findChild("consolestreamoutput").data());
-    BreakpointId id = response.cookie.value<BreakpointId>();
+    BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     BreakpointResponse br = handler->response(id);
     //if (msg.contains(__("Will stop next time breakpoint")))
@@ -2717,7 +2716,7 @@ void GdbEngine::handleBreakCondition(const GdbResponse &response)
 {
     // Can happen at invalid condition strings.
     //QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
-    const BreakpointId id = response.cookie.value<BreakpointId>();
+    const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     // We just assume it was successful. Otherwise we had to parse
     // the output stream data.
@@ -2731,7 +2730,7 @@ void GdbEngine::handleBreakCondition(const GdbResponse &response)
     changeBreakpoint(id); // Maybe there's more to do.
 }
 
-void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
+void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelId id)
 {
     //qDebug() << output;
     if (output.isEmpty())
@@ -2815,7 +2814,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
                 continue;
             }
             if (part.size() >= 3 && part.count('.') == 1) {
-                BreakpointId subId(part);
+                BreakpointResponseId subId(part);
                 int tmpMajor = subId.majorPart();
                 int tmpMinor = subId.minorPart();
                 if (tmpMajor == majorPart) {
@@ -2828,7 +2827,6 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
                         sub.id = subId;
                         sub.type = response.type;
                         sub.address = address;
-                        sub.extra.clear();
                         handler->insertSubBreakpoint(sub);
                         location.clear();
                         function.clear();
@@ -2844,7 +2842,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointId id)
         // Commit main data.
     } else {
         qDebug() << "COULD NOT MATCH" << output;
-        response.id = BreakpointId(); // Unavailable.
+        response.id = BreakpointResponseId(); // Unavailable.
     }
     //handler->setResponse(id, response);
 }
@@ -2856,7 +2854,7 @@ void GdbEngine::handleInfoLine(const GdbResponse &response)
         // at address 0x80526aa <_Z10...+131> and ends at 0x80526b5
         // <_Z10testQStackv+142>.\n"
         QByteArray ba = response.data.findChild("consolestreamoutput").data();
-        const BreakpointId id = response.cookie.value<BreakpointId>();
+        const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
         const int pos = ba.indexOf(' ', 5);
         if (ba.startsWith("Line ") && pos != -1) {
             const int line = ba.mid(5, pos - 5).toInt();
@@ -2882,13 +2880,13 @@ bool GdbEngine::stateAcceptsBreakpointChanges() const
     }
 }
 
-bool GdbEngine::acceptsBreakpoint(BreakpointId id) const
+bool GdbEngine::acceptsBreakpoint(BreakpointModelId id) const
 {
     return DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id))
         && startParameters().startMode != AttachCore;
 }
 
-void GdbEngine::insertBreakpoint(BreakpointId id)
+void GdbEngine::insertBreakpoint(BreakpointModelId id)
 {
     // Set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface.
@@ -2958,7 +2956,7 @@ void GdbEngine::insertBreakpoint(BreakpointId id)
         CB(handleBreakInsert1), vid);
 }
 
-void GdbEngine::changeBreakpoint(BreakpointId id)
+void GdbEngine::changeBreakpoint(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
     const BreakpointParameters &data = handler->breakpointData(id);
@@ -3021,7 +3019,7 @@ void GdbEngine::changeBreakpoint(BreakpointId id)
     attemptAdjustBreakpointLocation(id);
 }
 
-void GdbEngine::removeBreakpoint(BreakpointId id)
+void GdbEngine::removeBreakpoint(BreakpointModelId id)
 {
     BreakHandler *handler = breakHandler();
     QTC_ASSERT(handler->state(id) == BreakpointRemoveRequested, /**/);
@@ -4897,9 +4895,9 @@ void GdbEngine::handleBreakOnQFatal(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         GdbMi bkpt = response.data.findChild("bkpt");
         GdbMi number = bkpt.findChild("number");
-        int bpnr = number.data().toInt();
-        if (bpnr) {
-            m_qFatalBreakpointNumber = bpnr;
+        BreakpointResponseId rid(number.data());
+        if (rid.isValid()) {
+            m_qFatalBreakpointResponseId = rid;
             postCommand("-break-commands " + number.data() + " return");
         }
     }
@@ -5000,7 +4998,8 @@ void GdbEngine::handleRemoteSetupFailed(const QString &message)
 bool GdbEngine::setupQmlStep(bool on)
 {
     QTC_ASSERT(isSlaveEngine(), return false);
-    m_qmlBreakpointNumbers.clear();
+    m_qmlBreakpointResponseId1 = BreakpointResponseId();
+    m_qmlBreakpointResponseId2 = BreakpointResponseId();
     //qDebug() << "CLEAR: " << m_qmlBreakpointNumbers;
     postCommand("tbreak '" + qtNamespace() + "QScript::FunctionWrapper::proxyCall'\n"
         "commands\n"
@@ -5022,34 +5021,36 @@ void GdbEngine::handleSetQmlStepBreakpoint(const GdbResponse &response)
         const int pos2 = ba.indexOf(" at 0x");
         const int pos1 = ba.lastIndexOf(" ", pos2 - 1) + 1;
         QByteArray mid = ba.mid(pos1, pos2 - pos1);
-        const int bpnr = mid.toInt();
-        m_qmlBreakpointNumbers[1] = bpnr;
-        //qDebug() << "SET: " << m_qmlBreakpointNumbers;
+        m_qmlBreakpointResponseId1 = BreakpointResponseId(mid);
+        //qDebug() << "SET: " << m_qmlBreakpointResponseId1;
     }
     QTC_ASSERT(masterEngine(), return);
     masterEngine()->readyToExecuteQmlStep();
 }
 
-bool GdbEngine::isQmlStepBreakpoint(int bpnr) const
+bool GdbEngine::isQmlStepBreakpoint(const BreakpointResponseId &id) const
 {
-    return isQmlStepBreakpoint1(bpnr) || isQmlStepBreakpoint2(bpnr);
+    return isQmlStepBreakpoint1(id) || isQmlStepBreakpoint2(id);
 }
 
-bool GdbEngine::isQmlStepBreakpoint1(int bpnr) const
+bool GdbEngine::isQmlStepBreakpoint1(const BreakpointResponseId &id) const
 {
-    //qDebug() << "CHECK 1: " << m_qmlBreakpointNumbers[1] << bpnr;
-    return bpnr && m_qmlBreakpointNumbers[1] == bpnr;
+    return id.isValid() && m_qmlBreakpointResponseId1 == id;
 }
 
-bool GdbEngine::isQmlStepBreakpoint2(int bpnr) const
+bool GdbEngine::isQmlStepBreakpoint2(const BreakpointResponseId &id) const
 {
-    //qDebug() << "CHECK 2: " << m_qmlBreakpointNumbers[2] << bpnr;
-    return bpnr && m_qmlBreakpointNumbers[2] == bpnr;
+    return id.isValid() && m_qmlBreakpointResponseId2 == id;
 }
 
-bool GdbEngine::isQFatalBreakpoint(int bpnr) const
+bool GdbEngine::isQFatalBreakpoint(const BreakpointResponseId &id) const
 {
-    return bpnr && m_qFatalBreakpointNumber == bpnr;
+    return id.isValid() && m_qFatalBreakpointResponseId == id;
+}
+
+bool GdbEngine::isHiddenBreakpoint(const BreakpointResponseId &id) const
+{
+    return isQFatalBreakpoint(id) || isQmlStepBreakpoint(id);
 }
 
 void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)

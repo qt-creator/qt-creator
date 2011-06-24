@@ -251,7 +251,7 @@ void IPCEngineHost::fetchDisassembler(DisassemblerAgent *v)
     rpcCall(Disassemble, p);
 }
 
-void IPCEngineHost::insertBreakpoint(BreakpointId id)
+void IPCEngineHost::insertBreakpoint(BreakpointModelId id)
 {
     breakHandler()->notifyBreakpointInsertProceeding(id);
     QByteArray p;
@@ -264,7 +264,7 @@ void IPCEngineHost::insertBreakpoint(BreakpointId id)
     rpcCall(AddBreakpoint, p);
 }
 
-void IPCEngineHost::removeBreakpoint(BreakpointId id)
+void IPCEngineHost::removeBreakpoint(BreakpointModelId id)
 {
     breakHandler()->notifyBreakpointRemoveProceeding(id);
     QByteArray p;
@@ -276,7 +276,7 @@ void IPCEngineHost::removeBreakpoint(BreakpointId id)
     rpcCall(RemoveBreakpoint, p);
 }
 
-void IPCEngineHost::changeBreakpoint(BreakpointId id)
+void IPCEngineHost::changeBreakpoint(BreakpointModelId id)
 {
     breakHandler()->notifyBreakpointChangeProceeding(id);
     QByteArray p;
@@ -508,7 +508,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 d;
                 s >> d;
-                BreakpointId id = BreakpointId::fromInternalId(d);
+                BreakpointModelId id = BreakpointModelId::fromInternalId(d);
                 breakHandler()->notifyBreakpointInsertOk(id);
             }
             break;
@@ -518,7 +518,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 d;
                 s >> d;
-                BreakpointId id = BreakpointId::fromInternalId(d);
+                BreakpointModelId id = BreakpointModelId::fromInternalId(d);
                 breakHandler()->notifyBreakpointInsertFailed(id);
             }
             break;
@@ -528,7 +528,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 d;
                 s >> d;
-                BreakpointId id = BreakpointId::fromInternalId(d);
+                BreakpointModelId id = BreakpointModelId::fromInternalId(d);
                 breakHandler()->notifyBreakpointRemoveOk(id);
             }
             break;
@@ -538,7 +538,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 d;
                 s >> d;
-                BreakpointId id = BreakpointId::fromInternalId(d);
+                BreakpointModelId id = BreakpointModelId::fromInternalId(d);
                 breakHandler()->notifyBreakpointRemoveFailed(id);
             }
             break;
@@ -548,7 +548,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 d;
                 s >> d;
-                BreakpointId id = BreakpointId::fromInternalId(d);
+                BreakpointModelId id = BreakpointModelId::fromInternalId(d);
                 breakHandler()->notifyBreakpointChangeOk(id);
             }
             break;
@@ -558,7 +558,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 d;
                 s >> d;
-                BreakpointId id = BreakpointId::fromInternalId(d);
+                BreakpointModelId id = BreakpointModelId::fromInternalId(d);
                 breakHandler()->notifyBreakpointChangeFailed(id);
             }
             break;
@@ -569,7 +569,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 quint64 dd;
                 BreakpointParameters d;
                 s >> dd >> d;
-                BreakpointId id = BreakpointId::fromInternalId(dd);
+                BreakpointModelId id = BreakpointModelId::fromInternalId(dd);
                 breakHandler()->notifyBreakpointAdjusted(id, d);
             }
             break;

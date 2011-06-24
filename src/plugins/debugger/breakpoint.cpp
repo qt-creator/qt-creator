@@ -42,29 +42,25 @@ namespace Internal {
 
 //////////////////////////////////////////////////////////////////
 //
-// BreakpointId
+// BreakpointModelId
 //
 //////////////////////////////////////////////////////////////////
 
-BreakpointId::BreakpointId(const QByteArray &ba)
-{
-    int pos = ba.indexOf('.');
-    if (pos == -1) {
-        m_majorPart = ba.toInt();
-        m_minorPart = 0;
-    } else {
-        m_majorPart = ba.left(pos).toInt();
-        m_minorPart = ba.mid(pos + 1).toInt();
-    }
-}
+/*!
+    \class Debugger::Internal::ModelId
 
-QDebug operator<<(QDebug d, const BreakpointId &id)
+    This identifies a breakpoint in the \c BreakHandler. The
+    major parts are strictly increasing over time.
+*/
+
+
+QDebug operator<<(QDebug d, const BreakpointModelId &id)
 {
     d << qPrintable(id.toString());
     return d;
 }
 
-QByteArray BreakpointId::toByteArray() const
+QByteArray BreakpointModelId::toByteArray() const
 {
     if (!isValid())
         return "<invalid bkpt>";
@@ -76,7 +72,7 @@ QByteArray BreakpointId::toByteArray() const
     return ba;
 }
 
-QString BreakpointId::toString() const
+QString BreakpointModelId::toString() const
 {
     if (!isValid())
         return "<invalid bkpt>";
@@ -85,16 +81,81 @@ QString BreakpointId::toString() const
     return QString::number(m_majorPart);
 }
 
-BreakpointId BreakpointId::parent() const
+BreakpointModelId BreakpointModelId::parent() const
 {
-    QTC_ASSERT(isMinor(), return BreakpointId());
-    return BreakpointId(m_majorPart, 0);
+    QTC_ASSERT(isMinor(), return BreakpointModelId());
+    return BreakpointModelId(m_majorPart, 0);
 }
 
-BreakpointId BreakpointId::child(int row) const
+BreakpointModelId BreakpointModelId::child(int row) const
 {
-    QTC_ASSERT(isMajor(), return BreakpointId());
-    return BreakpointId(m_majorPart, row + 1);
+    QTC_ASSERT(isMajor(), return BreakpointModelId());
+    return BreakpointModelId(m_majorPart, row + 1);
+}
+
+
+//////////////////////////////////////////////////////////////////
+//
+// BreakpointResponseId
+//
+//////////////////////////////////////////////////////////////////
+
+/*!
+    \class Debugger::Internal::BreakpointResponseId
+
+    This is what the external debuggers use to identify a breakpoint.
+    It is only valid for one debugger run.
+*/
+
+BreakpointResponseId::BreakpointResponseId(const QByteArray &ba)
+{
+    int pos = ba.indexOf('.');
+    if (pos == -1) {
+        m_majorPart = ba.toInt();
+        m_minorPart = 0;
+    } else {
+        m_majorPart = ba.left(pos).toInt();
+        m_minorPart = ba.mid(pos + 1).toInt();
+    }
+}
+
+QDebug operator<<(QDebug d, const BreakpointResponseId &id)
+{
+    d << qPrintable(id.toString());
+    return d;
+}
+
+QByteArray BreakpointResponseId::toByteArray() const
+{
+    if (!isValid())
+        return "<invalid bkpt>";
+    QByteArray ba = QByteArray::number(m_majorPart);
+    if (isMinor()) {
+        ba.append('.');
+        ba.append(QByteArray::number(m_minorPart));
+    }
+    return ba;
+}
+
+QString BreakpointResponseId::toString() const
+{
+    if (!isValid())
+        return "<invalid bkpt>";
+    if (isMinor())
+        return QString("%1.%2").arg(m_majorPart).arg(m_minorPart);
+    return QString::number(m_majorPart);
+}
+
+BreakpointResponseId BreakpointResponseId::parent() const
+{
+    QTC_ASSERT(isMinor(), return BreakpointResponseId());
+    return BreakpointResponseId(m_majorPart, 0);
+}
+
+BreakpointResponseId BreakpointResponseId::child(int row) const
+{
+    QTC_ASSERT(isMajor(), return BreakpointResponseId());
+    return BreakpointResponseId(m_majorPart, row + 1);
 }
 
 //////////////////////////////////////////////////////////////////
@@ -251,8 +312,6 @@ QString BreakpointResponse::toString() const
         ts << " Function: " << functionName;
     if (multiple)
         ts << " Multiple: " << multiple;
-    if (!extra.isEmpty())
-        ts << " Extra: " << extra;
     if (correctedLineNumber)
         ts << " CorrectedLineNumber: " << correctedLineNumber;
     ts << " Hit: " << hitCount << " times";
@@ -263,10 +322,9 @@ QString BreakpointResponse::toString() const
 void BreakpointResponse::fromParameters(const BreakpointParameters &p)
 {
     BreakpointParameters::operator=(p);
-    id = BreakpointId();
+    id = BreakpointResponseId();
     fullName.clear();
     multiple = false;
-    extra.clear();
     correctedLineNumber = 0;
     hitCount = 0;
 }

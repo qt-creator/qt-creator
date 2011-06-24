@@ -165,7 +165,7 @@ QDataStream &operator>>(QDataStream &stream, BreakpointResponse &s)
 {
     int majorPart;
     stream >> majorPart;
-    s.id = BreakpointId(majorPart);
+    s.id = BreakpointResponseId(majorPart);
     stream >> s.condition;
     stream >> s.ignoreCount;
     stream >> s.fileName;

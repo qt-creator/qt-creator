@@ -296,7 +296,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
         return;
 
     BreakHandler *handler = breakHandler();
-    BreakpointIds ids = handler->engineBreakpointIds(d->engine);
+    BreakpointModelIds ids = handler->engineBreakpointIds(d->engine);
     if (ids.isEmpty())
         return;
 
@@ -305,7 +305,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
     foreach (TextEditor::ITextMark *marker, d->breakpointMarks)
         d->editor->markableInterface()->removeMark(marker);
     d->breakpointMarks.clear();
-    foreach (BreakpointId id, ids) {
+    foreach (BreakpointModelId id, ids) {
         const quint64 address = handler->response(id).address;
         if (!address)
             continue;

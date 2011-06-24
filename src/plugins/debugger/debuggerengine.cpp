@@ -1091,7 +1091,7 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     if (state == DebuggerFinished) {
         // Give up ownership on claimed breakpoints.
         BreakHandler *handler = breakHandler();
-        foreach (BreakpointId id, handler->engineBreakpointIds(this))
+        foreach (BreakpointModelId id, handler->engineBreakpointIds(this))
             handler->notifyBreakpointReleased(id);
     }
 
@@ -1345,14 +1345,14 @@ void DebuggerEngine::attemptBreakpointSynchronization()
 
     BreakHandler *handler = breakHandler();
 
-    foreach (BreakpointId id, handler->unclaimedBreakpointIds()) {
+    foreach (BreakpointModelId id, handler->unclaimedBreakpointIds()) {
         // Take ownership of the breakpoint. Requests insertion.
         if (acceptsBreakpoint(id))
             handler->setEngine(id, this);
     }
 
     bool done = true;
-    foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
+    foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
         switch (handler->state(id)) {
         case BreakpointNew:
             // Should not happen once claimed.
@@ -1392,21 +1392,21 @@ void DebuggerEngine::attemptBreakpointSynchronization()
         d->m_disassemblerAgent.updateBreakpointMarkers();
 }
 
-void DebuggerEngine::insertBreakpoint(BreakpointId id)
+void DebuggerEngine::insertBreakpoint(BreakpointModelId id)
 {
     BreakpointState state = breakHandler()->state(id);
     QTC_ASSERT(state == BreakpointInsertRequested, qDebug() << id << this << state);
     QTC_ASSERT(false, /**/);
 }
 
-void DebuggerEngine::removeBreakpoint(BreakpointId id)
+void DebuggerEngine::removeBreakpoint(BreakpointModelId id)
 {
     BreakpointState state = breakHandler()->state(id);
     QTC_ASSERT(state == BreakpointRemoveRequested, qDebug() << id << this << state);
     QTC_ASSERT(false, /**/);
 }
 
-void DebuggerEngine::changeBreakpoint(BreakpointId id)
+void DebuggerEngine::changeBreakpoint(BreakpointModelId id)
 {
     BreakpointState state = breakHandler()->state(id);
     QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << id << this << state);
@@ -1492,7 +1492,7 @@ bool DebuggerEngine::isDying() const
     return targetState() == DebuggerFinished;
 }
 
-QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
+QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointModelId id,
     const int number, const QString &expr)
 {
     return id
@@ -1502,7 +1502,7 @@ QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
             .arg(number).arg(expr);
 }
 
-QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
+QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointModelId id,
     const int number, const QString &expr, const QString &threadId)
 {
     return id
@@ -1512,7 +1512,7 @@ QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointId id,
             .arg(number).arg(expr).arg(threadId);
 }
 
-QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
+QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointModelId id,
     const int number, quint64 address)
 {
     return id
@@ -1522,7 +1522,7 @@ QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
             .arg(number).arg(address, 0, 16);
 }
 
-QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
+QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointModelId id,
     const int number, quint64 address, const QString &threadId)
 {
     return id
@@ -1532,7 +1532,7 @@ QString DebuggerEngine::msgWatchpointByAddressTriggered(BreakpointId id,
             .arg(id.toString()).arg(number).arg(address, 0, 16).arg(threadId);
 }
 
-QString DebuggerEngine::msgBreakpointTriggered(BreakpointId id,
+QString DebuggerEngine::msgBreakpointTriggered(BreakpointModelId id,
         const int number, const QString &threadId)
 {
     return id

@@ -1049,7 +1049,7 @@ void WatchWindow::setWatchpointAtAddress(quint64 address, unsigned size)
     BreakpointParameters data(WatchpointAtAddress);
     data.address = address;
     data.size = size;
-    BreakpointId id = breakHandler()->findWatchpoint(data);
+    BreakpointModelId id = breakHandler()->findWatchpoint(data);
     if (id) {
         qDebug() << "WATCHPOINT EXISTS";
         //   removeBreakpoint(index);
@@ -1062,7 +1062,7 @@ void WatchWindow::setWatchpointAtExpression(const QString &exp)
 {
     BreakpointParameters data(WatchpointAtExpression);
     data.expression = exp;
-    BreakpointId id = breakHandler()->findWatchpoint(data);
+    BreakpointModelId id = breakHandler()->findWatchpoint(data);
     if (id) {
         qDebug() << "WATCHPOINT EXISTS";
         //   removeBreakpoint(index);

@@ -46,7 +46,7 @@
 namespace Debugger {
 namespace Internal {
 
-BreakpointMarker::BreakpointMarker(BreakpointId id,
+BreakpointMarker::BreakpointMarker(BreakpointModelId id,
         const QString &fileName, int lineNumber)
   : m_id(id)
 {

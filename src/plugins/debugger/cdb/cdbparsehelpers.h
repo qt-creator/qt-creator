@@ -65,11 +65,11 @@ QString cdbSourcePathMapping(QString fileName,
 // Convert breakpoint in CDB syntax (applying source path mappings using native paths).
 QByteArray cdbAddBreakpointCommand(const BreakpointParameters &d,
                                    const QList<QPair<QString, QString> > &sourcePathMapping,
-                                   BreakpointId id = BreakpointId(-1), bool oneshot = false);
+                                   BreakpointModelId id = BreakpointModelId(-1), bool oneshot = false);
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
-BreakpointId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r, QString *expression = 0);
+BreakpointResponseId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r, QString *expression = 0);
 
 // Convert a CDB integer value: '00000000`0012a290' -> '12a290', '0n10' ->'10'
 QByteArray fixCdbIntegerValue(QByteArray t, bool stripLeadingZeros = false, int *basePtr = 0);

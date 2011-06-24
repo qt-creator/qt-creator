@@ -495,7 +495,7 @@ void BreakWindow::keyPressEvent(QKeyEvent *ev)
         QModelIndexList si = sm->selectedIndexes();
         if (si.isEmpty())
             si.append(currentIndex());
-        const BreakpointIds ids = breakHandler()->findBreakpointsByIndex(si);
+        const BreakpointModelIds ids = breakHandler()->findBreakpointsByIndex(si);
         int row = qMin(model()->rowCount() - ids.size() - 1, currentIndex().row());
         deleteBreakpoints(ids);
         setCurrentIndex(si.at(0).sibling(row, 0));
@@ -512,8 +512,8 @@ void BreakWindow::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     QModelIndex indexUnderMouse = indexAt(ev->pos());
     if (indexUnderMouse.isValid() && indexUnderMouse.column() >= 4) {
-        BreakpointId id = breakHandler()->findBreakpointByIndex(indexUnderMouse);
-        editBreakpoints(BreakpointIds() << id);
+        BreakpointModelId id = breakHandler()->findBreakpointByIndex(indexUnderMouse);
+        editBreakpoints(BreakpointModelIds() << id);
     }
     QTreeView::mouseDoubleClickEvent(ev);
 }
@@ -538,7 +538,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         selectedIndices.append(indexUnderMouse);
 
     BreakHandler *handler = breakHandler();
-    BreakpointIds selectedIds = handler->findBreakpointsByIndex(selectedIndices);
+    BreakpointModelIds selectedIds = handler->findBreakpointsByIndex(selectedIndices);
 
     const int rowCount = model()->rowCount();
     unsigned engineCapabilities = AllDebuggerCapabilities;
@@ -554,7 +554,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     // Delete by file: Find indices of breakpoints of the same file.
     QAction *deleteByFileAction = 0;
-    BreakpointIds breakpointsInFile;
+    BreakpointModelIds breakpointsInFile;
     if (indexUnderMouse.isValid()) {
         const QModelIndex index = indexUnderMouse.sibling(indexUnderMouse.row(), 2);
         const QString file = index.data().toString();
@@ -648,21 +648,21 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
         addBreakpoint();
 }
 
-void BreakWindow::setBreakpointsEnabled(const BreakpointIds &ids, bool enabled)
+void BreakWindow::setBreakpointsEnabled(const BreakpointModelIds &ids, bool enabled)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const BreakpointId id, ids)
+    foreach (const BreakpointModelId id, ids)
         handler->setEnabled(id, enabled);
 }
 
-void BreakWindow::deleteBreakpoints(const BreakpointIds &ids)
+void BreakWindow::deleteBreakpoints(const BreakpointModelIds &ids)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const BreakpointId id, ids)
+    foreach (const BreakpointModelId id, ids)
        handler->removeBreakpoint(id);
 }
 
-void BreakWindow::editBreakpoint(BreakpointId id, QWidget *parent)
+void BreakWindow::editBreakpoint(BreakpointModelId id, QWidget *parent)
 {
     BreakpointParameters data = breakHandler()->breakpointData(id);
     unsigned engineCapabilities = AllDebuggerCapabilities;
@@ -684,11 +684,11 @@ void BreakWindow::addBreakpoint()
         breakHandler()->appendBreakpoint(data);
 }
 
-void BreakWindow::editBreakpoints(const BreakpointIds &ids)
+void BreakWindow::editBreakpoints(const BreakpointModelIds &ids)
 {
     QTC_ASSERT(!ids.isEmpty(), return);
 
-    const BreakpointId id = ids.at(0);
+    const BreakpointModelId id = ids.at(0);
 
     if (ids.size() == 1) {
         editBreakpoint(id, this);
@@ -719,17 +719,17 @@ void BreakWindow::editBreakpoints(const BreakpointIds &ids)
             && newThreadSpec == oldThreadSpec)
         return;
 
-    foreach (const BreakpointId id, ids) {
+    foreach (const BreakpointModelId id, ids) {
         handler->setCondition(id, newCondition.toLatin1());
         handler->setIgnoreCount(id, newIgnoreCount);
         handler->setThreadSpec(id, newThreadSpec);
     }
 }
 
-void BreakWindow::associateBreakpoint(const BreakpointIds &ids, int threadId)
+void BreakWindow::associateBreakpoint(const BreakpointModelIds &ids, int threadId)
 {
     BreakHandler *handler = breakHandler();
-    foreach (const BreakpointId id, ids)
+    foreach (const BreakpointModelId id, ids)
         handler->setThreadSpec(id, threadId);
 }
 

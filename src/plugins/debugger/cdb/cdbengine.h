@@ -120,7 +120,7 @@ public:
     virtual void selectThread(int index);
 
     virtual bool stateAcceptsBreakpointChanges() const;
-    virtual bool acceptsBreakpoint(BreakpointId id) const;
+    virtual bool acceptsBreakpoint(BreakpointModelId id) const;
     virtual void attemptBreakpointSynchronization();
 
     virtual void fetchDisassembler(DisassemblerAgent *agent);
@@ -165,7 +165,7 @@ private slots:
     void consoleStubExited();
 
 private:
-    typedef QHash<BreakpointId, BreakpointResponse> PendingBreakPointMap;
+    typedef QHash<BreakpointModelId, BreakpointResponse> PendingBreakPointMap;
     typedef QPair<QString, QString> SourcePathMapping;
     struct NormalizedSourceFileName // Struct for caching mapped/normalized source files.
     {

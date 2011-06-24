@@ -483,7 +483,7 @@ public:
     void shutdownEngine() {}
     void shutdownInferior() {}
     unsigned debuggerCapabilities() const { return AddWatcherCapability; }
-    bool acceptsBreakpoint(BreakpointId) const { return false; }
+    bool acceptsBreakpoint(BreakpointModelId) const { return false; }
     bool acceptsDebuggerCommands() const { return false; }
 };
 
@@ -608,7 +608,7 @@ public slots:
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        BreakpointId id = act->data().value<BreakpointId>();
+        BreakpointModelId id = act->data().value<BreakpointModelId>();
         m_breakHandler->removeBreakpoint(id);
      }
 
@@ -616,7 +616,7 @@ public slots:
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        BreakpointId id = act->data().value<BreakpointId>();
+        BreakpointModelId id = act->data().value<BreakpointModelId>();
         breakHandler()->setEnabled(id, true);
     }
 
@@ -624,7 +624,7 @@ public slots:
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        BreakpointId id = act->data().value<BreakpointId>();;
+        BreakpointModelId id = act->data().value<BreakpointModelId>();;
         breakHandler()->setEnabled(id, false);
     }
 
@@ -872,7 +872,7 @@ public slots:
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        const BreakpointId id = act->data().value<BreakpointId>();
+        const BreakpointModelId id = act->data().value<BreakpointModelId>();
         QTC_ASSERT(id > 0, return);
         BreakWindow::editBreakpoint(id, mainWindow());
     }
@@ -1642,7 +1642,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     args.lineNumber = lineNumber;
     bool contextUsable = true;
 
-    BreakpointId id = BreakpointId();
+    BreakpointModelId id = BreakpointModelId();
     if (editor->property("DisassemblerView").toBool()) {
         args.fileName = editor->file()->fileName();
         QString line = editor->contents()
@@ -1744,7 +1744,7 @@ void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileNam
     int lineNumber)
 {
     BreakHandler *handler = m_breakHandler;
-    BreakpointId id =
+    BreakpointModelId id =
         handler->findBreakpointByFileAndLine(fileName, lineNumber, true);
     if (!id)
         id = handler->findBreakpointByFileAndLine(fileName, lineNumber, false);
@@ -1762,7 +1762,7 @@ void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileNam
 void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address)
 {
     BreakHandler *handler = m_breakHandler;
-    BreakpointId id = handler->findBreakpointByAddress(address);
+    BreakpointModelId id = handler->findBreakpointByAddress(address);
 
     if (id) {
         handler->removeBreakpoint(id);

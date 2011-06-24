@@ -279,7 +279,7 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
+                BreakpointModelId id;
                 BreakpointParameters d;
                 s >> id;
                 s >> d;
@@ -290,7 +290,7 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
+                BreakpointModelId id;
                 s >> id;
                 removeBreakpoint(id);
             }
@@ -299,7 +299,7 @@ void IPCEngineGuest::rpcCallback(quint64 f, QByteArray payload)
             {
                 QDataStream s(payload);
                 SET_NATIVE_BYTE_ORDER(s);
-                BreakpointId id;
+                BreakpointModelId id;
                 BreakpointParameters d;
                 s >> id;
                 s >> d;
@@ -529,7 +529,7 @@ void IPCEngineGuest::disassembled(quint64 pc, const DisassemblerLines &da)
     rpcCall(Disassembled, p);
 }
 
-void IPCEngineGuest::notifyAddBreakpointOk(BreakpointId id)
+void IPCEngineGuest::notifyAddBreakpointOk(BreakpointModelId id)
 {
     QByteArray p;
     {
@@ -540,7 +540,7 @@ void IPCEngineGuest::notifyAddBreakpointOk(BreakpointId id)
     rpcCall(NotifyAddBreakpointOk, p);
 }
 
-void IPCEngineGuest::notifyAddBreakpointFailed(BreakpointId id)
+void IPCEngineGuest::notifyAddBreakpointFailed(BreakpointModelId id)
 {
     QByteArray p;
     {
@@ -551,7 +551,7 @@ void IPCEngineGuest::notifyAddBreakpointFailed(BreakpointId id)
     rpcCall(NotifyAddBreakpointFailed, p);
 }
 
-void IPCEngineGuest::notifyRemoveBreakpointOk(BreakpointId id)
+void IPCEngineGuest::notifyRemoveBreakpointOk(BreakpointModelId id)
 {
     QByteArray p;
     {
@@ -562,7 +562,7 @@ void IPCEngineGuest::notifyRemoveBreakpointOk(BreakpointId id)
     rpcCall(NotifyRemoveBreakpointOk, p);
 }
 
-void IPCEngineGuest::notifyRemoveBreakpointFailed(BreakpointId id)
+void IPCEngineGuest::notifyRemoveBreakpointFailed(BreakpointModelId id)
 {
     QByteArray p;
     {
@@ -573,7 +573,7 @@ void IPCEngineGuest::notifyRemoveBreakpointFailed(BreakpointId id)
     rpcCall(NotifyRemoveBreakpointFailed, p);
 }
 
-void IPCEngineGuest::notifyChangeBreakpointOk(BreakpointId id)
+void IPCEngineGuest::notifyChangeBreakpointOk(BreakpointModelId id)
 {
     QByteArray p;
     {
@@ -584,7 +584,7 @@ void IPCEngineGuest::notifyChangeBreakpointOk(BreakpointId id)
     rpcCall(NotifyChangeBreakpointOk, p);
 }
 
-void IPCEngineGuest::notifyChangeBreakpointFailed(BreakpointId id)
+void IPCEngineGuest::notifyChangeBreakpointFailed(BreakpointModelId id)
 {
     QByteArray p;
     {
@@ -595,7 +595,7 @@ void IPCEngineGuest::notifyChangeBreakpointFailed(BreakpointId id)
     rpcCall(NotifyChangeBreakpointFailed, p);
 }
 
-void IPCEngineGuest::notifyBreakpointAdjusted(BreakpointId id,
+void IPCEngineGuest::notifyBreakpointAdjusted(BreakpointModelId id,
     const BreakpointParameters &bp)
 {
     QByteArray p;

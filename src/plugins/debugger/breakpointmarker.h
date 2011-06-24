@@ -46,13 +46,13 @@ class BreakpointMarker : public TextEditor::BaseTextMark
     Q_OBJECT
 
 public:
-    BreakpointMarker(BreakpointId id, const QString &fileName, int lineNumber);
+    BreakpointMarker(BreakpointModelId id, const QString &fileName, int lineNumber);
     ~BreakpointMarker();
     void removedFromEditor();
     void updateLineNumber(int lineNumber);
 
 private:
-    BreakpointId m_id;
+    BreakpointModelId m_id;
     friend class BreakHandler;
 };
 

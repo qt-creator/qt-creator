@@ -41,13 +41,19 @@
 namespace Debugger {
 namespace Internal {
 
-class BreakpointId
+//////////////////////////////////////////////////////////////////
+//
+// BreakpointModelId
+//
+//////////////////////////////////////////////////////////////////
+
+class BreakpointModelId
 {
 public:
-    BreakpointId() { m_majorPart = m_minorPart = 0; }
-    explicit BreakpointId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
-    BreakpointId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
-    explicit BreakpointId(const QByteArray &ba); // "21.2"
+    BreakpointModelId() { m_majorPart = m_minorPart = 0; }
+    explicit BreakpointModelId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
+    BreakpointModelId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
+    explicit BreakpointModelId(const QByteArray &ba); // "21.2"
 
     bool isValid() const { return m_majorPart != 0; }
     bool isMajor() const { return m_majorPart != 0 && m_minorPart == 0; }
@@ -57,22 +63,60 @@ public:
     quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
     QByteArray toByteArray() const;
     QString toString() const;
-    bool operator==(const BreakpointId &id) const
+    bool operator==(const BreakpointModelId &id) const
         { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
     quint16 majorPart() const { return m_majorPart; }
     quint16 minorPart() const { return m_minorPart; }
-    BreakpointId parent() const;
-    BreakpointId child(int row) const;
+    BreakpointModelId parent() const;
+    BreakpointModelId child(int row) const;
 
-    static BreakpointId fromInternalId(quint32 id)
-        { return BreakpointId(id & 0xff, id >> 16); }
+    static BreakpointModelId fromInternalId(quint32 id)
+        { return BreakpointModelId(id & 0xff, id >> 16); }
 
 private:
     quint16 m_majorPart;
     quint16 m_minorPart;
 };
 
-QDebug operator<<(QDebug d, const BreakpointId &id);
+QDebug operator<<(QDebug d, const BreakpointModelId &id);
+
+
+//////////////////////////////////////////////////////////////////
+//
+// BreakpointResponseId
+//
+//////////////////////////////////////////////////////////////////
+
+class BreakpointResponseId
+{
+public:
+    BreakpointResponseId() { m_majorPart = m_minorPart = 0; }
+    explicit BreakpointResponseId(quint16 ma) { m_majorPart = ma; m_minorPart = 0; }
+    BreakpointResponseId(quint16 ma, quint16 mi) { m_majorPart = ma; m_minorPart = mi; }
+    explicit BreakpointResponseId(const QByteArray &ba); // "21.2"
+
+    bool isValid() const { return m_majorPart != 0; }
+    bool isMajor() const { return m_majorPart != 0 && m_minorPart == 0; }
+    bool isMinor() const { return m_majorPart != 0 && m_minorPart != 0; }
+    bool operator!() const { return !isValid(); }
+    operator const void*() const { return isValid() ? this : 0; }
+    quint32 toInternalId() const { return m_majorPart | (m_minorPart << 16); }
+    QByteArray toByteArray() const;
+    QString toString() const;
+    bool operator==(const BreakpointResponseId &id) const
+        { return m_majorPart == id.m_majorPart && m_minorPart == id.m_minorPart; }
+    quint16 majorPart() const { return m_majorPart; }
+    quint16 minorPart() const { return m_minorPart; }
+    BreakpointResponseId parent() const;
+    BreakpointResponseId child(int row) const;
+
+private:
+    quint16 m_majorPart;
+    quint16 m_minorPart;
+};
+
+QDebug operator<<(QDebug d, const BreakpointModelId &id);
+QDebug operator<<(QDebug d, const BreakpointResponseId &id);
 
 //////////////////////////////////////////////////////////////////
 //
@@ -197,18 +241,17 @@ public:
 public:
     void fromParameters(const BreakpointParameters &p);
 
-    BreakpointId id;        //!< Breakpoint number assigned by the debugger engine.
-    bool pending;           //!< Breakpoint not fully resolved.
-    int hitCount;           //!< Number of times this has been hit.
-    QString fullName;       //!< Full file name acknowledged by the debugger engine.
-    bool multiple;          //!< Happens in constructors/gdb.
-    QByteArray extra;       //!< gdb: <PENDING>, <MULTIPLE>
+    BreakpointResponseId id; //!< Breakpoint number assigned by the debugger engine.
+    bool pending;            //!< Breakpoint not fully resolved.
+    int hitCount;            //!< Number of times this has been hit.
+    QString fullName;        //!< Full file name acknowledged by the debugger engine.
+    bool multiple;           //!< Happens in constructors/gdb.
     int correctedLineNumber; //!< Line number as seen by gdb.
 };
 
-typedef QList<BreakpointId> BreakpointIds;
+typedef QList<BreakpointModelId> BreakpointModelIds;
 
-inline uint qHash(const Debugger::Internal::BreakpointId &id)
+inline uint qHash(const Debugger::Internal::BreakpointModelId &id)
 {
     return id.toInternalId();
 }
@@ -216,7 +259,8 @@ inline uint qHash(const Debugger::Internal::BreakpointId &id)
 } // namespace Internal
 } // namespace Debugger
 
-Q_DECLARE_METATYPE(Debugger::Internal::BreakpointId)
+Q_DECLARE_METATYPE(Debugger::Internal::BreakpointModelId)
+Q_DECLARE_METATYPE(Debugger::Internal::BreakpointResponseId)
 
 
 #endif // DEBUGGER_BREAKPOINT_H

@@ -135,7 +135,7 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
 
 QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
                                    const QList<QPair<QString, QString> > &sourcePathMapping,
-                                   BreakpointId id /* = BreakpointId() */,
+                                   BreakpointModelId id /* = BreakpointId() */,
                                    bool oneshot)
 {
     const BreakpointParameters bp = fixWinMSVCBreakpoint(bpIn);
@@ -298,19 +298,19 @@ static inline bool gdbmiChildToBool(const GdbMi &parent, const char *childName, 
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
-BreakpointId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
+BreakpointResponseId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
                              QString *expression /*  = 0 */)
 {
-    BreakpointId id = BreakpointId(-1);
+    BreakpointResponseId id = BreakpointResponseId(-1);
     int majorPart = 0;
     gdbmiChildToInt(gdbmi, "number", &majorPart);
     gdbmiChildToBool(gdbmi, "enabled", &(r->enabled));
     gdbmiChildToBool(gdbmi, "deferred", &(r->pending));
-    r->id = BreakpointId(majorPart);
+    r->id = BreakpointResponseId(majorPart);
     const GdbMi idG = gdbmi.findChild("id");
     if (idG.isValid()) { // Might not be valid if there is not id
         bool ok;
-        const BreakpointId cid(idG.data().toInt(&ok));
+        const BreakpointResponseId cid(idG.data().toInt(&ok));
         if (ok)
             id = cid;
     }

@@ -90,7 +90,7 @@ private:
     void activateFrame(int index);
     void selectThread(int index);
 
-    bool acceptsBreakpoint(BreakpointId id) const;
+    bool acceptsBreakpoint(BreakpointModelId id) const;
     void attemptBreakpointSynchronization();
 
     void assignValueInDebugger(const WatchData *w,

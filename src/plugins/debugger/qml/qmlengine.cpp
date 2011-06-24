@@ -578,14 +578,14 @@ void QmlEngine::attemptBreakpointSynchronization()
 {
     BreakHandler *handler = breakHandler();
 
-    foreach (BreakpointId id, handler->unclaimedBreakpointIds()) {
+    foreach (BreakpointModelId id, handler->unclaimedBreakpointIds()) {
         // Take ownership of the breakpoint. Requests insertion.
         if (acceptsBreakpoint(id))
             handler->setEngine(id, this);
     }
 
     JSAgentBreakpoints breakpoints;
-    foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
+    foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
         if (handler->state(id) == BreakpointRemoveRequested) {
             handler->notifyBreakpointRemoveProceeding(id);
             handler->notifyBreakpointRemoveOk(id);
@@ -620,7 +620,7 @@ void QmlEngine::attemptBreakpointSynchronization()
     sendMessage(reply);
 }
 
-bool QmlEngine::acceptsBreakpoint(BreakpointId id) const
+bool QmlEngine::acceptsBreakpoint(BreakpointModelId id) const
 {
     return !DebuggerEngine::isCppBreakpoint(breakHandler()->breakpointData(id));
 }
@@ -890,7 +890,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
             }
 
             BreakHandler *handler = breakHandler();
-            foreach (BreakpointId id, handler->engineBreakpointIds(this)) {
+            foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
                 QString processedFilename = handler->fileName(id);
                 if (processedFilename == file && handler->lineNumber(id) == line) {
                     QTC_ASSERT(handler->state(id) == BreakpointInserted,/**/);

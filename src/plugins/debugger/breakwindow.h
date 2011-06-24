@@ -47,7 +47,7 @@ class BreakWindow : public QTreeView
 public:
     explicit BreakWindow(QWidget *parent = 0);
 
-    static void editBreakpoint(BreakpointId id, QWidget *parent);
+    static void editBreakpoint(BreakpointModelId id, QWidget *parent);
     void setModel(QAbstractItemModel *model);
 
 private slots:
@@ -64,11 +64,11 @@ private:
     void keyPressEvent(QKeyEvent *ev);
     void mouseDoubleClickEvent(QMouseEvent *ev);
 
-    void deleteBreakpoints(const BreakpointIds &ids);
+    void deleteBreakpoints(const BreakpointModelIds &ids);
     void addBreakpoint();
-    void editBreakpoints(const BreakpointIds &ids);
-    void associateBreakpoint(const BreakpointIds &ids, int thread);
-    void setBreakpointsEnabled(const BreakpointIds &ids, bool enabled);
+    void editBreakpoints(const BreakpointModelIds &ids);
+    void associateBreakpoint(const BreakpointModelIds &ids, int thread);
+    void setBreakpointsEnabled(const BreakpointModelIds &ids, bool enabled);
 };
 
 } // namespace Internal

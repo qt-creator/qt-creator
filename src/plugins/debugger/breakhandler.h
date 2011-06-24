@@ -73,20 +73,20 @@ public:
     void handleAlienBreakpoint(const BreakpointResponse &response,
         DebuggerEngine *engine);
     void insertSubBreakpoint(const BreakpointResponse &data);
-    void removeAlienBreakpoint(BreakpointId id);
+    void removeAlienBreakpoint(BreakpointModelId id);
 
-    BreakpointIds allBreakpointIds() const;
-    BreakpointIds engineBreakpointIds(DebuggerEngine *engine) const;
-    BreakpointIds unclaimedBreakpointIds() const;
+    BreakpointModelIds allBreakpointIds() const;
+    BreakpointModelIds engineBreakpointIds(DebuggerEngine *engine) const;
+    BreakpointModelIds unclaimedBreakpointIds() const;
     int size() const { return m_storage.size(); }
 
     // Find a breakpoint matching approximately the data in needle.
-    BreakpointId findSimilarBreakpoint(const BreakpointResponse &needle) const;
-    BreakpointId findBreakpointByNumber(int bpNumber) const;
-    BreakpointId findWatchpoint(const BreakpointParameters &data) const;
-    BreakpointId findBreakpointByFunction(const QString &functionName) const;
-    BreakpointId findBreakpointByIndex(const QModelIndex &index) const;
-    BreakpointIds findBreakpointsByIndex(const QList<QModelIndex> &list) const;
+    BreakpointModelId findSimilarBreakpoint(const BreakpointResponse &needle) const;
+    BreakpointModelId findBreakpointByResponseId(const BreakpointResponseId &resultId) const;
+    BreakpointModelId findWatchpoint(const BreakpointParameters &data) const;
+    BreakpointModelId findBreakpointByFunction(const QString &functionName) const;
+    BreakpointModelId findBreakpointByIndex(const QModelIndex &index) const;
+    BreakpointModelIds findBreakpointsByIndex(const QList<QModelIndex> &list) const;
     void updateMarkers();
 
     static QIcon breakpointIcon();
@@ -96,69 +96,69 @@ public:
     static QIcon watchpointIcon();
     static QIcon tracepointIcon();
 
-    BreakpointId findBreakpointByFileAndLine(const QString &fileName,
+    BreakpointModelId findBreakpointByFileAndLine(const QString &fileName,
         int lineNumber, bool useMarkerPosition = true);
-    BreakpointId findBreakpointByAddress(quint64 address) const;
+    BreakpointModelId findBreakpointByAddress(quint64 address) const;
 
     void breakByFunction(const QString &functionName);
-    void removeBreakpoint(BreakpointId id);
-    QIcon icon(BreakpointId id) const;
-    void gotoLocation(BreakpointId id) const;
+    void removeBreakpoint(BreakpointModelId id);
+    QIcon icon(BreakpointModelId id) const;
+    void gotoLocation(BreakpointModelId id) const;
 
     // Getter retrieves property value.
     // Setter sets property value and triggers update if changed.
-    BreakpointPathUsage pathUsage(BreakpointId id) const;
-    void setPathUsage(BreakpointId, const BreakpointPathUsage &u);
-    QByteArray condition(BreakpointId id) const;
-    void setCondition(BreakpointId, const QByteArray &condition);
-    int ignoreCount(BreakpointId id) const;
-    void setIgnoreCount(BreakpointId, const int &count);
-    int threadSpec(BreakpointId id) const;
-    void setThreadSpec(BreakpointId, const int&spec);
-    QString fileName(BreakpointId id) const;
-    void setFileName(BreakpointId, const QString &fileName);
-    QString functionName(BreakpointId id) const;
-    void setFunctionName(BreakpointId, const QString &functionName);
-    QString expression(BreakpointId id) const;
-    void setExpression(BreakpointId, const QString &expression);
-    BreakpointType type(BreakpointId id) const;
-    void setType(BreakpointId id, const BreakpointType &type);
-    quint64 address(BreakpointId id) const;
-    void setAddress(BreakpointId id, const quint64 &address);
-    int lineNumber(BreakpointId id) const;
-    void changeBreakpointData(BreakpointId id, const BreakpointParameters &data,
+    BreakpointPathUsage pathUsage(BreakpointModelId id) const;
+    void setPathUsage(BreakpointModelId, const BreakpointPathUsage &u);
+    QByteArray condition(BreakpointModelId id) const;
+    void setCondition(BreakpointModelId, const QByteArray &condition);
+    int ignoreCount(BreakpointModelId id) const;
+    void setIgnoreCount(BreakpointModelId, const int &count);
+    int threadSpec(BreakpointModelId id) const;
+    void setThreadSpec(BreakpointModelId, const int&spec);
+    QString fileName(BreakpointModelId id) const;
+    void setFileName(BreakpointModelId, const QString &fileName);
+    QString functionName(BreakpointModelId id) const;
+    void setFunctionName(BreakpointModelId, const QString &functionName);
+    QString expression(BreakpointModelId id) const;
+    void setExpression(BreakpointModelId, const QString &expression);
+    BreakpointType type(BreakpointModelId id) const;
+    void setType(BreakpointModelId id, const BreakpointType &type);
+    quint64 address(BreakpointModelId id) const;
+    void setAddress(BreakpointModelId id, const quint64 &address);
+    int lineNumber(BreakpointModelId id) const;
+    void changeBreakpointData(BreakpointModelId id, const BreakpointParameters &data,
         BreakpointParts parts);
-    const BreakpointParameters &breakpointData(BreakpointId id) const;
-    BreakpointState state(BreakpointId id) const;
-    bool isEnabled(BreakpointId id) const;
-    void setEnabled(BreakpointId id, bool on);
-    void updateLineNumberFromMarker(BreakpointId id, int lineNumber);
-    void setMarkerFileAndLine(BreakpointId id,
+    const BreakpointParameters &breakpointData(BreakpointModelId id) const;
+    BreakpointState state(BreakpointModelId id) const;
+    bool isEnabled(BreakpointModelId id) const;
+    void setEnabled(BreakpointModelId id, bool on);
+    void updateLineNumberFromMarker(BreakpointModelId id, int lineNumber);
+    void setMarkerFileAndLine(BreakpointModelId id,
         const QString &fileName, int lineNumber);
-    bool isWatchpoint(BreakpointId id) const;
-    bool isTracepoint(BreakpointId id) const;
-    void setTracepoint(BreakpointId, bool on);
-    DebuggerEngine *engine(BreakpointId id) const;
-    void setEngine(BreakpointId id, DebuggerEngine *engine);
-    const BreakpointResponse &response(BreakpointId id) const;
-    void setResponse(BreakpointId id, const BreakpointResponse &data);
-    bool needsChange(BreakpointId id) const;
+    bool isWatchpoint(BreakpointModelId id) const;
+    bool isTracepoint(BreakpointModelId id) const;
+    void setTracepoint(BreakpointModelId, bool on);
+    DebuggerEngine *engine(BreakpointModelId id) const;
+    void setEngine(BreakpointModelId id, DebuggerEngine *engine);
+    const BreakpointResponse &response(BreakpointModelId id) const;
+    void setResponse(BreakpointModelId id, const BreakpointResponse &data);
+    bool needsChange(BreakpointModelId id) const;
 
     // State transitions.
-    void notifyBreakpointChangeAfterInsertNeeded(BreakpointId id);
-    void notifyBreakpointInsertProceeding(BreakpointId id);
-    void notifyBreakpointInsertOk(BreakpointId id);
-    void notifyBreakpointInsertFailed(BreakpointId id);
-    void notifyBreakpointChangeOk(BreakpointId id);
-    void notifyBreakpointChangeProceeding(BreakpointId id);
-    void notifyBreakpointChangeFailed(BreakpointId id);
-    void notifyBreakpointPending(BreakpointId id);
-    void notifyBreakpointRemoveProceeding(BreakpointId id);
-    void notifyBreakpointRemoveOk(BreakpointId id);
-    void notifyBreakpointRemoveFailed(BreakpointId id);
-    void notifyBreakpointReleased(BreakpointId id);
-    void notifyBreakpointNeedsReinsertion(BreakpointId id);
-    void notifyBreakpointAdjusted(BreakpointId id,
+    void notifyBreakpointChangeAfterInsertNeeded(BreakpointModelId id);
+    void notifyBreakpointInsertProceeding(BreakpointModelId id);
+    void notifyBreakpointInsertOk(BreakpointModelId id);
+    void notifyBreakpointInsertFailed(BreakpointModelId id);
+    void notifyBreakpointChangeOk(BreakpointModelId id);
+    void notifyBreakpointChangeProceeding(BreakpointModelId id);
+    void notifyBreakpointChangeFailed(BreakpointModelId id);
+    void notifyBreakpointPending(BreakpointModelId id);
+    void notifyBreakpointRemoveProceeding(BreakpointModelId id);
+    void notifyBreakpointRemoveOk(BreakpointModelId id);
+    void notifyBreakpointRemoveFailed(BreakpointModelId id);
+    void notifyBreakpointReleased(BreakpointModelId id);
+    void notifyBreakpointNeedsReinsertion(BreakpointModelId id);
+    void notifyBreakpointAdjusted(BreakpointModelId id,
             const BreakpointParameters &data);
 
     static QString displayFromThreadSpec(int spec);
@@ -176,14 +176,14 @@ private:
     QModelIndex createIndex(int row, int column, quint32 id) const;
     QModelIndex createIndex(int row, int column, void *ptr) const;
 
-    int indexOf(BreakpointId id) const;
-    BreakpointId at(int index) const;
-    bool isEngineRunning(BreakpointId id) const;
-    void setState(BreakpointId id, BreakpointState state);
+    int indexOf(BreakpointModelId id) const;
+    BreakpointModelId at(int index) const;
+    bool isEngineRunning(BreakpointModelId id) const;
+    void setState(BreakpointModelId id, BreakpointState state);
     void loadBreakpoints();
     void saveBreakpoints();
-    void updateMarker(BreakpointId id);
-    void cleanupBreakpoint(BreakpointId id);
+    void updateMarker(BreakpointModelId id);
+    void cleanupBreakpoint(BreakpointModelId id);
 
     struct BreakpointItem
     {
@@ -205,7 +205,7 @@ private:
         BreakpointMarker *marker;
         QList<BreakpointResponse> subItems;
     };
-    typedef QHash<BreakpointId, BreakpointItem> BreakpointStorage;
+    typedef QHash<BreakpointModelId, BreakpointItem> BreakpointStorage;
     typedef BreakpointStorage::ConstIterator ConstIterator;
     typedef BreakpointStorage::Iterator Iterator;
     BreakpointStorage m_storage;

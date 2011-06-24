@@ -249,7 +249,7 @@ void DebuggerRunControl::start()
         return;
     }
 
-    foreach (const BreakpointId &id, debuggerCore()->breakHandler()->allBreakpointIds()) {
+    foreach (const BreakpointModelId &id, debuggerCore()->breakHandler()->allBreakpointIds()) {
         if (d->m_engine->breakHandler()->breakpointData(id).enabled
                 && !d->m_engine->acceptsBreakpoint(id)) {
 

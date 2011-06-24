@@ -449,10 +449,10 @@ private: ////////// Inferior Management //////////
 
     // This should be always the last call in a function.
     bool stateAcceptsBreakpointChanges() const;
-    bool acceptsBreakpoint(BreakpointId id) const;
-    void insertBreakpoint(BreakpointId id);
-    void removeBreakpoint(BreakpointId id);
-    void changeBreakpoint(BreakpointId id);
+    bool acceptsBreakpoint(BreakpointModelId id) const;
+    void insertBreakpoint(BreakpointModelId id);
+    void removeBreakpoint(BreakpointModelId id);
+    void changeBreakpoint(BreakpointModelId id);
 
     void executeStep();
     void executeStepOut();
@@ -506,13 +506,13 @@ private: ////////// View & Data Stuff //////////
     void handleWatchInsert(const GdbResponse &response);
     void handleCatchInsert(const GdbResponse &response);
     void handleInfoLine(const GdbResponse &response);
-    void extractDataFromInfoBreak(const QString &output, BreakpointId);
+    void extractDataFromInfoBreak(const QString &output, BreakpointModelId);
     void updateResponse(BreakpointResponse &response, const GdbMi &bkpt);
-    QByteArray breakpointLocation(BreakpointId id); // For gdb/MI.
-    QByteArray breakpointLocation2(BreakpointId id); // For gdb/CLI fallback.
+    QByteArray breakpointLocation(BreakpointModelId id); // For gdb/MI.
+    QByteArray breakpointLocation2(BreakpointModelId id); // For gdb/CLI fallback.
     QString breakLocation(const QString &file) const;
     void reloadBreakListInternal();
-    void attemptAdjustBreakpointLocation(BreakpointId id);
+    void attemptAdjustBreakpointLocation(BreakpointModelId id);
 
     //
     // Modules specific stuff
@@ -718,19 +718,21 @@ private: ////////// View & Data Stuff //////////
     //
     // Qml
     //
-    QHash<int, int> m_qmlBreakpointNumbers;
+    BreakpointResponseId m_qmlBreakpointResponseId1;
+    BreakpointResponseId m_qmlBreakpointResponseId2;
     bool m_preparedForQmlBreak;
     bool setupQmlStep(bool on);
     void handleSetQmlStepBreakpoint(const GdbResponse &response);
-    bool isQmlStepBreakpoint(int bpnr) const;
-    bool isQmlStepBreakpoint1(int bpnr) const;
-    bool isQmlStepBreakpoint2(int bpnr) const;
-    bool isQFatalBreakpoint(int bpnr) const;
+    bool isQmlStepBreakpoint(const BreakpointResponseId &id) const;
+    bool isQmlStepBreakpoint1(const BreakpointResponseId &id) const;
+    bool isQmlStepBreakpoint2(const BreakpointResponseId &id) const;
+    bool isQFatalBreakpoint(const BreakpointResponseId &id) const;
+    bool isHiddenBreakpoint(const BreakpointResponseId &id) const;
 
     // HACK:
     QByteArray m_currentThread;
     QString m_lastWinException;
-    int m_qFatalBreakpointNumber;
+    BreakpointResponseId m_qFatalBreakpointResponseId;
     bool m_actingOnExpectedStop;
 
     QHash<int, QByteArray> m_scheduledTestResponses;

@@ -109,10 +109,10 @@ public:
     void activateFrame(int index);
     void selectThread(int index);
     void fetchDisassembler(DisassemblerAgent *);
-    bool acceptsBreakpoint(BreakpointId) const { return true; } // FIXME
-    void insertBreakpoint(BreakpointId id);
-    void removeBreakpoint(BreakpointId id);
-    void changeBreakpoint(BreakpointId id);
+    bool acceptsBreakpoint(BreakpointModelId) const { return true; } // FIXME
+    void insertBreakpoint(BreakpointModelId id);
+    void removeBreakpoint(BreakpointModelId id);
+    void changeBreakpoint(BreakpointModelId id);
     void updateWatchData(const WatchData &data,
             const WatchUpdateFlags &flags = WatchUpdateFlags());
     void fetchFrameSource(qint64 id);
