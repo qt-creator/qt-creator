@@ -172,6 +172,8 @@ public:
     NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;
 
+    void resetView();
+
 protected:
     void setModel(Model * model);
     void removeModel();

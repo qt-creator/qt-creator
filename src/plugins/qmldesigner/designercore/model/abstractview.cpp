@@ -357,6 +357,16 @@ RewriterView *AbstractView::rewriterView() const
     }
 }
 
+void AbstractView::resetView()
+{
+    if (!model())
+        return;
+    Model *currentModel = model();
+
+    currentModel->detachView(this);
+    currentModel->attachView(this);
+}
+
 QList<ModelNode> AbstractView::allModelNodes()
 {
    return toModelNodeList(model()->m_d->allNodes());
