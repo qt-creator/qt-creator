@@ -279,7 +279,7 @@ void S60DeployStep::stop()
 void S60DeployStep::setupConnections()
 {
     if (m_channel == S60DeployConfiguration::CommunicationCodaSerialConnection)
-        connect(SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianDevice)), this, SLOT(deviceRemoved(SymbianDevice)));
+        connect(SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(SymbianUtils::SymbianDevice)), this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
 
     connect(m_codaDevice.data(), SIGNAL(error(QString)), this, SLOT(slotError(QString)));
     connect(m_codaDevice.data(), SIGNAL(logMessage(QString)), this, SLOT(slotCodaLogMessage(QString)));
