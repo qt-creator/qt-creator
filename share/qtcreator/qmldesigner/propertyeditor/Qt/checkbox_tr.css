@@ -1,0 +1,33 @@
+QCheckBox {
+    spacing: 4px;
+    font-size: 11px;
+}
+
+QCheckBox::indicator {
+    width: 20px;
+    height: 20px;
+}
+
+QCheckBox::indicator:unchecked {
+    image: url(:/qmldesigner/images/checkbox_tr_unchecked.png);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(:/qmldesigner/images/checkbox_tr_unchecked_hover.png);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(:/qmldesigner/images/checkbox_tr_unchecked_pressed.png);
+}
+
+QCheckBox::indicator:checked {
+    image: url(:/qmldesigner/images/checkbox_tr_checked.png);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(:/qmldesigner/images/checkbox_tr_checked_hover.png);
+}
+
+QCheckBox::indicator:checked:pressed {
+    image: url(:/qmldesigner/images/checkbox_tr_checked_pressed.png);
+}
