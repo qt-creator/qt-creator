@@ -49,6 +49,7 @@ SelectableFilesModel::SelectableFilesModel(const QString &baseDir, QObject *pare
     m_root = new Tree;
     m_root->name = "/";
     m_root->parent = 0;
+    m_root->fullPath = m_baseDir;
 }
 
 void SelectableFilesModel::setInitialMarkedFiles(const QStringList &files)
@@ -72,6 +73,7 @@ void SelectableFilesModel::startParsing()
     m_rootForFuture = new Tree;
     m_rootForFuture->name = "/";
     m_rootForFuture->parent = 0;
+    m_rootForFuture->fullPath = m_baseDir;
 
     connect(&m_watcher, SIGNAL(finished()), this, SLOT(buildTreeFinished()));
     m_watcher.setFuture(QtConcurrent::run(&SelectableFilesModel::run, this));
