@@ -102,6 +102,11 @@ void TargetSetupPage::setPreferredFeatures(const QSet<QString> &featureIds)
     m_preferredFeatures = featureIds;
 }
 
+void TargetSetupPage::setRequiredFeatures(const QSet<QString> &featureIds)
+{
+    m_requiredFeatures = featureIds;
+}
+
 void TargetSetupPage::setMinimumQtVersion(const QtSupport::QtVersionNumber &number)
 {
     m_minimumQtVersionNumber = number;
@@ -119,6 +124,9 @@ void TargetSetupPage::setupWidgets()
     foreach (Qt4BaseTargetFactory *factory, factories) {
         QStringList ids = factory->supportedTargetIds(0);
         foreach (const QString &id, ids) {
+            if (!factory->targetFeatures(id).contains(m_requiredFeatures))
+                continue;
+
             QList<BuildConfigurationInfo> infos = BuildConfigurationInfo::filterBuildConfigurationInfos(m_importInfos, id);
             Qt4TargetSetupWidget *widget =
                     factory->createTargetSetupWidget(id, m_proFilePath, m_minimumQtVersionNumber, m_importSearch, infos);

@@ -75,6 +75,9 @@ public:
     /// Changes the default set of checked targets.
     /// call this before \sa initializePage()
     void setPreferredFeatures(const QSet<QString> &featureIds);
+    /// Sets the features a target must support
+    /// call this before \sa initializePage()
+    void setRequiredFeatures(const QSet<QString> &featureIds);
     /// Sets the minimum qt version
     /// calls this before \sa initializePage()
     void setMinimumQtVersion(const QtSupport::QtVersionNumber &number);
@@ -96,6 +99,7 @@ private:
     void deleteWidgets();
 
     QSet<QString> m_preferredFeatures;
+    QSet<QString> m_requiredFeatures;
     bool m_importSearch;
     QtSupport::QtVersionNumber m_minimumQtVersionNumber;
     QString m_proFilePath;
