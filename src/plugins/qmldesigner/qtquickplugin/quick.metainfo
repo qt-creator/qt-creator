@@ -68,22 +68,19 @@
   </node>
   <node name="QtQuick.GridView" icon=":/qtquickplugin/images/gridview-icon16.png">
     <itemlibraryentry name="Grid View" category="Qt Quick - Views" libraryIcon=":/qtquickplugin/images/gridview-icon.png" version="1.0">
-      <property name="width" type="int" value="300"/>
-      <property name="height" type="int" value="300"/>
+      <qml source=":/qtquickplugin/source/gridview.qml"/>
     </itemlibraryentry>
   </node>
 
   <node name="QtQuick.ListView" icon=":/qtquickplugin/images/listview-icon16.png">
     <itemlibraryentry name="List View" category="Qt Quick - Views" libraryIcon=":/qtquickplugin/images/listview-icon.png" version="1.0">
-      <property name="width" type="int" value="300"/>
-      <property name="height" type="int" value="300"/>
+      <qml source=":/qtquickplugin/source/listview.qml"/>
     </itemlibraryentry>
   </node>
 
   <node name="QtQuick.PathView" icon=":/qtquickplugin/images/pathview-icon16.png">
     <itemlibraryentry name="Path View" category="Qt Quick - Views" libraryIcon=":/qtquickplugin/images/pathview-icon.png" version="1.0">
-      <property name="width" type="int" value="300"/>
-      <property name="height" type="int" value="300"/>
+    <qml source=":/qtquickplugin/source/pathview.qml"/>
     </itemlibraryentry>
   </node>
 

@@ -31,5 +31,8 @@
         <file>images/text-edit-icon16.png</file>
         <file>images/text-input-icon16.png</file>
         <file>images/webview-icon16.png</file>
+        <file>source/listview.qml</file>
+        <file>source/gridview.qml</file>
+        <file>source/pathview.qml</file>
     </qresource>
 </RCC>
