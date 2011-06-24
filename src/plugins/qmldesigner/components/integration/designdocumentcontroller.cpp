@@ -230,6 +230,7 @@ void DesignDocumentController::blockModelSync(bool block)
             m_d->textModifier->deactivateChangeSignals();
         } else {
             activeQtVersionChanged();
+            changeToMasterModel();
             QmlModelState state;
             //We go back to base state (and back again) to avoid side effects from text editing.
             if (m_d->statesEditorView && m_d->statesEditorView->model()) {
@@ -393,11 +394,7 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
     }
 
     if (m_d->model == m_d->subComponentModel) {
-        //change back to master model
-        m_d->model->detachView(m_d->rewriterView.data());
-        m_d->rewriterView->setTextModifier(m_d->textModifier);
-        m_d->model = m_d->masterModel;
-        m_d->model->attachView(m_d->rewriterView.data());
+        changeToMasterModel();
     }
     if (!componentNode.isRootNode()) {
         Q_ASSERT(m_d->model == m_d->masterModel);
