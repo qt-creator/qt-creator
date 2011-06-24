@@ -1165,15 +1165,22 @@ ModelNode TextToModelMerger::createModelNode(const QString &typeName,
 {
     QString nodeSource;
 
+    UiQualifiedId *astObjectType = 0;
+    if (UiObjectDefinition *def = cast<UiObjectDefinition *>(astNode)) {
+        astObjectType = def->qualifiedTypeNameId;
+    } else if (UiObjectBinding *bin = cast<UiObjectBinding *>(astNode)) {
+        astObjectType = bin->qualifiedTypeNameId;
+    }
+
     if (isCustomParserType(typeName))
         nodeSource = textAt(context->doc(),
-                                    astNode->firstSourceLocation(),
+                                    astObjectType->identifierToken.offset,
                                     astNode->lastSourceLocation());
 
 
     if (isComponentType(typeName) || isImplicitComponent) {
         QString componentSource = extractComponentFromQml(textAt(context->doc(),
-                                  astNode->firstSourceLocation(),
+                                  astObjectType->identifierToken.offset,
                                   astNode->lastSourceLocation()));
 
 
