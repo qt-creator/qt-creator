@@ -40,9 +40,14 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QMessageBox>
+#include <QPlainTextEdit>
+#include <utils/fileutils.h>
 #include "nodeabstractproperty.h"
 #include "variantproperty.h"
 #include "rewritingexception.h"
+#include "rewriterview.h"
+#include "plaintexteditmodifier.h"
+#include "modelmerger.h"
 
 
 namespace QmlDesigner {
@@ -200,10 +205,35 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
         propertyPairList.append(qMakePair(QString("x"), QVariant(round(position.x(), 4))));
         propertyPairList.append(qMakePair(QString("y"), QVariant(round(position.y(), 4))));
 
-        foreach (const PropertyContainer &property, itemLibraryEntry.properties())
-            propertyPairList.append(qMakePair(property.name(), property.value()));
+        if (itemLibraryEntry.qml().isEmpty()) {
+            foreach (const PropertyContainer &property, itemLibraryEntry.properties())
+                propertyPairList.append(qMakePair(property.name(), property.value()));
 
-        newNode = createQmlItemNode(itemLibraryEntry.typeName(), itemLibraryEntry.majorVersion(), itemLibraryEntry.minorVersion(), propertyPairList);
+            newNode = createQmlItemNode(itemLibraryEntry.typeName(), itemLibraryEntry.majorVersion(), itemLibraryEntry.minorVersion(), propertyPairList);
+        } else {
+            QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
+            inputModel->setFileUrl(model()->fileUrl());
+            QPlainTextEdit textEdit;
+
+
+            textEdit.setPlainText(Utils::FileReader::fetchQrc(itemLibraryEntry.qml()));
+            NotIndentingTextEditModifier modifier(&textEdit);
+
+            QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
+            rewriterView->setCheckSemanticErrors(false);
+            rewriterView->setTextModifier(&modifier);
+            inputModel->attachView(rewriterView.data());
+
+            if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
+                ModelMerger merger(this);
+                newNode = merger.insertModel(rewriterView->rootModelNode());
+                newNode.setVariantProperty("x", propertyPairList.first().second);
+                newNode.setVariantProperty("y", propertyPairList.at(1).second);
+            }
+
+        }
+
+
         if (parentNode.hasDefaultProperty()) {
             parentNode.nodeAbstractProperty(parentNode.defaultProperty()).reparentHere(newNode);
         }
