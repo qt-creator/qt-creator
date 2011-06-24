@@ -258,13 +258,14 @@ void FutureProgressPrivate::tryToFadeAway()
 {
     if (m_isFading)
         return;
-    if (m_keep == FutureProgress::KeepOnFinishTillUserInteraction) {
+    if (m_keep == FutureProgress::KeepOnFinishTillUserInteraction
+            || (m_keep == FutureProgress::DontKeepOnFinish && m_progress->hasError())) {
         m_waitingForUserInteraction = true;
         //eventfilter is needed to get user interaction
         //events to start QTimer::singleShot later
         qApp->installEventFilter(m_q);
         m_isFading = true;
-    } else if (m_keep == FutureProgress::DontKeepOnFinish && !m_progress->hasError()) {
+    } else if (m_keep == FutureProgress::DontKeepOnFinish) {
         QTimer::singleShot(shortNotificationTimeout, m_q, SLOT(fadeAway()));
         m_isFading = true;
     }
