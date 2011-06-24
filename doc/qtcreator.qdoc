@@ -126,9 +126,13 @@
                 \o \l{Setting Up Debugger}
                 \o \l{Using Debugging Helpers}
                 \o \l{Debugging Qt Quick Projects}
-                \o \l{Detecting Memory Leaks}
                 \o \l{Troubleshooting Debugger}
             \endlist
+       \o \l{Analyzing Code}
+           \list
+                \o \l{Profiling QML Applications}
+                \o \l{Detecting Memory Leaks}
+           \endlist
        \o \l{Deploying Applications to Mobile Devices}
             \list
                 \o \l{Deploying Applications to Symbian Devices}
@@ -363,9 +367,11 @@
     You can connect mobile devices to your development PC and debug processes
     running on the devices.
 
-    You can test applications that are intended for mobile devices in Qt
-    Simulator and Maemo or MeeGo Harmattan emulator, but you also need to test
-    the applications
+    You can use code analysis tools to detect memory leaks, profile cache usage,
+    and profile Qt Quick applications.
+
+    You can test applications that are intended for mobile devices in the Qt
+    Simulator and Maemo Emulator, but you also need to test the applications
     on real devices.
 
     \section2 Debuggers
@@ -434,6 +440,18 @@
     explore the object structure, debug animations, and inspect colors. When debugging
     complex applications, you can use the observe mode to jump to the position in code
     where an element is defined.
+
+    \section2 Code Analysis Tools
+
+    The memory available on devices is limited and you should use it carefully.
+    Qt Creator integrates Valgrind code analysis tools for detecting memory
+    leaks and profiling cache usage. These tools are only supported on Linux and
+    Mac OS. You must download and install them separately to use them from Qt
+    Creator.
+
+    The QML Profiler is installed as part of Qt Creator. It allows you
+    to profile your Qt Quick applications and is available on all supported
+    development platforms.
 
     \section2 Qt Simulator
 
@@ -640,6 +658,8 @@
            debugging.
         \o \gui{\l{Specifying Build Settings}{Projects}} mode for configuring project building and
            execution. This mode is available when a project is open.
+        \o \gui{\l{Analyzing Code}{Analyze}} mode for using code analysis tools
+            to detect memory leaks and profile C++ or QML code.
         \o \gui{\l{Getting Help}{Help}} mode for viewing Qt documentation.
     \endlist
 
@@ -1619,6 +1639,7 @@
     \previouspage creator-coding.html
     \page creator-editor-using.html
     \nextpage creator-highlighting.html
+
 
     \title Using the Editor
 
@@ -7510,9 +7531,6 @@
         \o  \l{Debugging Qt Quick Projects} describes how to debug Qt Quick
             projects.
 
-        \o  \l{Detecting Memory Leaks} describes how to use the Valgrind
-            Memcheck tool to detect problems in memory management.
-
         \o  \l{Troubleshooting Debugger} lists some typical problems that you
             might encounter while debugging and solutions to them.
 
@@ -8880,7 +8898,7 @@
     \contentspage index.html
     \previouspage creator-debugging-helpers.html
     \page creator-debugging-qml.html
-    \nextpage creator-analyzer.html
+    \nextpage creator-troubleshooting-debugging.html
 
     \title Debugging Qt Quick Projects
 
@@ -11842,9 +11860,9 @@
 
     /*!
     \contentspage index.html
-    \previouspage creator-analyzer.html
+    \previouspage creator-debugging-qml.html
     \page creator-troubleshooting-debugging.html
-    \nextpage creator-deployment.html
+    \nextpage creator-analyze-mode.html
 
     \title Troubleshooting Debugger
 
@@ -12067,3 +12085,215 @@
     \endtable
 
     */
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-troubleshooting-debugging.html
+    \page creator-analyze-mode.html
+    \nextpage creator-qml-performance-monitor.html
+
+    \title Analyzing Code
+
+    The memory available on mobile devices is limited and you should use it
+    carefully. Qt Creator contains tools that you can use to analyze your code.
+
+    The \gui {QML Profiler} allows you to profile your Qt
+    Quick applications. You can inspect binding evaluations, signal handling,
+    and painting operations when running QML code. This is useful for
+    identifying potential bottlenecks, especially in the evaluation of bindings.
+
+    In addition, Qt Creator integrates Valgrind code analysis tools for
+    detecting memory leaks and profiling cache usage. These tools are only
+    supported on Linux and Mac OS. You have to download and install them
+    separately to use them from Qt Creator.
+
+    You can use the code analysis tools in the \gui Analyze mode or from the
+    \gui {Debug > Start Analyzer} menu. In \gui Analyze mode, you can switch
+    between tools by selecting them in the menu on the toolbar.
+
+    To run the Valgrind tools on a remote device over SSH, select \gui {Debug >
+    Start Analyzer > Start Remote}.
+
+    To stop the currently running analyzer, select \gui {Debug > Start Analyzer
+    > Stop}.
+
+    To select options for the Valgrind tools, select \gui {Tools > Options... >
+    Analyzer}.
+
+    The following sections describe how to use the code analysis tools:
+
+    \list
+
+         \o \l{Profiling QML Applications} describes how to inspect binding
+            evaluations, signal handling, and painting operations when running
+            QML code.
+
+        \o  \l{Detecting Memory Leaks} describes how to use the Valgrind
+            Memcheck tool to detect problems in memory management.
+
+        \o  \l{Profiling Cache} describes how to use the Valgrind Callgrind
+            tool to find cache misses in the code.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-analyze-mode.html
+    \page creator-qml-performance-monitor.html
+    \nextpage creator-analyzer.html
+
+    \title Profiling QML Applications
+
+    To monitor the performance of an application in the QML Profiler:
+
+    \list 1
+
+        \o  In the \gui Projects mode, select Qt 4.7.4 in the \gui {Qt version}
+            field.
+
+        \o  Select \gui Analyze to open the \gui Analyze mode.
+
+        \o  Select the
+            \inlineimage qtcreator-analyze-start-button.png "Start button"
+            button to start the application from the QML Profiler.
+
+            \note: If data collection does not start automatically, select the
+            \inlineimage qtcreator-analyzer-button.png "Analyzer button"
+            .
+
+    \endlist
+
+    When you start analyzing an application, the application is launched, and
+    the QML Profiler immediately begins to collect data. This is indicated by
+    the time running in the \gui Elapsed field.
+
+    Data is collected until you select the
+    \inlineimage qtcreator-analyzer-stop-button.png "Stop button"
+    button. Data collection takes time, and therefore, there might be a delay
+    before the data is displayed.
+
+    \image qtcreator-qml-performance-monitor-toolbar.png "QML Profiler toolbar"
+
+    Do not use application commands to exit the application, because data is
+    sent to the QML Profiler when you select the \gui Stop button.
+    The application continues to run for some seconds, after which it is stopped
+    automatically. If you exit the application, the data is not sent.
+
+    Select the \inlineimage qtcreator-analyzer-button.png "Analyzer button"
+    button to disable the automatic start of the data collection when an
+    application is launched. Data collection starts when you select the button
+    again.
+
+    To monitor applications running on devices:
+
+    \list 1
+
+        \o  On the command line, enter the following command to launch the Qt
+            Quick application with parameters:
+
+            \c {<application> -qmljsdebugger=port:33456}
+
+            The port number is specified in the run settings of the project in
+            the \gui {Debug port} field.
+
+        \o  Select \gui {Debug > Start Analyzer > Attach...} to attach the QML
+            Profiler to the running application.
+
+    \endlist
+
+    \section1 Analyzing Collected Data
+
+    The \gui Timeline view displays graphical representations of:
+
+    \list
+
+        \o  Painting operations
+
+        \o  Compiling the QML sources
+
+        \o  Creating elements
+
+        \o  Binding evaluations
+
+        \o  Signal handling
+
+        \o  Summary of the recorded period
+
+    \endlist
+
+    \image qtcreator-qml-performance-monitor.png "QML Profiler"
+
+    The outline summarizes the period for which data was collected. Drag the
+    range bar or click the outline to move on the outline. Drag the borders of
+    the range bar to zoom in and out.
+
+    Additional information is displayed on the rows above the outline.
+    Each row in the timeline describes a type of QML events that were recorded.
+    Move the cursor on an event on a row to see how long it takes and where
+    in the source it is being called.
+
+    On the \gui Binding row, you can see when a binding is evaluated and how
+    long the evaluation takes. Move the mouse over the binding for details
+    about the binding: location in the source code, duration, and source
+    code.
+
+    Click the binding to move the cursor in the code editor to the part of the
+    code where the binding is called.
+
+    The time bar at the top of the \gui Timeline view displays the time in
+    seconds. To see the time in milliseconds, move the mouse on the time bar.
+
+    \section1 Viewing Bindings
+
+    The \gui Bindings view displays the number of times each binding is called
+    and the time the calls take. This allows you to examine which bindings you
+    need to optimize. A high number of calls might indicate that a binding is
+    called unnecessarily. Click on a binding to move to it in the source code
+    in the code editor.
+
+    \image qtcreator-analyzer-bindings.png "Bindings view"
+
+    \section1 Viewing Calling and Called Bindings
+
+    The \gui Callees and \gui Callers views show dependencies between bindings.
+    They allow you to examine the internal functions of the application.
+
+    The \gui Callees view summarizes the QML events that a binding triggers.
+    This tells you which QML events are affected if you change a binding.
+
+    \image qtcreator-qml-performance-monitor-callees.png "Callees view"
+
+    The \gui Callers view summarizes the QML events that trigger a binding.
+    This tells you what caused a change in a binding.
+
+    \image qtcreator-qml-performance-monitor-callers.png "Callers view"
+
+    Click on a binding to move to it in the source code in the code editor.
+
+    \section2 Viewing More Data
+
+    The QML JavaScript engine optimizes trivial bindings. The QML Profiler
+    does not receive information about optimized bindings, and
+    therefore, it displays the text \gui {<bytecode>} and the message
+    \gui {Source code not available} in the \gui Callees and \gui {Callers}
+    views.
+
+    To inspect the optimized bindings, turn off the QML optimizer by setting the
+    environment variable QML_DISABLE_OPTIMIZER to 1. To set the environment
+    variable for the current project in the project settings:
+
+    \list
+
+        \o  Select \gui {Projects > Run}.
+
+        \o  In \gui {Run Environment}, click \gui Add.
+
+        \o  Add the QML_DISABLE_OPTIMIZER variable and set its value to 1.
+
+    \endlist
+
+*/
