@@ -32,6 +32,7 @@
 
 #include "maemodeploybymountstep.h"
 
+#include "deploymentinfo.h"
 #include "maemodeploymentmounter.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
@@ -40,6 +41,7 @@
 #include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
 
+#include <projectexplorer/project.h>
 #include <utils/ssh/sshconnection.h>
 
 #include <QtCore/QFileInfo>
@@ -243,7 +245,7 @@ bool MaemoMountAndInstallDeployStep::isDeploymentNeeded(const QString &hostName)
 {
     const AbstractMaemoPackageCreationStep * const pStep = packagingStep();
     Q_ASSERT(pStep);
-    const MaemoDeployable d(pStep->packageFilePath(), QString());
+    const DeployableFile d(pStep->packageFilePath(), QString());
     return currentlyNeedsDeployment(hostName, d);
 }
 
@@ -270,7 +272,7 @@ void MaemoMountAndInstallDeployStep::cancelInstallation()
 void MaemoMountAndInstallDeployStep::handleInstallationSuccess()
 {
     setDeployed(connection()->connectionParameters().host,
-        MaemoDeployable(packagingStep()->packageFilePath(), QString()));
+        DeployableFile(packagingStep()->packageFilePath(), QString()));
     writeOutput(tr("Package installed."));
 }
 
@@ -305,8 +307,8 @@ void MaemoMountAndCopyDeployStep::ctor()
         SLOT(handleRemoteStderr(QString)));
     connect(m_copyFacility, SIGNAL(progress(QString)),
         SLOT(handleProgressReport(QString)));
-    connect(m_copyFacility, SIGNAL(fileCopied(MaemoDeployable)),
-        SLOT(handleFileCopied(MaemoDeployable)));
+    connect(m_copyFacility, SIGNAL(fileCopied(DeployableFile)),
+        SLOT(handleFileCopied(DeployableFile)));
     connect(m_copyFacility, SIGNAL(finished(QString)),
         SLOT(handleInstallationFinished(QString)));
 }
@@ -319,11 +321,11 @@ bool MaemoMountAndCopyDeployStep::isDeploymentPossibleInternal(QString &) const
 bool MaemoMountAndCopyDeployStep::isDeploymentNeeded(const QString &hostName) const
 {
     m_filesToCopy.clear();
-    const QSharedPointer<MaemoDeployables> deployables
-        = maemoDeployConfig()->deployables();
-    const int deployableCount = deployables->deployableCount();
+    const QSharedPointer<DeploymentInfo> deploymentInfo
+        = maemoDeployConfig()->deploymentInfo();
+    const int deployableCount = deploymentInfo->deployableCount();
     for (int i = 0; i < deployableCount; ++i) {
-        const MaemoDeployable &d = deployables->deployableAt(i);
+        const DeployableFile &d = deploymentInfo->deployableAt(i);
         if (currentlyNeedsDeployment(hostName, d)
                 || QFileInfo(d.localFilePath).isDir()) {
             m_filesToCopy << d;
@@ -370,7 +372,7 @@ void MaemoMountAndCopyDeployStep::deploy()
         m_filesToCopy, deployMountPoint());
 }
 
-void MaemoMountAndCopyDeployStep::handleFileCopied(const MaemoDeployable &deployable)
+void MaemoMountAndCopyDeployStep::handleFileCopied(const DeployableFile &deployable)
 {
     setDeployed(connection()->connectionParameters().host, deployable);
 }

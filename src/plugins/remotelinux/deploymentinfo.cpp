@@ -29,8 +29,9 @@
 **
 **************************************************************************/
 
-#include "maemodeployables.h"
+#include "deploymentinfo.h"
 
+#include "deployablefile.h"
 #include "maemoprofilesupdatedialog.h"
 
 #include <projectexplorer/buildstep.h>
@@ -43,9 +44,9 @@
 using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
-namespace Internal {
+using namespace Internal;
 
-MaemoDeployables::MaemoDeployables(const Qt4BaseTarget *target)
+DeploymentInfo::DeploymentInfo(const Qt4BaseTarget *target)
     : m_target(target), m_updateTimer(new QTimer(this))
 {
     Qt4Project * const pro = m_target->qt4Project();
@@ -57,16 +58,16 @@ MaemoDeployables::MaemoDeployables(const Qt4BaseTarget *target)
     createModels();
 }
 
-MaemoDeployables::~MaemoDeployables() {}
+DeploymentInfo::~DeploymentInfo() {}
 
-void MaemoDeployables::startTimer(Qt4ProjectManager::Qt4ProFileNode*, bool success, bool parseInProgress)
+void DeploymentInfo::startTimer(Qt4ProjectManager::Qt4ProFileNode*, bool success, bool parseInProgress)
 {
     Q_UNUSED(success)
     if (!parseInProgress)
         m_updateTimer->start();
 }
 
-void MaemoDeployables::createModels()
+void DeploymentInfo::createModels()
 {
     if (m_target->project()->activeTarget() != m_target)
         return;
@@ -82,10 +83,10 @@ void MaemoDeployables::createModels()
     qDeleteAll(m_listModels);
     m_listModels.clear();
     createModels(rootNode);
-    QList<MaemoDeployableListModel *> modelsWithoutTargetPath;
-    foreach (MaemoDeployableListModel *const model, m_listModels) {
+    QList<DeployableFilesPerProFile *> modelsWithoutTargetPath;
+    foreach (DeployableFilesPerProFile *const model, m_listModels) {
         if (!model->hasTargetPath()) {
-            if (model->proFileUpdateSetting() == MaemoDeployableListModel::AskToUpdateProFile)
+            if (model->proFileUpdateSetting() == DeployableFilesPerProFile::AskToUpdateProFile)
                 modelsWithoutTargetPath << model;
         }
     }
@@ -96,10 +97,10 @@ void MaemoDeployables::createModels()
         const QList<MaemoProFilesUpdateDialog::UpdateSetting> &settings
             = dialog.getUpdateSettings();
         foreach (const MaemoProFilesUpdateDialog::UpdateSetting &setting, settings) {
-            const MaemoDeployableListModel::ProFileUpdateSetting updateSetting
+            const DeployableFilesPerProFile::ProFileUpdateSetting updateSetting
                 = setting.second
-                    ? MaemoDeployableListModel::UpdateProFile
-                    : MaemoDeployableListModel::DontUpdateProFile;
+                    ? DeployableFilesPerProFile::UpdateProFile
+                    : DeployableFilesPerProFile::DontUpdateProFile;
             m_updateSettings.insert(setting.first->proFilePath(),
                 updateSetting);
             setting.first->setProFileUpdateSetting(updateSetting);
@@ -112,23 +113,23 @@ void MaemoDeployables::createModels()
             this, SLOT(startTimer(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 }
 
-void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
+void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)
 {
     switch (proFileNode->projectType()) {
     case ApplicationTemplate:
     case LibraryTemplate:
     case AuxTemplate: {
-        MaemoDeployableListModel::ProFileUpdateSetting updateSetting;
+        DeployableFilesPerProFile::ProFileUpdateSetting updateSetting;
         if (proFileNode->projectType() == AuxTemplate) {
-            updateSetting = MaemoDeployableListModel::DontUpdateProFile;
+            updateSetting = DeployableFilesPerProFile::DontUpdateProFile;
         } else {
             UpdateSettingsMap::ConstIterator it
                 = m_updateSettings.find(proFileNode->path());
             updateSetting = it != m_updateSettings.end()
-                ? it.value() : MaemoDeployableListModel::AskToUpdateProFile;
+                ? it.value() : DeployableFilesPerProFile::AskToUpdateProFile;
         }
-        MaemoDeployableListModel *const newModel
-            = new MaemoDeployableListModel(m_target, proFileNode, updateSetting, this);
+        DeployableFilesPerProFile *const newModel
+            = new DeployableFilesPerProFile(m_target, proFileNode, updateSetting, this);
         m_listModels << newModel;
         break;
     }
@@ -148,32 +149,32 @@ void MaemoDeployables::createModels(const Qt4ProFileNode *proFileNode)
     }
 }
 
-void MaemoDeployables::setUnmodified()
+void DeploymentInfo::setUnmodified()
 {
-    foreach (MaemoDeployableListModel *model, m_listModels)
+    foreach (DeployableFilesPerProFile *model, m_listModels)
         model->setUnModified();
 }
 
-bool MaemoDeployables::isModified() const
+bool DeploymentInfo::isModified() const
 {
-    foreach (const MaemoDeployableListModel *model, m_listModels) {
+    foreach (const DeployableFilesPerProFile *model, m_listModels) {
         if (model->isModified())
             return true;
     }
     return false;
 }
 
-int MaemoDeployables::deployableCount() const
+int DeploymentInfo::deployableCount() const
 {
     int count = 0;
-    foreach (const MaemoDeployableListModel *model, m_listModels)
+    foreach (const DeployableFilesPerProFile *model, m_listModels)
         count += model->rowCount();
     return count;
 }
 
-MaemoDeployable MaemoDeployables::deployableAt(int i) const
+DeployableFile DeploymentInfo::deployableAt(int i) const
 {
-    foreach (const MaemoDeployableListModel *model, m_listModels) {
+    foreach (const DeployableFilesPerProFile *model, m_listModels) {
         Q_ASSERT(i >= 0);
         if (i < model->rowCount())
             return model->deployableAt(i);
@@ -181,29 +182,29 @@ MaemoDeployable MaemoDeployables::deployableAt(int i) const
     }
 
     Q_ASSERT(!"Invalid deployable number");
-    return MaemoDeployable(QString(), QString());
+    return DeployableFile(QString(), QString());
 }
 
-QString MaemoDeployables::remoteExecutableFilePath(const QString &localExecutableFilePath) const
+QString DeploymentInfo::remoteExecutableFilePath(const QString &localExecutableFilePath) const
 {
-    foreach (const MaemoDeployableListModel *model, m_listModels) {
+    foreach (const DeployableFilesPerProFile *model, m_listModels) {
         if (model->localExecutableFilePath() == localExecutableFilePath)
             return model->remoteExecutableFilePath();
     }
     return QString();
 }
 
-int MaemoDeployables::rowCount(const QModelIndex &parent) const
+int DeploymentInfo::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : modelCount();
 }
 
-QVariant MaemoDeployables::data(const QModelIndex &index, int role) const
+QVariant DeploymentInfo::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() < 0 || index.row() >= modelCount()
             || index.column() != 0)
         return QVariant();
-    const MaemoDeployableListModel *const model = m_listModels.at(index.row());
+    const DeployableFilesPerProFile *const model = m_listModels.at(index.row());
     if (role == Qt::ForegroundRole && model->projectType() != AuxTemplate
             && !model->hasTargetPath()) {
         QBrush brush;
@@ -216,4 +217,3 @@ QVariant MaemoDeployables::data(const QModelIndex &index, int role) const
 }
 
 } // namespace RemoteLinux
-} // namespace Internal

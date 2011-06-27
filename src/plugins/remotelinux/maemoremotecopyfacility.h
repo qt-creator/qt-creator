@@ -33,7 +33,7 @@
 #ifndef MAEMOREMOTECOPYFACILITY_H
 #define MAEMOREMOTECOPYFACILITY_H
 
-#include "maemodeployable.h"
+#include "deployablefile.h"
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
@@ -59,14 +59,14 @@ public:
 
     void copyFiles(const QSharedPointer<Utils::SshConnection> &connection,
         const QSharedPointer<const LinuxDeviceConfiguration> &devConf,
-        const QList<MaemoDeployable> &deployables, const QString &mountPoint);
+        const QList<DeployableFile> &deployables, const QString &mountPoint);
     void cancel();
 
 signals:
     void stdoutData(const QString &output);
     void stderrData(const QString &output);
     void progress(const QString &message);
-    void fileCopied(const MaemoDeployable &deployable);
+    void fileCopied(const DeployableFile &deployable);
     void finished(const QString &errorMsg = QString());
 
 private slots:
@@ -81,7 +81,7 @@ private:
 
     QSharedPointer<Utils::SshRemoteProcessRunner> m_copyRunner;
     QSharedPointer<const LinuxDeviceConfiguration> m_devConf;
-    QList<MaemoDeployable> m_deployables;
+    QList<DeployableFile> m_deployables;
     QString m_mountPoint;
     bool m_isCopying;
 };

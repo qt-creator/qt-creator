@@ -31,7 +31,6 @@
 
 #include "remotelinuxdebugsupport.h"
 
-#include "maemodeployables.h"
 #include "maemoglobal.h"
 #include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
@@ -39,6 +38,7 @@
 
 #include <debugger/debuggerengine.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
 
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)

@@ -33,9 +33,9 @@
 #include "maemodeployconfigurationwidget.h"
 #include "ui_maemodeployconfigurationwidget.h"
 
+#include "deployablefilesperprofile.h"
+#include "deploymentinfo.h"
 #include "linuxdeviceconfigurations.h"
-#include "maemodeployablelistmodel.h"
-#include "maemodeployables.h"
 #include "maemoglobal.h"
 #include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemosettingspages.h"
@@ -79,13 +79,13 @@ void MaemoDeployConfigurationWidget::init(DeployConfiguration *dc)
     connect(m_deployConfig, SIGNAL(deviceConfigurationListChanged()),
         SLOT(handleDeviceConfigurationListChanged()));
 
-    ui->projectsComboBox->setModel(m_deployConfig->deployables().data());
-    connect(m_deployConfig->deployables().data(), SIGNAL(modelAboutToBeReset()),
+    ui->projectsComboBox->setModel(m_deployConfig->deploymentInfo().data());
+    connect(m_deployConfig->deploymentInfo().data(), SIGNAL(modelAboutToBeReset()),
         SLOT(handleModelListToBeReset()));
 
     // Queued connection because of race condition with combo box's reaction
     // to modelReset().
-    connect(m_deployConfig->deployables().data(), SIGNAL(modelReset()),
+    connect(m_deployConfig->deploymentInfo().data(), SIGNAL(modelReset()),
         SLOT(handleModelListReset()), Qt::QueuedConnection);
 
     connect(ui->projectsComboBox, SIGNAL(currentIndexChanged(int)),
@@ -106,8 +106,8 @@ void MaemoDeployConfigurationWidget::handleModelListToBeReset()
 
 void MaemoDeployConfigurationWidget::handleModelListReset()
 {
-    QTC_ASSERT(m_deployConfig->deployables()->modelCount() == ui->projectsComboBox->count(), return);
-    if (m_deployConfig->deployables()->modelCount() > 0) {
+    QTC_ASSERT(m_deployConfig->deploymentInfo()->modelCount() == ui->projectsComboBox->count(), return);
+    if (m_deployConfig->deploymentInfo()->modelCount() > 0) {
         if (ui->projectsComboBox->currentIndex() == -1)
             ui->projectsComboBox->setCurrentIndex(0);
         else
@@ -120,8 +120,8 @@ void MaemoDeployConfigurationWidget::setModel(int row)
     bool canAddDesktopFile = false;
     bool canAddIconFile = false;
     if (row != -1) {
-        MaemoDeployableListModel * const model
-            = m_deployConfig->deployables()->modelAt(row);
+        DeployableFilesPerProFile * const model
+            = m_deployConfig->deploymentInfo()->modelAt(row);
         ui->tableView->setModel(model);
         ui->tableView->resizeRowsToContents();
         canAddDesktopFile = model->canAddDesktopFile();
@@ -154,8 +154,8 @@ void MaemoDeployConfigurationWidget::addDesktopFile()
     const int modelRow = ui->projectsComboBox->currentIndex();
     if (modelRow == -1)
         return;
-    MaemoDeployableListModel *const model
-        = m_deployConfig->deployables()->modelAt(modelRow);
+    DeployableFilesPerProFile *const model
+        = m_deployConfig->deploymentInfo()->modelAt(modelRow);
     model->addDesktopFile();
     ui->addDesktopFileButton->setEnabled(model->canAddDesktopFile());
     ui->tableView->resizeRowsToContents();
@@ -167,8 +167,8 @@ void MaemoDeployConfigurationWidget::addIcon()
     if (modelRow == -1)
         return;
 
-    MaemoDeployableListModel *const model
-        = m_deployConfig->deployables()->modelAt(modelRow);
+    DeployableFilesPerProFile *const model
+        = m_deployConfig->deploymentInfo()->modelAt(modelRow);
     const int iconDim = MaemoGlobal::applicationIconSize(MaemoGlobal::osType(model->qtVersion()->qmakeCommand()));
     const QString origFilePath = QFileDialog::getOpenFileName(this,
         tr("Choose Icon (will be scaled to %1x%1 pixels, if necessary)").arg(iconDim),

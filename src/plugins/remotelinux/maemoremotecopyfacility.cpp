@@ -52,7 +52,7 @@ MaemoRemoteCopyFacility::~MaemoRemoteCopyFacility() {}
 
 void MaemoRemoteCopyFacility::copyFiles(const SshConnection::Ptr &connection,
     const LinuxDeviceConfiguration::ConstPtr &devConf,
-    const QList<MaemoDeployable> &deployables, const QString &mountPoint)
+    const QList<DeployableFile> &deployables, const QString &mountPoint)
 {
     Q_ASSERT(connection->state() == SshConnection::Connected);
     Q_ASSERT(!m_isCopying);
@@ -128,7 +128,7 @@ void MaemoRemoteCopyFacility::copyNextFile()
         return;
     }
 
-    const MaemoDeployable &d = m_deployables.first();
+    const DeployableFile &d = m_deployables.first();
     QString sourceFilePath = m_mountPoint;
 #ifdef Q_OS_WIN
     const QString localFilePath = QDir::fromNativeSeparators(d.localFilePath);

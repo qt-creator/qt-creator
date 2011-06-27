@@ -34,7 +34,6 @@
 #define REMOTELINUXRUNCONFIGURATION_H
 
 #include "maemoconstants.h"
-#include "maemodeployable.h"
 #include "portlist.h"
 #include "remotelinux_export.h"
 

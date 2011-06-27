@@ -29,11 +29,11 @@
 **
 **************************************************************************/
 
-#ifndef MAEMODEPLOYABLES_H
-#define MAEMODEPLOYABLES_H
+#ifndef DEPLOYMENTINFO_H
+#define DEPLOYMENTINFO_H
 
-#include "maemodeployable.h"
-#include "maemodeployablelistmodel.h"
+#include "deployablefilesperprofile.h"
+#include "remotelinux_export.h"
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QHash>
@@ -48,27 +48,27 @@ class Qt4ProFileNode;
 } // namespace Qt4ProjectManager
 
 namespace RemoteLinux {
-namespace Internal {
+class DeployableFile;
 
-class MaemoDeployables : public QAbstractListModel
+class REMOTELINUX_EXPORT DeploymentInfo : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    MaemoDeployables(const Qt4ProjectManager::Qt4BaseTarget *target);
-    ~MaemoDeployables();
+    DeploymentInfo(const Qt4ProjectManager::Qt4BaseTarget *target);
+    ~DeploymentInfo();
     void setUnmodified();
     bool isModified() const;
     int deployableCount() const;
-    MaemoDeployable deployableAt(int i) const;
+    DeployableFile deployableAt(int i) const;
     QString remoteExecutableFilePath(const QString &localExecutableFilePath) const;
     int modelCount() const { return m_listModels.count(); }
-    MaemoDeployableListModel *modelAt(int i) const { return m_listModels.at(i); }
+    DeployableFilesPerProFile *modelAt(int i) const { return m_listModels.at(i); }
 
 private slots:
     void startTimer(Qt4ProjectManager::Qt4ProFileNode *, bool success, bool parseInProgress);
 
 private:
-    typedef QHash<QString, MaemoDeployableListModel::ProFileUpdateSetting> UpdateSettingsMap;
+    typedef QHash<QString, DeployableFilesPerProFile::ProFileUpdateSetting> UpdateSettingsMap;
 
     virtual int rowCount(const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
@@ -76,13 +76,12 @@ private:
     Q_SLOT void createModels();
     void createModels(const Qt4ProjectManager::Qt4ProFileNode *proFileNode);
 
-    QList<MaemoDeployableListModel *> m_listModels;
+    QList<DeployableFilesPerProFile *> m_listModels;
     UpdateSettingsMap m_updateSettings;
     const Qt4ProjectManager::Qt4BaseTarget * const m_target;
     QTimer *const m_updateTimer;
 };
 
 } // namespace RemoteLinux
-} // namespace Internal
 
-#endif // MAEMODEPLOYABLES_H
+#endif // DEPLOYMENTINFO_H

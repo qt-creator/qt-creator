@@ -44,17 +44,18 @@ namespace Ui {
 QT_END_NAMESPACE
 
 namespace RemoteLinux {
+class DeployableFilesPerProFile;
+
 namespace Internal {
-class MaemoDeployableListModel;
 
 class MaemoProFilesUpdateDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    typedef QPair<MaemoDeployableListModel *, bool> UpdateSetting;
+    typedef QPair<DeployableFilesPerProFile *, bool> UpdateSetting;
 
-    explicit MaemoProFilesUpdateDialog(const QList<MaemoDeployableListModel *> &models,
+    explicit MaemoProFilesUpdateDialog(const QList<DeployableFilesPerProFile *> &models,
         QWidget *parent = 0);
     ~MaemoProFilesUpdateDialog();
     QList<UpdateSetting> getUpdateSettings() const;
@@ -64,7 +65,7 @@ private:
     Q_SLOT void uncheckAll();
     void setCheckStateForAll(Qt::CheckState checkState);
 
-    const QList<MaemoDeployableListModel *> m_models;
+    const QList<DeployableFilesPerProFile *> m_models;
     Ui::MaemoProFilesUpdateDialog *ui;
 };
 

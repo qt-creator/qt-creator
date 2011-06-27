@@ -32,7 +32,7 @@
 
 #include "maemoinstalltosysrootstep.h"
 
-#include "maemodeployables.h"
+#include "deploymentinfo.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemoqtversion.h"
@@ -313,11 +313,11 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
 
     emit addOutput(tr("Copying files to sysroot ..."), MessageOutput);
     QDir sysrootDir(qtVersion->systemRoot());
-    const QSharedPointer<MaemoDeployables> deployables
-        = qobject_cast<Qt4MaemoDeployConfiguration *>(deployConfiguration())->deployables();
+    const QSharedPointer<DeploymentInfo> deploymentInfo
+        = qobject_cast<Qt4MaemoDeployConfiguration *>(deployConfiguration())->deploymentInfo();
     const QChar sep = QLatin1Char('/');
-    for (int i = 0; i < deployables->deployableCount(); ++i) {
-        const MaemoDeployable &deployable = deployables->deployableAt(i);
+    for (int i = 0; i < deploymentInfo->deployableCount(); ++i) {
+        const DeployableFile &deployable = deploymentInfo->deployableAt(i);
         const QFileInfo localFileInfo(deployable.localFilePath);
         const QString targetFilePath = qtVersion->systemRoot() + sep
             + deployable.remoteDir + sep + localFileInfo.fileName();

@@ -40,8 +40,9 @@
 #include <QtCore/QSharedPointer>
 
 namespace RemoteLinux {
+class DeploymentInfo;
+
 namespace Internal {
-class MaemoDeployables;
 class MaemoPerTargetDeviceConfigurationListModel;
 
 class Qt4MaemoDeployConfiguration : public ProjectExplorer::DeployConfiguration
@@ -54,7 +55,7 @@ public:
     virtual ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
     void setDeviceConfiguration(int index);
-    QSharedPointer<MaemoDeployables> deployables() const;
+    QSharedPointer<DeploymentInfo> deploymentInfo() const;
     QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> deviceConfigModel() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
 
@@ -83,7 +84,7 @@ private:
     void setDeviceConfig(LinuxDeviceConfiguration::Id internalId);
     Q_SLOT void handleDeviceConfigurationListUpdated();
 
-    QSharedPointer<MaemoDeployables> m_deployables;
+    QSharedPointer<DeploymentInfo> m_deploymentInfo;
     QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> m_devConfModel;
     QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfiguration;
 };

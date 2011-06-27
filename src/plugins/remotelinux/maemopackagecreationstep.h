@@ -45,7 +45,6 @@ namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 
 namespace RemoteLinux {
 namespace Internal {
-class MaemoDeployableListModel;
 class AbstractQt4MaemoTarget;
 class AbstractDebBasedQt4MaemoTarget;
 class AbstractRpmBasedQt4MaemoTarget;

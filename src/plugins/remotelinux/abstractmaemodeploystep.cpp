@@ -32,6 +32,7 @@
 
 #include "abstractmaemodeploystep.h"
 
+#include "deployablefile.h"
 #include "maemoconstants.h"
 #include "maemodeploystepwidget.h"
 #include "maemoglobal.h"
@@ -48,6 +49,7 @@
 
 #include <utils/ssh/sshconnectionmanager.h>
 
+#include <QtCore/QDateTime>
 #include <QtCore/QEventLoop>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
@@ -177,7 +179,7 @@ void AbstractMaemoDeployStep::getDeployTimesFromMap(const QVariantMap &map)
         = qMin(qMin(hostList.size(), fileList.size()),
             qMin(remotePathList.size(), timeList.size()));
     for (int i = 0; i < elemCount; ++i) {
-        const MaemoDeployable d(fileList.at(i).toString(),
+        const DeployableFile d(fileList.at(i).toString(),
             remotePathList.at(i).toString());
         m_lastDeployed.insert(DeployablePerHost(d, hostList.at(i).toString()),
             timeList.at(i).toDateTime());
@@ -220,7 +222,7 @@ void AbstractMaemoDeployStep::stop()
 }
 
 bool AbstractMaemoDeployStep::currentlyNeedsDeployment(const QString &host,
-    const MaemoDeployable &deployable) const
+    const DeployableFile &deployable) const
 {
     const QDateTime &lastDeployed
         = m_lastDeployed.value(DeployablePerHost(deployable, host));
@@ -229,7 +231,7 @@ bool AbstractMaemoDeployStep::currentlyNeedsDeployment(const QString &host,
 }
 
 void AbstractMaemoDeployStep::setDeployed(const QString &host,
-    const MaemoDeployable &deployable)
+    const DeployableFile &deployable)
 {
     m_lastDeployed.insert(DeployablePerHost(deployable, host),
         QDateTime::currentDateTime());

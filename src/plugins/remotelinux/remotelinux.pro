@@ -21,10 +21,7 @@ HEADERS += \
     maemopackagecreationstep.h \
     maemopackagecreationfactory.h \
     maemopackagecreationwidget.h \
-    maemodeployablelistmodel.h \
     maemoqemumanager.h \
-    maemodeployables.h \
-    maemodeployable.h \
     maemodeploystepwidget.h \
     maemodeploystepfactory.h \
     maemoglobal.h \
@@ -85,7 +82,10 @@ HEADERS += \
     remotelinuxruncontrolfactory.h \
     remotelinuxdebugsupport.h \
     genericlinuxdeviceconfigurationwizardpages.h \
-    portlist.h
+    portlist.h \
+    deployablefile.h \
+    deployablefilesperprofile.h \
+    deploymentinfo.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -100,9 +100,7 @@ SOURCES += \
     maemopackagecreationstep.cpp \
     maemopackagecreationfactory.cpp \
     maemopackagecreationwidget.cpp \
-    maemodeployablelistmodel.cpp \
     maemoqemumanager.cpp \
-    maemodeployables.cpp \
     maemodeploystepwidget.cpp \
     maemodeploystepfactory.cpp \
     maemoglobal.cpp \
@@ -162,7 +160,9 @@ SOURCES += \
     remotelinuxruncontrolfactory.cpp \
     remotelinuxdebugsupport.cpp \
     genericlinuxdeviceconfigurationwizardpages.cpp \
-    portlist.cpp
+    portlist.cpp \
+    deployablefilesperprofile.cpp \
+    deploymentinfo.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \

@@ -33,7 +33,7 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include "abstractlinuxdevicedeploystep.h"
-#include "maemodeployables.h"
+#include "deploymentinfo.h"
 #include "maemoglobal.h"
 #include "maemoqtversion.h"
 #include "maemotoolchain.h"
@@ -280,7 +280,7 @@ QString RemoteLinuxRunConfiguration::localExecutableFilePath() const
 QString RemoteLinuxRunConfiguration::remoteExecutableFilePath() const
 {
     return deployConfig()
-        ? deployConfig()->deployables()->remoteExecutableFilePath(localExecutableFilePath())
+        ? deployConfig()->deploymentInfo()->remoteExecutableFilePath(localExecutableFilePath())
         : QString();
 }
 
@@ -329,7 +329,7 @@ void RemoteLinuxRunConfiguration::handleDeployConfigChanged()
 {
     Qt4MaemoDeployConfiguration * const activeDeployConf = deployConfig();
     if (activeDeployConf) {
-        connect(activeDeployConf->deployables().data(), SIGNAL(modelReset()),
+        connect(activeDeployConf->deploymentInfo().data(), SIGNAL(modelReset()),
             SLOT(handleDeployablesUpdated()), Qt::UniqueConnection);
         connect(activeDeployConf, SIGNAL(currentDeviceConfigurationChanged()),
             SLOT(updateDeviceConfigurations()), Qt::UniqueConnection);

@@ -32,10 +32,10 @@
 
 #include "remotelinuxplugin.h"
 
+#include "deployablefile.h"
 #include "genericlinuxdeviceconfigurationfactory.h"
 #include "maddedeviceconfigurationfactory.h"
 #include "maemoconstants.h"
-#include "maemodeployable.h"
 #include "maemodeploystepfactory.h"
 #include "linuxdeviceconfigurations.h"
 #include "maemoglobal.h"
@@ -90,7 +90,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunControlFactory);
 
-    qRegisterMetaType<MaemoDeployable>("MaemoDeployable");
+    qRegisterMetaType<DeployableFile>("DeployableFile");
 
     return true;
 }

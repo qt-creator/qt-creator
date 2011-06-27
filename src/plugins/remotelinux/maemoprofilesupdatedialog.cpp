@@ -32,7 +32,7 @@
 #include "maemoprofilesupdatedialog.h"
 #include "ui_maemoprofilesupdatedialog.h"
 
-#include "maemodeployablelistmodel.h"
+#include "deployablefilesperprofile.h"
 
 #include <qt4projectmanager/qt4nodes.h>
 
@@ -42,7 +42,7 @@
 namespace RemoteLinux {
 namespace Internal {
 
-MaemoProFilesUpdateDialog::MaemoProFilesUpdateDialog(const QList<MaemoDeployableListModel *> &models,
+MaemoProFilesUpdateDialog::MaemoProFilesUpdateDialog(const QList<DeployableFilesPerProFile *> &models,
     QWidget *parent)
     : QDialog(parent),
     m_models(models),

@@ -32,11 +32,11 @@
 
 #include "qt4maemodeployconfiguration.h"
 
+#include "deploymentinfo.h"
 #include "linuxdeviceconfigurations.h"
 #include "maemoconstants.h"
 #include "maemodeploybymountstep.h"
 #include "maemodeployconfigurationwidget.h"
-#include "maemodeployables.h"
 #include "maemoinstalltosysrootstep.h"
 #include "maemopackagecreationstep.h"
 #include "maemopertargetdeviceconfigurationlistmodel.h"
@@ -60,7 +60,7 @@ const QString OldDeployConfigId = QLatin1String("2.2MaemoDeployConfig");
 Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(Target *target,
     const QString &id) : DeployConfiguration(target, id)
 {
-    // A MaemoDeployables object is only dependent on the active build
+    // A DeploymentInfo object is only dependent on the active build
     // configuration and therefore can (and should) be shared among all
     // deploy steps. The per-target device configurations model is
     // similarly only dependent on the target.
@@ -70,13 +70,13 @@ Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(Target *target,
         const Qt4MaemoDeployConfiguration * const mdc
             = qobject_cast<const Qt4MaemoDeployConfiguration *>(dc);
         if (mdc) {
-            m_deployables = mdc->deployables();
+            m_deploymentInfo = mdc->deploymentInfo();
             m_devConfModel = mdc->m_devConfModel;
             break;
         }
     }
-    if (!m_deployables) {
-        m_deployables = QSharedPointer<MaemoDeployables>(new MaemoDeployables(qobject_cast<Qt4BaseTarget *>(target)));
+    if (!m_deploymentInfo) {
+        m_deploymentInfo = QSharedPointer<DeploymentInfo>(new DeploymentInfo(qobject_cast<Qt4BaseTarget *>(target)));
         m_devConfModel = QSharedPointer<MaemoPerTargetDeviceConfigurationListModel>
             (new MaemoPerTargetDeviceConfigurationListModel(0, target));
     }
@@ -89,7 +89,7 @@ Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target
 {
     const Qt4MaemoDeployConfiguration * const mdc
         = qobject_cast<Qt4MaemoDeployConfiguration *>(source);
-    m_deployables = mdc->deployables();
+    m_deploymentInfo = mdc->deploymentInfo();
     m_devConfModel = mdc->deviceConfigModel();
     initialize();
 }
@@ -145,9 +145,9 @@ DeployConfigurationWidget *Qt4MaemoDeployConfiguration::configurationWidget() co
     return new MaemoDeployConfigurationWidget;
 }
 
-QSharedPointer<MaemoDeployables> Qt4MaemoDeployConfiguration::deployables() const
+QSharedPointer<DeploymentInfo> Qt4MaemoDeployConfiguration::deploymentInfo() const
 {
-    return m_deployables;
+    return m_deploymentInfo;
 }
 
 QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> Qt4MaemoDeployConfiguration::deviceConfigModel() const

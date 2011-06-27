@@ -30,24 +30,25 @@
 **
 **************************************************************************/
 
-#ifndef MAEMODEPLOYABLE_H
-#define MAEMODEPLOYABLE_H
+#ifndef DEPLOYABLEFILE_H
+#define DEPLOYABLEFILE_H
+
+#include "remotelinux_export.h"
 
 #include <QtCore/QHash>
 #include <QtCore/QString>
 
 namespace RemoteLinux {
-namespace Internal {
 
-class MaemoDeployable
+class REMOTELINUX_EXPORT DeployableFile
 {
 public:
-    MaemoDeployable() {}
+    DeployableFile() {}
 
-    MaemoDeployable(const QString &localFilePath, const QString &remoteDir)
+    DeployableFile(const QString &localFilePath, const QString &remoteDir)
         : localFilePath(localFilePath), remoteDir(remoteDir) {}
 
-    bool operator==(const MaemoDeployable &other) const
+    bool operator==(const DeployableFile &other) const
     {
         return localFilePath == other.localFilePath
             && remoteDir == other.remoteDir;
@@ -57,12 +58,11 @@ public:
     QString remoteDir;
 };
 
-inline uint qHash(const MaemoDeployable &d)
+inline uint qHash(const DeployableFile &d)
 {
     return qHash(qMakePair(d.localFilePath, d.remoteDir));
 }
 
 } // namespace RemoteLinux
-} // namespace Internal
 
-#endif // MAEMODEPLOYABLE_H
+#endif // DEPLOYABLEFILE_H

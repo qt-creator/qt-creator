@@ -31,8 +31,8 @@
 
 #include "maemopackagecreationstep.h"
 
+#include "deploymentinfo.h"
 #include "maemoconstants.h"
-#include "maemodeployables.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationwidget.h"
 #include "qt4maemodeployconfiguration.h"
@@ -118,7 +118,7 @@ void AbstractMaemoPackageCreationStep::run(QFutureInterface<bool> &fi)
     buildProc->deleteLater();
     if (success) {
         emit addOutput(tr("Package created."), BuildStep::MessageOutput);
-        deployConfig()->deployables()->setUnmodified();
+        deployConfig()->deploymentInfo()->setUnmodified();
     }
     fi.reportResult(success);
 }
@@ -197,15 +197,15 @@ QString AbstractMaemoPackageCreationStep::projectName() const
 
 bool AbstractMaemoPackageCreationStep::packagingNeeded() const
 {
-    const QSharedPointer<MaemoDeployables> &deployables
-        = deployConfig()->deployables();
+    const QSharedPointer<DeploymentInfo> &deploymentInfo
+        = deployConfig()->deploymentInfo();
     QFileInfo packageInfo(packageFilePath());
-    if (!packageInfo.exists() || deployables->isModified())
+    if (!packageInfo.exists() || deploymentInfo->isModified())
         return true;
 
-    const int deployableCount = deployables->deployableCount();
+    const int deployableCount = deploymentInfo->deployableCount();
     for (int i = 0; i < deployableCount; ++i) {
-        if (MaemoGlobal::isFileNewerThan(deployables->deployableAt(i).localFilePath,
+        if (MaemoGlobal::isFileNewerThan(deploymentInfo->deployableAt(i).localFilePath,
                 packageInfo.lastModified()))
             return true;
     }
@@ -656,9 +656,9 @@ bool MaemoTarPackageCreationStep::createPackage(QProcess *buildProc,
                  tarFile.errorString()));
         return false;
     }
-    const QSharedPointer<MaemoDeployables> deployables = deployConfig()->deployables();
-    for (int i = 0; i < deployables->deployableCount(); ++i) {
-        const MaemoDeployable &d = deployables->deployableAt(i);
+    const QSharedPointer<DeploymentInfo> deploymentInfo = deployConfig()->deploymentInfo();
+    for (int i = 0; i < deploymentInfo->deployableCount(); ++i) {
+        const DeployableFile &d = deploymentInfo->deployableAt(i);
         QFileInfo fileInfo(d.localFilePath);
         if (!appendFile(tarFile, fileInfo, d.remoteDir + QLatin1Char('/')
             + fileInfo.fileName(), fi)) {

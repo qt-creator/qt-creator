@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-#include "maemodeployablelistmodel.h"
+#include "deployablefilesperprofile.h"
 
 #include "maemoglobal.h"
 
@@ -55,9 +55,9 @@
 using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
-namespace Internal {
+using namespace Internal;
 
-MaemoDeployableListModel::MaemoDeployableListModel(const Qt4BaseTarget *target,
+DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4BaseTarget *target,
     const Qt4ProFileNode *proFileNode, ProFileUpdateSetting updateSetting, QObject *parent)
     : QAbstractTableModel(parent),
       m_target(target),
@@ -75,9 +75,9 @@ MaemoDeployableListModel::MaemoDeployableListModel(const Qt4BaseTarget *target,
     buildModel();
 }
 
-MaemoDeployableListModel::~MaemoDeployableListModel() {}
+DeployableFilesPerProFile::~DeployableFilesPerProFile() {}
 
-bool MaemoDeployableListModel::buildModel()
+bool DeployableFilesPerProFile::buildModel()
 {
     m_deployables.clear();
 
@@ -92,40 +92,40 @@ bool MaemoDeployableListModel::buildModel()
             << QLatin1String("INSTALLS += target");
         return addLinesToProFile(deployInfo);
     } else if (m_projectType == ApplicationTemplate) {
-        m_deployables.prepend(MaemoDeployable(localExecutableFilePath(),
+        m_deployables.prepend(DeployableFile(localExecutableFilePath(),
             m_installsList.targetPath));
     } else if (m_projectType == LibraryTemplate) {
         foreach (const QString &filePath, localLibraryFilePaths()) {
-            m_deployables.prepend(MaemoDeployable(filePath,
+            m_deployables.prepend(DeployableFile(filePath,
                 m_installsList.targetPath));
         }
     }
     foreach (const InstallsItem &elem, m_installsList.items) {
         foreach (const QString &file, elem.files)
-            m_deployables << MaemoDeployable(file, elem.path);
+            m_deployables << DeployableFile(file, elem.path);
     }
 
     m_modified = true;
     return true;
 }
 
-MaemoDeployable MaemoDeployableListModel::deployableAt(int row) const
+DeployableFile DeployableFilesPerProFile::deployableAt(int row) const
 {
     Q_ASSERT(row >= 0 && row < rowCount());
     return m_deployables.at(row);
 }
 
-int MaemoDeployableListModel::rowCount(const QModelIndex &parent) const
+int DeployableFilesPerProFile::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : m_deployables.count();
 }
 
-int MaemoDeployableListModel::columnCount(const QModelIndex &parent) const
+int DeployableFilesPerProFile::columnCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : 2;
 }
 
-QVariant MaemoDeployableListModel::data(const QModelIndex &index, int role) const
+QVariant DeployableFilesPerProFile::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
@@ -140,7 +140,7 @@ QVariant MaemoDeployableListModel::data(const QModelIndex &index, int role) cons
         }
     }
 
-    const MaemoDeployable &d = deployableAt(index.row());
+    const DeployableFile &d = deployableAt(index.row());
     if (index.column() == 0 && role == Qt::DisplayRole)
         return QDir::toNativeSeparators(d.localFilePath);
     if (role == Qt::DisplayRole || role == Qt::EditRole)
@@ -148,7 +148,7 @@ QVariant MaemoDeployableListModel::data(const QModelIndex &index, int role) cons
     return QVariant();
 }
 
-Qt::ItemFlags MaemoDeployableListModel::flags(const QModelIndex &index) const
+Qt::ItemFlags DeployableFilesPerProFile::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags parentFlags = QAbstractTableModel::flags(index);
     if (isEditable(index))
@@ -156,7 +156,7 @@ Qt::ItemFlags MaemoDeployableListModel::flags(const QModelIndex &index) const
     return parentFlags;
 }
 
-bool MaemoDeployableListModel::setData(const QModelIndex &index,
+bool DeployableFilesPerProFile::setData(const QModelIndex &index,
                                    const QVariant &value, int role)
 {
     if (!isEditable(index) || role != Qt::EditRole)
@@ -171,7 +171,7 @@ bool MaemoDeployableListModel::setData(const QModelIndex &index,
     return true;
 }
 
-QVariant MaemoDeployableListModel::headerData(int section,
+QVariant DeployableFilesPerProFile::headerData(int section,
              Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Vertical || role != Qt::DisplayRole)
@@ -179,14 +179,14 @@ QVariant MaemoDeployableListModel::headerData(int section,
     return section == 0 ? tr("Local File Path") : tr("Remote Directory");
 }
 
-QString MaemoDeployableListModel::localExecutableFilePath() const
+QString DeployableFilesPerProFile::localExecutableFilePath() const
 {
     if (!m_targetInfo.valid || m_projectType != ApplicationTemplate)
         return QString();
     return QDir::cleanPath(m_targetInfo.workingDir + '/' + m_targetInfo.target);
 }
 
-QStringList MaemoDeployableListModel::localLibraryFilePaths() const
+QStringList DeployableFilesPerProFile::localLibraryFilePaths() const
 {
     if (!m_targetInfo.valid || m_projectType != LibraryTemplate)
         return QStringList();
@@ -206,7 +206,7 @@ QStringList MaemoDeployableListModel::localLibraryFilePaths() const
         << basePath;
 }
 
-QString MaemoDeployableListModel::remoteExecutableFilePath() const
+QString DeployableFilesPerProFile::remoteExecutableFilePath() const
 {
     return m_hasTargetPath && m_projectType == ApplicationTemplate
         ? deployableAt(0).remoteDir + '/'
@@ -214,37 +214,37 @@ QString MaemoDeployableListModel::remoteExecutableFilePath() const
         : QString();
 }
 
-QString MaemoDeployableListModel::projectDir() const
+QString DeployableFilesPerProFile::projectDir() const
 {
     return QFileInfo(m_proFilePath).dir().path();
 }
 
-void MaemoDeployableListModel::setProFileUpdateSetting(ProFileUpdateSetting updateSetting)
+void DeployableFilesPerProFile::setProFileUpdateSetting(ProFileUpdateSetting updateSetting)
 {
     m_proFileUpdateSetting = updateSetting;
     if (updateSetting == UpdateProFile)
         buildModel();
 }
 
-bool MaemoDeployableListModel::isEditable(const QModelIndex &index) const
+bool DeployableFilesPerProFile::isEditable(const QModelIndex &index) const
 {
     return m_projectType != AuxTemplate
         && index.row() == 0 && index.column() == 1
         && m_deployables.first().remoteDir.isEmpty();
 }
 
-QString MaemoDeployableListModel::localDesktopFilePath() const
+QString DeployableFilesPerProFile::localDesktopFilePath() const
 {
     if (m_projectType == LibraryTemplate)
         return QString();
-    foreach (const MaemoDeployable &d, m_deployables) {
+    foreach (const DeployableFile &d, m_deployables) {
         if (QFileInfo(d.localFilePath).fileName() == m_projectName + QLatin1String(".desktop"))
             return d.localFilePath;
     }
     return QString();
 }
 
-bool MaemoDeployableListModel::addDesktopFile()
+bool DeployableFilesPerProFile::addDesktopFile()
 {
     if (!canAddDesktopFile())
         return true;
@@ -275,12 +275,12 @@ bool MaemoDeployableListModel::addDesktopFile()
         return false;
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    m_deployables << MaemoDeployable(desktopFilePath, remoteDir);
+    m_deployables << DeployableFile(desktopFilePath, remoteDir);
     endInsertRows();
     return true;
 }
 
-bool MaemoDeployableListModel::addIcon(const QString &fileName)
+bool DeployableFilesPerProFile::addIcon(const QString &fileName)
 {
     if (!canAddIcon())
         return true;
@@ -295,17 +295,17 @@ bool MaemoDeployableListModel::addIcon(const QString &fileName)
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     const QString filePath = QFileInfo(m_proFilePath).path()
         + QLatin1Char('/') + fileName;
-    m_deployables << MaemoDeployable(filePath, remoteIconDir());
+    m_deployables << DeployableFile(filePath, remoteIconDir());
     endInsertRows();
     return true;
 }
 
-QString MaemoDeployableListModel::remoteIconFilePath() const
+QString DeployableFilesPerProFile::remoteIconFilePath() const
 {
     if (m_projectType == LibraryTemplate)
         return QString();
     const QList<QByteArray> &imageTypes = QImageReader::supportedImageFormats();
-    foreach (const MaemoDeployable &d, m_deployables) {
+    foreach (const DeployableFile &d, m_deployables) {
         const QByteArray extension
             = QFileInfo(d.localFilePath).suffix().toLocal8Bit();
         if (d.remoteDir.startsWith(remoteIconDir())
@@ -316,7 +316,7 @@ QString MaemoDeployableListModel::remoteIconFilePath() const
     return QString();
 }
 
-bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
+bool DeployableFilesPerProFile::addLinesToProFile(const QStringList &lines)
 {
     Core::FileChangeBlocker update(m_proFilePath);
 
@@ -329,14 +329,14 @@ bool MaemoDeployableListModel::addLinesToProFile(const QStringList &lines)
     return saver.finalize(Core::ICore::instance()->mainWindow());
 }
 
-const QtSupport::BaseQtVersion *MaemoDeployableListModel::qtVersion() const
+const QtSupport::BaseQtVersion *DeployableFilesPerProFile::qtVersion() const
 {
     const Qt4BuildConfiguration *const bc = m_target->activeBuildConfiguration();
     QTC_ASSERT(bc, return 0);
     return bc->qtVersion();
 }
 
-QString MaemoDeployableListModel::proFileScope() const
+QString DeployableFilesPerProFile::proFileScope() const
 {
     const QtSupport::BaseQtVersion *const qv = qtVersion();
     QTC_ASSERT(qv, return QString());
@@ -344,12 +344,12 @@ QString MaemoDeployableListModel::proFileScope() const
         ? "maemo5" : "unix:!symbian:!maemo5");
 }
 
-QString MaemoDeployableListModel::installPrefix() const
+QString DeployableFilesPerProFile::installPrefix() const
 {
     return QLatin1String("/opt/") + m_projectName;
 }
 
-QString MaemoDeployableListModel::remoteIconDir() const
+QString DeployableFilesPerProFile::remoteIconDir() const
 {
     const QtSupport::BaseQtVersion *const qv = qtVersion();
     QTC_ASSERT(qv, return QString());
@@ -358,4 +358,3 @@ QString MaemoDeployableListModel::remoteIconDir() const
 }
 
 } // namespace RemoteLinux
-} // namespace Internal

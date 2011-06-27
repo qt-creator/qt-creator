@@ -34,8 +34,6 @@
 #define ABSTRACTMAEMODEPLOYSTEP_H
 
 #include "abstractlinuxdevicedeploystep.h"
-#include "maemodeployable.h"
-#include "maemodeployables.h"
 
 #include <projectexplorer/buildstep.h>
 
@@ -52,6 +50,8 @@ namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 namespace Utils { class SshConnection; }
 
 namespace RemoteLinux {
+class DeployableFile;
+
 namespace Internal {
 class AbstractMaemoPackageCreationStep;
 class Qt4MaemoDeployConfiguration;
@@ -79,8 +79,8 @@ protected:
     BaseState baseState() const { return m_baseState; }
 
     bool currentlyNeedsDeployment(const QString &host,
-        const MaemoDeployable &deployable) const;
-    void setDeployed(const QString &host, const MaemoDeployable &deployable);
+        const DeployableFile &deployable) const;
+    void setDeployed(const QString &host, const DeployableFile &deployable);
     void raiseError(const QString &error);
     void writeOutput(const QString &text, OutputFormat format = MessageOutput,
         OutputNewlineSetting newlineSetting = DoAppendNewline);
@@ -118,7 +118,7 @@ private:
     void setBaseState(BaseState newState);
 
     QSharedPointer<Utils::SshConnection> m_connection;
-    typedef QPair<MaemoDeployable, QString> DeployablePerHost;
+    typedef QPair<DeployableFile, QString> DeployablePerHost;
     QHash<DeployablePerHost, QDateTime> m_lastDeployed;
     BaseState m_baseState;
     bool m_hasError;

@@ -35,7 +35,7 @@
 
 #include "abstractmaemodeploystep.h"
 
-#include "maemodeployable.h"
+#include "deployablefile.h"
 #include "maemomountspecification.h"
 
 namespace RemoteLinux {
@@ -132,10 +132,10 @@ private:
     virtual void handleInstallationSuccess();
 
     void ctor();
-    Q_SLOT void handleFileCopied(const MaemoDeployable &deployable);
+    Q_SLOT void handleFileCopied(const DeployableFile &deployable);
 
     MaemoRemoteCopyFacility *m_copyFacility;
-    mutable QList<MaemoDeployable> m_filesToCopy;
+    mutable QList<DeployableFile> m_filesToCopy;
 };
 
 } // namespace Internal

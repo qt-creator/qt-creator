@@ -31,7 +31,6 @@
 **************************************************************************/
 #include "remotelinuxrunconfigurationwidget.h"
 
-#include "maemodeployables.h"
 #include "maemodeviceenvreader.h"
 #include "maemoglobal.h"
 #include "remotelinuxrunconfiguration.h"
@@ -47,6 +46,7 @@
 
 #include <QtGui/QButtonGroup>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 #include <QtGui/QComboBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QGroupBox>

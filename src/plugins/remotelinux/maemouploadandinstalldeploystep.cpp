@@ -32,6 +32,7 @@
 
 #include "maemouploadandinstalldeploystep.h"
 
+#include "deployablefile.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopackageinstaller.h"
@@ -96,7 +97,7 @@ bool AbstractMaemoUploadAndInstallStep::isDeploymentNeeded(const QString &hostNa
 {
     const AbstractMaemoPackageCreationStep * const pStep = packagingStep();
     Q_ASSERT(pStep);
-    const MaemoDeployable d(pStep->packageFilePath(), QString());
+    const DeployableFile d(pStep->packageFilePath(), QString());
     return currentlyNeedsDeployment(hostName, d);
 }
 
@@ -168,7 +169,7 @@ void AbstractMaemoUploadAndInstallStep::handleInstallationFinished(const QString
 
     if (errorMsg.isEmpty()) {
         setDeployed(connection()->connectionParameters().host,
-            MaemoDeployable(packagingStep()->packageFilePath(), QString()));
+            DeployableFile(packagingStep()->packageFilePath(), QString()));
         writeOutput(tr("Package installed."));
     } else {
         raiseError(errorMsg);

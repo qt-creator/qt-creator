@@ -46,8 +46,9 @@ class SftpChannel;
 }
 
 namespace RemoteLinux {
+class DeployableFile;
+
 namespace Internal {
-class MaemoDeployable;
 
 class MaemoDirectDeviceUploadStep : public AbstractMaemoDeployStep
 {
@@ -79,12 +80,12 @@ private:
     void ctor();
     void setFinished();
     void checkDeploymentNeeded(const QString &hostName,
-        const MaemoDeployable &deployable) const;
+        const DeployableFile &deployable) const;
     void uploadNextFile();
 
     QSharedPointer<Utils::SftpChannel> m_uploader;
     QSharedPointer<Utils::SshRemoteProcess> m_mkdirProc;
-    mutable QList<MaemoDeployable> m_filesToUpload;
+    mutable QList<DeployableFile> m_filesToUpload;
     ExtendedState m_extendedState;
 };
 

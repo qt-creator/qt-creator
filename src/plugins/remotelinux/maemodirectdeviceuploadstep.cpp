@@ -32,7 +32,8 @@
 
 #include "maemodirectdeviceuploadstep.h"
 
-#include "maemodeployable.h"
+#include "deployablefile.h"
+#include "deploymentinfo.h"
 #include "maemoglobal.h"
 #include "qt4maemodeployconfiguration.h"
 
@@ -82,16 +83,16 @@ bool MaemoDirectDeviceUploadStep::isDeploymentPossibleInternal(QString &whyNot) 
 bool MaemoDirectDeviceUploadStep::isDeploymentNeeded(const QString &hostName) const
 {
     m_filesToUpload.clear();
-    const QSharedPointer<MaemoDeployables> deployables
-        = maemoDeployConfig()->deployables();
-    const int deployableCount = deployables->deployableCount();
+    const QSharedPointer<DeploymentInfo> deploymentInfo
+        = maemoDeployConfig()->deploymentInfo();
+    const int deployableCount = deploymentInfo->deployableCount();
     for (int i = 0; i < deployableCount; ++i)
-        checkDeploymentNeeded(hostName, deployables->deployableAt(i));
+        checkDeploymentNeeded(hostName, deploymentInfo->deployableAt(i));
     return !m_filesToUpload.isEmpty();
 }
 
 void MaemoDirectDeviceUploadStep::checkDeploymentNeeded(const QString &hostName,
-    const MaemoDeployable &deployable) const
+    const DeployableFile &deployable) const
 {
     QFileInfo fileInfo(deployable.localFilePath);
     if (fileInfo.isDir()) {
@@ -105,7 +106,7 @@ void MaemoDirectDeviceUploadStep::checkDeploymentNeeded(const QString &hostName,
             const QString remoteDir = deployable.remoteDir + QLatin1Char('/')
                 + fileInfo.fileName();
             checkDeploymentNeeded(hostName,
-                MaemoDeployable(localFilePath, remoteDir));
+                DeployableFile(localFilePath, remoteDir));
         }
     } else if (currentlyNeedsDeployment(hostName, deployable)) {
         m_filesToUpload << deployable;
@@ -155,7 +156,7 @@ void MaemoDirectDeviceUploadStep::uploadNextFile()
         return;
     }
 
-    const MaemoDeployable &d = m_filesToUpload.first();
+    const DeployableFile &d = m_filesToUpload.first();
     QString dirToCreate = d.remoteDir;
     QFileInfo fi(d.localFilePath);
     if (fi.isDir())
@@ -177,7 +178,7 @@ void MaemoDirectDeviceUploadStep::handleMkdirFinished(int exitStatus)
     if (m_extendedState == Inactive)
         return;
 
-    const MaemoDeployable &d = m_filesToUpload.first();
+    const DeployableFile &d = m_filesToUpload.first();
     QFileInfo fi(d.localFilePath);
     const QString nativePath = QDir::toNativeSeparators(d.localFilePath);
     if (exitStatus != SshRemoteProcess::ExitedNormally
@@ -209,7 +210,7 @@ void MaemoDirectDeviceUploadStep::handleUploadFinished(Utils::SftpJobId jobId,
     if (m_extendedState == Inactive)
         return;
 
-    const MaemoDeployable d = m_filesToUpload.takeFirst();
+    const DeployableFile d = m_filesToUpload.takeFirst();
     if (!errorMsg.isEmpty()) {
         raiseError(tr("Upload of file '%1' failed: %2")
             .arg(QDir::toNativeSeparators(d.localFilePath), errorMsg));

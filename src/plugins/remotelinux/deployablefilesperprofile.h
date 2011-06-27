@@ -30,10 +30,12 @@
 **
 **************************************************************************/
 
-#ifndef MAEMOPACKAGECONTENTS_H
-#define MAEMOPACKAGECONTENTS_H
+#ifndef DEPLOYABLEFILESPERPROFILE_H
+#define DEPLOYABLEFILESPERPROFILE_H
 
-#include "maemodeployable.h"
+#include "deployablefile.h"
+
+#include "remotelinux_export.h"
 
 #include <qt4projectmanager/qt4nodes.h>
 
@@ -51,9 +53,8 @@ class Qt4BaseTarget;
 }
 
 namespace RemoteLinux {
-namespace Internal {
 
-class MaemoDeployableListModel : public QAbstractTableModel
+class REMOTELINUX_EXPORT DeployableFilesPerProFile : public QAbstractTableModel
 {
     Q_OBJECT
 public:
@@ -61,14 +62,14 @@ public:
         UpdateProFile, DontUpdateProFile, AskToUpdateProFile
     };
 
-    MaemoDeployableListModel(const Qt4ProjectManager::Qt4BaseTarget *target,
+    DeployableFilesPerProFile(const Qt4ProjectManager::Qt4BaseTarget *target,
         const Qt4ProjectManager::Qt4ProFileNode *proFileNode, ProFileUpdateSetting updateSetting,
         QObject *parent);
-    ~MaemoDeployableListModel();
+    ~DeployableFilesPerProFile();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
-    MaemoDeployable deployableAt(int row) const;
+    DeployableFile deployableAt(int row) const;
     bool isModified() const { return m_modified; }
     void setUnModified() { m_modified = false; }
     const QtSupport::BaseQtVersion *qtVersion() const;
@@ -119,13 +120,12 @@ private:
     const Qt4ProjectManager::InstallsList m_installsList;
     const Qt4ProjectManager::ProjectVersion m_projectVersion;
     const QStringList m_config;
-    QList<MaemoDeployable> m_deployables;
+    QList<DeployableFile> m_deployables;
     mutable bool m_modified;
     ProFileUpdateSetting m_proFileUpdateSetting;
     bool m_hasTargetPath;
 };
 
 } // namespace RemoteLinux
-} // namespace Internal
 
-#endif // MAEMOPACKAGECONTENTS_H
+#endif // DEPLOYABLEFILESPERPROFILE_H

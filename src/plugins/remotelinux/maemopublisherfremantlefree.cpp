@@ -31,8 +31,8 @@
 **************************************************************************/
 #include "maemopublisherfremantlefree.h"
 
-#include "maemodeployablelistmodel.h"
-#include "maemodeployables.h"
+#include "deployablefilesperprofile.h"
+#include "deploymentinfo.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"
@@ -536,10 +536,10 @@ bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
     bool success = true;
     const Qt4MaemoDeployConfiguration * const deployConfig
         = qobject_cast<Qt4MaemoDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
-    const QSharedPointer<MaemoDeployables> deployables
-        = deployConfig->deployables();
-    for (int i = 0; i < deployables->modelCount(); ++i) {
-        const MaemoDeployableListModel * const model = deployables->modelAt(i);
+    const QSharedPointer<DeploymentInfo> deploymentInfo
+        = deployConfig->deploymentInfo();
+    for (int i = 0; i < deploymentInfo->modelCount(); ++i) {
+        const DeployableFilesPerProFile * const model = deploymentInfo->modelAt(i);
         QString desktopFilePath = model->localDesktopFilePath();
         if (desktopFilePath.isEmpty())
             continue;
