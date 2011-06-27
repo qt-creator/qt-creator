@@ -39,7 +39,6 @@ Item {
     id: detail
     property string label
     property string content
-    property int maxLines: 4
     signal linkActivated(string url)
 
     height: childrenRect.height
@@ -67,7 +66,6 @@ Item {
         font.pixelSize: 12
         anchors.baseline: lbl.baseline
         anchors.left: guideline.right
-        maximumLineCount: maxLines
         onLinkActivated: detail.linkActivated(link)
     }
 }
