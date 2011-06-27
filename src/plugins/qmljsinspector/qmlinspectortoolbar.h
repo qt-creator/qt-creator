@@ -93,7 +93,7 @@ public slots:
 signals:
     void applyChangesFromQmlFileTriggered(bool isChecked);
 
-    void designModeSelected(bool checked);
+    void designModeSelected(bool);
     void reloadSelected();
     void colorPickerSelected();
     void selectToolSelected();
@@ -105,11 +105,10 @@ signals:
     void animationPausedChanged(bool paused);
 
 private slots:
-    void activateDesignModeOnClick();
     void activatePlayOnClick();
-    void activateColorPickerOnClick();
-    void activateSelectToolOnClick();
-    void activateZoomOnClick();
+    void colorPickerTriggered(bool checked);
+    void selectToolTriggered(bool checked);
+    void zoomToolTriggered(bool checked);
 
     void showAppOnTopClick();
 
@@ -122,10 +121,11 @@ private slots:
     void activeDebugLanguagesChanged(Debugger::DebuggerLanguages languages);
 
 private:
+    void updateDesignModeActions(DesignTool activeTool);
+
     QToolButton *m_operateByInstructionButton;
 
     QAction *m_fromQmlAction;
-    QAction *m_inspectorModeAction;
     QAction *m_playAction;
     QAction *m_selectAction;
     QAction *m_zoomAction;
@@ -145,6 +145,7 @@ private:
     bool m_paused;
     qreal m_animationSpeed;
 
+    bool m_designModeActive;
     DesignTool m_activeTool;
 
     Utils::StyledBar *m_barWidget;

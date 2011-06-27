@@ -66,7 +66,6 @@ static QToolButton *toolButton(QAction *action)
 QmlInspectorToolBar::QmlInspectorToolBar(QObject *parent) :
     QObject(parent),
     m_fromQmlAction(0),
-    m_inspectorModeAction(0),
     m_playAction(0),
     m_selectAction(0),
     m_zoomAction(0),
@@ -79,6 +78,7 @@ QmlInspectorToolBar::QmlInspectorToolBar(QObject *parent) :
     m_emitSignals(true),
     m_paused(false),
     m_animationSpeed(1.0f),
+    m_designModeActive(false),
     m_activeTool(NoTool),
     m_barWidget(0)
 {
@@ -88,7 +88,6 @@ void QmlInspectorToolBar::setEnabled(bool value)
 {
     m_fromQmlAction->setEnabled(value);
     m_showAppOnTopAction->setEnabled(value);
-    m_inspectorModeAction->setEnabled(value);
     m_playAction->setEnabled(value);
     m_selectAction->setEnabled(value);
     m_zoomAction->setEnabled(value);
@@ -101,38 +100,33 @@ void QmlInspectorToolBar::enable()
     setEnabled(true);
     m_emitSignals = false;
     m_showAppOnTopAction->setChecked(false);
-    m_inspectorModeAction->setChecked(false);
     setAnimationSpeed(1.0f);
-    activateDesignModeOnClick();
+    m_designModeActive = false;
+    updateDesignModeActions(NoTool);
     m_emitSignals = true;
 }
 
 void QmlInspectorToolBar::disable()
 {
     setAnimationSpeed(1.0f);
-    activateSelectTool();
+    m_designModeActive = false;
+    updateDesignModeActions(NoTool);
     setEnabled(false);
 }
 
 void QmlInspectorToolBar::activateColorPicker()
 {
-    m_emitSignals = false;
-    activateColorPickerOnClick();
-    m_emitSignals = true;
+    updateDesignModeActions(ColorPickerMode);
 }
 
 void QmlInspectorToolBar::activateSelectTool()
 {
-    m_emitSignals = false;
-    activateSelectToolOnClick();
-    m_emitSignals = true;
+    updateDesignModeActions(SelectionToolMode);
 }
 
 void QmlInspectorToolBar::activateZoomTool()
 {
-    m_emitSignals = false;
-    activateZoomOnClick();
-    m_emitSignals = true;
+    updateDesignModeActions(ZoomMode);
 }
 
 void QmlInspectorToolBar::setAnimationSpeed(qreal slowDownFactor)
@@ -165,8 +159,8 @@ void QmlInspectorToolBar::setAnimationPaused(bool paused)
 void QmlInspectorToolBar::setDesignModeBehavior(bool inDesignMode)
 {
     m_emitSignals = false;
-    m_inspectorModeAction->setChecked(inDesignMode);
-    activateDesignModeOnClick();
+    m_designModeActive = inDesignMode;
+    updateDesignModeActions(m_activeTool);
     m_emitSignals = true;
 }
 
@@ -189,9 +183,6 @@ void QmlInspectorToolBar::createActions()
     m_showAppOnTopAction =
             new QAction(QIcon(QLatin1String(":/qml/images/app-on-top.png")),
                         tr("Show application on top"), this);
-    m_inspectorModeAction =
-            new QAction(QIcon(QLatin1String(":/qml/images/inspectormode.png")),
-                        tr("Inspector Mode"), this);
     m_playAction =
             new QAction(m_pauseIcon, tr("Play/Pause Animations"), this);
     m_selectAction =
@@ -208,13 +199,10 @@ void QmlInspectorToolBar::createActions()
     m_fromQmlAction->setChecked(true);
     m_showAppOnTopAction->setCheckable(true);
     m_showAppOnTopAction->setChecked(false);
-    m_inspectorModeAction->setCheckable(true);
-    m_inspectorModeAction->setChecked(false);
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
     m_colorPickerAction->setCheckable(true);
 
-    am->registerAction(m_inspectorModeAction, Constants::INSPECTORMODE_ACTION, context);
     Core::Command *command = am->registerAction(m_playAction, Constants::PLAY_ACTION, context);
     command->setAttribute(Core::Command::CA_UpdateIcon);
     am->registerAction(m_selectAction, Constants::SELECT_ACTION, context);
@@ -281,7 +269,6 @@ void QmlInspectorToolBar::createActions()
 
     // Inspector
     toolBarLayout->addWidget(new Utils::StyledSeparator);
-    toolBarLayout->addWidget(toolButton(am->command(Constants::INSPECTORMODE_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::SELECT_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::ZOOM_ACTION)->action()));
     toolBarLayout->addWidget(toolButton(am->command(Constants::COLOR_PICKER_ACTION)->action()));
@@ -295,12 +282,10 @@ void QmlInspectorToolBar::createActions()
 
     connect(m_fromQmlAction, SIGNAL(triggered()), SLOT(activateFromQml()));
     connect(m_showAppOnTopAction, SIGNAL(triggered()), SLOT(showAppOnTopClick()));
-    connect(m_inspectorModeAction, SIGNAL(triggered()), SLOT(activateDesignModeOnClick()));
     connect(m_playAction, SIGNAL(triggered()), SLOT(activatePlayOnClick()));
-    connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
-    connect(m_selectAction, SIGNAL(triggered()), SLOT(activateSelectToolOnClick()));
-    connect(m_zoomAction, SIGNAL(triggered()), SLOT(activateZoomOnClick()));
-    connect(m_colorPickerAction, SIGNAL(triggered()), SLOT(activateColorPickerOnClick()));
+    connect(m_colorPickerAction, SIGNAL(triggered(bool)), SLOT(colorPickerTriggered(bool)));
+    connect(m_selectAction, SIGNAL(triggered(bool)), SLOT(selectToolTriggered(bool)));
+    connect(m_zoomAction, SIGNAL(triggered(bool)), SLOT(zoomToolTriggered(bool)));
 
     Debugger::DebuggerMainWindow *mw = Debugger::DebuggerPlugin::mainWindow();
     activeDebugLanguagesChanged(mw->activeDebugLanguages());
@@ -323,18 +308,6 @@ void QmlInspectorToolBar::changeAnimationSpeed()
     updatePlayAction();
 }
 
-void QmlInspectorToolBar::activateDesignModeOnClick()
-{
-    bool checked = m_inspectorModeAction->isChecked();
-
-    m_selectAction->setEnabled(checked);
-    m_zoomAction->setEnabled(checked);
-    m_colorPickerAction->setEnabled(checked);
-
-    if (m_emitSignals)
-        emit designModeSelected(checked);
-}
-
 void QmlInspectorToolBar::activatePlayOnClick()
 {
     m_paused = !m_paused;
@@ -347,43 +320,43 @@ void QmlInspectorToolBar::updatePlayAction()
     m_playAction->setIcon(m_paused ? m_playIcon : m_pauseIcon);
 }
 
-void QmlInspectorToolBar::activateColorPickerOnClick()
+void QmlInspectorToolBar::colorPickerTriggered(bool checked)
 {
-    m_zoomAction->setChecked(false);
-    m_selectAction->setChecked(false);
+    updateDesignModeActions(ColorPickerMode);
 
-    m_colorPickerAction->setChecked(true);
-    if (m_activeTool != ColorPickerMode) {
-        m_activeTool = ColorPickerMode;
-        if (m_emitSignals)
-            emit colorPickerSelected();
+    if (m_designModeActive != checked) {
+        m_designModeActive = checked;
+        emit designModeSelected(checked);
     }
+
+    if (checked)
+        emit colorPickerSelected();
 }
 
-void QmlInspectorToolBar::activateSelectToolOnClick()
+void QmlInspectorToolBar::selectToolTriggered(bool checked)
 {
-    m_zoomAction->setChecked(false);
-    m_colorPickerAction->setChecked(false);
+    updateDesignModeActions(SelectionToolMode);
 
-    m_selectAction->setChecked(true);
-    if (m_activeTool != SelectionToolMode) {
-        m_activeTool = SelectionToolMode;
-        if (m_emitSignals)
-            emit selectToolSelected();
+    if (m_designModeActive != checked) {
+        m_designModeActive = checked;
+        emit designModeSelected(checked);
     }
+
+    if (checked)
+        emit selectToolSelected();
 }
 
-void QmlInspectorToolBar::activateZoomOnClick()
+void QmlInspectorToolBar::zoomToolTriggered(bool checked)
 {
-    m_selectAction->setChecked(false);
-    m_colorPickerAction->setChecked(false);
+    updateDesignModeActions(ZoomMode);
 
-    m_zoomAction->setChecked(true);
-    if (m_activeTool != ZoomMode) {
-        m_activeTool = ZoomMode;
-        if (m_emitSignals)
-            emit zoomToolSelected();
+    if (m_designModeActive != checked) {
+        m_designModeActive = checked;
+        emit designModeSelected(checked);
     }
+
+    if (checked)
+        emit zoomToolSelected();
 }
 
 void QmlInspectorToolBar::showAppOnTopClick()
@@ -406,6 +379,14 @@ void QmlInspectorToolBar::activateFromQml()
 void QmlInspectorToolBar::activeDebugLanguagesChanged(Debugger::DebuggerLanguages languages)
 {
     m_operateByInstructionButton->setVisible(languages & Debugger::CppLanguage);
+}
+
+void QmlInspectorToolBar::updateDesignModeActions(DesignTool activeTool)
+{
+    m_activeTool = activeTool;
+    m_selectAction->setChecked(m_designModeActive && (m_activeTool == SelectionToolMode));
+    m_zoomAction->setChecked(m_designModeActive && (m_activeTool == ZoomMode));
+    m_colorPickerAction->setChecked(m_designModeActive && (m_activeTool == ColorPickerMode));
 }
 
 } // namespace Internal
