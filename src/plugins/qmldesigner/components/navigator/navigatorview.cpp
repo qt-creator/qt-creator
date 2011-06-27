@@ -93,7 +93,7 @@ NavigatorWidget *NavigatorView::widget()
 
 void NavigatorView::modelAttached(Model *model)
 {
-    AbstractView::modelAttached(model);
+    QmlModelView::modelAttached(model);
 
     m_treeModel->setView(this);
 
@@ -112,7 +112,7 @@ void NavigatorView::modelAttached(Model *model)
 void NavigatorView::modelAboutToBeDetached(Model *model)
 {
     m_treeModel->clearView();
-    AbstractView::modelAboutToBeDetached(model);
+    QmlModelView::modelAboutToBeDetached(model);
 }
 
 void NavigatorView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)

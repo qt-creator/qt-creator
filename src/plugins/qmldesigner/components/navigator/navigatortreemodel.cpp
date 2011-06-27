@@ -37,7 +37,7 @@
 #include <nodeproperty.h>
 #include <metainfo.h>
 #include <qgraphicswidget.h>
-#include <abstractview.h>
+#include <qmlmodelview.h>
 #include <rewriterview.h>
 #include <invalididexception.h>
 #include <rewritingexception.h>
@@ -376,7 +376,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::itemRowForNode(const ModelNode &
     return m_nodeItemHash.value(node);
 }
 
-void NavigatorTreeModel::setView(AbstractView *view)
+void NavigatorTreeModel::setView(QmlModelView *view)
 {
     m_view = view;
     m_hiddenProperties.clear();
@@ -639,6 +639,12 @@ void NavigatorTreeModel::setVisible(const QModelIndex &index, bool visible)
     ModelNode node = nodeForIndex(index);
     ItemRow itemRow = itemRowForNode(node);
     itemRow.visibilityItem->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
+}
+
+void NavigatorTreeModel::openContextMenu(const QPoint &p)
+{
+    if (m_view)
+        m_view->showContextMenu(p, QPoint(), false);
 }
 
 } // QmlDesigner
