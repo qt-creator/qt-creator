@@ -171,7 +171,7 @@ QSet<const QMetaObject *> collectReachableMetaObjects(const QString &importCode,
             foreach (const QDeclarativeType *baseExport, baseExports) {
                 bool match = false;
                 foreach (const QDeclarativeType *extensionExport, extensionExports) {
-                    if (baseExport->module() == extensionExport->module()
+                    if (baseExport->qmlTypeName() == extensionExport->qmlTypeName()
                             && baseExport->majorVersion() == extensionExport->majorVersion()
                             && baseExport->minorVersion() == extensionExport->minorVersion()) {
                         match = true;
