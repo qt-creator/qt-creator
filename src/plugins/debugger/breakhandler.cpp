@@ -1082,7 +1082,7 @@ BreakpointModelId BreakHandler::at(int n) const
 {
     if (n < 0 || n >= m_storage.size())
         return BreakpointModelId();
-    ConstIterator it = m_storage.constBegin(), et = m_storage.constEnd();
+    ConstIterator it = m_storage.constBegin();
     for ( ; --n >= 0; ++it)
         ;
     return it.key();
