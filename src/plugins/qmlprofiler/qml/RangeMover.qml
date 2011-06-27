@@ -43,6 +43,7 @@ Item {
     property color darkerColor:"#cc6da1e8"
     property real value: (canvas.canvasWindow.x + x) * Plotter.xScale(canvas)
     property real zoomWidth: 20
+    onZoomWidthChanged: timeDisplayLabel.hideAll();
 
     function updateZoomControls() {
         rightRange.x = rangeMover.width;

@@ -439,4 +439,60 @@ Rectangle {
         opacity: 0
         anchors.top: canvas.top
     }
+
+    // the next elements are here because I want them rendered on top of the other
+    Rectangle {
+        id: timeDisplayLabel
+        color: "lightsteelblue"
+        border.color: Qt.darker(color)
+        border.width: 1
+        radius: 2
+        height: Math.max(labels.y-2, timeDisplayText.height);
+        y: timeDisplayEnd.visible ? flick.height - 1 : 1
+        width: timeDisplayText.width + 10 + ( timeDisplayEnd.visible ? timeDisplayCloseControl.width + 10 : 0 )
+        visible: false
+
+        function hideAll() {
+            timeDisplayBegin.visible = false;
+            timeDisplayEnd.visible = false;
+            timeDisplayLabel.visible = false;
+        }
+        Text {
+            id: timeDisplayText
+            x: 5
+            y: parent.height/2 - height/2 + 1
+            font.pointSize: 8
+        }
+
+        Text {
+            id: timeDisplayCloseControl
+            text:"X"
+            anchors.right: parent.right
+            anchors.rightMargin: 3
+            y: parent.height/2 - height/2 + 1
+            visible: timeDisplayEnd.visible
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    timeDisplayLabel.hideAll();
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: timeDisplayBegin
+        width: 1
+        color: Qt.rgba(0,0,64,0.7);
+        height: flick.height + labels.y
+        visible: false
+    }
+
+    Rectangle {
+        id: timeDisplayEnd
+        width: 1
+        color: Qt.rgba(0,0,64,0.7);
+        height: flick.height + labels.y
+        visible: false
+    }
 }

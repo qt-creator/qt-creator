@@ -112,31 +112,53 @@ TiledCanvas {
         width: parent.width
         height: labels.y
         hoverEnabled: true
-        onMousePositionChanged: {
-            var realTime = startTime + mouseX * timePerPixel;
-            displayText.text = detailedPrintTime(realTime);
-            displayRect.x = mouseX
-            displayRect.visible = true
-        }
-        onExited: displayRect.visible = false
-        onEntered: root.hideRangeDetails();
-    }
 
-    Rectangle {
-        id: displayRect
-        color: "lightsteelblue"
-        border.color: Qt.darker(color)
-        border.width: 1
-        radius: 2
-        height: labels.y - 2
-        y: 1
-        width: displayText.width + 10
-        visible: false
-        Text {
-            id: displayText
-            x: 5
-            y: labels.y/2 - 6
-            font.pointSize: 8
+        function setStartTime(xpos) {
+            var realTime = startTime + xpos * timePerPixel;
+            timeDisplayText.text = detailedPrintTime(realTime);
+            timeDisplayBegin.visible = true;
+            timeDisplayBegin.x = xpos + flick.x;
+        }
+
+        function setEndTime(xpos) {
+            var bt = startTime + (timeDisplayBegin.x - flick.x) * timePerPixel;
+            var et = startTime + xpos * timePerPixel;
+            var timeDisplayBeginTime = Math.min(bt, et);
+            var timeDisplayEndTime = Math.max(bt, et);
+
+            timeDisplayText.text = qsTr("length:")+detailedPrintTime(timeDisplayEndTime-timeDisplayBeginTime);
+            timeDisplayEnd.visible = true;
+            timeDisplayEnd.x = xpos + flick.x
+        }
+
+        onMousePositionChanged: {
+            if (!Plotter.ranges.length)
+                return;
+
+            if (!pressed && timeDisplayEnd.visible)
+                return;
+
+            timeDisplayLabel.x = mouseX + flick.x
+            timeDisplayLabel.visible = true
+
+            if (pressed) {
+                setEndTime(mouseX);
+            } else {
+                setStartTime(mouseX);
+            }
+        }
+
+        onPressed:  {
+            setStartTime(mouseX);
+        }
+
+        onEntered: {
+            root.hideRangeDetails();
+        }
+        onExited: {
+            if ((!pressed) && (!timeDisplayEnd.visible)) {
+                timeDisplayLabel.hideAll();
+            }
         }
     }
 }
