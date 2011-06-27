@@ -295,7 +295,7 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping, S
                     anchors.setMargin(AnchorLine::VerticalCenter, m_beginVerticalCenterHash.value(item) + offsetVector.y());
                 }
 
-            setPosition(item->qmlItemNode(), positionInContainerSpace);
+                setPosition(item->qmlItemNode(), positionInContainerSpace);
             } else {
                 item->qmlItemNode().modelNode().variantProperty("x").setValue(qRound(positionInContainerSpace.x()));
                 item->qmlItemNode().modelNode().variantProperty("y").setValue(qRound(positionInContainerSpace.y()));
