@@ -225,14 +225,13 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
             inputModel->attachView(rewriterView.data());
 
             if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
+                rewriterView->rootModelNode().variantProperty("x") = propertyPairList.first().second;
+                rewriterView->rootModelNode().variantProperty("y") = propertyPairList.at(1).second;
+
                 ModelMerger merger(this);
                 newNode = merger.insertModel(rewriterView->rootModelNode());
-                newNode.setVariantProperty("x", propertyPairList.first().second);
-                newNode.setVariantProperty("y", propertyPairList.at(1).second);
             }
-
         }
-
 
         if (parentNode.hasDefaultProperty()) {
             parentNode.nodeAbstractProperty(parentNode.defaultProperty()).reparentHere(newNode);
