@@ -51,6 +51,7 @@
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
 #include <utils/qtcassert.h>
 #include <extensionsystem/invoker.h>
 #include <extensionsystem/pluginmanager.h>
@@ -279,6 +280,7 @@ void VCSBaseEditorWidget::init()
     }
         break;
     }
+    TextEditor::TextEditorSettings::instance()->initializeEditor(this);
 }
 
 VCSBaseEditorWidget::~VCSBaseEditorWidget()
