@@ -202,6 +202,8 @@ void TimelineView::updateTimeline(bool updateStartX)
             ctxt->setContextProperty("fileName", m_ranges.property(i).property("fileName").toString());
             ctxt->setContextProperty("line", m_ranges.property(i).property("line").toNumber());
             ctxt->setContextProperty("index", i);
+            ctxt->setContextProperty("nestingLevel", m_ranges.property(i).property("nestingLevel").toNumber());
+            ctxt->setContextProperty("nestingDepth", m_ranges.property(i).property("nestingDepth").toNumber());
             QString label;
             QVariantList list = m_ranges.property(i).property("label").toVariant().value<QVariantList>();
             for (int i = 0; i < list.size(); ++i) {
@@ -226,7 +228,8 @@ void TimelineView::updateTimeline(bool updateStartX)
         }
         if (item) {
             item->setX(m_starts.at(i)*spacing);
-            item->setWidth((m_ends.at(i)-m_starts.at(i)) * spacing);
+            qreal width = (m_ends.at(i)-m_starts.at(i)) * spacing;
+            item->setWidth(width > 1 ? width : 1);
             item->setZValue(++z);
         }
         if (creating)

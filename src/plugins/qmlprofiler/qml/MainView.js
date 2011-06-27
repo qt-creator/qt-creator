@@ -40,6 +40,7 @@ var valuesdone = false;
 var xmargin = 0;
 var ymargin = 0;
 var drawFpsGraph = false;
+var nestingDepth = [];
 
 var names = [ "Painting", "Compiling", "Creating", "Binding", "Handling Signal"]
 //### need better way to manipulate color from QML. In the meantime, these need to be kept in sync.
@@ -55,6 +56,7 @@ function reset()
     xmargin = 0;
     ymargin = 0;
     valuesdone = false;
+    nestingDepth = [];
 }
 
 function calcFps()

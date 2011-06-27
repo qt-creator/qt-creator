@@ -146,8 +146,15 @@ Rectangle {
             }
 
             // todo: consider nestingLevel
-            if (!Plotter.valuesdone)
-                Plotter.ranges.push( { type: type, start: startTime, duration: length, label: data, fileName: fileName, line: line } );
+            if (!Plotter.valuesdone) {
+                if (!Plotter.nestingDepth[type])
+                    Plotter.nestingDepth[type] = nestingInType;
+                else
+                    Plotter.nestingDepth[type] = Math.max(Plotter.nestingDepth[type], nestingInType);
+                Plotter.ranges.push( { type: type, start: startTime, duration: length, label: data, fileName: fileName, line: line, nestingLevel: nestingInType, nestingDepth: Plotter.nestingDepth[type] } );
+                if (nestingInType == 1)
+                    Plotter.nestingDepth[type] = 1;
+            }
         }
 
         onComplete: {
@@ -265,8 +272,10 @@ Rectangle {
                         mouseArea.exited()
                 }
 
-                height: view.height / labels.rowCount
-                y: type * view.height / labels.rowCount;
+                property int baseY: type * view.height / labels.rowCount;
+                property int baseHeight: view.height / labels.rowCount
+                y: baseY + (nestingLevel-1)*(baseHeight / nestingDepth);
+                height: baseHeight / nestingDepth;
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: myColor }
                     GradientStop { position: 0.5; color: Qt.darker(myColor, 1.1) }
