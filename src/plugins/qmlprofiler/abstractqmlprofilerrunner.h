@@ -49,6 +49,8 @@ public:
     virtual void start() = 0;
     virtual void stop() = 0;
 
+    virtual int debugPort() const = 0;
+
 signals:
     void started();
     void stopped();

@@ -181,7 +181,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
         connect(d->m_project, SIGNAL(fileListChanged()), this, SLOT(updateProjectFileList()));
     }
 
-    connect(engine, SIGNAL(processRunning()), this, SLOT(connectClient()));
+    connect(engine, SIGNAL(processRunning(int)), this, SLOT(connectClient(int)));
     connect(engine, SIGNAL(finished()), this, SLOT(disconnectClient()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(dataReceived()));
@@ -320,7 +320,7 @@ QWidget *QmlProfilerTool::createControlWidget()
     return toolbarWidget;
 }
 
-void QmlProfilerTool::connectClient()
+void QmlProfilerTool::connectClient(int port)
 {
     QTC_ASSERT(!d->m_client, return;)
     d->m_client = new QDeclarativeDebugConnection;
@@ -328,6 +328,7 @@ void QmlProfilerTool::connectClient()
     connect(d->m_client, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             this, SLOT(connectionStateChanged()));
     d->m_connectionTimer.start();
+    d->m_tcpPort = port;
 }
 
 void QmlProfilerTool::connectToClient()
@@ -440,7 +441,7 @@ void QmlProfilerTool::attach()
         d->m_tcpPort = dialog.port();
         d->m_tcpHost = dialog.address();
 
-        connectClient();
+        connectClient(d->m_tcpPort);
         AnalyzerManager::instance()->showMode();
         //AnalyzerManager::instance()->popupOutputPane();
     } else {

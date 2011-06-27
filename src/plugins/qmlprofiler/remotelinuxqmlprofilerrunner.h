@@ -31,72 +31,49 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROFILERTOOL_H
-#define QMLPROFILERTOOL_H
+#ifndef REMOTELINUXQMLPROFILERRUNNER_H
+#define REMOTELINUXQMLPROFILERRUNNER_H
 
-#include <analyzerbase/ianalyzertool.h>
-#include <analyzerbase/ianalyzerengine.h>
+#include "abstractqmlprofilerrunner.h"
+#include <remotelinux/remotelinuxrunconfiguration.h>
+#include <remotelinux/remotelinuxruncontrol.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerTool : public Analyzer::IAnalyzerTool
+class RemoteLinuxQmlProfilerRunner : public AbstractQmlProfilerRunner
 {
     Q_OBJECT
+    Q_DISABLE_COPY(RemoteLinuxQmlProfilerRunner)
 
+    using AbstractQmlProfilerRunner::appendMessage; // don't hide signal
 public:
-    explicit QmlProfilerTool(QObject *parent = 0);
-    ~QmlProfilerTool();
+    explicit RemoteLinuxQmlProfilerRunner(RemoteLinux::RemoteLinuxRunConfiguration *configuration,
+                                   QObject *parent = 0);
+    ~RemoteLinuxQmlProfilerRunner();
 
-    QString id() const;
-    QString displayName() const;
-    ToolMode mode() const;
-
-    void initialize();
-    void extensionsInitialized();
-    void initializeDockWidgets();
-
-    Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
-                                            ProjectExplorer::RunConfiguration *runConfiguration = 0);
-
-    QWidget *createControlWidget();
-
-    bool canRunRemotely() const;
-
-public slots:
-    void connectClient(int port);
-    void disconnectClient();
-
-    void startRecording();
-    void stopRecording();
-    void setRecording(bool recording);
-
-    void gotoSourceLocation(const QString &fileUrl, int lineNumber);
-    void updateTimer(qreal elapsedSeconds);
-
-    void clearDisplay();
-
-signals:
-    void setTimeLabel(const QString &);
-    void fetchingData(bool);
-    void connectionFailed();
+    // AbstractQmlProfilerRunner
+    virtual void start();
+    virtual void stop();
+    virtual int debugPort() const;
 
 private slots:
-    void updateProjectFileList();
-    void attach();
-    void updateAttachAction();
-    void tryToConnect();
-    void connectionStateChanged();
+    void getPorts();
+    void handleError(const QString &msg);
+    void handleStdErr(const QByteArray &msg);
+    void handleStdOut(const QByteArray &msg);
+    void handleRemoteProcessStarted();
+    void handleRemoteProcessFinished(qint64);
+    void handleProgressReport(const QString &progressString);
 
 private:
-    void connectToClient();
-    void updateRecordingState();
+    RemoteLinux::RemoteLinuxApplicationRunner *runner() const;
 
-    class QmlProfilerToolPrivate;
-    QmlProfilerToolPrivate *d;
+    int m_port;
+    RemoteLinux::AbstractRemoteLinuxRunControl *m_runControl;
 };
 
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // QMLPROFILERTOOL_H
+#endif // REMOTELINUXQMLPROFILERRUNNER_H

@@ -49,6 +49,7 @@ using namespace QmlProfiler::Internal;
 CodaQmlProfilerRunner::CodaQmlProfilerRunner(S60DeviceRunConfiguration *configuration,
                                              QObject *parent) :
     AbstractQmlProfilerRunner(parent),
+    m_configuration(configuration),
     m_runControl(new CodaRunControl(configuration, Analyzer::Constants::MODE_ANALYZE))
 {
     connect(m_runControl, SIGNAL(finished()), this, SIGNAL(stopped()));
@@ -78,5 +79,10 @@ void CodaQmlProfilerRunner::appendMessage(ProjectExplorer::RunControl *, const Q
                                           Utils::OutputFormat format)
 {
     emit appendMessage(message, format);
+}
+
+int QmlProfiler::Internal::CodaQmlProfilerRunner::debugPort() const
+{
+    return m_configuration->qmlDebugServerPort();
 }
 

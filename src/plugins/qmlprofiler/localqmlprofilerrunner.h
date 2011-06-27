@@ -61,6 +61,7 @@ public:
     // AbstractQmlProfilerRunner
     virtual void start();
     virtual void stop();
+    virtual int debugPort() const;
 
 private slots:
     void spontaneousStop(int exitCode);

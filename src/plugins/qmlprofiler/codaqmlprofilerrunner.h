@@ -57,11 +57,13 @@ public:
     // AbstractQmlProfilerRunner
     virtual void start();
     virtual void stop();
+    virtual int debugPort() const;
 
 private slots:
     void appendMessage(ProjectExplorer::RunControl *, const QString &message,
                        Utils::OutputFormat format);
 private:
+    Qt4ProjectManager::S60DeviceRunConfiguration *m_configuration;
     ProjectExplorer::RunControl *m_runControl;
 };
 

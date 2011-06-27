@@ -49,7 +49,7 @@ public:
     ~QmlProfilerEngine();
 
 signals:
-    void processRunning();
+    void processRunning(int port);
     void stopRecording();
 
 public slots:

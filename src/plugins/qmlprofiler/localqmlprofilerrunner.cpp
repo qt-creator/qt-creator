@@ -85,3 +85,8 @@ void LocalQmlProfilerRunner::stop()
         m_launcher.stop();
     }
 }
+
+int LocalQmlProfilerRunner::debugPort() const
+{
+    return m_configuration.port;
+}

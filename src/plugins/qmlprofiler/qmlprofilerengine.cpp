@@ -37,6 +37,7 @@
 #include "qmlprofilertool.h"
 #include "localqmlprofilerrunner.h"
 #include "codaqmlprofilerrunner.h"
+#include "remotelinuxqmlprofilerrunner.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
@@ -45,6 +46,7 @@
 
 #include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 #include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
+#include <remotelinux/remotelinuxrunconfiguration.h>
 
 #include <utils/qtcassert.h>
 
@@ -106,6 +108,9 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         if (Qt4ProjectManager::S60DeviceRunConfiguration *s60Config
                 = qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration*>(configuration)) {
             runner = new CodaQmlProfilerRunner(s60Config, parent);
+        } else if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig
+                   = qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration*>(configuration)){
+            runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);
         }
     }
     return runner;
@@ -208,7 +213,7 @@ void QmlProfilerEngine::filterApplicationMessage(const QString &msg)
 
         QString errorMessage;
         if (status.startsWith(waitingForConnection)) {
-            emit processRunning();
+            emit processRunning(d->m_runner->debugPort());
         } else if (status.startsWith(unableToListen)) {
             //: Error message shown after 'Could not connect ... debugger:"
             errorMessage = tr("The port seems to be in use.");
@@ -240,7 +245,7 @@ void QmlProfilerEngine::filterApplicationMessage(const QString &msg)
         }
     } else if (msg.contains(cannotRetrieveDebuggingOutput)) {
         // we won't get debugging output, so just try to connect ...
-        emit processRunning();
+        emit processRunning(d->m_runner->debugPort());
     }
 }
 
