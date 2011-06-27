@@ -518,21 +518,19 @@ bool ResizeManipulator::isActive() const
 
 void ResizeManipulator::setSize(QmlItemNode itemNode, const QSizeF &size)
 {
-    int penWidth = (itemNode.instancePenWidth() / 2) * 2;
-
     if (!itemNode.hasBindingProperty("width"))
-        itemNode.setVariantProperty("width", qRound(size.width()) - penWidth);
+        itemNode.setVariantProperty("width", qRound(size.width()));
 
     if (!itemNode.hasBindingProperty("height"))
-        itemNode.setVariantProperty("height", qRound(size.height()) - penWidth);
+        itemNode.setVariantProperty("height", qRound(size.height()));
 }
 
 void ResizeManipulator::setPosition(QmlItemNode itemNode, const QPointF &position)
 {
     if (!itemNode.hasBindingProperty("x"))
-        itemNode.setVariantProperty("x", qRound(position.x()) + (itemNode.instancePenWidth() / 2));
+        itemNode.setVariantProperty("x", qRound(position.x()));
 
     if (!itemNode.hasBindingProperty("y"))
-        itemNode.setVariantProperty("y", qRound(position.y()) + (itemNode.instancePenWidth() / 2));
+        itemNode.setVariantProperty("y", qRound(position.y()));
 }
 }

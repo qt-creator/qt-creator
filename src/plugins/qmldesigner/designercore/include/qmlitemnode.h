@@ -76,6 +76,7 @@ public:
     bool instanceIsInPositioner() const;
 
     QRectF instanceBoundingRect() const;
+    QRectF instancePaintedBoundingRect() const;
     QTransform instanceTransform() const;
     QTransform instanceSceneTransform() const;
     QPointF instancePosition() const;

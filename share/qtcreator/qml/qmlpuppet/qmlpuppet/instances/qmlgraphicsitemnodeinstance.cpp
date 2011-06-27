@@ -90,9 +90,6 @@ QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(QObject
     instance->setHasContent(anyItemHasContent(qmlGraphicsItem));
     qmlGraphicsItem->setFlag(QGraphicsItem::ItemHasNoContents, false);
 
-    if (qmlGraphicsItem->inherits("QDeclarativeText"))
-        instance->setResizable(false);
-
     static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem)->classBegin();
 
     instance->populateResetValueHash();
@@ -107,93 +104,11 @@ bool QmlGraphicsItemNodeInstance::isQmlGraphicsItem() const
 
 QSizeF QmlGraphicsItemNodeInstance::size() const
 {
-    if (isValid()) {
-        double implicitWidth = qmlGraphicsItem()->implicitWidth();
-        if (!m_hasWidth
-            && implicitWidth // WORKAROUND
-            && qmlGraphicsItem()->width() <= 0
-            && implicitWidth != qmlGraphicsItem()->width()
-            && !hasBindingForProperty("width")) {
-            qmlGraphicsItem()->blockSignals(true);
-            qmlGraphicsItem()->setWidth(implicitWidth);
-            qmlGraphicsItem()->blockSignals(false);
-        }
-
-        double implicitHeight = qmlGraphicsItem()->implicitHeight();
-        if (!m_hasHeight
-            && implicitWidth // WORKAROUND
-            && qmlGraphicsItem()->height() <= 0
-            && implicitHeight != qmlGraphicsItem()->height()
-            && !hasBindingForProperty("height")) {
-            qmlGraphicsItem()->blockSignals(true);
-            qmlGraphicsItem()->setHeight(implicitHeight);
-            qmlGraphicsItem()->blockSignals(false);
-        }
-
-    }
-
-    if (isRootNodeInstance()) {
-        if (!m_hasWidth) {
-            qmlGraphicsItem()->blockSignals(true);
-            if (qmlGraphicsItem()->width() < 10.)
-                qmlGraphicsItem()->setWidth(100.);
-            qmlGraphicsItem()->blockSignals(false);
-        }
-
-        if (!m_hasHeight) {
-            qmlGraphicsItem()->blockSignals(true);
-            if (qmlGraphicsItem()->height() < 10.)
-                qmlGraphicsItem()->setHeight(100.);
-            qmlGraphicsItem()->blockSignals(false);
-        }
-    }
-
     return QSizeF(qmlGraphicsItem()->width(), qmlGraphicsItem()->height());
 }
 
 QRectF QmlGraphicsItemNodeInstance::boundingRect() const
 {
-    if (isValid()) {
-        double implicitWidth = qmlGraphicsItem()->implicitWidth();
-        if (!m_hasWidth
-            && implicitWidth // WORKAROUND
-            && qmlGraphicsItem()->width() <= 0
-            && implicitWidth != qmlGraphicsItem()->width()
-            && !hasBindingForProperty("width")) {
-            qmlGraphicsItem()->blockSignals(true);
-            qmlGraphicsItem()->setWidth(implicitWidth);
-            qmlGraphicsItem()->blockSignals(false);
-        }
-
-        double implicitHeight = qmlGraphicsItem()->implicitHeight();
-        if (!m_hasHeight
-            && implicitWidth // WORKAROUND
-            && qmlGraphicsItem()->height() <= 0
-            && implicitHeight != qmlGraphicsItem()->height()
-            && !hasBindingForProperty("height")) {
-            qmlGraphicsItem()->blockSignals(true);
-            qmlGraphicsItem()->setHeight(implicitHeight);
-            qmlGraphicsItem()->blockSignals(false);
-        }
-
-    }
-
-    if (isRootNodeInstance()) {
-        if (!m_hasWidth) {
-            qmlGraphicsItem()->blockSignals(true);
-            if (qmlGraphicsItem()->width() < 10.)
-                qmlGraphicsItem()->setWidth(100.);
-            qmlGraphicsItem()->blockSignals(false);
-        }
-
-        if (!m_hasHeight) {
-            qmlGraphicsItem()->blockSignals(true);
-            if (qmlGraphicsItem()->height() < 10.)
-                qmlGraphicsItem()->setHeight(100.);
-            qmlGraphicsItem()->blockSignals(false);
-        }
-    }
-
     if (qmlGraphicsItem())
         return qmlGraphicsItem()->boundingRect();
 

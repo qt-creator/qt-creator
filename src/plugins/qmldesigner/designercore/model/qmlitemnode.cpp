@@ -221,6 +221,11 @@ bool QmlItemNode::instanceIsInPositioner() const
 
 QRectF  QmlItemNode::instanceBoundingRect() const
 {
+    return QRectF(QPointF(0, 0), nodeInstance().size());
+}
+
+QRectF QmlItemNode::instancePaintedBoundingRect() const
+{
     return nodeInstance().boundingRect();
 }
 
