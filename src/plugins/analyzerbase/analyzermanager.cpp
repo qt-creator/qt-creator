@@ -39,26 +39,25 @@
 #include "analyzerruncontrol.h"
 #include "analyzerruncontrolfactory.h"
 #include "analyzeroptionspage.h"
-#include "analyzeroutputpane.h"
 #include "analyzerstartparameters.h"
 #include "analyzerutils.h"
 #include "ianalyzertool.h"
 #include "startremotedialog.h"
 
-#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/rightpane.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/imode.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -200,7 +199,6 @@ public:
 
     AnalyzerManager *q;
     AnalyzerMode *m_mode;
-    AnalyzerOutputPane *m_outputpane;
     AnalyzerRunControlFactory *m_runControlFactory;
     ProjectExplorer::RunControl *m_currentRunControl;
     Utils::FancyMainWindow *m_mainWindow;
@@ -232,7 +230,6 @@ public:
 AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     q(qq),
     m_mode(0),
-    m_outputpane(0),
     m_runControlFactory(0),
     m_currentRunControl(0),
     m_mainWindow(0),
@@ -503,8 +500,6 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
 
     // make sure mode is shown
     q->showMode();
-    if (q->currentTool()->needsOutputPane())
-        q->popupOutputPane();
 
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
 
@@ -583,16 +578,16 @@ void AnalyzerManager::AnalyzerManagerPrivate::startTool()
 // AnalyzerManager ////////////////////////////////////////////////////
 AnalyzerManager *AnalyzerManager::m_instance = 0;
 
-AnalyzerManager::AnalyzerManager(AnalyzerOutputPane *op, QObject *parent) :
-    QObject(parent),
+AnalyzerManager::AnalyzerManager(QObject *parent)
+  : QObject(parent),
     d(new AnalyzerManagerPrivate(this))
 {
     m_instance = this;
-    d->m_outputpane = op;
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(modeChanged(Core::IMode*)));
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorer::ProjectExplorerPlugin *pe =
+        ProjectExplorer::ProjectExplorerPlugin::instance();
     connect(pe, SIGNAL(updateRunActions()),
             this, SLOT(updateRunActions()));
 }
@@ -652,9 +647,11 @@ void AnalyzerManager::toolSelected(int idx)
 
         foreach (QDockWidget *widget, d->m_toolWidgets.value(oldTool)) {
             QAction *toggleViewAction = widget->toggleViewAction();
-            am->unregisterAction(toggleViewAction, QString("Analyzer." + widget->objectName()));
+            am->unregisterAction(toggleViewAction,
+                QString("Analyzer." + widget->objectName()));
             d->m_mainWindow->removeDockWidget(widget);
-            ///NOTE: QMainWindow (and FancyMainWindow) just look at @c findChildren<QDockWidget*>()
+            ///NOTE: QMainWindow (and FancyMainWindow) just look at
+            /// @c findChildren<QDockWidget*>()
             ///if we don't do this, all kind of havoc might happen, including:
             ///- improper saveState/restoreState
             ///- improper list of qdockwidgets in popup menu
@@ -679,8 +676,6 @@ void AnalyzerManager::toolSelected(int idx)
     }
 
     loadToolSettings(newTool);
-    d->m_outputpane->setTool(newTool);
-
     updateRunActions();
 
     selectingTool = false;
@@ -704,8 +699,10 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
 
     ActionManager *am = Core::ICore::instance()->actionManager();
 
-    QString actionId = QString(Constants::ANALYZER_TOOLS) + QString::number(d->m_toolGroup->actions().count());
-    Core::Command *command = am->registerAction(action, actionId, Core::Context(Core::Constants::C_GLOBAL));
+    QString actionId = QString(Constants::ANALYZER_TOOLS)
+        + QString::number(d->m_toolGroup->actions().count());
+    Core::Command *command = am->registerAction(action, actionId,
+        Core::Context(Core::Constants::C_GLOBAL));
     d->m_menu->addAction(command, Constants::G_ANALYZER_TOOLS);
 
     d->m_toolGroup->setVisible(d->m_toolGroup->actions().count() > 1);
@@ -715,11 +712,10 @@ void AnalyzerManager::addTool(IAnalyzerTool *tool)
     d->m_toolBox->addItem(tool->displayName());
     d->m_toolBox->blockSignals(blocked);
 
-    // Populate output pane
-    d->m_outputpane->setTool(tool);
-    // populate controls widget
+    // Populate controls widget.
     QWidget *controlWidget = tool->createControlWidget(); // might be 0
-    d->m_controlsWidget->addWidget(controlWidget ? controlWidget : AnalyzerUtils::createDummyWidget());
+    d->m_controlsWidget->addWidget(controlWidget
+        ? controlWidget : AnalyzerUtils::createDummyWidget());
 
     d->m_toolBox->setEnabled(d->m_toolBox->count() > 1);
 
@@ -841,10 +837,14 @@ void AnalyzerManager::saveToolSettings(IAnalyzerTool *tool)
 
 void AnalyzerManager::updateRunActions()
 {
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorer::ProjectExplorerPlugin *pe =
+        ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::Project *project = pe->startupProject();
-    bool startEnabled = !d->m_currentRunControl && pe->canRun(project, Constants::MODE_ANALYZE)
-            && currentTool();
+
+    bool startEnabled = !d->m_currentRunControl
+        && pe->canRun(project, Constants::MODE_ANALYZE)
+        && currentTool();
+
     QString disabledReason;
     if (d->m_currentRunControl)
         disabledReason = tr("An analysis is still in progress.");
@@ -898,11 +898,6 @@ void AnalyzerManager::showMode()
 {
     if (d->m_mode)
         ModeManager::instance()->activateMode(d->m_mode->id());
-}
-
-void AnalyzerManager::popupOutputPane()
-{
-    d->m_outputpane->popup();
 }
 
 #include "analyzermanager.moc"

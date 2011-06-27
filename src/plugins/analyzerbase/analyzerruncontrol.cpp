@@ -49,7 +49,6 @@
 #include <QtCore/QDebug>
 
 using namespace Analyzer;
-using namespace Analyzer::Internal;
 
 // AnalyzerRunControl::Private ///////////////////////////////////////////
 

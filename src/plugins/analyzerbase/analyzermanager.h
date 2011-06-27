@@ -62,16 +62,12 @@ class IAnalyzerTool;
 class AnalyzerRunControl;
 class AnalyzerStartParameters;
 
-namespace Internal {
-class AnalyzerOutputPane;
-} // namespace Internal
-
 class ANALYZER_EXPORT AnalyzerManager : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit AnalyzerManager(Internal::AnalyzerOutputPane *op, QObject *parent = 0);
+    explicit AnalyzerManager(QObject *parent = 0);
     ~AnalyzerManager();
 
     static AnalyzerManager *instance();
@@ -87,9 +83,9 @@ public:
     IAnalyzerTool *currentTool() const;
     QList<IAnalyzerTool *> tools() const;
 
-    // dockwidgets are registered to the main window
-    QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title, QWidget *widget,
-                                  Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
+    // Dockwidgets are registered to the main window.
+    QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title,
+        QWidget *widget, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
     Utils::FancyMainWindow *mainWindow() const;
 
@@ -102,7 +98,6 @@ public:
     AnalyzerRunControl *createAnalyzer(const AnalyzerStartParameters &sp,
                                        ProjectExplorer::RunConfiguration *rc = 0);
     void showMode();
-    void popupOutputPane();
 
 public slots:
     void startTool();

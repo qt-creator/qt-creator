@@ -35,7 +35,6 @@
 #include "analyzerplugin.h"
 #include "analyzerconstants.h"
 #include "analyzermanager.h"
-#include "analyzeroutputpane.h"
 #include "ianalyzertool.h"
 
 #include <coreplugin/icore.h>
@@ -60,7 +59,12 @@ static const char lastActiveToolC[] = "Analyzer.Plugin.LastActiveTool";
 AnalyzerPlugin *AnalyzerPlugin::m_instance = 0;
 
 
-// AnalyzerPluginPrivate ////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//
+// AnalyzerPluginPrivate
+//
+////////////////////////////////////////////////////////////////////////
+
 class AnalyzerPlugin::AnalyzerPluginPrivate
 {
 public:
@@ -69,23 +73,16 @@ public:
         m_manager(0)
     {}
 
-    void initialize(const QStringList &arguments, QString *errorString);
-
     AnalyzerPlugin *q;
     AnalyzerManager *m_manager;
 };
 
-void AnalyzerPlugin::AnalyzerPluginPrivate::initialize(const QStringList &arguments, QString *errorString)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-    AnalyzerOutputPane *outputPane =  new AnalyzerOutputPane;
-    q->addAutoReleasedObject(outputPane);
-    m_manager = new AnalyzerManager(outputPane, q);
-}
+////////////////////////////////////////////////////////////////////////
+//
+// AnalyzerPlugin
+//
+////////////////////////////////////////////////////////////////////////
 
-
-// AnalyzerPlugin ////////////////////////////////////////////////////
 AnalyzerPlugin::AnalyzerPlugin()
     : d(new AnalyzerPluginPrivate(this))
 {
@@ -94,26 +91,18 @@ AnalyzerPlugin::AnalyzerPlugin()
 
 AnalyzerPlugin::~AnalyzerPlugin()
 {
-    // Unregister objects from the plugin manager's object pool
-    // Delete members
     delete d;
     m_instance = 0;
 }
 
 bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
-    // Register objects in the plugin manager's object pool
-    // Load settings
-    // connect to other plugins' signals
-    // "In the initialize method, a plugin can be sure that the plugins it
-    //  depends on have initialized their members."
-
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    d->initialize(arguments, errorString);
+    d->m_manager = new AnalyzerManager(this);
 
-    // Task integration
+    // Task integration.
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     ProjectExplorer::TaskHub *hub = pm->getObject<ProjectExplorer::TaskHub>();
     //: Category under which Analyzer tasks are listed in build issues view
@@ -124,17 +113,13 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
 
 void AnalyzerPlugin::extensionsInitialized()
 {
-    // Retrieve objects from the plugin manager's object pool
-    // "In the extensionsInitialized method, a plugin can be sure that all
-    //  plugins that depend on it are completely initialized."
-
-    // notify tools about the extensions initialized state
     const QList<IAnalyzerTool *> tools = d->m_manager->tools();
     if (tools.isEmpty())
         return;
 
     const QSettings *settings = Core::ICore::instance()->settings();
-    const QString lastActiveToolId = settings->value(QLatin1String(lastActiveToolC), QString()).toString();
+    const QString lastActiveToolId =
+        settings->value(QLatin1String(lastActiveToolC), QString()).toString();
     IAnalyzerTool *lastActiveTool = 0;
 
     foreach (IAnalyzerTool *tool, tools) {
@@ -151,10 +136,6 @@ void AnalyzerPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag AnalyzerPlugin::aboutToShutdown()
 {
-    // Save settings
-    // Disconnect from signals that are not needed during shutdown
-    // Hide UI (if you add UI that is not in the main window directly)
-
     if (const IAnalyzerTool *tool = d->m_manager->currentTool()) {
         QSettings *settings = Core::ICore::instance()->settings();
         settings->setValue(QLatin1String(lastActiveToolC), tool->id());

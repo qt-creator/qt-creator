@@ -62,7 +62,6 @@ public:
     QWidget *createControlWidget();
 
     bool canRunRemotely() const;
-    bool needsOutputPane() const { return false; }
 
 public slots:
     void connectClient();

@@ -12,7 +12,6 @@ QT += network
 
 SOURCES += \
     ianalyzerengine.cpp \
-    ianalyzeroutputpaneadapter.cpp \
     ianalyzertool.cpp \
     analyzerplugin.cpp \
     analyzerruncontrol.cpp \
@@ -21,13 +20,11 @@ SOURCES += \
     analyzersettings.cpp \
     analyzeroptionspage.cpp \
     analyzerrunconfigwidget.cpp \
-    analyzeroutputpane.cpp \
     analyzerutils.cpp \
     startremotedialog.cpp
 
 HEADERS += \
     ianalyzerengine.h \
-    ianalyzeroutputpaneadapter.h \
     ianalyzertool.h \
     analyzerbase_global.h \
     analyzerconstants.h \
@@ -39,7 +36,6 @@ HEADERS += \
     analyzerstartparameters.h \
     analyzeroptionspage.h \
     analyzerrunconfigwidget.h \
-    analyzeroutputpane.h \
     analyzerutils.h \
     startremotedialog.h
 

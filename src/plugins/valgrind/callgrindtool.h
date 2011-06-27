@@ -61,7 +61,6 @@ public:
     QWidget *createControlWidget();
 
     bool canRunRemotely() const { return true; }
-    bool needsOutputPane() const { return false; }
 
 private:
     CallgrindToolPrivate *d;

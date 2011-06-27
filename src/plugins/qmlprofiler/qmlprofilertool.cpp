@@ -442,7 +442,7 @@ void QmlProfilerTool::attach()
 
         connectClient();
         AnalyzerManager::instance()->showMode();
-        AnalyzerManager::instance()->popupOutputPane();
+        //AnalyzerManager::instance()->popupOutputPane();
     } else {
         stopRecording();
     }

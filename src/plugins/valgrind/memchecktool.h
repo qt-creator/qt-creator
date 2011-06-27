@@ -112,7 +112,6 @@ private slots:
 private:
     void ensureWidgets();
     bool canRunRemotely() const;
-    bool needsOutputPane() const { return true; }
     void initializeDockWidgets();
     void initialize() {}
     void extensionsInitialized();

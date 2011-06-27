@@ -36,6 +36,10 @@
 
 namespace Analyzer {
 
+IAnalyzerTool::IAnalyzerTool(QObject *parent)
+    : QObject(parent)
+{}
+
 QString IAnalyzerTool::modeString(ToolMode mode)
 {
     switch (mode) {
@@ -47,11 +51,6 @@ QString IAnalyzerTool::modeString(ToolMode mode)
             break;
     }
     return QString();
-}
-
-IAnalyzerOutputPaneAdapter *IAnalyzerTool::outputPaneAdapter()
-{
-    return 0;
 }
 
 void IAnalyzerTool::initializeDockWidgets()

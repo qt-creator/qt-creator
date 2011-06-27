@@ -99,7 +99,6 @@ public:
       */
     virtual void initializeDockWidgets();
 
-    virtual IAnalyzerOutputPaneAdapter *outputPaneAdapter();
     /// subclass to return a control widget which will be shown
     /// in the output pane when this tool is selected
     virtual QWidget *createControlWidget();
@@ -110,9 +109,6 @@ public:
 
     /// @return true when this tool can be run remotely, e.g. on a meego or maemo device
     virtual bool canRunRemotely() const = 0;
-
-    /// @return true when this tool needs the output pane to be show on startup
-    virtual bool needsOutputPane() const = 0;
 };
 
 } // namespace Analyzer
