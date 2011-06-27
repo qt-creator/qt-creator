@@ -1863,6 +1863,10 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
             id = BreakpointModelId(breakpointIdG.data().toInt());
             if (id && breakHandler()->engineBreakpointIds(this).contains(id)) {
                 const BreakpointResponse parameters =  breakHandler()->response(id);
+                if (!parameters.message.isEmpty()) {
+                    showMessage(parameters.message + QLatin1Char('\n'), AppOutput);
+                    showMessage(parameters.message, LogMisc);
+                }
                 // Trace point? Just report.
                 number = parameters.id.majorPart();
                 if (parameters.tracepoint) {

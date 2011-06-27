@@ -121,6 +121,8 @@ public:
     void setFunctionName(BreakpointModelId, const QString &functionName);
     QString expression(BreakpointModelId id) const;
     void setExpression(BreakpointModelId, const QString &expression);
+    QString message(BreakpointModelId id) const;
+    void setMessage(BreakpointModelId, const QString &m);
     BreakpointType type(BreakpointModelId id) const;
     void setType(BreakpointModelId id, const BreakpointType &type);
     quint64 address(BreakpointModelId id) const;

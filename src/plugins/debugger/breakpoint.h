@@ -182,11 +182,12 @@ enum BreakpointParts
     TypePart = 0x400,
     PathUsagePart = 0x800,
     CommandPart = 0x1000,
+    MessagePart = 0x2000,
 
     AllParts = FileAndLinePart|FunctionPart
                |ExpressionPart|AddressPart|ConditionPart
                |IgnoreCountPart|ThreadSpecPart|ModulePart|TracePointPart
-               |EnabledPart|TypePart|PathUsagePart|CommandPart
+               |EnabledPart|TypePart|PathUsagePart|CommandPart|MessagePart
 };
 
 inline void operator|=(BreakpointParts &p, BreakpointParts r)
@@ -229,6 +230,7 @@ public:
     QString functionName;
     QString module;          //!< module for file name
     QString command;         //!< command to execute
+    QString message;         //!< message
     bool tracepoint;
 };
 

@@ -196,6 +196,7 @@ void BreakpointDialog::setPartsEnabled(unsigned partsMask)
     m_ui.labelUseFullPath->setEnabled(partsMask & FileAndLinePart);
     m_ui.comboBoxPathUsage->setEnabled(partsMask & FileAndLinePart);
 
+
     m_ui.labelFunction->setEnabled(partsMask & FunctionPart);
     m_ui.lineEditFunction->setEnabled(partsMask & FunctionPart);
 
@@ -252,6 +253,7 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
 {
     data->enabled = m_ui.checkBoxEnabled->isChecked();
     data->command = m_ui.lineEditCommand->text().trimmed();
+    data->message = m_ui.lineEditMessage->text();
 
     if (partsMask & FileAndLinePart) {
         data->lineNumber = m_ui.lineEditLineNumber->text().toInt();
@@ -285,6 +287,7 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
     m_ui.checkBoxEnabled->setChecked(data.enabled);
     m_ui.comboBoxPathUsage->setCurrentIndex(data.pathUsage);
     m_ui.lineEditCommand->setText(data.command);
+    m_ui.lineEditMessage->setText(data.message);
 
     if (mask & FileAndLinePart) {
         m_ui.pathChooserFileName->setPath(data.fileName);

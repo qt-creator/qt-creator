@@ -123,6 +123,7 @@
 #include <QtGui/QTextCursor>
 #include <QtGui/QToolButton>
 #include <QtGui/QTreeWidget>
+#include <QtGui/QInputDialog>
 
 #include <climits>
 
@@ -428,6 +429,27 @@ const char * const SNAPSHOT_KEY                 = "Ctrl+D,Ctrl+S";
 
 namespace Internal {
 
+// To be passed through margin menu action's data
+struct BreakpointMenuContextData : public ContextData
+{
+    enum Mode
+    {
+        Breakpoint,
+        MessageTracePoint
+    };
+
+    BreakpointMenuContextData() : mode(Breakpoint) {}
+    Mode mode;
+};
+
+} // namespace Internal
+} // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::BreakpointMenuContextData)
+
+namespace Debugger {
+namespace Internal {
+
 // FIXME: Outdated?
 // The createCdbEngine function takes a list of options pages it can add to.
 // This allows for having a "enabled" toggle on the page independently
@@ -597,11 +619,33 @@ public slots:
     {
         const QAction *action = qobject_cast<const QAction *>(sender());
         QTC_ASSERT(action, return);
-        const ContextData data = action->data().value<ContextData>();
+        const BreakpointMenuContextData data = action->data().value<BreakpointMenuContextData>();
+        QString message;
+        if (data.mode == BreakpointMenuContextData::MessageTracePoint) {
+            if (data.address) {
+                //: Message tracepoint: Address hit.
+                message = tr("0x%1 hit").arg(data.address, 0, 16);
+            } else {
+                //: Message tracepoint: %1 file, %2 line %3 function hit.
+                message = tr("%1:%2 %3() hit").arg(QFileInfo(data.fileName).fileName()).
+                        arg(data.lineNumber).
+                        arg(cppFunctionAt(data.fileName, data.lineNumber));
+            }
+            QInputDialog dialog; // Create wide input dialog.
+            dialog.setWindowFlags(dialog.windowFlags()
+                                  & ~(Qt::WindowContextHelpButtonHint|Qt::MSWindowsFixedSizeDialogHint));
+            dialog.resize(600, dialog.height());
+            dialog.setWindowTitle(tr("Add Message Tracepoint"));
+            dialog.setLabelText (tr("Message:"));
+            dialog.setTextValue(message);
+            if (dialog.exec() != QDialog::Accepted || dialog.textValue().isEmpty())
+                return;
+            message = dialog.textValue();
+        }
         if (data.address)
-            toggleBreakpointByAddress(data.address);
+            toggleBreakpointByAddress(data.address, message);
         else
-            toggleBreakpointByFileAndLine(data.fileName, data.lineNumber);
+            toggleBreakpointByFileAndLine(data.fileName, data.lineNumber, message);
     }
 
     void breakpointRemoveMarginActionTriggered()
@@ -678,8 +722,10 @@ public slots:
     void activatePreviousMode();
     void activateDebugMode();
     void toggleBreakpoint();
-    void toggleBreakpointByFileAndLine(const QString &fileName, int lineNumber);
-    void toggleBreakpointByAddress(quint64 address);
+    void toggleBreakpointByFileAndLine(const QString &fileName, int lineNumber,
+                                       const QString &tracePointMessage = QString());
+    void toggleBreakpointByAddress(quint64 address,
+                                   const QString &tracePointMessage = QString());
     void onModeChanged(Core::IMode *mode);
     void onCoreAboutToOpen();
     void showSettingsDialog();
@@ -1638,7 +1684,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     if (!isEditorDebuggable(editor))
         return;
 
-    ContextData args;
+    BreakpointMenuContextData args;
     args.lineNumber = lineNumber;
     bool contextUsable = true;
 
@@ -1700,6 +1746,17 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         connect(act, SIGNAL(triggered()),
             SLOT(breakpointSetMarginActionTriggered()));
         menu->addAction(act);
+        // Message trace point
+        args.mode = BreakpointMenuContextData::MessageTracePoint;
+        const QString tracePointText = args.address
+            ? tr("Set Message Tracepoint at 0x%1...").arg(args.address, 0, 16)
+            : tr("Set Message Tracepoint at line %1...").arg(lineNumber);
+        act = new QAction(tracePointText, menu);
+        act->setData(QVariant::fromValue(args));
+        act->setEnabled(contextUsable);
+        connect(act, SIGNAL(triggered()),
+            SLOT(breakpointSetMarginActionTriggered()));
+        menu->addAction(act);
     }
     // Run to, jump to line below in stopped state.
     if (currentEngine()->state() == InferiorStopOk && contextUsable) {
@@ -1741,7 +1798,7 @@ void DebuggerPluginPrivate::toggleBreakpoint()
 }
 
 void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileName,
-    int lineNumber)
+    int lineNumber, const QString &tracePointMessage)
 {
     BreakHandler *handler = m_breakHandler;
     BreakpointModelId id =
@@ -1753,13 +1810,16 @@ void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileNam
         handler->removeBreakpoint(id);
     } else {
         BreakpointParameters data(BreakpointByFileAndLine);
+        data.tracepoint = !tracePointMessage.isEmpty();
+        data.message = tracePointMessage;
         data.fileName = fileName;
         data.lineNumber = lineNumber;
         handler->appendBreakpoint(data);
     }
 }
 
-void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address)
+void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address,
+                                                      const QString &tracePointMessage)
 {
     BreakHandler *handler = m_breakHandler;
     BreakpointModelId id = handler->findBreakpointByAddress(address);
@@ -1768,6 +1828,8 @@ void DebuggerPluginPrivate::toggleBreakpointByAddress(quint64 address)
         handler->removeBreakpoint(id);
     } else {
         BreakpointParameters data(BreakpointByAddress);
+        data.tracepoint = !tracePointMessage.isEmpty();
+        data.message = tracePointMessage;
         data.address = address;
         handler->appendBreakpoint(data);
     }

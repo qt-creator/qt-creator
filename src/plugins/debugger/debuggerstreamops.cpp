@@ -191,6 +191,7 @@ QDataStream &operator<<(QDataStream &stream, const BreakpointParameters &s)
     stream << s.tracepoint;
     stream << s.module;
     stream << s.command;
+    stream << s.message;
     return stream;
 }
 
@@ -210,6 +211,7 @@ QDataStream &operator>>(QDataStream &stream, BreakpointParameters &s)
     stream >> b; s.tracepoint = b;
     stream >> str ; s.module = str;
     stream >> str ; s.command = str;
+    stream >> str ; s.message = str;
     return stream;
 }
 

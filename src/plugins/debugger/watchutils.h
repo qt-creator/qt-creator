@@ -96,7 +96,7 @@ QString quoteUnprintableLatin1(const QByteArray &ba);
 bool isCppEditor(Core::IEditor *editor);
 QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
                         int *line, int *column, QString *function = 0);
-
+QString cppFunctionAt(const QString &fileName, int line);
 // Decode string data as returned by the dumper helpers.
 QString decodeData(const QByteArray &baIn, int encoding);
 

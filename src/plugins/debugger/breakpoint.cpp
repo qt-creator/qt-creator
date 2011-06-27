@@ -207,6 +207,8 @@ BreakpointParts BreakpointParameters::differencesTo
         parts |= ModulePart;
     if (command != rhs.command)
         parts |= CommandPart;
+    if (message != rhs.message)
+        parts |= MessagePart;
     return parts;
 }
 
@@ -275,6 +277,8 @@ QString BreakpointParameters::toString() const
         ts << " Module: " << module;
     if (!command.isEmpty())
         ts << " Command: " << command;
+    if (!message.isEmpty())
+        ts << " Message: " << message;
     return result;
 }
 

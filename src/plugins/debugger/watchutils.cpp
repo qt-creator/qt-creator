@@ -678,6 +678,14 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
     return expr.toUtf8();
 }
 
+QString cppFunctionAt(const QString &fileName, int line)
+{
+    using namespace CppTools;
+    using namespace CPlusPlus;
+    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
+    return AbstractEditorSupport::functionAt(modelManager,
+                                             fileName, line, 1);
+}
 
 //////////////////////////////////////////////////////////////////////
 //
