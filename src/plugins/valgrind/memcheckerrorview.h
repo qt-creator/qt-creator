@@ -99,20 +99,24 @@ public:
     QString defaultSuppressionFile() const;
     Analyzer::AnalyzerSettings *settings() const { return m_settings; }
 
+public slots:
+    void settingsChanged(Analyzer::AnalyzerSettings *settings);
+    void goNext();
+    void goBack();
+
 signals:
     void resized();
 
-public slots:
-    void settingsChanged(Analyzer::AnalyzerSettings *settings);
-
 private slots:
-    void suppressError();
-
-protected:
     void resizeEvent(QResizeEvent *e);
     void contextMenuEvent(QContextMenuEvent *e);
+    void suppressError();
+    void setCurrentRow(int row);
 
 private:
+    int rowCount() const;
+    int currentRow() const;
+
     QAction *m_copyAction;
     QAction *m_suppressAction;
     QString m_defaultSuppFile;

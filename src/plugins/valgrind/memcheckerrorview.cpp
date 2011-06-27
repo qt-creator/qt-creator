@@ -507,5 +507,35 @@ void MemcheckErrorView::suppressError()
     }
 }
 
+void MemcheckErrorView::goNext()
+{
+    setCurrentRow((currentRow() + 1) % rowCount());
+}
+
+void MemcheckErrorView::goBack()
+{
+    const int prevRow = currentRow() - 1;
+    setCurrentRow(prevRow >= 0 ? prevRow : rowCount() - 1);
+}
+
+int MemcheckErrorView::rowCount() const
+{
+    return model() ? model()->rowCount() : 0;
+}
+
+int MemcheckErrorView::currentRow() const
+{
+    const QModelIndex index = selectionModel()->currentIndex();
+    return index.row();
+}
+
+void MemcheckErrorView::setCurrentRow(int row)
+{
+    const QModelIndex index = model()->index(row, 0);
+    selectionModel()->setCurrentIndex(index,
+            QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    scrollTo(index);
+}
+
 } // namespace Internal
 } // namespace Valgrind

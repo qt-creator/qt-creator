@@ -40,7 +40,6 @@
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
-#include <analyzerbase/ianalyzeroutputpaneadapter.h>
 
 #include <valgrind/xmlprotocol/errorlistmodel.h>
 #include <valgrind/xmlprotocol/stackmodel.h>
@@ -95,23 +94,6 @@ using namespace Valgrind::XmlProtocol;
 
 namespace Valgrind {
 namespace Internal {
-
-// Adapter for output pane.
-class MemCheckOutputPaneAdapter : public Analyzer::ListItemViewOutputPaneAdapter
-{
-public:
-    explicit MemCheckOutputPaneAdapter(MemcheckTool *mct) :
-        ListItemViewOutputPaneAdapter(mct), m_tool(mct) {}
-
-    virtual QWidget *toolBarWidget() { return m_tool->createPaneToolBarWidget(); }
-    virtual void clearContents() { m_tool->clearErrorView(); }
-
-protected:
-    virtual QAbstractItemView *createItemView() { return m_tool->ensurePaneErrorView(); }
-
-private:
-    MemcheckTool *m_tool;
-};
 
 // ---------------------------- MemcheckErrorFilterProxyModel
 MemcheckErrorFilterProxyModel::MemcheckErrorFilterProxyModel(QObject *parent)
@@ -202,43 +184,41 @@ static void initKindFilterAction(QAction *action, const QList<int> &kinds)
     action->setData(data);
 }
 
-MemcheckTool::MemcheckTool(QObject *parent) :
-    Analyzer::IAnalyzerTool(parent),
-    m_settings(0),
-    m_errorModel(0),
-    m_errorProxyModel(0),
-    m_errorView(0),
-    m_filterProjectAction(new QAction(tr("External Errors"), this)),
-    m_suppressionSeparator(new QAction(tr("Suppressions"), this)),
-    m_outputPaneAdapter(0)
+MemcheckTool::MemcheckTool(QObject *parent)
+  : Analyzer::IAnalyzerTool(parent)
 {
+    m_settings = 0;
+    m_errorModel = 0;
+    m_errorProxyModel = 0;
+    m_errorView = 0;
+    m_filterMenu = 0;
     setObjectName(QLatin1String("MemcheckTool"));
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
-            SIGNAL(updateRunActions()), SLOT(maybeActiveRunConfigurationChanged()));
+
+    m_filterProjectAction = new QAction(tr("External Errors"), this);
+    m_filterProjectAction->setToolTip(tr("Show issues originating outside currently opened projects."));
+    m_filterProjectAction->setCheckable(true);
+
+    m_suppressionSeparator = new QAction(tr("Suppressions"), this);
+    m_suppressionSeparator->setSeparator(true);
+    m_suppressionSeparator->setToolTip(tr("These suppression files were used in the last memory analyzer run."));
 
     QAction *a = new QAction(tr("Definite Memory Leaks"), this);
     initKindFilterAction(a, QList<int>() << Leak_DefinitelyLost << Leak_IndirectlyLost);
-    m_errorFilterActions << a;
+    m_errorFilterActions.append(a);
 
     a = new QAction(tr("Possible Memory Leaks"), this);
     initKindFilterAction(a, QList<int>() << Leak_PossiblyLost << Leak_StillReachable);
-    m_errorFilterActions << a;
+    m_errorFilterActions.append(a);
 
     a = new QAction(tr("Use of Uninitialized Memory"), this);
     initKindFilterAction(a, QList<int>() << InvalidRead << InvalidWrite << InvalidJump << Overlap
                          << InvalidMemPool << UninitCondition << UninitValue
                          << SyscallParam << ClientCheck);
-    m_errorFilterActions << a;
+    m_errorFilterActions.append(a);
 
-    a = new QAction(tr("Invalid Frees"), this);
+    a = new QAction(tr("Invalid Calls to \"free()\""), this);
     initKindFilterAction(a, QList<int>() << InvalidFree << MismatchedFree);
-    m_errorFilterActions << a;
-
-    m_filterProjectAction->setToolTip(tr("Show issues originating outside currently opened projects."));
-    m_filterProjectAction->setCheckable(true);
-
-    m_suppressionSeparator->setSeparator(true);
-    m_suppressionSeparator->setToolTip(tr("These suppression files were used in the last memory analyzer run."));
+    m_errorFilterActions.append(a);
 }
 
 void MemcheckTool::settingsDestroyed(QObject *settings)
@@ -247,8 +227,15 @@ void MemcheckTool::settingsDestroyed(QObject *settings)
     m_settings = AnalyzerGlobalSettings::instance();
 }
 
+void MemcheckTool::extensionsInitialized()
+{
+    //ensureWidgets(); // FIXME: Try to do that later.
+}
+
 void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
+    ensureWidgets();
+
     AnalyzerSettings *settings = 0;
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (ProjectExplorer::Project *project = pe->startupProject()) {
@@ -292,7 +279,6 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     }
 
     m_filterProjectAction->setChecked(!memcheckSettings->filterExternalIssues());
-
     m_errorView->settingsChanged(m_settings);
 
     connect(memcheckSettings, SIGNAL(visibleErrorKindsChanged(QList<int>)),
@@ -365,61 +351,99 @@ private:
     QStringList m_projectFiles;
 };
 
-MemcheckErrorView *MemcheckTool::ensurePaneErrorView()
+void MemcheckTool::initializeDockWidgets()
 {
-    if (!m_errorView) {
-        m_errorView = new MemcheckErrorView;
-        m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
-        m_errorView->setFrameStyle(QFrame::NoFrame);
-        m_errorView->setAttribute(Qt::WA_MacShowFocusRect, false);
-        m_errorModel = new ErrorListModel(m_errorView);
-        m_frameFinder = new Internal::FrameFinder;
-        m_errorModel->setRelevantFrameFinder(QSharedPointer<Internal::FrameFinder>(m_frameFinder));
-        m_errorProxyModel = new MemcheckErrorFilterProxyModel(m_errorView);
-        m_errorProxyModel->setSourceModel(m_errorModel);
-        m_errorProxyModel->setDynamicSortFilter(true);
-        m_errorView->setModel(m_errorProxyModel);
-        m_errorView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        // make m_errorView->selectionModel()->selectedRows() return something
-        m_errorView->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_errorView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-        m_errorView->setAutoScroll(false);
-        m_errorView->setObjectName("Valgrind.MemcheckTool.ErrorView");
-    }
-    return m_errorView;
+    ensureWidgets();
 }
 
-QWidget *MemcheckTool::createPaneToolBarWidget()
+void MemcheckTool::ensureWidgets()
 {
-    QWidget *toolbarWidget = new QWidget;
-    toolbarWidget->setObjectName(QLatin1String("MemCheckToolBarWidget"));
+    if (m_errorView)
+        return;
+
+    AnalyzerManager *am = AnalyzerManager::instance();
+    Utils::FancyMainWindow *mw = am->mainWindow();
+
+    m_errorView = new MemcheckErrorView;
+    m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
+    m_errorView->setFrameStyle(QFrame::NoFrame);
+    m_errorView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_errorModel = new ErrorListModel(m_errorView);
+    m_frameFinder = new Internal::FrameFinder;
+    m_errorModel->setRelevantFrameFinder(QSharedPointer<Internal::FrameFinder>(m_frameFinder));
+    m_errorProxyModel = new MemcheckErrorFilterProxyModel(m_errorView);
+    m_errorProxyModel->setSourceModel(m_errorModel);
+    m_errorProxyModel->setDynamicSortFilter(true);
+    m_errorView->setModel(m_errorProxyModel);
+    m_errorView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    // make m_errorView->selectionModel()->selectedRows() return something
+    m_errorView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_errorView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    m_errorView->setAutoScroll(false);
+    m_errorView->setObjectName("Valgrind.MemcheckTool.ErrorView");
+
+    QDockWidget *errorDock =
+        am->createDockWidget(this, tr("Memory Issues"), m_errorView,
+                             Qt::BottomDockWidgetArea);
+    mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
+
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
+            SIGNAL(updateRunActions()), SLOT(maybeActiveRunConfigurationChanged()));
+}
+
+QWidget *MemcheckTool::createControlWidget()
+{
+    ensureWidgets();
+
+    QAction *action = 0;
     QHBoxLayout *layout = new QHBoxLayout;
+    QToolButton *button = 0;
+
     layout->setMargin(0);
     layout->setSpacing(0);
-    // filter
+
+    // Go to previous leak.
+    action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(QIcon(QLatin1String(":core/images/prev.png")));
+    action->setToolTip(tr("Go to previous leak."));
+    connect(action, SIGNAL(triggered(bool)), m_errorView, SLOT(goBack()));
+    button = new QToolButton;
+    button->setDefaultAction(action);
+    layout->addWidget(button);
+    m_goBack = action;
+
+    // Go to next leak.
+    action = new QAction(this);
+    action->setDisabled(true);
+    action->setIcon(QIcon(QLatin1String(":core/images/next.png")));
+    action->setToolTip(tr("Go to next leak."));
+    connect(action, SIGNAL(triggered(bool)), m_errorView, SLOT(goNext()));
+    button = new QToolButton;
+    button->setDefaultAction(action);
+    layout->addWidget(button);
+    m_goNext = action;
+
     QToolButton *filterButton = new QToolButton;
     filterButton->setIcon(QIcon(Core::Constants::ICON_FILTER));
     filterButton->setText(tr("Error Filter"));
     filterButton->setPopupMode(QToolButton::InstantPopup);
-    QMenu *filterMenu = new QMenu(filterButton);
-    foreach (QAction *filterAction, m_errorFilterActions)
-        filterMenu->addAction(filterAction);
-    filterMenu->addSeparator();
-    filterMenu->addAction(m_filterProjectAction);
-    filterMenu->addAction(m_suppressionSeparator);
-    connect(filterMenu, SIGNAL(triggered(QAction *)), SLOT(updateErrorFilter()));
-    filterButton->setMenu(filterMenu);
-    layout->addWidget(filterButton);
-    layout->addStretch();
-    toolbarWidget->setLayout(layout);
-    return toolbarWidget;
-}
 
-void MemcheckTool::initialize()
-{
-    ensurePaneErrorView();
-    // register shortcuts
-    maybeActiveRunConfigurationChanged();
+    m_filterMenu = new QMenu(filterButton);
+    foreach (QAction *filterAction, m_errorFilterActions)
+        m_filterMenu->addAction(filterAction);
+    m_filterMenu->addSeparator();
+    m_filterMenu->addAction(m_filterProjectAction);
+    m_filterMenu->addAction(m_suppressionSeparator);
+    connect(m_filterMenu, SIGNAL(triggered(QAction *)), SLOT(updateErrorFilter()));
+    filterButton->setMenu(m_filterMenu);
+    layout->addWidget(filterButton);
+
+    layout->addStretch();
+    QWidget *widget = new QWidget;
+    widget->setObjectName(QLatin1String("MemCheckToolBarWidget"));
+    widget->setLayout(layout);
+    return widget;
 }
 
 IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
@@ -454,25 +478,14 @@ void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)
 
     m_errorView->setDefaultSuppressionFile(dir + name + QLatin1String(".supp"));
 
-    QMenu *menu = filterMenu();
-    QTC_ASSERT(menu, return);
     foreach (const QString &file, mEngine->suppressionFiles()) {
-        QAction *action = menu->addAction(QFileInfo(file).fileName());
+        QAction *action = m_filterMenu->addAction(QFileInfo(file).fileName());
         action->setToolTip(file);
         action->setData(file);
         connect(action, SIGNAL(triggered(bool)),
                 this, SLOT(suppressionActionTriggered()));
-        m_suppressionActions << action;
+        m_suppressionActions.append(action);
     }
-}
-
-QMenu *MemcheckTool::filterMenu() const
-{
-    QTC_ASSERT(m_suppressionSeparator, return 0);
-    foreach (QWidget *w, m_suppressionSeparator->associatedWidgets())
-        if (QMenu *menu = qobject_cast<QMenu *>(w))
-            return menu;
-    return 0;
 }
 
 void MemcheckTool::suppressionActionTriggered()
@@ -498,15 +511,17 @@ void MemcheckTool::internalParserError(const QString &errorString)
 
 void MemcheckTool::clearErrorView()
 {
+    ensureWidgets();
     m_errorModel->clear();
 
     qDeleteAll(m_suppressionActions);
     m_suppressionActions.clear();
-    QTC_ASSERT(filterMenu()->actions().last() == m_suppressionSeparator, qt_noop());
+    //QTC_ASSERT(filterMenu()->actions().last() == m_suppressionSeparator, qt_noop());
 }
 
 void MemcheckTool::updateErrorFilter()
 {
+    ensureWidgets();
     QTC_ASSERT(m_settings, return);
 
     AbstractMemcheckSettings *memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();
@@ -527,16 +542,12 @@ void MemcheckTool::updateErrorFilter()
     memcheckSettings->setVisibleErrorKinds(errorKinds);
 }
 
-IAnalyzerOutputPaneAdapter *MemcheckTool::outputPaneAdapter()
-{
-    if (!m_outputPaneAdapter)
-        m_outputPaneAdapter = new MemCheckOutputPaneAdapter(this);
-    return m_outputPaneAdapter;
-}
-
 void MemcheckTool::finished()
 {
-    const QString msg = AnalyzerManager::msgToolFinished(displayName(), m_errorModel->rowCount());
+    const int n = m_errorModel->rowCount();
+    m_goBack->setEnabled(n > 0);
+    m_goNext->setEnabled(n > 0);
+    const QString msg = AnalyzerManager::msgToolFinished(displayName(), n);
     AnalyzerManager::instance()->showStatusMessage(msg);
 }
 

@@ -57,15 +57,13 @@ class Error;
 }
 }
 
-namespace Analyzer
-{
+namespace Analyzer {
 class AnalyzerSettings;
 }
 
 namespace Valgrind {
 namespace Internal {
 
-class MemCheckOutputPaneAdapter;
 class MemcheckErrorView;
 class FrameFinder;
 
@@ -99,21 +97,6 @@ public:
     QString displayName() const;
     ToolMode mode() const;
 
-    void initialize();
-    void extensionsInitialized() {}
-
-    Analyzer::IAnalyzerOutputPaneAdapter *outputPaneAdapter();
-    Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
-
-    // For the output pane adapter.
-    MemcheckErrorView *ensurePaneErrorView();
-    QWidget *createPaneToolBarWidget();
-    void clearErrorView();
-
-    bool canRunRemotely() const;
-    bool needsOutputPane() const { return true; }
-
 private slots:
     void settingsDestroyed(QObject *settings);
     void maybeActiveRunConfigurationChanged();
@@ -127,9 +110,21 @@ private slots:
     void suppressionActionTriggered();
 
 private:
-    QMenu *filterMenu() const;
+    void ensureWidgets();
+    bool canRunRemotely() const;
+    bool needsOutputPane() const { return true; }
+    void initializeDockWidgets();
+    void initialize() {}
+    void extensionsInitialized();
+    QWidget *createControlWidget();
+
+    Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
+                               ProjectExplorer::RunConfiguration *runConfiguration = 0);
+
+    void clearErrorView();
 
     Analyzer::AnalyzerSettings *m_settings;
+    QMenu *m_filterMenu;
 
     FrameFinder *m_frameFinder;
     Valgrind::XmlProtocol::ErrorListModel *m_errorModel;
@@ -140,7 +135,8 @@ private:
     QAction *m_filterProjectAction;
     QList<QAction *> m_suppressionActions;
     QAction *m_suppressionSeparator;
-    MemCheckOutputPaneAdapter *m_outputPaneAdapter;
+    QAction *m_goBack;
+    QAction *m_goNext;
 };
 
 } // namespace Internal
