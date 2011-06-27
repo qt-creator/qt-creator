@@ -101,6 +101,8 @@ public:
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
     void setComponentView(ComponentView *componentView);
 
+    static DesignDocumentController *instance();
+
 signals:
     void displayNameChanged(const QString &newFileName);
     void dirtyStateChanged(bool newState);
@@ -123,6 +125,7 @@ public slots:
     void undo();
     void redo();
     void activeQtVersionChanged();
+    void changeCurrentModelTo(const ModelNode &node);
 
 #ifdef ENABLE_TEXT_VIEW
     void showText();
@@ -131,7 +134,6 @@ public slots:
 
 private slots:
     void doRealSaveAs(const QString &fileName);
-    void changeCurrentModelTo(const ModelNode &node);
 
 private:
     void detachNodeInstanceView();
@@ -142,6 +144,8 @@ private:
     QString pathToQt() const;
 
     class DesignDocumentControllerPrivate *m_d;
+
+    static DesignDocumentController* m_this;
 };
 
 } // namespace QmlDesigner

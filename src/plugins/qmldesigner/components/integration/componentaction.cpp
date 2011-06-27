@@ -45,6 +45,11 @@ ComponentAction::ComponentAction(ComponentView  *componentView)
 {
 }
 
+void ComponentAction::setCurrentIndex(int i)
+{
+    emit currentIndexChanged(i);
+}
+
 QWidget  *ComponentAction::createWidget(QWidget *parent)
 {
     QComboBox *comboBox = new QComboBox(parent);
@@ -52,6 +57,7 @@ QWidget  *ComponentAction::createWidget(QWidget *parent)
     comboBox->setToolTip(tr("Edit sub components defined in this file"));
     comboBox->setModel(m_componentView->standardItemModel());
     connect(comboBox, SIGNAL(currentIndexChanged(int)), SLOT(emitCurrentComponentChanged(int)));
+    connect(this, SIGNAL(currentIndexChanged(int)), comboBox, SLOT(setCurrentIndex(int)));
 
     return comboBox;
 }

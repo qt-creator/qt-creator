@@ -72,6 +72,11 @@ ModelNode ComponentView::modelNode(int index) const
     return ModelNode();
 }
 
+void ComponentView::setComponentNode(const ModelNode &node)
+{
+    m_componentAction->setCurrentIndex(indexForNode(node));
+}
+
 void ComponentView::appendWholeDocumentAsComponent()
 {
     QStandardItem *item = new QStandardItem(tr("whole document"));
@@ -86,6 +91,16 @@ void ComponentView::removeSingleNodeFromList(const ModelNode &node)
         if (m_standardItemModel->item(row)->data(ModelNodeRole).value<ModelNode>() == node)
             m_standardItemModel->removeRow(row);
     }
+}
+
+
+int ComponentView::indexForNode(const ModelNode &node)
+{
+    for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
+        if (m_standardItemModel->item(row)->data(ModelNodeRole).value<ModelNode>() == node)
+            return row;
+    }
+    return -1;
 }
 
 void ComponentView::modelAttached(Model *model)

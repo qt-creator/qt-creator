@@ -123,6 +123,8 @@ public:
     int qt_versionId;
 };
 
+DesignDocumentController *DesignDocumentController::m_this = 0;
+
 /**
   \class QmlDesigner::DesignDocumentController
 
@@ -133,6 +135,7 @@ DesignDocumentController::DesignDocumentController(QObject *parent) :
         QObject(parent),
         m_d(new DesignDocumentControllerPrivate)
 {
+    m_this = this;
     m_d->documentLoaded = false;
     m_d->syncBlocked = false;
 
@@ -143,6 +146,7 @@ DesignDocumentController::DesignDocumentController(QObject *parent) :
 
 DesignDocumentController::~DesignDocumentController()
 {
+    m_this = 0;
     delete m_d->model.data();
     delete m_d->subComponentModel.data();
 
@@ -294,6 +298,11 @@ void DesignDocumentController::setComponentView(ComponentView *componentView)
 {
     m_d->componentView = componentView;
     connect(m_d->componentView->action(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));
+}
+
+DesignDocumentController *DesignDocumentController::instance()
+{
+    return m_this;
 }
 
 QString DesignDocumentController::displayName() const
