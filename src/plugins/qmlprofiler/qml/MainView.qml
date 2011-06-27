@@ -81,9 +81,9 @@ Rectangle {
             var startTime = Plotter.ranges[0].start;
             if (rangeMover.value + startTime> event.start) {
                 rangeMover.x = Math.max(0,
-                    Math.floor((event.start - startTime) / xs - canvas.canvasWindow.x - rangeMover.width/2) );
-            } else if (rangeMover.value + startTime + rangeMover.width * xs < event.start + event.duration) {
-                rangeMover.x = Math.floor((event.start + event.duration - startTime) / xs - canvas.canvasWindow.x - rangeMover.width/2);
+                    Math.floor((event.start - startTime) / xs - canvas.canvasWindow.x - rangeMover.zoomWidth/2) );
+            } else if (rangeMover.value + startTime + rangeMover.zoomWidth * xs < event.start + event.duration) {
+                rangeMover.x = Math.floor((event.start + event.duration - startTime) / xs - canvas.canvasWindow.x - rangeMover.zoomWidth/2);
             }
         }
     }
@@ -102,6 +102,30 @@ Rectangle {
             if (selectedEventIndex < 0)
                 selectedEventIndex = Plotter.ranges.length - 1;
         }
+    }
+
+    function zoomIn() {
+        // 10%
+        var newZoom = rangeMover.zoomWidth / 1.1;
+
+        // 0.1 ms minimum zoom
+        if (newZoom * Plotter.xScale(canvas) > 100000) {
+            hideRangeDetails();
+            rangeMover.zoomWidth =  newZoom
+            rangeMover.updateZoomControls();
+        }
+    }
+
+    function zoomOut() {
+        hideRangeDetails();
+        // 10%
+        var newZoom = rangeMover.zoomWidth * 1.1;
+        if (newZoom > canvas.width)
+            newZoom = canvas.width;
+        if (newZoom + rangeMover.x > canvas.width)
+            rangeMover.x = canvas.width - newZoom;
+        rangeMover.zoomWidth = newZoom;
+        rangeMover.updateZoomControls();
     }
 
     //handle debug data coming from C++
@@ -173,7 +197,7 @@ Rectangle {
         anchors.left: flick.left
         anchors.right: flick.right
         startTime: rangeMover.x * Plotter.xScale(canvas);
-        endTime: (rangeMover.x + rangeMover.width) * Plotter.xScale(canvas);
+        endTime: (rangeMover.x + rangeMover.zoomWidth) * Plotter.xScale(canvas);
     }
 
     function hideRangeDetails() {
@@ -227,13 +251,7 @@ Rectangle {
                     flick.contentX = startX
             }
             startTime: rangeMover.value
-
-            property real prevXStep:  -1
-            property real possibleEndTime: startTime + (rangeMover.width*Plotter.xScale(canvas))
-            onPossibleEndTimeChanged:  {
-                prevXStep = canvas.canvasWindow.x;
-                endTime = possibleEndTime
-            }
+            endTime: startTime + (rangeMover.zoomWidth*Plotter.xScale(canvas))
             onEndTimeChanged: updateTimeline()
 
             delegate: Rectangle {
@@ -413,7 +431,7 @@ Rectangle {
     MouseArea {
         anchors.fill: canvas
         //### ideally we could press to position then immediately drag
-        onPressed: rangeMover.x = mouse.x - rangeMover.width/2
+        onPressed: rangeMover.x = mouse.x - rangeMover.zoomWidth/2
     }
 
     RangeMover {

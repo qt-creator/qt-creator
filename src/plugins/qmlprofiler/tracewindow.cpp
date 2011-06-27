@@ -295,8 +295,16 @@ TraceWindow::TraceWindow(QWidget *parent)
     QToolButton *buttonNext= new QToolButton;
     buttonNext->setIcon(QIcon(":/qmlprofiler/next.png"));
     connect(buttonNext, SIGNAL(clicked()), this, SIGNAL(jumpToNext()));
+    QToolButton *buttonZoomIn = new QToolButton;
+    buttonZoomIn->setIcon(QIcon(":/qmlprofiler/magnifier-plus.png"));
+    connect(buttonZoomIn, SIGNAL(clicked()), this, SIGNAL(zoomIn()));
+    QToolButton *buttonZoomOut = new QToolButton;
+    buttonZoomOut->setIcon(QIcon(":/qmlprofiler/magnifier-minus.png"));
+    connect(buttonZoomOut, SIGNAL(clicked()), this, SIGNAL(zoomOut()));
     toolBarLayout->addWidget(buttonPrev);
     toolBarLayout->addWidget(buttonNext);
+    toolBarLayout->addWidget(buttonZoomIn);
+    toolBarLayout->addWidget(buttonZoomOut);
 
     m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     m_view->setFocus();
@@ -330,6 +338,8 @@ void TraceWindow::reset(QDeclarativeDebugConnection *conn)
     connect(m_view->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
     connect(this, SIGNAL(jumpToPrev()), m_view->rootObject(), SLOT(prevEvent()));
     connect(this, SIGNAL(jumpToNext()), m_view->rootObject(), SLOT(nextEvent()));
+    connect(this, SIGNAL(zoomIn()), m_view->rootObject(), SLOT(zoomIn()));
+    connect(this, SIGNAL(zoomOut()), m_view->rootObject(), SLOT(zoomOut()));
 
     connect(this, SIGNAL(internalClearDisplay()), m_view->rootObject(), SLOT(clearAll()));
 }

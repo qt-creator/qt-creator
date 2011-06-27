@@ -37,60 +37,80 @@ import Monitor 1.0
 
 Item {
     id: rangeMover
-    width: rect.width; height: 50
 
-    property real prevXStep: -1
-    property real possibleValue: (canvas.canvasWindow.x + x) * Plotter.xScale(canvas)
-    onPossibleValueChanged:  {
-        prevXStep = canvas.canvasWindow.x;
-        if (value != possibleValue)
-            value = possibleValue;
+
+    property color lighterColor:"#cc80b2f6"
+    property color darkerColor:"#cc6da1e8"
+    property real value: (canvas.canvasWindow.x + x) * Plotter.xScale(canvas)
+    property real zoomWidth: 20
+
+    function updateZoomControls() {
+        rightRange.x = rangeMover.width;
     }
+    onXChanged: updateZoomControls();
 
-    property real value
+    width: Math.max(rangeMover.zoomWidth, 20); height: 50
 
     MouseArea {
         anchors.fill: parent
         drag.target: rangeMover
         drag.axis: "XAxis"
         drag.minimumX: 0
-        drag.maximumX: canvas.width - rangeMover.width //###
+        drag.maximumX: canvas.width - rangeMover.zoomWidth //###
+    }
+
+    Rectangle {
+        id: frame
+        color:"transparent"
+        border.width: 1
+        border.color: darkerColor
+        anchors.fill: parent
+        anchors.rightMargin: 1
+        anchors.bottomMargin: 1
     }
 
     Rectangle {
         id: rect
 
-        color: "#cc80b2f6"
-        width: 20
+        color: lighterColor
+        width: parent.zoomWidth
         height: parent.height
     }
+
+
 
     Rectangle {
         id: leftRange
 
         property int currentX: rangeMover.x
-        property int currentWidth : rect.width
+        property int currentWidth : rangeMover.zoomWidth
 
+        x: -width
         height: parent.height
-        width: 5
-        color: Qt.darker(rect.color);
-        opacity: 0.3
+        width: 15
+        color: darkerColor
+
+        Text {
+            anchors.centerIn: parent
+            text:"<"
+        }
+
         MouseArea {
             anchors.fill: parent
             drag.target: leftRange
             drag.axis: "XAxis"
             drag.minimumX: -parent.currentX
-            drag.maximumX: parent.currentWidth - 20
+            drag.maximumX: parent.currentWidth - width - 1
             onPressed: {
                 parent.currentX = rangeMover.x;
-                parent.currentWidth = rect.width;
+                parent.currentWidth = rangeMover.zoomWidth;
             }
         }
         onXChanged: {
-            if (x!=0) {
-                rect.width = currentWidth - x;
-                rangeMover.x = currentX + x;
-                x = 0;
+            if (x + width != 0) {
+                rangeMover.zoomWidth = currentWidth - x - width;
+                rangeMover.x = currentX + x + width;
+                x = -width;
             }
         }
     }
@@ -98,23 +118,32 @@ Item {
     Rectangle {
         id: rightRange
         property int currentX: rangeMover.x
+        property int widthSpace: rangeMover.width - rangeMover.zoomWidth
 
         height: parent.height
-        width: 5
-        anchors.right: parent.right
-        color: Qt.darker(rect.color);
-        opacity: 0.3
+        width: 15
+        x: rangeMover.width
+        color: darkerColor;
+
+        Text {
+            anchors.centerIn: parent
+            text:">"
+        }
         MouseArea {
             anchors.fill: parent
             drag.target: rightRange
             drag.axis: "XAxis"
-            drag.minimumX: 15
+            drag.minimumX: 1 + parent.widthSpace
             drag.maximumX: canvas.width - parent.currentX;
-            onPressed: parent.currentX = rangeMover.x;
+            onPressed: {
+                parent.currentX = rangeMover.x;
+                parent.widthSpace = rangeMover.width - rangeMover.zoomWidth;
+            }
+            onReleased: rightRange.x = rangeMover.width;
         }
         onXChanged: {
-            if (x != rect.width - width) {
-                rect.width = x + width;
+            if (x != rangeMover.width) {
+                rangeMover.zoomWidth = x - widthSpace;
             }
         }
     }

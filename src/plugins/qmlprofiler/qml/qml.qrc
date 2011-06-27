@@ -14,5 +14,7 @@
         <file>prev.png</file>
         <file>next.png</file>
         <file>toolbarbg.png</file>
+        <file>magnifier-minus.png</file>
+        <file>magnifier-plus.png</file>
     </qresource>
 </RCC>

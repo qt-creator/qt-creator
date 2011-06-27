@@ -78,6 +78,8 @@ signals:
     void internalClearDisplay();
     void jumpToPrev();
     void jumpToNext();
+    void zoomIn();
+    void zoomOut();
 
 private:
     QWeakPointer<TracePlugin> m_plugin;
