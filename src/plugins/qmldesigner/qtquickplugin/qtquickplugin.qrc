@@ -34,5 +34,8 @@
         <file>source/listview.qml</file>
         <file>source/gridview.qml</file>
         <file>source/pathview.qml</file>
+        <file>source/text.qml</file>
+        <file>source/textedit.qml</file>
+        <file>source/textinput.qml</file>
     </qresource>
 </RCC>

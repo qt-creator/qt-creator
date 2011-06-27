@@ -13,25 +13,18 @@
     </itemlibraryentry>
   </node>
   <node name="QtQuick.Text" icon=":/qtquickplugin/images/text-icon16.png">
-    <itemlibraryentry name="Text" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-icon.png" version="1.0">
-      <property name="text" type="QString" value="text"/>
-      <property name="font.pixelSize" type="int" value="12"/>
+    <itemlibraryentry name="Text" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-icon.png" version="1.0">      
+      <qml source=":/qtquickplugin/source/text.qml"/>
     </itemlibraryentry>
   </node>
   <node name="QtQuick.TextEdit" icon=":/qtquickplugin/images/text-edit-icon16.png">
-    <itemlibraryentry name="Text Edit" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-edit-icon.png" version="1.0">
-      <property name="width" type="int" value="80"/>
-      <property name="height" type="int" value="20"/>
-      <property name="text" type="QString" value="textEdit"/>
-      <property name="font.pixelSize" type="int" value="12"/>
+    <itemlibraryentry name="Text Edit" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-edit-icon.png" version="1.0">      
+      <qml source=":/qtquickplugin/source/textedit.qml"/>
     </itemlibraryentry>
   </node>
   <node name="QtQuick.TextInput" icon=":/qtquickplugin/images/text-input-icon16.png">
     <itemlibraryentry name="Text Input" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-input-icon.png" version="1.0">
-      <property name="width" type="int" value="80"/>
-      <property name="height" type="int" value="20"/>
-      <property name="text" type="QString" value="textInput"/>
-      <property name="font.pixelSize" type="int" value="12"/>
+        <qml source=":/qtquickplugin/source/textinput.qml"/>
     </itemlibraryentry>
   </node>
   <node name="QtQuick.MouseArea" icon=":/qtquickplugin/images/mouse-area-icon16.png">
