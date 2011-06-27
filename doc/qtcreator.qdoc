@@ -5116,6 +5116,7 @@
     for Symbian, Maemo, or MeeGo Harmattan devices and for publishing on Ovi
     Store:
 
+
     \list
         \o \l{Deploying Applications to Symbian Devices}
         \o \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}
@@ -7076,17 +7077,12 @@
         \row
             \i  \gui{Launch gitk}
             \i  Start the commit viewer for Git, gitk.
-
         \row
             \i  \gui{Branches...}
-            \i  Display the \gui Branch dialog that shows the local branches at the
-                top and remote branches at the bottom. To switch to a local branch,
-                double-click it. Double-clicking on a remote branch first creates a local
-                branch with the same name that tracks the remote branch, and then switches
-                to it.
-
-                \image qtcreator-vcs-gitbranch.png
-
+            \i  Manage local and remote branches.
+        \row
+            \i  \gui Remotes...
+            \i  Manage remote repositories available in Git.
         \row
             \i  \gui {Stage File for Commit}
             \i  Mark new or modified files for committing to the repository.
@@ -7096,10 +7092,75 @@
             \i  Select a commit to view. Enter the SHA of the commit
                 in the \gui Change field.
         \row
+            \i  \gui Stash
+            \i  Store local changes temporarily.
+        \row
             \i  \gui{Amend Last Commit...}
             \i  Revert the last commit.
 
     \endtable
+
+    \section3 Working with Branches
+
+    To work with Git branches, select \gui{Branches...}. The checked out branch
+    is shown in bold and underlined in the list of branches. Double-click branch
+    names to edit them.
+
+    \image qtcreator-vcs-gitbranch.png "Branches dialog"
+
+    The following operations are supported:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Add...}
+            \i  Create new tracking and non-tracking branches.
+        \row
+            \i  \gui{Checkout}
+            \i  Check out the selected branch and make it current.
+        \row
+            \i  \gui{Remove}
+            \i  Remove a local branch. You cannot delete remote branches.
+        \row
+            \i  \gui{Diff}
+            \i  Show the differences between the selected and the current
+                branch.
+        \row
+            \i  \gui{Log}
+            \i  Show the changes in a branch.
+        \row
+            \i  \gui{Refresh}
+            \i  Refresh the list of branches.
+    \endtable
+
+    \section3 Working with Remote Repositories
+
+    To manage remote repositories available in Git, select \gui{Remotes...}.
+    Double-click the names and URLs of the remote repositories to edit them.
+
+    The following operations are supported:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \i  \gui{Add...}
+            \i  Add a new remote repository.
+        \row
+            \i  \gui{Fetch}
+            \i  Fetch all the branches and change information from a remote
+                repository.
+        \row
+            \i  \gui{Remove}
+            \i  Remove a remote repository.
+        \row
+            \i  \gui{Refresh}
+            \i  Refresh the list of remote repositories.
+    \endtable
+
 
     \section3 Using Stashes
 
