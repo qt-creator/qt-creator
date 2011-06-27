@@ -75,7 +75,8 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/rewriteactioncompressor.cpp \
     $$PWD/model/qmltextgenerator.cpp \
     $$PWD/model/modelmerger.cpp \
-    $$PWD/exceptions/rewritingexception.cpp
+    $$PWD/exceptions/rewritingexception.cpp \
+    $$PWD/model/modelnodecontextmenu.cpp
 
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
@@ -145,7 +146,8 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/modelmerger.h \
     $$PWD/include/mathutils.h \
     $$PWD/include/customnotifications.h \
-    $$PWD/include/rewritingexception.h
+    $$PWD/include/rewritingexception.h \
+    $$PWD//model/modelnodecontextmenu.h
 
 contains(CONFIG, plugin) {
   # If core.pri has been included in the qmldesigner plugin

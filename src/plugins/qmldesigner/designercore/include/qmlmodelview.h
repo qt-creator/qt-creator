@@ -34,6 +34,7 @@
 #define QMLMODELVIEW_H
 
 #include <corelib_global.h>
+#include <QPoint>
 #include <abstractview.h>
 #include "qmlitemnode.h"
 #include "qmlstate.h"
@@ -120,6 +121,8 @@ public:
 
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
     void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
+
+    void showContextMenu(const QPoint &globalPos, const QPoint &scenePos, bool showSelection);
 
 protected:
     NodeInstance instanceForModelNode(const ModelNode &modelNode);
