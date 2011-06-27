@@ -99,6 +99,7 @@ public:
     QString localExecutableFilePath() const;
     QString remoteExecutableFilePath() const;
     QString arguments() const;
+    void setArguments(const QString &args);
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfig() const;
     QString gdbCmd() const;
 
@@ -143,7 +144,6 @@ private slots:
 private:
     void init();
 
-    void setArguments(const QString &args);
     void setBaseEnvironmentType(BaseEnvironmentType env);
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
     void setSystemEnvironment(const Utils::Environment &environment);

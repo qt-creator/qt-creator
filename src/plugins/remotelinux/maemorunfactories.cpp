@@ -90,7 +90,9 @@ bool MaemoRunConfigurationFactory::canRestore(Target *parent,
 bool MaemoRunConfigurationFactory::canClone(Target *parent,
     RunConfiguration *source) const
 {
-    return canCreate(parent, source->id());
+    const RemoteLinuxRunConfiguration * const rlrc
+            = qobject_cast<RemoteLinuxRunConfiguration *>(source);
+    return rlrc && canCreate(parent, source->id() + QLatin1Char('.') + rlrc->proFilePath());
 }
 
 QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) const

@@ -53,6 +53,8 @@ public:
     virtual bool isRunning() const;
     virtual QIcon icon() const;
 
+    virtual RemoteLinuxApplicationRunner *runner() const=0;
+
 private slots:
     void startExecution();
     void handleSshError(const QString &error);
@@ -63,7 +65,6 @@ private slots:
     void handleProgressReport(const QString &progressString);
 
 private:
-    virtual RemoteLinuxApplicationRunner *runner() const=0;
 
     void setFinished();
     void handleError(const QString &errString);
