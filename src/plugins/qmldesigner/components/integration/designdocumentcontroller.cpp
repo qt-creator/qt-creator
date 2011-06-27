@@ -437,6 +437,7 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
     Q_ASSERT(m_d->model);
 
     loadCurrentModel();
+    m_d->componentView->setComponentNode(componentNode);
 }
 
 void DesignDocumentController::loadCurrentModel()

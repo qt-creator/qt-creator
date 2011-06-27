@@ -105,6 +105,8 @@ public:
 
     ModelNode modelNode(int index) const;
 
+    void setComponentNode(const ModelNode &node);
+
 signals:
     void componentListChanged(const QStringList &componentList);
 
@@ -114,6 +116,7 @@ private: //functions
     void searchForComponentAndRemoveFromList(const ModelNode &node);
     void appendWholeDocumentAsComponent();
     void removeSingleNodeFromList(const ModelNode &node);
+    int indexForNode(const ModelNode &node);
 
 private:
     QStandardItemModel *m_standardItemModel;

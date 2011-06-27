@@ -51,12 +51,14 @@ class ComponentAction : public QWidgetAction
     Q_OBJECT
 public:
     ComponentAction(ComponentView  *componentView);
+    void setCurrentIndex(int);
 
 protected:
     QWidget  *createWidget(QWidget *parent);
 
 signals:
     void currentComponentChanged(const ModelNode &node);
+    void currentIndexChanged(int);
 
 private slots:
     void emitCurrentComponentChanged(int index);
