@@ -826,7 +826,6 @@ void BreakHandler::setEngine(BreakpointModelId id, DebuggerEngine *value)
     it->engine = value;
     it->state = BreakpointInsertRequested;
     it->response = BreakpointResponse();
-    it->response.fileName = it->data.fileName;
     it->updateMarker(id);
     scheduleSynchronization();
 }
@@ -1033,19 +1032,14 @@ void BreakHandler::appendBreakpoint(const BreakpointParameters &data)
 {
     QTC_ASSERT(data.type != UnknownType, return);
     BreakpointModelId id(++currentId);
-    BreakpointItem item;
-    item.data = data;
-    item.response.fileName = data.fileName;
-    item.response.lineNumber = data.lineNumber;
-
     const int row = m_storage.size();
     beginInsertRows(QModelIndex(), row, row);
-    m_storage.insert(id, item);
+    Iterator it = m_storage.insert(id, BreakpointItem());
     endInsertRows();
 
-    item.updateMarker(id);
-
-    layoutChanged();
+    // Create marker after copy is inserted into hash.
+    it->data = data;
+    it->updateMarker(id);
 
     scheduleSynchronization();
 }
@@ -1056,22 +1050,22 @@ void BreakHandler::handleAlienBreakpoint(BreakpointModelId id,
     if (response.id.isMinor()) {
         insertSubBreakpoint(id, response);
     } else {
-        BreakpointParameters data = response;
-        data.type = BreakpointByFileAndLine;
-        data.functionName.clear();
-
         BreakpointModelId id(++currentId);
-        BreakpointItem item;
-        item.data = data;
-        item.response = response;
-        item.state = BreakpointInserted;
-        item.engine = engine;
-        item.updateMarker(id);
-
         const int row = m_storage.size();
+
         beginInsertRows(QModelIndex(), row, row);
-        m_storage.insert(id, item);
+        Iterator it = m_storage.insert(id, BreakpointItem());
         endInsertRows();
+
+        it->data = response;
+        it->data.type = BreakpointByFileAndLine;
+        it->data.functionName.clear();
+        it->data.address = 0;
+
+        it->response = response;
+        it->state = BreakpointInserted;
+        it->engine = engine;
+        it->updateMarker(id);
 
         layoutChanged();
         scheduleSynchronization();
