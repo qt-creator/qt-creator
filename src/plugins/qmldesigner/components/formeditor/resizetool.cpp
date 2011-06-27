@@ -61,32 +61,38 @@ ResizeTool::~ResizeTool()
 void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
                                             QGraphicsSceneMouseEvent *event)
 {
-    if (itemList.isEmpty())
-        return;
+    if (event->button() == Qt::LeftButton) {
+        if (itemList.isEmpty())
+            return;
 
-    ResizeHandleItem *resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
-    if (resizeHandle && resizeHandle->resizeController().isValid()) {
-        m_resizeManipulator.setHandle(resizeHandle);
-        m_resizeManipulator.begin(event->scenePos());
-        m_resizeIndicator.hide();
+        ResizeHandleItem *resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
+        if (resizeHandle && resizeHandle->resizeController().isValid()) {
+            m_resizeManipulator.setHandle(resizeHandle);
+            m_resizeManipulator.begin(event->scenePos());
+            m_resizeIndicator.hide();
+        }
     }
+
+    AbstractFormEditorTool::mousePressEvent(itemList, event);
 }
 
 void ResizeTool::mouseMoveEvent(const QList<QGraphicsItem*> &,
                                            QGraphicsSceneMouseEvent *event)
 {
-    bool shouldSnapping = view()->widget()->snappingAction()->isChecked();
-    bool shouldSnappingAndAnchoring = view()->widget()->snappingAndAnchoringAction()->isChecked();
+    if (m_resizeManipulator.isActive()) {
+        bool shouldSnapping = view()->widget()->snappingAction()->isChecked();
+        bool shouldSnappingAndAnchoring = view()->widget()->snappingAndAnchoringAction()->isChecked();
 
-    ResizeManipulator::Snapping useSnapping = ResizeManipulator::NoSnapping;
-    if (event->modifiers().testFlag(Qt::ControlModifier) != (shouldSnapping || shouldSnappingAndAnchoring)) {
-        if (shouldSnappingAndAnchoring)
-            useSnapping = ResizeManipulator::UseSnappingAndAnchoring;
-        else
-            useSnapping = ResizeManipulator::UseSnapping;
+        ResizeManipulator::Snapping useSnapping = ResizeManipulator::NoSnapping;
+        if (event->modifiers().testFlag(Qt::ControlModifier) != (shouldSnapping || shouldSnappingAndAnchoring)) {
+            if (shouldSnappingAndAnchoring)
+                useSnapping = ResizeManipulator::UseSnappingAndAnchoring;
+            else
+                useSnapping = ResizeManipulator::UseSnapping;
+        }
+
+        m_resizeManipulator.update(event->scenePos(), useSnapping);
     }
-
-    m_resizeManipulator.update(event->scenePos(), useSnapping);
 }
 
 void ResizeTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
@@ -107,14 +113,18 @@ void ResizeTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
 }
 
 void ResizeTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
-                                              QGraphicsSceneMouseEvent * /*event*/)
+                                              QGraphicsSceneMouseEvent *event)
 {
-    if (itemList.isEmpty())
-        return;
+    if (m_resizeManipulator.isActive()) {
+        if (itemList.isEmpty())
+            return;
 
-    m_selectionIndicator.show();
-    m_resizeIndicator.show();
-    m_resizeManipulator.end();
+        m_selectionIndicator.show();
+        m_resizeIndicator.show();
+        m_resizeManipulator.end();
+    }
+
+    AbstractFormEditorTool::mouseReleaseEvent(itemList, event);
 }
 
 void ResizeTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> & /*itemList*/,

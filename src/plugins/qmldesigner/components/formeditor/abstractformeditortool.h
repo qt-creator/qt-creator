@@ -52,11 +52,12 @@ public:
     virtual ~AbstractFormEditorTool();
 
     virtual void mousePressEvent(const QList<QGraphicsItem*> &itemList,
-                         QGraphicsSceneMouseEvent *event) = 0;
+                         QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
                         QGraphicsSceneMouseEvent *event) = 0;
     virtual void mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
-                           QGraphicsSceneMouseEvent *event) = 0;
+                           QGraphicsSceneMouseEvent *event);
+
     virtual void mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList,
                                        QGraphicsSceneMouseEvent *event);
 
@@ -97,6 +98,7 @@ protected:
 
     virtual void selectedItemsChanged(const QList<FormEditorItem*> &itemList) = 0;
 
+    virtual void showContextMenu(QGraphicsSceneMouseEvent *event);
 
     FormEditorView *view() const;
     FormEditorScene* scene() const;

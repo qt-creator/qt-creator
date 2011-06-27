@@ -67,6 +67,8 @@ public:
 
     void clear();
 
+    bool isActive() const;
+
 protected:
     bool isInvalidSize(const QSizeF & size);
     void deleteSnapLines();
@@ -91,6 +93,7 @@ private:
     QWeakPointer<LayerItem> m_layerItem;
     ResizeHandleItem *m_resizeHandle;
     RewriterTransaction m_rewriterTransaction;
+    bool m_isActive;
 };
 
 }

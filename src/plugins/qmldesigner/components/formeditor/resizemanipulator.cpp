@@ -50,7 +50,8 @@ ResizeManipulator::ResizeManipulator(LayerItem *layerItem, FormEditorView *view)
     m_beginRightMargin(0.0),
     m_beginBottomMargin(0.0),
     m_layerItem(layerItem),
-    m_resizeHandle(0)
+    m_resizeHandle(0),
+    m_isActive(false)
 {
 }
 
@@ -78,6 +79,7 @@ void ResizeManipulator::removeHandle()
 void ResizeManipulator::begin(const QPointF &/*beginPoint*/)
 {
     if (m_resizeController.isValid()) {
+        m_isActive = true;
         m_beginBoundingRect = m_resizeController.formEditorItem()->qmlItemNode().instanceBoundingRect();
         m_beginToSceneTransform = m_resizeController.formEditorItem()->qmlItemNode().instanceSceneTransform();
         m_beginFromSceneTransform = m_beginToSceneTransform.inverted();
@@ -392,6 +394,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
 
 void ResizeManipulator::end()
 {
+    m_isActive = false;
     m_rewriterTransaction.commit();
     clear();
     removeHandle();
@@ -506,6 +509,11 @@ void ResizeManipulator::clear()
     m_beginRightMargin = 0.0;
     m_beginBottomMargin = 0.0;
     removeHandle();
+}
+
+bool ResizeManipulator::isActive() const
+{
+    return m_isActive;
 }
 
 void ResizeManipulator::setSize(QmlItemNode itemNode, const QSizeF &size)

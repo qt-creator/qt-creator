@@ -202,6 +202,21 @@ static inline bool checkIfNodeIsAView(const ModelNode &node)
              node.metaInfo().isSubclassOf("QtQuick.PathView", -1, -1));
 }
 
+void AbstractFormEditorTool::mousePressEvent(const QList<QGraphicsItem*> & /*itemList*/, QGraphicsSceneMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton) {
+        event->accept();
+    }
+}
+
+void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*itemList*/, QGraphicsSceneMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton) {
+        showContextMenu(event);
+        event->accept();
+    }
+}
+
 void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
     FormEditorItem *formEditorItem = topFormEditorItem(itemList);
@@ -218,4 +233,9 @@ void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &
         }
     }
 }
+
+void AbstractFormEditorTool::showContextMenu(QGraphicsSceneMouseEvent *event)
+{
+}
+
 }
