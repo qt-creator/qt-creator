@@ -607,7 +607,8 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetectToolchains(const QSt
 Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     ToolChainConfigWidget(tc),
     m_compilerPath(new Utils::PathChooser),
-    m_abiWidget(new AbiWidget)
+    m_abiWidget(new AbiWidget),
+    m_isReadOnly(false)
 {
     Q_ASSERT(tc);
 
@@ -654,6 +655,8 @@ void Internal::GccToolChainConfigWidget::setFromToolchain()
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     m_compilerPath->setPath(tc->compilerPath());
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
+    if (!m_isReadOnly && !m_compilerPath->path().isEmpty())
+        m_abiWidget->setEnabled(true);
     setDebuggerCommand(tc->debuggerCommand());
     blockSignals(blocked);
 }
@@ -670,6 +673,7 @@ void Internal::GccToolChainConfigWidget::makeReadOnly()
 {
     m_compilerPath->setEnabled(false);
     m_abiWidget->setEnabled(false);
+    m_isReadOnly = true;
     ToolChainConfigWidget::makeReadOnly();
 }
 

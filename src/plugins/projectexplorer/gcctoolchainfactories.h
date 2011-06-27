@@ -105,6 +105,7 @@ private:
     QString m_autoDebuggerCommand;
 
     QList<Abi> m_abiList;
+    bool m_isReadOnly;
 };
 
 // --------------------------------------------------------------------------
