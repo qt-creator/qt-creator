@@ -147,41 +147,59 @@ QString GitEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) cons
 8ca887aa (author               YYYY-MM-DD HH:MM:SS <offset>  <line>)<content>
 \endcode */
 
-static void removeAnnotationDate(QString *s)
+static QByteArray removeAnnotationDate(const QByteArray &b)
 {
-    if (s->isEmpty())
-        return;
-    // Get position of date (including blank) and the ')'
-    const QRegExp isoDatePattern(QLatin1String(" \\d{4}-\\d{2}-\\d{2}"));
-    Q_ASSERT(isoDatePattern.isValid());
-    const int datePos = s->indexOf(isoDatePattern);
-    const int parenPos = datePos == -1 ? -1 : s->indexOf(QLatin1Char(')'));
+    if (b.isEmpty())
+        return QByteArray();
+
+    const int parenPos = b.indexOf(')');
     if (parenPos == -1)
-        return;
-    // In all lines, remove the bit from datePos .. parenPos;
-    const int dateLength = parenPos - datePos;
-    const QChar newLine = QLatin1Char('\n');
-    for (int pos = 0; pos < s->size(); ) {
-        if (pos + parenPos >s->size()) // Should not happen
+        return QByteArray(b);
+    int datePos = parenPos;
+
+    // Go back from paren for 5 spaces: That is where the date starts.
+    int spaceCount = 0;
+    for (int i = parenPos; i >= 0; --i) {
+        if (b.at(i) == ' ')
+            ++spaceCount;
+        if (spaceCount == 5) {
+            datePos = i + 1;
             break;
-        s->remove(pos + datePos, dateLength);
-        const int nextLinePos = s->indexOf(newLine, pos + datePos);
-        pos = nextLinePos == -1 ? s->size() : nextLinePos  + 1;
+        }
     }
+    if (datePos == 0)
+        return QByteArray(b);
+
+    // Copy over the parts that have not changed into a new byte array
+    Q_ASSERT(b.size() >= parenPos);
+    QByteArray result(b.constData(), datePos);
+    int prevPos = 0;
+    int pos = parenPos;
+    forever {
+        Q_ASSERT(prevPos < pos);
+        if (prevPos != 0)
+            result.append(b.constData() + prevPos, pos - prevPos);
+        prevPos = pos;
+        Q_ASSERT(prevPos != 0);
+        if (pos == b.size())
+            break;
+
+        pos = b.indexOf('\n', pos + 1);
+        if (pos == -1)
+            pos = b.size();
+    }
+    return result;
 }
 
 void GitEditor::setPlainTextDataFiltered(const QByteArray &a)
 {
+    QByteArray array = a;
     // If desired, filter out the date from annotation
     const bool omitAnnotationDate = contentType() == VCSBase::AnnotateOutput
                                     && GitPlugin::instance()->settings().omitAnnotationDate;
-    if (omitAnnotationDate) {
-        QString text = codec()->toUnicode(a);
-        removeAnnotationDate(&text);
-        setPlainText(text);
-    } else {
-        setPlainTextData(a);
-    }
+    if (omitAnnotationDate)
+        array = removeAnnotationDate(a);
+    setPlainTextData(array);
 }
 
 void GitEditor::commandFinishedGotoLine(bool ok, int /* exitCode */, const QVariant &v)
