@@ -236,6 +236,7 @@ void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &
 
 void AbstractFormEditorTool::showContextMenu(QGraphicsSceneMouseEvent *event)
 {
+     view()->showContextMenu(event->screenPos(), event->scenePos().toPoint(), true);
 }
 
 }
