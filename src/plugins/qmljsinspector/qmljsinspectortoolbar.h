@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLINSPECTORTOOLBAR_H
-#define QMLINSPECTORTOOLBAR_H
+#ifndef QMLJSINSPECTORTOOLBAR_H
+#define QMLJSINSPECTORTOOLBAR_H
 
 #include <debugger/debuggerconstants.h>
 
@@ -55,7 +55,7 @@ class ToolBarColorBox;
 
 namespace Internal {
 
-class QmlInspectorToolBar : public QObject
+class QmlJsInspectorToolBar : public QObject
 {
     Q_OBJECT
 
@@ -70,7 +70,7 @@ public:
         ZoomMode = 6
     };
 
-    explicit QmlInspectorToolBar(QObject *parent = 0);
+    explicit QmlJsInspectorToolBar(QObject *parent = 0);
     void createActions();
     QWidget *widget() const;
 
@@ -154,4 +154,4 @@ private:
 } // namespace Internal
 } // namespace QmlJSInspector
 
-#endif // QMLINSPECTORTOOLBAR_H
+#endif // QMLJSINSPECTORTOOLBAR_H

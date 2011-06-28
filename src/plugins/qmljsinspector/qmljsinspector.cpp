@@ -32,7 +32,7 @@
 
 #include "qmljsinspectorconstants.h"
 #include "qmljsinspector.h"
-#include "qmlinspectortoolbar.h"
+#include "qmljsinspectortoolbar.h"
 #include "qmljsclientproxy.h"
 #include "qmljslivetextpreview.h"
 #include "qmljsprivateapi.h"
@@ -157,7 +157,7 @@ InspectorUi::InspectorUi(QObject *parent)
     , m_cursorPositionChangedExternally(false)
 {
     m_instance = this;
-    m_toolBar = new QmlInspectorToolBar(this);
+    m_toolBar = new QmlJsInspectorToolBar(this);
 }
 
 InspectorUi::~InspectorUi()

@@ -13,7 +13,7 @@ qmljsinspectorconstants.h \
 qmljsinspectorplugin.h \
 qmljsclientproxy.h \
 qmljsinspector.h \
-qmlinspectortoolbar.h \
+qmljsinspectortoolbar.h \
 qmljslivetextpreview.h \
 qmljstoolbarcolorbox.h \
 qmljsinspectorclient.h \
@@ -25,7 +25,7 @@ SOURCES += \
 qmljsinspectorplugin.cpp \
 qmljsclientproxy.cpp \
 qmljsinspector.cpp \
-qmlinspectortoolbar.cpp \
+qmljsinspectortoolbar.cpp \
 qmljslivetextpreview.cpp \
 qmljstoolbarcolorbox.cpp \
 qmljsinspectorclient.cpp \

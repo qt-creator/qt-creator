@@ -66,7 +66,7 @@ class ModelManagerInterface;
 namespace QmlJSInspector {
 namespace Internal {
 
-class QmlInspectorToolBar;
+class QmlJsInspectorToolBar;
 class QmlJSPropertyInspector;
 class ClientProxy;
 class InspectorSettings;
@@ -153,7 +153,7 @@ private:
 
 private:
     bool m_listeningToEditorManager;
-    QmlInspectorToolBar *m_toolBar;
+    QmlJsInspectorToolBar *m_toolBar;
     ContextCrumblePath *m_crumblePath;
     QLineEdit *m_filterExp;
     QmlJSPropertyInspector *m_propertyInspector;

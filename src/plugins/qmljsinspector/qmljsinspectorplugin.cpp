@@ -30,26 +30,23 @@
 **
 **************************************************************************/
 
-#include "qmljsinspectorconstants.h"
 #include "qmljsinspectorplugin.h"
-#include "qmljsinspector.h"
-#include "qmljsclientproxy.h"
-#include "qmlinspectortoolbar.h"
 
+#include "qmljsclientproxy.h"
+#include "qmljsinspector.h"
+#include "qmljsinspectorconstants.h"
+#include "qmljsinspectortoolbar.h"
+
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
+#include <coreplugin/modemanager.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/qml/qmladapter.h>
-
-#include <qmlprojectmanager/qmlproject.h>
-#include <qmljseditor/qmljseditorconstants.h>
-
 #include <extensionsystem/pluginmanager.h>
-
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/imode.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
-
+#include <qmljseditor/qmljseditorconstants.h>
+#include <qmlprojectmanager/qmlproject.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QStringList>
