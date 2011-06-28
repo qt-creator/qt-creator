@@ -133,8 +133,10 @@ void Qt4NodeInstanceServer::resetAllItems()
 {
     static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(declarativeView()->scene()))->processDirtyItemsEmitted = true;
 
-    foreach (QGraphicsItem *item, declarativeView()->items())
+    foreach (QGraphicsItem *item, declarativeView()->items()) {
         static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(declarativeView()->scene()))->resetDirtyItem(item);
+        QGraphicsItemPrivate::get(item)->dirtySceneTransform = 0;
+    }
 }
 
 bool Qt4NodeInstanceServer::nonInstanceChildIsDirty(QGraphicsObject *graphicsObject) const
