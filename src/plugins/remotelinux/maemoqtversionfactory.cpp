@@ -35,6 +35,7 @@
 #include "maemoqtversion.h"
 
 #include <qtsupport/qtsupportconstants.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
 
@@ -57,8 +58,10 @@ bool MaemoQtVersionFactory::canRestore(const QString &type)
     return type == QLatin1String(QtSupport::Constants::MAEMOQT);
 }
 
-QtSupport::BaseQtVersion *MaemoQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *MaemoQtVersionFactory::restore(const QString &type,
+    const QVariantMap &data)
 {
+    QTC_ASSERT(canRestore(type), return 0);
     MaemoQtVersion *v = new MaemoQtVersion;
     v->fromMap(data);
     return v;

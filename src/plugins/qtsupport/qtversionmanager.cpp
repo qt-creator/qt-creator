@@ -176,7 +176,7 @@ bool QtVersionManager::restoreQtVersions()
         bool restored = false;
         foreach (QtVersionFactory *f, factories) {
             if (f->canRestore(type)) {
-                if (BaseQtVersion *qtv = f->restore(qtversionMap)) {
+                if (BaseQtVersion *qtv = f->restore(type, qtversionMap)) {
                     if (m_versions.contains(qtv->uniqueId())) {
                         // This shouldn't happen, we are restoring the same id multiple times?
                         qWarning() << "A Qt version with id"<<qtv->uniqueId()<<"already exists";
@@ -292,7 +292,7 @@ void QtVersionManager::updateFromInstaller()
                 removeVersion(v);
                 qtversionMap[QLatin1String("Id")] = id;
 
-                if (BaseQtVersion *qtv = factory->restore(qtversionMap)) {
+                if (BaseQtVersion *qtv = factory->restore(type, qtversionMap)) {
                     Q_ASSERT(qtv->isAutodetected());
                     addVersion(qtv);
                     restored = true;
@@ -303,7 +303,7 @@ void QtVersionManager::updateFromInstaller()
         if (!restored) { // didn't replace any existing versions
             if (debug)
                 qDebug() << " No Qt version found matching" << autoDetectionSource << " => Creating new version";
-            if (BaseQtVersion *qtv = factory->restore(qtversionMap)) {
+            if (BaseQtVersion *qtv = factory->restore(type, qtversionMap)) {
                 Q_ASSERT(qtv->isAutodetected());
                 addVersion(qtv);
                 restored = true;

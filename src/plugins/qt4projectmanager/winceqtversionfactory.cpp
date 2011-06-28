@@ -55,8 +55,10 @@ bool WinCeQtVersionFactory::canRestore(const QString &type)
     return type == QLatin1String(QtSupport::Constants::WINCEQT);
 }
 
-QtSupport::BaseQtVersion *WinCeQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *WinCeQtVersionFactory::restore(const QString &type, const QVariantMap &data)
 {
+    if (!canRestore(type))
+        return 0;
     WinCeQtVersion *v = new WinCeQtVersion;
     v->fromMap(data);
     return v;

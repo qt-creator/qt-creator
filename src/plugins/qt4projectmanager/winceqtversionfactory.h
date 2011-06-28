@@ -44,7 +44,7 @@ public:
     ~WinCeQtVersionFactory();
 
     virtual bool canRestore(const QString &type);
-    virtual QtSupport::BaseQtVersion *restore(const QVariantMap &data);
+    virtual QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
     virtual int priority() const;
 

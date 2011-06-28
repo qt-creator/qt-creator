@@ -58,8 +58,10 @@ bool DesktopQtVersionFactory::canRestore(const QString &type)
     return type == QLatin1String(QtSupport::Constants::DESKTOPQT);
 }
 
-QtSupport::BaseQtVersion *DesktopQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *DesktopQtVersionFactory::restore(const QString &type, const QVariantMap &data)
 {
+    if (!canRestore(type))
+        return 0;
     DesktopQtVersion *v = new DesktopQtVersion;
     v->fromMap(data);
     return v;

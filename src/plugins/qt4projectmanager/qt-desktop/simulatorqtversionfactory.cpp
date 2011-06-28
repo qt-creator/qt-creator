@@ -58,8 +58,10 @@ bool SimulatorQtVersionFactory::canRestore(const QString &type)
     return type == QLatin1String(QtSupport::Constants::SIMULATORQT);
 }
 
-QtSupport::BaseQtVersion *SimulatorQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *SimulatorQtVersionFactory::restore(const QString &type, const QVariantMap &data)
 {
+    if (!canRestore(type))
+        return 0;
     QtSupport::BaseQtVersion *v = new SimulatorQtVersion;
     v->fromMap(data);
     return v;

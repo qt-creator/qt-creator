@@ -59,8 +59,10 @@ bool SymbianQtVersionFactory::canRestore(const QString &type)
     return type == QLatin1String(QtSupport::Constants::SYMBIANQT);
 }
 
-QtSupport::BaseQtVersion *SymbianQtVersionFactory::restore(const QVariantMap &data)
+QtSupport::BaseQtVersion *SymbianQtVersionFactory::restore(const QString &type, const QVariantMap &data)
 {
+    if (!canRestore(type))
+        return 0;
     SymbianQtVersion *v = new SymbianQtVersion;
     v->fromMap(data);
     return v;
