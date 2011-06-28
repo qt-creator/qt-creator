@@ -308,6 +308,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
     connect(m_startAction, SIGNAL(triggered()), q, SLOT(startTool()));
 
     m_startRemoteAction = new QAction(tr("Start Remote"), m_menu);
+    m_startRemoteAction->setIcon(QIcon(Constants::ANALYZER_CONTROL_START_ICON));
     ///FIXME: get an icon for this
 //     m_startRemoteAction->setIcon(QIcon(QLatin1String(":/images/analyzer_start_remote_small.png")));
     command = am->registerAction(m_startRemoteAction,
@@ -400,12 +401,8 @@ QWidget *AnalyzerManager::AnalyzerManagerPrivate::createModeMainWindow()
     QHBoxLayout *analyzeToolBarLayout = new QHBoxLayout(analyzeToolBar);
     analyzeToolBarLayout->setMargin(0);
     analyzeToolBarLayout->setSpacing(0);
-    QToolButton *startButton = toolButton(m_startAction);
-    QMenu *startMenu = new QMenu;
-    startMenu->addAction(m_startAction);
-    startMenu->addAction(m_startRemoteAction);
-    startButton->setMenu(startMenu);
-    analyzeToolBarLayout->addWidget(startButton);
+    analyzeToolBarLayout->addWidget(toolButton(m_startAction));
+    analyzeToolBarLayout->addWidget(toolButton(m_startRemoteAction));
     analyzeToolBarLayout->addWidget(toolButton(m_stopAction));
     analyzeToolBarLayout->addWidget(new Utils::StyledSeparator);
     analyzeToolBarLayout->addWidget(m_toolBox);
