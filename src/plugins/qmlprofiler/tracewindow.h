@@ -34,7 +34,7 @@
 #ifndef TRACEWINDOW_H
 #define TRACEWINDOW_H
 
-#include <qmljsdebugclient/qdeclarativedebugclient_p.h>
+#include "qmlprofilertraceclient.h"
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
@@ -43,12 +43,8 @@ QT_BEGIN_NAMESPACE
 class QDeclarativeView;
 QT_END_NAMESPACE
 
-using QmlJsDebugClient::QDeclarativeDebugConnection;
-
 namespace QmlProfiler {
 namespace Internal {
-
-class TracePlugin;
 
 class TraceWindow : public QWidget
 {
@@ -58,7 +54,7 @@ public:
     TraceWindow(QWidget *parent = 0);
     ~TraceWindow();
 
-    void reset(QDeclarativeDebugConnection *conn);
+    void reset(QmlJsDebugClient::QDeclarativeDebugConnection *conn);
 
     void setRecording(bool recording);
     bool isRecording() const;
@@ -82,7 +78,7 @@ signals:
     void zoomOut();
 
 private:
-    QWeakPointer<TracePlugin> m_plugin;
+    QWeakPointer<QmlProfilerTraceClient> m_plugin;
     QSize m_sizeHint;
 
     QDeclarativeView *m_view;

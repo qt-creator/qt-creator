@@ -29,7 +29,8 @@ SOURCES += \
     codaqmlprofilerrunner.cpp \
     remotelinuxqmlprofilerrunner.cpp \
     qmlprofilercalleeview.cpp \
-    qmlprofilercallerview.cpp
+    qmlprofilercallerview.cpp \
+    qmlprofilertraceclient.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -47,7 +48,8 @@ HEADERS += \
     codaqmlprofilerrunner.h \
     remotelinuxqmlprofilerrunner.h \
     qmlprofilercalleeview.h \
-    qmlprofilercallerview.h
+    qmlprofilercallerview.h \
+    qmlprofilertraceclient.h
 
 RESOURCES += \
     qml/qml.qrc

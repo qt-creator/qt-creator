@@ -82,6 +82,7 @@
 
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;
+using namespace QmlJsDebugClient;
 
 class QmlProfilerTool::QmlProfilerToolPrivate
 {

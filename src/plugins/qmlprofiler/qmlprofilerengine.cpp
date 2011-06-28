@@ -33,35 +33,22 @@
 
 #include "qmlprofilerengine.h"
 
-#include "qmlprofilerplugin.h"
-#include "qmlprofilertool.h"
-#include "localqmlprofilerrunner.h"
-#include "codaqmlprofilerrunner.h"
-#include "remotelinuxqmlprofilerrunner.h"
-
-#include <analyzerbase/analyzermanager.h>
-#include <analyzerbase/analyzerconstants.h>
-#include <projectexplorer/applicationlauncher.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/helpmanager.h>
-
-#include <qmljsdebugclient/qdeclarativedebugclient_p.h>
-#include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
-#include <remotelinux/remotelinuxrunconfiguration.h>
-
-#include <utils/qtcassert.h>
-
-#include "timelineview.h"
-#include "tracewindow.h"
-
-#include <QDebug>
-#include <QtGui/QMessageBox>
-#include <QtGui/QMainWindow>
-
 #include "canvas/qdeclarativecanvas_p.h"
 #include "canvas/qdeclarativecontext2d_p.h"
 #include "canvas/qdeclarativetiledcanvas_p.h"
+#include "codaqmlprofilerrunner.h"
+#include "localqmlprofilerrunner.h"
+#include "remotelinuxqmlprofilerrunner.h"
+#include "qmlprofilerplugin.h"
+#include "qmlprofilertool.h"
 
+#include <analyzerbase/analyzermanager.h>
+#include <coreplugin/icore.h>
+#include <utils/qtcassert.h>
+#include <coreplugin/helpmanager.h>
+
+#include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
 
 namespace QmlProfiler {
 namespace Internal {
