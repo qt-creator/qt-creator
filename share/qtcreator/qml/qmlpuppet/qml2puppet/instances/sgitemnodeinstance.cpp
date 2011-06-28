@@ -244,9 +244,6 @@ SGItemNodeInstance::Pointer SGItemNodeInstance::create(QObject *object)
     instance->setHasContent(anyItemHasContent(sgItem));
     sgItem->setFlag(QSGItem::ItemHasContents, true);
 
-    if (sgItem->inherits("QSGText"))
-        instance->setResizable(false);
-
     static_cast<QDeclarativeParserStatus*>(sgItem)->classBegin();
 
     instance->populateResetValueHash();
@@ -274,95 +271,32 @@ bool SGItemNodeInstance::isSGItem() const
 
 QSizeF SGItemNodeInstance::size() const
 {
-    if (isValid()) {
-        double implicitWidth = sgItem()->implicitWidth();
-        if (!m_hasWidth
-            && implicitWidth // WORKAROUND
-            && sgItem()->width() <= 0
-            && implicitWidth != sgItem()->width()
-            && !hasBindingForProperty("width")) {
-            sgItem()->blockSignals(true);
-            sgItem()->setWidth(implicitWidth);
-            sgItem()->blockSignals(false);
-        }
-
-        double implicitHeight = sgItem()->implicitHeight();
-        if (!m_hasHeight
-            && implicitWidth // WORKAROUND
-            && sgItem()->height() <= 0
-            && implicitHeight != sgItem()->height()
-            && !hasBindingForProperty("height")) {
-            sgItem()->blockSignals(true);
-            sgItem()->setHeight(implicitHeight);
-            sgItem()->blockSignals(false);
-        }
-
-    }
-
-    if (isRootNodeInstance()) {
-        if (!m_hasWidth) {
-            sgItem()->blockSignals(true);
-            if (sgItem()->width() < 10.)
-                sgItem()->setWidth(100.);
-            sgItem()->blockSignals(false);
-        }
-
-        if (!m_hasHeight) {
-            sgItem()->blockSignals(true);
-            if (sgItem()->height() < 10.)
-                sgItem()->setHeight(100.);
-            sgItem()->blockSignals(false);
-        }
-    }
-
     return QSizeF(sgItem()->width(), sgItem()->height());
+}
+
+QRectF SGItemNodeInstance::boundingRectWithStepChilds(QSGItem *parentItem) const
+{
+    QRectF boundingRect = parentItem->boundingRect();
+
+    foreach (QSGItem *childItem, parentItem->childItems()) {
+        if (nodeInstanceServer()->hasInstanceForObject(childItem)) {
+            QRectF transformedRect = childItem->mapRectToItem(parentItem, childItemBoundingRect(childItem));
+            boundingRect = boundingRect.united(transformedRect);
+        }
+    }
+
+    return boundingRect;
 }
 
 QRectF SGItemNodeInstance::boundingRect() const
 {
-    if (isValid()) {
-        double implicitWidth = sgItem()->implicitWidth();
-        if (!m_hasWidth
-            && implicitWidth // WORKAROUND
-            && sgItem()->width() <= 0
-            && implicitWidth != sgItem()->width()
-            && !hasBindingForProperty("width")) {
-            sgItem()->blockSignals(true);
-            sgItem()->setWidth(implicitWidth);
-            sgItem()->blockSignals(false);
-        }
-
-        double implicitHeight = sgItem()->implicitHeight();
-        if (!m_hasHeight
-            && implicitWidth // WORKAROUND
-            && sgItem()->height() <= 0
-            && implicitHeight != sgItem()->height()
-            && !hasBindingForProperty("height")) {
-            sgItem()->blockSignals(true);
-            sgItem()->setHeight(implicitHeight);
-            sgItem()->blockSignals(false);
-        }
-
-    }
-
-    if (isRootNodeInstance()) {
-        if (!m_hasWidth) {
-            sgItem()->blockSignals(true);
-            if (sgItem()->width() < 10.)
-                sgItem()->setWidth(100.);
-            sgItem()->blockSignals(false);
-        }
-
-        if (!m_hasHeight) {
-            sgItem()->blockSignals(true);
-            if (sgItem()->height() < 10.)
-                sgItem()->setHeight(100.);
-            sgItem()->blockSignals(false);
+    if (sgItem()) {
+        if (sgItem()->clip()) {
+            return sgItem()->boundingRect();
+        } else {
+            return boundingRectWithStepChilds();
         }
     }
-
-    if (sgItem())
-        return sgItem()->boundingRect();
 
     return QRectF();
 }
@@ -409,30 +343,6 @@ void SGItemNodeInstance::setPropertyBinding(const QString &name, const QString &
 
 QVariant SGItemNodeInstance::property(const QString &name) const
 {
-   if (name == "width" && !hasBindingForProperty("width")) {
-        double implicitWidth = sgItem()->implicitWidth();
-        if (!m_hasWidth
-            && implicitWidth // WORKAROUND
-            && sgItem()->width() <= 0
-            && implicitWidth != sgItem()->width()) {
-                sgItem()->blockSignals(true);
-                sgItem()->setWidth(implicitWidth);
-                sgItem()->blockSignals(false);
-        }
-    }
-
-    if (name == "height" && !hasBindingForProperty("height")) {
-        double implicitHeight = sgItem()->implicitHeight();
-        if (!m_hasHeight
-            && implicitHeight // WORKAROUND
-            && sgItem()->width() <= 0
-            && implicitHeight != sgItem()->height()) {
-                sgItem()->blockSignals(true);
-                sgItem()->setHeight(implicitHeight);
-                sgItem()->blockSignals(false);
-            }
-    }
-
     return ObjectNodeInstance::property(name);
 }
 

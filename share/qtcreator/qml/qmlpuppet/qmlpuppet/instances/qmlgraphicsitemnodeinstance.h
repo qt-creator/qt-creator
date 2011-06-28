@@ -54,7 +54,6 @@ public:
     bool isQmlGraphicsItem() const;
 
     QSizeF size() const;
-    QRectF boundingRect() const;
 //    void updateAnchors();
 
     void setPropertyVariant(const QString &name, const QVariant &value);

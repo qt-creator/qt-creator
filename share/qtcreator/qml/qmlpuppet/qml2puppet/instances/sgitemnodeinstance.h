@@ -149,6 +149,7 @@ protected:
     void resetHorizontal();
     void resetVertical();
     void refresh();
+    QRectF boundingRectWithStepChilds(QSGItem *parentItem) const;
 
 private: //variables
     bool m_hasHeight;

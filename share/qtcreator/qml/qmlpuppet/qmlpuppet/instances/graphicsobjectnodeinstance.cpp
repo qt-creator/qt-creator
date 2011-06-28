@@ -179,9 +179,32 @@ QObject *GraphicsObjectNodeInstance::parent() const
     return graphicsObject()->parentItem()->toGraphicsObject();
 }
 
+QRectF GraphicsObjectNodeInstance::boundingRectWithStepChilds(QGraphicsItem *parentItem) const
+{
+    QRectF boundingRect = parentItem->boundingRect();
+
+    foreach (QGraphicsItem *childItem, parentItem->childItems()) {
+        QGraphicsObject *childObject = childItem->toGraphicsObject();
+        if (!(childObject && nodeInstanceServer()->hasInstanceForObject(childObject))) {
+            QRectF transformedRect = childItem->mapRectToParent(boundingRectWithStepChilds(childItem));
+            boundingRect = boundingRect.united(transformedRect);
+        }
+    }
+
+    return boundingRect;
+}
+
 QRectF GraphicsObjectNodeInstance::boundingRect() const
 {
-    return graphicsObject()->boundingRect();
+    if (graphicsObject()) {
+        if (graphicsObject()->flags() & QGraphicsItem::ItemClipsChildrenToShape) {
+            return graphicsObject()->boundingRect();
+        } else {
+            return boundingRectWithStepChilds(graphicsObject());
+        }
+    }
+
+    return QRectF();
 }
 
 bool GraphicsObjectNodeInstance::isGraphicsObject() const
@@ -217,7 +240,7 @@ void initOption(QGraphicsItem *item, QStyleOptionGraphicsItem *option, const QTr
 
 QImage GraphicsObjectNodeInstance::renderImage() const
 {
-    QRectF boundingRect = graphicsObject()->boundingRect();
+    QRectF boundingRect = GraphicsObjectNodeInstance::boundingRect();
     QSize boundingSize = boundingRect.size().toSize();
 
     QImage image(boundingSize, QImage::Format_ARGB32_Premultiplied);

@@ -107,14 +107,6 @@ QSizeF QmlGraphicsItemNodeInstance::size() const
     return QSizeF(qmlGraphicsItem()->width(), qmlGraphicsItem()->height());
 }
 
-QRectF QmlGraphicsItemNodeInstance::boundingRect() const
-{
-    if (qmlGraphicsItem())
-        return qmlGraphicsItem()->boundingRect();
-
-    return QRectF();
-}
-
 void QmlGraphicsItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
     if (name == "state")
@@ -157,30 +149,6 @@ void QmlGraphicsItemNodeInstance::setPropertyBinding(const QString &name, const 
 
 QVariant QmlGraphicsItemNodeInstance::property(const QString &name) const
 {
-   if (name == "width" && !hasBindingForProperty("width")) {
-        double implicitWidth = qmlGraphicsItem()->implicitWidth();
-        if (!m_hasWidth
-            && implicitWidth // WORKAROUND
-            && qmlGraphicsItem()->width() <= 0
-            && implicitWidth != qmlGraphicsItem()->width()) {
-                qmlGraphicsItem()->blockSignals(true);
-                qmlGraphicsItem()->setWidth(implicitWidth);
-                qmlGraphicsItem()->blockSignals(false);
-        }
-    }
-
-    if (name == "height" && !hasBindingForProperty("height")) {
-        double implicitHeight = qmlGraphicsItem()->implicitHeight();
-        if (!m_hasHeight
-            && implicitHeight // WORKAROUND
-            && qmlGraphicsItem()->width() <= 0
-            && implicitHeight != qmlGraphicsItem()->height()) {
-                qmlGraphicsItem()->blockSignals(true);
-                qmlGraphicsItem()->setHeight(implicitHeight);
-                qmlGraphicsItem()->blockSignals(false);
-            }
-    }
-
     return GraphicsObjectNodeInstance::property(name);
 }
 

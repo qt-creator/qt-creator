@@ -105,8 +105,8 @@ void ResizeManipulator::begin(const QPointF &/*beginPoint*/)
 
 void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
 {
-    const double minimumWidth = 15.0;
-    const double minimumHeight = 15.0;
+    const double minimumWidth = 0.0;
+    const double minimumHeight = 0.0;
 
     deleteSnapLines();
 
@@ -471,7 +471,7 @@ void ResizeManipulator::moveBy(double deltaX, double deltaY)
 
 bool ResizeManipulator::isInvalidSize(const QSizeF & size)
 {
-    if (size.width() < 15 || size.height() < 15)
+    if (size.width() < 0 || size.height() < 0)
         return true;
 
     return false;
