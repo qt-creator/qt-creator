@@ -106,6 +106,7 @@ Module {
         Property { name: "baselineOffset"; type: "qreal" }
         Property { name: "fill"; type: "QGraphicsObject"; isPointer: true }
         Property { name: "centerIn"; type: "QGraphicsObject"; isPointer: true }
+        Property { name: "mirrored"; revision: 1; type: "bool"; isReadonly: true }
         Signal { name: "leftChanged" }
         Signal { name: "rightChanged" }
         Signal { name: "topChanged" }
@@ -123,6 +124,7 @@ Module {
         Signal { name: "verticalCenterOffsetChanged" }
         Signal { name: "horizontalCenterOffsetChanged" }
         Signal { name: "baselineOffsetChanged" }
+        Signal { name: "mirroredChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeAnimatedImage"
@@ -269,6 +271,15 @@ Module {
         Signal {
             name: "progressChanged"
             Parameter { type: "qreal" }
+        }
+        Method {
+            name: "loadUrl"
+            Parameter { name: "url"; type: "QUrl" }
+        }
+        Method {
+            name: "setData"
+            Parameter { type: "QByteArray" }
+            Parameter { name: "baseUrl"; type: "QUrl" }
         }
         Method { name: "errorString"; type: "string" }
     }
@@ -544,8 +555,15 @@ Module {
         }
         Property { name: "flow"; type: "Flow" }
         Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
+        Property {
+            name: "effectiveLayoutDirection"
+            revision: 1
+            type: "Qt::LayoutDirection"
+            isReadonly: true
+        }
         Signal { name: "flowChanged" }
         Signal { name: "layoutDirectionChanged"; revision: 1 }
+        Signal { name: "effectiveLayoutDirectionChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeFocusPanel"
@@ -687,10 +705,17 @@ Module {
         Property { name: "columns"; type: "int" }
         Property { name: "flow"; type: "Flow" }
         Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
+        Property {
+            name: "effectiveLayoutDirection"
+            revision: 1
+            type: "Qt::LayoutDirection"
+            isReadonly: true
+        }
         Signal { name: "rowsChanged" }
         Signal { name: "columnsChanged" }
         Signal { name: "flowChanged" }
         Signal { name: "layoutDirectionChanged"; revision: 1 }
+        Signal { name: "effectiveLayoutDirectionChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeGridView"
@@ -749,6 +774,12 @@ Module {
         Property { name: "highlightRangeMode"; type: "HighlightRangeMode" }
         Property { name: "flow"; type: "Flow" }
         Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
+        Property {
+            name: "effectiveLayoutDirection"
+            revision: 1
+            type: "Qt::LayoutDirection"
+            isReadonly: true
+        }
         Property { name: "keyNavigationWraps"; type: "bool" }
         Property { name: "cacheBuffer"; type: "int" }
         Property { name: "cellWidth"; type: "int" }
@@ -770,6 +801,7 @@ Module {
         Signal { name: "delegateChanged" }
         Signal { name: "flowChanged" }
         Signal { name: "layoutDirectionChanged"; revision: 1 }
+        Signal { name: "effectiveLayoutDirectionChanged"; revision: 1 }
         Signal { name: "keyNavigationWrapsChanged" }
         Signal { name: "cacheBufferChanged" }
         Signal { name: "snapModeChanged" }
@@ -1353,6 +1385,12 @@ Module {
         Property { name: "spacing"; type: "qreal" }
         Property { name: "orientation"; type: "Orientation" }
         Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
+        Property {
+            name: "effectiveLayoutDirection"
+            revision: 1
+            type: "Qt::LayoutDirection"
+            isReadonly: true
+        }
         Property { name: "keyNavigationWraps"; type: "bool" }
         Property { name: "cacheBuffer"; type: "int" }
         Property { name: "section"; type: "QDeclarativeViewSection"; isReadonly: true; isPointer: true }
@@ -1364,6 +1402,7 @@ Module {
         Signal { name: "spacingChanged" }
         Signal { name: "orientationChanged" }
         Signal { name: "layoutDirectionChanged"; revision: 1 }
+        Signal { name: "effectiveLayoutDirectionChanged"; revision: 1 }
         Signal { name: "currentIndexChanged" }
         Signal { name: "currentSectionChanged" }
         Signal { name: "highlightMoveSpeedChanged" }
@@ -1464,7 +1503,6 @@ Module {
         Property { name: "hoverEnabled"; type: "bool" }
         Property { name: "drag"; type: "QDeclarativeDrag"; isReadonly: true; isPointer: true }
         Property { name: "preventStealing"; revision: 1; type: "bool" }
-        Property { name: "forwardTo"; type: "QGraphicsObject"; isList: true; isReadonly: true }
         Signal { name: "hoveredChanged" }
         Signal { name: "pressedChanged" }
         Signal { name: "enabledChanged" }
@@ -1588,7 +1626,8 @@ Module {
         prototype: "QObject"
         exports: [
             "Qt/Path 4.7",
-            "QtQuick/Path 1.0"
+            "QtQuick/Path 1.0",
+            "QtQuick/Path 2.0"
         ]
         Property { name: "pathElements"; type: "QDeclarativePathElement"; isList: true; isReadonly: true }
         Property { name: "startX"; type: "qreal" }
@@ -1603,7 +1642,8 @@ Module {
         prototype: "QDeclarativePathElement"
         exports: [
             "Qt/PathAttribute 4.7",
-            "QtQuick/PathAttribute 1.0"
+            "QtQuick/PathAttribute 1.0",
+            "QtQuick/PathAttribute 2.0"
         ]
         Property { name: "name"; type: "string" }
         Property { name: "value"; type: "qreal" }
@@ -1615,7 +1655,8 @@ Module {
         prototype: "QDeclarativeCurve"
         exports: [
             "Qt/PathCubic 4.7",
-            "QtQuick/PathCubic 1.0"
+            "QtQuick/PathCubic 1.0",
+            "QtQuick/PathCubic 2.0"
         ]
         Property { name: "control1X"; type: "qreal" }
         Property { name: "control1Y"; type: "qreal" }
@@ -1636,7 +1677,8 @@ Module {
         prototype: "QDeclarativeCurve"
         exports: [
             "Qt/PathLine 4.7",
-            "QtQuick/PathLine 1.0"
+            "QtQuick/PathLine 1.0",
+            "QtQuick/PathLine 2.0"
         ]
     }
     Component {
@@ -1644,7 +1686,8 @@ Module {
         prototype: "QDeclarativePathElement"
         exports: [
             "Qt/PathPercent 4.7",
-            "QtQuick/PathPercent 1.0"
+            "QtQuick/PathPercent 1.0",
+            "QtQuick/PathPercent 2.0"
         ]
         Property { name: "value"; type: "qreal" }
         Signal { name: "valueChanged" }
@@ -1654,7 +1697,8 @@ Module {
         prototype: "QDeclarativeCurve"
         exports: [
             "Qt/PathQuad 4.7",
-            "QtQuick/PathQuad 1.0"
+            "QtQuick/PathQuad 1.0",
+            "QtQuick/PathQuad 2.0"
         ]
         Property { name: "controlX"; type: "qreal" }
         Property { name: "controlY"; type: "qreal" }
@@ -1966,7 +2010,14 @@ Module {
             "QtQuick/Row 1.1"
         ]
         Property { name: "layoutDirection"; revision: 1; type: "Qt::LayoutDirection" }
+        Property {
+            name: "effectiveLayoutDirection"
+            revision: 1
+            type: "Qt::LayoutDirection"
+            isReadonly: true
+        }
         Signal { name: "layoutDirectionChanged"; revision: 1 }
+        Signal { name: "effectiveLayoutDirectionChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeScaleGrid"
@@ -2183,6 +2234,12 @@ Module {
         Property { name: "style"; type: "TextStyle" }
         Property { name: "styleColor"; type: "QColor" }
         Property { name: "horizontalAlignment"; type: "HAlignment" }
+        Property {
+            name: "effectiveHorizontalAlignment"
+            revision: 1
+            type: "HAlignment"
+            isReadonly: true
+        }
         Property { name: "verticalAlignment"; type: "VAlignment" }
         Property { name: "wrapMode"; type: "WrapMode" }
         Property { name: "lineCount"; revision: 1; type: "int"; isReadonly: true }
@@ -2249,6 +2306,7 @@ Module {
             revision: 1
             Parameter { name: "mode"; type: "LineHeightMode" }
         }
+        Signal { name: "effectiveHorizontalAlignmentChanged"; revision: 1 }
     }
     Component {
         name: "QDeclarativeTextEdit"
@@ -2307,6 +2365,12 @@ Module {
         Property { name: "selectedTextColor"; type: "QColor" }
         Property { name: "font"; type: "QFont" }
         Property { name: "horizontalAlignment"; type: "HAlignment" }
+        Property {
+            name: "effectiveHorizontalAlignment"
+            revision: 1
+            type: "HAlignment"
+            isReadonly: true
+        }
         Property { name: "verticalAlignment"; type: "VAlignment" }
         Property { name: "wrapMode"; type: "WrapMode" }
         Property { name: "lineCount"; revision: 1; type: "int"; isReadonly: true }
@@ -2406,6 +2470,7 @@ Module {
         }
         Signal { name: "canPasteChanged"; revision: 1 }
         Signal { name: "inputMethodComposingChanged"; revision: 1 }
+        Signal { name: "effectiveHorizontalAlignmentChanged"; revision: 1 }
         Method { name: "selectAll" }
         Method { name: "selectWord" }
         Method {
@@ -2487,6 +2552,12 @@ Module {
         Property { name: "selectedTextColor"; type: "QColor" }
         Property { name: "font"; type: "QFont" }
         Property { name: "horizontalAlignment"; type: "HAlignment" }
+        Property {
+            name: "effectiveHorizontalAlignment"
+            revision: 1
+            type: "HAlignment"
+            isReadonly: true
+        }
         Property { name: "readOnly"; type: "bool" }
         Property { name: "cursorVisible"; type: "bool" }
         Property { name: "cursorPosition"; type: "int" }
@@ -2580,6 +2651,7 @@ Module {
         }
         Signal { name: "canPasteChanged"; revision: 1 }
         Signal { name: "inputMethodComposingChanged"; revision: 1 }
+        Signal { name: "effectiveHorizontalAlignmentChanged"; revision: 1 }
         Method { name: "selectAll" }
         Method { name: "selectWord" }
         Method {
@@ -2883,7 +2955,8 @@ Module {
         prototype: "QValidator"
         exports: [
             "Qt/DoubleValidator 4.7",
-            "QtQuick/DoubleValidator 1.0"
+            "QtQuick/DoubleValidator 1.0",
+            "QtQuick/DoubleValidator 2.0"
         ]
         Enum {
             name: "Notation"
@@ -2988,7 +3061,8 @@ Module {
         prototype: "QValidator"
         exports: [
             "Qt/IntValidator 4.7",
-            "QtQuick/IntValidator 1.0"
+            "QtQuick/IntValidator 1.0",
+            "QtQuick/IntValidator 2.0"
         ]
         Property { name: "bottom"; type: "int" }
         Property { name: "top"; type: "int" }
@@ -3038,9 +3112,3272 @@ Module {
         prototype: "QValidator"
         exports: [
             "Qt/RegExpValidator 4.7",
-            "QtQuick/RegExpValidator 1.0"
+            "QtQuick/RegExpValidator 1.0",
+            "QtQuick/RegExpValidator 2.0"
         ]
         Property { name: "regExp"; type: "QRegExp" }
+    }
+    Component {
+        name: "QSGAnchorAnimation"
+        prototype: "QDeclarativeAbstractAnimation"
+        exports: [
+            "QtQuick/AnchorAnimation 2.0"
+        ]
+        Property { name: "targets"; type: "QSGItem"; isList: true; isReadonly: true }
+        Property { name: "duration"; type: "int" }
+        Property { name: "easing"; type: "QEasingCurve" }
+        Signal {
+            name: "durationChanged"
+            Parameter { type: "int" }
+        }
+        Signal {
+            name: "easingChanged"
+            Parameter { type: "QEasingCurve" }
+        }
+    }
+    Component {
+        name: "QSGAnchorChanges"
+        prototype: "QDeclarativeStateOperation"
+        exports: [
+            "QtQuick/AnchorChanges 2.0"
+        ]
+        Property { name: "target"; type: "QSGItem"; isPointer: true }
+        Property { name: "anchors"; type: "QSGAnchorSet"; isReadonly: true; isPointer: true }
+    }
+    Component {
+        name: "QSGAngledDirection"
+        prototype: "QSGStochasticDirection"
+        exports: [
+            "QtQuick.Particles/AngledDirection 2.0"
+        ]
+        Property { name: "angle"; type: "qreal" }
+        Property { name: "magnitude"; type: "qreal" }
+        Property { name: "angleVariation"; type: "qreal" }
+        Property { name: "magnitudeVariation"; type: "qreal" }
+        Signal {
+            name: "angleChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "magnitudeChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "angleVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "magnitudeVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setAngle"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setMagnitude"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setAngleVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setMagnitudeVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+    }
+    Component {
+        name: "QSGAnimatedImage"
+        defaultProperty: "data"
+        prototype: "QSGImage"
+        exports: [
+            "QtQuick/AnimatedImage 2.0"
+        ]
+        Property { name: "playing"; type: "bool" }
+        Property { name: "paused"; type: "bool" }
+        Property { name: "currentFrame"; type: "int" }
+        Property { name: "frameCount"; type: "int"; isReadonly: true }
+        Property { name: "sourceSize"; type: "QSize"; isReadonly: true }
+        Signal { name: "playingChanged" }
+        Signal { name: "pausedChanged" }
+        Signal { name: "frameChanged" }
+        Signal { name: "sourceSizeChanged" }
+    }
+    Component {
+        name: "QSGBasePositioner"
+        defaultProperty: "data"
+        prototype: "QSGImplicitSizeItem"
+        Property { name: "spacing"; type: "int" }
+        Property { name: "move"; type: "QDeclarativeTransition"; isPointer: true }
+        Property { name: "add"; type: "QDeclarativeTransition"; isPointer: true }
+        Signal { name: "spacingChanged" }
+        Signal { name: "moveChanged" }
+        Signal { name: "addChanged" }
+    }
+    Component {
+        name: "QSGBasicEmitter"
+        defaultProperty: "data"
+        prototype: "QSGParticleEmitter"
+        exports: [
+            "QtQuick.Particles/Emitter 2.0"
+        ]
+        Property { name: "speedFromMovement"; type: "qreal" }
+        Signal { name: "speedFromMovementChanged" }
+    }
+    Component {
+        name: "QSGBorderImage"
+        defaultProperty: "data"
+        prototype: "QSGImageBase"
+        exports: [
+            "QtQuick/BorderImage 2.0"
+        ]
+        Enum {
+            name: "TileMode"
+            values: {
+                "Stretch": 0,
+                "Repeat": 1,
+                "Round": 2
+            }
+        }
+        Property { name: "border"; type: "QSGScaleGrid"; isReadonly: true; isPointer: true }
+        Property { name: "horizontalTileMode"; type: "TileMode" }
+        Property { name: "verticalTileMode"; type: "TileMode" }
+        Property { name: "sourceSize"; type: "QSize"; isReadonly: true }
+        Signal { name: "horizontalTileModeChanged" }
+        Signal { name: "verticalTileModeChanged" }
+        Signal { name: "sourceSizeChanged" }
+    }
+    Component {
+        name: "QSGCanvasItem"
+        defaultProperty: "data"
+        prototype: "QSGPaintedItem"
+        exports: [
+            "QtQuick/Canvas 2.0"
+        ]
+        Signal { name: "canvasUpdated" }
+        Method {
+            name: "toDataURL"
+            type: "string"
+            Parameter { name: "type"; type: "string" }
+        }
+        Method { name: "toDataURL"; type: "string" }
+        Method {
+            name: "getContext"
+            type: "QScriptValue"
+            Parameter { type: "string" }
+        }
+        Method { name: "getContext"; type: "QScriptValue" }
+        Method { name: "requestPaint" }
+        Method {
+            name: "save"
+            type: "bool"
+            Parameter { name: "filename"; type: "string" }
+        }
+    }
+    Component {
+        name: "QSGColumn"
+        defaultProperty: "data"
+        prototype: "QSGBasePositioner"
+        exports: [
+            "QtQuick/Column 2.0"
+        ]
+    }
+    Component {
+        name: "QSGCustomParticle"
+        defaultProperty: "data"
+        prototype: "QSGParticlePainter"
+        exports: [
+            "QtQuick.Particles/CustomParticle 2.0"
+        ]
+        Property { name: "fragmentShader"; type: "QByteArray" }
+        Property { name: "vertexShader"; type: "QByteArray" }
+        Signal { name: "fragmentShaderChanged" }
+        Signal { name: "vertexShaderChanged" }
+        Method { name: "updateData" }
+        Method {
+            name: "changeSource"
+            Parameter { type: "int" }
+        }
+    }
+    Component {
+        name: "QSGDrag"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/Drag 2.0"
+        ]
+        Enum {
+            name: "Axis"
+            values: {
+                "XAxis": 1,
+                "YAxis": 2,
+                "XandYAxis": 3
+            }
+        }
+        Property { name: "target"; type: "QSGItem"; isPointer: true }
+        Property { name: "dropItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "data"; type: "QVariant" }
+        Property { name: "axis"; type: "Axis" }
+        Property { name: "minimumX"; type: "qreal" }
+        Property { name: "maximumX"; type: "qreal" }
+        Property { name: "minimumY"; type: "qreal" }
+        Property { name: "maximumY"; type: "qreal" }
+        Property { name: "active"; type: "bool"; isReadonly: true }
+        Property { name: "filterChildren"; type: "bool" }
+        Property { name: "keys"; type: "QStringList" }
+        Signal { name: "targetChanged" }
+        Signal { name: "dropItemChanged" }
+        Signal { name: "dataChanged" }
+        Signal { name: "axisChanged" }
+        Signal { name: "minimumXChanged" }
+        Signal { name: "maximumXChanged" }
+        Signal { name: "minimumYChanged" }
+        Signal { name: "maximumYChanged" }
+        Signal { name: "activeChanged" }
+        Signal { name: "filterChildrenChanged" }
+        Signal { name: "keysChanged" }
+        Signal {
+            name: "dragged"
+            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+        }
+        Signal {
+            name: "dropped"
+            Parameter { name: "dropItem"; type: "QSGItem"; isPointer: true }
+        }
+        Signal { name: "canceled" }
+    }
+    Component {
+        name: "QSGDragTarget"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/DragTarget 2.0"
+        ]
+        Property { name: "containsDrag"; type: "bool"; isReadonly: true }
+        Property { name: "dropItem"; type: "QSGItem"; isPointer: true }
+        Property { name: "keys"; type: "QStringList" }
+        Property { name: "dragX"; type: "qreal"; isReadonly: true }
+        Property { name: "dragY"; type: "qreal"; isReadonly: true }
+        Property { name: "dragData"; type: "QVariant"; isReadonly: true }
+        Signal { name: "containsDragChanged" }
+        Signal { name: "keysChanged" }
+        Signal { name: "dropItemChanged" }
+        Signal { name: "dragPositionChanged" }
+        Signal { name: "dragDataChanged" }
+        Signal {
+            name: "entered"
+            Parameter { name: "drag"; type: "QSGDragTargetEvent"; isPointer: true }
+        }
+        Signal {
+            name: "exited"
+            Parameter { name: "drag"; type: "QSGDragTargetEvent"; isPointer: true }
+        }
+        Signal {
+            name: "positionChanged"
+            Parameter { name: "drag"; type: "QSGDragTargetEvent"; isPointer: true }
+        }
+        Signal {
+            name: "dropped"
+            Parameter { name: "drag"; type: "QSGDragTargetEvent"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QSGEllipseExtruder"
+        prototype: "QSGParticleExtruder"
+        exports: [
+            "QtQuick.Particles/EllipseShape 2.0"
+        ]
+        Property { name: "fill"; type: "bool" }
+        Signal {
+            name: "fillChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setFill"
+            Parameter { name: "arg"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QSGFlickable"
+        defaultProperty: "flickableData"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/Flickable 2.0"
+        ]
+        Enum {
+            name: "BoundsBehavior"
+            values: {
+                "StopAtBounds": 0,
+                "DragOverBounds": 1,
+                "DragAndOvershootBounds": 2
+            }
+        }
+        Enum {
+            name: "FlickableDirection"
+            values: {
+                "AutoFlickDirection": 0,
+                "HorizontalFlick": 1,
+                "VerticalFlick": 2,
+                "HorizontalAndVerticalFlick": 3
+            }
+        }
+        Property { name: "contentWidth"; type: "qreal" }
+        Property { name: "contentHeight"; type: "qreal" }
+        Property { name: "contentX"; type: "qreal" }
+        Property { name: "contentY"; type: "qreal" }
+        Property { name: "contentItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "horizontalVelocity"; type: "qreal"; isReadonly: true }
+        Property { name: "verticalVelocity"; type: "qreal"; isReadonly: true }
+        Property { name: "boundsBehavior"; type: "BoundsBehavior" }
+        Property { name: "maximumFlickVelocity"; type: "qreal" }
+        Property { name: "flickDeceleration"; type: "qreal" }
+        Property { name: "moving"; type: "bool"; isReadonly: true }
+        Property { name: "movingHorizontally"; type: "bool"; isReadonly: true }
+        Property { name: "movingVertically"; type: "bool"; isReadonly: true }
+        Property { name: "flicking"; type: "bool"; isReadonly: true }
+        Property { name: "flickingHorizontally"; type: "bool"; isReadonly: true }
+        Property { name: "flickingVertically"; type: "bool"; isReadonly: true }
+        Property { name: "flickableDirection"; type: "FlickableDirection" }
+        Property { name: "interactive"; type: "bool" }
+        Property { name: "pressDelay"; type: "int" }
+        Property { name: "atXEnd"; type: "bool"; isReadonly: true }
+        Property { name: "atYEnd"; type: "bool"; isReadonly: true }
+        Property { name: "atXBeginning"; type: "bool"; isReadonly: true }
+        Property { name: "atYBeginning"; type: "bool"; isReadonly: true }
+        Property {
+            name: "visibleArea"
+            type: "QSGFlickableVisibleArea"
+            isReadonly: true
+            isPointer: true
+        }
+        Property { name: "flickableData"; type: "QObject"; isList: true; isReadonly: true }
+        Property { name: "flickableChildren"; type: "QSGItem"; isList: true; isReadonly: true }
+        Signal { name: "contentWidthChanged" }
+        Signal { name: "contentHeightChanged" }
+        Signal { name: "contentXChanged" }
+        Signal { name: "contentYChanged" }
+        Signal { name: "movingChanged" }
+        Signal { name: "movingHorizontallyChanged" }
+        Signal { name: "movingVerticallyChanged" }
+        Signal { name: "flickingChanged" }
+        Signal { name: "flickingHorizontallyChanged" }
+        Signal { name: "flickingVerticallyChanged" }
+        Signal { name: "horizontalVelocityChanged" }
+        Signal { name: "verticalVelocityChanged" }
+        Signal { name: "isAtBoundaryChanged" }
+        Signal { name: "flickableDirectionChanged" }
+        Signal { name: "interactiveChanged" }
+        Signal { name: "boundsBehaviorChanged" }
+        Signal { name: "maximumFlickVelocityChanged" }
+        Signal { name: "flickDecelerationChanged" }
+        Signal { name: "pressDelayChanged" }
+        Signal { name: "movementStarted" }
+        Signal { name: "movementEnded" }
+        Signal { name: "flickStarted" }
+        Signal { name: "flickEnded" }
+        Method {
+            name: "resizeContent"
+            Parameter { name: "w"; type: "qreal" }
+            Parameter { name: "h"; type: "qreal" }
+            Parameter { name: "center"; type: "QPointF" }
+        }
+        Method { name: "returnToBounds" }
+    }
+    Component {
+        name: "QSGFlipable"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/Flipable 2.0"
+        ]
+        Enum {
+            name: "Side"
+            values: {
+                "Front": 0,
+                "Back": 1
+            }
+        }
+        Property { name: "front"; type: "QSGItem"; isPointer: true }
+        Property { name: "back"; type: "QSGItem"; isPointer: true }
+        Property { name: "side"; type: "Side"; isReadonly: true }
+        Signal { name: "frontChanged" }
+        Signal { name: "backChanged" }
+        Signal { name: "sideChanged" }
+    }
+    Component {
+        name: "QSGFlow"
+        defaultProperty: "data"
+        prototype: "QSGBasePositioner"
+        exports: [
+            "QtQuick/Flow 2.0"
+        ]
+        Enum {
+            name: "Flow"
+            values: {
+                "LeftToRight": 0,
+                "TopToBottom": 1
+            }
+        }
+        Property { name: "flow"; type: "Flow" }
+        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
+        Property { name: "effectiveLayoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
+        Signal { name: "flowChanged" }
+        Signal { name: "layoutDirectionChanged" }
+        Signal { name: "effectiveLayoutDirectionChanged" }
+    }
+    Component {
+        name: "QSGFocusScope"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/FocusScope 2.0"
+        ]
+    }
+    Component {
+        name: "QSGFollowEmitter"
+        defaultProperty: "data"
+        prototype: "QSGParticleEmitter"
+        exports: [
+            "QtQuick.Particles/FollowEmitter 2.0"
+        ]
+        Property { name: "follow"; type: "string" }
+        Property { name: "emitRatePerParticle"; type: "int" }
+        Property { name: "emitShape"; type: "QSGParticleExtruder"; isPointer: true }
+        Property { name: "emitHeight"; type: "qreal" }
+        Property { name: "emitWidth"; type: "qreal" }
+        Signal {
+            name: "particlesPerParticlePerSecondChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal {
+            name: "emitterXVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "emitterYVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "followChanged"
+            Parameter { name: "arg"; type: "string" }
+        }
+        Signal {
+            name: "emissionShapeChanged"
+            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+        }
+        Method {
+            name: "setParticlesPerParticlePerSecond"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setEmitterXVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setEmitterYVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setFollow"
+            Parameter { name: "arg"; type: "string" }
+        }
+        Method {
+            name: "setEmissionShape"
+            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QSGFrictionAffector"
+        defaultProperty: "data"
+        prototype: "QSGParticleAffector"
+        exports: [
+            "QtQuick.Particles/Friction 2.0"
+        ]
+        Property { name: "factor"; type: "qreal" }
+        Signal {
+            name: "factorChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setFactor"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+    }
+    Component {
+        name: "QSGGradient"
+        defaultProperty: "stops"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/Gradient 2.0"
+        ]
+        Property { name: "stops"; type: "QSGGradientStop"; isList: true; isReadonly: true }
+        Signal { name: "updated" }
+    }
+    Component {
+        name: "QSGGradientStop"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/GradientStop 2.0"
+        ]
+        Property { name: "position"; type: "qreal" }
+        Property { name: "color"; type: "QColor" }
+    }
+    Component {
+        name: "QSGGravityAffector"
+        defaultProperty: "data"
+        prototype: "QSGParticleAffector"
+        exports: [
+            "QtQuick.Particles/Gravity 2.0"
+        ]
+        Property { name: "acceleration"; type: "qreal" }
+        Property { name: "angle"; type: "qreal" }
+        Signal {
+            name: "accelerationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "angleChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setAcceleration"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setAngle"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+    }
+    Component {
+        name: "QSGGrid"
+        defaultProperty: "data"
+        prototype: "QSGBasePositioner"
+        exports: [
+            "QtQuick/Grid 2.0"
+        ]
+        Enum {
+            name: "Flow"
+            values: {
+                "LeftToRight": 0,
+                "TopToBottom": 1
+            }
+        }
+        Property { name: "rows"; type: "int" }
+        Property { name: "columns"; type: "int" }
+        Property { name: "flow"; type: "Flow" }
+        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
+        Property { name: "effectiveLayoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
+        Signal { name: "rowsChanged" }
+        Signal { name: "columnsChanged" }
+        Signal { name: "flowChanged" }
+        Signal { name: "layoutDirectionChanged" }
+        Signal { name: "effectiveLayoutDirectionChanged" }
+    }
+    Component {
+        name: "QSGGridMesh"
+        prototype: "QSGShaderEffectMesh"
+        exports: [
+            "QtQuick/GridMesh 2.0"
+        ]
+        Property { name: "resolution"; type: "QSize" }
+        Signal { name: "resolutionChanged" }
+    }
+    Component {
+        name: "QSGGridView"
+        defaultProperty: "data"
+        prototype: "QSGFlickable"
+        exports: [
+            "QtQuick/GridView 2.0"
+        ]
+        attachedType: "QSGGridViewAttached"
+        Enum {
+            name: "HighlightRangeMode"
+            values: {
+                "NoHighlightRange": 0,
+                "ApplyRange": 1,
+                "StrictlyEnforceRange": 2
+            }
+        }
+        Enum {
+            name: "Flow"
+            values: {
+                "LeftToRight": 0,
+                "TopToBottom": 1
+            }
+        }
+        Enum {
+            name: "SnapMode"
+            values: {
+                "NoSnap": 0,
+                "SnapToRow": 1,
+                "SnapOneRow": 2
+            }
+        }
+        Enum {
+            name: "PositionMode"
+            values: {
+                "Beginning": 0,
+                "Center": 1,
+                "End": 2,
+                "Visible": 3,
+                "Contain": 4
+            }
+        }
+        Property { name: "model"; type: "QVariant" }
+        Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "currentIndex"; type: "int" }
+        Property { name: "currentItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "count"; type: "int"; isReadonly: true }
+        Property { name: "highlight"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "highlightItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "highlightFollowsCurrentItem"; type: "bool" }
+        Property { name: "highlightMoveDuration"; type: "int" }
+        Property { name: "preferredHighlightBegin"; type: "qreal" }
+        Property { name: "preferredHighlightEnd"; type: "qreal" }
+        Property { name: "highlightRangeMode"; type: "HighlightRangeMode" }
+        Property { name: "flow"; type: "Flow" }
+        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
+        Property { name: "effectiveLayoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
+        Property { name: "keyNavigationWraps"; type: "bool" }
+        Property { name: "cacheBuffer"; type: "int" }
+        Property { name: "cellWidth"; type: "int" }
+        Property { name: "cellHeight"; type: "int" }
+        Property { name: "snapMode"; type: "SnapMode" }
+        Property { name: "header"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "footer"; type: "QDeclarativeComponent"; isPointer: true }
+        Signal { name: "countChanged" }
+        Signal { name: "currentIndexChanged" }
+        Signal { name: "cellWidthChanged" }
+        Signal { name: "cellHeightChanged" }
+        Signal { name: "highlightChanged" }
+        Signal { name: "highlightItemChanged" }
+        Signal { name: "preferredHighlightBeginChanged" }
+        Signal { name: "preferredHighlightEndChanged" }
+        Signal { name: "highlightRangeModeChanged" }
+        Signal { name: "highlightMoveDurationChanged" }
+        Signal { name: "modelChanged" }
+        Signal { name: "delegateChanged" }
+        Signal { name: "flowChanged" }
+        Signal { name: "layoutDirectionChanged" }
+        Signal { name: "effectiveLayoutDirectionChanged" }
+        Signal { name: "keyNavigationWrapsChanged" }
+        Signal { name: "cacheBufferChanged" }
+        Signal { name: "snapModeChanged" }
+        Signal { name: "headerChanged" }
+        Signal { name: "footerChanged" }
+        Method { name: "moveCurrentIndexUp" }
+        Method { name: "moveCurrentIndexDown" }
+        Method { name: "moveCurrentIndexLeft" }
+        Method { name: "moveCurrentIndexRight" }
+        Method {
+            name: "positionViewAtIndex"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "mode"; type: "int" }
+        }
+        Method {
+            name: "indexAt"
+            type: "int"
+            Parameter { name: "x"; type: "qreal" }
+            Parameter { name: "y"; type: "qreal" }
+        }
+        Method { name: "positionViewAtBeginning" }
+        Method { name: "positionViewAtEnd" }
+    }
+    Component {
+        name: "QSGGridViewAttached"
+        prototype: "QObject"
+        Property { name: "view"; type: "QSGGridView"; isReadonly: true; isPointer: true }
+        Property { name: "isCurrentItem"; type: "bool"; isReadonly: true }
+        Property { name: "delayRemove"; type: "bool" }
+        Signal { name: "currentItemChanged" }
+        Signal { name: "delayRemoveChanged" }
+        Signal { name: "add" }
+        Signal { name: "remove" }
+        Signal { name: "viewChanged" }
+    }
+    Component {
+        name: "QSGImage"
+        defaultProperty: "data"
+        prototype: "QSGImageBase"
+        exports: [
+            "QtQuick/Image 2.0"
+        ]
+        Enum {
+            name: "FillMode"
+            values: {
+                "Stretch": 0,
+                "PreserveAspectFit": 1,
+                "PreserveAspectCrop": 2,
+                "Tile": 3,
+                "TileVertically": 4,
+                "TileHorizontally": 5
+            }
+        }
+        Property { name: "fillMode"; type: "FillMode" }
+        Property { name: "paintedWidth"; type: "qreal"; isReadonly: true }
+        Property { name: "paintedHeight"; type: "qreal"; isReadonly: true }
+        Property { name: "texture"; type: "QSGTexture"; isReadonly: true; isPointer: true }
+        Signal { name: "fillModeChanged" }
+        Signal { name: "paintedGeometryChanged" }
+    }
+    Component {
+        name: "QSGImageBase"
+        defaultProperty: "data"
+        prototype: "QSGImplicitSizeItem"
+        Enum {
+            name: "Status"
+            values: {
+                "Null": 0,
+                "Ready": 1,
+                "Loading": 2,
+                "Error": 3
+            }
+        }
+        Property { name: "status"; type: "Status"; isReadonly: true }
+        Property { name: "source"; type: "QUrl" }
+        Property { name: "progress"; type: "qreal"; isReadonly: true }
+        Property { name: "asynchronous"; type: "bool" }
+        Property { name: "cache"; type: "bool" }
+        Property { name: "sourceSize"; type: "QSize" }
+        Property { name: "mirror"; type: "bool" }
+        Signal {
+            name: "sourceChanged"
+            Parameter { type: "QUrl" }
+        }
+        Signal { name: "sourceSizeChanged" }
+        Signal {
+            name: "statusChanged"
+            Parameter { type: "QSGImageBase::Status" }
+        }
+        Signal {
+            name: "progressChanged"
+            Parameter { name: "progress"; type: "qreal" }
+        }
+        Signal { name: "asynchronousChanged" }
+        Signal { name: "cacheChanged" }
+        Signal { name: "mirrorChanged" }
+    }
+    Component {
+        name: "QSGImageParticle"
+        defaultProperty: "data"
+        prototype: "QSGParticlePainter"
+        exports: [
+            "QtQuick.Particles/ImageParticle 2.0"
+        ]
+        Property { name: "source"; type: "QUrl" }
+        Property { name: "colorTable"; type: "QUrl" }
+        Property { name: "sizeTable"; type: "QUrl" }
+        Property { name: "opacityTable"; type: "QUrl" }
+        Property { name: "color"; type: "QColor" }
+        Property { name: "colorVariation"; type: "qreal" }
+        Property { name: "redVariation"; type: "qreal" }
+        Property { name: "greenVariation"; type: "qreal" }
+        Property { name: "blueVariation"; type: "qreal" }
+        Property { name: "alpha"; type: "qreal" }
+        Property { name: "alphaVariation"; type: "qreal" }
+        Property { name: "rotation"; type: "qreal" }
+        Property { name: "rotationVariation"; type: "qreal" }
+        Property { name: "rotationSpeed"; type: "qreal" }
+        Property { name: "rotationSpeedVariation"; type: "qreal" }
+        Property { name: "autoRotation"; type: "bool" }
+        Property { name: "xVector"; type: "QSGStochasticDirection"; isPointer: true }
+        Property { name: "yVector"; type: "QSGStochasticDirection"; isPointer: true }
+        Property { name: "sprites"; type: "QSGSprite"; isList: true; isReadonly: true }
+        Property { name: "bloat"; type: "bool" }
+        Signal { name: "imageChanged" }
+        Signal { name: "colortableChanged" }
+        Signal { name: "sizetableChanged" }
+        Signal { name: "opacitytableChanged" }
+        Signal { name: "colorChanged" }
+        Signal { name: "colorVariationChanged" }
+        Signal { name: "particleDurationChanged" }
+        Signal {
+            name: "alphaVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "alphaChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "redVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "greenVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "blueVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "rotationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "rotationVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "rotationSpeedChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "rotationSpeedVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "autoRotationChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Signal {
+            name: "xVectorChanged"
+            Parameter { name: "arg"; type: "QSGStochasticDirection"; isPointer: true }
+        }
+        Signal {
+            name: "yVectorChanged"
+            Parameter { name: "arg"; type: "QSGStochasticDirection"; isPointer: true }
+        }
+        Signal {
+            name: "bloatChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "reloadColor"
+            Parameter { name: "c"; type: "Color4ub" }
+            Parameter { name: "d"; type: "QSGParticleData"; isPointer: true }
+        }
+        Method {
+            name: "setAlphaVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setAlpha"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setRedVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setGreenVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setBlueVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setRotation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setRotationVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setRotationSpeed"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setRotationSpeedVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setAutoRotation"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setXVector"
+            Parameter { name: "arg"; type: "QSGStochasticDirection"; isPointer: true }
+        }
+        Method {
+            name: "setYVector"
+            Parameter { name: "arg"; type: "QSGStochasticDirection"; isPointer: true }
+        }
+        Method {
+            name: "setBloat"
+            Parameter { name: "arg"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QSGImplicitSizeItem"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        Property { name: "implicitWidth"; type: "qreal"; isReadonly: true }
+        Property { name: "implicitHeight"; type: "qreal"; isReadonly: true }
+        Signal { name: "implicitWidthChanged" }
+        Signal { name: "implicitHeightChanged" }
+    }
+    Component {
+        name: "QSGImplicitSizePaintedItem"
+        defaultProperty: "data"
+        prototype: "QSGPaintedItem"
+        Property { name: "implicitWidth"; type: "qreal"; isReadonly: true }
+        Property { name: "implicitHeight"; type: "qreal"; isReadonly: true }
+        Signal { name: "implicitWidthChanged" }
+        Signal { name: "implicitHeightChanged" }
+    }
+    Component {
+        name: "QSGItem"
+        defaultProperty: "data"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/Item 2.0"
+        ]
+        Enum {
+            name: "TransformOrigin"
+            values: {
+                "TopLeft": 0,
+                "Top": 1,
+                "TopRight": 2,
+                "Left": 3,
+                "Center": 4,
+                "Right": 5,
+                "BottomLeft": 6,
+                "Bottom": 7,
+                "BottomRight": 8
+            }
+        }
+        Property { name: "parent"; type: "QSGItem"; isPointer: true }
+        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
+        Property { name: "resources"; type: "QObject"; isList: true; isReadonly: true }
+        Property { name: "children"; type: "QSGItem"; isList: true; isReadonly: true }
+        Property { name: "pos"; type: "QPointF"; isReadonly: true }
+        Property { name: "x"; type: "qreal" }
+        Property { name: "y"; type: "qreal" }
+        Property { name: "z"; type: "qreal" }
+        Property { name: "width"; type: "qreal" }
+        Property { name: "height"; type: "qreal" }
+        Property { name: "opacity"; type: "qreal" }
+        Property { name: "enabled"; type: "bool" }
+        Property { name: "visible"; type: "bool" }
+        Property { name: "states"; type: "QDeclarativeState"; isList: true; isReadonly: true }
+        Property { name: "transitions"; type: "QDeclarativeTransition"; isList: true; isReadonly: true }
+        Property { name: "state"; type: "string" }
+        Property { name: "childrenRect"; type: "QRectF"; isReadonly: true }
+        Property { name: "anchors"; type: "QSGAnchors"; isReadonly: true; isPointer: true }
+        Property { name: "left"; type: "QSGAnchorLine"; isReadonly: true }
+        Property { name: "right"; type: "QSGAnchorLine"; isReadonly: true }
+        Property { name: "horizontalCenter"; type: "QSGAnchorLine"; isReadonly: true }
+        Property { name: "top"; type: "QSGAnchorLine"; isReadonly: true }
+        Property { name: "bottom"; type: "QSGAnchorLine"; isReadonly: true }
+        Property { name: "verticalCenter"; type: "QSGAnchorLine"; isReadonly: true }
+        Property { name: "baseline"; type: "QSGAnchorLine"; isReadonly: true }
+        Property { name: "baselineOffset"; type: "qreal" }
+        Property { name: "clip"; type: "bool" }
+        Property { name: "focus"; type: "bool" }
+        Property { name: "activeFocus"; type: "bool"; isReadonly: true }
+        Property { name: "rotation"; type: "qreal" }
+        Property { name: "scale"; type: "qreal" }
+        Property { name: "transformOrigin"; type: "TransformOrigin" }
+        Property { name: "transformOriginPoint"; type: "QPointF"; isReadonly: true }
+        Property { name: "transform"; type: "QSGTransform"; isList: true; isReadonly: true }
+        Property { name: "smooth"; type: "bool" }
+        Property { name: "implicitWidth"; type: "qreal" }
+        Property { name: "implicitHeight"; type: "qreal" }
+        Signal {
+            name: "childrenRectChanged"
+            Parameter { type: "QRectF" }
+        }
+        Signal {
+            name: "baselineOffsetChanged"
+            Parameter { type: "qreal" }
+        }
+        Signal {
+            name: "stateChanged"
+            Parameter { type: "string" }
+        }
+        Signal {
+            name: "focusChanged"
+            Parameter { type: "bool" }
+        }
+        Signal {
+            name: "activeFocusChanged"
+            Parameter { type: "bool" }
+        }
+        Signal {
+            name: "parentChanged"
+            Parameter { type: "QSGItem"; isPointer: true }
+        }
+        Signal {
+            name: "transformOriginChanged"
+            Parameter { type: "TransformOrigin" }
+        }
+        Signal {
+            name: "smoothChanged"
+            Parameter { type: "bool" }
+        }
+        Signal {
+            name: "clipChanged"
+            Parameter { type: "bool" }
+        }
+        Signal { name: "childrenChanged" }
+        Signal { name: "opacityChanged" }
+        Signal { name: "enabledChanged" }
+        Signal { name: "visibleChanged" }
+        Signal { name: "rotationChanged" }
+        Signal { name: "scaleChanged" }
+        Signal { name: "xChanged" }
+        Signal { name: "yChanged" }
+        Signal { name: "widthChanged" }
+        Signal { name: "heightChanged" }
+        Signal { name: "zChanged" }
+        Signal { name: "implicitWidthChanged" }
+        Signal { name: "implicitHeightChanged" }
+        Method { name: "update" }
+        Method { name: "updateMicroFocus" }
+        Method {
+            name: "mapFromItem"
+            type: "QScriptValue"
+            Parameter { name: "item"; type: "QScriptValue" }
+            Parameter { name: "x"; type: "qreal" }
+            Parameter { name: "y"; type: "qreal" }
+        }
+        Method {
+            name: "mapToItem"
+            type: "QScriptValue"
+            Parameter { name: "item"; type: "QScriptValue" }
+            Parameter { name: "x"; type: "qreal" }
+            Parameter { name: "y"; type: "qreal" }
+        }
+        Method { name: "forceActiveFocus" }
+        Method {
+            name: "childAt"
+            type: "QSGItem*"
+            Parameter { name: "x"; type: "qreal" }
+            Parameter { name: "y"; type: "qreal" }
+        }
+    }
+    Component {
+        name: "QSGItemParticle"
+        defaultProperty: "data"
+        prototype: "QSGParticlePainter"
+        exports: [
+            "QtQuick.Particles/ItemParticle 2.0"
+        ]
+        attachedType: "QSGItemParticleAttached"
+        Property { name: "fade"; type: "bool" }
+        Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Signal { name: "fadeChanged" }
+        Signal {
+            name: "delegateChanged"
+            Parameter { name: "arg"; type: "QDeclarativeComponent"; isPointer: true }
+        }
+        Method {
+            name: "freeze"
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+        Method {
+            name: "unfreeze"
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+        Method {
+            name: "take"
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+            Parameter { name: "prioritize"; type: "bool" }
+        }
+        Method {
+            name: "take"
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+        Method {
+            name: "give"
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+        Method {
+            name: "setFade"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setDelegate"
+            Parameter { name: "arg"; type: "QDeclarativeComponent"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QSGItemParticleAttached"
+        prototype: "QObject"
+        Property { name: "particle"; type: "QSGItemParticle"; isReadonly: true; isPointer: true }
+        Signal { name: "detached" }
+        Signal { name: "attached" }
+    }
+    Component {
+        name: "QSGKeyNavigationAttached"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/KeyNavigation 2.0"
+        ]
+        attachedType: "QSGKeyNavigationAttached"
+        Enum {
+            name: "Priority"
+            values: {
+                "BeforeItem": 0,
+                "AfterItem": 1
+            }
+        }
+        Property { name: "left"; type: "QSGItem"; isPointer: true }
+        Property { name: "right"; type: "QSGItem"; isPointer: true }
+        Property { name: "up"; type: "QSGItem"; isPointer: true }
+        Property { name: "down"; type: "QSGItem"; isPointer: true }
+        Property { name: "tab"; type: "QSGItem"; isPointer: true }
+        Property { name: "backtab"; type: "QSGItem"; isPointer: true }
+        Property { name: "priority"; type: "Priority" }
+        Signal { name: "leftChanged" }
+        Signal { name: "rightChanged" }
+        Signal { name: "upChanged" }
+        Signal { name: "downChanged" }
+        Signal { name: "tabChanged" }
+        Signal { name: "backtabChanged" }
+        Signal { name: "priorityChanged" }
+    }
+    Component {
+        name: "QSGKeysAttached"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/Keys 2.0"
+        ]
+        attachedType: "QSGKeysAttached"
+        Enum {
+            name: "Priority"
+            values: {
+                "BeforeItem": 0,
+                "AfterItem": 1
+            }
+        }
+        Property { name: "enabled"; type: "bool" }
+        Property { name: "forwardTo"; type: "QSGItem"; isList: true; isReadonly: true }
+        Property { name: "priority"; type: "Priority" }
+        Signal { name: "enabledChanged" }
+        Signal { name: "priorityChanged" }
+        Signal {
+            name: "pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "released"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit0Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit1Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit2Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit3Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit4Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit5Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit6Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit7Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit8Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "digit9Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "leftPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "rightPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "upPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "downPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "tabPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "backtabPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "asteriskPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "numberSignPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "escapePressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "returnPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "enterPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "deletePressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "spacePressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "backPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "cancelPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "selectPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "yesPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "noPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "context1Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "context2Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "context3Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "context4Pressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "callPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "hangupPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "flipPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "menuPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "volumeUpPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+        Signal {
+            name: "volumeDownPressed"
+            Parameter { name: "event"; type: "QSGKeyEvent"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QSGKillAffector"
+        defaultProperty: "data"
+        prototype: "QSGParticleAffector"
+        exports: [
+            "QtQuick.Particles/Kill 2.0"
+        ]
+    }
+    Component {
+        name: "QSGLayoutMirroringAttached"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/LayoutMirroring 2.0"
+        ]
+        attachedType: "QSGLayoutMirroringAttached"
+        Property { name: "enabled"; type: "bool" }
+        Property { name: "childrenInherit"; type: "bool" }
+        Signal { name: "enabledChanged" }
+        Signal { name: "childrenInheritChanged" }
+    }
+    Component {
+        name: "QSGLineExtruder"
+        prototype: "QSGParticleExtruder"
+        exports: [
+            "QtQuick.Particles/LineShape 2.0"
+        ]
+        Property { name: "mirrored"; type: "bool" }
+        Signal {
+            name: "mirroredChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setmirrored"
+            Parameter { name: "arg"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QSGListView"
+        defaultProperty: "data"
+        prototype: "QSGFlickable"
+        exports: [
+            "QtQuick/ListView 2.0"
+        ]
+        attachedType: "QSGListViewAttached"
+        Enum {
+            name: "HighlightRangeMode"
+            values: {
+                "NoHighlightRange": 0,
+                "ApplyRange": 1,
+                "StrictlyEnforceRange": 2
+            }
+        }
+        Enum {
+            name: "Orientation"
+            values: {
+                "Horizontal": 1,
+                "Vertical": 2
+            }
+        }
+        Enum {
+            name: "SnapMode"
+            values: {
+                "NoSnap": 0,
+                "SnapToItem": 1,
+                "SnapOneItem": 2
+            }
+        }
+        Enum {
+            name: "PositionMode"
+            values: {
+                "Beginning": 0,
+                "Center": 1,
+                "End": 2,
+                "Visible": 3,
+                "Contain": 4
+            }
+        }
+        Property { name: "model"; type: "QVariant" }
+        Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "currentIndex"; type: "int" }
+        Property { name: "currentItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "count"; type: "int"; isReadonly: true }
+        Property { name: "highlight"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "highlightItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "highlightFollowsCurrentItem"; type: "bool" }
+        Property { name: "highlightMoveSpeed"; type: "qreal" }
+        Property { name: "highlightMoveDuration"; type: "int" }
+        Property { name: "highlightResizeSpeed"; type: "qreal" }
+        Property { name: "highlightResizeDuration"; type: "int" }
+        Property { name: "preferredHighlightBegin"; type: "qreal" }
+        Property { name: "preferredHighlightEnd"; type: "qreal" }
+        Property { name: "highlightRangeMode"; type: "HighlightRangeMode" }
+        Property { name: "spacing"; type: "qreal" }
+        Property { name: "orientation"; type: "Orientation" }
+        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
+        Property { name: "effectiveLayoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
+        Property { name: "keyNavigationWraps"; type: "bool" }
+        Property { name: "cacheBuffer"; type: "int" }
+        Property { name: "section"; type: "QSGViewSection"; isReadonly: true; isPointer: true }
+        Property { name: "currentSection"; type: "string"; isReadonly: true }
+        Property { name: "snapMode"; type: "SnapMode" }
+        Property { name: "header"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "footer"; type: "QDeclarativeComponent"; isPointer: true }
+        Signal { name: "countChanged" }
+        Signal { name: "spacingChanged" }
+        Signal { name: "orientationChanged" }
+        Signal { name: "layoutDirectionChanged" }
+        Signal { name: "effectiveLayoutDirectionChanged" }
+        Signal { name: "currentIndexChanged" }
+        Signal { name: "currentSectionChanged" }
+        Signal { name: "highlightMoveSpeedChanged" }
+        Signal { name: "highlightMoveDurationChanged" }
+        Signal { name: "highlightResizeSpeedChanged" }
+        Signal { name: "highlightResizeDurationChanged" }
+        Signal { name: "highlightChanged" }
+        Signal { name: "highlightItemChanged" }
+        Signal { name: "modelChanged" }
+        Signal { name: "delegateChanged" }
+        Signal { name: "highlightFollowsCurrentItemChanged" }
+        Signal { name: "preferredHighlightBeginChanged" }
+        Signal { name: "preferredHighlightEndChanged" }
+        Signal { name: "highlightRangeModeChanged" }
+        Signal { name: "keyNavigationWrapsChanged" }
+        Signal { name: "cacheBufferChanged" }
+        Signal { name: "snapModeChanged" }
+        Signal { name: "headerChanged" }
+        Signal { name: "footerChanged" }
+        Method { name: "incrementCurrentIndex" }
+        Method { name: "decrementCurrentIndex" }
+        Method {
+            name: "positionViewAtIndex"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "mode"; type: "int" }
+        }
+        Method {
+            name: "indexAt"
+            type: "int"
+            Parameter { name: "x"; type: "qreal" }
+            Parameter { name: "y"; type: "qreal" }
+        }
+        Method { name: "positionViewAtBeginning" }
+        Method { name: "positionViewAtEnd" }
+    }
+    Component {
+        name: "QSGListViewAttached"
+        prototype: "QObject"
+        Property { name: "view"; type: "QSGListView"; isReadonly: true; isPointer: true }
+        Property { name: "isCurrentItem"; type: "bool"; isReadonly: true }
+        Property { name: "previousSection"; type: "string"; isReadonly: true }
+        Property { name: "nextSection"; type: "string"; isReadonly: true }
+        Property { name: "section"; type: "string"; isReadonly: true }
+        Property { name: "delayRemove"; type: "bool" }
+        Signal { name: "currentItemChanged" }
+        Signal { name: "sectionChanged" }
+        Signal { name: "prevSectionChanged" }
+        Signal { name: "nextSectionChanged" }
+        Signal { name: "delayRemoveChanged" }
+        Signal { name: "add" }
+        Signal { name: "remove" }
+        Signal { name: "viewChanged" }
+    }
+    Component {
+        name: "QSGLoader"
+        defaultProperty: "data"
+        prototype: "QSGImplicitSizeItem"
+        exports: [
+            "QtQuick/Loader 2.0"
+        ]
+        Enum {
+            name: "Status"
+            values: {
+                "Null": 0,
+                "Ready": 1,
+                "Loading": 2,
+                "Error": 3
+            }
+        }
+        Property { name: "source"; type: "QUrl" }
+        Property { name: "sourceComponent"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "item"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "status"; type: "Status"; isReadonly: true }
+        Property { name: "progress"; type: "qreal"; isReadonly: true }
+        Signal { name: "itemChanged" }
+        Signal { name: "sourceChanged" }
+        Signal { name: "statusChanged" }
+        Signal { name: "progressChanged" }
+        Signal { name: "loaded" }
+    }
+    Component {
+        name: "QSGMaskExtruder"
+        prototype: "QSGParticleExtruder"
+        exports: [
+            "QtQuick.Particles/MaskShape 2.0"
+        ]
+        Property { name: "source"; type: "QUrl" }
+        Signal {
+            name: "sourceChanged"
+            Parameter { name: "arg"; type: "QUrl" }
+        }
+        Method {
+            name: "setSource"
+            Parameter { name: "arg"; type: "QUrl" }
+        }
+    }
+    Component {
+        name: "QSGModelParticle"
+        defaultProperty: "delegate"
+        prototype: "QSGParticlePainter"
+        exports: [
+            "QtQuick.Particles/ModelParticle 2.0"
+        ]
+        attachedType: "QSGModelParticleAttached"
+        Property { name: "model"; type: "QVariant" }
+        Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "modelCount"; type: "int"; isReadonly: true }
+        Property { name: "fade"; type: "bool" }
+        Signal { name: "modelChanged" }
+        Signal { name: "delegateChanged" }
+        Signal { name: "modelCountChanged" }
+        Signal { name: "fadeChanged" }
+        Method {
+            name: "freeze"
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+        Method {
+            name: "unfreeze"
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+        Method {
+            name: "setFade"
+            Parameter { name: "arg"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QSGModelParticleAttached"
+        prototype: "QObject"
+        Property { name: "particle"; type: "QSGModelParticle"; isReadonly: true; isPointer: true }
+        Signal { name: "detached" }
+        Signal { name: "attached" }
+    }
+    Component {
+        name: "QSGMouseArea"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/MouseArea 2.0"
+        ]
+        Property { name: "mouseX"; type: "qreal"; isReadonly: true }
+        Property { name: "mouseY"; type: "qreal"; isReadonly: true }
+        Property { name: "containsMouse"; type: "bool"; isReadonly: true }
+        Property { name: "pressed"; type: "bool"; isReadonly: true }
+        Property { name: "enabled"; type: "bool" }
+        Property { name: "pressedButtons"; type: "Qt::MouseButtons"; isReadonly: true }
+        Property { name: "acceptedButtons"; type: "Qt::MouseButtons" }
+        Property { name: "hoverEnabled"; type: "bool" }
+        Property { name: "drag"; type: "QSGDrag"; isReadonly: true; isPointer: true }
+        Property { name: "preventStealing"; type: "bool" }
+        Property { name: "forwardTo"; type: "QSGItem"; isList: true; isReadonly: true }
+        Signal { name: "hoveredChanged" }
+        Signal { name: "pressedChanged" }
+        Signal { name: "enabledChanged" }
+        Signal { name: "acceptedButtonsChanged" }
+        Signal { name: "hoverEnabledChanged" }
+        Signal {
+            name: "positionChanged"
+            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+        }
+        Signal {
+            name: "mousePositionChanged"
+            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+        }
+        Signal { name: "preventStealingChanged" }
+        Signal {
+            name: "pressed"
+            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+        }
+        Signal {
+            name: "pressAndHold"
+            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+        }
+        Signal {
+            name: "released"
+            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+        }
+        Signal {
+            name: "clicked"
+            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+        }
+        Signal {
+            name: "doubleClicked"
+            Parameter { name: "mouse"; type: "QSGMouseEvent"; isPointer: true }
+        }
+        Signal { name: "entered" }
+        Signal { name: "exited" }
+        Signal { name: "canceled" }
+    }
+    Component {
+        name: "QSGPaintedItem"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/PaintedItem 2.0"
+        ]
+        Enum {
+            name: "RenderTarget"
+            values: {
+                "Image": 0,
+                "FramebufferObject": 1
+            }
+        }
+        Property { name: "contentsSize"; type: "QSize" }
+        Property { name: "fillColor"; type: "QColor" }
+        Property { name: "contentsScale"; type: "qreal" }
+        Property { name: "renderTarget"; type: "RenderTarget" }
+        Signal { name: "fillColorChanged" }
+        Signal { name: "contentsSizeChanged" }
+        Signal { name: "contentsScaleChanged" }
+        Signal { name: "renderTargetChanged" }
+    }
+    Component {
+        name: "QSGParentAnimation"
+        defaultProperty: "animations"
+        prototype: "QDeclarativeAnimationGroup"
+        exports: [
+            "QtQuick/ParentAnimation 2.0"
+        ]
+        Property { name: "target"; type: "QSGItem"; isPointer: true }
+        Property { name: "newParent"; type: "QSGItem"; isPointer: true }
+        Property { name: "via"; type: "QSGItem"; isPointer: true }
+        Signal { name: "targetChanged" }
+        Signal { name: "newParentChanged" }
+        Signal { name: "viaChanged" }
+    }
+    Component {
+        name: "QSGParentChange"
+        prototype: "QDeclarativeStateOperation"
+        exports: [
+            "QtQuick/ParentChange 2.0"
+        ]
+        Property { name: "target"; type: "QSGItem"; isPointer: true }
+        Property { name: "parent"; type: "QSGItem"; isPointer: true }
+        Property { name: "x"; type: "QDeclarativeScriptString" }
+        Property { name: "y"; type: "QDeclarativeScriptString" }
+        Property { name: "width"; type: "QDeclarativeScriptString" }
+        Property { name: "height"; type: "QDeclarativeScriptString" }
+        Property { name: "scale"; type: "QDeclarativeScriptString" }
+        Property { name: "rotation"; type: "QDeclarativeScriptString" }
+    }
+    Component {
+        name: "QSGParticleAffector"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick.Particles/ParticleAffector 2.0"
+        ]
+        Property { name: "system"; type: "QSGParticleSystem"; isPointer: true }
+        Property { name: "particles"; type: "QStringList" }
+        Property { name: "active"; type: "bool" }
+        Property { name: "onceOff"; type: "bool" }
+        Property { name: "shape"; type: "QSGParticleExtruder"; isPointer: true }
+        Property { name: "signal"; type: "bool" }
+        Signal {
+            name: "systemChanged"
+            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+        }
+        Signal {
+            name: "particlesChanged"
+            Parameter { name: "arg"; type: "QStringList" }
+        }
+        Signal {
+            name: "activeChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Signal {
+            name: "onceOffChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Signal {
+            name: "shapeChanged"
+            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+        }
+        Signal {
+            name: "affected"
+            Parameter { name: "x"; type: "qreal" }
+            Parameter { name: "y"; type: "qreal" }
+        }
+        Signal {
+            name: "signalChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setSystem"
+            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+        }
+        Method {
+            name: "setParticles"
+            Parameter { name: "arg"; type: "QStringList" }
+        }
+        Method {
+            name: "setActive"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setOnceOff"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setShape"
+            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+        }
+        Method {
+            name: "setSignal"
+            Parameter { name: "arg"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QSGParticleEmitter"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick.Particles/ParticleEmitter 2.0"
+        ]
+        Property { name: "system"; type: "QSGParticleSystem"; isPointer: true }
+        Property { name: "particle"; type: "string" }
+        Property { name: "shape"; type: "QSGParticleExtruder"; isPointer: true }
+        Property { name: "emitting"; type: "bool" }
+        Property { name: "emitRate"; type: "qreal" }
+        Property { name: "lifeSpan"; type: "int" }
+        Property { name: "lifeSpanVariation"; type: "int" }
+        Property { name: "emitCap"; type: "int" }
+        Property { name: "size"; type: "qreal" }
+        Property { name: "endSize"; type: "qreal" }
+        Property { name: "sizeVariation"; type: "qreal" }
+        Property { name: "speed"; type: "QSGStochasticDirection"; isPointer: true }
+        Property { name: "acceleration"; type: "QSGStochasticDirection"; isPointer: true }
+        Signal {
+            name: "particlesPerSecondChanged"
+            Parameter { type: "qreal" }
+        }
+        Signal {
+            name: "particleDurationChanged"
+            Parameter { type: "int" }
+        }
+        Signal {
+            name: "emittingChanged"
+            Parameter { type: "bool" }
+        }
+        Signal {
+            name: "systemChanged"
+            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+        }
+        Signal {
+            name: "particleChanged"
+            Parameter { name: "arg"; type: "string" }
+        }
+        Signal {
+            name: "particleDurationVariationChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal {
+            name: "extruderChanged"
+            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+        }
+        Signal {
+            name: "particleSizeChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "particleEndSizeChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "particleSizeVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "speedChanged"
+            Parameter { name: "arg"; type: "QSGStochasticDirection"; isPointer: true }
+        }
+        Signal {
+            name: "accelerationChanged"
+            Parameter { name: "arg"; type: "QSGStochasticDirection"; isPointer: true }
+        }
+        Signal {
+            name: "maxParticleCountChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal { name: "particleCountChanged" }
+        Method {
+            name: "pulse"
+            Parameter { name: "seconds"; type: "qreal" }
+        }
+        Method {
+            name: "burst"
+            Parameter { name: "num"; type: "int" }
+        }
+        Method {
+            name: "burst"
+            Parameter { name: "num"; type: "int" }
+            Parameter { name: "x"; type: "qreal" }
+            Parameter { name: "y"; type: "qreal" }
+        }
+        Method {
+            name: "setEmitting"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setParticlesPerSecond"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setParticleDuration"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setSystem"
+            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+        }
+        Method {
+            name: "setParticle"
+            Parameter { name: "arg"; type: "string" }
+        }
+        Method {
+            name: "setParticleDurationVariation"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setExtruder"
+            Parameter { name: "arg"; type: "QSGParticleExtruder"; isPointer: true }
+        }
+        Method {
+            name: "setParticleSize"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setParticleEndSize"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setParticleSizeVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setSpeed"
+            Parameter { name: "arg"; type: "QSGStochasticDirection"; isPointer: true }
+        }
+        Method {
+            name: "setAcceleration"
+            Parameter { name: "arg"; type: "QSGStochasticDirection"; isPointer: true }
+        }
+        Method {
+            name: "setMaxParticleCount"
+            Parameter { name: "arg"; type: "int" }
+        }
+    }
+    Component {
+        name: "QSGParticleExtruder"
+        prototype: "QObject"
+        exports: [
+            "QtQuick.Particles/ParticleExtruder 2.0"
+        ]
+        Property { name: "fill"; type: "bool" }
+        Signal {
+            name: "fillChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setFill"
+            Parameter { name: "arg"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QSGParticlePainter"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick.Particles/ParticlePainter 2.0"
+        ]
+        Property { name: "system"; type: "QSGParticleSystem"; isPointer: true }
+        Property { name: "particles"; type: "QStringList" }
+        Signal { name: "countChanged" }
+        Signal {
+            name: "systemChanged"
+            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+        }
+        Signal {
+            name: "particlesChanged"
+            Parameter { name: "arg"; type: "QStringList" }
+        }
+        Method {
+            name: "setSystem"
+            Parameter { name: "arg"; type: "QSGParticleSystem"; isPointer: true }
+        }
+        Method {
+            name: "setParticles"
+            Parameter { name: "arg"; type: "QStringList" }
+        }
+    }
+    Component {
+        name: "QSGParticleSystem"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick.Particles/ParticleSystem 2.0"
+        ]
+        Property { name: "running"; type: "bool" }
+        Property { name: "startTime"; type: "int" }
+        Property { name: "overwrite"; type: "bool" }
+        Signal { name: "systemInitialized" }
+        Signal {
+            name: "runningChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Signal {
+            name: "startTimeChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal {
+            name: "overwriteChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method { name: "reset" }
+        Method {
+            name: "setRunning"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setStartTime"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setOverwrite"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "fastForward"
+            Parameter { name: "ms"; type: "int" }
+        }
+    }
+    Component {
+        name: "QSGPathView"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/PathView 2.0"
+        ]
+        attachedType: "QSGPathViewAttached"
+        Enum {
+            name: "HighlightRangeMode"
+            values: {
+                "NoHighlightRange": 0,
+                "ApplyRange": 1,
+                "StrictlyEnforceRange": 2
+            }
+        }
+        Property { name: "model"; type: "QVariant" }
+        Property { name: "path"; type: "QDeclarativePath"; isPointer: true }
+        Property { name: "currentIndex"; type: "int" }
+        Property { name: "offset"; type: "qreal" }
+        Property { name: "highlight"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "highlightItem"; type: "QSGItem"; isReadonly: true; isPointer: true }
+        Property { name: "preferredHighlightBegin"; type: "qreal" }
+        Property { name: "preferredHighlightEnd"; type: "qreal" }
+        Property { name: "highlightRangeMode"; type: "HighlightRangeMode" }
+        Property { name: "highlightMoveDuration"; type: "int" }
+        Property { name: "dragMargin"; type: "qreal" }
+        Property { name: "flickDeceleration"; type: "qreal" }
+        Property { name: "interactive"; type: "bool" }
+        Property { name: "moving"; type: "bool"; isReadonly: true }
+        Property { name: "flicking"; type: "bool"; isReadonly: true }
+        Property { name: "count"; type: "int"; isReadonly: true }
+        Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "pathItemCount"; type: "int" }
+        Signal { name: "currentIndexChanged" }
+        Signal { name: "offsetChanged" }
+        Signal { name: "modelChanged" }
+        Signal { name: "countChanged" }
+        Signal { name: "pathChanged" }
+        Signal { name: "preferredHighlightBeginChanged" }
+        Signal { name: "preferredHighlightEndChanged" }
+        Signal { name: "highlightRangeModeChanged" }
+        Signal { name: "dragMarginChanged" }
+        Signal { name: "snapPositionChanged" }
+        Signal { name: "delegateChanged" }
+        Signal { name: "pathItemCountChanged" }
+        Signal { name: "flickDecelerationChanged" }
+        Signal { name: "interactiveChanged" }
+        Signal { name: "movingChanged" }
+        Signal { name: "flickingChanged" }
+        Signal { name: "highlightChanged" }
+        Signal { name: "highlightItemChanged" }
+        Signal { name: "highlightMoveDurationChanged" }
+        Signal { name: "movementStarted" }
+        Signal { name: "movementEnded" }
+        Signal { name: "flickStarted" }
+        Signal { name: "flickEnded" }
+        Method { name: "incrementCurrentIndex" }
+        Method { name: "decrementCurrentIndex" }
+    }
+    Component {
+        name: "QSGPathViewAttached"
+        prototype: "QObject"
+        Property { name: "view"; type: "QSGPathView"; isReadonly: true; isPointer: true }
+        Property { name: "isCurrentItem"; type: "bool"; isReadonly: true }
+        Property { name: "onPath"; type: "bool"; isReadonly: true }
+        Signal { name: "currentItemChanged" }
+        Signal { name: "pathChanged" }
+    }
+    Component {
+        name: "QSGPinch"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/Pinch 2.0"
+        ]
+        Enum {
+            name: "Axis"
+            values: {
+                "NoDrag": 0,
+                "XAxis": 1,
+                "YAxis": 2,
+                "XandYAxis": 3
+            }
+        }
+        Property { name: "target"; type: "QSGItem"; isPointer: true }
+        Property { name: "minimumScale"; type: "qreal" }
+        Property { name: "maximumScale"; type: "qreal" }
+        Property { name: "minimumRotation"; type: "qreal" }
+        Property { name: "maximumRotation"; type: "qreal" }
+        Property { name: "dragAxis"; type: "Axis" }
+        Property { name: "minimumX"; type: "qreal" }
+        Property { name: "maximumX"; type: "qreal" }
+        Property { name: "minimumY"; type: "qreal" }
+        Property { name: "maximumY"; type: "qreal" }
+        Property { name: "active"; type: "bool"; isReadonly: true }
+        Signal { name: "targetChanged" }
+        Signal { name: "minimumScaleChanged" }
+        Signal { name: "maximumScaleChanged" }
+        Signal { name: "minimumRotationChanged" }
+        Signal { name: "maximumRotationChanged" }
+        Signal { name: "dragAxisChanged" }
+        Signal { name: "minimumXChanged" }
+        Signal { name: "maximumXChanged" }
+        Signal { name: "minimumYChanged" }
+        Signal { name: "maximumYChanged" }
+        Signal { name: "activeChanged" }
+    }
+    Component {
+        name: "QSGPinchArea"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/PinchArea 2.0"
+        ]
+        Property { name: "enabled"; type: "bool" }
+        Property { name: "pinch"; type: "QSGPinch"; isReadonly: true; isPointer: true }
+        Signal { name: "enabledChanged" }
+        Signal {
+            name: "pinchStarted"
+            Parameter { name: "pinch"; type: "QSGPinchEvent"; isPointer: true }
+        }
+        Signal {
+            name: "pinchUpdated"
+            Parameter { name: "pinch"; type: "QSGPinchEvent"; isPointer: true }
+        }
+        Signal {
+            name: "pinchFinished"
+            Parameter { name: "pinch"; type: "QSGPinchEvent"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QSGPointAttractorAffector"
+        defaultProperty: "data"
+        prototype: "QSGParticleAffector"
+        exports: [
+            "QtQuick.Particles/PointAttractor 2.0"
+        ]
+        Enum {
+            name: "Proportion"
+            values: {
+                "Linear": 0,
+                "Quadratic": 1
+            }
+        }
+        Enum {
+            name: "PhysicsAffects"
+            values: {
+                "Position": 0,
+                "Velocity": 1,
+                "Acceleration": 2
+            }
+        }
+        Property { name: "strength"; type: "qreal" }
+        Property { name: "x"; type: "qreal" }
+        Property { name: "y"; type: "qreal" }
+        Property { name: "physics"; type: "PhysicsAffects" }
+        Property { name: "proportionalToDistance"; type: "Proportion" }
+        Signal {
+            name: "strengthChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "xChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "yChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "physicsChanged"
+            Parameter { name: "arg"; type: "PhysicsAffects" }
+        }
+        Signal {
+            name: "proportionalToDistanceChanged"
+            Parameter { name: "arg"; type: "Proportion" }
+        }
+        Method {
+            name: "setStrength"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setX"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setY"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setPhysics"
+            Parameter { name: "arg"; type: "PhysicsAffects" }
+        }
+        Method {
+            name: "setProportionalToDistance"
+            Parameter { name: "arg"; type: "Proportion" }
+        }
+    }
+    Component {
+        name: "QSGPointDirection"
+        prototype: "QSGStochasticDirection"
+        exports: [
+            "QtQuick.Particles/PointDirection 2.0"
+        ]
+        Property { name: "x"; type: "qreal" }
+        Property { name: "y"; type: "qreal" }
+        Property { name: "xVariation"; type: "qreal" }
+        Property { name: "yVariation"; type: "qreal" }
+        Signal {
+            name: "xChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "yChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "xVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "yVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setX"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setY"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setXVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setYVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+    }
+    Component {
+        name: "QSGRectangle"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/Rectangle 2.0"
+        ]
+        Property { name: "color"; type: "QColor" }
+        Property { name: "gradient"; type: "QSGGradient"; isPointer: true }
+        Property { name: "border"; type: "QSGPen"; isReadonly: true; isPointer: true }
+        Property { name: "radius"; type: "qreal" }
+        Signal { name: "colorChanged" }
+        Signal { name: "radiusChanged" }
+    }
+    Component {
+        name: "QSGRepeater"
+        defaultProperty: "delegate"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/Repeater 2.0"
+        ]
+        Property { name: "model"; type: "QVariant" }
+        Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "count"; type: "int"; isReadonly: true }
+        Signal { name: "modelChanged" }
+        Signal { name: "delegateChanged" }
+        Signal { name: "countChanged" }
+        Signal {
+            name: "itemAdded"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+        Signal {
+            name: "itemRemoved"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+        Method {
+            name: "itemAt"
+            type: "QSGItem*"
+            Parameter { name: "index"; type: "int" }
+        }
+    }
+    Component {
+        name: "QSGRotation"
+        prototype: "QSGTransform"
+        exports: [
+            "QtQuick/Rotation 2.0"
+        ]
+        Property { name: "origin"; type: "QVector3D" }
+        Property { name: "angle"; type: "qreal" }
+        Property { name: "axis"; type: "QVector3D" }
+        Signal { name: "originChanged" }
+        Signal { name: "angleChanged" }
+        Signal { name: "axisChanged" }
+    }
+    Component {
+        name: "QSGRow"
+        defaultProperty: "data"
+        prototype: "QSGBasePositioner"
+        exports: [
+            "QtQuick/Row 2.0"
+        ]
+        Property { name: "layoutDirection"; type: "Qt::LayoutDirection" }
+        Property { name: "effectiveLayoutDirection"; type: "Qt::LayoutDirection"; isReadonly: true }
+        Signal { name: "layoutDirectionChanged" }
+        Signal { name: "effectiveLayoutDirectionChanged" }
+    }
+    Component {
+        name: "QSGScale"
+        prototype: "QSGTransform"
+        exports: [
+            "QtQuick/Scale 2.0"
+        ]
+        Property { name: "origin"; type: "QVector3D" }
+        Property { name: "xScale"; type: "qreal" }
+        Property { name: "yScale"; type: "qreal" }
+        Property { name: "zScale"; type: "qreal" }
+        Signal { name: "originChanged" }
+        Signal { name: "xScaleChanged" }
+        Signal { name: "yScaleChanged" }
+        Signal { name: "zScaleChanged" }
+        Signal { name: "scaleChanged" }
+    }
+    Component {
+        name: "QSGShaderEffectItem"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/ShaderEffectItem 2.0"
+        ]
+        Enum {
+            name: "CullMode"
+            values: {
+                "NoCulling": 0,
+                "BackFaceCulling": 1,
+                "FrontFaceCulling": 2
+            }
+        }
+        Property { name: "fragmentShader"; type: "QByteArray" }
+        Property { name: "vertexShader"; type: "QByteArray" }
+        Property { name: "blending"; type: "bool" }
+        Property { name: "mesh"; type: "QSGShaderEffectMesh"; isPointer: true }
+        Property { name: "culling"; type: "CullMode" }
+        Signal { name: "fragmentShaderChanged" }
+        Signal { name: "vertexShaderChanged" }
+        Signal { name: "blendingChanged" }
+        Signal { name: "meshChanged" }
+        Signal { name: "cullModeChanged" }
+    }
+    Component {
+        name: "QSGShaderEffectMesh"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/ShaderEffectMesh 2.0"
+        ]
+        Signal { name: "geometryChanged" }
+    }
+    Component {
+        name: "QSGShaderEffectSource"
+        defaultProperty: "data"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/ShaderEffectSource 2.0"
+        ]
+        Enum {
+            name: "WrapMode"
+            values: {
+                "ClampToEdge": 0,
+                "RepeatHorizontally": 1,
+                "RepeatVertically": 2,
+                "Repeat": 3
+            }
+        }
+        Enum {
+            name: "Format"
+            values: {
+                "Alpha": 6406,
+                "RGB": 6407,
+                "RGBA": 6408
+            }
+        }
+        Property { name: "wrapMode"; type: "WrapMode" }
+        Property { name: "sourceItem"; type: "QSGItem"; isPointer: true }
+        Property { name: "sourceRect"; type: "QRectF" }
+        Property { name: "textureSize"; type: "QSize" }
+        Property { name: "format"; type: "Format" }
+        Property { name: "live"; type: "bool" }
+        Property { name: "hideSource"; type: "bool" }
+        Property { name: "mipmap"; type: "bool" }
+        Property { name: "recursive"; type: "bool" }
+        Signal { name: "wrapModeChanged" }
+        Signal { name: "sourceItemChanged" }
+        Signal { name: "sourceRectChanged" }
+        Signal { name: "textureSizeChanged" }
+        Signal { name: "formatChanged" }
+        Signal { name: "liveChanged" }
+        Signal { name: "hideSourceChanged" }
+        Signal { name: "mipmapChanged" }
+        Signal { name: "recursiveChanged" }
+        Signal { name: "textureChanged" }
+        Method { name: "scheduleUpdate" }
+    }
+    Component {
+        name: "QSGSprite"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/Sprite 2.0"
+        ]
+        Property { name: "name"; type: "string" }
+        Property { name: "source"; type: "QUrl" }
+        Property { name: "frames"; type: "int" }
+        Property { name: "frameHeight"; type: "int" }
+        Property { name: "frameWidth"; type: "int" }
+        Property { name: "duration"; type: "int" }
+        Property { name: "durationVariance"; type: "int" }
+        Property { name: "speedModifiesDuration"; type: "qreal" }
+        Property { name: "to"; type: "QVariantMap" }
+        Signal {
+            name: "sourceChanged"
+            Parameter { name: "arg"; type: "QUrl" }
+        }
+        Signal {
+            name: "framesChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal {
+            name: "frameHeightChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal {
+            name: "frameWidthChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal {
+            name: "durationChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal {
+            name: "nameChanged"
+            Parameter { name: "arg"; type: "string" }
+        }
+        Signal {
+            name: "toChanged"
+            Parameter { name: "arg"; type: "QVariantMap" }
+        }
+        Signal {
+            name: "speedModifierChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "durationVarianceChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setSource"
+            Parameter { name: "arg"; type: "QUrl" }
+        }
+        Method {
+            name: "setFrames"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setFrameHeight"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setFrameWidth"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setDuration"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setName"
+            Parameter { name: "arg"; type: "string" }
+        }
+        Method {
+            name: "setTo"
+            Parameter { name: "arg"; type: "QVariantMap" }
+        }
+        Method {
+            name: "setSpeedModifier"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setDurationVariance"
+            Parameter { name: "arg"; type: "int" }
+        }
+    }
+    Component {
+        name: "QSGSpriteGoalAffector"
+        defaultProperty: "data"
+        prototype: "QSGParticleAffector"
+        exports: [
+            "QtQuick.Particles/SpriteGoal 2.0"
+        ]
+        Property { name: "goalState"; type: "string" }
+        Property { name: "jump"; type: "bool" }
+        Signal {
+            name: "goalStateChanged"
+            Parameter { name: "arg"; type: "string" }
+        }
+        Signal {
+            name: "jumpChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Signal {
+            name: "affected"
+            Parameter { name: "pos"; type: "QPointF" }
+        }
+        Method {
+            name: "setGoalState"
+            Parameter { name: "arg"; type: "string" }
+        }
+        Method {
+            name: "setJump"
+            Parameter { name: "arg"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QSGSpriteImage"
+        defaultProperty: "sprites"
+        prototype: "QSGItem"
+        exports: [
+            "QtQuick/SpriteImage 2.0"
+        ]
+        Property { name: "running"; type: "bool" }
+        Property { name: "sprites"; type: "QSGSprite"; isList: true; isReadonly: true }
+        Signal {
+            name: "runningChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setRunning"
+            Parameter { name: "arg"; type: "bool" }
+        }
+    }
+    Component {
+        name: "QSGStochasticDirection"
+        prototype: "QObject"
+        exports: [
+            "QtQuick.Particles/NullVector 2.0"
+        ]
+    }
+    Component {
+        name: "QSGTargetedDirection"
+        prototype: "QSGStochasticDirection"
+        exports: [
+            "QtQuick.Particles/TargetedDirection 2.0"
+        ]
+        Property { name: "targetX"; type: "qreal" }
+        Property { name: "targetY"; type: "qreal" }
+        Property { name: "targetItem"; type: "QSGItem"; isPointer: true }
+        Property { name: "targetVariation"; type: "qreal" }
+        Property { name: "proportionalMagnitude"; type: "bool" }
+        Property { name: "magnitude"; type: "qreal" }
+        Property { name: "magnitudeVariation"; type: "qreal" }
+        Signal {
+            name: "targetXChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "targetYChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "targetVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "magnitudeChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "proprotionalMagnitudeChanged"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Signal {
+            name: "magnitudeVariationChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "targetItemChanged"
+            Parameter { name: "arg"; type: "QSGItem"; isPointer: true }
+        }
+        Method {
+            name: "setTargetX"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setTargetY"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setTargetVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setMagnitude"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setProportionalMagnitude"
+            Parameter { name: "arg"; type: "bool" }
+        }
+        Method {
+            name: "setMagnitudeVariation"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setTargetItem"
+            Parameter { name: "arg"; type: "QSGItem"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QSGText"
+        defaultProperty: "data"
+        prototype: "QSGImplicitSizeItem"
+        exports: [
+            "QtQuick/Text 2.0"
+        ]
+        Enum {
+            name: "HAlignment"
+            values: {
+                "AlignLeft": 1,
+                "AlignRight": 2,
+                "AlignHCenter": 4,
+                "AlignJustify": 8
+            }
+        }
+        Enum {
+            name: "VAlignment"
+            values: {
+                "AlignTop": 32,
+                "AlignBottom": 64,
+                "AlignVCenter": 128
+            }
+        }
+        Enum {
+            name: "TextStyle"
+            values: {
+                "Normal": 0,
+                "Outline": 1,
+                "Raised": 2,
+                "Sunken": 3
+            }
+        }
+        Enum {
+            name: "TextFormat"
+            values: {
+                "PlainText": 0,
+                "RichText": 1,
+                "AutoText": 2,
+                "StyledText": 4
+            }
+        }
+        Enum {
+            name: "TextElideMode"
+            values: {
+                "ElideLeft": 0,
+                "ElideRight": 1,
+                "ElideMiddle": 2,
+                "ElideNone": 3
+            }
+        }
+        Enum {
+            name: "WrapMode"
+            values: {
+                "NoWrap": 0,
+                "WordWrap": 1,
+                "WrapAnywhere": 3,
+                "WrapAtWordBoundaryOrAnywhere": 4,
+                "Wrap": 4
+            }
+        }
+        Enum {
+            name: "LineHeightMode"
+            values: {
+                "ProportionalHeight": 0,
+                "FixedHeight": 1
+            }
+        }
+        Property { name: "text"; type: "string" }
+        Property { name: "font"; type: "QFont" }
+        Property { name: "color"; type: "QColor" }
+        Property { name: "style"; type: "TextStyle" }
+        Property { name: "styleColor"; type: "QColor" }
+        Property { name: "horizontalAlignment"; type: "HAlignment" }
+        Property { name: "effectiveHorizontalAlignment"; type: "HAlignment"; isReadonly: true }
+        Property { name: "verticalAlignment"; type: "VAlignment" }
+        Property { name: "wrapMode"; type: "WrapMode" }
+        Property { name: "lineCount"; type: "int"; isReadonly: true }
+        Property { name: "truncated"; type: "bool"; isReadonly: true }
+        Property { name: "maximumLineCount"; type: "int" }
+        Property { name: "textFormat"; type: "TextFormat" }
+        Property { name: "elide"; type: "TextElideMode" }
+        Property { name: "paintedWidth"; type: "qreal"; isReadonly: true }
+        Property { name: "paintedHeight"; type: "qreal"; isReadonly: true }
+        Property { name: "lineHeight"; type: "qreal" }
+        Property { name: "lineHeightMode"; type: "LineHeightMode" }
+        Signal {
+            name: "textChanged"
+            Parameter { name: "text"; type: "string" }
+        }
+        Signal {
+            name: "linkActivated"
+            Parameter { name: "link"; type: "string" }
+        }
+        Signal {
+            name: "fontChanged"
+            Parameter { name: "font"; type: "QFont" }
+        }
+        Signal {
+            name: "colorChanged"
+            Parameter { name: "color"; type: "QColor" }
+        }
+        Signal {
+            name: "styleChanged"
+            Parameter { name: "style"; type: "TextStyle" }
+        }
+        Signal {
+            name: "styleColorChanged"
+            Parameter { name: "color"; type: "QColor" }
+        }
+        Signal {
+            name: "horizontalAlignmentChanged"
+            Parameter { name: "alignment"; type: "HAlignment" }
+        }
+        Signal {
+            name: "verticalAlignmentChanged"
+            Parameter { name: "alignment"; type: "VAlignment" }
+        }
+        Signal { name: "wrapModeChanged" }
+        Signal { name: "lineCountChanged" }
+        Signal { name: "truncatedChanged" }
+        Signal { name: "maximumLineCountChanged" }
+        Signal {
+            name: "textFormatChanged"
+            Parameter { name: "textFormat"; type: "TextFormat" }
+        }
+        Signal {
+            name: "elideModeChanged"
+            Parameter { name: "mode"; type: "TextElideMode" }
+        }
+        Signal { name: "paintedSizeChanged" }
+        Signal {
+            name: "lineHeightChanged"
+            Parameter { name: "lineHeight"; type: "qreal" }
+        }
+        Signal {
+            name: "lineHeightModeChanged"
+            Parameter { name: "mode"; type: "LineHeightMode" }
+        }
+        Signal { name: "effectiveHorizontalAlignmentChanged" }
+    }
+    Component {
+        name: "QSGTextEdit"
+        defaultProperty: "data"
+        prototype: "QSGImplicitSizePaintedItem"
+        exports: [
+            "QtQuick/TextEdit 2.0"
+        ]
+        Enum {
+            name: "HAlignment"
+            values: {
+                "AlignLeft": 1,
+                "AlignRight": 2,
+                "AlignHCenter": 4,
+                "AlignJustify": 8
+            }
+        }
+        Enum {
+            name: "VAlignment"
+            values: {
+                "AlignTop": 32,
+                "AlignBottom": 64,
+                "AlignVCenter": 128
+            }
+        }
+        Enum {
+            name: "TextFormat"
+            values: {
+                "PlainText": 0,
+                "RichText": 1,
+                "AutoText": 2
+            }
+        }
+        Enum {
+            name: "WrapMode"
+            values: {
+                "NoWrap": 0,
+                "WordWrap": 1,
+                "WrapAnywhere": 3,
+                "WrapAtWordBoundaryOrAnywhere": 4,
+                "Wrap": 4
+            }
+        }
+        Enum {
+            name: "SelectionMode"
+            values: {
+                "SelectCharacters": 0,
+                "SelectWords": 1
+            }
+        }
+        Property { name: "text"; type: "string" }
+        Property { name: "color"; type: "QColor" }
+        Property { name: "selectionColor"; type: "QColor" }
+        Property { name: "selectedTextColor"; type: "QColor" }
+        Property { name: "font"; type: "QFont" }
+        Property { name: "horizontalAlignment"; type: "HAlignment" }
+        Property { name: "effectiveHorizontalAlignment"; type: "HAlignment"; isReadonly: true }
+        Property { name: "verticalAlignment"; type: "VAlignment" }
+        Property { name: "wrapMode"; type: "WrapMode" }
+        Property { name: "lineCount"; type: "int"; isReadonly: true }
+        Property { name: "paintedWidth"; type: "qreal"; isReadonly: true }
+        Property { name: "paintedHeight"; type: "qreal"; isReadonly: true }
+        Property { name: "textFormat"; type: "TextFormat" }
+        Property { name: "readOnly"; type: "bool" }
+        Property { name: "cursorVisible"; type: "bool" }
+        Property { name: "cursorPosition"; type: "int" }
+        Property { name: "cursorRectangle"; type: "QRect"; isReadonly: true }
+        Property { name: "cursorDelegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "selectionStart"; type: "int"; isReadonly: true }
+        Property { name: "selectionEnd"; type: "int"; isReadonly: true }
+        Property { name: "selectedText"; type: "string"; isReadonly: true }
+        Property { name: "activeFocusOnPress"; type: "bool" }
+        Property { name: "persistentSelection"; type: "bool" }
+        Property { name: "textMargin"; type: "qreal" }
+        Property { name: "inputMethodHints"; type: "Qt::InputMethodHints" }
+        Property { name: "selectByMouse"; type: "bool" }
+        Property { name: "mouseSelectionMode"; type: "SelectionMode" }
+        Property { name: "canPaste"; type: "bool"; isReadonly: true }
+        Property { name: "inputMethodComposing"; type: "bool"; isReadonly: true }
+        Signal {
+            name: "textChanged"
+            Parameter { type: "string" }
+        }
+        Signal { name: "paintedSizeChanged" }
+        Signal { name: "cursorPositionChanged" }
+        Signal { name: "cursorRectangleChanged" }
+        Signal { name: "selectionStartChanged" }
+        Signal { name: "selectionEndChanged" }
+        Signal { name: "selectionChanged" }
+        Signal {
+            name: "colorChanged"
+            Parameter { name: "color"; type: "QColor" }
+        }
+        Signal {
+            name: "selectionColorChanged"
+            Parameter { name: "color"; type: "QColor" }
+        }
+        Signal {
+            name: "selectedTextColorChanged"
+            Parameter { name: "color"; type: "QColor" }
+        }
+        Signal {
+            name: "fontChanged"
+            Parameter { name: "font"; type: "QFont" }
+        }
+        Signal {
+            name: "horizontalAlignmentChanged"
+            Parameter { name: "alignment"; type: "HAlignment" }
+        }
+        Signal {
+            name: "verticalAlignmentChanged"
+            Parameter { name: "alignment"; type: "VAlignment" }
+        }
+        Signal { name: "wrapModeChanged" }
+        Signal { name: "lineCountChanged" }
+        Signal {
+            name: "textFormatChanged"
+            Parameter { name: "textFormat"; type: "TextFormat" }
+        }
+        Signal {
+            name: "readOnlyChanged"
+            Parameter { name: "isReadOnly"; type: "bool" }
+        }
+        Signal {
+            name: "cursorVisibleChanged"
+            Parameter { name: "isCursorVisible"; type: "bool" }
+        }
+        Signal { name: "cursorDelegateChanged" }
+        Signal {
+            name: "activeFocusOnPressChanged"
+            Parameter { name: "activeFocusOnPressed"; type: "bool" }
+        }
+        Signal {
+            name: "persistentSelectionChanged"
+            Parameter { name: "isPersistentSelection"; type: "bool" }
+        }
+        Signal {
+            name: "textMarginChanged"
+            Parameter { name: "textMargin"; type: "qreal" }
+        }
+        Signal {
+            name: "selectByMouseChanged"
+            Parameter { name: "selectByMouse"; type: "bool" }
+        }
+        Signal {
+            name: "mouseSelectionModeChanged"
+            Parameter { name: "mode"; type: "SelectionMode" }
+        }
+        Signal {
+            name: "linkActivated"
+            Parameter { name: "link"; type: "string" }
+        }
+        Signal { name: "canPasteChanged" }
+        Signal { name: "inputMethodComposingChanged" }
+        Signal { name: "effectiveHorizontalAlignmentChanged" }
+        Method { name: "selectAll" }
+        Method { name: "selectWord" }
+        Method {
+            name: "select"
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+        }
+        Method { name: "deselect" }
+        Method {
+            name: "isRightToLeft"
+            type: "bool"
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+        }
+        Method { name: "cut" }
+        Method { name: "copy" }
+        Method { name: "paste" }
+        Method { name: "openSoftwareInputPanel" }
+        Method { name: "closeSoftwareInputPanel" }
+        Method {
+            name: "positionToRectangle"
+            type: "QRectF"
+            Parameter { type: "int" }
+        }
+        Method {
+            name: "positionAt"
+            type: "int"
+            Parameter { name: "x"; type: "int" }
+            Parameter { name: "y"; type: "int" }
+        }
+        Method {
+            name: "moveCursorSelection"
+            Parameter { name: "pos"; type: "int" }
+        }
+        Method {
+            name: "moveCursorSelection"
+            Parameter { name: "pos"; type: "int" }
+            Parameter { name: "mode"; type: "SelectionMode" }
+        }
+    }
+    Component {
+        name: "QSGTextInput"
+        defaultProperty: "data"
+        prototype: "QSGImplicitSizePaintedItem"
+        exports: [
+            "QtQuick/TextInput 2.0"
+        ]
+        Enum {
+            name: "EchoMode"
+            values: {
+                "Normal": 0,
+                "NoEcho": 1,
+                "Password": 2,
+                "PasswordEchoOnEdit": 3
+            }
+        }
+        Enum {
+            name: "HAlignment"
+            values: {
+                "AlignLeft": 1,
+                "AlignRight": 2,
+                "AlignHCenter": 4
+            }
+        }
+        Enum {
+            name: "SelectionMode"
+            values: {
+                "SelectCharacters": 0,
+                "SelectWords": 1
+            }
+        }
+        Property { name: "text"; type: "string" }
+        Property { name: "color"; type: "QColor" }
+        Property { name: "selectionColor"; type: "QColor" }
+        Property { name: "selectedTextColor"; type: "QColor" }
+        Property { name: "font"; type: "QFont" }
+        Property { name: "horizontalAlignment"; type: "HAlignment" }
+        Property { name: "effectiveHorizontalAlignment"; type: "HAlignment"; isReadonly: true }
+        Property { name: "readOnly"; type: "bool" }
+        Property { name: "cursorVisible"; type: "bool" }
+        Property { name: "cursorPosition"; type: "int" }
+        Property { name: "cursorRectangle"; type: "QRect"; isReadonly: true }
+        Property { name: "cursorDelegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "selectionStart"; type: "int"; isReadonly: true }
+        Property { name: "selectionEnd"; type: "int"; isReadonly: true }
+        Property { name: "selectedText"; type: "string"; isReadonly: true }
+        Property { name: "maximumLength"; type: "int" }
+        Property { name: "validator"; type: "QValidator"; isPointer: true }
+        Property { name: "inputMask"; type: "string" }
+        Property { name: "inputMethodHints"; type: "Qt::InputMethodHints" }
+        Property { name: "acceptableInput"; type: "bool"; isReadonly: true }
+        Property { name: "echoMode"; type: "EchoMode" }
+        Property { name: "activeFocusOnPress"; type: "bool" }
+        Property { name: "passwordCharacter"; type: "string" }
+        Property { name: "displayText"; type: "string"; isReadonly: true }
+        Property { name: "autoScroll"; type: "bool" }
+        Property { name: "selectByMouse"; type: "bool" }
+        Property { name: "mouseSelectionMode"; type: "SelectionMode" }
+        Property { name: "canPaste"; type: "bool"; isReadonly: true }
+        Property { name: "inputMethodComposing"; type: "bool"; isReadonly: true }
+        Signal { name: "textChanged" }
+        Signal { name: "cursorPositionChanged" }
+        Signal { name: "selectionStartChanged" }
+        Signal { name: "selectionEndChanged" }
+        Signal { name: "selectedTextChanged" }
+        Signal { name: "accepted" }
+        Signal { name: "acceptableInputChanged" }
+        Signal {
+            name: "colorChanged"
+            Parameter { name: "color"; type: "QColor" }
+        }
+        Signal {
+            name: "selectionColorChanged"
+            Parameter { name: "color"; type: "QColor" }
+        }
+        Signal {
+            name: "selectedTextColorChanged"
+            Parameter { name: "color"; type: "QColor" }
+        }
+        Signal {
+            name: "fontChanged"
+            Parameter { name: "font"; type: "QFont" }
+        }
+        Signal {
+            name: "horizontalAlignmentChanged"
+            Parameter { name: "alignment"; type: "HAlignment" }
+        }
+        Signal {
+            name: "readOnlyChanged"
+            Parameter { name: "isReadOnly"; type: "bool" }
+        }
+        Signal {
+            name: "cursorVisibleChanged"
+            Parameter { name: "isCursorVisible"; type: "bool" }
+        }
+        Signal { name: "cursorDelegateChanged" }
+        Signal {
+            name: "maximumLengthChanged"
+            Parameter { name: "maximumLength"; type: "int" }
+        }
+        Signal { name: "validatorChanged" }
+        Signal {
+            name: "inputMaskChanged"
+            Parameter { name: "inputMask"; type: "string" }
+        }
+        Signal {
+            name: "echoModeChanged"
+            Parameter { name: "echoMode"; type: "EchoMode" }
+        }
+        Signal { name: "passwordCharacterChanged" }
+        Signal { name: "displayTextChanged" }
+        Signal {
+            name: "activeFocusOnPressChanged"
+            Parameter { name: "activeFocusOnPress"; type: "bool" }
+        }
+        Signal {
+            name: "autoScrollChanged"
+            Parameter { name: "autoScroll"; type: "bool" }
+        }
+        Signal {
+            name: "selectByMouseChanged"
+            Parameter { name: "selectByMouse"; type: "bool" }
+        }
+        Signal {
+            name: "mouseSelectionModeChanged"
+            Parameter { name: "mode"; type: "SelectionMode" }
+        }
+        Signal { name: "canPasteChanged" }
+        Signal { name: "inputMethodComposingChanged" }
+        Signal { name: "effectiveHorizontalAlignmentChanged" }
+        Method { name: "selectAll" }
+        Method { name: "selectWord" }
+        Method {
+            name: "select"
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+        }
+        Method { name: "deselect" }
+        Method {
+            name: "isRightToLeft"
+            type: "bool"
+            Parameter { name: "start"; type: "int" }
+            Parameter { name: "end"; type: "int" }
+        }
+        Method { name: "cut" }
+        Method { name: "copy" }
+        Method { name: "paste" }
+        Method {
+            name: "positionAt"
+            type: "int"
+            Parameter { name: "x"; type: "int" }
+        }
+        Method {
+            name: "positionAt"
+            type: "int"
+            Parameter { name: "x"; type: "int" }
+            Parameter { name: "position"; type: "CursorPosition" }
+        }
+        Method {
+            name: "positionToRectangle"
+            type: "QRectF"
+            Parameter { name: "pos"; type: "int" }
+        }
+        Method {
+            name: "moveCursorSelection"
+            Parameter { name: "pos"; type: "int" }
+        }
+        Method {
+            name: "moveCursorSelection"
+            Parameter { name: "pos"; type: "int" }
+            Parameter { name: "mode"; type: "SelectionMode" }
+        }
+        Method { name: "openSoftwareInputPanel" }
+        Method { name: "closeSoftwareInputPanel" }
+    }
+    Component { name: "QSGTransform"; prototype: "QObject" }
+    Component {
+        name: "QSGTranslate"
+        prototype: "QSGTransform"
+        exports: [
+            "QtQuick/Translate 2.0"
+        ]
+        Property { name: "x"; type: "qreal" }
+        Property { name: "y"; type: "qreal" }
+        Signal { name: "xChanged" }
+        Signal { name: "yChanged" }
+    }
+    Component {
+        name: "QSGTurbulenceAffector"
+        defaultProperty: "data"
+        prototype: "QSGParticleAffector"
+        exports: [
+            "QtQuick.Particles/Turbulence 2.0"
+        ]
+        Property { name: "strength"; type: "int" }
+        Property { name: "frequency"; type: "int" }
+        Property { name: "gridSize"; type: "int" }
+        Signal {
+            name: "strengthChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal {
+            name: "frequencyChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Signal {
+            name: "sizeChanged"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setStrength"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setFrequency"
+            Parameter { name: "arg"; type: "int" }
+        }
+        Method {
+            name: "setSize"
+            Parameter { name: "arg"; type: "int" }
+        }
+    }
+    Component {
+        name: "QSGViewSection"
+        prototype: "QObject"
+        exports: [
+            "QtQuick/ViewSection 2.0"
+        ]
+        Enum {
+            name: "SectionCriteria"
+            values: {
+                "FullString": 0,
+                "FirstCharacter": 1
+            }
+        }
+        Property { name: "property"; type: "string" }
+        Property { name: "criteria"; type: "SectionCriteria" }
+        Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Signal { name: "propertyChanged" }
+        Signal { name: "criteriaChanged" }
+        Signal { name: "delegateChanged" }
+    }
+    Component {
+        name: "QSGVisualDataModel"
+        defaultProperty: "delegate"
+        prototype: "QSGVisualModel"
+        exports: [
+            "QtQuick/VisualDataModel 2.0"
+        ]
+        Property { name: "model"; type: "QVariant" }
+        Property { name: "delegate"; type: "QDeclarativeComponent"; isPointer: true }
+        Property { name: "part"; type: "string" }
+        Property { name: "parts"; type: "QObject"; isReadonly: true; isPointer: true }
+        Property { name: "rootIndex"; type: "QVariant" }
+        Signal {
+            name: "createdPackage"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "package"; type: "QDeclarativePackage"; isPointer: true }
+        }
+        Signal {
+            name: "destroyingPackage"
+            Parameter { name: "package"; type: "QDeclarativePackage"; isPointer: true }
+        }
+        Signal { name: "rootIndexChanged" }
+        Method {
+            name: "modelIndex"
+            type: "QVariant"
+            Parameter { name: "idx"; type: "int" }
+        }
+        Method { name: "parentModelIndex"; type: "QVariant" }
+    }
+    Component {
+        name: "QSGVisualItemModel"
+        defaultProperty: "children"
+        prototype: "QSGVisualModel"
+        exports: [
+            "QtQuick/VisualItemModel 2.0"
+        ]
+        attachedType: "QSGVisualItemModelAttached"
+        Property { name: "children"; type: "QSGItem"; isList: true; isReadonly: true }
+        Signal { name: "childrenChanged" }
+    }
+    Component {
+        name: "QSGVisualItemModelAttached"
+        prototype: "QObject"
+        Property { name: "index"; type: "int"; isReadonly: true }
+        Signal { name: "indexChanged" }
+    }
+    Component {
+        name: "QSGVisualModel"
+        prototype: "QObject"
+        Property { name: "count"; type: "int"; isReadonly: true }
+        Signal { name: "countChanged" }
+        Signal {
+            name: "itemsInserted"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "count"; type: "int" }
+        }
+        Signal {
+            name: "itemsRemoved"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "count"; type: "int" }
+        }
+        Signal {
+            name: "itemsMoved"
+            Parameter { name: "from"; type: "int" }
+            Parameter { name: "to"; type: "int" }
+            Parameter { name: "count"; type: "int" }
+        }
+        Signal {
+            name: "itemsChanged"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "count"; type: "int" }
+        }
+        Signal { name: "modelReset" }
+        Signal {
+            name: "createdItem"
+            Parameter { name: "index"; type: "int" }
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+        Signal {
+            name: "destroyingItem"
+            Parameter { name: "item"; type: "QSGItem"; isPointer: true }
+        }
+    }
+    Component {
+        name: "QSGWanderAffector"
+        defaultProperty: "data"
+        prototype: "QSGParticleAffector"
+        exports: [
+            "QtQuick.Particles/Wander 2.0"
+        ]
+        Enum {
+            name: "PhysicsAffects"
+            values: {
+                "Position": 0,
+                "Velocity": 1,
+                "Acceleration": 2
+            }
+        }
+        Property { name: "pace"; type: "qreal" }
+        Property { name: "xVariance"; type: "qreal" }
+        Property { name: "yVariance"; type: "qreal" }
+        Property { name: "physics"; type: "PhysicsAffects" }
+        Signal {
+            name: "xVarianceChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "yVarianceChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "paceChanged"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Signal {
+            name: "physicsChanged"
+            Parameter { name: "arg"; type: "PhysicsAffects" }
+        }
+        Method {
+            name: "setXVariance"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setYVariance"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setPace"
+            Parameter { name: "arg"; type: "qreal" }
+        }
+        Method {
+            name: "setPhysics"
+            Parameter { name: "arg"; type: "PhysicsAffects" }
+        }
     }
     Component { name: "QValidator"; prototype: "QObject" }
     Component {
@@ -3189,7 +6526,45 @@ Module {
                 "WindowOkButtonHint": 524288,
                 "WindowCancelButtonHint": 1048576,
                 "WindowSoftkeysVisibleHint": 1073741824,
-                "WindowSoftkeysRespondHint": -2147483648
+                "WindowSoftkeysRespondHint": -2147483648,
+                "WMouseNoMask": 524288,
+                "WDestructiveClose": 1048576,
+                "WStaticContents": 2097152,
+                "WGroupLeader": 4194304,
+                "WShowModal": 8388608,
+                "WNoMousePropagation": 16777216,
+                "WType_TopLevel": 1,
+                "WType_Dialog": 3,
+                "WType_Popup": 9,
+                "WType_Desktop": 17,
+                "WType_Mask": 255,
+                "WStyle_Customize": 0,
+                "WStyle_NormalBorder": 0,
+                "WStyle_DialogBorder": 256,
+                "WStyle_NoBorder": 2048,
+                "WStyle_Title": 4096,
+                "WStyle_SysMenu": 8192,
+                "WStyle_Minimize": 16384,
+                "WStyle_Maximize": 32768,
+                "WStyle_MinMax": 49152,
+                "WStyle_Tool": 11,
+                "WStyle_StaysOnTop": 262144,
+                "WStyle_ContextHelp": 65536,
+                "WPaintDesktop": 0,
+                "WPaintClever": 0,
+                "WX11BypassWM": 1024,
+                "WWinOwnDC": 512,
+                "WMacSheet": 5,
+                "WMacDrawer": 7,
+                "WStyle_Splash": 15,
+                "WNoAutoErase": 0,
+                "WRepaintNoErase": 0,
+                "WNorthWestGravity": 2097152,
+                "WType_Modal": 8388611,
+                "WStyle_Dialog": 3,
+                "WStyle_NoBorderEx": 2048,
+                "WResizeNoErase": 0,
+                "WMacNoSheet": 0
             }
         }
         Enum {
@@ -3227,7 +6602,45 @@ Module {
                 "WindowOkButtonHint": 524288,
                 "WindowCancelButtonHint": 1048576,
                 "WindowSoftkeysVisibleHint": 1073741824,
-                "WindowSoftkeysRespondHint": -2147483648
+                "WindowSoftkeysRespondHint": -2147483648,
+                "WMouseNoMask": 524288,
+                "WDestructiveClose": 1048576,
+                "WStaticContents": 2097152,
+                "WGroupLeader": 4194304,
+                "WShowModal": 8388608,
+                "WNoMousePropagation": 16777216,
+                "WType_TopLevel": 1,
+                "WType_Dialog": 3,
+                "WType_Popup": 9,
+                "WType_Desktop": 17,
+                "WType_Mask": 255,
+                "WStyle_Customize": 0,
+                "WStyle_NormalBorder": 0,
+                "WStyle_DialogBorder": 256,
+                "WStyle_NoBorder": 2048,
+                "WStyle_Title": 4096,
+                "WStyle_SysMenu": 8192,
+                "WStyle_Minimize": 16384,
+                "WStyle_Maximize": 32768,
+                "WStyle_MinMax": 49152,
+                "WStyle_Tool": 11,
+                "WStyle_StaysOnTop": 262144,
+                "WStyle_ContextHelp": 65536,
+                "WPaintDesktop": 0,
+                "WPaintClever": 0,
+                "WX11BypassWM": 1024,
+                "WWinOwnDC": 512,
+                "WMacSheet": 5,
+                "WMacDrawer": 7,
+                "WStyle_Splash": 15,
+                "WNoAutoErase": 0,
+                "WRepaintNoErase": 0,
+                "WNorthWestGravity": 2097152,
+                "WType_Modal": 8388611,
+                "WStyle_Dialog": 3,
+                "WStyle_NoBorderEx": 2048,
+                "WResizeNoErase": 0,
+                "WMacNoSheet": 0
             }
         }
         Enum {
@@ -3369,7 +6782,8 @@ Module {
                 "WA_AutoOrientation": 130,
                 "WA_X11DoNotAcceptFocus": 132,
                 "WA_SymbianNoSystemRotation": 133,
-                "WA_AttributeCount": 134
+                "WA_MacNoShadow": 134,
+                "WA_AttributeCount": 135
             }
         }
         Enum {
@@ -3385,7 +6799,8 @@ Module {
                 "AA_MacDontSwapCtrlAndMeta": 7,
                 "AA_S60DontConstructApplicationPanes": 8,
                 "AA_S60DisablePartialScreenInputMode": 9,
-                "AA_AttributeCount": 10
+                "AA_X11InitThreads": 10,
+                "AA_AttributeCount": 11
             }
         }
         Enum {
@@ -4052,6 +7467,31 @@ Module {
             }
         }
         Enum {
+            name: "BackgroundMode"
+            values: {
+                "FixedColor": 0,
+                "FixedPixmap": 1,
+                "NoBackground": 2,
+                "PaletteForeground": 3,
+                "PaletteButton": 4,
+                "PaletteLight": 5,
+                "PaletteMidlight": 6,
+                "PaletteDark": 7,
+                "PaletteMid": 8,
+                "PaletteText": 9,
+                "PaletteBrightText": 10,
+                "PaletteBase": 11,
+                "PaletteBackground": 12,
+                "PaletteShadow": 13,
+                "PaletteHighlight": 14,
+                "PaletteHighlightedText": 15,
+                "PaletteButtonText": 16,
+                "PaletteLink": 17,
+                "PaletteLinkVisited": 18,
+                "X11ParentRelative": 19
+            }
+        }
+        Enum {
             name: "CaseSensitivity"
             values: {
                 "CaseInsensitive": 0,
@@ -4324,6 +7764,13 @@ Module {
                 "SwipeGesture": 5,
                 "CustomGesture": 256,
                 "LastGestureType": -1
+            }
+        }
+        Enum {
+            name: "CursorMoveStyle"
+            values: {
+                "LogicalMoveStyle": 0,
+                "VisualMoveStyle": 1
             }
         }
     }
