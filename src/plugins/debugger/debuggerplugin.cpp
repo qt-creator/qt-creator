@@ -619,7 +619,8 @@ public slots:
     {
         const QAction *action = qobject_cast<const QAction *>(sender());
         QTC_ASSERT(action, return);
-        const BreakpointMenuContextData data = action->data().value<BreakpointMenuContextData>();
+        const BreakpointMenuContextData data =
+            action->data().value<BreakpointMenuContextData>();
         QString message;
         if (data.mode == BreakpointMenuContextData::MessageTracePoint) {
             if (data.address) {
@@ -633,7 +634,7 @@ public slots:
             }
             QInputDialog dialog; // Create wide input dialog.
             dialog.setWindowFlags(dialog.windowFlags()
-                                  & ~(Qt::WindowContextHelpButtonHint|Qt::MSWindowsFixedSizeDialogHint));
+              & ~(Qt::WindowContextHelpButtonHint|Qt::MSWindowsFixedSizeDialogHint));
             dialog.resize(600, dialog.height());
             dialog.setWindowTitle(tr("Add Message Tracepoint"));
             dialog.setLabelText (tr("Message:"));
