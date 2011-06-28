@@ -39,9 +39,9 @@ InstanceContainer::InstanceContainer()
 {
 }
 
-InstanceContainer::InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType)
+InstanceContainer::InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType,NodeMetaType metaType)
     : m_instanceId(instanceId), m_type(type), m_majorNumber(majorNumber), m_minorNumber(minorNumber), m_componentPath(componentPath),
-      m_nodeSource(nodeSource), m_nodeSourceType(nodeSourceType)
+      m_nodeSource(nodeSource), m_nodeSourceType(nodeSourceType), m_metaType(metaType)
 {
     m_type.replace(QLatin1Char('.'), QLatin1Char('/'));
 }
@@ -81,6 +81,11 @@ InstanceContainer::NodeSourceType InstanceContainer::nodeSourceType() const
     return static_cast<NodeSourceType>(m_nodeSourceType);
 }
 
+InstanceContainer::NodeMetaType InstanceContainer::metaType() const
+{
+    return static_cast<NodeMetaType>(m_metaType);
+}
+
 QDataStream &operator<<(QDataStream &out, const InstanceContainer &container)
 {
     out << container.instanceId();
@@ -90,6 +95,7 @@ QDataStream &operator<<(QDataStream &out, const InstanceContainer &container)
     out << container.componentPath();
     out << container.nodeSource();
     out << container.nodeSourceType();
+    out << container.metaType();
 
     return out;
 }
@@ -104,6 +110,7 @@ QDataStream &operator>>(QDataStream &in, InstanceContainer &container)
     in >> container.m_componentPath;
     in >> container.m_nodeSource;
     in >> container.m_nodeSourceType;
+    in >> container.m_metaType;
 
     return in;
 }

@@ -766,13 +766,19 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     QVector<InstanceContainer> instanceContainerList;
     foreach(const NodeInstance &instance, instanceList) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
+
+        InstanceContainer::NodeMetaType nodeMetaType = nodeMetaType = InstanceContainer::ObjectMetaType;
+        if (instance.modelNode().metaInfo().isSubclassOf("QtQuick.Item", -1, -1))
+            nodeMetaType = InstanceContainer::ItemMetaType;
+
         InstanceContainer container(instance.instanceId(),
                                     instance.modelNode().type(),
                                     instance.modelNode().majorVersion(),
                                     instance.modelNode().minorVersion(),
                                     instance.modelNode().metaInfo().componentFileName(),
                                     instance.modelNode().nodeSource(),
-                                    nodeSourceType
+                                    nodeSourceType,
+                                    nodeMetaType
                                    );
 
         instanceContainerList.append(container);
@@ -862,8 +868,13 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
     QVector<InstanceContainer> containerList;
     foreach(const NodeInstance &instance, instanceList) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
+
+        InstanceContainer::NodeMetaType nodeMetaType = nodeMetaType = InstanceContainer::ObjectMetaType;
+        if (instance.modelNode().metaInfo().isSubclassOf("QtQuick.Item", -1, -1))
+            nodeMetaType = InstanceContainer::ItemMetaType;
+
         InstanceContainer container(instance.instanceId(), instance.modelNode().type(), instance.modelNode().majorVersion(), instance.modelNode().minorVersion(),
-                                    instance.modelNode().metaInfo().componentFileName(), instance.modelNode().nodeSource(), nodeSourceType);
+                                    instance.modelNode().metaInfo().componentFileName(), instance.modelNode().nodeSource(), nodeSourceType, nodeMetaType);
         containerList.append(container);
     }
 

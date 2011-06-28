@@ -218,6 +218,13 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
         object = Internal::ObjectNodeInstance::createPrimitive(instanceContainer.type(), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
     }
 
+    if ((object == 0) && (instanceContainer.metaType() == InstanceContainer::ItemMetaType)) //If we cannot instanciate the object but we know it has to be an Ttem, we create an Item instead.
+#if QT_VERSION >= 0x050000
+        object = Internal::ObjectNodeInstance::createPrimitive("QSGItem", 2, 0, nodeInstanceServer->context())
+#else
+        object = Internal::ObjectNodeInstance::createPrimitive("QDeclarativeItem", 2, 0, nodeInstanceServer->context());
+#endif
+
     ServerNodeInstance instance(createInstance(object));
 
     instance.internalInstance()->setNodeInstanceServer(nodeInstanceServer);

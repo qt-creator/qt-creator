@@ -54,8 +54,13 @@ public:
         ComponentSource = 2
     };
 
+    enum NodeMetaType {
+        ObjectMetaType,
+        ItemMetaType
+    };
+
     InstanceContainer();
-    InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType);
+    InstanceContainer(qint32 instanceId, const QString &type, int majorNumber, int minorNumber, const QString &componentPath, const QString &nodeSource, NodeSourceType nodeSourceType, NodeMetaType metaType);
 
     qint32 instanceId() const;
     QString type() const;
@@ -64,6 +69,7 @@ public:
     QString componentPath() const;
     QString nodeSource() const;
     NodeSourceType nodeSourceType() const;
+    NodeMetaType metaType() const;
 
 private:
     qint32 m_instanceId;
@@ -73,6 +79,7 @@ private:
     QString m_componentPath;
     QString m_nodeSource;
     qint32 m_nodeSourceType;
+    qint32 m_metaType;
 };
 
 } // namespace QmlDesigner
