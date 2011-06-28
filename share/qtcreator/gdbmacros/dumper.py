@@ -1,7 +1,6 @@
 from __future__ import with_statement
 
 import sys
-import gdb
 import base64
 import __builtin__
 import os
@@ -23,11 +22,11 @@ except:
 # Fails on SimulatorQt.
 tempFileCounter = 0
 try:
-#   Test if 2.6 is used (Windows), trigger exception and default
-#   to 2nd version.
-    tempfile.NamedTemporaryFile(prefix="gdbpy_",delete=True)
+    # Test if 2.6 is used (Windows), trigger exception and default
+    # to 2nd version.
+    tempfile.NamedTemporaryFile(prefix="py_",delete=True)
     def createTempFile():
-        file = tempfile.NamedTemporaryFile(prefix="gdbpy_",delete=False)
+        file = tempfile.NamedTemporaryFile(prefix="py_",delete=False)
         file.close()
         return file.name, file
 
@@ -35,7 +34,7 @@ except:
     def createTempFile():
         global tempFileCounter
         tempFileCounter += 1
-        fileName = "%s/gdbpy_tmp_%d_%d" \
+        fileName = "%s/py_tmp_%d_%d" \
             % (tempfile.gettempdir(), os.getpid(), tempFileCounter)
         return fileName, None
 
@@ -79,11 +78,6 @@ DisplayImage, \
 DisplayProcess \
     = range(5)
 
-
-def isGoodGdb():
-    #return gdb.VERSION.startswith("6.8.50.2009") \
-    #   and gdb.VERSION != "6.8.50.20090630-cvs"
-    return 'parse_and_eval' in __builtin__.dir(gdb)
 
 def hasInferiorThreadList():
     return False
@@ -221,58 +215,6 @@ def numericTemplateArgument(type, position):
         # ": No type named 30."
         msg = str(error)
         return int(msg[14:-1])
-
-
-def parseAndEvaluate(exp):
-    if isGoodGdb():
-        return gdb.parse_and_eval(exp)
-    # Work around non-existing gdb.parse_and_eval as in released 7.0
-    gdb.execute("set logging redirect on")
-    gdb.execute("set logging on")
-    try:
-        gdb.execute("print %s" % exp)
-    except:
-        gdb.execute("set logging off")
-        gdb.execute("set logging redirect off")
-        return None
-    gdb.execute("set logging off")
-    gdb.execute("set logging redirect off")
-    return gdb.history(0)
-
-
-def catchCliOutput(command):
-    try:
-        return gdb.execute(command, to_string=True).split("\n")
-    except:
-        pass
-    filename, file = createTempFile()
-    gdb.execute("set logging off")
-    gdb.execute("set logging redirect off")
-    gdb.execute("set logging file %s" % filename)
-    gdb.execute("set logging redirect on")
-    gdb.execute("set logging on")
-    msg = ""
-    try:
-        gdb.execute(command)
-    except RuntimeError, error:
-        # For the first phase of core file loading this yield
-        # "No symbol table is loaded.  Use the \"file\" command."
-        msg = str(error)
-    except:
-        msg = "Unknown error"
-    gdb.execute("set logging off")
-    gdb.execute("set logging redirect off")
-    if len(msg):
-        # Having that might confuse result handlers in the gdbengine.
-        #warn("CLI ERROR: %s " % msg)
-        return "CLI ERROR: %s " % msg
-    temp = open(filename, "r")
-    lines = []
-    for line in temp:
-        lines.append(line)
-    temp.close()
-    removeTempFile(filename, file)
-    return lines
 
 
 def showException(msg, exType, exValue, exTraceback):
@@ -430,145 +372,6 @@ def listOfFields(type):
         else:
             fields += listOfFields(field.type)
     return fields
-
-
-def listOfLocals(varList):
-    try:
-        frame = gdb.selected_frame()
-        #warn("FRAME %s: " % frame)
-    except RuntimeError, error:
-        warn("FRAME NOT ACCESSIBLE: %s" % error)
-        return []
-    except:
-        warn("FRAME NOT ACCESSIBLE FOR UNKNOWN REASONS")
-        return []
-
-    # New in 7.2
-    hasBlock = 'block' in __builtin__.dir(frame)
-
-    items = []
-    #warn("HAS BLOCK: %s" % hasBlock)
-    #warn("IS GOOD GDB: %s" % isGoodGdb())
-    if hasBlock and isGoodGdb():
-        #warn("IS GOOD: %s " % varList)
-        try:
-            block = frame.block()
-            #warn("BLOCK: %s " % block)
-        except RuntimeError, error:
-            warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
-            return items
-        except:
-            warn("BLOCK NOT ACCESSIBLE FOR UNKNOWN REASONS")
-            return items
-
-        shadowed = {}
-        while True:
-            if block is None:
-                warn("UNEXPECTED 'None' BLOCK")
-                break
-            for symbol in block:
-                name = symbol.print_name
-
-                if name == "__in_chrg":
-                    continue
-
-                # "NotImplementedError: Symbol type not yet supported in
-                # Python scripts."
-                #warn("SYMBOL %s: " % symbol.value)
-                #warn("SYMBOL %s  (%s): " % (symbol, name))
-                if name in shadowed:
-                    level = shadowed[name]
-                    name1 = "%s <shadowed %s>" % (name, level)
-                    shadowed[name] = level + 1
-                else:
-                    name1 = name
-                    shadowed[name] = 1
-                #warn("SYMBOL %s  (%s, %s)): " % (symbol, name, symbol.name))
-                item = Item(0, "local", name1, name1)
-                try:
-                    item.value = frame.read_var(name, block)  # this is a gdb value
-                except:
-                    try:
-                        item.value = frame.read_var(name)  # this is a gdb value
-                    except:
-                        # RuntimeError: happens for
-                        #     void foo() { std::string s; std::wstring w; }
-                        # ValueError: happens for (as of 2010/11/4)
-                        #     a local struct as found e.g. in
-                        #     gcc sources in gcc.c, int execute()
-                        continue
-                #warn("ITEM %s: " % item.value)
-                items.append(item)
-            # The outermost block in a function has the function member
-            # FIXME: check whether this is guaranteed.
-            if not block.function is None:
-                break
-
-            block = block.superblock
-    else:
-        # Assuming gdb 7.0 release or 6.8-symbianelf.
-        filename, file = createTempFile()
-        #warn("VARLIST: %s " % varList)
-        #warn("FILENAME: %s " % filename)
-        gdb.execute("set logging off")
-        gdb.execute("set logging redirect off")
-        gdb.execute("set logging file %s" % filename)
-        gdb.execute("set logging redirect on")
-        gdb.execute("set logging on")
-        try:
-            gdb.execute("info args")
-            # We cannot use "info locals" as at least 6.8-symbianelf
-            # aborts as soon as we hit unreadable memory.
-            # gdb.execute("interpreter mi '-stack-list-locals 0'")
-            # results in &"Recursive internal problem.\n", so we have
-            # the frontend pass us the list of locals.
-
-            # There are two cases, either varList is empty, so we have
-            # to fetch the list here, or it is not empty with the
-            # first entry being a dummy.
-            if len(varList) == 0:
-                gdb.execute("info locals")
-            else:
-                varList = varList[1:]
-        except:
-            pass
-        gdb.execute("set logging off")
-        gdb.execute("set logging redirect off")
-
-        try:
-            temp = open(filename, "r")
-            for line in temp:
-                if len(line) == 0 or line.startswith(" "):
-                    continue
-                # The function parameters
-                pos = line.find(" = ")
-                if pos < 0:
-                    continue
-                varList.append(line[0:pos])
-            temp.close()
-        except:
-            pass
-        removeTempFile(filename, file)
-        #warn("VARLIST: %s " % varList)
-        for name in varList:
-            #warn("NAME %s " % name)
-            item = Item(0, "local", name, name)
-            try:
-                item.value = frame.read_var(name)  # this is a gdb value
-            except RuntimeError:
-                pass
-                #continue
-            except:
-                # Something breaking the list, like intermediate gdb warnings
-                # like 'Warning: can't find linker symbol for virtual table for
-                # `std::less<char const*>' value\n\nwarning:  found
-                # `myns::QHashData::shared_null' instead [...]
-                # that break subsequent parsing. Chicken out and take the
-                # next "usable" line.
-                continue
-            items.append(item)
-
-    return items
 
 
 def value(expr):
@@ -929,19 +732,7 @@ qqEditable = {}
 # derived.
 qqQObjectCache = {}
 
-
-class SetupCommand(gdb.Command):
-    """Setup Creator Pretty Printing"""
-
-    def __init__(self):
-        super(SetupCommand, self).__init__("bbsetup", gdb.COMMAND_OBSCURE)
-
-    def invoke(self, args, from_tty):
-        print bbsetup()
-
-SetupCommand()
-
-def bbsetup():
+def bbsetup(args):
     module = sys.modules[__name__]
     for key, value in module.__dict__.items():
         if key.startswith("qdump__"):
@@ -974,6 +765,8 @@ def bbsetup():
     result += ',hasInferiorThreadList="%s"' % int(hasInferiorThreadList())
     return result
 
+registerCommand("bbsetup", bbsetup)
+
 
 #######################################################################
 #
@@ -997,57 +790,14 @@ def bbedit(args):
     if qqEditable.has_key(type):
         qqEditable[type](expr, value)
 
-class EditCommand(gdb.Command):
-    """QtCreator Data Edit Support"""
-
-    def __init__(self):
-        super(EditCommand, self).__init__("bbedit", gdb.COMMAND_OBSCURE)
-
-    def invoke(self, args, from_tty):
-       bbedit(args)
-
-EditCommand()
+registerCommand("bbedit", bbedit)
 
 
 #######################################################################
 #
-# FrameCommand
+# Frame Command
 #
 #######################################################################
-
-class FrameCommand(gdb.Command):
-    """Do fancy stuff."""
-
-    def __init__(self):
-        super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
-
-    def invoke(self, args, from_tty):
-        if args.startswith("options:p1"):
-            import cProfile
-            cProfile.run('bb("%s")' % args, "/tmp/bbprof")
-            import pstats
-            pstats.Stats('/tmp/bbprof').sort_stats('time').print_stats()
-        elif args.startswith("options:p2"):
-            import timeit
-            print timeit.repeat('bb("%s")' % args,
-                'from __main__ import bb', number=10)
-        else:
-            output = bb(args)
-            try:
-                print(output)
-            except:
-                out = ""
-                for c in output:
-                    cc = ord(c)
-                    if cc > 127:
-                        out += "\\\\%d" % cc
-                    elif cc < 0:
-                        out += "\\\\%d" % (cc + 256)
-                    else:
-                        out += c
-                print(out)
-
-FrameCommand()
 
 def bb(args):
     output = 'data=[' + "".join(Dumper(args).output) + '],typeinfo=['
@@ -1059,6 +809,24 @@ def bb(args):
     output += ']';
     return output
 
+registerCommand("bb", bb)
+
+def p1(args):
+    import cProfile
+    cProfile.run('bb("%s")' % args, "/tmp/bbprof")
+    import pstats
+    pstats.Stats('/tmp/bbprof').sort_stats('time').print_stats()
+    return ""
+
+registerCommand("p1", p1)
+
+def p2(args):
+    import timeit
+    return timeit.repeat('bb("%s")' % args,
+        'from __main__ import bb', number=10)
+
+registerCommand("p2", p2)
+
 
 #######################################################################
 #
@@ -1066,29 +834,22 @@ def bb(args):
 #
 #######################################################################
 
+def sal(args):
+    (cmd, addr) = arg.split(",")
+    lines = catchCliOutput("info line *" + addr)
+    fromAddr = "0x0"
+    toAddr = "0x0"
+    for line in lines:
+        pos0from = line.find(" starts at address") + 19
+        pos1from = line.find(" ", pos0from)
+        pos0to = line.find(" ends at", pos1from) + 9
+        pos1to = line.find(" ", pos0to)
+        if pos1to > 0:
+            fromAddr = line[pos0from : pos1from]
+            toAddr = line[pos0to : pos1to]
+    gdb.execute("maint packet sal%s,%s,%s" % (cmd,fromAddr, toAddr))
 
-class SalCommand(gdb.Command):
-    """Do fancy stuff."""
-
-    def __init__(self):
-        super(SalCommand, self).__init__("sal", gdb.COMMAND_OBSCURE)
-
-    def invoke(self, arg, from_tty):
-        (cmd, addr) = arg.split(",")
-        lines = catchCliOutput("info line *" + addr)
-        fromAddr = "0x0"
-        toAddr = "0x0"
-        for line in lines:
-            pos0from = line.find(" starts at address") + 19
-            pos1from = line.find(" ", pos0from)
-            pos0to = line.find(" ends at", pos1from) + 9
-            pos1to = line.find(" ", pos0to)
-            if pos1to > 0:
-                fromAddr = line[pos0from : pos1from]
-                toAddr = line[pos0to : pos1to]
-        gdb.execute("maint packet sal%s,%s,%s" % (cmd,fromAddr, toAddr))
-
-SalCommand()
+registerCommand("sal", sal)
 
 
 #######################################################################
@@ -1928,48 +1689,41 @@ class Dumper:
 #
 #######################################################################
 
+def threadnames(args):
+    ns = qtNamespace()
+    out = '['
+    oldthread = gdb.selected_thread()
+    try:
+        for thread in gdb.inferiors()[0].threads():
+            maximalStackDepth = int(arg)
+            thread.switch()
+            e = gdb.selected_frame ()
+            while True:
+                maximalStackDepth -= 1
+                if maximalStackDepth < 0:
+                    break
+                e = e.older()
+                if e == None or e.name() == None:
+                    break
+                if e.name() == ns + "QThreadPrivate::start":
+                    try:
+                        thrptr = e.read_var("thr").dereference()
+                        obtype = lookupType(ns + "QObjectPrivate").pointer()
+                        d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
+                        objectName = d_ptr["objectName"]
+                        out += '{valueencoded="';
+                        out += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+                        out += str(thread.num) + '",value="'
+                        out += encodeString(objectName)
+                        out += '"},'
+                    except:
+                        pass
+    except:
+        pass
+    oldthread.switch()
+    return out[:-1] + ']'
 
-class ThreadNamesCommand(gdb.Command):
-    """Guess Thread names"""
-
-    def __init__(self):
-        super(ThreadNamesCommand, self).__init__("threadnames", gdb.COMMAND_OBSCURE)
-
-    def invoke(self, arg, from_tty):
-        ns = qtNamespace()
-        out = '['
-        oldthread = gdb.selected_thread()
-        try:
-            for thread in gdb.inferiors()[0].threads():
-                maximalStackDepth = int(arg)
-                thread.switch()
-                e = gdb.selected_frame ()
-                while True:
-                    maximalStackDepth -= 1
-                    if maximalStackDepth < 0:
-                        break
-                    e = e.older()
-                    if e == None or e.name() == None:
-                        break
-                    if e.name() == ns + "QThreadPrivate::start":
-                        try:
-                            thrptr = e.read_var("thr").dereference()
-                            obtype = lookupType(ns + "QObjectPrivate").pointer()
-                            d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
-                            objectName = d_ptr["objectName"]
-                            out += '{valueencoded="';
-                            out += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
-                            out += str(thread.num) + '",value="'
-                            out += encodeString(objectName)
-                            out += '"},'
-                        except:
-                            pass
-        except:
-            pass
-        oldthread.switch()
-        print out[:-1] + ']'
-
-ThreadNamesCommand()
+registerCommand("threadnames", threadnames)
 
 
 
@@ -1979,8 +1733,8 @@ ThreadNamesCommand()
 #
 #######################################################################
 
-def qmlb():
-    # gdb.execute(command, to_string=True).split("\n")
+def qmlb(args):
+    # executeCommand(command, to_string=True).split("\n")
     warm("RUNNING: break -f QScript::FunctionWrapper::proxyCall")
     output = catchCliOutput("rbreak -f QScript::FunctionWrapper::proxyCall")
     warn("OUTPUT: %s " % output)
@@ -1993,14 +1747,4 @@ def qmlb():
     warn("NR: %s " % nr)
     return bp
 
-
-class SetQmlBreakpoint(gdb.Command):
-    """Set helper breakpoint Script::FunctionWrapper::proxyCall"""
-
-    def __init__(self):
-        super(SetQmlBreakpoint, self).__init__("qmlb", gdb.COMMAND_OBSCURE)
-
-    def invoke(self, arg, from_tty):
-        qmlb()
-
-SetQmlBreakpoint()
+registerCommand("qmlb", qmlb)

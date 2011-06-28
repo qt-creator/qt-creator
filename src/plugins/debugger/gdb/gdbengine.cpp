@@ -4726,9 +4726,11 @@ void GdbEngine::loadPythonDumpers()
     const QByteArray dumperSourcePath =
         Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
 
+    postCommand("python execfile('" + dumperSourcePath + "bridge.py')",
+        ConsoleCommand|NonCriticalResponse);
     postCommand("python execfile('" + dumperSourcePath + "dumper.py')",
         ConsoleCommand|NonCriticalResponse);
-    postCommand("python execfile('" + dumperSourcePath + "gdbmacros.py')",
+    postCommand("python execfile('" + dumperSourcePath + "qttypes.py')",
         ConsoleCommand|NonCriticalResponse);
     postCommand("bbsetup",
         ConsoleCommand, CB(handleHasPython));
