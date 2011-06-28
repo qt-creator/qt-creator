@@ -125,7 +125,8 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
     m_scene->addFormEditorItem(qmlItemNode);
 
     foreach (const QmlObjectNode &nextNode, qmlItemNode.allDirectSubNodes()) //TODO instance children
-        if (QmlItemNode(nextNode).isValid())
+        //If the node has source for components/custom parsers we ignore it.
+        if (QmlItemNode(nextNode).isValid() && nextNode.modelNode().nodeSourceType() == ModelNode::NodeWithoutSource)
             setupFormEditorItemTree(nextNode.toQmlItemNode());
 }
 
