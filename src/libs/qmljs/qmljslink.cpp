@@ -86,6 +86,7 @@ public:
     Snapshot snapshot;
     Interpreter::ValueOwner *valueOwner;
     QStringList importPaths;
+    LibraryInfo builtins;
 
     QHash<ImportCacheKey, Import> importCache;
 
@@ -108,13 +109,14 @@ public:
     \l{Context} with \l{Link}.
 */
 
-Link::Link(const Snapshot &snapshot, const QStringList &importPaths)
+Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const LibraryInfo &builtins)
     : d_ptr(new LinkPrivate)
 {
     Q_D(Link);
     d->valueOwner = new ValueOwner;
     d->snapshot = snapshot;
     d->importPaths = importPaths;
+    d->builtins = builtins;
 
     d->diagnosticMessages = 0;
     d->allDiagnosticMessages = 0;
@@ -153,9 +155,26 @@ Context::ImportsPerDocument Link::linkImports()
 
     Context::ImportsPerDocument importsPerDocument;
 
+    // load builtin objects
+    ValueOwner *valueOwner = d->valueOwner;
+    if (d->builtins.pluginTypeInfoStatus() == LibraryInfo::DumpDone
+            || d->builtins.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileDone) {
+        valueOwner->cppQmlTypes().load(valueOwner, d->builtins.metaObjects());
+    } else {
+        valueOwner->cppQmlTypes().load(valueOwner, CppQmlTypesLoader::defaultQtObjects);
+    }
+
+    // load library objects shipped with Creator
+    valueOwner->cppQmlTypes().load(valueOwner, CppQmlTypesLoader::defaultLibraryObjects);
+
+    // the 'Qt' object is dumped even though it is not exported
+    // it contains useful information, in particular on enums - add the
+    // object as a prototype to our custom Qt object to offer these for completion
+    const_cast<ObjectValue *>(valueOwner->qtObject())->setPrototype(valueOwner->cppQmlTypes().typeByCppName(QLatin1String("Qt")));
+
     if (d->doc) {
         // do it on d->doc first, to make sure import errors are shown
-        Imports *imports = new Imports(d->valueOwner);
+        Imports *imports = new Imports(valueOwner);
         populateImportedTypes(imports, d->doc);
         importsPerDocument.insert(d->doc.data(), QSharedPointer<Imports>(imports));
     }
@@ -164,7 +183,7 @@ Context::ImportsPerDocument Link::linkImports()
         if (doc == d->doc)
             continue;
 
-        Imports *imports = new Imports(d->valueOwner);
+        Imports *imports = new Imports(valueOwner);
         populateImportedTypes(imports, doc);
         importsPerDocument.insert(doc.data(), QSharedPointer<Imports>(imports));
     }
@@ -367,16 +386,12 @@ bool Link::importLibrary(Document::Ptr doc,
             }
         } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpError
                    || libraryInfo.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileError) {
-            ModelManagerInterface *modelManager = ModelManagerInterface::instance();
-
-            // Only underline import if package/version isn't described in .qmltypes anyway
-            const QmlJS::ModelManagerInterface::BuiltinPackagesHash builtinPackages
-                    = modelManager->builtinPackages();
-            const QString packageName = importInfo.name().replace(QDir::separator(), QLatin1Char('.'));
-            if (!builtinPackages.value(packageName).contains(importInfo.version())) {
-                if (errorLoc.isValid()) {
-                    error(doc, errorLoc, libraryInfo.pluginTypeInfoError());
-                }
+            // Only underline import if package isn't described in .qmltypes anyway
+            QString packageName;
+            if (ast && ast->importUri)
+                packageName = Bind::toString(importInfo.ast()->importUri, '.');
+            if (errorLoc.isValid() && (packageName.isEmpty() || !d->valueOwner->cppQmlTypes().hasPackage(packageName))) {
+                error(doc, errorLoc, libraryInfo.pluginTypeInfoError());
             }
         } else {
             QList<QmlObjectValue *> loadedObjects =

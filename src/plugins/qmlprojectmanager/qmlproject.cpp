@@ -149,6 +149,10 @@ void QmlProject::refresh(RefreshOptions options)
             version = rc->qtVersion();
         QtSupport::QmlDumpTool::pathAndEnvironment(this, version, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
     }
+    if (version) {
+        pinfo.qtImportsPath = version->versionInfo().value("QT_INSTALL_IMPORTS");
+        pinfo.qtVersionString = version->qtVersionString();
+    }
     m_modelManager->updateProjectInfo(pinfo);
 }
 

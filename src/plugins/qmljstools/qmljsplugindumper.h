@@ -33,6 +33,8 @@
 #ifndef QMLJSPLUGINDUMPER_H
 #define QMLJSPLUGINDUMPER_H
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtCore/QProcess>
@@ -57,13 +59,18 @@ public:
     explicit PluginDumper(ModelManager *modelManager);
 
 public:
+    void loadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info);
     void loadPluginTypes(const QString &libraryPath, const QString &importPath,
                          const QString &importUri, const QString &importVersion);
-    void scheduleCompleteRedump();
+    void scheduleRedumpPlugins();
+    void scheduleMaybeRedumpBuiltins(const QmlJS::ModelManagerInterface::ProjectInfo &info);
 
 private slots:
+    void onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::ProjectInfo &info,
+                            bool force = false);
     void onLoadPluginTypes(const QString &libraryPath, const QString &importPath,
                            const QString &importUri, const QString &importVersion);
+    void dumpBuiltins(const QmlJS::ModelManagerInterface::ProjectInfo &info);
     void dumpAllPlugins();
     void qmlPluginTypeDumpDone(int exitCode);
     void qmlPluginTypeDumpError(QProcess::ProcessError error);
@@ -82,6 +89,9 @@ private:
     };
 
     void dump(const Plugin &plugin);
+    void loadQmltypesFile(const QString &qmltypesFilePath,
+                          const QString &libraryPath,
+                          QmlJS::LibraryInfo libraryInfo);
     QString resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
                           const QString &baseName);
     QString resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
@@ -96,6 +106,7 @@ private:
     QHash<QProcess *, QString> m_runningQmldumps;
     QList<Plugin> m_plugins;
     QHash<QString, int> m_libraryToPluginIndex;
+    QHash<QString, QmlJS::ModelManagerInterface::ProjectInfo> m_qtToInfo;
 };
 
 } // namespace Internal

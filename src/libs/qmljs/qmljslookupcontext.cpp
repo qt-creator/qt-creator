@@ -44,7 +44,9 @@ class QmlJS::LookupContextData
 public:
     LookupContextData(Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path)
         : doc(doc)
-        , context(Link(snapshot, ModelManagerInterface::instance()->importPaths())())
+        , context(Link(snapshot,
+                       ModelManagerInterface::instance()->importPaths(),
+                       ModelManagerInterface::instance()->builtins(doc))())
     {
         ScopeBuilder scopeBuilder(&context, doc);
         scopeBuilder.initializeRootScope();

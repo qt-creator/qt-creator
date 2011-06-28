@@ -558,9 +558,10 @@ void Qt4Project::updateQmlJSCodeModel()
         preferDebugDump = activeTarget()->activeBuildConfiguration()->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
         QtSupport::BaseQtVersion *qtVersion = activeTarget()->activeBuildConfiguration()->qtVersion();
         if (qtVersion && qtVersion->isValid()) {
-            const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
-            if (!qtVersionImportPath.isEmpty())
-                projectInfo.importPaths += qtVersionImportPath;
+            projectInfo.qtImportsPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
+            if (!projectInfo.qtImportsPath.isEmpty())
+                projectInfo.importPaths += projectInfo.qtImportsPath;
+            projectInfo.qtVersionString = qtVersion->qtVersionString();
         }
     }
     QtSupport::QmlDumpTool::pathAndEnvironment(this, activeTarget()->activeBuildConfiguration()->qtVersion(),

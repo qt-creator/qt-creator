@@ -50,11 +50,12 @@ class LinkPrivate;
 */
 class QMLJS_EXPORT Link
 {
+    Q_DISABLE_COPY(Link)
     Q_DECLARE_PRIVATE(Link)
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
 
 public:
-    Link(const Snapshot &snapshot, const QStringList &importPaths);
+    Link(const Snapshot &snapshot, const QStringList &importPaths, const LibraryInfo &builtins);
 
     // Link all documents in snapshot, collecting all diagnostic messages (if messages != 0)
     Interpreter::Context operator()(QHash<QString, QList<DiagnosticMessage> > *messages = 0);

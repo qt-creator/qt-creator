@@ -51,6 +51,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/session.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -104,7 +106,6 @@ void ModelManager::delayedInitialization()
 void ModelManager::loadQmlTypeDescriptions()
 {
     if (Core::ICore::instance()) {
-        // ### this does not necessarily work, should only call loadQmlTypes once!
         loadQmlTypeDescriptions(Core::ICore::instance()->resourcePath());
         loadQmlTypeDescriptions(Core::ICore::instance()->userResourcePath());
     }
@@ -114,25 +115,35 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
 {
     const QDir typeFileDir(resourcePath + QLatin1String("/qml-type-descriptions"));
     const QStringList qmlTypesExtensions = QStringList() << QLatin1String("*.qmltypes");
-    const QFileInfoList qmlTypesFiles = typeFileDir.entryInfoList(
+    QFileInfoList qmlTypesFiles = typeFileDir.entryInfoList(
                 qmlTypesExtensions,
                 QDir::Files,
                 QDir::Name);
 
     QStringList errors;
     QStringList warnings;
-    Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings);
+
+    // filter out the actual Qt builtins
+    for (int i = 0; i < qmlTypesFiles.size(); ++i) {
+        if (qmlTypesFiles.at(i).baseName() == QLatin1String("builtins")) {
+            QFileInfoList list;
+            list.append(qmlTypesFiles.at(i));
+            Interpreter::CppQmlTypesLoader::defaultQtObjects =
+                    Interpreter::CppQmlTypesLoader::loadQmlTypes(list, &errors, &warnings);
+            qmlTypesFiles.removeAt(i);
+            break;
+        }
+    }
+
+    // load the fallbacks for libraries
+    Interpreter::CppQmlTypesLoader::defaultLibraryObjects.unite(
+                Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings));
 
     Core::MessageManager *messageManager = Core::MessageManager::instance();
     foreach (const QString &error, errors)
         messageManager->printToOutputPane(error);
     foreach (const QString &warning, warnings)
         messageManager->printToOutputPane(warning);
-
-    // disabled for now: Prefer the xml file until the type dumping functionality
-    // has been moved into Qt.
-    // loads the builtin types
-    //loadQmlPluginTypes(QString());
 }
 
 ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
@@ -247,10 +258,14 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
         oldInfo = m_projects.value(pinfo.project);
         m_projects.insert(pinfo.project, pinfo);
         snapshot = _snapshot;
-
-        if (oldInfo.qmlDumpPath != pinfo.qmlDumpPath)
-            m_pluginDumper->scheduleCompleteRedump();
     }
+
+    if (oldInfo.qmlDumpPath != pinfo.qmlDumpPath
+            || oldInfo.qmlDumpEnvironment != pinfo.qmlDumpEnvironment) {
+        m_pluginDumper->scheduleRedumpPlugins();
+        m_pluginDumper->scheduleMaybeRedumpBuiltins(pinfo);
+    }
+
 
     updateImportPaths();
 
@@ -272,6 +287,10 @@ void ModelManager::updateProjectInfo(const ProjectInfo &pinfo)
             newFiles += file;
     }
     updateSourceFiles(newFiles, false);
+
+    // dump builtin types if the shipped definitions are probably outdated
+    if (QtSupport::QtVersionNumber(pinfo.qtVersionString) > QtSupport::QtVersionNumber(4, 7, 3))
+        m_pluginDumper->loadBuiltinTypes(pinfo);
 
     emit projectInfoUpdated(pinfo);
 }
@@ -691,9 +710,21 @@ ModelManagerInterface::CppQmlTypeHash ModelManager::cppQmlTypes() const
     return m_cppTypes;
 }
 
-ModelManagerInterface::BuiltinPackagesHash ModelManager::builtinPackages() const
+LibraryInfo ModelManager::builtins(const Document::Ptr &doc) const
 {
-    return Interpreter::CppQmlTypesLoader::builtinPackages;
+    ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    if (!sessionManager)
+        return LibraryInfo();
+    ProjectExplorer::Project *project = sessionManager->projectForFile(doc->fileName());
+    if (!project)
+        return LibraryInfo();
+
+    QMutexLocker locker(&m_mutex);
+    ProjectInfo info = m_projects.value(project);
+    if (!info.isValid())
+        return LibraryInfo();
+
+    return _snapshot.libraryInfo(info.qtImportsPath);
 }
 
 void ModelManager::resetCodeModel()

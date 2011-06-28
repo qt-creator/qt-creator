@@ -52,6 +52,7 @@
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QtCore/QSet>
 #include <QtGui/QMessageBox>
@@ -332,7 +333,8 @@ public:
                    const QStringList importPaths)
         : m_snapshot(snapshot)
         , m_doc(doc)
-        , m_link(snapshot, importPaths)
+        , m_link(snapshot, importPaths,
+                 QmlJS::ModelManagerInterface::instance()->builtins(doc))
         , m_context(new Interpreter::Context(m_link(doc, &m_diagnosticLinkMessages)))
         , m_scopeBuilder(m_context, doc)
     {

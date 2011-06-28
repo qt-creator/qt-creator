@@ -817,7 +817,9 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     if (!doc)
         return;
 
-    Link link(snapshot, ModelManagerInterface::instance()->importPaths());
+    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+
+    Link link(snapshot, modelManager->importPaths(), modelManager->builtins(doc));
     Context context = link();
 
     ScopeBuilder builder(&context, doc);

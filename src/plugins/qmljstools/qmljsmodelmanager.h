@@ -86,7 +86,8 @@ public:
                                  const QString &importUri, const QString &importVersion);
 
     virtual CppQmlTypeHash cppQmlTypes() const;
-    virtual BuiltinPackagesHash builtinPackages() const;
+
+    virtual QmlJS::LibraryInfo builtins(const QmlJS::Document::Ptr &doc) const;
 
 public slots:
     virtual void resetCodeModel();

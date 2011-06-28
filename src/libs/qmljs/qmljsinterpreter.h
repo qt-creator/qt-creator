@@ -568,19 +568,21 @@ private:
 class QMLJS_EXPORT CppQmlTypesLoader
 {
 public:
+    typedef QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> BuiltinObjects;
+
     /** Loads a set of qmltypes files into the builtin objects list
         and returns errors and warnings
     */
-    static void loadQmlTypes(const QFileInfoList &qmltypesFiles,
+    static BuiltinObjects loadQmlTypes(const QFileInfoList &qmltypesFiles,
                              QStringList *errors, QStringList *warnings);
 
-    static QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> builtinObjects;
-    static QHash<QString, QList<LanguageUtils::ComponentVersion> > builtinPackages;
+    static BuiltinObjects defaultQtObjects;
+    static BuiltinObjects defaultLibraryObjects;
 
     // parses the contents of a qmltypes file and fills the newObjects map
     static void parseQmlTypeDescriptions(
         const QByteArray &qmlTypes,
-        QHash<QString, LanguageUtils::FakeMetaObject::ConstPtr> *newObjects,
+        BuiltinObjects *newObjects,
         QString *errorMessage, QString *warningMessage);
 };
 

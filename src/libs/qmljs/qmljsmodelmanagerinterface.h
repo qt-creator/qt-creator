@@ -82,6 +82,8 @@ public:
         QStringList importPaths;
         QString qmlDumpPath;
         Utils::Environment qmlDumpEnvironment;
+        QString qtImportsPath;
+        QString qtVersionString;
     };
 
     class WorkingCopy
@@ -109,7 +111,6 @@ public:
     };
 
     typedef QHash<QString, QList<LanguageUtils::FakeMetaObject::ConstPtr> > CppQmlTypeHash;
-    typedef QHash<QString, QList<LanguageUtils::ComponentVersion> > BuiltinPackagesHash;
 
 public:
     ModelManagerInterface(QObject *parent = 0);
@@ -135,7 +136,8 @@ public:
                                  const QString &importUri, const QString &importVersion) = 0;
 
     virtual CppQmlTypeHash cppQmlTypes() const = 0;
-    virtual BuiltinPackagesHash builtinPackages() const = 0;
+
+    virtual LibraryInfo builtins(const Document::Ptr &doc) const = 0;
 
 public slots:
     virtual void resetCodeModel() = 0;
