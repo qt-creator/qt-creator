@@ -77,7 +77,8 @@ void WinDebugInterface::run()
     m_bufferReadyEvent = 0;
     m_sharedFile = 0;
     m_sharedMem  = 0;
-    runLoop();
+    if (!runLoop())
+        emit cannotRetrieveDebugOutput();
     if (m_sharedMem) {
         UnmapViewOfFile(m_sharedMem);
         m_sharedMem = 0;
@@ -100,21 +101,25 @@ void WinDebugInterface::run()
     }
 }
 
-void WinDebugInterface::runLoop()
+bool WinDebugInterface::runLoop()
 {
     m_waitHandles[TerminateEventHandle] = CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (GetLastError() == ERROR_ALREADY_EXISTS)
+        return false;
     m_waitHandles[DataReadyEventHandle] = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_DATA_READY");
-    if (!m_waitHandles[TerminateEventHandle] || !m_waitHandles[DataReadyEventHandle])
-        return;
+    if (!m_waitHandles[TerminateEventHandle] || !m_waitHandles[DataReadyEventHandle]
+            || GetLastError() == ERROR_ALREADY_EXISTS)
+        return false;
     m_bufferReadyEvent = CreateEvent(NULL, FALSE, FALSE, L"DBWIN_BUFFER_READY");
-    if (!m_bufferReadyEvent)
-        return;
+    if (!m_bufferReadyEvent
+            || GetLastError() == ERROR_ALREADY_EXISTS)
+        return false;
     m_sharedFile = CreateFileMapping((HANDLE)-1, NULL, PAGE_READWRITE, 0, 4096, L"DBWIN_BUFFER");
-    if (!m_sharedFile)
-        return;
+    if (!m_sharedFile || GetLastError() == ERROR_ALREADY_EXISTS)
+        return false;
     m_sharedMem = MapViewOfFile(m_sharedFile, FILE_MAP_READ, 0, 0,  512);
     if (!m_sharedMem)
-        return;
+        return false;
 
     LPSTR  message = reinterpret_cast<LPSTR>(m_sharedMem) + sizeof(DWORD);
     LPDWORD processId = reinterpret_cast<LPDWORD>(m_sharedMem);
@@ -130,6 +135,7 @@ void WinDebugInterface::runLoop()
             SetEvent(m_bufferReadyEvent);
         }
     }
+    return true;
 }
 
 } // namespace Internal

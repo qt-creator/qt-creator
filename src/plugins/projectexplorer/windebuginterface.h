@@ -50,12 +50,13 @@ public:
 
 signals:
     void debugOutput(qint64 pid, const QString &message);
+    void cannotRetrieveDebugOutput();
 
 private:
     enum Handles { DataReadyEventHandle, TerminateEventHandle, HandleCount };
 
     void run();
-    void runLoop();
+    bool runLoop();
 
     static WinDebugInterface *m_instance;
 

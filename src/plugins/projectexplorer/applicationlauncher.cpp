@@ -117,6 +117,8 @@ ApplicationLauncher::ApplicationLauncher(QObject *parent)
             this, SLOT(processStopped()));
 
 #ifdef Q_OS_WIN
+    connect(WinDebugInterface::instance(), SIGNAL(cannotRetrieveDebugOutput()),
+            this, SLOT(cannotRetrieveDebugOutput()));
     connect(WinDebugInterface::instance(), SIGNAL(debugOutput(qint64,QString)),
             this, SLOT(checkDebugOutput(qint64,QString)));
 #endif
@@ -154,8 +156,6 @@ void ApplicationLauncher::start(Mode mode, const QString &program, const QString
 #ifdef Q_OS_WIN
     if (!WinDebugInterface::instance()->isRunning())
         WinDebugInterface::instance()->start(); // Try to start listener again...
-    if (!WinDebugInterface::instance()->isRunning())
-        emit appendMessage(msgWinCannotRetrieveDebuggingOutput(), Utils::ErrorMessageFormat);
 #endif
 
     d->m_currentMode = mode;
@@ -247,6 +247,11 @@ void ApplicationLauncher::readStandardError()
 }
 
 #ifdef Q_OS_WIN
+void ApplicationLauncher::cannotRetrieveDebugOutput()
+{
+    emit appendMessage(msgWinCannotRetrieveDebuggingOutput(), Utils::ErrorMessageFormat);
+}
+
 void ApplicationLauncher::checkDebugOutput(qint64 pid, const QString &message)
 {
     if (applicationPID() == pid)

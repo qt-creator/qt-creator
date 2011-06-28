@@ -83,6 +83,7 @@ private slots:
     void readStandardOutput();
     void readStandardError();
 #ifdef Q_OS_WIN
+    void cannotRetrieveDebugOutput();
     void checkDebugOutput(qint64 pid, const QString &message);
 #endif
     void processDone(int, QProcess::ExitStatus);
