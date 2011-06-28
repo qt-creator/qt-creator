@@ -1385,6 +1385,10 @@ class Dumper:
             self.currentType = type
             self.currentTypePriority = priority
 
+    def putBetterType(self, type, priority = 0):
+        self.currentType = type
+        self.currentTypePriority = self.currentTypePriority + 1
+
     def putAddress(self, addr):
         if self.printsAddress:
             try:

@@ -800,7 +800,7 @@ def qdump__QObject(d, item):
                                 name = "%s.properties.%d" % (item.iname, i)
                                 t = qdump__QVariant(d, Item(qq, name))
                                 # Override the "QVariant (foo)" output
-                                d.putType(t, d.currentTypePriority + 1)
+                                d.putBetterType(t)
                             p += 1
                             q += 1
 
@@ -838,8 +838,12 @@ def qdump__QObject(d, item):
                                 gdb.execute("set $d.d.is_null = %s"
                                         % value1["is_null"])
                                 value = parseAndEvaluate("$d").dereference()
-                            val, inner, innert = qdumpHelper__QVariant(d, value)
-                            if len(inner):
+                            val, inner, innert, handled = \
+                                qdumpHelper__QVariant(d, value)
+
+                            if handled:
+                                pass
+                            elif len(inner):
                                 # Build-in types.
                                 d.putType(inner)
                                 name = "%s.properties.%d" \
@@ -1243,7 +1247,7 @@ def qdump__QRegion(d, item):
 # gdb.parse_and_eval("region")["d"].dereference()["qt_rgn"].dereference()
 
 def qdump__QScopedPointer(d, item):
-    d.putType(d.currentType, d.currentTypePriority + 1)
+    d.putBetterType(d.currentType)
     d.putItem(Item(item.value["d"], item.iname, None, None))
 
 
@@ -1327,7 +1331,7 @@ def qdump__QSharedDataPointer(d, item):
             d.putPlainChildren(item)
             return
         value = gdb.Value(d_ptr.cast(innerType.pointer()))
-        d.putType(d.currentType, d.currentTypePriority + 1)
+        d.putBetterType(d.currentType)
         d.putItem(Item(value.dereference(), item.iname, None))
 
 
@@ -1355,7 +1359,7 @@ def qdump__QStack(d, item):
 
 
 def qdump__QStandardItem(d, item):
-    d.putType(d.currentType, d.currentTypePriority + 1)
+    d.putBetterType(d.currentType)
     try:
         d.putItem(Item(item.value["d_ptr"], item.iname, None, None))
     except:
@@ -1470,135 +1474,138 @@ def qdump__QUrl(d, item):
            d.putFields(Item(data, item.iname))
 
 
+
+def qdumpHelper_QVariant_0(d, data):
+    # QVariant::Invalid
+    d.putBetterType("%sQVariant (invalid)" % d.ns)
+    d.putValue("(invalid)")
+
+def qdumpHelper_QVariant_1(d, data):
+    # QVariant::Bool
+    d.putBetterType("%sQVariant (bool)" % d.ns)
+    if int(data["b"]):
+        d.putValue("true")
+    else:
+        d.putValue("false")
+
+def qdumpHelper_QVariant_2(d, data):
+    # QVariant::Int
+    d.putBetterType("%sQVariant (int)" % d.ns)
+    d.putValue(data["i"])
+
+def qdumpHelper_QVariant_3(d, data):
+    # uint
+    d.putBetterType("%sQVariant (uint)" % d.ns)
+    d.putValue(data["u"])
+
+def qdumpHelper_QVariant_4(d, data):
+    # qlonglong
+    d.putBetterType("%sQVariant (qlonglong)" % d.ns)
+    d.putValue(data["ll"])
+
+def qdumpHelper_QVariant_5(d, data):
+    # qulonglong
+    d.putBetterType("%sQVariant (qulonglong)" % d.ns)
+    d.putValue(data["ull"])
+
+def qdumpHelper_QVariant_6(d, data):
+    # QVariant::Double
+    d.putBetterType("%sQVariant (double)" % d.ns)
+    d.putValue(data["d"])
+
+qdumpHelper_QVariants_A = [
+    qdumpHelper_QVariant_0,
+    qdumpHelper_QVariant_1,
+    qdumpHelper_QVariant_2,
+    qdumpHelper_QVariant_3,
+    qdumpHelper_QVariant_4,
+    qdumpHelper_QVariant_5,
+    qdumpHelper_QVariant_6
+]
+
+
+qdumpHelper_QVariants_B = [
+    "QChar",       # 7
+    None,          # 8, QVariantMap
+    None,          # 9, QVariantList
+    "QString",     # 10
+    "QStringList", # 11
+    "QByteArray",  # 12
+    "QBitArray",   # 13
+    "QDate",       # 14
+    "QTime",       # 15
+    "QDateTime",   # 16
+    "QUrl",        # 17
+    "QLocale",     # 18
+    "QRect",       # 19
+    "QRectF",      # 20
+    "QSize",       # 21
+    "QSizeF",      # 22
+    "QLine",       # 23
+    "QLineF",      # 24
+    "QPoint",      # 25
+    "QPointF",     # 26
+    "QRegExp",     # 27
+    None,          # 28, QVariantHash
+]
+
+qdumpHelper_QVariants_C = [
+    "QFont",       # 64
+    "QPixmap",     # 65
+    "QBrush",      # 66
+    "QColor",      # 67
+    "QPalette",    # 68
+    "QIcon",       # 69
+    "QImage",      # 70
+    "QPolygon",    # 71
+    "QRegion",     # 72
+    "QBitmap",     # 73
+    "QCursor",     # 74
+    "QSizePolicy", # 75
+    "QKeySequence",# 76
+    "QPen",        # 77
+    "QTextLength", # 78
+    "QTextFormat", # 79
+    "X",           # 80
+    "QTransform",  # 81
+    "QMatrix4x4",  # 82
+    "QVector2D",   # 83
+    "QVector3D",   # 84
+    "QVector4D",   # 85
+    "QQuadernion"  # 86
+]
+
 def qdumpHelper__QVariant(d, value):
     data = value["d"]["data"]
     variantType = int(value["d"]["type"])
     #warn("VARIANT TYPE: %s : " % variantType)
-    val = None
+
+    if variantType <= 6:
+        qdumpHelper_QVariants_A[variantType](d, data)
+        d.putNumChild(0)
+        return (None, None, None, True)
+
     inner = ""
     innert = ""
-    if variantType == 0: # QVariant::Invalid
-        d.putValue("(invalid)")
-        d.putNumChild(0)
-    elif variantType == 1: # QVariant::Bool
-        if int(data["b"]):
-            d.putValue("true")
-        else:
-            d.putValue("false")
-        d.putNumChild(0)
-        inner = "bool"
-    elif variantType == 2: # QVariant::Int
-        d.putValue(data["i"])
-        d.putNumChild(0)
-        inner = "int"
-    elif variantType == 3: # uint
-        d.putValue(data["u"])
-        d.putNumChild(0)
-        inner = "uint"
-    elif variantType == 4: # qlonglong
-        d.putValue(data["ll"])
-        d.putNumChild(0)
-        inner = "qlonglong"
-    elif variantType == 5: # qulonglong
-        d.putValue(data["ull"])
-        d.putNumChild(0)
-        inner = "qulonglong"
-    elif variantType == 6: # QVariant::Double
-        value = data["d"]
-        d.putValue(data["d"])
-        d.putNumChild(0)
-        inner = "double"
-    elif variantType == 7: # QVariant::QChar
-        inner = d.ns + "QChar"
-    elif variantType == 8: # QVariant::VariantMap
-        inner = d.ns + "QMap<" + d.ns + "QString, " + d.ns + "QVariant>"
-        innert = d.ns + "QVariantMap"
-    elif variantType == 9: # QVariant::VariantList
-        inner = d.ns + "QList<" + d.ns + "QVariant>"
-        innert = d.ns + "QVariantList"
-    elif variantType == 10: # QVariant::String
-        inner = d.ns + "QString"
-    elif variantType == 11: # QVariant::StringList
-        inner = d.ns + "QStringList"
-    elif variantType == 12: # QVariant::ByteArray
-        inner = d.ns + "QByteArray"
-    elif variantType == 13: # QVariant::BitArray
-        inner = d.ns + "QBitArray"
-    elif variantType == 14: # QVariant::Date
-        inner = d.ns + "QDate"
-    elif variantType == 15: # QVariant::Time
-        inner = d.ns + "QTime"
-    elif variantType == 16: # QVariant::DateTime
-        inner = d.ns + "QDateTime"
-    elif variantType == 17: # QVariant::Url
-        inner = d.ns + "QUrl"
-    elif variantType == 18: # QVariant::Locale
-        inner = d.ns + "QLocale"
-    elif variantType == 19: # QVariant::Rect
-        inner = d.ns + "QRect"
-    elif variantType == 20: # QVariant::RectF
-        inner = d.ns + "QRectF"
-    elif variantType == 21: # QVariant::Size
-        inner = d.ns + "QSize"
-    elif variantType == 22: # QVariant::SizeF
-        inner = d.ns + "QSizeF"
-    elif variantType == 23: # QVariant::Line
-        inner = d.ns + "QLine"
-    elif variantType == 24: # QVariant::LineF
-        inner = d.ns + "QLineF"
-    elif variantType == 25: # QVariant::Point
-        inner = d.ns + "QPoint"
-    elif variantType == 26: # QVariant::PointF
-        inner = d.ns + "QPointF"
-    elif variantType == 27: # QVariant::RegExp
-        inner = d.ns + "QRegExp"
-    elif variantType == 28: # QVariant::VariantHash
-        inner = d.ns + "QHash<" + d.ns + "QString, " + d.ns + "QVariant>"
-        innert = d.ns + "QVariantHash"
-    elif variantType == 64: # QVariant::Font
-        inner = d.ns + "QFont"
-    elif variantType == 65: # QVariant::Pixmap
-        inner = d.ns + "QPixmap"
-    elif variantType == 66: # QVariant::Brush
-        inner = d.ns + "QBrush"
-    elif variantType == 67: # QVariant::Color
-        inner = d.ns + "QColor"
-    elif variantType == 68: # QVariant::Palette
-        inner = d.ns + "QPalette"
-    elif variantType == 69: # QVariant::Icon
-        inner = d.ns + "QIcon"
-    elif variantType == 70: # QVariant::Image
-        inner = d.ns + "QImage"
-    elif variantType == 71: # QVariant::Polygon and PointArray
-        inner = d.ns + "QPolygon"
-    elif variantType == 72: # QVariant::Region
-        inner = d.ns + "QRegion"
-    elif variantType == 73: # QVariant::Bitmap
-        inner = d.ns + "QBitmap"
-    elif variantType == 74: # QVariant::Cursor
-        inner = d.ns + "QCursor"
-    elif variantType == 75: # QVariant::SizePolicy
-        inner = d.ns + "QSizePolicy"
-    elif variantType == 76: # QVariant::KeySequence
-        inner = d.ns + "QKeySequence"
-    elif variantType == 77: # QVariant::Pen
-        inner = d.ns + "QPen"
-    elif variantType == 78: # QVariant::TextLength
-        inner = d.ns + "QTextLength"
-    elif variantType == 79: # QVariant::TextFormat
-        inner = d.ns + "QTextFormat"
-    elif variantType == 81: # QVariant::Transform
-        inner = d.ns + "QTransform"
-    elif variantType == 82: # QVariant::Matrix4x4
-        inner = d.ns + "QMatrix4x4"
-    elif variantType == 83: # QVariant::Vector2D
-        inner = d.ns + "QVector2D"
-    elif variantType == 84: # QVariant::Vector3D
-        inner = d.ns + "QVector3D"
-    elif variantType == 85: # QVariant::Vector4D
-        inner = d.ns + "QVector4D"
-    elif variantType == 86: # QVariant::Quadernion
-        inner = d.ns + "QQuadernion"
+    val = None
+
+    if variantType <= 28:
+        inner = qdumpHelper_QVariants_B[variantType - 7]
+        if not inner is None:
+            innert = inner
+        elif variantType == 8:  # QVariant::VariantMap
+            inner = d.ns + "QMap<" + d.ns + "QString, " + d.ns + "QVariant>"
+            innert = d.ns + "QVariantMap"
+        elif variantType == 9:  # QVariant::VariantList
+            inner = d.ns + "QList<" + d.ns + "QVariant>"
+            innert = d.ns + "QVariantList"
+        elif variantType == 28: # QVariant::VariantHash
+            inner = d.ns + "QHash<" + d.ns + "QString, " + d.ns + "QVariant>"
+            innert = d.ns + "QVariantHash"
+
+    elif variantType <= 86:
+        inner = d.ns + qdumpHelper_QVariants_B[variantType - 64]
+        innert = inner
 
     if len(inner):
         innerType = lookupType(inner)
@@ -1610,40 +1617,40 @@ def qdumpHelper__QVariant(d, value):
         else:
             val = data.cast(innerType)
 
-    if len(innert) == 0:
-        innert = inner
-
-    return val, inner, innert
+    return (val, inner, innert, False)
 
 
 def qdump__QVariant(d, item):
-    val, inner, innert = qdumpHelper__QVariant(d, item.value)
-    #warn("VARIANT DATA: '%s' '%s' '%s': " % (val, inner, innert))
+    d_ptr = item.value["d"]
+    d_data = d_ptr["data"]
+
+    (val, inner, innert, handled) = qdumpHelper__QVariant(d, item.value)
+
+    if handled:
+        return
 
     if len(inner):
         innerType = lookupType(inner)
         # FIXME: Why "shared"?
-        if innerType.sizeof > item.value["d"]["data"].type.sizeof:
-            v = item.value["d"]["data"]["shared"]["ptr"] \
-                .cast(innerType.pointer()).dereference()
+        if innerType.sizeof > d_data.type.sizeof:
+            v = d_data["shared"]["ptr"].cast(innerType.pointer()).dereference()
         else:
-            v = item.value["d"]["data"].cast(innerType)
+            v = d_data.cast(innerType)
         d.putValue(" ", None, -99)
         d.putItem(Item(v, item.iname))
-        d.putType("%sQVariant (%s)" % (d.ns, innert), d.currentTypePriority + 1)
+        d.putBetterType("%sQVariant (%s)" % (d.ns, innert))
         return innert
 
     # User types.
-    d_member = item.value["d"]
     type = str(call(item.value, "typeToName",
-        "('%sQVariant::Type')%d" % (d.ns, d_member["type"])))
+        "('%sQVariant::Type')%d" % (d.ns, d_ptr["type"])))
     type = type[type.find('"') + 1 : type.rfind('"')]
     type = type.replace("Q", d.ns + "Q") # HACK!
     type = type.replace("uint", "unsigned int") # HACK!
     type = type.replace("COMMA", ",") # HACK!
-    #warn("TYPE: %s" % type)
+    warn("TYPE: %s" % type)
     data = call(item.value, "constData")
-    #warn("DATA: %s" % data)
+    warn("DATA: %s" % data)
     d.putValue(" ", None, -99)
     d.putType("%sQVariant (%s)" % (d.ns, type))
     d.putNumChild(1)
@@ -2045,7 +2052,7 @@ def qdump__boost__optional(d, item):
         d.putValue("<uninitialized>")
         d.putNumChild(0)
     else:
-        d.putType(item.value.type, d.currentTypePriority + 1)
+        d.putBetterType(item.value.type)
         type = templateArgument(item.value.type, 0)
         storage = item.value["m_storage"]
         if type.code == gdb.TYPE_CODE_REF:
@@ -2290,7 +2297,7 @@ def qdump__QScriptValue(d, item):
         #d.putSubItem(Item(variant, item.iname, "variant", "variant"))
         t = qdump__QVariant(d, Item(variant, "variant"))
         # Override the "QVariant (foo)" output
-        d.putType("%sQScriptValue (%s)" % (d.ns, t),  d.currentTypePriority + 1)
+        d.putBetterType("%sQScriptValue (%s)" % (d.ns, t))
         if t != "JSCoreValue":
             return
     except:

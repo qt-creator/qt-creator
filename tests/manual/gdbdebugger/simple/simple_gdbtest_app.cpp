@@ -122,16 +122,13 @@
 #include <xmmintrin.h>
 #include <stddef.h>
 #endif
-Q_DECLARE_METATYPE(QHostAddress)
-Q_DECLARE_METATYPE(QList<int>)
-Q_DECLARE_METATYPE(QStringList)
 
-typedef QMap<uint, QStringList> MyType;
-#define COMMA ,
-Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
+void dummyStatement(void *x= 0, void *y= 0)
+{
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+}
 
-
-// tests multiple breakpoints
 namespace multibp {
 
     template <typename T> class Vector
@@ -148,8 +145,9 @@ namespace multibp {
     };
 
 
-    int test()
+    int testMultiBp()
     {
+        // Tests multiple breakpoints
         Vector<int> vi(10);
         Vector<float> vf(10);
         Vector<double> vd(10);
@@ -1678,48 +1676,25 @@ void testTypeFormats()
     // These tests should result in properly displayed umlauts in the
     // Locals&Watchers view. It is only support on gdb with Python.
 
-    // Select UTF-8 in "Change Format for Type" in L&W context menu.
     const char *s = "aöa";
-
-    // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
-    // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
     const wchar_t *w = L"aöa";
     QString u;
+    // <== break here
+    // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
+    // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
+    // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
+
     if (sizeof(wchar_t) == 4)
         u = QString::fromUcs4((uint *)w);
     else
         u = QString::fromUtf16((ushort *)w);
 
     // Make sure to undo "Change Format".
-    int dummy = 1;
     Q_UNUSED(s);
     Q_UNUSED(w);
-    Q_UNUSED(dummy);
+    dummyStatement();
 }
 
-
-class Thread : public QThread
-{
-public:
-    Thread(int id) : m_id(id) {}
-
-    void run()
-    {
-        int j = 2;
-        ++j;
-        for (int i = 0; i != 100000; ++i) {
-            //sleep(1);
-            std::cerr << m_id;
-        }
-        if (m_id == 2) {
-            ++j;
-        }
-        std::cerr << j;
-    }
-
-private:
-    int m_id;
-};
 
 void testQTextCursor()
 {
@@ -1736,98 +1711,180 @@ void testQTextCursor()
     Q_UNUSED(anc);
 }
 
-void testQThread()
-{
-    Thread thread1(1);
-    Thread thread2(2);
-    thread1.setObjectName("This is the first thread");
-    thread2.setObjectName("This is another thread");
-    thread1.start();
-    thread2.start();
-    thread1.wait();
-    thread2.wait();
+
+namespace qthread {
+
+    class Thread : public QThread
+    {
+    public:
+        Thread(int id) : m_id(id) {}
+
+        void run()
+        {
+            int j = 2;
+            ++j;
+            for (int i = 0; i != 100000; ++i) {
+                //sleep(1);
+                std::cerr << m_id;
+            }
+            if (m_id == 2) {
+                ++j;
+            }
+            std::cerr << j;
+        }
+
+    private:
+        int m_id;
+    };
+
+    void testQThread()
+    {
+        Thread thread1(1);
+        Thread thread2(2);
+        thread1.setObjectName("This is the first thread");
+        thread2.setObjectName("This is another thread");
+        thread1.start();
+        thread2.start();
+        thread1.wait();
+        thread2.wait();
+        dummyStatement(&thread1);
+    }
 }
 
-void testQVariant1()
-{
-    QVariant v;
-    v = 1;
-    v = 1.0;
-    v = "string";
-    v = QRect(100, 200, 300, 400);
-    v = QRectF(100, 200, 300, 400);
-    v = 1;
-    //return v;
-}
 
-QVariant testQVariant2()
-{
-    QVariant value;
-    QVariant::Type t = QVariant::String;
-    value = QVariant(t, (void*)0);
-    *(QString*)value.data() = QString("XXX");
+Q_DECLARE_METATYPE(QHostAddress)
+Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(QStringList)
+#define COMMA ,
+Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)
 
-    int i = 1;
-    ++i;
-    ++i;
-    ++i;
-#if 1
-    QVariant var;
-    var.setValue(1);
-    var.setValue(2);
-    var.setValue(3);
-    var.setValue(QString("Hello"));
-    var.setValue(QString("World"));
-    var.setValue(QString("Hello"));
-    var.setValue(QStringList() << "World");
-    var.setValue(QStringList() << "World" << "Hello");
-    var.setValue(QStringList() << "Hello" << "Hello");
-    var.setValue(QStringList() << "World" << "Hello" << "Hello");
-#endif
-#if 1
-    QVariant var3;
-    QHostAddress ha("127.0.0.1");
-    var.setValue(ha);
-    var3 = var;
-    var3 = var;
-    var3 = var;
-    var3 = var;
-    QHostAddress ha1 = var.value<QHostAddress>();
-    typedef QMap<uint, QStringList> MyType;
-    MyType my;
-    my[1] = (QStringList() << "Hello");
-    my[3] = (QStringList() << "World");
-    var.setValue(my);
-    // FIXME: Known to break
-    QString type = var.typeName();
-    var.setValue(my);
-    var.setValue(my);
-    var.setValue(my);
-    var.setValue(my);
-#endif
-    QVariant result("sss");
-    return result;
-}
+namespace qvariant {
 
-QVariant testQVariant3()
-{
-    QVariantList vl;
-    vl.append(QVariant(1));
-    vl.append(QVariant(2));
-    vl.append(QVariant("Some String"));
-    vl.append(QVariant(21));
-    vl.append(QVariant(22));
-    vl.append(QVariant("2Some String"));
+    void testQVariant1()
+    {
+        QVariant value;
+        QVariant::Type t = QVariant::String;
+        value = QVariant(t, (void*)0);
+        *(QString*)value.data() = QString("Some string");
+        int i = 1; // <=== break here
+        // Check the variant contains a proper QString.
+    }
 
-    QList<int> list;
-    list << 1 << 2 << 3;
-    QVariant variant = qVariantFromValue(list);
-    list.clear();
-    list = qVariantValue<QList<int> >(variant);
+    void testQVariant2()
+    {
+        QVariant var;                        // Type 0, invalid
+        // <== break here
+        // Step through with F10.
+        // Check var contains objects of the types indicated.
+        var.setValue(true);                  // 1, bool
+        var.setValue(2);                     // 2, int
+        var.setValue(3u);                    // 3, uint
+        var.setValue(qlonglong(4));          // 4, qlonglong
+        var.setValue(qulonglong(5));         // 5, qulonglong
+        var.setValue(double(6));             // 6, double
 
-    QVariant result("xxx");
-    return result;
-}
+        var.setValue(QChar(7));              // 7, QChar
+        //None,          # 8, QVariantMap
+        // None,          # 9, QVariantList
+        var.setValue(QString("Hello 10"));   // 10, QString
+        var.setValue(QRect(100, 200, 300, 400)); // 19 QRect
+        var.setValue(QRectF(100, 200, 300, 400)); // 19 QRectF
+
+        /*
+         "QStringList", # 11
+         "QByteArray",  # 12
+         "QBitArray",   # 13
+         "QDate",       # 14
+         "QTime",       # 15
+         "QDateTime",   # 16
+         "QUrl",        # 17
+         "QLocale",     # 18
+         "QRect",       # 19
+         "QRectF",      # 20
+         "QSize",       # 21
+         "QSizeF",      # 22
+         "QLine",       # 23
+         "QLineF",      # 24
+         "QPoint",      # 25
+         "QPointF",     # 26
+         "QRegExp",     # 27
+         */
+        var.isValid(); // Dummy
+    }
+
+    void testQVariant3()
+    {
+        QVariant var;
+        // <== break here.
+        // Expand var.
+        // Step with F10.
+        // Check the list is updated properly.
+        var.setValue(QStringList() << "World");
+        var.setValue(QStringList() << "World" << "Hello");
+        var.setValue(QStringList() << "Hello" << "Hello");
+        var.setValue(QStringList() << "World" << "Hello" << "Hello");
+        dummyStatement(&var);
+    }
+
+    void testQVariant4()
+    {
+        QVariant var;
+        QHostAddress ha("127.0.0.1");
+        var.setValue(ha);
+        QHostAddress ha1 = var.value<QHostAddress>();
+        // <== break here
+        // Check var and ha1 look correct.
+        dummyStatement(&ha1);
+    }
+
+    void testQVariant5()
+    {
+        // This checks user defined types in QVariants.
+        typedef QMap<uint, QStringList> MyType;
+        MyType my;
+        my[1] = (QStringList() << "Hello");
+        my[3] = (QStringList() << "World");
+        QVariant var;
+        var.setValue(my);
+        // FIXME: Known to break
+        //QString type = var.typeName();
+        var.setValue(my); // <== break here
+        var.setValue(my);
+        var.setValue(my);
+        var.setValue(my);
+        dummyStatement(&var);
+    }
+
+    void testQVariant6()
+    {
+        QVariantList vl;
+        vl.append(QVariant(1));
+        vl.append(QVariant(2));
+        vl.append(QVariant("Some String"));
+        vl.append(QVariant(21));
+        vl.append(QVariant(22));
+        vl.append(QVariant("2Some String"));
+
+        QList<int> list;
+        list << 1 << 2 << 3;
+        QVariant variant = qVariantFromValue(list);
+        list.clear();
+        list = qVariantValue<QList<int> >(variant);
+        dummyStatement(&list);
+    }
+
+    void testQVariant()
+    {
+        testQVariant1();
+        testQVariant2();
+        testQVariant3();
+        testQVariant4();
+        testQVariant5();
+        testQVariant6();
+    }
+
+} // namespace qvariant
+
 
 void testQVector()
 {
@@ -2625,11 +2682,11 @@ namespace bug3611 {
     {
         typedef unsigned char byte;
         byte f = '2';
-        Q_UNUSED(f);
         int *x = (int*)&f;
         f += 1;
         f += 1;
         f += 1;
+        dummyStatement(&f);
     }
 
 } // namespace bug3611
@@ -2822,7 +2879,7 @@ namespace qc42170 {
         int id;
     };
 
-    struct Point: Object
+    struct Point : Object
     {
         Point(double x_, double y_, int id_) : Object(id_), x(x_), y(y_) {}
         double x, y;
@@ -2836,9 +2893,11 @@ namespace qc42170 {
     };
 
 
-    int helper(Object *obj)
+    void helper(Object *obj)
     {
-        return 0; // <== break here
+        // <== break here
+        // Check that obj is shown as a 'Circle' object.
+        dummyStatement(obj);
     }
 
     void test42170()
@@ -2847,6 +2906,7 @@ namespace qc42170 {
         Object *obj = circle;
         helper(circle);
         helper(obj);
+        dummyStatement(obj);
     }
 
 } // namespace qc42170
@@ -2867,10 +2927,10 @@ namespace qc41700 {
         m["two"].push_back("1");
         m["two"].push_back("2");
         m["two"].push_back("3");
-        map_t::const_iterator it = m.begin();  // <=== break here
-        ++it;
-        ++it;
-        ++it;
+        map_t::const_iterator it = m.begin();
+        // <=== break here
+        // Check that m is displayed nicely.
+        dummyStatement(&it);
     }
 
 } // namespace qc41700
@@ -2881,7 +2941,7 @@ int main(int argc, char *argv[])
     bug4904::test4904();
     qc41700::test41700();
     qc42170::test42170();
-    multibp::test();
+    multibp::testMultiBp();
     bug842::test842();
     bug3611::test3611();
     bug4019::test4019();
@@ -2991,10 +3051,8 @@ int main(int argc, char *argv[])
     testQStringList();
     testQScriptValue(argc, argv);
     testStruct();
-    //testQThread();
-    testQVariant1();
-    testQVariant2();
-    testQVariant3();
+    //qthread::testQThread();
+    qvariant::testQVariant();
     testQVector();
     testQVectorOfQList();
 
