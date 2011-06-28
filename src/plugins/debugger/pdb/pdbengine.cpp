@@ -214,7 +214,7 @@ void PdbEngine::runEngine()
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     showStatusMessage(tr("Running requested..."), 5000);
     const QByteArray dumperSourcePath =
-        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
+        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/dumper/";
     QString fileName = QFileInfo(startParameters().executable).absoluteFilePath();
     postDirectCommand("import sys");
     postDirectCommand("sys.argv.append('" + fileName.toLocal8Bit() + "')");

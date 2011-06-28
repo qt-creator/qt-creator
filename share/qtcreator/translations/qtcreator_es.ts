@@ -7925,14 +7925,14 @@ Skipping file.</source>
 
 Make sure you use something like
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 in your .pro file.</source>
         <translation>El binario en depuración no contiene la información necesaria para desplegar tipos de datos de Qt.
 
 Asegúrese de tener una línea como ésta
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 en su archivo .pro.</translation>
     </message>

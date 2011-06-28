@@ -398,8 +398,9 @@ GdbWrapper::GdbWrapper(tst_Gdb *test) : m_test(test)
     connect(&m_proc, SIGNAL(readyReadStandardError()),
         this, SLOT(readStandardError()));
 
-    m_proc.write("python execfile('../../../share/qtcreator/gdbmacros/dumper.py')\n");
-    m_proc.write("python execfile('../../../share/qtcreator/gdbmacros/gdbmacros.py')\n");
+    m_proc.write("python execfile('../../../share/qtcreator/dumper/bridge.py')\n");
+    m_proc.write("python execfile('../../../share/qtcreator/dumper/dumper.py')\n");
+    m_proc.write("python execfile('../../../share/qtcreator/dumper/qttypes.py')\n");
     m_proc.write("bbsetup\n");
     m_proc.write("break breaker\n");
     m_proc.write("handle SIGSTOP stop pass\n");

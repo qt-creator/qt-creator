@@ -10918,14 +10918,14 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
 
 Make sure you use something like
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 in your .pro file.</source>
         <translation>A debuggolt bináris fájl nem tartalmazza a szükséges információkat a Qt adattípus megfelelő kijelzéséhez.(new line)
 (new line)
 Győzödjön meg róla, hogy valami hasonló van a(new line)
 (new line)
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp(new line)
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
 (new line)
 .pro fájlban.</translation>
     </message>

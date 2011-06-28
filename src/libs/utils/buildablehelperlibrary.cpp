@@ -310,9 +310,10 @@ QString BuildableHelperLibrary::byInstallDataHelper(const QString &sourcePath,
         }
     }
 
-    // We pretend that the lastmodified of gdbmacros.cpp is 5 minutes before what the file system says
-    // Because afer a installation from the package the modified dates of gdbmacros.cpp
-    // and the actual library are close to each other, but not deterministic in one direction
+    // We pretend that the lastmodified of dumper.cpp is 5 minutes before what
+    // the file system says because afer a installation from the package the
+    // modified dates of dumper.cpp and the actual library are close to each
+    // other, but not deterministic in one direction.
     if (sourcesModified.isValid())
         sourcesModified = sourcesModified.addSecs(-300);
 

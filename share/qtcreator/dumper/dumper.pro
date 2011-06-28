@@ -4,7 +4,7 @@ linux-* {
     CONFIG -= release
     CONFIG += debug
 }
-SOURCES = gdbmacros.cpp
+SOURCES = dumper.cpp
 false {
     DEFINES += USE_QT_GUI=0
     QT = core
@@ -15,4 +15,4 @@ else {
         gui
 }
 exists($$QMAKE_INCDIR_QT/QtCore/private/qobject_p.h):DEFINES += HAS_QOBJECT_P_H
-HEADERS += gdbmacros_p.h
+HEADERS += dumper.h

@@ -3,11 +3,11 @@ include($$IDE_SOURCE_TREE/src/libs/symbianutils/symbianutils.pri)
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
 UTILSDIR    = $$IDE_SOURCE_TREE/src/libs
-MACROSDIR   = $$IDE_SOURCE_TREE/share/qtcreator/gdbmacros
+MACROSDIR   = $$IDE_SOURCE_TREE/share/qtcreator/dumper
 
 SOURCES += \
     $$DEBUGGERDIR/gdb/gdbmi.cpp \
-    $$MACROSDIR/gdbmacros.cpp \
+    $$MACROSDIR/dumper.cpp \
     tst_dumpers.cpp \
 
 DEFINES += MACROSDEBUG

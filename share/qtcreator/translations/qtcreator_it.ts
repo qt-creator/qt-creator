@@ -7894,14 +7894,14 @@ Causa: %3</translation>
 
 Make sure you use something like
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 in your .pro file.</source>
         <translation>L&apos;eseguibile di cui si sta facendo il debug non contiene le informazioni necessarie alla visualizzazione dei tipi di dati Qt.
 
 Puoi risolvere inserendo qualcosa tipo
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 nel tuo file .pro.</translation>
     </message>
