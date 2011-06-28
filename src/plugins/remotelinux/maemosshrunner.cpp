@@ -37,6 +37,9 @@
 #include "maemoremotemountsmodel.h"
 #include "remotelinuxrunconfiguration.h"
 
+#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/baseqtversion.h>
+
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(MountState, state, m_mountState)
 
 using namespace Qt4ProjectManager;
@@ -51,7 +54,9 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig
       m_mountSpecs(runConfig->remoteMounts()->mountSpecs()),
       m_mountState(InactiveMountState)
 {
-    m_mounter->setBuildConfiguration(runConfig->activeQt4BuildConfiguration());
+    const Qt4BuildConfiguration * const bc = runConfig->activeQt4BuildConfiguration();
+    m_qtId = bc && bc->qtVersion() ? bc->qtVersion()->uniqueId() : -1;
+    m_mounter->setBuildConfiguration(bc);
     connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,
@@ -71,9 +76,14 @@ bool MaemoSshRunner::canRun(QString &whyNot) const
 
     if (devConfig()->type() == LinuxDeviceConfiguration::Emulator
             && !MaemoQemuManager::instance().qemuIsRunning()) {
-        MaemoQemuManager::instance().startRuntime();
-        whyNot = tr("Qemu was not running. It has now been started up for you, but it will take "
-            "a bit of time until it is ready.");
+        MaemoQemuRuntime rt;
+        if (MaemoQemuManager::instance().runtimeForQtVersion(m_qtId, &rt)) {
+            MaemoQemuManager::instance().startRuntime();
+            whyNot = tr("Qemu was not running. It has now been started up for you, but it will "
+                "take a bit of time until it is ready. Please try again then.");
+        } else {
+            whyNot = tr("You want to run on Qemu, but it is not enabled for this Qt version.");
+        }
         return false;
     }
 

@@ -249,10 +249,18 @@ void AbstractMaemoDeployStep::start()
     if (isDeploymentNeeded(deviceConfiguration()->sshParameters().host)) {
         if (deviceConfiguration()->type() == LinuxDeviceConfiguration::Emulator
                 && !MaemoQemuManager::instance().qemuIsRunning()) {
-            MaemoQemuManager::instance().startRuntime();
-            raiseError(tr("Cannot deploy: Qemu was not running. "
-                "It has now been started up for you, but it will take "
-                "a bit of time until it is ready."));
+            MaemoQemuRuntime rt;
+            const int qtId = qt4BuildConfiguration() && qt4BuildConfiguration()->qtVersion()
+                ? qt4BuildConfiguration()->qtVersion()->uniqueId() : -1;
+            if (MaemoQemuManager::instance().runtimeForQtVersion(qtId, &rt)) {
+                MaemoQemuManager::instance().startRuntime();
+                raiseError(tr("Cannot deploy: Qemu was not running. "
+                    "It has now been started up for you, but it will take "
+                    "a bit of time until it is ready. Please try again then."));
+            } else {
+                raiseError(tr("Cannot deploy: You want to deploy to Qemu, but it is not enabled "
+                    "for this Qt version."));
+            }
             emit done();
             return;
         }

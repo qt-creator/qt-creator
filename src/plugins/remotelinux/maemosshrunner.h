@@ -69,8 +69,8 @@ private:
 
     MaemoRemoteMounter * const m_mounter;
     QList<MaemoMountSpecification> m_mountSpecs;
-
     MountState m_mountState;
+    int m_qtId;
 };
 
 } // namespace Internal
