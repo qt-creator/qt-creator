@@ -195,12 +195,14 @@ MemcheckTool::MemcheckTool(QObject *parent)
     setObjectName(QLatin1String("MemcheckTool"));
 
     m_filterProjectAction = new QAction(tr("External Errors"), this);
-    m_filterProjectAction->setToolTip(tr("Show issues originating outside currently opened projects."));
+    m_filterProjectAction->setToolTip(
+        tr("Show issues originating outside currently opened projects."));
     m_filterProjectAction->setCheckable(true);
 
     m_suppressionSeparator = new QAction(tr("Suppressions"), this);
     m_suppressionSeparator->setSeparator(true);
-    m_suppressionSeparator->setToolTip(tr("These suppression files were used in the last memory analyzer run."));
+    m_suppressionSeparator->setToolTip(
+        tr("These suppression files were used in the last memory analyzer run."));
 
     QAction *a = new QAction(tr("Definite Memory Leaks"), this);
     initKindFilterAction(a, QList<int>() << Leak_DefinitelyLost << Leak_IndirectlyLost);
@@ -297,7 +299,13 @@ QString MemcheckTool::id() const
 
 QString MemcheckTool::displayName() const
 {
-    return tr("Analyze Memory");
+    return tr("Valgrind Analyze Memory");
+}
+
+QString MemcheckTool::description() const
+{
+    return tr("Valgrind Analyze Memory uses the \"memcheck\" tool to find "
+        "memory leaks");
 }
 
 IAnalyzerTool::ToolMode MemcheckTool::mode() const

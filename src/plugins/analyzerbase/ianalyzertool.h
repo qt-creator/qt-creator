@@ -62,19 +62,23 @@ class IAnalyzerEngine;
 class ANALYZER_EXPORT IAnalyzerTool : public QObject
 {
     Q_OBJECT
+
 public:
     explicit IAnalyzerTool(QObject *parent = 0);
 
-    /// @return unique ID for this tool
+    /// Returns a unique ID for this tool.
     virtual QString id() const = 0;
-    /// @return user readable display name for this tool
+    /// Returns a short user readable display name for this tool.
     virtual QString displayName() const = 0;
+    /// Returns a user readable description name for this tool.
+    virtual QString description() const = 0;
 
     /**
      * The mode in which this tool should preferably be run
      *
-     * memcheck, for example, requires debug symbols, hence DebugMode is preferred.
-     * otoh callgrind should look at optimized code, hence ReleaseMode.
+     * The memcheckt tool, for example, requires debug symbols, hence DebugMode
+     * is preferred. On the other hand, callgrind should look at optimized code,
+     * hence ReleaseMode.
      */
     enum ToolMode {
         DebugMode,
@@ -86,28 +90,29 @@ public:
     static QString modeString(ToolMode mode);
 
     /**
-     * The implementation should setup widgets for the output pane here and optionally add
-     * dock widgets in the analyzation mode if wanted.
+     * The implementation should setup widgets for the output pane here and
+     * optionally add dock widgets in the analyzation mode if wanted.
      */
     virtual void initialize() = 0;
-    /// gets called after all analyzation tools where initialized.
+    /// This gets called after all analyzation tools where initialized.
     virtual void extensionsInitialized() = 0;
 
     /**
-      * Called to add all dock widgets if tool becomes active first time.
+      * This is called to add all dock widgets if tool becomes active first time.
       * \sa AnalzyerManager::createDockWidget
       */
     virtual void initializeDockWidgets();
 
-    /// subclass to return a control widget which will be shown
-    /// in the output pane when this tool is selected
+    /// Returns a control widget which will be shown
+    /// in the output pane when this tool is selected.
     virtual QWidget *createControlWidget();
 
-    /// @return a new engine for the given start parameters. Called each time the tool is launched.
+    /// Returns a new engine for the given start parameters.
+    /// Called each time the tool is launched.
     virtual IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
-                                          ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
+        ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
 
-    /// @return true when this tool can be run remotely, e.g. on a meego or maemo device
+    /// Returns true when this tool can be run on a remote machine.
     virtual bool canRunRemotely() const = 0;
 };
 

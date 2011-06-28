@@ -50,6 +50,7 @@ public:
 
     QString id() const;
     QString displayName() const;
+    QString description() const;
     ToolMode mode() const;
 
     void initialize();

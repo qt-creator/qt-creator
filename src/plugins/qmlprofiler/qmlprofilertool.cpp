@@ -150,27 +150,33 @@ QString QmlProfilerTool::displayName() const
     return tr("QML Profiler");
 }
 
+QString QmlProfilerTool::description() const
+{
+    return tr("The QML Profiler can be used to find performance bottlenecks in "
+              "applications using QML.");
+}
+
 IAnalyzerTool::ToolMode QmlProfilerTool::mode() const
 {
     return AnyMode;
 }
 
 IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
-                                               ProjectExplorer::RunConfiguration *runConfiguration)
+    ProjectExplorer::RunConfiguration *runConfiguration)
 {
     QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
 
-    // Check minimum Qt Version. We cannot really be sure what the Qt version at runtime is,
-    // but guess that the active build configuraiton has been used.
-    QtSupport::QtVersionNumber minimumVersion(4,7,4);
+    // Check minimum Qt Version. We cannot really be sure what the Qt version
+    // at runtime is, but guess that the active build configuraiton has been used.
+    QtSupport::QtVersionNumber minimumVersion(4, 7, 4);
     if (Qt4ProjectManager::Qt4BuildConfiguration *qt4Config
             = qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration*>(
                 runConfiguration->target()->activeBuildConfiguration())) {
         if (qt4Config->qtVersion()->isValid() && qt4Config->qtVersion()->qtVersion() < minimumVersion) {
             int result = QMessageBox::warning(QApplication::activeWindow(), tr("QML Profiler"),
-                                 "The QML profiler requires Qt 4.7.4 or newer.\n"
-                                 "The Qt version configured in your active build configuration is too old.\n"
-                                 "Do you want to continue?", QMessageBox::Yes, QMessageBox::No);
+                 "The QML profiler requires Qt 4.7.4 or newer.\n"
+                 "The Qt version configured in your active build configuration is too old.\n"
+                 "Do you want to continue?", QMessageBox::Yes, QMessageBox::No);
             if (result == QMessageBox::No)
                 return 0;
         }

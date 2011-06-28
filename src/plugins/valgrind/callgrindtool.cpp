@@ -521,7 +521,13 @@ QString CallgrindTool::id() const
 
 QString CallgrindTool::displayName() const
 {
-    return tr("Profile");
+    return tr("Valgrind Function Profile");
+}
+
+QString CallgrindTool::description() const
+{
+    return tr("Valgrind Profile uses the \"callgrind\" tool to "
+              "record function calls when a program runs.");
 }
 
 IAnalyzerTool::ToolMode CallgrindTool::mode() const

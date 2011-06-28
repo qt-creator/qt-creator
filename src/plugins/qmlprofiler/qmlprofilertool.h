@@ -50,6 +50,7 @@ public:
 
     QString id() const;
     QString displayName() const;
+    QString description() const;
     ToolMode mode() const;
 
     void initialize();
@@ -57,7 +58,7 @@ public:
     void initializeDockWidgets();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
-                                            ProjectExplorer::RunConfiguration *runConfiguration = 0);
+        ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     QWidget *createControlWidget();
 
