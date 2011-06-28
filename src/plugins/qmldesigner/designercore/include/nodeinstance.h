@@ -85,10 +85,27 @@ public:
 
 protected:
     void setProperty(const QString &name, const QVariant &value);
-    void setInformation(InformationName name,
+    InformationName setInformation(InformationName name,
                         const QVariant &information,
                         const QVariant &secondInformation,
                         const QVariant &thirdInformation);
+
+    InformationName setInformationSize(const QSizeF &size);
+    InformationName setInformationBoundingRect(const QRectF &rectangle);
+    InformationName setInformationTransform(const QTransform &transform);
+    InformationName setInformationPenWith(int penWidth);
+    InformationName setInformationPosition(const QPointF &position);
+    InformationName setInformationIsInPositioner(bool isInPositioner);
+    InformationName setInformationSceneTransform(const QTransform &sceneTransform);
+    InformationName setInformationIsResizable(bool isResizable);
+    InformationName setInformationIsMovable(bool isMovable);
+    InformationName setInformationIsAnchoredByChildren(bool isAnchoredByChildren);
+    InformationName setInformationIsAnchoredBySibling(bool isAnchoredBySibling);
+    InformationName setInformationHasContent(bool hasContent);
+    InformationName setInformationHasAnchor(const QString &sourceAnchorLine, bool hasAnchor);
+    InformationName setInformationAnchor(const QString &sourceAnchorLine, const QString &targetAnchorLine, qint32 targetInstanceId);
+    InformationName setInformationInstanceTypeForProperty(const QString &property, const QString &type);
+    InformationName setInformationHasBindingForProperty(const QString &property, bool hasProperty);
 
     void setParentId(qint32 instanceId);
     void setRenderImage(const QImage &image);

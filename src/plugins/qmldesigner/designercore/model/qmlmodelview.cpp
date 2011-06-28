@@ -389,7 +389,7 @@ void QmlModelView::instancesCompleted(const QVector<ModelNode> &/*completedNodeL
 {
 }
 
-void QmlModelView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+void QmlModelView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
 {
 
 }

@@ -317,28 +317,191 @@ void NodeInstance::setParentId(qint32 instanceId)
     d->parentInstanceId = instanceId;
 }
 
-void NodeInstance::setInformation(InformationName name, const QVariant &information, const QVariant &secondInformation, const QVariant &thirdInformation)
+InformationName NodeInstance::setInformationSize(const QSizeF &size)
+{
+    if (d->size != size) {
+        d->size = size;
+        return Size;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationBoundingRect(const QRectF &rectangle)
+{
+    if (d->boundingRect != rectangle) {
+        d->boundingRect = rectangle;
+        return BoundingRect;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationTransform(const QTransform &transform)
+{
+    if (d->transform != transform) {
+        d->transform = transform;
+        return Transform;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationPenWith(int penWidth)
+{
+    if (d->penWidth != penWidth) {
+        d->penWidth = penWidth;
+        return PenWidth;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationPosition(const QPointF &position)
+{
+    if (d->position != position) {
+        d->position = position;
+        return Position;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationIsInPositioner(bool isInPositioner)
+{
+    if (d->isInPositioner != isInPositioner) {
+        d->isInPositioner = isInPositioner;
+        return IsInPositioner;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationSceneTransform(const QTransform &sceneTransform)
+{
+    if (d->sceneTransform != sceneTransform) {
+        d->sceneTransform = sceneTransform;
+        return SceneTransform;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationIsResizable(bool isResizable)
+{
+    if (d->isResizable != isResizable) {
+        d->isResizable = isResizable;
+        return IsResizable;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationIsMovable(bool isMovable)
+{
+    if (d->isMovable != isMovable) {
+        d->isMovable = isMovable;
+        return IsMovable;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationIsAnchoredByChildren(bool isAnchoredByChildren)
+{
+    if (d->isAnchoredByChildren != isAnchoredByChildren) {
+        d->isAnchoredByChildren = isAnchoredByChildren;
+        return IsAnchoredByChildren;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationIsAnchoredBySibling(bool isAnchoredBySibling)
+{
+    if (d->isAnchoredBySibling != isAnchoredBySibling) {
+        d->isAnchoredBySibling = isAnchoredBySibling;
+        return IsAnchoredBySibling;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationHasContent(bool hasContent)
+{
+    if (d->hasContent != hasContent) {
+        d->hasContent = hasContent;
+        return HasContent;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationHasAnchor(const QString &sourceAnchorLine, bool hasAnchor)
+{
+    if (d->hasAnchors.value(sourceAnchorLine) != hasAnchor) {
+        d->hasAnchors.insert(sourceAnchorLine, hasAnchor);
+        return HasAnchor;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationAnchor(const QString &sourceAnchorLine, const QString &targetAnchorLine, qint32 targetInstanceId)
+{
+    QPair<QString, qint32>  anchorPair = QPair<QString, qint32>(targetAnchorLine, targetInstanceId);
+    if (d->anchors.value(sourceAnchorLine) != anchorPair) {
+        d->anchors.insert(sourceAnchorLine, anchorPair);
+        return Anchor;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationInstanceTypeForProperty(const QString &property, const QString &type)
+{
+    if (d->instanceTypes.value(property) != type) {
+        d->instanceTypes.insert(property, type);
+        return InstanceTypeForProperty;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformationHasBindingForProperty(const QString &property, bool hasProperty)
+{
+    if (d->hasBindingForProperty.value(property) != hasProperty) {
+        d->hasBindingForProperty.insert(property, hasProperty);
+        return HasBindingForProperty;
+    }
+
+    return NoInformationChange;
+}
+
+InformationName NodeInstance::setInformation(InformationName name, const QVariant &information, const QVariant &secondInformation, const QVariant &thirdInformation)
 {
     switch (name) {
-    case Size: d->size = information.toSizeF(); break;
-    case BoundingRect: d->boundingRect = information.toRectF(); break;
-    case Transform: d->transform = information.value<QTransform>(); break;
-    case PenWidth: d->penWidth = information.toInt(); break;
-    case Position: d->position = information.toPointF(); break;
-    case IsInPositioner: d->isInPositioner = information.toBool(); break;
-    case SceneTransform: d->sceneTransform = information.value<QTransform>(); break;
-    case IsResizable: d->isResizable = information.toBool(); break;
-    case IsMovable: d->isMovable = information.toBool(); break;
-    case IsAnchoredByChildren: d->isAnchoredByChildren  = information.toBool(); break;
-    case IsAnchoredBySibling: d->isAnchoredBySibling = information.toBool(); break;
-    case HasContent: d->hasContent = information.toBool(); break;
-    case HasAnchor: d->hasAnchors.insert(information.toString(), secondInformation.toBool());break;
-    case Anchor: d->anchors.insert(information.toString(), qMakePair(secondInformation.toString(), thirdInformation.value<qint32>())); break;
-    case InstanceTypeForProperty: d->instanceTypes.insert(information.toString(), secondInformation.toString()); break;
-    case HasBindingForProperty: d->hasBindingForProperty.insert(information.toString(), secondInformation.toBool()); break;
+    case Size: return setInformationSize(information.toSizeF()); break;
+    case BoundingRect: return setInformationBoundingRect(information.toRectF()); break;
+    case Transform: return setInformationTransform(information.value<QTransform>()); break;
+    case PenWidth: return setInformationPenWith(information.toInt()); break;
+    case Position: return setInformationPosition(information.toPointF()); break;
+    case IsInPositioner: return setInformationIsInPositioner(information.toBool()); break;
+    case SceneTransform: return setInformationSceneTransform(information.value<QTransform>()); break;
+    case IsResizable: return setInformationIsResizable(information.toBool()); break;
+    case IsMovable: return setInformationIsMovable(information.toBool()); break;
+    case IsAnchoredByChildren: return setInformationIsAnchoredByChildren(information.toBool()); break;
+    case IsAnchoredBySibling: return setInformationIsAnchoredBySibling(information.toBool()); break;
+    case HasContent: return setInformationHasContent(information.toBool()); break;
+    case HasAnchor: return setInformationHasAnchor(information.toString(), secondInformation.toBool());break;
+    case Anchor: return setInformationAnchor(information.toString(), secondInformation.toString(), thirdInformation.value<qint32>()); break;
+    case InstanceTypeForProperty: return setInformationInstanceTypeForProperty(information.toString(), secondInformation.toString()); break;
+    case HasBindingForProperty: return setInformationHasBindingForProperty(information.toString(), secondInformation.toBool()); break;
     case NoName:
     default: break;
     }
+
+    return NoInformationChange;
 }
 
 bool operator ==(const NodeInstance &first, const NodeInstance &second)

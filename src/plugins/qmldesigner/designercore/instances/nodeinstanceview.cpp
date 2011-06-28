@@ -42,6 +42,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsObject>
 #include <QFileSystemWatcher>
+#include <QMultiHash>
 
 #include <model.h>
 #include <modelnode.h>
@@ -462,7 +463,7 @@ void NodeInstanceView::importsChanged(const QList<Import> &/*addedImports*/, con
     restartProcess();
 }
 
-void NodeInstanceView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+void NodeInstanceView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
 {
 
 }
@@ -1062,21 +1063,21 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
     if (!model())
         return;
 
-    QVector<ModelNode> informationChangedVector;
+    QMultiHash<ModelNode, InformationName> informationChangeHash;
 
     foreach(const InformationContainer &container, command.informations()) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
-                instance.setInformation(container.name(), container.information(), container.secondInformation(), container.thirdInformation());
-                if (!informationChangedVector.contains(instance.modelNode()))
-                    informationChangedVector.append(instance.modelNode());
+                InformationName informationChange = instance.setInformation(container.name(), container.information(), container.secondInformation(), container.thirdInformation());
+                if (informationChange != NoInformationChange)
+                    informationChangeHash.insert(instance.modelNode(), informationChange);
             }
         }
     }
 
-    if (!informationChangedVector.isEmpty())
-        emitInstanceInformationsChange(informationChangedVector);
+    if (!informationChangeHash.isEmpty())
+        emitInstanceInformationsChange(informationChangeHash);
 }
 
 QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const

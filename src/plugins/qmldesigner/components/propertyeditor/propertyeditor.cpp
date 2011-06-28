@@ -882,13 +882,14 @@ void PropertyEditor::bindingPropertiesChanged(const QList<BindingProperty>& prop
 }
 
 
-void PropertyEditor::instanceInformationsChange(const QVector<ModelNode> &nodeList)
+void PropertyEditor::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     if (!m_selectedNode.isValid())
         return;
 
     m_locked = true;
-    if (nodeList.contains(m_selectedNode))
+    QList<InformationName> informationNameList = informationChangeHash.values(m_selectedNode);
+    if (informationNameList.contains(Anchor))
         m_currentType->m_backendAnchorBinding.setup(QmlItemNode(m_selectedNode));
     m_locked = false;
 }

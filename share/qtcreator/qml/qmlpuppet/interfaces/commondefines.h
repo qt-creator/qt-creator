@@ -34,12 +34,14 @@
 #define COMMONDEFINES_H
 
 #include <QMetaType>
+#include <QPair>
 
 namespace QmlDesigner {
 
 enum InformationName
 {
     NoName,
+    NoInformationChange = NoName,
     Size,
     BoundingRect,
     Transform,

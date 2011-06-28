@@ -218,7 +218,7 @@ void NavigatorView::instancesCompleted(const QVector<ModelNode> &/*completedNode
 {
 }
 
-void NavigatorView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+void NavigatorView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
 {
 }
 

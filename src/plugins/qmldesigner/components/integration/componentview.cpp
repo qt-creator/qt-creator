@@ -208,7 +208,7 @@ void ComponentView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVers
 void ComponentView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/) {}
 void ComponentView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &/*propertyList*/) {}
 void ComponentView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/) {}
-void ComponentView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/) {}
+void ComponentView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/) {}
 void ComponentView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/) {}
 void ComponentView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/) {}
 void ComponentView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/) {}

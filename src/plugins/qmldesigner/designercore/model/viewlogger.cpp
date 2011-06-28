@@ -224,12 +224,16 @@ void ViewLogger::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 
 }
 
-void ViewLogger::instanceInformationsChange(const QVector<ModelNode> &nodeList)
+void ViewLogger::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     m_output << time() << indent("instanceInformationsChange:") << endl;
 
-    foreach(const ModelNode &node, nodeList)
-        m_output << time() << indent("node: ") << node << endl;
+    QHashIterator<ModelNode, InformationName> informationChangeHashIterator(informationChangeHash);
+
+    while (informationChangeHashIterator.hasNext()) {
+        informationChangeHashIterator.next();
+        m_output << time() << indent("node: ") << informationChangeHashIterator.key() << "\tinformation: " << informationChangeHashIterator.value() << endl;
+    }
 }
 
 void ViewLogger::instancesRenderImageChanged(const QVector<ModelNode> &nodeList)

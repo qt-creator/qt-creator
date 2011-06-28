@@ -39,6 +39,7 @@
 #include <modelnode.h>
 #include <abstractproperty.h>
 #include <rewritertransaction.h>
+#include <commondefines.h>
 
 #include <QObject>
 
@@ -114,7 +115,7 @@ public:
 
     void emitInstancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
     void emitInstancesCompleted(const QVector<ModelNode> &nodeList);
-    void emitInstanceInformationsChange(const QVector<ModelNode> &nodeList);
+    void emitInstanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
     void emitInstancesRenderImageChanged(const QVector<ModelNode> &nodeList);
     void emitInstancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     void emitInstancesChildrenChanged(const QVector<ModelNode> &nodeList);
@@ -139,7 +140,7 @@ public:
 
     virtual void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList) = 0;
     virtual void instancesCompleted(const QVector<ModelNode> &completedNodeList) = 0;
-    virtual void instanceInformationsChange(const QVector<ModelNode> &nodeList) = 0;
+    virtual void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash) = 0;
     virtual void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) = 0;
     virtual void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) = 0;
     virtual void instancesChildrenChanged(const QVector<ModelNode> &nodeList) = 0;

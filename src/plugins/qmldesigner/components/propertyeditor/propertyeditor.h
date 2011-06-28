@@ -105,7 +105,7 @@ public:
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
 
-    void instanceInformationsChange(const QVector<ModelNode> &nodeList);
+    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
 
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);

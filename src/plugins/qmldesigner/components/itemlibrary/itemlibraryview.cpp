@@ -155,7 +155,7 @@ void ItemLibraryView::instancesCompleted(const QVector<ModelNode> &)
 
 }
 
-void ItemLibraryView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+void ItemLibraryView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
 {
 }
 

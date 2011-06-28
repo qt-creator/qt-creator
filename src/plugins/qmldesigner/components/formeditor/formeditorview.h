@@ -106,7 +106,7 @@ public:
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 
     void instancesCompleted(const QVector<ModelNode> &completedNodeList);
-    void instanceInformationsChange(const QVector<ModelNode> &nodeList);
+    void instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     void instancesChildrenChanged(const QVector<ModelNode> &nodeList);

@@ -72,7 +72,7 @@ void DesignDocumentControllerView::instancesCompleted(const QVector<ModelNode> &
 {
 
 }
-void DesignDocumentControllerView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+void DesignDocumentControllerView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &/*informationChangeHash*/)
 {
 
 }

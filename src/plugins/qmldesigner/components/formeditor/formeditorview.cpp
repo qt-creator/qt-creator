@@ -468,11 +468,11 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
     currentTool()->instancesCompleted(itemNodeList);
 }
 
-void FormEditorView::instanceInformationsChange(const QVector<ModelNode> &nodeList)
+void FormEditorView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     QList<FormEditorItem*> itemNodeList;
 
-    foreach (const ModelNode &node, nodeList) {
+    foreach (const ModelNode &node, informationChangeHash.keys()) {
         QmlItemNode qmlItemNode(node);
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(qmlItemNode);

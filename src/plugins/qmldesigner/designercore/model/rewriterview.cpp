@@ -387,7 +387,7 @@ void RewriterView::instancesCompleted(const QVector<ModelNode> &/*completedNodeL
 {
 }
 
-void RewriterView::instanceInformationsChange(const QVector<ModelNode> &/*nodeList*/)
+void RewriterView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
 
 }

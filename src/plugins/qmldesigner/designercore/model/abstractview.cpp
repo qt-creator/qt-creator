@@ -399,10 +399,10 @@ void AbstractView::emitInstancesCompleted(const QVector<ModelNode> &nodeVector)
         model()->m_d->notifyInstancesCompleted(nodeVector);
 }
 
-void AbstractView::emitInstanceInformationsChange(const QVector<ModelNode> &nodeVector)
+void AbstractView::emitInstanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     if (model() && nodeInstanceView() == this)
-        model()->m_d->notifyInstancesInformationsChange(nodeVector);
+        model()->m_d->notifyInstancesInformationsChange(informationChangeHash);
 }
 
 void AbstractView::emitInstancesRenderImageChanged(const QVector<ModelNode> &nodeVector)

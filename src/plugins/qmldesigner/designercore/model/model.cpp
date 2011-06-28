@@ -45,6 +45,7 @@
 #include <QtXml/QXmlStreamReader>
 #include <QtCore/QDebug>
 #include <QPlainTextEdit>
+#include <QHashIterator>
 
 #include "abstractview.h"
 #include "nodeinstanceview.h"
@@ -472,16 +473,27 @@ void ModelPrivate::notifyInstancesCompleted(const QVector<ModelNode> &nodeVector
     }
 }
 
-void ModelPrivate::notifyInstancesInformationsChange(const QVector<ModelNode> &nodeVector)
+QMultiHash<ModelNode, InformationName> convertModelNodeInformationHash(const QMultiHash<ModelNode, InformationName> &informationChangeHash, AbstractView *view)
+{
+    QMultiHash<ModelNode, InformationName>  convertedModelNodeInformationHash;
+
+    QHashIterator<ModelNode, InformationName> hashIterator(informationChangeHash);
+    while (hashIterator.hasNext()) {
+        hashIterator.next();
+        convertedModelNodeInformationHash.insert(ModelNode(hashIterator.key(), view), hashIterator.value());
+    }
+
+    return convertedModelNodeInformationHash;
+}
+
+void ModelPrivate::notifyInstancesInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
 {
     bool resetModel = false;
     QString description;
 
-    QVector<Internal::InternalNode::Pointer> internalVector(toInternalNodeVector(nodeVector));
-
     try {
         if (rewriterView())
-            rewriterView()->instanceInformationsChange(toModelNodeVector(internalVector, rewriterView()));
+            rewriterView()->instanceInformationsChange(convertModelNodeInformationHash(informationChangeHash, rewriterView()));
     } catch (RewritingException &e) {
         description = e.description();
         resetModel = true;
@@ -489,11 +501,11 @@ void ModelPrivate::notifyInstancesInformationsChange(const QVector<ModelNode> &n
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
-        view->instanceInformationsChange(toModelNodeVector(internalVector, view.data()));
+        view->instanceInformationsChange(convertModelNodeInformationHash(informationChangeHash, view.data()));
     }
 
     if (nodeInstanceView()) {
-        nodeInstanceView()->instanceInformationsChange(toModelNodeVector(internalVector, nodeInstanceView()));
+        nodeInstanceView()->instanceInformationsChange(convertModelNodeInformationHash(informationChangeHash, nodeInstanceView()));
     }
 
     if (resetModel) {
