@@ -62,6 +62,9 @@
 QString pluginImportPath;
 bool verbose = false;
 
+QString currentProperty;
+QString inObjectInstantiation;
+
 void collectReachableMetaObjects(const QMetaObject *meta, QSet<const QMetaObject *> *metas)
 {
     if (! meta || metas->contains(meta))
@@ -74,8 +77,6 @@ void collectReachableMetaObjects(const QMetaObject *meta, QSet<const QMetaObject
 
     collectReachableMetaObjects(meta->superClass(), metas);
 }
-
-QString currentProperty;
 
 void collectReachableMetaObjects(QObject *object, QSet<const QMetaObject *> *metas)
 {
@@ -208,7 +209,10 @@ QSet<const QMetaObject *> collectReachableMetaObjects(const QString &importCode,
         QDeclarativeComponent c(engine);
         c.setData(code, QUrl::fromLocalFile(pluginImportPath + "/typeinstance.qml"));
 
+        inObjectInstantiation = tyName;
         QObject *object = c.create();
+        inObjectInstantiation.clear();
+
         if (object)
             collectReachableMetaObjects(object, &metas);
         else
@@ -427,6 +431,8 @@ void sigSegvHandler(int) {
     fprintf(stderr, "Error: SEGV\n");
     if (!currentProperty.isEmpty())
         fprintf(stderr, "While processing the property '%s', which probably has uninitialized data.\n", currentProperty.toLatin1().constData());
+    if (!inObjectInstantiation.isEmpty())
+        fprintf(stderr, "While instantiating the object '%s'.\n", inObjectInstantiation.toLatin1().constData());
     exit(EXIT_SEGV);
 }
 #endif
