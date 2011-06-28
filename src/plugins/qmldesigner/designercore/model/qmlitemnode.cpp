@@ -219,6 +219,11 @@ bool QmlItemNode::instanceIsInPositioner() const
      return nodeInstance().isInPositioner();
 }
 
+bool QmlItemNode::instanceHasRotationTransform() const
+{
+    return nodeInstance().transform().type() > QTransform::TxScale;
+}
+
 QRectF  QmlItemNode::instanceBoundingRect() const
 {
     return QRectF(QPointF(0, 0), nodeInstance().size());

@@ -74,6 +74,7 @@ public:
     bool instanceIsMovable() const;
     bool instanceIsResizable() const;
     bool instanceIsInPositioner() const;
+    bool instanceHasRotationTransform() const;
 
     QRectF instanceBoundingRect() const;
     QRectF instancePaintedBoundingRect() const;

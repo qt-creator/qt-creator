@@ -77,6 +77,7 @@ void ResizeIndicator::setItems(const QList<FormEditorItem*> &itemList)
         if (item
                 && item->qmlItemNode().isValid()
                 && item->qmlItemNode().instanceIsResizable()
+                && !item->qmlItemNode().instanceHasRotationTransform()
                 && !item->qmlItemNode().instanceIsInPositioner()) {
             ResizeController controller(m_layerItem, item);
             m_itemControllerHash.insert(item, controller);
@@ -88,8 +89,12 @@ void ResizeIndicator::updateItems(const QList<FormEditorItem*> &itemList)
 {
     foreach (FormEditorItem* item, itemList) {
         if (m_itemControllerHash.contains(item)) {
-            ResizeController controller(m_itemControllerHash.value(item));
-            controller.updatePosition();
+            if (item->qmlItemNode().instanceHasRotationTransform()) {
+                m_itemControllerHash.take(item);
+            } else {
+                ResizeController controller(m_itemControllerHash.value(item));
+                controller.updatePosition();
+            }
         }
     }
 }
