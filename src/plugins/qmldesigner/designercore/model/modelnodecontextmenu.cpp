@@ -157,16 +157,16 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
     }
 
     if (selectionMenuBool) {
-        QMenu *selectionMenu = new QMenu(QApplication::translate("ModelNodeContextMenu", "Selecion"), menu);
+        QMenu *selectionMenu = new QMenu(tr("Selection"), menu);
         menu->addMenu(selectionMenu);
         ModelNode parentNode;
         if (singleSelected) {
             //ModelNodeAction *selectionAction;
-            //selectionAction = createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "DeSelect: ") + captionForModelNode(currentSingleNode), selectionMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::DeSelectModelNode);
+            //selectionAction = createModelNodeAction(tr("DeSelect: ") + captionForModelNode(currentSingleNode), selectionMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::DeSelectModelNode);
             //selectionMenu->addAction(selectionAction);
             if (!currentSingleNode.isRootNode()) {
                 parentNode = currentSingleNode.parentProperty().parentModelNode();
-                selectionMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Select parent: ") + captionForModelNode(parentNode),
+                selectionMenu->addAction(createModelNodeAction(tr("Select parent: %1").arg(captionForModelNode(parentNode)),
                                                                selectionMenu, QList<ModelNode>() << parentNode, ModelNodeAction::SelectModelNode));
             }
 
@@ -174,27 +174,27 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
         }
         foreach (const ModelNode &node, m_view->allModelNodes()) {
             if (node != currentSingleNode && node != parentNode && contains(node, m_scenePos) && !node.isRootNode())
-                selectionMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Select: ") + captionForModelNode(node), selectionMenu, QList<ModelNode>() << node, ModelNodeAction::SelectModelNode));
+                selectionMenu->addAction(createModelNodeAction(tr("Select: %1").arg(captionForModelNode(node)), selectionMenu, QList<ModelNode>() << node, ModelNodeAction::SelectModelNode));
         }
     }
 
-    QMenu *stackMenu = new QMenu(QApplication::translate("ModelNodeContextMenu", "Stack (z)"), menu);
+    QMenu *stackMenu = new QMenu(tr("Stack (z)"), menu);
     menu->addMenu(stackMenu);
 
-    stackMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "To Front"), stackMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ToFront, singleSelected));
-    stackMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "To Back"), stackMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ToBack, singleSelected));
-    stackMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Raise"), stackMenu, QList<ModelNode>() << m_view->selectedModelNodes(), ModelNodeAction::Raise));
-    stackMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Lower"), stackMenu, QList<ModelNode>() << m_view->selectedModelNodes(), ModelNodeAction::Lower));
+    stackMenu->addAction(createModelNodeAction(tr("To Front"), stackMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ToFront, singleSelected));
+    stackMenu->addAction(createModelNodeAction(tr("To Back"), stackMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ToBack, singleSelected));
+    stackMenu->addAction(createModelNodeAction(tr("Raise"), stackMenu, QList<ModelNode>() << m_view->selectedModelNodes(), ModelNodeAction::Raise));
+    stackMenu->addAction(createModelNodeAction(tr("Lower"), stackMenu, QList<ModelNode>() << m_view->selectedModelNodes(), ModelNodeAction::Lower));
     stackMenu->addSeparator();
-    stackMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Reset z property"), stackMenu, QList<ModelNode>() << m_view->selectedModelNodes(), ModelNodeAction::ResetZ));
+    stackMenu->addAction(createModelNodeAction(tr("Reset z property"), stackMenu, QList<ModelNode>() << m_view->selectedModelNodes(), ModelNodeAction::ResetZ));
 
-    QMenu *editMenu = new QMenu(QApplication::translate("ModelNodeContextMenu", "Edit"), menu);
+    QMenu *editMenu = new QMenu(tr("Edit"), menu);
     menu->addMenu(editMenu);
     if (!selectionIsEmpty) {
-        //editMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Change Id"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::SetId, singleSelected));
-        editMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Reset Position"), editMenu, m_view->selectedModelNodes(), ModelNodeAction::ResetPosition));
-        editMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Reset Size"), editMenu, m_view->selectedModelNodes(), ModelNodeAction::ResetSize));
-        editMenu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Visibility"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ModelNodeVisibility, singleSelected));
+        //editMenu->addAction(createModelNodeAction(tr("Change Id"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::SetId, singleSelected));
+        editMenu->addAction(createModelNodeAction(tr("Reset Position"), editMenu, m_view->selectedModelNodes(), ModelNodeAction::ResetPosition));
+        editMenu->addAction(createModelNodeAction(tr("Reset Size"), editMenu, m_view->selectedModelNodes(), ModelNodeAction::ResetSize));
+        editMenu->addAction(createModelNodeAction(tr("Visibility"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ModelNodeVisibility, singleSelected));
 
     } else {
         editMenu->setEnabled(false);
@@ -205,7 +205,7 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
     if (singleSelected) {
         enterComponent = modelNodeIsComponent(currentSingleNode);
     }
-    menu->addAction(createModelNodeAction(QApplication::translate("ModelNodeContextMenu", "Go into Component"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::EnterComponent, enterComponent));
+    menu->addAction(createModelNodeAction(tr("Go into Component"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::EnterComponent, enterComponent));
 
     menu->exec(pos);
     menu->deleteLater();

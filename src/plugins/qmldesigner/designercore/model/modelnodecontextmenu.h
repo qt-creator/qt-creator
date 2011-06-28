@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QPoint>
 #include <QAction>
+#include <QCoreApplication>
 #include <QMenu>
 #include <qmlmodelview.h>
 
@@ -67,14 +68,11 @@ private:
 
 class ModelNodeContextMenu
 {
+    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::ModelNodeContextMenu)
 public:
     ModelNodeContextMenu(QmlModelView *view);
-    void execute(const QPoint &pos, bool selecetionMenu);
+    void execute(const QPoint &pos, bool selectionMenu);
     void setScenePos(const QPoint &pos);
-
-signals:
-
-public slots:
 
 private:
     ModelNodeAction* createModelNodeAction(const QString &description, QMenu *menu, const QList<ModelNode> &modelNodeList, ModelNodeAction::ModelNodeActionType type, bool enabled = true);
