@@ -52,9 +52,19 @@ struct Tree
     Qt::CheckState checked;
     QList<Tree *> childDirectories;
     QList<Tree *> files;
+    QList<Tree *> visibleFiles;
     QIcon icon;
     QString fullPath;
+    bool isDir;
     Tree *parent;
+};
+
+struct Glob
+{
+    enum Mode { EXACT, ENDSWITH, REGEXP };
+    Mode mode;
+    QString matchString;
+    QRegExp matchRegexp;
 };
 
 class SelectableFilesModel : public QAbstractItemModel
@@ -83,12 +93,17 @@ public:
     void startParsing();
     void waitForFinished();
     void cancel();
+    // todo take a list of globs
+    void applyFilter(const QString &filter);
 signals:
     void parsingFinished();
     void parsingProgress(const QString &filename);
 private slots:
     void buildTreeFinished();
 private:
+    QList<Glob> parseFilter(const QString &filter);
+    Qt::CheckState applyFilter(const QModelIndex &index);
+    bool filter(Tree *t);
     void init();
     void run(QFutureInterface<void> &fi);
     void collectFiles(Tree *root, QStringList *result) const;
@@ -106,6 +121,7 @@ private:
     Tree *m_rootForFuture;
     int m_futureCount;
     bool m_allFiles;
+    QList<Glob> m_filter;
 };
 
 class SelectableFilesDialog : public QDialog
@@ -117,12 +133,16 @@ public:
     QStringList selectedFiles() const;
 
 private slots:
+    void applyFilter();
     void parsingProgress(const QString &fileName);
     void parsingFinished();
 
 private:
     void smartExpand(const QModelIndex &index);
     SelectableFilesModel *m_selectableFilesModel;
+    QLabel *m_filterLabel;
+    QLineEdit *m_filterLineEdit;
+    QPushButton *m_applyFilterButton;
     QTreeView *m_view;
     QLabel *m_progressLabel;
 };

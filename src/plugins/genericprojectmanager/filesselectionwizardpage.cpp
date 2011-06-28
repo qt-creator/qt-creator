@@ -38,6 +38,8 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QLineEdit>
+#include <QtGui/QPushButton>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
@@ -46,6 +48,21 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
     : QWizardPage(parent), m_genericProjectWizardDialog(genericProjectWizard), m_model(0), m_finished(false)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
+
+    QHBoxLayout *hbox = new QHBoxLayout;
+    m_filterLabel = new QLabel;
+    m_filterLabel->setText(tr("Hide files matching:"));
+    m_filterLabel->hide();
+    hbox->addWidget(m_filterLabel);
+    m_filterLineEdit = new QLineEdit;
+
+    m_filterLineEdit->setText("Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes");
+    m_filterLineEdit->hide();
+    hbox->addWidget(m_filterLineEdit);
+    m_applyFilterButton = new QPushButton(tr("Apply Filter"), this);
+    m_applyFilterButton->hide();
+    hbox->addWidget(m_applyFilterButton);
+    layout->addLayout(hbox);
 
     m_view = new QTreeView;
     m_view->setMinimumSize(500, 400);
@@ -56,6 +73,8 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
 
     layout->addWidget(m_view);
     layout->addWidget(m_label);
+
+    connect(m_applyFilterButton, SIGNAL(clicked()), this, SLOT(applyFilter()));
 }
 
 void FilesSelectionWizardPage::initializePage()
@@ -70,6 +89,9 @@ void FilesSelectionWizardPage::initializePage()
     connect(m_model, SIGNAL(parsingFinished()),
             this, SLOT(parsingFinished()));
     m_model->startParsing();
+    m_filterLabel->setVisible(false);
+    m_filterLineEdit->setVisible(false);
+    m_applyFilterButton->setVisible(false);
     m_view->setVisible(false);
     m_label->setVisible(true);
     m_view->setModel(m_model);
@@ -89,10 +111,14 @@ void FilesSelectionWizardPage::parsingProgress(const QString &text)
 void FilesSelectionWizardPage::parsingFinished()
 {
     m_finished = true;
+    m_filterLabel->setVisible(true);
+    m_filterLineEdit->setVisible(true);
+    m_applyFilterButton->setVisible(true);
     m_view->setVisible(true);
     m_label->setVisible(false);
     m_view->expand(m_view->model()->index(0,0, QModelIndex()));
     emit completeChanged();
+    applyFilter();
     // work around qt
     m_genericProjectWizardDialog->setTitleFormat(m_genericProjectWizardDialog->titleFormat());
 }
@@ -110,4 +136,9 @@ QStringList FilesSelectionWizardPage::selectedPaths() const
 QStringList FilesSelectionWizardPage::selectedFiles() const
 {
     return m_model ? m_model->selectedFiles() : QStringList();
+}
+
+void FilesSelectionWizardPage::applyFilter()
+{
+    m_model->applyFilter(m_filterLineEdit->text());
 }

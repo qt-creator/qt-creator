@@ -53,11 +53,15 @@ public:
     QStringList selectedFiles() const;
     QStringList selectedPaths() const;
 private slots:
+    void applyFilter();
     void parsingProgress(const QString &text);
     void parsingFinished();
 private:
     GenericProjectWizardDialog *m_genericProjectWizardDialog;
     SelectableFilesModel *m_model;
+    QLabel *m_filterLabel;
+    QLineEdit *m_filterLineEdit;
+    QPushButton *m_applyFilterButton;
     QTreeView *m_view;
     QLabel *m_label;
     bool m_finished;
