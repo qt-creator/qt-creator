@@ -2344,10 +2344,6 @@ Qt Creator kann sich nicht anhängen.</translation>
         <translation>Engine:</translation>
     </message>
     <message>
-        <source>Extra Information:</source>
-        <translation>Zusätzliche Informationen:</translation>
-    </message>
-    <message>
         <source>Line Number:</source>
         <translation>Zeilennummer:</translation>
     </message>
@@ -2366,6 +2362,10 @@ Qt Creator kann sich nicht anhängen.</translation>
     <message>
         <source>Command:</source>
         <translation>Kommando:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Meldung:</translation>
     </message>
     <message>
         <source>Condition:</source>
@@ -5222,8 +5222,16 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Pfad:</translation>
     </message>
     <message>
+        <source>File Selection</source>
+        <translation>Dateiauswahl</translation>
+    </message>
+    <message>
         <source>Location</source>
         <translation>Pfad</translation>
+    </message>
+    <message>
+        <source>Files</source>
+        <translation>Dateien</translation>
     </message>
 </context>
 <context>
@@ -5252,24 +5260,8 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::BranchDialog</name>
     <message>
-        <source>Checkout</source>
-        <translation>Auschecken</translation>
-    </message>
-    <message>
-        <source>Diff</source>
-        <translation>Diff</translation>
-    </message>
-    <message>
-        <source>Log</source>
-        <translation>Log</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation>Aktualisieren</translation>
-    </message>
-    <message>
-        <source>Delete...</source>
-        <translation>Löschen...</translation>
+        <source>Would you like to delete the &lt;b&gt;unmerged&lt;/b&gt; branch &apos;%1&apos;?</source>
+        <translation>Möchten Sie den Branch &apos;%1&apos; löschen? Es wurde noch keine &lt;b&gt;keine&lt;/b&gt; Merge-Operation durchgeführt?</translation>
     </message>
     <message>
         <source>Delete Branch</source>
@@ -5280,40 +5272,32 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Möchten Sie den Branch &apos;%1&apos; löschen?</translation>
     </message>
     <message>
-        <source>Failed to delete branch</source>
-        <translation>Das Löschen des Branches schlug fehl</translation>
-    </message>
-    <message>
-        <source>Failed to create branch</source>
-        <translation>Das Erstellen des Branches schlug fehl</translation>
-    </message>
-    <message>
-        <source>Failed to stash</source>
-        <translation>Die Operation &apos;stash&apos; schlug fehl</translation>
-    </message>
-    <message>
-        <source>Checkout failed</source>
-        <translation>Fehlschlag bei Checkout</translation>
-    </message>
-    <message>
-        <source>Would you like to create a local branch &apos;%1&apos; tracking the remote branch &apos;%2&apos;?</source>
-        <translation>Möchten Sie einen lokalen Branch &apos;%1&apos; erstellen, der dem entfernten Branch &apos;%2&apos; folgt?</translation>
-    </message>
-    <message>
-        <source>Create branch</source>
-        <translation>Branch erstellen</translation>
-    </message>
-    <message>
-        <source>Failed to create a tracking branch</source>
-        <translation>Das Erstellen des Branches schlug fehl</translation>
-    </message>
-    <message>
         <source>Branches</source>
         <translation>Branches</translation>
     </message>
     <message>
-        <source>Remote Branches</source>
-        <translation>Nichtlokale Branches</translation>
+        <source>Re&amp;fresh</source>
+        <translation>&amp;Aktualisieren</translation>
+    </message>
+    <message>
+        <source>&amp;Add...</source>
+        <translation>&amp;Hinzufügen...</translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation>&amp;Entfernen</translation>
+    </message>
+    <message>
+        <source>&amp;Diff</source>
+        <translation>&amp;Diff</translation>
+    </message>
+    <message>
+        <source>&amp;Log</source>
+        <translation>&amp;Log</translation>
+    </message>
+    <message>
+        <source>&amp;Checkout</source>
+        <translation>&amp;Checkout</translation>
     </message>
 </context>
 <context>
@@ -5944,17 +5928,6 @@ rückgängig machen?</translation>
     <message>
         <source>Email:</source>
         <translation>E-Mail-Adresse:</translation>
-    </message>
-</context>
-<context>
-    <name>Git::Internal::LocalBranchModel</name>
-    <message>
-        <source>&lt;New branch&gt;</source>
-        <translation>&lt;Neuer Branch&gt;</translation>
-    </message>
-    <message>
-        <source>Type to create a new branch</source>
-        <translation>Geben Sie den Namen des neuen Branches ein</translation>
     </message>
 </context>
 <context>
@@ -16400,21 +16373,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
 </context>
 <context>
-    <name>MaemoDeployStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation>Gerätekonfiguration:</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation>&lt;a href=irrelevant&gt;Gerätekonfigurationen verwalten&lt;/a&gt;</translation>
-    </message>
-</context>
-<context>
     <name>QtQuickAppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
@@ -17597,6 +17555,14 @@ Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei 
         <translation>Fehler beim Lesen der QtMobility-Version</translation>
     </message>
     <message>
+        <source>QtQuick components version: </source>
+        <translation>Version der Qt Quick-Komponenten: </translation>
+    </message>
+    <message>
+        <source>Not installed</source>
+        <translation>Nicht installiert</translation>
+    </message>
+    <message>
         <source>Screen size:</source>
         <translation>Bildschirmgröße:</translation>
     </message>
@@ -17821,6 +17787,10 @@ Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei 
     <message>
         <source>This wizard generates a Qt Quick application project.</source>
         <translation>Dieser Wizard erstellt ein Qt Quick-Anwendungsprojekt.</translation>
+    </message>
+    <message>
+        <source>Component Set</source>
+        <translation>Komponenten</translation>
     </message>
     <message>
         <source>QML Sources</source>
@@ -18315,10 +18285,10 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
     <message>
         <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QDeclarativeView.
 
-You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects.</source>
+You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects. Moreover, you can select to use a set of premade UI components in your Qt Quick application. To utilize the components, Qt 4.7.3 or newer is required.</source>
         <translation>Erstellt ein Qt Quick-Projekt, welches QML- und C++-Code enthält und eine Instanz der Klasse QDeclarativeView verwendet.
 
-Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen ausführen. Dieser Projekttyp ermöglicht zum Beispiel die Estellung eines signierten Symbian Installation System (SIS)-Paketes.</translation>
+Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen ausführen. Dieser Projekttyp ermöglicht zum Beispiel die Erstellung eines signierten Symbian Installation System (SIS)-Paketes. Zusätzlich gestattet es die Verwendung vorgefertigter UI-Komponenten in Ihrer Qt Quick-Anwendung. Dies erfordert Qt 4.7.3 oder neuer.</translation>
     </message>
 </context>
 <context>
@@ -18505,6 +18475,10 @@ Bei GDB kann eine durch &apos;\n&apos; getrennte Kommandosequenz angegeben werde
     <message>
         <source>&amp;Expression:</source>
         <translation>&amp;Ausdruck:</translation>
+    </message>
+    <message>
+        <source>&amp;Message:</source>
+        <translation>&amp;Meldung:</translation>
     </message>
 </context>
 <context>
@@ -19593,6 +19567,24 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
         <translation>Warnung</translation>
     </message>
     <message>
+        <source>0x%1 hit</source>
+        <extracomment>Message tracepoint: Address hit.</extracomment>
+        <translation>Adresse 0x%1 durchlaufen</translation>
+    </message>
+    <message>
+        <source>%1:%2 %3() hit</source>
+        <extracomment>Message tracepoint: %1 file, %2 line %3 function hit.</extracomment>
+        <translation>%1:%2 %3() durchlaufen</translation>
+    </message>
+    <message>
+        <source>Add Message Tracepoint</source>
+        <translation>Tracepoint mit Meldung hinzufügen</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Meldung:</translation>
+    </message>
+    <message>
         <source>Remove Breakpoint %1</source>
         <translation>Haltepunkt %1 löschen</translation>
     </message>
@@ -19615,6 +19607,14 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
     <message>
         <source>Set Breakpoint at line %1</source>
         <translation>Haltepunkt bei Zeile %1 setzen</translation>
+    </message>
+    <message>
+        <source>Set Message Tracepoint at 0x%1...</source>
+        <translation>Tracepoint mit Meldung bei 0x%1 hinzufügen...</translation>
+    </message>
+    <message>
+        <source>Set Message Tracepoint at line %1...</source>
+        <translation>Tracepoint mit Meldung bei Zeile %1 hinzufügen...</translation>
     </message>
     <message>
         <source>Save Debugger Log</source>
@@ -20301,10 +20301,6 @@ auf Instanzen von QML-Komponenten-Objekten und Eigenschaften zugreifen.</transla
     <message>
         <source>Show application on top</source>
         <translation>Anwendung im Vordergrund zeigen</translation>
-    </message>
-    <message>
-        <source>Inspector Mode</source>
-        <translation>Inspector-Modus</translation>
     </message>
     <message>
         <source>Play/Pause Animations</source>
@@ -22370,8 +22366,8 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
         <translation>Bereinigen</translation>
     </message>
     <message>
-        <source>QMake</source>
-        <translation>QMake</translation>
+        <source>qmake</source>
+        <translation>qmake</translation>
     </message>
     <message>
         <source>Build</source>
@@ -22382,31 +22378,31 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
         <translation>Einfrieren</translation>
     </message>
     <message>
-        <source>Secondary Clean</source>
+        <source>Secondary clean</source>
         <translation>Sekundäres Bereinigen</translation>
     </message>
     <message>
-        <source>Secondary QMake</source>
+        <source>Secondary qmake</source>
         <translation>Sekundäres QMake</translation>
     </message>
     <message>
-        <source>Secondary Build</source>
+        <source>Secondary build</source>
         <translation>Sekundäres Erstellen</translation>
     </message>
     <message>
-        <source>Making Sis File</source>
+        <source>Making SIS file</source>
         <translation>Erstelle Sis-Datei</translation>
+    </message>
+    <message>
+        <source>SIS file not created due to previous errors.
+</source>
+        <translation>Erstellung der Sis-Datei durch vorangegangene Fehler fehlgeschlagen.
+</translation>
     </message>
     <message>
         <source>Done.
 </source>
         <translation>Beendet.
-</translation>
-    </message>
-    <message>
-        <source>Sis file not created due to previous errors.
-</source>
-        <translation>Erstellung der Sis-Datei durch vorangegangene Fehler fehlgeschlagen.
 </translation>
     </message>
     <message>
@@ -23043,17 +23039,6 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
     </message>
 </context>
 <context>
-    <name>Analyzer::Internal::AnalyzerOutputPane</name>
-    <message>
-        <source>No current analysis tool</source>
-        <translation>Kein aktives Analysewerkzeug</translation>
-    </message>
-    <message>
-        <source>Analysis</source>
-        <translation>Analyse</translation>
-    </message>
-</context>
-<context>
     <name>Qt4DefaultTargetSetupWidget</name>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
@@ -23516,10 +23501,6 @@ a = a +
         <translation>Zeigt die INSTALLS-Einstellungen aus den Projektdateien.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Files to install for subproject:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Zu installierende Dateien des Unterprojektes:&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>Edit the project file to add or remove entries.</source>
         <translation>Projektdatei bearbeiten, um Einträge hinzuzufügen oder zu löschen.</translation>
     </message>
@@ -23530,6 +23511,18 @@ a = a +
     <message>
         <source>Add Launcher Icon...</source>
         <translation>Icon für Starter hinzufügen...</translation>
+    </message>
+    <message>
+        <source>Device configuration:</source>
+        <translation>Gerätekonfiguration:</translation>
+    </message>
+    <message>
+        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
+        <translation>&lt;a href=irrelevant&gt;Gerätekonfigurationen verwalten&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <source>Files to install for subproject:</source>
+        <translation>Zu installierende Dateien des Unterprojektes:</translation>
     </message>
 </context>
 <context>
@@ -24808,6 +24801,14 @@ Sollen sie überschrieben werden?</translation>
         <translation>Timeline</translation>
     </message>
     <message>
+        <source>Callees</source>
+        <translation>Aufgerufene Funktionen</translation>
+    </message>
+    <message>
+        <source>Callers</source>
+        <translation>Aufrufer</translation>
+    </message>
+    <message>
         <source>Elapsed:      0 s</source>
         <translation>Vergangen:      0 s</translation>
     </message>
@@ -25037,8 +25038,8 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>Qt4ProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
     <message>
-        <source>No valid build configuration has been detected.&lt;br&gt;Define a correct  build configuration in &quot;Options &gt; Qt4&quot;</source>
-        <translation>Es konnte keine gültige Build-Konfiguration gefunden werden. &lt;br&gt; Bitte geben Sie eine korrekte Build-Konfiguration in &quot;Einstellungen &gt; Qt4&quot; an.</translation>
+        <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
+        <translation>Es konnte keine gültige Qt-Version gefunden werden. &lt;br&gt; Bitte geben Sie eine korrekte Qt-Version unter &quot;Einstellungen/Qt 4&quot; an</translation>
     </message>
     <message>
         <source>No valid tool chain has been detected.&lt;br&gt;Define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
@@ -25390,21 +25391,6 @@ Haben Sie Qemu gestartet?</translation>
     <message>
         <source>List of installed Qt packages:</source>
         <translation>Liste der installierten Qt-Pakete:</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeployableListModel</name>
-    <message>
-        <source>&lt;no target path set&gt;</source>
-        <translation>&lt;Kein Zielpfad gesetzt&gt;</translation>
-    </message>
-    <message>
-        <source>Local File Path</source>
-        <translation>Lokaler Pfad</translation>
-    </message>
-    <message>
-        <source>Remote Directory</source>
-        <translation>Entfernter Ordner</translation>
     </message>
 </context>
 <context>
@@ -27002,10 +26988,6 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <translation>Benutzung von nicht initialisiertem Speicher</translation>
     </message>
     <message>
-        <source>Invalid Frees</source>
-        <translation>Ungültige Verwendung von free</translation>
-    </message>
-    <message>
         <source>Show issues originating outside currently opened projects.</source>
         <translation>Zeigt Fehler an, deren Ursache außerhalb der aktuellen Projekte liegt.</translation>
     </message>
@@ -27014,8 +26996,24 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <translation>Die Ausschlussdateien wurden beim letzten Lauf der Speicheranalyse verwendet.</translation>
     </message>
     <message>
+        <source>Invalid Calls to &quot;free()&quot;</source>
+        <translation>Ungültige Aufrufe von &quot;free()&quot;</translation>
+    </message>
+    <message>
         <source>Analyze Memory</source>
         <translation>Speicheranalyse</translation>
+    </message>
+    <message>
+        <source>Memory Issues</source>
+        <translation>Speicherprobleme</translation>
+    </message>
+    <message>
+        <source>Go to previous leak.</source>
+        <translation>Gehe zu vorigem Speicherleck.</translation>
+    </message>
+    <message>
+        <source>Go to next leak.</source>
+        <translation>Gehe zum nächsten Speicherleck.</translation>
     </message>
     <message>
         <source>Error Filter</source>
@@ -27307,6 +27305,14 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <source>Edit Files</source>
         <translation>Datei zum Bearbeiten anfordern</translation>
     </message>
+    <message>
+        <source>Generating file list...
+
+%1</source>
+        <translation>Dateiliste erstellen...
+
+%1</translation>
+    </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationFactory</name>
@@ -27356,12 +27362,12 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <translation>Maemo 5/Fremantle</translation>
     </message>
     <message>
-        <source>Harmattan</source>
-        <translation>Harmattan</translation>
+        <source>MeeGo 1.2 Harmattan</source>
+        <translation>MeeGo 1.2 Harmattan</translation>
     </message>
     <message>
-        <source>MeeGo</source>
-        <translation>Meego</translation>
+        <source>Other MeeGo OS</source>
+        <translation>Andere MeeGo OS</translation>
     </message>
 </context>
 <context>
@@ -27577,6 +27583,286 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
 In addition, device connectivity will be tested.</source>
         <translation>Es wird eine neue Gerätekonfiguration erzeugt.
 Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::BranchAddDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>Branch Name:</source>
+        <translation>Branch:</translation>
+    </message>
+    <message>
+        <source>CheckBox</source>
+        <translation>CheckBox</translation>
+    </message>
+    <message>
+        <source>Track remote branch &apos;%1&apos;</source>
+        <translation>Nichtlokalen Branch &apos;%1&apos; verfolgen</translation>
+    </message>
+    <message>
+        <source>Track local branch &apos;%1&apos;</source>
+        <translation>Lokalen Branch &apos;%1&apos; verfolgen</translation>
+    </message>
+</context>
+<context>
+    <name>QtQuickComponentSetOptionsPage</name>
+    <message>
+        <source>Qt Quick Component Set</source>
+        <translation>Qt Quick-Komponentensatz</translation>
+    </message>
+    <message>
+        <source>Built-in elements only (for all platforms)</source>
+        <translation>Nur eingebaute Elemente (alle Plattformen)</translation>
+    </message>
+    <message>
+        <source>buttonGroup</source>
+        <translation>buttonGroup</translation>
+    </message>
+    <message>
+        <source>Qt Quick Components for Symbian</source>
+        <translation>Qt Quick-Komponenten für Symbian</translation>
+    </message>
+    <message>
+        <source>Qt Quick Components for Meego/Harmattan</source>
+        <translation>Qt Quick-Komponenten für Meego/Harmattan</translation>
+    </message>
+    <message>
+        <source>The built-in elements in the QtQuick namespace allow you to write cross-platform applications with a custom look and feel.
+
+Requires Qt 4.7.1 or newer.</source>
+        <translation>Die eingebauten Elemente im QtQuick-Namensraum gestatten es, plattformübergreifende Anwendung mit benutzerdefinierbarem Look and Feel zu erstellen.
+
+Erfordert Qt 4.7.1 oder neuer.</translation>
+    </message>
+    <message>
+        <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
+
+Requires Qt 4.7.3 or newer, and the component set installed for your Qt version.</source>
+        <translation>Die Qt Quick-Komponenten für Symbian sind ein Satz vorgefertigter Komponenten, die entworfen worden, um das Symbian-spezifische Erscheinungsbild wiederzugeben.
+
+Erfordert Qt 4.7.3 oder neuer.</translation>
+    </message>
+    <message>
+        <source>The Qt Quick Components for Meego/Harmattan are a set of ready-made components that are designed with specific native appearance for the Meego/Harmattan platform.
+
+Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.</source>
+        <translation>Die Qt Quick-Komponenten für Meego/Harmattan sind ein Satz vorgefertigter Komponenten, die entworfen worden, um das spezifische Erscheinungsbild der Meego/Harmattan-Plattformen wiederzugeben.
+
+Erfordert Qt 4.7.4 oder neuer.</translation>
+    </message>
+</context>
+<context>
+    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <message>
+        <source>Generating file list...
+
+%1</source>
+        <translation>Dateiliste erstellen...
+
+%1</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::BranchModel</name>
+    <message>
+        <source>Local Branches</source>
+        <translation>Lokale Branches</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
+    <message>
+        <source>&amp;QML/JS</source>
+        <translation>&amp;QML/JS</translation>
+    </message>
+    <message>
+        <source>Reset Code Model</source>
+        <translation>Code-Modell rücksetzen</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QmlProfilerCalleeView</name>
+    <message>
+        <source>&lt;bytecode&gt;</source>
+        <translation>&lt;bytecode&gt;</translation>
+    </message>
+    <message>
+        <source>Source code not available</source>
+        <translation>Kein Quellcode verfügbar</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Ort</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Details</translation>
+    </message>
+    <message>
+        <source>Paint</source>
+        <translation>Paint</translation>
+    </message>
+    <message>
+        <source>Compile</source>
+        <translation>Compilierung</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Erstellung</translation>
+    </message>
+    <message>
+        <source>Binding</source>
+        <translation>Binding</translation>
+    </message>
+    <message>
+        <source>Signal</source>
+        <translation>Signal</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QmlProfilerCallerView</name>
+    <message>
+        <source>&lt;bytecode&gt;</source>
+        <translation>&lt;bytecode&gt;</translation>
+    </message>
+    <message>
+        <source>Source code not available</source>
+        <translation>Kein Quellcode verfügbar</translation>
+    </message>
+    <message>
+        <source>Location</source>
+        <translation>Ort</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Typ</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Details</translation>
+    </message>
+    <message>
+        <source>Paint</source>
+        <translation>Paint</translation>
+    </message>
+    <message>
+        <source>Compile</source>
+        <translation>Compilierung</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Erstellung</translation>
+    </message>
+    <message>
+        <source>Binding</source>
+        <translation>Binding</translation>
+    </message>
+    <message>
+        <source>Signal</source>
+        <translation>Signal</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::DeployableFilesPerProFile</name>
+    <message>
+        <source>&lt;no target path set&gt;</source>
+        <translation>&lt;Kein Zielpfad gesetzt&gt;</translation>
+    </message>
+    <message>
+        <source>Local File Path</source>
+        <translation>Lokaler Pfad</translation>
+    </message>
+    <message>
+        <source>Remote Directory</source>
+        <translation>Entfernter Ordner</translation>
+    </message>
+</context>
+<context>
+    <name>text</name>
+    <message>
+        <source>text</source>
+        <translation>text</translation>
+    </message>
+</context>
+<context>
+    <name>textedit</name>
+    <message>
+        <source>text edit</source>
+        <translation>text edit</translation>
+    </message>
+</context>
+<context>
+    <name>textinput</name>
+    <message>
+        <source>text</source>
+        <translation>text</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::ModelNodeContextMenu</name>
+    <message>
+        <source>Selection</source>
+        <translation>Auswahl</translation>
+    </message>
+    <message>
+        <source>Select parent: %1</source>
+        <translation>Übergeordnetes Element auswählen: %1</translation>
+    </message>
+    <message>
+        <source>Select: %1</source>
+        <translation>Auswahl: %1</translation>
+    </message>
+    <message>
+        <source>Stack (z)</source>
+        <translation>Stapel (z)</translation>
+    </message>
+    <message>
+        <source>To Front</source>
+        <translation>Nach vorn</translation>
+    </message>
+    <message>
+        <source>To Back</source>
+        <translation>Nach hinten</translation>
+    </message>
+    <message>
+        <source>Raise</source>
+        <translation>Eins nach vorn</translation>
+    </message>
+    <message>
+        <source>Lower</source>
+        <translation>Eins nach hinten</translation>
+    </message>
+    <message>
+        <source>Reset z property</source>
+        <translation>Z-Wert rücksetzen</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Bearbeiten</translation>
+    </message>
+    <message>
+        <source>Reset Position</source>
+        <translation>Position zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Reset Size</source>
+        <translation>Größe zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Visibility</source>
+        <translation>Sichtbarkeit</translation>
+    </message>
+    <message>
+        <source>Go into Component</source>
+        <translation>In Komponente gehen</translation>
     </message>
 </context>
 </TS>
