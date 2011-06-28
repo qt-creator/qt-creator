@@ -64,6 +64,7 @@ private slots:
     void finishProcess();
     void logApplicationMessage(const QString &msg, Utils::OutputFormat format);
     void filterApplicationMessage(const QString &msg);
+    void wrongSetupMessageBoxFinished(int);
 
 private:
     class QmlProfilerEnginePrivate;

@@ -244,12 +244,19 @@ void QmlProfilerEngine::filterApplicationMessage(const QString &msg)
     }
 }
 
-
 void QmlProfilerEngine::logApplicationMessage(const QString &msg, Utils::OutputFormat format)
 {
     emit outputReceived(msg, format);
 
     filterApplicationMessage(msg);
+}
+
+void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
+{
+    if (button == QMessageBox::Help) {
+        Core::HelpManager *helpManager = Core::HelpManager::instance();
+        helpManager->handleHelpRequest("creator-qml-performance-monitor.html");
+    }
 }
 
 } // namespace Internal
