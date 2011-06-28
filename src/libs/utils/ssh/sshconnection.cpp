@@ -201,6 +201,7 @@ SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn,
     m_socket->setProxy(m_connParams.proxyType == SshConnectionParameters::DefaultProxy
         ? QNetworkProxy::DefaultProxy : QNetworkProxy::NoProxy);
     m_timeoutTimer.setSingleShot(true);
+    m_timeoutTimer.setInterval(m_connParams.timeout * 1000);
     m_keepAliveTimer.setSingleShot(true);
     m_keepAliveTimer.setInterval(10000);
     connect(m_channelManager, SIGNAL(timeout()), this, SLOT(handleTimeout()));
@@ -614,7 +615,7 @@ void SshConnectionPrivate::sendKeepAlivePacket()
     Q_ASSERT(m_lastInvalidMsgSeqNr == InvalidSeqNr);
     m_lastInvalidMsgSeqNr = m_sendFacility.nextClientSeqNr();
     m_sendFacility.sendInvalidPacket();
-    m_timeoutTimer.start(5000);
+    m_timeoutTimer.start();
 }
 
 void SshConnectionPrivate::connectToHost()
@@ -634,7 +635,7 @@ void SshConnectionPrivate::connectToHost()
     connect(&m_timeoutTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     m_state = SocketConnecting;
     m_keyExchangeState = NoKeyExchange;
-    m_timeoutTimer.start(m_connParams.timeout * 1000);
+    m_timeoutTimer.start();
     m_socket->connectToHost(m_connParams.host, m_connParams.port);
 }
 
