@@ -1187,12 +1187,12 @@ ModelNode TextToModelMerger::createModelNode(const QString &typeName,
         nodeSource = componentSource;
     }
 
-    ModelNode::NodeSourceType nodeSourceType = ModelNode::NoSource;
+    ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource;
 
     if (isComponentType(typeName) || isImplicitComponent)
-        nodeSourceType = ModelNode::ComponentSource;
+        nodeSourceType = ModelNode::NodeWithComponentSource;
     else if (isCustomParserType(typeName))
-        nodeSourceType = ModelNode::CustomParserSource;
+        nodeSourceType = ModelNode::NodeWithCustomParserSource;
 
     ModelNode newNode = m_rewriterView->createModelNode(typeName,
                                                         majorVersion,

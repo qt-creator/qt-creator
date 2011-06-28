@@ -146,7 +146,7 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
 
 
     foreach (const ModelNode &node, nodeList) {
-        if (node.nodeSourceType() == ModelNode::ComponentSource) {
+        if (node.nodeSourceType() == ModelNode::NodeWithComponentSource) {
             if (!node.id().isEmpty()) {
                 QStandardItem *item = new QStandardItem(node.id());
                 item->setData(QVariant::fromValue(node), ModelNodeRole);
@@ -186,7 +186,7 @@ void ComponentView::searchForComponentAndRemoveFromList(const ModelNode &node)
 
 
     foreach (const ModelNode &childNode, nodeList) {
-        if (childNode.nodeSourceType() == ModelNode::ComponentSource) {
+        if (childNode.nodeSourceType() == ModelNode::NodeWithComponentSource) {
             removeSingleNodeFromList(childNode);
         }
     }

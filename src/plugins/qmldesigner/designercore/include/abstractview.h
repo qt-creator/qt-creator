@@ -88,7 +88,7 @@ public:
                          const PropertyListType &propertyList = PropertyListType(),
                          const PropertyListType &auxPropertyList = PropertyListType(),
                          const QString &nodeSource = QString(),
-                         ModelNode::NodeSourceType nodeSourceType = ModelNode::NoSource);
+                         ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource);
 
     const ModelNode rootModelNode() const;
     ModelNode rootModelNode();

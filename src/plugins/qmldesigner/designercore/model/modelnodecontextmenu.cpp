@@ -82,13 +82,13 @@ static inline bool modelNodeIsComponent(const ModelNode &node)
     if (node.metaInfo().isComponent())
         return true;
 
-    if (node.nodeSourceType() == ModelNode::ComponentSource)
+    if (node.nodeSourceType() == ModelNode::NodeWithComponentSource)
         return true;
     if (checkIfNodeIsAView(node) &&
         node.hasNodeProperty("delegate")) {
         if (node.nodeProperty("delegate").modelNode().metaInfo().isComponent())
             return true;
-        if (node.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::ComponentSource)
+        if (node.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
             return true;
     }
 
@@ -131,11 +131,11 @@ static inline void openInlineComponent(const ModelNode &node)
     if (!DesignDocumentController::instance())
         return;
 
-    if (node.nodeSourceType() == ModelNode::ComponentSource)
+    if (node.nodeSourceType() == ModelNode::NodeWithComponentSource)
         DesignDocumentController::instance()->changeCurrentModelTo(node);
     if (checkIfNodeIsAView(node) &&
         node.hasNodeProperty("delegate")) {
-        if (node.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::ComponentSource)
+        if (node.nodeProperty("delegate").modelNode().nodeSourceType() == ModelNode::NodeWithComponentSource)
             DesignDocumentController::instance()->changeCurrentModelTo(node.nodeProperty("delegate").modelNode());
     }
 }

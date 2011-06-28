@@ -87,9 +87,9 @@ class CORESHARED_EXPORT  ModelNode
 
 public:
     enum NodeSourceType {
-        NoSource = 0,
-        CustomParserSource = 1,
-        ComponentSource = 2
+        NodeWithoutSource = 0,
+        NodeWithCustomParserSource = 1,
+        NodeWithComponentSource = 2
     };
 
     ModelNode();
