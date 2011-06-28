@@ -768,7 +768,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     foreach(const NodeInstance &instance, instanceList) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
 
-        InstanceContainer::NodeMetaType nodeMetaType = nodeMetaType = InstanceContainer::ObjectMetaType;
+        InstanceContainer::NodeMetaType nodeMetaType = InstanceContainer::ObjectMetaType;
         if (instance.modelNode().metaInfo().isSubclassOf("QtQuick.Item", -1, -1))
             nodeMetaType = InstanceContainer::ItemMetaType;
 
@@ -870,7 +870,7 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
     foreach(const NodeInstance &instance, instanceList) {
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
 
-        InstanceContainer::NodeMetaType nodeMetaType = nodeMetaType = InstanceContainer::ObjectMetaType;
+        InstanceContainer::NodeMetaType nodeMetaType = InstanceContainer::ObjectMetaType;
         if (instance.modelNode().metaInfo().isSubclassOf("QtQuick.Item", -1, -1))
             nodeMetaType = InstanceContainer::ItemMetaType;
 

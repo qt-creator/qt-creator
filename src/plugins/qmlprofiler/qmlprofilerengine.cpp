@@ -43,6 +43,7 @@
 #include <analyzerbase/analyzerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 
 #include <qmljsdebugclient/qdeclarativedebugclient_p.h>
 #include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
