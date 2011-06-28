@@ -279,26 +279,23 @@ void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
 {
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
-    Core::ActionContainer *mtools = am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
-    m_menu = am->createMenu(Constants::M_DEBUG_ANALYZER);
-
     const Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Command *command = 0;
 
-    // add separator before Analyzer menu
-    QAction *act = new QAction(m_menu);
-    act->setSeparator(true);
-    command = am->registerAction(act, "Analyzer.Action.Sep", globalcontext);
-    mtools->addAction(command);
+    m_menu = am->createMenu(Constants::M_DEBUG_ANALYZER);
 
     // Menus
-    m_menu->menu()->setTitle(tr("Start &Analyzer"));
+    m_menu->menu()->setTitle(tr("&Analyze"));
     m_menu->menu()->setEnabled(true);
 
     m_menu->appendGroup(Constants::G_ANALYZER_STARTSTOP);
     m_menu->appendGroup(Constants::G_ANALYZER_TOOLS);
 
-    mtools->addMenu(m_menu);
+    Core::ActionContainer *menubar =
+        am->actionContainer(Core::Constants::MENU_BAR);
+    Core::ActionContainer *mtools =
+        am->actionContainer(Core::Constants::M_TOOLS);
+    menubar->addMenu(mtools, m_menu);
 
     m_toolGroup = new QActionGroup(m_menu);
     connect(m_toolGroup, SIGNAL(triggered(QAction*)),
@@ -306,8 +303,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
 
     m_startAction = new QAction(tr("Start"), m_menu);
     m_startAction->setIcon(QIcon(Constants::ANALYZER_CONTROL_START_ICON));
-    command = am->registerAction(m_startAction,
-                                                Constants::START, globalcontext);
+    command = am->registerAction(m_startAction, Constants::START, globalcontext);
     m_menu->addAction(command, Constants::G_ANALYZER_STARTSTOP);
     connect(m_startAction, SIGNAL(triggered()), q, SLOT(startTool()));
 

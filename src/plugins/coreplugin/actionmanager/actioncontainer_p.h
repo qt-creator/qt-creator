@@ -62,6 +62,7 @@ public:
     void appendGroup(const QString &id);
     void addAction(Command *action, const QString &group = QString());
     void addMenu(ActionContainer *menu, const QString &group = QString());
+    void addMenu(ActionContainer *before, ActionContainer *menu, const QString &group = QString());
     virtual void clear();
 
     int id() const;
