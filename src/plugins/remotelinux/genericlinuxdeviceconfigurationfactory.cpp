@@ -53,7 +53,7 @@ GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory(Q
 
 QString GenericLinuxDeviceConfigurationFactory::displayName() const
 {
-    return tr("Generic Linux Devices");
+    return tr("Generic Linux Device");
 }
 
 ILinuxDeviceConfigurationWizard *GenericLinuxDeviceConfigurationFactory::createWizard(QWidget *parent) const

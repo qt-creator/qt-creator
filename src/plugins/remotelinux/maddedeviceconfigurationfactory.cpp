@@ -45,7 +45,7 @@ MaddeDeviceConfigurationFactory::MaddeDeviceConfigurationFactory(QObject *parent
 
 QString MaddeDeviceConfigurationFactory::displayName() const
 {
-    return tr("Devices with MADDE support (Fremantle, Harmattan, MeeGo)");
+    return tr("Device with MADDE support (Fremantle, Harmattan, MeeGo)");
 }
 
 ILinuxDeviceConfigurationWizard *MaddeDeviceConfigurationFactory::createWizard(QWidget *parent) const
