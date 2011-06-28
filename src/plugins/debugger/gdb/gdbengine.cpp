@@ -2981,7 +2981,6 @@ void GdbEngine::changeBreakpoint(BreakpointModelId id)
     QTC_ASSERT(data.type != UnknownType, return);
     const BreakpointResponse &response = handler->response(id);
     QTC_ASSERT(response.id.isValid(), return);
-    qDebug() << "DELETING: " << response.id;
     const QByteArray bpnr = response.id.toByteArray();
     const BreakpointState state = handler->state(id);
     if (state == BreakpointChangeRequested)
