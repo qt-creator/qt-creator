@@ -110,7 +110,7 @@ public:
         QButtonGroup *buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
         buttonGroup->addButton(m_ui->hwButton);
-        buttonGroup->addButton(m_ui->qemuButton);
+        buttonGroup->addButton(m_ui->emulatorButton);
         connect(buttonGroup, SIGNAL(buttonClicked(int)),
            SLOT(handleDeviceTypeChanged()));
 

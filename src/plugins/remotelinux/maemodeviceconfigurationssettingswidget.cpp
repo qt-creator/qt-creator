@@ -207,7 +207,7 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
         m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));
         m_ui->portsLineEdit->setReadOnly(false);
     } else {
-        m_ui->deviceTypeValueLabel->setText(tr("Emulator (Qemu)"));
+        m_ui->deviceTypeValueLabel->setText(tr("Emulator"));
         m_ui->portsLineEdit->setReadOnly(true);
     }
     if (sshParams.authenticationType == Utils::SshConnectionParameters::AuthenticationByPassword)

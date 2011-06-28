@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>727</width>
-    <height>132</height>
+    <height>136</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -64,9 +64,9 @@
    <item row="2" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QRadioButton" name="qemuButton">
+      <widget class="QRadioButton" name="emulatorButton">
        <property name="text">
-        <string>Emulator (Qemu)</string>
+        <string>Emulator</string>
        </property>
       </widget>
      </item>
