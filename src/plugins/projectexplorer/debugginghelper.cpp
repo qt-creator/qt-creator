@@ -51,9 +51,9 @@ using namespace ProjectExplorer;
 static inline QStringList validBinaryFilenames()
 {
     return QStringList()
-            << QLatin1String("debug/gdbmacros.dll")
-            << QLatin1String("libgdbmacros.dylib")
-            << QLatin1String("libgdbmacros.so");
+            << QLatin1String("debug/dumper.dll")
+            << QLatin1String("libdumper.dylib")
+            << QLatin1String("libdumper.so");
 }
 
 QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QString &qtInstallData)
@@ -82,14 +82,14 @@ QStringList DebuggingHelperLibrary::locationsByInstallData(const QString &qtInst
 
 static QString sourcePath()
 {
-    return Core::ICore::instance()->resourcePath() + QLatin1String("/gdbmacros/");
+    return Core::ICore::instance()->resourcePath() + QLatin1String("/dumper/");
 }
 
 static QStringList sourceFileNames()
 {
     return QStringList()
-            << QLatin1String("gdbmacros.cpp") << QLatin1String("gdbmacros_p.h")
-            << QLatin1String("gdbmacros.h") << QLatin1String("gdbmacros.pro")
+            << QLatin1String("dumper.cpp") << QLatin1String("dumper_p.h")
+            << QLatin1String("dumper.h") << QLatin1String("dumper.pro")
             << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
 }
 
@@ -127,7 +127,7 @@ QString DebuggingHelperLibrary::copy(const QString &qtInstallData,
 
 bool DebuggingHelperLibrary::build(BuildHelperArguments arguments, QString *log, QString *errorMessage)
 {
-    arguments.proFilename = QLatin1String("gdbmacros.pro");
+    arguments.proFilename = QLatin1String("dumper.pro");
     arguments.helperName = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary",
                                                        "GDB helper");
     return buildHelper(arguments, log, errorMessage);

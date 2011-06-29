@@ -135,7 +135,6 @@ void Qt4NodeInstanceServer::resetAllItems()
 
     foreach (QGraphicsItem *item, declarativeView()->items()) {
         static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(declarativeView()->scene()))->resetDirtyItem(item);
-        QGraphicsItemPrivate::get(item)->dirtySceneTransform = 0;
     }
 }
 

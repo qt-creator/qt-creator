@@ -9687,14 +9687,14 @@ est ignorée, et un seul &apos;Entrer dans&apos; pour l&apos;émission d&apos;un
 
 Make sure you use something like
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 in your .pro file.</source>
         <translation type="obsolete">Le fichier binaire débogué ne contient pas les informations nécessaires pour l&apos;affichage correct des types de données Qt.
 
 Assurez-vous que vous utilisez quelque chose comme
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 dans votre fichier .pro.</translation>
     </message>

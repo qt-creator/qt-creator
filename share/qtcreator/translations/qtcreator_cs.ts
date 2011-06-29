@@ -7109,14 +7109,14 @@ Soubory</translation>
 
 Make sure you use something like
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 in your .pro file.</source>
         <translation type="obsolete">Laděný spustitelný soubor neobsahuje informace potřebné pro hezké zobrazení datových typů Qt.
 
 Ujistěte se, že používáte něco na způsob
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 ve svém .pro souboru.</translation>
     </message>

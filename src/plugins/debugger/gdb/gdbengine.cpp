@@ -1171,8 +1171,8 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
         QMap<QString, QString> oldShortToFull = m_shortToFullName;
         m_shortToFullName.clear();
         m_fullToShortName.clear();
-        // "^done,files=[{file="../../../../bin/gdbmacros/gdbmacros.cpp",
-        // fullname="/data5/dev/ide/main/bin/gdbmacros/gdbmacros.cpp"},
+        // "^done,files=[{file="../../../../bin/dumper/dumper.cpp",
+        // fullname="/data5/dev/ide/main/bin/dumper/dumper.cpp"},
         GdbMi files = response.data.findChild("files");
         foreach (const GdbMi &item, files.children()) {
             GdbMi fullName = item.findChild("fullname");
@@ -4724,7 +4724,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 void GdbEngine::loadPythonDumpers()
 {
     const QByteArray dumperSourcePath =
-        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
+        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/dumper/";
 
     postCommand("python execfile('" + dumperSourcePath + "bridge.py')",
         ConsoleCommand|NonCriticalResponse);

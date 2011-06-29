@@ -93,7 +93,6 @@ public:
     void startParsing();
     void waitForFinished();
     void cancel();
-    // todo take a list of globs
     void applyFilter(const QString &filter);
 signals:
     void parsingFinished();

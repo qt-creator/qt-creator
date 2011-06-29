@@ -71,8 +71,8 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
             return m_manager->isDefaultSession(sessionName);
         else if (role == CurrentSessionRole)
             return sessionName == m_manager->currentSession();
-    } else
-        return QVariant();
+    }
+    return QVariant();
 }
 
 

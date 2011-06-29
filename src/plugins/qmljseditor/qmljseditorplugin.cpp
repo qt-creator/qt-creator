@@ -160,12 +160,10 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     Core::ActionManager *am =  core->actionManager();
     Core::ActionContainer *contextMenu = am->createMenu(QmlJSEditor::Constants::M_CONTEXT);
-    Core::ActionContainer *qmlToolsMenu = am->createMenu(Core::Id(Constants::M_TOOLS_QML));
-    qmlToolsMenu->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
-    QMenu *menu = qmlToolsMenu->menu();
-    //: QML sub-menu in the Tools menu
-    menu->setTitle(tr("QML"));
-    am->actionContainer(Core::Constants::M_TOOLS)->addMenu(qmlToolsMenu);
+    Core::ActionContainer *qmlToolsMenu = am->actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
+
+    Core::Context globalContext(Core::Constants::C_GLOBAL);
+    qmlToolsMenu->addAction(createSeparator(am, this, globalContext, QmlJSEditor::Constants::SEPARATOR3));
 
     Core::Command *cmd;
     QAction *followSymbolUnderCursorAction = new QAction(tr("Follow Symbol Under Cursor"), this);
@@ -194,7 +192,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     qmlToolsMenu->addAction(cmd);
 
     // Insert marker for "Refactoring" menu:
-    Core::Context globalContext(Core::Constants::C_GLOBAL);
     Core::Command *sep = createSeparator(am, this, globalContext,
                                          Constants::SEPARATOR1);
     sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);

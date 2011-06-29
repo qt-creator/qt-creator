@@ -118,7 +118,7 @@ private slots:
     void modeChanged(Core::IMode*);
 
 private:
-    QScrollArea *m_scrollArea;
+    QWidget *m_modeWidget;
     QDeclarativeView *m_welcomePage;
     QHBoxLayout * buttonLayout;
     QList<QObject*> m_pluginList;
@@ -140,10 +140,13 @@ WelcomeMode::WelcomeMode() :
     m_welcomePage = new QDeclarativeView;
     m_welcomePage->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
-    m_scrollArea = new QScrollArea;
-    m_scrollArea->setFrameStyle(QFrame::NoFrame|QFrame::Plain);
-    m_scrollArea->setWidget(m_welcomePage);
-    m_scrollArea->setWidgetResizable(true);
+    m_modeWidget = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(new Utils::StyledBar);
+    layout->addWidget(m_welcomePage);
+    m_modeWidget->setLayout(layout);
 
     PluginManager *pluginManager = PluginManager::instance();
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
@@ -151,14 +154,14 @@ WelcomeMode::WelcomeMode() :
     Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
     connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
 
-    setWidget(m_scrollArea);
+    setWidget(m_modeWidget);
 }
 
 WelcomeMode::~WelcomeMode()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->setValue(QLatin1String(currentPageSettingsKeyC), activePlugin());
-    delete m_scrollArea;
+    delete m_modeWidget;
 }
 
 bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)

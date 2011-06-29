@@ -22,5 +22,5 @@ true {
     QT = core gui
 }
 
-SOURCES += ../../../share/qtcreator/gdbmacros/gdbmacros.cpp
+SOURCES += ../../../share/qtcreator/dumper/dumper.cpp
 

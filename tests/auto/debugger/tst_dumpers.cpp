@@ -35,8 +35,8 @@
 #undef private
 
 #include "gdb/gdbmi.h"
-#include "gdbmacros.h"
-#include "gdbmacros_p.h"
+#include "dumper.h"
+#include "dumper_p.h"
 
 #include "json.h"
 
@@ -2277,7 +2277,7 @@ void tst_Dumpers::dumpQSharedPointer()
     // Case 2: Composite type.
     // Case 1.1: Null pointer.
     QSharedPointer<QString> compositePtr;
-    // TODO: This case is not handled in gdbmacros.cpp (segfault!)
+    // TODO: This case is not handled in dumper.cpp (segfault!)
     //dumpQSharedPointerHelper(compoistePtr);
 
     // Case 1.2: Non-null pointer,

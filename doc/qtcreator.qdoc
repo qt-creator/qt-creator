@@ -8840,7 +8840,7 @@
 
     Qt's bootstrapped applications (such as moc and qmake) are built in a way
     that is incompatible with the default build of the debugging helpers. To
-    work around this, add gdbmacros.cpp to the compiled sources in the
+    work around this, add \c{dumper.cpp} to the compiled sources in the
     application Makefile.
 
     Choose \gui {Tools > Options > Debugger > Debugging Helper > Use debugging

@@ -9176,14 +9176,14 @@ on slow machines. In this case, the value should be increased.</source>
 
 Make sure you use something like
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 in your .pro file.</source>
         <translation type="obsolete">被调试的程序未包含用于正确显示Qt数据类型的信息。
 
 请确保使用添加类似如下信息
 
-SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
+SOURCES *= .../ide/main/bin/dumper/dumper.cpp
 
 到你的.pro文件中。</translation>
     </message>

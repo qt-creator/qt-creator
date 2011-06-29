@@ -157,7 +157,7 @@ QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, c
     return tutorials;
 }
 
-void ExamplesListModel::readNewsItems(const QString &examplesPath, const QString &demosPath, const QString &sourcePath)
+void ExamplesListModel::readNewsItems(const QString &examplesPath, const QString &demosPath, const QString & /* sourcePath */)
 {
     clear();
     foreach (const QString exampleSource, exampleSources()) {

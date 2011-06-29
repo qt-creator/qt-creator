@@ -32,7 +32,7 @@ DATA_DIRS = \
     schemes \
     styles \
     rss \
-    gdbmacros \
+    dumper \
     qmldesigner \
     qmlicons \
     qml \

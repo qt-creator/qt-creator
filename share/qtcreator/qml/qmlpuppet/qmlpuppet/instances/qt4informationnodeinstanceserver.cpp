@@ -145,6 +145,11 @@ void Qt4InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                 }
             }
 
+            foreach (QGraphicsItem *item, declarativeView()->items()) {
+                QGraphicsItemPrivate *d = QGraphicsItemPrivate::get(item);
+                d->ensureSceneTransform();
+            }
+
             foreach (const InstancePropertyPair& property, changedPropertyList()) {
                 const ServerNodeInstance instance = property.first;
                 const QString propertyName = property.second;

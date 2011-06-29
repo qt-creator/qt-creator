@@ -109,7 +109,7 @@
 
 #else
 
-#   include "gdbmacros_p.h"
+#   include "dumper_p.h"
 
 #endif // QT_BOOTSTRAPPED
 

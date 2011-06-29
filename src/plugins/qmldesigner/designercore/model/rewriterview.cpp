@@ -323,7 +323,7 @@ void RewriterView::importRemoved(const Import &import)
         applyChanges();
 }
 
-void RewriterView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/)
+void RewriterView::fileUrlChanged(const QUrl & /*oldUrl*/, const QUrl & /*newUrl*/)
 {
 }
 
@@ -375,34 +375,34 @@ void RewriterView::customNotification(const AbstractView * /*view*/, const QStri
         return; // we emitted this ourselves, so just ignore these notifications.
 }
 
-void RewriterView::scriptFunctionsChanged(const ModelNode &/*node*/, const QStringList &/*scriptFunctionList*/)
+void RewriterView::scriptFunctionsChanged(const ModelNode & /*node*/, const QStringList & /*scriptFunctionList*/)
 {
 }
 
-void RewriterView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &/*propertyList*/)
+void RewriterView::instancePropertyChange(const QList<QPair<ModelNode, QString> > & /*propertyList*/)
 {
 }
 
-void RewriterView::instancesCompleted(const QVector<ModelNode> &/*completedNodeList*/)
+void RewriterView::instancesCompleted(const QVector<ModelNode> & /*completedNodeList*/)
 {
 }
 
-void RewriterView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash)
-{
-
-}
-
-void RewriterView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/)
+void RewriterView::instanceInformationsChange(const QMultiHash<ModelNode, InformationName> & /* informationChangeHash */)
 {
 
 }
 
-void RewriterView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/)
+void RewriterView::instancesRenderImageChanged(const QVector<ModelNode> & /*nodeList*/)
 {
 
 }
 
-void RewriterView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
+void RewriterView::instancesPreviewImageChanged(const QVector<ModelNode> & /*nodeList*/)
+{
+
+}
+
+void RewriterView::instancesChildrenChanged(const QVector<ModelNode> & /*nodeList*/)
 {
 
 }
@@ -429,7 +429,7 @@ void RewriterView::rewriterEndTransaction()
     }
 }
 
-void RewriterView::actualStateChanged(const ModelNode &/*node*/)
+void RewriterView::actualStateChanged(const ModelNode & /*node*/)
 {
 }
 

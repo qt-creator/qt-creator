@@ -4,6 +4,7 @@ import "widgets"
 Image {
     id: root
     source: "qrc:welcome/images/welcomebg.png"
+    smooth: true
 
     // work around the fact that we can't use
     // a property alias to welcomeMode.activePlugin
@@ -11,16 +12,6 @@ Image {
     onCurrentChanged: welcomeMode.activePlugin = current
     Component.onCompleted: current = welcomeMode.activePlugin
 
-    BorderImage {
-        id: headerLine
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        // FIXME: 25 px and get rid of border
-        height: 24
-        border { top: 1; bottom: 1}
-        source: "qrc:welcome/images/tab_inactive.png"
-    }
     BorderImage {
         id: inner_background
         Image {
@@ -30,7 +21,7 @@ Image {
             anchors.left: parent.left;
             anchors.topMargin: 2
         }
-        anchors.top: headerLine.bottom
+        anchors.top: root.top
         source: "qrc:welcome/images/background_center_frame_v2.png"
         width: parent.width
         height: 60
