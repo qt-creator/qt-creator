@@ -619,7 +619,7 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
 
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
-        QSet<QString> newFilePaths = foundFiles[type];
+        QSet<QString> newFilePaths = filterFiles(type, foundFiles[type]);
         newFilePaths += filterFiles(type, m_recursiveEnumerateFiles);
 
         // We only need to save this information if
