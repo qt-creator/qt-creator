@@ -271,7 +271,24 @@ bool SGItemNodeInstance::isSGItem() const
 
 QSizeF SGItemNodeInstance::size() const
 {
-    return QSizeF(sgItem()->width(), sgItem()->height());
+    double width;
+
+    if (QSGItemPrivate::get(sgItem())->widthValid) {
+        width = sgItem()->width();
+    } else {
+        width = sgItem()->implicitWidth();
+    }
+
+    double height;
+
+    if (QSGItemPrivate::get(sgItem())->heightValid) {
+        height = sgItem()->height();
+    } else {
+        height = sgItem()->implicitHeight();
+    }
+
+
+    return QSizeF(width, height);
 }
 
 QRectF SGItemNodeInstance::boundingRectWithStepChilds(QSGItem *parentItem) const

@@ -104,7 +104,24 @@ bool QmlGraphicsItemNodeInstance::isQmlGraphicsItem() const
 
 QSizeF QmlGraphicsItemNodeInstance::size() const
 {
-    return QSizeF(qmlGraphicsItem()->width(), qmlGraphicsItem()->height());
+    double width;
+
+    if (QDeclarativeItemPrivate::get(qmlGraphicsItem())->widthValid) {
+        width = qmlGraphicsItem()->width();
+    } else {
+        width = qmlGraphicsItem()->implicitWidth();
+    }
+
+    double height;
+
+    if (QDeclarativeItemPrivate::get(qmlGraphicsItem())->heightValid) {
+        height = qmlGraphicsItem()->height();
+    } else {
+        height = qmlGraphicsItem()->implicitHeight();
+    }
+
+
+    return QSizeF(width, height);
 }
 
 void QmlGraphicsItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
