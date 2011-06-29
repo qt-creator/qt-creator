@@ -12,16 +12,6 @@ Image {
     Component.onCompleted: current = welcomeMode.activePlugin
 
     BorderImage {
-        id: headerLine
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        // FIXME: 25 px and get rid of border
-        height: 24
-        border { top: 1; bottom: 1}
-        source: "qrc:welcome/images/tab_inactive.png"
-    }
-    BorderImage {
         id: inner_background
         Image {
             id: header;
