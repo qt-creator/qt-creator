@@ -830,7 +830,11 @@ bool QStyleItem::eventFilter(QObject *o, QEvent *e) {
 void QStyleItem::showToolTip(const QString &str)
 {
     QPointF scene = mapToScene(width() - 20, 0);
-    QPoint global = qApp->focusWidget()->mapToGlobal(scene.toPoint());
+    QWidget *focusWidget = qApp->focusWidget();
+    if (!focusWidget)
+        return;
+
+    QPoint global = focusWidget->mapToGlobal(scene.toPoint());
     QToolTip::showText(QPoint(global.x(), global.y()), str);
 }
 
