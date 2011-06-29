@@ -294,6 +294,9 @@ void GraphicsObjectNodeInstance::paintUpdate()
 
 bool GraphicsObjectNodeInstance::isMovable() const
 {
+    if (isRootNodeInstance())
+        return false;
+
     return m_isMovable && graphicsObject() && graphicsObject()->parentItem();
 }
 
