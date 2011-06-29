@@ -57,7 +57,6 @@ protected:
     bool validateCurrentPage();
 
 private:
-    class QtQuickAppWizardSourcesPage *m_qmlSourcesPage;
     class QtQuickComponentSetOptionsPage *m_componentOptionsPage;
     int m_componentOptionsPageId;
 
@@ -68,22 +67,18 @@ private:
 
 QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent)
     : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(4, 7, 1))
-    , m_qmlSourcesPage(0)
 {
     setWindowTitle(tr("New Qt Quick Application"));
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));
 
     m_componentOptionsPage = new Internal::QtQuickComponentSetOptionsPage;
-    m_componentOptionsPageId = addPageWithTitle(m_componentOptionsPage, tr("Component Set"));
+    m_componentOptionsPageId = addPageWithTitle(m_componentOptionsPage, tr("Application Type"));
     m_componentItem = wizardProgress()->item(m_componentOptionsPageId);
 
     AbstractMobileAppWizardDialog::addMobilePages();
 
     m_componentItem->setNextItems(QList<Utils::WizardProgressItem *>()
                                   << targetsPageItem());
-
-    m_qmlSourcesPage = new QtQuickAppWizardSourcesPage;
-    addPageWithTitle(m_qmlSourcesPage, tr("QML Sources"));
 }
 
 bool QtQuickAppWizardDialog::validateCurrentPage()
@@ -163,10 +158,10 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
     const QtQuickAppWizardDialog *wizard = qobject_cast<const QtQuickAppWizardDialog*>(w);
-    if (wizard->m_qmlSourcesPage->mainQmlMode() == QtQuickApp::ModeGenerate) {
+    if (wizard->m_componentOptionsPage->mainQmlMode() == QtQuickApp::ModeGenerate) {
         m_d->app->setMainQml(QtQuickApp::ModeGenerate);
     } else {
-        const QString mainQmlFile = wizard->m_qmlSourcesPage->mainQmlFile();
+        const QString mainQmlFile = wizard->m_componentOptionsPage->mainQmlFile();
         m_d->app->setMainQml(QtQuickApp::ModeImport, mainQmlFile);
     }
     m_d->app->setComponentSet(wizard->m_componentOptionsPage->componentSet());

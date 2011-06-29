@@ -48,6 +48,10 @@ public:
     explicit QtQuickComponentSetOptionsPage(QWidget *parent = 0);
     virtual ~QtQuickComponentSetOptionsPage();
 
+    QtQuickApp::Mode mainQmlMode() const;
+    QString mainQmlFile() const;
+    virtual bool isComplete() const;
+
     QtQuickApp::ComponentSet componentSet() const;
     void setComponentSet(QtQuickApp::ComponentSet componentSet);
 
@@ -56,23 +60,6 @@ private slots:
 
 private:
     class QtQuickComponentSetOptionsPagePrivate *m_d;
-};
-
-class QtQuickAppWizardSourcesPage : public QWizardPage
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(QtQuickAppWizardSourcesPage)
-
-public:
-    explicit QtQuickAppWizardSourcesPage(QWidget *parent = 0);
-    virtual ~QtQuickAppWizardSourcesPage();
-
-    QtQuickApp::Mode mainQmlMode() const;
-    QString mainQmlFile() const;
-    virtual bool isComplete() const;
-
-private:
-    class QtQuickAppWizardSourcesPagePrivate *m_d;
 };
 
 } // namespace Internal

@@ -132,7 +132,6 @@ FORMS += makestep.ui \
     librarydetailswidget.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \
-    wizards/qtquickappwizardsourcespage.ui \
     wizards/html5appwizardsourcespage.ui \
     wizards/mobilelibrarywizardoptionpage.ui \
     wizards/mobileappwizardgenericoptionspage.ui \

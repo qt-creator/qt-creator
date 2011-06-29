@@ -32,7 +32,6 @@
 
 #include "qtquickappwizardpages.h"
 #include "ui_qtquickcomponentsetoptionspage.h"
-#include "ui_qtquickappwizardsourcespage.h"
 #include <coreplugin/coreconstants.h>
 
 #include <QtGui/QDesktopServices>
@@ -43,28 +42,32 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-
 class QtQuickComponentSetOptionsPagePrivate
 {
     Ui::QtQuickComponentSetOptionsPage ui;
     friend class QtQuickComponentSetOptionsPage;
 };
 
-class QtQuickAppWizardSourcesPagePrivate
-{
-    Ui::QtQuickAppWizardSourcesPage ui;
-    friend class QtQuickAppWizardSourcesPage;
-};
-
-
 QtQuickComponentSetOptionsPage::QtQuickComponentSetOptionsPage(QWidget *parent)
     : QWizardPage(parent)
     , m_d(new QtQuickComponentSetOptionsPagePrivate)
 {
     m_d->ui.setupUi(this);
+
+    m_d->ui.importLineEdit->setExpectedKind(Utils::PathChooser::File);
+    m_d->ui.importLineEdit->setPromptDialogFilter(QLatin1String("*.qml"));
+    m_d->ui.importLineEdit->setPromptDialogTitle(tr("Select QML File"));
+    connect(m_d->ui.importLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
+    connect(m_d->ui.importRadioButton,
+            SIGNAL(toggled(bool)), SIGNAL(completeChanged()));
+
+    connect(m_d->ui.importRadioButton, SIGNAL(toggled(bool)),
+            m_d->ui.importLineEdit, SLOT(setEnabled(bool)));
+
     m_d->ui.buttonGroup->setId(m_d->ui.qtquick10RadioButton, 0);
     m_d->ui.buttonGroup->setId(m_d->ui.symbian10RadioButton, 1);
     m_d->ui.buttonGroup->setId(m_d->ui.meego10RadioButton, 2);
+    m_d->ui.buttonGroup->setId(m_d->ui.importRadioButton, 3);
     connect(m_d->ui.buttonGroup, SIGNAL(buttonClicked(int)), this, SLOT(radioButtonChecked(int)));
 }
 
@@ -98,40 +101,19 @@ void QtQuickComponentSetOptionsPage::radioButtonChecked(int index)
     m_d->ui.descriptionStackedWidget->setCurrentIndex(index);
 }
 
-QtQuickAppWizardSourcesPage::QtQuickAppWizardSourcesPage(QWidget *parent)
-    : QWizardPage(parent)
-    , m_d(new QtQuickAppWizardSourcesPagePrivate)
+QtQuickApp::Mode QtQuickComponentSetOptionsPage::mainQmlMode() const
 {
-    m_d->ui.setupUi(this);
-    m_d->ui.importLineEdit->setExpectedKind(Utils::PathChooser::File);
-    m_d->ui.importLineEdit->setPromptDialogFilter(QLatin1String("*.qml"));
-    m_d->ui.importLineEdit->setPromptDialogTitle(tr("Select QML File"));
-    connect(m_d->ui.importLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
-    connect(m_d->ui.importRadioButton,
-            SIGNAL(toggled(bool)), SIGNAL(completeChanged()));
-    connect(m_d->ui.generateRadioButton, SIGNAL(toggled(bool)),
-            m_d->ui.importLineEdit, SLOT(setDisabled(bool)));
-    m_d->ui.generateRadioButton->setChecked(true);
+    return  m_d->ui.importRadioButton->isChecked() ? QtQuickApp::ModeImport
+                                                     : QtQuickApp::ModeGenerate;
 }
 
-QtQuickAppWizardSourcesPage::~QtQuickAppWizardSourcesPage()
-{
-    delete m_d;
-}
-
-QtQuickApp::Mode QtQuickAppWizardSourcesPage::mainQmlMode() const
-{
-    return  m_d->ui.generateRadioButton->isChecked() ? QtQuickApp::ModeGenerate
-                                                     : QtQuickApp::ModeImport;
-}
-
-QString QtQuickAppWizardSourcesPage::mainQmlFile() const
+QString QtQuickComponentSetOptionsPage::mainQmlFile() const
 {
     return mainQmlMode() == QtQuickApp::ModeImport ?
                 m_d->ui.importLineEdit->path() : QString();
 }
 
-bool QtQuickAppWizardSourcesPage::isComplete() const
+bool QtQuickComponentSetOptionsPage::isComplete() const
 {
     return mainQmlMode() != QtQuickApp::ModeImport
             || m_d->ui.importLineEdit->isValid();
