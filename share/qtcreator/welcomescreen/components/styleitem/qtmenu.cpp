@@ -41,12 +41,12 @@ QtMenu::~QtMenu()
 
 void QtMenu::setTitle(const QString &title)
 {
-
+    m_title = title;
 }
 
 QString QtMenu::title() const
 {
-
+    return m_title;
 }
 
 QDeclarativeListProperty<QtMenuItem> QtMenu::menuItems()

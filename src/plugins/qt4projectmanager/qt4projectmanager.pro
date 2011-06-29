@@ -130,7 +130,6 @@ FORMS += makestep.ui \
     qt4projectconfigwidget.ui \
     showbuildlog.ui \
     librarydetailswidget.ui \
-    showbuildlog.ui \
     wizards/testwizardpage.ui \
     wizards/targetsetuppage.ui \
     wizards/qtquickappwizardsourcespage.ui \
