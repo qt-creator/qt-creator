@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
     new QmlDesigner::Qt4NodeInstanceClientProxy(&application);
 
-#if defined(Q_OS_WIN) && defined(QT_NO_DEBUG)
+#if defined(Q_OS_WIN) && defined(QT_NO_DEBUG) && !defined(ENABLE_QT_BREAKPAD)
     SetErrorMode(SEM_NOGPFAULTERRORBOX); //We do not want to see any message boxes
 #endif
 
