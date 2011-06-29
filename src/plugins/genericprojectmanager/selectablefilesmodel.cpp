@@ -393,12 +393,13 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
             allChecked = allUnchecked = false;
     }
 
+    int visibleIndex = 0;
     int visibleEnd = t->visibleFiles.size();
     int startOfBlock = 0;
 
     bool removeBlock = false;
     // first remove filtered out rows..
-    for (int visibleIndex=0; visibleIndex < visibleEnd; ++visibleIndex) {
+    for (;visibleIndex < visibleEnd; ++visibleIndex) {
         if (startOfBlock == visibleIndex) {
             removeBlock = filter(t->visibleFiles.at(visibleIndex));
         } else if (removeBlock != filter(t->visibleFiles.at(visibleIndex))) {
@@ -432,7 +433,7 @@ Qt::CheckState SelectableFilesModel::applyFilter(const QModelIndex &index)
             newRows.append(t->files.at(i));
     // now add them!
     startOfBlock = 0;
-    int visibleIndex = 0;
+    visibleIndex = 0;
     visibleEnd = t->visibleFiles.size();
     int newIndex = 0;
     int newEnd = newRows.size();
