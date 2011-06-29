@@ -18,7 +18,7 @@ Image {
             id: header;
             source: "qrc:welcome/images/center_frame_header.png";
             anchors.verticalCenter: parent.verticalCenter;
-            anchors.left: parent.left;
+            anchors.horizontalCenter: parent.horizontalCenter;
             anchors.topMargin: 2
         }
         anchors.top: root.top
