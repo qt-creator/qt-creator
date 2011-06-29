@@ -2935,8 +2935,34 @@ namespace qc41700 {
 
 } // namespace qc41700
 
+namespace cp42895 {
+
+    // http://codepaster.europe.nokia.com/?id=42895
+
+    void g(int c, int d)
+    {
+        qDebug() << c << d;
+        // <== break here
+        // Check there are frames for g and f in the stack view.
+        dummyStatement(&c, &d);
+    }
+
+    void f(int a, int b)
+    {
+        g(a, b);
+    }
+
+    void test42895()
+    {
+        f(3, 4);
+    }
+
+} // namespace cp
+
+
 int main(int argc, char *argv[])
 {
+    cp42895::test42895();
     bug5046::test5046();
     bug4904::test4904();
     qc41700::test41700();
