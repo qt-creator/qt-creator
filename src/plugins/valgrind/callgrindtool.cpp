@@ -999,6 +999,15 @@ void CallgrindToolPrivate::createTextMarks()
     }
 }
 
+bool CallgrindTool::canRunLocally() const
+{
+#ifdef Q_OS_WINDOWS
+    return false;
+#else
+    return true;
+#endif
+}
+
 } // namespace Internal
 } // namespace Valgrind
 

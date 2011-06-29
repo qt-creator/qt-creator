@@ -38,7 +38,6 @@
 #include <extensionsystem/iplugin.h>
 
 namespace Analyzer {
-
 namespace Internal {
 
 class AnalyzerPlugin : public ExtensionSystem::IPlugin
@@ -59,8 +58,6 @@ public:
 private:
     class AnalyzerPluginPrivate;
     AnalyzerPluginPrivate *d;
-
-    static AnalyzerPlugin *m_instance;
 };
 
 } // namespace Internal

@@ -65,6 +65,7 @@ public:
     QWidget *createControlWidget();
 
     bool canRunRemotely() const;
+    bool canRunLocally() const;
 
 public slots:
     void connectClient(int port);

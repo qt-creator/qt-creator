@@ -453,6 +453,11 @@ bool QmlProfilerTool::canRunRemotely() const
     return true;
 }
 
+bool QmlProfilerTool::canRunLocally() const
+{
+    return true;
+}
+
 void QmlProfilerTool::clearDisplay()
 {
     d->m_traceWindow->clearDisplay();
@@ -475,7 +480,6 @@ void QmlProfilerTool::attach()
 
         connectClient(d->m_tcpPort);
         AnalyzerManager::instance()->showMode();
-        //AnalyzerManager::instance()->popupOutputPane();
     } else {
         stopRecording();
     }

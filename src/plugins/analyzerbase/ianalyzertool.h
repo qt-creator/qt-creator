@@ -112,6 +112,9 @@ public:
     virtual IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
 
+    /// Returns true when this tool can be run on the loca machine.
+    virtual bool canRunLocally() const = 0;
+
     /// Returns true when this tool can be run on a remote machine.
     virtual bool canRunRemotely() const = 0;
 

@@ -54,7 +54,7 @@
 using namespace Analyzer;
 using namespace Analyzer::Internal;
 
-AnalyzerPlugin *AnalyzerPlugin::m_instance = 0;
+static AnalyzerPlugin *m_instance = 0;
 
 
 ////////////////////////////////////////////////////////////////////////
