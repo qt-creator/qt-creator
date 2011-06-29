@@ -88,7 +88,6 @@ FormWindowEditor::FormWindowEditor(Internal::DesignerXmlEditor *editor,
     // Force update of open editors model.
     connect(&d->m_file, SIGNAL(saved()), this, SIGNAL(changed()));
     connect(&d->m_file, SIGNAL(changed()), this, SIGNAL(changed()));
-    connect(this, SIGNAL(changed()), this, SLOT(configureXmlEditor()));
 }
 
 FormWindowEditor::~FormWindowEditor()
@@ -196,19 +195,12 @@ void FormWindowEditor::syncXmlEditor()
     syncXmlEditor(contents());
 }
 
-void FormWindowEditor::configureXmlEditor() const
-{
-    TextEditor::PlainTextEditorWidget *widget =
-            qobject_cast<TextEditor::PlainTextEditorWidget *>(d->m_textEditor.widget());
-    if (widget)
-        widget->configure(Core::ICore::instance()->mimeDatabase()->findByFile(
-                d->m_file.fileName()));
-}
-
 void FormWindowEditor::syncXmlEditor(const QString &contents)
 {
     d->m_textEditor.editorWidget()->setPlainText(contents);
     d->m_textEditor.editorWidget()->setReadOnly(true);
+    static_cast<TextEditor::PlainTextEditorWidget *>
+            (d->m_textEditor.editorWidget())->configure(file()->mimeType());
 }
 
 Core::IFile *FormWindowEditor::file()

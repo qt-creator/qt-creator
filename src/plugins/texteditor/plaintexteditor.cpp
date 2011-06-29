@@ -154,6 +154,11 @@ void PlainTextEditorWidget::configure()
     configure(mimeType);
 }
 
+void PlainTextEditorWidget::configure(const QString &mimeType)
+{
+    configure(Core::ICore::instance()->mimeDatabase()->findByType(mimeType));
+}
+
 void PlainTextEditorWidget::configure(const Core::MimeType &mimeType)
 {
     Highlighter *highlighter = new Highlighter();
