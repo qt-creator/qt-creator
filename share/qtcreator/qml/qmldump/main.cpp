@@ -266,6 +266,9 @@ public:
                 if (qmlTyName.startsWith(relocatableModuleUri + QLatin1Char('/'))) {
                     qmlTyName.remove(0, relocatableModuleUri.size() + 1);
                 }
+                if (qmlTyName.startsWith("./")) {
+                    qmlTyName.remove(0, 2);
+                }
                 exports += enquote(QString("%1 %2.%3").arg(
                                        qmlTyName,
                                        QString::number(qmlTy->majorVersion()),
@@ -530,11 +533,16 @@ int main(int argc, char *argv[])
 
     QDeclarativeView view;
     QDeclarativeEngine *engine = view.engine();
-    if (!pluginImportPath.isEmpty())
+    if (!pluginImportPath.isEmpty()) {
+        QDir cur = QDir::current();
+        cur.cd(pluginImportPath);
+        pluginImportPath = cur.absolutePath();
+        QDir::setCurrent(pluginImportPath);
         engine->addImportPath(pluginImportPath);
+    }
 
     // find all QMetaObjects reachable from the builtin module
-    QByteArray importCode("import QtQuick 1.1\n");
+    QByteArray importCode("import QtQuick 1.0\n");
     QSet<const QMetaObject *> defaultReachable = collectReachableMetaObjects(importCode, engine);
 
     // this will hold the meta objects we want to dump information of
