@@ -66,7 +66,6 @@ DragTool::DragTool(FormEditorView *editorView)
     m_blockMove(false),
     m_Aborted(false)
 {
-//    view()->setCursor(Qt::SizeAllCursor);
 }
 
 

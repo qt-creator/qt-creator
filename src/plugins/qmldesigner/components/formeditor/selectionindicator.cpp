@@ -102,6 +102,7 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
         QPen pen;
         pen.setColor(QColor(108, 141, 221));
         newSelectionIndicatorGraphicsItem->setPen(pen);
+        newSelectionIndicatorGraphicsItem->setCursor(m_cursor);
     }
 }
 
@@ -118,6 +119,14 @@ void SelectionIndicator::updateItems(const QList<FormEditorItem*> &itemList)
             indicatorGraphicsItem->setPolygon(boundingRectInLayerItemSpace);
         }
     }
+}
+
+void SelectionIndicator::setCursor(const QCursor &cursor)
+{
+    m_cursor = cursor;
+
+    foreach (QGraphicsItem  *item, m_indicatorShapeHash.values())
+        item->setCursor(cursor);
 }
 
 }

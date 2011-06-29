@@ -37,7 +37,7 @@
 #include <QGraphicsPolygonItem>
 #include "layeritem.h"
 #include "formeditoritem.h"
-
+#include <QCursor>
 
 
 namespace QmlDesigner {
@@ -57,9 +57,12 @@ public:
     void setItems(const QList<FormEditorItem*> &itemList);
     void updateItems(const QList<FormEditorItem*> &itemList);
 
+    void setCursor(const QCursor &cursor);
+
 private:
     QHash<FormEditorItem*, QGraphicsPolygonItem *> m_indicatorShapeHash;
     QWeakPointer<LayerItem> m_layerItem;
+    QCursor m_cursor;
 
 };
 

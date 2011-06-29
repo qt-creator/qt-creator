@@ -70,7 +70,6 @@ void ItemCreatorTool::mousePressEvent(const QList<QGraphicsItem*> &/*itemList*/,
 void ItemCreatorTool::mouseMoveEvent(const QList<QGraphicsItem*> &/*itemList*/,
                                    QGraphicsSceneMouseEvent *event)
 {
-    view()->setCursor(Qt::CrossCursor);
     if (m_rubberbandSelectionManipulator.isActive()) {
         m_rubberbandSelectionManipulator.update(event->scenePos());
     } else {
