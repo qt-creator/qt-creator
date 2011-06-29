@@ -97,7 +97,6 @@ public:
 
 public slots:
     void syncXmlEditor();
-    void configureXmlEditor() const;
 
 private slots:
     void slotOpen(QString *errorString, const QString &fileName);

@@ -68,6 +68,7 @@ class TEXTEDITOR_EXPORT PlainTextEditorWidget : public BaseTextEditorWidget
 public:
     PlainTextEditorWidget(QWidget *parent);
 
+    void configure(const QString& mimeType);
     void configure(const Core::MimeType &mimeType);
     bool isMissingSyntaxDefinition() const;
     bool ignoreMissingSyntaxDefinition() const;
