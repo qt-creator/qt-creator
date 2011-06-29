@@ -16,7 +16,7 @@ Item {
 
     ListModel {
         id: tempNewsModel
-        ListElement { title: "Loading news sources..."; description: "Loading..." ; blogIcon: ""; blogName: ""; link: "" }
+        ListElement { title: ""; description: "Loading news sources..." ; blogIcon: ""; blogName: ""; link: "" }
     }
 
     NewsListing {

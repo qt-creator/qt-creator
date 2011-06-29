@@ -58,7 +58,6 @@ Image {
             anchors.fill: parent
             anchors.margins: 4
         }
-
     }
 
     TabWidget {
