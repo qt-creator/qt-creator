@@ -4,6 +4,7 @@ import "widgets"
 Image {
     id: root
     source: "qrc:welcome/images/welcomebg.png"
+    smooth: true
 
     // work around the fact that we can't use
     // a property alias to welcomeMode.activePlugin
@@ -20,7 +21,7 @@ Image {
             anchors.left: parent.left;
             anchors.topMargin: 2
         }
-        anchors.top: headerLine.bottom
+        anchors.top: root.top
         source: "qrc:welcome/images/background_center_frame_v2.png"
         width: parent.width
         height: 60
