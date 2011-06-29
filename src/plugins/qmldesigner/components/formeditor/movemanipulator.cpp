@@ -88,6 +88,7 @@ void MoveManipulator::setItems(const QList<FormEditorItem*> &itemList)
     }
 }
 
+
 void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, const ModelNode &parentNode)
 {
     bool snapperUpdated = false;
@@ -114,7 +115,6 @@ void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &it
 {
     if (m_view->model() && !m_itemList.isEmpty())
         synchronizeParent(itemList, m_itemList.first()->qmlItemNode().instanceParent());
-
 }
 
 void MoveManipulator::updateHashes()

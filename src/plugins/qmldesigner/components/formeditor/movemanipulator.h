@@ -71,6 +71,7 @@ public:
     void setItem(FormEditorItem* item);
     void synchronizeInstanceParent(const QList<FormEditorItem*> &itemList);
     void synchronizeParent(const QList<FormEditorItem*> &itemList, const ModelNode &parentNode);
+
     void begin(const QPointF& beginPoint);
     void update(const QPointF& updatePoint, Snapping useSnapping, State stateToBeManipulated = UseActualState);
     void reparentTo(FormEditorItem *newParent);
