@@ -54,7 +54,7 @@ can fix this by either re-building your Qt with the "-developer-build"
 configure option, or by passing the include directory in the source directory
 to qmake. For example:
 
-  qmake "QT_PRIVATE_HEADERS=$$QT_SOURCE_TREE/include" $SOURCE_DIRECTORY/qtcreator.pro
+  qmake "QT_PRIVATE_HEADERS=$$QT_BUILD_TREE/include" $SOURCE_DIRECTORY/qtcreator.pro
 
 
 Compiling Qt and Qt Creator on Windows
