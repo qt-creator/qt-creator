@@ -1,4 +1,5 @@
 import Qt 4.7
+import "../components/" as Components
 
 Item {
     id: root
@@ -50,10 +51,17 @@ Item {
                     Image { id: icon; source: blogIcon; asynchronous: true }
                     Text { id: heading2; text: blogName; font.italic: true; wrapMode: Text.WrapAtWordBoundaryOrAnywhere; textFormat: Text.RichText; width: parent.width-icon.width-5 }
                 }
-                Text { id: text; text: description; wrapMode: Text.WrapAtWordBoundaryOrAnywhere; textFormat: Text.RichText ; width: parent.width-10 }
+                Text {
+                    id: text;
+                    text: description;
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    textFormat: Text.RichText
+                    width: parent.width-10
+                }
                 Text { visible: link !== ""; id: readmore; text: qsTr("Click to read more..."); font.italic: true; wrapMode: Text.WrapAtWordBoundaryOrAnywhere; textFormat: Text.RichText }
             }
-            MouseArea { anchors.fill: parent; onClicked: Qt.openUrlExternally(link); hoverEnabled: true; id: mouseArea }
+            Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: column }
+            MouseArea { anchors.fill: column; onClicked: Qt.openUrlExternally(link); hoverEnabled: true; id: mouseArea }
 
             StateGroup {
                 id: activeState
