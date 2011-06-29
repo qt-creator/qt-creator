@@ -42,14 +42,14 @@ QmlProfilerTraceClient::QmlProfilerTraceClient(QDeclarativeDebugConnection *clie
     : QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client),
       m_inProgressRanges(0), m_maximumTime(0), m_recording(false), m_nestingLevel(0)
 {
-    ::memset(m_rangeCount, 0, MaximumRangeType * sizeof(int));
-    ::memset(m_nestingInType, 0, MaximumRangeType * sizeof(int));
+    ::memset(m_rangeCount, 0, MaximumQmlEventType * sizeof(int));
+    ::memset(m_nestingInType, 0, MaximumQmlEventType * sizeof(int));
 }
 
 void QmlProfilerTraceClient::clearView()
 {
-    ::memset(m_rangeCount, 0, MaximumRangeType * sizeof(int));
-    ::memset(m_nestingInType, 0, MaximumRangeType * sizeof(int));
+    ::memset(m_rangeCount, 0, MaximumQmlEventType * sizeof(int));
+    ::memset(m_nestingInType, 0, MaximumQmlEventType * sizeof(int));
     m_nestingLevel = 0;
     emit clear();
 }
@@ -111,7 +111,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
         int range;
         stream >> range;
 
-        if (range >= MaximumRangeType)
+        if (range >= MaximumQmlEventType)
             return;
 
         if (messageType == RangeStart) {
@@ -150,7 +150,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 Location location = m_rangeLocations[range].count() ? m_rangeLocations[range].pop() : Location();
 
                 qint64 startTime = m_rangeStartTimes[range].pop();
-                emit this->range((RangeType)range, m_nestingLevel, m_nestingInType[range], startTime,
+                emit this->range((QmlEventType)range, m_nestingLevel, m_nestingInType[range], startTime,
                                  time - startTime, data, location.fileName, location.line);
                 --m_nestingLevel;
                 --m_nestingInType[range];

@@ -23,14 +23,12 @@ SOURCES += \
     tracewindow.cpp \
     timelineview.cpp \
     qmlprofilerattachdialog.cpp \
-    qmlprofilersummaryview.cpp \
     qmlprojectanalyzerruncontrolfactory.cpp \
     localqmlprofilerrunner.cpp \
     codaqmlprofilerrunner.cpp \
     remotelinuxqmlprofilerrunner.cpp \
-    qmlprofilercalleeview.cpp \
-    qmlprofilercallerview.cpp \
-    qmlprofilertraceclient.cpp
+    qmlprofilertraceclient.cpp \
+    qmlprofilereventview.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -41,15 +39,14 @@ HEADERS += \
     tracewindow.h \
     timelineview.h \
     qmlprofilerattachdialog.h \
-    qmlprofilersummaryview.h \
     qmlprojectanalyzerruncontrolfactory.h \
     abstractqmlprofilerrunner.h \
     localqmlprofilerrunner.h \
     codaqmlprofilerrunner.h \
     remotelinuxqmlprofilerrunner.h \
-    qmlprofilercalleeview.h \
-    qmlprofilercallerview.h \
-    qmlprofilertraceclient.h
+    qmlprofilertraceclient.h \
+    qmlprofilereventview.h \
+    qmlprofilereventtypes.h
 
 RESOURCES += \
     qml/qml.qrc

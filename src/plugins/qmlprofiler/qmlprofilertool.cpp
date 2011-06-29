@@ -36,9 +36,7 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerattachdialog.h"
-#include "qmlprofilersummaryview.h"
-#include "qmlprofilercalleeview.h"
-#include "qmlprofilercallerview.h"
+#include "qmlprofilereventview.h"
 
 #include "tracewindow.h"
 #include "timelineview.h"
@@ -96,9 +94,10 @@ public:
     QTimer m_connectionTimer;
     int m_connectionAttempts;
     TraceWindow *m_traceWindow;
-    QmlProfilerSummaryView *m_summary;
-    QmlProfilerCalleeView *m_calleetree;
-    QmlProfilerCallerView *m_callertree;
+    QmlProfilerEventStatistics *m_statistics;
+    QmlProfilerEventsView *m_eventsView;
+    QmlProfilerEventsView *m_calleeView;
+    QmlProfilerEventsView *m_callerView;
     ProjectExplorer::Project *m_project;
     Utils::FileInProjectFinder m_projectFinder;
     ProjectExplorer::RunConfiguration *m_runConfiguration;
@@ -236,29 +235,25 @@ void QmlProfilerTool::initializeDockWidgets()
     connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)),this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
 
-    d->m_summary = new QmlProfilerSummaryView(mw);
+    d->m_statistics = new QmlProfilerEventStatistics(mw);
+    d->m_eventsView = new QmlProfilerEventsView(mw, d->m_statistics);
+    d->m_eventsView->setViewType(QmlProfilerEventsView::EventsView);
 
     connect(d->m_traceWindow, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
-            d->m_summary, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
+            d->m_statistics, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()),
-            d->m_summary, SLOT(complete()));
-    connect(d->m_summary, SIGNAL(gotoSourceLocation(QString,int)),
+            d->m_statistics, SLOT(complete()));
+    connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
 
-    d->m_calleetree = new QmlProfilerCalleeView(mw);
-    connect(d->m_traceWindow, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
-            d->m_calleetree, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
-    connect(d->m_traceWindow, SIGNAL(viewUpdated()),
-            d->m_calleetree, SLOT(complete()));
-    connect(d->m_calleetree, SIGNAL(gotoSourceLocation(QString,int)),
+    d->m_calleeView = new QmlProfilerEventsView(mw, d->m_statistics);
+    d->m_calleeView->setViewType(QmlProfilerEventsView::CalleesView);
+    connect(d->m_calleeView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
 
-    d->m_callertree = new QmlProfilerCallerView(mw);
-    connect(d->m_traceWindow, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
-            d->m_callertree, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
-    connect(d->m_traceWindow, SIGNAL(viewUpdated()),
-            d->m_callertree, SLOT(complete()));
-    connect(d->m_callertree, SIGNAL(gotoSourceLocation(QString,int)),
+    d->m_callerView = new QmlProfilerEventsView(mw, d->m_statistics);
+    d->m_callerView->setViewType(QmlProfilerEventsView::CallersView);
+    connect(d->m_callerView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
 
     Core::ICore *core = Core::ICore::instance();
@@ -275,17 +270,17 @@ void QmlProfilerTool::initializeDockWidgets()
 
     updateAttachAction(false);
 
-    QDockWidget *summaryDock = AnalyzerManager::createDockWidget
-        (this, tr("Bindings"), d->m_summary, Qt::BottomDockWidgetArea);
+    QDockWidget *eventsDock = AnalyzerManager::createDockWidget
+            (this, tr("Events"), d->m_eventsView, Qt::BottomDockWidgetArea);
     QDockWidget *timelineDock = AnalyzerManager::createDockWidget
-        (this, tr("Timeline"), d->m_traceWindow, Qt::BottomDockWidgetArea);
+            (this, tr("Timeline"), d->m_traceWindow, Qt::BottomDockWidgetArea);
     QDockWidget *calleeDock = AnalyzerManager::createDockWidget
-        (this, tr("Callees"), d->m_calleetree, Qt::BottomDockWidgetArea);
+            (this, tr("Callees"), d->m_calleeView, Qt::BottomDockWidgetArea);
     QDockWidget *callerDock = AnalyzerManager::createDockWidget
-        (this, tr("Callers"), d->m_callertree, Qt::BottomDockWidgetArea);
+            (this, tr("Callers"), d->m_callerView, Qt::BottomDockWidgetArea);
 
-    mw->splitDockWidget(mw->toolBarDockWidget(), summaryDock, Qt::Vertical);
-    mw->tabifyDockWidget(summaryDock, timelineDock);
+    mw->splitDockWidget(mw->toolBarDockWidget(), eventsDock, Qt::Vertical);
+    mw->tabifyDockWidget(eventsDock, timelineDock);
     mw->tabifyDockWidget(timelineDock, calleeDock);
     mw->tabifyDockWidget(calleeDock, callerDock);
 }
@@ -436,9 +431,10 @@ void QmlProfilerTool::updateProjectFileList()
 void QmlProfilerTool::clearDisplay()
 {
     d->m_traceWindow->clearDisplay();
-    d->m_summary->clean();
-    d->m_calleetree->clean();
-    d->m_callertree->clean();
+    d->m_statistics->clear();
+    d->m_eventsView->clear();
+    d->m_calleeView->clear();
+    d->m_callerView->clear();
 }
 
 void QmlProfilerTool::attach()

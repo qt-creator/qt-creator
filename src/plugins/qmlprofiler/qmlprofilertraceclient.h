@@ -38,6 +38,8 @@
 #include <QtCore/QStack>
 #include <QtCore/QStringList>
 
+#include "qmlprofilereventtypes.h"
+
 namespace QmlProfiler {
 namespace Internal {
 
@@ -76,16 +78,6 @@ public:
         MaximumMessage
     };
 
-    enum RangeType {
-        Painting,
-        Compiling,
-        Creating,
-        Binding,
-        HandlingSignal,
-
-        MaximumRangeType
-    };
-
     bool isRecording() const { return m_recording; }
 
 public slots:
@@ -112,14 +104,14 @@ protected:
 
 private:
     qint64 m_inProgressRanges;
-    QStack<qint64> m_rangeStartTimes[MaximumRangeType];
-    QStack<QStringList> m_rangeDatas[MaximumRangeType];
-    QStack<Location> m_rangeLocations[MaximumRangeType];
-    int m_rangeCount[MaximumRangeType];
+    QStack<qint64> m_rangeStartTimes[MaximumQmlEventType];
+    QStack<QStringList> m_rangeDatas[MaximumQmlEventType];
+    QStack<Location> m_rangeLocations[MaximumQmlEventType];
+    int m_rangeCount[MaximumQmlEventType];
     qint64 m_maximumTime;
     bool m_recording;
     int m_nestingLevel;
-    int m_nestingInType[MaximumRangeType];
+    int m_nestingInType[MaximumQmlEventType];
 };
 
 } // namespace Internal
