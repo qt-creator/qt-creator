@@ -106,33 +106,6 @@ namespace Internal {
 
 static const char lastActiveToolC[] = "Analyzer.Plugin.LastActiveTool";
 
-class DockWidgetEventFilter : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit DockWidgetEventFilter(QObject *parent = 0) : QObject(parent) {}
-
-signals:
-    void widgetResized();
-
-protected:
-    virtual bool eventFilter(QObject *obj, QEvent *event);
-};
-
-bool DockWidgetEventFilter::eventFilter(QObject *obj, QEvent *event)
-{
-    switch (event->type()) {
-    case QEvent::Resize:
-    case QEvent::ZOrderChange:
-        emit widgetResized();
-        break;
-    default:
-        break;
-    }
-    return QObject::eventFilter(obj, event);
-}
-
 // AnalyzerMode ////////////////////////////////////////////////////
 
 class AnalyzerMode : public Core::IMode
@@ -243,8 +216,6 @@ public:
     Utils::StatusLabel *m_statusLabel;
     typedef QMap<IAnalyzerTool *, FancyMainWindowSettings> MainWindowSettingsMap;
     QMap<IAnalyzerTool *, QList<QDockWidget *> > m_toolWidgets;
-    DockWidgetEventFilter *m_resizeEventFilter;
-
     MainWindowSettingsMap m_defaultSettings;
 
     // list of dock widgets to prevent memory leak
@@ -271,7 +242,6 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     m_controlsWidget(new QStackedWidget),
     m_viewsMenu(0),
     m_statusLabel(new Utils::StatusLabel),
-    m_resizeEventFilter(new DockWidgetEventFilter(qq)),
     m_restartOnStop(false),
     m_initialized(false)
 {
@@ -887,12 +857,10 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
 
     QDockWidget *dockWidget = d->m_mainWindow->addDockForWidget(widget);
     dockWidget->setProperty(INITIAL_DOCK_AREA, int(area));
-    d->m_dockWidgets << AnalyzerManagerPrivate::DockPtr(dockWidget);
+    d->m_dockWidgets.append(AnalyzerManagerPrivate::DockPtr(dockWidget));
     dockWidget->setWindowTitle(title);
-
     d->m_toolWidgets[tool].push_back(dockWidget);
     d->addDock(area, dockWidget);
-    dockWidget->installEventFilter(d->m_resizeEventFilter);
     return dockWidget;
 }
 
