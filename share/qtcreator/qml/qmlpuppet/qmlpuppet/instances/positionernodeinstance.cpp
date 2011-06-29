@@ -48,7 +48,7 @@ bool PositionerNodeInstance::isPositioner() const
 
 bool PositionerNodeInstance::isResizable() const
 {
-    return false;
+    return true;
 }
 
 void PositionerNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
