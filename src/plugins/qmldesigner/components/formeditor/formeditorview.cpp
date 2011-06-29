@@ -134,7 +134,8 @@ void FormEditorView::nodeCreated(const ModelNode &createdNode)
 {
     QmlModelView::nodeCreated(createdNode);
     ModelNode node(createdNode);
-    if (QmlItemNode(node).isValid()) //only setup QmlItems
+    //If the node has source for components/custom parsers we ignore it.
+    if (QmlItemNode(node).isValid() && nextNode.modelNode().nodeSourceType() == ModelNode::NodeWithoutSource) //only setup QmlItems
         setupFormEditorItemTree(QmlItemNode(node));
 }
 
