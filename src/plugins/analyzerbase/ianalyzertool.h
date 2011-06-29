@@ -114,6 +114,12 @@ public:
 
     /// Returns true when this tool can be run on a remote machine.
     virtual bool canRunRemotely() const = 0;
+
+    /// Called when tools gets selected.
+    virtual void toolSelected() const {}
+
+    /// Called when tools gets deselected.
+    virtual void toolDeselected() const {}
 };
 
 } // namespace Analyzer

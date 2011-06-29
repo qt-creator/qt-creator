@@ -939,7 +939,7 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
     m_toggleCollectFunction = QString("%1()").arg(qualifiedFunctionName);
 
     AnalyzerManager::instance()->selectTool(q);
-    AnalyzerManager::instance()->startTool();
+    AnalyzerManager::instance()->startTool(q);
 }
 
 void CallgrindToolPrivate::slotRequestDump()

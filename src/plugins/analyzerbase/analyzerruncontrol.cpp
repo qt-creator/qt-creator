@@ -62,7 +62,7 @@ public:
 };
 
 AnalyzerRunControl::Private::Private()
-   : m_isRunning(false) , m_engine(0)
+   : m_isRunning(false), m_engine(0)
 {}
 
 
@@ -72,8 +72,7 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
     : RunControl(runConfiguration, Constants::MODE_ANALYZE),
       d(new Private)
 {
-    IAnalyzerTool *tool = AnalyzerManager::instance()->currentTool();
-    d->m_engine = tool->createEngine(sp, runConfiguration);
+    d->m_engine = AnalyzerManager::instance()->createEngine(sp, runConfiguration);
 
     if (!d->m_engine)
         return;

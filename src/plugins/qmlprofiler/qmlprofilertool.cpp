@@ -277,13 +277,10 @@ void QmlProfilerTool::initializeDockWidgets()
     Core::Command *command = am->registerAction(d->m_attachAction,
                                                 Constants::ATTACH, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
-    manalyzer->addAction(command, Analyzer::Constants::G_ANALYZER_STARTSTOP);
+    //manalyzer->addAction(command, Analyzer::Constants::G_ANALYZER_STARTSTOP);
     connect(d->m_attachAction, SIGNAL(triggered()), this, SLOT(attach()));
 
-    connect(analyzerMgr, SIGNAL(currentToolChanged(Analyzer::IAnalyzerTool*)),
-            this, SLOT(updateAttachAction()));
-
-    updateAttachAction();
+    updateAttachAction(false);
 
     QDockWidget *summaryDock =
         analyzerMgr->createDockWidget(this, tr("Bindings"),
@@ -307,6 +304,15 @@ void QmlProfilerTool::initializeDockWidgets()
     mw->tabifyDockWidget(calleeDock, callerDock);
 }
 
+void QmlProfilerTool::toolSelected()
+{
+    updateAttachAction(true);
+}
+
+void QmlProfilerTool::toolDeselected()
+{
+    updateAttachAction(false);
+}
 
 QWidget *QmlProfilerTool::createControlWidget()
 {
@@ -475,20 +481,16 @@ void QmlProfilerTool::attach()
     }
 
     d->m_isAttached = !d->m_isAttached;
-    updateAttachAction();
+    updateAttachAction(true);
 }
 
-void QmlProfilerTool::updateAttachAction()
+void QmlProfilerTool::updateAttachAction(bool isCurrentTool)
 {
-    if (d->m_attachAction) {
-        if (d->m_isAttached) {
-            d->m_attachAction->setText(tr("Detach"));
-        } else {
-            d->m_attachAction->setText(tr("Attach..."));
-        }
-    }
-
-    d->m_attachAction->setEnabled(Analyzer::AnalyzerManager::instance()->currentTool() == this);
+    if (d->m_isAttached)
+        d->m_attachAction->setText(tr("Detach"));
+    else
+        d->m_attachAction->setText(tr("Attach..."));
+    d->m_attachAction->setEnabled(isCurrentTool);
 }
 
 void QmlProfilerTool::tryToConnect()
