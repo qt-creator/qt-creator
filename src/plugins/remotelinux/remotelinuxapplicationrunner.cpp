@@ -93,20 +93,8 @@ void RemoteLinuxApplicationRunner::start()
         return;
     }
 
-    m_connection = SshConnectionManager::instance().acquireConnection(m_devConfig->sshParameters());
-    setState(Connecting);
-    m_exitStatus = -1;
-    m_freePorts = m_initialFreePorts;
-    connect(m_connection.data(), SIGNAL(connected()), this,
-        SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
-        SLOT(handleConnectionFailure()));
-    if (isConnectionUsable()) {
-        handleConnected();
-    } else {
-        emit reportProgress(tr("Connecting to device..."));
-        m_connection->connectToHost();
-    }
+    setState(SettingUpDevice);
+    doDeviceSetup();
 }
 
 void RemoteLinuxApplicationRunner::stop()
@@ -124,6 +112,7 @@ void RemoteLinuxApplicationRunner::stop()
         setState(Inactive);
         emit remoteProcessFinished(InvalidExitCode);
         break;
+    case SettingUpDevice:
     case PreRunCleaning:
     case AdditionalPreRunCleaning:
     case AdditionalInitializing:
@@ -342,6 +331,11 @@ bool RemoteLinuxApplicationRunner::canRun(QString &whyNot) const
     return true;
 }
 
+void RemoteLinuxApplicationRunner::doDeviceSetup()
+{
+    handleDeviceSetupDone(true);
+}
+
 void RemoteLinuxApplicationRunner::doAdditionalInitialCleanup()
 {
     handleInitialCleanupDone(true);
@@ -355,6 +349,34 @@ void RemoteLinuxApplicationRunner::doAdditionalInitializations()
 void RemoteLinuxApplicationRunner::doAdditionalPostRunCleanup()
 {
     handlePostRunCleanupDone();
+}
+
+void RemoteLinuxApplicationRunner::handleDeviceSetupDone(bool success)
+{
+    ASSERT_STATE(SettingUpDevice);
+
+    if (m_state != SettingUpDevice)
+        return;
+    if (!success || m_stopRequested) {
+        setState(Inactive);
+        emit remoteProcessFinished(InvalidExitCode);
+        return;
+    }
+
+    m_connection = SshConnectionManager::instance().acquireConnection(m_devConfig->sshParameters());
+    setState(Connecting);
+    m_exitStatus = -1;
+    m_freePorts = m_initialFreePorts;
+    connect(m_connection.data(), SIGNAL(connected()), this,
+        SLOT(handleConnected()));
+    connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
+        SLOT(handleConnectionFailure()));
+    if (isConnectionUsable()) {
+        handleConnected();
+    } else {
+        emit reportProgress(tr("Connecting to device..."));
+        m_connection->connectToHost();
+    }
 }
 
 void RemoteLinuxApplicationRunner::handleInitialCleanupDone(bool success)

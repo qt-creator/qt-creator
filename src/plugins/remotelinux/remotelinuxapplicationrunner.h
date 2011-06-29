@@ -85,6 +85,7 @@ protected:
     // Override to to additional checks.
     virtual bool canRun(QString &whyNot) const;
 
+    void handleDeviceSetupDone(bool success);
     void handleInitialCleanupDone(bool success);
     void handleInitializationsDone(bool success);
     void handlePostRunCleanupDone();
@@ -99,10 +100,14 @@ private slots:
     void handleUsedPortsAvailable();
 
 private:
-    enum State { Inactive, Connecting, PreRunCleaning, AdditionalPreRunCleaning, GatheringPorts,
-        AdditionalInitializing, ReadyForExecution, ProcessStarting, ProcessStarted, PostRunCleaning,
-        AdditionalPostRunCleaning
+    enum State { Inactive, SettingUpDevice, Connecting, PreRunCleaning, AdditionalPreRunCleaning,
+        GatheringPorts, AdditionalInitializing, ReadyForExecution, ProcessStarting, ProcessStarted,
+        PostRunCleaning, AdditionalPostRunCleaning
     };
+
+    // Override to do custom setup of the device *before* connecting.
+    // Call handleDeviceSetupDone() afterwards.
+    virtual void doDeviceSetup();
 
     // Override to do additional pre-run cleanup and call handleInitialCleanupDone().
     virtual void doAdditionalInitialCleanup();
