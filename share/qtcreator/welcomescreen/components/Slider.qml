@@ -1,6 +1,5 @@
 import QtQuick 1.0
 import "custom" as Components
-import "plugin"
 
 // jens: ContainsMouse breaks drag functionality
 

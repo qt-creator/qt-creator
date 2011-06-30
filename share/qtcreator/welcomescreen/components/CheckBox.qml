@@ -1,6 +1,5 @@
 import QtQuick 1.0
 import "custom" as Components
-import "plugin"
 
 // jb : Size should not depend on background, we should make it consistent
 
