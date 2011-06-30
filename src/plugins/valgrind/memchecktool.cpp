@@ -564,5 +564,14 @@ bool MemcheckTool::canRunRemotely() const
     return true;
 }
 
+bool MemcheckTool::canRunLocally() const
+{
+#ifdef Q_OS_WINDOWS
+    return false;
+#else
+    return true;
+#endif
+}
+
 } // namespace Internal
 } // namespace Valgrind

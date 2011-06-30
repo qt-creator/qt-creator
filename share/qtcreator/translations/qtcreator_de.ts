@@ -23368,7 +23368,7 @@ a = a +
     </message>
     <message>
         <source>Would you like to delete the remote &quot;%1&quot;?</source>
-        <translation>Möchten Sie den &apos;%1&apos; löschen?</translation>
+        <translation>Möchten Sie &apos;%1&apos; löschen?</translation>
     </message>
 </context>
 <context>

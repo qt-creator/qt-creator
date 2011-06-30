@@ -41,13 +41,8 @@
 #include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
-class QAction;
 class QDockWidget;
 QT_END_NAMESPACE
-
-namespace Core {
-class IMode;
-}
 
 namespace Utils {
 class FancyMainWindow;
@@ -59,7 +54,7 @@ class RunConfiguration;
 
 namespace Analyzer {
 class IAnalyzerTool;
-class AnalyzerRunControl;
+class IAnalyzerEngine;
 class AnalyzerStartParameters;
 
 class ANALYZER_EXPORT AnalyzerManager : public QObject
@@ -73,15 +68,13 @@ public:
     static AnalyzerManager *instance();
     void registerRunControlFactory(ProjectExplorer::IRunControlFactory *factory);
 
-    bool isInitialized() const;
+    void extensionsInitialized();
     void shutdown();
 
     /**
      * Register a tool and initialize it.
      */
     void addTool(Analyzer::IAnalyzerTool *tool);
-    IAnalyzerTool *currentTool() const;
-    QList<IAnalyzerTool *> tools() const;
 
     // Dockwidgets are registered to the main window.
     QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title,
@@ -89,44 +82,25 @@ public:
 
     Utils::FancyMainWindow *mainWindow() const;
 
+    void showMode();
     void selectTool(IAnalyzerTool *tool);
+    void startTool(IAnalyzerTool *tool);
+    void stopTool();
 
     static QString msgToolStarted(const QString &name);
     static QString msgToolFinished(const QString &name, int issuesFound);
 
-    // Used by Maemo analyzer support.
-    AnalyzerRunControl *createAnalyzer(const AnalyzerStartParameters &sp,
-                                       ProjectExplorer::RunConfiguration *rc = 0);
-    void showMode();
+    IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration);
 
 public slots:
-    void startTool();
-    void startToolRemote();
-    void stopTool();
-
     void showStatusMessage(const QString &message, int timeoutMS = 10000);
     void showPermanentStatusMessage(const QString &message);
-
-private slots:
-    void handleToolFinished();
-    void toolSelected(int);
-    void toolSelected(QAction *);
-    void modeChanged(Core::IMode *mode);
-    void runControlCreated(Analyzer::AnalyzerRunControl *);
-    void resetLayout();
-    void saveToolSettings(Analyzer::IAnalyzerTool *tool);
-    void loadToolSettings(Analyzer::IAnalyzerTool *tool);
-    void updateRunActions();
-
-signals:
-    void currentToolChanged(Analyzer::IAnalyzerTool *tool);
 
 private:
     class AnalyzerManagerPrivate;
     friend class AnalyzerManagerPrivate;
     AnalyzerManagerPrivate *const d;
-
-    static AnalyzerManager *m_instance;
 };
 
 } // namespace Analyzer

@@ -135,7 +135,7 @@ void FormEditorView::nodeCreated(const ModelNode &createdNode)
     QmlModelView::nodeCreated(createdNode);
     ModelNode node(createdNode);
     //If the node has source for components/custom parsers we ignore it.
-    if (QmlItemNode(node).isValid() && nextNode.modelNode().nodeSourceType() == ModelNode::NodeWithoutSource) //only setup QmlItems
+    if (QmlItemNode(node).isValid() && node.nodeSourceType() == ModelNode::NodeWithoutSource) //only setup QmlItems
         setupFormEditorItemTree(QmlItemNode(node));
 }
 
@@ -296,7 +296,6 @@ bool FormEditorView::changeToMoveTool()
 
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
-    setCursor(Qt::SizeAllCursor);
     m_currentTool->clear();
     m_currentTool = m_moveTool;
     m_currentTool->clear();
@@ -311,7 +310,6 @@ void FormEditorView::changeToDragTool()
 
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
-    setCursor(Qt::ArrowCursor);
     m_currentTool->clear();
     m_currentTool = m_dragTool;
     m_currentTool->clear();
@@ -329,7 +327,6 @@ bool FormEditorView::changeToMoveTool(const QPointF &beginPoint)
 
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
-    setCursor(Qt::SizeAllCursor);
     m_currentTool->clear();
     m_currentTool = m_moveTool;
     m_currentTool->clear();
@@ -345,7 +342,6 @@ void FormEditorView::changeToSelectionTool()
 
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
-    setCursor(Qt::ArrowCursor);
     m_currentTool->clear();
     m_currentTool = m_selectionTool;
     m_currentTool->clear();
@@ -359,7 +355,6 @@ void FormEditorView::changeToItemCreatorTool()
 
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
-    setCursor(Qt::CrossCursor);
     m_currentTool->clear();
     m_currentTool = m_itemCreatorTool;
     m_currentTool->clear();
@@ -374,7 +369,6 @@ void FormEditorView::changeToSelectionTool(QGraphicsSceneMouseEvent *event)
 
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
-    setCursor(Qt::ArrowCursor);
     m_currentTool->clear();
     m_currentTool = m_selectionTool;
     m_currentTool->clear();
@@ -390,7 +384,6 @@ void FormEditorView::changeToResizeTool()
 
     scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
-    setCursor(Qt::ArrowCursor);
     m_currentTool->clear();
     m_currentTool = m_resizeTool;
     m_currentTool->clear();
@@ -404,7 +397,6 @@ void FormEditorView::changeToAnchorTool()
 
     scene()->setPaintMode(FormEditorScene::AnchorMode);
     m_scene->updateAllFormEditorItems();
-    setCursor(Qt::ArrowCursor);
     m_currentTool->clear();
     m_currentTool = m_anchorTool;
     m_currentTool->clear();
@@ -419,11 +411,6 @@ void FormEditorView::changeToTransformTools()
         return;
 
     changeToSelectionTool();
-}
-
-void FormEditorView::setCursor(const QCursor &cursor)
-{
-    m_formEditorWidget->setCursor(cursor);
 }
 
 void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int /*newIndex*/, int /*oldIndex*/)

@@ -239,4 +239,8 @@ void AbstractFormEditorTool::showContextMenu(QGraphicsSceneMouseEvent *event)
      view()->showContextMenu(event->screenPos(), event->scenePos().toPoint(), true);
 }
 
+void AbstractFormEditorTool::clear()
+{
+    m_itemList.clear();
+}
 }

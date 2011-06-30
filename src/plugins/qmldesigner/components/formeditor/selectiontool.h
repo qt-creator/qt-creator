@@ -85,6 +85,8 @@ public:
 
     void setSelectOnlyContentItems(bool selectOnlyContentItems);
 
+    void setCursor(const QCursor &cursor);
+
 private:
     RubberBandSelectionManipulator m_rubberbandSelectionManipulator;
     SingleSelectionManipulator m_singleSelectionManipulator;
@@ -92,6 +94,7 @@ private:
     ResizeIndicator m_resizeIndicator;
     QTime m_mousePressTimer;
     bool m_selectOnlyContentItems;
+    QCursor m_cursor;
 };
 
 }

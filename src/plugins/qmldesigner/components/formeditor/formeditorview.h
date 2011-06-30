@@ -100,8 +100,6 @@ public:
     void changeToAnchorTool();
     void changeToTransformTools();
 
-    void setCursor(const QCursor &cursor);
-
     void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 

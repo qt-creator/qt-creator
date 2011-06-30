@@ -62,6 +62,7 @@ public:
     QWidget *createControlWidget();
 
     bool canRunRemotely() const { return true; }
+    bool canRunLocally() const;
 
 private:
     CallgrindToolPrivate *d;

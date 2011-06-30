@@ -56,6 +56,8 @@ public:
     void initialize();
     void extensionsInitialized();
     void initializeDockWidgets();
+    void toolSelected();
+    void toolDeselected();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
@@ -63,6 +65,7 @@ public:
     QWidget *createControlWidget();
 
     bool canRunRemotely() const;
+    bool canRunLocally() const;
 
 public slots:
     void connectClient(int port);
@@ -85,11 +88,11 @@ signals:
 private slots:
     void updateProjectFileList();
     void attach();
-    void updateAttachAction();
     void tryToConnect();
     void connectionStateChanged();
 
 private:
+    void updateAttachAction(bool isCurrentTool);
     void connectToClient();
     void updateRecordingState();
 

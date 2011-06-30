@@ -113,6 +113,7 @@ private slots:
 private:
     void ensureWidgets();
     bool canRunRemotely() const;
+    bool canRunLocally() const;
     void initializeDockWidgets();
     void initialize() {}
     void extensionsInitialized();

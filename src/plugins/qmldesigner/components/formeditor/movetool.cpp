@@ -54,7 +54,7 @@ MoveTool::MoveTool(FormEditorView *editorView)
     m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
     m_resizeIndicator(editorView->scene()->manipulatorLayerItem())
 {
-//    view()->setCursor(Qt::SizeAllCursor);
+    m_selectionIndicator.setCursor(Qt::SizeAllCursor);
 }
 
 
@@ -69,6 +69,8 @@ void MoveTool::clear()
     m_movingItems.clear();
     m_selectionIndicator.clear();
     m_resizeIndicator.clear();
+
+    AbstractFormEditorTool::clear();
 }
 
 void MoveTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,

@@ -54,9 +54,7 @@
 using namespace Analyzer;
 using namespace Analyzer::Internal;
 
-static const char lastActiveToolC[] = "Analyzer.Plugin.LastActiveTool";
-
-AnalyzerPlugin *AnalyzerPlugin::m_instance = 0;
+static AnalyzerPlugin *m_instance = 0;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -113,34 +111,11 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
 
 void AnalyzerPlugin::extensionsInitialized()
 {
-    const QList<IAnalyzerTool *> tools = d->m_manager->tools();
-    if (tools.isEmpty())
-        return;
-
-    const QSettings *settings = Core::ICore::instance()->settings();
-    const QString lastActiveToolId =
-        settings->value(QLatin1String(lastActiveToolC), QString()).toString();
-    IAnalyzerTool *lastActiveTool = 0;
-
-    foreach (IAnalyzerTool *tool, tools) {
-        tool->extensionsInitialized();
-        if (tool->id() == lastActiveToolId)
-            lastActiveTool = tool;
-    }
-
-    if (!lastActiveTool)
-        lastActiveTool = tools.back();
-    if (lastActiveTool)
-        d->m_manager->selectTool(lastActiveTool);
+    d->m_manager->extensionsInitialized();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag AnalyzerPlugin::aboutToShutdown()
 {
-    if (const IAnalyzerTool *tool = d->m_manager->currentTool()) {
-        QSettings *settings = Core::ICore::instance()->settings();
-        settings->setValue(QLatin1String(lastActiveToolC), tool->id());
-    }
-
     d->m_manager->shutdown();
     return SynchronousShutdown;
 }

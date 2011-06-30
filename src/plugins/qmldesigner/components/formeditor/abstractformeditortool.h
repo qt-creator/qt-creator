@@ -77,7 +77,7 @@ public:
 //                        QGraphicsItem::GraphicsItemChange change,
 //                        const QVariant &value ) = 0;
 //    virtual void update() = 0;
-    virtual void clear() = 0;
+    virtual void clear();
 
     virtual void formEditorItemsChanged(const QList<FormEditorItem*> &itemList) = 0;
 
@@ -94,10 +94,9 @@ public:
 
     static FormEditorItem* topFormEditorItem(const QList<QGraphicsItem*> &itemList);
     static FormEditorItem* topFormEditorItemWithRootItem(const QList<QGraphicsItem*> &itemList);
+
 protected:
-
     virtual void selectedItemsChanged(const QList<FormEditorItem*> &itemList) = 0;
-
     virtual void showContextMenu(QGraphicsSceneMouseEvent *event);
 
     FormEditorView *view() const;

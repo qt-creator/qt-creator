@@ -62,7 +62,7 @@ class ANALYZER_EXPORT IAnalyzerEngine : public QObject
 
 public:
     explicit IAnalyzerEngine(const AnalyzerStartParameters &sp,
-                             ProjectExplorer::RunConfiguration *runConfiguration = 0);
+        ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     /// start analyzation process
     virtual void start() = 0;

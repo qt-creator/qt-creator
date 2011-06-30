@@ -939,7 +939,7 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
     m_toggleCollectFunction = QString("%1()").arg(qualifiedFunctionName);
 
     AnalyzerManager::instance()->selectTool(q);
-    AnalyzerManager::instance()->startTool();
+    AnalyzerManager::instance()->startTool(q);
 }
 
 void CallgrindToolPrivate::slotRequestDump()
@@ -997,6 +997,15 @@ void CallgrindToolPrivate::createTextMarks()
 
         m_textMarks.append(new CallgrindTextMark(index, fileName, lineNumber));
     }
+}
+
+bool CallgrindTool::canRunLocally() const
+{
+#ifdef Q_OS_WINDOWS
+    return false;
+#else
+    return true;
+#endif
 }
 
 } // namespace Internal

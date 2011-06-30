@@ -204,6 +204,9 @@ void QmlGraphicsItemNodeInstance::doComponentComplete()
 
 bool QmlGraphicsItemNodeInstance::isResizable() const
 {
+    if (isRootNodeInstance())
+        return false;
+
     return m_isResizable && qmlGraphicsItem() && qmlGraphicsItem()->parentItem();
 }
 

@@ -35,7 +35,7 @@ HeaderItemView {
             anchors.leftMargin: 10
         }
 
-        Timer { id: timer; interval: 500; onTriggered: { styleItem.showToolTip(sessionName); print("triggered")} }
+        Timer { id: timer; interval: 500; onTriggered: styleItem.showToolTip(sessionName) }
 
         MouseArea {
             anchors.fill: parent

@@ -56,7 +56,7 @@ SelectionTool::SelectionTool(FormEditorView *editorView)
     m_resizeIndicator(editorView->scene()->manipulatorLayerItem()),
     m_selectOnlyContentItems(false)
 {
-//    view()->setCursor(Qt::CrossCursor);
+    m_selectionIndicator.setCursor(Qt::ArrowCursor);
 }
 
 
@@ -99,6 +99,7 @@ void SelectionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
             }
         }
     }
+
     AbstractFormEditorTool::mousePressEvent(itemList, event);
 }
 
@@ -254,6 +255,8 @@ void SelectionTool::clear()
     m_singleSelectionManipulator.clear();
     m_selectionIndicator.clear();
     m_resizeIndicator.clear();
+
+    AbstractFormEditorTool::clear();
 }
 
 void SelectionTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)

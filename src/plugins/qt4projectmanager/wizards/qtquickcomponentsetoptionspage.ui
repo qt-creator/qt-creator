@@ -20,7 +20,7 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Qt Quick Component Set</string>
+      <string>Qt Quick Application Type</string>
      </property>
      <property name="flat">
       <bool>false</bool>
@@ -38,7 +38,7 @@
          <bool>true</bool>
         </property>
         <attribute name="buttonGroup">
-         <string>buttonGroup</string>
+         <string notr="true">buttonGroup</string>
         </attribute>
        </widget>
       </item>
@@ -48,7 +48,7 @@
          <string>Qt Quick Components for Symbian</string>
         </property>
         <attribute name="buttonGroup">
-         <string>buttonGroup</string>
+         <string notr="true">buttonGroup</string>
         </attribute>
        </widget>
       </item>
@@ -58,9 +58,42 @@
          <string>Qt Quick Components for Meego/Harmattan</string>
         </property>
         <attribute name="buttonGroup">
-         <string>buttonGroup</string>
+         <string notr="true">buttonGroup</string>
         </attribute>
        </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="importRadioButton">
+        <property name="text">
+         <string>Use an existing .qml file</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">buttonGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Maximum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>12</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="Utils::PathChooser" name="importLineEdit"/>
+        </item>
+       </layout>
       </item>
       <item>
        <spacer name="verticalSpacer">
@@ -81,7 +114,7 @@
       <item>
        <widget class="QStackedWidget" name="descriptionStackedWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="qtquick10DescriptionWidget">
          <layout class="QGridLayout" name="gridLayout">
@@ -140,6 +173,23 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
           </item>
          </layout>
         </widget>
+        <widget class="QWidget" name="importDescriptionWidget">
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <widget class="QLabel" name="importDescriptionLabel">
+            <property name="text">
+             <string>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -147,6 +197,18 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QLineEdit</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <buttongroups>
