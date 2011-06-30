@@ -221,7 +221,6 @@ public:
     void saveToolSettings(IAnalyzerTool *tool);
     void loadToolSettings(IAnalyzerTool *tool);
 
-    void registerRunControlFactory(ProjectExplorer::IRunControlFactory *factory);
     ProjectExplorer::RunControl *createRunControl
         (ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
 
@@ -286,7 +285,7 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     connect(m_toolBox, SIGNAL(currentIndexChanged(int)), SLOT(selectTool(int)));
 
     m_runControlFactory = new AnalyzerRunControlFactory();
-    registerRunControlFactory(m_runControlFactory);
+    AnalyzerPlugin::instance()->addAutoReleasedObject(m_runControlFactory);
 
     setupActions();
 
@@ -305,12 +304,6 @@ AnalyzerManager::AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
         if (ptr)
             delete ptr.data();
     }
-}
-
-void AnalyzerManager::AnalyzerManagerPrivate::registerRunControlFactory
-    (ProjectExplorer::IRunControlFactory *factory)
-{
-    AnalyzerPlugin::instance()->addAutoReleasedObject(factory);
 }
 
 void AnalyzerManager::AnalyzerManagerPrivate::setupActions()

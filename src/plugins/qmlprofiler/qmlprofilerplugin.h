@@ -46,18 +46,13 @@ class QmlProfilerPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
-    QmlProfilerPlugin();
-    ~QmlProfilerPlugin();
+    QmlProfilerPlugin() {}
 
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
     static bool debugOutput;
-
-private:
-    class QmlProfilerPluginPrivate;
-    QmlProfilerPluginPrivate *d;
 };
 
 } // namespace Internal

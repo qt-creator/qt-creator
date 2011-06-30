@@ -45,27 +45,14 @@ using namespace QmlProfiler::Internal;
 
 bool QmlProfilerPlugin::debugOutput = false;
 
-class QmlProfilerPlugin::QmlProfilerPluginPrivate
-{
-public:
-    QmlProjectAnalyzerRunControlFactory *m_runControlFactory;
-};
-
 QmlProfilerPlugin::QmlProfilerPlugin()
-    : d(new QmlProfilerPluginPrivate())
 {}
-
-QmlProfilerPlugin::~QmlProfilerPlugin()
-{
-    delete d;
-}
 
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-    d->m_runControlFactory = new QmlProjectAnalyzerRunControlFactory();
-    AnalyzerManager::registerRunControlFactory(d->m_runControlFactory);
+    addAutoReleasedObject(new QmlProjectAnalyzerRunControlFactory());
     AnalyzerManager::addTool(new QmlProfilerTool(true, this));
     AnalyzerManager::addTool(new QmlProfilerTool(false, this));
     return true;
