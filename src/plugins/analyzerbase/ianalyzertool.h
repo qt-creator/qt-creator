@@ -36,6 +36,7 @@
 #define IANALYZERTOOL_H
 
 #include "analyzerbase_global.h"
+#include "analyzerconstants.h"
 
 #include <QtCore/QObject>
 
@@ -49,8 +50,12 @@ class AnalyzerStartParameters;
 class IAnalyzerOutputPaneAdapter;
 class IAnalyzerEngine;
 
+
 /**
  * This class represents an analyzation tool, e.g. "Valgrind Memcheck".
+ *
+ * Each tool can run in different run modes. The modes are specific to the mode.
+ *
  * @code
  * bool YourPlugin::initialize(const QStringList &arguments, QString *errorString)
  * {
@@ -72,13 +77,18 @@ public:
     virtual QString displayName() const = 0;
     /// Returns a user readable description name for this tool.
     virtual QString description() const = 0;
-    /// Returns the name of the menu group of the start action.
-    virtual QByteArray menuGroup() const = 0;
+    /// Returns an id for the start action.
+    virtual QByteArray actionId(StartMode m) const { return defaultActionId(id(), m); }
+    /// Returns the menu group the start action should go to.
+    virtual QByteArray menuGroup(StartMode m) const { return defaultMenuGroup(m); }
+    /// Returns a short user readable action name for this tool.
+    virtual QString actionName(StartMode m) const
+        { return defaultActionName(displayName(), m); }
 
     /**
      * The mode in which this tool should preferably be run
      *
-     * The memcheckt tool, for example, requires debug symbols, hence DebugMode
+     * The memcheck tool, for example, requires debug symbols, hence DebugMode
      * is preferred. On the other hand, callgrind should look at optimized code,
      * hence ReleaseMode.
      */
@@ -90,6 +100,12 @@ public:
     virtual ToolMode mode() const = 0;
 
     static QString modeString(ToolMode mode);
+
+    /// Convenience implementation.
+    static QByteArray defaultMenuGroup(StartMode m);
+    static QByteArray defaultActionId(const QByteArray &id, StartMode m);
+    static QString defaultActionName(const QString &base, StartMode m);
+    static void defaultStartTool(IAnalyzerTool *tool, StartMode mode);
 
     /// This gets called after all analyzation tools where initialized.
     virtual void extensionsInitialized() = 0;
@@ -109,8 +125,8 @@ public:
     virtual IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
 
-    /// Starts the tool.
-    virtual void startTool() = 0;
+    virtual void startTool(StartMode m)
+        { return defaultStartTool(this, m); }
 
     /// Called when tools gets selected.
     virtual void toolSelected() const {}

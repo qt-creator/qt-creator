@@ -80,14 +80,14 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalCallgrindFactory, &projectCallgrindFactory);
     AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalMemcheckFactory, &projectMemcheckFactory);
 
+    StartModes modes;
 #ifndef Q_OS_WIN
-    AnalyzerManager::addTool(new MemcheckTool(true, this));
+    modes.append(StartMode(StartLocal));
 #endif
-    AnalyzerManager::addTool(new MemcheckTool(false, this));
-#ifndef Q_OS_WIN
-    AnalyzerManager::addTool(new CallgrindTool(true, this));
-#endif
-    AnalyzerManager::addTool(new CallgrindTool(false, this));
+    modes.append(StartMode(StartRemote));
+
+    AnalyzerManager::addTool(new MemcheckTool(this), modes);
+    AnalyzerManager::addTool(new CallgrindTool(this), modes);
 
     return true;
 }

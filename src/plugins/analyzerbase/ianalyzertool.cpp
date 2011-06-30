@@ -33,6 +33,7 @@
 **************************************************************************/
 
 #include "ianalyzertool.h"
+#include "analyzermanager.h"
 
 namespace Analyzer {
 
@@ -51,6 +52,35 @@ QString IAnalyzerTool::modeString(ToolMode mode)
             break;
     }
     return QString();
+}
+
+QByteArray IAnalyzerTool::defaultMenuGroup(StartMode mode)
+{
+    if (mode == StartRemote)
+        return Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
+    return Analyzer::Constants::G_ANALYZER_TOOLS;
+}
+
+QByteArray IAnalyzerTool::defaultActionId(const QByteArray &id, StartMode mode)
+{
+    if (mode == StartRemote)
+        return "Action." + id + ".RemoteStart." + QByteArray::number(mode);
+    return "Action." + id + ".LocalStart." + QByteArray::number(mode);
+}
+
+QString IAnalyzerTool::defaultActionName(const QString &base, StartMode mode)
+{
+    if (mode == StartRemote)
+        return base + tr(" (Remote)");
+    return base;
+}
+
+void IAnalyzerTool::defaultStartTool(IAnalyzerTool *tool, StartMode mode)
+{
+    if (mode == StartLocal)
+        AnalyzerManager::startLocalTool(tool, mode);
+    if (mode == StartRemote)
+        AnalyzerManager::startRemoteTool(tool, mode);
 }
 
 void IAnalyzerTool::initializeDockWidgets()

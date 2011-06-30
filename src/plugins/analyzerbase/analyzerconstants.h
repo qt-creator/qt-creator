@@ -39,11 +39,18 @@
 
 namespace Analyzer {
 
-enum AnalyzerStartMode
+class StartMode
 {
-    StartLocal,
-    StartRemote
+public:
+    explicit StartMode(int m = 0) : m(m) {}
+    operator int() const { return m; }
+    void operator=(int m_) { m = m_; }
+    // Often used modes.
+private:
+    int m;
 };
+
+enum { StartLocal = -1, StartRemote = -2 };
 
 namespace Constants {
 

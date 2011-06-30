@@ -45,12 +45,11 @@ class QmlProfilerTool : public Analyzer::IAnalyzerTool
     Q_OBJECT
 
 public:
-    QmlProfilerTool(bool local, QObject *parent);
+    explicit QmlProfilerTool(QObject *parent);
     ~QmlProfilerTool();
 
     QByteArray id() const;
     QString displayName() const;
-    QByteArray menuGroup() const;
     QString description() const;
     ToolMode mode() const;
 
@@ -58,7 +57,6 @@ public:
     void initializeDockWidgets();
     void toolSelected();
     void toolDeselected();
-    void startTool();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);

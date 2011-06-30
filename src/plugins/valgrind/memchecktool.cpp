@@ -184,10 +184,9 @@ static void initKindFilterAction(QAction *action, const QList<int> &kinds)
     action->setData(data);
 }
 
-MemcheckTool::MemcheckTool(bool local, QObject *parent)
+MemcheckTool::MemcheckTool(QObject *parent)
   : Analyzer::IAnalyzerTool(parent)
 {
-    m_local = local;
     m_settings = 0;
     m_errorModel = 0;
     m_errorProxyModel = 0;
@@ -295,13 +294,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
 QByteArray MemcheckTool::id() const
 {
-    return m_local ? "MemcheckLocal" : "MemcheckGlobal";
-}
-
-QByteArray MemcheckTool::menuGroup() const
-{
-    return m_local ? Analyzer::Constants::G_ANALYZER_TOOLS
-                   : Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
+    return "MemcheckLocal";
 }
 
 QString MemcheckTool::displayName() const
@@ -318,14 +311,6 @@ QString MemcheckTool::description() const
 IAnalyzerTool::ToolMode MemcheckTool::mode() const
 {
     return DebugMode;
-}
-
-void MemcheckTool::startTool()
-{
-    if (m_local)
-        AnalyzerManager::startLocalTool(this);
-    else
-        AnalyzerManager::startRemoteTool(this);
 }
 
 class FrameFinder : public ErrorListModel::RelevantFrameFinder

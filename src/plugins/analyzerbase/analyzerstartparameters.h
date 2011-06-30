@@ -50,11 +50,10 @@ class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
     AnalyzerStartParameters()
-    : startMode(StartLocal)
-    , connParams(Utils::SshConnectionParameters::NoProxy)
-    { }
+        : connParams(Utils::SshConnectionParameters::NoProxy)
+    {}
 
-    AnalyzerStartMode startMode;
+    StartMode startMode;
     Utils::SshConnectionParameters connParams;
 
     QByteArray toolId;

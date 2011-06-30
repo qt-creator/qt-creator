@@ -36,6 +36,7 @@
 #define ANALYZERMANAGER_H
 
 #include "analyzerbase_global.h"
+#include "analyzerconstants.h"
 #include "projectexplorer/runconfiguration.h"
 
 #include <QtCore/QObject>
@@ -49,9 +50,11 @@ class FancyMainWindow;
 }
 
 namespace Analyzer {
+
+typedef QList<StartMode> StartModes;
+
 class IAnalyzerTool;
-class IAnalyzerEngine;
-class AnalyzerStartParameters;
+class AnalyzerManagerPrivate;
 
 class ANALYZER_EXPORT AnalyzerManager : public QObject
 {
@@ -61,7 +64,6 @@ public:
     explicit AnalyzerManager(QObject *parent = 0);
     ~AnalyzerManager();
 
-    static void registerRunControlFactory(ProjectExplorer::IRunControlFactory *factory);
     void extensionsInitialized();
     void shutdown();
 
@@ -69,7 +71,7 @@ public:
         (ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
 
     // Register a tool and initialize it.
-    static void addTool(Analyzer::IAnalyzerTool *tool);
+    static void addTool(Analyzer::IAnalyzerTool *tool, const StartModes &mode);
     static IAnalyzerTool *toolById(const QByteArray &id);
 
     // Dockwidgets are registered to the main window.
@@ -79,13 +81,13 @@ public:
     static Utils::FancyMainWindow *mainWindow();
 
     static void showMode();
-    static void selectTool(IAnalyzerTool *tool);
-    static void startTool(IAnalyzerTool *tool);
+    static void selectTool(IAnalyzerTool *tool, StartMode mode);
+    static void startTool(IAnalyzerTool *tool, StartMode mode);
     static void stopTool(IAnalyzerTool *tool);
 
     // Convienience functions.
-    static void startLocalTool(IAnalyzerTool *tool);
-    static void startRemoteTool(IAnalyzerTool *tool);
+    static void startLocalTool(IAnalyzerTool *tool, StartMode mode);
+    static void startRemoteTool(IAnalyzerTool *tool, StartMode mode);
 
     static QString msgToolStarted(const QString &name);
     static QString msgToolFinished(const QString &name, int issuesFound);
@@ -96,7 +98,6 @@ public:
     static void handleToolFinished(IAnalyzerTool *tool);
 
 private:
-    class AnalyzerManagerPrivate;
     friend class AnalyzerManagerPrivate;
     AnalyzerManagerPrivate *const d;
 };

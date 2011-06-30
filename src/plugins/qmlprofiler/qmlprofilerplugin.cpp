@@ -45,16 +45,15 @@ using namespace QmlProfiler::Internal;
 
 bool QmlProfilerPlugin::debugOutput = false;
 
-QmlProfilerPlugin::QmlProfilerPlugin()
-{}
-
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
     addAutoReleasedObject(new QmlProjectAnalyzerRunControlFactory());
-    AnalyzerManager::addTool(new QmlProfilerTool(true, this));
-    AnalyzerManager::addTool(new QmlProfilerTool(false, this));
+    StartModes modes;
+    modes.append(StartMode(StartLocal));
+    modes.append(StartMode(StartRemote));
+    AnalyzerManager::addTool(new QmlProfilerTool(this), modes);
     return true;
 }
 

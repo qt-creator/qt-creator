@@ -100,7 +100,6 @@
 #include <QtGui/QPushButton>
 
 using namespace Core;
-using namespace Analyzer;
 using namespace Analyzer::Internal;
 
 namespace Analyzer {
@@ -135,11 +134,11 @@ AnalyzerStartParameters remoteLinuxStartParameters(ProjectExplorer::RunConfigura
         = qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return sp);
 
+    sp.startMode = StartRemote;
     sp.debuggee = rc->remoteExecutableFilePath();
     sp.debuggeeArgs = rc->arguments();
     sp.connParams = rc->deviceConfig()->sshParameters();
     sp.analyzerCmdPrefix = rc->commandPrefix();
-    sp.startMode = StartRemote;
     sp.displayName = rc->displayName();
     return sp;
 }
@@ -178,7 +177,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace Analyzer
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -186,7 +184,7 @@ public:
 //
 ////////////////////////////////////////////////////////////////////
 
-class AnalyzerManager::AnalyzerManagerPrivate : public QObject
+class AnalyzerManagerPrivate : public QObject
 {
     Q_OBJECT
 
@@ -211,27 +209,29 @@ public:
         const QString &stopButtonText, const QString &cancelButtonText) const;
 
     void addDock(Qt::DockWidgetArea area, QDockWidget *dockWidget);
-    void startLocalTool(IAnalyzerTool *tool);
-    void startRemoteTool(IAnalyzerTool *tool);
-    void addTool(IAnalyzerTool *tool);
+    void addTool(IAnalyzerTool *tool, const StartModes &modes);
     void stopTool(IAnalyzerTool *tool);
     void handleToolFinished(IAnalyzerTool *tool);
     int indexOf(IAnalyzerTool *tool) const;
     IAnalyzerTool *toolAt(int idx) const;
     void saveToolSettings(IAnalyzerTool *tool);
     void loadToolSettings(IAnalyzerTool *tool);
+    void selectTool(IAnalyzerTool *tool, StartMode mode);
 
     ProjectExplorer::RunControl *createRunControl
         (ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
+
+    // Convenience.
+    void startLocalTool(IAnalyzerTool *tool, StartMode mode);
+    void startRemoteTool(IAnalyzerTool *tool, StartMode mode);
 
 public slots:
     void startTool();
     void stopTool() { stopTool(m_currentTool); }
 
-    void selectTool();
-    void selectTool(IAnalyzerTool *tool);
-    void selectTool(QAction *);
-    void selectTool(int);
+    void selectAction();
+    void selectAction(QAction *);
+    void selectAction(int);
     void modeChanged(Core::IMode *mode);
     void resetLayout();
     void updateRunActions();
@@ -243,8 +243,10 @@ public:
     ProjectExplorer::RunControl *m_currentRunControl;
     Utils::FancyMainWindow *m_mainWindow;
     IAnalyzerTool *m_currentTool;
+    StartMode m_currentMode;
     QHash<QAction *, IAnalyzerTool *> m_toolFromAction;
     QList<IAnalyzerTool *> m_tools;
+    QList<QAction *> m_actions;
     QAction *m_startAction;
     QAction *m_stopAction;
     ActionContainer *m_menu;
@@ -264,13 +266,14 @@ public:
     bool m_initialized;
 };
 
-AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
+AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     q(qq),
     m_mode(0),
     m_runControlFactory(0),
     m_currentRunControl(0),
     m_mainWindow(0),
     m_currentTool(0),
+    m_currentMode(),
     m_startAction(0),
     m_stopAction(0),
     m_menu(0),
@@ -282,7 +285,7 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     m_initialized(false)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
-    connect(m_toolBox, SIGNAL(currentIndexChanged(int)), SLOT(selectTool(int)));
+    connect(m_toolBox, SIGNAL(currentIndexChanged(int)), SLOT(selectAction(int)));
 
     m_runControlFactory = new AnalyzerRunControlFactory();
     AnalyzerPlugin::instance()->addAutoReleasedObject(m_runControlFactory);
@@ -296,7 +299,7 @@ AnalyzerManager::AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager 
     connect(pe, SIGNAL(updateRunActions()), SLOT(updateRunActions()));
 }
 
-AnalyzerManager::AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
+AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
 {
     // as we have to setParent(0) on dock widget that are not selected,
     // we keep track of all and make sure we don't leak any
@@ -306,7 +309,7 @@ AnalyzerManager::AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
     }
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
+void AnalyzerManagerPrivate::setupActions()
 {
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
@@ -347,7 +350,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::setupActions()
     m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::delayedInit()
+void AnalyzerManagerPrivate::delayedInit()
 {
     if (m_initialized)
         return;
@@ -359,7 +362,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::delayedInit()
     m_initialized = true;
 }
 
-QWidget *AnalyzerManager::AnalyzerManagerPrivate::createModeContents()
+QWidget *AnalyzerManagerPrivate::createModeContents()
 {
     // right-side window with editor, output etc.
     MiniSplitter *mainWindowSplitter = new MiniSplitter;
@@ -385,7 +388,7 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
-QWidget *AnalyzerManager::AnalyzerManagerPrivate::createModeMainWindow()
+QWidget *AnalyzerManagerPrivate::createModeMainWindow()
 {
     m_mainWindow = new Utils::FancyMainWindow();
     m_mainWindow->setObjectName(QLatin1String("AnalyzerManagerMainWindow"));
@@ -448,7 +451,7 @@ QWidget *AnalyzerManager::AnalyzerManagerPrivate::createModeMainWindow()
     return m_mainWindow;
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::addDock(Qt::DockWidgetArea area,
+void AnalyzerManagerPrivate::addDock(Qt::DockWidgetArea area,
                                                       QDockWidget *dockWidget)
 {
     dockWidget->setParent(m_mainWindow);
@@ -481,7 +484,7 @@ bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
     return false;
 }
 
-bool AnalyzerManager::AnalyzerManagerPrivate::showPromptDialog(const QString &title,
+bool AnalyzerManagerPrivate::showPromptDialog(const QString &title,
                                         const QString &text,
                                         const QString &stopButtonText,
                                         const QString &cancelButtonText) const
@@ -500,7 +503,7 @@ bool AnalyzerManager::AnalyzerManagerPrivate::showPromptDialog(const QString &ti
     return messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
 }
 
-ProjectExplorer::RunControl *AnalyzerManager::AnalyzerManagerPrivate::createRunControl
+ProjectExplorer::RunControl *AnalyzerManagerPrivate::createRunControl
     (ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode)
 {
     Q_UNUSED(mode);
@@ -521,7 +524,7 @@ ProjectExplorer::RunControl *AnalyzerManager::AnalyzerManagerPrivate::createRunC
     return rc;
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::startRemoteTool(IAnalyzerTool *tool)
+void AnalyzerManagerPrivate::startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 {
     Q_UNUSED(tool);
     StartRemoteDialog dlg;
@@ -529,11 +532,12 @@ void AnalyzerManager::AnalyzerManagerPrivate::startRemoteTool(IAnalyzerTool *too
         return;
 
     AnalyzerStartParameters sp;
+    sp.toolId = tool->id();
+    sp.startMode = mode;
     sp.connParams = dlg.sshParams();
     sp.debuggee = dlg.executable();
     sp.debuggeeArgs = dlg.arguments();
     sp.displayName = dlg.executable();
-    sp.startMode = StartRemote;
     sp.workingDirectory = dlg.workingDirectory();
 
     AnalyzerRunControl *runControl = new AnalyzerRunControl(tool, sp, 0);
@@ -544,14 +548,15 @@ void AnalyzerManager::AnalyzerManagerPrivate::startRemoteTool(IAnalyzerTool *too
         ->startRunControl(runControl, Constants::MODE_ANALYZE);
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
+void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode mode)
 {
     int index = indexOf(tool);
     QTC_ASSERT(index >= 0, return);
     QTC_ASSERT(index < m_tools.size(), return);
     QTC_ASSERT(tool == m_currentTool, return);
+    QTC_ASSERT(mode == StartLocal, /**/);
 
-    // make sure mode is shown
+    // Make sure mode is shown.
     q->showMode();
 
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
@@ -594,8 +599,8 @@ void AnalyzerManager::AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool
     // Check the project for whether the build config is in the correct mode
     // if not, notify the user and urge him to use the correct mode.
     if (!buildTypeAccepted(toolMode, buildType)) {
-        const QString &toolName = tool->displayName();
-        const QString &toolMode = IAnalyzerTool::modeString(tool->mode());
+        const QString toolName = tool->displayName();
+        const QString toolMode = IAnalyzerTool::modeString(tool->mode());
         const QString currentMode = buildType == ProjectExplorer::BuildConfiguration::Debug ? tr("Debug") : tr("Release");
 
         QSettings *settings = Core::ICore::instance()->settings();
@@ -629,13 +634,12 @@ void AnalyzerManager::AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool
     updateRunActions();
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::startTool()
+void AnalyzerManagerPrivate::startTool()
 {
-    if (m_currentTool)
-        m_currentTool->startTool();
+    m_currentTool->startTool(m_currentMode);
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::stopTool(IAnalyzerTool *tool)
+void AnalyzerManagerPrivate::stopTool(IAnalyzerTool *tool)
 {
     QTC_ASSERT(tool == m_currentTool, /**/);
     if (m_currentRunControl)
@@ -647,7 +651,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::stopTool(IAnalyzerTool *tool)
     // else: wait for the finished() signal to trigger handleToolFinished()
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::modeChanged(IMode *mode)
+void AnalyzerManagerPrivate::modeChanged(IMode *mode)
 {
     if (!m_mainWindow)
         return;
@@ -657,12 +661,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::modeChanged(IMode *mode)
     m_mainWindow->setDockActionsVisible(makeVisible);
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::selectTool(int index)
-{
-    selectTool(m_tools[index]);
-}
-
-void AnalyzerManager::AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool)
+void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
 {
     int idx = indexOf(tool);
     QTC_ASSERT(idx >= 0, return);
@@ -692,6 +691,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool)
     }
 
     m_currentTool = tool;
+    m_currentMode = mode;
 
     m_toolBox->setCurrentIndex(idx);
     m_controlsWidget->setCurrentIndex(idx);
@@ -709,68 +709,77 @@ void AnalyzerManager::AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool)
     updateRunActions();
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::selectTool()
+void AnalyzerManagerPrivate::selectAction()
 {
-    selectTool(qobject_cast<QAction *>(sender()));
+    selectAction(qobject_cast<QAction *>(sender()));
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::selectTool(QAction *action)
+void AnalyzerManagerPrivate::selectAction(int index)
 {
-    selectTool(m_toolFromAction[action]);
+    selectAction(m_actions[index]);
 }
 
-int AnalyzerManager::AnalyzerManagerPrivate::indexOf(IAnalyzerTool *tool) const
+void AnalyzerManagerPrivate::selectAction(QAction *action)
+{
+    StartMode mode = StartMode(action->property("StartMode").toInt());
+    selectTool(m_toolFromAction[action], mode);
+}
+
+int AnalyzerManagerPrivate::indexOf(IAnalyzerTool *tool) const
 {
     return m_tools.indexOf(tool);
 }
 
-IAnalyzerTool *AnalyzerManager::AnalyzerManagerPrivate::toolAt(int idx) const
+IAnalyzerTool *AnalyzerManagerPrivate::toolAt(int idx) const
 {
     QTC_ASSERT(idx >= 0, return 0);
     QTC_ASSERT(idx < m_tools.size(), return 0);
     return m_tools.at(idx);
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool)
+void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &modes)
 {
-    ActionManager *am = Core::ICore::instance()->actionManager();
     delayedInit(); // be sure that there is a valid IMode instance
 
-    QString actionId = QString("Action.Analyzer.Tools." + tool->id());
-    QString displayName = tool->displayName();
-    QAction *action = new QAction(displayName, 0);
-    qDebug() << "ACTION: " << tool << actionId;
-
-    Core::Command *command = am->registerAction(action, actionId,
-        Core::Context(Core::Constants::C_GLOBAL));
-    m_menu->addAction(command, QString::fromLatin1(tool->menuGroup()));
-    connect(action, SIGNAL(triggered()), SLOT(selectTool()));
-
-    const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
-    m_toolBox->addItem(displayName);
-    m_toolBox->blockSignals(blocked);
-    m_toolBox->setEnabled(true);
-    // Populate controls widget.
+    ActionManager *am = Core::ICore::instance()->actionManager();
     QWidget *controlWidget = tool->createControlWidget(); // might be 0
     m_controlsWidget->addWidget(controlWidget
         ? controlWidget : AnalyzerUtils::createDummyWidget());
+
+    const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
+    foreach (StartMode mode, modes) {
+        QString actionName = tool->actionName(mode);
+        QString menuGroup = tool->menuGroup(mode);
+        QString actionId = tool->actionId(mode);
+        QAction *action = new QAction(actionName, 0);
+        action->setProperty("StartMode", int(mode));
+        Core::Command *command = am->registerAction(action, actionId,
+            Core::Context(Core::Constants::C_GLOBAL));
+        m_menu->addAction(command, menuGroup);
+        m_actions.append(action);
+        m_toolFromAction[action] = tool;
+        m_toolBox->addItem(actionName);
+        m_toolBox->blockSignals(blocked);
+        connect(action, SIGNAL(triggered()), SLOT(selectAction()));
+    }
+    m_toolBox->setEnabled(true);
+
     m_tools.append(tool);
-    m_toolFromAction[action] = tool;
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::handleToolFinished(IAnalyzerTool *tool)
+void AnalyzerManagerPrivate::handleToolFinished(IAnalyzerTool *tool)
 {
     QTC_ASSERT(tool == m_currentTool, /**/);
     m_currentRunControl = 0;
     updateRunActions();
 
     if (m_restartOnStop) {
-        m_currentTool->startTool();
+        m_currentTool->startTool(m_currentMode);
         m_restartOnStop = false;
     }
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
+void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
 {
     QTC_ASSERT(m_mainWindow, return);
     QSettings *settings = Core::ICore::instance()->settings();
@@ -780,7 +789,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *to
     settings->endGroup();
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool)
+void AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool)
 {
     if (!tool)
         return; // no active tool, do nothing
@@ -794,7 +803,7 @@ void AnalyzerManager::AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *to
     settings->setValue(QLatin1String(lastActiveToolC), tool->id());
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::updateRunActions()
+void AnalyzerManagerPrivate::updateRunActions()
 {
     ProjectExplorer::ProjectExplorerPlugin *pe =
         ProjectExplorer::ProjectExplorerPlugin::instance();
@@ -846,15 +855,16 @@ void AnalyzerManager::extensionsInitialized()
     const QSettings *settings = Core::ICore::instance()->settings();
     const QString lastActiveToolId =
         settings->value(QLatin1String(lastActiveToolC), QString()).toString();
-    IAnalyzerTool *lastTool = 0;
 
-    foreach (IAnalyzerTool *tool, d->m_tools) {
+    foreach (IAnalyzerTool *tool, d->m_tools)
         tool->extensionsInitialized();
-        if (tool->id() == lastActiveToolId)
-            lastTool = tool;
-    }
 
-    d->selectTool(lastTool);
+    QAction *lastAction = 0;
+    foreach (QAction *action, d->m_actions)
+        if (d->m_toolFromAction[action]->id() == lastActiveToolId)
+            lastAction = action;
+    if (lastAction)
+        d->selectAction(lastAction);
 }
 
 void AnalyzerManager::shutdown()
@@ -862,14 +872,9 @@ void AnalyzerManager::shutdown()
     d->saveToolSettings(d->m_currentTool);
 }
 
-void AnalyzerManager::registerRunControlFactory(ProjectExplorer::IRunControlFactory *factory)
+void AnalyzerManager::addTool(IAnalyzerTool *tool, const StartModes &modes)
 {
-    m_instance->d->registerRunControlFactory(factory);
-}
-
-void AnalyzerManager::addTool(IAnalyzerTool *tool)
-{
-    m_instance->d->addTool(tool);
+    m_instance->d->addTool(tool, modes);
 }
 
 QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QString &title,
@@ -886,15 +891,15 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
     return dockWidget;
 }
 
-void AnalyzerManager::selectTool(IAnalyzerTool *tool)
+void AnalyzerManager::selectTool(IAnalyzerTool *tool, StartMode mode)
 {
-    m_instance->d->selectTool(tool);
+    m_instance->d->selectTool(tool, mode);
 }
 
-void AnalyzerManager::startTool(IAnalyzerTool *tool)
+void AnalyzerManager::startTool(IAnalyzerTool *tool, StartMode mode)
 {
     QTC_ASSERT(tool == m_instance->d->m_currentTool, return);
-    m_instance->d->startTool();
+    tool->startTool(mode);
 }
 
 Utils::FancyMainWindow *AnalyzerManager::mainWindow()
@@ -902,7 +907,7 @@ Utils::FancyMainWindow *AnalyzerManager::mainWindow()
     return m_instance->d->m_mainWindow;
 }
 
-void AnalyzerManager::AnalyzerManagerPrivate::resetLayout()
+void AnalyzerManagerPrivate::resetLayout()
 {
     m_mainWindow->restoreSettings(m_defaultSettings.value(m_currentTool));
 }
@@ -940,14 +945,14 @@ void AnalyzerManager::stopTool(IAnalyzerTool *tool)
     m_instance->stopTool(tool);
 }
 
-void AnalyzerManager::startLocalTool(IAnalyzerTool *tool)
+void AnalyzerManager::startLocalTool(IAnalyzerTool *tool, StartMode mode)
 {
-    m_instance->startLocalTool(tool);
+    m_instance->startLocalTool(tool, mode);
 }
 
-void AnalyzerManager::startRemoteTool(IAnalyzerTool *tool)
+void AnalyzerManager::startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 {
-    m_instance->startRemoteTool(tool);
+    m_instance->startRemoteTool(tool, mode);
 }
 
 ProjectExplorer::RunControl *AnalyzerManager::createRunControl
@@ -969,5 +974,7 @@ IAnalyzerTool *AnalyzerManager::toolById(const QByteArray &id)
     QTC_ASSERT(false, qDebug() << "NO ANAYLYZER TOOL FOUND FOR ID" << id);
     return 0;
 }
+
+} // namespace Analyzer
 
 #include "analyzermanager.moc"

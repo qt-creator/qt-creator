@@ -175,7 +175,6 @@ public slots:
 public:
     CallgrindTool *q;
 
-    bool m_local;
     DataModel *m_dataModel;
     DataProxyModel *m_proxyModel;
     StackBrowser *m_stackBrowser;
@@ -218,7 +217,6 @@ public:
 
 CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     : q(parent)
-    , m_local(true)
     , m_dataModel(new DataModel(this))
     , m_proxyModel(new DataProxyModel(this))
     , m_stackBrowser(new StackBrowser(this))
@@ -499,11 +497,10 @@ static QToolButton *createToolButton(QAction *action)
     return button;
 }
 
-CallgrindTool::CallgrindTool(bool local, QObject *parent)
+CallgrindTool::CallgrindTool(QObject *parent)
     : Analyzer::IAnalyzerTool(parent)
 {
     d = new CallgrindToolPrivate(this);
-    d->m_local = local;
     Core::ICore *core = Core::ICore::instance();
 
     // EditorManager
@@ -519,33 +516,18 @@ CallgrindTool::~CallgrindTool()
 
 QByteArray CallgrindTool::id() const
 {
-    return d->m_local ? "CallgrindLocal" : "CallgrindRemote";
+    return "Callgrind";
 }
 
 QString CallgrindTool::displayName() const
 {
-    return d->m_local ? tr("Valgrind Function Profile")
-                      : tr("Valgrind Function Profile (Remote)");
-}
-
-QByteArray CallgrindTool::menuGroup() const
-{
-    return d->m_local ? Analyzer::Constants::G_ANALYZER_TOOLS
-                      : Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
+    return tr("Valgrind Function Profile");
 }
 
 QString CallgrindTool::description() const
 {
     return tr("Valgrind Profile uses the \"callgrind\" tool to "
               "record function calls when a program runs.");
-}
-
-void CallgrindTool::startTool()
-{
-    if (d->m_local)
-        AnalyzerManager::startLocalTool(this);
-    else
-        AnalyzerManager::startRemoteTool(this);
 }
 
 IAnalyzerTool::ToolMode CallgrindTool::mode() const
@@ -947,8 +929,8 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
 
     m_toggleCollectFunction = QString("%1()").arg(qualifiedFunctionName);
 
-    AnalyzerManager::selectTool(q);
-    AnalyzerManager::startTool(q);
+    AnalyzerManager::selectTool(q, StartMode(StartLocal));
+    AnalyzerManager::startTool(q, StartMode(StartLocal));
 }
 
 void CallgrindToolPrivate::slotRequestDump()

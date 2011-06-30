@@ -92,7 +92,6 @@ public:
 
     QmlProfilerTool *q;
 
-    bool m_local;
     QDeclarativeDebugConnection *m_client;
     QTimer m_connectionTimer;
     int m_connectionAttempts;
@@ -119,10 +118,9 @@ public:
     QString m_ostDevice;
 };
 
-QmlProfilerTool::QmlProfilerTool(bool local, QObject *parent)
+QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate(this))
 {
-    d->m_local = local;
     d->m_client = 0;
     d->m_connectionAttempts = 0;
     d->m_traceWindow = 0;
@@ -151,24 +149,12 @@ QmlProfilerTool::~QmlProfilerTool()
 
 QByteArray QmlProfilerTool::id() const
 {
-    return d->m_local ? "QmlLocalProfiler" : "QmlRemoteProfiler";
+    return "QmlProfiler";
 }
 
 QString QmlProfilerTool::displayName() const
 {
-    return d->m_local ? tr("QML Profiler") : tr("QML Profiler (Remote)");
-}
-
-QByteArray QmlProfilerTool::menuGroup() const
-{
-    return d->m_local ? Analyzer::Constants::G_ANALYZER_TOOLS
-                      : Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
-}
-
-void QmlProfilerTool::startTool()
-{
-    return d->m_local ? AnalyzerManager::startLocalTool(this)
-                      : AnalyzerManager::startRemoteTool(this);
+    return tr("QML Profiler");
 }
 
 QString QmlProfilerTool::description() const

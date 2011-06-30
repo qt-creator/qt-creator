@@ -45,16 +45,14 @@ class CallgrindTool : public Analyzer::IAnalyzerTool
     Q_OBJECT
 
 public:
-    CallgrindTool(bool local, QObject *parent);
+    CallgrindTool(QObject *parent);
     ~CallgrindTool();
 
     QByteArray id() const;
     QString displayName() const;
-    QByteArray menuGroup() const;
     QString description() const;
     ToolMode mode() const;
 
-    void startTool();
     void extensionsInitialized();
     void initializeDockWidgets();
 

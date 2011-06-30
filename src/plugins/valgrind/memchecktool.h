@@ -91,13 +91,11 @@ class MemcheckTool : public Analyzer::IAnalyzerTool
     Q_OBJECT
 
 public:
-    MemcheckTool(bool local, QObject *parent);
+    MemcheckTool(QObject *parent);
 
     QByteArray id() const;
     QString displayName() const;
     QString description() const;
-    QByteArray menuGroup() const;
-    void startTool();
 
 private slots:
     void settingsDestroyed(QObject *settings);
