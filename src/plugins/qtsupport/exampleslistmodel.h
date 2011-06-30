@@ -3,7 +3,7 @@
 
 #include <QAbstractListModel>
 #include <QStringList>
-#include <QtCore/QXmlStreamReader>;
+#include <QtCore/QXmlStreamReader>
 #include <QtGui/QSortFilterProxyModel>
 
 namespace QtSupport {
