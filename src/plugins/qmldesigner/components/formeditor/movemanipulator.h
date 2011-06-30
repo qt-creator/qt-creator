@@ -69,6 +69,7 @@ public:
     ~MoveManipulator();
     void setItems(const QList<FormEditorItem*> &itemList);
     void setItem(FormEditorItem* item);
+    void synchronizeInstanceParent(const QList<FormEditorItem*> &itemList);
 
     void begin(const QPointF& beginPoint);
     void update(const QPointF& updatePoint, Snapping useSnapping, State stateToBeManipulated = UseActualState);

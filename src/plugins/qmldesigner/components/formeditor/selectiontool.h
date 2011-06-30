@@ -80,6 +80,8 @@ public:
     void formEditorItemsChanged(const QList<FormEditorItem*> &itemList);
 
     void instancesCompleted(const QList<FormEditorItem*> &itemList);
+    void instancesParentChanged(const QList<FormEditorItem *> &itemList);
+
 
     void selectUnderPoint(QGraphicsSceneMouseEvent *event);
 

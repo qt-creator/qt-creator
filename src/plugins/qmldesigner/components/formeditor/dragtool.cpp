@@ -217,6 +217,12 @@ void DragTool::instancesCompleted(const QList<FormEditorItem*> &itemList)
     QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::hide();
 }
 
+void DragTool::instancesParentChanged(const QList<FormEditorItem *> &itemList)
+{
+    m_moveManipulator.synchronizeInstanceParent(itemList);
+}
+
+
 void DragTool::clearMoveDelay()
 {
     if (!m_blockMove)
@@ -381,6 +387,7 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
             QTimer::singleShot(1000, m_timerHandler.data(), SLOT(clearMoveDelay()));
         }
     }
+
     if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
     }
 }

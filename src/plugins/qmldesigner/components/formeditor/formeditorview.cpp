@@ -56,6 +56,7 @@
 #include <zoomaction.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
+#include <commondefines.h>
 
 
 namespace QmlDesigner {
@@ -502,6 +503,7 @@ void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList
     }
 
     m_currentTool->formEditorItemsChanged(itemNodeList);
+    m_currentTool->instancesParentChanged(itemNodeList);
 }
 
 void FormEditorView::rewriterBeginTransaction()

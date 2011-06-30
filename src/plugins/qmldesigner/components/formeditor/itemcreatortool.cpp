@@ -145,6 +145,10 @@ void ItemCreatorTool::instancesCompleted(const QList<FormEditorItem*> &/*itemLis
 {
 }
 
+void ItemCreatorTool::instancesParentChanged(const QList<FormEditorItem *> &/*itemList*/)
+{
+}
+
 void ItemCreatorTool::setItemString(const QString &itemString)
 {
     m_itemString = itemString;

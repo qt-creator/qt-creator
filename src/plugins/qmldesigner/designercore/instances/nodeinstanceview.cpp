@@ -1058,14 +1058,11 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
         emitInstancesRenderImageChanged(renderImageChangeSet.toList().toVector());
 }
 
-void NodeInstanceView::informationChanged(const InformationChangedCommand &command)
+QMultiHash<ModelNode, InformationName> NodeInstanceView::informationChanged(const QVector<InformationContainer> &containerVector)
 {
-    if (!model())
-        return;
-
     QMultiHash<ModelNode, InformationName> informationChangeHash;
 
-    foreach(const InformationContainer &container, command.informations()) {
+    foreach (const InformationContainer &container, containerVector) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
@@ -1075,6 +1072,16 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
             }
         }
     }
+
+    return informationChangeHash;
+}
+
+void NodeInstanceView::informationChanged(const InformationChangedCommand &command)
+{
+    if (!model())
+        return;
+
+    QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(command.informations());
 
     if (!informationChangeHash.isEmpty())
         emitInstanceInformationsChange(informationChangeHash);
@@ -1138,6 +1145,7 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
      if (!model())
         return;
 
+
     QVector<ModelNode> childNodeVector;
 
     foreach(qint32 instanceId, command.childrenInstances()) {
@@ -1147,6 +1155,11 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
             childNodeVector.append(instance.modelNode());
         }
     }
+
+    QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(command.informations());
+
+    if (!informationChangeHash.isEmpty())
+        emitInstanceInformationsChange(informationChangeHash);
 
     if (!childNodeVector.isEmpty())
         emitInstancesChildrenChanged(childNodeVector);

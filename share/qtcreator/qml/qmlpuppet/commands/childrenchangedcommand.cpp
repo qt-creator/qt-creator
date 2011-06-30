@@ -39,9 +39,10 @@ ChildrenChangedCommand::ChildrenChangedCommand()
 {
 }
 
-ChildrenChangedCommand::ChildrenChangedCommand(qint32 parentInstanceId, const QVector<qint32> &children)
+ChildrenChangedCommand::ChildrenChangedCommand(qint32 parentInstanceId, const QVector<qint32> &children, const QVector<InformationContainer> &informationVector)
     : m_parentInstanceId(parentInstanceId),
-      m_childrenVector(children)
+      m_childrenVector(children),
+      m_informationVector(informationVector)
 {
 }
 
@@ -55,11 +56,16 @@ qint32 ChildrenChangedCommand::parentInstanceId() const
     return m_parentInstanceId;
 }
 
+QVector<InformationContainer> ChildrenChangedCommand::informations() const
+{
+    return m_informationVector;
+}
+
 QDataStream &operator<<(QDataStream &out, const ChildrenChangedCommand &command)
 {
     out << command.parentInstanceId();
     out << command.childrenInstances();
-
+    out << command.informations();
     return out;
 }
 
@@ -67,6 +73,7 @@ QDataStream &operator>>(QDataStream &in, ChildrenChangedCommand &command)
 {
     in >> command.m_parentInstanceId;
     in >> command.m_childrenVector;
+    in >> command.m_informationVector;
 
     return in;
 }

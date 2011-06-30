@@ -88,6 +88,24 @@ void MoveManipulator::setItems(const QList<FormEditorItem*> &itemList)
     }
 }
 
+void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
+{
+    if (m_view->model()) {
+        foreach (FormEditorItem *item, itemList) {
+            if (m_itemList.contains(item)) {
+                QmlItemNode parentItemNode = QmlItemNode(item->qmlItemNode().instanceParent());
+                if (parentItemNode.isValid()) {
+                    m_snapper.setContainerFormEditorItem(m_view->scene()->itemForQmlItemNode(parentItemNode));
+                    m_snapper.setTransformtionSpaceFormEditorItem(m_snapper.containerFormEditorItem());
+                    m_snapper.updateSnappingLines(m_itemList);
+                    updateHashes();
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void MoveManipulator::updateHashes()
 {
 //    foreach (FormEditorItem* item, m_itemList)
@@ -343,13 +361,6 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
             else
                 item->qmlItemNode().setParentProperty(parent.nodeAbstractProperty("data"));
         }
-    }
-
-    if (m_view->model()) {
-        m_snapper.setContainerFormEditorItem(newParent);
-        m_snapper.setTransformtionSpaceFormEditorItem(m_snapper.containerFormEditorItem());
-        m_snapper.updateSnappingLines(m_itemList);
-        updateHashes();
     }
 }
 

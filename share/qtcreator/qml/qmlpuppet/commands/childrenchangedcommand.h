@@ -35,7 +35,7 @@
 
 #include <QMetaType>
 #include <QVector>
-
+#include "informationcontainer.h"
 
 namespace QmlDesigner {
 
@@ -44,14 +44,16 @@ class ChildrenChangedCommand
     friend QDataStream &operator>>(QDataStream &in, ChildrenChangedCommand &command);
 public:
     ChildrenChangedCommand();
-    ChildrenChangedCommand(qint32 parentInstanceId, const QVector<qint32> &childrenInstances);
+    ChildrenChangedCommand(qint32 parentInstanceId, const QVector<qint32> &childrenInstancesconst, const QVector<InformationContainer> &informationVector);
 
     QVector<qint32> childrenInstances() const;
     qint32 parentInstanceId() const;
+    QVector<InformationContainer> informations() const;
 
 private:
     qint32 m_parentInstanceId;
     QVector<qint32> m_childrenVector;
+    QVector<InformationContainer> m_informationVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const ChildrenChangedCommand &command);

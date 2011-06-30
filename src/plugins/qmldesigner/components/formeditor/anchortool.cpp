@@ -220,6 +220,10 @@ void AnchorTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)
 {
 }
 
+void AnchorTool::instancesParentChanged(const QList<FormEditorItem *> &/*itemList*/)
+{
+}
+
 AnchorLineHandleItem* AnchorTool::topAnchorLineHandleItem(const QList<QGraphicsItem*> & itemList)
 {
     foreach (QGraphicsItem *item, itemList) {

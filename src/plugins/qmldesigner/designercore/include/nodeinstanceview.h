@@ -69,6 +69,7 @@ class ChangeIdsCommand;
 class RemoveInstancesCommand;
 class RemovePropertiesCommand;
 class CompleteComponentCommand;
+class InformationContainer;
 
 class CORESHARED_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
 {
@@ -161,6 +162,8 @@ private: // functions
     void clearStateInstance();
 
     NodeInstanceServerInterface *nodeInstanceServer() const;
+    QMultiHash<ModelNode, InformationName> informationChanged(const QVector<InformationContainer> &containerVector);
+
 
     CreateSceneCommand createCreateSceneCommand();
     ClearSceneCommand createClearSceneCommand() const;
