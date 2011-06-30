@@ -1,8 +1,10 @@
 import QtQuick 1.0
 
 GridView {
-    width: 200
-    height: 200
+    width: 140
+    height: 140
+    cellWidth: 70
+    cellHeight: 70
 
     model: ListModel {
 

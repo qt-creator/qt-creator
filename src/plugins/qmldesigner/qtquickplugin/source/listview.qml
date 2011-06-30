@@ -1,7 +1,7 @@
 import QtQuick 1.0
 
 ListView {
-    width: 160
+    width: 110
     height: 160
     model:  ListModel {
         ListElement {

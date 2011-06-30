@@ -2,7 +2,7 @@ import QtQuick 1.0
 
 PathView {
     width: 250
-    height: 200
+    height: 130
 
     path: Path {
         startX: 120
