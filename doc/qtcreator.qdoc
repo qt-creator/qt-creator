@@ -3178,7 +3178,7 @@
 
     To develop applications for Symbian devices, you use
     qmake and the local Symbian compiler (on Windows) or qmake and a compilation
-    service at Forum Nokia (on Linux and Mac OS) to build the applications for
+    service at Nokia Developer (on Linux and Mac OS) to build the applications for
     the Symbian devices target. The interface to the compilation service, Remote
     Compiler, is installed as a part of the \QSDK. For more information, see
     \l{Building with Remote Compiler}.
@@ -4373,7 +4373,7 @@
     The tool chain for building applications locally on the development PC for
     the \gui {Symbian Device} target is only supported on Windows.
     If you develop on Linux or Mac OS, you must use the Remote Compiler
-    interface to a compilation service at Forum Nokia. For more information,
+    interface to a compilation service at Nokia Developer. For more information,
     see \l{Building with Remote Compiler}.
 
     \section2 Troubleshooting Build Issues
@@ -4587,15 +4587,15 @@
     \title Building with Remote Compiler
 
     The \gui {Remote Compiler} target is an interface to a compilation service at
-    Forum Nokia. It provides a simple, standardized environment for building Qt
+    Nokia Developer. It provides a simple, standardized environment for building Qt
     applications and creating installation packages for Symbian, Maemo, and
     MeeGo Harmattan devices
     when you do not have the necessary tool chains and SDKs installed or they are
     not supported on the development PC. You can choose from a set of supported
     devices, such as S60 3rd Edition or S60 5th Edition devices.
 
-    You need a Forum Nokia user account to use the Remote Compiler. You can
-    create an account for free at \l{http://www.forum.nokia.com/}{Forum Nokia}.
+    You need a Nokia Developer user account to use the Remote Compiler. You can
+    create an account for free at \l{http://www.developer.nokia.com/}{Nokia Developer}.
 
     \note Remote Compiler is an experimental component that is installed as
     part of \QSDK.
@@ -4609,7 +4609,7 @@
         Remote Compiler} to install Remote Compiler.
 
         \o In Qt Creator, choose \gui {Tools > Options > Projects > Remote Compiler}
-        to log on to Forum Nokia.
+        to log on to Nokia Developer.
 
         \image remotecompiler-fn-logon.png "Remote Compiler options"
 
@@ -5194,7 +5194,7 @@
     (Express Signing). Participants can submit an unsigned SIS file to Ovi
     Publishing for signing. For more information about how
     to participate, see
-    \l {http://wiki.forum.nokia.com/index.php/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store}.
+    \l {http://www.developer.nokia.com/Community/Wiki/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store}.
 
     There are also options that do not require you to get a Publisher ID. For
     more detail about how the Symbian Signed process works, see
@@ -5285,7 +5285,7 @@
 
     You can either install the Nokia Smart Installer for Symbian as part of
     the \QSDK, or download and install it from the
-    \l{http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}
+    \l{http://www.developer.nokia.com/Community/Wiki/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}
     wiki.
 
     To package Nokia Smart Installer with the application, select the \gui {Create Smart Installer
@@ -5499,7 +5499,7 @@
 
     The process and requirements to publish Qt applications to Ovi Store are
     described in the
-    \l {http://wiki.forum.nokia.com/index.php/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store} wiki.
+    \l {http://www.developer.nokia.com/Community/Wiki/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store} wiki.
 
     This section describes how to
     generate installation packages that
@@ -5565,7 +5565,7 @@
     device if you use UIDs from the trusted range (0x2xxxxxxx) in a self-signed
     application: \gui {Unable to install a trusted application from a trusted
     supplier.} For more
-    information, see \l{http://wiki.forum.nokia.com/index.php/UID}{UID}.
+    information, see \l{http://www.developer.nokia.com/Community/Wiki/UID}{UID}.
 
     If you try to use more capabilites than the certificate permits, the
     following error message is displayed on the device: \gui {Requested
@@ -5642,7 +5642,7 @@
 
     The applications that you publish on Ovi Store, must meet the testing criteria
     listed in
-    \l{http://www.forum.nokia.com/info/sw.nokia.com/id/9cd1eb18-821b-4228-a0a3-36b049c5d608/Maemo_5_Application_OVI_Store_Entry_Requirements.pdf.html}
+    \l{http://www.developer.nokia.com/info/sw.nokia.com/id/9cd1eb18-821b-4228-a0a3-36b049c5d608/Maemo_5_Application_OVI_Store_Entry_Requirements.pdf.html}
     {Maemo 5 Applications: Ovi Store Entry Requirements}.
 
     Make sure that your application passes the following most commonly
@@ -9799,7 +9799,7 @@
     \gui Library pane.
 
     You can dowload QML templates that specify different types of screens from
-    \l{https://projects.forum.nokia.com/QMLTemplates}{QML Templates} for use in
+    \l{https://projects.developer.nokia.com/QMLTemplates}{QML Templates} for use in
     your Qt Quick projects. You can open and edit the templates in \QD.
 
     \section1 Adding Components to Screens
@@ -10649,8 +10649,7 @@
        \endlist
 
        For more information about user experience techniques for mobile devices, see the
-       \l{http://library.forum.nokia.com/topic/Design_and_User_Experience_Library/GUID-A8DF3EB8-E97C-4DA0-95F6-F464ECC995BC_cover.html}{Design and User Experience Library}
-       on Forum Nokia.
+       \l{http://www.developer.nokia.com/Resources/Library/Design_and_UX} on Nokia Developer.
 
  */
 
@@ -12289,7 +12288,7 @@
 
         \row
             \o  Develop Qt applications for Nokia mobile devices
-            \o  \l{http://www.forum.nokia.com/Develop/Qt/}{Forum Nokia - Qt}
+            \o  \l{http://www.developer.nokia.com/Develop/Qt/}{Nokia Developer - Qt}
 
         \row
             \o  Participate in Qt development
