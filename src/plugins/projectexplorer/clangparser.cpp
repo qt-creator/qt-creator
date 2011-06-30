@@ -35,8 +35,6 @@
 #include "taskwindow.h"
 #include "projectexplorerconstants.h"
 
-#include <QtCore/QDir>
-
 using namespace ProjectExplorer;
 
 namespace {

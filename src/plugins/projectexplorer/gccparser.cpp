@@ -35,8 +35,6 @@
 #include "taskwindow.h"
 #include "projectexplorerconstants.h"
 
-#include <QtCore/QDir>
-
 using namespace ProjectExplorer;
 
 namespace {
@@ -105,7 +103,7 @@ void GccParser::stdError(const QString &line)
         int lineno = m_regExp.cap(3).toInt();
         Task task(Task::Unknown,
                   m_regExp.cap(8) /* description */,
-                  QDir::fromNativeSeparators(filename), lineno,
+                  filename, lineno,
                   Constants::TASK_CATEGORY_COMPILE);
         if (m_regExp.cap(7) == QLatin1String("warning"))
             task.type = Task::Warning;
@@ -123,7 +121,7 @@ void GccParser::stdError(const QString &line)
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
         emit addTask(Task(Task::Unknown,
                           lne /* description */,
-                          QDir::fromNativeSeparators(m_regExpIncluded.cap(1)) /* filename */,
+                          m_regExpIncluded.cap(1) /* filename */,
                           m_regExpIncluded.cap(3).toInt() /* linenumber */,
                           Constants::TASK_CATEGORY_COMPILE));
         return;
@@ -207,7 +205,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << QString() << QString()
             << (QList<ProjectExplorer::Task>() << Task(Task::Error,
                                                        QLatin1String("#error Symbian error"),
-                                                       QLatin1String("C:/temp/test/untitled8/main.cpp"), 7,
+                                                       QLatin1String("C:\\temp\\test\\untitled8\\main.cpp"), 7,
                                                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
     // Symbian reports #warning(s) twice (using different syntax).
@@ -217,7 +215,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << QString() << QString()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("#warning Symbian warning"),
-                                                       QLatin1String("C:/temp/test/untitled8/main.cpp"), 8,
+                                                       QLatin1String("C:\\temp\\test\\untitled8\\main.cpp"), 8,
                                                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("GCCE #warning2")
@@ -242,7 +240,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         Constants::TASK_CATEGORY_COMPILE)
                 << Task(Task::Error,
                         QLatin1String("undefined reference to `MainWindow::doSomething()'"),
-                        QLatin1String("C:/temp/test/untitled8/main.cpp"), 8,
+                        QLatin1String("C:\\temp\\test\\untitled8/main.cpp"), 8,
                         Constants::TASK_CATEGORY_COMPILE)
                 << Task(Task::Error,
                         QLatin1String("collect2: ld returned 1 exit status"),
@@ -263,7 +261,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         Constants::TASK_CATEGORY_COMPILE)
                 << Task(Task::Error,
                         QLatin1String("undefined reference to `MainWindow::doSomething()'"),
-                        QLatin1String("C:/temp/test/untitled8/main.cpp"), -1,
+                        QLatin1String("C:\\temp\\test\\untitled8/main.cpp"), -1,
                         Constants::TASK_CATEGORY_COMPILE)
                 << Task(Task::Error,
                         QLatin1String("collect2: ld returned 1 exit status"),
@@ -278,7 +276,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("file not recognized: File format not recognized"),
-                        QLatin1String("c:/Qt/4.6/lib/QtGuid4.dll"), -1,
+                        QLatin1String("c:\\Qt\\4.6\\lib/QtGuid4.dll"), -1,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("Invalid rpath")
@@ -510,11 +508,11 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         Constants::TASK_CATEGORY_COMPILE)
                 << Task(Task::Error,
                         QLatin1String("undefined reference to `vtable for QPlotAxis'"),
-                        QLatin1String("M:/Development/x64/QtPlot/qplotaxis.cpp"), 26,
+                        QLatin1String("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"), 26,
                         Constants::TASK_CATEGORY_COMPILE)
                 << Task(Task::Error,
                         QLatin1String("undefined reference to `vtable for QPlotAxis'"),
-                        QLatin1String("M:/Development/x64/QtPlot/qplotaxis.cpp"), 26,
+                        QLatin1String("M:\\Development\\x64\\QtPlot/qplotaxis.cpp"), 26,
                         Constants::TASK_CATEGORY_COMPILE)
                 << Task(Task::Error,
                         QLatin1String("collect2: ld returned 1 exit status"),
