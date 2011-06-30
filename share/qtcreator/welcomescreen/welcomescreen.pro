@@ -1,6 +1,8 @@
 TEMPLATE = subdirs
 SUBDIRS = components/styleitem
 
+QML_IMPORT_PATH += $$OUT_PWD
+
 OTHER_FILES = develop.qml \
               gettingstarted.qml \
               newssupport.qml \

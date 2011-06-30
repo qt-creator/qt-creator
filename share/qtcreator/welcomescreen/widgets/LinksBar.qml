@@ -1,6 +1,5 @@
 import QtQuick 1.0
 
-
 Row {
     id: tabBar
     height: 25

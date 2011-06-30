@@ -1,4 +1,5 @@
 import QtQuick 1.0
+
 Item {
     id: root
     height: childrenRect.height

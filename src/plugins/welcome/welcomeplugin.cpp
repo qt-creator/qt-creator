@@ -182,6 +182,7 @@ void WelcomeMode::initPlugins()
 
     QDeclarativeEngine *engine = m_welcomePage->engine();
     engine->setNetworkAccessManagerFactory(new NetworkAccessManagerFactory);
+    engine->addImportPath(Core::ICore::instance()->resourcePath() + "/welcomescreen");
     foreach (Utils::IWelcomePage *plugin, plugins) {
         plugin->facilitateQml(engine);
         m_pluginList.append(plugin);

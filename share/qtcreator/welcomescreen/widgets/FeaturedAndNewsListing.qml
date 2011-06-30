@@ -1,5 +1,6 @@
 import QtQuick 1.0
-import "../components" as Components
+import components 1.0 as Components
+
 Item {
     InsetText {
         id: text

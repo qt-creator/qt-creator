@@ -1,5 +1,5 @@
-import Qt 4.7
-import "../components" as Components
+import QtQuick 1.0
+import components 1.0 as Components
 
 BorderImage {
     id: inner_background

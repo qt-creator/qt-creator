@@ -1,5 +1,5 @@
 import QtQuick 1.0
-import "../components" as Components
+import components 1.0 as Components
 
 HeaderItemView {
     header: qsTr("Recently Used Sessions")
