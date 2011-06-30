@@ -87,9 +87,4 @@ void IAnalyzerTool::initializeDockWidgets()
 {
 }
 
-QWidget *IAnalyzerTool::createControlWidget()
-{
-    return 0;
-}
-
 } // namespace Analyzer

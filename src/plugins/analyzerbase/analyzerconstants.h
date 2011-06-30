@@ -86,9 +86,6 @@ const char * const ANALYZER_CONTROL_STOP_ICON =
 
 const char * const ANALYZERTASK_ID = "Analyzer.TaskId";
 
-// private
-const char * const ANALYZER_DUMMYWIDGET_ID = "Analyzer.DummyWidget";
-
 } // namespace Constants
 } // namespace Analyzer
 

@@ -116,9 +116,9 @@ public:
       */
     virtual void initializeDockWidgets();
 
-    /// Returns a control widget which will be shown
-    /// in the output pane when this tool is selected.
-    virtual QWidget *createControlWidget();
+    /// Returns a control widget which will be shown in the status bar when
+    /// this tool is selected. Must be non-zero.
+    virtual QWidget *createControlWidget() = 0;
 
     /// Returns a new engine for the given start parameters.
     /// Called each time the tool is launched.

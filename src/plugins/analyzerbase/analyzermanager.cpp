@@ -711,14 +711,12 @@ void AnalyzerManagerPrivate::selectAction(QAction *action)
 
 void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &modes)
 {
-    delayedInit(); // be sure that there is a valid IMode instance
-
-    ActionManager *am = Core::ICore::instance()->actionManager();
-    QWidget *controlWidget = tool->createControlWidget(); // might be 0
-    m_controlsWidget->addWidget(controlWidget
-        ? controlWidget : AnalyzerUtils::createDummyWidget());
+    delayedInit(); // Make sure that there is a valid IMode instance.
 
     const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
+
+    m_controlsWidget->addWidget(tool->createControlWidget());
+    ActionManager *am = Core::ICore::instance()->actionManager();
     foreach (StartMode mode, modes) {
         QString actionName = tool->actionName(mode);
         QString menuGroup = tool->menuGroup(mode);
