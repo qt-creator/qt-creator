@@ -67,11 +67,13 @@ public:
     explicit IAnalyzerTool(QObject *parent = 0);
 
     /// Returns a unique ID for this tool.
-    virtual QString id() const = 0;
+    virtual QByteArray id() const = 0;
     /// Returns a short user readable display name for this tool.
     virtual QString displayName() const = 0;
     /// Returns a user readable description name for this tool.
     virtual QString description() const = 0;
+    /// Returns the name of the menu group of the start action.
+    virtual QByteArray menuGroup() const = 0;
 
     /**
      * The mode in which this tool should preferably be run
@@ -89,11 +91,6 @@ public:
 
     static QString modeString(ToolMode mode);
 
-    /**
-     * The implementation should setup widgets for the output pane here and
-     * optionally add dock widgets in the analyzation mode if wanted.
-     */
-    virtual void initialize() = 0;
     /// This gets called after all analyzation tools where initialized.
     virtual void extensionsInitialized() = 0;
 
@@ -112,11 +109,8 @@ public:
     virtual IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
 
-    /// Returns true when this tool can be run on the loca machine.
-    virtual bool canRunLocally() const = 0;
-
-    /// Returns true when this tool can be run on a remote machine.
-    virtual bool canRunRemotely() const = 0;
+    /// Starts the tool.
+    virtual void startTool() = 0;
 
     /// Called when tools gets selected.
     virtual void toolSelected() const {}

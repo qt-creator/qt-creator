@@ -46,8 +46,6 @@ class QmlProfilerPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
 
 public:
-    static QmlProfilerPlugin *instance();
-
     QmlProfilerPlugin();
     ~QmlProfilerPlugin();
 
@@ -60,8 +58,6 @@ public:
 private:
     class QmlProfilerPluginPrivate;
     QmlProfilerPluginPrivate *d;
-
-    static QmlProfilerPlugin *m_instance;
 };
 
 } // namespace Internal

@@ -45,27 +45,25 @@ class QmlProfilerTool : public Analyzer::IAnalyzerTool
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTool(QObject *parent = 0);
+    QmlProfilerTool(bool local, QObject *parent);
     ~QmlProfilerTool();
 
-    QString id() const;
+    QByteArray id() const;
     QString displayName() const;
+    QByteArray menuGroup() const;
     QString description() const;
     ToolMode mode() const;
 
-    void initialize();
-    void extensionsInitialized();
+    void extensionsInitialized() {}
     void initializeDockWidgets();
     void toolSelected();
     void toolDeselected();
+    void startTool();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     QWidget *createControlWidget();
-
-    bool canRunRemotely() const;
-    bool canRunLocally() const;
 
 public slots:
     void connectClient(int port);

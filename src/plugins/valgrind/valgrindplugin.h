@@ -48,7 +48,7 @@ public:
     ValgrindPlugin() {}
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
+    virtual void extensionsInitialized() {}
 };
 
 } // namespace Internal

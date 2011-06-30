@@ -51,10 +51,12 @@ public:
     QmlProjectAnalyzerRunControlFactory(QObject *parent = 0);
 
     // IRunControlFactory implementation
+    QString displayName() const;
     bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
     ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
-    Analyzer::AnalyzerRunControl *create(const Analyzer::AnalyzerStartParameters &sp, RunConfiguration *runConfiguration = 0);
-    QString displayName() const;
+
+    // FIXME: Remove function.
+    Analyzer::AnalyzerRunControl *create(const Analyzer::AnalyzerStartParameters &sp, RunConfiguration *runConfiguration);
 
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);

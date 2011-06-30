@@ -175,6 +175,7 @@ public slots:
 public:
     CallgrindTool *q;
 
+    bool m_local;
     DataModel *m_dataModel;
     DataProxyModel *m_proxyModel;
     StackBrowser *m_stackBrowser;
@@ -217,6 +218,7 @@ public:
 
 CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     : q(parent)
+    , m_local(true)
     , m_dataModel(new DataModel(this))
     , m_proxyModel(new DataProxyModel(this))
     , m_stackBrowser(new StackBrowser(this))
@@ -497,10 +499,11 @@ static QToolButton *createToolButton(QAction *action)
     return button;
 }
 
-CallgrindTool::CallgrindTool(QObject *parent)
+CallgrindTool::CallgrindTool(bool local, QObject *parent)
     : Analyzer::IAnalyzerTool(parent)
 {
     d = new CallgrindToolPrivate(this);
+    d->m_local = local;
     Core::ICore *core = Core::ICore::instance();
 
     // EditorManager
@@ -514,14 +517,21 @@ CallgrindTool::~CallgrindTool()
     delete d;
 }
 
-QString CallgrindTool::id() const
+QByteArray CallgrindTool::id() const
 {
-    return "Callgrind";
+    return d->m_local ? "CallgrindLocal" : "CallgrindRemote";
 }
 
 QString CallgrindTool::displayName() const
 {
-    return tr("Valgrind Function Profile");
+    return d->m_local ? tr("Valgrind Function Profile")
+                      : tr("Valgrind Function Profile (Remote)");
+}
+
+QByteArray CallgrindTool::menuGroup() const
+{
+    return d->m_local ? Analyzer::Constants::G_ANALYZER_TOOLS
+                      : Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
 }
 
 QString CallgrindTool::description() const
@@ -530,13 +540,17 @@ QString CallgrindTool::description() const
               "record function calls when a program runs.");
 }
 
+void CallgrindTool::startTool()
+{
+    if (d->m_local)
+        AnalyzerManager::startLocalTool(this);
+    else
+        AnalyzerManager::startRemoteTool(this);
+}
+
 IAnalyzerTool::ToolMode CallgrindTool::mode() const
 {
     return ReleaseMode;
-}
-
-void CallgrindTool::initialize()
-{
 }
 
 void CallgrindTool::extensionsInitialized()
@@ -577,8 +591,7 @@ void CallgrindTool::initializeDockWidgets()
 
 void CallgrindToolPrivate::initializeDockWidgets()
 {
-    AnalyzerManager *am = AnalyzerManager::instance();
-    Utils::FancyMainWindow *mw = am->mainWindow();
+    Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
     m_visualisation = new Visualisation(mw);
     m_visualisation->setFrameStyle(QFrame::NoFrame);
     m_visualisation->setObjectName("Valgrind.CallgrindToolPrivate.Visualisation");
@@ -621,21 +634,17 @@ void CallgrindToolPrivate::initializeDockWidgets()
 
     updateCostFormat();
 
-    QDockWidget *callersDock =
-        am->createDockWidget(q, tr("Callers"), m_callersView,
-                             Qt::BottomDockWidgetArea);
+    QDockWidget *callersDock = AnalyzerManager::createDockWidget
+        (q, tr("Callers"), m_callersView, Qt::BottomDockWidgetArea);
 
-    QDockWidget *flatDock =
-        am->createDockWidget(q, tr("Functions"), m_flatView,
-                             Qt::BottomDockWidgetArea);
+    QDockWidget *flatDock = AnalyzerManager::createDockWidget
+        (q, tr("Functions"), m_flatView, Qt::BottomDockWidgetArea);
 
-    QDockWidget *calleesDock =
-        am->createDockWidget(q, tr("Callees"), m_calleesView,
-                             Qt::BottomDockWidgetArea);
+    QDockWidget *calleesDock = AnalyzerManager::createDockWidget
+        (q, tr("Callees"), m_calleesView, Qt::BottomDockWidgetArea);
 
-    QDockWidget *visualizationDock =
-        am->createDockWidget(q, tr("Visualization"), m_visualisation,
-                             Qt::RightDockWidgetArea);
+    QDockWidget *visualizationDock = AnalyzerManager::createDockWidget
+        (q, tr("Visualization"), m_visualisation, Qt::RightDockWidgetArea);
     visualizationDock->hide();
 
     mw->splitDockWidget(mw->toolBarDockWidget(), calleesDock, Qt::Vertical);
@@ -653,7 +662,7 @@ IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
 IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameters &sp,
     ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    CallgrindEngine *engine = new CallgrindEngine(sp, runConfiguration);
+    CallgrindEngine *engine = new CallgrindEngine(q, sp, runConfiguration);
 
     connect(engine, SIGNAL(parserDataReady(CallgrindEngine *)),
             SLOT(takeParserData(CallgrindEngine *)));
@@ -673,7 +682,7 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
     engine->setToggleCollectFunction(m_toggleCollectFunction);
     m_toggleCollectFunction.clear();
 
-    AnalyzerManager::instance()->showStatusMessage(AnalyzerManager::msgToolStarted(q->displayName()));
+    AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(q->displayName()));
 
     // apply project settings
     AnalyzerProjectSettings *analyzerSettings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
@@ -862,7 +871,7 @@ void CallgrindToolPrivate::engineFinished()
     if (data)
         showParserResults(data);
     else
-        AnalyzerManager::instance()->showStatusMessage(tr("Profiling aborted."));
+        AnalyzerManager::showStatusMessage(tr("Profiling aborted."));
 }
 
 void CallgrindToolPrivate::showParserResults(const ParseData *data)
@@ -879,7 +888,7 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
     } else {
         msg = tr("Parsing failed.");
     }
-    AnalyzerManager::instance()->showStatusMessage(msg);
+    AnalyzerManager::showStatusMessage(msg);
 }
 
 void CallgrindToolPrivate::editorOpened(Core::IEditor *editor)
@@ -938,8 +947,8 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
 
     m_toggleCollectFunction = QString("%1()").arg(qualifiedFunctionName);
 
-    AnalyzerManager::instance()->selectTool(q);
-    AnalyzerManager::instance()->startTool(q);
+    AnalyzerManager::selectTool(q);
+    AnalyzerManager::startTool(q);
 }
 
 void CallgrindToolPrivate::slotRequestDump()
@@ -997,15 +1006,6 @@ void CallgrindToolPrivate::createTextMarks()
 
         m_textMarks.append(new CallgrindTextMark(index, fileName, lineNumber));
     }
-}
-
-bool CallgrindTool::canRunLocally() const
-{
-#ifdef Q_OS_WINDOWS
-    return false;
-#else
-    return true;
-#endif
 }
 
 } // namespace Internal

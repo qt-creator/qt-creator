@@ -50,6 +50,8 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 
+using namespace Analyzer;
+
 namespace QmlProfiler {
 namespace Internal {
 
@@ -65,12 +67,12 @@ public:
 
     bool attach(const QString &address, uint port);
     static AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                   const Analyzer::AnalyzerStartParameters &m_params,
+                                                   const AnalyzerStartParameters &m_params,
                                                    QObject *parent);
 
     QmlProfilerEngine *q;
 
-    Analyzer::AnalyzerStartParameters m_params;
+    AnalyzerStartParameters m_params;
     AbstractQmlProfilerRunner *m_runner;
     bool m_running;
     bool m_fetchingData;
@@ -79,11 +81,11 @@ public:
 
 AbstractQmlProfilerRunner *
 QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunConfiguration *configuration,
-                                                          const Analyzer::AnalyzerStartParameters &m_params,
+                                                          const AnalyzerStartParameters &m_params,
                                                           QObject *parent)
 {
     AbstractQmlProfilerRunner *runner = 0;
-    if (m_params.startMode == Analyzer::StartLocal) {
+    if (m_params.startMode == StartLocal) {
         LocalQmlProfilerRunner::Configuration configuration;
         configuration.executable = m_params.debuggee;
         configuration.executableArguments = m_params.debuggeeArgs;
@@ -92,7 +94,7 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         configuration.port = m_params.connParams.port;
 
         runner = new LocalQmlProfilerRunner(configuration, parent);
-    } else if (m_params.startMode == Analyzer::StartRemote) {
+    } else if (m_params.startMode == StartRemote) {
         if (Qt4ProjectManager::S60DeviceRunConfiguration *s60Config
                 = qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration*>(configuration)) {
             runner = new CodaQmlProfilerRunner(s60Config, parent);
@@ -108,9 +110,9 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
 // QmlProfilerEngine
 //
 
-QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
-                                     ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(sp, runConfiguration)
+QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+         ProjectExplorer::RunConfiguration *runConfiguration)
+    : IAnalyzerEngine(tool, sp, runConfiguration)
     , d(new QmlProfilerEnginePrivate(this))
 {
     d->m_params = sp;
@@ -157,7 +159,7 @@ void QmlProfilerEngine::stop()
 void QmlProfilerEngine::stopped()
 {
     d->m_running = false;
-    Analyzer::AnalyzerManager::instance()->stopTool();
+    AnalyzerManager::stopTool(tool());
     emit finished();
 }
 

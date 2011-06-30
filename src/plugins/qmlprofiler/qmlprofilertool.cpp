@@ -92,6 +92,7 @@ public:
 
     QmlProfilerTool *q;
 
+    bool m_local;
     QDeclarativeDebugConnection *m_client;
     QTimer m_connectionTimer;
     int m_connectionAttempts;
@@ -118,9 +119,10 @@ public:
     QString m_ostDevice;
 };
 
-QmlProfilerTool::QmlProfilerTool(QObject *parent)
+QmlProfilerTool::QmlProfilerTool(bool local, QObject *parent)
     : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate(this))
 {
+    d->m_local = local;
     d->m_client = 0;
     d->m_connectionAttempts = 0;
     d->m_traceWindow = 0;
@@ -132,6 +134,13 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     d->m_connectionTimer.setInterval(200);
     connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(tryToConnect()));
+
+    qmlRegisterType<Canvas>("Monitor", 1, 0, "Canvas");
+    qmlRegisterType<TiledCanvas>("Monitor", 1, 0, "TiledCanvas");
+    qmlRegisterType<Context2D>();
+    qmlRegisterType<CanvasImage>();
+    qmlRegisterType<CanvasGradient>();
+    qmlRegisterType<TimelineView>("Monitor", 1, 0,"TimelineView");
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -140,14 +149,26 @@ QmlProfilerTool::~QmlProfilerTool()
     delete d;
 }
 
-QString QmlProfilerTool::id() const
+QByteArray QmlProfilerTool::id() const
 {
-    return "QmlProfiler";
+    return d->m_local ? "QmlLocalProfiler" : "QmlRemoteProfiler";
 }
 
 QString QmlProfilerTool::displayName() const
 {
-    return tr("QML Profiler");
+    return d->m_local ? tr("QML Profiler") : tr("QML Profiler (Remote)");
+}
+
+QByteArray QmlProfilerTool::menuGroup() const
+{
+    return d->m_local ? Analyzer::Constants::G_ANALYZER_TOOLS
+                      : Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
+}
+
+void QmlProfilerTool::startTool()
+{
+    return d->m_local ? AnalyzerManager::startLocalTool(this)
+                      : AnalyzerManager::startRemoteTool(this);
 }
 
 QString QmlProfilerTool::description() const
@@ -164,7 +185,7 @@ IAnalyzerTool::ToolMode QmlProfilerTool::mode() const
 IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
     ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
+    QmlProfilerEngine *engine = new QmlProfilerEngine(this, sp, runConfiguration);
 
     // Check minimum Qt Version. We cannot really be sure what the Qt version
     // at runtime is, but guess that the active build configuraiton has been used.
@@ -218,24 +239,9 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     return engine;
 }
 
-void QmlProfilerTool::initialize()
-{
-    qmlRegisterType<Canvas>("Monitor", 1, 0, "Canvas");
-    qmlRegisterType<TiledCanvas>("Monitor", 1, 0, "TiledCanvas");
-    qmlRegisterType<Context2D>();
-    qmlRegisterType<CanvasImage>();
-    qmlRegisterType<CanvasGradient>();
-    qmlRegisterType<TimelineView>("Monitor", 1, 0,"TimelineView");
-}
-
-void QmlProfilerTool::extensionsInitialized()
-{
-}
-
 void QmlProfilerTool::initializeDockWidgets()
 {
-    Analyzer::AnalyzerManager *analyzerMgr = Analyzer::AnalyzerManager::instance();
-    Utils::FancyMainWindow *mw = analyzerMgr->mainWindow();
+    Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
 
     d->m_traceWindow = new TraceWindow(mw);
     d->m_traceWindow->reset(d->m_client);
@@ -282,21 +288,14 @@ void QmlProfilerTool::initializeDockWidgets()
 
     updateAttachAction(false);
 
-    QDockWidget *summaryDock =
-        analyzerMgr->createDockWidget(this, tr("Bindings"),
-                             d->m_summary, Qt::BottomDockWidgetArea);
-
-    QDockWidget *timelineDock =
-        analyzerMgr->createDockWidget(this, tr("Timeline"),
-                            d->m_traceWindow, Qt::BottomDockWidgetArea);
-
-    QDockWidget *calleeDock =
-        analyzerMgr->createDockWidget(this, tr("Callees"),
-                             d->m_calleetree, Qt::BottomDockWidgetArea);
-
-    QDockWidget *callerDock =
-        analyzerMgr->createDockWidget(this, tr("Callers"),
-                             d->m_callertree, Qt::BottomDockWidgetArea);
+    QDockWidget *summaryDock = AnalyzerManager::createDockWidget
+        (this, tr("Bindings"), d->m_summary, Qt::BottomDockWidgetArea);
+    QDockWidget *timelineDock = AnalyzerManager::createDockWidget
+        (this, tr("Timeline"), d->m_traceWindow, Qt::BottomDockWidgetArea);
+    QDockWidget *calleeDock = AnalyzerManager::createDockWidget
+        (this, tr("Callees"), d->m_calleetree, Qt::BottomDockWidgetArea);
+    QDockWidget *callerDock = AnalyzerManager::createDockWidget
+        (this, tr("Callers"), d->m_callertree, Qt::BottomDockWidgetArea);
 
     mw->splitDockWidget(mw->toolBarDockWidget(), summaryDock, Qt::Vertical);
     mw->tabifyDockWidget(summaryDock, timelineDock);
@@ -447,17 +446,6 @@ void QmlProfilerTool::updateProjectFileList()
                 d->m_project->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
 }
 
-bool QmlProfilerTool::canRunRemotely() const
-{
-    // TODO: Is this correct?
-    return true;
-}
-
-bool QmlProfilerTool::canRunLocally() const
-{
-    return true;
-}
-
 void QmlProfilerTool::clearDisplay()
 {
     d->m_traceWindow->clearDisplay();
@@ -479,7 +467,7 @@ void QmlProfilerTool::attach()
         d->m_tcpHost = dialog.address();
 
         connectClient(d->m_tcpPort);
-        AnalyzerManager::instance()->showMode();
+        AnalyzerManager::showMode();
     } else {
         stopRecording();
     }

@@ -80,14 +80,16 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalCallgrindFactory, &projectCallgrindFactory);
     AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalMemcheckFactory, &projectMemcheckFactory);
 
-    AnalyzerManager::instance()->addTool(new MemcheckTool(this));
-    AnalyzerManager::instance()->addTool(new CallgrindTool(this));
+#ifndef Q_OS_WIN
+    AnalyzerManager::addTool(new MemcheckTool(true, this));
+#endif
+    AnalyzerManager::addTool(new MemcheckTool(false, this));
+#ifndef Q_OS_WIN
+    AnalyzerManager::addTool(new CallgrindTool(true, this));
+#endif
+    AnalyzerManager::addTool(new CallgrindTool(false, this));
+
     return true;
-}
-
-
-void ValgrindPlugin::extensionsInitialized()
-{
 }
 
 Q_EXPORT_PLUGIN(Valgrind::Internal::ValgrindPlugin)

@@ -43,9 +43,10 @@ namespace Internal {
 class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
 {
     Q_OBJECT
+
 public:
-    explicit QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration);
+    QmlProfilerEngine(Analyzer::IAnalyzerTool *tool, const Analyzer::AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerEngine();
 
 signals:

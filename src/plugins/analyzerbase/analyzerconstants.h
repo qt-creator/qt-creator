@@ -61,6 +61,9 @@ const char * const START = "Analyzer.Start";
 const char * const STARTREMOTE = "Analyzer.StartRemote";
 const char * const STOP = "Analyzer.Stop";
 
+const char * const G_ANALYZER_TOOLS = "Menu.Group.Analyzer.Tools";
+const char * const G_ANALYZER_REMOTE_TOOLS = "Menu.Group.Analyzer.RemoteTools";
+
 // options dialog
 const char * const ANALYZER_SETTINGS_CATEGORY = "T.Analyzer";
 const char * const ANALYZER_SETTINGS_TR_CATEGORY =

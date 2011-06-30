@@ -33,59 +33,25 @@
 #include "analyzerruncontrolfactory.h"
 #include "analyzerruncontrol.h"
 #include "analyzerconstants.h"
+#include "analyzermanager.h"
 #include "analyzerrunconfigwidget.h"
 #include "analyzersettings.h"
 #include "analyzerstartparameters.h"
 
-#include <utils/qtcassert.h>
-
 #include <projectexplorer/applicationrunconfiguration.h>
-
-#include <remotelinux/linuxdeviceconfiguration.h>
-#include <remotelinux/remotelinuxrunconfiguration.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;
 
-AnalyzerStartParameters localStartParameters(ProjectExplorer::RunConfiguration *runConfiguration)
-{
-    AnalyzerStartParameters sp;
-    QTC_ASSERT(runConfiguration, return sp);
-    ProjectExplorer::LocalApplicationRunConfiguration *rc =
-            qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return sp);
+/////////////////////////////////////////////////////////////////////////////////
+//
+// AnalyzerRunControlFactory
+//
+/////////////////////////////////////////////////////////////////////////////////
 
-    sp.startMode = StartLocal;
-    sp.environment = rc->environment();
-    sp.workingDirectory = rc->workingDirectory();
-    sp.debuggee = rc->executable();
-    sp.debuggeeArgs = rc->commandLineArguments();
-    sp.displayName = rc->displayName();
-    sp.connParams.host = QLatin1String("localhost");
-    sp.connParams.port = rc->qmlDebugServerPort();
-    return sp;
-}
-
-AnalyzerStartParameters remoteLinuxStartParameters(ProjectExplorer::RunConfiguration *runConfiguration)
-{
-    AnalyzerStartParameters sp;
-    RemoteLinux::RemoteLinuxRunConfiguration * const rc
-        = qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return sp);
-
-    sp.debuggee = rc->remoteExecutableFilePath();
-    sp.debuggeeArgs = rc->arguments();
-    sp.connParams = rc->deviceConfig()->sshParameters();
-    sp.analyzerCmdPrefix = rc->commandPrefix();
-    sp.startMode = StartRemote;
-    sp.displayName = rc->displayName();
-    return sp;
-}
-
-
-// AnalyzerRunControlFactory ////////////////////////////////////////////////////
 AnalyzerRunControlFactory::AnalyzerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {
@@ -100,26 +66,7 @@ ProjectExplorer::RunControl *AnalyzerRunControlFactory::create(RunConfiguration 
                                                                const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-
-    AnalyzerStartParameters sp;
-    if (qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration)) {
-        sp = localStartParameters(runConfiguration);
-    } else if (qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
-        sp = remoteLinuxStartParameters(runConfiguration);
-    } else {
-        // might be S60DeviceRunfiguration, or something else ...
-        sp.startMode = StartRemote;
-    }
-
-    return create(sp, runConfiguration);
-}
-
-AnalyzerRunControl *AnalyzerRunControlFactory::create(const AnalyzerStartParameters &sp,
-                                                               RunConfiguration *runConfiguration)
-{
-    AnalyzerRunControl *rc = new AnalyzerRunControl(sp, runConfiguration);
-    emit runControlCreated(rc);
-    return rc;
+    return AnalyzerManager::createRunControl(runConfiguration, mode);
 }
 
 QString AnalyzerRunControlFactory::displayName() const

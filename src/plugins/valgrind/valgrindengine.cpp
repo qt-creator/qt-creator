@@ -52,9 +52,9 @@ using namespace Analyzer;
 using namespace Valgrind::Internal;
 using namespace Utils;
 
-ValgrindEngine::ValgrindEngine(const AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(sp, runConfiguration),
+ValgrindEngine::ValgrindEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration)
+    : IAnalyzerEngine(tool, sp, runConfiguration),
       m_settings(0),
       m_progress(new QFutureInterface<void>()),
       m_progressWatcher(new QFutureWatcher<void>()),
@@ -130,7 +130,7 @@ QString ValgrindEngine::executable() const
 
 void ValgrindEngine::handleProgressCanceled()
 {
-    AnalyzerManager::instance()->stopTool();
+    AnalyzerManager::stopTool(tool());
 }
 
 void ValgrindEngine::handleProgressFinished()

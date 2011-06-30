@@ -33,7 +33,9 @@
 
 #include "qmlprojectanalyzerruncontrolfactory.h"
 #include "qmlprojectmanager/qmlprojectrunconfiguration.h"
+
 #include <analyzerbase/analyzerstartparameters.h>
+#include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzersettings.h>
 #include <analyzerbase/analyzerrunconfigwidget.h>
 
@@ -51,6 +53,7 @@ AnalyzerStartParameters localStartParameters(ProjectExplorer::RunConfiguration *
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return sp);
 
+    sp.toolId = "QmlProfiler";
     sp.startMode = StartLocal;
     sp.environment = rc->environment();
     sp.workingDirectory = rc->workingDirectory();
@@ -76,19 +79,15 @@ bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigurat
 
 RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
 {
-    if (!qobject_cast<QmlProjectManager::QmlProjectRunConfiguration  *>(runConfiguration)
-            || mode != Constants::MODE_ANALYZE) {
-        return 0;
-    }
+    QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     const AnalyzerStartParameters sp = localStartParameters(runConfiguration);
     return create(sp, runConfiguration);
 }
 
-AnalyzerRunControl *QmlProjectAnalyzerRunControlFactory::create(const Analyzer::AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
+AnalyzerRunControl *QmlProjectAnalyzerRunControlFactory::create
+    (const Analyzer::AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
 {
-    AnalyzerRunControl *rc = new AnalyzerRunControl(sp, runConfiguration);
-    emit runControlCreated(rc);
-    return rc;
+    return new AnalyzerRunControl(AnalyzerManager::toolById(sp.toolId), sp, runConfiguration);
 }
 
 QString QmlProjectAnalyzerRunControlFactory::displayName() const
@@ -104,7 +103,7 @@ IRunConfigurationAspect *QmlProjectAnalyzerRunControlFactory::createRunConfigura
 RunConfigWidget *QmlProjectAnalyzerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
     QmlProjectManager::QmlProjectRunConfiguration *localRc =
-        qobject_cast<QmlProjectManager::QmlProjectRunConfiguration  *>(runConfiguration);
+        qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
     if (!localRc)
         return 0;
 
@@ -113,6 +112,7 @@ RunConfigWidget *QmlProjectAnalyzerRunControlFactory::createConfigurationWidget(
         return 0;
 
     Analyzer::AnalyzerRunConfigWidget *ret = new Analyzer::AnalyzerRunConfigWidget;
+
     ret->setRunConfiguration(runConfiguration);
     return ret;
 }

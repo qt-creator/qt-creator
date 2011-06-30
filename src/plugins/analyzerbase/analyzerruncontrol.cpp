@@ -47,6 +47,7 @@
 #include <coreplugin/ioutputpane.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QTimer>
 
 using namespace Analyzer;
 
@@ -67,12 +68,12 @@ AnalyzerRunControl::Private::Private()
 
 
 // AnalyzerRunControl ////////////////////////////////////////////////////
-AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
-                                       RunConfiguration *runConfiguration)
+AnalyzerRunControl::AnalyzerRunControl(IAnalyzerTool *tool,
+        const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
     : RunControl(runConfiguration, Constants::MODE_ANALYZE),
       d(new Private)
 {
-    d->m_engine = AnalyzerManager::instance()->createEngine(sp, runConfiguration);
+    d->m_engine = tool->createEngine(sp, runConfiguration);
 
     if (!d->m_engine)
         return;
@@ -83,6 +84,7 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
             SLOT(addTask(ProjectExplorer::Task::TaskType,QString,QString,int)));
     connect(d->m_engine, SIGNAL(finished()),
             SLOT(engineFinished()));
+    connect(this, SIGNAL(finished()), SLOT(runControlFinished()), Qt::QueuedConnection);
 }
 
 AnalyzerRunControl::~AnalyzerRunControl()
@@ -125,6 +127,11 @@ void AnalyzerRunControl::engineFinished()
 {
     d->m_isRunning = false;
     emit finished();
+}
+
+void AnalyzerRunControl::runControlFinished()
+{
+    AnalyzerManager::handleToolFinished(d->m_engine->tool());
 }
 
 bool AnalyzerRunControl::isRunning() const

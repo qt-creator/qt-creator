@@ -57,6 +57,7 @@ public:
     AnalyzerStartMode startMode;
     Utils::SshConnectionParameters connParams;
 
+    QByteArray toolId;
     QString debuggee;
     QString debuggeeArgs;
     QString analyzerCmdPrefix;

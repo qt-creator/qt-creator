@@ -45,6 +45,7 @@
 namespace Analyzer {
 
 class AnalyzerStartParameters;
+class IAnalyzerTool;
 
 class ANALYZER_EXPORT AnalyzerRunControl: public ProjectExplorer::RunControl
 {
@@ -52,8 +53,8 @@ class ANALYZER_EXPORT AnalyzerRunControl: public ProjectExplorer::RunControl
 
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
-    // the constructor is likely to gain more arguments later
-    explicit AnalyzerRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration);
+    AnalyzerRunControl(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+        RunConfiguration *runConfiguration);
     ~AnalyzerRunControl();
 
     // pure virtuals from ProjectExplorer::RunControl
@@ -70,6 +71,7 @@ private slots:
                  const QString &file, int line);
 
     void engineFinished();
+    void runControlFinished();
 
 private:
     class Private;

@@ -39,6 +39,7 @@ namespace Analyzer {
 
 class AnalyzerRunControl;
 class AnalyzerStartParameters;
+class IAnalyzerTool;
 
 namespace Internal {
 
@@ -52,10 +53,9 @@ public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
     typedef ProjectExplorer::RunControl RunControl;
 
-    // virtuals from IRunControlFactory
+    // IRunControlFactory
     bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
     RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
-    AnalyzerRunControl *create(const AnalyzerStartParameters &sp, RunConfiguration *rc = 0);
     QString displayName() const;
 
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();

@@ -184,9 +184,10 @@ static void initKindFilterAction(QAction *action, const QList<int> &kinds)
     action->setData(data);
 }
 
-MemcheckTool::MemcheckTool(QObject *parent)
+MemcheckTool::MemcheckTool(bool local, QObject *parent)
   : Analyzer::IAnalyzerTool(parent)
 {
+    m_local = local;
     m_settings = 0;
     m_errorModel = 0;
     m_errorProxyModel = 0;
@@ -292,9 +293,15 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     m_errorProxyModel->setFilterExternalIssues(memcheckSettings->filterExternalIssues());
 }
 
-QString MemcheckTool::id() const
+QByteArray MemcheckTool::id() const
 {
-    return "Memcheck";
+    return m_local ? "MemcheckLocal" : "MemcheckGlobal";
+}
+
+QByteArray MemcheckTool::menuGroup() const
+{
+    return m_local ? Analyzer::Constants::G_ANALYZER_TOOLS
+                   : Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
 }
 
 QString MemcheckTool::displayName() const
@@ -311,6 +318,14 @@ QString MemcheckTool::description() const
 IAnalyzerTool::ToolMode MemcheckTool::mode() const
 {
     return DebugMode;
+}
+
+void MemcheckTool::startTool()
+{
+    if (m_local)
+        AnalyzerManager::startLocalTool(this);
+    else
+        AnalyzerManager::startRemoteTool(this);
 }
 
 class FrameFinder : public ErrorListModel::RelevantFrameFinder
@@ -369,8 +384,7 @@ void MemcheckTool::ensureWidgets()
     if (m_errorView)
         return;
 
-    AnalyzerManager *am = AnalyzerManager::instance();
-    Utils::FancyMainWindow *mw = am->mainWindow();
+    Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
 
     m_errorView = new MemcheckErrorView;
     m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
@@ -390,9 +404,8 @@ void MemcheckTool::ensureWidgets()
     m_errorView->setAutoScroll(false);
     m_errorView->setObjectName("Valgrind.MemcheckTool.ErrorView");
 
-    QDockWidget *errorDock =
-        am->createDockWidget(this, tr("Memory Issues"), m_errorView,
-                             Qt::BottomDockWidgetArea);
+    QDockWidget *errorDock = AnalyzerManager::createDockWidget
+        (this, tr("Memory Issues"), m_errorView, Qt::BottomDockWidgetArea);
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
@@ -457,9 +470,10 @@ QWidget *MemcheckTool::createControlWidget()
 IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
                                             ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()->project()->files(ProjectExplorer::Project::AllFiles) : QStringList());
+    m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
+        ->project()->files(ProjectExplorer::Project::AllFiles) : QStringList());
 
-    MemcheckEngine *engine = new MemcheckEngine(sp, runConfiguration);
+    MemcheckEngine *engine = new MemcheckEngine(this, sp, runConfiguration);
 
     connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
             this, SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
@@ -468,7 +482,7 @@ IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
     connect(engine, SIGNAL(internalParserError(QString)),
             this, SLOT(internalParserError(QString)));
     connect(engine, SIGNAL(finished()), this, SLOT(finished()));
-    AnalyzerManager::instance()->showStatusMessage(AnalyzerManager::msgToolStarted(displayName()));
+    AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(displayName()));
     return engine;
 }
 
@@ -556,21 +570,7 @@ void MemcheckTool::finished()
     m_goBack->setEnabled(n > 0);
     m_goNext->setEnabled(n > 0);
     const QString msg = AnalyzerManager::msgToolFinished(displayName(), n);
-    AnalyzerManager::instance()->showStatusMessage(msg);
-}
-
-bool MemcheckTool::canRunRemotely() const
-{
-    return true;
-}
-
-bool MemcheckTool::canRunLocally() const
-{
-#ifdef Q_OS_WINDOWS
-    return false;
-#else
-    return true;
-#endif
+    AnalyzerManager::showStatusMessage(msg);
 }
 
 } // namespace Internal

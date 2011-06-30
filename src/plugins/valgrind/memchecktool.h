@@ -91,12 +91,13 @@ class MemcheckTool : public Analyzer::IAnalyzerTool
     Q_OBJECT
 
 public:
-    explicit MemcheckTool(QObject *parent = 0);
+    MemcheckTool(bool local, QObject *parent);
 
-    QString id() const;
+    QByteArray id() const;
     QString displayName() const;
     QString description() const;
-    ToolMode mode() const;
+    QByteArray menuGroup() const;
+    void startTool();
 
 private slots:
     void settingsDestroyed(QObject *settings);
@@ -111,11 +112,9 @@ private slots:
     void suppressionActionTriggered();
 
 private:
+    ToolMode mode() const;
     void ensureWidgets();
-    bool canRunRemotely() const;
-    bool canRunLocally() const;
     void initializeDockWidgets();
-    void initialize() {}
     void extensionsInitialized();
     QWidget *createControlWidget();
 
@@ -124,6 +123,8 @@ private:
 
     void clearErrorView();
 
+private:
+    bool m_local;
     Analyzer::AnalyzerSettings *m_settings;
     QMenu *m_filterMenu;
 

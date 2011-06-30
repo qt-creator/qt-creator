@@ -51,6 +51,8 @@ class RunConfiguration;
 
 namespace Analyzer {
 
+class IAnalyzerTool;
+
 /**
  * An IAnalyzerEngine instance handles the launch of an analyzation tool.
  *
@@ -61,40 +63,44 @@ class ANALYZER_EXPORT IAnalyzerEngine : public QObject
     Q_OBJECT
 
 public:
-    explicit IAnalyzerEngine(const AnalyzerStartParameters &sp,
+    IAnalyzerEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
-    /// start analyzation process
+    /// Start analyzation process.
     virtual void start() = 0;
-    /// trigger async stop of the analyzation process
+    /// Trigger async stop of the analyzation process.
     virtual void stop() = 0;
 
-    /// controller actions
+    /// Controller actions.
     virtual bool canPause() const { return false; }
     virtual void pause() {}
     virtual void unpause() {}
 
-    /// the active run configuration for this engine, might be zero
-    ProjectExplorer::RunConfiguration *runConfiguration() const;
+    /// The active run configuration for this engine, might be zero.
+    ProjectExplorer::RunConfiguration *runConfiguration() const { return m_runConfig; }
 
-    /// the start parameters for this engine
-    AnalyzerStartParameters startParameters() const;
+    /// The start parameters for this engine.
+    const AnalyzerStartParameters &startParameters() const { return m_sp; }
+
+    /// The tool this engine is associated with.
+    IAnalyzerTool *tool() { return m_tool; }
 
 signals:
-    /// should be emitted when the debuggee outputted something
+    /// Should be emitted when the debuggee outputted something.
     void outputReceived(const QString &, Utils::OutputFormat format);
-    /// can be emitted when you want to show a task, e.g. to display an error
+    /// Can be emitted when you want to show a task, e.g. to display an error.
     void taskToBeAdded(ProjectExplorer::Task::TaskType type, const QString &description,
                        const QString &file, int line);
 
-    /// must be emitted when the engine finished
+    /// Must be emitted when the engine finished.
     void finished();
-    /// must be emitted when the engine is starting
+    /// Must be emitted when the engine is starting.
     void starting(const Analyzer::IAnalyzerEngine *);
 
 private:
     ProjectExplorer::RunConfiguration *m_runConfig;
     AnalyzerStartParameters m_sp;
+    IAnalyzerTool *m_tool;
 };
 
 } // namespace Analyzer
