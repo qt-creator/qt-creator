@@ -298,21 +298,18 @@ static inline bool gdbmiChildToBool(const GdbMi &parent, const char *childName, 
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
-BreakpointResponseId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
-                             QString *expression /*  = 0 */)
+void parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
+                     QString *expression /*  = 0 */)
 {
-    BreakpointResponseId id = BreakpointResponseId(-1);
-    int majorPart = 0;
-    gdbmiChildToInt(gdbmi, "number", &majorPart);
     gdbmiChildToBool(gdbmi, "enabled", &(r->enabled));
     gdbmiChildToBool(gdbmi, "deferred", &(r->pending));
-    r->id = BreakpointResponseId(majorPart);
+    r->id = BreakpointResponseId();
     const GdbMi idG = gdbmi.findChild("id");
     if (idG.isValid()) { // Might not be valid if there is not id
         bool ok;
-        const BreakpointResponseId cid(idG.data().toInt(&ok));
+        const int id = idG.data().toInt(&ok);
         if (ok)
-            id = cid;
+            r->id = BreakpointResponseId(id);
     }
     const GdbMi moduleG = gdbmi.findChild("module");
     if (moduleG.isValid())
@@ -328,7 +325,6 @@ BreakpointResponseId parseBreakPoint(const GdbMi &gdbmi, BreakpointResponse *r,
     if (gdbmiChildToInt(gdbmi, "passcount", &(r->ignoreCount)))
         r->ignoreCount--;
     gdbmiChildToInt(gdbmi, "thread", &(r->threadSpec));
-    return id;
 }
 
 QByteArray cdbWriteMemoryCommand(quint64 addr, const QByteArray &data)

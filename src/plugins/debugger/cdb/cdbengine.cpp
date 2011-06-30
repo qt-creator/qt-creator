@@ -2512,6 +2512,7 @@ void CdbEngine::attemptBreakpointSynchronization()
         BreakpointParameters parameters = handler->breakpointData(id);
         BreakpointResponse response;
         response.fromParameters(parameters);
+        response.id = BreakpointResponseId(id.majorPart(), id.minorPart());
         // If we encountered that file and have a module for it: Add it.
         if (parameters.type == BreakpointByFileAndLine && parameters.module.isEmpty()) {
             const QHash<QString, QString>::const_iterator it = m_fileNameModuleHash.constFind(parameters.fileName);
@@ -2833,14 +2834,14 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
     BreakHandler *handler = breakHandler();
     foreach (const GdbMi &breakPointG, value.children()) {
         BreakpointResponse reportedResponse;
-        const BreakpointResponseId id = parseBreakPoint(breakPointG, &reportedResponse);
+        parseBreakPoint(breakPointG, &reportedResponse);
         if (debugBreakpoints)
-            qDebug("  Parsed %d: pending=%d %s\n", id.majorPart(),
+            qDebug("  Parsed %d: pending=%d %s\n", reportedResponse.id.majorPart(),
                 reportedResponse.pending,
                 qPrintable(reportedResponse.toString()));
-
-        if (!reportedResponse.pending) {
-            BreakpointModelId mid = handler->findBreakpointByResponseId(id);
+        if (reportedResponse.id.isValid() && !reportedResponse.pending) {
+            const BreakpointModelId mid = handler->findBreakpointByResponseId(reportedResponse.id);
+            QTC_ASSERT(mid.isValid(), continue; )
             const PendingBreakPointMap::iterator it = m_pendingBreakpointMap.find(mid);
             if (it != m_pendingBreakpointMap.end()) {
                 // Complete the response and set on handler.
@@ -2852,9 +2853,8 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 currentResponse.enabled = reportedResponse.enabled;
                 formatCdbBreakPointResponse(mid, currentResponse, str);
                 if (debugBreakpoints)
-                    qDebug("  Setting for %d: %s\n", id.majorPart(),
+                    qDebug("  Setting for %d: %s\n", currentResponse.id.majorPart(),
                         qPrintable(currentResponse.toString()));
-                BreakpointModelId mid = handler->findBreakpointByResponseId(id);
                 handler->setResponse(mid, currentResponse);
                 m_pendingBreakpointMap.erase(it);
             }

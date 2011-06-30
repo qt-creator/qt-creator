@@ -51,6 +51,9 @@ namespace Internal {
 
     This identifies a breakpoint in the \c BreakHandler. The
     major parts are strictly increasing over time.
+
+    The minor part identifies a multiple breakpoint
+    set for example by gdb in constructors.
 */
 
 
@@ -105,6 +108,10 @@ BreakpointModelId BreakpointModelId::child(int row) const
 
     This is what the external debuggers use to identify a breakpoint.
     It is only valid for one debugger run.
+
+    In gdb, the breakpoint number is used, which is constant
+    during a session. CDB's breakpoint numbers vary if breakpoints
+    are deleted, so, the ID is used.
 */
 
 BreakpointResponseId::BreakpointResponseId(const QByteArray &ba)
