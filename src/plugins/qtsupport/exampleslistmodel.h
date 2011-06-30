@@ -3,12 +3,8 @@
 
 #include <QAbstractListModel>
 #include <QStringList>
+#include <QtCore/QXmlStreamReader>;
 #include <QtGui/QSortFilterProxyModel>
-
-
-QT_BEGIN_NAMESPACE
-class QXmlStreamReader;
-QT_END_NAMESPACE
 
 namespace QtSupport {
 namespace Internal {
