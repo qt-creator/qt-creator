@@ -196,7 +196,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
                     }
                 }
 
-                if (!model()->hasImport(newImport, true)) {
+                if (!model()->hasImport(newImport, true, true)) {
                     model()->changeImports(QList<Import>() << newImport, QList<Import>());
                 }
             }

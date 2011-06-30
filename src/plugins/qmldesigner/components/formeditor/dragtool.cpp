@@ -291,7 +291,7 @@ void DragTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
                 const QString newImportVersion = QString("%1.%2").arg(QString::number(itemLibraryEntry.majorVersion()), QString::number(itemLibraryEntry.minorVersion()));
                 Import newImport = Import::createLibraryImport(newImportUrl, newImportVersion);
 
-                if (!view()->model()->hasImport(newImport, true)) {
+                if (!view()->model()->hasImport(newImport, true, true)) {
                     importToBeAddedList.append(newImport);
                 }
 

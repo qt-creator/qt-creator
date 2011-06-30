@@ -408,7 +408,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
          bool valid = model->metaInfo(entry.typeName(), entry.majorVersion(), entry.minorVersion()).isValid();
 
-        if (valid && (entry.requiredImport().isEmpty() || model->hasImport(entryToImport(entry), true) || entry.forceImport())) {
+        if (valid && (entry.requiredImport().isEmpty() || model->hasImport(entryToImport(entry), true, true) || entry.forceImport())) {
             QString itemSectionName = entry.category();
             ItemLibrarySectionModel *sectionModel;
             ItemLibraryItemModel *itemModel;

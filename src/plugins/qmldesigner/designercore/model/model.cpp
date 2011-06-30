@@ -1742,7 +1742,39 @@ void Model::changeImports(const QList<Import> &importsToBeAdded, const QList<Imp
     m_d->changeImports(importsToBeAdded, importsToBeRemoved);
 }
 
-bool Model::hasImport(const Import &import, bool ignoreAlias)
+
+static bool compareVersions(const QString &version1, const QString &version2, bool allowHigherVersion)
+{
+    if (version1 == version2)
+        return true;
+    if (!allowHigherVersion)
+        return false;
+    QStringList version1List = version1.split('.');
+    QStringList version2List = version2.split('.');
+    if (version1List.count() == 2 && version2List.count() == 2) {
+        bool ok;
+        int major1 = version1List.first().toInt(&ok);
+        if (!ok)
+            return false;
+        int major2 = version2List.first().toInt(&ok);
+        if (!ok)
+            return false;
+        if (major1 >= major2) {
+            int minor1 = version1List.last().toInt(&ok);
+            if (!ok)
+                return false;
+            int minor2 = version2List.last().toInt(&ok);
+            if (!ok)
+                return false;
+            if (minor1 >= minor2)
+                return true;
+        }
+    }
+
+    return false;
+}
+
+bool Model::hasImport(const Import &import, bool ignoreAlias, bool allowHigherVersion)
 {
     if (imports().contains(import))
         return true;
@@ -1751,10 +1783,10 @@ bool Model::hasImport(const Import &import, bool ignoreAlias)
 
     foreach (const Import &existingImport, imports()) {
         if (existingImport.isFileImport() && import.isFileImport())
-            if (existingImport.file() == import.file() && existingImport.version() == import.version())
+            if (existingImport.file() == import.file() && compareVersions(existingImport.version(), import.version(), allowHigherVersion))
                 return true;
         if (existingImport.isLibraryImport() && import.isLibraryImport())
-            if (existingImport.url() == import.url()  && existingImport.version() == import.version())
+            if (existingImport.url() == import.url()  && compareVersions(existingImport.version(), import.version(), allowHigherVersion))
                 return true;
     }
     return false;
