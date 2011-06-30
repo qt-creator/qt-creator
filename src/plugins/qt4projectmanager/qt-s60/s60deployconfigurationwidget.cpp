@@ -481,7 +481,8 @@ void S60DeployConfigurationWidget::codaEvent(const Coda::CodaEvent &event)
     switch (event.type()) {
     case Coda::CodaEvent::LocatorHello: // Commands accepted now
         codaIncreaseProgress();
-        m_codaInfoDevice->sendSymbianOsDataGetQtVersionCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getQtVersionCommandResult));
+        if (m_codaInfoDevice)
+            m_codaInfoDevice->sendSymbianOsDataGetQtVersionCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getQtVersionCommandResult));
         break;
     default:
         break;
@@ -570,7 +571,8 @@ void S60DeployConfigurationWidget::getQtVersionCommandResult(const Coda::CodaCom
         }
     }
     codaIncreaseProgress();
-    m_codaInfoDevice->sendSymbianOsDataGetRomInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getRomInfoResult));
+    if (m_codaInfoDevice)
+        m_codaInfoDevice->sendSymbianOsDataGetRomInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getRomInfoResult));
 }
 
 void S60DeployConfigurationWidget::getRomInfoResult(const Coda::CodaCommandResult &result)
@@ -595,7 +597,8 @@ void S60DeployConfigurationWidget::getRomInfoResult(const Coda::CodaCommandResul
     packagesOfInterest.append(CODA_UID);
     packagesOfInterest.append(QTMOBILITY_UID);
     packagesOfInterest.append(QTCOMPONENTS_UID);
-    m_codaInfoDevice->sendSymbianInstallGetPackageInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getInstalledPackagesResult), packagesOfInterest);
+    if (m_codaInfoDevice)
+        m_codaInfoDevice->sendSymbianInstallGetPackageInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getInstalledPackagesResult), packagesOfInterest);
 }
 
 void S60DeployConfigurationWidget::getInstalledPackagesResult(const Coda::CodaCommandResult &result)
@@ -649,8 +652,9 @@ void S60DeployConfigurationWidget::getInstalledPackagesResult(const Coda::CodaCo
     QStringList keys;
     keys << QLatin1String("EDisplayXPixels");
     keys << QLatin1String("EDisplayYPixels");
-    //keys << "EMemoryRAMFree";
-    m_codaInfoDevice->sendSymbianOsDataGetHalInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getHalResult), keys);
+
+    if (m_codaInfoDevice)
+        m_codaInfoDevice->sendSymbianOsDataGetHalInfoCommand(Coda::CodaCallback(this, &S60DeployConfigurationWidget::getHalResult), keys);
 }
 
 void S60DeployConfigurationWidget::getHalResult(const Coda::CodaCommandResult &result)
