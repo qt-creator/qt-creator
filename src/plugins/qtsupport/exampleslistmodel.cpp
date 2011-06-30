@@ -262,7 +262,7 @@ QStringList ExamplesListModel::exampleSources() const
 
     // Try Creator-provided XML file only
     if (sources.isEmpty()) {
-        qDebug() << Q_FUNC_INFO << "falling through to Creator-provided XML file";
+        // qDebug() << Q_FUNC_INFO << "falling through to Creator-provided XML file";
         sources << QString(resourceDir + QLatin1String("/examples_fallback.xml"));
     }
 

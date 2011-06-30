@@ -78,7 +78,7 @@ public:
 
 void StylePlugin::registerTypes(const char *uri)
 {
-    qDebug() << "register" << uri;
+//    qDebug() << "register" << uri;
     qmlRegisterType<QStyleItem>(uri, 1, 0, "QStyleItem");
     qmlRegisterType<QRangeModel>(uri, 1, 0, "RangeModel");
     qmlRegisterType<QGraphicsDropShadowEffect>(uri, 1, 0, "DropShadow");
