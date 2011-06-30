@@ -88,6 +88,7 @@ private:
     QList<BaseQtVersion *> m_versions;
     int m_defaultVersion;
     QIcon m_invalidVersionIcon;
+    QIcon m_warningVersionIcon;
     QIcon m_validVersionIcon;
     QtConfigWidget *m_configurationWidget;
 
@@ -108,8 +109,17 @@ private slots:
     void slotShowDebuggingBuildLog();
     void debuggingHelperBuildFinished(int qtVersionId, const QString &output, DebuggingHelperBuildTask::Tools tools);
     void cleanUpQtVersions();
+    void toolChainsUpdated();
 
     void qtVersionsDumpUpdated(const QString &qmakeCommand);
+
+private:
+    struct ValidityInfo {
+        QString message;
+        QString toolTip;
+        QIcon icon;
+    };
+    ValidityInfo validInformation(const BaseQtVersion *version);
 };
 
 class QtOptionsPage : public Core::IOptionsPage

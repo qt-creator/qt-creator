@@ -48,6 +48,7 @@
 #include <utils/qtcassert.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/pathchooser.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <qtconcurrent/runextensions.h>
 
 #include <QtCore/QDir>
@@ -129,6 +130,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_debuggingHelperUi(new Internal::Ui::DebuggingHelper())
     , m_invalidVersionIcon(":/projectexplorer/images/compile_error.png")
+    , m_warningVersionIcon(":/projectexplorer/images/compile_warning.png")
     , m_configurationWidget(0)
 {
     // Initialize m_versions
@@ -169,7 +171,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
         item->setText(0, version->displayName());
         item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
         item->setData(0, VersionIdRole, version->uniqueId());
-        item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
+        const ValidityInfo info = validInformation(version);
+        item->setIcon(0, info.icon);
     }
     m_ui->qtdirList->expandAll();
 
@@ -207,6 +210,9 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
 
     connect(QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(QString)),
             this, SLOT(qtVersionsDumpUpdated(QString)));
+
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
+            this, SLOT(toolChainsUpdated()));
 }
 
 bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
@@ -320,6 +326,19 @@ void QtOptionsPageWidget::cleanUpQtVersions()
     updateCleanUpButton();
 }
 
+void QtOptionsPageWidget::toolChainsUpdated()
+{
+    for (int i = 0; i < m_versions.count(); ++i) {
+        QTreeWidgetItem *item = treeItemForIndex(i);
+        if (item == m_ui->qtdirList->currentItem())
+            updateDescriptionLabel();
+        else {
+            const ValidityInfo info = validInformation(m_versions.at(i));
+            item->setIcon(0, info.icon);
+        }
+    }
+}
+
 void QtOptionsPageWidget::qtVersionsDumpUpdated(const QString &qmakeCommand)
 {
     foreach (BaseQtVersion *version, m_versions) {
@@ -332,6 +351,49 @@ void QtOptionsPageWidget::qtVersionsDumpUpdated(const QString &qmakeCommand)
         updateDescriptionLabel();
         updateDebuggingHelperUi();
     }
+}
+
+QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const BaseQtVersion *version)
+{
+    ValidityInfo info;
+    info.icon = m_validVersionIcon;
+
+    if (!version)
+        return info;
+
+    if (!version->isValid()) {
+        info.icon = m_invalidVersionIcon;
+        info.message = version->invalidReason();
+        return info;
+    }
+
+    // Do we have tool chain issues?
+    QStringList missingToolChains;
+    int abiCount = 0;
+    foreach (const ProjectExplorer::Abi &a, version->qtAbis()) {
+        // Ignore symbian emulator since we do not support it.
+        if (a.osFlavor() == ProjectExplorer::Abi::SymbianEmulatorFlavor)
+            continue;
+        if (ProjectExplorer::ToolChainManager::instance()->findToolChains(a).isEmpty())
+            missingToolChains.append(a.toString());
+        ++abiCount;
+    }
+
+    if (missingToolChains.isEmpty()) {
+        // No:
+        info.message = tr("Qt version %1 for %2").arg(version->qtVersionString(), version->description());
+    } else if (missingToolChains.count() == abiCount) {
+        // Yes, this Qt version can't be used at all!
+        info.message = tr("No tool chain can produce code for this Qt version. Please define one or more tool chains.");
+        info.icon = m_invalidVersionIcon;
+    } else {
+        // Yes, some ABIs are unsupported
+        info.message = tr("Not all possible target environments can be supported due to missing tool chains.");
+        info.toolTip = tr("The following ABIs are currently not supported:<ul><li>%1</ul>")
+                       .arg(missingToolChains.join(QLatin1String("</li><li>")));
+        info.icon = m_warningVersionIcon;
+    }
+    return info;
 }
 
 void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools)
@@ -725,17 +787,11 @@ void QtOptionsPageWidget::qtVersionChanged()
 void QtOptionsPageWidget::updateDescriptionLabel()
 {
     QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
-    const BaseQtVersion *version = currentVersion();
-    if (!version) {
-        m_versionUi->errorLabel->setText(QString());
-    } else if (version->isValid()) {
-        m_versionUi->errorLabel->setText( tr("Qt version %1 for %2").arg(version->qtVersionString(),
-                                                                         version->description()));
-        item->setIcon(0, m_validVersionIcon);
-    } else {
-        m_versionUi->errorLabel->setText(version->invalidReason());
-        item->setIcon(0, m_invalidVersionIcon);
-    }
+    const ValidityInfo info = validInformation(currentVersion());
+    m_versionUi->errorLabel->setText(info.message);
+    m_versionUi->errorLabel->setToolTip(info.toolTip);
+    if (item)
+        item->setIcon(0, info.icon);
 }
 
 int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const
