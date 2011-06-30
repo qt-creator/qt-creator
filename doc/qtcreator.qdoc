@@ -3183,9 +3183,9 @@
     Compiler, is installed as a part of the \QSDK. For more information, see
     \l{Building with Remote Compiler}.
 
-    When you install the \QSDK, the build and run settings for the Maemo, MeeGo
-    Harmattan, and
-    Symbian targets are set up automatically. However, you need to install and
+    You can install Maemo, MeeGo Harmattan, and Symbian targets as parts of
+    the \QSDK. The build and run settings for the selected targets are set up
+    automatically. However, you need to install and
     configure some additional software on the devices to be able to connect to
     them from the development PC.
 
@@ -3232,8 +3232,10 @@
 
         \o Qt Quick Project
 
-        Use QML to define the user interface and,
-        optionally, C++ or JavaScript to define the application logic
+        Use QML elements or Qt Quick Components to define the user interface and,
+        optionally, C++ or JavaScript to define the application logic.
+
+
 
         \o Qt Widget Project
 
@@ -9365,6 +9367,20 @@
 
         \o Click \gui{Next}.
 
+        The \gui {Application Type} dialog opens.
+
+        \image qmldesigner-new-project-qml-sources.png "Application Type dialog"
+
+        \o Select the Qt Quick Component Set to use in your application. The
+        built-in elements allow you to write cross-platform applications with
+        custom look and feel. The components for Symbian and MeeGo Harmattan
+        allow you to create applications with a native look and feel for the
+        selected mobile platform.
+
+        You can also import an existing QML file in this dialog.
+
+        \o Click \gui{Next}.
+
         The \gui {Target Setup} dialog opens.
 
         \image qmldesigner-new-project-qt-versions.png "Target Setup dialog"
@@ -9412,13 +9428,6 @@
         \o In the \gui {Application icon} field, select the application
          icon to use on Maemo or Harmattan targets, or use the default icon.
 
-        The \gui {QML Sources} dialog opens.
-
-        \image qmldesigner-new-project-qml-sources.png "QML Sources" dialog
-
-        \o In the \gui {QML Main File} group, select \gui {Generate a .qml file},
-        and then click \gui{Next}.
-
         The \gui {Project Management} dialog opens.
 
         \image qmldesigner-new-project-summary.png "Project Management" dialog
@@ -9452,18 +9461,19 @@
 
         \o Name the project and set its path, and then click \gui Next.
 
+        \o In the \gui {Application Type} dialog, select the \gui {Use an
+        existing .qml file}
+        option and specify the main .qml file of the project you want to import.
+
+        \image qmldesigner-import-project.png "Application Type dialog"
+
+        \o Click \gui Next.
+
         \o Select the Qt versions to use as build targets for your project, and click
         \gui{Next}.
 
         \o Specify options for deploying the application to mobile device targets, and
         click \gui{Next}.
-
-        \o In the \gui {QML Sources} dialog, select the \gui {Import an existing .qml file}
-        option and specify the main .qml file of the project you want to import.
-
-        \image qmldesigner-import-project.png "QML Sources" dialog
-
-        \o Click \gui Next.
 
         \o Review the project settings, and click \gui{Finish} to create the project.
 
@@ -9515,10 +9525,17 @@
 
     \endlist
 
-    You can experiment with a set of Qt Quick components that are designed to
-    appear native to the Symbian devices target platform. For more information,
-    see
-    \l{http://labs.qt.nokia.com/2011/04/08/qt-quick-components-for-symbian-technology-preview/}{Qt Quick components for Symbian Technology Preview}.
+    QML elements allow you to write cross-platform applications with custom look
+    and feel. You can also use ready-made Qt Quick Components for Symbian and
+    MeeGo Harmattan that allow you to create applications with a native look and
+    feel for the selected mobile platform. You can install the components as
+    part of \QSDK.
+
+    When you use the Qt Creator project wizard to create Qt Quick applications,
+    you can select which component set to use in your application.
+
+    Even if you use the Qt Quick Components, you can still write cross-platform
+    applications, by using different sets of QML files for each platform.
 
     You can dowload a set of commonly used UI-components for generic use in
     Qt Quick projects from
@@ -9797,6 +9814,11 @@
 
     The QML files in the project folder are displayed in \gui {QML Components} in the
     \gui Library pane.
+
+    You can also use ready-made Qt Quick Components for Symbian and
+    MeeGo Harmattan that allow you to create screens with a native look and
+    feel for the selected mobile platform. You can install the components as
+    part of \QSDK.
 
     You can dowload QML templates that specify different types of screens from
     \l{https://projects.developer.nokia.com/QMLTemplates}{QML Templates} for use in
