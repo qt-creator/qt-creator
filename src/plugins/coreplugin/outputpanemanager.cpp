@@ -349,8 +349,7 @@ void OutputPaneManager::buttonTriggered()
     int idx = it.key();
 
     if (m_widgetComboBox->itemData(m_widgetComboBox->currentIndex()).toInt() == idx &&
-        OutputPanePlaceHolder::isCurrentVisible()
-        && OutputPanePlaceHolder::getCurrent()->closeable()) {
+        OutputPanePlaceHolder::isCurrentVisible()) {
         // we should toggle and the page is already visible and we are actually closeable
         slotHide();
     } else {
@@ -462,16 +461,6 @@ void OutputPaneManager::togglePage(bool focus)
     } else {
          showPage(idx, focus);
     }
-}
-
-void OutputPaneManager::setCloseable(bool b)
-{
-    m_closeButton->setVisible(b);
-}
-
-bool OutputPaneManager::closeable()
-{
-    return m_closeButton->isVisibleTo(m_closeButton->parentWidget());
 }
 
 void OutputPaneManager::focusInEvent(QFocusEvent *e)

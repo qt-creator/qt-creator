@@ -60,8 +60,6 @@ public:
     explicit OutputPanePlaceHolder(Core::IMode *mode, QSplitter *parent = 0);
     ~OutputPanePlaceHolder();
 
-    void setCloseable(bool b);
-    bool closeable();
     static OutputPanePlaceHolder *getCurrent();
     static bool isCurrentVisible();
 

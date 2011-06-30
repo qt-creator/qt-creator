@@ -48,12 +48,12 @@ struct OutputPanePlaceHolderPrivate {
 
     Core::IMode *m_mode;
     QSplitter *m_splitter;
-    bool m_closeable;
+    int m_lastNonMaxSize;
     static OutputPanePlaceHolder* m_current;
 };
 
 OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(Core::IMode *mode, QSplitter *parent) :
-    m_mode(mode), m_splitter(parent), m_closeable(true)
+    m_mode(mode), m_splitter(parent), m_lastNonMaxSize(0)
 {
 }
 
@@ -85,16 +85,6 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
     }
 }
 
-void OutputPanePlaceHolder::setCloseable(bool b)
-{
-    d->m_closeable = b;
-}
-
-bool OutputPanePlaceHolder::closeable()
-{
-    return d->m_closeable;
-}
-
 void OutputPanePlaceHolder::currentModeChanged(Core::IMode *mode)
 {
     if (d->m_current == this) {
@@ -110,7 +100,6 @@ void OutputPanePlaceHolder::currentModeChanged(Core::IMode *mode)
         layout()->addWidget(om);
         om->show();
         om->updateStatusButtons(isVisible());
-        om->setCloseable(d->m_closeable);
     }
 }
 
@@ -125,6 +114,7 @@ void OutputPanePlaceHolder::maximizeOrMinimize(bool maximize)
     QList<int> sizes = d->m_splitter->sizes();
 
     if (maximize) {
+        d->m_lastNonMaxSize = sizes[idx];
         int sum = 0;
         foreach(int s, sizes)
             sum += s;
@@ -133,7 +123,7 @@ void OutputPanePlaceHolder::maximizeOrMinimize(bool maximize)
         }
         sizes[idx] = sum - (sizes.count()-1) * 32;
     } else {
-        int target = sizeHint().height();
+        int target = d->m_lastNonMaxSize > 0 ? d->m_lastNonMaxSize : sizeHint().height();
         int space = sizes[idx] - target;
         if (space > 0) {
             for (int i = 0; i < sizes.count(); ++i) {

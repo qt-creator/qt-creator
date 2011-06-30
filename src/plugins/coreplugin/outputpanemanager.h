@@ -62,8 +62,6 @@ class OutputPaneManager : public QWidget
 public:
     void init();
     static OutputPaneManager *instance();
-    void setCloseable(bool b);
-    bool closeable();
     QWidget *buttonsWidget();
     void updateStatusButtons(bool visible);
 
