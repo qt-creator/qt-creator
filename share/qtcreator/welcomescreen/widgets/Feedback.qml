@@ -13,7 +13,7 @@ BorderImage {
     Components.Button {
 
         id: openProjectButton
-        text: "Open Project"
+        text: qsTr("Open Project...")
         iconSource: "image://desktoptheme/document-open"
         onClicked: welcomeMode.openProject();
         height: 32
@@ -24,7 +24,7 @@ BorderImage {
 
     Components.Button {
         id: createProjectButton
-        text: "Create Project"
+        text: qsTr("Create Project...")
         iconSource: "image://desktoptheme/document-new"
         onClicked: welcomeMode.newProject();
         height: 32
@@ -36,7 +36,7 @@ BorderImage {
 
     Components.Button {
         id: feedbackButton
-        text: "Feedback"
+        text: qsTr("Feedback")
         iconSource: "qrc:welcome/images/feedback_arrow.png"
         height: 32
         anchors.verticalCenter: parent.verticalCenter
@@ -51,6 +51,6 @@ BorderImage {
         anchors.right: parent.right
         anchors.leftMargin: 10
         anchors.margins: 5
-        text: "Help us make Qt Creator even better"
+        text: qsTr("Help us make Qt Creator even better")
     }
 }

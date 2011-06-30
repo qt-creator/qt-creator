@@ -126,7 +126,7 @@ TiledCanvas {
             var timeDisplayBeginTime = Math.min(bt, et);
             var timeDisplayEndTime = Math.max(bt, et);
 
-            timeDisplayText.text = qsTr("length:")+detailedPrintTime(timeDisplayEndTime-timeDisplayBeginTime);
+            timeDisplayText.text = qsTr("length: %1").arg(detailedPrintTime(timeDisplayEndTime-timeDisplayBeginTime));
             timeDisplayEnd.visible = true;
             timeDisplayEnd.x = xpos + flick.x
         }

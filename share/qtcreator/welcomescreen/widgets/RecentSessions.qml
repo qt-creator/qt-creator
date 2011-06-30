@@ -13,7 +13,7 @@ HeaderItemView {
         {
             var newSessionName = sessionName
             if (model.currentSession)
-                newSessionName +=  qsTr(" (current session)");
+                newSessionName = qsTr("%1 (current session)").arg(newSessionName);
             return newSessionName;
         }
 

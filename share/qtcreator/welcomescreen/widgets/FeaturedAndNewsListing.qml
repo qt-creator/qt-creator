@@ -7,7 +7,7 @@ Item {
         anchors.top:  parent.top
         anchors.margins: 10
         horizontalAlignment: Text.AlignHCenter
-        text: "Featured News"
+        text: qsTr("Featured News")
 //        mainColor: "#44A51C"
         mainColor: "#074C1C"
         font.bold: true

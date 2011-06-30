@@ -12,12 +12,12 @@ FocusScope {
         border.right: 5; border.bottom: 5
         TextInput {
             id: input
+            property string defaultText
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.leftMargin: 4
             anchors.rightMargin: 4
-            property string defaultText: "Click here to search the tutorials and howtos"
             color: "grey"
             text:  defaultText
             font.pointSize: 12

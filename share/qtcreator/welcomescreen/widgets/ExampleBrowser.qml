@@ -49,7 +49,7 @@ Item {
             anchors.left: checkBox.right
             anchors.verticalCenter: lineEdit.verticalCenter
             visible: !examplesModel.showTutorialsOnly
-            text: tag === "" ? qsTr("Filter by Tag") : qsTr("Tag Filter: ") + tag
+            text: tag === "" ? qsTr("Filter by Tag") : qsTr("Tag Filter: %1").arg(tag)
             onClicked: tagChooser.visible = !tagChooser.visible
         }
     }
