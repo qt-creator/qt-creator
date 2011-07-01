@@ -1,5 +1,5 @@
 import QtQuick 1.1
-import "../components/" as Components
+import components 1.0 as Components
 
 Item {
     id: root
