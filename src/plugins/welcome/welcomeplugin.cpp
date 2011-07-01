@@ -97,6 +97,8 @@ public:
     void initPlugins();
     int activePlugin() const { return m_activePlugin; }
 
+    Q_SCRIPTABLE QString platform() const;
+
 public slots:
     void sendFeedback();
     void newProject();
@@ -193,6 +195,21 @@ void WelcomeMode::initPlugins()
     // finally, load the root page
     m_welcomePage->setSource(
             QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + "/welcomescreen/welcomescreen.qml"));
+}
+
+QString WelcomeMode::platform() const
+{
+#if defined(Q_OS_WIN)
+    return QLatin1String("windows");
+#elif defined(Q_OS_MAC)
+    return QLatin1String("mac");
+#elif defined(Q_OS_LINUX)
+    return QLatin1String("linux");
+#elif defined(Q_OS_UNIX)
+    return QLatin1String("unix");
+#else
+    return QLatin1String("other")
+#endif
 }
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)

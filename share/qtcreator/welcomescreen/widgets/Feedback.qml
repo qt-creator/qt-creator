@@ -10,11 +10,15 @@ BorderImage {
 
     Rectangle { color: "black"; width: parent.width; height: 1; anchors.top: parent.top; anchors.left: parent.left }
 
-    Components.Button {
+    Components.QStyleItem { id: styleItem; visible: false }
 
+    // whitelist
+    property bool _hasDesktopTheme: welcomeMode.platform() === "linux"
+
+    Components.Button {
         id: openProjectButton
         text: qsTr("Open Project...")
-        iconSource: "image://desktoptheme/document-open"
+        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
         onClicked: welcomeMode.openProject();
         height: 32
         anchors.left: parent.left
@@ -25,7 +29,7 @@ BorderImage {
     Components.Button {
         id: createProjectButton
         text: qsTr("Create Project...")
-        iconSource: "image://desktoptheme/document-new"
+        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
         onClicked: welcomeMode.newProject();
         height: 32
         anchors.left: openProjectButton.right
