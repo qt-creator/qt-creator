@@ -337,9 +337,6 @@ public:
     const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName) const;
     const Value *lookupReference(const Value *value) const;
 
-    const Value *property(const ObjectValue *object, const QString &name) const;
-    void setProperty(const ObjectValue *object, const QString &name, const Value *value);
-
     QString defaultPropertyName(const ObjectValue *object) const;
 
 private:
@@ -347,7 +344,6 @@ private:
 
     Snapshot _snapshot;
     QSharedPointer<ValueOwner> _valueOwner;
-    QHash<const ObjectValue *, Properties> _properties;
     QHash<const Document *, QSharedPointer<const Imports> > _imports;
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;

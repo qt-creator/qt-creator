@@ -908,17 +908,6 @@ const Value *Context::lookupReference(const Value *value) const
     return v;
 }
 
-const Value *Context::property(const ObjectValue *object, const QString &name) const
-{
-    const Properties properties = _properties.value(object);
-    return properties.value(name, valueOwner()->undefinedValue());
-}
-
-void Context::setProperty(const ObjectValue *object, const QString &name, const Value *value)
-{
-    _properties[object].insert(name, value);
-}
-
 QString Context::defaultPropertyName(const ObjectValue *object) const
 {
     PrototypeIterator iter(object, this);
