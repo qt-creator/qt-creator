@@ -1,0 +1,46 @@
+Qt Creator version 2.3 contains bug fixes and new features.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.2.1...origin/2.3
+
+General
+   * Welcome page redesign allows searching through examples with descriptions
+   * Restore previous size when unmaximizing output panes
+
+Editing
+   * Fixed lock up when regular expression search matched empty line
+
+Managing Projects
+
+Debugging
+
+Debugging QML/JS
+
+C++ Support
+
+QML/JS Support
+
+Help
+
+Platform Specific
+
+Mac
+   * "Open Terminal Here" opens Terminal.app instead of xterm
+
+Linux (GNOME and KDE)
+
+Windows
+
+Symbian Target
+
+Maemo Target
+
+Qt Designer
+
+Version control plugins
+
+Additional credits go to:
