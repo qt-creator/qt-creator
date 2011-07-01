@@ -83,6 +83,9 @@ public:
     const DisassemblerLine &at(int i) const { return m_data.at(i); }
     int lineForAddress(quint64 address) const;
 
+    quint64 startAddress() const;
+    quint64 endAddress() const;
+
 private:
     QString m_lastFunction;
     QVector<DisassemblerLine> m_data;
