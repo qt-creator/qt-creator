@@ -229,11 +229,6 @@ void MemcheckTool::settingsDestroyed(QObject *settings)
     m_settings = AnalyzerGlobalSettings::instance();
 }
 
-void MemcheckTool::extensionsInitialized()
-{
-    //ensureWidgets(); // FIXME: Try to do that later.
-}
-
 void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
     ensureWidgets();
@@ -308,7 +303,7 @@ QString MemcheckTool::description() const
         "memory leaks");
 }
 
-IAnalyzerTool::ToolMode MemcheckTool::mode() const
+IAnalyzerTool::ToolMode MemcheckTool::toolMode() const
 {
     return DebugMode;
 }

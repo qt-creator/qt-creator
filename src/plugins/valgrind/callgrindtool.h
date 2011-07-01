@@ -51,7 +51,7 @@ public:
     QByteArray id() const;
     QString displayName() const;
     QString description() const;
-    ToolMode mode() const;
+    ToolMode toolMode() const;
 
     void extensionsInitialized();
     void initializeDockWidgets();

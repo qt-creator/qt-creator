@@ -68,6 +68,7 @@ AnalyzerStartParameters localStartParameters(ProjectExplorer::RunConfiguration *
 QmlProjectAnalyzerRunControlFactory::QmlProjectAnalyzerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {
+    setObjectName(QLatin1String("QmlProjectAnalyzerRunControlFactory"));
 }
 
 bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const

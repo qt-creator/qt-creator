@@ -83,7 +83,8 @@ public:
     const AnalyzerStartParameters &startParameters() const { return m_sp; }
 
     /// The tool this engine is associated with.
-    IAnalyzerTool *tool() { return m_tool; }
+    IAnalyzerTool *tool() const { return m_tool; }
+    StartMode mode() const { return m_sp.startMode; }
 
 signals:
     /// Should be emitted when the debuggee outputted something.

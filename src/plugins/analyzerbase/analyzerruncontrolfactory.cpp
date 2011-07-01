@@ -45,6 +45,7 @@
 
 using namespace Analyzer;
 using namespace Analyzer::Internal;
+using namespace ProjectExplorer;
 
 /////////////////////////////////////////////////////////////////////////////////
 //
@@ -55,6 +56,7 @@ using namespace Analyzer::Internal;
 AnalyzerRunControlFactory::AnalyzerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {
+    setObjectName(QLatin1String("AnalyzerRunControlFactory"));
 }
 
 bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
@@ -62,8 +64,7 @@ bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const
     return runConfiguration->isEnabled() && mode == Constants::MODE_ANALYZE;
 }
 
-ProjectExplorer::RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration,
-                                                               const QString &mode)
+RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     return AnalyzerManager::createRunControl(runConfiguration, mode);
@@ -74,16 +75,15 @@ QString AnalyzerRunControlFactory::displayName() const
     return tr("Analyzer");
 }
 
-ProjectExplorer::IRunConfigurationAspect *AnalyzerRunControlFactory::createRunConfigurationAspect()
+IRunConfigurationAspect *AnalyzerRunControlFactory::createRunConfigurationAspect()
 {
     return new AnalyzerProjectSettings;
 }
 
-ProjectExplorer::RunConfigWidget *AnalyzerRunControlFactory::createConfigurationWidget(RunConfiguration
-                                                                                       *runConfiguration)
+RunConfigWidget *AnalyzerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
-    ProjectExplorer::LocalApplicationRunConfiguration *localRc =
-        qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration);
+    LocalApplicationRunConfiguration *localRc =
+        qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
     if (!localRc)
         return 0;
     AnalyzerProjectSettings *settings = runConfiguration->extraAspect<AnalyzerProjectSettings>();

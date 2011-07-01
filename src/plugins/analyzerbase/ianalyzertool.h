@@ -78,12 +78,14 @@ public:
     /// Returns a user readable description name for this tool.
     virtual QString description() const = 0;
     /// Returns an id for the start action.
-    virtual QByteArray actionId(StartMode m) const { return defaultActionId(id(), m); }
+    virtual QByteArray actionId(StartMode mode) const
+        { return defaultActionId(this, mode); }
     /// Returns the menu group the start action should go to.
-    virtual QByteArray menuGroup(StartMode m) const { return defaultMenuGroup(m); }
+    virtual QByteArray menuGroup(StartMode mode) const
+        { return defaultMenuGroup(mode); }
     /// Returns a short user readable action name for this tool.
-    virtual QString actionName(StartMode m) const
-        { return defaultActionName(displayName(), m); }
+    virtual QString actionName(StartMode mode) const
+        { return defaultActionName(this, mode); }
 
     /**
      * The mode in which this tool should preferably be run
@@ -97,14 +99,12 @@ public:
         ReleaseMode,
         AnyMode
     };
-    virtual ToolMode mode() const = 0;
-
-    static QString modeString(ToolMode mode);
+    virtual ToolMode toolMode() const = 0;
 
     /// Convenience implementation.
-    static QByteArray defaultMenuGroup(StartMode m);
-    static QByteArray defaultActionId(const QByteArray &id, StartMode m);
-    static QString defaultActionName(const QString &base, StartMode m);
+    static QByteArray defaultMenuGroup(StartMode mode);
+    static QByteArray defaultActionId(const IAnalyzerTool *tool, StartMode mode);
+    static QString defaultActionName(const IAnalyzerTool *tool, StartMode mode);
     static void defaultStartTool(IAnalyzerTool *tool, StartMode mode);
 
     /// This gets called after all analyzation tools where initialized.
@@ -125,8 +125,8 @@ public:
     virtual IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
 
-    virtual void startTool(StartMode m)
-        { return defaultStartTool(this, m); }
+    virtual void startTool(StartMode mode)
+        { return defaultStartTool(this, mode); }
 
     /// Called when tools gets selected.
     virtual void toolSelected() const {}

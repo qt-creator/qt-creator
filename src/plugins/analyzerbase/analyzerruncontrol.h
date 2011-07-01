@@ -57,7 +57,7 @@ public:
         RunConfiguration *runConfiguration);
     ~AnalyzerRunControl();
 
-    // pure virtuals from ProjectExplorer::RunControl
+    // ProjectExplorer::RunControl
     void start();
     StopResult stop();
     bool isRunning() const;

@@ -131,7 +131,7 @@ void AnalyzerRunControl::engineFinished()
 
 void AnalyzerRunControl::runControlFinished()
 {
-    AnalyzerManager::handleToolFinished(d->m_engine->tool());
+    AnalyzerManager::handleToolFinished(d->m_engine->tool(), d->m_engine->mode());
 }
 
 bool AnalyzerRunControl::isRunning() const

@@ -130,7 +130,7 @@ QString ValgrindEngine::executable() const
 
 void ValgrindEngine::handleProgressCanceled()
 {
-    AnalyzerManager::stopTool(tool());
+    AnalyzerManager::stopTool(tool(), mode());
 }
 
 void ValgrindEngine::handleProgressFinished()

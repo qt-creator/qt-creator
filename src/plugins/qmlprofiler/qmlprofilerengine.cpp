@@ -159,7 +159,7 @@ void QmlProfilerEngine::stop()
 void QmlProfilerEngine::stopped()
 {
     d->m_running = false;
-    AnalyzerManager::stopTool(tool());
+    AnalyzerManager::stopTool(tool(), mode());
     emit finished();
 }
 

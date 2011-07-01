@@ -110,10 +110,10 @@ private slots:
     void suppressionActionTriggered();
 
 private:
-    ToolMode mode() const;
+    ToolMode toolMode() const;
     void ensureWidgets();
     void initializeDockWidgets();
-    void extensionsInitialized();
+    void extensionsInitialized() {}
     QWidget *createControlWidget();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
@@ -122,7 +122,6 @@ private:
     void clearErrorView();
 
 private:
-    bool m_local;
     Analyzer::AnalyzerSettings *m_settings;
     QMenu *m_filterMenu;
 

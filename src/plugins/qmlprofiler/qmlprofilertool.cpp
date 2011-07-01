@@ -121,6 +121,7 @@ public:
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate(this))
 {
+    setObjectName("QmlProfilerTool");
     d->m_client = 0;
     d->m_connectionAttempts = 0;
     d->m_traceWindow = 0;
@@ -163,7 +164,7 @@ QString QmlProfilerTool::description() const
               "applications using QML.");
 }
 
-IAnalyzerTool::ToolMode QmlProfilerTool::mode() const
+IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
 {
     return AnyMode;
 }

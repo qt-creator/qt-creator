@@ -71,7 +71,7 @@ public:
         (ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
 
     // Register a tool and initialize it.
-    static void addTool(Analyzer::IAnalyzerTool *tool, const StartModes &mode);
+    static void addTool(IAnalyzerTool *tool, const StartModes &mode);
     static IAnalyzerTool *toolById(const QByteArray &id);
 
     // Dockwidgets are registered to the main window.
@@ -83,9 +83,9 @@ public:
     static void showMode();
     static void selectTool(IAnalyzerTool *tool, StartMode mode);
     static void startTool(IAnalyzerTool *tool, StartMode mode);
-    static void stopTool(IAnalyzerTool *tool);
+    static void stopTool(IAnalyzerTool *tool, StartMode mode);
 
-    // Convienience functions.
+    // Convenience functions.
     static void startLocalTool(IAnalyzerTool *tool, StartMode mode);
     static void startRemoteTool(IAnalyzerTool *tool, StartMode mode);
 
@@ -95,7 +95,7 @@ public:
     static void showStatusMessage(const QString &message, int timeoutMS = 10000);
     static void showPermanentStatusMessage(const QString &message);
 
-    static void handleToolFinished(IAnalyzerTool *tool);
+    static void handleToolFinished(IAnalyzerTool *tool, StartMode mode);
 
 private:
     friend class AnalyzerManagerPrivate;

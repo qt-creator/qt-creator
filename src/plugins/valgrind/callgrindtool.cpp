@@ -501,9 +501,9 @@ CallgrindTool::CallgrindTool(QObject *parent)
     : Analyzer::IAnalyzerTool(parent)
 {
     d = new CallgrindToolPrivate(this);
-    Core::ICore *core = Core::ICore::instance();
+    setObjectName(QLatin1String("CallgrindTool"));
 
-    // EditorManager
+    Core::ICore *core = Core::ICore::instance();
     QObject *editorManager = core->editorManager();
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
         d, SLOT(editorOpened(Core::IEditor*)));
@@ -530,7 +530,7 @@ QString CallgrindTool::description() const
               "record function calls when a program runs.");
 }
 
-IAnalyzerTool::ToolMode CallgrindTool::mode() const
+IAnalyzerTool::ToolMode CallgrindTool::toolMode() const
 {
     return ReleaseMode;
 }

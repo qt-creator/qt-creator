@@ -41,19 +41,6 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
-QString IAnalyzerTool::modeString(ToolMode mode)
-{
-    switch (mode) {
-        case IAnalyzerTool::DebugMode:
-            return tr("Debug");
-        case IAnalyzerTool::ReleaseMode:
-            return tr("Release");
-        case IAnalyzerTool::AnyMode:
-            break;
-    }
-    return QString();
-}
-
 QByteArray IAnalyzerTool::defaultMenuGroup(StartMode mode)
 {
     if (mode == StartRemote)
@@ -61,15 +48,17 @@ QByteArray IAnalyzerTool::defaultMenuGroup(StartMode mode)
     return Analyzer::Constants::G_ANALYZER_TOOLS;
 }
 
-QByteArray IAnalyzerTool::defaultActionId(const QByteArray &id, StartMode mode)
+QByteArray IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
 {
+    QByteArray id = tool->id();
     if (mode == StartRemote)
         return "Action." + id + ".RemoteStart." + QByteArray::number(mode);
     return "Action." + id + ".LocalStart." + QByteArray::number(mode);
 }
 
-QString IAnalyzerTool::defaultActionName(const QString &base, StartMode mode)
+QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mode)
 {
+    QString base = tool->displayName();
     if (mode == StartRemote)
         return base + tr(" (Remote)");
     return base;
