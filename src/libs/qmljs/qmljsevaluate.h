@@ -39,7 +39,7 @@
 namespace QmlJS {
 
 namespace Interpreter {
-    class Engine;
+    class ValueOwner;
     class Context;
     class Value;
     class ObjectValue;
@@ -61,7 +61,6 @@ public:
 protected:
     void accept(AST::Node *node);
 
-    Interpreter::Engine *switchEngine(Interpreter::Engine *engine);
     const Interpreter::Value *switchResult(const Interpreter::Value *result);
     const Interpreter::ObjectValue *switchScope(const Interpreter::ObjectValue *scope);
 
@@ -161,7 +160,7 @@ protected:
 
 private:
     QmlJS::Document::Ptr _doc;
-    Interpreter::Engine *_engine;
+    Interpreter::ValueOwner *_valueOwner;
     const Interpreter::Context *_context;
     const Interpreter::ObjectValue *_scope;
     const Interpreter::Value *_result;

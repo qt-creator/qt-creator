@@ -35,6 +35,7 @@
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsvalueowner.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
@@ -94,7 +95,7 @@ protected:
 
 private:
     Document *_doc;
-    Interpreter::Engine _engine;
+    Interpreter::ValueOwner _valueOwner;
 
     Interpreter::ObjectValue *_currentObjectValue;
     Interpreter::ObjectValue *_idEnvironment;

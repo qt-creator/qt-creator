@@ -34,6 +34,7 @@
 #include "qmljseditor.h"
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -111,7 +112,7 @@ QString QmlOutlineItem::prettyPrint(const Interpreter::Value *value, const Inter
         }
     }
 
-    const QString typeId = context->engine()->typeId(value);
+    const QString typeId = context->valueOwner()->typeId(value);
     if (typeId == QLatin1String("undefined")) {
         return QString();
     }

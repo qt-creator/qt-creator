@@ -39,6 +39,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
@@ -290,7 +291,7 @@ void HoverHandler::prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
     }
 
     if (toolTip().isEmpty()) {
-        QString typeId = context->engine()->typeId(value);
+        QString typeId = context->valueOwner()->typeId(value);
         if (typeId != QLatin1String("undefined"))
             setToolTip(typeId);
     }

@@ -47,6 +47,7 @@
 #include <languageutils/componentversion.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -507,13 +508,13 @@ public:
         if (!value)
             return false;
         const Interpreter::ObjectValue *objectValue = value->asObjectValue();
-        if (objectValue && objectValue->prototype(m_context) == m_context->engine()->arrayPrototype())
+        if (objectValue && objectValue->prototype(m_context) == m_context->valueOwner()->arrayPrototype())
             return true;
 
         Interpreter::PrototypeIterator iter(containingObject, m_context);
         while (iter.hasNext()) {
             const Interpreter::ObjectValue *proto = iter.next();
-            if (proto->lookupMember(name, m_context) == m_context->engine()->arrayPrototype())
+            if (proto->lookupMember(name, m_context) == m_context->valueOwner()->arrayPrototype())
                 return true;
             if (const Interpreter::QmlObjectValue *qmlIter = dynamic_cast<const Interpreter::QmlObjectValue *>(proto)) {
                 if (qmlIter->isListProperty(name))

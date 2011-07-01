@@ -32,6 +32,7 @@
 
 #include "qmljsevaluate.h"
 #include "qmljsinterpreter.h"
+#include "qmljsvalueowner.h"
 #include "parser/qmljsast_p.h"
 #include <QtCore/QDebug>
 
@@ -39,9 +40,9 @@ using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 
 Evaluate::Evaluate(const Context *context)
-    : _engine(context->engine()),
+    : _valueOwner(context->valueOwner()),
       _context(context),
-      _scope(_engine->globalObject()),
+      _scope(_valueOwner->globalObject()),
       _result(0)
 {
 }
@@ -58,7 +59,7 @@ const Interpreter::Value *Evaluate::operator()(AST::Node *ast)
         result = _context->lookupReference(ref);
 
     if (! result)
-        result = _engine->undefinedValue();
+        result = _valueOwner->undefinedValue();
 
     return result;
 }
@@ -73,13 +74,6 @@ const Interpreter::Value *Evaluate::reference(AST::Node *ast)
 
     // restore the previous result
     return switchResult(previousResult);
-}
-
-Interpreter::Engine *Evaluate::switchEngine(Interpreter::Engine *engine)
-{
-    Interpreter::Engine *previousEngine = _engine;
-    _engine = engine;
-    return previousEngine;
 }
 
 const Interpreter::Value *Evaluate::switchResult(const Interpreter::Value *result)
@@ -220,43 +214,43 @@ bool Evaluate::visit(AST::IdentifierExpression *ast)
 
 bool Evaluate::visit(AST::NullExpression *)
 {
-    _result = _engine->nullValue();
+    _result = _valueOwner->nullValue();
     return false;
 }
 
 bool Evaluate::visit(AST::TrueLiteral *)
 {
-    _result = _engine->booleanValue();
+    _result = _valueOwner->booleanValue();
     return false;
 }
 
 bool Evaluate::visit(AST::FalseLiteral *)
 {
-    _result = _engine->booleanValue();
+    _result = _valueOwner->booleanValue();
     return false;
 }
 
 bool Evaluate::visit(AST::StringLiteral *)
 {
-    _result = _engine->stringValue();
+    _result = _valueOwner->stringValue();
     return false;
 }
 
 bool Evaluate::visit(AST::NumericLiteral *)
 {
-    _result = _engine->numberValue();
+    _result = _valueOwner->numberValue();
     return false;
 }
 
 bool Evaluate::visit(AST::RegExpLiteral *)
 {
-    _result = _engine->regexpCtor()->construct();
+    _result = _valueOwner->regexpCtor()->construct();
     return false;
 }
 
 bool Evaluate::visit(AST::ArrayLiteral *)
 {
-    _result = _engine->arrayCtor()->construct();
+    _result = _valueOwner->arrayCtor()->construct();
     return false;
 }
 
@@ -310,7 +304,7 @@ bool Evaluate::visit(AST::FieldMemberExpression *ast)
     if (! ast->name)
         return false;
 
-    if (const Interpreter::Value *base = _engine->convertToObject(reference(ast->base))) {
+    if (const Interpreter::Value *base = _valueOwner->convertToObject(reference(ast->base))) {
         if (const Interpreter::ObjectValue *obj = base->asObjectValue()) {
             _result = obj->lookupMember(ast->name->asString(), _context);
         }

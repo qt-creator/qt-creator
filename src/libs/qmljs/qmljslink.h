@@ -67,7 +67,7 @@ public:
     ~Link();
 
 private:
-    Interpreter::Engine *engine();
+    Interpreter::ValueOwner *valueOwner();
 
     static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 

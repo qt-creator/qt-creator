@@ -208,9 +208,9 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
     ObjectValue *parentObjectValue = 0;
 
     // normal component instance
-    ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _doc, &_engine);
+    ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _doc, &_valueOwner);
     QmlPrototypeReference *prototypeReference =
-            new QmlPrototypeReference(qualifiedTypeNameId, _doc, &_engine);
+            new QmlPrototypeReference(qualifiedTypeNameId, _doc, &_valueOwner);
     objectValue->setPrototype(prototypeReference);
 
     parentObjectValue = switchObjectValue(objectValue);
@@ -234,13 +234,13 @@ void Bind::accept(Node *node)
 
 bool Bind::visit(AST::UiProgram *)
 {
-    _idEnvironment = _engine.newObject(/*prototype =*/ 0);
+    _idEnvironment = _valueOwner.newObject(/*prototype =*/ 0);
     return true;
 }
 
 bool Bind::visit(AST::Program *)
 {
-    _currentObjectValue = _engine.newObject(/*prototype =*/ 0);
+    _currentObjectValue = _valueOwner.newObject(/*prototype =*/ 0);
     _rootObjectValue = _currentObjectValue;
     return true;
 }
@@ -294,7 +294,7 @@ bool Bind::visit(UiPublicMember *ast)
     const Block *block = AST::cast<const Block*>(ast->statement);
     if (block) {
         // build block scope
-        ObjectValue *blockScope = _engine.newObject(/*prototype=*/0);
+        ObjectValue *blockScope = _valueOwner.newObject(/*prototype=*/0);
         _attachedJSScopes.insert(ast, blockScope); // associated with the UiPublicMember, not with the block
         ObjectValue *parent = switchObjectValue(blockScope);
         accept(ast->statement);
@@ -347,7 +347,7 @@ bool Bind::visit(UiScriptBinding *ast)
     const Block *block = AST::cast<const Block*>(ast->statement);
     if (block) {
         // build block scope
-        ObjectValue *blockScope = _engine.newObject(/*prototype=*/0);
+        ObjectValue *blockScope = _valueOwner.newObject(/*prototype=*/0);
         _attachedJSScopes.insert(ast, blockScope); // associated with the UiScriptBinding, not with the block
         ObjectValue *parent = switchObjectValue(blockScope);
         accept(ast->statement);
@@ -369,7 +369,7 @@ bool Bind::visit(VariableDeclaration *ast)
     if (! ast->name)
         return false;
 
-    ASTVariableReference *ref = new ASTVariableReference(ast, &_engine);
+    ASTVariableReference *ref = new ASTVariableReference(ast, &_valueOwner);
     if (_currentObjectValue)
         _currentObjectValue->setMember(ast->name->asString(), ref);
     return true;
@@ -381,12 +381,12 @@ bool Bind::visit(FunctionExpression *ast)
     //if (_currentObjectValue->property(ast->name->asString(), 0))
     //    return false;
 
-    ASTFunctionValue *function = new ASTFunctionValue(ast, _doc, &_engine);
+    ASTFunctionValue *function = new ASTFunctionValue(ast, _doc, &_valueOwner);
     if (_currentObjectValue && ast->name && cast<FunctionDeclaration *>(ast))
         _currentObjectValue->setMember(ast->name->asString(), function);
 
     // build function scope
-    ObjectValue *functionScope = _engine.newObject(/*prototype=*/0);
+    ObjectValue *functionScope = _valueOwner.newObject(/*prototype=*/0);
     _attachedJSScopes.insert(ast, functionScope);
     ObjectValue *parent = switchObjectValue(functionScope);
 
@@ -396,16 +396,16 @@ bool Bind::visit(FunctionExpression *ast)
     // 1. Function formal arguments
     for (FormalParameterList *it = ast->formals; it; it = it->next) {
         if (it->name)
-            functionScope->setMember(it->name->asString(), _engine.undefinedValue());
+            functionScope->setMember(it->name->asString(), _valueOwner.undefinedValue());
     }
 
     // 2. Functions defined inside the function body
     // ### TODO, currently covered by the accept(body)
 
     // 3. Arguments object
-    ObjectValue *arguments = _engine.newObject(/*prototype=*/0);
+    ObjectValue *arguments = _valueOwner.newObject(/*prototype=*/0);
     arguments->setMember(QLatin1String("callee"), function);
-    arguments->setMember(QLatin1String("length"), _engine.numberValue());
+    arguments->setMember(QLatin1String("length"), _valueOwner.numberValue());
     functionScope->setMember(QLatin1String("arguments"), arguments);
 
     // 4. Variables defined inside the function body

@@ -465,7 +465,7 @@ static inline QString getUrlFromType(const QString& typeName)
 
 const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue() const
 {
-    QmlJS::Interpreter::QmlObjectValue * value = lookupContext()->engine()->cppQmlTypes().typeByQualifiedName(lookupName());
+    QmlJS::Interpreter::QmlObjectValue * value = lookupContext()->valueOwner()->cppQmlTypes().typeByQualifiedName(lookupName());
     if (value)
         return value;
 
@@ -487,7 +487,7 @@ const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue
     const QString type = m_qualfiedTypeName.split('.').last();
 
     LanguageUtils::ComponentVersion version(9999, 9999);
-    QList<Interpreter::QmlObjectValue *> qmlObjectValues = lookupContext()->engine()->cppQmlTypes().typesForImport(package, version);
+    QList<Interpreter::QmlObjectValue *> qmlObjectValues = lookupContext()->valueOwner()->cppQmlTypes().typesForImport(package, version);
     const Interpreter::QmlObjectValue *qmlValue = 0;
     foreach (Interpreter::QmlObjectValue *value, qmlObjectValues) {
         if (value->className() == type)

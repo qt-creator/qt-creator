@@ -74,7 +74,7 @@ public:
 
     Document::Ptr document() const;
     Snapshot snapshot() const;
-    Interpreter::Engine *engine() const;
+    Interpreter::ValueOwner *valueOwner() const;
     const Interpreter::Context *context() const;
 
 private:

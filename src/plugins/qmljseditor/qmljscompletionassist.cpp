@@ -612,7 +612,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
 
         if (expression != 0 && ! isLiteral(expression)) {
             // Evaluate the expression under cursor.
-            Interpreter::Engine *interp = lookupContext->engine();
+            Interpreter::ValueOwner *interp = lookupContext->valueOwner();
             const Interpreter::Value *value =
                     interp->convertToObject(lookupContext->evaluate(expression));
             //qDebug() << "type:" << interp.typeId(value);

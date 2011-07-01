@@ -126,10 +126,10 @@ void ScopeBuilder::initializeRootScope()
 
     scopeChain = ScopeChain(); // reset
 
-    Interpreter::Engine *engine = _context->engine();
+    Interpreter::ValueOwner *valueOwner = _context->valueOwner();
 
     // ### TODO: This object ought to contain the global namespace additions by QML.
-    scopeChain.globalScope = engine->globalObject();
+    scopeChain.globalScope = valueOwner->globalObject();
 
     if (! _doc) {
         scopeChain.update();

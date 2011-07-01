@@ -118,9 +118,9 @@ Snapshot LookupContext::snapshot() const
 }
 
 // the engine is only guaranteed to live as long as the LookupContext
-Interpreter::Engine *LookupContext::engine() const
+Interpreter::ValueOwner *LookupContext::valueOwner() const
 {
-    return d->context.engine();
+    return d->context.valueOwner();
 }
 
 // the context is only guaranteed to live as long as the LookupContext

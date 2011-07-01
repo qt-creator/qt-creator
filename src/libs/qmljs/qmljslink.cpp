@@ -123,7 +123,7 @@ Link::Link(Context *context, const Snapshot &snapshot, const QStringList &import
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
     if (modelManager) {
         foreach (const QList<FakeMetaObject::ConstPtr> &cppTypes, modelManager->cppQmlTypes()) {
-            engine()->cppQmlTypes().load(engine(), cppTypes);
+            valueOwner()->cppQmlTypes().load(valueOwner(), cppTypes);
         }
     }
 }
@@ -147,10 +147,10 @@ Link::~Link()
 {
 }
 
-Interpreter::Engine *Link::engine()
+Interpreter::ValueOwner *Link::valueOwner()
 {
     Q_D(Link);
-    return d->context->engine();
+    return d->context->valueOwner();
 }
 
 void Link::linkImports()
@@ -159,7 +159,7 @@ void Link::linkImports()
 
     if (d->doc) {
         // do it on d->doc first, to make sure import errors are shown
-        Imports *imports = new Imports(engine());
+        Imports *imports = new Imports(valueOwner());
         populateImportedTypes(imports, d->doc);
         d->context->setImports(d->doc.data(), imports);
     }
@@ -168,7 +168,7 @@ void Link::linkImports()
         if (doc == d->doc)
             continue;
 
-        Imports *imports = new Imports(engine());
+        Imports *imports = new Imports(valueOwner());
         populateImportedTypes(imports, doc);
         d->context->setImports(doc.data(), imports);
     }
@@ -238,7 +238,7 @@ Import Link::importFileOrDirectory(Document::Ptr doc, const ImportInfo &importIn
 
     if (importInfo.type() == ImportInfo::DirectoryImport
             || importInfo.type() == ImportInfo::ImplicitDirectoryImport) {
-        import.object = new ObjectValue(engine());
+        import.object = new ObjectValue(valueOwner());
 
         importLibrary(doc, path, &import);
 
@@ -269,7 +269,7 @@ Import Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
 
     Import import;
     import.info = importInfo;
-    import.object = new ObjectValue(engine());
+    import.object = new ObjectValue(valueOwner());
 
     const QString packageName = Bind::toString(importInfo.ast()->importUri, '.');
     const ComponentVersion version = importInfo.version();
@@ -308,10 +308,10 @@ Import Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
     }
 
     // if there are cpp-based types for this package, use them too
-    if (engine()->cppQmlTypes().hasPackage(packageName)) {
+    if (valueOwner()->cppQmlTypes().hasPackage(packageName)) {
         importFound = true;
         foreach (QmlObjectValue *object,
-                 engine()->cppQmlTypes().typesForImport(packageName, version)) {
+                 valueOwner()->cppQmlTypes().typesForImport(packageName, version)) {
             import.object->setMember(object->className(), object);
         }
     }
@@ -382,7 +382,7 @@ bool Link::importLibrary(Document::Ptr doc,
             }
         } else {
             QList<QmlObjectValue *> loadedObjects =
-                    engine()->cppQmlTypes().load(engine(), libraryInfo.metaObjects());
+                    valueOwner()->cppQmlTypes().load(valueOwner(), libraryInfo.metaObjects());
             foreach (QmlObjectValue *object, loadedObjects) {
                 if (object->packageName().isEmpty()) {
                     import->object->setMember(object->className(), object);
@@ -479,14 +479,14 @@ void Link::loadImplicitDefaultImports(Imports *imports)
     Q_D(Link);
 
     const QString defaultPackage = CppQmlTypes::defaultPackage;
-    if (engine()->cppQmlTypes().hasPackage(defaultPackage)) {
+    if (valueOwner()->cppQmlTypes().hasPackage(defaultPackage)) {
         ImportInfo info(ImportInfo::LibraryImport, defaultPackage);
         Import import = d->importCache.value(ImportCacheKey(info));
         if (!import.object) {
             import.info = info;
-            import.object = new ObjectValue(engine());
+            import.object = new ObjectValue(valueOwner());
             foreach (QmlObjectValue *object,
-                     engine()->cppQmlTypes().typesForImport(defaultPackage, ComponentVersion())) {
+                     valueOwner()->cppQmlTypes().typesForImport(defaultPackage, ComponentVersion())) {
                 import.object->setMember(object->className(), object);
             }
             d->importCache.insert(ImportCacheKey(info), import);
