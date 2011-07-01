@@ -319,7 +319,10 @@ private:
 class QMLJS_EXPORT Context
 {
 public:
-    Context(const Snapshot &snapshot);
+    typedef QHash<const Document *, QSharedPointer<const Imports> > ImportsPerDocument;
+
+    // Context takes ownership of valueOwner
+    Context(const Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports);
     ~Context();
 
     ValueOwner *valueOwner() const;
@@ -329,7 +332,6 @@ public:
     ScopeChain &scopeChain();
 
     const Imports *imports(const Document *doc) const;
-    void setImports(const Document *doc, const Imports *imports);
 
     const Value *lookup(const QString &name, const ObjectValue **foundInScope = 0) const;
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName,
@@ -344,7 +346,7 @@ private:
 
     Snapshot _snapshot;
     QSharedPointer<ValueOwner> _valueOwner;
-    QHash<const Document *, QSharedPointer<const Imports> > _imports;
+    ImportsPerDocument _imports;
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;
     bool _qmlScopeObjectSet;

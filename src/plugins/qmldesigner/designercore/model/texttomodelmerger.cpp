@@ -332,13 +332,12 @@ public:
                    const QStringList importPaths)
         : m_snapshot(snapshot)
         , m_doc(doc)
-        , m_context(new Interpreter::Context(snapshot))
-        , m_link(m_context, snapshot, importPaths)
+        , m_link(snapshot, importPaths)
+        , m_context(new Interpreter::Context(m_link(doc, &m_diagnosticLinkMessages)))
         , m_scopeBuilder(m_context, doc)
     {
-        m_link(doc, &m_diagnosticLinkMessages);
         m_lookupContext = LookupContext::create(doc, *m_context, QList<AST::Node*>());
-        // cheaper than calling m_scopeBuilder.initializeRootScope()
+        // cheaper than calling m_scopeBuilder.initializeRootScope() again
         *m_context = *m_lookupContext->context();
     }
 
@@ -629,9 +628,9 @@ public:
 private:
     Snapshot m_snapshot;
     Document::Ptr m_doc;
-    Interpreter::Context *m_context;
-    QList<DiagnosticMessage> m_diagnosticLinkMessages;
     Link m_link;
+    QList<DiagnosticMessage> m_diagnosticLinkMessages;
+    Interpreter::Context *m_context;
     LookupContext::Ptr m_lookupContext;
     ScopeBuilder m_scopeBuilder;
 };

@@ -812,13 +812,12 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     }
 
     // find the scope for the name we're searching
-    Context context(snapshot);
     Document::Ptr doc = snapshot.document(fileName);
     if (!doc)
         return;
 
-    Link link(&context, snapshot, ModelManagerInterface::instance()->importPaths());
-    link();
+    Link link(snapshot, ModelManagerInterface::instance()->importPaths());
+    Context context = link();
 
     ScopeBuilder builder(&context, doc);
     builder.initializeRootScope();

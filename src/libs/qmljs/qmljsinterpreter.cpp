@@ -779,9 +779,10 @@ QList<const ObjectValue *> ScopeChain::all() const
 }
 
 
-Context::Context(const QmlJS::Snapshot &snapshot)
+Context::Context(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports)
     : _snapshot(snapshot),
-      _valueOwner(new ValueOwner),
+      _valueOwner(valueOwner),
+      _imports(imports),
       _qmlScopeObjectIndex(-1),
       _qmlScopeObjectSet(false)
 {
@@ -817,13 +818,6 @@ const Imports *Context::imports(const QmlJS::Document *doc) const
     if (!doc)
         return 0;
     return _imports.value(doc).data();
-}
-
-void Context::setImports(const QmlJS::Document *doc, const Imports *imports)
-{
-    if (!doc)
-        return;
-    _imports[doc] = QSharedPointer<const Imports>(imports);
 }
 
 const Value *Context::lookup(const QString &name, const ObjectValue **foundInScope) const

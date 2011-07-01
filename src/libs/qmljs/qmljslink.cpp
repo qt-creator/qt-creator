@@ -84,7 +84,8 @@ class QmlJS::LinkPrivate
 {
 public:
     Snapshot snapshot;
-    Interpreter::Context *context;
+    Interpreter::ValueOwner *valueOwner;
+    Interpreter::Context::ImportsPerDocument imports;
     QStringList importPaths;
 
     QHash<ImportCacheKey, Import> importCache;
@@ -108,11 +109,11 @@ public:
     \l{Context} with \l{Link}.
 */
 
-Link::Link(Context *context, const Snapshot &snapshot, const QStringList &importPaths)
+Link::Link(const Snapshot &snapshot, const QStringList &importPaths)
     : d_ptr(new LinkPrivate)
 {
     Q_D(Link);
-    d->context = context;
+    d->valueOwner = new ValueOwner;
     d->snapshot = snapshot;
     d->importPaths = importPaths;
 
@@ -123,34 +124,30 @@ Link::Link(Context *context, const Snapshot &snapshot, const QStringList &import
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
     if (modelManager) {
         foreach (const QList<FakeMetaObject::ConstPtr> &cppTypes, modelManager->cppQmlTypes()) {
-            valueOwner()->cppQmlTypes().load(valueOwner(), cppTypes);
+            d->valueOwner->cppQmlTypes().load(d->valueOwner, cppTypes);
         }
     }
 }
 
-void Link::operator()(QHash<QString, QList<DiagnosticMessage> > *messages)
+Context Link::operator()(QHash<QString, QList<DiagnosticMessage> > *messages)
 {
     Q_D(Link);
     d->allDiagnosticMessages = messages;
     linkImports();
+    return Context(d->snapshot, d->valueOwner, d->imports);
 }
 
-void Link::operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages)
+Context Link::operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages)
 {
     Q_D(Link);
     d->doc = doc;
     d->diagnosticMessages = messages;
     linkImports();
+    return Context(d->snapshot, d->valueOwner, d->imports);
 }
 
 Link::~Link()
 {
-}
-
-Interpreter::ValueOwner *Link::valueOwner()
-{
-    Q_D(Link);
-    return d->context->valueOwner();
 }
 
 void Link::linkImports()
@@ -159,18 +156,18 @@ void Link::linkImports()
 
     if (d->doc) {
         // do it on d->doc first, to make sure import errors are shown
-        Imports *imports = new Imports(valueOwner());
+        Imports *imports = new Imports(d->valueOwner);
         populateImportedTypes(imports, d->doc);
-        d->context->setImports(d->doc.data(), imports);
+        d->imports.insert(d->doc.data(), QSharedPointer<Imports>(imports));
     }
 
     foreach (Document::Ptr doc, d->snapshot) {
         if (doc == d->doc)
             continue;
 
-        Imports *imports = new Imports(valueOwner());
+        Imports *imports = new Imports(d->valueOwner);
         populateImportedTypes(imports, doc);
-        d->context->setImports(doc.data(), imports);
+        d->imports.insert(doc.data(), QSharedPointer<Imports>(imports));
     }
 }
 
@@ -238,7 +235,7 @@ Import Link::importFileOrDirectory(Document::Ptr doc, const ImportInfo &importIn
 
     if (importInfo.type() == ImportInfo::DirectoryImport
             || importInfo.type() == ImportInfo::ImplicitDirectoryImport) {
-        import.object = new ObjectValue(valueOwner());
+        import.object = new ObjectValue(d->valueOwner);
 
         importLibrary(doc, path, &import);
 
@@ -269,7 +266,7 @@ Import Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
 
     Import import;
     import.info = importInfo;
-    import.object = new ObjectValue(valueOwner());
+    import.object = new ObjectValue(d->valueOwner);
 
     const QString packageName = Bind::toString(importInfo.ast()->importUri, '.');
     const ComponentVersion version = importInfo.version();
@@ -308,10 +305,10 @@ Import Link::importNonFile(Document::Ptr doc, const ImportInfo &importInfo)
     }
 
     // if there are cpp-based types for this package, use them too
-    if (valueOwner()->cppQmlTypes().hasPackage(packageName)) {
+    if (d->valueOwner->cppQmlTypes().hasPackage(packageName)) {
         importFound = true;
         foreach (QmlObjectValue *object,
-                 valueOwner()->cppQmlTypes().typesForImport(packageName, version)) {
+                 d->valueOwner->cppQmlTypes().typesForImport(packageName, version)) {
             import.object->setMember(object->className(), object);
         }
     }
@@ -382,7 +379,7 @@ bool Link::importLibrary(Document::Ptr doc,
             }
         } else {
             QList<QmlObjectValue *> loadedObjects =
-                    valueOwner()->cppQmlTypes().load(valueOwner(), libraryInfo.metaObjects());
+                    d->valueOwner->cppQmlTypes().load(d->valueOwner, libraryInfo.metaObjects());
             foreach (QmlObjectValue *object, loadedObjects) {
                 if (object->packageName().isEmpty()) {
                     import->object->setMember(object->className(), object);
@@ -479,14 +476,14 @@ void Link::loadImplicitDefaultImports(Imports *imports)
     Q_D(Link);
 
     const QString defaultPackage = CppQmlTypes::defaultPackage;
-    if (valueOwner()->cppQmlTypes().hasPackage(defaultPackage)) {
+    if (d->valueOwner->cppQmlTypes().hasPackage(defaultPackage)) {
         ImportInfo info(ImportInfo::LibraryImport, defaultPackage);
         Import import = d->importCache.value(ImportCacheKey(info));
         if (!import.object) {
             import.info = info;
-            import.object = new ObjectValue(valueOwner());
+            import.object = new ObjectValue(d->valueOwner);
             foreach (QmlObjectValue *object,
-                     valueOwner()->cppQmlTypes().typesForImport(defaultPackage, ComponentVersion())) {
+                     d->valueOwner->cppQmlTypes().typesForImport(defaultPackage, ComponentVersion())) {
                 import.object->setMember(object->className(), object);
             }
             d->importCache.insert(ImportCacheKey(info), import);

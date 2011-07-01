@@ -43,31 +43,27 @@ class QmlJS::LookupContextData
 {
 public:
     LookupContextData(Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path)
-        : context(snapshot),
-          doc(doc)
+        : doc(doc)
+        , context(Link(snapshot, ModelManagerInterface::instance()->importPaths())())
     {
-        // since we keep the document and snapshot around, we don't need to keep the Link instance
-        Link link(&context, snapshot, ModelManagerInterface::instance()->importPaths());
-        link();
-
         ScopeBuilder scopeBuilder(&context, doc);
         scopeBuilder.initializeRootScope();
         scopeBuilder.push(path);
     }
 
     LookupContextData(Document::Ptr doc,
-                      const Interpreter::Context &linkedContextWithoutScope,
+                      const Interpreter::Context &contextWithoutScope,
                       const QList<AST::Node *> &path)
-        : context(linkedContextWithoutScope),
-          doc(doc)
+        : doc(doc)
+        , context(contextWithoutScope)
     {
         ScopeBuilder scopeBuilder(&context, doc);
         scopeBuilder.initializeRootScope();
         scopeBuilder.push(path);
     }
 
-    Interpreter::Context context;
     Document::Ptr doc;
+    Interpreter::Context context;
     // snapshot is in context
 };
 
@@ -77,9 +73,9 @@ LookupContext::LookupContext(Document::Ptr doc, const Snapshot &snapshot, const 
 }
 
 LookupContext::LookupContext(const Document::Ptr doc,
-                             const Interpreter::Context &linkedContextWithoutScope,
+                             const Interpreter::Context &contextWithoutScope,
                              const QList<AST::Node *> &path)
-    : d(new LookupContextData(doc, linkedContextWithoutScope, path))
+    : d(new LookupContextData(doc, contextWithoutScope, path))
 {
 }
 

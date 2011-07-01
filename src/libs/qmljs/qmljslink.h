@@ -34,7 +34,7 @@
 #define QMLJSLINK_H
 
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsvalueowner.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <languageutils/componentversion.h>
 
@@ -54,21 +54,18 @@ class QMLJS_EXPORT Link
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
 
 public:
-    Link(Interpreter::Context *context, const Snapshot &snapshot,
-         const QStringList &importPaths);
+    Link(const Snapshot &snapshot, const QStringList &importPaths);
 
     // Link all documents in snapshot, collecting all diagnostic messages (if messages != 0)
-    void operator()(QHash<QString, QList<DiagnosticMessage> > *messages = 0);
+    Interpreter::Context operator()(QHash<QString, QList<DiagnosticMessage> > *messages = 0);
 
     // Link all documents in snapshot, appending the diagnostic messages
     // for 'doc' in 'messages'
-    void operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages);
+    Interpreter::Context operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages);
 
     ~Link();
 
 private:
-    Interpreter::ValueOwner *valueOwner();
-
     static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 
     void linkImports();
