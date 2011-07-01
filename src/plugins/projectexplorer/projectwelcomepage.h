@@ -103,7 +103,7 @@ public:
     ProjectWelcomePage();
 
     void facilitateQml(QDeclarativeEngine *engine);
-    QString pageLocation() const { return Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/develop.qml"); }
+    QUrl pageLocation() const { return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/develop.qml")); }
     QWidget *page() { return 0; }
     QString title() const { return tr("Develop"); }
     int priority() const { return 20; }
