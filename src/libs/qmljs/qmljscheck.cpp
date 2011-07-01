@@ -32,7 +32,7 @@
 
 #include "qmljscheck.h"
 #include "qmljsbind.h"
-#include "qmljsinterpreter.h"
+#include "qmljscontext.h"
 #include "qmljsevaluate.h"
 #include "parser/qmljsast_p.h"
 

@@ -74,6 +74,7 @@ class AnchorLineValue;
 class Imports;
 class TypeScope;
 class JSImportScope;
+class Context;
 
 typedef QList<const Value *> ValueList;
 
@@ -314,45 +315,6 @@ public:
 
 private:
     QList<const ObjectValue *> _all;
-};
-
-class QMLJS_EXPORT Context
-{
-public:
-    typedef QHash<const Document *, QSharedPointer<const Imports> > ImportsPerDocument;
-
-    // Context takes ownership of valueOwner
-    Context(const Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports);
-    ~Context();
-
-    ValueOwner *valueOwner() const;
-    Snapshot snapshot() const;
-
-    const ScopeChain &scopeChain() const;
-    ScopeChain &scopeChain();
-
-    const Imports *imports(const Document *doc) const;
-
-    const Value *lookup(const QString &name, const ObjectValue **foundInScope = 0) const;
-    const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName,
-                                  AST::UiQualifiedId *qmlTypeNameEnd = 0) const;
-    const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName) const;
-    const Value *lookupReference(const Value *value) const;
-
-    QString defaultPropertyName(const ObjectValue *object) const;
-
-private:
-    typedef QHash<QString, const Value *> Properties;
-
-    Snapshot _snapshot;
-    QSharedPointer<ValueOwner> _valueOwner;
-    ImportsPerDocument _imports;
-    ScopeChain _scopeChain;
-    int _qmlScopeObjectIndex;
-    bool _qmlScopeObjectSet;
-
-    // for avoiding reference cycles during lookup
-    mutable QList<const Reference *> _referenceStack;
 };
 
 class QMLJS_EXPORT Reference: public Value

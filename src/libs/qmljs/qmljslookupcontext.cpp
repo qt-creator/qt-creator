@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "qmljslookupcontext.h"
-#include "qmljsinterpreter.h"
+#include "qmljscontext.h"
 #include "qmljslink.h"
 #include "qmljsscopebuilder.h"
 #include "qmljsmodelmanagerinterface.h"

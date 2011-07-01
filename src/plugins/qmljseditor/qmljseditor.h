@@ -37,7 +37,7 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscanner.h>
-#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscontext.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/quickfix.h>
 

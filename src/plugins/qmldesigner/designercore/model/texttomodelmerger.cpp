@@ -47,7 +47,7 @@
 #include <languageutils/componentversion.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsvalueowner.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsast_p.h>

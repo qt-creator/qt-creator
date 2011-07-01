@@ -34,7 +34,7 @@
 #define QMLJSLOOKUPCONTEXT_H
 
 #include "qmljsdocument.h"
-#include "qmljsinterpreter.h"
+#include "qmljscontext.h"
 #include "parser/qmljsastfwd_p.h"
 
 #include <QtCore/QSharedPointer>

@@ -41,7 +41,7 @@
 #include <qmljs/qmljsrewriter.h>
 #include <qmljs/qmljsindenter.h>
 #include <qmljs/qmljslookupcontext.h>
-#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/qmljsevaluate.h>

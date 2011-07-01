@@ -43,7 +43,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/Overview.h>
-#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/parser/qmldirparser_p.h>
 #include <texteditor/itexteditor.h>

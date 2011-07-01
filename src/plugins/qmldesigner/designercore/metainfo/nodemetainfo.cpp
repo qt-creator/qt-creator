@@ -48,7 +48,7 @@
 
 #include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <languageutils/fakemetaobject.h>

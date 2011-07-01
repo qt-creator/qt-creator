@@ -37,7 +37,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/taskhub.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljseditor/qmljseditor.h>

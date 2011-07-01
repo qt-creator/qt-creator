@@ -34,7 +34,7 @@
 #define QMLJSCHECK_H
 
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 

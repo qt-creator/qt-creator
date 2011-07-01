@@ -48,6 +48,7 @@
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/qmljsscopeastpath.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 

@@ -35,7 +35,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljscheck.h>
-#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslink.h>
 
 namespace QmlJSEditor {

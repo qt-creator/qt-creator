@@ -34,7 +34,7 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsbind.h>
-#include <qmljs/qmljsinterpreter.h>
+//#include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
 
 using namespace QmlJSTools::Internal;

@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "qmljsevaluate.h"
-#include "qmljsinterpreter.h"
+#include "qmljscontext.h"
 #include "qmljsvalueowner.h"
 #include "parser/qmljsast_p.h"
 #include <QtCore/QDebug>

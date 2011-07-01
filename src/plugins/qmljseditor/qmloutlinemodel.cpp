@@ -34,8 +34,7 @@
 #include "qmljseditor.h"
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmljsvalueowner.h>
-#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsrewriter.h>
