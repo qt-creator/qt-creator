@@ -39,6 +39,7 @@
 #include <QDebug>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/helpmanager.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <algorithm>
@@ -67,7 +68,9 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
     setRoleNames(roleNames);
 
     connect(QtVersionManager::instance(), SIGNAL(updateExamples(QString,QString,QString)),
-            SLOT(readNewsItems(QString,QString,QString)));
+            SLOT(cacheExamplesPath(QString,QString,QString)));
+    connect(Core::HelpManager::instance(), SIGNAL(setupFinished()),
+            SLOT(helpInitialized()));
 }
 
 QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, const QString& projectsOffset)
@@ -336,6 +339,20 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
     }
 
 }
+
+void ExamplesListModel::cacheExamplesPath(const QString &examplesPath, const QString &demosPath, const QString &sourcePath)
+{
+    m_cache = QMakePathCache(examplesPath, demosPath, sourcePath);
+}
+
+void ExamplesListModel::helpInitialized()
+{
+    disconnect(this, SLOT(cacheExamplesPath(QString, QString, QString)));
+    connect(QtVersionManager::instance(), SIGNAL(updateExamples(QString,QString,QString)),
+            SLOT(readNewsItems(QString,QString,QString)));
+    readNewsItems(m_cache.examplesPath, m_cache.demosPath, m_cache.examplesPath);
+}
+
 
 ExamplesListModelFilter::ExamplesListModelFilter(QObject *parent) :
     QSortFilterProxyModel(parent), m_showTutorialsOnly(true)

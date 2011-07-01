@@ -60,6 +60,15 @@ struct ExampleItem {
     bool hasSourceCode;
 };
 
+struct QMakePathCache {
+    QString examplesPath;
+    QString demosPath;
+    QString sourcePath;
+    QMakePathCache() {}
+    QMakePathCache(const QString &_examplesPath, const QString &_demosPath, const QString &_sourcePath)
+        : examplesPath(_examplesPath), demosPath(_demosPath), sourcePath(_sourcePath) {}
+};
+
 class ExamplesListModel : public QAbstractListModel {
     Q_OBJECT
 public:
@@ -71,11 +80,14 @@ public:
 
     QStringList tags() const { return m_tags; }
 
-public slots:
-    void readNewsItems(const QString &examplesPath, const QString &demosPath, const QString &sourcePath);
 
 signals:
     void tagsUpdated();
+
+public slots:
+    void readNewsItems(const QString &examplesPath, const QString &demosPath, const QString &sourcePath);
+    void cacheExamplesPath(const QString &examplesPath, const QString &demosPath, const QString &sourcePath);
+    void helpInitialized();
 
 private:
     QList<ExampleItem> parseExamples(QXmlStreamReader* reader, const QString& projectsOffset);
@@ -85,6 +97,8 @@ private:
     QStringList exampleSources() const;
     QList<ExampleItem> exampleItems;
     QStringList m_tags;
+    QMakePathCache m_cache;
+
 };
 
 class ExamplesListModelFilter : public QSortFilterProxyModel {

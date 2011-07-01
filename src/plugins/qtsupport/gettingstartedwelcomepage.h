@@ -68,8 +68,6 @@ signals:
 public slots:
     void openSplitHelp(const QUrl &help);
     void openProject(const QString& projectFile, const QStringList& additionalFilesToOpen, const QUrl& help);
-
-public slots:
     void updateTagsModel();
 
 private:
