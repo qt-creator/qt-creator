@@ -65,7 +65,7 @@
     The tool chain for building applications locally on the development PC for
     the \gui {Symbian Device} target is only supported on Windows.
     If you develop on Linux or Mac OS, you must use the Remote Compiler
-    interface to a compilation service at Forum Nokia.
+    interface to a compilation service at Nokia Developer.
 
     For more information about developing applications for the Symbian
     platform, select \gui {Help > Index} and look for \gui {Platform Notes},
@@ -104,7 +104,8 @@
 
     Separate installation packages are provided for Symbian^3 and Symbian^1
     devices. To check the Symbian platform version of your device, see
-    \l{http://www.forum.nokia.com/devices}{Device Details}.
+    \l{http://www.developer.nokia.com/Devices/Device_specifications/}
+    {Device Specifications}.
 
     \note You can also copy the .sis files from
     \c {<QtSDK_install_path>\Symbian\sis} to the device using USB storage
