@@ -21,8 +21,26 @@ Debugging
 Debugging QML/JS
 
 C++ Support
+   * Made C++ coding style configurable (QTCREATORBUG-2670, QTCREATORBUG-4310,
+     QTCREATORBUG-2763, QTCREATORBUG-3623, QTCREATORBUG-567)
+   * Various indentation fixes (QTCREATORBUG-4993)
 
 QML/JS Support
+   * Updated QML type descriptions for the current state of Qt 5
+   * Made tab settings configurable separately and per-project
+   * Added 'Find usages' functionality for QML types
+   * Added type resolution for alias properties (QTCREATORBUG-2306)
+   * Added tooltips to imports
+   * Added documentation on using QML modules with plugins
+   * Added support for properties and methods with a revision, allowing
+     the QtQuick 1.0 and 1.1 imports to behave as intended
+   * Added 'Reset code model' action to the Tools->QML/JS menu (QTCREATORBUG-4813)
+   * Use qmlplugindump from Qt 4.8 or newer instead of building own qmldump
+   * Improved error message for missing prototypes (QTCREATORBUG-4952)
+   * Fixed completion of slots (QTCREATORBUG-3614, QTCREATORBUG-3459)
+   * Fixed completion inside grouped property bindings (QTCREATORBUG-3541)
+   * Fixed scanning and indentation of regular expression literals (QTCREATORBUG-4566)
+   * Fixed indentation of object literals
 
 Help
 
