@@ -179,6 +179,6 @@ bool ProjectFilesDocument::save(QString *errorString, const QString &name, bool 
         return false;
 
     if (!autoSave)
-        m_manager->notifyChanged(name);
+        m_manager->notifyChanged(name.isEmpty() ? fileName() : name);
     return true;
 }
