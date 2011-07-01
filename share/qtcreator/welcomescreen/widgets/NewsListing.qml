@@ -117,6 +117,8 @@ Item {
                 anchors.fill: column;
                 onClicked: Qt.openUrlExternally(link);
                 hoverEnabled: true;
+                onEntered: timer.stop()
+                onExited: timer.restart()
                 id: mouseArea
             }
 
