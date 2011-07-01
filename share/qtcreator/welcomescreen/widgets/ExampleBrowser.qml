@@ -100,12 +100,12 @@ Item {
                 id: rect
                 radius: 4
                 opacity: 0.3
-                width: closeText.width+4
-                height: closeText.height+4
-                x: closeText.x-2
-                y: closeText.y-2
+                width: clearText.width+4
+                height: clearText.height+4
+                x: clearText.x-2
+                y: clearText.y-2
             }
-            Text { id: closeText; text: qsTr("Close"); color: "white"; anchors.centerIn: parent }
+            Text { id: clearText; text: qsTr("Clear"); color: "white"; anchors.centerIn: parent }
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent
@@ -139,12 +139,12 @@ Item {
                             id: btnRect
                             radius: 4
                             opacity: 0
-                            width: closeText.width+4
-                            height: closeText.height+4
-                            x: closeText.x-2
-                            y: closeText.y-2
+                            width: text.width+4
+                            height: text.height+4
+                            x: text.x-2
+                            y: text.y-2
                         }
-                        Text { id: closeText; text: model.text; color: "white"; anchors.centerIn: parent }
+                        Text { id: text; text: model.text; color: "white"; anchors.centerIn: parent }
                         MouseArea {
                             id: mouseArea
                             anchors.fill: parent
