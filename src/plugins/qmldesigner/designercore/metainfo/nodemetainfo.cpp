@@ -665,7 +665,7 @@ bool NodeMetaInfoPrivate::isPropertyEnum(const QString &propertyName) const
     //We have to run the prototype chain
     foreach (const Interpreter::ObjectValue *ov, objects) {
         if (const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ov)) {
-            if (qmlValue->isEnum(propertyType(propertyName)))
+            if (qmlValue->getEnum(propertyType(propertyName)).isValid())
                 return true;
         }
     }
@@ -701,7 +701,7 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const QString &propertyName) cons
     //We have to run the prototype chain
     foreach (const Interpreter::ObjectValue *ov, objects) {
         if (const Interpreter::QmlObjectValue * qmlValue = dynamic_cast<const Interpreter::QmlObjectValue *>(ov)) {
-            if (qmlValue->isEnum(propertyType(propertyName)))
+            if (qmlValue->getEnum(propertyType(propertyName)).isValid())
                 return qmlValue->className();
         }
     }
@@ -776,7 +776,7 @@ QStringList NodeMetaInfoPrivate::keysForEnum(const QString &enumName) const
     if (!isValid())
         return QStringList();
 
-    return getNearestQmlObjectValue()->keysForEnum(enumName);
+    return getNearestQmlObjectValue()->getEnum(enumName).keys();
 }
 
 QString NodeMetaInfoPrivate::packageName() const

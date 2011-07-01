@@ -62,6 +62,7 @@ public:
     QString key(int index) const;
     int keyCount() const;
     QStringList keys() const;
+    bool hasKey(const QString &key) const;
 };
 
 class LANGUAGEUTILS_EXPORT FakeMetaMethod {

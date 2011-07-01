@@ -62,6 +62,9 @@ int FakeMetaEnum::keyCount() const
 QStringList FakeMetaEnum::keys() const
 { return m_keys; }
 
+bool FakeMetaEnum::hasKey(const QString &key) const
+{ return m_keys.contains(key); }
+
 FakeMetaMethod::FakeMetaMethod(const QString &name, const QString &returnType)
     : m_name(name)
     , m_returnType(returnType)

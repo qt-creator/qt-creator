@@ -369,11 +369,6 @@ bool QmlObjectValue::isListProperty(const QString &propertyName) const
     return false;
 }
 
-bool QmlObjectValue::isEnum(const QString &typeName) const
-{
-    return _metaObject->enumeratorIndex(typeName) != -1;
-}
-
 FakeMetaEnum QmlObjectValue::getEnum(const QString &typeName) const
 {
     const int index = _metaObject->enumeratorIndex(typeName);
@@ -425,28 +420,6 @@ bool QmlObjectValue::hasProperty(const QString &propertyName) const
         }
     }
     return false;
-}
-
-bool QmlObjectValue::enumContainsKey(const QString &enumName, const QString &enumKeyName) const
-{
-    int idx = _metaObject->enumeratorIndex(enumName);
-    if (idx == -1)
-        return false;
-    const FakeMetaEnum &fme = _metaObject->enumerator(idx);
-    for (int i = 0; i < fme.keyCount(); ++i) {
-        if (fme.key(i) == enumKeyName)
-            return true;
-    }
-    return false;
-}
-
-QStringList QmlObjectValue::keysForEnum(const QString &enumName) const
-{
-    int idx = _metaObject->enumeratorIndex(enumName);
-    if (idx == -1)
-        return QStringList();
-    const FakeMetaEnum &fme = _metaObject->enumerator(idx);
-    return fme.keys();
 }
 
 // Returns true if this object is in a package or if there is an object that

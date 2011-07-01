@@ -542,7 +542,7 @@ public:
 
         if (const Interpreter::QmlObjectValue * qmlObject = dynamic_cast<const Interpreter::QmlObjectValue *>(containingObject)) {
             const QString typeName = qmlObject->propertyType(name);
-            if (qmlObject->isEnum(typeName)) {
+            if (qmlObject->getEnum(typeName).isValid()) {
                 return QVariant(cleanedValue);
             } else {
                 int type = QMetaType::type(typeName.toUtf8().constData());
@@ -612,7 +612,7 @@ public:
         if (!rhsQmlObjectValue)
             return QVariant();
 
-        if (rhsQmlObjectValue->enumContainsKey(lhsPropertyTypeName, rhsValueName))
+        if (rhsQmlObjectValue->getEnum(lhsPropertyTypeName).hasKey(rhsValueName))
             return QVariant(rhsValueName);
         else
             return QVariant();

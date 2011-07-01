@@ -455,11 +455,6 @@ public:
     bool hasChildInPackage() const;
 
     LanguageUtils::FakeMetaEnum getEnum(const QString &typeName) const;
-
-    // deprecated
-    bool isEnum(const QString &typeName) const;
-    QStringList keysForEnum(const QString &enumName) const;
-    bool enumContainsKey(const QString &enumName, const QString &enumKeyName) const;
 protected:
     const Value *findOrCreateSignature(int index, const LanguageUtils::FakeMetaMethod &method,
                                        QString *methodName) const;
