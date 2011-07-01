@@ -189,7 +189,7 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
                    || p == QLatin1String("i686") || p == QLatin1String("x86")) {
             arch = ProjectExplorer::Abi::X86Architecture;
             width = 32;
-        } else if (p == QLatin1String("arm") || p == QLatin1String("armv5tel")) {
+        } else if (p.startsWith(QLatin1String("arm"))) {
             arch = ProjectExplorer::Abi::ArmArchitecture;
             width = 32;
         } else if (p == QLatin1String("mipsel")) {
@@ -1014,6 +1014,10 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
     QTest::newRow("Linux 7") // Meego
                 << QString::fromLatin1("armv5tel-meego-linux-gnueabi")
                 << (QStringList() << QLatin1String("arm-linux-meego-elf-32bit"));
+    QTest::newRow("Linux 8")
+                << QString::fromLatin1("armv5tl-montavista-linux-gnueabi")
+                << (QStringList() << QLatin1String("arm-linux-generic-elf-32bit"));
+
     QTest::newRow("Mingw 1")
             << QString::fromLatin1("i686-w64-mingw32")
             << (QStringList() << QLatin1String("x86-windows-msys-pe-64bit")
