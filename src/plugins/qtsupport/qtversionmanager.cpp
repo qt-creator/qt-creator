@@ -131,7 +131,6 @@ void QtVersionManager::extensionsInitialized()
         // and add it to the qt versions
         findSystemQt();
     }
-    updateDocumentation();
 
     updateSettings();
     saveQtVersions();
