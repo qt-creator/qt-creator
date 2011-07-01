@@ -58,7 +58,7 @@ SessionModel::SessionModel(SessionManager *manager, QObject *parent)
 
 int SessionModel::rowCount(const QModelIndex &) const
 {
-    return qMin(m_manager->sessions().count(), 12);
+    return m_manager->sessions().count();
 }
 
 QVariant SessionModel::data(const QModelIndex &index, int role) const
@@ -95,7 +95,7 @@ ProjectModel::ProjectModel(ProjectExplorerPlugin *plugin, QObject *parent)
 
 int ProjectModel::rowCount(const QModelIndex &) const
 {
-    return qMin(m_plugin->recentProjects().count(), 6);
+    return m_plugin->recentProjects().count();
 }
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
