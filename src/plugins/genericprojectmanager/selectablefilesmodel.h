@@ -88,6 +88,7 @@ public:
 
     QStringList selectedFiles() const;
     QStringList selectedPaths() const;
+    QStringList preservedFiles() const;
 
     // only call this once
     void startParsing();
@@ -115,6 +116,7 @@ private:
     // Used in the future thread need to all not used after calling startParsing
     QString m_baseDir;
     QSet<QString> m_files;
+    QStringList m_outOfBaseDirFiles;
     QSet<QString> m_suffixes;
     QFutureWatcher<void> m_watcher;
     Tree *m_rootForFuture;
@@ -143,6 +145,7 @@ private:
     QLineEdit *m_filterLineEdit;
     QPushButton *m_applyFilterButton;
     QTreeView *m_view;
+    QLabel *m_preservedFiles;
     QLabel *m_progressLabel;
 };
 
