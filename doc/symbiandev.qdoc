@@ -51,8 +51,8 @@
     the standard methods for installing applications.
 
     To debug applications on Symbian devices by using the Qt Creator \gui Debug
-    mode, you must install an on-device debugging agent on the device. You have
-    a choice between App TRK and CODA debugging agents. For more information,
+    mode, you must install the CODA on-device debugging agent on the device.
+    For more information,
     see
     \if defined(qcmanual)
     \l{Using On-device Debugging Agents}.
@@ -78,10 +78,10 @@
     following:
     \list
         \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
-        \o An on-device debugging agent, \e {App TRK} or \e CODA, installed on
+        \o The \e CODA on-device debugging agent installed on
            the device
-         \o \e Qt installed on the device
-         \o \e {Qt Mobility APIs} installed on the device, if you use them in
+         \o \e {Qt libraries} installed on the device
+         \o \e {Qt Mobility libraries} installed on the device, if you use them in
          applications
         \o \e {QtWebKit} installed on the device, if you use web functionality
          in applications
@@ -127,11 +127,6 @@
         and follow the instructions on the screen to install Qt
         mobility libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install TRK
-        (Debug Agent) for Symbian^3 on Device} and follow the
-        instructions on the screen to install
-        the App TRK debugging agent to the device.
-
         \o Choose \gui {Start > Qt SDK > Symbian^3 Qt 4.7.3 > Install QtWebKit
         for for Qt 4.7.3 on Symbian^3 Device} and follow the
         instructions on the screen to install QtWebKit to the device.
@@ -156,11 +151,6 @@
         for Symbian^1 on Device} and follow the instructions on the screen to install Qt
         mobility libraries to the device.
 
-        \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install TRK
-        (Debug Agent)} for the type of the connected device and follow the
-        instructions on the screen to install
-        the App TRK debugging agent to the device.
-
         \o Choose \gui {Start > Qt SDK > Symbian^1 Qt 4.7.3 > Install QtWebKit
         for for Qt 4.7.3 on Symbian^1 Device} and follow the
         instructions on the screen to install QtWebKit to the device.
@@ -174,42 +164,25 @@
     \if defined(qcmanual)
     \section1 Using On-device Debugging Agents
 
-    CODA is a new on-device debugging agent that will eventually replace App TRK.
-    You can choose which debugging agent to use in the \gui {Run Settings} for
-    the project.
-
-    CODA offers the following benefits:
+    Support for the App TRK on-device debugging agent has been removed from
+    Qt Creator 2.3. Only CODA is supported. It offers the following benefits:
 
     \list
 
-        \o  Extended error information
+        \o  Extensive error information
 
         \o  Debugging over WLAN
 
-        \o  Extended information about the device
+        \o  Extensive information about the device
 
     \endlist
 
-    CODA differs from App TRK in the following ways:
-
-    \list
-
-        \o  CODA does not support debugging over a Bluetooth connection.
-
-        \o  CODA supports only Symbian^1 and Symbian^3 devices. It does not
-            support S60 3rd Edition devices.
-
-    \endlist
+    \note CODA does not support debugging over a Bluetooth connection.
 
     \section2 Installing Debugging Agents
 
     You can download CODA from the
     \l{http://tools.ext.nokia.com/coda/}{CODA download server}.
-
-    The \QSDK installation program creates a shortcut for installing
-    App TRK on Symbian devices, but you can also download and install it
-    separately from the
-    \l{http://tools.ext.nokia.com/trk/}{App TRK download server}.
 
     \section1 Adding Symbian Platform SDKs
 
@@ -259,9 +232,7 @@
         The tool tip of the target selector shows more details about the actual
         device that will be used when you run your application.
 
-        \o Start the debugging application, App TRK or CODA, on the device and
-        deny the
-        Bluetooth connection.
+        \o Start the CODA debugging agent on the device.
 
         \o Select \gui Options to select USB as connection type.
 

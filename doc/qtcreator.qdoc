@@ -4514,7 +4514,7 @@
         The tool tip of the target selector shows more details about the actual
         device that will be used when you run your application.
 
-        \o Start the debugging agent (CODA or App TRK) application on your device.
+        \o Start the CODA debugging agent on the device.
 
         \note If you use CODA over an USB connection, it starts up
         automatically when you connect the device to the development PC.
@@ -4537,7 +4537,7 @@
         \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
         have been installed on the development PC.
         \o The device is connected through USB cable in \e{PC Suite} mode.
-        \o The debugging agent (App TRK or CODA) is running on the device with
+        \o The CODA debugging agent is running on the device with
            the status \e connected.
 
            \note If you use the CODA debugging agent over WLAN, you must enter
@@ -6072,7 +6072,7 @@
         debugging agent on the device. For more information,
         see \l{Connecting Symbian Devices}.
 
-        \o Start the debugging agent, App TRK or CODA, on the device.
+        \o Start the CODA debugging agent on the device.
 
         \o Click the \gui {Target Selector} and select \gui {Symbian Device}.
 
