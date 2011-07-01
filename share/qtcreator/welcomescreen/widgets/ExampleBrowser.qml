@@ -35,6 +35,7 @@ Item {
             id: checkBox
             text: qsTr("Show Examples and Demos")
             checked: false
+            anchors.leftMargin: 6
             anchors.left: lineEdit.right
             anchors.verticalCenter: lineEdit.verticalCenter
             height: lineEdit.height
@@ -46,6 +47,7 @@ Item {
             property string tag
             Behavior on width { NumberAnimation{} }
             onTagChanged: { examplesModel.filterTag = tag; examplesModel.updateFilter() }
+            anchors.leftMargin: 6
             anchors.left: checkBox.right
             anchors.verticalCenter: lineEdit.verticalCenter
             visible: !examplesModel.showTutorialsOnly
@@ -67,7 +69,6 @@ Item {
             }
         }
     }
-
 
     Rectangle {
         id: tagChooser
