@@ -1070,8 +1070,8 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         // Happens with some incarnations of gdb 6.8 for "jump to line"
         //  (response->resultClass == GdbResultDone && cmd.command.startsWith("jump"))
         //  (response->resultClass == GdbResultDone && cmd.command.startsWith("detach"))
-        // Happens when stepping finishes very quickly and issues *stopped/^done
-        // instead of ^running/*stopped
+        // Happens when stepping finishes very quickly and issues *stopped and ^done
+        // instead of ^running and *stopped
         //  (response->resultClass == GdbResultDone && (cmd.flags & RunRequest));
 
     if (!isExpectedResult) {
