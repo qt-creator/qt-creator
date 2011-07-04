@@ -4,8 +4,6 @@ TARGET = RemoteLinux
 include(../../qtcreatorplugin.pri)
 include(remotelinux_dependencies.pri)
 
-message(target.path = $$target.path)
-
 HEADERS += \
     remotelinuxplugin.h \
     remotelinux_export.h \
