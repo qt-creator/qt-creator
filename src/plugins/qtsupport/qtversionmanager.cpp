@@ -428,8 +428,7 @@ bool QtVersionManager::legacyRestore()
 
     }
     s->endArray();
-    // TODO add removal of old settings
-    // s->remove(QtVersionsSectionName);
+    s->remove(QtVersionsSectionName);
     return true;
 }
 
