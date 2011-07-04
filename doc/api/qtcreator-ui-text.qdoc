@@ -154,10 +154,6 @@
 
     \section1 UI Text Capitalization
 
-    The capitalization of the Qt Creator UI text follows the
-    \l{http://developer.kde.org/documentation/standards/kde/style/basics/labels.html#items}
-    {KDE Style Guide}.
-
     Two styles are used, book title and sentence style:
 
     \list
@@ -167,6 +163,11 @@
         \o  Example of sentence style capitalization
 
     \endlist
+
+    When using book style capitalization, capitalize all words, except
+    prepositions that are shorter than five letters (for example, 'with' but
+    'Without'), conjunctions (for example, and, or, but), and articles (a, an,
+    the).
 
     Use book style capitalization for:
 
@@ -181,6 +182,9 @@
             and so on)
 
     \endlist
+
+    When using sentence style capitalization, capitalize only the first letter,
+    except proper names.
 
     Use sentence style capitalization for:
 
