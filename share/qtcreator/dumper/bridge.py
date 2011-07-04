@@ -105,7 +105,7 @@ if True:
                     #warn("SYMBOL %s  (%s): " % (symbol, name))
                     if name in shadowed:
                         level = shadowed[name]
-                        name1 = "%s <shadowed %s>" % (name, level)
+                        name1 = "%s@%s" % (name, level)
                         shadowed[name] = level + 1
                     else:
                         name1 = name
