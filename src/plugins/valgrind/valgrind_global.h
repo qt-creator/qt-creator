@@ -37,7 +37,7 @@
 
 #include <QtCore/qglobal.h>
 
-#if defined(VALGRINDTOOLBASE_LIBRARY)
+#if defined(VALGRIND_LIBRARY)
 #  define VALGRINDTOOLBASE_EXPORT Q_DECL_EXPORT
 #else
 #  define VALGRINDTOOLBASE_EXPORT Q_DECL_IMPORT
