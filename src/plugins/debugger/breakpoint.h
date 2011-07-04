@@ -246,7 +246,6 @@ public:
     BreakpointResponseId id; //!< Breakpoint number assigned by the debugger engine.
     bool pending;            //!< Breakpoint not fully resolved.
     int hitCount;            //!< Number of times this has been hit.
-    QString fullName;        //!< Full file name acknowledged by the debugger engine.
     bool multiple;           //!< Happens in constructors/gdb.
     int correctedLineNumber; //!< Line number as seen by gdb.
 };

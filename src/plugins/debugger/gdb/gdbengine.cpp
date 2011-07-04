@@ -2504,13 +2504,19 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
     BreakHandler *handler = breakHandler();
     BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     if (response.resultClass == GdbResultDone) {
-        const GdbMi bkpt = response.data.findChild("bkpt");
-        const BreakpointResponseId rid(bkpt.findChild("number").data());
+        // The result is a list with the first entry marked "bkpt"
+        // and "unmarked" rest. The "bkpt" one seems to always be
+        // the "main" entry. Use the "main" entry to retrieve the
+        // already known data from the BreakpointManager, and then
+        // iterate over all items to update main- and sub-data.
+        const GdbMi mainbkpt = response.data.findChild("bkpt");
+        QByteArray nr = mainbkpt.findChild("number").data();
+        BreakpointResponseId rid(nr);
         if (!isHiddenBreakpoint(rid)) {
             BreakpointResponse br = handler->response(id);
             foreach (const GdbMi bkpt, response.data.children()) {
-                QByteArray nr = bkpt.findChild("number").data();
-                BreakpointResponseId rid(nr);
+                nr = bkpt.findChild("number").data();
+                rid = BreakpointResponseId(nr);
                 if (nr.contains('.')) {
                     // A sub-breakpoint.
                     BreakpointResponse sub;
@@ -2519,7 +2525,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
                     sub.type = br.type;
                     handler->insertSubBreakpoint(id, sub);
                 } else {
-                    // A primary breakpoint.
+                    // A (the?) primary breakpoint.
                     updateResponse(br, bkpt);
                     br.id = rid;
                     handler->setResponse(id, br);
