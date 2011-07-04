@@ -680,6 +680,11 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
     return engine;
 }
 
+void CallgrindTool::startTool(StartMode mode)
+{
+    ValgrindPlugin::startValgrindTool(this, mode);
+}
+
 QWidget *CallgrindTool::createControlWidget()
 {
     return d->createControlWidget();

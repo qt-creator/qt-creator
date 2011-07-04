@@ -64,9 +64,4 @@ QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mo
     return base;
 }
 
-void IAnalyzerTool::defaultStartTool(IAnalyzerTool *tool, StartMode mode)
-{
-    AnalyzerManager::defaultStartTool(tool, mode);
-}
-
 } // namespace Analyzer

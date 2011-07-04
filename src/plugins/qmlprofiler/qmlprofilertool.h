@@ -62,6 +62,7 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     QWidget *createControlWidget();
+    void startTool(Analyzer::StartMode mode);
 
 public slots:
     void connectClient(int port);
