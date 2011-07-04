@@ -151,7 +151,6 @@ QDataStream &operator<<(QDataStream &stream, const BreakpointResponse &s)
     stream << s.condition;
     stream << s.ignoreCount;
     stream << s.fileName;
-    stream << s.fullName;
     stream << s.lineNumber;
     //stream << s.bpCorrectedLineNumber;
     stream << s.threadSpec;
@@ -169,7 +168,6 @@ QDataStream &operator>>(QDataStream &stream, BreakpointResponse &s)
     stream >> s.condition;
     stream >> s.ignoreCount;
     stream >> s.fileName;
-    stream >> s.fullName;
     stream >> s.lineNumber;
     //stream >> s.bpCorrectedLineNumber;
     stream >> s.threadSpec;

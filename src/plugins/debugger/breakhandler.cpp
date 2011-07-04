@@ -1269,10 +1269,10 @@ const BreakpointResponse &BreakHandler::response(BreakpointModelId id) const
 {
     static BreakpointResponse dummy;
     ConstIterator it = m_storage.find(id);
-    BREAK_ASSERT(it != m_storage.end(),
-        qDebug() << "NO RESPONSE FOR " << id; return dummy);
-    if (it == m_storage.end())
+    if (it == m_storage.end()) {
+        qDebug() << "NO RESPONSE FOR " << id;
         return dummy;
+    }
     return it->response;
 }
 

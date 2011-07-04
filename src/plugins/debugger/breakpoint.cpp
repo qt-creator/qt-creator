@@ -317,8 +317,6 @@ QString BreakpointResponse::toString() const
     ts << " Number: " << id.toString();
     if (pending)
         ts << " [pending]";
-    if (!fullName.isEmpty())
-        ts << " FullName: " << fullName;
     if (!functionName.isEmpty())
         ts << " Function: " << functionName;
     if (multiple)
@@ -334,7 +332,6 @@ void BreakpointResponse::fromParameters(const BreakpointParameters &p)
 {
     BreakpointParameters::operator=(p);
     id = BreakpointResponseId();
-    fullName.clear();
     multiple = false;
     correctedLineNumber = 0;
     hitCount = 0;
