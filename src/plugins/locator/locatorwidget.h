@@ -67,6 +67,8 @@ public:
 
     void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
 
+    void setPlaceholderText(const QString &text);
+
 private slots:
     void showPopup();
     void showPopupNow();

@@ -45,12 +45,12 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qtconcurrent/QtConcurrentTools>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QtPlugin>
@@ -119,6 +119,8 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
         ->registerAction(action, "QtCreator.Locate", Core::Context(Core::Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence("Ctrl+K"));
     connect(action, SIGNAL(triggered()), this, SLOT(openLocator()));
+    connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePlaceholderText()));
+    updatePlaceholderText(cmd);
 
     Core::ActionContainer *mtools = core->actionManager()->actionContainer(Core::Constants::M_TOOLS);
     mtools->addAction(cmd);
@@ -135,6 +137,18 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
 
     connect(core, SIGNAL(coreOpened()), this, SLOT(startSettingsLoad()));
     return true;
+}
+
+void LocatorPlugin::updatePlaceholderText(Core::Command *command)
+{
+    if (!command)
+        command = qobject_cast<Core::Command *>(sender());
+    QTC_ASSERT(command, return);
+    if (command->keySequence().isEmpty())
+        m_locatorWidget->setPlaceholderText(tr("Type to locate"));
+    else
+        m_locatorWidget->setPlaceholderText(tr("Type to locate (%1)").arg(
+                                                command->keySequence().toString(QKeySequence::NativeText)));
 }
 
 void LocatorPlugin::openLocator()
