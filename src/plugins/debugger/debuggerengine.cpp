@@ -97,6 +97,7 @@ Internal::Location::Location(const StackFrame &frame, bool marker)
     m_functionName = frame.function;
     m_hasDebugInfo = frame.isUsable();
     m_address = frame.address;
+    m_from = frame.from;
 }
 
 QDebug operator<<(QDebug d, DebuggerState state)

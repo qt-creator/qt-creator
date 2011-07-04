@@ -40,6 +40,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QVariantList>
 #include <QtCore/QMap>
+#include <QtCore/QMultiHash>
 #include <QtCore/QTime>
 #include <QtCore/QPair>
 #include <QtCore/QList>
@@ -211,8 +212,12 @@ private:
     void postWidgetAtCommand();
     void handleCustomSpecialStop(const QVariant &v);
     void postFetchMemory(const MemoryViewCookie &c);
+    inline void postDisassemblerCommand(quint64 address, const QVariant &cookie = QVariant());
+    void postDisassemblerCommand(quint64 address, quint64 endAddress,
+                                 const QVariant &cookie = QVariant());
+    void postResolveSymbol(const QString &module, const QString &function,
+                           const QVariant &cookie =  QVariant());
     void evaluateExpression(QByteArray exp, const QVariant &cookie = QVariant());
-
     // Builtin commands
     void dummyHandler(const CdbBuiltinCommandPtr &);
     void handleStackTrace(const CdbExtensionCommandPtr &);
@@ -220,7 +225,10 @@ private:
     void handleDisassembler(const CdbBuiltinCommandPtr &);
     void handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &);
     void handleExpression(const CdbExtensionCommandPtr &);
+    void handleResolveSymbol(const CdbBuiltinCommandPtr &command);
+    void handleResolveSymbol(const QList<quint64> &addresses, const QVariant &cookie);
     void jumpToAddress(quint64 address);
+
     // Extension commands
     void handleThreads(const CdbExtensionCommandPtr &);
     void handlePid(const CdbExtensionCommandPtr &reply);
@@ -270,6 +278,7 @@ private:
     int m_watchPointY;
     PendingBreakPointMap m_pendingBreakpointMap;
     QHash<QString, QString> m_fileNameModuleHash;
+    QMultiHash<QString, quint64> m_symbolAddressCache;
     bool m_ignoreCdbOutput;
     QVariantList m_customSpecialStopData;
     QList<SourcePathMapping> m_sourcePathMappings;
