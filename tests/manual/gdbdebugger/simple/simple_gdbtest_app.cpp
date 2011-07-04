@@ -1689,29 +1689,66 @@ Foo testStruct()
     return f1;
 }
 
-void testTypeFormats()
-{
-    // These tests should result in properly displayed umlauts in the
-    // Locals&Watchers view. It is only support on gdb with Python.
 
-    const char *s = "aöa";
-    const wchar_t *w = L"aöa";
-    QString u;
-    // <== break here
-    // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
-    // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
-    // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
+namespace formats {
 
-    if (sizeof(wchar_t) == 4)
-        u = QString::fromUcs4((uint *)w);
-    else
-        u = QString::fromUtf16((ushort *)w);
+    void testString()
+    {
+        const wchar_t *w = L"aöa";
+        QString u;
+        if (sizeof(wchar_t) == 4)
+            u = QString::fromUcs4((uint *)w);
+        else
+            u = QString::fromUtf16((ushort *)w);
+        // <== break here
+        // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
+        // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
+        // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
+        dummyStatement(&u, &w);
+    }
 
-    // Make sure to undo "Change Format".
-    Q_UNUSED(s);
-    Q_UNUSED(w);
-    dummyStatement();
-}
+    void testCharPointers()
+    {
+        // These tests should result in properly displayed umlauts in the
+        // Locals&Watchers view. It is only support on gdb with Python.
+
+        const char *s = "aöa";
+        const char *t = "a\xc3\xb6";
+        const wchar_t *w = L"aöa";
+        // <== break here
+        // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
+        // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
+        // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
+
+        // Make sure to undo "Change Format".
+        dummyStatement(&s, &w);
+        dummyStatement(&t);
+    }
+
+    void testCharArrays()
+    {
+        // These tests should result in properly displayed umlauts in the
+        // Locals&Watchers view. It is only support on gdb with Python.
+
+        const char s[] = "aöa";
+        const wchar_t w[] = L"aöa";
+        // <== break here
+        // All: Select UTF-8 in "Change Format for Type" in L&W context menu.
+        // Windows: Select UTF-16 in "Change Format for Type" in L&W context menu.
+        // Other: Select UCS-6 in "Change Format for Type" in L&W context menu.
+
+        // Make sure to undo "Change Format".
+        dummyStatement(&s, &w);
+    }
+
+    void testFormats()
+    {
+        testCharPointers();
+        testCharArrays();
+        testString();
+    }
+
+} // namespace formats
 
 
 void testQTextCursor()
@@ -3187,7 +3224,8 @@ int main(int argc, char *argv[])
     testStdStack();
     testStdString();
     testStdVector();
-    testTypeFormats();
+
+    formats::testFormats();
 
     testPassByReference();
     testPlugin();

@@ -67,8 +67,9 @@ Hex8EncodedLittleEndian, \
 Hex2EncodedUtf8, \
 Hex8EncodedBigEndian, \
 Hex4EncodedBigEndian, \
-Hex4EncodedLittleEndianWithoutQuotes \
-    = range(13)
+Hex4EncodedLittleEndianWithoutQuotes, \
+Hex2EncodedLocal8Bit \
+    = range(14)
 
 # Display modes
 StopDisplay, \
@@ -1364,12 +1365,9 @@ class Dumper:
 
         if value.type.code == gdb.TYPE_CODE_ARRAY:
             baseptr = value.cast(realtype.pointer())
-            if format == 0 or format == 1:
+            if format == 0 or format == 1 or format == 2:
                 # Explicityly requested Latin1 or UTF-8 formatting.
-                if  format == 0:
-                    f = Hex2EncodedLatin1
-                else:
-                    f = Hex2EncodedUtf8
+                f = [Hex2EncodedLatin1, Hex2EncodedUtf8, Hex2EncodedLocal8Bit][format]
                 self.putAddress(value.address)
                 self.putType(realtype)
                 self.putValue(encodeCharArray(value, 100), f)
@@ -1484,6 +1482,14 @@ class Dumper:
                 return
 
             if format == 3:
+                # Explicityly requested local 8 bit formatting.
+                self.putAddress(value.address)
+                self.putType(realtype)
+                self.putValue(encodeCharArray(value, 100), Hex2EncodedLocal8Bit)
+                self.putNumChild(0)
+                return
+
+            if format == 4:
                 # Explitly requested UTF-16 formatting.
                 self.putAddress(value.address)
                 self.putType(realtype)
@@ -1491,7 +1497,7 @@ class Dumper:
                 self.putNumChild(0)
                 return
 
-            if format == 4:
+            if format == 5:
                 # Explitly requested UCS-4 formatting.
                 self.putAddress(value.address)
                 self.putType(realtype)

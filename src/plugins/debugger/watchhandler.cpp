@@ -717,12 +717,14 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     << tr("Raw pointer")
                     << tr("Latin1 string")
                     << tr("UTF8 string")
+                    << tr("Local 8bit string")
                     << tr("UTF16 string")
                     << tr("UCS4 string");
             if (data.type.contains("char[") || data.type.contains("char ["))
                 return QStringList()
                     << tr("Latin1 string")
-                    << tr("UTF8 string");
+                    << tr("UTF8 string")
+                    << tr("Local 8bit string");
             bool ok = false;
             (void)data.value.toULongLong(&ok, 0);
             if ((isIntType(data.type) && data.type != "bool") || ok)

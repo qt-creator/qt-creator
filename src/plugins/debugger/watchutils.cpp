@@ -559,27 +559,23 @@ QString decodeData(const QByteArray &ba, int encoding)
         case Hex2EncodedLatin1: { // 6, %02x encoded 8 bit Latin1 data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
-            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return doubleQuote + QString::fromLatin1(decodedBa) + doubleQuote;
         }
         case Hex4EncodedLittleEndian: { // 7, %04x encoded 16 bit data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
-            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return doubleQuote + QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2) + doubleQuote;
         }
         case Hex8EncodedLittleEndian: { // 8, %08x encoded 32 bit data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
-            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
                 (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
         }
-        case Hex2EncodedUtf8: { // 9, %02x encoded 8 bit Utf-8 data
+        case Hex2EncodedUtf8: { // 9, %02x encoded 8 bit UTF-8 data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
-            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return doubleQuote + QString::fromUtf8(decodedBa) + doubleQuote;
         }
         case Hex8EncodedBigEndian: { // 10, %08x encoded 32 bit data
@@ -593,7 +589,6 @@ QString decodeData(const QByteArray &ba, int encoding)
                 decodedBa[i + 1] = decodedBa.at(i + 2);
                 decodedBa[i + 2] = c;
             }
-            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
                 (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
         }
@@ -605,15 +600,18 @@ QString decodeData(const QByteArray &ba, int encoding)
                 decodedBa[i] = decodedBa.at(i + 1);
                 decodedBa[i + 1] = c;
             }
-            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return doubleQuote + QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2) + doubleQuote;
         }
         case Hex4EncodedLittleEndianWithoutQuotes: { // 12, see 7, without quotes
             const QByteArray decodedBa = QByteArray::fromHex(ba);
-            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2);
+        }
+        case Hex2EncodedLocal8Bit: { // 13, %02x encoded 8 bit UTF-8 data
+            const QChar doubleQuote(QLatin1Char('"'));
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            return doubleQuote + QString::fromLocal8Bit(decodedBa) + doubleQuote;
         }
     }
     qDebug() << "ENCODING ERROR: " << encoding;

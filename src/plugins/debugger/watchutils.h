@@ -68,7 +68,8 @@ enum DebuggerEncoding
     Hex2EncodedUtf8                      =  9,
     Hex8EncodedBigEndian                 = 10,
     Hex4EncodedBigEndian                 = 11,
-    Hex4EncodedLittleEndianWithoutQuotes = 12
+    Hex4EncodedLittleEndianWithoutQuotes = 12,
+    Hex2EncodedLocal8Bit                 = 13
 };
 
 bool isEditorDebuggable(Core::IEditor *editor);
