@@ -130,6 +130,8 @@ public:
 
     void buildProject(ProjectExplorer::Project *p);
 
+    QList<RunControl *> runControls() const;
+
 signals:
     void aboutToShowContextMenu(ProjectExplorer::Project *project,
                                 ProjectExplorer::Node *node);

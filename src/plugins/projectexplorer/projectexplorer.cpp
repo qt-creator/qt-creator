@@ -1504,6 +1504,11 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
     emit updateRunActions();
 }
 
+QList<RunControl *> ProjectExplorerPlugin::runControls() const
+{
+    return d->m_outputPane->runControls();
+}
+
 void ProjectExplorerPlugin::buildQueueFinished(bool success)
 {
     if (debug)

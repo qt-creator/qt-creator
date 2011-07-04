@@ -55,6 +55,8 @@ public:
     virtual bool isRunning() const;
     virtual QIcon icon() const;
 
+    QString mainQmlFile() const;
+
 private slots:
     void processExited(int exitCode);
     void slotBringApplicationToForeground(qint64 pid);
@@ -65,6 +67,7 @@ private:
 
     QString m_executable;
     QString m_commandLineArguments;
+    QString m_mainQmlFile;
 };
 
 class QmlProjectRunControlFactory : public ProjectExplorer::IRunControlFactory {

@@ -536,3 +536,12 @@ bool AppOutputPane::canNavigate()
 {
     return false;
 }
+
+QList<RunControl *> AppOutputPane::runControls() const
+{
+    QList<RunControl *> result;
+    foreach (const RunControlTab& tab, m_runControlTabs)
+        result << tab.runControl;
+    return result;
+}
+
