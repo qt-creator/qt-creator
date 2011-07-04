@@ -101,8 +101,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
           m_model(0),
           m_filterProjectsAction(0),
           m_autoSync(false),
-          m_autoExpand(true),
-          m_currentItemLocked(0)
+          m_autoExpand(true)
 {
     m_model = new FlatModel(m_explorer->session()->sessionNode(), this);
     Project *pro = m_explorer->session()->startupProject();
@@ -282,13 +281,6 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
     if (debug)
         qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->displayName() : "0")
                  << ", " <<  (node ? node->path() : "0") << ")";
-    if (m_currentItemLocked) {
-        if (m_currentItemLocked == node) {
-            m_currentItemLocked = 0;
-            return;
-        }
-        m_currentItemLocked = 0;
-    }
 
     if (!project) {
         return;
@@ -326,10 +318,6 @@ void ProjectTreeWidget::showContextMenu(const QPoint &pos)
 
 void ProjectTreeWidget::handleProjectAdded(ProjectExplorer::Project *project)
 {
-    // We disable auto-synchronization for the current node so that the project
-    // is selected until another file is opened
-    m_currentItemLocked = m_model->nodeForIndex(m_view->currentIndex());
-
     Node *node = project->rootProjectNode();
     QModelIndex idx = m_model->indexForNode(node);
     if (m_autoExpand) // disabled while session restoring
