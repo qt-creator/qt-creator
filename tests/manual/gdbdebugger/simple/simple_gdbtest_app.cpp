@@ -2635,32 +2635,43 @@ void testKR()
 }
 
 
-void testEigen()
-{
-#if USE_EIGEN
-    using namespace Eigen;
+namespace eigen {
 
-    Vector3d test = Vector3d::Zero();
+    void testEigen()
+    {
+    #if USE_EIGEN
+        using namespace Eigen;
 
-    Matrix3d myMatrix = Matrix3d::Constant(5);
-    MatrixXd myDynamicMatrix(30, 10);
+        Vector3d test = Vector3d::Zero();
 
-    myDynamicMatrix(0, 0) = 0;
-    myDynamicMatrix(1, 0) = 1;
-    myDynamicMatrix(2, 0) = 2;
+        Matrix3d myMatrix = Matrix3d::Constant(5);
+        MatrixXd myDynamicMatrix(30, 10);
 
-    Matrix<double, 2, 3, ColMajor> colMajorMatrix;
-    colMajorMatrix << 0, 1, 2, 3, 4, 5;
+        myDynamicMatrix(0, 0) = 0;
+        myDynamicMatrix(1, 0) = 1;
+        myDynamicMatrix(2, 0) = 2;
 
-    Matrix<double, 2, 3, RowMajor> rowMajorMatrix;
-    rowMajorMatrix << 0, 1, 2, 3, 4, 5;
+        Matrix<double, 12, 15, ColMajor> colMajorMatrix;
+        Matrix<double, 12, 15, RowMajor> rowMajorMatrix;
 
-    int i = 0;
-    ++i;
-    ++i;
-    ++i;
-#endif
+        int k = 0;
+        for (int i = 0; i != 12; ++i) {
+            for (int j = 0; j != 15; ++j) {
+                colMajorMatrix(i, j) = k;
+                rowMajorMatrix(i, j) = k;
+                ++k;
+            }
+        }
+
+        // <=== break here
+        // check that Locals and Expresssions view looks sane
+        dummyStatement(&colMajorMatrix, &rowMajorMatrix);
+        dummyStatement(&test, &myDynamicMatrix);
+        dummyStatement(&myMatrix, &myDynamicMatrix);
+    #endif
+    }
 }
+
 
 namespace bug842 {
 
@@ -2974,7 +2985,7 @@ int main(int argc, char *argv[])
     bug5106::test5106();
     bug5184::test5184();
     //bug4497::test4497();
-    testEigen();
+    eigen::testEigen();
     testKR();
     int *x = new int(32);
     Q_UNUSED(x);
