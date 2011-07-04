@@ -92,7 +92,10 @@ static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *no
     return 0;
 }
 
-QuickToolBar::QuickToolBar(QObject *parent) : ::QmlJS::IContextPane(parent), m_blockWriting(false)
+QuickToolBar::QuickToolBar(QObject *parent)
+    : ::QmlJS::IContextPane(parent)
+    , m_editor(0)
+    , m_blockWriting(false)
 {
     m_node = 0;
     contextWidget();
