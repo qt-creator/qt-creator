@@ -540,8 +540,13 @@ void QmlProfilerTool::updateRecordingState()
 
 void QmlProfilerTool::startTool(StartMode mode)
 {
-    if (mode == StartLocal)
-        AnalyzerManager::startLocalTool(this, mode);
-    if (mode == StartRemote)
-        AnalyzerManager::startLocalTool(this, mode);
+    using namespace ProjectExplorer;
+
+    // Make sure mode is shown.
+    AnalyzerManager::showMode();
+
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    // ### not sure if we're supposed to check if the RunConFiguration isEnabled
+    Project *pro = pe->startupProject();
+    pe->runProject(pro, id());
 }

@@ -39,31 +39,20 @@
 #include <analyzerbase/analyzersettings.h>
 #include <analyzerbase/analyzerrunconfigwidget.h>
 
+#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/projectexplorer.h>
+
+#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/remotelinuxrunconfiguration.h>
+
 #include <utils/qtcassert.h>
+
+#include <QtGui/QAction>
 
 using namespace Analyzer;
 using namespace ProjectExplorer;
 using namespace QmlProfiler::Internal;
-
-static AnalyzerStartParameters localStartParameters(ProjectExplorer::RunConfiguration *runConfiguration)
-{
-    AnalyzerStartParameters sp;
-    QTC_ASSERT(runConfiguration, return sp);
-    QmlProjectManager::QmlProjectRunConfiguration *rc =
-            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return sp);
-
-    sp.toolId = "QmlProfiler";
-    sp.startMode = StartLocal;
-    sp.environment = rc->environment();
-    sp.workingDirectory = rc->workingDirectory();
-    sp.debuggee = rc->observerPath();
-    sp.debuggeeArgs = rc->viewerArguments();
-    sp.displayName = rc->displayName();
-    sp.connParams.host = QLatin1String("localhost");
-    sp.connParams.port = rc->qmlDebugServerPort();
-    return sp;
-}
+using namespace QmlProjectManager;
 
 QmlProjectAnalyzerRunControlFactory::QmlProjectAnalyzerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
@@ -73,21 +62,61 @@ QmlProjectAnalyzerRunControlFactory::QmlProjectAnalyzerRunControlFactory(QObject
 
 bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
-    return mode.startsWith(QLatin1String("QmlProfiler"))
-      && qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
+    if (qobject_cast<QmlProjectRunConfiguration *>(runConfiguration))
+        return mode == QLatin1String("QmlProfiler");
+    if (qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration))
+        return mode == QLatin1String("QmlProfiler");
+    if (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration))
+        return mode == QLatin1String("QmlProfiler");
+    return false;
 }
 
 RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-    const AnalyzerStartParameters sp = localStartParameters(runConfiguration);
-    return create(sp, runConfiguration);
-}
 
-AnalyzerRunControl *QmlProjectAnalyzerRunControlFactory::create
-    (const Analyzer::AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
-{
-    return new AnalyzerRunControl(AnalyzerManager::toolFromId(sp.toolId), sp, runConfiguration);
+    AnalyzerStartParameters sp;
+    sp.toolId = "QmlProfiler";
+
+    if (QmlProjectRunConfiguration *rc1 =
+            qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)) {
+        // This is a "plain" .qmlproject.
+        sp.startMode = StartLocal;
+        sp.environment = rc1->environment();
+        sp.workingDirectory = rc1->workingDirectory();
+        sp.debuggee = rc1->observerPath();
+        sp.debuggeeArgs = rc1->viewerArguments();
+        sp.displayName = rc1->displayName();
+        sp.connParams.host = QLatin1String("localhost");
+        sp.connParams.port = rc1->qmlDebugServerPort();
+    } else if (LocalApplicationRunConfiguration *rc2 =
+            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+        sp.startMode = StartLocal;
+        sp.environment = rc2->environment();
+        sp.workingDirectory = rc2->workingDirectory();
+        sp.debuggee = rc2->executable();
+        sp.debuggeeArgs = rc2->commandLineArguments();
+        sp.displayName = rc2->displayName();
+        sp.connParams.host = QLatin1String("localhost");
+        sp.connParams.port = rc2->qmlDebugServerPort();
+    } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc3 =
+            qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
+        sp.startMode = StartRemote;
+        sp.debuggee = rc3->remoteExecutableFilePath();
+        sp.debuggeeArgs = rc3->arguments();
+        sp.connParams = rc3->deviceConfig()->sshParameters();
+        sp.analyzerCmdPrefix = rc3->commandPrefix();
+        sp.displayName = rc3->displayName();
+    } else {
+        // Might be S60DeviceRunfiguration, or something else ... ?
+        //sp.startMode = StartRemote;
+        QTC_ASSERT(false, return 0);
+    }
+
+    IAnalyzerTool *tool = AnalyzerManager::toolFromId(mode.toLatin1());
+    AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);
+    QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
+    return rc;
 }
 
 QString QmlProjectAnalyzerRunControlFactory::displayName() const

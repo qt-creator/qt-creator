@@ -450,7 +450,6 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode mode)
     QTC_ASSERT(index >= 0, return);
     QTC_ASSERT(index < m_tools.size(), return);
     QTC_ASSERT(tool == m_currentTool, return);
-    QTC_ASSERT(mode == StartLocal, /**/);
 
     // Make sure mode is shown.
     q->showMode();
@@ -587,6 +586,7 @@ void AnalyzerManagerPrivate::selectAction(int index)
 
 void AnalyzerManagerPrivate::selectAction(QAction *action)
 {
+    AnalyzerManager::showMode();
     selectTool(m_toolFromAction[action], m_modeFromAction[action]);
 }
 

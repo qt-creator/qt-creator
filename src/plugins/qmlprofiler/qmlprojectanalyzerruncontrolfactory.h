@@ -54,10 +54,6 @@ public:
     QString displayName() const;
     bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
     ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
-
-    // FIXME: Remove function.
-    Analyzer::AnalyzerRunControl *create(const Analyzer::AnalyzerStartParameters &sp, RunConfiguration *runConfiguration);
-
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
