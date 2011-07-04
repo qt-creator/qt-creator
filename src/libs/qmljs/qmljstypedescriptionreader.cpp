@@ -120,7 +120,7 @@ void TypeDescriptionReader::readDocument(UiProgram *ast)
                                    versionString.mid(dotIdx + 1).toInt());
     }
     if (version > ComponentVersion(1, 1)) {
-        addError(import->versionToken, "Expected version 1.1 or higher");
+        addError(import->versionToken, "Expected version 1.1 or lower");
         return;
     }
 
