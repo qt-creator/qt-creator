@@ -409,29 +409,30 @@ protected:
 
     Range createRange(AST::UiObjectMember *member, AST::UiObjectInitializer *ast)
     {
-        Range range;
-
-        range.ast = member;
-
-        range.begin = QTextCursor(_textDocument);
-        range.begin.setPosition(member->firstSourceLocation().begin());
-
-        range.end = QTextCursor(_textDocument);
-        range.end.setPosition(ast->rbraceToken.end());
-        return range;
+        return createRange(member, member->firstSourceLocation(), ast->rbraceToken);
     }
 
     Range createRange(AST::FunctionExpression *ast)
+    {
+        return createRange(ast, ast->lbraceToken, ast->rbraceToken);
+    }
+
+    Range createRange(AST::UiScriptBinding *ast, AST::Block *block)
+    {
+        return createRange(ast, block->lbraceToken, block->rbraceToken);
+    }
+
+    Range createRange(AST::Node *ast, AST::SourceLocation start, AST::SourceLocation end)
     {
         Range range;
 
         range.ast = ast;
 
         range.begin = QTextCursor(_textDocument);
-        range.begin.setPosition(ast->lbraceToken.begin());
+        range.begin.setPosition(start.begin());
 
         range.end = QTextCursor(_textDocument);
-        range.end.setPosition(ast->rbraceToken.end());
+        range.end.setPosition(end.end());
 
         return range;
     }
@@ -477,7 +478,7 @@ protected:
 } // end of anonymous namespace
 
 
-AST::Node *SemanticInfo::declaringMember(int cursorPosition) const
+AST::Node *SemanticInfo::rangeAt(int cursorPosition) const
 {
     AST::Node *declaringMember = 0;
 
@@ -495,25 +496,26 @@ AST::Node *SemanticInfo::declaringMember(int cursorPosition) const
     return declaringMember;
 }
 
+// ### the name and behavior of this function is dubious
 QmlJS::AST::Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) const
 {
-   AST::Node *node = declaringMember(cursorPosition);
+   AST::Node *node = rangeAt(cursorPosition);
 
    if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(node)) {
        QString name = objectDefinition->qualifiedTypeNameId->name->asString();
        if (!name.isNull() && name.at(0).isLower()) {
-           QList<AST::Node *> path = astPath(cursorPosition);
+           QList<AST::Node *> path = rangePath(cursorPosition);
            if (path.size() > 1)
                return path.at(path.size() - 2);
        } else if (name.contains("GradientStop")) {
-           QList<AST::Node *> path = astPath(cursorPosition);
+           QList<AST::Node *> path = rangePath(cursorPosition);
            if (path.size() > 2)
                return path.at(path.size() - 3);
        }
    } else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(node)) {
        QString name = objectBinding->qualifiedTypeNameId->name->asString();
        if (name.contains("Gradient")) {
-           QList<AST::Node *> path = astPath(cursorPosition);
+           QList<AST::Node *> path = rangePath(cursorPosition);
            if (path.size() > 1)
                return path.at(path.size() - 2);
        }
@@ -522,7 +524,7 @@ QmlJS::AST::Node *SemanticInfo::declaringMemberNoProperties(int cursorPosition) 
    return node;
 }
 
-QList<AST::Node *> SemanticInfo::astPath(int cursorPosition) const
+QList<AST::Node *> SemanticInfo::rangePath(int cursorPosition) const
 {
     QList<AST::Node *> path;
 
@@ -1275,7 +1277,7 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
         return Link();
     }
 
-    LookupContext::Ptr lookupContext = semanticInfo.lookupContext(semanticInfo.astPath(cursorPosition));
+    LookupContext::Ptr lookupContext = semanticInfo.lookupContext(semanticInfo.rangePath(cursorPosition));
     Evaluate evaluator(lookupContext->context());
     const Interpreter::Value *value = evaluator.reference(node);
 

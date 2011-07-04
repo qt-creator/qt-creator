@@ -72,7 +72,7 @@ public:
 
         const int pos = interface->currentFile().cursor().position();
 
-        if (QmlJS::AST::Node *member = interface->semanticInfo().declaringMember(pos)) {
+        if (QmlJS::AST::Node *member = interface->semanticInfo().rangeAt(pos)) {
             if (QmlJS::AST::UiObjectBinding *b = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member)) {
                 if (b->initializer->lbraceToken.startLine == b->initializer->rbraceToken.startLine)
                     objectInitializer = b->initializer;

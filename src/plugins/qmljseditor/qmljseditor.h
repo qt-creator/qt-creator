@@ -108,14 +108,14 @@ public:
     int revision() const;
 
     // Returns the declaring member
-    QmlJS::AST::Node *declaringMember(int cursorPosition) const;
+    QmlJS::AST::Node *rangeAt(int cursorPosition) const;
     QmlJS::AST::Node *declaringMemberNoProperties(int cursorPosition) const;
 
     // Returns the AST node under cursor
     QmlJS::AST::Node *nodeUnderCursor(int cursorPosition) const;
 
     // Returns the list of nodes that enclose the given position.
-    QList<QmlJS::AST::Node *> astPath(int cursorPosition) const;
+    QList<QmlJS::AST::Node *> rangePath(int cursorPosition) const;
 
     // Returns a context for the given path
     QSharedPointer<QmlJS::LookupContext> lookupContext(const QList<QmlJS::AST::Node *> &path = QList<QmlJS::AST::Node *>()) const;

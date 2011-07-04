@@ -71,7 +71,7 @@ QVariant QmlOutlineItem::data(int role) const
         if (!uiQualifiedId || !location.isValid() || !m_outlineModel->m_semanticInfo.isValid())
             return QVariant();
 
-        QList<AST::Node *> astPath = m_outlineModel->m_semanticInfo.astPath(location.begin());
+        QList<AST::Node *> astPath = m_outlineModel->m_semanticInfo.rangePath(location.begin());
         LookupContext::Ptr lookupContext = m_outlineModel->m_semanticInfo.lookupContext(astPath);
         const Interpreter::Value *value = lookupContext->evaluate(uiQualifiedId);
 

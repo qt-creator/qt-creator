@@ -165,7 +165,7 @@ QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(
 {
     const int pos = interface->currentFile().cursor().position();
 
-    QList<Node *> path = interface->semanticInfo().astPath(pos);
+    QList<Node *> path = interface->semanticInfo().rangePath(pos);
     for (int i = path.size() - 1; i >= 0; --i) {
         Node *node = path.at(i);
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {

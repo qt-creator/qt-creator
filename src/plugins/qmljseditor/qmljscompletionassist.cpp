@@ -419,7 +419,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     if (currentFileInfo.suffix() == QLatin1String("qml"))
         isQmlFile = true;
 
-    const QList<AST::Node *> path = semanticInfo.astPath(m_interface->position());
+    const QList<AST::Node *> path = semanticInfo.rangePath(m_interface->position());
     LookupContext::Ptr lookupContext = semanticInfo.lookupContext(path);
     const Interpreter::Context *context = lookupContext->context();
 
