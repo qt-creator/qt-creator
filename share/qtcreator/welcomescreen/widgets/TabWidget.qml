@@ -14,12 +14,13 @@ Item {
         Repeater {
             id: contentRepeater
             Loader {
+                property bool active: index == tabWidget.current
                 id: pageLoader
                 clip: true
-                opacity: index == tabWidget.current
+                opacity: active
                 anchors.fill: parent
                 anchors.margins: 4
-                source: model.modelData.pageLocation
+                onActiveChanged: if (active && source == "") source = model.modelData.pageLocation
 
                 onStatusChanged: {
                     if (pageLoader.status == Loader.Error) console.debug(source + ' failed to load')
