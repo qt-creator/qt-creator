@@ -5315,7 +5315,7 @@
 
     \list 1
 
-        \o Make sure that the source directory is clean. For example, if you use git,
+        \o Make sure that the source directory is clean. For example, if you use Git,
         enter the following command:
 
         \c {git clean -dfx}
@@ -5371,7 +5371,7 @@
 
     \list 1
 
-        \o Make sure that the source directory is clean. For example, if you use git,
+        \o Make sure that the source directory is clean. For example, if you use Git,
         enter the following command:
 
         \c {git clean -dfx}
