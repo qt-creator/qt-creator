@@ -407,6 +407,14 @@ protected:
         return true;
     }
 
+    virtual bool visit(AST::UiScriptBinding *ast)
+    {
+        if (AST::Block *block = AST::cast<AST::Block *>(ast->statement)) {
+            _ranges.append(createRange(ast, block));
+        }
+        return true;
+    }
+
     Range createRange(AST::UiObjectMember *member, AST::UiObjectInitializer *ast)
     {
         return createRange(member, member->firstSourceLocation(), ast->rbraceToken);
