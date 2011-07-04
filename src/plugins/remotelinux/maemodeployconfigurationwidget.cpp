@@ -78,6 +78,7 @@ void MaemoDeployConfigurationWidget::init(DeployConfiguration *dc)
         SLOT(handleSelectedDeviceConfigurationChanged(int)));
     connect(m_deployConfig, SIGNAL(deviceConfigurationListChanged()),
         SLOT(handleDeviceConfigurationListChanged()));
+    handleDeviceConfigurationListChanged();
 
     ui->projectsComboBox->setModel(m_deployConfig->deploymentInfo().data());
     connect(m_deployConfig->deploymentInfo().data(), SIGNAL(modelAboutToBeReset()),
