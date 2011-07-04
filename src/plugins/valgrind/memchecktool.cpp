@@ -37,6 +37,7 @@
 #include "memcheckerrorview.h"
 #include "memchecksettings.h"
 #include "valgrindsettings.h"
+#include "valgrindplugin.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
@@ -464,6 +465,11 @@ IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
     connect(engine, SIGNAL(finished()), this, SLOT(finished()));
     AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(displayName()));
     return engine;
+}
+
+void MemcheckTool::startTool(StartMode mode)
+{
+    ValgrindPlugin::startValgrindTool(this, mode);
 }
 
 void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)

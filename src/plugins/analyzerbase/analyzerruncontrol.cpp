@@ -70,7 +70,7 @@ AnalyzerRunControl::Private::Private()
 // AnalyzerRunControl ////////////////////////////////////////////////////
 AnalyzerRunControl::AnalyzerRunControl(IAnalyzerTool *tool,
         const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
-    : RunControl(runConfiguration, Constants::MODE_ANALYZE),
+    : RunControl(runConfiguration, tool->id()),
       d(new Private)
 {
     d->m_engine = tool->createEngine(sp, runConfiguration);
@@ -123,6 +123,12 @@ ProjectExplorer::RunControl::StopResult AnalyzerRunControl::stop()
     return AsynchronousStop;
 }
 
+void AnalyzerRunControl::stopIt()
+{
+    if (stop() == ProjectExplorer::RunControl::StoppedSynchronously)
+        AnalyzerManager::handleToolFinished();
+}
+
 void AnalyzerRunControl::engineFinished()
 {
     d->m_isRunning = false;
@@ -131,7 +137,7 @@ void AnalyzerRunControl::engineFinished()
 
 void AnalyzerRunControl::runControlFinished()
 {
-    AnalyzerManager::handleToolFinished(d->m_engine->tool(), d->m_engine->mode());
+    AnalyzerManager::handleToolFinished();
 }
 
 bool AnalyzerRunControl::isRunning() const

@@ -47,7 +47,7 @@ namespace Analyzer {
 class AnalyzerStartParameters;
 class IAnalyzerTool;
 
-class ANALYZER_EXPORT AnalyzerRunControl: public ProjectExplorer::RunControl
+class ANALYZER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 
@@ -65,6 +65,7 @@ public:
     QIcon icon() const;
 
 private slots:
+    void stopIt();
     void receiveOutput(const QString &, Utils::OutputFormat format);
 
     void addTask(ProjectExplorer::Task::TaskType type, const QString &description,

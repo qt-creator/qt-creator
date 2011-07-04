@@ -64,16 +64,4 @@ QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mo
     return base;
 }
 
-void IAnalyzerTool::defaultStartTool(IAnalyzerTool *tool, StartMode mode)
-{
-    if (mode == StartLocal)
-        AnalyzerManager::startLocalTool(tool, mode);
-    if (mode == StartRemote)
-        AnalyzerManager::startRemoteTool(tool, mode);
-}
-
-void IAnalyzerTool::initializeDockWidgets()
-{
-}
-
 } // namespace Analyzer

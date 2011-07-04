@@ -33,12 +33,11 @@
 #ifndef STARTREMOTEDIALOG_H
 #define STARTREMOTEDIALOG_H
 
-#include <QtGui/QDialog>
+#include "analyzerbase_global.h"
 
 #include <utils/ssh/sshconnection.h>
 
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
+#include <QtGui/QDialog>
 
 namespace Analyzer {
 
@@ -46,11 +45,12 @@ namespace Ui {
 class StartRemoteDialog;
 }
 
-class StartRemoteDialog : public QDialog {
+class ANALYZER_EXPORT StartRemoteDialog : public QDialog
+{
     Q_OBJECT
 
 public:
-    explicit StartRemoteDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit StartRemoteDialog(QWidget *parent = 0);
     virtual ~StartRemoteDialog();
 
     Utils::SshConnectionParameters sshParams() const;
@@ -66,6 +66,6 @@ private:
     Ui::StartRemoteDialog *m_ui;
 };
 
-}
+} // namespace Analyzer
 
 #endif // STARTREMOTEDIALOG_H

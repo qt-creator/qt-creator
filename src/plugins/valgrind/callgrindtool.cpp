@@ -47,6 +47,7 @@
 #include <valgrind/callgrind/callgrindparsedata.h>
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <valgrind/callgrind/callgrindstackbrowser.h>
+#include <valgrind/valgrindplugin.h>
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzersettings.h>
@@ -677,6 +678,11 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
     m_dataModel->setVerboseToolTipsEnabled(settings->enableEventToolTips());
 
     return engine;
+}
+
+void CallgrindTool::startTool(StartMode mode)
+{
+    ValgrindPlugin::startValgrindTool(this, mode);
 }
 
 QWidget *CallgrindTool::createControlWidget()

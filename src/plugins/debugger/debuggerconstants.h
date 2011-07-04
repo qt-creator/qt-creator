@@ -39,7 +39,7 @@ namespace Debugger {
 namespace Constants {
 
 // Debug mode
-const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
+const char * const MODE_DEBUG           = "Mode.Debug";
 
 // Contexts
 const char * const C_DEBUGMODE          = "Debugger.DebugMode";

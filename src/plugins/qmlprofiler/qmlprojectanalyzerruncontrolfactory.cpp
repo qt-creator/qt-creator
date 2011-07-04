@@ -45,7 +45,7 @@ using namespace Analyzer;
 using namespace ProjectExplorer;
 using namespace QmlProfiler::Internal;
 
-AnalyzerStartParameters localStartParameters(ProjectExplorer::RunConfiguration *runConfiguration)
+static AnalyzerStartParameters localStartParameters(ProjectExplorer::RunConfiguration *runConfiguration)
 {
     AnalyzerStartParameters sp;
     QTC_ASSERT(runConfiguration, return sp);
@@ -73,9 +73,8 @@ QmlProjectAnalyzerRunControlFactory::QmlProjectAnalyzerRunControlFactory(QObject
 
 bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
-    if (!qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration))
-        return false;
-    return mode == Constants::MODE_ANALYZE;
+    return mode.startsWith(QLatin1String("QmlProfiler"))
+      && qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
 }
 
 RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
@@ -88,7 +87,7 @@ RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runCon
 AnalyzerRunControl *QmlProjectAnalyzerRunControlFactory::create
     (const Analyzer::AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
 {
-    return new AnalyzerRunControl(AnalyzerManager::toolById(sp.toolId), sp, runConfiguration);
+    return new AnalyzerRunControl(AnalyzerManager::toolFromId(sp.toolId), sp, runConfiguration);
 }
 
 QString QmlProjectAnalyzerRunControlFactory::displayName() const

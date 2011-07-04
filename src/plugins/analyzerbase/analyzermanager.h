@@ -67,12 +67,10 @@ public:
     void extensionsInitialized();
     void shutdown();
 
-    static ProjectExplorer::RunControl *createRunControl
-        (ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
-
     // Register a tool and initialize it.
     static void addTool(IAnalyzerTool *tool, const StartModes &mode);
-    static IAnalyzerTool *toolById(const QByteArray &id);
+    static IAnalyzerTool *toolFromId(const QByteArray &id);
+    static StartMode modeFromId(const QByteArray &id);
 
     // Dockwidgets are registered to the main window.
     static QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title,
@@ -83,11 +81,10 @@ public:
     static void showMode();
     static void selectTool(IAnalyzerTool *tool, StartMode mode);
     static void startTool(IAnalyzerTool *tool, StartMode mode);
-    static void stopTool(IAnalyzerTool *tool, StartMode mode);
+    static void stopTool();
 
     // Convenience functions.
     static void startLocalTool(IAnalyzerTool *tool, StartMode mode);
-    static void startRemoteTool(IAnalyzerTool *tool, StartMode mode);
 
     static QString msgToolStarted(const QString &name);
     static QString msgToolFinished(const QString &name, int issuesFound);
@@ -95,7 +92,8 @@ public:
     static void showStatusMessage(const QString &message, int timeoutMS = 10000);
     static void showPermanentStatusMessage(const QString &message);
 
-    static void handleToolFinished(IAnalyzerTool *tool, StartMode mode);
+    static void handleToolFinished();
+    static QAction *stopAction();
 
 private:
     friend class AnalyzerManagerPrivate;

@@ -45,17 +45,18 @@ public:
     explicit StartMode(int m = 0) : m(m) {}
     operator int() const { return m; }
     void operator=(int m_) { m = m_; }
-    // Often used modes.
 private:
     int m;
 };
 
+// Special values for currently used modes.
+// Their meaning is interpreted by the individual tools.
 enum { StartLocal = -1, StartRemote = -2 };
 
 namespace Constants {
 
 // modes and their priorities
-const char * const MODE_ANALYZE   = "Analyzer.Mode.Analyze";
+const char * const MODE_ANALYZE   = "Mode.Analyze";
 const int          P_MODE_ANALYZE = 76;
 
 // context
