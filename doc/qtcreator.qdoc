@@ -4035,31 +4035,37 @@
 
     \list
 
-        \o  GNU Compiler Collection (GCC) is a cross compiler for Linux and
+        \o  GNU Compiler Collection (GCC) is a compiler for Linux and
             Mac OS X.
 
         \o  MinGW (Minimalist GNU for Windows) is a native software port of GCC
             and GNU Binutils for use in the development of native Microsoft
-            Windows applications on Windows or as cross compiler. MinGW is
+            Windows applications on Windows. MinGW is
             distributed together with Qt Creator and Qt SDK for Windows.
 
-        \o  GCCE (GNU Compiler Collection for Embedded) is an ARM-based
-            compiler used in Symbian OS 9 and distributed together with the
-            Symbian OS 9 SDKs.
+        \o  Linux ICC (Intel C++ Compiler) is a group of C and C++ compilers
+            for Linux.
 
-        \o  RVCT is an ARM-bases compiler for building applications for Symbian
+        \o  Clang is a C, C++, Objective C, and Objective C++ front-end for the
+            LLVM compiler for Windows, Linux, Mac OS X, and Symbian.
+
+        \o  GCCE (GNU Compiler Collection for Embedded) is an ARM-based
+            compiler used in Symbian OS 9 and distributed together with \QSDK.
+
+        \o  RVCT is an ARM-based compiler for building applications for Symbian
             devices (requires a license).
 
         \o  WINSCW is a compiler for building applications that can be run or
             debugged on the Symbian Emulator. It is distributed together with
-            Symbian SDKs.
+            Symbian SDKs (but not with the \QSDK).
 
     \endlist
 
-    To build an application using MinGW or GCCE, specify the paths to the
+    To build an application using GCC, MinGW, GCCE, or Clang, specify the paths
+    to the
     directories where the compiler and debugger are located and select the
     application binary interface (ABI) version from the list of available
-    versions.
+    versions. You can also create a custom ABI definition.
 
     Qt Creator allows you to select a tool chain that matches the Qt version
     in the \gui Projects mode \gui {Build Settins}.
@@ -4071,6 +4077,8 @@
         \o  Select \gui {Tools > Options... Tool Chains > Add} and select a
             compiler in the list.
 
+            \image qtcreator-toolchains.png
+
             To clone the selected tool chain, select \gui {Clone}.
 
         \o  In the \gui Name column, double-click the name to change it.
@@ -4078,8 +4086,6 @@
         \o  In the \gui{Compiler path} field, enter the path to the directory
             where the compiler is located. For WINSCW, enter the path to the
             Carbide C++ installation directory here.
-
-            \image qtcreator-toolchains.png
 
             The other settings to specify depend on the tool chain.
 
