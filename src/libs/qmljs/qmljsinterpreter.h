@@ -549,11 +549,6 @@ public:
     void addArgument(const Value *argument);
     void setReturnValue(const Value *returnValue);
 
-    // ObjectValue interface
-    virtual const Value *lookupMember(const QString &name, const Context *context,
-                                      const ObjectValue **foundInObject = 0,
-                                      bool examinePrototypes = true) const;
-
     // FunctionValue interface
     virtual const Value *returnValue() const;
     virtual int argumentCount() const;

@@ -1097,6 +1097,7 @@ void Activation::setArguments(const ValueList &arguments)
 FunctionValue::FunctionValue(ValueOwner *valueOwner)
     : ObjectValue(valueOwner)
 {
+    setMember(QLatin1String("length"), valueOwner->numberValue());
 }
 
 FunctionValue::~FunctionValue()
@@ -1203,18 +1204,6 @@ int Function::argumentCount() const
 const Value *Function::argument(int index) const
 {
     return _arguments.at(index);
-}
-
-const Value *Function::lookupMember(const QString &name, const Context *context,
-                                    const ObjectValue **foundInScope, bool examinePrototypes) const
-{
-    if (name == "length") {
-        if (foundInScope)
-            *foundInScope = this;
-        return valueOwner()->numberValue();
-    }
-
-    return FunctionValue::lookupMember(name, context, foundInScope, examinePrototypes);
 }
 
 const Value *Function::invoke(const Activation *activation) const
