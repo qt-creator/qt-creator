@@ -60,8 +60,6 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
     QWidget *createControlWidget();
 
-    void startTool(Analyzer::StartMode mode);
-
 private:
     CallgrindToolPrivate *d;
 };

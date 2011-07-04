@@ -42,6 +42,8 @@
 #include "analyzerutils.h"
 #include "ianalyzertool.h"
 
+#include "startremotedialog.h"
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
@@ -846,11 +848,6 @@ void AnalyzerManager::stopTool()
     stopAction()->trigger();
 }
 
-void AnalyzerManager::startLocalTool(IAnalyzerTool *tool, StartMode mode)
-{
-    m_instance->d->startLocalTool(tool, mode);
-}
-
 QAction *AnalyzerManager::stopAction()
 {
     return m_instance->d->m_stopAction;
@@ -868,6 +865,36 @@ IAnalyzerTool *AnalyzerManager::toolFromId(const QByteArray &id)
             return tool;
     QTC_ASSERT(false, qDebug() << "NO ANAYLYZER TOOL FOUND FOR ID" << id);
     return 0;
+}
+
+static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
+{
+    StartRemoteDialog dlg;
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    AnalyzerStartParameters sp;
+    sp.toolId = tool->id();
+    sp.startMode = mode;
+    sp.connParams = dlg.sshParams();
+    sp.debuggee = dlg.executable();
+    sp.debuggeeArgs = dlg.arguments();
+    sp.displayName = dlg.executable();
+    sp.workingDirectory = dlg.workingDirectory();
+
+    AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
+    QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
+
+    ProjectExplorer::ProjectExplorerPlugin::instance()->startRunControl(rc, tool->id());
+}
+
+void AnalyzerManager::defaultStartTool(IAnalyzerTool *tool, StartMode mode)
+{
+    if (mode == StartLocal)
+        m_instance->d->startLocalTool(tool, mode);
+    if (mode == StartRemote)
+        startRemoteTool(tool, mode);
+    //    m_instance->d->startRemoteTool(tool, mode);
 }
 
 } // namespace Analyzer

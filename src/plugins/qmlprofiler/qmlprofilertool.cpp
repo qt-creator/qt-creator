@@ -537,11 +537,3 @@ void QmlProfilerTool::updateRecordingState()
     if (d->m_traceWindow->isRecording())
         clearDisplay();
 }
-
-void QmlProfilerTool::startTool(StartMode mode)
-{
-    if (mode == StartLocal)
-        AnalyzerManager::startLocalTool(this, mode);
-    if (mode == StartRemote)
-        AnalyzerManager::startLocalTool(this, mode);
-}
