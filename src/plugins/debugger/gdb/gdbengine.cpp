@@ -2848,7 +2848,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
                         sub.address = address;
                         sub.functionName = QString::fromUtf8(function);
                         sub.setLocation(location);
-                        sub.id = subId;
+                        sub.id = BreakpointResponseId(majorPart, minorPart);
                         sub.type = response.type;
                         sub.address = address;
                         handler->insertSubBreakpoint(id, sub);
@@ -2863,7 +2863,20 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
                 }
             }
         }
-        // Commit main data.
+        if (minorPart) {
+            // Commit last chunk.
+            BreakpointResponse sub;
+            sub.address = address;
+            sub.functionName = QString::fromUtf8(function);
+            sub.setLocation(location);
+            sub.id = BreakpointResponseId(majorPart, minorPart);
+            sub.type = response.type;
+            sub.address = address;
+            handler->insertSubBreakpoint(id, sub);
+            location.clear();
+            function.clear();
+            address = 0;
+        }
     } else {
         qDebug() << "COULD NOT MATCH" << output;
         response.id = BreakpointResponseId(); // Unavailable.
