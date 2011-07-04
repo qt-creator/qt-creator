@@ -36,6 +36,7 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 
 namespace Debugger {
 namespace Internal {
@@ -234,12 +235,17 @@ bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
     return s1 == s2;
 }
 
-void BreakpointParameters::setLocation(const QByteArray &location)
+void BreakpointParameters::updateLocation(const QByteArray &location)
 {
     if (location.size()) {
         int pos = location.indexOf(':');
         lineNumber = location.mid(pos + 1).toInt();
-        fileName = QString::fromUtf8(location.left(pos));
+        QString file = QString::fromUtf8(location.left(pos));
+        if (file.startsWith(QLatin1Char('"')) && file.endsWith(QLatin1Char('"')))
+            file = file.mid(1, file.size() - 2);
+        QFileInfo fi(file);
+        if (fi.isReadable())
+            fileName = fi.absoluteFilePath();
     }
 }
 

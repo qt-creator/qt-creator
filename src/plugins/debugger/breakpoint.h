@@ -209,7 +209,7 @@ public:
     bool isBreakpoint() const { return !isWatchpoint() && !isTracepoint(); }
     bool isTracepoint() const { return tracepoint; }
     QString toString() const;
-    void setLocation(const QByteArray &location); // file.cpp:42
+    void updateLocation(const QByteArray &location); // file.cpp:42
 
     bool operator==(const BreakpointParameters &p) const { return equals(p); }
     bool operator!=(const BreakpointParameters &p) const { return !equals(p); }

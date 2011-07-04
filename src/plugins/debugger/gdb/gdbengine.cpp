@@ -2386,7 +2386,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
         response.fileName = name;
 
     if (response.fileName.isEmpty())
-        response.setLocation(originalLocation);
+        response.updateLocation(originalLocation);
 }
 
 QString GdbEngine::breakLocation(const QString &file) const
@@ -2847,7 +2847,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
                         BreakpointResponse sub;
                         sub.address = address;
                         sub.functionName = QString::fromUtf8(function);
-                        sub.setLocation(location);
+                        sub.updateLocation(location);
                         sub.id = BreakpointResponseId(majorPart, minorPart);
                         sub.type = response.type;
                         sub.address = address;
@@ -2868,7 +2868,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
             BreakpointResponse sub;
             sub.address = address;
             sub.functionName = QString::fromUtf8(function);
-            sub.setLocation(location);
+            sub.updateLocation(location);
             sub.id = BreakpointResponseId(majorPart, minorPart);
             sub.type = response.type;
             sub.address = address;
