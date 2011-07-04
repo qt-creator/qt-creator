@@ -17,6 +17,9 @@ Editing
 Managing Projects
 
 Debugging
+   * Color memory display highlighting the variables in stack layout
+   * Correct source location for breakpoints in CDB using code model
+     (QTCREATORBUG-2317)
 
 Debugging QML/JS
 
