@@ -43,8 +43,11 @@ SUBDIRS   = plugin_coreplugin \
             plugin_macros \
             debugger/dumper.pro \
             plugin_qmlprofiler \
-            plugin_remotelinux \
-            plugin_valgrind
+            plugin_remotelinux
+
+!win32 {
+     SUBDIRS += plugin_valgrind
+}
 
 linux-* {
      SUBDIRS += debugger/ptracepreload.pro
@@ -266,9 +269,11 @@ plugin_analyzerbase.depends = plugin_coreplugin
 plugin_analyzerbase.depends += plugin_projectexplorer
 plugin_analyzerbase.depends += plugin_remotelinux
 
-plugin_valgrind.subdir = valgrind
-plugin_valgrind.depends = plugin_coreplugin
-plugin_valgrind.depends += plugin_analyzerbase
+!win32 {
+    plugin_valgrind.subdir = valgrind
+    plugin_valgrind.depends = plugin_coreplugin
+    plugin_valgrind.depends += plugin_analyzerbase
+}
 
 plugin_qmlprofiler.subdir = qmlprofiler
 plugin_qmlprofiler.depends = plugin_coreplugin
