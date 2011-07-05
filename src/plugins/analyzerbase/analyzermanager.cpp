@@ -185,11 +185,8 @@ public:
 
 public slots:
     void startTool();
-    //void stopTool();
-
-    void selectAction();
-    void selectAction(QAction *);
-    void selectAction(int);
+    void selectToolboxAction(int);
+    void selectMenuAction();
     void modeChanged(Core::IMode *mode);
     void resetLayout();
     void updateRunActions();
@@ -220,6 +217,7 @@ public:
     QList<DockPtr> m_dockWidgets;
 
     bool m_restartOnStop;
+    bool m_handlingManualAction;
 };
 
 AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -235,10 +233,11 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     m_toolBox(new QComboBox),
     m_controlsWidget(new QStackedWidget),
     m_statusLabel(new Utils::StatusLabel),
-    m_restartOnStop(false)
+    m_restartOnStop(false),
+    m_handlingManualAction(false)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
-    connect(m_toolBox, SIGNAL(currentIndexChanged(int)), SLOT(selectAction(int)));
+    connect(m_toolBox, SIGNAL(currentIndexChanged(int)), SLOT(selectToolboxAction(int)));
 
     setupActions();
 
@@ -270,6 +269,7 @@ void AnalyzerManagerPrivate::setupActions()
     m_menu->menu()->setTitle(tr("&Analyze"));
     m_menu->menu()->setEnabled(true);
 
+    m_menu->appendGroup(Constants::G_ANALYZER_CONTROL);
     m_menu->appendGroup(Constants::G_ANALYZER_TOOLS);
     m_menu->appendGroup(Constants::G_ANALYZER_REMOTE_TOOLS);
 
@@ -288,12 +288,18 @@ void AnalyzerManagerPrivate::setupActions()
     m_stopAction->setEnabled(false);
     m_stopAction->setIcon(QIcon(Constants::ANALYZER_CONTROL_STOP_ICON));
     command = am->registerAction(m_stopAction, Constants::STOP, globalcontext);
-    //connect(m_stopAction, SIGNAL(triggered()), this, SLOT(stopTool()));
+    m_menu->addAction(command, Constants::G_ANALYZER_CONTROL);
 
-    QAction *separatorAction = new QAction(m_menu);
-    separatorAction->setSeparator(true);
-    command = am->registerAction(separatorAction,
-        "Menu.Action.Analyzer.Tools.Separator", globalcontext);
+    QAction *separatorAction1 = new QAction(m_menu);
+    separatorAction1->setSeparator(true);
+    command = am->registerAction(separatorAction1,
+        "Menu.Action.Analyzer.Tools.Separator1", globalcontext);
+    m_menu->addAction(command, Constants::G_ANALYZER_TOOLS);
+
+    QAction *separatorAction2 = new QAction(m_menu);
+    separatorAction2->setSeparator(true);
+    command = am->registerAction(separatorAction2,
+        "Menu.Action.Analyzer.Tools.Separator2", globalcontext);
     m_menu->addAction(command, Constants::G_ANALYZER_REMOTE_TOOLS);
 }
 
@@ -444,7 +450,7 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
     return messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
 }
 
-void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode mode)
+void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool, StartMode)
 {
     int index = m_tools.indexOf(tool);
     QTC_ASSERT(index >= 0, return);
@@ -553,7 +559,7 @@ void AnalyzerManagerPrivate::modeChanged(IMode *mode)
 QAction *AnalyzerManagerPrivate::actionFromToolAndMode(IAnalyzerTool *tool, StartMode mode)
 {
     foreach (QAction *action, m_actions)
-        if (m_toolFromAction[action] == tool && m_modeFromAction[action] == mode)
+        if (m_toolFromAction.value(action) == tool && m_modeFromAction[action] == mode)
             return action;
     QTC_ASSERT(false, /**/);
     return 0;
@@ -565,8 +571,8 @@ void AnalyzerManagerPrivate::selectSavedTool()
     const QByteArray lastActiveAction =
         settings->value(QLatin1String(LAST_ACTIVE_TOOL), QString()).toByteArray();
     foreach (QAction *action, m_actions) {
-        IAnalyzerTool *tool = m_toolFromAction[action];
-        StartMode mode = m_modeFromAction[action];
+        IAnalyzerTool *tool = m_toolFromAction.value(action);
+        StartMode mode = m_modeFromAction.value(action);
         if (tool->actionId(mode) == lastActiveAction) {
             selectTool(tool, mode);
             break;
@@ -574,20 +580,28 @@ void AnalyzerManagerPrivate::selectSavedTool()
     }
 }
 
-void AnalyzerManagerPrivate::selectAction()
+void AnalyzerManagerPrivate::selectMenuAction()
 {
-    selectAction(qobject_cast<QAction *>(sender()));
+    if (m_handlingManualAction)
+        return;
+    m_handlingManualAction = true;
+    QAction *action = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(action, return);
+    IAnalyzerTool *tool = m_toolFromAction.value(action);
+    StartMode mode = m_modeFromAction.value(action);
+    selectTool(tool, mode);
+    tool->startTool(mode);
+    m_handlingManualAction = false;
 }
 
-void AnalyzerManagerPrivate::selectAction(int index)
+void AnalyzerManagerPrivate::selectToolboxAction(int index)
 {
-    selectAction(m_actions[index]);
-}
-
-void AnalyzerManagerPrivate::selectAction(QAction *action)
-{
-    AnalyzerManager::showMode();
-    selectTool(m_toolFromAction[action], m_modeFromAction[action]);
+    if (m_handlingManualAction)
+        return;
+    m_handlingManualAction = true;
+    QAction *action = m_actions[index];
+    selectTool(m_toolFromAction.value(action), m_modeFromAction.value(action));
+    m_handlingManualAction = false;
 }
 
 void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
@@ -599,14 +613,7 @@ void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
     const int actionIndex = m_actions.indexOf(action);
     QTC_ASSERT(actionIndex >= 0, return);
 
-    // Guard against recursion by m_toolBox->setCurrentIndex.
-    static bool inSelectTool = false;
-    if (inSelectTool)
-        return;
-    inSelectTool = true;
-
     saveToolSettings(m_currentTool, m_currentMode);
-
 
     // Clean up old tool.
     if (m_currentTool) {
@@ -647,7 +654,6 @@ void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
     m_controlsWidget->setCurrentIndex(actionIndex);
 
     updateRunActions();
-    inSelectTool = false;
 }
 
 void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &modes)
@@ -670,7 +676,7 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
         m_modeFromAction[action] = mode;
         m_toolBox->addItem(actionName);
         m_toolBox->blockSignals(blocked);
-        connect(action, SIGNAL(triggered()), SLOT(selectAction()));
+        connect(action, SIGNAL(triggered()), SLOT(selectMenuAction()));
     }
     m_tools.append(tool);
     m_toolBox->setEnabled(true);
@@ -719,6 +725,13 @@ void AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool, StartMode mod
 
 void AnalyzerManagerPrivate::updateRunActions()
 {
+    static bool previousRunning = true;
+    static IAnalyzerTool *previousTool = 0;
+    if (previousRunning == m_isRunning && previousTool == m_currentTool)
+        return;
+    previousTool = m_currentTool;
+    previousRunning = m_isRunning;
+
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = pe->startupProject();
 
@@ -737,6 +750,8 @@ void AnalyzerManagerPrivate::updateRunActions()
     m_startAction->setToolTip(disabledReason);
     m_toolBox->setEnabled(!m_isRunning);
     m_stopAction->setEnabled(m_isRunning);
+    foreach (QAction *action, m_actions)
+        action->setEnabled(!m_isRunning);
 }
 
 ////////////////////////////////////////////////////////////////////
