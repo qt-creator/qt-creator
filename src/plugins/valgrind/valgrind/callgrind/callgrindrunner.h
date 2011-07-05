@@ -1,10 +1,8 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
-**
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +30,57 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef VALGRIND_CALLGRIND_CALLGRINDRUNNER_H
+#define VALGRIND_CALLGRIND_CALLGRINDRUNNER_H
 
-#include <analyzerbase/analyzersettings.h>
+#include <valgrindrunner.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+#include "callgrindcontroller.h"
 
 namespace Valgrind {
-namespace Internal {
+namespace Callgrind {
 
-/**
- * Generic Valgrind settings shared by all tools.
- */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class Parser;
+class CallgrindController;
+
+class CallgrindRunner : public ValgrindRunner
 {
     Q_OBJECT
+
 public:
-    ValgrindSettings() {}
+    explicit CallgrindRunner(QObject *parent = 0);
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
+    Parser *parser() const;
 
-    QString valgrindExecutable() const;
+    CallgrindController *controller() const;
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
+    bool isPaused() const;
 
-public slots:
-    void setValgrindExecutable(const QString &);
+    virtual void start();
+    virtual void startRemotely(const Utils::SshConnectionParameters &sshParams);
 
 signals:
-    void valgrindExecutableChanged(const QString &);
+    void statusMessage(const QString &message);
 
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+private slots:
+    void localParseDataAvailable(const QString &file);
+
+    void controllerFinished(Valgrind::Callgrind::CallgrindController::Option);
+
+    void processFinished(int, QProcess::ExitStatus);
 
 private:
-    QString m_valgrindExecutable;
+    void triggerParse();
+
+    QString tool() const;
+
+    CallgrindController *m_controller;
+    Parser *m_parser;
+
+    bool m_paused;
 };
 
-} // namespace Internal
+} // namespace Callgrind
 } // namespace Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif // VALGRIND_CALLGRIND_CALLGRINDRUNNER_H

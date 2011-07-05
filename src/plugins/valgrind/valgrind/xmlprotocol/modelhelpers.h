@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
@@ -32,49 +32,23 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef LIBVALGRIND_PROTOCOL_MODELHELPERS_H
+#define LIBVALGRIND_PROTOCOL_MODELHELPERS_H
 
-#include <analyzerbase/analyzersettings.h>
+#include <QtCore/QtGlobal>
 
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+QT_BEGIN_NAMESPACE
+class QString;
+QT_END_NAMESPACE
 
 namespace Valgrind {
-namespace Internal {
+namespace XmlProtocol {
 
-/**
- * Generic Valgrind settings shared by all tools.
- */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
-{
-    Q_OBJECT
-public:
-    ValgrindSettings() {}
+class Frame;
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
+QString toolTipForFrame(const Frame &frame);
 
-    QString valgrindExecutable() const;
-
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
-
-public slots:
-    void setValgrindExecutable(const QString &);
-
-signals:
-    void valgrindExecutableChanged(const QString &);
-
-protected:
-    virtual bool fromMap(const QVariantMap &map);
-
-private:
-    QString m_valgrindExecutable;
-};
-
-} // namespace Internal
+} // namespace XmlProtocol
 } // namespace Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif // LIBVALGRIND_PROTOCOL_MODELHELPERS_H

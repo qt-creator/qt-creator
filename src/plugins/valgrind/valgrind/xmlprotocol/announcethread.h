@@ -1,10 +1,10 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
+** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +32,41 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef LIBVALGRIND_PROTOCOL_ANNOUNCETHREAD_H
+#define LIBVALGRIND_PROTOCOL_ANNOUNCETHREAD_H
 
-#include <analyzerbase/analyzersettings.h>
+#include <QtCore/QSharedDataPointer>
 
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+QT_BEGIN_NAMESPACE
+template <typename T> class QVector;
+QT_END_NAMESPACE
 
 namespace Valgrind {
-namespace Internal {
+namespace XmlProtocol {
 
-/**
- * Generic Valgrind settings shared by all tools.
- */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
-{
-    Q_OBJECT
+class Frame;
+
+class AnnounceThread {
 public:
-    ValgrindSettings() {}
+    AnnounceThread();
+    AnnounceThread(const AnnounceThread &other);
+    ~AnnounceThread();
+    AnnounceThread &operator=(const AnnounceThread &other);
+    void swap(AnnounceThread &other);
+    bool operator==(const AnnounceThread &other) const;
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
+    qint64 helgrindThreadId() const;
+    void setHelgrindThreadId(qint64 id);
 
-    QString valgrindExecutable() const;
-
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
-
-public slots:
-    void setValgrindExecutable(const QString &);
-
-signals:
-    void valgrindExecutableChanged(const QString &);
-
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+    QVector<Frame> stack() const;
+    void setStack(const QVector<Frame> &stack);
 
 private:
-    QString m_valgrindExecutable;
+    class Private;
+    QSharedDataPointer<Private> d;
 };
 
-} // namespace Internal
+} // namespace XmlProtocol
 } // namespace Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif // LIBVALGRIND_PROTOCOL_ANNOUNCETHREAD_H

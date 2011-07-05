@@ -1,6 +1,6 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
@@ -32,49 +32,48 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef VALGRIND_PROTOCOL_MEMCHECKRUNNER_H
+#define VALGRIND_PROTOCOL_MEMCHECKRUNNER_H
 
-#include <analyzerbase/analyzersettings.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+#include <valgrindrunner.h>
 
 namespace Valgrind {
-namespace Internal {
 
-/**
- * Generic Valgrind settings shared by all tools.
- */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+namespace XmlProtocol{
+class ThreadedParser;
+}
+
+namespace Memcheck {
+
+class MemcheckRunner : public ValgrindRunner
 {
     Q_OBJECT
+
 public:
-    ValgrindSettings() {}
+    explicit MemcheckRunner(QObject *parent = 0);
+    ~MemcheckRunner();
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
+    void setParser(XmlProtocol::ThreadedParser *parser);
 
-    QString valgrindExecutable() const;
-
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
-
-public slots:
-    void setValgrindExecutable(const QString &);
+    void start();
+    void startRemotely(const Utils::SshConnectionParameters &sshParams);
 
 signals:
-    void valgrindExecutableChanged(const QString &);
+    void logMessageReceived(const QByteArray &);
 
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+private slots:
+    void xmlSocketConnected();
+    void logSocketConnected();
+    void readLogSocket();
 
 private:
-    QString m_valgrindExecutable;
+    QString tool() const;
+
+    class Private;
+    Private *d;
 };
 
-} // namespace Internal
+} // namespace Memcheck
 } // namespace Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif // VALGRIND_PROTOCOL_MEMCHECKRUNNER_H

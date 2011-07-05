@@ -1,10 +1,8 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
-**
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +30,43 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef CALLGRINDSTACKBROWSER_H
+#define CALLGRINDSTACKBROWSER_H
 
-#include <analyzerbase/analyzersettings.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+#include <QObject>
+#include <QStack>
 
 namespace Valgrind {
-namespace Internal {
+namespace Callgrind {
 
-/**
- * Generic Valgrind settings shared by all tools.
- */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class Function;
+
+class StackBrowser : public QObject
 {
     Q_OBJECT
+
 public:
-    ValgrindSettings() {}
+    explicit StackBrowser(QObject *parent = 0);
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
-
-    QString valgrindExecutable() const;
-
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
+    void select(const Function *item);
+    const Function *current() const;
+    void clear();
+    bool hasPrevious() const { return !m_stack.isEmpty(); }
+    bool hasNext() const { return !m_redoStack.isEmpty(); }
 
 public slots:
-    void setValgrindExecutable(const QString &);
+    void goBack();
+    void goNext();
 
 signals:
-    void valgrindExecutableChanged(const QString &);
-
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+    void currentChanged();
 
 private:
-    QString m_valgrindExecutable;
+    QStack<const Function *> m_stack;
+    QStack<const Function *> m_redoStack;
 };
 
-} // namespace Internal
+} // namespace Callgrind
 } // namespace Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif // CALLGRINDSTACKBROWSER_H

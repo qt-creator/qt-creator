@@ -1,10 +1,10 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
+** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +32,51 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef LIBVALGRIND_PROTOCOL_FRAME_H
+#define LIBVALGRIND_PROTOCOL_FRAME_H
 
-#include <analyzerbase/analyzersettings.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+#include <QtCore/QSharedDataPointer>
 
 namespace Valgrind {
-namespace Internal {
+namespace XmlProtocol {
 
-/**
- * Generic Valgrind settings shared by all tools.
- */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class Frame
 {
-    Q_OBJECT
 public:
-    ValgrindSettings() {}
+    Frame();
+    ~Frame();
+    Frame(const Frame &other);
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
+    Frame &operator=(const Frame &other);
+    void swap(Frame &other);
 
-    QString valgrindExecutable() const;
+    bool operator==(const Frame &other) const;
+    bool operator!=(const Frame &other) const;
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
+    quint64 instructionPointer() const;
+    void setInstructionPointer(quint64);
 
-public slots:
-    void setValgrindExecutable(const QString &);
+    QString object() const;
+    void setObject(const QString &obj);
 
-signals:
-    void valgrindExecutableChanged(const QString &);
+    QString functionName() const;
+    void setFunctionName(const QString &functionName);
 
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+    QString file() const;
+    void setFile(const QString &file);
+
+    QString directory() const;
+    void setDirectory(const QString &directory);
+
+    int line() const;
+    void setLine(int line);
 
 private:
-    QString m_valgrindExecutable;
+    class Private;
+    QSharedDataPointer<Private> d;
 };
 
-} // namespace Internal
+} // namespace XmlProtocol
 } // namespace Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif

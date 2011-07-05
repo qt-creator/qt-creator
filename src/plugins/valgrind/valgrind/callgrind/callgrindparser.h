@@ -1,10 +1,8 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
-**
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +30,55 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef LIBVALGRIND_CALLGRIND_PARSER_H
+#define LIBVALGRIND_CALLGRIND_PARSER_H
 
-#include <analyzerbase/analyzersettings.h>
+#include <QObject>
 
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+QT_BEGIN_NAMESPACE
+class QIODevice;
+QT_END_NAMESPACE
 
 namespace Valgrind {
-namespace Internal {
+namespace Callgrind {
+
+class ParseData;
 
 /**
- * Generic Valgrind settings shared by all tools.
+ * Parser for Valgrind --tool=callgrind output
+ * most of the format is documented at http://kcachegrind.sourceforge.net/html/CallgrindFormat.html
+ *
+ * FIXME: most length asserts are not correct, see documentation 1.2:
+ * "If a cost line specifies less event counts than given in the "events" line,
+ * the rest is assumed to be zero."
+ *
  */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class Parser : public QObject
 {
     Q_OBJECT
+
 public:
-    ValgrindSettings() {}
+    explicit Parser(QObject *parent = 0);
+    ~Parser();
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
-
-    QString valgrindExecutable() const;
-
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
-
-public slots:
-    void setValgrindExecutable(const QString &);
+    // get and take ownership of the parsing results. If this method is not called the repository
+    // will be destroyed when the parser is destroyed. Subsequent calls return null.
+    ParseData *takeData();
 
 signals:
-    void valgrindExecutableChanged(const QString &);
+    void parserDataReady();
 
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+public Q_SLOTS:
+    void parse(QIODevice *stream);
 
 private:
-    QString m_valgrindExecutable;
+    Q_DISABLE_COPY(Parser)
+
+    class Private;
+    Private *const d;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // Callgrind
+} // Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif // LIBVALGRIND_CALLGRIND_PARSER_H

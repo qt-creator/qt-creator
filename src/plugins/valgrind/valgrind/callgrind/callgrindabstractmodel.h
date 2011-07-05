@@ -1,10 +1,8 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
-**
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +30,25 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef LIBVALGRIND_CALLGRINDABSTRACTMODEL_H
+#define LIBVALGRIND_CALLGRINDABSTRACTMODEL_H
 
-#include <analyzerbase/analyzersettings.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+#include <QtGui/QAbstractItemView>
 
 namespace Valgrind {
-namespace Internal {
+namespace Callgrind {
 
-/**
- * Generic Valgrind settings shared by all tools.
- */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class ParseData;
+
+enum AbstractModelRoles
 {
-    Q_OBJECT
-public:
-    ValgrindSettings() {}
-
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
-
-    QString valgrindExecutable() const;
-
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
-
-public slots:
-    void setValgrindExecutable(const QString &);
-
-signals:
-    void valgrindExecutableChanged(const QString &);
-
-protected:
-    virtual bool fromMap(const QVariantMap &map);
-
-private:
-    QString m_valgrindExecutable;
+    ParentCostRole = Qt::UserRole,
+    RelativeTotalCostRole,
+    RelativeParentCostRole,
+    NextCustomRole
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // Callgrind
+} // Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif // LIBVALGRIND_CALLGRINDABSTRACTMODEL_H

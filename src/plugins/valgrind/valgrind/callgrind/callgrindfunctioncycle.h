@@ -1,10 +1,8 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
-**
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +30,39 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef LIBVALGRIND_CALLGRINDFUNCTIONCYCLE_H
+#define LIBVALGRIND_CALLGRINDFUNCTIONCYCLE_H
 
-#include <analyzerbase/analyzersettings.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+#include "callgrindfunction.h"
 
 namespace Valgrind {
-namespace Internal {
+namespace Callgrind {
 
 /**
- * Generic Valgrind settings shared by all tools.
+ * self cost of a function cycle: sum of self costs of functions in the cycle
+ * callers of a function cycle: set of callers to functions in the cycle
+ *                              excluding calls inside the cycle
+ * callees of a function cycle: set of callees from functions in the cycle
+ *                              excluding calees inside the cycle
+ * inclusive cost of a function cycle: sum of inclusive cost of callees of the cycle (see above)
  */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class FunctionCycle : public Function
 {
-    Q_OBJECT
 public:
-    ValgrindSettings() {}
+    explicit FunctionCycle(const ParseData *data);
+    virtual ~FunctionCycle();
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
-
-    QString valgrindExecutable() const;
-
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
-
-public slots:
-    void setValgrindExecutable(const QString &);
-
-signals:
-    void valgrindExecutableChanged(const QString &);
-
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+    /// sets the list of functions that make up this cycle
+    /// NOTE: ownership is *not* transferred to the cycle
+    void setFunctions(const QVector<const Function *> functions);
+    /// @return the functions that make up this cycle
+    QVector<const Function *> functions() const;
 
 private:
-    QString m_valgrindExecutable;
+    class Private;
 };
 
-} // namespace Internal
+} // namespace Callgrind
 } // namespace Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif // LIBVALGRIND_CALLGRINDFUNCTIONCYCLE_H

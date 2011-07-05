@@ -1,10 +1,10 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
+** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +32,60 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-
-#include <analyzerbase/analyzersettings.h>
+#ifndef LIBVALGRIND_PROTOCOL_PARSER_H
+#define LIBVALGRIND_PROTOCOL_PARSER_H
 
 #include <QtCore/QObject>
-#include <QtCore/QVariant>
+
+QT_BEGIN_NAMESPACE
+class QIODevice;
+QT_END_NAMESPACE
 
 namespace Valgrind {
-namespace Internal {
+namespace XmlProtocol {
+
+class AnnounceThread;
+class Error;
+class Status;
 
 /**
- * Generic Valgrind settings shared by all tools.
+ * Parser for the Valgrind Output XML Protocol 4
  */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class Parser : public QObject
 {
     Q_OBJECT
+
 public:
-    ValgrindSettings() {}
+    enum Tool {
+        Unknown,
+        Memcheck,
+        Ptrcheck,
+        Helgrind
+    };
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
+    explicit Parser(QObject *parent=0);
+    ~Parser();
 
-    QString valgrindExecutable() const;
+    QString errorString() const;
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
+public Q_SLOTS:
+    void parse(QIODevice *stream);
 
-public slots:
-    void setValgrindExecutable(const QString &);
-
-signals:
-    void valgrindExecutableChanged(const QString &);
-
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+Q_SIGNALS:
+    void status(const Valgrind::XmlProtocol::Status &status);
+    void error(const Valgrind::XmlProtocol::Error &error);
+    void internalError(const QString &errorString);
+    void errorCount(qint64 unique, qint64 count);
+    void suppressionCount(const QString &name, qint64 count);
+    void announceThread(const Valgrind::XmlProtocol::AnnounceThread &announceThread);
+    void finished();
 
 private:
-    QString m_valgrindExecutable;
+    class Private;
+    Private *const d;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // XmlProtocol
+} // Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif //LIBVALGRIND_PROTOCOL_PARSER_H

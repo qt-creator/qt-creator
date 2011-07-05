@@ -1,10 +1,10 @@
 /**************************************************************************
 **
-** This file is part of Qt Creator Instrumentation Tools
+** This file is part of Qt Creator
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
+** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +32,44 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef LIBVALGRIND_PROTOCOL_STATUS_H
+#define LIBVALGRIND_PROTOCOL_STATUS_H
 
-#include <analyzerbase/analyzersettings.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+#include <QtCore/QMetaType>
+#include <QtCore/QSharedDataPointer>
 
 namespace Valgrind {
-namespace Internal {
+namespace XmlProtocol {
 
-/**
- * Generic Valgrind settings shared by all tools.
- */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class Status
 {
-    Q_OBJECT
 public:
-    ValgrindSettings() {}
+    enum State {
+        Running,
+        Finished
+    };
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
+    Status();
+    Status(const Status &other);
+    ~Status();
+    Status &operator=(const Status &other);
+    void swap(Status &other);
+    bool operator==(const Status &other) const;
 
-    QString valgrindExecutable() const;
+    State state() const;
+    void setState(State state);
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
-
-public slots:
-    void setValgrindExecutable(const QString &);
-
-signals:
-    void valgrindExecutableChanged(const QString &);
-
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+    QString time() const;
+    void setTime(const QString &time);
 
 private:
-    QString m_valgrindExecutable;
+    class Private;
+    QSharedDataPointer<Private> d;
 };
 
-} // namespace Internal
+} // namespace XmlProtocol
 } // namespace Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+Q_DECLARE_METATYPE(Valgrind::XmlProtocol::Status)
+
+#endif // LIBVALGRIND_PROTOCOL_STATUS_H

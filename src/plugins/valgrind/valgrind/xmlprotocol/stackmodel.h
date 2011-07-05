@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Author: Milian Wolff, KDAB (milian.wolff@kdab.com)
+** Author: Frank Osterfeld, KDAB (frank.osterfeld@kdab.com)
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
@@ -32,49 +32,60 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
-#define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
+#ifndef LIBVALGRIND_PROTOCOL_STACKMODEL_H
+#define LIBVALGRIND_PROTOCOL_STACKMODEL_H
 
-#include <analyzerbase/analyzersettings.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QVariant>
+#include <QtCore/QAbstractItemModel>
 
 namespace Valgrind {
-namespace Internal {
+namespace XmlProtocol {
 
-/**
- * Generic Valgrind settings shared by all tools.
- */
-class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class Error;
+
+class StackModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    ValgrindSettings() {}
+    enum Column {
+        NameColumn = 0,
+        FunctionNameColumn,
+        DirectoryColumn,
+        FileColumn,
+        LineColumn,
+        InstructionPointerColumn,
+        ObjectColumn,
+        ColumnCount
+    };
 
-    virtual QVariantMap toMap() const;
-    virtual QVariantMap defaults() const;
+    enum Role {
+        ObjectRole = Qt::UserRole,
+        FunctionNameRole,
+        DirectoryRole,
+        FileRole,
+        LineRole
+    };
 
-    QString valgrindExecutable() const;
+    explicit StackModel(QObject *parent = 0);
+    ~StackModel();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QWidget *createConfigWidget(QWidget *parent);
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &child) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
-public slots:
-    void setValgrindExecutable(const QString &);
+    void clear();
 
-signals:
-    void valgrindExecutableChanged(const QString &);
-
-protected:
-    virtual bool fromMap(const QVariantMap &map);
+public Q_SLOTS:
+    void setError(const Valgrind::XmlProtocol::Error &error);
 
 private:
-    QString m_valgrindExecutable;
+    class Private;
+    Private *const d;
 };
 
-} // namespace Internal
+} // namespace XmlProtocol
 } // namespace Valgrind
 
-#endif // VALGRIND_INTERNAL_ANALZYZERSETTINGS_H
+#endif // LIBVALGRIND_PROTOCOL_STACKMODEL_H
