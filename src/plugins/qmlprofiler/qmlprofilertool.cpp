@@ -171,7 +171,7 @@ IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
 IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
     ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    QmlProfilerEngine *engine = new QmlProfilerEngine(this, sp, runConfiguration);
+    QmlProfilerEngine *engine = new QmlProfilerEngine(this, runConfiguration);
 
     // Check minimum Qt Version. We cannot really be sure what the Qt version
     // at runtime is, but guess that the active build configuraiton has been used.
@@ -201,6 +201,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
         }
     }
 
+    // FIXME: Check that there's something sensible in sp.connParams
     if (d->m_connectMode == QmlProfilerToolPrivate::TcpConnection) {
         d->m_tcpHost = sp.connParams.host;
         d->m_tcpPort = sp.connParams.port;

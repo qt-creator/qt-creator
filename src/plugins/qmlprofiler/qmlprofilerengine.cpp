@@ -46,11 +46,17 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/helpmanager.h>
+#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+#include <projectexplorer/localapplicationruncontrol.h>
+#include <projectexplorer/applicationrunconfiguration.h>
+#include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
+#include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 
 using namespace Analyzer;
+using namespace ProjectExplorer;
 
 namespace QmlProfiler {
 namespace Internal {
@@ -67,12 +73,11 @@ public:
 
     bool attach(const QString &address, uint port);
     static AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                   const AnalyzerStartParameters &m_params,
                                                    QObject *parent);
 
     QmlProfilerEngine *q;
 
-    AnalyzerStartParameters m_params;
+    //AnalyzerStartParameters m_params;
     AbstractQmlProfilerRunner *m_runner;
     bool m_running;
     bool m_fetchingData;
@@ -80,28 +85,38 @@ public:
 };
 
 AbstractQmlProfilerRunner *
-QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunConfiguration *configuration,
-                                                          const AnalyzerStartParameters &m_params,
+QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
                                                           QObject *parent)
 {
     AbstractQmlProfilerRunner *runner = 0;
-    if (m_params.startMode == StartLocal) {
-        LocalQmlProfilerRunner::Configuration configuration;
-        configuration.executable = m_params.debuggee;
-        configuration.executableArguments = m_params.debuggeeArgs;
-        configuration.workingDirectory = m_params.workingDirectory;
-        configuration.environment = m_params.environment;
-        configuration.port = m_params.connParams.port;
-
-        runner = new LocalQmlProfilerRunner(configuration, parent);
-    } else if (m_params.startMode == StartRemote) {
-        if (Qt4ProjectManager::S60DeviceRunConfiguration *s60Config
-                = qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration*>(configuration)) {
-            runner = new CodaQmlProfilerRunner(s60Config, parent);
-        } else if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig
-                   = qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration*>(configuration)){
-            runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);
-        }
+    if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
+            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
+        // This is a "plain" .qmlproject.
+        LocalQmlProfilerRunner::Configuration conf;
+        conf.executable = rc1->observerPath();
+        conf.executableArguments = rc1->viewerArguments();
+        conf.workingDirectory = rc1->workingDirectory();
+        conf.environment = rc1->environment();
+        conf.port = rc1->qmlDebugServerPort();
+        runner = new LocalQmlProfilerRunner(conf, parent);
+    } else if (LocalApplicationRunConfiguration *rc2 =
+            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+        // FIXME: Check.
+        LocalQmlProfilerRunner::Configuration conf;
+        conf.executable = rc2->executable();
+        conf.executableArguments = rc2->commandLineArguments();
+        conf.workingDirectory = rc2->workingDirectory();
+        conf.environment = rc2->environment();
+        conf.port = rc2->qmlDebugServerPort();
+        runner = new LocalQmlProfilerRunner(conf, parent);
+    } else if (Qt4ProjectManager::S60DeviceRunConfiguration *s60Config =
+            qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration*>(runConfiguration)) {
+        runner = new CodaQmlProfilerRunner(s60Config, parent);
+    } else if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig =
+            qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
+        runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);
+    } else {
+        QTC_ASSERT(false, /**/);
     }
     return runner;
 }
@@ -110,12 +125,11 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
 // QmlProfilerEngine
 //
 
-QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
          ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(tool, sp, runConfiguration)
+    : IAnalyzerEngine(tool, runConfiguration)
     , d(new QmlProfilerEnginePrivate(this))
 {
-    d->m_params = sp;
     d->m_running = false;
     d->m_fetchingData = false;
     d->m_delayedDelete = false;
@@ -131,8 +145,8 @@ QmlProfilerEngine::~QmlProfilerEngine()
 void QmlProfilerEngine::start()
 {
     QTC_ASSERT(!d->m_runner, return);
-    d->m_runner = QmlProfilerEnginePrivate::createRunner(runConfiguration(), d->m_params, this);
-    QTC_ASSERT(d->m_runner, return);
+    d->m_runner = QmlProfilerEnginePrivate::createRunner(runConfiguration(), this);
+
 
     connect(d->m_runner, SIGNAL(stopped()), this, SLOT(stopped()));
     connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),

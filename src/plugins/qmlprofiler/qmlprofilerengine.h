@@ -45,7 +45,7 @@ class QmlProfilerEngine : public Analyzer::IAnalyzerEngine
     Q_OBJECT
 
 public:
-    QmlProfilerEngine(Analyzer::IAnalyzerTool *tool, const Analyzer::AnalyzerStartParameters &sp,
+    QmlProfilerEngine(Analyzer::IAnalyzerTool *tool,
         ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerEngine();
 

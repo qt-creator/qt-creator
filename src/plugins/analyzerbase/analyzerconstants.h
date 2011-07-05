@@ -51,7 +51,7 @@ private:
 
 // Special values for currently used modes.
 // Their meaning is interpreted by the individual tools.
-enum { StartLocal = -1, StartRemote = -2 };
+enum { StartLocal = -1, StartRemote = -2, StartQml = -3 };
 
 namespace Constants {
 

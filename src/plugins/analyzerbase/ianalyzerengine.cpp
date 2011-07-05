@@ -44,4 +44,11 @@ IAnalyzerEngine::IAnalyzerEngine(IAnalyzerTool *tool, const AnalyzerStartParamet
     m_tool = tool;
 }
 
+IAnalyzerEngine::IAnalyzerEngine(IAnalyzerTool *tool,
+        ProjectExplorer::RunConfiguration *runConfiguration)
+{
+    m_runConfig = runConfiguration;
+    m_tool = tool;
+}
+
 } // namespace Analyzer

@@ -44,6 +44,8 @@
 
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
+#include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
+#include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 
 #include <utils/qtcassert.h>
 
@@ -62,11 +64,14 @@ QmlProjectAnalyzerRunControlFactory::QmlProjectAnalyzerRunControlFactory(QObject
 
 bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
+    // FIXME: Should this just accept all  mode == QLatin1String("QmlProfiler"); ?
     if (qobject_cast<QmlProjectRunConfiguration *>(runConfiguration))
         return mode == QLatin1String("QmlProfiler");
     if (qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration))
         return mode == QLatin1String("QmlProfiler");
     if (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration))
+        return mode == QLatin1String("QmlProfiler");
+    if (qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration *>(runConfiguration))
         return mode == QLatin1String("QmlProfiler");
     return false;
 }
@@ -74,14 +79,15 @@ bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigurat
 RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
-
     AnalyzerStartParameters sp;
     sp.toolId = "QmlProfiler";
+    sp.startMode = StartQml; // FIXME: The parameter struct is not needed/not used.
 
+
+    // FIXME: This is only used to communicate the connParams settings.
     if (QmlProjectRunConfiguration *rc1 =
             qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)) {
         // This is a "plain" .qmlproject.
-        sp.startMode = StartLocal;
         sp.environment = rc1->environment();
         sp.workingDirectory = rc1->workingDirectory();
         sp.debuggee = rc1->observerPath();
@@ -91,7 +97,6 @@ RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runCon
         sp.connParams.port = rc1->qmlDebugServerPort();
     } else if (LocalApplicationRunConfiguration *rc2 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
-        sp.startMode = StartLocal;
         sp.environment = rc2->environment();
         sp.workingDirectory = rc2->workingDirectory();
         sp.debuggee = rc2->executable();
@@ -101,15 +106,22 @@ RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runCon
         sp.connParams.port = rc2->qmlDebugServerPort();
     } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc3 =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
-        sp.startMode = StartRemote;
         sp.debuggee = rc3->remoteExecutableFilePath();
         sp.debuggeeArgs = rc3->arguments();
         sp.connParams = rc3->deviceConfig()->sshParameters();
         sp.analyzerCmdPrefix = rc3->commandPrefix();
         sp.displayName = rc3->displayName();
+    } else if (Qt4ProjectManager::S60DeviceRunConfiguration *rc4 =
+        qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration *>(runConfiguration)) {
+        //sp.environment = rc4->environment();
+        //sp.workingDirectory = rc4->workingDirectory();
+        //sp.debuggee = rc4->executable();
+        sp.debuggeeArgs = rc4->commandLineArguments();
+        sp.displayName = rc4->displayName();
+        sp.connParams.host = QLatin1String("localhost");
+        sp.connParams.port = rc4->qmlDebugServerPort();
     } else {
-        // Might be S60DeviceRunfiguration, or something else ... ?
-        //sp.startMode = StartRemote;
+        // What could that be?
         QTC_ASSERT(false, return 0);
     }
 
