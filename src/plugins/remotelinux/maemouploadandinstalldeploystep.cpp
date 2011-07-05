@@ -277,7 +277,7 @@ const QString MaemoUploadAndInstallTarPackageStep::Id("MaemoUploadAndInstallTarP
 
 QString MaemoUploadAndInstallTarPackageStep::displayName()
 {
-    return tr("Deploy tar package via SFTP upload");
+    return tr("Deploy tarball via SFTP upload");
 }
 
 } // namespace Internal

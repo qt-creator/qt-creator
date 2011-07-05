@@ -196,15 +196,15 @@ QStringList Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target *par
 QString Qt4MaemoDeployConfigurationFactory::displayNameForId(const QString &id) const
 {
     if (id == Qt4MaemoDeployConfiguration::FremantleWithoutPackagingId)
-        return tr("Copy files to Maemo5 device");
+        return tr("Copy Files to Maemo5 Device");
     else if (id == Qt4MaemoDeployConfiguration::FremantleWithPackagingId)
-        return tr("Build Debian package and install to Maemo5 device");
+        return tr("Build Debian Package and Install to Maemo5 Device");
     else if (id == Qt4MaemoDeployConfiguration::HarmattanId)
-        return tr("Build Debian package and install to Harmattan device");
+        return tr("Build Debian Package and Install to Harmattan Device");
     else if (id == Qt4MaemoDeployConfiguration::MeegoId)
-        return tr("Build RPM package and install to Meego device");
+        return tr("Build RPM Package and Install to MeeGo Device");
     else if (id == Qt4MaemoDeployConfiguration::GenericLinuxId)
-        return tr("Build tarball and install to Linux host");
+        return tr("Build Tarball and Install to Linux Host");
     return QString();
 }
 
