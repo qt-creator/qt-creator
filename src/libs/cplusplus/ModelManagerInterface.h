@@ -148,6 +148,7 @@ public:
 
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);
+    void sourceFilesRefreshed(const QStringList &files);
 
 public Q_SLOTS:
     virtual void updateModifiedSourceFiles() = 0;

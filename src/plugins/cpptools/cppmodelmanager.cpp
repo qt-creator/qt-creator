@@ -1237,6 +1237,7 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     }
 
     future.setProgressValue(files.size());
+    preproc->modelManager()->finishedRefreshingSourceFiles(files);
 
     delete preproc;
 }
@@ -1441,6 +1442,11 @@ QList<LanguageUtils::FakeMetaObject::ConstPtr> CppModelManager::exportedQmlObjec
     }
 
     return exportedObjects;
+}
+
+void CppModelManager::finishedRefreshingSourceFiles(const QStringList &files)
+{
+    emit sourceFilesRefreshed(files);
 }
 
 #endif

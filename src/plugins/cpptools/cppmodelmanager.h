@@ -130,6 +130,8 @@ public:
 
     virtual QList<LanguageUtils::FakeMetaObject::ConstPtr> exportedQmlObjects(const CPlusPlus::Document::Ptr &doc) const;
 
+    void finishedRefreshingSourceFiles(const QStringList &files);
+
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
 
@@ -253,6 +255,9 @@ public:
 
     const QSet<QString> &todo() const
     { return m_todo; }
+
+    CppModelManager *modelManager() const
+    { return m_modelManager.data(); }
 
 public: // attributes
     CPlusPlus::Snapshot snapshot;
