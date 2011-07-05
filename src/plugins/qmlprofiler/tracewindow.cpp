@@ -72,18 +72,22 @@ TraceWindow::TraceWindow(QWidget *parent)
     toolBarLayout->setSpacing(0);
     QToolButton *buttonPrev= new QToolButton;
     buttonPrev->setIcon(QIcon(":/qmlprofiler/prev.png"));
+    buttonPrev->setToolTip(tr("Jump to previous event"));
     connect(buttonPrev, SIGNAL(clicked()), this, SIGNAL(jumpToPrev()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonPrev, SLOT(setEnabled(bool)));
     QToolButton *buttonNext= new QToolButton;
     buttonNext->setIcon(QIcon(":/qmlprofiler/next.png"));
+    buttonNext->setToolTip(tr("Jump to next event"));
     connect(buttonNext, SIGNAL(clicked()), this, SIGNAL(jumpToNext()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonNext, SLOT(setEnabled(bool)));
     QToolButton *buttonZoomIn = new QToolButton;
     buttonZoomIn->setIcon(QIcon(":/qmlprofiler/magnifier-plus.png"));
+    buttonZoomIn->setToolTip(tr("Zoom in 10%"));
     connect(buttonZoomIn, SIGNAL(clicked()), this, SIGNAL(zoomIn()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonZoomIn, SLOT(setEnabled(bool)));
     QToolButton *buttonZoomOut = new QToolButton;
     buttonZoomOut->setIcon(QIcon(":/qmlprofiler/magnifier-minus.png"));
+    buttonZoomOut->setToolTip(tr("Zoom out 10%"));
     connect(buttonZoomOut, SIGNAL(clicked()), this, SIGNAL(zoomOut()));
     connect(this, SIGNAL(enableToolbar(bool)), buttonZoomOut, SLOT(setEnabled(bool)));
 

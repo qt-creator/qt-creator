@@ -317,6 +317,7 @@ QWidget *QmlProfilerTool::createControlWidget()
 
     d->m_clearButton = new QToolButton(toolbarWidget);
     d->m_clearButton->setIcon(QIcon(QLatin1String(":/qmlprofiler/clean_pane_small.png")));
+    d->m_clearButton->setToolTip(tr("Discard data"));
     connect(d->m_clearButton,SIGNAL(clicked()), this, SLOT(clearDisplay()));
     layout->addWidget(d->m_clearButton);
 
@@ -391,6 +392,7 @@ void QmlProfilerTool::stopRecording()
 void QmlProfilerTool::setRecording(bool recording)
 {
     d->m_recordingEnabled = recording;
+    d->m_recordButton->setToolTip( d->m_recordingEnabled ? tr("Disable profiling") : tr("Enable profiling"));
     if (recording)
         startRecording();
     else
