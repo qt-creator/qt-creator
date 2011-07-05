@@ -679,6 +679,7 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
 void AnalyzerManagerPrivate::handleToolStarted()
 {
     m_isRunning = true; // FIXME: Make less global.
+    updateRunActions();
 }
 
 void AnalyzerManagerPrivate::handleToolFinished()
@@ -854,6 +855,11 @@ void AnalyzerManager::startLocalTool(IAnalyzerTool *tool, StartMode mode)
 QAction *AnalyzerManager::stopAction()
 {
     return m_instance->d->m_stopAction;
+}
+
+void AnalyzerManager::handleToolStarted()
+{
+    m_instance->d->handleToolStarted();
 }
 
 void AnalyzerManager::handleToolFinished()

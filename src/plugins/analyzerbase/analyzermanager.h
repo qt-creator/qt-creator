@@ -92,6 +92,7 @@ public:
     static void showStatusMessage(const QString &message, int timeoutMS = 10000);
     static void showPermanentStatusMessage(const QString &message);
 
+    static void handleToolStarted();
     static void handleToolFinished();
     static QAction *stopAction();
 

@@ -156,6 +156,8 @@ void QmlProfilerEngine::start()
 
     d->m_running = true;
     d->m_delayedDelete = false;
+
+    AnalyzerManager::handleToolStarted();
 }
 
 void QmlProfilerEngine::stop()
