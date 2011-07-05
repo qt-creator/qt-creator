@@ -64,6 +64,7 @@ public slots:
     void updateCursorPosition();
     void updateTimer();
     void clearDisplay();
+    void updateToolbar();
 
 signals:
     void viewUpdated();
@@ -76,6 +77,7 @@ signals:
     void jumpToNext();
     void zoomIn();
     void zoomOut();
+    void enableToolbar(bool);
 
 private:
     QWeakPointer<QmlProfilerTraceClient> m_plugin;

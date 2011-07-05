@@ -73,19 +73,26 @@ TraceWindow::TraceWindow(QWidget *parent)
     QToolButton *buttonPrev= new QToolButton;
     buttonPrev->setIcon(QIcon(":/qmlprofiler/prev.png"));
     connect(buttonPrev, SIGNAL(clicked()), this, SIGNAL(jumpToPrev()));
+    connect(this, SIGNAL(enableToolbar(bool)), buttonPrev, SLOT(setEnabled(bool)));
     QToolButton *buttonNext= new QToolButton;
     buttonNext->setIcon(QIcon(":/qmlprofiler/next.png"));
     connect(buttonNext, SIGNAL(clicked()), this, SIGNAL(jumpToNext()));
+    connect(this, SIGNAL(enableToolbar(bool)), buttonNext, SLOT(setEnabled(bool)));
     QToolButton *buttonZoomIn = new QToolButton;
     buttonZoomIn->setIcon(QIcon(":/qmlprofiler/magnifier-plus.png"));
     connect(buttonZoomIn, SIGNAL(clicked()), this, SIGNAL(zoomIn()));
+    connect(this, SIGNAL(enableToolbar(bool)), buttonZoomIn, SLOT(setEnabled(bool)));
     QToolButton *buttonZoomOut = new QToolButton;
     buttonZoomOut->setIcon(QIcon(":/qmlprofiler/magnifier-minus.png"));
     connect(buttonZoomOut, SIGNAL(clicked()), this, SIGNAL(zoomOut()));
+    connect(this, SIGNAL(enableToolbar(bool)), buttonZoomOut, SLOT(setEnabled(bool)));
+
     toolBarLayout->addWidget(buttonPrev);
     toolBarLayout->addWidget(buttonNext);
     toolBarLayout->addWidget(buttonZoomIn);
     toolBarLayout->addWidget(buttonZoomOut);
+
+
 
     m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     m_view->setFocus();
@@ -115,8 +122,11 @@ void TraceWindow::reset(QmlJsDebugClient::QDeclarativeDebugConnection *conn)
     m_view->rootContext()->setContextProperty("connection", m_plugin.data());
     m_view->setSource(QUrl("qrc:/qmlprofiler/MainView.qml"));
 
+    updateToolbar();
+
     connect(m_view->rootObject(), SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
     connect(m_view->rootObject(), SIGNAL(updateTimer()), this, SLOT(updateTimer()));
+    connect(m_view->rootObject(), SIGNAL(dataAvailableChanged()), this, SLOT(updateToolbar()));
     connect(this, SIGNAL(jumpToPrev()), m_view->rootObject(), SLOT(prevEvent()));
     connect(this, SIGNAL(jumpToNext()), m_view->rootObject(), SLOT(nextEvent()));
     connect(this, SIGNAL(zoomIn()), m_view->rootObject(), SLOT(zoomIn()));
@@ -142,6 +152,12 @@ void TraceWindow::clearDisplay()
         m_plugin.data()->clearView();
     else
         emit internalClearDisplay();
+}
+
+void TraceWindow::updateToolbar()
+{
+    bool dataAvailable = m_view->rootObject()->property("dataAvailable").toBool();
+    emit enableToolbar(dataAvailable);
 }
 
 void TraceWindow::setRecording(bool recording)
