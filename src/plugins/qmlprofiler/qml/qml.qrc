@@ -16,5 +16,7 @@
         <file>toolbarbg.png</file>
         <file>magnifier-minus.png</file>
         <file>magnifier-plus.png</file>
+        <file>recordOff.png</file>
+        <file>recordOn.png</file>
     </qresource>
 </RCC>

@@ -307,8 +307,7 @@ QWidget *QmlProfilerTool::createControlWidget()
     layout->setSpacing(0);
 
     d->m_recordButton = new QToolButton(toolbarWidget);
-
-    d->m_recordButton->setIcon(QIcon(QLatin1String(":/qmlprofiler/analyzer_category_small.png")));
+    // icon and tooltip set in setRecording(), called later
     d->m_recordButton->setCheckable(true);
 
     connect(d->m_recordButton,SIGNAL(toggled(bool)), this, SLOT(setRecording(bool)));
@@ -392,7 +391,12 @@ void QmlProfilerTool::stopRecording()
 void QmlProfilerTool::setRecording(bool recording)
 {
     d->m_recordingEnabled = recording;
+
+    // update record button
     d->m_recordButton->setToolTip( d->m_recordingEnabled ? tr("Disable profiling") : tr("Enable profiling"));
+    d->m_recordButton->setIcon(QIcon(d->m_recordingEnabled ? QLatin1String(":/qmlprofiler/recordOn.png") :
+                                                             QLatin1String(":/qmlprofiler/recordOff.png")));
+
     if (recording)
         startRecording();
     else
