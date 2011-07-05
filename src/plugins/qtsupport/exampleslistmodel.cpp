@@ -92,7 +92,7 @@ QList<ExampleItem> ExamplesListModel::parseExamples(QXmlStreamReader* reader, co
                 item.imageUrl = attributes.value(QLatin1String("imagePath")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
-                item.filesToOpen.append(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
                 item.description =  reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement);
             } else if (reader->name() == QLatin1String("tags")) {
@@ -132,7 +132,7 @@ QList<ExampleItem> ExamplesListModel::parseDemos(QXmlStreamReader* reader, const
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
-                item.filesToOpen.append(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
                 item.description =  reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement);
             } else if (reader->name() == QLatin1String("tags")) {
@@ -171,7 +171,7 @@ QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, c
                 item.imageUrl = attributes.value(QLatin1String("imageUrl")).toString();
                 item.docUrl = attributes.value(QLatin1String("docUrl")).toString();
             } else if (reader->name() == QLatin1String("fileToOpen")) {
-                item.filesToOpen.append(reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
+                item.filesToOpen.append(projectsOffset + '/' + reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement));
             } else if (reader->name() == QLatin1String("description")) {
                 item.description =  reader->readElementText(QXmlStreamReader::ErrorOnUnexpectedElement);
             } else if (reader->name() == QLatin1String("tags")) {
@@ -192,7 +192,7 @@ QList<ExampleItem> ExamplesListModel::parseTutorials(QXmlStreamReader* reader, c
     return tutorials;
 }
 
-void ExamplesListModel::readNewsItems(const QString &examplesPath, const QString &demosPath, const QString & /* sourcePath */)
+void ExamplesListModel::readNewsItems(const QString &examplesPath, const QString &demosPath, const QString & sourcePath)
 {
     clear();
     foreach (const QString exampleSource, exampleSources()) {
@@ -207,9 +207,18 @@ void ExamplesListModel::readNewsItems(const QString &examplesPath, const QString
         QDir examplesDir(offsetPath);
         QDir demosDir(offsetPath);
         if (offsetPath.startsWith(Core::ICore::instance()->resourcePath())) {
-            // Try to get dir from first Qt Version
-            examplesDir = examplesPath;
-            demosDir = demosPath;
+            // Try to get dir from first Qt Version, based on the Qt source directory
+            // at first, since examplesPath / demosPath points at the build directory
+            QString sourceBasedExamplesPath = sourcePath + QLatin1String("/examples");
+            QString sourceBasedDemosPath = sourcePath + QLatin1String("/demos");
+            examplesDir = sourceBasedExamplesPath;
+            demosDir = sourceBasedDemosPath;
+            // SDK case, folders might be called sth else (e.g. 'Examples' with uppercase E)
+            // but examplesPath / demosPath is correct
+            if (!examplesDir.exists() || !demosDir.exists()) {
+                examplesDir = examplesPath;
+                demosDir = demosPath;
+            }
         }
 
         QXmlStreamReader reader(&exampleFile);
@@ -350,7 +359,7 @@ void ExamplesListModel::helpInitialized()
     disconnect(this, SLOT(cacheExamplesPath(QString, QString, QString)));
     connect(QtVersionManager::instance(), SIGNAL(updateExamples(QString,QString,QString)),
             SLOT(readNewsItems(QString,QString,QString)));
-    readNewsItems(m_cache.examplesPath, m_cache.demosPath, m_cache.examplesPath);
+    readNewsItems(m_cache.examplesPath, m_cache.demosPath, m_cache.sourcePath);
 }
 
 

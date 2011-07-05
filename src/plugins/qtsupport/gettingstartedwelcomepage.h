@@ -41,6 +41,7 @@
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeEngine;
+class QFileInfo;
 QT_END_NAMESPACE
 
 namespace QtSupport {
@@ -71,6 +72,7 @@ public slots:
     void updateTagsModel();
 
 private:
+    QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen);
     ExamplesListModel *m_examplesModel;
     QDeclarativeEngine *m_engine;
 };
