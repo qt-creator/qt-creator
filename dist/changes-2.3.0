@@ -59,7 +59,15 @@ Windows
 
 Symbian Target
 
-Maemo Target
+Remote Linux Support
+   * Created new plugin "RemoteLinux" comprising support for Maemo/MeeGo and
+     generic remote Linux hosts
+   * Generic remote Linux support entails:
+        * The ability to create a deploy configuration and associated steps the
+          same way as for Maemo
+        * A device configuration wizard for a "Generic Linux" device type
+        * The possibility to add device types and associated wizards and actions
+          for the device configuration dialog via third-party plugins
 
 Qt Designer
 
