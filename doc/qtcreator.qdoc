@@ -3062,7 +3062,7 @@
             without delimiter characters and the initial character of each element is
             capitalized. For example, rewrites \c an_example_symbol
             as \c anExampleSymbol and \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
-            \i Indentifier
+            \i Identifier
         \row
             \i Complete Switch Statement
             \i Adds all possible cases to a switch statement of the type \c enum
