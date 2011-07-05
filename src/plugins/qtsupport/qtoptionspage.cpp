@@ -389,7 +389,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     } else {
         // Yes, some ABIs are unsupported
         info.message = tr("Not all possible target environments can be supported due to missing tool chains.");
-        info.toolTip = tr("The following ABIs are currently not supported:<ul><li>%1</ul>")
+        info.toolTip = tr("The following ABIs are currently not supported:<ul><li>%1</li></ul>")
                        .arg(missingToolChains.join(QLatin1String("</li><li>")));
         info.icon = m_warningVersionIcon;
     }
