@@ -205,7 +205,7 @@ bool AbstractMaemoPackageCreationStep::packagingNeeded() const
 
     const int deployableCount = deploymentInfo->deployableCount();
     for (int i = 0; i < deployableCount; ++i) {
-        if (MaemoGlobal::isFileNewerThan(deploymentInfo->deployableAt(i).localFilePath,
+        if (Utils::FileUtils::isFileNewerThan(deploymentInfo->deployableAt(i).localFilePath,
                 packageInfo.lastModified()))
             return true;
     }
@@ -427,7 +427,7 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
         return false;
     }
     QString error;
-    if (!MaemoGlobal::removeRecursively(debianDirPath, error)) {
+    if (!Utils::FileUtils::removeRecursively(debianDirPath, &error)) {
         raiseError(tr("Packaging failed."),
             tr("Could not remove directory '%1': %2").arg(debianDirPath, error));
         return false;

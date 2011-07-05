@@ -38,11 +38,151 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryFile>
+#include <QtCore/QDateTime>
 #include <QtCore/QDataStream>
 #include <QtCore/QTextStream>
 #include <QtGui/QMessageBox>
 
 namespace Utils {
+
+/*! \class Utils::FileUtils
+
+  \brief File- and directory-related convenience functions.
+
+  File- and directory-related convenience functions.
+*/
+
+/*!
+  \fn Utils::FileUtils::removeRecursively(const QString &filePath, QString *error)
+
+  Removes the directory \a filePath and its subdirectories recursively.
+
+  \note The \a error parameter is optional.
+
+  \return Whether the operation succeeded.
+*/
+
+/*!
+  \fn Utils::FileUtils::copyRecursively(const QString &srcFilePath, const QString &tgtFilePath, QString *error)
+
+  Copies the directory specified by \a srcFilePath recursively to \a tgtFilePath. \a tgtFilePath will contain
+  the target directory, which will be created. Example usage:
+
+  \code
+    QString error;
+    book ok = Utils::FileUtils::copyRecursively("/foo/bar", "/foo/baz", &error);
+    if (!ok)
+      qDebug() << error;
+  \endcode
+
+  This will copy the contents of /foo/bar into to the baz directory under /foo, which will be created in the process.
+
+  \note The \a error parameter is optional.
+
+  \return Whether the operation succeeded.
+*/
+
+/*!
+  \fn Utils::FileUtils::isFileNewerThan(const QString &filePath, const QDateTime &timeStamp)
+
+  If \a filePath is a directory, the function will recursively check all files and return
+  true if one of them is newer than \a timeStamp. If \a filePath is a single file, true will
+  be returned if the file is newer than \timeStamp.
+
+  \return Whether at least one file in \a filePath has a newer date than \a timeStamp.
+*/
+
+bool FileUtils::removeRecursively(const QString &filePath, QString *error)
+{
+    QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists())
+        return true;
+    QFile::setPermissions(filePath, fileInfo.permissions() | QFile::WriteUser);
+    if (fileInfo.isDir()) {
+        QDir dir(filePath);
+        QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden
+                                              | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
+        foreach (const QString &fileName, fileNames) {
+            if (!removeRecursively(filePath + QLatin1Char('/') + fileName, error))
+                return false;
+        }
+        dir.cdUp();
+        if (!dir.rmdir(fileInfo.fileName())) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove directory '%1'.")
+                        .arg(QDir::toNativeSeparators(filePath));
+            }
+            return false;
+        }
+    } else {
+        if (!QFile::remove(filePath)) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove file '%1'.")
+                        .arg(QDir::toNativeSeparators(filePath));
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
+bool FileUtils::copyRecursively(const QString &srcFilePath,
+                     const QString &tgtFilePath, QString *error)
+{
+    QFileInfo srcFileInfo(srcFilePath);
+    if (srcFileInfo.isDir()) {
+        QDir targetDir(tgtFilePath);
+        targetDir.cdUp();
+        if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName())) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to create directory '%1'.")
+                        .arg(QDir::toNativeSeparators(tgtFilePath));
+                return false;
+            }
+        }
+        QDir sourceDir(srcFilePath);
+        QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
+        foreach (const QString &fileName, fileNames) {
+            const QString newSrcFilePath
+                    = srcFilePath + QLatin1Char('/') + fileName;
+            const QString newTgtFilePath
+                    = tgtFilePath + QLatin1Char('/') + fileName;
+            if (!copyRecursively(newSrcFilePath, newTgtFilePath, error))
+                return false;
+        }
+    } else {
+        if (!QFile::copy(srcFilePath, tgtFilePath)) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils", "Could not copy file '%1' to '%2'.")
+                        .arg(QDir::toNativeSeparators(srcFilePath),
+                             QDir::toNativeSeparators(tgtFilePath));
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
+bool FileUtils::isFileNewerThan(const QString &filePath,
+    const QDateTime &timeStamp)
+{
+    QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists() || fileInfo.lastModified() >= timeStamp)
+        return true;
+    if (fileInfo.isDir()) {
+        const QStringList dirContents = QDir(filePath)
+            .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        foreach (const QString &curFileName, dirContents) {
+            const QString curFilePath
+                = filePath + QLatin1Char('/') + curFileName;
+            if (isFileNewerThan(curFilePath, timeStamp))
+                return true;
+        }
+    }
+    return false;
+}
+
+
 
 QByteArray FileReader::fetchQrc(const QString &fileName)
 {

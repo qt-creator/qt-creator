@@ -45,9 +45,19 @@ class QTemporaryFile;
 class QWidget;
 class QTextStream;
 class QDataStream;
+class QDateTime;
 QT_END_NAMESPACE
 
 namespace Utils {
+
+class QTCREATOR_UTILS_EXPORT FileUtils {
+public:
+    static bool removeRecursively(const QString &filePath, QString *error = 0);
+    static bool copyRecursively(const QString &srcFilePath,
+                         const QString &tgtFilePath, QString *error = 0);
+    static bool isFileNewerThan(const QString &filePath,
+                            const QDateTime &timeStamp);
+};
 
 class QTCREATOR_UTILS_EXPORT FileReader
 {

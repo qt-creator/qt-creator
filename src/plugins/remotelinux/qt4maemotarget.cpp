@@ -311,7 +311,7 @@ void AbstractQt4MaemoTarget::handleTargetToBeRemoved(ProjectExplorer::Target *ta
     const QStringList otherContents = QDir(packagingPath).entryList(QDir::Dirs
         | QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot);
     if (otherContents.isEmpty()) {
-        if (!MaemoGlobal::removeRecursively(packagingPath, error))
+        if (!Utils::FileUtils::removeRecursively(packagingPath, &error))
             qDebug("%s", qPrintable(error));
     }
 }
@@ -684,7 +684,7 @@ bool AbstractDebBasedQt4MaemoTarget::targetCanBeRemoved() const
 void AbstractDebBasedQt4MaemoTarget::removeTarget()
 {
     QString error;
-    if (!MaemoGlobal::removeRecursively(debianDirPath(), error))
+    if (!Utils::FileUtils::removeRecursively(debianDirPath(), &error))
         qDebug("%s", qPrintable(error));
 }
 
@@ -705,7 +705,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
         projectDir.path() + QLatin1Char('/') + PackagingDirName);
     const QString dhMakeDebianDir = projectDir.path() + QLatin1Char('/')
         + PackagingDirName + QLatin1String("/debian");
-    MaemoGlobal::removeRecursively(dhMakeDebianDir, error);
+    Utils::FileUtils::removeRecursively(dhMakeDebianDir, &error);
     const QStringList dh_makeArgs = QStringList() << QLatin1String("dh_make")
         << QLatin1String("-s") << QLatin1String("-n") << QLatin1String("-p")
         << (defaultPackageFileName() + QLatin1Char('_')
@@ -733,7 +733,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractDebBasedQt4MaemoTarget::createSpeci
     if (!QFile::rename(dhMakeDebianDir, debianDirPath())) {
         raiseError(tr("Unable to move new debian directory to '%1'.")
             .arg(QDir::toNativeSeparators(debianDirPath())));
-        MaemoGlobal::removeRecursively(dhMakeDebianDir, error);
+        Utils::FileUtils::removeRecursively(dhMakeDebianDir, &error);
         return ActionFailed;
     }
 

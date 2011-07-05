@@ -127,7 +127,7 @@ void MaemoPublisherFremantleFree::createPackage()
     if (QFileInfo(tmpDirContainer()).exists()) {
         emit progressReport(tr("Removing left-over temporary directory ..."));
         QString error;
-        if (!MaemoGlobal::removeRecursively(tmpDirContainer(), error)) {
+        if (!Utils::FileUtils::removeRecursively(tmpDirContainer(), &error)) {
             finishWithFailure(tr("Error removing temporary directory: %1").arg(error),
                 tr("Publishing failed: Could not create source package."));
             return;
@@ -360,7 +360,7 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
     }
     foreach (const QString &filePath, d.filesToExclude()) {
         QString error;
-        if (!MaemoGlobal::removeRecursively(filePath, error)) {
+        if (!Utils::FileUtils::removeRecursively(filePath, &error)) {
             finishWithFailure(error,
                 tr("Publishing failed: Could not create package."));
         }
