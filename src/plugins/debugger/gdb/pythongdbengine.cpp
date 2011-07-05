@@ -135,7 +135,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
     PRECONDITION;
     if (response.resultClass == GdbResultDone) {
         const bool partial = response.cookie.toBool();
-        QByteArray out = response.data.findChild("consolestreamoutput").data();
+        QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))
             out.chop(1);
         int pos = out.indexOf("data=");

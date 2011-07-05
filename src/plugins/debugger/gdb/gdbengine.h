@@ -568,9 +568,9 @@ private: ////////// View & Data Stuff //////////
     //void handleFetchDisassemblerByMiRangePlain(const GdbResponse &response);
     void handleDisassemblerCheck(const GdbResponse &response);
     void handleBreakOnQFatal(const GdbResponse &response);
-    DisassemblerLines parseDisassembler(const GdbMi &data);
-    DisassemblerLines parseCliDisassembler(const GdbMi &lines);
-    DisassemblerLines parseMiDisassembler(const GdbMi &lines);
+    DisassemblerLines parseDisassembler(const GdbResponse &response);
+    DisassemblerLines parseCliDisassembler(const QByteArray &response);
+    DisassemblerLines parseMiDisassembler(const GdbMi &response);
 
     bool m_disassembleUsesComma;
 
