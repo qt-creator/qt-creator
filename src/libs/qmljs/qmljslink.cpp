@@ -85,7 +85,6 @@ class QmlJS::LinkPrivate
 public:
     Snapshot snapshot;
     Interpreter::ValueOwner *valueOwner;
-    Interpreter::Context::ImportsPerDocument imports;
     QStringList importPaths;
 
     QHash<ImportCacheKey, Import> importCache;
@@ -133,8 +132,7 @@ Context Link::operator()(QHash<QString, QList<DiagnosticMessage> > *messages)
 {
     Q_D(Link);
     d->allDiagnosticMessages = messages;
-    linkImports();
-    return Context(d->snapshot, d->valueOwner, d->imports);
+    return Context(d->snapshot, d->valueOwner, linkImports());
 }
 
 Context Link::operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages)
@@ -142,23 +140,24 @@ Context Link::operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *mes
     Q_D(Link);
     d->doc = doc;
     d->diagnosticMessages = messages;
-    linkImports();
-    return Context(d->snapshot, d->valueOwner, d->imports);
+    return Context(d->snapshot, d->valueOwner, linkImports());
 }
 
 Link::~Link()
 {
 }
 
-void Link::linkImports()
+Context::ImportsPerDocument Link::linkImports()
 {
     Q_D(Link);
+
+    Context::ImportsPerDocument importsPerDocument;
 
     if (d->doc) {
         // do it on d->doc first, to make sure import errors are shown
         Imports *imports = new Imports(d->valueOwner);
         populateImportedTypes(imports, d->doc);
-        d->imports.insert(d->doc.data(), QSharedPointer<Imports>(imports));
+        importsPerDocument.insert(d->doc.data(), QSharedPointer<Imports>(imports));
     }
 
     foreach (Document::Ptr doc, d->snapshot) {
@@ -167,8 +166,10 @@ void Link::linkImports()
 
         Imports *imports = new Imports(d->valueOwner);
         populateImportedTypes(imports, doc);
-        d->imports.insert(doc.data(), QSharedPointer<Imports>(imports));
+        importsPerDocument.insert(doc.data(), QSharedPointer<Imports>(imports));
     }
+
+    return importsPerDocument;
 }
 
 void Link::populateImportedTypes(Imports *imports, Document::Ptr doc)

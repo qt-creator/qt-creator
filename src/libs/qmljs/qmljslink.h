@@ -34,7 +34,7 @@
 #define QMLJSLINK_H
 
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsvalueowner.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <languageutils/componentversion.h>
 
@@ -68,7 +68,7 @@ public:
 private:
     static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 
-    void linkImports();
+    Interpreter::Context::ImportsPerDocument linkImports();
 
     void populateImportedTypes(Interpreter::Imports *imports, Document::Ptr doc);
     Interpreter::Import importFileOrDirectory(
