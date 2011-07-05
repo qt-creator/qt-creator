@@ -61,9 +61,11 @@ private Q_SLOTS:
     void preprocessorContinuation();
     void cStyleComments();
     void cppStyleComments();
-    void expressionContinuation();
+    void expressionContinuation1();
+    void expressionContinuation2();
     void assignContinuation1();
     void assignContinuation2();
+    void declarationContinuation();
     void classAccess();
     void ternary();
     void objcAtDeclarations();
@@ -601,7 +603,7 @@ void tst_CodeFormatter::cppStyleComments()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::expressionContinuation()
+void tst_CodeFormatter::expressionContinuation1()
 {
     QList<Line> data;
     data << Line("void foo() {")
@@ -628,9 +630,27 @@ void tst_CodeFormatter::expressionContinuation()
          << Line("    ~           foo - blah(1)")
          << Line("    ~        << '?'")
          << Line("    ~        << \"\\n\";")
-         << Line("    i += foo(")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::expressionContinuation2()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    i += abc +")
+         << Line("    ~       foo(,")
          << Line("    ~           bar,")
-         << Line("    ~           2);")
+         << Line("    ~           2")
+         << Line("    ~           );")
+         << Line("    i += abc +")
+         << Line("    ~       foo(,")
+         << Line("    ~           bar(")
+         << Line("    ~               bar,")
+         << Line("    ~               2")
+         << Line("    ~               ),")
+         << Line("    ~           abc);")
          << Line("}")
          ;
     checkIndent(data);
@@ -674,6 +694,18 @@ void tst_CodeFormatter::assignContinuation2()
     CppCodeStyleSettings style;
     style.alignAssignments = true;
     checkIndent(data, style);
+}
+
+void tst_CodeFormatter::declarationContinuation()
+{
+    QList<Line> data;
+    data << Line("void foo(")
+         << Line("~       int a,")
+         << Line("~       int b);")
+         << Line("void foo(int a,")
+         << Line("~        int b);")
+         ;
+    checkIndent(data);
 }
 
 void tst_CodeFormatter::classAccess()
