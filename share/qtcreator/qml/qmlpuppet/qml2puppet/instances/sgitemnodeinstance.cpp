@@ -10,7 +10,7 @@
 
 **
 
-**  Contact:  Nokia  Corporation  (qt-info@nokia.com)
+**  Contact:  Nokia  Corporation  (info@qt.nokia.com)
 
 **
 
@@ -56,7 +56,7 @@
 
 **  If  you  have  questions  regarding  the  use  of  this  file,  please  contact
 
-**  Nokia  at  qt-info@nokia.com.
+**  Nokia  at  info@qt.nokia.com.
 
 **
 
