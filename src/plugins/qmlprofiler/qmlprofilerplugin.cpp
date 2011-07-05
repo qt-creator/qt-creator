@@ -34,7 +34,7 @@
 #include "qmlprofilerplugin.h"
 
 #include "qmlprofilertool.h"
-#include "qmlprojectanalyzerruncontrolfactory.h"
+#include "qmlprofilerruncontrolfactory.h"
 
 #include <analyzerbase/analyzermanager.h>
 
@@ -49,7 +49,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-    addAutoReleasedObject(new QmlProjectAnalyzerRunControlFactory());
+    addAutoReleasedObject(new QmlProfilerRunControlFactory());
     StartModes modes;
     // They are handled the same actually.
     //modes.append(StartMode(StartRemote));

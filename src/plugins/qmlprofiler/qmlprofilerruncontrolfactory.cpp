@@ -31,7 +31,7 @@
 **
 **************************************************************************/
 
-#include "qmlprojectanalyzerruncontrolfactory.h"
+#include "qmlprofilerruncontrolfactory.h"
 #include "qmlprojectmanager/qmlprojectrunconfiguration.h"
 
 #include <analyzerbase/analyzerstartparameters.h>
@@ -56,13 +56,13 @@ using namespace ProjectExplorer;
 using namespace QmlProfiler::Internal;
 using namespace QmlProjectManager;
 
-QmlProjectAnalyzerRunControlFactory::QmlProjectAnalyzerRunControlFactory(QObject *parent)
+QmlProfilerRunControlFactory::QmlProfilerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {
-    setObjectName(QLatin1String("QmlProjectAnalyzerRunControlFactory"));
+    setObjectName(QLatin1String("QmlProfilerRunControlFactory"));
 }
 
-bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
+bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, const QString &mode) const
 {
     // FIXME: Should this just accept all  mode == QLatin1String("QmlProfiler"); ?
     if (qobject_cast<QmlProjectRunConfiguration *>(runConfiguration))
@@ -76,7 +76,7 @@ bool QmlProjectAnalyzerRunControlFactory::canRun(RunConfiguration *runConfigurat
     return false;
 }
 
-RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
+RunControl *QmlProfilerRunControlFactory::create(RunConfiguration *runConfiguration, const QString &mode)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     AnalyzerStartParameters sp;
@@ -131,17 +131,17 @@ RunControl *QmlProjectAnalyzerRunControlFactory::create(RunConfiguration *runCon
     return rc;
 }
 
-QString QmlProjectAnalyzerRunControlFactory::displayName() const
+QString QmlProfilerRunControlFactory::displayName() const
 {
     return tr("QML Profiler");
 }
 
-IRunConfigurationAspect *QmlProjectAnalyzerRunControlFactory::createRunConfigurationAspect()
+IRunConfigurationAspect *QmlProfilerRunControlFactory::createRunConfigurationAspect()
 {
     return new AnalyzerProjectSettings;
 }
 
-RunConfigWidget *QmlProjectAnalyzerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
+RunConfigWidget *QmlProfilerRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
 {
     QmlProjectManager::QmlProjectRunConfiguration *localRc =
         qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);

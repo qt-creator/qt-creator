@@ -31,24 +31,23 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROJECTANALYZERRUNCONTROLFACTORY_H
-#define QMLPROJECTANALYZERRUNCONTROLFACTORY_H
+#ifndef QMLPROFILERRUNCONTROLFACTORY_H
+#define QMLPROFILERRUNCONTROLFACTORY_H
 
 #include <analyzerbase/analyzerruncontrol.h>
-//#include <analyzerbase/analyzerruncontrolfactory.h>
 #include <projectexplorer/runconfiguration.h>
 
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProjectAnalyzerRunControlFactory : public ProjectExplorer::IRunControlFactory
+class QmlProfilerRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 
 public:
     typedef ProjectExplorer::RunConfiguration RunConfiguration;
 
-    QmlProjectAnalyzerRunControlFactory(QObject *parent = 0);
+    QmlProfilerRunControlFactory(QObject *parent = 0);
 
     // IRunControlFactory implementation
     QString displayName() const;
@@ -64,4 +63,4 @@ signals:
 } // namespace Internal
 } // namespace QmlProfiler
 
-#endif // QMLPROJECTANALYZERRUNCONTROLFACTORY_H
+#endif // QMLPROFILERRUNCONTROLFACTORY_H
