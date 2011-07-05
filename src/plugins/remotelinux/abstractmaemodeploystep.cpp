@@ -298,7 +298,8 @@ void AbstractMaemoDeployStep::connectToDevice()
         connect(m_connection.data(), SIGNAL(connected()), this,
             SLOT(handleConnected()));
         writeOutput(tr("Connecting to device..."));
-        m_connection->connectToHost();
+        if (m_connection->state() == SshConnection::Unconnected)
+            m_connection->connectToHost();
     }
 }
 

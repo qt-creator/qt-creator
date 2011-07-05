@@ -186,7 +186,8 @@ void RemoteValgrindProcess::run(const QString &valgrindExecutable, const QString
                 this, SLOT(connected()));
         connect(m_connection.data(), SIGNAL(error(Utils::SshError)),
                 this, SLOT(error(Utils::SshError)));
-        m_connection->connectToHost();
+        if (m_connection->state() == Utils::SshConnection::Unconnected)
+            m_connection->connectToHost();
     } else {
         connected();
     }

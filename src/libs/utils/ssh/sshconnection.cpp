@@ -620,6 +620,8 @@ void SshConnectionPrivate::sendKeepAlivePacket()
 
 void SshConnectionPrivate::connectToHost()
 {
+    QTC_ASSERT(m_state == SocketUnconnected, return);
+
     m_incomingData.clear();
     m_incomingPacket.reset();
     m_sendFacility.reset();
