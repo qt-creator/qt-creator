@@ -640,7 +640,7 @@ MaemoTarPackageCreationStep::MaemoTarPackageCreationStep(BuildStepList *buildCon
 
 void MaemoTarPackageCreationStep::ctor()
 {
-    setDefaultDisplayName(tr("Create tar ball"));
+    setDefaultDisplayName(tr("Create tarball"));
 }
 
 bool MaemoTarPackageCreationStep::createPackage(QProcess *buildProc,

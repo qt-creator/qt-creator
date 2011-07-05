@@ -462,7 +462,7 @@ static inline void addStackLayoutMemoryView(DebuggerEngine *engine,
                              regMap, true, background);
     const unsigned flags = separateView ? (DebuggerEngine::MemoryView|DebuggerEngine::MemoryReadOnly) : 0;
     const QString title =
-        WatchWindow::tr("Memory Layout of Local Variables at 0x%2").arg(start, 0, 16);
+        WatchWindow::tr("Memory Layout of Local Variables at 0x%1").arg(start, 0, 16);
     engine->openMemoryView(start, flags, markup, p, title, parent);
 }
 

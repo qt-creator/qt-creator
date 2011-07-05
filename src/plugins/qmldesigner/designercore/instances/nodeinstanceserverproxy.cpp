@@ -203,7 +203,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
        QMessageBox::warning(0, tr("Cannot Find QML Puppet Executable"),
                             tr("The executable of the QML Puppet process (%1) cannot be found. "
                                "Please check your installation. "
-                               "QML Puppet is a process which runs in the background to render the the items.").
+                               "QML Puppet is a process which runs in the background to render the items.").
                             arg(applicationPath));
    }
 }

@@ -1509,7 +1509,7 @@ QString DebuggerEngine::msgWatchpointByExpressionTriggered(BreakpointModelId id,
     return id
         ? tr("Data breakpoint %1 (%2) at %3 in thread %4 triggered.")
             .arg(id.toString()).arg(number).arg(expr).arg(threadId)
-        : tr("Internal data breakpoint %1 at %2 in thread %4 triggered.")
+        : tr("Internal data breakpoint %1 at %2 in thread %3 triggered.")
             .arg(number).arg(expr).arg(threadId);
 }
 
