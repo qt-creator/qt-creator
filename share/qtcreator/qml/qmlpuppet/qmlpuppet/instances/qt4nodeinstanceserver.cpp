@@ -160,6 +160,7 @@ QList<ServerNodeInstance> Qt4NodeInstanceServer::setupScene(const CreateSceneCom
 {
     setupFileUrl(command.fileUrl());
     setupImports(command.imports());
+    setupDummyData(command.fileUrl());
 
     static_cast<QGraphicsScenePrivate*>(QObjectPrivate::get(declarativeView()->scene()))->processDirtyItemsEmitted = true;
 

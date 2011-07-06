@@ -138,6 +138,7 @@ QList<ServerNodeInstance> Qt5NodeInstanceServer::setupScene(const CreateSceneCom
 {
     setupFileUrl(command.fileUrl());
     setupImports(command.imports());
+    setupDummyData(command.fileUrl());
 
     QList<ServerNodeInstance> instanceList = setupInstances(command);
 
