@@ -36,26 +36,9 @@
 namespace ClassView {
 namespace Constants {
 
-//! Navi Widget Factory id
-const char * const CLASSVIEWNAVIGATION_ID = "Class View";
-
-//! Navi Widget Factory priority
-const int CLASSVIEWNAVIGATION_PRIORITY = 500;
-
-//! Settings' group
-const char * const CLASSVIEW_SETTINGS_GROUP = "ClassView";
-
-//! Settings' prefix for the tree widget
-const char * const CLASSVIEW_SETTINGS_TREEWIDGET_PREFIX = "TreeWidget.";
-
-//! Flat mode settings
-const char * const CLASSVIEW_SETTINGS_FLATMODE = "FlatMode";
-
-//! Delay in msecs before an update
-const int CLASSVIEW_EDITINGTREEUPDATE_DELAY = 400;
-
 //! QStandardItem roles
-enum ItemRole {
+enum ItemRole
+{
     SymbolLocationsRole = Qt::UserRole + 1, //!< Symbol locations
     IconTypeRole,                           //!< Icon type (integer)
     SymbolNameRole,                         //!< Symbol name

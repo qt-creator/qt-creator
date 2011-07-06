@@ -47,8 +47,9 @@ namespace Internal {
    \brief Private class data for \a TreeItemModel
    \sa TreeItemModel
  */
-struct TreeItemModelPrivate
+class TreeItemModelPrivate
 {
+public:
     //! icon provider
     CPlusPlus::Icons icons;
 };
@@ -57,12 +58,13 @@ struct TreeItemModelPrivate
 
 TreeItemModel::TreeItemModel(QObject *parent)
     : QStandardItemModel(parent),
-    d_ptr(new TreeItemModelPrivate())
+    d(new TreeItemModelPrivate())
 {
 }
 
 TreeItemModel::~TreeItemModel()
 {
+    delete d;
 }
 
 QVariant TreeItemModel::data(const QModelIndex &index, int role) const
@@ -77,7 +79,7 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
                 bool ok = false;
                 int type = iconType.toInt(&ok);
                 if (ok && type >= 0)
-                    return d_ptr->icons.iconForType(static_cast<CPlusPlus::Icons::IconType>(type));
+                    return d->icons.iconForType(static_cast<CPlusPlus::Icons::IconType>(type));
             }
         }
         break;

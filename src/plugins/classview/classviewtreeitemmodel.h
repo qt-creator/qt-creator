@@ -34,12 +34,11 @@
 #define CLASSVIEWTREEITEMMODEL_H
 
 #include <QtGui/QStandardItemModel>
-#include <QtCore/QModelIndex>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QSet>
 
 namespace ClassView {
 namespace Internal {
+
+class TreeItemModelPrivate;
 
 /*!
    \class TreeItemModel
@@ -71,7 +70,7 @@ public:
 
 private:
     //! private class data pointer
-    QScopedPointer<struct TreeItemModelPrivate> d_ptr;
+    TreeItemModelPrivate *d;
 };
 
 } // namespace Internal

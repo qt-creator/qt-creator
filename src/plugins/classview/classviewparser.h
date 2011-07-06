@@ -37,11 +37,6 @@
 
 #include "classviewparsertreeitem.h"
 
-#include <QtCore/QList>
-#include <QtGui/QStandardItem>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QSharedPointer>
-
 #include <CPlusPlusForwardDeclarations.h>
 #include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/CppDocument.h>
@@ -50,8 +45,14 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
 
+#include <QtCore/QList>
+#include <QtCore/QSharedPointer>
+#include <QtGui/QStandardItem>
+
 namespace ClassView {
 namespace Internal {
+
+class ParserPrivate;
 
 /*!
    \class Parser
@@ -259,7 +260,7 @@ protected:
 
 private:
     //! Private class data pointer
-    QScopedPointer<struct ParserPrivate> d_ptr;
+    ParserPrivate *d;
 };
 
 } // namespace Internal

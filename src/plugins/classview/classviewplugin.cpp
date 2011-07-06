@@ -39,31 +39,7 @@
 namespace ClassView {
 namespace Internal {
 
-///////////////////////////////// PluginPrivate //////////////////////////////////
-/*!
-   \struct PluginPrivate
-   \brief Private class data for \a Plugin
-   \sa Plugin
- */
-struct PluginPrivate
-{
-    //! Pointer to Navi Widget Factory
-    QPointer<NavigationWidgetFactory> navigationWidgetFactory;
-
-    //! Pointer to Manager
-    QPointer<Manager> manager;
-};
-
 ///////////////////////////////// Plugin //////////////////////////////////
-
-Plugin::Plugin()
-    : d_ptr(new PluginPrivate())
-{
-}
-
-Plugin::~Plugin()
-{
-}
 
 bool Plugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
@@ -71,19 +47,15 @@ bool Plugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(errorMessage)
 
     // create a navigation widget factory
-    d_ptr->navigationWidgetFactory = NavigationWidgetFactory::instance();
+    (void) new NavigationWidgetFactory;
 
     // add to ExtensionSystem
-    addAutoReleasedObject(d_ptr->navigationWidgetFactory);
+    addAutoReleasedObject(NavigationWidgetFactory::instance());
 
     // create manager
-    d_ptr->manager = Manager::instance(this);
+    (void) new Manager(this);
 
     return true;
-}
-
-void Plugin::extensionsInitialized()
-{
 }
 
 } // namespace Internal

@@ -34,7 +34,6 @@
 #define CLASSVIEWMANAGER_H
 
 #include <QtCore/QObject>
-#include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
 #include <QtGui/QStandardItem>
 
@@ -43,7 +42,7 @@
 namespace ClassView {
 namespace Internal {
 
-class NavigationWidgetFactory;
+class ManagerPrivate;
 
 /*!
    \class Manager
@@ -62,13 +61,14 @@ class Manager : public QObject
 public:
     /*!
        \brief
-       \param widgetFactory NavigationWidgetFactory
        \param parent Parent object
      */
+    explicit Manager(QObject *parent = 0);
+
     virtual ~Manager();
 
     //! Get an instance of Manager
-    static Manager *instance(QObject *parent = 0);
+    static Manager *instance();
 
     /*!
        \brief Lazy data population for a \a QStandardItemModel
@@ -236,11 +236,8 @@ protected:
     void setState(bool state);
 
 private:
-    explicit Manager(QObject *parent = 0);
-
-private:
     //! private class data pointer
-    QScopedPointer<struct ManagerPrivate> d_ptr;
+    ManagerPrivate *d;
 };
 
 } // namespace Internal

@@ -57,21 +57,19 @@ namespace Internal {
 
 ///////////////////////////////// ManagerPrivate //////////////////////////////////
 
+// static variable initialization
+static Manager *managerInstance = 0;
+
 /*!
    \struct ManagerPrivate
    \internal
    \brief Private class data for \a Manager
    \sa Manager
  */
-struct ManagerPrivate
+class ManagerPrivate
 {
+public:
     ManagerPrivate() : state(false), disableCodeParser(false) {}
-
-    //! instance
-    static Manager *instance;
-
-    //! Pointer to widget factory
-    QPointer<NavigationWidgetFactory> widgetFactory;
 
     //! State mutex
     QMutex mutexState;
@@ -89,16 +87,13 @@ struct ManagerPrivate
     bool disableCodeParser;
 };
 
-// static variable initialization
-Manager *ManagerPrivate::instance = 0;
-
 ///////////////////////////////// Manager //////////////////////////////////
 
 Manager::Manager(QObject *parent)
     : QObject(parent),
-    d_ptr(new ManagerPrivate())
+    d(new ManagerPrivate())
 {
-    d_ptr->widgetFactory = NavigationWidgetFactory::instance();
+    managerInstance = this;
 
     // register - to be able send between signal/slots
     qRegisterMetaType<QSharedPointer<QStandardItem> >("QSharedPointer<QStandardItem>");
@@ -106,8 +101,8 @@ Manager::Manager(QObject *parent)
     initialize();
 
     // start a separate thread for the parser
-    d_ptr->parser.moveToThread(&d_ptr->parserThread);
-    d_ptr->parserThread.start();
+    d->parser.moveToThread(&d->parserThread);
+    d->parserThread.start();
 
     // initial setup
     onProjectListChanged();
@@ -115,25 +110,25 @@ Manager::Manager(QObject *parent)
 
 Manager::~Manager()
 {
-    d_ptr->parserThread.quit();
-    d_ptr->parserThread.wait();
+    d->parserThread.quit();
+    d->parserThread.wait();
+    delete d;
+    managerInstance = 0;
 }
 
-Manager *Manager::instance(QObject *parent)
+Manager *Manager::instance()
 {
-    if (!ManagerPrivate::instance)
-        ManagerPrivate::instance = new Manager(parent);
-    return ManagerPrivate::instance;
+    return managerInstance;
 }
 
 bool Manager::canFetchMore(QStandardItem *item) const
 {
-    return d_ptr->parser.canFetchMore(item);
+    return d->parser.canFetchMore(item);
 }
 
 void Manager::fetchMore(QStandardItem *item, bool skipRoot)
 {
-    d_ptr->parser.fetchMore(item, skipRoot);
+    d->parser.fetchMore(item, skipRoot);
 }
 
 void Manager::initialize()
@@ -141,7 +136,7 @@ void Manager::initialize()
     // use Qt::QueuedConnection everywhere
 
     // widget factory signals
-    connect(d_ptr->widgetFactory, SIGNAL(widgetIsCreated()),
+    connect(NavigationWidgetFactory::instance(), SIGNAL(widgetIsCreated()),
             SLOT(onWidgetIsCreated()), Qt::QueuedConnection);
 
     // internal manager state is changed
@@ -165,31 +160,31 @@ void Manager::initialize()
 
     // when we signals that really document is updated - sent it to the parser
     connect(this, SIGNAL(requestDocumentUpdated(CPlusPlus::Document::Ptr)),
-            &d_ptr->parser, SLOT(parseDocument(CPlusPlus::Document::Ptr)), Qt::QueuedConnection);
+            &d->parser, SLOT(parseDocument(CPlusPlus::Document::Ptr)), Qt::QueuedConnection);
 
     // translate data update from the parser to listeners
-    connect(&d_ptr->parser, SIGNAL(treeDataUpdate(QSharedPointer<QStandardItem>)),
+    connect(&d->parser, SIGNAL(treeDataUpdate(QSharedPointer<QStandardItem>)),
             this, SLOT(onTreeDataUpdate(QSharedPointer<QStandardItem>)), Qt::QueuedConnection);
 
     // requet current state - immediately after a notification
     connect(this, SIGNAL(requestTreeDataUpdate()),
-            &d_ptr->parser, SLOT(requestCurrentState()), Qt::QueuedConnection);
+            &d->parser, SLOT(requestCurrentState()), Qt::QueuedConnection);
 
     // full reset request to parser
     connect(this, SIGNAL(requestResetCurrentState()),
-            &d_ptr->parser, SLOT(resetDataToCurrentState()), Qt::QueuedConnection);
+            &d->parser, SLOT(resetDataToCurrentState()), Qt::QueuedConnection);
 
     // clear cache request
     connect(this, SIGNAL(requestClearCache()),
-            &d_ptr->parser, SLOT(clearCache()), Qt::QueuedConnection);
+            &d->parser, SLOT(clearCache()), Qt::QueuedConnection);
 
     // clear full cache request
     connect(this, SIGNAL(requestClearCacheAll()),
-            &d_ptr->parser, SLOT(clearCacheAll()), Qt::QueuedConnection);
+            &d->parser, SLOT(clearCacheAll()), Qt::QueuedConnection);
 
     // flat mode request
     connect(this, SIGNAL(requestSetFlatMode(bool)),
-            &d_ptr->parser, SLOT(setFlatMode(bool)), Qt::QueuedConnection);
+            &d->parser, SLOT(setFlatMode(bool)), Qt::QueuedConnection);
 
     // connect to the cpp model manager for signals about document updates
     CPlusPlus::CppModelManagerInterface *codeModelManager
@@ -200,25 +195,25 @@ void Manager::initialize()
             SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)), Qt::QueuedConnection);
     //
     connect(codeModelManager, SIGNAL(aboutToRemoveFiles(QStringList)),
-            &d_ptr->parser, SLOT(removeFiles(QStringList)), Qt::QueuedConnection);
+            &d->parser, SLOT(removeFiles(QStringList)), Qt::QueuedConnection);
 }
 
 bool Manager::state() const
 {
-    return d_ptr->state;
+    return d->state;
 }
 
 void Manager::setState(bool state)
 {
-    QMutexLocker locker(&d_ptr->mutexState);
+    QMutexLocker locker(&d->mutexState);
 
     // boolean comparsion - should be done correctly by any compiler
-    if (state == d_ptr->state)
+    if (state == d->state)
         return;
 
-    d_ptr->state = state;
+    d->state = state;
 
-    emit stateChanged(d_ptr->state);
+    emit stateChanged(d->state);
 }
 
 void Manager::onWidgetIsCreated()
@@ -260,7 +255,7 @@ void Manager::onTaskStarted(const QString &type)
         return;
 
     // disable tree updates to speed up
-    d_ptr->disableCodeParser = true;
+    d->disableCodeParser = true;
 }
 
 void Manager::onAllTasksFinished(const QString &type)
@@ -269,7 +264,7 @@ void Manager::onAllTasksFinished(const QString &type)
         return;
 
     // parsing is finished, enable tree updates
-    d_ptr->disableCodeParser = false;
+    d->disableCodeParser = false;
 
     // do nothing if Manager is disabled
     if (!state())
@@ -289,7 +284,7 @@ void Manager::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
         return;
 
     // do nothing if updates are disabled
-    if (d_ptr->disableCodeParser)
+    if (d->disableCodeParser)
         return;
 
     emit requestDocumentUpdated(doc);

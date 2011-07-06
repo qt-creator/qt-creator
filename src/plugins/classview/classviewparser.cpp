@@ -72,8 +72,9 @@ namespace Internal {
    \brief Private class data for \a Parser
    \sa Parser
  */
-struct ParserPrivate
+class ParserPrivate
 {
+public:
     //! Constructor
     ParserPrivate() : flatMode(false) {}
 
@@ -136,21 +137,22 @@ CPlusPlus::Document::Ptr ParserPrivate::document(const QString &fileName) const
 
 Parser::Parser(QObject *parent)
     : QObject(parent),
-    d_ptr(new ParserPrivate())
+    d(new ParserPrivate())
 {
-    d_ptr->timer = new QTimer(this);
-    d_ptr->timer->setSingleShot(true);
+    d->timer = new QTimer(this);
+    d->timer->setSingleShot(true);
 
     // connect signal/slots
     // internal data reset
     connect(this, SIGNAL(resetDataDone()), SLOT(onResetDataDone()), Qt::QueuedConnection);
 
     // timer for emitting changes
-    connect(d_ptr->timer, SIGNAL(timeout()), SLOT(requestCurrentState()), Qt::QueuedConnection);
+    connect(d->timer, SIGNAL(timeout()), SLOT(requestCurrentState()), Qt::QueuedConnection);
 }
 
 Parser::~Parser()
 {
+    delete d;
 }
 
 bool Parser::canFetchMore(QStandardItem *item) const
@@ -171,11 +173,11 @@ void Parser::fetchMore(QStandardItem *item, bool skipRoot) const
 
 void Parser::setFlatMode(bool flatMode)
 {
-    if (flatMode == d_ptr->flatMode)
+    if (flatMode == d->flatMode)
         return;
 
     // change internal
-    d_ptr->flatMode = flatMode;
+    d->flatMode = flatMode;
 
     // regenerate and resend current tree
     emitCurrentTree();
@@ -197,10 +199,10 @@ ParserTreeItem::ConstPtr Parser::findItemByRoot(const QStandardItem *item, bool 
     if (skipRoot && uiList.count() > 0)
         uiList.removeLast();
 
-    QReadLocker locker(&d_ptr->rootItemLocker);
+    QReadLocker locker(&d->rootItemLocker);
 
     // using internal root - search correct item
-    ParserTreeItem::ConstPtr internal = d_ptr->rootItem;
+    ParserTreeItem::ConstPtr internal = d->rootItem;
 
     while(uiList.count() > 0) {
         cur = uiList.last();
@@ -229,7 +231,7 @@ ParserTreeItem::ConstPtr Parser::parse()
             continue;
 
         ParserTreeItem::Ptr item;
-        if (!d_ptr->flatMode)
+        if (!d->flatMode)
             item = ParserTreeItem::Ptr(new ParserTreeItem());
 
         QString prjName(prj->displayName());
@@ -240,7 +242,7 @@ ParserTreeItem::ConstPtr Parser::parse()
 
         QStringList projectList = addProjectNode(item, prj->rootProjectNode());
 
-        if (d_ptr->flatMode) {
+        if (d->flatMode) {
             // use prj path (prjType) as a project id
 //            addProject(item, prj->files(ProjectExplorer::Project::ExcludeGeneratedFiles), prjType);
             //! \todo return back, works too long
@@ -301,8 +303,8 @@ void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol 
     if (symbolName && symbolName->isQualifiedNameId())
         return;
 
-    QString name = d_ptr->overview.prettyName(symbol->name()).trimmed();
-    QString type = d_ptr->overview.prettyType(symbol->type()).trimmed();
+    QString name = d->overview.prettyName(symbol->name()).trimmed();
+    QString type = d->overview.prettyType(symbol->type()).trimmed();
     int iconType = CPlusPlus::Icons::iconTypeForSymbol(symbol);
 
     SymbolInformation information(name, type, iconType);
@@ -352,13 +354,13 @@ void Parser::addSymbol(const ParserTreeItem::Ptr &item, const CPlusPlus::Symbol 
 
 ParserTreeItem::Ptr Parser::createFlatTree(const QStringList &projectList)
 {
-    QReadLocker locker(&d_ptr->prjLocker);
+    QReadLocker locker(&d->prjLocker);
 
     ParserTreeItem::Ptr item(new ParserTreeItem());
     foreach(const QString &project, projectList) {
-        if (!d_ptr->cachedPrjTrees.contains(project))
+        if (!d->cachedPrjTrees.contains(project))
             continue;
-        ParserTreeItem::ConstPtr list = d_ptr->cachedPrjTrees[project];
+        ParserTreeItem::ConstPtr list = d->cachedPrjTrees[project];
         item->add(list);
     }
     return item;
@@ -373,7 +375,7 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
     unsigned revision = 0;
     foreach(const QString &file, fileList) {
         // ? locker for document?..
-        const CPlusPlus::Document::Ptr &doc = d_ptr->document(file);
+        const CPlusPlus::Document::Ptr &doc = d->document(file);
         if (doc.isNull())
             continue;
 
@@ -389,10 +391,10 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
 
     // update the cache
     if (!projectId.isEmpty()) {
-        QWriteLocker locker(&d_ptr->prjLocker);
+        QWriteLocker locker(&d->prjLocker);
 
-        d_ptr->cachedPrjTrees[projectId] = item;
-        d_ptr->cachedPrjTreesRevision[projectId] = revision;
+        d->cachedPrjTrees[projectId] = item;
+        d->cachedPrjTreesRevision[projectId] = revision;
     }
     return item;
 }
@@ -400,27 +402,27 @@ ParserTreeItem::Ptr Parser::getParseProjectTree(const QStringList &fileList,
 ParserTreeItem::Ptr Parser::getCachedOrParseProjectTree(const QStringList &fileList,
                                                 const QString &projectId)
 {
-    d_ptr->prjLocker.lockForRead();
+    d->prjLocker.lockForRead();
 
     // calculate current revision
-    if (!projectId.isEmpty() && d_ptr->cachedPrjTrees.contains(projectId)) {
+    if (!projectId.isEmpty() && d->cachedPrjTrees.contains(projectId)) {
         // calculate project's revision
         unsigned revision = 0;
         foreach(const QString &file, fileList) {
-            const CPlusPlus::Document::Ptr &doc = d_ptr->document(file);
+            const CPlusPlus::Document::Ptr &doc = d->document(file);
             if (doc.isNull())
                 continue;
             revision += doc->revision();
         }
 
         // if even revision is the same, return cached project
-        if (revision == d_ptr->cachedPrjTreesRevision[projectId]) {
-            d_ptr->prjLocker.unlock();
-            return d_ptr->cachedPrjTrees[projectId];
+        if (revision == d->cachedPrjTreesRevision[projectId]) {
+            d->prjLocker.unlock();
+            return d->cachedPrjTrees[projectId];
         }
     }
 
-    d_ptr->prjLocker.unlock();
+    d->prjLocker.unlock();
     return getParseProjectTree(fileList, projectId);
 }
 
@@ -430,7 +432,7 @@ ParserTreeItem::ConstPtr Parser::getParseDocumentTree(const CPlusPlus::Document:
         return ParserTreeItem::ConstPtr();
 
     const QString &fileName = doc->fileName();
-    if (!d_ptr->fileList.contains(fileName))
+    if (!d->fileList.contains(fileName))
         return ParserTreeItem::ConstPtr();
 
     ParserTreeItem::Ptr itemPtr(new ParserTreeItem());
@@ -439,11 +441,11 @@ ParserTreeItem::ConstPtr Parser::getParseDocumentTree(const CPlusPlus::Document:
     for (unsigned i = 0; i < total; ++i)
         addSymbol(itemPtr, doc->globalSymbolAt(i));
 
-    QWriteLocker locker(&d_ptr->docLocker);
+    QWriteLocker locker(&d->docLocker);
 
-    d_ptr->cachedDocTrees[fileName] = itemPtr;
-    d_ptr->cachedDocTreesRevision[fileName] = doc->revision();
-    d_ptr->documentList[fileName] = doc;
+    d->cachedDocTrees[fileName] = itemPtr;
+    d->cachedDocTreesRevision[fileName] = doc->revision();
+    d->documentList[fileName] = doc;
 
     return itemPtr;
 }
@@ -454,14 +456,14 @@ ParserTreeItem::ConstPtr Parser::getCachedOrParseDocumentTree(const CPlusPlus::D
         return ParserTreeItem::ConstPtr();
 
     const QString &fileName = doc->fileName();
-    d_ptr->docLocker.lockForRead();
-    if (d_ptr->cachedDocTrees.contains(fileName)
-        && d_ptr->cachedDocTreesRevision.contains(fileName)
-        && d_ptr->cachedDocTreesRevision[fileName] == doc->revision()) {
-        d_ptr->docLocker.unlock();
-        return d_ptr->cachedDocTrees[fileName];
+    d->docLocker.lockForRead();
+    if (d->cachedDocTrees.contains(fileName)
+        && d->cachedDocTreesRevision.contains(fileName)
+        && d->cachedDocTreesRevision[fileName] == doc->revision()) {
+        d->docLocker.unlock();
+        return d->cachedDocTrees[fileName];
     } else {
-        d_ptr->docLocker.unlock();
+        d->docLocker.unlock();
         return getParseDocumentTree(doc);
     }
 }
@@ -474,48 +476,48 @@ void Parser::parseDocument(const CPlusPlus::Document::Ptr &doc)
     const QString &name = doc->fileName();
 
     // if it is external file (not in any of our projects)
-    if (!d_ptr->fileList.contains(name))
+    if (!d->fileList.contains(name))
         return;
 
     getParseDocumentTree(doc);
 
-    QTC_ASSERT(d_ptr->timer, return);
+    QTC_ASSERT(d->timer, return);
 
-    if (!d_ptr->timer->isActive())
-        d_ptr->timer->start(Constants::CLASSVIEW_EDITINGTREEUPDATE_DELAY);
+    if (!d->timer->isActive())
+        d->timer->start(400); //! Delay in msecs before an update
     return;
 }
 
 void Parser::clearCacheAll()
 {
-    d_ptr->docLocker.lockForWrite();
+    d->docLocker.lockForWrite();
 
-    d_ptr->cachedDocTrees.clear();
-    d_ptr->cachedDocTreesRevision.clear();
-    d_ptr->documentList.clear();
+    d->cachedDocTrees.clear();
+    d->cachedDocTreesRevision.clear();
+    d->documentList.clear();
 
-    d_ptr->docLocker.unlock();
+    d->docLocker.unlock();
 
     clearCache();
 }
 
 void Parser::clearCache()
 {
-    QWriteLocker locker(&d_ptr->prjLocker);
+    QWriteLocker locker(&d->prjLocker);
 
     // remove cached trees
-    d_ptr->cachedPrjFileLists.clear();
+    d->cachedPrjFileLists.clear();
 
     //! \todo where better to clear project's trees?
     //! When file is add/removed from a particular project?..
-    d_ptr->cachedPrjTrees.clear();
-    d_ptr->cachedPrjTreesRevision.clear();
+    d->cachedPrjTrees.clear();
+    d->cachedPrjTreesRevision.clear();
 }
 
 void Parser::setFileList(const QStringList &fileList)
 {
-    d_ptr->fileList.clear();
-    d_ptr->fileList = QSet<QString>::fromList(fileList);
+    d->fileList.clear();
+    d->fileList = QSet<QString>::fromList(fileList);
 }
 
 void Parser::removeFiles(const QStringList &fileList)
@@ -523,15 +525,15 @@ void Parser::removeFiles(const QStringList &fileList)
     if (fileList.count() == 0)
         return;
 
-    QWriteLocker lockerPrj(&d_ptr->prjLocker);
-    QWriteLocker lockerDoc(&d_ptr->docLocker);
+    QWriteLocker lockerPrj(&d->prjLocker);
+    QWriteLocker lockerDoc(&d->docLocker);
     foreach(const QString &name, fileList) {
-        d_ptr->fileList.remove(name);
-        d_ptr->cachedDocTrees.remove(name);
-        d_ptr->cachedDocTreesRevision.remove(name);
-        d_ptr->documentList.remove(name);
-        d_ptr->cachedPrjTrees.remove(name);
-        d_ptr->cachedPrjFileLists.clear();
+        d->fileList.remove(name);
+        d->cachedDocTrees.remove(name);
+        d->cachedDocTreesRevision.remove(name);
+        d->documentList.remove(name);
+        d->cachedPrjTrees.remove(name);
+        d->cachedPrjFileLists.clear();
     }
 
     emit filesAreRemoved();
@@ -542,15 +544,15 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     // clear internal cache
     clearCache();
 
-    d_ptr->docLocker.lockForWrite();
+    d->docLocker.lockForWrite();
 
     // copy snapshot's documents
     CPlusPlus::Snapshot::const_iterator cur = snapshot.begin();
     CPlusPlus::Snapshot::const_iterator end = snapshot.end();
     for(; cur != end; cur++)
-        d_ptr->documentList[cur.key()] = cur.value();
+        d->documentList[cur.key()] = cur.value();
 
-    d_ptr->docLocker.unlock();
+    d->docLocker.unlock();
 
     // recalculate file list
     QStringList fileList;
@@ -588,16 +590,16 @@ void Parser::requestCurrentState()
 void Parser::emitCurrentTree()
 {
     // stop timer if it is active right now
-    d_ptr->timer->stop();
+    d->timer->stop();
 
-    d_ptr->rootItemLocker.lockForWrite();
-    d_ptr->rootItem = parse();
-    d_ptr->rootItemLocker.unlock();
+    d->rootItemLocker.lockForWrite();
+    d->rootItem = parse();
+    d->rootItemLocker.unlock();
 
     // convert
     QSharedPointer<QStandardItem> std(new QStandardItem());
 
-    d_ptr->rootItem->convertTo(std.data());
+    d->rootItem->convertTo(std.data());
 
     emit treeDataUpdate(std);
 }
@@ -640,11 +642,11 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item,
     QStringList fileList;
 
     // try to improve parsing speed by internal cache
-    if (d_ptr->cachedPrjFileLists.contains(nodePath)) {
-        fileList = d_ptr->cachedPrjFileLists[nodePath];
+    if (d->cachedPrjFileLists.contains(nodePath)) {
+        fileList = d->cachedPrjFileLists[nodePath];
     } else {
         fileList = projectNodeFileList(node);
-        d_ptr->cachedPrjFileLists[nodePath] = fileList;
+        d->cachedPrjFileLists[nodePath] = fileList;
     }
     if (fileList.count() > 0) {
         addProject(item, fileList, node->path());

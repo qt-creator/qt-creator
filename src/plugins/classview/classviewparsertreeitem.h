@@ -37,12 +37,13 @@
 #include "classviewsymbolinformation.h"
 
 #include <QtCore/QSharedPointer>
-#include <QtCore/QScopedPointer>
 
 QT_FORWARD_DECLARE_CLASS(QStandardItem)
 
 namespace ClassView {
 namespace Internal {
+
+class ParserTreeItemPrivate;
 
 /*!
    \class ParserTreeItem
@@ -184,7 +185,7 @@ protected:
 
 private:
     //! Private class data pointer
-    QScopedPointer<struct ParserTreeItemPrivate> d_ptr;
+    ParserTreeItemPrivate *d;
 };
 
 } // namespace Internal

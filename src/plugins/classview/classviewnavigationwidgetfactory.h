@@ -35,8 +35,6 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <QtCore/QScopedPointer>
-
 namespace ClassView {
 namespace Internal {
 
@@ -54,10 +52,13 @@ class NavigationWidgetFactory : public Core::INavigationWidgetFactory
     Q_OBJECT
 
 public:
-    //! destructor
-    virtual ~NavigationWidgetFactory();
+    //! Constructor
+    NavigationWidgetFactory();
 
-    //! get an instance
+    //! Destructor
+    ~NavigationWidgetFactory();
+
+    //! Access to static instance
     static NavigationWidgetFactory *instance();
 
     // Core::INavigationWidgetFactory
@@ -82,28 +83,11 @@ public:
     //! \implements Core::INavigationWidgetFactory::restoreSettings
     void restoreSettings(int position, QWidget *widget);
 
-    // own functionality
-
 signals:
     /*!
        \brief Signal which informs that the widget factory creates a widget.
      */
     void widgetIsCreated();
-
-private:
-    //! Constructor
-    NavigationWidgetFactory();
-
-    /*!
-       \brief Get a settings prefix for the specified position
-       \param position Position
-       \return Settings prefix
-     */
-    QString settingsPrefix(int position) const;
-
-private:
-    //! private class data pointer
-    QScopedPointer<struct NavigationWidgetFactoryPrivate> d_ptr;
 };
 
 } // namespace Internal

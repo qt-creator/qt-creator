@@ -56,8 +56,9 @@ namespace Internal {
    \brief Private class data for \a ParserTreeItem
    \sa ParserTreeItem
  */
-struct ParserTreeItemPrivate
+class ParserTreeItemPrivate
 {
+public:
     //! symbol locations
     QSet<SymbolLocation> symbolLocations;
 
@@ -71,19 +72,20 @@ struct ParserTreeItemPrivate
 ///////////////////////////////// ParserTreeItem //////////////////////////////////
 
 ParserTreeItem::ParserTreeItem() :
-    d_ptr(new ParserTreeItemPrivate())
+    d(new ParserTreeItemPrivate())
 {
 }
 
 ParserTreeItem::~ParserTreeItem()
 {
+    delete d;
 }
 
 ParserTreeItem &ParserTreeItem::operator=(const ParserTreeItem &other)
 {
-    d_ptr->symbolLocations = other.d_ptr->symbolLocations;
-    d_ptr->icon = other.d_ptr->icon;
-    d_ptr->symbolInformations.clear();
+    d->symbolLocations = other.d->symbolLocations;
+    d->icon = other.d->icon;
+    d->symbolInformations.clear();
     return *this;
 }
 
@@ -92,9 +94,9 @@ void ParserTreeItem::copy(const ParserTreeItem::ConstPtr &from)
     if (from.isNull())
         return;
 
-    d_ptr->symbolLocations = from->d_ptr->symbolLocations;
-    d_ptr->icon = from->d_ptr->icon;
-    d_ptr->symbolInformations = from->d_ptr->symbolInformations;
+    d->symbolLocations = from->d->symbolLocations;
+    d->icon = from->d->icon;
+    d->symbolInformations = from->d->symbolInformations;
 }
 
 void ParserTreeItem::copyTree(const ParserTreeItem::ConstPtr &target)
@@ -103,9 +105,9 @@ void ParserTreeItem::copyTree(const ParserTreeItem::ConstPtr &target)
         return;
 
     // copy content
-    d_ptr->symbolLocations = target->d_ptr->symbolLocations;
-    d_ptr->icon = target->d_ptr->icon;
-    d_ptr->symbolInformations.clear();
+    d->symbolLocations = target->d->symbolLocations;
+    d->icon = target->d->icon;
+    d->symbolInformations.clear();
 
     // reserve memory
 //    int amount = qMin(100 , target->d_ptr->symbolInformations.count() * 2);
@@ -113,9 +115,9 @@ void ParserTreeItem::copyTree(const ParserTreeItem::ConstPtr &target)
 
     // every child
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator cur =
-            target->d_ptr->symbolInformations.constBegin();
+            target->d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator end =
-            target->d_ptr->symbolInformations.constEnd();
+            target->d->symbolInformations.constEnd();
 
     for(; cur != end; cur++) {
         ParserTreeItem::Ptr item(new ParserTreeItem());
@@ -126,27 +128,27 @@ void ParserTreeItem::copyTree(const ParserTreeItem::ConstPtr &target)
 
 void ParserTreeItem::addSymbolLocation(const SymbolLocation &location)
 {
-    d_ptr->symbolLocations.insert(location);
+    d->symbolLocations.insert(location);
 }
 
 void ParserTreeItem::addSymbolLocation(const QSet<SymbolLocation> &locations)
 {
-    d_ptr->symbolLocations.unite(locations);
+    d->symbolLocations.unite(locations);
 }
 
 void ParserTreeItem::removeSymbolLocation(const SymbolLocation &location)
 {
-    d_ptr->symbolLocations.remove(location);
+    d->symbolLocations.remove(location);
 }
 
 void ParserTreeItem::removeSymbolLocations(const QSet<SymbolLocation> &locations)
 {
-    d_ptr->symbolLocations.subtract(locations);
+    d->symbolLocations.subtract(locations);
 }
 
 QSet<SymbolLocation> ParserTreeItem::symbolLocations() const
 {
-    return d_ptr->symbolLocations;
+    return d->symbolLocations;
 }
 
 void ParserTreeItem::appendChild(const ParserTreeItem::Ptr &item, const SymbolInformation &inf)
@@ -155,34 +157,34 @@ void ParserTreeItem::appendChild(const ParserTreeItem::Ptr &item, const SymbolIn
     if (item.isNull())
         return;
 
-    d_ptr->symbolInformations[inf] = item;
+    d->symbolInformations[inf] = item;
 }
 
 void ParserTreeItem::removeChild(const SymbolInformation &inf)
 {
-    d_ptr->symbolInformations.remove(inf);
+    d->symbolInformations.remove(inf);
 }
 
 ParserTreeItem::Ptr ParserTreeItem::child(const SymbolInformation &inf) const
 {
-    if (!d_ptr->symbolInformations.contains(inf))
+    if (!d->symbolInformations.contains(inf))
         return ParserTreeItem::Ptr();
-    return d_ptr->symbolInformations[inf];
+    return d->symbolInformations[inf];
 }
 
 int ParserTreeItem::childCount() const
 {
-    return d_ptr->symbolInformations.count();
+    return d->symbolInformations.count();
 }
 
 QIcon ParserTreeItem::icon() const
 {
-    return d_ptr->icon;
+    return d->icon;
 }
 
 void ParserTreeItem::setIcon(const QIcon &icon)
 {
-    d_ptr->icon = icon;
+    d->icon = icon;
 }
 
 void ParserTreeItem::add(const ParserTreeItem::ConstPtr &target)
@@ -191,31 +193,31 @@ void ParserTreeItem::add(const ParserTreeItem::ConstPtr &target)
         return;
 
     // add locations
-    d_ptr->symbolLocations = d_ptr->symbolLocations.unite(target->d_ptr->symbolLocations);
+    d->symbolLocations = d->symbolLocations.unite(target->d->symbolLocations);
 
     // add children
     // every target child
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator cur =
-            target->d_ptr->symbolInformations.constBegin();
+            target->d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator end =
-            target->d_ptr->symbolInformations.constEnd();
+            target->d->symbolInformations.constEnd();
     while(cur != end) {
         const SymbolInformation &inf = cur.key();
         const ParserTreeItem::Ptr &targetChild = cur.value();
-        if (d_ptr->symbolInformations.contains(inf)) {
+        if (d->symbolInformations.contains(inf)) {
             // this item has the same child node
-            const ParserTreeItem::Ptr &child = d_ptr->symbolInformations[inf];
+            const ParserTreeItem::Ptr &child = d->symbolInformations[inf];
             if (!child.isNull()) {
                 child->add(targetChild);
             } else {
                 ParserTreeItem::Ptr add(new ParserTreeItem());
                 add->copyTree(targetChild);
-                d_ptr->symbolInformations[inf] = add;
+                d->symbolInformations[inf] = add;
             }
         } else {
             ParserTreeItem::Ptr add(new ParserTreeItem());
             add->copyTree(targetChild);
-            d_ptr->symbolInformations[inf] = add;
+            d->symbolInformations[inf] = add;
         }
         // next item
         ++cur;
@@ -229,18 +231,18 @@ void ParserTreeItem::subtract(const ParserTreeItem::ConstPtr &target)
 
     // every target child
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator cur =
-            target->d_ptr->symbolInformations.constBegin();
+            target->d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator end =
-            target->d_ptr->symbolInformations.constEnd();
+            target->d->symbolInformations.constEnd();
     while(cur != end) {
         const SymbolInformation &inf = cur.key();
-        if (d_ptr->symbolInformations.contains(inf)) {
+        if (d->symbolInformations.contains(inf)) {
             // this item has the same child node
-            if (!d_ptr->symbolInformations[inf].isNull())
-                d_ptr->symbolInformations[inf]->subtract(cur.value());
-            if (d_ptr->symbolInformations[inf].isNull()
-                || d_ptr->symbolInformations[inf]->childCount() == 0)
-                d_ptr->symbolInformations.remove(inf);
+            if (!d->symbolInformations[inf].isNull())
+                d->symbolInformations[inf]->subtract(cur.value());
+            if (d->symbolInformations[inf].isNull()
+                || d->symbolInformations[inf]->childCount() == 0)
+                d->symbolInformations.remove(inf);
         }
         // next item
         ++cur;
@@ -256,9 +258,9 @@ void ParserTreeItem::convertTo(QStandardItem *item, bool recursive) const
 
     // convert to map - to sort it
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator curHash =
-            d_ptr->symbolInformations.constBegin();
+            d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator endHash =
-            d_ptr->symbolInformations.constEnd();
+            d->symbolInformations.constEnd();
     while(curHash != endHash) {
         map.insert(curHash.key(), curHash.value());
         ++curHash;
@@ -308,9 +310,9 @@ bool ParserTreeItem::canFetchMore(QStandardItem *item) const
     // children for the internal state
     int internalChildren = 0;
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator curHash =
-            d_ptr->symbolInformations.constBegin();
+            d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator endHash =
-            d_ptr->symbolInformations.constEnd();
+            d->symbolInformations.constEnd();
     while(curHash != endHash) {
         const ParserTreeItem::Ptr &child = curHash.value();
         if (!child.isNull()) {
@@ -340,8 +342,8 @@ void ParserTreeItem::fetchMore(QStandardItem *item) const
 
         const SymbolInformation &childInf = Utils::symbolInformationFromItem(child);
 
-        if (d_ptr->symbolInformations.contains(childInf)) {
-            const ParserTreeItem::Ptr &childPtr = d_ptr->symbolInformations[childInf];
+        if (d->symbolInformations.contains(childInf)) {
+            const ParserTreeItem::Ptr &childPtr = d->symbolInformations[childInf];
             if (childPtr.isNull())
                 continue;
 
@@ -357,9 +359,9 @@ void ParserTreeItem::fetchMore(QStandardItem *item) const
 void ParserTreeItem::debugDump(int ident) const
 {
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator curHash =
-            d_ptr->symbolInformations.constBegin();
+            d->symbolInformations.constBegin();
     QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator endHash =
-            d_ptr->symbolInformations.constEnd();
+            d->symbolInformations.constEnd();
     while(curHash != endHash) {
         const SymbolInformation &inf = curHash.key();
         qDebug() << QString(2*ident, QChar(' ')) << inf.iconType() << inf.name() << inf.type()

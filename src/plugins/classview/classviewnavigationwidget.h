@@ -33,17 +33,18 @@
 #ifndef CLASSVIEWNAVIGATIONWIDGET_H
 #define CLASSVIEWNAVIGATIONWIDGET_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QToolButton>
-#include <QtGui/QStandardItem>
+#include <QtCore/QList>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QList>
 
-QT_FORWARD_DECLARE_CLASS(QModelIndex)
+#include <QtGui/QStandardItem>
+#include <QtGui/QToolButton>
+#include <QtGui/QWidget>
 
 namespace ClassView {
 namespace Internal {
+
+class NavigationWidgetPrivate;
 
 /*!
    \class NavigationWidget
@@ -141,7 +142,7 @@ protected:
 
 private:
     //! Private class data pointer
-    QScopedPointer<struct NavigationWidgetPrivate> d_ptr;
+    NavigationWidgetPrivate *d;
 };
 
 } // namespace Internal
