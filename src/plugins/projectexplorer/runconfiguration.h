@@ -55,15 +55,21 @@ class Target;
 class PROJECTEXPLORER_EXPORT ProcessHandle
 {
 public:
-    explicit ProcessHandle(quint64 pid = 0) : m_pid(pid) {}
+    explicit ProcessHandle(quint64 pid = 0);
 
-    bool isValid() const { return m_pid != 0; }
-    void setPid(quint64 pid) { m_pid = pid; }
-    quint64 pid() const { return m_pid; }
+    bool isValid() const;
+    void setPid(quint64 pid);
+    quint64 pid() const;
+    QString toString() const;
+
+    bool equals(const ProcessHandle &) const;
 
 private:
     quint64 m_pid;
 };
+
+inline bool operator==(const ProcessHandle &p1, const ProcessHandle &p2) { return p1.equals(p2); }
+inline bool operator!=(const ProcessHandle &p1, const ProcessHandle &p2) { return !p1.equals(p2); }
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
@@ -241,6 +247,7 @@ signals:
         const QString &msg, Utils::OutputFormat format);
     void started();
     void finished();
+    void applicationProcessHandleChanged();
 
 private slots:
     void bringApplicationToForegroundInternal();

@@ -69,6 +69,13 @@ static QObject *debuggerCore()
     return ExtensionSystem::PluginManager::instance()->getObjectByName("DebuggerCore");
 }
 
+static QString msgAttachDebuggerTooltip(const QString &handleDescription = QString())
+{
+    return handleDescription.isEmpty() ?
+           AppOutputPane::tr("Attach debugger to this process") :
+           AppOutputPane::tr("Attach debugger to %1").arg(handleDescription);
+}
+
 AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *w) :
     runControl(rc), window(w), asyncClosing(false)
 {
@@ -109,7 +116,7 @@ AppOutputPane::AppOutputPane() :
             this, SLOT(stopRunControl()));
 
     // Attach
-    m_attachButton->setToolTip(tr("Attach debugger to this process"));
+    m_attachButton->setToolTip(msgAttachDebuggerTooltip());
     m_attachButton->setEnabled(false);
     m_attachButton->setIcon(QIcon(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
     m_attachButton->setAutoRaise(true);
@@ -251,6 +258,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             this, SLOT(runControlStarted()));
     connect(rc, SIGNAL(finished()),
             this, SLOT(runControlFinished()));
+    connect(rc, SIGNAL(applicationProcessHandleChanged()),
+            this, SLOT(enableButtons()));
     connect(rc, SIGNAL(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)),
             this, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)));
 
@@ -423,33 +432,51 @@ void AppOutputPane::projectRemoved()
     tabChanged(m_tabWidget->currentIndex());
 }
 
+void AppOutputPane::enableButtons()
+{
+    const RunControl *rc = currentRunControl();
+    const bool isRunning = rc && rc->isRunning();
+    enableButtons(rc, isRunning);
+}
+
+void AppOutputPane::enableButtons(const RunControl *rc /* = 0 */, bool isRunning /*  = false */)
+{
+    if (rc) {
+        m_reRunButton->setEnabled(!isRunning);
+        m_reRunButton->setIcon(rc->icon());
+        m_stopAction->setEnabled(isRunning);
+        if (isRunning && debuggerCore() && rc->applicationProcessHandle().isValid()) {
+            m_attachButton->setEnabled(true);
+            m_attachButton->setToolTip(msgAttachDebuggerTooltip(rc->applicationProcessHandle().toString()));
+        } else {
+            m_attachButton->setEnabled(false);
+            m_attachButton->setToolTip(msgAttachDebuggerTooltip());
+        }
+    } else {
+        m_reRunButton->setEnabled(false);
+        m_reRunButton->setIcon(QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL)));
+        m_attachButton->setEnabled(false);
+        m_attachButton->setToolTip(msgAttachDebuggerTooltip());
+        m_stopAction->setEnabled(false);
+    }
+}
+
 void AppOutputPane::tabChanged(int i)
 {
-    if (i == -1) {
-        m_stopAction->setEnabled(false);
-        m_reRunButton->setEnabled(false);
-        m_attachButton->setEnabled(false);
+    const int index = indexOf(m_tabWidget->widget(i));
+    if (i != -1) {
+        const RunControl *rc = m_runControlTabs.at(index).runControl;
+        enableButtons(rc, rc->isRunning());
     } else {
-        const int index = indexOf(m_tabWidget->widget(i));
-        QTC_ASSERT(index != -1, return; )
-
-        RunControl *rc = m_runControlTabs.at(index).runControl;
-        m_stopAction->setEnabled(rc->isRunning());
-        m_reRunButton->setEnabled(!rc->isRunning());
-        m_reRunButton->setIcon(rc->icon());
-        m_attachButton->setEnabled(debuggerCore());
+        enableButtons();
     }
 }
 
 void AppOutputPane::runControlStarted()
 {
     RunControl *current = currentRunControl();
-    if (current && current == sender()) {
-        m_reRunButton->setEnabled(false);
-        m_stopAction->setEnabled(true);
-        m_attachButton->setEnabled(debuggerCore());
-        m_reRunButton->setIcon(current->icon());
-    }
+    if (current && current == sender())
+        enableButtons(current, true); // RunControl::isRunning() cannot be trusted in signal handler.
 }
 
 void AppOutputPane::runControlFinished()
@@ -466,12 +493,9 @@ void AppOutputPane::runControlFinished()
         qDebug() << "OutputPane::runControlFinished"  << senderRunControl << senderIndex
                     << " current " << current << m_runControlTabs.size();
 
-    if (current && current == sender()) {
-        m_reRunButton->setEnabled(true);
-        m_stopAction->setEnabled(false);
-        m_attachButton->setEnabled(false);
-        m_reRunButton->setIcon(current->icon());
-    }
+    if (current && current == sender())
+        enableButtons(current, false); // RunControl::isRunning() cannot be trusted in signal handler.
+
     // Check for asynchronous close. Close the tab.
     if (m_runControlTabs.at(senderIndex).asyncClosing)
         closeTab(tabWidgetIndexOf(senderIndex), CloseTabNoPrompt);

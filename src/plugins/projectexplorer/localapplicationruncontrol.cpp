@@ -139,6 +139,7 @@ void LocalApplicationRunControl::slotAppendMessage(const QString &err,
 
 void LocalApplicationRunControl::processExited(int exitCode)
 {
+    setApplicationProcessHandle(ProcessHandle());
     QString msg = tr("%1 exited with code %2\n")
         .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
     appendMessage(msg, Utils::NormalMessageFormat);

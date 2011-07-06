@@ -105,8 +105,11 @@ private slots:
 
     void aboutToUnloadSession();
     void updateFromSettings();
+    void enableButtons();
 
 private:
+    void enableButtons(const RunControl *rc, bool isRunning);
+
     struct RunControlTab {
         explicit RunControlTab(RunControl *runControl = 0,
                                Core::OutputWindow *window = 0);
