@@ -80,10 +80,11 @@ DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent), m_fader
 QSize DetailsButton::sizeHint() const
 {
     // TODO: Adjust this when icons become available!
+    const int w = fontMetrics().width(text()) + 32;
 #ifdef Q_WS_MAC
-    return QSize(80, 34);
+    return QSize(w, 34);
 #else
-    return QSize(80, 22);
+    return QSize(w, 22);
 #endif
 }
 
@@ -171,6 +172,7 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
 
     QRect textRect = p.fontMetrics().boundingRect(text());
     textRect.setWidth(textRect.width() + 15);
+    textRect.setHeight(textRect.height() + 4);
     textRect.moveCenter(rect().center());
 
     p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text());
