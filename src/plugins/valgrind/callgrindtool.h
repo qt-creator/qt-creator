@@ -54,7 +54,6 @@ public:
     ToolMode toolMode() const;
 
     void extensionsInitialized();
-    void initializeDockWidgets();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
