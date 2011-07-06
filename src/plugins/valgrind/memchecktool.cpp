@@ -232,8 +232,6 @@ void MemcheckTool::settingsDestroyed(QObject *settings)
 
 void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
-    ensureWidgets();
-
     AnalyzerSettings *settings = 0;
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (ProjectExplorer::Project *project = pe->startupProject()) {
@@ -355,15 +353,10 @@ private:
     QStringList m_projectFiles;
 };
 
-void MemcheckTool::initializeDockWidgets()
-{
-    ensureWidgets();
-}
 
-void MemcheckTool::ensureWidgets()
+QWidget *MemcheckTool::createWidgets()
 {
-    if (m_errorView)
-        return;
+    QTC_ASSERT(!m_errorView, return 0);
 
     Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
 
@@ -391,12 +384,10 @@ void MemcheckTool::ensureWidgets()
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
             SIGNAL(updateRunActions()), SLOT(maybeActiveRunConfigurationChanged()));
-}
 
-QWidget *MemcheckTool::createControlWidget()
-{
-    ensureWidgets();
-
+    //
+    // The Control Widget.
+    //
     QAction *action = 0;
     QHBoxLayout *layout = new QHBoxLayout;
     QToolButton *button = 0;
@@ -519,7 +510,7 @@ void MemcheckTool::internalParserError(const QString &errorString)
 
 void MemcheckTool::clearErrorView()
 {
-    ensureWidgets();
+    QTC_ASSERT(m_errorView, return);
     m_errorModel->clear();
 
     qDeleteAll(m_suppressionActions);
@@ -529,7 +520,7 @@ void MemcheckTool::clearErrorView()
 
 void MemcheckTool::updateErrorFilter()
 {
-    ensureWidgets();
+    QTC_ASSERT(m_errorView, return);
     QTC_ASSERT(m_settings, return);
 
     AbstractMemcheckSettings *memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();

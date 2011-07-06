@@ -109,15 +109,10 @@ public:
     /// This gets called after all analyzation tools where initialized.
     virtual void extensionsInitialized() = 0;
 
-    /**
-      * This is called to add all dock widgets if tool becomes active first time.
-      * \sa AnalzyerManager::createDockWidget
-      */
-    virtual void initializeDockWidgets() {}
-
+    /// Creates all widgets used by the tool.
     /// Returns a control widget which will be shown in the status bar when
     /// this tool is selected. Must be non-zero.
-    virtual QWidget *createControlWidget() = 0;
+    virtual QWidget *createWidgets() = 0;
 
     /// Returns a new engine for the given start parameters.
     /// Called each time the tool is launched.

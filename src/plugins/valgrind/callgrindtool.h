@@ -58,7 +58,7 @@ public:
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
-    QWidget *createControlWidget();
+    QWidget *createWidgets();
 
     void startTool(Analyzer::StartMode mode);
 

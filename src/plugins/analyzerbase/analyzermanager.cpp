@@ -637,12 +637,10 @@ void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
     m_currentMode = mode;
 
     if (!m_defaultSettings.contains(tool)) {
-        // First time the tool is used.
-        tool->initializeDockWidgets();
+        QWidget *widget = tool->createWidgets();
+        QTC_ASSERT(widget, /**/);
         m_defaultSettings.insert(tool, m_mainWindow->saveSettings());
-
         QTC_ASSERT(!m_controlsWidgetFromTool.contains(tool), /**/);
-        QWidget *widget = tool->createControlWidget();
         m_controlsWidgetFromTool[tool] = widget;
         m_controlsStackWidget->addWidget(widget);
     }

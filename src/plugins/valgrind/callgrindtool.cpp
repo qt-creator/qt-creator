@@ -115,8 +115,7 @@ public:
     void setParseData(ParseData *data);
 
     CostDelegate::CostFormat costFormat() const;
-    QWidget *createControlWidget();
-    void initializeDockWidgets();
+    QWidget *createWidgets();
 
     void doClear(bool clearParseData);
     void updateEventCombo();
@@ -566,13 +565,67 @@ void CallgrindTool::extensionsInitialized()
     }
 }
 
-void CallgrindTool::initializeDockWidgets()
+IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
+    ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    d->initializeDockWidgets();
+    return d->createEngine(sp, runConfiguration);
 }
 
-void CallgrindToolPrivate::initializeDockWidgets()
+IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameters &sp,
+    ProjectExplorer::RunConfiguration *runConfiguration)
 {
+    CallgrindEngine *engine = new CallgrindEngine(q, sp, runConfiguration);
+
+    connect(engine, SIGNAL(parserDataReady(CallgrindEngine *)),
+            SLOT(takeParserData(CallgrindEngine *)));
+    connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
+            SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
+    connect(engine, SIGNAL(finished()),
+            SLOT(engineFinished()));
+
+    connect(this, SIGNAL(dumpRequested()), engine, SLOT(dump()));
+    connect(this, SIGNAL(resetRequested()), engine, SLOT(reset()));
+    connect(this, SIGNAL(pauseToggled(bool)), engine, SLOT(setPaused(bool)));
+
+    // initialize engine
+    engine->setPaused(m_pauseAction->isChecked());
+
+    // we may want to toggle collect for one function only in this run
+    engine->setToggleCollectFunction(m_toggleCollectFunction);
+    m_toggleCollectFunction.clear();
+
+    AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(q->displayName()));
+
+    // apply project settings
+    AnalyzerProjectSettings *analyzerSettings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
+    CallgrindProjectSettings *settings = analyzerSettings->subConfig<CallgrindProjectSettings>();
+    QTC_ASSERT(settings, return engine)
+
+    QTC_ASSERT(m_visualisation, return engine);
+    m_visualisation->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
+    m_proxyModel->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
+    m_dataModel->setVerboseToolTipsEnabled(settings->enableEventToolTips());
+
+    return engine;
+}
+
+void CallgrindTool::startTool(StartMode mode)
+{
+    ValgrindPlugin::startValgrindTool(this, mode);
+}
+
+QWidget *CallgrindTool::createWidgets()
+{
+    return d->createWidgets();
+}
+
+QWidget *CallgrindToolPrivate::createWidgets()
+{
+    QTC_ASSERT(!m_visualisation, return 0);
+
+    //
+    // DockWidgets
+    //
     Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
     m_visualisation = new Visualisation(mw);
     m_visualisation->setFrameStyle(QFrame::NoFrame);
@@ -636,64 +689,10 @@ void CallgrindToolPrivate::initializeDockWidgets()
     mw->splitDockWidget(mw->toolBarDockWidget(), flatDock, Qt::Vertical);
     mw->splitDockWidget(mw->toolBarDockWidget(), calleesDock, Qt::Vertical);
     mw->splitDockWidget(calleesDock, callersDock, Qt::Horizontal);
-}
 
-IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
-    ProjectExplorer::RunConfiguration *runConfiguration)
-{
-    return d->createEngine(sp, runConfiguration);
-}
-
-IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameters &sp,
-    ProjectExplorer::RunConfiguration *runConfiguration)
-{
-    CallgrindEngine *engine = new CallgrindEngine(q, sp, runConfiguration);
-
-    connect(engine, SIGNAL(parserDataReady(CallgrindEngine *)),
-            SLOT(takeParserData(CallgrindEngine *)));
-    connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
-            SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
-    connect(engine, SIGNAL(finished()),
-            SLOT(engineFinished()));
-
-    connect(this, SIGNAL(dumpRequested()), engine, SLOT(dump()));
-    connect(this, SIGNAL(resetRequested()), engine, SLOT(reset()));
-    connect(this, SIGNAL(pauseToggled(bool)), engine, SLOT(setPaused(bool)));
-
-    // initialize engine
-    engine->setPaused(m_pauseAction->isChecked());
-
-    // we may want to toggle collect for one function only in this run
-    engine->setToggleCollectFunction(m_toggleCollectFunction);
-    m_toggleCollectFunction.clear();
-
-    AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(q->displayName()));
-
-    // apply project settings
-    AnalyzerProjectSettings *analyzerSettings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
-    CallgrindProjectSettings *settings = analyzerSettings->subConfig<CallgrindProjectSettings>();
-    QTC_ASSERT(settings, return engine)
-
-    QTC_ASSERT(m_visualisation, return engine);
-    m_visualisation->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
-    m_proxyModel->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
-    m_dataModel->setVerboseToolTipsEnabled(settings->enableEventToolTips());
-
-    return engine;
-}
-
-void CallgrindTool::startTool(StartMode mode)
-{
-    ValgrindPlugin::startValgrindTool(this, mode);
-}
-
-QWidget *CallgrindTool::createControlWidget()
-{
-    return d->createControlWidget();
-}
-
-QWidget *CallgrindToolPrivate::createControlWidget()
-{
+    //
+    // Control Widget
+    //
     QAction *action = 0;
     QWidget *widget = new QWidget;
     QHBoxLayout *layout = new QHBoxLayout;

@@ -225,15 +225,23 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     return engine;
 }
 
-void QmlProfilerTool::initializeDockWidgets()
+void QmlProfilerTool::toolSelected()
 {
-    ensureWidgets();
+    updateAttachAction(true);
 }
 
-void QmlProfilerTool::ensureWidgets()
+void QmlProfilerTool::toolDeselected()
 {
-    if (d->m_traceWindow)
-        return;
+    updateAttachAction(false);
+}
+
+QWidget *QmlProfilerTool::createWidgets()
+{
+    QTC_ASSERT(!d->m_traceWindow, return 0);
+
+    //
+    // DockWidgets
+    //
 
     Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
 
@@ -291,23 +299,10 @@ void QmlProfilerTool::ensureWidgets()
     mw->tabifyDockWidget(eventsDock, timelineDock);
     mw->tabifyDockWidget(timelineDock, calleeDock);
     mw->tabifyDockWidget(calleeDock, callerDock);
-}
 
-void QmlProfilerTool::toolSelected()
-{
-    updateAttachAction(true);
-}
-
-void QmlProfilerTool::toolDeselected()
-{
-    updateAttachAction(false);
-}
-
-QWidget *QmlProfilerTool::createControlWidget()
-{
-    ensureWidgets();
-
-    // custom toolbar (TODO)
+    //
+    // Toolbar
+    //
     QWidget *toolbarWidget = new QWidget;
     toolbarWidget->setObjectName(QLatin1String("QmlProfilerToolBarWidget"));
 

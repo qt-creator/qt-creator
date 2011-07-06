@@ -111,10 +111,8 @@ private slots:
 
 private:
     ToolMode toolMode() const;
-    void ensureWidgets();
-    void initializeDockWidgets();
     void extensionsInitialized() {}
-    QWidget *createControlWidget();
+    QWidget *createWidgets();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
                                ProjectExplorer::RunConfiguration *runConfiguration = 0);
