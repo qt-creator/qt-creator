@@ -44,6 +44,7 @@ class AbstractMacroExpander;
 }
 
 namespace Core {
+
 class VariableManagerPrivate;
 
 class CORE_EXPORT VariableManager : public QObject
@@ -54,7 +55,7 @@ public:
     VariableManager();
     ~VariableManager();
 
-    static VariableManager* instance();
+    static VariableManager *instance();
 
     void insert(const QString &variable, const QString &value);
     bool remove(const QString &variable);
@@ -71,7 +72,7 @@ signals:
     void variableUpdateRequested(const QString &variable);
 
 private:
-    QScopedPointer<VariableManagerPrivate> d;
+    VariableManagerPrivate *d;
 };
 
 } // namespace Core
