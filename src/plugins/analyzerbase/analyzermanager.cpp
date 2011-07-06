@@ -170,7 +170,8 @@ public:
     bool showPromptDialog(const QString &title, const QString &text,
         const QString &stopButtonText, const QString &cancelButtonText) const;
 
-    void addDock(Qt::DockWidgetArea area, QDockWidget *dockWidget);
+    void activateDock(Qt::DockWidgetArea area, QDockWidget *dockWidget);
+    void deactivateDock(QDockWidget *dockWidget);
     void addTool(IAnalyzerTool *tool, const StartModes &modes);
     void selectSavedTool();
     void selectTool(IAnalyzerTool *tool, StartMode mode);
@@ -206,10 +207,11 @@ public:
     QAction *m_stopAction;
     ActionContainer *m_menu;
     QComboBox *m_toolBox;
-    QStackedWidget *m_controlsWidget;
+    QStackedWidget *m_controlsStackWidget;
     Utils::StatusLabel *m_statusLabel;
     typedef QMap<IAnalyzerTool *, FancyMainWindowSettings> MainWindowSettingsMap;
     QHash<IAnalyzerTool *, QList<QDockWidget *> > m_toolWidgets;
+    QHash<IAnalyzerTool *, QWidget *> m_controlsWidgetFromTool;
     MainWindowSettingsMap m_defaultSettings;
 
     // list of dock widgets to prevent memory leak
@@ -217,7 +219,6 @@ public:
     QList<DockPtr> m_dockWidgets;
 
     bool m_restartOnStop;
-    bool m_handlingManualAction;
 };
 
 AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
@@ -231,13 +232,12 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     m_stopAction(0),
     m_menu(0),
     m_toolBox(new QComboBox),
-    m_controlsWidget(new QStackedWidget),
+    m_controlsStackWidget(new QStackedWidget),
     m_statusLabel(new Utils::StatusLabel),
-    m_restartOnStop(false),
-    m_handlingManualAction(false)
+    m_restartOnStop(false)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
-    connect(m_toolBox, SIGNAL(currentIndexChanged(int)), SLOT(selectToolboxAction(int)));
+    connect(m_toolBox, SIGNAL(activated(int)), SLOT(selectToolboxAction(int)));
 
     setupActions();
 
@@ -344,7 +344,6 @@ void AnalyzerManagerPrivate::createModeMainWindow()
     m_mainWindow->setDocumentMode(true);
     m_mainWindow->setDockNestingEnabled(true);
     m_mainWindow->setDockActionsVisible(false);
-    //ModeManager::instance()->currentMode() cannot be us yet.
     connect(m_mainWindow, SIGNAL(resetLayout()), SLOT(resetLayout()));
 
     QBoxLayout *editorHolderLayout = new QVBoxLayout;
@@ -371,7 +370,7 @@ void AnalyzerManagerPrivate::createModeMainWindow()
     analyzeToolBarLayout->addWidget(toolButton(m_stopAction));
     analyzeToolBarLayout->addWidget(new Utils::StyledSeparator);
     analyzeToolBarLayout->addWidget(m_toolBox);
-    analyzeToolBarLayout->addWidget(m_controlsWidget);
+    analyzeToolBarLayout->addWidget(m_controlsStackWidget);
     analyzeToolBarLayout->addWidget(m_statusLabel);
     analyzeToolBarLayout->addStretch();
 
@@ -398,7 +397,7 @@ void AnalyzerManagerPrivate::createModeMainWindow()
     centralLayout->setStretch(1, 0);
 }
 
-void AnalyzerManagerPrivate::addDock(Qt::DockWidgetArea area, QDockWidget *dockWidget)
+void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *dockWidget)
 {
     dockWidget->setParent(m_mainWindow);
     m_mainWindow->addDockWidget(area, dockWidget);
@@ -415,6 +414,17 @@ void AnalyzerManagerPrivate::addDock(Qt::DockWidgetArea area, QDockWidget *dockW
     ActionContainer *viewsMenu =
         am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     viewsMenu->addAction(cmd);
+}
+
+void AnalyzerManagerPrivate::deactivateDock(QDockWidget *dockWidget)
+{
+    ActionManager *am = ICore::instance()->actionManager();
+    QAction *toggleViewAction = dockWidget->toggleViewAction();
+    am->unregisterAction(toggleViewAction, QString("Analyzer." + dockWidget->objectName()));
+    m_mainWindow->removeDockWidget(dockWidget);
+    dockWidget->hide();
+    // Prevent saveState storing the data of the wrong children.
+    dockWidget->setParent(0);
 }
 
 bool buildTypeAccepted(IAnalyzerTool::ToolMode toolMode,
@@ -591,26 +601,18 @@ void AnalyzerManagerPrivate::selectSavedTool()
 
 void AnalyzerManagerPrivate::selectMenuAction()
 {
-    if (m_handlingManualAction)
-        return;
-    m_handlingManualAction = true;
     QAction *action = qobject_cast<QAction *>(sender());
     QTC_ASSERT(action, return);
     IAnalyzerTool *tool = m_toolFromAction.value(action);
     StartMode mode = m_modeFromAction.value(action);
     selectTool(tool, mode);
     tool->startTool(mode);
-    m_handlingManualAction = false;
 }
 
 void AnalyzerManagerPrivate::selectToolboxAction(int index)
 {
-    if (m_handlingManualAction)
-        return;
-    m_handlingManualAction = true;
     QAction *action = m_actions[index];
     selectTool(m_toolFromAction.value(action), m_modeFromAction.value(action));
-    m_handlingManualAction = false;
 }
 
 void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
@@ -622,25 +624,11 @@ void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
     const int actionIndex = m_actions.indexOf(action);
     QTC_ASSERT(actionIndex >= 0, return);
 
-    saveToolSettings(m_currentTool, m_currentMode);
-
     // Clean up old tool.
     if (m_currentTool) {
-        ActionManager *am = ICore::instance()->actionManager();
-
-        foreach (QDockWidget *widget, m_toolWidgets.value(m_currentTool)) {
-            QAction *toggleViewAction = widget->toggleViewAction();
-            am->unregisterAction(toggleViewAction,
-                QString("Analyzer." + widget->objectName()));
-            m_mainWindow->removeDockWidget(widget);
-            ///NOTE: QMainWindow (and FancyMainWindow) just look at
-            /// @c findChildren<QDockWidget*>()
-            ///if we don't do this, all kind of havoc might happen, including:
-            ///- improper saveState/restoreState
-            ///- improper list of qdockwidgets in popup menu
-            ///- ...
-            widget->setParent(0);
-        }
+        saveToolSettings(m_currentTool, m_currentMode);
+        foreach (QDockWidget *widget, m_toolWidgets.value(m_currentTool))
+            deactivateDock(widget);
         m_currentTool->toolDeselected();
     }
 
@@ -648,19 +636,24 @@ void AnalyzerManagerPrivate::selectTool(IAnalyzerTool *tool, StartMode mode)
     m_currentTool = tool;
     m_currentMode = mode;
 
-    const bool firstTime = !m_defaultSettings.contains(tool);
-    if (firstTime) {
+    if (!m_defaultSettings.contains(tool)) {
+        // First time the tool is used.
         tool->initializeDockWidgets();
         m_defaultSettings.insert(tool, m_mainWindow->saveSettings());
-    } else {
-        foreach (QDockWidget *widget, m_toolWidgets.value(tool))
-            addDock(Qt::DockWidgetArea(widget->property(INITIAL_DOCK_AREA).toInt()), widget);
+
+        QTC_ASSERT(!m_controlsWidgetFromTool.contains(tool), /**/);
+        QWidget *widget = tool->createControlWidget();
+        m_controlsWidgetFromTool[tool] = widget;
+        m_controlsStackWidget->addWidget(widget);
     }
+    foreach (QDockWidget *widget, m_toolWidgets.value(tool))
+        activateDock(Qt::DockWidgetArea(widget->property(INITIAL_DOCK_AREA).toInt()), widget);
 
     loadToolSettings(tool);
 
+    QTC_ASSERT(m_controlsWidgetFromTool.contains(tool), /**/);
+    m_controlsStackWidget->setCurrentWidget(m_controlsWidgetFromTool.value(tool));
     m_toolBox->setCurrentIndex(actionIndex);
-    m_controlsWidget->setCurrentIndex(actionIndex);
 
     updateRunActions();
 }
@@ -670,7 +663,6 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
     delayedInit(); // Make sure that there is a valid IMode instance.
 
     const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
-    m_controlsWidget->addWidget(tool->createControlWidget());
     ActionManager *am = Core::ICore::instance()->actionManager();
     foreach (StartMode mode, modes) {
         QString actionName = tool->actionName(mode);
@@ -812,7 +804,6 @@ QDockWidget *AnalyzerManager::createDockWidget(IAnalyzerTool *tool, const QStrin
     d->m_dockWidgets.append(AnalyzerManagerPrivate::DockPtr(dockWidget));
     dockWidget->setWindowTitle(title);
     d->m_toolWidgets[tool].push_back(dockWidget);
-    d->addDock(area, dockWidget);
     return dockWidget;
 }
 
