@@ -865,6 +865,153 @@
 
     \endlist
 
+    \section1 Class Member Names
+
+    We use the "m_" prefix convention, except for public struct members
+    (typically in *Private classes and the very rare cases of really
+    public structures). The \c{d} and \c{q} pointers are exempt from
+    the "m_" rule.
+
+    The \c{d} pointers ("Pimpls") are named "d", not "m_d". The type of the
+    \c{d} pointer in \c{class Foo} is \c{FooPrivate *}, where \c{FooPrivate}
+    is declared in the same namespace as \c{Foo}, or if \c{Foo} is
+    exported, in the corresponding \{Internal} namespace.
+
+    If needed (for example when the private object needs to emit signals of
+    the proper class), \c{FooPrivate} can be a friend of \c{Foo}.
+
+    If the private class needs a backreference to the real class,
+    the pointer is named \c{q}, and its type is \c{Foo *}. (Same convention
+    as in Qt: "q" looks like an inverted "d".)
+
+    Do not use smart pointers to guard the \c{d} pointer as it imposes
+    a compile and link time overhead and creates fatter object
+    code with more symbols, leading, for instance to slowed down
+    debugger startup:
+
+        \code
+
+            ############### bar.h
+
+            #include <QScopedPointer>
+            //#include <memory>
+
+            struct BarPrivate;
+
+            struct Bar
+            {
+                Bar();
+                ~Bar();
+                int value() const;
+
+                QScopedPointer<BarPrivate> d;
+                //std::auto_ptr<BarPrivate> d;
+            };
+
+            ############### bar.cpp
+
+            #include "bar.h"
+
+            struct BarPrivate { BarPrivate() : i(23) {} int i; };
+
+            Bar::Bar() : d(new BarPrivate) {}
+
+            Bar::~Bar() {}
+
+            int Bar::value() const { return d->i; }
+
+            ############### baruser.cpp
+
+            #include "bar.h"
+
+            int barUser() { Bar b; return b.value(); }
+
+            ############### baz.h
+
+            struct BazPrivate;
+
+            struct Baz
+            {
+                Baz();
+                ~Baz();
+                int value() const;
+
+                BazPrivate *d;
+            };
+
+            ############### baz.cpp
+
+            #include "baz.h"
+
+            struct BazPrivate { BazPrivate() : i(23) {} int i; };
+
+            Baz::Baz() : d(new BazPrivate) {}
+
+            Baz::~Baz() { delete d; }
+
+            int Baz::value() const { return d->i; }
+
+            ############### bazuser.cpp
+
+            #include "baz.h"
+
+            int bazUser() { Baz b; return b.value(); }
+
+            ############### main.cpp
+
+            int barUser();
+            int bazUser();
+
+            int main() { return barUser() + bazUser(); }
+
+        \endcode
+
+        Results:
+
+        \code
+
+            Object file size:
+
+             14428 bar.o
+              4744 baz.o
+
+              8508 baruser.o
+              2952 bazuser.o
+
+            Symbols in bar.o:
+
+                00000000 W _ZN3Foo10BarPrivateC1Ev
+                00000036 T _ZN3Foo3BarC1Ev
+                00000000 T _ZN3Foo3BarC2Ev
+                00000080 T _ZN3Foo3BarD1Ev
+                0000006c T _ZN3Foo3BarD2Ev
+                00000000 W _ZN14QScopedPointerIN3Foo10BarPrivateENS_21QScopedPointerDeleterIS2_EEEC1EPS2_
+                00000000 W _ZN14QScopedPointerIN3Foo10BarPrivateENS_21QScopedPointerDeleterIS2_EEED1Ev
+                00000000 W _ZN21QScopedPointerDeleterIN3Foo10BarPrivateEE7cleanupEPS2_
+                00000000 W _ZN7qt_noopEv
+                         U _ZN9qt_assertEPKcS1_i
+                00000094 T _ZNK3Foo3Bar5valueEv
+                00000000 W _ZNK14QScopedPointerIN3Foo10BarPrivateENS_21QScopedPointerDeleterIS2_EEEptEv
+                         U _ZdlPv
+                         U _Znwj
+                         U __gxx_personality_v0
+
+            Symbols in baz.o:
+
+                00000000 W _ZN3Foo10BazPrivateC1Ev
+                0000002c T _ZN3Foo3BazC1Ev
+                00000000 T _ZN3Foo3BazC2Ev
+                0000006e T _ZN3Foo3BazD1Ev
+                00000058 T _ZN3Foo3BazD2Ev
+                00000084 T _ZNK3Foo3Baz5valueEv
+                         U _ZdlPv
+                         U _Znwj
+                         U __gxx_personality_v0
+
+          \endcode
+
+
+
     \section1 Documentation
 
     The documentation is generated from source and header files. You document
