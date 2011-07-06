@@ -37,7 +37,6 @@
 
 #include <utils/outputformat.h>
 
-#include <QtCore/QScopedPointer>
 #include <QtNetwork/QAbstractSocket>
 
 namespace Debugger {
@@ -157,8 +156,7 @@ private:
 
 private:
     friend class QmlCppEngine;
-
-    QScopedPointer<QmlEnginePrivate> d;
+    QmlEnginePrivate *d;
 };
 
 } // namespace Internal

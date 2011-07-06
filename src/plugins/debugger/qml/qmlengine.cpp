@@ -186,7 +186,9 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
 }
 
 QmlEngine::~QmlEngine()
-{}
+{
+    delete d;
+}
 
 void QmlEngine::setupInferior()
 {
