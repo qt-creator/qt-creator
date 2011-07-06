@@ -39,19 +39,17 @@
 
 namespace Analyzer {
 
-class StartMode
-{
-public:
-    explicit StartMode(int m = 0) : m(m) {}
-    operator int() const { return m; }
-    void operator=(int m_) { m = m_; }
-private:
-    int m;
-};
-
 // Special values for currently used modes.
 // Their meaning is interpreted by the individual tools.
-enum { StartLocal = -1, StartRemote = -2, StartQml = -3 };
+// FIXME: The plan is to remove this entirely from the
+// public interface and let the tools handle that internally.
+
+enum StartMode
+{
+    StartLocal = -1,
+    StartRemote = -2,
+    StartQml = -3
+};
 
 namespace Constants {
 
