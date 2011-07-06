@@ -1144,6 +1144,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     case arglist_open:
     case condition_paren_open:
+    case member_init_paren_open:
         if (!lastToken)
             *paddingDepth = nextTokenPosition-*indentDepth;
         else
@@ -1177,10 +1178,6 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     case member_init:
         *paddingDepth += 2; // savedIndentDepth is the position of ':'
-        break;
-
-    case member_init_paren_open:
-        addContinuationIndent(paddingDepth);
         break;
 
     case case_cont:
