@@ -43,7 +43,8 @@
 
 namespace Find {
 
-struct BaseTextFindPrivate {
+struct BaseTextFindPrivate
+{
     explicit BaseTextFindPrivate(QPlainTextEdit *editor);
     explicit BaseTextFindPrivate(QTextEdit *editor);
 
@@ -91,16 +92,16 @@ BaseTextFind::BaseTextFind(QPlainTextEdit *editor)
 
 BaseTextFind::~BaseTextFind()
 {
+    delete d;
 }
 
 QTextCursor BaseTextFind::textCursor() const
 {
     QTC_ASSERT(d->m_editor || d->m_plaineditor, return QTextCursor());
     return d->m_editor ? d->m_editor->textCursor() : d->m_plaineditor->textCursor();
-
 }
 
-void BaseTextFind::setTextCursor(const QTextCursor& cursor)
+void BaseTextFind::setTextCursor(const QTextCursor &cursor)
 {
     QTC_ASSERT(d->m_editor || d->m_plaineditor, return);
     d->m_editor ? d->m_editor->setTextCursor(cursor) : d->m_plaineditor->setTextCursor(cursor);
@@ -272,9 +273,8 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
     return count;
 }
 
-bool BaseTextFind::find(const QString &txt,
-                               Find::FindFlags findFlags,
-                               QTextCursor start, bool *wrapped)
+bool BaseTextFind::find(const QString &txt, Find::FindFlags findFlags,
+    QTextCursor start, bool *wrapped)
 {
     if (txt.isEmpty()) {
         setTextCursor(start);

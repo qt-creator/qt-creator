@@ -36,8 +36,6 @@
 #include "find_global.h"
 #include "ifindsupport.h"
 
-#include <QtCore/QScopedPointer>
-
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
 class QTextEdit;
@@ -96,7 +94,7 @@ private:
     bool inScope(int startPosition, int endPosition) const;
     QTextCursor findOne(const QRegExp &expr, const QTextCursor &from, QTextDocument::FindFlags options) const;
 
-    QScopedPointer<BaseTextFindPrivate> d;
+    BaseTextFindPrivate *d;
 };
 
 } // namespace Find
