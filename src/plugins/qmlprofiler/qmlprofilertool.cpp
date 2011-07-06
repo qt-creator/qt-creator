@@ -547,6 +547,8 @@ void QmlProfilerTool::updateRecordingState()
 
 void QmlProfilerTool::startTool(StartMode mode)
 {
+    Q_UNUSED(mode);
+
     using namespace ProjectExplorer;
 
     // Make sure mode is shown.

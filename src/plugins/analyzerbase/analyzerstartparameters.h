@@ -60,9 +60,6 @@ public:
     QString debuggee;
     QString debuggeeArgs;
     QString analyzerCmdPrefix;
-    QString remoteMountPoint;
-    QString localMountDir;
-    QString remoteSourcesDir;
     QString displayName;
     Utils::Environment environment;
     QString workingDirectory;

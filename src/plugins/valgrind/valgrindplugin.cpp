@@ -74,59 +74,20 @@ using namespace ProjectExplorer;
 namespace Valgrind {
 namespace Internal {
 
-static AnalyzerStartParameters localStartParameters(RunConfiguration *runConfiguration)
-{
-    AnalyzerStartParameters sp;
-    QTC_ASSERT(runConfiguration, return sp);
-    LocalApplicationRunConfiguration *rc =
-            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return sp);
-
-    sp.startMode = StartLocal;
-    sp.environment = rc->environment();
-    sp.workingDirectory = rc->workingDirectory();
-    sp.debuggee = rc->executable();
-    sp.debuggeeArgs = rc->commandLineArguments();
-    sp.displayName = rc->displayName();
-    sp.connParams.host = QLatin1String("localhost");
-    sp.connParams.port = rc->qmlDebugServerPort();
-    return sp;
-}
-
-static AnalyzerStartParameters remoteLinuxStartParameters(RunConfiguration *runConfiguration)
-{
-    AnalyzerStartParameters sp;
-    RemoteLinux::RemoteLinuxRunConfiguration * const rc
-        = qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc, return sp);
-
-    sp.startMode = StartRemote;
-    sp.debuggee = rc->remoteExecutableFilePath();
-    sp.debuggeeArgs = rc->arguments();
-    sp.connParams = rc->deviceConfig()->sshParameters();
-    sp.analyzerCmdPrefix = rc->commandPrefix();
-    sp.displayName = rc->displayName();
-    return sp;
-}
-
-
-class ValgrindRunControlFactory: public ProjectExplorer::IRunControlFactory
+class ValgrindRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 
 public:
     ValgrindRunControlFactory(QObject *parent = 0);
 
-    typedef ProjectExplorer::RunConfiguration RunConfiguration;
-    typedef ProjectExplorer::RunControl RunControl;
-
     // IRunControlFactory
     bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
     RunControl *create(RunConfiguration *runConfiguration, const QString &mode);
     QString displayName() const;
 
-    ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
+    IRunConfigurationAspect *createRunConfigurationAspect();
+    RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 };
 
 ValgrindRunControlFactory::ValgrindRunControlFactory(QObject *parent)
@@ -146,10 +107,24 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 
     AnalyzerStartParameters sp;
-    if (qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration)) {
-        sp = localStartParameters(runConfiguration);
-    } else if (qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
-        sp = remoteLinuxStartParameters(runConfiguration);
+    if (LocalApplicationRunConfiguration *rc1 =
+            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+        sp.startMode = StartLocal;
+        sp.environment = rc1->environment();
+        sp.workingDirectory = rc1->workingDirectory();
+        sp.debuggee = rc1->executable();
+        sp.debuggeeArgs = rc1->commandLineArguments();
+        sp.displayName = rc1->displayName();
+        sp.connParams.host = QLatin1String("localhost");
+        sp.connParams.port = rc1->qmlDebugServerPort();
+    } else if (RemoteLinux::RemoteLinuxRunConfiguration *rc2 =
+               qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
+        sp.startMode = StartRemote;
+        sp.debuggee = rc2->remoteExecutableFilePath();
+        sp.debuggeeArgs = rc2->arguments();
+        sp.connParams = rc2->deviceConfig()->sshParameters();
+        sp.analyzerCmdPrefix = rc2->commandPrefix();
+        sp.displayName = rc2->displayName();
     } else {
         // Might be S60DeviceRunfiguration, or something else ...
         //sp.startMode = StartRemote;
@@ -159,7 +134,6 @@ RunControl *ValgrindRunControlFactory::create(RunConfiguration *runConfiguration
     IAnalyzerTool *tool = AnalyzerManager::toolFromId(mode.toLatin1());
     AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, runConfiguration);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
-    //m_isRunning = true;
     return rc;
 }
 
@@ -214,7 +188,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     //m_currentRunControl = rc;
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
-    ProjectExplorer::ProjectExplorerPlugin::instance()->startRunControl(rc, tool->id());
+    ProjectExplorerPlugin::instance()->startRunControl(rc, tool->id());
 }
 
 void ValgrindPlugin::startValgrindTool(IAnalyzerTool *tool, StartMode mode)
