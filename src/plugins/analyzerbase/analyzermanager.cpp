@@ -553,7 +553,16 @@ void AnalyzerManagerPrivate::startTool()
 
 void AnalyzerManagerPrivate::modeChanged(IMode *mode)
 {
-    m_mainWindow->setDockActionsVisible(mode == m_mode);
+    if (mode && mode == m_mode) {
+        m_mainWindow->setDockActionsVisible(true);
+        static bool firstTime = true;
+        if (firstTime)
+            selectSavedTool();
+        firstTime = false;
+        updateRunActions();
+    } else {
+        m_mainWindow->setDockActionsVisible(false);
+    }
 }
 
 QAction *AnalyzerManagerPrivate::actionFromToolAndMode(IAnalyzerTool *tool, StartMode mode)
@@ -781,7 +790,6 @@ void AnalyzerManager::extensionsInitialized()
 
     foreach (IAnalyzerTool *tool, d->m_tools)
         tool->extensionsInitialized();
-    d->selectSavedTool();
 }
 
 void AnalyzerManager::shutdown()
