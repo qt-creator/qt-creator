@@ -82,6 +82,7 @@ struct WizardData
     QString publicKeyFilePath;
     QString userName;
     QString password;
+    int sshPort;
 };
 
 enum PageId {
@@ -119,6 +120,9 @@ public:
         m_ui->hwButton->setChecked(true);
         handleDeviceTypeChanged();
         m_ui->hostNameLineEdit->setText(defaultHost(deviceType()));
+        m_ui->sshPortSpinBox->setMinimum(1);
+        m_ui->sshPortSpinBox->setMaximum(65535);
+        m_ui->sshPortSpinBox->setValue(22);
         connect(m_ui->nameLineEdit, SIGNAL(textChanged(QString)), this,
             SIGNAL(completeChanged()));
         connect(m_ui->hostNameLineEdit, SIGNAL(textChanged(QString)), this,
@@ -150,12 +154,20 @@ public:
             ? LinuxDeviceConfiguration::Physical : LinuxDeviceConfiguration::Emulator;
     }
 
+    int sshPort() const
+    {
+        return deviceType() == LinuxDeviceConfiguration::Emulator
+            ? 6666 : m_ui->sshPortSpinBox->value();
+    }
+
 private slots:
     void handleDeviceTypeChanged()
     {
         const bool enable = deviceType() == LinuxDeviceConfiguration::Physical;
         m_ui->hostNameLabel->setEnabled(enable);
         m_ui->hostNameLineEdit->setEnabled(enable);
+        m_ui->sshPortLabel->setEnabled(enable);
+        m_ui->sshPortSpinBox->setEnabled(enable);
     }
 
 private:
@@ -495,9 +507,9 @@ private:
         SshConnectionParameters sshParams(SshConnectionParameters::NoProxy);
         sshParams.authenticationType = SshConnectionParameters::AuthenticationByPassword;
         sshParams.host = hostAddress();
-        sshParams.port = 22;
+        sshParams.port = m_wizardData.sshPort;
         sshParams.password = password();
-        sshParams.timeout = 30;
+        sshParams.timeout = 10;
         sshParams.userName = defaultUser(m_wizardData.osType);
         m_ui->statusLabel->setText(tr("Deploying... "));
         m_keyDeployer->deployPublicKey(sshParams, m_wizardData.publicKeyFilePath);
@@ -609,18 +621,17 @@ LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
     Utils::SshConnectionParameters sshParams(Utils::SshConnectionParameters::NoProxy);
     sshParams.userName = defaultUser(d->wizardData.osType);
     sshParams.host = d->wizardData.hostName;
+    sshParams.port = d->wizardData.sshPort;
     if (d->wizardData.deviceType == LinuxDeviceConfiguration::Emulator) {
         sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
         sshParams.password = d->wizardData.osType == LinuxDeviceConfiguration::MeeGoOsType
             ? QLatin1String("meego") : QString();
-        sshParams.port = 6666;
         sshParams.timeout = 30;
         freePortsSpec = QLatin1String("13219,14168");
         doTest = false;
     } else {
         sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByKey;
         sshParams.privateKeyFile = d->wizardData.privateKeyFilePath;
-        sshParams.port = 22;
         sshParams.timeout = 10;
         freePortsSpec = QLatin1String("10000-10100");
         doTest = true;
@@ -643,7 +654,7 @@ int MaemoDeviceConfigWizard::nextId() const
         d->wizardData.osType = d->startPage.osType();
         d->wizardData.deviceType = d->startPage.deviceType();
         d->wizardData.hostName = d->startPage.hostName();
-
+        d->wizardData.sshPort = d->startPage.sshPort();
         if (d->wizardData.deviceType == LinuxDeviceConfiguration::Emulator)
             return FinalPageId;
         return PreviousKeySetupCheckPageId;
