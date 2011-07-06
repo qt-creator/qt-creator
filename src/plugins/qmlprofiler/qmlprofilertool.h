@@ -91,6 +91,7 @@ private:
     void updateAttachAction(bool isCurrentTool);
     void connectToClient();
     void updateRecordingState();
+    void ensureWidgets();
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;

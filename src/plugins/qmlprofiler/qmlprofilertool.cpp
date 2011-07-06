@@ -227,6 +227,14 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
 
 void QmlProfilerTool::initializeDockWidgets()
 {
+    ensureWidgets();
+}
+
+void QmlProfilerTool::ensureWidgets()
+{
+    if (d->m_traceWindow)
+        return;
+
     Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
 
     d->m_traceWindow = new TraceWindow(mw);
@@ -297,6 +305,8 @@ void QmlProfilerTool::toolDeselected()
 
 QWidget *QmlProfilerTool::createControlWidget()
 {
+    ensureWidgets();
+
     // custom toolbar (TODO)
     QWidget *toolbarWidget = new QWidget;
     toolbarWidget->setObjectName(QLatin1String("QmlProfilerToolBarWidget"));
