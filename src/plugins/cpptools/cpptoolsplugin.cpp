@@ -87,7 +87,7 @@ using namespace CPlusPlus;
 
 enum { debug = 0 };
 
-CppToolsPlugin *CppToolsPlugin::m_instance = 0;
+static CppToolsPlugin *m_instance = 0;
 
 CppToolsPlugin::CppToolsPlugin() :
     m_modelManager(0),
@@ -310,9 +310,9 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
     return QString();
 }
 
-QString CppToolsPlugin::correspondingHeaderOrSource(const QString &fileName) const
+QString CppToolsPlugin::correspondingHeaderOrSource(const QString &fileName)
 {
-    const QString rc = correspondingHeaderOrSourceI(fileName);
+    const QString rc = m_instance->correspondingHeaderOrSourceI(fileName);
     if (debug)
         qDebug() << Q_FUNC_INFO << fileName << rc;
     return rc;

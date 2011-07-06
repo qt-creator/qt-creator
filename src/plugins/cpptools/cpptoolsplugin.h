@@ -64,8 +64,6 @@ class CppToolsPlugin : public ExtensionSystem::IPlugin
     Q_DISABLE_COPY(CppToolsPlugin)
     Q_OBJECT
 public:
-    static CppToolsPlugin *instance() { return m_instance; }
-
     CppToolsPlugin();
     ~CppToolsPlugin();
 
@@ -73,7 +71,7 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
     CppModelManager *cppModelManager() { return m_modelManager; }
-    QString correspondingHeaderOrSource(const QString &fileName) const;
+    static QString correspondingHeaderOrSource(const QString &fileName);
 
 private slots:
     void switchHeaderSource();
@@ -85,8 +83,6 @@ private:
     CppModelManager *m_modelManager;
     QSharedPointer<CppFileSettings> m_fileSettings;
     CppToolsSettings *m_settings;
-
-    static CppToolsPlugin *m_instance;
 };
 
 } // namespace Internal

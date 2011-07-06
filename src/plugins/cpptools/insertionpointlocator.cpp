@@ -330,8 +330,7 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
                                                    declaration->fileNameLength());
     QString target = declFileName;
     if (!isSourceFile(declFileName)) {
-        Internal::CppToolsPlugin *cpptools = Internal::CppToolsPlugin::instance();
-        QString candidate = cpptools->correspondingHeaderOrSource(declFileName);
+        QString candidate = Internal::CppToolsPlugin::correspondingHeaderOrSource(declFileName);
         if (!candidate.isEmpty())
             target = candidate;
     }
