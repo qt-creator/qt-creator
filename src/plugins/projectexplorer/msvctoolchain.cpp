@@ -610,7 +610,6 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::s32),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::s32, version),
                                          sdkVcVarsBat, QLatin1String("/x86"), true));
-#ifdef Q_OS_WIN64
             // Add all platforms
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::s64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::s64, version),
@@ -618,7 +617,6 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::ia64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, version),
                                          sdkVcVarsBat, QLatin1String("/ia64"), true));
-#endif
             // Make sure the default is front.
             if (folder == defaultSdkPath)
                 results = tmp + results;
