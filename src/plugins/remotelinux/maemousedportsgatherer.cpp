@@ -64,10 +64,12 @@ void MaemoUsedPortsGatherer::start(const Utils::SshConnection::Ptr &connection,
         SLOT(handleRemoteStdOut(QByteArray)));
     connect(m_procRunner.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
         SLOT(handleRemoteStdErr(QByteArray)));
-    const QString command = MaemoGlobal::remoteSudo(devConf->osType(),
-        m_procRunner->connection()->connectionParameters().userName)
-        + QLatin1String(" lsof -nPi4tcp:") + devConf->freePorts().toString()
+    QString command = QLatin1String("lsof -nPi4tcp:") + devConf->freePorts().toString()
         + QLatin1String(" -F n |grep '^n' |sed -r 's/[^:]*:([[:digit:]]+).*/\\1/g' |sort -n |uniq");
+    if (devConf->osType() != LinuxDeviceConfiguration::HarmattanOsType) { // devrootsh is broken on Harmattan
+        command.prepend(MaemoGlobal::remoteSudo(devConf->osType(),
+            devConf->sshParameters().userName) + QLatin1Char(' '));
+    }
     m_procRunner->run(command.toUtf8());
     m_running = true;
 }
