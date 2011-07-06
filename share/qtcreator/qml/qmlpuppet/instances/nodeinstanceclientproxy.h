@@ -75,6 +75,7 @@ public:
     void childrenChanged(const ChildrenChangedCommand &command);
     void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
     void componentCompleted(const ComponentCompletedCommand &command);    
+    void token(const TokenCommand &command);
 
     void flush();
     void synchronizeWithClientProcess();
@@ -101,6 +102,7 @@ protected:
     void changeState(const ChangeStateCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
     void changeNodeSource(const ChangeNodeSourceCommand &command);
+    void redirectToken(const TokenCommand &command);
 
 private slots:
     void readDataStream();

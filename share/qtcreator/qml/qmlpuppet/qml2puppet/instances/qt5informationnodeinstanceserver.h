@@ -34,6 +34,7 @@
 #define QMLDESIGNER_QT5INFORMATIONNODEINSTANCESERVER_H
 
 #include "qt5nodeinstanceserver.h"
+#include "tokencommand.h"
 
 namespace QmlDesigner {
 
@@ -47,14 +48,18 @@ public:
     void clearScene(const ClearSceneCommand &command);
     void createScene(const CreateSceneCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
+    void token(const TokenCommand &command);
 
 protected:
     void collectItemChangesAndSendChangeCommands();
     void sendChildrenChangedCommand(const QList<ServerNodeInstance> childList);
+    void sendTokenBack();
+
 
 private:
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
+    QList<TokenCommand> m_tokenList;
 };
 
 } // namespace QmlDesigner

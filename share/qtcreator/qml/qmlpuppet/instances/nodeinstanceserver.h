@@ -92,6 +92,7 @@ public:
     void changeState(const ChangeStateCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
     void changeNodeSource(const ChangeNodeSourceCommand &command);
+    void token(const TokenCommand &command);
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;
@@ -151,7 +152,6 @@ protected:
     void timerEvent(QTimerEvent *);
 
     virtual void collectItemChangesAndSendChangeCommands() = 0;
-
 
     ValuesChangedCommand createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
     ValuesChangedCommand createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const;

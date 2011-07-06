@@ -74,6 +74,7 @@
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
 #include "changenodesourcecommand.h"
+#include "tokencommand.h"
 
 #include "dummycontextobject.h"
 
@@ -336,6 +337,11 @@ void NodeInstanceServer::changeNodeSource(const ChangeNodeSourceCommand &command
     }
 
     startRenderTimer();
+}
+
+void NodeInstanceServer::token(const TokenCommand &/*command*/)
+{
+
 }
 
 void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector)

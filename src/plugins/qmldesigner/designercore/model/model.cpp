@@ -681,6 +681,36 @@ void ModelPrivate::notifyRewriterEndTransaction()
     }
 }
 
+void ModelPrivate::notifyInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
+{
+    bool resetModel = false;
+    QString description;
+
+    QVector<Internal::InternalNode::Pointer> internalVector(toInternalNodeVector(nodeVector));
+
+
+    try {
+        if (rewriterView())
+            rewriterView()->instancesToken(token, number, toModelNodeVector(internalVector, rewriterView()));
+    } catch (RewritingException &e) {
+        description = e.description();
+        resetModel = true;
+    }
+
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
+        Q_ASSERT(view != 0);
+        view->instancesToken(token, number, toModelNodeVector(internalVector, view.data()));
+    }
+
+    if (nodeInstanceView()) {
+        nodeInstanceView()->instancesToken(token, number, toModelNodeVector(internalVector, nodeInstanceView()));
+    }
+
+    if (resetModel) {
+        resetModelByRewriter(description);
+    }
+}
+
 void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     bool resetModel = false;

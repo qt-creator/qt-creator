@@ -60,6 +60,7 @@
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
+#include "tokencommand.h"
 
 #include "dummycontextobject.h"
 
@@ -70,6 +71,20 @@ namespace QmlDesigner {
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
 {
+}
+
+void Qt5InformationNodeInstanceServer::sendTokenBack()
+{
+    foreach (const TokenCommand &command, m_tokenList)
+        nodeInstanceClient()->token(command);
+
+    m_tokenList.clear();
+}
+
+void Qt5InformationNodeInstanceServer::token(const TokenCommand &command)
+{
+    m_tokenList.append(command);
+    startRenderTimer();
 }
 
 void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
@@ -124,6 +139,8 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
             resetAllItems();
             clearChangedPropertyList();
+
+            sendTokenBack();
 
             if (!informationChangedInstanceSet.isEmpty())
                 nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(informationChangedInstanceSet.toList()));

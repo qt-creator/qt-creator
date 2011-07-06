@@ -92,6 +92,11 @@ void DesignDocumentControllerView::instancesChildrenChanged(const QVector<ModelN
 
 }
 
+void DesignDocumentControllerView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
+{
+
+}
+
 void DesignDocumentControllerView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
 {
 

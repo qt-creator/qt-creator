@@ -414,6 +414,11 @@ void QmlModelView::importsChanged(const QList<Import> &/*addedImports*/, const Q
 
 }
 
+void QmlModelView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
+{
+
+}
+
 void QmlModelView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
 {
 

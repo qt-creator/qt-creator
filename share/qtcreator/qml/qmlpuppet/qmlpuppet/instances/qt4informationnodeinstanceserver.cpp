@@ -75,6 +75,8 @@
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
+#include "tokencommand.h"
+
 
 #include "dummycontextobject.h"
 
@@ -83,6 +85,20 @@ namespace QmlDesigner {
 Qt4InformationNodeInstanceServer::Qt4InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt4NodeInstanceServer(nodeInstanceClient)
 {
+}
+
+void Qt4InformationNodeInstanceServer::sendTokenBack()
+{
+    foreach (const TokenCommand &command, m_tokenList)
+        nodeInstanceClient()->token(command);
+
+    m_tokenList.clear();
+}
+
+void Qt4InformationNodeInstanceServer::token(const TokenCommand &command)
+{
+    m_tokenList.append(command);
+    startRenderTimer();
 }
 
 void Qt4InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
@@ -143,16 +159,18 @@ void Qt4InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             clearChangedPropertyList();
             resetAllItems();
 
-            if (!m_parentChangedSet.isEmpty()) {
-                sendChildrenChangedCommand(m_parentChangedSet.toList());
-                m_parentChangedSet.clear();
-            }
+            sendTokenBack();
 
             if (!informationChangedInstanceSet.isEmpty())
                 nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(informationChangedInstanceSet.toList()));
 
             if (!propertyChangedList.isEmpty())
                 nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
+
+            if (!m_parentChangedSet.isEmpty()) {
+                sendChildrenChangedCommand(m_parentChangedSet.toList());
+                m_parentChangedSet.clear();
+            }
 
             if (adjustSceneRect) {
                 QRectF boundingRect = rootNodeInstance().boundingRect();

@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD/
 
 HEADERS += $$PWD/synchronizecommand.h
+HEADERS += $$PWD/tokencommand.h
 HEADERS += $$PWD/componentcompletedcommand.h
 HEADERS += $$PWD/completecomponentcommand.h
 HEADERS += $$PWD/statepreviewimagechangedcommand.h
@@ -24,6 +25,7 @@ HEADERS += $$PWD/changeauxiliarycommand.h
 
 
 SOURCES += $$PWD/synchronizecommand.cpp
+SOURCES += $$PWD/tokencommand.cpp
 SOURCES += $$PWD/componentcompletedcommand.cpp
 SOURCES += $$PWD/completecomponentcommand.cpp
 SOURCES += $$PWD/statepreviewimagechangedcommand.cpp

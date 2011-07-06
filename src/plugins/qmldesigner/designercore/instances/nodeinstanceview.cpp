@@ -80,6 +80,7 @@
 #include "statepreviewimagechangedcommand.h"
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
+#include "tokencommand.h"
 
 #include "nodeinstanceserverproxy.h"
 
@@ -479,6 +480,11 @@ void NodeInstanceView::instancesPreviewImageChanged(const QVector<ModelNode> &/*
 }
 
 void NodeInstanceView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void NodeInstanceView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
 {
 
 }
@@ -1163,6 +1169,32 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
 
     if (!childNodeVector.isEmpty())
         emitInstancesChildrenChanged(childNodeVector);
+}
+
+void NodeInstanceView::token(const TokenCommand &command)
+{
+    if (!model())
+        return;
+
+    QVector<ModelNode> nodeVector;
+
+    foreach (const qint32 &instanceId, command.instances()) {
+        if (hasModelNodeForInternalId(instanceId)) {
+            nodeVector.append(modelNodeForInternalId(instanceId));
+        }
+    }
+
+
+    emitInstanceToken(command.tokenName(), command.tokenNumber(), nodeVector);
+}
+
+void NodeInstanceView::sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
+{
+    QVector<qint32> instanceIdVector;
+    foreach (const ModelNode &node, nodeVector)
+        instanceIdVector.append(node.internalId());
+
+    nodeInstanceServer()->token(TokenCommand(token, number, instanceIdVector));
 }
 
 }

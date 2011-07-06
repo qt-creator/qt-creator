@@ -407,6 +407,11 @@ void RewriterView::instancesChildrenChanged(const QVector<ModelNode> & /*nodeLis
 
 }
 
+void RewriterView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
+{
+
+}
+
 void RewriterView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
 {
 

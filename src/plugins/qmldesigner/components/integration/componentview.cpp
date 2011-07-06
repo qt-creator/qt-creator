@@ -212,6 +212,8 @@ void ComponentView::instanceInformationsChange(const QMultiHash<ModelNode, Infor
 void ComponentView::instancesRenderImageChanged(const QVector<ModelNode> &/*nodeList*/) {}
 void ComponentView::instancesPreviewImageChanged(const QVector<ModelNode> &/*nodeList*/) {}
 void ComponentView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/) {}
+void ComponentView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/) {}
+
 void ComponentView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/) {}
 
 void ComponentView::rewriterBeginTransaction() {}

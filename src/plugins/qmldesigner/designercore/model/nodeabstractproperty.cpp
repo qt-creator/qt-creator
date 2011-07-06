@@ -141,4 +141,36 @@ QList<ModelNode> NodeAbstractProperty::allSubNodes()
     return toModelNodeList(property->allSubNodes(), view());
 }
 
+/*!
+  \brief Returns if the the two property handles reference the same property in the same node
+*/
+bool operator ==(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2)
+{
+    return AbstractProperty(property1) == AbstractProperty(property2);
+}
+
+/*!
+  \brief Returns if the the two property handles do not reference the same property in the same node
+  */
+bool operator !=(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2)
+{
+    return !(property1 == property2);
+}
+
+uint qHash(const NodeAbstractProperty &property)
+{
+    return qHash(AbstractProperty(property));
+}
+
+QDebug operator<<(QDebug debug, const NodeAbstractProperty &property)
+{
+    return debug.nospace() << "NodeAbstractProperty(" << (property.isValid() ? property.name() : QLatin1String("invalid")) << ')';
+}
+
+QTextStream& operator<<(QTextStream &stream, const NodeAbstractProperty &property)
+{
+    stream << "NodeAbstractProperty(" << property.name() << ')';
+
+    return stream;
+}
 } // namespace QmlDesigner

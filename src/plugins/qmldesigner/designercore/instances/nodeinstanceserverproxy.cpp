@@ -65,6 +65,7 @@
 #include "imagecontainer.h"
 #include "statepreviewimagechangedcommand.h"
 #include "componentcompletedcommand.h"
+#include "tokencommand.h"
 
 #include "synchronizecommand.h"
 
@@ -241,6 +242,7 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
     static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
     static const int componentCompletedCommandType = QMetaType::type("ComponentCompletedCommand");
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
+    static const int tokenCommandType = QMetaType::type("TokenCommand");
 
     if (command.userType() ==  informationChangedCommandType)
         nodeInstanceClient()->informationChanged(command.value<InformationChangedCommand>());
@@ -254,6 +256,8 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
         nodeInstanceClient()->statePreviewImagesChanged(command.value<StatePreviewImageChangedCommand>());
     else if (command.userType() == componentCompletedCommandType)
         nodeInstanceClient()->componentCompleted(command.value<ComponentCompletedCommand>());
+    else if (command.userType() == tokenCommandType)
+        nodeInstanceClient()->token(command.value<TokenCommand>());
     else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();
@@ -519,6 +523,11 @@ void NodeInstanceServerProxy::completeComponent(const CompleteComponentCommand &
 }
 
 void NodeInstanceServerProxy::changeNodeSource(const ChangeNodeSourceCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::token(const TokenCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }

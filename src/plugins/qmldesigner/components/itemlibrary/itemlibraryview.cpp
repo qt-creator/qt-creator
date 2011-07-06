@@ -172,6 +172,11 @@ void ItemLibraryView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeL
 
 }
 
+void ItemLibraryView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
+{
+
+}
+
 void ItemLibraryView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
 {
 

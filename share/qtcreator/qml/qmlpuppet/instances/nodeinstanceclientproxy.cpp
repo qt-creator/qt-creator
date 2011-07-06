@@ -57,6 +57,7 @@
 #include "changestatecommand.h"
 #include "completecomponentcommand.h"
 #include "synchronizecommand.h"
+#include "tokencommand.h"
 
 #include "informationchangedcommand.h"
 #include "pixmapchangedcommand.h"
@@ -129,6 +130,11 @@ void NodeInstanceClientProxy::statePreviewImagesChanged(const StatePreviewImageC
 }
 
 void NodeInstanceClientProxy::componentCompleted(const ComponentCompletedCommand &command)
+{
+    writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceClientProxy::token(const TokenCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
 }
@@ -267,6 +273,10 @@ void NodeInstanceClientProxy::changeNodeSource(const ChangeNodeSourceCommand &co
 {
     nodeInstanceServer()->changeNodeSource(command);
 }
+void NodeInstanceClientProxy::redirectToken(const TokenCommand &command)
+{
+    nodeInstanceServer()->token(command);
+}
 
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 {
@@ -285,6 +295,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int completeComponentCommandType = QMetaType::type("CompleteComponentCommand");
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
     static const int changeNodeSourceCommandType = QMetaType::type("ChangeNodeSourceCommand");
+    static const int tokenCommandType = QMetaType::type("TokenCommand");
 
     if (command.userType() ==  createInstancesCommandType) {
         createInstances(command.value<CreateInstancesCommand>());
@@ -314,6 +325,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         completeComponent(command.value<CompleteComponentCommand>());
     else if (command.userType() ==  changeNodeSourceCommandType)
         changeNodeSource(command.value<ChangeNodeSourceCommand>());
+    else if (command.userType() ==  tokenCommandType)
+        redirectToken(command.value<TokenCommand>());
     else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();

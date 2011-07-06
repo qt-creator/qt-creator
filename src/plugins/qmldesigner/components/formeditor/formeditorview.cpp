@@ -490,6 +490,10 @@ void FormEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*no
 
 }
 
+void FormEditorView::instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector)
+{
+}
+
 void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
 {
     QList<FormEditorItem*> itemNodeList;

@@ -70,7 +70,7 @@ public:
     void setItems(const QList<FormEditorItem*> &itemList);
     void setItem(FormEditorItem* item);
     void synchronizeInstanceParent(const QList<FormEditorItem*> &itemList);
-
+    void synchronizeParent(const QList<FormEditorItem*> &itemList, const ModelNode &parentNode);
     void begin(const QPointF& beginPoint);
     void update(const QPointF& updatePoint, Snapping useSnapping, State stateToBeManipulated = UseActualState);
     void reparentTo(FormEditorItem *newParent);
@@ -123,6 +123,7 @@ private:
     QList<QGraphicsItem*> m_graphicsLineList;
     bool m_isActive;
     RewriterTransaction m_rewriterTransaction;
+    QPointF m_lastPosition;
 };
 
 }

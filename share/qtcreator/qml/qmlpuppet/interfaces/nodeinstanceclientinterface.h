@@ -43,6 +43,7 @@ class InformationChangedCommand;
 class ChildrenChangedCommand;
 class StatePreviewImageChangedCommand;
 class ComponentCompletedCommand;
+class TokenCommand;
 
 class NodeInstanceClientInterface
 {
@@ -53,6 +54,7 @@ public:
     virtual void childrenChanged(const ChildrenChangedCommand &command) = 0;
     virtual void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command) = 0;
     virtual void componentCompleted(const ComponentCompletedCommand &command) = 0;
+    virtual void token(const TokenCommand &command) = 0;
 
     virtual void flush() {};
     virtual void synchronizeWithClientProcess() {}
