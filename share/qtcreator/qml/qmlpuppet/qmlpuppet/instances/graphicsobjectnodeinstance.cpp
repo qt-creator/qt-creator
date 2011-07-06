@@ -45,6 +45,7 @@ GraphicsObjectNodeInstance::GraphicsObjectNodeInstance(QGraphicsObject *graphics
    : ObjectNodeInstance(graphicsObject),
    m_isMovable(true)
 {
+    QGraphicsItemPrivate::get(graphicsObject)->sendParentChangeNotification = 1;
 }
 
 QGraphicsObject *GraphicsObjectNodeInstance::graphicsObject() const

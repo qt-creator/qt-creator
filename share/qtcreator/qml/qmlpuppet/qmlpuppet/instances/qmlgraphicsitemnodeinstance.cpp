@@ -207,13 +207,24 @@ void QmlGraphicsItemNodeInstance::refresh()
     repositioning(qmlGraphicsItem());
 }
 
+void QmlGraphicsItemNodeInstance::recursiveDoComponentComplete(QGraphicsItem *item)
+{
+    QGraphicsObject *graphicsObject = item->toGraphicsObject();
+    QDeclarativeItem *declarativeItem = qobject_cast<QDeclarativeItem*>(graphicsObject);
+    if (declarativeItem && !nodeInstanceServer()->hasInstanceForObject(declarativeItem)) {
+        if (QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete)
+            return;
+        static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem())->componentComplete();
+
+        foreach (QGraphicsItem *childItem, item->childItems())
+            recursiveDoComponentComplete(childItem);
+    }
+}
+
 void QmlGraphicsItemNodeInstance::doComponentComplete()
 {
     if (qmlGraphicsItem()) {
-        if (static_cast<QDeclarativeItemPrivate*>(QGraphicsItemPrivate::get(qmlGraphicsItem()))->componentComplete)
-            return;
-        static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem())->componentComplete();
-        QGraphicsItemPrivate::get(qmlGraphicsItem())->sendParentChangeNotification = 1;
+        recursiveDoComponentComplete(qmlGraphicsItem());
     }
 
     graphicsObject()->update();
@@ -301,7 +312,9 @@ void QmlGraphicsItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &ol
         setMovable(true);
     }
 
+    QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete = 1;
     GraphicsObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
+    QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete = 0;
 
     if (newParentInstance && newParentInstance->isPositioner()) {
         setInPositioner(true);
