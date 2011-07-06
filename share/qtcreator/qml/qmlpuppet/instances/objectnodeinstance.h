@@ -33,28 +33,24 @@
 #ifndef ABSTRACTNODEINSTANCE_H
 #define ABSTRACTNODEINSTANCE_H
 
-#include <QPainter>
-#include <QStyleOptionGraphicsItem>
-#include <QSharedPointer>
-#include <QScopedPointer>
-#include <QWeakPointer>
 #include "nodeinstanceserver.h"
 #include "nodeinstancemetaobject.h"
 #include "nodeinstancesignalspy.h"
+
+#include <QPainter>
+#include <QSharedPointer>
+#include <QWeakPointer>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 class QDeclarativeContext;
 class QDeclarativeEngine;
 class QDeclarativeProperty;
-class QDeclarativeContext;
-class QDeclarativeBinding;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
 class NodeInstanceServer;
-
 
 namespace Internal {
 
@@ -70,7 +66,7 @@ class ObjectNodeInstance
 public:
     typedef QSharedPointer<ObjectNodeInstance> Pointer;
     typedef QWeakPointer<ObjectNodeInstance> WeakPointer;
-    ObjectNodeInstance(QObject *object);
+    explicit ObjectNodeInstance(QObject *object);
 
     virtual ~ObjectNodeInstance();
     void destroy();
@@ -202,7 +198,6 @@ private:
     NodeInstanceSignalSpy m_signalSpy;
     bool m_isInPositioner;
 };
-
 
 } // namespace Internal
 } // namespace QmlDesigner
