@@ -52,9 +52,8 @@ class ANALYZER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
     Q_OBJECT
 
 public:
-    typedef ProjectExplorer::RunConfiguration RunConfiguration;
     AnalyzerRunControl(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
-        RunConfiguration *runConfiguration);
+        ProjectExplorer::RunConfiguration *runConfiguration);
     ~AnalyzerRunControl();
 
     // ProjectExplorer::RunControl
@@ -76,7 +75,7 @@ private slots:
 
 private:
     class Private;
-    QScopedPointer<Private> d;
+    Private *d;
 };
 
 } // namespace Analyzer

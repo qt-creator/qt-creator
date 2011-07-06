@@ -47,11 +47,16 @@
 #include <coreplugin/ioutputpane.h>
 
 #include <QtCore/QDebug>
-#include <QtCore/QTimer>
 
-using namespace Analyzer;
+using namespace ProjectExplorer;
 
-// AnalyzerRunControl::Private ///////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//
+// AnalyzerRunControl::Private
+//
+//////////////////////////////////////////////////////////////////////////
+
+namespace Analyzer {
 
 class AnalyzerRunControl::Private
 {
@@ -67,7 +72,12 @@ AnalyzerRunControl::Private::Private()
 {}
 
 
-// AnalyzerRunControl ////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//
+// AnalyzerRunControl
+//
+//////////////////////////////////////////////////////////////////////////
+
 AnalyzerRunControl::AnalyzerRunControl(IAnalyzerTool *tool,
         const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
     : RunControl(runConfiguration, tool->id()),
@@ -94,6 +104,7 @@ AnalyzerRunControl::~AnalyzerRunControl()
 
     delete d->m_engine;
     d->m_engine = 0;
+    delete d;
 }
 
 void AnalyzerRunControl::start()
@@ -105,7 +116,7 @@ void AnalyzerRunControl::start()
 
     // clear about-to-be-outdated tasks
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    ProjectExplorer::TaskHub *hub = pm->getObject<ProjectExplorer::TaskHub>();
+    TaskHub *hub = pm->getObject<TaskHub>();
     hub->clearTasks(Constants::ANALYZERTASK_ID);
 
     d->m_isRunning = true;
@@ -113,7 +124,7 @@ void AnalyzerRunControl::start()
     d->m_engine->start();
 }
 
-ProjectExplorer::RunControl::StopResult AnalyzerRunControl::stop()
+RunControl::StopResult AnalyzerRunControl::stop()
 {
     if (!d->m_engine || !d->m_isRunning)
         return StoppedSynchronously;
@@ -125,7 +136,7 @@ ProjectExplorer::RunControl::StopResult AnalyzerRunControl::stop()
 
 void AnalyzerRunControl::stopIt()
 {
-    if (stop() == ProjectExplorer::RunControl::StoppedSynchronously)
+    if (stop() == RunControl::StoppedSynchronously)
         AnalyzerManager::handleToolFinished();
 }
 
@@ -162,12 +173,12 @@ void AnalyzerRunControl::receiveOutput(const QString &text, Utils::OutputFormat 
     appendMessage(text, format);
 }
 
-void AnalyzerRunControl::addTask(ProjectExplorer::Task::TaskType type, const QString &description,
+void AnalyzerRunControl::addTask(Task::TaskType type, const QString &description,
                                  const QString &file, int line)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    ProjectExplorer::TaskHub *hub = pm->getObject<ProjectExplorer::TaskHub>();
-    hub->addTask(ProjectExplorer::Task(type, description, file, line, Constants::ANALYZERTASK_ID));
+    TaskHub *hub = pm->getObject<TaskHub>();
+    hub->addTask(Task(type, description, file, line, Constants::ANALYZERTASK_ID));
 
     ///FIXME: get a better API for this into Qt Creator
     QList<Core::IOutputPane *> panes = pm->getObjects<Core::IOutputPane>();
@@ -178,3 +189,5 @@ void AnalyzerRunControl::addTask(ProjectExplorer::Task::TaskType type, const QSt
         }
     }
 }
+
+} // namespace Analyzer
