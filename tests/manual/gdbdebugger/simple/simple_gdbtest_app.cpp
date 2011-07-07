@@ -123,10 +123,11 @@
 #include <stddef.h>
 #endif
 
-void dummyStatement(void *x= 0, void *y= 0)
+void dummyStatement(const void *x = 0, const void *y = 0, const void *z = 0)
 {
     Q_UNUSED(x);
     Q_UNUSED(y);
+    Q_UNUSED(z);
 }
 
 namespace multibp {
@@ -1123,27 +1124,43 @@ void testQPixmap()
     Q_UNUSED(i);
 }
 
-void testQRegExp()
-{
-    QRegExp re(QString("a(.*)b(.*)c"));
-    QString str1 = "a1121b344c";
-    QString str2 = "Xa1121b344c";
-    int pos2 = re.indexIn(str2);
-    int pos1 = re.indexIn(str1);
-    pos1 += pos2;
-}
 
-void testQRegion()
-{
-    // only works with Python dumper
-    QRegion region;
-    region += QRect(100, 100, 200, 200);
-    region += QRect(300, 300, 400, 500);
-    region += QRect(500, 500, 600, 600);
-    region += QRect(500, 500, 600, 600);
-    region += QRect(500, 500, 600, 600);
-    region += QRect(500, 500, 600, 600);
-}
+namespace qregexp {
+
+    void testQRegExp()
+    {
+        // Works with Python dumpers only.
+        QRegExp re(QString("a(.*)b(.*)c"));
+        // <=== break here.
+        // Step over until end, check display looks ok.
+        QString str1 = "a1121b344c";
+        QString str2 = "Xa1121b344c";
+        int pos2 = re.indexIn(str2);
+        int pos1 = re.indexIn(str1);
+        dummyStatement(&pos1, &pos2);
+    }
+
+} // namespace qregexp
+
+
+namespace qregion {
+
+    void testQRegion()
+    {
+        // Works with Python dumpers only.
+        QRegion region;
+        // <=== break here
+        // Step over until end, check display looks sane.
+        region += QRect(100, 100, 200, 200);
+        region += QRect(300, 300, 400, 500);
+        region += QRect(500, 500, 600, 600);
+        region += QRect(500, 500, 600, 600);
+        region += QRect(500, 500, 600, 600);
+        region += QRect(500, 500, 600, 600);
+        dummyStatement(&region);
+    }
+
+} // namespace qregion
 
 
 void testPlugin()
@@ -1225,10 +1242,11 @@ public:
    private:
      QSharedDataPointer<EmployeeData> d;
 };
-
+#endif
 
 void testQSharedPointer()
 {
+#    if QT_VERSION >= 0x040500
     //Employee e1(1, "Herbert");
     //Employee e2 = e1;
 #if 0
@@ -1253,8 +1271,8 @@ void testQSharedPointer()
     QWeakPointer<Foo> wfptr(fptr);
     QWeakPointer<Foo> wfptr2 = wfptr;
     QWeakPointer<Foo> wfptr3 = wfptr;
+#    endif
 }
-#endif
 
 void testQXmlAttributes()
 {
@@ -1768,6 +1786,7 @@ namespace qvariant {
         *(QString*)value.data() = QString("Some string");
         int i = 1; // <=== break here
         // Check the variant contains a proper QString.
+        dummyStatement(&i);
     }
 
     void testQVariant2()
@@ -1886,77 +1905,122 @@ namespace qvariant {
 } // namespace qvariant
 
 
-void testQVector()
-{
-    QVector<int> big(10000);
-    big[1] = 1;
-    big[2] = 2;
-    big[3] = 3;
-    big[4] = 4;
-    big[5] = 5;
-    big[9] = 9;
-    big.append(1);
-    big.append(1);
-    big.append(1);
-    big.append(1);
+namespace qvector {
 
-    QVector<Foo *> plist;
-    plist.append(new Foo(1));
-    plist.append(0);
-    plist.append(new Foo(2));
+    void testQVector1()
+    {
+        // This tests the display of a big vector.
+        QVector<int> big(10000);
+        // <=== break here
+        // step over
+        // check that the display updates in reasonable time
+        big[1] = 1;
+        big[2] = 2;
+        big[3] = 3;
+        big[4] = 4;
+        big[5] = 5;
+        big[9] = 9;
+        big.append(1);
+        big.append(1);
+        big.append(1);
+        big.append(1);
+        dummyStatement(&big);
+    }
 
-    QVector<Foo> flist;
-    flist.append(1);
-    flist.append(2);
-    flist.append(3);
-    flist.append(4);
-    //flist.takeFirst();
-    //flist.takeFirst();
+    void testQVector2()
+    {
+        // This tests the display of a vector of pointers to custom structs.
+        QVector<Foo> flist;
+        // <== break here
+        // step over, check display.
+        flist.append(1);
+        flist.append(2);
+        flist.append(3);
+        flist.append(4);
+        dummyStatement(&flist);
+    }
 
-    QVector<bool> vec;
-    vec.append(true);
-    vec.append(false);
-}
+    void testQVector3()
+    {
+        // This tests the display of a vector of pointers to custom structs.
+        QVector<Foo *> plist;
+        // <=== break here
+        // step over
+        // check that the display is ok.
+        plist.append(new Foo(1));
+        plist.append(0);
+        plist.append(new Foo(2));
+        // switch "Auto derefencing pointers" in Locals context menu
+        // off and on again, and check result looks sane.
+        dummyStatement(&plist);
+    }
 
-void testQVectorOfQList()
-{
-    QVector<QList<int> > v;
-    QVector<QList<int> > *pv = &v;
-    v.append(QList<int>() << 1);
-    v.append(QList<int>() << 2 << 3);
-    Q_UNUSED(pv);
-    //return v;
-}
+    void testQVector4()
+    {
+        // This tests the display of a vector of custom structs.
+        QVector<bool> vec;
+        // <== break here.
+        // step over
+        // check that the display is ok.
+        vec.append(true);
+        vec.append(false);
+        dummyStatement(&vec);
+    }
+
+    void testQVector5()
+    {
+        QVector<QList<int> > v;
+        QVector<QList<int> > *pv = &v;
+        // <=== break here
+        v.append(QList<int>() << 1);
+        v.append(QList<int>() << 2 << 3);
+        dummyStatement(pv);
+    }
+
+    void testQVector()
+    {
+        testQVector1();
+        testQVector2();
+        testQVector3();
+        testQVector4();
+        testQVector5();
+    }
+
+} // namespace qvector
 
 
-class Goo
-{
-public:
-   Goo(const QString& str, const int n) :
-           str_(str), n_(n)
-   {
-   }
-private:
-   QString str_;
-   int n_;
-};
+namespace noargs {
 
-typedef QList<Goo> GooList;
+    class Goo
+    {
+    public:
+       Goo(const QString &str, const int n) : str_(str), n_(n) {}
+    private:
+       QString str_;
+       int n_;
+    };
 
-void testNoArgumentName(int i, int, int k)
-{
-    // This is not supposed to work with the compiled dumpers.
-    GooList list;
-    list.append(Goo("Hello", 1));
-    list.append(Goo("World", 2));
+    typedef QList<Goo> GooList;
 
-    QList<Goo> list2;
-    list2.append(Goo("Hello", 1));
-    list2.append(Goo("World", 2));
+    void testNoArgumentName(int i, int, int k)
+    {
+        // This is not supposed to work with the compiled dumpers.
+        GooList list;
+        list.append(Goo("Hello", 1));
+        list.append(Goo("World", 2));
 
-    ++i;
-    ++k;
-}
+        QList<Goo> list2;
+        list2.append(Goo("Hello", 1));
+        list2.append(Goo("World", 2));
+
+        // <=== break here.
+        // check display is ok, especially for _i_ and _k_
+
+        dummyStatement(&i, &k);
+    }
+
+} // namespace noargs
+
 
 void foo() {}
 void foo(int) {}
@@ -1969,92 +2033,93 @@ template <class T>
 void foo(QList<QVector<T> *>) {}
 
 
-namespace somespace {
+namespace namespc {
 
-class MyBase : public QObject
-{
-public:
-    MyBase() {}
-    virtual void doit(int i)
+    class MyBase : public QObject
     {
-       n = i;
-    }
-protected:
-    int n;
-};
+    public:
+        MyBase() {}
+        virtual void doit(int i)
+        {
+           n = i;
+        }
+    protected:
+        int n;
+    };
 
-namespace nested {
+    namespace nested {
 
-class MyFoo : public MyBase
-{
-public:
-    MyFoo() {}
-    virtual void doit(int i)
+        class MyFoo : public MyBase
+        {
+        public:
+            MyFoo() {}
+            virtual void doit(int i)
+            {
+                // Note there's a local 'n' and one in the base class.
+                n = i;
+            }
+        protected:
+            int n;
+        };
+
+        class MyBar : public MyFoo
+        {
+        public:
+            virtual void doit(int i)
+            {
+               n = i + 1;
+            }
+        };
+
+        namespace {
+
+            class MyAnon : public MyBar
+            {
+            public:
+                virtual void doit(int i)
+                {
+                   n = i + 3;
+                }
+            };
+
+            namespace baz {
+
+                class MyBaz : public MyAnon
+                {
+                public:
+                    virtual void doit(int i)
+                    {
+                       n = i + 5;
+                    }
+                };
+
+            } // namespace baz
+
+        } // namespace anon
+
+    } // namespace nested
+
+    void testNamespace()
     {
-       n = i;
+        // This checks whether classes with "special" names are
+        // properly displayed.
+        using namespace nested;
+        MyFoo foo;
+        MyBar bar;
+        MyAnon anon;
+        baz::MyBaz baz;
+        // <== break here
+        // step into the doit() functions
+        baz.doit(1);
+        anon.doit(1);
+        foo.doit(1);
+        bar.doit(1);
+        dummyStatement();
     }
-protected:
-    int n;
-};
 
-class MyBar : public MyFoo
-{
-public:
-    virtual void doit(int i)
-    {
-       n = i + 1;
-    }
-};
-
-namespace {
-
-class MyAnon : public MyBar
-{
-public:
-    virtual void doit(int i)
-    {
-       n = i + 3;
-    }
-};
-
-namespace baz {
-
-class MyBaz : public MyAnon
-{
-public:
-    virtual void doit(int i)
-    {
-       n = i + 5;
-    }
-};
-
-} // namespace baz
-
-} // namespace anon
+} // namespace namespc
 
 
-} // namespace nested
-} // namespace somespace
-
-void testNamespace()
-{
-    using namespace somespace;
-    using namespace nested;
-    MyFoo foo;
-    MyBar bar;
-    MyAnon anon;
-    baz::MyBaz baz;
-    baz.doit(1);
-    anon.doit(1);
-    foo.doit(1);
-    bar.doit(1);
-    bar.doit(1);
-    bar.doit(1);
-    bar.doit(1);
-    bar.doit(1);
-    bar.doit(1);
-    bar.doit(1);
-}
 
 void testHidden()
 {
@@ -2636,25 +2701,38 @@ void testMPI()
 
 }
 
-enum E { ONE = 6 };
 
+//namespace kr {
 
+    // FIXME: put in namespace kr, adjust qdump__KRBase in dumpers/qttypes.py
+    struct KRBase
+    {
+        enum Type { TYPE_A, TYPE_B } type;
+        KRBase(Type _type) : type(_type) {}
+    };
 
-struct KRBase
-{
-    enum Type { TYPE_A, TYPE_B } type;
-    KRBase(Type _type) : type(_type) {}
-};
+    struct KRA : KRBase { int x; int y; KRA():KRBase(TYPE_A), x(1), y(32) {} };
+    struct KRB : KRBase { KRB():KRBase(TYPE_B) {} };
 
-struct KRA : KRBase { int x; int y; KRA():KRBase(TYPE_A),x(1),y(32) {} };
-struct KRB : KRBase { KRB():KRBase(TYPE_B) {}  };
+//} // namespace kr
 
-void testKR()
-{
-    KRBase *ptr1 = new KRA;
-    KRBase *ptr2 = new KRB;
-    ptr2 = new KRB;
-}
+namespace kr {
+
+    // Only with python.
+    // This tests qdump__KRBase in dumpers/qttypes.py which uses
+    // a static typeflag to dispatch to subclasses.
+
+    void testKR()
+    {
+        KRBase *ptr1 = new KRA;
+        KRBase *ptr2 = new KRB;
+        ptr2 = new KRB;
+        // <== break here.
+        // check ptr1 is shown as KRA and ptr2 as KRB
+        dummyStatement(&ptr1, &ptr2);
+    }
+
+} // namspace kr
 
 
 namespace eigen {
@@ -2687,8 +2765,7 @@ namespace eigen {
 
         // <=== break here
         // check that Locals and Expresssions view looks sane
-        dummyStatement(&colMajorMatrix, &rowMajorMatrix);
-        dummyStatement(&test, &myDynamicMatrix);
+        dummyStatement(&colMajorMatrix, &rowMajorMatrix, &test);
         dummyStatement(&myMatrix, &myDynamicMatrix);
     #endif
     }
@@ -2743,8 +2820,9 @@ void testStuff3()
 }
 
 
-// http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4019
 namespace bug4019 {
+
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-4019
 
     class A4019
     {
@@ -3008,14 +3086,14 @@ int main(int argc, char *argv[])
     bug5184::test5184();
     //bug4497::test4497();
     eigen::testEigen();
-    testKR();
+    kr::testKR();
     int *x = new int(32);
     Q_UNUSED(x);
     std::string s;
     s = "hallo";
     s += "hallo";
     testQXmlAttributes();
-    testQRegExp();
+    qregexp::testQRegExp();
     testInlineBreakpoints();
     testLongEvaluation();
     testMPI();
@@ -3028,7 +3106,7 @@ int main(int argc, char *argv[])
     testSSE();
     testQLocale();
     testColor();
-    testQRegion();
+    qregion::testQRegion();
     testTypedef();
     basic::testBasic();
     testStuff();
@@ -3071,7 +3149,7 @@ int main(int argc, char *argv[])
     testQStandardItemModel();
     testFunction();
     testQImage();
-    testNoArgumentName(1, 2, 3);
+    noargs::testNoArgumentName(1, 2, 3);
     testQTextCursor();
     testInput();
     testOutput();
@@ -3095,7 +3173,7 @@ int main(int argc, char *argv[])
     testPlugin();
     testQList();
     testQLinkedList();
-    testNamespace();
+    namespc::testNamespace();
     //return 0;
     testQHash();
     testQImage();
@@ -3104,16 +3182,13 @@ int main(int argc, char *argv[])
     testQString();
     testQUrl();
     testQSet();
-#    if QT_VERSION >= 0x040500
     testQSharedPointer();
-#    endif
     testQStringList();
     testQScriptValue(argc, argv);
     testStruct();
     //qthread::testQThread();
     qvariant::testQVariant();
-    testQVector();
-    testQVectorOfQList();
+    qvector::testQVector();
 
     testBoostOptional();
     testBoostSharedPtr();
