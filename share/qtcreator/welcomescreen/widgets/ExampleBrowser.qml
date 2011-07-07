@@ -1,5 +1,37 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+**************************************************************************/
+
 import QtQuick 1.0
-import "../components" as Components
+import components 1.0 as Components
 
 Item {
     id: exampleBrowserRoot
@@ -7,16 +39,6 @@ Item {
         id : lineEditRoot
         width: parent.width
         height: lineEdit.height
-
-        Connections {
-            target: gettingStarted
-            onTagsUpdated: {
-                var tagList = gettingStarted.tagList()
-                for (var tag in tagList) {
-                    tagsTestModel.append({ "text": tagList[tag], "value": tagList[tag] });
-                }
-            }
-        }
 
         Components.TextField {
             Behavior on width { NumberAnimation{} }
@@ -27,14 +49,11 @@ Item {
             onTextChanged: examplesModel.filterRegExp = RegExp('.*'+text, "im")
         }
 
-        ListModel {
-            id: tagsTestModel
-        }
-
         Components.CheckBox {
             id: checkBox
             text: qsTr("Show Examples and Demos")
             checked: false
+            anchors.leftMargin: 6
             anchors.left: lineEdit.right
             anchors.verticalCenter: lineEdit.verticalCenter
             height: lineEdit.height
@@ -46,11 +65,15 @@ Item {
             property string tag
             Behavior on width { NumberAnimation{} }
             onTagChanged: { examplesModel.filterTag = tag; examplesModel.updateFilter() }
+            anchors.leftMargin: 6
             anchors.left: checkBox.right
             anchors.verticalCenter: lineEdit.verticalCenter
             visible: !examplesModel.showTutorialsOnly
-            text: tag === "" ? qsTr("Filter by Tag") : qsTr("Tag Filter: ") + tag
-            onClicked: tagChooser.visible = !tagChooser.visible
+            text: tag === "" ? qsTr("Filter by Tag") : qsTr("Tag Filter: %1").arg(tag)
+            onClicked: {
+                tagBrowserLoader.source = "TagBrowser.qml"
+                tagBrowserLoader.item.visible = true
+            }
         }
     }
     Components.ScrollArea  {
@@ -68,119 +91,8 @@ Item {
         }
     }
 
-
-    Rectangle {
-        id: tagChooser
+    Loader {
+        id: tagBrowserLoader
         anchors.fill: parent
-        color: "darkgrey"
-        visible: false
-        opacity: 0.95
-        radius: 6
-        MouseArea { anchors.fill: parent; hoverEnabled: true } // disable mouse on background
-        Text {
-            id: descr;
-            anchors.margins: 6;
-            color: "white";
-            text: qsTr("Please choose a tag to filter for:");
-            anchors.top: parent.top;
-            anchors.left: parent.left
-            font.bold: true
-        }
-
-        Item {
-            width: rect.width
-            height: rect.height
-
-            anchors.margins: 6;
-            anchors.top: parent.top;
-            anchors.right: parent.right
-
-            Rectangle {
-                color: "red"
-                id: rect
-                radius: 4
-                opacity: 0.3
-                width: closeText.width+4
-                height: closeText.height+4
-                x: closeText.x-2
-                y: closeText.y-2
-            }
-            Text { id: closeText; text: qsTr("Close"); color: "white"; anchors.centerIn: parent }
-            MouseArea {
-                id: mouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: {
-                    tagChooser.visible = false;
-                    tagFilterButton.tag = "";
-                }
-            }
-        }
-
-        Flickable {
-            id: flickable
-            anchors.fill: parent
-            anchors.margins: 6
-            anchors.topMargin: descr.height + anchors.margins*2
-            contentHeight: flow.height
-            contentWidth: flow.width
-            flickableDirection: Flickable.VerticalFlick
-            clip: true
-            Flow {
-                width: tagChooser.width
-                id: flow
-                spacing: 6
-                Repeater {
-                    model: tagsTestModel
-                    delegate: Item {
-                        width: btnRect.width
-                        height: btnRect.height
-                        Rectangle {
-                            id: btnRect
-                            radius: 4
-                            opacity: 0
-                            width: closeText.width+4
-                            height: closeText.height+4
-                            x: closeText.x-2
-                            y: closeText.y-2
-                        }
-                        Text { id: closeText; text: model.text; color: "white"; anchors.centerIn: parent }
-                        MouseArea {
-                            id: mouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                        }
-
-                        states: [
-                            State {
-                                name: "selected"
-                                when: mouseArea.pressed
-                            },
-                            State {
-                                name: "hovered"
-                                when: mouseArea.containsMouse
-                                PropertyChanges {
-                                    target: btnRect
-                                    color: "darkblue"
-                                    opacity: 0.3
-                                }
-                            }
-                        ]
-                        transitions: [
-                            Transition {
-                                from: "hovered"
-                                to: "selected"
-                                ParallelAnimation {
-                                    PropertyAction { target: tagFilterButton; property: "tag"; value: model.value }
-                                    PropertyAction { target: tagChooser; property: "visible"; value: false }
-                                    ColorAnimation { to: "#00000000"; duration: 0 }
-                                }
-                            }
-                        ]
-                    }
-                }
-            }
-
-        }
     }
 }

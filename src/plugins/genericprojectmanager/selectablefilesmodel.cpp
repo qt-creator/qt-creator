@@ -58,6 +58,12 @@ SelectableFilesModel::SelectableFilesModel(const QString &baseDir, QObject *pare
 void SelectableFilesModel::setInitialMarkedFiles(const QStringList &files)
 {
     m_files = files.toSet();
+    m_outOfBaseDirFiles.clear();
+    QString base = m_baseDir + '/';
+    foreach (const QString &file, m_files)
+        if (!file.startsWith(base))
+            m_outOfBaseDirFiles.append(file);
+
     m_allFiles = false;
 }
 
@@ -333,9 +339,14 @@ void SelectableFilesModel::collectPaths(Tree *root, QStringList *result)  const
 
 QStringList SelectableFilesModel::selectedFiles() const
 {
-    QStringList result;
+    QStringList result = m_outOfBaseDirFiles;
     collectFiles(m_root, &result);
     return result;
+}
+
+QStringList SelectableFilesModel::preservedFiles() const
+{
+    return m_outOfBaseDirFiles;
 }
 
 void SelectableFilesModel::collectFiles(Tree *root, QStringList *result) const
@@ -526,6 +537,10 @@ SelectableFilesDialog::SelectableFilesDialog(const QString &path, const QStringL
     m_view->hide();
     layout->addWidget(m_view);
 
+    m_preservedFiles = new QLabel;
+    m_preservedFiles->hide();
+    layout->addWidget(m_preservedFiles);
+
     m_progressLabel = new QLabel(this);
     m_progressLabel->setMaximumWidth(500);
     layout->addWidget(m_progressLabel);
@@ -569,6 +584,13 @@ void SelectableFilesDialog::parsingFinished()
     m_view->expand(QModelIndex());
     smartExpand(m_selectableFilesModel->index(0,0, QModelIndex()));
     applyFilter();
+    const QStringList &preservedFiles = m_selectableFilesModel->preservedFiles();
+    if (preservedFiles.isEmpty()) {
+        m_preservedFiles->hide();
+    } else {
+        m_preservedFiles->show();
+        m_preservedFiles->setText(tr("Not showing %n files that are outside of the base directory.\nThese files are preserved.", 0, preservedFiles.count()));
+    }
 }
 
 void SelectableFilesDialog::smartExpand(const QModelIndex &index)

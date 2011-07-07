@@ -613,19 +613,15 @@
 
     \list
 
-        \o Open tutorials and example projects
+        \o Read news from the Qt labs
 
-        \o View tips and hints on using Qt Creator
+        \o Open tutorials and example projects
 
         \o Create and open projects
 
         \o Send feedback to the development team
 
         \o Open recent sessions and projects
-
-        \o Read news from the Qt labs
-
-        \o Ask for support
 
     \endlist
 
@@ -3066,7 +3062,7 @@
             without delimiter characters and the initial character of each element is
             capitalized. For example, rewrites \c an_example_symbol
             as \c anExampleSymbol and \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
-            \i Indentifier
+            \i Identifier
         \row
             \i Complete Switch Statement
             \i Adds all possible cases to a switch statement of the type \c enum
@@ -3178,14 +3174,14 @@
 
     To develop applications for Symbian devices, you use
     qmake and the local Symbian compiler (on Windows) or qmake and a compilation
-    service at Forum Nokia (on Linux and Mac OS) to build the applications for
+    service at Nokia Developer (on Linux and Mac OS) to build the applications for
     the Symbian devices target. The interface to the compilation service, Remote
     Compiler, is installed as a part of the \QSDK. For more information, see
     \l{Building with Remote Compiler}.
 
-    When you install the \QSDK, the build and run settings for the Maemo, MeeGo
-    Harmattan, and
-    Symbian targets are set up automatically. However, you need to install and
+    You can install Maemo, MeeGo Harmattan, and Symbian targets as parts of
+    the \QSDK. The build and run settings for the selected targets are set up
+    automatically. However, you need to install and
     configure some additional software on the devices to be able to connect to
     them from the development PC.
 
@@ -3232,8 +3228,10 @@
 
         \o Qt Quick Project
 
-        Use QML to define the user interface and,
-        optionally, C++ or JavaScript to define the application logic
+        Use QML elements or Qt Quick Components to define the user interface and,
+        optionally, C++ or JavaScript to define the application logic.
+
+
 
         \o Qt Widget Project
 
@@ -4037,31 +4035,37 @@
 
     \list
 
-        \o  GNU Compiler Collection (GCC) is a cross compiler for Linux and
+        \o  GNU Compiler Collection (GCC) is a compiler for Linux and
             Mac OS X.
 
         \o  MinGW (Minimalist GNU for Windows) is a native software port of GCC
             and GNU Binutils for use in the development of native Microsoft
-            Windows applications on Windows or as cross compiler. MinGW is
+            Windows applications on Windows. MinGW is
             distributed together with Qt Creator and Qt SDK for Windows.
 
-        \o  GCCE (GNU Compiler Collection for Embedded) is an ARM-based
-            compiler used in Symbian OS 9 and distributed together with the
-            Symbian OS 9 SDKs.
+        \o  Linux ICC (Intel C++ Compiler) is a group of C and C++ compilers
+            for Linux.
 
-        \o  RVCT is an ARM-bases compiler for building applications for Symbian
+        \o  Clang is a C, C++, Objective C, and Objective C++ front-end for the
+            LLVM compiler for Windows, Linux, Mac OS X, and Symbian.
+
+        \o  GCCE (GNU Compiler Collection for Embedded) is an ARM-based
+            compiler used in Symbian OS 9 and distributed together with \QSDK.
+
+        \o  RVCT is an ARM-based compiler for building applications for Symbian
             devices (requires a license).
 
         \o  WINSCW is a compiler for building applications that can be run or
             debugged on the Symbian Emulator. It is distributed together with
-            Symbian SDKs.
+            Symbian SDKs (but not with the \QSDK).
 
     \endlist
 
-    To build an application using MinGW or GCCE, specify the paths to the
+    To build an application using GCC, MinGW, GCCE, or Clang, specify the paths
+    to the
     directories where the compiler and debugger are located and select the
     application binary interface (ABI) version from the list of available
-    versions.
+    versions. You can also create a custom ABI definition.
 
     Qt Creator allows you to select a tool chain that matches the Qt version
     in the \gui Projects mode \gui {Build Settins}.
@@ -4073,6 +4077,8 @@
         \o  Select \gui {Tools > Options... Tool Chains > Add} and select a
             compiler in the list.
 
+            \image qtcreator-toolchains.png
+
             To clone the selected tool chain, select \gui {Clone}.
 
         \o  In the \gui Name column, double-click the name to change it.
@@ -4080,8 +4086,6 @@
         \o  In the \gui{Compiler path} field, enter the path to the directory
             where the compiler is located. For WINSCW, enter the path to the
             Carbide C++ installation directory here.
-
-            \image qtcreator-toolchains.png
 
             The other settings to specify depend on the tool chain.
 
@@ -4373,7 +4377,7 @@
     The tool chain for building applications locally on the development PC for
     the \gui {Symbian Device} target is only supported on Windows.
     If you develop on Linux or Mac OS, you must use the Remote Compiler
-    interface to a compilation service at Forum Nokia. For more information,
+    interface to a compilation service at Nokia Developer. For more information,
     see \l{Building with Remote Compiler}.
 
     \section2 Troubleshooting Build Issues
@@ -4516,7 +4520,7 @@
         The tool tip of the target selector shows more details about the actual
         device that will be used when you run your application.
 
-        \o Start the debugging agent (CODA or App TRK) application on your device.
+        \o Start the CODA debugging agent on the device.
 
         \note If you use CODA over an USB connection, it starts up
         automatically when you connect the device to the development PC.
@@ -4539,7 +4543,7 @@
         \o The Nokia USB drivers that come with \e{PC Suite} or \e{Ovi Suite}
         have been installed on the development PC.
         \o The device is connected through USB cable in \e{PC Suite} mode.
-        \o The debugging agent (App TRK or CODA) is running on the device with
+        \o The CODA debugging agent is running on the device with
            the status \e connected.
 
            \note If you use the CODA debugging agent over WLAN, you must enter
@@ -4587,15 +4591,15 @@
     \title Building with Remote Compiler
 
     The \gui {Remote Compiler} target is an interface to a compilation service at
-    Forum Nokia. It provides a simple, standardized environment for building Qt
+    Nokia Developer. It provides a simple, standardized environment for building Qt
     applications and creating installation packages for Symbian, Maemo, and
     MeeGo Harmattan devices
     when you do not have the necessary tool chains and SDKs installed or they are
     not supported on the development PC. You can choose from a set of supported
     devices, such as S60 3rd Edition or S60 5th Edition devices.
 
-    You need a Forum Nokia user account to use the Remote Compiler. You can
-    create an account for free at \l{http://www.forum.nokia.com/}{Forum Nokia}.
+    You need a Nokia Developer user account to use the Remote Compiler. You can
+    create an account for free at \l{http://www.developer.nokia.com/}{Nokia Developer}.
 
     \note Remote Compiler is an experimental component that is installed as
     part of \QSDK.
@@ -4609,7 +4613,7 @@
         Remote Compiler} to install Remote Compiler.
 
         \o In Qt Creator, choose \gui {Tools > Options > Projects > Remote Compiler}
-        to log on to Forum Nokia.
+        to log on to Nokia Developer.
 
         \image remotecompiler-fn-logon.png "Remote Compiler options"
 
@@ -5194,7 +5198,7 @@
     (Express Signing). Participants can submit an unsigned SIS file to Ovi
     Publishing for signing. For more information about how
     to participate, see
-    \l {http://wiki.forum.nokia.com/index.php/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store}.
+    \l {http://www.developer.nokia.com/Community/Wiki/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store}.
 
     There are also options that do not require you to get a Publisher ID. For
     more detail about how the Symbian Signed process works, see
@@ -5285,7 +5289,7 @@
 
     You can either install the Nokia Smart Installer for Symbian as part of
     the \QSDK, or download and install it from the
-    \l{http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}
+    \l{http://www.developer.nokia.com/Community/Wiki/Nokia_Smart_Installer_for_Symbian}{Nokia Smart Installer for Symbian}
     wiki.
 
     To package Nokia Smart Installer with the application, select the \gui {Create Smart Installer
@@ -5311,7 +5315,7 @@
 
     \list 1
 
-        \o Make sure that the source directory is clean. For example, if you use git,
+        \o Make sure that the source directory is clean. For example, if you use Git,
         enter the following command:
 
         \c {git clean -dfx}
@@ -5367,7 +5371,7 @@
 
     \list 1
 
-        \o Make sure that the source directory is clean. For example, if you use git,
+        \o Make sure that the source directory is clean. For example, if you use Git,
         enter the following command:
 
         \c {git clean -dfx}
@@ -5499,7 +5503,7 @@
 
     The process and requirements to publish Qt applications to Ovi Store are
     described in the
-    \l {http://wiki.forum.nokia.com/index.php/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store} wiki.
+    \l {http://www.developer.nokia.com/Community/Wiki/Guide_to_Publishing_Qt_Applications_to_the_Ovi_Store}{Guide to Publishing Qt Applications to the Ovi Store} wiki.
 
     This section describes how to
     generate installation packages that
@@ -5565,7 +5569,7 @@
     device if you use UIDs from the trusted range (0x2xxxxxxx) in a self-signed
     application: \gui {Unable to install a trusted application from a trusted
     supplier.} For more
-    information, see \l{http://wiki.forum.nokia.com/index.php/UID}{UID}.
+    information, see \l{http://www.developer.nokia.com/Community/Wiki/UID}{UID}.
 
     If you try to use more capabilites than the certificate permits, the
     following error message is displayed on the device: \gui {Requested
@@ -5642,7 +5646,7 @@
 
     The applications that you publish on Ovi Store, must meet the testing criteria
     listed in
-    \l{http://www.forum.nokia.com/info/sw.nokia.com/id/9cd1eb18-821b-4228-a0a3-36b049c5d608/Maemo_5_Application_OVI_Store_Entry_Requirements.pdf.html}
+    \l{http://www.developer.nokia.com/info/sw.nokia.com/id/9cd1eb18-821b-4228-a0a3-36b049c5d608/Maemo_5_Application_OVI_Store_Entry_Requirements.pdf.html}
     {Maemo 5 Applications: Ovi Store Entry Requirements}.
 
     Make sure that your application passes the following most commonly
@@ -6074,7 +6078,7 @@
         debugging agent on the device. For more information,
         see \l{Connecting Symbian Devices}.
 
-        \o Start the debugging agent, App TRK or CODA, on the device.
+        \o Start the CODA debugging agent on the device.
 
         \o Click the \gui {Target Selector} and select \gui {Symbian Device}.
 
@@ -9365,6 +9369,20 @@
 
         \o Click \gui{Next}.
 
+        The \gui {Application Type} dialog opens.
+
+        \image qmldesigner-new-project-qml-sources.png "Application Type dialog"
+
+        \o Select the Qt Quick Component Set to use in your application. The
+        built-in elements allow you to write cross-platform applications with
+        custom look and feel. The components for Symbian and MeeGo Harmattan
+        allow you to create applications with a native look and feel for the
+        selected mobile platform.
+
+        You can also import an existing QML file in this dialog.
+
+        \o Click \gui{Next}.
+
         The \gui {Target Setup} dialog opens.
 
         \image qmldesigner-new-project-qt-versions.png "Target Setup dialog"
@@ -9412,13 +9430,6 @@
         \o In the \gui {Application icon} field, select the application
          icon to use on Maemo or Harmattan targets, or use the default icon.
 
-        The \gui {QML Sources} dialog opens.
-
-        \image qmldesigner-new-project-qml-sources.png "QML Sources" dialog
-
-        \o In the \gui {QML Main File} group, select \gui {Generate a .qml file},
-        and then click \gui{Next}.
-
         The \gui {Project Management} dialog opens.
 
         \image qmldesigner-new-project-summary.png "Project Management" dialog
@@ -9452,18 +9463,19 @@
 
         \o Name the project and set its path, and then click \gui Next.
 
+        \o In the \gui {Application Type} dialog, select the \gui {Use an
+        existing .qml file}
+        option and specify the main .qml file of the project you want to import.
+
+        \image qmldesigner-import-project.png "Application Type dialog"
+
+        \o Click \gui Next.
+
         \o Select the Qt versions to use as build targets for your project, and click
         \gui{Next}.
 
         \o Specify options for deploying the application to mobile device targets, and
         click \gui{Next}.
-
-        \o In the \gui {QML Sources} dialog, select the \gui {Import an existing .qml file}
-        option and specify the main .qml file of the project you want to import.
-
-        \image qmldesigner-import-project.png "QML Sources" dialog
-
-        \o Click \gui Next.
 
         \o Review the project settings, and click \gui{Finish} to create the project.
 
@@ -9515,10 +9527,17 @@
 
     \endlist
 
-    You can experiment with a set of Qt Quick components that are designed to
-    appear native to the Symbian devices target platform. For more information,
-    see
-    \l{http://labs.qt.nokia.com/2011/04/08/qt-quick-components-for-symbian-technology-preview/}{Qt Quick components for Symbian Technology Preview}.
+    QML elements allow you to write cross-platform applications with custom look
+    and feel. You can also use ready-made Qt Quick Components for Symbian and
+    MeeGo Harmattan that allow you to create applications with a native look and
+    feel for the selected mobile platform. You can install the components as
+    part of \QSDK.
+
+    When you use the Qt Creator project wizard to create Qt Quick applications,
+    you can select which component set to use in your application.
+
+    Even if you use the Qt Quick Components, you can still write cross-platform
+    applications, by using different sets of QML files for each platform.
 
     You can dowload a set of commonly used UI-components for generic use in
     Qt Quick projects from
@@ -9798,8 +9817,13 @@
     The QML files in the project folder are displayed in \gui {QML Components} in the
     \gui Library pane.
 
+    You can also use ready-made Qt Quick Components for Symbian and
+    MeeGo Harmattan that allow you to create screens with a native look and
+    feel for the selected mobile platform. You can install the components as
+    part of \QSDK.
+
     You can dowload QML templates that specify different types of screens from
-    \l{https://projects.forum.nokia.com/QMLTemplates}{QML Templates} for use in
+    \l{https://projects.developer.nokia.com/QMLTemplates}{QML Templates} for use in
     your Qt Quick projects. You can open and edit the templates in \QD.
 
     \section1 Adding Components to Screens
@@ -10649,8 +10673,7 @@
        \endlist
 
        For more information about user experience techniques for mobile devices, see the
-       \l{http://library.forum.nokia.com/topic/Design_and_User_Experience_Library/GUID-A8DF3EB8-E97C-4DA0-95F6-F464ECC995BC_cover.html}{Design and User Experience Library}
-       on Forum Nokia.
+       \l{http://www.developer.nokia.com/Resources/Library/Design_and_UX} on Nokia Developer.
 
  */
 
@@ -12289,7 +12312,7 @@
 
         \row
             \o  Develop Qt applications for Nokia mobile devices
-            \o  \l{http://www.forum.nokia.com/Develop/Qt/}{Forum Nokia - Qt}
+            \o  \l{http://www.developer.nokia.com/Develop/Qt/}{Nokia Developer - Qt}
 
         \row
             \o  Participate in Qt development

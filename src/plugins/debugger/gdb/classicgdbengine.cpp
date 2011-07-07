@@ -676,8 +676,7 @@ static bool isAccessSpecifier(const QByteArray &ba)
 // reads a MI-encoded item frome the consolestream
 static bool parseConsoleStream(const GdbResponse &response, GdbMi *contents)
 {
-    GdbMi output = response.data.findChild("consolestreamoutput");
-    QByteArray out = output.data();
+    QByteArray out = response.consoleStreamOutput;
 
     int markerPos = out.indexOf('"') + 1; // position of 'success marker'
     if (markerPos == 0 || out.at(markerPos) == 'f') {  // 't' or 'f'
@@ -1016,7 +1015,7 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         WatchData data = response.cookie.value<WatchData>();
-        QByteArray out = response.data.findChild("consolestreamoutput").data();
+        QByteArray out = response.consoleStreamOutput;
         while (out.endsWith(' ') || out.endsWith('\n'))
             out.chop(1);
         QList<QByteArray> list = out.split(' ');

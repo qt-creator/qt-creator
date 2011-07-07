@@ -45,24 +45,21 @@ class CallgrindTool : public Analyzer::IAnalyzerTool
     Q_OBJECT
 
 public:
-    explicit CallgrindTool(QObject *parent = 0);
+    CallgrindTool(QObject *parent);
     ~CallgrindTool();
 
-    QString id() const;
+    QByteArray id() const;
     QString displayName() const;
     QString description() const;
-    ToolMode mode() const;
+    ToolMode toolMode() const;
 
-    void initialize();
     void extensionsInitialized();
-    void initializeDockWidgets();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
-    QWidget *createControlWidget();
+    QWidget *createWidgets();
 
-    bool canRunRemotely() const { return true; }
-    bool canRunLocally() const;
+    void startTool(Analyzer::StartMode mode);
 
 private:
     CallgrindToolPrivate *d;

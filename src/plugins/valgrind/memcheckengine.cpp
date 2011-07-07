@@ -49,9 +49,9 @@ using namespace Valgrind::XmlProtocol;
 namespace Valgrind {
 namespace Internal {
 
-MemcheckEngine::MemcheckEngine(const Analyzer::AnalyzerStartParameters &sp,
-                               ProjectExplorer::RunConfiguration *runConfiguration)
-    : ValgrindEngine(sp, runConfiguration)
+MemcheckEngine::MemcheckEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration)
+    : ValgrindEngine(tool, sp, runConfiguration)
 {
     connect(&m_parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
             SIGNAL(parserError(Valgrind::XmlProtocol::Error)));

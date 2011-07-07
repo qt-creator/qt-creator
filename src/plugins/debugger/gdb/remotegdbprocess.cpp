@@ -98,7 +98,8 @@ void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args,
         handleConnected();
     } else {
         connect(m_conn.data(), SIGNAL(connected()), this, SLOT(handleConnected()));
-        m_conn->connectToHost();
+        if (m_conn->state() == SshConnection::Unconnected)
+            m_conn->connectToHost();
     }
 }
 

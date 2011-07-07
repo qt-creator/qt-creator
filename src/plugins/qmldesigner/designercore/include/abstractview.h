@@ -121,7 +121,10 @@ public:
     void emitInstancesChildrenChanged(const QVector<ModelNode> &nodeList);
     void emitRewriterBeginTransaction();
     void emitRewriterEndTransaction();
+    void emitInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
     void emitActualStateChanged(const ModelNode &node);
+
+    void sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
     virtual void modelAttached(Model *model);
     virtual void modelAboutToBeDetached(Model *model);
@@ -144,6 +147,8 @@ public:
     virtual void instancesRenderImageChanged(const QVector<ModelNode> &nodeList) = 0;
     virtual void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) = 0;
     virtual void instancesChildrenChanged(const QVector<ModelNode> &nodeList) = 0;
+    virtual void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector) = 0;
+
     virtual void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) = 0;
 
     virtual void rewriterBeginTransaction() = 0;

@@ -120,7 +120,7 @@ void AbstractPlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
         // [some leading stdout here]
         // >&"        Entry point: 0x80831f0  0x08048134 - 0x08048147 is .interp\n"
         // [some trailing stdout here]
-        QString msg = _(response.data.findChild("consolestreamoutput").data());
+        QString msg = _(response.consoleStreamOutput);
         QRegExp needle(_("\\bEntry point: 0x([0-9a-f]+)\\b"));
         if (needle.indexIn(msg) != -1) {
             m_engine->m_entryPoint =

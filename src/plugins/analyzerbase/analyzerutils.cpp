@@ -116,10 +116,3 @@ CPlusPlus::Symbol *AnalyzerUtils::findSymbolUnderCursor()
     const CPlusPlus::LookupItem &lookupItem = lookupItems.first(); // ### TODO: select best candidate.
     return lookupItem.declaration();
 }
-
-QWidget *AnalyzerUtils::createDummyWidget()
-{
-    QWidget *widget = new QWidget;
-    widget->setProperty(Constants::ANALYZER_DUMMYWIDGET_ID, QVariant(true));
-    return widget;
-}

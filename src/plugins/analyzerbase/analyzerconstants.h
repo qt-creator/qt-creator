@@ -39,16 +39,22 @@
 
 namespace Analyzer {
 
-enum AnalyzerStartMode
+// Special values for currently used modes.
+// Their meaning is interpreted by the individual tools.
+// FIXME: The plan is to remove this entirely from the
+// public interface and let the tools handle that internally.
+
+enum StartMode
 {
-    StartLocal,
-    StartRemote
+    StartLocal = -1,
+    StartRemote = -2,
+    StartQml = -3
 };
 
 namespace Constants {
 
 // modes and their priorities
-const char * const MODE_ANALYZE   = "Analyzer.Mode.Analyze";
+const char * const MODE_ANALYZE   = "Mode.Analyze";
 const int          P_MODE_ANALYZE = 76;
 
 // context
@@ -60,6 +66,10 @@ const char * const M_DEBUG_ANALYZER = "Analyzer.Menu.StartAnalyzer";
 const char * const START = "Analyzer.Start";
 const char * const STARTREMOTE = "Analyzer.StartRemote";
 const char * const STOP = "Analyzer.Stop";
+
+const char * const G_ANALYZER_CONTROL = "Menu.Group.Analyzer.Control";
+const char * const G_ANALYZER_TOOLS = "Menu.Group.Analyzer.Tools";
+const char * const G_ANALYZER_REMOTE_TOOLS = "Menu.Group.Analyzer.RemoteTools";
 
 // options dialog
 const char * const ANALYZER_SETTINGS_CATEGORY = "T.Analyzer";
@@ -75,9 +85,6 @@ const char * const ANALYZER_CONTROL_STOP_ICON =
     ":/debugger/images/debugger_stop_small.png";
 
 const char * const ANALYZERTASK_ID = "Analyzer.TaskId";
-
-// private
-const char * const ANALYZER_DUMMYWIDGET_ID = "Analyzer.DummyWidget";
 
 } // namespace Constants
 } // namespace Analyzer

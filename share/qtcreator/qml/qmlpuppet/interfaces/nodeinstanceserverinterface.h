@@ -55,6 +55,7 @@ class RemovePropertiesCommand;
 class ChangeStateCommand;
 class CompleteComponentCommand;
 class ChangeNodeSourceCommand;
+class TokenCommand;
 
 class NodeInstanceServerInterface : public QObject
 {
@@ -81,6 +82,7 @@ public:
     virtual void changeState(const ChangeStateCommand &command) = 0;
     virtual void completeComponent(const CompleteComponentCommand &command) = 0;
     virtual void changeNodeSource(const ChangeNodeSourceCommand &command) = 0;
+    virtual void token(const TokenCommand &command) = 0;
 
     static void registerCommands();
 };

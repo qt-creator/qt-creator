@@ -80,6 +80,22 @@ quint64 DisassemblerLine::addressFromDisassemblyLine(const QString &line)
     return l.address;
 }
 
+quint64 DisassemblerLines::startAddress() const
+{
+    for (int i = 0; i < m_data.size(); ++i)
+        if (m_data.at(i).address)
+            return m_data.at(i).address;
+    return 0;
+}
+
+quint64 DisassemblerLines::endAddress() const
+{
+    for (int i = m_data.size()- 1; i >= 0; --i)
+        if (m_data.at(i).address)
+            return m_data.at(i).address;
+    return 0;
+}
+
 int DisassemblerLines::lineForAddress(quint64 address) const
 {
     return m_rowCache.value(address);

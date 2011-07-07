@@ -35,8 +35,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskwindow.h>
 
-#include <QtCore/QDebug>
-
 using namespace Qt4ProjectManager::Internal;
 
 S60CreatePackageParser::S60CreatePackageParser(const QString &packageName) :

@@ -61,6 +61,7 @@
 #include "statepreviewimagechangedcommand.h"
 #include "componentcompletedcommand.h"
 #include "synchronizecommand.h"
+#include "tokencommand.h"
 
 
 namespace QmlDesigner {
@@ -169,6 +170,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<ChangeAuxiliaryCommand>("ChangeAuxiliaryCommand");
     qRegisterMetaTypeStreamOperators<ChangeAuxiliaryCommand>("ChangeAuxiliaryCommand");
+
+    qRegisterMetaType<TokenCommand>("TokenCommand");
+    qRegisterMetaTypeStreamOperators<TokenCommand>("TokenCommand");
 }
 
 }

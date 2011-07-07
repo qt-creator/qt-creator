@@ -39,7 +39,7 @@ namespace Debugger {
 namespace Constants {
 
 // Debug mode
-const char * const MODE_DEBUG           = "Debugger.Mode.Debug";
+const char * const MODE_DEBUG           = "Mode.Debug";
 
 // Contexts
 const char * const C_DEBUGMODE          = "Debugger.DebugMode";
@@ -48,7 +48,7 @@ const char * const C_QMLDEBUGGER        = "Qml/JavaScript Debugger";
 
 // Project Explorer run mode (RUN/DEBUG)
 const char * const DEBUGMODE            = "Debugger.DebugMode";
-const char * const DEBUGMODE2           = "Debugger.DebugMode2";
+const char * const DEBUGMODE2           = "Debugger.DebugMode2"; // Breaks on main.
 
 // Common actions (accessed by QML inspector)
 const char * const INTERRUPT            = "Debugger.Interrupt";

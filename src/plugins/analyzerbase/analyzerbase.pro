@@ -15,7 +15,6 @@ SOURCES += \
     ianalyzertool.cpp \
     analyzerplugin.cpp \
     analyzerruncontrol.cpp \
-    analyzerruncontrolfactory.cpp \
     analyzermanager.cpp \
     analyzersettings.cpp \
     analyzeroptionspage.cpp \
@@ -30,7 +29,6 @@ HEADERS += \
     analyzerconstants.h \
     analyzerplugin.h \
     analyzerruncontrol.h \
-    analyzerruncontrolfactory.h \
     analyzermanager.h \
     analyzersettings.h \
     analyzerstartparameters.h \

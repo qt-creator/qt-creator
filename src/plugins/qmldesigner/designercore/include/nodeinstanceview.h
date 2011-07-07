@@ -69,6 +69,8 @@ class ChangeIdsCommand;
 class RemoveInstancesCommand;
 class RemovePropertiesCommand;
 class CompleteComponentCommand;
+class InformationContainer;
+class TokenCommand;
 
 class CORESHARED_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
 {
@@ -106,9 +108,11 @@ public:
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
+    void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
     void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
+
 
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
@@ -135,10 +139,13 @@ public:
     void childrenChanged(const ChildrenChangedCommand &command);
     void statePreviewImagesChanged(const StatePreviewImageChangedCommand &command);
     void componentCompleted(const ComponentCompletedCommand &command);
+    void token(const TokenCommand &command);
 
     QImage statePreviewImage(const ModelNode &stateNode) const;
 
     void setPathToQt(const QString &pathToQt);
+
+    void sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
 signals:
     void qmlPuppetCrashed();
@@ -161,6 +168,8 @@ private: // functions
     void clearStateInstance();
 
     NodeInstanceServerInterface *nodeInstanceServer() const;
+    QMultiHash<ModelNode, InformationName> informationChanged(const QVector<InformationContainer> &containerVector);
+
 
     CreateSceneCommand createCreateSceneCommand();
     ClearSceneCommand createClearSceneCommand() const;

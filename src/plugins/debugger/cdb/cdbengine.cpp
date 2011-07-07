@@ -478,6 +478,7 @@ void CdbEngine::init()
     m_extensionMessageBuffer.clear();
     m_pendingBreakpointMap.clear();
     m_customSpecialStopData.clear();
+    m_symbolAddressCache.clear();
 
     // Create local list of mappings in native separators
     m_sourcePathMappings.clear();
@@ -1532,14 +1533,147 @@ void CdbEngine::selectThread(int index)
     postBuiltinCommand(cmd, 0, &CdbEngine::dummyHandler, CommandListStack);
 }
 
+// Default address range for showing disassembly.
+enum { DisassemblerRange = 512 };
+
+/* Try to emulate gdb's behaviour: When passed an address, display
+ * the disassembled function. CDB's 'u' (disassemble) command takes a symbol,
+ * but does not display the whole function, only 10 lines per default.
+ * So, to ensure the agent's
+ * address is in that range, resolve the function symbol, cache it and
+ * request the disassembly for a range that contains the agent's address. */
+
 void CdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
     QTC_ASSERT(m_accessible, return;)
+    const QString function = agent->location().functionName();
+    const QString module = agent->location().from();
+    const QVariant cookie = qVariantFromValue<DisassemblerAgent*>(agent);
+    if (function.isEmpty() || module.isEmpty()) {
+        // No function, display a default range.
+        postDisassemblerCommand(agent->address(), cookie);
+    } else {
+        postResolveSymbol(module, function, cookie);
+    }
+}
+
+void CdbEngine::postDisassemblerCommand(quint64 address, const QVariant &cookie)
+{
+    postDisassemblerCommand(address - DisassemblerRange / 2,
+                            address + DisassemblerRange / 2, cookie);
+}
+
+void CdbEngine::postDisassemblerCommand(quint64 address, quint64 endAddress,
+                                        const QVariant &cookie)
+{
     QByteArray cmd;
     ByteArrayInputStream str(cmd);
-    str <<  "u " << hex << hexPrefixOn << agent->address() << " L40";
-    const QVariant cookie = qVariantFromValue<DisassemblerAgent*>(agent);
+    str <<  "u " << hex <<hexPrefixOn << address << ' ' << endAddress;
     postBuiltinCommand(cmd, 0, &CdbEngine::handleDisassembler, 0, cookie);
+}
+
+void CdbEngine::postResolveSymbol(const QString &module, const QString &function,
+                                  const QVariant &cookie)
+{
+    const QString symbol = module + QLatin1Char('!') + function;
+    const QList<quint64> addresses = m_symbolAddressCache.values(symbol);
+    if (addresses.isEmpty()) {
+        QVariantList cookieList;
+        cookieList << QVariant(symbol) << cookie;
+        showMessage(QLatin1String("Resolving symbol: ") + symbol, LogMisc);
+        postBuiltinCommand(QByteArray("x ") + symbol.toLatin1(), 0,
+                           &CdbEngine::handleResolveSymbol, 0,
+                           QVariant(cookieList));
+    } else {
+        showMessage(QString::fromLatin1("Using cached addresses for %1.").
+                    arg(symbol), LogMisc);
+        handleResolveSymbol(addresses, cookie);
+    }
+}
+
+// Parse address from 'x' response.
+// "00000001`3f7ebe80 module!foo (void)"
+static inline quint64 resolvedAddress(const QByteArray &line)
+{
+    const int blankPos = line.indexOf(' ');
+    if (blankPos >= 0) {
+        QByteArray addressBA = line.left(blankPos);
+        if (addressBA.size() > 9 && addressBA.at(8) == '`')
+            addressBA.remove(8, 1);
+        bool ok;
+        const quint64 address = addressBA.toULongLong(&ok, 16);
+        if (ok)
+            return address;
+    }
+    return 0;
+}
+
+void CdbEngine::handleResolveSymbol(const CdbBuiltinCommandPtr &command)
+{
+    QTC_ASSERT(command->cookie.type() == QVariant::List, return; );
+    const QVariantList cookieList = command->cookie.toList();
+    const QString symbol = cookieList.front().toString();
+    // Insert all matches of (potentially) ambiguous symbols
+    if (const int size = command->reply.size()) {
+        for (int i = 0; i < size; i++) {
+            if (const quint64 address = resolvedAddress(command->reply.at(i))) {
+                m_symbolAddressCache.insert(symbol, address);
+                showMessage(QString::fromLatin1("Obtained 0x%1 for %2 (#%3)").
+                            arg(address, 0, 16).arg(symbol).arg(i + 1), LogMisc);
+            }
+        }
+    } else {
+        showMessage(QLatin1String("Symbol resolution failed: ")
+                    + QString::fromLatin1(command->joinedReply()),
+                    LogError);
+    }
+    handleResolveSymbol(m_symbolAddressCache.values(symbol), cookieList.back());
+}
+
+// Find the function address matching needle in a list of function
+// addresses obtained from the 'x' command. Check for the
+// mimimum POSITIVE offset (needle >= function address.)
+static inline quint64 findClosestFunctionAddress(const QList<quint64> &addresses,
+                                                 quint64 needle)
+{
+    const int size = addresses.size();
+    if (!size)
+        return 0;
+    if (size == 1)
+       return addresses.front();
+    int closestIndex = 0;
+    quint64 closestOffset = 0xFFFFFFFF;
+    for (int i = 0; i < size; i++) {
+        if (addresses.at(i) <= needle) {
+            const quint64 offset = needle - addresses.at(i);
+            if (offset < offset) {
+                closestOffset = offset;
+                closestIndex = i;
+            }
+        }
+    }
+    return addresses.at(closestIndex);
+}
+
+void CdbEngine::handleResolveSymbol(const QList<quint64> &addresses, const QVariant &cookie)
+{
+    // Disassembly mode: Determine suitable range containing the
+    // agent's address within the function to display.
+    if (qVariantCanConvert<DisassemblerAgent*>(cookie)) {
+        DisassemblerAgent *agent = cookie.value<DisassemblerAgent *>();
+        const quint64 agentAddress = agent->address();
+        const quint64 functionAddress
+                = findClosestFunctionAddress(addresses, agentAddress);
+        if (functionAddress > 0 && functionAddress <= agentAddress) {
+            quint64 endAddress = agentAddress + DisassemblerRange / 2;
+            if (const quint64 remainder = endAddress % 8)
+                endAddress += 8 - remainder;
+            postDisassemblerCommand(functionAddress, endAddress, cookie);
+        } else {
+            postDisassemblerCommand(agentAddress, cookie);
+        }
+        return;
+    }
 }
 
 // Parse: "00000000`77606060 cc              int     3"
@@ -2512,6 +2646,7 @@ void CdbEngine::attemptBreakpointSynchronization()
         BreakpointParameters parameters = handler->breakpointData(id);
         BreakpointResponse response;
         response.fromParameters(parameters);
+        response.id = BreakpointResponseId(id.majorPart(), id.minorPart());
         // If we encountered that file and have a module for it: Add it.
         if (parameters.type == BreakpointByFileAndLine && parameters.module.isEmpty()) {
             const QHash<QString, QString>::const_iterator it = m_fileNameModuleHash.constFind(parameters.fileName);
@@ -2833,14 +2968,14 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
     BreakHandler *handler = breakHandler();
     foreach (const GdbMi &breakPointG, value.children()) {
         BreakpointResponse reportedResponse;
-        const BreakpointResponseId id = parseBreakPoint(breakPointG, &reportedResponse);
+        parseBreakPoint(breakPointG, &reportedResponse);
         if (debugBreakpoints)
-            qDebug("  Parsed %d: pending=%d %s\n", id.majorPart(),
+            qDebug("  Parsed %d: pending=%d %s\n", reportedResponse.id.majorPart(),
                 reportedResponse.pending,
                 qPrintable(reportedResponse.toString()));
-
-        if (!reportedResponse.pending) {
-            BreakpointModelId mid = handler->findBreakpointByResponseId(id);
+        if (reportedResponse.id.isValid() && !reportedResponse.pending) {
+            const BreakpointModelId mid = handler->findBreakpointByResponseId(reportedResponse.id);
+            QTC_ASSERT(mid.isValid(), continue; )
             const PendingBreakPointMap::iterator it = m_pendingBreakpointMap.find(mid);
             if (it != m_pendingBreakpointMap.end()) {
                 // Complete the response and set on handler.
@@ -2852,9 +2987,8 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 currentResponse.enabled = reportedResponse.enabled;
                 formatCdbBreakPointResponse(mid, currentResponse, str);
                 if (debugBreakpoints)
-                    qDebug("  Setting for %d: %s\n", id.majorPart(),
+                    qDebug("  Setting for %d: %s\n", currentResponse.id.majorPart(),
                         qPrintable(currentResponse.toString()));
-                BreakpointModelId mid = handler->findBreakpointByResponseId(id);
                 handler->setResponse(mid, currentResponse);
                 m_pendingBreakpointMap.erase(it);
             }

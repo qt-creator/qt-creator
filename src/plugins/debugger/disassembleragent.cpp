@@ -56,6 +56,8 @@
 #include <QtGui/QTextBlock>
 #include <QtGui/QIcon>
 #include <QtCore/QPointer>
+#include <QtCore/QPair>
+#include <QtCore/QDir>
 
 using namespace Core;
 using namespace TextEditor;
@@ -68,6 +70,27 @@ namespace Internal {
 // DisassemblerAgent
 //
 ///////////////////////////////////////////////////////////////////////
+
+class FrameKey
+{
+public:
+    FrameKey() : startAddress(0), endAddress(0) {}
+    inline bool matches(const Location &loc) const;
+
+    QString functionName;
+    QString fileName;
+    quint64 startAddress;
+    quint64 endAddress;
+};
+
+bool FrameKey::matches(const Location &loc) const
+{
+    return loc.address() >= startAddress
+            && loc.address() < endAddress
+            && loc.fileName() == fileName && loc.functionName() == functionName;
+}
+
+typedef QPair<FrameKey, DisassemblerLines> CacheEntry;
 
 class DisassemblerAgentPrivate
 {
@@ -83,8 +106,9 @@ public:
     QPointer<DebuggerEngine> engine;
     ITextMark *locationMark;
     QList<ITextMark *> breakpointMarks;
-    
-    QHash<QString, DisassemblerLines> cache;
+
+    QList<CacheEntry> cache;
+
     QString mimeType;
     bool m_resetLocationScheduled;
 };
@@ -130,6 +154,14 @@ DisassemblerAgent::~DisassemblerAgent()
     d = 0;
 }
 
+int DisassemblerAgent::indexOf(const Location &loc) const
+{
+    for (int i = 0; i < d->cache.size(); i++)
+        if (d->cache.at(i).first.matches(loc))
+            return i;
+    return -1;
+}
+
 void DisassemblerAgent::cleanup()
 {
     d->cache.clear();
@@ -150,12 +182,6 @@ void DisassemblerAgent::resetLocation()
     }
 }
 
-static QString frameKey(const Location &loc)
-{
-    return _("%1:%2:%3").arg(loc.functionName())
-        .arg(loc.fileName()).arg(loc.address());
-}
-
 const Location &DisassemblerAgent::location() const
 {
     return d->location;
@@ -172,20 +198,28 @@ bool DisassemblerAgent::isMixed() const
 void DisassemblerAgent::setLocation(const Location &loc)
 {
     d->location = loc;
-    if (isMixed()) {
-        QHash<QString, DisassemblerLines>::ConstIterator it =
-            d->cache.find(frameKey(loc));
-        if (it != d->cache.end()) {
-            QString msg = _("Use cache disassembler for '%1' in '%2'")
-                .arg(loc.functionName()).arg(loc.fileName());
-            d->engine->showMessage(msg);
-            setContents(*it);
-            updateBreakpointMarkers();
-            updateLocationMarker();
-            return;
+    int index = indexOf(loc);
+    if (index != -1) {
+        // Refresh when not displaying a function and there is not sufficient
+        // context left past the address.
+        if (!isMixed() && d->cache.at(index).first.endAddress - loc.address() < 24) {
+            index = -1;
+            d->cache.removeAt(index);
         }
     }
-    d->engine->fetchDisassembler(this);
+    if (index != -1) {
+        const FrameKey &key = d->cache.at(index).first;
+        const QString msg =
+            _("Using cached disassembly for 0x%1 (0x%2-0x%3) in '%4'/ '%5'")
+                .arg(loc.address(), 0, 16)
+                .arg(key.startAddress, 0, 16).arg(key.endAddress, 0, 16)
+                .arg(loc.functionName(), QDir::toNativeSeparators(loc.fileName()));
+        d->engine->showMessage(msg);
+        setContentsToEditor(d->cache.at(index).second);
+        d->m_resetLocationScheduled = false; // In case reset from previous run still pending.
+    } else {
+        d->engine->fetchDisassembler(this);
+    }
 }
 
 void DisassemblerAgentPrivate::configureMimeType()
@@ -225,6 +259,24 @@ void DisassemblerAgent::setMimeType(const QString &mt)
 void DisassemblerAgent::setContents(const DisassemblerLines &contents)
 {
     QTC_ASSERT(d, return);
+    if (contents.size()) {
+        const quint64 startAddress = contents.startAddress();
+        const quint64 endAddress = contents.endAddress();
+        if (startAddress) {
+            FrameKey key;
+            key.fileName = d->location.fileName();
+            key.functionName = d->location.functionName();
+            key.startAddress = startAddress;
+            key.endAddress = endAddress;
+            d->cache.append(CacheEntry(key, contents));
+        }
+    }
+    setContentsToEditor(contents);
+}
+
+void DisassemblerAgent::setContentsToEditor(const DisassemblerLines &contents)
+{
+    QTC_ASSERT(d, return);
     using namespace Core;
     using namespace TextEditor;
 
@@ -260,7 +312,6 @@ void DisassemblerAgent::setContents(const DisassemblerLines &contents)
     plainTextEdit->setPlainText(str);
     plainTextEdit->setReadOnly(true);
 
-    d->cache.insert(frameKey(d->location), contents);
     d->editor->setDisplayName(_("Disassembler (%1)")
         .arg(d->location.functionName()));
 
@@ -272,9 +323,10 @@ void DisassemblerAgent::updateLocationMarker()
 {
     QTC_ASSERT(d->editor, return);
 
-    const DisassemblerLines &contents = d->cache.value(frameKey(d->location));
+    const int index = indexOf(d->location);
+    const DisassemblerLines contents = index != -1 ?
+                d->cache.at(index).second : DisassemblerLines();
     int lineNumber = contents.lineForAddress(d->location.address());
-
     if (d->location.needsMarker()) {
         d->editor->markableInterface()->removeMark(d->locationMark);
         if (lineNumber)
@@ -300,8 +352,9 @@ void DisassemblerAgent::updateBreakpointMarkers()
     if (ids.isEmpty())
         return;
 
-    const DisassemblerLines &contents = d->cache.value(frameKey(d->location));
-
+    const int index = indexOf(d->location);
+    const DisassemblerLines contents = index != -1 ?
+                                       d->cache.at(index).second : DisassemblerLines();
     foreach (TextEditor::ITextMark *marker, d->breakpointMarks)
         d->editor->markableInterface()->removeMark(marker);
     d->breakpointMarks.clear();

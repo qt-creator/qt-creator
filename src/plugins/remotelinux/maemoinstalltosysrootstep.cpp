@@ -38,6 +38,8 @@
 #include "maemoqtversion.h"
 #include "qt4maemodeployconfiguration.h"
 
+#include <utils/fileutils.h>
+
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4target.h>
 #include <qtsupport/baseqtversion.h>
@@ -323,8 +325,8 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
             + deployable.remoteDir + sep + localFileInfo.fileName();
         sysrootDir.mkpath(deployable.remoteDir.mid(1));
         QString errorMsg;
-        MaemoGlobal::removeRecursively(targetFilePath, errorMsg);
-        if (!MaemoGlobal::copyRecursively(deployable.localFilePath,
+        Utils::FileUtils::removeRecursively(targetFilePath, &errorMsg);
+        if (!Utils::FileUtils::copyRecursively(deployable.localFilePath,
                 targetFilePath, &errorMsg)) {
             emit addOutput(tr("Sysroot installation failed: %1\n"
                 " Continuing anyway.").arg(errorMsg), ErrorMessageOutput);

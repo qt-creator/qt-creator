@@ -35,8 +35,6 @@
 #include "taskwindow.h"
 #include "projectexplorerconstants.h"
 
-#include <QtCore/QDir>
-
 using namespace ProjectExplorer;
 
 LinuxIccParser::LinuxIccParser()
@@ -75,7 +73,7 @@ void LinuxIccParser::stdError(const QString &line)
     if (m_expectFirstLine  && m_firstLine.indexIn(line) != -1) {
         // Clear out old task
         m_temporary = ProjectExplorer::Task(Task::Unknown, m_firstLine.cap(6).trimmed(),
-                                            QDir::fromNativeSeparators(m_firstLine.cap(1)),
+                                            m_firstLine.cap(1),
                                             m_firstLine.cap(2).toInt(),
                                             QLatin1String(Constants::TASK_CATEGORY_COMPILE));
         QString category = m_firstLine.cap(4);

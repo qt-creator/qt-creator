@@ -619,8 +619,8 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
 
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
-        QSet<QString> newFilePaths = foundFiles[type];
-        newFilePaths += filterFiles(type, m_recursiveEnumerateFiles);
+        QSet<QString> newFilePaths = filterFilesProVariables(type, foundFiles[type]);
+        newFilePaths += filterFilesRecursiveEnumerata(type, m_recursiveEnumerateFiles);
 
         // We only need to save this information if
         // we are watching folders
@@ -694,8 +694,8 @@ void Qt4PriFileNode::folderChanged(const QString &folder)
     const QVector<Qt4NodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
-        QSet<QString> add = filterFiles(type, addedFiles);
-        QSet<QString> remove = filterFiles(type, removedFiles);
+        QSet<QString> add = filterFilesRecursiveEnumerata(type, addedFiles);
+        QSet<QString> remove = filterFilesRecursiveEnumerata(type, removedFiles);
 
         if (!add.isEmpty() || !remove.isEmpty()) {
             // Scream :)
@@ -1227,7 +1227,26 @@ QStringList Qt4PriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExac
     return result;
 }
 
-QSet<QString> Qt4PriFileNode::filterFiles(ProjectExplorer::FileType fileType, const QSet<QString> &files)
+QSet<QString> Qt4PriFileNode::filterFilesProVariables(ProjectExplorer::FileType fileType, const QSet<QString> &files)
+{
+    if (fileType != ProjectExplorer::QMLType && fileType != ProjectExplorer::UnknownFileType)
+        return files;
+    QSet<QString> result;
+    if (fileType != ProjectExplorer::QMLType && fileType != ProjectExplorer::UnknownFileType)
+        return result;
+    if (fileType == ProjectExplorer::QMLType) {
+        foreach (const QString &file, files)
+            if (file.endsWith(".qml"))
+                result << file;
+    } else {
+        foreach (const QString &file, files)
+            if (!file.endsWith(".qml"))
+                result << file;
+    }
+    return result;
+}
+
+QSet<QString> Qt4PriFileNode::filterFilesRecursiveEnumerata(ProjectExplorer::FileType fileType, const QSet<QString> &files)
 {
     QSet<QString> result;
     if (fileType != ProjectExplorer::QMLType && fileType != ProjectExplorer::UnknownFileType)

@@ -181,12 +181,16 @@ void AbstractRemoteLinuxDebugSupport::startExecution()
 
 void AbstractRemoteLinuxDebugSupport::handleRemoteProcessFinished(qint64 exitCode)
 {
-    if (!m_engine || m_state == Inactive || exitCode == 0)
+    if (!m_engine || m_state == Inactive)
         return;
 
     if (m_state == Debugging) {
-        if (m_debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly)
+        // The QML engine does not realize on its own that the application has finished.
+        if (m_debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly)
+            m_engine->quitDebugger();
+        else if (exitCode != 0)
             m_engine->notifyInferiorIll();
+
     } else {
         const QString errorMsg = m_debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly
             ? tr("Remote application failed with exit code %1.").arg(exitCode)

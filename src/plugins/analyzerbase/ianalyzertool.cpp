@@ -33,6 +33,7 @@
 **************************************************************************/
 
 #include "ianalyzertool.h"
+#include "analyzermanager.h"
 
 namespace Analyzer {
 
@@ -40,26 +41,27 @@ IAnalyzerTool::IAnalyzerTool(QObject *parent)
     : QObject(parent)
 {}
 
-QString IAnalyzerTool::modeString(ToolMode mode)
+QByteArray IAnalyzerTool::defaultMenuGroup(StartMode mode)
 {
-    switch (mode) {
-        case IAnalyzerTool::DebugMode:
-            return tr("Debug");
-        case IAnalyzerTool::ReleaseMode:
-            return tr("Release");
-        case IAnalyzerTool::AnyMode:
-            break;
-    }
-    return QString();
+    if (mode == StartRemote)
+        return Analyzer::Constants::G_ANALYZER_REMOTE_TOOLS;
+    return Analyzer::Constants::G_ANALYZER_TOOLS;
 }
 
-void IAnalyzerTool::initializeDockWidgets()
+QByteArray IAnalyzerTool::defaultActionId(const IAnalyzerTool *tool, StartMode mode)
 {
+    QByteArray id = tool->id();
+    if (mode == StartRemote)
+        return "Action." + id + ".RemoteStart." + QByteArray::number(mode);
+    return "Action." + id + ".LocalStart." + QByteArray::number(mode);
 }
 
-QWidget *IAnalyzerTool::createControlWidget()
+QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mode)
 {
-    return 0;
+    QString base = tool->displayName();
+    if (mode == StartRemote)
+        return base + tr(" (Remote)");
+    return base;
 }
 
 } // namespace Analyzer

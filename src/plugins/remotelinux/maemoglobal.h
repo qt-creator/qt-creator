@@ -137,13 +137,6 @@ public:
 
     static PackagingSystem packagingSystem(const QString &osType);
 
-    static bool removeRecursively(const QString &filePath, QString &error);
-    static bool copyRecursively(const QString &srcFilePath,
-        const QString &tgtFilePath, QString *error = 0);
-
-    static bool isFileNewerThan(const QString &filePath,
-        const QDateTime &timeStamp);
-
     template<class T> static T *earlierBuildStep(const ProjectExplorer::DeployConfiguration *dc,
         const ProjectExplorer::BuildStep *laterBuildStep)
     {

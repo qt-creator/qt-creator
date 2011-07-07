@@ -145,7 +145,8 @@ void SshRemoteProcessRunnerPrivate::run(const QByteArray &command)
     } else {
         connect(m_connection.data(), SIGNAL(connected()),
             SLOT(handleConnected()));
-        m_connection->connectToHost();
+        if (m_connection->state() == SshConnection::Unconnected)
+            m_connection->connectToHost();
     }
 }
 

@@ -1,14 +1,42 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+**************************************************************************/
+
 #ifndef EXAMPLESLISTMODEL_H
 #define EXAMPLESLISTMODEL_H
 
 #include <QAbstractListModel>
 #include <QStringList>
+#include <QtCore/QXmlStreamReader>
 #include <QtGui/QSortFilterProxyModel>
-
-
-QT_BEGIN_NAMESPACE
-class QXmlStreamReader;
-QT_END_NAMESPACE
 
 namespace QtSupport {
 namespace Internal {
@@ -32,6 +60,15 @@ struct ExampleItem {
     bool hasSourceCode;
 };
 
+struct QMakePathCache {
+    QString examplesPath;
+    QString demosPath;
+    QString sourcePath;
+    QMakePathCache() {}
+    QMakePathCache(const QString &_examplesPath, const QString &_demosPath, const QString &_sourcePath)
+        : examplesPath(_examplesPath), demosPath(_demosPath), sourcePath(_sourcePath) {}
+};
+
 class ExamplesListModel : public QAbstractListModel {
     Q_OBJECT
 public:
@@ -43,11 +80,14 @@ public:
 
     QStringList tags() const { return m_tags; }
 
-public slots:
-    void readNewsItems(const QString &examplesPath, const QString &demosPath, const QString &sourcePath);
 
 signals:
     void tagsUpdated();
+
+public slots:
+    void readNewsItems(const QString &examplesPath, const QString &demosPath, const QString &sourcePath);
+    void cacheExamplesPath(const QString &examplesPath, const QString &demosPath, const QString &sourcePath);
+    void helpInitialized();
 
 private:
     QList<ExampleItem> parseExamples(QXmlStreamReader* reader, const QString& projectsOffset);
@@ -57,6 +97,8 @@ private:
     QStringList exampleSources() const;
     QList<ExampleItem> exampleItems;
     QStringList m_tags;
+    QMakePathCache m_cache;
+
 };
 
 class ExamplesListModelFilter : public QSortFilterProxyModel {

@@ -64,7 +64,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const LinuxDeviceConfigurat
     const QString &dir = QFileInfo(sshParams.privateKeyFile).path();
     QString publicKeyFileName = QFileDialog::getOpenFileName(this,
         tr("Choose Public Key File"), dir,
-        tr("Public Key Files(*.pub);;All Files (*)"));
+        tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty()) {
         reject();
         return;

@@ -361,7 +361,7 @@ void DebuggerSourcePathMappingWidget::slotAddQt()
     if (qtSourcesPath.isEmpty())
         return;
     const size_t buildPathCount = sizeof(qtBuildPaths)/sizeof(qtBuildPaths[0]);
-    for (size_t i = 0; i < buildPathCount; ++i)
+    for (size_t i = 0; i != buildPathCount; ++i) // use != to avoid 0<0 which triggers warning on Mac
         m_model->addMapping(QString::fromLatin1(qtBuildPaths[i]), qtSourcesPath);
     resizeColumns();
     setCurrentRow(m_model->rowCount() - 1);
@@ -403,7 +403,7 @@ DebuggerSourcePathMappingWidget::SourcePathMap
     if (qtInstallPath.isEmpty() || buildPathCount == 0)
         return rc;
 
-    for (size_t i = 0; i < buildPathCount; i++) {
+    for (size_t i = 0; i != buildPathCount; ++i) { // use != to avoid 0<0 which triggers warning on Mac
         const QString buildPath = QString::fromLatin1(qtBuildPaths[i]);
         if (!rc.contains(buildPath)) // Do not overwrite user settings.
             rc.insert(buildPath, qtInstallPath);

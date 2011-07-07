@@ -2,7 +2,7 @@
 **
 ** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Nokia Corporation (info@qt.nokia.com)
 **
 ** This file is part of the examples of the Qt Toolkit.
 **
@@ -78,7 +78,7 @@ public:
 
 void StylePlugin::registerTypes(const char *uri)
 {
-    qDebug() << "register" << uri;
+//    qDebug() << "register" << uri;
     qmlRegisterType<QStyleItem>(uri, 1, 0, "QStyleItem");
     qmlRegisterType<QRangeModel>(uri, 1, 0, "RangeModel");
     qmlRegisterType<QGraphicsDropShadowEffect>(uri, 1, 0, "DropShadow");

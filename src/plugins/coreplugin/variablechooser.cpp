@@ -52,6 +52,7 @@ VariableChooser::VariableChooser(QWidget *parent) :
     ui->variableList->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->variableDescription->setAttribute(Qt::WA_MacSmallSize);
     setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
+    setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(ui->variableList);
 
     VariableManager *vm = VariableManager::instance();
@@ -155,6 +156,8 @@ void VariableChooser::updatePositionAndShow()
         move(parentCenter.x() - width()/2, parentCenter.y() - height()/2);
     }
     show();
+    raise();
+    activateWindow();
 }
 
 void VariableChooser::handleItemActivated(QListWidgetItem *item)

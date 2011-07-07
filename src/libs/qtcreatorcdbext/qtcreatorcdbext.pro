@@ -22,12 +22,18 @@ DEF_FILE=$$PWD/qtcreatorcdbext.def
 
 IDE_BASE_PATH=$$dirname(IDE_APP_PATH)
 
-# Find out 64/32bit and determine target directories accordingly.
-# TODO: This is an ugly hack. Better check compiler (stderr) or something?
-ENV_LIB_PATH=$$(LIBPATH)
+# Find out whether we are _building_ 64/32bit and determine target
+# directories accordingly.
+#
+# Newer MSVC versions set CPU, olders do not, so use hacky check on
+# LIBPATH if CPU is not available
+ENV_CPU=$$(CPU)
+ENV_LIBPATH=$$(LIBPATH)
 
-
-contains(ENV_LIB_PATH, ^.*amd64.*$) {
+contains(ENV_CPU, ^AMD64$) {
+    DESTDIR=$$IDE_BASE_PATH/lib/$${BASENAME}64
+    CDB_PLATFORM=amd64
+} else:isEmpty(ENV_CPU):contains(ENV_LIBPATH, ^.*amd64.*$) {
     DESTDIR=$$IDE_BASE_PATH/lib/$${BASENAME}64
     CDB_PLATFORM=amd64
 } else {

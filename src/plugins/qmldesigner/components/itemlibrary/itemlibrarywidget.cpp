@@ -379,6 +379,7 @@ void ItemLibraryWidget::emitImportChecked()
 
 void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
 {
+    return;
 
     static bool block = false;
     if (!m_d->model)

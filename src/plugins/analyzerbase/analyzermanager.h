@@ -36,6 +36,7 @@
 #define ANALYZERMANAGER_H
 
 #include "analyzerbase_global.h"
+#include "analyzerconstants.h"
 #include "projectexplorer/runconfiguration.h"
 
 #include <QtCore/QObject>
@@ -48,14 +49,12 @@ namespace Utils {
 class FancyMainWindow;
 }
 
-namespace ProjectExplorer {
-class RunConfiguration;
-}
-
 namespace Analyzer {
+
+typedef QList<StartMode> StartModes;
+
 class IAnalyzerTool;
-class IAnalyzerEngine;
-class AnalyzerStartParameters;
+class AnalyzerManagerPrivate;
 
 class ANALYZER_EXPORT AnalyzerManager : public QObject
 {
@@ -65,40 +64,39 @@ public:
     explicit AnalyzerManager(QObject *parent = 0);
     ~AnalyzerManager();
 
-    static AnalyzerManager *instance();
-    void registerRunControlFactory(ProjectExplorer::IRunControlFactory *factory);
-
     void extensionsInitialized();
     void shutdown();
 
-    /**
-     * Register a tool and initialize it.
-     */
-    void addTool(Analyzer::IAnalyzerTool *tool);
+    // Register a tool and initialize it.
+    static void addTool(IAnalyzerTool *tool, const StartModes &mode);
+    static IAnalyzerTool *toolFromId(const QByteArray &id);
+    static StartMode modeFromId(const QByteArray &id);
 
     // Dockwidgets are registered to the main window.
-    QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title,
+    static QDockWidget *createDockWidget(IAnalyzerTool *tool, const QString &title,
         QWidget *widget, Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
-    Utils::FancyMainWindow *mainWindow() const;
+    static Utils::FancyMainWindow *mainWindow();
 
-    void showMode();
-    void selectTool(IAnalyzerTool *tool);
-    void startTool(IAnalyzerTool *tool);
-    void stopTool();
+    static void showMode();
+    static void selectTool(IAnalyzerTool *tool, StartMode mode);
+    static void startTool(IAnalyzerTool *tool, StartMode mode);
+    static void stopTool();
+
+    // Convenience functions.
+    static void startLocalTool(IAnalyzerTool *tool, StartMode mode);
 
     static QString msgToolStarted(const QString &name);
     static QString msgToolFinished(const QString &name, int issuesFound);
 
-    IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration);
+    static void showStatusMessage(const QString &message, int timeoutMS = 10000);
+    static void showPermanentStatusMessage(const QString &message);
 
-public slots:
-    void showStatusMessage(const QString &message, int timeoutMS = 10000);
-    void showPermanentStatusMessage(const QString &message);
+    static void handleToolStarted();
+    static void handleToolFinished();
+    static QAction *stopAction();
 
 private:
-    class AnalyzerManagerPrivate;
     friend class AnalyzerManagerPrivate;
     AnalyzerManagerPrivate *const d;
 };

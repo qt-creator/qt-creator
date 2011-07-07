@@ -196,7 +196,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryEntry &itemLibraryE
                     }
                 }
 
-                if (!model()->hasImport(newImport, true)) {
+                if (!model()->hasImport(newImport, true, true)) {
                     model()->changeImports(QList<Import>() << newImport, QList<Import>());
                 }
             }
@@ -410,6 +410,11 @@ void QmlModelView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList
 }
 
 void QmlModelView::importsChanged(const QList<Import> &/*addedImports*/, const QList<Import> &/*removedImports*/)
+{
+
+}
+
+void QmlModelView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
 {
 
 }

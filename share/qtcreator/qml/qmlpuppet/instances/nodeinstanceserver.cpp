@@ -74,6 +74,7 @@
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
 #include "changenodesourcecommand.h"
+#include "tokencommand.h"
 
 #include "dummycontextobject.h"
 
@@ -336,6 +337,11 @@ void NodeInstanceServer::changeNodeSource(const ChangeNodeSourceCommand &command
     }
 
     startRenderTimer();
+}
+
+void NodeInstanceServer::token(const TokenCommand &/*command*/)
+{
+
 }
 
 void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector)
@@ -812,17 +818,7 @@ NodeInstanceClientInterface *NodeInstanceServer::nodeInstanceClient() const
     return m_nodeInstanceClient;
 }
 
-ChildrenChangedCommand NodeInstanceServer::createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const
-{
-    QVector<qint32> instanceVector;
-
-    foreach (const ServerNodeInstance &instance, instanceList)
-        instanceVector.append(instance.instanceId());
-
-    return ChildrenChangedCommand(parentInstance.instanceId(), instanceVector);
-}
-
-InformationChangedCommand NodeInstanceServer::createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial) const
+static QVector<InformationContainer> createInformationVector(const QList<ServerNodeInstance> &instanceList, bool initial)
 {
     QVector<InformationContainer> informationVector;
 
@@ -894,7 +890,23 @@ InformationChangedCommand NodeInstanceServer::createAllInformationChangedCommand
 
     }
 
-    return InformationChangedCommand(informationVector);
+    return informationVector;
+}
+
+
+ChildrenChangedCommand NodeInstanceServer::createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const
+{
+    QVector<qint32> instanceVector;
+
+    foreach (const ServerNodeInstance &instance, instanceList)
+        instanceVector.append(instance.instanceId());
+
+    return ChildrenChangedCommand(parentInstance.instanceId(), instanceVector, createInformationVector(instanceList, false));
+}
+
+InformationChangedCommand NodeInstanceServer::createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial) const
+{
+    return InformationChangedCommand(createInformationVector(instanceList, initial));
 }
 
 static bool supportedVariantType(QVariant::Type type)

@@ -275,6 +275,11 @@ void SelectionTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*
 {
 }
 
+void SelectionTool::instancesParentChanged(const QList<FormEditorItem *> &/*itemList*/)
+{
+
+}
+
 void SelectionTool::selectUnderPoint(QGraphicsSceneMouseEvent *event)
 {
     m_singleSelectionManipulator.begin(event->scenePos());

@@ -6,25 +6,24 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-** No Commercial Usage
-**
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
 **
 ** GNU Lesser General Public License Usage
 **
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
+** rights. These rights are described in the Nokia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at info@qt.nokia.com.
@@ -36,9 +35,7 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerattachdialog.h"
-#include "qmlprofilersummaryview.h"
-#include "qmlprofilercalleeview.h"
-#include "qmlprofilercallerview.h"
+#include "qmlprofilereventview.h"
 
 #include "tracewindow.h"
 #include "timelineview.h"
@@ -96,9 +93,10 @@ public:
     QTimer m_connectionTimer;
     int m_connectionAttempts;
     TraceWindow *m_traceWindow;
-    QmlProfilerSummaryView *m_summary;
-    QmlProfilerCalleeView *m_calleetree;
-    QmlProfilerCallerView *m_callertree;
+    QmlProfilerEventStatistics *m_statistics;
+    QmlProfilerEventsView *m_eventsView;
+    QmlProfilerEventsView *m_calleeView;
+    QmlProfilerEventsView *m_callerView;
     ProjectExplorer::Project *m_project;
     Utils::FileInProjectFinder m_projectFinder;
     ProjectExplorer::RunConfiguration *m_runConfiguration;
@@ -121,6 +119,7 @@ public:
 QmlProfilerTool::QmlProfilerTool(QObject *parent)
     : IAnalyzerTool(parent), d(new QmlProfilerToolPrivate(this))
 {
+    setObjectName("QmlProfilerTool");
     d->m_client = 0;
     d->m_connectionAttempts = 0;
     d->m_traceWindow = 0;
@@ -132,6 +131,13 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
 
     d->m_connectionTimer.setInterval(200);
     connect(&d->m_connectionTimer, SIGNAL(timeout()), SLOT(tryToConnect()));
+
+    qmlRegisterType<Canvas>("Monitor", 1, 0, "Canvas");
+    qmlRegisterType<TiledCanvas>("Monitor", 1, 0, "TiledCanvas");
+    qmlRegisterType<Context2D>();
+    qmlRegisterType<CanvasImage>();
+    qmlRegisterType<CanvasGradient>();
+    qmlRegisterType<TimelineView>("Monitor", 1, 0,"TimelineView");
 }
 
 QmlProfilerTool::~QmlProfilerTool()
@@ -140,7 +146,7 @@ QmlProfilerTool::~QmlProfilerTool()
     delete d;
 }
 
-QString QmlProfilerTool::id() const
+QByteArray QmlProfilerTool::id() const
 {
     return "QmlProfiler";
 }
@@ -156,7 +162,7 @@ QString QmlProfilerTool::description() const
               "applications using QML.");
 }
 
-IAnalyzerTool::ToolMode QmlProfilerTool::mode() const
+IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
 {
     return AnyMode;
 }
@@ -164,7 +170,7 @@ IAnalyzerTool::ToolMode QmlProfilerTool::mode() const
 IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
     ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    QmlProfilerEngine *engine = new QmlProfilerEngine(sp, runConfiguration);
+    QmlProfilerEngine *engine = new QmlProfilerEngine(this, runConfiguration);
 
     // Check minimum Qt Version. We cannot really be sure what the Qt version
     // at runtime is, but guess that the active build configuraiton has been used.
@@ -194,6 +200,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
         }
     }
 
+    // FIXME: Check that there's something sensible in sp.connParams
     if (d->m_connectMode == QmlProfilerToolPrivate::TcpConnection) {
         d->m_tcpHost = sp.connParams.host;
         d->m_tcpPort = sp.connParams.port;
@@ -218,24 +225,25 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
     return engine;
 }
 
-void QmlProfilerTool::initialize()
+void QmlProfilerTool::toolSelected()
 {
-    qmlRegisterType<Canvas>("Monitor", 1, 0, "Canvas");
-    qmlRegisterType<TiledCanvas>("Monitor", 1, 0, "TiledCanvas");
-    qmlRegisterType<Context2D>();
-    qmlRegisterType<CanvasImage>();
-    qmlRegisterType<CanvasGradient>();
-    qmlRegisterType<TimelineView>("Monitor", 1, 0,"TimelineView");
+    updateAttachAction(true);
 }
 
-void QmlProfilerTool::extensionsInitialized()
+void QmlProfilerTool::toolDeselected()
 {
+    updateAttachAction(false);
 }
 
-void QmlProfilerTool::initializeDockWidgets()
+QWidget *QmlProfilerTool::createWidgets()
 {
-    Analyzer::AnalyzerManager *analyzerMgr = Analyzer::AnalyzerManager::instance();
-    Utils::FancyMainWindow *mw = analyzerMgr->mainWindow();
+    QTC_ASSERT(!d->m_traceWindow, return 0);
+
+    //
+    // DockWidgets
+    //
+
+    Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
 
     d->m_traceWindow = new TraceWindow(mw);
     d->m_traceWindow->reset(d->m_client);
@@ -243,29 +251,25 @@ void QmlProfilerTool::initializeDockWidgets()
     connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)),this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
 
-    d->m_summary = new QmlProfilerSummaryView(mw);
+    d->m_statistics = new QmlProfilerEventStatistics(mw);
+    d->m_eventsView = new QmlProfilerEventsView(mw, d->m_statistics);
+    d->m_eventsView->setViewType(QmlProfilerEventsView::EventsView);
 
     connect(d->m_traceWindow, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
-            d->m_summary, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
+            d->m_statistics, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()),
-            d->m_summary, SLOT(complete()));
-    connect(d->m_summary, SIGNAL(gotoSourceLocation(QString,int)),
+            d->m_statistics, SLOT(complete()));
+    connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
 
-    d->m_calleetree = new QmlProfilerCalleeView(mw);
-    connect(d->m_traceWindow, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
-            d->m_calleetree, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
-    connect(d->m_traceWindow, SIGNAL(viewUpdated()),
-            d->m_calleetree, SLOT(complete()));
-    connect(d->m_calleetree, SIGNAL(gotoSourceLocation(QString,int)),
+    d->m_calleeView = new QmlProfilerEventsView(mw, d->m_statistics);
+    d->m_calleeView->setViewType(QmlProfilerEventsView::CalleesView);
+    connect(d->m_calleeView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
 
-    d->m_callertree = new QmlProfilerCallerView(mw);
-    connect(d->m_traceWindow, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
-            d->m_callertree, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
-    connect(d->m_traceWindow, SIGNAL(viewUpdated()),
-            d->m_callertree, SLOT(complete()));
-    connect(d->m_callertree, SIGNAL(gotoSourceLocation(QString,int)),
+    d->m_callerView = new QmlProfilerEventsView(mw, d->m_statistics);
+    d->m_callerView->setViewType(QmlProfilerEventsView::CallersView);
+    connect(d->m_callerView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
 
     Core::ICore *core = Core::ICore::instance();
@@ -282,41 +286,23 @@ void QmlProfilerTool::initializeDockWidgets()
 
     updateAttachAction(false);
 
-    QDockWidget *summaryDock =
-        analyzerMgr->createDockWidget(this, tr("Bindings"),
-                             d->m_summary, Qt::BottomDockWidgetArea);
+    QDockWidget *eventsDock = AnalyzerManager::createDockWidget
+            (this, tr("Events"), d->m_eventsView, Qt::BottomDockWidgetArea);
+    QDockWidget *timelineDock = AnalyzerManager::createDockWidget
+            (this, tr("Timeline"), d->m_traceWindow, Qt::BottomDockWidgetArea);
+    QDockWidget *calleeDock = AnalyzerManager::createDockWidget
+            (this, tr("Callees"), d->m_calleeView, Qt::BottomDockWidgetArea);
+    QDockWidget *callerDock = AnalyzerManager::createDockWidget
+            (this, tr("Callers"), d->m_callerView, Qt::BottomDockWidgetArea);
 
-    QDockWidget *timelineDock =
-        analyzerMgr->createDockWidget(this, tr("Timeline"),
-                            d->m_traceWindow, Qt::BottomDockWidgetArea);
-
-    QDockWidget *calleeDock =
-        analyzerMgr->createDockWidget(this, tr("Callees"),
-                             d->m_calleetree, Qt::BottomDockWidgetArea);
-
-    QDockWidget *callerDock =
-        analyzerMgr->createDockWidget(this, tr("Callers"),
-                             d->m_callertree, Qt::BottomDockWidgetArea);
-
-    mw->splitDockWidget(mw->toolBarDockWidget(), summaryDock, Qt::Vertical);
-    mw->tabifyDockWidget(summaryDock, timelineDock);
+    mw->splitDockWidget(mw->toolBarDockWidget(), eventsDock, Qt::Vertical);
+    mw->tabifyDockWidget(eventsDock, timelineDock);
     mw->tabifyDockWidget(timelineDock, calleeDock);
     mw->tabifyDockWidget(calleeDock, callerDock);
-}
 
-void QmlProfilerTool::toolSelected()
-{
-    updateAttachAction(true);
-}
-
-void QmlProfilerTool::toolDeselected()
-{
-    updateAttachAction(false);
-}
-
-QWidget *QmlProfilerTool::createControlWidget()
-{
-    // custom toolbar (TODO)
+    //
+    // Toolbar
+    //
     QWidget *toolbarWidget = new QWidget;
     toolbarWidget->setObjectName(QLatin1String("QmlProfilerToolBarWidget"));
 
@@ -325,8 +311,7 @@ QWidget *QmlProfilerTool::createControlWidget()
     layout->setSpacing(0);
 
     d->m_recordButton = new QToolButton(toolbarWidget);
-
-    d->m_recordButton->setIcon(QIcon(QLatin1String(":/qmlprofiler/analyzer_category_small.png")));
+    // icon and tooltip set in setRecording(), called later
     d->m_recordButton->setCheckable(true);
 
     connect(d->m_recordButton,SIGNAL(toggled(bool)), this, SLOT(setRecording(bool)));
@@ -335,6 +320,7 @@ QWidget *QmlProfilerTool::createControlWidget()
 
     d->m_clearButton = new QToolButton(toolbarWidget);
     d->m_clearButton->setIcon(QIcon(QLatin1String(":/qmlprofiler/clean_pane_small.png")));
+    d->m_clearButton->setToolTip(tr("Discard data"));
     connect(d->m_clearButton,SIGNAL(clicked()), this, SLOT(clearDisplay()));
     layout->addWidget(d->m_clearButton);
 
@@ -409,6 +395,12 @@ void QmlProfilerTool::stopRecording()
 void QmlProfilerTool::setRecording(bool recording)
 {
     d->m_recordingEnabled = recording;
+
+    // update record button
+    d->m_recordButton->setToolTip( d->m_recordingEnabled ? tr("Disable profiling") : tr("Enable profiling"));
+    d->m_recordButton->setIcon(QIcon(d->m_recordingEnabled ? QLatin1String(":/qmlprofiler/recordOn.png") :
+                                                             QLatin1String(":/qmlprofiler/recordOff.png")));
+
     if (recording)
         startRecording();
     else
@@ -447,23 +439,13 @@ void QmlProfilerTool::updateProjectFileList()
                 d->m_project->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
 }
 
-bool QmlProfilerTool::canRunRemotely() const
-{
-    // TODO: Is this correct?
-    return true;
-}
-
-bool QmlProfilerTool::canRunLocally() const
-{
-    return true;
-}
-
 void QmlProfilerTool::clearDisplay()
 {
     d->m_traceWindow->clearDisplay();
-    d->m_summary->clean();
-    d->m_calleetree->clean();
-    d->m_callertree->clean();
+    d->m_statistics->clear();
+    d->m_eventsView->clear();
+    d->m_calleeView->clear();
+    d->m_callerView->clear();
 }
 
 void QmlProfilerTool::attach()
@@ -479,7 +461,7 @@ void QmlProfilerTool::attach()
         d->m_tcpHost = dialog.address();
 
         connectClient(d->m_tcpPort);
-        AnalyzerManager::instance()->showMode();
+        AnalyzerManager::showMode();
     } else {
         stopRecording();
     }
@@ -565,4 +547,19 @@ void QmlProfilerTool::updateRecordingState()
 
     if (d->m_traceWindow->isRecording())
         clearDisplay();
+}
+
+void QmlProfilerTool::startTool(StartMode mode)
+{
+    Q_UNUSED(mode);
+
+    using namespace ProjectExplorer;
+
+    // Make sure mode is shown.
+    AnalyzerManager::showMode();
+
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
+    // ### not sure if we're supposed to check if the RunConFiguration isEnabled
+    Project *pro = pe->startupProject();
+    pe->runProject(pro, id());
 }

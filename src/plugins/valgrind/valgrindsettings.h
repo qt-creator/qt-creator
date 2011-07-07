@@ -35,8 +35,6 @@
 #ifndef ANALYZER_INTERNAL_VALGRINDSETTINGS_H
 #define ANALYZER_INTERNAL_VALGRINDSETTINGS_H
 
-#include "valgrind_global.h"
-
 #include <analyzerbase/analyzersettings.h>
 
 #include <QtCore/QObject>
@@ -48,7 +46,7 @@ namespace Internal {
 /**
  * Generic Valgrind settings shared by all tools.
  */
-class VALGRINDTOOLBASE_EXPORT ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
+class ValgrindSettings : public Analyzer::AbstractAnalyzerSubConfig
 {
     Q_OBJECT
 public:

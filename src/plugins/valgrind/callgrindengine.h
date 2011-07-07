@@ -46,8 +46,8 @@ class CallgrindEngine : public Valgrind::Internal::ValgrindEngine
     Q_OBJECT
 
 public:
-    explicit CallgrindEngine(const Analyzer::AnalyzerStartParameters &sp,
-                             ProjectExplorer::RunConfiguration *runConfiguration);
+    CallgrindEngine(Analyzer::IAnalyzerTool *tool, const Analyzer::AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration);
 
     void start();
 
@@ -79,15 +79,16 @@ protected:
 signals:
     void parserDataReady(CallgrindEngine *engine);
 
+private slots:
+    void slotFinished();
+    void slotStarted();
+    void showStatusMessage(const QString &msg);
+
 private:
     Valgrind::Callgrind::CallgrindRunner m_runner;
     bool m_markAsPaused;
 
     QStringList m_extraArguments;
-
-private slots:
-    void slotFinished();
-    void slotStarted();
 };
 
 } // namespace Internal

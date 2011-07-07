@@ -6,25 +6,24 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-** No Commercial Usage
-**
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
 **
 ** GNU Lesser General Public License Usage
 **
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
+** rights. These rights are described in the Nokia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at info@qt.nokia.com.
@@ -38,9 +37,7 @@ import "MainView.js" as Plotter
 Rectangle {
     id: root
 
-    property variant colors:  Plotter.colors  //the colors used for the timeline data
-    property bool xRay: false                 //useful for seeing "nested" ranges (but redraw is buggy -- QGV problem?)
-    property Item currentItem                 //currently selected item in the view
+    property bool dataAvailable: false;
 
     // move the cursor in the editor
     signal updateCursorPosition
@@ -55,6 +52,7 @@ Rectangle {
     function clearData() {
         Plotter.reset();
         view.clearData();
+        root.dataAvailable = false;
         rangeMover.x = 2
         rangeMover.opacity = 0
     }
@@ -62,7 +60,6 @@ Rectangle {
     function clearAll() {
         clearData();
         selectedEventIndex = -1;
-        Plotter.valuesdone = false;
         canvas.requestPaint();
         view.visible = false;
         root.elapsedTime = 0;
@@ -132,21 +129,21 @@ Rectangle {
     Connections {
         target: connection
         onEvent: {
-            if (Plotter.valuesdone) {
+            if (root.dataAvailable) {
                 root.clearData();
             }
 
-            if (!Plotter.valuesdone && event === 0) //### only handle paint event
+            if (!root.dataAvailable && event === 0) //### only handle paint event
                 Plotter.values.push(time);
         }
 
         onRange: {
-            if (Plotter.valuesdone) {
+            if (root.dataAvailable) {
                 root.clearData();
             }
 
             // todo: consider nestingLevel
-            if (!Plotter.valuesdone) {
+            if (!root.dataAvailable) {
                 if (!Plotter.nestingDepth[type])
                     Plotter.nestingDepth[type] = nestingInType;
                 else
@@ -158,7 +155,7 @@ Rectangle {
         }
 
         onComplete: {
-            Plotter.valuesdone = true;
+            root.dataAvailable = true;
             Plotter.calcFps();
             view.visible = true;
             view.setRanges(Plotter.ranges);
@@ -264,7 +261,7 @@ Rectangle {
             delegate: Rectangle {
                 id: obj
 
-                property color baseColor: colors[type]
+                property color baseColor: Plotter.colors[type]
                 property color myColor: baseColor
 
                 function conditionalHide() {
@@ -302,7 +299,6 @@ Rectangle {
                 }
 
                 function enableSelected(x,y) {
-                    currentItem = obj
                     myColor = Qt.darker(baseColor, 1.2)
                     rangeDetails.duration = duration
                     rangeDetails.label = label
@@ -429,7 +425,7 @@ Rectangle {
         canvasWindow.height: height
 
         onDrawRegion: {
-             if (Plotter.valuesdone)
+             if (root.dataAvailable)
                  Plotter.plot(canvas, ctxt, region);
              else
                  Plotter.drawGraph(canvas, ctxt, region)    //just draw the background

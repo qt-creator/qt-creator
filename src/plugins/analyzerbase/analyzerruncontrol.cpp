@@ -48,9 +48,15 @@
 
 #include <QtCore/QDebug>
 
-using namespace Analyzer;
+using namespace ProjectExplorer;
 
-// AnalyzerRunControl::Private ///////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//
+// AnalyzerRunControl::Private
+//
+//////////////////////////////////////////////////////////////////////////
+
+namespace Analyzer {
 
 class AnalyzerRunControl::Private
 {
@@ -66,13 +72,18 @@ AnalyzerRunControl::Private::Private()
 {}
 
 
-// AnalyzerRunControl ////////////////////////////////////////////////////
-AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
-                                       RunConfiguration *runConfiguration)
-    : RunControl(runConfiguration, Constants::MODE_ANALYZE),
+//////////////////////////////////////////////////////////////////////////
+//
+// AnalyzerRunControl
+//
+//////////////////////////////////////////////////////////////////////////
+
+AnalyzerRunControl::AnalyzerRunControl(IAnalyzerTool *tool,
+        const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration)
+    : RunControl(runConfiguration, tool->id()),
       d(new Private)
 {
-    d->m_engine = AnalyzerManager::instance()->createEngine(sp, runConfiguration);
+    d->m_engine = tool->createEngine(sp, runConfiguration);
 
     if (!d->m_engine)
         return;
@@ -83,6 +94,7 @@ AnalyzerRunControl::AnalyzerRunControl(const AnalyzerStartParameters &sp,
             SLOT(addTask(ProjectExplorer::Task::TaskType,QString,QString,int)));
     connect(d->m_engine, SIGNAL(finished()),
             SLOT(engineFinished()));
+    connect(this, SIGNAL(finished()), SLOT(runControlFinished()), Qt::QueuedConnection);
 }
 
 AnalyzerRunControl::~AnalyzerRunControl()
@@ -92,6 +104,7 @@ AnalyzerRunControl::~AnalyzerRunControl()
 
     delete d->m_engine;
     d->m_engine = 0;
+    delete d;
 }
 
 void AnalyzerRunControl::start()
@@ -103,7 +116,7 @@ void AnalyzerRunControl::start()
 
     // clear about-to-be-outdated tasks
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    ProjectExplorer::TaskHub *hub = pm->getObject<ProjectExplorer::TaskHub>();
+    TaskHub *hub = pm->getObject<TaskHub>();
     hub->clearTasks(Constants::ANALYZERTASK_ID);
 
     d->m_isRunning = true;
@@ -111,7 +124,7 @@ void AnalyzerRunControl::start()
     d->m_engine->start();
 }
 
-ProjectExplorer::RunControl::StopResult AnalyzerRunControl::stop()
+RunControl::StopResult AnalyzerRunControl::stop()
 {
     if (!d->m_engine || !d->m_isRunning)
         return StoppedSynchronously;
@@ -121,10 +134,21 @@ ProjectExplorer::RunControl::StopResult AnalyzerRunControl::stop()
     return AsynchronousStop;
 }
 
+void AnalyzerRunControl::stopIt()
+{
+    if (stop() == RunControl::StoppedSynchronously)
+        AnalyzerManager::handleToolFinished();
+}
+
 void AnalyzerRunControl::engineFinished()
 {
     d->m_isRunning = false;
     emit finished();
+}
+
+void AnalyzerRunControl::runControlFinished()
+{
+    AnalyzerManager::handleToolFinished();
 }
 
 bool AnalyzerRunControl::isRunning() const
@@ -149,12 +173,12 @@ void AnalyzerRunControl::receiveOutput(const QString &text, Utils::OutputFormat 
     appendMessage(text, format);
 }
 
-void AnalyzerRunControl::addTask(ProjectExplorer::Task::TaskType type, const QString &description,
+void AnalyzerRunControl::addTask(Task::TaskType type, const QString &description,
                                  const QString &file, int line)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    ProjectExplorer::TaskHub *hub = pm->getObject<ProjectExplorer::TaskHub>();
-    hub->addTask(ProjectExplorer::Task(type, description, file, line, Constants::ANALYZERTASK_ID));
+    TaskHub *hub = pm->getObject<TaskHub>();
+    hub->addTask(Task(type, description, file, line, Constants::ANALYZERTASK_ID));
 
     ///FIXME: get a better API for this into Qt Creator
     QList<Core::IOutputPane *> panes = pm->getObjects<Core::IOutputPane>();
@@ -165,3 +189,5 @@ void AnalyzerRunControl::addTask(ProjectExplorer::Task::TaskType type, const QSt
         }
     }
 }
+
+} // namespace Analyzer

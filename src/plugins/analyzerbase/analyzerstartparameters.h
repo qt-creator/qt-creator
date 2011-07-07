@@ -50,19 +50,16 @@ class ANALYZER_EXPORT AnalyzerStartParameters
 {
 public:
     AnalyzerStartParameters()
-    : startMode(StartLocal)
-    , connParams(Utils::SshConnectionParameters::NoProxy)
-    { }
+        : connParams(Utils::SshConnectionParameters::NoProxy)
+    {}
 
-    AnalyzerStartMode startMode;
+    StartMode startMode;
     Utils::SshConnectionParameters connParams;
 
+    QByteArray toolId;
     QString debuggee;
     QString debuggeeArgs;
     QString analyzerCmdPrefix;
-    QString remoteMountPoint;
-    QString localMountDir;
-    QString remoteSourcesDir;
     QString displayName;
     Utils::Environment environment;
     QString workingDirectory;

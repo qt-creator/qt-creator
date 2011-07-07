@@ -11,20 +11,56 @@ if True:
     import gdb
 
     def registerCommand(name, func):
-        warn("REGISTER %s" % name)
 
         class Command(gdb.Command):
             def __init__(self):
                 super(Command, self).__init__(name, gdb.COMMAND_OBSCURE)
-                warn("INIT %s" % name)
-
             def invoke(self, args, from_tty):
-                print func(args)
-                warn("INVOKE %s" % name)
+                output = func(args)
+                try:
+                    print(output)
+                except:
+                    out = ""
+                    for c in output:
+                        cc = ord(c)
+                        if cc > 127:
+                            out += "\\\\%d" % cc
+                        elif cc < 0:
+                            out += "\\\\%d" % (cc + 256)
+                        else:
+                            out += c
+                    print(out)
+
+
 
         Command()
 
+
+    def isGoodGdb():
+        #return gdb.VERSION.startswith("6.8.50.2009") \
+        #   and gdb.VERSION != "6.8.50.20090630-cvs"
+        return 'parse_and_eval' in __builtin__.dir(gdb)
+
+
+    def parseAndEvaluate(exp):
+        if isGoodGdb():
+            return gdb.parse_and_eval(exp)
+        # Work around non-existing gdb.parse_and_eval as in released 7.0
+        gdb.execute("set logging redirect on")
+        gdb.execute("set logging on")
+        try:
+            gdb.execute("print %s" % exp)
+        except:
+            gdb.execute("set logging off")
+            gdb.execute("set logging redirect off")
+            return None
+        gdb.execute("set logging off")
+        gdb.execute("set logging redirect off")
+        return gdb.history(0)
+
+
     def listOfLocals(varList):
+        frame = gdb.selected_frame()
         try:
             frame = gdb.selected_frame()
             #warn("FRAME %s: " % frame)
@@ -40,7 +76,7 @@ if True:
 
         items = []
         #warn("HAS BLOCK: %s" % hasBlock)
-        if hasBlock:
+        if hasBlock and isGoodGdb():
             #warn("IS GOOD: %s " % varList)
             try:
                 block = frame.block()
@@ -160,6 +196,43 @@ if True:
                 items.append(item)
 
         return items
+
+
+    def catchCliOutput(command):
+        try:
+            return gdb.execute(command, to_string=True).split("\n")
+        except:
+            pass
+        filename, file = createTempFile()
+        gdb.execute("set logging off")
+        gdb.execute("set logging redirect off")
+        gdb.execute("set logging file %s" % filename)
+        gdb.execute("set logging redirect on")
+        gdb.execute("set logging on")
+        msg = ""
+        try:
+            gdb.execute(command)
+        except RuntimeError, error:
+            # For the first phase of core file loading this yield
+            # "No symbol table is loaded.  Use the \"file\" command."
+            msg = str(error)
+        except:
+            msg = "Unknown error"
+        gdb.execute("set logging off")
+        gdb.execute("set logging redirect off")
+        if len(msg):
+            # Having that might confuse result handlers in the gdbengine.
+            #warn("CLI ERROR: %s " % msg)
+            return "CLI ERROR: %s " % msg
+        temp = open(filename, "r")
+        lines = []
+        for line in temp:
+            lines.append(line)
+        temp.close()
+        removeTempFile(filename, file)
+        return lines
+
+
         
 
 #except:

@@ -153,7 +153,8 @@ protected:
     void clear();
     static QStringList varNames(FileType type);
     static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative);
-    static QSet<QString> filterFiles(ProjectExplorer::FileType fileType, const QSet<QString> &files);
+    static QSet<QString> filterFilesProVariables(ProjectExplorer::FileType fileType, const QSet<QString> &files);
+    static QSet<QString> filterFilesRecursiveEnumerata(ProjectExplorer::FileType fileType, const QSet<QString> &files);
 
     enum ChangeType {
         AddToProFile,

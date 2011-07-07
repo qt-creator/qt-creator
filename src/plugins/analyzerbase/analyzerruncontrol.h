@@ -45,18 +45,18 @@
 namespace Analyzer {
 
 class AnalyzerStartParameters;
+class IAnalyzerTool;
 
-class ANALYZER_EXPORT AnalyzerRunControl: public ProjectExplorer::RunControl
+class ANALYZER_EXPORT AnalyzerRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
 
 public:
-    typedef ProjectExplorer::RunConfiguration RunConfiguration;
-    // the constructor is likely to gain more arguments later
-    explicit AnalyzerRunControl(const AnalyzerStartParameters &sp, RunConfiguration *runConfiguration);
+    AnalyzerRunControl(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration);
     ~AnalyzerRunControl();
 
-    // pure virtuals from ProjectExplorer::RunControl
+    // ProjectExplorer::RunControl
     void start();
     StopResult stop();
     bool isRunning() const;
@@ -64,16 +64,18 @@ public:
     QIcon icon() const;
 
 private slots:
+    void stopIt();
     void receiveOutput(const QString &, Utils::OutputFormat format);
 
     void addTask(ProjectExplorer::Task::TaskType type, const QString &description,
                  const QString &file, int line);
 
     void engineFinished();
+    void runControlFinished();
 
 private:
     class Private;
-    QScopedPointer<Private> d;
+    Private *d;
 };
 
 } // namespace Analyzer

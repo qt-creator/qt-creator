@@ -101,7 +101,6 @@ private:
     QString m_modelId;
     bool m_autoSync;
     bool m_autoExpand;
-    Node *m_currentItemLocked;
     friend class ProjectTreeWidgetFactory;
 };
 

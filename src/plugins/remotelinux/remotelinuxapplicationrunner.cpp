@@ -375,7 +375,8 @@ void RemoteLinuxApplicationRunner::handleDeviceSetupDone(bool success)
         handleConnected();
     } else {
         emit reportProgress(tr("Connecting to device..."));
-        m_connection->connectToHost();
+        if (m_connection->state() == Utils::SshConnection::Unconnected)
+            m_connection->connectToHost();
     }
 }
 

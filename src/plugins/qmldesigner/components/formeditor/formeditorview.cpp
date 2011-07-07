@@ -56,6 +56,7 @@
 #include <zoomaction.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
+#include <commondefines.h>
 
 
 namespace QmlDesigner {
@@ -489,6 +490,10 @@ void FormEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &/*no
 
 }
 
+void FormEditorView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
+{
+}
+
 void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
 {
     QList<FormEditorItem*> itemNodeList;
@@ -502,6 +507,7 @@ void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList
     }
 
     m_currentTool->formEditorItemsChanged(itemNodeList);
+    m_currentTool->instancesParentChanged(itemNodeList);
 }
 
 void FormEditorView::rewriterBeginTransaction()
@@ -573,16 +579,22 @@ QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
     return QmlItemNode();
 }
 
-void FormEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
+void FormEditorView::instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList)
 {
-    Q_ASSERT(qmlObjectNode.isValid());
-
-    QmlItemNode itemNode = findRecursiveQmlItemNode(qmlObjectNode);
-
-    if (itemNode.isValid() && scene()->hasItemForQmlItemNode(itemNode)) {
-        m_scene->synchronizeOtherProperty(itemNode, propertyName);
-        m_currentTool->formEditorItemsChanged(QList<FormEditorItem*>() << m_scene->itemForQmlItemNode(itemNode));
+    typedef QPair<ModelNode, QString> NodePropertyPair;
+    foreach (const NodePropertyPair &nodePropertyPair, propertyList) {
+        const QmlItemNode itemNode(nodePropertyPair.first);
+        const QString propertyName = nodePropertyPair.second;
+        if (itemNode.isValid() && scene()->hasItemForQmlItemNode(itemNode)) {
+            static QStringList skipList = QStringList() << "x" << "y" << "width" << "height";
+            if (!skipList.contains(propertyName)) {
+                m_scene->synchronizeOtherProperty(itemNode, propertyName);
+                m_currentTool->formEditorItemsChanged(QList<FormEditorItem*>() << m_scene->itemForQmlItemNode(itemNode));
+            }
+        }
     }
+
+    QmlModelView::instancePropertyChange(propertyList);
 }
 
 void FormEditorView::updateGraphicsIndicators()

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <instructionals module="Qt">
  <demos>
-  <demo imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-samegame-demo.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-samegame.html" projectPath="./declarative/samegame/declarative/samegame.qmlproject" name="SameGame">
+  <demo imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-samegame-demo.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-samegame.html" projectPath="./declarative/samegame/samegame.qmlproject" name="SameGame">
    <description><![CDATA[This demo shows how to write a 'Same Game' game in QML, using Javascript for all the game logic.]]></description>
    <tags>demo,declarative,samegame,qml,qt quick</tags>
   </demo>
-  <demo imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-flickr-demo.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-flickr.html" projectPath="./declarative/flickr/declarative/flickr.qmlproject" name="Flickr Client">
+  <demo imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-flickr-demo.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-flickr.html" projectPath="./declarative/flickr/flickr.qmlproject" name="Flickr Client">
    <description><![CDATA[This demo shows how to write a mobile Flickr browser application in QML.]]></description>
    <tags>demo,declarative,flickr,qml,qt quick</tags>
   </demo>
@@ -41,11 +41,11 @@
    <description><![CDATA[The Interview demonstration explores the flexibility and scalability of the model/view framework by presenting an infinitely deep data structure using a model and three different types of view.]]></description>
    <tags>demo,interview</tags>
   </demo>
-  <demo imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-rssnews-demo.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-rssnews.html" projectPath="./declarative/rssnews/declarative/rssnews.qmlproject" name="Rss Client">
+  <demo imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-rssnews-demo.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-rssnews.html" projectPath="./declarative/rssnews/rssnews.qmlproject" name="Rss Client">
    <description><![CDATA[This demo shows how to write a RSS news reader in QML.]]></description>
    <tags>demo,declarative,rssnews,qml,qt quick</tags>
   </demo>
-  <demo imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-twitter-demo.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-twitter.html" projectPath="./declarative/twitter/declarative/twitter.qmlproject" name="Twitter Client">
+  <demo imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-twitter-demo.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-twitter.html" projectPath="./declarative/twitter/twitter.qmlproject" name="Twitter Client">
    <description><![CDATA[This demo shows how to write a mobile Twitter search client in QML. Use it to see what people think about Qt Quick!]]></description>
    <tags>demo,declarative,twitter,qml,qt quick</tags>
   </demo>
@@ -69,7 +69,7 @@
    <description><![CDATA[The Spectrum Analyzer demo shows how the <tt>QtMultimedia Module</tt> can be used in Qt applications to capture and then play back an audio stream.]]></description>
    <tags>demo,spectrum,qtmultimedia module</tags>
   </demo>
-  <demo imageUrl="" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-minehunt.html" projectPath="./declarative/minehunt/declarative/minehunt.pro" name="Minehunt">
+  <demo imageUrl="" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/demos-declarative-minehunt.html" projectPath="./declarative/minehunt/minehunt.pro" name="Minehunt">
    <description><![CDATA[This demo shows how to create a simple Minehunt game, using QML for the UI and C++ for the game logic.]]></description>
    <tags>demo,declarative,minehunt</tags>
   </demo>

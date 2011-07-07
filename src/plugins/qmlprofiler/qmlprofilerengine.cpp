@@ -6,25 +6,24 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-** No Commercial Usage
-**
-** This file contains pre-release code and may not be distributed.
-** You may use this file in accordance with the terms and conditions
-** contained in the Technology Preview License Agreement accompanying
-** this package.
 **
 ** GNU Lesser General Public License Usage
 **
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 2.1 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL included in the
-** packaging of this file.  Please review the following information to
-** ensure the GNU Lesser General Public License version 2.1 requirements
-** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** In addition, as a special exception, Nokia gives you certain additional
-** rights.  These rights are described in the Nokia Qt LGPL Exception
+** rights. These rights are described in the Nokia Qt LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
 ** Nokia at info@qt.nokia.com.
@@ -46,9 +45,17 @@
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/helpmanager.h>
+#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+#include <projectexplorer/localapplicationruncontrol.h>
+#include <projectexplorer/applicationrunconfiguration.h>
+#include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
+#include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
+
+using namespace Analyzer;
+using namespace ProjectExplorer;
 
 namespace QmlProfiler {
 namespace Internal {
@@ -65,12 +72,11 @@ public:
 
     bool attach(const QString &address, uint port);
     static AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
-                                                   const Analyzer::AnalyzerStartParameters &m_params,
                                                    QObject *parent);
 
     QmlProfilerEngine *q;
 
-    Analyzer::AnalyzerStartParameters m_params;
+    //AnalyzerStartParameters m_params;
     AbstractQmlProfilerRunner *m_runner;
     bool m_running;
     bool m_fetchingData;
@@ -78,28 +84,38 @@ public:
 };
 
 AbstractQmlProfilerRunner *
-QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunConfiguration *configuration,
-                                                          const Analyzer::AnalyzerStartParameters &m_params,
+QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
                                                           QObject *parent)
 {
     AbstractQmlProfilerRunner *runner = 0;
-    if (m_params.startMode == Analyzer::StartLocal) {
-        LocalQmlProfilerRunner::Configuration configuration;
-        configuration.executable = m_params.debuggee;
-        configuration.executableArguments = m_params.debuggeeArgs;
-        configuration.workingDirectory = m_params.workingDirectory;
-        configuration.environment = m_params.environment;
-        configuration.port = m_params.connParams.port;
-
-        runner = new LocalQmlProfilerRunner(configuration, parent);
-    } else if (m_params.startMode == Analyzer::StartRemote) {
-        if (Qt4ProjectManager::S60DeviceRunConfiguration *s60Config
-                = qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration*>(configuration)) {
-            runner = new CodaQmlProfilerRunner(s60Config, parent);
-        } else if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig
-                   = qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration*>(configuration)){
-            runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);
-        }
+    if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
+            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
+        // This is a "plain" .qmlproject.
+        LocalQmlProfilerRunner::Configuration conf;
+        conf.executable = rc1->observerPath();
+        conf.executableArguments = rc1->viewerArguments();
+        conf.workingDirectory = rc1->workingDirectory();
+        conf.environment = rc1->environment();
+        conf.port = rc1->qmlDebugServerPort();
+        runner = new LocalQmlProfilerRunner(conf, parent);
+    } else if (LocalApplicationRunConfiguration *rc2 =
+            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
+        // FIXME: Check.
+        LocalQmlProfilerRunner::Configuration conf;
+        conf.executable = rc2->executable();
+        conf.executableArguments = rc2->commandLineArguments();
+        conf.workingDirectory = rc2->workingDirectory();
+        conf.environment = rc2->environment();
+        conf.port = rc2->qmlDebugServerPort();
+        runner = new LocalQmlProfilerRunner(conf, parent);
+    } else if (Qt4ProjectManager::S60DeviceRunConfiguration *s60Config =
+            qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration*>(runConfiguration)) {
+        runner = new CodaQmlProfilerRunner(s60Config, parent);
+    } else if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig =
+            qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
+        runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);
+    } else {
+        QTC_ASSERT(false, /**/);
     }
     return runner;
 }
@@ -108,12 +124,11 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
 // QmlProfilerEngine
 //
 
-QmlProfilerEngine::QmlProfilerEngine(const Analyzer::AnalyzerStartParameters &sp,
-                                     ProjectExplorer::RunConfiguration *runConfiguration)
-    : IAnalyzerEngine(sp, runConfiguration)
+QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
+         ProjectExplorer::RunConfiguration *runConfiguration)
+    : IAnalyzerEngine(tool, runConfiguration)
     , d(new QmlProfilerEnginePrivate(this))
 {
-    d->m_params = sp;
     d->m_running = false;
     d->m_fetchingData = false;
     d->m_delayedDelete = false;
@@ -129,8 +144,8 @@ QmlProfilerEngine::~QmlProfilerEngine()
 void QmlProfilerEngine::start()
 {
     QTC_ASSERT(!d->m_runner, return);
-    d->m_runner = QmlProfilerEnginePrivate::createRunner(runConfiguration(), d->m_params, this);
-    QTC_ASSERT(d->m_runner, return);
+    d->m_runner = QmlProfilerEnginePrivate::createRunner(runConfiguration(), this);
+
 
     connect(d->m_runner, SIGNAL(stopped()), this, SLOT(stopped()));
     connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
@@ -140,6 +155,8 @@ void QmlProfilerEngine::start()
 
     d->m_running = true;
     d->m_delayedDelete = false;
+
+    AnalyzerManager::handleToolStarted();
 }
 
 void QmlProfilerEngine::stop()
@@ -157,7 +174,7 @@ void QmlProfilerEngine::stop()
 void QmlProfilerEngine::stopped()
 {
     d->m_running = false;
-    Analyzer::AnalyzerManager::instance()->stopTool();
+    AnalyzerManager::stopTool(); // FIXME: Needed?
     emit finished();
 }
 

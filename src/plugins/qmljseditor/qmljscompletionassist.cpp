@@ -777,7 +777,9 @@ void QmlJSCompletionAssistProcessor::addCompletionsPropertyLhs(const QHash<QStri
         it.next();
 
         QString itemText = it.key();
-        QLatin1String postfix(": ");
+        QString postfix;
+        if (!itemText.isEmpty() && itemText.at(0).isLower())
+            postfix = QLatin1String(": ");
         if (afterOn)
             postfix = QLatin1String(" {");
         if (const Interpreter::QmlObjectValue *qmlValue =

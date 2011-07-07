@@ -156,11 +156,12 @@ public:
     void notifyInstancesRenderImageChanged(const QVector<ModelNode> &nodeList);
     void notifyInstancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     void notifyInstancesChildrenChanged(const QVector<ModelNode> &nodeList);
+    void notifyInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
+
     void notifyActualStateChanged(const ModelNode &node);
 
     void notifyRewriterBeginTransaction();
     void notifyRewriterEndTransaction();
-
 
     void setSelectedNodes(const QList<InternalNodePointer> &selectedNodeList);
     void clearSelectedNodes();

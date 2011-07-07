@@ -633,13 +633,13 @@ void S60DeployConfigurationWidget::getInstalledPackagesResult(const Coda::CodaCo
                 break;
                 case QTMOBILITY_UID: {
                     if (error)
-                        addErrorToTable(str, tr("QtMobility version: "), tr("Error reading QtMobility version"));
+                        addErrorToTable(str, tr("Qt Mobility version: "), tr("Error reading Qt Mobility version"));
                     else
-                        addToTable(str, tr("QtMobility version: "), versionString);
+                        addToTable(str, tr("Qt Mobility version: "), versionString);
                 }
                 break;
                 case QTCOMPONENTS_UID: {
-                    addToTable(str, tr("QtQuick components version: "), error ? tr("Not installed") : versionString);
+                    addToTable(str, tr("Qt Quick components version: "), error ? tr("Not installed") : versionString);
                 }
                 break;
                 default: break;

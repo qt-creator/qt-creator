@@ -2,7 +2,7 @@
 **
 ** Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: Nokia Corporation (info@qt.nokia.com)
 **
 ** This file is part of the Qt Components project on Qt Labs.
 **
@@ -20,7 +20,7 @@
 ** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
+** Nokia at info@qt.nokia.com.
 **
 ****************************************************************************/
 

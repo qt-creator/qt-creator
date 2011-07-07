@@ -46,9 +46,10 @@ namespace Internal {
 class MemcheckEngine : public ValgrindEngine
 {
     Q_OBJECT
+
 public:
-    explicit MemcheckEngine(const Analyzer::AnalyzerStartParameters &sp,
-                            ProjectExplorer::RunConfiguration *runConfiguration);
+    MemcheckEngine(Analyzer::IAnalyzerTool *tool, const Analyzer::AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration);
 
     void start();
     void stop();

@@ -124,16 +124,16 @@ void CoreGdbAdapter::handleTemporaryTargetCore(const GdbResponse &response)
         return;
     }
 
-    GdbMi console = response.data.findChild("consolestreamoutput");
-    int pos1 = console.data().indexOf('`');
-    int pos2 = console.data().indexOf('\'');
+    QByteArray console = response.consoleStreamOutput;
+    int pos1 = console.indexOf('`');
+    int pos2 = console.indexOf('\'');
     if (pos1 == -1 || pos2 == -1) {
         showMessage(tr("Attach to core failed."), StatusBar);
         m_engine->notifyEngineSetupFailed();
         return;
     }
 
-    m_executable = console.data().mid(pos1 + 1, pos2 - pos1 - 1);
+    m_executable = console.mid(pos1 + 1, pos2 - pos1 - 1);
     // Strip off command line arguments. FIXME: make robust.
     int idx = m_executable.indexOf(_c(' '));
     if (idx >= 0)

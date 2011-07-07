@@ -1,6 +1,6 @@
 include(../../../qtcreator.pri)
 
-LANGUAGES = cs de fr hu ja ru sl zh_CN
+LANGUAGES = cs de fr hu ja pl ru sl zh_CN
 
 # var, prepend, append
 defineReplace(prependAll) {
@@ -40,7 +40,8 @@ plugin_sources -= src/plugins/plugins.pro \
     src/plugins/qtestlib \
     src/plugins/snippets \
     src/plugins/regexp
-sources = src/app src/libs $$plugin_sources src/shared share/qtcreator/qmldesigner
+sources = src/app src/libs $$plugin_sources src/shared share/qtcreator/qmldesigner \
+          share/qtcreator/welcomescreen share/qtcreator/welcomescreen/widgets
 
 files = $$files($$PWD/*_??.ts) $$PWD/qtcreator_untranslated.ts
 for(file, files) {

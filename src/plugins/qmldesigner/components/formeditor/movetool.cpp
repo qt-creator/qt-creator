@@ -256,6 +256,11 @@ void MoveTool::instancesCompleted(const QList<FormEditorItem*> & /*itemList*/)
 {
 }
 
+void  MoveTool::instancesParentChanged(const QList<FormEditorItem *> &itemList)
+{
+    m_moveManipulator.synchronizeInstanceParent(itemList);
+}
+
 bool MoveTool::haveSameParent(const QList<FormEditorItem*> &itemList)
 {
     if (itemList.isEmpty())

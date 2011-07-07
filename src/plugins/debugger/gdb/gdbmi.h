@@ -130,7 +130,6 @@ public:
     qulonglong toAddress() const;
     void fromString(const QByteArray &str);
     void fromStringMultiple(const QByteArray &str);
-    void setStreamOutput(const QByteArray &name, const QByteArray &content);
 
 private:
     friend class GdbResponse;
@@ -170,6 +169,8 @@ public:
     GdbResultClass resultClass;
     GdbMi          data;
     QVariant       cookie;
+    QByteArray     logStreamOutput;
+    QByteArray     consoleStreamOutput;
 };
 
 void extractGdbVersion(const QString &msg,

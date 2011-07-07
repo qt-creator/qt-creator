@@ -48,6 +48,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QMutex>
+#include <QtCore/QMutexLocker>
 #include <QtNetwork/QNetworkProxy>
 #include <QtNetwork/QTcpSocket>
 
@@ -70,15 +71,12 @@ namespace {
 
     void doStaticInitializationsIfNecessary()
     {
+        QMutexLocker locker(&staticInitMutex);
         if (!staticInitializationsDone) {
-            staticInitMutex.lock();
-            if (!staticInitializationsDone) {
-                Botan::LibraryInitializer::initialize("thread_safe=true");
-                qRegisterMetaType<Utils::SshError>("Utils::SshError");
-                qRegisterMetaType<Utils::SftpJobId>("Utils::SftpJobId");
-                staticInitializationsDone = true;
-            }
-            staticInitMutex.unlock();
+            Botan::LibraryInitializer::initialize("thread_safe=true");
+            qRegisterMetaType<Utils::SshError>("Utils::SshError");
+            qRegisterMetaType<Utils::SftpJobId>("Utils::SftpJobId");
+            staticInitializationsDone = true;
         }
     }
 } // anonymous namespace
@@ -620,6 +618,8 @@ void SshConnectionPrivate::sendKeepAlivePacket()
 
 void SshConnectionPrivate::connectToHost()
 {
+    QTC_ASSERT(m_state == SocketUnconnected, return);
+
     m_incomingData.clear();
     m_incomingPacket.reset();
     m_sendFacility.reset();

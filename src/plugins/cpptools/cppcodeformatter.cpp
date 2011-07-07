@@ -1058,6 +1058,14 @@ int QtStyleCodeFormatter::loadLexerState(const QTextBlock &block) const
     return BaseTextDocumentLayout::lexerState(block);
 }
 
+void QtStyleCodeFormatter::addContinuationIndent(int *paddingDepth) const
+{
+    if (*paddingDepth == 0)
+        *paddingDepth = 2*m_tabSettings.m_indentSize;
+    else
+        *paddingDepth += m_tabSettings.m_indentSize;
+}
+
 void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedIndentDepth, int *paddingDepth, int *savedPaddingDepth) const
 {
     const State &parentState = state();
@@ -1094,12 +1102,8 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     case template_param:
         if (!lastToken)
             *paddingDepth = nextTokenPosition-*indentDepth;
-        else {
-            if (*paddingDepth == 0)
-                *paddingDepth = 2*m_tabSettings.m_indentSize;
-            else
-                *paddingDepth += m_tabSettings.m_indentSize;
-        }
+        else
+            addContinuationIndent(paddingDepth);
         break;
 
     case statement_with_condition:
@@ -1140,17 +1144,18 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     case arglist_open:
     case condition_paren_open:
+    case member_init_paren_open:
         if (!lastToken)
             *paddingDepth = nextTokenPosition-*indentDepth;
         else
-            *paddingDepth += m_tabSettings.m_indentSize;
+            addContinuationIndent(paddingDepth);
         break;
 
     case ternary_op:
         if (!lastToken)
             *paddingDepth = spaceOrNextTokenPosition-*indentDepth;
         else
-            *paddingDepth += m_tabSettings.m_indentSize;
+            addContinuationIndent(paddingDepth);
         break;
 
     case stream_op:
@@ -1173,10 +1178,6 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     case member_init:
         *paddingDepth += 2; // savedIndentDepth is the position of ':'
-        break;
-
-    case member_init_paren_open:
-        *paddingDepth += m_tabSettings.m_indentSize;
         break;
 
     case case_cont:

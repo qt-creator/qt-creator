@@ -171,8 +171,7 @@ static int &currentToken()
 
 static QByteArray parsePlainConsoleStream(const GdbResponse &response)
 {
-    GdbMi output = response.data.findChild("consolestreamoutput");
-    QByteArray out = output.data();
+    QByteArray out = response.consoleStreamOutput;
     // FIXME: proper decoding needed
     if (out.endsWith("\\n"))
         out.chop(2);
@@ -653,10 +652,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
             //qDebug() << "\nLOG STREAM:" + m_pendingLogStreamOutput;
             //qDebug() << "\nCONSOLE STREAM:" + m_pendingConsoleStreamOutput;
-            response.data.setStreamOutput("logstreamoutput",
-                m_pendingLogStreamOutput);
-            response.data.setStreamOutput("consolestreamoutput",
-                m_pendingConsoleStreamOutput);
+            response.logStreamOutput = m_pendingLogStreamOutput;
+            response.consoleStreamOutput =  m_pendingConsoleStreamOutput;
             m_pendingLogStreamOutput.clear();
             m_pendingConsoleStreamOutput.clear();
 
@@ -1070,8 +1067,8 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
         // Happens with some incarnations of gdb 6.8 for "jump to line"
         //  (response->resultClass == GdbResultDone && cmd.command.startsWith("jump"))
         //  (response->resultClass == GdbResultDone && cmd.command.startsWith("detach"))
-        // Happens when stepping finishes very quickly and issues *stopped/^done
-        // instead of ^running/*stopped
+        // Happens when stepping finishes very quickly and issues *stopped and ^done
+        // instead of ^running and *stopped
         //  (response->resultClass == GdbResultDone && (cmd.flags & RunRequest));
 
     if (!isExpectedResult) {
@@ -1688,7 +1685,7 @@ void GdbEngine::handleInfoProc(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         static QRegExp re(_("\\bprocess ([0-9]+)\n"));
         QTC_ASSERT(re.isValid(), return);
-        if (re.indexIn(_(response.data.findChild("consolestreamoutput").data())) != -1)
+        if (re.indexIn(_(response.consoleStreamOutput)) != -1)
             maybeHandleInferiorPidChanged(re.cap(1));
     }
 }
@@ -1700,8 +1697,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         m_gdbVersion = 100;
         m_gdbBuildVersion = -1;
         m_isMacGdb = false;
-        GdbMi version = response.data.findChild("consolestreamoutput");
-        QString msg = QString::fromLocal8Bit(version.data());
+        QString msg = QString::fromLocal8Bit(response.consoleStreamOutput);
         extractGdbVersion(msg,
               &m_gdbVersion, &m_gdbBuildVersion, &m_isMacGdb);
         if (m_gdbVersion > 60500 && m_gdbVersion < 200000)
@@ -1726,9 +1722,8 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         m_hasPython = true;
-        GdbMi contents = response.data.findChild("consolestreamoutput");
         GdbMi data;
-        data.fromStringMultiple(contents.data());
+        data.fromStringMultiple(response.consoleStreamOutput);
         const GdbMi dumpers = data.findChild("dumpers");
         foreach (const GdbMi &dumper, dumpers.children()) {
             QByteArray type = dumper.findChild("type").data();
@@ -2386,7 +2381,7 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
         response.fileName = name;
 
     if (response.fileName.isEmpty())
-        response.setLocation(originalLocation);
+        response.updateLocation(originalLocation);
 }
 
 QString GdbEngine::breakLocation(const QString &file) const
@@ -2442,7 +2437,7 @@ void GdbEngine::handleWatchInsert(const GdbResponse &response)
         BreakHandler *handler = breakHandler();
         BreakpointResponse br = handler->response(id);
         // "Hardware watchpoint 2: *0xbfffed40\n"
-        QByteArray ba = response.data.findChild("consolestreamoutput").data();
+        QByteArray ba = response.consoleStreamOutput;
         GdbMi wpt = response.data.findChild("wpt");
         if (wpt.isValid()) {
             // Mac yields:
@@ -2517,6 +2512,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
             foreach (const GdbMi bkpt, response.data.children()) {
                 nr = bkpt.findChild("number").data();
                 rid = BreakpointResponseId(nr);
+                QTC_ASSERT(rid.isValid(), continue);
                 if (nr.contains('.')) {
                     // A sub-breakpoint.
                     BreakpointResponse sub;
@@ -2664,8 +2660,7 @@ void GdbEngine::handleBreakListMultiple(const GdbResponse &response)
 {
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
     const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
-    const QString str = QString::fromLocal8Bit(
-        response.data.findChild("consolestreamoutput").data());
+    const QString str = QString::fromLocal8Bit(response.consoleStreamOutput);
     extractDataFromInfoBreak(str, id);
 }
 
@@ -2720,7 +2715,7 @@ void GdbEngine::handleBreakIgnore(const GdbResponse &response)
     //
     // gdb 6.3 does not produce any console output
     QTC_ASSERT(response.resultClass == GdbResultDone, /**/)
-    QString msg = _(response.data.findChild("consolestreamoutput").data());
+    //QString msg = _(response.consoleStreamOutput);
     BreakpointModelId id = response.cookie.value<BreakpointModelId>();
     BreakHandler *handler = breakHandler();
     BreakpointResponse br = handler->response(id);
@@ -2847,8 +2842,8 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
                         BreakpointResponse sub;
                         sub.address = address;
                         sub.functionName = QString::fromUtf8(function);
-                        sub.setLocation(location);
-                        sub.id = subId;
+                        sub.updateLocation(location);
+                        sub.id = BreakpointResponseId(majorPart, minorPart);
                         sub.type = response.type;
                         sub.address = address;
                         handler->insertSubBreakpoint(id, sub);
@@ -2863,7 +2858,20 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
                 }
             }
         }
-        // Commit main data.
+        if (minorPart) {
+            // Commit last chunk.
+            BreakpointResponse sub;
+            sub.address = address;
+            sub.functionName = QString::fromUtf8(function);
+            sub.updateLocation(location);
+            sub.id = BreakpointResponseId(majorPart, minorPart);
+            sub.type = response.type;
+            sub.address = address;
+            handler->insertSubBreakpoint(id, sub);
+            location.clear();
+            function.clear();
+            address = 0;
+        }
     } else {
         qDebug() << "COULD NOT MATCH" << output;
         response.id = BreakpointResponseId(); // Unavailable.
@@ -2877,7 +2885,7 @@ void GdbEngine::handleInfoLine(const GdbResponse &response)
         // Old-style output: "Line 1102 of \"simple/app.cpp\" starts
         // at address 0x80526aa <_Z10...+131> and ends at 0x80526b5
         // <_Z10testQStackv+142>.\n"
-        QByteArray ba = response.data.findChild("consolestreamoutput").data();
+        QByteArray ba = response.consoleStreamOutput;
         const BreakpointModelId id = response.cookie.value<BreakpointModelId>();
         const int pos = ba.indexOf(' ', 5);
         if (ba.startsWith("Line ") && pos != -1) {
@@ -3201,8 +3209,7 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
     if (response.resultClass == GdbResultDone) {
         // That's console-based output, likely Linux or Windows,
         // but we can avoid the target dependency here.
-        QString data = QString::fromLocal8Bit(
-            response.data.findChild("consolestreamoutput").data());
+        QString data = QString::fromLocal8Bit(response.consoleStreamOutput);
         QTextStream ts(&data, QIODevice::ReadOnly);
         while (!ts.atEnd()) {
             QString line = ts.readLine();
@@ -3378,7 +3385,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
     if (!handleIt) {
         // That always happens on symbian gdb with
         // ^error,data={msg="Previous frame identical to this frame (corrupt stack?)"
-        // logstreamoutput="Previous frame identical to this frame (corrupt stack?)\n"
+        // logStreamOutput: "Previous frame identical to this frame (corrupt stack?)\n"
         //qDebug() << "LISTING STACK FAILED: " << response.toString();
         reloadRegisters();
         return;
@@ -3504,9 +3511,8 @@ void GdbEngine::handleThreadListIds(const GdbResponse &response)
 void GdbEngine::handleThreadNames(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        GdbMi contents = response.data.findChild("consolestreamoutput");
         GdbMi names;
-        names.fromString(contents.data());
+        names.fromString(response.consoleStreamOutput);
 
         Threads threads = threadsHandler()->threads();
 
@@ -4406,28 +4412,26 @@ DisassemblerLines GdbEngine::parseMiDisassembler(const GdbMi &lines)
     return result;
 }
 
-DisassemblerLines GdbEngine::parseCliDisassembler(const GdbMi &output)
+DisassemblerLines GdbEngine::parseCliDisassembler(const QByteArray &output)
 {
-    const QString someSpace = _("        ");
     // First line is something like
     // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
     DisassemblerLines dlines;
-    foreach (const QByteArray &line, output.data().split('\n'))
+    foreach (const QByteArray &line, output.split('\n'))
         dlines.appendUnparsed(_(line));
     return dlines;
 }
 
-DisassemblerLines GdbEngine::parseDisassembler(const GdbMi &data)
+DisassemblerLines GdbEngine::parseDisassembler(const GdbResponse &response)
 {
     // Apple's gdb produces MI output even for CLI commands.
     // FIXME: Check whether wrapping this into -interpreter-exec console
     // (i.e. usgind the 'ConsoleCommand' GdbCommandFlag makes a
     // difference.
-    GdbMi lines = data.findChild("asm_insns");
+    GdbMi lines = response.data.findChild("asm_insns");
     if (lines.isValid())
         return parseMiDisassembler(lines);
-    GdbMi output = data.findChild("consolestreamoutput");
-    return parseCliDisassembler(output);
+    return parseCliDisassembler(response.consoleStreamOutput);
 }
 
 void GdbEngine::handleDisassemblerCheck(const GdbResponse &response)
@@ -4441,7 +4445,7 @@ void GdbEngine::handleFetchDisassemblerByCliPointMixed(const GdbResponse &respon
     QTC_ASSERT(ac.agent, return);
 
     if (response.resultClass == GdbResultDone) {
-        DisassemblerLines dlines = parseDisassembler(response.data);
+        DisassemblerLines dlines = parseDisassembler(response);
         if (dlines.coversAddress(ac.agent->address())) {
             ac.agent->setContents(dlines);
             return;
@@ -4456,7 +4460,7 @@ void GdbEngine::handleFetchDisassemblerByCliPointPlain(const GdbResponse &respon
     QTC_ASSERT(ac.agent, return);
 
     if (response.resultClass == GdbResultDone) {
-        DisassemblerLines dlines = parseDisassembler(response.data);
+        DisassemblerLines dlines = parseDisassembler(response);
         if (dlines.coversAddress(ac.agent->address())) {
             ac.agent->setContents(dlines);
             return;
@@ -4474,7 +4478,7 @@ void GdbEngine::handleFetchDisassemblerByCliRangeMixed(const GdbResponse &respon
     QTC_ASSERT(ac.agent, return);
 
     if (response.resultClass == GdbResultDone) {
-        DisassemblerLines dlines = parseDisassembler(response.data);
+        DisassemblerLines dlines = parseDisassembler(response);
         if (dlines.coversAddress(ac.agent->address())) {
             ac.agent->setContents(dlines);
             return;
@@ -4489,7 +4493,7 @@ void GdbEngine::handleFetchDisassemblerByCliRangePlain(const GdbResponse &respon
     QTC_ASSERT(ac.agent, return);
 
     if (response.resultClass == GdbResultDone) {
-        DisassemblerLines dlines = parseDisassembler(response.data);
+        DisassemblerLines dlines = parseDisassembler(response);
         if (dlines.size()) {
             ac.agent->setContents(dlines);
             return;
@@ -4992,8 +4996,7 @@ void GdbEngine::handleCreateFullBacktrace(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         debuggerCore()->openTextEditor(_("Backtrace $"),
-            _(response.data.findChild("consolestreamoutput").data()
-              + response.data.findChild("logstreamoutput").data()));
+            _(response.consoleStreamOutput + response.logStreamOutput));
     }
 }
 
@@ -5040,8 +5043,8 @@ void GdbEngine::handleSetQmlStepBreakpoint(const GdbResponse &response)
 {
     //QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        // "{logstreamoutput="tbreak 'myns::QScript::FunctionWrapper::proxyCall'\n"
-        //,consolestreamoutput="Temporary breakpoint 1 at 0xf166e7:
+        // logStreamOutput: "tbreak 'myns::QScript::FunctionWrapper::proxyCall'\n"
+        // consoleStreamOutput: "Temporary breakpoint 1 at 0xf166e7:
         // file bridge/qscriptfunction.cpp, line 75.\n"}
         QByteArray ba = parsePlainConsoleStream(response);
         const int pos2 = ba.indexOf(" at 0x");

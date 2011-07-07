@@ -1,20 +1,18 @@
 TEMPLATE = lib
 TARGET = Valgrind
 
-DEFINES += VALGRIND_LIBRARY
-
 include(../../qtcreatorplugin.pri)
-include(valgrind.pri)
+include(valgrind_dependencies.pri)
+include(valgrind/valgrind.pri)
+QT *= network
 
-QT += network
+INCLUDEPATH *= $$PWD
 
 HEADERS += \
     valgrindplugin.h \
-    valgrind_global.h \
     valgrindengine.h \
     valgrindconfigwidget.h \
     valgrindsettings.h \
-    \
     callgrindconfigwidget.h \
     callgrindcostdelegate.h \
     callgrindcostview.h \
@@ -51,7 +49,6 @@ SOURCES += \
     callgrindengine.cpp \
     workarounds.cpp \
     callgrindtextmark.cpp \
-    \
     memchecktool.cpp \
     memcheckengine.cpp \
     memcheckerrorview.cpp \

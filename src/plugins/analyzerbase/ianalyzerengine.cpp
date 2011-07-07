@@ -36,21 +36,19 @@
 
 namespace Analyzer {
 
-IAnalyzerEngine::IAnalyzerEngine(const AnalyzerStartParameters &sp,
-                                 ProjectExplorer::RunConfiguration *runConfiguration)
-    : m_runConfig(runConfiguration)
-    , m_sp(sp)
+IAnalyzerEngine::IAnalyzerEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+    ProjectExplorer::RunConfiguration *runConfiguration)
 {
+    m_runConfig = runConfiguration;
+    m_sp = sp;
+    m_tool = tool;
 }
 
-ProjectExplorer::RunConfiguration *IAnalyzerEngine::runConfiguration() const
+IAnalyzerEngine::IAnalyzerEngine(IAnalyzerTool *tool,
+        ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    return m_runConfig;
-}
-
-AnalyzerStartParameters IAnalyzerEngine::startParameters() const
-{
-    return m_sp;
+    m_runConfig = runConfiguration;
+    m_tool = tool;
 }
 
 } // namespace Analyzer

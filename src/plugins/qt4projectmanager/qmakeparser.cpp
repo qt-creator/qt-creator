@@ -37,8 +37,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDir>
-
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::Task;
@@ -73,7 +71,7 @@ void QMakeParser::stdError(const QString &line)
         return;
     }
     if (m_error.indexIn(lne) > -1) {
-        QString fileName = QDir::fromNativeSeparators(m_error.cap(1));
+        QString fileName = m_error.cap(1);
         Task::TaskType type = Task::Error;
         if (fileName.startsWith("WARNING: ")) {
             type = Task::Warning;
@@ -143,7 +141,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Error,
                         QLatin1String("Parse Error ('sth odd')"),
-                        QDir::fromNativeSeparators(QLatin1String("e:\\project.pro")),
+                        QLatin1String("e:\\project.pro"),
                         14,
                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM))
             << QString();
@@ -166,7 +164,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << (QList<ProjectExplorer::Task>()
                 << Task(Task::Warning,
                         QLatin1String("Unescaped backslashes are deprecated."),
-                        QLatin1String("e:/NokiaQtSDK/Simulator/Qt/msvc2008/lib/qtmaind.prl"), 1,
+                        QLatin1String("e:\\NokiaQtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl"), 1,
                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM))
             << QString();
 }

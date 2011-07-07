@@ -278,6 +278,8 @@ protected:
     static bool shouldClearPaddingOnEnter(int state);
 
 private:
+    void addContinuationIndent(int *paddingDepth) const;
+
     TextEditor::TabSettings m_tabSettings;
     CppCodeStyleSettings m_styleSettings;
 };

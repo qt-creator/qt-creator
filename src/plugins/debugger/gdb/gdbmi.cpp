@@ -228,19 +228,6 @@ void GdbMi::parseList(const char *&from, const char *to)
     }
 }
 
-void GdbMi::setStreamOutput(const QByteArray &name, const QByteArray &content)
-{
-    if (content.isEmpty())
-        return;
-    GdbMi child;
-    child.m_type = Const;
-    child.m_name = name;
-    child.m_data = content;
-    m_children += child;
-    if (m_type == Invalid)
-        m_type = Tuple;
-}
-
 static QByteArray ind(int indent)
 {
     return QByteArray(2 * indent, ' ');

@@ -429,6 +429,18 @@ void AbstractView::emitRewriterBeginTransaction()
         model()->m_d->notifyRewriterBeginTransaction();
 }
 
+void AbstractView::sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector)
+{
+    if (nodeInstanceView())
+        nodeInstanceView()->sendToken(token, number, nodeVector);
+}
+
+void AbstractView::emitInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
+{
+    if (nodeInstanceView())
+        model()->m_d->notifyInstanceToken(token, number, nodeVector);
+}
+
 void AbstractView::emitRewriterEndTransaction()
 {
     if (model())

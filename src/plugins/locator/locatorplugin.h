@@ -37,6 +37,7 @@
 #include "directoryfilter.h"
 
 #include <extensionsystem/iplugin.h>
+#include <coreplugin/actionmanager/command.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
@@ -77,6 +78,7 @@ public slots:
 private slots:
     void startSettingsLoad();
     void settingsLoaded();
+    void updatePlaceholderText(Core::Command *command = 0);
 
 private:
     void loadSettings();

@@ -46,8 +46,6 @@ class Symbol;
 namespace AnalyzerUtils
 {
     ANALYZER_EXPORT CPlusPlus::Symbol *findSymbolUnderCursor();
-
-    ANALYZER_EXPORT QWidget *createDummyWidget();
 }
 
 #endif // ANALYZERUTILS_H

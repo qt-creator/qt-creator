@@ -36,6 +36,7 @@
 #define IANALYZERTOOL_H
 
 #include "analyzerbase_global.h"
+#include "analyzerconstants.h"
 
 #include <QtCore/QObject>
 
@@ -49,8 +50,12 @@ class AnalyzerStartParameters;
 class IAnalyzerOutputPaneAdapter;
 class IAnalyzerEngine;
 
+
 /**
  * This class represents an analyzation tool, e.g. "Valgrind Memcheck".
+ *
+ * Each tool can run in different run modes. The modes are specific to the mode.
+ *
  * @code
  * bool YourPlugin::initialize(const QStringList &arguments, QString *errorString)
  * {
@@ -67,16 +72,25 @@ public:
     explicit IAnalyzerTool(QObject *parent = 0);
 
     /// Returns a unique ID for this tool.
-    virtual QString id() const = 0;
+    virtual QByteArray id() const = 0;
     /// Returns a short user readable display name for this tool.
     virtual QString displayName() const = 0;
     /// Returns a user readable description name for this tool.
     virtual QString description() const = 0;
+    /// Returns an id for the start action.
+    virtual QByteArray actionId(StartMode mode) const
+        { return defaultActionId(this, mode); }
+    /// Returns the menu group the start action should go to.
+    virtual QByteArray menuGroup(StartMode mode) const
+        { return defaultMenuGroup(mode); }
+    /// Returns a short user readable action name for this tool.
+    virtual QString actionName(StartMode mode) const
+        { return defaultActionName(this, mode); }
 
     /**
      * The mode in which this tool should preferably be run
      *
-     * The memcheckt tool, for example, requires debug symbols, hence DebugMode
+     * The memcheck tool, for example, requires debug symbols, hence DebugMode
      * is preferred. On the other hand, callgrind should look at optimized code,
      * hence ReleaseMode.
      */
@@ -85,38 +99,27 @@ public:
         ReleaseMode,
         AnyMode
     };
-    virtual ToolMode mode() const = 0;
+    virtual ToolMode toolMode() const = 0;
 
-    static QString modeString(ToolMode mode);
+    /// Convenience implementation.
+    static QByteArray defaultMenuGroup(StartMode mode);
+    static QByteArray defaultActionId(const IAnalyzerTool *tool, StartMode mode);
+    static QString defaultActionName(const IAnalyzerTool *tool, StartMode mode);
 
-    /**
-     * The implementation should setup widgets for the output pane here and
-     * optionally add dock widgets in the analyzation mode if wanted.
-     */
-    virtual void initialize() = 0;
     /// This gets called after all analyzation tools where initialized.
     virtual void extensionsInitialized() = 0;
 
-    /**
-      * This is called to add all dock widgets if tool becomes active first time.
-      * \sa AnalzyerManager::createDockWidget
-      */
-    virtual void initializeDockWidgets();
-
-    /// Returns a control widget which will be shown
-    /// in the output pane when this tool is selected.
-    virtual QWidget *createControlWidget();
+    /// Creates all widgets used by the tool.
+    /// Returns a control widget which will be shown in the status bar when
+    /// this tool is selected. Must be non-zero.
+    virtual QWidget *createWidgets() = 0;
 
     /// Returns a new engine for the given start parameters.
     /// Called each time the tool is launched.
     virtual IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration = 0) = 0;
 
-    /// Returns true when this tool can be run on the loca machine.
-    virtual bool canRunLocally() const = 0;
-
-    /// Returns true when this tool can be run on a remote machine.
-    virtual bool canRunRemotely() const = 0;
+    virtual void startTool(StartMode mode) = 0;
 
     /// Called when tools gets selected.
     virtual void toolSelected() const {}

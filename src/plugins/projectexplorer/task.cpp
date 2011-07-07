@@ -32,6 +32,8 @@
 
 #include "task.h"
 
+#include <QtCore/QDir>
+
 namespace ProjectExplorer
 {
 
@@ -48,8 +50,7 @@ Task::Task() : taskId(0), type(Unknown), line(-1)
 
 Task::Task(TaskType type_, const QString &description_,
            const QString &file_, int line_, const QString &category_) :
-    taskId(s_nextId), type(type_), description(description_), file(file_),
-    line(line_), category(category_)
+    taskId(s_nextId), type(type_), description(description_), file(QDir::fromNativeSeparators(file_)), line(line_), category(category_)
 {
     ++s_nextId;
 }

@@ -173,7 +173,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == actAdjust)
         resizeColumnsToContents();
     else if (act == actShowMemory) {
-        const QString title = tr("Memory at Frame #%1 (%2) 0x%3)").
+        const QString title = tr("Memory at Frame #%1 (%2) 0x%3").
         arg(row).arg(frame.function).arg(address, 0, 16);
         QList<MemoryMarkup> ml;
         ml.push_back(MemoryMarkup(address, 1, QColor(Qt::blue).lighter(),

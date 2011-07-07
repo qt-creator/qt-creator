@@ -80,6 +80,7 @@
 #include "statepreviewimagechangedcommand.h"
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
+#include "tokencommand.h"
 
 #include "nodeinstanceserverproxy.h"
 
@@ -479,6 +480,11 @@ void NodeInstanceView::instancesPreviewImageChanged(const QVector<ModelNode> &/*
 }
 
 void NodeInstanceView::instancesChildrenChanged(const QVector<ModelNode> &/*nodeList*/)
+{
+
+}
+
+void NodeInstanceView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/, const QVector<ModelNode> &/*nodeVector*/)
 {
 
 }
@@ -1058,14 +1064,11 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
         emitInstancesRenderImageChanged(renderImageChangeSet.toList().toVector());
 }
 
-void NodeInstanceView::informationChanged(const InformationChangedCommand &command)
+QMultiHash<ModelNode, InformationName> NodeInstanceView::informationChanged(const QVector<InformationContainer> &containerVector)
 {
-    if (!model())
-        return;
-
     QMultiHash<ModelNode, InformationName> informationChangeHash;
 
-    foreach(const InformationContainer &container, command.informations()) {
+    foreach (const InformationContainer &container, containerVector) {
         if (hasInstanceForId(container.instanceId())) {
             NodeInstance instance = instanceForId(container.instanceId());
             if (instance.isValid()) {
@@ -1075,6 +1078,16 @@ void NodeInstanceView::informationChanged(const InformationChangedCommand &comma
             }
         }
     }
+
+    return informationChangeHash;
+}
+
+void NodeInstanceView::informationChanged(const InformationChangedCommand &command)
+{
+    if (!model())
+        return;
+
+    QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(command.informations());
 
     if (!informationChangeHash.isEmpty())
         emitInstanceInformationsChange(informationChangeHash);
@@ -1138,6 +1151,7 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
      if (!model())
         return;
 
+
     QVector<ModelNode> childNodeVector;
 
     foreach(qint32 instanceId, command.childrenInstances()) {
@@ -1148,8 +1162,39 @@ void NodeInstanceView::childrenChanged(const ChildrenChangedCommand &command)
         }
     }
 
+    QMultiHash<ModelNode, InformationName> informationChangeHash = informationChanged(command.informations());
+
+    if (!informationChangeHash.isEmpty())
+        emitInstanceInformationsChange(informationChangeHash);
+
     if (!childNodeVector.isEmpty())
         emitInstancesChildrenChanged(childNodeVector);
+}
+
+void NodeInstanceView::token(const TokenCommand &command)
+{
+    if (!model())
+        return;
+
+    QVector<ModelNode> nodeVector;
+
+    foreach (const qint32 &instanceId, command.instances()) {
+        if (hasModelNodeForInternalId(instanceId)) {
+            nodeVector.append(modelNodeForInternalId(instanceId));
+        }
+    }
+
+
+    emitInstanceToken(command.tokenName(), command.tokenNumber(), nodeVector);
+}
+
+void NodeInstanceView::sendToken(const QString &token, int number, const QVector<ModelNode> &nodeVector)
+{
+    QVector<qint32> instanceIdVector;
+    foreach (const ModelNode &node, nodeVector)
+        instanceIdVector.append(node.internalId());
+
+    nodeInstanceServer()->token(TokenCommand(token, number, instanceIdVector));
 }
 
 }

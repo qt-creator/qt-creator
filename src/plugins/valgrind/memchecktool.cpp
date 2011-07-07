@@ -37,6 +37,7 @@
 #include "memcheckerrorview.h"
 #include "memchecksettings.h"
 #include "valgrindsettings.h"
+#include "valgrindplugin.h"
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerconstants.h>
@@ -229,15 +230,8 @@ void MemcheckTool::settingsDestroyed(QObject *settings)
     m_settings = AnalyzerGlobalSettings::instance();
 }
 
-void MemcheckTool::extensionsInitialized()
-{
-    //ensureWidgets(); // FIXME: Try to do that later.
-}
-
 void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
-    ensureWidgets();
-
     AnalyzerSettings *settings = 0;
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (ProjectExplorer::Project *project = pe->startupProject()) {
@@ -292,9 +286,9 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     m_errorProxyModel->setFilterExternalIssues(memcheckSettings->filterExternalIssues());
 }
 
-QString MemcheckTool::id() const
+QByteArray MemcheckTool::id() const
 {
-    return "Memcheck";
+    return "MemcheckLocal";
 }
 
 QString MemcheckTool::displayName() const
@@ -308,7 +302,7 @@ QString MemcheckTool::description() const
         "memory leaks");
 }
 
-IAnalyzerTool::ToolMode MemcheckTool::mode() const
+IAnalyzerTool::ToolMode MemcheckTool::toolMode() const
 {
     return DebugMode;
 }
@@ -359,18 +353,12 @@ private:
     QStringList m_projectFiles;
 };
 
-void MemcheckTool::initializeDockWidgets()
-{
-    ensureWidgets();
-}
 
-void MemcheckTool::ensureWidgets()
+QWidget *MemcheckTool::createWidgets()
 {
-    if (m_errorView)
-        return;
+    QTC_ASSERT(!m_errorView, return 0);
 
-    AnalyzerManager *am = AnalyzerManager::instance();
-    Utils::FancyMainWindow *mw = am->mainWindow();
+    Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
 
     m_errorView = new MemcheckErrorView;
     m_errorView->setObjectName(QLatin1String("MemcheckErrorView"));
@@ -390,19 +378,16 @@ void MemcheckTool::ensureWidgets()
     m_errorView->setAutoScroll(false);
     m_errorView->setObjectName("Valgrind.MemcheckTool.ErrorView");
 
-    QDockWidget *errorDock =
-        am->createDockWidget(this, tr("Memory Issues"), m_errorView,
-                             Qt::BottomDockWidgetArea);
+    QDockWidget *errorDock = AnalyzerManager::createDockWidget
+        (this, tr("Memory Issues"), m_errorView, Qt::BottomDockWidgetArea);
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
             SIGNAL(updateRunActions()), SLOT(maybeActiveRunConfigurationChanged()));
-}
 
-QWidget *MemcheckTool::createControlWidget()
-{
-    ensureWidgets();
-
+    //
+    // The Control Widget.
+    //
     QAction *action = 0;
     QHBoxLayout *layout = new QHBoxLayout;
     QToolButton *button = 0;
@@ -457,9 +442,10 @@ QWidget *MemcheckTool::createControlWidget()
 IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
                                             ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()->project()->files(ProjectExplorer::Project::AllFiles) : QStringList());
+    m_frameFinder->setFiles(runConfiguration ? runConfiguration->target()
+        ->project()->files(ProjectExplorer::Project::AllFiles) : QStringList());
 
-    MemcheckEngine *engine = new MemcheckEngine(sp, runConfiguration);
+    MemcheckEngine *engine = new MemcheckEngine(this, sp, runConfiguration);
 
     connect(engine, SIGNAL(starting(const Analyzer::IAnalyzerEngine*)),
             this, SLOT(engineStarting(const Analyzer::IAnalyzerEngine*)));
@@ -468,8 +454,13 @@ IAnalyzerEngine *MemcheckTool::createEngine(const AnalyzerStartParameters &sp,
     connect(engine, SIGNAL(internalParserError(QString)),
             this, SLOT(internalParserError(QString)));
     connect(engine, SIGNAL(finished()), this, SLOT(finished()));
-    AnalyzerManager::instance()->showStatusMessage(AnalyzerManager::msgToolStarted(displayName()));
+    AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(displayName()));
     return engine;
+}
+
+void MemcheckTool::startTool(StartMode mode)
+{
+    ValgrindPlugin::startValgrindTool(this, mode);
 }
 
 void MemcheckTool::engineStarting(const IAnalyzerEngine *engine)
@@ -519,7 +510,7 @@ void MemcheckTool::internalParserError(const QString &errorString)
 
 void MemcheckTool::clearErrorView()
 {
-    ensureWidgets();
+    QTC_ASSERT(m_errorView, return);
     m_errorModel->clear();
 
     qDeleteAll(m_suppressionActions);
@@ -529,7 +520,7 @@ void MemcheckTool::clearErrorView()
 
 void MemcheckTool::updateErrorFilter()
 {
-    ensureWidgets();
+    QTC_ASSERT(m_errorView, return);
     QTC_ASSERT(m_settings, return);
 
     AbstractMemcheckSettings *memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();
@@ -556,21 +547,7 @@ void MemcheckTool::finished()
     m_goBack->setEnabled(n > 0);
     m_goNext->setEnabled(n > 0);
     const QString msg = AnalyzerManager::msgToolFinished(displayName(), n);
-    AnalyzerManager::instance()->showStatusMessage(msg);
-}
-
-bool MemcheckTool::canRunRemotely() const
-{
-    return true;
-}
-
-bool MemcheckTool::canRunLocally() const
-{
-#ifdef Q_OS_WINDOWS
-    return false;
-#else
-    return true;
-#endif
+    AnalyzerManager::showStatusMessage(msg);
 }
 
 } // namespace Internal

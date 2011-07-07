@@ -36,7 +36,6 @@
 var values = [ ];   //events
 var ranges = [ ];
 var frameFps = [ ];
-var valuesdone = false;
 var xmargin = 0;
 var ymargin = 0;
 var drawFpsGraph = false;
@@ -55,7 +54,6 @@ function reset()
     frameFps = [];
     xmargin = 0;
     ymargin = 0;
-    valuesdone = false;
     nestingDepth = [];
 }
 

@@ -36,6 +36,7 @@
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 
 namespace Debugger {
 namespace Internal {
@@ -51,6 +52,9 @@ namespace Internal {
 
     This identifies a breakpoint in the \c BreakHandler. The
     major parts are strictly increasing over time.
+
+    The minor part identifies a multiple breakpoint
+    set for example by gdb in constructors.
 */
 
 
@@ -105,6 +109,10 @@ BreakpointModelId BreakpointModelId::child(int row) const
 
     This is what the external debuggers use to identify a breakpoint.
     It is only valid for one debugger run.
+
+    In gdb, the breakpoint number is used, which is constant
+    during a session. CDB's breakpoint numbers vary if breakpoints
+    are deleted, so, the ID is used.
 */
 
 BreakpointResponseId::BreakpointResponseId(const QByteArray &ba)
@@ -227,12 +235,17 @@ bool BreakpointParameters::conditionsMatch(const QByteArray &other) const
     return s1 == s2;
 }
 
-void BreakpointParameters::setLocation(const QByteArray &location)
+void BreakpointParameters::updateLocation(const QByteArray &location)
 {
     if (location.size()) {
         int pos = location.indexOf(':');
         lineNumber = location.mid(pos + 1).toInt();
-        fileName = QString::fromUtf8(location.left(pos));
+        QString file = QString::fromUtf8(location.left(pos));
+        if (file.startsWith(QLatin1Char('"')) && file.endsWith(QLatin1Char('"')))
+            file = file.mid(1, file.size() - 2);
+        QFileInfo fi(file);
+        if (fi.isReadable())
+            fileName = fi.absoluteFilePath();
     }
 }
 

@@ -154,7 +154,7 @@ on slow machines. In this case, the value should be increased.</string>
          <string>This is the slowest but safest option.</string>
         </property>
         <property name="text">
-         <string>Try to set breakpoints in plugins always automatically</string>
+         <string>Always try to set breakpoints in plugins automatically</string>
         </property>
        </widget>
       </item>

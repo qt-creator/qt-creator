@@ -260,6 +260,13 @@ void ViewLogger::instancesChildrenChanged(const QVector<ModelNode> &nodeList)
         m_output << time() << indent("node: ") << node << endl;
 }
 
+void ViewLogger::instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector)
+{
+    m_output << time() << indent("instancesToken:") << tokenName << tokenNumber << endl;
+    foreach (const ModelNode &node, nodeVector)
+        m_output << time() << indent("node: ") << node << endl;
+}
+
 void ViewLogger::nodeSourceChanged(const ModelNode &node, const QString & /*newNodeSource*/)
 {
     m_output << time() << indent("nodeSourceChanged:") << endl;

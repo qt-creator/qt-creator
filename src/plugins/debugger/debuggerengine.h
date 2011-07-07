@@ -100,6 +100,7 @@ public:
     Location(const StackFrame &frame, bool marker = true);
     QString fileName() const { return m_fileName; }
     QString functionName() const { return m_functionName; }
+    QString from() const { return m_from; }
     int lineNumber() const { return m_lineNumber; }
     void setNeedsRaise(bool on) { m_needsRaise = on; }
     void setNeedsMarker(bool on) { m_needsMarker = on; }
@@ -118,6 +119,7 @@ private:
     int m_lineNumber;
     QString m_fileName;
     QString m_functionName;
+    QString m_from;
     quint64 m_address;
 };
 

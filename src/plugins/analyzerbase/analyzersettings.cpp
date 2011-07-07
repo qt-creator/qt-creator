@@ -40,7 +40,6 @@
 #include "analyzeroptionspage.h"
 
 #include <coreplugin/icore.h>
-#include <valgrind/xmlprotocol/error.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QSettings>

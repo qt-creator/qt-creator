@@ -108,6 +108,8 @@ public:
     void instancesRenderImageChanged(const QVector<ModelNode> &nodeList);
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList);
     void instancesChildrenChanged(const QVector<ModelNode> &nodeList);
+    void instancePropertyChange(const QList<QPair<ModelNode, QString> > &propertyList);
+    void instancesToken(const QString &tokenName, int tokenNumber, const QVector<ModelNode> &nodeVector);
 
     void rewriterBeginTransaction();
     void rewriterEndTransaction();
@@ -123,7 +125,6 @@ signals:
     void ItemCreatorDeActivated();
 
 protected:
-    void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
     void reset();
 

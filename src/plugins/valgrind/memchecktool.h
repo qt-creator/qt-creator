@@ -91,12 +91,11 @@ class MemcheckTool : public Analyzer::IAnalyzerTool
     Q_OBJECT
 
 public:
-    explicit MemcheckTool(QObject *parent = 0);
+    MemcheckTool(QObject *parent);
 
-    QString id() const;
+    QByteArray id() const;
     QString displayName() const;
     QString description() const;
-    ToolMode mode() const;
 
 private slots:
     void settingsDestroyed(QObject *settings);
@@ -111,19 +110,17 @@ private slots:
     void suppressionActionTriggered();
 
 private:
-    void ensureWidgets();
-    bool canRunRemotely() const;
-    bool canRunLocally() const;
-    void initializeDockWidgets();
-    void initialize() {}
-    void extensionsInitialized();
-    QWidget *createControlWidget();
+    ToolMode toolMode() const;
+    void extensionsInitialized() {}
+    QWidget *createWidgets();
 
     Analyzer::IAnalyzerEngine *createEngine(const Analyzer::AnalyzerStartParameters &sp,
                                ProjectExplorer::RunConfiguration *runConfiguration = 0);
+    void startTool(Analyzer::StartMode mode);
 
     void clearErrorView();
 
+private:
     Analyzer::AnalyzerSettings *m_settings;
     QMenu *m_filterMenu;
 

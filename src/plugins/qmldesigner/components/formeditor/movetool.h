@@ -67,7 +67,8 @@ public:
 
     void selectedItemsChanged(const QList<FormEditorItem*> &itemList);
 
-    void instancesCompleted(const QList<FormEditorItem*> &/*itemList*/);
+    void instancesCompleted(const QList<FormEditorItem*> &itemList);
+    void instancesParentChanged(const QList<FormEditorItem *> &itemList);
 
     void updateMoveManipulator();
 

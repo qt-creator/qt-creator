@@ -1,0 +1,81 @@
+Qt Creator version 2.3 contains bug fixes and new features.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.2.1...origin/2.3
+
+General
+   * Welcome page redesign allows searching through examples with descriptions
+   * Restore previous size when unmaximizing output panes
+   * Added support for building with the Clang compiler
+
+Editing
+   * Fixed lock up when regular expression search matched empty line
+   * Completions are now computed in a separate thread (non-blocking editor)
+
+Managing Projects
+
+Debugging
+   * Color memory display highlighting the variables in stack layout
+   * Correct source location for breakpoints in CDB using code model
+     (QTCREATORBUG-2317)
+
+Debugging QML/JS
+
+C++ Support
+   * Made C++ coding style configurable (QTCREATORBUG-2670, QTCREATORBUG-4310,
+     QTCREATORBUG-2763, QTCREATORBUG-3623, QTCREATORBUG-567)
+   * Various indentation fixes (QTCREATORBUG-4993)
+
+QML/JS Support
+   * Updated QML type descriptions for the current state of Qt 5
+   * Made tab settings configurable separately and per-project
+   * Added 'Find usages' functionality for QML types
+   * Added type resolution for alias properties (QTCREATORBUG-2306)
+   * Added tooltips to imports
+   * Added documentation on using QML modules with plugins
+   * Added support for properties and methods with a revision, allowing
+     the QtQuick 1.0 and 1.1 imports to behave as intended
+   * Added 'Reset code model' action to the Tools->QML/JS menu (QTCREATORBUG-4813)
+   * Use qmlplugindump from Qt 4.8 or newer instead of building own qmldump
+   * Improved error message for missing prototypes (QTCREATORBUG-4952)
+   * Fixed completion of slots (QTCREATORBUG-3614, QTCREATORBUG-3459)
+   * Fixed completion inside grouped property bindings (QTCREATORBUG-3541)
+   * Fixed scanning and indentation of regular expression literals (QTCREATORBUG-4566)
+   * Fixed indentation of object literals
+
+Help
+
+Platform Specific
+
+Mac
+   * "Open Terminal Here" opens Terminal.app instead of xterm
+
+Linux (GNOME and KDE)
+
+Windows
+
+Symbian Target
+
+Remote Linux Support
+   * Created new plugin "RemoteLinux" comprising support for Maemo/MeeGo and
+     generic remote Linux hosts
+   * Generic remote Linux support entails:
+        * The ability to create a deploy configuration and associated steps the
+          same way as for Maemo
+        * A device configuration wizard for a "Generic Linux" device type
+        * The possibility to add device types and associated wizards and actions
+          for the device configuration dialog via third-party plugins
+
+Qt Designer
+
+Version control plugins
+   * Git: Manage remote repositories
+   * Git: Improved branch dialog
+   * Bazaar: lots of small improvements
+
+Additional credits go to:
+   Hugues Delorme for his work on the Bazaar plugin as well as version control base.

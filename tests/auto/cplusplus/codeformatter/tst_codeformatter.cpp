@@ -26,7 +26,7 @@
 ** conditions contained in a signed written agreement between you and Nokia.
 **
 ** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
+** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
 
@@ -61,9 +61,11 @@ private Q_SLOTS:
     void preprocessorContinuation();
     void cStyleComments();
     void cppStyleComments();
-    void expressionContinuation();
+    void expressionContinuation1();
+    void expressionContinuation2();
     void assignContinuation1();
     void assignContinuation2();
+    void declarationContinuation();
     void classAccess();
     void ternary();
     void objcAtDeclarations();
@@ -113,7 +115,8 @@ private Q_SLOTS:
     void functionBodyAndBraces2();
     void functionBodyAndBraces3();
     void functionBodyAndBraces4();
-    void constructor();
+    void constructor1();
+    void constructor2();
     void caseBody1();
     void caseBody2();
     void caseBody3();
@@ -601,7 +604,7 @@ void tst_CodeFormatter::cppStyleComments()
     checkIndent(data);
 }
 
-void tst_CodeFormatter::expressionContinuation()
+void tst_CodeFormatter::expressionContinuation1()
 {
     QList<Line> data;
     data << Line("void foo() {")
@@ -628,9 +631,27 @@ void tst_CodeFormatter::expressionContinuation()
          << Line("    ~           foo - blah(1)")
          << Line("    ~        << '?'")
          << Line("    ~        << \"\\n\";")
-         << Line("    i += foo(")
+         << Line("}")
+         ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::expressionContinuation2()
+{
+    QList<Line> data;
+    data << Line("void foo() {")
+         << Line("    i += abc +")
+         << Line("    ~       foo(,")
          << Line("    ~           bar,")
-         << Line("    ~           2);")
+         << Line("    ~           2")
+         << Line("    ~           );")
+         << Line("    i += abc +")
+         << Line("    ~       foo(,")
+         << Line("    ~           bar(")
+         << Line("    ~               bar,")
+         << Line("    ~               2")
+         << Line("    ~               ),")
+         << Line("    ~           abc);")
          << Line("}")
          ;
     checkIndent(data);
@@ -674,6 +695,18 @@ void tst_CodeFormatter::assignContinuation2()
     CppCodeStyleSettings style;
     style.alignAssignments = true;
     checkIndent(data, style);
+}
+
+void tst_CodeFormatter::declarationContinuation()
+{
+    QList<Line> data;
+    data << Line("void foo(")
+         << Line("~       int a,")
+         << Line("~       int b);")
+         << Line("void foo(int a,")
+         << Line("~        int b);")
+         ;
+    checkIndent(data);
 }
 
 void tst_CodeFormatter::classAccess()
@@ -1048,7 +1081,7 @@ void tst_CodeFormatter::memberInitializer()
          << Line("    Foo()")
          << Line("    ~   : baR(),")
          << Line("    ~     moodoo(barR + ")
-         << Line("    ~         42),")
+         << Line("    ~            42),")
          << Line("    ~     xyz()")
          << Line("    {}")
          << Line("};")
@@ -1732,7 +1765,7 @@ void tst_CodeFormatter::functionBodyAndBraces4()
     checkIndent(data, codeStyle);
 }
 
-void tst_CodeFormatter::constructor()
+void tst_CodeFormatter::constructor1()
 {
     QList<Line> data;
     data << Line("class Foo {")
@@ -1748,6 +1781,42 @@ void tst_CodeFormatter::constructor()
     codeStyle.indentFunctionBody = false;
     codeStyle.indentFunctionBraces = true;
     checkIndent(data, codeStyle);
+}
+
+void tst_CodeFormatter::constructor2()
+{
+    QList<Line> data;
+    data << Line("class Foo {")
+         << Line("    Foo() : _a(0)")
+         << Line("    {")
+         << Line("        _b = 0")
+         << Line("    }")
+         << Line("    int _a;")
+         << Line("    Foo()")
+         << Line("    ~   : _foo(1),")
+         << Line("    ~     _bar(2),")
+         << Line("    ~     _carooooo(")
+         << Line("    ~         foo() + 12),")
+         << Line("    ~     _carooooo(foo(),")
+         << Line("    ~               12)")
+         << Line("    {")
+         << Line("        _b = 0")
+         << Line("    }")
+         << Line("    int _b;")
+         << Line("    Foo()")
+         << Line("    ~   : _foo(1)")
+         << Line("    ~   , _bar(2)")
+         << Line("    ~   , _carooooo(")
+         << Line("    ~         foo() + 12)")
+         << Line("    ~   , _carooooo(foo(),")
+         << Line("    ~               12)")
+         << Line("    {")
+         << Line("        _b = 0")
+         << Line("    }")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    checkIndent(data);
 }
 
 void tst_CodeFormatter::caseBody1()

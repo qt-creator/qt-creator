@@ -63,6 +63,9 @@ MaemoDeployStepFactory::MaemoDeployStepFactory(QObject *parent)
 QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     QStringList ids;
+    if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
+        return ids;
+
     AbstractQt4MaemoTarget * const maemoTarget
         = qobject_cast<AbstractQt4MaemoTarget *>(parent->target());
     if (maemoTarget)

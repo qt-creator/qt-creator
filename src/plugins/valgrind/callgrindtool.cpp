@@ -47,6 +47,7 @@
 #include <valgrind/callgrind/callgrindparsedata.h>
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <valgrind/callgrind/callgrindstackbrowser.h>
+#include <valgrind/valgrindplugin.h>
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzersettings.h>
@@ -114,10 +115,8 @@ public:
     void setParseData(ParseData *data);
 
     CostDelegate::CostFormat costFormat() const;
-    QWidget *createControlWidget();
-    void initializeDockWidgets();
+    QWidget *createWidgets();
 
-    void ensureDockWidgets();
     void doClear(bool clearParseData);
     void updateEventCombo();
 
@@ -501,9 +500,9 @@ CallgrindTool::CallgrindTool(QObject *parent)
     : Analyzer::IAnalyzerTool(parent)
 {
     d = new CallgrindToolPrivate(this);
-    Core::ICore *core = Core::ICore::instance();
+    setObjectName(QLatin1String("CallgrindTool"));
 
-    // EditorManager
+    Core::ICore *core = Core::ICore::instance();
     QObject *editorManager = core->editorManager();
     connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
         d, SLOT(editorOpened(Core::IEditor*)));
@@ -514,7 +513,7 @@ CallgrindTool::~CallgrindTool()
     delete d;
 }
 
-QString CallgrindTool::id() const
+QByteArray CallgrindTool::id() const
 {
     return "Callgrind";
 }
@@ -530,13 +529,9 @@ QString CallgrindTool::description() const
               "record function calls when a program runs.");
 }
 
-IAnalyzerTool::ToolMode CallgrindTool::mode() const
+IAnalyzerTool::ToolMode CallgrindTool::toolMode() const
 {
     return ReleaseMode;
-}
-
-void CallgrindTool::initialize()
-{
 }
 
 void CallgrindTool::extensionsInitialized()
@@ -570,80 +565,6 @@ void CallgrindTool::extensionsInitialized()
     }
 }
 
-void CallgrindTool::initializeDockWidgets()
-{
-    d->initializeDockWidgets();
-}
-
-void CallgrindToolPrivate::initializeDockWidgets()
-{
-    AnalyzerManager *am = AnalyzerManager::instance();
-    Utils::FancyMainWindow *mw = am->mainWindow();
-    m_visualisation = new Visualisation(mw);
-    m_visualisation->setFrameStyle(QFrame::NoFrame);
-    m_visualisation->setObjectName("Valgrind.CallgrindToolPrivate.Visualisation");
-    m_visualisation->setModel(m_dataModel);
-    connect(m_visualisation, SIGNAL(functionActivated(const Valgrind::Callgrind::Function*)),
-            this, SLOT(visualisationFunctionSelected(const Valgrind::Callgrind::Function*)));
-
-    m_callersView = new CostView(mw);
-    m_callersView->sortByColumn(CallModel::CostColumn);
-    m_callersView->setObjectName("Valgrind.CallgrindToolPrivate.CallersView");
-    m_callersView->setFrameStyle(QFrame::NoFrame);
-    // enable sorting
-    QSortFilterProxyModel *callerProxy = new QSortFilterProxyModel(m_callersModel);
-    callerProxy->setSourceModel(m_callersModel);
-    m_callersView->setModel(callerProxy);
-    m_callersView->hideColumn(CallModel::CalleeColumn);
-    connect(m_callersView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(callerFunctionSelected(QModelIndex)));
-
-    m_calleesView = new CostView(mw);
-    m_calleesView->sortByColumn(CallModel::CostColumn);
-    m_calleesView->setObjectName("Valgrind.CallgrindToolPrivate.CalleesView");
-    m_calleesView->setFrameStyle(QFrame::NoFrame);
-    // enable sorting
-    QSortFilterProxyModel *calleeProxy = new QSortFilterProxyModel(m_calleesModel);
-    calleeProxy->setSourceModel(m_calleesModel);
-    m_calleesView->setModel(calleeProxy);
-    m_calleesView->hideColumn(CallModel::CallerColumn);
-    connect(m_calleesView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(calleeFunctionSelected(QModelIndex)));
-
-    m_flatView = new CostView(mw);
-    m_flatView->sortByColumn(DataModel::SelfCostColumn);
-    m_flatView->setFrameStyle(QFrame::NoFrame);
-    m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_flatView->setModel(m_proxyModel);
-    m_flatView->setObjectName("Valgrind.CallgrindToolPrivate.FlatView");
-    connect(m_flatView, SIGNAL(activated(QModelIndex)),
-            this, SLOT(dataFunctionSelected(QModelIndex)));
-
-    updateCostFormat();
-
-    QDockWidget *callersDock =
-        am->createDockWidget(q, tr("Callers"), m_callersView,
-                             Qt::BottomDockWidgetArea);
-
-    QDockWidget *flatDock =
-        am->createDockWidget(q, tr("Functions"), m_flatView,
-                             Qt::BottomDockWidgetArea);
-
-    QDockWidget *calleesDock =
-        am->createDockWidget(q, tr("Callees"), m_calleesView,
-                             Qt::BottomDockWidgetArea);
-
-    QDockWidget *visualizationDock =
-        am->createDockWidget(q, tr("Visualization"), m_visualisation,
-                             Qt::RightDockWidgetArea);
-    visualizationDock->hide();
-
-    mw->splitDockWidget(mw->toolBarDockWidget(), calleesDock, Qt::Vertical);
-    mw->splitDockWidget(mw->toolBarDockWidget(), callersDock, Qt::Vertical);
-    mw->splitDockWidget(mw->toolBarDockWidget(), flatDock, Qt::Vertical);
-    mw->tabifyDockWidget(callersDock, calleesDock);
-}
-
 IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
     ProjectExplorer::RunConfiguration *runConfiguration)
 {
@@ -653,7 +574,7 @@ IAnalyzerEngine *CallgrindTool::createEngine(const AnalyzerStartParameters &sp,
 IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameters &sp,
     ProjectExplorer::RunConfiguration *runConfiguration)
 {
-    CallgrindEngine *engine = new CallgrindEngine(sp, runConfiguration);
+    CallgrindEngine *engine = new CallgrindEngine(q, sp, runConfiguration);
 
     connect(engine, SIGNAL(parserDataReady(CallgrindEngine *)),
             SLOT(takeParserData(CallgrindEngine *)));
@@ -673,7 +594,7 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
     engine->setToggleCollectFunction(m_toggleCollectFunction);
     m_toggleCollectFunction.clear();
 
-    AnalyzerManager::instance()->showStatusMessage(AnalyzerManager::msgToolStarted(q->displayName()));
+    AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(q->displayName()));
 
     // apply project settings
     AnalyzerProjectSettings *analyzerSettings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
@@ -688,13 +609,90 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
     return engine;
 }
 
-QWidget *CallgrindTool::createControlWidget()
+void CallgrindTool::startTool(StartMode mode)
 {
-    return d->createControlWidget();
+    ValgrindPlugin::startValgrindTool(this, mode);
 }
 
-QWidget *CallgrindToolPrivate::createControlWidget()
+QWidget *CallgrindTool::createWidgets()
 {
+    return d->createWidgets();
+}
+
+QWidget *CallgrindToolPrivate::createWidgets()
+{
+    QTC_ASSERT(!m_visualisation, return 0);
+
+    //
+    // DockWidgets
+    //
+    Utils::FancyMainWindow *mw = AnalyzerManager::mainWindow();
+    m_visualisation = new Visualisation(mw);
+    m_visualisation->setFrameStyle(QFrame::NoFrame);
+    m_visualisation->setObjectName("Valgrind.CallgrindTool.Visualisation");
+    m_visualisation->setModel(m_dataModel);
+    connect(m_visualisation, SIGNAL(functionActivated(const Valgrind::Callgrind::Function*)),
+            this, SLOT(visualisationFunctionSelected(const Valgrind::Callgrind::Function*)));
+
+    m_callersView = new CostView(mw);
+    m_callersView->setObjectName("Valgrind.CallgrindTool.CallersView");
+    m_callersView->sortByColumn(CallModel::CostColumn);
+    m_callersView->setFrameStyle(QFrame::NoFrame);
+    // enable sorting
+    QSortFilterProxyModel *callerProxy = new QSortFilterProxyModel(m_callersModel);
+    callerProxy->setSourceModel(m_callersModel);
+    m_callersView->setModel(callerProxy);
+    m_callersView->hideColumn(CallModel::CalleeColumn);
+    connect(m_callersView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(callerFunctionSelected(QModelIndex)));
+
+    m_calleesView = new CostView(mw);
+    m_calleesView->setObjectName("Valgrind.CallgrindTool.CalleesView");
+    m_calleesView->sortByColumn(CallModel::CostColumn);
+    m_calleesView->setFrameStyle(QFrame::NoFrame);
+    // enable sorting
+    QSortFilterProxyModel *calleeProxy = new QSortFilterProxyModel(m_calleesModel);
+    calleeProxy->setSourceModel(m_calleesModel);
+    m_calleesView->setModel(calleeProxy);
+    m_calleesView->hideColumn(CallModel::CallerColumn);
+    connect(m_calleesView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(calleeFunctionSelected(QModelIndex)));
+
+    m_flatView = new CostView(mw);
+    m_flatView->setObjectName("Valgrind.CallgrindTool.FlatView");
+    m_flatView->sortByColumn(DataModel::SelfCostColumn);
+    m_flatView->setFrameStyle(QFrame::NoFrame);
+    m_flatView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    m_flatView->setModel(m_proxyModel);
+    connect(m_flatView, SIGNAL(activated(QModelIndex)),
+            this, SLOT(dataFunctionSelected(QModelIndex)));
+
+    updateCostFormat();
+
+    QDockWidget *callersDock = AnalyzerManager::createDockWidget
+        (q, tr("Callers"), m_callersView, Qt::BottomDockWidgetArea);
+
+    QDockWidget *flatDock = AnalyzerManager::createDockWidget
+        (q, tr("Functions"), m_flatView, Qt::BottomDockWidgetArea);
+
+    QDockWidget *calleesDock = AnalyzerManager::createDockWidget
+        (q, tr("Callees"), m_calleesView, Qt::BottomDockWidgetArea);
+
+    QDockWidget *visualizationDock = AnalyzerManager::createDockWidget
+        (q, tr("Visualization"), m_visualisation, Qt::RightDockWidgetArea);
+
+    callersDock->show();
+    calleesDock->show();
+    flatDock->show();
+    visualizationDock->hide();
+
+    mw->splitDockWidget(mw->toolBarDockWidget(), flatDock, Qt::Vertical);
+    mw->splitDockWidget(mw->toolBarDockWidget(), calleesDock, Qt::Vertical);
+    mw->splitDockWidget(calleesDock, callersDock, Qt::Horizontal);
+
+    //
+    // Control Widget
+    //
     QAction *action = 0;
     QWidget *widget = new QWidget;
     QHBoxLayout *layout = new QHBoxLayout;
@@ -862,7 +860,7 @@ void CallgrindToolPrivate::engineFinished()
     if (data)
         showParserResults(data);
     else
-        AnalyzerManager::instance()->showStatusMessage(tr("Profiling aborted."));
+        AnalyzerManager::showStatusMessage(tr("Profiling aborted."));
 }
 
 void CallgrindToolPrivate::showParserResults(const ParseData *data)
@@ -879,7 +877,7 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
     } else {
         msg = tr("Parsing failed.");
     }
-    AnalyzerManager::instance()->showStatusMessage(msg);
+    AnalyzerManager::showStatusMessage(msg);
 }
 
 void CallgrindToolPrivate::editorOpened(Core::IEditor *editor)
@@ -938,8 +936,8 @@ void CallgrindToolPrivate::handleShowCostsOfFunction()
 
     m_toggleCollectFunction = QString("%1()").arg(qualifiedFunctionName);
 
-    AnalyzerManager::instance()->selectTool(q);
-    AnalyzerManager::instance()->startTool(q);
+    AnalyzerManager::selectTool(q, StartMode(StartLocal));
+    AnalyzerManager::startTool(q, StartMode(StartLocal));
 }
 
 void CallgrindToolPrivate::slotRequestDump()
@@ -997,15 +995,6 @@ void CallgrindToolPrivate::createTextMarks()
 
         m_textMarks.append(new CallgrindTextMark(index, fileName, lineNumber));
     }
-}
-
-bool CallgrindTool::canRunLocally() const
-{
-#ifdef Q_OS_WINDOWS
-    return false;
-#else
-    return true;
-#endif
 }
 
 } // namespace Internal

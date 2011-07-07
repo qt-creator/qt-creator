@@ -35,9 +35,6 @@
 #ifndef VALGRINDENGINE_H
 #define VALGRINDENGINE_H
 
-#include "valgrind_global.h"
-
-#include <analyzerbase/ianalyzerengine.h>
 #include <analyzerbase/ianalyzerengine.h>
 
 #include <utils/environment.h>
@@ -56,13 +53,15 @@ class AnalyzerSettings;
 namespace Valgrind {
 namespace Internal {
 
-class VALGRINDTOOLBASE_EXPORT ValgrindEngine : public Analyzer::IAnalyzerEngine
+class ValgrindEngine : public Analyzer::IAnalyzerEngine
 {
     Q_OBJECT
+
 public:
-    explicit ValgrindEngine(const Analyzer::AnalyzerStartParameters &sp,
-                            ProjectExplorer::RunConfiguration *runConfiguration);
-    virtual ~ValgrindEngine();
+    ValgrindEngine(Analyzer::IAnalyzerTool *tool,
+        const Analyzer::AnalyzerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration);
+    ~ValgrindEngine();
 
     void start();
     void stop();

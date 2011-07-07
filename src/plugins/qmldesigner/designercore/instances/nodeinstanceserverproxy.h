@@ -71,6 +71,7 @@ public:
     void changeState(const ChangeStateCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
     void changeNodeSource(const ChangeNodeSourceCommand &command);
+    void token(const TokenCommand &command);
 
 protected:
     void writeCommand(const QVariant &command);

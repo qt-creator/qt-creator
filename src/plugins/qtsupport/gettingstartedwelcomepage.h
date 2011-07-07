@@ -56,7 +56,7 @@ class GettingStartedWelcomePage : public Utils::IWelcomePage
 public:
     GettingStartedWelcomePage();
 
-    QString pageLocation() const { return Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml"); }
+    QUrl pageLocation() const { return QUrl::fromLocalFile(Core::ICore::instance()->resourcePath() + QLatin1String("/welcomescreen/gettingstarted.qml")); }
     QString title() const { return tr("Getting Started");}
     int priority() const { return 10; }
     void facilitateQml(QDeclarativeEngine *);
@@ -68,8 +68,6 @@ signals:
 public slots:
     void openSplitHelp(const QUrl &help);
     void openProject(const QString& projectFile, const QStringList& additionalFilesToOpen, const QUrl& help);
-
-public slots:
     void updateTagsModel();
 
 private:

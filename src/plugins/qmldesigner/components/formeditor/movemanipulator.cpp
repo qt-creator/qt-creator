@@ -88,6 +88,35 @@ void MoveManipulator::setItems(const QList<FormEditorItem*> &itemList)
     }
 }
 
+void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, const ModelNode &parentNode)
+{
+    bool snapperUpdated = false;
+
+    foreach (FormEditorItem *item, itemList) {
+        if (m_itemList.contains(item)) {
+            QmlItemNode parentItemNode = QmlItemNode(parentNode);
+            if (parentItemNode.isValid()) {
+                if (snapperUpdated == false && m_snapper.containerFormEditorItem() != m_view->scene()->itemForQmlItemNode(parentItemNode)) {
+                    m_snapper.setContainerFormEditorItem(m_view->scene()->itemForQmlItemNode(parentItemNode));
+                    m_snapper.setTransformtionSpaceFormEditorItem(m_snapper.containerFormEditorItem());
+                    m_snapper.updateSnappingLines(m_itemList);
+                    updateHashes();
+                    snapperUpdated = true;
+                }
+            }
+        }
+    }
+
+    update(m_lastPosition, NoSnapping, UseBaseState);
+}
+
+void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
+{
+    if (m_view->model() && !m_itemList.isEmpty())
+        synchronizeParent(itemList, m_itemList.first()->qmlItemNode().instanceParent());
+
+}
+
 void MoveManipulator::updateHashes()
 {
 //    foreach (FormEditorItem* item, m_itemList)
@@ -239,6 +268,7 @@ QHash<FormEditorItem*, QRectF> MoveManipulator::tanslatedBoundingRects(const QHa
 */
 void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping, State stateToBeManipulated)
 {
+    m_lastPosition = updatePoint;
     deleteSnapLines(); //Since they position is changed and the item is moved the snapping lines are
                        //are obsolete. The new updated snapping lines (color and visibility) will be
                        //calculated in snapPoint() called in moveNode() later
@@ -311,6 +341,7 @@ void MoveManipulator::clear()
     m_beginPositionHash.clear();
     m_beginPositionInSceneSpaceHash.clear();
     m_itemList.clear();
+    m_lastPosition = QPointF();
 
     m_rewriterTransaction.commit();
 
@@ -332,24 +363,30 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
     if (!itemsCanReparented())
         return;
 
-    foreach (FormEditorItem* item, m_itemList) {
-        if (!item || !item->qmlItemNode().isValid())
-            continue;
+    QVector<ModelNode> nodeReparentVector;
+    NodeAbstractProperty parentProperty;
 
-        QmlItemNode parent(newParent->qmlItemNode());
-        if (parent.isValid()) {
-            if (parent.hasDefaultProperty())
-                item->qmlItemNode().setParentProperty(parent.nodeAbstractProperty(parent.defaultProperty()));
-            else
-                item->qmlItemNode().setParentProperty(parent.nodeAbstractProperty("data"));
+    QmlItemNode parent(newParent->qmlItemNode());
+    if (parent.isValid()) {
+        if (parent.hasDefaultProperty()) {
+            parentProperty = parent.nodeAbstractProperty(parent.defaultProperty());
+        } else {
+            parentProperty = parent.nodeAbstractProperty("data");
         }
-    }
 
-    if (m_view->model()) {
-        m_snapper.setContainerFormEditorItem(newParent);
-        m_snapper.setTransformtionSpaceFormEditorItem(m_snapper.containerFormEditorItem());
-        m_snapper.updateSnappingLines(m_itemList);
-        updateHashes();
+        foreach (FormEditorItem* item, m_itemList) {
+            if (!item || !item->qmlItemNode().isValid())
+                continue;
+
+            if (parentProperty != item->qmlItemNode().modelNode().parentProperty())
+                nodeReparentVector.append(item->qmlItemNode().modelNode());
+
+        }
+
+        foreach (const ModelNode &nodeToReparented, nodeReparentVector)
+            parentProperty.reparentHere(nodeToReparented);
+
+        synchronizeParent(m_itemList, parentProperty.parentModelNode());
     }
 }
 

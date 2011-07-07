@@ -45,20 +45,22 @@ using namespace Analyzer;
 using namespace Valgrind;
 using namespace Valgrind::Internal;
 
-CallgrindEngine::CallgrindEngine(const AnalyzerStartParameters &sp,
-                                 ProjectExplorer::RunConfiguration *runConfiguration)
-    : ValgrindEngine(sp, runConfiguration)
+CallgrindEngine::CallgrindEngine(IAnalyzerTool *tool, const AnalyzerStartParameters &sp,
+         ProjectExplorer::RunConfiguration *runConfiguration)
+    : ValgrindEngine(tool, sp, runConfiguration)
     , m_markAsPaused(false)
 {
     connect(&m_runner, SIGNAL(finished()), this, SLOT(slotFinished()));
     connect(&m_runner, SIGNAL(started()), this, SLOT(slotStarted()));
-
     connect(m_runner.parser(), SIGNAL(parserDataReady()), this, SLOT(slotFinished()));
-
-    connect(&m_runner, SIGNAL(statusMessage(QString)),
-            Analyzer::AnalyzerManager::instance(), SLOT(showStatusMessage(QString)));
+    connect(&m_runner, SIGNAL(statusMessage(QString)), SLOT(showStatusMessage(QString)));
 
     m_progress->setProgressRange(0, 2);
+}
+
+void CallgrindEngine::showStatusMessage(const QString &msg)
+{
+    AnalyzerManager::showStatusMessage(msg);
 }
 
 QStringList CallgrindEngine::toolArguments() const

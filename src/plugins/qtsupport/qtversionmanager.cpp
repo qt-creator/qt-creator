@@ -131,7 +131,6 @@ void QtVersionManager::extensionsInitialized()
         // and add it to the qt versions
         findSystemQt();
     }
-    updateDocumentation();
 
     updateSettings();
     saveQtVersions();
@@ -429,8 +428,7 @@ bool QtVersionManager::legacyRestore()
 
     }
     s->endArray();
-    // TODO add removal of old settings
-    // s->remove(QtVersionsSectionName);
+    s->remove(QtVersionsSectionName);
     return true;
 }
 
