@@ -340,8 +340,14 @@ QString DeployableFilesPerProFile::proFileScope() const
 {
     const QtSupport::BaseQtVersion *const qv = qtVersion();
     QTC_ASSERT(qv, return QString());
-    return QLatin1String(MaemoGlobal::osType(qv->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5OsType
-        ? "maemo5" : "unix:!symbian:!maemo5");
+    const QString osType = MaemoGlobal::osType(qv->qmakeCommand());
+    if (osType == LinuxDeviceConfiguration::Maemo5OsType)
+        return QLatin1String("maemo5");
+    if (osType == LinuxDeviceConfiguration::HarmattanOsType)
+        return QLatin1String("contains(MEEGO_EDITION,harmattan)");
+    if (osType == LinuxDeviceConfiguration::MeeGoOsType)
+        return QLatin1String("!isEmpty(MEEGO_VERSION_MAJOR):!contains(MEEGO_EDITION,harmattan)");
+    return QLatin1String("unix:!symbian:!maemo5:isEmpty(MEEGO_VERSION_MAJOR)");
 }
 
 QString DeployableFilesPerProFile::installPrefix() const
