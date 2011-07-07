@@ -1364,29 +1364,22 @@ class Dumper:
             return
 
         if value.type.code == gdb.TYPE_CODE_ARRAY:
-            baseptr = value.cast(realtype.pointer())
-            if format == 0 or format == 1:
-                # Explicityly requested Latin1 or UTF-8 formatting.
-                if  format == 0:
-                    f = Hex2EncodedLatin1
-                else:
-                    f = Hex2EncodedUtf8
-                self.putAddress(value.address)
-                self.putType(realtype)
-                self.putValue(encodeCharArray(value, 100), f)
-                self.putNumChild(1)
+            targettype = realtype.target()
+            self.putAddress(value.address)
+            self.putType(realtype)
+            self.putNumChild(1)
+            if format == 0:
+                # Explicitly requested Latin1 formatting.
+                self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
+            elif format == 1:
+                # Explicitly requested UTF-8 formatting.
+                self.putValue(encodeCharArray(value, 100), Hex2EncodedUtf8)
             else:
-                self.putType(realtype)
-                self.putAddress(value.address)
-                self.putValue("%s" % baseptr)
-                self.putNumChild(1)
+                self.putValue("@0x%x" % long(value.cast(targettype.pointer())))
             if self.isExpanded(item):
-                charptr = lookupType("unsigned char").pointer()
-                addr1 = (baseptr+1).cast(charptr)
-                addr0 = baseptr.cast(charptr)
-                self.put('addrbase="%s",' % cleanAddress(addr0))
-                self.put('addrstep="%s",' % (addr1 - addr0))
-                with Children(self, 1, realtype.target()):
+                self.put('addrbase="0x%x",' % long(value.cast(targettype.pointer())))
+                self.put('addrstep="%s",' % targettype.sizeof)
+                with Children(self, 1, targettype):
                     child = Item(value, item.iname, None, item.name)
                     self.putFields(child)
             return
