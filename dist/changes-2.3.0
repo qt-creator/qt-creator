@@ -14,6 +14,7 @@ General
 
 Editing
    * Fixed lock up when regular expression search matched empty line
+   * Completions are now computed in a separate thread (non-blocking editor)
 
 Managing Projects
 
