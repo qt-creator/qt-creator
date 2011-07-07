@@ -146,7 +146,7 @@ WelcomeMode::WelcomeMode() :
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(new Utils::StyledBar);
+//    layout->addWidget(new Utils::StyledBar);
     layout->addWidget(m_welcomePage);
     m_modeWidget->setLayout(layout);
 

@@ -25,5 +25,6 @@
         <file>images/background_center_frame_v1.png</file>
         <file>images/background_center_frame_v2.png</file>
         <file>images/tab_hover.png</file>
+        <file>images/rc_combined_transparent.png</file>
     </qresource>
 </RCC>
