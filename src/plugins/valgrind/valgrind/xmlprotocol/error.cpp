@@ -248,7 +248,7 @@ QString Error::toXml() const
             if (!frame.file().isEmpty()) {
                 stream << "      <file>" << frame.file() << "</file>\n";
             }
-            if (!frame.line() == -1) {
+            if (frame.line() != -1) {
                 stream << "      <line>" << frame.line() << "</line>";
             }
             stream << "    </frame>\n";
