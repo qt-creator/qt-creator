@@ -255,7 +255,7 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool chang
                           "Qt Creator recommends to not use the source directory for building. "
                           "This ensures that the source directory remains clean and enables multiple builds "
                           "with different settings."));
-    fl->addWidget(label);
+    fl->addRow(label);
     m_pc = new Utils::PathChooser(this);
     m_pc->setBaseDirectory(m_cmakeWizard->sourceDirectory());
     m_pc->setPath(m_cmakeWizard->buildDirectory());
@@ -282,6 +282,7 @@ CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode, const
 void CMakeRunPage::initWidgets()
 {
     QFormLayout *fl = new QFormLayout;
+    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
     // Description Label
     m_descriptionLabel = new QLabel(this);
@@ -304,33 +305,38 @@ void CMakeRunPage::initWidgets()
                 text += tr(" The path %1 is not a valid cmake.").arg(cmakeExecutable);
         }
 
-        fl->addRow(new QLabel(text, this));
+        QLabel *cmakeLabel = new QLabel(text);
+        cmakeLabel->setWordWrap(true);
+        fl->addRow(cmakeLabel);
         // Show a field for the user to enter
         m_cmakeExecutable = new Utils::PathChooser(this);
         m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-        fl->addRow("cmake Executable", m_cmakeExecutable);
+        fl->addRow("cmake Executable:", m_cmakeExecutable);
     }
 
     // Run CMake Line (with arguments)
     m_argumentsLineEdit = new QLineEdit(this);
     connect(m_argumentsLineEdit,SIGNAL(returnPressed()), this, SLOT(runCMake()));
+    fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
 
     m_generatorComboBox = new QComboBox(this);
+    fl->addRow(tr("Generator:"), m_generatorComboBox);
 
     m_runCMake = new QPushButton(this);
     m_runCMake->setText(tr("Run CMake"));
     connect(m_runCMake, SIGNAL(clicked()), this, SLOT(runCMake()));
 
-    QHBoxLayout *hbox = new QHBoxLayout;
-    hbox->addWidget(m_argumentsLineEdit);
-    hbox->addWidget(m_generatorComboBox);
-    hbox->addWidget(m_runCMake);
-
-    fl->addRow(tr("Arguments"), hbox);
+    QHBoxLayout *hbox2 = new QHBoxLayout;
+    hbox2->addStretch(10);
+    hbox2->addWidget(m_runCMake);
+    fl->addRow(hbox2);
 
     // Bottom output window
     m_output = new QPlainTextEdit(this);
     m_output->setReadOnly(true);
+    // set smaller minimum size to avoid vanishing descriptions if all of the
+    // above is shown and the dialog not vertically resizing to fit stuff in (Mac)
+    m_output->setMinimumHeight(15);
     QFont f(TextEditor::FontSettings::defaultFixedFontFamily());
     f.setStyleHint(QFont::TypeWriter);
     m_output->setFont(f);
