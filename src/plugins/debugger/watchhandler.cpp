@@ -370,10 +370,12 @@ static inline QString formattedValue(const WatchData &data, int format)
         return reformatInteger(data.value.toLongLong(), format);
     }
 
-    bool ok = false;
-    qulonglong integer = data.value.toULongLong(&ok, 0);
-    if (ok)
-       return reformatInteger(integer, format);
+    if (!isPointerType(data.type)) {
+        bool ok = false;
+        qulonglong integer = data.value.toULongLong(&ok, 0);
+        if (ok)
+           return reformatInteger(integer, format);
+    }
 
     QString result = data.value;
     result.replace(QLatin1Char('\n'), QLatin1String("\\n"));
@@ -712,7 +714,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_handler->m_expandedINames.contains(data.iname);
 
         case LocalsTypeFormatListRole: {
-            if (data.referencingAddress || data.type.endsWith('*'))
+            if (data.referencingAddress || isPointerType(data.type))
                 return QStringList()
                     << tr("Raw pointer")
                     << tr("Latin1 string")
