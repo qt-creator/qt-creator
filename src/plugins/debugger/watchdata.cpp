@@ -276,7 +276,7 @@ void WatchData::setAddress(const quint64 &a)
 void WatchData::setHexAddress(const QByteArray &a)
 {
     bool ok;
-    const qint64 av = a.toULongLong(&ok, 16);
+    const qint64 av = a.toULongLong(&ok, 0);
     if (ok) {
         address = av;
     } else {

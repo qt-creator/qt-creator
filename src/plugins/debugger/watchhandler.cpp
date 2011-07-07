@@ -366,7 +366,7 @@ static inline QString formattedValue(const WatchData &data, int format)
             return data.value;
         // Evil hack, covers 'unsigned' as well as quint64.
         if (data.type.contains('u'))
-            return reformatInteger(data.value.toULongLong(), format);
+            return reformatInteger(data.value.toULongLong(0, 0), format);
         return reformatInteger(data.value.toLongLong(), format);
     }
 
@@ -412,16 +412,11 @@ static inline QString formattedValue(const WatchData &data, int format)
 // "0x00000000`000003fd "Hallo"", or check gdb formatting of characters.
 static inline quint64 pointerValue(QString data)
 {
-    if (data.isEmpty() || !data.startsWith(QLatin1String("0x")))
-        return 0;
-    data.remove(0, 2);
     const int blankPos = data.indexOf(QLatin1Char(' '));
     if (blankPos != -1)
         data.truncate(blankPos);
     data.remove(QLatin1Char('`'));
-    bool ok;
-    const quint64 address = data.toULongLong(&ok, 16);
-    return ok ? address : quint64(0);
+    return data.toULongLong(0, 0);
 }
 
 // Return the type used for editing
@@ -769,7 +764,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         }
 
         case LocalsAddressRole:
-            return data.coreAddress();
+            return QVariant(data.coreAddress());
         case LocalsReferencingAddressRole:
             return QVariant(data.referencingAddress);
         case LocalsSizeRole:
