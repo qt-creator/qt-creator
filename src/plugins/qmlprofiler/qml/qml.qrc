@@ -5,15 +5,12 @@
         <file>MainView.js</file>
         <file>MainView.qml</file>
         <file>popup.png</file>
-        <file>range.png</file>
         <file>RangeDetails.qml</file>
         <file>RangeMover.qml</file>
-        <file>analyzer_category_small.png</file>
         <file>TimeDisplay.qml</file>
         <file>clean_pane_small.png</file>
         <file>prev.png</file>
         <file>next.png</file>
-        <file>toolbarbg.png</file>
         <file>magnifier-minus.png</file>
         <file>magnifier-plus.png</file>
         <file>recordOff.png</file>
