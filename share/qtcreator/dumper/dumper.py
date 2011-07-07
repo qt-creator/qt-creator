@@ -166,7 +166,8 @@ def cleanAddress(addr):
     # We cannot use str(addr) as it yields rubbish for char pointers
     # that might trigger Unicode encoding errors.
     #return addr.cast(lookupType("void").pointer())
-    return hex(long(addr))
+    # We do not use "hex(...)" as it (sometimes?) adds a "L" suffix.
+    return "0x%x" % long(addr)
 
 def extractTemplateArgument(type, position):
     level = 0
