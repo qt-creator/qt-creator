@@ -84,6 +84,7 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent)
 bool QtQuickAppWizardDialog::validateCurrentPage()
 {
     if (currentPage() == m_componentOptionsPage) {
+        setIgnoreGenericOptionsPage(false);
         if (m_componentOptionsPage->componentSet() == QtQuickApp::Symbian10Components) {
             setIgnoreGenericOptionsPage(true);
             targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 3));
