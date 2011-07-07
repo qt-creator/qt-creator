@@ -34,14 +34,15 @@
 
 #include "deploymentinfo.h"
 #include "linuxdeviceconfigurations.h"
+#include "maddeuploadandinstallpackagesteps.h"
 #include "maemoconstants.h"
-#include "maemodeploybymountstep.h"
+#include "maemodeploybymountsteps.h"
 #include "maemodeployconfigurationwidget.h"
 #include "maemoinstalltosysrootstep.h"
 #include "maemopackagecreationstep.h"
 #include "maemopertargetdeviceconfigurationlistmodel.h"
-#include "maemouploadandinstalldeploystep.h"
 #include "qt4maemotarget.h"
+#include "uploadandinstalltarpackagestep.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -225,22 +226,22 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
 
     if (id == Qt4MaemoDeployConfiguration::FremantleWithoutPackagingId) {
         dc->stepList()->insertStep(0, new MaemoMakeInstallToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(1, new MaemoMountAndCopyDeployStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new MaemoCopyFilesViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::FremantleWithPackagingId) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MaemoMountAndInstallDeployStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaemoInstallPackageViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::HarmattanId) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MaemoUploadAndInstallDpkgPackageStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaemoUploadAndInstallPackageStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::MeegoId) {
         dc->stepList()->insertStep(0, new MaemoRpmPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallRpmPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MaemoUploadAndInstallRpmPackageStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MeegoUploadAndInstallPackageStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::GenericLinuxId) {
         dc->stepList()->insertStep(0, new MaemoTarPackageCreationStep(dc->stepList()));
-        dc->stepList()->insertStep(1, new MaemoUploadAndInstallTarPackageStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new UploadAndInstallTarPackageStep(dc->stepList()));
     }
     return dc;
 }

@@ -29,10 +29,9 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "maemodeploystepwidget.h"
 
-#include "abstractmaemodeploystep.h"
+#include "abstractremotelinuxdeploystep.h"
 #include "maemoglobal.h"
 #include "qt4maemodeployconfiguration.h"
 
@@ -46,17 +45,18 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 namespace Internal {
 
-MaemoDeployStepBaseWidget::MaemoDeployStepBaseWidget(AbstractLinuxDeviceDeployStep *step)
+MaemoDeployStepBaseWidget::MaemoDeployStepBaseWidget(AbstractRemoteLinuxDeployStep *step)
     : m_step(step)
 {
-    BuildStepList * const list = step->maemoDeployConfig()->stepList();
+    BuildStepList * const list = step->deployConfiguration()->stepList();
     connect(list, SIGNAL(stepInserted(int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(stepMoved(int,int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(stepRemoved(int)), SIGNAL(updateSummary()));
     connect(list, SIGNAL(aboutToRemoveStep(int)),
         SLOT(handleStepToBeRemoved(int)));
 
-    connect(m_step->maemoDeployConfig(), SIGNAL(currentDeviceConfigurationChanged()),
+    // TODO: Move this knowledge into the deploy step itself.
+    connect(m_step->deployConfiguration(), SIGNAL(currentDeviceConfigurationChanged()),
         SIGNAL(updateSummary()));
 }
 
@@ -66,9 +66,9 @@ MaemoDeployStepBaseWidget::~MaemoDeployStepBaseWidget()
 
 void MaemoDeployStepBaseWidget::handleStepToBeRemoved(int step)
 {
-    BuildStepList * const list = m_step->maemoDeployConfig()->stepList();
-    const AbstractLinuxDeviceDeployStep * const alds
-        = dynamic_cast<AbstractLinuxDeviceDeployStep *>(list->steps().at(step));
+    BuildStepList * const list = m_step->deployConfiguration()->stepList();
+    const AbstractRemoteLinuxDeployStep * const alds
+        = qobject_cast<AbstractRemoteLinuxDeployStep *>(list->steps().at(step));
     if (alds && alds == m_step)
         disconnect(list, 0, this, 0);
 }
@@ -76,13 +76,13 @@ void MaemoDeployStepBaseWidget::handleStepToBeRemoved(int step)
 QString MaemoDeployStepBaseWidget::summaryText() const
 {
     QString error;
-    if (!m_step->isDeploymentPossible(error)) {
+    if (!m_step->isDeploymentPossible(&error)) {
         return QLatin1String("<font color=\"red\">")
             + tr("Cannot deploy: %1").arg(error)
             + QLatin1String("</font>");
     }
-    return tr("<b>%1 using device</b>: %2").arg(dynamic_cast<BuildStep *>(m_step)->displayName(),
-        MaemoGlobal::deviceConfigurationName(m_step->maemoDeployConfig()->deviceConfiguration()));
+    return tr("<b>%1 using device</b>: %2").arg(m_step->displayName(),
+        MaemoGlobal::deviceConfigurationName(m_step->deployConfiguration()->deviceConfiguration()));
 }
 
 } // namespace Internal

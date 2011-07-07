@@ -29,47 +29,36 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#include "abstractlinuxdevicedeploystep.h"
+#ifndef DIRECTUPLOADSTEP_H
+#define DIRECTUPLOADSTEP_H
 
-#include "linuxdeviceconfiguration.h"
-#include "qt4maemodeployconfiguration.h"
-
-using namespace ProjectExplorer;
+#include <abstractremotelinuxdeploystep.h>
+#include "remotelinux_export.h"
 
 namespace RemoteLinux {
-namespace Internal {
+class GenericDirectUploadService;
 
-
-AbstractLinuxDeviceDeployStep::AbstractLinuxDeviceDeployStep(DeployConfiguration *dc)
-    : m_deployConfiguration(qobject_cast<Qt4MaemoDeployConfiguration *>(dc))
+class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDeployStep
 {
-}
+    Q_OBJECT
+    Q_DISABLE_COPY(GenericDirectUploadStep)
+public:
+    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, const QString &id);
+    GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, GenericDirectUploadStep *other);
 
-AbstractLinuxDeviceDeployStep::~AbstractLinuxDeviceDeployStep()
-{
-}
+    bool isDeploymentPossible(QString *whyNot = 0) const;
 
-LinuxDeviceConfiguration::ConstPtr AbstractLinuxDeviceDeployStep::deviceConfiguration() const
-{
-    return m_deviceConfiguration;
-}
+    static QString stepId();
+    static QString displayName();
 
-bool AbstractLinuxDeviceDeployStep::isDeploymentPossible(QString &whyNot) const
-{
-    if (!m_deployConfiguration->deviceConfiguration()) {
-        whyNot = tr("No valid device set.");
-        return false;
-    }
-    return isDeploymentPossibleInternal(whyNot);
-}
+private:
+    AbstractRemoteLinuxDeployService *deployService() const;
 
-bool AbstractLinuxDeviceDeployStep::initialize(QString &errorMsg)
-{
-    if (!isDeploymentPossible(errorMsg))
-        return false;
-    m_deviceConfiguration = m_deployConfiguration->deviceConfiguration();
-    return true;
-}
+    void ctor();
 
-} // namespace Internal
-} // namespace RemoteLinux
+    GenericDirectUploadService *m_deployService;
+};
+
+} //namespace RemoteLinux
+
+#endif // DIRECTUPLOADSTEP_H

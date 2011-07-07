@@ -29,34 +29,60 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef MADDEUPLOADANDINSTALLPACKAGESTEPS_H
+#define MADDEUPLOADANDINSTALLPACKAGESTEPS_H
 
-#ifndef MAEMODEPLOYSTEPWIDGET_H
-#define MAEMODEPLOYSTEPWIDGET_H
-
-#include <projectexplorer/buildstep.h>
+#include <remotelinux/abstractremotelinuxdeploystep.h>
 
 namespace RemoteLinux {
-class AbstractRemoteLinuxDeployStep;
+class AbstractUploadAndInstallPackageService;
+
 namespace Internal {
 
-class MaemoDeployStepBaseWidget : public ProjectExplorer::BuildStepConfigWidget
+class MaemoUploadAndInstallPackageStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
-
 public:
-    MaemoDeployStepBaseWidget(AbstractRemoteLinuxDeployStep *step);
-    ~MaemoDeployStepBaseWidget();
+    MaemoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl);
+    MaemoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl,
+        MaemoUploadAndInstallPackageStep *other);
 
-    QString summaryText() const;
-    QString displayName() const { return QString(); }
+    bool isDeploymentPossible(QString *whyNot = 0) const;
+
+    static QString stepId();
+    static QString displayName();
 
 private:
-    Q_SLOT void handleStepToBeRemoved(int step);
+    AbstractRemoteLinuxDeployService *deployService() const;
 
-    AbstractRemoteLinuxDeployStep *const m_step;
+    void ctor();
+
+    AbstractUploadAndInstallPackageService *m_deployService;
+};
+
+
+class MeegoUploadAndInstallPackageStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
+{
+    Q_OBJECT
+public:
+    MeegoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl);
+    MeegoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl,
+        MeegoUploadAndInstallPackageStep *other);
+
+    bool isDeploymentPossible(QString *whyNot) const;
+
+    static QString stepId();
+    static QString displayName();
+
+private:
+    AbstractRemoteLinuxDeployService *deployService() const;
+
+    void ctor();
+
+    AbstractUploadAndInstallPackageService *m_deployService;
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEPLOYSTEPWIDGET_H
+#endif // MADDEUPLOADANDINSTALLPACKAGESTEPS_H

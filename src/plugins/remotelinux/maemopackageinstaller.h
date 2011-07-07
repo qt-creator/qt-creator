@@ -91,7 +91,7 @@ class MaemoDebianPackageInstaller: public AbstractMaemoPackageInstaller
 {
     Q_OBJECT
 public:
-    MaemoDebianPackageInstaller(QObject *parent);
+    explicit MaemoDebianPackageInstaller(QObject *parent);
 
 private slots:
     virtual void prepareInstallation();
@@ -121,7 +121,7 @@ class MaemoTarPackageInstaller : public AbstractMaemoPackageInstaller
 {
     Q_OBJECT
 public:
-    MaemoTarPackageInstaller(QObject *parent);
+    MaemoTarPackageInstaller(QObject *parent = 0);
 
 private:
     virtual QString installCommand() const;

@@ -58,7 +58,6 @@ class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfigurationWidget;
 
 namespace Internal {
-class AbstractLinuxDeviceDeployStep;
 class MaemoDeviceConfigListModel;
 class Qt4MaemoDeployConfiguration;
 class RemoteLinuxRunConfigurationPrivate;

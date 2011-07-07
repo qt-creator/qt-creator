@@ -29,43 +29,51 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef ABSTRACTLINUXDEVICEDEPLOYSTEP_H
-#define ABSTRACTLINUXDEVICEDEPLOYSTEP_H
+#ifndef ABSTRACTUPLOADANDINSTALLACTION_H
+#define ABSTRACTUPLOADANDINSTALLACTION_H
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QSharedPointer>
-
-namespace ProjectExplorer { class DeployConfiguration; }
+#include "abstractremotelinuxdeployservice.h"
+#include "remotelinux_export.h"
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
-
 namespace Internal {
-class Qt4MaemoDeployConfiguration;
+class AbstractMaemoPackageCreationStep;
+class AbstractMaemoPackageInstaller;
+class AbstractUploadAndInstallPackageServicePrivate;
+}
 
-class AbstractLinuxDeviceDeployStep
+class REMOTELINUX_EXPORT AbstractUploadAndInstallPackageService : public AbstractRemoteLinuxDeployService
 {
-    Q_DECLARE_TR_FUNCTIONS(AbstractLinuxDeviceDeployStep)
-public:
-    virtual ~AbstractLinuxDeviceDeployStep();
+    Q_OBJECT
 
-    Qt4MaemoDeployConfiguration *maemoDeployConfig() const { return m_deployConfiguration; }
-    bool isDeploymentPossible(QString &whyNot) const;
+public:
+    void setPackageFilePath(const QString &filePath);
 
 protected:
-    AbstractLinuxDeviceDeployStep(ProjectExplorer::DeployConfiguration *dc);
+    explicit AbstractUploadAndInstallPackageService(QObject *parent);
+    ~AbstractUploadAndInstallPackageService();
 
-    QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
-    bool initialize(QString &errorMsg);
+    QString packageFilePath() const;
+
+private slots:
+    void handleUploadFinished(const QString &errorMsg);
+    void handleInstallationFinished(const QString &errorMsg);
 
 private:
-    virtual bool isDeploymentPossibleInternal(QString &whynot) const=0;
+    virtual Internal::AbstractMaemoPackageInstaller *packageInstaller() const=0;
+    virtual QString uploadDir() const; // Defaults to remote user's home directory.
 
-    Qt4MaemoDeployConfiguration * const m_deployConfiguration;
-    mutable QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfiguration;
+    bool isDeploymentNecessary() const;
+    void doDeviceSetup();
+    void stopDeviceSetup();
+    void doDeploy();
+    void stopDeployment();
+
+    void setFinished();
+
+    Internal::AbstractUploadAndInstallPackageServicePrivate * const m_d;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // ABSTRACTLINUXDEVICEDEPLOYSTEP_H
+#endif // ABSTRACTUPLOADANDINSTALLACTION_H

@@ -30,7 +30,6 @@
 **************************************************************************/
 #include "maemorunconfiguration.h"
 
-#include "abstractlinuxdevicedeploystep.h"
 #include "qt4maemotarget.h"
 #include "maemoconstants.h"
 #include "maemoglobal.h"

@@ -43,6 +43,7 @@ namespace RemoteLinux {
 class DeploymentInfo;
 
 namespace Internal {
+class MaemoDeployables;
 class MaemoPerTargetDeviceConfigurationListModel;
 
 class Qt4MaemoDeployConfiguration : public ProjectExplorer::DeployConfiguration

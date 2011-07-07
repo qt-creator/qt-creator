@@ -29,38 +29,29 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef DIRECTDEVICEUPLOADACTION_H
+#define DIRECTDEVICEUPLOADACTION_H
 
-#ifndef MAEMODIRECTDEVICEUPLOADSTEP_H
-#define MAEMODIRECTDEVICEUPLOADSTEP_H
-
-#include "abstractmaemodeploystep.h"
+#include "abstractremotelinuxdeployservice.h"
+#include "remotelinux_export.h"
 
 #include <utils/ssh/sftpdefs.h>
 
 #include <QtCore/QList>
-#include <QtCore/QSharedPointer>
 
-namespace Utils {
-class SshRemoteProcess;
-class SftpChannel;
-}
+QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace RemoteLinux {
 class DeployableFile;
+namespace Internal { class GenericDirectUploadServicePrivate; }
 
-namespace Internal {
-
-class MaemoDirectDeviceUploadStep : public AbstractMaemoDeployStep
+class REMOTELINUX_EXPORT GenericDirectUploadService : public AbstractRemoteLinuxDeployService
 {
     Q_OBJECT
 public:
-    MaemoDirectDeviceUploadStep(ProjectExplorer::BuildStepList *bc);
-    MaemoDirectDeviceUploadStep(ProjectExplorer::BuildStepList *bc,
-        MaemoDirectDeviceUploadStep *other);
-    ~MaemoDirectDeviceUploadStep();
+    GenericDirectUploadService(QObject *parent);
 
-    static const QString Id;
-    static QString displayName();
+    void setDeployableFiles(const QList<DeployableFile> &deployableFiles);
 
 private slots:
     void handleSftpInitialized();
@@ -69,27 +60,21 @@ private slots:
     void handleMkdirFinished(int exitStatus);
 
 private:
-    enum ExtendedState { Inactive, InitializingSftp, Uploading };
+    bool isDeploymentNecessary() const;
 
-    virtual bool isDeploymentPossibleInternal(QString &whynot) const;
-    virtual bool isDeploymentNeeded(const QString &hostName) const;
-    virtual void startInternal();
-    virtual void stopInternal();
-    virtual const AbstractMaemoPackageCreationStep *packagingStep() const { return 0; }
+    void doDeviceSetup();
+    void stopDeviceSetup();
 
-    void ctor();
+    void doDeploy();
+    void stopDeployment();
+
+    void checkDeploymentNeeded(const DeployableFile &file) const;
     void setFinished();
-    void checkDeploymentNeeded(const QString &hostName,
-        const DeployableFile &deployable) const;
     void uploadNextFile();
 
-    QSharedPointer<Utils::SftpChannel> m_uploader;
-    QSharedPointer<Utils::SshRemoteProcess> m_mkdirProc;
-    mutable QList<DeployableFile> m_filesToUpload;
-    ExtendedState m_extendedState;
+    Internal::GenericDirectUploadServicePrivate * const m_d;
 };
 
-} // namespace Internal
-} // namespace RemoteLinux
+} //namespace RemoteLinux
 
-#endif // MAEMODIRECTDEVICEUPLOADSTEP_H
+#endif // DIRECTDEVICEUPLOADACTION_H

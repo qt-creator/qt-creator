@@ -57,11 +57,6 @@ HEADERS += \
     maemopackageuploader.h \
     maemopackageinstaller.h \
     maemoremotecopyfacility.h \
-    abstractmaemodeploystep.h \
-    maemodeploybymountstep.h \
-    maemouploadandinstalldeploystep.h \
-    maemodirectdeviceuploadstep.h \
-    abstractlinuxdevicedeploystep.h \
     maemoqtversionfactory.h \
     maemoqtversion.h \
     linuxdeviceconfiguration.h \
@@ -83,7 +78,15 @@ HEADERS += \
     portlist.h \
     deployablefile.h \
     deployablefilesperprofile.h \
-    deploymentinfo.h
+    deploymentinfo.h \
+    abstractremotelinuxdeploystep.h \
+    genericdirectuploadstep.h \
+    maddeuploadandinstallpackagesteps.h \
+    uploadandinstalltarpackagestep.h \
+    maemodeploybymountsteps.h \
+    abstractremotelinuxdeployservice.h \
+    abstractuploadandinstallpackageservice.h \
+    genericdirectuploadservice.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -135,11 +138,6 @@ SOURCES += \
     maemopackageuploader.cpp \
     maemopackageinstaller.cpp \
     maemoremotecopyfacility.cpp \
-    abstractmaemodeploystep.cpp \
-    maemodeploybymountstep.cpp \
-    maemouploadandinstalldeploystep.cpp \
-    maemodirectdeviceuploadstep.cpp \
-    abstractlinuxdevicedeploystep.cpp \
     maemoqtversionfactory.cpp \
     maemoqtversion.cpp \
     linuxdeviceconfiguration.cpp \
@@ -160,7 +158,15 @@ SOURCES += \
     genericlinuxdeviceconfigurationwizardpages.cpp \
     portlist.cpp \
     deployablefilesperprofile.cpp \
-    deploymentinfo.cpp
+    deploymentinfo.cpp \
+    abstractremotelinuxdeploystep.cpp \
+    genericdirectuploadstep.cpp \
+    maddeuploadandinstallpackagesteps.cpp \
+    uploadandinstalltarpackagestep.cpp \
+    maemodeploybymountsteps.cpp \
+    abstractremotelinuxdeployservice.cpp \
+    abstractuploadandinstallpackageservice.cpp \
+    genericdirectuploadservice.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \
@@ -187,3 +193,15 @@ FORMS += \
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII
 DEFINES += REMOTELINUX_LIBRARY
+
+
+
+
+
+
+
+
+
+
+
+
