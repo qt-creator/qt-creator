@@ -29,7 +29,7 @@
     \endif
     \page creator-developing-maemo.html
     \if defined(qcmanual)
-    \nextpage creator-developing-symbian.html
+    \nextpage creator-developing-generic-linux.html
     \else
     \nextpage smartinstaller.html
     \endif
@@ -344,6 +344,9 @@
 
             \o In the \gui {The device's host name or IP address} field, enter
             the IP address from the connectivity tool on the device.
+
+            \o In the \gui {The SSH server port} field, enter the port number to
+            use for SSH connections.
 
             \o Click \gui Next.
 
