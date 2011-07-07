@@ -85,7 +85,7 @@ protected:
     void resetHorizontal();
     void resetVertical(); 
     void refresh();
-    void recursiveDoComponentComplete(QGraphicsItem *item);
+    void recursiveDoComponentComplete(QDeclarativeItem *declarativeItem);
 
 private: //variables
     bool m_hasHeight;

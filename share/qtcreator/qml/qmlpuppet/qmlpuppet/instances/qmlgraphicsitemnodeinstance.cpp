@@ -207,17 +207,19 @@ void QmlGraphicsItemNodeInstance::refresh()
     repositioning(qmlGraphicsItem());
 }
 
-void QmlGraphicsItemNodeInstance::recursiveDoComponentComplete(QGraphicsItem *item)
+void QmlGraphicsItemNodeInstance::recursiveDoComponentComplete(QDeclarativeItem *declarativeItem)
 {
-    QGraphicsObject *graphicsObject = item->toGraphicsObject();
-    QDeclarativeItem *declarativeItem = qobject_cast<QDeclarativeItem*>(graphicsObject);
-    if (declarativeItem && !nodeInstanceServer()->hasInstanceForObject(declarativeItem)) {
-        if (QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete)
+    if (declarativeItem) {
+        if (QDeclarativeItemPrivate::get(declarativeItem)->componentComplete)
             return;
-        static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem())->componentComplete();
+        static_cast<QDeclarativeParserStatus*>(declarativeItem)->componentComplete();
 
-        foreach (QGraphicsItem *childItem, item->childItems())
-            recursiveDoComponentComplete(childItem);
+        foreach (QGraphicsItem *childItem, declarativeItem->childItems()) {
+            QGraphicsObject *childGraphicsObject = childItem->toGraphicsObject();
+            QDeclarativeItem *childDeclarativeItem = qobject_cast<QDeclarativeItem*>(childGraphicsObject);
+            if (childDeclarativeItem && !nodeInstanceServer()->hasInstanceForObject(childDeclarativeItem))
+                recursiveDoComponentComplete(childDeclarativeItem);
+        }
     }
 }
 
