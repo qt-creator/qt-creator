@@ -589,7 +589,7 @@ void SelectableFilesDialog::parsingFinished()
         m_preservedFiles->hide();
     } else {
         m_preservedFiles->show();
-        m_preservedFiles->setText(tr("Not showing %1 files that are outside of the base directory.\nThese files are preserved.").arg(preservedFiles.count()));
+        m_preservedFiles->setText(tr("Not showing %n files that are outside of the base directory.\nThese files are preserved.", 0, preservedFiles.count()));
     }
 }
 
