@@ -87,6 +87,7 @@ private slots:
     void addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat,
         ProjectExplorer::BuildStep::OutputNewlineSetting = BuildStep::DoAppendNewline);
 
+    void buildStepFinishedAsync();
     void nextBuildQueue();
     void progressChanged();
     void progressTextChanged();

@@ -84,6 +84,7 @@ struct BuildManagerPrivate {
     ProjectExplorerPlugin *m_projectExplorerPlugin;
     bool m_running;
     QFutureWatcher<bool> m_watcher;
+    QFutureInterface<bool> m_futureInterfaceForAysnc;
     BuildStep *m_currentBuildStep;
     QString m_currentConfiguration;
     // used to decide if we are building a project to decide when to emit buildStateChanged(Project *)
@@ -91,6 +92,8 @@ struct BuildManagerPrivate {
     Project *m_previousBuildStepProject;
     // is set to true while canceling, so that nextBuildStep knows that the BuildStep finished because of canceling
     bool m_canceling;
+    bool m_doNotEnterEventLoop;
+    QEventLoop *m_eventLoop;
 
     // Progress reporting to the progress manager
     int m_progress;
@@ -103,6 +106,8 @@ BuildManagerPrivate::BuildManagerPrivate() :
     m_running(false)
   , m_previousBuildStepProject(0)
   , m_canceling(false)
+  , m_doNotEnterEventLoop(false)
+  , m_eventLoop(0)
   , m_maxProgress(0)
   , m_progressFutureInterface(0)
 {
@@ -190,7 +195,20 @@ void BuildManager::cancel()
     if (d->m_running) {
         d->m_canceling = true;
         d->m_watcher.cancel();
-        d->m_watcher.waitForFinished();
+        if (d->m_currentBuildStep->runInGuiThread()) {
+            // This is evil. A nested event loop.
+            d->m_currentBuildStep->cancel();
+            if (d->m_doNotEnterEventLoop) {
+                d->m_doNotEnterEventLoop = false;
+            } else {
+                d->m_eventLoop = new QEventLoop;
+                d->m_eventLoop->exec();
+                delete d->m_eventLoop;
+                d->m_eventLoop = 0;
+            }
+        } else {
+            d->m_watcher.waitForFinished();
+        }
 
         // The cancel message is added to the output window via a single shot timer
         // since the canceling is likely to have generated new addToOutputWindow signals
@@ -332,6 +350,21 @@ void BuildManager::addToOutputWindow(const QString &string, BuildStep::OutputFor
     d->m_outputWindow->appendText(stringToWrite, format);
 }
 
+void BuildManager::buildStepFinishedAsync()
+{
+    disconnect(d->m_currentBuildStep, SIGNAL(finished()),
+               this, SLOT(buildStepFinishedAsync()));
+    d->m_futureInterfaceForAysnc = QFutureInterface<bool>();
+    if (d->m_canceling) {
+        if (d->m_eventLoop)
+            d->m_eventLoop->exit();
+        else
+            d->m_doNotEnterEventLoop = true;
+    } else {
+        nextBuildQueue();
+    }
+}
+
 void BuildManager::nextBuildQueue()
 {
     if (d->m_canceling)
@@ -393,7 +426,14 @@ void BuildManager::nextStep()
                               .arg(projectName), BuildStep::MessageOutput);
             d->m_previousBuildStepProject = d->m_currentBuildStep->buildConfiguration()->target()->project();
         }
-        d->m_watcher.setFuture(QtConcurrent::run(&BuildStep::run, d->m_currentBuildStep));
+        if (d->m_currentBuildStep->runInGuiThread()) {
+            connect (d->m_currentBuildStep, SIGNAL(finished()),
+                     this, SLOT(buildStepFinishedAsync()));
+            d->m_watcher.setFuture(d->m_futureInterfaceForAysnc.future());
+            d->m_currentBuildStep->run(d->m_futureInterfaceForAysnc);
+        } else {
+            d->m_watcher.setFuture(QtConcurrent::run(&BuildStep::run, d->m_currentBuildStep));
+        }
     } else {
         d->m_running = false;
         d->m_previousBuildStepProject = 0;

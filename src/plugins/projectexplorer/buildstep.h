@@ -68,6 +68,8 @@ public:
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
 
     virtual bool immutable() const;
+    virtual bool runInGuiThread() const;
+    virtual void cancel();
 
     BuildConfiguration *buildConfiguration() const;
     DeployConfiguration *deployConfiguration() const;
@@ -81,6 +83,8 @@ signals:
 
     void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
         ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline) const;
+
+    void finished();
 };
 
 class PROJECTEXPLORER_EXPORT IBuildStepFactory :
