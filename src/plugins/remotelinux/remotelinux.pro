@@ -180,7 +180,6 @@ FORMS += \
     maemodeviceconfigwizardkeycreationpage.ui \
     maemodeviceconfigwizardkeydeploymentpage.ui \
     maemodeployconfigurationwidget.ui \
-    maemodeviceconfigwizardlogindatapage.ui \
     linuxdevicefactoryselectiondialog.ui \
     genericlinuxdeviceconfigurationwizardsetuppage.ui
 
