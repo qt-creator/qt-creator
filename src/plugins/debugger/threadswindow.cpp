@@ -82,6 +82,10 @@ void ThreadsWindow::setModel(QAbstractItemModel *model)
     resizeColumnToContents(0); // Id
     resizeColumnToContents(4); // Line
     resizeColumnToContents(6); // Name
+    if (header()) {
+        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustThreadsColumnWidths);
+        setAlwaysResizeColumnsToContents(adjust);
+    }
 }
 
 void ThreadsWindow::contextMenuEvent(QContextMenuEvent *ev)

@@ -296,6 +296,10 @@ void RegisterWindow::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
     setAlwaysResizeColumnsToContents(true);
+    if (header()) {
+        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustRegistersColumnWidths);
+        setAlwaysResizeColumnsToContents(adjust);
+    }
 }
 
 void RegisterWindow::reloadRegisters()

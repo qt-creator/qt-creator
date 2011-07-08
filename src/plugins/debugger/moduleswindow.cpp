@@ -215,7 +215,10 @@ void ModulesWindow::setAlwaysResizeColumnsToContents(bool on)
 void ModulesWindow::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
-    setAlwaysResizeColumnsToContents(true);
+    if (header()) {
+        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustModulesColumnWidths);
+        setAlwaysResizeColumnsToContents(adjust);
+    }
 }
 
 } // namespace Internal
