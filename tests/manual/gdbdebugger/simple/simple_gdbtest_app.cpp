@@ -2255,15 +2255,37 @@ void testConditional(const QString &str)
     res += "x";
 }
 
-void testChar()
-{
-    char s[5];
-    s[0] = 0;
-    strcat(s,"\""); // add a quote
-    strcat(s,"\""); // add a quote
-    strcat(s,"\""); // add a quote
-    strcat(s,"\""); // add a quote
-}
+
+namespace basic {
+
+    // This tests display of basic types.
+
+    // http://bugreports.qt.nokia.com/browse/QTCREATORBUG-5326
+
+    void testChar()
+    {
+        char s[5];
+        s[0] = 0;
+        // <=== break here.
+        // Expand 's' in Locals view.
+        // Open pinnable tooltip.
+        // Step over.
+        // Check that display and tooltip look sane.
+        strcat(s,"\"");
+        strcat(s,"\"");
+        strcat(s,"a");
+        strcat(s,"b");
+        strcat(s,"\"");
+        // Close tooltip.
+        dummyStatement(&s);
+    }
+
+    void testBasic()
+    {
+        testChar();
+    }
+
+} // basic
 
 struct Tx
 {
@@ -3008,7 +3030,7 @@ int main(int argc, char *argv[])
     testColor();
     testQRegion();
     testTypedef();
-    testChar();
+    basic::testBasic();
     testStuff();
     testPeekAndPoke3();
     testFunctionPointer();
