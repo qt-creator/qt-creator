@@ -103,7 +103,7 @@ TiledCanvas {
     }
 
     function drawBackgroundBars( ctxt, region ) {
-        var barHeight = labels.height / labels.rowCount;
+        var barHeight = Math.round(labels.height / labels.rowCount);
         var originY = labels.y
         for (var i=0; i<labels.rowCount; i++) {
             ctxt.fillStyle = i%2 ? "#f3f3f3" : "white"
