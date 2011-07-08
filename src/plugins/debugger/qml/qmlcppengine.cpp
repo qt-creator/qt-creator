@@ -150,6 +150,7 @@ QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp,
     connect(d->m_qmlEngine->stackHandler()->model(), SIGNAL(modelReset()),
             d.data(), SLOT(qmlStackChanged()), Qt::QueuedConnection);
     connect(d->m_cppEngine, SIGNAL(stackFrameCompleted()), this, SIGNAL(stackFrameCompleted()));
+    connect(d->m_cppEngine, SIGNAL(requestRemoteSetup()), this, SIGNAL(requestRemoteSetup()));
     connect(d->m_qmlEngine, SIGNAL(stackFrameCompleted()), this, SIGNAL(stackFrameCompleted()));
 }
 
