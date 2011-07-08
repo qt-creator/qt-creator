@@ -321,7 +321,7 @@ AbstractQt4MaemoTarget::ActionStatus AbstractQt4MaemoTarget::createTemplates()
     QDir projectDir(project()->projectDirectory());
     if (!projectDir.exists(PackagingDirName)
             && !projectDir.mkdir(PackagingDirName)) {
-        raiseError(tr("Error creating Maemo packaging directory '%1'.")
+        raiseError(tr("Error creating packaging directory '%1'.")
             .arg(PackagingDirName));
         return ActionFailed;
     }
@@ -365,7 +365,7 @@ bool AbstractQt4MaemoTarget::initPackagingSettingsFromOtherTarget()
 
 void AbstractQt4MaemoTarget::raiseError(const QString &reason)
 {
-    QMessageBox::critical(0, tr("Error creating Maemo templates"), reason);
+    QMessageBox::critical(0, tr("Error creating MeeGo templates"), reason);
 }
 
 AbstractDebBasedQt4MaemoTarget::AbstractDebBasedQt4MaemoTarget(Qt4Project *parent,

@@ -181,7 +181,7 @@ QString MaemoQemuSettingsPage::id() const
 
 QString MaemoQemuSettingsPage::displayName() const
 {
-    return tr("Maemo Qemu Settings");
+    return tr("MeeGo Qemu Settings");
 }
 
 QString MaemoQemuSettingsPage::category() const
