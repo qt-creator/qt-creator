@@ -95,7 +95,7 @@ Item {
             id: delegateItem
             opacity: 0
             height: root.height
-            width: 270
+            width: root.width
             Column {
                 spacing: 10
                 width: parent.width

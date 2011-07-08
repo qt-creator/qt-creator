@@ -63,7 +63,7 @@ Image {
             width: 270
             FeaturedAndNewsListing {
                 anchors.fill: parent
-                anchors.margins: 4
+                anchors.margins: 8
             }
         }
 
