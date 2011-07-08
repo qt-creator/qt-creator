@@ -296,6 +296,7 @@ QString WatchModel::displayType(const WatchData &data) const
         : data.displayedType;
     if (data.bitsize)
         base += QString(":%1").arg(data.bitsize);
+    base.remove('\'');
     return base;
 }
 
