@@ -795,7 +795,7 @@ DebuggerToolTipWidget *DebuggerToolTipWidget::loadSessionDataI(QXmlStreamReader 
     if (debugToolTips)
         qDebug() << "Creating tooltip " << context <<  " from " << creationDate << offset;
     DebuggerToolTipWidget *rc = 0;
-    if (className == "Debugger::Internal::DebuggerTreeViewToolTipWidget")
+    if (className == "Debugger::Internal::DebuggerToolTipWidget")
         rc = new DebuggerToolTipWidget;
     if (rc) {
         rc->setContext(context);
