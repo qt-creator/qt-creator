@@ -146,7 +146,7 @@ static QString generateTestCode(const TestWizardParameters &testParams,
     }
     // Main & moc include
     str << (testParams.requiresQApplication ? "QTEST_MAIN" : "QTEST_APPLESS_MAIN")
-        << '(' << testParams.className << ");\n\n"
+        << '(' << testParams.className << ")\n\n"
         << "#include \"" << sourceBaseName << ".moc\"\n";
     return rc;
 }
