@@ -22,7 +22,7 @@
 /*!
     \contentspage index.html
     \if defined(qcmanual)
-    \previouspage creator-developing-maemo.html
+    \previouspage creator-developing-generic-linux.html
     \else
     \previouspage sdk-gs.html
     \endif
