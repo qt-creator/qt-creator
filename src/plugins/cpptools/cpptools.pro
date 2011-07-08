@@ -34,7 +34,8 @@ HEADERS += completionsettingspage.h \
     cpptoolssettings.h \
     cppcodestylesettings.h \
     cppcodestylesettingsfactory.h \
-    cppcodestylepreferences.h
+    cppcodestylepreferences.h \
+    cpptoolsreuse.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -60,7 +61,8 @@ SOURCES += completionsettingspage.cpp \
     cpptoolssettings.cpp \
     cppcodestylesettings.cpp \
     cppcodestylesettingsfactory.cpp \
-    cppcodestylepreferences.cpp
+    cppcodestylepreferences.cpp \
+    cpptoolsreuse.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \

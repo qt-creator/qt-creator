@@ -33,8 +33,6 @@
 #ifndef CPPTYPEHIERARCHY_H
 #define CPPTYPEHIERARCHY_H
 
-#include "cppelementevaluator.h"
-
 #include <coreplugin/inavigationwidgetfactory.h>
 
 #include <QtCore/QString>
@@ -45,6 +43,7 @@ QT_BEGIN_NAMESPACE
 class QStandardItemModel;
 class QStandardItem;
 class QModelIndex;
+template <class> class QVector;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -60,6 +59,7 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditorWidget;
+class CppClass;
 
 class CppTypeHierarchyWidget : public QWidget
 {
@@ -77,12 +77,8 @@ private slots:
     void onItemClicked(const QModelIndex &index);
 
 private:
-    enum ItemRole {
-        AnnotationRole = Qt::UserRole + 1,
-        LinkRole
-    };
-
-    void buildModel(const CppClass &cppClass, QStandardItem *item);
+    void buildDerivedHierarchy(const CppClass &cppClass, QStandardItem *parent);
+    void buildBaseHierarchy(QVector<CppClass> *s);
 
     CPPEditorWidget *m_cppEditor;
     Utils::NavigationTreeView *m_treeView;

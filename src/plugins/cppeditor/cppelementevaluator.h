@@ -68,6 +68,7 @@ public:
 
     void setTextCursor(const QTextCursor &tc);
     void setLookupBaseClasses(const bool lookup);
+    void setLookupDerivedClasses(const bool lookup);
 
     void execute();
     bool identifiedCppElement() const;
@@ -88,6 +89,7 @@ private:
     CPlusPlus::CppModelManagerInterface *m_modelManager;
     QTextCursor m_tc;
     bool m_lookupBaseClasses;
+    bool m_lookupDerivedClasses;
     QSharedPointer<CppElement> m_element;
     QString m_diagnosis;
 };
@@ -157,6 +159,7 @@ public:
 class CppDeclarableElement : public CppElement
 {
 public:
+    CppDeclarableElement();
     explicit CppDeclarableElement(CPlusPlus::Symbol *declaration);
     virtual ~CppDeclarableElement();
 
@@ -188,15 +191,19 @@ public:
 class CppClass : public CppDeclarableElement
 {
 public:
+    CppClass();
     explicit CppClass(CPlusPlus::Symbol *declaration);
     virtual ~CppClass();
 
     void lookupBases(CPlusPlus::Symbol *declaration, const CPlusPlus::LookupContext &context);
+    void lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot);
 
     const QList<CppClass> &bases() const;
+    const QList<CppClass> &derived() const;
 
 private:
     QList<CppClass> m_bases;
+    QList<CppClass> m_derived;
 };
 
 class CppFunction : public CppDeclarableElement
@@ -227,19 +234,6 @@ public:
                 const CPlusPlus::LookupContext &context,
                 CPlusPlus::Scope *scope);
     virtual ~CppVariable();
-};
-
-class CppTemplate : public CppDeclarableElement
-{
-public:
-    explicit CppTemplate(CPlusPlus::Symbol *declaration);
-    virtual ~CppTemplate();
-
-    bool isClassTemplate() const;
-    bool isFunctionTemplate() const;
-
-private:
-    bool m_isClassTemplate;
 };
 
 class CppEnumerator : public CppDeclarableElement

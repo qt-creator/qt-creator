@@ -52,7 +52,8 @@ HEADERS += \
     $$PWD/pp-macro-expander.h \
     $$PWD/pp-scanner.h \
     $$PWD/ModelManagerInterface.h \
-    $$PWD/findcdbbreakpoint.h
+    $$PWD/findcdbbreakpoint.h \
+    $$PWD/TypeHierarchyBuilder.h
 
 SOURCES += \
     $$PWD/SimpleLexer.cpp \
@@ -80,10 +81,7 @@ SOURCES += \
     $$PWD/pp-macro-expander.cpp \
     $$PWD/pp-scanner.cpp \
     $$PWD/ModelManagerInterface.cpp \
-    $$PWD/findcdbbreakpoint.cpp
+    $$PWD/findcdbbreakpoint.cpp \
+    $$PWD/TypeHierarchyBuilder.cpp
 
 RESOURCES += $$PWD/cplusplus.qrc
-
-
-
-

@@ -44,6 +44,7 @@
 #include <QtCore/QLatin1Char>
 #include <QtCore/QLatin1String>
 #include <QtCore/QModelIndex>
+#include <QtCore/QVector>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QLabel>
@@ -51,6 +52,28 @@
 using namespace CppEditor;
 using namespace Internal;
 using namespace Utils;
+
+namespace {
+
+enum ItemRole {
+    AnnotationRole = Qt::UserRole + 1,
+    LinkRole
+};
+
+QStandardItem *itemForClass(const CppClass &cppClass)
+{
+    QStandardItem *item = new QStandardItem;
+    item->setData(cppClass.name(), Qt::DisplayRole);
+    if (cppClass.name() != cppClass.qualifiedName())
+        item->setData(cppClass.qualifiedName(), AnnotationRole);
+    item->setData(cppClass.icon(), Qt::DecorationRole);
+    QVariant link;
+    link.setValue(CPPEditorWidget::Link(cppClass.link()));
+    item->setData(link, LinkRole);
+    return item;
+}
+
+} // Anonymous
 
 // CppTypeHierarchyWidget
 CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
@@ -67,16 +90,18 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
     if (CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor)) {
         m_cppEditor = static_cast<CPPEditorWidget *>(cppEditor->widget());
 
-        m_model = new QStandardItemModel;
-        m_treeView = new Utils::NavigationTreeView;
-        m_delegate = new AnnotatedItemDelegate;
+        m_model = new QStandardItemModel(this);
+        m_treeView = new NavigationTreeView(this);
+        m_delegate = new AnnotatedItemDelegate(this);
         m_delegate->setDelimiter(QLatin1String(" "));
         m_delegate->setAnnotationRole(AnnotationRole);
         m_treeView->setModel(m_model);
         m_treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         m_treeView->setItemDelegate(m_delegate);
+        m_treeView->setRootIsDecorated(false);
         layout->addWidget(m_treeView);
 
+        connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
         connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(onItemClicked(QModelIndex)));
         connect(CppPlugin::instance(), SIGNAL(typeHierarchyRequested()), this, SLOT(perform()));
     } else {
@@ -90,10 +115,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
 }
 
 CppTypeHierarchyWidget::~CppTypeHierarchyWidget()
-{
-    delete m_model;
-    delete m_delegate;
-}
+{}
 
 bool CppTypeHierarchyWidget::handleEditorChange(Core::IEditor *editor)
 {
@@ -117,32 +139,52 @@ void CppTypeHierarchyWidget::perform()
 
     CppElementEvaluator evaluator(m_cppEditor);
     evaluator.setLookupBaseClasses(true);
+    evaluator.setLookupDerivedClasses(true);
     evaluator.execute();
     if (evaluator.identifiedCppElement()) {
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
         CppElement *element = cppElement.data();
-        if (CppClass *cppClass = dynamic_cast<CppClass *>(element))
-            buildModel(*cppClass, m_model->invisibleRootItem());
+        if (CppClass *cppClass = dynamic_cast<CppClass *>(element)) {
+            QStandardItem *bases = new QStandardItem(tr("Bases"));
+            m_model->invisibleRootItem()->appendRow(bases);
+            QVector<CppClass> v;
+            v.push_back(*cppClass);
+            buildBaseHierarchy(&v);
+            m_treeView->expand(m_model->indexFromItem(bases));
+            QStandardItem *derived = new QStandardItem(tr("Derived"));
+            m_model->invisibleRootItem()->appendRow(derived);
+            buildDerivedHierarchy(*cppClass, derived);
+        }
     }
 }
 
-void CppTypeHierarchyWidget::buildModel(const CppClass &cppClass, QStandardItem *parent)
+void CppTypeHierarchyWidget::buildBaseHierarchy(QVector<CppClass> *s)
 {
-    QStandardItem *item = new QStandardItem;
+    const CppClass &current = s->back();
+    const QList<CppClass> &bases = current.bases();
+    if (!bases.isEmpty()) {
+        foreach (const CppClass &base, bases) {
+            s->push_back(base);
+            buildBaseHierarchy(s);
+            s->pop_back();
+        }
+    } else {
+        QStandardItem *parent = m_model->item(0, 0);
+        for (int i = s->size() - 1; i >= 0; --i) {
+            QStandardItem *item = itemForClass(s->at(i));
+            parent->appendRow(item);
+            parent = item;
+        }
+    }
+}
+
+void CppTypeHierarchyWidget::buildDerivedHierarchy(const CppClass &cppClass, QStandardItem *parent)
+{
+    QStandardItem *item = itemForClass(cppClass);
     parent->appendRow(item);
-
-    m_model->setData(m_model->indexFromItem(item), cppClass.name(), Qt::DisplayRole);
-    if (cppClass.name() != cppClass.qualifiedName())
-        m_model->setData(m_model->indexFromItem(item), cppClass.qualifiedName(), AnnotationRole);
-    m_model->setData(m_model->indexFromItem(item), cppClass.icon(), Qt::DecorationRole);
-    QVariant link;
-    link.setValue(CPPEditorWidget::Link(cppClass.link()));
-    m_model->setData(m_model->indexFromItem(item), link, LinkRole);
-
-    foreach (const CppClass &cppBase, cppClass.bases())
-        buildModel(cppBase, item);
-
-    m_treeView->expand(m_model->indexFromItem(item));
+    foreach (const CppClass &derived, cppClass.derived())
+        buildDerivedHierarchy(derived, item);
+    m_treeView->expand(m_model->indexFromItem(parent));
 }
 
 void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)

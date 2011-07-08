@@ -33,6 +33,7 @@
 #include "cppelementevaluator.h"
 
 #include <coreplugin/ifile.h>
+#include <cpptools/cpptoolsreuse.h>
 
 #include <FullySpecifiedType.h>
 #include <Literals.h>
@@ -41,6 +42,7 @@
 #include <Scope.h>
 #include <Symbol.h>
 #include <Symbols.h>
+#include <TypeHierarchyBuilder.h>
 #include <cplusplus/ModelManagerInterface.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/Overview.h>
@@ -59,18 +61,6 @@ using namespace Internal;
 using namespace CPlusPlus;
 
 namespace {
-    void moveCursorToEndOfName(QTextCursor *tc) {
-        QTextDocument *doc = tc->document();
-        if (!doc)
-            return;
-
-        QChar ch = doc->characterAt(tc->position());
-        while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
-            tc->movePosition(QTextCursor::NextCharacter);
-            ch = doc->characterAt(tc->position());
-        }
-    }
-
     QStringList stripName(const QString &name) {
         QStringList all;
         all << name;
@@ -88,7 +78,8 @@ CppElementEvaluator::CppElementEvaluator(CPPEditorWidget *editor) :
     m_editor(editor),
     m_modelManager(CppModelManagerInterface::instance()),
     m_tc(editor->textCursor()),
-    m_lookupBaseClasses(false)
+    m_lookupBaseClasses(false),
+    m_lookupDerivedClasses(false)
 {}
 
 void CppElementEvaluator::setTextCursor(const QTextCursor &tc)
@@ -96,6 +87,9 @@ void CppElementEvaluator::setTextCursor(const QTextCursor &tc)
 
 void CppElementEvaluator::setLookupBaseClasses(const bool lookup)
 { m_lookupBaseClasses = lookup; }
+
+void CppElementEvaluator::setLookupDerivedClasses(const bool lookup)
+{ m_lookupDerivedClasses = lookup; }
 
 // @todo: Consider refactoring code from CPPEditor::findLinkAt into here.
 void CppElementEvaluator::execute()
@@ -118,7 +112,7 @@ void CppElementEvaluator::execute()
     checkDiagnosticMessage(doc, line);
 
     if (!matchIncludeFile(doc, line) && !matchMacroInUse(doc, pos)) {
-        moveCursorToEndOfName(&m_tc);
+        CppTools::moveCursorToEndOfIdentifier(&m_tc);
 
         // Fetch the expression's code
         ExpressionUnderCursor expressionUnderCursor;
@@ -185,13 +179,19 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
         const FullySpecifiedType &type = declaration->type();
         if (declaration->isNamespace()) {
             m_element = QSharedPointer<CppElement>(new CppNamespace(declaration));
-        } else if (declaration->isClass() || declaration->isForwardClassDeclaration()) {
+        } else if (declaration->isClass()
+                   || declaration->isForwardClassDeclaration()
+                   || (declaration->isTemplate() && declaration->asTemplate()->declaration()
+                       && (declaration->asTemplate()->declaration()->isClass()
+                           || declaration->asTemplate()->declaration()->isForwardClassDeclaration()))) {
             if (declaration->isForwardClassDeclaration())
                 if (Symbol *classDeclaration = snapshot.findMatchingClassDeclaration(declaration))
                     declaration = classDeclaration;
             CppClass *cppClass = new CppClass(declaration);
             if (m_lookupBaseClasses)
                 cppClass->lookupBases(declaration, context);
+            if (m_lookupDerivedClasses)
+                cppClass->lookupDerived(declaration, snapshot);
             m_element = QSharedPointer<CppElement>(cppClass);
         } else if (Enum *enumDecl = declaration->asEnum()) {
             m_element = QSharedPointer<CppElement>(new CppEnum(enumDecl));
@@ -199,13 +199,13 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
             m_element = QSharedPointer<CppElement>(new CppEnumerator(enumerator));
         } else if (declaration->isTypedef()) {
             m_element = QSharedPointer<CppElement>(new CppTypedef(declaration));
-        } else if (declaration->isFunction() || (type.isValid() && type->isFunctionType())) {
+        } else if (declaration->isFunction()
+                   || (type.isValid() && type->isFunctionType())
+                   || declaration->isTemplate()) {
             m_element = QSharedPointer<CppElement>(new CppFunction(declaration));
         } else if (declaration->isDeclaration() && type.isValid()) {
             m_element = QSharedPointer<CppElement>(
                 new CppVariable(declaration, context, lookupItem.scope()));
-        } else if (declaration->isTemplate() && declaration->asTemplate()->declaration()) {
-            m_element = QSharedPointer<CppElement>(new CppTemplate(declaration));
         } else {
             m_element = QSharedPointer<CppElement>(new CppDeclarableElement(declaration));
         }
@@ -327,6 +327,9 @@ CppMacro::~CppMacro()
 {}
 
 // CppDeclarableElement
+CppDeclarableElement::CppDeclarableElement()
+{}
+
 CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
 {
     m_icon = Icons().iconForSymbol(declaration);
@@ -388,6 +391,9 @@ CppNamespace::~CppNamespace()
 {}
 
 // CppClass
+CppClass::CppClass()
+{}
+
 CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
 {
     setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
@@ -428,8 +434,31 @@ void CppClass::lookupBases(Symbol *declaration, const CPlusPlus::LookupContext &
     }
 }
 
+void CppClass::lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot)
+{
+    typedef QPair<CppClass *, TypeHierarchy> Data;
+
+    TypeHierarchyBuilder builder(declaration, snapshot);
+    const TypeHierarchy &completeHierarchy = builder.buildDerivedTypeHierarchy();
+
+    QQueue<Data> q;
+    q.enqueue(qMakePair(this, completeHierarchy));
+    while (!q.isEmpty()) {
+        const Data &current = q.dequeue();
+        CppClass *clazz = current.first;
+        const TypeHierarchy &classHierarchy = current.second;
+        foreach (const TypeHierarchy &derivedHierarchy, classHierarchy.hierarchy()) {
+            clazz->m_derived.append(CppClass(derivedHierarchy.symbol()));
+            q.enqueue(qMakePair(&clazz->m_derived.last(), derivedHierarchy));
+        }
+    }
+}
+
 const QList<CppClass> &CppClass::bases() const
 { return m_bases; }
+
+const QList<CppClass> &CppClass::derived() const
+{ return m_derived; }
 
 // CppFunction
 CppFunction::CppFunction(Symbol *declaration) : CppDeclarableElement(declaration)
@@ -514,34 +543,6 @@ CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scop
 
 CppVariable::~CppVariable()
 {}
-
-// CppTemplate
-CppTemplate::CppTemplate(CPlusPlus::Symbol *declaration) : CppDeclarableElement(declaration)
-{
-    Template *templateSymbol = declaration->asTemplate();
-    if (templateSymbol->declaration()->isClass() ||
-        templateSymbol->declaration()->isForwardClassDeclaration()) {
-        m_isClassTemplate = true;
-        setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
-        setTooltip(qualifiedName());
-    } else {
-        m_isClassTemplate = false;
-        setHelpCategory(TextEditor::HelpItem::Function);
-    }
-}
-
-CppTemplate::~CppTemplate()
-{}
-
-bool CppTemplate::isClassTemplate() const
-{
-    return m_isClassTemplate;
-}
-
-bool CppTemplate::isFunctionTemplate() const
-{
-    return !m_isClassTemplate;
-}
 
 CppEnumerator::CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration)
     : CppDeclarableElement(declaration)
