@@ -61,6 +61,7 @@ public:
     QList<ProjectExplorer::Task> reportIssues(const QString &proFile);
     QList<BuildConfigurationInfo> availableBuildConfigurations(const QString &id, const QString &proFilePath, const QtSupport::QtVersionNumber &minimumQtVersion);
 
+    bool selectByDefault(const QString &id) const;
     QSet<QString> targetFeatures(const QString &id) const;
 };
 

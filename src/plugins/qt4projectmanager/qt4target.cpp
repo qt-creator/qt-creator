@@ -213,6 +213,12 @@ QList<ProjectExplorer::Task> Qt4BaseTargetFactory::reportIssues(const QString &p
     return QList<ProjectExplorer::Task>();
 }
 
+bool Qt4BaseTargetFactory::selectByDefault(const QString &id) const
+{
+    Q_UNUSED(id);
+    return true;
+}
+
 // -------------------------------------------------------------------------
 // Qt4BaseTarget
 // -------------------------------------------------------------------------
