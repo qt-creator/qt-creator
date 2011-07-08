@@ -38,7 +38,6 @@
 #include "qmlpropertychangesnodeinstance.h"
 #include "behaviornodeinstance.h"
 #include "qmlstatenodeinstance.h"
-#include "anchorchangesnodeinstance.h"
 
 #if QT_VERSION >= 0x050000
 #include "sgitemnodeinstance.h"
@@ -186,8 +185,6 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
 #endif
     else if (isSubclassOf(objectToBeWrapped, "QDeclarativeComponent"))
         instance = Internal::ComponentNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "QDeclarativeAnchorChanges"))
-        instance = Internal::AnchorChangesNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QDeclarativePropertyChanges"))
         instance = Internal::QmlPropertyChangesNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QDeclarativeState"))

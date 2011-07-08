@@ -16,7 +16,7 @@ HEADERS += $$PWD/qmlpropertychangesnodeinstance.h
 HEADERS += $$PWD/qmlstatenodeinstance.h
 HEADERS += $$PWD/qmltransitionnodeinstance.h
 HEADERS += $$PWD/servernodeinstance.h
-HEADERS += $$PWD/anchorchangesnodeinstance.h
+
 
 SOURCES +=  $$PWD/behaviornodeinstance.cpp
 SOURCES +=  $$PWD/dummycontextobject.cpp
@@ -32,4 +32,3 @@ SOURCES +=  $$PWD/qmlpropertychangesnodeinstance.cpp
 SOURCES +=  $$PWD/qmlstatenodeinstance.cpp
 SOURCES +=  $$PWD/qmltransitionnodeinstance.cpp
 SOURCES +=  $$PWD/servernodeinstance.cpp
-SOURCES +=  $$PWD/anchorchangesnodeinstance.cpp
