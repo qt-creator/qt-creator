@@ -71,6 +71,13 @@ void DeploymentInfo::createModels()
 {
     if (m_target->project()->activeTarget() != m_target)
         return;
+    if (!m_target->activeBuildConfiguration() || !m_target->activeBuildConfiguration()->qtVersion()
+            || !m_target->activeBuildConfiguration()->qtVersion()->isValid()) {
+        beginResetModel();
+        m_listModels.clear();
+        endResetModel();
+        return;
+    }
     const Qt4ProFileNode *const rootNode
         = m_target->qt4Project()->rootProjectNode();
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
