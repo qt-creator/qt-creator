@@ -1363,33 +1363,36 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor,
     if (!m_modelManager)
         return link;
 
-    const Snapshot snapshot = m_modelManager->snapshot();
+    const Snapshot &snapshot = m_modelManager->snapshot();
+    Document::Ptr doc = m_lastSemanticInfo.doc;
+    if (!doc) {
+        doc = snapshot.document(file()->fileName());
+        if (!doc)
+            return link;
+    }
 
-    if (m_lastSemanticInfo.doc){
-        Link l = attemptFuncDeclDef(cursor, m_lastSemanticInfo.doc, snapshot);
-        if (l.isValid()) {
-            return l;
+    QTextCursor tc = cursor;
+    QChar ch = characterAt(tc.position());
+    while (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
+        tc.movePosition(QTextCursor::NextCharacter);
+        ch = characterAt(tc.position());
+    }
+
+    if (doc->translationUnit() && doc->translationUnit()->ast()) {
+        int pos = tc.position();
+        while (characterAt(pos).isSpace())
+            ++pos;
+        if (characterAt(pos) == QLatin1Char('(')) {
+            link = attemptFuncDeclDef(cursor, doc, snapshot);
+            if (link.isValid())
+                return link;
         }
     }
 
     int lineNumber = 0, positionInBlock = 0;
     convertPosition(cursor.position(), &lineNumber, &positionInBlock);
-    Document::Ptr doc = snapshot.document(file()->fileName());
-    if (!doc)
-        return link;
-
     const unsigned line = lineNumber;
     const unsigned column = positionInBlock + 1;
-
-    QTextCursor tc = cursor;
-
-    // Make sure we're not at the start of a word
-    {
-        const QChar c = characterAt(tc.position());
-        if (c.isLetter() || c == QLatin1Char('_'))
-            tc.movePosition(QTextCursor::Right);
-    }
-
 
     int beginOfToken = 0;
     int endOfToken = 0;
