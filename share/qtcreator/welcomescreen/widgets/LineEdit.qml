@@ -31,32 +31,21 @@
 **************************************************************************/
 
 import QtQuick 1.0
+import "../components/custom" as Custom
 
-FocusScope {
+
+Custom.TextField {
     id: root
-    signal textChanged
-    property alias text : input.text
-    height:input.font.pixelSize*1.8
-    BorderImage {
+    leftMargin: 6
+    rightMargin: 6
+    topMargin: 6
+    bottomMargin: 6
+
+    background: BorderImage {
         anchors.fill: parent
-        source: "img/lineedit.png"
+        source: "qrc:welcome/images/lineedit.png"
         border.left: 5; border.top: 5
         border.right: 5; border.bottom: 5
-        TextInput {
-            id: input
-            property string defaultText
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.leftMargin: 4
-            anchors.rightMargin: 4
-            color: "grey"
-            text:  defaultText
-            font.pointSize: 12
-            clip: true
-            onActiveFocusChanged: activeFocus ? state = 'active' : state = ''
-            onTextChanged: if (text != defaultText) root.textChanged();
-            states: [ State { name: "active"; PropertyChanges { target: input; color: "black"; text: "" } } ]
-        }
+
     }
 }

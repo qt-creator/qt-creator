@@ -47,7 +47,7 @@ BorderImage {
     // whitelist
     property bool _hasDesktopTheme: welcomeMode.platform() === "linux"
 
-    Components.Button {
+    Button {
         id: openProjectButton
         text: qsTr("Open Project...")
         iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
@@ -58,7 +58,7 @@ BorderImage {
         anchors.verticalCenter: parent.verticalCenter
     }
 
-    Components.Button {
+    Button {
         id: createProjectButton
         text: qsTr("Create Project...")
         iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
@@ -70,7 +70,7 @@ BorderImage {
     }
 
 
-    Components.Button {
+    Button {
         id: feedbackButton
         text: qsTr("Feedback")
         iconSource: "qrc:welcome/images/feedback_arrow.png"

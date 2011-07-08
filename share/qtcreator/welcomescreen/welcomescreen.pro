@@ -8,6 +8,7 @@ OTHER_FILES = develop.qml \
               newssupport.qml \
               welcomescreen.qml \
               widgets/Button.qml \
+              widgets/CheckBox.qml \
               widgets/Feedback.qml \
               widgets/RatingBar.qml \
               widgets/ExampleBrowser.qml \
