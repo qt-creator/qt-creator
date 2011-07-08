@@ -436,11 +436,11 @@
     If you change property values or add properties in the code editor, the
     changes are updated in the running application when they are saved.
 
-    \section3 QML Observer
+    \section3 QML Inspector
 
-    While the application is running, you can use the \gui {QML Observer} view to
+    While the application is running, you can use the \gui {QML Inspector} view to
     explore the object structure, debug animations, and inspect colors. When debugging
-    complex applications, you can use the observe mode to jump to the position in code
+    complex applications, you can use the inspection mode to jump to the position in code
     where an element is defined.
 
     \section2 Code Analysis Tools
@@ -8897,10 +8897,11 @@
     The debugging helpers for QML provide you with code completion for custom modules
     (\c qmldump) and debugging Qt Quick UI projects (\c qmlobserver).
 
-    You have to build the QML Observer once for each Qt version that you want to debug
+    You have to build the QML Inspector once for each Qt version that you want
+    to debug
     with. Select \gui{Tools > Options... > Qt4 > Qt Versions}.
 
-    \note QML Observer requires Qt 4.7.1 or later.
+    \note QML Inspector requires Qt 4.7.1 or later.
 
     \section1 Enabling Debugging Helpers for Qt's Bootstrapped Applications
 
@@ -9046,7 +9047,7 @@
         \o Select \gui Projects, and then select the \gui QML check box in the
         \gui {Run Settings}, to enable QML debugging.
 
-        \o Compile the QML Observer debugging helper. For more information, see
+        \o Compile the QML Inspector debugging helper. For more information, see
         \l{Debugging Helpers for QML}.
 
     \endlist
@@ -9122,7 +9123,7 @@
 
     You can see the current value of a property by hovering over it in the code editor.
 
-    \section1 Previewing QML Changes at Runtime
+    \section1 Applying QML Changes at Runtime
 
     If you change property values or add properties in the code editor, the changes
     are updated in the running application when you save them. If live preview is not supported
@@ -9134,36 +9135,45 @@
 
     \section1 Inspecting QML at Runtime
 
-    While the application is running, you can use the \gui {QML Observer} view to
+    While the application is running, you can use the \gui {QML Inspector} view to
     explore the object structure, debug animations, and inspect colors.
-    To open the \gui {QML Observer} view, choose \gui {Window > View > QML Observer}.
+    To open the \gui {QML Inspector} view, choose \gui {Window > View >
+    QML Inspector}.
     The view shows the properties of the currently selected QML element.
 
-    \image qml-observer-view.png "QML Observer view"
+    \image qml-observer-view.png "QML Inspector view"
 
-    When you debug complex applications, you can use the observe
-    mode to jump to the position in code where an element is defined. To switch to
-    the observe mode, click
-    \inlineimage qml-observer-bar-observe.png
+    When you debug complex applications, you can use the inspection
+    mode to jump to the position in code where an element is defined. You are
+    switched to the inspection mode, when you click the \gui Select, \gui Zoom,
+    or \gui {Color Picker} button
     on the toolbar.
 
-    Click elements in the running application to jump to their definitions in the code.
-    Double-click elements to browse the element hierarchy. The hierarchy is displayed
-    as bread crumbs in the \gui {QML Observer} view.
+    \image qml-observer-buttons.png "QML Inspector toolbar"
 
-    To move the application running in \QQV to the front, select the
-    \gui {Show Application on Top} button.
+    When the \gui Select tool is enabled, you can click elements in the running
+    application to jump to their definitions in the code. The properties of the
+    selected element are displayed in the \gui {QML Inspector} view. The element
+    hierarchy is displayed as a bread crumb path.
 
     You can also right-click an element in the running application to view the element
-    hierarchy as a context menu. Select an element to jump to its definition in code.
+    hierarchy as a context menu.
 
-    \image qml-observer-context-menu.png "QML Observer"
+    \image qml-observer-context-menu.png "QML Inspector"
 
-    To zoom in and out of the application, click the \gui Zoom button.
+    To switch to the zoom mode, click the \gui Zoom button. Click in the
+    running application to zoom in. Right-click to open a context menu that
+    contains zoom controls.
 
     To inspect colors, click the \gui {Color Picker} button. You can also click
     \inlineimage qml-observer-bar-copy-color.png "Copy Color button"
     to copy the color definition to the clipboard.
+
+    To switch out of the inspection mode, deselect the \gui Select, \gui Zoom,
+    and \gui {Color Picker} button.
+
+    To move the application running in \QQV to the front, select the
+    \gui {Show Application on Top} button.
 
     \section1 Debugging Animations
 
