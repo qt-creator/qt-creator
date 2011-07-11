@@ -31,6 +31,7 @@
 **************************************************************************/
 
 import QtQuick 1.0
+import components 1.0 as Components
 
 Rectangle {
     id: root
@@ -38,6 +39,8 @@ Rectangle {
     color: "#00ffffff"
     radius: 6
     clip: true
+
+    Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
 
     Text {
         id: title
