@@ -979,18 +979,6 @@ void QmlJSTextEditorWidget::setUpdateSelectedElements(bool value)
     m_updateSelectedElements = value;
 }
 
-void QmlJSTextEditorWidget::renameId(const QString &oldId, const QString &newId)
-{
-    Utils::ChangeSet changeSet;
-
-    foreach (const AST::SourceLocation &loc, m_semanticInfo.idLocations.value(oldId)) {
-        changeSet.replace(loc.begin(), loc.end(), newId);
-    }
-
-    QTextCursor tc = textCursor();
-    changeSet.apply(&tc);
-}
-
 void QmlJSTextEditorWidget::updateUsesNow()
 {
     if (document()->revision() != m_semanticInfo.revision()) {
@@ -1162,20 +1150,6 @@ void QmlJSTextEditorWidget::setSelectedElements()
 
 void QmlJSTextEditorWidget::updateFileName()
 {
-}
-
-void QmlJSTextEditorWidget::renameIdUnderCursor()
-{
-    const QString id = wordUnderCursor();
-    bool ok = false;
-    const QString newId = QInputDialog::getText(Core::ICore::instance()->mainWindow(),
-                                                tr("Rename..."),
-                                                tr("New id:"),
-                                                QLineEdit::Normal,
-                                                id, &ok);
-    if (ok) {
-        renameId(id, newId);
-    }
 }
 
 void QmlJSTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
@@ -1360,14 +1334,6 @@ void QmlJSTextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QMenu *menu = new QMenu();
 
     QMenu *refactoringMenu = new QMenu(tr("Refactoring"), menu);
-
-    // Conditionally add the rename-id action:
-    const QString id = wordUnderCursor();
-    const QList<AST::SourceLocation> &locations = m_semanticInfo.idLocations.value(id);
-    if (! locations.isEmpty()) {
-        QAction *a = refactoringMenu->addAction(tr("Rename id '%1'...").arg(id));
-        connect(a, SIGNAL(triggered()), this, SLOT(renameIdUnderCursor()));
-    }
 
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));

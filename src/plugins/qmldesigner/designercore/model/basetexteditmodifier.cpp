@@ -37,6 +37,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljseditor/qmljseditor.h>
 #include <texteditor/tabsettings.h>
+#include <utils/changeset.h>
 
 using namespace QmlDesigner;
 
@@ -74,7 +75,12 @@ int BaseTextEditModifier::indentDepth() const
 bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)
 {
     if (QmlJSEditor::QmlJSTextEditorWidget *qmljse = qobject_cast<QmlJSEditor::QmlJSTextEditorWidget*>(plainTextEdit())) {
-        qmljse->renameId(oldId, newId);
+        Utils::ChangeSet changeSet;
+        foreach (const QmlJS::AST::SourceLocation &loc, qmljse->semanticInfo().idLocations.value(oldId)) {
+            changeSet.replace(loc.begin(), loc.end(), newId);
+        }
+        QTextCursor tc = qmljse->textCursor();
+        changeSet.apply(&tc);
         return true;
     } else {
         return false;

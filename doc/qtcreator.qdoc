@@ -2713,14 +2713,13 @@
 
     \section1 Renaming Symbols
 
-    The functions available for renaming symbols depend on whether you are
-    writing C++ or QML code. For QML, you can only rename IDs.
-
     To rename a specific symbol in a Qt project:
     \list 1
         \o In the editor, place the cursor on the symbol you would like to
            change and select \gui Tools > \gui C++ >
-           \gui{Rename Symbol Under Cursor} or press \key Ctrl+Shift+R.
+           \gui{Rename Symbol Under Cursor} or \gui Tools > \gui QML/JS >
+           \gui{Rename Symbol Under Cursor}. Alternatively press
+           \key Ctrl+Shift+R.
 
            The \gui{Search Results} pane opens and shows the location and
            number of instances of the symbol in the current project.
@@ -2739,17 +2738,6 @@
     \note Renaming local symbols does not open the \gui{Search Results} pane.
     The instances of the symbol are highlighted in code and you can edit the
     symbol. All instances of the local symbol are changed as you type.
-
-    To rename an ID in a Qt Quick project:
-
-    \list 1
-
-        \o Right-click an ID in the QML code and select
-        \gui {Rename id}.
-
-        \o In the \gui {Rename id} field, enter the new ID.
-
-    \endlist
 
     \section1 Applying Refactoring Actions
 

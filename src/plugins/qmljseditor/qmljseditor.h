@@ -156,8 +156,6 @@ public:
     bool updateSelectedElements() const;
     void setUpdateSelectedElements(bool value);
 
-    void renameId(const QString &oldId, const QString &newId);
-
     static QVector<QString> highlighterFormatCategories();
 
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
@@ -191,9 +189,6 @@ private slots:
 
     void updateUses();
     void updateUsesNow();
-
-    // refactoring ops
-    void renameIdUnderCursor();
 
     void semanticRehighlight();
     void forceSemanticRehighlightIfCurrentEditor();

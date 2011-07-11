@@ -180,7 +180,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
-    QAction *renameUsagesAction = new QAction(tr("Rename Usages"), this);
+    QAction *renameUsagesAction = new QAction(tr("Rename Symbol Under Cursor"), this);
     cmd = am->registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+R")));
     connect(renameUsagesAction, SIGNAL(triggered()), this, SLOT(renameUsages()));
