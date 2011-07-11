@@ -137,7 +137,8 @@ protected slots:
 
 private: //functions
     void setupFormEditorItemTree(const QmlItemNode &qmlItemNode);
-
+    void removeNodeFromScene(const QmlItemNode &qmlItemNode);
+    void hideNodeFromScene(const QmlItemNode &qmlItemNode);
 
 private: //variables
     QWeakPointer<FormEditorWidget> m_formEditorWidget;

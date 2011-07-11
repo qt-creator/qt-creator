@@ -106,6 +106,9 @@ public:
     void setContentVisible(bool visible);
     bool isContentVisible() const;
 
+    bool isFormEditorVisible() const;
+    void setFormEditorVisible(bool isVisible);
+
 protected:
     AbstractFormEditorTool* tool() const;
     void paintBoundingRect(QPainter *painter) const;
@@ -129,6 +132,7 @@ private: // variables
     double m_borderWidth;
     bool m_highlightBoundingRect;
     bool m_isContentVisible;
+    bool m_isFormEditorVisible;
 };
 
 

@@ -65,7 +65,8 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_qmlItemNode(qmlItemNode),
     m_borderWidth(1.0),
     m_highlightBoundingRect(false),
-    m_isContentVisible(true)
+    m_isContentVisible(true),
+    m_isFormEditorVisible(true)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setup();
@@ -193,6 +194,17 @@ bool FormEditorItem::isContentVisible() const
         return parentItem()->isContentVisible() && m_isContentVisible;
 
     return m_isContentVisible;
+}
+
+
+bool FormEditorItem::isFormEditorVisible() const
+{
+    return m_isFormEditorVisible;
+}
+void FormEditorItem::setFormEditorVisible(bool isVisible)
+{
+    m_isFormEditorVisible = isVisible;
+    setVisible(isVisible);
 }
 
 FormEditorItem::~FormEditorItem()
