@@ -106,58 +106,58 @@ typeInfoCache = {}
 def lookupType(typestring):
     type = typeCache.get(typestring)
     #warn("LOOKUP 1: %s -> %s" % (typestring, type))
-    if type is None:
-        ts = typestring
-        while True:
-            #WARN("ts: '%s'" % ts)
-            if ts.startswith("class "):
-                ts = ts[6:]
-            elif ts.startswith("struct "):
-                ts = ts[7:]
-            elif ts.startswith("const "):
-                ts = ts[6:]
-            elif ts.startswith("volatile "):
-                ts = ts[9:]
-            elif ts.startswith("enum "):
-                ts = ts[5:]
-            elif ts.endswith(" const"):
-                ts = ts[:-6]
-            elif ts.endswith(" volatile"):
-                ts = ts[:-9]
-            elif ts.endswith("*const"):
-                ts = ts[:-5]
-            elif ts.endswith("*volatile"):
-                ts = ts[:-8]
-            else:
-                break
-        try:
-            #warn("LOOKING UP '%s'" % ts)
-            type = gdb.lookup_type(ts)
-        except RuntimeError, error:
-            #warn("LOOKING UP '%s': %s" % (ts, error))
-            # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-            exp = "(class '%s'*)0" % ts
-            try:
-                type = parseAndEvaluate(exp).type.target()
-            except:
-                # Can throw "RuntimeError: No type named class Foo."
-                pass
-        except:
-            #warn("LOOKING UP '%s' FAILED" % ts)
-            pass
-        #warn("  RESULT: '%s'" % type)
-        #if not type is None:
-        #    warn("  FIELDS: '%s'" % type.fields())
-        typeCache[typestring] = type
-    if type is None and typestring.endswith('*'):
-        type = lookupType(typestring[0:-1])
+    if not type is None:
+        return type
+
+    ts = typestring
+    while True:
+        #WARN("ts: '%s'" % ts)
+        if ts.startswith("class "):
+            ts = ts[6:]
+        elif ts.startswith("struct "):
+            ts = ts[7:]
+        elif ts.startswith("const "):
+            ts = ts[6:]
+        elif ts.startswith("volatile "):
+            ts = ts[9:]
+        elif ts.startswith("enum "):
+            ts = ts[5:]
+        elif ts.endswith(" const"):
+            ts = ts[:-6]
+        elif ts.endswith(" volatile"):
+            ts = ts[:-9]
+        elif ts.endswith("*const"):
+            ts = ts[:-5]
+        elif ts.endswith("*volatile"):
+            ts = ts[:-8]
+        else:
+            break
+
+    if ts.endswith('*'):
+        type = lookupType(ts[0:-1])
         if not type is None:
             type = type.pointer()
             typeCache[typestring] = type
-    if type is None:
-        # could be gdb.lookup_type("char[3]") generating
-        # "RuntimeError: No type named char[3]"
+            return type
+
+    try:
+        #warn("LOOKING UP '%s'" % ts)
+        type = gdb.lookup_type(ts)
+    except RuntimeError, error:
+        #warn("LOOKING UP '%s': %s" % (ts, error))
+        # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
+        exp = "(class '%s'*)0" % ts
+        try:
+            type = parseAndEvaluate(exp).type.target()
+        except:
+            # Can throw "RuntimeError: No type named class Foo."
+            pass
+    except:
+        #warn("LOOKING UP '%s' FAILED" % ts)
         pass
+
+    # This could still be None as gdb.lookup_type("char[3]") generates
+    # "RuntimeError: No type named char[3]"
     return type
 
 def cleanAddress(addr):
