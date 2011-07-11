@@ -9630,11 +9630,11 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Type to locate</source>
-        <translation>Aufzufindender Typ</translation>
+        <translation>Suchmuster</translation>
     </message>
     <message>
         <source>Type to locate (%1)</source>
-        <translation>Aufzufindender Typ (%1)</translation>
+        <translation>Suchmuster (%1)</translation>
     </message>
     <message>
         <source>Indexing</source>
@@ -25844,7 +25844,11 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <name>RemoteLinux::Internal::MaemoQemuManager</name>
     <message>
         <source>Start Maemo Emulator</source>
-        <translation>Maemo-Emulator starten</translation>
+        <translation type="obsolete">Maemo-Emulator starten</translation>
+    </message>
+    <message>
+        <source>Start MeeGo Emulator</source>
+        <translation>Meego-Emulator starten</translation>
     </message>
     <message>
         <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
@@ -25863,8 +25867,12 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
         <translation>Qemu konnte nicht gestartet werden: %1</translation>
     </message>
     <message>
+        <source>Stop MeeGo Emulator</source>
+        <translation>Meego-Emulator stoppen</translation>
+    </message>
+    <message>
         <source>Stop Maemo Emulator</source>
-        <translation>Maemo-Emulator stoppen</translation>
+        <translation type="obsolete">Maemo-Emulator stoppen</translation>
     </message>
 </context>
 <context>
@@ -26074,7 +26082,11 @@ Fehlerausgabe: %1</translation>
     <name>RemoteLinux::Internal::MaemoQemuSettingsPage</name>
     <message>
         <source>Maemo Qemu Settings</source>
-        <translation>Maemo QEmu-Einstellungen</translation>
+        <translation type="obsolete">Maemo QEmu-Einstellungen</translation>
+    </message>
+    <message>
+        <source>MeeGo Qemu Settings</source>
+        <translation>Meego QEmu-Einstellungen</translation>
     </message>
 </context>
 <context>
@@ -26236,8 +26248,16 @@ Fehlerausgabe: %1</translation>
         <translation>Möchten Sie die Paketdateien löschen, die zum Ziel &apos;%1&apos; gehören?</translation>
     </message>
     <message>
+        <source>Error creating packaging directory &apos;%1&apos;.</source>
+        <translation>Fehler beim Anlegen des Paket-Ordners &apos;%1&apos;.</translation>
+    </message>
+    <message>
+        <source>Error creating MeeGo templates</source>
+        <translation>Fehlschlag beim Erstellen der Meego-Vorlagendateien</translation>
+    </message>
+    <message>
         <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
-        <translation>Fehler beim Anlegen des Maemo-Paket-Ordners &apos;%1&apos;</translation>
+        <translation type="obsolete">Fehler beim Anlegen des Maemo-Paket-Ordners &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Add Packaging Files to Project</source>
@@ -26253,7 +26273,7 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
     </message>
     <message>
         <source>Error creating Maemo templates</source>
-        <translation>Fehlschlag beim Erstellen der Maemo-Vorlagendateien</translation>
+        <translation type="obsolete">Fehlschlag beim Erstellen der Maemo-Vorlagendateien</translation>
     </message>
 </context>
 <context>
