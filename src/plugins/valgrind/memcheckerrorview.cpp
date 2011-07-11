@@ -509,11 +509,13 @@ void MemcheckErrorView::suppressError()
 
 void MemcheckErrorView::goNext()
 {
+    QTC_ASSERT(rowCount(), return);
     setCurrentRow((currentRow() + 1) % rowCount());
 }
 
 void MemcheckErrorView::goBack()
 {
+    QTC_ASSERT(rowCount(), return);
     const int prevRow = currentRow() - 1;
     setCurrentRow(prevRow >= 0 ? prevRow : rowCount() - 1);
 }

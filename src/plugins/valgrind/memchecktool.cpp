@@ -544,8 +544,8 @@ void MemcheckTool::updateErrorFilter()
 void MemcheckTool::finished()
 {
     const int n = m_errorModel->rowCount();
-    m_goBack->setEnabled(n > 0);
-    m_goNext->setEnabled(n > 0);
+    m_goBack->setEnabled(n > 1);
+    m_goNext->setEnabled(n > 1);
     const QString msg = AnalyzerManager::msgToolFinished(displayName(), n);
     AnalyzerManager::showStatusMessage(msg);
 }
