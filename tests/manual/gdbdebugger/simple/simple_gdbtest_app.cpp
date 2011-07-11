@@ -905,18 +905,19 @@ struct SomeType
 
 void testQMap()
 {
-#if 0
+#if 1
     QMap<uint, QStringList> ggl;
     ggl[11] = QStringList() << "11";
     ggl[22] = QStringList() << "22";
 
+    // only works with Python dumper
     typedef QMap<uint, QStringList> T;
     T ggt;
     ggt[11] = QStringList() << "11";
     ggt[22] = QStringList() << "22";
 #endif
 
-#if 0
+#if 1
     QMap<uint, float> gg0;
     gg0[11] = 11.0;
     gg0[22] = 22.0;
@@ -932,6 +933,7 @@ void testQMap()
     gg3["22.0"] = Foo(22);
     gg3["33.0"] = Foo(33);
 
+    // only works with Python dumper
     QObject ob;
     QMap<QString, QPointer<QObject> > map;
     map.insert("Hallo", QPointer<QObject>(&ob));
@@ -940,6 +942,7 @@ void testQMap()
 #endif
 
 #if 1
+    // only works with Python dumper
     QList<nsA::nsB::SomeType *> x;
     x.append(new nsA::nsB::SomeType(1));
     x.append(new nsA::nsB::SomeType(2));
@@ -1125,6 +1128,7 @@ void testQPixmap()
 
 void testQRegExp()
 {
+    // only works with Python dumper
     QRegExp re(QString("a(.*)b(.*)c"));
     QString str1 = "a1121b344c";
     QString str2 = "Xa1121b344c";
@@ -1258,6 +1262,7 @@ void testQSharedPointer()
 
 void testQXmlAttributes()
 {
+    // only works with Python dumper
     QXmlAttributes atts;
     atts.append("name1", "uri1", "localPart1", "value1");
     atts.append("name2", "uri2", "localPart2", "value2");
