@@ -48,13 +48,34 @@ BorderImage {
     property bool _hasDesktopTheme: welcomeMode.platform() === "linux"
 
     Button {
+        id: feedbackButton
+        text: qsTr("Feedback")
+        iconSource: "qrc:welcome/images/feedback_arrow.png"
+        height: 32
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        anchors.margins: 5
+        onClicked: welcomeMode.sendFeedback()
+    }
+
+    Text {
+        id: feedbackText
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.margins: 5
+        anchors.leftMargin: 10
+        anchors.left: feedbackButton.right
+        text: qsTr("Help us make Qt Creator even better")
+    }
+
+
+    Button {
         id: openProjectButton
         text: qsTr("Open Project...")
         iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
         onClicked: welcomeMode.openProject();
-        height: 32
-        anchors.left: parent.left
+        anchors.right: createProjectButton.left
         anchors.margins: 5
+        height: 32
         anchors.verticalCenter: parent.verticalCenter
     }
 
@@ -64,29 +85,8 @@ BorderImage {
         iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
         onClicked: welcomeMode.newProject();
         height: 32
-        anchors.left: openProjectButton.right
         anchors.margins: 5
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
-
-    Button {
-        id: feedbackButton
-        text: qsTr("Feedback")
-        iconSource: "qrc:welcome/images/feedback_arrow.png"
-        height: 32
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.right: feedbackText.left
-        anchors.margins: 5
-        onClicked: welcomeMode.sendFeedback()
-    }
-
-    Text {
-        id: feedbackText
-        anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
-        anchors.leftMargin: 10
-        anchors.margins: 5
-        text: qsTr("Help us make Qt Creator even better")
+        anchors.verticalCenter: parent.verticalCenter
     }
 }
