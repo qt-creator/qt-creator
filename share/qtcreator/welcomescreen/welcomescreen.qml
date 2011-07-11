@@ -50,28 +50,34 @@ Image {
         anchors.bottom: feedback.top
         anchors.margins: 10
 
-        BorderImage {
+        Item {
             id: news
-            opacity: 0.7
-            source: "qrc:welcome/images/rc_combined.png"
-            border.left: 5; border.top: 5
-            border.right: 5; border.bottom: 5
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.rightMargin: 5
             width: 270
+            BorderImage {
+                anchors.fill: parent
+                opacity: 0.7
+                source: "qrc:welcome/images/rc_combined.png"
+                border.left: 5; border.top: 5
+                border.right: 5; border.bottom: 5
+            }
             FeaturedAndNewsListing {
                 anchors.fill: parent
                 anchors.margins: 8
             }
         }
 
-        BorderImage {
+        Item {
             id: tabFrame
-            source: "qrc:welcome/images/rc_combined_transparent.png"
-            border.left: 5; border.top: 5
-            border.right: 5; border.bottom: 5
+            BorderImage {
+                anchors.fill: parent
+                source: "qrc:welcome/images/rc_combined_transparent.png"
+                border.left: 5; border.top: 5
+                border.right: 5; border.bottom: 5
+            }
 
             anchors.top: parent.top
             anchors.bottom: parent.bottom
