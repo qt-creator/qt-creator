@@ -81,14 +81,14 @@ Q_SIGNALS:
 
 public:
     void findUsages(const QString &fileName, quint32 offset);
+    void renameUsages(const QString &fileName, quint32 offset,
+                      const QString &replacement = QString());
 
 private Q_SLOTS:
     void displayResults(int first, int last);
     void searchFinished();
     void openEditor(const Find::SearchResultItem &item);
-
-private:
-    void findAll_helper(const QString &fileName, quint32 offset);
+    void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
 
 private:
     Find::SearchResultWindow *_resultWindow;

@@ -168,6 +168,7 @@ public slots:
     void forceSemanticRehighlight();
     void followSymbolUnderCursor();
     void findUsages();
+    void renameUsages();
     void showContextPane();
     virtual void setFontSettings(const TextEditor::FontSettings &);
 

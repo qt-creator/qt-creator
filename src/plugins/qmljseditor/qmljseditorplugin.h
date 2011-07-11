@@ -94,6 +94,7 @@ public:
 public Q_SLOTS:
     void followSymbolUnderCursor();
     void findUsages();
+    void renameUsages();
     void showContextPane();
 
 private Q_SLOTS:

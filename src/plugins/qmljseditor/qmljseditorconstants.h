@@ -52,6 +52,7 @@ const char * const TASK_SEARCH = "QmlJSEditor.TaskSearch";
 
 const char * const FOLLOW_SYMBOL_UNDER_CURSOR = "QmlJSEditor.FollowSymbolUnderCursor";
 const char * const FIND_USAGES = "QmlJSEditor.FindUsages";
+const char * const RENAME_USAGES = "QmlJSEditor.RenameUsages";
 const char * const SHOW_QT_QUICK_HELPER = "QmlJSEditor.ShowQtQuickHelper";
 
 const char * const QML_MIMETYPE = "application/x-qml";

@@ -1333,6 +1333,11 @@ void QmlJSTextEditorWidget::findUsages()
     m_findReferences->findUsages(file()->fileName(), textCursor().position());
 }
 
+void QmlJSTextEditorWidget::renameUsages()
+{
+    m_findReferences->renameUsages(file()->fileName(), textCursor().position());
+}
+
 void QmlJSTextEditorWidget::showContextPane()
 {
     if (m_contextPane && m_semanticInfo.isValid()) {

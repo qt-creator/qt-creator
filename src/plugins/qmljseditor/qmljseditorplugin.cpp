@@ -180,6 +180,13 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
+    QAction *renameUsagesAction = new QAction(tr("Rename Usages"), this);
+    cmd = am->registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+R")));
+    connect(renameUsagesAction, SIGNAL(triggered()), this, SLOT(renameUsages()));
+    contextMenu->addAction(cmd);
+    qmlToolsMenu->addAction(cmd);
+
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
     cmd = am->registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
 #ifdef Q_WS_MACX
@@ -279,6 +286,13 @@ void QmlJSEditorPlugin::findUsages()
     Core::EditorManager *em = Core::EditorManager::instance();
     if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(em->currentEditor()->widget()))
         editor->findUsages();
+}
+
+void QmlJSEditorPlugin::renameUsages()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    if (QmlJSTextEditorWidget *editor = qobject_cast<QmlJSTextEditorWidget*>(em->currentEditor()->widget()))
+        editor->renameUsages();
 }
 
 void QmlJSEditorPlugin::showContextPane()

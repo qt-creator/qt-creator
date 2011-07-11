@@ -795,7 +795,8 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
                         const ModelManagerInterface::WorkingCopy workingCopy,
                         Snapshot snapshot,
                         const QString fileName,
-                        quint32 offset)
+                        quint32 offset,
+                        QString replacement)
 {
     // update snapshot from workingCopy to make sure it's up to date
     // ### remove?
@@ -832,6 +833,8 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     const QString &name = findTarget.name();
     if (name.isEmpty())
         return;
+    if (!replacement.isNull() && replacement.isEmpty())
+        replacement = name;
 
     QStringList files;
     foreach (const Document::Ptr &doc, snapshot) {
@@ -841,12 +844,14 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
 
     future.setProgressRange(0, files.size());
 
+    // report a dummy usage to indicate the search is starting
+    FindReferences::Usage searchStarting(replacement, QString(), 0, 0, 0);
+
     if (findTarget.typeKind() == findTarget.TypeKind){
         const ObjectValue *typeValue = value_cast<const ObjectValue*>(findTarget.targetValue());
         if (!typeValue)
             return;
-        // report a dummy usage to indicate the search is starting
-        future.reportResult(FindReferences::Usage());
+        future.reportResult(searchStarting);
 
         SearchFileForType process(context, name, typeValue);
         UpdateUI reduce(&future);
@@ -859,8 +864,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         scope->lookupMember(name, &context, &scope);
         if (!scope)
             return;
-        // report a dummy usage to indicate the search is starting
-         future.reportResult(FindReferences::Usage());
+        future.reportResult(searchStarting);
 
         ProcessFile process(context, name, scope);
         UpdateUI reduce(&future);
@@ -872,17 +876,29 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
 
 void FindReferences::findUsages(const QString &fileName, quint32 offset)
 {
-    findAll_helper(fileName, offset);
-}
-
-void FindReferences::findAll_helper(const QString &fileName, quint32 offset)
-{
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
-
 
     QFuture<Usage> result = QtConcurrent::run(
                 &find_helper, modelManager->workingCopy(),
-                modelManager->snapshot(), fileName, offset);
+                modelManager->snapshot(), fileName, offset,
+                QString());
+    m_watcher.setFuture(result);
+}
+
+void FindReferences::renameUsages(const QString &fileName, quint32 offset,
+                                  const QString &replacement)
+{
+    ModelManagerInterface *modelManager = ModelManagerInterface::instance();
+
+    // an empty non-null string asks the future to use the current name as base
+    QString newName = replacement;
+    if (newName.isNull())
+        newName = QLatin1String("");
+
+    QFuture<Usage> result = QtConcurrent::run(
+                &find_helper, modelManager->workingCopy(),
+                modelManager->snapshot(), fileName, offset,
+                newName);
     m_watcher.setFuture(result);
 }
 
@@ -890,7 +906,18 @@ void FindReferences::displayResults(int first, int last)
 {
     // the first usage is always a dummy to indicate we now start searching
     if (first == 0) {
-        Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
+        Usage dummy = m_watcher.future().resultAt(0);
+        QString replacement = dummy.path;
+
+        Find::SearchResult *search;
+        if (replacement.isEmpty()) {
+            search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
+        } else {
+            search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchAndReplace);
+            _resultWindow->setTextToReplace(replacement);
+            connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
+                    SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+        }
         connect(search, SIGNAL(activated(Find::SearchResultItem)),
                 this, SLOT(openEditor(Find::SearchResultItem)));
         _resultWindow->popup(true);
@@ -929,4 +956,27 @@ void FindReferences::openEditor(const Find::SearchResultItem &item)
     } else {
         Core::EditorManager::instance()->openEditor(item.text, QString(), Core::EditorManager::ModeSwitch);
     }
+}
+
+void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items)
+{
+    const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items);
+
+    // files that are opened in an editor are changed, but not saved
+    QStringList changedOnDisk;
+    QStringList changedUnsavedEditors;
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    foreach (const QString &fileName, fileNames) {
+        if (editorManager->editorsForFileName(fileName).isEmpty())
+            changedOnDisk += fileName;
+        else
+            changedUnsavedEditors += fileName;
+    }
+
+    if (!changedOnDisk.isEmpty())
+        QmlJS::ModelManagerInterface::instance()->updateSourceFiles(changedOnDisk, true);
+    if (!changedUnsavedEditors.isEmpty())
+        QmlJS::ModelManagerInterface::instance()->updateSourceFiles(changedUnsavedEditors, false);
+
+    _resultWindow->hide();
 }
