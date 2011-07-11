@@ -769,15 +769,16 @@ QObject *ObjectNodeInstance::createComponentWrap(const QString &nodeSource, cons
     return object;
 }
 
+
 //The component might also be shipped with Creator.
 //To avoid trouble with import "." we use the component shipped with Creator.
 static inline QString fixComponentPathForIncompatibleQt(const QString &componentPath)
 {
     QString result = componentPath;
-    const QLatin1String importString("import");
+    const QLatin1String importString("/imports/");
 
     if (componentPath.contains(importString)) {
-        int index = componentPath.indexOf(importString) + 7;
+        int index = componentPath.indexOf(importString) + 8;
         const QString relativeImportPath = componentPath.right(componentPath.length() - index);
         QString fixedComponentPath = QLibraryInfo::location(QLibraryInfo::ImportsPath) + relativeImportPath;
         fixedComponentPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
@@ -786,7 +787,6 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
     }
 
     return result;
-
 }
 
 QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QDeclarativeContext *context)
