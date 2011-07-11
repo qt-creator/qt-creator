@@ -1646,7 +1646,7 @@ static inline quint64 findClosestFunctionAddress(const QList<quint64> &addresses
     for (int i = 0; i < size; i++) {
         if (addresses.at(i) <= needle) {
             const quint64 offset = needle - addresses.at(i);
-            if (offset < offset) {
+            if (offset < closestOffset) {
                 closestOffset = offset;
                 closestIndex = i;
             }
