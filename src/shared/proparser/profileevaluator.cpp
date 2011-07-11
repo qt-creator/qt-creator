@@ -298,6 +298,12 @@ public:
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
 
+    void populateDeps(
+            const ProStringList &deps, const ProString &prefix,
+            QHash<ProString, QSet<ProString> > &dependencies,
+            QHash<ProString, ProStringList> &dependees,
+            ProStringList &rootSet) const;
+
     QString expandEnvVars(const QString &str) const;
     QString fixPathToLocalOS(const QString &str) const;
     QString sysrootify(const QString &path, const QString &baseDir) const;
@@ -342,7 +348,7 @@ public:
         E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
         E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
         E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
-        E_REPLACE
+        E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS
     };
 
     enum TestFunc {
@@ -443,7 +449,9 @@ void ProFileEvaluator::Private::initStatics()
         { "re_escape", E_RE_ESCAPE },
         { "files", E_FILES },
         { "prompt", E_PROMPT }, // interactive, so cannot be implemented
-        { "replace", E_REPLACE }
+        { "replace", E_REPLACE },
+        { "sort_depends", E_SORT_DEPENDS },
+        { "resolve_depends", E_RESOLVE_DEPENDS }
     };
     for (unsigned i = 0; i < sizeof(expandInits)/sizeof(expandInits[0]); ++i)
         statics.expands.insert(ProString(expandInits[i].name), expandInits[i].func);
@@ -2029,6 +2037,27 @@ ProStringList ProFileEvaluator::Private::expandVariableReferences(
     }
 }
 
+void ProFileEvaluator::Private::populateDeps(
+        const ProStringList &deps, const ProString &prefix,
+        QHash<ProString, QSet<ProString> > &dependencies, QHash<ProString, ProStringList> &dependees,
+        ProStringList &rootSet) const
+{
+    foreach (const ProString &item, deps)
+        if (!dependencies.contains(item)) {
+            QSet<ProString> &dset = dependencies[item]; // Always create entry
+            ProStringList depends = valuesDirect(ProString(prefix + item + QString::fromLatin1(".depends")));
+            if (depends.isEmpty()) {
+                rootSet << item;
+            } else {
+                foreach (const ProString &dep, depends) {
+                    dset.insert(dep);
+                    dependees[dep] << item;
+                }
+                populateDeps(depends, prefix, dependencies, dependees, rootSet);
+            }
+        }
+}
+
 QList<ProStringList> ProFileEvaluator::Private::prepareFunctionArgs(const ushort *&tokPtr)
 {
     QList<ProStringList> args_list;
@@ -2529,6 +2558,30 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                     QString copy = rstr; // Force a detach on modify
                     rstr.replace(before, after);
                     ret << (rstr.isSharedWith(m_tmp1) ? val : ProString(rstr, NoHash).setSource(val));
+                }
+            }
+            break;
+        case E_SORT_DEPENDS:
+        case E_RESOLVE_DEPENDS:
+            if (args.count() < 1 || args.count() > 2) {
+                evalError(fL1S("%1(var, prefix) requires one or two arguments").arg(func.toQString(m_tmp1)));
+            } else {
+                QHash<ProString, QSet<ProString> > dependencies;
+                QHash<ProString, ProStringList> dependees;
+                ProStringList rootSet;
+                ProStringList orgList = valuesDirect(args.at(0));
+                populateDeps(orgList, (args.count() < 2 ? ProString() : args.at(1)),
+                             dependencies, dependees, rootSet);
+                for (int i = 0; i < rootSet.size(); ++i) {
+                    const ProString &item = rootSet.at(i);
+                    if ((func_t == E_RESOLVE_DEPENDS) || orgList.contains(item))
+                        ret.prepend(item);
+                    foreach (const ProString &dep, dependees[item]) {
+                        QSet<ProString> &dset = dependencies[dep];
+                        dset.remove(item);
+                        if (dset.isEmpty())
+                            rootSet << dep;
+                    }
                 }
             }
             break;
