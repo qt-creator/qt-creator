@@ -47,6 +47,26 @@ QML/JS Support
    * Fixed scanning and indentation of regular expression literals (QTCREATORBUG-4566)
    * Fixed indentation of object literals
 
+Qt Quick Designer
+  * Added tool buttons to the navigator for reordering and reparenting of items
+  * Added support for import as (QTCREATORBUG-4087)
+  * Added editing and navigation for inline components
+  * Added support for models and delegates in the current file (QTCREATORBUG-4528)
+  * Added support for repeaters (QTCREATORBUG-4852)
+  * Added context menu for resetting postion and size
+  * Added context menu for improved selection (QTCREATORBUG-4611)
+  * Added translation support for text items
+  * Added context menu for z-order (QTCREATORBUG-2522)
+  * Fixed z-order in the form editor (QTCREATORBUG-5226)
+  * Improved usability of the form editor (QTCREATORBUG-4820 QTCREATORBUG-4819)
+  * Do not enforce clipping of items in the form editor anymore
+  * Improved property editor for mouse area (QTCREATORBUG-4927)
+  * Use the qmlpuppet from current Qt if availabe (QTCREATORBUG-4824)
+  * Added project for qmlpuppet in share of Qt Creator
+  * Fixed copy and paste bug (QTCREATORBUG-4581)
+  * Fixed scoping of root item properties (QTCREATORBUG-4574)
+  * Improved property editor for ListView, GridView and PathView
+
 Help
 
 Platform Specific
