@@ -45,11 +45,11 @@ Item {
             width: root.width
             Widgets.RecentSessions {
                 id: recentSessions
-                width: parent.width / 2 - 10
+                width: parent.width / 3 - 10
             }
             Widgets.RecentProjects {
                 id: recentProjects
-                x: parent.width / 2 + 10
+                x: parent.width / 3 + 10
                 width: parent.width - x
             }
         }
