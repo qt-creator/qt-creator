@@ -1189,14 +1189,15 @@
     as tree structure.
 
     \o \gui {Library} pane displays the building blocks that you can use to design
-    applications: predefined QML elements, your own QML components, and other
+    applications: predefined QML elements, your own QML components, Qt Quick
+    components for Symbian or MeeGo that you import to the project, and other
     resources.
 
     \o \gui Canvas is the working area where you create QML components and
     design applications.
 
     \o \gui {Properties} pane organizes the properties of the selected QML element
-    or QML component. You can also change the properties in the code editor.
+    or QML component. You can change the properties also in the code editor.
 
     \o \gui {State} pane displays the different states of the component. QML
     states typically describe user interface configurations, such as the UI
@@ -1215,7 +1216,8 @@
 
     You can select elements in the \gui Navigator to edit their properties
     in the \gui Properties pane. Elements can access the properties of their
-    parent element.
+    parent element. To select elements on the canvas, right-click an element,
+    and select another element in the context menu.
 
     Typically, child elements are located within the parent element on the
     canvas. However, they do not necessarily have to fit inside the parent element.
@@ -1246,6 +1248,20 @@
     \inlineimage qtcreator-splitbar.png
     .
 
+    \section2 Setting the Stacking Order
+
+    The \l{http://doc.qt.nokia.com/4.7/qml-item.html#z-prop}{z property} of an
+    element determines its position in relation to its sibling elements in the
+    element hierarchy. By default, elements with a higher stacking value are
+    drawn on top of siblings with a lower stacking value. Elements with the same
+    stacking value are drawn in the order they are listed, from the last item
+    up.
+
+    To change the stacking order of an item, right-click it on the canvas and
+    select \gui {Stack (z)}. You can raise or lower the stack value of an item
+    or move the item to the front or back of all its siblings. To remove the
+    \c z property, select \gui Reset.
+
     \section2 Switching Parent Elements
 
     When you drag and drop QML elements to the canvas, Qt Quick Designer
@@ -1258,21 +1274,32 @@
     element under the cursor becomes the new parent of the element.
 
     You can change the parent of an element also in the \gui Navigator pane.
-    Drag and drop the element to another position in the tree.
+    Drag and drop the element to another position in the tree or use the arrow
+    buttons to move the element in the tree.
+
+    \image qmldesigner-navigator-arrows.png "Navigator arrow buttons"
 
     \section1 Element Library
 
     The \gui {Library} pane contains two tabs: \gui {Items} and \gui {Resources}.
     The \gui Items pane displays the QML elements grouped by type: your own QML
-    components, basic elements, interaction elements, views, and widgets.
+    components, basic elements, positioner elements, and views.
 
-    \omit
     Sets of UI components with the MeeGo and Symbian look and feel have been
     defined for Qt Quick. They are based on standard QML elements. To view the
-    UI components in \gui {QML Components}, click
-    \inlineimage qtcreator-filter.png
-    and select \gui {MeeGo Components} or \gui {Symbian Components}.
-    \endomit
+    UI components in the \gui {Library} pane, add import statements to the .pro
+    file of your project:
+
+    \list
+
+        \o \c  {import com.nokia.symbian 1.0} for Symbian
+
+        \o \c  {import com.meego 1.0} for MeeGo
+
+    \endlist
+
+    The Qt Quick Application wizard adds the import statements automatically
+    when you select the component set to use for your project.
 
     \image qmldesigner-qml-components.png "QML Components pane"
 
@@ -1296,6 +1323,11 @@
     that you specify explicitly are highlighted with blue color. In addition, property
     changes in states are highlighted with blue.
 
+    You can use a context-menu to reset some element properties. To reset the
+    position or size property of an element, right-click the element and select
+    \gui {Edit > Reset Position} or \gui {Reset Size} in the context menu. To
+    set the visibility of the component, select \gui {Edit > Visibility}.
+
     For more information on the properties available for an element, press \key {F1}.
 
     \section2 Setting Expressions
@@ -1318,6 +1350,17 @@
 
     For more information on the JavaScript environment provided by QML, see
     \l{http://doc.qt.nokia.com/4.7/qdeclarativejavascript.html}{Integrating JavaScript}.
+
+    \section2 Marking Text Elements for Translation
+
+    To support translators, mark each text element that should be translated.
+    In the \gui Properties pane, \gui Text field, select \gui tr.
+
+    \image qmldesigner-text-property-tr.png "Text properties"
+
+    The text string is enclosed in a \c qsTr call.
+
+    \image qml-translate.png "Text marked for translation"
 
     \section2 Loading Placeholder Data
 
@@ -1428,7 +1471,8 @@
 
     \section2 Building Transformations on Items
 
-    The \gui Advanced pane allows you configure advanced transformations, such as
+    The \gui Advanced pane allows you to configure advanced transformations,
+    such as
     rotation, scale, and translation. You can assign any number of transformations
     to an item. Each transformation is applied in order, one at a time.
 
@@ -9930,7 +9974,11 @@
 
     \endlist
 
-    In the code editor, write the code to use the data models.
+    When you add a List View element, the
+    \l{http://doc.qt.nokia.com/4.7/qml-listmodel.html}{ListModel} is added
+    automatically. You can edit its properties in the \gui Properties pane or in
+    the code editor. For the Grid View and Path Views elements, you must write
+    the code to use the data models.
 
     \section1 Positioning Items on Screens
 
