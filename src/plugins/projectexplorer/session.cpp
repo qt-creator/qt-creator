@@ -834,7 +834,7 @@ void SessionManager::configureEditor(Core::IEditor *editor, const QString &fileN
 
 QString SessionManager::currentSession() const
 {
-    return m_file->fileName();
+    return QFileInfo(m_file->fileName()).completeBaseName();
 }
 
 void SessionManager::updateWindowTitle()

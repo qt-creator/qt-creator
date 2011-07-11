@@ -44,8 +44,10 @@ HeaderItemView {
         function fullSessionName()
         {
             var newSessionName = sessionName
-            if (model.currentSession)
-                newSessionName = qsTr("%1 (current session)").arg(newSessionName);
+            if (model.lastSession && sessionList.isDefaultVirgin())
+                newSessionName = qsTr("%1 (last session)").arg(sessionName);
+            else if (model.activeSession && !sessionList.isDefaultVirgin())
+                newSessionName = qsTr("%1 (current session)").arg(sessionName);
             return newSessionName;
         }
 
@@ -60,7 +62,6 @@ HeaderItemView {
             Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
             id: fileNameText
             text: parent.fullSessionName()
-            font.italic: model.defaultSession
             elide: Text.ElideMiddle
             anchors.left: arrowImage.right
             anchors.verticalCenter: parent.verticalCenter

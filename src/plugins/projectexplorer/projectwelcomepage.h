@@ -50,26 +50,17 @@ class SessionManager;
 
 namespace Internal {
 
-struct WelcomePageData {
-    bool operator==(const WelcomePageData &rhs) const;
-    bool operator!=(const WelcomePageData &rhs) const;
-
-    QString previousSession;
-    QString activeSession;
-    QStringList sessionList;
-    QList<QPair<QString, QString> > projectList; // pair of filename, displayname
-};
-
-
 class SessionModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    enum { DefaultSessionRole = Qt::UserRole+1, CurrentSessionRole };
+    enum { DefaultSessionRole = Qt::UserRole+1, LastSessionRole, ActiveSessionRole };
 
     SessionModel(SessionManager* manager, QObject* parent = 0);
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
+
+    Q_SCRIPTABLE bool isDefaultVirgin() const;
 
 public slots:
     void resetSessions();
@@ -108,15 +99,15 @@ public:
     QString title() const { return tr("Develop"); }
     int priority() const { return 20; }
 
-    void setWelcomePageData(const WelcomePageData &welcomePageData);
+    void reloadWelcomeScreenData();
 
 signals:
     void requestProject(const QString &project);
     void requestSession(const QString &session);
     void manageSessions();
-
 private:
-    WelcomePageData m_welcomePageData;
+    SessionModel *m_sessionModel;
+    ProjectModel *m_projectModel;
 };
 
 } // namespace Internal

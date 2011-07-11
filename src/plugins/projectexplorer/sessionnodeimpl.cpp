@@ -37,7 +37,9 @@ namespace ProjectExplorer {
 namespace Internal {
 
 SessionNodeImpl::SessionNodeImpl(SessionManager *manager)
-        : ProjectExplorer::SessionNode(manager->currentSession(), manager)
+        : ProjectExplorer::SessionNode(
+              manager->sessionNameToFileName(manager->currentSession()),
+              manager)
 {
     setFileName(QLatin1String("session"));
 }
