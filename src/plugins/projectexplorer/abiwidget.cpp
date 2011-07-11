@@ -151,6 +151,7 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
 
     d->m_abi->addItem(tr("<custom>"), QLatin1String("custom"));
     d->m_abi->setCurrentIndex(0);
+
     for (int i = 0; i < abiList.count(); ++i) {
         const QString abiString = abiList.at(i).toString();
         d->m_abi->addItem(abiString, abiString);
@@ -159,27 +160,12 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
     }
 
     if (d->m_abi->currentIndex() == 0) {
-        if (!current.isValid() && !abiList.isEmpty()) {
+        if (!current.isValid() && !abiList.isEmpty())
             d->m_abi->setCurrentIndex(1); // default to the first Abi if none is selected.
-        } else {
-            d->m_architectureComboBox->setCurrentIndex(static_cast<int>(current.architecture()));
-            d->m_osComboBox->setCurrentIndex(static_cast<int>(current.os()));
-            osChanged();
-            for (int i = 0; i < d->m_osFlavorComboBox->count(); ++i) {
-                if (d->m_osFlavorComboBox->itemData(i).toInt() == current.osFlavor()) {
-                    d->m_osFlavorComboBox->setCurrentIndex(i);
-                    break;
-                }
-            }
-            d->m_binaryFormatComboBox->setCurrentIndex(static_cast<int>(current.binaryFormat()));
-            for (int i = 0; i < d->m_wordWidthComboBox->count(); ++i) {
-                if (d->m_wordWidthComboBox->itemData(i).toInt() == current.wordWidth()) {
-                    d->m_wordWidthComboBox->setCurrentIndex(i);
-                    break;
-                }
-            }
-        }
+        else
+            setCustomAbi(current);
     }
+    modeChanged();
 
     blockSignals(false);
 }
@@ -218,6 +204,31 @@ void AbiWidget::modeChanged()
     d->m_osFlavorComboBox->setEnabled(customMode);
     d->m_binaryFormatComboBox->setEnabled(customMode);
     d->m_wordWidthComboBox->setEnabled(customMode);
+
+    if (!customMode) {
+        Abi current(d->m_abi->itemData(d->m_abi->currentIndex()).toString());
+        setCustomAbi(current);
+    }
+}
+
+void AbiWidget::setCustomAbi(const Abi &current)
+{
+    d->m_architectureComboBox->setCurrentIndex(static_cast<int>(current.architecture()));
+    d->m_osComboBox->setCurrentIndex(static_cast<int>(current.os()));
+    osChanged();
+    for (int i = 0; i < d->m_osFlavorComboBox->count(); ++i) {
+        if (d->m_osFlavorComboBox->itemData(i).toInt() == current.osFlavor()) {
+            d->m_osFlavorComboBox->setCurrentIndex(i);
+            break;
+        }
+    }
+    d->m_binaryFormatComboBox->setCurrentIndex(static_cast<int>(current.binaryFormat()));
+    for (int i = 0; i < d->m_wordWidthComboBox->count(); ++i) {
+        if (d->m_wordWidthComboBox->itemData(i).toInt() == current.wordWidth()) {
+            d->m_wordWidthComboBox->setCurrentIndex(i);
+            break;
+        }
+    }
 }
 
 } // namespace ProjectExplorer

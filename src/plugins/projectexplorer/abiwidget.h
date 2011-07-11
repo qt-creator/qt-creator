@@ -68,6 +68,8 @@ private slots:
     void modeChanged();
 
 private:
+    void setCustomAbi(const Abi &a);
+
     Internal::AbiWidgetPrivate *const d;
 };
 
