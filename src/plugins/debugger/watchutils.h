@@ -81,6 +81,7 @@ bool hasLetterOrNumber(const QString &exp);
 bool hasSideEffects(const QString &exp);
 bool isKeyWord(const QString &exp);
 bool isPointerType(const QByteArray &type);
+bool isVTablePointer(const QByteArray &type);
 bool isCharPointerType(const QByteArray &type);
 bool startsWithDigit(const QString &str);
 QByteArray stripPointerType(QByteArray type);

@@ -762,6 +762,14 @@ static void fixValue(const std::string &type, std::wstring *value)
         }
     }
 
+    // Strip a vtable "0x13f37b7c8 module!Class::`vftable'" to a plain pointer.
+    if (SymbolGroupValue::isVTableType(type)) {
+        const std::wstring::size_type blankPos = value->find(L' ', 2);
+        if (blankPos != std::wstring::npos)
+            value->erase(blankPos, value->size() - blankPos);
+        return;
+    }
+
     // Pointers: fix '0x00000000`00000AD class bla' ... to "0xAD", but leave
     // 'const char *' values as is ('0x00000000`00000AD "hallo").
     if (!type.empty() && type.at(type.size() - 1) == L'*') {
