@@ -15,5 +15,6 @@
         <file>magnifier-plus.png</file>
         <file>recordOff.png</file>
         <file>recordOn.png</file>
+        <file>StatusDisplay.qml</file>
     </qresource>
 </RCC>

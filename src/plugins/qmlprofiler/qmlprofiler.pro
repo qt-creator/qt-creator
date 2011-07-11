@@ -59,7 +59,8 @@ OTHER_FILES += \
     qml/RangeDetails.qml \
     qml/RangeMover.qml \
     qml/MainView.js \
-    qml/TimeDisplay.qml
+    qml/TimeDisplay.qml \
+    qml/StatusDisplay.qml
 
 FORMS += \
     qmlprofilerattachdialog.ui
