@@ -669,11 +669,8 @@ def extractCString(table, offset):
 def qdump__QObject(d, item):
     #warn("OBJECT: %s " % item.value)
     try:
-        privateTypeName = str(item.value.type) + "Private"
+        privateTypeName = d.ns + "QObjectPrivate"
         privateType = lookupType(privateTypeName)
-        if privateType is None:
-            privateTypeName = d.ns + "QObjectPrivate"
-            privateType = lookupType(privateTypeName)
         staticMetaObject = item.value["staticMetaObject"]
         d_ptr = item.value["d_ptr"]["d"].cast(privateType.pointer()).dereference()
         #warn("D_PTR: %s " % d_ptr)
