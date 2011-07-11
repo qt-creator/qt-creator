@@ -291,7 +291,7 @@ class SubItem:
 
             if len(type) > 0 and type != self.d.currentChildType:
                 self.d.put('type="%s",' % type) # str(type.unqualified()) ?
-                if not type in typeInfoCache:
+                if not type in typeInfoCache and type != " ": # FIXME: Move to lookupType
                     typeObj = lookupType(type)
                     if not typeObj is None:
                         typeInfoCache[type] = TypeInfo(typeObj)
@@ -1081,7 +1081,7 @@ class Dumper:
                 try:
                     list = eval(exp)
                     self.putValue("")
-                    self.putType(" ")
+                    self.putNoType()
                     self.putNumChild(len(list))
                     # This is a list of expressions to evaluate
                     with Children(self, len(list)):
@@ -1092,7 +1092,7 @@ class Dumper:
                 except RuntimeError, error:
                     warn("EVAL: ERROR CAUGHT %s" % error)
                     self.putValue("<syntax error>")
-                    self.putType(" ")
+                    self.putNoType()
                     self.putNumChild(0)
                     with Children(self, 0):
                         pass
@@ -1104,7 +1104,7 @@ class Dumper:
             handled = False
             if len(exp) == 0: # The <Edit> case
                 self.putValue(" ")
-                self.putType(" ")
+                self.putNoType()
                 self.putNumChild(0)
             else:
                 try:
@@ -1146,6 +1146,11 @@ class Dumper:
         if priority >= self.currentTypePriority:
             self.currentType = type
             self.currentTypePriority = priority
+
+    def putNoType(self):
+        # FIXME: replace with something that does not need special handling
+        # in SubItem.__exit__().
+        self.putBetterType(" ")
 
     def putBetterType(self, type, priority = 0):
         self.currentType = type
