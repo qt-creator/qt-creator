@@ -331,15 +331,20 @@ AbstractQt4MaemoTarget::ActionStatus AbstractQt4MaemoTarget::createTemplates()
         return ActionFailed;
     if (actionStatus == ActionSuccessful) {
         const QStringList &files = packagingFilePaths();
-        QMessageBox::StandardButton button
-            = QMessageBox::question(Core::ICore::instance()->mainWindow(),
-                  tr("Add Packaging Files to Project"),
-                  tr("Qt Creator has set up the following files to enable "
-                     "packaging:\n   %1\nDo you want to add them to the project?")
-                      .arg(files.join(QLatin1String("\n   "))),
-                  QMessageBox::Yes | QMessageBox::No);
-        if (button == QMessageBox::Yes)
-            ProjectExplorer::ProjectExplorerPlugin::instance()->addExistingFiles(project()->rootProjectNode(), files);
+        if (!files.isEmpty()) {
+            const QString list = QLatin1String("<ul><li>")
+                + files.join(QLatin1String("</li><li>")) + QLatin1String("</li></ul>");
+            QMessageBox::StandardButton button
+                = QMessageBox::question(Core::ICore::instance()->mainWindow(),
+                      tr("Add Packaging Files to Project"),
+                      tr("<html>Qt Creator has set up the following files to enable "
+                         "packaging:\n   %1\nDo you want to add them to the project?</html>")
+                         .arg(list), QMessageBox::Yes | QMessageBox::No);
+            if (button == QMessageBox::Yes) {
+                ProjectExplorer::ProjectExplorerPlugin::instance()
+                    ->addExistingFiles(project()->rootProjectNode(), files);
+            }
+        }
     }
     return actionStatus;
 }
