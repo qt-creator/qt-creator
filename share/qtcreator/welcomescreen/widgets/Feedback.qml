@@ -40,7 +40,7 @@ BorderImage {
     border.left: 2
     border.right: 2
 
-    Rectangle { color: "black"; width: parent.width; height: 1; anchors.top: parent.top; anchors.left: parent.left }
+    Rectangle { color: "#4D295B7F"; width: parent.width; height: 1; anchors.top: parent.top; anchors.left: parent.left }
 
     Components.QStyleItem { id: styleItem; visible: false }
 

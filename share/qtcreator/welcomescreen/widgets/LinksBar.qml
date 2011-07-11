@@ -40,15 +40,13 @@ Row {
     property int tabWidth: Math.floor(tabBar.width/tabs.count)
     Repeater {
         id: tabs
-        height: tabBar.height
         model: parent.model
         delegate: Item {
             height: tabBar.height
-            width: tabs.count-1 === index ? tabWidth : tabWidth + tabBar.width%tabs.count
-            BorderImage {
+            width: index === 1 ? tabWidth : (tabWidth + tabBar.width % tabs.count + 1)
+            Image {
                 id: tabBackground
                 anchors.fill: parent
-                border { top: 1; bottom: 1}
                 source: "qrc:welcome/images/tab_inactive.png"
             }
             Text {

@@ -119,7 +119,7 @@ Rectangle {
         onExited: parent.state = ""
     }
 
-    states: [ State { name: "hover"; PropertyChanges { target: root; color: "#eeeeeeee" } } ]
+    states: [ State { name: "hover"; PropertyChanges { target: root; color: "#5effffff" } } ]
 
     transitions:
         Transition {

@@ -33,11 +33,9 @@
 import QtQuick 1.0
 import "widgets"
 
-Image {
+Rectangle {
     id: root
-    source: "qrc:welcome/images/welcomebg.png"
-    smooth: true
-
+    color: "#F2F2F2"
     // work around the fact that we can't use
     // a property alias to welcomeMode.activePlugin
     property int current: 0
@@ -57,12 +55,11 @@ Image {
             anchors.left: parent.left
             anchors.rightMargin: 5
             width: 270
-            BorderImage {
+            Rectangle {
                 anchors.fill: parent
-                opacity: 0.7
-                source: "qrc:welcome/images/rc_combined.png"
-                border.left: 5; border.top: 5
-                border.right: 5; border.bottom: 5
+                border.color: "#36295B7F"
+                border.width: 1
+                color: "#B3FFFFFF"
             }
             FeaturedAndNewsListing {
                 anchors.fill: parent
@@ -70,13 +67,15 @@ Image {
             }
         }
 
-        Item {
+        Image {
             id: tabFrame
-            BorderImage {
+            source: "qrc:welcome/images/welcomebg.png"
+            smooth: true
+            Rectangle {
                 anchors.fill: parent
-                source: "qrc:welcome/images/rc_combined_transparent.png"
-                border.left: 5; border.top: 5
-                border.right: 5; border.bottom: 5
+                border.color: "#36295B7F"
+                border.width: 1
+                color: "#20FFFFFF"
             }
 
             anchors.top: parent.top
@@ -85,33 +84,29 @@ Image {
             anchors.right: parent.right
             anchors.leftMargin: 5
 
-            Rectangle {
-                id: tabBar
-                color: "#00000000"
-                border.color: "black"
-                border.width: 1
+            LinksBar {
+                id: linksBar
+                anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.rightMargin: 1
-                height: navigationAndDevLinks.height - 1
+                property alias current: root.current
+                model: tabs.model
+            }
 
-                LinksBar {
-                    id: navigationAndDevLinks
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.leftMargin: 1
-                    property alias current: root.current
-                    model: tabs.model
-                }
+            Rectangle {
+                anchors.fill: linksBar
+                anchors.bottomMargin: 1
+                opacity: 1
+                border.color: "#4D295B7F"
+                border.width: 1
+                color: "#00000000"
             }
 
             TabWidget {
                 id: tabs
                 property int current: root.current
                 model: pagesModel
-                anchors.top: tabBar.bottom
+                anchors.top: linksBar.bottom
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
