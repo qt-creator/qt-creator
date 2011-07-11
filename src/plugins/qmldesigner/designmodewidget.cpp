@@ -557,6 +557,7 @@ void DesignModeWidget::setAutoSynchronization(bool sync)
             m_currentDesignDocumentController->loadMaster(m_currentTextEdit.data());
         } else {
             m_currentDesignDocumentController->loadCurrentModel();
+            m_componentView->resetView();
         }
 
         QList<RewriterView::Error> errors = m_currentDesignDocumentController->qmlErrors();
