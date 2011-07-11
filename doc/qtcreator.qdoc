@@ -373,7 +373,8 @@
     and profile Qt Quick applications.
 
     You can test applications that are intended for mobile devices in the Qt
-    Simulator and Maemo Emulator, but you also need to test the applications
+    Simulator and Maemo or MeeGo Harmattan emulator, but you also need to test
+    the applications
     on real devices.
 
     \section2 Debuggers
@@ -10413,16 +10414,16 @@
 
     \section1 Starting the Emulator
 
-    The \gui {Start Maemo Emulator} button is visible if you have a project
+    The \gui {Start MeeGo Emulator} button is visible if you have a project
     open in Qt Creator for which you have added the Maemo or MeeGo Harmattan
     build target. It starts the Maemo or MeeGo Harmattan emulator, depending
     on the selected target.
 
     To start the emulator, click
-    \inlineimage qtcreator-maemo-emulator-button.png "Start Maemo Emulator button"
+    \inlineimage qtcreator-maemo-emulator-button.png "Start MeeGo Emulator button"
     .
 
-    Test your application on the Maemo emulator as on a device. For a list of
+    Test your application on the emulator as on a device. For a list of
     keyboard shortcuts that you can use to emulate keys and functions, see
     \l {Emulating Device Keys}.
 
@@ -10538,7 +10539,7 @@
     and displays the text \e {Shutting down} in the emulator window title pane.
     The emulator closes shortly after this.
 
-    You can also select the \gui {Start Maemo Emulator} button to close the
+    You can also select the \gui {Start MeeGo Emulator} button to close the
     emulator. This is a faster way to close the emulator, because it does not
     wait for the operating system running on the emulated machine to shut down,
     but this also means that it is less safe.
