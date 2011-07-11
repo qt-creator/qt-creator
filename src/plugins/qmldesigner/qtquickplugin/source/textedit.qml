@@ -32,7 +32,7 @@
 
 import QtQuick 1.0
 
-Text {
+TextEdit {
     width: 80
     height: 20
     text: qsTr("text edit")
