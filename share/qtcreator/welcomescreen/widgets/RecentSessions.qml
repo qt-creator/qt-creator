@@ -53,8 +53,10 @@ HeaderItemView {
         function fullSessionName()
         {
             var newSessionName = sessionName
-            if (model.currentSession)
-                newSessionName = qsTr("%1 (current session)").arg(newSessionName);
+            if (model.lastSession && sessionList.isDefaultVirgin())
+                newSessionName = qsTr("%1 (last session)").arg(sessionName);
+            else if (model.activeSession && !sessionList.isDefaultVirgin())
+                newSessionName = qsTr("%1 (current session)").arg(sessionName);
             return newSessionName;
         }
 
@@ -69,7 +71,6 @@ HeaderItemView {
         Text {
             id: fileNameText
             text: parent.fullSessionName()
-            font.italic: model.defaultSession
             elide: Text.ElideMiddle
             anchors.left: parent.left
             anchors.right: arrowImage.right
