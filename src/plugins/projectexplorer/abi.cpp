@@ -92,6 +92,10 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
         arch = Abi::X86Architecture;
         width = 32;
         break;
+    case 0x0166: // MIPS, little endian
+        arch = Abi::MipsArcitecture;
+        width = 32;
+        break;
     case 0x0200: // ia64
         arch = Abi::ItaniumArchitecture;
         width = 64;
@@ -736,6 +740,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("dynamic QtCore: win msys 32bit")
             << QString::fromLatin1("%1/dynamic/win-mingw-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
+    QTest::newRow("dynamic QtCore: wince msvc2005 32bit")
+            << QString::fromLatin1("%1/dynamic/wince-32bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("mips-windows-msvc2005-pe-32bit"));
     QTest::newRow("dynamic stdc++: mac fat")
             << QString::fromLatin1("%1/dynamic/mac-fat.dylib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-macos-generic-mach_o-32bit")
