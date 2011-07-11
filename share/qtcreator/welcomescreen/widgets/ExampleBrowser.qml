@@ -78,7 +78,7 @@ Item {
     }
     Components.ScrollArea  {
         id: scrollArea
-        anchors.topMargin: lineEditRoot.height
+        anchors.topMargin: lineEditRoot.height+12
         anchors.fill: parent
         clip: true
         frame: false
@@ -86,7 +86,10 @@ Item {
             Repeater {
                 id: repeater
                 model: examplesModel
-                delegate: ExampleDelegate { width: scrollArea.width-20 }
+                delegate: ExampleDelegate {
+                    width: scrollArea.width-20;
+                    property int count: repeater.count
+                }
             }
         }
     }

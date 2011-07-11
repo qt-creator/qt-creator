@@ -42,15 +42,15 @@ Item {
         frame: false
         Item {
             height: Math.max(recentSessions.height, recentProjects.height)
-            width: root.width-20
+            width: root.width
             Widgets.RecentSessions {
                 id: recentSessions
-                width: parent.width / 2
+                width: parent.width / 2 - 10
             }
             Widgets.RecentProjects {
                 id: recentProjects
-                x: parent.width / 2
-                width: parent.width / 2
+                x: parent.width / 2 + 10
+                width: parent.width - x
             }
         }
     }

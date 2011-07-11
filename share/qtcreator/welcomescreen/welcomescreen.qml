@@ -98,7 +98,6 @@ Image {
                     anchors.leftMargin: 1
                     property alias current: root.current
                     model: tabs.model
-                    tabBarWidth: width
                 }
             }
 
