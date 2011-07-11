@@ -79,7 +79,7 @@ void AbstractRemoteLinuxRunControl::start()
 RunControl::StopResult AbstractRemoteLinuxRunControl::stop()
 {
     runner()->stop();
-    return StoppedSynchronously;
+    return AsynchronousStop;
 }
 
 void AbstractRemoteLinuxRunControl::handleSshError(const QString &error)
