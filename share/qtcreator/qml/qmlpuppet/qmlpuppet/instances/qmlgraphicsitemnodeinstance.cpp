@@ -314,9 +314,10 @@ void QmlGraphicsItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &ol
         setMovable(true);
     }
 
+    bool componentComplete = QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete;
     QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete = 1;
     GraphicsObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
-    QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete = 0;
+    QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete = componentComplete;
 
     if (newParentInstance && newParentInstance->isPositioner()) {
         setInPositioner(true);
