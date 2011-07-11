@@ -41,8 +41,6 @@
 #include <utils/ssh/sshconnectionmanager.h>
 #include <utils/ssh/sshremoteprocess.h>
 
-#include <QtCore/QFileInfo>
-
 #include <limits>
 
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
@@ -65,7 +63,12 @@ RemoteLinuxApplicationRunner::RemoteLinuxApplicationRunner(QObject *parent,
       m_stopRequested(false),
       m_state(Inactive)
 {
-    m_procsToKill << QFileInfo(m_remoteExecutable).fileName();
+    // Prevent pkill from matching our own pkill call.
+    QString pkillArg = m_remoteExecutable;
+    const int lastPos = pkillArg.count() - 1;
+    pkillArg.replace(lastPos, 1, QLatin1Char('[') + pkillArg.at(lastPos) + QLatin1Char(']'));
+    m_procsToKill << pkillArg;
+
     connect(m_portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGathererError(QString)));
     connect(m_portsGatherer, SIGNAL(portListReady()), SLOT(handleUsedPortsAvailable()));
 }
@@ -181,8 +184,13 @@ void RemoteLinuxApplicationRunner::cleanup()
 
     emit reportProgress(tr("Killing remote process(es)..."));
 
-    // pkill behaves differently on Fremantle and Harmattan.
-    const char *const killTemplate = "pkill -%2 '^%1$'; pkill -%2 '/%1$';";
+    // Fremantle's busybox configuration is strange.
+    const char *killTemplate;
+    if (m_devConfig->osType() == LinuxDeviceConfiguration::Maemo5OsType)
+        killTemplate = "pkill -f -%2 %1;";
+    else
+        killTemplate = "pkill -%2 -f %1;";
+
     QString niceKill;
     QString brutalKill;
     foreach (const QString &proc, m_procsToKill) {
@@ -221,6 +229,7 @@ void RemoteLinuxApplicationRunner::handleCleanupFinished(int exitStatus)
 
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
         emitError(tr("Initial cleanup failed: %1").arg(m_cleaner->errorString()));
+        emit remoteProcessFinished(InvalidExitCode);
         return;
     }
 
