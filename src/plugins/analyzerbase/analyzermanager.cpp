@@ -775,16 +775,16 @@ AnalyzerManager::~AnalyzerManager()
 
 void AnalyzerManager::extensionsInitialized()
 {
-    if (d->m_tools.isEmpty())
+    if (m_instance->d->m_tools.isEmpty())
         return;
 
-    foreach (IAnalyzerTool *tool, d->m_tools)
+    foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
         tool->extensionsInitialized();
 }
 
 void AnalyzerManager::shutdown()
 {
-    d->saveToolSettings(d->m_currentTool, d->m_currentMode);
+    m_instance->d->saveToolSettings(m_instance->d->m_currentTool, m_instance->d->m_currentMode);
 }
 
 void AnalyzerManager::addTool(IAnalyzerTool *tool, const StartModes &modes)
