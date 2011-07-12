@@ -420,7 +420,7 @@ unsigned SymbolGroupValue::isPointerType(const std::string &t)
 // Return number of characters to strip for pointer type
 bool SymbolGroupValue::isVTableType(const std::string &t)
 {
-    const char vtableTypeC[] = "__fptr() [";
+    const char vtableTypeC[] = "__fptr()";
     return t.compare(0, sizeof(vtableTypeC) - 1, vtableTypeC) == 0;
 }
 
