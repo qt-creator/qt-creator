@@ -503,26 +503,41 @@ bool parseCdbDisassemblerFunctionLine(const QString &l,
     return true;
 }
 
-// Parse an instruction line:
-// '   21 00000001`3fcebff1 8b4030          mov     eax,dword ptr [rax+30h]'
-// '<source_line> <address> <raw data> <instruction>
-bool parseCdbDisassemblerLine(const QString &lineIn, DisassemblerLine *dLine, uint *sourceLine)
+/* Parse an instruction line, CDB 6.12:
+ *  0123456
+ * '   21 00000001`3fcebff1 8b4030          mov     eax,dword ptr [rax+30h]'
+ * or CDB 6.11 (source line and address joined, 725 being the source line number):
+ *  0123456
+ * '  725078bb291 8bec            mov     ebp,esp
+ * '<source_line>[ ]?<address> <raw data> <instruction> */
+
+bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint *sourceLine)
 {
     *sourceLine = 0;
-    if (lineIn.size() < 6)
+    if (line.size() < 6)
         return false;
-    // Check source line: right-padded 5 digits
-    const bool hasSourceLine = lineIn.at(4).isDigit();
-    const QString line = lineIn.trimmed();
-    int addressPos = 0;
     const QChar blank = QLatin1Char(' ');
-    // Optional source line.
-    if (hasSourceLine) {
-        const int sourceLineEnd = line.indexOf(blank);
+    int addressPos = 0;
+    // Check for joined source and address in 6.11
+    const bool hasV611SourceLine = line.at(5).isDigit();
+    const bool hasV612SourceLine = !hasV611SourceLine && line.at(4).isDigit();
+    if (hasV611SourceLine) {
+        // v6.11: Fixed 5 source line columns, joined
+        *sourceLine = line.left(5).trimmed().toUInt();
+        addressPos = 5;
+    } else if (hasV612SourceLine) {
+        // v6.12: Free format columns
+        const int sourceLineEnd = line.indexOf(blank, 4);
         if (sourceLineEnd == -1)
-            return false;
-        *sourceLine = line.left(sourceLineEnd).toUInt();
+              return false;
+        *sourceLine = line.left(sourceLineEnd).trimmed().toUInt();
         addressPos = sourceLineEnd + 1;
+    } else {
+        // Skip source line column.
+        const int size = line.size();
+        for ( ; addressPos < size && line.at(addressPos).isSpace(); ++addressPos) ;
+        if (addressPos == size)
+            return false;
     }
     // Find positions of address/raw data/instruction
     const int addressEnd = line.indexOf(blank, addressPos + 1);
