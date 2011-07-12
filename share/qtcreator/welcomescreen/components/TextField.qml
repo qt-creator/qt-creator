@@ -43,6 +43,8 @@ Components.TextField {
     leftMargin: 6
     rightMargin: 6
 
+    property string hint
+
     height:  backgroundItem.sizeFromContents(200, 25).height
     width: 200
     clip: false
@@ -53,6 +55,7 @@ Components.TextField {
         sunken: true
         focus: textfield.activeFocus
         hover: containsMouse
+        hint: textfield.hint
     }
 
     Item{
