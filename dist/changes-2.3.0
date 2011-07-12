@@ -22,8 +22,33 @@ Debugging
    * Color memory display highlighting the variables in stack layout
    * Correct source location for breakpoints in CDB using code model
      (QTCREATORBUG-2317)
+   * Added support for multiple breakpoints from one location
+     (covering constructors/destructors, template functions, etc.)
+   * Added custom dumper for QXmlAttributes, Eigen::Matrix
+   * Added choice to set watchpoints on either address or expression
+   * Added framework to modify strings, vectors etc. during debugging
+   * Added option to stop on qWarning
+   * Renamed "Locals and Watchers" into "Locals and Expressions"
+   * Renamed "Watchpoint" into "Data Breakpoints"
+   * Make original value of automatically dereferenced pointer accessible
+   * Improved "Add Breakpoint..." dialog
+   * Improved display of enums (include numeric value)
+   * Improved speed of QVariant dumper
+   * Improved handling of shadowed local variables
+   * Fixed object expansion in tooltip
+   * Fixed std::deque dumper (QTCREATORBUG-4936)
+   * Fixed handling of watched expressions with unusual characters
+   * Fixed "Run To Line" on Mac (QTCREATORBUG-4619)
+   * Fixed output parsing for data breakpoints on Mac (QTCREATORBUG-4797)
+   * Fixed auto-continue on SIGTRAP (QTCREATORBUG-4968)
+   * Fixed dumper for gcc 4.4's std::map
 
 Debugging QML/JS
+
+Analyzer
+   * Redesign of the framework code
+   * Added support for Qml profiling
+   * Added support for valgrind's cachegrind tool on Linux and Mac
 
 C++ Support
    * Made C++ coding style configurable (QTCREATORBUG-2670, QTCREATORBUG-4310,
@@ -91,6 +116,12 @@ Remote Linux Support
           for the device configuration dialog via third-party plugins
 
 Qt Designer
+
+FakeVim:
+   * Make FakeVim functionality available for shortcuts in normal text editor
+   * Added snippet support
+   * Fixed behaviour of Ctrl keys on Mac
+   * Fixed searching for expressions containing '|' (QTCREATORBUG-4752)
 
 Version control plugins
    * Git: Manage remote repositories
