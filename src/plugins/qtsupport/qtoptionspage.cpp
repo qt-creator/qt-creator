@@ -486,7 +486,7 @@ void QtOptionsPageWidget::showDebuggingBuildLog(const QTreeWidgetItem *currentIt
     const int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    BuildLogDialog *dialog = new BuildLogDialog(this);
+    BuildLogDialog *dialog = new BuildLogDialog(this->window());
     dialog->setWindowTitle(tr("Debugging Helper Build Log for '%1'").arg(currentItem->text(0)));
     dialog->setText(currentItem->data(0, BuildLogRole).toString());
     dialog->show();
