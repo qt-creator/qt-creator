@@ -57,6 +57,8 @@ public:
     MsvcToolChain(const QString &name, const Abi &abi,
                   const QString &varsBat, const QString &varsBatArg, bool autodetect = false);
 
+    static MsvcToolChain *readFromMap(const QVariantMap &data);
+
     QString typeName() const;
     Abi targetAbi() const;
 
@@ -82,6 +84,9 @@ public:
     static QString autoDetectCdbDebugger(QStringList *checkedDirectories = 0);
 
 private:
+    MsvcToolChain();
+    void updateId();
+
     QString m_varsBat; // Script to setup environment
     QString m_varsBatArg; // Argument
     QString m_debuggerCommand;
@@ -105,6 +110,10 @@ public:
     QString id() const;
 
     QList<ToolChain *> autoDetect();
+
+    virtual bool canRestore(const QVariantMap &data);
+    virtual ToolChain *restore(const QVariantMap &data)
+        { return MsvcToolChain::readFromMap(data); }
 
     ToolChainConfigWidget *configurationWidget(ToolChain *);
 };
