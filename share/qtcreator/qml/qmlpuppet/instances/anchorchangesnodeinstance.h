@@ -62,7 +62,10 @@ public:
     virtual void resetProperty(const QString &name);
 
     using ObjectNodeInstance::reparent; // keep the virtual reparent(...) method around
-    void reparent(const ServerNodeInstance &oldParentInstance, const QString &oldParentProperty, const ServerNodeInstance &newParentInstance, const QString &newParentProperty);
+    void reparent(const ServerNodeInstance &oldParentInstance,
+                  const QString &oldParentProperty,
+                  const ServerNodeInstance &newParentInstance,
+                  const QString &newParentProperty);
 
 protected:
     AnchorChangesNodeInstance(QObject *object);

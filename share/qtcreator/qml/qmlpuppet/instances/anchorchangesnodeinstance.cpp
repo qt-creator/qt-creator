@@ -70,7 +70,10 @@ void AnchorChangesNodeInstance::resetProperty(const QString &/*name*/)
 }
 
 
-void AnchorChangesNodeInstance::reparent(const ServerNodeInstance &/*oldParentInstance*/, const QString &/*oldParentProperty*/, const ServerNodeInstance &/*newParentInstance*/, const QString &/*newParentProperty*/)
+void AnchorChangesNodeInstance::reparent(const ServerNodeInstance &/*oldParentInstance*/,
+                                         const QString &/*oldParentProperty*/,
+                                         const ServerNodeInstance &/*newParentInstance*/,
+                                         const QString &/*newParentProperty*/)
 {
 }
 
