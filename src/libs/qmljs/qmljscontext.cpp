@@ -41,9 +41,7 @@ using namespace QmlJS::Interpreter;
 Context::Context(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports)
     : _snapshot(snapshot),
       _valueOwner(valueOwner),
-      _imports(imports),
-      _qmlScopeObjectIndex(-1),
-      _qmlScopeObjectSet(false)
+      _imports(imports)
 {
 }
 
@@ -62,39 +60,11 @@ QmlJS::Snapshot Context::snapshot() const
     return _snapshot;
 }
 
-const ScopeChain &Context::scopeChain() const
-{
-    return _scopeChain;
-}
-
-ScopeChain &Context::scopeChain()
-{
-    return _scopeChain;
-}
-
 const Imports *Context::imports(const QmlJS::Document *doc) const
 {
     if (!doc)
         return 0;
     return _imports.value(doc).data();
-}
-
-const Value *Context::lookup(const QString &name, const ObjectValue **foundInScope) const
-{
-    QList<const ObjectValue *> scopes = _scopeChain.all();
-    for (int index = scopes.size() - 1; index != -1; --index) {
-        const ObjectValue *scope = scopes.at(index);
-
-        if (const Value *member = scope->lookupMember(name, this)) {
-            if (foundInScope)
-                *foundInScope = scope;
-            return member;
-        }
-    }
-
-    if (foundInScope)
-        *foundInScope = 0;
-    return _valueOwner->undefinedValue();
 }
 
 const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId *qmlTypeName,
@@ -147,18 +117,8 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QString
 
 const Value *Context::lookupReference(const Value *value) const
 {
-    const Reference *reference = value_cast<const Reference *>(value);
-    if (!reference)
-        return value;
-
-    if (_referenceStack.contains(reference))
-        return 0;
-
-    _referenceStack.append(reference);
-    const Value *v = reference->value(this);
-    _referenceStack.removeLast();
-
-    return v;
+    ReferenceContext refContext(this);
+    return refContext.lookupReference(value);
 }
 
 QString Context::defaultPropertyName(const ObjectValue *object) const
@@ -175,4 +135,34 @@ QString Context::defaultPropertyName(const ObjectValue *object) const
         }
     }
     return QString();
+}
+
+ReferenceContext::ReferenceContext(const Context *context)
+    : m_context(context)
+{}
+
+const Value *ReferenceContext::lookupReference(const Value *value)
+{
+    const Reference *reference = value_cast<const Reference *>(value);
+    if (!reference)
+        return value;
+
+    if (m_references.contains(reference))
+        return reference; // ### error
+
+    m_references.append(reference);
+    const Value *v = reference->value(this);
+    m_references.removeLast();
+
+    return v;
+}
+
+const Context *ReferenceContext::context() const
+{
+    return m_context;
+}
+
+ReferenceContext::operator const Context *() const
+{
+    return m_context;
 }

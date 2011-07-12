@@ -369,7 +369,7 @@ bool Bind::visit(VariableDeclaration *ast)
     if (! ast->name)
         return false;
 
-    ASTVariableReference *ref = new ASTVariableReference(ast, &_valueOwner);
+    ASTVariableReference *ref = new ASTVariableReference(ast, _doc, &_valueOwner);
     if (_currentObjectValue)
         _currentObjectValue->setMember(ast->name->asString(), ref);
     return true;

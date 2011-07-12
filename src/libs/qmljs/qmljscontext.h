@@ -45,9 +45,12 @@ class Snapshot;
 
 namespace Interpreter {
 
+// shared among threads, completely threadsafe
+// currently also safe to copy, but will be deprecated
 class QMLJS_EXPORT Context
 {
 public:
+    typedef QSharedPointer<Context> Ptr;
     typedef QHash<const Document *, QSharedPointer<const Imports> > ImportsPerDocument;
 
     // Context takes ownership of valueOwner
@@ -57,12 +60,8 @@ public:
     ValueOwner *valueOwner() const;
     Snapshot snapshot() const;
 
-    const ScopeChain &scopeChain() const;
-    ScopeChain &scopeChain();
-
     const Imports *imports(const Document *doc) const;
 
-    const Value *lookup(const QString &name, const ObjectValue **foundInScope = 0) const;
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName,
                                   AST::UiQualifiedId *qmlTypeNameEnd = 0) const;
     const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName) const;
@@ -71,18 +70,28 @@ public:
     QString defaultPropertyName(const ObjectValue *object) const;
 
 private:
-    typedef QHash<QString, const Value *> Properties;
-
     Snapshot _snapshot;
     QSharedPointer<ValueOwner> _valueOwner;
     ImportsPerDocument _imports;
-    ScopeChain _scopeChain;
-    int _qmlScopeObjectIndex;
-    bool _qmlScopeObjectSet;
-
-    // for avoiding reference cycles during lookup
-    mutable QList<const Reference *> _referenceStack;
 };
+
+// for looking up references
+class QMLJS_EXPORT ReferenceContext
+{
+public:
+    // implicit conversion ok
+    ReferenceContext(const Context *context);
+
+    const Value *lookupReference(const Value *value);
+
+    const Context *context() const;
+    operator const Context *() const;
+
+private:
+    const Context *m_context;
+    QList<const Reference *> m_references;
+};
+
 
 } // namespace Interpreter
 } // namespace QmlJS

@@ -50,6 +50,7 @@
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsscopebuilder.h>
+#include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -336,11 +337,10 @@ public:
         , m_link(snapshot, importPaths,
                  QmlJS::ModelManagerInterface::instance()->builtins(doc))
         , m_context(new Interpreter::Context(m_link(doc, &m_diagnosticLinkMessages)))
-        , m_scopeBuilder(m_context, doc)
+        , m_scopeChain(doc, m_context)
+        , m_scopeBuilder(&m_scopeChain)
     {
         m_lookupContext = LookupContext::create(doc, *m_context, QList<AST::Node*>());
-        // cheaper than calling m_scopeBuilder.initializeRootScope() again
-        *m_context = *m_lookupContext->context();
     }
 
     ~ReadingContext()
@@ -407,7 +407,7 @@ public:
     /// ### Maybe put this into the context as a helper method.
     bool lookupProperty(const QString &prefix, const UiQualifiedId *id, const Interpreter::Value **property = 0, const Interpreter::ObjectValue **parentObject = 0, QString *name = 0)
     {
-        QList<const Interpreter::ObjectValue *> scopeObjects = m_context->scopeChain().qmlScopeObjects;
+        QList<const Interpreter::ObjectValue *> scopeObjects = m_scopeChain.qmlScopeObjects();
         if (scopeObjects.isEmpty())
             return false;
 
@@ -433,7 +433,7 @@ public:
         bool isAttachedProperty = false;
         if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
             isAttachedProperty = true;
-            if (const Interpreter::ObjectValue *qmlTypes = m_context->scopeChain().qmlTypes)
+            if (const Interpreter::ObjectValue *qmlTypes = m_scopeChain.qmlTypes())
                 scopeObjects += qmlTypes;
         }
 
@@ -594,12 +594,12 @@ public:
         const Interpreter::ObjectValue *rhsValueObject = 0;
         QString rhsValueName;
         if (IdentifierExpression *idExp = cast<IdentifierExpression *>(eStmt->expression)) {
-            if (!m_context->scopeChain().qmlScopeObjects.isEmpty())
-                rhsValueObject = m_context->scopeChain().qmlScopeObjects.last();
+            if (!m_scopeChain.qmlScopeObjects().isEmpty())
+                rhsValueObject = m_scopeChain.qmlScopeObjects().last();
             if (idExp->name)
                 rhsValueName = idExp->name->asString();
         } else if (FieldMemberExpression *memberExp = cast<FieldMemberExpression *>(eStmt->expression)) {
-            Evaluate evaluate(m_context);
+            Evaluate evaluate(&m_scopeChain);
             const Interpreter::Value *result = evaluate(memberExp->base);
             rhsValueObject = result->asObjectValue();
 
@@ -634,6 +634,7 @@ private:
     QList<DiagnosticMessage> m_diagnosticLinkMessages;
     Interpreter::Context *m_context;
     LookupContext::Ptr m_lookupContext;
+    Interpreter::ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
 };
 

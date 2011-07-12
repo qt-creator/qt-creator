@@ -80,10 +80,9 @@ public:
 
     FindUsages(Document::Ptr doc, Context *context)
         : _doc(doc)
-        , _context(context)
-        , _builder(context, doc)
+        , _scopeChain(doc, context)
+        , _builder(&_scopeChain)
     {
-        _builder.initializeRootScope();
     }
 
     Result operator()(const QString &name, const ObjectValue *scope)
@@ -106,7 +105,7 @@ protected:
     {
         if (node->name
                 && node->name->asString() == _name
-                && _context->scopeChain().qmlScopeObjects.contains(_scope)) {
+                && _scopeChain.qmlScopeObjects().contains(_scope)) {
             _usages.append(node->identifierToken);
         }
         if (AST::cast<Block *>(node->statement)) {
@@ -176,7 +175,7 @@ protected:
             return false;
 
         const ObjectValue *scope;
-        _context->lookup(_name, &scope);
+        _scopeChain.lookup(_name, &scope);
         if (!scope)
             return false;
         if (check(scope)) {
@@ -188,14 +187,14 @@ protected:
         // so it might still be a use - we just found a different value in a different scope first
 
         // if scope is one of these, our match wasn't inside the instantiating components list
-        const ScopeChain &chain = _context->scopeChain();
-        if (chain.jsScopes.contains(scope)
-                || chain.qmlScopeObjects.contains(scope)
-                || chain.qmlTypes == scope
-                || chain.globalScope == scope)
+        const ScopeChain &chain = _scopeChain;
+        if (chain.jsScopes().contains(scope)
+                || chain.qmlScopeObjects().contains(scope)
+                || chain.qmlTypes() == scope
+                || chain.globalScope() == scope)
             return false;
 
-        if (contains(chain.qmlComponentScope.data()))
+        if (contains(chain.qmlComponentChain().data()))
             _usages.append(node->identifierToken);
 
         return false;
@@ -206,7 +205,7 @@ protected:
         if (!node->name || node->name->asString() != _name)
             return true;
 
-        Evaluate evaluate(_context);
+        Evaluate evaluate(&_scopeChain);
         const Value *lhsValue = evaluate(node->base);
         if (!lhsValue)
             return true;
@@ -245,19 +244,19 @@ protected:
     }
 
 private:
-    bool contains(const ScopeChain::QmlComponentChain *chain)
+    bool contains(const QmlComponentChain *chain)
     {
-        if (!chain || !chain->document)
+        if (!chain || !chain->document())
             return false;
 
-        if (chain->document->bind()->idEnvironment()->lookupMember(_name, _context))
-            return chain->document->bind()->idEnvironment() == _scope;
-        const ObjectValue *root = chain->document->bind()->rootObjectValue();
-        if (root->lookupMember(_name, _context)) {
+        if (chain->document()->bind()->idEnvironment()->lookupMember(_name, _scopeChain.context()))
+            return chain->document()->bind()->idEnvironment() == _scope;
+        const ObjectValue *root = chain->document()->bind()->rootObjectValue();
+        if (root->lookupMember(_name, _scopeChain.context())) {
             return check(root);
         }
 
-        foreach (const ScopeChain::QmlComponentChain *parent, chain->instantiatingComponents) {
+        foreach (const QmlComponentChain *parent, chain->instantiatingComponents()) {
             if (contains(parent))
                 return true;
         }
@@ -269,13 +268,13 @@ private:
         if (!s)
             return false;
         const ObjectValue *definingObject;
-        s->lookupMember(_name, _context, &definingObject);
+        s->lookupMember(_name, _scopeChain.context(), &definingObject);
         return definingObject == _scope;
     }
 
     bool checkQmlScope()
     {
-        foreach (const ObjectValue *s, _context->scopeChain().qmlScopeObjects) {
+        foreach (const ObjectValue *s, _scopeChain.qmlScopeObjects()) {
             if (check(s))
                 return true;
         }
@@ -285,14 +284,14 @@ private:
     bool checkLookup()
     {
         const ObjectValue *scope = 0;
-        _context->lookup(_name, &scope);
+        _scopeChain.lookup(_name, &scope);
         return check(scope);
     }
 
     Result _usages;
 
     Document::Ptr _doc;
-    Context *_context;
+    ScopeChain _scopeChain;
     ScopeBuilder _builder;
 
     QString _name;
@@ -307,9 +306,9 @@ public:
     FindTypeUsages(Document::Ptr doc, Context *context)
         : _doc(doc)
         , _context(context)
-        , _builder(context, doc)
+        , _scopeChain(doc, context)
+        , _builder(&_scopeChain)
     {
-        _builder.initializeRootScope();
     }
 
     Result operator()(const QString &name, const ObjectValue *typeValue)
@@ -380,7 +379,7 @@ protected:
             return false;
 
         const ObjectValue *scope;
-        const Value *objV = _context->lookup(_name, &scope);
+        const Value *objV = _scopeChain.lookup(_name, &scope);
         if (objV == _typeValue)
             _usages.append(node->identifierToken);
         return false;
@@ -390,7 +389,7 @@ protected:
     {
         if (!node->name || node->name->asString() != _name)
             return true;
-        Evaluate evaluate(_context);
+        Evaluate evaluate(&_scopeChain);
         const Value *lhsValue = evaluate(node->base);
         if (!lhsValue)
             return true;
@@ -452,6 +451,7 @@ private:
 
     Document::Ptr _doc;
     Context *_context;
+    ScopeChain _scopeChain;
     ScopeBuilder _builder;
 
     QString _name;
@@ -466,8 +466,8 @@ public:
         TypeKind
     };
 
-    FindTargetExpression(Document::Ptr doc, Context *context)
-        : _doc(doc), _context(context)
+    FindTargetExpression(Document::Ptr doc, const ScopeChain *scopeChain)
+        : _doc(doc), _scopeChain(scopeChain)
     {
     }
 
@@ -488,7 +488,7 @@ public:
     const ObjectValue *scope()
     {
         if (!_scope)
-            _context->lookup(_name, &_scope);
+            _scopeChain->lookup(_name, &_scope);
         return _scope;
     }
 
@@ -524,7 +524,7 @@ protected:
             _name = node->name->asString();
             if ((!_name.isEmpty()) && _name.at(0).isUpper()) {
                 // a possible type
-                _targetValue = _context->lookup(_name, &_scope);
+                _targetValue = _scopeChain->lookup(_name, &_scope);
                 if (value_cast<const ObjectValue*>(_targetValue))
                     _typeKind = TypeKind;
             }
@@ -539,14 +539,14 @@ protected:
             _name = node->name->asString();
             if ((!_name.isEmpty()) && _name.at(0).isUpper()) {
                 // a possible type
-                Evaluate evaluate(_context);
+                Evaluate evaluate(_scopeChain);
                 const Value *lhsValue = evaluate(node->base);
                 if (!lhsValue)
                     return true;
                 const ObjectValue *lhsObj = lhsValue->asObjectValue();
                 if (lhsObj) {
                     _scope = lhsObj;
-                    _targetValue = lhsObj->lookupMember(_name, _context);
+                    _targetValue = lhsObj->lookupMember(_name, _scopeChain->context());
                     _typeKind = TypeKind;
                 }
             }
@@ -593,7 +593,7 @@ protected:
         if (containsOffset(node->typeToken)){
             if (node->memberType){
                 _name = node->memberType->asString();
-                _targetValue = _context->lookupType(_doc.data(), QStringList(_name));
+                _targetValue = _scopeChain->context()->lookupType(_doc.data(), QStringList(_name));
                 _scope = 0;
                 _typeKind = TypeKind;
             }
@@ -654,7 +654,7 @@ private:
     {
         for (UiQualifiedId *att = id; att; att = att->next) {
             if (att->name && containsOffset(att->identifierToken)) {
-                _targetValue = _context->lookupType(_doc.data(), id, att->next);
+                _targetValue = _scopeChain->context()->lookupType(_doc.data(), id, att->next);
                 _scope = 0;
                 _name = att->name->asString();
                 _typeKind = TypeKind;
@@ -666,7 +666,7 @@ private:
 
     void setScope(Node *node)
     {
-        Evaluate evaluate(_context);
+        Evaluate evaluate(_scopeChain);
         const Value *v = evaluate(node);
         if (v)
             _scope = v->asObjectValue();
@@ -677,7 +677,7 @@ private:
     const Value *_targetValue;
     Node *_objectNode;
     Document::Ptr _doc;
-    Context *_context;
+    const ScopeChain *_scopeChain;
     quint32 _offset;
     Kind _typeKind;
 };
@@ -823,12 +823,12 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     Link link(snapshot, modelManager->importPaths(), modelManager->builtins(doc));
     Context context = link();
 
-    ScopeBuilder builder(&context, doc);
-    builder.initializeRootScope();
+    ScopeChain scopeChain(doc, &context);
+    ScopeBuilder builder(&scopeChain);
     ScopeAstPath astPath(doc);
     builder.push(astPath(offset));
 
-    FindTargetExpression findTarget(doc, &context);
+    FindTargetExpression findTarget(doc, &scopeChain);
     findTarget(offset);
     const QString &name = findTarget.name();
     if (name.isEmpty())

@@ -33,15 +33,17 @@
 #include "qmljsevaluate.h"
 #include "qmljscontext.h"
 #include "qmljsvalueowner.h"
+#include "qmljsscopechain.h"
 #include "parser/qmljsast_p.h"
 #include <QtCore/QDebug>
 
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 
-Evaluate::Evaluate(const Context *context)
-    : _valueOwner(context->valueOwner()),
-      _context(context),
+Evaluate::Evaluate(const ScopeChain *scopeChain)
+    : _valueOwner(scopeChain->context()->valueOwner()),
+      _context(scopeChain->context()),
+      _scopeChain(scopeChain),
       _scope(_valueOwner->globalObject()),
       _result(0)
 {
@@ -165,7 +167,7 @@ bool Evaluate::visit(AST::UiQualifiedId *ast)
     if (! ast->name)
          return false;
 
-    const Value *value = _context->lookup(ast->name->asString());
+    const Value *value = _scopeChain->lookup(ast->name->asString());
     if (! ast->next) {
         _result = value;
 
@@ -213,7 +215,7 @@ bool Evaluate::visit(AST::IdentifierExpression *ast)
     if (! ast->name)
         return false;
 
-    _result = _context->lookup(ast->name->asString());
+    _result = _scopeChain->lookup(ast->name->asString());
     return false;
 }
 

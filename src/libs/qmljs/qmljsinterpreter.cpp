@@ -35,8 +35,9 @@
 #include "qmljslink.h"
 #include "qmljsbind.h"
 #include "qmljsscopebuilder.h"
-#include "qmljstypedescriptionreader.h"
+#include "qmljsscopechain.h"
 #include "qmljsscopeastpath.h"
+#include "qmljstypedescriptionreader.h"
 #include "qmljsvalueowner.h"
 #include "qmljscontext.h"
 #include "parser/qmljsast_p.h"
@@ -688,82 +689,6 @@ void StringValue::accept(ValueVisitor *visitor) const
     visitor->visit(this);
 }
 
-
-ScopeChain::ScopeChain()
-    : globalScope(0)
-    , qmlTypes(0)
-    , jsImports(0)
-{
-}
-
-ScopeChain::QmlComponentChain::QmlComponentChain()
-{
-}
-
-ScopeChain::QmlComponentChain::~QmlComponentChain()
-{
-    qDeleteAll(instantiatingComponents);
-}
-
-void ScopeChain::QmlComponentChain::clear()
-{
-    qDeleteAll(instantiatingComponents);
-    instantiatingComponents.clear();
-    document = Document::Ptr(0);
-}
-
-void ScopeChain::QmlComponentChain::collect(QList<const ObjectValue *> *list) const
-{
-    foreach (const QmlComponentChain *parent, instantiatingComponents)
-        parent->collect(list);
-
-    if (!document)
-        return;
-
-    if (ObjectValue *root = document->bind()->rootObjectValue())
-        list->append(root);
-    if (ObjectValue *ids = document->bind()->idEnvironment())
-        list->append(ids);
-}
-
-void ScopeChain::update()
-{
-    _all.clear();
-
-    _all += globalScope;
-
-    // the root scope in js files doesn't see instantiating components
-    if (jsScopes.count() != 1 || !qmlScopeObjects.isEmpty()) {
-        if (qmlComponentScope) {
-            foreach (const QmlComponentChain *parent, qmlComponentScope->instantiatingComponents)
-                parent->collect(&_all);
-        }
-    }
-
-    ObjectValue *root = 0;
-    ObjectValue *ids = 0;
-    if (qmlComponentScope && qmlComponentScope->document) {
-        root = qmlComponentScope->document->bind()->rootObjectValue();
-        ids = qmlComponentScope->document->bind()->idEnvironment();
-    }
-
-    if (root && !qmlScopeObjects.contains(root))
-        _all += root;
-    _all += qmlScopeObjects;
-    if (ids)
-        _all += ids;
-    if (qmlTypes)
-        _all += qmlTypes;
-    if (jsImports)
-        _all += jsImports;
-    _all += jsScopes;
-}
-
-QList<const ObjectValue *> ScopeChain::all() const
-{
-    return _all;
-}
-
 Reference::Reference(ValueOwner *valueOwner)
     : _valueOwner(valueOwner)
 {
@@ -789,7 +714,7 @@ void Reference::accept(ValueVisitor *visitor) const
     visitor->visit(this);
 }
 
-const Value *Reference::value(const Context *) const
+const Value *Reference::value(const ReferenceContext *) const
 {
     return _valueOwner->undefinedValue();
 }
@@ -1771,8 +1696,10 @@ const QmlJS::Document *ASTObjectValue::document() const
     return _doc;
 }
 
-ASTVariableReference::ASTVariableReference(VariableDeclaration *ast, ValueOwner *valueOwner)
-    : Reference(valueOwner), _ast(ast)
+ASTVariableReference::ASTVariableReference(VariableDeclaration *ast, const QmlJS::Document *doc, ValueOwner *valueOwner)
+    : Reference(valueOwner)
+    , _ast(ast)
+    , _doc(doc)
 {
 }
 
@@ -1780,10 +1707,18 @@ ASTVariableReference::~ASTVariableReference()
 {
 }
 
-const Value *ASTVariableReference::value(const Context *context) const
+const Value *ASTVariableReference::value(const ReferenceContext *referenceContext) const
 {
-    Evaluate check(context);
-    return check(_ast->expression);
+    if (!_ast->expression)
+        return valueOwner()->undefinedValue();
+
+    Document::Ptr doc = _doc->ptr();
+    ScopeChain scopeChain(doc, referenceContext->context());
+    QmlJS::ScopeBuilder builder(&scopeChain);
+    builder.push(QmlJS::ScopeAstPath(doc)(_ast->expression->firstSourceLocation().begin()));
+
+    QmlJS::Evaluate evaluator(&scopeChain);
+    return evaluator(_ast->expression);
 }
 
 ASTFunctionValue::ASTFunctionValue(FunctionExpression *ast, const QmlJS::Document *doc, ValueOwner *valueOwner)
@@ -1859,9 +1794,9 @@ UiQualifiedId *QmlPrototypeReference::qmlTypeName() const
     return _qmlTypeName;
 }
 
-const Value *QmlPrototypeReference::value(const Context *context) const
+const Value *QmlPrototypeReference::value(const ReferenceContext *referenceContext) const
 {
-    return context->lookupType(_doc, _qmlTypeName);
+    return referenceContext->context()->lookupType(_doc, _qmlTypeName);
 }
 
 ASTPropertyReference::ASTPropertyReference(UiPublicMember *ast, const QmlJS::Document *doc, ValueOwner *valueOwner)
@@ -1886,7 +1821,7 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
     return true;
 }
 
-const Value *ASTPropertyReference::value(const Context *context) const
+const Value *ASTPropertyReference::value(const ReferenceContext *referenceContext) const
 {
     if (_ast->statement
             && (!_ast->memberType || _ast->memberType->asString() == QLatin1String("variant")
@@ -1896,15 +1831,14 @@ const Value *ASTPropertyReference::value(const Context *context) const
         // ### Improve efficiency by caching the 'use chain' constructed in ScopeBuilder.
 
         QmlJS::Document::Ptr doc = _doc->ptr();
-        Context localContext(*context);
-        QmlJS::ScopeBuilder builder(&localContext, doc);
-        builder.initializeRootScope();
+        ScopeChain scopeChain(doc, referenceContext->context());
+        QmlJS::ScopeBuilder builder(&scopeChain);
 
         int offset = _ast->statement->firstSourceLocation().begin();
         builder.push(ScopeAstPath(doc)(offset));
 
-        Evaluate check(&localContext);
-        return check(_ast->statement);
+        QmlJS::Evaluate evaluator(&scopeChain);
+        return evaluator(_ast->statement);
     }
 
     if (_ast->memberType)
@@ -1934,7 +1868,7 @@ bool ASTSignalReference::getSourceLocation(QString *fileName, int *line, int *co
     return true;
 }
 
-const Value *ASTSignalReference::value(const Context *) const
+const Value *ASTSignalReference::value(const ReferenceContext *) const
 {
     return valueOwner()->undefinedValue();
 }

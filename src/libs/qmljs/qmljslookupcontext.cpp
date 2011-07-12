@@ -36,6 +36,7 @@
 #include "qmljsscopebuilder.h"
 #include "qmljsmodelmanagerinterface.h"
 #include "qmljsevaluate.h"
+#include "qmljsscopechain.h"
 
 using namespace QmlJS;
 
@@ -47,26 +48,26 @@ public:
         , context(Link(snapshot,
                        ModelManagerInterface::instance()->importPaths(),
                        ModelManagerInterface::instance()->builtins(doc))())
+        , scopeChain(doc, &context)
     {
-        ScopeBuilder scopeBuilder(&context, doc);
-        scopeBuilder.initializeRootScope();
+        ScopeBuilder scopeBuilder(&scopeChain);
         scopeBuilder.push(path);
     }
 
     LookupContextData(Document::Ptr doc,
-                      const Interpreter::Context &contextWithoutScope,
+                      const Interpreter::Context &context,
                       const QList<AST::Node *> &path)
         : doc(doc)
-        , context(contextWithoutScope)
+        , context(context)
+        , scopeChain(doc, &context)
     {
-        ScopeBuilder scopeBuilder(&context, doc);
-        scopeBuilder.initializeRootScope();
+        ScopeBuilder scopeBuilder(&scopeChain);
         scopeBuilder.push(path);
     }
 
     Document::Ptr doc;
     Interpreter::Context context;
-    // snapshot is in context
+    Interpreter::ScopeChain scopeChain;
 };
 
 LookupContext::LookupContext(Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path)
@@ -75,9 +76,9 @@ LookupContext::LookupContext(Document::Ptr doc, const Snapshot &snapshot, const 
 }
 
 LookupContext::LookupContext(const Document::Ptr doc,
-                             const Interpreter::Context &contextWithoutScope,
+                             const Interpreter::Context &context,
                              const QList<AST::Node *> &path)
-    : d(new LookupContextData(doc, contextWithoutScope, path))
+    : d(new LookupContextData(doc, context, path))
 {
 }
 
@@ -92,16 +93,16 @@ LookupContext::Ptr LookupContext::create(Document::Ptr doc, const Snapshot &snap
 }
 
 LookupContext::Ptr LookupContext::create(const Document::Ptr doc,
-                                         const Interpreter::Context &linkedContextWithoutScope,
+                                         const Interpreter::Context &context,
                                          const QList<AST::Node *> &path)
 {
-    Ptr ptr(new LookupContext(doc, linkedContextWithoutScope, path));
+    Ptr ptr(new LookupContext(doc, context, path));
     return ptr;
 }
 
 const Interpreter::Value *LookupContext::evaluate(AST::Node *node) const
 {
-    Evaluate check(&d->context);
+    Evaluate check(&d->scopeChain);
     return check(node);
 }
 
@@ -125,4 +126,9 @@ Interpreter::ValueOwner *LookupContext::valueOwner() const
 const Interpreter::Context *LookupContext::context() const
 {
     return &d->context;
+}
+
+const Interpreter::ScopeChain &LookupContext::scopeChain() const
+{
+    return d->scopeChain;
 }

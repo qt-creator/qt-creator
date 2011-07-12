@@ -48,6 +48,7 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljscontext.h>
+#include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljslookupcontext.h>
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljsbind.h>
@@ -86,15 +87,15 @@ class EnumerateProperties: private Interpreter::MemberProcessor
     bool _globalCompletion;
     bool _enumerateGeneratedSlots;
     bool _enumerateSlots;
-    const Interpreter::Context *_context;
+    const Interpreter::ScopeChain *_scopeChain;
     const Interpreter::ObjectValue *_currentObject;
 
 public:
-    EnumerateProperties(const Interpreter::Context *context)
+    EnumerateProperties(const Interpreter::ScopeChain *scopeChain)
         : _globalCompletion(false),
           _enumerateGeneratedSlots(false),
           _enumerateSlots(true),
-          _context(context),
+          _scopeChain(scopeChain),
           _currentObject(0)
     {
     }
@@ -131,7 +132,7 @@ public:
         _properties.clear();
         _currentObject = 0;
 
-        foreach (const Interpreter::ObjectValue *scope, _context->scopeChain().all())
+        foreach (const Interpreter::ObjectValue *scope, _scopeChain->all())
             enumerateProperties(scope);
 
         return _properties;
@@ -192,7 +193,7 @@ private:
             return;
 
         _processed.insert(object);
-        enumerateProperties(object->prototype(_context));
+        enumerateProperties(object->prototype(_scopeChain->context()));
 
         object->processMembers(this);
     }
@@ -422,6 +423,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
     const QList<AST::Node *> path = semanticInfo.rangePath(m_interface->position());
     LookupContext::Ptr lookupContext = semanticInfo.lookupContext(path);
     const Interpreter::Context *context = lookupContext->context();
+    const Interpreter::ScopeChain &scopeChain = lookupContext->scopeChain();
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -521,7 +523,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             doJsKeywordCompletion = false;
             doQmlTypeCompletion = true;
 
-            EnumerateProperties enumerateProperties(context);
+            EnumerateProperties enumerateProperties(&scopeChain);
             enumerateProperties.setGlobalCompletion(true);
             enumerateProperties.setEnumerateGeneratedSlots(true);
             enumerateProperties.setEnumerateSlots(false);
@@ -539,8 +541,8 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
                                       contextFinder.isAfterOnInLhsOfBinding());
 
             if (ScopeBuilder::isPropertyChangesObject(context, qmlScopeType)
-                    && context->scopeChain().qmlScopeObjects.size() == 2) {
-                addCompletions(enumerateProperties(context->scopeChain().qmlScopeObjects.first()),
+                    && scopeChain.qmlScopeObjects().size() == 2) {
+                addCompletions(enumerateProperties(scopeChain.qmlScopeObjects().first()),
                                m_interface->symbolIcon(),
                                SymbolOrder);
             }
@@ -564,15 +566,15 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             doQmlTypeCompletion = true;
 
         if (doQmlTypeCompletion) {
-            if (const Interpreter::ObjectValue *qmlTypes = context->scopeChain().qmlTypes) {
-                EnumerateProperties enumerateProperties(context);
+            if (const Interpreter::ObjectValue *qmlTypes = scopeChain.qmlTypes()) {
+                EnumerateProperties enumerateProperties(&scopeChain);
                 addCompletions(enumerateProperties(qmlTypes), m_interface->symbolIcon(), TypeOrder);
             }
         }
 
         if (doGlobalCompletion) {
             // It's a global completion.
-            EnumerateProperties enumerateProperties(context);
+            EnumerateProperties enumerateProperties(&scopeChain);
             enumerateProperties.setGlobalCompletion(true);
             addCompletions(enumerateProperties(), m_interface->symbolIcon(), SymbolOrder);
         }
@@ -619,7 +621,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
             //qDebug() << "type:" << interp->typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
-                EnumerateProperties enumerateProperties(context);
+                EnumerateProperties enumerateProperties(&scopeChain);
                 if (contextFinder.isInLhsOfBinding() && qmlScopeType) {
                     enumerateProperties.setEnumerateGeneratedSlots(true);
                     addCompletionsPropertyLhs(enumerateProperties(value),

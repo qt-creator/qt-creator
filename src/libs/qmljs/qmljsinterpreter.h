@@ -75,6 +75,7 @@ class Imports;
 class TypeScope;
 class JSImportScope;
 class Context;
+class ReferenceContext;
 
 typedef QList<const Value *> ValueList;
 
@@ -283,40 +284,6 @@ public:
     virtual bool processGeneratedSlot(const QString &name, const Value *value);
 };
 
-class QMLJS_EXPORT ScopeChain
-{
-public:
-    ScopeChain();
-
-    class QMLJS_EXPORT QmlComponentChain
-    {
-        Q_DISABLE_COPY(QmlComponentChain)
-    public:
-        QmlComponentChain();
-        ~QmlComponentChain();
-
-        QList<const QmlComponentChain *> instantiatingComponents;
-        Document::Ptr document;
-
-        void collect(QList<const ObjectValue *> *list) const;
-        void clear();
-    };
-
-    const ObjectValue *globalScope;
-    QSharedPointer<const QmlComponentChain> qmlComponentScope;
-    QList<const ObjectValue *> qmlScopeObjects;
-    const TypeScope *qmlTypes;
-    const JSImportScope *jsImports;
-    QList<const ObjectValue *> jsScopes;
-
-    // rebuilds the flat list of all scopes
-    void update();
-    QList<const ObjectValue *> all() const;
-
-private:
-    QList<const ObjectValue *> _all;
-};
-
 class QMLJS_EXPORT Reference: public Value
 {
 public:
@@ -330,10 +297,10 @@ public:
     virtual void accept(ValueVisitor *) const;
 
 private:
-    virtual const Value *value(const Context *context) const;
+    virtual const Value *value(const ReferenceContext *referenceContext) const;
 
     ValueOwner *_valueOwner;
-    friend class Context;
+    friend class ReferenceContext;
 };
 
 class QMLJS_EXPORT ColorValue: public Value
@@ -724,7 +691,7 @@ public:
     AST::UiQualifiedId *qmlTypeName() const;
 
 private:    
-    virtual const Value *value(const Context *context) const;
+    virtual const Value *value(const ReferenceContext *referenceContext) const;
 
     AST::UiQualifiedId *_qmlTypeName;
     const Document *_doc;
@@ -733,13 +700,14 @@ private:
 class QMLJS_EXPORT ASTVariableReference: public Reference
 {
     AST::VariableDeclaration *_ast;
+    const Document *_doc;
 
 public:
-    ASTVariableReference(AST::VariableDeclaration *ast, ValueOwner *valueOwner);
+    ASTVariableReference(AST::VariableDeclaration *ast, const Document *doc, ValueOwner *valueOwner);
     virtual ~ASTVariableReference();
 
 private:
-    virtual const Value *value(const Context *context) const;
+    virtual const Value *value(const ReferenceContext *referenceContext) const;
 };
 
 class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
@@ -779,7 +747,7 @@ public:
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 
 private:
-    virtual const Value *value(const Context *context) const;
+    virtual const Value *value(const ReferenceContext *referenceContext) const;
 };
 
 class QMLJS_EXPORT ASTSignalReference: public Reference
@@ -798,7 +766,7 @@ public:
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 
 private:
-    virtual const Value *value(const Context *context) const;
+    virtual const Value *value(const ReferenceContext *referenceContext) const;
 };
 
 class QMLJS_EXPORT ASTObjectValue: public ObjectValue

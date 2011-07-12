@@ -365,17 +365,17 @@ private:
 } // end of anonymous namespace
 
 
-Check::Check(Document::Ptr doc, const Context *linkedContextNoScope)
+Check::Check(Document::Ptr doc, const Context *context)
     : _doc(doc)
-    , _context(*linkedContextNoScope)
-    , _scopeBuilder(&_context, doc)
+    , _context(*context)
+    , _scopeChain(doc, &_context)
+    , _scopeBuilder(&_scopeChain)
     , _options(WarnDangerousNonStrictEqualityChecks | WarnBlocks | WarnWith
           | WarnVoid | WarnCommaExpression | WarnExpressionStatement
           | WarnAssignInCondition | WarnUseBeforeDeclaration | WarnDuplicateDeclaration
           | WarnCaseWithoutFlowControlEnd | ErrCheckTypeErrors)
     , _lastValue(0)
 {
-    _scopeBuilder.initializeRootScope();
 }
 
 Check::~Check()
@@ -509,8 +509,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
         // suppress subsequent errors about scope object lookup by clearing
         // the scope object list
         // ### todo: better way?
-        _context.scopeChain().qmlScopeObjects.clear();
-        _context.scopeChain().update();
+        _scopeChain.setQmlScopeObjects(QList<const ObjectValue *>());
     }
 
     Node::accept(initializer, this);
@@ -565,7 +564,7 @@ bool Check::visit(UiScriptBinding *ast)
         if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement)) {
             ExpressionNode *expr = expStmt->expression;
 
-            Evaluate evaluator(&_context);
+            Evaluate evaluator(&_scopeChain);
             const Value *rhsValue = evaluator(expr);
 
             const SourceLocation loc = locationFromRange(expStmt->firstSourceLocation(),
@@ -606,7 +605,7 @@ bool Check::visit(IdentifierExpression *ast)
 
     _lastValue = 0;
     if (ast->name) {
-        Evaluate evaluator(&_context);
+        Evaluate evaluator(&_scopeChain);
         _lastValue = evaluator.reference(ast);
         if (!_lastValue)
             error(ast->identifierToken, tr("unknown identifier"));
@@ -683,7 +682,7 @@ bool Check::visit(BinaryExpression *ast)
     if (ast->op == QSOperator::Equal || ast->op == QSOperator::NotEqual) {
         bool warn = _options & WarnAllNonStrictEqualityChecks;
         if (!warn && _options & WarnDangerousNonStrictEqualityChecks) {
-            Evaluate eval(&_context);
+            Evaluate eval(&_scopeChain);
             const Value *lhs = eval(ast->left);
             const Value *rhs = eval(ast->right);
             warn = shouldAvoidNonStrictEqualityCheck(ast->left, rhs)
@@ -850,7 +849,7 @@ bool Check::visit(DefaultClause *ast)
 /// ### Maybe put this into the context as a helper method.
 const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
-    QList<const ObjectValue *> scopeObjects = _context.scopeChain().qmlScopeObjects;
+    QList<const ObjectValue *> scopeObjects = _scopeChain.qmlScopeObjects();
     if (scopeObjects.isEmpty())
         return 0;
 
@@ -869,7 +868,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     bool isAttachedProperty = false;
     if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
         isAttachedProperty = true;
-        if (const ObjectValue *qmlTypes = _context.scopeChain().qmlTypes)
+        if (const ObjectValue *qmlTypes = _scopeChain.qmlTypes())
             scopeObjects += qmlTypes;
     }
 

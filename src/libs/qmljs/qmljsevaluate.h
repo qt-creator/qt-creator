@@ -35,6 +35,7 @@
 
 #include "parser/qmljsastvisitor_p.h"
 #include "qmljsdocument.h"
+#include "qmljsscopechain.h"
 
 namespace QmlJS {
 
@@ -49,7 +50,7 @@ namespace Interpreter {
 class QMLJS_EXPORT Evaluate: protected AST::Visitor
 {
 public:
-    Evaluate(const Interpreter::Context *context);
+    Evaluate(const Interpreter::ScopeChain *scopeChain);
     virtual ~Evaluate();
 
     // same as value()
@@ -165,6 +166,7 @@ private:
     QmlJS::Document::Ptr _doc;
     Interpreter::ValueOwner *_valueOwner;
     const Interpreter::Context *_context;
+    const Interpreter::ScopeChain *_scopeChain;
     const Interpreter::ObjectValue *_scope;
     const Interpreter::Value *_result;
 };

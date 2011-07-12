@@ -78,7 +78,7 @@ static inline const Interpreter::ObjectValue * getPropertyChangesTarget(Node *no
                 if (scriptBinding->qualifiedId
                         && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
                         && ! scriptBinding->qualifiedId->next) {
-                    Evaluate evaluator(lookupContext->context());
+                    Evaluate evaluator(&lookupContext->scopeChain());
                     const Interpreter::Value *targetValue = evaluator(scriptBinding->statement);
                     if (const Interpreter::ObjectValue *targetObject = Interpreter::value_cast<const Interpreter::ObjectValue *>(targetValue)) {
                         return targetObject;

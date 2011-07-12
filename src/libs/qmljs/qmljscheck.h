@@ -36,6 +36,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsscopebuilder.h>
+#include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
 #include <QtCore/QCoreApplication>
@@ -52,7 +53,8 @@ class QMLJS_EXPORT Check: protected AST::Visitor
     typedef QSet<QString> StringSet;
 
 public:
-    Check(Document::Ptr doc, const Interpreter::Context *linkedContextNoScope);
+    // prefer taking root scope chain?
+    Check(Document::Ptr doc, const Interpreter::Context *context);
     virtual ~Check();
 
     QList<DiagnosticMessage> operator()();
@@ -127,6 +129,7 @@ private:
     Document::Ptr _doc;
 
     Interpreter::Context _context;
+    Interpreter::ScopeChain _scopeChain;
     ScopeBuilder _scopeBuilder;
 
     QList<DiagnosticMessage> _messages;

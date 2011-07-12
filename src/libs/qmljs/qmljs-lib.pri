@@ -30,7 +30,8 @@ HEADERS += \
     $$PWD/qmljstypedescriptionreader.h \
     $$PWD/qmljsscopeastpath.h \
     $$PWD/qmljsvalueowner.h \
-    $$PWD/qmljscontext.h
+    $$PWD/qmljscontext.h \
+    $$PWD/qmljsscopechain.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -52,7 +53,8 @@ SOURCES += \
     $$PWD/qmljstypedescriptionreader.cpp \
     $$PWD/qmljsscopeastpath.cpp \
     $$PWD/qmljsvalueowner.cpp \
-    $$PWD/qmljscontext.cpp
+    $$PWD/qmljscontext.cpp \
+    $$PWD/qmljsscopechain.cpp
 
 RESOURCES += \
     $$PWD/qmljs.qrc

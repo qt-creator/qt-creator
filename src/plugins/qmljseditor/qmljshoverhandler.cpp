@@ -186,7 +186,7 @@ bool HoverHandler::matchColorItem(const LookupContext::Ptr &lookupContext,
     } else if (const AST::UiPublicMember *publicMember =
                AST::cast<const AST::UiPublicMember *>(member)) {
         if (publicMember->name && posIsInSource(pos, publicMember->statement)) {
-            value = lookupContext->context()->lookup(publicMember->name->asString());
+            value = lookupContext->scopeChain().lookup(publicMember->name->asString());
             if (const Interpreter::Reference *ref = value->asReference())
                 value = lookupContext->context()->lookupReference(ref);
                 color = textAt(qmlDocument,
@@ -306,7 +306,7 @@ static const Interpreter::ObjectValue *isMember(const LookupContext::Ptr &lookup
         if (!identExp->name)
             return 0;
         *name = identExp->name->asString();
-        lookupContext->context()->lookup(*name, &owningObject);
+        lookupContext->scopeChain().lookup(*name, &owningObject);
     } else if (AST::FieldMemberExpression *fme = AST::cast<AST::FieldMemberExpression *>(node)) {
         if (!fme->base || !fme->name)
             return 0;
@@ -321,7 +321,7 @@ static const Interpreter::ObjectValue *isMember(const LookupContext::Ptr &lookup
         if (!qid->name)
             return 0;
         *name = qid->name->asString();
-        const Interpreter::Value *value = lookupContext->context()->lookup(*name, &owningObject);
+        const Interpreter::Value *value = lookupContext->scopeChain().lookup(*name, &owningObject);
         for (AST::UiQualifiedId *it = qid->next; it; it = it->next) {
             if (!value)
                 return 0;

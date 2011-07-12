@@ -34,11 +34,18 @@
 #define QMLJSSCOPEBUILDER_H
 
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsinterpreter.h>
 
 #include <QtCore/QList>
 
 namespace QmlJS {
+
+namespace Interpreter {
+class QmlComponentChain;
+class Context;
+class ObjectValue;
+class Value;
+class ScopeChain;
+}
 
 namespace AST {
     class Node;
@@ -47,10 +54,8 @@ namespace AST {
 class QMLJS_EXPORT ScopeBuilder
 {
 public:
-    ScopeBuilder(Interpreter::Context *context, Document::Ptr doc);
+    ScopeBuilder(Interpreter::ScopeChain *scopeChain);
     ~ScopeBuilder();
-
-    void initializeRootScope();
 
     void push(AST::Node *node);
     void push(const QList<AST::Node *> &nodes);
@@ -59,15 +64,10 @@ public:
     static const Interpreter::ObjectValue *isPropertyChangesObject(const Interpreter::Context *context, const Interpreter::ObjectValue *object);
 
 private:
-    void makeComponentChain(Document::Ptr doc, const Snapshot &snapshot,
-                            Interpreter::ScopeChain::QmlComponentChain *target,
-                            QHash<Document *, Interpreter::ScopeChain::QmlComponentChain *> *components);
-
     void setQmlScopeObject(AST::Node *node);
     const Interpreter::Value *scopeObjectLookup(AST::UiQualifiedId *id);
 
-    Document::Ptr _doc;
-    Interpreter::Context *_context;
+    Interpreter::ScopeChain *_scopeChain;
     QList<AST::Node *> _nodes;
 };
 

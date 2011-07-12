@@ -1260,7 +1260,7 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
     }
 
     LookupContext::Ptr lookupContext = semanticInfo.lookupContext(semanticInfo.rangePath(cursorPosition));
-    Evaluate evaluator(lookupContext->context());
+    Evaluate evaluator(&lookupContext->scopeChain());
     const Interpreter::Value *value = evaluator.reference(node);
 
     QString fileName;
