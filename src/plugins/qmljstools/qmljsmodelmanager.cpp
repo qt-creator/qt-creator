@@ -727,6 +727,12 @@ LibraryInfo ModelManager::builtins(const Document::Ptr &doc) const
     return _snapshot.libraryInfo(info.qtImportsPath);
 }
 
+void ModelManager::joinAllThreads()
+{
+    foreach (QFuture<void> future, m_synchronizer.futures())
+        future.waitForFinished();
+}
+
 void ModelManager::resetCodeModel()
 {
     QStringList documents;

@@ -89,6 +89,8 @@ public:
 
     virtual QmlJS::LibraryInfo builtins(const QmlJS::Document::Ptr &doc) const;
 
+    virtual void joinAllThreads();
+
 public slots:
     virtual void resetCodeModel();
 

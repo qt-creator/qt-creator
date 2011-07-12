@@ -139,6 +139,9 @@ public:
 
     virtual LibraryInfo builtins(const Document::Ptr &doc) const = 0;
 
+    // Blocks until all parsing threads are done. Used for testing.
+    virtual void joinAllThreads() = 0;
+
 public slots:
     virtual void resetCodeModel() = 0;
 
