@@ -39,6 +39,11 @@
 
 #include <utils/qtcassert.h>
 
+#include <coreplugin/icore.h>
+#include <QtGui/QMainWindow>
+#include <QtGui/QMessageBox>
+#include <QtCore/QTimer>
+
 namespace Debugger {
 namespace Internal {
 
@@ -89,13 +94,15 @@ private:
     DebuggerEngine *m_cppEngine;
     DebuggerEngine *m_activeEngine;
     int m_stackBoundary;
+
+    QMessageBox *m_msg;
 };
 
 
 QmlCppEnginePrivate::QmlCppEnginePrivate(QmlCppEngine *parent,
         const DebuggerStartParameters &sp)
     : q(parent), m_qmlEngine(createQmlEngine(sp, q)),
-      m_cppEngine(0), m_activeEngine(0)
+      m_cppEngine(0), m_activeEngine(0), m_msg(0)
 {
     setObjectName(QLatin1String("QmlCppEnginePrivate"));
 }
@@ -588,6 +595,9 @@ void QmlCppEngine::slaveEngineStateChanged
             } else if (state() == InferiorStopRequested) {
                 EDEBUG("... AN INFERIOR STOPPED EXPECTEDLY");
                 notifyInferiorStopOk();
+            } else if (otherEngine->state() == EngineRunRequested && otherEngine == d->m_qmlEngine) {
+                EDEBUG("... BREAKPOINT HIT IN C++ BEFORE QML STARTUP");
+                QTimer::singleShot(0, this, SLOT(skipCppBreakpoint()));
             } else if (state() == EngineRunRequested) {
                 EDEBUG("... AN INFERIOR FAILED STARTUP, OTHER STOPPED EXPECTEDLY");
                 // wait for failure notification from other engine
@@ -674,6 +684,31 @@ void QmlCppEngine::showMessage(const QString &msg, int channel, int timeout) con
         d->m_qmlEngine->filterApplicationMessage(msg, channel);
     }
     DebuggerEngine::showMessage(msg, channel, timeout);
+}
+
+void QmlCppEngine::skipCppBreakpoint()
+{
+    // only used to skip breakpoint in CPP when QML not ready yet
+    QTC_ASSERT(d->m_cppEngine->state() == InferiorStopOk, return);
+    QTC_ASSERT(d->m_qmlEngine->state() == EngineRunRequested, return);
+
+    if (!d->m_msg) {
+        Core::ICore * const core = Core::ICore::instance();
+        d->m_msg = new QMessageBox(core->mainWindow());
+    }
+
+    if (d->m_msg->isHidden()) {
+        d->m_msg->setIcon(QMessageBox::Warning);
+        d->m_msg->setWindowTitle(tr("QML/C++ Debugging"));
+        d->m_msg->setText(tr("Cannot stop execution before QML engine is started. Skipping breakpoint.\nSuggestions: Move the breakpoint after QmlViewer initialization or switch to C++ only debugging"));
+        d->m_msg->setStandardButtons(QMessageBox::Ok);
+        d->m_msg->setDefaultButton(QMessageBox::Ok);
+        d->m_msg->setModal(false);
+        d->m_msg->show();
+    }
+
+    d->m_cppEngine->continueInferior();
+    resetLocation();
 }
 
 DebuggerEngine *QmlCppEngine::cppEngine() const
