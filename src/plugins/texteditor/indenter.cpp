@@ -33,7 +33,6 @@
 #include "indenter.h"
 #include "basetexteditor.h"
 #include "tabsettings.h"
-#include "ifallbackpreferences.h"
 
 using namespace TextEditor;
 
