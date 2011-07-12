@@ -73,6 +73,7 @@ public:
     SftpJobId renameFileOrDirectory(const QString &oldPath,
         const QString &newPath);
     SftpJobId createFile(const QString &filePath, SftpOverwriteMode mode);
+    SftpJobId createLink(const QString &filePath, const QString &target);
     SftpJobId uploadFile(const QString &localFilePath,
         const QString &remoteFilePath, SftpOverwriteMode mode);
     SftpJobId downloadFile(const QString &remoteFilePath,

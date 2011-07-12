@@ -90,6 +90,17 @@ SftpOutgoingPacket &SftpRename::initialPacket(SftpOutgoingPacket &packet)
 }
 
 
+SftpCreateLink::SftpCreateLink(SftpJobId jobId, const QString &filePath, const QString &target)
+    : AbstractSftpOperation(jobId), filePath(filePath), target(target)
+{
+}
+
+SftpOutgoingPacket &SftpCreateLink::initialPacket(SftpOutgoingPacket &packet)
+{
+    return packet.generateCreateLink(filePath, target, jobId);
+}
+
+
 AbstractSftpOperationWithHandle::AbstractSftpOperationWithHandle(SftpJobId jobId,
     const QString &remotePath)
     : AbstractSftpOperation(jobId),

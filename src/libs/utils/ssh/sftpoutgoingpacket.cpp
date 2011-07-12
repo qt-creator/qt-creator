@@ -143,6 +143,12 @@ SftpOutgoingPacket &SftpOutgoingPacket::generateWriteFile(const QByteArray &hand
         .appendInt64(offset).appendString(data).finalize();
 }
 
+SftpOutgoingPacket &SftpOutgoingPacket::generateCreateLink(const QString &filePath,
+    const QString &target, quint32 requestId)
+{
+    return init(SSH_FXP_SYMLINK, requestId).appendString(filePath).appendString(target).finalize();
+}
+
 SftpOutgoingPacket &SftpOutgoingPacket::generateOpenFile(const QString &path,
     OpenType openType, SftpOverwriteMode mode, const QList<quint32> &attributes, quint32 requestId)
 {

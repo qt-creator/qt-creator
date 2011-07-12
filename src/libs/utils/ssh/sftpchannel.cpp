@@ -162,6 +162,12 @@ SftpJobId SftpChannel::renameFileOrDirectory(const QString &oldPath,
         new Internal::SftpRename(++d->m_nextJobId, oldPath, newPath)));
 }
 
+SftpJobId SftpChannel::createLink(const QString &filePath, const QString &target)
+{
+    return d->createJob(Internal::SftpCreateLink::Ptr(
+        new Internal::SftpCreateLink(++d->m_nextJobId, filePath, target)));
+}
+
 SftpJobId SftpChannel::createFile(const QString &path, SftpOverwriteMode mode)
 {
     return d->createJob(Internal::SftpCreateFile::Ptr(
@@ -451,6 +457,7 @@ void SftpChannelPrivate::handleStatus()
     case AbstractSftpOperation::Rm:
     case AbstractSftpOperation::Rename:
     case AbstractSftpOperation::CreateFile:
+    case AbstractSftpOperation::CreateLink:
         handleStatusGeneric(it, response);
         break;
     }

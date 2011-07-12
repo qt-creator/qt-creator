@@ -64,6 +64,8 @@ public:
         quint32 requestId);
     SftpOutgoingPacket &generateWriteFile(const QByteArray &handle,
         quint64 offset, const QByteArray &data, quint32 requestId);
+    SftpOutgoingPacket &generateCreateLink(const QString &filePath, const QString &target,
+        quint32 requestId);
 
     static const quint32 DefaultPermissions;
 
