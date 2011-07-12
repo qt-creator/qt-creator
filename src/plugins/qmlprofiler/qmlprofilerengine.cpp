@@ -278,7 +278,7 @@ void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
 {
     if (button == QMessageBox::Help) {
         Core::HelpManager *helpManager = Core::HelpManager::instance();
-        helpManager->handleHelpRequest("creator-qml-performance-monitor.html");
+        helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-qml-performance-monitor.html");
     }
 }
 
