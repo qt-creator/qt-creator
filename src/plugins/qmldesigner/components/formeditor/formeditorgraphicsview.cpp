@@ -153,31 +153,31 @@ void FormEditorGraphicsView::leaveEvent(QEvent *event)
      QGraphicsView::leaveEvent(event);
  }
 
-static QPixmap createBubblePixmap()
-{
-    QPixmap pixmap(124, 48);
-    pixmap.fill(Qt::transparent);
-    QPainter pmPainter(&pixmap);
-    pmPainter.setRenderHint(QPainter::Antialiasing);
-    pmPainter.setOpacity(0.85);
-    pmPainter.translate(0.5, 0.5);
-    pmPainter.setPen(Qt::NoPen);
-    pmPainter.setBrush(QColor(0, 0, 0, 40));
-    pmPainter.drawRoundedRect(QRect(0, 0, 124, 48), 8, 8);
-    QLinearGradient gradient(QPoint(0, 0), QPoint(0, 44));
-    gradient.setColorAt(0.0, QColor(70, 70, 70));
-    gradient.setColorAt(1.0, QColor(10, 10, 10));
-    pmPainter.setBrush(gradient);
-    pmPainter.setPen(QColor(60, 60, 60));
-    pmPainter.drawRoundedRect(QRect(2, 1, 120, 45), 5, 5);
-    pmPainter.setBrush(Qt::NoBrush);
-    pmPainter.setPen(QColor(255, 255, 255, 140));
-    pmPainter.drawRoundedRect(QRect(3, 2, 118, 43), 5, 5);
-    pmPainter.end();
-    return pixmap;
-}
+//static QPixmap createBubblePixmap()
+//{
+//    QPixmap pixmap(124, 48);
+//    pixmap.fill(Qt::transparent);
+//    QPainter pmPainter(&pixmap);
+//    pmPainter.setRenderHint(QPainter::Antialiasing);
+//    pmPainter.setOpacity(0.85);
+//    pmPainter.translate(0.5, 0.5);
+//    pmPainter.setPen(Qt::NoPen);
+//    pmPainter.setBrush(QColor(0, 0, 0, 40));
+//    pmPainter.drawRoundedRect(QRect(0, 0, 124, 48), 8, 8);
+//    QLinearGradient gradient(QPoint(0, 0), QPoint(0, 44));
+//    gradient.setColorAt(0.0, QColor(70, 70, 70));
+//    gradient.setColorAt(1.0, QColor(10, 10, 10));
+//    pmPainter.setBrush(gradient);
+//    pmPainter.setPen(QColor(60, 60, 60));
+//    pmPainter.drawRoundedRect(QRect(2, 1, 120, 45), 5, 5);
+//    pmPainter.setBrush(Qt::NoBrush);
+//    pmPainter.setPen(QColor(255, 255, 255, 140));
+//    pmPainter.drawRoundedRect(QRect(3, 2, 118, 43), 5, 5);
+//    pmPainter.end();
+//    return pixmap;
+//}
 
-void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*rect*/ )
+void FormEditorGraphicsView::drawForeground(QPainter * /*painter*/, const QRectF & /*rect*/ )
 {
 //    if (!m_feedbackNode.isValid())
 //        return;
@@ -273,7 +273,7 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
 //    painter->restore();
 }
 
-void FormEditorGraphicsView::setFeedbackNode(const QmlItemNode &node)
+void FormEditorGraphicsView::setFeedbackNode(const QmlItemNode & /*node*/)
 {
 //    if (node == m_feedbackNode)
 //        return;
