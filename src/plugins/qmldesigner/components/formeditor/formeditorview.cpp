@@ -134,9 +134,6 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
 void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
 {
     if (qmlItemNode.isValid()) {
-
-        FormEditorItem *item = m_scene->itemForQmlItemNode(qmlItemNode);
-
         QList<QmlItemNode> nodeList;
         nodeList.append(qmlItemNode.allSubModelNodes());
         nodeList.append(qmlItemNode);
