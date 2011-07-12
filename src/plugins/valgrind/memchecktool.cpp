@@ -35,7 +35,6 @@
 #include "memchecktool.h"
 #include "memcheckengine.h"
 #include "memcheckerrorview.h"
-#include "memchecksettings.h"
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
 
@@ -260,7 +259,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
     connect(m_settings, SIGNAL(destroyed(QObject *)), SLOT(settingsDestroyed(QObject *)));
 
-    AbstractMemcheckSettings *memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();
+    ValgrindBaseSettings *memcheckSettings = m_settings->subConfig<ValgrindBaseSettings>();
     QTC_ASSERT(memcheckSettings, return);
 
     foreach (QAction *action, m_errorFilterActions) {
@@ -288,12 +287,12 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
 QByteArray MemcheckTool::id() const
 {
-    return "MemcheckLocal";
+    return "Memcheck";
 }
 
 QString MemcheckTool::displayName() const
 {
-    return tr("Valgrind Analyze Memory");
+    return tr("Valgrind Memory Analyzer");
 }
 
 QString MemcheckTool::description() const
@@ -524,7 +523,7 @@ void MemcheckTool::updateErrorFilter()
     QTC_ASSERT(m_errorView, return);
     QTC_ASSERT(m_settings, return);
 
-    AbstractMemcheckSettings *memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();
+    ValgrindBaseSettings *memcheckSettings = m_settings->subConfig<ValgrindBaseSettings>();
     QTC_ASSERT(memcheckSettings, return);
     memcheckSettings->setFilterExternalIssues(!m_filterProjectAction->isChecked());
 

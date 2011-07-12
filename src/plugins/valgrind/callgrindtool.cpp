@@ -35,7 +35,6 @@
 #include "callgrindcostdelegate.h"
 #include "callgrindcostview.h"
 #include "callgrindengine.h"
-#include "callgrindsettings.h"
 #include "callgrindtextmark.h"
 #include "callgrindvisualisation.h"
 
@@ -48,6 +47,7 @@
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <valgrind/callgrind/callgrindstackbrowser.h>
 #include <valgrind/valgrindplugin.h>
+#include <valgrind/valgrindsettings.h>
 
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzersettings.h>
@@ -210,7 +210,7 @@ public:
     QAction *m_showCostsOfFunctionAction;
 
     QString m_toggleCollectFunction;
-    CallgrindGlobalSettings *m_settings; // Not owned
+    ValgrindGlobalSettings *m_settings; // Not owned
 };
 
 
@@ -249,7 +249,7 @@ CallgrindToolPrivate::CallgrindToolPrivate(CallgrindTool *parent)
     m_proxyModel->setFilterKeyColumn(DataModel::NameColumn);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    m_settings = AnalyzerGlobalSettings::instance()->subConfig<CallgrindGlobalSettings>();
+    m_settings = AnalyzerGlobalSettings::instance()->subConfig<ValgrindGlobalSettings>();
 
     connect(m_stackBrowser, SIGNAL(currentChanged()), SLOT(stackBrowserChanged()));
     connect(m_updateTimer, SIGNAL(timeout()), SLOT(updateFilterString()));
@@ -520,7 +520,7 @@ QByteArray CallgrindTool::id() const
 
 QString CallgrindTool::displayName() const
 {
-    return tr("Valgrind Function Profile");
+    return tr("Valgrind Function Profiler");
 }
 
 QString CallgrindTool::description() const
@@ -598,7 +598,7 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
 
     // apply project settings
     AnalyzerProjectSettings *analyzerSettings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
-    CallgrindProjectSettings *settings = analyzerSettings->subConfig<CallgrindProjectSettings>();
+    ValgrindProjectSettings *settings = analyzerSettings->subConfig<ValgrindProjectSettings>();
     QTC_ASSERT(settings, return engine)
 
     QTC_ASSERT(m_visualisation, return engine);

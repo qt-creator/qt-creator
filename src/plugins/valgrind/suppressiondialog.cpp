@@ -36,7 +36,7 @@
 #include "ui_suppressiondialog.h"
 
 #include "memcheckerrorview.h"
-#include "memchecksettings.h"
+#include "valgrindsettings.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -206,7 +206,7 @@ void SuppressionDialog::accept()
         }
     }
 
-    m_settings->subConfig<AbstractMemcheckSettings>()->addSuppressionFiles(QStringList(path));
+    m_settings->subConfig<ValgrindBaseSettings>()->addSuppressionFiles(QStringList(path));
 
     QModelIndexList indizes = m_view->selectionModel()->selectedRows();
     qSort(indizes.begin(), indizes.end(), sortIndizesReverse);

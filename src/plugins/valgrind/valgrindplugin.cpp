@@ -34,9 +34,7 @@
 
 #include "valgrindplugin.h"
 
-#include "callgrindsettings.h"
 #include "callgrindtool.h"
-#include "memchecksettings.h"
 #include "memchecktool.h"
 #include "valgrindsettings.h"
 
@@ -44,7 +42,6 @@
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerrunconfigwidget.h>
 #include <analyzerbase/analyzerruncontrol.h>
-#include <analyzerbase/analyzersettings.h>
 #include <analyzerbase/analyzerstartparameters.h>
 #include <analyzerbase/startremotedialog.h>
 
@@ -199,36 +196,19 @@ void ValgrindPlugin::startValgrindTool(IAnalyzerTool *tool, StartMode mode)
         startRemoteTool(tool, mode);
 }
 
-static AbstractAnalyzerSubConfig *valgrindConfigFactory()
+static AbstractAnalyzerSubConfig *globalValgrindFactory()
 {
-    return new ValgrindSettings();
+    return new ValgrindGlobalSettings();
 }
 
-static AbstractAnalyzerSubConfig *globalCallgrindFactory()
+static AbstractAnalyzerSubConfig *projectValgrindFactory()
 {
-    return new CallgrindGlobalSettings();
-}
-
-static AbstractAnalyzerSubConfig *projectCallgrindFactory()
-{
-    return new CallgrindProjectSettings();
-}
-
-static AbstractAnalyzerSubConfig *globalMemcheckFactory()
-{
-    return new MemcheckGlobalSettings();
-}
-
-static AbstractAnalyzerSubConfig *projectMemcheckFactory()
-{
-    return new MemcheckProjectSettings();
+    return new ValgrindProjectSettings();
 }
 
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
-    AnalyzerGlobalSettings::instance()->registerSubConfigs(&valgrindConfigFactory, &valgrindConfigFactory);
-    AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalCallgrindFactory, &projectCallgrindFactory);
-    AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalMemcheckFactory, &projectMemcheckFactory);
+    AnalyzerGlobalSettings::instance()->registerSubConfigs(&globalValgrindFactory, &projectValgrindFactory);
 
     StartModes modes;
 #ifndef Q_OS_WIN

@@ -34,7 +34,7 @@
 
 #include "memcheckengine.h"
 
-#include "memchecksettings.h"
+#include "valgrindsettings.h"
 
 #include <analyzerbase/analyzersettings.h>
 
@@ -96,7 +96,7 @@ QStringList MemcheckEngine::toolArguments() const
     QStringList arguments;
     arguments << QLatin1String("--gen-suppressions=all");
 
-    AbstractMemcheckSettings *memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();
+    ValgrindBaseSettings *memcheckSettings = m_settings->subConfig<ValgrindBaseSettings>();
     QTC_ASSERT(memcheckSettings, return arguments);
 
     if (memcheckSettings->trackOrigins())
@@ -111,7 +111,7 @@ QStringList MemcheckEngine::toolArguments() const
 
 QStringList MemcheckEngine::suppressionFiles() const
 {
-    return m_settings->subConfig<AbstractMemcheckSettings>()->suppressionFiles();
+    return m_settings->subConfig<ValgrindBaseSettings>()->suppressionFiles();
 }
 
 void MemcheckEngine::status(const Status &status)

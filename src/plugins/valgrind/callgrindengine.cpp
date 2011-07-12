@@ -32,7 +32,7 @@
 
 #include "callgrindengine.h"
 
-#include "callgrindsettings.h"
+#include "valgrindsettings.h"
 
 #include <valgrind/callgrind/callgrindcontroller.h>
 #include <valgrind/callgrind/callgrindparser.h>
@@ -67,7 +67,7 @@ QStringList CallgrindEngine::toolArguments() const
 {
     QStringList arguments;
 
-    AbstractCallgrindSettings *callgrindSettings = m_settings->subConfig<AbstractCallgrindSettings>();
+    ValgrindBaseSettings *callgrindSettings = m_settings->subConfig<ValgrindBaseSettings>();
     QTC_ASSERT(callgrindSettings, return arguments);
 
     if (callgrindSettings->enableCacheSim())

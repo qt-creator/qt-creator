@@ -95,7 +95,7 @@ void ValgrindEngine::start()
 
     const AnalyzerStartParameters &sp = startParameters();
     runner()->setWorkingDirectory(sp.workingDirectory);
-    QString valgrindExe = m_settings->subConfig<ValgrindSettings>()->valgrindExecutable();
+    QString valgrindExe = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
     if (!sp.analyzerCmdPrefix.isEmpty())
         valgrindExe = sp.analyzerCmdPrefix + ' ' + valgrindExe;
     runner()->setValgrindExecutable(valgrindExe);
@@ -159,7 +159,7 @@ void ValgrindEngine::receiveProcessOutput(const QByteArray &b, Utils::OutputForm
 void ValgrindEngine::receiveProcessError(const QString &error, QProcess::ProcessError e)
 {
     if (e == QProcess::FailedToStart) {
-        const QString &valgrind = m_settings->subConfig<ValgrindSettings>()->valgrindExecutable();
+        const QString &valgrind = m_settings->subConfig<ValgrindBaseSettings>()->valgrindExecutable();
         if (!valgrind.isEmpty()) {
             emit outputReceived(tr("** Error: \"%1\" could not be started: %2 **\n").arg(valgrind).arg(error), Utils::ErrorMessageFormat);
         } else {
