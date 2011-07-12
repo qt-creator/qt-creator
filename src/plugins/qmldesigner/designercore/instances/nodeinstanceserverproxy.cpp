@@ -77,11 +77,11 @@
 
 namespace QmlDesigner {
 
-static bool hasQtQuick1(NodeInstanceView *nodeInstanceView)
+static bool hasQtQuick2(NodeInstanceView *nodeInstanceView)
 {
     if (nodeInstanceView && nodeInstanceView->model()) {
         foreach (const Import &import ,nodeInstanceView->model()->imports()) {
-            if (import.url() ==  "QtQuick" && import.version().toDouble() < 2.0)
+            if (import.url() ==  "QtQuick" && import.version().toDouble() >= 2.0)
                 return true;
         }
     }
@@ -436,10 +436,10 @@ void NodeInstanceServerProxy::readThirdDataStream()
 QString NodeInstanceServerProxy::qmlPuppetApplicationName() const
 {
     QString appName;
-    if (hasQtQuick1(m_nodeInstanceView.data())) {
-        appName = QLatin1String("qmlpuppet");
-    } else {
+    if (hasQtQuick2(m_nodeInstanceView.data())) {
         appName = QLatin1String("qml2puppet");
+    } else {
+        appName = QLatin1String("qmlpuppet");
     }
  #ifdef Q_OS_WIN
     appName += QLatin1String(".exe");
