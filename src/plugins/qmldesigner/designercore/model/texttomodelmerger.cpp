@@ -748,6 +748,11 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
         setupImports(doc, differenceHandler);
 
+        if (m_rewriterView->model()->imports().isEmpty()) {
+            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::DiagnosticMessage::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger error message", "No import statements found"));
+            errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+        }
+
         if (view()->checkSemanticErrors()) {
             Check check(doc, m_lookupContext->context());
             check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
