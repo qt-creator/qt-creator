@@ -379,7 +379,7 @@ void DragTool::dragMoveEvent(QGraphicsSceneDragDropEvent * event)
                 createQmlItemNode(itemLibraryEntry, parentNode, event->scenePos());
             } else if (event->mimeData()->hasFormat("application/vnd.bauhaus.libraryresource")) {
                 Q_ASSERT(!event->mimeData()->data("application/vnd.bauhaus.libraryresource").isEmpty());
-                QString imageName = QString::fromLatin1((event->mimeData()->data("application/vnd.bauhaus.libraryresource")));
+                QString imageName = QString::fromUtf8((event->mimeData()->data("application/vnd.bauhaus.libraryresource")));
                 createQmlItemNodeFromImage(imageName, parentNode, event->scenePos());
             } else Q_ASSERT(false);
             m_blockMove = true;

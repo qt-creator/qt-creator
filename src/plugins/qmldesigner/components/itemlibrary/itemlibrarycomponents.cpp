@@ -129,7 +129,7 @@ void ItemLibraryTreeView::startDrag(Qt::DropActions /* supportedActions */)
         drag->setPreview(pixmap);
         drag->setPixmap(QIcon(pixmap).pixmap(128, 128));
         QMimeData *mimeData = new QMimeData;
-        mimeData->setData("application/vnd.bauhaus.libraryresource", fileInfo.absoluteFilePath().toLatin1());
+        mimeData->setData("application/vnd.bauhaus.libraryresource", fileInfo.absoluteFilePath().toUtf8());
         drag->setMimeData(mimeData);
         drag->exec();
     }
