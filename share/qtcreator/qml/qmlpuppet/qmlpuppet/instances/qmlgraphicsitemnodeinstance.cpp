@@ -254,6 +254,26 @@ int QmlGraphicsItemNodeInstance::penWidth() const
     return GraphicsObjectNodeInstance::penWidth();
 }
 
+void QmlGraphicsItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
+{
+    GraphicsObjectNodeInstance::initialize(objectNodeInstance);
+
+    if (objectNodeInstance->instanceId() == 0 && objectNodeInstance->isQmlGraphicsItem()) { // is root item
+        objectNodeInstance.staticCast<QmlGraphicsItemNodeInstance>()->setVisible(true);
+        objectNodeInstance->setResetValue("visible", true);
+    }
+}
+
+void QmlGraphicsItemNodeInstance::setVisible(bool isVisible)
+{
+    qmlGraphicsItem()->setVisible(isVisible);
+}
+
+bool QmlGraphicsItemNodeInstance::isVisible() const
+{
+    return qmlGraphicsItem()->isVisible();
+}
+
 void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 {
     if (name == "height") {

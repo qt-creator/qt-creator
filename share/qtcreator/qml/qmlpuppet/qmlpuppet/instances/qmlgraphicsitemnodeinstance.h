@@ -75,8 +75,12 @@ public:
     bool isResizable() const;
     void setResizable(bool resizeable);
 
+    void setVisible(bool isVisible);
+    bool isVisible() const;
 
-    QList<ServerNodeInstance> stateInstances() const;
+    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance);
+
+   QList<ServerNodeInstance> stateInstances() const;
 
 protected:
     QmlGraphicsItemNodeInstance(QDeclarativeItem *item);

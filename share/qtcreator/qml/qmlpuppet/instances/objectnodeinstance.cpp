@@ -967,6 +967,11 @@ QVariant ObjectNodeInstance::resetValue(const QString &propertyName) const
     return m_resetValueHash.value(propertyName);
 }
 
+void ObjectNodeInstance::setResetValue(const QString &propertyName, const QVariant &value)
+{
+    m_resetValueHash.insert(propertyName, value);
+}
+
 void ObjectNodeInstance::paint(QPainter * /*painter*/)
 {
 }

@@ -153,6 +153,7 @@ public:
 
     void populateResetValueHash();
     QVariant resetValue(const QString &propertyName) const;
+    void setResetValue(const QString &propertyName, const QVariant &value);
 
     QObject *object() const;
 
