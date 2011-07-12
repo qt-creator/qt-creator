@@ -46,6 +46,7 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
     property alias text: label.text
     property bool alignRight: true
     property bool enabled: true
+    property alias decimals: box.decimals
 
     minimumHeight: 22;
 
