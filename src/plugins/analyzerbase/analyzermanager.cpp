@@ -328,6 +328,28 @@ void AnalyzerManagerPrivate::delayedInit()
     m_mode->setWidget(splitter);
 
     AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
+
+    // Populate Windows->Views menu with standard actions.
+    Core::Context analyzerContext(Constants::C_ANALYZEMODE);
+    ActionManager *am = ICore::instance()->actionManager();
+    ActionContainer *viewsMenu =
+        am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
+    Command *cmd = am->registerAction(m_mainWindow->menuSeparator1(),
+        Core::Id("Analyzer.Views.Separator1"), analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    cmd = am->registerAction(m_mainWindow->toggleLockedAction(),
+        Core::Id("Analyzer.Views.ToggleLocked"), analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    cmd = am->registerAction(m_mainWindow->menuSeparator2(),
+        Core::Id("Analyzer.Views.Separator2"), analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    cmd = am->registerAction(m_mainWindow->resetLayoutAction(),
+        Core::Id("Analyzer.Views.ResetSimple"), analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 }
 
 static QToolButton *toolButton(QAction *action)
