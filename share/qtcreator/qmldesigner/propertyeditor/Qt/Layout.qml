@@ -43,9 +43,8 @@ GroupBox {
 
     property bool isInBaseState: isBaseState
 
-    property variant targetLabelWidth: 90 - 20 - 26
-    property int leftMarginMargin: 16
-
+    property variant targetLabelWidth: 60
+    property int leftMarginMargin: 16 + 10 + 10
     layout: VerticalLayout {
         Label {
             text: qsTr("Anchors")
@@ -91,17 +90,20 @@ GroupBox {
                             selectedItemNode: anchorBackend.topTarget
                             onSelectedItemNodeChanged: { anchorBackend.topTarget = selectedItemNode; }
                         }
-
                     }
                 }
 
                 QWidget {
                     layout : HorizontalLayout {
                         leftMargin: leftMarginMargin
+                        Label {
+                            text: qsTr("Margin")
+                            fixedWidth: targetLabelWidth
+                        }
                         IntEditor {
                             id:topbox
                             slider: false
-                            caption: qsTr("Margin")
+                            caption: ""
                             backendValue: backendValues.anchors_topMargin
                             baseStateFlag: isInBaseState;
                             maximumValue: 999
@@ -149,9 +151,13 @@ GroupBox {
                 QWidget {
                     layout : HorizontalLayout {
                         leftMargin: leftMarginMargin
+                        Label {
+                            text: qsTr("Margin")
+                            fixedWidth: targetLabelWidth
+                        }
                         IntEditor {
                             slider: false
-                            caption: qsTr("Margin")
+                            caption: ""
                             backendValue: backendValues.anchors_bottomMargin
                             baseStateFlag: isInBaseState;
                             maximumValue: 999
@@ -198,9 +204,13 @@ GroupBox {
                 QWidget {
                     layout : HorizontalLayout {
                         leftMargin: leftMarginMargin
+                        Label {
+                            text: qsTr("Margin")
+                            fixedWidth: targetLabelWidth
+                        }
                         IntEditor {
                             slider: false
-                            caption: qsTr("Margin")
+                            caption: ""
                             backendValue: backendValues.anchors_leftMargin
                             baseStateFlag: isInBaseState;
                             maximumValue: 999
@@ -247,9 +257,13 @@ GroupBox {
                 QWidget {
                     layout : HorizontalLayout {
                         leftMargin: leftMarginMargin
+                        Label {
+                            text: qsTr("Margin")
+                            fixedWidth: targetLabelWidth
+                        }
                         IntEditor {
                             slider: false
-                            caption: qsTr("Margin")
+                            caption: ""
                             backendValue: backendValues.anchors_rightMargin
                             baseStateFlag: isInBaseState;
                             maximumValue: 999
@@ -296,9 +310,13 @@ GroupBox {
                 QWidget {
                     layout : HorizontalLayout {
                         leftMargin: leftMarginMargin
+                        Label {
+                            text: qsTr("Margin")
+                            fixedWidth: targetLabelWidth
+                        }
                         IntEditor {
                             slider: false
-                            caption: qsTr("Margin")
+                            caption: ""
                             baseStateFlag: isInBaseState;
                             backendValue: backendValues.anchors_horizontalCenterOffset
                             maximumValue: 999
@@ -345,9 +363,13 @@ GroupBox {
                 QWidget {
                     layout : HorizontalLayout {
                         leftMargin: leftMarginMargin
+                        Label {
+                            text: qsTr("Margin")
+                            fixedWidth: targetLabelWidth
+                        }
                         IntEditor {
                             slider: false
-                            caption: qsTr("Margin")
+                            caption: ""
                             backendValue: backendValues.anchors_verticalCenterOffset
                             baseStateFlag: isInBaseState;
                             maximumValue: 999
