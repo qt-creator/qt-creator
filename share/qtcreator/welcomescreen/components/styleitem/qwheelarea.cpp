@@ -163,7 +163,7 @@ qreal QWheelArea::verticalValue() const
 
 void QWheelArea::setVerticalDelta(qreal d)
 {
-    _verticalDelta = d/15;
+    _verticalDelta = d/5;
     setVerticalValue(_verticalValue - _verticalDelta);
     emit(verticalWheelMoved());
 }
@@ -175,7 +175,7 @@ qreal QWheelArea::verticalDelta() const
 
 void QWheelArea::setHorizontalDelta(qreal d)
 {
-    _horizontalDelta = d/15;
+    _horizontalDelta = d/5;
     setHorizontalValue(_horizontalValue - _horizontalDelta);
     emit(horizontalWheelMoved());
 }
