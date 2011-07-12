@@ -36,15 +36,14 @@ import components 1.0 as Components
 Item {
     InsetText {
         id: text
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
         anchors.top:  parent.top
-        anchors.margins: 10
-        horizontalAlignment: Text.AlignHCenter
+        anchors.margins: 14
+        horizontalAlignment: Text.AlignLeft
         text: qsTr("Featured News")
-//        mainColor: "#44A51C"
         mainColor: "#074C1C"
         font.bold: true
-        font.pointSize: 16
+        font.pointSize: 18
     }
 
     ListModel {
@@ -64,9 +63,7 @@ Item {
         anchors.top: text.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.topMargin: text.height
-        clip: true
-
+        anchors.margins: 16
     }
 
 }

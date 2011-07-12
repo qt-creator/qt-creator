@@ -31,50 +31,47 @@
 **************************************************************************/
 
 import Qt 4.7
-import "../components/custom" as Custom
 
-Custom.Button {
-    id: button
+BorderImage {
+    property string text
+    property string image
+    property int iconSize : innerImg.sourceSize.height
+    signal clicked;
+    id: root
+    source: "qrc:/welcome/images/btn_26.png"
+    height: innerImg.height + 16
 
-    width: Math.max(100, labelItem.contentsWidth+20)
-    height: 32
+    border.left: 5; border.top: 5
+    border.right: 5; border.bottom: 5
 
-    background: BorderImage {
-        source: {
-            if (pressed)
-                return "qrc:/welcome/images/btn_26_pressed.png"
-            else
-                if (containsMouse)
-                    return "qrc:/welcome/images/btn_26_hover.png"
-                else
-                    return "qrc:/welcome/images/btn_26.png"
-        }
-
-        border { left: 5; right: 5; top: 5; bottom: 5 }
+    Image{
+        id: innerImg
+        height: root.iconSize
+        width: root.iconSize
+        anchors.verticalCenter: label.verticalCenter
+        anchors.right: label.left
+        anchors.rightMargin: 4
+        visible: root.image != ""
+        source: root.image
     }
 
-    label: Item {
-        property int contentsWidth : row.width
-        Row {
-            id: row
-            spacing: 4
-            anchors.centerIn: parent
-            property int contentsWidth : row.width
-            Image {
-                id: image
-                source: iconSource
-                anchors.verticalCenter: parent.verticalCenter
-                fillMode: Image.Stretch //mm Image should shrink if button is too small, depends on QTBUG-14957
-            }
-            Text {
-                id:text
-                color: textColor
-                anchors.verticalCenter: parent.verticalCenter
-                text: button.text
-                horizontalAlignment: Text.Center
-            }
-        }
+    Text {
+        id: label;
+        anchors.left: innerImg.right
+        anchors.right: parent.right
+        text: root.text
     }
 
-    Keys.onSpacePressed:clicked()
+    MouseArea { id: mouseArea; anchors.fill: parent; hoverEnabled: true; onClicked: root.clicked() }
+
+    states: [
+        State {
+            id: pressedState; when: mouseArea.pressed;
+            PropertyChanges { target: root; source: "qrc:/welcome/images/btn_26_pressed.png" }
+        },
+        State {
+            id: hoverState; when: mouseArea.containsMouse
+            PropertyChanges { target: root; source: "qrc:/welcome/images/btn_26_hover.png" }
+        }
+    ]
 }
