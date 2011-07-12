@@ -51,6 +51,7 @@
 #include "codeassistant.h"
 #include "defaultassistinterface.h"
 #include "convenience.h"
+#include "texteditorsettings.h"
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -4335,12 +4336,16 @@ void BaseTextEditorWidget::setTabPreferences(TabPreferences *tabPreferences)
 {
     if (d->m_tabPreferences) {
         disconnect(d->m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
-                this, SLOT(setTabSettings(TextEditor::TabSettings)));
+                   this, SLOT(setTabSettings(TextEditor::TabSettings)));
+        disconnect(d->m_tabPreferences, SIGNAL(destroyed()),
+                   this, SLOT(onTabPreferencesDestroyed()));
     }
     d->m_tabPreferences = tabPreferences;
     if (d->m_tabPreferences) {
         connect(d->m_tabPreferences, SIGNAL(currentSettingsChanged(TextEditor::TabSettings)),
                 this, SLOT(setTabSettings(TextEditor::TabSettings)));
+        connect(d->m_tabPreferences, SIGNAL(destroyed()),
+                this, SLOT(onTabPreferencesDestroyed()));
         setTabSettings(d->m_tabPreferences->currentSettings());
     }
 }
@@ -4351,13 +4356,35 @@ void BaseTextEditorWidget::setCodeStylePreferences(IFallbackPreferences *prefere
     if (d->m_codeStylePreferences) {
         disconnect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
                 this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
+        disconnect(d->m_codeStylePreferences, SIGNAL(destroyed()),
+                   this, SLOT(onCodeStylePreferencesDestroyed()));
     }
     d->m_codeStylePreferences = preferences;
     if (d->m_codeStylePreferences) {
         connect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
                 this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
+        connect(d->m_codeStylePreferences, SIGNAL(destroyed()),
+                this, SLOT(onCodeStylePreferencesDestroyed()));
         slotCodeStyleSettingsChanged(d->m_codeStylePreferences->currentValue());
     }
+}
+
+void BaseTextEditorWidget::onTabPreferencesDestroyed()
+{
+    if (sender() != d->m_tabPreferences)
+        return;
+    // avoid failing disconnects, m_tabPreferences has already been reduced to QObject
+    d->m_tabPreferences = 0;
+    setTabPreferences(TextEditorSettings::instance()->tabPreferences(languageSettingsId()));
+}
+
+void BaseTextEditorWidget::onCodeStylePreferencesDestroyed()
+{
+    if (sender() != d->m_codeStylePreferences)
+        return;
+    // avoid failing disconnects, m_codeStylePreferences has already been reduced to QObject
+    d->m_codeStylePreferences = 0;
+    setCodeStylePreferences(TextEditorSettings::instance()->codeStylePreferences(languageSettingsId()));
 }
 
 void BaseTextEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
