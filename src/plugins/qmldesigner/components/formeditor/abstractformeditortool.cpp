@@ -219,19 +219,6 @@ void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*i
 
 void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
-    FormEditorItem *formEditorItem = topFormEditorItem(itemList);
-    if (formEditorItem) {
-        ModelNode doubleClickNode = formEditorItem->qmlItemNode().modelNode();
-        if (doubleClickNode.metaInfo().isComponent()) {
-            Core::EditorManager::instance()->openEditor(doubleClickNode.metaInfo().componentFileName());
-            event->accept();
-        } else if (checkIfNodeIsAView(doubleClickNode) &&
-                   doubleClickNode.hasNodeProperty("delegate") &&
-                   doubleClickNode.nodeProperty("delegate").modelNode().metaInfo().isComponent()) {
-            Core::EditorManager::instance()->openEditor(doubleClickNode.nodeProperty("delegate").modelNode().metaInfo().componentFileName());
-            event->accept();
-        }
-    }
 }
 
 void AbstractFormEditorTool::showContextMenu(QGraphicsSceneMouseEvent *event)
