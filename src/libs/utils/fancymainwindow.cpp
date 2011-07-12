@@ -267,7 +267,7 @@ bool FancyMainWindow::isLocked() const
 
 QMenu *FancyMainWindow::createPopupMenu()
 {
-    QMenu *menu = new QMenu(this);;
+    QMenu *menu = new QMenu(this);
     QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(this);
     for (int i = 0; i < dockwidgets.size(); ++i) {
         QDockWidget *dockWidget = dockwidgets.at(i);
