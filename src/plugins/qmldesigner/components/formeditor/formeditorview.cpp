@@ -485,8 +485,6 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeParent(qmlItemNode);
             itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
-            if (qmlItemNode.isRootModelNode())
-                m_formEditorWidget->centerScene();
         }
     }
     currentTool()->instancesCompleted(itemNodeList);
@@ -500,8 +498,10 @@ void FormEditorView::instanceInformationsChange(const QMultiHash<ModelNode, Info
         QmlItemNode qmlItemNode(node);
         if (qmlItemNode.isValid() && scene()->hasItemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(qmlItemNode);
-            if (qmlItemNode.isRootModelNode())
+            if (qmlItemNode.isRootModelNode() && informationChangeHash.values(node).contains(Size)) {
                 widget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
+                widget()->centerScene();
+            }
 
             itemNodeList.append(scene()->itemForQmlItemNode(qmlItemNode));
         }
