@@ -217,7 +217,7 @@ void AbstractFormEditorTool::mouseReleaseEvent(const QList<QGraphicsItem*> & /*i
     }
 }
 
-void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
+void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &, QGraphicsSceneMouseEvent *)
 {
 }
 
