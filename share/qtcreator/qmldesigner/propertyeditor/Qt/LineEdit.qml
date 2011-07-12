@@ -42,6 +42,7 @@ QWidget {
     property alias text: lineEditWidget.text
     property alias readOnly: lineEditWidget.readOnly
     property alias translation: trCheckbox.visible
+    property alias inputMask: lineEditWidget.inputMask
 
     minimumHeight: 24;
 
