@@ -340,6 +340,7 @@ void DisassemblerAgent::updateLocationMarker()
     QTextBlock block = tc.document()->findBlockByNumber(lineNumber - 1);
     tc.setPosition(block.position());
     plainTextEdit->setTextCursor(tc);
+    plainTextEdit->centerCursor();
 }
 
 void DisassemblerAgent::updateBreakpointMarkers()
