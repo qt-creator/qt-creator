@@ -754,13 +754,6 @@ void AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool, StartMode mod
 
 void AnalyzerManagerPrivate::updateRunActions()
 {
-    static bool previousRunning = true;
-    static IAnalyzerTool *previousTool = 0;
-    if (previousRunning == m_isRunning && previousTool == m_currentTool)
-        return;
-    previousTool = m_currentTool;
-    previousRunning = m_isRunning;
-
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = pe->startupProject();
 
