@@ -2345,9 +2345,29 @@ namespace basic {
         dummyStatement(&s);
     }
 
+    static char buf[20] = { 0 };
+
+    void testCharStar()
+    {
+        char *s = buf;
+        // <=== break here.
+        // Expand 's' in Locals view.
+        // Open pinnable tooltip.
+        // Step over.
+        // Check that display and tooltip look sane.
+        s = strcat(s,"\"");
+        s = strcat(s,"\"");
+        s = strcat(s,"a");
+        s = strcat(s,"b");
+        s = strcat(s,"\"");
+        // Close tooltip.
+        dummyStatement(&s);
+    }
+
     void testBasic()
     {
         testChar();
+        testCharStar();
     }
 
 } // basic
