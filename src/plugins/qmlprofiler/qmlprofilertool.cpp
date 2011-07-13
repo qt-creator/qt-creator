@@ -217,6 +217,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
 
     connect(engine, SIGNAL(processRunning(int)), this, SLOT(connectClient(int)));
     connect(engine, SIGNAL(finished()), this, SLOT(disconnectClient()));
+    connect(engine, SIGNAL(finished()), this, SLOT(correctTimer()));
     connect(engine, SIGNAL(stopRecording()), this, SLOT(stopRecording()));
     connect(d->m_traceWindow, SIGNAL(viewUpdated()), engine, SLOT(dataReceived()));
     connect(this, SIGNAL(connectionFailed()), engine, SLOT(finishProcess()));
@@ -335,8 +336,9 @@ QWidget *QmlProfilerTool::createWidgets()
     palette.setColor(QPalette::WindowText, Qt::white);
     timeLabel->setPalette(palette);
     timeLabel->setIndent(10);
-
+    connect(d->m_traceWindow, SIGNAL(viewUpdated()), this, SLOT(correctTimer()));
     connect(this, SIGNAL(setTimeLabel(QString)), timeLabel, SLOT(setText(QString)));
+    correctTimer();
     layout->addWidget(timeLabel);
 
     toolbarWidget->setLayout(layout);
@@ -430,6 +432,11 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
         textEditor->gotoLine(lineNumber);
         textEditor->widget()->setFocus();
     }
+}
+
+void QmlProfilerTool::correctTimer() {
+    if (d->m_statistics->eventCount() == 0)
+        updateTimer(0);
 }
 
 void QmlProfilerTool::updateTimer(qreal elapsedSeconds)

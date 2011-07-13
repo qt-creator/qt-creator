@@ -125,9 +125,14 @@ void QmlProfilerEventStatistics::clear()
     d->m_rootHash.clear();
 }
 
-QList <QmlEventData *> QmlProfilerEventStatistics::getEventList()
+QList <QmlEventData *> QmlProfilerEventStatistics::getEventList() const
 {
     return d->m_rootHash.values();
+}
+
+int QmlProfilerEventStatistics::eventCount() const
+{
+    return d->m_rootHash.size();
 }
 
 void QmlProfilerEventStatistics::addRangedEvent(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length,
