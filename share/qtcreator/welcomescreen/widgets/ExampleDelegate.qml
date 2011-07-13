@@ -38,7 +38,7 @@ Rectangle {
     height: Math.max(image.height-20, description.paintedHeight) + 68
     color: "#00ffffff"
 
-    Components.QStyleItem { cursor: "pointinghandcursor"; anchors.fill: parent }
+    Components.QStyleItem { cursor: "pointinghandcursor" ; anchors.fill: parent }
 
     Item {
         visible: parent.state=="hover"
@@ -74,7 +74,8 @@ Rectangle {
     Image {
         property bool hideImage : model.imageUrl === "" || status === Image.Error
         id: image
-        anchors.top: title.bottom
+        smooth: true
+        anchors.top: description.top
         anchors.right: parent.right
         anchors.rightMargin: 30
         width: hideImage ? 0 : 90

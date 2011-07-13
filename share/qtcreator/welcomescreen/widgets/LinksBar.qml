@@ -67,7 +67,7 @@ Row {
                 anchors.fill: parent
                 text: model.modelData.title
                 elide: Text.ElideRight
-                color: "white"
+                color: "black"
             }
             MouseArea {
                 id: mouseArea
@@ -79,13 +79,8 @@ Row {
                 State {
                     id: activeState; when: tabBar.current == index
                     PropertyChanges { target: tabBackground; source:"qrc:welcome/images/tab_active.png" }
-                    PropertyChanges { target: text; color: "black" }
-                },
-                State {
-                    id: hoverState; when: mouseArea.containsMouse
-                    PropertyChanges { target: tabBackground; source:"qrc:welcome/images/tab_hover.png" }
+                    PropertyChanges { target: text; color: "white" }
                 }
-
             ]
         }
     }
