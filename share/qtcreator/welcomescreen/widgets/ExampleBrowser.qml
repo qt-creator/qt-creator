@@ -55,7 +55,7 @@ Item {
             anchors.left: parent.left
             anchors.leftMargin:4
             anchors.verticalCenter: parent.verticalCenter
-            width: lineEditRoot.width - checkBox.width - 24 - tagFilterButton.width
+            width: Math.max(lineEditRoot.width - checkBox.width - 24 - tagFilterButton.width, 0)
             onTextChanged: examplesModel.filterRegExp = RegExp('.*'+text, "im")
         }
 

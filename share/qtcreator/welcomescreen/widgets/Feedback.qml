@@ -81,11 +81,16 @@ Rectangle {
 
     InsetText {
         id: feedbackText
+        property bool canShow: parent.width > 630
+
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.leftMargin: 10
         anchors.rightMargin: 10
         anchors.margins: 5
+        opacity: canShow ? 1 : 0
+        Behavior on opacity{NumberAnimation{easing.type: Easing.OutSine}}
+        width: canShow ? paintedWidth : 0
         mainColor: "#444"
         text: qsTr("Help us make Qt Creator even better")
     }
