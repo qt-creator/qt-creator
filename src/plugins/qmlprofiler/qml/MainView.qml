@@ -130,15 +130,6 @@ Rectangle {
     //handle debug data coming from C++
     Connections {
         target: connection
-        onEvent: {
-            if (root.dataAvailable) {
-                root.clearData();
-            }
-
-            if (!root.dataAvailable && event === 0) { //### only handle paint event
-                Plotter.values.push(time);
-            }
-        }
 
         onRange: {
             if (root.dataAvailable) {
@@ -161,7 +152,6 @@ Rectangle {
 
         onComplete: {
             root.dataAvailable = true;
-            Plotter.calcFps();
             if (Plotter.ranges.length > 0) {
                 view.visible = true;
                 view.setRanges(Plotter.ranges);
