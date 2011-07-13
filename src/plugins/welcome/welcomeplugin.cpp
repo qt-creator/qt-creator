@@ -45,7 +45,6 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/styledbar.h>
-#include <utils/welcomemodetreewidget.h>
 #include <utils/iwelcomepage.h>
 
 #include <QtGui/QScrollArea>
