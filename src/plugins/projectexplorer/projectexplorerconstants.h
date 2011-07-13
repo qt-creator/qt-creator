@@ -80,6 +80,7 @@ const char * const REMOVEFILE           = "ProjectExplorer.RemoveFile";
 const char * const DELETEFILE           = "ProjectExplorer.DeleteFile";
 const char * const RENAMEFILE           = "ProjectExplorer.RenameFile";
 const char * const SETSTARTUP           = "ProjectExplorer.SetStartup";
+const char * const PROJECTTREE_COLLAPSE_ALL = "ProjectExplorer.CollapseAll";
 
 const char * const SHOW_TASK_IN_EDITOR  = "ProjectExplorer.ShowTaskInEditor";
 const char * const VCS_ANNOTATE_TASK    = "ProjectExplorer.VcsAnnotateTask";
@@ -137,6 +138,7 @@ const char * const G_PROJECT_FIRST      = "Project.Group.Open";
 const char * const G_PROJECT_BUILD      = "Project.Group.Build";
 const char * const G_PROJECT_RUN        = "Project.Group.Run";
 const char * const G_PROJECT_FILES      = "Project.Group.Files";
+const char * const G_PROJECT_TREE       = "Project.Group.Tree";
 const char * const G_PROJECT_LAST       = "Project.Group.Last";
 
 const char * const G_FOLDER_FILES       = "ProjectFolder.Group.Files";

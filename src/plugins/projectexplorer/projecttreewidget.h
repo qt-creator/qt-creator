@@ -67,6 +67,7 @@ public:
 public slots:
     void toggleAutoSynchronization();
     void editCurrentItem();
+    void collapseAll();
 
 private slots:
     void setCurrentItem(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
