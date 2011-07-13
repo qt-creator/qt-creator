@@ -46,6 +46,7 @@ Item {
         anchors.right: parent.right
         anchors.bottomMargin: - 8
         anchors.leftMargin: - 8
+        anchors.rightMargin: -8
 
         Components.TextField {
             placeholderText: !checkBox.checked ? qsTr("Search in Tutorials") : qsTr("Search in Tutorials, Examples and Demos")
@@ -100,12 +101,13 @@ Item {
         Component.onCompleted: verticalScrollBar.anchors.bottomMargin = -(scrollArea.anchors.bottomMargin + 8)
     }
 
-    Rectangle{
+    Rectangle {
         anchors.bottom: scrollArea.bottom
         height:4
         anchors.left: scrollArea.left
         anchors.right: scrollArea.right
-        anchors.rightMargin: scrollArea.verticalScrollBar.width
+        anchors.rightMargin: scrollArea.verticalScrollBar.visible ?
+                               scrollArea.verticalScrollBar.width : 0
         width:parent.width
         gradient: Gradient{
             GradientStop{position:1 ; color:"#10000000"}

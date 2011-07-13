@@ -31,6 +31,7 @@
 **************************************************************************/
 
 import QtQuick 1.0
+import components 1.0 as Components
 
 Row {
     id: tabBar
@@ -45,6 +46,7 @@ Row {
         model: parent.model
         delegate:
             Item {
+            Components.QStyleItem { cursor: "pointinghandcursor"; anchors.fill: parent }
             width: tabBarWidth / tabs.count
             height: tabBar.height
 

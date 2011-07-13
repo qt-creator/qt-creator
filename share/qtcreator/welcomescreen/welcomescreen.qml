@@ -32,6 +32,7 @@
 
 import QtQuick 1.0
 import "widgets"
+import components 1.0 as Components
 
 Rectangle {
     id: root

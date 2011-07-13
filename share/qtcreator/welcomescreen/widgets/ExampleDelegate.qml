@@ -31,11 +31,15 @@
 **************************************************************************/
 
 import QtQuick 1.0
+import components 1.0 as Components
 
 Rectangle {
     id: root
     height: Math.max(image.height-20, description.paintedHeight) + 68
     color: "#00ffffff"
+
+    Components.QStyleItem { cursor: "pointinghandcursor"; anchors.fill: parent }
+
     Item {
         visible: parent.state=="hover"
         anchors.fill: parent
@@ -65,7 +69,6 @@ Rectangle {
         elide: Text.ElideRight
 
     }
-
     RatingBar { id: rating; anchors.top: parent.top; anchors.topMargin: 10; anchors.right: parent.right; anchors.rightMargin: 10; rating: model.difficulty; visible: model.difficulty !== 0 }
 
     Image {
