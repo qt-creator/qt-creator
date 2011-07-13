@@ -784,7 +784,6 @@
        \o  \gui{Application Output}
        \o  \gui{Compile Output}
        \o  \gui{General Messages}
-       \o  \gui{Analysis}
        \o  \gui{Version Control}
     \endlist
 
@@ -798,7 +797,7 @@
     criteria in the \gui Find field and click the left and right arrows to
     search down and up in the pane.
 
-    To open the \gui{General Messages}, \gui{Analysis}, and \gui{Version Control}
+    To open the \gui{General Messages} and \gui{Version Control}
     panes, select \gui {Window > Output Panes}.
 
 
@@ -12224,7 +12223,7 @@
     While the application is running, Memcheck checks all reads and writes of
     memory and intercepts calls that allocate or free memory or create or
     delete memory blocks. When you stop Memcheck, it displays the results in
-    the \gui Analysis output pane. Click a line to view where a memory leak
+    the \gui Analysis view. Click a line to view where a memory leak
     occurred and a stack trace that shows what caused it.
 
     \image analyzer-issues.png "Analysis view"
@@ -12520,18 +12519,28 @@
 
     \list 1
 
+        \o  To be able to profile an application, you must set up QML debugging
+            for the project. For more information, see
+            \l{Setting Up QML Debugging}.
+
         \o  In the \gui Projects mode, select Qt 4.7.4 in the \gui {Qt version}
             field.
 
-        \o  Select \gui Analyze to open the \gui Analyze mode.
+            \note To profile applications on devices, you must install Qt 4.7.4
+            or later libraries on them.
+
+        \o  Select \gui {Analyze > QML Profiler} to profile the current
+            application.
+
+            \image qtcreator-qml-performance-monitor-toolbar.png "QML Profiler toolbar"
 
         \o  Select the
             \inlineimage qtcreator-analyze-start-button.png "Start button"
             button to start the application from the QML Profiler.
 
-            \note: If data collection does not start automatically, select the
+            \note If data collection does not start automatically, select the
             \inlineimage qtcreator-analyzer-button.png "Analyzer button"
-            .
+            button.
 
     \endlist
 
@@ -12544,8 +12553,6 @@
     button. Data collection takes time, and therefore, there might be a delay
     before the data is displayed.
 
-    \image qtcreator-qml-performance-monitor-toolbar.png "QML Profiler toolbar"
-
     Do not use application commands to exit the application, because data is
     sent to the QML Profiler when you select the \gui Stop button.
     The application continues to run for some seconds, after which it is stopped
@@ -12555,23 +12562,6 @@
     button to disable the automatic start of the data collection when an
     application is launched. Data collection starts when you select the button
     again.
-
-    To monitor applications running on devices:
-
-    \list 1
-
-        \o  On the command line, enter the following command to launch the Qt
-            Quick application with parameters:
-
-            \c {<application> -qmljsdebugger=port:33456}
-
-            The port number is specified in the run settings of the project in
-            the \gui {Debug port} field.
-
-        \o  Select \gui {Debug > Start Analyzer > Attach...} to attach the QML
-            Profiler to the running application.
-
-    \endlist
 
     \section1 Analyzing Collected Data
 
@@ -12596,8 +12586,16 @@
     \image qtcreator-qml-performance-monitor.png "QML Profiler"
 
     The outline summarizes the period for which data was collected. Drag the
-    range bar or click the outline to move on the outline. Drag the borders of
-    the range bar to zoom in and out.
+    zoom range or click the outline to move on the outline. You can also move
+    between events by clicking the \gui Previous and \gui Next buttons.
+
+    Click the zoom buttons or drag the zoom handles to zoom in and out.
+
+    You can define an event range to view the frame rate of events and to
+    compare it with the frame rate of similar events. Click on the timeline to
+    specify the beginning of the event range. Drag the cursor to define the end
+    of the range. The length of the range indicates the frame rate of the event.
+    You can drag the timeline below the event range to compare events.
 
     Additional information is displayed on the rows above the outline.
     Each row in the timeline describes a type of QML events that were recorded.
@@ -12615,19 +12613,19 @@
     The time bar at the top of the \gui Timeline view displays the time in
     seconds. To see the time in milliseconds, move the mouse on the time bar.
 
-    \section1 Viewing Bindings
+    \section1 Viewing Events
 
-    The \gui Bindings view displays the number of times each binding is called
-    and the time the calls take. This allows you to examine which bindings you
+    The \gui Events view displays the number of times each binding is called
+    and the time the calls take. This allows you to examine which events you
     need to optimize. A high number of calls might indicate that a binding is
     called unnecessarily. Click on a binding to move to it in the source code
     in the code editor.
 
-    \image qtcreator-analyzer-bindings.png "Bindings view"
+    \image qtcreator-analyzer-bindings.png "Events view"
 
-    \section1 Viewing Calling and Called Bindings
+    \section1 Viewing Calling and Called Events
 
-    The \gui Callees and \gui Callers views show dependencies between bindings.
+    The \gui Callees and \gui Callers views show dependencies between events.
     They allow you to examine the internal functions of the application.
 
     The \gui Callees view summarizes the QML events that a binding triggers.
@@ -12654,7 +12652,7 @@
     environment variable QML_DISABLE_OPTIMIZER to 1. To set the environment
     variable for the current project in the project settings:
 
-    \list
+    \list 1
 
         \o  Select \gui {Projects > Run}.
 
