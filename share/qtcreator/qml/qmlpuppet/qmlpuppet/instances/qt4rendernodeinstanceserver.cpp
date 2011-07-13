@@ -187,5 +187,13 @@ void Qt4RenderNodeInstanceServer::completeComponent(const CompleteComponentComma
 
     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
 }
+void Qt4RenderNodeInstanceServer::changeState(const ChangeStateCommand &command)
+{
+    Qt4NodeInstanceServer::changeState(command);
 
+    foreach (QGraphicsItem *item, declarativeView()->items()) {
+        item->update();
+        QGraphicsItemPrivate::get(item)->notifyBoundingRectChanged = 1;
+    }
+}
 } // namespace QmlDesigner

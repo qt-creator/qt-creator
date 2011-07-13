@@ -130,8 +130,6 @@ public:
 
     NodeInstance activeStateInstance() const;
 
-    void activateState(const NodeInstance &instance);
-    void activateBaseState();
 
     void valuesChanged(const ValuesChangedCommand &command);
     void pixmapChanged(const PixmapChangedCommand &command);
@@ -151,6 +149,9 @@ signals:
     void qmlPuppetCrashed();
 
 private: // functions
+    void activateState(const NodeInstance &instance);
+    void activateBaseState();
+
     NodeInstance rootNodeInstance() const;
 
     NodeInstance loadNode(const ModelNode &node);

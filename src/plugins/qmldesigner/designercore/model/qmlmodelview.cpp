@@ -63,12 +63,12 @@ void QmlModelView::setCurrentState(const QmlModelState &state)
     if (!state.isValid())
         return;
 
-    emitActualStateChanged(state.modelNode());
+    setAcutalStateNode(state.modelNode());
 }
 
 QmlModelState QmlModelView::currentState() const
 {
-    return m_state;
+    return QmlModelState(actualStateNode());
 }
 
 QmlModelState QmlModelView::baseState() const
@@ -334,14 +334,10 @@ bool QmlModelView::hasInstanceForModelNode(const ModelNode &modelNode)
 void QmlModelView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    m_state = QmlModelState();
-    m_state = baseState();
-    Q_ASSERT(m_state.isBaseState());
 }
 
 void QmlModelView::modelAboutToBeDetached(Model *model)
 {
-    m_state = QmlModelState();
     AbstractView::modelAboutToBeDetached(model);
 }
 
@@ -452,10 +448,6 @@ void QmlModelView::actualStateChanged(const ModelNode &node)
     if (!newState.isValid())
         newState = baseState();
 
-    activateState(newState);
-
-    m_state = newState;
-
     if (newState != oldState)
         stateChanged(newState, oldState);
 
@@ -474,28 +466,6 @@ void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QStr
         parentChanged(qmlObjectNode);
     else
         otherPropertyChanged(qmlObjectNode, propertyName);
-}
-
-void QmlModelView::activateState(const QmlModelState &state)
-{
-    if (!state.isValid())
-        return;
-
-    if (m_state == state)
-        return;    
-
-    m_state = state; //This is hacky. m_state should be controlled by the instances
-                     //### todo: If the state thumbnail code gets refactored.
-                     //          this is not necessary anymore.
-
-
-    NodeInstance newStateInstance = instanceForModelNode(state.modelNode());
-
-    if (state.isBaseState()) {
-        nodeInstanceView()->activateBaseState();
-    } else {
-        nodeInstanceView()->activateState(newStateInstance);
-    }
 }
 
 void QmlModelView::transformChanged(const QmlObjectNode &/*qmlObjectNode*/, const QString &/*propertyName*/)

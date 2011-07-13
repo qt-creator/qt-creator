@@ -172,6 +172,13 @@ void NodeInstanceView::modelAttached(Model *model)
 
     if (!isSkippedRootNode(rootModelNode()))
         nodeInstanceServer()->createScene(createCreateSceneCommand());
+
+    ModelNode stateNode = actualStateNode();
+    if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
+        NodeInstance newStateInstance = instanceForNode(stateNode);
+        activateState(newStateInstance);
+    }
+
 }
 
 void NodeInstanceView::modelAboutToBeDetached(Model * model)
@@ -210,6 +217,12 @@ void NodeInstanceView::restartProcess()
 
         if (!isSkippedRootNode(rootModelNode()))
             nodeInstanceServer()->createScene(createCreateSceneCommand());
+
+        ModelNode stateNode = actualStateNode();
+        if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
+            NodeInstance newStateInstance = instanceForNode(stateNode);
+            activateState(newStateInstance);
+        }
     }
 }
 
@@ -539,8 +552,15 @@ void NodeInstanceView::rewriterEndTransaction()
 
 }
 
-void NodeInstanceView::actualStateChanged(const ModelNode &/*node*/)
+void NodeInstanceView::actualStateChanged(const ModelNode &node)
 {
+    NodeInstance newStateInstance = instanceForNode(node);
+
+    if (newStateInstance.isValid() && node.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
+        nodeInstanceView()->activateState(newStateInstance);
+    } else {
+        nodeInstanceView()->activateBaseState();
+    }
 }
 
 
@@ -693,16 +713,11 @@ NodeInstance NodeInstanceView::loadNode(const ModelNode &node)
 void NodeInstanceView::activateState(const NodeInstance &instance)
 {
     nodeInstanceServer()->changeState(ChangeStateCommand(instance.instanceId()));
-//    activateBaseState();
-//    NodeInstance stateInstance(instance);
-//    stateInstance.activateState();
 }
 
 void NodeInstanceView::activateBaseState()
 {
     nodeInstanceServer()->changeState(ChangeStateCommand(-1));
-//    if (activeStateInstance().isValid())
-//        activeStateInstance().deactivateState();
 }
 
 void NodeInstanceView::removeRecursiveChildRelationship(const ModelNode &removedNode)
@@ -1103,8 +1118,10 @@ QImage NodeInstanceView::statePreviewImage(const ModelNode &stateNode) const
 
 void NodeInstanceView::setPathToQt(const QString &pathToQt)
 {
-    m_pathToQt = pathToQt;
-    restartProcess();
+    if (m_pathToQt != pathToQt) {
+        m_pathToQt = pathToQt;
+        restartProcess();
+    }
 }
 
 void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedCommand &command)

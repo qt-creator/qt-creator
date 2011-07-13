@@ -447,8 +447,9 @@ void AbstractView::emitRewriterEndTransaction()
         model()->m_d->notifyRewriterEndTransaction();
 }
 
-void AbstractView::emitActualStateChanged(const ModelNode &node)
+void AbstractView::setAcutalStateNode(const ModelNode &node)
 {
+    Internal::WriteLocker locker(m_model.data());
     if (model())
         model()->m_d->notifyActualStateChanged(node);
 }
@@ -458,6 +459,11 @@ void AbstractView::changeRootNodeType(const QString &type, int majorVersion, int
     Internal::WriteLocker locker(m_model.data());
 
     m_model.data()->m_d->changeRootNodeType(type, majorVersion, minorVersion);
+}
+
+ModelNode AbstractView::actualStateNode() const
+{
+    return ModelNode(m_model.data()->m_d->actualStateNode(), m_model.data(), const_cast<AbstractView*>(this));
 }
 
 } // namespace QmlDesigner

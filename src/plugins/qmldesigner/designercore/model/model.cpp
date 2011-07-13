@@ -605,6 +605,8 @@ void ModelPrivate::notifyActualStateChanged(const ModelNode &node)
     bool resetModel = false;
     QString description;
 
+    m_acutalStateNode = node.internalNode();
+
     try {
         if (rewriterView())
             rewriterView()->actualStateChanged(ModelNode(node.internalNode(), model(), rewriterView()));
@@ -1636,6 +1638,11 @@ QList<InternalNodePointer> ModelPrivate::allNodes() const
 bool ModelPrivate::isWriteLocked() const
 {
     return m_writeLock;
+}
+
+InternalNode::Pointer ModelPrivate::actualStateNode() const
+{
+    return m_acutalStateNode;
 }
 
 
