@@ -18597,7 +18597,7 @@ Fehler: %2</translation>
     </message>
     <message>
         <source>Publishing is currently not possible for project &apos;%1&apos;.</source>
-        <translation>Das Projekt &apos;%1&apos; kann nicht gegenwärtig nicht veröffentlicht werden.</translation>
+        <translation>Das Projekt &apos;%1&apos; kann zur Zeit nicht veröffentlicht werden.</translation>
     </message>
 </context>
 <context>
