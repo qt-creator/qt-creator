@@ -463,7 +463,10 @@ void AbstractView::changeRootNodeType(const QString &type, int majorVersion, int
 
 ModelNode AbstractView::actualStateNode() const
 {
-    return ModelNode(m_model.data()->m_d->actualStateNode(), m_model.data(), const_cast<AbstractView*>(this));
+    if (model())
+        return ModelNode(m_model.data()->m_d->actualStateNode(), m_model.data(), const_cast<AbstractView*>(this));
+
+    return ModelNode();
 }
 
 } // namespace QmlDesigner
