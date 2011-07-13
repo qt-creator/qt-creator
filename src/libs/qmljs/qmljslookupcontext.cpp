@@ -37,6 +37,7 @@
 #include "qmljsmodelmanagerinterface.h"
 #include "qmljsevaluate.h"
 #include "qmljsscopechain.h"
+#include "qmljscontext.h"
 
 using namespace QmlJS;
 
@@ -48,25 +49,25 @@ public:
         , context(Link(snapshot,
                        ModelManagerInterface::instance()->importPaths(),
                        ModelManagerInterface::instance()->builtins(doc))())
-        , scopeChain(doc, &context)
+        , scopeChain(doc, context)
     {
         ScopeBuilder scopeBuilder(&scopeChain);
         scopeBuilder.push(path);
     }
 
     LookupContextData(Document::Ptr doc,
-                      const Interpreter::Context &context,
+                      const Interpreter::ContextPtr &context,
                       const QList<AST::Node *> &path)
         : doc(doc)
         , context(context)
-        , scopeChain(doc, &context)
+        , scopeChain(doc, context)
     {
         ScopeBuilder scopeBuilder(&scopeChain);
         scopeBuilder.push(path);
     }
 
     Document::Ptr doc;
-    Interpreter::Context context;
+    Interpreter::ContextPtr context;
     Interpreter::ScopeChain scopeChain;
 };
 
@@ -76,7 +77,7 @@ LookupContext::LookupContext(Document::Ptr doc, const Snapshot &snapshot, const 
 }
 
 LookupContext::LookupContext(const Document::Ptr doc,
-                             const Interpreter::Context &context,
+                             const Interpreter::ContextPtr &context,
                              const QList<AST::Node *> &path)
     : d(new LookupContextData(doc, context, path))
 {
@@ -93,7 +94,7 @@ LookupContext::Ptr LookupContext::create(Document::Ptr doc, const Snapshot &snap
 }
 
 LookupContext::Ptr LookupContext::create(const Document::Ptr doc,
-                                         const Interpreter::Context &context,
+                                         const Interpreter::ContextPtr &context,
                                          const QList<AST::Node *> &path)
 {
     Ptr ptr(new LookupContext(doc, context, path));
@@ -113,19 +114,19 @@ Document::Ptr LookupContext::document() const
 
 Snapshot LookupContext::snapshot() const
 {
-    return d->context.snapshot();
+    return d->context->snapshot();
 }
 
 // the engine is only guaranteed to live as long as the LookupContext
 Interpreter::ValueOwner *LookupContext::valueOwner() const
 {
-    return d->context.valueOwner();
+    return d->context->valueOwner();
 }
 
 // the context is only guaranteed to live as long as the LookupContext
-const Interpreter::Context *LookupContext::context() const
+const Interpreter::ContextPtr &LookupContext::context() const
 {
-    return &d->context;
+    return d->context;
 }
 
 const Interpreter::ScopeChain &LookupContext::scopeChain() const

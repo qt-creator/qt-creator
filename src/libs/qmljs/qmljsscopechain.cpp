@@ -62,7 +62,7 @@ void QmlComponentChain::addInstantiatingComponent(const QmlComponentChain *compo
 }
 
 
-ScopeChain::ScopeChain(const Document::Ptr &document, const Context *context)
+ScopeChain::ScopeChain(const Document::Ptr &document, const ContextPtr &context)
     : m_document(document)
     , m_context(context)
     , m_globalScope(0)
@@ -78,7 +78,7 @@ Document::Ptr ScopeChain::document() const
     return m_document;
 }
 
-const Context *ScopeChain::context() const
+const ContextPtr &ScopeChain::context() const
 {
     return m_context;
 }

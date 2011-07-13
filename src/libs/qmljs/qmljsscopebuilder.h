@@ -42,6 +42,7 @@ namespace QmlJS {
 namespace Interpreter {
 class QmlComponentChain;
 class Context;
+typedef QSharedPointer<const Context> ContextPtr;
 class ObjectValue;
 class Value;
 class ScopeChain;
@@ -61,7 +62,7 @@ public:
     void push(const QList<AST::Node *> &nodes);
     void pop();
 
-    static const Interpreter::ObjectValue *isPropertyChangesObject(const Interpreter::Context *context, const Interpreter::ObjectValue *object);
+    static const Interpreter::ObjectValue *isPropertyChangesObject(const Interpreter::ContextPtr &context, const Interpreter::ObjectValue *object);
 
 private:
     void setQmlScopeObject(AST::Node *node);

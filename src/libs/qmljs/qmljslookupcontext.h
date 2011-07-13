@@ -34,7 +34,6 @@
 #define QMLJSLOOKUPCONTEXT_H
 
 #include "qmljsdocument.h"
-#include "qmljscontext.h"
 #include "parser/qmljsastfwd_p.h"
 
 #include <QtCore/QSharedPointer>
@@ -47,6 +46,8 @@ class LookupContextData;
 namespace Interpreter {
 class Value;
 class Context;
+typedef QSharedPointer<const Context> ContextPtr;
+class ValueOwner;
 class ScopeChain;
 }
 
@@ -56,7 +57,7 @@ class QMLJS_EXPORT LookupContext
 
     LookupContext(const Document::Ptr doc, const Snapshot &snapshot, const QList<AST::Node *> &path);
     LookupContext(const Document::Ptr doc,
-                  const Interpreter::Context &context,
+                  const Interpreter::ContextPtr &context,
                   const QList<AST::Node *> &path);
 
 public:
@@ -68,7 +69,7 @@ public:
     static Ptr create(const Document::Ptr doc, const Snapshot &snapshot,
                       const QList<AST::Node *> &path);
     static Ptr create(const Document::Ptr doc,
-                      const Interpreter::Context &context,
+                      const Interpreter::ContextPtr &context,
                       const QList<AST::Node *> &path);
 
     const Interpreter::Value *evaluate(AST::Node *node) const;
@@ -76,7 +77,7 @@ public:
     Document::Ptr document() const;
     Snapshot snapshot() const;
     Interpreter::ValueOwner *valueOwner() const;
-    const Interpreter::Context *context() const;
+    const Interpreter::ContextPtr &context() const;
     const Interpreter::ScopeChain &scopeChain() const;
 
 private:

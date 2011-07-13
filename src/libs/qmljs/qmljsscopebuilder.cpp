@@ -224,7 +224,7 @@ const Value *ScopeBuilder::scopeObjectLookup(AST::UiQualifiedId *id)
 }
 
 
-const ObjectValue *ScopeBuilder::isPropertyChangesObject(const Context *context,
+const ObjectValue *ScopeBuilder::isPropertyChangesObject(const ContextPtr &context,
                                                    const ObjectValue *object)
 {
     PrototypeIterator iter(object, context);

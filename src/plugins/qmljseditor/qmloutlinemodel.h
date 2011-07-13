@@ -65,7 +65,7 @@ public:
     void setItemData(const QMap<int, QVariant> &roles);
 
 private:
-    QString prettyPrint(const QmlJS::Interpreter::Value *value, const QmlJS::Interpreter::Context *context) const;
+    QString prettyPrint(const QmlJS::Interpreter::Value *value, const QmlJS::Interpreter::ContextPtr &context) const;
 
     QmlOutlineModel *m_outlineModel;
 };

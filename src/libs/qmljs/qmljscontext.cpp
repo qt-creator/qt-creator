@@ -38,6 +38,13 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
 
+ContextPtr Context::create(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports)
+{
+    QSharedPointer<Context> result(new Context(snapshot, valueOwner, imports));
+    result->_ptr = result;
+    return result;
+}
+
 Context::Context(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports)
     : _snapshot(snapshot),
       _valueOwner(valueOwner),
@@ -47,6 +54,11 @@ Context::Context(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const 
 
 Context::~Context()
 {
+}
+
+ContextPtr Context::ptr() const
+{
+    return _ptr.toStrongRef();
 }
 
 // the values is only guaranteed to live as long as the context
@@ -117,7 +129,7 @@ const ObjectValue *Context::lookupType(const QmlJS::Document *doc, const QString
 
 const Value *Context::lookupReference(const Value *value) const
 {
-    ReferenceContext refContext(this);
+    ReferenceContext refContext(ptr());
     return refContext.lookupReference(value);
 }
 
@@ -137,7 +149,7 @@ QString Context::defaultPropertyName(const ObjectValue *object) const
     return QString();
 }
 
-ReferenceContext::ReferenceContext(const Context *context)
+ReferenceContext::ReferenceContext(const ContextPtr &context)
     : m_context(context)
 {}
 
@@ -157,12 +169,12 @@ const Value *ReferenceContext::lookupReference(const Value *value)
     return v;
 }
 
-const Context *ReferenceContext::context() const
+const ContextPtr &ReferenceContext::context() const
 {
     return m_context;
 }
 
-ReferenceContext::operator const Context *() const
+ReferenceContext::operator const ContextPtr &() const
 {
     return m_context;
 }

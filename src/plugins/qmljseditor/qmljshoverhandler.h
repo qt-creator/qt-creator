@@ -80,7 +80,7 @@ private:
                       QmlJS::AST::UiImport *node);
 
     void prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
-                            const QmlJS::Interpreter::Context *context);
+                            const QmlJS::Interpreter::ContextPtr &context);
 
     TextEditor::HelpItem qmlHelpItem(const QmlJS::LookupContext::Ptr &lookupContext,
                                      QmlJS::AST::Node *node) const;

@@ -130,19 +130,19 @@ Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const Libra
     }
 }
 
-Context Link::operator()(QHash<QString, QList<DiagnosticMessage> > *messages)
+ContextPtr Link::operator()(QHash<QString, QList<DiagnosticMessage> > *messages)
 {
     Q_D(Link);
     d->allDiagnosticMessages = messages;
-    return Context(d->snapshot, d->valueOwner, linkImports());
+    return Context::create(d->snapshot, d->valueOwner, linkImports());
 }
 
-Context Link::operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages)
+ContextPtr Link::operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages)
 {
     Q_D(Link);
     d->doc = doc;
     d->diagnosticMessages = messages;
-    return Context(d->snapshot, d->valueOwner, linkImports());
+    return Context::create(d->snapshot, d->valueOwner, linkImports());
 }
 
 Link::~Link()

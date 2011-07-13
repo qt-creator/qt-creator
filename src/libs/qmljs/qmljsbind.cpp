@@ -97,7 +97,7 @@ Interpreter::ObjectValue *Bind::findQmlObject(AST::Node *node) const
 }
 
 bool Bind::usesQmlPrototype(ObjectValue *prototype,
-                            const Context *context) const
+                            const ContextPtr &context) const
 {
     if (!prototype)
         return false;

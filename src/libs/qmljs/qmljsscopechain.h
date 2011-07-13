@@ -73,10 +73,10 @@ private:
 class QMLJS_EXPORT ScopeChain
 {
 public:
-    explicit ScopeChain(const Document::Ptr &document, const Context *context);
+    explicit ScopeChain(const Document::Ptr &document, const ContextPtr &context);
 
     Document::Ptr document() const;
-    const Context *context() const;
+    const ContextPtr &context() const;
 
     const Value *lookup(const QString &name, const ObjectValue **foundInScope = 0) const;
 
@@ -108,7 +108,7 @@ private:
 
 
     Document::Ptr m_document;
-    const Context *m_context;
+    ContextPtr m_context;
 
     const ObjectValue *m_globalScope;
     QSharedPointer<const QmlComponentChain> m_qmlComponentScope;

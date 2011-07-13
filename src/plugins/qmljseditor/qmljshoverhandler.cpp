@@ -269,7 +269,7 @@ void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint 
 }
 
 void HoverHandler::prettyPrintTooltip(const QmlJS::Interpreter::Value *value,
-                                      const QmlJS::Interpreter::Context *context)
+                                      const QmlJS::Interpreter::ContextPtr &context)
 {
     if (! value)
         return;

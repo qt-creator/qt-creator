@@ -365,10 +365,10 @@ private:
 } // end of anonymous namespace
 
 
-Check::Check(Document::Ptr doc, const Context *context)
+Check::Check(Document::Ptr doc, const ContextPtr &context)
     : _doc(doc)
-    , _context(*context)
-    , _scopeChain(doc, &_context)
+    , _context(context)
+    , _scopeChain(doc, _context)
     , _scopeBuilder(&_scopeChain)
     , _options(WarnDangerousNonStrictEqualityChecks | WarnBlocks | WarnWith
           | WarnVoid | WarnCommaExpression | WarnExpressionStatement
@@ -471,14 +471,14 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
     bool typeError = false;
     const SourceLocation typeErrorLocation = fullLocationForQualifiedId(typeId);
-    const ObjectValue *prototype = _context.lookupType(_doc.data(), typeId);
+    const ObjectValue *prototype = _context->lookupType(_doc.data(), typeId);
     if (!prototype) {
         typeError = true;
         if (_options & ErrCheckTypeErrors)
             error(typeErrorLocation,
                   Check::tr("unknown type"));
     } else {
-        PrototypeIterator iter(prototype, &_context);
+        PrototypeIterator iter(prototype, _context);
         QList<const ObjectValue *> prototypes = iter.all();
         if (iter.error() != PrototypeIterator::NoError)
             typeError = true;
@@ -610,7 +610,7 @@ bool Check::visit(IdentifierExpression *ast)
         if (!_lastValue)
             error(ast->identifierToken, tr("unknown identifier"));
         if (const Reference *ref = value_cast<const Reference *>(_lastValue)) {
-            _lastValue = _context.lookupReference(ref);
+            _lastValue = _context->lookupReference(ref);
             if (!_lastValue)
                 error(ast->identifierToken, tr("could not resolve"));
         }
@@ -635,7 +635,7 @@ bool Check::visit(FieldMemberExpression *ast)
         _lastValue = 0;
         return false;
     }
-    _lastValue = obj->lookupMember(ast->name->asString(), &_context);
+    _lastValue = obj->lookupMember(ast->name->asString(), _context);
     if (!_lastValue)
         error(ast->identifierToken, tr("unknown member"));
     return false;
@@ -878,7 +878,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     // global lookup for first part of id
     const Value *value = 0;
     for (int i = scopeObjects.size() - 1; i >= 0; --i) {
-        value = scopeObjects[i]->lookupMember(propertyName, &_context);
+        value = scopeObjects[i]->lookupMember(propertyName, _context);
         if (value)
             break;
     }
@@ -894,7 +894,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 
     // resolve references
     if (const Reference *ref = value->asReference())
-        value = _context.lookupReference(ref);
+        value = _context->lookupReference(ref);
 
     // member lookup
     const UiQualifiedId *idPart = id;
@@ -915,7 +915,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
         idPart = idPart->next;
         propertyName = idPart->name->asString();
 
-        value = objectValue->lookupMember(propertyName, &_context);
+        value = objectValue->lookupMember(propertyName, _context);
         if (! value) {
             error(idPart->identifierToken,
                   Check::tr("'%1' is not a member of '%2'").arg(

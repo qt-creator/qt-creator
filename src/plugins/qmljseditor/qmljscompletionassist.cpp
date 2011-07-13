@@ -201,7 +201,7 @@ private:
 
 const Interpreter::Value *getPropertyValue(const Interpreter::ObjectValue *object,
                                            const QStringList &propertyNames,
-                                           const Interpreter::Context *context)
+                                           const Interpreter::ContextPtr &context)
 {
     if (propertyNames.isEmpty() || !object)
         return 0;
@@ -422,7 +422,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::perform(const IAssistInterface 
 
     const QList<AST::Node *> path = semanticInfo.rangePath(m_interface->position());
     LookupContext::Ptr lookupContext = semanticInfo.lookupContext(path);
-    const Interpreter::Context *context = lookupContext->context();
+    const Interpreter::ContextPtr &context = lookupContext->context();
     const Interpreter::ScopeChain &scopeChain = lookupContext->scopeChain();
 
     // Search for the operator that triggered the completion.

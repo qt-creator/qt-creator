@@ -75,6 +75,7 @@ class Imports;
 class TypeScope;
 class JSImportScope;
 class Context;
+typedef QSharedPointer<const Context> ContextPtr;
 class ReferenceContext;
 
 typedef QList<const Value *> ValueList;
@@ -334,6 +335,8 @@ public:
     const Value *prototype() const;
     // prototypes may form a cycle: use PrototypeIterator!
     const ObjectValue *prototype(const Context *context) const;
+    const ObjectValue *prototype(const ContextPtr &context) const
+    { return prototype(context.data()); }
     void setPrototype(const Value *prototype);
 
     virtual void processMembers(MemberProcessor *processor) const;
@@ -344,6 +347,10 @@ public:
     virtual const Value *lookupMember(const QString &name, const Context *context,
                                       const ObjectValue **foundInObject = 0,
                                       bool examinePrototypes = true) const;
+    const Value *lookupMember(const QString &name, const ContextPtr &context,
+                              const ObjectValue **foundInObject = 0,
+                              bool examinePrototypes = true) const
+    { return lookupMember(name, context.data(), foundInObject, examinePrototypes); }
 
     // Value interface
     virtual const ObjectValue *asObjectValue() const;
@@ -372,6 +379,7 @@ public:
     };
 
     PrototypeIterator(const ObjectValue *start, const Context *context);
+    PrototypeIterator(const ObjectValue *start, const ContextPtr &context);
 
     bool hasNext();
     const ObjectValue *peekNext();

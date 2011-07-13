@@ -78,7 +78,7 @@ class FindUsages: protected Visitor
 public:
     typedef QList<AST::SourceLocation> Result;
 
-    FindUsages(Document::Ptr doc, Context *context)
+    FindUsages(Document::Ptr doc, const ContextPtr &context)
         : _doc(doc)
         , _scopeChain(doc, context)
         , _builder(&_scopeChain)
@@ -303,7 +303,7 @@ class FindTypeUsages: protected Visitor
 public:
     typedef QList<AST::SourceLocation> Result;
 
-    FindTypeUsages(Document::Ptr doc, Context *context)
+    FindTypeUsages(Document::Ptr doc, const ContextPtr &context)
         : _doc(doc)
         , _context(context)
         , _scopeChain(doc, context)
@@ -450,7 +450,7 @@ private:
     Result _usages;
 
     Document::Ptr _doc;
-    Context *_context;
+    ContextPtr _context;
     ScopeChain _scopeChain;
     ScopeBuilder _builder;
 
@@ -693,13 +693,13 @@ static QString matchingLine(unsigned position, const QString &source)
 
 class ProcessFile: public std::unary_function<QString, QList<FindReferences::Usage> >
 {
-    const Context &context;
+    ContextPtr context;
     typedef FindReferences::Usage Usage;
     QString name;
     const ObjectValue *scope;
 
 public:
-    ProcessFile(const Context &context,
+    ProcessFile(const ContextPtr &context,
                 QString name,
                 const ObjectValue *scope)
         : context(context), name(name), scope(scope)
@@ -709,14 +709,12 @@ public:
     {
         QList<Usage> usages;
 
-        Document::Ptr doc = context.snapshot().document(fileName);
+        Document::Ptr doc = context->snapshot().document(fileName);
         if (!doc)
             return usages;
 
-        Context contextCopy(context);
-
         // find all idenfifier expressions, try to resolve them and check if the result is in scope
-        FindUsages findUsages(doc, &contextCopy);
+        FindUsages findUsages(doc, context);
         FindUsages::Result results = findUsages(name, scope);
         foreach (const AST::SourceLocation &loc, results)
             usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
@@ -727,13 +725,13 @@ public:
 
 class SearchFileForType: public std::unary_function<QString, QList<FindReferences::Usage> >
 {
-    const Context &context;
+    ContextPtr context;
     typedef FindReferences::Usage Usage;
     QString name;
     const ObjectValue *scope;
 
 public:
-    SearchFileForType(const Context &context,
+    SearchFileForType(const ContextPtr &context,
                 QString name,
                 const ObjectValue *scope)
         : context(context), name(name), scope(scope)
@@ -743,14 +741,12 @@ public:
     {
         QList<Usage> usages;
 
-        Document::Ptr doc = context.snapshot().document(fileName);
+        Document::Ptr doc = context->snapshot().document(fileName);
         if (!doc)
             return usages;
 
-        Context contextCopy(context);
-
         // find all idenfifier expressions, try to resolve them and check if the result is in scope
-        FindTypeUsages findUsages(doc, &contextCopy);
+        FindTypeUsages findUsages(doc, context);
         FindTypeUsages::Result results = findUsages(name, scope);
         foreach (const AST::SourceLocation &loc, results)
             usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
@@ -821,9 +817,9 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
     Link link(snapshot, modelManager->importPaths(), modelManager->builtins(doc));
-    Context context = link();
+    ContextPtr context = link();
 
-    ScopeChain scopeChain(doc, &context);
+    ScopeChain scopeChain(doc, context);
     ScopeBuilder builder(&scopeChain);
     ScopeAstPath astPath(doc);
     builder.push(astPath(offset));
@@ -861,7 +857,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         const ObjectValue *scope = findTarget.scope();
         if (!scope)
             return;
-        scope->lookupMember(name, &context, &scope);
+        scope->lookupMember(name, context, &scope);
         if (!scope)
             return;
         future.reportResult(searchStarting);

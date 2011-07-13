@@ -165,7 +165,7 @@ protected:
 private:
     QmlJS::Document::Ptr _doc;
     Interpreter::ValueOwner *_valueOwner;
-    const Interpreter::Context *_context;
+    Interpreter::ContextPtr _context;
     const Interpreter::ScopeChain *_scopeChain;
     const Interpreter::ObjectValue *_scope;
     const Interpreter::Value *_result;

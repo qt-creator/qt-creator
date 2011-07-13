@@ -888,7 +888,7 @@ const Value *ObjectValue::lookupMember(const QString &name, const Context *conte
         }
     }
 
-    if (examinePrototypes) {
+    if (examinePrototypes && context) {
         PrototypeIterator iter(this, context);
         iter.next(); // skip this
         while (iter.hasNext()) {
@@ -907,6 +907,16 @@ PrototypeIterator::PrototypeIterator(const ObjectValue *start, const Context *co
     : m_current(0)
     , m_next(start)
     , m_context(context)
+    , m_error(NoError)
+{
+    if (start)
+        m_prototypes.reserve(10);
+}
+
+PrototypeIterator::PrototypeIterator(const ObjectValue *start, const ContextPtr &context)
+    : m_current(0)
+    , m_next(start)
+    , m_context(context.data())
     , m_error(NoError)
 {
     if (start)
@@ -1422,14 +1432,14 @@ void ConvertToNumber::visit(const StringValue *)
 
 void ConvertToNumber::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf", 0))) {
+    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf", ContextPtr()))) {
         _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
 
 void ConvertToNumber::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf", 0))) {
+    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf", ContextPtr()))) {
         _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
@@ -1483,14 +1493,14 @@ void ConvertToString::visit(const StringValue *value)
 
 void ConvertToString::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString", 0))) {
+    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString", ContextPtr()))) {
         _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
 
 void ConvertToString::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString", 0))) {
+    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString", ContextPtr()))) {
         _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }

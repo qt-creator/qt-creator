@@ -45,17 +45,21 @@ class Snapshot;
 
 namespace Interpreter {
 
+class Context;
+typedef QSharedPointer<const Context> ContextPtr;
+
 // shared among threads, completely threadsafe
-// currently also safe to copy, but will be deprecated
 class QMLJS_EXPORT Context
 {
+    Q_DISABLE_COPY(Context)
 public:
-    typedef QSharedPointer<Context> Ptr;
     typedef QHash<const Document *, QSharedPointer<const Imports> > ImportsPerDocument;
 
     // Context takes ownership of valueOwner
-    Context(const Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports);
+    static ContextPtr create(const Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports);
     ~Context();
+
+    ContextPtr ptr() const;
 
     ValueOwner *valueOwner() const;
     Snapshot snapshot() const;
@@ -70,9 +74,13 @@ public:
     QString defaultPropertyName(const ObjectValue *object) const;
 
 private:
+    // Context takes ownership of valueOwner
+    Context(const Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports);
+
     Snapshot _snapshot;
     QSharedPointer<ValueOwner> _valueOwner;
     ImportsPerDocument _imports;
+    QWeakPointer<const Context> _ptr;
 };
 
 // for looking up references
@@ -80,15 +88,15 @@ class QMLJS_EXPORT ReferenceContext
 {
 public:
     // implicit conversion ok
-    ReferenceContext(const Context *context);
+    ReferenceContext(const ContextPtr &context);
 
     const Value *lookupReference(const Value *value);
 
-    const Context *context() const;
-    operator const Context *() const;
+    const ContextPtr &context() const;
+    operator const ContextPtr &() const;
 
 private:
-    const Context *m_context;
+    const ContextPtr &m_context;
     QList<const Reference *> m_references;
 };
 

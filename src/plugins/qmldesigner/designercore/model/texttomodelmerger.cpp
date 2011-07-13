@@ -336,15 +336,15 @@ public:
         , m_doc(doc)
         , m_link(snapshot, importPaths,
                  QmlJS::ModelManagerInterface::instance()->builtins(doc))
-        , m_context(new Interpreter::Context(m_link(doc, &m_diagnosticLinkMessages)))
+        , m_context(m_link(doc, &m_diagnosticLinkMessages))
         , m_scopeChain(doc, m_context)
         , m_scopeBuilder(&m_scopeChain)
     {
-        m_lookupContext = LookupContext::create(doc, *m_context, QList<AST::Node*>());
+        m_lookupContext = LookupContext::create(doc, m_context, QList<AST::Node*>());
     }
 
     ~ReadingContext()
-    { delete m_context; }
+    {}
 
     Document::Ptr doc() const
     { return m_doc; }
@@ -385,7 +385,7 @@ public:
             minorVersion = ComponentVersion::NoVersion;
 
             const Interpreter::Imports *imports = m_lookupContext->context()->imports(m_lookupContext->document().data());
-            Interpreter::ImportInfo importInfo = imports->info(fullTypeName, m_context);
+            Interpreter::ImportInfo importInfo = imports->info(fullTypeName, m_context.data());
             if (importInfo.isValid() && importInfo.type() == Interpreter::ImportInfo::LibraryImport) {
                 QString name = importInfo.name().replace("\\", ".");
                 majorVersion = importInfo.version().majorVersion();
@@ -632,7 +632,7 @@ private:
     Document::Ptr m_doc;
     Link m_link;
     QList<DiagnosticMessage> m_diagnosticLinkMessages;
-    Interpreter::Context *m_context;
+    Interpreter::ContextPtr m_context;
     LookupContext::Ptr m_lookupContext;
     Interpreter::ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;

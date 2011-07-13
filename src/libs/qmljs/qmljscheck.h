@@ -54,7 +54,7 @@ class QMLJS_EXPORT Check: protected AST::Visitor
 
 public:
     // prefer taking root scope chain?
-    Check(Document::Ptr doc, const Interpreter::Context *context);
+    Check(Document::Ptr doc, const Interpreter::ContextPtr &context);
     virtual ~Check();
 
     QList<DiagnosticMessage> operator()();
@@ -128,7 +128,7 @@ private:
 
     Document::Ptr _doc;
 
-    Interpreter::Context _context;
+    Interpreter::ContextPtr _context;
     Interpreter::ScopeChain _scopeChain;
     ScopeBuilder _scopeBuilder;
 

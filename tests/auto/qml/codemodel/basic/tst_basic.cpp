@@ -42,6 +42,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljslookupcontext.h>
+#include <qmljs/qmljscontext.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -134,7 +135,7 @@ void tst_Basic::basicObjectTests()
 
     const Interpreter::ObjectValue *ovItem = lookupContext->context()->lookupType(doc.data(), QStringList() << "Item");
     QCOMPARE(ovItem->className(), QString("Item"));
-    QCOMPARE(lookupContext->context()->imports(doc.data())->info("Item", lookupContext->context()).name(), QString("Qt"));
+    QCOMPARE(lookupContext->context()->imports(doc.data())->info("Item", lookupContext->context().data()).name(), QString("Qt"));
     const Interpreter::ObjectValue *ovButton = lookupContext->context()->lookupType(doc.data(), QStringList() << "MyButton");
     QCOMPARE(ovButton->className(), QString("MyButton"));
     QCOMPARE(ovButton->prototype(lookupContext->context())->className(), QString("Rectangle"));

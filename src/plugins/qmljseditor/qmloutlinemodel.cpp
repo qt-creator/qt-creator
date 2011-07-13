@@ -99,7 +99,7 @@ void QmlOutlineItem::setItemData(const QMap<int, QVariant> &roles)
     }
 }
 
-QString QmlOutlineItem::prettyPrint(const Interpreter::Value *value, const Interpreter::Context *context) const
+QString QmlOutlineItem::prettyPrint(const Interpreter::Value *value, const Interpreter::ContextPtr &context) const
 {
     if (! value)
         return QString();

@@ -131,7 +131,7 @@ public: // attributes
     QList<QmlJS::DiagnosticMessage> semanticMessages;
 
 private:
-    QSharedPointer<const QmlJS::Interpreter::Context> m_context;
+    QmlJS::Interpreter::ContextPtr m_context;
 
     friend class Internal::SemanticHighlighter;
 };

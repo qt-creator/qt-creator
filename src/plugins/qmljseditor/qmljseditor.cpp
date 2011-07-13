@@ -554,7 +554,7 @@ LookupContext::Ptr SemanticInfo::lookupContext(const QList<QmlJS::AST::Node *> &
     if (m_context.isNull())
         return LookupContext::create(document, snapshot, path);
 
-    return LookupContext::create(document, *m_context, path);
+    return LookupContext::create(document, m_context, path);
 }
 
 static bool importContainsCursor(UiImport *importAst, unsigned cursorPosition)
