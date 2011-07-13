@@ -77,11 +77,10 @@ signals:
 protected slots:
     void populateScene();
 
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseDoubleClickEvent(QMouseEvent *event);
-
 protected:
-    virtual void resizeEvent(QResizeEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    void resizeEvent(QResizeEvent *event);
 
 private:
     class Private;

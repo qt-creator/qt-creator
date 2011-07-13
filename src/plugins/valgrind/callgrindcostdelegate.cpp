@@ -35,8 +35,8 @@
 #include "callgrindcostview.h"
 #include "callgrindhelper.h"
 
-#include <valgrind/callgrind/callgrindabstractmodel.h>
-#include <valgrind/callgrind/callgrindparsedata.h>
+#include "callgrind/callgrindabstractmodel.h"
+#include "callgrind/callgrindparsedata.h"
 
 #include <utils/qtcassert.h>
 
@@ -56,7 +56,6 @@ public:
     QAbstractItemModel *m_model;
     CostDelegate::CostFormat m_format;
 
-    static int toNativeRole(CostFormat format);
     float relativeCost(const QModelIndex &index) const;
     QString displayText(const QModelIndex &index, const QLocale &locale) const;
 };
@@ -66,15 +65,15 @@ CostDelegate::Private::Private()
     , m_format(CostDelegate::FormatAbsolute)
 {}
 
-int CostDelegate::Private::toNativeRole(CostDelegate::CostFormat format)
+static int toNativeRole(CostDelegate::CostFormat format)
 {
     switch (format)
     {
-    case FormatAbsolute:
-    case FormatRelative:
-        return Valgrind::Callgrind::RelativeTotalCostRole;
-    case FormatRelativeToParent:
-        return Valgrind::Callgrind::RelativeParentCostRole;
+    case CostDelegate::FormatAbsolute:
+    case CostDelegate::FormatRelative:
+        return Callgrind::RelativeTotalCostRole;
+    case CostDelegate::FormatRelativeToParent:
+        return Callgrind::RelativeParentCostRole;
     default:
         return -1;
     }
@@ -103,14 +102,10 @@ QString CostDelegate::Private::displayText(const QModelIndex &index, const QLoca
 
     return QString();
 }
-//END CostDelegate::Private
 
-//BEGIN CostDelegate
 CostDelegate::CostDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
-    , d(new Private)
+    : QStyledItemDelegate(parent), d(new Private)
 {
-
 }
 
 CostDelegate::~CostDelegate()
@@ -136,19 +131,18 @@ CostDelegate::CostFormat CostDelegate::format() const
 void CostDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                          const QModelIndex &index) const
 {
-    // init
     QStyleOptionViewItemV4 opt(option);
     initStyleOption(&opt, index);
 
     QStyle *style = opt.widget ? opt.widget->style() : QApplication::style();
 
-    // draw controls, but no text
+    // Draw controls, but no text.
     opt.text.clear();
     style->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
 
     painter->save();
 
-    // draw bar
+    // Draw bar.
     float ratio = qBound(0.0f, d->relativeCost(index), 1.0f);
     QRect barRect = opt.rect;
     barRect.setWidth(opt.rect.width() * ratio);
@@ -156,7 +150,7 @@ void CostDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     painter->setBrush(CallgrindHelper::colorForCostRatio(ratio));
     painter->drawRect(barRect);
 
-    // draw text
+    // Draw text.
     const QString text = d->displayText(index, opt.locale);
     const QBrush &textBrush = (option.state & QStyle::State_Selected ? opt.palette.highlightedText() : opt.palette.text());
     painter->setBrush(Qt::NoBrush);

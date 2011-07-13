@@ -37,8 +37,8 @@
 
 #include "valgrindengine.h"
 
-#include <valgrind/memcheck/memcheckrunner.h>
-#include <valgrind/xmlprotocol/threadedparser.h>
+#include "memcheck/memcheckrunner.h"
+#include "xmlprotocol/threadedparser.h"
 
 namespace Valgrind {
 namespace Internal {
@@ -64,15 +64,15 @@ signals:
 protected:
     virtual QString progressTitle() const;
     virtual QStringList toolArguments() const;
-    virtual Valgrind::ValgrindRunner *runner();
+    virtual ValgrindRunner *runner();
 
 private slots:
     void receiveLogMessage(const QByteArray &);
     void status(const Valgrind::XmlProtocol::Status &status);
 
 private:
-    Valgrind::XmlProtocol::ThreadedParser m_parser;
-    Valgrind::Memcheck::MemcheckRunner m_runner;
+    XmlProtocol::ThreadedParser m_parser;
+    Memcheck::MemcheckRunner m_runner;
 };
 
 } // namespace Internal

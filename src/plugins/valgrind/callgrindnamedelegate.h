@@ -40,14 +40,11 @@ namespace Internal {
 
 class NameDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
-
 public:
     explicit NameDelegate(QObject *parent = 0);
-    virtual ~NameDelegate();
 
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
 };
 
 } // namespace Internal

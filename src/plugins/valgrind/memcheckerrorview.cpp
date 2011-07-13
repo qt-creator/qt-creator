@@ -37,12 +37,12 @@
 #include "suppressiondialog.h"
 #include "valgrindsettings.h"
 
-#include <valgrind/xmlprotocol/error.h>
-#include <valgrind/xmlprotocol/errorlistmodel.h>
-#include <valgrind/xmlprotocol/frame.h>
-#include <valgrind/xmlprotocol/stack.h>
-#include <valgrind/xmlprotocol/modelhelpers.h>
-#include <valgrind/xmlprotocol/suppression.h>
+#include "xmlprotocol/error.h"
+#include "xmlprotocol/errorlistmodel.h"
+#include "xmlprotocol/frame.h"
+#include "xmlprotocol/stack.h"
+#include "xmlprotocol/modelhelpers.h"
+#include "xmlprotocol/suppression.h"
 
 #include <texteditor/basetexteditor.h>
 
@@ -103,7 +103,7 @@ QSize MemcheckErrorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QMo
                    m_detailsWidget->setParent(view->viewport()));
         m_detailsIndex = index;
     } else {
-        QTC_ASSERT(m_detailsIndex == index, qt_noop());
+        QTC_ASSERT(m_detailsIndex == index, /**/);
     }
     const int widthExcludingMargins = viewportWidth - 2 * s_itemMargin;
     m_detailsWidget->setFixedWidth(widthExcludingMargins);
@@ -230,7 +230,7 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QModelIndex &errorInde
         int frameNr = 1;
         foreach (const Frame &frame, stack.frames()) {
             QString frameName = makeFrameName(frame, relativeTo);
-            QTC_ASSERT(!frameName.isEmpty(), qt_noop());
+            QTC_ASSERT(!frameName.isEmpty(), /**/);
 
             QLabel *frameLabel = new QLabel(widget);
             frameLabel->setAutoFillBackground(true);
@@ -247,7 +247,7 @@ QWidget *MemcheckErrorDelegate::createDetailsWidget(const QModelIndex &errorInde
                                             .arg(frameNr++, 2).arg(frameName);
             frameLabel->setText(displayText);
 
-            frameLabel->setToolTip(Valgrind::XmlProtocol::toolTipForFrame(frame));
+            frameLabel->setToolTip(toolTipForFrame(frame));
             frameLabel->setWordWrap(true);
             frameLabel->setContentsMargins(0, 0, 0, 0);
             frameLabel->setMargin(0);
@@ -290,7 +290,7 @@ void MemcheckErrorDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
     if (isSelected) {
         // only show detailed widget and let it handle everything
-        QTC_ASSERT(m_detailsIndex == index, qt_noop());
+        QTC_ASSERT(m_detailsIndex == index, /**/);
         QTC_ASSERT(m_detailsWidget, return); // should have been set in sizeHint()
         m_detailsWidget->move(pos);
         // when scrolling quickly, the widget can get stuck in a visible part of the scroll area
@@ -300,8 +300,8 @@ void MemcheckErrorDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
         const int viewportWidth = view->viewport()->width();
         const int widthExcludingMargins = viewportWidth - 2 * s_itemMargin;
-        QTC_ASSERT(m_detailsWidget->width() == widthExcludingMargins, qt_noop());
-        QTC_ASSERT(m_detailsWidgetHeight == m_detailsWidget->height(), qt_noop());
+        QTC_ASSERT(m_detailsWidget->width() == widthExcludingMargins, /**/);
+        QTC_ASSERT(m_detailsWidgetHeight == m_detailsWidget->height(), /**/);
     } else {
         // the reference coordinate for text drawing is the text baseline; move it inside the view rect.
         pos.ry() += fm.ascent();

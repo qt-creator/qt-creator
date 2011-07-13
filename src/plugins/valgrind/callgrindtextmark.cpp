@@ -34,8 +34,8 @@
 
 #include "callgrindhelper.h"
 
-#include <valgrind/callgrind/callgrinddatamodel.h>
-#include <valgrind/callgrind/callgrindfunction.h>
+#include "callgrind/callgrinddatamodel.h"
+#include "callgrind/callgrindfunction.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QPainter>

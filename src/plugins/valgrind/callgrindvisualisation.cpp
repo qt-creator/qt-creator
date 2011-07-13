@@ -160,8 +160,7 @@ QRectF FunctionGraphicsTextItem::boundingRect() const
 }
 
 FunctionGraphicsItem::FunctionGraphicsItem(const QString &text,
-                                           qreal x, qreal y, qreal width,
-                                           qreal height, QGraphicsItem *parent)
+        qreal x, qreal y, qreal width, qreal height, QGraphicsItem *parent)
     : QGraphicsRectItem(x, y, width, height, parent)
     , m_text(0)
 {
@@ -180,8 +179,7 @@ FunctionGraphicsTextItem *FunctionGraphicsItem::textItem() const
 }
 
 void FunctionGraphicsItem::paint(QPainter *painter,
-                                 const QStyleOptionGraphicsItem *option,
-                                 QWidget *)
+    const QStyleOptionGraphicsItem *option, QWidget *)
 {
     painter->save();
 

@@ -38,6 +38,11 @@
 #include "memcheckerrorview.h"
 #include "memchecksettings.h"
 
+#include "xmlprotocol/suppression.h"
+#include "xmlprotocol/errorlistmodel.h"
+#include "xmlprotocol/stack.h"
+#include "xmlprotocol/frame.h"
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
@@ -50,25 +55,20 @@
 #include <QtCore/QFile>
 #include <QtGui/QPushButton>
 
-#include <valgrind/xmlprotocol/suppression.h>
-#include <valgrind/xmlprotocol/errorlistmodel.h>
-#include <valgrind/xmlprotocol/stack.h>
-#include <valgrind/xmlprotocol/frame.h>
-
 using namespace Analyzer;
 using namespace Valgrind::XmlProtocol;
 
-namespace {
+namespace Valgrind {
+namespace Internal {
 
-QString suppressionText(const Error &error)
+static QString suppressionText(const Error &error)
 {
     Suppression sup(error.suppression());
 
     // workaround: https://bugs.kde.org/show_bug.cgi?id=255822
-    if (sup.frames().size() >= 24) {
+    if (sup.frames().size() >= 24)
         sup.setFrames(sup.frames().mid(0, 23));
-    }
-    QTC_ASSERT(sup.frames().size() < 24, qt_noop());
+    QTC_ASSERT(sup.frames().size() < 24, /**/)
 
     // try to set some useful name automatically, instead of "insert_name_here"
     // we take the last stack frame and append the suppression kind, e.g.:
@@ -82,9 +82,8 @@ QString suppressionText(const Error &error)
         else if (!frame.object().isEmpty())
             newName = frame.object();
 
-        if (!newName.isEmpty()) {
+        if (!newName.isEmpty())
             sup.setName(newName + '[' + sup.kind() + ']');
-        }
     }
 
     return sup.toString();
@@ -111,10 +110,9 @@ static bool equalSuppression(const Error &error, const Error &suppressed)
     if (suppressedFrames.size() < frames)
         frames = suppressedFrames.size();
 
-    for (int i = 0; i < frames; ++i) {
+    for (int i = 0; i < frames; ++i)
         if (errorFrames.at(i) != suppressedFrames.at(i))
             return false;
-    }
 
     return true;
 }
@@ -124,13 +122,8 @@ bool sortIndizesReverse(const QModelIndex &l, const QModelIndex &r)
     return l.row() > r.row();
 }
 
-} // namespace anoe
-
-namespace Valgrind {
-namespace Internal {
-
-SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, QWidget *parent, Qt::WindowFlags f)
-  : QDialog(parent, f),
+SuppressionDialog::SuppressionDialog(MemcheckErrorView *view)
+  : QDialog(),
     m_view(view),
     m_ui(new Ui::SuppressionDialog),
     m_settings(view->settings()),
@@ -138,7 +131,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, QWidget *parent, Q
 {
     m_ui->setupUi(this);
 
-    ///NOTE: pathchooser requires existing files...
+    // NOTE: pathchooser requires existing files.
     QFile defaultSuppFile(view->defaultSuppressionFile());
     if (!defaultSuppFile.exists()) {
         if (defaultSuppFile.open(QIODevice::WriteOnly)) {
@@ -147,7 +140,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, QWidget *parent, Q
         }
     }
 
-    //NOTE: first set kind, then set path since otherwise the file will be seen as "invalid"
+    // NOTE: First set kind, then set path. Otherwise the file will be seen as "invalid".
     m_ui->fileChooser->setExpectedKind(Utils::PathChooser::File);
     m_ui->fileChooser->setPath(defaultSuppFile.fileName());
     m_ui->fileChooser->setPromptDialogFilter(QLatin1String("*.supp"));
@@ -158,15 +151,15 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, QWidget *parent, Q
             SLOT(validate()));
 
     QString suppressions;
-    QModelIndexList indizes = m_view->selectionModel()->selectedRows();
-    if (indizes.isEmpty() && m_view->selectionModel()->currentIndex().isValid()) {
+    QModelIndexList indices = m_view->selectionModel()->selectedRows();
+    if (indices.isEmpty() && m_view->selectionModel()->currentIndex().isValid()) {
         // can happen when using arrow keys to navigate and shortcut to trigger suppression
-        indizes << m_view->selectionModel()->currentIndex();
+        indices.append(m_view->selectionModel()->currentIndex());
     }
-    foreach (const QModelIndex &index, indizes) {
+    foreach (const QModelIndex &index, indices) {
         Error error = m_view->model()->data(index, ErrorListModel::ErrorRole).value<Error>();
         if (!error.suppression().isNull())
-            m_errors << error;
+            m_errors.append(error);
     }
 
     foreach (const Error &error, m_errors)
@@ -208,9 +201,9 @@ void SuppressionDialog::accept()
 
     m_settings->subConfig<AbstractMemcheckSettings>()->addSuppressionFiles(QStringList(path));
 
-    QModelIndexList indizes = m_view->selectionModel()->selectedRows();
-    qSort(indizes.begin(), indizes.end(), sortIndizesReverse);
-    foreach (const QModelIndex &index, indizes) {
+    QModelIndexList indices = m_view->selectionModel()->selectedRows();
+    qSort(indices.begin(), indices.end(), sortIndizesReverse);
+    foreach (const QModelIndex &index, indices) {
         bool removed = m_view->model()->removeRow(index.row());
         QTC_ASSERT(removed, qt_noop());
         Q_UNUSED(removed);
@@ -234,7 +227,7 @@ void SuppressionDialog::accept()
     }
 
     // select a new item
-    m_view->setCurrentIndex(indizes.first());
+    m_view->setCurrentIndex(indices.first());
 
     QDialog::accept();
 }

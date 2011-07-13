@@ -43,11 +43,6 @@ namespace Internal {
 NameDelegate::NameDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
-
-}
-
-NameDelegate::~NameDelegate()
-{
 }
 
 void NameDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,

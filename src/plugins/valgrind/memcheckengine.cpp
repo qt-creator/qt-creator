@@ -62,7 +62,7 @@ MemcheckEngine::MemcheckEngine(IAnalyzerTool *tool, const AnalyzerStartParameter
     connect(&m_parser, SIGNAL(status(Valgrind::XmlProtocol::Status)),
             SLOT(status(Valgrind::XmlProtocol::Status)));
 
-    m_progress->setProgressRange(0, Valgrind::XmlProtocol::Status::Finished + 1);
+    m_progress->setProgressRange(0, XmlProtocol::Status::Finished + 1);
 }
 
 QString MemcheckEngine::progressTitle() const
