@@ -365,6 +365,7 @@ private:
     QString lookupName() const;
     QStringList lookupNameComponent() const;
     const QmlJS::Interpreter::QmlObjectValue *getNearestQmlObjectValue() const;
+    QString fullQualifiedImportAliasType() const;
 
     QString m_qualfiedTypeName;
     int m_majorVersion;
@@ -486,7 +487,16 @@ const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getQmlObjectValue
     const QString package = getUrlFromType(m_qualfiedTypeName);
     const QString type = m_qualfiedTypeName.split('.').last();
 
+
     LanguageUtils::ComponentVersion version(9999, 9999);
+    //get the correct version
+    Document::Ptr doc = lookupContext()->document();
+    const Interpreter::Context *context = lookupContext()->context();
+    Interpreter::ImportInfo importInfo = context->imports(doc.data())->info(fullQualifiedImportAliasType(), context);
+
+    if (importInfo.isValid())
+        version = importInfo.version();
+
     QList<Interpreter::QmlObjectValue *> qmlObjectValues = lookupContext()->engine()->cppQmlTypes().typesForImport(package, version);
     const Interpreter::QmlObjectValue *qmlValue = 0;
     foreach (Interpreter::QmlObjectValue *value, qmlObjectValues) {
@@ -832,13 +842,10 @@ QString NodeMetaInfoPrivate::lookupName() const
 
 QStringList NodeMetaInfoPrivate::lookupNameComponent() const
 {
-    if (m_model && m_model->rewriterView()) {
-        QString tempString = model()->rewriterView()->convertTypeToImportAlias(m_qualfiedTypeName);
-
+        QString tempString = fullQualifiedImportAliasType();
         return tempString.split('.');
-    }
-    return QStringList();
 }
+
 
 bool NodeMetaInfoPrivate::isValid() const
 {
@@ -888,6 +895,13 @@ const QmlJS::Interpreter::QmlObjectValue *NodeMetaInfoPrivate::getNearestQmlObje
     if (m_isComponent)
         return findQmlPrototype(getObjectValue(), lookupContext());
     return getQmlObjectValue();
+}
+
+QString NodeMetaInfoPrivate::fullQualifiedImportAliasType() const
+{
+    if (m_model && m_model->rewriterView())
+        return model()->rewriterView()->convertTypeToImportAlias(m_qualfiedTypeName);
+    return m_qualfiedTypeName;
 }
 
 } //namespace Internal
