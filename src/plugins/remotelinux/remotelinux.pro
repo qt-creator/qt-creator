@@ -193,15 +193,3 @@ FORMS += \
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII
 DEFINES += REMOTELINUX_LIBRARY
-
-
-
-
-
-
-
-
-
-
-
-
