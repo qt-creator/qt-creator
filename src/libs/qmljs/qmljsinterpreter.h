@@ -421,6 +421,20 @@ private:
     Error m_error;
 };
 
+class QMLJS_EXPORT QmlEnumValue: public NumberValue
+{
+public:
+    QmlEnumValue(const LanguageUtils::FakeMetaEnum &metaEnum, ValueOwner *valueOwner);
+    virtual ~QmlEnumValue();
+
+    QString name() const;
+    QStringList keys() const;
+
+private:
+    LanguageUtils::FakeMetaEnum *_metaEnum;
+};
+
+
 // A ObjectValue based on a FakeMetaObject.
 // May only have other QmlObjectValues as ancestors.
 class QMLJS_EXPORT QmlObjectValue: public ObjectValue
@@ -455,6 +469,7 @@ public:
     bool hasChildInPackage() const;
 
     LanguageUtils::FakeMetaEnum getEnum(const QString &typeName) const;
+    const QmlEnumValue *getEnumValue(const QString &typeName) const;
 protected:
     const Value *findOrCreateSignature(int index, const LanguageUtils::FakeMetaMethod &method,
                                        QString *methodName) const;
@@ -466,19 +481,7 @@ private:
     const QString _packageName;
     const LanguageUtils::ComponentVersion _componentVersion;
     mutable QHash<int, const Value *> _metaSignature;
-};
-
-class QMLJS_EXPORT QmlEnumValue: public NumberValue
-{
-public:
-    QmlEnumValue(const LanguageUtils::FakeMetaEnum &metaEnum, ValueOwner *valueOwner);
-    virtual ~QmlEnumValue();
-
-    QString name() const;
-    QStringList keys() const;
-
-private:
-    LanguageUtils::FakeMetaEnum *_metaEnum;
+    QHash<QString, const QmlEnumValue * > _enums;
 };
 
 class QMLJS_EXPORT Activation

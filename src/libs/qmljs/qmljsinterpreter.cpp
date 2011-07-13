@@ -161,9 +161,15 @@ QmlObjectValue::QmlObjectValue(FakeMetaObject::ConstPtr metaObject, const QStrin
       _attachedType(0),
       _metaObject(metaObject),
       _packageName(packageName),
-      _componentVersion(version)
+      _componentVersion(version),
+      _enums()
 {
     setClassName(className);
+    int nEnums = metaObject->enumeratorCount();
+    for (int i = 0; i < nEnums; ++i) {
+        FakeMetaEnum fEnum = metaObject->enumerator(i);
+        _enums[fEnum.name()] = new QmlEnumValue(fEnum, valueOwner);
+    }
 }
 
 QmlObjectValue::~QmlObjectValue()
@@ -307,9 +313,7 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         typeName = components.last();
     }
     if (base) {
-        const FakeMetaEnum &metaEnum = base->getEnum(typeName);
-        if (metaEnum.isValid())
-            value = new QmlEnumValue(metaEnum, valueOwner());
+        value = base->getEnumValue(typeName);
     }
 
     return value;
@@ -376,6 +380,11 @@ FakeMetaEnum QmlObjectValue::getEnum(const QString &typeName) const
         return FakeMetaEnum();
 
     return _metaObject->enumerator(index);
+}
+
+const QmlEnumValue *QmlObjectValue::getEnumValue(const QString &typeName) const
+{
+    return _enums.value(typeName, 0);
 }
 
 bool QmlObjectValue::isWritable(const QString &propertyName) const
