@@ -124,7 +124,7 @@ private:
 class REMOTELINUX_EXPORT ILinuxDeviceConfigurationWizard : public QWizard
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ILinuxDeviceConfigurationWizard)
+
 public:
     virtual LinuxDeviceConfiguration::Ptr deviceConfiguration()=0;
 
@@ -147,7 +147,7 @@ protected:
 class REMOTELINUX_EXPORT ILinuxDeviceConfigurationFactory : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ILinuxDeviceConfigurationFactory)
+
 public:
     /*!
       A short, one-line description of what kind of device this factory supports.

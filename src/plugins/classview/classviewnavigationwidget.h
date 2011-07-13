@@ -53,7 +53,6 @@ namespace Internal {
 class NavigationWidget : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(NavigationWidget)
 
 public:
     explicit NavigationWidget(QWidget *parent = 0);

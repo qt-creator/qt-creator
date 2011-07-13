@@ -48,7 +48,7 @@ namespace {
 class AbstractMaddeUploadAndInstallPackageAction : public AbstractUploadAndInstallPackageService
 {
     Q_OBJECT
-    Q_DISABLE_COPY(AbstractMaddeUploadAndInstallPackageAction)
+
 protected:
     explicit AbstractMaddeUploadAndInstallPackageAction(AbstractRemoteLinuxDeployStep *step)
         : AbstractUploadAndInstallPackageService(step)
@@ -86,7 +86,7 @@ protected:
 class MaemoUploadAndInstallPackageAction : public AbstractMaddeUploadAndInstallPackageAction
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MaemoUploadAndInstallPackageAction)
+
 public:
     MaemoUploadAndInstallPackageAction(AbstractRemoteLinuxDeployStep *step)
         : AbstractMaddeUploadAndInstallPackageAction(step),
@@ -103,7 +103,7 @@ private:
 class MeegoUploadAndInstallPackageAction : public AbstractMaddeUploadAndInstallPackageAction
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MeegoUploadAndInstallPackageAction)
+
 public:
     MeegoUploadAndInstallPackageAction(AbstractRemoteLinuxDeployStep *step)
         : AbstractMaddeUploadAndInstallPackageAction(step),

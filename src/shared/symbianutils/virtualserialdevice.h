@@ -69,7 +69,6 @@ protected:
     qint64 writeData(const char *data, qint64 maxSize);
 
 private:
-    Q_DISABLE_COPY(VirtualSerialDevice)
     void platInit();
     void platClose();
     void emitBytesWrittenIfNeeded(QMutexLocker &locker, qint64 len);

@@ -42,7 +42,10 @@ namespace Internal {
 class AbstractGdbProcess : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(AbstractGdbProcess)
+
+protected:
+    explicit AbstractGdbProcess(QObject *parent = 0) : QObject(parent) {}
+
 public:
     virtual QByteArray readAllStandardOutput() = 0;
     virtual QByteArray readAllStandardError() = 0;
@@ -67,10 +70,6 @@ signals:
     void finished(int exitCode, QProcess::ExitStatus exitStatus);
     void readyReadStandardError();
     void readyReadStandardOutput();
-
-protected:
-    explicit AbstractGdbProcess(QObject *parent = 0) : QObject(parent) {}
-
 };
 
 } // namespace Internal

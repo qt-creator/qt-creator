@@ -84,8 +84,10 @@ inline bool operator!=(const Settings &s1, const Settings &s2) { return !s1.equa
  * p4. This is why the client root portion of working directory must be mapped for the
  * "-d" option, so that running p4 in "/depot/dev/foo" results in "-d $HOME/dev/foo". */
 
-class PerforceSettings {
+class PerforceSettings
+{
     Q_DISABLE_COPY(PerforceSettings)
+
 public:
     PerforceSettings();
     ~PerforceSettings();

@@ -47,7 +47,6 @@ namespace Internal {
 class LinuxDeviceConfigurations : public QAbstractListModel
 {
     Q_OBJECT
-    Q_DISABLE_COPY(LinuxDeviceConfigurations)
     friend class MaemoDeviceConfigurationsSettingsWidget;
 public:
     static LinuxDeviceConfigurations *instance(QObject *parent = 0);

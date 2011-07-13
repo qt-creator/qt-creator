@@ -47,6 +47,7 @@ namespace Core {
 class CORE_EXPORT IOptionsPage : public QObject
 {
     Q_OBJECT
+
 public:
     IOptionsPage(QObject *parent = 0) : QObject(parent) {}
     virtual ~IOptionsPage() {}

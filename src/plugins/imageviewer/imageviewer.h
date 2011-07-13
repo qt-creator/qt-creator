@@ -50,7 +50,7 @@ class ImageViewerFile;
 class ImageViewer : public Core::IEditor
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ImageViewer)
+
 public:
     explicit ImageViewer(QWidget *parent = 0);
     ~ImageViewer();

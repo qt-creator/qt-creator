@@ -51,7 +51,7 @@ struct EditorToolBarPrivate;
 class CORE_EXPORT EditorToolBar : public Utils::StyledBar
 {
     Q_OBJECT
-    Q_DISABLE_COPY(EditorToolBar)
+
 public:
     explicit EditorToolBar(QWidget *parent = 0);
     virtual ~EditorToolBar();

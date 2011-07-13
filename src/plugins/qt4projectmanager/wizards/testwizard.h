@@ -41,7 +41,7 @@ namespace Internal {
 class TestWizard : public QtWizard
 {
     Q_OBJECT
-    Q_DISABLE_COPY(TestWizard)
+
 public:
     TestWizard();
 
@@ -52,10 +52,6 @@ protected:
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
-signals:
-
-public slots:
-
 };
 
 } // namespace Internal

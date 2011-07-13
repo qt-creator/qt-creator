@@ -36,26 +36,20 @@
 #include <iwidgetplugin.h>
 #include <QtDeclarative/qdeclarative.h>
 
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
 
 class SymbianPlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SymbianPlugin)
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
+
 public:
     SymbianPlugin();
-    ~SymbianPlugin() {}
 
     QString metaInfo() const;
     QString pluginName() const;
-
 };
 
 } // namespace QmlDesigner
-
 
 #endif // SymbianPLUGIN_H

@@ -40,8 +40,8 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT FileNameValidatingLineEdit : public BaseValidatingLineEdit
 {
     Q_OBJECT
-    Q_DISABLE_COPY(FileNameValidatingLineEdit)
     Q_PROPERTY(bool allowDirectories READ allowDirectories WRITE setAllowDirectories)
+
 public:
     explicit FileNameValidatingLineEdit(QWidget *parent = 0);
 

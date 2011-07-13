@@ -44,8 +44,8 @@ namespace Internal {
 
 class S60DeviceDebugRunControl : public Debugger::DebuggerRunControl
 {
-    Q_DISABLE_COPY(S60DeviceDebugRunControl)
     Q_OBJECT
+
 public:
     explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration,
                                       const Debugger::DebuggerStartParameters &sp,

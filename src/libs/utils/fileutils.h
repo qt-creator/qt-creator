@@ -120,7 +120,6 @@ public:
     QFile *file() { return m_file; }
 
 private:
-    Q_DISABLE_COPY(FileSaver)
     bool m_isSafe;
 };
 
@@ -136,10 +135,9 @@ public:
     void setAutoRemove(bool on) { m_autoRemove = on; }
 
 private:
-    Q_DISABLE_COPY(TempFileSaver)
     bool m_autoRemove;
 };
 
-}
+} // namespace Utils
 
 #endif // FILEUTILS_H

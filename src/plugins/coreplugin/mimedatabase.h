@@ -60,8 +60,10 @@ namespace Internal {
 class CORE_EXPORT IMagicMatcher
 {
     Q_DISABLE_COPY(IMagicMatcher)
+
 protected:
     IMagicMatcher() {}
+
 public:
     typedef QSharedPointer<IMagicMatcher> IMagicMatcherSharedPointer;
     typedef QList<IMagicMatcherSharedPointer> IMagicMatcherList;

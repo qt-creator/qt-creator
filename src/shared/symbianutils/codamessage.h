@@ -157,8 +157,10 @@ struct SYMBIANUTILS_EXPORT Breakpoint {
 SYMBIANUTILS_EXPORT JsonInputStream &operator<<(JsonInputStream &str, const Breakpoint &b);
 
 // Event hierarchy
-class SYMBIANUTILS_EXPORT CodaEvent {
+class SYMBIANUTILS_EXPORT CodaEvent
+{
     Q_DISABLE_COPY(CodaEvent)
+
 public:
     enum Type { None,
                 LocatorHello,

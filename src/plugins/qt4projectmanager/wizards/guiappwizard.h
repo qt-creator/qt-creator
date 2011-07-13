@@ -42,7 +42,6 @@ struct GuiAppParameters;
 
 class GuiAppWizard : public QtWizard
 {
-    Q_DISABLE_COPY(GuiAppWizard)
     Q_OBJECT
 
 public:

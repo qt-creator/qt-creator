@@ -40,8 +40,8 @@ namespace Internal {
 
 class CertificatePathChooser : public Utils::PathChooser
 {
-    Q_DISABLE_COPY(CertificatePathChooser)
     Q_OBJECT
+
 public:
     explicit CertificatePathChooser(QWidget *parent = 0);
 

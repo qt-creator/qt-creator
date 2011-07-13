@@ -98,7 +98,6 @@ signals:
 
 private:
     Manager();
-    Q_DISABLE_COPY(Manager)
 
     void gatherDefinitionsMimeTypes(QFutureInterface<Core::MimeType> &future);
     QList<HighlightDefinitionMetaData> parseAvailableDefinitionsList(QIODevice *device) const;

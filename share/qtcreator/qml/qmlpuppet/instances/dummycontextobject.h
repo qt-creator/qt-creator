@@ -54,9 +54,7 @@ signals:
     void parentDummyChanged();
 
 private:
-    Q_DISABLE_COPY(DummyContextObject)
     QWeakPointer<QObject> m_dummyParent;
-
 };
 
 } // namespace QmlDesigner

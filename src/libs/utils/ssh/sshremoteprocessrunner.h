@@ -44,7 +44,7 @@ class SshRemoteProcessRunnerPrivate;
 class QTCREATOR_UTILS_EXPORT SshRemoteProcessRunner : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SshRemoteProcessRunner)
+
 public:
     typedef QSharedPointer<SshRemoteProcessRunner> Ptr;
 

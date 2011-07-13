@@ -90,7 +90,6 @@ protected:
     QTextBlock currentBlock() const;
 
 private:
-    Q_DISABLE_COPY(SyntaxHighlighter)
     Q_PRIVATE_SLOT(d_ptr, void _q_reformatBlocks(int from, int charsRemoved, int charsAdded))
     Q_PRIVATE_SLOT(d_ptr, void _q_delayedRehighlight())
 

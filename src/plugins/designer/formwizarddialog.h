@@ -49,7 +49,6 @@ class FormTemplateWizardPage;
 
 class FormWizardDialog : public Utils::Wizard
 {
-    Q_DISABLE_COPY(FormWizardDialog)
     Q_OBJECT
 
 public:
@@ -72,7 +71,6 @@ private:
 
 class FormFileWizardDialog : public FormWizardDialog
 {
-    Q_DISABLE_COPY(FormFileWizardDialog)
     Q_OBJECT
 
 public:

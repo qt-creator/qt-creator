@@ -45,7 +45,7 @@ class UploadAndInstallTarPackageActionPrivate;
 class REMOTELINUX_EXPORT UploadAndInstallTarPackageService : public AbstractUploadAndInstallPackageService
 {
     Q_OBJECT
-    Q_DISABLE_COPY(UploadAndInstallTarPackageService)
+
 public:
     explicit UploadAndInstallTarPackageService(QObject *parent);
     ~UploadAndInstallTarPackageService();
@@ -60,7 +60,7 @@ private:
 class REMOTELINUX_EXPORT UploadAndInstallTarPackageStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
-    Q_DISABLE_COPY(UploadAndInstallTarPackageStep)
+
 public:
     explicit UploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bsl);
     UploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bsl,

@@ -41,7 +41,7 @@ class MaemoMountAndCopyFilesService;
 class MaemoInstallPackageViaMountStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MaemoInstallPackageViaMountStep)
+
 public:
     MaemoInstallPackageViaMountStep(ProjectExplorer::BuildStepList *bsl);
     MaemoInstallPackageViaMountStep(ProjectExplorer::BuildStepList *bsl,
@@ -64,7 +64,7 @@ private:
 class MaemoCopyFilesViaMountStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MaemoCopyFilesViaMountStep)
+
 public:
     MaemoCopyFilesViaMountStep(ProjectExplorer::BuildStepList *bsl);
     MaemoCopyFilesViaMountStep(ProjectExplorer::BuildStepList *bsl,

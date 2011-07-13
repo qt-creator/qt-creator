@@ -48,7 +48,6 @@ namespace Internal {
 class Plugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Plugin)
 
 public:
     //! Constructor

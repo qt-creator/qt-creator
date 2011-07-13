@@ -43,7 +43,6 @@ namespace Internal {
 class MobileAppWizardGenericOptionsPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MobileAppWizardGenericOptionsPage)
 
 public:
     explicit MobileAppWizardGenericOptionsPage(QWidget *parent = 0);
@@ -59,7 +58,6 @@ private:
 class MobileAppWizardSymbianOptionsPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MobileAppWizardSymbianOptionsPage)
 
 public:
     explicit MobileAppWizardSymbianOptionsPage(QWidget *parent = 0);
@@ -82,7 +80,6 @@ private:
 class MobileAppWizardMaemoOptionsPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MobileAppWizardMaemoOptionsPage)
 
 public:
     explicit MobileAppWizardMaemoOptionsPage(int appIconSize,

@@ -74,7 +74,6 @@ protected:
 private:
     class QtColorButtonPrivate *d_ptr;
     friend class QtColorButtonPrivate;
-    Q_DISABLE_COPY(QtColorButton)
 };
 
 } // namespace Utils

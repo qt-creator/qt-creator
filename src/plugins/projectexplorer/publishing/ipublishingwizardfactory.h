@@ -61,7 +61,7 @@ class Project;
 class PROJECTEXPLORER_EXPORT IPublishingWizardFactory : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(IPublishingWizardFactory)
+
 public:
     /*!
       A short, one-line description of the type of wizard that this

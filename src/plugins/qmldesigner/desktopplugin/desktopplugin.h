@@ -44,15 +44,13 @@ namespace QmlDesigner {
 class DesktopPlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
     Q_OBJECT
-    Q_DISABLE_COPY(DesktopPlugin)
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
+
 public:
     DesktopPlugin();
-    ~DesktopPlugin() {}
 
     QString metaInfo() const;
     QString pluginName() const;
-
 };
 
 } // namespace QmlDesigner

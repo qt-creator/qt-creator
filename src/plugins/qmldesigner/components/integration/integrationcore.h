@@ -61,6 +61,7 @@ public:
 private:
     CorePrivate *m_d;
 };
-}
+
+} // namspace QmlDesigner
 
 #endif // QMLDESIGNERCORE_H

@@ -44,7 +44,6 @@ struct ProjectIntroPagePrivate;
 class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ProjectIntroPage)
     Q_PROPERTY(QString description READ description WRITE setPath DESIGNABLE true)
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
     Q_PROPERTY(QString projectName READ projectName WRITE setProjectName DESIGNABLE true)

@@ -61,8 +61,8 @@ struct CppFileSettings;
 
 class CppToolsPlugin : public ExtensionSystem::IPlugin
 {
-    Q_DISABLE_COPY(CppToolsPlugin)
     Q_OBJECT
+
 public:
     CppToolsPlugin();
     ~CppToolsPlugin();

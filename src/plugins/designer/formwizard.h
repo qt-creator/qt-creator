@@ -40,7 +40,6 @@ namespace Internal {
 
 class FormWizard : public Core::BaseFileWizard
 {
-    Q_DISABLE_COPY(FormWizard)
     Q_OBJECT
 
 public:

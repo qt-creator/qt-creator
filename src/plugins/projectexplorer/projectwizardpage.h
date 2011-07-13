@@ -43,9 +43,10 @@ class WizardPage;
 }
 
 // Documentation inside.
-class ProjectWizardPage : public QWizardPage {
+class ProjectWizardPage : public QWizardPage
+{
     Q_OBJECT
-    Q_DISABLE_COPY(ProjectWizardPage)
+
 public:
     explicit ProjectWizardPage(QWidget *parent = 0);
     virtual ~ProjectWizardPage();

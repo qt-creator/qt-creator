@@ -53,13 +53,11 @@ public:
     void setBackup(bool backup) { m_backup = backup; }
 
 private:
-    Q_DISABLE_COPY(SaveFile)
-
     QString m_finalFileName;
     bool m_finalized;
     bool m_backup;
 };
 
-}
+} // namespace Utils
 
 #endif // SAVEFILE_H

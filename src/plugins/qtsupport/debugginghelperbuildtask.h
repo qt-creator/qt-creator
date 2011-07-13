@@ -43,9 +43,10 @@
 namespace QtSupport {
 class BaseQtVersion;
 
-class QTSUPPORT_EXPORT DebuggingHelperBuildTask : public QObject {
-    Q_DISABLE_COPY(DebuggingHelperBuildTask)
+class QTSUPPORT_EXPORT DebuggingHelperBuildTask : public QObject
+{
     Q_OBJECT
+
 public:
     enum DebuggingHelper {
         GdbDebugging = 0x01,
@@ -87,7 +88,7 @@ private:
     bool m_showErrors;
 };
 
-} //namespace Qt4ProjectManager
+} // namespace Qt4ProjectManager
 
 Q_DECLARE_METATYPE(QtSupport::DebuggingHelperBuildTask::Tools)
 

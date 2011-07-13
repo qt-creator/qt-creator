@@ -40,9 +40,9 @@ namespace Utils {
 
 class FileWizardPage;
 
-class QTCREATOR_UTILS_EXPORT FileWizardDialog : public Wizard {
+class QTCREATOR_UTILS_EXPORT FileWizardDialog : public Wizard
+{
     Q_OBJECT
-    Q_DISABLE_COPY(FileWizardDialog)
 public:
     explicit FileWizardDialog(QWidget *parent = 0);
 

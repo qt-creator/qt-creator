@@ -42,6 +42,7 @@ namespace Internal {
 class ByteArrayInputStream
 {
     Q_DISABLE_COPY(ByteArrayInputStream)
+
 public:
     typedef void (ModifierFunc)(ByteArrayInputStream &s);
 

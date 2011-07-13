@@ -99,7 +99,7 @@ private:
 class CORESHARED_EXPORT ItemLibraryInfo : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ItemLibraryInfo)
+
     friend class Internal::MetaInfoPrivate;
 public:
     ~ItemLibraryInfo();

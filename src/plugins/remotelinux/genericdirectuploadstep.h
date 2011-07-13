@@ -41,7 +41,7 @@ class GenericDirectUploadService;
 class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
-    Q_DISABLE_COPY(GenericDirectUploadStep)
+
 public:
     GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, const QString &id);
     GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl, GenericDirectUploadStep *other);

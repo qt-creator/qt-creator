@@ -39,10 +39,6 @@
 #include <QtCore/QScopedPointer>
 #include <QtCore/QString>
 
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-QT_END_NAMESPACE
-
 namespace Utils {
 class AbstractMacroExpander;
 }
@@ -53,7 +49,7 @@ class VariableManagerPrivate;
 class CORE_EXPORT VariableManager : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(VariableManager)
+
 public:
     VariableManager();
     ~VariableManager();

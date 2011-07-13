@@ -47,7 +47,6 @@ struct NewClassWidgetPrivate;
 
 class QTCREATOR_UTILS_EXPORT NewClassWidget : public QWidget
 {
-    Q_DISABLE_COPY(NewClassWidget)
     Q_OBJECT
     Q_PROPERTY(bool namespacesEnabled READ namespacesEnabled WRITE setNamespacesEnabled DESIGNABLE true)
     Q_PROPERTY(bool baseClassInputVisible READ isBaseClassInputVisible WRITE setBaseClassInputVisible DESIGNABLE true)
@@ -73,6 +72,7 @@ class QTCREATOR_UTILS_EXPORT NewClassWidget : public QWidget
     // Utility "USER" property for wizards containing file names.
     Q_PROPERTY(QStringList files READ files DESIGNABLE false USER true)
     Q_ENUMS(ClassType)
+
 public:
     enum ClassType { NoClassType, ClassInheritsQObject, ClassInheritsQWidget,
                      ClassInheritsQDeclarativeItem,

@@ -36,26 +36,20 @@
 #include <iwidgetplugin.h>
 #include <QtDeclarative/qdeclarative.h>
 
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
 
 class MeegoPlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MeegoPlugin)
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
+
 public:
     MeegoPlugin();
-    ~MeegoPlugin() {}
 
     QString metaInfo() const;
     QString pluginName() const;
-
 };
 
 } // namespace QmlDesigner
-
 
 #endif // MEEGOPLUGIN_H

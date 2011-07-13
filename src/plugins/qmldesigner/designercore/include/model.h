@@ -76,8 +76,8 @@ class CORESHARED_EXPORT Model : public QObject
     friend class QmlDesigner::AbstractView;
     friend class Internal::ModelPrivate;
 
-    Q_DISABLE_COPY(Model)
     Q_OBJECT
+
 public:
     enum ViewNotification { NotifyView, DoNotNotifyView };
 

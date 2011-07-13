@@ -72,8 +72,6 @@ protected:
     ProjectConfiguration(QObject *parent, const ProjectConfiguration *source);
 
 private:
-    Q_DISABLE_COPY(ProjectConfiguration)
-
     QString m_id;
     QString m_displayName;
     QString m_defaultDisplayName;

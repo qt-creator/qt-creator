@@ -40,7 +40,6 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT ProjectNameValidatingLineEdit : public BaseValidatingLineEdit
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ProjectNameValidatingLineEdit)
 
 public:
     explicit ProjectNameValidatingLineEdit(QWidget *parent = 0);

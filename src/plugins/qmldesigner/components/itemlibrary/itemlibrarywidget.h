@@ -47,7 +47,6 @@ class Model;
 class ItemLibraryWidget : public QFrame
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ItemLibraryWidget)
 
     enum FilterChangeFlag {
       QtBasic = 0x0,

@@ -101,8 +101,6 @@ signals:
     void zeroColorChanged();
 
 private:
-    Q_DISABLE_COPY(EasingGraph)
-
     QColor m_color;
     QColor m_zeroColor; // the color for the "zero" and "one" lines
     qreal m_duration;

@@ -44,7 +44,6 @@ class FormClassWizardParameters;
 
 class FormClassWizard : public Core::BaseFileWizard
 {
-    Q_DISABLE_COPY(FormClassWizard)
     Q_OBJECT
 
 public:
@@ -63,8 +62,6 @@ protected:
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
-
-private:
 };
 
 } // namespace Internal

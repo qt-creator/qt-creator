@@ -52,8 +52,7 @@ public:
     SemanticInfo::LocalUseMap uses;
 };
 
-}
-
-}
+} // namespace Internal
+} // namespace CppEditor
 
 #endif // CPPLOCALSYMBOLS_H

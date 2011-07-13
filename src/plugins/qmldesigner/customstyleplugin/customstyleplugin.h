@@ -36,16 +36,13 @@
 #include <iwidgetplugin.h>
 #include <QtDeclarative/qdeclarative.h>
 
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
 
 class CustomStylePlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
     Q_OBJECT
-    Q_DISABLE_COPY(CustomStylePlugin)
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
+
 public:
     CustomStylePlugin();
     ~CustomStylePlugin() {}
@@ -56,6 +53,5 @@ public:
 };
 
 } // namespace QmlDesigner
-
 
 #endif // CUSTOMSTYLEPLUGIN_H

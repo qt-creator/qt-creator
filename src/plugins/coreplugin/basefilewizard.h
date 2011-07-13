@@ -150,7 +150,6 @@ CORE_EXPORT QDebug operator<<(QDebug d, const BaseFileWizardParameters &);
 
 class CORE_EXPORT BaseFileWizard : public IWizard
 {
-    Q_DISABLE_COPY(BaseFileWizard)
     Q_OBJECT
 
 public:
@@ -200,7 +199,6 @@ private:
 
 class CORE_EXPORT StandardFileWizard : public BaseFileWizard
 {
-    Q_DISABLE_COPY(StandardFileWizard)
     Q_OBJECT
 
 protected:

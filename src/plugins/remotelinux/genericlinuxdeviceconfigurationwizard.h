@@ -42,7 +42,7 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizard
         : public ILinuxDeviceConfigurationWizard
 {
     Q_OBJECT
-    Q_DISABLE_COPY(GenericLinuxDeviceConfigurationWizard)
+
 public:
     GenericLinuxDeviceConfigurationWizard(QWidget *parent = 0);
     ~GenericLinuxDeviceConfigurationWizard();

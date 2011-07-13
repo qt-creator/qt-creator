@@ -44,8 +44,8 @@ class FileSystemWatcherPrivate;
 // Documentation inside.
 class QTCREATOR_UTILS_EXPORT FileSystemWatcher : public QObject
 {
-    Q_DISABLE_COPY(FileSystemWatcher)
     Q_OBJECT
+
 public:
     enum WatchMode
     {

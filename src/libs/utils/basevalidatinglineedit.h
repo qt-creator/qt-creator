@@ -44,7 +44,6 @@ struct BaseValidatingLineEditPrivate;
 class QTCREATOR_UTILS_EXPORT BaseValidatingLineEdit : public QLineEdit
 {
     Q_OBJECT
-    Q_DISABLE_COPY(BaseValidatingLineEdit)
     Q_PROPERTY(QString initialText READ initialText WRITE setInitialText DESIGNABLE true)
     Q_PROPERTY(QColor errorColor READ errorColor WRITE setErrorColor DESIGNABLE true)
 

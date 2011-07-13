@@ -59,7 +59,7 @@ class FormEditorW;
 class EditorWidget : public Utils::FancyMainWindow
 {
     Q_OBJECT
-    Q_DISABLE_COPY(EditorWidget)
+
 public:
     explicit EditorWidget(FormEditorW *fe, QWidget *parent = 0);
 

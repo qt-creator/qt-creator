@@ -47,8 +47,9 @@ QT_END_NAMESPACE
 
 namespace ExtensionSystem {
 class PluginCollection;
+
 namespace Internal {
-    class PluginManagerPrivate;
+class PluginManagerPrivate;
 }
 
 class IPlugin;
@@ -56,7 +57,6 @@ class PluginSpec;
 
 class EXTENSIONSYSTEM_EXPORT PluginManager : public QObject
 {
-    Q_DISABLE_COPY(PluginManager)
     Q_OBJECT
 
 public:

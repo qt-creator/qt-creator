@@ -116,7 +116,6 @@ QDebug operator<<(QDebug d, const GitoriousHost &p);
 
 class Gitorious : public QObject
 {
-    Q_DISABLE_COPY(Gitorious)
     Q_OBJECT
 
 public:

@@ -379,7 +379,6 @@ void BaseFileWizardParameters::setDisplayCategory(const QString &v)
 class WizardEventLoop : public QEventLoop
 {
     Q_OBJECT
-    Q_DISABLE_COPY(WizardEventLoop)
     WizardEventLoop(QObject *parent);
 
 public:

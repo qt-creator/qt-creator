@@ -42,7 +42,7 @@ class QDeclarativeDebugConnectionPrivate;
 class QDeclarativeDebugConnection : public QIODevice
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QDeclarativeDebugConnection)
+
 public:
     QDeclarativeDebugConnection(QObject * = 0);
     ~QDeclarativeDebugConnection();
@@ -77,7 +77,6 @@ class QDeclarativeDebugClient : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDeclarativeDebugClient)
-    Q_DISABLE_COPY(QDeclarativeDebugClient)
 
 public:
     enum Status { NotConnected, Unavailable, Enabled };

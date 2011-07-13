@@ -41,7 +41,7 @@ class MaemoRemoteMountsModel;
 class MaemoRunConfiguration : public RemoteLinuxRunConfiguration
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MaemoRunConfiguration)
+
 public:
     MaemoRunConfiguration(AbstractQt4MaemoTarget *parent, const QString &proFilePath);
     MaemoRunConfiguration(AbstractQt4MaemoTarget *parent, MaemoRunConfiguration *source);

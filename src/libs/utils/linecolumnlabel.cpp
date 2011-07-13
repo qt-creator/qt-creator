@@ -46,10 +46,6 @@ LineColumnLabel::LineColumnLabel(QWidget *parent)
 {
 }
 
-LineColumnLabel::~LineColumnLabel()
-{
-}
-
 void LineColumnLabel::setText(const QString &text, const QString &maxText)
 {
     QLabel::setText(text);

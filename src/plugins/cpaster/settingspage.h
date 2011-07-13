@@ -45,8 +45,10 @@ namespace CodePaster {
 
 struct Settings;
 
-class SettingsWidget : public QWidget {
+class SettingsWidget : public QWidget
+{
     Q_OBJECT
+
 public:
     explicit SettingsWidget(const QStringList &protocols, QWidget *parent = 0);
 
@@ -62,7 +64,7 @@ private:
 class SettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SettingsPage)
+
 public:
     explicit SettingsPage(const QSharedPointer<Settings> &settings);
     virtual ~SettingsPage();

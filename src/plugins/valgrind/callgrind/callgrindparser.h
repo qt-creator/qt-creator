@@ -72,8 +72,6 @@ public Q_SLOTS:
     void parse(QIODevice *stream);
 
 private:
-    Q_DISABLE_COPY(Parser)
-
     class Private;
     Private *const d;
 };

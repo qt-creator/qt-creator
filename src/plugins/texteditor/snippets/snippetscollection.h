@@ -104,7 +104,6 @@ private slots:
 
 private:
     SnippetsCollection();
-    Q_DISABLE_COPY(SnippetsCollection)
 
     int groupIndex(const QString &groupId) const;
     bool isGroupKnown(const QString &groupId) const;

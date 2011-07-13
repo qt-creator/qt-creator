@@ -36,26 +36,20 @@
 #include <iwidgetplugin.h>
 #include <QtDeclarative/qdeclarative.h>
 
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
 
 class ExtrasPlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ExtrasPlugin)
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
+
 public:
     ExtrasPlugin();
-    ~ExtrasPlugin() {}
 
     QString metaInfo() const;
     QString pluginName() const;
-
 };
 
 } // namespace QmlDesigner
-
 
 #endif // EXTRASPLUGIN_H

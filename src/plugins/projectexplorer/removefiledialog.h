@@ -39,13 +39,13 @@ namespace ProjectExplorer {
 namespace Internal {
 
 namespace Ui {
-    class RemoveFileDialog;
+class RemoveFileDialog;
 }
 
 class RemoveFileDialog : public QDialog
 {
     Q_OBJECT
-    Q_DISABLE_COPY(RemoveFileDialog)
+
 public:
     explicit RemoveFileDialog(const QString &filePath, QWidget *parent = 0);
     virtual ~RemoveFileDialog();

@@ -53,8 +53,8 @@ struct CommandLocatorPrivate;
 
 class LOCATOR_EXPORT CommandLocator : public Locator::ILocatorFilter
 {
-    Q_DISABLE_COPY(CommandLocator)
     Q_OBJECT
+
 public:
     explicit CommandLocator(const QString &prefix,
                             const QString &displayName,

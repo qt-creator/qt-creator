@@ -37,11 +37,6 @@
 
 #include <QtGui/QProxyStyle>
 
-QT_BEGIN_NAMESPACE
-class QLinearGradient;
-class QBrush;
-QT_END_NAMESPACE
-
 class ManhattanStylePrivate;
 
 class CORE_EXPORT ManhattanStyle : public QProxyStyle
@@ -49,7 +44,7 @@ class CORE_EXPORT ManhattanStyle : public QProxyStyle
     Q_OBJECT
 
 public:
-    ManhattanStyle(const QString &);
+    explicit ManhattanStyle(const QString &baseStyleName);
 
     ~ManhattanStyle();
 
@@ -77,12 +72,12 @@ public:
 
     void unpolish(QWidget *widget);
     void unpolish(QApplication *app);
-protected Q_SLOTS:
+
+protected slots:
     QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const;
 
 private:
     ManhattanStylePrivate *d;
-    Q_DISABLE_COPY(ManhattanStyle)
 };
 
 #endif // MANHATTANSTYLE_H

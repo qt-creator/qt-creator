@@ -50,7 +50,7 @@
 #endif
 
 namespace Help {
-    namespace Internal {
+namespace Internal {
 
 #if !defined(QT_NO_WEBKIT)
 class HelpViewer : public QWebView
@@ -60,7 +60,6 @@ class HelpViewer : public QTextBrowser
 {
     Q_OBJECT
     class HelpViewerPrivate;
-    Q_DISABLE_COPY(HelpViewer)
 
 public:
     explicit HelpViewer(qreal zoom, QWidget *parent = 0);
@@ -142,7 +141,7 @@ private:
     HelpViewerPrivate *d;
 };
 
-    }   // namespace Help
 }   // namespace Internal
+}   // namespace Help
 
 #endif  // HELPVIEWER_H

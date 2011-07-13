@@ -55,8 +55,8 @@ class ModelManager;
 
 class QmlJSToolsPlugin : public ExtensionSystem::IPlugin
 {
-    Q_DISABLE_COPY(QmlJSToolsPlugin)
     Q_OBJECT
+
 public:
     static QmlJSToolsPlugin *instance() { return m_instance; }
 

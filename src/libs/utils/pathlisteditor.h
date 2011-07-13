@@ -48,7 +48,6 @@ struct PathListEditorPrivate;
 
 class QTCREATOR_UTILS_EXPORT PathListEditor : public QWidget
 {
-    Q_DISABLE_COPY(PathListEditor)
     Q_OBJECT
     Q_PROPERTY(QStringList pathList READ pathList WRITE setPathList DESIGNABLE true)
     Q_PROPERTY(QString fileDialogTitle READ fileDialogTitle WRITE setFileDialogTitle DESIGNABLE true)

@@ -52,7 +52,6 @@ struct FileIconProviderPrivate;
 
 class CORE_EXPORT FileIconProvider : public QFileIconProvider
 {
-    Q_DISABLE_COPY(FileIconProvider)
     FileIconProvider();
 
 public:

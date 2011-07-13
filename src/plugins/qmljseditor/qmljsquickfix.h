@@ -62,8 +62,6 @@ class QmlJSQuickFixAssistInterface;
  */
 class QmlJSQuickFixOperation: public TextEditor::QuickFixOperation
 {
-    Q_DISABLE_COPY(QmlJSQuickFixOperation)
-
 public:
     /*!
         Creates a new QmlJSQuickFixOperation.

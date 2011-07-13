@@ -49,7 +49,6 @@ class GenericLinuxDeviceConfigurationWizardSetupPagePrivate;
 class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWizardSetupPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(GenericLinuxDeviceConfigurationWizardSetupPage)
 
 public:
     explicit GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent = 0);

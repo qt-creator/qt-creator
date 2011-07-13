@@ -43,14 +43,14 @@ class FormClassWizardGenerationParameters;
 namespace Internal {
 
 namespace Ui {
-    class FormClassWizardPage;
+class FormClassWizardPage;
 }
 
 
 class FormClassWizardPage : public QWizardPage
 {
-    Q_DISABLE_COPY(FormClassWizardPage)
     Q_OBJECT
+
 public:
     explicit FormClassWizardPage(QWidget * parent = 0);
     ~FormClassWizardPage();

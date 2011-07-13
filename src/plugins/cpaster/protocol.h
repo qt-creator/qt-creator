@@ -44,15 +44,17 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
-    class IOptionsPage;
+class IOptionsPage;
 }
 
 namespace CodePaster {
+
 class Protocol : public QObject
 {
     Q_OBJECT
+
 public:
-    enum ContentType{
+    enum ContentType {
         Text, C, JavaScript, Diff, Xml
     };
 
@@ -109,8 +111,10 @@ protected:
  * delayed initialization and conveniences
  * for HTTP-requests. */
 
-class NetworkAccessManagerProxy {
+class NetworkAccessManagerProxy
+{
     Q_DISABLE_COPY(NetworkAccessManagerProxy)
+
 public:
     NetworkAccessManagerProxy();
     ~NetworkAccessManagerProxy();
@@ -127,8 +131,10 @@ private:
  * initialization to a QNetworkAccessManager and conveniences
  * for HTTP-requests. */
 
-class NetworkProtocol : public Protocol {
+class NetworkProtocol : public Protocol
+{
     Q_OBJECT
+
 public:
     virtual ~NetworkProtocol();
 

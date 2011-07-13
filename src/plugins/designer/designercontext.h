@@ -37,16 +37,11 @@
 
 #include <QtCore/QList>
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
-
 namespace Designer {
 namespace Internal {
 
 class DesignerContext : public Core::IContext
 {
-    Q_DISABLE_COPY(DesignerContext)
 public:
     explicit DesignerContext(const Core::Context &contexts,
                              QWidget *widget,

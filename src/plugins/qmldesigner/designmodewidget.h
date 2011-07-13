@@ -83,10 +83,10 @@ class DesignMode;
 class DocumentWidget;
 class DesignModeWidget;
 
-class DocumentWarningWidget : public  Utils::FakeToolTip
+class DocumentWarningWidget : public Utils::FakeToolTip
 {
     Q_OBJECT
-    Q_DISABLE_COPY(DocumentWarningWidget)
+
 public:
     explicit DocumentWarningWidget(DesignModeWidget *parent = 0);
 
@@ -105,7 +105,7 @@ private:
 class DesignModeWidget : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(DesignModeWidget)
+
 public:
     explicit DesignModeWidget(QWidget *parent = 0);
     ~DesignModeWidget();

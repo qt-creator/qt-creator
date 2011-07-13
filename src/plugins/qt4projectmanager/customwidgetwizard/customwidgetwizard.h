@@ -40,8 +40,8 @@ namespace Internal {
 
 class CustomWidgetWizard : public QtWizard
 {
-    Q_DISABLE_COPY(CustomWidgetWizard)
     Q_OBJECT
+
 public:
     CustomWidgetWizard();
 

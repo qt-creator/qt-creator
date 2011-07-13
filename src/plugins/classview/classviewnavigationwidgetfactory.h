@@ -52,7 +52,6 @@ namespace Internal {
 class NavigationWidgetFactory : public Core::INavigationWidgetFactory
 {
     Q_OBJECT
-    Q_DISABLE_COPY(NavigationWidgetFactory)
 
 public:
     //! destructor

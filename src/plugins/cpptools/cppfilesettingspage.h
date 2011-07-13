@@ -96,8 +96,6 @@ private:
 
 class CppFileSettingsPage : public Core::IOptionsPage
 {
-    Q_DISABLE_COPY(CppFileSettingsPage)
-
 public:
     explicit CppFileSettingsPage(QSharedPointer<CppFileSettings> &settings,
                                  QObject *parent = 0);

@@ -58,8 +58,6 @@ class CppQuickFixAssistInterface;
 
 class CPPEDITOR_EXPORT CppQuickFixOperation: public TextEditor::QuickFixOperation
 {
-    Q_DISABLE_COPY(CppQuickFixOperation)
-
 public:
     explicit CppQuickFixOperation(
         const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,

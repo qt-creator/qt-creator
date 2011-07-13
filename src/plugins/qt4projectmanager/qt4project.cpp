@@ -122,8 +122,8 @@ QDebug operator<<(QDebug d, const  Qt4ProjectFiles &f)
 // A visitor to collect all files of a project in a Qt4ProjectFiles struct
 class ProjectFilesVisitor : public ProjectExplorer::NodesVisitor
 {
-    Q_DISABLE_COPY(ProjectFilesVisitor)
     ProjectFilesVisitor(Qt4ProjectFiles *files);
+
 public:
 
     static void findProjectFiles(Qt4ProFileNode *rootNode, Qt4ProjectFiles *files);

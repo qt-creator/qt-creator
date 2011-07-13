@@ -38,10 +38,6 @@
 #include <QtCore/QVariant>
 #include <QtCore/QProcessEnvironment>
 
-QT_BEGIN_NAMESPACE
-class QProcess;
-QT_END_NAMESPACE
-
 namespace Git {
 namespace Internal {
 
@@ -49,8 +45,8 @@ namespace Internal {
 // signal with a magic cookie
 class GitCommand : public QObject
 {
-    Q_DISABLE_COPY(GitCommand)
     Q_OBJECT
+
 public:
     // Where to report command termination with exit code if desired
     enum TerminationReportMode { NoReport,
@@ -85,9 +81,9 @@ public:
 private:
     void run();
 
-Q_SIGNALS:
-    void outputData(const QByteArray&);
-    void errorText(const QString&);
+signals:
+    void outputData(const QByteArray &);
+    void errorText(const QString &);
     void finished(bool ok, int exitCode, const QVariant &cookie);
     void success();
 

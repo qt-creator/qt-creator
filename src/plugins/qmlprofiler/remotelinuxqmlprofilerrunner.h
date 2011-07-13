@@ -43,7 +43,6 @@ namespace Internal {
 class RemoteLinuxQmlProfilerRunner : public AbstractQmlProfilerRunner
 {
     Q_OBJECT
-    Q_DISABLE_COPY(RemoteLinuxQmlProfilerRunner)
 
     using AbstractQmlProfilerRunner::appendMessage; // don't hide signal
 public:

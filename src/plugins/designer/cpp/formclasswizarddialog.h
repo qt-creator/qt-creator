@@ -41,13 +41,11 @@ class FormClassWizardParameters;
 
 namespace Internal {
 
-
 class FormClassWizardPage;
 class FormTemplateWizardPage;
 
 class FormClassWizardDialog : public Utils::Wizard
 {
-    Q_DISABLE_COPY(FormClassWizardDialog)
     Q_OBJECT
 
 public:

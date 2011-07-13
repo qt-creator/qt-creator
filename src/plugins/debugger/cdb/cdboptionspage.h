@@ -55,6 +55,7 @@ namespace Internal {
 class CdbBreakEventWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit CdbBreakEventWidget(QWidget *parent = 0);
 
@@ -72,6 +73,7 @@ private:
 class CdbOptionsPageWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit CdbOptionsPageWidget(QWidget *parent);
 
@@ -91,8 +93,8 @@ private:
 
 class CdbOptionsPage : public Core::IOptionsPage
 {
-    Q_DISABLE_COPY(CdbOptionsPage)
     Q_OBJECT
+
 public:
     explicit CdbOptionsPage();
     virtual ~CdbOptionsPage();

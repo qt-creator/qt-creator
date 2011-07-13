@@ -73,7 +73,7 @@ QTCREATOR_UTILS_EXPORT bool operator!=(const SshConnectionParameters &p1, const 
 class QTCREATOR_UTILS_EXPORT SshConnection : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SshConnection)
+
 public:
     enum State { Unconnected, Connecting, Connected };
     typedef QSharedPointer<SshConnection> Ptr;

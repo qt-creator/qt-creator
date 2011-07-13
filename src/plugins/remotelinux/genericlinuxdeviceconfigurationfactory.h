@@ -40,7 +40,7 @@ namespace Internal {
 class GenericLinuxDeviceConfigurationFactory : public ILinuxDeviceConfigurationFactory
 {
     Q_OBJECT
-    Q_DISABLE_COPY(GenericLinuxDeviceConfigurationFactory)
+
 public:
     GenericLinuxDeviceConfigurationFactory(QObject *parent = 0);
 

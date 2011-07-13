@@ -47,6 +47,7 @@ namespace Internal {
 class LldbOptionsPageWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit LldbOptionsPageWidget(QWidget *parent, QSettings *s);
 
@@ -61,8 +62,8 @@ private:
 
 class LldbOptionsPage : public Core::IOptionsPage
 {
-    Q_DISABLE_COPY(LldbOptionsPage)
     Q_OBJECT
+
 public:
     explicit LldbOptionsPage();
     virtual ~LldbOptionsPage();

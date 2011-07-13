@@ -40,13 +40,11 @@ namespace Utils {
 
 class  QTCREATOR_UTILS_EXPORT LineColumnLabel : public QLabel
 {
-    Q_DISABLE_COPY(LineColumnLabel)
     Q_OBJECT
     Q_PROPERTY(QString maxText READ maxText WRITE setMaxText DESIGNABLE true)
 
 public:
     explicit LineColumnLabel(QWidget *parent = 0);
-    virtual ~LineColumnLabel();
 
     void setText(const QString &text, const QString &maxText);
     QSize sizeHint() const;

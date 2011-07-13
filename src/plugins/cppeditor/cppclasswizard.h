@@ -82,7 +82,7 @@ struct CppClassWizardParameters
 class CppClassWizardDialog : public Utils::Wizard
 {
     Q_OBJECT
-    Q_DISABLE_COPY(CppClassWizardDialog)
+
 public:
     explicit CppClassWizardDialog(QWidget *parent = 0);
 
@@ -97,6 +97,7 @@ private:
 class CppClassWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
+
 public:
     explicit CppClassWizard(const Core::BaseFileWizardParameters &parameters,
                             QObject *parent = 0);

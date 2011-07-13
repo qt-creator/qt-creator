@@ -105,7 +105,6 @@ static QString pluginDependencies(const PluginBaseClasses *plb)
 // A Project intro page with an additional type chooser.
 class LibraryIntroPage : public Utils::ProjectIntroPage
 {
-    Q_DISABLE_COPY(LibraryIntroPage)
 public:
     explicit LibraryIntroPage(QWidget *parent = 0);
 

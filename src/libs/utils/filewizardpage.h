@@ -44,9 +44,9 @@ struct FileWizardPagePrivate;
 class QTCREATOR_UTILS_EXPORT FileWizardPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(FileWizardPage)
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName DESIGNABLE true)
+
 public:
     explicit FileWizardPage(QWidget *parent = 0);
     virtual ~FileWizardPage();

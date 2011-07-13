@@ -42,7 +42,6 @@ namespace Internal {
 class QtQuickComponentSetOptionsPage : public QWizardPage
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QtQuickComponentSetOptionsPage)
 
 public:
     explicit QtQuickComponentSetOptionsPage(QWidget *parent = 0);

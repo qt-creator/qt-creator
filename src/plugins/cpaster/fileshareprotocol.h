@@ -48,7 +48,7 @@ struct FileShareProtocolSettings;
 class FileShareProtocol : public Protocol
 {
     Q_OBJECT
-    Q_DISABLE_COPY(FileShareProtocol)
+
 public:
     FileShareProtocol();
     virtual ~FileShareProtocol();
@@ -66,10 +66,12 @@ public:
                        const QString &username = QString(),
                        const QString &comment = QString(),
                        const QString &description = QString());
+
 private:
     const QSharedPointer<FileShareProtocolSettings> m_settings;
     FileShareProtocolSettingsPage *m_settingsPage;
 };
+
 } // namespace CodePaster
 
 #endif // FILESHAREPROTOCOL_H

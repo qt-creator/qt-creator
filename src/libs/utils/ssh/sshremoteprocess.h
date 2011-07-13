@@ -53,7 +53,6 @@ class SshSendFacility;
 class QTCREATOR_UTILS_EXPORT SshRemoteProcess : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SshRemoteProcess)
 
     friend class Internal::SshChannelManager;
     friend class Internal::SshRemoteProcessPrivate;

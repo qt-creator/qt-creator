@@ -58,7 +58,6 @@ class NavigationWidgetFactory;
 class Manager : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Manager)
 
 public:
     /*!

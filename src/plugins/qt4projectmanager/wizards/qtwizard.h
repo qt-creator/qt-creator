@@ -61,7 +61,6 @@ class ModulesPage;
 class QtWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QtWizard)
 
 protected:
     QtWizard(const QString &id,

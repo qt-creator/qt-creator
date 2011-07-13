@@ -93,7 +93,7 @@ private:
 class MaemoMountAndInstallPackageService : public AbstractMaemoDeployByMountService
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MaemoMountAndInstallPackageService)
+
 public:
     MaemoMountAndInstallPackageService(QObject *parent);
 
@@ -114,7 +114,7 @@ private:
 class MaemoMountAndCopyFilesService : public AbstractMaemoDeployByMountService
 {
     Q_OBJECT
-    Q_DISABLE_COPY(MaemoMountAndCopyFilesService)
+
 public:
     MaemoMountAndCopyFilesService(QObject *parent);
 

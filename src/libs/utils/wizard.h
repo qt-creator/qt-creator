@@ -70,8 +70,6 @@ private slots:
     void _q_pageRemoved(int pageId);
 
 private:
-
-    Q_DISABLE_COPY(Wizard)
     Q_DECLARE_PRIVATE(Wizard)
 
     class WizardPrivate *d_ptr;
@@ -124,7 +122,6 @@ private:
     friend class Wizard;
     friend class WizardProgressItem;
 
-    Q_DISABLE_COPY(WizardProgress)
     Q_DECLARE_PRIVATE(WizardProgress)
 
     class WizardProgressPrivate *d_ptr;
@@ -150,15 +147,12 @@ public:
     bool titleWordWrap() const;
 
 protected:
-
     WizardProgressItem(WizardProgress *progress, const QString &title);
     virtual ~WizardProgressItem();
-
 
 private:
     friend class WizardProgress;
 
-    Q_DISABLE_COPY(WizardProgressItem)
     Q_DECLARE_PRIVATE(WizardProgressItem)
 
     class WizardProgressItemPrivate *d_ptr;

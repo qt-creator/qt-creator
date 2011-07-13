@@ -47,8 +47,8 @@ namespace Internal {
 
 class FormTemplateWizardPage : public QWizardPage
 {
-    Q_DISABLE_COPY(FormTemplateWizardPage)
     Q_OBJECT
+
 public:
     explicit FormTemplateWizardPage(QWidget * parent = 0);
 

@@ -124,8 +124,10 @@ namespace Internal {
     \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
 */
 
-class FileMatchContext {
+class FileMatchContext
+{
     Q_DISABLE_COPY(FileMatchContext)
+
 public:
     // Max data to be read from a file
     enum { MaxData = 2048 };
@@ -183,8 +185,8 @@ QByteArray FileMatchContext::data()
     \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
 */
 
-class BinaryMatcher : public IMagicMatcher {
-    Q_DISABLE_COPY(BinaryMatcher)
+class BinaryMatcher : public IMagicMatcher
+{
 public:
     BinaryMatcher() {}
     virtual bool matches(const QByteArray & /*data*/) const { return true; }
@@ -203,8 +205,8 @@ public:
     \sa Core::Internal::BaseMimeTypeParser, Core::Internal::MimeTypeParser
 */
 
-class HeuristicTextMagicMatcher : public IMagicMatcher {
-    Q_DISABLE_COPY(HeuristicTextMagicMatcher)
+class HeuristicTextMagicMatcher : public IMagicMatcher
+{
 public:
     HeuristicTextMagicMatcher() {}
     virtual bool matches(const QByteArray &data) const;
@@ -915,8 +917,10 @@ namespace Internal {
     \sa Core::Internal::MimeTypeParser
 */
 
-class BaseMimeTypeParser {
+class BaseMimeTypeParser
+{
     Q_DISABLE_COPY(BaseMimeTypeParser)
+
 public:
     BaseMimeTypeParser() {}
     virtual ~BaseMimeTypeParser() {}
@@ -1224,6 +1228,7 @@ MimeMapEntry::MimeMapEntry(const MimeType &t, int aLevel) :
 class MimeDatabasePrivate
 {
     Q_DISABLE_COPY(MimeDatabasePrivate)
+
 public:
     MimeDatabasePrivate();
 

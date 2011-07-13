@@ -45,9 +45,9 @@ namespace Ui {
     class CheckoutProgressWizardPage;
 }
 
-class CheckoutProgressWizardPage : public QWizardPage {
+class CheckoutProgressWizardPage : public QWizardPage
+{
     Q_OBJECT
-    Q_DISABLE_COPY(CheckoutProgressWizardPage)
 
 public:
     enum State { Idle, Running, Failed, Succeeded };

@@ -118,7 +118,7 @@ class Qt4PriFile;
 class Qt4PriFileNode : public ProjectExplorer::ProjectNode
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Qt4PriFileNode)
+
 public:
     Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNode, const QString &filePath);
 
@@ -230,7 +230,7 @@ private:
 class Qt4NodesWatcher : public ProjectExplorer::NodesWatcher
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Qt4NodesWatcher)
+
 public:
     Qt4NodesWatcher(QObject *parent = 0);
 
@@ -310,7 +310,7 @@ struct QT4PROJECTMANAGER_EXPORT ProjectVersion {
 class QT4PROJECTMANAGER_EXPORT Qt4ProFileNode : public Internal::Qt4PriFileNode
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Qt4ProFileNode)
+
 public:
     Qt4ProFileNode(Qt4Project *project,
                    const QString &filePath,

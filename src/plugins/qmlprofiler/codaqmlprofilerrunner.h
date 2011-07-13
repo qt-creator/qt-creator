@@ -45,7 +45,6 @@ namespace Internal {
 class CodaQmlProfilerRunner : public AbstractQmlProfilerRunner
 {
     Q_OBJECT
-    Q_DISABLE_COPY(CodaQmlProfilerRunner)
 
     using AbstractQmlProfilerRunner::appendMessage; // don't hide signal
 public:

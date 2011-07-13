@@ -44,7 +44,6 @@ namespace Internal {
 class LocalQmlProfilerRunner : public AbstractQmlProfilerRunner
 {
     Q_OBJECT
-    Q_DISABLE_COPY(LocalQmlProfilerRunner)
 
 public:
     struct Configuration {
