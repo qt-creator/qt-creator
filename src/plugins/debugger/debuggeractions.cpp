@@ -329,6 +329,14 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setSettingsKey(debugModeGroup, QLatin1String("BreakOnWarning"));
     insertItem(BreakOnWarning, item);
 
+    item = new SavedAction(this);
+    item->setText(tr("Break on \"qFatal\""));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    item->setSettingsKey(debugModeGroup, QLatin1String("BreakOnFatal"));
+    insertItem(BreakOnFatal, item);
+
     //
     // Settings
     //

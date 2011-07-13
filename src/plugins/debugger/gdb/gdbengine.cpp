@@ -4913,10 +4913,13 @@ void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
     if (startParameters().startMode == AttachCore) {
         notifyInferiorSetupOk(); // No breakpoints in core files.
     } else {
-        postCommand("-break-insert -f '" + qtNamespace() + "qFatal'",
-             CB(handleBreakOnQFatal));
         if (debuggerCore()->boolSetting(BreakOnWarning))
             postCommand("-break-insert -f '" + qtNamespace() + "qWarning'");
+        if (debuggerCore()->boolSetting(BreakOnFatal))
+            postCommand("-break-insert -f '" + qtNamespace() + "qFatal'",
+                CB(handleBreakOnQFatal));
+        else
+            notifyInferiorSetupOk();
     }
 }
 
