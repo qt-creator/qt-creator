@@ -48,33 +48,13 @@ Rectangle {
     // whitelist
     property bool _hasDesktopTheme: welcomeMode.platform() === "linux"
 
-    Components.Button {
-        id: openProjectButton
-        text: qsTr("Open Project...")
-        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
-        onClicked: welcomeMode.openProject();
-        anchors.left: parent.left
-        anchors.margins: 5
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
-    Components.Button {
-        id: createProjectButton
-        text: qsTr("Create Project...")
-        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
-        onClicked: welcomeMode.newProject();
-        anchors.left: openProjectButton.right
-        anchors.margins: 5
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
 
     Components.Button {
         id: feedbackButton
         text: qsTr("Feedback")
         iconSource: "qrc:welcome/images/feedback_arrow.png"
         anchors.verticalCenter: parent.verticalCenter
-        anchors.right: feedbackText.left
+        anchors.left: parent.left
         anchors.margins: 5
         onClicked: welcomeMode.sendFeedback()
     }
@@ -84,7 +64,7 @@ Rectangle {
         property bool canShow: parent.width > 630
 
         anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.right
+        anchors.left: feedbackButton.right
         anchors.leftMargin: 10
         anchors.rightMargin: 10
         anchors.margins: 5
@@ -93,5 +73,25 @@ Rectangle {
         width: canShow ? paintedWidth : 0
         mainColor: "#444"
         text: qsTr("Help us make Qt Creator even better")
+    }
+
+    Components.Button {
+        id: openProjectButton
+        text: qsTr("Open Project...")
+        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
+        onClicked: welcomeMode.openProject();
+        anchors.right: createProjectButton.left
+        anchors.margins: 5
+        anchors.verticalCenter: parent.verticalCenter
+    }
+
+    Components.Button {
+        id: createProjectButton
+        text: qsTr("Create Project...")
+        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
+        onClicked: welcomeMode.newProject();
+        anchors.right: parent.right
+        anchors.margins: 5
+        anchors.verticalCenter: parent.verticalCenter
     }
 }
