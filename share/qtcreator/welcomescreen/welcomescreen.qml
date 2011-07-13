@@ -36,7 +36,6 @@ import components 1.0 as Components
 
 Rectangle {
     id: root
-    smooth: true
     color: "white"
     // work around the fact that we can't use
     // a property alias to welcomeMode.activePlugin

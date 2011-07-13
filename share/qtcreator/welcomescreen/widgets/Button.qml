@@ -62,6 +62,7 @@ BorderImage {
         text: root.text
     }
 
+    Keys.onSpacePressed:clicked()
     MouseArea { id: mouseArea; anchors.fill: parent; hoverEnabled: true; onClicked: root.clicked() }
 
     states: [
