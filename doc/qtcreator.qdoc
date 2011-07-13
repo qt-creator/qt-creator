@@ -134,6 +134,7 @@
                 \o \l{Profiling QML Applications}
                 \o \l{Detecting Memory Leaks}
                 \o \l{Profiling Function Execution}
+                \o \l{Running Valgrind Tools Remotely}
            \endlist
        \o \l{Deploying Applications to Mobile Devices}
             \list
@@ -449,8 +450,8 @@
     The memory available on devices is limited and you should use it carefully.
     Qt Creator integrates Valgrind code analysis tools for detecting memory
     leaks and profiling function execution. These tools are only supported on
-    Linux and
-    Mac OS. You must download and install them separately to use them from Qt
+    Linux and Mac OS, but you can run them remotely from Windows. You must
+    download and install them separately to use them from Qt
     Creator.
 
     The QML Profiler is installed as part of Qt Creator. It allows you
@@ -5210,7 +5211,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-cache-profiler.html
+    \previouspage creator-running-valgrind-remotely.html
     \page creator-deployment.html
     \nextpage creator-deployment-symbian.html
 
@@ -12193,7 +12194,8 @@
     \l{http://valgrind.org/info/tools.html}{Valgrind tool suite} to detect
     problems that are related to memory management in applications.
 
-    \note Memcheck is supported on Linux and Mac OS.
+    \note Memcheck is supported locally on Linux and Mac OS. You can run it on
+    a remote host from Windows.
 
     After you download and install Valgrind tools, you can use Memcheck from Qt
     Creator.
@@ -12245,9 +12247,8 @@
     Memcheck also reports uses of uninitialised values, most commonly with the
     message \gui {Conditional jump or move depends on uninitialised value(s).}
     To determine the root cause of these errors, the \gui {Track origins of
-    uninitialized memory} check box is selected by default. This makes Memcheck
-    run slower, but the extra information you get often saves a lot of time
-    figuring out where the uninitialised values are coming from.
+    uninitialized memory} check box is selected by default. You can deselect it
+    to make Memcheck run faster.
 
     Memcheck detects numerous problems in the system libraries, such as the C
     library, which come pre-installed with your OS. As you cannot easily fix
@@ -12272,16 +12273,20 @@
     \contentspage index.html
     \previouspage creator-analyzer.html
     \page creator-cache-profiler.html
-    \nextpage creator-deployment.html
+    \nextpage creator-running-valgrind-remotely.html
 
     \title Profiling Function Execution
 
     You can use the Callgrind tool included in the
     \l{http://valgrind.org/info/tools.html}{Valgrind tool suite} to detect
-    problems that are related to cache usage.
+    problems that are related to executing functions.
 
     After you download and install Valgrind tools, you can use Callgrind from Qt
     Creator.
+
+    \note Callgrind is supported locally on Linux and Mac OS. You can run it on
+    a remote host from Windows.
+
     To analyze applications:
 
     \list 1
@@ -12469,20 +12474,23 @@
 
     In addition, Qt Creator integrates Valgrind code analysis tools for
     detecting memory leaks and profiling function execution. These tools are
-    only
-    supported on Linux and Mac OS. You have to download and install them
+    supported locally only on Linux and Mac OS. You can run them on a remote
+    host from Windows. You have to download and install them
     separately to use them from Qt Creator.
 
-    You can use the code analysis tools in the \gui Analyze mode or from the
-    \gui {Debug > Start Analyzer} menu. In \gui Analyze mode, you can switch
+    You can use the code analysis tools in the \gui Analyze mode. To switch to
+    \gui Analyze mode, select \gui Analyze in the mode selector, or select the
+    \gui {Analyze} menu and then select a tool. When you are in the
+    \gui Analyze mode, you can switch
     between tools by selecting them in the menu on the toolbar.
 
     \image qtcreator-analyze-menu "Analyze mode menu"
 
-    To run the Valgrind tools on a remote device over SSH, select \gui {Debug >
-    Start Analyzer > Start Remote}.
+    To run the Valgrind tools on a remote host over SSH, select \gui {Analyze
+    > Valgring Analyze Memory (Remote)} or \gui {Valgring Function Profile
+    (Remote)}.
 
-    To stop the currently running analyzer, select \gui {Debug > Start Analyzer
+    To stop the currently running analyzer, select \gui {Analyze
     > Stop}.
 
     To select options for the Valgrind tools, select \gui {Tools > Options... >
@@ -12501,6 +12509,9 @@
 
         \o  \l{Profiling Function Execution} describes how to use the Valgrind Callgrind
             tool to find cache misses in the code.
+
+        \o  \l{Running Valgrind Tools Remotely} describes how to run the
+            Valgrind tools on a remote host.
 
     \endlist
 
@@ -12659,6 +12670,38 @@
         \o  In \gui {Run Environment}, click \gui Add.
 
         \o  Add the QML_DISABLE_OPTIMIZER variable and set its value to 1.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-cache-profiler.html
+    \page creator-running-valgrind-remotely.html
+    \nextpage creator-deployment.html
+
+    \title Running Valgrind Tools Remotely
+
+    Qt Creator integrates Valgrind code analysis tools for detecting memory
+    leaks and profiling function execution. These tools are supported locally
+    only on Linux and Mac OS, but you can run them on a remote host from
+    Windows.
+
+    To run the Valgrind tools on a remote host over SSH:
+
+    \list 1
+
+        \o  Select \gui {Analyze > Valgring Analyze Memory (Remote)} or
+            \gui {Valgring Function Profile (Remote)}.
+
+            \image qtcreator-valgrind-remote-settings.png "Start Debugger dialog"
+
+        \o  In the \gui Remote group, specify the connection to the remote host.
+
+        \o  In the \gui Target group, specify the application to run and analyze
+            on the remote host.
 
     \endlist
 
