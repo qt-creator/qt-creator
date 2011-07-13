@@ -42,17 +42,20 @@ Item {
     Text {
         id: titleText
         text: root.header
+        width: parent.width
         font.bold: true
-        font.pointSize: 14
-        color: "#555555"
+        font.pointSize: 16
+        color: "#777"
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
+        elide: Text.ElideRight
+        anchors.topMargin: 10
+        anchors.leftMargin: 10
     }
 
     Column {
         id: dataSection
-        spacing: 10
         anchors.topMargin: 10
         anchors.top: titleText.bottom
         anchors.left: parent.left

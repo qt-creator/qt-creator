@@ -39,19 +39,21 @@ Item {
     Components.ScrollArea {
         id: scrollArea
         anchors.fill: parent
+        anchors.margins: -8
         frame: false
-        Item {
-            height: Math.max(recentSessions.height, recentProjects.height)
-            width: root.width-20
-            Widgets.RecentSessions {
-                id: recentSessions
-                width: parent.width / 2
-            }
-            Widgets.RecentProjects {
-                id: recentProjects
-                x: parent.width / 2
-                width: parent.width / 2
-            }
+        Components.SplitterRow:  {
+            height: Math.max(root.height,
+                             Math.max(recentSessions.height,
+                                      recentProjects.height))
+            width: root.width
+                Widgets.RecentProjects {
+                    id: recentSessions
+                    property bool expanding: true
+                }
+                Widgets.RecentSessions {
+                    id: recentProjects
+                    width: 200
+                }
         }
     }
 }

@@ -34,12 +34,21 @@ import QtQuick 1.0
 import components 1.0 as Components
 
 HeaderItemView {
+    clip: true
     header: qsTr("Recently Used Sessions")
     model: sessionList
 
-    delegate: Item {
-        height: arrowImage.height
+    delegate: Rectangle {
+        height: 60
         width: dataSection.width
+
+        Rectangle {
+            height: 1
+            color: "#eee"
+            anchors.top: parent.top
+            width: parent.width
+        }
+        color: mousearea.containsMouse ? "#f9f9f9" : "white"
 
         function fullSessionName()
         {
@@ -63,13 +72,16 @@ HeaderItemView {
             font.italic: model.defaultSession
             elide: Text.ElideMiddle
             anchors.left: arrowImage.right
+            anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 10
+            elide: Text.ElideRight
         }
 
         Timer { id: timer; interval: 500; onTriggered: styleItem.showToolTip(sessionName) }
 
         MouseArea {
+            id: mouseare
             anchors.fill: parent
             onClicked: projectWelcomePage.requestSession(sessionName)
             hoverEnabled: true
