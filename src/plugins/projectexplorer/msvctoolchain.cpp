@@ -563,10 +563,13 @@ void MsvcDebuggerConfigLabel::slotLinkActivated(const QString &link)
 // --------------------------------------------------------------------------
 
 MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc) :
-    ToolChainConfigWidget(tc)
+    ToolChainConfigWidget(tc),
+    m_varsBatDisplayLabel(new QLabel(this))
 {
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->addRow(new QLabel(tc->displayName()));
+    m_varsBatDisplayLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    formLayout->addRow(tr("Initialization:"), m_varsBatDisplayLabel);
     formLayout->addRow(new MsvcDebuggerConfigLabel);
     addDebuggerCommandControls(formLayout, QStringList(QLatin1String("-version")));
     addDebuggerAutoDetection(this, SLOT(autoDetectDebugger()));
@@ -585,6 +588,12 @@ void MsvcToolChainConfigWidget::setFromToolChain()
 {
     MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return);
+    QString varsBatDisplay = tc->varsBat();
+    if (!tc->varsBatArg().isEmpty()) {
+        varsBatDisplay += QLatin1Char(' ');
+        varsBatDisplay += tc->varsBatArg();
+    }
+    m_varsBatDisplayLabel->setText(varsBatDisplay);
     setDebuggerCommand(tc->debuggerCommand());
 }
 

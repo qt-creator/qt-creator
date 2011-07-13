@@ -81,6 +81,9 @@ public:
     bool canClone() const;
     ToolChain *clone() const;
 
+    QString varsBat() const { return m_varsBat; }
+    QString varsBatArg() const { return m_varsBatArg; }
+
     static QString autoDetectCdbDebugger(QStringList *checkedDirectories = 0);
 
 private:
@@ -155,6 +158,8 @@ private slots:
 
 private:
     void setFromToolChain();
+
+    QLabel *m_varsBatDisplayLabel;
 };
 
 } // namespace Internal
