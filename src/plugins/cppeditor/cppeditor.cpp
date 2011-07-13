@@ -655,7 +655,11 @@ void CPPEditorWidget::onDocumentUpdated(Document::Ptr doc)
     if (doc->editorRevision() != editorRevision())
         return;
 
-    if (! m_initialized) {
+    if (! m_initialized ||
+            (Core::EditorManager::instance()->currentEditor() == editor()
+             && (!m_lastSemanticInfo.doc
+                 || !m_lastSemanticInfo.doc->translationUnit()->ast()
+                 || m_lastSemanticInfo.doc->fileName() != file()->fileName()))) {
         m_initialized = true;
         rehighlight(/* force = */ true);
     }
@@ -2149,58 +2153,55 @@ void SemanticHighlighter::run()
 
 SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
 {
-    m_mutex.lock();
-    const int revision = m_lastSemanticInfo.revision;
-    m_mutex.unlock();
-
-    Snapshot snapshot;
-    Document::Ptr doc;
-    QList<Document::DiagnosticMessage> diagnosticMessages;
-    QList<SemanticInfo::Use> objcKeywords;
-
-    if (! source.force && revision == source.revision) {
-        m_mutex.lock();
-        snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
-        doc = m_lastSemanticInfo.doc;
-        diagnosticMessages = m_lastSemanticInfo.diagnosticMessages;
-        objcKeywords = m_lastSemanticInfo.objcKeywords;
-        m_mutex.unlock();
-    }
-
-    if (! doc) {
-        snapshot = source.snapshot;
-        const QByteArray preprocessedCode = snapshot.preprocessedCode(source.code, source.fileName);
-
-        doc = snapshot.documentFromSource(preprocessedCode, source.fileName);
-        doc->control()->setTopLevelDeclarationProcessor(this);
-        doc->check();
-
-#if 0
-        if (TranslationUnit *unit = doc->translationUnit()) {
-            FindObjCKeywords findObjCKeywords(unit); // ### remove me
-            objcKeywords = findObjCKeywords();
-        }
-#endif
-    }
-
-    TranslationUnit *translationUnit = doc->translationUnit();
-    AST *ast = translationUnit->ast();
-
-    FunctionDefinitionUnderCursor functionDefinitionUnderCursor(translationUnit);
-    DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
-
-    const LocalSymbols useTable(doc, currentFunctionDefinition);
-
     SemanticInfo semanticInfo;
     semanticInfo.revision = source.revision;
-    semanticInfo.snapshot = snapshot;
-    semanticInfo.doc = doc;
-    semanticInfo.localUses = useTable.uses;
-    semanticInfo.hasQ = useTable.hasQ;
-    semanticInfo.hasD = useTable.hasD;
     semanticInfo.forced = source.force;
-    semanticInfo.diagnosticMessages = diagnosticMessages;
-    semanticInfo.objcKeywords = objcKeywords;
+
+    m_mutex.lock();
+    if (! source.force
+            && m_lastSemanticInfo.revision == source.revision
+            && m_lastSemanticInfo.doc
+            && m_lastSemanticInfo.doc->translationUnit()->ast()
+            && m_lastSemanticInfo.doc->fileName() == source.fileName) {
+        semanticInfo.snapshot = m_lastSemanticInfo.snapshot; // ### TODO: use the new snapshot.
+        semanticInfo.doc = m_lastSemanticInfo.doc;
+        semanticInfo.diagnosticMessages = m_lastSemanticInfo.diagnosticMessages;
+        semanticInfo.objcKeywords = m_lastSemanticInfo.objcKeywords;
+    }
+    m_mutex.unlock();
+
+    if (! semanticInfo.doc) {
+        semanticInfo.snapshot = source.snapshot;
+        if (source.snapshot.contains(source.fileName)) {
+            const QByteArray &preprocessedCode =
+                    source.snapshot.preprocessedCode(source.code, source.fileName);
+            Document::Ptr doc =
+                    source.snapshot.documentFromSource(preprocessedCode, source.fileName);
+            doc->control()->setTopLevelDeclarationProcessor(this);
+            doc->check();
+            semanticInfo.doc = doc;
+
+#if 0
+            if (TranslationUnit *unit = doc->translationUnit()) {
+                FindObjCKeywords findObjCKeywords(unit); // ### remove me
+                objcKeywords = findObjCKeywords();
+            }
+#endif
+        }
+    }
+
+    if (semanticInfo.doc) {
+        TranslationUnit *translationUnit = semanticInfo.doc->translationUnit();
+        AST * ast = translationUnit->ast();
+
+        FunctionDefinitionUnderCursor functionDefinitionUnderCursor(semanticInfo.doc->translationUnit());
+        DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
+
+        const LocalSymbols useTable(semanticInfo.doc, currentFunctionDefinition);
+        semanticInfo.localUses = useTable.uses;
+        semanticInfo.hasQ = useTable.hasQ;
+        semanticInfo.hasD = useTable.hasD;
+    }
 
     return semanticInfo;
 }
