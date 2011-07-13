@@ -76,6 +76,7 @@
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolButton>
 #include <QtGui/QMessageBox>
+#include <QtGui/QDockWidget>
 
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;
@@ -294,6 +295,11 @@ QWidget *QmlProfilerTool::createWidgets()
             (this, tr("Callees"), d->m_calleeView, Qt::BottomDockWidgetArea);
     QDockWidget *callerDock = AnalyzerManager::createDockWidget
             (this, tr("Callers"), d->m_callerView, Qt::BottomDockWidgetArea);
+
+    eventsDock->show();
+    timelineDock->show();
+    calleeDock->show();
+    callerDock->show();
 
     mw->splitDockWidget(mw->toolBarDockWidget(), eventsDock, Qt::Vertical);
     mw->tabifyDockWidget(eventsDock, timelineDock);

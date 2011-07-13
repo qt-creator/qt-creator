@@ -616,8 +616,14 @@ void AnalyzerManagerPrivate::selectSavedTool()
         StartMode mode = m_modeFromAction.value(action);
         if (tool->actionId(mode) == lastActiveAction) {
             selectTool(tool, mode);
-            break;
+            return;
         }
+    }
+    // fallback to first available tool
+    if (!m_actions.isEmpty()) {
+        IAnalyzerTool *tool = m_toolFromAction.value(m_actions.first());
+        StartMode mode = m_modeFromAction.value(m_actions.first());
+        selectTool(tool, mode);
     }
 }
 
@@ -727,6 +733,8 @@ void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id());
     if (settings->value("ToolSettingsSaved", false).toBool())
         m_mainWindow->restoreSettings(settings);
+    else
+        m_mainWindow->restoreSettings(m_defaultSettings.value(tool));
     settings->endGroup();
 }
 

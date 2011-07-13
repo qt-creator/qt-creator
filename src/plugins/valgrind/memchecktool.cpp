@@ -380,6 +380,7 @@ QWidget *MemcheckTool::createWidgets()
 
     QDockWidget *errorDock = AnalyzerManager::createDockWidget
         (this, tr("Memory Issues"), m_errorView, Qt::BottomDockWidgetArea);
+    errorDock->show();
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
