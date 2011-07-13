@@ -138,7 +138,7 @@ void MaemoRemoteCopyFacility::copyNextFile()
     sourceFilePath += d.localFilePath;
 #endif
 
-    QString command = QString::fromLatin1("%1 mkdir -p %3 && %1 cp -r %2 %3")
+    QString command = QString::fromLatin1("%1 mkdir -p %3 && %1 cp -a %2 %3")
         .arg(MaemoGlobal::remoteSudo(m_devConf->osType(),
             m_copyRunner->connection()->connectionParameters().userName),
             sourceFilePath, d.remoteDir);

@@ -61,6 +61,7 @@ public:
     QList<DeployableFile> filesToUpload;
     SftpChannel::Ptr uploader;
     SshRemoteProcess::Ptr mkdirProc;
+    SshRemoteProcess::Ptr lnProc;
     QList<DeployableFile> deployableFiles;
 };
 
@@ -161,6 +162,28 @@ void GenericDirectUploadService::handleUploadFinished(Utils::SftpJobId jobId, co
     }
 }
 
+void GenericDirectUploadService::handleLnFinished(int exitStatus)
+{
+    QTC_ASSERT(m_d->state == Uploading, setFinished(); return);
+
+    if (m_d->stopRequested) {
+        setFinished();
+        handleDeploymentDone();
+    }
+
+    const DeployableFile d = m_d->filesToUpload.takeFirst();
+    const QString nativePath = QDir::toNativeSeparators(d.localFilePath);
+    if (exitStatus != SshRemoteProcess::ExitedNormally || m_d->lnProc->exitCode() != 0) {
+        emit errorMessage(tr("Failed to upload file '%1'.").arg(nativePath));
+        setFinished();
+        handleDeploymentDone();
+        return;
+    } else {
+        saveDeploymentTimeStamp(d);
+        uploadNextFile();
+    }
+}
+
 void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
 {
     QTC_ASSERT(m_d->state == Uploading, setFinished(); return);
@@ -182,16 +205,41 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
         m_d->filesToUpload.removeFirst();
         uploadNextFile();
     } else {
-        const SftpJobId job = m_d->uploader->uploadFile(d.localFilePath,
-            d.remoteDir + QLatin1Char('/')  + fi.fileName(),
-            SftpOverwriteExisting);
-        if (job == SftpInvalidJob) {
-            emit errorMessage(tr("Failed to upload file '%1': "
-                "Could not open for reading.").arg(nativePath));
-            setFinished();
-            handleDeploymentDone();
+        const QString remoteFilePath = d.remoteDir + QLatin1Char('/')  + fi.fileName();
+        if (fi.isSymLink()) {
+             const QString target = fi.dir().relativeFilePath(fi.symLinkTarget()); // see QTBUG-5817.
+             const QString command = QLatin1String("ln -vsf ") + target + QLatin1Char(' ')
+                 + remoteFilePath;
+
+             // See comment in SftpChannel::createLink as to why we can't use it.
+             m_d->lnProc = connection()->createRemoteProcess(command.toUtf8());
+             connect(m_d->lnProc.data(), SIGNAL(closed(int)), SLOT(handleLnFinished(int)));
+             connect(m_d->lnProc.data(), SIGNAL(outputAvailable(QByteArray)),
+                 SLOT(handleStdOutData(QByteArray)));
+             connect(m_d->lnProc.data(), SIGNAL(errorOutputAvailable(QByteArray)),
+                 SLOT(handleStdErrData(QByteArray)));
+             m_d->lnProc->start();
+        } else {
+            const SftpJobId job = m_d->uploader->uploadFile(d.localFilePath, remoteFilePath,
+                SftpOverwriteExisting);
+            if (job == SftpInvalidJob) {
+                emit errorMessage(tr("Failed to upload file '%1': "
+                    "Could not open for reading.").arg(nativePath));
+                setFinished();
+                handleDeploymentDone();
+            }
         }
     }
+}
+
+void GenericDirectUploadService::handleStdOutData(const QByteArray &data)
+{
+    emit stdOutData(QString::fromUtf8(data));
+}
+
+void GenericDirectUploadService::handleStdErrData(const QByteArray &data)
+{
+    emit stdErrData(QString::fromUtf8(data));
 }
 
 void GenericDirectUploadService::stopDeployment()
@@ -226,9 +274,10 @@ void GenericDirectUploadService::setFinished()
 {
     m_d->stopRequested = false;
     m_d->state = Inactive;
-    if (m_d->mkdirProc) {
+    if (m_d->mkdirProc)
         disconnect(m_d->mkdirProc.data(), 0, this, 0);
-    }
+    if (m_d->lnProc)
+        disconnect(m_d->lnProc.data(), 0, this, 0);
     if (m_d->uploader) {
         disconnect(m_d->uploader.data(), 0, this, 0);
         m_d->uploader->closeChannel();
@@ -249,10 +298,13 @@ void GenericDirectUploadService::uploadNextFile()
     QFileInfo fi(d.localFilePath);
     if (fi.isDir())
         dirToCreate += QLatin1Char('/') + fi.fileName();
-    const QByteArray command = "mkdir -p " + dirToCreate.toUtf8();
-    m_d->mkdirProc = connection()->createRemoteProcess(command);
+    const QString command = QLatin1String("mkdir -vp ") + dirToCreate;
+    m_d->mkdirProc = connection()->createRemoteProcess(command.toUtf8());
     connect(m_d->mkdirProc.data(), SIGNAL(closed(int)), SLOT(handleMkdirFinished(int)));
-    // TODO: Connect stderr.
+    connect(m_d->mkdirProc.data(), SIGNAL(outputAvailable(QByteArray)),
+        SLOT(handleStdOutData(QByteArray)));
+    connect(m_d->mkdirProc.data(), SIGNAL(errorOutputAvailable(QByteArray)),
+        SLOT(handleStdErrData(QByteArray)));
     emit progressMessage(tr("Uploading file '%1'...")
         .arg(QDir::toNativeSeparators(d.localFilePath)));
     m_d->mkdirProc->start();

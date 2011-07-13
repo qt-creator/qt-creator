@@ -64,6 +64,9 @@ public:
         quint32 requestId);
     SftpOutgoingPacket &generateWriteFile(const QByteArray &handle,
         quint64 offset, const QByteArray &data, quint32 requestId);
+
+    // Note: OpenSSH's SFTP server has a bug that reverses the filePath and target
+    //       arguments, so this operation is not portable.
     SftpOutgoingPacket &generateCreateLink(const QString &filePath, const QString &target,
         quint32 requestId);
 
