@@ -162,13 +162,15 @@ Rectangle {
         onComplete: {
             root.dataAvailable = true;
             Plotter.calcFps();
-            view.visible = true;
-            view.setRanges(Plotter.ranges);
-            view.updateTimeline();
-            canvas.requestPaint();
-            rangeMover.x = 1    //### hack to get view to display things immediately
-            rangeMover.x = 0
-            rangeMover.opacity = 1
+            if (Plotter.ranges.length > 0) {
+                view.visible = true;
+                view.setRanges(Plotter.ranges);
+                view.updateTimeline();
+                canvas.requestPaint();
+                rangeMover.x = 1    //### hack to get view to display things immediately
+                rangeMover.x = 0
+                rangeMover.opacity = 1
+            }
         }
 
         onClear: {
