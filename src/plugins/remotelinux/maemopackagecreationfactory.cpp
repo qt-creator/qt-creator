@@ -31,10 +31,9 @@
 
 #include "maemopackagecreationfactory.h"
 
-#include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "qt4maemotarget.h"
-#include "remotelinuxdeployconfiguration.h"
+#include "qt4maemodeployconfiguration.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -61,9 +60,7 @@ MaemoPackageCreationFactory::MaemoPackageCreationFactory(QObject *parent)
 QStringList MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
     QStringList ids;
-    if (!MaemoGlobal::hasLinuxQt(parent->target()))
-        return ids;
-    if (!qobject_cast<RemoteLinuxDeployConfiguration *>(parent->parent()))
+    if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
         return ids;
     if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())
             && !parent->contains(MaemoDebianPackageCreationStep::CreatePackageId)) {
@@ -71,10 +68,6 @@ QStringList MaemoPackageCreationFactory::availableCreationIds(ProjectExplorer::B
     } else if (qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target())
                && !parent->contains(MaemoRpmPackageCreationStep::CreatePackageId)) {
         ids << MaemoRpmPackageCreationStep::CreatePackageId;
-    }
-    if (!qobject_cast<Qt4HarmattanTarget *>(parent->target())
-            && !parent->contains(MaemoTarPackageCreationStep::CreatePackageId)) {
-        ids << MaemoTarPackageCreationStep::CreatePackageId;
     }
     return ids;
 }
@@ -87,9 +80,6 @@ QString MaemoPackageCreationFactory::displayNameForId(const QString &id) const
     } else if (id == MaemoRpmPackageCreationStep::CreatePackageId) {
         return QCoreApplication::translate("RemoteLinux::Internal::MaemoPackageCreationFactory",
             "Create RPM Package");
-    } else if (id == MaemoTarPackageCreationStep::CreatePackageId) {
-        return QCoreApplication::translate("RemoteLinux::Internal::MaemoPackageCreationFactory",
-            "Create tarball");
     }
     return QString();
 }
@@ -106,8 +96,6 @@ BuildStep *MaemoPackageCreationFactory::create(ProjectExplorer::BuildStepList *p
         return new MaemoDebianPackageCreationStep(parent);
     else if (id == MaemoRpmPackageCreationStep::CreatePackageId)
         return new MaemoRpmPackageCreationStep(parent);
-    else if (id == MaemoTarPackageCreationStep::CreatePackageId)
-        return new MaemoTarPackageCreationStep(parent);
     return 0;
 }
 
@@ -132,9 +120,7 @@ BuildStep *MaemoPackageCreationFactory::restore(ProjectExplorer::BuildStepList *
                || (id == OldCreatePackageId
                    && qobject_cast<AbstractRpmBasedQt4MaemoTarget *>(parent->target()))) {
         step = new MaemoRpmPackageCreationStep(parent);
-    } else if (id == MaemoTarPackageCreationStep::CreatePackageId) {
-        step = new MaemoTarPackageCreationStep(parent);
-   }
+    }
     Q_ASSERT(step);
 
     if (!step->fromMap(map)) {
@@ -154,20 +140,15 @@ BuildStep *MaemoPackageCreationFactory::clone(ProjectExplorer::BuildStepList *pa
                                               ProjectExplorer::BuildStep *product)
 {
     Q_ASSERT(canClone(parent, product));
-    MaemoDebianPackageCreationStep * const debianStep
-        = qobject_cast<MaemoDebianPackageCreationStep *>(product);
-    if (debianStep) {
+    if (MaemoDebianPackageCreationStep * const debianStep
+            = qobject_cast<MaemoDebianPackageCreationStep *>(product)) {
         return new MaemoDebianPackageCreationStep(parent, debianStep);
-    } else {
-        MaemoRpmPackageCreationStep * const rpmStep
-            = qobject_cast<MaemoRpmPackageCreationStep *>(product);
-        if (rpmStep)  {
-            return new MaemoRpmPackageCreationStep(parent, rpmStep);
-        } else {
-            return new MaemoTarPackageCreationStep(parent,
-                qobject_cast<MaemoTarPackageCreationStep *>(product));
-        }
     }
+    if (MaemoRpmPackageCreationStep * const rpmStep
+            = qobject_cast<MaemoRpmPackageCreationStep *>(product)) {
+        return new MaemoRpmPackageCreationStep(parent, rpmStep);
+    }
+    return 0;
 }
 
 } // namespace Internal

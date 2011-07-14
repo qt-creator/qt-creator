@@ -35,10 +35,9 @@
 #include "genericdirectuploadstep.h"
 #include "maddeuploadandinstallpackagesteps.h"
 #include "maemodeploybymountsteps.h"
-#include "maemoglobal.h"
 #include "maemoinstalltosysrootstep.h"
 #include "qt4maemotarget.h"
-#include "remotelinuxdeployconfiguration.h"
+#include "qt4maemodeployconfiguration.h"
 #include "uploadandinstalltarpackagestep.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -64,18 +63,13 @@ MaemoDeployStepFactory::MaemoDeployStepFactory(QObject *parent)
 QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     QStringList ids;
-    if (!qobject_cast<RemoteLinuxDeployConfiguration *>(parent->parent()))
+    if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
         return ids;
 
     AbstractQt4MaemoTarget * const maemoTarget
         = qobject_cast<AbstractQt4MaemoTarget *>(parent->target());
-    if (maemoTarget) {
+    if (maemoTarget)
         ids << MaemoMakeInstallToSysrootStep::Id;
-    } else if (MaemoGlobal::hasLinuxQt(parent->target())) {
-        ids << UploadAndInstallTarPackageStep::stepId() << GenericDirectUploadStep::stepId();
-    }
-    if (maemoTarget && !qobject_cast<Qt4HarmattanTarget *>(parent->target()))
-        ids << UploadAndInstallTarPackageStep::stepId();
     if (qobject_cast<AbstractDebBasedQt4MaemoTarget *>(parent->target())) {
         ids << MaemoInstallDebianPackageToSysrootStep::Id;
         ids << MaemoUploadAndInstallPackageStep::stepId();
@@ -99,8 +93,6 @@ QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
         return MaemoUploadAndInstallPackageStep::displayName();
     else if (id == MeegoUploadAndInstallPackageStep::stepId())
         return MeegoUploadAndInstallPackageStep::displayName();
-    else if (id == UploadAndInstallTarPackageStep::stepId())
-        return UploadAndInstallTarPackageStep::displayName();
     else if (id == MaemoInstallDebianPackageToSysrootStep::Id)
         return MaemoInstallDebianPackageToSysrootStep::displayName();
     else if (id == MaemoInstallRpmPackageToSysrootStep::Id)
@@ -109,8 +101,6 @@ QString MaemoDeployStepFactory::displayNameForId(const QString &id) const
         return MaemoCopyToSysrootStep::displayName();
     else if (id == MaemoMakeInstallToSysrootStep::Id)
         return MaemoMakeInstallToSysrootStep::displayName();
-    else if (id == GenericDirectUploadStep::stepId())
-        return GenericDirectUploadStep::displayName();
     return QString();
 }
 
@@ -142,10 +132,6 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const QString &
     } else if (id == MeegoUploadAndInstallPackageStep::stepId()
         || (id == OldMaemoDeployStepId && (qobject_cast<const Qt4MeegoTarget *>(t)))) {
         return new MeegoUploadAndInstallPackageStep(parent);
-    } else if (id == UploadAndInstallTarPackageStep::stepId()) {
-        return new UploadAndInstallTarPackageStep(parent);
-    } else if (id == GenericDirectUploadStep::stepId()) {
-        return new GenericDirectUploadStep(parent, GenericDirectUploadStep::stepId());
     }
 
     return 0;
@@ -188,9 +174,6 @@ BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *produ
     } else if (product->id() == MeegoUploadAndInstallPackageStep::stepId()) {
         return new MeegoUploadAndInstallPackageStep(parent,
             qobject_cast<MeegoUploadAndInstallPackageStep*>(product));
-    } else if (product->id() == UploadAndInstallTarPackageStep::stepId()) {
-        return new UploadAndInstallTarPackageStep(parent,
-            qobject_cast<UploadAndInstallTarPackageStep*>(product));
     } else if (product->id() == MaemoInstallDebianPackageToSysrootStep::Id) {
         return new MaemoInstallDebianPackageToSysrootStep(parent,
             qobject_cast<MaemoInstallDebianPackageToSysrootStep *>(product));
@@ -203,8 +186,6 @@ BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *produ
     } else if (product->id() == MaemoMakeInstallToSysrootStep::Id) {
         return new MaemoMakeInstallToSysrootStep(parent,
             qobject_cast<MaemoMakeInstallToSysrootStep *>(product));
-    } else if (product->id() == GenericDirectUploadStep::stepId()) {
-        return new GenericDirectUploadStep(parent, qobject_cast<GenericDirectUploadStep *>(product));
     }
     return 0;
 }

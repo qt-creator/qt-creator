@@ -160,26 +160,24 @@ private:
 class MaemoTarPackageCreationStep : public AbstractMaemoPackageCreationStep
 {
     Q_OBJECT
-    friend class MaemoPackageCreationFactory;
 public:
     MaemoTarPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
+    MaemoTarPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
+        MaemoTarPackageCreationStep *other);
 
     virtual QString packageFilePath() const;
+
+    static const QString CreatePackageId;
 private:
     virtual bool createPackage(QProcess *buildProc, const QFutureInterface<bool> &fi);
     virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const;
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-
-    MaemoTarPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
-        MaemoTarPackageCreationStep *other);
 
     void ctor();
     bool appendFile(QFile &tarFile, const QFileInfo &fileInfo,
         const QString &remoteFilePath, const QFutureInterface<bool> &fi);
     bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo,
         const QString &remoteFilePath);
-
-    static const QString CreatePackageId;
 };
 
 } // namespace Internal

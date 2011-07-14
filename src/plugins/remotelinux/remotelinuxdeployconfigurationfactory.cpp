@@ -37,15 +37,11 @@
 #include "remotelinuxdeployconfiguration.h"
 #include "uploadandinstalltarpackagestep.h"
 
-#include <QtCore/QCoreApplication>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
 namespace {
-const char GenericLinuxId[] = "DeployToGenericLinux";
-
 QString genericLinuxDisplayName() {
     return QCoreApplication::translate("RemoteLinux", "Build Tarball and Install to Linux Host");
 }
@@ -59,13 +55,13 @@ QStringList RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *
 {
     QStringList ids;
     if (MaemoGlobal::hasLinuxQt(parent))
-        ids << QLatin1String(GenericLinuxId);
+        ids << genericDeployConfigurationId();
     return ids;
 }
 
 QString RemoteLinuxDeployConfigurationFactory::displayNameForId(const QString &id) const
 {
-    if (id == QLatin1String(GenericLinuxId))
+    if (id == genericDeployConfigurationId())
         return genericLinuxDisplayName();
     return QString();
 }
@@ -114,6 +110,11 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::clone(Target *parent
         return 0;
     return new RemoteLinuxDeployConfiguration(parent,
         qobject_cast<RemoteLinuxDeployConfiguration *>(product));
+}
+
+QString RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId()
+{
+    return QLatin1String("DeployToGenericLinux");
 }
 
 } // namespace Internal

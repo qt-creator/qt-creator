@@ -29,36 +29,34 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
-#define REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
+#ifndef GENERICREMOTELINUXDEPLOYSTEPFACTORY_H
+#define GENERICREMOTELINUXDEPLOYSTEPFACTORY_H
 
-#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/buildstep.h>
 
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
+class GenericRemoteLinuxDeployStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
-
 public:
-    explicit RemoteLinuxDeployConfigurationFactory(QObject *parent = 0);
+    GenericRemoteLinuxDeployStepFactory(QObject *parent = 0);
 
-    virtual QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    virtual QString displayNameForId(const QString &id) const;
-    virtual bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    virtual ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
-    virtual bool canRestore(ProjectExplorer::Target *parent,
-        const QVariantMap &map) const;
-    virtual ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,
+    QStringList availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
+    QString displayNameForId(const QString &id) const;
+    bool canCreate(ProjectExplorer::BuildStepList *parent, const QString &id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const QString &id);
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent,
         const QVariantMap &map);
-    virtual ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
-        ProjectExplorer::DeployConfiguration *product);
-
-    static QString genericDeployConfigurationId();
+    bool canClone(ProjectExplorer::BuildStepList *parent,
+        ProjectExplorer::BuildStep *product) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
+        ProjectExplorer::BuildStep *product);
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
+#endif // GENERICREMOTELINUXDEPLOYSTEPFACTORY_H

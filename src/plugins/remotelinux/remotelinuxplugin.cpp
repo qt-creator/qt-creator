@@ -34,6 +34,7 @@
 
 #include "deployablefile.h"
 #include "genericlinuxdeviceconfigurationfactory.h"
+#include "genericremotelinuxdeploystepfactory.h"
 #include "maddedeviceconfigurationfactory.h"
 #include "maemoconstants.h"
 #include "maemodeploystepfactory.h"
@@ -91,6 +92,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunControlFactory);
     addAutoReleasedObject(new RemoteLinuxDeployConfigurationFactory);
+    addAutoReleasedObject(new GenericRemoteLinuxDeployStepFactory);
 
     qRegisterMetaType<DeployableFile>("DeployableFile");
 
