@@ -38,7 +38,6 @@
 #include "qt4target.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
-#include "qt4desktoptarget.h"
 #include "qmakestep.h"
 
 #include <coreplugin/coreconstants.h>
@@ -130,9 +129,9 @@ Qt4RunConfiguration::~Qt4RunConfiguration()
 {
 }
 
-Qt4DesktopTarget *Qt4RunConfiguration::qt4Target() const
+Qt4BaseTarget *Qt4RunConfiguration::qt4Target() const
 {
-    return static_cast<Qt4DesktopTarget *>(target());
+    return static_cast<Qt4BaseTarget *>(target());
 }
 
 bool Qt4RunConfiguration::isEnabled() const
@@ -722,10 +721,11 @@ Qt4RunConfigurationFactory::~Qt4RunConfigurationFactory()
 
 bool Qt4RunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
 {
-    Qt4DesktopTarget *t = qobject_cast<Qt4DesktopTarget *>(parent);
+    Qt4BaseTarget *t = qobject_cast<Qt4BaseTarget *>(parent);
     if (!t)
         return false;
-    if (t->id() != QLatin1String(Constants::DESKTOP_TARGET_ID))
+    if (t->id() != QLatin1String(Constants::DESKTOP_TARGET_ID)
+            && t->id() != QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
         return false;
     return t->qt4Project()->hasApplicationProFile(pathFromId(id));
 }
@@ -734,15 +734,16 @@ ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::create(ProjectExp
 {
     if (!canCreate(parent, id))
         return 0;
-    Qt4DesktopTarget *t(static_cast<Qt4DesktopTarget *>(parent));
+    Qt4BaseTarget *t = static_cast<Qt4BaseTarget *>(parent);
     return new Qt4RunConfiguration(t, pathFromId(id));
 }
 
 bool Qt4RunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
-    if (!qobject_cast<Qt4DesktopTarget *>(parent))
+    if (!qobject_cast<Qt4BaseTarget *>(parent))
         return false;
-    if (parent->id() != QLatin1String(Constants::DESKTOP_TARGET_ID))
+    if (parent->id() != QLatin1String(Constants::DESKTOP_TARGET_ID)
+            && parent->id() != QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
         return false;
     QString id(ProjectExplorer::idFromMap(map));
     return id.startsWith(QLatin1String(QT4_RC_ID));
@@ -752,7 +753,7 @@ ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::restore(ProjectEx
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4DesktopTarget *t = static_cast<Qt4DesktopTarget *>(parent);
+    Qt4BaseTarget *t = static_cast<Qt4BaseTarget *>(parent);
     Qt4RunConfiguration *rc = new Qt4RunConfiguration(t, QString());
     if (rc->fromMap(map))
         return rc;
@@ -770,17 +771,18 @@ ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::clone(ProjectExpl
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4DesktopTarget *t = static_cast<Qt4DesktopTarget *>(parent);
+    Qt4BaseTarget *t = static_cast<Qt4BaseTarget *>(parent);
     Qt4RunConfiguration *old = static_cast<Qt4RunConfiguration *>(source);
     return new Qt4RunConfiguration(t, old);
 }
 
 QStringList Qt4RunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
-    Qt4DesktopTarget *t = qobject_cast<Qt4DesktopTarget *>(parent);
+    Qt4BaseTarget *t = qobject_cast<Qt4BaseTarget *>(parent);
     if (!t)
         return QStringList();
-    if (t->id() != Constants::DESKTOP_TARGET_ID)
+    if (t->id() != Constants::DESKTOP_TARGET_ID
+        && t->id() != QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
         return QStringList();
     return t->qt4Project()->applicationProFilePathes(QLatin1String(QT4_RC_PREFIX));
 }

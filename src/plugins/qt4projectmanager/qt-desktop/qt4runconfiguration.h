@@ -66,7 +66,6 @@ class Qt4BaseTarget;
 class Qt4ProFileNode;
 
 namespace Internal {
-class Qt4DesktopTarget;
 class Qt4PriFileNode;
 class Qt4RunConfigurationFactory;
 
@@ -81,7 +80,7 @@ public:
     Qt4RunConfiguration(Qt4BaseTarget *parent, const QString &proFilePath);
     virtual ~Qt4RunConfiguration();
 
-    Qt4DesktopTarget *qt4Target() const;
+    Qt4BaseTarget *qt4Target() const;
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
