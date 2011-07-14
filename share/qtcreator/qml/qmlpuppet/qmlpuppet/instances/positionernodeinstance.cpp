@@ -80,7 +80,7 @@ PositionerNodeInstance::Pointer PositionerNodeInstance::create(QObject *object)
 
     static_cast<QDeclarativeParserStatus*>(positioner)->classBegin();
 
-    instance->populateResetValueHash();
+    instance->populateResetHashes();
 
     return instance;
 }

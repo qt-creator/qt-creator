@@ -49,6 +49,7 @@ class QDeclarativeEngine;
 class QDeclarativeProperty;
 class QDeclarativeContext;
 class QDeclarativeBinding;
+class QDeclarativeAbstractBinding;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -151,7 +152,9 @@ public:
     virtual void activateState();
     virtual void deactivateState();
 
-    void populateResetValueHash();
+    void populateResetHashes();
+    bool hasValidResetBinding(const QString &propertyName) const;
+    QDeclarativeAbstractBinding *resetBinding(const QString &propertyName) const;
     QVariant resetValue(const QString &propertyName) const;
     void setResetValue(const QString &propertyName, const QVariant &value);
 
@@ -190,6 +193,7 @@ protected:
 
 private:
     QHash<QString, QVariant> m_resetValueHash;
+    QHash<QString, QWeakPointer<QDeclarativeAbstractBinding> > m_resetBindingHash;
     QHash<QString, ServerNodeInstance> m_modelAbstractPropertyHash;
     mutable QHash<QString, bool> m_hasBindingHash;
     qint32 m_instanceId;

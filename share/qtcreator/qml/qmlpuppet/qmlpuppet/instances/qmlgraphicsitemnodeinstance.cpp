@@ -92,7 +92,7 @@ QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(QObject
 
     static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem)->classBegin();
 
-    instance->populateResetValueHash();
+    instance->populateResetHashes();
 
     return instance;
 }

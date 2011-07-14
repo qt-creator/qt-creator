@@ -59,7 +59,7 @@ QmlPropertyChangesNodeInstance::Pointer QmlPropertyChangesNodeInstance::create(Q
 
     Pointer instance(new QmlPropertyChangesNodeInstance(propertyChange));
 
-    instance->populateResetValueHash();
+    instance->populateResetHashes();
 
     return instance;
 }
