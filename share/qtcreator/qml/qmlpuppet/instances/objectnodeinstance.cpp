@@ -784,6 +784,14 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
         fixedComponentPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
         if (QFileInfo(fixedComponentPath).exists())
             return fixedComponentPath;
+        QString fixedPath = QFileInfo(fixedComponentPath).path();
+        if (fixedPath.endsWith(QLatin1String(".1.0"))) {
+        //plugin directories might contain the version number
+            fixedPath.chop(4);
+            fixedPath += QLatin1Char('/') + QFileInfo(componentPath).fileName();
+            if (QFileInfo(fixedPath).exists())
+                return fixedPath;
+        }
     }
 
     return result;
