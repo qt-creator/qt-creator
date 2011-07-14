@@ -33,12 +33,9 @@
 #define MAEMOPERTARGETDEVICECONFIGURATIONLISTMODEL_H
 
 #include "linuxdeviceconfiguration.h"
-#include "maemoglobal.h"
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QSharedPointer>
-
-namespace ProjectExplorer { class Target; }
 
 namespace RemoteLinux {
 namespace Internal {
@@ -47,8 +44,7 @@ class MaemoPerTargetDeviceConfigurationListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit MaemoPerTargetDeviceConfigurationListModel(QObject *parent, const
-        ProjectExplorer::Target *target);
+    explicit MaemoPerTargetDeviceConfigurationListModel(QObject *parent, const QString &osType);
     ~MaemoPerTargetDeviceConfigurationListModel();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -64,7 +60,7 @@ signals:
     void updated();
 
 private:
-    QString m_targetOsType;
+    const QString m_targetOsType;
 };
 
 } // namespace Internal

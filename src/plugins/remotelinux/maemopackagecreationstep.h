@@ -44,11 +44,12 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 
 namespace RemoteLinux {
+class RemoteLinuxDeployConfiguration;
+
 namespace Internal {
 class AbstractQt4MaemoTarget;
 class AbstractDebBasedQt4MaemoTarget;
 class AbstractRpmBasedQt4MaemoTarget;
-class Qt4MaemoDeployConfiguration;
 
 class AbstractMaemoPackageCreationStep : public ProjectExplorer::BuildStep
 {
@@ -70,7 +71,7 @@ public:
     AbstractQt4MaemoTarget *maemoTarget() const;
     AbstractDebBasedQt4MaemoTarget *debBasedMaemoTarget() const;
     AbstractRpmBasedQt4MaemoTarget *rpmBasedMaemoTarget() const;
-    Qt4MaemoDeployConfiguration *deployConfig() const;
+    RemoteLinuxDeployConfiguration *deployConfig() const;
 
     static const QLatin1String DefaultVersionNumber;
 

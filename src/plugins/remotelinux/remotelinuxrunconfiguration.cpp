@@ -36,8 +36,8 @@
 #include "maemoglobal.h"
 #include "maemoqtversion.h"
 #include "maemotoolchain.h"
-#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
+#include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxrunconfigurationwidget.h"
 
 #include <projectexplorer/projectexplorer.h>
@@ -250,9 +250,9 @@ QString RemoteLinuxRunConfiguration::gdbCmd() const
     return QDir::toNativeSeparators(activeBuildConfiguration()->toolChain()->debuggerCommand());
 }
 
-Qt4MaemoDeployConfiguration *RemoteLinuxRunConfiguration::deployConfig() const
+RemoteLinuxDeployConfiguration *RemoteLinuxRunConfiguration::deployConfig() const
 {
-    return qobject_cast<Qt4MaemoDeployConfiguration *>(target()->activeDeployConfiguration());
+    return qobject_cast<RemoteLinuxDeployConfiguration *>(target()->activeDeployConfiguration());
 }
 
 QString RemoteLinuxRunConfiguration::arguments() const
@@ -326,7 +326,7 @@ void RemoteLinuxRunConfiguration::updateDeviceConfigurations()
 
 void RemoteLinuxRunConfiguration::handleDeployConfigChanged()
 {
-    Qt4MaemoDeployConfiguration * const activeDeployConf = deployConfig();
+    RemoteLinuxDeployConfiguration * const activeDeployConf = deployConfig();
     if (activeDeployConf) {
         connect(activeDeployConf->deploymentInfo().data(), SIGNAL(modelReset()),
             SLOT(handleDeployablesUpdated()), Qt::UniqueConnection);

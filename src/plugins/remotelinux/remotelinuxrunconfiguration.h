@@ -56,10 +56,10 @@ class Qt4ProFileNode;
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfigurationWidget;
+class RemoteLinuxDeployConfiguration;
 
 namespace Internal {
 class MaemoDeviceConfigListModel;
-class Qt4MaemoDeployConfiguration;
 class RemoteLinuxRunConfigurationPrivate;
 class RemoteLinuxRunConfigurationFactory;
 } // namespace Internal
@@ -89,7 +89,7 @@ public:
     Qt4ProjectManager::Qt4BaseTarget *qt4Target() const;
     Qt4ProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
-    Internal::Qt4MaemoDeployConfiguration *deployConfig() const;
+    RemoteLinuxDeployConfiguration *deployConfig() const;
 
     virtual QString commandPrefix() const;
     virtual PortList freePorts() const;

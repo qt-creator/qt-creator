@@ -49,7 +49,6 @@ static const QLatin1String MAEMO_RC_ID(PREFIX);
 static const QLatin1String MAEMO_RC_ID_PREFIX(PREFIX ".");
 
 static const QLatin1String ArgumentsKey(PREFIX ".Arguments");
-static const QLatin1String DeviceIdKey(PREFIX ".DeviceId");
 static const QLatin1String LastDeployedHostsKey(PREFIX ".LastDeployedHosts");
 static const QLatin1String LastDeployedFilesKey(PREFIX ".LastDeployedFiles");
 static const QLatin1String LastDeployedRemotePathsKey(PREFIX ".LastDeployedRemotePaths");

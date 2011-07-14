@@ -36,8 +36,8 @@
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopublishingfileselectiondialog.h"
-#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
+#include "remotelinuxdeployconfiguration.h"
 
 #include <coreplugin/ifile.h>
 #include <projectexplorer/project.h>
@@ -534,8 +534,8 @@ void MaemoPublisherFremantleFree::finishWithFailure(const QString &progressMsg,
 bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
 {
     bool success = true;
-    const Qt4MaemoDeployConfiguration * const deployConfig
-        = qobject_cast<Qt4MaemoDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
+    const RemoteLinuxDeployConfiguration * const deployConfig
+        = qobject_cast<RemoteLinuxDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
     const QSharedPointer<DeploymentInfo> deploymentInfo
         = deployConfig->deploymentInfo();
     for (int i = 0; i < deploymentInfo->modelCount(); ++i) {

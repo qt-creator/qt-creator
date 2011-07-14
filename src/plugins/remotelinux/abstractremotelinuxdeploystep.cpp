@@ -38,8 +38,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 
-#include <QtCore/QTimer>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
@@ -118,9 +116,9 @@ BuildStepConfigWidget *AbstractRemoteLinuxDeployStep::createConfigWidget()
     return new Internal::MaemoDeployStepBaseWidget(this);
 }
 
-Internal::Qt4MaemoDeployConfiguration *AbstractRemoteLinuxDeployStep::deployConfiguration() const
+RemoteLinuxDeployConfiguration *AbstractRemoteLinuxDeployStep::deployConfiguration() const
 {
-    return qobject_cast<Internal::Qt4MaemoDeployConfiguration *>(BuildStep::deployConfiguration());
+    return qobject_cast<RemoteLinuxDeployConfiguration *>(BuildStep::deployConfiguration());
 }
 
 void AbstractRemoteLinuxDeployStep::handleProgressMessage(const QString &message)

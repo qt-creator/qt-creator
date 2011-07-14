@@ -40,9 +40,10 @@
 
 namespace RemoteLinux {
 class AbstractRemoteLinuxDeployService;
+class RemoteLinuxDeployConfiguration;
+
 namespace Internal {
 class AbstractRemoteLinuxDeployStepPrivate;
-class Qt4MaemoDeployConfiguration;
 }
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer::BuildStep
@@ -57,7 +58,7 @@ public:
     bool runInGuiThread() const { return true; }
     void cancel();
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    Internal::Qt4MaemoDeployConfiguration *deployConfiguration() const;
+    RemoteLinuxDeployConfiguration *deployConfiguration() const;
 
     virtual AbstractRemoteLinuxDeployService *deployService() const=0;
     virtual bool isDeploymentPossible(QString *whyNot = 0) const;

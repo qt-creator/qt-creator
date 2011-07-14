@@ -49,6 +49,7 @@
 #include "maemoqtversionfactory.h"
 #include "qt4maemotargetfactory.h"
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
+#include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxrunconfigurationfactory.h"
 #include "remotelinuxruncontrolfactory.h"
 
@@ -89,6 +90,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new MaddeDeviceConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunConfigurationFactory);
     addAutoReleasedObject(new RemoteLinuxRunControlFactory);
+    addAutoReleasedObject(new RemoteLinuxDeployConfigurationFactory);
 
     qRegisterMetaType<DeployableFile>("DeployableFile");
 

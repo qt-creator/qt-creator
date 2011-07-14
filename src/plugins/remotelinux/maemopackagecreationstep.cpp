@@ -35,8 +35,8 @@
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationwidget.h"
-#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
+#include "remotelinuxdeployconfiguration.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -179,9 +179,9 @@ AbstractRpmBasedQt4MaemoTarget *AbstractMaemoPackageCreationStep::rpmBasedMaemoT
     return qobject_cast<AbstractRpmBasedQt4MaemoTarget*>(buildConfiguration()->target());
 }
 
-Qt4MaemoDeployConfiguration *AbstractMaemoPackageCreationStep::deployConfig() const
+RemoteLinuxDeployConfiguration *AbstractMaemoPackageCreationStep::deployConfig() const
 {
-    return qobject_cast<Qt4MaemoDeployConfiguration *>(parent()->parent());
+    return qobject_cast<RemoteLinuxDeployConfiguration *>(parent()->parent());
 }
 
 QString AbstractMaemoPackageCreationStep::buildDirectory() const

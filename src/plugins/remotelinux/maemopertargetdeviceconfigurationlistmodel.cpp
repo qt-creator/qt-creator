@@ -32,24 +32,13 @@
 #include "maemopertargetdeviceconfigurationlistmodel.h"
 
 #include "linuxdeviceconfigurations.h"
-#include "qt4maemotarget.h"
-
-using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
 
 MaemoPerTargetDeviceConfigurationListModel::MaemoPerTargetDeviceConfigurationListModel(QObject *parent,
-    const Target *target) : QAbstractListModel(parent)
+    const QString &osType) : QAbstractListModel(parent), m_targetOsType(osType)
 {
-    if (qobject_cast<const Qt4Maemo5Target *>(target))
-        m_targetOsType = LinuxDeviceConfiguration::Maemo5OsType;
-    else if (qobject_cast<const Qt4HarmattanTarget *>(target))
-        m_targetOsType = LinuxDeviceConfiguration::HarmattanOsType;
-    else if (qobject_cast<const Qt4MeegoTarget *>(target))
-        m_targetOsType = LinuxDeviceConfiguration::MeeGoOsType;
-    else
-        m_targetOsType = LinuxDeviceConfiguration::GenericLinuxOsType;
     const LinuxDeviceConfigurations * const devConfs
         = LinuxDeviceConfigurations::instance();
     connect(devConfs, SIGNAL(modelReset()), this, SIGNAL(modelReset()));

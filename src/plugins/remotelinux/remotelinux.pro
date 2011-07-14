@@ -86,7 +86,9 @@ HEADERS += \
     maemodeploybymountsteps.h \
     abstractremotelinuxdeployservice.h \
     abstractuploadandinstallpackageservice.h \
-    genericdirectuploadservice.h
+    genericdirectuploadservice.h \
+    remotelinuxdeployconfiguration.h \
+    remotelinuxdeployconfigurationfactory.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -166,7 +168,9 @@ SOURCES += \
     maemodeploybymountsteps.cpp \
     abstractremotelinuxdeployservice.cpp \
     abstractuploadandinstallpackageservice.cpp \
-    genericdirectuploadservice.cpp
+    genericdirectuploadservice.cpp \
+    remotelinuxdeployconfiguration.cpp \
+    remotelinuxdeployconfigurationfactory.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \

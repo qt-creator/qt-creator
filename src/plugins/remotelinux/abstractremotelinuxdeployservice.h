@@ -52,7 +52,6 @@ class LinuxDeviceConfiguration;
 
 namespace Internal {
 class AbstractRemoteLinuxDeployServicePrivate;
-class Qt4MaemoDeployConfiguration;
 }
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployService : public QObject

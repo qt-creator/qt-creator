@@ -37,8 +37,8 @@
 #include "maemodeploybymountsteps.h"
 #include "maemoglobal.h"
 #include "maemoinstalltosysrootstep.h"
-#include "qt4maemodeployconfiguration.h"
 #include "qt4maemotarget.h"
+#include "remotelinuxdeployconfiguration.h"
 #include "uploadandinstalltarpackagestep.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -64,7 +64,7 @@ MaemoDeployStepFactory::MaemoDeployStepFactory(QObject *parent)
 QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     QStringList ids;
-    if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
+    if (!qobject_cast<RemoteLinuxDeployConfiguration *>(parent->parent()))
         return ids;
 
     AbstractQt4MaemoTarget * const maemoTarget

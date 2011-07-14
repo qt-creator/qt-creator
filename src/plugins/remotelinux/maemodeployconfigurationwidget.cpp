@@ -39,7 +39,7 @@
 #include "maemoglobal.h"
 #include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemosettingspages.h"
-#include "qt4maemodeployconfiguration.h"
+#include "remotelinuxdeployconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -67,7 +67,7 @@ MaemoDeployConfigurationWidget::~MaemoDeployConfigurationWidget()
 
 void MaemoDeployConfigurationWidget::init(DeployConfiguration *dc)
 {
-    m_deployConfig = qobject_cast<Qt4MaemoDeployConfiguration *>(dc);
+    m_deployConfig = qobject_cast<RemoteLinuxDeployConfiguration *>(dc);
     Q_ASSERT(m_deployConfig);
 
     connect(ui->manageDevConfsLabel, SIGNAL(linkActivated(QString)),

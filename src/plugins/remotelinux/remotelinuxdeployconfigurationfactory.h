@@ -29,21 +29,20 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
+#define REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
 
-#ifndef QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
-#define QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
-
-#include <remotelinux/remotelinuxdeployconfiguration.h>
+#include <projectexplorer/deployconfiguration.h>
 
 namespace RemoteLinux {
 namespace Internal {
 
-class Qt4MaemoDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
+class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit Qt4MaemoDeployConfigurationFactory(QObject *parent = 0);
+    explicit RemoteLinuxDeployConfigurationFactory(QObject *parent = 0);
 
     virtual QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
     virtual QString displayNameForId(const QString &id) const;
@@ -57,28 +56,7 @@ public:
         ProjectExplorer::DeployConfiguration *product);
 };
 
-class Qt4MaemoDeployConfiguration : public RemoteLinuxDeployConfiguration
-{
-    Q_OBJECT
-
-public:
-    ~Qt4MaemoDeployConfiguration();
-
-    static const QString FremantleWithPackagingId;
-    static const QString FremantleWithoutPackagingId;
-    static const QString HarmattanId;
-    static const QString MeegoId;
-
-private:
-    friend class Internal::Qt4MaemoDeployConfigurationFactory;
-
-    Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target, const QString &id,
-        const QString &displayName, const QString &supportedOsType);
-    Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
-        Qt4MaemoDeployConfiguration *source);
-};
-
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
+#endif // REMOTELINUXDEPLOYCONFIGURATIONFACTORY_H
