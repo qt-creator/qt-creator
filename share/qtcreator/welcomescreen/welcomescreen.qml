@@ -75,7 +75,7 @@ Rectangle {
     }
 
     Rectangle {
-        color:"#eee"
+        color: "#eee"
         id: news
         opacity: 0.7
         anchors.top: navigationAndDevLinks.bottom

@@ -36,26 +36,37 @@ import components 1.0 as Components
 
 Item {
     id: root
+    property int margin: 8
+
     Components.ScrollArea {
         id: scrollArea
-        anchors.fill: parent
-        anchors.margins: -8
+        anchors.fill:  parent
+        anchors.margins: - margin
         frame: false
-        Components.SplitterRow:  {
-            height: Math.max(root.height,
-                             Math.max(recentSessions.height,
-                                      recentProjects.height))
+        Item {
+            id: baseitem
+            height: Math.max(recentSessions.height, recentProjects.height)
             width: root.width
-                Widgets.RecentProjects {
-                    id: recentSessions
-                    property bool expanding: true
-                }
-                Widgets.RecentSessions {
-                    id: recentProjects
-                    width: 200
-                }
+
+            Widgets.RecentProjects {
+                id: recentProjects
+                anchors.left: parent.left
+                width: Math.floor(root.width / 2)
+            }
+            Widgets.RecentSessions {
+                id: recentSessions
+                anchors.left:  recentProjects.right
+                anchors.right: parent.right
+                anchors.rightMargin: scrollArea.height >= baseitem.height ?
+                                     -scrollArea.verticalScrollBar.width : 0
+            }
         }
     }
+    Rectangle {
+        anchors.top: scrollArea.top
+        height: root.height + 2 * margin
+        width: 1
+        color: "#ccc"
+        x: recentSessions.x - margin
+    }
 }
-
-

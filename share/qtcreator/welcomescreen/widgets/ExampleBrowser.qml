@@ -70,7 +70,7 @@ Item {
             onCheckedChanged: examplesModel.showTutorialsOnly = !checked;
         }
 
-        Components.Button {
+        Button {
             id: tagFilterButton
             property string tag
             Behavior on opacity { NumberAnimation{} }

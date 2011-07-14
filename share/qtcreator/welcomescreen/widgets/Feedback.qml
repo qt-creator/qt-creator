@@ -78,6 +78,7 @@ Rectangle {
     Components.Button {
         id: openProjectButton
         text: qsTr("Open Project...")
+        focus: false
         iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
         onClicked: welcomeMode.openProject();
         anchors.right: createProjectButton.left

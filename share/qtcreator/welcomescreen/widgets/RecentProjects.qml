@@ -30,7 +30,7 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import components 1.0 as Components
 
 HeaderItemView {
@@ -44,7 +44,7 @@ HeaderItemView {
         Rectangle {
             height: 1
             color: "#eee"
-            anchors.top: parent.top
+            anchors.bottom: parent.bottom
             width: parent.width
         }
         color: mousearea.containsMouse ? "#f9f9f9" : "white"
@@ -58,6 +58,9 @@ HeaderItemView {
         }
 
         Column {
+            spacing: 4
+            anchors.left: parent.left
+            anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             Text {
                 id: nameText
@@ -66,23 +69,31 @@ HeaderItemView {
                 width: parent.width
                 anchors.left: parent.left
                 anchors.leftMargin: 10
-                anchors.rightMargin: 10
-                anchors.right: arrowImage.left
+                anchors.rightMargin: arrowImage.width + 10
+                anchors.right: parent.right
                 elide: Text.ElideRight
             }
 
             Text {
+                id: filepath
                 text: prettyFilePath
                 elide: Text.ElideMiddle
                 color: "grey"
                 anchors.left: parent.left
-                anchors.right: arrowImage.left
+                anchors.right: parent.right
                 anchors.leftMargin: 10
-                anchors.rightMargin: 10
+                anchors.rightMargin: arrowImage.width + 14
             }
         }
 
-        Timer { id: timer; interval: 500; onTriggered: styleItem.showToolTip(filePath) }
+        Timer {
+            id: timer
+            interval: 1000
+            onTriggered: {
+                if (filepath.truncated)
+                    styleItem.showToolTip(sessionName)
+            }
+        }
 
         MouseArea {
             id: mousearea

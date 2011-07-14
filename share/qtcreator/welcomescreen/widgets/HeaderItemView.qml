@@ -39,19 +39,37 @@ Item {
     property QtObject model
     property Component delegate
 
+    Rectangle {
+        color: "#ececec"
+        anchors.top: parent.top
+        anchors.bottom: dataSection.top
+        width: parent.width
+    }
     Text {
         id: titleText
         text: root.header
         width: parent.width
         font.bold: true
         font.pointSize: 16
-        color: "#777"
+        color: "#444"
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         elide: Text.ElideRight
         anchors.topMargin: 10
         anchors.leftMargin: 10
+    }
+    Rectangle {
+        height: 1
+        color: "#ccc"
+        anchors.bottom: dataSection.top
+        width: parent.width
+    }
+    Rectangle {
+        height: 1
+        color: "#ccc"
+        anchors.top: parent.top
+        width: parent.width
     }
 
     Column {
