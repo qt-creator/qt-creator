@@ -111,12 +111,12 @@ public:
     void scriptFunctionsChanged(const ModelNode &node, const QStringList &scriptFunctionList);
 
     void resetView();
+    void actualStateChanged(const ModelNode &node);
 
 protected:
     void timerEvent(QTimerEvent *event);
     void otherPropertyChanged(const QmlObjectNode &, const QString &propertyName);
     void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
-    void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
     void setupPane(const QString &typeName);
     void setValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value);

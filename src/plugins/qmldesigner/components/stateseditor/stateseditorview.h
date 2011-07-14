@@ -67,7 +67,7 @@ public:
 
 
     // QmlModelView
-    void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
+    void actualStateChanged(const ModelNode &node);
     void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     void parentChanged(const QmlObjectNode &qmlObjectNode);
     void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);

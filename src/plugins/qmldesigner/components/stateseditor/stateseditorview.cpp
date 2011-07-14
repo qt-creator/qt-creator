@@ -308,14 +308,16 @@ void StatesEditorView::nodeInstancePropertyChanged(const ModelNode &node, const 
     QmlModelView::nodeInstancePropertyChanged(node, propertyName);
 }
 
-void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
+void StatesEditorView::actualStateChanged(const ModelNode &node)
 {
+    QmlModelState newQmlModelState(node);
+
     if (newQmlModelState.isBaseState()) {
         m_statesEditorWidget->setCurrentStateInternalId(0);
     } else {
         m_statesEditorWidget->setCurrentStateInternalId(newQmlModelState.modelNode().internalId());
     }
-    QmlModelView::stateChanged(newQmlModelState, oldQmlModelState);
+    QmlModelView::actualStateChanged(node);
 }
 
 void StatesEditorView::transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)

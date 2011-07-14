@@ -131,7 +131,6 @@ protected:
     virtual void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName) ;
     virtual void parentChanged(const QmlObjectNode &qmlObjectNode);
     virtual void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
-    virtual void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
     void activateState(const QmlModelState &state);
 

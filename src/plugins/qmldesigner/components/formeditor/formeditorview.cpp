@@ -651,9 +651,11 @@ bool FormEditorView::isMoveToolAvailable() const
     return true;
 }
 
-void FormEditorView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
+void FormEditorView::actualStateChanged(const ModelNode &node)
 {
-    QmlModelView::stateChanged(newQmlModelState, oldQmlModelState);
+    QmlModelView::actualStateChanged(node);
+
+    QmlModelState newQmlModelState(node);
 
     m_formEditorWidget->anchorToolAction()->setEnabled(newQmlModelState.isBaseState());
 
