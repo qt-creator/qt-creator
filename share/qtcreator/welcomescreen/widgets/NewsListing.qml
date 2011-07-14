@@ -41,7 +41,7 @@ Item {
     property alias itemCount: repeater.count
 
     Timer {
-        id: timer
+        id: nextItemTimer
         repeat: true
         interval: 30*1000
         onTriggered: repeater.incrementIndex()
@@ -63,7 +63,7 @@ Item {
         }
 
         function handleModelUpdate() {
-            timer.stop();
+            nextItemTimer.stop();
             currentItem = 0;
             for (var i = 0; i < count; ++i) {
                 if (i != currentItem)
@@ -71,7 +71,7 @@ Item {
                 else
                     repeater.itemAt(i).active = true;
             }
-            timer.start();
+            nextItemTimer.start();
         }
 
         function handleModelChanged() {
@@ -145,12 +145,18 @@ Item {
                 cursor: "pointinghandcursor";
                 anchors.fill: column
             }
+            Timer {
+                id: toolTipTimer
+                interval: 500
+                onTriggered: styleItem.showToolTip(link)
+            }
+
             MouseArea {
                 anchors.fill: column;
                 onClicked: Qt.openUrlExternally(link);
                 hoverEnabled: true;
-                onEntered: timer.stop()
-                onExited: timer.restart()
+                onEntered: { nextItemTimer.stop(); toolTipTimer.start(); }
+                onExited: { nextItemTimer.restart(); toolTipTimer.stop(); }
                 id: mouseArea
             }
 
