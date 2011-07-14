@@ -9974,11 +9974,12 @@
 
     \endlist
 
-    When you add a List View element, the
-    \l{http://doc.qt.nokia.com/4.7/qml-listmodel.html}{ListModel} is added
-    automatically. You can edit its properties in the \gui Properties pane or in
-    the code editor. For the Grid View and Path Views elements, you must write
-    the code to use the data models.
+    When you add a Grid View, List View, or Path View element, the
+    \l{http://doc.qt.nokia.com/4.7/qml-listmodel.html}{ListModel} and the
+    delegate component that creates an instance for each item in the model are
+    added automatically. You can edit element properties in the \gui Properties
+    pane or in the code editor. You can also replace the default model and
+    delegate with other, more complex models and delegates in the code editor.
 
     \section1 Positioning Items on Screens
 
