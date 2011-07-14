@@ -57,39 +57,6 @@ QWidget {
                     maximumValue: 1000;
                 }
                 IntEditor {
-                    backendValue: backendValues.cellHeight
-                    caption: qsTr("Cell height")
-                    baseStateFlag: isBaseState;
-                    step: 1;
-                    minimumValue: 0;
-                    maximumValue: 200;
-                }
-                IntEditor {
-                    backendValue: backendValues.cellWidth
-                    caption: qsTr("Cell width")
-                    baseStateFlag: isBaseState;
-                    step: 1;
-                    minimumValue: 0;
-                    maximumValue: 1000;
-                }
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Flow")
-                        }
-
-                        ComboBox {
-                            baseStateFlag: isBaseState
-                            items : { ["LeftToRight", "TopToBottom"] }
-                            currentText: backendValues.flow.value;
-                            onItemsChanged: {
-                                currentText =  backendValues.flow.value;
-                            }
-                            backendValue: backendValues.flow
-                        }
-                    }
-                } //QWidget
-                IntEditor {
                     backendValue: backendValues.keyNavigationWraps
                     caption: qsTr("Navigation wraps")
                     toolTip: qsTr("Determines whether the grid wraps key navigation.")
