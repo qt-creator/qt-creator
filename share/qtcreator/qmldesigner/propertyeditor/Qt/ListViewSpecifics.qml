@@ -94,11 +94,11 @@ QWidget {
                         ComboBox {
                             baseStateFlag: isBaseState
                             items : { ["Horizontal", "Vertical"] }
-                            currentText: backendValues.snapMode.value;
+                            currentText: backendValues.orientation.value;
                             onItemsChanged: {
-                                currentText =  backendValues.snapMode.value;
+                                currentText =  backendValues.orientation.value;
                             }
-                            backendValue: backendValues.snapMode
+                            backendValue: backendValues.orientation
                         }
                     }
                 } //QWidget
@@ -111,7 +111,7 @@ QWidget {
 
                         ComboBox {
                             baseStateFlag: isBaseState
-                            items : { ["NoSnap", "SnapToRow", "SnapOneRow"] }
+                            items : { ["NoSnap", "SnapToItem", "SnapOneItem"] }
                             currentText: backendValues.snapMode.value;
                             onItemsChanged: {
                                 currentText =  backendValues.snapMode.value;
