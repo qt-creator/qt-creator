@@ -10148,6 +10148,18 @@
     Note: GIMP does not support grouping, and therefore, each layer is exported as
     an item in GIMP.
 
+    You can open the QML file in Qt Creator for editing. If you edit the file in Adobe
+    Photoshop and export it to the same directory again, any changes you made in Qt
+    Creator are overwritten. However, you can re-export graphical assets without
+    recreating the QML code.
+
+    If you create vector graphics with other tools that have an Adobe Photoshop export
+    option, such as Adobe Illustrator, you can export them first to Photoshop
+    and then
+    to QML.
+
+    \section1 Conversion Rules
+
     The following rules apply to the conversions:
 
     \list
@@ -10168,14 +10180,38 @@
 
     \endlist
 
-    You can open the QML file in Qt Creator for editing. If you edit the file in Adobe
-    Photoshop and export it to the same directory again, any changes you made in Qt
-    Creator are overwritten. However, you can re-export graphical assets without
-    recreating the QML code.
+    \section1 Preparing Files for Conversion
 
-    If you create vector graphics with other tools that have an Adobe Photoshop export
-    option,such as Adobe Illustrator, you can export them first to Photoshop and then
-    to QML.
+    To create QML files that are easy to use, prepare the Adobe Photoshop or
+    GIMP designs for exporting, as follows:
+
+    \list
+
+        \o  To minimize the number of elements, minimize the number of layers or
+            use top-level layer groups, because each layer or layer group is
+            exported as a Text or Image element.
+
+        \o  To make sure that all related elements are exported to the same
+            element, use top-level layer groups.
+
+        \o  To determine that some layers are not exported, hide them, and
+            deselect the \gui {Export hidden} check box during exporting.
+
+        \o  To make it easier to find the layers and layer groups after
+            exporting them, use descriptive names for them.
+
+        \o  To make sure that image dimensions are preserved during export,
+            create at least one fully filled layer (which can be hidden), such
+            as a background layer. If the export script does not find a fully
+            filled layer, it resizes all images to the size of the canvas.
+
+        \o  To prevent errors during export, make sure that the layers are not
+            locked. Locked layers cannot be exported.
+
+        \o  To avoid unexpected results, do not use Blending Mode effects. They
+            are not exported.
+
+    \endlist
 
     \section1 Exporting from Adobe Photoshop to QML
 
