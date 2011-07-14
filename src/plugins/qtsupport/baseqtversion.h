@@ -179,6 +179,7 @@ public:
     virtual ProjectExplorer::IOutputParser *createOutputParser() const;
 
     static bool queryQMakeVariables(const QString &binary, QHash<QString, QString> *versionInfo);
+    static bool queryQMakeVariables(const QString &binary, QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable);
     static QString mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo);
 
 

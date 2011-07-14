@@ -52,7 +52,7 @@ public:
     static QString findSystemQt(const Utils::Environment &env);
     // return true if the qmake at qmakePath is qt4 (used by QtVersion)
     static QString qtVersionForQMake(const QString &qmakePath);
-    static bool checkMinimumQtVersion(const QString &qtversionString, int majorVersion, int minorVersion, int patchVersion);
+    static QString qtVersionForQMake(const QString &qmakePath, bool *qmakeIsExecutable);
     // returns something like qmake4, qmake, qmake-qt4 or whatever distributions have chosen (used by QtVersion)
     static QStringList possibleQMakeCommands();
 
