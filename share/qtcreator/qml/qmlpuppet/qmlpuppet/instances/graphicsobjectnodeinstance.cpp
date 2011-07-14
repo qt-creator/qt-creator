@@ -180,6 +180,11 @@ QObject *GraphicsObjectNodeInstance::parent() const
     return graphicsObject()->parentItem()->toGraphicsObject();
 }
 
+static inline bool isRectangleSane(const QRect &rect)
+{
+    return rect.isValid() && (rect.width() < 10000) && (rec.height() < 10000);
+}
+
 QRectF GraphicsObjectNodeInstance::boundingRectWithStepChilds(QGraphicsItem *parentItem) const
 {
     QRectF boundingRect = parentItem->boundingRect();
@@ -188,7 +193,8 @@ QRectF GraphicsObjectNodeInstance::boundingRectWithStepChilds(QGraphicsItem *par
         QGraphicsObject *childObject = childItem->toGraphicsObject();
         if (!(childObject && nodeInstanceServer()->hasInstanceForObject(childObject))) {
             QRectF transformedRect = childItem->mapRectToParent(boundingRectWithStepChilds(childItem));
-            boundingRect = boundingRect.united(transformedRect);
+            if (isRectangleSane(transformedRect))
+                boundingRect = boundingRect.united(transformedRect);
         }
     }
 
