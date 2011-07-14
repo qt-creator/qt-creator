@@ -180,9 +180,9 @@ QObject *GraphicsObjectNodeInstance::parent() const
     return graphicsObject()->parentItem()->toGraphicsObject();
 }
 
-static inline bool isRectangleSane(const QRect &rect)
+static inline bool isRectangleSane(const QRectF &rect)
 {
-    return rect.isValid() && (rect.width() < 10000) && (rec.height() < 10000);
+    return rect.isValid() && (rect.width() < 10000) && (rect.height() < 10000);
 }
 
 QRectF GraphicsObjectNodeInstance::boundingRectWithStepChilds(QGraphicsItem *parentItem) const
