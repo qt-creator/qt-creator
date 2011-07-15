@@ -1319,16 +1319,62 @@
 
     \image qmldesigner-element-properties.png
 
-    The default values of properties are displayed in white color, while the values
-    that you specify explicitly are highlighted with blue color. In addition, property
-    changes in states are highlighted with blue.
-
     You can use a context-menu to reset some element properties. To reset the
     position or size property of an element, right-click the element and select
     \gui {Edit > Reset Position} or \gui {Reset Size} in the context menu. To
     set the visibility of the component, select \gui {Edit > Visibility}.
 
     For more information on the properties available for an element, press \key {F1}.
+
+    \section2 Viewing Changes in Properties
+
+    The default values of properties are displayed in white color, while the
+    values that you specify explicitly are highlighted with blue color. In
+    addition, property changes in states are highlighted with blue.
+
+    This allows you to easily see which values are set in the .qml file and
+    which values are default characteristics of an element or a component.
+
+    When editing states, you can easily see which values are explicitly set in
+    the current state and which values are derived from the base state.
+
+    The following images illustrate this. In the base state, the \gui Position,
+    \gui Size, and \gui Colors values are explicitly set and highlighted.
+
+    \image qmldesigner-properties-explicit-base.png "Explicitly set properties"
+
+    In \gui State1, only the color is explicitly set and highlighted.
+
+    \image qmldesigner-properties-explicit-state1.png "Explicitly set properties"
+
+    Resetting a property sets it back to the default value and removes the value
+    from the .qml file.
+
+    \note As a result, all boolean values can be visualized in four different
+    ways.
+
+    For example, visibility can be visualized as follows:
+
+    \table
+        \row
+            \i  \image qmldesigner-boolean-true.png
+            \i  TRUE
+            \i  The element is visible by default. The visibility might be
+                overridden by the visibility set in the base state.
+        \row
+            \i  \image qmldesigner-boolean-true-blue.png
+            \i  TRUE (highlighted)
+            \i  The element is explicitly set to visible.
+        \row
+            \i  \image qmldesigner-boolean-false.png
+            \i  FALSE
+            \i  The element is hidden by default. The visibility might be
+                overridden by the visibility set in the base state.
+        \row
+            \i  \image qmldesigner-boolean-false-blue.png
+            \i  FALSE (hightlighted)
+            \i  The item is explicitly set to hidden.
+    \endtable
 
     \section2 Setting Expressions
 
