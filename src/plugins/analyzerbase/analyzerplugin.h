@@ -54,10 +54,6 @@ public:
     void extensionsInitialized();
 
     ShutdownFlag aboutToShutdown();
-
-private:
-    class AnalyzerPluginPrivate;
-    AnalyzerPluginPrivate *d;
 };
 
 } // namespace Internal

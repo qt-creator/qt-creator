@@ -32,7 +32,6 @@
 #include "maemodeviceconfigwizard.h"
 #include "ui_maemodeviceconfigwizardkeycreationpage.h"
 #include "ui_maemodeviceconfigwizardkeydeploymentpage.h"
-#include "ui_maemodeviceconfigwizardlogindatapage.h"
 #include "ui_maemodeviceconfigwizardpreviouskeysetupcheckpage.h"
 #include "ui_maemodeviceconfigwizardreusekeyscheckpage.h"
 #include "ui_maemodeviceconfigwizardstartpage.h"
@@ -86,8 +85,8 @@ struct WizardData
 };
 
 enum PageId {
-    StartPageId, LoginDataPageId, PreviousKeySetupCheckPageId,
-    ReuseKeysCheckPageId, KeyCreationPageId, KeyDeploymentPageId, FinalPageId
+    StartPageId, PreviousKeySetupCheckPageId, ReuseKeysCheckPageId, KeyCreationPageId,
+    KeyDeploymentPageId, FinalPageId
 };
 
 class MaemoDeviceConfigWizardStartPage : public QWizardPage
@@ -172,67 +171,6 @@ private slots:
 
 private:
     const QScopedPointer<Ui::MaemoDeviceConfigWizardStartPage> m_ui;
-};
-
-class MaemoDeviceConfigWizardLoginDataPage : public QWizardPage
-{
-    Q_OBJECT
-
-public:
-    MaemoDeviceConfigWizardLoginDataPage(WizardData &wizardData, QWidget *parent)
-        : QWizardPage(parent),
-          m_ui(new Ui::MaemoDeviceConfigWizardLoginDataPage),
-          m_wizardData(wizardData)
-    {
-        m_ui->setupUi(this);
-        setTitle(tr("Login Data"));
-        m_ui->privateKeyPathChooser->setExpectedKind(PathChooser::File);
-        setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-        connect(m_ui->userNameLineEdit, SIGNAL(textChanged(QString)),
-            SIGNAL(completeChanged()));
-        connect(m_ui->privateKeyPathChooser, SIGNAL(validChanged()),
-            SIGNAL(completeChanged()));
-        connect(m_ui->passwordButton, SIGNAL(toggled(bool)),
-            SLOT(handleAuthTypeChanged()));
-    }
-
-    virtual bool isComplete() const
-    {
-        return !userName().isEmpty()
-            && (authType() == SshConnectionParameters::AuthenticationByPassword
-                || m_ui->privateKeyPathChooser->isValid());
-    }
-
-    virtual void initializePage()
-    {
-        m_ui->userNameLineEdit->setText(defaultUser(m_wizardData.osType));
-        m_ui->passwordButton->setChecked(true);
-        m_ui->passwordLineEdit->clear();
-        m_ui->privateKeyPathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
-        handleAuthTypeChanged();
-    }
-
-    SshConnectionParameters::AuthenticationType authType() const
-    {
-        return m_ui->passwordButton->isChecked()
-            ? SshConnectionParameters::AuthenticationByPassword
-            : SshConnectionParameters::AuthenticationByKey;
-    }
-
-    QString userName() const { return m_ui->userNameLineEdit->text().trimmed(); }
-    QString password() const { return m_ui->passwordLineEdit->text(); }
-    QString privateKeyFilePath() const { return m_ui->privateKeyPathChooser->path(); }
-
-private:
-    Q_SLOT void handleAuthTypeChanged()
-    {
-        m_ui->passwordLineEdit->setEnabled(authType() == SshConnectionParameters::AuthenticationByPassword);
-        m_ui->privateKeyPathChooser->setEnabled(authType() == SshConnectionParameters::AuthenticationByKey);
-        emit completeChanged();
-    }
-
-    const QScopedPointer<Ui::MaemoDeviceConfigWizardLoginDataPage> m_ui;
-    const WizardData &m_wizardData;
 };
 
 class MaemoDeviceConfigWizardPreviousKeySetupCheckPage : public QWizardPage
@@ -578,7 +516,6 @@ struct MaemoDeviceConfigWizardPrivate
 {
     MaemoDeviceConfigWizardPrivate(QWidget *parent)
         : startPage(parent),
-          loginDataPage(wizardData, parent),
           previousKeySetupPage(parent),
           reuseKeysCheckPage(parent),
           keyCreationPage(parent),
@@ -589,7 +526,6 @@ struct MaemoDeviceConfigWizardPrivate
 
     WizardData wizardData;
     MaemoDeviceConfigWizardStartPage startPage;
-    MaemoDeviceConfigWizardLoginDataPage loginDataPage;
     MaemoDeviceConfigWizardPreviousKeySetupCheckPage previousKeySetupPage;
     MaemoDeviceConfigWizardReuseKeysCheckPage reuseKeysCheckPage;
     MaemoDeviceConfigWizardKeyCreationPage keyCreationPage;
@@ -603,7 +539,6 @@ MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(QWidget *parent)
 {
     setWindowTitle(tr("New Device Configuration Setup"));
     setPage(StartPageId, &d->startPage);
-    setPage(LoginDataPageId, &d->loginDataPage);
     setPage(PreviousKeySetupCheckPageId, &d->previousKeySetupPage);
     setPage(ReuseKeysCheckPageId, &d->reuseKeysCheckPage);
     setPage(KeyCreationPageId, &d->keyCreationPage);
@@ -658,14 +593,6 @@ int MaemoDeviceConfigWizard::nextId() const
         if (d->wizardData.deviceType == LinuxDeviceConfiguration::Emulator)
             return FinalPageId;
         return PreviousKeySetupCheckPageId;
-    case LoginDataPageId:
-        d->wizardData.userName = d->loginDataPage.userName();
-        d->wizardData.authType = d->loginDataPage.authType();
-        if (d->wizardData.authType == SshConnectionParameters::AuthenticationByPassword)
-            d->wizardData.password = d->loginDataPage.password();
-        else
-            d->wizardData.privateKeyFilePath = d->loginDataPage.privateKeyFilePath();
-        return FinalPageId;
     case PreviousKeySetupCheckPageId:
         if (d->previousKeySetupPage.keyBasedLoginWasSetup()) {
             d->wizardData.privateKeyFilePath

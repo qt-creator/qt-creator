@@ -51,7 +51,7 @@ HeaderItemView {
             id: nameText
             text: displayName
             font.bold: true
-            width: parent.width
+            anchors.right: parent.right
             anchors.top: parent.top
             anchors.left: arrowImage.right
             anchors.leftMargin: 10
@@ -61,7 +61,7 @@ HeaderItemView {
             text: prettyFilePath
             elide: Text.ElideMiddle
             color: "grey"
-            width: parent.width
+            anchors.right: parent.right
             anchors.top: nameText.bottom
             anchors.left: arrowImage.right
             anchors.leftMargin: 10

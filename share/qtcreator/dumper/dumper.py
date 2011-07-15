@@ -107,58 +107,58 @@ typeInfoCache = {}
 def lookupType(typestring):
     type = typeCache.get(typestring)
     #warn("LOOKUP 1: %s -> %s" % (typestring, type))
-    if type is None:
-        ts = typestring
-        while True:
-            #WARN("ts: '%s'" % ts)
-            if ts.startswith("class "):
-                ts = ts[6:]
-            elif ts.startswith("struct "):
-                ts = ts[7:]
-            elif ts.startswith("const "):
-                ts = ts[6:]
-            elif ts.startswith("volatile "):
-                ts = ts[9:]
-            elif ts.startswith("enum "):
-                ts = ts[5:]
-            elif ts.endswith(" const"):
-                ts = ts[:-6]
-            elif ts.endswith(" volatile"):
-                ts = ts[:-9]
-            elif ts.endswith("*const"):
-                ts = ts[:-5]
-            elif ts.endswith("*volatile"):
-                ts = ts[:-8]
-            else:
-                break
-        try:
-            #warn("LOOKING UP '%s'" % ts)
-            type = gdb.lookup_type(ts)
-        except RuntimeError, error:
-            #warn("LOOKING UP '%s': %s" % (ts, error))
-            # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-            exp = "(class '%s'*)0" % ts
-            try:
-                type = parseAndEvaluate(exp).type.target()
-            except:
-                # Can throw "RuntimeError: No type named class Foo."
-                pass
-        except:
-            #warn("LOOKING UP '%s' FAILED" % ts)
-            pass
-        #warn("  RESULT: '%s'" % type)
-        #if not type is None:
-        #    warn("  FIELDS: '%s'" % type.fields())
-        typeCache[typestring] = type
-    if type is None and typestring.endswith('*'):
-        type = lookupType(typestring[0:-1])
+    if not type is None:
+        return type
+
+    ts = typestring
+    while True:
+        #WARN("ts: '%s'" % ts)
+        if ts.startswith("class "):
+            ts = ts[6:]
+        elif ts.startswith("struct "):
+            ts = ts[7:]
+        elif ts.startswith("const "):
+            ts = ts[6:]
+        elif ts.startswith("volatile "):
+            ts = ts[9:]
+        elif ts.startswith("enum "):
+            ts = ts[5:]
+        elif ts.endswith(" const"):
+            ts = ts[:-6]
+        elif ts.endswith(" volatile"):
+            ts = ts[:-9]
+        elif ts.endswith("*const"):
+            ts = ts[:-5]
+        elif ts.endswith("*volatile"):
+            ts = ts[:-8]
+        else:
+            break
+
+    if ts.endswith('*'):
+        type = lookupType(ts[0:-1])
         if not type is None:
             type = type.pointer()
             typeCache[typestring] = type
-    if type is None:
-        # could be gdb.lookup_type("char[3]") generating
-        # "RuntimeError: No type named char[3]"
+            return type
+
+    try:
+        #warn("LOOKING UP '%s'" % ts)
+        type = gdb.lookup_type(ts)
+    except RuntimeError, error:
+        #warn("LOOKING UP '%s': %s" % (ts, error))
+        # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
+        exp = "(class '%s'*)0" % ts
+        try:
+            type = parseAndEvaluate(exp).type.target()
+        except:
+            # Can throw "RuntimeError: No type named class Foo."
+            pass
+    except:
+        #warn("LOOKING UP '%s' FAILED" % ts)
         pass
+
+    # This could still be None as gdb.lookup_type("char[3]") generates
+    # "RuntimeError: No type named char[3]"
     return type
 
 def cleanAddress(addr):
@@ -167,7 +167,8 @@ def cleanAddress(addr):
     # We cannot use str(addr) as it yields rubbish for char pointers
     # that might trigger Unicode encoding errors.
     #return addr.cast(lookupType("void").pointer())
-    return hex(long(addr))
+    # We do not use "hex(...)" as it (sometimes?) adds a "L" suffix.
+    return "0x%x" % long(addr)
 
 def extractTemplateArgument(type, position):
     level = 0
@@ -291,7 +292,7 @@ class SubItem:
 
             if len(type) > 0 and type != self.d.currentChildType:
                 self.d.put('type="%s",' % type) # str(type.unqualified()) ?
-                if not type in typeInfoCache:
+                if not type in typeInfoCache and type != " ": # FIXME: Move to lookupType
                     typeObj = lookupType(type)
                     if not typeObj is None:
                         typeInfoCache[type] = TypeInfo(typeObj)
@@ -1081,7 +1082,7 @@ class Dumper:
                 try:
                     list = eval(exp)
                     self.putValue("")
-                    self.putType(" ")
+                    self.putNoType()
                     self.putNumChild(len(list))
                     # This is a list of expressions to evaluate
                     with Children(self, len(list)):
@@ -1092,7 +1093,7 @@ class Dumper:
                 except RuntimeError, error:
                     warn("EVAL: ERROR CAUGHT %s" % error)
                     self.putValue("<syntax error>")
-                    self.putType(" ")
+                    self.putNoType()
                     self.putNumChild(0)
                     with Children(self, 0):
                         pass
@@ -1104,7 +1105,7 @@ class Dumper:
             handled = False
             if len(exp) == 0: # The <Edit> case
                 self.putValue(" ")
-                self.putType(" ")
+                self.putNoType()
                 self.putNumChild(0)
             else:
                 try:
@@ -1146,6 +1147,11 @@ class Dumper:
         if priority >= self.currentTypePriority:
             self.currentType = type
             self.currentTypePriority = priority
+
+    def putNoType(self):
+        # FIXME: replace with something that does not need special handling
+        # in SubItem.__exit__().
+        self.putBetterType(" ")
 
     def putBetterType(self, type, priority = 0):
         self.currentType = type
@@ -1364,26 +1370,25 @@ class Dumper:
             return
 
         if value.type.code == gdb.TYPE_CODE_ARRAY:
-            baseptr = value.cast(realtype.pointer())
-            if format == 0 or format == 1 or format == 2:
-                # Explicityly requested Latin1 or UTF-8 formatting.
-                f = [Hex2EncodedLatin1, Hex2EncodedUtf8, Hex2EncodedLocal8Bit][format]
-                self.putAddress(value.address)
-                self.putType(realtype)
-                self.putValue(encodeCharArray(value, 100), f)
-                self.putNumChild(1)
+            targettype = realtype.target()
+            self.putAddress(value.address)
+            self.putType(realtype)
+            self.putNumChild(1)
+            if format == 0:
+                # Explicitly requested Latin1 formatting.
+                self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
+            elif format == 1:
+                # Explicitly requested UTF-8 formatting.
+                self.putValue(encodeCharArray(value, 100), Hex2EncodedUtf8)
+            elif format == 2:
+                # Explicitly requested Local 8-bit formatting.
+                self.putValue(encodeCharArray(value, 100), Hex2EncodedLocal8Bit)
             else:
-                self.putType(realtype)
-                self.putAddress(value.address)
-                self.putValue("%s" % baseptr)
-                self.putNumChild(1)
+                self.putValue("@0x%x" % long(value.cast(targettype.pointer())))
             if self.isExpanded(item):
-                charptr = lookupType("unsigned char").pointer()
-                addr1 = (baseptr+1).cast(charptr)
-                addr0 = baseptr.cast(charptr)
-                self.put('addrbase="%s",' % cleanAddress(addr0))
-                self.put('addrstep="%s",' % (addr1 - addr0))
-                with Children(self, 1, realtype.target()):
+                self.put('addrbase="0x%x",' % long(value.cast(targettype.pointer())))
+                self.put('addrstep="%s",' % targettype.sizeof)
+                with Children(self, 1, targettype):
                     child = Item(value, item.iname, None, item.name)
                     self.putFields(child)
             return

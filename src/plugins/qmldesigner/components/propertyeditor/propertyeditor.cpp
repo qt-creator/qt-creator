@@ -933,9 +933,11 @@ QWidget *PropertyEditor::widget()
     return m_stackedWidget;
 }
 
-void PropertyEditor::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
+
+void PropertyEditor::actualStateChanged(const ModelNode &node)
 {
-    QmlModelView::stateChanged(newQmlModelState, oldQmlModelState);
+    QmlModelView::actualStateChanged(node);
+    QmlModelState newQmlModelState(node);
     Q_ASSERT(newQmlModelState.isValid());
     if (debug)
         qDebug() << Q_FUNC_INFO << newQmlModelState.name();

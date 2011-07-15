@@ -52,6 +52,7 @@ QWidget {
             id: label
             text: caption
             toolTip: caption
+            visible: caption != ""
         }
 
         SpinBox {

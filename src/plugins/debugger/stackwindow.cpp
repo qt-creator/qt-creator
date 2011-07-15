@@ -105,6 +105,10 @@ void StackWindow::setModel(QAbstractItemModel *model)
     //resizeColumnsToContents();
     resizeColumnToContents(0);
     resizeColumnToContents(3);
+    if (header()) {
+        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustStackColumnWidths);
+        setAlwaysResizeColumnsToContents(adjust);
+    }
 }
 
 void StackWindow::contextMenuEvent(QContextMenuEvent *ev)

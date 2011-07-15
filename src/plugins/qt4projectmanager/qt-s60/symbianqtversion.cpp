@@ -117,6 +117,11 @@ bool SymbianQtVersion::toolChainAvailable(const QString &id) const
     if (!isValid())
         return false;
     if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
+#ifndef Q_OS_WIN
+        return false;
+#endif
+        if (!QFileInfo(systemRoot() + QLatin1String("/Epoc32/release/winscw/udeb/epoc.exe")).exists())
+            return false;
         QList<ProjectExplorer::ToolChain *> tcList =
                 ProjectExplorer::ToolChainManager::instance()->toolChains();
         foreach (ProjectExplorer::ToolChain *tc, tcList) {

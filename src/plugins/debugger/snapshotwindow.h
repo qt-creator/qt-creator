@@ -59,6 +59,7 @@ private:
     void removeSnapshot(int i);
     void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
+    void setModel(QAbstractItemModel *model);
 
     SnapshotHandler *m_snapshotHandler;
 };

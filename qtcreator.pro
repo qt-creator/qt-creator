@@ -1,10 +1,11 @@
+include(qtcreator.pri)
+
 #version check qt
-contains(QT_VERSION, ^4\\.[0-6]\\..*) {
+!minQtVersion(4, 7, 4) {
     message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
-    error("Use at least Qt 4.7.")
+    error("Use at least Qt 4.7.4.")
 }
 
-include(qtcreator.pri)
 include(doc/doc.pri)
 
 TEMPLATE  = subdirs

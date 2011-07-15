@@ -43,9 +43,7 @@ namespace XmlProtocol {
 class Frame::Private : public QSharedData
 {
 public:
-    explicit Private() :
-        ip(0), line( -1 )
-    {}
+    Private() : ip(0), line(-1) {}
 
     bool operator==(const Private &other) const
     {
@@ -74,7 +72,7 @@ Frame::~Frame()
 }
 
 Frame::Frame(const Frame &other) :
-    d( other.d )
+    d(other.d)
 {
 }
 

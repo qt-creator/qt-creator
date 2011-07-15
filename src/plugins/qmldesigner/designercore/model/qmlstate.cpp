@@ -42,14 +42,12 @@
 namespace QmlDesigner {
 
 QmlModelState::QmlModelState()
-   : QmlModelNodeFacade(),
-     m_isBaseState(false)
+   : QmlModelNodeFacade()
 {
 }
 
 QmlModelState::QmlModelState(const ModelNode &modelNode)
-        : QmlModelNodeFacade(modelNode),
-        m_isBaseState(false)
+        : QmlModelNodeFacade(modelNode)
 {
 }
 
@@ -268,7 +266,7 @@ void QmlModelState::destroy()
 
 bool QmlModelState::isBaseState() const
 {
-    return m_isBaseState && modelNode().isRootNode();
+    return !modelNode().isValid() || modelNode().isRootNode();
 }
 
 QmlModelState QmlModelState::duplicate(const QString &name) const
@@ -308,7 +306,7 @@ QmlModelStateGroup QmlModelState::stateGroup() const
 QmlModelState QmlModelState::createBaseState(const QmlModelView *view)
 {
     QmlModelState fxState(view->rootModelNode());
-    fxState.m_isBaseState = true;
+
     return fxState;
 }
 

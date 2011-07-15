@@ -87,6 +87,7 @@ GroupBox {
 
                 DoubleSpinBox {
                     text: ""
+                    decimals: 2
                     id: opacitySpinBox;
                     backendValue: backendValues.opacity
                     property variant backendValueValue: backendValues.opacity.value;

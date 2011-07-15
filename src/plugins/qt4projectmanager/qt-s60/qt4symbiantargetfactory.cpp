@@ -175,6 +175,11 @@ QList<BuildConfigurationInfo> Qt4SymbianTargetFactory::availableBuildConfigurati
     return tmp;
 }
 
+bool Qt4SymbianTargetFactory::selectByDefault(const QString &id) const
+{
+    return id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID);
+}
+
 QSet<QString> Qt4SymbianTargetFactory::targetFeatures(const QString & /*id*/) const
 {
     QSet<QString> features;

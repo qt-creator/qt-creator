@@ -49,7 +49,7 @@ QmlTransitionNodeInstance::Pointer QmlTransitionNodeInstance::create(QObject *ob
 
      Pointer instance(new QmlTransitionNodeInstance(transition));
 
-     instance->populateResetValueHash();
+     instance->populateResetHashes();
 
      transition->setToState("invalidState");
      transition->setFromState("invalidState");

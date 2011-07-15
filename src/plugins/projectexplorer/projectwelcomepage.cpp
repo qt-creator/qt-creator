@@ -51,7 +51,8 @@ SessionModel::SessionModel(SessionManager *manager, QObject *parent)
     QHash<int, QByteArray> roleNames;
     roleNames[Qt::DisplayRole] = "sessionName";
     roleNames[DefaultSessionRole] = "defaultSession";
-    roleNames[CurrentSessionRole] = "currentSession";
+    roleNames[ActiveSessionRole] = "activeSession";
+    roleNames[LastSessionRole] = "lastSession";
     setRoleNames(roleNames);
     connect(manager, SIGNAL(sessionLoaded()), SLOT(resetSessions()));
 }
@@ -63,18 +64,25 @@ int SessionModel::rowCount(const QModelIndex &) const
 
 QVariant SessionModel::data(const QModelIndex &index, int role) const
 {
-    if (role == Qt::DisplayRole || role == DefaultSessionRole || role == CurrentSessionRole) {
+    if (role == Qt::DisplayRole || role == DefaultSessionRole ||
+            role == LastSessionRole || role == ActiveSessionRole) {
         QString sessionName = m_manager->sessions().at(index.row());
         if (role == Qt::DisplayRole)
             return sessionName;
         else if (role == DefaultSessionRole)
             return m_manager->isDefaultSession(sessionName);
-        else if (role == CurrentSessionRole)
-            return sessionName == m_manager->currentSession();
+        else if (role == LastSessionRole)
+            return m_manager->lastSession() == sessionName;
+        else if (role == ActiveSessionRole)
+            return m_manager->activeSession() == sessionName;
     }
     return QVariant();
 }
 
+bool SessionModel::isDefaultVirgin() const
+{
+    return m_manager->isDefaultVirgin();
+}
 
 void SessionModel::resetSessions()
 {
@@ -123,7 +131,8 @@ void ProjectModel::resetProjects()
 
 ///////////////////
 
-ProjectWelcomePage::ProjectWelcomePage()
+ProjectWelcomePage::ProjectWelcomePage() :
+    m_sessionModel(0), m_projectModel(0)
 {
 }
 
@@ -131,10 +140,13 @@ void ProjectWelcomePage::facilitateQml(QDeclarativeEngine *engine)
 {
     static const char feedGroupName[] = "Feeds";
 
-    QDeclarativeContext *ctx = engine->rootContext();
     ProjectExplorerPlugin *pePlugin = ProjectExplorer::ProjectExplorerPlugin::instance();
-    ctx->setContextProperty("sessionList", new SessionModel(pePlugin->session(), this));
-    ctx->setContextProperty("projectList", new ProjectModel(pePlugin, this));
+    m_sessionModel = new SessionModel(pePlugin->session(), this);
+    m_projectModel = new ProjectModel(pePlugin, this);
+
+    QDeclarativeContext *ctx = engine->rootContext();
+    ctx->setContextProperty("sessionList", m_sessionModel);
+    ctx->setContextProperty("projectList", m_projectModel);
     Core::MultiFeedRssModel *rssModel = new Core::MultiFeedRssModel(this);
     QSettings *settings = Core::ICore::instance()->settings();
     if (settings->childGroups().contains(feedGroupName)) {
@@ -154,9 +166,12 @@ void ProjectWelcomePage::facilitateQml(QDeclarativeEngine *engine)
     ctx->setContextProperty("projectWelcomePage", this);
 }
 
-void ProjectWelcomePage::setWelcomePageData(const WelcomePageData &welcomePageData)
+void ProjectWelcomePage::reloadWelcomeScreenData()
 {
-    m_welcomePageData = welcomePageData;
+    if (m_sessionModel)
+        m_sessionModel->resetSessions();
+    if (m_projectModel)
+        m_projectModel->resetProjects();
 }
 
 } // namespace Internal

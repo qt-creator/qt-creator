@@ -50,7 +50,6 @@
 #include <utils/detailswidget.h>
 #include <utils/styledbar.h>
 #include <utils/wizard.h>
-#include <utils/welcomemodetreewidget.h>
 #include <utils/crumblepath.h>
 
 #include <QtDesigner/QDesignerCustomWidgetCollectionInterface>
@@ -236,27 +235,6 @@ class Wizard_CW :
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
     explicit Wizard_CW(QObject *parent = 0);
-};
-
-class WelcomePageWidget_CW :
-    public QObject,
-    public CustomWidget<Utils::WelcomeModeTreeWidget>
-{
-    Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetInterface)
-public:
-    explicit WelcomePageWidget_CW(QObject *parent = 0);
-    virtual QWidget *createWidget(QWidget *parent);
-};
-
-class WelcomeModeLabel_CW :
-    public QObject,
-    public CustomWidget<Utils::WelcomeModeLabel>
-{
-    Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetInterface)
-public:
-    explicit WelcomeModeLabel_CW(QObject *parent = 0);
 };
 
 class CrumblePath_CW :

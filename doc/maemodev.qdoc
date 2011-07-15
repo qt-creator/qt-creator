@@ -29,7 +29,7 @@
     \endif
     \page creator-developing-maemo.html
     \if defined(qcmanual)
-    \nextpage creator-developing-symbian.html
+    \nextpage creator-developing-generic-linux.html
     \else
     \nextpage smartinstaller.html
     \endif
@@ -279,7 +279,7 @@
     only need to configure a connection to the device.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \gui {Tools > Options... > Maemo > Maemo Device Configurations}.
+    in \gui {Tools > Options... > Linux Devices > Device Configurations}.
 
     \image qtcreator-maemo-device-configurations.png "Maemo Device Configurations dialog"
 
@@ -327,8 +327,8 @@
             \note If you experience connection problems due to a USB port issue,
             switch to a different port or use WLAN to connect to the device.
 
-            \o Select \gui Tools > \gui Options... > \gui Maemo >
-            \gui{Maemo Device Configurations > Add}, and add a new configuration for a
+            \o Select \gui {Tools > Options... > Linux Devices > Device
+            Configurations > Add}, and add a new configuration for a
             hardware device.
 
             \image qtcreator-screenshot-devconf.png
@@ -345,6 +345,9 @@
             \o In the \gui {The device's host name or IP address} field, enter
             the IP address from the connectivity tool on the device.
 
+            \o In the \gui {The SSH server port} field, enter the port number to
+            use for SSH connections.
+
             \o Click \gui Next.
 
             \o Follow the instructions of the wizard to create the connection.
@@ -360,8 +363,9 @@
 
             \list a
 
-                \o In Qt Creator, select \gui {Tools > Options... > Maemo >
-                Maemo Device Configurations > Add} to add a new configuration.
+                \o In Qt Creator, select \gui {Tools > Options... > Linux
+                Devices > Device Configurations > Add} to add a new
+                configuration.
 
                 \image qtcreator-maemo-emulator-connection.png
 
@@ -428,8 +432,8 @@
         \o To specify the password, enter the following command:
         \c{/usr/lib/mad-developer/devrootsh passwd user}
 
-        \o In Qt Creator, Select \gui Tools > \gui Options... > \gui Maemo >
-        \gui{Maemo Device Configurations}.
+        \o In Qt Creator, select \gui {Tools > Options... Linux Devices >
+         Device Configurations}.
 
         \o Specify the username \c user and the password in the device configuration.
 
@@ -444,7 +448,8 @@
 
          \list 1
 
-             \o Select \gui {Tools > Options... > Maemo > Maemo Device Configurations
+             \o Select \gui {Tools > Options... > Linux Devices > Device
+             Configurations
              > Generate SSH Key...}.
 
              \o Click \gui {Generate SSH Key}.
@@ -465,7 +470,7 @@
 
     You can view processes running on the Maemo or MeeGo Harmattan device and
     kill them.
-    Select \gui {Tools > Options... > Maemo > Maemo Device Configurations >
+    Select \gui {Tools > Options... > Linux Devices > Device Configurations >
     Remote Processes...}.
 
     You can filter the processes by name in the \gui {List of Remote Processes}

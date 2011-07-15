@@ -60,7 +60,7 @@ ComponentNodeInstance::Pointer ComponentNodeInstance::create(QObject  *object)
 
     Pointer instance(new ComponentNodeInstance(component));
 
-    instance->populateResetValueHash();
+    instance->populateResetHashes();
 
     return instance;
 }

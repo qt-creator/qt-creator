@@ -57,39 +57,6 @@ QWidget {
                     maximumValue: 1000;
                 }
                 IntEditor {
-                    backendValue: backendValues.cellHeight
-                    caption: qsTr("Cell height")
-                    baseStateFlag: isBaseState;
-                    step: 1;
-                    minimumValue: 0;
-                    maximumValue: 200;
-                }
-                IntEditor {
-                    backendValue: backendValues.cellWidth
-                    caption: qsTr("Cell width")
-                    baseStateFlag: isBaseState;
-                    step: 1;
-                    minimumValue: 0;
-                    maximumValue: 1000;
-                }
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Flow")
-                        }
-
-                        ComboBox {
-                            baseStateFlag: isBaseState
-                            items : { ["LeftToRight", "TopToBottom"] }
-                            currentText: backendValues.flow.value;
-                            onItemsChanged: {
-                                currentText =  backendValues.flow.value;
-                            }
-                            backendValue: backendValues.flow
-                        }
-                    }
-                } //QWidget
-                IntEditor {
                     backendValue: backendValues.keyNavigationWraps
                     caption: qsTr("Navigation wraps")
                     toolTip: qsTr("Determines whether the grid wraps key navigation.")
@@ -127,11 +94,11 @@ QWidget {
                         ComboBox {
                             baseStateFlag: isBaseState
                             items : { ["Horizontal", "Vertical"] }
-                            currentText: backendValues.snapMode.value;
+                            currentText: backendValues.orientation.value;
                             onItemsChanged: {
-                                currentText =  backendValues.snapMode.value;
+                                currentText =  backendValues.orientation.value;
                             }
-                            backendValue: backendValues.snapMode
+                            backendValue: backendValues.orientation
                         }
                     }
                 } //QWidget
@@ -144,7 +111,7 @@ QWidget {
 
                         ComboBox {
                             baseStateFlag: isBaseState
-                            items : { ["NoSnap", "SnapToRow", "SnapOneRow"] }
+                            items : { ["NoSnap", "SnapToItem", "SnapOneItem"] }
                             currentText: backendValues.snapMode.value;
                             onItemsChanged: {
                                 currentText =  backendValues.snapMode.value;

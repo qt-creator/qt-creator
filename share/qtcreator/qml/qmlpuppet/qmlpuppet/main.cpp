@@ -34,6 +34,9 @@
 
 #include <QApplication>
 #include <QStringList>
+#ifdef QT_SIMULATOR
+#include <QtGui/private/qsimulatorconnection_p.h>
+#endif
 
 #include <qt4nodeinstanceclientproxy.h>
 
@@ -47,6 +50,10 @@
 
 int main(int argc, char *argv[])
 {
+#ifdef QT_SIMULATOR
+    QtSimulatorPrivate::SimulatorConnection::createStubInstance();
+#endif
+
     QApplication application(argc, argv);
 
     if (application.arguments().count() != 4)

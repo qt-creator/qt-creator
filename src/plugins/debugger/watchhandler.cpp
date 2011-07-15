@@ -296,6 +296,7 @@ QString WatchModel::displayType(const WatchData &data) const
         : data.displayedType;
     if (data.bitsize)
         base += QString(":%1").arg(data.bitsize);
+    base.remove('\'');
     return base;
 }
 
@@ -366,14 +367,16 @@ static inline QString formattedValue(const WatchData &data, int format)
             return data.value;
         // Evil hack, covers 'unsigned' as well as quint64.
         if (data.type.contains('u'))
-            return reformatInteger(data.value.toULongLong(), format);
+            return reformatInteger(data.value.toULongLong(0, 0), format);
         return reformatInteger(data.value.toLongLong(), format);
     }
 
-    bool ok = false;
-    qulonglong integer = data.value.toULongLong(&ok, 0);
-    if (ok)
-       return reformatInteger(integer, format);
+    if (!isPointerType(data.type) && !isVTablePointer(data.type)) {
+        bool ok = false;
+        qulonglong integer = data.value.toULongLong(&ok, 0);
+        if (ok)
+           return reformatInteger(integer, format);
+    }
 
     QString result = data.value;
     result.replace(QLatin1Char('\n'), QLatin1String("\\n"));
@@ -410,16 +413,11 @@ static inline QString formattedValue(const WatchData &data, int format)
 // "0x00000000`000003fd "Hallo"", or check gdb formatting of characters.
 static inline quint64 pointerValue(QString data)
 {
-    if (data.isEmpty() || !data.startsWith(QLatin1String("0x")))
-        return 0;
-    data.remove(0, 2);
     const int blankPos = data.indexOf(QLatin1Char(' '));
     if (blankPos != -1)
         data.truncate(blankPos);
     data.remove(QLatin1Char('`'));
-    bool ok;
-    const quint64 address = data.toULongLong(&ok, 16);
-    return ok ? address : quint64(0);
+    return data.toULongLong(0, 0);
 }
 
 // Return the type used for editing
@@ -712,7 +710,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_handler->m_expandedINames.contains(data.iname);
 
         case LocalsTypeFormatListRole: {
-            if (data.referencingAddress || data.type.endsWith('*'))
+            if (data.referencingAddress || isPointerType(data.type))
                 return QStringList()
                     << tr("Raw pointer")
                     << tr("Latin1 string")
@@ -769,7 +767,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         }
 
         case LocalsAddressRole:
-            return data.coreAddress();
+            return QVariant(data.coreAddress());
         case LocalsReferencingAddressRole:
             return QVariant(data.referencingAddress);
         case LocalsSizeRole:
@@ -845,7 +843,7 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
     // source of a drag and drop operation and as a drop target.
 
     static const Qt::ItemFlags notEditable
-        = /* Qt::ItemIsSelectable | */ Qt::ItemIsEnabled;
+        = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     static const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
 
     // Disable editing if debuggee is positively running.

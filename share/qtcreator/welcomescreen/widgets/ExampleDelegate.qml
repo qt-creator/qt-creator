@@ -31,12 +31,16 @@
 **************************************************************************/
 
 import QtQuick 1.0
+import components 1.0 as Components
 
 Rectangle {
     id: root
-    height: 110
+    height: 130
     color: "#00ffffff"
     radius: 6
+    clip: true
+
+    Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
 
     Text {
         id: title
@@ -46,8 +50,7 @@ Rectangle {
         anchors.topMargin: 10
         text: model.name
         font.bold: true
-        font.pixelSize: 16;
-
+        font.pixelSize: 16
     }
 
     RatingBar { id: rating; anchors.top: parent.top; anchors.topMargin: 10; anchors.right: parent.right; anchors.rightMargin: 10; rating: model.difficulty; visible: model.difficulty !== 0 }
@@ -66,20 +69,44 @@ Rectangle {
         source: model.imageUrl !== "" ? "image://helpimage/" + encodeURI(model.imageUrl) : ""
     }
 
-    Text {
+    Item {
         id: description
-        clip: true
         anchors.left: image.right
-        anchors.leftMargin: 10
         anchors.right: parent.right
         anchors.rightMargin: 10
+        anchors.leftMargin: image.hideImage ? 0 : 10
         anchors.top: rating.bottom
         anchors.topMargin: 6
-        wrapMode: Text.WordWrap
-        text: model.description
+        anchors.bottom: bottomRow.top
+        anchors.bottomMargin: 6
+        clip: true
+        Text {
+            clip: true
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.left: parent.left
+            wrapMode: Text.WordWrap
+            text: model.description
+        }
     }
-    Text { id: labelText; anchors.top: description.bottom; anchors.topMargin: 10; anchors.left: image.right; text: "Tags: "; font.bold: true; }
-    Row { id: tagLine; anchors.top: description.bottom; anchors.topMargin: 10; anchors.left: labelText.right; Text { text: model.tags.join(", "); color: "grey" } }
+    Row {
+        id: bottomRow
+        anchors.left: image.right;
+        anchors.leftMargin: image.hideImage ? 0 : 10
+        anchors.topMargin: 10
+        anchors.bottomMargin: 10
+        anchors.bottom: parent.bottom
+        spacing: 4
+        Text { text: qsTr("Tags:"); font.bold: true; }
+        Text { text: model.tags.join(", "); color: "grey" }
+    }
+
+    Rectangle {
+        visible: count-1 !== index
+        height: 1
+        anchors {left: parent.left; bottom: parent.bottom; right: parent.right }
+        color: "darkgrey"
+    }
 
     MouseArea {
         id: mouseArea
@@ -95,7 +122,7 @@ Rectangle {
         onExited: parent.state = ""
     }
 
-    states: [ State { name: "hover"; PropertyChanges { target: root; color: "#eeeeeeee" } } ]
+    states: [ State { name: "hover"; PropertyChanges { target: root; color: "#5effffff" } } ]
 
     transitions:
         Transition {

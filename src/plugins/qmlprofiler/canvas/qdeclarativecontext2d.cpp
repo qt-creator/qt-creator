@@ -941,6 +941,8 @@ void Context2D::beginPainting()
         return;
 
     if (m_pixmap.width() != m_width || m_pixmap.height() != m_height) {
+        if (m_painter.isActive())
+            m_painter.end();
         m_pixmap = QPixmap(m_width, m_height);
         m_pixmap.fill(parent()->property("color").value<QColor>());
     }

@@ -72,6 +72,7 @@ public slots:
 
     void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void updateTimer(qreal elapsedSeconds);
+    void correctTimer();
 
     void clearDisplay();
 

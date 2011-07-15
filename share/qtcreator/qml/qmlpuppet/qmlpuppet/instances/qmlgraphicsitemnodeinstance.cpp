@@ -92,7 +92,7 @@ QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(QObject
 
     static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem)->classBegin();
 
-    instance->populateResetValueHash();
+    instance->populateResetHashes();
 
     return instance;
 }
@@ -207,13 +207,26 @@ void QmlGraphicsItemNodeInstance::refresh()
     repositioning(qmlGraphicsItem());
 }
 
+void QmlGraphicsItemNodeInstance::recursiveDoComponentComplete(QDeclarativeItem *declarativeItem)
+{
+    if (declarativeItem) {
+        if (QDeclarativeItemPrivate::get(declarativeItem)->componentComplete)
+            return;
+        static_cast<QDeclarativeParserStatus*>(declarativeItem)->componentComplete();
+
+        foreach (QGraphicsItem *childItem, declarativeItem->childItems()) {
+            QGraphicsObject *childGraphicsObject = childItem->toGraphicsObject();
+            QDeclarativeItem *childDeclarativeItem = qobject_cast<QDeclarativeItem*>(childGraphicsObject);
+            if (childDeclarativeItem && !nodeInstanceServer()->hasInstanceForObject(childDeclarativeItem))
+                recursiveDoComponentComplete(childDeclarativeItem);
+        }
+    }
+}
+
 void QmlGraphicsItemNodeInstance::doComponentComplete()
 {
     if (qmlGraphicsItem()) {
-        if (static_cast<QDeclarativeItemPrivate*>(QGraphicsItemPrivate::get(qmlGraphicsItem()))->componentComplete)
-            return;
-        static_cast<QDeclarativeParserStatus*>(qmlGraphicsItem())->componentComplete();
-        QGraphicsItemPrivate::get(qmlGraphicsItem())->sendParentChangeNotification = 1;
+        recursiveDoComponentComplete(qmlGraphicsItem());
     }
 
     graphicsObject()->update();
@@ -239,6 +252,26 @@ int QmlGraphicsItemNodeInstance::penWidth() const
         return rectangle->border()->width();
 
     return GraphicsObjectNodeInstance::penWidth();
+}
+
+void QmlGraphicsItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
+{
+    GraphicsObjectNodeInstance::initialize(objectNodeInstance);
+
+    if (objectNodeInstance->instanceId() == 0 && objectNodeInstance->isQmlGraphicsItem()) { // is root item
+        objectNodeInstance.staticCast<QmlGraphicsItemNodeInstance>()->setVisible(true);
+        objectNodeInstance->setResetValue("visible", true);
+    }
+}
+
+void QmlGraphicsItemNodeInstance::setVisible(bool isVisible)
+{
+    qmlGraphicsItem()->setVisible(isVisible);
+}
+
+bool QmlGraphicsItemNodeInstance::isVisible() const
+{
+    return qmlGraphicsItem()->isVisible();
 }
 
 void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
@@ -301,7 +334,10 @@ void QmlGraphicsItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &ol
         setMovable(true);
     }
 
+    bool componentComplete = QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete;
+    QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete = 1;
     GraphicsObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
+    QDeclarativeItemPrivate::get(qmlGraphicsItem())->componentComplete = componentComplete;
 
     if (newParentInstance && newParentInstance->isPositioner()) {
         setInPositioner(true);

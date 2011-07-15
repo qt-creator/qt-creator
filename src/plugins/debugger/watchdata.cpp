@@ -68,6 +68,13 @@ bool isPointerType(const QByteArray &type)
     return type.endsWith('*') || type.endsWith("* const");
 }
 
+bool isVTablePointer(const QByteArray &type)
+{
+    // FIXME: That is cdb only.
+    // But no user type can be named like this, so this is safe.
+    return type.startsWith("__fptr()");
+}
+
 bool isCharPointerType(const QByteArray &type)
 {
     return type == "char *" || type == "const char *" || type == "char const *";
@@ -276,7 +283,7 @@ void WatchData::setAddress(const quint64 &a)
 void WatchData::setHexAddress(const QByteArray &a)
 {
     bool ok;
-    const qint64 av = a.toULongLong(&ok, 16);
+    const qint64 av = a.toULongLong(&ok, 0);
     if (ok) {
         address = av;
     } else {

@@ -36,21 +36,33 @@ import components 1.0 as Components
 
 Item {
     id: root
+    property int margin: 10
+
     Components.ScrollArea {
         id: scrollArea
         anchors.fill: parent
         frame: false
         Item {
-            height: Math.max(recentSessions.height, recentProjects.height)
-            width: root.width-20
+            height: Math.max(recentSessions.height + manageSessionsButton.height + margin,
+                             recentProjects.height)
+            width: root.width
             Widgets.RecentSessions {
                 id: recentSessions
-                width: parent.width / 2
+                width: parent.width / 3 - margin
             }
+            Widgets.Button {
+                id: manageSessionsButton
+                anchors.top: recentSessions.bottom
+                anchors.topMargin: margin
+                anchors.left: recentSessions.left
+                text: qsTr("Manage Sessions...")
+                onClicked: projectWelcomePage.manageSessions()
+            }
+
             Widgets.RecentProjects {
                 id: recentProjects
-                x: parent.width / 2
-                width: parent.width / 2
+                x: parent.width / 3 + margin
+                width: parent.width - x
             }
         }
     }

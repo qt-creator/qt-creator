@@ -864,6 +864,8 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
             // Try automatic dereferentiation
             data.exp = "(*(" + data.exp + "))";
             data.type = data.type + '.'; // FIXME: fragile HACK to avoid recursion
+            if (data.value.startsWith("0x"))
+                data.value = "@" + data.value;
             insertData(data);
         } else {
             data.setChildrenUnneeded();

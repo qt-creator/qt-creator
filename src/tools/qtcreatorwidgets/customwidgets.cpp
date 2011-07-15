@@ -240,38 +240,6 @@ Wizard_CW::Wizard_CW(QObject *parent) :
 {
 }
 
-WelcomePageWidget_CW::WelcomePageWidget_CW(QObject *parent) :
-    QObject(parent),
-    CustomWidget<Utils::WelcomeModeTreeWidget>
-        (QLatin1String("<utils/welcomemodetreewidget.h>"),
-        false,
-        QLatin1String(groupC),
-        QIcon(),
-        QLatin1String("Welcome page widget"))
-{
-}
-
-QWidget *WelcomePageWidget_CW::createWidget(QWidget *parent)
-{
-    Utils::WelcomeModeTreeWidget *rc = new Utils::WelcomeModeTreeWidget(parent);
-    rc->addNewsItem(QLatin1String("Breaking news"),
-                        QLatin1String("Bla bla bla"), QLatin1String("qt.nokia.com"));
-    rc->addNewsItem(QLatin1String("Yesterday's breaking news"),
-                        QLatin1String("Blub blub blub"), QLatin1String("qt.nokia.com"));
-    return rc;
-}
-
-WelcomeModeLabel_CW::WelcomeModeLabel_CW(QObject *parent) :
-    QObject(parent),
-    CustomWidget<Utils::WelcomeModeLabel>
-    (QLatin1String("<utils/welcomemodetreewidget.h>"),
-    false,
-    QLatin1String(groupC),
-    QIcon(),
-    QLatin1String("Welcome page header label"))
-{
-}
-
 CrumblePath_CW::CrumblePath_CW(QObject *parent) :
     QObject(parent),
     CustomWidget<Utils::CrumblePath>
@@ -281,8 +249,7 @@ CrumblePath_CW::CrumblePath_CW(QObject *parent) :
     QIcon(),
     QLatin1String("Crumble Path"))
 {
-};
-
+}
 
 DetailsWidget_CW::DetailsWidget_CW(QObject *parent) :
     QObject(parent),
@@ -410,8 +377,6 @@ WidgetCollection::WidgetCollection(QObject *parent) :
     m_plugins.push_back(new StyledBar_CW(this));
     m_plugins.push_back(new StyledSeparator_CW(this));
     m_plugins.push_back(new Wizard_CW(this));
-    m_plugins.push_back(new WelcomePageWidget_CW(this));
-    m_plugins.push_back(new WelcomeModeLabel_CW(this));
     m_plugins.push_back(new CrumblePath_CW(this));
 }
 

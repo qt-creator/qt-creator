@@ -30,52 +30,58 @@
 **
 **************************************************************************/
 
-#ifndef WELCOMEMODETREEWIDGET_H
-#define WELCOMEMODETREEWIDGET_H
 
-#include "utils_global.h"
 
-#include <QtGui/QTreeWidget>
-#include <QtGui/QLabel>
+#include "anchorchangesnodeinstance.h"
 
-namespace Utils {
+namespace QmlDesigner {
 
-struct WelcomeModeTreeWidgetPrivate;
-class WelcomeModeItemWidget;
+namespace Internal {
 
-class QTCREATOR_UTILS_EXPORT WelcomeModeLabel : public QLabel
+AnchorChangesNodeInstance::AnchorChangesNodeInstance(QObject *object) :
+        ObjectNodeInstance(object)
 {
-    Q_OBJECT
-public:
-    explicit WelcomeModeLabel(QWidget *parent = 0);
-    virtual ~WelcomeModeLabel();
+}
 
-private:
-    void *m_unused;
-};
-
-class QTCREATOR_UTILS_EXPORT WelcomeModeTreeWidget : public QWidget
+AnchorChangesNodeInstance::Pointer AnchorChangesNodeInstance::create(QObject *object)
 {
-    Q_OBJECT
-public:
-    explicit WelcomeModeTreeWidget(QWidget *parent = 0);
-    virtual ~WelcomeModeTreeWidget();
+    Q_ASSERT(object);
 
-public slots:
-    void addItem(const QString &label, const QString &data,const QString &toolTip = QString());
+    Pointer instance(new AnchorChangesNodeInstance(object));
 
-    // Add a 'News' item as two lines of "<bold>Breaking news!</bold>\nElided Start of article...."
-    void addNewsItem(const QString &title, const QString &description, const QString &link);
-    void clear();
+    return instance;
+}
 
-signals:
-    void activated(const QString &data);
+void AnchorChangesNodeInstance::setPropertyVariant(const QString &/*name*/, const QVariant &/*value*/)
+{
+}
 
-private:
-    void addItemWidget(WelcomeModeItemWidget *w);
+void AnchorChangesNodeInstance::setPropertyBinding(const QString &/*name*/, const QString &/*expression*/)
+{
+}
 
-    WelcomeModeTreeWidgetPrivate *m_d;
-};
+QVariant AnchorChangesNodeInstance::property(const QString &/*name*/) const
+{
+    return QVariant();
+}
 
-} // namespace Utils
-#endif // WELCOMEMODETREEWIDGET_H
+void AnchorChangesNodeInstance::resetProperty(const QString &/*name*/)
+{
+}
+
+
+void AnchorChangesNodeInstance::reparent(const ServerNodeInstance &/*oldParentInstance*/,
+                                         const QString &/*oldParentProperty*/,
+                                         const ServerNodeInstance &/*newParentInstance*/,
+                                         const QString &/*newParentProperty*/)
+{
+}
+
+QObject *AnchorChangesNodeInstance::changesObject() const
+{
+    return object();
+}
+
+} // namespace Internal
+
+} // namespace QmlDesigner

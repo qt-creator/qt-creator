@@ -38,6 +38,7 @@ Rectangle {
     id: root
 
     property bool dataAvailable: false;
+    property int eventCount: 0;
 
     // move the cursor in the editor
     signal updateCursorPosition
@@ -53,6 +54,7 @@ Rectangle {
         Plotter.reset();
         view.clearData();
         root.dataAvailable = false;
+        root.eventCount = 0;
         rangeMover.x = 2
         rangeMover.opacity = 0
     }
@@ -128,14 +130,6 @@ Rectangle {
     //handle debug data coming from C++
     Connections {
         target: connection
-        onEvent: {
-            if (root.dataAvailable) {
-                root.clearData();
-            }
-
-            if (!root.dataAvailable && event === 0) //### only handle paint event
-                Plotter.values.push(time);
-        }
 
         onRange: {
             if (root.dataAvailable) {
@@ -151,19 +145,22 @@ Rectangle {
                 Plotter.ranges.push( { type: type, start: startTime, duration: length, label: data, fileName: fileName, line: line, nestingLevel: nestingInType, nestingDepth: Plotter.nestingDepth[type] } );
                 if (nestingInType == 1)
                     Plotter.nestingDepth[type] = 1;
+                root.eventCount = Plotter.ranges.length;
+
             }
         }
 
         onComplete: {
             root.dataAvailable = true;
-            Plotter.calcFps();
-            view.visible = true;
-            view.setRanges(Plotter.ranges);
-            view.updateTimeline();
-            canvas.requestPaint();
-            rangeMover.x = 1    //### hack to get view to display things immediately
-            rangeMover.x = 0
-            rangeMover.opacity = 1
+            if (Plotter.ranges.length > 0) {
+                view.visible = true;
+                view.setRanges(Plotter.ranges);
+                view.updateTimeline();
+                canvas.requestPaint();
+                rangeMover.x = 1    //### hack to get view to display things immediately
+                rangeMover.x = 0
+                rangeMover.opacity = 1
+            }
         }
 
         onClear: {
@@ -499,5 +496,9 @@ Rectangle {
         color: Qt.rgba(0,0,64,0.7);
         height: flick.height + labels.y
         visible: false
+    }
+
+    StatusDisplay {
+        anchors.centerIn: flick
     }
 }

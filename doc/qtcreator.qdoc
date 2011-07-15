@@ -66,6 +66,7 @@
                 \o \l{Opening a Project}
                 \o \l{Adding Libraries to Projects}
                 \o \l{Connecting Maemo and MeeGo Harmattan Devices}
+                \o \l{Connecting Generic Linux Devices}
                 \o \l{Connecting Symbian Devices}
                 \o \l{Managing Sessions}
             \endlist
@@ -133,6 +134,7 @@
                 \o \l{Profiling QML Applications}
                 \o \l{Detecting Memory Leaks}
                 \o \l{Profiling Function Execution}
+                \o \l{Running Valgrind Tools Remotely}
            \endlist
        \o \l{Deploying Applications to Mobile Devices}
             \list
@@ -372,7 +374,8 @@
     and profile Qt Quick applications.
 
     You can test applications that are intended for mobile devices in the Qt
-    Simulator and Maemo Emulator, but you also need to test the applications
+    Simulator and Maemo or MeeGo Harmattan emulator, but you also need to test
+    the applications
     on real devices.
 
     \section2 Debuggers
@@ -435,11 +438,11 @@
     If you change property values or add properties in the code editor, the
     changes are updated in the running application when they are saved.
 
-    \section3 QML Observer
+    \section3 QML Inspector
 
-    While the application is running, you can use the \gui {QML Observer} view to
+    While the application is running, you can use the \gui {QML Inspector} view to
     explore the object structure, debug animations, and inspect colors. When debugging
-    complex applications, you can use the observe mode to jump to the position in code
+    complex applications, you can use the inspection mode to jump to the position in code
     where an element is defined.
 
     \section2 Code Analysis Tools
@@ -447,8 +450,8 @@
     The memory available on devices is limited and you should use it carefully.
     Qt Creator integrates Valgrind code analysis tools for detecting memory
     leaks and profiling function execution. These tools are only supported on
-    Linux and
-    Mac OS. You must download and install them separately to use them from Qt
+    Linux and Mac OS, but you can run them remotely from Windows. You must
+    download and install them separately to use them from Qt
     Creator.
 
     The QML Profiler is installed as part of Qt Creator. It allows you
@@ -556,6 +559,8 @@
 
         \o MeeGo Harmattan
 
+        \o Generic remote Linux
+
         \o Symbian
 
     \endlist
@@ -565,17 +570,19 @@
 
     \table
         \header
-            \o {1,5} Operating system
-            \o {5,1} Platform
+            \o {1,6} Operating system
+            \o {6,1} Platform
         \header
             \o Desktop
             \o Qt Simulator
             \o Maemo 5
             \o MeeGo Harmattan
+            \o Generic Remote Linux
             \o Symbian
 
         \row
             \o Windows
+            \o Yes
             \o Yes
             \o Yes
             \o Yes
@@ -587,9 +594,11 @@
             \o Yes
             \o Yes
             \o Yes
+            \o Yes
             \o Yes (by using Remote Compiler for building)
         \row
             \o Mac OS X
+            \o Yes
             \o Yes
             \o Yes
             \o Yes
@@ -776,7 +785,6 @@
        \o  \gui{Application Output}
        \o  \gui{Compile Output}
        \o  \gui{General Messages}
-       \o  \gui{Analysis}
        \o  \gui{Version Control}
     \endlist
 
@@ -790,7 +798,7 @@
     criteria in the \gui Find field and click the left and right arrows to
     search down and up in the pane.
 
-    To open the \gui{General Messages}, \gui{Analysis}, and \gui{Version Control}
+    To open the \gui{General Messages} and \gui{Version Control}
     panes, select \gui {Window > Output Panes}.
 
 
@@ -1181,14 +1189,15 @@
     as tree structure.
 
     \o \gui {Library} pane displays the building blocks that you can use to design
-    applications: predefined QML elements, your own QML components, and other
+    applications: predefined QML elements, your own QML components, Qt Quick
+    components for Symbian or MeeGo that you import to the project, and other
     resources.
 
     \o \gui Canvas is the working area where you create QML components and
     design applications.
 
     \o \gui {Properties} pane organizes the properties of the selected QML element
-    or QML component. You can also change the properties in the code editor.
+    or QML component. You can change the properties also in the code editor.
 
     \o \gui {State} pane displays the different states of the component. QML
     states typically describe user interface configurations, such as the UI
@@ -1207,7 +1216,8 @@
 
     You can select elements in the \gui Navigator to edit their properties
     in the \gui Properties pane. Elements can access the properties of their
-    parent element.
+    parent element. To select elements on the canvas, right-click an element,
+    and select another element in the context menu.
 
     Typically, child elements are located within the parent element on the
     canvas. However, they do not necessarily have to fit inside the parent element.
@@ -1238,6 +1248,20 @@
     \inlineimage qtcreator-splitbar.png
     .
 
+    \section2 Setting the Stacking Order
+
+    The \l{http://doc.qt.nokia.com/4.7/qml-item.html#z-prop}{z property} of an
+    element determines its position in relation to its sibling elements in the
+    element hierarchy. By default, elements with a higher stacking value are
+    drawn on top of siblings with a lower stacking value. Elements with the same
+    stacking value are drawn in the order they are listed, from the last item
+    up.
+
+    To change the stacking order of an item, right-click it on the canvas and
+    select \gui {Stack (z)}. You can raise or lower the stack value of an item
+    or move the item to the front or back of all its siblings. To remove the
+    \c z property, select \gui Reset.
+
     \section2 Switching Parent Elements
 
     When you drag and drop QML elements to the canvas, Qt Quick Designer
@@ -1250,21 +1274,32 @@
     element under the cursor becomes the new parent of the element.
 
     You can change the parent of an element also in the \gui Navigator pane.
-    Drag and drop the element to another position in the tree.
+    Drag and drop the element to another position in the tree or use the arrow
+    buttons to move the element in the tree.
+
+    \image qmldesigner-navigator-arrows.png "Navigator arrow buttons"
 
     \section1 Element Library
 
     The \gui {Library} pane contains two tabs: \gui {Items} and \gui {Resources}.
     The \gui Items pane displays the QML elements grouped by type: your own QML
-    components, basic elements, interaction elements, views, and widgets.
+    components, basic elements, positioner elements, and views.
 
-    \omit
     Sets of UI components with the MeeGo and Symbian look and feel have been
     defined for Qt Quick. They are based on standard QML elements. To view the
-    UI components in \gui {QML Components}, click
-    \inlineimage qtcreator-filter.png
-    and select \gui {MeeGo Components} or \gui {Symbian Components}.
-    \endomit
+    UI components in the \gui {Library} pane, add import statements to the .pro
+    file of your project:
+
+    \list
+
+        \o \c  {import com.nokia.symbian 1.0} for Symbian
+
+        \o \c  {import com.meego 1.0} for MeeGo
+
+    \endlist
+
+    The Qt Quick Application wizard adds the import statements automatically
+    when you select the component set to use for your project.
 
     \image qmldesigner-qml-components.png "QML Components pane"
 
@@ -1288,6 +1323,11 @@
     that you specify explicitly are highlighted with blue color. In addition, property
     changes in states are highlighted with blue.
 
+    You can use a context-menu to reset some element properties. To reset the
+    position or size property of an element, right-click the element and select
+    \gui {Edit > Reset Position} or \gui {Reset Size} in the context menu. To
+    set the visibility of the component, select \gui {Edit > Visibility}.
+
     For more information on the properties available for an element, press \key {F1}.
 
     \section2 Setting Expressions
@@ -1310,6 +1350,17 @@
 
     For more information on the JavaScript environment provided by QML, see
     \l{http://doc.qt.nokia.com/4.7/qdeclarativejavascript.html}{Integrating JavaScript}.
+
+    \section2 Marking Text Elements for Translation
+
+    To support translators, mark each text element that should be translated.
+    In the \gui Properties pane, \gui Text field, select \gui tr.
+
+    \image qmldesigner-text-property-tr.png "Text properties"
+
+    The text string is enclosed in a \c qsTr call.
+
+    \image qml-translate.png "Text marked for translation"
 
     \section2 Loading Placeholder Data
 
@@ -1420,7 +1471,8 @@
 
     \section2 Building Transformations on Items
 
-    The \gui Advanced pane allows you configure advanced transformations, such as
+    The \gui Advanced pane allows you to configure advanced transformations,
+    such as
     rotation, scale, and translation. You can assign any number of transformations
     to an item. Each transformation is applied in order, one at a time.
 
@@ -3185,6 +3237,7 @@
         \o \l{Opening a Project}
         \o \l{Adding Libraries to Projects}
         \o \l{Connecting Maemo and MeeGo Harmattan Devices}
+        \o \l{Connecting Generic Linux Devices}
         \o \l{Connecting Symbian Devices}
         \o \l{Managing Sessions}
     \endlist
@@ -4479,6 +4532,42 @@
 
         Debugging also works transparently.
 
+    \section1 Running on Generic Linux Devices
+
+    \list 1
+
+        \o  Build and run the application for \l{Running on Qt Simulator}
+            {Qt Simulator}.
+
+        \o  Build and run the application for a device:
+
+        \list 1
+
+        \o  Specify a connection to the device. For more information, see
+            \l{Connecting Generic Linux Devices}.
+
+        \o  Click the \gui Run button.
+
+        \endlist
+
+    \endlist
+
+    Qt Creator uses the compiler specified in the project build settings
+    (tool chain) to build the application.
+
+    Qt Creator generates an installation package, installs it on the
+    device, and executes the selected application. The application views are
+    displayed on the device. Command-line output is visible in the Qt
+    Creator \gui {Application Output} view.
+
+    Choose \gui {Projects > Desktop > Run} to view the settings for deploying
+    the application on the connected device and creating the installation
+    package. For more information, see
+    \l{Specifying Run Settings for Generic Linux Devices}.
+
+    Debugging works transparently if GDB server is installed on the device and
+    it is compatible with the GDB on the host.
+
     \section1 Running on Symbian
 
     \list 1
@@ -4903,6 +4992,24 @@
     information, see
     \l{Deploying Applications to Maemo or MeeGo Harmattan Devices}.
 
+    \section2 Specifying Run Settings for Generic Linux Devices
+
+    To run an application on a generic Linux device (without MADDE support),
+    create and select a device configuration in the Desktop run settings for
+    your project. You can also pass command line arguments to your application.
+
+    \image qtcreator-run-settings-linux-devices.png "Run settings for Generic Linux devices"
+
+    In addition, you must create a connection from the development PC to the
+    device.  Click \gui {Manage device configurations} to create connections.
+    For more information, see \l {Connecting Generic Linux Devices}.
+
+    When you run the application on the \gui Desktop target, Qt Creator
+    generates an installation package in the build directory. The name of the
+    directory is displayed in the \gui {Create tarball} step. Qt Creator copies
+    the tarball to devices by using the SSH file transfer protocol (SFTP) and
+    extracts it.
+
     \section1 Specifying a Custom Executable to Run
 
     If you use CMake or the generic project type in Qt Creator, or want
@@ -5092,7 +5199,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-cache-profiler.html
+    \previouspage creator-running-valgrind-remotely.html
     \page creator-deployment.html
     \nextpage creator-deployment-symbian.html
 
@@ -7804,7 +7911,7 @@
     The on-device mode is a special mode available for run configurations
     targeting mobile devices. It debugs processes running on mobile
     devices using on-device debugging agents, such as CODA on Symbian and
-    gdbserver on Maemo and MeeGo Harmattan.
+    gdbserver on Linux-based devices.
 
     To launch the debugger in the on-device mode, open the project, select a
     run configuration that targets a mobile device, and click the
@@ -8072,7 +8179,9 @@
     By default, the views are locked into place in the workspace. Select
     \gui {Window > Views > Locked} to unlock the views. Drag and drop the
     views into new positions on the screen. Drag view borders to resize the
-    views. The size and position of views are saved for future sessions.
+    views. The size and position of views are saved for future sessions. Select
+    \gui {Window > Views > Reset to Default Layout} to reset the views to
+    their original sizes and positions.
 
     \section1 Using the Debugger
 
@@ -8823,10 +8932,11 @@
     The debugging helpers for QML provide you with code completion for custom modules
     (\c qmldump) and debugging Qt Quick UI projects (\c qmlobserver).
 
-    You have to build the QML Observer once for each Qt version that you want to debug
+    You have to build the QML Inspector once for each Qt version that you want
+    to debug
     with. Select \gui{Tools > Options... > Qt4 > Qt Versions}.
 
-    \note QML Observer requires Qt 4.7.1 or later.
+    \note QML Inspector requires Qt 4.7.1 or later.
 
     \section1 Enabling Debugging Helpers for Qt's Bootstrapped Applications
 
@@ -8972,7 +9082,7 @@
         \o Select \gui Projects, and then select the \gui QML check box in the
         \gui {Run Settings}, to enable QML debugging.
 
-        \o Compile the QML Observer debugging helper. For more information, see
+        \o Compile the QML Inspector debugging helper. For more information, see
         \l{Debugging Helpers for QML}.
 
     \endlist
@@ -9048,7 +9158,7 @@
 
     You can see the current value of a property by hovering over it in the code editor.
 
-    \section1 Previewing QML Changes at Runtime
+    \section1 Applying QML Changes at Runtime
 
     If you change property values or add properties in the code editor, the changes
     are updated in the running application when you save them. If live preview is not supported
@@ -9060,36 +9170,45 @@
 
     \section1 Inspecting QML at Runtime
 
-    While the application is running, you can use the \gui {QML Observer} view to
+    While the application is running, you can use the \gui {QML Inspector} view to
     explore the object structure, debug animations, and inspect colors.
-    To open the \gui {QML Observer} view, choose \gui {Window > View > QML Observer}.
+    To open the \gui {QML Inspector} view, choose \gui {Window > View >
+    QML Inspector}.
     The view shows the properties of the currently selected QML element.
 
-    \image qml-observer-view.png "QML Observer view"
+    \image qml-observer-view.png "QML Inspector view"
 
-    When you debug complex applications, you can use the observe
-    mode to jump to the position in code where an element is defined. To switch to
-    the observe mode, click
-    \inlineimage qml-observer-bar-observe.png
+    When you debug complex applications, you can use the inspection
+    mode to jump to the position in code where an element is defined. You are
+    switched to the inspection mode, when you click the \gui Select, \gui Zoom,
+    or \gui {Color Picker} button
     on the toolbar.
 
-    Click elements in the running application to jump to their definitions in the code.
-    Double-click elements to browse the element hierarchy. The hierarchy is displayed
-    as bread crumbs in the \gui {QML Observer} view.
+    \image qml-observer-buttons.png "QML Inspector toolbar"
 
-    To move the application running in \QQV to the front, select the
-    \gui {Show Application on Top} button.
+    When the \gui Select tool is enabled, you can click elements in the running
+    application to jump to their definitions in the code. The properties of the
+    selected element are displayed in the \gui {QML Inspector} view. The element
+    hierarchy is displayed as a bread crumb path.
 
     You can also right-click an element in the running application to view the element
-    hierarchy as a context menu. Select an element to jump to its definition in code.
+    hierarchy as a context menu.
 
-    \image qml-observer-context-menu.png "QML Observer"
+    \image qml-observer-context-menu.png "QML Inspector"
 
-    To zoom in and out of the application, click the \gui Zoom button.
+    To switch to the zoom mode, click the \gui Zoom button. Click in the
+    running application to zoom in. Right-click to open a context menu that
+    contains zoom controls.
 
     To inspect colors, click the \gui {Color Picker} button. You can also click
     \inlineimage qml-observer-bar-copy-color.png "Copy Color button"
     to copy the color definition to the clipboard.
+
+    To switch out of the inspection mode, deselect the \gui Select, \gui Zoom,
+    and \gui {Color Picker} button.
+
+    To move the application running in \QQV to the front, select the
+    \gui {Show Application on Top} button.
 
     \section1 Debugging Animations
 
@@ -9845,7 +9964,12 @@
 
     \endlist
 
-    In the code editor, write the code to use the data models.
+    When you add a Grid View, List View, or Path View element, the
+    \l{http://doc.qt.nokia.com/4.7/qml-listmodel.html}{ListModel} and the
+    delegate component that creates an instance for each item in the model are
+    added automatically. You can edit element properties in the \gui Properties
+    pane or in the code editor. You can also replace the default model and
+    delegate with other, more complex models and delegates in the code editor.
 
     \section1 Positioning Items on Screens
 
@@ -10014,6 +10138,18 @@
     Note: GIMP does not support grouping, and therefore, each layer is exported as
     an item in GIMP.
 
+    You can open the QML file in Qt Creator for editing. If you edit the file in Adobe
+    Photoshop and export it to the same directory again, any changes you made in Qt
+    Creator are overwritten. However, you can re-export graphical assets without
+    recreating the QML code.
+
+    If you create vector graphics with other tools that have an Adobe Photoshop export
+    option, such as Adobe Illustrator, you can export them first to Photoshop
+    and then
+    to QML.
+
+    \section1 Conversion Rules
+
     The following rules apply to the conversions:
 
     \list
@@ -10034,14 +10170,38 @@
 
     \endlist
 
-    You can open the QML file in Qt Creator for editing. If you edit the file in Adobe
-    Photoshop and export it to the same directory again, any changes you made in Qt
-    Creator are overwritten. However, you can re-export graphical assets without
-    recreating the QML code.
+    \section1 Preparing Files for Conversion
 
-    If you create vector graphics with other tools that have an Adobe Photoshop export
-    option,such as Adobe Illustrator, you can export them first to Photoshop and then
-    to QML.
+    To create QML files that are easy to use, prepare the Adobe Photoshop or
+    GIMP designs for exporting, as follows:
+
+    \list
+
+        \o  To minimize the number of elements, minimize the number of layers or
+            use top-level layer groups, because each layer or layer group is
+            exported as a Text or Image element.
+
+        \o  To make sure that all related elements are exported to the same
+            element, use top-level layer groups.
+
+        \o  To determine that some layers are not exported, hide them, and
+            deselect the \gui {Export hidden} check box during exporting.
+
+        \o  To make it easier to find the layers and layer groups after
+            exporting them, use descriptive names for them.
+
+        \o  To make sure that image dimensions are preserved during export,
+            create at least one fully filled layer (which can be hidden), such
+            as a background layer. If the export script does not find a fully
+            filled layer, it resizes all images to the size of the canvas.
+
+        \o  To prevent errors during export, make sure that the layers are not
+            locked. Locked layers cannot be exported.
+
+        \o  To avoid unexpected results, do not use Blending Mode effects. They
+            are not exported.
+
+    \endlist
 
     \section1 Exporting from Adobe Photoshop to QML
 
@@ -10329,16 +10489,16 @@
 
     \section1 Starting the Emulator
 
-    The \gui {Start Maemo Emulator} button is visible if you have a project
+    The \gui {Start MeeGo Emulator} button is visible if you have a project
     open in Qt Creator for which you have added the Maemo or MeeGo Harmattan
     build target. It starts the Maemo or MeeGo Harmattan emulator, depending
     on the selected target.
 
     To start the emulator, click
-    \inlineimage qtcreator-maemo-emulator-button.png "Start Maemo Emulator button"
+    \inlineimage qtcreator-maemo-emulator-button.png "Start MeeGo Emulator button"
     .
 
-    Test your application on the Maemo emulator as on a device. For a list of
+    Test your application on the emulator as on a device. For a list of
     keyboard shortcuts that you can use to emulate keys and functions, see
     \l {Emulating Device Keys}.
 
@@ -10355,7 +10515,8 @@
     If the emulator crashes, you are asked whether you want to try software
     rendering, instead.
 
-    To specify the OpenGL mode, select \gui {Tools > Options... > Maemo > Qemu
+    To specify the OpenGL mode, select \gui {Tools > Options... > Linux Devices
+    > Maemo Qemu
     Settings}.
 
     \section1 Emulating Device Keys
@@ -10453,7 +10614,7 @@
     and displays the text \e {Shutting down} in the emulator window title pane.
     The emulator closes shortly after this.
 
-    You can also select the \gui {Start Maemo Emulator} button to close the
+    You can also select the \gui {Start MeeGo Emulator} button to close the
     emulator. This is a faster way to close the emulator, because it does not
     wait for the operating system running on the emulated machine to shut down,
     but this also means that it is less safe.
@@ -12060,7 +12221,8 @@
     \l{http://valgrind.org/info/tools.html}{Valgrind tool suite} to detect
     problems that are related to memory management in applications.
 
-    \note Memcheck is supported on Linux and Mac OS.
+    \note Memcheck is supported locally on Linux and Mac OS. You can run it on
+    a remote host from Windows.
 
     After you download and install Valgrind tools, you can use Memcheck from Qt
     Creator.
@@ -12090,7 +12252,7 @@
     While the application is running, Memcheck checks all reads and writes of
     memory and intercepts calls that allocate or free memory or create or
     delete memory blocks. When you stop Memcheck, it displays the results in
-    the \gui Analysis output pane. Click a line to view where a memory leak
+    the \gui Analysis view. Click a line to view where a memory leak
     occurred and a stack trace that shows what caused it.
 
     \image analyzer-issues.png "Analysis view"
@@ -12105,16 +12267,17 @@
 
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
-    too big, select \gui {Tools > Options... > Analyzer > Memory Analysis}.
+    too big, select \gui {Tools > Options... > Analyzer}.
     Define the length of the stack trace in the \gui {Backtrace frame count}
     field.
+
+    \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
 
     Memcheck also reports uses of uninitialised values, most commonly with the
     message \gui {Conditional jump or move depends on uninitialised value(s).}
     To determine the root cause of these errors, the \gui {Track origins of
-    uninitialized memory} check box is selected by default. This makes Memcheck
-    run slower, but the extra information you get often saves a lot of time
-    figuring out where the uninitialised values are coming from.
+    uninitialized memory} check box is selected by default. You can deselect it
+    to make Memcheck run faster.
 
     Memcheck detects numerous problems in the system libraries, such as the C
     library, which come pre-installed with your OS. As you cannot easily fix
@@ -12129,26 +12292,26 @@
     \l{http://valgrind.org/docs/manual/manual-core.html#manual-core.suppress}
     {Suppressing Errors} in the Valgrind documentation.
 
-    \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
-
-
-
     */
 
 /*!
     \contentspage index.html
     \previouspage creator-analyzer.html
     \page creator-cache-profiler.html
-    \nextpage creator-deployment.html
+    \nextpage creator-running-valgrind-remotely.html
 
     \title Profiling Function Execution
 
     You can use the Callgrind tool included in the
     \l{http://valgrind.org/info/tools.html}{Valgrind tool suite} to detect
-    problems that are related to cache usage.
+    problems that are related to executing functions.
 
     After you download and install Valgrind tools, you can use Callgrind from Qt
     Creator.
+
+    \note Callgrind is supported locally on Linux and Mac OS. You can run it on
+    a remote host from Windows.
+
     To analyze applications:
 
     \list 1
@@ -12187,12 +12350,12 @@
 
     \section1 Selecting Profiling Options
 
-    To specify settings for Callgrind, select \gui {Tools > Options... >
-    Analyzer > Profiling}.
+    To specify settings for Valgrind, select \gui {Tools > Options... >
+    Analyzer}. The \gui {Profiling Options} group contains Callgrind options.
 
-    \image qtcreator-valgrind-callgrind-options.png "Profiling options"
+    \image qtcreator-valgrind-callgrind-options.png "Valgrind options"
 
-    In the \gui {Result view: Show events with inclusive costs higher than}
+    In the \gui {Result view: Minimum event cost}
     field, limit the amount of results the profiler gives you to increase
     profiler performance.
 
@@ -12336,24 +12499,35 @@
 
     In addition, Qt Creator integrates Valgrind code analysis tools for
     detecting memory leaks and profiling function execution. These tools are
-    only
-    supported on Linux and Mac OS. You have to download and install them
+    supported locally only on Linux and Mac OS. You can run them on a remote
+    host from Windows. You have to download and install them
     separately to use them from Qt Creator.
 
-    You can use the code analysis tools in the \gui Analyze mode or from the
-    \gui {Debug > Start Analyzer} menu. In \gui Analyze mode, you can switch
+    You can use the code analysis tools in the \gui Analyze mode. To switch to
+    \gui Analyze mode, select \gui Analyze in the mode selector, or select the
+    \gui {Analyze} menu and then select a tool. When you are in the
+    \gui Analyze mode, you can switch
     between tools by selecting them in the menu on the toolbar.
 
     \image qtcreator-analyze-menu "Analyze mode menu"
 
-    To run the Valgrind tools on a remote device over SSH, select \gui {Debug >
-    Start Analyzer > Start Remote}.
+    By default, the views in the \gui Analyze mode are locked into place in the
+    workspace. Select \gui {Window > Views > Locked} to unlock the views. Drag
+    and drop the views into new positions on the screen. Drag view borders to
+    resize the views. The size and position of views are saved for future
+    sessions. Select \gui {Window > Views > Reset to Default Layout} to reset
+    the views to their original sizes and positions.
 
-    To stop the currently running analyzer, select \gui {Debug > Start Analyzer
+    To run the Valgrind tools on a remote host over SSH, select \gui {Analyze
+    > Valgrind Analyze Memory (Remote)} or \gui {Valgrind Function Profile
+    (Remote)}.
+
+    To stop the currently running analyzer, select \gui {Analyze
     > Stop}.
 
     To select options for the Valgrind tools, select \gui {Tools > Options... >
-    Analyzer}.
+    Analyzer}. You can override the general settings for each project in the
+    \gui {Run Settings} for the project.
 
     The following sections describe how to use the code analysis tools:
 
@@ -12368,6 +12542,9 @@
 
         \o  \l{Profiling Function Execution} describes how to use the Valgrind Callgrind
             tool to find cache misses in the code.
+
+        \o  \l{Running Valgrind Tools Remotely} describes how to run the
+            Valgrind tools on a remote host.
 
     \endlist
 
@@ -12386,18 +12563,28 @@
 
     \list 1
 
+        \o  To be able to profile an application, you must set up QML debugging
+            for the project. For more information, see
+            \l{Setting Up QML Debugging}.
+
         \o  In the \gui Projects mode, select Qt 4.7.4 in the \gui {Qt version}
             field.
 
-        \o  Select \gui Analyze to open the \gui Analyze mode.
+            \note To profile applications on devices, you must install Qt 4.7.4
+            or later libraries on them.
+
+        \o  Select \gui {Analyze > QML Profiler} to profile the current
+            application.
+
+            \image qtcreator-qml-performance-monitor-toolbar.png "QML Profiler toolbar"
 
         \o  Select the
             \inlineimage qtcreator-analyze-start-button.png "Start button"
             button to start the application from the QML Profiler.
 
-            \note: If data collection does not start automatically, select the
+            \note If data collection does not start automatically, select the
             \inlineimage qtcreator-analyzer-button.png "Analyzer button"
-            .
+            button.
 
     \endlist
 
@@ -12410,8 +12597,6 @@
     button. Data collection takes time, and therefore, there might be a delay
     before the data is displayed.
 
-    \image qtcreator-qml-performance-monitor-toolbar.png "QML Profiler toolbar"
-
     Do not use application commands to exit the application, because data is
     sent to the QML Profiler when you select the \gui Stop button.
     The application continues to run for some seconds, after which it is stopped
@@ -12421,23 +12606,6 @@
     button to disable the automatic start of the data collection when an
     application is launched. Data collection starts when you select the button
     again.
-
-    To monitor applications running on devices:
-
-    \list 1
-
-        \o  On the command line, enter the following command to launch the Qt
-            Quick application with parameters:
-
-            \c {<application> -qmljsdebugger=port:33456}
-
-            The port number is specified in the run settings of the project in
-            the \gui {Debug port} field.
-
-        \o  Select \gui {Debug > Start Analyzer > Attach...} to attach the QML
-            Profiler to the running application.
-
-    \endlist
 
     \section1 Analyzing Collected Data
 
@@ -12462,8 +12630,16 @@
     \image qtcreator-qml-performance-monitor.png "QML Profiler"
 
     The outline summarizes the period for which data was collected. Drag the
-    range bar or click the outline to move on the outline. Drag the borders of
-    the range bar to zoom in and out.
+    zoom range or click the outline to move on the outline. You can also move
+    between events by clicking the \gui Previous and \gui Next buttons.
+
+    Click the zoom buttons or drag the zoom handles to zoom in and out.
+
+    You can define an event range to view the frame rate of events and to
+    compare it with the frame rate of similar events. Click on the timeline to
+    specify the beginning of the event range. Drag the cursor to define the end
+    of the range. The length of the range indicates the frame rate of the event.
+    You can drag the timeline below the event range to compare events.
 
     Additional information is displayed on the rows above the outline.
     Each row in the timeline describes a type of QML events that were recorded.
@@ -12481,19 +12657,19 @@
     The time bar at the top of the \gui Timeline view displays the time in
     seconds. To see the time in milliseconds, move the mouse on the time bar.
 
-    \section1 Viewing Bindings
+    \section1 Viewing Events
 
-    The \gui Bindings view displays the number of times each binding is called
-    and the time the calls take. This allows you to examine which bindings you
+    The \gui Events view displays the number of times each binding is called
+    and the time the calls take. This allows you to examine which events you
     need to optimize. A high number of calls might indicate that a binding is
     called unnecessarily. Click on a binding to move to it in the source code
     in the code editor.
 
-    \image qtcreator-analyzer-bindings.png "Bindings view"
+    \image qtcreator-analyzer-bindings.png "Events view"
 
-    \section1 Viewing Calling and Called Bindings
+    \section1 Viewing Calling and Called Events
 
-    The \gui Callees and \gui Callers views show dependencies between bindings.
+    The \gui Callees and \gui Callers views show dependencies between events.
     They allow you to examine the internal functions of the application.
 
     The \gui Callees view summarizes the QML events that a binding triggers.
@@ -12520,13 +12696,45 @@
     environment variable QML_DISABLE_OPTIMIZER to 1. To set the environment
     variable for the current project in the project settings:
 
-    \list
+    \list 1
 
         \o  Select \gui {Projects > Run}.
 
         \o  In \gui {Run Environment}, click \gui Add.
 
         \o  Add the QML_DISABLE_OPTIMIZER variable and set its value to 1.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-cache-profiler.html
+    \page creator-running-valgrind-remotely.html
+    \nextpage creator-deployment.html
+
+    \title Running Valgrind Tools Remotely
+
+    Qt Creator integrates Valgrind code analysis tools for detecting memory
+    leaks and profiling function execution. These tools are supported locally
+    only on Linux and Mac OS, but you can run them on a remote host from
+    Windows.
+
+    To run the Valgrind tools on a remote host over SSH:
+
+    \list 1
+
+        \o  Select \gui {Analyze > Valgrind Analyze Memory (Remote)} or
+            \gui {Valgrind Function Profile (Remote)}.
+
+            \image qtcreator-valgrind-remote-settings.png "Start Debugger dialog"
+
+        \o  In the \gui Remote group, specify the connection to the remote host.
+
+        \o  In the \gui Target group, specify the application to run and analyze
+            on the remote host.
 
     \endlist
 

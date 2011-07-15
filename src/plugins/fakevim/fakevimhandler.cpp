@@ -1839,8 +1839,15 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         } else if (count() <= rightDist()) {
             setAnchor();
             moveRight(count());
-            replaceText(currentRange(), QString(count(), input.asChar()));
-            moveLeft();
+            if (input.isReturn()) {
+                beginEditBlock();
+                replaceText(currentRange(), QString());
+                insertText(QString("\n"));
+                endEditBlock();
+            } else {
+                replaceText(currentRange(), QString(count(), input.asChar()));
+                moveLeft();
+            }
             setTargetColumn();
             setDotCommand("%1r" + input.text(), count());
         }

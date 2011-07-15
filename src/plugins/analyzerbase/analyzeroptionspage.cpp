@@ -67,17 +67,17 @@ QString AnalyzerOptionsPage::displayName() const
 
 QString AnalyzerOptionsPage::category() const
 {
-    return QLatin1String(Constants::ANALYZER_SETTINGS_CATEGORY);
+    return QLatin1String("T.Analyzer");
 }
 
 QString AnalyzerOptionsPage::displayCategory() const
 {
-    return QCoreApplication::translate("Analyzer", Constants::ANALYZER_SETTINGS_TR_CATEGORY);
+    return QCoreApplication::translate("Analyzer", "Analyzer");
 }
 
 QIcon AnalyzerOptionsPage::categoryIcon() const
 {
-    return QIcon(QLatin1String(Constants::ANALYZER_SETTINGS_CATEGORY_ICON));
+    return QIcon(QLatin1String(":/images/analyzer_category.png"));
 }
 
 QWidget *AnalyzerOptionsPage::createPage(QWidget *parent)

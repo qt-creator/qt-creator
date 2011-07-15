@@ -328,6 +328,28 @@ void AnalyzerManagerPrivate::delayedInit()
     m_mode->setWidget(splitter);
 
     AnalyzerPlugin::instance()->addAutoReleasedObject(m_mode);
+
+    // Populate Windows->Views menu with standard actions.
+    Core::Context analyzerContext(Constants::C_ANALYZEMODE);
+    ActionManager *am = ICore::instance()->actionManager();
+    ActionContainer *viewsMenu =
+        am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
+    Command *cmd = am->registerAction(m_mainWindow->menuSeparator1(),
+        Core::Id("Analyzer.Views.Separator1"), analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    cmd = am->registerAction(m_mainWindow->toggleLockedAction(),
+        Core::Id("Analyzer.Views.ToggleLocked"), analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    cmd = am->registerAction(m_mainWindow->menuSeparator2(),
+        Core::Id("Analyzer.Views.Separator2"), analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
+    cmd = am->registerAction(m_mainWindow->resetLayoutAction(),
+        Core::Id("Analyzer.Views.ResetSimple"), analyzerContext);
+    cmd->setAttribute(Command::CA_Hide);
+    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 }
 
 static QToolButton *toolButton(QAction *action)
@@ -594,8 +616,14 @@ void AnalyzerManagerPrivate::selectSavedTool()
         StartMode mode = m_modeFromAction.value(action);
         if (tool->actionId(mode) == lastActiveAction) {
             selectTool(tool, mode);
-            break;
+            return;
         }
+    }
+    // fallback to first available tool
+    if (!m_actions.isEmpty()) {
+        IAnalyzerTool *tool = m_toolFromAction.value(m_actions.first());
+        StartMode mode = m_modeFromAction.value(m_actions.first());
+        selectTool(tool, mode);
     }
 }
 
@@ -705,6 +733,8 @@ void AnalyzerManagerPrivate::loadToolSettings(IAnalyzerTool *tool)
     settings->beginGroup(QLatin1String("AnalyzerViewSettings_") + tool->id());
     if (settings->value("ToolSettingsSaved", false).toBool())
         m_mainWindow->restoreSettings(settings);
+    else
+        m_mainWindow->restoreSettings(m_defaultSettings.value(tool));
     settings->endGroup();
 }
 
@@ -724,13 +754,6 @@ void AnalyzerManagerPrivate::saveToolSettings(IAnalyzerTool *tool, StartMode mod
 
 void AnalyzerManagerPrivate::updateRunActions()
 {
-    static bool previousRunning = true;
-    static IAnalyzerTool *previousTool = 0;
-    if (previousRunning == m_isRunning && previousTool == m_currentTool)
-        return;
-    previousTool = m_currentTool;
-    previousRunning = m_isRunning;
-
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = pe->startupProject();
 
@@ -775,16 +798,16 @@ AnalyzerManager::~AnalyzerManager()
 
 void AnalyzerManager::extensionsInitialized()
 {
-    if (d->m_tools.isEmpty())
+    if (m_instance->d->m_tools.isEmpty())
         return;
 
-    foreach (IAnalyzerTool *tool, d->m_tools)
+    foreach (IAnalyzerTool *tool, m_instance->d->m_tools)
         tool->extensionsInitialized();
 }
 
 void AnalyzerManager::shutdown()
 {
-    d->saveToolSettings(d->m_currentTool, d->m_currentMode);
+    m_instance->d->saveToolSettings(m_instance->d->m_currentTool, m_instance->d->m_currentMode);
 }
 
 void AnalyzerManager::addTool(IAnalyzerTool *tool, const StartModes &modes)

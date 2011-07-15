@@ -218,6 +218,8 @@ public:
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
     NodeInstanceView *nodeInstanceView() const;
 
+    InternalNodePointer actualStateNode() const;
+
 private: //functions
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -237,6 +239,8 @@ private:
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;
     QSet<InternalNodePointer> m_nodeSet;
+    InternalNodePointer m_acutalStateNode;
+
 
     InternalNodePointer m_rootInternalNode;
 

@@ -59,6 +59,7 @@ Item {
         anchors.right: parent.right
 
         Repeater {
+            width: parent.width
             model: root.model
             delegate: root.delegate
         }

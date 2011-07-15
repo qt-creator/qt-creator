@@ -737,7 +737,7 @@ static void setWatchDataExpression(WatchData &data, const GdbMi &mi)
         data.exp = mi.data();
 }
 
-static void setWatchDataAddress(WatchData &data, quint64 address , quint64 origAddress = 0)
+static void setWatchDataAddress(WatchData &data, quint64 address, quint64 origAddress = 0)
 {
     if (origAddress) { // Gdb dumpers reports the dereferenced address as origAddress
         data.address = origAddress;

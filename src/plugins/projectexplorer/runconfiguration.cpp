@@ -154,7 +154,42 @@ IRunConfigurationFactory *findRunConfigurationFactory(RunConfigurationFactoryMat
     \class ProjectExplorer::ProcessHandle
     \brief  Helper class to describe a process.
 
+    Encapsulates parameters of a running process, local (PID) or remote (to be done,
+    address, port, etc).
 */
+
+ProcessHandle::ProcessHandle(quint64 pid) :
+    m_pid(pid)
+{
+}
+
+bool ProcessHandle::isValid() const
+{
+    return m_pid != 0;
+}
+
+void ProcessHandle::setPid(quint64 pid)
+{
+    m_pid = pid;
+}
+
+quint64 ProcessHandle::pid() const
+{
+    return m_pid;
+}
+
+QString ProcessHandle::toString() const
+{
+    if (m_pid)
+        return RunControl::tr("PID %1").arg(m_pid);
+    //: Invalid process handle.
+    return RunControl::tr("Invalid");
+}
+
+bool ProcessHandle::equals(const ProcessHandle &rhs) const
+{
+    return m_pid == rhs.m_pid;
+}
 
 /*!
     \class ProjectExplorer::RunConfiguration
@@ -506,7 +541,10 @@ ProcessHandle RunControl::applicationProcessHandle() const
 
 void RunControl::setApplicationProcessHandle(const ProcessHandle &handle)
 {
-    m_applicationProcessHandle = handle;
+    if (m_applicationProcessHandle != handle) {
+        m_applicationProcessHandle = handle;
+        emit applicationProcessHandleChanged();
+    }
 }
 
 bool RunControl::promptToStop(bool *optionalPrompt) const

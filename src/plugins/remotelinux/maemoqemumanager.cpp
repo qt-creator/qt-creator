@@ -87,9 +87,9 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     m_qemuStarterIcon.addFile(":/qt-maemo/images/qemu-stop.png", iconSize,
         QIcon::Normal, QIcon::On);
 
-    m_qemuAction = new QAction("Maemo Emulator", this);
+    m_qemuAction = new QAction("MeeGo Emulator", this);
     m_qemuAction->setIcon(m_qemuStarterIcon.pixmap(iconSize));
-    m_qemuAction->setToolTip(tr("Start Maemo Emulator"));
+    m_qemuAction->setToolTip(tr("Start MeeGo Emulator"));
     connect(m_qemuAction, SIGNAL(triggered()), this, SLOT(startRuntime()));
 
     Core::ICore *core = Core::ICore::instance();
@@ -512,10 +512,10 @@ void MaemoQemuManager::updateStarterIcon(bool running)
     QString toolTip;
     if (running) {
         state = QIcon::On;
-        toolTip = tr("Stop Maemo Emulator");
+        toolTip = tr("Stop MeeGo Emulator");
     } else {
         state = QIcon::Off;
-        toolTip = tr("Start Maemo Emulator");
+        toolTip = tr("Start MeeGo Emulator");
     }
 
     m_qemuAction->setToolTip(toolTip);

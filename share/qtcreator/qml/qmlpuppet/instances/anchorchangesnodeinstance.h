@@ -30,32 +30,49 @@
 **
 **************************************************************************/
 
-#ifndef ANALYZER_INTERNAL_CALLGRINDCONFIGWIDGET_H
-#define ANALYZER_INTERNAL_CALLGRINDCONFIGWIDGET_H
 
-#include <QtGui/QWidget>
 
-namespace Valgrind {
+#ifndef QMLDESIGNER_ANCHORCHANGESNODEINSTANCE_H
+#define QMLDESIGNER_ANCHORCHANGESNODEINSTANCE_H
+
+#include "objectnodeinstance.h"
+
+#include <QPair>
+#include <QWeakPointer>
+
+QT_BEGIN_NAMESPACE
+class QDeclarativeProperty;
+QT_END_NAMESPACE
+
+namespace QmlDesigner {
+
 namespace Internal {
 
-namespace Ui {
-class CallgrindConfigWidget;
-}
-
-class AbstractCallgrindSettings;
-
-class CallgrindConfigWidget : public QWidget
+class AnchorChangesNodeInstance : public ObjectNodeInstance
 {
 public:
-    CallgrindConfigWidget(AbstractCallgrindSettings *settings, QWidget *parent);
-    virtual ~CallgrindConfigWidget();
+    typedef QSharedPointer<AnchorChangesNodeInstance> Pointer;
+    typedef QWeakPointer<AnchorChangesNodeInstance> WeakPointer;
 
-private:
-    Ui::CallgrindConfigWidget *m_ui;
-    AbstractCallgrindSettings *m_settings;
+    static Pointer create(QObject *objectToBeWrapped);
+
+    virtual void setPropertyVariant(const QString &name, const QVariant &value);
+    virtual void setPropertyBinding(const QString &name, const QString &expression);
+    virtual QVariant property(const QString &name) const;
+    virtual void resetProperty(const QString &name);
+
+    using ObjectNodeInstance::reparent; // keep the virtual reparent(...) method around
+    void reparent(const ServerNodeInstance &oldParentInstance,
+                  const QString &oldParentProperty,
+                  const ServerNodeInstance &newParentInstance,
+                  const QString &newParentProperty);
+
+protected:
+    AnchorChangesNodeInstance(QObject *object);
+    QObject *changesObject() const;
 };
 
 } // namespace Internal
-} // namespace Valgrind
+} // namespace QmlDesigner
 
-#endif // ANALYZER_INTERNAL_CALLGRINDCONFIGWIDGET_H
+#endif // QMLDESIGNER_ANCHORCHANGESNODEINSTANCE_H

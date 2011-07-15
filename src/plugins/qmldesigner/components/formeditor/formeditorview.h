@@ -118,6 +118,8 @@ public:
     double spacing() const;
     void deActivateItemCreator();
 
+    void actualStateChanged(const ModelNode &node);
+
 public slots:
     void activateItemCreator(const QString &name);
 
@@ -125,7 +127,6 @@ signals:
     void ItemCreatorDeActivated();
 
 protected:
-    void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
     void reset();
 
 protected slots:
@@ -137,7 +138,8 @@ protected slots:
 
 private: //functions
     void setupFormEditorItemTree(const QmlItemNode &qmlItemNode);
-
+    void removeNodeFromScene(const QmlItemNode &qmlItemNode);
+    void hideNodeFromScene(const QmlItemNode &qmlItemNode);
 
 private: //variables
     QWeakPointer<FormEditorWidget> m_formEditorWidget;

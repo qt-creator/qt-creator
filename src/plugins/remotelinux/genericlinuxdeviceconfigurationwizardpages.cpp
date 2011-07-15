@@ -80,7 +80,7 @@ bool GenericLinuxDeviceConfigurationWizardSetupPage::isComplete() const
 {
     return !configurationName().isEmpty() && !hostName().isEmpty() && !userName().isEmpty()
             && (authenticationType() == SshConnectionParameters::AuthenticationByPassword
-                || !m_d->ui.privateKeyPathChooser->isValid());
+                || m_d->ui.privateKeyPathChooser->isValid());
 }
 
 QString GenericLinuxDeviceConfigurationWizardSetupPage::configurationName() const

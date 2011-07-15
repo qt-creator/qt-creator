@@ -32,6 +32,8 @@
 
 #include "fancymainwindow.h"
 
+#include "qtcassert.h"
+
 #include <QtCore/QList>
 #include <QtCore/QHash>
 
@@ -265,17 +267,28 @@ bool FancyMainWindow::isLocked() const
     return d->m_locked;
 }
 
+static bool actionLessThan(const QAction *action1, const QAction *action2)
+{
+    QTC_ASSERT(action1, return true);
+    QTC_ASSERT(action2, return false);
+    return action1->text().toLower() < action2->text().toLower();
+}
+
 QMenu *FancyMainWindow::createPopupMenu()
 {
-    QMenu *menu = new QMenu(this);;
+    QList<QAction *> actions;
     QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(this);
     for (int i = 0; i < dockwidgets.size(); ++i) {
         QDockWidget *dockWidget = dockwidgets.at(i);
         if (dockWidget->property("managed_dockwidget").isNull()
                 && dockWidget->parentWidget() == this) {
-            menu->addAction(dockwidgets.at(i)->toggleViewAction());
+            actions.append(dockwidgets.at(i)->toggleViewAction());
         }
     }
+    qSort(actions.begin(), actions.end(), actionLessThan);
+    QMenu *menu = new QMenu(this);
+    foreach (QAction *action, actions)
+        menu->addAction(action);
     menu->addAction(&d->m_menuSeparator1);
     menu->addAction(&d->m_toggleLockedAction);
     menu->addAction(&d->m_menuSeparator2);

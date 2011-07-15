@@ -201,7 +201,9 @@ QWidget *DesignDocumentController::centralWidget() const
 QString DesignDocumentController::pathToQt() const
 {
     QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::instance()->version(m_d->qt_versionId);
-    if (activeQtVersion && (activeQtVersion->qtVersion().majorVersion > 3) && (activeQtVersion->supportsTargetId(Qt4ProjectManager::Constants::QT_SIMULATOR_TARGET_ID) || activeQtVersion->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)))
+    if (activeQtVersion && (activeQtVersion->qtVersion().majorVersion > 3)
+            && (activeQtVersion->supportsTargetId(Qt4ProjectManager::Constants::QT_SIMULATOR_TARGET_ID)
+                || activeQtVersion->supportsTargetId(Qt4ProjectManager::Constants::DESKTOP_TARGET_ID)))
         return activeQtVersion->versionInfo().value("QT_INSTALL_DATA");
     return QString();
 }

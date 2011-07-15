@@ -77,8 +77,6 @@ protected:
     void addChangeSetIfNotExists(const ModelNode &node);
     static QmlModelState createBaseState(const QmlModelView *view);
 
-private:
-    bool m_isBaseState;
 };
 
 } //QmlDesigner

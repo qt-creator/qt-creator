@@ -271,11 +271,22 @@ enum ParseState
     WithinTableElement, WithinTableElementAnchor, ParseError
 };
 
-static inline ParseState nextOpeningState(ParseState current, const QStringRef &element)
+QDebug operator<<(QDebug d, const QXmlStreamAttributes &al)
 {
+    QDebug nospace = d.nospace();
+    foreach (const QXmlStreamAttribute &a, al)
+        nospace << a.name().toString() << '=' << a.value().toString() << ' ';
+    return d;
+}
+
+static inline ParseState nextOpeningState(ParseState current, const QXmlStreamReader &reader)
+{
+    const QStringRef element = reader.name();
     switch (current) {
     case OutSideTable:
-        if (element == QLatin1String("table"))
+        // Trigger on main table only.
+        if (element == QLatin1String("table")
+           && reader.attributes().value(QLatin1String("class")) == QLatin1String("maintable"))
             return WithinTable;
         return OutSideTable;
     case WithinTable:
@@ -342,7 +353,8 @@ static inline QStringList parseLists(QIODevice *io)
     int tableColumn = 0;
 
     const QString hrefAttribute = QLatin1String("href");
-
+    //: Unknown user of paste.
+    const QString unknownUser = PasteBinDotComProtocol::tr("<Unknown>");
     QString link;
     QString user;
     QString description;
@@ -350,7 +362,7 @@ static inline QStringList parseLists(QIODevice *io)
     while (!reader.atEnd()) {
         switch(reader.readNext()) {
         case QXmlStreamReader::StartElement:
-            state = nextOpeningState(state, reader.name());
+            state = nextOpeningState(state, reader);
             switch (state) {
             case WithinTableRow:
                 tableColumn = 0;
@@ -379,10 +391,11 @@ static inline QStringList parseLists(QIODevice *io)
                     return rc;
                 break;
             case WithinTable:
-                if (tableRow && !user.isEmpty() && !link.isEmpty() && !description.isEmpty()) {
+                // User can occasionally be empty.
+                if (tableRow && !link.isEmpty() && !description.isEmpty()) {
                     QString entry = link;
                     entry += QLatin1Char(' ');
-                    entry += user;
+                    entry += user.isEmpty() ? unknownUser : user;
                     entry += QLatin1Char(' ');
                     entry += description;
                     rc.push_back(entry);

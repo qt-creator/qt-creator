@@ -1,0 +1,134 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2011 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (info@qt.nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+****************************************************************************/
+
+    /*!
+
+    \contentspage index.html
+    \previouspage creator-developing-maemo.html
+    \page creator-developing-generic-linux.html
+    \nextpage creator-developing-symbian.html
+
+    \title Connecting Generic Linux Devices
+
+    You can connect generic Linux devices to the development PC to build, run,
+    debug, and analyze applications on them from Qt Creator.
+
+    If you have the tool chain for building applications for generic Linux
+    devices (with no MADDE support) installed on the development PC, you can add
+    it to Qt Creator.
+
+    To be able to run and debug applications on generic Linux devices, you must
+    create device configurations and select them in the Qt Creator run
+    settings.
+
+    You use a wizard to create the connections. You can edit the settings later
+    in \gui {Tools > Options... > Linux Devices > Device Configurations}.
+
+    \image qtcreator-linux-device-configurations.png "Device Configurations dialog"
+
+    You can protect the connections between Qt Creator and a device by using
+    either a password or an SSH key. If you do not have an SSH key, you can
+    create it in Qt Creator. For more information, see \l {Generating SSH Keys}.
+
+    To configure connections between Qt Creator and generic Linux devices:
+
+    \list 1
+
+        \o  Make sure that your device can be reached via an IP address.
+
+        \o  Select \gui {Tools > Options... > Qt4 > Add} to add the Qt version
+            for the generic Linux.
+
+        \o  Select \gui {Tools > Options... > Tool Chains > Add} to add the tool
+            chain for building the applications.
+
+        \o  To deploy applications and run them remotely on devices, specify
+            parameters for accessing the devices:
+
+            \list 1
+
+                \o  Select \gui {Tools > Options... > Linux Devices > Device
+                    Configurations > Add > Generic Linux Device}.
+
+                    \image qtcreator-screenshot-devconf-linux.png "Connection Data wizard"
+
+                \o  In the \gui {The name to identify this configuration} field,
+                    enter a name for the connection.
+
+                \o  In the \gui {The device's host name or IP address} field,
+                    enter the host name or IP address of the device.
+
+                \o  In the \gui {The user name to log into the device} field,
+                    enter the user name to log into the device and run the
+                    application as.
+
+                \o  In the \gui {The authentication type} field, select whether
+                    to use \gui Password or \gui Key authentication, and enter
+                    the user's password or the file that contains the user's
+                    private key.
+
+                \o Click \gui {Next} to create the connection.
+
+            \endlist
+
+        \o  To specify build settings:
+
+        \list 1
+
+            \o  Open a project for an application you want to develop for the
+                device.
+
+            \o  Select \gui {Projects > Desktop > Build}.
+
+            \o  Select the Qt version and tool chain for the generic Linux
+                device.
+
+        \endlist
+
+        \o To specify run settings:
+
+        \list 1
+
+            \o  Select \gui {Run > Add > Build Tarball and Deploy to Linux Host}
+                to add a new deploy configuration.
+
+                \image qtcreator-run-settings-linux-devices.png "Run settings for generic Linux devices"
+
+            \o  In the \gui {Device configuration} field, select the device
+                connection.
+
+        \endlist
+
+        When you run the project, Qt Creator creates an installation package in
+        the build directory. The name of the directory is displayed in the
+        \gui {Create tarball} step.
+
+        The \gui {Deploy tarball via SFTP upload using device} step specifies
+        that Qt Creator uploads the tarball to the device and extracts it.
+                You can add custom deploy steps and remove the default step if
+                it is incompatible with your steps.
+                To only create a tarball and not copy the files to the device,
+                remove all deploy steps.
+
+    \endlist
+
+*/
+

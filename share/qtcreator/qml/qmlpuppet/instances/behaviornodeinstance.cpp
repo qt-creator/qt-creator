@@ -51,7 +51,7 @@ BehaviorNodeInstance::Pointer BehaviorNodeInstance::create(QObject *object)
 
     Pointer instance(new BehaviorNodeInstance(behavior));
 
-    instance->populateResetValueHash();
+    instance->populateResetHashes();
 
     behavior->setEnabled(false);
 

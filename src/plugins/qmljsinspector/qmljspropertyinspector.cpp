@@ -187,6 +187,30 @@ void ExpressionEdit::accept()
 //  color chooser
 // *************************************************************************
 
+inline QString extendedNameFromColor(QColor color)
+{
+    int alphaValue = color.alpha();
+    if (alphaValue < 255)
+        return QLatin1String("#") + QString("%1").arg(alphaValue, 2, 16, QChar('0')) + color.name().right(6) ;
+    else
+        return color.name();
+}
+
+inline QString extendedNameFromColor(QVariant color) {
+    return extendedNameFromColor(QColor(color.value<QColor>()));
+}
+
+inline QColor colorFromExtendedName(QString name) {
+    QRegExp validator("#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})");
+    if (validator.exactMatch(name)) {
+        return QColor(validator.cap(2).toInt(0,16),
+                      validator.cap(3).toInt(0,16),
+                      validator.cap(4).toInt(0,16),
+                      validator.cap(1).toInt(0,16));
+    }
+    return QColor(name);
+}
+
 ColorChooserDialog::ColorChooserDialog(const QString &title, QDialog *parent)
     : QDialog(parent)
 {
@@ -303,9 +327,13 @@ void QmlJSPropertyInspector::propertyValueChanged(int debugId, const QByteArray 
     for (int i = 0; i < m_model.rowCount(); i++) {
         if (m_model.data(m_model.index(i, 0), Qt::DisplayRole).toString() == propertyNameS &&
                 m_model.data(m_model.index(i, 0), Qt::UserRole).toInt() == debugId) {
-            QVariant oldData = m_model.data(m_model.index(i, 1), Qt::DisplayRole);
-            m_model.setData(m_model.index(i, 1), propertyValue.toString(), Qt::DisplayRole);
-            if (oldData != propertyValue) {
+            QString oldData = m_model.data(m_model.index(i, 1), Qt::DisplayRole).toString();
+            QString newData = propertyValue.toString();
+            if (QString(propertyValue.typeName()) == "QColor")
+                newData = extendedNameFromColor(propertyValue);
+            if (oldData != newData) {
+                m_model.setData(m_model.index(i, 1), newData, Qt::DisplayRole);
+                m_model.item(i, 1)->setToolTip(newData);
                 m_model.item(i, 0)->setForeground(QBrush(Qt::red));
                 m_model.item(i, 1)->setForeground(QBrush(Qt::red));
                 m_model.item(i, 2)->setForeground(QBrush(Qt::red));
@@ -349,11 +377,16 @@ void QmlJSPropertyInspector::buildPropertyTree(const QDeclarativeDebugObjectRefe
 
     foreach (const QDeclarativeDebugPropertyReference &prop, obj.properties()) {
         QString propertyName = prop.name();
+        QString propertyValue = prop.value().toString();
 
-        if (cleanPropertyValue(prop.value().toString()).isEmpty())
+        if (cleanPropertyValue(propertyValue).isEmpty())
             continue;
 
-        addRow(propertyName, prop.value().toString(), prop.valueTypeName(), obj.debugId(), prop.hasNotifySignal());
+        if (prop.valueTypeName() == "QColor") {
+            propertyValue = extendedNameFromColor(prop.value());
+        }
+
+        addRow(propertyName, propertyValue, prop.valueTypeName(), obj.debugId(), prop.hasNotifySignal());
     }
 
     m_model.setHeaderData(0,Qt::Horizontal,QVariant("name"));
@@ -403,12 +436,14 @@ void QmlJSPropertyInspector::addRow(const QString &name,const QString &value, co
 void QmlJSPropertyInspector::setColorIcon(int row)
 {
     QStandardItem *item = m_model.itemFromIndex(m_model.index(row, 1));
-    QColor color = QColor(item->data(Qt::DisplayRole).toString());
+    QColor color = colorFromExtendedName(item->data(Qt::DisplayRole).toString());
 
     int recomendedLength = viewOptions().decorationSize.height() - 2;
 
     QPixmap colorpix(recomendedLength, recomendedLength);
     QPainter p(&colorpix);
+    if (color.alpha() != 255)
+        p.fillRect(1,1, recomendedLength -2, recomendedLength - 2, Qt::white);
     p.fillRect(1, 1, recomendedLength - 2, recomendedLength - 2, color);
     p.setPen(Qt::black);
     p.drawRect(0, 0, recomendedLength - 1, recomendedLength - 1);

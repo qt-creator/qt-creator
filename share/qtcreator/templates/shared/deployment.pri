@@ -55,11 +55,12 @@ symbian {
         desktopfile.path = /usr/share/applications/hildon
         icon.files = $${TARGET}64.png
         icon.path = /usr/share/icons/hicolor/64x64/apps
-    } else {
+    } else:!isEmpty(MEEGO_VERSION_MAJOR) {
         desktopfile.files = $${TARGET}_harmattan.desktop
         desktopfile.path = /usr/share/applications
         icon.files = $${TARGET}80.png
         icon.path = /usr/share/icons/hicolor/80x80/apps
+    } else { # Assumed to be a Desktop Unix
         copyCommand =
         for(deploymentfolder, DEPLOYMENTFOLDERS) {
             source = $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source)
@@ -98,13 +99,18 @@ symbian {
         export($$itempath)
         INSTALLS += $$item
     }
+
+    !isEmpty(desktopfile.path) {
+        export(icon.files)
+        export(icon.path)
+        export(desktopfile.files)
+        export(desktopfile.path)
+        INSTALLS += icon desktopfile
+    }
+
     target.path = $${installPrefix}/bin
-    export(icon.files)
-    export(icon.path)
-    export(desktopfile.files)
-    export(desktopfile.path)
     export(target.path)
-    INSTALLS += desktopfile icon target
+    INSTALLS += target
 }
 
 export (ICON)

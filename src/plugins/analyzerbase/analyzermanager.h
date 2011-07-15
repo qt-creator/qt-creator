@@ -56,16 +56,18 @@ typedef QList<StartMode> StartModes;
 class IAnalyzerTool;
 class AnalyzerManagerPrivate;
 
+
+// FIXME: Merge with AnalyzerPlugin.
 class ANALYZER_EXPORT AnalyzerManager : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit AnalyzerManager(QObject *parent = 0);
+    explicit AnalyzerManager(QObject *parent);
     ~AnalyzerManager();
 
-    void extensionsInitialized();
-    void shutdown();
+    static void extensionsInitialized();
+    static void shutdown();
 
     // Register a tool and initialize it.
     static void addTool(IAnalyzerTool *tool, const StartModes &mode);

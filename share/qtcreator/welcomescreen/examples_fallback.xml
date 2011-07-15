@@ -404,10 +404,12 @@
    <tags>example,recentfiles,mainwindows</tags>
   </example>
   <example imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-dialcontrol-example.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/declarative-ui-components-dialcontrol.html" projectPath="declarative/ui-components/dialcontrol/dialcontrol.qmlproject" name="Dial">
+   <fileToOpen>declarative/ui-components/dialcontrol/dialcontrol.qml</fileToOpen>
    <description><![CDATA[This example shows how to create a dial-type control. It combines <tt>Image</tt> elements with <tt>Rotation</tt> transforms and <tt>SpringAnimation</tt> behaviors to produce an interactive speedometer-type dial.]]></description>
    <tags>example,dialcontrol,declarative,ui-components,qml,qt quick,image,rotation,springanimation</tags>
   </example>
   <example imageUrl="qthelp://com.trolltech.qt/qdoc/images/qml-flipable-example.png" difficulty="?" docUrl="qthelp://com.trolltech.qt/qdoc/declarative-ui-components-flipable.html" projectPath="declarative/ui-components/flipable/flipable.qmlproject" name="Flipable">
+  <fileToOpen>declarative/ui-components/flipable/flipable.qml</fileToOpen>
    <description><![CDATA[This example shows how to use the <tt>Flipable</tt> element.]]></description>
    <tags>example,flipable,declarative,ui-components,qml,qt quick,flipable</tags>
   </example>

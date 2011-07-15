@@ -40,7 +40,7 @@ Item {
         width: parent.width
         height: lineEdit.height
 
-        Components.TextField {
+        LineEdit {
             Behavior on width { NumberAnimation{} }
             placeholderText: !checkBox.checked ? qsTr("Search in Tutorials") : qsTr("Search in Tutorials, Examples and Demos")
             focus: true
@@ -49,7 +49,7 @@ Item {
             onTextChanged: examplesModel.filterRegExp = RegExp('.*'+text, "im")
         }
 
-        Components.CheckBox {
+        CheckBox {
             id: checkBox
             text: qsTr("Show Examples and Demos")
             checked: false
@@ -60,7 +60,7 @@ Item {
             onCheckedChanged: examplesModel.showTutorialsOnly = !checked;
         }
 
-        Components.Button {
+        Button {
             id: tagFilterButton
             property string tag
             Behavior on width { NumberAnimation{} }
@@ -78,7 +78,7 @@ Item {
     }
     Components.ScrollArea  {
         id: scrollArea
-        anchors.topMargin: lineEditRoot.height
+        anchors.topMargin: lineEditRoot.height+12
         anchors.fill: parent
         clip: true
         frame: false
@@ -86,7 +86,10 @@ Item {
             Repeater {
                 id: repeater
                 model: examplesModel
-                delegate: ExampleDelegate { width: scrollArea.width-20 }
+                delegate: ExampleDelegate {
+                    width: scrollArea.width-20;
+                    property int count: repeater.count
+                }
             }
         }
     }

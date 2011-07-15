@@ -164,13 +164,13 @@ void Qt4InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             if (!informationChangedInstanceSet.isEmpty())
                 nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(informationChangedInstanceSet.toList()));
 
-            if (!propertyChangedList.isEmpty())
-                nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
-
             if (!m_parentChangedSet.isEmpty()) {
                 sendChildrenChangedCommand(m_parentChangedSet.toList());
                 m_parentChangedSet.clear();
             }
+
+            if (!propertyChangedList.isEmpty())
+                nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
 
             if (adjustSceneRect) {
                 QRectF boundingRect = rootNodeInstance().boundingRect();

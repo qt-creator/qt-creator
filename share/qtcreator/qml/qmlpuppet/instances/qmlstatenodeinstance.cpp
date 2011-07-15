@@ -60,7 +60,7 @@ QmlStateNodeInstance::Pointer
 
     Pointer instance(new QmlStateNodeInstance(stateObject));
 
-    instance->populateResetValueHash();
+    instance->populateResetHashes();
 
     return instance;
 }

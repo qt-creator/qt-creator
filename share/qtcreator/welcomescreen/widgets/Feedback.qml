@@ -40,43 +40,20 @@ BorderImage {
     border.left: 2
     border.right: 2
 
-    Rectangle { color: "black"; width: parent.width; height: 1; anchors.top: parent.top; anchors.left: parent.left }
+    Rectangle { color: "#4D295B7F"; width: parent.width; height: 1; anchors.top: parent.top; anchors.left: parent.left }
 
     Components.QStyleItem { id: styleItem; visible: false }
 
     // whitelist
     property bool _hasDesktopTheme: welcomeMode.platform() === "linux"
 
-    Components.Button {
-        id: openProjectButton
-        text: qsTr("Open Project...")
-        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
-        onClicked: welcomeMode.openProject();
-        height: 32
-        anchors.left: parent.left
-        anchors.margins: 5
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
-    Components.Button {
-        id: createProjectButton
-        text: qsTr("Create Project...")
-        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
-        onClicked: welcomeMode.newProject();
-        height: 32
-        anchors.left: openProjectButton.right
-        anchors.margins: 5
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
-
-    Components.Button {
+    Button {
         id: feedbackButton
         text: qsTr("Feedback")
         iconSource: "qrc:welcome/images/feedback_arrow.png"
         height: 32
         anchors.verticalCenter: parent.verticalCenter
-        anchors.right: feedbackText.left
+        anchors.left: parent.left
         anchors.margins: 5
         onClicked: welcomeMode.sendFeedback()
     }
@@ -84,9 +61,32 @@ BorderImage {
     Text {
         id: feedbackText
         anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.right
-        anchors.leftMargin: 10
         anchors.margins: 5
+        anchors.leftMargin: 10
+        anchors.left: feedbackButton.right
         text: qsTr("Help us make Qt Creator even better")
+    }
+
+
+    Button {
+        id: openProjectButton
+        text: qsTr("Open Project...")
+        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
+        onClicked: welcomeMode.openProject();
+        anchors.right: createProjectButton.left
+        anchors.margins: 5
+        height: 32
+        anchors.verticalCenter: parent.verticalCenter
+    }
+
+    Button {
+        id: createProjectButton
+        text: qsTr("Create Project...")
+        iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
+        onClicked: welcomeMode.newProject();
+        height: 32
+        anchors.margins: 5
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
     }
 }

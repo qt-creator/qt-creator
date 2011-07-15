@@ -32,11 +32,14 @@
 **
 **************************************************************************/
 
-
-#ifndef ANALYZER_INTERNAL_VALGRINDCONFIGWIDGET_H
-#define ANALYZER_INTERNAL_VALGRINDCONFIGWIDGET_H
+#ifndef ANALYZER_VALGRINDCONFIGWIDGET_H
+#define ANALYZER_VALGRINDCONFIGWIDGET_H
 
 #include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QStandardItemModel;
+QT_END_NAMESPACE
 
 namespace Valgrind {
 namespace Internal {
@@ -45,22 +48,33 @@ namespace Ui {
 class ValgrindConfigWidget;
 }
 
-class ValgrindSettings;
+class ValgrindBaseSettings;
 
 class ValgrindConfigWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    ValgrindConfigWidget(ValgrindSettings *settings, QWidget *parent);
+    ValgrindConfigWidget(ValgrindBaseSettings *settings, QWidget *parent, bool global);
     virtual ~ValgrindConfigWidget();
 
+    void setSuppressions(const QStringList &files);
+    QStringList suppressions() const;
+
+public Q_SLOTS:
+    void slotAddSuppression();
+    void slotRemoveSuppression();
+    void slotSuppressionsRemoved(const QStringList &files);
+    void slotSuppressionsAdded(const QStringList &files);
+    void slotSuppressionSelectionChanged();
+
 private:
-    ValgrindSettings *m_settings;
+    ValgrindBaseSettings *m_settings;
     Ui::ValgrindConfigWidget *m_ui;
+    QStandardItemModel *m_model;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Valgrind
 
-#endif // ANALYZER_INTERNAL_VALGRINDCONFIGWIDGET_H
+#endif // ANALYZER_VALGRINDCONFIGWIDGET_H

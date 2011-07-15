@@ -135,6 +135,16 @@ void SnapshotWindow::removeSnapshot(int i)
     m_snapshotHandler->at(i)->quitDebugger();
 }
 
+void SnapshotWindow::setModel(QAbstractItemModel *model)
+{
+    QTreeView::setModel(model);
+    setAlwaysResizeColumnsToContents(true);
+    if (header()) {
+        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustSnapshotsColumnWidths);
+        setAlwaysResizeColumnsToContents(adjust);
+    }
+}
+
 void SnapshotWindow::resizeColumnsToContents()
 {
     for (int i = model()->columnCount(); --i >= 0; )

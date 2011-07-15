@@ -31,32 +31,24 @@
 **************************************************************************/
 
 import QtQuick 1.0
+import components 1.0 as Components
 
 Row {
     id: tabBar
     height: 25
 
     property alias model: tabs.model
-    property int tabBarWidth
-
+    property int tabWidth: Math.floor(tabBar.width/tabs.count)
     Repeater {
         id: tabs
-        height: tabBar.height
         model: parent.model
-        delegate:
-            Item {
-            width: tabBarWidth / tabs.count
+        delegate: Item {
+            Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
             height: tabBar.height
-
-            Rectangle {
-                width: parent.width; height: 1
-                anchors { bottom: parent.bottom; bottomMargin: 1 }
-                color: "#acb2c2"
-            }
-            BorderImage {
+            width: index === 1 ? tabWidth : (tabWidth + tabBar.width % tabs.count + 1)
+            Image {
                 id: tabBackground
                 anchors.fill: parent
-                border { top: 1; bottom: 1}
                 source: "qrc:welcome/images/tab_inactive.png"
             }
             Text {
@@ -65,7 +57,7 @@ Row {
                 anchors.fill: parent
                 text: model.modelData.title
                 elide: Text.ElideRight
-                color: "white"
+                color: "black"
             }
             MouseArea {
                 id: mouseArea
@@ -77,7 +69,7 @@ Row {
                 State {
                     id: activeState; when: tabBar.current == index
                     PropertyChanges { target: tabBackground; source:"qrc:welcome/images/tab_active.png" }
-                    PropertyChanges { target: text; color: "black" }
+                    PropertyChanges { target: text; color: "white" }
                 },
                 State {
                     id: hoverState; when: mouseArea.containsMouse

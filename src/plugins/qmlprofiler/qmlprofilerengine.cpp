@@ -173,6 +173,19 @@ void QmlProfilerEngine::stop()
 
 void QmlProfilerEngine::stopped()
 {
+    // user feedback
+    if (d->m_running && d->m_fetchingData) {
+        Core::ICore * const core = Core::ICore::instance();
+        QMessageBox *killedWarning = new QMessageBox(core->mainWindow());
+        killedWarning->setIcon(QMessageBox::Warning);
+        killedWarning->setWindowTitle(tr("QML Profiler"));
+        killedWarning->setText(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
+        killedWarning->setStandardButtons(QMessageBox::Ok);
+        killedWarning->setDefaultButton(QMessageBox::Ok);
+        killedWarning->setModal(false);
+        killedWarning->show();
+    }
+
     d->m_running = false;
     AnalyzerManager::stopTool(); // FIXME: Needed?
     emit finished();
@@ -265,7 +278,7 @@ void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
 {
     if (button == QMessageBox::Help) {
         Core::HelpManager *helpManager = Core::HelpManager::instance();
-        helpManager->handleHelpRequest("creator-qml-performance-monitor.html");
+        helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-qml-performance-monitor.html");
     }
 }
 

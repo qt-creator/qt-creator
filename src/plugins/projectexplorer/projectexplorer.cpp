@@ -1304,12 +1304,7 @@ Project *ProjectExplorerPlugin::startupProject() const
 
 void ProjectExplorerPlugin::updateWelcomePage()
 {
-    WelcomePageData welcomePageData;
-    welcomePageData.sessionList =  d->m_session->sessions();
-    welcomePageData.activeSession = d->m_session->activeSession();
-    welcomePageData.previousSession = d->m_session->lastSession();
-    welcomePageData.projectList = d->m_recentProjects;
-    d->m_welcomePage->setWelcomePageData(welcomePageData);
+    d->m_welcomePage->reloadWelcomeScreenData();
 }
 
 void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *oldMode)

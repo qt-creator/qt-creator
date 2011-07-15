@@ -136,7 +136,8 @@ void TargetSetupPage::setupWidgets()
                     selectTarget = !infos.isEmpty();
                 } else {
                     if (!m_preferredFeatures.isEmpty()) {
-                        selectTarget = factory->targetFeatures(id).contains(m_preferredFeatures);
+                        selectTarget = factory->targetFeatures(id).contains(m_preferredFeatures)
+                                && factory->selectByDefault(id);
                     }
                 }
                 widget->setTargetSelected(selectTarget);

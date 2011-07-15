@@ -85,7 +85,8 @@ public:
     explicit QmlProfilerEventStatistics(QObject *parent = 0);
     ~QmlProfilerEventStatistics();
 
-    QmlEventList getEventList();
+    QmlEventList getEventList() const;
+    int eventCount() const;
 
 signals:
     void dataReady();

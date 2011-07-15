@@ -33,75 +33,86 @@
 import QtQuick 1.0
 import "widgets"
 
-Image {
+Rectangle {
     id: root
-    source: "qrc:welcome/images/welcomebg.png"
-    smooth: true
-
+    color: "#F2F2F2"
     // work around the fact that we can't use
     // a property alias to welcomeMode.activePlugin
     property int current: 0
     onCurrentChanged: welcomeMode.activePlugin = current
     Component.onCompleted: current = welcomeMode.activePlugin
-
-    BorderImage {
-        id: inner_background
-        Image {
-            id: header;
-            source: "qrc:welcome/images/center_frame_header.png";
-            anchors.verticalCenter: parent.verticalCenter;
-            anchors.horizontalCenter: parent.horizontalCenter;
-            anchors.topMargin: 2
-        }
-        anchors.top: root.top
-        source: "qrc:welcome/images/background_center_frame_v2.png"
-        width: parent.width
-        height: 60
-        border.right: 2
-        border.left: 2
-        border.top: 2
-        border.bottom: 10
-    }
-
-    LinksBar {
-        id: navigationAndDevLinks
-        property alias current: root.current
-        anchors.top: inner_background.bottom
+    Item {
+        anchors.top: parent.top
         anchors.left: parent.left
-        anchors.bottomMargin: 4
-        anchors.topMargin: -2
-        width: parent.width
-        model: tabs.model
-        tabBarWidth: width
-    }
-
-    BorderImage {
-        id: news
-        opacity: 0.7
-        source: "qrc:welcome/images/rc_combined.png"
-        border.left: 5; border.top: 5
-        border.right: 5; border.bottom: 5
-        anchors.top: navigationAndDevLinks.bottom
-        anchors.bottom: feedback.top
-        anchors.left: parent.left
-        anchors.margins: 5
-        width: 270
-        FeaturedAndNewsListing {
-            anchors.fill: parent
-            anchors.margins: 4
-        }
-    }
-
-    TabWidget {
-        id: tabs
-        property int current: root.current
-        model: pagesModel
-        anchors.top: navigationAndDevLinks.bottom
-        anchors.bottom: feedback.top
-        anchors.left: news.right
         anchors.right: parent.right
-        anchors.leftMargin: 0
-        anchors.margins: 4
+        anchors.bottom: feedback.top
+        anchors.margins: 10
+
+        Item {
+            id: news
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.rightMargin: 5
+            width: 270
+            Rectangle {
+                anchors.fill: parent
+                border.color: "#36295B7F"
+                border.width: 1
+                color: "#B3FFFFFF"
+            }
+            FeaturedAndNewsListing {
+                anchors.fill: parent
+                anchors.margins: 8
+            }
+        }
+
+        Image {
+            id: tabFrame
+            source: "qrc:welcome/images/welcomebg.png"
+            smooth: true
+            Rectangle {
+                anchors.fill: parent
+                border.color: "#36295B7F"
+                border.width: 1
+                color: "#20FFFFFF"
+            }
+
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: news.right
+            anchors.right: parent.right
+            anchors.leftMargin: 5
+
+            LinksBar {
+                id: linksBar
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                property alias current: root.current
+                model: tabs.model
+            }
+
+            Rectangle {
+                anchors.fill: linksBar
+                anchors.bottomMargin: 1
+                opacity: 1
+                border.color: "#4D295B7F"
+                border.width: 1
+                color: "#00000000"
+            }
+
+            TabWidget {
+                id: tabs
+                property int current: root.current
+                model: pagesModel
+                anchors.top: linksBar.bottom
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: 10
+            }
+        }
     }
 
     Feedback {

@@ -76,6 +76,7 @@ public:
     virtual QIcon iconForId(const QString &id) const = 0;
 
     virtual QSet<QString> targetFeatures(const QString &id) const = 0;
+    virtual bool selectByDefault(const QString &id) const;
 
     virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id) = 0;
     virtual ProjectExplorer::Target *create(ProjectExplorer::Project *parent, const QString &id, const QList<BuildConfigurationInfo> &infos) = 0;

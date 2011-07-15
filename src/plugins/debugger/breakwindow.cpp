@@ -527,6 +527,10 @@ void BreakWindow::setModel(QAbstractItemModel *model)
     resizeColumnToContents(0); // Number
     resizeColumnToContents(3); // Line
     resizeColumnToContents(6); // Ignore count
+    if (header()) {
+        bool adjust = debuggerCore()->boolSetting(AlwaysAdjustBreakpointsColumnWidths);
+        setAlwaysResizeColumnsToContents(adjust);
+    }
     connect(model, SIGNAL(layoutChanged()), this, SLOT(expandAll()));
 }
 

@@ -116,6 +116,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                 return QString(QLatin1String("\"%1\"")).arg(properColorName(value.value<QColor>()));
 
             case QVariant::Double:
+                return QString::number(value.toDouble(), 'g', 3);
             case QVariant::Int:
             case QVariant::LongLong:
             case QVariant::UInt:

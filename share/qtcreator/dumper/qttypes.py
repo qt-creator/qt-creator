@@ -509,7 +509,7 @@ def qdump__QImage(d, item):
         with Children(d):
             with SubItem(d):
                 d.putName("data")
-                d.putType(" ");
+                d.putNoType()
                 d.putNumChild(0)
                 d.putValue("size: %s bytes" % nbytes);
     format = d.itemFormat(item)
@@ -669,11 +669,8 @@ def extractCString(table, offset):
 def qdump__QObject(d, item):
     #warn("OBJECT: %s " % item.value)
     try:
-        privateTypeName = str(item.value.type) + "Private"
+        privateTypeName = d.ns + "QObjectPrivate"
         privateType = lookupType(privateTypeName)
-        if privateType is None:
-            privateTypeName = d.ns + "QObjectPrivate"
-            privateType = lookupType(privateTypeName)
         staticMetaObject = item.value["staticMetaObject"]
         d_ptr = item.value["d_ptr"]["d"].cast(privateType.pointer()).dereference()
         #warn("D_PTR: %s " % d_ptr)
@@ -724,7 +721,7 @@ def qdump__QObject(d, item):
               with SubItem(d):
                 d.putName("data")
                 d.putValue(" ")
-                d.putType(" ")
+                d.putNoType()
                 d.putNumChild(1)
                 iname = item.iname + ".data"
                 if d.isExpandedIName(iname):
@@ -764,7 +761,7 @@ def qdump__QObject(d, item):
             propertyCount = staticPropertyCount + dynamicPropertyCount
 
             d.putName("properties")
-            d.putType(" ")
+            d.putNoType()
             d.putItemCount(propertyCount)
             d.putNumChild(propertyCount)
 
@@ -877,7 +874,7 @@ def qdump__QObject(d, item):
         # Connections.
         with SubItem(d):
             d.putName("connections")
-            d.putType(" ")
+            d.putNoType()
             connections = d_ptr["connectionLists"]
             connectionListCount = 0
             if not isNull(connections):
@@ -909,7 +906,7 @@ def qdump__QObject(d, item):
         with SubItem(d):
             d.putName("signals")
             d.putItemCount(signalCount)
-            d.putType(" ")
+            d.putNoType()
             d.putNumChild(signalCount)
             if signalCount:
                 # FIXME: empty type does not work for childtype
@@ -923,7 +920,7 @@ def qdump__QObject(d, item):
                             d.putField("iname", "%s.signals.%d"
                                 % (item.iname, signal))
                             d.putName("signal %d" % signal)
-                            d.putType(" ")
+                            d.putNoType()
                             d.putValue(extractCString(metaStringData, offset))
                             d.putNumChild(0)  # FIXME: List the connections here.
 
@@ -932,7 +929,7 @@ def qdump__QObject(d, item):
             slotCount = metaData[4] - signalCount
             d.putName("slots")
             d.putItemCount(slotCount)
-            d.putType(" ")
+            d.putNoType()
             d.putNumChild(slotCount)
             if slotCount:
                 #d.putField("childtype", ".")
@@ -944,14 +941,14 @@ def qdump__QObject(d, item):
                             offset = metaData[14 + 5 * (signalCount + slot)]
                             d.putField("iname", "%s.slots.%d" % (item.iname, slot))
                             d.putName("slot %d" % slot)
-                            d.putType(" ")
+                            d.putNoType()
                             d.putValue(extractCString(metaStringData, offset))
                             d.putNumChild(0)  # FIXME: List the connections here.
 
         # Active connection
         with SubItem(d):
             d.putName("currentSender")
-            d.putType(" ")
+            d.putNoType()
             sender = d_ptr["currentSender"]
             d.putValue(cleanAddress(sender))
             if isNull(sender):
@@ -967,7 +964,7 @@ def qdump__QObject(d, item):
                         with SubItem(d):
                             d.putName("signal")
                             d.putValue(sender["signal"])
-                            d.putType(" ");
+                            d.putNoType()
                             d.putNumChild(0)
 
 # QObject
@@ -2203,7 +2200,7 @@ def qdump__QTJSC__JSValue(d, item):
             with SubItem(d):
                 d.putName("tag")
                 d.putValue(jstagAsString(long(tag)))
-                d.putType(" ")
+                d.putNoType()
                 d.putNumChild(0)
 
             d.putIntItem("payload", long(payload))
@@ -2438,7 +2435,7 @@ if False:
               d.putField("iname", iname)
               d.putName("tree")
               d.putValue(" ")
-              d.putType(" ")
+              d.putNoType()
               d.putNumChild(1)
               if d.isExpandedIName(iname):
                 with Children(d):
@@ -2449,7 +2446,7 @@ if False:
               d.putField("iname", iname)
               d.putName("data")
               d.putValue(" ")
-              d.putType(" ")
+              d.putNoType()
               d.putNumChild(1)
               if d.isExpandedIName(iname):
                  with Children(d):
@@ -2507,7 +2504,7 @@ if False:
         else:
             d.putName("type")
             d.putValue(item.value["type"])
-            d.putType(" ")
+            d.putNoType()
 
 
 
@@ -2515,5 +2512,5 @@ if False:
     def qdump__bug5106__A5106(d, item):
         d.putName("a")
         d.putValue("This is the value: %s" % item.value["m_a"])
-        d.putType(" ")
+        d.putNoType()
         d.putNumChild(0)

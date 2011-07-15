@@ -50,6 +50,8 @@ using namespace CppTools;
 CppQtStyleIndenter::CppQtStyleIndenter()
     : m_cppCodeStylePreferences(0)
 {
+    // Just for safety. setCodeStylePreferences should be called when the editor the
+    // indenter belongs to gets initialized.
     m_cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStylePreferences();
 }
 

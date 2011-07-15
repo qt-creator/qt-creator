@@ -56,25 +56,6 @@ using namespace Analyzer::Internal;
 
 static AnalyzerPlugin *m_instance = 0;
 
-
-////////////////////////////////////////////////////////////////////////
-//
-// AnalyzerPluginPrivate
-//
-////////////////////////////////////////////////////////////////////////
-
-class AnalyzerPlugin::AnalyzerPluginPrivate
-{
-public:
-    AnalyzerPluginPrivate(AnalyzerPlugin *qq):
-        q(qq),
-        m_manager(0)
-    {}
-
-    AnalyzerPlugin *q;
-    AnalyzerManager *m_manager;
-};
-
 ////////////////////////////////////////////////////////////////////////
 //
 // AnalyzerPlugin
@@ -82,14 +63,12 @@ public:
 ////////////////////////////////////////////////////////////////////////
 
 AnalyzerPlugin::AnalyzerPlugin()
-    : d(new AnalyzerPluginPrivate(this))
 {
     m_instance = this;
 }
 
 AnalyzerPlugin::~AnalyzerPlugin()
 {
-    delete d;
     m_instance = 0;
 }
 
@@ -98,7 +77,7 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    d->m_manager = new AnalyzerManager(this);
+    (void) new AnalyzerManager(this);
 
     // Task integration.
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
@@ -111,12 +90,12 @@ bool AnalyzerPlugin::initialize(const QStringList &arguments, QString *errorStri
 
 void AnalyzerPlugin::extensionsInitialized()
 {
-    d->m_manager->extensionsInitialized();
+    AnalyzerManager::extensionsInitialized();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag AnalyzerPlugin::aboutToShutdown()
 {
-    d->m_manager->shutdown();
+    AnalyzerManager::shutdown();
     return SynchronousShutdown;
 }
 

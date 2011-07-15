@@ -184,7 +184,7 @@ void TimelineView::updateTimeline(bool updateStartX)
 
     // Show items
     int z = 0;
-    for (int i = maxsample-1; i >= minsample; --i) {
+    for (int i = maxsample; i >= minsample; --i) {
         QDeclarativeItem *item = 0;
         item = m_items.value(i);
         bool creating = false;

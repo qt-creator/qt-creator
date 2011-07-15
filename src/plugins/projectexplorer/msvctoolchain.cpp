@@ -55,7 +55,11 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QDesktopServices>
 
-static const char debuggerCommandKeyC[] = "ProjectExplorer.MsvcToolChain.Debugger";
+#define KEY_ROOT "ProjectExplorer.MsvcToolChain."
+static const char debuggerCommandKeyC[] = KEY_ROOT"Debugger";
+static const char varsBatKeyC[] = KEY_ROOT"VarsBat";
+static const char varsBatArgKeyC[] = KEY_ROOT"VarsBatArg";
+static const char supportedAbiKeyC[] = KEY_ROOT"SupportedAbi";
 
 enum { debug = 0 };
 
@@ -352,10 +356,36 @@ MsvcToolChain::MsvcToolChain(const QString &name, const Abi &abi,
     Q_ASSERT(abi.binaryFormat() == Abi::PEFormat);
     Q_ASSERT(abi.osFlavor() != Abi::WindowsMSysFlavor);
 
-    setId(QString::fromLatin1("%1:%2.%3.%4").arg(Constants::MSVC_TOOLCHAIN_ID).arg(m_varsBat)
-            .arg(m_varsBatArg).arg(m_debuggerCommand));
-
+    updateId();
     setDisplayName(name);
+}
+
+MsvcToolChain::MsvcToolChain() :
+    ToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), false),
+    m_lastEnvironment(Utils::Environment::systemEnvironment())
+{
+}
+
+MsvcToolChain *MsvcToolChain::readFromMap(const QVariantMap &data)
+{
+    MsvcToolChain *tc = new MsvcToolChain;
+    if (tc->fromMap(data))
+        return tc;
+    delete tc;
+    return 0;
+}
+
+void MsvcToolChain::updateId()
+{
+    const QChar colon = QLatin1Char(':');
+    QString id = QLatin1String(Constants::MSVC_TOOLCHAIN_ID);
+    id += colon;
+    id += m_varsBat;
+    id += colon;
+    id += m_varsBatArg;
+    id += colon;
+    id += m_debuggerCommand;
+    setId(id);
 }
 
 QString MsvcToolChain::typeName() const
@@ -438,6 +468,7 @@ void MsvcToolChain::setDebuggerCommand(const QString &d)
     if (m_debuggerCommand == d)
         return;
     m_debuggerCommand = d;
+    updateId();
     toolChainUpdated();
 }
 
@@ -449,7 +480,12 @@ QString MsvcToolChain::debuggerCommand() const
 QVariantMap MsvcToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();
-    data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand);
+    if (!m_debuggerCommand.isEmpty())
+        data.insert(QLatin1String(debuggerCommandKeyC), m_debuggerCommand);
+    data.insert(QLatin1String(varsBatKeyC), m_varsBat);
+    if (!m_varsBatArg.isEmpty())
+        data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
+    data.insert(QLatin1String(supportedAbiKeyC), m_abi.toString());
     return data;
 }
 
@@ -457,9 +493,13 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
 {
     if (!ToolChain::fromMap(data))
         return false;
-
-    m_debuggerCommand= data.value(QLatin1String(debuggerCommandKeyC)).toString();
-    return true;
+    m_varsBat = data.value(QLatin1String(varsBatKeyC)).toString();
+    m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
+    m_debuggerCommand = data.value(QLatin1String(debuggerCommandKeyC)).toString();
+    const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
+    m_abi = Abi(abiString);
+    updateId();
+    return !m_varsBat.isEmpty() && m_abi.isValid();
 }
 
 IOutputParser *MsvcToolChain::outputParser() const
@@ -523,10 +563,13 @@ void MsvcDebuggerConfigLabel::slotLinkActivated(const QString &link)
 // --------------------------------------------------------------------------
 
 MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc) :
-    ToolChainConfigWidget(tc)
+    ToolChainConfigWidget(tc),
+    m_varsBatDisplayLabel(new QLabel(this))
 {
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->addRow(new QLabel(tc->displayName()));
+    m_varsBatDisplayLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    formLayout->addRow(tr("Initialization:"), m_varsBatDisplayLabel);
     formLayout->addRow(new MsvcDebuggerConfigLabel);
     addDebuggerCommandControls(formLayout, QStringList(QLatin1String("-version")));
     addDebuggerAutoDetection(this, SLOT(autoDetectDebugger()));
@@ -545,6 +588,12 @@ void MsvcToolChainConfigWidget::setFromToolChain()
 {
     MsvcToolChain *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return);
+    QString varsBatDisplay = tc->varsBat();
+    if (!tc->varsBatArg().isEmpty()) {
+        varsBatDisplay += QLatin1Char(' ');
+        varsBatDisplay += tc->varsBatArg();
+    }
+    m_varsBatDisplayLabel->setText(varsBatDisplay);
     setDebuggerCommand(tc->debuggerCommand());
 }
 
@@ -756,6 +805,11 @@ QString MsvcToolChain::autoDetectCdbDebugger(QStringList *checkedDirectories /* 
     }
 #endif
     return QString();
+}
+
+bool MsvcToolChainFactory::canRestore(const QVariantMap &data)
+{
+    return idFromMap(data).startsWith(QLatin1String(Constants::MSVC_TOOLCHAIN_ID) + QLatin1Char(':'));
 }
 
 } // namespace Internal

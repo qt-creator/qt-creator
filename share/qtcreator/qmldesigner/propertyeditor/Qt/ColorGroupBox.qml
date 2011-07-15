@@ -176,6 +176,7 @@ QExtGroupBox {
                     spacing: 6
 
                     LineEdit {
+                        inputMask: "\\#HHHHHH"
                         visible: gradientEditing == false
                         backendValue: colorGroupBox.backendColor
                         baseStateFlag: isBaseState

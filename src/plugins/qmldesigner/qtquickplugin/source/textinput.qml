@@ -32,7 +32,7 @@
 
 import QtQuick 1.0
 
-Text {
+TextInput {
     width: 80
     height: 20
     text: qsTr("text")

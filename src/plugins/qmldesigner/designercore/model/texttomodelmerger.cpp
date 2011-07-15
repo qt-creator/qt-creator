@@ -643,10 +643,24 @@ private:
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
+
+static inline bool smartVeryFuzzyCompare(QVariant value1, QVariant value2)
+{ //we ignore slight changes on doubles and only check three digits
+    if ((value1.type() == QVariant::Double) && (value2.type() == QVariant::Double)) {
+        int a = value1.toDouble() * 1000;
+        int b = value2.toDouble() * 1000;
+
+        if (qFuzzyCompare((qreal(a) / 1000), (qreal(b) / 1000))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static inline bool equals(const QVariant &a, const QVariant &b)
 {
     if (a.type() == QVariant::Double && b.type() == QVariant::Double)
-        return qFuzzyCompare(a.toDouble(), b.toDouble());
+        return smartVeryFuzzyCompare(a.toDouble(), b.toDouble());
     else
         return a == b;
 }
@@ -749,6 +763,11 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
 
         setupImports(doc, differenceHandler);
+
+        if (m_rewriterView->model()->imports().isEmpty()) {
+            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::DiagnosticMessage::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger error message", "No import statements found"));
+            errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+        }
 
         if (view()->checkSemanticErrors()) {
             Check check(doc, m_lookupContext->context());

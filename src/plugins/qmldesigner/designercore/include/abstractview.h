@@ -122,7 +122,6 @@ public:
     void emitRewriterBeginTransaction();
     void emitRewriterEndTransaction();
     void emitInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
-    void emitActualStateChanged(const ModelNode &node);
 
     void sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
@@ -177,6 +176,9 @@ public:
 
     NodeInstanceView *nodeInstanceView() const;
     RewriterView *rewriterView() const;
+
+    void setAcutalStateNode(const ModelNode &node);
+    ModelNode actualStateNode() const;
 
     void resetView();
 

@@ -2584,7 +2584,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return);
     m_coreSettings = core->settings();
+
     m_debuggerSettings = new DebuggerSettings(m_coreSettings);
+    m_debuggerSettings->readSettings();
 
     connect(core, SIGNAL(coreAboutToClose()), this, SLOT(coreShutdown()));
 
@@ -2775,8 +2777,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_commonOptionsPage = new CommonOptionsPage(m_globalDebuggerOptions);
     m_plugin->addAutoReleasedObject(m_commonOptionsPage);
-
-    m_debuggerSettings->readSettings();
 
     // Do not fail to load the whole plugin if something goes wrong here.
     QString errorMessage;

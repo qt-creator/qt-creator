@@ -3145,6 +3145,57 @@ Module {
         Property { name: "anchors"; type: "QSGAnchorSet"; isReadonly: true; isPointer: true }
     }
     Component {
+        name: "QSGAnchorSet"
+        prototype: "QObject"
+        Property { name: "left"; type: "QDeclarativeScriptString" }
+        Property { name: "right"; type: "QDeclarativeScriptString" }
+        Property { name: "horizontalCenter"; type: "QDeclarativeScriptString" }
+        Property { name: "top"; type: "QDeclarativeScriptString" }
+        Property { name: "bottom"; type: "QDeclarativeScriptString" }
+        Property { name: "verticalCenter"; type: "QDeclarativeScriptString" }
+        Property { name: "baseline"; type: "QDeclarativeScriptString" }
+    }
+    Component {
+        name: "QSGAnchors"
+        prototype: "QObject"
+        Property { name: "left"; type: "QSGAnchorLine" }
+        Property { name: "right"; type: "QSGAnchorLine" }
+        Property { name: "horizontalCenter"; type: "QSGAnchorLine" }
+        Property { name: "top"; type: "QSGAnchorLine" }
+        Property { name: "bottom"; type: "QSGAnchorLine" }
+        Property { name: "verticalCenter"; type: "QSGAnchorLine" }
+        Property { name: "baseline"; type: "QSGAnchorLine" }
+        Property { name: "margins"; type: "qreal" }
+        Property { name: "leftMargin"; type: "qreal" }
+        Property { name: "rightMargin"; type: "qreal" }
+        Property { name: "horizontalCenterOffset"; type: "qreal" }
+        Property { name: "topMargin"; type: "qreal" }
+        Property { name: "bottomMargin"; type: "qreal" }
+        Property { name: "verticalCenterOffset"; type: "qreal" }
+        Property { name: "baselineOffset"; type: "qreal" }
+        Property { name: "fill"; type: "QSGItem"; isPointer: true }
+        Property { name: "centerIn"; type: "QSGItem"; isPointer: true }
+        Property { name: "mirrored"; type: "bool"; isReadonly: true }
+        Signal { name: "leftChanged" }
+        Signal { name: "rightChanged" }
+        Signal { name: "topChanged" }
+        Signal { name: "bottomChanged" }
+        Signal { name: "verticalCenterChanged" }
+        Signal { name: "horizontalCenterChanged" }
+        Signal { name: "baselineChanged" }
+        Signal { name: "fillChanged" }
+        Signal { name: "centerInChanged" }
+        Signal { name: "leftMarginChanged" }
+        Signal { name: "rightMarginChanged" }
+        Signal { name: "topMarginChanged" }
+        Signal { name: "bottomMarginChanged" }
+        Signal { name: "marginsChanged" }
+        Signal { name: "verticalCenterOffsetChanged" }
+        Signal { name: "horizontalCenterOffsetChanged" }
+        Signal { name: "baselineOffsetChanged" }
+        Signal { name: "mirroredChanged" }
+    }
+    Component {
         name: "QSGAngledDirection"
         prototype: "QSGStochasticDirection"
         exports: [
@@ -3482,6 +3533,30 @@ Module {
             Parameter { name: "center"; type: "QPointF" }
         }
         Method { name: "returnToBounds" }
+    }
+    Component {
+        name: "QSGFlickableVisibleArea"
+        prototype: "QObject"
+        Property { name: "xPosition"; type: "qreal"; isReadonly: true }
+        Property { name: "yPosition"; type: "qreal"; isReadonly: true }
+        Property { name: "widthRatio"; type: "qreal"; isReadonly: true }
+        Property { name: "heightRatio"; type: "qreal"; isReadonly: true }
+        Signal {
+            name: "xPositionChanged"
+            Parameter { name: "xPosition"; type: "qreal" }
+        }
+        Signal {
+            name: "yPositionChanged"
+            Parameter { name: "yPosition"; type: "qreal" }
+        }
+        Signal {
+            name: "widthRatioChanged"
+            Parameter { name: "widthRatio"; type: "qreal" }
+        }
+        Signal {
+            name: "heightRatioChanged"
+            Parameter { name: "heightRatio"; type: "qreal" }
+        }
     }
     Component {
         name: "QSGFlipable"
@@ -5120,6 +5195,14 @@ Module {
         Signal { name: "pathChanged" }
     }
     Component {
+        name: "QSGPen"
+        prototype: "QObject"
+        Property { name: "width"; type: "qreal" }
+        Property { name: "color"; type: "QColor" }
+        Property { name: "aligned"; type: "bool" }
+        Signal { name: "penChanged" }
+    }
+    Component {
         name: "QSGPinch"
         prototype: "QObject"
         exports: [
@@ -5374,6 +5457,15 @@ Module {
         Signal { name: "yScaleChanged" }
         Signal { name: "zScaleChanged" }
         Signal { name: "scaleChanged" }
+    }
+    Component {
+        name: "QSGScaleGrid"
+        prototype: "QObject"
+        Property { name: "left"; type: "int" }
+        Property { name: "top"; type: "int" }
+        Property { name: "right"; type: "int" }
+        Property { name: "bottom"; type: "int" }
+        Signal { name: "borderChanged" }
     }
     Component {
         name: "QSGShaderEffectItem"
@@ -6273,6 +6365,7 @@ Module {
         }
         Method { name: "parentModelIndex"; type: "QVariant" }
     }
+    Component { name: "QSGVisualDataModelParts"; prototype: "QObject" }
     Component {
         name: "QSGVisualItemModel"
         defaultProperty: "children"

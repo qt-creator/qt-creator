@@ -141,7 +141,7 @@ QByteArray convertToId(const QByteArray &cppName)
     return cppToId.value(cppName, cppName);
 }
 
-QSet<const QMetaObject *> collectReachableMetaObjects(const QString &importCode, QDeclarativeEngine *engine)
+QSet<const QMetaObject *> collectReachableMetaObjects(const QList<QDeclarativeType *> &skip = QList<QDeclarativeType *>())
 {
     QSet<const QMetaObject *> metas;
     metas.insert(FriendlyQObject::qtMeta());
@@ -189,7 +189,9 @@ QSet<const QMetaObject *> collectReachableMetaObjects(const QString &importCode,
 
     // find even more QMetaObjects by instantiating QML types and running
     // over the instances
-    foreach (const QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {
+    foreach (QDeclarativeType *ty, QDeclarativeMetaType::qmlTypes()) {
+        if (skip.contains(ty))
+            continue;
         if (ty->isExtendedType())
             continue;
         if (!ty->isCreatable())
@@ -202,21 +204,14 @@ QSet<const QMetaObject *> collectReachableMetaObjects(const QString &importCode,
         if (tyName.isEmpty())
             continue;
 
-        QByteArray code = importCode.toUtf8();
-        code += tyName;
-        code += " {}\n";
-
-        QDeclarativeComponent c(engine);
-        c.setData(code, QUrl::fromLocalFile(pluginImportPath + "/typeinstance.qml"));
-
         inObjectInstantiation = tyName;
-        QObject *object = c.create();
+        QObject *object = ty->create();
         inObjectInstantiation.clear();
 
         if (object)
             collectReachableMetaObjects(object, &metas);
         else
-            qWarning() << "Could not create" << tyName << ":" << c.errorString();
+            qWarning() << "Could not create" << tyName;
     }
 
     return metas;
@@ -542,8 +537,8 @@ int main(int argc, char *argv[])
     }
 
     // find all QMetaObjects reachable from the builtin module
-    QByteArray importCode("import QtQuick 1.0\n");
-    QSet<const QMetaObject *> defaultReachable = collectReachableMetaObjects(importCode, engine);
+    QSet<const QMetaObject *> defaultReachable = collectReachableMetaObjects();
+    QList<QDeclarativeType *> defaultTypes = QDeclarativeMetaType::qmlTypes();
 
     // this will hold the meta objects we want to dump information of
     QSet<const QMetaObject *> metas;
@@ -551,6 +546,20 @@ int main(int argc, char *argv[])
     if (action == Builtins) {
         metas = defaultReachable;
     } else {
+        // find a valid QtQuick import
+        QByteArray importCode;
+        QDeclarativeType *qtObjectType = QDeclarativeMetaType::qmlType(&QObject::staticMetaObject);
+        if (!qtObjectType) {
+            qWarning() << "Could not find QtObject type";
+            importCode = QByteArray("import QtQuick 1.0\n");
+        } else {
+            QByteArray module = qtObjectType->qmlTypeName();
+            module = module.mid(0, module.lastIndexOf('/'));
+            importCode = QString("import %1 %2.%3\n").arg(module,
+                                                          QString::number(qtObjectType->majorVersion()),
+                                                          QString::number(qtObjectType->minorVersion())).toUtf8();
+        }
+
         // find all QMetaObjects reachable when the specified module is imported
         if (action != Path) {
             importCode += QString("import %0 %1\n").arg(pluginImportUri, pluginImportVersion).toAscii();
@@ -575,7 +584,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        QSet<const QMetaObject *> candidates = collectReachableMetaObjects(importCode, engine);
+        QSet<const QMetaObject *> candidates = collectReachableMetaObjects(defaultTypes);
         candidates.subtract(defaultReachable);
 
         // Also eliminate meta objects with the same classname.

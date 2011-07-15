@@ -35,7 +35,6 @@
 #include "memchecktool.h"
 #include "memcheckengine.h"
 #include "memcheckerrorview.h"
-#include "memchecksettings.h"
 #include "valgrindsettings.h"
 #include "valgrindplugin.h"
 
@@ -260,7 +259,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
     connect(m_settings, SIGNAL(destroyed(QObject *)), SLOT(settingsDestroyed(QObject *)));
 
-    AbstractMemcheckSettings *memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();
+    ValgrindBaseSettings *memcheckSettings = m_settings->subConfig<ValgrindBaseSettings>();
     QTC_ASSERT(memcheckSettings, return);
 
     foreach (QAction *action, m_errorFilterActions) {
@@ -288,12 +287,12 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
 QByteArray MemcheckTool::id() const
 {
-    return "MemcheckLocal";
+    return "Memcheck";
 }
 
 QString MemcheckTool::displayName() const
 {
-    return tr("Valgrind Analyze Memory");
+    return tr("Valgrind Memory Analyzer");
 }
 
 QString MemcheckTool::description() const
@@ -380,6 +379,7 @@ QWidget *MemcheckTool::createWidgets()
 
     QDockWidget *errorDock = AnalyzerManager::createDockWidget
         (this, tr("Memory Issues"), m_errorView, Qt::BottomDockWidgetArea);
+    errorDock->show();
     mw->splitDockWidget(mw->toolBarDockWidget(), errorDock, Qt::Vertical);
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
@@ -523,7 +523,7 @@ void MemcheckTool::updateErrorFilter()
     QTC_ASSERT(m_errorView, return);
     QTC_ASSERT(m_settings, return);
 
-    AbstractMemcheckSettings *memcheckSettings = m_settings->subConfig<AbstractMemcheckSettings>();
+    ValgrindBaseSettings *memcheckSettings = m_settings->subConfig<ValgrindBaseSettings>();
     QTC_ASSERT(memcheckSettings, return);
     memcheckSettings->setFilterExternalIssues(!m_filterProjectAction->isChecked());
 
@@ -544,8 +544,8 @@ void MemcheckTool::updateErrorFilter()
 void MemcheckTool::finished()
 {
     const int n = m_errorModel->rowCount();
-    m_goBack->setEnabled(n > 0);
-    m_goNext->setEnabled(n > 0);
+    m_goBack->setEnabled(n > 1);
+    m_goNext->setEnabled(n > 1);
     const QString msg = AnalyzerManager::msgToolFinished(displayName(), n);
     AnalyzerManager::showStatusMessage(msg);
 }

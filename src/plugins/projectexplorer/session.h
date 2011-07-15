@@ -104,6 +104,7 @@ public:
     void removeDependency(Project *project, Project *depProject);
 
     QString currentSession() const;
+    QString sessionNameToFileName(const QString &session) const;
     Project *startupProject() const;
 
     const QList<Project *> &projects() const;
@@ -154,7 +155,6 @@ private slots:
 private:
     bool loadImpl(const QString &fileName);
     bool createImpl(const QString &fileName);
-    QString sessionNameToFileName(const QString &session) const;
     bool projectContainsFile(Project *p, const QString &fileName) const;
 
     bool recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const;
