@@ -114,7 +114,7 @@ public slots:
     QString tabExpand(int n) const;
 
 signals:
-    void commandBufferChanged(const QString &msg);
+    void commandBufferChanged(const QString &msg, int pos);
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);

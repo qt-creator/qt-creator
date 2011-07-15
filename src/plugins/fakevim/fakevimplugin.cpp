@@ -75,6 +75,7 @@
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/treewidgetcolumnstretcher.h>
+#include <utils/stylehelper.h>
 
 #include <cppeditor/cppeditorconstants.h>
 
@@ -120,6 +121,51 @@ const char * const SETTINGS_USER_CMDS_ID          = "C.UserCommands";
 
 namespace FakeVim {
 namespace Internal {
+
+class MiniBuffer : public QLabel
+{
+    Q_OBJECT
+
+public:
+    void setContents(const QString &contents, int cursorPos)
+    {
+        QString msg = contents;
+        if (cursorPos != -1)
+            msg = contents.left(cursorPos) + QChar(10073) + contents.mid(cursorPos);
+        setText("  " + msg);
+    }
+};
+
+class MiniBuffer1 : public QLineEdit
+{
+    Q_OBJECT
+
+public:
+    MiniBuffer1()
+    {
+        setFrame(false);
+    }
+    void showEvent(QShowEvent *ev)
+    {
+        QLineEdit::showEvent(ev);
+        QColor color = Qt::black;
+        QPalette pal = parentWidget()->palette();
+        pal.setBrush(QPalette::All, QPalette::WindowText, color);
+        pal.setBrush(QPalette::All, QPalette::ButtonText, color);
+        pal.setBrush(QPalette::All, QPalette::Foreground, color);
+        pal.setBrush(QPalette::All, QPalette::Background, color);
+        //color.setAlpha(100);
+        //pal.setBrush(QPalette::Disabled, QPalette::WindowText, color);
+        //pal.setBrush(QPalette::Disabled, QPalette::ButtonText, color);
+        //pal.setBrush(QPalette::Disabled, QPalette::Foreground, color);
+        setPalette(pal);
+    }
+    void setContents(const QString &contents, int cursorPos)
+    {
+        setText(contents);
+        setCursorPosition(cursorPos);
+    }
+};
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -775,7 +821,7 @@ private slots:
     void setBlockSelection(bool);
     void hasBlockSelection(bool*);
 
-    void showCommandBuffer(const QString &contents);
+    void showCommandBuffer(const QString &contents, int cursorPos);
     void showExtraInformation(const QString &msg);
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
@@ -1332,8 +1378,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 
     connect(handler, SIGNAL(extraInformationChanged(QString)),
         SLOT(showExtraInformation(QString)));
-    connect(handler, SIGNAL(commandBufferChanged(QString)),
-        SLOT(showCommandBuffer(QString)));
+    connect(handler, SIGNAL(commandBufferChanged(QString,int)),
+        SLOT(showCommandBuffer(QString,int)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
         SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
     connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
@@ -1368,7 +1414,7 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 
     // pop up the bar
     if (theFakeVimSetting(ConfigUseFakeVim)->value().toBool()) {
-       showCommandBuffer(QString());
+       showCommandBuffer(QString(), -1);
        handler->setupWidget();
     }
 }
@@ -1400,7 +1446,7 @@ void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Core::Context(),
         // Core::Context(FAKEVIM_CONTEXT));
-        showCommandBuffer(QString());
+        showCommandBuffer(QString(), -1);
         foreach (Core::IEditor *editor, m_editorToHandler.keys()) {
             if (TextEditor::BaseTextEditorWidget *textEditor =
                     qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget())) {
@@ -1657,11 +1703,11 @@ void FakeVimPluginPrivate::quitFakeVim()
     theFakeVimSetting(ConfigUseFakeVim)->setValue(false);
 }
 
-void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
+void FakeVimPluginPrivate::showCommandBuffer(const QString &contents, int cursorPos)
 {
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
-    if (QLabel *label = qobject_cast<QLabel *>(m_statusBar->widget()))
-        label->setText("  " + contents);
+    if (MiniBuffer *w = qobject_cast<MiniBuffer *>(m_statusBar->widget()))
+        w->setContents(contents, cursorPos);
 }
 
 void FakeVimPluginPrivate::showExtraInformation(const QString &text)
@@ -1748,8 +1794,7 @@ ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
 void FakeVimPlugin::extensionsInitialized()
 {
     d->m_statusBar = new Core::StatusBarWidget;
-    d->m_statusBar->setWidget(new QLabel);
-    //d->m_statusBar->setContext(Context(FAKEVIM_CONTEXT));
+    d->m_statusBar->setWidget(new MiniBuffer);
     d->m_statusBar->setPosition(StatusBarWidget::Last);
     addAutoReleasedObject(d->m_statusBar);
 }
