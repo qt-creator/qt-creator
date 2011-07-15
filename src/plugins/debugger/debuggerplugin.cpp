@@ -524,7 +524,7 @@ public:
         setContext(Context(CC::C_EDITORMANAGER, C_DEBUGMODE, CC::C_NAVIGATION_PANE));
         setDisplayName(DebuggerPlugin::tr("Debug"));
         setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Debug.png")));
-        setPriority(P_MODE_DEBUG);
+        setPriority(85);
         setId(MODE_DEBUG);
         setType(CC::MODE_EDIT_TYPE);
     }

@@ -38,33 +38,26 @@
 namespace Debugger {
 namespace Constants {
 
-// modes and their priorities
-const int          P_MODE_DEBUG         = 85;
-
-const char * const DEBUGGER_COMMON_SETTINGS_ID = "A.Common";
-const char * const DEBUGGER_COMMON_SETTINGS_NAME =
-    QT_TRANSLATE_NOOP("Debugger", "General");
-const char * const DEBUGGER_SETTINGS_CATEGORY = "O.Debugger";
-const char * const DEBUGGER_SETTINGS_TR_CATEGORY =
-    QT_TRANSLATE_NOOP("Debugger", "Debugger");
-const char * const DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON =
-    ":/core/images/category_debug.png";
+const char DEBUGGER_COMMON_SETTINGS_ID[]   = "A.Common";
+const char DEBUGGER_SETTINGS_CATEGORY[]    = "O.Debugger";
+const char DEBUGGER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Debugger", "Debugger");
+const char DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON[] = ":/core/images/category_debug.png";
 
 namespace Internal {
     enum { debug = 0 };
 } // namespace Internal
 
-const char * const OPENED_BY_DEBUGGER         = "OpenedByDebugger";
-const char * const OPENED_WITH_DISASSEMBLY    = "DisassemblerView";
-const char * const OPENED_WITH_MEMORY         = "MemoryView";
+const char OPENED_BY_DEBUGGER[]         = "OpenedByDebugger";
+const char OPENED_WITH_DISASSEMBLY[]    = "DisassemblerView";
+const char OPENED_WITH_MEMORY[]         = "MemoryView";
 
 // Debug action
-const char * const DEBUG                = "Debugger.Debug";
-const int          P_ACTION_DEBUG       = 90; //priority for the modemanager
+const char DEBUG[]                      = "Debugger.Debug";
+const int  P_ACTION_DEBUG               = 90; // Priority for the modemanager.
 #ifdef Q_OS_MAC
-const char * const DEBUG_KEY = "Ctrl+Y";
+const char DEBUG_KEY[] = "Ctrl+Y";
 #else
-const char * const DEBUG_KEY = "F5";
+const char DEBUG_KEY[] = "F5";
 #endif
 
 } // namespace Constants
