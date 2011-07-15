@@ -52,10 +52,9 @@ GenericRemoteLinuxDeployStepFactory::GenericRemoteLinuxDeployStepFactory(QObject
 QStringList GenericRemoteLinuxDeployStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     QStringList ids;
-    if (qobject_cast<DeployConfiguration *>(parent->parent())->id()
-            != RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId()) {
+    const DeployConfiguration * const dc = qobject_cast<DeployConfiguration *>(parent->parent());
+    if (!dc || dc->id() != RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId())
         return ids;
-    }
     ids << MaemoTarPackageCreationStep::CreatePackageId << UploadAndInstallTarPackageStep::stepId()
         << GenericDirectUploadStep::stepId();
     return ids;
