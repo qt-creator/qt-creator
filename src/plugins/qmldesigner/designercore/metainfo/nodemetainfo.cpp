@@ -1096,6 +1096,9 @@ bool NodeMetaInfo::isSubclassOf(const QString &type, int majorVersion, int minor
         return false;
     }
 
+    if (typeName().isEmpty())
+        return false;
+
     if (typeName() == type
         && availableInVersion(majorVersion, minorVersion))
         return true;
