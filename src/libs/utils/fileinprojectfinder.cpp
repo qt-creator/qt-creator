@@ -98,36 +98,55 @@ void FileInProjectFinder::setProjectFiles(const QStringList &projectFiles)
 QString FileInProjectFinder::findFile(const QString &originalPath, bool *success) const
 {
     if (!m_projectDir.isEmpty()) {
+        int prefixToIgnore = -1;
         const QChar separator = QLatin1Char('/');
         if (originalPath.startsWith(m_projectDir + separator)) {
-            if (success)
-                *success = true;
-            return originalPath;
+#ifdef Q_OS_MAC
+            // starting with the project path is not sufficient if the file was
+            // copied in an insource build, e.g. into MyApp.app/Contents/Resources
+            static const QString appResourcePath = QString::fromLatin1(".app/Contents/Resources");
+            if (originalPath.contains(appResourcePath)) {
+                // the path is inside the project, but most probably as a resource of an insource build
+                // so ignore that path
+                prefixToIgnore = originalPath.indexOf(appResourcePath) + appResourcePath.length();
+            } else {
+#endif
+                if (success)
+                    *success = true;
+                return originalPath;
+#ifdef Q_OS_MAC
+            }
+#endif
         }
 
         if (m_cache.contains(originalPath)) {
-            if (success)
-                *success = true;
-            return m_cache.value(originalPath);
+            // check if cached path is still there
+            QString candidate = m_cache.value(originalPath);
+            QFileInfo candidateInfo(candidate);
+            if (candidateInfo.exists() && candidateInfo.isFile()) {
+                if (success)
+                    *success = true;
+                return candidate;
+            }
         }
 
         // Strip directories one by one from the beginning of the path,
         // and see if the new relative path exists in the build directory.
-        if (originalPath.contains(separator)) {
-            for (int pos = originalPath.indexOf(separator); pos != -1;
-                 pos = originalPath.indexOf(separator, pos + 1)) {
-                QString candidate = originalPath;
-                candidate.remove(0, pos);
-                candidate.prepend(m_projectDir);
-                QFileInfo candidateInfo(candidate);
-                if (candidateInfo.exists() && candidateInfo.isFile()) {
-                    if (success)
-                        *success = true;
+        if (prefixToIgnore < 0)
+                prefixToIgnore = originalPath.indexOf(separator);
+        while (prefixToIgnore != -1) {
+            QString candidate = originalPath;
+            candidate.remove(0, prefixToIgnore);
+            candidate.prepend(m_projectDir);
+            QFileInfo candidateInfo(candidate);
+            if (candidateInfo.exists() && candidateInfo.isFile()) {
+                if (success)
+                    *success = true;
 
-                    m_cache.insert(originalPath, candidate);
-                    return candidate;
-                }
+                m_cache.insert(originalPath, candidate);
+                return candidate;
             }
+            prefixToIgnore = originalPath.indexOf(separator, prefixToIgnore + 1);
         }
     }
 
