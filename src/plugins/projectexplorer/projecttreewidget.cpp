@@ -270,6 +270,11 @@ void ProjectTreeWidget::setAutoSynchronization(bool sync, bool syncNow)
     }
 }
 
+void ProjectTreeWidget::collapseAll()
+{
+    m_view->collapseAll();
+}
+
 void ProjectTreeWidget::editCurrentItem()
 {
     if (m_view->selectionModel()->currentIndex().isValid())
@@ -313,7 +318,7 @@ void ProjectTreeWidget::showContextMenu(const QPoint &pos)
 {
     QModelIndex index = m_view->indexAt(pos);
     Node *node = m_model->nodeForIndex(index);
-    m_explorer->showContextMenu(m_view->mapToGlobal(pos), node);
+    m_explorer->showContextMenu(this, m_view->mapToGlobal(pos), node);
 }
 
 void ProjectTreeWidget::handleProjectAdded(ProjectExplorer::Project *project)

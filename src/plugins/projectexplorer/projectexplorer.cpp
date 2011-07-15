@@ -203,6 +203,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_deleteFileAction;
     QAction *m_renameFileAction;
     QAction *m_openFileAction;
+    QAction *m_projectTreeCollapseAllAction;
     QAction *m_showInGraphicalShell;
     QAction *m_openTerminalHere;
     QAction *m_setStartupProjectAction;
@@ -469,18 +470,21 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msessionContextMenu->appendGroup(Constants::G_SESSION_FILES);
     msessionContextMenu->appendGroup(Constants::G_SESSION_OTHER);
     msessionContextMenu->appendGroup(Constants::G_SESSION_CONFIG);
+    msessionContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_FIRST);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_BUILD);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_RUN);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_FILES);
     mprojectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
+    mprojectContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FIRST);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_BUILD);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_RUN);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_FILES);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
+    msubProjectContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
     Core::ActionContainer *runMenu = Core::ICore::instance()->actionManager()->createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
@@ -493,11 +497,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_FILES);
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_OTHER);
     mfolderContextMenu->appendGroup(Constants::G_FOLDER_CONFIG);
+    mfolderContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
     mfileContextMenu->appendGroup(Constants::G_FILE_OPEN);
     mfileContextMenu->appendGroup(Constants::G_FILE_OTHER);
     mfileContextMenu->appendGroup(Constants::G_FILE_CONFIG);
-
+    mfileContextMenu->appendGroup(Constants::G_PROJECT_TREE);
     // "open with" submenu
     Core::ActionContainer * const openWith =
             am->createMenu(ProjectExplorer::Constants::M_OPENFILEWITHCONTEXT);
@@ -838,6 +843,26 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = am->registerAction(d->m_setStartupProjectAction, ProjectExplorer::Constants::SETSTARTUP,
                              projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FIRST);
+
+    // Collapse All.
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    Core::Command *treeSpacer = am->registerAction(sep, Core::Id("ProjectExplorer.Tree.Sep"), globalcontext);
+
+    d->m_projectTreeCollapseAllAction = new QAction(tr("Collapse All"), this);
+    cmd = am->registerAction(d->m_projectTreeCollapseAllAction, Constants::PROJECTTREE_COLLAPSE_ALL,
+                             projecTreeContext);
+    const QString treeGroup = QLatin1String(Constants::G_PROJECT_TREE);
+    mfileContextMenu->addAction(treeSpacer, treeGroup);
+    mfileContextMenu->addAction(cmd, treeGroup);
+    msubProjectContextMenu->addAction(treeSpacer, treeGroup);
+    msubProjectContextMenu->addAction(cmd, treeGroup);
+    mfolderContextMenu->addAction(treeSpacer, treeGroup);
+    mfolderContextMenu->addAction(cmd, treeGroup);
+    mprojectContextMenu->addAction(treeSpacer, treeGroup);
+    mprojectContextMenu->addAction(cmd, treeGroup);
+    msessionContextMenu->addAction(treeSpacer, treeGroup);
+    msessionContextMenu->addAction(cmd, treeGroup);
 
     // target selector
     d->m_projectSelectorAction = new QAction(this);
@@ -1398,7 +1423,7 @@ void ProjectExplorerPlugin::loadSession(const QString &session)
 }
 
 
-void ProjectExplorerPlugin::showContextMenu(const QPoint &globalPos, Node *node)
+void ProjectExplorerPlugin::showContextMenu(QWidget *view, const QPoint &globalPos, Node *node)
 {
     QMenu *contextMenu = 0;
 
@@ -1434,6 +1459,8 @@ void ProjectExplorerPlugin::showContextMenu(const QPoint &globalPos, Node *node)
     }
 
     updateContextMenuActions();
+    d->m_projectTreeCollapseAllAction->disconnect(SIGNAL(triggered()));
+    connect(d->m_projectTreeCollapseAllAction, SIGNAL(triggered()), view, SLOT(collapseAll()));
     if (contextMenu && contextMenu->actions().count() > 0) {
         contextMenu->popup(globalPos);
     }
