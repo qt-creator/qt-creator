@@ -185,12 +185,20 @@ void DragTool::createQmlItemNodeFromImage(const QString &imageName, QmlItemNode 
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(nodeList));
 }
 
+static inline bool isAncestorOf(FormEditorItem *formEditorItem, FormEditorItem *newParentItem)
+{
+    if (formEditorItem && newParentItem)
+        return formEditorItem->isAncestorOf(newParentItem);
+    return false;
+}
+
 FormEditorItem* DragTool::calculateContainer(const QPointF &point, FormEditorItem * currentItem)
 {
     QList<QGraphicsItem *> list = scene()->items(point);
     foreach (QGraphicsItem *item, list) {
          FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
-         if (formEditorItem && formEditorItem != currentItem && formEditorItem->isContainer())
+         if (formEditorItem && formEditorItem != currentItem && formEditorItem->isContainer()
+             && !isAncestorOf(currentItem, formEditorItem))
              return formEditorItem;
     }
 
