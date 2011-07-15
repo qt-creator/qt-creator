@@ -380,8 +380,14 @@ bool Parser::parseClassOrNamespaceName(NameAST *&node)
     if (LA() == T_IDENTIFIER && (LA(2) == T_COLON_COLON || LA(2) == T_LESS)) {
         unsigned identifier_token = cursor();
 
-        if (LA(2) == T_LESS && parseTemplateId(node) && LA() == T_COLON_COLON)
-            return true;
+        if (LA(2) == T_LESS) {
+            bool blocked = blockErrors(true);
+            if (parseTemplateId(node) && LA() == T_COLON_COLON) {
+                blockErrors(blocked);
+                return true;
+            }
+            blockErrors(blocked);
+        }
 
         rewind(identifier_token);
 
@@ -2695,19 +2701,24 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
         rewind(operator_token);
         return parseConversionFunctionId(node);
      } else if (LA() == T_IDENTIFIER) {
-         unsigned identifier_token = cursor();
-         if (acceptTemplateId && LA(2) == T_LESS && parseTemplateId(node)) {
-             if (! _templateArguments || (LA() == T_COMMA  || LA() == T_GREATER ||
-                                          LA() == T_LPAREN || LA() == T_RPAREN  ||
-                                          LA() == T_STAR || LA() == T_AMPER || // ptr-operators
-                                          LA() == T_COLON_COLON))
-                 return true;
-         }
-         rewind(identifier_token);
-         SimpleNameAST *ast = new (_pool) SimpleNameAST;
-         ast->identifier_token = consumeToken();
-         node = ast;
-         return true;
+        unsigned identifier_token = cursor();
+        if (acceptTemplateId && LA(2) == T_LESS) {
+            bool blocked = blockErrors(true);
+            if (parseTemplateId(node)
+                    && (! _templateArguments || (LA() == T_COMMA  || LA() == T_GREATER ||
+                                                 LA() == T_LPAREN || LA() == T_RPAREN  ||
+                                                 LA() == T_STAR || LA() == T_AMPER || // ptr-operators
+                                                 LA() == T_COLON_COLON))) {
+                blockErrors(blocked);
+                return true;
+            }
+            blockErrors(blocked);
+        }
+        rewind(identifier_token);
+        SimpleNameAST *ast = new (_pool) SimpleNameAST;
+        ast->identifier_token = consumeToken();
+        node = ast;
+        return true;
     } else if (LA() == T_TEMPLATE) {
         unsigned template_token = consumeToken();
         if (parseTemplateId(node, template_token))
