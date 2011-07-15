@@ -32,12 +32,11 @@
 #ifndef MAEMOPACKAGECREATIONSTEP_H
 #define MAEMOPACKAGECREATIONSTEP_H
 
-#include <projectexplorer/buildstep.h>
+#include<remotelinux/abstractpackagingstep.h>
 
 QT_BEGIN_NAMESPACE
 class QDateTime;
 class QFile;
-class QFileInfo;
 class QProcess;
 QT_END_NAMESPACE
 
@@ -51,13 +50,11 @@ class AbstractQt4MaemoTarget;
 class AbstractDebBasedQt4MaemoTarget;
 class AbstractRpmBasedQt4MaemoTarget;
 
-class AbstractMaemoPackageCreationStep : public ProjectExplorer::BuildStep
+class AbstractMaemoPackageCreationStep : public RemoteLinux::AbstractPackagingStep
 {
     Q_OBJECT
 public:
     virtual ~AbstractMaemoPackageCreationStep();
-
-    virtual QString packageFilePath() const;
 
     QString versionString(QString *error) const;
     bool setVersionString(const QString &version, QString *error);
@@ -66,18 +63,13 @@ public:
         const Qt4ProjectManager::Qt4BuildConfiguration *bc,
         const QString &workingDir);
 
-    QString projectName() const;
     const Qt4ProjectManager::Qt4BuildConfiguration *qt4BuildConfiguration() const;
     AbstractQt4MaemoTarget *maemoTarget() const;
     AbstractDebBasedQt4MaemoTarget *debBasedMaemoTarget() const;
     AbstractRpmBasedQt4MaemoTarget *rpmBasedMaemoTarget() const;
-    RemoteLinuxDeployConfiguration *deployConfig() const;
 
     static const QLatin1String DefaultVersionNumber;
 
-signals:
-    void packageFilePathChanged();
-    void qtVersionChanged();
 
 protected:
     AbstractMaemoPackageCreationStep(ProjectExplorer::BuildStepList *bsl,
@@ -85,27 +77,24 @@ protected:
     AbstractMaemoPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
                              AbstractMaemoPackageCreationStep *other);
 
-    void raiseError(const QString &shortMsg,
-        const QString &detailedMsg = QString());
     bool callPackagingCommand(QProcess *proc, const QStringList &arguments);
     static QString replaceDots(const QString &name);
-    QString buildDirectory() const;
 
 private slots:
     void handleBuildOutput();
-    void handleBuildConfigChanged();
 
 private:
-    void ctor();
-    virtual bool init();
     virtual void run(QFutureInterface<bool> &fi);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+
+    virtual QString packageFileName() const;
 
     virtual bool createPackage(QProcess *buildProc, const QFutureInterface<bool> &fi)=0;
     virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const=0;
 
+    QString projectName() const;
     static QString nativePath(const QFile &file);
-    bool packagingNeeded() const;
+    bool isPackagingNeeded() const;
 
     const Qt4ProjectManager::Qt4BuildConfiguration *m_lastBuildConfig;
 };
@@ -152,32 +141,9 @@ private:
         MaemoRpmPackageCreationStep *other);
 
     void ctor();
-    static QString rpmBuildDir(const Qt4ProjectManager::Qt4BuildConfiguration *bc);
+    QString rpmBuildDir() const;
 
     static const QString CreatePackageId;
-};
-
-class MaemoTarPackageCreationStep : public AbstractMaemoPackageCreationStep
-{
-    Q_OBJECT
-public:
-    MaemoTarPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
-    MaemoTarPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
-        MaemoTarPackageCreationStep *other);
-
-    virtual QString packageFilePath() const;
-
-    static const QString CreatePackageId;
-private:
-    virtual bool createPackage(QProcess *buildProc, const QFutureInterface<bool> &fi);
-    virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const;
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-
-    void ctor();
-    bool appendFile(QFile &tarFile, const QFileInfo &fileInfo,
-        const QString &remoteFilePath, const QFutureInterface<bool> &fi);
-    bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo,
-        const QString &remoteFilePath);
 };
 
 } // namespace Internal

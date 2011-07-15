@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,50 +28,43 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef ABSTRACTUPLOADANDINSTALLACTION_H
-#define ABSTRACTUPLOADANDINSTALLACTION_H
+#ifndef TARPACKAGECREATIONSTEP_H
+#define TARPACKAGECREATIONSTEP_H
 
-#include "abstractremotelinuxdeployservice.h"
+#include "abstractpackagingstep.h"
 #include "remotelinux_export.h"
 
-namespace RemoteLinux {
-namespace Internal {
-class AbstractMaemoPackageInstaller;
-class AbstractUploadAndInstallPackageServicePrivate;
-}
+QT_BEGIN_NAMESPACE
+class QFile;
+class QFileInfo;
+QT_END_NAMESPACE
 
-class REMOTELINUX_EXPORT AbstractUploadAndInstallPackageService : public AbstractRemoteLinuxDeployService
+namespace RemoteLinux {
+
+class REMOTELINUX_EXPORT TarPackageCreationStep : public AbstractPackagingStep
 {
     Q_OBJECT
-
 public:
-    void setPackageFilePath(const QString &filePath);
+    TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
+    TarPackageCreationStep(ProjectExplorer::BuildStepList *bsl, TarPackageCreationStep *other);
 
-protected:
-    explicit AbstractUploadAndInstallPackageService(QObject *parent);
-    ~AbstractUploadAndInstallPackageService();
+    static QString stepId();
+    static QString displayName();
 
-    QString packageFilePath() const;
-
-private slots:
-    void handleUploadFinished(const QString &errorMsg);
-    void handleInstallationFinished(const QString &errorMsg);
-
+    void run(QFutureInterface<bool> &fi);
 private:
-    virtual Internal::AbstractMaemoPackageInstaller *packageInstaller() const=0;
-    virtual QString uploadDir() const; // Defaults to remote user's home directory.
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-    bool isDeploymentNecessary() const;
-    void doDeviceSetup();
-    void stopDeviceSetup();
-    void doDeploy();
-    void stopDeployment();
+    QString packageFileName() const;
 
-    void setFinished();
-
-    Internal::AbstractUploadAndInstallPackageServicePrivate * const m_d;
+    void ctor();
+    bool doPackage(QFutureInterface<bool> &fi);
+    bool appendFile(QFile &tarFile, const QFileInfo &fileInfo,
+        const QString &remoteFilePath, const QFutureInterface<bool> &fi);
+    bool writeHeader(QFile &tarFile, const QFileInfo &fileInfo,
+        const QString &remoteFilePath);
 };
 
 } // namespace RemoteLinux
 
-#endif // ABSTRACTUPLOADANDINSTALLACTION_H
+#endif // TARPACKAGECREATIONSTEP_H

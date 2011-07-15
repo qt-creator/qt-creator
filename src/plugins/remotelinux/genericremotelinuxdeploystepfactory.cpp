@@ -32,8 +32,8 @@
 #include "genericremotelinuxdeploystepfactory.h"
 
 #include "genericdirectuploadstep.h"
-#include "maemopackagecreationstep.h"
 #include "remotelinuxdeployconfigurationfactory.h"
+#include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
 
 #include <projectexplorer/buildsteplist.h>
@@ -55,15 +55,15 @@ QStringList GenericRemoteLinuxDeployStepFactory::availableCreationIds(BuildStepL
     const DeployConfiguration * const dc = qobject_cast<DeployConfiguration *>(parent->parent());
     if (!dc || dc->id() != RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId())
         return ids;
-    ids << MaemoTarPackageCreationStep::CreatePackageId << UploadAndInstallTarPackageStep::stepId()
+    ids << TarPackageCreationStep::stepId() << UploadAndInstallTarPackageStep::stepId()
         << GenericDirectUploadStep::stepId();
     return ids;
 }
 
 QString GenericRemoteLinuxDeployStepFactory::displayNameForId(const QString &id) const
 {
-    if (id == MaemoTarPackageCreationStep::CreatePackageId)
-        return tr("Create tarball");
+    if (id == TarPackageCreationStep::stepId())
+        return TarPackageCreationStep::displayName();
     if (id == UploadAndInstallTarPackageStep::stepId())
         return UploadAndInstallTarPackageStep::displayName();
     if (id == GenericDirectUploadStep::stepId())
@@ -80,8 +80,8 @@ BuildStep *GenericRemoteLinuxDeployStepFactory::create(BuildStepList *parent, co
 {
     Q_ASSERT(canCreate(parent, id));
 
-    if (id == MaemoTarPackageCreationStep::CreatePackageId)
-        return new MaemoTarPackageCreationStep(parent);
+    if (id == TarPackageCreationStep::stepId())
+        return new TarPackageCreationStep(parent);
     if (id == UploadAndInstallTarPackageStep::stepId())
         return new UploadAndInstallTarPackageStep(parent);
     if (id == GenericDirectUploadStep::stepId())
@@ -115,8 +115,8 @@ bool GenericRemoteLinuxDeployStepFactory::canClone(BuildStepList *parent, BuildS
 
 BuildStep *GenericRemoteLinuxDeployStepFactory::clone(BuildStepList *parent, BuildStep *product)
 {
-    if (MaemoTarPackageCreationStep * const other = qobject_cast<MaemoTarPackageCreationStep *>(product))
-        return new MaemoTarPackageCreationStep(parent, other);
+    if (TarPackageCreationStep * const other = qobject_cast<TarPackageCreationStep *>(product))
+        return new TarPackageCreationStep(parent, other);
     if (UploadAndInstallTarPackageStep * const other = qobject_cast<UploadAndInstallTarPackageStep*>(product))
         return new UploadAndInstallTarPackageStep(parent, other);
     if (GenericDirectUploadStep * const other = qobject_cast<GenericDirectUploadStep *>(product))

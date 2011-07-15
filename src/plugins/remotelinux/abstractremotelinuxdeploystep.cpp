@@ -33,7 +33,7 @@
 
 #include "abstractremotelinuxdeployservice.h"
 #include "maemodeploystepwidget.h"
-#include "qt4maemodeployconfiguration.h"
+#include "remotelinuxdeployconfiguration.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>

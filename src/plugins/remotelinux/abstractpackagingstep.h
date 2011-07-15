@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,50 +28,55 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef ABSTRACTUPLOADANDINSTALLACTION_H
-#define ABSTRACTUPLOADANDINSTALLACTION_H
+#ifndef ABSTRACTPACKAGINGSTEP_H
+#define ABSTRACTPACKAGINGSTEP_H
 
-#include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_export.h"
 
+#include <projectexplorer/buildstep.h>
+
 namespace RemoteLinux {
+class  RemoteLinuxDeployConfiguration;
+
 namespace Internal {
-class AbstractMaemoPackageInstaller;
-class AbstractUploadAndInstallPackageServicePrivate;
+class AbstractPackagingStepPrivate;
 }
 
-class REMOTELINUX_EXPORT AbstractUploadAndInstallPackageService : public AbstractRemoteLinuxDeployService
+class REMOTELINUX_EXPORT AbstractPackagingStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
-
 public:
-    void setPackageFilePath(const QString &filePath);
-
-protected:
-    explicit AbstractUploadAndInstallPackageService(QObject *parent);
-    ~AbstractUploadAndInstallPackageService();
+    AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, const QString &id);
+    AbstractPackagingStep(ProjectExplorer::BuildStepList *bsl, AbstractPackagingStep *other);
+    ~AbstractPackagingStep();
 
     QString packageFilePath() const;
+    bool init();
+
+signals:
+    void packageFilePathChanged();
+
+protected:
+    void setPackagingStarted();
+    void setPackagingFinished(bool success);
+
+    void raiseError(const QString &errorMessage);
+    RemoteLinuxDeployConfiguration *deployConfiguration() const;
+    QString packageDirectory() const;
+
+    virtual bool isPackagingNeeded() const;
 
 private slots:
-    void handleUploadFinished(const QString &errorMsg);
-    void handleInstallationFinished(const QString &errorMsg);
+    void handleBuildConfigurationChanged();
 
 private:
-    virtual Internal::AbstractMaemoPackageInstaller *packageInstaller() const=0;
-    virtual QString uploadDir() const; // Defaults to remote user's home directory.
+    virtual QString packageFileName() const=0;
 
-    bool isDeploymentNecessary() const;
-    void doDeviceSetup();
-    void stopDeviceSetup();
-    void doDeploy();
-    void stopDeployment();
+    void ctor();
 
-    void setFinished();
-
-    Internal::AbstractUploadAndInstallPackageServicePrivate * const m_d;
+    Internal::AbstractPackagingStepPrivate *m_d;
 };
 
 } // namespace RemoteLinux
 
-#endif // ABSTRACTUPLOADANDINSTALLACTION_H
+#endif // ABSTRACTPACKAGINGSTEP_H

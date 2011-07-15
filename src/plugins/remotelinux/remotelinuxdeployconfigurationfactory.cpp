@@ -33,8 +33,8 @@
 
 #include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
-#include "maemopackagecreationstep.h"
 #include "remotelinuxdeployconfiguration.h"
+#include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
 
 using namespace ProjectExplorer;
@@ -78,7 +78,7 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::create(Target *paren
 
     DeployConfiguration * const dc = new RemoteLinuxDeployConfiguration(parent, id,
         genericLinuxDisplayName(), LinuxDeviceConfiguration::GenericLinuxOsType);
-    dc->stepList()->insertStep(0, new MaemoTarPackageCreationStep(dc->stepList()));
+    dc->stepList()->insertStep(0, new TarPackageCreationStep(dc->stepList()));
     dc->stepList()->insertStep(1, new UploadAndInstallTarPackageStep(dc->stepList()));
     return dc;
 }
