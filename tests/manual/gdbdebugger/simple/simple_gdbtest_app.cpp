@@ -581,35 +581,49 @@ int testCatchThrow()
     return gotit;
 }
 
-void testQDate()
-{
-    QDate date;
-    date = QDate::currentDate();
-    date = date.addDays(5);
-    date = date.addDays(5);
-    date = date.addDays(5);
-    date = date.addDays(5);
-}
+namespace qdatetime {
 
-void testQTime()
-{
-    QTime time;
-    time = QTime::currentTime();
-    time = time.addSecs(5);
-    time = time.addSecs(5);
-    time = time.addSecs(5);
-    time = time.addSecs(5);
-}
+    void testQDate()
+    {
+        QDate date;
+        // <== Break here.
+        // Step, check display.
+        date = QDate::currentDate();
+        date = date.addDays(5);
+        date = date.addDays(5);
+        dummyStatement(&date);
+    }
 
-void testQDateTime()
-{
-    QDateTime date;
-    date = QDateTime::currentDateTime();
-    date = date.addSecs(5);
-    date = date.addSecs(5);
-    date = date.addSecs(5);
-    date = date.addSecs(5);
-}
+    void testQTime()
+    {
+        QTime time;
+        // <== Break here.
+        // Step, check display.
+        time = QTime::currentTime();
+        time = time.addSecs(5);
+        time = time.addSecs(5);
+        dummyStatement(&time);
+    }
+
+    void testQDateTime()
+    {
+        QDateTime date;
+        // <== Break here.
+        // Step, check display.
+        date = QDateTime::currentDateTime();
+        date = date.addSecs(5);
+        date = date.addSecs(5);
+        dummyStatement(&date);
+    }
+
+    void testDateTime()
+    {
+        testQDate();
+        testQDateTime();
+        testQTime();
+    }
+
+} // namespace qdatetime
 
 QFileInfo testQFileInfo()
 {
@@ -3232,9 +3246,7 @@ int main(int argc, char *argv[])
     //testEndlessRecursion();
     testQStack();
     testPointer();
-    testQDate();
-    testQDateTime();
-    testQTime();
+    qdatetime::testDateTime();
     testQFileInfo();
     testQFixed();
     testObject1();
