@@ -8191,7 +8191,9 @@
     By default, the views are locked into place in the workspace. Select
     \gui {Window > Views > Locked} to unlock the views. Drag and drop the
     views into new positions on the screen. Drag view borders to resize the
-    views. The size and position of views are saved for future sessions.
+    views. The size and position of views are saved for future sessions. Select
+    \gui {Window > Views > Reset to Default Layout} to reset the views to
+    their original sizes and positions.
 
     \section1 Using the Debugger
 
@@ -12277,9 +12279,11 @@
 
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
-    too big, select \gui {Tools > Options... > Analyzer > Memory Analysis}.
+    too big, select \gui {Tools > Options... > Analyzer}.
     Define the length of the stack trace in the \gui {Backtrace frame count}
     field.
+
+    \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
 
     Memcheck also reports uses of uninitialised values, most commonly with the
     message \gui {Conditional jump or move depends on uninitialised value(s).}
@@ -12299,10 +12303,6 @@
     For more information about writing suppression files, see
     \l{http://valgrind.org/docs/manual/manual-core.html#manual-core.suppress}
     {Suppressing Errors} in the Valgrind documentation.
-
-    \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
-
-
 
     */
 
@@ -12362,12 +12362,12 @@
 
     \section1 Selecting Profiling Options
 
-    To specify settings for Callgrind, select \gui {Tools > Options... >
-    Analyzer > Profiling}.
+    To specify settings for Valgrind, select \gui {Tools > Options... >
+    Analyzer}. The \gui {Profiling Options} group contains Callgrind options.
 
-    \image qtcreator-valgrind-callgrind-options.png "Profiling options"
+    \image qtcreator-valgrind-callgrind-options.png "Valgrind options"
 
-    In the \gui {Result view: Show events with inclusive costs higher than}
+    In the \gui {Result view: Minimum event cost}
     field, limit the amount of results the profiler gives you to increase
     profiler performance.
 
@@ -12523,15 +12523,23 @@
 
     \image qtcreator-analyze-menu "Analyze mode menu"
 
+    By default, the views in the \gui Analyze mode are locked into place in the
+    workspace. Select \gui {Window > Views > Locked} to unlock the views. Drag
+    and drop the views into new positions on the screen. Drag view borders to
+    resize the views. The size and position of views are saved for future
+    sessions. Select \gui {Window > Views > Reset to Default Layout} to reset
+    the views to their original sizes and positions.
+
     To run the Valgrind tools on a remote host over SSH, select \gui {Analyze
-    > Valgring Analyze Memory (Remote)} or \gui {Valgring Function Profile
+    > Valgrind Analyze Memory (Remote)} or \gui {Valgrind Function Profile
     (Remote)}.
 
     To stop the currently running analyzer, select \gui {Analyze
     > Stop}.
 
     To select options for the Valgrind tools, select \gui {Tools > Options... >
-    Analyzer}.
+    Analyzer}. You can override the general settings for each project in the
+    \gui {Run Settings} for the project.
 
     The following sections describe how to use the code analysis tools:
 
@@ -12730,8 +12738,8 @@
 
     \list 1
 
-        \o  Select \gui {Analyze > Valgring Analyze Memory (Remote)} or
-            \gui {Valgring Function Profile (Remote)}.
+        \o  Select \gui {Analyze > Valgrind Analyze Memory (Remote)} or
+            \gui {Valgrind Function Profile (Remote)}.
 
             \image qtcreator-valgrind-remote-settings.png "Start Debugger dialog"
 
