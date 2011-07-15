@@ -33,6 +33,8 @@
 #include "plaintexteditmodifier.h"
 
 #include <utils/changeset.h>
+#include <extensionsystem/pluginmanager.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QUndoStack>
@@ -188,4 +190,31 @@ void PlainTextEditModifier::reactivateChangeSignals()
         m_pendingChangeSignal = false;
         emit textChanged();
     }
+}
+
+namespace {
+static inline QmlJS::ModelManagerInterface *getModelManager()
+{
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    return pluginManager->getObject<QmlJS::ModelManagerInterface>();
+}
+}
+
+QmlJS::Snapshot NotIndentingTextEditModifier::getSnapshot() const
+{
+    QmlJS::ModelManagerInterface *modelManager = getModelManager();
+    if (modelManager)
+        return modelManager->snapshot();
+    else
+        return QmlJS::Snapshot();
+}
+
+
+QStringList NotIndentingTextEditModifier::importPaths() const
+{
+    QmlJS::ModelManagerInterface *modelManager = getModelManager();
+    if (modelManager)
+        return modelManager->importPaths();
+    else
+        return QStringList();
 }
