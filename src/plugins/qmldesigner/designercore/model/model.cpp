@@ -1898,12 +1898,12 @@ const MetaInfo Model::metaInfo() const
 
 bool Model::hasNodeMetaInfo(const QString &typeName, int majorVersion, int minorVersion)
 {
-    return NodeMetaInfo(this, typeName, majorVersion, minorVersion).isValid();
+    return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion).isValid();
 }
 
 NodeMetaInfo Model::metaInfo(const QString &typeName, int majorVersion, int minorVersion)
 {
-    return NodeMetaInfo(this, typeName, majorVersion, minorVersion);
+    return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
 }
 
 /*!
