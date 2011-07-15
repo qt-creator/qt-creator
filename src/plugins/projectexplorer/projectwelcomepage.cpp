@@ -37,8 +37,6 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeContext>
 
-#include <coreplugin/multifeedrssmodel.h>
-
 #include <projectexplorer/session.h>
 #include <projectexplorer/projectexplorer.h>
 
@@ -138,8 +136,6 @@ ProjectWelcomePage::ProjectWelcomePage() :
 
 void ProjectWelcomePage::facilitateQml(QDeclarativeEngine *engine)
 {
-    static const char feedGroupName[] = "Feeds";
-
     ProjectExplorerPlugin *pePlugin = ProjectExplorer::ProjectExplorerPlugin::instance();
     m_sessionModel = new SessionModel(pePlugin->session(), this);
     m_projectModel = new ProjectModel(pePlugin, this);
@@ -147,22 +143,6 @@ void ProjectWelcomePage::facilitateQml(QDeclarativeEngine *engine)
     QDeclarativeContext *ctx = engine->rootContext();
     ctx->setContextProperty("sessionList", m_sessionModel);
     ctx->setContextProperty("projectList", m_projectModel);
-    Core::MultiFeedRssModel *rssModel = new Core::MultiFeedRssModel(this);
-    QSettings *settings = Core::ICore::instance()->settings();
-    if (settings->childGroups().contains(feedGroupName)) {
-        int size = settings->beginReadArray(feedGroupName);
-        for (int i = 0; i < size; ++i)
-        {
-            settings->setArrayIndex(i);
-            rssModel->addFeed(settings->value("url").toString());
-        }
-        settings->endArray();
-    } else {
-        rssModel->addFeed(QLatin1String("http://labs.trolltech.com/blogs/feed"));
-        rssModel->addFeed(QLatin1String("http://feeds.feedburner.com/TheQtBlog?format=xml"));
-    }
-
-    ctx->setContextProperty("aggregatedFeedsModel", rssModel);
     ctx->setContextProperty("projectWelcomePage", this);
 }
 

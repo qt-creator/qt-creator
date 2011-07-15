@@ -39,11 +39,11 @@
 
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
-#include "networkaccessmanager.h"
+#include <utils/networkaccessmanager.h>
 
 #include <QDebug>
 
-namespace Core {
+namespace Welcome {
 
 namespace Internal {
 
@@ -133,7 +133,7 @@ private:
 
 MultiFeedRssModel::MultiFeedRssModel(QObject *parent) :
     QAbstractListModel(parent),
-    m_networkAccessManager(new NetworkAccessManager),
+    m_networkAccessManager(new Utils::NetworkAccessManager),
     m_articleCount(0)
 {
     //m_namThread = new QThread;

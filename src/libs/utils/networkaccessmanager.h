@@ -30,34 +30,25 @@
 **
 **************************************************************************/
 
-#ifndef WELCOMEPLUGIN_H
-#define WELCOMEPLUGIN_H
+#include "utils_global.h"
 
-#include <extensionsystem/iplugin.h>
+#include <QtCore/QUrl>
+#include <QtNetwork/QNetworkAccessManager>
 
-QT_BEGIN_HEADER
-class QDeclarativeEngine;
-QT_END_HEADER
+namespace Utils {
 
-namespace Welcome {
-namespace Internal {
-
-class WelcomeMode;
-
-class WelcomePlugin : public ExtensionSystem::IPlugin
+class QTCREATOR_UTILS_EXPORT NetworkAccessManager : public QNetworkAccessManager
 {
     Q_OBJECT
 public:
-    WelcomePlugin();
+    NetworkAccessManager(QObject *parent = 0);
 
-    virtual bool initialize(const QStringList &arguments, QString *error_message);
-    virtual void extensionsInitialized();
+public slots:
+    void getUrl(const QUrl &url);
 
-private:
-    WelcomeMode *m_welcomeMode;
+protected:
+    virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData);
 };
 
-} // namespace Welcome
-} // namespace Internal
 
-#endif // WELCOMEPLUGIN_H
+} // namespace utils

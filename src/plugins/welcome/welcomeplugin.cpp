@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "welcomeplugin.h"
+#include "multifeedrssmodel.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -39,13 +40,13 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/networkaccessmanager.h>
 #include <coreplugin/dialogs/iwizard.h>
 
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/styledbar.h>
 #include <utils/iwelcomepage.h>
+#include <utils/networkaccessmanager.h>
 
 #include <QtGui/QScrollArea>
 #include <QtGui/QDesktopServices>
@@ -75,7 +76,7 @@ class NetworkAccessManagerFactory : public QDeclarativeNetworkAccessManagerFacto
 {
 public:
     NetworkAccessManagerFactory(): QDeclarativeNetworkAccessManagerFactory() {}
-    QNetworkAccessManager* create(QObject *parent) { return new Core::NetworkAccessManager(parent); }
+    QNetworkAccessManager* create(QObject *parent) { return new Utils::NetworkAccessManager(parent); }
 };
 
 
@@ -119,6 +120,8 @@ private slots:
     void modeChanged(Core::IMode*);
 
 private:
+    void facilitateQml(QDeclarativeEngine *engine);
+
     QWidget *m_modeWidget;
     QDeclarativeView *m_welcomePage;
     QHBoxLayout * buttonLayout;
@@ -170,6 +173,28 @@ bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
     return a->priority() < b->priority();
 }
 
+void WelcomeMode::facilitateQml(QDeclarativeEngine *engine)
+{
+    static const char feedGroupName[] = "Feeds";
+
+    MultiFeedRssModel *rssModel = new MultiFeedRssModel(this);
+    QSettings *settings = Core::ICore::instance()->settings();
+    if (settings->childGroups().contains(feedGroupName)) {
+        int size = settings->beginReadArray(feedGroupName);
+        for (int i = 0; i < size; ++i)
+        {
+            settings->setArrayIndex(i);
+            rssModel->addFeed(settings->value("url").toString());
+        }
+        settings->endArray();
+    } else {
+        rssModel->addFeed(QLatin1String("http://labs.trolltech.com/blogs/feed"));
+        rssModel->addFeed(QLatin1String("http://feeds.feedburner.com/TheQtBlog?format=xml"));
+    }
+
+    engine->rootContext()->setContextProperty("aggregatedFeedsModel", rssModel);
+}
+
 void WelcomeMode::initPlugins()
 {
     QSettings *settings = Core::ICore::instance()->settings();
@@ -186,6 +211,7 @@ void WelcomeMode::initPlugins()
         engine->setOutputWarningsToStandardError(false);
     engine->setNetworkAccessManagerFactory(new NetworkAccessManagerFactory);
     engine->addImportPath(Core::ICore::instance()->resourcePath() + "/welcomescreen");
+    facilitateQml(engine);
     foreach (Utils::IWelcomePage *plugin, plugins) {
         plugin->facilitateQml(engine);
         m_pluginList.append(plugin);

@@ -45,7 +45,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QFutureWatcher>
 
-#include <coreplugin/networkaccessmanager.h>
+#include <utils/networkaccessmanager.h>
 
 QT_BEGIN_NAMESPACE
 class QFileInfo;
@@ -115,7 +115,7 @@ private:
     QSet<QString> m_isBuilding;
 
     QList<DefinitionDownloader *> m_downloaders;
-    Core::NetworkAccessManager m_networkManager;
+    Utils::NetworkAccessManager m_networkManager;
 
     QFutureWatcher<void> m_downloadWatcher;
     QFutureWatcher<Core::MimeType> m_mimeTypeWatcher;

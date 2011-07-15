@@ -52,7 +52,7 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 
-#include <coreplugin/networkaccessmanager.h>
+#include <utils/networkaccessmanager.h>
 
 using namespace Find;
 using namespace Help;
@@ -107,7 +107,7 @@ qint64 HelpNetworkReply::readData(char *buffer, qint64 maxlen)
 
 // -- HelpNetworkAccessManager
 
-class HelpNetworkAccessManager : public Core::NetworkAccessManager
+class HelpNetworkAccessManager : public Utils::NetworkAccessManager
 {
 public:
     HelpNetworkAccessManager(QObject *parent);
@@ -118,7 +118,7 @@ protected:
 };
 
 HelpNetworkAccessManager::HelpNetworkAccessManager(QObject *parent)
-    : Core::NetworkAccessManager(parent)
+    : Utils::NetworkAccessManager(parent)
 {
 }
 
@@ -126,7 +126,7 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
     const QNetworkRequest &request, QIODevice* outgoingData)
 {
     if (!HelpViewer::isLocalUrl(request.url()))
-        return Core::NetworkAccessManager::createRequest(op, request, outgoingData);
+        return Utils::NetworkAccessManager::createRequest(op, request, outgoingData);
 
     QString url = request.url().toString();
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
