@@ -149,6 +149,7 @@ public:
                             std::string *errorMessage = 0);
 
     static unsigned pointerSize();
+    static unsigned pointerDiffSize();
     static unsigned intSize();
 
     // get the inner types: "QMap<int, double>" -> "int", "double"

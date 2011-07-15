@@ -41,6 +41,7 @@
 
 #include <iomanip>
 #include <algorithm>
+#include <ctype.h>
 
 typedef std::vector<int>::size_type VectorIndexType;
 
@@ -78,7 +79,8 @@ SymbolGroupValue::SymbolGroupValue(SymbolGroupNode *node,
     if (m_node && !m_node->isMemoryAccessible()) { // Invalid if no value
         m_node = 0;
         if (SymbolGroupValue::verbose)
-            DebugPrint() << node->name() << '/' << node->iName() << " memory access error";
+            DebugPrint() << node->name() << '/' << node->iName() << '/'
+                         << node->type() << " memory access error";
     }
 }
 
@@ -443,6 +445,12 @@ unsigned SymbolGroupValue::pointerSize()
 unsigned SymbolGroupValue::intSize()
 {
     static const unsigned is = SymbolGroupValue::sizeOf("int");
+    return is;
+}
+
+unsigned SymbolGroupValue::pointerDiffSize()
+{
+    static const unsigned is = SymbolGroupValue::sizeOf("ptrdiff_t");
     return is;
 }
 
@@ -1388,18 +1396,103 @@ void formatKnownTypeFlags(std::ostream &os, KnownType kt)
         os << " simple_dumper";
 }
 
+/* Helper to read the Qt 5 data elements used for QString's
+ * and QByteArray's. These element are in a storage pool
+ * and the data they point to are located at an offset behind
+ * them. */
+
+// Determine address and length of data from a QByteArrayData/QStringData.
+template <typename CharType>
+bool readQt5DataSizeAddress(const SymbolGroupValue &dV,
+                            unsigned dataSize,
+                            unsigned *arraySize,
+                            ULONG64 *address)
+{
+    *arraySize = 0;
+    *address = dV.pointerValue();
+    if (!*address)
+        return false;
+    const SymbolGroupValue sizeV = dV["size"];
+    const SymbolGroupValue offsetV = dV["offset"];
+    if (!dataSize || !sizeV || !offsetV)
+        return false;
+    *arraySize = sizeV.intValue();
+    *address += dataSize + offsetV.intValue() / sizeof(CharType);
+    return true;
+}
+
+// Retrieve data from a QByteArrayData/QStringData in desired type.
+// For empty arrays, no data are allocated.
+template <typename CharType>
+bool readQt5Data(const SymbolGroupValue &dV,
+                 unsigned dSize,
+                 bool zeroTerminated,
+                 unsigned sizeLimit,
+                 unsigned *fullSize,
+                 unsigned *arraySize,
+                 CharType **array)
+{
+    *array = 0;
+    *arraySize = *fullSize = 0;
+    ULONG64 address = 0;
+    if (!readQt5DataSizeAddress<CharType>(dV, dSize, fullSize, &address))
+        return false;
+    if (!*fullSize)
+        return true;
+    const bool truncated = *fullSize > sizeLimit;
+    *arraySize = truncated ?  sizeLimit : *fullSize;
+    const unsigned memorySize =
+            sizeof(CharType) * (*arraySize + (zeroTerminated ? 1 : 0));
+    unsigned char *memory =
+            SymbolGroupValue::readMemory(dV.context().dataspaces,
+                                         address, memorySize);
+    if (!memory)
+        return false;
+    *array = reinterpret_cast<CharType *>(memory);
+    if (truncated && zeroTerminated)
+        *(*array + *arraySize) = CharType(0);
+    return true;
+}
+
 static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
 {
-    if (const SymbolGroupValue d = v["d"]) {
-        if (const SymbolGroupValue sizeValue = d["size"]) {
+    const QtInfo &qtInfo = QtInfo::get(v.context());
+    const SymbolGroupValue dV = v["d"];
+    if (!dV)
+        return false;
+    // Qt 4.
+    if (qtInfo.version < 5) {
+        if (const SymbolGroupValue sizeValue = dV["size"]) {
             const int size = sizeValue.intValue();
             if (size >= 0) {
-                str << L'"' << d["data"].wcharPointerData(size) << L'"';
+                str << L'"' << dV["data"].wcharPointerData(size) << L'"';
                 return true;
             }
         }
+        return false;
+
+    } // Qt 4.
+
+    // Qt 5: Data start at offset past the 'd' of type QStringData.
+    static const unsigned dataSize =
+            SymbolGroupValue::sizeOf(qtInfo.prependQtCoreModule("QStringData").c_str());
+    if (!dataSize)
+        return false;
+    wchar_t *memory;
+    unsigned fullSize;
+    unsigned size;
+    if (!readQt5Data(dV, dataSize, true, 10240, &fullSize, &size, &memory))
+        return false;
+    if (size) {
+        str << L'"' << memory;
+        if (fullSize > size)
+            str << L"...";
+        str << L'"';
+    } else {
+        str << L"\"\"";
     }
-    return false;
+    delete [] memory;
+    return true;
 }
 
 /* Pad a memory offset to align with pointer size */
@@ -1436,6 +1529,13 @@ static unsigned qByteArraySize(const SymbolGroupValueContext &ctx)
     return size;
 }
 
+/* Return the size of a Qt 5's QByteArrayData */
+static unsigned q5ByteArrayDataSize(const SymbolGroupValueContext &ctx)
+{
+    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QByteArrayData").c_str());
+    return size;
+}
+
 /* Return the size of a QAtomicInt */
 static unsigned qAtomicIntSize(const SymbolGroupValueContext &ctx)
 {
@@ -1446,12 +1546,45 @@ static unsigned qAtomicIntSize(const SymbolGroupValueContext &ctx)
 // Dump a QByteArray
 static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
 {
-    // TODO: More sophisticated dumping of binary data?
-    if (const  SymbolGroupValue data = v["d"]["data"]) {
-        str << data.value();
-        return true;
+    const QtInfo &qtInfo = QtInfo::get(v.context());
+    const SymbolGroupValue dV = v["d"];
+    if (!dV)
+        return false;
+    // Qt 4.
+    if (qtInfo.version < 5) {
+        // TODO: More sophisticated dumping of binary data?
+        if (const SymbolGroupValue data = dV["data"]) {
+            str << data.value();
+            return true;
+        }
+        return false;
     }
-    return false;
+
+    // Qt 5: Data start at offset past the 'd' of type QByteArrayData.
+    char *memory;
+    unsigned fullSize;
+    unsigned size;
+    if (!readQt5Data(dV, q5ByteArrayDataSize(v.context()), false, 10240, &fullSize, &size, &memory))
+        return false;
+    if (size) {
+        // Emulate CDB's behavior of replacing unprintable characters
+        // by dots.
+        std::wstring display;
+        display.reserve(size);
+        char *memEnd = memory + size;
+        for (char *p = memory; p < memEnd; p++) {
+            const char c = *p;
+            display.push_back(c >= 0 && isprint(c) ? wchar_t(c) : L'.');
+        }
+        str << fullSize << L" bytes \"" << display;
+        if (fullSize > size)
+            str << L"...";
+        str << L'"';
+    } else {
+        str << L"<empty>";
+    }
+    delete [] memory;
+    return true;
 }
 
 /* Below are some helpers for simple dumpers for some Qt classes accessing their
@@ -2248,18 +2381,33 @@ static inline std::vector<AbstractSymbolGroupNode *>
     complexDumpQByteArray(SymbolGroupNode *n, const SymbolGroupValueContext &ctx)
 {
     std::vector<AbstractSymbolGroupNode *> rc;
-    const SymbolGroupValue ba(n, ctx);
-    int size = ba["d"]["size"].intValue();
-    ULONG64 address = ba["d"]["data"].pointerValue();
+
+    const SymbolGroupValue baV(n, ctx);
+    const SymbolGroupValue dV = baV["d"];
+    if (!dV)
+        return rc;
+    // Determine memory area.
+
+    unsigned size = 0;
+    ULONG64 address = 0;
+    if (QtInfo::get(ctx).version > 4) {
+        readQt5DataSizeAddress<char>(dV, q5ByteArrayDataSize(ctx),
+                                     &size, &address);
+    } else {
+        size = dV["size"].intValue();
+        address = dV["data"].pointerValue();
+    }
+
     if (size <= 0 || !address)
         return rc;
+
     if (size > 200)
         size = 200;
     rc.reserve(size);
     const std::string charType = "unsigned char";
     std::string errorMessage;
     SymbolGroup *sg = n->symbolGroup();
-    for (int i = 0; i < size; ++i, ++address) {
+    for (int i = 0; i < (int)size; ++i, ++address) {
         SymbolGroupNode *en = sg->addSymbol(std::string(), SymbolGroupValue::pointedToSymbolName(address, charType),
                                             std::string(), &errorMessage);
         if (!en) {
