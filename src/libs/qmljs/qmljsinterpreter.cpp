@@ -305,6 +305,9 @@ const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
         value = valueOwner()->anchorLineValue();
     }
 
+    if (value)
+        return value;
+
     // might be an enum
     const QmlObjectValue *base = this;
     const QStringList components = typeName.split(QLatin1String("::"));
