@@ -1396,46 +1396,62 @@ void formatKnownTypeFlags(std::ostream &os, KnownType kt)
         os << " simple_dumper";
 }
 
-/* Helper to read the Qt 5 data elements used for QString's
- * and QByteArray's. These element are in a storage pool
- * and the data they point to are located at an offset behind
- * them. */
-
-// Determine address and length of data from a QByteArrayData/QStringData.
-template <typename CharType>
-bool readQt5DataSizeAddress(const SymbolGroupValue &dV,
-                            unsigned dataSize,
-                            unsigned *arraySize,
-                            ULONG64 *address)
+// Helper struct containing data Address and size/alloc information
+// from Qt's QString/QByteArray.
+struct QtStringAddressData
 {
-    *arraySize = 0;
-    *address = dV.pointerValue();
-    if (!*address)
-        return false;
+    QtStringAddressData() : address(0), size(0), allocated(0) {}
+
+    ULONG64 address;
+    unsigned size; // Size and allocated are in ushort for QString's.
+    unsigned allocated;
+};
+
+/* Helper to determine the location and size of the data of
+ * QStrings/QByteArrays for versions 4,5. In Qt 4, 'd' has a 'data'
+ * pointer. In Qt 5, the d-elements and the data are in a storage pool
+ * and the data are at an offset behind the d-structures. */
+QtStringAddressData readQtStringAddressData(const SymbolGroupValue &dV,
+                                           int qtMajorVersion)
+{
+    QtStringAddressData result;
     const SymbolGroupValue sizeV = dV["size"];
-    const SymbolGroupValue offsetV = dV["offset"];
-    if (!dataSize || !sizeV || !offsetV)
-        return false;
-    *arraySize = sizeV.intValue();
-    *address += dataSize + offsetV.intValue() / sizeof(CharType);
-    return true;
+    const SymbolGroupValue allocV = dV["alloc"];
+    if (!sizeV || !allocV)
+        return QtStringAddressData();
+    result.size = sizeV.intValue();
+    result.allocated = allocV.intValue();
+    if (qtMajorVersion < 5) {
+        // Qt 4: Simple 'data' pointer.
+        result.address = dV["data"].pointerValue();
+    } else {
+        // Qt 5: Memory pool after the data element.
+        const SymbolGroupValue offsetV = dV["offset"];
+        const SymbolGroupValue arrayV = dV["d"];
+        if (!offsetV || !arrayV)
+            return QtStringAddressData();
+        int offset = offsetV.intValue();
+        if (arrayV.type().find("short") != std::string::npos)
+            offset /= sizeof(short); // QString: offset is in short[].
+        result.address = arrayV.address()
+                + SymbolGroupValue::pointerDiffSize()
+                + offset;
+    }
+    return result;
 }
 
-// Retrieve data from a QByteArrayData/QStringData in desired type.
-// For empty arrays, no data are allocated.
+// Retrieve data from a QByteArrayData(char)/QStringData(wchar_t)
+// in desired type. For empty arrays, no data are allocated.
 template <typename CharType>
-bool readQt5Data(const SymbolGroupValue &dV,
-                 unsigned dSize,
-                 bool zeroTerminated,
-                 unsigned sizeLimit,
-                 unsigned *fullSize,
-                 unsigned *arraySize,
-                 CharType **array)
+bool readQt5StringData(const SymbolGroupValue &dV, int qtMajorVersion,
+                       bool zeroTerminated, unsigned sizeLimit,
+                       unsigned *fullSize, unsigned *arraySize,
+                       CharType **array)
 {
     *array = 0;
-    *arraySize = *fullSize = 0;
-    ULONG64 address = 0;
-    if (!readQt5DataSizeAddress<CharType>(dV, dSize, fullSize, &address))
+    QtStringAddressData data = readQtStringAddressData(dV, qtMajorVersion);
+    *arraySize = *fullSize = data.size;
+    if (!data.address)
         return false;
     if (!*fullSize)
         return true;
@@ -1445,7 +1461,7 @@ bool readQt5Data(const SymbolGroupValue &dV,
             sizeof(CharType) * (*arraySize + (zeroTerminated ? 1 : 0));
     unsigned char *memory =
             SymbolGroupValue::readMemory(dV.context().dataspaces,
-                                         address, memorySize);
+                                         data.address, memorySize);
     if (!memory)
         return false;
     *array = reinterpret_cast<CharType *>(memory);
@@ -1473,15 +1489,10 @@ static inline bool dumpQString(const SymbolGroupValue &v, std::wostream &str)
 
     } // Qt 4.
 
-    // Qt 5: Data start at offset past the 'd' of type QStringData.
-    static const unsigned dataSize =
-            SymbolGroupValue::sizeOf(qtInfo.prependQtCoreModule("QStringData").c_str());
-    if (!dataSize)
-        return false;
     wchar_t *memory;
     unsigned fullSize;
     unsigned size;
-    if (!readQt5Data(dV, dataSize, true, 10240, &fullSize, &size, &memory))
+    if (!readQt5StringData(dV, qtInfo.version, true, 10240, &fullSize, &size, &memory))
         return false;
     if (size) {
         str << L'"' << memory;
@@ -1529,13 +1540,6 @@ static unsigned qByteArraySize(const SymbolGroupValueContext &ctx)
     return size;
 }
 
-/* Return the size of a Qt 5's QByteArrayData */
-static unsigned q5ByteArrayDataSize(const SymbolGroupValueContext &ctx)
-{
-    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QByteArrayData").c_str());
-    return size;
-}
-
 /* Return the size of a QAtomicInt */
 static unsigned qAtomicIntSize(const SymbolGroupValueContext &ctx)
 {
@@ -1564,7 +1568,7 @@ static inline bool dumpQByteArray(const SymbolGroupValue &v, std::wostream &str)
     char *memory;
     unsigned fullSize;
     unsigned size;
-    if (!readQt5Data(dV, q5ByteArrayDataSize(v.context()), false, 10240, &fullSize, &size, &memory))
+    if (!readQt5StringData(dV, qtInfo.version, false, 10240, &fullSize, &size, &memory))
         return false;
     if (size) {
         // Emulate CDB's behavior of replacing unprintable characters
@@ -2391,8 +2395,9 @@ static inline std::vector<AbstractSymbolGroupNode *>
     unsigned size = 0;
     ULONG64 address = 0;
     if (QtInfo::get(ctx).version > 4) {
-        readQt5DataSizeAddress<char>(dV, q5ByteArrayDataSize(ctx),
-                                     &size, &address);
+        const QtStringAddressData data = readQtStringAddressData(dV, 5);
+        size = data.size;
+        address = data.address;
     } else {
         size = dV["size"].intValue();
         address = dV["data"].pointerValue();
@@ -2536,15 +2541,18 @@ static int assignQStringI(SymbolGroupNode  *n, const char *className,
     SymbolGroupValue d = v["d"];
     if (!d)
         return 1;
+    const QtInfo &qtInfo = QtInfo::get(ctx);
     // Check the size, re-allocate if required.
-    const size_t allocated = d["alloc"].intValue();
-    const bool needRealloc = allocated < data.stringLength;
+    const QtStringAddressData addressData = readQtStringAddressData(d, qtInfo.version);
+    if (!addressData.address)
+        return 9;
+    const bool needRealloc = addressData.allocated < data.stringLength;
     if (needRealloc) {
         if (!doAlloc) // Calling re-alloc failed somehow.
             return 3;
         std::ostringstream callStr;
         const std::string funcName
-            = QtInfo::get(ctx).prependQtCoreModule(std::string(className) + "::resize");
+            = qtInfo.prependQtCoreModule(std::string(className) + "::resize");
         callStr << funcName << '(' << std::hex << std::showbase
                 << v.address() << ',' << data.stringLength << ')';
         std::wstring wOutput;
@@ -2553,11 +2561,9 @@ static int assignQStringI(SymbolGroupNode  *n, const char *className,
             assignQStringI(n, className, data, ctx, false) : 5;
     }
     // Write data.
-    const ULONG64 address = d["data"].pointerValue();
-    if (!address)
-        return 9;
     if (!SymbolGroupValue::writeMemory(v.context().dataspaces,
-                                       address, data.data, ULONG(data.dataLength)))
+                                       addressData.address, data.data,
+                                       ULONG(data.dataLength)))
         return 11;
     // Correct size unless we re-allocated
     if (!needRealloc) {
