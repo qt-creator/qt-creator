@@ -555,6 +555,35 @@ def qtNamespace():
     except:
         return ""
 
+# --  Determine size of qptrdiff (cached)
+
+qqptrdiffSize = None
+
+def qtptrdiffSize():
+    global qqptrdiffSize
+    if not qqptrdiffSize is None:
+        return qqptrdiffSize
+    try:
+        qqptrdiffSize = lookupType(qtNamespace() + 'qptrdiff').sizeof
+        return qqptrdiffSize
+    except:
+        return 0
+
+# --  Determine major Qt version by calling qVersion (cached)
+
+qqMajorVersion = None
+
+def qtMajorVersion():
+    global qqMajorVersion
+    if not qqMajorVersion is None:
+        return qqMajorVersion
+    try:
+        # -- Result is returned as character, need to subtract '0'
+        qqMajorVersion = int(parseAndEvaluate(qtNamespace() + "qVersion()[0]")) - 48
+        return qqMajorVersion
+    except:
+        return 0
+
 def findFirstZero(p, maximum):
     for i in xrange(maximum):
         if p.dereference() == 0:
@@ -628,36 +657,54 @@ def encodeChar4Array(p, maxsize):
         s += "2e0000002e0000002e000000"
     return s
 
+def qByteArrayData(value):
+    if qtMajorVersion() < 5:
+        d_ptr = value['d'].dereference()
+        checkRef(d_ptr["ref"])
+        data = d_ptr['data']
+        size = d_ptr['size']
+        alloc = d_ptr['alloc']
+        return data, size, alloc
+    else: # Qt5: Implement the QByteArrayData::data() accessor.
+        qByteArrayData = value['d'].dereference()
+        size = qByteArrayData['size']
+        alloc = qByteArrayData['alloc']
+        data = qByteArrayData['d'].cast(lookupType('char *')) + qByteArrayData['offset'] + qtptrdiffSize()
+        return data, size, alloc
+
 def encodeByteArray(value):
-    d_ptr = value['d'].dereference()
-    data = d_ptr['data']
-    size = d_ptr['size']
-    alloc = d_ptr['alloc']
+    data, size, alloc = qByteArrayData(value)
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    checkRef(d_ptr["ref"])
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
     return encodeCharArray(data, 100, size)
 
+def qQStringData(value):
+    if qtMajorVersion() < 5:
+        d_ptr = value['d'].dereference()
+        checkRef(d_ptr['ref'])
+        return d_ptr['data'], d_ptr['size'], d_ptr['alloc']
+    else: # Qt5: Implement the QStringArrayData::data() accessor.
+        qStringData = value['d'].dereference()
+        data = qStringData['d'].cast(lookupType('ushort *')) + qtptrdiffSize() / 2 + qStringData['offset']
+        return data, qStringData['size'], qStringData['alloc']
+
 def encodeString(value):
-    d_ptr = value['d'].dereference()
-    data = d_ptr['data']
-    size = d_ptr['size']
-    alloc = d_ptr['alloc']
+    data, size, alloc = qQStringData(value)
+
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
-    checkRef(d_ptr["ref"])
-    p = gdb.Value(d_ptr["data"])
     s = ""
     limit = min(size, 1000)
     try:
         # gdb.Inferior is new in gdb 7.2
         inferior = gdb.inferiors()[0]
-        s = binascii.hexlify(inferior.read_memory(p, 2 * limit))
+        s = binascii.hexlify(inferior.read_memory(data, 2 * limit))
     except:
+        p = data
         for i in xrange(limit):
             val = int(p.dereference())
             s += "%02x" % (val % 256)

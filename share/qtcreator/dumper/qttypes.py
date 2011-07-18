@@ -33,15 +33,12 @@ def qdump__QBasicAtomicPointer(d, item):
 
 def qdump__QByteArray(d, item):
     d.putByteArrayValue(item.value)
-
-    d_ptr = item.value['d'].dereference()
-    size = d_ptr['size']
+    data, size, alloc = qByteArrayData(item.value)
     d.putNumChild(size)
 
     if d.isExpanded(item):
         innerType = lookupType("char")
         with Children(d, [size, 1000], innerType):
-            data = d_ptr['data']
             p = gdb.Value(data.cast(innerType.pointer()))
             for i in d.childRange():
                 d.putSubItem(Item(p.dereference(), item.iname, i))
