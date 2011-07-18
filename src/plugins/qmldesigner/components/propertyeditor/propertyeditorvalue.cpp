@@ -96,6 +96,22 @@ static bool cleverColorCompare(QVariant value1, QVariant value2)
     return false;
 }
 
+
+/* "red" is the same color as "#ff0000"
+  To simplify editing we convert all explicit color names in the hash format */
+static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode, const QString &name, QVariant *value)
+{
+    if (modelNode.isValid() && modelNode.metaInfo().isValid()
+            && (modelNode.metaInfo().propertyTypeName(name) == "QColor"
+                || modelNode.metaInfo().propertyTypeName(name) == "color")) {
+        if ((value->type() == QVariant::Color)) {
+            *value = QColor(value->value<QColor>().name());
+        } else {
+            *value = QColor(value->toString()).name();
+        }
+    }
+}
+
 void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 {
     if (m_value != value || isBound()) {
@@ -124,6 +140,8 @@ void PropertyEditorValue::setValue(const QVariant &value)
         !cleverColorCompare(value, m_value))
 
         m_value = value;
+
+    fixAmbigousColorNames(modelNode(), name(), &m_value);
 
     if (m_value.isValid())
         emit valueChangedQml();
