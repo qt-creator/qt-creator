@@ -452,9 +452,17 @@ static inline QVariant editValue(const WatchData &d)
     default:
         break;
     }
-    // Replace newlines, which will cause line edit troubles.
+    // Some string value: '0x434 "Hallo"':
+    // Remove quotes and replace newlines, which will cause line edit troubles.
     QString stringValue = d.value;
-    stringValue.replace(QLatin1String("\n"), QLatin1String("\\n"));
+    if (stringValue.endsWith(QLatin1Char('"'))) {
+        const int leadingDoubleQuote = stringValue.indexOf(QLatin1Char('"'));
+        if (leadingDoubleQuote != stringValue.size() - 1) {
+            stringValue.truncate(stringValue.size() - 1);
+            stringValue.remove(0, leadingDoubleQuote + 1);
+            stringValue.replace(QLatin1String("\n"), QLatin1String("\\n"));
+        }
+    }
     return QVariant(stringValue);
 }
 
