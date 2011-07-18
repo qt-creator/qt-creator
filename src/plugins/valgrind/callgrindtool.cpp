@@ -121,7 +121,7 @@ public:
     void updateEventCombo();
 
     IAnalyzerEngine *createEngine(const AnalyzerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *runConfiguration);
+        ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
 signals:
     void cycleDetectionEnabled(bool enabled);
@@ -596,16 +596,18 @@ IAnalyzerEngine *CallgrindToolPrivate::createEngine(const AnalyzerStartParameter
 
     AnalyzerManager::showStatusMessage(AnalyzerManager::msgToolStarted(q->displayName()));
 
-    // apply project settings
-    AnalyzerProjectSettings *analyzerSettings = runConfiguration->extraAspect<AnalyzerProjectSettings>();
-    ValgrindProjectSettings *settings = analyzerSettings->subConfig<ValgrindProjectSettings>();
-    QTC_ASSERT(settings, return engine)
-
     QTC_ASSERT(m_visualisation, return engine);
-    m_visualisation->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
-    m_proxyModel->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
-    m_dataModel->setVerboseToolTipsEnabled(settings->enableEventToolTips());
 
+    // apply project settings
+    if (runConfiguration) {
+        if (const AnalyzerProjectSettings *analyzerSettings = runConfiguration->extraAspect<AnalyzerProjectSettings>()) {
+            if (const ValgrindProjectSettings *settings = analyzerSettings->subConfig<ValgrindProjectSettings>()) {
+                m_visualisation->setMinimumInclusiveCostRatio(settings->visualisationMinimumInclusiveCostRatio() / 100.0);
+                m_proxyModel->setMinimumInclusiveCostRatio(settings->minimumInclusiveCostRatio() / 100.0);
+                m_dataModel->setVerboseToolTipsEnabled(settings->enableEventToolTips());
+            }
+        }
+    }
     return engine;
 }
 
