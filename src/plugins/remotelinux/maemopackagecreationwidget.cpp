@@ -76,6 +76,10 @@ void MaemoPackageCreationWidget::initGui()
     const AbstractDebBasedQt4MaemoTarget * const debBasedMaemoTarget
         = m_step->debBasedMaemoTarget();
     if (debBasedMaemoTarget) {
+        const QSize iconSize = debBasedMaemoTarget->packageManagerIconSize();
+        m_ui->packageManagerIconButton->setFixedSize(iconSize);
+        m_ui->packageManagerIconButton->setToolTip(tr("Size should be %1x%2 pixels")
+            .arg(iconSize.width()).arg(iconSize.height()));
         m_ui->editSpecFileButton->setVisible(false);
         updateDebianFileList();
         handleControlFileUpdate();

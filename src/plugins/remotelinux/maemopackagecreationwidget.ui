@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>584</width>
+    <width>615</width>
     <height>284</height>
    </rect>
   </property>
@@ -191,20 +191,8 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QToolButton" name="packageManagerIconButton">
-         <property name="minimumSize">
-          <size>
-           <width>48</width>
-           <height>48</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>48</width>
-           <height>48</height>
-          </size>
-         </property>
          <property name="toolTip">
-          <string>Size is 48x48 pixels</string>
+          <string/>
          </property>
          <property name="text">
           <string/>
