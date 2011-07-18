@@ -444,7 +444,7 @@ void QmlProfilerEventsView::QmlProfilerEventsViewPrivate::buildModelFromList( co
 
         if (m_fieldShown[Percent]) {
             newRow << new EventsViewItem(QString::number(binding->percentOfTime,'f',2)+QLatin1String(" %"));
-            newRow.last()->setData(QVariant(binding->eventType));
+            newRow.last()->setData(QVariant(binding->percentOfTime));
         }
 
         if (m_fieldShown[TotalDuration]) {
