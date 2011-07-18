@@ -299,10 +299,12 @@ QExtGroupBox {
                             layout: HorizontalLayout {
                                 Label {
                                     text: "H"
+                                    toolTip: qsTr("Hue")
                                     fixedWidth: 15
                                 }
 
                                 QSpinBox {
+                                    toolTip: qsTr("Hue")
                                     id: hueSpinBox
                                     maximum: 359
                                     value: colorControl.hue;
@@ -316,9 +318,11 @@ QExtGroupBox {
                             layout: HorizontalLayout {
                                 Label {
                                     text: "S"
+                                    toolTip: qsTr("Saturation")
                                     fixedWidth: 15
                                 }
                                 QSpinBox {
+                                    toolTip: qsTr("Saturation")
                                     id: saturationSpinBox
                                     maximum: 255
                                     value: colorControl.saturation;
@@ -333,9 +337,11 @@ QExtGroupBox {
                             layout: HorizontalLayout {
                                 Label {
                                     text: "B"
+                                    toolTip: qsTr("Brightness")
                                     fixedWidth: 15
                                 }
                                 QSpinBox {
+                                    toolTip: qsTr("Brightness")
                                     id: valueSpinBox
                                     maximum: 255
                                     value: colorControl.value;
@@ -350,9 +356,11 @@ QExtGroupBox {
                                 topMargin: 12
                                 Label {
                                     text: "A"
+                                    toolTip: qsTr("Alpha")
                                     fixedWidth: 15
                                 }
                                 QSpinBox {
+                                    toolTip: qsTr("Alpha")
                                     id: alphaSpinBox
                                     maximum: 255
                                     value: colorControl.alpha;
