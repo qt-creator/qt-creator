@@ -16,18 +16,6 @@
   <property name="title">
    <string/>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Qt Quick Application Type</string>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QRadioButton" name="qtquick10RadioButton">
@@ -192,9 +180,6 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
         </widget>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
   </layout>
  </widget>
  <customwidgets>
