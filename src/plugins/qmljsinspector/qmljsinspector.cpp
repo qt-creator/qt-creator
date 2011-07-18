@@ -314,6 +314,7 @@ void InspectorUi::connected(ClientProxy *clientProxy)
 
     connect(m_debugProject, SIGNAL(destroyed()), SLOT(currentDebugProjectRemoved()));
     m_projectFinder.setProjectDirectory(m_debugProject->projectDirectory());
+    m_projectFinder.setProjectFiles(m_debugProject->files(ProjectExplorer::Project::AllFiles));
 
     connectSignals();
     enable();
