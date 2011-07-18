@@ -32,34 +32,23 @@
 
 #include "qmlprojectruncontrol.h"
 #include "qmlprojectrunconfiguration.h"
-#include "qmlprojectconstants.h"
 #include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
-#include <qtsupport/qtversionmanager.h>
-#include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerconstants.h>
-#include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
-#include <qmljsinspector/qmljsinspectorconstants.h>
-#include <qtsupport/qtversionmanager.h>
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qmlobservertool.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <QtGui/QApplication>
-#include <QtGui/QLabel>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
-
-#include <QtCore/QDir>
 
 using namespace ProjectExplorer;
 
