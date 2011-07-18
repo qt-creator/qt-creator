@@ -2124,6 +2124,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     m_stepAction->setEnabled(stopped || state == DebuggerNotReady);
     m_nextAction->setEnabled(stopped || state == DebuggerNotReady);
+    m_stepAction->setToolTip(QString());
+    m_nextAction->setToolTip(QString());
 
     m_stepOutAction->setEnabled(stopped);
     m_runToLineAction->setEnabled(stopped && (caps & RunToLineCapability));
@@ -2152,14 +2154,31 @@ void DebuggerPluginPrivate::updateDebugActions()
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     Project *project = pe->startupProject();
-    m_debugAction->setEnabled(pe->canRun(project, _(Constants::DEBUGMODE)));
-    m_debugAction->setToolTip(pe->cannotRunReason(project, _(Constants::DEBUGMODE)));
-    const bool canStepInto = pe->canRun(project, _(Constants::DEBUGMODE2));
-    const QString cannotStepIntoReason = pe->cannotRunReason(project, _(Constants::DEBUGMODE2));
-    m_stepAction->setEnabled(canStepInto);
-    m_nextAction->setEnabled(canStepInto);
-    m_stepAction->setToolTip(cannotStepIntoReason);
-    m_nextAction->setToolTip(cannotStepIntoReason);
+    const QString debugMode = _(Constants::DEBUGMODE);
+    const bool canRun = pe->canRun(project, debugMode);
+    m_debugAction->setEnabled(canRun);
+    m_debugAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, debugMode));
+
+    // Step into/next: Start and break at 'main' unless a debugger is running.
+    if (m_snapshotHandler->currentIndex() < 0) {
+        const QString debugMode2 = _(Constants::DEBUGMODE2);
+        const bool canRunAndBreakMain = pe->canRun(project, debugMode2);
+        m_stepAction->setEnabled(canRunAndBreakMain);
+        m_nextAction->setEnabled(canRunAndBreakMain);
+        QString toolTip;
+        if (canRunAndBreakMain) {
+            QTC_ASSERT(project, return ; );
+            toolTip = tr("Start '%1' and break at function 'main()'")
+                      .arg(project->displayName());
+        } else {
+            // Do not display long tooltip saying 'debugMode2 is not supported
+            // for project' for projects to which 'break at main' is not applicable.
+            if (!canRun)
+                toolTip = pe->cannotRunReason(project, debugMode2);
+        }
+        m_stepAction->setToolTip(toolTip);
+        m_nextAction->setToolTip(toolTip);
+    }
 }
 
 void DebuggerPluginPrivate::onCoreAboutToOpen()
@@ -2922,12 +2941,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
         Constants::NEXT, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::NEXT_KEY));
     cmd->setAttribute(Command::CA_Hide);
+    cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_stepAction,
         Constants::STEP, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEP_KEY));
     cmd->setAttribute(Command::CA_Hide);
+    cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_stepOutAction,
