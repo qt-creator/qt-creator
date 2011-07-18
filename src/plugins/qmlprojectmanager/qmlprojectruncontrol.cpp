@@ -151,22 +151,24 @@ bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
 {
     QmlProjectRunConfiguration *config =
         qobject_cast<QmlProjectRunConfiguration*>(runConfiguration);
+    if (!config)
+        return false;
     if (mode == ProjectExplorer::Constants::RUNMODE)
-        return config != 0 && !config->viewerPath().isEmpty();
-    else if (mode != Debugger::Constants::DEBUGMODE)
+        return !config->viewerPath().isEmpty();
+    if (mode != Debugger::Constants::DEBUGMODE)
         return false;
 
-    bool qmlDebugSupportInstalled =
-            Debugger::DebuggerPlugin::isActiveDebugLanguage(Debugger::QmlLanguage);
+    if (!Debugger::DebuggerPlugin::isActiveDebugLanguage(Debugger::QmlLanguage))
+        return false;
 
-    if (config && qmlDebugSupportInstalled) {
-        if (!(config->qtVersion() && config->qtVersion()->needsQmlDebuggingLibrary())
-                || !config->observerPath().isEmpty())
-            return true;
-        if (config->qtVersion() && QtSupport::QmlObserverTool::canBuild(config->qtVersion()))
-            return true;
-    }
-
+    if (!config->observerPath().isEmpty())
+        return true;
+    if (!config->qtVersion())
+        return false;
+    if (!config->qtVersion()->needsQmlDebuggingLibrary())
+        return true;
+    if (QtSupport::QmlObserverTool::canBuild(config->qtVersion()))
+        return true;
     return false;
 }
 
