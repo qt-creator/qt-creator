@@ -50,9 +50,13 @@ public:
     {
         if (data().type() == QVariant::String) {
             // first column
-            return data(FilenameRole).toString() == other.data(FilenameRole).toString() ?
+            if (column() == 0) {
+                return data(FilenameRole).toString() == other.data(FilenameRole).toString() ?
                         data(LineRole).toInt() < other.data(LineRole).toInt() :
                         data(FilenameRole).toString() < other.data(FilenameRole).toString();
+            } else {
+                return data().toString() < other.data().toString();
+            }
         }
 
         return data().toDouble() < other.data().toDouble();
@@ -408,7 +412,7 @@ void QmlProfilerEventsView::buildModel()
         bool hasBranches = d->m_fieldShown[Parents] || d->m_fieldShown[Children];
         setRootIsDecorated(hasBranches);
 
-        setSortingEnabled(!hasBranches);
+        setSortingEnabled(true);
 
         if (!hasBranches)
             sortByColumn(d->m_firstNumericColumn,Qt::DescendingOrder);
@@ -474,6 +478,7 @@ void QmlProfilerEventsView::QmlProfilerEventsViewPrivate::buildModelFromList( co
 
         if (m_fieldShown[Details]) {
             newRow << new EventsViewItem(*binding->details);
+            newRow.last()->setData(QVariant(*binding->details));
         }
 
         if (!newRow.isEmpty()) {
