@@ -405,7 +405,7 @@ QString MaemoDebianPackageCreationStep::packagingCommand(const Qt4BuildConfigura
 #ifdef Q_OS_WIN
     perl = maddeRoot + QLatin1String("/bin/perl.exe ");
 #endif
-    return perl + maddeRoot % QLatin1String("/madbin/") % commandName;
+    return perl + maddeRoot + QLatin1String("/madbin/") + commandName;
 }
 
 void MaemoDebianPackageCreationStep::ensureShlibdeps(QByteArray &rulesContent)
