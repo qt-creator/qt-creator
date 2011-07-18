@@ -88,7 +88,7 @@ protected:
     QGraphicsObject *graphicsObject() const;
     void paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const;
     QRectF boundingRectWithStepChilds(QGraphicsItem *parentItem) const;
-
+    bool childrenHasContent(QGraphicsItem *graphicsItem) const;
 
 private: // variables
     bool m_hasContent;
