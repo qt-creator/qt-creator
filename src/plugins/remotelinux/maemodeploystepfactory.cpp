@@ -81,6 +81,8 @@ QStringList MaemoDeployStepFactory::availableCreationIds(BuildStepList *parent) 
         ids << MaemoInstallRpmPackageToSysrootStep::Id;
         ids << MaemoUploadAndInstallRpmPackageStep::Id;
     }
+    if (qobject_cast<Qt4HarmattanTarget *>(parent->target()))
+         ids << MaemoDirectDeviceUploadStep::Id;
     if (qobject_cast<Qt4Maemo5Target *>(parent->target())) {
         ids << MaemoMountAndInstallDeployStep::Id
             << MaemoMountAndCopyDeployStep::Id;

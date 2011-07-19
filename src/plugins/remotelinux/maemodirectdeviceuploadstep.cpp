@@ -217,6 +217,15 @@ void MaemoDirectDeviceUploadStep::handleUploadFinished(Utils::SftpJobId jobId,
         setFinished();
     } else {
         setDeployed(connection()->connectionParameters().host, d);
+
+        // Terrible hack for Windows.
+        if (d.remoteDir.contains(QLatin1String("bin"))) {
+            const QString remoteFilePath = d.remoteDir + QLatin1Char('/')
+                + QFileInfo(d.localFilePath).fileName();
+            const QString command = QLatin1String("chmod a+x ") + remoteFilePath;
+            connection()->createRemoteProcess(command.toUtf8())->start();
+        }
+
         uploadNextFile();
     }
 }
