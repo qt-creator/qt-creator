@@ -47,19 +47,19 @@ Item {
             id: baseitem
             height: Math.max(recentSessions.height, recentProjects.height)
             width: root.width
-
-            Widgets.RecentProjects {
-                id: recentProjects
-                anchors.left: parent.left
-                width: Math.floor(root.width / 2)
-            }
             Widgets.RecentSessions {
                 id: recentSessions
-                anchors.left:  recentProjects.right
-                anchors.right: parent.right
-                anchors.rightMargin: scrollArea.height >= baseitem.height ?
-                                     -scrollArea.verticalScrollBar.width : 0
+                width: Math.floor(root.width / 2.5)
+                anchors.left: parent.left
             }
+            Widgets.RecentProjects {
+                id: recentProjects
+                anchors.left:  recentSessions.right
+                anchors.right: parent.right
+                anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 :
+                                         -scrollArea.verticalScrollBar.width
+            }
+
         }
     }
     Rectangle {
@@ -67,6 +67,6 @@ Item {
         height: root.height + 2 * margin
         width: 1
         color: "#ccc"
-        x: recentSessions.x - margin
+        x: recentProjects.x - margin
     }
 }

@@ -64,16 +64,16 @@ HeaderItemView {
             id: arrowImage;
             source: "qrc:welcome/images/list_bullet_arrow.png"
             anchors.verticalCenter: parent.verticalCenter
-            anchors.right: parent.right
-            anchors.rightMargin: 10
+            anchors.left: parent.left
+            anchors.leftMargin: 10
         }
 
         Text {
             id: fileNameText
             text: parent.fullSessionName()
             elide: Text.ElideMiddle
-            anchors.left: parent.left
-            anchors.right: arrowImage.right
+            anchors.left: arrowImage.right
+            anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 10
             anchors.rightMargin: 20

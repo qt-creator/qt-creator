@@ -53,13 +53,13 @@ HeaderItemView {
             id: arrowImage;
             source: "qrc:welcome/images/list_bullet_arrow.png";
             anchors.verticalCenter: parent.verticalCenter;
-            anchors.right: parent.right
-            anchors.rightMargin: 10
+            anchors.left: parent.left
+            anchors.leftMargin: 10
         }
 
         Column {
             spacing: 4
-            anchors.left: parent.left
+            anchors.left: arrowImage.right
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             Text {
@@ -91,7 +91,7 @@ HeaderItemView {
             interval: 1000
             onTriggered: {
                 if (filepath.truncated)
-                    styleItem.showToolTip(sessionName)
+                    styleItem.showToolTip(filePath)
             }
         }
 

@@ -62,16 +62,26 @@ Rectangle {
         border.bottom: 10
     }
 
+    BorderImage {
+        id: deadArea
+        anchors.left: parent.left
+        anchors.top: inner_background.bottom
+        anchors.topMargin: -2
+        width: news.width
+        height: navigationAndDevLinks.height
+        border { top: 1; bottom: 1}
+        source: "qrc:welcome/images/tab_inactive.png"
+        Rectangle { anchors.right: parent.right; height: parent.height; y:0; width: 1; color: "black"}
+    }
     LinksBar {
         id: navigationAndDevLinks
         property alias current: root.current
         anchors.top: inner_background.bottom
-        anchors.left: parent.left
+        anchors.left: deadArea.right
+        anchors.right: parent.right
         anchors.bottomMargin: 4
         anchors.topMargin: -2
-        width: parent.width
         model: tabs.model
-        tabBarWidth: width
     }
 
     Rectangle {

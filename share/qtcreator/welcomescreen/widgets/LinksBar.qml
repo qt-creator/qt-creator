@@ -38,23 +38,16 @@ Row {
     height: 25
 
     property alias model: tabs.model
-    property int tabBarWidth
-
+    property int tabWidth: Math.floor(tabBar.width/tabs.count)
     Repeater {
         id: tabs
         height: tabBar.height
         model: parent.model
-        delegate:
-            Item {
+        delegate: Item {
             Components.QStyleItem { cursor: "pointinghandcursor"; anchors.fill: parent }
-            width: tabBarWidth / tabs.count
             height: tabBar.height
 
-            Rectangle {
-                width: parent.width; height: 1
-                anchors { bottom: parent.bottom; bottomMargin: 1 }
-                color: "#acb2c2"
-            }
+            width: tabs.count-1 === index ? tabWidth : tabWidth + tabBar.width%tabs.count
             BorderImage {
                 id: tabBackground
                 anchors.fill: parent
