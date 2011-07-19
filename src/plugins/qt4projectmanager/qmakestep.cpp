@@ -49,6 +49,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/mainwindow.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <qtsupport/qtversionmanager.h>
@@ -417,18 +418,14 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
     qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
     qt4BuildConfiguration()->emitProFileEvaluateNeeded();
 
-    int button = QMessageBox::question(QApplication::activeWindow(), tr("QML Debugging"),
-                                   tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"),
-                                   QMessageBox::Yes, QMessageBox::No);
-
-    if (button == QMessageBox::Yes) {
-        Qt4BuildConfiguration *bc = qt4BuildConfiguration();
-
-        QList<ProjectExplorer::BuildStepList *> stepLists;
-        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-        ProjectExplorerPlugin::instance()->buildManager()->buildLists(stepLists);
-    }
+    Core::ICore * const core = Core::ICore::instance();
+    QMessageBox *question = new QMessageBox(core->mainWindow());
+    question->setWindowTitle(tr("QML Debugging"));
+    question->setText(tr("The option will only take effect if the project is recompiled. Do you want to recompile now?"));
+    question->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    question->setModal(true);
+    connect(question, SIGNAL(finished(int)), this, SLOT(recompileMessageBoxFinished(int)));
+    question->show();
 }
 
 QStringList QMakeStep::parserArguments()
@@ -489,6 +486,20 @@ bool QMakeStep::fromMap(const QVariantMap &map)
     }
 
     return BuildStep::fromMap(map);
+}
+
+void QMakeStep::recompileMessageBoxFinished(int button)
+{
+    if (button == QMessageBox::Yes) {
+        Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+        if (!bc)
+            return;
+
+        QList<ProjectExplorer::BuildStepList *> stepLists;
+        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+        stepLists << bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        ProjectExplorerPlugin::instance()->buildManager()->buildLists(stepLists);
+    }
 }
 
 ////
