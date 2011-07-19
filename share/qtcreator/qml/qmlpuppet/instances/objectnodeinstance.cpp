@@ -374,6 +374,18 @@ void ObjectNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentIn
         addToNewProperty(object(), newParentInstance->object(), newParentProperty);
     }
 }
+QVariant ObjectNodeInstance::convertSpecialCharacter(const QVariant& value) const
+{
+    QVariant specialCharacterConvertedValue = value;
+    if (value.type() == QVariant::String) {
+        QString string = value.toString();
+        string.replace(QLatin1String("\\n"), QLatin1String("\n"));
+        string.replace(QLatin1String("\\t"), QLatin1String("\t"));
+        specialCharacterConvertedValue = string;
+    }
+
+    return specialCharacterConvertedValue;
+}
 
 void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
@@ -394,7 +406,7 @@ void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant 
         QDeclarativePropertyPrivate::setBinding(property, 0, QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
     }
 
-    bool isWritten = property.write(value);
+    bool isWritten = property.write(convertSpecialCharacter(value));
 
     if (!isWritten)
         qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << value;
