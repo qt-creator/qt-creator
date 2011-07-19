@@ -173,6 +173,7 @@ void Environment::prependOrSetPath(const QString &value)
 void Environment::prependOrSetLibrarySearchPath(const QString &value)
 {
 #ifdef Q_OS_MAC
+    Q_UNUSED(value);
     // we could set DYLD_LIBRARY_PATH on Mac but it is unnecessary in practice
 #elif defined(Q_OS_WIN)
     const QChar sep = QLatin1Char(';');
