@@ -700,7 +700,8 @@ void QmlCppEngine::skipCppBreakpoint()
     if (d->m_msg->isHidden()) {
         d->m_msg->setIcon(QMessageBox::Warning);
         d->m_msg->setWindowTitle(tr("QML/C++ Debugging"));
-        d->m_msg->setText(tr("Cannot stop execution before QML engine is started. Skipping breakpoint.\nSuggestions: Move the breakpoint after QmlViewer initialization or switch to C++ only debugging"));
+        d->m_msg->setText(tr("Cannot stop execution before QML engine is started. Skipping breakpoint.\n"
+                             "Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or switch to C++ only debugging."));
         d->m_msg->setStandardButtons(QMessageBox::Ok);
         d->m_msg->setDefaultButton(QMessageBox::Ok);
         d->m_msg->setModal(false);
