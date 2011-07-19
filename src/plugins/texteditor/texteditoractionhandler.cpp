@@ -194,7 +194,7 @@ void TextEditorActionHandler::createActions()
     connect(m_textWrappingAction, SIGNAL(triggered(bool)), this, SLOT(setTextWrapping(bool)));
 
 
-    m_unCommentSelectionAction = new QAction(tr("(Un)Comment &Selection"), this);
+    m_unCommentSelectionAction = new QAction(tr("Toggle Comment &Selection"), this);
     m_modifyingActions << m_unCommentSelectionAction;
     command = am->registerAction(m_unCommentSelectionAction, Constants::UN_COMMENT_SELECTION, m_contextId, true);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+/")));
@@ -229,7 +229,7 @@ void TextEditorActionHandler::createActions()
     connect(m_unfoldAction, SIGNAL(triggered()), this, SLOT(unfold()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);
 
-    m_unfoldAllAction = new QAction(tr("(Un)&Fold All"), this);
+    m_unfoldAllAction = new QAction(tr("Toggle &Fold All"), this);
     command = am->registerAction(m_unfoldAllAction, Constants::UNFOLD_ALL, m_contextId, true);
     connect(m_unfoldAllAction, SIGNAL(triggered()), this, SLOT(unfoldAll()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_COLLAPSING);

@@ -69,7 +69,7 @@ QAction *StopMonitoringHandler::createAction(QObject *parent)
 {
     const QString text =
             QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",
-                                        "Stop monitoring");
+                                        "Stop Monitoring");
     const QString toolTip =
             QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",
                                         "Stop monitoring task files.");

@@ -62,7 +62,7 @@ void ShowInEditorTaskHandler::handle(const ProjectExplorer::Task &task)
 
 QAction *ShowInEditorTaskHandler::createAction(QObject *parent)
 {
-    QAction *showAction = new QAction(tr("&Show in editor"), parent);
-    showAction->setToolTip(tr("Show task location in an editor"));
+    QAction *showAction = new QAction(tr("&Show in Editor"), parent);
+    showAction->setToolTip(tr("Show task location in an editor."));
     return showAction;
 }
