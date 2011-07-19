@@ -51,6 +51,7 @@ public:
 
     virtual bool isValid() const;
     virtual QString invalidReason() const;
+    virtual QString warningReason() const;
 
     virtual QList<ProjectExplorer::Abi> qtAbis() const;
 

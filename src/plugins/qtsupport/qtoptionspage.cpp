@@ -379,6 +379,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
         ++abiCount;
     }
 
+    bool useable = true;
     if (missingToolChains.isEmpty()) {
         // No:
         info.message = tr("Qt version %1 for %2").arg(version->qtVersionString(), version->description());
@@ -386,6 +387,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
         // Yes, this Qt version can't be used at all!
         info.message = tr("No tool chain can produce code for this Qt version. Please define one or more tool chains.");
         info.icon = m_invalidVersionIcon;
+        useable = false;
     } else {
         // Yes, some ABIs are unsupported
         info.message = tr("Not all possible target environments can be supported due to missing tool chains.");
@@ -393,6 +395,17 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
                        .arg(missingToolChains.join(QLatin1String("</li><li>")));
         info.icon = m_warningVersionIcon;
     }
+
+    if (useable) {
+        QString warning = version->warningReason();
+        if (!warning.isEmpty()) {
+            if (!info.message.isEmpty())
+                info.message.append('\n');
+            info.message += warning;
+            info.icon = m_warningVersionIcon;
+        }
+    }
+
     return info;
 }
 

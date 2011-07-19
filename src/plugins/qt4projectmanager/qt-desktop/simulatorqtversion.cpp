@@ -89,6 +89,13 @@ QString SimulatorQtVersion::invalidReason() const
     return tmp;
 }
 
+QString SimulatorQtVersion::warningReason() const
+{
+    if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty())
+        return QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
+    return QString();
+}
+
 QList<ProjectExplorer::Abi> SimulatorQtVersion::qtAbis() const
 {
     if (!m_qtAbisUpToDate) {

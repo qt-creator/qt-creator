@@ -318,6 +318,11 @@ QString BaseQtVersion::invalidReason() const
     return QString();
 }
 
+QString BaseQtVersion::warningReason() const
+{
+    return QString();
+}
+
 QString BaseQtVersion::qmakeCommand() const
 {
     return m_qmakeCommand;

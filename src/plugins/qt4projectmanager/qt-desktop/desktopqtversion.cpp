@@ -89,6 +89,13 @@ QString DesktopQtVersion::invalidReason() const
     return tmp;
 }
 
+QString DesktopQtVersion::warningReason() const
+{
+    if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty())
+        return QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
+    return QString();
+}
+
 QList<ProjectExplorer::Abi> DesktopQtVersion::qtAbis() const
 {
     if (!m_qtAbisUpToDate) {

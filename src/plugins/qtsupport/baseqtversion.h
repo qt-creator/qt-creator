@@ -109,6 +109,7 @@ public:
     virtual QVariantMap toMap() const;
     virtual bool isValid() const;
     virtual QString invalidReason() const;
+    virtual QString warningReason() const;
 
     virtual bool toolChainAvailable(const QString &id) const;
 
