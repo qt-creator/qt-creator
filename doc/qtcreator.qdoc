@@ -7997,6 +7997,9 @@
     Symbol Server provided by Microsoft to the symbol search path of the debugger.
     For more information, see \l{Setting the Symbol Server in Windows}.
 
+    \note To use the Free Software Foundation (FSF) GDB on Mac OS, you must
+    sign it and add it to Qt Creator as a tool chain.
+
     This section explains the
     options you have for debugging C++ code and provides installation notes for the
     supported native debuggers.
@@ -8177,7 +8180,7 @@
            \o The Qt binary distribution contains both debug and release
               variants of the libraries. But you have to explicitly tell the
               runtime linker that you want to use the debug libraries even if
-              your application is compiled as debug as release is the default
+              your application is compiled as debug, as release is the default
               library.
 
               If you use a qmake based project in Qt Creator,  you can set a
@@ -8185,9 +8188,14 @@
               configuration, select \gui{Use debug version of frameworks}.
 
               For more detailed information about debugging on the Mac OS X, see:
-              \l{http://developer.apple.com/mac/library/technotes/tn2004/tn2124.html}{Mac OS X Debugging Magic}.
+              \l{http://developer.apple.com/library/mac/#technotes/tn2124/_index.html#//apple_ref/doc/uid/DTS10003391}
+              {Mac OS X Debugging Magic}.
 
-        \note The Mac OS X Snow Leopard (10.6) has a bug that might cause the
+              To use FSF GDB on Mac OS, you must sign it and add it to the Qt
+              Creator tool chains. For more information, see
+              \l{Setting up FSF GDB for Mac OS}.
+
+              \note The Mac OS X Snow Leopard (10.6) has a bug that might cause the
               application to crash. For a workaround, see:
               \l{http://bugreports.qt.nokia.com/browse/QTBUG-4962}{QTBUG-4962}.
 
@@ -8215,6 +8223,64 @@
     \note The first time you start debugging by using the
     Debugging tools for Windows, Qt Creator prompts you to add the Symbol
     Server.
+
+    \section1 Setting up FSF GDB for Mac OS
+
+    To use FSF GDB on Mac OS, you must sign it and add it to the Qt Creator tool
+    chains.
+
+    \list 1
+
+        \o  To create a key for signing FSF GDB, select \gui {Keychain Access >
+            Certificate Assistant > Create a Certificate}:
+
+        \list 1
+
+            \o  In the \gui {Certificate Type} field, select \gui {Code Signing}.
+
+            \o  Select the \gui {Let me override defaults} check box.
+
+            \o  Select \gui Continue, and follow the instructions of the
+                wizard (use the default settings), until the \gui {Select a
+                Location for the Certificate} dialog opens.
+
+            \o  In the \gui Keychain field, select \gui System.
+
+            \o  Select \gui {Keychain Access > System}, and locate the
+                certificate.
+
+            \o  Double click the certificate to view certificate information.
+
+            \o  In the \gui Trust field, select \gui {Always Trust}.
+
+        \endlist
+
+        \o  To sign the binary, enter the following command in the terminal,
+            where $USER is the name of the certificate (which is the same as the
+            user name, by default):
+
+            \code
+            codesign -f -s "$USER" $INSTALL_LOCATION/fsfgdb
+            \endcode
+
+        \o  In Qt Creator, select \gui {Tools > Preferences… > Tool Chains}, to
+            add a tool chain that uses the debugger:
+
+        \list 1
+
+            \o  Select a native tool chain (usually, a x86 64-bit tool chain)
+                and click \gui Clone to clone it.
+
+            \o  In the \gui Debugger field, specify the path to FSF GDB
+                (\c $HOME/gdb72/bin/fsfgdb, but with an explicit value for
+                \c $HOME).
+
+        \endlist
+
+        \o  To use the debugger, select the tool chain in the \gui {Tool chain}
+            field in the \gui {Build Settings} of the project.
+
+    \endlist
 
 */
 
