@@ -65,7 +65,7 @@ private slots:
     void handleProgressReport(const QString &progressString);
 
 private:
-    RemoteLinux::RemoteLinuxApplicationRunner *runner() const;
+    RemoteLinux::AbstractRemoteLinuxApplicationRunner *runner() const;
 
     int m_port;
     RemoteLinux::AbstractRemoteLinuxRunControl *m_runControl;

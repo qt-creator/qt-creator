@@ -61,7 +61,7 @@ void MaemoRunControl::handleMountDebugOutput(const QString &output)
     appendMessage(output, Utils::StdErrFormatSameLine);
 }
 
-RemoteLinuxApplicationRunner *MaemoRunControl::runner() const { return m_runner; }
+AbstractRemoteLinuxApplicationRunner *MaemoRunControl::runner() const { return m_runner; }
 
 } // namespace Internal
 } // namespace RemoteLinux

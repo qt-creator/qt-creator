@@ -48,14 +48,18 @@ namespace RemoteLinux {
 class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfiguration;
 
-namespace Internal { class MaemoUsedPortsGatherer; }
+namespace Internal {
+class AbstractRemoteLinuxApplicationRunnerPrivate;
+class MaemoUsedPortsGatherer;
+}
 
-class REMOTELINUX_EXPORT RemoteLinuxApplicationRunner : public QObject
+class REMOTELINUX_EXPORT AbstractRemoteLinuxApplicationRunner : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(AbstractRemoteLinuxApplicationRunner)
 public:
-    RemoteLinuxApplicationRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig);
-    ~RemoteLinuxApplicationRunner();
+    AbstractRemoteLinuxApplicationRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig);
+    ~AbstractRemoteLinuxApplicationRunner();
 
     void start();
     void stop();
@@ -63,12 +67,12 @@ public:
     void startExecution(const QByteArray &remoteCall);
 
     QSharedPointer<Utils::SshConnection> connection() const;
-    const Internal::MaemoUsedPortsGatherer *usedPortsGatherer() const { return m_portsGatherer; }
-    PortList *freePorts() { return &m_freePorts; }
-    QString remoteExecutable() const { return m_remoteExecutable; }
-    QString arguments() const { return m_appArguments; }
-    QString commandPrefix() const { return m_commandPrefix; }
     QSharedPointer<const LinuxDeviceConfiguration> devConfig() const;
+    const Internal::MaemoUsedPortsGatherer *usedPortsGatherer() const;
+    PortList *freePorts();
+    QString remoteExecutable() const;
+    QString arguments() const;
+    QString commandPrefix() const;
 
     static const qint64 InvalidExitCode;
 
@@ -100,48 +104,49 @@ private slots:
     void handleUsedPortsAvailable();
 
 private:
-    enum State { Inactive, SettingUpDevice, Connecting, PreRunCleaning, AdditionalPreRunCleaning,
-        GatheringPorts, AdditionalInitializing, ReadyForExecution, ProcessStarting, ProcessStarted,
-        PostRunCleaning, AdditionalPostRunCleaning
-    };
 
-    // Override to do custom setup of the device *before* connecting.
+    virtual QString killApplicationCommandLine() const=0;
+
+    // Implement to do custom setup of the device *before* connecting.
     // Call handleDeviceSetupDone() afterwards.
-    virtual void doDeviceSetup();
+    virtual void doDeviceSetup()=0;
 
-    // Override to do additional pre-run cleanup and call handleInitialCleanupDone().
-    virtual void doAdditionalInitialCleanup();
+    // Implement to do additional pre-run cleanup and call handleInitialCleanupDone().
+    virtual void doAdditionalInitialCleanup()=0;
 
-    // Override to do additional initializations right before the application is ready.
+    // Implement to do additional initializations right before the application is ready.
     // Call handleInitializationsDone() afterwards.
-    virtual void doAdditionalInitializations();
+    virtual void doAdditionalInitializations()=0;
 
-    // Override for additional cleanups after application exit and call handlePostRunCleanupDone();
-    virtual void doAdditionalPostRunCleanup();
+    // Implement to do cleanups after application exit and call handlePostRunCleanupDone();
+    virtual void doPostRunCleanup()=0;
 
-    virtual void doAdditionalConnectionErrorHandling() {}
+    virtual void doAdditionalConnectionErrorHandling()=0;
 
-    void setState(State newState);
+    void setInactive();
     void emitError(const QString &errorMsg, bool force = false);
     void cleanup();
-    bool isConnectionUsable() const;
 
-    Internal::MaemoUsedPortsGatherer * const m_portsGatherer;
-    const QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
-    const QString m_remoteExecutable;
-    const QString m_appArguments;
-    const QString m_commandPrefix;
-    const PortList m_initialFreePorts;
+    Internal::AbstractRemoteLinuxApplicationRunnerPrivate * const m_d;
+};
 
-    QSharedPointer<Utils::SshConnection> m_connection;
-    QSharedPointer<Utils::SshRemoteProcess> m_runner;
-    QSharedPointer<Utils::SshRemoteProcess> m_cleaner;
-    QStringList m_procsToKill;
-    PortList m_freePorts;
 
-    int m_exitStatus;
-    bool m_stopRequested;
-    State m_state;
+class REMOTELINUX_EXPORT GenericRemoteLinuxApplicationRunner : public AbstractRemoteLinuxApplicationRunner
+{
+    Q_OBJECT
+public:
+    GenericRemoteLinuxApplicationRunner(QObject *parent, RemoteLinuxRunConfiguration *runConfig);
+    ~GenericRemoteLinuxApplicationRunner();
+
+protected:
+    void doDeviceSetup();
+    void doAdditionalInitialCleanup();
+    void doAdditionalInitializations();
+    void doPostRunCleanup();
+    void doAdditionalConnectionErrorHandling();
+
+private:
+    QString killApplicationCommandLine() const;
 };
 
 } // namespace RemoteLinux

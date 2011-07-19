@@ -53,7 +53,7 @@ private slots:
     void handleMountDebugOutput(const QString &output);
 
 private:
-    virtual RemoteLinuxApplicationRunner *runner() const;
+    virtual AbstractRemoteLinuxApplicationRunner *runner() const;
 
     MaemoSshRunner * const m_runner;
 };

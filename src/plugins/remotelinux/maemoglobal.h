@@ -56,7 +56,6 @@ class QString;
 QT_END_NAMESPACE
 
 namespace QtSupport { class BaseQtVersion; }
-namespace Utils { class SshConnection; }
 
 namespace RemoteLinux {
 namespace Internal {
@@ -110,8 +109,6 @@ public:
     static QString remoteSudo(const QString &osType, const QString &uname);
     static QString remoteCommandPrefix(const QString &osType);
     static QString remoteSourceProfilesCommand();
-    static QString failedToConnectToServerMessage(const QSharedPointer<Utils::SshConnection> &connection,
-        const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig);
     static QString deviceConfigurationName(const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
     static PortList freePorts(const QSharedPointer<const LinuxDeviceConfiguration> &devConf,
         const QtSupport::BaseQtVersion *qtVersion);

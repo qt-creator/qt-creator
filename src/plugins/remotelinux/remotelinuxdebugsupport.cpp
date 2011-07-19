@@ -275,7 +275,7 @@ bool AbstractRemoteLinuxDebugSupport::setPort(int &port)
 RemoteLinuxDebugSupport::RemoteLinuxDebugSupport(RemoteLinuxRunConfiguration *runConfig,
         DebuggerEngine *engine)
     : AbstractRemoteLinuxDebugSupport(runConfig, engine),
-      m_runner(new RemoteLinuxApplicationRunner(this, runConfig))
+      m_runner(new GenericRemoteLinuxApplicationRunner(this, runConfig))
 {
 }
 

@@ -39,7 +39,7 @@
 #include <QtCore/QString>
 
 namespace RemoteLinux {
-class RemoteLinuxApplicationRunner;
+class AbstractRemoteLinuxApplicationRunner;
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxRunControl : public ProjectExplorer::RunControl
 {
@@ -53,7 +53,7 @@ public:
     virtual bool isRunning() const;
     virtual QIcon icon() const;
 
-    virtual RemoteLinuxApplicationRunner *runner() const=0;
+    virtual AbstractRemoteLinuxApplicationRunner *runner() const=0;
 
 private slots:
     void startExecution();
@@ -81,9 +81,9 @@ public:
     explicit RemoteLinuxRunControl(ProjectExplorer::RunConfiguration *runConfig);
     virtual ~RemoteLinuxRunControl();
 private:
-    virtual RemoteLinuxApplicationRunner *runner() const;
+    virtual AbstractRemoteLinuxApplicationRunner *runner() const;
 
-    RemoteLinuxApplicationRunner * const m_runner;
+    AbstractRemoteLinuxApplicationRunner * const m_runner;
 };
 
 } // namespace RemoteLinux

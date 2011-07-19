@@ -47,7 +47,7 @@ MaemoDebugSupport::~MaemoDebugSupport()
 {
 }
 
-RemoteLinuxApplicationRunner *MaemoDebugSupport::runner() const { return m_runner; }
+AbstractRemoteLinuxApplicationRunner *MaemoDebugSupport::runner() const { return m_runner; }
 
 } // namespace Internal
 } // namespace RemoteLinux

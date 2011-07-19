@@ -49,7 +49,7 @@ namespace ProjectExplorer { class RunControl; }
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfiguration;
-class RemoteLinuxApplicationRunner;
+class AbstractRemoteLinuxApplicationRunner;
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDebugSupport : public QObject
 {
@@ -74,7 +74,7 @@ private slots:
 private:
     enum State { Inactive, StartingRunner, StartingRemoteProcess, Debugging };
 
-    virtual RemoteLinuxApplicationRunner *runner() const=0;
+    virtual AbstractRemoteLinuxApplicationRunner *runner() const=0;
 
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();
@@ -102,9 +102,9 @@ public:
     ~RemoteLinuxDebugSupport();
 
 private:
-    RemoteLinuxApplicationRunner *runner() const { return m_runner; }
+    AbstractRemoteLinuxApplicationRunner *runner() const { return m_runner; }
 
-    RemoteLinuxApplicationRunner * const m_runner;
+    AbstractRemoteLinuxApplicationRunner * const m_runner;
 };
 
 } // namespace RemoteLinux

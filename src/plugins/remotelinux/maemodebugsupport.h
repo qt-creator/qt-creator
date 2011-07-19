@@ -47,7 +47,7 @@ public:
     ~MaemoDebugSupport();
 
 private:
-    RemoteLinuxApplicationRunner *runner() const;
+    AbstractRemoteLinuxApplicationRunner *runner() const;
 
     MaemoSshRunner * const m_runner;
 };

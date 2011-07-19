@@ -99,7 +99,7 @@ void AbstractRemoteLinuxRunControl::startExecution()
 
 void AbstractRemoteLinuxRunControl::handleRemoteProcessFinished(qint64 exitCode)
 {
-    if (exitCode != RemoteLinuxApplicationRunner::InvalidExitCode) {
+    if (exitCode != AbstractRemoteLinuxApplicationRunner::InvalidExitCode) {
         appendMessage(tr("Finished running remote process. Exit code was %1.\n")
             .arg(exitCode), Utils::NormalMessageFormat);
     }
@@ -148,7 +148,7 @@ void AbstractRemoteLinuxRunControl::setFinished()
 
 RemoteLinuxRunControl::RemoteLinuxRunControl(ProjectExplorer::RunConfiguration *runConfig)
     : AbstractRemoteLinuxRunControl(runConfig),
-      m_runner(new RemoteLinuxApplicationRunner(this, qobject_cast<RemoteLinuxRunConfiguration *>(runConfig)))
+      m_runner(new GenericRemoteLinuxApplicationRunner(this, qobject_cast<RemoteLinuxRunConfiguration *>(runConfig)))
 {
 }
 
@@ -156,7 +156,7 @@ RemoteLinuxRunControl::~RemoteLinuxRunControl()
 {
 }
 
-RemoteLinuxApplicationRunner *RemoteLinuxRunControl::runner() const
+AbstractRemoteLinuxApplicationRunner *RemoteLinuxRunControl::runner() const
 {
     return m_runner;
 }

@@ -32,7 +32,6 @@
 #include "remotelinuxapplicationrunner.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "maemoglobal.h"
 #include "remotelinuxrunconfiguration.h"
 #include "maemousedportsgatherer.h"
 
@@ -43,52 +42,108 @@
 
 #include <limits>
 
-#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
-
 using namespace Qt4ProjectManager;
 using namespace Utils;
 
 namespace RemoteLinux {
+namespace Internal {
+namespace {
+
+enum State {
+    Inactive, SettingUpDevice, Connecting, PreRunCleaning, AdditionalPreRunCleaning,
+    GatheringPorts, AdditionalInitializing, ReadyForExecution, ProcessStarting, ProcessStarted,
+    PostRunCleaning
+};
+
+} // anonymous namespace
+
+class AbstractRemoteLinuxApplicationRunnerPrivate
+{
+public:
+    AbstractRemoteLinuxApplicationRunnerPrivate(const RemoteLinuxRunConfiguration *runConfig)
+        : devConfig(runConfig->deviceConfig()),
+          remoteExecutable(runConfig->remoteExecutableFilePath()),
+          appArguments(runConfig->arguments()),
+          commandPrefix(runConfig->commandPrefix()),
+          initialFreePorts(runConfig->freePorts()),
+          stopRequested(false),
+          state(Inactive)
+    {
+    }
+
+    MaemoUsedPortsGatherer portsGatherer;
+    const LinuxDeviceConfiguration::ConstPtr devConfig;
+    const QString remoteExecutable;
+    const QString appArguments;
+    const QString commandPrefix;
+    const PortList initialFreePorts;
+
+    Utils::SshConnection::Ptr connection;
+    Utils::SshRemoteProcess::Ptr runner;
+    Utils::SshRemoteProcess::Ptr cleaner;
+
+    PortList freePorts;
+    int exitStatus;
+    bool stopRequested;
+    State state;
+
+};
+} // namespace Internal
+
+
 using namespace Internal;
 
-RemoteLinuxApplicationRunner::RemoteLinuxApplicationRunner(QObject *parent,
+AbstractRemoteLinuxApplicationRunner::AbstractRemoteLinuxApplicationRunner(QObject *parent,
         RemoteLinuxRunConfiguration *runConfig)
-    : QObject(parent),
-      m_portsGatherer(new MaemoUsedPortsGatherer(this)),
-      m_devConfig(runConfig->deviceConfig()),
-      m_remoteExecutable(runConfig->remoteExecutableFilePath()),
-      m_appArguments(runConfig->arguments()),
-      m_commandPrefix(runConfig->commandPrefix()),
-      m_initialFreePorts(runConfig->freePorts()),
-      m_stopRequested(false),
-      m_state(Inactive)
+    : QObject(parent), m_d(new AbstractRemoteLinuxApplicationRunnerPrivate(runConfig))
 {
-    // Prevent pkill from matching our own pkill call.
-    QString pkillArg = m_remoteExecutable;
-    const int lastPos = pkillArg.count() - 1;
-    pkillArg.replace(lastPos, 1, QLatin1Char('[') + pkillArg.at(lastPos) + QLatin1Char(']'));
-    m_procsToKill << pkillArg;
-
-    connect(m_portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGathererError(QString)));
-    connect(m_portsGatherer, SIGNAL(portListReady()), SLOT(handleUsedPortsAvailable()));
+    connect(&m_d->portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGathererError(QString)));
+    connect(&m_d->portsGatherer, SIGNAL(portListReady()), SLOT(handleUsedPortsAvailable()));
 }
 
-RemoteLinuxApplicationRunner::~RemoteLinuxApplicationRunner() {}
-
-SshConnection::Ptr RemoteLinuxApplicationRunner::connection() const
+AbstractRemoteLinuxApplicationRunner::~AbstractRemoteLinuxApplicationRunner()
 {
-    return m_connection;
+    delete m_d;
 }
 
-LinuxDeviceConfiguration::ConstPtr RemoteLinuxApplicationRunner::devConfig() const
+SshConnection::Ptr AbstractRemoteLinuxApplicationRunner::connection() const
 {
-    return m_devConfig;
+    return m_d->connection;
 }
 
-void RemoteLinuxApplicationRunner::start()
+LinuxDeviceConfiguration::ConstPtr AbstractRemoteLinuxApplicationRunner::devConfig() const
 {
-    QTC_ASSERT(!m_stopRequested, return);
-    ASSERT_STATE(Inactive);
+    return m_d->devConfig;
+}
+
+const MaemoUsedPortsGatherer *AbstractRemoteLinuxApplicationRunner::usedPortsGatherer() const
+{
+    return &m_d->portsGatherer;
+}
+
+PortList *AbstractRemoteLinuxApplicationRunner::freePorts()
+{
+    return &m_d->freePorts;
+}
+
+QString AbstractRemoteLinuxApplicationRunner::remoteExecutable() const
+{
+    return m_d->remoteExecutable;
+}
+
+QString AbstractRemoteLinuxApplicationRunner::arguments() const
+{
+    return m_d->appArguments;
+}
+
+QString AbstractRemoteLinuxApplicationRunner::commandPrefix() const
+{
+    return m_d->commandPrefix;
+}
+
+void AbstractRemoteLinuxApplicationRunner::start()
+{
+    QTC_ASSERT(!m_d->stopRequested && m_d->state == Inactive, return);
 
     QString errorMsg;
     if (!canRun(errorMsg)) {
@@ -96,23 +151,23 @@ void RemoteLinuxApplicationRunner::start()
         return;
     }
 
-    setState(SettingUpDevice);
+    m_d->state = SettingUpDevice;
     doDeviceSetup();
 }
 
-void RemoteLinuxApplicationRunner::stop()
+void AbstractRemoteLinuxApplicationRunner::stop()
 {
-    if (m_stopRequested)
+    if (m_d->stopRequested)
         return;
 
-    switch (m_state) {
+    switch (m_d->state) {
     case Connecting:
-        setState(Inactive);
+        setInactive();
         emit remoteProcessFinished(InvalidExitCode);
         break;
     case GatheringPorts:
-        m_portsGatherer->stop();
-        setState(Inactive);
+        m_d->portsGatherer.stop();
+        setInactive();
         emit remoteProcessFinished(InvalidExitCode);
         break;
     case SettingUpDevice:
@@ -121,16 +176,15 @@ void RemoteLinuxApplicationRunner::stop()
     case AdditionalInitializing:
     case ProcessStarting:
     case PostRunCleaning:
-    case AdditionalPostRunCleaning:
-        m_stopRequested = true;
+        m_d->stopRequested = true; // TODO: We might need stopPreRunCleaning() etc. for the subclasses
         break;
     case ReadyForExecution:
-        m_stopRequested = true;
-        setState(AdditionalPostRunCleaning);
-        doAdditionalPostRunCleanup();
+        m_d->stopRequested = true;
+        m_d->state = PostRunCleaning;
+        doPostRunCleanup();
         break;
     case ProcessStarted:
-        m_stopRequested = true;
+        m_d->stopRequested = true;
         cleanup();
         break;
     case Inactive:
@@ -138,119 +192,98 @@ void RemoteLinuxApplicationRunner::stop()
     }
 }
 
-void RemoteLinuxApplicationRunner::handleConnected()
+void AbstractRemoteLinuxApplicationRunner::handleConnected()
 {
-    ASSERT_STATE(Connecting);
-    if (m_stopRequested) {
+    QTC_ASSERT(m_d->state == Connecting, return);
+
+    if (m_d->stopRequested) {
         emit remoteProcessFinished(InvalidExitCode);
-        setState(Inactive);
+        setInactive();
     } else {
-        setState(PreRunCleaning);
+        m_d->state = PreRunCleaning;
         cleanup();
     }
 }
 
-void RemoteLinuxApplicationRunner::handleConnectionFailure()
+void AbstractRemoteLinuxApplicationRunner::handleConnectionFailure()
 {
-    if (m_state == Inactive) {
-        qWarning("Unexpected state %d in %s.", m_state, Q_FUNC_INFO);
-        return;
-    }
+    QTC_ASSERT(m_d->state != Inactive, return);
 
-    if (m_state != Connecting || m_state != PreRunCleaning)
+    if (m_d->state != Connecting || m_d->state != PreRunCleaning)
         doAdditionalConnectionErrorHandling();
 
-    const QString errorMsg = m_state == Connecting
-        ? MaemoGlobal::failedToConnectToServerMessage(m_connection, m_devConfig)
-        : tr("Connection error: %1").arg(m_connection->errorString());
-    emitError(errorMsg);
+    const QString errorMsg = m_d->state == Connecting
+        ? tr("Could not connect to host: %1") : tr("Connection error: %1");
+    emitError(errorMsg.arg(m_d->connection->errorString()));
 }
 
-void RemoteLinuxApplicationRunner::cleanup()
+void AbstractRemoteLinuxApplicationRunner::cleanup()
 {
-    ASSERT_STATE(QList<State>() << PreRunCleaning << PostRunCleaning << ProcessStarted);
+    QTC_ASSERT(m_d->state == PreRunCleaning
+        || (m_d->state == ProcessStarted && m_d->stopRequested), return);
 
     emit reportProgress(tr("Killing remote process(es)..."));
-
-    // Fremantle's busybox configuration is strange.
-    const char *killTemplate;
-    if (m_devConfig->osType() == LinuxDeviceConfiguration::Maemo5OsType)
-        killTemplate = "pkill -f -%2 %1;";
-    else
-        killTemplate = "pkill -%2 -f %1;";
-
-    QString niceKill;
-    QString brutalKill;
-    foreach (const QString &proc, m_procsToKill) {
-        niceKill += QString::fromLocal8Bit(killTemplate).arg(proc).arg("SIGTERM");
-        brutalKill += QString::fromLocal8Bit(killTemplate).arg(proc).arg("SIGKILL");
-    }
-    QString remoteCall = niceKill + QLatin1String("sleep 1; ") + brutalKill;
-    remoteCall.remove(remoteCall.count() - 1, 1); // Get rid of trailing semicolon.
-
-    m_cleaner = m_connection->createRemoteProcess(remoteCall.toUtf8());
-    connect(m_cleaner.data(), SIGNAL(closed(int)), this,
-        SLOT(handleCleanupFinished(int)));
-    m_cleaner->start();
+    m_d->cleaner = m_d->connection->createRemoteProcess(killApplicationCommandLine().toUtf8());
+    connect(m_d->cleaner.data(), SIGNAL(closed(int)), SLOT(handleCleanupFinished(int)));
+    m_d->cleaner->start();
 }
 
-void RemoteLinuxApplicationRunner::handleCleanupFinished(int exitStatus)
+void AbstractRemoteLinuxApplicationRunner::handleCleanupFinished(int exitStatus)
 {
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
 
-    ASSERT_STATE(QList<State>() << PreRunCleaning << PostRunCleaning << ProcessStarted << Inactive);
+    QTC_ASSERT(m_d->state == PreRunCleaning
+        || (m_d->state == ProcessStarted && m_d->stopRequested) || m_d->state == Inactive, return);
 
-    if (m_state == Inactive)
+    if (m_d->state == Inactive)
         return;
-    if (m_stopRequested && m_state == PreRunCleaning) {
-        setState(Inactive);
+    if (m_d->stopRequested && m_d->state == PreRunCleaning) {
+        setInactive();
         emit remoteProcessFinished(InvalidExitCode);
         return;
     }
-    if (m_stopRequested || m_state == PostRunCleaning) {
-        setState(AdditionalPostRunCleaning);
-        doAdditionalPostRunCleanup();
+    if (m_d->stopRequested) {
+        m_d->state = PostRunCleaning;
+        doPostRunCleanup();
         return;
     }
 
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
-        emitError(tr("Initial cleanup failed: %1").arg(m_cleaner->errorString()));
+        emitError(tr("Initial cleanup failed: %1").arg(m_d->cleaner->errorString()));
         emit remoteProcessFinished(InvalidExitCode);
         return;
     }
 
-    setState(AdditionalPreRunCleaning);
+    m_d->state = AdditionalPreRunCleaning;
     doAdditionalInitialCleanup();
 }
 
-void RemoteLinuxApplicationRunner::startExecution(const QByteArray &remoteCall)
+void AbstractRemoteLinuxApplicationRunner::startExecution(const QByteArray &remoteCall)
 {
-    ASSERT_STATE(ReadyForExecution);
+    QTC_ASSERT(m_d->state == ReadyForExecution, return);
 
-    if (m_stopRequested)
+    if (m_d->stopRequested)
         return;
 
-    m_runner = m_connection->createRemoteProcess(remoteCall);
-    connect(m_runner.data(), SIGNAL(started()), this,
-        SLOT(handleRemoteProcessStarted()));
-    connect(m_runner.data(), SIGNAL(closed(int)), this,
-        SLOT(handleRemoteProcessFinished(int)));
-    connect(m_runner.data(), SIGNAL(outputAvailable(QByteArray)), this,
+    m_d->runner = m_d->connection->createRemoteProcess(remoteCall);
+    connect(m_d->runner.data(), SIGNAL(started()), SLOT(handleRemoteProcessStarted()));
+    connect(m_d->runner.data(), SIGNAL(closed(int)), SLOT(handleRemoteProcessFinished(int)));
+    connect(m_d->runner.data(), SIGNAL(outputAvailable(QByteArray)),
         SIGNAL(remoteOutput(QByteArray)));
-    connect(m_runner.data(), SIGNAL(errorOutputAvailable(QByteArray)), this,
+    connect(m_d->runner.data(), SIGNAL(errorOutputAvailable(QByteArray)),
         SIGNAL(remoteErrorOutput(QByteArray)));
-    setState(ProcessStarting);
-    m_runner->start();
+    m_d->state = ProcessStarting;
+    m_d->runner->start();
 }
 
-void RemoteLinuxApplicationRunner::handleRemoteProcessStarted()
+void AbstractRemoteLinuxApplicationRunner::handleRemoteProcessStarted()
 {
-    ASSERT_STATE(ProcessStarting);
+    QTC_ASSERT(m_d->state == ProcessStarting, return);
 
-    setState(ProcessStarted);
-    if (m_stopRequested) {
+    m_d->state = ProcessStarted;
+    if (m_d->stopRequested) {
         cleanup();
         return;
     }
@@ -259,80 +292,72 @@ void RemoteLinuxApplicationRunner::handleRemoteProcessStarted()
     emit remoteProcessStarted();
 }
 
-void RemoteLinuxApplicationRunner::handleRemoteProcessFinished(int exitStatus)
+void AbstractRemoteLinuxApplicationRunner::handleRemoteProcessFinished(int exitStatus)
 {
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
         || exitStatus == SshRemoteProcess::KilledBySignal
         || exitStatus == SshRemoteProcess::ExitedNormally);
-    ASSERT_STATE(QList<State>() << ProcessStarted << Inactive);
+    QTC_ASSERT(m_d->state == ProcessStarted || m_d->state == Inactive, return);
 
-    m_exitStatus = exitStatus;
-    if (!m_stopRequested && m_state != Inactive) {
-        setState(PostRunCleaning);
-        cleanup();
+    m_d->exitStatus = exitStatus;
+    if (!m_d->stopRequested && m_d->state != Inactive) {
+        m_d->state = PostRunCleaning;
+        doPostRunCleanup();
     }
 }
 
-bool RemoteLinuxApplicationRunner::isConnectionUsable() const
+void AbstractRemoteLinuxApplicationRunner::setInactive()
 {
-    return m_connection && m_connection->state() == SshConnection::Connected
-        && m_connection->connectionParameters() == m_devConfig->sshParameters();
-}
-
-void RemoteLinuxApplicationRunner::setState(State newState)
-{
-    if (newState == Inactive) {
-        m_portsGatherer->stop();
-        if (m_connection) {
-            disconnect(m_connection.data(), 0, this, 0);
-            SshConnectionManager::instance().releaseConnection(m_connection);
-            m_connection = SshConnection::Ptr();
-        }
-        if (m_cleaner)
-            disconnect(m_cleaner.data(), 0, this, 0);
-        m_stopRequested = false;
+    m_d->portsGatherer.stop();
+    if (m_d->connection) {
+        disconnect(m_d->connection.data(), 0, this, 0);
+        SshConnectionManager::instance().releaseConnection(m_d->connection);
+        m_d->connection = SshConnection::Ptr();
     }
-    m_state = newState;
+    if (m_d->cleaner)
+        disconnect(m_d->cleaner.data(), 0, this, 0);
+    m_d->stopRequested = false;
+    m_d->state = Inactive;
 }
 
-void RemoteLinuxApplicationRunner::emitError(const QString &errorMsg, bool force)
+void AbstractRemoteLinuxApplicationRunner::emitError(const QString &errorMsg, bool force)
 {
-    if (m_state != Inactive) {
-        setState(Inactive);
+    if (m_d->state != Inactive) {
+        setInactive();
         emit error(errorMsg);
     } else if (force) {
         emit error(errorMsg);
     }
 }
 
-void RemoteLinuxApplicationRunner::handlePortsGathererError(const QString &errorMsg)
+void AbstractRemoteLinuxApplicationRunner::handlePortsGathererError(const QString &errorMsg)
 {
-    if (m_state != Inactive)
+    if (m_d->state != Inactive)
         emitError(errorMsg);
 }
 
-void RemoteLinuxApplicationRunner::handleUsedPortsAvailable()
+void AbstractRemoteLinuxApplicationRunner::handleUsedPortsAvailable()
 {
-    ASSERT_STATE(GatheringPorts);
+    QTC_ASSERT(m_d->state == GatheringPorts, return);
 
-    if (m_stopRequested) {
-        setState(Inactive);
+    if (m_d->stopRequested) {
+        setInactive();
         emit remoteProcessFinished(InvalidExitCode);
         return;
     }
 
-    setState(AdditionalInitializing);
+    m_d->state = AdditionalInitializing;
     doAdditionalInitializations();
 }
 
-bool RemoteLinuxApplicationRunner::canRun(QString &whyNot) const
+bool AbstractRemoteLinuxApplicationRunner::canRun(QString &whyNot) const
 {
-    if (m_remoteExecutable.isEmpty()) {
+    if (m_d->remoteExecutable.isEmpty()) {
         whyNot = tr("No remote executable set.");
         return false;
     }
 
-    if (!m_devConfig) {
+    if (!m_d->devConfig) {
         whyNot = tr("No device configuration set.");
         return false;
     }
@@ -340,107 +365,129 @@ bool RemoteLinuxApplicationRunner::canRun(QString &whyNot) const
     return true;
 }
 
-void RemoteLinuxApplicationRunner::doDeviceSetup()
+void AbstractRemoteLinuxApplicationRunner::handleDeviceSetupDone(bool success)
+{
+    QTC_ASSERT(m_d->state == SettingUpDevice, return);
+
+    if (!success || m_d->stopRequested) {
+        setInactive();
+        emit remoteProcessFinished(InvalidExitCode);
+        return;
+    }
+
+    m_d->connection = SshConnectionManager::instance().acquireConnection(m_d->devConfig->sshParameters());
+    m_d->state = Connecting;
+    m_d->exitStatus = -1;
+    m_d->freePorts = m_d->initialFreePorts;
+    connect(m_d->connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
+    connect(m_d->connection.data(), SIGNAL(error(Utils::SshError)),
+        SLOT(handleConnectionFailure()));
+    if (m_d->connection->state() == SshConnection::Connected) {
+        handleConnected();
+    } else {
+        emit reportProgress(tr("Connecting to device..."));
+        if (m_d->connection->state() == Utils::SshConnection::Unconnected)
+            m_d->connection->connectToHost();
+    }
+}
+
+void AbstractRemoteLinuxApplicationRunner::handleInitialCleanupDone(bool success)
+{
+    QTC_ASSERT(m_d->state == AdditionalPreRunCleaning, return);
+
+    if (!success || m_d->stopRequested) {
+        setInactive();
+        emit remoteProcessFinished(InvalidExitCode);
+        return;
+    }
+
+    m_d->state = GatheringPorts;
+    m_d->portsGatherer.start(m_d->connection, m_d->devConfig);
+}
+
+void AbstractRemoteLinuxApplicationRunner::handleInitializationsDone(bool success)
+{
+    QTC_ASSERT(m_d->state == AdditionalInitializing, return);
+
+    if (!success) {
+        setInactive();
+        emit remoteProcessFinished(InvalidExitCode);
+        return;
+    }
+    if (m_d->stopRequested) {
+        m_d->state = PostRunCleaning;
+        doPostRunCleanup();
+        return;
+    }
+
+    m_d->state = ReadyForExecution;
+    emit readyForExecution();
+}
+
+void AbstractRemoteLinuxApplicationRunner::handlePostRunCleanupDone()
+{
+    QTC_ASSERT(m_d->state == PostRunCleaning, return);
+
+    const bool wasStopRequested = m_d->stopRequested;
+    setInactive();
+    if (wasStopRequested)
+        emit remoteProcessFinished(InvalidExitCode);
+    else if (m_d->exitStatus == SshRemoteProcess::ExitedNormally)
+        emit remoteProcessFinished(m_d->runner->exitCode());
+    else
+        emit error(tr("Error running remote process: %1").arg(m_d->runner->errorString()));
+}
+
+const qint64 AbstractRemoteLinuxApplicationRunner::InvalidExitCode = std::numeric_limits<qint64>::min();
+
+
+GenericRemoteLinuxApplicationRunner::GenericRemoteLinuxApplicationRunner(QObject *parent,
+        RemoteLinuxRunConfiguration *runConfig)
+    : AbstractRemoteLinuxApplicationRunner(parent, runConfig)
+{
+}
+
+GenericRemoteLinuxApplicationRunner::~GenericRemoteLinuxApplicationRunner()
+{
+}
+
+
+void GenericRemoteLinuxApplicationRunner::doDeviceSetup()
 {
     handleDeviceSetupDone(true);
 }
 
-void RemoteLinuxApplicationRunner::doAdditionalInitialCleanup()
+void GenericRemoteLinuxApplicationRunner::doAdditionalInitialCleanup()
 {
     handleInitialCleanupDone(true);
 }
 
-void RemoteLinuxApplicationRunner::doAdditionalInitializations()
+void GenericRemoteLinuxApplicationRunner::doAdditionalInitializations()
 {
     handleInitializationsDone(true);
 }
 
-void RemoteLinuxApplicationRunner::doAdditionalPostRunCleanup()
+void GenericRemoteLinuxApplicationRunner::doPostRunCleanup()
 {
     handlePostRunCleanupDone();
 }
 
-void RemoteLinuxApplicationRunner::handleDeviceSetupDone(bool success)
+void GenericRemoteLinuxApplicationRunner::doAdditionalConnectionErrorHandling()
 {
-    ASSERT_STATE(SettingUpDevice);
-
-    if (m_state != SettingUpDevice)
-        return;
-    if (!success || m_stopRequested) {
-        setState(Inactive);
-        emit remoteProcessFinished(InvalidExitCode);
-        return;
-    }
-
-    m_connection = SshConnectionManager::instance().acquireConnection(m_devConfig->sshParameters());
-    setState(Connecting);
-    m_exitStatus = -1;
-    m_freePorts = m_initialFreePorts;
-    connect(m_connection.data(), SIGNAL(connected()), this,
-        SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
-        SLOT(handleConnectionFailure()));
-    if (isConnectionUsable()) {
-        handleConnected();
-    } else {
-        emit reportProgress(tr("Connecting to device..."));
-        if (m_connection->state() == Utils::SshConnection::Unconnected)
-            m_connection->connectToHost();
-    }
 }
 
-void RemoteLinuxApplicationRunner::handleInitialCleanupDone(bool success)
+QString GenericRemoteLinuxApplicationRunner::killApplicationCommandLine() const
 {
-    ASSERT_STATE(AdditionalPreRunCleaning);
+    // Prevent pkill from matching our own pkill call.
+    QString pkillArg = remoteExecutable();
+    const int lastPos = pkillArg.count() - 1;
+    pkillArg.replace(lastPos, 1, QLatin1Char('[') + pkillArg.at(lastPos) + QLatin1Char(']'));
 
-    if (m_state != AdditionalPreRunCleaning)
-        return;
-    if (!success || m_stopRequested) {
-        setState(Inactive);
-        emit remoteProcessFinished(InvalidExitCode);
-        return;
-    }
-
-    setState(GatheringPorts);
-    m_portsGatherer->start(m_connection, m_devConfig);
+    const char * const killTemplate = "pkill -%2 -f %1";
+    const QString niceKill = QString::fromLocal8Bit(killTemplate).arg(pkillArg).arg("SIGTERM");
+    const QString brutalKill = QString::fromLocal8Bit(killTemplate).arg(pkillArg).arg("SIGKILL");
+    return niceKill + QLatin1String("; sleep 1; ") + brutalKill;
 }
-
-void RemoteLinuxApplicationRunner::handleInitializationsDone(bool success)
-{
-    ASSERT_STATE(AdditionalInitializing);
-
-    if (m_state != AdditionalInitializing)
-        return;
-    if (!success) {
-        setState(Inactive);
-        emit remoteProcessFinished(InvalidExitCode);
-        return;
-    }
-    if (m_stopRequested) {
-        setState(AdditionalPostRunCleaning);
-        doAdditionalPostRunCleanup();
-        return;
-    }
-
-    setState(ReadyForExecution);
-    emit readyForExecution();
-}
-
-void RemoteLinuxApplicationRunner::handlePostRunCleanupDone()
-{
-    ASSERT_STATE(AdditionalPostRunCleaning);
-
-    const bool wasStopRequested = m_stopRequested;
-    setState(Inactive);
-    if (wasStopRequested)
-        emit remoteProcessFinished(InvalidExitCode);
-    else if (m_exitStatus == SshRemoteProcess::ExitedNormally)
-        emit remoteProcessFinished(m_runner->exitCode());
-    else
-        emit error(tr("Error running remote process: %1").arg(m_runner->errorString()));
-}
-
-const qint64 RemoteLinuxApplicationRunner::InvalidExitCode = std::numeric_limits<qint64>::min();
 
 } // namespace RemoteLinux
 

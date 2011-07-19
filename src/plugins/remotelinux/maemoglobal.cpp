@@ -38,7 +38,6 @@
 
 #include <coreplugin/filemanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <utils/ssh/sshconnection.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qt4projectmanager/qt4target.h>
@@ -189,23 +188,6 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
     foreach (const QByteArray &profile, profiles)
         remoteCall += "; test -f " + profile + " && source " + profile;
     return QString::fromAscii(remoteCall);
-}
-
-QString MaemoGlobal::failedToConnectToServerMessage(const Utils::SshConnection::Ptr &connection,
-    const LinuxDeviceConfiguration::ConstPtr &deviceConfig)
-{
-    QString errorMsg = tr("Could not connect to host: %1")
-        .arg(connection->errorString());
-
-    if (deviceConfig->type() == LinuxDeviceConfiguration::Emulator) {
-        if (connection->errorState() == Utils::SshTimeoutError
-                || connection->errorState() == Utils::SshSocketError) {
-            errorMsg += tr("\nDid you start Qemu?");
-        }
-   } else if (connection->errorState() == Utils::SshTimeoutError) {
-        errorMsg += tr("\nIs the device connected and set up for network access?");
-    }
-    return errorMsg;
 }
 
 QString MaemoGlobal::deviceConfigurationName(const LinuxDeviceConfiguration::ConstPtr &devConf)

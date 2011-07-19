@@ -38,7 +38,7 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/baseqtversion.h>
+#include <utils/qtcassert.h>
 
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(MountState, state, m_mountState)
 
@@ -49,7 +49,7 @@ namespace RemoteLinux {
 namespace Internal {
 
 MaemoSshRunner::MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig)
-    : RemoteLinuxApplicationRunner(parent, runConfig),
+    : AbstractRemoteLinuxApplicationRunner(parent, runConfig),
       m_mounter(new MaemoRemoteMounter(this)),
       m_mountSpecs(runConfig->remoteMounts()->mountSpecs()),
       m_mountState(InactiveMountState)
@@ -71,7 +71,7 @@ MaemoSshRunner::~MaemoSshRunner() {}
 
 bool MaemoSshRunner::canRun(QString &whyNot) const
 {
-    if (!RemoteLinuxApplicationRunner::canRun(whyNot))
+    if (!AbstractRemoteLinuxApplicationRunner::canRun(whyNot))
         return false;
 
     if (devConfig()->type() == LinuxDeviceConfiguration::Emulator
@@ -88,6 +88,12 @@ bool MaemoSshRunner::canRun(QString &whyNot) const
     }
 
     return true;
+}
+
+void MaemoSshRunner::doDeviceSetup()
+{
+    QTC_ASSERT(m_mountState == InactiveMountState, return);
+    handleDeviceSetupDone(true);
 }
 
 void MaemoSshRunner::doAdditionalInitialCleanup()
@@ -107,7 +113,7 @@ void MaemoSshRunner::doAdditionalInitializations()
     mount();
 }
 
-void MaemoSshRunner::doAdditionalPostRunCleanup()
+void MaemoSshRunner::doPostRunCleanup()
 {
     ASSERT_STATE(Mounted);
     m_mountState = PostRunUnmounting;
@@ -201,6 +207,24 @@ void MaemoSshRunner::unmount()
     } else {
         handleUnmounted();
     }
+}
+
+QString MaemoSshRunner::killApplicationCommandLine() const
+{
+    // Prevent pkill from matching our own pkill call.
+    QString pkillArg = remoteExecutable();
+    const int lastPos = pkillArg.count() - 1;
+    pkillArg.replace(lastPos, 1, QLatin1Char('[') + pkillArg.at(lastPos) + QLatin1Char(']'));
+
+    // Fremantle's busybox configuration is strange.
+    const char *killTemplate;
+    if (devConfig()->osType() == LinuxDeviceConfiguration::Maemo5OsType)
+        killTemplate = "pkill -f -%2 %1";
+    else
+        killTemplate = "pkill -%2 -f %1";
+    const QString niceKill = QString::fromLocal8Bit(killTemplate).arg(pkillArg).arg("SIGTERM");
+    const QString brutalKill = QString::fromLocal8Bit(killTemplate).arg(pkillArg).arg("SIGKILL");
+    return niceKill + QLatin1String("; sleep 1; ") + brutalKill;
 }
 
 } // namespace Internal
