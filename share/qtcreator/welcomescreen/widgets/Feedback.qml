@@ -35,7 +35,7 @@ import components 1.0 as Components
 
 Rectangle {
     id: inner_background
-    height: 32
+    height: 40
 
     gradient: Gradient{
         GradientStop{color: "#eee" ; position: 0}
@@ -48,34 +48,27 @@ Rectangle {
     // whitelist
     property bool _hasDesktopTheme: welcomeMode.platform() === "linux"
 
-
-    Components.Button {
+    Button {
         id: feedbackButton
         text: qsTr("Feedback")
         iconSource: "qrc:welcome/images/feedback_arrow.png"
+        height: 32
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.margins: 5
+        anchors.rightMargin: 10
         onClicked: welcomeMode.sendFeedback()
     }
 
-    InsetText {
+    Text {
         id: feedbackText
-        property bool canShow: parent.width > 630
-
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: feedbackButton.right
-        anchors.leftMargin: 10
-        anchors.rightMargin: 10
         anchors.margins: 5
-        opacity: canShow ? 1 : 0
-        Behavior on opacity{NumberAnimation{easing.type: Easing.OutSine}}
-        width: canShow ? paintedWidth : 0
-        mainColor: "#444"
         text: qsTr("Help us make Qt Creator even better")
     }
 
-    Components.Button {
+    Button {
         id: openProjectButton
         text: qsTr("Open Project...")
         focus: false
@@ -86,13 +79,15 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
     }
 
-    Components.Button {
+    Button {
         id: createProjectButton
         text: qsTr("Create Project...")
         iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
         onClicked: welcomeMode.newProject();
+        height: 32
         anchors.right: parent.right
         anchors.margins: 5
         anchors.verticalCenter: parent.verticalCenter
     }
+
 }

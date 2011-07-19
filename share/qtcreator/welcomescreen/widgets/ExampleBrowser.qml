@@ -46,20 +46,20 @@ Item {
         anchors.right: parent.right
         anchors.bottomMargin: - 8
         anchors.leftMargin: - 8
-        anchors.rightMargin: -8
+        anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 : -8
 
-        Components.TextField {
+        LineEdit {
             placeholderText: !checkBox.checked ? qsTr("Search in Tutorials") : qsTr("Search in Tutorials, Examples and Demos")
             focus: true
             id: lineEdit
             anchors.left: parent.left
             anchors.leftMargin:4
             anchors.verticalCenter: parent.verticalCenter
-            width: Math.max(lineEditRoot.width - checkBox.width - 24 - tagFilterButton.width, 0)
+            width: Math.max(lineEditRoot.width - checkBox.width - 28 - tagFilterButton.width, 100)
             onTextChanged: examplesModel.filterRegExp = RegExp('.*'+text, "im")
         }
 
-        Components.CheckBox {
+        CheckBox {
             id: checkBox
             text: qsTr("Show Examples and Demos")
             checked: false
@@ -73,11 +73,11 @@ Item {
         Button {
             id: tagFilterButton
             property string tag
-            Behavior on opacity { NumberAnimation{} }
             onTagChanged: { examplesModel.filterTag = tag; examplesModel.updateFilter() }
             anchors.left: checkBox.right
+            anchors.leftMargin: 6
             anchors.verticalCenter: lineEdit.verticalCenter
-            opacity: !examplesModel.showTutorialsOnly ? 1 : 0
+            visible: !examplesModel.showTutorialsOnly
             text: tag === "" ? qsTr("Filter by Tag") : qsTr("Tag Filter: %1").arg(tag)
             onClicked: {
                 tagBrowserLoader.source = "TagBrowser.qml"
