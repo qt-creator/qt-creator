@@ -465,6 +465,13 @@
     can change the information that the device has about its configuration
     and environment.
 
+    Qt Simulator does not support any device specific APIs by design. Therefore,
+    applications that run well on Qt Simulator also run on any device that hosts
+    the Qt and Qt Mobility libraries. However, this means that you cannot use
+    Qt Simulator to test applications that use device specific libraries, such
+    as Symbian C++ APIs. To test such applications, use the device emulators or
+    real devices.
+
     The Qt Simulator is installed as part of the \QSDK. After it is
     installed, you can select it as a build target in Qt Creator.
 
