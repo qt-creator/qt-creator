@@ -94,7 +94,7 @@ public:
     {
     }
 
-    AbstractMaemoPackageInstaller *packageInstaller() const { return m_installer; }
+    AbstractRemoteLinuxPackageInstaller *packageInstaller() const { return m_installer; }
 
 private:
     MaemoDebianPackageInstaller * const m_installer;
@@ -111,7 +111,7 @@ public:
     {
     }
 
-    AbstractMaemoPackageInstaller *packageInstaller() const { return m_installer; }
+    AbstractRemoteLinuxPackageInstaller *packageInstaller() const { return m_installer; }
 
 private:
     MaemoRpmPackageInstaller * const m_installer;

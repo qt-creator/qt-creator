@@ -32,8 +32,8 @@
 #include "uploadandinstalltarpackagestep.h"
 
 #include "maemoglobal.h"
-#include "maemopackageinstaller.h"
 #include "remotelinuxdeployconfiguration.h"
+#include "remotelinuxpackageinstaller.h"
 #include "tarpackagecreationstep.h"
 
 #include <projectexplorer/buildsteplist.h>
@@ -45,10 +45,10 @@ namespace Internal {
 class UploadAndInstallTarPackageActionPrivate
 {
 public:
-    UploadAndInstallTarPackageActionPrivate() : installer(new MaemoTarPackageInstaller) { }
+    UploadAndInstallTarPackageActionPrivate() : installer(new RemoteLinuxTarPackageInstaller) { }
     ~UploadAndInstallTarPackageActionPrivate() { delete installer; }
 
-    MaemoTarPackageInstaller * const installer;
+    RemoteLinuxTarPackageInstaller * const installer;
 };
 } // namespace Internal
 
@@ -65,7 +65,7 @@ UploadAndInstallTarPackageService::~UploadAndInstallTarPackageService()
     delete m_d;
 }
 
-AbstractMaemoPackageInstaller *UploadAndInstallTarPackageService::packageInstaller() const
+AbstractRemoteLinuxPackageInstaller *UploadAndInstallTarPackageService::packageInstaller() const
 {
     return m_d->installer;
 }

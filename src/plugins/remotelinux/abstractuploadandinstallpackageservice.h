@@ -36,8 +36,9 @@
 #include "remotelinux_export.h"
 
 namespace RemoteLinux {
+class AbstractRemoteLinuxPackageInstaller;
+
 namespace Internal {
-class AbstractMaemoPackageInstaller;
 class AbstractUploadAndInstallPackageServicePrivate;
 }
 
@@ -59,7 +60,7 @@ private slots:
     void handleInstallationFinished(const QString &errorMsg);
 
 private:
-    virtual Internal::AbstractMaemoPackageInstaller *packageInstaller() const=0;
+    virtual AbstractRemoteLinuxPackageInstaller *packageInstaller() const=0;
     virtual QString uploadDir() const; // Defaults to remote user's home directory.
 
     bool isDeploymentNecessary() const;

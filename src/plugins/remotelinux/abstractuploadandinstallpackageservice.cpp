@@ -33,9 +33,8 @@
 
 #include "deployablefile.h"
 #include "linuxdeviceconfiguration.h"
-#include "maemopackagecreationstep.h"
-#include "maemopackageinstaller.h"
 #include "maemopackageuploader.h"
+#include "remotelinuxpackageinstaller.h"
 
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshconnection.h>
@@ -163,7 +162,7 @@ void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString 
     connect(packageInstaller(), SIGNAL(stderrData(QString)), SIGNAL(stdErrData(QString)));
     connect(packageInstaller(), SIGNAL(finished(QString)),
         SLOT(handleInstallationFinished(QString)));
-    packageInstaller()->installPackage(connection(), deviceConfiguration(), remoteFilePath, true);
+    packageInstaller()->installPackage(connection(), remoteFilePath, true);
 }
 
 void AbstractUploadAndInstallPackageService::handleInstallationFinished(const QString &errorMsg)

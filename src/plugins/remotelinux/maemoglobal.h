@@ -50,7 +50,6 @@
     MaemoGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
 
 QT_BEGIN_NAMESPACE
-class QDateTime;
 class QProcess;
 class QString;
 QT_END_NAMESPACE

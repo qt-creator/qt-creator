@@ -33,102 +33,40 @@
 #ifndef ABSTRACTMAEMOPACKAGEINSTALLER_H
 #define ABSTRACTMAEMOPACKAGEINSTALLER_H
 
-namespace Utils {
-class SshConnection;
-class SshRemoteProcessRunner;
-}
-
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <remotelinux/remotelinuxpackageinstaller.h>
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
-
 namespace Internal {
 
-class AbstractMaemoPackageInstaller : public QObject
-{
-    Q_OBJECT
-public:
-    ~AbstractMaemoPackageInstaller();
-
-    void installPackage(const QSharedPointer<Utils::SshConnection> &connection,
-        const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
-        const QString &packageFilePath, bool removePackageFile);
-    void cancelInstallation();
-
-signals:
-    void stdoutData(const QString &output);
-    void stderrData(const QString &output);
-    void finished(const QString &errorMsg = QString());
-
-protected:
-    explicit AbstractMaemoPackageInstaller(QObject *parent = 0);
-    bool isRunning() const { return m_isRunning; }
-
-private slots:
-    void handleConnectionError();
-    void handleInstallationFinished(int exitStatus);
-    void handleInstallerOutput(const QByteArray &output);
-    void handleInstallerErrorOutput(const QByteArray &output);
-
-private:
-    virtual void prepareInstallation() {}
-    virtual QString workingDirectory() const { return QLatin1String("/tmp"); }
-    virtual QString installCommand() const=0;
-    virtual QStringList installCommandArguments() const=0;
-    virtual QString errorString() const { return QString(); }
-    void setFinished();
-
-    bool m_isRunning;
-    QSharedPointer<Utils::SshRemoteProcessRunner> m_installer;
-};
-
-
-class MaemoDebianPackageInstaller: public AbstractMaemoPackageInstaller
+class MaemoDebianPackageInstaller: public RemoteLinux::AbstractRemoteLinuxPackageInstaller
 {
     Q_OBJECT
 public:
     explicit MaemoDebianPackageInstaller(QObject *parent);
 
 private slots:
-    virtual void prepareInstallation();
-    virtual QString installCommand() const;
-    virtual QStringList installCommandArguments() const;
-    virtual QString errorString() const;
     void handleInstallerErrorOutput(const QString &output);
 
 private:
+    void prepareInstallation();
+    QString errorString() const;
+    QString installCommandLine(const QString &packageFilePath) const;
+    QString cancelInstallationCommandLine() const;
+
     QString m_installerStderr;
 };
 
 
-class MaemoRpmPackageInstaller : public AbstractMaemoPackageInstaller
+class MaemoRpmPackageInstaller : public RemoteLinux::AbstractRemoteLinuxPackageInstaller
 {
     Q_OBJECT
 public:
     MaemoRpmPackageInstaller(QObject *parent);
 
 private:
-    virtual QString installCommand() const;
-    virtual QStringList installCommandArguments() const;
+    QString installCommandLine(const QString &packageFilePath) const;
+    QString cancelInstallationCommandLine() const;
 };
-
-
-class MaemoTarPackageInstaller : public AbstractMaemoPackageInstaller
-{
-    Q_OBJECT
-public:
-    MaemoTarPackageInstaller(QObject *parent = 0);
-
-private:
-    virtual QString installCommand() const;
-    virtual QStringList installCommandArguments() const;
-    virtual QString workingDirectory() const { return QLatin1String("/"); }
-};
-
 
 } // namespace Internal
 } // namespace RemoteLinux

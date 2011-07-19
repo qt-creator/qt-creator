@@ -91,7 +91,8 @@ HEADERS += \
     remotelinuxdeployconfigurationfactory.h \
     genericremotelinuxdeploystepfactory.h \
     abstractpackagingstep.h \
-    tarpackagecreationstep.h
+    tarpackagecreationstep.h \
+    remotelinuxpackageinstaller.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -176,7 +177,8 @@ SOURCES += \
     remotelinuxdeployconfigurationfactory.cpp \
     genericremotelinuxdeploystepfactory.cpp \
     abstractpackagingstep.cpp \
-    tarpackagecreationstep.cpp
+    tarpackagecreationstep.cpp \
+    remotelinuxpackageinstaller.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \

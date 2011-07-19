@@ -34,113 +34,13 @@
 
 #include "maemoglobal.h"
 
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocessrunner.h>
-
-using namespace Utils;
-
 namespace RemoteLinux {
 namespace Internal {
 
-AbstractMaemoPackageInstaller::AbstractMaemoPackageInstaller(QObject *parent)
-    : QObject(parent), m_isRunning(false)
-{
-}
-
-AbstractMaemoPackageInstaller::~AbstractMaemoPackageInstaller() {}
-
-void AbstractMaemoPackageInstaller::installPackage(const SshConnection::Ptr &connection,
-    const LinuxDeviceConfiguration::ConstPtr &devConf, const QString &packageFilePath,
-    bool removePackageFile)
-{
-    Q_ASSERT(connection && connection->state() == SshConnection::Connected);
-    Q_ASSERT(!m_isRunning);
-
-    prepareInstallation();
-    m_installer = SshRemoteProcessRunner::create(connection);
-    connect(m_installer.data(), SIGNAL(connectionError(Utils::SshError)),
-        SLOT(handleConnectionError()));
-    connect(m_installer.data(), SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleInstallerOutput(QByteArray)));
-    connect(m_installer.data(), SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(handleInstallerErrorOutput(QByteArray)));
-    connect(m_installer.data(), SIGNAL(processClosed(int)),
-        SLOT(handleInstallationFinished(int)));
-
-    const QString space = QLatin1String(" ");
-    QString cmdLine = QLatin1String("cd ") + workingDirectory()
-        + QLatin1String(" && ")
-        + MaemoGlobal::remoteSudo(devConf->osType(),
-              m_installer->connection()->connectionParameters().userName)
-        + space + installCommand()
-        + space + installCommandArguments().join(space) + space
-        + packageFilePath;
-    if (removePackageFile) {
-        cmdLine += QLatin1String(" && (rm ") + packageFilePath
-            + QLatin1String(" || :)");
-    }
-    m_installer->run(cmdLine.toUtf8());
-    m_isRunning = true;
-}
-
-void AbstractMaemoPackageInstaller::cancelInstallation()
-{
-    Q_ASSERT(m_isRunning);
-    const SshRemoteProcessRunner::Ptr killProcess
-        = SshRemoteProcessRunner::create(m_installer->connection());
-    killProcess->run("pkill " + installCommand().toUtf8());
-    setFinished();
-}
-
-void AbstractMaemoPackageInstaller::handleConnectionError()
-{
-    if (!m_isRunning)
-        return;
-    emit finished(tr("Connection failure: %1")
-        .arg(m_installer->connection()->errorString()));
-    setFinished();
-}
-
-void AbstractMaemoPackageInstaller::handleInstallationFinished(int exitStatus)
-{
-    if (!m_isRunning)
-        return;
-
-    if (exitStatus != SshRemoteProcess::ExitedNormally
-            || m_installer->process()->exitCode() != 0) {
-        emit finished(tr("Installing package failed."));
-    } else if (!errorString().isEmpty()) {
-        emit finished(errorString());
-    } else {
-        emit finished();
-    }
-
-    setFinished();
-}
-
-void AbstractMaemoPackageInstaller::handleInstallerOutput(const QByteArray &output)
-{
-    emit stdoutData(QString::fromUtf8(output));
-}
-
-void AbstractMaemoPackageInstaller::handleInstallerErrorOutput(const QByteArray &output)
-{
-    emit stderrData(QString::fromUtf8(output));
-}
-
-void AbstractMaemoPackageInstaller::setFinished()
-{
-    disconnect(m_installer.data(), 0, this, 0);
-    m_installer.clear();
-    m_isRunning = false;
-}
-
-
 MaemoDebianPackageInstaller::MaemoDebianPackageInstaller(QObject *parent)
-    : AbstractMaemoPackageInstaller(parent)
+    : AbstractRemoteLinuxPackageInstaller(parent)
 {
-    connect(this, SIGNAL(stderrData(QString)),
-        SLOT(handleInstallerErrorOutput(QString)));
+    connect(this, SIGNAL(stderrData(QString)), SLOT(handleInstallerErrorOutput(QString)));
 }
 
 void MaemoDebianPackageInstaller::prepareInstallation()
@@ -148,15 +48,15 @@ void MaemoDebianPackageInstaller::prepareInstallation()
     m_installerStderr.clear();
 }
 
-QString MaemoDebianPackageInstaller::installCommand() const
+QString MaemoDebianPackageInstaller::installCommandLine(const QString &packageFilePath) const
 {
-    return QLatin1String("dpkg");
+    return MaemoGlobal::devrootshPath() + QLatin1String(" dpkg -i --no-force-downgrade ")
+        + packageFilePath;
 }
 
-QStringList MaemoDebianPackageInstaller::installCommandArguments() const
+QString MaemoDebianPackageInstaller::cancelInstallationCommandLine() const
 {
-    return QStringList() << QLatin1String("-i")
-        << QLatin1String("--no-force-downgrade");
+    return QLatin1String("pkill dpkg");
 }
 
 void MaemoDebianPackageInstaller::handleInstallerErrorOutput(const QString &output)
@@ -176,16 +76,11 @@ QString MaemoDebianPackageInstaller::errorString() const
 
 
 MaemoRpmPackageInstaller::MaemoRpmPackageInstaller(QObject *parent)
-    : AbstractMaemoPackageInstaller(parent)
+    : AbstractRemoteLinuxPackageInstaller(parent)
 {
 }
 
-QString MaemoRpmPackageInstaller::installCommand() const
-{
-    return QLatin1String("rpm");
-}
-
-QStringList MaemoRpmPackageInstaller::installCommandArguments() const
+QString MaemoRpmPackageInstaller::installCommandLine(const QString &packageFilePath) const
 {
     // rpm -U does not allow to re-install a package with the same version
     // number, so we need --replacepkgs. Even then, it inexplicably reports
@@ -193,23 +88,13 @@ QStringList MaemoRpmPackageInstaller::installCommandArguments() const
     // so we need --replacefiles as well.
     // TODO: --replacefiles is dangerous. Is there perhaps a way around it
     // after all?
-    return QStringList() << QLatin1String("-Uhv") << QLatin1String("--replacepkgs") << QLatin1String("--replacefiles");
+    return MaemoGlobal::devrootshPath() + QLatin1String(" rpm -Uhv --replacepkgs --replacefiles ")
+        + packageFilePath;
 }
 
-
-MaemoTarPackageInstaller::MaemoTarPackageInstaller(QObject *parent)
-    : AbstractMaemoPackageInstaller(parent)
+QString MaemoRpmPackageInstaller::cancelInstallationCommandLine() const
 {
-}
-
-QString MaemoTarPackageInstaller::installCommand() const
-{
-    return QLatin1String("tar");
-}
-
-QStringList MaemoTarPackageInstaller::installCommandArguments() const
-{
-    return QStringList() << QLatin1String("xvf");
+    return QLatin1String("pkill rpm");
 }
 
 } // namespace Internal

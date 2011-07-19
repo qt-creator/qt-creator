@@ -36,9 +36,9 @@
 #include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
+class AbstractRemoteLinuxPackageInstaller;
+
 namespace Internal {
-class AbstractMaemoPackageCreationStep;
-class AbstractMaemoPackageInstaller;
 class UploadAndInstallTarPackageActionPrivate;
 }
 
@@ -51,7 +51,7 @@ public:
     ~UploadAndInstallTarPackageService();
 
 private:
-    Internal::AbstractMaemoPackageInstaller *packageInstaller() const;
+    AbstractRemoteLinuxPackageInstaller *packageInstaller() const;
 
     Internal::UploadAndInstallTarPackageActionPrivate *m_d;
 };

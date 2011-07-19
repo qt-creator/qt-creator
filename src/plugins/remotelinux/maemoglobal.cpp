@@ -43,7 +43,6 @@
 #include <qt4projectmanager/qt4target.h>
 #include <utils/environment.h>
 
-#include <QtCore/QDateTime>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
