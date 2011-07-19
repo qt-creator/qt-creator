@@ -766,27 +766,14 @@ unsigned QmlEngine::debuggerCapabilities() const
         | AddWatcherCapability;*/
 }
 
-QString QmlEngine::toFileInProject(const QString &fileUrl)
+QString QmlEngine::toFileInProject(const QUrl &fileUrl)
 {
-    if (fileUrl.isEmpty())
-        return fileUrl;
-
-    const QString path = QUrl(fileUrl).toLocalFile();
-    if (path.isEmpty())
-        return fileUrl;
-
     if (d->fileFinder.projectDirectory().isEmpty()) {
         d->fileFinder.setProjectDirectory(startParameters().projectSourceDirectory);
         d->fileFinder.setProjectFiles(startParameters().projectSourceFiles);
     }
 
-    // Try to find file with biggest common path in source directory
-    bool fileFound = false;
-    QString fileInProject = d->fileFinder.findFile(path, &fileFound);
-    if (fileFound)
-        return fileInProject;
-
-    return path;
+    return d->fileFinder.findFile(fileUrl);
 }
 
 void QmlEngine::messageReceived(const QByteArray &message)
@@ -817,7 +804,7 @@ void QmlEngine::messageReceived(const QByteArray &message)
             StackFrame frame;
             frame.line = stackFrames.at(i).lineNumber;
             frame.function = stackFrames.at(i).functionName;
-            frame.file = toFileInProject(stackFrames.at(i).fileUrl);
+            frame.file = toFileInProject(QUrl(stackFrames.at(i).fileUrl));
             frame.usable = QFileInfo(frame.file).isReadable();
             frame.level = i + 1;
             ideStackFrames << frame;

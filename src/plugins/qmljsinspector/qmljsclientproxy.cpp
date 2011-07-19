@@ -510,23 +510,23 @@ void ClientProxy::objectTreeFetched(QDeclarativeDebugQuery::State state)
 
 void ClientProxy::buildDebugIdHashRecursive(const QDeclarativeDebugObjectReference& ref)
 {
-    QString filename = ref.source().url().toLocalFile();
+    QUrl fileUrl = ref.source().url();
     int lineNum = ref.source().lineNumber();
     int colNum = ref.source().columnNumber();
     int rev = 0;
 
     // handle the case where the url contains the revision number encoded. (for object created by the debugger)
     static QRegExp rx("(.*)_(\\d+):(\\d+)$");
-    if (rx.exactMatch(filename)) {
-        filename = rx.cap(1);
+    if (rx.exactMatch(fileUrl.path())) {
+        fileUrl.setPath(rx.cap(1));
         rev = rx.cap(2).toInt();
         lineNum += rx.cap(3).toInt() - 1;
     }
 
-    filename = InspectorUi::instance()->findFileInProject(filename);
+    const QString filePath = InspectorUi::instance()->findFileInProject(fileUrl);
 
     // append the debug ids in the hash
-    m_debugIdHash[qMakePair<QString, int>(filename, rev)][qMakePair<int, int>(lineNum, colNum)].append(ref.debugId());
+    m_debugIdHash[qMakePair<QString, int>(filePath, rev)][qMakePair<int, int>(lineNum, colNum)].append(ref.debugId());
 
     foreach (const QDeclarativeDebugObjectReference &it, ref.children())
         buildDebugIdHashRecursive(it);

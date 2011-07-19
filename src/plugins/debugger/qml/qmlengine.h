@@ -153,7 +153,7 @@ private:
         LogReceive
     };
     void logMessage(LogDirection direction, const QString &str);
-    QString toFileInProject(const QString &file);
+    QString toFileInProject(const QUrl &fileUrl);
 
 private:
     friend class QmlCppEngine;

@@ -676,12 +676,8 @@ void InspectorUi::gotoObjectReferenceDefinition(const QDeclarativeDebugObjectRef
     }
 
     QDeclarativeDebugFileReference source = obj.source();
-    QString fileName = source.url().toLocalFile();
 
-    if (source.lineNumber() < 0 || !QFile::exists(fileName))
-        return;
-
-    fileName = m_projectFinder.findFile(fileName);
+    const QString fileName = m_projectFinder.findFile(source.url());
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *currentEditor = editorManager->currentEditor();
@@ -789,9 +785,9 @@ InspectorUi *InspectorUi::instance()
     return m_instance;
 }
 
-QString InspectorUi::findFileInProject(const QString &originalPath) const
+QString InspectorUi::findFileInProject(const QUrl &url) const
 {
-    return m_projectFinder.findFile(originalPath);
+    return m_projectFinder.findFile(url);
 }
 
 void InspectorUi::setApplyChangesToQmlInspector(bool applyChanges)

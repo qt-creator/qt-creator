@@ -146,7 +146,7 @@ void QmlProfilerEventStatistics::addRangedEvent(int type, int nestingLevel, int 
     Q_UNUSED(nestingInType);
 
     const QChar colon = QLatin1Char(':');
-    QString localName, displayName, location, details;
+    QString displayName, location, details;
 
     if (data.isEmpty())
         details = tr("Source code not available");
@@ -165,8 +165,8 @@ void QmlProfilerEventStatistics::addRangedEvent(int type, int nestingLevel, int 
         displayName = tr("<bytecode>");
         location = QString("--:%1:%2").arg(QString::number(type), details);
     } else {
-        localName = QUrl(fileName).toLocalFile();
-        displayName = localName.mid(localName.lastIndexOf(QChar('/')) + 1) + colon + QString::number(line);
+        const QString filePath = QUrl(fileName).path();
+        displayName = filePath.mid(filePath.lastIndexOf(QChar('/')) + 1) + colon + QString::number(line);
         location = fileName+colon+QString::number(line);
     }
 
