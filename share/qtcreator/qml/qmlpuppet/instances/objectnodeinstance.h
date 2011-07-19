@@ -165,6 +165,7 @@ public:
     virtual bool isMovable() const;
     bool isInPositioner() const;
     void setInPositioner(bool isInPositioner);
+    virtual void refreshPositioner();
 
     bool hasBindingForProperty(const QString &name, bool *hasChanged = 0) const;
 

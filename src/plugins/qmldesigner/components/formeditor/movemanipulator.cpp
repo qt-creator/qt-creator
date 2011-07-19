@@ -45,6 +45,7 @@
 #include <limits>
 #include <model.h>
 #include <qmlanchors.h>
+#include <nodemetainfo.h>
 #include <variantproperty.h>
 #include <nodeabstractproperty.h>
 
@@ -108,7 +109,8 @@ void MoveManipulator::synchronizeParent(const QList<FormEditorItem*> &itemList, 
         }
     }
 
-    update(m_lastPosition, NoSnapping, UseBaseState);
+    if (!parentNode.metaInfo().isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
+        update(m_lastPosition, NoSnapping, UseBaseState);
 }
 
 void MoveManipulator::synchronizeInstanceParent(const QList<FormEditorItem*> &itemList)
@@ -362,6 +364,15 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
 
     if (!itemsCanReparented())
         return;
+
+    if (!newParent->qmlItemNode().modelNode().metaInfo().isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1)
+            && newParent->qmlItemNode().modelNode().hasParentProperty()) {
+        ModelNode grandParent = newParent->qmlItemNode().modelNode().parentProperty().parentModelNode();
+        if (grandParent.metaInfo().isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
+            newParent = m_view.data()->scene()->itemForQmlItemNode(QmlItemNode(grandParent));
+    }
+
+
 
     QVector<ModelNode> nodeReparentVector;
     NodeAbstractProperty parentProperty;

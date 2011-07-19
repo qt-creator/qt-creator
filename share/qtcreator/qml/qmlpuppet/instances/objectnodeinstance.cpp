@@ -906,6 +906,10 @@ void ObjectNodeInstance::setInPositioner(bool isInPositioner)
     m_isInPositioner = isInPositioner;
 }
 
+void ObjectNodeInstance::refreshPositioner()
+{
+}
+
 void ObjectNodeInstance::updateAnchors()
 {
 }
