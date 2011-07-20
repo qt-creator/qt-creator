@@ -30,8 +30,8 @@
 **
 **************************************************************************/
 
-#ifndef MAEMOPACKAGEUPLOADER_H
-#define MAEMOPACKAGEUPLOADER_H
+#ifndef PACKAGEUPLOADER_H
+#define PACKAGEUPLOADER_H
 
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
@@ -47,12 +47,12 @@ class SshConnection;
 namespace RemoteLinux {
 namespace Internal {
 
-class MaemoPackageUploader : public QObject
+class PackageUploader : public QObject
 {
     Q_OBJECT
 public:
-    explicit MaemoPackageUploader(QObject *parent = 0);
-    ~MaemoPackageUploader();
+    explicit PackageUploader(QObject *parent = 0);
+    ~PackageUploader();
 
     // Connection has to be established already.
     void uploadPackage(const QSharedPointer<Utils::SshConnection> &connection,
@@ -85,4 +85,4 @@ private:
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMOPACKAGEUPLOADER_H
+#endif // PACKAGEUPLOADER_H

@@ -30,33 +30,31 @@
 **
 **************************************************************************/
 
-#include "maemopackageuploader.h"
+#include "packageuploader.h"
 
-#include "maemoglobal.h"
-
+#include <utils/qtcassert.h>
 #include <utils/ssh/sftpchannel.h>
 #include <utils/ssh/sshconnection.h>
-
-#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
 
-MaemoPackageUploader::MaemoPackageUploader(QObject *parent) :
+PackageUploader::PackageUploader(QObject *parent) :
     QObject(parent), m_state(Inactive)
 {
 }
 
-MaemoPackageUploader::~MaemoPackageUploader()
+PackageUploader::~PackageUploader()
 {
 }
 
-void MaemoPackageUploader::uploadPackage(const SshConnection::Ptr &connection,
+void PackageUploader::uploadPackage(const SshConnection::Ptr &connection,
     const QString &localFilePath, const QString &remoteFilePath)
 {
-    ASSERT_STATE(Inactive);
+    QTC_ASSERT(m_state == Inactive, return);
+
     setState(InitializingSftp);
     emit progress(tr("Preparing SFTP connection..."));
 
@@ -75,14 +73,14 @@ void MaemoPackageUploader::uploadPackage(const SshConnection::Ptr &connection,
     m_uploader->initialize();
 }
 
-void MaemoPackageUploader::cancelUpload()
+void PackageUploader::cancelUpload()
 {
-    ASSERT_STATE(QList<State>() << InitializingSftp << Uploading);
+    QTC_ASSERT(m_state == InitializingSftp || m_state == Uploading, return);
 
     cleanup();
 }
 
-void MaemoPackageUploader::handleConnectionFailure()
+void PackageUploader::handleConnectionFailure()
 {
     if (m_state == Inactive)
         return;
@@ -92,9 +90,10 @@ void MaemoPackageUploader::handleConnectionFailure()
     emit uploadFinished(tr("Connection failed: %1").arg(errorMsg));
 }
 
-void MaemoPackageUploader::handleSftpChannelInitializationFailed(const QString &errorMsg)
+void PackageUploader::handleSftpChannelInitializationFailed(const QString &errorMsg)
 {
-    ASSERT_STATE(QList<State>() << InitializingSftp << Inactive);
+    QTC_ASSERT(m_state == InitializingSftp || m_state == Inactive, return);
+
     if (m_state == Inactive)
         return;
 
@@ -102,9 +101,10 @@ void MaemoPackageUploader::handleSftpChannelInitializationFailed(const QString &
     emit uploadFinished(tr("SFTP error: %1").arg(errorMsg));
 }
 
-void MaemoPackageUploader::handleSftpChannelInitialized()
+void PackageUploader::handleSftpChannelInitialized()
 {
-    ASSERT_STATE(QList<State>() << InitializingSftp << Inactive);
+    QTC_ASSERT(m_state == InitializingSftp || m_state == Inactive, return);
+
     if (m_state == Inactive)
         return;
 
@@ -119,9 +119,10 @@ void MaemoPackageUploader::handleSftpChannelInitialized()
     }
 }
 
-void MaemoPackageUploader::handleSftpJobFinished(SftpJobId, const QString &errorMsg)
+void PackageUploader::handleSftpJobFinished(SftpJobId, const QString &errorMsg)
 {
-    ASSERT_STATE(QList<State>() << Uploading << Inactive);
+    QTC_ASSERT(m_state == Uploading || m_state == Inactive, return);
+
     if (m_state == Inactive)
         return;
 
@@ -132,13 +133,13 @@ void MaemoPackageUploader::handleSftpJobFinished(SftpJobId, const QString &error
     cleanup();
 }
 
-void MaemoPackageUploader::cleanup()
+void PackageUploader::cleanup()
 {
     m_uploader->closeChannel();
     setState(Inactive);
 }
 
-void MaemoPackageUploader::setState(State newState)
+void PackageUploader::setState(State newState)
 {
     if (m_state == newState)
         return;

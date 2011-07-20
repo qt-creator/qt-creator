@@ -54,7 +54,6 @@ HEADERS += \
     maemodeployconfigurationwidget.h \
     maemoinstalltosysrootstep.h \
     maemodeploymentmounter.h \
-    maemopackageuploader.h \
     maemopackageinstaller.h \
     maemoremotecopyfacility.h \
     maemoqtversionfactory.h \
@@ -92,7 +91,8 @@ HEADERS += \
     genericremotelinuxdeploystepfactory.h \
     abstractpackagingstep.h \
     tarpackagecreationstep.h \
-    remotelinuxpackageinstaller.h
+    remotelinuxpackageinstaller.h \
+    packageuploader.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -141,7 +141,6 @@ SOURCES += \
     maemodeployconfigurationwidget.cpp \
     maemoinstalltosysrootstep.cpp \
     maemodeploymentmounter.cpp \
-    maemopackageuploader.cpp \
     maemopackageinstaller.cpp \
     maemoremotecopyfacility.cpp \
     maemoqtversionfactory.cpp \
@@ -178,7 +177,8 @@ SOURCES += \
     genericremotelinuxdeploystepfactory.cpp \
     abstractpackagingstep.cpp \
     tarpackagecreationstep.cpp \
-    remotelinuxpackageinstaller.cpp
+    remotelinuxpackageinstaller.cpp \
+    packageuploader.cpp
 
 FORMS += \
     maemoconfigtestdialog.ui \

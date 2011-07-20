@@ -33,7 +33,7 @@
 
 #include "deployablefile.h"
 #include "linuxdeviceconfiguration.h"
-#include "maemopackageuploader.h"
+#include "packageuploader.h"
 #include "remotelinuxpackageinstaller.h"
 
 #include <utils/qtcassert.h>
@@ -52,13 +52,13 @@ class AbstractUploadAndInstallPackageServicePrivate
 {
 public:
     AbstractUploadAndInstallPackageServicePrivate()
-        : state(Inactive), uploader(new MaemoPackageUploader)
+        : state(Inactive), uploader(new PackageUploader)
     {
     }
     ~AbstractUploadAndInstallPackageServicePrivate() { delete uploader; }
 
     State state;
-    MaemoPackageUploader * const uploader;
+    PackageUploader * const uploader;
     QString packageFilePath;
 };
 
