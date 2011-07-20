@@ -37,9 +37,8 @@
 #include "maemousedportsgatherer.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <utils/qtcassert.h>
 #include <utils/ssh/sshconnection.h>
-
-#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace Qt4ProjectManager;
 using namespace Utils;
@@ -74,7 +73,7 @@ void MaemoDeploymentMounter::setupMounts(const SshConnection::Ptr &connection,
     const QList<MaemoMountSpecification> &mountSpecs,
     const Qt4BuildConfiguration *bc)
 {
-    ASSERT_STATE(Inactive);
+    QTC_ASSERT(m_state == Inactive, return);
 
     m_mountSpecs = mountSpecs;
     m_connection = connection;
@@ -89,7 +88,7 @@ void MaemoDeploymentMounter::setupMounts(const SshConnection::Ptr &connection,
 
 void MaemoDeploymentMounter::tearDownMounts()
 {
-    ASSERT_STATE(Mounted);
+    QTC_ASSERT(m_state == Mounted, return);
 
     setState(UnmountingCurrentMounts);
     unmount();
@@ -97,7 +96,8 @@ void MaemoDeploymentMounter::tearDownMounts()
 
 void MaemoDeploymentMounter::setupMounter()
 {
-    ASSERT_STATE(UnmountingOldDirs);
+    QTC_ASSERT(m_state == UnmountingOldDirs, return);
+
     setState(UnmountingCurrentDirs);
 
     m_mounter->resetMountSpecifications();
@@ -109,8 +109,8 @@ void MaemoDeploymentMounter::setupMounter()
 
 void MaemoDeploymentMounter::unmount()
 {
-    ASSERT_STATE(QList<State>() << UnmountingOldDirs << UnmountingCurrentDirs
-        << UnmountingCurrentMounts);
+    QTC_ASSERT(m_state == UnmountingOldDirs || m_state == UnmountingCurrentDirs
+        || m_state == UnmountingCurrentMounts, return);
 
     if (m_mounter->hasValidMountSpecifications())
         m_mounter->unmount();
@@ -120,7 +120,7 @@ void MaemoDeploymentMounter::unmount()
 
 void MaemoDeploymentMounter::handleMounted()
 {
-    ASSERT_STATE(QList<State>() << Mounting << Inactive);
+    QTC_ASSERT(m_state == Mounting || m_state == Inactive, return);
 
     if (m_state == Inactive)
         return;
@@ -131,8 +131,8 @@ void MaemoDeploymentMounter::handleMounted()
 
 void MaemoDeploymentMounter::handleUnmounted()
 {
-    ASSERT_STATE(QList<State>() << UnmountingOldDirs << UnmountingCurrentDirs
-                 << UnmountingCurrentMounts << Inactive);
+    QTC_ASSERT(m_state == UnmountingOldDirs || m_state == UnmountingCurrentDirs
+        || m_state == UnmountingCurrentMounts || m_state == Inactive, return);
 
     switch (m_state) {
     case UnmountingOldDirs:
@@ -154,7 +154,8 @@ void MaemoDeploymentMounter::handleUnmounted()
 
 void MaemoDeploymentMounter::handlePortsGathererError(const QString &errorMsg)
 {
-    ASSERT_STATE(QList<State>() << GatheringPorts << Inactive);
+    QTC_ASSERT(m_state == GatheringPorts || m_state == Inactive, return);
+
     if (m_state == Inactive)
         return;
 
@@ -165,7 +166,8 @@ void MaemoDeploymentMounter::handlePortsGathererError(const QString &errorMsg)
 
 void MaemoDeploymentMounter::handlePortListReady()
 {
-    ASSERT_STATE(QList<State>() << GatheringPorts << Inactive);
+    QTC_ASSERT(m_state == GatheringPorts || m_state == Inactive, return);
+
     if (m_state == Inactive)
         return;
 
@@ -176,8 +178,10 @@ void MaemoDeploymentMounter::handlePortListReady()
 
 void MaemoDeploymentMounter::handleMountError(const QString &errorMsg)
 {
-    ASSERT_STATE(QList<State>() << UnmountingOldDirs << UnmountingCurrentDirs
-        << UnmountingCurrentMounts << Mounting << Mounted << Inactive);
+    QTC_ASSERT(m_state == UnmountingOldDirs || m_state == UnmountingCurrentDirs
+        || m_state == UnmountingCurrentMounts || m_state == Mounting || m_state == Mounted
+        || m_state == Inactive, return);
+
     if (m_state == Inactive)
         return;
 

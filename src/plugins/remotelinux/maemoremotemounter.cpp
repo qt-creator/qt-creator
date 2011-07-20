@@ -44,8 +44,6 @@
 
 #include <QtCore/QTimer>
 
-#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
-
 using namespace Qt4ProjectManager;
 using namespace Utils;
 
@@ -68,14 +66,16 @@ MaemoRemoteMounter::~MaemoRemoteMounter()
 void MaemoRemoteMounter::setConnection(const SshConnection::Ptr &connection,
     const LinuxDeviceConfiguration::ConstPtr &devConf)
 {
-    ASSERT_STATE(Inactive);
+    QTC_ASSERT(m_state == Inactive, return);
+
     m_connection = connection;
     m_devConf = devConf;
 }
 
 void MaemoRemoteMounter::setBuildConfiguration(const Qt4BuildConfiguration *bc)
 {
-    ASSERT_STATE(Inactive);
+    QTC_ASSERT(m_state == Inactive, return);
+
     const QtSupport::BaseQtVersion * const qtVersion = bc->qtVersion();
     const AbstractQt4MaemoTarget * const maemoTarget
         = qobject_cast<AbstractQt4MaemoTarget *>(bc->target());
@@ -86,7 +86,7 @@ void MaemoRemoteMounter::setBuildConfiguration(const Qt4BuildConfiguration *bc)
 void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
     bool mountAsRoot)
 {
-    ASSERT_STATE(Inactive);
+    QTC_ASSERT(m_state == Inactive, return);
 
     if (m_remoteMountsAllowed && mountSpec.isValid())
         m_mountSpecs << MountInfo(mountSpec, mountAsRoot);
@@ -100,7 +100,8 @@ bool MaemoRemoteMounter::hasValidMountSpecifications() const
 void MaemoRemoteMounter::mount(PortList *freePorts,
     const MaemoUsedPortsGatherer *portsGatherer)
 {
-    ASSERT_STATE(Inactive);
+    QTC_ASSERT(m_state == Inactive, return);
+
     Q_ASSERT(m_utfsServers.isEmpty());
     Q_ASSERT(m_connection);
 
@@ -117,7 +118,7 @@ void MaemoRemoteMounter::mount(PortList *freePorts,
 
 void MaemoRemoteMounter::unmount()
 {
-    ASSERT_STATE(Inactive);
+    QTC_ASSERT(m_state == Inactive, return);
 
     if (m_mountSpecs.isEmpty()) {
         emit reportProgress(tr("No directories to unmount"));
@@ -145,7 +146,7 @@ void MaemoRemoteMounter::unmount()
 
 void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
 {
-    ASSERT_STATE(QList<State>() << Unmounting << Inactive);
+    QTC_ASSERT(m_state == Unmounting || m_state == Inactive, return);
 
     if (m_state == Inactive)
         return;
@@ -241,7 +242,8 @@ void MaemoRemoteMounter::startUtfsClients()
 
 void MaemoRemoteMounter::handleUtfsClientsStarted()
 {
-    ASSERT_STATE(QList<State>() << UtfsClientsStarting << Inactive);
+    QTC_ASSERT(m_state == UtfsClientsStarting || m_state == Inactive, return);
+
     if (m_state == UtfsClientsStarting) {
         setState(UtfsClientsStarted);
         QTimer::singleShot(250, this, SLOT(startUtfsServers()));
@@ -250,8 +252,8 @@ void MaemoRemoteMounter::handleUtfsClientsStarted()
 
 void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
 {
-    ASSERT_STATE(QList<State>() << UtfsClientsStarting << UtfsClientsStarted
-        << UtfsServersStarted << Inactive);
+    QTC_ASSERT(m_state == UtfsClientsStarting || m_state == UtfsClientsStarted
+        || m_state == UtfsServersStarted || m_state == Inactive, return);
 
     if (m_state == Inactive)
         return;
@@ -273,7 +275,7 @@ void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
 
 void MaemoRemoteMounter::startUtfsServers()
 {
-    ASSERT_STATE(QList<State>() << UtfsClientsStarted << Inactive);
+    QTC_ASSERT(m_state == UtfsClientsStarted || m_state == Inactive, return);
 
     if (m_state == Inactive)
         return;
@@ -378,7 +380,8 @@ void MaemoRemoteMounter::killUtfsServer(QProcess *proc)
 
 void MaemoRemoteMounter::handleUtfsServerTimeout()
 {
-    ASSERT_STATE(QList<State>() << UtfsServersStarted << Inactive);
+    QTC_ASSERT(m_state == UtfsServersStarted || m_state == Inactive, return);
+
     if (m_state == Inactive)
         return;
 

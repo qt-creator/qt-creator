@@ -34,11 +34,11 @@
 
 #include "remotelinuxapplicationrunner.h"
 #include "maemomountspecification.h"
-#include "maemorunconfiguration.h"
 
 namespace RemoteLinux {
 namespace Internal {
 class MaemoRemoteMounter;
+class MaemoRunConfiguration;
 
 class MaemoSshRunner : public AbstractRemoteLinuxApplicationRunner
 {

@@ -46,14 +46,13 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringList>
 #include <QtGui/QIcon>
-
-#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace Core;
 using namespace Qt4ProjectManager;
@@ -85,7 +84,7 @@ MaemoPublisherFremantleFree::MaemoPublisherFremantleFree(const ProjectExplorer::
 
 MaemoPublisherFremantleFree::~MaemoPublisherFremantleFree()
 {
-    ASSERT_STATE(Inactive);
+    QTC_ASSERT(m_state == Inactive, return);
     m_process->kill();
 }
 
@@ -291,8 +290,8 @@ void MaemoPublisherFremantleFree::handleProcessStdErr()
 
 void MaemoPublisherFremantleFree::handleProcessFinished(bool failedToStart)
 {
-    ASSERT_STATE(QList<State>() << RunningQmake << RunningMakeDistclean
-        << BuildingPackage << Inactive);
+    QTC_ASSERT(m_state == RunningQmake || m_state == RunningMakeDistclean
+        || m_state == BuildingPackage || m_state == Inactive, return);
 
     switch (m_state) {
     case RunningQmake:
@@ -399,7 +398,7 @@ void MaemoPublisherFremantleFree::uploadPackage()
 
 void MaemoPublisherFremantleFree::handleScpStarted()
 {
-    ASSERT_STATE(QList<State>() << StartingScp << Inactive);
+    QTC_ASSERT(m_state == StartingScp || m_state == Inactive, return);
 
     if (m_state == StartingScp)
         prepareToSendFile();
@@ -415,8 +414,8 @@ void MaemoPublisherFremantleFree::handleConnectionError()
 
 void MaemoPublisherFremantleFree::handleUploadJobFinished(int exitStatus)
 {
-    ASSERT_STATE(QList<State>() << PreparingToUploadFile << UploadingFile
-        << Inactive);
+    QTC_ASSERT(m_state == PreparingToUploadFile || m_state == UploadingFile || m_state ==Inactive,
+        return);
 
     if (m_state != Inactive && (exitStatus != SshRemoteProcess::ExitedNormally
             || m_uploader->process()->exitCode() != 0)) {
@@ -484,8 +483,8 @@ void MaemoPublisherFremantleFree::sendFile()
 
 void MaemoPublisherFremantleFree::handleScpStdOut(const QByteArray &output)
 {
-    ASSERT_STATE(QList<State>() << PreparingToUploadFile << UploadingFile
-        << Inactive);
+    QTC_ASSERT(m_state == PreparingToUploadFile || m_state == UploadingFile || m_state == Inactive,
+        return);
 
     if (m_state == Inactive)
         return;

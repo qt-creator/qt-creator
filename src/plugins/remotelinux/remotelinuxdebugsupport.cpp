@@ -31,7 +31,7 @@
 
 #include "remotelinuxdebugsupport.h"
 
-#include "maemoglobal.h"
+#include "linuxdeviceconfiguration.h"
 #include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
 #include "remotelinuxapplicationrunner.h"
@@ -40,8 +40,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchain.h>
-
-#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
+#include <utils/qtcassert.h>
 
 using namespace Utils;
 using namespace Debugger;
@@ -115,7 +114,7 @@ void AbstractRemoteLinuxDebugSupport::showMessage(const QString &msg, int channe
 
 void AbstractRemoteLinuxDebugSupport::handleAdapterSetupRequested()
 {
-    ASSERT_STATE(Inactive);
+    QTC_ASSERT(m_state == Inactive, return);
 
     setState(StartingRunner);
     showMessage(tr("Preparing remote side ...\n"), AppStuff);
@@ -142,7 +141,7 @@ void AbstractRemoteLinuxDebugSupport::startExecution()
     if (m_state == Inactive)
         return;
 
-    ASSERT_STATE(StartingRunner);
+    QTC_ASSERT(m_state == StartingRunner, return);
 
     if (m_debuggingType != RemoteLinuxRunConfiguration::DebugQmlOnly) {
         if (!setPort(m_gdbServerPort))
@@ -206,13 +205,15 @@ void AbstractRemoteLinuxDebugSupport::handleDebuggingFinished()
 
 void AbstractRemoteLinuxDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
-    ASSERT_STATE(QList<State>() << Inactive << Debugging);
+    QTC_ASSERT(m_state == Inactive || m_state == Debugging, return);
+
     showMessage(QString::fromUtf8(output), AppOutput);
 }
 
 void AbstractRemoteLinuxDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
-    ASSERT_STATE(QList<State>() << Inactive << StartingRemoteProcess << Debugging);
+    QTC_ASSERT(m_state == Inactive || m_state == StartingRemoteProcess || m_state == Debugging,
+        return);
 
     if (!m_engine)
         return;
@@ -248,7 +249,8 @@ void AbstractRemoteLinuxDebugSupport::handleAdapterSetupDone()
 void AbstractRemoteLinuxDebugSupport::handleRemoteProcessStarted()
 {
     Q_ASSERT(m_debuggingType == RemoteLinuxRunConfiguration::DebugQmlOnly);
-    ASSERT_STATE(StartingRemoteProcess);
+    QTC_ASSERT(m_state == StartingRemoteProcess, return);
+
     handleAdapterSetupDone();
 }
 

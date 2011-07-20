@@ -31,16 +31,14 @@
 
 #include "maemosshrunner.h"
 
-#include "maemoglobal.h"
 #include "maemoqemumanager.h"
 #include "maemoremotemounter.h"
 #include "maemoremotemountsmodel.h"
-#include "remotelinuxrunconfiguration.h"
+#include "maemorunconfiguration.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/qtcassert.h>
-
-#define ASSERT_STATE(state) ASSERT_STATE_GENERIC(MountState, state, m_mountState)
 
 using namespace Qt4ProjectManager;
 using namespace Utils;
@@ -93,12 +91,13 @@ bool MaemoSshRunner::canRun(QString &whyNot) const
 void MaemoSshRunner::doDeviceSetup()
 {
     QTC_ASSERT(m_mountState == InactiveMountState, return);
+
     handleDeviceSetupDone(true);
 }
 
 void MaemoSshRunner::doAdditionalInitialCleanup()
 {
-    ASSERT_STATE(InactiveMountState);
+    QTC_ASSERT(m_mountState == InactiveMountState, return);
 
     m_mounter->setConnection(connection(), devConfig());
     m_mounter->resetMountSpecifications();
@@ -115,14 +114,15 @@ void MaemoSshRunner::doAdditionalInitializations()
 
 void MaemoSshRunner::doPostRunCleanup()
 {
-    ASSERT_STATE(Mounted);
+    QTC_ASSERT(m_mountState == Mounted, return);
+
     m_mountState = PostRunUnmounting;
     unmount();
 }
 
 void MaemoSshRunner::handleUnmounted()
 {
-    ASSERT_STATE(QList<MountState>() << InitialUnmounting << PostRunUnmounting);
+    QTC_ASSERT(m_mountState == InitialUnmounting || m_mountState == PostRunUnmounting, return);
 
     switch (m_mountState) {
     case InitialUnmounting:
@@ -146,7 +146,7 @@ void MaemoSshRunner::doAdditionalConnectionErrorHandling()
 
 void MaemoSshRunner::handleMounted()
 {
-    ASSERT_STATE(Mounting);
+    QTC_ASSERT(m_mountState == Mounting, return);
 
     if (m_mountState == Mounting) {
         m_mountState = Mounted;
@@ -156,7 +156,8 @@ void MaemoSshRunner::handleMounted()
 
 void MaemoSshRunner::handleMounterError(const QString &errorMsg)
 {
-    ASSERT_STATE(QList<MountState>() << InitialUnmounting << Mounting << PostRunUnmounting);
+    QTC_ASSERT(m_mountState == InitialUnmounting || m_mountState == Mounting
+        || m_mountState == PostRunUnmounting, return);
 
     const MountState oldMountState = m_mountState;
     m_mountState = InactiveMountState;
@@ -189,7 +190,8 @@ void MaemoSshRunner::mount()
 
 void MaemoSshRunner::unmount()
 {
-    ASSERT_STATE(QList<MountState>() << InitialUnmounting << PostRunUnmounting);
+    QTC_ASSERT(m_mountState == InitialUnmounting || m_mountState == PostRunUnmounting, return);
+
     if (m_mounter->hasValidMountSpecifications()) {
         QString message;
         switch (m_mountState) {
