@@ -35,6 +35,8 @@ import Bauhaus 1.0
 
 PropertyFrame {
     id: frame;
+    x: 0
+    y: 0
 
     ExpressionEditor {
         id: expressionEdit
