@@ -233,10 +233,15 @@ void QmlProfilerEventStatistics::QmlProfilerEventStatisticsPrivate::postProcess(
 {
     double totalTime = 0;
 
-    foreach (QmlEventData *binding, m_rootHash.values())
+    foreach (QmlEventData *binding, m_rootHash.values()) {
+        if (binding->filename->isEmpty())
+            continue;
         totalTime += binding->duration;
+    }
 
     foreach (QmlEventData *binding, m_rootHash.values()) {
+        if (binding->filename->isEmpty())
+            continue;
         binding->percentOfTime = binding->duration * 100.0 / totalTime;
         binding->timePerCall = binding->calls > 0 ? double(binding->duration) / binding->calls : 0;
     }
