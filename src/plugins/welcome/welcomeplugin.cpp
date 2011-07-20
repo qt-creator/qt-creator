@@ -182,6 +182,8 @@ void WelcomeMode::initPlugins()
     qSort(plugins.begin(), plugins.end(), &sortFunction);
 
     QDeclarativeEngine *engine = m_welcomePage->engine();
+    if (!debug)
+        engine->setOutputWarningsToStandardError(false);
     engine->setNetworkAccessManagerFactory(new NetworkAccessManagerFactory);
     engine->addImportPath(Core::ICore::instance()->resourcePath() + "/welcomescreen");
     foreach (Utils::IWelcomePage *plugin, plugins) {
