@@ -90,6 +90,8 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
             this, SLOT(slotBehaviorSettingsChanged()));
     connect(m_d->m_ui.scrollWheelZooming, SIGNAL(clicked(bool)),
             this, SLOT(slotBehaviorSettingsChanged()));
+    connect(m_d->m_ui.constrainTooltips, SIGNAL(clicked()),
+            this, SLOT(slotBehaviorSettingsChanged()));
     connect(m_d->m_ui.utf8BomBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(slotExtraEncodingChanged()));
     connect(m_d->m_ui.encodingBox, SIGNAL(currentIndexChanged(int)),
@@ -149,12 +151,14 @@ void BehaviorSettingsWidget::setAssignedBehaviorSettings(const BehaviorSettings 
 {
     m_d->m_ui.mouseNavigation->setChecked(behaviorSettings.m_mouseNavigation);
     m_d->m_ui.scrollWheelZooming->setChecked(behaviorSettings.m_scrollWheelZooming);
+    m_d->m_ui.constrainTooltips->setChecked(behaviorSettings.m_constrainTooltips);
 }
 
 void BehaviorSettingsWidget::assignedBehaviorSettings(BehaviorSettings *behaviorSettings) const
 {
     behaviorSettings->m_mouseNavigation = m_d->m_ui.mouseNavigation->isChecked();
     behaviorSettings->m_scrollWheelZooming = m_d->m_ui.scrollWheelZooming->isChecked();
+    behaviorSettings->m_constrainTooltips = m_d->m_ui.constrainTooltips->isChecked();
 }
 
 void BehaviorSettingsWidget::setAssignedExtraEncodingSettings(
@@ -184,6 +188,7 @@ QString BehaviorSettingsWidget::collectUiKeywords() const
         << sep << m_d->m_ui.utf8BomLabel->text()
         << sep << m_d->m_ui.mouseNavigation->text()
         << sep << m_d->m_ui.scrollWheelZooming->text()
+        << sep << m_d->m_ui.constrainTooltips->text()
         << sep << m_d->m_ui.groupBoxStorageSettings->title()
         << sep << m_d->m_ui.groupBoxEncodings->title()
         << sep << m_d->m_ui.groupBoxMouse->title();

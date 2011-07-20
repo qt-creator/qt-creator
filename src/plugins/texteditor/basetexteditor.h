@@ -203,6 +203,9 @@ public:
     void setScrollWheelZoomingEnabled(bool b);
     bool scrollWheelZoomingEnabled() const;
 
+    void setConstrainTooltips(bool b);
+    bool constrainTooltips() const;
+
     void setRevisionsVisible(bool b);
     bool revisionsVisible() const;
 

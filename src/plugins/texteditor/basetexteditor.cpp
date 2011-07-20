@@ -2292,6 +2292,16 @@ bool BaseTextEditorWidget::scrollWheelZoomingEnabled() const
     return d->m_behaviorSettings.m_scrollWheelZooming;
 }
 
+void BaseTextEditorWidget::setConstrainTooltips(bool b)
+{
+    d->m_behaviorSettings.m_constrainTooltips = b;
+}
+
+bool BaseTextEditorWidget::constrainTooltips() const
+{
+    return d->m_behaviorSettings.m_constrainTooltips;
+}
+
 void BaseTextEditorWidget::setRevisionsVisible(bool b)
 {
     d->m_revisionsVisible = b;
@@ -2511,9 +2521,14 @@ bool BaseTextEditorWidget::viewportEvent(QEvent *event)
         if (ce->reason() == QContextMenuEvent::Mouse && !textCursor().hasSelection())
             setTextCursor(cursorForPosition(ce->pos()));
     } else if (event->type() == QEvent::ToolTip) {
+        if (QApplication::keyboardModifiers() & Qt::ControlModifier
+                || (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)
+                    && d->m_behaviorSettings.m_constrainTooltips)) {
+            // Tooltips should be eaten when either control is pressed (so they don't get in the
+            // way of code navigation) or if they are in constrained mode and shift is not pressed.
+            return true;
+        }
         const QHelpEvent *he = static_cast<QHelpEvent*>(event);
-        if (QApplication::keyboardModifiers() & Qt::ControlModifier)
-            return true; // eat tooltip event when control is pressed
         const QPoint &pos = he->pos();
 
         RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(pos);
@@ -4166,9 +4181,13 @@ void BaseTextEditorWidget::leaveEvent(QEvent *e)
 
 void BaseTextEditorWidget::keyReleaseEvent(QKeyEvent *e)
 {
-    // Clear link emulation when Ctrl is released
-    if (e->key() == Qt::Key_Control)
+    if (e->key() == Qt::Key_Control) {
         clearLink();
+    } else if (e->key() == Qt::Key_Shift
+             && d->m_behaviorSettings.m_constrainTooltips
+             && ToolTip::instance()->isVisible()) {
+        ToolTip::instance()->hide();
+    }
 
     QPlainTextEdit::keyReleaseEvent(e);
 }
@@ -5481,8 +5500,7 @@ void BaseTextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
 void BaseTextEditorWidget::setBehaviorSettings(const TextEditor::BehaviorSettings &bs)
 {
-    setMouseNavigationEnabled(bs.m_mouseNavigation);
-    setScrollWheelZoomingEnabled(bs.m_scrollWheelZooming);
+    d->m_behaviorSettings = bs;
 }
 
 void BaseTextEditorWidget::setStorageSettings(const StorageSettings &storageSettings)

@@ -186,7 +186,7 @@
      <property name="title">
       <string>Mouse</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QCheckBox" name="mouseNavigation">
         <property name="text">
@@ -198,6 +198,13 @@
        <widget class="QCheckBox" name="scrollWheelZooming">
         <property name="text">
          <string>Enable scroll &amp;wheel zooming</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="constrainTooltips">
+        <property name="text">
+         <string>Enable &amp;tooltips only when Shift key is down</string>
         </property>
        </widget>
       </item>
