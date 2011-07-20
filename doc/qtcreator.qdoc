@@ -8014,9 +8014,8 @@
     \section1 Supported Native Debugger Versions
 
     The debugger plugin supports different builds of the GDB debugger, both
-    with and without the ability to use Python scripting. The Python enabled
-    versions are preferred, but they are not available on Mac and on older
-    versions of Linux.
+    with and without the ability to use Python scripting. Use a Python enabled
+    version if one is available.
     On Windows, Symbian, Maemo, and MeeGo Harmattan, only the Python version is
     supported.
 
@@ -8053,10 +8052,16 @@
             \o Yes
             \o Plain, Terminal, Attach, Remote, Core
         \row
-            \o Mac OS
+            \o Mac OS/GDB
             \o GCC
             \o GDB
             \o No
+            \o Plain, Terminal, Attach, Core
+        \row
+            \o Mac OS/FSF GDB (experimental)
+            \o GCC
+            \o FSF GDB
+            \o Yes
             \o Plain, Terminal, Attach, Core
         \row
             \o Windows/MinGW
@@ -8198,6 +8203,9 @@
               \l{http://developer.apple.com/library/mac/#technotes/tn2124/_index.html#//apple_ref/doc/uid/DTS10003391}
               {Mac OS X Debugging Magic}.
 
+              You can download an experimental version of FSF GDB that
+              supports Python from
+              \l{ftp://ftp.qt.nokia.com/misc/gdb/7.2/gdb72_mac_platform.tar.bz2}.
               To use FSF GDB on Mac OS, you must sign it and add it to the Qt
               Creator tool chains. For more information, see
               \l{Setting up FSF GDB for Mac OS}.
