@@ -199,12 +199,8 @@ void FormEditorScene::synchronizeOtherProperty(const QmlItemNode &qmlItemNode, c
         if (propertyName == "z")
             item->setZValue(qmlItemNode.instanceValue("z").toDouble());
 
-        if (!qmlItemNode.isRootNode()) {
-            if (propertyName == "visible")
-                item->setContentVisible(qmlItemNode.instanceValue("visible").toBool());
-        } else {
-            item->setContentVisible(true);
-        }
+        if (propertyName == "visible")
+            item->setContentVisible(qmlItemNode.instanceValue("visible").toBool());
     }
 }
 
