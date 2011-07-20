@@ -111,7 +111,7 @@ static const QString getOsString()
         osString += QLatin1String("Unix (Unknown)");
     }
 #else
-    ossttring = QLatin1String("Unknown OS");
+    osString = QLatin1String("Unknown OS");
 #endif
     return osString;
 }
