@@ -211,6 +211,7 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
         bool success = true;
         arguments.directory = qmlDebuggingDirectory;
         arguments.makeArguments += QLatin1String("all"); // build debug and release
+        arguments.makeArguments += QLatin1String("-k"); // don't stop if one fails
         if (arguments.directory.isEmpty()
                 || !QmlDebuggingLibrary::build(arguments, &output, &error)) {
             success = false;
