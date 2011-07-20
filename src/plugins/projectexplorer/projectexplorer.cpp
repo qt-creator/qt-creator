@@ -2354,7 +2354,11 @@ QString pathOrDirectoryFor(Node *node, bool dir)
             location = Utils::commonPath(list);
     } else {
         QFileInfo fi(path);
-        location = (fi.isDir() && dir) ? fi.absoluteFilePath() : fi.absolutePath();
+        if (dir) {
+            location = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+        } else {
+            location = fi.absoluteFilePath();
+        }
     }
     return location;
 }
@@ -2489,7 +2493,7 @@ void ProjectExplorerPlugin::showInGraphicalShell()
 void ProjectExplorerPlugin::openTerminalHere()
 {
     QTC_ASSERT(d->m_currentNode, return)
-    FolderNavigationWidget::openTerminal(pathFor(d->m_currentNode));
+    FolderNavigationWidget::openTerminal(directoryFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::removeFile()
