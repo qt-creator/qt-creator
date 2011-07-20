@@ -51,10 +51,10 @@ namespace Utils { class SshConnection; }
 
 namespace RemoteLinux {
 class DeployableFile;
+class Qt4MaemoDeployConfiguration;
+class AbstractMaemoPackageCreationStep;
 
 namespace Internal {
-class AbstractMaemoPackageCreationStep;
-class Qt4MaemoDeployConfiguration;
 
 class AbstractMaemoDeployStep
     : public ProjectExplorer::BuildStep, public AbstractLinuxDeviceDeployStep

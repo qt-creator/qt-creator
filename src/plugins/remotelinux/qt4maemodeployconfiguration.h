@@ -34,6 +34,7 @@
 #define QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 
 #include "linuxdeviceconfiguration.h"
+#include "remotelinux_export.h"
 
 #include <projectexplorer/deployconfiguration.h>
 
@@ -44,19 +45,23 @@ class DeploymentInfo;
 
 namespace Internal {
 class MaemoPerTargetDeviceConfigurationListModel;
+class Qt4MaemoDeployConfigurationFactory;
+}
 
-class Qt4MaemoDeployConfiguration : public ProjectExplorer::DeployConfiguration
+class REMOTELINUX_EXPORT Qt4MaemoDeployConfiguration : public ProjectExplorer::DeployConfiguration
 {
     Q_OBJECT
 
 public:
+    Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
+        const QString &id);
     virtual ~Qt4MaemoDeployConfiguration();
 
     virtual ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
     void setDeviceConfiguration(int index);
     QSharedPointer<DeploymentInfo> deploymentInfo() const;
-    QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> deviceConfigModel() const;
+    QSharedPointer<Internal::MaemoPerTargetDeviceConfigurationListModel> deviceConfigModel() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
 
     static const QString FremantleWithPackagingId;
@@ -64,20 +69,18 @@ public:
     static const QString HarmattanId;
     static const QString MeegoId;
     static const QString GenericLinuxId;
+    bool fromMap(const QVariantMap &map);
 
 signals:
     void deviceConfigurationListChanged();
     void currentDeviceConfigurationChanged();
 
 private:
-    friend class Qt4MaemoDeployConfigurationFactory;
+    friend class Internal::Qt4MaemoDeployConfigurationFactory;
 
-    Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
-        const QString &id);
     Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         ProjectExplorer::DeployConfiguration *source);
 
-    bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
     void initialize();
@@ -85,11 +88,11 @@ private:
     Q_SLOT void handleDeviceConfigurationListUpdated();
 
     QSharedPointer<DeploymentInfo> m_deploymentInfo;
-    QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> m_devConfModel;
+    QSharedPointer<Internal::MaemoPerTargetDeviceConfigurationListModel> m_devConfModel;
     QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfiguration;
 };
 
-
+namespace Internal {
 class Qt4MaemoDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
     Q_OBJECT

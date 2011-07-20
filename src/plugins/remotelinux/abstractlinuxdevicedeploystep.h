@@ -39,9 +39,9 @@ namespace ProjectExplorer { class DeployConfiguration; }
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
+class Qt4MaemoDeployConfiguration;
 
 namespace Internal {
-class Qt4MaemoDeployConfiguration;
 
 class AbstractLinuxDeviceDeployStep
 {

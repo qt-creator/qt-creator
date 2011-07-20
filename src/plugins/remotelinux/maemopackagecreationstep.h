@@ -32,6 +32,7 @@
 #ifndef MAEMOPACKAGECREATIONSTEP_H
 #define MAEMOPACKAGECREATIONSTEP_H
 
+#include "remotelinux_export.h"
 #include <projectexplorer/buildstep.h>
 
 QT_BEGIN_NAMESPACE
@@ -44,13 +45,16 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 
 namespace RemoteLinux {
+class Qt4MaemoDeployConfiguration;
+
 namespace Internal {
 class AbstractQt4MaemoTarget;
 class AbstractDebBasedQt4MaemoTarget;
 class AbstractRpmBasedQt4MaemoTarget;
-class Qt4MaemoDeployConfiguration;
+class MaemoPackageCreationFactory;
+} // namespace Internal
 
-class AbstractMaemoPackageCreationStep : public ProjectExplorer::BuildStep
+class REMOTELINUX_EXPORT AbstractMaemoPackageCreationStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
 public:
@@ -67,9 +71,9 @@ public:
 
     QString projectName() const;
     const Qt4ProjectManager::Qt4BuildConfiguration *qt4BuildConfiguration() const;
-    AbstractQt4MaemoTarget *maemoTarget() const;
-    AbstractDebBasedQt4MaemoTarget *debBasedMaemoTarget() const;
-    AbstractRpmBasedQt4MaemoTarget *rpmBasedMaemoTarget() const;
+    Internal::AbstractQt4MaemoTarget *maemoTarget() const;
+    Internal::AbstractDebBasedQt4MaemoTarget *debBasedMaemoTarget() const;
+    Internal::AbstractRpmBasedQt4MaemoTarget *rpmBasedMaemoTarget() const;
     Qt4MaemoDeployConfiguration *deployConfig() const;
 
     static const QLatin1String DefaultVersionNumber;
@@ -109,11 +113,10 @@ private:
     const Qt4ProjectManager::Qt4BuildConfiguration *m_lastBuildConfig;
 };
 
-
-class MaemoDebianPackageCreationStep : public AbstractMaemoPackageCreationStep
+class REMOTELINUX_EXPORT MaemoDebianPackageCreationStep : public AbstractMaemoPackageCreationStep
 {
     Q_OBJECT
-    friend class MaemoPackageCreationFactory;
+    friend class Internal::MaemoPackageCreationFactory;
 public:
     MaemoDebianPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
 
@@ -136,10 +139,10 @@ private:
     static const QString CreatePackageId;
 };
 
-class MaemoRpmPackageCreationStep : public AbstractMaemoPackageCreationStep
+class REMOTELINUX_EXPORT MaemoRpmPackageCreationStep : public AbstractMaemoPackageCreationStep
 {
     Q_OBJECT
-    friend class MaemoPackageCreationFactory;
+    friend class Internal::MaemoPackageCreationFactory;
 public:
     MaemoRpmPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
 
@@ -156,10 +159,10 @@ private:
     static const QString CreatePackageId;
 };
 
-class MaemoTarPackageCreationStep : public AbstractMaemoPackageCreationStep
+class REMOTELINUX_EXPORT MaemoTarPackageCreationStep : public AbstractMaemoPackageCreationStep
 {
     Q_OBJECT
-    friend class MaemoPackageCreationFactory;
+    friend class Internal::MaemoPackageCreationFactory;
 public:
     MaemoTarPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
 
@@ -181,7 +184,6 @@ private:
     static const QString CreatePackageId;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
 #endif // MAEMOPACKAGECREATIONSTEP_H

@@ -39,8 +39,8 @@ namespace Ui { class MaemoPackageCreationWidget; }
 QT_END_NAMESPACE
 
 namespace RemoteLinux {
-namespace Internal {
 class AbstractMaemoPackageCreationStep;
+namespace Internal {
 
 class MaemoPackageCreationWidget : public ProjectExplorer::BuildStepConfigWidget
 {

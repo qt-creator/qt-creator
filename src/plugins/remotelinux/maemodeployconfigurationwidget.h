@@ -42,8 +42,8 @@ namespace Ui {
 QT_END_NAMESPACE
 
 namespace RemoteLinux {
-namespace Internal {
 class Qt4MaemoDeployConfiguration;
+namespace Internal {
 
 class MaemoDeployConfigurationWidget : public ProjectExplorer::DeployConfigurationWidget
 {
