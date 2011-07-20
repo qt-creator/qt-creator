@@ -90,6 +90,7 @@ GroupBox {
                 }
 
                 DoubleSpinBox {
+                    toolTip: qsTr("Width")
                     id: widthSpinBox;
                     text: "W"
                     alignRight: false
@@ -103,6 +104,7 @@ GroupBox {
                 }
 
                 DoubleSpinBox {
+                    toolTip: qsTr("Height")
                     id: heightSpinBox;
                     text: "H"
                     alignRight: false
