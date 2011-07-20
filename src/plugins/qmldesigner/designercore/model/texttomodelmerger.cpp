@@ -644,9 +644,13 @@ using namespace QmlDesigner::Internal;
 
 static inline bool smartVeryFuzzyCompare(QVariant value1, QVariant value2)
 { //we ignore slight changes on doubles and only check three digits
-    if ((value1.type() == QVariant::Double) && (value2.type() == QVariant::Double)) {
-        int a = value1.toDouble() * 1000;
-        int b = value2.toDouble() * 1000;
+    if ((value1.type() == QVariant::Double) || (value2.type() == QVariant::Double)) {
+        bool ok1, ok2;
+        int a = value1.toDouble(&ok1) * 1000;
+        int b = value2.toDouble(&ok2) * 1000;
+
+        if (!ok1 || !ok2)
+            return false;
 
         if (qFuzzyCompare((qreal(a) / 1000), (qreal(b) / 1000))) {
             return true;
@@ -657,8 +661,8 @@ static inline bool smartVeryFuzzyCompare(QVariant value1, QVariant value2)
 
 static inline bool equals(const QVariant &a, const QVariant &b)
 {
-    if (a.type() == QVariant::Double && b.type() == QVariant::Double)
-        return smartVeryFuzzyCompare(a.toDouble(), b.toDouble());
+    if (smartVeryFuzzyCompare(a, b))
+        return true;
     else
         return a == b;
 }
