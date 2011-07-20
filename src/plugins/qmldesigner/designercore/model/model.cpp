@@ -96,6 +96,7 @@ ModelPrivate::ModelPrivate(Model *model) :
         m_internalIdCounter(1)
 {
     m_rootInternalNode = createNode("QtQuick/Item", 1, 0, PropertyListType(), PropertyListType(), QString(), ModelNode::NodeWithoutSource,true);
+    m_acutalStateNode = m_rootInternalNode;
 }
 
 ModelPrivate::~ModelPrivate()
