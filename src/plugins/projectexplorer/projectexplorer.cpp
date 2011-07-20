@@ -2344,14 +2344,16 @@ QString pathOrDirectoryFor(Node *node, bool dir)
     FolderNode *folder = qobject_cast<FolderNode *>(node);
     if (path.contains("#") && folder) {
         // Virtual Folder case
-        // We figure out a commonPath from the subfolders
-        QStringList list;
-        foreach (FolderNode *f, folder->subFolderNodes())
-            list << f->path() + QLatin1Char('/');
-        if (list.isEmpty())
-            location = path.left(path.indexOf('#'));
-        else
+        // If there are files directly below or no subfolders, take the folder path
+        if (!folder->fileNodes().isEmpty() || folder->subFolderNodes().isEmpty()) {
+            location = path.left(path.indexOf('#'));;
+        } else {
+            // Otherwise we figure out a commonPath from the subfolders
+            QStringList list;
+            foreach (FolderNode *f, folder->subFolderNodes())
+                list << f->path() + QLatin1Char('/');
             location = Utils::commonPath(list);
+        }
     } else {
         QFileInfo fi(path);
         if (dir) {
