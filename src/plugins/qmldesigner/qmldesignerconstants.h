@@ -51,6 +51,7 @@ const char * const SWITCH_TEXT_DESIGN   = "QmlDesigner.SwitchTextDesign";
 const char * const RESTORE_DEFAULT_VIEW = "QmlDesigner.RestoreDefaultView";
 const char * const TOGGLE_LEFT_SIDEBAR = "QmlDesigner.ToggleLeftSideBar";
 const char * const TOGGLE_RIGHT_SIDEBAR = "QmlDesigner.ToggleRightSideBar";
+const char * const GO_INTO_COMPONENT = "QmlDesigner.GoIntoComponent";
 
 // This setting is also accessed by the QMlJsEditor.
 const char * const QML_SETTINGS_GROUP = "QML";

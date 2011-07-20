@@ -56,6 +56,7 @@
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 #include <rewritingexception.h>
+#include <model/modelnodecontextmenu.h>
 
 #include <utils/fileutils.h>
 
@@ -449,6 +450,19 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
 
     loadCurrentModel();
     m_d->componentView->setComponentNode(componentNode);
+}
+
+void DesignDocumentController::goIntoComponent()
+{
+    if (!m_d->model)
+        return;
+
+    QList<ModelNode> selectedNodes;
+    if (m_d->formEditorView)
+        selectedNodes = m_d->formEditorView->selectedModelNodes();
+
+    if (selectedNodes.count() == 1)
+        ModelNodeAction::goIntoComponent(selectedNodes.first());
 }
 
 void DesignDocumentController::loadCurrentModel()

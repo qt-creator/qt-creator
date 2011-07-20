@@ -237,7 +237,7 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
     if (singleSelected) {
         enterComponent = modelNodeIsComponent(currentSingleNode);
     }
-    menu->addAction(createModelNodeAction(tr("Go into Component"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::EnterComponent, enterComponent));
+    menu->addAction(createModelNodeAction(tr("Go into Component"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::GoIntoComponent, enterComponent));
 
     menu->exec(pos);
     menu->deleteLater();
@@ -271,6 +271,17 @@ ModelNodeAction::ModelNodeAction( const QString & text, QObject *parent, QmlMode
     connect(this, SIGNAL(triggered(bool)), this, SLOT(actionTriggered(bool)));
 }
 
+void ModelNodeAction::goIntoComponent(const ModelNode &modelNode)
+{
+
+    if (modelNode.isValid() && modelNodeIsComponent(modelNode)) {
+        if (isFileComponent(modelNode))
+            openFileForComponent(modelNode);
+        else
+            openInlineComponent(modelNode);
+    }
+}
+
 void ModelNodeAction::actionTriggered(bool b)
 {
     switch (m_type) {
@@ -289,7 +300,7 @@ void ModelNodeAction::actionTriggered(bool b)
     case ModelNodeAction::ModelNodeVisibility: setVisible(b); break;
     case ModelNodeAction::ResetSize: resetSize(); break;
     case ModelNodeAction::ResetPosition: resetPosition(); break;
-    case ModelNodeAction::EnterComponent: enterComponent(); break;
+    case ModelNodeAction::GoIntoComponent: goIntoComponent(); break;
     case ModelNodeAction::SetId: setId(); break;
     case ModelNodeAction::ResetZ: resetZ(); break;
     }
@@ -427,15 +438,9 @@ void ModelNodeAction::resetPosition()
     }
 }
 
-void ModelNodeAction::enterComponent()
+void ModelNodeAction::goIntoComponent()
 {
-    const ModelNode node = m_modelNodeList.first();
-    if (node.isValid()) {
-    if (isFileComponent(node))
-        openFileForComponent(node);
-    else
-        openInlineComponent(node);
-    }
+    goIntoComponent(m_modelNodeList.first());
 }
 
 void ModelNodeAction::setId()

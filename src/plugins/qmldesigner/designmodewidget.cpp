@@ -212,7 +212,9 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_hideSidebarsAction = new QAction(tr("Toggle Full Screen"), this);
     connect(m_hideSidebarsAction, SIGNAL(triggered()), this, SLOT(toggleSidebars()));
     m_restoreDefaultViewAction = new QAction(tr("&Restore Default View"), this);
+    m_goIntoComponentAction  = new QAction(tr("&Go into Component"), this);
     connect(m_restoreDefaultViewAction, SIGNAL(triggered()), SLOT(restoreDefaultView()));
+    connect(m_goIntoComponentAction, SIGNAL(triggered()), SLOT(goIntoComponent()));
     m_toggleLeftSidebarAction = new QAction(tr("Toggle &Left Sidebar"), this);
     connect(m_toggleLeftSidebarAction, SIGNAL(triggered()), SLOT(toggleLeftSidebar()));
     m_toggleRightSidebarAction = new QAction(tr("Toggle &Right Sidebar"), this);
@@ -410,6 +412,11 @@ QAction *DesignModeWidget::restoreDefaultViewAction() const
     return m_restoreDefaultViewAction;
 }
 
+QAction *DesignModeWidget::goIntoComponentAction() const
+{
+    return m_goIntoComponentAction;
+}
+
 void DesignModeWidget::readSettings()
 {
     QSettings *settings = Core::ICore::instance()->settings();
@@ -500,6 +507,11 @@ void DesignModeWidget::redoAvailable(bool isAvailable)
     }
 }
 
+void DesignModeWidget::goIntoComponent()
+{
+    if (m_currentDesignDocumentController)
+        m_currentDesignDocumentController->goIntoComponent();
+}
 
 void DesignModeWidget::enable()
 {
