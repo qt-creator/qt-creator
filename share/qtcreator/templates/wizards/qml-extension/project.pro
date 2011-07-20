@@ -29,7 +29,11 @@ qmldir.files = qmldir
 symbian {
     TARGET.EPOCALLOWDLLDATA = 1
 } else:unix {
-    installPath = /usr/lib/qt4/imports/$$replace(uri, \\., /)
+    maemo5 | !isEmpty(MEEGO_VERSION_MAJOR) {
+        installPath = /usr/lib/qt4/imports/$$replace(uri, \\., /)
+    } else {
+        installPath = $$[QT_INSTALL_IMPORTS]/$$replace(uri, \\., /)
+    }
     qmldir.path = $$installPath
     target.path = $$installPath
     INSTALLS += target qmldir
