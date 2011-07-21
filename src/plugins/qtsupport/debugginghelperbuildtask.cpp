@@ -165,6 +165,7 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
     Utils::BuildableHelperLibrary::BuildHelperArguments arguments;
     arguments.makeCommand = m_makeCommand;
     arguments.qmakeCommand = m_qmakeCommand;
+    arguments.qmakeArguments = QStringList() << QLatin1String("-nocache");
     arguments.targetMode = m_target;
     arguments.mkspec = m_mkspec;
     arguments.environment = m_environment;
