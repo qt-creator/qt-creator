@@ -98,6 +98,9 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     ProjectExplorer::ToolChain *tc = tcList.at(0);
     tc->addToEnvironment(m_environment);
 
+    log(QCoreApplication::translate("QtVersion", "Building helper(s) with toolchain '%1' ...\n"
+                                    ).arg(tc->displayName()), QString());
+
     if (tc->targetAbi().os() == ProjectExplorer::Abi::LinuxOS
         && ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS)
         m_target = QLatin1String("-unix");
