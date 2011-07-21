@@ -62,22 +62,11 @@ Rectangle {
         border.bottom: 10
     }
 
-    BorderImage {
-        id: deadArea
-        anchors.left: parent.left
-        anchors.top: inner_background.bottom
-        anchors.topMargin: -2
-        width: news.width
-        height: navigationAndDevLinks.height
-        border { top: 1; bottom: 1}
-        source: "qrc:welcome/images/tab_inactive.png"
-        Rectangle { anchors.right: parent.right; height: parent.height; y:0; width: 1; color: "black"}
-    }
     LinksBar {
         id: navigationAndDevLinks
         property alias current: root.current
         anchors.top: inner_background.bottom
-        anchors.left: deadArea.right
+        anchors.left: news.right
         anchors.right: parent.right
         anchors.bottomMargin: 4
         anchors.topMargin: -2
@@ -88,27 +77,34 @@ Rectangle {
         color: "#eee"
         id: news
         opacity: 0.7
-        anchors.top: navigationAndDevLinks.bottom
+        anchors.top: navigationAndDevLinks.top
         anchors.bottom: feedback.top
         anchors.left: parent.left
         width: 270
         FeaturedAndNewsListing {
             anchors.fill: parent
         }
-        Rectangle{
+        Rectangle {
+            anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            width:1
-            color: "#aaa"
+            height: 1
+            color: "black"
+        }
+        Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.topMargin: 1
+            height: 1
+            color: "#ccc"
         }
         Rectangle{
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            anchors.rightMargin: 1
             width:1
-            color: "white"
+            color: "black"
         }
     }
 

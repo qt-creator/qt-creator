@@ -34,13 +34,6 @@ import QtQuick 1.0
 import components 1.0 as Components
 
 Item {
-    Rectangle {
-        height: 1
-        color: "#ccc"
-        anchors.top: parent.top
-        width: parent.width
-    }
-
     InsetText {
         id: text
         anchors.left: parent.left
