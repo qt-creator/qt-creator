@@ -33,6 +33,8 @@
 #ifndef QMLPROJECTPLUGIN_H
 #define QMLPROJECTPLUGIN_H
 
+#include "qmlprojectmanager_global.h"
+
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QObject>
@@ -42,7 +44,9 @@ namespace Internal {
 
 class ProjectFilesFactory;
 
-class QmlProjectPlugin: public ExtensionSystem::IPlugin
+}
+
+class QMLPROJECTMANAGER_EXPORT QmlProjectPlugin: public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
@@ -52,9 +56,11 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
     virtual void extensionsInitialized();
+
+    static void showQmlObserverToolWarning();
+
 };
 
-} // namespace Internal
 } // namespace QmlProject
 
 #endif // QMLPROJECTPLUGIN_H
