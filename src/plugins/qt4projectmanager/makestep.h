@@ -33,6 +33,8 @@
 #ifndef MAKESTEP_H
 #define MAKESTEP_H
 
+#include "qt4projectmanager_global.h"
+
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/task.h>
@@ -55,7 +57,7 @@ class Qt4BuildConfiguration;
 
 namespace Internal {
 
-class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
+class QT4PROJECTMANAGER_EXPORT MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
 
