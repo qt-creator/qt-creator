@@ -103,7 +103,7 @@ void QmlProjectPlugin::showQmlObserverToolWarning()
     QMessageBox dialog(QApplication::activeWindow());
     QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
                                            QMessageBox::ActionRole);
-    dialog.addButton(tr("Cancel"), QMessageBox::ActionRole);
+    dialog.addButton(QMessageBox::Cancel);
     dialog.setDefaultButton(qtPref);
     dialog.setWindowTitle(tr("QML Observer Missing"));
     dialog.setText(tr("QML Observer could not be found."));
