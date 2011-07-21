@@ -394,20 +394,20 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
     QWeakPointer<Model> oldModel = m_d->model;
     Q_ASSERT(oldModel.data());
 
+    if (m_d->model == m_d->subComponentModel) {
+        changeToMasterModel();
+    }
+
     QString componentText = m_d->rewriterView->extractText(QList<ModelNode>() << componentNode).value(componentNode);
 
     if (componentText.isEmpty())
         return;
-
 
     bool explicitComponent = false;
     if (componentText.contains("Component")) { //explicit component
         explicitComponent = true;
     }
 
-    if (m_d->model == m_d->subComponentModel) {
-        changeToMasterModel();
-    }
     if (!componentNode.isRootNode()) {
         Q_ASSERT(m_d->model == m_d->masterModel);
         Q_ASSERT(componentNode.isValid());
