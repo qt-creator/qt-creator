@@ -46,6 +46,7 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/helpmanager.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+#include <qmlprojectmanager/qmlprojectplugin.h>
 #include <projectexplorer/localapplicationruncontrol.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
@@ -144,6 +145,15 @@ QmlProfilerEngine::~QmlProfilerEngine()
 void QmlProfilerEngine::start()
 {
     QTC_ASSERT(!d->m_runner, return);
+
+    if (QmlProjectManager::QmlProjectRunConfiguration *rc =
+            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration())) {
+        if (rc->observerPath().isEmpty()) {
+            QmlProjectManager::QmlProjectPlugin::showQmlObserverToolWarning();
+            return;
+        }
+    }
+
     d->m_runner = QmlProfilerEnginePrivate::createRunner(runConfiguration(), this);
 
 
