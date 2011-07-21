@@ -62,6 +62,7 @@ bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task)
 void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
 {
     Q_ASSERT(canHandle(task));
+    Q_UNUSED(task);
     TaskList::TaskListPlugin::instance()->stopMonitoring();
 }
 

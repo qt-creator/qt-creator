@@ -169,7 +169,7 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     m_filesPageId = addPage(m_filesPage);
 
     Utils::WizardProgressItem *introItem = wizardProgress()->item(startId());
-    Utils::WizardProgressItem *targetItem;
+    Utils::WizardProgressItem *targetItem = 0;
     if (m_targetPageId != -1)
         targetItem = wizardProgress()->item(m_targetPageId);
     Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);

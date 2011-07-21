@@ -523,7 +523,7 @@ void MiniProjectTargetSelector::removeProject(ProjectExplorer::Project* project)
     // Update display names
     QString name = project->displayName();
     int count = 0;
-    int otherIndex;
+    int otherIndex = -1;
     for (int i = 0; i < m_projectsBox->count(); ++i) {
         Project *p = m_projectsBox->itemData(i).value<Project*>();
         if (p->displayName() == name) {

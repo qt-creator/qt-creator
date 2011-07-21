@@ -374,7 +374,8 @@ bool BaseTextDocument::save(QString *errorString, const QString &fileName, bool 
 
     // When autosaving, we don't want to modify the document/location under the user's fingers.
     BaseTextEditorWidget *editorWidget = 0;
-    int savedPosition, savedAnchor;
+    int savedPosition = 0;
+    int savedAnchor = 0;
     int undos = d->m_document->availableUndoSteps();
 
     // When saving the current editor, make sure to maintain the cursor position for undo

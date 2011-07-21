@@ -80,8 +80,8 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(QmlProjectTarget *parent,
     m_qmlViewerArgs(source->m_qmlViewerArgs),
     m_projectTarget(parent),
     m_usingCurrentFile(source->m_usingCurrentFile),
-    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
-    m_isEnabled(source->m_isEnabled)
+    m_isEnabled(source->m_isEnabled),
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges)
 {
     ctor();
     updateQtVersions();

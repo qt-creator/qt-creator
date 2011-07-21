@@ -309,7 +309,7 @@ void QuickToolBar::setProperty(const QString &propertyName, const QVariant &valu
         UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(m_node);
         UiObjectBinding *objectBinding = cast<UiObjectBinding*>(m_node);
 
-        UiObjectInitializer *initializer;
+        UiObjectInitializer *initializer = 0;
         if (objectDefinition)
             initializer = objectDefinition->initializer;
         else if (objectBinding)
@@ -370,7 +370,7 @@ void QuickToolBar::removeProperty(const QString &propertyName)
         UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(m_node);
         UiObjectBinding *objectBinding = cast<UiObjectBinding*>(m_node);
 
-        UiObjectInitializer *initializer;
+        UiObjectInitializer *initializer = 0;
         if (objectDefinition)
             initializer = objectDefinition->initializer;
         else if (objectBinding)
