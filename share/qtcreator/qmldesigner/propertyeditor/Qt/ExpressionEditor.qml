@@ -35,7 +35,7 @@ import Bauhaus 1.0
 
 QWidget {
     id: expressionEditor;
-    x: 6
+    x: 16
     y: -400
     width: frame.width - 22
     height: 40
