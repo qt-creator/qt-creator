@@ -221,7 +221,7 @@ QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
     QTextStream in(&mainCppInput);
 
     QByteArray mainCppContent;
-    QTextStream out(&mainCppContent, QIODevice::WriteOnly);
+    QTextStream out(&mainCppContent, QIODevice::WriteOnly | QIODevice::Text);
 
     QString line;
     while (!(line = in.readLine()).isNull()) {
@@ -269,7 +269,7 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
     QTextStream in(&proFileInput);
 
     QByteArray proFileContent;
-    QTextStream out(&proFileContent, QIODevice::WriteOnly);
+    QTextStream out(&proFileContent, QIODevice::WriteOnly | QIODevice::Text);
 
     QString valueOnNextLine;
     bool commentOutNextLine = false;
