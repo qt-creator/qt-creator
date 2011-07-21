@@ -98,13 +98,9 @@ void FileInProjectFinder::setProjectFiles(const QStringList &projectFiles)
   */
 QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 {
-    QString originalPath;
-    if (fileUrl.isLocalFile()) {
-        originalPath = fileUrl.toLocalFile();
-    } else {
-        // strip e.g. leading qrc://
+    QString originalPath = fileUrl.toLocalFile();
+    if (originalPath.isEmpty()) // e.g. qrc://
         originalPath = fileUrl.path();
-    }
 
     if (originalPath.isEmpty()) {
         if (success)
