@@ -651,8 +651,10 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
     QtSupport::BaseQtVersion *version = m_step->qt4BuildConfiguration()->qtVersion();
     if (!version)
         return;
+
     QtSupport::DebuggingHelperBuildTask *buildTask =
-            new QtSupport::DebuggingHelperBuildTask(version, QtSupport::DebuggingHelperBuildTask::QmlDebugging);
+            new QtSupport::DebuggingHelperBuildTask(version, m_step->qt4BuildConfiguration()->toolChain(),
+                                                    QtSupport::DebuggingHelperBuildTask::QmlDebugging);
 
     // pop up Application Output on error
     buildTask->showOutputOnError(true);

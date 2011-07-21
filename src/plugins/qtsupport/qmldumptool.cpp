@@ -39,6 +39,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
 #include <qtconcurrent/runextensions.h>
@@ -54,7 +55,7 @@ namespace {
 
 using namespace QtSupport;
 using QtSupport::DebuggingHelperBuildTask;
-
+using ProjectExplorer::ToolChain;
 
 class QmlDumpBuildTask;
 
@@ -66,8 +67,9 @@ class QmlDumpBuildTask : public QObject {
     Q_DISABLE_COPY(QmlDumpBuildTask)
     Q_OBJECT
 public:
-    explicit QmlDumpBuildTask(BaseQtVersion *version)
-        : m_buildTask(new DebuggingHelperBuildTask(version, DebuggingHelperBuildTask::QmlDump))
+    explicit QmlDumpBuildTask(BaseQtVersion *version, ToolChain *toolChain)
+        : m_buildTask(new DebuggingHelperBuildTask(version, toolChain,
+                                                   DebuggingHelperBuildTask::QmlDump))
         , m_failed(false)
     {
         qmlDumpBuilds()->insert(version->uniqueId(), this);
@@ -310,6 +312,7 @@ QStringList QmlDumpTool::installDirectories(const QString &qtInstallData)
 }
 
 void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVersion *version,
+                                     ProjectExplorer::ToolChain *toolChain,
                                      bool preferDebug, QString *dumperPath, Utils::Environment *env)
 {
     QString path;
@@ -319,7 +322,7 @@ void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVe
             if (!qmlDumpBuildTask->hasFailed())
                 qmlDumpBuildTask->updateProjectWhenDone(project, preferDebug);
         } else {
-            QmlDumpBuildTask *buildTask = new QmlDumpBuildTask(version);
+            QmlDumpBuildTask *buildTask = new QmlDumpBuildTask(version, toolChain);
             buildTask->updateProjectWhenDone(project, preferDebug);
             QFuture<void> task = QtConcurrent::run(&QmlDumpBuildTask::run, buildTask);
             const QString taskName = QmlDumpBuildTask::tr("Building helper");

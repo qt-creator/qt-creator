@@ -46,7 +46,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/fileutils.h>
-
+#include <projectexplorer/toolchainmanager.h>
 #include <utils/filesystemwatcher.h>
 
 #include <QtCore/QTextStream>
@@ -147,7 +147,11 @@ void QmlProject::refresh(RefreshOptions options)
     if (activeTarget()) {
         if (QmlProjectRunConfiguration *rc = qobject_cast<QmlProjectRunConfiguration *>(activeTarget()->activeRunConfiguration()))
             version = rc->qtVersion();
-        QtSupport::QmlDumpTool::pathAndEnvironment(this, version, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
+        QList<ProjectExplorer::ToolChain *> tcList
+                = ProjectExplorer::ToolChainManager::instance()->findToolChains(version->qtAbis().at(0));
+        if (tcList.isEmpty())
+            return;
+        QtSupport::QmlDumpTool::pathAndEnvironment(this, version, tcList.first(), false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
     }
     m_modelManager->updateProjectInfo(pinfo);
 }

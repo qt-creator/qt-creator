@@ -35,6 +35,7 @@
 
 #include "qtsupport_global.h"
 #include <utils/environment.h>
+#include <projectexplorer/toolchain.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QFutureInterface>
@@ -56,7 +57,9 @@ public:
     };
     Q_DECLARE_FLAGS(Tools, DebuggingHelper)
 
-    explicit DebuggingHelperBuildTask(const BaseQtVersion *version, Tools tools = AllTools);
+    explicit DebuggingHelperBuildTask(const BaseQtVersion *version,
+                                      ProjectExplorer::ToolChain *toolChain,
+                                      Tools tools = AllTools);
     virtual ~DebuggingHelperBuildTask();
 
     void showOutputOnError(bool show);

@@ -43,6 +43,7 @@ namespace Utils {
 
 namespace ProjectExplorer {
     class Project;
+    class ToolChain;
 }
 
 namespace QtSupport {
@@ -64,6 +65,7 @@ public:
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
     static void pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVersion *version,
+                                   ProjectExplorer::ToolChain *toolChain,
                                    bool preferDebug, QString *path, Utils::Environment *env);
 
 private:

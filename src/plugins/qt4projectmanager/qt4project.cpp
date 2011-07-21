@@ -564,6 +564,7 @@ void Qt4Project::updateQmlJSCodeModel()
         }
     }
     QtSupport::QmlDumpTool::pathAndEnvironment(this, activeTarget()->activeBuildConfiguration()->qtVersion(),
+                                               activeTarget()->activeBuildConfiguration()->toolChain(),
                                                preferDebugDump, &projectInfo.qmlDumpPath, &projectInfo.qmlDumpEnvironment);
     projectInfo.importPaths.removeDuplicates();
 

@@ -49,6 +49,7 @@
 #include <utils/buildablehelperlibrary.h>
 #include <utils/pathchooser.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/toolchain.h>
 #include <qtconcurrent/runextensions.h>
 
 #include <QtCore/QDir>
@@ -409,6 +410,25 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     return info;
 }
 
+QList<ProjectExplorer::ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtVersion *version)
+{
+    QHash<QString,ProjectExplorer::ToolChain*> toolChains;
+    if (!version)
+        return toolChains.values();
+
+    foreach (const ProjectExplorer::Abi &a, version->qtAbis()) {
+        // Ignore symbian emulator since we do not support it.
+        if (a.osFlavor() == ProjectExplorer::Abi::SymbianEmulatorFlavor)
+            continue;
+        foreach (ProjectExplorer::ToolChain *tc,
+                 ProjectExplorer::ToolChainManager::instance()->findToolChains(a)) {
+            toolChains.insert(tc->id(), tc);
+        }
+    }
+
+    return toolChains.values();
+}
+
 void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools)
 {
     const int index = currentIndex();
@@ -430,7 +450,14 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     updateDebuggingHelperUi();
 
     // Run a debugging helper build task in the background.
-    DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version, tools);
+    QString toolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(
+                m_debuggingHelperUi->toolChainComboBox->currentIndex()).toString();
+    ProjectExplorer::ToolChainManager *tcMgr = ProjectExplorer::ToolChainManager::instance();
+    ProjectExplorer::ToolChain *toolChain = tcMgr->findToolChain(toolChainId);
+    if (!toolChain)
+        return;
+
+    DebuggingHelperBuildTask *buildTask = new DebuggingHelperBuildTask(version, toolChain, tools);
     // Don't open General Messages pane with errors
     buildTask->showOutputOnError(false);
     connect(buildTask, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
@@ -610,7 +637,9 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
     BaseQtVersion *version = currentVersion();
     const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
 
-    if (!version || !version->isValid()) {
+    QList<ProjectExplorer::ToolChain*> toolchains = toolChains(currentVersion());
+
+    if (!version || !version->isValid() || toolchains.isEmpty()) {
         m_ui->debuggingHelperWidget->setVisible(false);
     } else {
         const DebuggingHelperBuildTask::Tools availableTools = DebuggingHelperBuildTask::availableTools(version);
@@ -754,6 +783,21 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         m_debuggingHelperUi->qmlObserverStatus->setToolTip(qmlObserverToolTip);
         m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(canBuildQmlObserver
                                                                 & !isBuildingQmlObserver);
+
+        QList<ProjectExplorer::ToolChain*> toolchains = toolChains(currentVersion());
+        QString selectedToolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(
+                    m_debuggingHelperUi->toolChainComboBox->currentIndex()).toString();
+        m_debuggingHelperUi->toolChainComboBox->clear();
+        for (int i = 0; i < toolchains.size(); ++i) {
+            if (!toolchains.at(i)->isValid())
+                continue;
+            if (i >= m_debuggingHelperUi->toolChainComboBox->count()) {
+                m_debuggingHelperUi->toolChainComboBox->insertItem(i, toolchains.at(i)->displayName(),
+                                                                   toolchains.at(i)->id());
+            }
+            if (toolchains.at(i)->id() == selectedToolChainId)
+                m_debuggingHelperUi->toolChainComboBox->setCurrentIndex(i);
+        }
 
         const bool hasLog = currentItem && !currentItem->data(0, BuildLogRole).toString().isEmpty();
         m_debuggingHelperUi->showLogButton->setEnabled(hasLog);
