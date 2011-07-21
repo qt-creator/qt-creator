@@ -173,6 +173,7 @@ Rectangle {
     property real elapsedTime;
     signal updateTimer;
     Timer {
+        id: elapsedTimer
         property date startDate
         property bool reset:  true
         running: connection.recording
