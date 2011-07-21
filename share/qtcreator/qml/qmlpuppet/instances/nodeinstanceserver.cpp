@@ -403,7 +403,6 @@ void NodeInstanceServer::setupDummyData(const QUrl &fileUrl)
 QList<ServerNodeInstance>  NodeInstanceServer::setupInstances(const CreateSceneCommand &command)
 {
     QList<ServerNodeInstance> instanceList = createInstances(command.instances());
-    reparentInstances(command.reparentInstances());
 
     foreach (const IdContainer &container, command.ids()) {
         if (hasInstanceForId(container.instanceId()))
@@ -419,6 +418,8 @@ QList<ServerNodeInstance>  NodeInstanceServer::setupInstances(const CreateSceneC
         if (!container.isDynamic())
             setInstancePropertyVariant(container);
     }
+
+    reparentInstances(command.reparentInstances());
 
     foreach (const PropertyBindingContainer &container, command.bindingChanges()) {
         if (container.isDynamic())
