@@ -65,7 +65,6 @@ GroupBox {
         }
         QWidget {
             layout: HorizontalLayout {
-                spacing: 4
                 Label {                    
                     text: ""
                 }
