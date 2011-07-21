@@ -33,6 +33,7 @@
 #ifndef QMAKESTEP_H
 #define QMAKESTEP_H
 
+#include "qt4projectmanager_global.h"
 #include <QtCore/qglobal.h>
 
 QT_BEGIN_NAMESPACE
@@ -75,7 +76,7 @@ public:
 } // namespace Internal
 
 
-class QMakeStep : public ProjectExplorer::AbstractProcessStep
+class QT4PROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class Internal::QMakeStepFactory;
