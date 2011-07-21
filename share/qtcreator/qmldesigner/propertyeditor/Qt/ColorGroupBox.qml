@@ -238,12 +238,14 @@ QExtGroupBox {
 
                     ColorTypeButtons {
                         id: buttons;
-                        visible: showButtons && baseStateFlag
+                        visible: showButtons
+                        enabled: baseStateFlag
+                        opacity: enabled ? 1 : 0.6
                         showGradientButton: colorGroupBox.showGradientButton
                     }
 
                     QWidget {
-                        visible: !(showButtons && baseStateFlag)
+                        visible: !(showButtons)
                         fixedHeight: 28
                         fixedWidth: 93
                         width: fixedWidth

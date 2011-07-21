@@ -56,7 +56,9 @@ QWidget {
                 rightMargin: 24
 
                 IntEditor {
-                    visible: colorsBox.hasBorder
+                    enabled: colorsBox.hasBorder
+                    opacity: enabled ? 1 : 0.6
+                    toolTip: enabled ? qsTr("Border width") : qsTr("Border has to be solid to change width")
                     id: borderWidth;
                     backendValue: backendValues.border_width === undefined ? 0 : backendValues.border_width
 
