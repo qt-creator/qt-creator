@@ -94,14 +94,13 @@ Rectangle {
         wrapMode: Text.WordWrap
         text: model.description
         color:"#444"
-        height: 80
     }
 
     Row {
         id: tagLine;
-        anchors.bottomMargin: 20
-        anchors.bottom: parent.bottom
+        anchors.top: description.bottom
         anchors.left: parent.left
+        anchors.topMargin: 5
         anchors.leftMargin: 10
         anchors.rightMargin: 26
         Text { id: labelText; text: "Tags: " ; color: "#999"; font.pixelSize: 11}
