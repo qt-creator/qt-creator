@@ -29,31 +29,43 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef MADDEDEVICECONFIGURATIONFACTORY_H
-#define MADDEDEVICECONFIGURATIONFACTORY_H
+#ifndef DEFAULTDEVICETESTDIALOG_H
+#define DEFAULTDEVICETESTDIALOG_H
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include "linuxdevicetester.h"
+#include "remotelinux_export.h"
+
+#include <QtGui/QDialog>
+
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class LinuxDeviceTestDialog;
+}
+QT_END_NAMESPACE
 
 namespace RemoteLinux {
-namespace Internal {
 
-class MaddeDeviceConfigurationFactory : public RemoteLinux::ILinuxDeviceConfigurationFactory
+class REMOTELINUX_EXPORT LinuxDeviceTestDialog : public QDialog
 {
     Q_OBJECT
 public:
-    MaddeDeviceConfigurationFactory(QObject *parent = 0);
+    explicit LinuxDeviceTestDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
+        AbstractLinuxDeviceTester * deviceTester, QWidget *parent = 0);
+    ~LinuxDeviceTestDialog();
 
-    QString displayName() const;
-    ILinuxDeviceConfigurationWizard *createWizard(QWidget *parent) const;
-    bool supportsOsType(const QString &osType) const;
-    QString displayNameForOsType(const QString &osType) const;
-    QStringList supportedDeviceActionIds() const;
-    QString displayNameForActionId(const QString &actionId) const;
-    QDialog *createDeviceAction(const QString &actionId,
-        const LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent) const;
+    void reject();
+
+private slots:
+    void handleProgressMessage(const QString &message);
+    void handleErrorMessage(const QString &message);
+    void handleTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
+
+private:
+    Ui::LinuxDeviceTestDialog * const m_ui;
+    AbstractLinuxDeviceTester * const m_deviceTester;
+    bool m_finished;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MADDEDEVICECONFIGURATIONFACTORY_H
+#endif // DEFAULTDEVICETESTDIALOG_H

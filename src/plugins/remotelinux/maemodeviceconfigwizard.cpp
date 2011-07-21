@@ -36,12 +36,12 @@
 #include "ui_maemodeviceconfigwizardreusekeyscheckpage.h"
 #include "ui_maemodeviceconfigwizardstartpage.h"
 
-#include "linuxdeviceconfigurations.h"
-#include "maemoconfigtestdialog.h"
+#include "maddedevicetester.h"
 #include "maemoglobal.h"
 #include "maemokeydeployer.h"
 
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
+#include <remotelinux/linuxdevicetestdialog.h>
 #include <utils/fileutils.h>
 #include <utils/ssh/sshkeygenerator.h>
 
@@ -575,7 +575,7 @@ LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
         d->wizardData.osType, d->wizardData.deviceType, PortList::fromString(freePortsSpec),
         sshParams);
     if (doTest) {
-        MaemoConfigTestDialog dlg(devConf, this);
+        LinuxDeviceTestDialog dlg(devConf, new MaddeDeviceTester(this), this);
         dlg.exec();
     }
     return devConf;

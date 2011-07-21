@@ -7,7 +7,6 @@ include(remotelinux_dependencies.pri)
 HEADERS += \
     remotelinuxplugin.h \
     remotelinux_export.h \
-    maemoconfigtestdialog.h \
     maemoconstants.h \
     maemorunconfigurationwidget.h \
     maemoruncontrol.h \
@@ -92,11 +91,14 @@ HEADERS += \
     abstractpackagingstep.h \
     tarpackagecreationstep.h \
     remotelinuxpackageinstaller.h \
-    packageuploader.h
+    packageuploader.h \
+    linuxdevicetester.h \
+    maddedevicetester.h \
+    remotelinux_constants.h \
+    linuxdevicetestdialog.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
-    maemoconfigtestdialog.cpp \
     maemorunconfigurationwidget.cpp \
     maemoruncontrol.cpp \
     maemorunfactories.cpp \
@@ -178,10 +180,12 @@ SOURCES += \
     abstractpackagingstep.cpp \
     tarpackagecreationstep.cpp \
     remotelinuxpackageinstaller.cpp \
-    packageuploader.cpp
+    packageuploader.cpp \
+    linuxdevicetester.cpp \
+    maddedevicetester.cpp \
+    linuxdevicetestdialog.cpp
 
 FORMS += \
-    maemoconfigtestdialog.ui \
     maemodeviceconfigurationssettingswidget.ui \
     maemosshconfigdialog.ui \
     maemopackagecreationwidget.ui \
@@ -199,7 +203,8 @@ FORMS += \
     maemodeviceconfigwizardkeydeploymentpage.ui \
     maemodeployconfigurationwidget.ui \
     linuxdevicefactoryselectiondialog.ui \
-    genericlinuxdeviceconfigurationwizardsetuppage.ui
+    genericlinuxdeviceconfigurationwizardsetuppage.ui \
+    linuxdevicetestdialog.ui
 
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII

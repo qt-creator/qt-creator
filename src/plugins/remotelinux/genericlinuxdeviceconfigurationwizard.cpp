@@ -31,7 +31,8 @@
 #include "genericlinuxdeviceconfigurationwizard.h"
 
 #include "genericlinuxdeviceconfigurationwizardpages.h"
-#include "maemoconfigtestdialog.h"
+#include "linuxdevicetestdialog.h"
+#include "linuxdevicetester.h"
 
 using namespace Utils;
 
@@ -84,7 +85,7 @@ LinuxDeviceConfiguration::Ptr GenericLinuxDeviceConfigurationWizard::deviceConfi
     LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(m_d->setupPage.configurationName(),
         LinuxDeviceConfiguration::GenericLinuxOsType, LinuxDeviceConfiguration::Physical,
         PortList::fromString(QLatin1String("10000-10100")), sshParams);
-    Internal::MaemoConfigTestDialog dlg(devConf, this);
+    LinuxDeviceTestDialog dlg(devConf, new GenericLinuxDeviceTester(this), this);
     dlg.exec();
     return devConf;
 }

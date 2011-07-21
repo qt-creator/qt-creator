@@ -32,19 +32,15 @@
 #include "genericlinuxdeviceconfigurationfactory.h"
 
 #include "genericlinuxdeviceconfigurationwizard.h"
-#include "maemoconfigtestdialog.h"
+#include "linuxdevicetestdialog.h"
 #include "maemoremoteprocessesdialog.h"
 #include "publickeydeploymentdialog.h"
+#include "remotelinux_constants.h"
 
 #include <utils/qtcassert.h>
 
 namespace RemoteLinux {
 namespace Internal {
-namespace {
-const char * const TestDeviceActionId = "TestDeviceAction";
-const char * const DeployKeyToDeviceActionId = "DeployKeyToDeviceAction";
-const char * const RemoteProcessesActionId = "RemoteProcessesAction";
-} // anonymous namespace;
 
 GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory(QObject *parent)
     : ILinuxDeviceConfigurationFactory(parent)
@@ -74,18 +70,20 @@ QString GenericLinuxDeviceConfigurationFactory::displayNameForOsType(const QStri
 
 QStringList GenericLinuxDeviceConfigurationFactory::supportedDeviceActionIds() const
 {
-    return QStringList() << QLatin1String(TestDeviceActionId)
-        << QLatin1String(DeployKeyToDeviceActionId) << QLatin1String(RemoteProcessesActionId);
+    return QStringList() << QLatin1String(Constants::GenericTestDeviceActionId)
+        << QLatin1String(Constants::GenericDeployKeyToDeviceActionId)
+        << QLatin1String(Constants::GenericRemoteProcessesActionId);
 }
 
 QString GenericLinuxDeviceConfigurationFactory::displayNameForActionId(const QString &actionId) const
 {
     Q_ASSERT(supportedDeviceActionIds().contains(actionId));
-    if (actionId == QLatin1String(TestDeviceActionId))
+
+    if (actionId == QLatin1String(Constants::GenericTestDeviceActionId))
         return tr("Test");
-    if (actionId == QLatin1String(RemoteProcessesActionId))
+    if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId))
         return tr("Remote Processes");
-    if (actionId == QLatin1String(DeployKeyToDeviceActionId))
+    if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
         return tr("Deploy Public Key");
     return QString(); // Can't happen.
 }
@@ -94,11 +92,14 @@ QDialog *GenericLinuxDeviceConfigurationFactory::createDeviceAction(const QStrin
     const LinuxDeviceConfiguration::ConstPtr &deviceConfig, QWidget *parent) const
 {
     Q_ASSERT(supportedDeviceActionIds().contains(actionId));
-    if (actionId == QLatin1String(TestDeviceActionId))
-        return new MaemoConfigTestDialog(deviceConfig, parent);
-    if (actionId == QLatin1String(RemoteProcessesActionId))
+
+    if (actionId == QLatin1String(Constants::GenericTestDeviceActionId)) {
+        return new LinuxDeviceTestDialog(deviceConfig, new GenericLinuxDeviceTester(parent),
+            parent);
+    }
+    if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId))
         return new MaemoRemoteProcessesDialog(deviceConfig, parent);
-    if (actionId == QLatin1String(DeployKeyToDeviceActionId))
+    if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
         return new PublicKeyDeploymentDialog(deviceConfig, parent);
     return 0; // Can't happen.
 }
