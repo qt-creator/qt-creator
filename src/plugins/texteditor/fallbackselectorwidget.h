@@ -43,7 +43,7 @@ class QHBoxLayout;
 class QComboBox;
 class QLabel;
 class QCheckBox;
-class QToolButton;
+class QPushButton;
 QT_END_NAMESPACE
 
 namespace TextEditor {
@@ -76,7 +76,7 @@ private:
 
     QComboBox *m_comboBox;
     QLabel *m_comboBoxLabel;
-    QToolButton *m_restoreButton;
+    QPushButton *m_restoreButton;
 
     bool m_fallbackWidgetVisible;
     QString m_labelText;

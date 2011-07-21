@@ -37,7 +37,7 @@
 #include <QtGui/QBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
-#include <QtGui/QToolButton>
+#include <QtGui/QPushButton>
 #include <QtGui/QMenu>
 #include <QtCore/QTextStream>
 #include <QtCore/QSignalMapper>
@@ -81,7 +81,7 @@ void FallbackSelectorWidget::setFallbackPreferences(TextEditor::IFallbackPrefere
 
         m_layout = new QHBoxLayout(this);
         m_layout->setContentsMargins(QMargins());
-        m_restoreButton = new QToolButton(this);
+        m_restoreButton = new QPushButton(this);
         QSignalMapper *mapper = new QSignalMapper(this);
 
         m_comboBoxLabel = new QLabel(m_labelText, this);
@@ -101,7 +101,6 @@ void FallbackSelectorWidget::setFallbackPreferences(TextEditor::IFallbackPrefere
             mapper->setMapping(m_restoreButton, fallback);
         } else {
             m_restoreButton->setText(tr("Restore"));
-            m_restoreButton->setPopupMode(QToolButton::InstantPopup);
             m_restoreButton->setMenu(menu);
         }
 
