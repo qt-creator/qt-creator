@@ -99,6 +99,7 @@ public:
 
     Q_SCRIPTABLE QString platform() const;
 
+    bool eventFilter(QObject *, QEvent *);
 public slots:
     void sendFeedback();
     void newProject();
@@ -143,6 +144,9 @@ WelcomeMode::WelcomeMode() :
 
     m_welcomePage = new QDeclarativeView;
     m_welcomePage->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    // filter to forward dragEnter events
+    m_welcomePage->installEventFilter(this);
+    m_welcomePage->viewport()->installEventFilter(this);
 
     m_modeWidget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
@@ -159,6 +163,16 @@ WelcomeMode::WelcomeMode() :
     connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
 
     setWidget(m_modeWidget);
+}
+
+bool WelcomeMode::eventFilter(QObject *, QEvent *e)
+{
+    if (e->type() == QEvent::DragEnter) {
+        e->ignore();
+        return true;
+    }
+    return false;
+
 }
 
 WelcomeMode::~WelcomeMode()
