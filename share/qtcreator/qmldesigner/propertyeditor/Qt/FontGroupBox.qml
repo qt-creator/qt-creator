@@ -70,11 +70,15 @@ GroupBox {
                     text: qsTr("Size")
                 }
                 SpinBox {
+                    minimum: 0
+                    maximum: 400
                     visible: !sizeWidget.pixelSize
                     backendValue: backendValues.font_pointSize
                     baseStateFlag: isBaseState;
                 }                
                 SpinBox {
+                    minimum: 0
+                    maximum: 400
                     visible: sizeWidget.pixelSize
                     backendValue: backendValues.font_pixelSize
                     baseStateFlag: isBaseState;
