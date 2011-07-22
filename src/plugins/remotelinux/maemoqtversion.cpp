@@ -29,13 +29,13 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#include "maemoglobal.h"
 #include "maemoqtversion.h"
 
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include "maemoglobal.h"
 
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <remotelinux/linuxdeviceconfiguration.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>

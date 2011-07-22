@@ -29,9 +29,9 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "deployablefilesperprofile.h"
 
+#include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
 
 #include <coreplugin/icore.h>

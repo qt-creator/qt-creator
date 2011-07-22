@@ -39,6 +39,7 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
+#include "remotelinux/linuxdeviceconfiguration.h"
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

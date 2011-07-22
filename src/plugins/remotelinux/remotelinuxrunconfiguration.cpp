@@ -33,6 +33,7 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include "deploymentinfo.h"
+#include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
 #include "maemoqtversion.h"
 #include "maemotoolchain.h"

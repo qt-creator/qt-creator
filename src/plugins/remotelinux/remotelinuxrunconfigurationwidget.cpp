@@ -31,6 +31,7 @@
 **************************************************************************/
 #include "remotelinuxrunconfigurationwidget.h"
 
+#include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
 #include "remotelinuxrunconfiguration.h"
 #include "maemosettingspages.h"

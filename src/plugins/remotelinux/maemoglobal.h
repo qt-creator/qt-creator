@@ -33,7 +33,7 @@
 #ifndef MAEMOGLOBAL_H
 #define MAEMOGLOBAL_H
 
-#include "linuxdeviceconfiguration.h"
+#include "portlist.h"
 
 #include <coreplugin/ifile.h>
 #include <utils/environment.h>
@@ -54,6 +54,8 @@ QT_END_NAMESPACE
 namespace QtSupport { class BaseQtVersion; }
 
 namespace RemoteLinux {
+class LinuxDeviceConfiguration;
+
 namespace Internal {
 
 class WatchableFile : public Core::IFile

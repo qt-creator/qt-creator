@@ -32,16 +32,15 @@
 #ifndef MAEMODEVICECONFIGWIZARD_H
 #define MAEMODEVICECONFIGWIZARD_H
 
-#include "linuxdeviceconfiguration.h"
+#include <remotelinux/linuxdeviceconfiguration.h>
 
 #include <QtCore/QScopedPointer>
 
 namespace RemoteLinux {
 namespace Internal {
-class LinuxDeviceConfigurations;
 struct MaemoDeviceConfigWizardPrivate;
 
-class MaemoDeviceConfigWizard : public ILinuxDeviceConfigurationWizard
+class MaemoDeviceConfigWizard : public RemoteLinux::ILinuxDeviceConfigurationWizard
 {
     Q_OBJECT
 public:

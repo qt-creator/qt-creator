@@ -31,6 +31,7 @@
 **************************************************************************/
 #include "maemoglobal.h"
 
+#include "linuxdeviceconfiguration.h"
 #include "maemoconstants.h"
 #include "maemoqemumanager.h"
 

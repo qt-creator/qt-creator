@@ -51,6 +51,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <qtsupport/qtversionmanager.h>
+#include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/filesystemwatcher.h>
 
 #include <QtCore/QDebug>

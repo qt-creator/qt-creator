@@ -29,14 +29,15 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "maemoremotecopyfacility.h"
 
 #include "maemoglobal.h"
-#include <QtCore/QDir>
 
+#include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocessrunner.h>
+
+#include <QtCore/QDir>
 
 using namespace Utils;
 

@@ -40,6 +40,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
+#include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
