@@ -48,6 +48,7 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerEngine();
 
+    static void showNoExecutableWarning();
 signals:
     void processRunning(int port);
     void stopRecording();

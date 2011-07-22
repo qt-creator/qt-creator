@@ -62,6 +62,8 @@ public:
     virtual void stop();
     virtual int debugPort() const;
 
+    bool hasExecutable() const { return !m_configuration.executable.isEmpty(); }
+
 private slots:
     void spontaneousStop(int exitCode);
 

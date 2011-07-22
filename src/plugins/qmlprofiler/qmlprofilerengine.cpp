@@ -150,12 +150,20 @@ void QmlProfilerEngine::start()
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration())) {
         if (rc->observerPath().isEmpty()) {
             QmlProjectManager::QmlProjectPlugin::showQmlObserverToolWarning();
+            AnalyzerManager::stopTool();
             return;
         }
     }
 
     d->m_runner = QmlProfilerEnginePrivate::createRunner(runConfiguration(), this);
 
+    if (LocalQmlProfilerRunner *qmlRunner = qobject_cast<LocalQmlProfilerRunner *>(d->m_runner)) {
+        if (!qmlRunner->hasExecutable()) {
+            showNoExecutableWarning();
+            AnalyzerManager::stopTool();
+            return;
+        }
+    }
 
     connect(d->m_runner, SIGNAL(stopped()), this, SLOT(stopped()));
     connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
@@ -290,6 +298,19 @@ void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
         Core::HelpManager *helpManager = Core::HelpManager::instance();
         helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-qml-performance-monitor.html");
     }
+}
+
+void QmlProfilerEngine::showNoExecutableWarning()
+{
+    Core::ICore * const core = Core::ICore::instance();
+    QMessageBox *noExecWarning = new QMessageBox(core->mainWindow());
+    noExecWarning->setIcon(QMessageBox::Warning);
+    noExecWarning->setWindowTitle(tr("QML Profiler"));
+    noExecWarning->setText(tr("No executable file to launch."));
+    noExecWarning->setStandardButtons(QMessageBox::Ok);
+    noExecWarning->setDefaultButton(QMessageBox::Ok);
+    noExecWarning->setModal(false);
+    noExecWarning->show();
 }
 
 } // namespace Internal
