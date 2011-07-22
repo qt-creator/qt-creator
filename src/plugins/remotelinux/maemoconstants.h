@@ -60,13 +60,6 @@ static const QLatin1String BaseEnvironmentBaseKey(PREFIX ".BaseEnvironmentBase")
 static const QLatin1String UserEnvironmentChangesKey(PREFIX ".UserEnvironmentChanges");
 
 } // namespace Internal
-
-namespace Constants {
-const char * const MAEMO_SETTINGS_CATEGORY = "X.Maemo";
-const char * const MAEMO_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Linux Devices");
-const char * const MAEMO_SETTINGS_CATEGORY_ICON = ":/projectexplorer/images/MaemoDevice.png";
-}
-
 } // namespace RemoteLinux
 
 #endif  // MAEMOCONSTANTS_H

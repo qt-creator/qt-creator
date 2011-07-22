@@ -34,8 +34,8 @@
 #include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
 #include "remotelinuxrunconfiguration.h"
-#include "maemosettingspages.h"
 #include "remotelinuxenvironmentreader.h"
+#include "remotelinuxsettingspages.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -253,8 +253,8 @@ void RemoteLinuxRunConfigurationWidget::handleDeploySpecsChanged()
 void RemoteLinuxRunConfigurationWidget::showDeviceConfigurationsDialog(const QString &link)
 {
     if (link == QLatin1String("deviceconfig")) {
-        Core::ICore::instance()->showOptionsDialog(MaemoDeviceConfigurationsSettingsPage::Category,
-            MaemoDeviceConfigurationsSettingsPage::Id);
+        Core::ICore::instance()->showOptionsDialog(LinuxDeviceConfigurationsSettingsPage::pageCategory(),
+            LinuxDeviceConfigurationsSettingsPage::pageId());
     } else if (link == QLatin1String("debugger")) {
         Core::ICore::instance()->showOptionsDialog(QLatin1String("O.Debugger"),
             QLatin1String("M.Gdb"));

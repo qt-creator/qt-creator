@@ -28,15 +28,13 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "maemosettingspages.h"
 
-#include "linuxdeviceconfigurationssettingswidget.h"
-#include "maemoconstants.h"
 #include "maemoqemusettings.h"
 #include "maemoqemusettingswidget.h"
 
 #include <coreplugin/icore.h>
+#include <remotelinux/remotelinux_constants.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QDialog>
@@ -50,6 +48,7 @@
 namespace RemoteLinux {
 namespace Internal {
 namespace {
+
 class MaemoQemuCrashDialog : public QDialog
 {
     Q_OBJECT
@@ -94,75 +93,13 @@ public:
 private:
     Q_SLOT void showSettingsPage()
     {
-        Core::ICore::instance()->showOptionsDialog(MaemoQemuSettingsPage::Category,
-            MaemoQemuSettingsPage::Id);
+        Core::ICore::instance()->showOptionsDialog(MaemoQemuSettingsPage::pageCategory(),
+            MaemoQemuSettingsPage::pageId());
         accept();
     }
 };
 
 } // anonymous namespace
-
-MaemoDeviceConfigurationsSettingsPage::MaemoDeviceConfigurationsSettingsPage(QObject *parent)
-    : Core::IOptionsPage(parent)
-{
-}
-
-MaemoDeviceConfigurationsSettingsPage::~MaemoDeviceConfigurationsSettingsPage()
-{
-}
-
-QString MaemoDeviceConfigurationsSettingsPage::id() const
-{
-    return Id;
-}
-
-QString MaemoDeviceConfigurationsSettingsPage::displayName() const
-{
-    return tr("Device Configurations");
-}
-
-QString MaemoDeviceConfigurationsSettingsPage::category() const
-{
-    return Category;
-}
-
-QString MaemoDeviceConfigurationsSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Qt4ProjectManager",
-        Constants::MAEMO_SETTINGS_TR_CATEGORY);
-}
-
-QIcon MaemoDeviceConfigurationsSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::MAEMO_SETTINGS_CATEGORY_ICON));
-}
-
-bool MaemoDeviceConfigurationsSettingsPage::matches(const QString &searchKeyWord) const
-{
-    return m_keywords.contains(searchKeyWord, Qt::CaseInsensitive);
-}
-
-QWidget *MaemoDeviceConfigurationsSettingsPage::createPage(QWidget *parent)
-{
-    m_widget = new LinuxDeviceConfigurationsSettingsWidget(parent);
-    if (m_keywords.isEmpty())
-        m_keywords = m_widget->searchKeywords();
-    return m_widget;
-}
-
-void MaemoDeviceConfigurationsSettingsPage::apply()
-{
-    m_widget->saveSettings();
-}
-
-void MaemoDeviceConfigurationsSettingsPage::finish()
-{
-}
-
-const QString MaemoDeviceConfigurationsSettingsPage::Id
-    = QLatin1String("ZZ.Maemo Device Configurations");
-const QString MaemoDeviceConfigurationsSettingsPage::Category
-    = QLatin1String(Constants::MAEMO_SETTINGS_CATEGORY);
 
 
 MaemoQemuSettingsPage::MaemoQemuSettingsPage(QObject *parent)
@@ -176,7 +113,7 @@ MaemoQemuSettingsPage::~MaemoQemuSettingsPage()
 
 QString MaemoQemuSettingsPage::id() const
 {
-    return Id;
+    return pageId();
 }
 
 QString MaemoQemuSettingsPage::displayName() const
@@ -186,18 +123,17 @@ QString MaemoQemuSettingsPage::displayName() const
 
 QString MaemoQemuSettingsPage::category() const
 {
-    return Category;
+    return pageCategory();
 }
 
 QString MaemoQemuSettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("Qt4ProjectManager",
-        Constants::MAEMO_SETTINGS_TR_CATEGORY);
+    return QCoreApplication::translate("RemoteLinux", Constants::RemoteLinuxSettingsTrCategory);
 }
 
 QIcon MaemoQemuSettingsPage::categoryIcon() const
 {
-    return QIcon(QLatin1String(Constants::MAEMO_SETTINGS_CATEGORY_ICON));
+    return QIcon(QLatin1String(Constants::RemoteLinuxSettingsCategoryIcon));
 }
 
 bool MaemoQemuSettingsPage::matches(const QString &searchKeyWord) const
@@ -226,9 +162,15 @@ void MaemoQemuSettingsPage::showQemuCrashDialog()
     dlg.exec();
 }
 
-const QString MaemoQemuSettingsPage::Id = QLatin1String("ZZ.Qemu Settings");
-const QString MaemoQemuSettingsPage::Category
-    = QLatin1String(Constants::MAEMO_SETTINGS_CATEGORY);
+QString MaemoQemuSettingsPage::pageId()
+{
+    return QLatin1String("ZZ.Qemu Settings");
+}
+
+QString MaemoQemuSettingsPage::pageCategory()
+{
+    return QLatin1String(Constants::RemoteLinuxSettingsCategory);
+}
 
 } // namespace Internal
 } // namespace RemoteLinux

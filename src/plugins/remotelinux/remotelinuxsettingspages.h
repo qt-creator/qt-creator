@@ -28,22 +28,21 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#ifndef MAEMOSETTINGSPAGES_H
-#define MAEMOSETTINGSPAGES_H
+#ifndef REMOTELINUXSETTINGSPAGES_H
+#define REMOTELINUXSETTINGSPAGES_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace RemoteLinux{
+namespace RemoteLinux {
 namespace Internal {
-class MaemoQemuSettingsWidget;
+class LinuxDeviceConfigurationsSettingsWidget;
 
-class MaemoQemuSettingsPage : public Core::IOptionsPage
+class LinuxDeviceConfigurationsSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 public:
-    MaemoQemuSettingsPage(QObject *parent = 0);
-    ~MaemoQemuSettingsPage();
+    LinuxDeviceConfigurationsSettingsPage(QObject *parent = 0);
+    ~LinuxDeviceConfigurationsSettingsPage();
 
     virtual QString id() const;
     virtual QString displayName() const;
@@ -55,16 +54,15 @@ public:
     virtual void apply();
     virtual void finish();
 
-    static void showQemuCrashDialog();
     static QString pageId();
     static QString pageCategory();
 
 private:
     QString m_keywords;
-    MaemoQemuSettingsWidget *m_widget;
+    LinuxDeviceConfigurationsSettingsWidget *m_widget;
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMOSETTINGSPAGES_H
+#endif // REMOTELINUXSETTINGSPAGES_H

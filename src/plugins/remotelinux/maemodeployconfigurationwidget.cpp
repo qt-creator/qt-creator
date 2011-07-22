@@ -37,8 +37,8 @@
 #include "deploymentinfo.h"
 #include "linuxdeviceconfigurations.h"
 #include "maemoglobal.h"
-#include "maemosettingspages.h"
 #include "remotelinuxdeployconfiguration.h"
+#include "remotelinuxsettingspages.h"
 #include "typespecificdeviceconfigurationlistmodel.h"
 
 #include <coreplugin/icore.h>
@@ -202,8 +202,8 @@ void MaemoDeployConfigurationWidget::addIcon()
 
 void MaemoDeployConfigurationWidget::showDeviceConfigurations()
 {
-    Core::ICore::instance()->showOptionsDialog(MaemoDeviceConfigurationsSettingsPage::Category,
-        MaemoDeviceConfigurationsSettingsPage::Id);
+    Core::ICore::instance()->showOptionsDialog(LinuxDeviceConfigurationsSettingsPage::pageCategory(),
+        LinuxDeviceConfigurationsSettingsPage::pageId());
 }
 
 } // namespace Internal

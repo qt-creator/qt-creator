@@ -53,6 +53,7 @@
 #include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxrunconfigurationfactory.h"
 #include "remotelinuxruncontrolfactory.h"
+#include "remotelinuxsettingspages.h"
 
 #include <QtCore/QtPlugin>
 
@@ -82,7 +83,7 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new Qt4MaemoDeployConfigurationFactory);
     addAutoReleasedObject(new MaemoPackageCreationFactory);
     addAutoReleasedObject(new MaemoDeployStepFactory);
-    addAutoReleasedObject(new MaemoDeviceConfigurationsSettingsPage);
+    addAutoReleasedObject(new LinuxDeviceConfigurationsSettingsPage);
     addAutoReleasedObject(new MaemoQemuSettingsPage);
     addAutoReleasedObject(new MaemoPublishingWizardFactoryFremantleFree);
     addAutoReleasedObject(new Qt4MaemoTargetFactory);
