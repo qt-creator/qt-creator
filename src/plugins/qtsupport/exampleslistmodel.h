@@ -38,8 +38,6 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtGui/QSortFilterProxyModel>
 
-#include <qdebug.h>
-
 namespace QtSupport {
 namespace Internal {
 

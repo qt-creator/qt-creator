@@ -21,5 +21,6 @@ OTHER_FILES = develop.qml \
               widgets/FeaturedAndNewsListing.qml \
               widgets/NewsListing.qml \
               widgets/TabWidget.qml \
+              widgets/TagBrowser.qml \
               examples_fallback.xml \
               qtcreator_tutorials.xml

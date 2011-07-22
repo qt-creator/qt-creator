@@ -412,7 +412,6 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
             wordMatch |= (bool)name.contains(subString, Qt::CaseInsensitive);
             if (wordMatch)
                 continue;
-            // TODO: match substring
             wordMatch |= containsSubString(tags, subString, Qt::CaseInsensitive);
             if (wordMatch)
                 continue;

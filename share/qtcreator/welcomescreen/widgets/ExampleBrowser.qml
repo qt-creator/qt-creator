@@ -64,7 +64,7 @@ Item {
             anchors.left: parent.left
             anchors.leftMargin:4
             anchors.verticalCenter: parent.verticalCenter
-            width: Math.max(lineEditRoot.width - checkBox.width - 28 - tagFilterButton.width, 100)
+            width: Math.max(lineEditRoot.width - checkBox.width - 21 - tagFilterButton.width, 100)
             onTextChanged: examplesModel.parseSearchString(text)
         }
 
@@ -82,15 +82,25 @@ Item {
         Button {
             id: tagFilterButton
             property string tag
+            property Item browser;
             onTagChanged: exampleBrowserRoot.appendTag(tag)
             anchors.left: checkBox.right
             anchors.leftMargin: 6
             anchors.verticalCenter: lineEdit.verticalCenter
-            visible: !examplesModel.showTutorialsOnly
             text: qsTr("Tag List")
-            onClicked: {
-                tagBrowserLoader.source = "TagBrowser.qml"
-                tagBrowserLoader.item.visible = true
+            checkable: true
+            Connections {
+                target: tagBrowserLoader.item
+                onVisibleChanged: tagFilterButton.checked = tagBrowserLoader.item.visible
+            }
+
+            onCheckedChanged: {
+                if (checked) {
+                    tagBrowserLoader.source = "TagBrowser.qml"
+                    var item = tagBrowserLoader.item;
+                    item.bottomMargin = lineEditRoot.height
+                    item.visible = true
+                } else { tagBrowserLoader.item.visible = false }
             }
         }
     }
