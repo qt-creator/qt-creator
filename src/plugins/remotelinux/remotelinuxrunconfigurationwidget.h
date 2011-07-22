@@ -52,7 +52,7 @@ namespace Utils { class EnvironmentItem; }
 namespace RemoteLinux {
 class RemoteLinuxRunConfiguration;
 
-namespace Internal { class MaemoDeviceEnvReader; }
+namespace Internal { class RemoteLinuxEnvironmentReader; }
 
 class REMOTELINUX_EXPORT RemoteLinuxRunConfigurationWidget : public QWidget
 {
@@ -102,7 +102,7 @@ private:
     bool m_ignoreChange;
     QPushButton *m_fetchEnv;
     QComboBox *m_baseEnvironmentComboBox;
-    Internal::MaemoDeviceEnvReader *m_deviceEnvReader;
+    Internal::RemoteLinuxEnvironmentReader *m_deviceEnvReader;
     ProjectExplorer::EnvironmentWidget *m_environmentWidget;
 };
 

@@ -29,14 +29,14 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#include "maemopertargetdeviceconfigurationlistmodel.h"
+#include "typespecificdeviceconfigurationlistmodel.h"
 
 #include "linuxdeviceconfigurations.h"
 
 namespace RemoteLinux {
 namespace Internal {
 
-MaemoPerTargetDeviceConfigurationListModel::MaemoPerTargetDeviceConfigurationListModel(QObject *parent,
+TypeSpecificDeviceConfigurationListModel::TypeSpecificDeviceConfigurationListModel(QObject *parent,
     const QString &osType) : QAbstractListModel(parent), m_targetOsType(osType)
 {
     const LinuxDeviceConfigurations * const devConfs
@@ -45,11 +45,11 @@ MaemoPerTargetDeviceConfigurationListModel::MaemoPerTargetDeviceConfigurationLis
     connect(devConfs, SIGNAL(updated()), this, SIGNAL(updated()));
 }
 
-MaemoPerTargetDeviceConfigurationListModel::~MaemoPerTargetDeviceConfigurationListModel()
+TypeSpecificDeviceConfigurationListModel::~TypeSpecificDeviceConfigurationListModel()
 {
 }
 
-int MaemoPerTargetDeviceConfigurationListModel::rowCount(const QModelIndex &parent) const
+int TypeSpecificDeviceConfigurationListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
@@ -66,7 +66,7 @@ int MaemoPerTargetDeviceConfigurationListModel::rowCount(const QModelIndex &pare
     return count;
 }
 
-QVariant MaemoPerTargetDeviceConfigurationListModel::data(const QModelIndex &index,
+QVariant TypeSpecificDeviceConfigurationListModel::data(const QModelIndex &index,
     int role) const
 {
     if (!index.isValid() || index.row() >= rowCount() || role != Qt::DisplayRole)
@@ -79,7 +79,7 @@ QVariant MaemoPerTargetDeviceConfigurationListModel::data(const QModelIndex &ind
     return displayedName;
 }
 
-LinuxDeviceConfiguration::ConstPtr MaemoPerTargetDeviceConfigurationListModel::deviceAt(int idx) const
+LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::deviceAt(int idx) const
 {
     int currentRow = -1;
     const LinuxDeviceConfigurations * const devConfs
@@ -97,12 +97,12 @@ LinuxDeviceConfiguration::ConstPtr MaemoPerTargetDeviceConfigurationListModel::d
     return LinuxDeviceConfiguration::ConstPtr();
 }
 
-LinuxDeviceConfiguration::ConstPtr MaemoPerTargetDeviceConfigurationListModel::defaultDeviceConfig() const
+LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::defaultDeviceConfig() const
 {
     return LinuxDeviceConfigurations::instance()->defaultDeviceConfig(m_targetOsType);
 }
 
-LinuxDeviceConfiguration::ConstPtr MaemoPerTargetDeviceConfigurationListModel::find(LinuxDeviceConfiguration::Id id) const
+LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::find(LinuxDeviceConfiguration::Id id) const
 {
     const LinuxDeviceConfiguration::ConstPtr &devConf
         = LinuxDeviceConfigurations::instance()->find(id);
@@ -111,7 +111,7 @@ LinuxDeviceConfiguration::ConstPtr MaemoPerTargetDeviceConfigurationListModel::f
         ? devConf : defaultDeviceConfig();
 }
 
-int MaemoPerTargetDeviceConfigurationListModel::indexForInternalId(LinuxDeviceConfiguration::Id id) const
+int TypeSpecificDeviceConfigurationListModel::indexForInternalId(LinuxDeviceConfiguration::Id id) const
 {
     const int count = rowCount();
     for (int i = 0; i < count; ++i) {

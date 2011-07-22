@@ -29,23 +29,18 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#include "maemodeploystepwidget.h"
+#include "remotelinuxdeploystepwidget.h"
 
 #include "abstractremotelinuxdeploystep.h"
 #include "maemoglobal.h"
-#include "qt4maemodeployconfiguration.h"
-
-#include <projectexplorer/buildconfiguration.h>
-#include <utils/qtcassert.h>
-
-#include <QtGui/QVBoxLayout>
+#include "remotelinuxdeployconfiguration.h"
 
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
-namespace Internal {
+using namespace Internal;
 
-MaemoDeployStepBaseWidget::MaemoDeployStepBaseWidget(AbstractRemoteLinuxDeployStep *step)
+RemoteLinuxDeployStepWidget::RemoteLinuxDeployStepWidget(AbstractRemoteLinuxDeployStep *step)
     : m_step(step)
 {
     BuildStepList * const list = step->deployConfiguration()->stepList();
@@ -60,11 +55,11 @@ MaemoDeployStepBaseWidget::MaemoDeployStepBaseWidget(AbstractRemoteLinuxDeploySt
         SIGNAL(updateSummary()));
 }
 
-MaemoDeployStepBaseWidget::~MaemoDeployStepBaseWidget()
+RemoteLinuxDeployStepWidget::~RemoteLinuxDeployStepWidget()
 {
 }
 
-void MaemoDeployStepBaseWidget::handleStepToBeRemoved(int step)
+void RemoteLinuxDeployStepWidget::handleStepToBeRemoved(int step)
 {
     BuildStepList * const list = m_step->deployConfiguration()->stepList();
     const AbstractRemoteLinuxDeployStep * const alds
@@ -73,7 +68,7 @@ void MaemoDeployStepBaseWidget::handleStepToBeRemoved(int step)
         disconnect(list, 0, this, 0);
 }
 
-QString MaemoDeployStepBaseWidget::summaryText() const
+QString RemoteLinuxDeployStepWidget::summaryText() const
 {
     QString error;
     if (!m_step->isDeploymentPossible(&error)) {
@@ -85,5 +80,4 @@ QString MaemoDeployStepBaseWidget::summaryText() const
         MaemoGlobal::deviceConfigurationName(m_step->deployConfiguration()->deviceConfiguration()));
 }
 
-} // namespace Internal
 } // namespace RemoteLinux

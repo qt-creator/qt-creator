@@ -31,11 +31,10 @@
 **************************************************************************/
 #include "remotelinuxrunconfigurationwidget.h"
 
-#include "maemodeviceenvreader.h"
 #include "maemoglobal.h"
 #include "remotelinuxrunconfiguration.h"
 #include "maemosettingspages.h"
-#include "qt4maemodeployconfiguration.h"
+#include "remotelinuxenvironmentreader.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -73,7 +72,7 @@ RemoteLinuxRunConfigurationWidget::RemoteLinuxRunConfigurationWidget(RemoteLinux
     : QWidget(parent),
     m_runConfiguration(runConfiguration),
     m_ignoreChange(false),
-    m_deviceEnvReader(new MaemoDeviceEnvReader(this, runConfiguration))
+    m_deviceEnvReader(new RemoteLinuxEnvironmentReader(this, runConfiguration))
 {
     QVBoxLayout *topLayout = new QVBoxLayout(this);
     topLayout->setMargin(0);

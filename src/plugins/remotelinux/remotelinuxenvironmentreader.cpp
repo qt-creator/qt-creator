@@ -28,8 +28,7 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#include "maemodeviceenvreader.h"
+#include "remotelinuxenvironmentreader.h"
 
 #include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
@@ -38,9 +37,9 @@
 #include <utils/ssh/sshremoteprocessrunner.h>
 
 namespace RemoteLinux {
-    namespace Internal {
+namespace Internal {
 
-MaemoDeviceEnvReader::MaemoDeviceEnvReader(QObject *parent, RemoteLinuxRunConfiguration *config)
+RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(QObject *parent, RemoteLinuxRunConfiguration *config)
     : QObject(parent)
     , m_stop(false)
     , m_devConfig(config->deviceConfig())
@@ -50,11 +49,11 @@ MaemoDeviceEnvReader::MaemoDeviceEnvReader(QObject *parent, RemoteLinuxRunConfig
         this, SLOT(handleCurrentDeviceConfigChanged()));
 }
 
-MaemoDeviceEnvReader::~MaemoDeviceEnvReader()
+RemoteLinuxEnvironmentReader::~RemoteLinuxEnvironmentReader()
 {
 }
 
-void MaemoDeviceEnvReader::start()
+void RemoteLinuxEnvironmentReader::start()
 {
     if (!m_devConfig)
         return;
@@ -82,14 +81,14 @@ void MaemoDeviceEnvReader::start()
     m_remoteProcessRunner->run(remoteCall);
 }
 
-void MaemoDeviceEnvReader::stop()
+void RemoteLinuxEnvironmentReader::stop()
 {
     m_stop = true;
     if (m_remoteProcessRunner)
         disconnect(m_remoteProcessRunner.data(), 0, this, 0);
 }
 
-void MaemoDeviceEnvReader::handleConnectionFailure()
+void RemoteLinuxEnvironmentReader::handleConnectionFailure()
 {
     if (m_stop)
         return;
@@ -100,7 +99,7 @@ void MaemoDeviceEnvReader::handleConnectionFailure()
     emit finished();
 }
 
-void MaemoDeviceEnvReader::handleCurrentDeviceConfigChanged()
+void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
 {
     m_devConfig = m_runConfig->deviceConfig();
 
@@ -110,7 +109,7 @@ void MaemoDeviceEnvReader::handleCurrentDeviceConfigChanged()
     setFinished();
 }
 
-void MaemoDeviceEnvReader::remoteProcessFinished(int exitCode)
+void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitCode)
 {
     Q_ASSERT(exitCode == Utils::SshRemoteProcess::FailedToStart
         || exitCode == Utils::SshRemoteProcess::KilledBySignal
@@ -138,21 +137,21 @@ void MaemoDeviceEnvReader::remoteProcessFinished(int exitCode)
     setFinished();
 }
 
-void MaemoDeviceEnvReader::remoteOutput(const QByteArray &data)
+void RemoteLinuxEnvironmentReader::remoteOutput(const QByteArray &data)
 {
     m_remoteOutput.append(QString::fromUtf8(data));
 }
 
-void MaemoDeviceEnvReader::remoteErrorOutput(const QByteArray &data)
+void RemoteLinuxEnvironmentReader::remoteErrorOutput(const QByteArray &data)
 {
     m_remoteErrorOutput += data;
 }
 
-void MaemoDeviceEnvReader::setFinished()
+void RemoteLinuxEnvironmentReader::setFinished()
 {
     stop();
     emit finished();
 }
 
-}   // Internal
-}   // Qt4ProjectManager
+} // namespace Internal
+} // namespace RemoteLinux

@@ -37,9 +37,9 @@
 #include "deploymentinfo.h"
 #include "linuxdeviceconfigurations.h"
 #include "maemoglobal.h"
-#include "maemopertargetdeviceconfigurationlistmodel.h"
 #include "maemosettingspages.h"
 #include "remotelinuxdeployconfiguration.h"
+#include "typespecificdeviceconfigurationlistmodel.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>

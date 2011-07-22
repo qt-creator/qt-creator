@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MaemoSshConfigDialog</class>
- <widget class="QDialog" name="MaemoSshConfigDialog">
+ <class>SshKeyCreationDialog</class>
+ <widget class="QDialog" name="SshKeyCreationDialog">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -254,7 +254,7 @@
   <connection>
    <sender>closeButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoSshConfigDialog</receiver>
+   <receiver>SshKeyCreationDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

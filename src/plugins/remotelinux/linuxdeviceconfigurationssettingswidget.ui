@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MaemoDeviceConfigurationsSettingsWidget</class>
- <widget class="QWidget" name="MaemoDeviceConfigurationsSettingsWidget">
+ <class>LinuxDeviceConfigurationsSettingsWidget</class>
+ <widget class="QWidget" name="LinuxDeviceConfigurationsSettingsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>708</width>
+    <width>726</width>
     <height>421</height>
    </rect>
   </property>
@@ -457,7 +457,7 @@
   <connection>
    <sender>hostLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>hostNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -473,7 +473,7 @@
   <connection>
    <sender>userLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -489,7 +489,7 @@
   <connection>
    <sender>pwdLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -505,7 +505,7 @@
   <connection>
    <sender>addConfigButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>addConfig()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -521,7 +521,7 @@
   <connection>
    <sender>passwordButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -537,7 +537,7 @@
   <connection>
    <sender>keyFileLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -553,7 +553,7 @@
   <connection>
    <sender>keyFileLineEdit</sender>
    <signal>browsingFinished()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>keyFileEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -569,7 +569,7 @@
   <connection>
    <sender>keyButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>authenticationTypeChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -585,7 +585,7 @@
   <connection>
    <sender>nameLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>configNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -601,7 +601,7 @@
   <connection>
    <sender>generateKeyButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>showGenerateSshKeyDialog()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -617,7 +617,7 @@
   <connection>
    <sender>timeoutSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -633,7 +633,7 @@
   <connection>
    <sender>timeoutSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -649,7 +649,7 @@
   <connection>
    <sender>sshPortSpinBox</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -665,7 +665,7 @@
   <connection>
    <sender>sshPortSpinBox</sender>
    <signal>valueChanged(int)</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>sshPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -681,7 +681,7 @@
   <connection>
    <sender>showPasswordCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>showPassword(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -697,7 +697,7 @@
   <connection>
    <sender>portsLineEdit</sender>
    <signal>editingFinished()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>handleFreePortsChanged()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -713,7 +713,7 @@
   <connection>
    <sender>removeConfigButton</sender>
    <signal>clicked()</signal>
-   <receiver>MaemoDeviceConfigurationsSettingsWidget</receiver>
+   <receiver>LinuxDeviceConfigurationsSettingsWidget</receiver>
    <slot>deleteConfig()</slot>
    <hints>
     <hint type="sourcelabel">

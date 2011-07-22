@@ -47,7 +47,7 @@ namespace Internal {
 class LinuxDeviceConfigurations : public QAbstractListModel
 {
     Q_OBJECT
-    friend class MaemoDeviceConfigurationsSettingsWidget;
+    friend class LinuxDeviceConfigurationsSettingsWidget;
 public:
     static LinuxDeviceConfigurations *instance(QObject *parent = 0);
 

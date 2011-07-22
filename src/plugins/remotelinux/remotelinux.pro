@@ -12,20 +12,16 @@ HEADERS += \
     maemoruncontrol.h \
     maemorunfactories.h \
     maemosettingspages.h \
-    maemodeviceconfigurationssettingswidget.h \
-    maemosshconfigdialog.h \
     maemotoolchain.h \
     maemopackagecreationstep.h \
     maemopackagecreationfactory.h \
     maemopackagecreationwidget.h \
     maemoqemumanager.h \
-    maemodeploystepwidget.h \
     maemodeploystepfactory.h \
     maemoglobal.h \
     maemosshrunner.h \
     maemodebugsupport.h \
     maemoremotemountsmodel.h \
-    maemodeviceenvreader.h \
     maemomountspecification.h \
     maemoremotemounter.h \
     maemoprofilesupdatedialog.h \
@@ -46,8 +42,6 @@ HEADERS += \
     qt4maemotarget.h \
     qt4maemodeployconfiguration.h \
     maemodeviceconfigwizard.h \
-    maemokeydeployer.h \
-    maemopertargetdeviceconfigurationlistmodel.h \
     maemodeployconfigurationwidget.h \
     maemoinstalltosysrootstep.h \
     maemodeploymentmounter.h \
@@ -96,7 +90,13 @@ HEADERS += \
     linuxdevicetestdialog.h \
     remotelinuxprocesslist.h \
     madderemoteprocesslist.h \
-    remotelinuxprocessesdialog.h
+    remotelinuxprocessesdialog.h \
+    remotelinuxdeploystepwidget.h \
+    linuxdeviceconfigurationssettingswidget.h \
+    remotelinuxenvironmentreader.h \
+    sshkeydeployer.h \
+    typespecificdeviceconfigurationlistmodel.h \
+    sshkeycreationdialog.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -104,20 +104,16 @@ SOURCES += \
     maemoruncontrol.cpp \
     maemorunfactories.cpp \
     maemosettingspages.cpp \
-    maemodeviceconfigurationssettingswidget.cpp \
-    maemosshconfigdialog.cpp \
     maemotoolchain.cpp \
     maemopackagecreationstep.cpp \
     maemopackagecreationfactory.cpp \
     maemopackagecreationwidget.cpp \
     maemoqemumanager.cpp \
-    maemodeploystepwidget.cpp \
     maemodeploystepfactory.cpp \
     maemoglobal.cpp \
     maemosshrunner.cpp \
     maemodebugsupport.cpp \
     maemoremotemountsmodel.cpp \
-    maemodeviceenvreader.cpp \
     maemomountspecification.cpp \
     maemoremotemounter.cpp \
     maemoprofilesupdatedialog.cpp \
@@ -137,8 +133,6 @@ SOURCES += \
     qt4maemotarget.cpp \
     qt4maemodeployconfiguration.cpp \
     maemodeviceconfigwizard.cpp \
-    maemokeydeployer.cpp \
-    maemopertargetdeviceconfigurationlistmodel.cpp \
     maemodeployconfigurationwidget.cpp \
     maemoinstalltosysrootstep.cpp \
     maemodeploymentmounter.cpp \
@@ -185,11 +179,15 @@ SOURCES += \
     linuxdevicetestdialog.cpp \
     remotelinuxprocesslist.cpp \
     madderemoteprocesslist.cpp \
-    remotelinuxprocessesdialog.cpp
+    remotelinuxprocessesdialog.cpp \
+    remotelinuxdeploystepwidget.cpp \
+    linuxdeviceconfigurationssettingswidget.cpp \
+    remotelinuxenvironmentreader.cpp \
+    sshkeydeployer.cpp \
+    typespecificdeviceconfigurationlistmodel.cpp \
+    sshkeycreationdialog.cpp
 
 FORMS += \
-    maemodeviceconfigurationssettingswidget.ui \
-    maemosshconfigdialog.ui \
     maemopackagecreationwidget.ui \
     maemoprofilesupdatedialog.ui \
     maemopublishingbuildsettingspagefremantlefree.ui \
@@ -206,7 +204,9 @@ FORMS += \
     linuxdevicefactoryselectiondialog.ui \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
     linuxdevicetestdialog.ui \
-    remotelinuxprocessesdialog.ui
+    remotelinuxprocessesdialog.ui \
+    linuxdeviceconfigurationssettingswidget.ui \
+    sshkeycreationdialog.ui
 
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII

@@ -31,7 +31,7 @@
 #include "publickeydeploymentdialog.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "maemokeydeployer.h"
+#include "sshkeydeployer.h"
 
 #include <QtGui/QFileDialog>
 
@@ -40,7 +40,7 @@ namespace Internal {
 class PublicKeyDeploymentDialogPrivate
 {
 public:
-    MaemoKeyDeployer *keyDeployer;
+    SshKeyDeployer *keyDeployer;
     bool done;
 };
 } // namespace Internal;
@@ -56,7 +56,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const LinuxDeviceConfigurat
     setMinimumDuration(0);
     setMaximum(1);
 
-    m_d->keyDeployer = new MaemoKeyDeployer(this);
+    m_d->keyDeployer = new SshKeyDeployer(this);
     m_d->done = false;
 
     setLabelText(tr("Waiting for file name..."));

@@ -29,46 +29,48 @@
 **
 **************************************************************************/
 
-#ifndef MAEMOKEYDEPLOYER_H
-#define MAEMOKEYDEPLOYER_H
+#ifndef SSHKEYCREATIONDIALOG_H
+#define SSHKEYCREATIONDIALOG_H
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
+#include "ui_sshkeycreationdialog.h"
+
+#include <QtCore/QScopedPointer>
+#include <QtGui/QDialog>
 
 namespace Utils {
-class SshConnectionParameters;
-class SshRemoteProcessRunner;
+class SshKeyGenerator;
 }
 
 namespace RemoteLinux {
 namespace Internal {
 
-class MaemoKeyDeployer : public QObject
+class SshKeyCreationDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit MaemoKeyDeployer(QObject *parent = 0);
-    ~MaemoKeyDeployer();
-
-    void deployPublicKey(const Utils::SshConnectionParameters &sshParams,
-        const QString &keyFilePath);
-    void stopDeployment();
+    SshKeyCreationDialog(QWidget *parent = 0);
+    ~SshKeyCreationDialog();
 
 signals:
-    void error(const QString &errorMsg);
-    void finishedSuccessfully();
+    void privateKeyGenerated(const QString &path);
 
 private slots:
-    void handleConnectionFailure();
-    void handleKeyUploadFinished(int exitStatus);
+    void slotToggled();
+    void generateSshKey();
+    void savePublicKey();
+    void savePrivateKey();
 
 private:
-    void cleanup();
+    void checkSshDir();
+    void saveKey(bool publicKey);
 
-    QSharedPointer<Utils::SshRemoteProcessRunner> m_deployProcess;
+private:
+    QString home;
+    QScopedPointer<Utils::SshKeyGenerator> m_keyGenerator;
+    Ui::SshKeyCreationDialog m_ui;
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMOKEYDEPLOYER_H
+#endif  // SSHKEYCREATIONDIALOG_H

@@ -38,10 +38,10 @@
 
 #include "maddedevicetester.h"
 #include "maemoglobal.h"
-#include "maemokeydeployer.h"
 
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <remotelinux/linuxdevicetestdialog.h>
+#include <remotelinux/sshkeydeployer.h>
 #include <utils/fileutils.h>
 #include <utils/ssh/sshkeygenerator.h>
 
@@ -395,7 +395,7 @@ public:
             : QWizardPage(parent),
               m_ui(new Ui::MaemoDeviceConfigWizardKeyDeploymentPage),
               m_wizardData(wizardData),
-              m_keyDeployer(new MaemoKeyDeployer(this))
+              m_keyDeployer(new SshKeyDeployer(this))
     {
         m_ui->setupUi(this);
         m_instructionTextTemplate = m_ui->instructionLabel->text();
@@ -486,7 +486,7 @@ private:
     const QScopedPointer<Ui::MaemoDeviceConfigWizardKeyDeploymentPage> m_ui;
     bool m_isComplete;
     const WizardData &m_wizardData;
-    MaemoKeyDeployer * const m_keyDeployer;
+    SshKeyDeployer * const m_keyDeployer;
     QString m_instructionTextTemplate;
 };
 

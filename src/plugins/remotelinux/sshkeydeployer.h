@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,34 +28,46 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef SSHKEYDEPLOYER_H
+#define SSHKEYDEPLOYER_H
 
-#ifndef MAEMODEPLOYSTEPWIDGET_H
-#define MAEMODEPLOYSTEPWIDGET_H
+#include "remotelinux_export.h"
 
-#include <projectexplorer/buildstep.h>
+#include <QtCore/QObject>
+#include <QtCore/QSharedPointer>
+
+namespace Utils {
+class SshConnectionParameters;
+class SshRemoteProcessRunner;
+}
 
 namespace RemoteLinux {
-class AbstractRemoteLinuxDeployStep;
-namespace Internal {
 
-class MaemoDeployStepBaseWidget : public ProjectExplorer::BuildStepConfigWidget
+class REMOTELINUX_EXPORT SshKeyDeployer : public QObject
 {
     Q_OBJECT
-
 public:
-    MaemoDeployStepBaseWidget(AbstractRemoteLinuxDeployStep *step);
-    ~MaemoDeployStepBaseWidget();
+    explicit SshKeyDeployer(QObject *parent = 0);
+    ~SshKeyDeployer();
 
-    QString summaryText() const;
-    QString displayName() const { return QString(); }
+    void deployPublicKey(const Utils::SshConnectionParameters &sshParams,
+        const QString &keyFilePath);
+    void stopDeployment();
+
+signals:
+    void error(const QString &errorMsg);
+    void finishedSuccessfully();
+
+private slots:
+    void handleConnectionFailure();
+    void handleKeyUploadFinished(int exitStatus);
 
 private:
-    Q_SLOT void handleStepToBeRemoved(int step);
+    void cleanup();
 
-    AbstractRemoteLinuxDeployStep *const m_step;
+    QSharedPointer<Utils::SshRemoteProcessRunner> m_deployProcess;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEPLOYSTEPWIDGET_H
+#endif // SSHKEYDEPLOYER_H

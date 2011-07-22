@@ -6,6 +6,7 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,49 +29,41 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef TYPESPECIFICDEVICECONFIGURATIONLISTMODEL_H
+#define TYPESPECIFICDEVICECONFIGURATIONLISTMODEL_H
 
-#ifndef MAEMOSSHCONFIGDIALOG_H
-#define MAEMOSSHCONFIGDIALOG_H
+#include "linuxdeviceconfiguration.h"
 
-#include "ui_maemosshconfigdialog.h"
-
-#include <QtCore/QScopedPointer>
-#include <QtGui/QDialog>
-
-namespace Utils {
-    class SshKeyGenerator;
-}
+#include <QtCore/QAbstractListModel>
+#include <QtCore/QSharedPointer>
 
 namespace RemoteLinux {
-    namespace Internal {
+namespace Internal {
 
-class MaemoSshConfigDialog : public QDialog
+class TypeSpecificDeviceConfigurationListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    MaemoSshConfigDialog(QWidget *parent = 0);
-    ~MaemoSshConfigDialog();
+    explicit TypeSpecificDeviceConfigurationListModel(QObject *parent, const QString &osType);
+    ~TypeSpecificDeviceConfigurationListModel();
+
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index,
+        int role = Qt::DisplayRole) const;
+
+    QSharedPointer<const LinuxDeviceConfiguration> deviceAt(int idx) const;
+    QSharedPointer<const LinuxDeviceConfiguration> defaultDeviceConfig() const;
+    QSharedPointer<const LinuxDeviceConfiguration> find(LinuxDeviceConfiguration::Id id) const;
+    int indexForInternalId(LinuxDeviceConfiguration::Id id) const;
 
 signals:
-    void privateKeyGenerated(const QString &path);
-
-private slots:
-    void slotToggled();
-    void generateSshKey();
-    void savePublicKey();
-    void savePrivateKey();
+    void updated();
 
 private:
-    void checkSshDir();
-    void saveKey(bool publicKey);
-
-private:
-    QString home;
-    QScopedPointer<Utils::SshKeyGenerator> m_keyGenerator;
-    Ui::MaemoSshConfigDialog m_ui;
+    const QString m_targetOsType;
 };
 
-    }   // Qt4ProjectManager
-}   // Internal
+} // namespace Internal
+} // namespace RemoteLinux
 
-#endif  // MAEMOSSHCONFIGDIALOG_H
+#endif // TYPESPECIFICDEVICECONFIGURATIONLISTMODEL_H

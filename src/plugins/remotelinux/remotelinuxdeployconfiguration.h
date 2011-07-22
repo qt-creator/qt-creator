@@ -43,7 +43,7 @@ namespace RemoteLinux {
 class DeploymentInfo;
 
 namespace Internal {
-class MaemoPerTargetDeviceConfigurationListModel;
+class TypeSpecificDeviceConfigurationListModel;
 } // namespace Internal
 
 class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
@@ -63,7 +63,7 @@ public:
 
     void setDeviceConfiguration(int index);
     QSharedPointer<DeploymentInfo> deploymentInfo() const;
-    QSharedPointer<Internal::MaemoPerTargetDeviceConfigurationListModel> deviceConfigModel() const;
+    QSharedPointer<Internal::TypeSpecificDeviceConfigurationListModel> deviceConfigModel() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
 
 signals:
@@ -78,7 +78,7 @@ private:
     Q_SLOT void handleDeviceConfigurationListUpdated();
 
     QSharedPointer<DeploymentInfo> m_deploymentInfo;
-    QSharedPointer<Internal::MaemoPerTargetDeviceConfigurationListModel> m_devConfModel;
+    QSharedPointer<Internal::TypeSpecificDeviceConfigurationListModel> m_devConfModel;
     QSharedPointer<const LinuxDeviceConfiguration> m_deviceConfiguration;
 };
 

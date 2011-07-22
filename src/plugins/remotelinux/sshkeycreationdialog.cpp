@@ -28,8 +28,7 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#include "maemosshconfigdialog.h"
+#include "sshkeycreationdialog.h"
 
 #include "linuxdeviceconfiguration.h"
 
@@ -46,7 +45,7 @@
 using namespace Utils;
 using namespace RemoteLinux::Internal;
 
-MaemoSshConfigDialog::MaemoSshConfigDialog(QWidget *parent)
+SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     : QDialog(parent)
     , home(QDesktopServices::storageLocation(QDesktopServices::HomeLocation))
     , m_keyGenerator(new SshKeyGenerator)
@@ -61,17 +60,17 @@ MaemoSshConfigDialog::MaemoSshConfigDialog(QWidget *parent)
     connect(m_ui.savePrivateKey, SIGNAL(clicked()), this, SLOT(savePrivateKey()));
 }
 
-MaemoSshConfigDialog::~MaemoSshConfigDialog()
+SshKeyCreationDialog::~SshKeyCreationDialog()
 {
 }
 
-void MaemoSshConfigDialog::slotToggled()
+void SshKeyCreationDialog::slotToggled()
 {
     m_ui.comboBox->setCurrentIndex(0);
     m_ui.comboBox->setEnabled(m_ui.rsa->isChecked());
 }
 
-void MaemoSshConfigDialog::generateSshKey()
+void SshKeyCreationDialog::generateSshKey()
 {
     const SshKeyGenerator::KeyType keyType = m_ui.rsa->isChecked()
         ? SshKeyGenerator::Rsa
@@ -91,24 +90,24 @@ void MaemoSshConfigDialog::generateSshKey()
     QApplication::restoreOverrideCursor();
 }
 
-void MaemoSshConfigDialog::savePublicKey()
+void SshKeyCreationDialog::savePublicKey()
 {
     saveKey(true);
 }
 
-void MaemoSshConfigDialog::savePrivateKey()
+void SshKeyCreationDialog::savePrivateKey()
 {
     saveKey(false);
 }
 
-void MaemoSshConfigDialog::checkSshDir()
+void SshKeyCreationDialog::checkSshDir()
 {
     QDir dir(home + QString::fromLatin1("/.ssh"));
     if (!dir.exists())
         dir.mkpath(home + QString::fromLatin1("/.ssh"));
 }
 
-void MaemoSshConfigDialog::saveKey(bool publicKey)
+void SshKeyCreationDialog::saveKey(bool publicKey)
 {
     checkSshDir();
     const QString suggestedTypeSuffix =

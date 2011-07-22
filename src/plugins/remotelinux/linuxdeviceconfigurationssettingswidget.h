@@ -29,8 +29,8 @@
 **
 **************************************************************************/
 
-#ifndef MAEMODEVICECONFIGURATIONSSETTINGSWIDGET_H
-#define MAEMODEVICECONFIGURATIONSSETTINGSWIDGET_H
+#ifndef LINUXDEVICECONFIGURATIONSSETTINGSWIDGET_H
+#define LINUXDEVICECONFIGURATIONSSETTINGSWIDGET_H
 
 #include <QtCore/QList>
 #include <QtCore/QScopedPointer>
@@ -42,7 +42,7 @@ QT_BEGIN_NAMESPACE
 class QLineEdit;
 class QSignalMapper;
 
-class Ui_MaemoDeviceConfigurationsSettingsWidget;
+class Ui_LinuxDeviceConfigurationsSettingsWidget;
 QT_END_NAMESPACE
 
 namespace RemoteLinux {
@@ -54,12 +54,12 @@ namespace Internal {
 class NameValidator;
 class LinuxDeviceConfigurations;
 
-class MaemoDeviceConfigurationsSettingsWidget : public QWidget
+class LinuxDeviceConfigurationsSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    MaemoDeviceConfigurationsSettingsWidget(QWidget *parent);
-    ~MaemoDeviceConfigurationsSettingsWidget();
+    LinuxDeviceConfigurationsSettingsWidget(QWidget *parent);
+    ~LinuxDeviceConfigurationsSettingsWidget();
 
     void saveSettings();
     QString searchKeywords() const;
@@ -97,7 +97,7 @@ private:
     void updatePortsWarningLabel();
     const ILinuxDeviceConfigurationFactory *factoryForCurrentConfig() const;
 
-    Ui_MaemoDeviceConfigurationsSettingsWidget *m_ui;
+    Ui_LinuxDeviceConfigurationsSettingsWidget *m_ui;
     const QScopedPointer<LinuxDeviceConfigurations> m_devConfigs;
     NameValidator * const m_nameValidator;
     bool m_saveSettingsRequested;
@@ -108,4 +108,4 @@ private:
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEVICECONFIGURATIONSSETTINGSWIDGET_H
+#endif // LINUXDEVICECONFIGURATIONSSETTINGSWIDGET_H

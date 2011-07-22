@@ -28,8 +28,7 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#include "maemokeydeployer.h"
+#include "sshkeydeployer.h"
 
 #include <utils/ssh/sshremoteprocessrunner.h>
 #include <utils/fileutils.h>
@@ -39,19 +38,17 @@
 using namespace Utils;
 
 namespace RemoteLinux {
-namespace Internal {
 
-MaemoKeyDeployer::MaemoKeyDeployer(QObject *parent)
-    : QObject(parent)
+SshKeyDeployer::SshKeyDeployer(QObject *parent) : QObject(parent)
 {
 }
 
-MaemoKeyDeployer::~MaemoKeyDeployer()
+SshKeyDeployer::~SshKeyDeployer()
 {
     cleanup();
 }
 
-void MaemoKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
+void SshKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
     const QString &keyFilePath)
 {
     cleanup();
@@ -73,7 +70,7 @@ void MaemoKeyDeployer::deployPublicKey(const SshConnectionParameters &sshParams,
     m_deployProcess->run(command);
 }
 
-void MaemoKeyDeployer::handleConnectionFailure()
+void SshKeyDeployer::handleConnectionFailure()
 {
     if (!m_deployProcess)
         return;
@@ -82,7 +79,7 @@ void MaemoKeyDeployer::handleConnectionFailure()
     emit error(tr("Connection failed: %1").arg(errorMsg));
 }
 
-void MaemoKeyDeployer::handleKeyUploadFinished(int exitStatus)
+void SshKeyDeployer::handleKeyUploadFinished(int exitStatus)
 {
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
         || exitStatus == SshRemoteProcess::KilledBySignal
@@ -100,12 +97,12 @@ void MaemoKeyDeployer::handleKeyUploadFinished(int exitStatus)
         emit error(tr("Key deployment failed: %1.").arg(errorMsg));
 }
 
-void MaemoKeyDeployer::stopDeployment()
+void SshKeyDeployer::stopDeployment()
 {
     cleanup();
 }
 
-void MaemoKeyDeployer::cleanup()
+void SshKeyDeployer::cleanup()
 {
     if (m_deployProcess) {
         disconnect(m_deployProcess.data(), 0, this, 0);
@@ -113,6 +110,4 @@ void MaemoKeyDeployer::cleanup()
     }
 }
 
-
-} // namespace Internal
 } // namespace RemoteLinux

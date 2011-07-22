@@ -31,8 +31,8 @@
 
 #include "maemosettingspages.h"
 
+#include "linuxdeviceconfigurationssettingswidget.h"
 #include "maemoconstants.h"
-#include "maemodeviceconfigurationssettingswidget.h"
 #include "maemoqemusettings.h"
 #include "maemoqemusettingswidget.h"
 
@@ -144,7 +144,7 @@ bool MaemoDeviceConfigurationsSettingsPage::matches(const QString &searchKeyWord
 
 QWidget *MaemoDeviceConfigurationsSettingsPage::createPage(QWidget *parent)
 {
-    m_widget = new MaemoDeviceConfigurationsSettingsWidget(parent);
+    m_widget = new LinuxDeviceConfigurationsSettingsWidget(parent);
     if (m_keywords.isEmpty())
         m_keywords = m_widget->searchKeywords();
     return m_widget;

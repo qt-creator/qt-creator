@@ -28,15 +28,14 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#include "linuxdeviceconfigurationssettingswidget.h"
 
-#include "maemodeviceconfigurationssettingswidget.h"
-
-#include "ui_maemodeviceconfigurationssettingswidget.h"
+#include "ui_linuxdeviceconfigurationssettingswidget.h"
 
 #include "linuxdeviceconfigurations.h"
 #include "linuxdevicefactoryselectiondialog.h"
 #include "maemoglobal.h"
-#include "maemosshconfigdialog.h"
+#include "sshkeycreationdialog.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -96,9 +95,9 @@ private:
 };
 
 
-MaemoDeviceConfigurationsSettingsWidget::MaemoDeviceConfigurationsSettingsWidget(QWidget *parent)
+LinuxDeviceConfigurationsSettingsWidget::LinuxDeviceConfigurationsSettingsWidget(QWidget *parent)
     : QWidget(parent),
-      m_ui(new Ui_MaemoDeviceConfigurationsSettingsWidget),
+      m_ui(new Ui_LinuxDeviceConfigurationsSettingsWidget),
       m_devConfigs(LinuxDeviceConfigurations::cloneInstance()),
       m_nameValidator(new NameValidator(m_devConfigs.data(), this)),
       m_saveSettingsRequested(false),
@@ -109,7 +108,7 @@ MaemoDeviceConfigurationsSettingsWidget::MaemoDeviceConfigurationsSettingsWidget
         SLOT(handleAdditionalActionRequest(QString)));
 }
 
-MaemoDeviceConfigurationsSettingsWidget::~MaemoDeviceConfigurationsSettingsWidget()
+LinuxDeviceConfigurationsSettingsWidget::~LinuxDeviceConfigurationsSettingsWidget()
 {
     if (m_saveSettingsRequested) {
         Core::ICore::instance()->settings()->setValue(LastDeviceConfigIndexKey,
@@ -119,7 +118,7 @@ MaemoDeviceConfigurationsSettingsWidget::~MaemoDeviceConfigurationsSettingsWidge
     delete m_ui;
 }
 
-QString MaemoDeviceConfigurationsSettingsWidget::searchKeywords() const
+QString LinuxDeviceConfigurationsSettingsWidget::searchKeywords() const
 {
     QString rc;
     QTextStream(&rc) << m_ui->configurationLabel->text()
@@ -145,7 +144,7 @@ QString MaemoDeviceConfigurationsSettingsWidget::searchKeywords() const
     return rc;
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::initGui()
+void LinuxDeviceConfigurationsSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
     m_ui->configurationComboBox->setModel(m_devConfigs.data());
@@ -169,7 +168,7 @@ void MaemoDeviceConfigurationsSettingsWidget::initGui()
         SLOT(setDefaultDevice()));
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::addConfig()
+void LinuxDeviceConfigurationsSettingsWidget::addConfig()
 {
     const QList<ILinuxDeviceConfigurationFactory *> &factories
         = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
@@ -190,14 +189,14 @@ void MaemoDeviceConfigurationsSettingsWidget::addConfig()
     m_ui->configurationComboBox->setCurrentIndex(m_ui->configurationComboBox->count()-1);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::deleteConfig()
+void LinuxDeviceConfigurationsSettingsWidget::deleteConfig()
 {
     m_devConfigs->removeConfiguration(currentIndex());
     if (m_devConfigs->rowCount() == 0)
         currentConfigChanged(-1);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
+void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
 {
     const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
@@ -220,7 +219,7 @@ void MaemoDeviceConfigurationsSettingsWidget::displayCurrent()
     fillInValues();
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::fillInValues()
+void LinuxDeviceConfigurationsSettingsWidget::fillInValues()
 {
     const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
     m_ui->nameLineEdit->setText(current->name());
@@ -239,24 +238,24 @@ void MaemoDeviceConfigurationsSettingsWidget::fillInValues()
     m_ui->sshPortSpinBox->setReadOnly(isSimulator);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::saveSettings()
+void LinuxDeviceConfigurationsSettingsWidget::saveSettings()
 {
     // We must defer this step because of a stupid bug on MacOS. See QTCREATORBUG-1675.
     m_saveSettingsRequested = true;
 }
 
-int MaemoDeviceConfigurationsSettingsWidget::currentIndex() const
+int LinuxDeviceConfigurationsSettingsWidget::currentIndex() const
 {
     return m_ui->configurationComboBox->currentIndex();
 }
 
-LinuxDeviceConfiguration::ConstPtr MaemoDeviceConfigurationsSettingsWidget::currentConfig() const
+LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurationsSettingsWidget::currentConfig() const
 {
     Q_ASSERT(currentIndex() != -1);
     return m_devConfigs->deviceAt(currentIndex());
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::configNameEditingFinished()
+void LinuxDeviceConfigurationsSettingsWidget::configNameEditingFinished()
 {
     if (m_ui->configurationComboBox->count() == 0)
         return;
@@ -266,7 +265,7 @@ void MaemoDeviceConfigurationsSettingsWidget::configNameEditingFinished()
     m_nameValidator->setDisplayName(newName);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::authenticationTypeChanged()
+void LinuxDeviceConfigurationsSettingsWidget::authenticationTypeChanged()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
     const bool usePassword = m_ui->passwordButton->isChecked();
@@ -281,84 +280,84 @@ void MaemoDeviceConfigurationsSettingsWidget::authenticationTypeChanged()
     m_ui->makeKeyFileDefaultButton->setEnabled(!usePassword);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::hostNameEditingFinished()
+void LinuxDeviceConfigurationsSettingsWidget::hostNameEditingFinished()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
     sshParams.host = m_ui->hostLineEdit->text();
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::sshPortEditingFinished()
+void LinuxDeviceConfigurationsSettingsWidget::sshPortEditingFinished()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
     sshParams.port = m_ui->sshPortSpinBox->value();
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::timeoutEditingFinished()
+void LinuxDeviceConfigurationsSettingsWidget::timeoutEditingFinished()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
     sshParams.timeout = m_ui->timeoutSpinBox->value();
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::userNameEditingFinished()
+void LinuxDeviceConfigurationsSettingsWidget::userNameEditingFinished()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
     sshParams.userName = m_ui->userLineEdit->text();
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::passwordEditingFinished()
+void LinuxDeviceConfigurationsSettingsWidget::passwordEditingFinished()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
     sshParams.password = m_ui->pwdLineEdit->text();
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::keyFileEditingFinished()
+void LinuxDeviceConfigurationsSettingsWidget::keyFileEditingFinished()
 {
     SshConnectionParameters sshParams = currentConfig()->sshParameters();
     sshParams.privateKeyFile = m_ui->keyFileLineEdit->path();
     m_devConfigs->setSshParameters(currentIndex(), sshParams);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::handleFreePortsChanged()
+void LinuxDeviceConfigurationsSettingsWidget::handleFreePortsChanged()
 {
     m_devConfigs->setFreePorts(currentIndex(), PortList::fromString(m_ui->portsLineEdit->text()));
     updatePortsWarningLabel();
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::showPassword(bool showClearText)
+void LinuxDeviceConfigurationsSettingsWidget::showPassword(bool showClearText)
 {
     m_ui->pwdLineEdit->setEchoMode(showClearText
         ? QLineEdit::Normal : QLineEdit::Password);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::showGenerateSshKeyDialog()
+void LinuxDeviceConfigurationsSettingsWidget::showGenerateSshKeyDialog()
 {
-    MaemoSshConfigDialog dialog(this);
+    SshKeyCreationDialog dialog(this);
     dialog.exec();
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::setDefaultKeyFilePath()
+void LinuxDeviceConfigurationsSettingsWidget::setDefaultKeyFilePath()
 {
     m_devConfigs->setDefaultSshKeyFilePath(m_ui->keyFileLineEdit->path());
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::setDefaultDevice()
+void LinuxDeviceConfigurationsSettingsWidget::setDefaultDevice()
 {
     m_devConfigs->setDefaultDevice(currentIndex());
     m_ui->defaultDeviceButton->setEnabled(false);
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::setPrivateKey(const QString &path)
+void LinuxDeviceConfigurationsSettingsWidget::setPrivateKey(const QString &path)
 {
     m_ui->keyFileLineEdit->setPath(path);
     keyFileEditingFinished();
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
+void LinuxDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
 {
     qDeleteAll(m_additionalActionButtons);
     m_additionalActionButtons.clear();
@@ -387,7 +386,7 @@ void MaemoDeviceConfigurationsSettingsWidget::currentConfigChanged(int index)
     }
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::clearDetails()
+void LinuxDeviceConfigurationsSettingsWidget::clearDetails()
 {
     m_ui->nameLineEdit->clear();
     m_ui->osTypeValueLabel->clear();
@@ -402,7 +401,7 @@ void MaemoDeviceConfigurationsSettingsWidget::clearDetails()
     m_ui->keyFileLineEdit->lineEdit()->clear();
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::updatePortsWarningLabel()
+void LinuxDeviceConfigurationsSettingsWidget::updatePortsWarningLabel()
 {
     if (currentConfig()->freePorts().hasMore()) {
         m_ui->portsWarningLabel->clear();
@@ -412,7 +411,7 @@ void MaemoDeviceConfigurationsSettingsWidget::updatePortsWarningLabel()
     }
 }
 
-const ILinuxDeviceConfigurationFactory *MaemoDeviceConfigurationsSettingsWidget::factoryForCurrentConfig() const
+const ILinuxDeviceConfigurationFactory *LinuxDeviceConfigurationsSettingsWidget::factoryForCurrentConfig() const
 {
     Q_ASSERT(currentConfig());
     const QList<ILinuxDeviceConfigurationFactory *> &factories
@@ -424,7 +423,7 @@ const ILinuxDeviceConfigurationFactory *MaemoDeviceConfigurationsSettingsWidget:
     return 0;
 }
 
-void MaemoDeviceConfigurationsSettingsWidget::handleAdditionalActionRequest(const QString &actionId)
+void LinuxDeviceConfigurationsSettingsWidget::handleAdditionalActionRequest(const QString &actionId)
 {
     const ILinuxDeviceConfigurationFactory * const factory = factoryForCurrentConfig();
     Q_ASSERT(factory);

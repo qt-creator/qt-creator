@@ -29,8 +29,8 @@
 **
 **************************************************************************/
 
-#ifndef DEVICEENVREADER_H
-#define DEVICEENVREADER_H
+#ifndef REMOTELINUXENVIRONMENTREADER_H
+#define REMOTELINUXENVIRONMENTREADER_H
 
 #include <utils/environment.h>
 
@@ -38,7 +38,7 @@
 #include <QtCore/QSharedPointer>
 
 namespace Utils {
-    class SshRemoteProcessRunner;
+class SshRemoteProcessRunner;
 }
 
 namespace RemoteLinux {
@@ -47,12 +47,12 @@ class RemoteLinuxRunConfiguration;
 
 namespace Internal {
 
-class MaemoDeviceEnvReader : public QObject
+class RemoteLinuxEnvironmentReader : public QObject
 {
     Q_OBJECT
 public:
-    MaemoDeviceEnvReader(QObject *parent, RemoteLinuxRunConfiguration *config);
-    ~MaemoDeviceEnvReader();
+    RemoteLinuxEnvironmentReader(QObject *parent, RemoteLinuxRunConfiguration *config);
+    ~RemoteLinuxEnvironmentReader();
 
     void start();
     void stop();
@@ -83,7 +83,7 @@ private:
     QSharedPointer<Utils::SshRemoteProcessRunner> m_remoteProcessRunner;
 };
 
-    }   // Internal
-}   // Qt4ProjectManager
+} // namespace Internal
+} // namespace RemoteLinux
 
-#endif  // DEVICEENVREADER_H
+#endif  // REMOTELINUXENVIRONMENTREADER_H

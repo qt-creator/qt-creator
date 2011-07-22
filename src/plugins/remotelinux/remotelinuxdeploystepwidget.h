@@ -29,41 +29,34 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef MAEMOPERTARGETDEVICECONFIGURATIONLISTMODEL_H
-#define MAEMOPERTARGETDEVICECONFIGURATIONLISTMODEL_H
 
-#include "linuxdeviceconfiguration.h"
+#ifndef REMOTELINUXDEPLOYSTEPWIDGET_H
+#define REMOTELINUXDEPLOYSTEPWIDGET_H
 
-#include <QtCore/QAbstractListModel>
-#include <QtCore/QSharedPointer>
+#include "remotelinux_export.h"
+
+#include <projectexplorer/buildstep.h>
 
 namespace RemoteLinux {
-namespace Internal {
+class AbstractRemoteLinuxDeployStep;
 
-class MaemoPerTargetDeviceConfigurationListModel : public QAbstractListModel
+class REMOTELINUX_EXPORT RemoteLinuxDeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
+
 public:
-    explicit MaemoPerTargetDeviceConfigurationListModel(QObject *parent, const QString &osType);
-    ~MaemoPerTargetDeviceConfigurationListModel();
+    RemoteLinuxDeployStepWidget(AbstractRemoteLinuxDeployStep *step);
+    ~RemoteLinuxDeployStepWidget();
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index,
-        int role = Qt::DisplayRole) const;
-
-    QSharedPointer<const LinuxDeviceConfiguration> deviceAt(int idx) const;
-    QSharedPointer<const LinuxDeviceConfiguration> defaultDeviceConfig() const;
-    QSharedPointer<const LinuxDeviceConfiguration> find(LinuxDeviceConfiguration::Id id) const;
-    int indexForInternalId(LinuxDeviceConfiguration::Id id) const;
-
-signals:
-    void updated();
+    QString summaryText() const;
+    QString displayName() const { return QString(); }
 
 private:
-    const QString m_targetOsType;
+    Q_SLOT void handleStepToBeRemoved(int step);
+
+    AbstractRemoteLinuxDeployStep * const m_step;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMOPERTARGETDEVICECONFIGURATIONLISTMODEL_H
+#endif // REMOTELINUXDEPLOYSTEPWIDGET_H

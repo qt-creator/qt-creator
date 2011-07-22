@@ -34,7 +34,7 @@
 #include "deploymentinfo.h"
 #include "linuxdeviceconfigurations.h"
 #include "maemodeployconfigurationwidget.h"
-#include "maemopertargetdeviceconfigurationlistmodel.h"
+#include "typespecificdeviceconfigurationlistmodel.h"
 
 #include <qt4projectmanager/qt4target.h>
 
@@ -73,8 +73,8 @@ RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::
     }
     if (!m_deploymentInfo) {
         m_deploymentInfo = QSharedPointer<DeploymentInfo>(new DeploymentInfo(qobject_cast<Qt4BaseTarget *>(target)));
-        m_devConfModel = QSharedPointer<MaemoPerTargetDeviceConfigurationListModel>
-            (new MaemoPerTargetDeviceConfigurationListModel(0, supportedOsType));
+        m_devConfModel = QSharedPointer<TypeSpecificDeviceConfigurationListModel>
+            (new TypeSpecificDeviceConfigurationListModel(0, supportedOsType));
     }
 
     initialize();
@@ -145,7 +145,7 @@ QSharedPointer<DeploymentInfo> RemoteLinuxDeployConfiguration::deploymentInfo() 
     return m_deploymentInfo;
 }
 
-QSharedPointer<MaemoPerTargetDeviceConfigurationListModel> RemoteLinuxDeployConfiguration::deviceConfigModel() const
+QSharedPointer<TypeSpecificDeviceConfigurationListModel> RemoteLinuxDeployConfiguration::deviceConfigModel() const
 {
     return m_devConfModel;
 }

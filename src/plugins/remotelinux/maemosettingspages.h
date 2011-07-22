@@ -37,7 +37,7 @@
 namespace RemoteLinux{
 namespace Internal {
 
-class MaemoDeviceConfigurationsSettingsWidget;
+class LinuxDeviceConfigurationsSettingsWidget;
 class MaemoQemuSettingsWidget;
 
 class MaemoDeviceConfigurationsSettingsPage : public Core::IOptionsPage
@@ -62,7 +62,7 @@ public:
 
 private:
     QString m_keywords;
-    MaemoDeviceConfigurationsSettingsWidget *m_widget;
+    LinuxDeviceConfigurationsSettingsWidget *m_widget;
 };
 
 class MaemoQemuSettingsPage : public Core::IOptionsPage

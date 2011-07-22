@@ -32,8 +32,8 @@
 #include "abstractremotelinuxdeploystep.h"
 
 #include "abstractremotelinuxdeployservice.h"
-#include "maemodeploystepwidget.h"
 #include "remotelinuxdeployconfiguration.h"
+#include "remotelinuxdeploystepwidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -113,7 +113,7 @@ void AbstractRemoteLinuxDeployStep::cancel()
 
 BuildStepConfigWidget *AbstractRemoteLinuxDeployStep::createConfigWidget()
 {
-    return new Internal::MaemoDeployStepBaseWidget(this);
+    return new RemoteLinuxDeployStepWidget(this);
 }
 
 RemoteLinuxDeployConfiguration *AbstractRemoteLinuxDeployStep::deployConfiguration() const
