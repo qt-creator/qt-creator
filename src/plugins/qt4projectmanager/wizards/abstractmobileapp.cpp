@@ -209,6 +209,7 @@ QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage, int fil
     } else if (fileType == AbstractGeneratedFileInfo::DesktopFileHarmattan) {
         desktopFileContent.replace("Icon=thisApp",
             "Icon=/usr/share/icons/hicolor/80x80/apps/" + projectName().toUtf8() + "80.png");
+        desktopFileContent.replace("Exec=", "Exec=/usr/bin/single-instance ");
     }
     return desktopFileContent.replace("thisApp", projectName().toUtf8());
 }
