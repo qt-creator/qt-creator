@@ -30,8 +30,6 @@ HEADERS += \
     maemoremotemounter.h \
     maemoprofilesupdatedialog.h \
     maemousedportsgatherer.h \
-    maemoremoteprocesslist.h \
-    maemoremoteprocessesdialog.h \
     maemopublishingwizardfactories.h \
     maemopublishingbuildsettingspagefremantlefree.h \
     maemopublishingfileselectiondialog.h \
@@ -95,7 +93,10 @@ HEADERS += \
     linuxdevicetester.h \
     maddedevicetester.h \
     remotelinux_constants.h \
-    linuxdevicetestdialog.h
+    linuxdevicetestdialog.h \
+    remotelinuxprocesslist.h \
+    madderemoteprocesslist.h \
+    remotelinuxprocessesdialog.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -121,8 +122,6 @@ SOURCES += \
     maemoremotemounter.cpp \
     maemoprofilesupdatedialog.cpp \
     maemousedportsgatherer.cpp \
-    maemoremoteprocesslist.cpp \
-    maemoremoteprocessesdialog.cpp \
     maemopublishingwizardfactories.cpp \
     maemopublishingbuildsettingspagefremantlefree.cpp \
     maemopublishingfileselectiondialog.cpp \
@@ -183,14 +182,16 @@ SOURCES += \
     packageuploader.cpp \
     linuxdevicetester.cpp \
     maddedevicetester.cpp \
-    linuxdevicetestdialog.cpp
+    linuxdevicetestdialog.cpp \
+    remotelinuxprocesslist.cpp \
+    madderemoteprocesslist.cpp \
+    remotelinuxprocessesdialog.cpp
 
 FORMS += \
     maemodeviceconfigurationssettingswidget.ui \
     maemosshconfigdialog.ui \
     maemopackagecreationwidget.ui \
     maemoprofilesupdatedialog.ui \
-    maemoremoteprocessesdialog.ui \
     maemopublishingbuildsettingspagefremantlefree.ui \
     maemopublishingfileselectiondialog.ui \
     maemopublishinguploadsettingspagefremantlefree.ui \
@@ -204,7 +205,8 @@ FORMS += \
     maemodeployconfigurationwidget.ui \
     linuxdevicefactoryselectiondialog.ui \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
-    linuxdevicetestdialog.ui
+    linuxdevicetestdialog.ui \
+    remotelinuxprocessesdialog.ui
 
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII

@@ -28,34 +28,28 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef REMOTELINUXPROCESSESDIALOG_H
+#define REMOTELINUXPROCESSESDIALOG_H
 
-#ifndef MAEMOREMOTEPROCESSDIALOG_H
-#define MAEMOREMOTEPROCESSDIALOG_H
+#include "remotelinux_export.h"
 
-#include <QtCore/QSharedPointer>
 #include <QtGui/QDialog>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-    class MaemoRemoteProcessesDialog;
-}
-class QSortFilterProxyModel;
-QT_END_NAMESPACE
-
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
+class AbstractRemoteLinuxProcessList;
 
 namespace Internal {
-class MaemoRemoteProcessList;
+class RemoteLinuxProcessesDialogPrivate;
+} // namespace Internal
 
-class MaemoRemoteProcessesDialog : public QDialog
+class RemoteLinuxProcessesDialog : public QDialog
 {
     Q_OBJECT
-
 public:
-    explicit MaemoRemoteProcessesDialog(const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
+    // Note: The dialog takes ownership of processList.
+    explicit RemoteLinuxProcessesDialog(AbstractRemoteLinuxProcessList *processList,
         QWidget *parent = 0);
-    ~MaemoRemoteProcessesDialog();
+    ~RemoteLinuxProcessesDialog();
 
 private slots:
     void updateProcessList();
@@ -66,12 +60,9 @@ private slots:
     void handleSelectionChanged();
 
 private:
-    Ui::MaemoRemoteProcessesDialog *m_ui;
-    MaemoRemoteProcessList *const m_processList;
-    QSortFilterProxyModel *const m_proxyModel;
+    Internal::RemoteLinuxProcessesDialogPrivate * const m_d;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMOREMOTEPROCESSDIALOG_H
+#endif // REMOTELINUXPROCESSESDIALOG_H

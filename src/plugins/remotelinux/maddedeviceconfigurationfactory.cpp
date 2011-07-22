@@ -33,10 +33,11 @@
 
 #include "maddedevicetester.h"
 #include "maemodeviceconfigwizard.h"
-#include "maemoremoteprocessesdialog.h"
 #include "publickeydeploymentdialog.h"
+#include "madderemoteprocesslist.h"
 
 #include <remotelinux/linuxdevicetestdialog.h>
+#include <remotelinux/remotelinuxprocessesdialog.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/qtcassert.h>
 
@@ -44,6 +45,7 @@ namespace RemoteLinux {
 namespace Internal {
 namespace {
 const char MaddeDeviceTestActionId[] = "Madde.DeviceTestAction";
+const char MaddeRemoteProcessesActionId[] = "Madde.RemoteProcessesAction";
 } // anonymous namespace
 
 MaddeDeviceConfigurationFactory::MaddeDeviceConfigurationFactory(QObject *parent)
@@ -82,7 +84,7 @@ QStringList MaddeDeviceConfigurationFactory::supportedDeviceActionIds() const
 {
     return QStringList() << QLatin1String(MaddeDeviceTestActionId)
         << QLatin1String(Constants::GenericDeployKeyToDeviceActionId)
-        << QLatin1String(Constants::GenericRemoteProcessesActionId);
+        << QLatin1String(MaddeRemoteProcessesActionId);
 }
 
 QString MaddeDeviceConfigurationFactory::displayNameForActionId(const QString &actionId) const
@@ -91,7 +93,7 @@ QString MaddeDeviceConfigurationFactory::displayNameForActionId(const QString &a
 
     if (actionId == QLatin1String(MaddeDeviceTestActionId))
         return tr("Test");
-    if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId))
+    if (actionId == QLatin1String(MaddeRemoteProcessesActionId))
         return tr("Remote Processes");
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
         return tr("Deploy Public Key");
@@ -104,9 +106,9 @@ QDialog *MaddeDeviceConfigurationFactory::createDeviceAction(const QString &acti
     Q_ASSERT(supportedDeviceActionIds().contains(actionId));
 
     if (actionId == QLatin1String(MaddeDeviceTestActionId))
-        return new LinuxDeviceTestDialog(deviceConfig, new MaddeDeviceTester(parent), parent);
-    if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId))
-        return new MaemoRemoteProcessesDialog(deviceConfig, parent);
+        return new LinuxDeviceTestDialog(deviceConfig, new MaddeDeviceTester, parent);
+    if (actionId == QLatin1String(MaddeRemoteProcessesActionId))
+        return new RemoteLinuxProcessesDialog(new MaddeRemoteProcessList(deviceConfig), parent);
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
         return new PublicKeyDeploymentDialog(deviceConfig, parent);
     return 0; // Can't happen.

@@ -28,35 +28,48 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef REMOTELINUXPROCESSLIST_H
+#define REMOTELINUXPROCESSLIST_H
 
-#ifndef MAEMOREMOTEPROCESSLIST_H
-#define MAEMOREMOTEPROCESSLIST_H
+#include "remotelinux_export.h"
 
 #include <QtCore/QAbstractTableModel>
-#include <QtCore/QByteArray>
 #include <QtCore/QList>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QString>
-#include <utils/ssh/sshremoteprocessrunner.h>
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
 
 namespace Internal {
+class AbstractRemoteLinuxProcessListPrivate;
+}
 
-class MaemoRemoteProcessList : public QAbstractTableModel
+class REMOTELINUX_EXPORT AbstractRemoteLinuxProcessList : public QAbstractTableModel
 {
     Q_OBJECT
+    friend class Internal::AbstractRemoteLinuxProcessListPrivate;
 public:
-    explicit MaemoRemoteProcessList(const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
-        QObject *parent = 0);
-    ~MaemoRemoteProcessList();
+    ~AbstractRemoteLinuxProcessList();
+
     void update();
     void killProcess(int row);
 
 signals:
     void error(const QString &errorMsg);
     void processKilled();
+
+protected:
+    AbstractRemoteLinuxProcessList(const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
+        QObject *parent = 0);
+
+    QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
+
+    struct RemoteProcess {
+        RemoteProcess(int pid, const QString &cmdLine) : pid(pid), cmdLine(cmdLine) {}
+
+        int pid;
+        QString cmdLine;
+    };
 
 private slots:
     void handleRemoteStdOut(const QByteArray &output);
@@ -65,36 +78,36 @@ private slots:
     void handleRemoteProcessFinished(int exitStatus);
 
 private:
-    enum State { Inactive, Listing, Killing };
-
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index,
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
-    virtual QVariant headerData(int section, Qt::Orientation orientation,
-        int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    void buildProcessList();
-    void stop();
-    void startProcess(const QByteArray &cmdLine, State newState);
+    virtual QString listProcessesCommandLine() const=0;
+    virtual QString killProcessCommandLine(const RemoteProcess &process) const=0;
+    virtual QList<RemoteProcess> buildProcessList(const QString &listProcessesReply) const=0;
 
-    const QSharedPointer<Utils::SshRemoteProcessRunner> m_process;
-    QByteArray m_remoteStdout;
-    QByteArray m_remoteStderr;
-    QString m_errorMsg;
-    State m_state;
+    void startProcess(const QString &cmdLine);
+    void setFinished();
 
-    struct RemoteProc {
-        RemoteProc(int pid, const QString &cmdLine)
-            : pid(pid), cmdLine(cmdLine) {}
-        int pid;
-        QString cmdLine;
-    };
-    QList<RemoteProc> m_remoteProcs;
-    const QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
+    Internal::AbstractRemoteLinuxProcessListPrivate * const m_d;
 };
 
-} // namespace Internal
+
+class GenericRemoteLinuxProcessList : public AbstractRemoteLinuxProcessList
+{
+    Q_OBJECT
+public:
+    GenericRemoteLinuxProcessList(const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
+        QObject *parent = 0);
+
+protected:
+    QString listProcessesCommandLine() const;
+    QString killProcessCommandLine(const RemoteProcess &process) const;
+    QList<RemoteProcess> buildProcessList(const QString &listProcessesReply) const;
+};
+
 } // namespace RemoteLinux
 
-#endif // MAEMOREMOTEPROCESSLIST_H
+#endif // REMOTELINUXPROCESSLIST_H

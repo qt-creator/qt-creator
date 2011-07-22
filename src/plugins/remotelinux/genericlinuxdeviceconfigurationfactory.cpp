@@ -33,8 +33,9 @@
 
 #include "genericlinuxdeviceconfigurationwizard.h"
 #include "linuxdevicetestdialog.h"
-#include "maemoremoteprocessesdialog.h"
 #include "publickeydeploymentdialog.h"
+#include "remotelinuxprocessesdialog.h"
+#include "remotelinuxprocesslist.h"
 #include "remotelinux_constants.h"
 
 #include <utils/qtcassert.h>
@@ -93,12 +94,12 @@ QDialog *GenericLinuxDeviceConfigurationFactory::createDeviceAction(const QStrin
 {
     Q_ASSERT(supportedDeviceActionIds().contains(actionId));
 
-    if (actionId == QLatin1String(Constants::GenericTestDeviceActionId)) {
-        return new LinuxDeviceTestDialog(deviceConfig, new GenericLinuxDeviceTester(parent),
+    if (actionId == QLatin1String(Constants::GenericTestDeviceActionId))
+        return new LinuxDeviceTestDialog(deviceConfig, new GenericLinuxDeviceTester, parent);
+    if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId)) {
+        return new RemoteLinuxProcessesDialog(new GenericRemoteLinuxProcessList(deviceConfig),
             parent);
     }
-    if (actionId == QLatin1String(Constants::GenericRemoteProcessesActionId))
-        return new MaemoRemoteProcessesDialog(deviceConfig, parent);
     if (actionId == QLatin1String(Constants::GenericDeployKeyToDeviceActionId))
         return new PublicKeyDeploymentDialog(deviceConfig, parent);
     return 0; // Can't happen.

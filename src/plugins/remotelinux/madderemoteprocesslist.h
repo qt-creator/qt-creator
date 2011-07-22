@@ -6,7 +6,6 @@
 **
 ** Contact: Nokia Corporation (info@qt.nokia.com)
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -29,40 +28,27 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#ifndef DEFAULTDEVICETESTDIALOG_H
-#define DEFAULTDEVICETESTDIALOG_H
+#ifndef MADDEREMOTEPROCESSLIST_H
+#define MADDEREMOTEPROCESSLIST_H
 
-#include "linuxdevicetester.h"
-#include "remotelinux_export.h"
-
-#include <QtGui/QDialog>
+#include <remotelinux/remotelinuxprocesslist.h>
 
 namespace RemoteLinux {
 namespace Internal {
-class LinuxDeviceTestDialogPrivate;
-} // namespace Internal
 
-class REMOTELINUX_EXPORT LinuxDeviceTestDialog : public QDialog
+class MaddeRemoteProcessList : public RemoteLinux::GenericRemoteLinuxProcessList
 {
     Q_OBJECT
 public:
-
-    // Note: The dialog takes ownership of deviceTester
-    explicit LinuxDeviceTestDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
-        AbstractLinuxDeviceTester * deviceTester, QWidget *parent = 0);
-    ~LinuxDeviceTestDialog();
-
-    void reject();
-
-private slots:
-    void handleProgressMessage(const QString &message);
-    void handleErrorMessage(const QString &message);
-    void handleTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
+    MaddeRemoteProcessList(const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
+        QObject *parent = 0);
 
 private:
-    Internal::LinuxDeviceTestDialogPrivate * const m_d;
+    QString listProcessesCommandLine() const;
+    QList<RemoteProcess> buildProcessList(const QString &listProcessesReply) const;
 };
 
+} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // DEFAULTDEVICETESTDIALOG_H
+#endif // MADDEREMOTEPROCESSLIST_H

@@ -47,7 +47,7 @@ class MaddeDeviceTester : public RemoteLinux::AbstractLinuxDeviceTester
 {
     Q_OBJECT
 public:
-    explicit MaddeDeviceTester(QObject *parent);
+    explicit MaddeDeviceTester(QObject *parent = 0);
     ~MaddeDeviceTester();
 
     void testDevice(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration);
