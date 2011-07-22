@@ -4,10 +4,7 @@
 namespace RemoteLinux {
 namespace Constants {
 
-const char RemoteLinuxSettingsCategory[] = "X.Maemo";
-const char RemoteLinuxSettingsTrCategory[]
-    = QT_TRANSLATE_NOOP("RemoteLinux", "Linux Devices");
-const char RemoteLinuxSettingsCategoryIcon[] = ":/projectexplorer/images/MaemoDevice.png";
+const char RemoteLinuxSettingsCategory[] = "X.RemoteLinux";
 
 const char GenericTestDeviceActionId[] = "RemoteLinux.GenericTestDeviceAction";
 const char GenericDeployKeyToDeviceActionId[] = "RemoteLinux.GenericDeployKeyToDeviceAction";

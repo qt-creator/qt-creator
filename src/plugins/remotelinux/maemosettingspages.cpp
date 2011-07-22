@@ -128,12 +128,12 @@ QString MaemoQemuSettingsPage::category() const
 
 QString MaemoQemuSettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("RemoteLinux", Constants::RemoteLinuxSettingsTrCategory);
+    return QString(); // Already set by device configurations page.
 }
 
 QIcon MaemoQemuSettingsPage::categoryIcon() const
 {
-    return QIcon(QLatin1String(Constants::RemoteLinuxSettingsCategoryIcon));
+    return QIcon(); // See above.
 }
 
 bool MaemoQemuSettingsPage::matches(const QString &searchKeyWord) const

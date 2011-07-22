@@ -66,12 +66,12 @@ QString LinuxDeviceConfigurationsSettingsPage::category() const
 
 QString LinuxDeviceConfigurationsSettingsPage::displayCategory() const
 {
-    return QCoreApplication::translate("RemoteLinux", Constants::RemoteLinuxSettingsTrCategory);
+    return QCoreApplication::translate("RemoteLinux", "Linux Devices");
 }
 
 QIcon LinuxDeviceConfigurationsSettingsPage::categoryIcon() const
 {
-    return QIcon(QLatin1String(Constants::RemoteLinuxSettingsCategoryIcon));
+    return QIcon(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
 }
 
 bool LinuxDeviceConfigurationsSettingsPage::matches(const QString &searchKeyWord) const
@@ -98,7 +98,7 @@ void LinuxDeviceConfigurationsSettingsPage::finish()
 
 QString LinuxDeviceConfigurationsSettingsPage::pageId()
 {
-    return QLatin1String("ZZ.Maemo Device Configurations");
+    return QLatin1String("AA.Remote Linux Device Configurations");
 }
 
 QString LinuxDeviceConfigurationsSettingsPage::pageCategory()
