@@ -37,6 +37,8 @@ Rectangle {
     id: root
     height: Math.max(image.height-20, description.paintedHeight) + 68
     color: "#00ffffff"
+    property variant tags : model.tags
+    signal tagClicked(string tag)
 
     Components.QStyleItem { cursor: "pointinghandcursor" ; anchors.fill: parent }
 
@@ -96,17 +98,6 @@ Rectangle {
         color:"#444"
     }
 
-    Row {
-        id: tagLine;
-        anchors.top: description.bottom
-        anchors.left: parent.left
-        anchors.topMargin: 5
-        anchors.leftMargin: 10
-        anchors.rightMargin: 26
-        Text { id: labelText; text: "Tags: " ; color: "#999"; font.pixelSize: 11}
-        Text { text: model.tags.join(", "); color: "#bbb"; font.pixelSize: 11}
-    }
-
     MouseArea {
         id: mouseArea
         anchors.fill: parent
@@ -121,7 +112,39 @@ Rectangle {
         onExited: parent.state = ""
     }
 
-
+    Row {
+        id: tagLine;
+        anchors.bottomMargin: 20
+        anchors.top: description.bottom
+        anchors.left: parent.left
+        anchors.leftMargin: 10
+        anchors.rightMargin: 26
+        spacing: 4
+        Text { id: labelText; text: qsTr("Tags:") ; color: "#999"; font.pixelSize: 11}
+        Repeater {
+            model: tags;
+            Text {
+                states: [ State { name: "hover"; PropertyChanges { target: tagText; color: "black" } } ]
+                id: tagText
+                text: model.modelData
+                color: "#bbb"
+                font.pixelSize: 11
+                MouseArea {
+                    anchors.fill: parent;
+                    hoverEnabled: true;
+                    onEntered: {
+                        root.state = "hover"
+                        parent.state = "hover"
+                    }
+                    onExited:{
+                        root.state = ""
+                        parent.state = ""
+                    }
+                    onClicked: root.tagClicked(model.modelData)
+                }
+            }
+        }
+    }
 
     states: [ State { name: "hover"; PropertyChanges { target: root; color: "#f9f9f9" } } ]
 }

@@ -63,7 +63,7 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeNetworkAccessManagerFactory>
 
-enum { debug = 0 };
+enum { debug = 1 };
 
 using namespace ExtensionSystem;
 

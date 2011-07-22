@@ -36,10 +36,18 @@ import widgets 1.0 as Widgets
 
 Item {
     id: exampleBrowserRoot
+    function appendTag(tag) {
+        var tagStr = "tag:" + '"' + tag + '"'
+        if (lineEdit.text == "")
+            lineEdit.text = tagStr
+        else
+            lineEdit.text += " " + tagStr
+    }
+
 
     Rectangle {
-        color:"#f4f4f4"
         id : lineEditRoot
+        color:"#f4f4f4"
         width: parent.width
         height: lineEdit.height + 6
         anchors.bottom: parent.bottom
@@ -50,14 +58,14 @@ Item {
         anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 : -8
 
         Widgets.LineEdit {
+            id: lineEdit
             placeholderText: !checkBox.checked ? qsTr("Search in Tutorials") : qsTr("Search in Tutorials, Examples and Demos")
             focus: true
-            id: lineEdit
             anchors.left: parent.left
             anchors.leftMargin:4
             anchors.verticalCenter: parent.verticalCenter
             width: Math.max(lineEditRoot.width - checkBox.width - 28 - tagFilterButton.width, 100)
-            onTextChanged: examplesModel.filterRegExp = RegExp('.*'+text, "im")
+            onTextChanged: examplesModel.parseSearchString(text)
         }
 
         CheckBox {
@@ -74,12 +82,12 @@ Item {
         Button {
             id: tagFilterButton
             property string tag
-            onTagChanged: { examplesModel.filterTag = tag; examplesModel.updateFilter() }
+            onTagChanged: exampleBrowserRoot.appendTag(tag)
             anchors.left: checkBox.right
             anchors.leftMargin: 6
             anchors.verticalCenter: lineEdit.verticalCenter
             visible: !examplesModel.showTutorialsOnly
-            text: tag === "" ? qsTr("Filter by Tag") : qsTr("Tag Filter: %1").arg(tag)
+            text: qsTr("Tag List")
             onClicked: {
                 tagBrowserLoader.source = "TagBrowser.qml"
                 tagBrowserLoader.item.visible = true
@@ -96,7 +104,7 @@ Item {
             Repeater {
                 id: repeater
                 model: examplesModel
-                delegate: ExampleDelegate { width: scrollArea.width }
+                delegate: ExampleDelegate { width: scrollArea.width; onTagClicked: exampleBrowserRoot.appendTag(tag) }
             }
         }
         Component.onCompleted: verticalScrollBar.anchors.bottomMargin = -(scrollArea.anchors.bottomMargin + 8)
