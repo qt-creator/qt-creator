@@ -68,6 +68,20 @@ QPlainTextEdit
                                        stop: 0 #2c2c2c, stop: 1 #333333);
 }
 
+QTextEdit
+{
+    border: 1px solid #0F0F0F;
+    font-size: 11px;
+    border-radius: 6px;
+    color: white;
+    padding: 8 8px;
+    selection-background-color: lightgray;
+    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #2c2c2c, stop: 1 #333333);
+}
+
+
+
  QSpinBox 
  {
      font-size: 11px;

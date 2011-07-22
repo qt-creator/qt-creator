@@ -34,7 +34,7 @@ import Qt 4.7
 import Bauhaus 1.0
 
 QWidget {
-    id: lineEdit
+    id: textEdit
 
     function escapeString(string) {
         var str  = string;
@@ -47,20 +47,19 @@ QWidget {
     }
 
     property variant backendValue
-    property alias enabled: lineEdit.enabled
+    property alias enabled: textEdit.enabled
     property variant baseStateFlag
-    property alias text: lineEditWidget.text
-    property alias readOnly: lineEditWidget.readOnly
+    property alias text: textEditWidget.plainText
+    property alias readOnly: textEditWidget.readOnly
     property alias translation: trCheckbox.visible
-    property alias inputMask: lineEditWidget.inputMask
 
-    minimumHeight: 24;
+    minimumHeight: 72;
 
     onBaseStateFlagChanged: {
         evaluate();
     }
 
-    property variant isEnabled: lineEdit.enabled
+    property variant isEnabled: textEdit.enabled
     onIsEnabledChanged: {
         evaluate();
     }
@@ -77,45 +76,49 @@ QWidget {
 
     function evaluate() {
         if (!enabled) {
-            lineEditWidget.setStyleSheet("color: "+scheme.disabledColor);
+            textEditWidget.setStyleSheet("color: "+scheme.disabledColor);
         } else {
             if (baseStateFlag) {
                 if (backendValue != null && backendValue.isInModel)
-                    lineEditWidget.setStyleSheet("color: "+scheme.changedBaseColor);
+                    textEditWidget.setStyleSheet("color: "+scheme.changedBaseColor);
                 else
-                    lineEditWidget.setStyleSheet("color: "+scheme.defaultColor);
+                    textEditWidget.setStyleSheet("color: "+scheme.defaultColor);
             } else {
                 if (backendValue != null && backendValue.isInSubState)
-                    lineEditWidget.setStyleSheet("color: "+scheme.changedStateColor);
+                    textEditWidget.setStyleSheet("color: "+scheme.changedStateColor);
                 else
-                    lineEditWidget.setStyleSheet("color: "+scheme.defaultColor);
+                    textEditWidget.setStyleSheet("color: "+scheme.defaultColor);
             }
         }
     }
 
     ColorScheme { id:scheme; }
 
-    QLineEdit {
+    QTextEdit {
+        acceptRichText: false
+        verticalScrollBarPolicy: "Qt::ScrollBarAlwaysOff"
         y: 2
-        id: lineEditWidget
+        id: textEditWidget
         styleSheet: "QLineEdit { padding-left: 32; }"
-        width: lineEdit.width
-        height: lineEdit.height
+        width: textEdit.width
+        height: textEdit.height - 2
         toolTip: backendValue.isBound ? backendValue.expression : ""
-        
+
         property string valueFromBackend: (backendValue === undefined || backendValue.value === undefined) ? "" : backendValue.value;
 
         onValueFromBackendChanged: {
             if (backendValue.value === undefined)
                 return;
-            text = backendValue.value;
+            if (plainText === backendValue.value)
+                return;
+            plainText = backendValue.value;
         }
 
-        onEditingFinished: {
+        onTextChanged: {
             if (backendValue.isTranslated) {
-                backendValue.expression = "qsTr(\"" + escapeString(text) + "\")"
+                backendValue.expression = "qsTr(\"" + escapeString(plainText) + "\")"
             } else {
-                backendValue.value = text
+                backendValue.value = plainText
             }
             evaluate();
         }
@@ -130,26 +133,27 @@ QWidget {
 
     }
     ExtendedFunctionButton {
-        backendValue: lineEdit.backendValue
+        backendValue: textEdit.backendValue
         y: 6
         x: 0
-        visible: lineEdit.enabled
+        visible: textEdit.enabled
     }
+
     QCheckBox {
         id: trCheckbox
         y: 2
         styleSheetFile: "checkbox_tr.css";
         toolTip: qsTr("Translate this string")
-        x: lineEditWidget.width - 22
-        height: lineEdit.height - 2;
+        x: textEditWidget.width - 22
+        height: 24;
         width: 24
         visible: false
         checked: backendValue.isTranslated
         onToggled: {
             if (trCheckbox.checked) {
-                backendValue.expression = "qsTr(\"" + escapeString(lineEditWidget.text) + "\")"
+                backendValue.expression = "qsTr(\"" + escapeString(textEditWidget.plainText) + "\")"
             } else {
-                backendValue.value = lineEditWidget.text
+                backendValue.value = textEditWidget.plainText
             }
             evaluate();
         }
@@ -157,7 +161,7 @@ QWidget {
         onVisibleChanged: {
             if (trCheckbox.visible) {
                 trCheckbox.raise();
-                lineEditWidget.styleSheet =  "QLineEdit { padding-left: 32; padding-right: 62;}"
+                textEditWidget.styleSheet =  "QLineEdit { padding-left: 32; padding-right: 62;}"
             }
         }
     }

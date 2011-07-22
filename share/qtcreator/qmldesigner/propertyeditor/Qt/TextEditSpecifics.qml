@@ -46,6 +46,7 @@ QWidget {
         StandardTextGroupBox {
             finished: finishedNotify;
             showIsWrapping: true
+            useLineEdit: true
         }
         StandardTextColorGroupBox {
             finished: finishedNotify;
