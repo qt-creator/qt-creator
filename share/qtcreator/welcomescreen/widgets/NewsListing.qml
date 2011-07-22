@@ -138,6 +138,7 @@ Item {
                     font.italic: true;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
                     textFormat: Text.RichText
+                    width: parent.width-10
                 }
             }
             Components.QStyleItem {
