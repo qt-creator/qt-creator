@@ -610,7 +610,7 @@ void PropertyEditor::setQmlDir(const QString &qmlDir)
 void PropertyEditor::delayedResetView()
 {
     if (m_timerId == 0)
-        m_timerId = startTimer(200);
+        m_timerId = startTimer(100);
 }
 
 void PropertyEditor::timerEvent(QTimerEvent *timerEvent)
