@@ -54,9 +54,9 @@ namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
 class PortList;
+class RemoteLinuxUsedPortsGatherer;
 
 namespace Internal {
-class MaemoUsedPortsGatherer;
 
 class MaemoRemoteMounter : public QObject
 {
@@ -75,7 +75,7 @@ public:
     bool hasValidMountSpecifications() const;
     void resetMountSpecifications() { m_mountSpecs.clear(); }
     void mount(PortList *freePorts,
-        const MaemoUsedPortsGatherer *portsGatherer);
+        const RemoteLinuxUsedPortsGatherer *portsGatherer);
     void unmount();
     void stop();
 
@@ -135,7 +135,7 @@ private:
     QByteArray m_utfsClientStderr;
     QByteArray m_umountStderr;
     PortList *m_freePorts;
-    const MaemoUsedPortsGatherer *m_portsGatherer;
+    const RemoteLinuxUsedPortsGatherer *m_portsGatherer;
     bool m_remoteMountsAllowed;
     QString m_maddeRoot;
 

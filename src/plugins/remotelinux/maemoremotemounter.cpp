@@ -33,13 +33,14 @@
 #include "maemoremotemounter.h"
 
 #include "maemoglobal.h"
-#include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
 
 #include <utils/ssh/sshconnection.h>
 #include <utils/ssh/sshremoteprocess.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
+#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QTimer>
@@ -98,7 +99,7 @@ bool MaemoRemoteMounter::hasValidMountSpecifications() const
 }
 
 void MaemoRemoteMounter::mount(PortList *freePorts,
-    const MaemoUsedPortsGatherer *portsGatherer)
+    const RemoteLinuxUsedPortsGatherer *portsGatherer)
 {
     QTC_ASSERT(m_state == Inactive, return);
 

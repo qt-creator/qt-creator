@@ -28,37 +28,40 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
+#ifndef REMOTELINUXUSEDPORTSGATHERER_H
+#define REMOTELINUXUSEDPORTSGATHERER_H
 
-#ifndef MAEMOUSEDPORTSGATHERER_H
-#define MAEMOUSEDPORTSGATHERER_H
+#include "remotelinux_export.h"
 
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QString>
+
+QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace Utils {
 class SshConnection;
-class SshRemoteProcessRunner;
-}
+} // namespace Utils
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
 class PortList;
 
 namespace Internal {
+class RemoteLinuxUsedPortsGathererPrivate;
+} // namespace Internal
 
-class MaemoUsedPortsGatherer : public QObject
+class REMOTELINUX_EXPORT RemoteLinuxUsedPortsGatherer : public QObject
 {
     Q_OBJECT
 public:
-    explicit MaemoUsedPortsGatherer(QObject *parent = 0);
-    ~MaemoUsedPortsGatherer();
+    explicit RemoteLinuxUsedPortsGatherer(QObject *parent = 0);
+    ~RemoteLinuxUsedPortsGatherer();
     void start(const QSharedPointer<Utils::SshConnection> &connection,
         const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
     void stop();
     int getNextFreePort(PortList *freePorts) const; // returns -1 if no more are left
-    QList<int> usedPorts() const { return m_usedPorts; }
+    QList<int> usedPorts() const;
 
 signals:
     void error(const QString &errMsg);
@@ -73,14 +76,9 @@ private slots:
 private:
     void setupUsedPorts();
 
-    QSharedPointer<Utils::SshRemoteProcessRunner> m_procRunner;
-    QList<int> m_usedPorts;
-    QByteArray m_remoteStdout;
-    QByteArray m_remoteStderr;
-    bool m_running;
+    Internal::RemoteLinuxUsedPortsGathererPrivate * const m_d;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMOUSEDPORTSGATHERER_H
+#endif // REMOTELINUXUSEDPORTSGATHERER_H

@@ -32,9 +32,9 @@
 #include "remotelinuxdebugsupport.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "maemousedportsgatherer.h"
 #include "qt4maemotarget.h"
 #include "remotelinuxapplicationrunner.h"
+#include "remotelinuxusedportsgatherer.h"
 
 #include <debugger/debuggerengine.h>
 #include <projectexplorer/abi.h>

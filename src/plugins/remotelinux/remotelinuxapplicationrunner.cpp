@@ -33,7 +33,7 @@
 
 #include "linuxdeviceconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
-#include "maemousedportsgatherer.h"
+#include "remotelinuxusedportsgatherer.h"
 
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshconnection.h>
@@ -71,7 +71,7 @@ public:
     {
     }
 
-    MaemoUsedPortsGatherer portsGatherer;
+    RemoteLinuxUsedPortsGatherer portsGatherer;
     const LinuxDeviceConfiguration::ConstPtr devConfig;
     const QString remoteExecutable;
     const QString appArguments;
@@ -116,7 +116,7 @@ LinuxDeviceConfiguration::ConstPtr AbstractRemoteLinuxApplicationRunner::devConf
     return m_d->devConfig;
 }
 
-const MaemoUsedPortsGatherer *AbstractRemoteLinuxApplicationRunner::usedPortsGatherer() const
+const RemoteLinuxUsedPortsGatherer *AbstractRemoteLinuxApplicationRunner::usedPortsGatherer() const
 {
     return &m_d->portsGatherer;
 }

@@ -45,10 +45,10 @@ namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
+class RemoteLinuxUsedPortsGatherer;
 
 namespace Internal {
 class MaemoRemoteMounter;
-class MaemoUsedPortsGatherer;
 
 class MaemoDeploymentMounter : public QObject
 {
@@ -93,7 +93,7 @@ private:
     QSharedPointer<Utils::SshConnection> m_connection;
     QSharedPointer<const LinuxDeviceConfiguration> m_devConf;
     MaemoRemoteMounter * const m_mounter;
-    MaemoUsedPortsGatherer * const m_portsGatherer;
+    RemoteLinuxUsedPortsGatherer * const m_portsGatherer;
     PortList m_freePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
     const Qt4ProjectManager::Qt4BuildConfiguration *m_buildConfig;

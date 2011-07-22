@@ -25,7 +25,6 @@ HEADERS += \
     maemomountspecification.h \
     maemoremotemounter.h \
     maemoprofilesupdatedialog.h \
-    maemousedportsgatherer.h \
     maemopublishingwizardfactories.h \
     maemopublishingbuildsettingspagefremantlefree.h \
     maemopublishingfileselectiondialog.h \
@@ -96,7 +95,8 @@ HEADERS += \
     remotelinuxenvironmentreader.h \
     sshkeydeployer.h \
     typespecificdeviceconfigurationlistmodel.h \
-    sshkeycreationdialog.h
+    sshkeycreationdialog.h \
+    remotelinuxusedportsgatherer.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -117,7 +117,6 @@ SOURCES += \
     maemomountspecification.cpp \
     maemoremotemounter.cpp \
     maemoprofilesupdatedialog.cpp \
-    maemousedportsgatherer.cpp \
     maemopublishingwizardfactories.cpp \
     maemopublishingbuildsettingspagefremantlefree.cpp \
     maemopublishingfileselectiondialog.cpp \
@@ -185,7 +184,8 @@ SOURCES += \
     remotelinuxenvironmentreader.cpp \
     sshkeydeployer.cpp \
     typespecificdeviceconfigurationlistmodel.cpp \
-    sshkeycreationdialog.cpp
+    sshkeycreationdialog.cpp \
+    remotelinuxusedportsgatherer.cpp
 
 FORMS += \
     maemopackagecreationwidget.ui \

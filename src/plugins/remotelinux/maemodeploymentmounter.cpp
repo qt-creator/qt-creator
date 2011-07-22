@@ -34,9 +34,10 @@
 
 #include "maemoglobal.h"
 #include "maemoremotemounter.h"
-#include "maemousedportsgatherer.h"
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshconnection.h>
 
@@ -50,7 +51,7 @@ MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
     : QObject(parent),
       m_state(Inactive),
       m_mounter(new MaemoRemoteMounter(this)),
-      m_portsGatherer(new MaemoUsedPortsGatherer(this))
+      m_portsGatherer(new RemoteLinuxUsedPortsGatherer(this))
 {
     connect(m_mounter, SIGNAL(error(QString)), SLOT(handleMountError(QString)));
     connect(m_mounter, SIGNAL(mounted()), SLOT(handleMounted()));

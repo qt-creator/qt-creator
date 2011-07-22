@@ -47,10 +47,10 @@ class SshRemoteProcess;
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfiguration;
+class RemoteLinuxUsedPortsGatherer;
 
 namespace Internal {
 class AbstractRemoteLinuxApplicationRunnerPrivate;
-class MaemoUsedPortsGatherer;
 }
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxApplicationRunner : public QObject
@@ -68,7 +68,7 @@ public:
 
     QSharedPointer<Utils::SshConnection> connection() const;
     QSharedPointer<const LinuxDeviceConfiguration> devConfig() const;
-    const Internal::MaemoUsedPortsGatherer *usedPortsGatherer() const;
+    const RemoteLinuxUsedPortsGatherer *usedPortsGatherer() const;
     PortList *freePorts();
     QString remoteExecutable() const;
     QString arguments() const;

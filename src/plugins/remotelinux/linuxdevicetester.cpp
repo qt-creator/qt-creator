@@ -32,7 +32,7 @@
 #include "linuxdevicetester.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "maemousedportsgatherer.h"
+#include "remotelinuxusedportsgatherer.h"
 
 #include <utils/qtcassert.h>
 #include <utils/ssh/sshremoteprocess.h>
@@ -56,7 +56,7 @@ public:
     LinuxDeviceConfiguration::ConstPtr deviceConfiguration;
     SshConnection::Ptr connection;
     SshRemoteProcess::Ptr process;
-    MaemoUsedPortsGatherer portsGatherer;
+    RemoteLinuxUsedPortsGatherer portsGatherer;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
     State state;
