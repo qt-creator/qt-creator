@@ -230,10 +230,11 @@ QString QmlTextGenerator::escape(const QString &value)
     QString result = value;
 
     result.replace(QLatin1String("\\"), QLatin1String("\\\\"));
+
     result.replace(QLatin1String("\""), QLatin1String("\\\""));
-    result.replace(QLatin1String("\t"), QLatin1String("\\\t"));
-    result.replace(QLatin1String("\r"), QLatin1String("\\\r"));
-    result.replace(QLatin1String("\n"), QLatin1String("\\\n"));
+    result.replace(QLatin1String("\t"), QLatin1String("\\t"));
+    result.replace(QLatin1String("\r"), QLatin1String("\\r"));
+    result.replace(QLatin1String("\n"), QLatin1String("\\n"));
 
     return result;
 }
