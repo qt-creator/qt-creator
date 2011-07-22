@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="testrecord.png">images/testrecord.png</file>
+        <file alias="testrun.png">images/testrun.png</file>
+        <file alias="testlearn.png">images/testlearn.png</file>
+        <file alias="teststop.png">images/teststop.png</file>
+        <file alias="breakpoint.png">images/breakpoint.png</file>
+        <file alias="breakstep.png">images/breakstep.png</file>
+        <file alias="breakcontinue.png">images/breakcontinue.png</file>
+        <file alias="nextfail.png">images/next_fail.png</file>
+        <file alias="reload.png">images/reload.png</file>
+        <file alias="error.png">images/error.png</file>
+    </qresource>
+</RCC>
