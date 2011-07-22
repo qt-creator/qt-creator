@@ -6165,45 +6165,25 @@
 
         \o  Add an invisible
             \l{http://doc.qt.nokia.com/qtmobility/qml-deviceinfo.html}
-            {DeviceInfo element} and an
+            {DeviceInfo element} that contains two signals. The
             \l{http://doc.qt.nokia.com/4.7/qml-component.html#onCompleted-signal}
-            {onCompleted signal}, as illustrated by the following code snippet:
+            {onCompleted} signal starts battery level notification when the
+            component is initialized. The
+            \l{http://doc.qt.nokia.com/qtmobility/qml-deviceinfo.html#batteryLevelChanged-signal}
+            {batteryLevelChanged} signal is called when the battery level
+            changes.
 
-            \code
-            DeviceInfo {
-                id: deviceinfo
-                Component.onCompleted: {
-                    deviceinfo.startBatteryLevelChanged();
-                }
-            }
-            \endcode
+            \snippet examples/batterystatus/qml/BatteryStatus/MainPage.qml 0
 
         \o  Set an expression as the value of the text property of the Text
             element to display the battery level as a percentage:
 
-            \code
-            Text {
-                id: text1
-                anchors.centerIn: parent
-                color: platformStyle.colorNormalLight
-                text: qsTr("Battery status: %1%").arg(deviceinfo.batteryLevel)
-                font.pixelSize: 20
-            \endcode
+            \snippet examples/batterystatus/qml/BatteryStatus/MainPage.qml 1
 
         \o  Set values for the ProgressBar element to display the battery level
             on the progress bar:
 
-            \code
-            ProgressBar {
-                id: progressbar1
-                anchors.horizontalCenter: text1.horizontalCenter
-                anchors.top: text1.bottom
-                anchors.topMargin: 20
-                minimumValue: 0
-                maximumValue: 100
-                value: deviceinfo.batteryLevel
-            }
-            \endcode
+            \snippet examples/batterystatus/qml/BatteryStatus/MainPage.qml 2
 
     \endlist
 
