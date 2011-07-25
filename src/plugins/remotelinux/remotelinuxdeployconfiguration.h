@@ -68,7 +68,7 @@ public:
     QSharedPointer<Internal::TypeSpecificDeviceConfigurationListModel> deviceConfigModel() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
 
-    template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep)
+    template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep) const
     {
         const QList<ProjectExplorer::BuildStep *> &buildSteps = stepList()->steps();
         for (int i = 0; i < buildSteps.count(); ++i) {
