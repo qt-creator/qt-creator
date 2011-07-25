@@ -172,6 +172,15 @@ static inline void openInlineComponent(const ModelNode &node)
     }
 }
 
+static inline bool modelNodesHaveProperty(const QList<ModelNode> &modelNodeList, const QString &propertyName)
+{
+    foreach (const ModelNode &modelNode, modelNodeList)
+        if (modelNode.hasProperty(propertyName))
+            return true;
+
+    return false;
+}
+
 ModelNodeContextMenu::ModelNodeContextMenu(QmlModelView *view) : m_view(view)
 {
 }
@@ -183,9 +192,10 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
     bool singleSelected = false;
     bool selectionIsEmpty = m_view->selectedModelNodes().isEmpty();
     ModelNode currentSingleNode;
-    if (m_view->selectedModelNodes().count()== 1) {
+    const QList<ModelNode> &selectedModelNodes =  m_view->selectedModelNodes();
+    if (selectedModelNodes.count()== 1) {
         singleSelected = true;
-        currentSingleNode = m_view->selectedModelNodes().first();
+        currentSingleNode = selectedModelNodes.first();
     }
 
     if (selectionMenuBool) {
@@ -215,17 +225,23 @@ void ModelNodeContextMenu::execute(const QPoint &pos, bool selectionMenuBool)
 
     stackMenu->addAction(createModelNodeAction(tr("To Front"), stackMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ToFront, singleSelected));
     stackMenu->addAction(createModelNodeAction(tr("To Back"), stackMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ToBack, singleSelected));
-    stackMenu->addAction(createModelNodeAction(tr("Raise"), stackMenu, QList<ModelNode>() << m_view->selectedModelNodes(), ModelNodeAction::Raise));
-    stackMenu->addAction(createModelNodeAction(tr("Lower"), stackMenu, QList<ModelNode>() << m_view->selectedModelNodes(), ModelNodeAction::Lower));
+    stackMenu->addAction(createModelNodeAction(tr("Raise"), stackMenu, QList<ModelNode>() << selectedModelNodes, ModelNodeAction::Raise));
+    stackMenu->addAction(createModelNodeAction(tr("Lower"), stackMenu, QList<ModelNode>() << selectedModelNodes, ModelNodeAction::Lower));
     stackMenu->addSeparator();
-    stackMenu->addAction(createModelNodeAction(tr("Reset z property"), stackMenu, QList<ModelNode>() << m_view->selectedModelNodes(), ModelNodeAction::ResetZ));
+    stackMenu->addAction(createModelNodeAction(tr("Reset z property"), stackMenu, QList<ModelNode>() << selectedModelNodes, ModelNodeAction::ResetZ));
 
     QMenu *editMenu = new QMenu(tr("Edit"), menu);
     menu->addMenu(editMenu);
     if (!selectionIsEmpty) {
         //editMenu->addAction(createModelNodeAction(tr("Change Id"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::SetId, singleSelected));
-        editMenu->addAction(createModelNodeAction(tr("Reset Position"), editMenu, m_view->selectedModelNodes(), ModelNodeAction::ResetPosition));
-        editMenu->addAction(createModelNodeAction(tr("Reset Size"), editMenu, m_view->selectedModelNodes(), ModelNodeAction::ResetSize));
+        ModelNodeAction* action = createModelNodeAction(tr("Reset Position"), editMenu, selectedModelNodes, ModelNodeAction::ResetPosition);
+        if (!modelNodesHaveProperty(selectedModelNodes, QLatin1String("x")) && !modelNodesHaveProperty(selectedModelNodes, QLatin1String("y")))
+            action->setDisabled(true);
+        editMenu->addAction(action);
+        action = createModelNodeAction(tr("Reset Size"), editMenu, selectedModelNodes, ModelNodeAction::ResetSize);
+        if (!modelNodesHaveProperty(selectedModelNodes, QLatin1String("width")) && !modelNodesHaveProperty(selectedModelNodes, QLatin1String("height")))
+            action->setDisabled(true);
+        editMenu->addAction(action);
         editMenu->addAction(createModelNodeAction(tr("Visibility"), editMenu, QList<ModelNode>() << currentSingleNode, ModelNodeAction::ModelNodeVisibility, singleSelected));
 
     } else {
