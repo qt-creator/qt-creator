@@ -131,8 +131,6 @@ void RemoteLinuxRunConfiguration::init()
     Qt4Project *pro = qt4Target()->qt4Project();
     connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
-    connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-        SLOT(updateEnabledState()));
 }
 
 RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
