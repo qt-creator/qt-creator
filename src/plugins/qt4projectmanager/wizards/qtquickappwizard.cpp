@@ -66,7 +66,7 @@ private:
 };
 
 QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent)
-    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(4, 7, 1))
+    : AbstractMobileAppWizardDialog(parent, QtSupport::QtVersionNumber(4, 7, 0))
 {
     setWindowTitle(tr("New Qt Quick Application"));
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));
@@ -84,6 +84,7 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent)
 bool QtQuickAppWizardDialog::validateCurrentPage()
 {
     if (currentPage() == m_componentOptionsPage) {
+        setIgnoreGenericOptionsPage(false);
         if (m_componentOptionsPage->componentSet() == QtQuickApp::Symbian10Components) {
             setIgnoreGenericOptionsPage(true);
             targetsPage()->setMinimumQtVersion(QtSupport::QtVersionNumber(4, 7, 3));

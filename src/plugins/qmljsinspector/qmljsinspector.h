@@ -95,7 +95,7 @@ public:
 
     static InspectorUi *instance();
 
-    QString findFileInProject(const QString &file) const;
+    QString findFileInProject(const QUrl &fileUrl) const;
 
     void setupUi();
     bool isConnected() const;

@@ -331,10 +331,6 @@
         <translation>CMake ausführen</translation>
     </message>
     <message>
-        <source>Arguments</source>
-        <translation type="obsolete">Argumente</translation>
-    </message>
-    <message>
         <source>The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. Some projects require command line arguments to the initial CMake call.</source>
         <translation>Das Verzeichnis %1 enthält keine cbp-Datei. Qt Creator muss die Datei durch einen cmake-Aufruf erzeugen. Für einige Projekte sind dazu Kommandozeilenargumente erforderlich.</translation>
     </message>
@@ -1581,7 +1577,7 @@
         <translation>Alles Aus&amp;wählen</translation>
     </message>
     <message>
-        <source>&amp;Go To Line...</source>
+        <source>&amp;Go to Line...</source>
         <translation>&amp;Gehe zu Zeile...</translation>
     </message>
     <message>
@@ -2674,6 +2670,10 @@ Qt Creator kann sich nicht anhängen.</translation>
     <message>
         <source>Break on &quot;qWarning&quot;</source>
         <translation>Bei &quot;qWarning&quot; anhalten</translation>
+    </message>
+    <message>
+        <source>Break on &quot;qFatal&quot;</source>
+        <translation>Bei &quot;qFatal&quot; anhalten</translation>
     </message>
     <message>
         <source>Automatically Quit Debugger</source>
@@ -5041,6 +5041,10 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>Always try to set breakpoints in plugins automatically</source>
         <translation>Versuche, Haltepunkte in Plugins automatisch zu setzen.</translation>
+    </message>
+    <message>
+        <source>Stop when a qFatal is issued</source>
+        <translation>Bei qFatal anhalten</translation>
     </message>
 </context>
 <context>
@@ -10565,10 +10569,6 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Text&amp;umbruch aktivieren</translation>
     </message>
     <message>
-        <source>(Un)Comment &amp;Selection</source>
-        <translation>Auswahl aus&amp;kommentieren</translation>
-    </message>
-    <message>
         <source>Ctrl+/</source>
         <translation>Ctrl+/</translation>
     </message>
@@ -10583,10 +10583,6 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <source>Unfold</source>
         <translation>Ausklappen</translation>
-    </message>
-    <message>
-        <source>(Un)&amp;Fold All</source>
-        <translation>Alles Aus&amp;klappen</translation>
     </message>
     <message>
         <source>Reset Font Size</source>
@@ -10629,6 +10625,10 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>%1+E, %2+W</translation>
     </message>
     <message>
+        <source>Toggle Comment &amp;Selection</source>
+        <translation>Auswahl aus&amp;kommentieren</translation>
+    </message>
+    <message>
         <source>Cut &amp;Line</source>
         <translation>&amp;Zeile ausschneiden</translation>
     </message>
@@ -10647,6 +10647,10 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     <message>
         <source>Ctrl+&gt;</source>
         <translation>Ctrl+&gt;</translation>
+    </message>
+    <message>
+        <source>Toggle &amp;Fold All</source>
+        <translation>Alles Aus&amp;klappen</translation>
     </message>
     <message>
         <source>Increase Font Size</source>
@@ -13270,6 +13274,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>&amp;Vorgabe wiederherstellen</translation>
     </message>
     <message>
+        <source>&amp;Go into Component</source>
+        <translation>In Komponente gehen</translation>
+    </message>
+    <message>
         <source>Toggle &amp;Left Sidebar</source>
         <translation>&amp;Linke Seitenleiste umschalten</translation>
     </message>
@@ -13413,6 +13421,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
         <translation>Die ABI(s) der Qt-Version konnten nicht bestimmt werden.</translation>
     </message>
     <message>
+        <source>No qmlviewer installed.</source>
+        <translation>Es ist kein qmlviewer installiert.</translation>
+    </message>
+    <message>
         <source>The &quot;Open C/C++ plugin&quot; is not installed in the Symbian SDK or the Symbian SDK path is misconfigured</source>
         <translation>Das Plugin &quot;Open C/C++&quot; ist im Symbian SDK nicht installiert oder der Pfad des Symbian SDKs ist falsch konfiguriert</translation>
     </message>
@@ -13456,7 +13468,13 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     </message>
     <message>
         <source>The Qt Version has no tool chain.</source>
-        <translation>Dieser Qt-Version ist keine Toolchain zugeordnet.</translation>
+        <translation type="obsolete">Dieser Qt-Version ist keine Toolchain zugeordnet.</translation>
+    </message>
+    <message>
+        <source>Building helper(s) with toolchain &apos;%1&apos; ...
+</source>
+        <translation>Erstelle Ausgabe-Hilfsbibliothek mit der Toolchain &apos;%1&apos;...
+</translation>
     </message>
     <message>
         <source>Build failed.</source>
@@ -13506,6 +13524,10 @@ Sie können die Änderungen in einem Stash ablegen oder rücksetzen.</translatio
     <message>
         <source>Text Editor</source>
         <translation>Text Editor</translation>
+    </message>
+    <message>
+        <source>Translate this string</source>
+        <translation>Zeichenkette übersetzen</translation>
     </message>
 </context>
 <context>
@@ -14518,6 +14540,14 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
         <translation>Größe</translation>
     </message>
     <message>
+        <source>Width</source>
+        <translation>Breite</translation>
+    </message>
+    <message>
+        <source>Height</source>
+        <translation>Höhe</translation>
+    </message>
+    <message>
         <source>Lock aspect ratio</source>
         <translation>Festes Seitenverhältnis</translation>
     </message>
@@ -14608,6 +14638,14 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
     <message>
         <source>Rectangle</source>
         <translation>Rechteck</translation>
+    </message>
+    <message>
+        <source>Border width</source>
+        <translation>Randbreite</translation>
+    </message>
+    <message>
+        <source>Border has to be solid to change width</source>
+        <translation>Änderung der Breite ist nur bei durchgezogenem Rand möglich</translation>
     </message>
     <message>
         <source>Radius</source>
@@ -14721,8 +14759,12 @@ Qt Quick-UI-Projekte benötigen keine Übersetzung und können direkt im QML-Bet
         <translation>Mauszeiger sichtbar</translation>
     </message>
     <message>
-        <source>Focus on press</source>
+        <source>Active focus on press</source>
         <translation>Fokussieren durch Betätigen</translation>
+    </message>
+    <message>
+        <source>Focus on press</source>
+        <translation type="obsolete">Fokussieren durch Betätigen</translation>
     </message>
     <message>
         <source>Auto scroll</source>
@@ -15357,10 +15399,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Icon to be displayed in Package Manager:</source>
         <translation>In Paketverwaltung anzuzeigendes Icon:</translation>
-    </message>
-    <message>
-        <source>Size is 48x48 pixels</source>
-        <translation>Größe: 48x48 Pixel</translation>
     </message>
     <message>
         <source>Adapt Debian file:</source>
@@ -16901,11 +16939,11 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
 <context>
     <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
-        <source>&amp;Show in editor</source>
+        <source>&amp;Show in Editor</source>
         <translation>In &amp;Editor anzeigen</translation>
     </message>
     <message>
-        <source>Show task location in an editor</source>
+        <source>Show task location in an editor.</source>
         <translation>Fundstelle in Editor anzeigen</translation>
     </message>
 </context>
@@ -17545,7 +17583,7 @@ Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei 
 <context>
     <name>TaskList::Internal::StopMonitoringHandler</name>
     <message>
-        <source>Stop monitoring</source>
+        <source>Stop Monitoring</source>
         <translation>Überwachung beenden</translation>
     </message>
     <message>
@@ -18840,10 +18878,6 @@ Fehler: %2</translation>
         <translation>Emulator</translation>
     </message>
     <message>
-        <source>The SSH port:</source>
-        <translation type="obsolete">Der SSH-Port:</translation>
-    </message>
-    <message>
         <source>The SSH server port:</source>
         <translation>Der SSH-Port des Servers:</translation>
     </message>
@@ -19363,6 +19397,10 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
         <translation>Tracepoint mit Meldung bei Zeile %1 hinzufügen...</translation>
     </message>
     <message>
+        <source>Start &apos;%1&apos; and break at function &apos;main()&apos;</source>
+        <translation>Starte &apos;%1&apos; und halte bei Erreichen der Funktion &quot;main()&quot; an</translation>
+    </message>
+    <message>
         <source>Save Debugger Log</source>
         <translation>Debugger Log speichern</translation>
     </message>
@@ -19635,6 +19673,16 @@ Hinweis: Unter Umständen wird die lokale Datei gelöscht.</translation>
     <message>
         <source>%1 debugger activated</source>
         <translation>Debugger %1 aktiviert</translation>
+    </message>
+    <message>
+        <source>QML/C++ Debugging</source>
+        <translation>QML/C++-Debuggen</translation>
+    </message>
+    <message>
+        <source>Cannot stop execution before QML engine is started. Skipping breakpoint.
+Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or switch to C++ only debugging.</source>
+        <translation>Die Ausführung kann nicht gestoppt werden, bis der QML-Engine gestartet ist. Der Haltepunkt wird daher übersprungen.
+Positionieren Sie den Haltepunkt hinter die Instanziierung der Klasse QmlApplicationViewer oder verwenden Sie reines C++-Debuggen.</translation>
     </message>
 </context>
 <context>
@@ -21677,6 +21725,10 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
 <context>
     <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
+        <source>Initialization:</source>
+        <translation>Initialisierung:</translation>
+    </message>
+    <message>
         <source>The CDB debugger could not be found in %1</source>
         <translation>Die CDB-Debugger konnte nicht in %1 gefunden werden</translation>
     </message>
@@ -22311,6 +22363,22 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
         <source>Color editor</source>
         <translation>Farb-Editor</translation>
     </message>
+    <message>
+        <source>Hue</source>
+        <translation>Farbton</translation>
+    </message>
+    <message>
+        <source>Saturation</source>
+        <translation>Sättigung</translation>
+    </message>
+    <message>
+        <source>Brightness</source>
+        <translation>Helligkeit</translation>
+    </message>
+    <message>
+        <source>Alpha</source>
+        <translation>Alpha</translation>
+    </message>
 </context>
 <context>
     <name>ColorTypeButtons</name>
@@ -22319,12 +22387,24 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
         <translation>Füllfarbe</translation>
     </message>
     <message>
+        <source>Solid color (only editable in base state)</source>
+        <translation>Füllfarbe (nur im Basiszustand änderbar)</translation>
+    </message>
+    <message>
         <source>Gradient</source>
         <translation>Gradient</translation>
     </message>
     <message>
+        <source>Gradient (only editable in base state)</source>
+        <translation>Gradient (nur im Basiszustand änderbar)</translation>
+    </message>
+    <message>
         <source>Transparent</source>
         <translation>Transparent</translation>
+    </message>
+    <message>
+        <source>Transparent (only editable in base state)</source>
+        <translation>Transparent (nur im Basiszustand änderbar)</translation>
     </message>
 </context>
 <context>
@@ -23071,6 +23151,10 @@ a = a +
         <source>Build All</source>
         <translation>Alles erstellen</translation>
     </message>
+    <message>
+        <source>Tool Chain:</source>
+        <translation>Toolchain:</translation>
+    </message>
 </context>
 <context>
     <name>QtSupport::Internal::QtVersionInfo</name>
@@ -23143,37 +23227,6 @@ a = a +
     <message>
         <source>Files to install for subproject:</source>
         <translation>Zu installierende Dateien des Unterprojektes:</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoDeviceConfigWizardLoginDataPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>User name:</source>
-        <translation type="obsolete">Nutzername:</translation>
-    </message>
-    <message>
-        <source>Authentication type:</source>
-        <translation type="obsolete">Art der Authentifizierung:</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Passwort</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation type="obsolete">Schlüssel</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">Passwort:</translation>
-    </message>
-    <message>
-        <source>Private key:</source>
-        <translation type="obsolete">Privater Schlüssel:</translation>
     </message>
 </context>
 <context>
@@ -23315,127 +23368,6 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindConfigWidget</name>
-    <message>
-        <source>Profiling Options</source>
-        <translation>Einstellungen des Profilers</translation>
-    </message>
-    <message>
-        <source>Result view: Show events with inclusive costs higher than:</source>
-        <translation>Ergebnisanzeige: Zeige Ereignisse mit einschließlichen Kosten höher als:</translation>
-    </message>
-    <message>
-        <source>%</source>
-        <translation>%</translation>
-    </message>
-    <message>
-        <source>Show additional information for events in tooltips</source>
-        <translation>Zusätzliche Informationen zu Ereignissen in Tooltips anzeigen</translation>
-    </message>
-    <message>
-        <source>Enable cache simulation</source>
-        <translation>Cache-Simulation aktivieren</translation>
-    </message>
-    <message>
-        <source>Enable branch prediction simulation</source>
-        <translation>Verzweigungsvorhersage aktivieren</translation>
-    </message>
-    <message>
-        <source>Collect system call time</source>
-        <translation>In Systemaufrufen verbrachte Zeit aufnehmen</translation>
-    </message>
-    <message>
-        <source>Visualisation: Show events with inclusive costs higher than:</source>
-        <translation>Visualisierung: Zeige Ereignisse mit einschließlichen Kosten höher als:</translation>
-    </message>
-    <message>
-        <source>Collect global bus events</source>
-        <translation>Globale Bus-Ereignisse aufnehmen</translation>
-    </message>
-    <message>
-        <source>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</source>
-        <translation>Diese Einstellung beschränkt die Anzahl der Ergebnisse des Profilers. Kleinere Werte steigern die Geschwindigkeit.</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Does full cache simulation.&lt;/p&gt;
-&lt;p&gt;By default, only instruction read accesses will be counted (&quot;Ir&quot;).&lt;/p&gt;
-&lt;p&gt;
-With cache simulation, further event counters are enabled:
-&lt;ul&gt;&lt;li&gt;Cache misses on instruction reads (&quot;I1mr&quot;/&quot;I2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Data read accesses (&quot;Dr&quot;) and related cache misses (&quot;D1mr&quot;/&quot;D2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Data write accesses (&quot;Dw&quot;) and related cache misses (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
-&lt;/p&gt;
-
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Gibt an, ob eine vollständige Simulation des Caches erfolgen soll.&lt;/p&gt;
-&lt;p&gt;In der Vorgabeinstellungen werden nur Lesezugriffe für Anweisungen gezählt (&quot;Ir&quot;).&lt;/p&gt;
-&lt;p&gt;
-Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
-&lt;ul&gt;&lt;li&gt;Cache-Fehlzugriffe bei Lesen von Anweisungen (&quot;I1mr&quot;/&quot;I2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Daten-Lesezugriffe (&quot;Dr&quot;) und diesbezügliche Fehlzugriffe (&quot;D1mr&quot;/&quot;D2mr&quot;)&lt;/li&gt;
-&lt;li&gt;Daten-Schreibzugriffe (&quot;Dw&quot;) und diesbezügliche Fehlzugriffe (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
-&lt;/p&gt;
-&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Do branch prediction simulation.&lt;/p&gt;
-&lt;p&gt;Further event counters are enabled: &lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;Number of executed conditional branches and related predictor misses (
-&quot;Bc&quot;/&quot;Bcm&quot;)&lt;/li&gt;
-&lt;li&gt;Executed indirect jumps and related misses of the jump address predictor (
-&quot;Bi&quot;/&quot;Bim&quot;)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Gibt an, ob Verzweigungsvorhersage aktiviert ist.&lt;/p&gt;
-&lt;p&gt;Zusätzliche Ereigniszähler: &lt;/p&gt;
-&lt;ul&gt;&lt;li&gt;Zahl der ausgeführten bedingten Zweige und fehlerhaften Vorhersagen (
-&quot;Bc&quot;/&quot;Bcm&quot;)&lt;/li&gt;
-&lt;li&gt;Ausgeführte indirekte Sprünge und fehlerhafte Vorhersagen der Sprungadresse (
-&quot;Bi&quot;/&quot;Bim&quot;)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Collect information for system call times.</source>
-        <translation>In Systemaufrufen verbrachte Zeit aufnehmen.</translation>
-    </message>
-    <message>
-        <source>Collect the number of global bus events that are executed. The event type &quot;Ge&quot; is used for these events.</source>
-        <translation>Gibt an, ob die Anzahl der ausgeführten globalen Bus-Ereignisse aufgenommen werden soll. Der Ereignistyp &quot;Ge&quot; wird dafür verwendet.</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::MemcheckConfigWidget</name>
-    <message>
-        <source>Memory Analysis Options</source>
-        <translation>Einstellungen zur Speicheranalyse</translation>
-    </message>
-    <message>
-        <source>Backtrace frame count:</source>
-        <translation>Stack-Frames:</translation>
-    </message>
-    <message>
-        <source>Suppression files:</source>
-        <translation>Ausschluss-Dateien:</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Hinzufügen...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>Track origins of uninitialized memory</source>
-        <translation>Herkunft von nicht initialisiertem Speicher verfolgen</translation>
-    </message>
-    <message>
-        <source>Valgrind Suppression File (*.supp);;All Files (*)</source>
-        <translation>Valgrind Ausschlussdatei (*.supp);;Alle Dateien (*)</translation>
-    </message>
-</context>
-<context>
     <name>Valgrind::Internal::SuppressionDialog</name>
     <message>
         <source>Dialog</source>
@@ -23471,6 +23403,121 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
     <message>
         <source>Valgrind Command</source>
         <translation>Valgrind-Kommando</translation>
+    </message>
+    <message>
+        <source>Valgrind Suppression File (*.supp);;All Files (*)</source>
+        <translation>Valgrind Ausschlussdatei (*.supp);;Alle Dateien (*)</translation>
+    </message>
+    <message>
+        <source>Memory Analysis Options</source>
+        <translation>Einstellungen zur Speicheranalyse</translation>
+    </message>
+    <message>
+        <source>Backtrace frame count:</source>
+        <translation>Stack-Frames:</translation>
+    </message>
+    <message>
+        <source>Suppression files:</source>
+        <translation>Ausschluss-Dateien:</translation>
+    </message>
+    <message>
+        <source>Add...</source>
+        <translation>Hinzufügen...</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
+    </message>
+    <message>
+        <source>Track origins of uninitialized memory</source>
+        <translation>Herkunft von nicht initialisiertem Speicher verfolgen</translation>
+    </message>
+    <message>
+        <source>Profiling Options</source>
+        <translation>Einstellungen des Profilers</translation>
+    </message>
+    <message>
+        <source>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</source>
+        <translation>Diese Einstellung beschränkt die Anzahl der Ergebnisse des Profilers. Kleinere Werte steigern die Geschwindigkeit.</translation>
+    </message>
+    <message>
+        <source>Result view: Minimum event cost:</source>
+        <translation>Minimale Ereigniskosten für Ergebnisanzeige:</translation>
+    </message>
+    <message>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <source>Show additional information for events in tooltips</source>
+        <translation>Zusätzliche Informationen zu Ereignissen in Tooltips anzeigen</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Does full cache simulation.&lt;/p&gt;
+&lt;p&gt;By default, only instruction read accesses will be counted (&quot;Ir&quot;).&lt;/p&gt;
+&lt;p&gt;
+With cache simulation, further event counters are enabled:
+&lt;ul&gt;&lt;li&gt;Cache misses on instruction reads (&quot;I1mr&quot;/&quot;I2mr&quot;)&lt;/li&gt;
+&lt;li&gt;Data read accesses (&quot;Dr&quot;) and related cache misses (&quot;D1mr&quot;/&quot;D2mr&quot;)&lt;/li&gt;
+&lt;li&gt;Data write accesses (&quot;Dw&quot;) and related cache misses (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
+&lt;/p&gt;
+
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Gibt an, ob eine vollständige Simulation des Caches erfolgen soll.&lt;/p&gt;
+&lt;p&gt;In der Vorgabeinstellungen werden nur Lesezugriffe für Anweisungen gezählt (&quot;Ir&quot;).&lt;/p&gt;
+&lt;p&gt;
+Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
+&lt;ul&gt;&lt;li&gt;Cache-Fehlzugriffe bei Lesen von Anweisungen (&quot;I1mr&quot;/&quot;I2mr&quot;)&lt;/li&gt;
+&lt;li&gt;Daten-Lesezugriffe (&quot;Dr&quot;) und diesbezügliche Fehlzugriffe (&quot;D1mr&quot;/&quot;D2mr&quot;)&lt;/li&gt;
+&lt;li&gt;Daten-Schreibzugriffe (&quot;Dw&quot;) und diesbezügliche Fehlzugriffe (&quot;D1mw&quot;/&quot;D2mw&quot;)&lt;/li&gt;&lt;/ul&gt;
+&lt;/p&gt;
+&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Enable cache simulation</source>
+        <translation>Cache-Simulation aktivieren</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Do branch prediction simulation.&lt;/p&gt;
+&lt;p&gt;Further event counters are enabled: &lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Number of executed conditional branches and related predictor misses (
+&quot;Bc&quot;/&quot;Bcm&quot;)&lt;/li&gt;
+&lt;li&gt;Executed indirect jumps and related misses of the jump address predictor (
+&quot;Bi&quot;/&quot;Bim&quot;)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;Gibt an, ob Verzweigungsvorhersage aktiviert ist.&lt;/p&gt;
+&lt;p&gt;Zusätzliche Ereigniszähler: &lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Zahl der ausgeführten bedingten Zweige und fehlerhaften Vorhersagen (
+&quot;Bc&quot;/&quot;Bcm&quot;)&lt;/li&gt;
+&lt;li&gt;Ausgeführte indirekte Sprünge und fehlerhafte Vorhersagen der Sprungadresse (
+&quot;Bi&quot;/&quot;Bim&quot;)&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Enable branch prediction simulation</source>
+        <translation>Verzweigungsvorhersage aktivieren</translation>
+    </message>
+    <message>
+        <source>Collect information for system call times.</source>
+        <translation>In Systemaufrufen verbrachte Zeit aufnehmen.</translation>
+    </message>
+    <message>
+        <source>Collect system call time</source>
+        <translation>In Systemaufrufen verbrachte Zeit aufnehmen</translation>
+    </message>
+    <message>
+        <source>Collect the number of global bus events that are executed. The event type &quot;Ge&quot; is used for these events.</source>
+        <translation>Gibt an, ob die Anzahl der ausgeführten globalen Bus-Ereignisse aufgenommen werden soll. Der Ereignistyp &quot;Ge&quot; wird dafür verwendet.</translation>
+    </message>
+    <message>
+        <source>Collect global bus events</source>
+        <translation>Globale Bus-Ereignisse aufnehmen</translation>
+    </message>
+    <message>
+        <source>Visualisation: Minimum event cost:</source>
+        <translation>Minimale Ereigniskosten für Visualisierung:</translation>
     </message>
 </context>
 <context>
@@ -23678,18 +23725,6 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
     <message>
         <source>Cache buffer</source>
         <translation>Cache-Puffer</translation>
-    </message>
-    <message>
-        <source>Cell height</source>
-        <translation>Zellenhöhe</translation>
-    </message>
-    <message>
-        <source>Cell width</source>
-        <translation>Zellenbreite</translation>
-    </message>
-    <message>
-        <source>Flow</source>
-        <translation>Fluss</translation>
     </message>
     <message>
         <source>Navigation wraps</source>
@@ -24309,6 +24344,14 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>QmlDesigner::NodeInstanceServerProxy</name>
     <message>
+        <source>Cannot Start QML Puppet Executable</source>
+        <translation>QML-Puppet konnte nicht gestartet werden</translation>
+    </message>
+    <message>
+        <source>The executable of the QML Puppet process (%1) cannot be started. Please check your installation. QML Puppet is a process which runs in the background to render the items.</source>
+        <translation>Die ausführbare Datei des QML-Puppet-Prozess (%1) konnte nicht gefunden werden. Bitte überprüfen Sie Ihre Installation. QML Puppet ist ein Prozess, der im Hintergrund die Elemente rendert.</translation>
+    </message>
+    <message>
         <source>Cannot Find QML Puppet Executable</source>
         <translation>Ausführbare Datei der QML-Puppet nicht gefunden</translation>
     </message>
@@ -24353,6 +24396,20 @@ Sollen sie überschrieben werden?</translation>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerEngine</name>
+    <message>
+        <source>QML Profiler</source>
+        <translation>QML-Profiler</translation>
+    </message>
+    <message>
+        <source>Application finished before loading profiled data.
+ Please use the stop button instead.</source>
+        <translation>Die Anwendung wurde vor dem Laden der Profildaten beenden.
+Bitte verwenden Sie den Stop-Button.</translation>
+    </message>
+    <message>
+        <source>No executable file to launch.</source>
+        <translation>Es wurde keine ausführbare Datei zum Starten angegeben.</translation>
+    </message>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -24453,23 +24510,23 @@ Sollen sie überschrieben werden?</translation>
     </message>
     <message>
         <source>Open Qt4 Options</source>
-        <translation>Einstellungen zur Qt4-Bibliothek öffnen</translation>
+        <translation type="obsolete">Einstellungen zur Qt4-Bibliothek öffnen</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="obsolete">Abbrechen</translation>
     </message>
     <message>
         <source>QML Observer Missing</source>
-        <translation>QML-Beobachter fehlt</translation>
+        <translation type="obsolete">QML-Beobachter fehlt</translation>
     </message>
     <message>
         <source>QML Observer could not be found.</source>
-        <translation>Der QML-Beobachter konnte nicht gefunden werden.</translation>
+        <translation type="obsolete">Der QML-Beobachter konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
-        <translation>Der QML-Beobachter stellt zusätzliche Debugging-Funktionalität für QML-Anwendungen zur Verfügung, wie zum Beispiel interaktive Vorschau von Code-Änderungen und weitere Werkzeuge zur Untersuchung. Er muss für jede verwendete Qt-Version separat übersetzt werden. Gehen Sie auf die Qt4-Einstellungsseite, wählen Sie die betreffende Qt-Installation aus und klicken Sie auf &apos;Neu Erstellen&apos;.</translation>
+        <translation type="obsolete">Der QML-Beobachter stellt zusätzliche Debugging-Funktionalität für QML-Anwendungen zur Verfügung, wie zum Beispiel interaktive Vorschau von Code-Änderungen und weitere Werkzeuge zur Untersuchung. Er muss für jede verwendete Qt-Version separat übersetzt werden. Gehen Sie auf die Qt4-Einstellungsseite, wählen Sie die betreffende Qt-Installation aus und klicken Sie auf &apos;Neu Erstellen&apos;.</translation>
     </message>
 </context>
 <context>
@@ -25108,13 +25165,6 @@ Haben Sie Qemu gestartet?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardLoginDataPage</name>
-    <message>
-        <source>Login Data</source>
-        <translation type="obsolete">Login-Daten</translation>
-    </message>
-</context>
-<context>
     <name>RemoteLinux::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
     <message>
         <source>Device Status Check</source>
@@ -25536,6 +25586,10 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
 <context>
     <name>RemoteLinux::Internal::MaemoPackageCreationWidget</name>
     <message>
+        <source>Size should be %1x%2 pixels</source>
+        <translation>Erforderliche Größe: %1x%2 Pixel</translation>
+    </message>
+    <message>
         <source>No Version Available.</source>
         <translation>Keine Version verfügbar.</translation>
     </message>
@@ -25843,10 +25897,6 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
 <context>
     <name>RemoteLinux::Internal::MaemoQemuManager</name>
     <message>
-        <source>Start Maemo Emulator</source>
-        <translation type="obsolete">Maemo-Emulator starten</translation>
-    </message>
-    <message>
         <source>Start MeeGo Emulator</source>
         <translation>Meego-Emulator starten</translation>
     </message>
@@ -25869,10 +25919,6 @@ Es wird versucht eine Paketdatei zu erstellen, es können aber Probleme auftrete
     <message>
         <source>Stop MeeGo Emulator</source>
         <translation>Meego-Emulator stoppen</translation>
-    </message>
-    <message>
-        <source>Stop Maemo Emulator</source>
-        <translation type="obsolete">Maemo-Emulator stoppen</translation>
     </message>
 </context>
 <context>
@@ -26081,10 +26127,6 @@ Fehlerausgabe: %1</translation>
 <context>
     <name>RemoteLinux::Internal::MaemoQemuSettingsPage</name>
     <message>
-        <source>Maemo Qemu Settings</source>
-        <translation type="obsolete">Maemo QEmu-Einstellungen</translation>
-    </message>
-    <message>
         <source>MeeGo Qemu Settings</source>
         <translation>Meego QEmu-Einstellungen</translation>
     </message>
@@ -26252,28 +26294,20 @@ Fehlerausgabe: %1</translation>
         <translation>Fehler beim Anlegen des Paket-Ordners &apos;%1&apos;.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
+   %1
+Do you want to add them to the project?&lt;/html&gt;</source>
+        <translation>&lt;html&gt;Qt Creator hat die folgenden Dateien zur Paketierung angelegt:
+   %1
+Möchten Sie sie zum Projekt hinzufügen?&lt;/html&gt;</translation>
+    </message>
+    <message>
         <source>Error creating MeeGo templates</source>
         <translation>Fehlschlag beim Erstellen der Meego-Vorlagendateien</translation>
     </message>
     <message>
-        <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Fehler beim Anlegen des Maemo-Paket-Ordners &apos;%1&apos;</translation>
-    </message>
-    <message>
         <source>Add Packaging Files to Project</source>
         <translation>Paketdateien zum Projekt hinzufügen</translation>
-    </message>
-    <message>
-        <source>Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?</source>
-        <translation>Qt Creator hat die folgenden Dateien zur Paketierung angelegt:
-   %1
-Möchten Sie sie zum Projekt hinzufügen?</translation>
-    </message>
-    <message>
-        <source>Error creating Maemo templates</source>
-        <translation type="obsolete">Fehlschlag beim Erstellen der Maemo-Vorlagendateien</translation>
     </message>
 </context>
 <context>
@@ -26410,16 +26444,9 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::AbstractCallgrindSettings</name>
-    <message>
-        <source>Profiling</source>
-        <translation>Profiling</translation>
-    </message>
-</context>
-<context>
     <name>Valgrind::Internal::CallgrindTool</name>
     <message>
-        <source>Valgrind Function Profile</source>
+        <source>Valgrind Function Profiler</source>
         <translation>Valgrind-Profiling einer Funktion</translation>
     </message>
     <message>
@@ -26589,13 +26616,6 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::AbstractMemcheckSettings</name>
-    <message>
-        <source>Memory Analysis</source>
-        <translation>Speicheranalyse</translation>
-    </message>
-</context>
-<context>
     <name>Valgrind::Internal::MemcheckTool</name>
     <message>
         <source>External Errors</source>
@@ -26630,7 +26650,7 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <translation>Ungültige Aufrufe von &quot;free()&quot;</translation>
     </message>
     <message>
-        <source>Valgrind Analyze Memory</source>
+        <source>Valgrind Memory Analyzer</source>
         <translation>Speicheranalyse mit Valgrind</translation>
     </message>
     <message>
@@ -26703,13 +26723,6 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
     <message>
         <source>Application Output</source>
         <translation>Ausgabe der Anwendung</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::ValgrindSettings</name>
-    <message>
-        <source>Generic Settings</source>
-        <translation>Allgemeine Einstellungen</translation>
     </message>
 </context>
 <context>
@@ -26827,6 +26840,14 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
 <context>
     <name>Utils::FileUtils</name>
     <message>
+        <source>Refusing to remove root directory.</source>
+        <translation>Das Wurzelverzeichnis kann nicht entfernt werden.</translation>
+    </message>
+    <message>
+        <source>Refusing to remove your home directory.</source>
+        <translation>Das Nutzerverzeichnis (Home) kann nicht entfernt werden.</translation>
+    </message>
+    <message>
         <source>Failed to remove directory &apos;%1&apos;.</source>
         <translation>Der Ordner &apos;%1&apos; konnte nicht gelöscht werden.</translation>
     </message>
@@ -26874,10 +26895,6 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
 <context>
     <name>LinuxDeviceFactorySelectionDialog</name>
     <message>
-        <source>Available wizards:</source>
-        <translation type="obsolete">Verfügbare Wizards:</translation>
-    </message>
-    <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>Einrichtung einer neuen Geräte-Konfiguration</translation>
     </message>
@@ -26919,28 +26936,12 @@ Möchten Sie sie zum Projekt hinzufügen?</translation>
         <translation>Hostname oder IP-Adresse des Geräts:</translation>
     </message>
     <message>
-        <source>User name:</source>
-        <translation type="obsolete">Nutzername:</translation>
-    </message>
-    <message>
-        <source>Authentication type:</source>
-        <translation type="obsolete">Art der Authentifizierung:</translation>
-    </message>
-    <message>
         <source>Password</source>
         <translation>Passwort</translation>
     </message>
     <message>
         <source>Key</source>
         <translation>Schlüssel</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">Passwort:</translation>
-    </message>
-    <message>
-        <source>Private key:</source>
-        <translation type="obsolete">Privater Schlüssel:</translation>
     </message>
     <message>
         <source>The user name to log into the device:</source>
@@ -27332,10 +27333,6 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
 Erfordert Qt 4.7.4 oder neuer.</translation>
     </message>
     <message>
-        <source>Qt Quick Application Type</source>
-        <translation>Qt Quick-Anwendung</translation>
-    </message>
-    <message>
         <source>Use an existing .qml file</source>
         <translation>Verwnde existierende .qml-Datei</translation>
     </message>
@@ -27644,6 +27641,10 @@ Erfordert Qt 4.7.4 oder neuer.</translation>
         <translation>Zuletzt benutzte Sitzungen</translation>
     </message>
     <message>
+        <source>%1 (last session)</source>
+        <translation>%1 (zuletzt benutzt)</translation>
+    </message>
+    <message>
         <source>%1 (current session)</source>
         <translation>%1 (aktuelle Sitzung)</translation>
     </message>
@@ -27707,6 +27708,10 @@ Erfordert Qt 4.7.4 oder neuer.</translation>
     <message>
         <source>Select QML File</source>
         <translation>QML-Datei auswählen</translation>
+    </message>
+    <message>
+        <source>Qt Quick Application Type</source>
+        <translation>Qt Quick-Anwendung</translation>
     </message>
 </context>
 <context>
@@ -27899,6 +27904,58 @@ Erfordert Qt 4.7.4 oder neuer.</translation>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.</extracomment>
         <translation>&lt;Unbekannt&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>StatusDisplay</name>
+    <message>
+        <source>No QML events recorded</source>
+        <translation>Es wurden keine QML-Ereignisse aufgenommen</translation>
+    </message>
+    <message>
+        <source>Profiling application</source>
+        <translation>Profiliere Anwendung</translation>
+    </message>
+    <message>
+        <source>Loading data</source>
+        <translation>Lade Daten</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::TextToModelMerger error message</name>
+    <message>
+        <source>No import statements found</source>
+        <translation>Es konnte keine Import-Anweisung gefunden werden</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::Internal::ValgrindBaseSettings</name>
+    <message>
+        <source>Valgrind</source>
+        <translation>Valgrind</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::QmlProjectPlugin</name>
+    <message>
+        <source>Open Qt4 Options</source>
+        <translation>Einstellungen zur Qt4-Bibliothek öffnen</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">Abbrechen</translation>
+    </message>
+    <message>
+        <source>QML Observer Missing</source>
+        <translation>QML-Beobachter fehlt</translation>
+    </message>
+    <message>
+        <source>QML Observer could not be found.</source>
+        <translation>Der QML-Beobachter konnte nicht gefunden werden.</translation>
+    </message>
+    <message>
+        <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
+        <translation>Der QML-Beobachter stellt zusätzliche Debugging-Funktionalität für QML-Anwendungen zur Verfügung, wie zum Beispiel interaktives Debuggen und weitere Werkzeuge zur Untersuchung. Er muss für jede verwendete Qt-Version separat übersetzt werden. Gehen Sie auf die Qt4-Einstellungsseite, wählen Sie die betreffende Qt-Installation aus und klicken Sie auf &apos;Neu Erstellen&apos;.</translation>
     </message>
 </context>
 </TS>

@@ -161,6 +161,7 @@ public:
     virtual bool isMovable() const;
     bool isInPositioner() const;
     void setInPositioner(bool isInPositioner);
+    virtual void refreshPositioner();
 
     bool hasBindingForProperty(const QString &name, bool *hasChanged = 0) const;
 
@@ -186,6 +187,7 @@ protected:
     void removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty);
     void addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty);
     void deleteObjectsInList(const QDeclarativeProperty &metaProperty);
+    QVariant convertSpecialCharacter(const QVariant& value) const;
 
 private:
     QHash<QString, QVariant> m_resetValueHash;

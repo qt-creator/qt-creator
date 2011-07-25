@@ -160,7 +160,10 @@ QString AnalyzerRunControl::displayName() const
 {
     if (!d->m_engine)
         return QString();
-    return d->m_engine->startParameters().displayName;
+    if (d->m_engine->runConfiguration())
+        return d->m_engine->runConfiguration()->displayName();
+    else
+        return d->m_engine->startParameters().displayName;
 }
 
 QIcon AnalyzerRunControl::icon() const

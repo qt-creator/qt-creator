@@ -238,12 +238,14 @@ QExtGroupBox {
 
                     ColorTypeButtons {
                         id: buttons;
-                        visible: showButtons && baseStateFlag
+                        visible: showButtons
+                        enabled: baseStateFlag
+                        opacity: enabled ? 1 : 0.6
                         showGradientButton: colorGroupBox.showGradientButton
                     }
 
                     QWidget {
-                        visible: !(showButtons && baseStateFlag)
+                        visible: !(showButtons)
                         fixedHeight: 28
                         fixedWidth: 93
                         width: fixedWidth
@@ -296,6 +298,7 @@ QExtGroupBox {
                         leftMargin: 0
                         spacing: 2
                         QWidget {
+                            toolTip: qsTr("Hue")
                             layout: HorizontalLayout {
                                 Label {
                                     text: "H"
@@ -313,6 +316,7 @@ QExtGroupBox {
                             }
                         }
                         QWidget {
+                            toolTip: qsTr("Saturation")
                             layout: HorizontalLayout {
                                 Label {
                                     text: "S"
@@ -330,6 +334,7 @@ QExtGroupBox {
                         }
 
                         QWidget {
+                            toolTip: qsTr("Brightness")
                             layout: HorizontalLayout {
                                 Label {
                                     text: "B"
@@ -346,6 +351,7 @@ QExtGroupBox {
                         }
 
                         QWidget {
+                            toolTip: qsTr("Alpha")
                             layout: HorizontalLayout {
                                 topMargin: 12
                                 Label {

@@ -152,6 +152,7 @@ FocusScope {
         opacity: !textInput.text.length && !textInput.activeFocus ? 1 : 0
         color: "gray"
         text: "Enter text"
+        elide: Text.ElideRight
         Behavior on opacity { NumberAnimation { duration: 90 } }
     }
 }

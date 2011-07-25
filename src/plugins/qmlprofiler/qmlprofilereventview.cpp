@@ -50,9 +50,13 @@ public:
     {
         if (data().type() == QVariant::String) {
             // first column
-            return data(FilenameRole).toString() == other.data(FilenameRole).toString() ?
+            if (column() == 0) {
+                return data(FilenameRole).toString() == other.data(FilenameRole).toString() ?
                         data(LineRole).toInt() < other.data(LineRole).toInt() :
                         data(FilenameRole).toString() < other.data(FilenameRole).toString();
+            } else {
+                return data().toString() < other.data().toString();
+            }
         }
 
         return data().toDouble() < other.data().toDouble();
@@ -142,7 +146,7 @@ void QmlProfilerEventStatistics::addRangedEvent(int type, int nestingLevel, int 
     Q_UNUSED(nestingInType);
 
     const QChar colon = QLatin1Char(':');
-    QString localName, displayName, location, details;
+    QString displayName, location, details;
 
     if (data.isEmpty())
         details = tr("Source code not available");
@@ -161,8 +165,8 @@ void QmlProfilerEventStatistics::addRangedEvent(int type, int nestingLevel, int 
         displayName = tr("<bytecode>");
         location = QString("--:%1:%2").arg(QString::number(type), details);
     } else {
-        localName = QUrl(fileName).toLocalFile();
-        displayName = localName.mid(localName.lastIndexOf(QChar('/')) + 1) + colon + QString::number(line);
+        const QString filePath = QUrl(fileName).path();
+        displayName = filePath.mid(filePath.lastIndexOf(QChar('/')) + 1) + colon + QString::number(line);
         location = fileName+colon+QString::number(line);
     }
 
@@ -229,10 +233,15 @@ void QmlProfilerEventStatistics::QmlProfilerEventStatisticsPrivate::postProcess(
 {
     double totalTime = 0;
 
-    foreach (QmlEventData *binding, m_rootHash.values())
+    foreach (QmlEventData *binding, m_rootHash.values()) {
+        if (binding->filename->isEmpty())
+            continue;
         totalTime += binding->duration;
+    }
 
     foreach (QmlEventData *binding, m_rootHash.values()) {
+        if (binding->filename->isEmpty())
+            continue;
         binding->percentOfTime = binding->duration * 100.0 / totalTime;
         binding->timePerCall = binding->calls > 0 ? double(binding->duration) / binding->calls : 0;
     }
@@ -408,7 +417,7 @@ void QmlProfilerEventsView::buildModel()
         bool hasBranches = d->m_fieldShown[Parents] || d->m_fieldShown[Children];
         setRootIsDecorated(hasBranches);
 
-        setSortingEnabled(!hasBranches);
+        setSortingEnabled(true);
 
         if (!hasBranches)
             sortByColumn(d->m_firstNumericColumn,Qt::DescendingOrder);
@@ -444,7 +453,7 @@ void QmlProfilerEventsView::QmlProfilerEventsViewPrivate::buildModelFromList( co
 
         if (m_fieldShown[Percent]) {
             newRow << new EventsViewItem(QString::number(binding->percentOfTime,'f',2)+QLatin1String(" %"));
-            newRow.last()->setData(QVariant(binding->eventType));
+            newRow.last()->setData(QVariant(binding->percentOfTime));
         }
 
         if (m_fieldShown[TotalDuration]) {
@@ -474,6 +483,7 @@ void QmlProfilerEventsView::QmlProfilerEventsViewPrivate::buildModelFromList( co
 
         if (m_fieldShown[Details]) {
             newRow << new EventsViewItem(*binding->details);
+            newRow.last()->setData(QVariant(*binding->details));
         }
 
         if (!newRow.isEmpty()) {

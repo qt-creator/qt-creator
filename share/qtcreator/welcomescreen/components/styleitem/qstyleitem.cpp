@@ -302,7 +302,21 @@ void QStyleItem::initStyleOption()
             opt->maximum = maximum();
             // ### fixme - workaround for KDE inverted dial
             opt->sliderPosition = value();
-            opt->tickInterval = opt->maximum != opt->minimum ? 1200 / (opt->maximum - opt->minimum) : 0;
+            opt->singleStep = step();
+
+            if (opt->singleStep)
+            {
+                qreal numOfSteps = (opt->maximum - opt->minimum) / opt->singleStep;
+
+                // at least 5 pixels between tick marks
+                if (numOfSteps && (width() / numOfSteps < 5))
+                    opt->tickInterval = qRound((5*numOfSteps / width()) + 0.5)*step();
+                else
+                    opt->tickInterval = opt->singleStep;
+            }
+            else // default Qt-components implementation
+                opt->tickInterval = opt->maximum != opt->minimum ? 1200 / (opt->maximum - opt->minimum) : 0;
+
             if (style() == QLatin1String("oxygen") && type == QLatin1String("dial"))
                 opt->sliderValue  = maximum() - value();
             else
@@ -487,19 +501,21 @@ QString QStyleItem::hitTest(int px, int py)
         }
         break;
     case ScrollBar: {
-            subcontrol = qApp->style()->hitTestComplexControl(QStyle::CC_ScrollBar,
-                                                              qstyleoption_cast<QStyleOptionComplex*>(m_styleoption),
-                                                              QPoint(px,py), 0);
-            if (subcontrol == QStyle::SC_ScrollBarSlider)
-                return "handle";
+        subcontrol = qApp->style()->hitTestComplexControl(QStyle::CC_ScrollBar,
+                                                          qstyleoption_cast<QStyleOptionComplex*>(m_styleoption),
+                                                          QPoint(px,py), 0);
+        if (subcontrol == QStyle::SC_ScrollBarSlider)
+            return "handle";
 
-            if (subcontrol == QStyle::SC_ScrollBarSubLine
-                || subcontrol == QStyle::SC_ScrollBarSubPage)
-                return "up";
+        if (subcontrol == QStyle::SC_ScrollBarSubLine)
+            return "up";
+        else if (subcontrol == QStyle::SC_ScrollBarSubPage)
+            return "upPage";
 
-            if (subcontrol == QStyle::SC_ScrollBarAddLine
-                || subcontrol == QStyle::SC_ScrollBarAddPage)
-                return "down";
+        if (subcontrol == QStyle::SC_ScrollBarAddLine)
+            return "down";
+        else if (subcontrol == QStyle::SC_ScrollBarAddPage)
+            return "downPage";
         }
         break;
     default:
@@ -621,15 +637,15 @@ QVariant QStyleItem::styleHint(const QString &metric)
         return qApp->palette().text().color().name();
     } else if (metric == "focuswidget") {
         return qApp->style()->styleHint(QStyle::SH_FocusFrame_AboveWidget);
-
     } else if (metric == "tabbaralignment") {
         int result = qApp->style()->styleHint(QStyle::SH_TabBar_Alignment);
         if (result == Qt::AlignCenter)
             return "center";
         return "left";
-
-    } else if (metric == "framearoundcontents")
+    } else if (metric == "framearoundcontents") {
         return qApp->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents);
+    } else if (metric == "scrollToClickPosition")
+        return qApp->style()->styleHint(QStyle::SH_ScrollBar_LeftClickAbsolutePosition);
     return 0;
 }
 

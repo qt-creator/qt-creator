@@ -154,6 +154,8 @@ void QmlGraphicsItemNodeInstance::setPropertyVariant(const QString &name, const 
     GraphicsObjectNodeInstance::setPropertyVariant(name, value);
 
     refresh();
+    if (isInPositioner())
+        parentInstance()->refreshPositioner();
 }
 
 void QmlGraphicsItemNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
@@ -325,6 +327,9 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
     }
 
     GraphicsObjectNodeInstance::resetProperty(name);
+
+    if (isInPositioner())
+        parentInstance()->refreshPositioner();
 }
 
 void QmlGraphicsItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty)
@@ -353,6 +358,8 @@ void QmlGraphicsItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &ol
     }
 
     refresh();
+    if (isInPositioner())
+        parentInstance()->refreshPositioner();
 }
 
 QDeclarativeAnchors::Anchor anchorLineFlagForName(const QString &name)

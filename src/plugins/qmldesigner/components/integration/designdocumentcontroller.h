@@ -126,6 +126,7 @@ public slots:
     void redo();
     void activeQtVersionChanged();
     void changeCurrentModelTo(const ModelNode &node);
+    void goIntoComponent();
 
 #ifdef ENABLE_TEXT_VIEW
     void showText();

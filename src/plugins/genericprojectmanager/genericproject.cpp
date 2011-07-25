@@ -365,6 +365,11 @@ void GenericProject::setToolChain(ToolChain *tc)
     m_toolChain = tc;
     refresh(Configuration);
 
+    foreach (Target *t, targets()) {
+        foreach (BuildConfiguration *bc, t->buildConfigurations())
+            bc->setToolChain(tc);
+    }
+
     emit toolChainChanged(m_toolChain);
 }
 

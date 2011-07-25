@@ -36,7 +36,7 @@ import Bauhaus 1.0
 WidgetFrame {
    id: propertyFrame;
 
-    minimumWidth: 300;
+    minimumWidth: 320;
     property int frameWidth: width
     property int labelWidth: 96
     

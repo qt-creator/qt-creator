@@ -46,6 +46,7 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/helpmanager.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+#include <qmlprojectmanager/qmlprojectplugin.h>
 #include <projectexplorer/localapplicationruncontrol.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
@@ -144,8 +145,25 @@ QmlProfilerEngine::~QmlProfilerEngine()
 void QmlProfilerEngine::start()
 {
     QTC_ASSERT(!d->m_runner, return);
+
+    if (QmlProjectManager::QmlProjectRunConfiguration *rc =
+            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration())) {
+        if (rc->observerPath().isEmpty()) {
+            QmlProjectManager::QmlProjectPlugin::showQmlObserverToolWarning();
+            AnalyzerManager::stopTool();
+            return;
+        }
+    }
+
     d->m_runner = QmlProfilerEnginePrivate::createRunner(runConfiguration(), this);
 
+    if (LocalQmlProfilerRunner *qmlRunner = qobject_cast<LocalQmlProfilerRunner *>(d->m_runner)) {
+        if (!qmlRunner->hasExecutable()) {
+            showNonmodalWarning(tr("No executable file to launch."));
+            AnalyzerManager::stopTool();
+            return;
+        }
+    }
 
     connect(d->m_runner, SIGNAL(stopped()), this, SLOT(stopped()));
     connect(d->m_runner, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
@@ -175,15 +193,7 @@ void QmlProfilerEngine::stopped()
 {
     // user feedback
     if (d->m_running && d->m_fetchingData) {
-        Core::ICore * const core = Core::ICore::instance();
-        QMessageBox *killedWarning = new QMessageBox(core->mainWindow());
-        killedWarning->setIcon(QMessageBox::Warning);
-        killedWarning->setWindowTitle(tr("QML Profiler"));
-        killedWarning->setText(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
-        killedWarning->setStandardButtons(QMessageBox::Ok);
-        killedWarning->setDefaultButton(QMessageBox::Ok);
-        killedWarning->setModal(false);
-        killedWarning->show();
+        showNonmodalWarning(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
     }
 
     d->m_running = false;
@@ -280,6 +290,19 @@ void QmlProfilerEngine::wrongSetupMessageBoxFinished(int button)
         Core::HelpManager *helpManager = Core::HelpManager::instance();
         helpManager->handleHelpRequest("qthelp://com.nokia.qtcreator/doc/creator-qml-performance-monitor.html");
     }
+}
+
+void QmlProfilerEngine::showNonmodalWarning(const QString &warningMsg)
+{
+    Core::ICore * const core = Core::ICore::instance();
+    QMessageBox *noExecWarning = new QMessageBox(core->mainWindow());
+    noExecWarning->setIcon(QMessageBox::Warning);
+    noExecWarning->setWindowTitle(tr("QML Profiler"));
+    noExecWarning->setText(warningMsg);
+    noExecWarning->setStandardButtons(QMessageBox::Ok);
+    noExecWarning->setDefaultButton(QMessageBox::Ok);
+    noExecWarning->setModal(false);
+    noExecWarning->show();
 }
 
 } // namespace Internal

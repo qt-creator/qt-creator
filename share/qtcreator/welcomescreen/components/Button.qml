@@ -37,7 +37,7 @@ Components.Button {
     id:button
 
     // dm: this is wrong
-    width: Math.max(100, button.iconSource !== "" ? labelItem.contentsWidth+12 : 0 )
+    width: Math.max(sizehint.width, button.iconSource !== "" ? labelItem.contentsWidth + 8 : 0 )
     height: Math.max(22, sizehint.height)
 
     property variant sizehint: backgroundItem.sizeFromContents(80, 6)
@@ -74,6 +74,7 @@ Components.Button {
         Row {
             id: row
             anchors.centerIn: parent
+            anchors.verticalCenterOffset: -1
             spacing: 4
             Image {
                 source: iconSource

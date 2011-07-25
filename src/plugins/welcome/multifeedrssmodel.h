@@ -33,7 +33,7 @@
 #ifndef MULTIFEEDRSSMODEL_H
 #define MULTIFEEDRSSMODEL_H
 
-#include "core_global.h"
+#include "welcome_global.h"
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QStringList>
@@ -42,9 +42,10 @@
 QT_BEGIN_NAMESPACE
 class QThread;
 class QNetworkReply;
+class QNetworkAccessManager;
 QT_END_NAMESPACE
 
-namespace Core {
+namespace Welcome {
 
 namespace Internal {
 
@@ -67,7 +68,7 @@ class NetworkAccessManager;
 enum RssRoles { TitleRole = Qt::UserRole+1, DescriptionRole, LinkRole,
                 PubDateRole, BlogNameRole, BlogIconRole };
 
-class CORE_EXPORT MultiFeedRssModel : public QAbstractListModel {
+class WELCOME_EXPORT MultiFeedRssModel : public QAbstractListModel {
     Q_OBJECT
     Q_PROPERTY(int articleCount READ articleCount WRITE setArticleCount NOTIFY articleCountChanged)
 public:
@@ -99,7 +100,7 @@ private slots:
 private:
     QStringList m_sites;
     Internal::RssItemList m_aggregatedFeed;
-    NetworkAccessManager *m_networkAccessManager;
+    QNetworkAccessManager *m_networkAccessManager;
     QThread *m_namThread;
     int m_articleCount;
 };

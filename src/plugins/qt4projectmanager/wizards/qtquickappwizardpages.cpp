@@ -69,6 +69,8 @@ QtQuickComponentSetOptionsPage::QtQuickComponentSetOptionsPage(QWidget *parent)
     m_d->ui.buttonGroup->setId(m_d->ui.meego10RadioButton, 2);
     m_d->ui.buttonGroup->setId(m_d->ui.importRadioButton, 3);
     connect(m_d->ui.buttonGroup, SIGNAL(buttonClicked(int)), this, SLOT(radioButtonChecked(int)));
+
+    setTitle(tr("Qt Quick Application Type"));
 }
 
 QtQuickComponentSetOptionsPage::~QtQuickComponentSetOptionsPage()

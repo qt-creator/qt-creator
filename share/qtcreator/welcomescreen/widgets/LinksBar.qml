@@ -41,14 +41,17 @@ Row {
     property int tabWidth: Math.floor(tabBar.width/tabs.count)
     Repeater {
         id: tabs
+        height: tabBar.height
         model: parent.model
         delegate: Item {
-            Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
+            Components.QStyleItem { cursor: "pointinghandcursor"; anchors.fill: parent }
             height: tabBar.height
-            width: index === 1 ? tabWidth : (tabWidth + tabBar.width % tabs.count + 1)
-            Image {
+
+            width: tabs.count-1 === index ? tabWidth : tabWidth + tabBar.width%tabs.count
+            BorderImage {
                 id: tabBackground
                 anchors.fill: parent
+                border { top: 1; bottom: 1}
                 source: "qrc:welcome/images/tab_inactive.png"
             }
             Text {
@@ -70,12 +73,7 @@ Row {
                     id: activeState; when: tabBar.current == index
                     PropertyChanges { target: tabBackground; source:"qrc:welcome/images/tab_active.png" }
                     PropertyChanges { target: text; color: "white" }
-                },
-                State {
-                    id: hoverState; when: mouseArea.containsMouse
-                    PropertyChanges { target: tabBackground; source:"qrc:welcome/images/tab_hover.png" }
                 }
-
             ]
         }
     }

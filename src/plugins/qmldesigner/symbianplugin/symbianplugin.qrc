@@ -37,5 +37,9 @@
         <file>images/toolbar16.png</file>
         <file>images/buttoncolumn.png</file>
         <file>images/buttoncolumn16.png</file>
+        <file>source/ToolBar.qml</file>
+        <file>images/listview-icon.png</file>
+        <file>images/listview-icon16.png</file>
+        <file>source/SymbianListView.qml</file>
     </qresource>
 </RCC>

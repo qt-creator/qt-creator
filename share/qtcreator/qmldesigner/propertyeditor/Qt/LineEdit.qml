@@ -36,6 +36,16 @@ import Bauhaus 1.0
 QWidget {
     id: lineEdit
 
+    function escapeString(string) {
+        var str  = string;
+        str = str.replace(/\\/g, "\\\\");
+        str.replace(/\"/g, "\\\"");
+        str = str.replace(/\t/g, "\\t");
+        str = str.replace(/\r/g, "\\r");
+        str = str.replace(/\n/g, '\\n');
+        return str;
+    }
+
     property variant backendValue
     property alias enabled: lineEdit.enabled
     property variant baseStateFlag
@@ -103,7 +113,7 @@ QWidget {
 
         onEditingFinished: {
             if (backendValue.isTranslated) {
-                backendValue.expression = "qsTr(\"" + text + "\")"
+                backendValue.expression = "qsTr(\"" + escapeString(text) + "\")"
             } else {
                 backendValue.value = text
             }
@@ -137,7 +147,7 @@ QWidget {
         checked: backendValue.isTranslated
         onToggled: {
             if (trCheckbox.checked) {
-                backendValue.expression = "qsTr(\"" + lineEditWidget.text + "\")"
+                backendValue.expression = "qsTr(\"" + escapeString(lineEditWidget.text) + "\")"
             } else {
                 backendValue.value = lineEditWidget.text
             }

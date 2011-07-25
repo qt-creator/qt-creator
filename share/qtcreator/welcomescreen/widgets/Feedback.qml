@@ -33,16 +33,17 @@
 import QtQuick 1.0
 import components 1.0 as Components
 
-BorderImage {
+Rectangle {
     id: inner_background
-    height: openProjectButton.height + 10
-    source: "qrc:welcome/images/background_center_frame_v2.png"
-    border.left: 2
-    border.right: 2
+    height: 40
 
-    Rectangle { color: "#4D295B7F"; width: parent.width; height: 1; anchors.top: parent.top; anchors.left: parent.left }
+    gradient: Gradient{
+        GradientStop{color: "#eee" ; position: 0}
+        GradientStop{color: "#bbb" ; position: 1}
+    }
 
-    Components.QStyleItem { id: styleItem; visible: false }
+    Rectangle { color: "#444"; width: parent.width; height: 1; anchors.top: parent.top; anchors.left: parent.left }
+    Rectangle { color: "white"; width: parent.width; height: 1; anchors.top: parent.top; anchors.topMargin: 1 ; anchors.left: parent.left }
 
     // whitelist
     property bool _hasDesktopTheme: welcomeMode.platform() === "linux"
@@ -55,27 +56,26 @@ BorderImage {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.margins: 5
+        anchors.rightMargin: 10
         onClicked: welcomeMode.sendFeedback()
     }
 
     Text {
         id: feedbackText
         anchors.verticalCenter: parent.verticalCenter
-        anchors.margins: 5
-        anchors.leftMargin: 10
         anchors.left: feedbackButton.right
+        anchors.margins: 5
         text: qsTr("Help us make Qt Creator even better")
     }
-
 
     Button {
         id: openProjectButton
         text: qsTr("Open Project...")
+        focus: false
         iconSource: _hasDesktopTheme ? "image://desktoptheme/document-open" : ""
         onClicked: welcomeMode.openProject();
         anchors.right: createProjectButton.left
         anchors.margins: 5
-        height: 32
         anchors.verticalCenter: parent.verticalCenter
     }
 
@@ -85,8 +85,9 @@ BorderImage {
         iconSource: _hasDesktopTheme ? "image://desktoptheme/document-new" : ""
         onClicked: welcomeMode.newProject();
         height: 32
-        anchors.margins: 5
         anchors.right: parent.right
+        anchors.margins: 5
         anchors.verticalCenter: parent.verticalCenter
     }
+
 }

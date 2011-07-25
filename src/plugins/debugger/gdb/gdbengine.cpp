@@ -2791,7 +2791,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointModelI
         bool locationComing = false;
         QByteArray location;
         QByteArray function;
-        qulonglong address;
+        qulonglong address = 0;
         foreach (const QByteArray &part, data.split(' ')) {
             if (part.isEmpty())
                 continue;

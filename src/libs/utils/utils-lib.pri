@@ -87,7 +87,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/ssh/sshremoteprocessrunner.cpp \
     $$PWD/ssh/sshconnectionmanager.cpp \
     $$PWD/outputformatter.cpp \
-    $$PWD/flowlayout.cpp
+    $$PWD/flowlayout.cpp \
+    $$PWD/networkaccessmanager.cpp
 
 win32 {
     SOURCES += \
@@ -101,7 +102,9 @@ unix:!macx {
     HEADERS += $$PWD/unixutils.h
     SOURCES += $$PWD/unixutils.cpp
 }
-HEADERS += $$PWD/environment.h \
+HEADERS += \
+    $$PWD/app_version.h \
+    $$PWD/environment.h \
     $$PWD/environmentmodel.h \
     $$PWD/qtcprocess.h \
     $$PWD/utils_global.h \
@@ -187,11 +190,18 @@ HEADERS += $$PWD/environment.h \
     $$PWD/statuslabel.h \
     $$PWD/outputformatter.h \
     $$PWD/outputformat.h \
-    $$PWD/flowlayout.h
+    $$PWD/flowlayout.h \
+    $$PWD/networkaccessmanager.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \
     $$PWD/newclasswidget.ui \
     $$PWD/submiteditorwidget.ui \
     $$PWD/checkablemessagebox.ui
+
 RESOURCES += $$PWD/utils.qrc
+
+OTHER_FILES += $$PWD/app_version.h.in
+
+
+QMAKE_SUBSTITUTES += $$PWD/app_version.h.in

@@ -82,7 +82,7 @@ QWidget {
         
         styleSheetFile: "styledbuttonleft.css"                
         iconFromFile: "images/icon_color_solid.png"
-        toolTip: qsTr("Solid color")
+        toolTip: baseStateFlag ? qsTr("Solid color") : qsTr("Solid color (only editable in base state)")
 
         onToggled: {
             if (checked) {
@@ -107,7 +107,7 @@ QWidget {
 
         styleSheetFile: "styledbuttonmiddle.css"
         iconFromFile: "images/icon_color_gradient.png"
-        toolTip: qsTr("Gradient")
+        toolTip: baseStateFlag ? qsTr("Gradient") : qsTr("Gradient (only editable in base state)")
 
         onToggled: {
             if (checked) {
@@ -131,7 +131,7 @@ QWidget {
         fixedHeight: 28
         styleSheetFile: "styledbuttonright.css"
         iconFromFile: "images/icon_color_none.png"
-        toolTip: qsTr("Transparent")
+        toolTip: baseStateFlag ? qsTr("Transparent") : qsTr("Transparent (only editable in base state)")
 
         onToggled: {
             if (checked) {

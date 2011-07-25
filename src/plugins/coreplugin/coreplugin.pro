@@ -90,9 +90,7 @@ SOURCES += mainwindow.cpp \
     variablechooser.cpp \
     mimetypemagicdialog.cpp \
     mimetypesettings.cpp \
-    dialogs/promptoverwritedialog.cpp \
-    multifeedrssmodel.cpp \
-    networkaccessmanager.cpp
+    dialogs/promptoverwritedialog.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -184,9 +182,7 @@ HEADERS += mainwindow.h \
     variablechooser.h \
     mimetypemagicdialog.h \
     mimetypesettings.h \
-    dialogs/promptoverwritedialog.h \
-    multifeedrssmodel.h \
-    networkaccessmanager.h
+    dialogs/promptoverwritedialog.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \

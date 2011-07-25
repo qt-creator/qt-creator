@@ -48,6 +48,9 @@ FocusScope {
     property alias verticalValue: vscrollbar.value
     property alias horizontalValue: hscrollbar.value
 
+    property alias horizontalScrollBar: hscrollbar
+    property alias verticalScrollBar: vscrollbar
+
     default property alias data: content.data
 
     property int contentY

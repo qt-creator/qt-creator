@@ -43,6 +43,10 @@ QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+class ToolChain;
+}
+
 namespace QtSupport {
 
 class BaseQtVersion;
@@ -120,6 +124,7 @@ private:
         QIcon icon;
     };
     ValidityInfo validInformation(const BaseQtVersion *version);
+    QList<ProjectExplorer::ToolChain*> toolChains(const BaseQtVersion *version);
 };
 
 class QtOptionsPage : public Core::IOptionsPage

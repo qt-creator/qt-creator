@@ -35,7 +35,7 @@ import Bauhaus 1.0
 
 QWidget {
     id: expressionEditor;
-    x: 6
+    x: 16
     y: -400
     width: frame.width - 22
     height: 40
@@ -80,8 +80,8 @@ QWidget {
         styleSheet: "QTextEdit {border-radius: 0px;}"
         documentTitle: qsTr("Expression")
 
-        width: expressionEdit.width
-        height: expressionEdit.height
+        width: expressionEdit.width - 10
+        height: expressionEdit.height - 10
         horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff"
         verticalScrollBarPolicy: "Qt::ScrollBarAlwaysOff"
 
@@ -97,19 +97,19 @@ QWidget {
     QPushButton {
         focusPolicy: "Qt::NoFocus";
         y: expressionEdit.height - 22;
-        x: expressionEdit.width - 61;
+        x: expressionEdit.width - 59;
         styleSheetFile: "applybutton.css";
         width: 29
         height: 19
         onClicked: {
             expressionEdit.backendValue.expression = textEdit.plainText;
             expressionEdit.active = false;
-        }
+        }        
     }
     QPushButton {
         focusPolicy: "Qt::NoFocus";
         y: expressionEdit.height - 22;
-        x: expressionEdit.width - 32;
+        x: expressionEdit.width - 30;
         styleSheetFile: "cancelbutton.css";
         width: 29
         height: 19

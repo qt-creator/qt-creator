@@ -40,6 +40,7 @@ Item {
 
     property color lighterColor:"#cc80b2f6"
     property color darkerColor:"#cc6da1e8"
+    property color gapColor: "#666da1e8"
     property real value: (canvas.canvasWindow.x + x) * Plotter.xScale(canvas)
     property real zoomWidth: 20
     onZoomWidthChanged: timeDisplayLabel.hideAll();
@@ -62,8 +63,6 @@ Item {
     Rectangle {
         id: frame
         color:"transparent"
-        border.width: 1
-        border.color: darkerColor
         anchors.fill: parent
         anchors.rightMargin: 1
         anchors.bottomMargin: 1
@@ -71,13 +70,18 @@ Item {
 
     Rectangle {
         id: rect
-
         color: lighterColor
         width: parent.zoomWidth
         height: parent.height
     }
 
-
+    Rectangle {
+        id: gapRect
+        color: gapColor
+        anchors.left: rect.right
+        anchors.right: rightRange.left
+        height: parent.height
+    }
 
     Rectangle {
         id: leftRange

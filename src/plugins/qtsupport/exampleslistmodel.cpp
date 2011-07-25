@@ -374,17 +374,51 @@ void ExamplesListModelFilter::updateFilter()
     invalidateFilter();
 }
 
+bool containsSubString(const QStringList& list, const QString& substr, Qt::CaseSensitivity cs)
+{
+    foreach (const QString &elem, list) {
+        if (elem.contains(substr, cs))
+            return true;
+    }
+
+    return false;
+}
+
 bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     if (m_showTutorialsOnly) {
         int type = sourceModel()->index(sourceRow, 0, sourceParent).data(Type).toInt();
         if (type != Tutorial)
             return false;
-        // tag search only active if we are not in tutorial only mode
-    } else if (!m_filterTag.isEmpty()) {
-        QStringList tags = sourceModel()->index(sourceRow, 0, sourceParent).data(Tags).toStringList();
-        if (!tags.contains(m_filterTag, Qt::CaseInsensitive))
-            return false;
+    }
+
+    const QStringList tags = sourceModel()->index(sourceRow, 0, sourceParent).data(Tags).toStringList();
+
+    if (!m_filterTags.isEmpty()) {
+        foreach(const QString &tag, m_filterTags) {
+            if (!tags.contains(tag, Qt::CaseInsensitive))
+                return false;
+        }
+        return true;
+    }
+
+    if (!m_searchString.isEmpty()) {
+        const QString description = sourceModel()->index(sourceRow, 0, sourceParent).data(Description).toString();
+        const QString name = sourceModel()->index(sourceRow, 0, sourceParent).data(Name).toString();
+
+
+        foreach(const QString &subString, m_searchString) {
+            bool wordMatch = false;
+            wordMatch |= (bool)name.contains(subString, Qt::CaseInsensitive);
+            if (wordMatch)
+                continue;
+            wordMatch |= containsSubString(tags, subString, Qt::CaseInsensitive);
+            if (wordMatch)
+                continue;
+            wordMatch |= (bool)description.contains(subString, Qt::CaseInsensitive);
+            if (!wordMatch)
+                return false;
+        }
     }
 
     bool ok = QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
@@ -398,6 +432,114 @@ void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
 {
     m_showTutorialsOnly = showTutorialsOnly;
     emit showTutorialsOnlyChanged();
+}
+
+struct SearchStringLexer {
+    QString code;
+    const QChar *codePtr;
+    QChar yychar;
+    QString yytext;
+
+    enum TokenKind {
+        END_OF_STRING = 0,
+        TAG,
+        STRING_LITERAL,
+        UNKNOWN
+    };
+
+    inline void yyinp() { yychar = *codePtr++; }
+
+    SearchStringLexer(const QString &code)
+        : code(code)
+        , codePtr(code.unicode())
+        , yychar(' ') { }
+
+    int operator()() { return yylex(); }
+
+    int yylex() {
+        while (yychar.isSpace())
+            yyinp(); // skip all the spaces
+
+        yytext.clear();
+
+        if (yychar.isNull())
+            return END_OF_STRING;
+
+        QChar ch = yychar;
+        yyinp();
+
+        switch (ch.unicode()) {
+        case '"':
+        case '\'':
+        {
+            const QChar quote = ch;
+            yytext.clear();
+            while (!yychar.isNull()) {
+                if (yychar == quote) {
+                    yyinp();
+                    break;
+                } if (yychar == '\\') {
+                    yyinp();
+                    switch (yychar.unicode()) {
+                    case '"': yytext += '"'; yyinp(); break;
+                    case '\'': yytext += '\''; yyinp(); break;
+                    case '\\': yytext += '\\'; yyinp(); break;
+                    }
+                } else {
+                    yytext += yychar;
+                    yyinp();
+                }
+            }
+            return STRING_LITERAL;
+        }
+
+        default:
+            if (ch.isLetterOrNumber() || ch == '_') {
+                yytext.clear();
+                yytext += ch;
+                while (yychar.isLetterOrNumber() || yychar == '_') {
+                    yytext += yychar;
+                    yyinp();
+                }
+                if (yychar == ':' && yytext == QLatin1String("tag")) {
+                    yyinp();
+                    return TAG;
+                }
+                return STRING_LITERAL;
+            }
+        }
+
+        yytext += ch;
+        return UNKNOWN;
+    }
+};
+
+void ExamplesListModelFilter::parseSearchString(const QString &arg)
+{
+    QStringList tags;
+    QStringList searchTerms;
+    SearchStringLexer lex(arg);
+    bool isTag = false;
+    while (int tk = lex()) {
+        if (tk == SearchStringLexer::TAG) {
+            isTag = true;
+            searchTerms.append(lex.yytext);
+        }
+
+        if (tk == SearchStringLexer::STRING_LITERAL) {
+            if (isTag) {
+                searchTerms.pop_back();
+                tags.append(lex.yytext);
+                isTag = false;
+            } else {
+                searchTerms.append(lex.yytext);
+            }
+        }
+    }
+
+    setSearchStrings(searchTerms);
+    setFilterTags(tags);
+    updateFilter();
 }
 
 } // namespace Internal

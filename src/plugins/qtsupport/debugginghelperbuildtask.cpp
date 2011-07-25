@@ -48,13 +48,17 @@ using namespace QtSupport;
 using namespace QtSupport::Internal;
 using ProjectExplorer::DebuggingHelperLibrary;
 
-DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version, Tools tools) :
+DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
+                                                   ProjectExplorer::ToolChain *toolChain,
+                                                   Tools tools) :
     m_tools(tools & availableTools(version)),
     m_invalidQt(false),
     m_showErrors(true)
 {
-    if (!version || !version->isValid())
+    if (!version || !version->isValid() || !toolChain) {
+        m_invalidQt = true;
         return;
+    }
     // allow type to be used in queued connections.
     qRegisterMetaType<DebuggingHelperBuildTask::Tools>("DebuggingHelperBuildTask::Tools");
 
@@ -84,25 +88,16 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     m_environment = Utils::Environment::systemEnvironment();
     version->addToEnvironment(m_environment);
 
-    // TODO: the debugging helper doesn't comply to actual tool chain yet
-    QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->findToolChains(version->qtAbis().at(0));
-    if (tcList.isEmpty()) {
-        const QString error
-                = QCoreApplication::translate(
-                    "QtVersion",
-                    "The Qt Version has no tool chain.");
-        log(QString(), error);
-        m_invalidQt = true;
-        return;
-    }
-    ProjectExplorer::ToolChain *tc = tcList.at(0);
-    tc->addToEnvironment(m_environment);
+    toolChain->addToEnvironment(m_environment);
 
-    if (tc->targetAbi().os() == ProjectExplorer::Abi::LinuxOS
+    log(QCoreApplication::translate("QtVersion", "Building helper(s) with toolchain '%1' ...\n"
+                                    ).arg(toolChain->displayName()), QString());
+
+    if (toolChain->targetAbi().os() == ProjectExplorer::Abi::LinuxOS
         && ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS)
         m_target = QLatin1String("-unix");
     m_qmakeCommand = version->qmakeCommand();
-    m_makeCommand = tc->makeCommand();
+    m_makeCommand = toolChain->makeCommand();
     m_mkspec = version->mkspec();
 
     // Make sure QtVersion cache is invalidated
@@ -211,6 +206,7 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
         bool success = true;
         arguments.directory = qmlDebuggingDirectory;
         arguments.makeArguments += QLatin1String("all"); // build debug and release
+        arguments.makeArguments += QLatin1String("-k"); // don't stop if one fails
         if (arguments.directory.isEmpty()
                 || !QmlDebuggingLibrary::build(arguments, &output, &error)) {
             success = false;

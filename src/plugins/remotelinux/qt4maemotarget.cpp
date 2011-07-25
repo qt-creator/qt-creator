@@ -454,7 +454,7 @@ bool AbstractDebBasedQt4MaemoTarget::setPackageManagerIconInternal(const QString
     QByteArray iconAsBase64;
     QBuffer buffer(&iconAsBase64);
     buffer.open(QIODevice::WriteOnly);
-    if (!pixmap.scaled(48, 48).save(&buffer,
+    if (!pixmap.scaled(packageManagerIconSize()).save(&buffer,
         QFileInfo(iconFilePath).suffix().toAscii())) {
         if (error)
             *error = tr("Could not export image file '%1'.").arg(iconFilePath);
@@ -1069,6 +1069,11 @@ QByteArray Qt4Maemo5Target::packageManagerNameFieldName() const
     return "XB-Maemo-Display-Name";
 }
 
+QSize Qt4Maemo5Target::packageManagerIconSize() const
+{
+    return QSize(48, 48);
+}
+
 QByteArray Qt4Maemo5Target::defaultSection() const
 {
     return "user/hidden";
@@ -1112,6 +1117,11 @@ QString Qt4HarmattanTarget::debianDirName() const
 QByteArray Qt4HarmattanTarget::packageManagerNameFieldName() const
 {
     return "XSBC-Maemo-Display-Name";
+}
+
+QSize Qt4HarmattanTarget::packageManagerIconSize() const
+{
+    return QSize(64, 64);
 }
 
 QByteArray Qt4HarmattanTarget::defaultSection() const

@@ -40,6 +40,7 @@ GroupBox {
 
     property bool showIsWrapping: false
     property bool showVerticalAlignment: false
+    property bool useLineEdit: false
 
     layout: VerticalLayout {
         QWidget {
@@ -48,9 +49,16 @@ GroupBox {
                     text: qsTr("Text")
                 }
                 LineEdit {
+                    visible: !useLineEdit
                     backendValue: backendValues.text
                     baseStateFlag: isBaseState;
                     translation: true
+                }
+                TextEditor {
+                    visible: useLineEdit
+                    translation: true
+                    backendValue: backendValues.text
+                    baseStateFlag: isBaseState;
                 }
             }
         }

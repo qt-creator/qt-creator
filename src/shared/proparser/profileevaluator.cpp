@@ -2578,7 +2578,7 @@ ProStringList ProFileEvaluator::Private::evaluateExpandFunction(
                         ret.prepend(item);
                     foreach (const ProString &dep, dependees[item]) {
                         QSet<ProString> &dset = dependencies[dep];
-                        dset.remove(item);
+                        dset.remove(rootSet.at(i)); // *Don't* use 'item' - rootSet may have changed!
                         if (dset.isEmpty())
                             rootSet << dep;
                     }

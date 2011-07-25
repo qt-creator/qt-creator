@@ -34,13 +34,14 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QUrl>
 
 namespace Utils {
 
 /*!
   \class Utils::FileInProjectFinder
 
-  \brief Helper class to find the 'original' file in the project directory for a given file path.
+  \brief Helper class to find the 'original' file in the project directory for a given file url.
 
   Often files are copied in the build + deploy process. findFile() searches for an existing file
   in the project directory for a given file path:
@@ -86,48 +87,83 @@ void FileInProjectFinder::setProjectFiles(const QStringList &projectFiles)
 }
 
 /**
-  Returns the best match for the given originalPath in the project directory.
+  Returns the best match for the given file url in the project directory.
 
-  The method first checks whether the originalPath inside the project directory exists.
+  The method first checks whether the file inside the project directory exists.
   If not, the leading directory in the path is stripped, and the - now shorter - path is
   checked for existence. This continues until either the file is found, or the relative path
-  does not contain any directories any more: In this case the originalPath is returned.
+  does not contain any directories any more: In this case the path of the url is returned.
 
   Second, we walk the list of project files, and search for a file name match there.
   */
-QString FileInProjectFinder::findFile(const QString &originalPath, bool *success) const
+QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 {
+    QString originalPath = fileUrl.toLocalFile();
+    if (originalPath.isEmpty()) // e.g. qrc://
+        originalPath = fileUrl.path();
+
+    if (originalPath.isEmpty()) {
+        if (success)
+            success = false;
+        return originalPath;
+    }
+
     if (!m_projectDir.isEmpty()) {
+        int prefixToIgnore = -1;
         const QChar separator = QLatin1Char('/');
         if (originalPath.startsWith(m_projectDir + separator)) {
-            if (success)
-                *success = true;
-            return originalPath;
+#ifdef Q_OS_MAC
+            // starting with the project path is not sufficient if the file was
+            // copied in an insource build, e.g. into MyApp.app/Contents/Resources
+            static const QString appResourcePath = QString::fromLatin1(".app/Contents/Resources");
+            if (originalPath.contains(appResourcePath)) {
+                // the path is inside the project, but most probably as a resource of an insource build
+                // so ignore that path
+                prefixToIgnore = originalPath.indexOf(appResourcePath) + appResourcePath.length();
+            } else {
+#endif
+                if (success)
+                    *success = true;
+                return originalPath;
+#ifdef Q_OS_MAC
+            }
+#endif
         }
 
         if (m_cache.contains(originalPath)) {
-            if (success)
-                *success = true;
-            return m_cache.value(originalPath);
+            // check if cached path is still there
+            QString candidate = m_cache.value(originalPath);
+            QFileInfo candidateInfo(candidate);
+            if (candidateInfo.exists() && candidateInfo.isFile()) {
+                if (success)
+                    *success = true;
+                return candidate;
+            }
         }
 
         // Strip directories one by one from the beginning of the path,
         // and see if the new relative path exists in the build directory.
-        if (originalPath.contains(separator)) {
-            for (int pos = originalPath.indexOf(separator); pos != -1;
-                 pos = originalPath.indexOf(separator, pos + 1)) {
-                QString candidate = originalPath;
-                candidate.remove(0, pos);
-                candidate.prepend(m_projectDir);
-                QFileInfo candidateInfo(candidate);
-                if (candidateInfo.exists() && candidateInfo.isFile()) {
-                    if (success)
-                        *success = true;
-
-                    m_cache.insert(originalPath, candidate);
-                    return candidate;
-                }
+        if (prefixToIgnore < 0) {
+            if (!QFileInfo(originalPath).isAbsolute()
+                    && !originalPath.startsWith(separator)) {
+                prefixToIgnore = 0;
+            } else {
+                prefixToIgnore = originalPath.indexOf(separator);
             }
+        }
+        while (prefixToIgnore != -1) {
+            QString candidate = originalPath;
+            candidate.remove(0, prefixToIgnore);
+            candidate.prepend(m_projectDir);
+            QFileInfo candidateInfo(candidate);
+            if (candidateInfo.exists() && candidateInfo.isFile()) {
+                if (success)
+                    *success = true;
+
+                m_cache.insert(originalPath, candidate);
+                return candidate;
+            }
+            prefixToIgnore = originalPath.indexOf(separator, prefixToIgnore + 1);
         }
     }
 

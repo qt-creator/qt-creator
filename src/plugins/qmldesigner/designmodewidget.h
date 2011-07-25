@@ -125,6 +125,7 @@ public:
     QAction *toggleLeftSidebarAction() const;
     QAction *toggleRightSidebarAction() const;
     QAction *restoreDefaultViewAction() const;
+    QAction *goIntoComponentAction() const;
 
     void readSettings();
     void saveSettings();
@@ -147,6 +148,7 @@ private slots:
     void restoreDefaultView();
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
+    void goIntoComponent();
 
     void enable();
     void disable(const QList<RewriterView::Error> &errors);
@@ -183,6 +185,7 @@ private:
     QAction *m_restoreDefaultViewAction;
     QAction *m_toggleLeftSidebarAction;
     QAction *m_toggleRightSidebarAction;
+    QAction *m_goIntoComponentAction;
 
     QWeakPointer<ItemLibraryView> m_itemLibraryView;
     QWeakPointer<NavigatorView> m_navigatorView;

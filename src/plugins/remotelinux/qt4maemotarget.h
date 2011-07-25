@@ -132,6 +132,8 @@ public:
     bool setPackageManagerName(const QString &name, QString *error = 0);
     QString packageManagerName() const;
 
+    virtual QSize packageManagerIconSize() const=0;
+
 signals:
     void debianDirContentsChanged();
     void changeLogChanged();
@@ -235,6 +237,8 @@ public:
     virtual bool allowsPackagingDisabling() const { return true; }
     virtual bool allowsQmlDebugging() const { return false; }
 
+    virtual QSize packageManagerIconSize() const;
+
     static QString defaultDisplayName();
 
 private:
@@ -256,6 +260,8 @@ public:
     virtual bool allowsRemoteMounts() const { return false; }
     virtual bool allowsPackagingDisabling() const { return false; }
     virtual bool allowsQmlDebugging() const { return true; }
+
+    virtual QSize packageManagerIconSize() const;
 
     static QString defaultDisplayName();
     static QString aegisManifestFileName();

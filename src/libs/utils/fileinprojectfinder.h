@@ -37,6 +37,7 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
+#include <QtCore/QUrl>
 
 namespace Utils {
 
@@ -50,7 +51,7 @@ public:
 
     void setProjectFiles(const QStringList &projectFiles);
 
-    QString findFile(const QString &originalPath, bool *success = 0) const;
+    QString findFile(const QUrl &fileUrl, bool *success = 0) const;
 
 private:
     QString m_projectDir;

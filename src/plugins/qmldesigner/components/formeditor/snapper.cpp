@@ -292,12 +292,12 @@ QLineF Snapper::createSnapLine(Qt::Orientation orientation,
                                const QRectF &itemRect) const
 {
     if (orientation == Qt::Horizontal) {
-        double lowerX(qMin(lowerLimit, itemRect.left()));
-        double upperX(qMax(upperLimit, itemRect.right()));
+        double lowerX(qMin(lowerLimit, double(itemRect.left())));
+        double upperX(qMax(upperLimit, double(itemRect.right())));
         return QLineF(lowerX, snapLine, upperX, snapLine);
     } else {
-        double lowerY(qMin(lowerLimit, itemRect.top()));
-        double upperY(qMax(upperLimit, itemRect.bottom()));
+        double lowerY(qMin(lowerLimit, double(itemRect.top())));
+        double upperY(qMax(upperLimit, double(itemRect.bottom())));
         return QLineF(snapLine, lowerY, snapLine, upperY);
     }
 }
@@ -477,10 +477,10 @@ static QLineF mergedHorizontalLine(const QList<QLineF> &lineList)
     double minimumX =  std::numeric_limits<double>::max();
     double maximumX =  std::numeric_limits<double>::min();
     foreach(const QLineF &line, lineList) {
-        minimumX = qMin(minimumX, line.x1());
-        minimumX = qMin(minimumX, line.x2());
-        maximumX = qMax(maximumX, line.x1());
-        maximumX = qMax(maximumX, line.x2());
+        minimumX = qMin(minimumX, double(line.x1()));
+        minimumX = qMin(minimumX, double(line.x2()));
+        maximumX = qMax(maximumX, double(line.x1()));
+        maximumX = qMax(maximumX, double(line.x2()));
     }
 
     double y(lineList.first().y1());
@@ -495,10 +495,10 @@ static QLineF mergedVerticalLine(const QList<QLineF> &lineList)
     double minimumY =  std::numeric_limits<double>::max();
     double maximumY =  std::numeric_limits<double>::min();
     foreach(const QLineF &line, lineList) {
-        minimumY = qMin(minimumY, line.y1());
-        minimumY = qMin(minimumY, line.y2());
-        maximumY = qMax(maximumY, line.y1());
-        maximumY = qMax(maximumY, line.y2());
+        minimumY = qMin(minimumY, double(line.y1()));
+        minimumY = qMin(minimumY, double(line.y2()));
+        maximumY = qMax(maximumY, double(line.y1()));
+        maximumY = qMax(maximumY, double(line.y2()));
     }
 
     double x(lineList.first().x1());

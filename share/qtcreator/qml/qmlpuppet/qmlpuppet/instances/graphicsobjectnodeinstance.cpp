@@ -34,6 +34,8 @@
 
 #include <QGraphicsObject>
 #include "private/qgraphicsitem_p.h"
+#include <private/qdeclarativemetatype_p.h>
+
 #include <QStyleOptionGraphicsItem>
 #include <QPixmap>
 #include <QSizeF>
@@ -57,9 +59,28 @@ QGraphicsObject *GraphicsObjectNodeInstance::graphicsObject() const
     return static_cast<QGraphicsObject*>(object());
 }
 
+bool GraphicsObjectNodeInstance::childrenHasContent(QGraphicsItem *graphicsItem) const
+{
+    QGraphicsObject *graphicsObject = graphicsItem->toGraphicsObject();
+
+    if (graphicsObject && !nodeInstanceServer()->hasInstanceForObject(graphicsObject) && !graphicsItem->flags().testFlag(QGraphicsItem::ItemHasNoContents))
+        return true;
+
+    foreach (QGraphicsItem *childItem, graphicsItem->childItems()) {
+        bool childHasContent = childrenHasContent(childItem);
+        if (childHasContent)
+            return true;
+    }
+
+    return false;
+}
+
 bool GraphicsObjectNodeInstance::hasContent() const
 {
-    return m_hasContent;
+    if (m_hasContent)
+        return true;
+
+    return childrenHasContent(graphicsObject());
 }
 
 QList<ServerNodeInstance> GraphicsObjectNodeInstance::childItems() const

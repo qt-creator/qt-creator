@@ -173,6 +173,7 @@ Rectangle {
     property real elapsedTime;
     signal updateTimer;
     Timer {
+        id: elapsedTimer
         property date startDate
         property bool reset:  true
         running: connection.recording
@@ -303,18 +304,34 @@ Rectangle {
                     rangeDetails.line = line
                     rangeDetails.type = Plotter.names[type]
 
-                    var pos = mapToItem(rangeDetails.parent, x, y+height)
-                    var preferredX = Math.max(10, pos.x - rangeDetails.width/2)
-                    if (preferredX + rangeDetails.width > rangeDetails.parent.width)
-                        preferredX = rangeDetails.parent.width - rangeDetails.width
+                    var margin = 10;
+
+                    var pos = mapToItem(rangeDetails.parent , x, y)
+                    var preferredX = pos.x + margin;
+
+                    // if over the right side of the window, render it left to the given pos
+                    if (preferredX + rangeDetails.width + margin > rangeDetails.parent.width)
+                        preferredX = pos.x - rangeDetails.width - margin;
+
+                    // if window too narrow, put it at least in "margin" pixels
+                    if (preferredX < margin)
+                        preferredX = margin;
+
                     rangeDetails.x = preferredX
 
-                    var preferredY = pos.y - rangeDetails.height/2;
-                    if (preferredY + rangeDetails.height > root.height - 10)
-                        preferredY = root.height - 10 - rangeDetails.height;
-                    if (preferredY < 10)
-                        preferredY=10;
+                    // center on current item
+                    var preferredY = pos.y + height/2 - rangeDetails.height/2;
+
+                    // if too low, put it over the bottom of the window
+                    if (preferredY + rangeDetails.height - margin > root.height)
+                        preferredY = root.height - rangeDetails.height - margin;
+
+                    // but never above the top of the window
+                    if (preferredY < margin)
+                        preferredY = margin;
+
                     rangeDetails.y = preferredY;
+
                     rangeDetails.visible = true
                 }
 

@@ -62,13 +62,15 @@ public:
          ModelNodeVisibility,
          ResetSize,
          ResetPosition,
-         EnterComponent,
+         GoIntoComponent,
          SetId,
          ResetZ
      };
 
 
      ModelNodeAction( const QString & text, QObject *parent, QmlModelView *view,  const QList<ModelNode> &modelNodeList, ModelNodeActionType type);
+
+     static void goIntoComponent(const ModelNode &modelNode);
 
 public slots:
      void actionTriggered(bool);
@@ -89,7 +91,7 @@ private:
      void setVisible(bool);
      void resetSize();
      void resetPosition();
-     void enterComponent();
+     void goIntoComponent();
      void setId();
      void resetZ();
 

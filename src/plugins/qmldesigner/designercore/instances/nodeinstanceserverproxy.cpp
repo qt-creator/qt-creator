@@ -165,37 +165,43 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
        connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(deleteLater()));
 
-       m_qmlPuppetEditorProcess->waitForStarted();
+       if (m_qmlPuppetEditorProcess->waitForStarted(10000)) {
+           connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int)), m_qmlPuppetEditorProcess.data(),SLOT(deleteLater()));
 
-       connect(m_qmlPuppetEditorProcess.data(), SIGNAL(finished(int)), m_qmlPuppetEditorProcess.data(),SLOT(deleteLater()));
+           if (runModus == NormalModus) {
+               m_qmlPuppetPreviewProcess->waitForStarted();
+               connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int)), m_qmlPuppetPreviewProcess.data(),SLOT(deleteLater()));
 
-       if (runModus == NormalModus) {
-           m_qmlPuppetPreviewProcess->waitForStarted();
-           connect(m_qmlPuppetPreviewProcess.data(), SIGNAL(finished(int)), m_qmlPuppetPreviewProcess.data(),SLOT(deleteLater()));
-
-           m_qmlPuppetRenderProcess->waitForStarted();
-           connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int)), m_qmlPuppetRenderProcess.data(),SLOT(deleteLater()));
-       }
-
-       if (!m_localServer->hasPendingConnections())
-           m_localServer->waitForNewConnection(-1);
-
-       m_firstSocket = m_localServer->nextPendingConnection();
-       connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
-
-       if (runModus == NormalModus) {
-           if (!m_localServer->hasPendingConnections())
-               m_localServer->waitForNewConnection(-1);
-
-           m_secondSocket = m_localServer->nextPendingConnection();
-           connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+               m_qmlPuppetRenderProcess->waitForStarted();
+               connect(m_qmlPuppetRenderProcess.data(), SIGNAL(finished(int)), m_qmlPuppetRenderProcess.data(),SLOT(deleteLater()));
+           }
 
            if (!m_localServer->hasPendingConnections())
-               m_localServer->waitForNewConnection(-1);
+               m_localServer->waitForNewConnection(10000);
 
-           m_thirdSocket = m_localServer->nextPendingConnection();
-           connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+           m_firstSocket = m_localServer->nextPendingConnection();
+           connect(m_firstSocket.data(), SIGNAL(readyRead()), this, SLOT(readFirstDataStream()));
 
+           if (runModus == NormalModus) {
+               if (!m_localServer->hasPendingConnections())
+                   m_localServer->waitForNewConnection(10000);
+
+               m_secondSocket = m_localServer->nextPendingConnection();
+               connect(m_secondSocket.data(), SIGNAL(readyRead()), this, SLOT(readSecondDataStream()));
+
+               if (!m_localServer->hasPendingConnections())
+                   m_localServer->waitForNewConnection(10000);
+
+               m_thirdSocket = m_localServer->nextPendingConnection();
+               connect(m_thirdSocket.data(), SIGNAL(readyRead()), this, SLOT(readThirdDataStream()));
+           }
+
+       } else {
+           QMessageBox::warning(0, tr("Cannot Start QML Puppet Executable"),
+                                tr("The executable of the QML Puppet process (%1) cannot be started. "
+                                   "Please check your installation. "
+                                   "QML Puppet is a process which runs in the background to render the items.").
+                                arg(applicationPath));
        }
 
        m_localServer->close();

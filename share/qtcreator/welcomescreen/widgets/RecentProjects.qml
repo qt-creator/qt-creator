@@ -30,46 +30,73 @@
 **
 **************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 1.1
 import components 1.0 as Components
 
 HeaderItemView {
     header: qsTr("Recently Edited Projects")
     model: projectList
-    delegate: Item {
+    delegate: Rectangle {
         Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
-        height: nameText.font.pixelSize*2.5
+        height: 60
         width: dataSection.width
-        Image{
+
+        Rectangle {
+            height: 1
+            color: "#eee"
+            anchors.bottom: parent.bottom
+            width: parent.width
+        }
+        color: mousearea.containsMouse ? "#f9f9f9" : "white"
+
+        Image {
             id: arrowImage;
             source: "qrc:welcome/images/list_bullet_arrow.png";
             anchors.verticalCenter: parent.verticalCenter;
             anchors.left: parent.left
-        }
-
-        Text {
-            id: nameText
-            text: displayName
-            font.bold: true
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.left: arrowImage.right
             anchors.leftMargin: 10
         }
 
-        Text {
-            text: prettyFilePath
-            elide: Text.ElideMiddle
-            color: "grey"
-            anchors.right: parent.right
-            anchors.top: nameText.bottom
+        Column {
+            spacing: 4
             anchors.left: arrowImage.right
-            anchors.leftMargin: 10
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            Text {
+                id: nameText
+                text: displayName
+                font.bold: true
+                width: parent.width
+                anchors.left: parent.left
+                anchors.leftMargin: 10
+                anchors.rightMargin: arrowImage.width + 10
+                anchors.right: parent.right
+                elide: Text.ElideRight
+            }
+
+            Text {
+                id: filepath
+                text: prettyFilePath
+                elide: Text.ElideMiddle
+                color: "grey"
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 10
+                anchors.rightMargin: arrowImage.width + 14
+            }
         }
 
-        Timer { id: timer; interval: 500; onTriggered: styleItem.showToolTip(filePath) }
+        Timer {
+            id: timer
+            interval: 1000
+            onTriggered: {
+                if (filepath.truncated)
+                    styleItem.showToolTip(filePath)
+            }
+        }
 
         MouseArea {
+            id: mousearea
             anchors.fill: parent
             onClicked: projectWelcomePage.requestProject(filePath)
             hoverEnabled: true

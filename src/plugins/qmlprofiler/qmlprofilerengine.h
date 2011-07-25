@@ -48,6 +48,7 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration);
     ~QmlProfilerEngine();
 
+    static void showNonmodalWarning(const QString &warningMsg);
 signals:
     void processRunning(int port);
     void stopRecording();

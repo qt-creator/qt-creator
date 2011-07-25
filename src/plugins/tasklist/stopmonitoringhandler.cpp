@@ -62,6 +62,7 @@ bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task)
 void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
 {
     Q_ASSERT(canHandle(task));
+    Q_UNUSED(task);
     TaskList::TaskListPlugin::instance()->stopMonitoring();
 }
 
@@ -69,7 +70,7 @@ QAction *StopMonitoringHandler::createAction(QObject *parent)
 {
     const QString text =
             QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",
-                                        "Stop monitoring");
+                                        "Stop Monitoring");
     const QString toolTip =
             QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",
                                         "Stop monitoring task files.");

@@ -28,6 +28,11 @@
       <property name="title" type="QString" value="SelectionListItem"/>
     </itemlibraryentry>
   </node>
+  <node name="com.nokia.symbian.ListView" icon=":/symbianplugin/images/listview-icon16.png">
+    <itemlibraryentry name="ListView" category="Components Symbian" libraryIcon=":/symbianplugin/images/listview-icon.png"  version="1.0" requiredImport="com.nokia.symbian">
+    <qml source=":/symbianplugin/source/SymbianListView.qml"/>
+    </itemlibraryentry>
+  </node>
   <node name="com.nokia.symbian.ProgressBar" icon=":/symbianplugin/images/progressbar16.png">
     <itemlibraryentry name="ProgressBar"  category="Components Symbian" libraryIcon=":/symbianplugin/images/progressbar.png"  version="1.0" requiredImport="com.nokia.symbian">
     </itemlibraryentry>
@@ -82,6 +87,7 @@
   </node>
   <node name="com.nokia.symbian.ToolBar" icon=":/symbianplugin/images/toolbar16.png">
     <itemlibraryentry name="ToolBar" category="Components Symbian" libraryIcon=":/symbianplugin/images/toolbar.png" version="1.0" requiredImport="com.nokia.symbian">
+    <qml source=":/symbianplugin/source/ToolBar.qml"/>
     </itemlibraryentry>
   </node>
   <node name="com.nokia.symbian.Switch" icon=":/symbianplugin/images/switchbutton16.png">

@@ -115,6 +115,9 @@ signals:
     void userArgumentsChanged();
     void linkQmlDebuggingLibraryChanged();
 
+private slots:
+    void recompileMessageBoxFinished(int button);
+
 protected:
     QMakeStep(ProjectExplorer::BuildStepList *parent, QMakeStep *source);
     QMakeStep(ProjectExplorer::BuildStepList *parent, const QString &id);

@@ -100,14 +100,29 @@ bool FileUtils::removeRecursively(const QString &filePath, QString *error)
     QFile::setPermissions(filePath, fileInfo.permissions() | QFile::WriteUser);
     if (fileInfo.isDir()) {
         QDir dir(filePath);
+        dir = dir.canonicalPath();
+        if (dir.isRoot()) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils",
+                    "Refusing to remove root directory.");
+            }
+            return false;
+        }
+        if (dir.path() == QDir::home().canonicalPath()) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils",
+                    "Refusing to remove your home directory.");
+            }
+            return false;
+        }
+
         QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden
                                               | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
         foreach (const QString &fileName, fileNames) {
             if (!removeRecursively(filePath + QLatin1Char('/') + fileName, error))
                 return false;
         }
-        dir.cdUp();
-        if (!dir.rmdir(fileInfo.fileName())) {
+        if (!QDir::root().rmdir(dir.path())) {
             if (error) {
                 *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove directory '%1'.")
                         .arg(QDir::toNativeSeparators(filePath));

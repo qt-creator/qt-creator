@@ -2376,17 +2376,23 @@ QString pathOrDirectoryFor(Node *node, bool dir)
     FolderNode *folder = qobject_cast<FolderNode *>(node);
     if (path.contains("#") && folder) {
         // Virtual Folder case
-        // We figure out a commonPath from the subfolders
-        QStringList list;
-        foreach (FolderNode *f, folder->subFolderNodes())
-            list << f->path() + QLatin1Char('/');
-        if (list.isEmpty())
-            location = path.left(path.indexOf('#'));
-        else
+        // If there are files directly below or no subfolders, take the folder path
+        if (!folder->fileNodes().isEmpty() || folder->subFolderNodes().isEmpty()) {
+            location = path.left(path.indexOf('#'));;
+        } else {
+            // Otherwise we figure out a commonPath from the subfolders
+            QStringList list;
+            foreach (FolderNode *f, folder->subFolderNodes())
+                list << f->path() + QLatin1Char('/');
             location = Utils::commonPath(list);
+        }
     } else {
         QFileInfo fi(path);
-        location = (fi.isDir() && dir) ? fi.absoluteFilePath() : fi.absolutePath();
+        if (dir) {
+            location = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+        } else {
+            location = fi.absoluteFilePath();
+        }
     }
     return location;
 }
@@ -2521,7 +2527,7 @@ void ProjectExplorerPlugin::showInGraphicalShell()
 void ProjectExplorerPlugin::openTerminalHere()
 {
     QTC_ASSERT(d->m_currentNode, return)
-    FolderNavigationWidget::openTerminal(pathFor(d->m_currentNode));
+    FolderNavigationWidget::openTerminal(directoryFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::removeFile()

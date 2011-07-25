@@ -87,7 +87,6 @@ void ComponentNodeInstance::setNodeSource(const QString &source)
     setId(id());
 
     if (component()->isError()) {
-        qDebug() << source;
         foreach(const QDeclarativeError &error, component()->errors())
             qDebug() << error;
     }

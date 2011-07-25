@@ -34,6 +34,7 @@
 #include "abstractview.h"
 #include <qmlanchors.h>
 #include <nodeabstractproperty.h>
+#include <variantproperty.h>
 #include <nodeinstance.h>
 #include <QDebug>
 
@@ -43,6 +44,26 @@ class ModelNode;
 class NodeState;
 
 const QString auxDataString = QLatin1String("anchors_");
+
+static inline void backupPropertyAndRemove(ModelNode node, const QString &propertyName)
+{
+    if (node.hasVariantProperty(propertyName)) {
+        node.setAuxiliaryData(auxDataString + propertyName, node.variantProperty(propertyName).value());
+        node.removeProperty(propertyName);
+
+    }
+    if (node.hasBindingProperty(propertyName)) {
+        node.setAuxiliaryData(auxDataString + propertyName, QmlItemNode(node).instanceValue(propertyName));
+        node.removeProperty(propertyName);
+    }
+}
+
+
+static inline void restoreProperty(ModelNode node, const QString &propertyName)
+{
+    if (node.hasAuxiliaryData(auxDataString + propertyName))
+        node.variantProperty(propertyName) = node.auxiliaryData(auxDataString + propertyName);
+}
 
 namespace Internal {
 
@@ -283,14 +304,10 @@ void QmlAnchorBindingProxy::resetLayout() {
         m_fxItemNode.anchors().removeAnchors();
         m_fxItemNode.anchors().removeMargins();
 
-        if (qFuzzyCompare(m_fxItemNode.instancePosition().x(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + 'x'))
-            m_fxItemNode.setVariantProperty("x", m_fxItemNode.modelNode().auxiliaryData(auxDataString + 'x'));
-        if (qFuzzyCompare(m_fxItemNode.instancePosition().y(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + 'y'))
-            m_fxItemNode.setVariantProperty("y", m_fxItemNode.modelNode().auxiliaryData(auxDataString + 'y'));
-        if (qFuzzyCompare(m_fxItemNode.instanceSize().width(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "width"))
-            m_fxItemNode.setVariantProperty("width", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "width"));
-        if (qFuzzyCompare(m_fxItemNode.instanceSize().height(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "height"))
-            m_fxItemNode.setVariantProperty("height", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "height"));
+        restoreProperty(modelNode(), "x");
+        restoreProperty(modelNode(), "y");
+        restoreProperty(modelNode(), "width");
+        restoreProperty(modelNode(), "height");
 
         emit topAnchorChanged();
         emit bottomAnchorChanged();
@@ -314,8 +331,7 @@ void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
     } else {
         calcBottomMargin();
         if (topAnchored()) {
-            m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "height", m_fxItemNode.instanceSize().height());
-            m_fxItemNode.removeVariantProperty("height");
+            backupPropertyAndRemove(modelNode(), "height");
         }
     }
     emit bottomAnchorChanged();
@@ -338,12 +354,10 @@ void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
         removeLeftAnchor();
     } else {
         calcLeftMargin();
-        m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + QChar('x'), m_fxItemNode.instancePosition().x());
-        m_fxItemNode.removeVariantProperty(QChar('x'));
+        backupPropertyAndRemove(modelNode(), "x");
         if (rightAnchored()) {
-            m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "width", m_fxItemNode.instanceSize().width());
-            m_fxItemNode.removeVariantProperty("width");
-        }
+            backupPropertyAndRemove(modelNode(), "width");
+       }
     }
 
     emit leftAnchorChanged();
@@ -366,8 +380,7 @@ void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
     } else {
         calcRightMargin();
         if (leftAnchored()) {
-            m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "width", m_fxItemNode.instanceSize().width());
-            m_fxItemNode.removeVariantProperty("width");
+            backupPropertyAndRemove(modelNode(), "width");
         }
     }
     emit rightAnchorChanged();
@@ -463,6 +476,11 @@ void QmlAnchorBindingProxy::calcRightMargin()
     m_locked = false;
 }
 
+ModelNode QmlAnchorBindingProxy::modelNode() const
+{
+    return m_fxItemNode.modelNode();
+}
+
 void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
 {
     if (!m_fxItemNode.hasNodeParent())
@@ -477,11 +495,9 @@ void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
         removeTopAnchor();
     } else {
         calcTopMargin();
-        m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + QChar('y'), m_fxItemNode.instancePosition().y());
-        m_fxItemNode.removeVariantProperty(QChar('y'));
+        backupPropertyAndRemove(modelNode(), "y");
         if (bottomAnchored()) {
-            m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "height", m_fxItemNode.instanceSize().height());
-            m_fxItemNode.removeVariantProperty("height");
+            backupPropertyAndRemove(modelNode(), "height");
         }
     }
     emit topAnchorChanged();
@@ -495,10 +511,8 @@ void QmlAnchorBindingProxy::removeTopAnchor() {
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Top);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Top);
 
-    if (qFuzzyCompare(m_fxItemNode.instancePosition().y(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + QChar('y')))
-        m_fxItemNode.setVariantProperty(QChar('y'), m_fxItemNode.modelNode().auxiliaryData(auxDataString + QChar('y')));
-    if (qFuzzyCompare(m_fxItemNode.instanceSize().height(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "height"))
-        m_fxItemNode.setVariantProperty("height", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "height"));
+    restoreProperty(modelNode(), "y");
+    restoreProperty(modelNode(), "height");
 
 }
 
@@ -508,8 +522,8 @@ void QmlAnchorBindingProxy::removeBottomAnchor() {
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Bottom);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Bottom);
 
-    if (qFuzzyCompare(m_fxItemNode.instanceSize().height(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "height"))
-        m_fxItemNode.setVariantProperty("height", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "height"));
+
+    restoreProperty(modelNode(), "height");
 }
 
 void QmlAnchorBindingProxy::removeLeftAnchor() {
@@ -518,11 +532,8 @@ void QmlAnchorBindingProxy::removeLeftAnchor() {
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Left);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Left);
 
-    if (qFuzzyCompare(m_fxItemNode.instancePosition().x(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + QChar('x')))
-        m_fxItemNode.setVariantProperty(QChar('x'), m_fxItemNode.modelNode().auxiliaryData(auxDataString + QChar('x')));
-    if (qFuzzyCompare(m_fxItemNode.instanceSize().width(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "width"))
-        m_fxItemNode.setVariantProperty("width", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "width"));
-
+    restoreProperty(modelNode(), "x");
+    restoreProperty(modelNode(), "width");
 }
 
 void QmlAnchorBindingProxy::removeRightAnchor() {
@@ -531,8 +542,7 @@ void QmlAnchorBindingProxy::removeRightAnchor() {
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Right);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Right);
 
-    if (qFuzzyCompare(m_fxItemNode.instanceSize().width(), 0.0) && m_fxItemNode.modelNode().hasAuxiliaryData(auxDataString + "width"))
-        m_fxItemNode.setVariantProperty("width", m_fxItemNode.modelNode().auxiliaryData(auxDataString + "width"));
+    restoreProperty(modelNode(), "width");
 }
 
 void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
@@ -598,14 +608,11 @@ void QmlAnchorBindingProxy::fill()
 
     RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
 
-    m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + QChar('x'), m_fxItemNode.instancePosition().x());
-    m_fxItemNode.removeVariantProperty(QChar('x'));
-    m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + QChar('y'), m_fxItemNode.instancePosition().y());
-    m_fxItemNode.removeVariantProperty(QChar('y'));
-    m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "width", m_fxItemNode.instanceSize().width());
-    m_fxItemNode.removeVariantProperty("width");
-    m_fxItemNode.modelNode().setAuxiliaryData(auxDataString + "height", m_fxItemNode.instanceSize().height());
-    m_fxItemNode.removeVariantProperty("height");
+
+    backupPropertyAndRemove(modelNode(), "x");
+    backupPropertyAndRemove(modelNode(), "y");
+    backupPropertyAndRemove(modelNode(), "width");
+    backupPropertyAndRemove(modelNode(), "height");
 
     m_fxItemNode.anchors().fill();
 

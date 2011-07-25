@@ -114,11 +114,9 @@ public:
     virtual int indentDepth() const
     { return 0; }
 
-    virtual QmlJS::Snapshot getSnapshot() const
-    { return QmlJS::Snapshot(); }
+    virtual QmlJS::Snapshot getSnapshot() const;
 
-    virtual QStringList importPaths() const
-    { return QStringList(); }
+    virtual QStringList importPaths() const;
 };
 
 }

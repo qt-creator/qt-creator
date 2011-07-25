@@ -50,10 +50,15 @@
 
 #include <projectexplorer/taskhub.h>
 
+#include <qtsupport/qtsupportconstants.h>
+
 #include <QtCore/QtPlugin>
 
+#include <QtGui/QApplication>
+#include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
+
 namespace QmlProjectManager {
-namespace Internal {
 
 QmlProjectPlugin::QmlProjectPlugin()
 { }
@@ -74,13 +79,13 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     if (! mimeDB->addMimeTypes(mimetypesXml, errorMessage))
         return false;
 
-    Manager *manager = new Manager;
+    Internal::Manager *manager = new Internal::Manager;
 
     addAutoReleasedObject(manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlProjectRunControlFactory);
-    addAutoReleasedObject(new QmlProjectApplicationWizard);
-    addAutoReleasedObject(new QmlProjectTargetFactory);
+    addAutoReleasedObject(new Internal::QmlProjectApplicationWizard);
+    addAutoReleasedObject(new Internal::QmlProjectTargetFactory);
 
     QmlProjectFileFormat::registerDeclarativeTypes();
 
@@ -93,7 +98,29 @@ void QmlProjectPlugin::extensionsInitialized()
 {
 }
 
-} // namespace Internal
+void QmlProjectPlugin::showQmlObserverToolWarning()
+{
+    QMessageBox dialog(QApplication::activeWindow());
+    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
+                                           QMessageBox::ActionRole);
+    dialog.addButton(QMessageBox::Cancel);
+    dialog.setDefaultButton(qtPref);
+    dialog.setWindowTitle(tr("QML Observer Missing"));
+    dialog.setText(tr("QML Observer could not be found."));
+    dialog.setInformativeText(tr(
+                                  "QML Observer is used to offer debugging features for "
+                                  "QML applications, such as interactive debugging and inspection tools. "
+                                  "It must be compiled for each used Qt version separately. "
+                                  "On the Qt4 options page, select the current Qt installation "
+                                  "and click Rebuild."));
+    dialog.exec();
+    if (dialog.clickedButton() == qtPref) {
+        Core::ICore::instance()->showOptionsDialog(
+                    QtSupport::Constants::QT_SETTINGS_CATEGORY,
+                    QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
+    }
+}
+
 } // namespace QmlProjectManager
 
-Q_EXPORT_PLUGIN(QmlProjectManager::Internal::QmlProjectPlugin)
+Q_EXPORT_PLUGIN(QmlProjectManager::QmlProjectPlugin)

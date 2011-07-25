@@ -45,15 +45,13 @@
 #include <debugger/debuggerstartparameters.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qmlobservertool.h>
-#include <qtsupport/qtsupportconstants.h>
 
-#include <QtGui/QApplication>
-#include <QtGui/QMessageBox>
-#include <QtGui/QPushButton>
+#include <qmlprojectmanager/qmlprojectplugin.h>
 
 using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
+
 namespace Internal {
 
 QmlProjectRunControl::QmlProjectRunControl(QmlProjectRunConfiguration *runConfiguration, QString mode)
@@ -147,22 +145,24 @@ bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
 {
     QmlProjectRunConfiguration *config =
         qobject_cast<QmlProjectRunConfiguration*>(runConfiguration);
+    if (!config)
+        return false;
     if (mode == ProjectExplorer::Constants::RUNMODE)
-        return config != 0 && !config->viewerPath().isEmpty();
-    else if (mode != Debugger::Constants::DEBUGMODE)
+        return !config->viewerPath().isEmpty();
+    if (mode != Debugger::Constants::DEBUGMODE)
         return false;
 
-    bool qmlDebugSupportInstalled =
-            Debugger::DebuggerPlugin::isActiveDebugLanguage(Debugger::QmlLanguage);
+    if (!Debugger::DebuggerPlugin::isActiveDebugLanguage(Debugger::QmlLanguage))
+        return false;
 
-    if (config && qmlDebugSupportInstalled) {
-        if (!(config->qtVersion() && config->qtVersion()->needsQmlDebuggingLibrary())
-                || !config->observerPath().isEmpty())
-            return true;
-        if (config->qtVersion() && QtSupport::QmlObserverTool::canBuild(config->qtVersion()))
-            return true;
-    }
-
+    if (!config->observerPath().isEmpty())
+        return true;
+    if (!config->qtVersion())
+        return false;
+    if (!config->qtVersion()->needsQmlDebuggingLibrary())
+        return true;
+    if (QtSupport::QmlObserverTool::canBuild(config->qtVersion()))
+        return true;
     return false;
 }
 
@@ -218,34 +218,11 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     params.projectSourceFiles = runConfig->target()->project()->files(Project::ExcludeGeneratedFiles);
 
     if (params.executable.isEmpty()) {
-        showQmlObserverToolWarning();
+        QmlProjectPlugin::showQmlObserverToolWarning();
         return 0;
     }
 
     return Debugger::DebuggerPlugin::createDebugger(params, runConfig);
-}
-
-void QmlProjectRunControlFactory::showQmlObserverToolWarning()
-{
-    QMessageBox dialog(QApplication::activeWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt4 Options"),
-                                           QMessageBox::ActionRole);
-    dialog.addButton(tr("Cancel"), QMessageBox::ActionRole);
-    dialog.setDefaultButton(qtPref);
-    dialog.setWindowTitle(tr("QML Observer Missing"));
-    dialog.setText(tr("QML Observer could not be found."));
-    dialog.setInformativeText(tr(
-                                  "QML Observer is used to offer debugging features for "
-                                  "QML applications, such as interactive debugging and inspection tools. "
-                                  "It must be compiled for each used Qt version separately. "
-                                  "On the Qt4 options page, select the current Qt installation "
-                                  "and click Rebuild."));
-    dialog.exec();
-    if (dialog.clickedButton() == qtPref) {
-        Core::ICore::instance()->showOptionsDialog(
-                    QtSupport::Constants::QT_SETTINGS_CATEGORY,
-                    QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
-    }
 }
 
 } // namespace Internal

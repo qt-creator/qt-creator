@@ -152,6 +152,8 @@ private:
     void calcLeftMargin();
     void calcRightMargin();
 
+    ModelNode modelNode() const;
+
     QmlItemNode m_fxItemNode;
 
     QRectF parentBoundingBox();

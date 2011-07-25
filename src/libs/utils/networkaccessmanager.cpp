@@ -39,17 +39,17 @@
 #include <sys/utsname.h>
 #endif
 
-#include "coreconstants.h"
+#include "app_version.h"
 
 /*!
-   \class Core::NetworkManager
+   \class Utils::NetworkManager
 
    \brief Network Access Manager for use with Qt Creator.
 
    Common initialization, Qt Creator User Agent
  */
 
-namespace Core {
+namespace Utils {
 
 static const QString getOsString()
 {
@@ -111,7 +111,7 @@ static const QString getOsString()
         osString += QLatin1String("Unix (Unknown)");
     }
 #else
-    ossttring = QLatin1String("Unknown OS");
+    osString = QLatin1String("Unknown OS");
 #endif
     return osString;
 }
@@ -133,7 +133,7 @@ void NetworkAccessManager::getUrl(const QUrl &url)
 QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
 {
     QString agentStr = QString::fromLatin1("Qt-Creator/%1 (QNetworkAccessManager %2; %3; %4; %5 bit)")
-                    .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
+                    .arg(APP_VERSION_STR).arg(qVersion())
                     .arg(getOsString()).arg(QLocale::system().name())
                     .arg(QSysInfo::WordSize);
     QNetworkRequest req(request);

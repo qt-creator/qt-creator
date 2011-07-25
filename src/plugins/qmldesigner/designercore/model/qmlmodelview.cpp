@@ -63,7 +63,11 @@ void QmlModelView::setCurrentState(const QmlModelState &state)
     if (!state.isValid())
         return;
 
-    setAcutalStateNode(state.modelNode());
+    if (!model())
+        return;
+
+    if (actualStateNode() != state.modelNode())
+        setAcutalStateNode(state.modelNode());
 }
 
 QmlModelState QmlModelView::currentState() const

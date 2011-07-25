@@ -36,36 +36,37 @@ import components 1.0 as Components
 
 Item {
     id: root
-    property int margin: 10
+    property int margin: 8
 
     Components.ScrollArea {
         id: scrollArea
-        anchors.fill: parent
+        anchors.fill:  parent
+        anchors.margins: - margin
         frame: false
         Item {
-            height: Math.max(recentSessions.height + manageSessionsButton.height + margin,
-                             recentProjects.height)
+            id: baseitem
+            height: Math.max(recentSessions.height, recentProjects.height)
             width: root.width
             Widgets.RecentSessions {
                 id: recentSessions
-                width: parent.width / 3 - margin
+                width: Math.floor(root.width / 2.5)
+                anchors.left: parent.left
             }
-            Widgets.Button {
-                id: manageSessionsButton
-                anchors.top: recentSessions.bottom
-                anchors.topMargin: margin
-                anchors.left: recentSessions.left
-                text: qsTr("Manage Sessions...")
-                onClicked: projectWelcomePage.manageSessions()
-            }
-
             Widgets.RecentProjects {
                 id: recentProjects
-                x: parent.width / 3 + margin
-                width: parent.width - x
+                anchors.left:  recentSessions.right
+                anchors.right: parent.right
+                anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 :
+                                         -scrollArea.verticalScrollBar.width
             }
+
         }
     }
+    Rectangle {
+        anchors.top: scrollArea.top
+        height: root.height + 2 * margin
+        width: 1
+        color: "#ccc"
+        x: recentProjects.x - margin
+    }
 }
-
-

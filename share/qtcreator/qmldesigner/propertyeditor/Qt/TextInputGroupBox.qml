@@ -122,10 +122,10 @@ GroupBox {
             layout: HorizontalLayout {
                 Label {text: ""}
                 CheckBox {
-                    text: qsTr("Focus on press")
+                    text: qsTr("Active focus on press")
                     baseStateFlag: isBaseState;
                     checkable: true;
-                    backendValue:  backendValues.focusOnPress;
+                    backendValue:  backendValues.activeFocusOnPress;
                 }
             }
         }

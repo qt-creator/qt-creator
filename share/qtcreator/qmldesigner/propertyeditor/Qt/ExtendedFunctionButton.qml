@@ -108,8 +108,12 @@ AnimatedToolButton {
     QAction {
         text: qsTr("Set Expression");
         onTriggered: {
-            expressionEdit.globalY = extendedFunctionButton.globalY;
+            expressionEdit.globalY = extendedFunctionButton.globalY - 10;
             expressionEdit.backendValue = extendedFunctionButton.backendValue
+
+            if ((expressionEdit.y + expressionEdit.height + 20) > frame.height)
+                expressionEdit.y = frame.height - expressionEdit.height - 20
+
             expressionEdit.show();
             expressionEdit.raise();
             expressionEdit.active = true;

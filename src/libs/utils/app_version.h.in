@@ -30,25 +30,10 @@
 **
 **************************************************************************/
 
-#include "core_global.h"
-
-#include <QtCore/QUrl>
-#include <QtNetwork/QNetworkAccessManager>
-
-namespace Core {
-
-class CORE_EXPORT NetworkAccessManager : public QNetworkAccessManager
-{
-    Q_OBJECT
-public:
-    NetworkAccessManager(QObject *parent = 0);
-
-public slots:
-    void getUrl(const QUrl &url);
-
-protected:
-    virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData);
-};
-
-
-} // namespace utils
+namespace Utils {
+namespace Internal {
+#define STRINGIFY(x) #x
+#define APP_VERSION $${QTCREATOR_VERSION}
+#define APP_VERSION_STR STRINGIFY(APP_VERSION_STR)
+} // Internal
+} // Utils

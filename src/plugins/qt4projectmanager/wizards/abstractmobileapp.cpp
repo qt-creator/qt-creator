@@ -209,6 +209,7 @@ QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage, int fil
     } else if (fileType == AbstractGeneratedFileInfo::DesktopFileHarmattan) {
         desktopFileContent.replace("Icon=thisApp",
             "Icon=/usr/share/icons/hicolor/80x80/apps/" + projectName().toUtf8() + "80.png");
+        desktopFileContent.replace("Exec=", "Exec=/usr/bin/single-instance ");
     }
     return desktopFileContent.replace("thisApp", projectName().toUtf8());
 }
@@ -221,7 +222,7 @@ QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
     QTextStream in(&mainCppInput);
 
     QByteArray mainCppContent;
-    QTextStream out(&mainCppContent, QIODevice::WriteOnly);
+    QTextStream out(&mainCppContent, QIODevice::WriteOnly | QIODevice::Text);
 
     QString line;
     while (!(line = in.readLine()).isNull()) {
@@ -269,7 +270,7 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
     QTextStream in(&proFileInput);
 
     QByteArray proFileContent;
-    QTextStream out(&proFileContent, QIODevice::WriteOnly);
+    QTextStream out(&proFileContent, QIODevice::WriteOnly | QIODevice::Text);
 
     QString valueOnNextLine;
     bool commentOutNextLine = false;

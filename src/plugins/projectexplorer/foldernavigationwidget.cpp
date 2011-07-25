@@ -421,7 +421,7 @@ void FolderNavigationWidget::showInGraphicalShell(QWidget *parent, const QString
 #else
     // we cannot select a file here, because no file browser really supports it...
     const QFileInfo fileInfo(pathIn);
-    const QString folder = fileInfo.absoluteFilePath();
+    const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
     const QString app = Utils::UnixUtils::fileBrowser(Core::ICore::instance()->settings());
     QProcess browserProc;
     const QString browserArgs = Utils::UnixUtils::substituteFileBrowserParameters(app, folder);

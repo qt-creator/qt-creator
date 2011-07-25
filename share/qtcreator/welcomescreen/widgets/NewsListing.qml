@@ -106,7 +106,7 @@ Item {
                     font.bold: true;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
                     textFormat: Text.RichText;
-                    width: parent.width-icon.width-5
+                    width: parent.width-icon.width-16
                 }
                 Row {
                     spacing: 5
@@ -138,6 +138,7 @@ Item {
                     font.italic: true;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
                     textFormat: Text.RichText
+                    width: parent.width-10
                 }
             }
             Components.QStyleItem {

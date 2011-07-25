@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "welcomeplugin.h"
+#include "multifeedrssmodel.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -39,13 +40,13 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/networkaccessmanager.h>
 #include <coreplugin/dialogs/iwizard.h>
 
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/styledbar.h>
 #include <utils/iwelcomepage.h>
+#include <utils/networkaccessmanager.h>
 
 #include <QtGui/QScrollArea>
 #include <QtGui/QDesktopServices>
@@ -75,7 +76,7 @@ class NetworkAccessManagerFactory : public QDeclarativeNetworkAccessManagerFacto
 {
 public:
     NetworkAccessManagerFactory(): QDeclarativeNetworkAccessManagerFactory() {}
-    QNetworkAccessManager* create(QObject *parent) { return new Core::NetworkAccessManager(parent); }
+    QNetworkAccessManager* create(QObject *parent) { return new Utils::NetworkAccessManager(parent); }
 };
 
 
@@ -98,6 +99,7 @@ public:
 
     Q_SCRIPTABLE QString platform() const;
 
+    bool eventFilter(QObject *, QEvent *);
 public slots:
     void sendFeedback();
     void newProject();
@@ -119,6 +121,8 @@ private slots:
     void modeChanged(Core::IMode*);
 
 private:
+    void facilitateQml(QDeclarativeEngine *engine);
+
     QWidget *m_modeWidget;
     QDeclarativeView *m_welcomePage;
     QHBoxLayout * buttonLayout;
@@ -140,6 +144,9 @@ WelcomeMode::WelcomeMode() :
 
     m_welcomePage = new QDeclarativeView;
     m_welcomePage->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    // filter to forward dragEnter events
+    m_welcomePage->installEventFilter(this);
+    m_welcomePage->viewport()->installEventFilter(this);
 
     m_modeWidget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
@@ -158,6 +165,16 @@ WelcomeMode::WelcomeMode() :
     setWidget(m_modeWidget);
 }
 
+bool WelcomeMode::eventFilter(QObject *, QEvent *e)
+{
+    if (e->type() == QEvent::DragEnter) {
+        e->ignore();
+        return true;
+    }
+    return false;
+
+}
+
 WelcomeMode::~WelcomeMode()
 {
     QSettings *settings = Core::ICore::instance()->settings();
@@ -168,6 +185,28 @@ WelcomeMode::~WelcomeMode()
 bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
 {
     return a->priority() < b->priority();
+}
+
+void WelcomeMode::facilitateQml(QDeclarativeEngine *engine)
+{
+    static const char feedGroupName[] = "Feeds";
+
+    MultiFeedRssModel *rssModel = new MultiFeedRssModel(this);
+    QSettings *settings = Core::ICore::instance()->settings();
+    if (settings->childGroups().contains(feedGroupName)) {
+        int size = settings->beginReadArray(feedGroupName);
+        for (int i = 0; i < size; ++i)
+        {
+            settings->setArrayIndex(i);
+            rssModel->addFeed(settings->value("url").toString());
+        }
+        settings->endArray();
+    } else {
+        rssModel->addFeed(QLatin1String("http://labs.trolltech.com/blogs/feed"));
+        rssModel->addFeed(QLatin1String("http://feeds.feedburner.com/TheQtBlog?format=xml"));
+    }
+
+    engine->rootContext()->setContextProperty("aggregatedFeedsModel", rssModel);
 }
 
 void WelcomeMode::initPlugins()
@@ -182,8 +221,11 @@ void WelcomeMode::initPlugins()
     qSort(plugins.begin(), plugins.end(), &sortFunction);
 
     QDeclarativeEngine *engine = m_welcomePage->engine();
+    if (!debug)
+        engine->setOutputWarningsToStandardError(false);
     engine->setNetworkAccessManagerFactory(new NetworkAccessManagerFactory);
     engine->addImportPath(Core::ICore::instance()->resourcePath() + "/welcomescreen");
+    facilitateQml(engine);
     foreach (Utils::IWelcomePage *plugin, plugins) {
         plugin->facilitateQml(engine);
         m_pluginList.append(plugin);

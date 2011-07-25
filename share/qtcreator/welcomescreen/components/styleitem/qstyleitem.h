@@ -70,6 +70,7 @@ class QStyleItem: public QDeclarativeItem
     Q_PROPERTY( int minimum READ minimum WRITE setMinimum NOTIFY minimumChanged)
     Q_PROPERTY( int maximum READ maximum WRITE setMaximum NOTIFY maximumChanged)
     Q_PROPERTY( int value READ value WRITE setValue NOTIFY valueChanged)
+    Q_PROPERTY( int step READ step WRITE setStep NOTIFY stepChanged)
     Q_PROPERTY( int paintMargins READ paintMargins WRITE setPaintMargins NOTIFY paintMarginsChanged)
 
     Q_PROPERTY( QString fontFamily READ fontFamily)
@@ -122,6 +123,7 @@ public:
 
     int minimum() const { return m_minimum; }
     int maximum() const { return m_maximum; }
+    int step() const { return m_step; }
     int value() const { return m_value; }
     int paintMargins() const { return m_paintMargins; }
 
@@ -144,6 +146,7 @@ public:
     void setMinimum(int minimum) { if (m_minimum!= minimum) {m_minimum = minimum; emit minimumChanged();}}
     void setMaximum(int maximum) { if (m_maximum != maximum) {m_maximum = maximum; emit maximumChanged();}}
     void setValue(int value) { if (m_value!= value) {m_value = value; emit valueChanged();}}
+    void setStep(int step) { if (m_step != step) { m_step = step; emit stepChanged(); }}
     void setPaintMargins(int value) {
     Q_UNUSED(value)
 #ifdef Q_WS_WIN //only vista style needs this hack
@@ -189,6 +192,7 @@ Q_SIGNALS:
     void horizontalChanged();
     void minimumChanged();
     void maximumChanged();
+    void stepChanged();
     void valueChanged();
     void activeControlChanged();
     void infoChanged();
@@ -223,6 +227,7 @@ protected:
     int m_minimum;
     int m_maximum;
     int m_value;
+    int m_step;
     int m_paintMargins;
 };
 

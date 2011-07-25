@@ -32,21 +32,40 @@
 
 import QtQuick 1.0
 import components 1.0 as Components
+import widgets 1.0 as Widgets
 
 Item {
     id: exampleBrowserRoot
-    Item {
-        id : lineEditRoot
-        width: parent.width
-        height: lineEdit.height
+    function appendTag(tag) {
+        var tagStr = "tag:" + '"' + tag + '"'
+        if (lineEdit.text == "")
+            lineEdit.text = tagStr
+        else
+            lineEdit.text += " " + tagStr
+    }
 
-        LineEdit {
-            Behavior on width { NumberAnimation{} }
+
+    Rectangle {
+        id : lineEditRoot
+        color:"#f4f4f4"
+        width: parent.width
+        height: lineEdit.height + 6
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottomMargin: - 8
+        anchors.leftMargin: - 8
+        anchors.rightMargin: scrollArea.verticalScrollBar.visible ? 0 : -8
+
+        Widgets.LineEdit {
+            id: lineEdit
             placeholderText: !checkBox.checked ? qsTr("Search in Tutorials") : qsTr("Search in Tutorials, Examples and Demos")
             focus: true
-            id: lineEdit
-            width: lineEditRoot.width - checkBox.width - 20 - tagFilterButton.width
-            onTextChanged: examplesModel.filterRegExp = RegExp('.*'+text, "im")
+            anchors.left: parent.left
+            anchors.leftMargin:4
+            anchors.verticalCenter: parent.verticalCenter
+            width: Math.max(lineEditRoot.width - checkBox.width - 21 - tagFilterButton.width, 100)
+            onTextChanged: examplesModel.parseSearchString(text)
         }
 
         CheckBox {
@@ -63,36 +82,64 @@ Item {
         Button {
             id: tagFilterButton
             property string tag
-            Behavior on width { NumberAnimation{} }
-            onTagChanged: { examplesModel.filterTag = tag; examplesModel.updateFilter() }
-            anchors.leftMargin: 6
+            property Item browser;
+            onTagChanged: exampleBrowserRoot.appendTag(tag)
             anchors.left: checkBox.right
+            anchors.leftMargin: 6
             anchors.verticalCenter: lineEdit.verticalCenter
-            visible: !examplesModel.showTutorialsOnly
-            text: tag === "" ? qsTr("Filter by Tag") : qsTr("Tag Filter: %1").arg(tag)
-            onClicked: {
-                tagBrowserLoader.source = "TagBrowser.qml"
-                tagBrowserLoader.item.visible = true
+            text: qsTr("Tag List")
+            checkable: true
+            Connections {
+                target: tagBrowserLoader.item
+                onVisibleChanged: tagFilterButton.checked = tagBrowserLoader.item.visible
+            }
+
+            onCheckedChanged: {
+                if (checked) {
+                    tagBrowserLoader.source = "TagBrowser.qml"
+                    var item = tagBrowserLoader.item;
+                    item.bottomMargin = lineEditRoot.height
+                    item.visible = true
+                } else { tagBrowserLoader.item.visible = false }
             }
         }
     }
     Components.ScrollArea  {
         id: scrollArea
-        anchors.topMargin: lineEditRoot.height+12
+        anchors.bottomMargin: lineEditRoot.height - 8
+        anchors.margins:-8
         anchors.fill: parent
-        clip: true
         frame: false
         Column {
             Repeater {
                 id: repeater
                 model: examplesModel
-                delegate: ExampleDelegate {
-                    width: scrollArea.width-20;
-                    property int count: repeater.count
-                }
+                delegate: ExampleDelegate { width: scrollArea.width; onTagClicked: exampleBrowserRoot.appendTag(tag) }
             }
         }
+        Component.onCompleted: verticalScrollBar.anchors.bottomMargin = -(scrollArea.anchors.bottomMargin + 8)
     }
+
+    Rectangle {
+        anchors.bottom: scrollArea.bottom
+        height:4
+        anchors.left: scrollArea.left
+        anchors.right: scrollArea.right
+        anchors.rightMargin: scrollArea.verticalScrollBar.visible ?
+                               scrollArea.verticalScrollBar.width : 0
+        width:parent.width
+        gradient: Gradient{
+            GradientStop{position:1 ; color:"#10000000"}
+            GradientStop{position:0 ; color:"#00000000"}
+        }
+        Rectangle{
+            height:1
+            color:"#ccc"
+            anchors.bottom: parent.bottom
+            width:parent.width
+        }
+    }
+
 
     Loader {
         id: tagBrowserLoader

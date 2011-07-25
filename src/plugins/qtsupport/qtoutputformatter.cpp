@@ -196,11 +196,11 @@ void QtOutputFormatter::handleLink(const QString &href)
                                                  ":(\\d+)$"));        // column
 
         if (qmlLineColumnLink.indexIn(href) != -1) {
-            const QString fileName = QUrl(qmlLineColumnLink.cap(1)).toLocalFile();
+            const QUrl fileUrl = QUrl(qmlLineColumnLink.cap(1));
             const int line = qmlLineColumnLink.cap(2).toInt();
             const int column = qmlLineColumnLink.cap(3).toInt();
 
-            TextEditor::BaseTextEditorWidget::openEditorAt(m_projectFinder.findFile(fileName), line, column - 1);
+            TextEditor::BaseTextEditorWidget::openEditorAt(m_projectFinder.findFile(fileUrl), line, column - 1);
 
             return;
         }
@@ -209,9 +209,9 @@ void QtOutputFormatter::handleLink(const QString &href)
                                                  ":(\\d+)$"));  // line
 
         if (qmlLineLink.indexIn(href) != -1) {
-            const QString fileName = QUrl(qmlLineLink.cap(1)).toLocalFile();
+            const QUrl fileUrl = QUrl(qmlLineLink.cap(1));
             const int line = qmlLineLink.cap(2).toInt();
-            TextEditor::BaseTextEditorWidget::openEditorAt(m_projectFinder.findFile(fileName), line);
+            TextEditor::BaseTextEditorWidget::openEditorAt(m_projectFinder.findFile(fileUrl), line);
             return;
         }
 
@@ -253,7 +253,7 @@ void QtOutputFormatter::handleLink(const QString &href)
                 }
             } else if (!fi.exists()) {
                 // map possible on-device path to source path
-                fileName = m_projectFinder.findFile(fileName);
+                fileName = m_projectFinder.findFile(QUrl::fromLocalFile(fileName));
             }
             TextEditor::BaseTextEditorWidget::openEditorAt(fileName, line, 0);
             return;

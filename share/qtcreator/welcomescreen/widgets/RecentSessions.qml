@@ -37,9 +37,18 @@ HeaderItemView {
     header: qsTr("Recently Used Sessions")
     model: sessionList
 
-    delegate: Item {
-        height: arrowImage.height
+    delegate: Rectangle {
+        height: 60
         width: dataSection.width
+
+        Rectangle {
+            height: 1
+            color: "#eee"
+            anchors.bottom: parent.bottom
+            width: parent.width
+        }
+
+        color: mousearea.containsMouse ? "#f9f9f9" : "white"
 
         function fullSessionName()
         {
@@ -51,31 +60,43 @@ HeaderItemView {
             return newSessionName;
         }
 
-        Image{
+        Image {
             id: arrowImage;
-            source: "qrc:welcome/images/list_bullet_arrow.png";
-            anchors.verticalCenter: parent.verticalCenter;
+            source: "qrc:welcome/images/list_bullet_arrow.png"
+            anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
+            anchors.leftMargin: 10
         }
 
         Text {
-            Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
             id: fileNameText
             text: parent.fullSessionName()
             elide: Text.ElideMiddle
             anchors.left: arrowImage.right
+            anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 10
+            anchors.rightMargin: 20
         }
 
-        Timer { id: timer; interval: 500; onTriggered: styleItem.showToolTip(sessionName) }
+        Timer {
+            id: timer
+            interval: 1000
+            repeat: false
+            onTriggered: {
+                if (fileNameText.truncated)
+                    styleItem.showToolTip(sessionName)
+            }
+        }
 
         MouseArea {
+            id: mousearea
             anchors.fill: parent
             onClicked: projectWelcomePage.requestSession(sessionName)
             hoverEnabled: true
-            onEntered:timer.start()
+            onEntered: timer.start()
             onExited: timer.stop()
+            Components.QStyleItem { id: styleItem; cursor: "pointinghandcursor"; anchors.fill: parent }
         }
     }
 }

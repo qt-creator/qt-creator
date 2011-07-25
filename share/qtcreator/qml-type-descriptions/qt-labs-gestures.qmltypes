@@ -12,6 +12,12 @@ Module {
             "Qt.labs.gestures/GestureArea 1.0"
         ]
         Property { name: "gesture"; type: "QGesture"; isReadonly: true; isPointer: true }
+        Signal { name: "tap" }
+        Signal { name: "tapAndHold" }
+        Signal { name: "pan" }
+        Signal { name: "pinch" }
+        Signal { name: "swipe" }
+        Signal { name: "gesture" }
     }
     Component {
         name: "QGesture"

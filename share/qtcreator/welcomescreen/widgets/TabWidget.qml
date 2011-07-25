@@ -48,8 +48,7 @@ Item {
             Loader {
                 property bool active: index == tabWidget.current
                 id: pageLoader
-                clip: true
-                opacity: active
+                visible: active
                 anchors.fill: parent
                 anchors.margins: 4
                 onActiveChanged: if (active && source == "") source = model.modelData.pageLocation

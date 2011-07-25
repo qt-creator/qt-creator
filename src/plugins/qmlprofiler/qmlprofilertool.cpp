@@ -420,8 +420,7 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
     if (lineNumber < 0 || fileUrl.isEmpty())
         return;
 
-    const QString fileName = QUrl(fileUrl).toLocalFile();
-    const QString projectFileName = d->m_projectFinder.findFile(fileName);
+    const QString projectFileName = d->m_projectFinder.findFile(fileUrl);
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->openEditor(projectFileName);

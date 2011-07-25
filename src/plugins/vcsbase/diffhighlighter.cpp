@@ -184,7 +184,7 @@ void DiffHighlighter::highlightBlock(const QString &text)
     // codefolding:
     TextEditor::TextBlockUserData *data =
             TextEditor::BaseTextDocumentLayout::userData(currentBlock());
-    Q_ASSERT(data);
+    QTC_ASSERT(data, return; );
     if (!TextEditor::BaseTextDocumentLayout::testUserData(currentBlock().previous()))
         m_d->m_foldingState = Internal::StartOfFile;
 

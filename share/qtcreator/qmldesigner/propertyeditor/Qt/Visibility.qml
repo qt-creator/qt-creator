@@ -65,7 +65,6 @@ GroupBox {
         }
         QWidget {
             layout: HorizontalLayout {
-                spacing: 4
                 Label {                    
                     text: ""
                 }
@@ -100,17 +99,17 @@ GroupBox {
                 SliderWidget {
                     id: opacitySlider
                     minimum: 0
-                    maximum: 10
+                    maximum: 100
                     property variant pureValue: backendValues.opacity.value;
                     onPureValueChanged: {
-                        if (value != pureValue * 10)
-                            value = pureValue * 10;
+                        if (value != pureValue * 100)
+                            value = pureValue * 100;
                     }
                     singleStep: 5;
                     backendValue: backendValues.opacity
                     onValueChanged: {
-                    if ((value >= 0) && (value <= 10))
-                        backendValues.opacity.value = value / 10;
+                    if ((value >= 0) && (value <= 100))
+                        backendValues.opacity.value = value / 100;
                     }
                 }
             }

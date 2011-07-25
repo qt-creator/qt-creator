@@ -200,6 +200,14 @@ void BauhausPlugin::createDesignModeWidget()
     actionManager->registerAction(m_mainWidget->redoAction(), Core::Constants::REDO, qmlDesignerMainContext);
 
     Core::Command *command;
+
+    //GoIntoComponent
+    command = actionManager->registerAction(m_mainWidget->goIntoComponentAction(),
+                                            Constants::GO_INTO_COMPONENT, qmlDesignerMainContext);
+    command->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
+
+    //Edit Menu
+
     command = actionManager->registerAction(m_mainWidget->deleteAction(),
                                             QmlDesigner::Constants::DELETE, qmlDesignerFormEditorContext);
     command = actionManager->registerAction(m_mainWidget->deleteAction(),

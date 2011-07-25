@@ -58,7 +58,7 @@ Rectangle {
     states: [
         // no data available
         State {
-            when: (root.eventCount == 0) && !connection.recording;
+            when: (root.eventCount == 0) && !elapsedTimer.running;
             PropertyChanges {
                 target: statusDisplay
                 visible: true
@@ -71,7 +71,7 @@ Rectangle {
         },
         // running app
         State {
-            when: connection.recording;
+            when: elapsedTimer.running;
             PropertyChanges {
                 target: statusDisplay
                 visible: true

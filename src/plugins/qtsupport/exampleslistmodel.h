@@ -105,39 +105,52 @@ class ExamplesListModelFilter : public QSortFilterProxyModel {
     Q_OBJECT
 public:
     Q_PROPERTY(bool showTutorialsOnly READ showTutorialsOnly WRITE setShowTutorialsOnly NOTIFY showTutorialsOnlyChanged)
-    Q_PROPERTY(QString filterTag READ filterTag WRITE setFilterTag NOTIFY filterTagChanged)
+    Q_PROPERTY(QStringList filterTags READ filterTags WRITE setFilterTags NOTIFY filterTagsChanged)
+    Q_PROPERTY(QStringList searchStrings READ searchStrings WRITE setSearchStrings NOTIFY searchStrings)
 
     explicit ExamplesListModelFilter(QObject *parent);
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
-    bool showTutorialsOnly() {return m_showTutorialsOnly;}
 
-    QString filterTag() const
-    {
-        return m_filterTag;
-    }
+    bool showTutorialsOnly() {return m_showTutorialsOnly;}
+    QStringList filterTags() const { return m_filterTags; }
+    QStringList searchStrings() const { return m_searchString; }
 
 public slots:
-    void setFilterTag(const QString& arg)
+    void setFilterTags(const QStringList& arg)
     {
-        if (m_filterTag != arg) {
-            m_filterTag = arg;
-            emit filterTagChanged(arg);
+        if (m_filterTags != arg) {
+            m_filterTags = arg;
+            emit filterTagsChanged(arg);
         }
     }
     void updateFilter();
 
+    void setSearchStrings(const QStringList& arg)
+    {
+        if (m_searchString != arg) {
+            m_searchString = arg;
+            emit searchStrings(arg);
+            updateFilter();
+        }
+    }
+
+    void parseSearchString(const QString& arg);
+
 signals:
     void showTutorialsOnlyChanged();
 
-    void filterTagChanged(const QString& arg);
+    void filterTagsChanged(const QStringList& arg);
+
+    void searchStrings(const QStringList& arg);
 
 private slots:
     void setShowTutorialsOnly(bool showTutorialsOnly);
 
 private:
     bool m_showTutorialsOnly;
-    QString m_filterTag;
+    QStringList m_filterTags;
+    QStringList m_searchString;
 };
 
 } // namespace Internal

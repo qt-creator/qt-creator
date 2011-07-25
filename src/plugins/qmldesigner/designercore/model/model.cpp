@@ -96,6 +96,7 @@ ModelPrivate::ModelPrivate(Model *model) :
         m_internalIdCounter(1)
 {
     m_rootInternalNode = createNode("QtQuick/Item", 1, 0, PropertyListType(), PropertyListType(), QString(), ModelNode::NodeWithoutSource,true);
+    m_acutalStateNode = m_rootInternalNode;
 }
 
 ModelPrivate::~ModelPrivate()
@@ -1898,12 +1899,12 @@ const MetaInfo Model::metaInfo() const
 
 bool Model::hasNodeMetaInfo(const QString &typeName, int majorVersion, int minorVersion)
 {
-    return NodeMetaInfo(this, typeName, majorVersion, minorVersion).isValid();
+    return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion).isValid();
 }
 
 NodeMetaInfo Model::metaInfo(const QString &typeName, int majorVersion, int minorVersion)
 {
-    return NodeMetaInfo(this, typeName, majorVersion, minorVersion);
+    return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
 }
 
 /*!

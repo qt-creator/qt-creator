@@ -57,9 +57,11 @@ public:
 
     bool isResizable() const;
 
+    void refreshPositioner();
 
 protected:
     PositionerNodeInstance(QDeclarativeBasePositioner *item);
+    QDeclarativeBasePositioner *positioner() const;
 };
 
 } // namespace Internal

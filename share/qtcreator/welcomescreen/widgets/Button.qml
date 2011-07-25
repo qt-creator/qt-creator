@@ -36,12 +36,12 @@ import "../components/custom" as Custom
 Custom.Button {
     id: button
 
-    width: Math.max(100, labelItem.contentsWidth+20)
+    width: Math.max(50, labelItem.contentsWidth+20)
     height: 32
 
     background: BorderImage {
         source: {
-            if (pressed)
+            if (pressed || checked )
                 return "qrc:/welcome/images/btn_26_pressed.png"
             else
                 if (containsMouse)

@@ -31,10 +31,8 @@
 **************************************************************************/
 
 #include "codaclientapplication.h"
-
-#ifdef HAS_SERIALPORT
 #include  "virtualserialdevice.h"
-#endif
+
 
 #include "codadevice.h"
 #include <QtNetwork/QTcpSocket>
@@ -335,12 +333,11 @@ bool CodaClientApplication::start()
         this, SLOT(slotError(QString)));
     connect(m_trkDevice.data(), SIGNAL(logMessage(QString)),
         this, SLOT(slotTrkLogMessage(QString)));
-    connect(m_trkDevice.data(), SIGNAL(tcfEvent(Coda::CodaEvent)),
+    connect(m_trkDevice.data(), SIGNAL(codaEvent(Coda::CodaEvent)),
         this, SLOT(slotCodaEvent(Coda::CodaEvent)));
     connect(m_trkDevice.data(), SIGNAL(serialPong(QString)),
             this, SLOT(slotSerialPong(QString)));
     if (isSerialPort(m_address)) {
-#ifdef HAS_SERIALPORT
         // Serial
         const QSharedPointer<QIODevice> serialPort(new SymbianUtils::VirtualSerialDevice(m_address));
         std::printf("Opening port %s...\n", qPrintable(m_address));
@@ -352,10 +349,6 @@ bool CodaClientApplication::start()
         }
         // Initiate communication
         m_trkDevice->sendSerialPing(m_mode == Ping);
-#else
-        std::fprintf(stderr, "Not implemented\n");
-        return false;
-#endif
     } else {
         // TCP/IP
         const QSharedPointer<QTcpSocket> codaSocket(new QTcpSocket);

@@ -79,9 +79,9 @@ static inline QString deEscape(const QString &value)
 
     result.replace(QLatin1String("\\\\"), QLatin1String("\\"));
     result.replace(QLatin1String("\\\""), QLatin1String("\""));
-    result.replace(QLatin1String("\\\t"), QLatin1String("\t"));
-    result.replace(QLatin1String("\\\r"), QLatin1String("\\\r"));
-    result.replace(QLatin1String("\\\n"), QLatin1String("\n"));
+    result.replace(QLatin1String("\\t"), QLatin1String("\t"));
+    result.replace(QLatin1String("\\r"), QLatin1String("\\\r"));
+    result.replace(QLatin1String("\\n"), QLatin1String("\n"));
 
     return result;
 }
@@ -286,9 +286,9 @@ static bool isPropertyChangesType(const QString &type)
     return  type == QLatin1String("PropertyChanges") || type == QLatin1String("QtQuick.PropertyChanges") || type == QLatin1String("Qt.PropertyChanges");
 }
 
-static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QString &type)
+static bool propertyIsComponentType(const QmlDesigner::NodeAbstractProperty &property, const QString &type, QmlDesigner::Model *model)
 {
-    if (property.parentModelNode().model()->metaInfo(type, -1, -1).isSubclassOf(QLatin1String("QtQuick.Component"), -1, -1) && !isComponentType(type)) {
+    if (model->metaInfo(type, -1, -1).isSubclassOf(QLatin1String("QtQuick.Component"), -1, -1) && !isComponentType(type)) {
         return false; //If the type is already a subclass of Component keep it
     }
 
@@ -646,11 +646,22 @@ using namespace QmlDesigner::Internal;
 
 static inline bool smartVeryFuzzyCompare(QVariant value1, QVariant value2)
 { //we ignore slight changes on doubles and only check three digits
-    if ((value1.type() == QVariant::Double) && (value2.type() == QVariant::Double)) {
-        int a = value1.toDouble() * 1000;
-        int b = value2.toDouble() * 1000;
+    if ((value1.type() == QVariant::Double) || (value2.type() == QVariant::Double)) {
+        bool ok1, ok2;
+        qreal a = value1.toDouble(&ok1);
+        qreal b = value2.toDouble(&ok2);
 
-        if (qFuzzyCompare((qreal(a) / 1000), (qreal(b) / 1000))) {
+        if (!ok1 || !ok2)
+            return false;
+
+        if (qFuzzyCompare(a, b)) {
+            return true;
+        }
+
+        int ai = qRound(a * 1000);
+        int bi = qRound(b * 1000);
+
+        if (qFuzzyCompare((qreal(ai) / 1000), (qreal(bi) / 1000))) {
             return true;
         }
     }
@@ -659,10 +670,11 @@ static inline bool smartVeryFuzzyCompare(QVariant value1, QVariant value2)
 
 static inline bool equals(const QVariant &a, const QVariant &b)
 {
-    if (a.type() == QVariant::Double && b.type() == QVariant::Double)
-        return smartVeryFuzzyCompare(a.toDouble(), b.toDouble());
-    else
-        return a == b;
+    if (a == b)
+        return true;
+    if (smartVeryFuzzyCompare(a, b))
+        return true;
+    return false;
 }
 
 TextToModelMerger::TextToModelMerger(RewriterView *reWriterView) :
@@ -772,9 +784,10 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         if (view()->checkSemanticErrors()) {
             Check check(doc, m_lookupContext->context());
             check.setOptions(check.options() & ~Check::ErrCheckTypeErrors);
-            foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check())
+            foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, check()) {
                 if (diagnosticMessage.isError())
                     errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+            }
 
             if (!errors.isEmpty()) {
                 m_rewriterView->setErrors(errors);
@@ -840,7 +853,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         return;
     }
 
-    bool isImplicitComponent = modelNode.parentProperty().isValid() && propertyIsComponentType(modelNode.parentProperty(), typeName);
+    bool isImplicitComponent = modelNode.parentProperty().isValid() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
 
 
     if (modelNode.type() != typeName //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
@@ -1459,7 +1472,7 @@ void ModelAmender::shouldBeNodeProperty(AbstractProperty &modelProperty,
     ModelNode theNode = modelProperty.parentModelNode();
     NodeProperty newNodeProperty = theNode.nodeProperty(modelProperty.name());
 
-    const bool propertyTakesComponent = propertyIsComponentType(newNodeProperty, typeName);
+    const bool propertyTakesComponent = propertyIsComponentType(newNodeProperty, typeName, theNode.model());
 
     const ModelNode &newNode = m_merger->createModelNode(typeName,
                                                           majorVersion,
@@ -1508,7 +1521,7 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
         return ModelNode();
     }
 
-    const bool propertyTakesComponent = propertyIsComponentType(modelProperty, typeName);
+    const bool propertyTakesComponent = propertyIsComponentType(modelProperty, typeName, m_merger->view()->model());
 
 
     const ModelNode &newNode = m_merger->createModelNode(typeName,
@@ -1544,7 +1557,7 @@ void ModelAmender::typeDiffers(bool isRootNode,
                                QmlJS::AST::UiObjectMember *astNode,
                                ReadingContext *context)
 {
-    const bool propertyTakesComponent = propertyIsComponentType(modelNode.parentProperty(), typeName);
+    const bool propertyTakesComponent = propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
 
     if (isRootNode) {
         modelNode.view()->changeRootNodeType(typeName, majorVersion, minorVersion);
