@@ -235,11 +235,10 @@ BuildStepConfigWidget *MaemoInstallDebianPackageToSysrootStep::createConfigWidge
     return new MaemoInstallDebianPackageToSysrootWidget(this);
 }
 
-
 QStringList MaemoInstallDebianPackageToSysrootStep::madArguments() const
 {
-    return QStringList() << QLatin1String("xdpkg") << QLatin1String("-i")
-        << QLatin1String("--no-force-downgrade");
+    return QStringList() << QLatin1String("xdpkg") << QLatin1String("--no-force-downgrade")
+        << QLatin1String("-i");
 }
 
 const QString MaemoInstallDebianPackageToSysrootStep::Id
