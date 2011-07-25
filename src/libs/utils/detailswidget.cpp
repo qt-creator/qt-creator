@@ -105,14 +105,20 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
         m_hovered(false),
         m_useCheckBox(false)
 {
-    m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-    m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_summaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+    QHBoxLayout *summaryLayout = new QHBoxLayout;
+    summaryLayout->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+    summaryLayout->setSpacing(0);
 
-    m_summaryCheckBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_summaryCheckBox->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+    m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+    m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_summaryLabel->setContentsMargins(0, 0, 0, 0);
+    summaryLayout->addWidget(m_summaryLabel);
+
+    m_summaryCheckBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_summaryCheckBox->setAttribute(Qt::WA_LayoutUsesWidgetRect); /* broken layout on mac otherwise */
     m_summaryCheckBox->setVisible(false);
+    m_summaryCheckBox->setContentsMargins(0, 0, 0, 0);
+    summaryLayout->addWidget(m_summaryCheckBox);
 
     m_additionalSummaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     m_additionalSummaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
@@ -121,7 +127,7 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
 
     m_grid->setContentsMargins(0, 0, 0, 0);
     m_grid->setSpacing(0);
-    m_grid->addWidget(m_summaryLabel, 0, 0);
+    m_grid->addLayout(summaryLayout, 0, 0);
     m_grid->addWidget(m_detailsButton, 0, 2);
     m_grid->addWidget(m_additionalSummaryLabel, 1, 0, 1, 3);
 }
@@ -168,7 +174,6 @@ void DetailsWidgetPrivate::updateControls()
     if (m_widget)
         m_widget->setVisible(m_state == DetailsWidget::Expanded || m_state == DetailsWidget::NoSummary);
     m_detailsButton->setChecked(m_state == DetailsWidget::Expanded && m_widget);
-    //m_summaryLabel->setEnabled(m_state == DetailsWidget::Collapsed && m_widget);
     m_detailsButton->setVisible(m_state != DetailsWidget::NoSummary);
     m_summaryLabel->setVisible(m_state != DetailsWidget::NoSummary && !m_useCheckBox);
     m_summaryCheckBox->setVisible(m_state != DetailsWidget::NoSummary && m_useCheckBox);
@@ -202,6 +207,8 @@ DetailsWidget::DetailsWidget(QWidget *parent) :
 {
     setLayout(d->m_grid);
 
+    setUseCheckBox(false);
+
     connect(d->m_detailsButton, SIGNAL(toggled(bool)),
             this, SLOT(setExpanded(bool)));
     connect(d->m_summaryCheckBox, SIGNAL(toggled(bool)),
@@ -224,8 +231,6 @@ bool DetailsWidget::useCheckBox()
 void DetailsWidget::setUseCheckBox(bool b)
 {
     d->m_useCheckBox = b;
-    QWidget *widget = b ? static_cast<QWidget *>(d->m_summaryCheckBox) : static_cast<QWidget *>(d->m_summaryLabel);
-    d->m_grid->addWidget(widget, 0, 0);
     d->m_summaryLabel->setVisible(b);
     d->m_summaryCheckBox->setVisible(!b);
 }
@@ -260,7 +265,7 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
     QPainter p(this);
 
     QWidget *topLeftWidget = d->m_useCheckBox ? static_cast<QWidget *>(d->m_summaryCheckBox) : static_cast<QWidget *>(d->m_summaryLabel);
-    QPoint topLeft(topLeftWidget->geometry().left(), contentsRect().top());
+    QPoint topLeft(topLeftWidget->geometry().left() - MARGIN, contentsRect().top());
     const QRect paintArea(topLeft, contentsRect().bottomRight());
 
     if (d->m_state != Expanded) {
