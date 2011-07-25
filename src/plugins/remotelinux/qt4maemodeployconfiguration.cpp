@@ -56,8 +56,6 @@ namespace Internal {
 namespace {
 const QString OldDeployConfigId = QLatin1String("2.2MaemoDeployConfig");
 } // namespace
-} // namespace Internal
-using namespace Internal;
 
 Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(Target *target,
     const QString &id) : DeployConfiguration(target, id)
@@ -286,4 +284,5 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::clone(Target *parent,
     return new Qt4MaemoDeployConfiguration(parent, product);
 }
 
+} // namespace Internal
 } // namespace RemoteLinux

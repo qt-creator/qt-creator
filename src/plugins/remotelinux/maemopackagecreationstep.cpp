@@ -63,7 +63,7 @@ using ProjectExplorer::Task;
 using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
-using namespace Internal;
+namespace Internal {
 
 const QLatin1String AbstractMaemoPackageCreationStep::DefaultVersionNumber("0.0.1");
 
@@ -305,6 +305,7 @@ QString AbstractMaemoPackageCreationStep::replaceDots(const QString &name)
     QString adaptedName = name;
     return adaptedName.replace(QLatin1Char('.'), QLatin1Char('_'));
 }
+
 
 MaemoDebianPackageCreationStep::MaemoDebianPackageCreationStep(BuildStepList *bsl)
     : AbstractMaemoPackageCreationStep(bsl, CreatePackageId)
@@ -829,6 +830,7 @@ BuildStepConfigWidget *MaemoTarPackageCreationStep::createConfigWidget()
 const QString MaemoTarPackageCreationStep::CreatePackageId
     = QLatin1String("MaemoTarPackageCreationStep");
 
+} // namespace Internal
 } // namespace RemoteLinux
 
 #include "maemopackagecreationstep.moc"
