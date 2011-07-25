@@ -15,4 +15,9 @@ symbian {
 }
 LIBS += -L$$PWD -l$$LIBNAME
 
+symbian {
+    # Work around bug in gcce toolchain (QTCREATORBUG-5589)
+    LIBS += -lusrt2_2.lib
+}
+
 DEFINES += QMLJSDEBUGGER
