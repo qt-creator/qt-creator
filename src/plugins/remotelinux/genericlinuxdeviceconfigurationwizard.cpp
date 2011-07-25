@@ -33,6 +33,7 @@
 #include "genericlinuxdeviceconfigurationwizardpages.h"
 #include "linuxdevicetestdialog.h"
 #include "linuxdevicetester.h"
+#include "remotelinux_constants.h"
 
 using namespace Utils;
 
@@ -83,7 +84,7 @@ LinuxDeviceConfiguration::Ptr GenericLinuxDeviceConfigurationWizard::deviceConfi
     else
         sshParams.privateKeyFile = m_d->setupPage.privateKeyFilePath();
     LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(m_d->setupPage.configurationName(),
-        LinuxDeviceConfiguration::GenericLinuxOsType, LinuxDeviceConfiguration::Physical,
+        QLatin1String(Constants::GenericLinuxOsType), LinuxDeviceConfiguration::Physical,
         PortList::fromString(QLatin1String("10000-10100")), sshParams);
     LinuxDeviceTestDialog dlg(devConf, new GenericLinuxDeviceTester(this), this);
     dlg.exec();

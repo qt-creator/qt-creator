@@ -31,9 +31,9 @@
 **************************************************************************/
 #include "remotelinuxdeployconfigurationfactory.h"
 
-#include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
 #include "remotelinuxdeployconfiguration.h"
+#include "remotelinux_constants.h"
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
 
@@ -77,7 +77,7 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::create(Target *paren
     Q_ASSERT(canCreate(parent, id));
 
     DeployConfiguration * const dc = new RemoteLinuxDeployConfiguration(parent, id,
-        genericLinuxDisplayName(), LinuxDeviceConfiguration::GenericLinuxOsType);
+        genericLinuxDisplayName(), QLatin1String(Constants::GenericLinuxOsType));
     dc->stepList()->insertStep(0, new TarPackageCreationStep(dc->stepList()));
     dc->stepList()->insertStep(1, new UploadAndInstallTarPackageStep(dc->stepList()));
     return dc;
@@ -95,7 +95,7 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::restore(Target *pare
         return 0;
     QString id = idFromMap(map);
     RemoteLinuxDeployConfiguration * const dc = new RemoteLinuxDeployConfiguration(parent, id,
-        genericLinuxDisplayName(), LinuxDeviceConfiguration::GenericLinuxOsType);
+        genericLinuxDisplayName(), QLatin1String(Constants::GenericLinuxOsType));
     if (!dc->fromMap(map)) {
         delete dc;
         return 0;

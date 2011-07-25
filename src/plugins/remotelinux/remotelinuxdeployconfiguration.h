@@ -35,6 +35,8 @@
 #include "linuxdeviceconfiguration.h"
 #include "remotelinux_export.h"
 
+#include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 
 #include <QtCore/QSharedPointer>
@@ -65,6 +67,18 @@ public:
     QSharedPointer<DeploymentInfo> deploymentInfo() const;
     QSharedPointer<Internal::TypeSpecificDeviceConfigurationListModel> deviceConfigModel() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
+
+    template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep)
+    {
+        const QList<ProjectExplorer::BuildStep *> &buildSteps = stepList()->steps();
+        for (int i = 0; i < buildSteps.count(); ++i) {
+            if (buildSteps.at(i) == laterBuildStep)
+                return 0;
+            if (T * const step = dynamic_cast<T *>(buildSteps.at(i)))
+                return step;
+        }
+        return 0;
+    }
 
 signals:
     void deviceConfigurationListChanged();

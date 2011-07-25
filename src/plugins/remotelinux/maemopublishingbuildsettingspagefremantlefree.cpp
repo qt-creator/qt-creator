@@ -32,6 +32,7 @@
 #include "maemopublishingbuildsettingspagefremantlefree.h"
 #include "ui_maemopublishingbuildsettingspagefremantlefree.h"
 
+#include "maemoconstants.h"
 #include "maemoglobal.h"
 #include "maemopublisherfremantlefree.h"
 
@@ -40,7 +41,6 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -86,7 +86,7 @@ void MaemoPublishingBuildSettingsPageFremantleFree::collectBuildConfigurations(c
             QtSupport::BaseQtVersion *lqt = qt4Bc->qtVersion();
             if (!lqt)
                 continue;
-            if (MaemoGlobal::osType(lqt->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5OsType)
+            if (MaemoGlobal::osType(lqt->qmakeCommand()) == QLatin1String(Maemo5OsType))
                 m_buildConfigs << qt4Bc;
         }
         break;

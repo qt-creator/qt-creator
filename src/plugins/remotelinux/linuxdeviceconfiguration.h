@@ -62,11 +62,6 @@ public:
 
     typedef quint64 Id;
 
-    static const QString Maemo5OsType;
-    static const QString HarmattanOsType;
-    static const QString MeeGoOsType;
-    static const QString GenericLinuxOsType;
-
     enum DeviceType { Physical, Emulator };
 
     ~LinuxDeviceConfiguration();

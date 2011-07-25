@@ -60,7 +60,7 @@ ILinuxDeviceConfigurationWizard *GenericLinuxDeviceConfigurationFactory::createW
 
 bool GenericLinuxDeviceConfigurationFactory::supportsOsType(const QString &osType) const
 {
-    return osType == LinuxDeviceConfiguration::GenericLinuxOsType;
+    return osType == QLatin1String(Constants::GenericLinuxOsType);
 }
 
 QString GenericLinuxDeviceConfigurationFactory::displayNameForOsType(const QString &osType) const

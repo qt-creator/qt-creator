@@ -29,9 +29,11 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
 #include "linuxdeviceconfigurations.h"
+
 #include "maemoglobal.h"
+#include "maemoconstants.h"
+#include "remotelinux_constants.h"
 
 #include <coreplugin/icore.h>
 
@@ -224,10 +226,10 @@ void LinuxDeviceConfigurations::load()
     }
     settings->endArray();
     settings->endGroup();
-    ensureDefaultExists(LinuxDeviceConfiguration::Maemo5OsType);
-    ensureDefaultExists(LinuxDeviceConfiguration::HarmattanOsType);
-    ensureDefaultExists(LinuxDeviceConfiguration::MeeGoOsType);
-    ensureDefaultExists(LinuxDeviceConfiguration::GenericLinuxOsType);
+    ensureDefaultExists(QLatin1String(Maemo5OsType));
+    ensureDefaultExists(QLatin1String(HarmattanOsType));
+    ensureDefaultExists(QLatin1String(MeeGoOsType));
+    ensureDefaultExists(QLatin1String(Constants::GenericLinuxOsType));
 }
 
 LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::deviceAt(int idx) const

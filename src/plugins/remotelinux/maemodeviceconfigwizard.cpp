@@ -37,6 +37,7 @@
 #include "ui_maemodeviceconfigwizardstartpage.h"
 
 #include "maddedevicetester.h"
+#include "maemoconstants.h"
 #include "maemoglobal.h"
 
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
@@ -60,7 +61,7 @@ namespace {
 
 QString defaultUser(const QString &osType)
 {
-    if (osType == LinuxDeviceConfiguration::MeeGoOsType)
+    if (osType == QLatin1String(MeeGoOsType))
         return QLatin1String("meego");
     return QLatin1String("developer");
 }
@@ -100,12 +101,12 @@ public:
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
 
-        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::Maemo5OsType),
-            LinuxDeviceConfiguration::Maemo5OsType);
-        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::HarmattanOsType),
-            LinuxDeviceConfiguration::HarmattanOsType);
-        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(LinuxDeviceConfiguration::MeeGoOsType),
-            LinuxDeviceConfiguration::MeeGoOsType);
+        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(QLatin1String(Maemo5OsType)),
+            QLatin1String(Maemo5OsType));
+        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(QLatin1String(HarmattanOsType)),
+            QLatin1String(HarmattanOsType));
+        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(QLatin1String(MeeGoOsType)),
+            QLatin1String(MeeGoOsType));
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
@@ -115,7 +116,7 @@ public:
            SLOT(handleDeviceTypeChanged()));
 
         m_ui->nameLineEdit->setText(QLatin1String("(New Configuration)"));
-        m_ui->osTypeComboBox->setCurrentIndex(m_ui->osTypeComboBox->findData(LinuxDeviceConfiguration::HarmattanOsType));
+        m_ui->osTypeComboBox->setCurrentIndex(m_ui->osTypeComboBox->findData(QLatin1String(HarmattanOsType)));
         m_ui->hwButton->setChecked(true);
         handleDeviceTypeChanged();
         m_ui->hostNameLineEdit->setText(defaultHost(deviceType()));
@@ -559,7 +560,7 @@ LinuxDeviceConfiguration::Ptr MaemoDeviceConfigWizard::deviceConfiguration()
     sshParams.port = d->wizardData.sshPort;
     if (d->wizardData.deviceType == LinuxDeviceConfiguration::Emulator) {
         sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
-        sshParams.password = d->wizardData.osType == LinuxDeviceConfiguration::MeeGoOsType
+        sshParams.password = d->wizardData.osType == QLatin1String(MeeGoOsType)
             ? QLatin1String("meego") : QString();
         sshParams.timeout = 30;
         freePortsSpec = QLatin1String("13219,14168");

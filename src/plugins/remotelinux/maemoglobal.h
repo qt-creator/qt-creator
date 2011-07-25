@@ -38,20 +38,21 @@
 #include <coreplugin/ifile.h>
 #include <utils/environment.h>
 
-#include <projectexplorer/buildstep.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/deployconfiguration.h>
-
-#include <QtCore/QList>
-#include <QtCore/QSharedPointer>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
 class QString;
 QT_END_NAMESPACE
 
-namespace QtSupport { class BaseQtVersion; }
+namespace ProjectExplorer {
+class Target;
+}
+
+namespace QtSupport {
+class BaseQtVersion;
+}
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
@@ -129,24 +130,6 @@ public:
         const QString &qmakePath, bool useTarget);
 
     static QString osTypeToString(const QString &osType);
-
-    static PackagingSystem packagingSystem(const QString &osType);
-
-    template<class T> static T *earlierBuildStep(const ProjectExplorer::DeployConfiguration *dc,
-        const ProjectExplorer::BuildStep *laterBuildStep)
-    {
-        if (!dc)
-            return 0;
-        const ProjectExplorer::BuildStepList * const bsl = dc->stepList();
-        const QList<ProjectExplorer::BuildStep *> &buildSteps = bsl->steps();
-        for (int i = 0; i < buildSteps.count(); ++i) {
-            if (buildSteps.at(i) == laterBuildStep)
-                return 0;
-            if (T * const step = dynamic_cast<T *>(buildSteps.at(i)))
-                return step;
-        }
-        return 0;
-    }
 
     static bool isValidMaemoQtVersion(const QString &qmakePath, const QString &osType);
 private:

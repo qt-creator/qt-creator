@@ -31,6 +31,7 @@
 **************************************************************************/
 #include "maemopublishingwizardfactories.h"
 
+#include "maemoconstants.h"
 #include "maemoglobal.h"
 #include "maemopublishingwizardfremantlefree.h"
 
@@ -39,7 +40,6 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include "remotelinux/linuxdeviceconfiguration.h"
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
@@ -83,7 +83,7 @@ bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *p
             QtSupport::BaseQtVersion *qt = qt4Bc->qtVersion();
             if (!qt)
                 continue;
-            if (MaemoGlobal::osType(qt->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5OsType)
+            if (MaemoGlobal::osType(qt->qmakeCommand()) == QLatin1String(Maemo5OsType))
                 return true;
         }
         break;

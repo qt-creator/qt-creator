@@ -30,6 +30,8 @@
 **************************************************************************/
 #include "madderemoteprocesslist.h"
 
+#include "maemoconstants.h"
+
 #include <remotelinux/linuxdeviceconfiguration.h>
 
 #include <QtCore/QString>
@@ -52,7 +54,7 @@ QString MaddeRemoteProcessList::listProcessesCommandLine() const
 {
     // The ps command on Fremantle ignores all command line options, so
     // we have to collect the information in /proc manually.
-    if (deviceConfiguration()->osType() == LinuxDeviceConfiguration::Maemo5OsType) {
+    if (deviceConfiguration()->osType() == QLatin1String(Maemo5OsType)) {
         return QLatin1String("sep1=") + QLatin1String(FremantleLineSeparator1) + QLatin1Char(';')
             + QLatin1String("sep2=") + QLatin1String(FremantleLineSeparator2) + QLatin1Char(';')
             + QLatin1String("pidlist=`ls /proc |grep -E '^[[:digit:]]+$' |sort -n`; "
@@ -70,7 +72,7 @@ QString MaddeRemoteProcessList::listProcessesCommandLine() const
 QList<AbstractRemoteLinuxProcessList::RemoteProcess> MaddeRemoteProcessList::buildProcessList(const QString &listProcessesReply) const
 {
     QString adaptedReply = listProcessesReply;
-    if (deviceConfiguration()->osType() == LinuxDeviceConfiguration::Maemo5OsType) {
+    if (deviceConfiguration()->osType() == QLatin1String(Maemo5OsType)) {
         adaptedReply.replace(QLatin1String(FremantleLineSeparator1)
             + QLatin1String(FremantleLineSeparator2), QLatin1String("\n"));
         adaptedReply.prepend(QLatin1String("dummy\n"));

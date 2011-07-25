@@ -41,6 +41,8 @@
 QT_FORWARD_DECLARE_CLASS(QProcess)
 
 namespace RemoteLinux {
+class RemoteLinuxDeployConfiguration;
+
 namespace Internal {
 
 class AbstractMaemoInstallPackageToSysrootStep : public ProjectExplorer::BuildStep
@@ -49,6 +51,8 @@ class AbstractMaemoInstallPackageToSysrootStep : public ProjectExplorer::BuildSt
 public:
     virtual bool init() { return true; }
     virtual void run(QFutureInterface<bool> &fi);
+
+    RemoteLinuxDeployConfiguration *deployConfiguration() const;
 
 protected:
     AbstractMaemoInstallPackageToSysrootStep(ProjectExplorer::BuildStepList *bsl,

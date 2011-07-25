@@ -31,8 +31,8 @@
 **************************************************************************/
 #include "deployablefilesperprofile.h"
 
-#include "linuxdeviceconfiguration.h"
 #include "maemoglobal.h"
+#include "maemoconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/filemanager.h>
@@ -265,7 +265,7 @@ bool DeployableFilesPerProFile::addDesktopFile()
     const QtSupport::BaseQtVersion * const version = qtVersion();
     QTC_ASSERT(version && version->isValid(), return false);
     QString remoteDir = QLatin1String("/usr/share/applications");
-    if (MaemoGlobal::osType(version->qmakeCommand()) == LinuxDeviceConfiguration::Maemo5OsType)
+    if (MaemoGlobal::osType(version->qmakeCommand()) == QLatin1String(Maemo5OsType))
         remoteDir += QLatin1String("/hildon");
     const QLatin1String filesLine("desktopfile.files = $${TARGET}.desktop");
     const QString pathLine = QLatin1String("desktopfile.path = ") + remoteDir;
@@ -341,11 +341,11 @@ QString DeployableFilesPerProFile::proFileScope() const
     const QtSupport::BaseQtVersion *const qv = qtVersion();
     QTC_ASSERT(qv && qv->isValid(), return QString());
     const QString osType = MaemoGlobal::osType(qv->qmakeCommand());
-    if (osType == LinuxDeviceConfiguration::Maemo5OsType)
+    if (osType == QLatin1String(Maemo5OsType))
         return QLatin1String("maemo5");
-    if (osType == LinuxDeviceConfiguration::HarmattanOsType)
+    if (osType == QLatin1String(HarmattanOsType))
         return QLatin1String("contains(MEEGO_EDITION,harmattan)");
-    if (osType == LinuxDeviceConfiguration::MeeGoOsType)
+    if (osType == QLatin1String(MeeGoOsType))
         return QLatin1String("!isEmpty(MEEGO_VERSION_MAJOR):!contains(MEEGO_EDITION,harmattan)");
     return QLatin1String("unix:!symbian:!maemo5:isEmpty(MEEGO_VERSION_MAJOR)");
 }

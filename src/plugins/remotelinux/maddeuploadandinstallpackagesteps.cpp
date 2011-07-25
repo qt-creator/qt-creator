@@ -31,7 +31,6 @@
 **************************************************************************/
 #include "maddeuploadandinstallpackagesteps.h"
 
-#include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
 #include "maemopackageinstaller.h"
 #include "maemoqemumanager.h"
@@ -146,7 +145,7 @@ AbstractRemoteLinuxDeployService *MaemoUploadAndInstallPackageStep::deployServic
 bool MaemoUploadAndInstallPackageStep::isDeploymentPossible(QString *whyNot) const
 {
     const AbstractMaemoPackageCreationStep * const pStep
-        = MaemoGlobal::earlierBuildStep<MaemoDebianPackageCreationStep>(deployConfiguration(), this);
+        = deployConfiguration()->earlierBuildStep<MaemoDebianPackageCreationStep>(this);
     if (!pStep) {
         if (whyNot)
             *whyNot = tr("No Debian package creation step found.");
@@ -193,7 +192,7 @@ AbstractRemoteLinuxDeployService *MeegoUploadAndInstallPackageStep::deployServic
 bool MeegoUploadAndInstallPackageStep::isDeploymentPossible(QString *whyNot) const
 {
     const AbstractMaemoPackageCreationStep * const pStep
-        = MaemoGlobal::earlierBuildStep<MaemoRpmPackageCreationStep>(deployConfiguration(), this);
+        = deployConfiguration()->earlierBuildStep<MaemoRpmPackageCreationStep>(this);
     if (!pStep) {
         if (whyNot)
             *whyNot = tr("No RPM package creation step found.");

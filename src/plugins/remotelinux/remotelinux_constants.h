@@ -4,6 +4,8 @@
 namespace RemoteLinux {
 namespace Constants {
 
+const char GenericLinuxOsType[] = "GenericLinuxOsType";
+
 const char RemoteLinuxSettingsCategory[] = "X.RemoteLinux";
 
 const char GenericTestDeviceActionId[] = "RemoteLinux.GenericTestDeviceAction";

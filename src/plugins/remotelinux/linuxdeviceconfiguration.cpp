@@ -31,6 +31,8 @@
 **************************************************************************/
 #include "linuxdeviceconfiguration.h"
 
+#include "remotelinux_constants.h"
+
 #include <QtCore/QSettings>
 #include <QtGui/QDesktopServices>
 
@@ -103,10 +105,10 @@ LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QSettings &settings,
     if (m_osType.isEmpty()) {
         const int oldOsType = settings.value(OldOsVersionKey, -1).toInt();
         switch (oldOsType) {
-        case 0: m_osType = Maemo5OsType; break;
-        case 1: m_osType = HarmattanOsType; break;
-        case 2: m_osType = MeeGoOsType; break;
-        default: m_osType = GenericLinuxOsType;
+        case 0: m_osType = QLatin1String("Maemo5OsType"); break;
+        case 1: m_osType = QLatin1String("HarmattanOsType"); break;
+        case 2: m_osType = QLatin1String("MeeGoOsType"); break;
+        default: m_osType = QLatin1String(Constants::GenericLinuxOsType);
         }
     }
 
@@ -162,8 +164,4 @@ void LinuxDeviceConfiguration::save(QSettings &settings) const
 }
 
 const LinuxDeviceConfiguration::Id LinuxDeviceConfiguration::InvalidId = 0;
-const QString LinuxDeviceConfiguration::Maemo5OsType = QLatin1String("Maemo5OsType");
-const QString LinuxDeviceConfiguration::HarmattanOsType = QLatin1String("HarmattanOsType");
-const QString LinuxDeviceConfiguration::MeeGoOsType = QLatin1String("MeeGoOsType");
-const QString LinuxDeviceConfiguration::GenericLinuxOsType = QLatin1String("GenericLinuxOsType");
 } // namespace RemoteLinux

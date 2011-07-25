@@ -32,6 +32,7 @@
 #include "maddedeviceconfigurationfactory.h"
 
 #include "maddedevicetester.h"
+#include "maemoconstants.h"
 #include "maemodeviceconfigwizard.h"
 #include "publickeydeploymentdialog.h"
 #include "madderemoteprocesslist.h"
@@ -65,17 +66,16 @@ ILinuxDeviceConfigurationWizard *MaddeDeviceConfigurationFactory::createWizard(Q
 
 bool MaddeDeviceConfigurationFactory::supportsOsType(const QString &osType) const
 {
-    return osType == LinuxDeviceConfiguration::Maemo5OsType
-            || osType == LinuxDeviceConfiguration::HarmattanOsType
-            || osType == LinuxDeviceConfiguration::MeeGoOsType;
+    return osType == QLatin1String(Maemo5OsType) || osType == QLatin1String(HarmattanOsType)
+        || osType == QLatin1String(MeeGoOsType);
 }
 
 QString MaddeDeviceConfigurationFactory::displayNameForOsType(const QString &osType) const
 {
     QTC_ASSERT(supportsOsType(osType), return QString());
-    if (osType == LinuxDeviceConfiguration::Maemo5OsType)
+    if (osType == QLatin1String(Maemo5OsType))
         return tr("Maemo5/Fremantle");
-    if (osType == LinuxDeviceConfiguration::HarmattanOsType)
+    if (osType == QLatin1String(HarmattanOsType))
         return tr("MeeGo 1.2 Harmattan");
     return tr("Other MeeGo OS");
 }

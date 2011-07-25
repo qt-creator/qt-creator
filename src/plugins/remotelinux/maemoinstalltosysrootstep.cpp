@@ -71,7 +71,7 @@ public:
 
     virtual QString summaryText() const
     {
-        if (!MaemoGlobal::earlierBuildStep<AbstractMaemoPackageCreationStep>(m_step->deployConfiguration(), m_step)) {
+        if (!m_step->deployConfiguration()->earlierBuildStep<AbstractMaemoPackageCreationStep>(m_step)) {
             return QLatin1String("<font color=\"red\">")
                 + tr("Cannot deploy to sysroot: No packaging step found.")
                 + QLatin1String("</font>");
@@ -146,6 +146,12 @@ AbstractMaemoInstallPackageToSysrootStep::AbstractMaemoInstallPackageToSysrootSt
 {
 }
 
+RemoteLinuxDeployConfiguration *AbstractMaemoInstallPackageToSysrootStep::deployConfiguration() const
+{
+    return qobject_cast<RemoteLinuxDeployConfiguration *>(BuildStep::deployConfiguration());
+}
+
+
 void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
 {
     const Qt4BuildConfiguration * const bc
@@ -158,7 +164,7 @@ void AbstractMaemoInstallPackageToSysrootStep::run(QFutureInterface<bool> &fi)
     }
 
     const AbstractMaemoPackageCreationStep * const pStep
-        = MaemoGlobal::earlierBuildStep<AbstractMaemoPackageCreationStep>(deployConfiguration(), this);
+        = deployConfiguration()->earlierBuildStep<AbstractMaemoPackageCreationStep>(this);
     if (!pStep) {
         addOutput(tr("Cannot install package to sysroot without packaging step."),
             ErrorMessageOutput);

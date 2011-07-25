@@ -31,6 +31,7 @@
 **************************************************************************/
 #include "maddedevicetester.h"
 
+#include "maemoconstants.h"
 #include "maemoglobal.h"
 
 #include <remotelinux/linuxdeviceconfiguration.h>
@@ -114,7 +115,7 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
     connect(m_processRunner.data(), SIGNAL(processClosed(int)), SLOT(handleProcessFinished(int)));
 
     QString qtInfoCmd;
-    if (m_deviceConfiguration->osType() == LinuxDeviceConfiguration::MeeGoOsType) {
+    if (m_deviceConfiguration->osType() == QLatin1String(MeeGoOsType)) {
         qtInfoCmd = QLatin1String("rpm -qa 'libqt*' --queryformat '%{NAME} %{VERSION}\\n'");
     } else {
         qtInfoCmd = QLatin1String("dpkg-query -W -f "
@@ -208,7 +209,7 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
     } else if (m_processRunner->process()->exitCode() != 0) {
         QString message = tr("Connectivity tool not installed on device. "
             "Deployment will not be possible.");
-        if (m_deviceConfiguration->osType() == LinuxDeviceConfiguration::HarmattanOsType) {
+        if (m_deviceConfiguration->osType() == QLatin1String(HarmattanOsType)) {
             message += tr("Please switch the device to developer mode "
                 "via Settings -> Security.\n");
         }
@@ -218,7 +219,7 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
         emit progressMessage(tr("Connectivity tool present.\n"));
     }
 
-    if (m_deviceConfiguration->osType() != LinuxDeviceConfiguration::HarmattanOsType) {
+    if (m_deviceConfiguration->osType() != QLatin1String(HarmattanOsType)) {
         setFinished();
         return;
     }
@@ -258,7 +259,7 @@ QString MaddeDeviceTester::processedQtLibsList()
     QString unfilteredLibs = QString::fromUtf8(m_stdout);
     QString filteredLibs;
     QString patternString;
-    if (m_deviceConfiguration->osType() == LinuxDeviceConfiguration::MeeGoOsType)
+    if (m_deviceConfiguration->osType() == QLatin1String(MeeGoOsType))
         patternString = QLatin1String("(libqt\\S+) ((\\d+)\\.(\\d+)\\.(\\d+))");
     else
         patternString = QLatin1String("(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+");

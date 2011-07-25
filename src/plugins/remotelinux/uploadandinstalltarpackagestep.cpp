@@ -31,7 +31,6 @@
 **************************************************************************/
 #include "uploadandinstalltarpackagestep.h"
 
-#include "maemoglobal.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxpackageinstaller.h"
 #include "tarpackagecreationstep.h"
@@ -93,7 +92,7 @@ void UploadAndInstallTarPackageStep::ctor()
 bool UploadAndInstallTarPackageStep::isDeploymentPossible(QString *whyNot) const
 {
     const TarPackageCreationStep * const pStep
-        = MaemoGlobal::earlierBuildStep<TarPackageCreationStep>(deployConfiguration(), this);
+        = deployConfiguration()->earlierBuildStep<TarPackageCreationStep>(this);
     if (!pStep) {
         if (whyNot)
             *whyNot = tr("No tarball creation step found.");

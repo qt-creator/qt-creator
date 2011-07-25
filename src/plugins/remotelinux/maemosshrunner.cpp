@@ -220,7 +220,7 @@ QString MaemoSshRunner::killApplicationCommandLine() const
 
     // Fremantle's busybox configuration is strange.
     const char *killTemplate;
-    if (devConfig()->osType() == LinuxDeviceConfiguration::Maemo5OsType)
+    if (devConfig()->osType() == QLatin1String(Maemo5OsType))
         killTemplate = "pkill -f -%2 %1";
     else
         killTemplate = "pkill -%2 -f %1";

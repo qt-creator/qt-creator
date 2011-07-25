@@ -32,6 +32,7 @@
 #include "typespecificdeviceconfigurationlistmodel.h"
 
 #include "linuxdeviceconfigurations.h"
+#include "remotelinux_constants.h"
 
 namespace RemoteLinux {
 namespace Internal {
@@ -57,7 +58,7 @@ int TypeSpecificDeviceConfigurationListModel::rowCount(const QModelIndex &parent
     const LinuxDeviceConfigurations * const devConfs
         = LinuxDeviceConfigurations::instance();
     const int devConfsCount = devConfs->rowCount();
-    if (m_targetOsType == LinuxDeviceConfiguration::GenericLinuxOsType)
+    if (m_targetOsType == QLatin1String(Constants::GenericLinuxOsType))
         return devConfsCount;
     for (int i = 0; i < devConfsCount; ++i) {
         if (devConfs->deviceAt(i)->osType() == m_targetOsType)
@@ -84,7 +85,7 @@ LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::dev
     int currentRow = -1;
     const LinuxDeviceConfigurations * const devConfs
         = LinuxDeviceConfigurations::instance();
-    if (m_targetOsType == LinuxDeviceConfiguration::GenericLinuxOsType)
+    if (m_targetOsType == QLatin1String(Constants::GenericLinuxOsType))
         return devConfs->deviceAt(idx);
     const int devConfsCount = devConfs->rowCount();
     for (int i = 0; i < devConfsCount; ++i) {
@@ -107,7 +108,7 @@ LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::fin
     const LinuxDeviceConfiguration::ConstPtr &devConf
         = LinuxDeviceConfigurations::instance()->find(id);
     return devConf && (devConf->osType() == m_targetOsType
-            || m_targetOsType == LinuxDeviceConfiguration::GenericLinuxOsType)
+            || m_targetOsType == QLatin1String(Constants::GenericLinuxOsType))
         ? devConf : defaultDeviceConfig();
 }
 

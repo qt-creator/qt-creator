@@ -33,6 +33,7 @@
 #include "qt4maemodeployconfiguration.h"
 
 #include "maddeuploadandinstallpackagesteps.h"
+#include "maemoconstants.h"
 #include "maemodeploybymountsteps.h"
 #include "maemoinstalltosysrootstep.h"
 #include "maemopackagecreationstep.h"
@@ -118,25 +119,22 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
     DeployConfiguration *dc = 0;
     const QString displayName = displayNameForId(id);
     if (id == Qt4MaemoDeployConfiguration::FremantleWithoutPackagingId) {
-        dc = new Qt4MaemoDeployConfiguration(parent, id, displayName,
-            LinuxDeviceConfiguration::Maemo5OsType);
+        dc = new Qt4MaemoDeployConfiguration(parent, id, displayName, QLatin1String(Maemo5OsType));
         dc->stepList()->insertStep(0, new MaemoMakeInstallToSysrootStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoCopyFilesViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::FremantleWithPackagingId) {
-        dc = new Qt4MaemoDeployConfiguration(parent, id, displayName,
-            LinuxDeviceConfiguration::Maemo5OsType);
+        dc = new Qt4MaemoDeployConfiguration(parent, id, displayName, QLatin1String(Maemo5OsType));
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
         dc->stepList()->insertStep(2, new MaemoInstallPackageViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::HarmattanId) {
         dc = new Qt4MaemoDeployConfiguration(parent, id, displayName,
-            LinuxDeviceConfiguration::HarmattanOsType);
+            QLatin1String(HarmattanOsType));
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
         dc->stepList()->insertStep(2, new MaemoUploadAndInstallPackageStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::MeegoId) {
-        dc = new Qt4MaemoDeployConfiguration(parent, id, displayName,
-            LinuxDeviceConfiguration::MeeGoOsType);
+        dc = new Qt4MaemoDeployConfiguration(parent, id, displayName, QLatin1String(MeeGoOsType));
         dc->stepList()->insertStep(0, new MaemoRpmPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallRpmPackageToSysrootStep(dc->stepList()));
         dc->stepList()->insertStep(2, new MeegoUploadAndInstallPackageStep(dc->stepList()));

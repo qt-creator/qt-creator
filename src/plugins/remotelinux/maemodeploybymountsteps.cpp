@@ -422,7 +422,7 @@ AbstractRemoteLinuxDeployService *MaemoInstallPackageViaMountStep::deployService
 bool MaemoInstallPackageViaMountStep::isDeploymentPossible(QString *whyNot) const
 {
     const AbstractMaemoPackageCreationStep * const pStep
-        = MaemoGlobal::earlierBuildStep<MaemoDebianPackageCreationStep>(deployConfiguration(), this);
+        = deployConfiguration()->earlierBuildStep<MaemoDebianPackageCreationStep>(this);
     if (!pStep) {
         if (whyNot)
             *whyNot = tr("No Debian package creation step found.");
