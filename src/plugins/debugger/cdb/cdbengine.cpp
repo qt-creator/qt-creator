@@ -1083,6 +1083,11 @@ unsigned CdbEngine::debuggerCapabilities() const
            |RunToLineCapability;
 }
 
+bool CdbEngine::canWatchWidgets() const
+{
+    return true;
+}
+
 void CdbEngine::executeStep()
 {
     if (!m_operateByInstruction)
