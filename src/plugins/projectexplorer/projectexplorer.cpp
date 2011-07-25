@@ -2073,10 +2073,14 @@ void ProjectExplorerPlugin::activeRunConfigurationChanged()
     if (previousRunConfiguration) {
         disconnect(previousRunConfiguration, SIGNAL(isEnabledChanged(bool)),
                    this, SIGNAL(updateRunActions()));
+        disconnect(previousRunConfiguration, SIGNAL(debuggersChanged()),
+                   this, SIGNAL(updateRunActions()));
     }
     previousRunConfiguration = rc;
     if (rc) {
         connect(rc, SIGNAL(isEnabledChanged(bool)),
+                this, SIGNAL(updateRunActions()));
+        connect(rc, SIGNAL(debuggersChanged()),
                 this, SIGNAL(updateRunActions()));
     }
     emit updateRunActions();
