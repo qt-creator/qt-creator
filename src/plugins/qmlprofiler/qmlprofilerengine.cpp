@@ -69,7 +69,7 @@ class QmlProfilerEngine::QmlProfilerEnginePrivate
 {
 public:
     QmlProfilerEnginePrivate(QmlProfilerEngine *qq) : q(qq), m_runner(0) {}
-    ~QmlProfilerEnginePrivate() {}
+    ~QmlProfilerEnginePrivate() { delete m_runner; }
 
     bool attach(const QString &address, uint port);
     static AbstractQmlProfilerRunner *createRunner(ProjectExplorer::RunConfiguration *runConfiguration,
@@ -81,6 +81,7 @@ public:
     AbstractQmlProfilerRunner *m_runner;
     bool m_running;
     bool m_fetchingData;
+    bool m_fetchDataFromStart;
     bool m_delayedDelete;
 };
 
@@ -132,6 +133,7 @@ QmlProfilerEngine::QmlProfilerEngine(IAnalyzerTool *tool,
 {
     d->m_running = false;
     d->m_fetchingData = false;
+    d->m_fetchDataFromStart = false;
     d->m_delayedDelete = false;
 }
 
@@ -144,7 +146,10 @@ QmlProfilerEngine::~QmlProfilerEngine()
 
 void QmlProfilerEngine::start()
 {
-    QTC_ASSERT(!d->m_runner, return);
+    if (d->m_runner) {
+        delete d->m_runner;
+        d->m_runner = 0;
+    }
 
     if (QmlProjectManager::QmlProjectRunConfiguration *rc =
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration())) {
@@ -174,11 +179,17 @@ void QmlProfilerEngine::start()
     d->m_running = true;
     d->m_delayedDelete = false;
 
+    if (d->m_fetchDataFromStart) {
+        d->m_fetchingData = true;
+    }
+
     AnalyzerManager::handleToolStarted();
 }
 
 void QmlProfilerEngine::stop()
 {
+    // keep the flag for the next restart
+    d->m_fetchDataFromStart = d->m_fetchingData;
     if (d->m_fetchingData) {
         if (d->m_running)
             d->m_delayedDelete = true;
@@ -191,6 +202,10 @@ void QmlProfilerEngine::stop()
 
 void QmlProfilerEngine::stopped()
 {
+    // if it was killed, preserve recording flag
+    if (d->m_running)
+        d->m_fetchDataFromStart = d->m_fetchingData;
+
     // user feedback
     if (d->m_running && d->m_fetchingData) {
         showNonmodalWarning(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
@@ -204,6 +219,8 @@ void QmlProfilerEngine::stopped()
 void QmlProfilerEngine::setFetchingData(bool b)
 {
     d->m_fetchingData = b;
+    if (!d->m_running)
+        d->m_fetchDataFromStart = b;
 }
 
 void QmlProfilerEngine::dataReceived()
