@@ -101,10 +101,10 @@ Valgrind::ValgrindRunner * CallgrindEngine::runner()
     return &m_runner;
 }
 
-void CallgrindEngine::start()
+bool CallgrindEngine::start()
 {
     emit outputReceived(tr("Profiling %1\n").arg(executable()), Utils::NormalMessageFormat);
-    ValgrindEngine::start();
+    return ValgrindEngine::start();
 }
 
 void CallgrindEngine::dump()

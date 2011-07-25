@@ -54,7 +54,7 @@ signals:
     void stopRecording();
 
 public slots:
-    void start();
+    bool start();
     void stop();
 
 private slots:

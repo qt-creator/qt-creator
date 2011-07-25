@@ -144,7 +144,7 @@ QmlProfilerEngine::~QmlProfilerEngine()
     delete d;
 }
 
-void QmlProfilerEngine::start()
+bool QmlProfilerEngine::start()
 {
     if (d->m_runner) {
         delete d->m_runner;
@@ -156,7 +156,7 @@ void QmlProfilerEngine::start()
         if (rc->observerPath().isEmpty()) {
             QmlProjectManager::QmlProjectPlugin::showQmlObserverToolWarning();
             AnalyzerManager::stopTool();
-            return;
+            return false;
         }
     }
 
@@ -166,7 +166,7 @@ void QmlProfilerEngine::start()
         if (!qmlRunner->hasExecutable()) {
             showNonmodalWarning(tr("No executable file to launch."));
             AnalyzerManager::stopTool();
-            return;
+            return false;
         }
     }
 
@@ -184,6 +184,7 @@ void QmlProfilerEngine::start()
     }
 
     AnalyzerManager::handleToolStarted();
+    return true;
 }
 
 void QmlProfilerEngine::stop()

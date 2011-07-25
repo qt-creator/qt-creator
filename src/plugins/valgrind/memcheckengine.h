@@ -51,7 +51,7 @@ public:
     MemcheckEngine(Analyzer::IAnalyzerTool *tool, const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
 
-    void start();
+    bool start();
     void stop();
 
     QStringList suppressionFiles() const;

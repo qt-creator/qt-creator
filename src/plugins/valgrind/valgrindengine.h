@@ -63,7 +63,7 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration);
     ~ValgrindEngine();
 
-    void start();
+    bool start();
     void stop();
 
     QString executable() const;

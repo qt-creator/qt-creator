@@ -49,7 +49,7 @@ public:
     CallgrindEngine(Analyzer::IAnalyzerTool *tool, const Analyzer::AnalyzerStartParameters &sp,
         ProjectExplorer::RunConfiguration *runConfiguration);
 
-    void start();
+    bool start();
 
     Valgrind::Callgrind::ParseData *takeParserData();
 

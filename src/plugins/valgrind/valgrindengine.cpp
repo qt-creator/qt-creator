@@ -77,7 +77,7 @@ ValgrindEngine::~ValgrindEngine()
     delete m_progress;
 }
 
-void ValgrindEngine::start()
+bool ValgrindEngine::start()
 {
     emit starting(this);
 
@@ -115,6 +115,8 @@ void ValgrindEngine::start()
         runner()->startRemotely(sp.connParams);
     else
         runner()->start();
+
+    return true;
 }
 
 void ValgrindEngine::stop()

@@ -119,9 +119,11 @@ void AnalyzerRunControl::start()
     TaskHub *hub = pm->getObject<TaskHub>();
     hub->clearTasks(Constants::ANALYZERTASK_ID);
 
-    d->m_isRunning = true;
-    emit started();
-    d->m_engine->start();
+    if (d->m_engine->start()) {
+        d->m_isRunning = true;
+        emit started();
+    }
+
 }
 
 RunControl::StopResult AnalyzerRunControl::stop()
