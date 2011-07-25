@@ -119,7 +119,7 @@ void BaseFileFind::findAll(const QString &txt, Find::FindFlags findFlags)
     }
     Core::FutureProgress *progress =
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
-                                                                        "Search",
+                                                                        tr("Search"),
                                                                         Constants::TASK_SEARCH);
     progress->setWidget(createProgressWidget());
     connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
@@ -147,7 +147,7 @@ void BaseFileFind::replaceAll(const QString &txt, Find::FindFlags findFlags)
     }
     Core::FutureProgress *progress =
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
-                                                                        "Search",
+                                                                        tr("Search"),
                                                                         Constants::TASK_SEARCH);
     progress->setWidget(createProgressWidget());
     connect(progress, SIGNAL(clicked()), m_resultWindow, SLOT(popup()));
