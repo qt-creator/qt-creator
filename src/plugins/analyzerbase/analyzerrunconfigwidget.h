@@ -35,8 +35,13 @@
 #ifndef ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H
 #define ANALYZER_INTERNAL_ANALYZERRUNCONFIGWIDGET_H
 
+#include "analyzerbase_global.h"
+#include "analyzersettings.h"
+
 #include <projectexplorer/runconfiguration.h>
-#include <analyzerbase/analyzerbase_global.h>
+
+#include <QtGui/QComboBox>
+#include <QtGui/QPushButton>
 
 namespace Utils {
 class DetailsWidget;
@@ -57,8 +62,16 @@ public:
 
     void setRunConfiguration(ProjectExplorer::RunConfiguration *rc);
 
+private slots:
+    void chooseSettings(int setting);
+    void restoreGlobal();
+
 private:
     Utils::DetailsWidget *m_detailsWidget;
+    QWidget *m_subConfigWidget;
+    AnalyzerProjectSettings *m_settings;
+    QComboBox *m_settingsCombo;
+    QPushButton *m_restoreButton;
 };
 
 } // namespace Analyzer

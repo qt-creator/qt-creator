@@ -68,6 +68,9 @@ public Q_SLOTS:
     void slotSuppressionsAdded(const QStringList &files);
     void slotSuppressionSelectionChanged();
 
+private slots:
+    void updateUi();
+
 private:
     ValgrindBaseSettings *m_settings;
     Ui::ValgrindConfigWidget *m_ui;
