@@ -159,7 +159,8 @@ void TraceWindow::clearDisplay()
 
 void TraceWindow::updateToolbar()
 {
-    bool dataAvailable = m_view->rootObject()->property("dataAvailable").toBool();
+    bool dataAvailable = m_view->rootObject()->property("dataAvailable").toBool() &&
+            m_view->rootObject()->property("eventCount").toInt() > 0;
     emit enableToolbar(dataAvailable);
 }
 
