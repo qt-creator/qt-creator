@@ -202,13 +202,10 @@ void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
     m_ui->osTypeValueLabel->setText(RemoteLinuxUtils::osTypeToString(current->osType()));
     const SshConnectionParameters &sshParams = current->sshParameters();
-    if (current->type() == LinuxDeviceConfiguration::Physical) {
+    if (current->type() == LinuxDeviceConfiguration::Physical)
         m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));
-        m_ui->portsLineEdit->setReadOnly(false);
-    } else {
+    else
         m_ui->deviceTypeValueLabel->setText(tr("Emulator"));
-        m_ui->portsLineEdit->setReadOnly(true);
-    }
     if (sshParams.authenticationType == Utils::SshConnectionParameters::AuthenticationByPassword)
         m_ui->passwordButton->setChecked(true);
     else
@@ -233,9 +230,6 @@ void LinuxDeviceConfigurationsSettingsWidget::fillInValues()
     m_ui->keyFileLineEdit->setPath(sshParams.privateKeyFile);
     m_ui->showPasswordCheckBox->setChecked(false);
     updatePortsWarningLabel();
-    const bool isSimulator = current->type() == LinuxDeviceConfiguration::Emulator;
-    m_ui->hostLineEdit->setReadOnly(isSimulator);
-    m_ui->sshPortSpinBox->setReadOnly(isSimulator);
 }
 
 void LinuxDeviceConfigurationsSettingsWidget::saveSettings()
