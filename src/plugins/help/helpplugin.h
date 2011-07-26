@@ -116,6 +116,7 @@ private slots:
     void slotAboutToShowNextMenu();
     void slotOpenActionUrl(QAction *action);
     void slotOpenSupportPage();
+    void slotReportBug();
 
     void openFindToolBar();
 
