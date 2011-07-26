@@ -370,7 +370,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
                         newVersion = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(qmakePath);
                         mustDelete = true;
                     }
-                    targetMatches = newVersion->supportsTargetId(m_buildConfiguration->target()->id());
+                    targetMatches = newVersion ? newVersion->supportsTargetId(m_buildConfiguration->target()->id()) : false;
                     if (mustDelete)
                         delete newVersion;
                 } else {
