@@ -29,9 +29,8 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-
-#ifndef MAEMODEVICECONFIGURATIONS_H
-#define MAEMODEVICECONFIGURATIONS_H
+#ifndef LINUXDEVICECONFIGURATIONS_H
+#define LINUXDEVICECONFIGURATIONS_H
 
 #include "linuxdeviceconfiguration.h"
 
@@ -84,7 +83,7 @@ private:
     static void copy(const LinuxDeviceConfigurations *source,
         LinuxDeviceConfigurations *target, bool deep);
     void addConfiguration(const LinuxDeviceConfiguration::Ptr &devConfig);
-    void ensureDefaultExists(const QString &osType);
+    void ensureOneDefaultConfigurationPerOsType();
 
     static LinuxDeviceConfigurations *m_instance;
     LinuxDeviceConfiguration::Id m_nextId;
@@ -95,4 +94,4 @@ private:
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // MAEMODEVICECONFIGURATIONS_H
+#endif // LINUXDEVICECONFIGURATIONS_H

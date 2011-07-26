@@ -31,15 +31,12 @@
 **************************************************************************/
 #include "linuxdeviceconfigurations.h"
 
-#include "maemoconstants.h"
 #include "remotelinuxutils.h"
-#include "remotelinux_constants.h"
 
 #include <coreplugin/icore.h>
 
-#include <QtCore/QCoreApplication>
+#include <QtCore/QHash>
 #include <QtCore/QSettings>
-#include <QtCore/QStringBuilder>
 
 #include <algorithm>
 
@@ -226,10 +223,7 @@ void LinuxDeviceConfigurations::load()
     }
     settings->endArray();
     settings->endGroup();
-    ensureDefaultExists(QLatin1String(Maemo5OsType));
-    ensureDefaultExists(QLatin1String(HarmattanOsType));
-    ensureDefaultExists(QLatin1String(MeeGoOsType));
-    ensureDefaultExists(QLatin1String(Constants::GenericLinuxOsType));
+    ensureOneDefaultConfigurationPerOsType();
 }
 
 LinuxDeviceConfiguration::ConstPtr LinuxDeviceConfigurations::deviceAt(int idx) const
@@ -275,14 +269,25 @@ LinuxDeviceConfiguration::Id LinuxDeviceConfigurations::internalId(LinuxDeviceCo
     return devConf ? devConf->m_internalId : LinuxDeviceConfiguration::InvalidId;
 }
 
-void LinuxDeviceConfigurations::ensureDefaultExists(const QString &osType)
+void LinuxDeviceConfigurations::ensureOneDefaultConfigurationPerOsType()
 {
-    if (!defaultDeviceConfig(osType)) {
-        foreach (const LinuxDeviceConfiguration::Ptr &devConf, m_devConfigs) {
-            if (devConf->osType() == osType) {
-                devConf->m_isDefault = true;
-                break;
-            }
+    QHash<QString, bool> osTypeHasDefault;
+
+    // Step 1: Ensure there's at most one default configuration per device type.
+    foreach (const LinuxDeviceConfiguration::Ptr &devConf, m_devConfigs) {
+        if (devConf->isDefault()) {
+            if (osTypeHasDefault.value(devConf->osType()))
+                devConf->m_isDefault = false;
+            else
+                osTypeHasDefault.insert(devConf->osType(), true);
+        }
+    }
+
+    // Step 2: Ensure there's at least one default configuration per device type.
+    foreach (const LinuxDeviceConfiguration::Ptr &devConf, m_devConfigs) {
+        if (!osTypeHasDefault.value(devConf->osType())) {
+            devConf->m_isDefault = true;
+            osTypeHasDefault.insert(devConf->osType(), true);
         }
     }
 }
