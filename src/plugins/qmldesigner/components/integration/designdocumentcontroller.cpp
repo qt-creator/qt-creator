@@ -775,6 +775,9 @@ void DesignDocumentController::paste()
                 targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
             }
 
+            transaction.commit();
+            NodeMetaInfo::clearCache();
+
             view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
         } catch (RewritingException &e) { 
             qWarning() << e.description(); //silent error
