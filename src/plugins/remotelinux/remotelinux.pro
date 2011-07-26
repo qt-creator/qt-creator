@@ -97,7 +97,8 @@ HEADERS += \
     typespecificdeviceconfigurationlistmodel.h \
     sshkeycreationdialog.h \
     remotelinuxusedportsgatherer.h \
-    remotelinuxsettingspages.h
+    remotelinuxsettingspages.h \
+    remotelinuxutils.h
 
 SOURCES += \
     remotelinuxplugin.cpp \
@@ -187,7 +188,8 @@ SOURCES += \
     typespecificdeviceconfigurationlistmodel.cpp \
     sshkeycreationdialog.cpp \
     remotelinuxusedportsgatherer.cpp \
-    remotelinuxsettingspages.cpp
+    remotelinuxsettingspages.cpp \
+    remotelinuxutils.cpp
 
 FORMS += \
     maemopackagecreationwidget.ui \

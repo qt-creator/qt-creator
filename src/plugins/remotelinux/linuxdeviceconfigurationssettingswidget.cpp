@@ -34,7 +34,7 @@
 
 #include "linuxdeviceconfigurations.h"
 #include "linuxdevicefactoryselectiondialog.h"
-#include "maemoglobal.h"
+#include "remotelinuxutils.h"
 #include "sshkeycreationdialog.h"
 
 #include <coreplugin/icore.h>
@@ -200,7 +200,7 @@ void LinuxDeviceConfigurationsSettingsWidget::displayCurrent()
 {
     const LinuxDeviceConfiguration::ConstPtr &current = currentConfig();
     m_ui->defaultDeviceButton->setEnabled(!current->isDefault());
-    m_ui->osTypeValueLabel->setText(MaemoGlobal::osTypeToString(current->osType()));
+    m_ui->osTypeValueLabel->setText(RemoteLinuxUtils::osTypeToString(current->osType()));
     const SshConnectionParameters &sshParams = current->sshParameters();
     if (current->type() == LinuxDeviceConfiguration::Physical) {
         m_ui->deviceTypeValueLabel->setText(tr("Physical Device"));

@@ -42,6 +42,7 @@
 
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <remotelinux/linuxdevicetestdialog.h>
+#include <remotelinux/remotelinuxutils.h>
 #include <remotelinux/sshkeydeployer.h>
 #include <utils/fileutils.h>
 #include <utils/ssh/sshkeygenerator.h>
@@ -101,11 +102,11 @@ public:
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
 
-        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(QLatin1String(Maemo5OsType)),
+        m_ui->osTypeComboBox->addItem(RemoteLinuxUtils::osTypeToString(QLatin1String(Maemo5OsType)),
             QLatin1String(Maemo5OsType));
-        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(QLatin1String(HarmattanOsType)),
+        m_ui->osTypeComboBox->addItem(RemoteLinuxUtils::osTypeToString(QLatin1String(HarmattanOsType)),
             QLatin1String(HarmattanOsType));
-        m_ui->osTypeComboBox->addItem(MaemoGlobal::osTypeToString(QLatin1String(MeeGoOsType)),
+        m_ui->osTypeComboBox->addItem(RemoteLinuxUtils::osTypeToString(QLatin1String(MeeGoOsType)),
             QLatin1String(MeeGoOsType));
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);

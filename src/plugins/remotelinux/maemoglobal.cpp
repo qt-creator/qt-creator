@@ -34,13 +34,8 @@
 #include "maemoconstants.h"
 #include "maemoqemumanager.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
-
-#include <coreplugin/filemanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qtsupport/qtversionmanager.h>
-#include <qt4projectmanager/qt4target.h>
+#include <qtsupport/baseqtversion.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/environment.h>
@@ -94,29 +89,6 @@ bool MaemoGlobal::isValidHarmattanQtVersion(const QString &qmakePath)
 bool MaemoGlobal::isValidMeegoQtVersion(const QString &qmakePath)
 {
     return isValidMaemoQtVersion(qmakePath, QLatin1String(MeeGoOsType));
-}
-
-bool MaemoGlobal::isLinuxQt(const QtSupport::BaseQtVersion *qtVersion)
-{
-    if (!qtVersion)
-        return false;
-    const QList<ProjectExplorer::Abi> &abis = qtVersion->qtAbis();
-    foreach (const ProjectExplorer::Abi &abi, abis) {
-        if (abi.os() == ProjectExplorer::Abi::LinuxOS)
-            return true;
-    }
-    return false;
-}
-
-bool MaemoGlobal::hasLinuxQt(const ProjectExplorer::Target *target)
-{
-    const Qt4BaseTarget * const qtTarget
-        = qobject_cast<const Qt4BaseTarget *>(target);
-    if (!qtTarget)
-        return false;
-    const Qt4BuildConfiguration * const bc
-        = qtTarget->activeBuildConfiguration();
-    return bc && isLinuxQt(bc->qtVersion());
 }
 
 bool MaemoGlobal::isValidMaemoQtVersion(const QString &qmakePath, const QString &osType)
@@ -333,17 +305,6 @@ QStringList MaemoGlobal::targetArgs(const QString &qmakePath, bool useTarget)
         args << QLatin1String("-t") << targetName(qmakePath);
     }
     return args;
-}
-
-QString MaemoGlobal::osTypeToString(const QString &osType)
-{
-    const QList<ILinuxDeviceConfigurationFactory *> &factories
-        = ExtensionSystem::PluginManager::instance()->getObjects<ILinuxDeviceConfigurationFactory>();
-    foreach (const ILinuxDeviceConfigurationFactory * const factory, factories) {
-        if (factory->supportsOsType(osType))
-            return factory->displayNameForOsType(osType);
-    }
-    return tr("Unknown OS");
 }
 
 } // namespace Internal

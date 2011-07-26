@@ -31,8 +31,8 @@
 **************************************************************************/
 #include "remotelinuxrunconfigurationfactory.h"
 
-#include "maemoglobal.h"
 #include "remotelinuxrunconfiguration.h"
+#include "remotelinuxutils.h"
 
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4target.h>
@@ -92,7 +92,7 @@ bool RemoteLinuxRunConfigurationFactory::canClone(Target *parent, RunConfigurati
 QStringList RemoteLinuxRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
     if (Qt4BaseTarget *t = qobject_cast<Qt4BaseTarget *>(parent)) {
-        if (t && MaemoGlobal::hasLinuxQt(t)) {
+        if (t && RemoteLinuxUtils::hasLinuxQt(t)) {
             return t->qt4Project()->applicationProFilePathes(RemoteLinuxRunConfiguration::Id);
         }
     }

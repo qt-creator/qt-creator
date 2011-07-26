@@ -31,11 +31,13 @@
 **************************************************************************/
 #include "remotelinuxdeployconfigurationfactory.h"
 
-#include "maemoglobal.h"
 #include "remotelinuxdeployconfiguration.h"
+#include "remotelinuxutils.h"
 #include "remotelinux_constants.h"
 #include "tarpackagecreationstep.h"
 #include "uploadandinstalltarpackagestep.h"
+
+#include <QtCore/QCoreApplication>
 
 using namespace ProjectExplorer;
 
@@ -54,7 +56,7 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory(QOb
 QStringList RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QStringList ids;
-    if (MaemoGlobal::hasLinuxQt(parent))
+    if (RemoteLinuxUtils::hasLinuxQt(parent))
         ids << genericDeployConfigurationId();
     return ids;
 }

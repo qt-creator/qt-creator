@@ -31,8 +31,8 @@
 **************************************************************************/
 #include "linuxdeviceconfigurations.h"
 
-#include "maemoglobal.h"
 #include "maemoconstants.h"
+#include "remotelinuxutils.h"
 #include "remotelinux_constants.h"
 
 #include <coreplugin/icore.h>
@@ -301,7 +301,7 @@ QVariant LinuxDeviceConfigurations::data(const QModelIndex &index, int role) con
     QString name = devConf->name();
     if (devConf->m_isDefault) {
         name += QLatin1Char(' ') + tr("(default for %1)")
-            .arg(MaemoGlobal::osTypeToString(devConf->osType()));
+            .arg(RemoteLinuxUtils::osTypeToString(devConf->osType()));
     }
     return name;
 }

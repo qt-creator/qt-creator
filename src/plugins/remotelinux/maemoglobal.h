@@ -46,10 +46,6 @@ class QProcess;
 class QString;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class Target;
-}
-
 namespace QtSupport {
 class BaseQtVersion;
 }
@@ -99,9 +95,6 @@ public:
     static bool isValidHarmattanQtVersion(const QString &qmakePath);
     static bool isValidMeegoQtVersion(const QString &qmakePath);
 
-    static bool isLinuxQt(const QtSupport::BaseQtVersion *qtVersion);
-    static bool hasLinuxQt(const ProjectExplorer::Target *target);
-
     static QString homeDirOnDevice(const QString &uname);
     static QString devrootshPath();
     static int applicationIconSize(const QString &osType);
@@ -128,8 +121,6 @@ public:
         const QString &qmakePath, bool useTarget);
     static bool callMadAdmin(QProcess &proc, const QStringList &args,
         const QString &qmakePath, bool useTarget);
-
-    static QString osTypeToString(const QString &osType);
 
     static bool isValidMaemoQtVersion(const QString &qmakePath, const QString &osType);
 private:
