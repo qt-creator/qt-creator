@@ -36,6 +36,8 @@
 #include <utils/debuggerlanguagechooser.h>
 #include <utils/detailswidget.h>
 
+#include <coreplugin/helpmanager.h>
+
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 #include <QtGui/QVBoxLayout>
@@ -104,6 +106,8 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
             this, SLOT(useQmlDebuggerToggled(bool)));
     connect(m_debuggerLanguageChooser, SIGNAL(qmlDebugServerPortChanged(uint)),
             this, SLOT(qmlDebugServerPortChanged(uint)));
+    connect(m_debuggerLanguageChooser, SIGNAL(openHelpUrl(QString)),
+            Core::HelpManager::instance(), SLOT(handleHelpRequest(QString)));
 
     runConfigurationEnabledChange(m_runConfiguration->isEnabled());
 }
