@@ -80,6 +80,7 @@ public:
     QRectF instancePaintedBoundingRect() const;
     QTransform instanceTransform() const;
     QTransform instanceSceneTransform() const;
+    QPointF instanceScenePosition() const;
     QPointF instancePosition() const;
     QSizeF instanceSize() const;
     int instancePenWidth() const;

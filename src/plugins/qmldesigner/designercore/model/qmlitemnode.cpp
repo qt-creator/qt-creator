@@ -244,6 +244,17 @@ QTransform QmlItemNode::instanceSceneTransform() const
     return nodeInstance().sceneTransform();
 }
 
+QPointF QmlItemNode::instanceScenePosition() const
+{
+    QmlItemNode parentNode = instanceParent().toQmlItemNode();
+    if (!parentNode.isValid())
+        parentNode = modelNode().parentProperty().parentQmlObjectNode().toQmlItemNode();
+    if (parentNode.isValid())
+        return parentNode.instanceSceneTransform().map(nodeInstance().position());
+
+    return QPointF();
+}
+
 QPointF QmlItemNode::instancePosition() const
 {
     return nodeInstance().position();

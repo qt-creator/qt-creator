@@ -38,8 +38,18 @@
 
 #include <nodeproperty.h>
 #include <nodelistproperty.h>
+#include <variantproperty.h>
 #include <QHeaderView>
 
+static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
+{
+    QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
+    if (parentNode.isValid()) {
+        QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
+        modelNode.variantProperty(QLatin1String("x")) = localPos.toPoint().x();
+        modelNode.variantProperty(QLatin1String("y")) = localPos.toPoint().y();
+    }
+}
 
 namespace QmlDesigner {
 
@@ -275,8 +285,16 @@ void NavigatorView::leftButtonClicked()
     bool blocked = blockSelectionChangedSignal(true);
 
     foreach (const ModelNode &node, selectedModelNodes()) {
-        if (!node.isRootNode() && !node.parentProperty().parentModelNode().isRootNode())
-            node.parentProperty().parentModelNode().parentProperty().reparentHere(node);
+        if (!node.isRootNode() && !node.parentProperty().parentModelNode().isRootNode()) {
+            if (QmlItemNode(node).isValid()) {
+                QPointF scenePos = QmlItemNode(node).instanceScenePosition();
+                node.parentProperty().parentModelNode().parentProperty().reparentHere(node);
+                if (!scenePos.isNull())
+                    setScenePos(node, scenePos);
+            } else {
+                node.parentProperty().parentModelNode().parentProperty().reparentHere(node);
+            }
+        }
     }
     updateItemSelection();
     blockSelectionChangedSignal(blocked);
@@ -294,7 +312,15 @@ void NavigatorView::rightButtonClicked()
             index--;
             if (index >= 0) { //for the first node the semantics are not clear enough. Wrapping would be irritating.
                 ModelNode newParent = node.parentProperty().toNodeListProperty().at(index);
-                newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
+
+                if (QmlItemNode(node).isValid()) {
+                    QPointF scenePos = QmlItemNode(node).instanceScenePosition();
+                    newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
+                    if (!scenePos.isNull())
+                        setScenePos(node, scenePos);
+                } else {
+                    newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
+                }
             }
         }
     }
