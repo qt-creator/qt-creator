@@ -323,8 +323,22 @@ void MacroManager::endMacro()
 
 void MacroManager::executeLastMacro()
 {
-    if (d->currentMacro)
-        d->executeMacro(d->currentMacro);
+    if (!d->currentMacro)
+        return;
+
+    // make sure the macro doesn't accidentally invoke a macro action
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    am->command(Constants::START_MACRO)->action()->setEnabled(false);
+    am->command(Constants::END_MACRO)->action()->setEnabled(false);
+    am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
+    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(false);
+
+    d->executeMacro(d->currentMacro);
+
+    am->command(Constants::START_MACRO)->action()->setEnabled(true);
+    am->command(Constants::END_MACRO)->action()->setEnabled(false);
+    am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(true);
+    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
 }
 
 bool MacroManager::executeMacro(const QString &name)
