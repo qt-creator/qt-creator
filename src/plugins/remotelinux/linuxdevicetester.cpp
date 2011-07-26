@@ -142,7 +142,7 @@ void GenericLinuxDeviceTester::handleConnectionFailure()
 {
     QTC_ASSERT(m_d->state != Inactive, return);
 
-    emit errorMessage(tr("SSH connection failure: %1").arg(m_d->connection->errorString()));
+    emit errorMessage(tr("SSH connection failure: %1\n").arg(m_d->connection->errorString()));
     setFinished(TestFailure);
 }
 
@@ -166,9 +166,9 @@ void GenericLinuxDeviceTester::handleProcessFinished(int exitStatus)
 
     if (exitStatus != SshRemoteProcess::ExitedNormally || m_d->process->exitCode() != 0) {
         if (!m_d->remoteStderr.isEmpty())
-            emit errorMessage(tr("uname failed: %1").arg(QString::fromUtf8(m_d->remoteStderr)));
+            emit errorMessage(tr("uname failed: %1\n").arg(QString::fromUtf8(m_d->remoteStderr)));
         else
-            emit errorMessage(tr("uname failed."));
+            emit errorMessage(tr("uname failed.\n"));
     } else {
         emit progressMessage(QString::fromUtf8(m_d->remoteStdout));
     }
@@ -176,8 +176,7 @@ void GenericLinuxDeviceTester::handleProcessFinished(int exitStatus)
     connect(&m_d->portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGatheringError(QString)));
     connect(&m_d->portsGatherer, SIGNAL(portListReady()), SLOT(handlePortListReady()));
 
-    emit progressMessage(QLatin1String("")
-        + tr("Checking if specified ports are available..."));
+    emit progressMessage(tr("Checking if specified ports are available..."));
     m_d->state = TestingPorts;
     m_d->portsGatherer.start(m_d->connection, m_d->deviceConfiguration);
 }
@@ -186,7 +185,7 @@ void GenericLinuxDeviceTester::handlePortsGatheringError(const QString &message)
 {
     QTC_ASSERT(m_d->state == TestingPorts, return);
 
-    emit errorMessage(tr("Error gathering ports: %1").arg(message));
+    emit errorMessage(tr("Error gathering ports: %1\n").arg(message));
     setFinished(TestFailure);
 }
 
@@ -201,7 +200,7 @@ void GenericLinuxDeviceTester::handlePortListReady()
         foreach (const int port, m_d->portsGatherer.usedPorts())
             portList += QString::number(port) + QLatin1String(", ");
         portList.remove(portList.count() - 2, 2);
-        emit errorMessage(tr("The following specified ports are currently in use: %1")
+        emit errorMessage(tr("The following specified ports are currently in use: %1\n")
             .arg(portList));
     }
     setFinished(TestSuccess);

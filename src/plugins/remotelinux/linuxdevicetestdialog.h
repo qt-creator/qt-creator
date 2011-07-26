@@ -60,6 +60,8 @@ private slots:
     void handleTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
 
 private:
+    void addText(const QString &text, const QString &color, bool bold);
+
     Internal::LinuxDeviceTestDialogPrivate * const m_d;
 };
 

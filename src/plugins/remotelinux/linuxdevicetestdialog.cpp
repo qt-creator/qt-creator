@@ -32,7 +32,11 @@
 #include "linuxdevicetestdialog.h"
 #include "ui_linuxdevicetestdialog.h"
 
+#include <QtGui/QBrush>
+#include <QtGui/QColor>
+#include <QtGui/QFont>
 #include <QtGui/QPushButton>
+#include <QtGui/QTextCharFormat>
 
 namespace RemoteLinux {
 namespace Internal {
@@ -80,13 +84,12 @@ void LinuxDeviceTestDialog::reject()
 
 void LinuxDeviceTestDialog::handleProgressMessage(const QString &message)
 {
-    m_d->ui.textEdit->appendPlainText(message);
+    addText(message, QLatin1String("black"), false);
 }
 
 void LinuxDeviceTestDialog::handleErrorMessage(const QString &message)
 {
-    m_d->ui.textEdit->appendHtml(QLatin1String("<font color=\"red\">") + message
-        + QLatin1String("</font><p/><p/>"));
+    addText(message, QLatin1String("red"), false);
 }
 
 void LinuxDeviceTestDialog::handleTestFinished(AbstractLinuxDeviceTester::TestResult result)
@@ -94,13 +97,21 @@ void LinuxDeviceTestDialog::handleTestFinished(AbstractLinuxDeviceTester::TestRe
     m_d->finished = true;
     m_d->ui.buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
 
-    if (result == AbstractLinuxDeviceTester::TestSuccess) {
-        m_d->ui.textEdit->appendHtml(QLatin1String("<b><font color=\"blue\">")
-            + tr("Device test finished successfully.") + QLatin1String("</font></b>"));
-    } else {
-        m_d->ui.textEdit->appendHtml(QLatin1String("<b><font color=\"red\">")
-            + tr("Device test failed.") + QLatin1String("</font></b><p/>"));
-    }
+    if (result == AbstractLinuxDeviceTester::TestSuccess)
+        addText(tr("Device test finished successfully."), QLatin1String("blue"), true);
+    else
+        addText(tr("Device test failed."), QLatin1String("red"), true);
+}
+
+void LinuxDeviceTestDialog::addText(const QString &text, const QString &color, bool bold)
+{
+    QTextCharFormat format = m_d->ui.textEdit->currentCharFormat();
+    format.setForeground(QBrush(QColor(color)));
+    QFont font = format.font();
+    font.setBold(bold);
+    format.setFont(font);
+    m_d->ui.textEdit->setCurrentCharFormat(format);
+    m_d->ui.textEdit->appendPlainText(text);
 }
 
 } // namespace RemoteLinux

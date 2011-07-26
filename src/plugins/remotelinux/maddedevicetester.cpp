@@ -133,7 +133,7 @@ void MaddeDeviceTester::handleConnectionError()
 {
     QTC_ASSERT(m_state != Inactive, return);
 
-    emit errorMessage(tr("SSH connection error: %1")
+    emit errorMessage(tr("SSH connection error: %1\n")
         .arg(m_processRunner->connection()->errorString()));
     m_result = TestFailure;
     setFinished();
@@ -177,10 +177,10 @@ void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
     if (exitStatus != SshRemoteProcess::ExitedNormally
             || m_processRunner->process()->exitCode() != 0) {
         if (!m_stderr.isEmpty()) {
-            emit errorMessage(tr("Error checking for Qt libraries: %1")
+            emit errorMessage(tr("Error checking for Qt libraries: %1\n")
                 .arg(QString::fromUtf8(m_stderr)));
         } else {
-            emit errorMessage(tr("Error checking for Qt libraries."));
+            emit errorMessage(tr("Error checking for Qt libraries.\n"));
         }
 
         m_result = TestFailure;
@@ -191,7 +191,7 @@ void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
     m_stdout.clear();
     m_stderr.clear();
 
-    emit progressMessage(QLatin1Char('\n') + tr("Checking for connectivity support..."));
+    emit progressMessage(tr("Checking for connectivity support..."));
     m_state = MadDeveloperTest;
     m_processRunner->run(QString(QLatin1String("test -x") + MaemoGlobal::devrootshPath()).toUtf8());
 }
@@ -200,20 +200,20 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
 {
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
         if (!m_stderr.isEmpty()) {
-            emit errorMessage(tr("Error checking for connectivity tool: %1")
+            emit errorMessage(tr("Error checking for connectivity tool: %1\n")
                 .arg(QString::fromUtf8(m_stderr)));
         } else {
-            emit errorMessage(tr("Error checking for connectivity tool."));
+            emit errorMessage(tr("Error checking for connectivity tool.\n"));
         }
         m_result = TestFailure;
     } else if (m_processRunner->process()->exitCode() != 0) {
         QString message = tr("Connectivity tool not installed on device. "
-            "Deployment will not be possible.");
+            "Deployment currently not possible.");
         if (m_deviceConfiguration->osType() == QLatin1String(HarmattanOsType)) {
             message += tr("Please switch the device to developer mode "
-                "via Settings -> Security.\n");
+                "via Settings -> Security.");
         }
-        emit errorMessage(message);
+        emit errorMessage(message + QLatin1Char('\n'));
         m_result = TestFailure;
     } else {
         emit progressMessage(tr("Connectivity tool present.\n"));
@@ -237,15 +237,15 @@ void MaddeDeviceTester::handleQmlToolingTestFinished(int exitStatus)
 {
     if (exitStatus != SshRemoteProcess::ExitedNormally) {
         if (!m_stderr.isEmpty()) {
-            emit errorMessage(tr("Error checking for QML tooling support: %1")
+            emit errorMessage(tr("Error checking for QML tooling support: %1\n")
                 .arg(QString::fromUtf8(m_stderr)));
         } else {
-            emit errorMessage(tr("Error checking for QML tooling support."));
+            emit errorMessage(tr("Error checking for QML tooling support.\n"));
         }
         m_result = TestFailure;
     } else if (m_processRunner->process()->exitCode() != 0) {
         emit errorMessage(tr("Missing directory '%1'. You will not be able to do "
-            "QML debugging on this device.").arg(QmlToolingDirectory));
+            "QML debugging on this device.\n").arg(QmlToolingDirectory));
         m_result = TestFailure;
     } else {
         emit progressMessage(tr("QML tooling support present.\n"));
