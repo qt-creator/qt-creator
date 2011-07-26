@@ -85,6 +85,7 @@ private:
     QString m_target;
     QString m_qmakeCommand;
     QString m_makeCommand;
+    QStringList m_makeArguments;
     QString m_mkspec;
     Utils::Environment m_environment;
     QString m_log;
