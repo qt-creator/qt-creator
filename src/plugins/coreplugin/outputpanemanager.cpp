@@ -279,7 +279,7 @@ void OutputPaneManager::init()
 
         if (outPane->priorityInStatusBar() != -1) {
             cmd->setDefaultKeySequence(QKeySequence(paneShortCut(shortcutNumber)));
-            QPushButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->displayName(),
+            QToolButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->displayName(),
                                                              cmd->action());
             ++shortcutNumber;
             m_buttonsWidget->layout()->addWidget(button);
@@ -339,8 +339,8 @@ void OutputPaneManager::slotMinMax()
 
 void OutputPaneManager::buttonTriggered()
 {
-    QPushButton *button = qobject_cast<QPushButton *>(sender());
-    QMap<int, QPushButton *>::const_iterator it, end;
+    QToolButton *button = qobject_cast<QToolButton *>(sender());
+    QMap<int, QToolButton *>::const_iterator it, end;
     end = m_buttons.constEnd();
     for (it = m_buttons.begin(); it != end; ++it) {
         if (it.value() == button)
@@ -514,22 +514,24 @@ void OutputPaneManager::clearPage()
 
 OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
                                                QAction *action, QWidget *parent)
-    : QPushButton(parent)
+    : QToolButton(parent)
     , m_number(QString::number(number))
     , m_text(text)
     , m_action(action)
 {
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
+    QFont fnt = QApplication::font();
+    setFont(fnt);
     setStyleSheet(
-            "QPushButton { border-image: url(:/core/images/panel_button.png) 2 2 2 19;"
+            "QToolButton { border-image: url(:/core/images/panel_button.png) 2 2 2 19;"
                          " border-width: 2px 2px 2px 19px; padding-left: -17; padding-right: 4 } "
-            "QPushButton:checked { border-image: url(:/core/images/panel_button_checked.png) 2 2 2 19 } "
-            "QPushButton::menu-indicator { width:0; height:0 }"
+            "QToolButton:checked { border-image: url(:/core/images/panel_button_checked.png) 2 2 2 19 } "
+            "QToolButton::menu-indicator { width:0; height:0 }"
 #ifndef Q_WS_MAC // Mac UIs usually don't hover
-            "QPushButton:checked:hover { border-image: url(:/core/images/panel_button_checked_hover.png) 2 2 2 19 } "
-            "QPushButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 2 2 2 19 } "
-            "QPushButton:hover { border-image: url(:/core/images/panel_button_hover.png) 2 2 2 19 } "
+            "QToolButton:checked:hover { border-image: url(:/core/images/panel_button_checked_hover.png) 2 2 2 19 } "
+            "QToolButton:pressed:hover { border-image: url(:/core/images/panel_button_pressed.png) 2 2 2 19 } "
+            "QToolButton:hover { border-image: url(:/core/images/panel_button_hover.png) 2 2 2 19 } "
 #endif
             );
     if (m_action)
@@ -558,7 +560,7 @@ QSize OutputPaneToggleButton::sizeHint() const
 void OutputPaneToggleButton::paintEvent(QPaintEvent *event)
 {
     // For drawing the style sheet stuff
-    QPushButton::paintEvent(event);
+    QToolButton::paintEvent(event);
 
     const QFontMetrics fm = fontMetrics();
     const int baseLine = (height() - fm.height() + 1) / 2 + fm.ascent();

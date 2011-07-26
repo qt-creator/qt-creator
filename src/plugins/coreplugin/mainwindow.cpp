@@ -103,6 +103,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QMessageBox>
 #include <QtGui/QMenuBar>
+#include <QtGui/QPushButton>
 
 /*
 #ifdef Q_OS_UNIX
