@@ -797,14 +797,17 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         const bool hasLog = currentItem && !currentItem->data(0, BuildLogRole).toString().isEmpty();
         m_debuggingHelperUi->showLogButton->setEnabled(hasLog);
 
-        m_debuggingHelperUi->rebuildButton->setEnabled((!isBuildingGdbHelper
-                                                        && !isBuildingQmlDumper
-                                                        && !isBuildingQmlDebuggingLib
-                                                        && !isBuildingQmlObserver)
-                                                       && (canBuildGdbHelper
-                                                           || canBuildQmlDumper
-                                                           || (canBuildQmlDebuggingLib && needsQmlDebuggingLib)
-                                                           || canBuildQmlObserver));
+        const bool canBuild = canBuildGdbHelper
+                               || canBuildQmlDumper
+                               || (canBuildQmlDebuggingLib && needsQmlDebuggingLib)
+                               || canBuildQmlObserver;
+        const bool isBuilding = isBuildingGdbHelper
+                                 || isBuildingQmlDumper
+                                 || isBuildingQmlDebuggingLib
+                                 || isBuildingQmlObserver;
+
+        m_debuggingHelperUi->rebuildButton->setEnabled(canBuild && !isBuilding);
+        m_debuggingHelperUi->toolChainComboBox->setEnabled(canBuild && !isBuilding);
 
         m_ui->debuggingHelperWidget->setVisible(true);
     }
