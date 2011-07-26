@@ -13,7 +13,7 @@ Rectangle {
         }
     }
 
-    width: 200
+    width: Math.max(200, statusText.width+20);
     height: displayColumn.height + 20
 
     visible: false;
@@ -27,11 +27,11 @@ Rectangle {
         id: displayColumn
         y: 10
         spacing: 5
+        width: parent.width
         Text {
             id: statusText
-            width: statusDisplay.width
             horizontalAlignment: "AlignHCenter"
-            y: 10
+            anchors.horizontalCenter: parent.horizontalCenter
         }
 
         Rectangle {
