@@ -55,6 +55,7 @@ public:
     SshChannelManager(SshSendFacility &sendFacility, QObject *parent);
 
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
+    QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
     void closeAllChannels();
 

@@ -89,6 +89,7 @@ public:
     ~SshConnection();
 
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
+    QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
 
 signals:

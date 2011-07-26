@@ -76,6 +76,7 @@ public:
     void sendEnvPacket(quint32 remoteChannel, const QByteArray &var,
         const QByteArray &value);
     void sendExecPacket(quint32 remoteChannel, const QByteArray &command);
+    void sendShellPacket(quint32 remoteChannel);
     void sendSftpPacket(quint32 remoteChannel);
     void sendWindowAdjustPacket(quint32 remoteChannel, quint32 bytesToAdd);
     void sendChannelDataPacket(quint32 remoteChannel, const QByteArray &data);

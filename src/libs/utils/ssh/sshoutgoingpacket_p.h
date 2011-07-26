@@ -69,6 +69,7 @@ public:
     void generatePtyRequestPacket(quint32 remoteChannel,
         const SshPseudoTerminal &terminal);
     void generateExecPacket(quint32 remoteChannel, const QByteArray &command);
+    void generateShellPacket(quint32 remoteChannel);
     void generateSftpPacket(quint32 remoteChannel);
     void generateWindowAdjustPacket(quint32 remoteChannel, quint32 bytesToAdd);
     void generateChannelDataPacket(quint32 remoteChannel,

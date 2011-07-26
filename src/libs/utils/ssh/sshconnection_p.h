@@ -90,6 +90,7 @@ public:
     void closeConnection(SshErrorCode sshError, SshError userError,
         const QByteArray &serverErrorString, const QString &userErrorString);
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
+    QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
     SshStateInternal state() const { return m_state; }
     SshError error() const { return m_error; }

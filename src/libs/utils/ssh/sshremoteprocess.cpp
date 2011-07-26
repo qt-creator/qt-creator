@@ -82,14 +82,13 @@ SshRemoteProcess::SshRemoteProcess(const QByteArray &command, quint32 channelId,
     Internal::SshSendFacility &sendFacility)
     : d(new Internal::SshRemoteProcessPrivate(command, channelId, sendFacility, this))
 {
-    connect(d, SIGNAL(started()), this, SIGNAL(started()),
-        Qt::QueuedConnection);
-    connect(d, SIGNAL(outputAvailable(QByteArray)), this,
-        SIGNAL(outputAvailable(QByteArray)), Qt::QueuedConnection);
-    connect(d, SIGNAL(errorOutputAvailable(QByteArray)), this,
-        SIGNAL(errorOutputAvailable(QByteArray)), Qt::QueuedConnection);
-    connect(d, SIGNAL(closed(int)), this, SIGNAL(closed(int)),
-        Qt::QueuedConnection);
+    init();
+}
+
+SshRemoteProcess::SshRemoteProcess(quint32 channelId, Internal::SshSendFacility &sendFacility)
+    : d(new Internal::SshRemoteProcessPrivate(channelId, sendFacility, this))
+{
+    init();
 }
 
 SshRemoteProcess::~SshRemoteProcess()
@@ -98,6 +97,18 @@ SshRemoteProcess::~SshRemoteProcess()
         || d->channelState() == Internal::SshRemoteProcessPrivate::CloseRequested
         || d->channelState() == Internal::SshRemoteProcessPrivate::Closed);
     delete d;
+}
+
+void SshRemoteProcess::init()
+{
+    connect(d, SIGNAL(started()), this, SIGNAL(started()),
+        Qt::QueuedConnection);
+    connect(d, SIGNAL(outputAvailable(QByteArray)), this,
+        SIGNAL(outputAvailable(QByteArray)), Qt::QueuedConnection);
+    connect(d, SIGNAL(errorOutputAvailable(QByteArray)), this,
+        SIGNAL(errorOutputAvailable(QByteArray)), Qt::QueuedConnection);
+    connect(d, SIGNAL(closed(int)), this, SIGNAL(closed(int)),
+        Qt::QueuedConnection);
 }
 
 void SshRemoteProcess::addToEnvironment(const QByteArray &var, const QByteArray &value)
@@ -160,11 +171,31 @@ QByteArray SshRemoteProcess::exitSignal() const { return d->m_signal; }
 namespace Internal {
 
 SshRemoteProcessPrivate::SshRemoteProcessPrivate(const QByteArray &command,
-    quint32 channelId, SshSendFacility &sendFacility, SshRemoteProcess *proc)
-    : AbstractSshChannel(channelId, sendFacility), m_procState(NotYetStarted),
-      m_wasRunning(false), m_exitCode(0), m_command(command),
-      m_useTerminal(false), m_proc(proc)
+        quint32 channelId, SshSendFacility &sendFacility, SshRemoteProcess *proc)
+    : AbstractSshChannel(channelId, sendFacility),
+      m_command(command),
+      m_isShell(false),
+      m_useTerminal(false),
+      m_proc(proc)
 {
+    init();
+}
+
+SshRemoteProcessPrivate::SshRemoteProcessPrivate(quint32 channelId, SshSendFacility &sendFacility,
+            SshRemoteProcess *proc)
+    : AbstractSshChannel(channelId, sendFacility),
+      m_isShell(true),
+      m_useTerminal(true),
+      m_proc(proc)
+{
+    init();
+}
+
+void SshRemoteProcessPrivate::init()
+{
+    m_procState = NotYetStarted;
+    m_wasRunning = false;
+    m_exitCode = 0;
 }
 
 void SshRemoteProcessPrivate::setProcState(ProcessState newState)
@@ -201,7 +232,10 @@ void SshRemoteProcessPrivate::handleOpenSuccessInternal()
    if (m_useTerminal)
        m_sendFacility.sendPtyRequestPacket(remoteChannel(), m_terminal);
 
-   m_sendFacility.sendExecPacket(remoteChannel(), m_command);
+   if (m_isShell)
+       m_sendFacility.sendShellPacket(remoteChannel());
+   else
+       m_sendFacility.sendExecPacket(remoteChannel(), m_command);
    setProcState(ExecRequested);
    m_timeoutTimer->start(ReplyTimeout);
 }

@@ -178,6 +178,12 @@ QSharedPointer<SshRemoteProcess> SshConnection::createRemoteProcess(const QByteA
     return d->createRemoteProcess(command);
 }
 
+QSharedPointer<SshRemoteProcess> SshConnection::createRemoteShell()
+{
+    QTC_ASSERT(state() == Connected, return QSharedPointer<SshRemoteProcess>());
+    return d->createRemoteShell();
+}
+
 QSharedPointer<SftpChannel> SshConnection::createSftpChannel()
 {
     QTC_ASSERT(state() == Connected, return QSharedPointer<SftpChannel>());
@@ -676,6 +682,11 @@ bool SshConnectionPrivate::canUseSocket() const
 QSharedPointer<SshRemoteProcess> SshConnectionPrivate::createRemoteProcess(const QByteArray &command)
 {
     return m_channelManager->createRemoteProcess(command);
+}
+
+QSharedPointer<SshRemoteProcess> SshConnectionPrivate::createRemoteShell()
+{
+    return m_channelManager->createRemoteShell();
 }
 
 QSharedPointer<SftpChannel> SshConnectionPrivate::createSftpChannel()

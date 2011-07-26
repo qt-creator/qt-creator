@@ -69,6 +69,8 @@ signals:
 private:
     SshRemoteProcessPrivate(const QByteArray &command, quint32 channelId,
         SshSendFacility &sendFacility, SshRemoteProcess *proc);
+    SshRemoteProcessPrivate(quint32 channelId, SshSendFacility &sendFacility,
+        SshRemoteProcess *proc);
 
     virtual void handleOpenSuccessInternal();
     virtual void handleOpenFailureInternal();
@@ -78,6 +80,7 @@ private:
     virtual void handleExitStatus(const SshChannelExitStatus &exitStatus);
     virtual void handleExitSignal(const SshChannelExitSignal &signal);
 
+    void init();
     void setProcState(ProcessState newState);
 
     ProcessState m_procState;
@@ -86,6 +89,7 @@ private:
     int m_exitCode;
 
     const QByteArray m_command;
+    const bool m_isShell;
 
     typedef QPair<QByteArray, QByteArray> EnvVar;
     QList<EnvVar> m_env;

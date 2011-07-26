@@ -112,6 +112,9 @@ signals:
 private:
     SshRemoteProcess(const QByteArray &command, quint32 channelId,
         Internal::SshSendFacility &sendFacility);
+    SshRemoteProcess(quint32 channelId, Internal::SshSendFacility &sendFacility);
+
+    void init();
 
     Internal::SshRemoteProcessPrivate *d;
 };

@@ -173,6 +173,12 @@ void SshSendFacility::sendExecPacket(quint32 remoteChannel,
     sendPacket();
 }
 
+void SshSendFacility::sendShellPacket(quint32 remoteChannel)
+{
+    m_outgoingPacket.generateShellPacket(remoteChannel);
+    sendPacket();
+}
+
 void SshSendFacility::sendSftpPacket(quint32 remoteChannel)
 {
     m_outgoingPacket.generateSftpPacket(remoteChannel);

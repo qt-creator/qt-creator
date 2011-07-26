@@ -156,6 +156,13 @@ Utils::SshRemoteProcess::Ptr SshChannelManager::createRemoteProcess(const QByteA
     return proc;
 }
 
+Utils::SshRemoteProcess::Ptr SshChannelManager::createRemoteShell()
+{
+    SshRemoteProcess::Ptr proc(new SshRemoteProcess(m_nextLocalChannelId++, m_sendFacility));
+    insertChannel(proc->d, proc);
+    return proc;
+}
+
 Utils::SftpChannel::Ptr SshChannelManager::createSftpChannel()
 {
     SftpChannel::Ptr sftp(new SftpChannel(m_nextLocalChannelId++, m_sendFacility));

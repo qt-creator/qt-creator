@@ -179,6 +179,12 @@ void SshOutgoingPacket::generateExecPacket(quint32 remoteChannel,
         .appendBool(true).appendString(command).finalize();
 }
 
+void SshOutgoingPacket::generateShellPacket(quint32 remoteChannel)
+{
+    init(SSH_MSG_CHANNEL_REQUEST).appendInt(remoteChannel).appendString("shell")
+        .appendBool(true).finalize();
+}
+
 void SshOutgoingPacket::generateSftpPacket(quint32 remoteChannel)
 {
     init(SSH_MSG_CHANNEL_REQUEST).appendInt(remoteChannel)
