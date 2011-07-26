@@ -4577,44 +4577,6 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
         gdbArgs << _("-n");
     gdbArgs += args;
 
-    if (sp.toolChainAbi.osFlavor() == Abi::WindowsMSysFlavor) {
-        // Set python path. By convention, python is located below gdb executable.
-        // Extend the environment set on the process in startAdapter().
-        const QFileInfo fi(m_gdb);
-        QTC_ASSERT(fi.isAbsolute(), return false; )
-
-        const QDir dir = fi.absoluteDir();
-
-        QProcessEnvironment environment = gdbProc()->processEnvironment();
-        const QString pythonPathVariable = _("PYTHONPATH");
-        QString pythonPath;
-
-        const QString environmentPythonPath = environment.value(pythonPathVariable);
-        if (dir.exists(_("lib"))) {
-            // Needed for our gdb 7.2 packages.
-            pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(_("lib")));
-        } else {
-            pythonPath = environmentPythonPath;
-        }
-        if (pythonPath.isEmpty()) {
-            const QString nativeGdb = QDir::toNativeSeparators(m_gdb);
-            showMessage(_("GDB %1 CANNOT FIND THE PYTHON INSTALLATION.").arg(nativeGdb));
-            showStatusMessage(_("%1 cannot find python").arg(nativeGdb));
-            const QString msg = tr("The GDB installed at %1 cannot "
-               "find a valid python installation in its subdirectories.\n"
-               "You may set the environment variable PYTHONPATH to point to your installation.")
-                    .arg(nativeGdb);
-            handleAdapterStartFailed(msg, settingsIdHint);
-            return false;
-        }
-        showMessage(_("Python path: %1").arg(pythonPath), LogMisc);
-        // Apply to process.
-        if (pythonPath != environmentPythonPath) {
-            environment.insert(pythonPathVariable, pythonPath);
-            gdbProc()->setProcessEnvironment(environment);
-        }
-    }
-
     connect(gdbProc(), SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleGdbError(QProcess::ProcessError)));
     connect(gdbProc(), SIGNAL(finished(int, QProcess::ExitStatus)),
