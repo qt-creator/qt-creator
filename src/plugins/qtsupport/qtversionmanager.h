@@ -124,7 +124,7 @@ signals:
     void updateExamples(QString, QString, QString);
 
 public slots:
-    void updateQtVersion(int id);
+    void updateDumpFor(const QString &qmakeCommand);
 
 private slots:
     void updateSettings();

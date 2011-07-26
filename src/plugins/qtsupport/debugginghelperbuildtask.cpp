@@ -101,8 +101,8 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     m_mkspec = version->mkspec();
 
     // Make sure QtVersion cache is invalidated
-    connect(this, SIGNAL(finished(int,QString,DebuggingHelperBuildTask::Tools)),
-            QtVersionManager::instance(), SLOT(updateQtVersion(int)),
+    connect(this, SIGNAL(updateQtVersions(QString)),
+            QtVersionManager::instance(), SLOT(updateDumpFor(QString)),
             Qt::QueuedConnection);
 }
 
@@ -156,6 +156,7 @@ void DebuggingHelperBuildTask::run(QFutureInterface<void> &future)
         log(result, QString());
     }
 
+    emit updateQtVersions(m_qmakeCommand);
     emit finished(m_qtId, m_log, m_tools);
     deleteLater();
 }

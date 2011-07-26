@@ -288,11 +288,6 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
     if (tools & DebuggingHelperBuildTask::QmlObserver)
         success &= version->hasQmlObserver();
 
-    // Update bottom control if the selection is still the same
-    if (index == currentIndex()) {
-        updateDebuggingHelperUi();
-    }
-
     if (!success)
         showDebuggingBuildLog(item);
 }
