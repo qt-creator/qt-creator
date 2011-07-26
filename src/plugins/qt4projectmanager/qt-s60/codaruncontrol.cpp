@@ -344,7 +344,7 @@ void CodaRunControl::handleDebugSessionEnded(const CodaCommandResult &result)
 
 void CodaRunControl::handleFindProcesses(const CodaCommandResult &result)
 {
-    if (result.values.size() && result.values.at(0).type() == JsonValue::Array && result.values.at(0).children().count()) {
+    if (result.values.size() && result.values.at(0).type() == Json::JsonValue::Array && result.values.at(0).children().count()) {
         //there are processes running. Cannot run mine
         appendMessage(tr("The process is already running on the device. Please first close it.\n"), Utils::ErrorMessageFormat);
         finishRunControl();
@@ -367,7 +367,7 @@ void CodaRunControl::handleCreateProcess(const CodaCommandResult &result)
     if (ok) {
         if (m_codaFlags & OptionsUseDebugSession) {
             if (result.values.size()) {
-                JsonValue id = result.values.at(0).findChild("ID");
+                Json::JsonValue id = result.values.at(0).findChild("ID");
                 if (id.isValid()) {
                     m_state = StateProcessRunning;
                     m_runningProcessId = id.data();

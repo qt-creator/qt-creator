@@ -43,6 +43,7 @@ static const char *serviceNamesC[] =
   "DebugSessionControl",
   "UnknownService"};
 
+using namespace Json;
 namespace Coda {
 
 SYMBIANUTILS_EXPORT QString joinByteArrays(const QVector<QByteArray> &a, char sep)

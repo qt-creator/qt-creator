@@ -77,3 +77,6 @@ FORMS += $$PWD/s60createpackagestep.ui \
     $$PWD/s60publishingbuildsettingspageovi.ui \
     $$PWD/s60publishingresultspageovi.ui \
     $$PWD/s60publishingsissettingspageovi.ui
+
+include(../../../shared/json/json.pri)
+DEFINES += JSON_INCLUDE_PRI

@@ -1,5 +1,7 @@
 include(../qttest.pri)
 include($$IDE_SOURCE_TREE/src/libs/symbianutils/symbianutils.pri)
+include($$IDE_SOURCE_TREE/src/shared/json/json.pri)
+DEFINES += JSON_INCLUDE_PRI
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
 UTILSDIR    = $$IDE_SOURCE_TREE/src/libs

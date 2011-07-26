@@ -33,10 +33,11 @@
 #include "qmladapter.h"
 
 #include "debuggerstartparameters.h"
-#include "qmldebuggerclient.h"
+#include "qscriptdebuggerclient.h"
+#include "qmlv8debuggerclient.h"
 #include "qmljsprivateapi.h"
 
-#include "debuggerengine.h"
+#include "qmlengine.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -61,13 +62,13 @@ public:
     }
 
     QWeakPointer<DebuggerEngine> m_engine;
-    Internal::QmlDebuggerClient *m_qmlClient;
+    QmlDebuggerClient *m_qmlClient;
 
     QTimer m_connectionTimer;
     int m_connectionAttempts;
     int m_maxConnectionAttempts;
     QDeclarativeDebugConnection *m_conn;
-    QList<QByteArray> sendBuffer;
+    QHash<QString, QmlDebuggerClient*> debugClients;
 };
 
 } // namespace Internal
@@ -149,16 +150,6 @@ void QmlAdapter::connectToViewer()
     }
 }
 
-void QmlAdapter::sendMessage(const QByteArray &msg)
-{
-    if (d->m_qmlClient->status() == QDeclarativeDebugClient::Enabled) {
-        flushSendBuffer();
-        d->m_qmlClient->sendMessage(msg);
-    } else {
-        d->sendBuffer.append(msg);
-    }
-}
-
 void QmlAdapter::connectionErrorOccurred(QAbstractSocket::SocketError socketError)
 {
     showConnectionStatusMessage(tr("Error: (%1) %2", "%1=error code, %2=error message")
@@ -177,8 +168,10 @@ void QmlAdapter::clientStatusChanged(QDeclarativeDebugClient::Status status)
 
     logServiceStatusChange(serviceName, status);
 
-    if (status == QDeclarativeDebugClient::Enabled)
-        flushSendBuffer();
+    if (status == QDeclarativeDebugClient::Enabled) {
+        d->m_qmlClient = d->debugClients.value(serviceName);
+        d->m_qmlClient->flushSendBuffer();
+    }
 }
 
 void QmlAdapter::connectionStateChanged()
@@ -202,7 +195,8 @@ void QmlAdapter::connectionStateChanged()
         showConnectionStatusMessage(tr("connected.\n"));
 
         if (!d->m_qmlClient)
-            createDebuggerClient();
+            createDebuggerClients();
+
         //reloadEngines();
         emit connected();
         break;
@@ -216,16 +210,23 @@ void QmlAdapter::connectionStateChanged()
     }
 }
 
-void QmlAdapter::createDebuggerClient()
+void QmlAdapter::createDebuggerClients()
 {
-    d->m_qmlClient = new Internal::QmlDebuggerClient(d->m_conn);
 
-    connect(d->m_qmlClient, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
+    Internal::QScriptDebuggerClient *client1 = new Internal::QScriptDebuggerClient(d->m_conn);
+    connect(client1, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
             this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
-    connect(d->m_engine.data(), SIGNAL(sendMessage(QByteArray)),
-            this, SLOT(sendMessage(QByteArray)));
-    connect(d->m_qmlClient, SIGNAL(messageWasReceived(QByteArray)),
-            d->m_engine.data(), SLOT(messageReceived(QByteArray)));
+
+    Internal::QmlV8DebuggerClient *client2 = new Internal::QmlV8DebuggerClient(d->m_conn);
+    connect(client2, SIGNAL(newStatus(QDeclarativeDebugClient::Status)),
+            this, SLOT(clientStatusChanged(QDeclarativeDebugClient::Status)));
+
+    d->debugClients.insert(client1->name(),client1);
+    d->debugClients.insert(client2->name(),client2);
+
+
+    client1->setEngine((Internal::QmlEngine*)(d->m_engine.data()));
+    client2->setEngine((Internal::QmlEngine*)(d->m_engine.data()));
 
     //engine->startSuccessful();  // FIXME: AAA: port to new debugger states
 }
@@ -243,13 +244,13 @@ QDeclarativeDebugConnection *QmlAdapter::connection() const
 void QmlAdapter::showConnectionStatusMessage(const QString &message)
 {
     if (!d->m_engine.isNull())
-        d->m_engine.data()->showMessage(QLatin1String("QmlJSDebugger: ") + message, LogStatus);
+        d->m_engine.data()->showMessage(QLatin1String("QmlDebugger: ") + message, LogStatus);
 }
 
 void QmlAdapter::showConnectionErrorMessage(const QString &message)
 {
     if (!d->m_engine.isNull())
-        d->m_engine.data()->showMessage(QLatin1String("QmlJSDebugger: ") + message, LogError);
+        d->m_engine.data()->showMessage(QLatin1String("QmlDebugger: ") + message, LogError);
 }
 
 bool QmlAdapter::disableJsDebugging(bool block)
@@ -271,6 +272,15 @@ bool QmlAdapter::disableJsDebugging(bool block)
     return isBlocked;
 }
 
+Internal::QmlDebuggerClient *QmlAdapter::activeDebuggerClient()
+{
+    return d->m_qmlClient;
+}
+
+QHash<QString, Internal::QmlDebuggerClient*> QmlAdapter::debuggerClients()
+{
+    return d->debugClients;
+}
 void QmlAdapter::logServiceStatusChange(const QString &service,
                                         QDeclarativeDebugClient::Status newStatus)
 {
@@ -296,14 +306,6 @@ void QmlAdapter::logServiceActivity(const QString &service, const QString &logMe
 {
     if (!d->m_engine.isNull())
         d->m_engine.data()->showMessage(QString("%1 %2").arg(service, logMessage), LogDebug);
-}
-
-void QmlAdapter::flushSendBuffer()
-{
-    QTC_ASSERT(d->m_qmlClient->status() == QDeclarativeDebugClient::Enabled, return);
-    foreach (const QByteArray &msg, d->sendBuffer)
-        d->m_qmlClient->sendMessage(msg);
-    d->sendBuffer.clear();
 }
 
 } // namespace Debugger

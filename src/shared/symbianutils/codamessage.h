@@ -34,6 +34,7 @@
 #define CODAMESSAGE_H
 
 #include "symbianutils_global.h"
+#include "json_global.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QVector>
@@ -42,10 +43,12 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace Coda {
-
+namespace Json {
 class JsonValue;
 class JsonInputStream;
+}
+
+namespace Coda {
 
 enum Services {
     LocatorService,
@@ -101,7 +104,7 @@ struct SYMBIANUTILS_EXPORT RunControlContext {
     unsigned threadId() const;
 
     void clear();
-    bool parse(const JsonValue &v);
+    bool parse(const Json::JsonValue &v);
     void format(QTextStream &str) const;
     QString toString() const;
 
@@ -122,7 +125,7 @@ struct SYMBIANUTILS_EXPORT RunControlContext {
 struct SYMBIANUTILS_EXPORT ModuleLoadEventInfo {
     ModuleLoadEventInfo();
     void clear();
-    bool parse(const JsonValue &v);
+    bool parse(const Json::JsonValue &v);
     void format(QTextStream &str) const;
 
     QByteArray name;
@@ -154,7 +157,7 @@ struct SYMBIANUTILS_EXPORT Breakpoint {
     bool thumb;
 };
 
-SYMBIANUTILS_EXPORT JsonInputStream &operator<<(JsonInputStream &str, const Breakpoint &b);
+Json::JsonInputStream &operator<<(Json::JsonInputStream &str, const Breakpoint &b);
 
 // Event hierarchy
 class SYMBIANUTILS_EXPORT CodaEvent
@@ -179,7 +182,7 @@ public:
     Type type() const;
     virtual QString toString() const;
 
-    static CodaEvent *parseEvent(Services s, const QByteArray &name, const QVector<JsonValue> &val);
+    static CodaEvent *parseEvent(Services s, const QByteArray &name, const QVector<Json::JsonValue> &val);
 
 protected:
     explicit CodaEvent(Type type = None);
@@ -252,7 +255,7 @@ public:
     const RunControlContexts &contexts() const { return m_contexts; }
     virtual QString toString() const;
 
-    static CodaRunControlContextAddedEvent *parseEvent(const QVector<JsonValue> &val);
+    static CodaRunControlContextAddedEvent *parseEvent(const QVector<Json::JsonValue> &val);
 
 private:
     const RunControlContexts m_contexts;

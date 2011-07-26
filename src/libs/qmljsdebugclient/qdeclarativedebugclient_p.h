@@ -88,7 +88,7 @@ public:
 
     Status status() const;
 
-    void sendMessage(const QByteArray &);
+    virtual void sendMessage(const QByteArray &);
 
 protected:
     virtual void statusChanged(Status);

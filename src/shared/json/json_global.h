@@ -29,52 +29,18 @@
 ** Nokia at info@qt.nokia.com.
 **
 **************************************************************************/
-#include "qmldebuggerclient.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
+#ifndef JSON_GLOBAL_H
+#define JSON_GLOBAL_H
 
-namespace Debugger {
-namespace Internal {
+#include <QtCore/qglobal.h>
 
-class QmlDebuggerClientPrivate
-{
-public:
-    QList<QByteArray> sendBuffer;
-};
+#if defined(JSON_BUILD_LIB)
+#    define JSON_EXPORT Q_DECL_EXPORT
+#elif defined(JSON_BUILD_STATIC_LIB) || defined(JSON_INCLUDE_PRI)
+#    define JSON_EXPORT
+#else
+#    define JSON_EXPORT Q_DECL_IMPORT
+#endif
 
-QmlDebuggerClient::QmlDebuggerClient(QmlJsDebugClient::QDeclarativeDebugConnection* client, QLatin1String clientName)
-    : QDeclarativeDebugClient(clientName, client),
-      d(new QmlDebuggerClientPrivate())
-{
-}
-
-QmlDebuggerClient::~QmlDebuggerClient()
-{
-    delete d;
-}
-
-void QmlDebuggerClient::statusChanged(Status status)
-{
-    emit newStatus(status);
-}
-
-void QmlDebuggerClient::sendMessage(const QByteArray &msg)
-{
-    if (status() == Enabled) {
-        QDeclarativeDebugClient::sendMessage(msg);
-    } else {
-        d->sendBuffer.append(msg);
-    }
-}
-
-void QmlDebuggerClient::flushSendBuffer()
-{
-    QTC_ASSERT(status() == QDeclarativeDebugClient::Enabled, return);
-    foreach (const QByteArray &msg, d->sendBuffer)
-       QDeclarativeDebugClient::sendMessage(msg);
-    d->sendBuffer.clear();
-}
-
-} // Internal
-} // Debugger
+#endif // SYMBIANUTILS_GLOBAL_H

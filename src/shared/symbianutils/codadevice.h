@@ -71,7 +71,7 @@ struct SYMBIANUTILS_EXPORT CodaCommandError {
     operator bool() const { return isError(); }
     QString toString() const;
     void write(QTextStream &str) const;
-    bool parse(const QVector<JsonValue> &values);
+    bool parse(const QVector<Json::JsonValue> &values);
 
     quint64 timeMS; // Since 1.1.1970
     qint64 code;
@@ -94,7 +94,7 @@ struct SYMBIANUTILS_EXPORT CodaCommandResult {
     explicit CodaCommandResult(Type t = SuccessReply);
     explicit CodaCommandResult(char typeChar, Services service,
                                  const QByteArray &request,
-                                 const QVector<JsonValue> &values,
+                                 const QVector<Json::JsonValue> &values,
                                  const QVariant &cookie);
 
     QString toString() const;
@@ -107,7 +107,7 @@ struct SYMBIANUTILS_EXPORT CodaCommandResult {
     Services service;
     QByteArray request;
     CodaCommandError commandError;
-    QVector<JsonValue> values;
+    QVector<Json::JsonValue> values;
     QVariant cookie;
 };
 
@@ -394,7 +394,7 @@ public:
     static CodaStatResponse parseStat(const CodaCommandResult &r);
 
 signals:
-    void genericCodaEvent(int service, const QByteArray &name, const QVector<JsonValue> &value);
+    void genericCodaEvent(int service, const QByteArray &name, const QVector<Json::JsonValue> &value);
     void codaEvent(const Coda::CodaEvent &knownEvent);
     void unknownEvent(uchar protocolId, const QByteArray& data);
     void serialPong(const QString &codaVersion);

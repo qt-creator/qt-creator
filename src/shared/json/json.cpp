@@ -44,14 +44,13 @@
 
 #include <ctype.h>
 
-//#define DEBUG_JASON
 #ifdef DEBUG_JASON
 #define JDEBUG(s) qDebug() << s
 #else
 #define JDEBUG(s)
 #endif
 
-namespace Coda {
+using namespace Json;
 
 static void skipSpaces(const char *&from, const char *to)
 {
@@ -530,11 +529,23 @@ JsonInputStream &JsonInputStream::operator<<(const QVector<QByteArray> &ba)
     return *this;
 }
 
+JsonInputStream &JsonInputStream::operator<<(const QList<int> &in)
+{
+    m_target.append('[');
+    const int count = in.size();
+    for (int i = 0 ; i < count; i++) {
+        if (i)
+            m_target.append(',');
+        m_target.append(QByteArray::number(in.at(i)));
+    }
+    m_target.append(']');
+    return *this;
+}
+
 JsonInputStream &JsonInputStream::operator<<(bool b)
 {
     m_target.append(b ? "true" : "false");
     return *this;
 }
 
-} // namespace Coda
 

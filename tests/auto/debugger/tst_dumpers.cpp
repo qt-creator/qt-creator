@@ -162,7 +162,7 @@ public:
 
     void testJson(const char* input)
     {
-        QCOMPARE('\n' + QString::fromLatin1(Coda::JsonValue(input).toString(false)),
+        QCOMPARE('\n' + QString::fromLatin1(Json::JsonValue(input).toString(false)),
             '\n' + QString(input));
     }
 

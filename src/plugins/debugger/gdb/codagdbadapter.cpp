@@ -1349,7 +1349,7 @@ void CodaGdbAdapter::handleReadRegisters(const CodaCommandResult &result)
         logMessage("ERROR: " + result.errorString(), LogError);
         return;
     }
-    if (result.values.isEmpty() || result.values.front().type() != JsonValue::String) {
+    if (result.values.isEmpty() || result.values.front().type() != Json::JsonValue::String) {
         logMessage(_("Format error in register message: ") + result.toString(),
             LogError);
         return;

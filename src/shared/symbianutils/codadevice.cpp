@@ -112,6 +112,7 @@ static inline QByteArray encodeUsbSerialMessage(const QByteArray &dataIn)
     return frame;
 }
 
+using namespace Json;
 namespace Coda {
 // ------------- CodaCommandError
 

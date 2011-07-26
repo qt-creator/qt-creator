@@ -89,70 +89,6 @@ using namespace ProjectExplorer;
 namespace Debugger {
 namespace Internal {
 
-struct JSAgentBreakpointData
-{
-    QByteArray functionName;
-    QByteArray fileUrl;
-    qint32 lineNumber;
-};
-
-struct JSAgentStackData
-{
-    QByteArray functionName;
-    QByteArray fileUrl;
-    qint32 lineNumber;
-};
-
-uint qHash(const JSAgentBreakpointData &b)
-{
-    return b.lineNumber ^ qHash(b.fileUrl);
-}
-
-QDataStream &operator<<(QDataStream &s, const JSAgentBreakpointData &data)
-{
-    return s << data.functionName << data.fileUrl << data.lineNumber;
-}
-
-QDataStream &operator<<(QDataStream &s, const JSAgentStackData &data)
-{
-    return s << data.functionName << data.fileUrl << data.lineNumber;
-}
-
-QDataStream &operator>>(QDataStream &s, JSAgentBreakpointData &data)
-{
-    return s >> data.functionName >> data.fileUrl >> data.lineNumber;
-}
-
-QDataStream &operator>>(QDataStream &s, JSAgentStackData &data)
-{
-    return s >> data.functionName >> data.fileUrl >> data.lineNumber;
-}
-
-bool operator==(const JSAgentBreakpointData &b1, const JSAgentBreakpointData &b2)
-{
-    return b1.lineNumber == b2.lineNumber && b1.fileUrl == b2.fileUrl;
-}
-
-typedef QSet<JSAgentBreakpointData> JSAgentBreakpoints;
-typedef QList<JSAgentStackData> JSAgentStackFrames;
-
-
-static QDataStream &operator>>(QDataStream &s, WatchData &data)
-{
-    data = WatchData();
-    QByteArray name;
-    QByteArray value;
-    QByteArray type;
-    bool hasChildren = false;
-    s >> data.exp >> name >> value >> type >> hasChildren >> data.id;
-    data.name = QString::fromUtf8(name);
-    data.setType(type, false);
-    data.setValue(QString::fromUtf8(value));
-    data.setHasChildren(hasChildren);
-    data.setAllUnneeded();
-    return s;
-}
-
 class QmlEnginePrivate
 {
 public:
@@ -160,7 +96,6 @@ public:
 
 private:
     friend class QmlEngine;
-    int m_ping;
     QmlAdapter m_adapter;
     ApplicationLauncher m_applicationLauncher;
     Utils::FileInProjectFinder fileFinder;
@@ -168,7 +103,7 @@ private:
 };
 
 QmlEnginePrivate::QmlEnginePrivate(QmlEngine *q)
-    : m_ping(0), m_adapter(q)
+    : m_adapter(q)
 {}
 
 
@@ -466,8 +401,6 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
-    d->m_ping = 0;
-
     connect(&d->m_applicationLauncher, SIGNAL(bringToForegroundRequested(qint64)),
             runControl(), SLOT(bringApplicationToForeground(qint64)),
             Qt::UniqueConnection);
@@ -478,12 +411,8 @@ void QmlEngine::setupEngine()
 void QmlEngine::continueInferior()
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "CONTINUE";
-    rs << cmd;
-    logMessage(LogSend, cmd);
-    sendMessage(reply);
+    logMessage(LogSend, "CONTINUE");
+    d->m_adapter.activeDebuggerClient()->continueInferior();
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -491,23 +420,15 @@ void QmlEngine::continueInferior()
 
 void QmlEngine::interruptInferior()
 {
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "INTERRUPT";
-    rs << cmd;
-    logMessage(LogSend, cmd);
-    sendMessage(reply);
-    notifyInferiorStopOk();
+    logMessage(LogSend, "INTERRUPT");
+    d->m_adapter.activeDebuggerClient()->interruptInferior();
+
 }
 
 void QmlEngine::executeStep()
 {
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "STEPINTO";
-    rs << cmd;
-    logMessage(LogSend, cmd);
-    sendMessage(reply);
+    logMessage(LogSend, "STEPINTO");
+    d->m_adapter.activeDebuggerClient()->executeStep();
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -515,12 +436,8 @@ void QmlEngine::executeStep()
 
 void QmlEngine::executeStepI()
 {
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "STEPINTO";
-    rs << cmd;
-    logMessage(LogSend, cmd);
-    sendMessage(reply);
+    logMessage(LogSend, "STEPINTO");
+    d->m_adapter.activeDebuggerClient()->executeStepI();
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -528,12 +445,8 @@ void QmlEngine::executeStepI()
 
 void QmlEngine::executeStepOut()
 {
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "STEPOUT";
-    rs << cmd;
-    logMessage(LogSend, cmd);
-    sendMessage(reply);
+    logMessage(LogSend, "STEPOUT");
+    d->m_adapter.activeDebuggerClient()->executeStepOut();
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -541,12 +454,8 @@ void QmlEngine::executeStepOut()
 
 void QmlEngine::executeNext()
 {
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "STEPOVER";
-    rs << cmd;
-    logMessage(LogSend, cmd);
-    sendMessage(reply);
+    logMessage(LogSend, "STEPOVER");
+    d->m_adapter.activeDebuggerClient()->executeNext();
     resetLocation();
     notifyInferiorRunRequested();
     notifyInferiorRunOk();
@@ -577,13 +486,8 @@ void QmlEngine::executeJumpToLine(const ContextData &data)
 
 void QmlEngine::activateFrame(int index)
 {
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "ACTIVATE_FRAME";
-    rs << cmd
-       << index;
-    logMessage(LogSend, QString("%1 %2").arg(QString(cmd), QString::number(index)));
-    sendMessage(reply);
+    logMessage(LogSend, QString("%1 %2").arg(QString("ACTIVATE_FRAME"), QString::number(index)));
+    d->m_adapter.activeDebuggerClient()->activateFrame(index);
     gotoLocation(stackHandler()->frames().value(index));
 }
 
@@ -602,40 +506,46 @@ void QmlEngine::attemptBreakpointSynchronization()
             handler->setEngine(id, this);
     }
 
-    JSAgentBreakpoints breakpoints;
+    QStringList breakPointsStr;
     foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
         if (handler->state(id) == BreakpointRemoveRequested) {
             handler->notifyBreakpointRemoveProceeding(id);
+            if (d->m_adapter.activeDebuggerClient())
+                d->m_adapter.activeDebuggerClient()->removeBreakpoints(&id);
+            else {
+                foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+                    client->removeBreakpoints(&id);
+                }
+            }
             handler->notifyBreakpointRemoveOk(id);
         } else {
             if (handler->state(id) == BreakpointInsertRequested) {
                 handler->notifyBreakpointInsertProceeding(id);
             }
-            JSAgentBreakpointData bp;
-            bp.fileUrl = QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8();
-            bp.lineNumber = handler->lineNumber(id);
-            bp.functionName = handler->functionName(id).toUtf8();
-            breakpoints.insert(bp);
+            if (d->m_adapter.activeDebuggerClient())
+                d->m_adapter.activeDebuggerClient()->insertBreakpoints(handler,&id);
+            else {
+                foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients()) {
+                    client->insertBreakpoints(handler,&id);
+                }
+            }
             if (handler->state(id) == BreakpointInsertProceeding) {
                 handler->notifyBreakpointInsertOk(id);
             }
+            breakPointsStr << QString("('%1' '%2' %3)").arg(QString(handler->functionName(id).toUtf8()),
+                                      QString(QUrl::fromLocalFile(handler->fileName(id)).toString().toUtf8()), QString::number(handler->lineNumber(id)));
         }
     }
 
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "BREAKPOINTS";
-    rs << cmd
-       << breakpoints;
+    logMessage(LogSend, QString("%1 [%2]").arg(QString("BREAKPOINTS"), breakPointsStr.join(", ")));
 
-    QStringList breakPointsStr;
-    foreach (const JSAgentBreakpointData &bp, breakpoints) {
-        breakPointsStr << QString("('%1' '%2' %3)").arg(QString(bp.functionName),
-                                  QString(bp.fileUrl), QString::number(bp.lineNumber));
+    if (d->m_adapter.activeDebuggerClient()) {
+        d->m_adapter.activeDebuggerClient()->setBreakpoints();
     }
-    logMessage(LogSend, QString("%1 [%2]").arg(QString(cmd), breakPointsStr.join(", ")));
-
-    sendMessage(reply);
+    else {
+        foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients())
+            client->setBreakpoints();
+    }
 }
 
 bool QmlEngine::acceptsBreakpoint(BreakpointModelId id) const
@@ -682,25 +592,15 @@ bool QmlEngine::setToolTipExpression(const QPoint &mousePos,
 //
 //////////////////////////////////////////////////////////////////////
 
-void QmlEngine::assignValueInDebugger(const WatchData *,
+void QmlEngine::assignValueInDebugger(const WatchData *data,
     const QString &expression, const QVariant &valueV)
 {
-    QRegExp inObject("@([0-9a-fA-F]+)->(.+)");
-    if (inObject.exactMatch(expression)) {
-        bool ok = false;
-        quint64 objectId = inObject.cap(1).toULongLong(&ok, 16);
-        QString property = inObject.cap(2);
-        if (ok && objectId > 0 && !property.isEmpty()) {
-            QByteArray reply;
-            QDataStream rs(&reply, QIODevice::WriteOnly);
-            QByteArray cmd = "SET_PROPERTY";
-            rs << cmd;
-            rs << expression.toUtf8() << objectId << property << valueV.toString();
-            logMessage(LogSend, QString("%1 %2 %3 %4 %5").arg(
-                                 QString(cmd), QString::number(objectId), QString(property),
-                                 valueV.toString()));
-            sendMessage(reply);
-        }
+    quint64 objectId =  data->id;
+    if (objectId > 0 && !expression.isEmpty()) {
+        logMessage(LogSend, QString("%1 %2 %3 %4 %5").arg(
+                             QString("SET_PROPERTY"), QString::number(objectId), QString(expression),
+                             valueV.toString()));
+        d->m_adapter.activeDebuggerClient()->assignValueInDebugger(expression.toUtf8(), objectId, expression, valueV.toString());
     }
 }
 
@@ -712,19 +612,14 @@ void QmlEngine::updateWatchData(const WatchData &data,
     showStatusMessage(tr("Stopped."), 5000);
 
     if (!data.name.isEmpty() && data.isValueNeeded()) {
-        QByteArray reply;
-        QDataStream rs(&reply, QIODevice::WriteOnly);
-        QByteArray cmd = "EXEC";
-        rs << cmd;
-        rs << data.iname << data.name;
-        logMessage(LogSend, QString("%1 %2 %3").arg(QString(cmd), QString(data.iname),
+        logMessage(LogSend, QString("%1 %2 %3").arg(QString("EXEC"), QString(data.iname),
                                                           QString(data.name)));
-        sendMessage(reply);
+         d->m_adapter.activeDebuggerClient()->updateWatchData(&data);
     }
 
     if (!data.name.isEmpty() && data.isChildrenNeeded()
             && watchHandler()->isExpandedIName(data.iname)) {
-        expandObject(data.iname, data.id);
+        d->m_adapter.activeDebuggerClient()->expandObject(data.iname, data.id);
     }
 
     synchronizeWatchers();
@@ -735,39 +630,17 @@ void QmlEngine::updateWatchData(const WatchData &data,
 
 void QmlEngine::synchronizeWatchers()
 {
+    QStringList watchedExpressions = watchHandler()->watchedExpressions();
     // send watchers list
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "WATCH_EXPRESSIONS";
-    rs << cmd;
-    rs << watchHandler()->watchedExpressions();
     logMessage(LogSend, QString("%1 %2").arg(
-                   QString(cmd), watchHandler()->watchedExpressions().join(", ")));
-    sendMessage(reply);
-}
-
-void QmlEngine::expandObject(const QByteArray &iname, quint64 objectId)
-{
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "EXPAND";
-    rs << cmd;
-    rs << iname << objectId;
-    logMessage(LogSend, QString("%1 %2 %3").arg(QString(cmd), QString(iname),
-                                                      QString::number(objectId)));
-    sendMessage(reply);
-}
-
-void QmlEngine::sendPing()
-{
-    d->m_ping++;
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "PING";
-    rs << cmd;
-    rs << d->m_ping;
-    logMessage(LogSend, QString("%1 %2").arg(QString(cmd), QString::number(d->m_ping)));
-    sendMessage(reply);
+                   QString("WATCH_EXPRESSIONS"), watchedExpressions.join(", ")));
+    if (d->m_adapter.activeDebuggerClient()) {
+        d->m_adapter.activeDebuggerClient()->synchronizeWatchers(watchedExpressions);
+    }
+    else {
+        foreach (QmlDebuggerClient *client, d->m_adapter.debuggerClients())
+            client->synchronizeWatchers(watchedExpressions);
+    }
 }
 
 unsigned QmlEngine::debuggerCapabilities() const
@@ -794,209 +667,12 @@ QString QmlEngine::toFileInProject(const QUrl &fileUrl)
     return d->fileFinder.findFile(fileUrl);
 }
 
-void QmlEngine::messageReceived(const QByteArray &message)
+void QmlEngine::inferiorSpontaneousStop()
 {
-    QByteArray rwData = message;
-    QDataStream stream(&rwData, QIODevice::ReadOnly);
-
-    QByteArray command;
-    stream >> command;
-
-    if (command == "STOPPED") {
-        //qDebug() << command << this << state();
-        if (state() == InferiorRunOk)
-            notifyInferiorSpontaneousStop();
-
-        QString logString = QString::fromLatin1(command);
-
-        JSAgentStackFrames stackFrames;
-        QList<WatchData> watches;
-        QList<WatchData> locals;
-        stream >> stackFrames >> watches >> locals;
-
-        logString += QString::fromLatin1(" (%1 stack frames) (%2 watches)  (%3 locals)").
-                     arg(stackFrames.size()).arg(watches.size()).arg(locals.size());
-
-        StackFrames ideStackFrames;
-        for (int i = 0; i != stackFrames.size(); ++i) {
-            StackFrame frame;
-            frame.line = stackFrames.at(i).lineNumber;
-            frame.function = stackFrames.at(i).functionName;
-            frame.file = toFileInProject(QUrl(stackFrames.at(i).fileUrl));
-            frame.usable = QFileInfo(frame.file).isReadable();
-            frame.level = i + 1;
-            ideStackFrames << frame;
-        }
-
-        if (ideStackFrames.size() && ideStackFrames.back().function == "<global>")
-            ideStackFrames.takeLast();
-        stackHandler()->setFrames(ideStackFrames);
-
-        watchHandler()->beginCycle();
-        bool needPing = false;
-
-        foreach (WatchData data, watches) {
-            data.iname = watchHandler()->watcherName(data.exp);
-            watchHandler()->insertData(data);
-
-            if (watchHandler()->expandedINames().contains(data.iname)) {
-                needPing = true;
-                expandObject(data.iname, data.id);
-            }
-        }
-
-        foreach (WatchData data, locals) {
-            data.iname = "local." + data.exp;
-            watchHandler()->insertData(data);
-
-            if (watchHandler()->expandedINames().contains(data.iname)) {
-                needPing = true;
-                expandObject(data.iname, data.id);
-            }
-        }
-
-        if (needPing) {
-            sendPing();
-        } else {
-            watchHandler()->endCycle();
-        }
-
-        bool becauseOfException;
-        stream >> becauseOfException;
-
-        logString += becauseOfException ? " exception" : " no_exception";
-
-        if (becauseOfException) {
-            QString error;
-            stream >> error;
-
-            logString += QLatin1Char(' ');
-            logString += error;
-            logMessage(LogReceive, logString);
-
-            QString msg = stackFrames.isEmpty()
-                ? tr("<p>An uncaught exception occurred:</p><p>%1</p>")
-                    .arg(Qt::escape(error))
-                : tr("<p>An uncaught exception occurred in <i>%1</i>:</p><p>%2</p>")
-                    .arg(stackFrames.value(0).fileUrl, Qt::escape(error));
-            showMessageBox(QMessageBox::Information, tr("Uncaught Exception"), msg);
-        } else {
-            //
-            // Make breakpoint non-pending
-            //
-            QString file;
-            QString function;
-            int line = -1;
-
-            if (!ideStackFrames.isEmpty()) {
-                file = ideStackFrames.at(0).file;
-                line = ideStackFrames.at(0).line;
-                function = ideStackFrames.at(0).function;
-            }
-
-            BreakHandler *handler = breakHandler();
-            foreach (BreakpointModelId id, handler->engineBreakpointIds(this)) {
-                QString processedFilename = handler->fileName(id);
-                if (processedFilename == file && handler->lineNumber(id) == line) {
-                    QTC_CHECK(handler->state(id) == BreakpointInserted);
-                    BreakpointResponse br = handler->response(id);
-                    br.fileName = file;
-                    br.lineNumber = line;
-                    br.functionName = function;
-                    handler->setResponse(id, br);
-                }
-            }
-
-            logMessage(LogReceive, logString);
-        }
-
-        if (!ideStackFrames.isEmpty())
-            gotoLocation(ideStackFrames.value(0));
-
-    } else if (command == "RESULT") {
-        WatchData data;
-        QByteArray iname;
-        stream >> iname >> data;
-
-        logMessage(LogReceive, QString("%1 %2 %3").arg(QString(command),
-                                                             QString(iname), QString(data.value)));
-        data.iname = iname;
-        if (iname.startsWith("watch.")) {
-            watchHandler()->insertData(data);
-        } else if(iname == "console") {
-            showMessage(data.value, ScriptConsoleOutput);
-        } else {
-            qWarning() << "QmlEngine: Unexcpected result: " << iname << data.value;
-        }
-    } else if (command == "EXPANDED") {
-        QList<WatchData> result;
-        QByteArray iname;
-        stream >> iname >> result;
-
-        logMessage(LogReceive, QString("%1 %2 (%3 x watchdata)").arg(
-                             QString(command), QString(iname), QString::number(result.size())));
-        bool needPing = false;
-        foreach (WatchData data, result) {
-            data.iname = iname + '.' + data.exp;
-            watchHandler()->insertData(data);
-
-            if (watchHandler()->expandedINames().contains(data.iname)) {
-                needPing = true;
-                expandObject(data.iname, data.id);
-            }
-        }
-        if (needPing)
-            sendPing();
-    } else if (command == "LOCALS") {
-        QList<WatchData> locals;
-        QList<WatchData> watches;
-        int frameId;
-        stream >> frameId >> locals;
-        if (!stream.atEnd()) { // compatibility with jsdebuggeragent from 2.1, 2.2
-            stream >> watches;
-        }
-
-        logMessage(LogReceive, QString("%1 %2 (%3 x locals) (%4 x watchdata)").arg(
-                             QString(command), QString::number(frameId),
-                             QString::number(locals.size()),
-                             QString::number(watches.size())));
-        watchHandler()->beginCycle();
-        bool needPing = false;
-        foreach (WatchData data, watches) {
-            data.iname = watchHandler()->watcherName(data.exp);
-            watchHandler()->insertData(data);
-
-            if (watchHandler()->expandedINames().contains(data.iname)) {
-                needPing = true;
-                expandObject(data.iname, data.id);
-            }
-        }
-
-        foreach (WatchData data, locals) {
-            data.iname = "local." + data.exp;
-            watchHandler()->insertData(data);
-            if (watchHandler()->expandedINames().contains(data.iname)) {
-                needPing = true;
-                expandObject(data.iname, data.id);
-            }
-        }
-        if (needPing)
-            sendPing();
-        else
-            watchHandler()->endCycle();
-
-    } else if (command == "PONG") {
-        int ping;
-        stream >> ping;
-
-        logMessage(LogReceive, QString("%1 %2").arg(QString(command), QString::number(ping)));
-
-        if (ping == d->m_ping)
-            watchHandler()->endCycle();
-    } else {
-        qDebug() << Q_FUNC_INFO << "Unknown command: " << command;
-        logMessage(LogReceive, QString("%1 UNKNOWN COMMAND!!").arg(QString(command)));
-    }
+    if (state() == InferiorRunOk)
+        notifyInferiorSpontaneousStop();
+    else
+        notifyInferiorStopOk();
 }
 
 void QmlEngine::disconnected()
@@ -1016,14 +692,9 @@ void QmlEngine::wrongSetupMessageBoxFinished(int result)
 
 void QmlEngine::executeDebuggerCommand(const QString& command)
 {
-    QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
-    QByteArray cmd = "EXEC";
-    QByteArray console = "console";
-    rs << cmd << console << command;
-    logMessage(LogSend, QString("%1 %2 %3").arg(QString(cmd), QString(console),
+    logMessage(LogSend, QString("%1 %2 %3").arg(QString("EXEC"), QString("console"),
                                                       QString(command)));
-    sendMessage(reply);
+    d->m_adapter.activeDebuggerClient()->executeDebuggerCommand(command);
 }
 
 
@@ -1034,7 +705,7 @@ QString QmlEngine::qmlImportPath() const
 
 void QmlEngine::logMessage(LogDirection direction, const QString &message)
 {
-    QString msg = "JSDebugger";
+    QString msg = "QmlDebugger";
     if (direction == LogSend) {
         msg += " sending ";
     } else {

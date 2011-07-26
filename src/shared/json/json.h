@@ -30,18 +30,18 @@
 **
 **************************************************************************/
 
-#ifndef SYMBIANUTILS_JSON_H
-#define SYMBIANUTILS_JSON_H
+#ifndef JSON_H
+#define JSON_H
 
-#include "symbianutils_global.h"
+#include "json_global.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QStringList>
 #include <QtCore/QVector>
 
-namespace Coda {
+namespace Json {
 
-class SYMBIANUTILS_EXPORT JsonValue
+class JSON_EXPORT JsonValue
 {
 public:
     JsonValue() : m_type(Invalid) {}
@@ -106,7 +106,7 @@ private:
  * Note that strings get double quotes and JSON-escaping, characters should be
  * used for the array/hash delimiters.
  * */
-class SYMBIANUTILS_EXPORT JsonInputStream {
+class JSON_EXPORT JsonInputStream {
 public:
     explicit JsonInputStream(QByteArray &a) : m_target(a) {}
 
@@ -120,6 +120,9 @@ public:
 
     // Format as array
     JsonInputStream &operator<<(const QVector<QByteArray> &ba);
+
+    //Format as array
+    JsonInputStream &operator<<(const QList<int> &in);
 
     JsonInputStream &operator<<(bool b);
 
@@ -137,6 +140,6 @@ private:
     QByteArray &m_target;
 };
 
-} // namespace Coda
+} //namespace Json
 
-#endif // SYMBIANUTILS_JSON_H
+#endif // JSON_H
