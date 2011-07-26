@@ -58,7 +58,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMainWindow>
 
-enum ModelRoles { VersionIdRole = Qt::UserRole, BuildLogRole, BuildRunningRole};
+enum ModelRoles { VersionIdRole = Qt::UserRole, ToolChainIdRole, BuildLogRole, BuildRunningRole};
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;
@@ -172,6 +172,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
         item->setText(0, version->displayName());
         item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
         item->setData(0, VersionIdRole, version->uniqueId());
+        item->setData(0, ToolChainIdRole, defaultToolChainId(version));
         const ValidityInfo info = validInformation(version);
         item->setIcon(0, info.icon);
     }
@@ -204,6 +205,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<BaseQtVersion *>
 
     connect(m_debuggingHelperUi->showLogButton, SIGNAL(clicked()),
             this, SLOT(slotShowDebuggingBuildLog()));
+    connect(m_debuggingHelperUi->toolChainComboBox, SIGNAL(activated(int)),
+            this, SLOT(selectedToolChainChanged(int)));
 
     connect(m_ui->cleanUpButton, SIGNAL(clicked()), this, SLOT(cleanUpQtVersions()));
     userChangedCurrentVersion();
@@ -326,13 +329,28 @@ void QtOptionsPageWidget::toolChainsUpdated()
 {
     for (int i = 0; i < m_versions.count(); ++i) {
         QTreeWidgetItem *item = treeItemForIndex(i);
-        if (item == m_ui->qtdirList->currentItem())
+        if (item == m_ui->qtdirList->currentItem()) {
             updateDescriptionLabel();
-        else {
+            updateDebuggingHelperUi();
+        } else {
             const ValidityInfo info = validInformation(m_versions.at(i));
             item->setIcon(0, info.icon);
         }
     }
+}
+
+void QtOptionsPageWidget::selectedToolChainChanged(int comboIndex)
+{
+    const int index = currentIndex();
+    if (index < 0)
+        return;
+
+    QTreeWidgetItem *item = treeItemForIndex(index);
+    QTC_ASSERT(item, return);
+
+    QString toolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(comboIndex).toString();
+
+    item->setData(0, ToolChainIdRole, toolChainId);
 }
 
 void QtOptionsPageWidget::qtVersionsDumpUpdated(const QString &qmakeCommand)
@@ -422,6 +440,14 @@ QList<ProjectExplorer::ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtV
     }
 
     return toolChains.values();
+}
+
+QString QtOptionsPageWidget::defaultToolChainId(const BaseQtVersion *version)
+{
+    QList<ProjectExplorer::ToolChain*> possibleToolChains = toolChains(version);
+    if (!possibleToolChains.isEmpty())
+        return possibleToolChains.first()->id();
+    return QString();
 }
 
 void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools)
@@ -569,6 +595,7 @@ void QtOptionsPageWidget::addQtDir()
         item->setText(0, version->displayName());
         item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
         item->setData(0, VersionIdRole, version->uniqueId());
+        item->setData(0, ToolChainIdRole, defaultToolChainId(version));
         item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
         m_ui->qtdirList->setCurrentItem(item); // should update the rest of the ui
         m_versionUi->nameEdit->setFocus();
@@ -624,6 +651,7 @@ void QtOptionsPageWidget::editPath()
     item->setText(0, version->displayName());
     item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
     item->setData(0, VersionIdRole, version->uniqueId());
+    item->setData(0, ToolChainIdRole, defaultToolChainId(version));
     item->setIcon(0, version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
 }
 
@@ -780,8 +808,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
                                                                 & !isBuildingQmlObserver);
 
         QList<ProjectExplorer::ToolChain*> toolchains = toolChains(currentVersion());
-        QString selectedToolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(
-                    m_debuggingHelperUi->toolChainComboBox->currentIndex()).toString();
+        QString selectedToolChainId = currentItem->data(0, ToolChainIdRole).toString();
         m_debuggingHelperUi->toolChainComboBox->clear();
         for (int i = 0; i < toolchains.size(); ++i) {
             if (!toolchains.at(i)->isValid())
