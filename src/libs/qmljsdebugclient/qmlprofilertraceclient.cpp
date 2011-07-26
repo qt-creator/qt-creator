@@ -40,10 +40,8 @@ public:
         : inProgressRanges(0)
         , maximumTime(0)
         , recording(false)
-        , nestingLevel(0)
     {
         ::memset(rangeCount, 0, MaximumQmlEventType * sizeof(int));
-        ::memset(nestingInType, 0, MaximumQmlEventType * sizeof(int));
     }
 
     qint64 inProgressRanges;
@@ -53,8 +51,6 @@ public:
     int rangeCount[MaximumQmlEventType];
     qint64 maximumTime;
     bool recording;
-    int nestingLevel;
-    int nestingInType[MaximumQmlEventType];
 };
 
 } // namespace QmlJsDebugClient
@@ -77,8 +73,6 @@ QmlProfilerTraceClient::~QmlProfilerTraceClient()
 void QmlProfilerTraceClient::clearData()
 {
     ::memset(d->rangeCount, 0, MaximumQmlEventType * sizeof(int));
-    ::memset(d->nestingInType, 0, MaximumQmlEventType * sizeof(int));
-    d->nestingLevel = 0;
     emit cleared();
 }
 
@@ -151,8 +145,6 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
             d->rangeStartTimes[range].push(time);
             d->inProgressRanges |= (static_cast<qint64>(1) << range);
             ++d->rangeCount[range];
-            ++d->nestingLevel;
-            ++d->nestingInType[range];
         } else if (messageType == RangeData) {
             QString data;
             stream >> data;
@@ -183,10 +175,7 @@ void QmlProfilerTraceClient::messageReceived(const QByteArray &data)
                 Location location = d->rangeLocations[range].count() ? d->rangeLocations[range].pop() : Location();
 
                 qint64 startTime = d->rangeStartTimes[range].pop();
-                emit this->range((QmlEventType)range, d->nestingLevel, d->nestingInType[range], startTime,
-                                 time - startTime, data, location.fileName, location.line);
-                --d->nestingLevel;
-                --d->nestingInType[range];
+                emit this->range((QmlEventType)range, startTime, time - startTime, data, location.fileName, location.line);
                 if (d->rangeCount[range] == 0) {
                     int count = d->rangeDatas[range].count() +
                                 d->rangeStartTimes[range].count() +

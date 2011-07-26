@@ -32,10 +32,9 @@
 
 .pragma library
 
-var ranges = [ ];
 var xmargin = 0;
 var ymargin = 0;
-var nestingDepth = [];
+var qmlEventList = 0;
 
 var names = [ "Painting", "Compiling", "Creating", "Binding", "Handling Signal"]
 //### need better way to manipulate color from QML. In the meantime, these need to be kept in sync.
@@ -45,10 +44,8 @@ var xRayColors = [ "#6699CCB3", "#6699CCCC", "#6699B3CC", "#669999CC", "#66CC99B
 
 function reset()
 {
-    ranges = [];
     xmargin = 0;
     ymargin = 0;
-    nestingDepth = [];
 }
 
 //draw background of the graph
@@ -65,26 +62,26 @@ function drawGraph(canvas, ctxt, region)
 //draw the actual data to be graphed
 function drawData(canvas, ctxt, region)
 {
-    if (ranges.length == 0)
+    if ((!qmlEventList) || qmlEventList.count() == 0)
         return;
 
     var width = canvas.canvasSize.width - xmargin;
     var height = canvas.height - ymargin;
 
-    var sumValue = ranges[ranges.length - 1].start + ranges[ranges.length - 1].duration - ranges[0].start;
+    var sumValue = qmlEventList.lastTimeMark() - qmlEventList.firstTimeMark();
     var spacing = width / sumValue;
 
     ctxt.fillStyle = "rgba(0,0,0,1)";
     var highest = [0,0,0,0,0];
 
     //### only draw those in range
-    for (var ii = 0; ii < ranges.length; ++ii) {
+    for (var ii = 0; ii < qmlEventList.count(); ++ii) {
 
-        var xx = (ranges[ii].start - ranges[0].start) * spacing + xmargin;
+        var xx = (qmlEventList.getStartTime(ii) - qmlEventList.firstTimeMark()) * spacing + xmargin;
         if (xx > region.x + region.width)
             continue;
 
-        var size = ranges[ii].duration * spacing;
+        var size = qmlEventList.getDuration(ii) * spacing;
         if (xx + size < region.x)
             continue;
 
@@ -92,9 +89,10 @@ function drawData(canvas, ctxt, region)
             size = 0.5;
 
         xx = Math.round(xx);
-        if (xx + size > highest[ranges[ii].type]) {
-            ctxt.fillRect(xx, ranges[ii].type*10, size, 10);
-            highest[ranges[ii].type] = xx+size;
+        var ty = qmlEventList.getType(ii);
+        if (xx + size > highest[ty]) {
+            ctxt.fillRect(xx, ty*10, size, 10);
+            highest[ty] = xx+size;
         }
     }
 }
@@ -107,12 +105,12 @@ function plot(canvas, ctxt, region)
 
 function xScale(canvas)
 {
-    if (ranges.length === 0)
+    if ((!qmlEventList) || qmlEventList.count() == 0)
         return;
 
     var width = canvas.canvasSize.width - xmargin;
 
-    var sumValue = ranges[ranges.length - 1].start + ranges[ranges.length - 1].duration - ranges[0].start;
+    var sumValue = qmlEventList.lastTimeMark() - qmlEventList.firstTimeMark();
     var spacing = sumValue / width;
     return spacing;
 }

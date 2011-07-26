@@ -35,38 +35,10 @@
 
 #include <QTreeView>
 #include <qmljsdebugclient/qmlprofilereventtypes.h>
+#include "qmlprofilereventlist.h"
 
 namespace QmlProfiler {
 namespace Internal {
-
-struct QmlEventData
-{
-    QmlEventData() : displayname(0) , filename(0) , location(0) , details(0),
-        line(0), eventType(QmlJsDebugClient::MaximumQmlEventType), level(-1), parentList(0), childrenList(0) {}
-    ~QmlEventData() {
-        delete displayname;
-        delete filename;
-        delete location;
-        delete parentList;
-        delete childrenList;
-    }
-    QString *displayname;
-    QString *filename;
-    QString *location;
-    QString *details;
-    int line;
-    QmlJsDebugClient::QmlEventType eventType;
-    qint64 level;
-    QList< QmlEventData *> *parentList;
-    QList< QmlEventData *> *childrenList;
-    qint64 duration;
-    qint64 calls;
-    qint64 minTime;
-    qint64 maxTime;
-    double timePerCall;
-    double percentOfTime;
-};
-
 
 typedef QHash<QString, QmlEventData *> QmlEventHash;
 typedef QList<QmlEventData *> QmlEventList;
@@ -75,31 +47,6 @@ enum ItemRole {
     LocationRole = Qt::UserRole+1,
     FilenameRole = Qt::UserRole+2,
     LineRole = Qt::UserRole+3
-};
-
-class QmlProfilerEventStatistics : public QObject
-{
-    Q_OBJECT
-public:
-
-    explicit QmlProfilerEventStatistics(QObject *parent = 0);
-    ~QmlProfilerEventStatistics();
-
-    QmlEventList getEventList() const;
-    int eventCount() const;
-
-signals:
-    void dataReady();
-
-public slots:
-    void clear();
-    void addRangedEvent(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length,
-                        const QStringList &data, const QString &fileName, int line);
-    void complete();
-
-private:
-    class QmlProfilerEventStatisticsPrivate;
-    QmlProfilerEventStatisticsPrivate *d;
 };
 
 class QmlProfilerEventsView : public QTreeView
@@ -130,16 +77,17 @@ public:
         MaxViewTypes
     };
 
-    explicit QmlProfilerEventsView(QWidget *parent, QmlProfilerEventStatistics *model);
+    explicit QmlProfilerEventsView(QWidget *parent, QmlProfilerEventList *model);
     ~QmlProfilerEventsView();
 
-    void setEventStatisticsModel( QmlProfilerEventStatistics *model );
+    void setEventStatisticsModel( QmlProfilerEventList *model );
     void setFieldViewable(Fields field, bool show);
     void setViewType(ViewTypes type);
     void setShowAnonymousEvents( bool showThem );
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber);
+    void contextMenuRequested(const QPoint &position);
 
 public slots:
     void clear();
@@ -148,6 +96,7 @@ public slots:
 
 private:
     void setHeaderLabels();
+    void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
     class QmlProfilerEventsViewPrivate;

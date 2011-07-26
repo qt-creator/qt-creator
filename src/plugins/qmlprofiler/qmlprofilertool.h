@@ -36,6 +36,8 @@
 #include <analyzerbase/ianalyzertool.h>
 #include <analyzerbase/ianalyzerengine.h>
 
+#include <QtCore/QPoint>
+
 namespace QmlProfiler {
 namespace Internal {
 
@@ -74,6 +76,8 @@ public slots:
 
     void clearDisplay();
 
+    void showContextMenu(const QPoint &position);
+
 signals:
     void setTimeLabel(const QString &);
     void fetchingData(bool);
@@ -84,6 +88,8 @@ private slots:
     void attach();
     void tryToConnect();
     void connectionStateChanged();
+    void showSaveDialog();
+    void showLoadDialog();
 
 private:
     void connectToClient();

@@ -4,14 +4,7 @@ import "MainView.js" as Plotter
 Rectangle {
     id: statusDisplay
 
-    property real percentage : 0
-    property int eventCount:  root.eventCount
-    onEventCountChanged:  {
-        if (state=="loading" && eventCount > 0 && root.elapsedTime > 0) {
-            percentage = Math.min(1.0,
-                (Plotter.ranges[Plotter.ranges.length-1].start - Plotter.ranges[0].start) / root.elapsedTime * 1e-9 );
-        }
-    }
+    property real percentage : root.progress
 
     width: Math.max(200, statusText.width+20);
     height: displayColumn.height + 20

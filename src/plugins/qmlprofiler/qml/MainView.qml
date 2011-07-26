@@ -38,7 +38,8 @@ Rectangle {
     id: root
 
     property bool dataAvailable: true;
-    property int eventCount: Plotter.ranges.length;
+    property int eventCount: 0;
+    property real progress: 0;
 
     // move the cursor in the editor
     signal updateCursorPosition
@@ -72,34 +73,35 @@ Rectangle {
     property bool mouseTracking: false;
 
     onSelectedEventIndexChanged: {
-        if ((!mouseTracking) && Plotter.ranges.length > 0
-                && selectedEventIndex > -1 && selectedEventIndex < Plotter.ranges.length) {
+        if ((!mouseTracking) && eventCount > 0
+                && selectedEventIndex > -1 && selectedEventIndex < eventCount) {
             // re-center flickable if necessary
-            var event = Plotter.ranges[selectedEventIndex];
             var xs = Plotter.xScale(canvas);
-            var startTime = Plotter.ranges[0].start;
-            if (rangeMover.value + startTime> event.start) {
+            var startTime = qmlEventList.firstTimeMark();
+            var eventStartTime = qmlEventList.getStartTime(selectedEventIndex);
+            var eventDuration = qmlEventList.getDuration(selectedEventIndex);
+            if (rangeMover.value + startTime > eventStartTime) {
                 rangeMover.x = Math.max(0,
-                    Math.floor((event.start - startTime) / xs - canvas.canvasWindow.x - rangeMover.zoomWidth/2) );
-            } else if (rangeMover.value + startTime + rangeMover.zoomWidth * xs < event.start + event.duration) {
-                rangeMover.x = Math.floor((event.start + event.duration - startTime) / xs - canvas.canvasWindow.x - rangeMover.zoomWidth/2);
+                    Math.floor((eventStartTime - startTime) / xs - canvas.canvasWindow.x - rangeMover.zoomWidth/2) );
+            } else if (rangeMover.value + startTime + rangeMover.zoomWidth * xs < eventStartTime + eventDuration) {
+                rangeMover.x = Math.floor((eventStartTime + eventDuration - startTime) / xs - canvas.canvasWindow.x - rangeMover.zoomWidth/2);
             }
         }
     }
 
     function nextEvent() {
-        if (Plotter.ranges.length > 0) {
+        if (eventCount > 0) {
             ++selectedEventIndex;
-            if (selectedEventIndex >= Plotter.ranges.length)
+            if (selectedEventIndex >= eventCount)
                 selectedEventIndex = 0;
         }
     }
 
     function prevEvent() {
-        if (Plotter.ranges.length > 0) {
+        if (eventCount > 0) {
             --selectedEventIndex;
             if (selectedEventIndex < 0)
-                selectedEventIndex = Plotter.ranges.length - 1;
+                selectedEventIndex = eventCount - 1;
         }
     }
 
@@ -127,46 +129,29 @@ Rectangle {
         rangeMover.updateZoomControls();
     }
 
-    //handle debug data coming from C++
     Connections {
-        target: connection
-
-        onRange: {
-            if (root.dataAvailable) {
-                root.clearData();
-            }
-
-            // todo: consider nestingLevel
-            if (!root.dataAvailable) {
-                if (!Plotter.nestingDepth[type])
-                    Plotter.nestingDepth[type] = nestingInType;
-                else
-                    Plotter.nestingDepth[type] = Math.max(Plotter.nestingDepth[type], nestingInType);
-                Plotter.ranges.push( { type: type, start: startTime, duration: length, label: data, fileName: fileName, line: line, nestingLevel: nestingInType, nestingDepth: Plotter.nestingDepth[type] } );
-                if (nestingInType == 1)
-                    Plotter.nestingDepth[type] = 1;
-                root.eventCount = Plotter.ranges.length;
-
-            }
+        target: qmlEventList
+        onCountChanged: {
+            eventCount = qmlEventList.count();
+            if (eventCount == 0)
+                root.clearAll();
+            if (eventCount > 1) {
+                root.progress = Math.min(1.0,
+                    (qmlEventList.lastTimeMark() - qmlEventList.firstTimeMark()) / root.elapsedTime * 1e-9 ) * 0.5;
+            } else
+            root.progress = 0;
         }
 
-        onComplete: {
-            root.dataAvailable = true;
-            if (Plotter.ranges.length > 0) {
-                view.visible = true;
-                view.setRanges(Plotter.ranges);
-                view.updateTimeline();
-                canvas.requestPaint();
-                rangeMover.x = 1    //### hack to get view to display things immediately
-                rangeMover.x = 0
-                rangeMover.opacity = 1
+        onParsingStatusChanged: {
+            root.dataAvailable = false;
+        }
+
+        onDataReady: {
+            if (eventCount > 0) {
+                view.clearData();
+                view.rebuildCache();
             }
         }
-
-        onDataCleared: {
-            root.clearAll();
-        }
-
     }
 
     // Elapsed
@@ -198,8 +183,8 @@ Rectangle {
         height: flick.height + labels.y
         anchors.left: flick.left
         anchors.right: flick.right
-        startTime: rangeMover.x * Plotter.xScale(canvas);
-        endTime: (rangeMover.x + rangeMover.zoomWidth) * Plotter.xScale(canvas);
+        startTime: rangeMover.x * Plotter.xScale(canvas) + qmlEventList.firstTimeMark();
+        endTime: (rangeMover.x + rangeMover.zoomWidth) * Plotter.xScale(canvas) + qmlEventList.firstTimeMark();
     }
 
     function hideRangeDetails() {
@@ -241,6 +226,9 @@ Rectangle {
         TimelineView {
             id: view
 
+            eventList: qmlEventList;
+            onEventListChanged: Plotter.qmlEventList = qmlEventList;
+
             width: flick.width;
             height: flick.contentHeight;
 
@@ -255,6 +243,20 @@ Rectangle {
             startTime: rangeMover.value
             endTime: startTime + (rangeMover.zoomWidth*Plotter.xScale(canvas))
             onEndTimeChanged: updateTimeline()
+
+            onCachedProgressChanged: root.progress = 0.5 + cachedProgress * 0.5;
+            onCacheReady: {
+                root.progress = 1.0;
+                root.dataAvailable = true;
+                if (root.eventCount > 0) {
+                    view.visible = true;
+                    view.updateTimeline();
+                    canvas.requestPaint();
+                    rangeMover.x = 1    //### hack to get view to display things immediately
+                    rangeMover.x = 0
+                    rangeMover.opacity = 1
+                }
+            }
 
             delegate: Rectangle {
                 id: obj
@@ -298,10 +300,10 @@ Rectangle {
 
                 function enableSelected(x,y) {
                     myColor = Qt.darker(baseColor, 1.2)
-                    rangeDetails.duration = duration
-                    rangeDetails.label = label
-                    rangeDetails.file = fileName
-                    rangeDetails.line = line
+                    rangeDetails.duration = qmlEventList.getDuration(index)/1000.0;
+                    rangeDetails.label = qmlEventList.getDetails(index);
+                    rangeDetails.file = qmlEventList.getFilename(index);
+                    rangeDetails.line = qmlEventList.getLine(index);
                     rangeDetails.type = Plotter.names[type]
 
                     var margin = 10;

@@ -27,7 +27,8 @@ SOURCES += \
     codaqmlprofilerrunner.cpp \
     remotelinuxqmlprofilerrunner.cpp \
     qmlprofilereventview.cpp \
-    qmlprofilerruncontrolfactory.cpp
+    qmlprofilerruncontrolfactory.cpp \
+    qmlprofilereventlist.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -43,7 +44,8 @@ HEADERS += \
     codaqmlprofilerrunner.h \
     remotelinuxqmlprofilerrunner.h \
     qmlprofilereventview.h \
-    qmlprofilerruncontrolfactory.h
+    qmlprofilerruncontrolfactory.h\
+    qmlprofilereventlist.h
 
 RESOURCES += \
     qml/qml.qrc

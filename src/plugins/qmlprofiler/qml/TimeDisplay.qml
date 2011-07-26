@@ -164,7 +164,7 @@ TiledCanvas {
         }
 
         onMousePositionChanged: {
-            if (!Plotter.ranges.length)
+            if (!root.eventCount)
                 return;
 
             if (!pressed && timeDisplayEnd.visible)

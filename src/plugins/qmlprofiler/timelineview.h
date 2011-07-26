@@ -35,6 +35,7 @@
 
 #include <QtDeclarative/QDeclarativeItem>
 #include <QtScript/QScriptValue>
+#include <qmlprofilereventlist.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -47,6 +48,8 @@ class TimelineView : public QDeclarativeItem
     Q_PROPERTY(qint64 endTime READ endTime WRITE setEndTime NOTIFY endTimeChanged)
     Q_PROPERTY(qreal startX READ startX WRITE setStartX NOTIFY startXChanged)
     Q_PROPERTY(qreal totalWidth READ totalWidth NOTIFY totalWidthChanged)
+    Q_PROPERTY(QObject* eventList READ eventList WRITE setEventList NOTIFY eventListChanged)
+    Q_PROPERTY(qreal cachedProgress READ cachedProgress NOTIFY cachedProgressChanged)
 
 public:
     explicit TimelineView(QDeclarativeItem *parent = 0);
@@ -76,16 +79,34 @@ public:
         return m_totalWidth;
     }
 
+    qreal cachedProgress() const;
+
+    QmlProfilerEventList *eventList() const { return m_eventList; }
+    void setEventList(QObject *eventList)
+    {
+        m_eventList = qobject_cast<QmlProfilerEventList *>(eventList);
+        emit eventListChanged(m_eventList);
+    }
+
+    Q_INVOKABLE qint64 getDuration(int index) const;
+    Q_INVOKABLE QString getFilename(int index) const;
+    Q_INVOKABLE int getLine(int index) const;
+    Q_INVOKABLE QString getDetails(int index) const;
+    Q_INVOKABLE void rebuildCache();
+
 signals:
     void delegateChanged(QDeclarativeComponent * arg);
     void startTimeChanged(qint64 arg);
     void endTimeChanged(qint64 arg);
     void startXChanged(qreal arg);
     void totalWidthChanged(qreal arg);
+    void eventListChanged(QmlProfilerEventList *list);
+
+    void cachedProgressChanged();
+    void cacheReady();
 
 public slots:
     void clearData();
-    void setRanges(const QScriptValue &value);
     void updateTimeline(bool updateStartX = true);
 
     void setDelegate(QDeclarativeComponent * arg)
@@ -118,27 +139,31 @@ protected:
     void componentComplete();
 
 private:
+    void createItem(int itemIndex);
+    void updateItemPosition(int itemIndex);
+
+public slots:
+    void increaseCache();
+    void purgeCache();
+
+private:
     QDeclarativeComponent * m_delegate;
-    QScriptValue m_ranges;
-    typedef QList<QScriptValue> ValueList;
-    QList<ValueList> m_rangeList;
     QHash<int,QDeclarativeItem*> m_items;
+    qint64 m_itemCount;
     qint64 m_startTime;
     qint64 m_endTime;
     qreal m_startX;
+    qreal m_spacing;
     int prevMin;
     int prevMax;
-    QList<qreal> m_starts;
-    QList<qreal> m_ends;
 
-    struct PrevLimits {
-        PrevLimits(int _min, int _max) : min(_min), max(_max) {}
-        int min;
-        int max;
-    };
+    QmlProfilerEventList *m_eventList;
 
-    QList<PrevLimits> m_prevLimits;
     qreal m_totalWidth;
+    int m_lastCachedIndex;
+    bool m_creatingCache;
+    int m_oldCacheSize;
+
 };
 
 } // namespace Internal

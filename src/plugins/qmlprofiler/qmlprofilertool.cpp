@@ -35,6 +35,7 @@
 #include "qmlprofilerplugin.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerattachdialog.h"
+#include "qmlprofilereventlist.h"
 #include "qmlprofilereventview.h"
 
 #include "tracewindow.h"
@@ -76,6 +77,8 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QMessageBox>
 #include <QtGui/QDockWidget>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMenu>
 
 using namespace Analyzer;
 using namespace QmlProfiler::Internal;
@@ -93,7 +96,6 @@ public:
     QTimer m_connectionTimer;
     int m_connectionAttempts;
     TraceWindow *m_traceWindow;
-    QmlProfilerEventStatistics *m_statistics;
     QmlProfilerEventsView *m_eventsView;
     QmlProfilerEventsView *m_calleeView;
     QmlProfilerEventsView *m_callerView;
@@ -163,6 +165,19 @@ QString QmlProfilerTool::description() const
 IAnalyzerTool::ToolMode QmlProfilerTool::toolMode() const
 {
     return AnyMode;
+}
+
+void QmlProfilerTool::showContextMenu(const QPoint &position)
+{
+    QMenu menu;
+    QAction *loadAction = menu.addAction(tr("Load QML Trace"));
+    QAction *saveAction = menu.addAction(tr("Save QML Trace"));
+
+    QAction *selectedAction = menu.exec(position);
+    if (selectedAction == loadAction)
+        showLoadDialog();
+    if (selectedAction == saveAction)
+        showSaveDialog();
 }
 
 IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp,
@@ -239,27 +254,26 @@ QWidget *QmlProfilerTool::createWidgets()
 
     connect(d->m_traceWindow, SIGNAL(gotoSourceLocation(QString,int)),this, SLOT(gotoSourceLocation(QString,int)));
     connect(d->m_traceWindow, SIGNAL(timeChanged(qreal)), this, SLOT(updateTimer(qreal)));
+    connect(d->m_traceWindow, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
-    d->m_statistics = new QmlProfilerEventStatistics(mw);
-    d->m_eventsView = new QmlProfilerEventsView(mw, d->m_statistics);
+    d->m_eventsView = new QmlProfilerEventsView(mw, d->m_traceWindow->getEventList());
     d->m_eventsView->setViewType(QmlProfilerEventsView::EventsView);
 
-    connect(d->m_traceWindow, SIGNAL(range(int,int,int,qint64,qint64,QStringList,QString,int)),
-            d->m_statistics, SLOT(addRangedEvent(int,int,int,qint64,qint64,QStringList,QString,int)));
-    connect(d->m_traceWindow, SIGNAL(viewUpdated()),
-            d->m_statistics, SLOT(complete()));
     connect(d->m_eventsView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_eventsView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
-    d->m_calleeView = new QmlProfilerEventsView(mw, d->m_statistics);
+    d->m_calleeView = new QmlProfilerEventsView(mw, d->m_traceWindow->getEventList());
     d->m_calleeView->setViewType(QmlProfilerEventsView::CalleesView);
     connect(d->m_calleeView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_calleeView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
-    d->m_callerView = new QmlProfilerEventsView(mw, d->m_statistics);
+    d->m_callerView = new QmlProfilerEventsView(mw, d->m_traceWindow->getEventList());
     d->m_callerView->setViewType(QmlProfilerEventsView::CallersView);
     connect(d->m_callerView, SIGNAL(gotoSourceLocation(QString,int)),
             this, SLOT(gotoSourceLocation(QString,int)));
+    connect(d->m_callerView, SIGNAL(contextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
     QDockWidget *eventsDock = AnalyzerManager::createDockWidget
             (this, tr("Events"), d->m_eventsView, Qt::BottomDockWidgetArea);
@@ -403,7 +417,7 @@ void QmlProfilerTool::gotoSourceLocation(const QString &fileUrl, int lineNumber)
 }
 
 void QmlProfilerTool::correctTimer() {
-    if (d->m_statistics->eventCount() == 0)
+    if (d->m_traceWindow->getEventList()->count() == 0)
         updateTimer(0);
 }
 
@@ -423,7 +437,6 @@ void QmlProfilerTool::updateProjectFileList()
 void QmlProfilerTool::clearDisplay()
 {
     d->m_traceWindow->clearDisplay();
-    d->m_statistics->clear();
     d->m_eventsView->clear();
     d->m_calleeView->clear();
     d->m_callerView->clear();
@@ -545,4 +558,27 @@ void QmlProfilerTool::logError(const QString &msg)
     // TODO: Rather show errors in the application ouput
     Core::MessageManager *messageManager = Core::MessageManager::instance();
     messageManager->printToOutputPane(msg, true);
+}
+
+void QmlProfilerTool::showSaveDialog()
+{
+    Core::ICore *core = Core::ICore::instance();
+    QString filename = QFileDialog::getSaveFileName(core->mainWindow(), tr("Save QML Trace"), QString(), tr("QML traces (*.xml)"));
+    if (!filename.isEmpty()) {
+        if (!filename.endsWith(QLatin1String(".xml")))
+            filename += QLatin1String(".xml");
+        d->m_traceWindow->getEventList()->save(filename);
+    }
+}
+
+void QmlProfilerTool::showLoadDialog()
+{
+    Core::ICore *core = Core::ICore::instance();
+    QString filename = QFileDialog::getOpenFileName(core->mainWindow(), tr("Load QML Trace"), QString(), tr("QML traces (*.xml)"));
+
+    if (!filename.isEmpty()) {
+        // delayed load (prevent graphical artifacts due to long load time)
+        d->m_traceWindow->getEventList()->setFilename(filename);
+        QTimer::singleShot(100, d->m_traceWindow->getEventList(), SLOT(load()));
+    }
 }

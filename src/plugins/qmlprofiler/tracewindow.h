@@ -34,6 +34,7 @@
 #define TRACEWINDOW_H
 
 #include <qmljsdebugclient/qmlprofilertraceclient.h>
+#include "qmlprofilereventlist.h"
 
 #include <QtCore/QPointer>
 #include <QtGui/QWidget>
@@ -55,6 +56,8 @@ public:
 
     void reset(QmlJsDebugClient::QDeclarativeDebugConnection *conn);
 
+    QmlProfilerEventList *getEventList() const;
+
     void setRecording(bool recording);
     bool isRecording() const;
 
@@ -69,7 +72,7 @@ signals:
     void viewUpdated();
     void gotoSourceLocation(const QString &fileUrl, int lineNumber);
     void timeChanged(qreal newTime);
-    void range(int type, int nestingLevel, int nestingInType, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
+    void range(int type, qint64 startTime, qint64 length, const QStringList &data, const QString &fileName, int line);
 
     void internalClearDisplay();
     void jumpToPrev();
@@ -78,11 +81,17 @@ signals:
     void zoomOut();
     void enableToolbar(bool);
 
+    void contextMenuRequested(const QPoint& position);
+
+private:
+    void contextMenuEvent(QContextMenuEvent *);
+
 private:
     QWeakPointer<QmlJsDebugClient::QmlProfilerTraceClient> m_plugin;
     QSize m_sizeHint;
 
     QDeclarativeView *m_view;
+    QmlProfilerEventList *m_eventList;
 };
 
 } // namespace Internal
