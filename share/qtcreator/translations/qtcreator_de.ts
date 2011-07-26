@@ -5284,7 +5284,7 @@ on slow machines. In this case, the value should be increased.</source>
     <name>Git::Internal::BranchDialog</name>
     <message>
         <source>Would you like to delete the &lt;b&gt;unmerged&lt;/b&gt; branch &apos;%1&apos;?</source>
-        <translation>Möchten Sie den Branch &apos;%1&apos; löschen? Es wurde noch keine &lt;b&gt;keine&lt;/b&gt; Merge-Operation durchgeführt?</translation>
+        <translation>Möchten Sie den Branch &apos;%1&apos; löschen? Es wurde noch &lt;b&gt;keine&lt;/b&gt; Merge-Operation durchgeführt?</translation>
     </message>
     <message>
         <source>Delete Branch</source>
