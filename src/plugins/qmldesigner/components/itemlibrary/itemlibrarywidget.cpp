@@ -45,7 +45,7 @@
 
 #include <QFileInfo>
 #include <QFileIconProvider>
-#include <QDirModel>
+#include <QFileSystemModel>
 #include <QStackedWidget>
 #include <QGridLayout>
 #include <QTabBar>
@@ -107,7 +107,7 @@ public:
     ItemLibraryWidgetPrivate(QObject *object);
 
     Internal::ItemLibraryModel *m_itemLibraryModel;
-    QDirModel *m_resourcesDirModel;
+    QFileSystemModel *m_resourcesFileSystemModel;
 
     QStackedWidget *m_stackedWidget;
     Utils::FilterLineEdit *m_lineEdit;
@@ -122,7 +122,7 @@ public:
 
 ItemLibraryWidgetPrivate::ItemLibraryWidgetPrivate(QObject *object) :
     m_itemLibraryModel(0),
-    m_resourcesDirModel(0),
+    m_resourcesFileSystemModel(0),
     m_stackedWidget(0),
     m_lineEdit(0),
     m_itemsView(0),
@@ -172,10 +172,10 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     connect(this, SIGNAL(resetItemsView()), rootItem, SLOT(resetView()));
 
     /* create Resources view and its model */
-    m_d->m_resourcesDirModel = new QDirModel(this);
-    m_d->m_resourcesDirModel->setIconProvider(&m_d->m_iconProvider);
+    m_d->m_resourcesFileSystemModel = new QFileSystemModel(this);
+    m_d->m_resourcesFileSystemModel->setIconProvider(&m_d->m_iconProvider);
     m_d->m_resourcesView = new Internal::ItemLibraryTreeView(this);
-    m_d->m_resourcesView->setModel(m_d->m_resourcesDirModel);
+    m_d->m_resourcesView->setModel(m_d->m_resourcesFileSystemModel);
     m_d->m_resourcesView->setIconSize(m_d->m_resIconSize);
 
     /* create image provider for loading item icons */
@@ -333,8 +333,9 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
             }
         }
 
-        m_d->m_resourcesDirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
-        m_d->m_resourcesDirModel->setNameFilters(nameFilterList);
+        m_d->m_resourcesFileSystemModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+        m_d->m_resourcesFileSystemModel->setNameFilterDisables(false);
+        m_d->m_resourcesFileSystemModel->setNameFilters(nameFilterList);
         m_d->m_resourcesView->expandToDepth(1);
         m_d->m_resourcesView->scrollToTop();
     }
@@ -454,8 +455,10 @@ void ItemLibraryWidget::updateSearch()
 
 void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
 {
-    if (m_d->m_resourcesView->model() == m_d->m_resourcesDirModel)
-        m_d->m_resourcesView->setRootIndex(m_d->m_resourcesDirModel->index(resourcePath));
+    if (m_d->m_resourcesView->model() == m_d->m_resourcesFileSystemModel) {
+        m_d->m_resourcesFileSystemModel->setRootPath(resourcePath);
+        m_d->m_resourcesView->setRootIndex(m_d->m_resourcesFileSystemModel->index(resourcePath));
+    }
     updateSearch();
 }
 

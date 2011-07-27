@@ -42,7 +42,7 @@
 #include <QPainter>
 #include <QLabel>
 #include <itemlibraryinfo.h>
-#include <QDirModel>
+#include <QFileSystemModel>
 #include <QProxyStyle>
 
 enum { debug = 0 };
@@ -120,9 +120,9 @@ void ItemLibraryTreeView::startDrag(Qt::DropActions /* supportedActions */)
     if (!mimeData)
         return;
 
-    QDirModel *dirModel = qobject_cast<QDirModel*>(model());
-    Q_ASSERT(dirModel);
-    QFileInfo fileInfo = dirModel->fileInfo(selectedIndexes().front());
+    QFileSystemModel *fileSystemModel = qobject_cast<QFileSystemModel*>(model());
+    Q_ASSERT(fileSystemModel);
+    QFileInfo fileInfo = fileSystemModel->fileInfo(selectedIndexes().front());
     QPixmap pixmap(fileInfo.absoluteFilePath());
     if (!pixmap.isNull()) {
         CustomItemLibraryDrag *drag = new CustomItemLibraryDrag(this);
@@ -137,10 +137,10 @@ void ItemLibraryTreeView::startDrag(Qt::DropActions /* supportedActions */)
 
 void ItemLibraryTreeView::setModel(QAbstractItemModel *model)
 {
-    QDirModel *dirModel = dynamic_cast<QDirModel *>(model);
-    if (dirModel) {
+    QFileSystemModel *fileSystemModel = dynamic_cast<QFileSystemModel *>(model);
+    if (fileSystemModel) {
         QTreeView::setModel(model);
-        m_delegate->setModel(dirModel);
+        m_delegate->setModel(fileSystemModel);
         setColumnHidden(1, true);
         setColumnHidden(2, true);
         setColumnHidden(3, true);
@@ -155,9 +155,9 @@ void ItemLibraryTreeView::activateItem( const QModelIndex & /*index*/)
         return;
 
     QString name;
-    QDirModel *dirModel = qobject_cast<QDirModel*>(model());
-    Q_ASSERT(dirModel);
-    QFileInfo fileInfo = dirModel->fileInfo(selectedIndexes().front());
+    QFileSystemModel *fileSystemModel = qobject_cast<QFileSystemModel*>(model());
+    Q_ASSERT(fileSystemModel);
+    QFileInfo fileInfo = fileSystemModel->fileInfo(selectedIndexes().front());
     QPixmap pixmap(fileInfo.absoluteFilePath());
     if (!pixmap.isNull()) {
         name = "image^" + fileInfo.absoluteFilePath();
@@ -195,7 +195,7 @@ QSize ResourceItemDelegate::sizeHint(const QStyleOptionViewItem &/*option*/,
     return icon.availableSizes().front() + QSize(25, 4);
 }
 
-void ResourceItemDelegate::setModel(QDirModel *model)
+void ResourceItemDelegate::setModel(QFileSystemModel *model)
 {
     m_model = model;
 }

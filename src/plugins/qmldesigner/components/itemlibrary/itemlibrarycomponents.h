@@ -42,7 +42,7 @@
 #include <QStyledItemDelegate>
 
 QT_BEGIN_NAMESPACE
-class QDirModel;
+class QFileSystemModel;
 class QLabel;
 QT_END_NAMESPACE
 
@@ -83,10 +83,10 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const;
 
-    void setModel(QDirModel *model);
+    void setModel(QFileSystemModel *model);
 
 private:
-    QDirModel *m_model;
+    QFileSystemModel *m_model;
 };
 
 } // namespace Internal
