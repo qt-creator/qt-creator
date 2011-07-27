@@ -193,6 +193,7 @@ protected:
     void setupFileUrl(const QUrl &fileUrl);
     void setupImports(const QVector<AddImportContainer> &container);
     void setupDummyData(const QUrl &fileUrl);
+    void setupDefaultDummyData();
     QList<ServerNodeInstance> setupInstances(const CreateSceneCommand &command);
 
     QList<QDeclarativeContext*> allSubContextsForObject(QObject *object);

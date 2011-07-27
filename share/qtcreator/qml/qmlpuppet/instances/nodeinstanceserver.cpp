@@ -400,6 +400,39 @@ void NodeInstanceServer::setupDummyData(const QUrl &fileUrl)
             loadDummyDataContext(dummyDataDirectory);
         }
     }
+
+    if (m_dummyContextObject.isNull())
+        setupDefaultDummyData();
+}
+
+void NodeInstanceServer::setupDefaultDummyData()
+{
+    QDeclarativeComponent component(engine());
+    QByteArray defaultContextObjectArray("import QtQuick 1.0\n"
+                                         "import QmlDesigner 1.0\n"
+                                         "DummyContextObject {\n"
+                                         "    parent: QtObject {\n"
+                                         "        property real width: 360\n"
+                                         "        property real height: 640\n"
+                                         "    }\n"
+                                         "}\n");
+
+    component.setData(defaultContextObjectArray, fileUrl());
+    m_dummyContextObject = component.create();
+
+    if (component.isError()) {
+        QList<QDeclarativeError> errors = component.errors();
+        foreach (const QDeclarativeError &error, errors) {
+            qWarning() << error;
+        }
+    }
+
+    if (m_dummyContextObject) {
+        qWarning() << "Loaded default dummy context object.";
+        m_dummyContextObject->setParent(this);
+    }
+
+    refreshBindings();
 }
 
 QList<ServerNodeInstance>  NodeInstanceServer::setupInstances(const CreateSceneCommand &command)
