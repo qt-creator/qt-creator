@@ -775,7 +775,11 @@ void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &
     if (auxiliaryContainer.instanceId() == 0 && (auxiliaryContainer.name() == QLatin1String("width") ||
                                         auxiliaryContainer.name() == QLatin1String("height"))) {
 
-        setInstancePropertyVariant(auxiliaryContainer);
+        if (!auxiliaryContainer.value().isNull()) {
+            setInstancePropertyVariant(auxiliaryContainer);
+        } else {
+            rootNodeInstance().resetProperty(auxiliaryContainer.name());
+        }
     }
 }
 
