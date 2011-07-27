@@ -165,7 +165,7 @@ private:
     Q_DISABLE_COPY(ClientProxy)
     void buildDebugIdHashRecursive(const QDeclarativeDebugObjectReference &ref);
 
-    Debugger::QmlAdapter *m_adapter;
+    QWeakPointer<Debugger::QmlAdapter> m_adapter;
     QDeclarativeEngineDebug *m_engineClient;
     QmlJSInspectorClient *m_inspectorClient;
 
