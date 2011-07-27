@@ -370,6 +370,9 @@ QExtGroupBox {
 
                     }
                 }
+                QWidget {
+
+                }
             }
         }
     }
