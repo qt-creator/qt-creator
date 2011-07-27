@@ -395,8 +395,10 @@ void NodeInstanceServer::setupDummyData(const QUrl &fileUrl)
 {
     if (!fileUrl.isEmpty()) {
         QStringList dummyDataDirectoryList = dummyDataDirectories(QFileInfo(fileUrl.toLocalFile()).path());
-        foreach (const QString &dummyDataDirectory, dummyDataDirectoryList)
+        foreach (const QString &dummyDataDirectory, dummyDataDirectoryList) {
             loadDummyDataFiles(dummyDataDirectory);
+            loadDummyDataContext(dummyDataDirectory);
+        }
     }
 }
 
@@ -1078,13 +1080,19 @@ void NodeInstanceServer::loadDummyDataFiles(const QString& directory)
 {
     QDir dir(directory, "*.qml");
     QList<QFileInfo> filePathList = dir.entryInfoList();
+    foreach (const QFileInfo &qmlFileInfo, filePathList) {
+        loadDummyDataFile(qmlFileInfo);
+    }
+}
+
+void NodeInstanceServer::loadDummyDataContext(const QString& directory)
+{
+    QDir dir(directory+"/context", "*.qml");
+    QList<QFileInfo> filePathList = dir.entryInfoList();
     QString baseName = QFileInfo(fileUrl().toLocalFile()).completeBaseName();
     foreach (const QFileInfo &qmlFileInfo, filePathList) {
-        if (!qmlFileInfo.completeBaseName().contains("_dummycontext")) {
-            loadDummyDataFile(qmlFileInfo);
-        } else if (qmlFileInfo.completeBaseName() == baseName+"_dummycontext") {
+        if (qmlFileInfo.completeBaseName() == baseName)
             loadDummyContextObjectFile(qmlFileInfo);
-        }
     }
 }
 
