@@ -266,6 +266,38 @@ private:
         m_model->leaveFunctionDeclaration();
     }
 
+    bool visit(AST::BinaryExpression *binExp)
+    {
+        AST::IdentifierExpression *lhsIdent = AST::cast<AST::IdentifierExpression *>(binExp->left);
+        AST::ObjectLiteral *rhsObjLit = AST::cast<AST::ObjectLiteral *>(binExp->right);
+
+        if (lhsIdent && rhsObjLit && (lhsIdent->name->asString() == "testcase")
+            && (binExp->op == QSOperator::Assign)) {
+            QModelIndex index = m_model->enterTestCase(rhsObjLit);
+            m_nodeToIndex.insert(rhsObjLit, index);
+
+            if (AST::PropertyNameAndValueList *properties = rhsObjLit->properties)
+                visitProperties(properties);
+
+            m_model->leaveTestCase();
+        }
+        return true;
+    }
+
+    void visitProperties(AST::PropertyNameAndValueList *properties)
+    {
+        while (properties) {
+            QModelIndex index = m_model->enterTestCaseProperties(properties);
+            m_nodeToIndex.insert(properties, index);
+
+            if (AST::ObjectLiteral *objLiteral = AST::cast<AST::ObjectLiteral *>(properties->value))
+                visitProperties(objLiteral->properties);
+
+            m_model->leaveTestCaseProperties();
+            properties = properties->next;
+        }
+    }
+
     QmlOutlineModel *m_model;
 
     QHash<AST::Node*, QModelIndex> m_nodeToIndex;
@@ -553,6 +585,49 @@ void QmlOutlineModel::leaveFunctionDeclaration()
     leaveNode();
 }
 
+QModelIndex QmlOutlineModel::enterTestCase(AST::ObjectLiteral *objectLiteral)
+{
+    QMap<int, QVariant> objectData;
+
+    objectData.insert(Qt::DisplayRole, "testcase");
+    objectData.insert(ItemTypeRole, ElementBindingType);
+
+    QmlOutlineItem *item = enterNode(objectData, objectLiteral, 0, m_icons->objectDefinitionIcon());
+
+    return item->index();
+}
+
+void QmlOutlineModel::leaveTestCase()
+{
+    leaveNode();
+}
+
+QModelIndex QmlOutlineModel::enterTestCaseProperties(AST::PropertyNameAndValueList *propertyNameAndValueList)
+{
+    QMap<int, QVariant> objectData;
+    if (AST::IdentifierPropertyName *propertyName = AST::cast<AST::IdentifierPropertyName *>(propertyNameAndValueList->name)) {
+        objectData.insert(Qt::DisplayRole, propertyName->id->asString());
+        objectData.insert(ItemTypeRole, ElementBindingType);
+        QmlOutlineItem *item;
+        if (propertyNameAndValueList->value->kind == AST::Node::Kind_FunctionExpression) {
+            item = enterNode(objectData, propertyNameAndValueList, 0, m_icons->functionDeclarationIcon());
+        } else if (propertyNameAndValueList->value->kind == AST::Node::Kind_ObjectLiteral) {
+            item = enterNode(objectData, propertyNameAndValueList, 0, m_icons->objectDefinitionIcon());
+        } else {
+            item = enterNode(objectData, propertyNameAndValueList, 0, m_icons->scriptBindingIcon());
+        }
+
+        return item->index();
+    } else {
+        return QModelIndex();
+    }
+}
+
+void QmlOutlineModel::leaveTestCaseProperties()
+{
+    leaveNode();
+}
+
 AST::Node *QmlOutlineModel::nodeForIndex(const QModelIndex &index) const
 {
     QTC_ASSERT(index.isValid() && (index.model() == this), return 0);
@@ -575,6 +650,8 @@ AST::SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) co
             location = getLocation(member);
         } else if (AST::ExpressionNode *expression = node->expressionCast()) {
             location = getLocation(expression);
+        } else if (AST::PropertyNameAndValueList *propertyNameAndValueList = AST::cast<AST::PropertyNameAndValueList *>(node)) {
+            location = getLocation(propertyNameAndValueList);
         }
     }
     return location;
@@ -844,6 +921,14 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) 
     location.length = exprNode->lastSourceLocation().offset
             - exprNode->firstSourceLocation().offset
             + exprNode->lastSourceLocation().length;
+    return location;
+}
+
+AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyNameAndValueList *propertyNode) {
+    AST::SourceLocation location;
+    location.offset = propertyNode->name->propertyNameToken.offset;
+    location.length = propertyNode->value->lastSourceLocation().end() - location.offset;
+
     return location;
 }
 

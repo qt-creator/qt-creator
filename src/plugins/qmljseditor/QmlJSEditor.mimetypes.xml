@@ -14,5 +14,6 @@
         <comment>Qt Script file</comment>
         <glob pattern="*.js"/>
         <glob pattern="*.qs"/>
+        <glob pattern="*.qtt"/>
     </mime-type>
 </mime-info>
